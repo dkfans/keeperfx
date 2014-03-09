@@ -1,0 +1,6036 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file gtext_cze.po
+#      KeeperFX GUI Strings translation file
+#  @par Purpose:
+#      Contains translation of the national strings in the game.
+#  @par Comment:
+#      Use this file to improve the translation for specific language.
+#  @author   KeeperFX Team
+#  @date     25 Dec 2013 - 02 Mar 2014
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************
+msgid ""
+msgstr ""
+"Project-Id-Version: GUI Strings for KeeperFX\n"
+"Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
+"POT-Creation-Date: 2012-09-02 01:12+0200\n"
+"PO-Revision-Date: 2014-03-09 14:15+0100\n"
+"Last-Translator: Ing. Jiří Vejda <jiri.vejda@gmail.com>\n"
+"Language-Team: KeeperFX Team <code.google.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.6.4\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+"Language: cs_CZ\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+
+#. Generic victory message
+#: guitext:0
+msgctxt "In-game message"
+msgid "Success! The land is yours. Press Space to proceed to the next realm."
+msgstr "Úspěch! Uzemí je tvoje. Stisknutím mezerníku se posuneš do dalši říše."
+
+#. Level Eversmile information soon after start
+#: guitext:1
+msgctxt "In-game message"
+msgid "This is a message. Right click to delete it."
+msgstr "Toto je zpráva. Stisknutím pravého tlačítka myši ji smažeš."
+
+#. Level Eversmile first objective
+#: guitext:2
+msgctxt "In-game message"
+msgid ""
+"The first thing a Keeper needs is somewhere to keep gold, when it's been "
+"mined out of the rock by his imps. To create a Treasure Room, select the "
+"Treasure Room icon from the Rooms Panel and fill the empty area to the west "
+"with Treasure Room tiles."
+msgstr ""
+"První věc, kterou Strážce potrebuje, je uskladit zlato, když jej tví skřeti "
+"vydolují ze skal. K tomu abys mohl Pokladnici zřídit, zvol ze záložky "
+"Místnosti ikonu Pokladnice. Symboly pokladnice pak vyplníš volný prostor na "
+"zapadní straně."
+
+#. Level Eversmile information when started building Treasure Room
+#: guitext:3
+msgctxt "In-game message"
+msgid ""
+"Use the cursor keys to see other areas of the underworld. Rotate and zoom "
+"the view with the right ctrl key and cursor keys."
+msgstr ""
+"Kurzorove sipky na klavesnici muzes pouzit na prohlizeni okolnich mistnosti. "
+"Pomoci praveho tlacitka CTRL a kurzorovych sipek muzes take otacet pohled a "
+"menit jeho meritko."
+
+#. Level Eversmile objective when built Treasure Room
+#: guitext:4
+msgctxt "In-game message"
+msgid ""
+"Expertly done. Press the right mouse button to turn the pointer back into "
+"the Hand of Evil. Mine out the gold to the east by tagging the area with the "
+"left mouse button. Your Imps will dig out the gold and carry it back to your "
+"Treasure Room."
+msgstr ""
+"Skvela prace. Stisknutim praveho tlacitka mysi (PTM) ted vratis sipku na "
+"Ruku zla. Vydoluj zlato ve vychodni casti. Oblast pro tezbu oznacis levym "
+"tlacitkem mysi. Tvi skreti z oznacenych prostor vydoluji zlato a odnesou ho "
+"do pokladnice."
+
+#. Level Eversmile information while digging gold
+#: guitext:5
+msgctxt "In-game message"
+msgid ""
+"If you want to make your creatures work harder, slap them by right clicking "
+"the Hand of Evil on them. Slapping will harm your creatures."
+msgstr ""
+"Pokud chces aby tve line potvory pracovaly rychleji, popozenes je kdyz na ne "
+"kliknes pravym tlacitkem mysi s funkci Ruka zla. Docela to funguje."
+
+#. Level Eversmile information while digging gold
+#: guitext:6
+msgctxt "In-game message"
+msgid ""
+"Use the left mouse button to pluck your creatures from the dungeon. Use the "
+"right mouse button to drop them over a room or tile belonging to your "
+"dungeon. Creatures perform the task most relevant to the situation they're "
+"dropped into."
+msgstr ""
+"Levym tlacitkem mysi (LTM) muzes uchopit obludu, pravym ji pak zase pustis "
+"do oblasti nebo mistnosti tveho sklepeni. Potvory ziskaji volnost pohybu a "
+"zacnou se chovat tak, jak to vyzaduje situace."
+
+#. Level Eversmile objective after digging gold
+#: guitext:7
+msgctxt "In-game message"
+msgid ""
+"Greedily done, Keeper. Now, you need to turn some of your dungeon into a "
+"Lair. Lairs are where creatures rest and recover. The area your imps just "
+"mined out would be an ideal spot for some creatures to lurk. Select the Lair "
+"icon from the Rooms Panel."
+msgstr ""
+"Vyborne, Strazce. Nyni budes potrebovat premenit cast tveho sklepeni v "
+"Doupe. Doupata jsou mista, kde obludy odpocivaji a nabyvaji novych sil. Tvi "
+"skreti prave vytezili prostor, ktery je pro tyto ucely idealni. Vyber "
+"polozku Doupe z menu Mistnosti."
+
+#. Level Eversmile objective after Lair built
+#: guitext:8
+msgctxt "In-game message"
+msgid ""
+"Dig a tunnel that connects to the Portal to the north. Portals appear on the "
+"map as flashing squares, until they are claimed. Creatures only use Portals "
+"claimed by a Keeper. Your imps claim a Portal as soon as it connects to your "
+"dungeon."
+msgstr ""
+"Vykopej tunel k Portalu v severni casti sklepeni. Neobsazeny portal je na "
+"mape zobrazen blikajicim polickem. Tve verne obludy budou prichazet pouze "
+"tebou obsazenymi portaly. Skreti portal zaberou v okamziku, kdy je pripojen "
+"k tvemu sklepeni."
+
+#. Level Eversmile objective when digging w/o Treasure Room
+#: guitext:9
+msgctxt "In-game message"
+msgid ""
+"You should build a Treasure Room first. Select the Treasure Room icon from "
+"the Rooms Panel and left click on the tiles in the area to the west of your "
+"Dungeon Heart."
+msgstr ""
+"Nejdriv musis postavit pokladnici. Zvol v menu Mistnosti ikonu Pokladnice a "
+"levym tlacitkem mysi vypln prostor zapadne od stredu sklepeni."
+
+#. Level Eversmile information after some digging
+#: guitext:10
+msgctxt "In-game message"
+msgid ""
+"Pick up creatures by left clicking on them. Drop them by right clicking over "
+"a room or tile belonging to your dungeon. Creatures perform tasks relevant "
+"to the situation they're dropped into."
+msgstr ""
+"Kdyz levym tlacitkem mysi kliknes na obludu, tak ji uchopis. Pote presunes "
+"sipku nad prostor kde chces obludu umistnit a pravym tlacitkem mysi ji zase "
+"vypustis. Potvory se zacnou chovat tak, jak to vyzaduje situace."
+
+#. Level Eversmile information after some digging
+#: guitext:11
+msgctxt "In-game message"
+msgid ""
+"If you want your creatures to work harder, slap them with a right click of "
+"the hand. Your creatures take damage from each slap they receive."
+msgstr ""
+"Pravym kliknutim Rukou zla prinutis tve potvory, aby pracovaly rychleji. "
+"Kazdy takovy uder jim vsak ubere trochu zivota. Rana pesti je holt rana "
+"pesti."
+
+#. Level Eversmile objective after digging gold w/o Treasure Room
+#: guitext:12
+msgctxt "In-game message"
+msgid ""
+"You have not yet built a Treasure Room. Until you build this room, you will "
+"be unable to pay any creatures. Only imps give their loyalty freely. No "
+"other creatures will serve you unpaid."
+msgstr ""
+"Stale jsi nepostavil Pokladnici. Dokud nepostavis pokladnici, tak nemuzes "
+"vyplacet penize tvym sluzebnikum. A protoze krome skretu se tve potvory ridi "
+"heslem ze zadarmo se do prace nechodi, musis postavit pokladnici."
+
+#. Level Eversmile objective after getting first creature
+#: guitext:13
+msgctxt "In-game message"
+msgid ""
+"Your first minion has arrived. It's a giant Fly. It can spit corrosive vomit "
+"at your enemies and its wings grant the hideous insect the speed to "
+"intercept the most nimble trespassers."
+msgstr ""
+"Priletla prvni z tvych vernych. V podstate je to obrovska Moucha. Na nezvane "
+"hosty vrha jedovate zvratky a jeji rychla kridla ji umoznuji zasahnout i ty "
+"nejobratnejsi vetrelce."
+
+#. Level Eversmile objective after getting first beetle
+#: guitext:14
+msgctxt "In-game message"
+msgid ""
+"A Beetle has scuttled into your realm. It's tough enough to absorb a lot of "
+"damage. Like most creatures, Beetles require food. Dig out a new area, "
+"select the Hatchery icon and create your Hatchery. Tasty snacks will soon "
+"emerge from its enchanted soil."
+msgstr ""
+"Ziskal jsi prvniho Brouka. Je pomerne velky a snese velka poskozeni. Brouk, "
+"jako ostatne vetsina oblud, potrebuje take neco k jidlu. Proto vykopej novy "
+"prostor, zvol ikonu Kurnik a kurnik tam zaloz. V kurniku se brzo objevi i "
+"zradlo pro brouky."
+
+#. Level Eversmile objective after Hatchery built
+#: guitext:15
+msgctxt "In-game message"
+msgid ""
+"Imps fortify your walls to prevent intruders tunnelling in. If you want to "
+"create more imps, go to the Research Panel, select the Imp icon and left "
+"click anywhere in your dungeon. Each Imp you create costs more than the "
+"previous one."
+msgstr ""
+"Skreti mohou vyztuzit zdi sklepeni, aby se vetrelci k tobe nemohli prokopat "
+"tunelem. Pokud chces mit vice skretu, jdi do menu Vyzkum a klikni na ikonu "
+"Skreti. Pak klikni levou mysi kamkoliv v tvem sklepeni. Kazdy skret navic "
+"vsak stoji vice zlata nez ten predchozi."
+
+#. Level Eversmile information after having few creatures
+#: guitext:16
+msgctxt "In-game message"
+msgid ""
+"Why not have a handful of creatures ready to drop on top of intruders? To "
+"pick up creatures quickly, left click on them from within the Creatures "
+"Panel. You can only drop creatures within the confines of your own dungeon."
+msgstr ""
+"Vetrelce jiste potesi, kdyz se kolem nich nahle objevi houf tvych bojovniku. "
+"Rychly vyber bojovniku provedes tak, ze na ne kliknes v menu Obludy. Muzes "
+"je vsak vypustit pouze na uzemi, ktere je ve tvem drzeni."
+
+#. Level Eversmile objective some time after all rooms are built
+#: guitext:17
+msgctxt "In-game message"
+msgid ""
+"Intruders approach. They seek gaps in your fortifications, in order to gain "
+"entry to your dungeon. A white trail on the map indicates their progress. "
+"Click the icon at the top of the Control Panel to see a bigger map."
+msgstr ""
+"Blizi se nepratele. Snazi se proniknout do tveho sklepeni a proto hledaji "
+"slaba mista tve obrany. Jejich pohyb je na mape vyznacen bilou stopou. V "
+"horni casti menu Ovladani si muzes vysek mapy zvetsit."
+
+#. Level Eversmile objective after first wave defeat
+#: guitext:18
+msgctxt "In-game message"
+msgid ""
+"Savour your first victory while you can. You have attracted the wrath of the "
+"Lord of this realm. His party will soon be here."
+msgstr ""
+"Vychutnej si sve prvni vitezstvi, dokud mas cas. Prilakal jsi totiz na sebe "
+"hnev Vladce zdejsiho kralovstvi. Urcite se brzo prizene se svou druzinou."
+
+#. Level Eversmile objective when LOTL comes
+#: guitext:19
+msgctxt "In-game message"
+msgid ""
+"The Lord of the Land has arrived. I can smell his fear. Defeat him and the "
+"realm is yours."
+msgstr ""
+"Prave dorazil vladce tohoto kralovstvi. Je jasne citit jeho strach. Asi se "
+"dost poti. Poraz ho a kralovstvi je tvoje."
+
+#. Level Eversmile objective after LOTL defeat
+#: guitext:20
+msgctxt "In-game message"
+msgid ""
+"Your work here is done. Now there is no-one to prevent you from obliterating "
+"this nauseating realm and expanding your empire into a neighbouring land. "
+"Nice."
+msgstr ""
+"Tvá práce zde je u konce. Ted uz tu neni nikoho kdo by ti mohl zabranit ve "
+"zniceni zdejsi rise. Ale potoze casy jsou zle, mel by ses vrhnout na "
+"sousedni kralovstvi."
+
+#. Level Eversmile objective when having no Imps
+#: guitext:21
+msgctxt "In-game message"
+msgid ""
+"You require more Imps. Use the Create Imp spell to conjure them into your "
+"domain. Remember, each Imp you create is more expensive than the last."
+msgstr ""
+"Potrebujes vice skretu. Pouzitim kouzla Vytvorit skreta je pricarujes do "
+"sveho sklepeni. Pamatuj ale, ze kazdy skret je drazsi nez ten predchozi."
+
+#. Level Cosyton information soon after start
+#: guitext:22
+msgctxt "In-game message"
+msgid ""
+"When Imps have no other orders, they run around reinforcing your dungeon. "
+"Fortified walls keep out intruders. Rooms with reinforced walls make your "
+"creatures feel more at home and heroes more terrified."
+msgstr ""
+"Pokud skreti nemaji nic na praci, zpevnuji steny tveho sklepeni. Zpevnene "
+"steny dokazi zadrzet vetrelce. V mistnostech se zpevnenymi stenami se navic "
+"tve obludy citi jisteji a vetrelci maji naopak vetsi strach."
+
+#. Level Cosyton information soon after start
+#: guitext:23
+msgctxt "In-game message"
+msgid ""
+"Possess creatures by choosing the Possess spell from the Research Panel and "
+"left-clicking on the creature you want to control. Right-click to leave the "
+"creature again."
+msgstr ""
+"Sve bojovniky muzes take ovladat. V menu Vyzkum zvol kouzlo Ovladnuti a "
+"kliknutim leve mysi urcis obludu, kterou chces ovladat. Pravym tlacitkem "
+"zase obludu uvolnite."
+
+#. Level Cosyton first objective
+#: guitext:24
+msgctxt "In-game message"
+msgid ""
+"Remember the lessons you learned in Brana Hauk. You must build a Treasure "
+"Room, a Lair and a Hatchery and you will need to claim a Portal. Build rooms "
+"in squares of at least nine tiles to increase the efficiency of the room."
+msgstr ""
+"Vzpomen si, co jsi se naucil v Brana Hauku. Musis postavit pokladnici, doupe "
+"a Líheň a budes potrebovat zabrat portal. Postav čvercové mistnosti velike "
+"nejmene na devet poli, aby se zvýšila jejich ucinnost."
+
+#. Level Cosyton objective after basic rooms built
+#: guitext:25
+msgctxt "In-game message"
+msgid ""
+"You will need to make your creatures stronger. In a Training Room, your "
+"creatures can hone their fighting skills, gain new abilities and learn more "
+"powerful spells."
+msgstr ""
+"Jiste budes potrebovat mit sve sluzebniky silnejsi. Postav Ucebnu, kde tve "
+"prisery ziskaji bojove zkusenosti, ziskaji nove schopnosti a nauci se "
+"silnejsi kouzla."
+
+#. Level Cosyton objective after Training Room built
+#: guitext:26
+msgctxt "In-game message"
+msgid ""
+"Your plan proceeds smoothly, keeper. Allow your Imps time to fortify the "
+"walls of your dungeon. This increases the efficiency of rooms and repels "
+"would-be invaders."
+msgstr ""
+"Zatim to jde jako po masle. Dej ale svym skretum cas aby zpevnili steny "
+"tvych sklepeni. To zvysi ucinnost mistnosti a mozna odradi nepratele."
+
+#. Level Cosyton information after Training Room built
+#: guitext:27
+msgctxt "In-game message"
+msgid ""
+"The Training Room attracts ever more ferocious creatures, such as Demon "
+"Spawn. Build it and they will come."
+msgstr ""
+"Zrizenim Ucebny prilakas nove, silnejsi obludy, napriklad Demonsky poter. "
+"Postav tedy Ucebnu a oni urcite prijdou."
+
+#. Level Cosyton information after attracting Demon Spawn
+#: guitext:28
+msgctxt "In-game message"
+msgid ""
+"To train creatures, drop them in the Training Room. The number that "
+"occasionally appears above a creature's head indicates how much gold it has "
+"cost for that creature to train."
+msgstr ""
+"Aby se obludy vycvicily, musis je prelozit do ucebny. Cislo ktere se pritom "
+"objevi nad jeji hlavou znamena, kolik penez uz trenovani obludy stalo."
+
+#. Level Cosyton information some time after Demon Spawn
+#: guitext:29
+msgctxt "In-game message"
+msgid ""
+"You can train creatures more rapidly by slapping them as they work out in "
+"the Training Room."
+msgstr "Uderem je muzes prinutit, aby se ucily rychleji."
+
+#. Level Cosyton objective soon after 2nd Demon Spawn
+#: guitext:30
+msgctxt "In-game message"
+msgid ""
+"Heroes are already on their way. Make sure your creatures are well trained "
+"and ready for the attack. The heroes you will face in this realm are tougher "
+"than those you met beneath Brana Hauk."
+msgstr ""
+"Hrdinove uz jsou na ceste. Ujisti se ze tvy bojovnici jsou dostatecne silni "
+"a priprav se na utok. Tito nepratele jsou totiz silnejsi nez ti, ktere jsi "
+"pobil v Brana Hauku."
+
+#. Level Cosyton objective after defeating LOTL (option 1)
+#: guitext:31
+msgctxt "In-game message"
+msgid ""
+"Harder the heroes may have been but they were obviously no match for your "
+"forces."
+msgstr "No, tihle mozna byli silejsi ale ty jsi byl jeste lepsi. Jen tak dal."
+
+#. Level Cosyton objective after AP reached
+#: guitext:32
+msgctxt "In-game message"
+msgid ""
+"The heroes are on their way. Make sure your creatures are well trained and "
+"ready for the attack."
+msgstr ""
+"Hrdinove uz jsou na ceste. Ujisti se ze tvy bojovnici jsou dostatecne silni "
+"a priprav se na utok."
+
+#. Level Cosyton objective after defeating LOTL (option 2)
+#: guitext:33
+msgctxt "In-game message"
+msgid "Congratulations. You have conquered the enemy hordes."
+msgstr "Gratuluji. Porazil jsi všechny nepřátele."
+
+#. Level Waterdream Warm first objective
+#: guitext:34
+msgctxt "In-game message"
+msgid ""
+"Build a dungeon with a Treasure Room, a Lair, a Hatchery and a Training "
+"Room. Make sure they're all big enough. Cramped conditions do nothing for "
+"the morale of your minions."
+msgstr ""
+"Postav sklepení s Pokladnicí, Doupětem, Líhní a Tréningovou místností. "
+"Ujisti se, že jsou dostatečně veliké. Stísněné podmínky nedělají tvým "
+"miláčkům dobře."
+
+#. Level Waterdream Warm objective after basic 5 rooms are built/claimed
+#: guitext:35
+msgctxt "In-game message"
+msgid ""
+"The time has come to build a Library. Libraries are where new devices, room "
+"designs and magic spells are researched. Make a Library at least as big as "
+"the other rooms. Researchers like quiet too, so try to build your Library "
+"off the side of a corridor."
+msgstr ""
+"Nastal čas postavit Knihovnu. Knihovna je misto, kde se vynalézají nové "
+"zařízení, druhy místností a kouzla. Udělej ji prinejmenším tak velkou jako "
+"ostatní místosti. Badatelé také vyžadují klid, proto zkus postavit knihovnu "
+"někde mimo hlavní chodbu."
+
+#. Level Waterdream Warm information after started building library
+#: guitext:36
+msgctxt "In-game message"
+msgid ""
+"Your new Library will attract creatures like Warlocks, who are interested in "
+"researching magic and dungeon designs. These evil mages are real bookworms, "
+"as well as being magically proficient themselves."
+msgstr ""
+"Nova knihovna prilaka stvoreni jako napriklad Kouzelniky, kteri se zabyvaji "
+"studiem magie a vybaveni sklepeni. Tito cerni magove casto lezi v magickych "
+"knihach, proto take pouzivaji silna kouzla."
+
+#. Level Waterdream Warm objective after finished building library
+#: guitext:37
+msgctxt "In-game message"
+msgid ""
+"That's a fine collection of parchments and tomes you've assembled. Most "
+"creatures can engage in research but Warlocks make the best and keenest "
+"researchers. Stupid Trolls have trouble holding books the right way up and "
+"sometimes even chew the pages."
+msgstr ""
+"Vyborne, poridil jsi peknou sbirku kouzelnych svitku a knih. Vyzkumu se sice "
+"muze venovat vetsina stvoreni ve Sklepeni, ale stejne nejlepsimi vyzkumniky "
+"jsou Kouzelnici. Napriklad takovi polodebilni Trolove casto ani nevedi jak "
+"spravne drzet knihu a navic z ni obcas vytrhnou nejakou tu stranku."
+
+#. Level Waterdream Warm objective after attracting warlock
+#: guitext:38
+msgctxt "In-game message"
+msgid ""
+"The scent of arcane knowledge has lured a greedy Warlock into your dungeon. "
+"Don't forget to train your Warlocks occasionally. Their spell casting "
+"abilities make them fine long range fighters."
+msgstr ""
+"Do tveho sklepeni dorazil v predtuse ziskani novych kouzel a dovednosti Mag. "
+"Doporucuji magy obcas vycvicit a zvysit tak uroven jejich dovednosti. "
+"Vzhledem k tomu ze umi kouzlit, je vhodne je pouzivat jako bojovniky na "
+"vetsi vzdalenosti."
+
+#: guitext:39
+msgctxt "In-game message"
+msgid ""
+"The first wave of attackers lie hacked to pieces on the floor and give your "
+"domain that lived in feeling but it surely won't be long before their kin "
+"launch another assault."
+msgstr ""
+"Tvi bojovnici roztrhali prvni utocniky na kusy. Ted ale nesmis usnout na "
+"vavrinech. Nebude dlouho trvat a prijdou dalsi kandidati na sezrani."
+
+#: guitext:40
+msgctxt "In-game message"
+msgid ""
+"You meet with success yet again, Keeper. All those corpses will keep your "
+"Hatchery's topsoil fertile. They also serve as warnings to other foolhardy "
+"adventurers, of course."
+msgstr ""
+"Opet jsi dosahl vitezstvi. Zbytky tel nepratel poslouzi v kurniku jako "
+"krmeni a navic samozrejme poslouzi jako varovani ostatnim dostatecne hloupym "
+"dobrodruhum."
+
+#: guitext:41
+msgctxt "In-game message"
+msgid ""
+"All is quiet again. Use this time to ready yourself for the next attacks. "
+"The enemy is only regrouping. It is not yet defeated."
+msgstr ""
+"Zvlastni, to ticho kolem. Ale radsi se priprav na dalsi utoky. Nepritel jen "
+"nabira nove sily a jeste zdaleka neni porazen."
+
+#: guitext:42
+msgctxt "In-game message"
+msgid ""
+"Is that Imp playing football with a decapitated head? Stay alert, Keeper."
+msgstr "Ten skret snad hraje fotbal s utrzenou hlavou?! Dej si pozor!"
+
+#: guitext:43
+msgctxt "In-game message"
+msgid "Now would be an excellent time to train a Warlock."
+msgstr "Ted je ten pravy cas vycvicit kouzelnika."
+
+#: guitext:44
+msgctxt "In-game message"
+msgid ""
+"Already your research bears fruit. The Speed Creature spell has been "
+"perfected. Cast it on a creature and observe the dramatic increase in its "
+"speed. The effect wears off after a while."
+msgstr ""
+"Vyzkum zacina prinaset vysledky. Vedci prave dokoncili kouzlo Zrychlit "
+"obludu. Pouzij ho na nektere z tvych stvoreni a zpozorujes jeji velke "
+"zrychleni. Ucinek kouzla vsak po jiste dobe odezni."
+
+#: guitext:45
+msgctxt "In-game message"
+msgid ""
+"Build up your dungeon with the rooms available to you and claim the Portal "
+"nearby but do not yet venture north. Powerful adversaries lurk there. It "
+"would be wiser not to disturb them until you are prepared."
+msgstr ""
+"Postav Sklepeni se vsemi potrebnymi mistnostmi a zaber portal, ktery se "
+"nachazi pobliz. Nepostupuj vsak na sever, narazis zde na silne protivniky. "
+"Bude moudrejsi se na ne nejdriv radne pripravit."
+
+#: guitext:46
+msgctxt "In-game message"
+msgid ""
+"Clever research has given your Imps the engineering skill to build Bridges. "
+"You will need Bridges to cross some of the more hazardous underworld terrain."
+msgstr ""
+"Vedci vykoumali zpusob, jakym tvi skreti mohou stavet Mosty. Mosty jsou "
+"potreba pri prekonavani nebezpecneho terenu v podzemí."
+
+#: guitext:47
+msgctxt "In-game message"
+msgid ""
+"A study of dungeon designs reveals that Workshops manufacture essential "
+"furniture, such as Doors and Traps. If your Workshop occupies a square of at "
+"least nine tiles, its mere presence will lure the underworld's finest "
+"artisans into your dungeon."
+msgstr ""
+"Studiem vybaveni sklepeni vedci zjistili, ze Dilna muze produkovat dulezite "
+"veci, jako napriklad dvere a pasti. Pokud je dilna velika minimalne devet "
+"poli, tak muze prilakat do tveho sklepeni nejlepsi remeslniky podzemi."
+
+#: guitext:48
+msgctxt "In-game message"
+msgid ""
+"To manufacture Traps and Doors in your Workshop you will need to assign "
+"creatures to it, by dropping them into the room. Manufactured items can be "
+"selected from the Workshop Panel as soon as they're ready."
+msgstr ""
+"Aby jsi v Dílně vyrobil pasti a dveře, je třeba do ní přiřadit nějaké tvory "
+"jecjich vhozením do místnosti. Vyrobené předměty můžeš vybrat ze záložky "
+"Dílna jakmile budou připraveny."
+
+#: guitext:49
+msgctxt "In-game message"
+msgid ""
+"When your troops are sufficient in number and have had some training, lead "
+"them north and crush any who oppose you."
+msgstr ""
+"Jakmile mas dost kvalitne vycvicenych vojaku, prokopej se na sever a podivej "
+"se na zoubek nepratelum, ktere zde najdes."
+
+#: guitext:50
+msgctxt "In-game message"
+msgid ""
+"You will have to find a way to cross the river of molten lava that bars your "
+"way."
+msgstr ""
+"Musis nejakym zpusobem prekrocit proud zhave lavy, ktery ti stoji v ceste."
+
+#: guitext:51
+msgctxt "In-game message"
+msgid ""
+"The enemy's Dungeon Heart throbs before you. Assemble your minions nearby "
+"and administer the coup de grace."
+msgstr ""
+"Pred tebou lezi srdce nepratelskeho sklepeni. Shromazdi sve miniony a udelej "
+"to, co musis udelat."
+
+#: guitext:52
+msgctxt "In-game message"
+msgid ""
+"A Troll has joined you. Skilled in the craft of manufacturing, trolls are "
+"best employed doing dark deeds in your Workshop. They don't complain about "
+"the hours, because their labours keep them away from combat."
+msgstr ""
+"Mezi tve sluzebniky se pridal i Trol. Je to pilny pracovnik a proto by bylo "
+"nejlepsi jej zamestnat v tve dilne. Navic neumi moc dobre bojovat."
+
+#: guitext:53
+msgctxt "In-game message"
+msgid ""
+"With the enemy Dungeon Heart in ruins, you have trounced the once proud "
+"opposition. Rule your new domain with terror and loathing, for a laugh."
+msgstr ""
+"Znicenim Srdce sklepeni jsi znicil sveho nepritele. Obsad dobita uzemi a "
+"nastol desivy teror a bezpravi."
+
+#: guitext:54
+msgctxt "In-game message"
+msgid ""
+"Your Workshop has created a Wooden Door. Placed in a corridor, it restricts "
+"access to the enemy. Your creatures may pass freely. Lock or unlock Doors by "
+"clicking over them with the left mouse button."
+msgstr ""
+"Ve tvé Dílně prave vyrobili Drevene dvere. Umistnenim techto dveri do chodby "
+"znemoznis nepratelum pruchod. Tvé stvoření jimi mohou volně prochazet. "
+"Kliknutim levým tlačítkem myši nad dveřmi je můzeš zamknout či odemknout."
+
+#: guitext:55
+msgctxt "In-game message"
+msgid ""
+"Your Workshop has produced a Poison Gas trap. Position it and, when an "
+"intruder sets it off, it will envelop the area in deadly vapours."
+msgstr ""
+"V dilne se podarilo sestrojit Past s jedovatym plynem. Pokud tuto past "
+"vetrelci spusti, budou okamzite zahaleni oblaky jedovateho plynu."
+
+#: guitext:56
+msgctxt "In-game message"
+msgid ""
+"You have researched the Call to Arms spell. The first time you cast it, your "
+"creatures gather around a banner created by the spell. Cast it again in a "
+"target area. Call to Arms only costs gold when it's targetted beyond your "
+"territory."
+msgstr ""
+"V knihovne vyvinuli nove kouzlo Mobilizace. Prvni pouziti tohoto kouzla "
+"vytvori znameni, okolo ktereho se shromazdi tve obludy. Pak staci znovu "
+"kouzlo pouzit tam, kde chces mit sve vojaky. Pokud posles vojaky za hranice "
+"tveho uzemi, bude te to stat nejake penize."
+
+#: guitext:57
+msgctxt "In-game message"
+msgid ""
+"Another Keeper controls this underworld realm. His dungeon lies to the "
+"north. If you are to entice creatures to work for you instead of him, you "
+"will have to build a more magnificent dungeon. Get on with it then."
+msgstr ""
+"Zda se, ze mas konkurenci. Na sever lezi dalsi sklepeni, ve kterem se snazi "
+"jiny Strazce. Pokud se ti podari primet obludy aby nepracovaly pro nej ale "
+"pro tebe, budes schopen vytvorit vetsi a lepsi sklepeni. Takze do toho!"
+
+#: guitext:58
+msgctxt "In-game message"
+msgid ""
+"You have slain your rival. His defeat is a testimony to your clever dungeon "
+"design. You have the makings of a Dungeon Keeper worthy of the name."
+msgstr ""
+"Tvuj rival je porazen. Jeho porazka svedci o kvalitnim vybaveni tvych "
+"sklepeni. Dokazal jsi ze jsi hoden nosit titul Strazce."
+
+#: guitext:59
+msgctxt "In-game message"
+msgid ""
+"A Bile Demon chooses to side with you. Bile Demons demand large Lairs and "
+"ample Hatcheries. These corpulent monstrosities attack somewhat "
+"unconventionally."
+msgstr ""
+"Do tvych sluzeb se rozhodl vstoupit Divy demon. Divi demoni vyzaduji velka "
+"doupata a bohate kurniky. Tyto zavalite stvury utoci na nepratele ponekud "
+"zvlastnim zpusobem."
+
+#: guitext:60
+msgctxt "In-game message"
+msgid ""
+"Your loyal researchers have perfected the Sight of Evil spell. Cast it on an "
+"unexplored area and it will be revealed to you for a moment."
+msgstr ""
+"Tvi vedci zaznamenali dalsi uspech a vytvorili kouzlo Oko zla. Toto kouzlo "
+"ti docasne odhali neprozkoumana uzemi"
+
+#: guitext:61
+msgctxt "In-game message"
+msgid ""
+"You have claimed a Prison. Select imprison from the Information Panel and "
+"your creatures subdue their foe, at which point your imps drag the bodies "
+"off to a cell. Prisoners who die of starvation may rise again as Skeleton "
+"warriors for you to command."
+msgstr ""
+"Zabral jsi Hladomornu. Z informacniho menu si zvol polozku Uveznit a tvi "
+"skreti odvlecou omracene nepratele do hladomorny. Vezni, kteri v hladomorne "
+"zemrou mohou byt znovu oziveni a budou pro tebe bojovat jako Kostlivci."
+
+#: guitext:62
+msgctxt "In-game message"
+msgid ""
+"Your dedicated librarians have designed a Guard Post. Place a Guard Post in "
+"a strategically important area and assign creatures to occupy it by dropping "
+"them there."
+msgstr ""
+"Vedci vyvinuli technologii stavby Straznice. Straznice bys mel stavet na "
+"strategicky vyznamnych mistech. V straznici musi byt take strazni. Temi muze "
+"byt kterakoliv obluda, kterou preneses do straznice."
+
+#: guitext:63
+msgctxt "In-game message"
+msgid ""
+"A Spider has joined your dungeon. They are natural enemies of Flies, so "
+"endeavour to keep them apart. Overcoming such obstacles will temper your "
+"mettle - whatever that means."
+msgstr ""
+"Do tveho sklepeni dorazil Pavouk. Pavouci jsou prirozeni nepratele much, "
+"proto se snaz drzet mouchy a pavouky oddelene od sebe."
+
+#: guitext:64
+msgctxt "In-game message"
+msgid ""
+"It's time to mete out the ultimate punishment to a keeper who dares to "
+"challenge you for this corner of your subterranean empire. The price of "
+"failure shall be oblivion."
+msgstr ""
+"Nastal cas ztrestat troufaleho strazce, ktery se odvazil ziskat tuto cast "
+"tve podzemni rise. Odplatou mu budiz vecne zapomeni."
+
+#: guitext:65
+msgctxt "In-game message"
+msgid ""
+"How satisfying it is to see an enemy Keeper's dungeon crumble and his power "
+"dissipate. There'll be no controversy over this year's hall of infamy "
+"nomination."
+msgstr ""
+"Jak sladky je pohled na pokoreneho nepratelskeho Strazce. Neni pochyb o tom, "
+"kdo letos provadi nejdabelstejsi kousky."
+
+#: guitext:66
+msgctxt "In-game message"
+msgid ""
+"You have claimed a Torture Room. Place captive heroes and creatures into "
+"this chamber of horrors to convert them to your supremely evil way. "
+"Alternatively, place your own creatures within the room whenever "
+"disciplinary measures become necessary."
+msgstr ""
+"Obsadil jsi Mucirnu. Do mucirny je dobre vsazovat zajate bojovniky a obludy "
+"a nakladat s nimi podle tvych nejzvrhlejsich predstav. Pro utuzeni "
+"discipliny muzes do mucirny odvlect i sve vlastni obludy."
+
+#: guitext:67
+msgctxt "In-game message"
+msgid ""
+"You have finally constructed a dungeon impressive enough to attract a Dark "
+"Mistress. You must discipline these wicked wenches frequently. They respond "
+"particularly well to a good slapping."
+msgstr ""
+"Podařilo se ti konečně vytvořit kobku dost rozsáhlou abys přilákal Temnou "
+"milenku"
+
+#: guitext:68
+msgctxt "In-game message"
+msgid ""
+"Your manufacturers have created a Braced Door. If security matters, you can "
+"be sure when you buy a Braced Door. You couldn't be certain with only a "
+"curtain and a hole in the wall is no help at all."
+msgstr ""
+"V dilne vyrobili Zpevnene dvere. Pokud chces neco bezpecne zajistit, zamkni "
+"to za zpevnenymi dvermi."
+
+#: guitext:69
+msgctxt "In-game message"
+msgid ""
+"Your researchers have devised a spell that unleashes the energy of a "
+"thunderstorm on the target of your choice. Select the spell, aim at a "
+"hostile creature and flash-fry him with a Lightning Strike."
+msgstr ""
+"Tvi vyzkumnici ti nabizi dalsi nove kouzlo, ktere vrhne na libovolne "
+"nepratele silny proud energie. Vyber toto kouzlo, zamer nepritele a usmaz ho "
+"oslnivym Bleskem."
+
+#: guitext:70
+msgctxt "In-game message"
+msgid ""
+"You have manufactured a powerful Lightning Trap. Try it out. It's bound to "
+"give someone a shock."
+msgstr ""
+"Vyrobil jsi Past s blesky. Urcite stoji za vyzkouseni. Pokud ji nekdo "
+"spusti, zpusobi mu tato past doslova sokujici prekvapeni."
+
+#: guitext:71
+msgctxt "In-game message"
+msgid ""
+"It appears you have arrived in the middle of a raging battle. Perhaps it "
+"would be wise to stay out of the way until you are strong enough to "
+"eliminate both sides."
+msgstr ""
+"Vpadl jsi doprostred zurici bitvy. Mozna bude moudrejsi vyckat do doby, nez "
+"budes chopen porazit obe bojujici strany."
+
+#: guitext:72
+msgctxt "In-game message"
+msgid ""
+"An Orc warlord joins you and brings with him the plans for building a "
+"Barracks. In this room you can form creatures into teams."
+msgstr ""
+"Na tvou stranu se pridal Orcky valecnik a prinesl s sebou plany na stavbu "
+"Kasaren. V tomto zarizeni muzes sve obludy formovat do bojovych skupin."
+
+#: guitext:73
+msgctxt "In-game message"
+msgid ""
+"I think I hear the clanking of plate armour. Yes, the Lord of the Land has "
+"finally roused himself from the fireside to find out where all his loyal "
+"servants have gone."
+msgstr ""
+"Mam pocit ze slysim rinceni tepane zbroje. To Vladce teto zeme se svou "
+"druzinou opustil teplo domaciho krbu a vydal se zjistit, kde se ztraci jeho "
+"bojovnici."
+
+#: guitext:74
+msgctxt "In-game message"
+msgid ""
+"You have turned local heroes into something of an endangered species, now "
+"make the enemy Dungeon Keeper extinct."
+msgstr ""
+"Diky tobe se z mistnich hrdinu stal vymirajici druh. Myslim, ze ted je pravy "
+"cas si pohrat s nepratelskym Strazcem."
+
+#: guitext:75
+msgctxt "In-game message"
+msgid ""
+"You have prevailed, Keeper. The bodies of your enemies litter the most "
+"forlorn alcoves of your domain, in tribute to their futile efforts to keep "
+"you at bay."
+msgstr ""
+"Zvitezil jsi, Strazce a tela tvych nepratel se povaluji v nejzapomenutejsich "
+"castech tvych sklepeni. Je to dan za jejich marnou snahu te pokorit."
+
+#: guitext:76
+msgctxt "In-game message"
+msgid ""
+"Seek out the one who would be your rival in this region of the underworld. "
+"Explain the concept of early retirement to him. On the other hand, string "
+"him up. It's in the only language he understands."
+msgstr ""
+"Ve zdejsich temnych chodbach existuje nekdo, kdo by ti mohl byt dustojnym "
+"souperem. Pokus se mu vysvetlit, ze je zde misto pouze pro jednoho strazce. "
+"Jenze on tomu asi nebude chtit rozumet, proto mam jeste pripraven plan B. "
+"Zabij ho."
+
+#: guitext:77
+msgctxt "In-game message"
+msgid ""
+"You have researched the power of Invisibility. Cast it on a creature to hide "
+"it from enemy eyes."
+msgstr ""
+"Ziskal jsi kouzlo Neviditelnost. Pusobenim tohoto kouzla ucinis vybranou "
+"obludu neviditelnou."
+
+#: guitext:78
+msgctxt "In-game message"
+msgid ""
+"The Protect Creature spell has been researched at last. Cast it on a "
+"creature to increase its toughness."
+msgstr ""
+"Vedci vyvinuli kouzlo Ochranit obludu. Obluda na kterou toto kouzlo pouzijes "
+"vydrzi vice uderu."
+
+#: guitext:79
+msgctxt "In-game message"
+msgid ""
+"That's another enemy successfully written off. The defenceless inhabitants "
+"of the land above bow down before your depraved presence. As if that will "
+"save them..."
+msgstr ""
+"Rozmazl jsi dalsiho nepritele. Ubozi bezbrani obyvatele krajiny nad tebou "
+"sklaneji sve hlavy pred tvym hnevem. Asi si mysli, ze je to zachrani..."
+
+#: guitext:80
+msgctxt "In-game message"
+msgid ""
+"Researchers have found instructions for building a Temple to the dark gods. "
+"Sacrifice creatures in the Temple's pool to receive gifts from these gods. "
+"You might have to experiment with the offerings you make. The dark gods are "
+"not easy to please."
+msgstr ""
+"Vyzkumnici objevili plany na stavbu Chramu. V chramu muzes temnym bohum "
+"obetovat ruzna stvoreni. Tyto bozstva se ti pak mohou odmenit. Bohy ale neni "
+"snadne uspokojit."
+
+#: guitext:81
+msgctxt "In-game message"
+msgid ""
+"This realm is ruled by four arrogant Wizards who think they've got "
+"everything under control, because their feeble magical power impresses the "
+"locals. But you're not from these parts..."
+msgstr ""
+"Tomuto kralovstvi vladnou ctyri arogantni Magove. Protoze zdejsi lide se "
+"obavaji jejich iluzionistickych triku, tak maji ti ctyri pocit ze jsou "
+"neomezenymi vladci."
+
+#: guitext:82
+#, fuzzy
+msgctxt "In-game message"
+msgid ""
+"Well, you're done down here. Time to introduce yourself to the locals and re-"
+"organise their nice little lives."
+msgstr "Je nacase jim vysvetlit, jak se veci maji."
+
+#: guitext:83
+msgctxt "In-game message"
+msgid ""
+"Behold, you have summoned a Horned Reaper. Try not make it angry. You'll "
+"fail, because everything makes a Horned Reaper angry but at least try to "
+"make sure that everything near it is an enemy creature when it finally goes "
+"ballistic."
+msgstr ""
+"Dej si pozor, protoze jsi prave prilakal Rohateho sekace. Snaz se ho "
+"nerozlitit. Ale bude to marna snaha, protoze Sekace nastve snad vsechno. "
+"Proto kdyz uz se sekac rozjede, dbej na to aby kolem nej byli hlavne tvi "
+"nepratele."
+
+#: guitext:84
+msgctxt "In-game message"
+msgid ""
+"Your researchers have concocted a Disease spell. Cast it on enemy creatures "
+"and watch the affliction spread like the plague."
+msgstr ""
+"Vedci objevili kouzlo Choroba. Pouzij toto kouzlo na nepratelske obludy a "
+"pokochej se utrpenim a smrtelnymi krecemi tvych nepratel."
+
+#: guitext:85
+msgctxt "In-game message"
+msgid ""
+"A Vampire has risen from your Graveyard, nourished by the souls of the dead "
+"which have been brought here. You have to suck up to Vampires or they go off "
+"in a huff, but they're extremely powerful and fearsome underlings to have in "
+"your employ."
+msgstr ""
+"Nespasene duse hrdinu, hnijicich na tvem hrbitove, daly vzniknout Upiru. "
+"Bohuzel, upiri mivaji zvlastni stravovaci navyky. Pokud jses ochoten se s "
+"tim smirit, ziskas na svou stranu silneho a strasliveho sluzebnika."
+
+#: guitext:86
+msgctxt "In-game message"
+msgid ""
+"You have researched the Graveyard. Your Imps will drag corpses here to "
+"rot... And possibly to rise again as Vampires, ready to do your bidding. "
+"That's style."
+msgstr ""
+"Vedci vyvinuli plany na stavbu Hrbitova. Na hrbitov nosi tvi skretove tela "
+"mrtvych nepratel, aby tam shnila. Cas od casu nektera tela opet povstanou "
+"jako Upiri, pripraveni plnit tve rozkazy."
+
+#: guitext:87
+msgctxt "In-game message"
+msgid ""
+"You have manufactured an Iron Door. It's a formidable barrier. Use it well."
+msgstr ""
+"V dilne vyrobili Zelezne dvere. Tyto dvere jsou vskutku velice odolne. "
+"Použij je dobře."
+
+#: guitext:88
+msgctxt "In-game message"
+msgid ""
+"Powerful creatures inhabit a cave south of here. There's a party of heroes "
+"between you and them but, if you reach them and convert them to your side "
+"before they join the other keepers, you will be unstoppable, unless you do "
+"something stupid."
+msgstr ""
+"Jeskyni na jih od tveho sklepeni obyvaji straslive nestvury. Mezi touto "
+"jeskyni a tebou je vsak jeste skupina hrdinu. Pokud se ti nejak podari tuto "
+"skupinu ovladnout drive, nez tak ucini jini strazci, stanes se temer "
+"neporazitelnym. Pokud ovsem neprovedes nejakou hloupost."
+
+#: guitext:89
+msgctxt "In-game message"
+msgid ""
+"You have overcome all resistance to your rule, O despicable one. It's time "
+"to flex the old misery muscle on the pathetic inhabitants of the land above."
+msgstr ""
+"Rozdrtil jsi vsechen odpor, o Hnusny. Ted se muzes pobavit mrzkymi obyvateli "
+"tam nahore."
+
+#: guitext:90
+msgctxt "In-game message"
+msgid ""
+"You have a manufactured a Boulder Trap. Place it in a corridor and howl "
+"deliriously as it rumbles inexorably towards unwary trespassers."
+msgstr ""
+"V dilne prave zkonstruovali Kamennou past. Tato past se umistuje do chodby a "
+"vypousti velke kamenne koule. Tobe pak uz zbyva jen sledovat, jak vypustene "
+"koule drti neopatrne vetrelce."
+
+#: guitext:91
+msgctxt "In-game message"
+msgid ""
+"With typical brilliance, you have researched the Cave-In spell. Use it to "
+"block off passages and repair dungeon breaches. Interestingly, the rockfall "
+"will crush to death any creatures caught beneath it."
+msgstr ""
+"Vedci vyzkoumali kouzlo Zaval. Toto kouzlo se da pouzit k zablokovani chodeb "
+"a k oprave prulomu v tvych sklepenich. Na tomto kouzlu je zajimavy fakt, ze "
+"zabije jakekoliv stvoreni ktere zaval zasahne."
+
+#: guitext:92
+msgctxt "In-game message"
+msgid ""
+"Your tireless librarians have researched the Scavenger Room. Creatures "
+"placed within a Scavenger Room will lure their kin from other dungeons and "
+"the outside world, into your domain."
+msgstr ""
+"Tvi neunavni vedci objevili plany na stavbu Ocistne mistnosti. Pokud do teto "
+"mistnosti umistis nejakou obludu, ta zacne k tobe lakat z jinych sklepeni ci "
+"svetu obludy podobne jejimu druhu."
+
+#: guitext:93
+msgctxt "In-game message"
+msgid ""
+"Your great wealth has bought the loyalty of a passing Dragon. They are "
+"fickle creatures. Keep your eye on this one."
+msgstr ""
+"Diky svemu bohatstvi jsi ziskal do svych sluzeb potulneho Draka. Draci jsou "
+"nevypocitatelni, proto na ne davej dobry pozor."
+
+#: guitext:94
+msgctxt "In-game message"
+msgid "A Hell Hound has been lured to your domain by your Scavenger Room."
+msgstr "Do tvych sklepeni byl z Ocistne mistnosti prilakan Pekelny pes."
+
+#: guitext:95
+msgctxt "In-game message"
+msgid ""
+"The other two Keepers in this region have put aside their differences for "
+"the moment and joined forces, in an effort to destroy you. That's almost a "
+"compliment. Kill the creeps."
+msgstr ""
+"Dva zdejsi Strazci docasne odlozili sve nepratelstvi a spojili sve sily "
+"proti tobe. Vypada to, ze uz mas povest mocneho protivnika. Nic to ale "
+"nemeni na faktu, ze by meli chcipnout."
+
+#: guitext:96
+msgctxt "In-game message"
+msgid ""
+"You have won a magnificent victory, Master. You have a talent for twisted "
+"mercilessness that makes other Keepers look well behaved by comparison."
+msgstr ""
+"Dosahl jsi velkeho vitezstvi, Mistre. Diky tve zvracene nemilosrdnosti "
+"vypadaji ostatni strazci v porovnani s tebou jako neskodne ovce."
+
+#: guitext:97
+msgctxt "In-game message"
+msgid ""
+"You have discovered a devastating magical power. Target it against a "
+"creature to transform a fearsome monster into a clucking chicken. Marvellous."
+msgstr ""
+"Odhalil jsi znicujici magickou silu. Zamerenim tohoto kouzla zmenis vybranou "
+"sebevice nebezpecnou obludu v kdakavou slepici. Mas rad kureci?"
+
+#: guitext:98
+msgctxt "In-game message"
+msgid ""
+"Your manufacturers have built an Alarm Trap. It will warn you of your "
+"enemies' approach and summon nearby creatures to deal with the intruders."
+msgstr ""
+"Tvi sluzebnici postavili Poplasne zarizeni. Toto zarizeni te upozorni na "
+"blizici se nepratele a zburcuje strazici obludy v okoli."
+
+#: guitext:99
+msgctxt "In-game message"
+msgid ""
+"You have created a Magic Door. These are almost impregnable to all but "
+"magical attacks. I recommend sealing off your Treasure Room or Dungeon Heart."
+msgstr ""
+"Vyvinul jsi Kouzelne dvere, ktere jsou temer neprekonatelna. Odolaji vsemu "
+"krome kouzel. Doporucuji umistnit je k tve pokladnici nebo srdci sklepeni."
+
+#: guitext:100
+msgctxt "In-game message"
+msgid ""
+"Elsewhere in this fiery realm you have a rival Keeper to contend with. I "
+"advise extreme antisocial behaviour on your part."
+msgstr ""
+"Kdesi v teto risi ohne sidli dalsi nebezpecny Strazce. Doporucuji ti odlozit "
+"posledni zbytky slusneho vychovani a nicit."
+
+#: guitext:101
+msgctxt "In-game message"
+msgid ""
+"Notch up another victory, most malicious one. You have another land to add "
+"to your dismal collection."
+msgstr ""
+"Muzes si udelat dalsi zarez za zniceneho nepritele. Zisklal jsi dalsi "
+"prostory pro rozsireni tveho ponureho kralovstvi."
+
+#: guitext:102
+msgctxt "In-game message"
+msgid ""
+"Your annihilation of the first wave has met with the approval of a pack of "
+"demons from the fifth plane of hell. Train your creatures and prepare for "
+"another battle. You're attracting quite an audience."
+msgstr ""
+"Zniceni prvni utocne vlny vyprovokovalo smecku demonu z pate pekelne urovne. "
+"Trenuj sve potvory a priprav se na dalsi bitvu. Zda se ze se u tebe schazi "
+"vybrana spolecnost."
+
+#: guitext:103
+msgctxt "In-game message"
+msgid ""
+"The enemy are upon us. I'm just telling you in case you were having a doze."
+msgstr "Nepritel se blizi. Rikam to jen pro pripad, kdyby sis dal slofika..."
+
+#: guitext:104
+msgctxt "In-game message"
+msgid ""
+"All the heroes are dead, which is as it should be. This land and all its "
+"spoils are yours. May I suggest that you waste everything?"
+msgstr ""
+"Vsichni nepratele jsou mrtvi, vsechno slape tak jak ma. Cela tato rise je "
+"ted tvoje. Doporucuji vydrancovat, znasilnit, pozabijet a vypalit."
+
+#: guitext:105
+msgctxt "In-game message"
+msgid ""
+"If lands had legs this one would be on its knees. Its desperate inhabitants "
+"are preparing a full scale attack on your dungeon. It will be an ideal "
+"opportunity to practise unspeakable evil on a massive scale. Go for it, "
+"master."
+msgstr ""
+"Kdyby rise mohly mit nohy, klecela by ted tato zeme na kolenou. Zdejsi "
+"zoufale obyvatelstvo se chysta podniknout na tva sklepeni hromadny utok. "
+"Naskyta se ti tak skvela prilezitost vyzkouset ucinky tve nevyslovitelne "
+"zloby ve velkem."
+
+#: guitext:106
+msgctxt "In-game message"
+msgid ""
+"Your latest discovery is the Word of Power Trap. When activated, the trap "
+"triggers an expanding ring of fire that incinerates anything caught in its "
+"area of effect. What a scream that should be."
+msgstr ""
+"Tvym nejnovejsim objevem je Ohniva past. Pokud je past aktivovana, vyvola "
+"rozsirujici se kruh ohne, ktery spali cokoliv uvnitr kruhu. Upozornuji ze "
+"posledni okamziky obeti byvaji velice zabavne."
+
+#: guitext:107
+msgctxt "In-game message"
+msgid ""
+"The Hold Audience spell has been researched. It will immediately teleport "
+"all of your creatures back to your Dungeon Heart. Let's hope you never need "
+"it."
+msgstr ""
+"Bylo vyvinuto kouzlo Pozdržet návštěvu. Toto kouzlo okamzite teleportuje "
+"vsechny tve obludy zpet k Srdci sklepeni. Doufejme, ze to nebudes nikdy "
+"potrebovat."
+
+#: guitext:108
+msgctxt "In-game message"
+msgid ""
+"You can't swing a cat for Dungeon Keepers fighting over the destiny of this "
+"region. It should fall to you to settle the disagreement once and for all."
+msgstr ""
+"Nemam ani to nejmensi pochopeni pro Straze, kteri se snazi bojovat proti "
+"osudu tohoto kraje. Vyreseni tohoto problemu ovsem lezi na tobe a tvych "
+"obludach."
+
+#: guitext:109
+msgctxt "In-game message"
+msgid ""
+"Your researchers have discovered the devastating Chicken spell. Cast it on "
+"any creature to instantly transform the target into poultry. It's a fowl "
+"weapon."
+msgstr ""
+"Tvi vedci vyzkoumali znicujici kouzlo Drubezator. Pusobenim tohoto kouzla se "
+"kterakoliv obluda okamzite zmeni v neskodnou drubez."
+
+#: guitext:110
+msgctxt "In-game message"
+msgid ""
+"So, now you have a spell that turns fortified walls to dust. It's expensive "
+"to cast and it's also possible that your enemies possess the same magic "
+"power. This could still turn out to be one of those days."
+msgstr ""
+"Konecne jsi vyvinul kouzlo schopne rozbit opevnene zdi. Vyvolani tohoto "
+"kouzla je znacne narocne, a navic je mozne ze nepritel take ovlada toto "
+"kouzlo. Je na tobe, jak s temito fakty nalozis."
+
+#: guitext:111
+msgctxt "In-game message"
+msgid ""
+"Only the Lord of this Land stands between you and hectares of desolation and "
+"woe. I bet you can't wait to meet him."
+msgstr ""
+"Mezi tebou a hektary zalu a utrpeni jiz stoji pouze Vladce zdejsi rise. "
+"Vsadim se, ze se ho uz nemuzes dockat."
+
+#: guitext:112
+msgctxt "In-game message"
+msgid "Your continued success makes me sick. Thank you, your wickedness."
+msgstr "Z tvého nekonečnéhoúpěchu je mi špatně. Děkuji, Vaše zvrácenosti."
+
+#: guitext:113
+msgctxt "In-game message"
+msgid ""
+"You seem to have started a trend. Two other Dungeon Keepers also have "
+"designs on this dark domain. Expect no quarter from your rivals."
+msgstr ""
+"Vypada to ze ostatni se snazi nasledovat tvych cinu. V teto oblasti totiz "
+"buduji sva sklepeni jeste dva jini Strazci. Neocekavej ale od svych souperu "
+"zadne slitovani."
+
+#: guitext:114
+msgctxt "In-game message"
+msgid ""
+"Can you see how vulnerable one of your opponents has become? Then kill him."
+msgstr "Vsiml sis, jak je jeden z tvych souperu zranitelny? Zab ho!"
+
+#: guitext:115
+msgctxt "In-game message"
+msgid ""
+"I spy a keeper with hardly any creatures left under his control. I spy a "
+"Keeper who's about to die."
+msgstr ""
+"Zda se, ze tento strazce ma pomerne malo oblud. A strazce bez oblud je "
+"zhavym kandidatem na mrtvolu dne. Takze mu dej co mu nalezi."
+
+#: guitext:116
+msgctxt "In-game message"
+msgid ""
+"This ancient dungeon possesses great archaeological significance. This "
+"simply means there should be some interesting treasure worth stealing. Now "
+"that's what I call practical archaeology."
+msgstr ""
+"Tyto starobyle chodby maji veliky archeologicky vyznam. Cesky receno, v "
+"techto chodbach se muze skryvat zajimavy poklad, ktery se ti muze velice "
+"hodit. Takze ted budeme provadet praktickou archeologii."
+
+#: guitext:117
+msgctxt "In-game message"
+msgid ""
+"Your librarians have learned a spell that can break through fortified walls. "
+"Give them a slap for not learning it earlier."
+msgstr ""
+"Tvi vedci vyvinuli kouzlo na bourani zpevnenych zdi. Dej jim poradnou ranu "
+"za to, ze to kouzlo nevynalezli driv."
+
+#: guitext:118
+msgctxt "In-game message"
+msgid ""
+"One of your opponents has developed a spell that can break through fortified "
+"walls. Typical. Be on your guard."
+msgstr ""
+"Jeden z tvych protivniku vyvinul kouzlo na bourani zpevnenych zdi. To se ale "
+"dalo cekat. Proto si dej pozor."
+
+#: guitext:119
+msgctxt "In-game message"
+msgid ""
+"You have developed the Armageddon spell. That's quite a name to live up to. "
+"Make sure you're the most powerful force in the region before casting it."
+msgstr ""
+"Vynalezl jsi kouzlo Armagedon. Jeho jmeno naznacuje jeho mocne ucinky. Pokud "
+"hodlas toto kouzlo pouzit, tak radne zkontroluj ze opravdu mas prevahu nad "
+"svymi neprateli."
+
+#: guitext:120
+msgctxt "In-game message"
+msgid ""
+"You will not find any easy path through this region. You will have to fight "
+"hard to gain any advantage. But, if you intend to rule the world, you've "
+"simply got to get through days like this."
+msgstr ""
+"Dobyti teto rise urcite nebude prochazka ruzovym sadem. Kazdy uspech si "
+"budes muset tezce vybojovat. Pokud ale hodlas dobyt tento svet, musel jsi "
+"takove problemy cekat."
+
+#: guitext:121
+msgctxt "In-game message"
+msgid "Your manufacturers have crafted the Lava Trap."
+msgstr "Tvi delnici vyvinuli Lavovou past."
+
+#: guitext:122
+msgctxt "In-game message"
+msgid ""
+"Your location is already known to the heroes of this land. They have moved "
+"quickly to mobilise their forces against you. It's pathetic. They deserve to "
+"have their heads impaled on lances for such impudence."
+msgstr ""
+"Mistni hrdinove se dozvedeli umistneni tvych sklepeni. Okamzite sebrali "
+"vojsko a vyrazili dobyt tve pozice. Malem me to dojalo. Za svou drzost si "
+"zaslouzi, aby jejich hlavy byly narazeny na jejich vlastni kopi."
+
+#: guitext:123
+msgctxt "In-game message"
+msgid ""
+"You've upset the local Lord. He's on his way right now. Shall I alert the "
+"media?"
+msgstr ""
+"Vladce zdejsiho kralovstvi se rozlitil a vyrazil dobit nase sklepeni. Mam "
+"zavolat novinare?"
+
+#: guitext:124
+msgctxt "In-game message"
+msgid ""
+"The heroes of this realm possess treasures of great power. Obviously, these "
+"should belong to you. I'm certain you will settle the matter of their "
+"ownership in your own way."
+msgstr ""
+"Zdejsi hrdinove maji v drzeni velice silne artefakty. Ty vsak uz z principu "
+"patri samozrejme tobe. Jsem si jisty, ze si sve problemy ohledne vlastnictvi "
+"techto artefaktu vyresis ke sve plne spokojenosti."
+
+#: guitext:125
+msgctxt "In-game message"
+msgid ""
+"It appears you have a rival. Another Keeper believes he is more ruthless and "
+"evil than you. We shall soon see."
+msgstr ""
+"Abys mohl vyrabet dvere a pasti, musis v Dilne zamestnat nejake pracovniky. "
+"Proste je preneses do dilny. Vyrobene veci muzes pouzit z menu Dilna."
+
+#: guitext:126
+msgctxt "In-game message"
+msgid "This ancient realm is rich in magical artifacts. Go forth and plunder."
+msgstr ""
+"Tato starobyla rise je bohata na magicke artefakty. Musis rychle vyrazit a "
+"rabovat."
+
+#: guitext:127
+msgctxt "In-game message"
+msgid ""
+"The guardians of this realm are asleep at the moment. Attack them as soon as "
+"you can or they'll be breakfasted, wide awake and inherently more difficult "
+"to slaughter."
+msgstr ""
+"Strazci tohoto kralovstvi momentalne polevili na ostrazitosti. Musis na ne "
+"co nejrychleji zautocit, jinak se probudi a to s nimi bude o poznani tezsi "
+"porizeni."
+
+#: guitext:128
+msgctxt "In-game message"
+msgid ""
+"If you should encounter hero patrols, ensure that none of their number "
+"escape. Otherwise your presence will be revealed and then you will be in "
+"trouble."
+msgstr ""
+"Pokud se rozhodnes prepadat hlidky hrdinu, ujisti se ze zadny z nich "
+"neunikne. Jinak by totiz byly tve pozice prozrazeny a ty bys mel velky "
+"problem."
+
+#: guitext:129
+msgctxt "In-game message"
+msgid ""
+"You're taking forever over this. Attack and destroy the heroes' stronghold "
+"soon, preferably before hell freezes over."
+msgstr ""
+"Už ti to trvá věky. Napadni a znič už pevnost hrdinů, ideálně dřív než "
+"zamrzne peklo."
+
+#: guitext:130
+msgctxt "In-game message"
+msgid ""
+"Enemy reinforcements have arrived. So what? Let's hear it for more killing."
+msgstr ""
+"Prave dorazily nepratelske posily. Co to znamena? No ze bude vic mrtvolek."
+
+#: guitext:131
+msgctxt "In-game message"
+msgid ""
+"The heroes of this realm have prepared for your coming by building an "
+"underground stronghold of their own. Who do they think they are? Sorry, "
+"master, that was a rhetorical question."
+msgstr ""
+"Hrdinove zdejsiho kraje zmenili taktiku a postavili svou vlastni podzemni "
+"pevnost. Co si o sobe vubec mysli?! Omlouvam se, Mistre. To byla samozrejme "
+"jen recnicka otazka."
+
+#: guitext:132
+msgctxt "In-game message"
+msgid ""
+"You are about to face the greatest challenge yet to your evil aspirations. "
+"Here it comes, ready or not."
+msgstr ""
+"Nyni se pred tebou nachazi prozatim nejtezsi zkouska tvych schopnosti. Bud "
+"obstojis, nebo zemres."
+
+#: guitext:133
+msgctxt "In-game message"
+msgid ""
+"Three other Dungeon Keepers, each as evil and powerful as you, have expanded "
+"their empires into this realm. Ultimately, only the one who rules the "
+"underworld can conquer the realms above."
+msgstr ""
+"V teto oblasti se nachazeji jeste tri další Strazci sklepeni, stejne  "
+"straslivi a mocni jako jsi ty. Vsichni chteji drancovat risi na povrchu. "
+"Avsak vystoupit na povrch muze pouze jeden, a to Vladce podzemi."
+
+#: guitext:134
+msgctxt "In-game message"
+msgid ""
+"This realm is begging to be plunged into darkness. The Avatar himself has a "
+"castle here. Another Keeper also seeks his soul. This could get messy."
+msgstr ""
+"Tato rise zacina upadat do temnoty a zapomeni. Sam Avatar zde ma svuj hrad. "
+"Jeho dusi se vsak snazi ziskat jeste jiny Strazce. To ti muze zpusobit vazne "
+"problemy."
+
+#: guitext:135
+msgctxt "In-game message"
+msgid ""
+"You have destroyed the Avatar's castle but your rival has already taken the "
+"Avatar prisoner. Be that as it may, only the Keeper with the blackest heart "
+"can destroy this legendary hero, so ransack your rival's dungeon and take "
+"the prize."
+msgstr ""
+"Znicil jsi Avataruv hrad, ale tvuj souper jiz drzi Avatara ve svem zajeti. "
+"Pravdou vsak je, ze legendarniho Avatara muze znicit pouze nejmocnejsi "
+"Strazce. Proto dokaz ze ty jsi tim nejmocnejsim, vyplen souperova sklepeni a "
+"vezmi si svou korist."
+
+#: guitext:136
+msgctxt "In-game message"
+msgid ""
+"The Avatar has been resurrected by loyal lieutenants in hiding. But their "
+"act has revealed them to us, here in this realm. Now the Avatar rallies all "
+"those who would stand against you. It's time you gave this self-righteous "
+"oaf a proper kicking, master."
+msgstr ""
+"Avatar byl v ukrytu oziven svymi vernymi. Avsak spehove odhalili jeho ukryt. "
+"Avatar nyni vsechny sily schopne se ti postavit, muj pane. Je nacase s tim "
+"drzym spratkem konecne zuctovat."
+
+#: guitext:137
+msgctxt "In-game message"
+msgid ""
+"Powerful magic permeating through the rock from the realm above prevents a "
+"dungeon from being constructed here. You will have to conquer this realm "
+"another way."
+msgstr ""
+"Diky silnym magickym silam vysilanym z povrchu nemuzeme ve zdejsim "
+"kralovstvi postavit sklepeni. Budes muset najit jiny zpusob jak ho dobyt."
+
+#: guitext:138
+msgctxt "In-game message"
+msgid ""
+"Possess this Dragon to help you negotiate the fiery pits but be prepared to "
+"transfer your soul to a more appropriate creature when the situation demands "
+"it."
+msgstr ""
+"Ovladni tohoto draka a pokus se s nim vyresit ty nejpalcivejsi problemy. Bud "
+"ale pripraven prenest svou dusi do jineho k danym ucelum vhodnejsiho "
+"stvoreni, pokud to bude situace vyzadovat."
+
+#: guitext:139
+msgctxt "In-game message"
+msgid ""
+"Possess the Vampire below. Should you succeed in killing every hero in this "
+"region, the Vampire will accompany you to the realm beyond."
+msgstr ""
+"Ovladni upira. Pokud uspejes a pobijes vsechny hrdiny tohoto kraje, pripoji "
+"se tento upir k tvym silam v podzemnich sklepenich."
+
+#: guitext:140
+msgctxt "In-game message"
+msgid ""
+"These Imps have all turned rogue and therefore must die. The speed with "
+"which you accomplish their destruction will determine your fitness for "
+"greater tasks ahead."
+msgstr ""
+"Tito skreti kradli tve zlato a proto musi okamzite zemrit. Rychlost s jakou "
+"dokazes potrestat tyto zradce urci, jestli jsi schopen schopen zvladnout "
+"vetsi ukoly."
+
+#: guitext:141
+msgctxt "In-game message"
+msgid "Tempus fugit, Keeper. You have been warned."
+msgstr "Cas uplynul, Strazce. Ja te varoval."
+
+#: guitext:142
+msgctxt "In-game message"
+msgid ""
+"You have failed. Perhaps you're not the harbinger of doom the forces of "
+"darkness were hoping for."
+msgstr ""
+"Selhal jsi, priteli. Zrejme nejsi dost dobry posel zkazy jak doufaly sily "
+"temnot."
+
+#: guitext:143
+msgctxt "In-game message"
+msgid ""
+"You are indeed a twisted soul, master. You made the Imps extinct with such "
+"panache that not one but two Dark Mistresses have devoted themselves to "
+"helping you achieve your next goal. You may proceed to your next conquest."
+msgstr ""
+"Zvladl jsi to skvele, muj pane. Zabil jsi skrety s takovou zrucnosti, ze "
+"hned dve Temne pani se rozhodly vstoupit do tvych sluzeb a pomohou dosahnout "
+"dalsiho uspechu. Muzes postoupit do dalsiho kralovstvi."
+
+#: guitext:144
+msgctxt "In-game message"
+msgid ""
+"You must have lightning reflexes to complete the task ahead of you. Kill "
+"these Imps as quickly as you can."
+msgstr ""
+"Splneni tohoto ukolu vyzaduje velikou rychlost a zrucnost. Pobij tyto skrety "
+"jak nejrychleji muzes."
+
+#: guitext:145
+msgctxt "In-game message"
+msgid "Half your allotted time has elapsed."
+msgstr "Jiz uplynula polovina vyhrazeneho casu."
+
+#: guitext:146
+msgctxt "In-game message"
+msgid "You are out of time. That was a shocking performance."
+msgstr "Cas vyprsel. Zklamal jsi, pane."
+
+#: guitext:147
+msgctxt "In-game message"
+msgid ""
+"It is done. Tiny heaps of charred flesh smoulder where Imps once stood. You "
+"certainly had your finger on the pulse this time. The dark gods will send "
+"you a vicious creature to help you conquer the next realm."
+msgstr ""
+"Ukol jsi splnil. Drobne kousky spaleneho masa doutnaji prilepene na stenach "
+"chodeb v mistech, kde jsi skrety dostihl. Temni bohove ti jako odmenu za "
+"rychlost poslali Obra, aby ti pomohl dobyt dalsi risi."
+
+#: guitext:148
+msgctxt "In-game message"
+msgid ""
+"You have no gold left. It pays to keep your head in such a charged "
+"environment."
+msgstr "Jiz nemas zadne penize. Zda se, ze tu za chvili nastane pekele vedro."
+
+#: guitext:149
+msgctxt "In-game message"
+msgid ""
+"You have been called to this realm to punish a horde of revolting Bile "
+"Demons by crushing them with Boulder Traps scattered around the perimeter of "
+"the dungeon. You have very little time, so rock and roll!"
+msgstr ""
+"Byl jsi povolan rozdrtit vzpouru smecky Divych demonu. Mel bys pouzit "
+"kamenne pasti rozmistnene po obvodu sklepeni. Mas velmi malo casu, proto "
+"sebou budes muset trochu hodit."
+
+#: guitext:150
+msgctxt "In-game message"
+msgid "Half your time has expired."
+msgstr "Prave uplynula polovina urceneho casu."
+
+#: guitext:151
+msgctxt "In-game message"
+msgid ""
+"Your time is up. You have failed. I'm embarrassed to come from the same "
+"inter-dimensional void as you."
+msgstr ""
+"Tvuj cas vyprsel. Selhal jsi. Je mi trapne, ze jsem s tebou musel travit cas!"
+
+#: guitext:152
+msgctxt "In-game message"
+msgid ""
+"Well done. You have excelled in your use of large balls of stone for which "
+"the dark gods will repay you, by allowing you to use the warrior you found "
+"when you reach the next realm."
+msgstr ""
+"Skvela prace. Tve schopnosti vyuzivat velkych kamennych kouli jsou skvele. "
+"Temni bohove se ti odmeni pridelenim tri Superskretu, kteri ti pomohou "
+"dosahnout dalsiho uspechu."
+
+#: guitext:153
+msgctxt "In-game message"
+msgid ""
+"This region of the underworld will test your ability to traverse the network "
+"of caverns. Indeed, time is your enemy here. Defeat it and you will find "
+"where a legendary warrior is imprisoned. That warrior will serve you well in "
+"the future."
+msgstr ""
+"Tato podzemni oblast proveri tve schopnosti pronikat bludistem jeskyni a "
+"sluji. Opet je zde tvym hlavnim nepritelem cas. Pokud dokazes prekonat cas, "
+"najdes uvezneneho legendarniho valecnika jmenem Ug. Ug ti totiz dobre "
+"poslouzi v dalsich ukolech."
+
+#: guitext:154
+msgctxt "In-game message"
+msgid ""
+"The people of this realm speak of a Dungeon Keeper called Wisel, who is "
+"bound to get in your way. When he does, you will have to consign him to "
+"history. This will be no mean feat. Resources are scarce because of his "
+"activities."
+msgstr ""
+"Obyvatele zdejsi rise vypovidali o Strazci jmenem Wisel, ktery se ti hodla "
+"postavit do cesty. Pokud tak ucini, budes ho muset nalezite usmernit. Ovsem "
+"nebude to jednoduche, protoze Wisel uz stacil vetsinu zlata vytezit."
+
+#: guitext:155
+msgctxt "In-game message"
+msgid ""
+"Wisel is defeated. The land is yours to plunder and despoil for all "
+"eternity. Give 'em hell, master."
+msgstr ""
+"Wisel je porazen. Jeho uzemi ted muzes pro vecnou slavu beztrestne vyplenit "
+"a znicit."
+
+#: guitext:156
+msgctxt "In-game message"
+msgid ""
+"Your evil has corrupted a Samurai Warrior, he has forsaken honour to join "
+"your cause. Should your minions suffer heavy casualties, this Warrior will "
+"even call upon his brothers in arms to offer assistance. How kind. How "
+"stupid!"
+msgstr ""
+"Tve zlo prilakalo Samuraje, ktery se vzdal sve cti aby se mohl prostavit po "
+"tvem boku. Pokud tvi verni utrpi tezke ztraty, samuraj privola sve bratry ve "
+"zbrani, aby ti nabidli svou pomoc."
+
+#: guitext:157
+msgctxt "In-game message"
+msgid ""
+"This region of the underworld is riddled with tunnels and many heroes "
+"explore their labyrinthine ways. No-one said being evil would be easy."
+msgstr "Tato cast podzemi je protkana chodbami, kterymi bloudi mnoho hrdinu."
+
+#: guitext:158
+msgctxt "In-game message"
+msgid ""
+"It is rumoured that two Dragons are held captive somewhere east of here. "
+"Were you to find them and free them, they would make powerful servants."
+msgstr ""
+"Koluji zvesti, ze na vychod odtud jsou uvezneni dva draci. Pokud je dokazes "
+"najit a osvobodit, mohou ti dobre poslouzit."
+
+#: guitext:159
+msgctxt "In-game message"
+msgid ""
+"A tunnel to the north leads to the Lord of the Realm's domain. This gate is "
+"guarded well. It might be wise to direct the humans' attention towards your "
+"subterranean enemy."
+msgstr ""
+"Chodba vedouci na sever usti na uzemi Vladce zdejsiho kralovstvi. Tato brana "
+"je ovsem dobre strazena. Ucinis velice moudre, pokud upoutas pozornost svych "
+"nepratel na tve podzemni nepratele."
+
+#: guitext:160
+msgctxt "In-game message"
+msgid ""
+"These Boulder Traps are ideal for crushing the foe but there are only three "
+"of them at your disposal, so use them wisely."
+msgstr ""
+"Kamenne pasti jsou skvela zbrann k rozdrceni tvych nepratel. Satanuzel mas k "
+"dispozici pouze tri pasti, proto se snaz jich vyuzit co nejlepe."
+
+#: guitext:161
+msgctxt "In-game message"
+msgid "May I suggest that you kill or imprison anything that gets in your way?"
+msgstr "Navrhuji zabit nebo uveznit vsechny, kteri se ti postavi do cesty."
+
+#: guitext:162
+msgctxt "In-game message"
+msgid ""
+"Another realm falls under your evil reign. Another cloud of misery and "
+"despair gathers. Lovely."
+msgstr ""
+"Dalsi kralovstvi podlehlo tvym silam zla. Nad dobitym uzemim stoupa narek a "
+"zoufalstvi prezivsich."
+
+#: guitext:163
+msgctxt "In-game message"
+msgid "You have failed. This is a grim day for evil."
+msgstr "Byl jsi porazen. Toto je kruta rana silam zla."
+
+#: guitext:164
+msgctxt "In-game message"
+msgid ""
+"Dispense with a particularly obnoxious party of Dwarves which wanders this "
+"region and recruit as many Bile Demons as you can. If you free the Wizard "
+"held captive in this realm, he will serve you for some time to come."
+msgstr ""
+"Nyni bys mel pobit skupinu trpasliku ktera se potuluje zdejsim krajem, a "
+"najmout pokud mozno co nejvic divych demonu. Take je v tomto kralovstvi "
+"drzen v zajeti mocny kouzelnik. Pokud se ti podari osvobodit ho, bude ti z "
+"vdecnosti nejakou dobu slouzit."
+
+#: guitext:165
+msgctxt "In-game message"
+msgid ""
+"Take more care of your Bile Demons or you will never make it beyond this "
+"realm."
+msgstr "Davej na sve dive demony vetsi pozor, jinak tuto risi tezko dobudes."
+
+#: guitext:166
+msgctxt "In-game message"
+msgid "How time flies... hurry!"
+msgstr "Cas rychle ubiha... pospes si!"
+
+#: guitext:167
+msgctxt "In-game message"
+msgid ""
+"You will meet your nemesis, the Avatar, in this subterranean place. This is "
+"your ultimate test. Remember, mercy is for losers."
+msgstr ""
+"Avatar musi zde, v tomto zatuchlem pozemnim sklepeni najit svou zkazu. Toto "
+"je posledni a rozhodujici bitva. Pamatuj, ze slitovani je vlastnosti "
+"porazenych."
+
+#: guitext:168
+msgctxt "In-game message"
+msgid ""
+"The Avatar and his allys are defeated, yet his power over this land lingers. "
+"Prepare thyself..."
+msgstr ""
+"Avatar a jeho sluzebnici jsou porazeni, a jejich mrzke duse nyni bloumaji po "
+"kraji. Priprav se..."
+
+#: guitext:169
+msgctxt "In-game message"
+msgid ""
+"You got rid of that Keeper easily. Now all that stands between you and total "
+"world domination is that ponce in shining armour. Let's get him."
+msgstr ""
+"Tenhle Strazce pro tebe nebyl zadnym souperem. Nyni mezi tebou a tvou krutou "
+"a krvavou vladou nad celym svetem stoji pouze tenhle hlupak v lesklem "
+"brneni. Krasna hracka..."
+
+#: guitext:170
+msgctxt "In-game message"
+msgid "Success is thine. Truly, you have earned your title, Dungeon Keeper."
+msgstr ""
+"Uspel jsi ve svem poslani. Dokazal jsi, ze jsi hoden titulu Strazce Sklepeni."
+
+#: guitext:171
+msgctxt "In-game message"
+msgid "What is this? The Avatar lives!"
+msgstr "Co se to tu deje? Avatar žije!"
+
+#: guitext:172
+msgctxt "In-game message"
+msgid ""
+"Finally, you stand unchallenged. The world is yours to waste and despoil. I "
+"bet you have never felt so bad."
+msgstr ""
+"Konecne jsi zlomil posledni odpor tvych nepratel. Nyni muzes bez problemu "
+"nicit a drancovat cely svet. Vsadim se, ze sis nikdy nepripadal tak zlej."
+
+#: guitext:173
+msgctxt "In-game message"
+msgid ""
+"Marvellous, Keeper! The Avatar and all his pathetic army are finally dead! "
+"There's only one Keeper to get rid of before becoming the absolute master! "
+"So, what are you waiting for?"
+msgstr ""
+"Úžasné, Správče! Avatar a celá jeho ubohá armáda je konečně mrtvá! Zbývá tu "
+"jen jeden Správce, kterého se musíš zbavit, aby jsi se stal absolutním "
+"pánem! Takže, na co čekáš?"
+
+#: guitext:174
+msgctxt "In-game message"
+msgid ""
+"Did you see? Your Demon Spawn has evolved to become a powerful Dragon ready "
+"to reduces your enemies into ashes!"
+msgstr ""
+"Viděl jsi? Tvůj Dábelský zplozenec se vyvinul, a stal se mocným Drakem, "
+"který je připraven zredudovat tvé nepřátele na popel!"
+
+#: guitext:175
+msgctxt "In-game message"
+msgid ""
+"Well done! Your immense wealth has drew the attention of a Thief. He will "
+"serve you well in the next realm!"
+msgstr ""
+"Výborně! Tvé nesmírné bohatství přilákalo Zloděje. Bude ti dobře sloužit v "
+"příští říši!"
+
+#: guitext:176
+msgctxt "In-game message"
+msgid ""
+"Your researchers have discovered the Heal Creature spell that allows to "
+"replenish the health of your creatures and keep them from dying for a while "
+"longer."
+msgstr ""
+"Tví vědci objevili kouzlo Uzdravit příšeru, které umožňuje doplnit zdraví "
+"tvých bytostí a udrží je o chvíli déle na živu."
+
+#: guitext:177
+msgctxt "In-game message"
+msgid ""
+"Try the Must Obey spell. When activated, it constantly forces your creatures "
+"to obey to all your orders, making all of them working faster without the "
+"possibility for them to take a nap. Be sure to have plenty of money so that "
+"the spell will stay activated."
+msgstr ""
+"Zkus kouzlo Poslušnost. Pokud je aktivováno, nutí neustále tvé bytosti "
+"poslouchat všechny tvé příkazy, takže všichni z nich pracují rychleji, bez "
+"možnosti si zdřímnout. Ujisti se, že máš spoustu peněz, aby kouzlo zůstalo "
+"aktivováno."
+
+#: guitext:178
+msgctxt "In-game message"
+msgid ""
+"A Tentacle has joined your dungeon. These rare little creatures enjoy to be "
+"in water and their spine can even pierce the most solid armors and paralyze "
+"your enemies! Marvellous!"
+msgstr ""
+"Chapadlo přišlo do tvé kobky. Tyto vzácné malé stvoření si lebedí ve vodě a "
+"jejich páteře mohou prorazit ty nejpevnější brnění a ochromit tvé nepřátele! "
+"Úžasné!"
+
+#: guitext:179
+msgctxt "In-game message"
+msgid ""
+"You have entered this realm to gain a creature for your further efforts. You "
+"got the creature from start, so you must only keep it safe. And the only way "
+"to make this place safe is to kill every hero in the realm."
+msgstr ""
+"Vstoupil jsi do této oblasti za účelem získání příšer pro své další cíle. "
+"Máš své stvoření od začátku, takže se musíš udržet pouze v bezpečí. A jediný "
+"způsob, jak zajistit, aby bylo toto místo bezpečné je zabít každého hrdinu v "
+"oblasti."
+
+#: guitext:180 guitext:181 guitext:182 guitext:183 guitext:184 guitext:185
+#: guitext:186 guitext:187 guitext:188 guitext:189 guitext:190 guitext:191
+#: guitext:192 guitext:193 guitext:194 guitext:195 guitext:196 guitext:197
+#: guitext:198 guitext:199 guitext:200
+msgctxt "In-game message"
+msgid "Moo"
+msgstr "Moo"
+
+#: guitext:202
+msgctxt "Level name"
+msgid "Eversmile"
+msgstr "Eversmile"
+
+#: guitext:203
+msgctxt "Level name"
+msgid "Cosyton"
+msgstr "Cosyton"
+
+#: guitext:204
+msgctxt "Level name"
+msgid "Waterdream Warm"
+msgstr "Waterdream Warm"
+
+#: guitext:205
+msgctxt "Level name"
+msgid "Flowerhat"
+msgstr "Flowerhat"
+
+#: guitext:206
+msgctxt "Level name"
+msgid "Lushmeadow-on-Down"
+msgstr "Lushmeadow-on-Down"
+
+#: guitext:207
+msgctxt "Level name"
+msgid "Snuggledell"
+msgstr "Snuggledell"
+
+#: guitext:208
+msgctxt "Level name"
+msgid "Wishvale"
+msgstr "Wishvale"
+
+#: guitext:209
+msgctxt "Level name"
+msgid "Tickle"
+msgstr "Tickle"
+
+#: guitext:210
+msgctxt "Level name"
+msgid "Moonbrush Wood"
+msgstr "Moonbrush Wood"
+
+#: guitext:211
+msgctxt "Level name"
+msgid "Nevergrim"
+msgstr "Nevergrim"
+
+#: guitext:212
+msgctxt "Level name"
+msgid "Hearth"
+msgstr "Hearth"
+
+#: guitext:213
+msgctxt "Level name"
+msgid "Elf's Dance"
+msgstr "Elfí Tanec"
+
+#: guitext:214
+msgctxt "Level name"
+msgid "Buffy Oak"
+msgstr "Buffy Oak"
+
+#: guitext:215
+msgctxt "Level name"
+msgid "Sleepiburgh"
+msgstr "Buffy Oak"
+
+#: guitext:216
+msgctxt "Level name"
+msgid "Woodly Rhyme"
+msgstr "Woodly Rhyme"
+
+#: guitext:217
+msgctxt "Level name"
+msgid "Tulipscent"
+msgstr "Tulipscent"
+
+#: guitext:218
+msgctxt "Level name"
+msgid "Mirthshire"
+msgstr "Mirthshire"
+
+#: guitext:219
+msgctxt "Level name"
+msgid "Blaise End"
+msgstr "Blaise End"
+
+#: guitext:220
+msgctxt "Level name"
+msgid "Mistle"
+msgstr "Mistle"
+
+#: guitext:221
+msgctxt "Level name"
+msgid "Skybird Trill"
+msgstr "Skybird Trill"
+
+#: guitext:222
+msgctxt "In-game interface description"
+msgid ""
+"Name and Health: Each creature has its own name. Behind is the creature "
+"health bar. The higher the red bar, the better health the creature is in."
+msgstr ""
+"Jméno a zdraví: Každé stvoření má své vlastní jméno. Pod ním je ukazatel "
+"života. Čím vyšší je červená stupnice, tím lepšímu zdraví se příšera těší. "
+"23.4"
+
+#: guitext:223
+msgctxt "In-game interface description"
+msgid ""
+"Experience: The creature's experience level. Behind the level number is a "
+"bar indicating the creatures progress towards attaining more experience."
+msgstr ""
+"Zkušenosti: Úroveň zkušenosti obludy. Pod číslem úrovně je ukazatal "
+"znázorňující postup příšery k získání více zkušenosí. 23.3"
+
+#: guitext:224
+msgctxt "In-game interface description"
+msgid "Hunger: How badly a creature needs to suck down a chicken or two."
+msgstr ""
+"Hlad: Ukazuje jak moc by potvora potrebovala sezrat jedno nebo dve kuřátka."
+
+#: guitext:225
+msgctxt "In-game interface description"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: guitext:226
+msgctxt "Creature spell"
+msgid "Arrow: The basic ranged weapon, effective at long distance."
+msgstr ""
+"Šíp: Základní zbraň pro boj na dálku, efektivní na dlouhé vzdálenosti. 25.4"
+
+#: guitext:227
+msgctxt "Creature spell"
+msgid ""
+"Freeze: Changes the target creature to ice. It is then in suspended "
+"animation and can be shattered with a well-aimed blow."
+msgstr "Zmražení: "
+
+#: guitext:228
+msgctxt "Creature spell"
+msgid ""
+"Armour: This lowers the amount of damage a creature takes each time it is "
+"hit, and provides complete immunity to electric shocks."
+msgstr "Brnění:"
+
+#: guitext:229
+msgctxt "Creature spell"
+msgid ""
+"Lightning: A powerful magical weapon with electric attack. Casts a bolt of "
+"lighting from the creature."
+msgstr "Blesk:"
+
+#: guitext:230
+msgctxt "Creature spell"
+msgid "Rebound: Causes any spell fired at you to bounce back at the attacker."
+msgstr "Odražení: "
+
+#: guitext:231
+msgctxt "Creature spell"
+msgid ""
+"Fear: Causes the opponent to be terrified and wanting to skip engageing into "
+"combat."
+msgstr "Strach:"
+
+#: guitext:232
+msgctxt "Creature spell"
+msgid ""
+"Sight: Allows the creature to temporarely increase its awareness and notice "
+"the invisible."
+msgstr "Pohled:"
+
+#: guitext:233
+msgctxt "Creature spell"
+msgid ""
+"Missile: A simple spell that sends a screaming magic reptile at the "
+"invaders. Very disconcerting."
+msgstr "Raketa:"
+
+#: guitext:234
+msgctxt "Creature spell"
+msgid ""
+"Grenade: Throws a powerful explosive at the approaching enemy. It can also "
+"bounce off walls and has the traditional delayed fuse."
+msgstr "Granat:"
+
+#: guitext:235
+msgctxt "Creature spell"
+msgid ""
+"Navigating Missile: This homes in on the nearest hero or enemy creature and "
+"explodes with devastating force."
+msgstr "Samonavadeci raketa:"
+
+#: guitext:236
+msgctxt "Creature spell"
+msgid ""
+"Speed: Speeds up the creature so that it can perform fighting and working "
+"tasks really quickly."
+msgstr "Rychlost:"
+
+#: guitext:237 guitext:253
+msgctxt "Creature spell"
+msgid ""
+"Poison Cloud: Forms a cloud of noxious gas capable of damaging both the "
+"enemy and your own creatures. The gas affects all who breathe it."
+msgstr "Jedovaty mrak:"
+
+#: guitext:238
+msgctxt "Creature spell"
+msgid "Group: Not used"
+msgstr "Skupina: Nepoužito"
+
+#: guitext:239
+msgctxt "Creature spell"
+msgid ""
+"Invisibility: Cast on one of your minions, it makes the host creature "
+"invisible to all enemies. Unless they possess a subnatural Sight."
+msgstr "Neviditelnost:"
+
+#: guitext:240
+msgctxt "Creature spell"
+msgid ""
+"Teleport: With this spell, a creature can teleport anywhere on the map. If "
+"you are Possessing a creature, then it teleports to its Lair or to the "
+"Dungeon Heart."
+msgstr "Neviditelnost:"
+
+#: guitext:241
+msgctxt "Creature spell"
+msgid "Flame Breath: The devasting constant stream of searing fire."
+msgstr "Ohnivy dech:"
+
+#: guitext:242
+msgctxt "Creature spell"
+msgid ""
+"Illumination: Brings light onto darkness, allowing the creature to see but "
+"also be seen by others."
+msgstr "Svetelkovani:"
+
+#: guitext:243
+msgctxt "Creature spell"
+msgid ""
+"Flight: Causes the creature to take off from the ground and attack creatures "
+"from the air."
+msgstr "Letani:"
+
+#: guitext:244
+msgctxt "Creature spell"
+msgid "Hail Storm: Creates a shower of hailstones wherever the spell lands."
+msgstr "Krupobiti:"
+
+#: guitext:245
+msgctxt "Creature spell"
+msgid ""
+"Slow: Slows down the target creature, making it attacks and movement delayed."
+msgstr "Zpomaleni:"
+
+#: guitext:246
+msgctxt "Creature spell"
+msgid ""
+"Drain: This spell drains the target creature a fair part of its health and "
+"magical abilities."
+msgstr "Vycerpani:"
+
+#: guitext:247
+msgctxt "Creature spell"
+msgid ""
+"Word of Power: Causes rings of fire to emanate from the creature's body and "
+"inflicts massive damage on the vicinity."
+msgstr "Slovo moci:"
+
+#: guitext:248
+msgctxt "Creature spell"
+msgid ""
+"Heal: When this is cast, the creature is massively healed. Also, any nearby "
+"creatures are healed by a quarter."
+msgstr "Uzdraveni:"
+
+#: guitext:249
+msgctxt "Creature spell"
+msgid ""
+"Wind: Creates a force twelve gale in your Dungeon blowing every creature "
+"away from you."
+msgstr "Vitr:"
+
+#: guitext:250
+msgctxt "Creature spell"
+msgid ""
+"Meteor: More powerful that the fireball, this spell throws out a solid ball "
+"of fire which does a lot of damage to an enemy."
+msgstr "Meteor:"
+
+#: guitext:251
+msgctxt "Creature spell"
+msgid ""
+"Fireball: Fires a single fireball which homes in on the nearest enemy. Also "
+"inflicts minor damage to a Dungeon's walls and doors."
+msgstr "Fireball:"
+
+#: guitext:252
+msgctxt "Creature spell"
+msgid ""
+"Hand to Hand: The basic battle ability that allows to attack the enemy with "
+"either bare hands or a sword."
+msgstr "Boj zblizka:"
+
+#: guitext:254
+msgctxt "Creature spell"
+msgid ""
+"Dig: This is the basic ability of the Imp and allows it to tunnel through "
+"earth."
+msgstr "Dolovat:"
+
+#: guitext:255
+msgctxt "Creature spell"
+msgid ""
+"Disease: Fired at a foe, gives them a Disease which is then spread to other "
+"creatures. The infected are slowly dying and can only be healed in the "
+"Temple."
+msgstr "Nemoc:"
+
+#: guitext:256
+msgctxt "Creature spell"
+msgid ""
+"Chicken: Turns enemy into chicken for a while. The enemy isn't able to "
+"attack but has the same strength and thus won't be as easy to kill as a "
+"normal chicken."
+msgstr "Kure:"
+
+#: guitext:257
+msgctxt "Creature spell"
+msgid "Time Bomb: Turns your creature into a suicidal bomber."
+msgstr "Casovana bomba:"
+
+#: guitext:258
+msgctxt "Creature name"
+msgid "Fairy"
+msgstr "Víla"
+
+#: guitext:259
+msgctxt "Creature name"
+msgid "Imp"
+msgstr "Skřet"
+
+#: guitext:260
+msgctxt "Creature name"
+msgid "Beetle"
+msgstr "Brouk"
+
+#: guitext:261
+msgctxt "Creature name"
+msgid "Troll"
+msgstr "Trol"
+
+#: guitext:262
+msgctxt "Creature name"
+msgid "Demon Spawn"
+msgstr "Zplozenec démona"
+
+#: guitext:263
+msgctxt "Creature name"
+msgid "Warlock"
+msgstr "Čaroděj"
+
+#: guitext:264
+msgctxt "Creature name"
+msgid "Fly"
+msgstr "Moucha"
+
+#: guitext:265
+msgctxt "Creature name"
+msgid "Spider"
+msgstr "Pavouk"
+
+#: guitext:266
+msgctxt "Creature name"
+msgid "Skeleton"
+msgstr "Kostlivec"
+
+#: guitext:267
+msgctxt "Creature name"
+msgid "Horned Reaper"
+msgstr "Rohatý sekáč"
+
+#: guitext:268
+msgctxt "Creature name"
+msgid "Dragon"
+msgstr "Drak"
+
+#: guitext:269
+msgctxt "Creature name"
+msgid "Tentacle"
+msgstr "Chapadlo"
+
+#: guitext:270
+msgctxt "Creature name"
+msgid "Hound"
+msgstr "Pekelný pes"
+
+#: guitext:271
+msgctxt "Creature name"
+msgid "Ghost"
+msgstr "Duch"
+
+#: guitext:272
+msgctxt "Creature name"
+msgid "Mistress"
+msgstr "Milenka"
+
+#: guitext:273
+msgctxt "Creature name"
+msgid "Bile Demon"
+msgstr "Žlučový démon"
+
+#: guitext:274
+msgctxt "Creature name"
+msgid "Vampire"
+msgstr "Upír"
+
+#: guitext:275
+msgctxt "Creature name"
+msgid "Barbarian"
+msgstr "Barbar"
+
+#: guitext:276
+msgctxt "Creature name"
+msgid "Knight"
+msgstr "Rytíř"
+
+#: guitext:277
+msgctxt "Creature name"
+msgid "Wizard"
+msgstr "Kouzelník"
+
+#: guitext:278
+msgctxt "Creature name"
+msgid "Orc"
+msgstr "Ork"
+
+#: guitext:279
+msgctxt "Creature name"
+msgid "Mountain Dwarf"
+msgstr "Trpslík z hor"
+
+#: guitext:280
+msgctxt "Creature name"
+msgid "Valley Dwarf"
+msgstr "Trpaslík z údolí"
+
+#: guitext:281
+msgctxt "Creature name"
+msgid "Thief"
+msgstr "Zloděj"
+
+#: guitext:282
+msgctxt "Creature name"
+msgid "Samurai"
+msgstr "Samuraj"
+
+#: guitext:283
+msgctxt "Creature name"
+msgid "Priestess"
+msgstr "Kněžka"
+
+#: guitext:284
+msgctxt "Creature name"
+msgid "Giant"
+msgstr "Obr"
+
+#: guitext:285
+msgctxt "Creature name"
+msgid "Archer"
+msgstr "Lučištník"
+
+#: guitext:286
+msgctxt "Creature name"
+msgid "Monk"
+msgstr "Mnich"
+
+#: guitext:287
+msgctxt "In-game interface description"
+msgid ""
+"Query: Select this and left click on a creature to view information on that "
+"creature and track it on screen. LMB select."
+msgstr ""
+"Dotaz: Vyber tuhle polozku a pak levou mysi klikni na obludu. Ziskas tak "
+"informace o vybrane oblude. Vyber provedes LTM."
+
+#: guitext:288
+msgctxt "Menu interface item"
+msgid "Select game"
+msgstr "Vyber hru"
+
+#: guitext:289
+msgctxt "Menu interface item"
+msgid "Network Menu"
+msgstr "Síťové menu"
+
+#: guitext:290 guitext:343
+msgctxt "Menu interface item"
+msgid "Main Menu"
+msgstr "Hlavní menu"
+
+#: guitext:291
+msgctxt "In-game interface description"
+msgid ""
+"Anger: How angry the creature is. The higher the bar is, the angrier the "
+"creature is."
+msgstr "Hnev: Ukazuje jak je obluda vztekla."
+
+#: guitext:292
+msgctxt "In-game interface description"
+msgid "Creature Kills: The total number of enemies the creature has slain."
+msgstr "Pocet zabitych: Zobrazi pocet nepratel, kolik obluda zabila."
+
+#: guitext:293
+msgctxt "In-game interface description"
+msgid ""
+"Strength: The amount of damage the creature inflicts upon it's enemies with "
+"each hit."
+msgstr "Sila: Ukaze jake poskozeni zpusobi obluda nepriteli jednim uderem."
+
+#: guitext:294
+msgctxt "In-game interface description"
+msgid "Wage: The creature's salary in gold which it takes on each payday."
+msgstr "Zold: Za kolik bude s vami obluda spolupracovat."
+
+#: guitext:295
+msgctxt "In-game interface description"
+msgid "Gold Held : The amount of gold the creature is carrying."
+msgstr "Zlato : Zobrazi kolik zlata ma obluda u sebe."
+
+#: guitext:296
+msgctxt "In-game interface description"
+msgid ""
+"Defence: The chance a creature will avoid a blow. The higher the number, the "
+"greater the chance of avoidance."
+msgstr "Obrana: Ukaze do jake miry se obluda umi branit."
+
+#: guitext:297
+msgctxt "In-game interface description"
+msgid ""
+"Skill: The creature's ability to perform tasks. The higher the Skill level, "
+"the better the creature's performance."
+msgstr "Uroven: Zobrazi nakolik je obluda schopna splnit ukol."
+
+#: guitext:298
+msgctxt "In-game interface description"
+msgid "Age/Time In Dungeon: The length of time you have employed the creature."
+msgstr "Vek/Delka pobytu: Ukaze jak dlouho pro tebe obluda pracuje."
+
+#: guitext:299
+msgctxt "In-game interface description"
+msgid ""
+"Dexterity: The chance a creature will avoid a trap or an enemy weapon. The "
+"higher the number, the greater the chance of avoidance."
+msgstr ""
+"Obratnost: Ukaze jak je obluda schopna vyhnout pastim nebo uderu nepritele."
+
+#: guitext:300
+msgctxt "In-game interface description"
+msgid ""
+"Luck: The chance that a creature will do a double attack or a double defence "
+"in combat. Taken into account only when the hit is not avoided."
+msgstr ""
+"Stesti: Jakou ma sanci na to, ze se obluda bude moci dvakrat branit nebo "
+"dvakrat utocit."
+
+#: guitext:301
+msgctxt "In-game interface description"
+msgid "Blood type: As if you care. Blood is blood, right?"
+msgstr "Krevni skupina: To je snad jedno. Krev je jenom krev, ne?"
+
+#: guitext:302
+msgctxt "In-game interface description"
+msgid ""
+"Idle: The creature is either sleeping or not working. It's not involved in "
+"anything constructive or useful. LMB pick up creature. RMB zoom."
+msgstr ""
+"Zahali: Obluda bud spi nebo nepracuje. LTM obludu uchopis, PTM vyvolas "
+"detailni pohled."
+
+#: guitext:303
+msgctxt "In-game interface description"
+msgid ""
+"Working: The creature is performing tasks and doing work for you. LMB pick "
+"up creature. RMB zoom."
+msgstr ""
+"Pracuje: Obluda pracuje na zadanem ukolu. LTM obludu uchopis, PTM vyvolas "
+"detailni pohled."
+
+#: guitext:304
+msgctxt "In-game interface description"
+msgid "Fighting: The creature is in a battle. LMB pick up creature. RMB zoom."
+msgstr ""
+"V boji: Obluda prave bojuje. LTM obludu uchopis, PTM vyvolas detailni "
+"pohled. [9.3] a [22.2.1]"
+
+#: guitext:305
+msgctxt "In-game interface description"
+msgid ""
+"Fight: Your creatures always attack and not avoid any combat. LMB select."
+msgstr "Bojovat: Tve obludy budou vyhledavat boj. Voli se LTM. [6.5.1]"
+
+#: guitext:306
+msgctxt "In-game interface description"
+msgid ""
+"Flee: Your creatures attempt to preserve their lives, running away if they "
+"are too badly injured. LMB select."
+msgstr "Ustoupit: Tve obludy se pokusi zachranit si zivot. Voli se LTM. [5.2]"
+
+#: guitext:307
+msgctxt "In-game interface description"
+msgid ""
+"Imprison: Your creatures stun their enemies in battle and imprison those "
+"they defeat. LMB select."
+msgstr ""
+"Uveznovat: Tve obludy budou odnaset omracene nepratele do vezeni. Voli se "
+"LTM. [5.1]"
+
+#: guitext:308
+msgctxt "In-game interface description"
+msgid ""
+"Defending: The creature is concentrating on avoiding its adversary's blows."
+msgstr "Branit se: Obluda se bude snazit ubranit protivnikovym utokum."
+
+#: guitext:309
+msgctxt "In-game interface item"
+msgid "Are you sure?"
+msgstr "Myslis to vazne?"
+
+#: guitext:310
+msgctxt "In-game interface item"
+msgid "Yes"
+msgstr "Ano"
+
+#: guitext:311
+msgctxt "In-game interface item"
+msgid "No"
+msgstr "Ne"
+
+#: guitext:312
+msgctxt "In-game interface item"
+msgid "For"
+msgstr "Pro"
+
+#: guitext:313
+msgctxt "In-game interface description"
+msgid "Shadows: The number of shadows cast by each creature. LMB toggle."
+msgstr ""
+"Stiny: Urcuje pocet stinu vrhanych kazdou obludou. Prepina se LTM. [3.2.2]"
+
+#: guitext:314
+msgctxt "In-game interface description"
+msgid ""
+"View Type: Swap between the default and forced perspective views. Default "
+"view has warped walls and can be rotated, forced perspective shows larger "
+"area but can only be rotated 90 degrees. LMB toggle."
+msgstr ""
+"Typ pohledu: Prepina mezi zakladnim a nastavitelnym pohledem. Prepina se "
+"LTM. [3.2.2]"
+
+#: guitext:315
+msgctxt "In-game interface description"
+msgid ""
+"Wall Height: Swap between high or low walls. If you make the walls one block "
+"high, they are easier to see over. LMB toggle."
+msgstr "Vyska zdi: Prepina mezi vysokou a nizkou zdi. Prepina se LTM. [3.2.2]"
+
+#: guitext:316
+msgctxt "In-game interface description"
+msgid ""
+"View Distance: The amount of dungeon drawn. This directly affects the speed "
+"of the game. LMB toggle."
+msgstr ""
+"Rozsah pohledu: Urcuje jakou rozlohu sklepeni pohled zabere. Tato polozka "
+"primo ovlivnuje rychlost hry. Prepina se LTM. [3.2.2]"
+
+#: guitext:317
+msgctxt "In-game interface description"
+msgid "Gamma Correction: Adjust the brightness of the game. LMB toggle."
+msgstr "Gamma korekce: Nastavuje jasnost obrazu. Voli se LTM. [3.2.2]"
+
+#: guitext:318
+msgctxt "In-game interface item"
+msgid "Of"
+msgstr "Od"
+
+#: guitext:319
+msgctxt "Slab description"
+msgid "Empty Lair: Would suit itinerant creature."
+msgstr "Prazdne doupe: Muze poskytnout nekterym obludam chvile odpocinku."
+
+#: guitext:320
+msgctxt "Menu interface item"
+msgid "Paused"
+msgstr "Pozastaveno"
+
+#: guitext:321
+msgctxt "In-game interface description"
+msgid ""
+"Zoom In: Zoom in the Dynamic Map. This increases the scale of the map. LMB "
+"select."
+msgstr ""
+"Zvetseni meritka pohledu: Zvetsi meritko zobrazeni dynamicke mapy. Vyber se "
+"provadi LTM. [4.1]"
+
+#: guitext:322
+msgctxt "In-game interface description"
+msgid ""
+"Zoom Out: Zoom out the Dynamic Map. This decreases the scale of the map. LMB "
+"select."
+msgstr ""
+"Zmenseni meritka pohledu: Zmensi meritko zobrazeni dynamicke mapy. Vyber se "
+"provadi LTM. [4.1]"
+
+#: guitext:323
+msgctxt "In-game interface description"
+msgid ""
+"Full Screen Map: Takes you to the Map Screen which displays your entire "
+"Dungeon and the surrounding area. LMB select."
+msgstr ""
+"Celoobrazovkova mapa: Zobrazi mapu na celou obrazovku. Vyber se provadi LTM. "
+"[4.1.1]"
+
+#: guitext:324
+msgctxt "Slab description"
+msgid "Impenetrable Rock: Your Imps cannot dig through this. [12.4]"
+msgstr "Nerozbitný kamen: Tvi skreti se tim nedokazou prokopat. [12.4]"
+
+#: guitext:325
+msgctxt "Slab description"
+msgid "Earth: You can excavate this. [12.1]"
+msgstr "Zeme: Tim se muzes prokopat. [12.1]"
+
+#: guitext:326
+msgctxt "Slab description"
+msgid ""
+"Gold Seam: Your source of wealth. Dig this out and your Imps will take it to "
+"your Treasure Room. [12.2]"
+msgstr ""
+"Zlata zila: To je zdroj tveho bohatstvi. Nech ji tezit a skreti vytezene "
+"zlato odnesou do pokladnice. [12.2]"
+
+#: guitext:327
+msgctxt "Slab description"
+msgid "Lava: Burns any creature that step on it. [14.2]"
+msgstr "Lava: Spali vsechna stvoreni, ktera do ni vstoupi. [14.2]"
+
+#: guitext:328
+msgctxt "Slab description"
+msgid "Water: Creatures move more slowly through water. [14.1]"
+msgstr "Voda: Voda zpomali pohyb vsech stvoreni. [14.1]"
+
+#: guitext:329
+msgctxt "Slab description"
+msgid "Wall: A reinforced stone wall that enemies cannot break through. [12.1]"
+msgstr "Zed: Zpevnena kamenna zed dokaze zadrzet nepritele. 12.1"
+
+#: guitext:330
+msgctxt "Slab description"
+msgid "Damaged Wall: Unless repaired, this wall will eventually collapse."
+msgstr "Poskozena zed: Pokud tuto zed neopravis, muze se zhroutit."
+
+#: guitext:331
+msgctxt "Slab description"
+msgid "Path: Unclaimed earth floor. [12.1]"
+msgstr "Cesta: Nezabrane podzemní uzemí . [12.1]"
+
+#: guitext:332
+msgctxt "Slab description"
+msgid "Claimed area: Your dungeon territory. [12.1]"
+msgstr "Zabrane uzemi: Uzemi tveho sklepeni. [12.1]"
+
+#: guitext:333
+msgctxt "In-game interface item"
+msgid "More..."
+msgstr "Více..."
+
+#: guitext:334
+msgctxt "In-game message"
+msgid "Level completed - press Escape to continue"
+msgstr "Dokoncil jsi uroven - pro pokracovani zmackni Esc"
+
+#: guitext:335
+msgctxt "In-game message"
+msgid "You have been defeated. Press Space to restart."
+msgstr "Byl jsi poražen. Stisknutím mezerníku spustíš novou hru."
+
+#: guitext:336
+msgctxt "On-screen message"
+msgid "Recording FLIC"
+msgstr "Nahrává se FLIC"
+
+#: guitext:337
+msgctxt "On-screen message"
+msgid "Error recording FLIC"
+msgstr "Nastala chyba při nahrávání FLICu"
+
+#: guitext:338
+msgctxt "On-screen message"
+msgid "Finished recording FLIC"
+msgstr "Bylo ukončeno nahrávaní FLICu"
+
+#: guitext:339
+msgctxt "Unused"
+msgid "Time Bomb"
+msgstr "Časovaná bomba"
+
+#: guitext:340
+msgctxt "In-game interface item"
+msgid "Sound FX"
+msgstr "Zvuky"
+
+#: guitext:341
+msgctxt "In-game interface item"
+msgid "Music"
+msgstr "Hudba"
+
+#: guitext:342
+msgctxt "In-game interface item"
+msgid "UNUSED"
+msgstr "NEPOUŽITO"
+
+#: guitext:344
+msgctxt "Menu interface item"
+msgid "Load Menu"
+msgstr "Menu načtení"
+
+#: guitext:345
+msgctxt "Menu interface item"
+msgid "Load Game"
+msgstr "Načíst hru"
+
+#: guitext:346
+msgctxt "Menu interface item"
+msgid "Continue Game"
+msgstr "Pokračovat ve hře"
+
+#: guitext:347
+msgctxt "Menu interface item"
+msgid "Multiplayer"
+msgstr "Hra více hráčů"
+
+#: guitext:348
+msgctxt "Menu interface item"
+msgid "Return to Main Menu"
+msgstr "Návrat do hlavního menu"
+
+#: guitext:349
+msgctxt "Menu interface item"
+msgid "Play Intro"
+msgstr "Přehrát intro"
+
+#: guitext:350
+msgctxt "Menu interface item"
+msgid "Service Menu"
+msgstr "Menu připojení"
+
+#: guitext:351
+msgctxt "Menu interface item"
+msgid "Session Menu"
+msgstr "Sitove menu"
+
+#: guitext:352
+msgctxt "Menu interface item"
+msgid "Speed"
+msgstr "Rychlost portu"
+
+#: guitext:353
+msgctxt "Menu interface item"
+msgid "COM Port"
+msgstr "COM Port"
+
+#: guitext:354
+msgctxt "Menu interface item"
+msgid "Phone Number"
+msgstr "Telefonní číslo"
+
+#: guitext:355
+msgctxt "Menu interface item"
+msgid "IRQ"
+msgstr "IRQ"
+
+#: guitext:356
+msgctxt "Menu interface item"
+msgid "Statistics"
+msgstr "Statistiky"
+
+#: guitext:357
+msgctxt "Menu interface item"
+msgid "Level Completed"
+msgstr "Úroveň dokončena"
+
+#: guitext:358
+msgctxt "Menu interface item"
+msgid "UNUSED"
+msgstr "NEPOUŽITO"
+
+#: guitext:359
+msgctxt "Menu interface item"
+msgid "Quit"
+msgstr "Ukončit"
+
+#: guitext:360
+msgctxt "Menu interface item"
+msgid "Start New Game"
+msgstr "Začít novou hru"
+
+#: guitext:361
+msgctxt "Unused"
+msgid "This is a tale of valour and honour and how tasty heroes are...."
+msgstr "Toto je příbeh o odvaze, cti a o tom jak chutná maso hrdinů ..."
+
+#: guitext:362
+msgctxt "Credits"
+msgid "Designed By"
+msgstr "Navrhnul"
+
+#: guitext:363
+msgctxt "Credits"
+msgid "Project Leader"
+msgstr "Vedoucí projektu"
+
+#: guitext:364
+msgctxt "Credits"
+msgid "Lead Programmer"
+msgstr "Hlavní programátor"
+
+#: guitext:365
+msgctxt "Credits"
+msgid "Lead Artist"
+msgstr "Vedoucí umělec"
+
+#: guitext:366
+msgctxt "Credits"
+msgid "Programming"
+msgstr "Programování"
+
+#: guitext:367
+msgctxt "Credits"
+msgid "Engine Design"
+msgstr "Design enginu"
+
+#: guitext:368
+msgctxt "Credits"
+msgid "Music and Sfx"
+msgstr "Hudba a zvukové efekty"
+
+#: guitext:369
+msgctxt "Credits"
+msgid "Graphics Programmers"
+msgstr "Programátoři grafiky"
+
+#: guitext:370
+msgctxt "Credits"
+msgid "Artists"
+msgstr "Umělci"
+
+#: guitext:371
+msgctxt "Credits"
+msgid "Network Programming"
+msgstr "Síťové programovaní"
+
+#: guitext:372
+msgctxt "Credits"
+msgid "Testing Manager"
+msgstr "Testovací manažer"
+
+#: guitext:373
+msgctxt "Credits"
+msgid "Lead Testers"
+msgstr "Vedoucí testeři"
+
+#: guitext:374
+msgctxt "Credits"
+msgid "Lead Tester"
+msgstr "Vedoucí tester"
+
+#: guitext:375
+msgctxt "Credits"
+msgid "Management"
+msgstr "Management"
+
+#: guitext:376
+msgctxt "Credits"
+msgid "Marketing and PR"
+msgstr "Marketing a PR"
+
+#: guitext:377
+msgctxt "Credits"
+msgid "Tech Support"
+msgstr "Technická podpora"
+
+#: guitext:378
+msgctxt "Credits"
+msgid "Administration"
+msgstr "Administrace"
+
+#: guitext:379
+msgctxt "Credits"
+msgid "Thanks To"
+msgstr "Poděkování"
+
+#: guitext:380
+msgctxt "Credits"
+msgid "Producer"
+msgstr "Producent"
+
+#: guitext:381
+msgctxt "Credits"
+msgid "Level Design"
+msgstr "Level design"
+
+#: guitext:382
+msgctxt "Credits"
+msgid "Script By"
+msgstr "Námět"
+
+#: guitext:383
+msgctxt "Credits"
+msgid "Libraries and Tools"
+msgstr "Knihovny a nástroje"
+
+#: guitext:384
+msgctxt "Credits"
+msgid "Playtesters"
+msgstr "Hru testovali"
+
+#: guitext:385
+msgctxt "Credits"
+msgid "Localisation"
+msgstr "Lokalizace"
+
+#: guitext:386
+msgctxt "Credits"
+msgid "Special Thanks To"
+msgstr "Speciální poděkovaní"
+
+#: guitext:387
+msgctxt "Credits"
+msgid "Package Design"
+msgstr "Návrh obalu"
+
+#: guitext:388
+msgctxt "Credits"
+msgid "Documentation"
+msgstr "Dokumentace"
+
+#: guitext:389
+msgctxt "Credits"
+msgid "Documentation Layout"
+msgstr "Úprava dokumentace"
+
+#: guitext:390
+msgctxt "Credits"
+msgid "Production"
+msgstr "Produkce"
+
+#: guitext:391
+msgctxt "Credits"
+msgid "Quality Assurance"
+msgstr "Záruka kvality"
+
+#: guitext:392
+msgctxt "Credits"
+msgid "Lead Level Design"
+msgstr "Vedouci sestaveni levelů"
+
+#: guitext:393
+msgctxt "Credits"
+msgid "Intro"
+msgstr "Intro"
+
+#: guitext:394
+msgctxt "Credits"
+msgid "Testers"
+msgstr "Testeři"
+
+#: guitext:395
+msgctxt "Menu interface item"
+msgid "Sessions"
+msgstr "Sezení"
+
+#: guitext:396
+msgctxt "Menu interface item"
+msgid "Name"
+msgstr "jméno"
+
+#: guitext:397
+msgctxt "Menu interface item"
+msgid "Services"
+msgstr "Služby"
+
+#: guitext:398
+msgctxt "Menu interface item"
+msgid "Messages"
+msgstr "Zprávy"
+
+#: guitext:399
+msgctxt "Menu interface item"
+msgid "Create Game"
+msgstr "Založit hru"
+
+#: guitext:400
+msgctxt "Menu interface item"
+msgid "Join Game"
+msgstr "Připojit se ke hře"
+
+#: guitext:401
+msgctxt "Menu interface item"
+msgid "Start Game"
+msgstr "Spustit hru"
+
+#: guitext:402
+msgctxt "Menu interface item"
+msgid "Game Menu"
+msgstr "Menu hra"
+
+#: guitext:403
+msgctxt "Menu interface item"
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: guitext:404
+msgctxt "Menu interface item"
+msgid "No Name"
+msgstr "Anonym"
+
+#: guitext:405
+msgctxt "Menu interface item"
+msgid "Players"
+msgstr "Hráči"
+
+#: guitext:406
+msgctxt "Menu interface item"
+msgid "Level"
+msgstr "Úroveň"
+
+#: guitext:407
+msgctxt "Menu interface item"
+msgid "Levels"
+msgstr "Úrovně"
+
+#: guitext:408
+msgctxt "Menu interface item"
+msgid "Games"
+msgstr "Hry"
+
+#: guitext:409
+msgctxt "Menu interface item"
+msgid "Modem Menu"
+msgstr "Menu hry přes modem"
+
+#: guitext:410
+msgctxt "Menu interface item"
+msgid "Serial Menu"
+msgstr "Menu hry přes sériový port"
+
+#: guitext:411
+msgctxt "Menu interface item"
+msgid "Init"
+msgstr "Inicializace"
+
+#: guitext:412
+msgctxt "Menu interface item"
+msgid "Hangup"
+msgstr "Zavesit"
+
+#: guitext:413
+msgctxt "Menu interface item"
+msgid "Clear"
+msgstr "Vymazat"
+
+#: guitext:414
+msgctxt "Menu interface item"
+msgid "Answer"
+msgstr "Odpovědět"
+
+#: guitext:415
+msgctxt "Menu interface item"
+msgid "Start"
+msgstr "Start"
+
+#: guitext:416
+msgctxt "Menu interface item"
+msgid "Ally"
+msgstr "Spojenci"
+
+#: guitext:417
+msgctxt "Menu interface item"
+msgid "Alliance"
+msgstr "Spojenectví"
+
+#: guitext:418
+msgctxt "Menu interface item"
+msgid "Credits"
+msgstr "Titulky"
+
+#: guitext:419
+msgctxt "Menu interface item"
+msgid "Ok"
+msgstr "Ok"
+
+#: guitext:420
+msgctxt "Dungeon special decription"
+msgid "Reveal Map: Reveals the entire underground realm to you."
+msgstr "Odhalit mapu: Odhali ti celou mapu podzemi."
+
+#: guitext:421
+msgctxt "Dungeon special decription"
+msgid ""
+"Resurrect Creature: You may raise one of your fallen minions from the dead."
+msgstr "Ozivit obludu: Muzes ozivit jednu ze svych padlych oblud."
+
+#: guitext:422
+msgctxt "Dungeon special decription"
+msgid ""
+"Transfer Creature: Pick one of your creatures to accompany you to the next "
+"realm."
+msgstr ""
+"Prenest obludu: Umozni ti prenest jednu obludu s sebou do dalsiho kola."
+
+#: guitext:423
+msgctxt "Dungeon special decription"
+msgid "Steal Hero: Subvert a hero to your cause."
+msgstr "Ukrast hrdinu: Prevede vybraneho hrdinu na tvou stranu."
+
+#: guitext:424
+msgctxt "Dungeon special decription"
+msgid "Multiply Creatures: Create a double of each of your creatures."
+msgstr "Rozmnozit obludy: Vytvori kopii od kazde tve obludy."
+
+#: guitext:425
+msgctxt "Dungeon special decription"
+msgid "Increase Level: Bestows greater skill on all your creatures."
+msgstr "Zvysit uroven: Zvysi uroven vsech tvych oblud na maximum."
+
+#: guitext:426
+msgctxt "Dungeon special decription"
+msgid "Make Safe : Reinforces your entire dungeon."
+msgstr "Zabezpečit: Zpevni steny celeho tveho sklepeni."
+
+#: guitext:427
+msgctxt "Dungeon special decription"
+msgid ""
+"Locate Hidden World: You will be transported to a secret realm after you "
+"have conquered this one."
+msgstr ""
+"Najit tajny svet: Po dobiti tohoto kralovstvi budes prenesen do tajne rise."
+
+#: guitext:428
+msgctxt "Dungeon special name"
+msgid "Resurrect Creature"
+msgstr "Ozivit obludu"
+
+#: guitext:429
+msgctxt "Dungeon special name"
+msgid "Transfer Creature"
+msgstr "Prenest obludu"
+
+#: guitext:430
+msgctxt "Menu interface item"
+msgid "Bonus"
+msgstr "Bonus"
+
+#: guitext:431
+msgctxt "Menu interface item"
+msgid "High Score Table"
+msgstr "Tabulka nejvyššího skóre"
+
+#: guitext:432
+msgctxt "Menu interface item"
+msgid "Go to Query Mode"
+msgstr "Prejit do Query modu"
+
+#: guitext:433
+msgctxt "Menu interface item"
+msgid "More information"
+msgstr "Dalsi informace"
+
+#: guitext:434
+msgctxt "Menu interface item"
+msgid "Back to main Query Screen"
+msgstr "Zpet do hlavni Query obrazovky"
+
+#: guitext:435
+msgctxt "Menu interface item"
+msgid "Selected action"
+msgstr "Zvolit akci"
+
+#: guitext:436
+msgctxt "Menu interface item"
+msgid "Choose party"
+msgstr "Vybrat skupinu"
+
+#: guitext:437
+msgctxt "Menu interface item"
+msgid "Enter dungeon"
+msgstr "Vstoupit do kobky"
+
+#: guitext:438
+msgctxt "Menu interface item"
+msgid "Party members"
+msgstr "Členové skupiny"
+
+#: guitext:439
+msgctxt "Menu interface item"
+msgid "Available creatures"
+msgstr "Příšery k dispozici"
+
+#: guitext:440
+msgctxt "Menu interface item"
+msgid "Creature"
+msgstr "Příšera"
+
+#: guitext:441
+msgctxt "Menu interface item"
+msgid "Money available"
+msgstr "Finance k dispozici"
+
+#: guitext:442
+msgctxt "Menu interface item"
+msgid "Leader"
+msgstr "Vůdce"
+
+#: guitext:443
+msgctxt "Menu interface item"
+msgid "Hire"
+msgstr "Najmout"
+
+#: guitext:444
+msgctxt "Menu interface item"
+msgid "Fire"
+msgstr "Vyrazit"
+
+#: guitext:445
+msgctxt "Menu interface item"
+msgid "Cost"
+msgstr "Výše žoldu"
+
+#: guitext:446
+msgctxt "Menu interface item"
+msgid "Type"
+msgstr "Typ"
+
+#: guitext:447
+msgctxt "In-game interface description"
+msgid "Information Panel: Miscellaneous information. [5.0]"
+msgstr "Informační panel: Různé informace. [5.0]"
+
+#: guitext:448
+msgctxt "In-game interface description"
+msgid "Room Panel: The rooms available for you to build. [6.0]"
+msgstr ""
+"Panel místností: Typy místností, které jsou ti dispozici ke stavbě. [6.0]"
+
+#: guitext:449
+msgctxt "In-game interface description"
+msgid "Research Panel: The spells available to you. [7.0]"
+msgstr "Menu Vyzkum: Nabidne kouzla ke zkoumani. [7.0]"
+
+#: guitext:450
+msgctxt "In-game interface description"
+msgid "Workshop Panel: The traps and doors available to you. [8.0]"
+msgstr "Menu Dilna: Zde muzes vyrabet ruzne dvere a pasti. [8.0]"
+
+#: guitext:451
+msgctxt "In-game interface description"
+msgid "Creature Panel: Information on your creatures. [9.0]"
+msgstr "Menu Obludy: Poda informace o tvych priserkach. [9.0]"
+
+#: guitext:452
+msgctxt "In-game interface description"
+msgid "Research Time: The time until a new spell is researched. [5.4]"
+msgstr "Doba vyzkumu: Kolik casu je potreba na vyzkoumani kouzla. [5.4]"
+
+#: guitext:453
+msgctxt "In-game interface description"
+msgid "Workshop Time: The time until a new trap is manufactured. [5.5]"
+msgstr "Doba vyroby: Kolik casu je potreba na vyrobu nove pasti. [5.5]"
+
+#: guitext:454
+msgctxt "In-game interface description"
+msgid "Time: The time until the next Creature Payday. [5.3]"
+msgstr ""
+"Zbyva dni: Za kolik dni budes muset svym obludam muset vyplatit zold. [5.3]"
+
+#: guitext:455
+msgctxt "In-game interface description"
+msgid "Number of Rooms: The number of rooms held by this Keeper. [5.6]"
+msgstr "Pocet mistnosti: Kolik mistnosti vlastni tento Strazce. [5.6]"
+
+#: guitext:456
+msgctxt "In-game interface description"
+msgid ""
+"Number of Creatures: The number of creatures owned by this Keeper. [5.7]"
+msgstr "Pocet oblud: Kolik oblud slouzi tomuto Strazci. [5.7]"
+
+#: guitext:457
+msgctxt "Menu interface item"
+msgid "Choose game"
+msgstr "Vybrat hru"
+
+#: guitext:458
+msgctxt "Menu interface item"
+msgid "Game type"
+msgstr "Typ hry"
+
+#: guitext:459
+msgctxt "Menu interface item"
+msgid "Keeper vs keeper"
+msgstr "Strážce proti Strážci"
+
+#: guitext:460
+msgctxt "Menu interface item"
+msgid "Keeper vs heroes"
+msgstr "Strážce proti Hrdinům"
+
+#: guitext:461
+msgctxt "Menu interface item"
+msgid "Deathmatch"
+msgstr "Deathmatch"
+
+#: guitext:462
+msgctxt "In-game interface description"
+msgid ""
+"Sell Room: Sell a room tile for half the building price. LMB select. [6.4]"
+msgstr ""
+"Prodat místnost: Prodá políčko místnosti za poloviční cenu. Položku vyberes "
+"LTM. [6.4]"
+
+#: guitext:463
+msgctxt "In-game interface description"
+msgid "Sell Item: Sell a Trap or Door. LMB select. [8.1.2]"
+msgstr "Prodat předmět: Prodá dveře nebo past. Položku vybereš LTM. [8.1.2]"
+
+#: guitext:464
+msgctxt "In-game interface description"
+msgid "Next Battle: Zoom to the next battle. LMB select."
+msgstr "Další bitva: Přiblíží oblast s další bitvou. Položku vybereš LTM."
+
+#: guitext:465
+msgctxt "In-game interface item"
+msgid "Close Window"
+msgstr "Zavřít okno"
+
+#: guitext:466
+msgctxt "In-game interface item"
+msgid "Zoom to area"
+msgstr "Priblížit oblast"
+
+#: guitext:467
+msgctxt "Menu interface item"
+msgid "No mouse installed"
+msgstr "Není nainstalována žádná myš"
+
+#: guitext:468
+msgctxt "Menu interface item"
+msgid "Define keys"
+msgstr "Definovat klávesy"
+
+#: guitext:469
+msgctxt "Game controls"
+msgid "Ally with player"
+msgstr "Spojit se s hráčem"
+
+#: guitext:470
+msgctxt "Game controls"
+msgid "Press a key"
+msgstr "Stiskni klávesu"
+
+#: guitext:471
+msgctxt "Game controls"
+msgid "UP"
+msgstr "NAHORU"
+
+#: guitext:472
+msgctxt "Game controls"
+msgid "DOWN"
+msgstr "DOLŮ"
+
+#: guitext:473
+msgctxt "Game controls"
+msgid "LEFT"
+msgstr "DOLEVA"
+
+#: guitext:474
+msgctxt "Game controls"
+msgid "RIGHT"
+msgstr "DOPRAVA"
+
+#: guitext:475
+msgctxt "Game controls"
+msgid "ROTATE"
+msgstr "OTOČIT"
+
+#: guitext:476
+msgctxt "Game controls"
+msgid "SPEED"
+msgstr "RYCHLOST"
+
+#: guitext:477
+msgctxt "Game controls"
+msgid "ROTATE LEFT"
+msgstr "OTOČENÍ DOLEVA"
+
+#: guitext:478
+msgctxt "Game controls"
+msgid "ROTATE RIGHT"
+msgstr "OTOČENÍ DOPRAVA"
+
+#: guitext:479
+msgctxt "Game controls"
+msgid "ZOOM IN"
+msgstr "ZVĚTŠIT"
+
+#: guitext:480
+msgctxt "Game controls"
+msgid "ZOOM OUT"
+msgstr "ZMENŠIT"
+
+#: guitext:481
+msgctxt "Keyboard"
+msgid "LEFT CONTROL"
+msgstr "LEVÝ CTRL"
+
+#: guitext:482
+msgctxt "Keyboard"
+msgid "RIGHT CONTROL"
+msgstr "PRAVÝ CTRL"
+
+#: guitext:483
+msgctxt "Keyboard"
+msgid "LEFT SHIFT"
+msgstr "LEVÝ SHIFT"
+
+#: guitext:484
+msgctxt "Keyboard"
+msgid "RIGHT SHIFT"
+msgstr "PRAVÝ SHIFT"
+
+#: guitext:485
+msgctxt "Keyboard"
+msgid "LEFT ALT"
+msgstr "LEVÝ ALT"
+
+#: guitext:486
+msgctxt "Keyboard"
+msgid "RIGHT ALT"
+msgstr "PRAVÝ ALT"
+
+#: guitext:487
+msgctxt "Keyboard"
+msgid "SPACE"
+msgstr "MEZERNÍK"
+
+#: guitext:488
+msgctxt "Keyboard"
+msgid "RETURN"
+msgstr "ENTER"
+
+#: guitext:489
+msgctxt "Keyboard"
+msgid "TAB"
+msgstr "TABULÁTOR"
+
+#: guitext:490
+msgctxt "Keyboard"
+msgid "CAPS LOCK"
+msgstr "CAPS LOCK"
+
+#: guitext:491
+msgctxt "Keyboard"
+msgid "BACKSPACE"
+msgstr "BACKSPACE"
+
+#: guitext:492
+msgctxt "Keyboard"
+msgid "INSERT"
+msgstr "INSERT"
+
+#: guitext:493
+msgctxt "Keyboard"
+msgid "DELETE"
+msgstr "DELETE"
+
+#: guitext:494
+msgctxt "Keyboard"
+msgid "HOME"
+msgstr "HOME"
+
+#: guitext:495
+msgctxt "Keyboard"
+msgid "END"
+msgstr "END"
+
+#: guitext:496
+msgctxt "Keyboard"
+msgid "PAGE UP"
+msgstr "PAGE UP"
+
+#: guitext:497
+msgctxt "Keyboard"
+msgid "PAGE DOWN"
+msgstr "PAGE DOWN"
+
+#: guitext:498
+msgctxt "Keyboard"
+msgid "NUM LOCK"
+msgstr "NUM LOCK"
+
+#: guitext:499
+msgctxt "Keyboard"
+msgid "NUM /"
+msgstr "NUM /"
+
+#: guitext:500
+msgctxt "Keyboard"
+msgid "NUM *"
+msgstr "NUM *"
+
+#: guitext:501
+msgctxt "Keyboard"
+msgid "NUM -"
+msgstr "NUM -"
+
+#: guitext:502
+msgctxt "Keyboard"
+msgid "NUM +"
+msgstr "NUM +"
+
+#: guitext:503
+msgctxt "Keyboard"
+msgid "NUM ENTER"
+msgstr "NUM ENTER"
+
+#: guitext:504
+msgctxt "Keyboard"
+msgid "NUM DELETE"
+msgstr "NUM DELETE"
+
+#: guitext:505
+msgctxt "Keyboard"
+msgid "NUM 1"
+msgstr "NUM 1"
+
+#: guitext:506
+msgctxt "Keyboard"
+msgid "NUM 2"
+msgstr "NUM 2"
+
+#: guitext:507
+msgctxt "Keyboard"
+msgid "NUM 3"
+msgstr "NUM 3"
+
+#: guitext:508
+msgctxt "Keyboard"
+msgid "NUM 4"
+msgstr "NUM 4"
+
+#: guitext:509
+msgctxt "Keyboard"
+msgid "NUM 5"
+msgstr "NUM 5"
+
+#: guitext:510
+msgctxt "Keyboard"
+msgid "NUM 6"
+msgstr "NUM 6"
+
+#: guitext:511
+msgctxt "Keyboard"
+msgid "NUM 7"
+msgstr "NUM 7"
+
+#: guitext:512
+msgctxt "Keyboard"
+msgid "NUM 8"
+msgstr "NUM 8"
+
+#: guitext:513
+msgctxt "Keyboard"
+msgid "NUM 9"
+msgstr "NUM 9"
+
+#: guitext:514
+msgctxt "Keyboard"
+msgid "NUM 0"
+msgstr "NUM 0"
+
+#: guitext:515
+msgctxt "Keyboard"
+msgid "F1"
+msgstr "F1"
+
+#: guitext:516
+msgctxt "Keyboard"
+msgid "F2"
+msgstr "F2"
+
+#: guitext:517
+msgctxt "Keyboard"
+msgid "F3"
+msgstr "F3"
+
+#: guitext:518
+msgctxt "Keyboard"
+msgid "F4"
+msgstr "F4"
+
+#: guitext:519
+msgctxt "Keyboard"
+msgid "F5"
+msgstr "F5"
+
+#: guitext:520
+msgctxt "Keyboard"
+msgid "F6"
+msgstr "F6"
+
+#: guitext:521
+msgctxt "Keyboard"
+msgid "F7"
+msgstr "F7"
+
+#: guitext:522
+msgctxt "Keyboard"
+msgid "F8"
+msgstr "F8"
+
+#: guitext:523
+msgctxt "Keyboard"
+msgid "F9"
+msgstr "F9"
+
+#: guitext:524
+msgctxt "Keyboard"
+msgid "F10"
+msgstr "F10"
+
+#: guitext:525
+msgctxt "Keyboard"
+msgid "F11"
+msgstr "F11"
+
+#: guitext:526
+msgctxt "Keyboard"
+msgid "F12"
+msgstr "F12"
+
+#: guitext:527
+msgctxt "Keyboard"
+msgid "UP"
+msgstr "ŠIPKA NAHORU"
+
+#: guitext:528
+msgctxt "Keyboard"
+msgid "DOWN"
+msgstr "ŠIPKA DOLŮ"
+
+#: guitext:529
+msgctxt "Keyboard"
+msgid "LEFT"
+msgstr "ŠIPKA DOLEVA"
+
+#: guitext:530
+msgctxt "Keyboard"
+msgid "RIGHT"
+msgstr "ŠIPKA DOPRAVA"
+
+#: guitext:531
+msgctxt "Network game message"
+msgid "Initialising Modem"
+msgstr "Inicializuji modem"
+
+#: guitext:532
+msgctxt "Network game message"
+msgid "Connecting Modem"
+msgstr "Spojuji modem"
+
+#: guitext:533
+msgctxt "Network game message"
+msgid "Dial"
+msgstr "Vytáčení"
+
+#: guitext:534
+msgctxt "Network game message"
+msgid "Continue"
+msgstr "Pokračovat"
+
+#: guitext:535
+msgctxt "Network game message"
+msgid "Line Engaged"
+msgstr "Spojení navázáno"
+
+#: guitext:536
+msgctxt "Network game message"
+msgid "Unknown Error"
+msgstr "Neznámá chyba"
+
+#: guitext:537
+msgctxt "Network game message"
+msgid "No Carrier"
+msgstr "Žádný přepravce"
+
+#: guitext:538
+msgctxt "Network game message"
+msgid "No Dial Tone"
+msgstr "Žádný vyzváněcí tón"
+
+#: guitext:539
+msgctxt "Network game message"
+msgid "No Response"
+msgstr "Žádná odezva"
+
+#: guitext:540
+msgctxt "Network game message"
+msgid "No Server"
+msgstr "Server nenalezen"
+
+#: guitext:541
+msgctxt "Network game message"
+msgid "Unable to initialise"
+msgstr "Nemohu inicializovat systém"
+
+#: guitext:542
+msgctxt "Network game message"
+msgid "Unable to create game"
+msgstr "Nemohu vytvořit hru"
+
+#: guitext:543
+msgctxt "Network game message"
+msgid "Unable to join game"
+msgstr "Nemohu se připojit ke hře"
+
+#: guitext:544
+msgctxt "Slab description"
+msgid "Gems: Infinite wealth for your Imps to extract. [12.3]"
+msgstr ""
+"Drahokamy: Nekonecný zdroj bohatství, které pro tebe mohou Skřeti těžit. "
+"[12.3]"
+
+#: guitext:545
+msgctxt "Object description"
+msgid "Hero Gate: Heroes use this portal to invade your dungeon. [15.4]"
+msgstr ""
+"Brána hrdinů: Hrdinové pouzívají tento portál k invazi do tvé kobky. [15.4]"
+
+#: guitext:546
+msgctxt "Creature name"
+msgid "Tunneller"
+msgstr "Tunneller"
+
+#: guitext:547
+msgctxt "Creature name"
+msgid "Avatar"
+msgstr "Avatar"
+
+#: guitext:548
+msgctxt "In-game interface description"
+msgid "Toggle Computer Assistant: Currently - Aggressive. LMB toggle. [3.2.4]"
+msgstr ""
+"Přepnout počítačového asisteta: Momentálně - Agresivní. Přepnes LTM. [3.2.4]"
+
+#: guitext:549
+msgctxt "In-game interface description"
+msgid "Toggle Computer Assistant: Currently - Defensive. LMB toggle. [3.2.4]"
+msgstr ""
+"Přepnout počítačového asisteta: Momentálně - Obranný. Přepnes LTM. [3.2.4]"
+
+#: guitext:550
+msgctxt "In-game interface description"
+msgid ""
+"Toggle Computer Assistant: Currently - Construction Only. LMB toggle. [3.2.4]"
+msgstr ""
+"Přepnout počítačového asisteta: Momentálně - pouze stavět. Přepnes LTM. "
+"[3.2.4]"
+
+#: guitext:551
+msgctxt "In-game interface description"
+msgid "Toggle Computer Assistant: Currently - Move Only. LMB toggle. [3.2.4]"
+msgstr ""
+"Přepnout počítačového asisteta: Momentálně - pouze přesuny. Přepnes LTM. "
+"[3.2.4]"
+
+#: guitext:552
+msgctxt "In-game tab with rooms"
+msgid "Treasure Room"
+msgstr "Pokladnice"
+
+#: guitext:553
+msgctxt "In-game tab with rooms"
+msgid "Library"
+msgstr "Knihovna"
+
+#: guitext:554
+msgctxt "In-game tab with rooms"
+msgid "Lair"
+msgstr "Doupě"
+
+#: guitext:555
+msgctxt "In-game tab with rooms"
+msgid "Prison"
+msgstr "Vězení"
+
+#: guitext:556
+msgctxt "In-game tab with rooms"
+msgid "Torture Room"
+msgstr "Mučírna"
+
+#: guitext:557
+msgctxt "In-game tab with rooms"
+msgid "Training Room"
+msgstr "Tréningová místnot"
+
+#: guitext:558
+msgctxt "In-game tab with rooms"
+msgid "Dungeon Heart"
+msgstr "Srdce sklepení"
+
+#: guitext:559
+msgctxt "In-game tab with rooms"
+msgid "Workshop"
+msgstr "Dílna"
+
+#: guitext:560
+msgctxt "In-game tab with rooms"
+msgid "Scavenger Room"
+msgstr "Očistec"
+
+#: guitext:561
+msgctxt "In-game tab with rooms"
+msgid "Temple"
+msgstr "Chrám"
+
+#: guitext:562
+msgctxt "In-game tab with rooms"
+msgid "Graveyard"
+msgstr "Hřbitov"
+
+#: guitext:563
+msgctxt "In-game tab with rooms"
+msgid "Barracks"
+msgstr "Kasárna"
+
+#: guitext:564
+msgctxt "In-game tab with rooms"
+msgid "Hatchery"
+msgstr "Líheň"
+
+#: guitext:565
+msgctxt "In-game tab with rooms"
+msgid "Guard Post"
+msgstr "Strážnice"
+
+#: guitext:566
+msgctxt "In-game tab with rooms"
+msgid "Bridge"
+msgstr "Most"
+
+#: guitext:567
+msgid "Fight"
+msgstr "Boj"
+
+#: guitext:568
+msgid "Annoyed"
+msgstr "Naštvaný"
+
+#: guitext:569
+msgctxt "Keyboard"
+msgid "Shift"
+msgstr "Shift"
+
+#: guitext:570
+msgctxt "Keyboard"
+msgid "Control"
+msgstr "Control"
+
+#: guitext:571
+msgctxt "Keyboard"
+msgid "Alt"
+msgstr "Alt"
+
+#: guitext:572
+msgctxt "Credits"
+msgid "Additional Artwork"
+msgstr "Další umělci"
+
+#: guitext:573
+msgctxt "Credits"
+msgid "Additional Programming"
+msgstr "Další programátoři"
+
+#: guitext:574
+msgctxt "Credits"
+msgid "Manual And Documentation"
+msgstr "Manuál a dokumentace"
+
+#: guitext:575
+msgctxt "Credits"
+msgid "Installer"
+msgstr "Instalátor"
+
+#: guitext:576
+msgctxt "Credits"
+msgid "Additional Level Design"
+msgstr "Další desinéři úrovní"
+
+#: guitext:577 guitext:863
+msgctxt "Credits"
+msgid "Additional Thanks"
+msgstr "Další poděkování"
+
+#: guitext:578
+msgctxt "Trap names"
+msgid "Boulder Trap"
+msgstr "Past z balvanem"
+
+#: guitext:579
+msgctxt "Trap names"
+msgid "Alarm Trap"
+msgstr "Past s poplašným zařízením"
+
+#: guitext:580
+msgctxt "Trap names"
+msgid "Poison Gas Trap"
+msgstr "Past s jedovatým plynem"
+
+#: guitext:581
+msgctxt "Trap names"
+msgid "Lightning Trap"
+msgstr "Past s blesky"
+
+#: guitext:582
+msgctxt "Trap names"
+msgid "Word of Power Trap"
+msgstr "Past Slovo moci"
+
+#: guitext:583
+msgctxt "Trap names"
+msgid "Lava Trap"
+msgstr "Past s lávou"
+
+#: guitext:584
+msgctxt "Trap description"
+msgid ""
+"Boulder Trap: A rolling rock that crushes everything in its path. LMB "
+"select. RMB zoom. [20.1]"
+msgstr ""
+"Past s balvanem: Valici se kamen, ktery rozdrti vse co mu stoji v ceste. "
+"Zvoli se LTM, PTM zvetsi oblast. [20.1]"
+
+#: guitext:585
+msgctxt "Trap description"
+msgid "Alarm Trap: Triggers a Call To Arms spell. LMB select. RMB zoom. [20.2]"
+msgstr ""
+"Poplasne zarizeni: Spusteni poplasneho zarizeni vyvola kouzlo Mobilizace. "
+"Zvoli se LTM, PTM zvetsi oblast. [20.2]"
+
+#: guitext:586
+msgctxt "Trap description"
+msgid ""
+"Poison Gas Trap: A cloud of noxious vapours triggered by your enemies. LMB "
+"select. RMB zoom. [20.3]"
+msgstr ""
+"Past s jedovatym plynem: Past po aktivaci vypusti na nepratele oblak "
+"jedovateho plynu. Zvoli se LTM, PTM zvetsi oblast. [20.3]"
+
+#: guitext:587
+msgctxt "Trap description"
+msgid ""
+"Lightning Trap: Strikes nearby enemy creatures with bolts of lightning. LMB "
+"select. RMB zoom. [20.4]"
+msgstr ""
+"Past s blesky: Zasahne nepratele ve svem okoli svazkem blesku. Zvoli se LTM, "
+"PTM zvetsi oblast. [20.4]"
+
+#: guitext:588
+msgctxt "Trap description"
+msgid ""
+"Word of Power Trap: Radiates devastating rings of demonic energy, damaging "
+"all creatures within range. LMB select. RMB zoom. [20.5]"
+msgstr ""
+"Past Slovo moci: Vysila kruhy nicive energie a zrani vsechny obludy v "
+"dosahu. Zvoli se LTM, PTM zvetsi oblast. [20.5]"
+
+#: guitext:589
+msgctxt "Trap description"
+msgid ""
+"Lava Trap: The tile disintegrates revealing a pool of molten lava. LMB "
+"select. RMB zoom. [20.6]"
+msgstr ""
+"Past s lavou: Zmeni vybrane policko na zhavou lavu. Zvoli se LTM, PTM zvetsi "
+"oblast. [20.6]"
+
+#: guitext:590
+msgctxt "Door name"
+msgid "Wooden Door"
+msgstr "Dřevěné dveře"
+
+#: guitext:591
+msgctxt "Door name"
+msgid "Braced Door"
+msgstr "Zpevněné dveře"
+
+#: guitext:592
+msgctxt "Door name"
+msgid "Iron Door"
+msgstr "Železné dveře"
+
+#: guitext:593
+msgctxt "Door name"
+msgid "Magic Door"
+msgstr "Kouzelné dveře"
+
+#: guitext:594
+msgctxt "Door description"
+msgid ""
+"Wooden Door: The simplest means of restricting access. LMB select. RMB zoom. "
+"[21.1]"
+msgstr ""
+"Drevene dvere: Nejjednodussi zpusob jak omezit pohyb po sklepenich. Zvoli se "
+"LTM, PTM zvetsi oblast. [21.1]"
+
+#: guitext:595
+msgctxt "Door description"
+msgid ""
+"Braced Door: A wooden door reinforced with iron. LMB select. RMB zoom. [21.2]"
+msgstr ""
+"Zpevnene dvere: Drevene dvere vylepsene zelezem. Zvoli se LTM, PTM zvetsi "
+"oblast. [21.2]"
+
+#: guitext:596
+msgctxt "Door description"
+msgid ""
+"Iron Door: Strong, heavy door capable of sustaining massive damage. LMB "
+"select. RMB zoom. [21.3]"
+msgstr ""
+"Zelezne dvere: Tezke a pevne dvere. Snesou velke poskozeni. Zvoli se LTM, "
+"PTM zvetsi oblast. [21.3]"
+
+#: guitext:597
+msgctxt "Door description"
+msgid ""
+"Magic Door: A special door, highly resistant to physical damage but "
+"susceptible to magical damage. LMB select. RMB zoom. [21.4]"
+msgstr ""
+"Kouzelne dvere: Specialni dvere. Jsou velice odolne vuci fyzickemu "
+"poskozeni, ale neodolaji ruznym kouzlum. Zvoli se LTM, PTM zvetsi oblast. "
+"[21.4]"
+
+#: guitext:598
+msgctxt "Room name"
+msgid "Portal"
+msgstr "Portál"
+
+#: guitext:599
+msgctxt "Room name"
+msgid "Treasure Room"
+msgstr "Pokladnice"
+
+#: guitext:600
+msgctxt "Room name"
+msgid "Library"
+msgstr "Knihovna"
+
+#: guitext:601
+msgctxt "Room name"
+msgid "Prison"
+msgstr "Vězení"
+
+#: guitext:602
+msgctxt "Room name"
+msgid "Torture Chamber"
+msgstr "Mucirna"
+
+#: guitext:603
+msgctxt "Room name"
+msgid "Training Room"
+msgstr "Tréningová místnost"
+
+#: guitext:604
+msgctxt "Room name"
+msgid "Dungeon Heart"
+msgstr "Srdce sklepení"
+
+#: guitext:605
+msgctxt "Room name"
+msgid "Workshop"
+msgstr "Dilna"
+
+#: guitext:606
+msgctxt "Room name"
+msgid "Graveyard"
+msgstr "Hřbitov"
+
+#: guitext:607
+msgctxt "Room name"
+msgid "Barracks"
+msgstr "Kasárna"
+
+#: guitext:608
+msgctxt "Room name"
+msgid "Hatchery"
+msgstr "Líheň"
+
+#: guitext:609
+msgctxt "Room name"
+msgid "Lair"
+msgstr "Doupě"
+
+#: guitext:610
+msgctxt "Room name"
+msgid "Bridge"
+msgstr "Most"
+
+#: guitext:611
+msgctxt "Room name"
+msgid "Guard Post"
+msgstr "Strážnice"
+
+#: guitext:612
+msgctxt "Room name"
+msgid "Temple"
+msgstr "Chrám"
+
+#: guitext:613
+msgctxt "Room name"
+msgid "Scavenger Room"
+msgstr "Očistec"
+
+#: guitext:614
+msgctxt "Object name"
+msgid "Hero Gate"
+msgstr "Brána hrdinů"
+
+#: guitext:615
+msgctxt "Room description"
+msgid "Treasure Room: Your gold is stored here. LMB select. RMB zoom. [17.1]"
+msgstr ""
+"Pokladnice: Zde skladujes sve zlato. Zvoli se LTM, PTM zvetsi oblast. [17.1]"
+
+#: guitext:616
+msgctxt "Room description"
+msgid ""
+"Library: The room where spells are researched. LMB select. RMB zoom. [17.4]"
+msgstr ""
+"Knihovna: V teto mistnosti se vyvijeji nova kouzla. Zvoli se LTM, PTM zvetsi "
+"oblast. [17.4]"
+
+#: guitext:617
+msgctxt "Room description"
+msgid ""
+"Prison: Place enemy creatures here for safe keeping. LMB select. RMB zoom. "
+"[17.10]"
+msgstr ""
+"Vezeni: Do vezeni muzes uvrhnout nepratele kteri prezili tve utoky.Zvoli se "
+"LTM, PTM zvetsi oblast. [17.10]"
+
+#: guitext:618
+msgctxt "Room description"
+msgid ""
+"Training Room: Place creatures in here to improve their experience. LMB "
+"select. RMB zoom. [17.5]"
+msgstr ""
+"Tr0nungov8 m9stnost: Zde si tve obludy mohou zvysovat uroven svych "
+"schopnosti. Zvoli se LTM, PTM zvetsi oblast. [17.5]"
+
+#: guitext:619
+msgctxt "Room description"
+msgid ""
+"Torture Chamber: Torture creatures for your own evil ends. LMB select. RMB "
+"zoom. [17.11]"
+msgstr ""
+"Mucirna: Zde se muci zajate obludy a hrdinove. Zvoli se LTM, PTM zvetsi "
+"oblast. [17.11]"
+
+#: guitext:620
+msgctxt "Room description"
+msgid "Dungeon Heart: The life force of your dungeon. [11.2]"
+msgstr "Srdce sklepeni: Zivotne dulezity stred tveho sklepeni. [11.2]"
+
+#: guitext:621
+msgctxt "Room description"
+msgid ""
+"Workshop: Place creatures inside to manufacture Traps and Doors. LMB select. "
+"RMB zoom. [17.8]"
+msgstr ""
+"Dilna: Do dilny je nutne umistnit nejake obludy aby pro tebe vyrabely dvere "
+"a pasti. Zvoli se LTM, PTM zvetsi oblast. [17.8]"
+
+#: guitext:622
+msgctxt "Room description"
+msgid ""
+"Graveyard: Dead creatures are taken to this room to rot. LMB select. RMB "
+"zoom. [17.13]"
+msgstr ""
+"Hrbitov: V teto mistnosti hniji tela tvych porazenych nepratel. Zvoli se "
+"LTM, PTM zvetsi oblast. [17.13]"
+
+#: guitext:623
+msgctxt "Room description"
+msgid ""
+"Barracks: Group creatures by placing them into the room. LMB select. RMB "
+"zoom. [17.9]"
+msgstr ""
+"Kasarna: Seskupuji zde umistnene obludy do vojenskych utvaru. Zvoli se LTM, "
+"PTM zvetsi oblast. [17.9]"
+
+#: guitext:624
+msgctxt "Room description"
+msgid ""
+"Hatchery: Where creatures feast on cute, helpless little chicks. LMB select. "
+"RMB zoom. [17.3]"
+msgstr ""
+"Líheň: V líhni se prisery krmi malymi, bezbranymi kuratky. Zvoli se LTM, PTM "
+"zvetsi oblast. [17.3]"
+
+#: guitext:625
+msgctxt "Room description"
+msgid ""
+"Lair: Where your creatures sleep and replenish their energy. LMB select. RMB "
+"zoom. [17.2]"
+msgstr ""
+"Doupe: V doupeti tve obludy odpocivaji a nabiraji novych sil. Zvoli se LTM, "
+"PTM zvetsi oblast. [17.2]"
+
+#: guitext:626
+msgctxt "Room description"
+msgid ""
+"Bridge: Place this on water and lava to allow creatures to cross. LMB "
+"select. RMB zoom. [17.6]"
+msgstr ""
+"Most: Mosty se buduji pres oblasti vody a lavy. Zvoli se LTM, PTM zvetsi "
+"oblast. [17.6]"
+
+#: guitext:627
+msgctxt "Room description"
+msgid ""
+"Guard Post: Your creatures keep watch over your dungeon when placed on this "
+"room. LMB select. RMB zoom. [17.7]"
+msgstr ""
+"Straznice: Ve straznicich dohlizeji strazne obludy na bezpecnost tvych "
+"sklepeni. Zvoli se LTM, PTM zvetsi oblast. [17.7]"
+
+#: guitext:628
+msgctxt "Room description"
+msgid ""
+"Temple: Worshipping the dark gods makes creatures happier. Sacrifice "
+"creatures by dropping them into the font. LMB select. RMB zoom. [17.12]"
+msgstr ""
+"Chram: Obeti temnym bohum zvysuji moralku tvych oblud. Obludu obetujes v "
+"nadrzi. Zvoli se LTM, PTM zvetsi oblast. [17.12]"
+
+#: guitext:629
+msgctxt "Room description"
+msgid ""
+"Scavenger Room: Creatures placed onto the room lure their kin away from "
+"other dungeons or through portals. LMB select. RMB zoom. [17.14]"
+msgstr ""
+"Ocistec: Obludy umistnene do teto mistnosti lanari dalsi obludy sveho druhu. "
+"Zvoli se LTM, PTM zvetsi oblast. [17.14]"
+
+#: guitext:630
+msgctxt "Keeper spell name"
+msgid "Possess Creature"
+msgstr "Ovládnout stvoření"
+
+#: guitext:631
+msgctxt "Keeper spell name"
+msgid "Create Imp"
+msgstr "Stvořit skřeta"
+
+#: guitext:632
+msgctxt "Keeper spell name"
+msgid "Sight of Evil"
+msgstr "Oko zla"
+
+#: guitext:633
+msgctxt "Keeper spell name"
+msgid "Call To Arms"
+msgstr "Mobilizace"
+
+#: guitext:634
+msgctxt "Keeper spell name"
+msgid "Hold Audience"
+msgstr "Pozdržet návštěvu"
+
+#: guitext:635
+msgctxt "Keeper spell name"
+msgid "Cave-In"
+msgstr "Zával"
+
+#: guitext:636
+msgctxt "Keeper spell name"
+msgid "Must Obey"
+msgstr "Povinnost uposlechnout"
+
+#: guitext:637
+msgctxt "Keeper spell name"
+msgid "Speed Monster"
+msgstr "Urychlit příšeru"
+
+#: guitext:638
+msgctxt "Keeper spell name"
+msgid "Protect Monster"
+msgstr "Ochránit příšeru"
+
+#: guitext:639
+msgctxt "Keeper spell name"
+msgid "Conceal Monster"
+msgstr "Skrýt příšeru"
+
+#: guitext:640
+msgctxt "Keeper spell name"
+msgid "Lightning Strike"
+msgstr "Úder blesku"
+
+#: guitext:641
+msgctxt "Keeper spell name"
+msgid "Chicken"
+msgstr "Drůbežátor"
+
+#: guitext:642
+msgctxt "Keeper spell name"
+msgid "Disease"
+msgstr "Choroba"
+
+#: guitext:643
+msgctxt "Keeper spell name"
+msgid "Destroy Walls"
+msgstr "Zničit zdi"
+
+#: guitext:644
+msgctxt "Keeper spell name"
+msgid "Heal"
+msgstr "Uzdravení"
+
+#: guitext:645
+msgctxt "Keeper spell name"
+msgid "Time Bomb"
+msgstr "Časovaná bomba"
+
+#: guitext:646
+msgctxt "Keeper spell name"
+msgid "Armageddon"
+msgstr "Armagedon"
+
+#: guitext:647
+msgctxt "Keeper spell description"
+msgid "Possess Creature: Control a creature directly. LMB select. [18.1]"
+msgstr ""
+"Ovladnout příšeru: Umozni ti primo ovladat vybrané stvoření. Zvoli se LTM. "
+"[18.1]"
+
+#: guitext:648
+msgctxt "Keeper spell description"
+msgid ""
+"Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. "
+"[18.2]"
+msgstr ""
+"Vytvorit skreta: Vyvola kdekoliv na tvem uzemi skreta. Zvoli se LTM. [18.2]"
+
+#: guitext:649
+msgctxt "Keeper spell description"
+msgid ""
+"Sight of Evil: Reveal a hidden area of the map for a limited time. LMB "
+"select. RMB zoom. [18.3]"
+msgstr ""
+"Oko zla: Na urcitou dobu odhali vybranou oblast mapy. Zvoli se LTM, PTM "
+"zvetsi oblast. [18.3]"
+
+#: guitext:650
+msgctxt "Keeper spell description"
+msgid ""
+"Call To Arms: Calls all your creatures to an area of your dungeon. LMB "
+"select, LMB again to reselect, LMB a third time to cancel. RMB zoom. [18.6]"
+msgstr ""
+"Mobilizace: Svola vsechny volne obludy do urcene oblasti tvych sklepeni. "
+"Kouzlo vybiras stisknutim LTM, dalsim stisknutim LTM obnovis vyber a tretim "
+"stisknutim vyber rusis. PTM zobrazi detailni pohled. [18.6]"
+
+#: guitext:651
+msgctxt "Keeper spell description"
+msgid ""
+"Hold Audience: Calls all your creatures to the Dungeon Heart. LMB select. "
+"RMB zoom. [18.8]"
+msgstr ""
+"Pozdržet návštěvu: Teleportuje vsechny tve obludy na obranu srdce sklepeni. "
+"Volba se provadi LTM, PTM zobrazi detailni pohled. 18.8"
+
+#: guitext:652
+msgctxt "Keeper spell description"
+msgid "Cave In: Collapses the roof of the dungeon. LMB select. [18.13]"
+msgstr "Zaval: Zborti strop chodby. Kouzlo se voli LTM. [18.13]"
+
+#: guitext:653
+msgctxt "Keeper spell description"
+msgid ""
+"Must Obey: Forces your creatures to obey your every command. LMB select. "
+"[18.5]"
+msgstr ""
+"Hypnoticky prikaz: Prinuti obludu splnit i proti jeji vuli jakykoliv tvuj "
+"prikaz. Kouzlo vyberes LTM. [18.5]"
+
+#: guitext:654
+msgctxt "Keeper spell description"
+msgid "Speed Monster: Increases the speed of your monsters. LMB select. [18.4]"
+msgstr ""
+"Urychlit obludu: Zvysi rychlost tvych vybranych oblud. Vyber kouzla se "
+"provadi LTM. [18.4]"
+
+#: guitext:655
+msgctxt "Keeper spell description"
+msgid ""
+"Protect Monster: Shields your creatures from attack. LBM select. [18.11]"
+msgstr ""
+"Ochranit obludu: Brani obludu pred utoky nepratel. Kouzlo vyberes pomoci "
+"LTM. [18.11]"
+
+#: guitext:656
+msgctxt "Keeper spell description"
+msgid ""
+"Conceal Monster: Makes your creatures invisible to the enemy. LMB select. "
+"[18.7]"
+msgstr ""
+"Neviditelnost: Kouzlo zpusobi, ze tve obludy jsou pro nepratele neviditelni. "
+"Vyber kouzla se provadi LTM. [18.7]"
+
+#: guitext:657
+msgctxt "Keeper spell description"
+msgid ""
+"Lightning Strike: Strikes an area of the dungeon with a devastating bolt of "
+"lightning. LMB select. [18.10]"
+msgstr ""
+"Úder blesku: Uderi na vybranou oblast sklepeni nicivym svazkem blesku. "
+"Kouzlo se vybere pomoci LTM. [18.1]"
+
+#: guitext:658
+msgctxt "Keeper spell description"
+msgid "Chicken: Transforms the enemy into a tasty morsel. LMB select. [18.12]"
+msgstr ""
+"Drubezator: Zmeni nepratele v chutnou drubez. Vyber kouzla se provadi pomoci "
+"LTM. [18.12]"
+
+#: guitext:659
+msgctxt "Keeper spell description"
+msgid ""
+"Disease: Inflicts a deadly plague on an enemy creature. LMB select. [18.14]"
+msgstr ""
+"Choroba: Zpusobi vybranym nepratelum smrtelnou nemoc. kouzlo vyberes pomoci "
+"LTM. [18.14]"
+
+#: guitext:660
+msgctxt "Keeper spell description"
+msgid ""
+"Destroy Walls: Breaks down reinforcemed enemy's walls. LMB select. [18.16]"
+msgstr ""
+"Znicit zdi: Zboura nepratelske zpevnene zdi. Kouzlo se vybere LTM.  [18.16]"
+
+#: guitext:661
+msgctxt "Keeper spell description"
+msgid ""
+"Heal: Cast on an area of the dungeon to improve the health of your "
+"creatures. LMB select. [18.9]"
+msgstr ""
+"Uzdraveni: Pouzitim tohoto kouzla na urcitou oblast sklepeni pridas zivot "
+"svym obludam. Kouzlo vyberes pomoci LTM. [18.9]"
+
+#: guitext:662
+msgctxt "Keeper spell description"
+msgid "Time Bomb: Turns your creature into a suicidal bomber."
+msgstr "Časovaná bomba: promění tvou příšeru v sebevražedného atentátníka."
+
+#: guitext:663
+msgctxt "Keeper spell description"
+msgid ""
+"Armageddon: Transports all the creatures in the land to your Dungeon Heart "
+"for a final, decisive battle. LMB select. [18.15]"
+msgstr ""
+"Armagedon: Prenese vsechny obludy v zemi do tveho Srdce sklepeni, kde se "
+"odehraje prudka, krvava a konecna bitva. Kouzlo se zvoli pomoci LTM. [18.15]"
+
+#: guitext:664
+msgctxt "Game event name"
+msgid "Treasure Room full"
+msgstr "Pokladnice je plná"
+
+#: guitext:665
+msgctxt "Game event name"
+msgid "Scavenging detected"
+msgstr "Detekováno očišťování"
+
+#: guitext:666
+msgctxt "Game event name"
+msgid "Creature Payday"
+msgstr "Výplatní den"
+
+#: guitext:667
+msgctxt "Game event name"
+msgid "New spell picked up"
+msgstr "Nalezeno nové kouzlo"
+
+#: guitext:668
+msgctxt "Game event name"
+msgid "New room taken over"
+msgstr "Zabrána nová místnost"
+
+#: guitext:669
+msgctxt "Game event name"
+msgid "New area discovered"
+msgstr "Objevena nová oblast"
+
+#: guitext:670
+msgctxt "Game event name"
+msgid "Information"
+msgstr "Informace"
+
+#: guitext:671
+msgctxt "Game event name"
+msgid "Room lost"
+msgstr "Přišel jsi o místnost"
+
+#: guitext:672
+msgctxt "Game event name"
+msgid "Heart attacked"
+msgstr "Srdce sklepení je napadeno"
+
+#: guitext:673
+msgctxt "Game event name"
+msgid "Fight"
+msgstr "Zaútočit"
+
+#: guitext:674
+msgctxt "Game event name"
+msgid "Objective"
+msgstr "Cíl"
+
+#: guitext:675
+msgctxt "Game event name"
+msgid "Breach"
+msgstr "Průnik nepřátel"
+
+#: guitext:676
+msgctxt "Game event name"
+msgid "New spell researched"
+msgstr "Vynalezeno nové kouzlo"
+
+#: guitext:677
+msgctxt "Game event name"
+msgid "New room researched"
+msgstr "Vynalezena nová místnost"
+
+#: guitext:678
+msgctxt "Game event name"
+msgid "New Trap"
+msgstr "Nová past"
+
+#: guitext:679
+msgctxt "Game event name"
+msgid "New Door"
+msgstr "Nové dveře"
+
+#: guitext:680
+msgctxt "Game event name"
+msgid "New creature in dungeon"
+msgstr "Nová příšera v kobce"
+
+#: guitext:681
+msgctxt "Game event name"
+msgid "Creature annoyed"
+msgstr "Tví přisluhovači jsou naštvaní"
+
+#: guitext:682
+msgctxt "Game event name"
+msgid "No more living space"
+msgstr "Nemáš prostor pro obludy"
+
+#: guitext:683
+msgctxt "Game event name"
+msgid "Alarm triggered"
+msgstr "Byl spuštěn poplach"
+
+#: guitext:684
+msgctxt "Game event name"
+msgid "Room under attack"
+msgstr "Místnost napadena"
+
+#: guitext:685
+msgctxt "Game event name"
+msgid "Treasure Room needed"
+msgstr "Potrebuješ Pokladnici"
+
+#: guitext:686
+msgctxt "Game event name"
+msgid "Creatures becoming hungry"
+msgstr "Příšery začínají být hladové"
+
+#: guitext:687
+msgctxt "Game event name"
+msgid "Trap crate found"
+msgstr "Byla nalezena bedna s pastí"
+
+#: guitext:688
+msgctxt "Game event name"
+msgid "Door crate found"
+msgstr "Byla nelezena bedna s dveřmi"
+
+#: guitext:689
+msgctxt "Game event name"
+msgid "Dungeon Special found"
+msgstr "Nalezen zvlastni bonus kobky"
+
+#: guitext:690
+msgctxt "Game event description"
+msgid "Treasure Room full: LMB toggle. RMB delete."
+msgstr "Pokladnice je plna: LTM prepnout, PTM smazat."
+
+#: guitext:691
+msgctxt "Game event description"
+msgid "Creature being scavenged: LMB toggle. RMB delete."
+msgstr "Nekdo ocistuje tve obludy: LTM prepnout, PTM smazat."
+
+#: guitext:692
+msgctxt "Game event description"
+msgid "Creature Payday: LMB toggle. RMB delete."
+msgstr "Vyplatni den: LTM prepnout, PTM smazat."
+
+#: guitext:693
+msgctxt "Game event description"
+msgid "New spell picked up: LMB toggle. RMB delete."
+msgstr "Bylo nalezeno nove kouzlo: LTM prepnout, PTM smazat."
+
+#: guitext:694
+msgctxt "Game event description"
+msgid "New room taken over: LBM toggle. RMB delete."
+msgstr "Byla dobita nova mistnost: LTM prepnout, PTM smazat."
+
+#: guitext:695
+msgctxt "Game event description"
+msgid "New area discovered: LMB toggle. RMB delete."
+msgstr "Byla objevena nova oblast: LTM prepnout, PTM smazat."
+
+#: guitext:696
+msgctxt "Game event description"
+msgid "Information: LMB toggle. RMB delete."
+msgstr "Informace: LTM prepnout, PTM smazat."
+
+#: guitext:697
+msgctxt "Game event description"
+msgid "Room lost: LMB toggle. RMB delete."
+msgstr "Ztratil jsi mistnost: LTM prepnout, PTM smazat."
+
+#: guitext:698
+msgctxt "Game event description"
+msgid "Dungeon Heart Attacked: LMB toggle. RMB delete."
+msgstr "Srdce sklepeni je pod útokem: LTM prepnout, PTM smazat."
+
+#: guitext:699
+msgctxt "Game event description"
+msgid "Fight: LMB toggle. RMB delete. [10.5]"
+msgstr "Boj: LTM prepnout, PTM smazat. [10.5]"
+
+#: guitext:700
+msgctxt "Game event description"
+msgid "Objective: LMB toggle. [11.3]"
+msgstr "Úkol: Prepina se LTM. [11.3]"
+
+#: guitext:701
+msgctxt "Game event description"
+msgid "Breach: LMB toggle. RMB delete."
+msgstr "Prunik nepratel: LTM prepnout, PTM smazat."
+
+#: guitext:702
+msgctxt "Game event description"
+msgid "New spell researched: LMB toggle. RMB delete."
+msgstr "Objeveno nové kouzlo: LTM prepnout, PTM smazat."
+
+#: guitext:703
+msgctxt "Game event description"
+msgid "New room researched: LMB toggle. RMB delete."
+msgstr "Vynalezen nový typ místnosti: LTM prepnout, PTM smazat."
+
+#: guitext:704
+msgctxt "Game event description"
+msgid "New trap: LMB toggle. RMB delete."
+msgstr "Nova past: LTM prepnout, PTM smazat."
+
+#: guitext:705
+msgctxt "Game event description"
+msgid "New door: LMB toggle. RMB delete."
+msgstr "Nove dvere: LTM prepnout, PTM smazat."
+
+#: guitext:706
+msgctxt "Game event description"
+msgid "New creature in dungeon: LMB toggle. RMB delete."
+msgstr "Ve tvem sklepeni se objevila nova obluda: LTM prepnout, PTM smazat."
+
+#: guitext:707
+msgctxt "Game event description"
+msgid "Creature is annoyed: LMB toggle. RMB delete."
+msgstr "Obluda je nespokojena: LTM prepnout, PTM smazat."
+
+#: guitext:708
+msgctxt "Game event description"
+msgid "No more living set: LMB toggle. RMB delete."
+msgstr "Nemas prostor pro obludy: LTM prepnout, PTM smazat."
+
+#: guitext:709
+msgctxt "Game event description"
+msgid "Alarm triggered: LMB toggle. RMB delete."
+msgstr "Byl spusten poplach: LTM prepnout, PTM smazat."
+
+#: guitext:710
+msgctxt "Game event description"
+msgid "Room under attack: LMB toggle. RMB delete."
+msgstr "Na mistnost nekdo utoci: LTM prepnout, PTM smazat."
+
+#: guitext:711
+msgctxt "Game event description"
+msgid "Need Treasure Room: LMB toggle. RMB delete."
+msgstr "Potrebujes pokladnici: LTM prepnout, PTM smazat."
+
+#: guitext:712
+msgctxt "Game event description"
+msgid "Creatures becoming hungry: LMB toggle. RMB delete."
+msgstr "Příšery začínají být hladové: LTM prepnout, PTM smazat."
+
+#: guitext:713
+msgctxt "Game event description"
+msgid "Trap crate found: LMB toggle. RMB delete."
+msgstr "Byla nalezena nepouzita past: LTM prepnout, PTM smazat."
+
+#: guitext:714
+msgctxt "Game event description"
+msgid "Door crate found: LMB toggle. RMB delete."
+msgstr "Byly nalezeny nepouzite dvere: LTM prepnout, PTM smazat."
+
+#: guitext:715
+msgctxt "Game event description"
+msgid "Dungeon special found: LMB toggle. RMB delete."
+msgstr "Byl nalezen zvlastni bonus: LTM prepnout, PTM smazat."
+
+#: guitext:716
+msgctxt "In-game interface item"
+msgid "Options"
+msgstr "Nastavení"
+
+#: guitext:717
+msgctxt "In-game interface item"
+msgid "Graphics Options"
+msgstr "Nastavení grafiky"
+
+#: guitext:718
+msgctxt "In-game interface item"
+msgid "Sound Options"
+msgstr "Nastavení zvuku"
+
+#: guitext:719
+msgctxt "In-game interface item"
+msgid "Load"
+msgstr "Nahrát"
+
+#: guitext:720
+msgctxt "In-game interface item"
+msgid "Save"
+msgstr "Uložit"
+
+#: guitext:721
+msgctxt "In-game interface item"
+msgid "Computer Assistance"
+msgstr "Počítačový asistent"
+
+#: guitext:722
+msgctxt "In-game interface description"
+msgid "Options: Open Options Panel. LMB open panel. [3.2]"
+msgstr "Nastavení: otevře menu s nastavením. LTM pro otevření menu. [3.2]"
+
+#: guitext:723
+msgctxt "In-game interface description"
+msgid "Graphics Menu: Customise the graphics. [3.2.2]"
+msgstr "Grafika: Přizpůsobení grafiky. [3.2.2]"
+
+#: guitext:724
+msgctxt "In-game interface description"
+msgid "Sound Menu: Adjust the sound and music volumes. [3.2.3]"
+msgstr "Zvuk: Upravení hlasitosti hudby a zvukových efektů. [3.2.3]"
+
+#: guitext:725
+msgctxt "In-game interface description"
+msgid "Load Game: Load a previously saved game. [3.2.1]"
+msgstr "Nahrát hru: Načte předešlou uloženou pozici. [3.2.1]"
+
+#: guitext:726
+msgctxt "In-game interface description"
+msgid "Save Game: Save your current game. [3.2.1]"
+msgstr "Uložit hru: Uloží aktuální pozici ve hře. [3.2.1]"
+
+#: guitext:727
+msgctxt "In-game interface description"
+msgid "Quit Game: Quit back to the Level Map. [3.2.5]"
+msgstr "Ukoncit hru: Vrati te zpatky do mapy levelu. [3.2.5]"
+
+#: guitext:728
+msgctxt "In-game interface description"
+msgid "Computer Assistance Menu: Customise the Computer Assistant. [3.2.4]"
+msgstr ""
+"Menu pocitacove asistence: Nastaveni podilu pocitace na tve hre. [3.2.4]"
+
+#: guitext:729
+msgctxt "In-game interface description"
+msgid ""
+"Aggressive Computer Assistant: Constructs your dungeon and always trys to "
+"attack the enemy. LMB select. [3.2.4]"
+msgstr ""
+"Agresivni pocitacovy asistent: Buduje sklepeni a vzdy se snazi utocit na "
+"nepratele. Zvoli se LTM. [3.2.4]"
+
+#: guitext:730
+msgctxt "In-game interface description"
+msgid ""
+"Defensive Computer Assistant: Constructs your dungeon but does not attack "
+"the enemy. LMB select. [3.2.4]"
+msgstr ""
+"Obranný pocitacovy asistent: Buduje sklepeni ale neutoci na nepratele. Zvoli "
+"se LTM. [3.2.4]"
+
+#: guitext:731
+msgctxt "In-game interface description"
+msgid ""
+"Construction Only Computer Assistant: Digs, places rooms and traps but does "
+"not move creatures. LMB select. [3.2.4]"
+msgstr ""
+"Stavebni pocitacovy asistent: Doluje, buduje mistnosti a pasti, ale "
+"nepohybuje obludami. Zvoli se LTM. [3.2.4]"
+
+#: guitext:732
+msgctxt "In-game interface description"
+msgid ""
+"Move Only Computer Assistant: Moves and slaps your creatures. LMB select. "
+"[3.2.4]"
+msgstr ""
+"Pocitacovy asistent pro pohyb: Pohybuje obludami a usmernuje je. Zvoli se "
+"LTM. [3.2.4]"
+
+#: guitext:733
+msgctxt "In-game interface description"
+msgid ""
+"Pick most experienced creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
+msgstr ""
+"Vybrat nejzkusenejsi obludu: LTM vybere obludu, PTM zobrazi detail. [22.2.1]"
+
+#: guitext:734
+msgctxt "In-game interface description"
+msgid "Pick idle creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
+msgstr ""
+"Vybrat obludu v necinnosti: LTM vybere obludu, PTM zobrazi detail. [22.2.1]"
+
+#: guitext:735
+msgctxt "In-game interface description"
+msgid "Pick working creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
+msgstr ""
+"Vybrat pracujici obludu: LTM vybere obludu, PTM zobrazi detail. [22.2.1]"
+
+#: guitext:736
+msgctxt "In-game interface description"
+msgid "Pick fighting creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
+msgstr ""
+"Vybrat bojujici obludu: LTM vybere obludu, PTM zobrazi detail. [22.2.1]"
+
+#: guitext:737
+msgctxt "In-game interface description"
+msgid ""
+"Invert Mouse: Inverts the vertical mouse movements while Possessing a "
+"creature. LMB toggle."
+msgstr ""
+"Prevracena mys: Prevrati vertikalni pohyb mysi pri Ovladani obludy. Prepina "
+"se LTM."
+
+#: guitext:738
+msgctxt "In-game interface description"
+msgid ""
+"Possess Creature mouse sensitivity: Adjusts the sensitivity of the mouse "
+"movements when in Possess Creature mode. LMB toggle."
+msgstr ""
+"Citlivost mysi pri ovladani obludy: Nastavuje citlivost na pohyb mysi v modu "
+"Ovladani obludy. Prepina se LTM."
+
+#: guitext:739
+msgctxt "In-game interface description"
+msgid "More sensitive."
+msgstr "Citlivejsi."
+
+#: guitext:740
+msgctxt "In-game interface description"
+msgid "Less sensitive."
+msgstr "Mene citliva."
+
+#: guitext:741
+msgctxt "Statistic name"
+msgid "Number of Creatures"
+msgstr "Pocet oblud"
+
+#: guitext:742
+msgctxt "Statistic name"
+msgid "Gold Mined"
+msgstr "Vytezene zlato"
+
+#: guitext:743
+msgctxt "Statistic name"
+msgid "Efficiency"
+msgstr ""
+
+#: guitext:744
+msgctxt "Statistic name"
+msgid "Secrets"
+msgstr ""
+
+#: guitext:745
+msgctxt "Statistic name"
+msgid "Money"
+msgstr ""
+
+#: guitext:746
+#, fuzzy
+msgctxt "Statistic name"
+msgid "Time"
+msgstr "Časovaná bomba"
+
+#: guitext:747
+msgctxt "Statistic name"
+msgid "Style"
+msgstr ""
+
+#: guitext:748
+msgctxt "Statistic name"
+msgid "Rating"
+msgstr ""
+
+#: guitext:749
+#, fuzzy
+msgctxt "Statistic name"
+msgid "Creatures Attracted"
+msgstr "Tví přisluhovači jsou naštvaní"
+
+#: guitext:750
+msgctxt "Statistic name"
+msgid "Battles Won"
+msgstr ""
+
+#: guitext:751
+msgctxt "Statistic name"
+msgid "Battles Lost"
+msgstr ""
+
+#: guitext:752
+msgctxt "Statistic name"
+msgid "Times Dungeon Breached"
+msgstr ""
+
+#: guitext:753
+msgctxt "Statistic name"
+msgid "Imps Deployed"
+msgstr ""
+
+#: guitext:754
+#, fuzzy
+msgctxt "Statistic name"
+msgid "Creatures Left"
+msgstr "Příšera"
+
+#: guitext:755
+msgctxt "Statistic name"
+msgid "Doors Destroyed"
+msgstr ""
+
+#: guitext:756
+msgctxt "Statistic name"
+msgid "Rooms Destroyed"
+msgstr ""
+
+#: guitext:757
+#, fuzzy
+msgctxt "Statistic name"
+msgid "Dungeon Area"
+msgstr "Srdce sklepení"
+
+#: guitext:758
+#, fuzzy
+msgctxt "Statistic name"
+msgid "Ideas Researched"
+msgstr "Vynalezeno nové kouzlo"
+
+#: guitext:759
+#, fuzzy
+msgctxt "Statistic name"
+msgid "Creatures Scavenged"
+msgstr "Tví přisluhovači jsou naštvaní"
+
+#: guitext:760
+#, fuzzy
+msgctxt "Statistic name"
+msgid "Creatures Summoned"
+msgstr "Tví přisluhovači jsou naštvaní"
+
+#: guitext:761
+#, fuzzy
+msgctxt "Statistic name"
+msgid "Creatures Sacrificed"
+msgstr "Tví přisluhovači jsou naštvaní"
+
+#: guitext:762
+#, fuzzy
+msgctxt "Statistic name"
+msgid "Creatures Tortured"
+msgstr "Tví přisluhovači jsou naštvaní"
+
+#: guitext:763
+#, fuzzy
+msgctxt "Statistic name"
+msgid "Creatures Trained"
+msgstr "Tví přisluhovači jsou naštvaní"
+
+#: guitext:764
+msgctxt "Statistic name"
+msgid "Gold Pots Stolen"
+msgstr ""
+
+#: guitext:765
+msgctxt "Statistic name"
+msgid "Spells Stolen"
+msgstr ""
+
+#: guitext:766
+msgctxt "Statistic name"
+msgid "Traps Manufactured"
+msgstr ""
+
+#: guitext:767
+msgctxt "Statistic name"
+msgid "Traps Unused"
+msgstr ""
+
+#: guitext:768
+msgctxt "Statistic name"
+msgid "Doors Manufactured"
+msgstr ""
+
+#: guitext:769
+msgctxt "Statistic name"
+msgid "Doors Unused"
+msgstr ""
+
+#: guitext:770
+#, fuzzy
+msgctxt "Statistic name"
+msgid "Number of Rooms"
+msgstr "Pocet oblud"
+
+#: guitext:771
+#, fuzzy
+msgctxt "Statistic name"
+msgid "Number of Portals"
+msgstr "Pocet oblud"
+
+#: guitext:772
+msgctxt "Statistic name"
+msgid "Slaps"
+msgstr ""
+
+#: guitext:773
+#, fuzzy
+msgctxt "Statistic name"
+msgid "Cave-Ins"
+msgstr "Zával"
+
+#: guitext:774
+#, fuzzy
+msgctxt "Statistic name"
+msgid "Skeletons Raised"
+msgstr "Kostlivec"
+
+#: guitext:775
+#, fuzzy
+msgctxt "Statistic name"
+msgid "Bridges Built"
+msgstr "Most"
+
+#: guitext:776
+msgctxt "Statistic name"
+msgid "Rock Dug Out"
+msgstr ""
+
+#: guitext:777
+msgctxt "Statistic name"
+msgid "Salary Cost"
+msgstr ""
+
+#: guitext:778
+msgctxt "Statistic name"
+msgid "Flies Eaten By Spiders"
+msgstr ""
+
+#: guitext:779
+msgctxt "Statistic name"
+msgid "Territory Destroyed"
+msgstr ""
+
+#: guitext:780
+#, fuzzy
+msgctxt "Statistic name"
+msgid "Rooms Constructed"
+msgstr "Přišel jsi o místnost"
+
+#: guitext:781
+msgctxt "Statistic name"
+msgid "Traps Used"
+msgstr ""
+
+#: guitext:782
+#, fuzzy
+msgctxt "Statistic name"
+msgid "Keepers Destroyed"
+msgstr "Strážce proti Hrdinům"
+
+#: guitext:783
+msgctxt "Statistic name"
+msgid "Area Claimed"
+msgstr ""
+
+#: guitext:784
+msgctxt "Statistic name"
+msgid "Backs Stabbed"
+msgstr ""
+
+#: guitext:785
+#, fuzzy
+msgctxt "Statistic name"
+msgid "Chickens Hatched"
+msgstr "Drůbežátor"
+
+#: guitext:786
+#, fuzzy
+msgctxt "Statistic name"
+msgid "Chickens Eaten"
+msgstr "Drůbežátor"
+
+#: guitext:787
+msgctxt "Statistic name"
+msgid "Hopes Dashed"
+msgstr ""
+
+#: guitext:788
+msgctxt "Statistic name"
+msgid "Promises Broken"
+msgstr ""
+
+#: guitext:789
+msgctxt "Statistic name"
+msgid "Ghosts Raised"
+msgstr ""
+
+#: guitext:790
+msgctxt "Statistic name"
+msgid "Doors Used"
+msgstr ""
+
+#: guitext:791
+msgctxt "Statistic name"
+msgid "Your Creatures Killed By You"
+msgstr ""
+
+#: guitext:792
+msgctxt "Statistic name"
+msgid "Things Researched"
+msgstr ""
+
+#: guitext:793
+#, fuzzy
+msgctxt "Statistic name"
+msgid "Last Creature Attracted"
+msgstr "Tví přisluhovači jsou naštvaní"
+
+#: guitext:794
+msgctxt "Statistic name"
+msgid "Items Manufactured"
+msgstr ""
+
+#: guitext:795
+#, fuzzy
+msgctxt "Statistic name"
+msgid "Creatures Converted"
+msgstr "Tví přisluhovači jsou naštvaní"
+
+#: guitext:796
+msgctxt "Statistic name"
+msgid "Territory Lost"
+msgstr ""
+
+#: guitext:797
+msgctxt "Statistic name"
+msgid "Traps Armed"
+msgstr ""
+
+#: guitext:798
+#, fuzzy
+msgctxt "Statistic name"
+msgid "Chickens Wasted"
+msgstr "Drůbežátor"
+
+#: guitext:799
+msgctxt "Statistic name"
+msgid "Lies Told"
+msgstr ""
+
+#: guitext:800
+#, fuzzy
+msgctxt "Statistic name"
+msgid "Creatures Annoyed"
+msgstr "Tví přisluhovači jsou naštvaní"
+
+#: guitext:801
+#, fuzzy
+msgctxt "Statistic name"
+msgid "Graveyard Body Count"
+msgstr "Hřbitov"
+
+#: guitext:802
+#, fuzzy
+msgctxt "Statistic name"
+msgid "Vampires Created"
+msgstr "Upír"
+
+#: guitext:803
+msgctxt "Easter egg"
+msgid ""
+"When night does not give way to day, And children are too scared to play, "
+"Abandon hope, embrace despair, You're destined for my Dragon's lair"
+msgstr ""
+
+#: guitext:804
+msgctxt "Easter egg"
+msgid "If thou art bold and pure of heart, Come down here, be torn apart."
+msgstr ""
+
+#: guitext:805
+msgctxt "Easter egg"
+msgid "Through my dungeon you may tread, But rest assured, you'll end up dead."
+msgstr ""
+
+#: guitext:806
+msgctxt "Easter egg"
+msgid "If you find you lose it all, Why not play Theme Hospital?"
+msgstr ""
+
+#: guitext:807
+msgctxt "Easter egg"
+msgid "Armoured Knights who have true grit, Roast more quickly on a spit."
+msgstr ""
+
+#: guitext:808
+msgctxt "Easter egg"
+msgid "Evil, malice, death, decay, I think you'll find they're here to stay."
+msgstr ""
+
+#: guitext:809
+msgctxt "Easter egg"
+msgid "Evil, malice, death, decay, Just another working day."
+msgstr ""
+
+#: guitext:810
+msgctxt "Easter egg"
+msgid "Evil, malice, death, decay, There really is no better way."
+msgstr ""
+
+#: guitext:811
+msgctxt "Easter egg"
+msgid "Giant, Dwarf, Thief and Fairy, None of you are very scary."
+msgstr ""
+
+#: guitext:812
+msgctxt "Easter egg"
+msgid "The denizens of your domain, Just cannot wait to kill again."
+msgstr ""
+
+#: guitext:813
+msgctxt "Easter egg"
+msgid "The better creatures you employ, The greater carnage you enjoy."
+msgstr ""
+
+#: guitext:814
+msgctxt "Easter egg"
+msgid "Hark! The Avatar's abroad, And I can smell a frightened Lord."
+msgstr ""
+
+#: guitext:815
+msgctxt "Easter egg"
+msgid "Trespassers will meet their doom, In your dungeon's Torture Room."
+msgstr ""
+
+#: guitext:816
+msgctxt "Easter egg"
+msgid "Though intruders' hearts be pure, They'll end up on your dungeon floor."
+msgstr ""
+
+#: guitext:817
+msgctxt "Easter egg"
+msgid ""
+"Your tunnels will be dark and cold, And no place for a Knight of old, Even "
+"if he claims he's bold."
+msgstr ""
+
+#: guitext:818
+msgctxt "Easter egg"
+msgid "The fools who enter your domain, Will never see the light again."
+msgstr ""
+
+#: guitext:819
+msgctxt "Easter egg"
+msgid "Pain and anguish are your tools, To use upon intruding fools."
+msgstr ""
+
+#: guitext:820
+msgctxt "Easter egg"
+msgid ""
+"When good guys head right for your treasure, Hunt and kill them at your "
+"leisure."
+msgstr ""
+
+#: guitext:821
+msgctxt "Easter egg"
+msgid ""
+"Protect your gold and Dungeon Heart, And slap your minions till they fart."
+msgstr ""
+
+#: guitext:822
+msgctxt "Easter egg"
+msgid "Use your creatures' fear of you. To make them do what you want them to."
+msgstr ""
+
+#: guitext:823
+msgctxt "Easter egg"
+msgid "Wizard in your dungeon grim? A trap will make short work of him."
+msgstr ""
+
+#: guitext:824
+msgctxt "Easter egg"
+msgid "When your creatures give you hell, Stick them in your Prison Cell."
+msgstr ""
+
+#: guitext:825
+msgctxt "Easter egg"
+msgid "Torture is the crowning glory, Of your Dungeon Keeper story."
+msgstr ""
+
+#: guitext:826
+msgctxt "Easter egg"
+msgid "You are the Keeper, chosen one, And being evil is great fun."
+msgstr ""
+
+#: guitext:827
+msgctxt "Easter egg"
+msgid "When your troops are hunger-stricken, Your Hatchery has yummy chicken."
+msgstr ""
+
+#: guitext:828
+msgctxt "Easter egg"
+msgid "Fill the Avatar with dread. Really make him wet the bed."
+msgstr ""
+
+#: guitext:829
+msgctxt "In-game hint message"
+msgid ""
+"Imps are the lifeblood of your dungeon. Like blood, they must be allowed to "
+"circulate."
+msgstr ""
+
+#: guitext:830
+msgctxt "In-game hint message"
+msgid ""
+"Feeling mean? Set your minions to imprison and when your cells are full, "
+"spend some time torturing..."
+msgstr ""
+
+#: guitext:831
+msgctxt "In-game hint message"
+msgid ""
+"If your creatures get unhappy, slap some sense into them. They'll soon "
+"realise how lucky they are."
+msgstr ""
+
+#: guitext:832
+msgctxt "In-game hint message"
+msgid ""
+"The underworld is your domain and the adventurers come to steal it. Never "
+"show pity, even when the intruders are defenceless and pathetic."
+msgstr ""
+
+#: guitext:833
+msgctxt "In-game hint message"
+msgid ""
+"Compassion is the hallmark of the good Keeper. But good Keepers never win. "
+"Only evil ones."
+msgstr ""
+
+#: guitext:834
+msgctxt "In-game hint message"
+msgid ""
+"There's never a moment to waste. Already the bravest of the brave are "
+"queuing up to enter your dungeon. So stop reading this and get going."
+msgstr ""
+
+#: guitext:835
+msgctxt "In-game hint message"
+msgid ""
+"Build fast. You'll want the biggest possible welcoming committee ready for "
+"the intruders."
+msgstr ""
+
+#: guitext:836
+msgctxt "In-game hint message"
+msgid ""
+"Keep your Imps digging. There are always surprises to be found deep in the "
+"earth."
+msgstr ""
+
+#: guitext:837
+msgctxt "In-game hint message"
+msgid "He who controls the most gold controls the entire Underworld."
+msgstr ""
+
+#: guitext:838
+msgctxt "In-game hint message"
+msgid "Fear and lack of mercy are your greatest weapons. Use them wisely."
+msgstr ""
+
+#: guitext:839
+msgctxt "In-game hint message"
+msgid ""
+"Foolish is the Keeper who sells all his rooms and refuses to pay his "
+"creatures."
+msgstr ""
+
+#: guitext:840
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "Return to options menu"
+msgstr "Návrat do hlavního menu"
+
+#: guitext:841
+msgctxt "Menu interface item"
+msgid "Exit"
+msgstr ""
+
+#: guitext:842
+msgctxt "Menu interface item"
+msgid "Audio"
+msgstr ""
+
+#: guitext:843
+msgctxt "Menu interface item"
+msgid "Invert Mouse"
+msgstr ""
+
+#: guitext:844
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "Mouse Sensitivity"
+msgstr "Citlivejsi."
+
+#: guitext:845
+msgctxt "Menu interface item"
+msgid "Computer"
+msgstr ""
+
+#: guitext:846
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "Computer Players"
+msgstr "Počítačový asistent"
+
+#: guitext:847
+msgctxt "Menu interface item"
+msgid "On"
+msgstr ""
+
+#: guitext:848
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "Off"
+msgstr "Od"
+
+#: guitext:849
+msgctxt "Menu interface item"
+msgid "Sensitivity"
+msgstr ""
+
+#: guitext:850
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "Mouse Options"
+msgstr "Nastavení zvuku"
+
+#: guitext:851
+msgctxt "Menu interface item"
+msgid "Mouse"
+msgstr ""
+
+#: guitext:852
+msgctxt "Menu interface item"
+msgid "Undo Pickup"
+msgstr ""
+
+#: guitext:853
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "Pause"
+msgstr "Pozastaveno"
+
+#: guitext:854
+msgctxt "Menu interface item"
+msgid "Map"
+msgstr ""
+
+#: guitext:855
+msgctxt "On-screen message"
+msgid "Insufficient Memory"
+msgstr ""
+
+#: guitext:856
+msgctxt "On-screen message"
+msgid "Unable To Change Screen Resolution"
+msgstr ""
+
+#: guitext:857
+msgctxt "Menu interface item"
+msgid "Query"
+msgstr ""
+
+#: guitext:858
+#, fuzzy
+msgctxt "Credits"
+msgid "Support Art"
+msgstr "Technická podpora"
+
+#: guitext:859
+msgctxt "Credits"
+msgid "Navigation System"
+msgstr ""
+
+#: guitext:860
+#, fuzzy
+msgctxt "Credits"
+msgid "Script"
+msgstr "Námět"
+
+#: guitext:861
+msgctxt "Credits"
+msgid "Voice Over"
+msgstr ""
+
+#: guitext:862
+#, fuzzy
+msgctxt "Credits"
+msgid "Finance"
+msgstr "Spojenectví"
+
+#: guitext:864
+#, fuzzy
+msgctxt "Credits"
+msgid "Localisation Management"
+msgstr "Lokalizace"
+
+#: guitext:865
+msgctxt "Credits"
+msgid "Language Test Supervisor"
+msgstr ""
+
+#: guitext:866
+#, fuzzy
+msgctxt "Credits"
+msgid "Language Testers"
+msgstr "Vedoucí testeři"
+
+#: guitext:867
+msgctxt "Credits"
+msgid "Localisation Audio Management"
+msgstr ""
+
+#: guitext:868
+msgctxt "Network game message"
+msgid "Attempting To Join"
+msgstr ""
+
+#: guitext:869
+msgctxt "Network game message"
+msgid "Resyncing"
+msgstr ""
+
+#: guitext:870
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "1 Player"
+msgstr "Hráči"
+
+#: guitext:871
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "2 Players"
+msgstr "Hráči"
+
+#: guitext:872
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "3 Players"
+msgstr "Hráči"
+
+#: guitext:873
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "4 Players"
+msgstr "Hráči"
+
+#: guitext:874
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "Serial"
+msgstr "Menu hry přes sériový port"
+
+#: guitext:875
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "Modem"
+msgstr "Menu hry přes modem"
+
+#: guitext:876
+msgctxt "Menu interface item"
+msgid "IPX"
+msgstr ""
+
+#: guitext:877
+#, fuzzy
+msgctxt "World direction"
+msgid "N"
+msgstr "Ne"
+
+#: guitext:878
+msgctxt "World direction"
+msgid "E"
+msgstr ""
+
+#: guitext:879
+msgctxt "World direction"
+msgid "S"
+msgstr ""
+
+#: guitext:880
+msgctxt "World direction"
+msgid "W"
+msgstr ""
+
+#: guitext:881
+msgctxt "Menu interface item"
+msgid "Vs"
+msgstr ""
+
+#: guitext:882
+#, fuzzy
+msgctxt "Credits"
+msgid "Game design"
+msgstr "Menu hra"
+
+#: guitext:883
+#, fuzzy
+msgctxt "Credits"
+msgid "Associate Producer"
+msgstr "Producent"
+
+#: guitext:884
+#, fuzzy
+msgctxt "Credits"
+msgid "Additional Script"
+msgstr "Další umělci"
+
+#: guitext:885
+msgctxt "Easter egg"
+msgid "Happy Birthday"
+msgstr ""
+
+#: guitext:886
+msgctxt "Menu interface message"
+msgid "Error"
+msgstr ""
+
+#: guitext:887
+msgctxt "Menu interface message"
+msgid "Error Saving"
+msgstr ""
+
+#: guitext:888
+#, fuzzy
+msgctxt "Menu interface message"
+msgid "New Levels"
+msgstr "Úrovně"
+
+#: guitext:889
+msgctxt "Menu interface message"
+msgid "Please insert Data Disk CD-ROM"
+msgstr ""
+
+#: guitext:890
+msgctxt "Menu interface message"
+msgid "Please insert Dungeon Keeper CD-ROM"
+msgstr ""
+
+#: guitext:891
+msgctxt "Menu interface message"
+msgid "Please insert The Deeper Dungeons CD-ROM"
+msgstr ""
+
+#. DD Level Korros Tor first objective
+#: guitext:892
+msgctxt "In-game message"
+msgid ""
+"The might of two rival Dungeon Keepers challenge your claim to this realm. "
+"Decimate them both to achieve total domination, but beware of bands of "
+"heroes hidden in the caverns."
+msgstr ""
+
+#. DD Level Kari-Mar first objective
+#: guitext:893
+msgctxt "In-game message"
+msgid ""
+"Another Keeper has already claimed this realm. He is unfit to rule so "
+"destroy him and take what is rightfully yours. Great riches lie in the "
+"caverns around the land; explore to gain more power."
+msgstr ""
+
+#. DD Level Belbata first objective
+#: guitext:894
+msgctxt "In-game message"
+msgid ""
+"This land is highly coveted amongst the evil and there are three enemy "
+"Dungeon Keepers you must battle with to claim supremacy. Keep an eye out for "
+"any rogue bands of heroes waiting to ambush a careless Keeper."
+msgstr ""
+
+#. DD Level Pladitz waypoint objective
+#: guitext:895
+msgctxt "In-game message"
+msgid ""
+"The Lord of the Land and his pitiful band of followers lie dead. Good "
+"riddance to them and their sad, happy lives. Now seize your chance and "
+"attack your rival Keeper. Domination awaits."
+msgstr ""
+
+#. DD Level Pladitz first objective
+#: guitext:896
+msgctxt "In-game message"
+msgid ""
+"You and a rival Dungeon Keeper are vying for control of this realm but the "
+"Lord of the Land has constructed his own dungeon between you to halt your "
+"conquest. Destroy him and the enemy Keeper to reign supreme."
+msgstr ""
+
+#. DD Level Pladitz waypoint objective
+#: guitext:897
+msgctxt "In-game message"
+msgid ""
+"You have done well to come this far but further hardships await. Search the "
+"map carefully and you may find many secrets to aid your conquest."
+msgstr ""
+
+#. DD Level Abbadon first objective
+#: guitext:898
+msgctxt "In-game message"
+msgid ""
+"You have come to this realm with little to assist you so you must explore to "
+"gain more power. Keep an eye out for any loathsome heroes who may try to "
+"thwart your progress."
+msgstr ""
+
+#. DD Level Daka-Gorn first objective
+#: guitext:899
+msgctxt "In-game message"
+msgid ""
+"Beware Keeper. This realm is infested with the sickly goodness of heroes and "
+"fairies. Hunt them down and feed them their own entrails."
+msgstr ""
+
+#. DD Level Morkardar first objective
+#: guitext:900
+msgctxt "In-game message"
+msgid ""
+"Your opponent for this realm has foolishly challenged your superior skill. "
+"Such disrespect should be punished so make an example of his insolence."
+msgstr ""
+
+#. DD Level Morkardar information soon after start
+#: guitext:901
+msgctxt "In-game message"
+msgid ""
+"Ancient powers lie hidden in this realm. Seek them out and use them for your "
+"own evil purposes."
+msgstr ""
+
+#. DD Level Abbadon objective after rooms built
+#: guitext:902
+msgctxt "In-game message"
+msgid ""
+"A foolish challenger stands between you and total dominance. Annihilate his "
+"forces and feed his body to your ravenous minions."
+msgstr ""
+
+#. DD Level Daka-Gorn information after AP reached
+#: guitext:903
+msgctxt "In-game message"
+msgid ""
+"I can hear footsteps beyond the walls of the hero castle which dominates "
+"this land. Tread carefully Keeper and rid the land of goodness once and for "
+"all."
+msgstr ""
+
+#. DD Level Netzcaro first objective
+#: guitext:904
+msgctxt "In-game message"
+msgid ""
+"The once strong hero fortress of this realm has grown rotten and weak. Tear "
+"down it's walls and let your creatures feast on the heroes within."
+msgstr ""
+
+#. DD Level Netzcaro information after AP reached
+#: guitext:905
+msgctxt "In-game message"
+msgid ""
+"This realm will be a test of your cunning and deviousness. Your dungeon has "
+"been fortified with seven steel doors to aid you in your conquest."
+msgstr ""
+
+#. DD Level Netzcaro objective after AP reached
+#: guitext:906
+msgctxt "In-game message"
+msgid ""
+"Congratulations Keeper. This vial has given your researchers a much needed "
+"boost. You can now construct Bridges that enable you to traverse water and "
+"fire."
+msgstr ""
+
+#. DD Level Belial information soon after start
+#: guitext:907
+msgctxt "In-game message"
+msgid ""
+"Food is scarce in this land and the only Hatchery available to you is inside "
+"a hero dungeon. Find this food before your creatures turn against you."
+msgstr ""
+
+#. DD Level Belial information after getting vampire
+#: guitext:908
+msgctxt "In-game message"
+msgid ""
+"Entombed in stone by a cruel band of heroes, the Vampire you have rescued "
+"demands revenge for his imprisonment. His anger will make him a valuable "
+"asset to your army of evil."
+msgstr ""
+
+#. DD Level Batezek first objective
+#: guitext:909
+msgctxt "In-game message"
+msgid ""
+"You are surrounded on all sides by valiant heroes so show them the true "
+"meaning of evil and terror."
+msgstr ""
+
+#. DD Level Batezek objective after cleaning all good creatures
+#: guitext:910
+msgctxt "In-game message"
+msgid ""
+"The Lord of the Land has sent his fiercest warriors against you. Show them "
+"no mercy and flay them alive."
+msgstr ""
+
+#. DD Level Benetzaron first objective
+#: guitext:911
+msgctxt "In-game message"
+msgid ""
+"Explore this realm to uncover riches and secrets. Tread carefully Keeper, or "
+"you could be burned."
+msgstr ""
+
+#. DD Level Svatona first objective
+#: guitext:912
+msgctxt "In-game message"
+msgid ""
+"Only one Dungeon Keeper can reign victorious over this land. Do not suffer a "
+"humiliating defeat Keeper, the penalty for such failure is torture and death."
+msgstr ""
+
+#. DD Level Caddis Fell first objective
+#: guitext:913
+msgctxt "In-game message"
+msgid ""
+"Choices, choices Keeper. Choose your path wisely. Some routes are more "
+"perilous than others ..."
+msgstr ""
+
+#. DD Level Caddis Fell objective after good destroyed
+#: guitext:914
+msgctxt "In-game message"
+msgid ""
+"Congratulations Keeper, you have a powerful army indeed. Do not grow "
+"complacent though, you still have another challenger to the north ..."
+msgstr ""
+
+#. DD Level Caddis Fell objective after player1 destroyed
+#: guitext:915
+msgctxt "In-game message"
+msgid ""
+"Congratulations Keeper, you have a powerful army indeed. Do not grow "
+"complacent though, you still have another challenger to the south ..."
+msgstr ""
+
+#. DD Level Caddis Fell objective after entrance claimed
+#: guitext:916
+msgctxt "In-game message"
+msgid ""
+"The Lord of the Land is a pathetic individual who breeds fluffy bunnies. "
+"Pound him into the ground and then destroy the rival Keeper to achieve total "
+"domination."
+msgstr ""
+
+#. DD Level Kanasko first objective
+#: guitext:917
+msgctxt "In-game message"
+msgid ""
+"Make haste Keeper. The heroes of this realm are many and strong. Prepare "
+"your forces well or face a humiliating defeat ..."
+msgstr ""
+
+#. DD Level Belial first objective
+#: guitext:918
+msgctxt "In-game message"
+msgid ""
+"The Avatar is a wretched being, full of happiness and good cheer. Food is "
+"scarce in his land and the only Hatchery available is inside his dungeons. "
+"Destroy his mighty fortress and wipe the smile from his face before your "
+"creatures turn against you."
+msgstr ""
+
+#. DD Level Belial objective after AP reached
+#: guitext:919
+msgctxt "In-game message"
+msgid ""
+"The Avatar has massed an army of heroic Lords to confront you. Prepare to be "
+"attacked!"
+msgstr ""
+
+#. DD Level Belial objective after AP reached
+#: guitext:920
+msgctxt "In-game message"
+msgid "Decimate this outpost and send fear into the heart of the Avatar."
+msgstr ""
+
+#. DD Level Belial objective after AP reached
+#: guitext:921
+msgctxt "In-game message"
+msgid ""
+"The Avatar's castle is ripe for the taking. Train your forces well, Keeper. "
+"The ultimate battle awaits ..."
+msgstr ""
+
+#. DD Level Belial objective when adding Avatar
+#: guitext:922
+msgctxt "In-game message"
+msgid ""
+"You are now in the heart of the Avatar's castle. The sickly sweet smell of "
+"goodness still hangs in the air. Kill the Avatar and send his soul to "
+"eternal damnation."
+msgstr ""
+
+#. DD Levels generic information after finding a Mistress
+#: guitext:923
+msgctxt "In-game message"
+msgid ""
+"Well done, Keeper. The Mistress you have discovered is an excellent prize."
+msgstr ""
+
+#. DD Levels generic information after finding a Bile Demon
+#: guitext:924
+msgctxt "In-game message"
+msgid ""
+"The Bile Demon you have rescued will be a valuable but hungry asset to your "
+"dungeon. Make sure your Hatchery can satisfy his voracious appetite."
+msgstr ""
+
+#. DD Level Dixaroc first objective
+#: guitext:925
+msgctxt "In-game message"
+msgid ""
+"A devious Wizard has cheated you of your magical powers. Use your only "
+"Spider and explore the realm. Find the Wizard, kill him and make an example "
+"of his foolishness."
+msgstr ""
+
+#. DD Level Dixaroc information after getting Imps
+#: guitext:926
+msgctxt "In-game message"
+msgid "You have found some Imps who consider it a great honour to serve you."
+msgstr ""
+
+#. DD Levels Dixaroc information after finding Bile Demons
+#: guitext:927
+msgctxt "In-game message"
+msgid ""
+"You have discovered a group of Bile Demons who will aid you in your fight."
+msgstr ""
+
+#. DD Level Dixaroc information just after PLAYER1 destroyed
+#: guitext:928
+msgctxt "In-game message"
+msgid ""
+"The destruction of this pathetic Keeper brings with it a useful bonus. You "
+"now have the ability to build Bridges. Dig deeper and you may find more "
+"secrets to strengthen your powers."
+msgstr ""
+
+#. DD Level Dixaroc information some time after PLAYER1 destroyed
+#: guitext:929
+msgctxt "In-game message"
+msgid "A warning, Keeper. There is a stench of hero in the air."
+msgstr ""
+
+#. DD Level Dixaroc information after AP reached
+#: guitext:930
+msgctxt "In-game message"
+msgid ""
+"You have done well to get this far Keeper. Do not become complacent, "
+"however. A great struggle lies ahead."
+msgstr ""
+
+#. DD Level Dixaroc information after AP reached
+#: guitext:931
+msgctxt "In-game message"
+msgid ""
+"Before you lies the Wizard's domain. Defeat him and you will regain your "
+"powers."
+msgstr ""
+
+#. DD Level Dixaroc objective after wizard is dead
+#: guitext:932
+msgctxt "In-game message"
+msgid ""
+"Your magical powers are restored Keeper. You can finally show these fools "
+"what you are made of."
+msgstr ""
+
+#. DD Level Caddis Fell objective after AP reached
+#: guitext:933
+msgctxt "In-game message"
+msgid ""
+"A black shadow is creeping over this land. Now is the time to strike. Take "
+"control of your Vampire and use him to find and kill the Lord of the Land. "
+"If you succeed, the Vampire will join you in the next realm."
+msgstr ""
+
+#. DD Level Belial information after winning
+#: guitext:934
+msgctxt "In-game message"
+msgid ""
+"Your achievements are legendary Keeper. Tales of your evil and cunning will "
+"become the horror stories of generations."
+msgstr ""
+
+#: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
+msgctxt "Unused"
+msgid "Moo2"
+msgstr ""
+
+#: guitext:941
+msgctxt "Menu interface item"
+msgid "Free Play levels"
+msgstr ""
+
+#: guitext:942
+msgctxt "Menu interface item"
+msgid "Land selection"
+msgstr ""
+
+#: guitext:943
+msgctxt "Menu interface item"
+msgid "Campaigns"
+msgstr ""
+
+#: guitext:944
+msgctxt "Menu interface item"
+msgid "Add computer"
+msgstr ""
+
