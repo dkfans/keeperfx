@@ -21,6 +21,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_memory.h"
+#include "bflib_math.h"
 #include "bflib_video.h"
 #include "bflib_sprite.h"
 #include "bflib_keybrd.h"
