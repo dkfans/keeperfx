@@ -1,13 +1,12 @@
 # *****************************************************************************
 # Free implementation of Bullfrog's Dungeon Keeper strategy game.
 # *****************************************************************************
-# @file speech_eng.pot
-# KeeperFX Speeches translation template
+# @file speech_cze.po
+#      KeeperFX Speeches translation file
 # @par Purpose:
-# Allows to create .po files used for translating the game.
-# Also, acts as english translation script.
+#      Contains translation of the national speeches in the game.
 # @par Comment:
-# Use this file to create or update script of speeches.
+#      Use this file to improve the translation for specific language.
 # @author KeeperFX Team
 # @date 25 Aug 2012 - 02 Oct 2012
 # @par Copying and copyrights:
@@ -22,8 +21,8 @@ msgstr ""
 "Project-Id-Version: Speeches for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-02-20 23:19+0100\n"
-"Last-Translator: jiri.vejda@gmail.com\n"
+"PO-Revision-Date: 2014-03-09 14:10+0100\n"
+"Last-Translator: Ing. Jiří Vejda <jiri.vejda@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -101,7 +100,7 @@ msgstr "Tví tvorové jsou pod útokem."
 #: speech:13
 msgctxt "In-game mentor"
 msgid "Your creatures are attacking the enemy!"
-msgstr "Tvé stvoření útočí na nepřítele!"
+msgstr "Tvá stvoření útočí na nepřítele!"
 
 #: speech:14
 msgctxt "In-game mentor"
@@ -221,7 +220,7 @@ msgstr "Dosáhnul jsi Vstupu."
 #: speech:37
 msgctxt "In-game mentor"
 msgid "You have lost an entrance."
-msgstr "Ztratil jsi vstup."
+msgstr "Ztratil jsi Vstup."
 
 #: speech:38
 msgctxt "In-game mentor"
@@ -296,7 +295,7 @@ msgstr "Nepřítel ti ukradnul projekt k výrobě dveří."
 #: speech:52
 msgctxt "In-game mentor"
 msgid "Information has been tortured from the enemy."
-msgstr ""
+msgstr "Mučením byla získána informace z nepřítele."
 
 #: speech:53
 msgctxt "In-game mentor"
@@ -321,7 +320,7 @@ msgstr "Utíkají ti vězni!"
 #: speech:57
 msgctxt "In-game mentor"
 msgid "A Vampire has risen on your Graveyard."
-msgstr ""
+msgstr "Na hřbitově povstal upír."
 
 #: speech:58
 msgctxt "In-game mentor"
@@ -336,12 +335,12 @@ msgstr "Tví vězni hladoví k smrti."
 #: speech:60
 msgctxt "In-game mentor"
 msgid "One of your creatures is being scavenged!"
-msgstr ""
+msgstr "Jedno z tvých stvoření je očišťováno!"
 
 #: speech:61
 msgctxt "In-game mentor"
 msgid "One of your minions is being scavenged!"
-msgstr ""
+msgstr "Jden z tvých přisluhovačů je očišťován!"
 
 #: speech:62
 msgctxt "In-game mentor"
@@ -351,7 +350,7 @@ msgstr "Jeden z tvých tvorů se přidal k nepříteli."
 #: speech:63
 msgctxt "In-game mentor"
 msgid "Secrets have been tortured from your creatures!"
-msgstr ""
+msgstr "Tajemství byla získána mučením z tvých stvoření."
 
 #: speech:64
 msgctxt "In-game mentor"
@@ -381,12 +380,12 @@ msgstr "Bohové tě potrestali za tvou nedůstojnou nabídku."
 #: speech:69
 msgctxt "In-game mentor"
 msgid "This is no wishing well, keeper."
-msgstr ""
+msgstr "Toto není žádné sbohem, Správče!"
 
 #: speech:70
 msgctxt "In-game mentor"
 msgid "Your creatures have discovered a misterious magic box."
-msgstr ""
+msgstr "Tvé stvoření objevily tajemnou magickou bednu."
 
 #: speech:71
 msgctxt "In-game mentor"
@@ -406,7 +405,7 @@ msgstr "Byla vynalezen design nové pasti."
 #: speech:74
 msgctxt "In-game mentor"
 msgid "New creatures have joined your dungeon."
-msgstr ""
+msgstr "Nové stvoření přišly do tvé kobky."
 
 #: speech:75
 msgctxt "In-game mentor"
@@ -441,12 +440,12 @@ msgstr "Očaroval jsi hrdinu."
 #: speech:81
 msgctxt "In-game mentor"
 msgid "Your creatures have been doubled in number."
-msgstr ""
+msgstr "Počet tvých příšer se zdvojnásobil."
 
 #: speech:82
 msgctxt "In-game mentor"
 msgid "Your creatures have been blessed with experience."
-msgstr ""
+msgstr "Tvé příšery byly požehnány zkušenostmi."
 
 #: speech:83
 msgctxt "In-game mentor"
@@ -472,7 +471,7 @@ msgstr "Nemáš dostatek zlata."
 #: speech:87
 msgctxt "In-game mentor"
 msgid "You are too poor to scavenge creatures."
-msgstr ""
+msgstr "Jsi příliš chudý na to, aby jsi očistil příšeru."
 
 #: speech:88
 msgctxt "In-game mentor"
@@ -487,32 +486,32 @@ msgstr "Je den výplaty."
 #: speech:90
 msgctxt "In-game mentor"
 msgid "My god, it's full of pies."
-msgstr ""
+msgstr "Můj bože, je to plné koláčů."
 
 #: speech:91
 msgctxt "In-game mentor"
 msgid "Something surreal is happening."
-msgstr ""
+msgstr "Děje se něco neskutečného."
 
 #: speech:92
 msgctxt "In-game mentor"
 msgid "Your creatures are developing a strange accent."
-msgstr ""
+msgstr "Tvé bytosti si rozvíjí zvláštní přízvuk."
 
 #: speech:93
 msgctxt "In-game mentor"
 msgid "Your pants are definitely too tight."
-msgstr ""
+msgstr "Tvé kalhoty jsou rozhodně příliš těsné."
 
 #: speech:94
 msgctxt "In-game mentor"
 msgid "Your minions have a craving for chocolate."
-msgstr ""
+msgstr "Tví přisluhovači mají chuť na čokoládu."
 
 #: speech:95
 msgctxt "In-game mentor"
 msgid "There's that smell again."
-msgstr ""
+msgstr "A je tu ten smrad, opět."
 
 #: speech:96
 msgctxt "In-game mentor"
@@ -522,12 +521,12 @@ msgstr "Ahoj."
 #: speech:97
 msgctxt "In-game mentor"
 msgid "Blech."
-msgstr ""
+msgstr "Blech."
 
 #: speech:98
 msgctxt "In-game mentor"
 msgid "Achoo"
-msgstr ""
+msgstr "Achoo"
 
 #: speech:99
 msgctxt "In-game mentor"
@@ -562,17 +561,17 @@ msgstr "Byl jsi poražen."
 #: speech:105
 msgctxt "In-game mentor"
 msgid "You have conquered this realm!"
-msgstr ""
+msgstr "Dobyl jsi tuto říši!"
 
 #: speech:106
 msgctxt "In-game mentor"
 msgid "Master, I sence the presence of the Avatar!"
-msgstr ""
+msgstr "Mistře, cítím přítomnost Avatara!"
 
 #: speech:107
 msgctxt "In-game mentor"
 msgid "What trickery is this? The Avatar's body has vanished."
-msgstr ""
+msgstr "Co je to podvod? Tělo Avatar zmizelo."
 
 #: speech:108
 msgctxt "In-game mentor"
@@ -580,6 +579,8 @@ msgid ""
 "You are victorious, your darkness pervades througout the kingdom. All hail "
 "the new lord of shadows."
 msgstr ""
+"Zvítězil jsi, tvá temnota prostupuje skrze království. Všichni oslavujte "
+"nového pána stínů."
 
 #: speech:109
 msgctxt "Enemy Keeper Harassment"
@@ -589,32 +590,32 @@ msgstr "Tvé snahy jsou marné!"
 #: speech:110
 msgctxt "Enemy Keeper Harassment"
 msgid "My dungeon is the finest You shall ever see!"
-msgstr ""
+msgstr "Má kobka je nejlepší jakou kdy uvidíš!"
 
 #: speech:111
 msgctxt "Enemy Keeper Harassment"
 msgid "My minions will leave your dungeon a crumbling ruin!"
-msgstr ""
+msgstr "Mí přisluhovači zanechají z tvé kobky rozpadající zříceninu!"
 
 #: speech:112
 msgctxt "Enemy Keeper Harassment"
 msgid "You entrails will decorate the darkest alchow of my domain!"
-msgstr ""
+msgstr "Tvé vnitřnosti budou zdobit nejtmavší alchow mé domény!"
 
 #: speech:113
 msgctxt "Enemy Keeper Harassment"
 msgid "Your corpse shall se my minions yet, keeper!"
-msgstr ""
+msgstr "Tvé tělo ještě potká mé přisluhovače, Správče!"
 
 #: speech:114
 msgctxt "Enemy Keeper Harassment"
 msgid "Prepare for oblivion, Keeper!"
-msgstr ""
+msgstr "Připrav se na zapomnění, Správče!"
 
 #: speech:115
 msgctxt "Enemy Keeper Harassment"
 msgid "Pathetic creature, I shall crush you in an instant!"
-msgstr ""
+msgstr "Ubohé stvoření, rozdrtím tě v mžiku!"
 
 #: speech:116
 msgctxt "Enemy Keeper Harassment"
@@ -624,17 +625,17 @@ msgstr "Ho ho ho ho!"
 #: speech:117
 msgctxt "Hero Talk Upon Entering"
 msgid "Your dark days are numbered, evil one!"
-msgstr ""
+msgstr "Zlochu, tvé dny temna jsou u konce!"
 
 #: speech:118
 msgctxt "Hero Talk Upon Entering"
 msgid "We come to rid the world of your evil!"
-msgstr ""
+msgstr "Zbavíme se tvého světa zla!"
 
 #: speech:119
 msgctxt "Hero Talk Upon Entering"
 msgid "We shall send you back to the pits, vile one!"
-msgstr ""
+msgstr "Odporný, zaženeme tě zpátky do děr!"
 
 #: speech:120
 msgctxt "Hero Talk Upon Entering"
@@ -644,7 +645,7 @@ msgstr "Tvá vláda skončí dříve než bude tento den u konce!"
 #: speech:121
 msgctxt "Hero Talk Upon Entering"
 msgid "We shall cast you back into the shadows, keeper!"
-msgstr ""
+msgstr "Uvrhneme tě zpátky do stínů, správče!"
 
 #: speech:122
 msgctxt "Hero Talk Upon Entering"
