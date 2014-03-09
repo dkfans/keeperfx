@@ -282,6 +282,7 @@ CAMPAIGN_CFGS = $(patsubst %,pkg/campgns/%.cfg,$(CAMPAIGNS))
 NGTEXTDATS = \
 pkg/fxdata/gtext_chi.dat \
 pkg/fxdata/gtext_cht.dat \
+pkg/fxdata/gtext_cze.dat \
 pkg/fxdata/gtext_dut.dat \
 pkg/fxdata/gtext_fre.dat \
 pkg/fxdata/gtext_ger.dat \
