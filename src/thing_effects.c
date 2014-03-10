@@ -1135,7 +1135,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
     MapCoordDelta distance;
     TbBool affected;
     affected = false;
-    SYNCDBG(17,"Starting for %s, max damage %d, max blow %d",thing_model_name(tngdst),(int)max_damage,(int)blow_strength);
+    SYNCDBG(17,"Starting for %s, max damage %d, max blow %d, owner %d",thing_model_name(tngdst),(int)max_damage,(int)blow_strength,(int)owner);
     if (line_of_sight_3d(pos, &tngdst->mappos))
     {
         // Friendly fire causes damage at smaller distance
@@ -1412,32 +1412,32 @@ long explosion_affecting_map_block(struct Thing *tngsrc, const struct Map *mapbl
  * @param hit_type Defines which things are affected.
  * @return Gives amount of things which were affected by the explosion.
  */
-long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos, MapSubtlCoord range,
+long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos, MapCoord max_dist,
     HitPoints max_damage, long blow_strength, ThingHitType hit_type, DamageType damage_type)
 {
     const struct Map *mapblk;
     MapSubtlCoord start_x,start_y;
     MapSubtlCoord end_x,end_y;
-    MapCoord max_dist;
+    MapSubtlCoord range_stl;
     //_DK_explosion_affecting_area(tngsrc, pos, range, max_damage, hit_type); return;
     if ((hit_type < 1) || (hit_type >= THit_TypesCount))
     {
-        ERRORLOG("The %s tries to affect area range %d with invalid hit type %d",thing_model_name(tngsrc),(int)range,(int)hit_type);
+        ERRORLOG("The %s tries to affect area up to distance %d with invalid hit type %d",thing_model_name(tngsrc),(int)max_dist,(int)hit_type);
         hit_type = 1;
     }
-    max_dist = range*COORD_PER_STL;
-    if (pos->x.stl.num > range)
-      start_x = pos->x.stl.num - range;
+    range_stl = (max_dist+5*COORD_PER_STL/6)/COORD_PER_STL;
+    if (pos->x.stl.num > range_stl)
+      start_x = pos->x.stl.num - range_stl;
     else
       start_x = 0;
-    if (pos->y.stl.num > range)
-      start_y = pos->y.stl.num - range;
+    if (pos->y.stl.num > range_stl)
+      start_y = pos->y.stl.num - range_stl;
     else
       start_y = 0;
-    end_x = range + pos->x.stl.num;
+    end_x = range_stl + pos->x.stl.num;
     if (end_x >= map_subtiles_x)
       end_x = map_subtiles_x;
-    end_y = range + pos->y.stl.num;
+    end_y = range_stl + pos->y.stl.num;
     if (end_y > map_subtiles_y)
       end_y = map_subtiles_y;
 #if (BFDEBUG_LEVEL > 0)

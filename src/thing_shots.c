@@ -118,10 +118,10 @@ TbBool detonate_shot(struct Thing *shotng)
         // But currently shot do not store its level, so we don't really have a choice
         struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(castng);
-        long range, damage;
-        range = compute_creature_attack_range(shotst->area_range, crstat->luck, cctrl->explevel);
+        long dist, damage;
+        dist = compute_creature_attack_range(shotst->area_range*COORD_PER_STL, crstat->luck, cctrl->explevel);
         damage = compute_creature_attack_damage(shotst->area_damage, crstat->luck, cctrl->explevel);
-        explosion_affecting_area(castng, &castng->mappos, range, damage, shotst->area_blow, shotst->area_hit_type, shotst->damage_type);
+        explosion_affecting_area(castng, &shotng->mappos, dist, damage, shotst->area_blow, shotst->area_hit_type, shotst->damage_type);
     }
     switch (shotng->model)
     {

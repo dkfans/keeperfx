@@ -2949,6 +2949,28 @@ void script_process_new_creatures(PlayerNumber plyr_idx, long crmodel, long loca
     }
 }
 
+struct Thing *get_creature_in_range_around_any_of_enemy_heart(PlayerNumber plyr_idx, ThingModel crmodel, MapSubtlDelta range)
+{
+    struct Thing *heartng;
+    int i, n;
+    n = ACTION_RANDOM(PLAYERS_COUNT);
+    for (i=0; i < PLAYERS_COUNT; i++, n=(n+1)%PLAYERS_COUNT)
+    {
+        if (!players_are_enemies(plyr_idx, n))
+            continue;
+        heartng = get_player_soul_container(n);
+        if (thing_exists(heartng))
+        {
+            struct Thing *creatng;
+            creatng = get_creature_in_range_of_model_owned_and_controlled_by(heartng->mappos.x.val, heartng->mappos.y.val, range, crmodel, plyr_idx);
+            if (!thing_is_invalid(creatng)) {
+                return creatng;
+            }
+        }
+    }
+    return INVALID_THING;
+}
+
 /**
  * Kills a creature which meets given criteria.
  * @param plyr_idx The player whose creature will be affected.
@@ -2959,6 +2981,7 @@ void script_process_new_creatures(PlayerNumber plyr_idx, long crmodel, long loca
 TbBool script_kill_creature_with_criteria(PlayerNumber plyr_idx, long crmodel, long criteria)
 {
     struct Thing *thing;
+    const struct Coord3d *pos;
     switch (criteria)
     {
     case CSelCrit_Any:
@@ -2973,12 +2996,11 @@ TbBool script_kill_creature_with_criteria(PlayerNumber plyr_idx, long crmodel, l
         thing = INVALID_THING;
         break;
     case CSelCrit_NearOwnHeart:
-        //TODO SCRIPT finish killing code by adding creature choosing function.
-        thing = INVALID_THING;
+        pos = dungeon_get_essential_pos(plyr_idx);
+        thing = get_creature_near_and_owned_by(pos->x.val, pos->y.val, plyr_idx);
         break;
     case CSelCrit_NearEnemyHeart:
-        //TODO SCRIPT finish killing code by adding creature choosing function.
-        thing = INVALID_THING;
+        thing = get_creature_in_range_around_any_of_enemy_heart(plyr_idx, crmodel, 11);
         break;
     case CSelCrit_OnEnemyGround:
         //TODO SCRIPT finish killing code by adding creature choosing function.
