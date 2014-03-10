@@ -395,7 +395,7 @@ long compute_creature_attack_damage(long base_param, long luck, unsigned short c
 /**
  * Computes spell range/area of effect for a creature on given level.
  */
-long compute_creature_attack_range(long base_param,long luck,unsigned short crlevel)
+long compute_creature_attack_range(long base_param, long luck, unsigned short crlevel)
 {
   long max_param;
   if (base_param <= 0)
