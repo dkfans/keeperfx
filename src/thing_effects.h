@@ -211,6 +211,7 @@ struct InitEffect { // sizeof = 39
 struct InitEffect *get_effect_info(ThingModel effmodel);
 struct InitEffect *get_effect_info_for_thing(const struct Thing *thing);
 
+TbBool thing_is_effect(const struct Thing *thing);
 struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, PlayerNumber owner);
 struct Thing *create_effect_generator(struct Coord3d *pos, unsigned short a1, unsigned short a2, unsigned short a3, long a4);
 struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short a2, unsigned short a3);
@@ -222,7 +223,7 @@ TbBool destroy_effect_thing(struct Thing *thing);
 struct Thing *create_special_used_effect(const struct Coord3d *pos, long plyr_idx);
 struct Thing *create_price_effect(const struct Coord3d *pos, long plyr_idx, long price);
 
-TbBool explosion_can_affect_thing(const struct Thing *thing, long hit_type, PlayerNumber shot_owner);
+TbBool area_effect_can_affect_thing(const struct Thing *thing, long hit_type, PlayerNumber shot_owner);
 long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos, MapSubtlCoord range,
     HitPoints max_damage, long blow_strength, ThingHitType hit_type, DamageType damage_type);
 
