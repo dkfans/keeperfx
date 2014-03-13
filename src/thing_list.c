@@ -31,6 +31,7 @@
 #include "thing_shots.h"
 #include "thing_corpses.h"
 #include "thing_stats.h"
+#include "thing_physics.h"
 #include "thing_creature.h"
 #include "creature_senses.h"
 #include "spdigger_stack.h"
@@ -1529,7 +1530,7 @@ TbBool electricity_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, c
             damage = get_radially_decaying_value(max_damage, max_dist/2, max_dist/2, distance);
             if (damage != 0)
             {
-                apply_damage_to_thing_and_display_health(tngdst, damage, owner);
+                apply_damage_to_thing_and_display_health(tngdst, damage, DmgT_Electric, owner);
                 affected = true;
             }
         }
