@@ -160,7 +160,7 @@ TbBool attempt_anger_job_steal_gold(struct Thing *creatng)
     }
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(creatng);
-    if (crstat->gold_hold <= creatng->long_13) {
+    if (creatng->creature.gold_carried >= crstat->gold_hold) {
         return false;
     }
     struct Room *room;
