@@ -30,6 +30,7 @@
 #include "thing_physics.h"
 #include "thing_navigate.h"
 #include "creature_senses.h"
+#include "config_creature.h"
 #include "front_simple.h"
 #include "map_data.h"
 #include "map_blocks.h"
@@ -43,18 +44,18 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT struct Thing *_DK_create_effect_element(const struct Coord3d *pos, unsigned short a2, unsigned short a3);
-DLLIMPORT struct Thing *_DK_create_effect_generator(struct Coord3d *pos, unsigned short a1, unsigned short a2, unsigned short a3, long a4);
-DLLIMPORT void _DK_poison_cloud_affecting_area(struct Thing *efftng, struct Coord3d *pos, long a3, long a4, unsigned char a5);
+DLLIMPORT struct Thing *_DK_create_effect_element(const struct Coord3d *pos, unsigned short a2, unsigned short max_dist);
+DLLIMPORT struct Thing *_DK_create_effect_generator(struct Coord3d *pos, unsigned short a1, unsigned short a2, unsigned short max_dist, long a4);
+DLLIMPORT void _DK_poison_cloud_affecting_area(struct Thing *efftng, struct Coord3d *pos, long max_dist, long a4, unsigned char a5);
 DLLIMPORT void _DK_process_spells_affected_by_effect_elements(struct Thing *efftng);
 DLLIMPORT long _DK_update_effect_element(struct Thing *efftng);
 DLLIMPORT long _DK_update_effect(struct Thing *efftng);
 DLLIMPORT long _DK_process_effect_generator(struct Thing *efftng);
-DLLIMPORT struct Thing *_DK_create_effect(const struct Coord3d *pos, unsigned short a2, unsigned char a3);
+DLLIMPORT struct Thing *_DK_create_effect(const struct Coord3d *pos, unsigned short a2, unsigned char max_dist);
 DLLIMPORT long _DK_move_effect(struct Thing *efftng);
 DLLIMPORT long _DK_move_effect_element(struct Thing *efftng);
 DLLIMPORT void _DK_change_effect_element_into_another(struct Thing *efftng, long nmodel);
-DLLIMPORT void _DK_explosion_affecting_area(struct Thing *efftng, const struct Coord3d *pos, long a3, long a4, unsigned char a5);
+DLLIMPORT void _DK_explosion_affecting_area(struct Thing *efftng, const struct Coord3d *pos, long max_dist, long a4, unsigned char a5);
 
 /******************************************************************************/
 extern struct EffectElementStats _DK_effect_element_stats[95];
@@ -475,6 +476,15 @@ struct EffectElementStats effect_element_stats[] = {
 
 long const bounce_table[] = { -160, -160, -120, -120, -80, -40, -20, 0, 20, 40, 80, 120, 120, 160, 160, 160 };
 /******************************************************************************/
+TbBool thing_is_effect(const struct Thing *thing)
+{
+  if (thing_is_invalid(thing))
+    return false;
+  if (thing->class_id != TCls_Effect)
+    return false;
+  return true;
+}
+
 struct InitEffect *get_effect_info(ThingModel effmodel)
 {
     return &effect_info[effmodel];
@@ -838,7 +848,7 @@ TbBool effect_can_affect_thing(struct Thing *efftng, struct Thing *thing)
         SYNCDBG(18,"Effect tried to shoot its maker; suicide not implemented");
         return false;
     }
-    return explosion_can_affect_thing(thing, efftng->byte_16, efftng->owner);
+    return area_effect_can_affect_thing(thing, efftng->byte_16, efftng->owner);
 }
 
 void update_effect_light_intensity(struct Thing *thing)
@@ -1238,7 +1248,6 @@ long explosion_effect_affecting_map_block(struct Thing *efftng, struct Thing *tn
  */
 void word_of_power_affecting_area(struct Thing *efftng, struct Thing *owntng, struct Coord3d *pos)
 {
-    struct Map *mapblk;
     long stl_xmin,stl_xmax;
     long stl_ymin,stl_ymax;
     long stl_x,stl_y;
@@ -1292,6 +1301,7 @@ void word_of_power_affecting_area(struct Thing *efftng, struct Thing *owntng, st
     {
         for (stl_x=stl_xmin; stl_x <= stl_xmax; stl_x++)
         {
+            struct Map *mapblk;
             mapblk = get_map_block_at(stl_x, stl_y);
             explosion_effect_affecting_map_block(efftng, owntng, mapblk, max_dist,
                 shotst->area_damage, shotst->area_blow, shotst->damage_type);
@@ -1300,11 +1310,11 @@ void word_of_power_affecting_area(struct Thing *efftng, struct Thing *owntng, st
 }
 
 /**
- * Determines if an explosion of given hit thing type and owner can affect given thing.
+ * Determines if an explosion or other area effect, of given hit thing type and owner, can affect given thing.
  * Explosions can affect a lot more things than shots. If only the thing isn't invalid,
  * it is by default affected by explosions.
  */
-TbBool explosion_can_affect_thing(const struct Thing *thing, long hit_type, PlayerNumber shot_owner)
+TbBool area_effect_can_affect_thing(const struct Thing *thing, long hit_type, PlayerNumber shot_owner)
 {
     if (thing_is_invalid(thing))
     {
@@ -1385,7 +1395,7 @@ long explosion_affecting_map_block(struct Thing *tngsrc, const struct Map *mapbl
             break;
         }
         // Per thing processing block
-        if (explosion_can_affect_thing(thing, hit_type, owner))
+        if (area_effect_can_affect_thing(thing, hit_type, owner))
         {
             if (explosion_affecting_thing(tngsrc, thing, pos, max_dist, max_damage, blow_strength, damage_type, owner))
                 num_affected++;
@@ -1458,9 +1468,152 @@ long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos, M
     return num_affected;
 }
 
-void poison_cloud_affecting_area(struct Thing *owntng, struct Coord3d *pos, long a3, long a4, unsigned char area_affect_type)
+TbBool poison_cloud_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos,
+    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, unsigned char area_affect_type, DamageType damage_type, PlayerNumber owner)
 {
-    _DK_poison_cloud_affecting_area(owntng, pos, a3, a4, area_affect_type); return;
+    TbBool affected;
+    affected = false;
+    SYNCDBG(17,"Starting for %s, max damage %d, max blow %d, owner %d",thing_model_name(tngdst),(int)max_damage,(int)blow_strength,(int)owner);
+    if (thing_is_creature(tngdst))
+    {
+        const struct CreatureStats *crstat;
+        crstat = creature_stats_get_from_thing(tngdst);
+        if (crstat->immune_to_gas) {
+            return affected;
+        }
+    } else {
+        return affected;
+    }
+    if (line_of_sight_3d(pos, &tngdst->mappos))
+    {
+        MapCoordDelta distance;
+        distance = get_2d_distance(pos, &tngdst->mappos);
+        if (distance < max_dist)
+        {
+            struct CreatureControl *cctrl;
+            cctrl = creature_control_get_from_thing(tngdst);
+            cctrl->spell_flags |= CSAfF_Unkn0400;
+            if (area_affect_type == 1)
+            {
+                HitPoints damage;
+                damage = get_radially_decaying_value(max_damage,3*max_dist/4,max_dist/4,distance)+1;
+                SYNCDBG(7,"Causing %d damage to %s at distance %d",(int)damage,thing_model_name(tngdst),(int)distance);
+                apply_damage_to_thing_and_display_health(tngdst, damage, tngsrc->owner);
+            } else
+            if (area_affect_type == 3)
+            {
+                if (!creature_affected_by_spell(tngdst,SplK_Slow)) {
+                    struct CreatureControl *srcctrl;
+                    srcctrl = creature_control_get_from_thing(tngsrc);
+                    apply_spell_effect_to_thing(tngdst, SplK_Slow, srcctrl->explevel);
+                }
+            }
+            affected = true;
+        }
+    }
+    return affected;
+}
+
+long poison_cloud_affecting_map_block(struct Thing *tngsrc, const struct Map *mapblk, const struct Coord3d *pos,
+    MapCoord max_dist, HitPoints max_damage, long blow_strength, ThingHitType hit_type, unsigned char area_affect_type, DamageType damage_type)
+{
+    struct Thing *thing;
+    PlayerNumber owner;
+    long num_affected;
+    unsigned long k;
+    long i;
+    if (!thing_is_invalid(tngsrc))
+        owner = tngsrc->owner;
+    else
+        owner = -1;
+    num_affected = 0;
+    k = 0;
+    i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        if (thing_is_invalid(thing))
+        {
+            WARNLOG("Jump out of things array");
+            break;
+        }
+        i = thing->next_on_mapblk;
+        // Should never happen - only existing thing shall be in list
+        if (!thing_exists(thing))
+        {
+            WARNLOG("Jump to non-existing thing");
+            break;
+        }
+        // Per thing processing block
+        if (area_effect_can_affect_thing(thing, hit_type, owner))
+        {
+            if (poison_cloud_affecting_thing(tngsrc, thing, pos, max_dist, max_damage, blow_strength, area_affect_type, damage_type, owner))
+                num_affected++;
+        }
+        // Per thing processing block ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return num_affected;
+}
+
+long poison_cloud_affecting_area(struct Thing *tngsrc, struct Coord3d *pos, long max_dist, long max_damage, unsigned char area_affect_type)
+{
+    //_DK_poison_cloud_affecting_area(tngsrc, pos, max_dist, max_damage, area_affect_type); return 0;
+    int dmg_divider;
+    dmg_divider = 10;
+    if (thing_is_effect(tngsrc)) {
+        const struct InitEffect *effnfo;
+        effnfo = get_effect_info_for_thing(tngsrc);
+        dmg_divider = max(effnfo->start_health,1);
+    }
+    MapSubtlCoord start_x,end_x,start_y,end_y;
+    start_x = coord_subtile(pos->x.val - max_dist);
+    start_y = coord_subtile(pos->y.val - max_dist);
+    end_x = coord_subtile(pos->x.val + max_dist) + 1;
+    end_y = coord_subtile(pos->y.val + max_dist) + 1;
+    if (start_x < 0) {
+        start_x = 0;
+    } else
+    if (start_x > map_subtiles_x) {
+        start_x = map_subtiles_x;
+    }
+    if (start_y < 0) {
+        start_y = 0;
+    } else
+    if (start_y > map_subtiles_y) {
+        start_y = map_subtiles_y;
+    }
+    if (end_x < 0) {
+        end_x = 0;
+    } else
+    if (end_x > map_subtiles_x) {
+        end_x = map_subtiles_x;
+    }
+    if (end_y < 0) {
+        end_y = 0;
+    } else
+    if (end_y > map_subtiles_y) {
+        end_y = map_subtiles_y;
+    }
+    MapSubtlCoord stl_x,stl_y;
+    long num_affected;
+    num_affected = 0;
+    for (stl_y = start_y; stl_y <= end_y; stl_y++)
+    {
+        for (stl_x = start_x; stl_x <= end_x; stl_x++)
+        {
+            struct Map *mapblk;
+            mapblk = get_map_block_at(stl_x, stl_y);
+            num_affected += poison_cloud_affecting_map_block(tngsrc, mapblk, pos, max_dist, max_damage/dmg_divider, 0, tngsrc->byte_16, area_affect_type, DmgT_Respiratory);
+        }
+    }
+    return num_affected;
 }
 
 TngUpdateRet update_effect(struct Thing *efftng)
@@ -1491,7 +1644,7 @@ TngUpdateRet update_effect(struct Thing *efftng)
     {
     case 1:
     case 3:
-        poison_cloud_affecting_area(subtng, &efftng->mappos, 5*COORD_PER_STL, 60, effnfo->area_affect_type);
+        poison_cloud_affecting_area(subtng, &efftng->mappos, 5*COORD_PER_STL, 120, effnfo->area_affect_type);
         break;
     case 4:
         word_of_power_affecting_area(efftng, subtng, &efftng->mappos);
