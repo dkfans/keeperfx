@@ -209,7 +209,7 @@ void update_god_lightning_ball(struct Thing *thing)
         if (thing_is_invalid(target))
             break;
         shotst = get_shot_model_stats(24);
-        apply_damage_to_thing_and_display_health(target, shotst->old->damage, thing->owner);
+        apply_damage_to_thing_and_display_health(target, shotst->old->damage, shotst->damage_type, thing->owner);
         if (target->health < 0)
         {
             cctrl = creature_control_get_from_thing(target);

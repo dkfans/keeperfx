@@ -4407,12 +4407,12 @@ void process_creature_leave_footsteps(struct Thing *thing)
  * @param dmg
  * @param a3
  */
-void apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoints dmg, PlayerNumber inflicting_plyr_idx)
+void apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoints dmg, DamageType damage_type, PlayerNumber inflicting_plyr_idx)
 {
     //_DK_apply_damage_to_thing_and_display_health(thing, a1, inflicting_plyr_idx);
     if (dmg > 0)
     {
-        apply_damage_to_thing(thing, dmg, inflicting_plyr_idx);
+        apply_damage_to_thing(thing, dmg, damage_type, inflicting_plyr_idx);
         thing->creature.health_bar_turns = 8;
     }
 }
@@ -4444,7 +4444,7 @@ void process_landscape_affecting_creature(struct Thing *thing)
         if (cube_is_lava(i))
         {
             crstat = creature_stats_get_from_thing(thing);
-            apply_damage_to_thing_and_display_health(thing, crstat->hurt_by_lava, -1);
+            apply_damage_to_thing_and_display_health(thing, crstat->hurt_by_lava, DmgT_Heatburn, -1);
             thing->movement_flags |= TMvF_IsOnLava;
         } else
         if (cube_is_water(i))

@@ -328,7 +328,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
             if ( shotst->old->field_36 )
               shot_explodes = 1;
             i = calculate_shot_real_damage_to_door(doortng, shotng);
-            apply_damage_to_thing(doortng, i, -1);
+            apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
         } else
         if (cube_is_water(cube_id))
         {
@@ -363,7 +363,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                 if (shotst->old->field_36)
                     shot_explodes = 1;
                 i = calculate_shot_real_damage_to_door(doortng, shotng);
-                apply_damage_to_thing(doortng, i, -1);
+                apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
             } else
             {
                 efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->field_2B, shotst->old->field_2D, shotst->old->field_2F);
@@ -438,7 +438,7 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
           }
           // Apply damage to the door
           i = calculate_shot_real_damage_to_door(doortng, shotng);
-          apply_damage_to_thing(doortng, i, -1);
+          apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
       }
     }
     if (!thing_is_invalid(efftng)) {
@@ -580,7 +580,7 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
         if (shotst->old->health_drain && thing_is_creature(creatng)) {
             apply_health_to_thing(creatng, shotng->word_14/2);
         }
-        apply_damage_to_thing(target, shotng->word_14, -1);
+        apply_damage_to_thing(target, shotng->word_14, shotst->damage_type, -1);
         target->byte_13 = 20;
     }
     create_relevant_effect_for_shot_hitting_thing(shotng, target);
@@ -750,9 +750,9 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
           play_creature_sound(trgtng, CrSnd_Hurt, 3, 0);
       }
       if (!thing_is_invalid(shooter)) {
-          apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shooter->owner);
+          apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, shooter->owner);
       } else {
-          apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, -1);
+          apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, -1);
       }
       if (shotst->old->field_24 != 0) {
           tgcctrl->field_B1 = shotst->old->field_24;
@@ -887,9 +887,9 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             give_shooter_drained_health(shooter, shotng->word_14 / 2);
         }
         if ( !thing_is_invalid(shooter) ) {
-            apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shooter->owner);
+            apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, shooter->owner);
         } else {
-            apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, -1);
+            apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, -1);
         }
     }
     if (shotst->old->field_24 != 0)
@@ -1255,7 +1255,7 @@ TngUpdateRet update_shot(struct Thing *thing)
               {
                   shotst = get_shot_model_stats(24);
                   draw_lightning(&thing->mappos,&target->mappos, 96, 60);
-                  apply_damage_to_thing_and_display_health(target, shotst->old->damage, thing->owner);
+                  apply_damage_to_thing_and_display_health(target, shotst->old->damage, shotst->damage_type, thing->owner);
               }
             }
             break;

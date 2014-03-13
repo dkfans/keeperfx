@@ -42,6 +42,14 @@ enum ThingHitTypes {
     THit_TypesCount, // Last item in enumeration, allows checking amount of valid types
 };
 
+enum AreaAffectTypes {
+    AAffT_None = 0,
+    AAffT_GasDamage,
+    AAffT_Unkn2,
+    AAffT_GasSlow,
+    AAffT_WOPDamage,
+};
+
 enum ThingEffectKind {
     TngEff_None = 0,
     TngEff_Unknown01,
