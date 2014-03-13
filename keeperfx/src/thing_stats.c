@@ -698,7 +698,7 @@ HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const 
     return dmg;
 }
 
-void apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber dealing_plyr_idx)
+void apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType damage_type, PlayerNumber dealing_plyr_idx)
 {
     //_DK_apply_damage_to_thing(thing, dmg, a3);
     // We're here to damage, not to heal
