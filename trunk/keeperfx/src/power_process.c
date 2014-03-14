@@ -298,7 +298,7 @@ void update_vertical_explored_flags_for_power_sight(struct PlayerInfo *player, s
                     delta = 0;
                     for (i=1; soe_x < 2*MAX_SOE_RADIUS; soe_x++,i++)
                     {
-                        if ( dungeon->soe_explored_flags[soe_y][soe_x] )
+                        if (dungeon->soe_explored_flags[soe_y][soe_x])
                             delta = i;
                     }
                     boundstl_x = stl_x + delta;
