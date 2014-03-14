@@ -288,9 +288,25 @@ void update_power_sight_explored(struct PlayerInfo *player)
     _DK_update_power_sight_explored(player);
 }
 
-long power_sight_explored(long stl_x, long stl_y, PlayerNumber plyr_idx)
+TbBool power_sight_explored(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
-  return _DK_power_sight_explored(stl_x, stl_y, plyr_idx);
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    //return _DK_power_sight_explored(stl_x, stl_y, plyr_idx);
+    if (dungeon->sight_casted_thing_idx <= 0) {
+        return false;
+    }
+    struct Thing *thing;
+    thing = thing_get(dungeon->sight_casted_thing_idx);
+    if (thing_is_invalid(thing)) {
+        return false;
+    }
+    long soe_x, soe_y;
+    soe_x = stl_x - thing->mappos.x.stl.num + 13;
+    soe_y = stl_y - thing->mappos.y.stl.num + 13;
+    if ((soe_x < 0) || (soe_x >= 2*MAX_SOE_RADIUS) || (soe_y < 0)  || (soe_y >= 2*MAX_SOE_RADIUS))
+      return false;
+    return dungeon->soe_explored_flags[soe_y][soe_x];
 }
 
 void slap_creature(struct PlayerInfo *player, struct Thing *thing)
