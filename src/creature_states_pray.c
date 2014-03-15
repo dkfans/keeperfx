@@ -337,7 +337,7 @@ short creature_being_summoned(struct Thing *thing)
     if (cctrl->word_9A <= 0)
     {
         get_keepsprite_unscaled_dimensions(thing->field_44, thing->field_52, thing->field_48, &orig_w, &orig_h, &unsc_w, &unsc_h);
-        create_effect(&thing->mappos, 4, thing->owner);
+        create_effect(&thing->mappos, TngEff_Unknown04, thing->owner);
         thing->movement_flags |= 0x04;
         cctrl->word_9A = 1;
         cctrl->word_9C = 48;//orig_h;

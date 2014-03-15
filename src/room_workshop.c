@@ -29,6 +29,7 @@
 #include "thing_effects.h"
 #include "thing_navigate.h"
 #include "config_terrain.h"
+#include "config_effects.h"
 #include "power_hand.h"
 #include "game_legacy.h"
 #include "gui_soundmsgs.h"

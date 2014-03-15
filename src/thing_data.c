@@ -22,17 +22,20 @@
 #include "bflib_basics.h"
 #include "bflib_sound.h"
 #include "bflib_memory.h"
+#include "config_creature.h"
+#include "config_effects.h"
 #include "thing_stats.h"
+#include "thing_effects.h"
 #include "game_legacy.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_delete_thing_structure(struct Thing *thing, long a2);
+DLLIMPORT void _DK_delete_thing_structure(struct Thing *creatng, long a2);
 DLLIMPORT struct Thing *_DK_allocate_free_thing_structure(unsigned char a1);
 DLLIMPORT unsigned char _DK_i_can_allocate_free_thing_structure(unsigned char a1);
-DLLIMPORT unsigned char _DK_creature_remove_lair_from_room(struct Thing *thing, struct Room *room);
+DLLIMPORT unsigned char _DK_creature_remove_lair_from_room(struct Thing *creatng, struct Room *room);
 
 /******************************************************************************/
 struct Thing *allocate_free_thing_structure_f(unsigned char allocflags, const char *func_name)
@@ -126,9 +129,62 @@ TbBool is_in_free_things_list(long tng_idx)
     return false;
 }
 
-unsigned char creature_remove_lair_from_room(struct Thing *thing, struct Room *room)
+TbBool delete_lair_totem(struct Thing *lairtng)
 {
-    return _DK_creature_remove_lair_from_room(thing, room);
+    struct Thing *creatng;
+    creatng = thing_get(lairtng->word_13);
+    if (!thing_is_creature(creatng)) {
+        ERRORLOG("No totem owner");
+        return false;
+    }
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    cctrl->lair_room_id = 0;
+    cctrl->lairtng_idx = 0;
+    delete_thing_structure(lairtng, 0);
+    return true;
+}
+
+TbBool creature_remove_lair_from_room(struct Thing *creatng, struct Room *room)
+{
+    //return _DK_creature_remove_lair_from_room(creatng, room);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    if (cctrl->lair_room_id != room->index)
+    {
+        ERRORLOG("Attempt to remove a lair which belongs to %s index %d from room index %d he didn't think he was in",thing_model_name(creatng),(int)creatng->index,(int)room->index);
+        return false;
+    }
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(creatng);
+    TbBool result;
+    result = true;
+    // Remove lair from room capacity
+    if (room->content_per_model[creatng->model] <= 0)
+    {
+        ERRORLOG("Attempt to remove a lair which belongs to %s index %d from room index %d not containing this creature model",thing_model_name(creatng),(int)creatng->index,(int)room->index);
+        result = false;
+    } else
+    if ( room->used_capacity < crstat->lair_size)
+    {
+        ERRORLOG("Attempt to remove creature lair from room with too little used space");
+        result = false;
+    } else
+    {
+        room->used_capacity -= crstat->lair_size;
+        room->content_per_model[creatng->model]--;
+    }
+    cctrl->lair_room_id = 0;
+    //Remove the totem thing
+    if (cctrl->lairtng_idx > 0)
+    {
+        struct Thing *lairtng;
+        lairtng = thing_get(cctrl->lairtng_idx);
+        TRACE_THING(lairtng);
+        create_effect(&lairtng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
+        delete_lair_totem(lairtng);
+    }
+    return result;
 }
 
 void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_name)

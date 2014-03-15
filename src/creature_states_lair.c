@@ -29,6 +29,7 @@
 #include "config_creature.h"
 #include "config_rules.h"
 #include "config_terrain.h"
+#include "config_effects.h"
 #include "thing_stats.h"
 #include "thing_objects.h"
 #include "thing_effects.h"
@@ -191,7 +192,7 @@ long creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
     struct CreatureControl *cctrl;
     crstat = creature_stats_get_from_thing(creatng);
     cctrl = creature_control_get_from_thing(creatng);
-    room->field_17[creatng->model]++;
+    room->content_per_model[creatng->model]++;
     room->used_capacity += crstat->lair_size;
     if ((cctrl->lair_room_id > 0) && (cctrl->lairtng_idx > 0))
     {

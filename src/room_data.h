@@ -103,7 +103,9 @@ struct Room {
       unsigned char field_1Bx[28];
     };
     struct {
-      unsigned char field_17[32];
+      /** For rooms which store creatures, amount of each model.
+       * Rooms which have such lists are lairs. */
+      unsigned char content_per_model[32];
     };
     };
     unsigned short slabs_list;

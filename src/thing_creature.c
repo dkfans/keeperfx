@@ -32,6 +32,7 @@
 #include "engine_lenses.h"
 #include "engine_arrays.h"
 #include "config_creature.h"
+#include "config_effects.h"
 #include "creature_states.h"
 #include "creature_states_combt.h"
 #include "creature_states_lair.h"

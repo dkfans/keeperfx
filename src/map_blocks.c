@@ -110,7 +110,7 @@ void create_dirt_rubble_for_dug_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
     maxpos_z = subtile_coord(stl_height,0);
     while (pos.z.val < maxpos_z)
     {
-        create_effect(&pos, 26, owner);
+        create_effect(&pos, TngEff_DirtRubble, owner);
         pos.z.val += subtile_coord(1,0);
     }
 }
