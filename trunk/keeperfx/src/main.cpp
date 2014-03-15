@@ -436,7 +436,7 @@ void process_dungeon_destroy(struct Thing *heartng)
         if (dungeon->field_1061 < 32)
         {
             if ( ACTION_RANDOM(96) < (dungeon->field_1061 << 6) / 32 + 32 ) {
-                create_effect(central_pos, 44, plyr_idx);
+                create_effect(central_pos, TngEff_Unknown44, plyr_idx);
             }
         } else
         { // Got to next phase
@@ -448,7 +448,7 @@ void process_dungeon_destroy(struct Thing *heartng)
         dungeon->field_1061++;
         if (dungeon->field_1061 < 32)
         {
-            create_effect(central_pos, 44, plyr_idx);
+            create_effect(central_pos, TngEff_Unknown44, plyr_idx);
         } else
         { // Got to next phase
             dungeon->field_1060 = 3;
@@ -476,10 +476,10 @@ void process_dungeon_destroy(struct Thing *heartng)
         setup_all_player_creatures_and_diggers_leave_or_die(plyr_idx);
         {
             struct Thing *efftng;
-            efftng = create_effect(central_pos, 4, plyr_idx);
+            efftng = create_effect(central_pos, TngEff_Unknown04, plyr_idx);
             if (!thing_is_invalid(efftng))
               efftng->byte_16 = 8;
-            efftng = create_effect(central_pos, 14, plyr_idx);
+            efftng = create_effect(central_pos, TngEff_Unknown14, plyr_idx);
             if (!thing_is_invalid(efftng))
                 efftng->byte_16 = 8;
             destroy_dungeon_heart_room(plyr_idx, heartng);
@@ -582,7 +582,7 @@ void process_keeper_spell_effect(struct Thing *thing)
         pos.x.val = thing->mappos.x.val + (delta_x >> 8);
         pos.y.val = thing->mappos.y.val - (delta_y >> 8);
         pos.z.val = thing->mappos.z.val;
-        create_effect_element(&pos, 0x2D, thing->owner);
+        create_effect_element(&pos, TngEff_Unknown45, thing->owner);
     }
 }
 
@@ -2133,7 +2133,7 @@ void blast_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx)
       pos.x.val = subtile_coord_center(slab_subtile_center(slb_x));
       pos.y.val = subtile_coord_center(slab_subtile_center(slb_y));
       pos.z.val = get_floor_height_at(&pos);
-      create_effect_element(&pos, 10, plyr_idx);
+      create_effect_element(&pos, TngEff_Unknown10, plyr_idx);
     }
 }
 

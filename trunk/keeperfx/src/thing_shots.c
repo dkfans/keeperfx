@@ -135,7 +135,7 @@ TbBool detonate_shot(struct Thing *shotng)
         create_effect(&shotng->mappos,  TngEff_Unknown09, shotng->owner);
         break;
     case 15://SHOT_BOULDER
-        create_effect_around_thing(shotng, TngEff_Unknown26);
+        create_effect_around_thing(shotng, TngEff_DirtRubble);
         break;
     default:
         break;

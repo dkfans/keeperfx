@@ -63,6 +63,20 @@ struct EffectConfigStats *get_effect_model_stats(int tngmodel)
     return &effects_conf.effect_cfgstats[tngmodel];
 }
 
+short write_effects_effect_to_log(const struct EffectConfigStats *effcst, int num)
+{
+  JUSTMSG("[effect%d]",(int)num);
+  JUSTMSG("Name = %s",effcst->code_name);
+  JUSTMSG("Health = %d",(int)effcst->old->start_health);
+  JUSTMSG("GenerationType = %d",(int)effcst->old->generation_type);
+  JUSTMSG("GenerationAccelXYRange = %d %d",(int)effcst->old->accel_xy_min,(int)effcst->old->accel_xy_max);
+  JUSTMSG("GenerationAccelZRange = %d %d",(int)effcst->old->accel_z_min,(int)effcst->old->accel_z_max);
+  JUSTMSG("GenerationKindRange = %d %d",(int)effcst->old->kind_min,(int)effcst->old->kind_max);
+  JUSTMSG("AreaAffectType = %d",(int)effcst->old->area_affect_type);
+  JUSTMSG("");
+  return true;
+}
+
 TbBool parse_effects_common_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
     long pos;
@@ -242,6 +256,7 @@ TbBool parse_effects_effect_blocks(char *buf, long len, const char *config_textn
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
+      //write_effects_effect_to_log(effcst, i);
     }
 #undef COMMAND_TEXT
   }
