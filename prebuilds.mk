@@ -41,6 +41,8 @@ SDL_DOWNLOAD=https://www.libsdl.org/release/SDL-devel-1.2.14-mingw32.tar.gz
 SDL_PACKAGE=$(notdir $(SDL_DOWNLOAD))
 SDL_NET_DOWNLOAD=https://www.libsdl.org/projects/SDL_net/release/SDL_net-devel-1.2.7-VC8.zip
 SDL_NET_PACKAGE=$(notdir $(SDL_NET_DOWNLOAD))
+SDL_MIXER_DOWNLOAD=https://www.libsdl.org/projects/SDL_mixer/release/SDL_mixer-devel-1.2.12-VC.zip
+SDL_MIXER_PACKAGE=$(notdir $(SDL_MIXER_DOWNLOAD))
 
 # Assets which are sources of data files are platform-independent
 GFXSRC_DOWNLOAD=http://keeper.lubiki.pl/releases_big/gfx_sources_v7.7z

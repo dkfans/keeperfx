@@ -20,7 +20,7 @@
 
 .PHONY: clean-libsdl deep-clean-libsdl
 
-libexterns: libsdl libsdlnet
+libexterns: libsdl libsdlnet libsdlmixer
 
 clean-libexterns: clean-libsdl
 
@@ -84,11 +84,41 @@ $(error Cannot handle SDL_net library prebuild. You need to prepare the library 
 
 endif
 
+ifneq (,$(findstring .zip,$(SDL_MIXER_PACKAGE)))
+
+libsdlmixer: sdl/lib/SDL_mixer.lib
+
+sdl/lib/SDL_mixer.lib: sdl/$(SDL_MIXER_PACKAGE)
+	-$(ECHO) 'Extracting package: $<'
+	$(MKDIR) sdl/lib sdl/include/SDL
+	cd "$(<D)"; \
+	unzip -DD -qo "$(<F)"
+	$(MV) sdl/SDL_mixer-*/include/* sdl/include/SDL/
+	$(MV) sdl/SDL_mixer-*/lib/x86/* sdl/lib/
+	-$(ECHO) 'Finished extracting: $<'
+	-$(ECHO) ' '
+
+sdl/$(SDL_MIXER_PACKAGE):
+	-$(ECHO) 'Downloading package: $@'
+	$(MKDIR) "$(@D)"
+	curl -L -o "$@.dl" "$(SDL_MIXER_DOWNLOAD)"
+	unzip -qt "$@.dl"
+	$(MV) "$@.dl" "$@"
+	-$(ECHO) 'Finished downloading: $@'
+	-$(ECHO) ' '
+
+else
+
+$(error Cannot handle SDL_mixer library prebuild. You need to prepare the library manually.)
+
+endif
+
 clean-libsdl:
 	-$(RM) -R sdl/bin sdl/include sdl/lib sdl/share
 
 deep-clean-libsdl:
 	-$(RM) sdl/$(SDL_PACKAGE)
 	-$(RM) sdl/$(SDL_NET_PACKAGE)
+	-$(RM) sdl/$(SDL_MIXER_PACKAGE)
 
 #******************************************************************************
