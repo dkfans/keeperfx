@@ -2871,14 +2871,73 @@ void border_internal_points_delete(long start_x, long start_y, long end_x, long 
     }
 }
 
-long triangle_area1(long a1)
+long triangle_area1(long tri_idx)
 {
-    return _DK_triangle_area1(a1);
+    int ptidx0, ptidx1, ptidx2;
+    //return _DK_triangle_area1(a1);
+    ptidx0 = Triangles[tri_idx].points[0];
+    ptidx1 = Triangles[tri_idx].points[1];
+    ptidx2 = Triangles[tri_idx].points[2];
+    long long area1, area2;
+    area1 = (Points[ptidx2].x - (int)Points[ptidx0].x) * (Points[ptidx0].y - (int)Points[ptidx1].y);
+    area2 = (Points[ptidx1].x - (int)Points[ptidx0].x) * (Points[ptidx2].y - (int)Points[ptidx0].y);
+    return llabs(area1+area2);
 }
 
-void brute_fill_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned char a5)
+void brute_fill_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned char ntree_alt)
 {
-    _DK_brute_fill_rectangle(start_x, start_y, end_x, end_y, a5);
+    //_DK_brute_fill_rectangle(start_x, start_y, end_x, end_y, a5);
+    // Replace start and end if they are switched
+    if (end_x < start_x)
+    {
+        long i;
+        i = end_x;
+        end_x = start_x;
+        start_x = i;
+    }
+    if (end_y < start_y)
+    {
+        long i;
+        i = end_y;
+        end_y = start_y;
+        start_y = i;
+    }
+    long long area;
+    area = 0;
+    long tri_idx;
+    for (tri_idx = ix_Triangles - 1; tri_idx >= 0; tri_idx--)
+    {
+        struct Triangle *tri;
+        tri = &Triangles[tri_idx];
+        if (tri->tree_alt == -1) {
+            continue;
+        }
+        int ptidx;
+        long x, y;
+        ptidx = tri->points[0];
+        x = Points[ptidx].x;
+        y = Points[ptidx].y;
+        if ((x >= start_x) && (x <= end_x) && (y >= start_y) && (y <= end_y))
+        {
+            ptidx = tri->points[1];
+            x = Points[ptidx].x;
+            y = Points[ptidx].y;
+            if ((x >= start_x) && (x <= end_x) && (y >= start_y) && (y <= end_y))
+            {
+                ptidx = tri->points[2];
+                x = Points[ptidx].x;
+                y = Points[ptidx].y;
+                if ((x >= start_x) && (x <= end_x) && (y >= start_y) && (y <= end_y))
+                {
+                    tri->tree_alt = ntree_alt;
+                    area += triangle_area1(tri_idx);
+                    if (2 * (end_x - start_x) * (end_y - start_y) == area) {
+                        break;
+                    }
+                }
+            }
+        }
+    }
 }
 
 void fill_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned char a5)

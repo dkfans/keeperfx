@@ -3288,7 +3288,7 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
       lbDisplay.DrawFlags &= ~Lb_SPRITE_ONECOLOUR1;
     sprite_group = sprgroup;
     lltemp = 4 - ((((long)kspr_frame + 128) & 0x7FF) >> 8);
-    sprite_delta = abs(lltemp);
+    sprite_delta = llabs(lltemp);
     kspr_idx = keepersprite_index(kspr_base);
     global_scaler = scale;
     creature_sprites = keepersprite_array(kspr_base);
