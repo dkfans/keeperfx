@@ -197,6 +197,7 @@ obj/config_terrain.o \
 obj/config_cubes.o \
 obj/config_trapdoor.o \
 obj/config_objects.o \
+obj/config_effects.o \
 obj/config_rules.o \
 obj/config_lenses.o \
 obj/config_creature.o \
