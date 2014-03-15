@@ -432,7 +432,7 @@ HVLOGOBJS = $(subst obj/,obj/hvlog/,$(OBJS))
 include version.mk
 VER_STRING = $(VER_MAJOR).$(VER_MINOR).$(VER_RELEASE).$(VER_BUILD)
 # include and library directories
-LINKLIB =  -L"directx/lib" -L"lib" -L"sdl/lib" -mwindows -lmingw32 -lkeeperfx -lwinmm -limagehlp -lSDLmain -lSDL -lSDL_net 
+LINKLIB =  -L"directx/lib" -L"lib" -L"sdl/lib" -mwindows -lmingw32 -lkeeperfx -lwinmm -limagehlp -lSDLmain -lSDL -lSDL_mixer -lSDL_net 
 INCS =  -I"directx/include" -I"sdl/include"
 CXXINCS =  -I"directx/include" -I"sdl/include"
 
