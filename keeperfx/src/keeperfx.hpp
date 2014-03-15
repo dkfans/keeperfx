@@ -233,8 +233,6 @@ DLLIMPORT long _DK_total_lights;
 #define total_lights _DK_total_lights
 DLLIMPORT unsigned char _DK_do_lights;
 #define do_lights _DK_do_lights
-DLLIMPORT long _DK_imp_spangle_effects[];
-#define imp_spangle_effects _DK_imp_spangle_effects
 DLLIMPORT struct Thing *_DK_thing_pointed_at;
 #define thing_pointed_at _DK_thing_pointed_at
 DLLIMPORT struct Map *_DK_me_pointed_at;

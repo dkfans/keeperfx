@@ -30,6 +30,7 @@
 #include "thing_stats.h"
 #include "creature_control.h"
 #include "config_creature.h"
+#include "config_effects.h"
 #include "room_data.h"
 #include "map_blocks.h"
 #include "map_utils.h"

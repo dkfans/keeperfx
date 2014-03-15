@@ -28,6 +28,7 @@
 #include "config_creature.h"
 #include "config_rules.h"
 #include "config_terrain.h"
+#include "config_effects.h"
 #include "config_crtrstates.h"
 #include "thing_stats.h"
 #include "thing_physics.h"

@@ -379,7 +379,7 @@ void play_creature_sound_and_create_sound_thing(struct Thing *thing, long snd_id
         return;
     }
     i = UNSYNC_RANDOM(crsound->count);
-    efftng = create_effect(&thing->mappos, 0x31, thing->owner);
+    efftng = create_effect(&thing->mappos, TngEff_Unknown49, thing->owner);
     if (!thing_is_invalid(efftng)) {
         thing_play_sample(efftng, crsound->index+i, 100, 0, 3, 0, a2, 256);
     }
