@@ -134,9 +134,224 @@ void creature_set_speed(struct Thing *thing, long speed)
     cctrl->flgfield_1 |= CCFlg_Unknown40;
 }
 
+TbBool cross_x_boundary_first(struct Coord3d *pos1, struct Coord3d *pos2)
+{
+  int delta_x, delta_y;
+  int mul_x, mul_y;
+  delta_x = pos2->x.val - (int)pos1->x.val;
+  delta_y = pos2->y.val - (int)pos1->y.val;
+  if (delta_x < 0) {
+      mul_x = pos1->x.stl.pos;
+  } else {
+      mul_x = 255 - (int)pos1->x.stl.pos;
+  }
+  if ( delta_y < 0 ) {
+      mul_y = pos1->y.stl.pos;
+  } else {
+      mul_y = 255 - (int)pos1->y.stl.pos;
+  }
+  return abs(delta_x * mul_y) > abs(mul_x * delta_y);
+}
+
+TbBool cross_y_boundary_first(struct Coord3d *pos1, struct Coord3d *pos2)
+{
+  int delta_x, delta_y;
+  int mul_x, mul_y;
+  delta_x = pos2->x.val - (int)pos1->x.val;
+  delta_y = pos2->y.val - (int)pos1->y.val;
+  if (delta_x < 0) {
+      mul_x = pos1->x.stl.pos;
+  } else {
+      mul_x = 255 - (int)pos1->x.stl.pos;
+  }
+  if ( delta_y < 0 ) {
+      mul_y = pos1->y.stl.pos;
+  } else {
+      mul_y = 255 - (int)pos1->y.stl.pos;
+  }
+  return abs(delta_y * mul_x) > abs(mul_y * delta_x);
+}
+
+TbBool position_over_floor_level(const struct Thing *thing, const struct Coord3d *pos)
+{
+    struct Coord3d modpos;
+    modpos.x.val = pos->x.val;
+    modpos.y.val = pos->y.val;
+    modpos.z.val = pos->z.val;
+    if (thing_in_wall_at(thing, &modpos))
+    {
+        long curr_height, norm_height;
+        curr_height = thing->mappos.z.val;
+        norm_height = get_floor_height_under_thing_at(thing, &modpos);
+        if (norm_height < curr_height)
+        {
+            return true;
+        }
+        modpos.z.val = -1;
+        norm_height = get_thing_height_at(thing, &modpos);
+        if ((norm_height == -1) || (norm_height - curr_height > 256))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 long creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos)
 {
-    return _DK_creature_cannot_move_directly_to(thing, pos);
+    //return _DK_creature_cannot_move_directly_to(thing, pos);
+    struct Coord3d realpos;
+    realpos.x.val = thing->mappos.x.val;
+    realpos.y.val = thing->mappos.y.val;
+    realpos.z.val = thing->mappos.z.val;
+    int delta_x, delta_y;
+    delta_x = pos->x.val - (long)realpos.x.val;
+    delta_y = pos->y.val - (long)realpos.y.val;
+    struct Coord3d newpos;
+    newpos.x.val = thing->mappos.x.val;
+    newpos.y.val = thing->mappos.y.val;
+    newpos.z.val = thing->mappos.z.val;
+
+    if ((pos->x.stl.num != realpos.x.stl.num) && (pos->y.stl.num != realpos.y.stl.num))
+    {
+        struct Coord3d modpos;
+
+        if (cross_x_boundary_first(&realpos, pos))
+        {
+            int i;
+
+            if (pos->x.val <= realpos.x.val)
+              i = (realpos.x.val & 0xFF00) - 1;
+            else
+              i = (realpos.x.val + 256) & 0xFF00;
+            modpos.x.val = i;
+            modpos.y.val = delta_y * (i - newpos.x.val) / delta_x + newpos.y.val;
+            modpos.z.val = realpos.z.val;
+            if (position_over_floor_level(thing, &modpos)) {
+                return 1;
+            }
+            thing->mappos.x.val = modpos.x.val;
+            thing->mappos.y.val = modpos.y.val;
+            thing->mappos.z.val = modpos.z.val;
+            thing->mappos.z.val = get_thing_height_at(thing, &modpos);
+
+            realpos.x.val = thing->mappos.x.val;
+            realpos.y.val = thing->mappos.y.val;
+            realpos.z.val = thing->mappos.z.val;
+
+            if (pos->y.val <= realpos.y.val)
+              i = (realpos.y.val & 0xFF00) - 1;
+            else
+              i = (realpos.y.val + 256) & 0xFF00;
+            modpos.y.val = i;
+            modpos.x.val = delta_x * (i - newpos.y.val) / delta_y + newpos.x.val;
+            modpos.z.val = realpos.z.val;
+            if (position_over_floor_level(thing, &modpos)) {
+                thing->mappos.x.val = newpos.x.val;
+                thing->mappos.y.val = newpos.y.val;
+                thing->mappos.z.val = newpos.z.val;
+                return 1;
+            }
+            thing->mappos.x.val = modpos.x.val;
+            thing->mappos.y.val = modpos.y.val;
+            thing->mappos.z.val = modpos.z.val;
+            thing->mappos.z.val = get_thing_height_at(thing, &modpos);
+
+            realpos.x.val = thing->mappos.x.val;
+            realpos.y.val = thing->mappos.y.val;
+            realpos.z.val = thing->mappos.z.val;
+
+            modpos.x.val = pos->x.val;
+            modpos.y.val = pos->y.val;
+            modpos.z.val = realpos.z.val;
+            if (position_over_floor_level(thing, &modpos)) {
+                thing->mappos.x.val = newpos.x.val;
+                thing->mappos.y.val = newpos.y.val;
+                thing->mappos.z.val = newpos.z.val;
+                return 1;
+            }
+            thing->mappos.x.val = newpos.x.val;
+            thing->mappos.y.val = newpos.y.val;
+            thing->mappos.z.val = newpos.z.val;
+            return 0;
+        }
+
+        if (cross_y_boundary_first(&realpos, pos))
+        {
+            int i;
+
+            if (pos->y.val <= realpos.y.val)
+              i = (realpos.y.val & 0xFF00) - 1;
+            else
+              i = (realpos.y.val + 256) & 0xFF00;
+            modpos.y.val = i;
+            modpos.x.val = delta_x * (i - newpos.y.val) / delta_y + newpos.x.val;
+            modpos.z.val = realpos.z.val;
+            if (position_over_floor_level(thing, &modpos)) {
+                return 1;
+            }
+            thing->mappos.x.val = modpos.x.val;
+            thing->mappos.y.val = modpos.y.val;
+            thing->mappos.z.val = modpos.z.val;
+            thing->mappos.z.val = get_thing_height_at(thing, &modpos);
+
+            realpos.x.val = thing->mappos.x.val;
+            realpos.y.val = thing->mappos.y.val;
+            realpos.z.val = thing->mappos.z.val;
+
+            if (pos->x.val <= realpos.x.val)
+              i = (realpos.x.val & 0xFF00) - 1;
+            else
+              i = (realpos.x.val + 256) & 0xFF00;
+            modpos.x.val = i;
+            modpos.y.val = delta_y * (modpos.x.val - newpos.x.val) / delta_x + newpos.y.val;
+            modpos.z.val = realpos.z.val;
+            if (position_over_floor_level(thing, &modpos)) {
+                thing->mappos.x.val = newpos.x.val;
+                thing->mappos.y.val = newpos.y.val;
+                thing->mappos.z.val = newpos.z.val;
+                return 1;
+            }
+            thing->mappos.x.val = modpos.x.val;
+            thing->mappos.y.val = modpos.y.val;
+            thing->mappos.z.val = modpos.z.val;
+            thing->mappos.z.val = get_thing_height_at(thing, &modpos);
+
+            realpos.x.val = thing->mappos.x.val;
+            realpos.y.val = thing->mappos.y.val;
+            realpos.z.val = thing->mappos.z.val;
+
+            modpos.x.val = pos->x.val;
+            modpos.y.val = pos->y.val;
+            modpos.z.val = realpos.z.val;
+            if (position_over_floor_level(thing, &modpos)) {
+                thing->mappos.x.val = newpos.x.val;
+                thing->mappos.y.val = newpos.y.val;
+                thing->mappos.z.val = newpos.z.val;
+                return 1;
+            }
+            thing->mappos.x.val = newpos.x.val;
+            thing->mappos.y.val = newpos.y.val;
+            thing->mappos.z.val = newpos.z.val;
+            return 0;
+        }
+
+        if (position_over_floor_level(thing, pos)) {
+            thing->mappos.x.val = newpos.x.val;
+            thing->mappos.y.val = newpos.y.val;
+            thing->mappos.z.val = newpos.z.val;
+            return 1;
+        }
+        thing->mappos.x.val = newpos.x.val;
+        thing->mappos.y.val = newpos.y.val;
+        thing->mappos.z.val = newpos.z.val;
+        return 0;
+    }
+
+    if (position_over_floor_level(thing, pos)) {
+        return 1;
+    }
+    return 0;
 }
 
 /** Retrieves planned next position for given thing, without collision detection.

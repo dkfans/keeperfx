@@ -110,6 +110,9 @@ const char *thing_class_and_model_name(int class_id, int model)
     case TCls_Object:
         snprintf(name_buffer[bid],sizeof(name_buffer[0]),"object %s",object_code_name(model));
         break;
+    case TCls_Effect:
+        snprintf(name_buffer[bid],sizeof(name_buffer[0]),"%s effect",effect_code_name(model));
+        break;
     default:
         snprintf(name_buffer[bid],sizeof(name_buffer[0]),"%s model %d",thing_class_code_name(class_id),(int)model);
         break;
