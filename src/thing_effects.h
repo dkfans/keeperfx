@@ -198,6 +198,7 @@ struct EffectElementStats { // sizeof = 79
 };
 
 struct InitEffect { // sizeof = 39
+    /** Health; decreases by 1 on every turn, so it works also as lifespan. */
   short start_health;
   unsigned char generation_type;
   short accel_xy_min;

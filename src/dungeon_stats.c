@@ -26,6 +26,7 @@
 #include "config_objects.h"
 #include "config_lenses.h"
 #include "config_trapdoor.h"
+#include "config_effects.h"
 #include "config_terrain.h"
 #include "room_library.h"
 #include "game_legacy.h"
@@ -55,6 +56,8 @@ TbBool load_stats_files(void)
       result = false;
     if (!load_trapdoor_config(keeper_trapdoor_file,CnfLd_ListOnly))
       result = false;
+    if (!load_effects_config(keeper_effects_file,CnfLd_ListOnly))
+      result = false;
     if (!load_lenses_config(keeper_lenses_file,CnfLd_ListOnly))
       result = false;
     if (!load_magic_config(keeper_magic_file,CnfLd_ListOnly))
@@ -66,6 +69,8 @@ TbBool load_stats_files(void)
     if (!load_objects_config(keeper_objects_file,CnfLd_Standard))
       result = false;
     if (!load_trapdoor_config(keeper_trapdoor_file,CnfLd_Standard))
+      result = false;
+    if (!load_effects_config(keeper_effects_file,CnfLd_Standard))
       result = false;
     if (!load_lenses_config(keeper_lenses_file,CnfLd_Standard))
       result = false;

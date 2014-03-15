@@ -196,6 +196,7 @@ obj/gui_tooltips.o \
 obj/gui_topmsg.o \
 obj/kjm_input.o \
 obj/lens_api.o \
+obj/config_effects.o \
 obj/lens_flyeye.o \
 obj/lens_mist.o \
 obj/light_data.o \
