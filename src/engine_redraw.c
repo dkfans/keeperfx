@@ -27,6 +27,7 @@
 #include "bflib_mouse.h"
 #include "bflib_dernc.h"
 
+#include "engine_arrays.h"
 #include "player_data.h"
 #include "dungeon_data.h"
 #include "player_instances.h"
@@ -45,6 +46,7 @@
 #include "frontend.h"
 #include "frontmenu_ingame_tabs.h"
 #include "frontmenu_ingame_evnt.h"
+#include "creature_graphics.h"
 #include "vidmode.h"
 #include "config.h"
 #include "config_strings.h"
@@ -270,12 +272,74 @@ long map_fade_out(long a)
 
 void set_sprite_view_3d(void)
 {
-    _DK_set_sprite_view_3d();
+    //_DK_set_sprite_view_3d();
+    long i;
+    for (i=1; i < THINGS_COUNT; i++)
+    {
+        struct Thing *thing;
+        thing = thing_get(i);
+        if (thing_exists(thing))
+        {
+            if (thing_is_creature(thing) || ((thing->field_4F & 0x01) == 0))
+            {
+                int n;
+                n = straight_iso_td(thing->field_44);
+                if (n >= 0)
+                {
+                    thing->field_44 = n;
+                    long nframes;
+                    nframes = keepersprite_frames(thing->field_44);
+                    if (nframes != thing->field_49)
+                    {
+                        ERRORLOG("No frames different between views C%d, M%d, A%d, B%d",thing->class_id,thing->model,thing->field_49,nframes);
+                        thing->field_49 = nframes;
+                        n = thing->field_49 - 1;
+                        if (n > thing->field_48) {
+                            n = thing->field_48;
+                        }
+                        thing->field_48 = n;
+                        thing->field_40 = n << 8;
+                    }
+                }
+            }
+        }
+    }
 }
 
 void set_sprite_view_isometric(void)
 {
-    _DK_set_sprite_view_isometric();
+    //_DK_set_sprite_view_isometric();
+    long i;
+    for (i=1; i < THINGS_COUNT; i++)
+    {
+        struct Thing *thing;
+        thing = thing_get(i);
+        if (thing_exists(thing))
+        {
+            if (thing_is_creature(thing) || ((thing->field_4F & 0x01) == 0))
+            {
+                int n;
+                n = straight_td_iso(thing->field_44);
+                if (n >= 0)
+                {
+                    thing->field_44 = n;
+                    long nframes;
+                    nframes = keepersprite_frames(thing->field_44);
+                    if (nframes != thing->field_49)
+                    {
+                        ERRORLOG("No frames different between views C%d, M%d, A%d, B%d",thing->class_id,thing->model,thing->field_49,nframes);
+                        thing->field_49 = nframes;
+                        n = thing->field_49 - 1;
+                        if (n > thing->field_48) {
+                            n = thing->field_48;
+                        }
+                        thing->field_48 = n;
+                        thing->field_40 = n << 8;
+                    }
+                }
+            }
+        }
+    }
 }
 
 long dummy_sound_line_of_sight(long a1, long a2, long a3, long a4, long a5, long a6)

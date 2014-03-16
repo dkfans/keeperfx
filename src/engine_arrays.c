@@ -56,6 +56,20 @@ long convert_td_iso(unsigned long n)
     return n;
 }
 
+long straight_td_iso(unsigned long n)
+{
+    if (n < TD_ISO_POINTS)
+        return td_iso[n];
+    return n;
+}
+
+long straight_iso_td(unsigned long n)
+{
+    if (n < TD_ISO_POINTS)
+        return iso_td[n];
+    return n;
+}
+
 void init_iso_3d_conversion_tables(void)
 {
   long i;

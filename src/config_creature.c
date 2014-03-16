@@ -1486,6 +1486,12 @@ ThingModel get_players_spectator_breed(PlayerNumber plyr_idx)
     return breed;
 }
 
+/**
+ * Returns personal name of a creature.
+ *
+ * @param creatng The input creature.
+ * @return Pointer to the buffer containing name.
+ */
 const char *creature_own_name(const struct Thing *creatng)
 {
     TRACE_THING(creatng);
@@ -1498,16 +1504,19 @@ const char *creature_own_name(const struct Thing *creatng)
         text = buf_sprintf("%s","Avatar");
     } else
     {
+        unsigned long seed;
+        seed = creatng->creation_turn + creatng->index;
+        // Get amount of nucleus
         int name_len;
-        name_len = ((randomisors[(creatng->creation_turn)&0x1ff] & 7) + (randomisors[(creatng->creation_turn >> 8)&0x1ff] & 7)) >> 1;
+        name_len = ((randomisors[(seed)&0x1ff] & 7) + (randomisors[(seed>>8)&0x1ff] & 7)) >> 1;
+        seed++;
         if (name_len < 2) {
             name_len = 2;
         } else
         if (name_len > 8) {
             name_len = 8;
         }
-        unsigned long seed;
-        seed = creatng->creation_turn + creatng->index;
+        // Get starting part of a name
         {
             const char *part;
             int n;
@@ -1516,6 +1525,7 @@ const char *creature_own_name(const struct Thing *creatng)
             part = name_starts[randomisors[n] % (sizeof(name_starts)/sizeof(name_starts[0]))];
             text = buf_sprintf("%s", part);
         }
+        // Append nucleus items to the name
         int i;
         for (i=0; i < name_len; i++)
         {
