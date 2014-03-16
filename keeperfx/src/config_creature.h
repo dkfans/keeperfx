@@ -51,6 +51,8 @@ enum CreatureModelFlags {
     MF_NoCorpseRotting  = 0x0100, // Corpse cannot rot in graveyard
     MF_NoEnmHeartAttack = 0x0200, // Creature will not attack enemy heart on sight
     MF_TremblingFat     = 0x0400, // Creature causes ground to tremble when dropped
+    MF_Female           = 0x0800, // Creature is female
+    MF_Insect           = 0x1000, // Creature is kind of insect
 };
 
 enum CreatureJobFlags {
