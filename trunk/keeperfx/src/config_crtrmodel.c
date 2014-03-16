@@ -97,6 +97,8 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"NO_CORPSE_ROTTING",18},
   {"NO_ENMHEART_ATTCK",19},
   {"TREMBLING_FAT",    20},
+  {"FEMALE",           21},
+  {"INSECT",           22},
   {NULL,                0},
   };
 
@@ -688,6 +690,14 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 break;
             case 20: // TREMBLING_FAT
                 crconf->model_flags |= MF_TremblingFat;
+                n++;
+                break;
+            case 21: // FEMALE
+                crconf->model_flags |= MF_Female;
+                n++;
+                break;
+            case 22: // INSECT
+                crconf->model_flags |= MF_Insect;
                 n++;
                 break;
             default:

@@ -228,7 +228,6 @@ const char *name_vowels[] = {
     "oa", "ai", "ea",
 };
 
-
 const char *name_consonants[] = {
     "b", "c", "d", "f",
     "g", "h", "j", "k",
@@ -1489,7 +1488,12 @@ ThingModel get_players_spectator_breed(PlayerNumber plyr_idx)
 
 const char *creature_own_name(const struct Thing *creatng)
 {
+    TRACE_THING(creatng);
+    //TODO store creature name seed somewhere in CreatureControl
+    //struct CreatureControl *cctrl;
+    //cctrl = creature_control_get_from_thing(creatng);
     char *text;
+    //TODO remove reference to specific creature model
     if (creatng->model == 7) {
         text = buf_sprintf("%s","Avatar");
     } else
@@ -1502,12 +1506,12 @@ const char *creature_own_name(const struct Thing *creatng)
         if (name_len > 8) {
             name_len = 8;
         }
-        unsigned char *seed;
-        seed = (unsigned char *)&creatng->next_on_mapblk;
+        unsigned long seed;
+        seed = creatng->creation_turn + creatng->index;
         {
             const char *part;
             int n;
-            n = ((unsigned int)seed)&0x1ff;
+            n = seed&0x1ff;
             seed++;
             part = name_starts[randomisors[n] % (sizeof(name_starts)/sizeof(name_starts[0]))];
             text = buf_sprintf("%s", part);
@@ -1517,7 +1521,7 @@ const char *creature_own_name(const struct Thing *creatng)
         {
             const char *part;
             int n;
-            n = ((unsigned int)seed)&0x1ff;
+            n = seed&0x1ff;
             seed++;
             if (i & 1) {
                 part = name_consonants[randomisors[n] % (sizeof(name_consonants)/sizeof(name_consonants[0]))];
