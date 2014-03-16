@@ -971,17 +971,21 @@ void init_iso_3d_conversion_tables(void)
   iso_td[947] = 946;
 }
 
+/**
+ * Fills randomisors array used for mesh deformations.
+ */
 void setup_3d(void)
 {
-  unsigned long seed;
-  long i,k;
-  SYNCDBG(6,"Starting");
-  seed = 0;
-  for (i=0; i < 512; i++)
-  {
-    k = LB_RANDOM(127, &seed);
-    randomisors[i] = k - 63;
-  }
+    unsigned long seed;
+    long i,k;
+    SYNCDBG(6,"Starting");
+    seed = 0x0f0f0f0f;
+    for (i=0; i < RANDOMISORS_LEN; i++)
+    {
+        // fill with value -RANDOMISORS_RANGE..RANDOMISORS_RANGE
+        k = LB_RANDOM(2*RANDOMISORS_RANGE+1, &seed);
+        randomisors[i] = k - RANDOMISORS_RANGE;
+    }
 }
 
 void fill_floor_heights_table(void)

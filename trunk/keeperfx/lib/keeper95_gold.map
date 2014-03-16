@@ -1259,6 +1259,11 @@
  0001:00033590       draw_status_sprites
  0001:00033F90       wander_point_initialise
  0001:00076910       draw_texture
+ 0001:0002A150       do_a_plane_of_engine_columns_sub5
+ 0001:0002A1B0       do_a_plane_of_engine_columns_sub1
+ 0001:0002A320       do_a_plane_of_engine_columns_sub2
+ 0001:0002A490       do_a_plane_of_engine_columns_sub3
+ 0001:0002A5B0       do_a_plane_of_engine_columns_sub4
  0001:000292F0       do_a_plane_of_engine_columns_isometric
  0001:0002A6D0       do_a_plane_of_engine_columns_cluedo
  0001:00027400       do_a_trig_gourad_tr

@@ -21,6 +21,7 @@
 
 #include "bflib_basics.h"
 #include "bflib_memory.h"
+#include "bflib_math.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 
@@ -1495,9 +1496,8 @@ ThingModel get_players_spectator_breed(PlayerNumber plyr_idx)
 const char *creature_own_name(const struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    //TODO store creature name seed somewhere in CreatureControl
-    //struct CreatureControl *cctrl;
-    //cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
     char *text;
     //TODO remove reference to specific creature model
     if (creatng->model == 7) {
@@ -1505,11 +1505,13 @@ const char *creature_own_name(const struct Thing *creatng)
     } else
     {
         unsigned long seed;
-        seed = creatng->creation_turn + creatng->index;
+        //TODO store creature name seed somewhere in CreatureControl instead making it from other parameters
+        seed = creatng->creation_turn + creatng->index + (cctrl->blood_type << 8);
         // Get amount of nucleus
         int name_len;
-        name_len = ((randomisors[(seed)&0x1ff] & 7) + (randomisors[(seed>>8)&0x1ff] & 7)) >> 1;
-        seed++;
+        int n;
+        n = LB_RANDOM(65536, &seed);
+        name_len = ((n & 7) + ((n>>8) & 7)) >> 1;
         if (name_len < 2) {
             name_len = 2;
         } else
@@ -1520,9 +1522,9 @@ const char *creature_own_name(const struct Thing *creatng)
         {
             const char *part;
             int n;
-            n = seed&0x1ff;
-            seed++;
-            part = name_starts[randomisors[n] % (sizeof(name_starts)/sizeof(name_starts[0]))];
+            // Get a nonnegative index
+            n = LB_RANDOM(sizeof(name_starts)/sizeof(name_starts[0]), &seed);
+            part = name_starts[n];
             text = buf_sprintf("%s", part);
         }
         // Append nucleus items to the name
@@ -1531,12 +1533,13 @@ const char *creature_own_name(const struct Thing *creatng)
         {
             const char *part;
             int n;
-            n = seed&0x1ff;
-            seed++;
+            // Get a nonnegative index
             if (i & 1) {
-                part = name_consonants[randomisors[n] % (sizeof(name_consonants)/sizeof(name_consonants[0]))];
+                n = LB_RANDOM(sizeof(name_consonants)/sizeof(name_consonants[0]), &seed);
+                part = name_consonants[n];
             } else {
-                part = name_vowels[randomisors[n] % (sizeof(name_vowels)/sizeof(name_vowels[0]))];
+                n = LB_RANDOM(sizeof(name_vowels)/sizeof(name_vowels[0]), &seed);
+                part = name_vowels[n];
             }
             strcat(text,part);
         }
