@@ -213,6 +213,7 @@ void creature_stats_updated(ThingModel crstat_idx);
 void check_and_auto_fix_stats(void);
 const char *creature_code_name(ThingModel crmodel);
 long creature_model_id(const char * name);
+const char *creature_own_name(const struct Thing *creatng);
 /******************************************************************************/
 TbBool load_creaturetypes_config(const char *conf_fname, unsigned short flags);
 /******************************************************************************/

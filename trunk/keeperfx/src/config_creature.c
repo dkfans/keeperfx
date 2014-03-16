@@ -33,6 +33,7 @@
 #include "thing_creature.h"
 #include "creature_instances.h"
 #include "creature_states.h"
+#include "engine_arrays.h"
 #include "game_legacy.h"
 
 #ifdef __cplusplus
@@ -211,6 +212,31 @@ const struct NamedCommand mevents_desc[] = {
     {"MEVENT_ROOMUNREACHABLE",EvKind_RoomUnreachable},
     {NULL,                    0},
 };
+
+const char *name_starts[] = {
+    "B", "C", "D", "F",
+    "G", "H", "J", "K",
+    "L", "M", "N", "P",
+    "R", "S", "T", "V",
+    "Y", "Z", "Ch",
+    "Sh", "Al", "Th",
+};
+
+const char *name_vowels[] = {
+    "a",  "e",  "i", "o",
+    "u",  "ee", "oo",
+    "oa", "ai", "ea",
+};
+
+
+const char *name_consonants[] = {
+    "b", "c", "d", "f",
+    "g", "h", "j", "k",
+    "l", "m", "n", "p",
+    "r", "s", "t", "v",
+    "y", "z", "ch", "sh"
+};
+
 /******************************************************************************/
 /**
  * Returns CreatureStats of given creature model.
@@ -1459,6 +1485,49 @@ ThingModel get_players_spectator_breed(PlayerNumber plyr_idx)
         breed = crtr_conf.special_digger_good;
     }
     return breed;
+}
+
+const char *creature_own_name(const struct Thing *creatng)
+{
+    char *text;
+    if (creatng->model == 7) {
+        text = buf_sprintf("%s","Avatar");
+    } else
+    {
+        int name_len;
+        name_len = ((randomisors[(creatng->creation_turn)&0x1ff] & 7) + (randomisors[(creatng->creation_turn >> 8)&0x1ff] & 7)) >> 1;
+        if (name_len < 2) {
+            name_len = 2;
+        } else
+        if (name_len > 8) {
+            name_len = 8;
+        }
+        unsigned char *seed;
+        seed = (unsigned char *)&creatng->next_on_mapblk;
+        {
+            const char *part;
+            int n;
+            n = ((unsigned int)seed)&0x1ff;
+            seed++;
+            part = name_starts[randomisors[n] % (sizeof(name_starts)/sizeof(name_starts[0]))];
+            text = buf_sprintf("%s", part);
+        }
+        int i;
+        for (i=0; i < name_len; i++)
+        {
+            const char *part;
+            int n;
+            n = ((unsigned int)seed)&0x1ff;
+            seed++;
+            if (i & 1) {
+                part = name_consonants[randomisors[n] % (sizeof(name_consonants)/sizeof(name_consonants[0]))];
+            } else {
+                part = name_vowels[randomisors[n] % (sizeof(name_vowels)/sizeof(name_vowels[0]))];
+            }
+            strcat(text,part);
+        }
+    }
+    return text;
 }
 
 struct CreatureJobConfig *get_config_for_job(CreatureJob job_flags)

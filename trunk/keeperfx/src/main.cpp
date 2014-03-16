@@ -547,7 +547,7 @@ long get_foot_creature_has_down(struct Thing *thing)
     val = thing->field_48;
     if (val == (cctrl->field_CE >> 8))
         return 0;
-    n = get_creature_breed_graphics(thing->model, 1);
+    n = get_creature_breed_graphics(thing->model, CGI_Ambulate);
     i = convert_td_iso(n);
     if (i != thing->field_44)
         return 0;
@@ -3392,9 +3392,9 @@ void init_level(void)
     game.creatures_tend_1 = 0;
     game.creatures_tend_2 = 0;
     game.field_15033A = 0;
-    game.field_151801 = 0;
-    game.field_151805 = 0;
-    game.field_151809 = 0;
+    game.chosen_room_kind = 0;
+    game.chosen_room_look = 0;
+    game.chosen_room_tooltip = 0;
     set_chosen_spell_none();
     game.manufactr_element = 0;
     game.numfield_15181D = 0;

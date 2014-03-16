@@ -36,7 +36,7 @@ enum CreatureGraphicsInstances {
     CGI_Drag        =  2,
     CGI_Attack      =  3,
     CGI_Dig         =  4,
-    CGI_Smoke       =  5,
+    CGI_Portrait    =  5,
     CGI_Relax       =  6,
     CGI_PrettyDance =  7,
     CGI_GotHit      =  8,

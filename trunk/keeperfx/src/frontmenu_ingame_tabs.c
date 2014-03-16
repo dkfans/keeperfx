@@ -32,6 +32,7 @@
 #include "thing_traps.h"
 #include "thing_doors.h"
 #include "creature_control.h"
+#include "creature_graphics.h"
 #include "config_creature.h"
 #include "config_magic.h"
 #include "config_trapdoor.h"
@@ -491,17 +492,73 @@ void gui_area_big_trap_button(struct GuiButton *gbtn)
 
 void maintain_big_spell(struct GuiButton *gbtn)
 {
-    _DK_maintain_big_spell(gbtn);
+    //_DK_maintain_big_spell(gbtn);
+    long spl_idx;
+    spl_idx = game.chosen_spell_type;
+    if ((spl_idx < 0) || (spl_idx >= KEEPER_SPELLS_COUNT)) {
+        return;
+    }
+    gbtn->content = (unsigned long *)spl_idx;
+    gbtn->field_29 = game.chosen_spell_look;
+    gbtn->tooltip_id = game.chosen_spell_tooltip;
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(my_player_number);
+    if (dungeon->magic_level[spl_idx] > 0) {
+        gbtn->field_1B = 0;
+        gbtn->flags |= 0x08;
+    } else {
+        gbtn->field_1B |= 0x8000;
+        gbtn->flags &= ~0x08;
+    }
 }
 
 void maintain_room(struct GuiButton *gbtn)
 {
-    _DK_maintain_room(gbtn);
+    //_DK_maintain_room(gbtn);
+    RoomKind rkind;
+    rkind = (long)gbtn->content;
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(my_player_number);
+    if ((rkind < 1) || (rkind >= ROOM_TYPES_COUNT)) {
+        return;
+    }
+    if (dungeon_invalid(dungeon)) {
+        ERRORLOG("Invalid dungeon");
+        return;
+    }
+    if (dungeon->room_buildable[rkind]) {
+        gbtn->field_1B = 0;
+        gbtn->flags |= LbBtnF_Unknown08;
+    } else {
+        gbtn->field_1B |= 0x8000;
+        gbtn->flags &= ~LbBtnF_Unknown08;
+    }
 }
 
 void maintain_big_room(struct GuiButton *gbtn)
 {
-    _DK_maintain_big_room(gbtn);
+    //_DK_maintain_big_room(gbtn);
+    long rkind;
+    rkind = game.chosen_room_kind;
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(my_player_number);
+    if ((rkind < 1) || (rkind >= ROOM_TYPES_COUNT)) {
+        return;
+    }
+    if (dungeon_invalid(dungeon)) {
+        ERRORLOG("Invalid dungeon");
+        return;
+    }
+    gbtn->content = (unsigned long *)rkind;
+    gbtn->field_29 = game.chosen_room_look;
+    gbtn->tooltip_id = game.chosen_room_tooltip;
+    if (dungeon->room_buildable[rkind]) {
+        gbtn->field_1B = 0;
+        gbtn->flags |= LbBtnF_Unknown08;
+    } else {
+        gbtn->field_1B |= 0x8000;
+        gbtn->flags &= ~LbBtnF_Unknown08;
+    }
 }
 
 void maintain_spell(struct GuiButton *gbtn)
@@ -604,16 +661,98 @@ void maintain_big_trap(struct GuiButton *gbtn)
     }
 }
 
+void draw_centred_string64k(const char *text, short x, short y, short w)
+{
+    unsigned long flg_mem;
+    flg_mem = lbDisplay.DrawFlags;
+    lbDisplay.DrawFlags &= ~0x0040;
+    LbTextSetJustifyWindow((x - (w / 2)) / pixel_size, y / (int)pixel_size, w / (int)pixel_size);
+    LbTextSetClipWindow( (x - (w / 2)) / pixel_size, y / (int)pixel_size, w / (int)pixel_size, 16 / pixel_size);
+    lbDisplay.DrawFlags |= 0x0100;
+    LbTextDraw(0 / pixel_size, -6 / pixel_size, text);
+    LbTextSetJustifyWindow(0 / pixel_size, 0 / pixel_size, 640 / pixel_size);
+    LbTextSetClipWindow(0 / pixel_size, 0 / pixel_size, 640 / pixel_size, 480 / pixel_size);
+    LbTextSetWindow(0 / pixel_size, 0 / pixel_size, MyScreenWidth / pixel_size, MyScreenHeight / pixel_size);
+    lbDisplay.DrawFlags = flg_mem;
+}
+
+void draw_name_box(long x, long y, struct Thing *thing)
+{
+    LbSpriteDraw(x / pixel_size, y / pixel_size, &gui_panel_sprites[458]);
+    if (thing_is_creature(thing) && (thing->ccontrol_idx > 0))
+    {
+        // Draw health bar
+        struct PlayerInfo *player;
+        player = get_my_player();
+        struct Thing *ctrltng;
+        ctrltng = thing_get(player->controlled_thing_idx);
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(ctrltng);
+        struct CreatureStats *crstat;
+        crstat = creature_stats_get_from_thing(ctrltng);
+        long maxhealth, curhealth;
+        maxhealth = compute_creature_max_health(crstat->health,cctrl->explevel);
+        curhealth = ctrltng->health;
+        if (curhealth <= 0) {
+            curhealth = 0;
+        } else
+        if (curhealth > maxhealth) {
+            curhealth = maxhealth;
+        }
+        //draw_percentage_bar();
+        if (maxhealth > 0)
+        {
+            long i, fill_width;
+            i = -63 * curhealth / maxhealth;
+            fill_width = 2 * i + 126;
+            if (fill_width < 0) {
+                fill_width = 0;
+            } else
+            if ( fill_width > 126 ) {
+                fill_width = 126;
+            }
+            LbDrawBox((x - fill_width + 128) / pixel_size, (y + 4) / pixel_size, fill_width / pixel_size, 14 / pixel_size, colours[0][0][0]);
+        }
+        // Draw creature name
+        const char *text;
+        text = creature_own_name(thing);
+        draw_centred_string64k(text, x + 63, y + 2, 120);
+    }
+}
+
 void gui_creature_query_background1(struct GuiMenu *gmnu)
 {
-  SYNCDBG(19,"Starting");
-  _DK_gui_creature_query_background1(gmnu);
+    SYNCDBG(19,"Starting");
+    //_DK_gui_creature_query_background1(gmnu);
+    struct PlayerInfo *player;
+    player = get_my_player();
+    struct Thing *ctrltng;
+    ctrltng = thing_get(player->controlled_thing_idx);
+    draw_name_box(gmnu->pos_x + 4, gmnu->pos_y + 262, ctrltng);
+    if (thing_is_creature(ctrltng) && (ctrltng->ccontrol_idx > 0))
+    {
+        long spr_idx;
+        spr_idx = get_creature_breed_graphics(ctrltng->model, CGI_QuerySymbol);
+        LbSpriteDraw((gmnu->pos_x + 16) / pixel_size, (gmnu->pos_y + 200) / pixel_size, &button_sprite[spr_idx]);
+    }
+    LbSpriteDraw((gmnu->pos_x + 4) / pixel_size, (gmnu->pos_y + 188) / pixel_size, &gui_panel_sprites[464]);
 }
 
 void gui_creature_query_background2(struct GuiMenu *gmnu)
 {
-  SYNCDBG(19,"Starting");
-  _DK_gui_creature_query_background2(gmnu);
+    SYNCDBG(19,"Starting");
+    //_DK_gui_creature_query_background2(gmnu);
+    struct PlayerInfo *player;
+    player = get_my_player();
+    struct Thing *ctrltng;
+    ctrltng = thing_get(player->controlled_thing_idx);
+    draw_name_box(gmnu->pos_x + 4, gmnu->pos_y + 200, ctrltng);
+    if (thing_is_creature(ctrltng) && (ctrltng->ccontrol_idx > 0))
+    {
+        long spr_idx;
+        spr_idx = get_creature_breed_graphics(ctrltng->model, CGI_Portrait);
+        LbSpriteDraw((gmnu->pos_x + 4) / pixel_size, (gmnu->pos_y + 196) / pixel_size, &gui_panel_sprites[spr_idx]);
+    }
 }
 
 void pick_up_creature_doing_activity(struct GuiButton *gbtn)
