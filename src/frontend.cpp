@@ -988,9 +988,9 @@ void activate_room_build_mode(int rkind, TextStringId tooltip_id)
     struct PlayerInfo *player;
     player = get_my_player();
     set_players_packet_action(player, PckA_SetPlyrState, PSt_BuildRoom, rkind, 0, 0);
-    game.field_151801 = rkind;
-    game.field_151805 = room_info[rkind].field_0;
-    game.field_151809 = tooltip_id;
+    game.chosen_room_kind = rkind;
+    game.chosen_room_look = room_info[rkind].field_0;
+    game.chosen_room_tooltip = tooltip_id;
 }
 
 TbBool set_players_packet_change_spell(struct PlayerInfo *player,int sptype)
