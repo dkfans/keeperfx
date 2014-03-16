@@ -25,6 +25,9 @@
 
 #define TD_ISO_POINTS        982
 #define FLOOR_TO_CEILING_MAP_LEN 592
+#define RANDOMISORS_LEN      512
+#define RANDOMISORS_MASK   0x1ff
+#define RANDOMISORS_RANGE     63
 
 #ifdef __cplusplus
 extern "C" {

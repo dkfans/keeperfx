@@ -81,6 +81,11 @@ DLLIMPORT void _DK_fiddle_half_gamut(long y, long pos_y, long floor_x, long floo
 DLLIMPORT long _DK_heap_manage_keepersprite(unsigned short kspr_n);
 DLLIMPORT void _DK_draw_single_keepersprite_xflip(long kspos_x, long kspos_y, struct KeeperSprite *kspr, long kspr_n, long scale);
 DLLIMPORT long _DK_load_single_frame(unsigned short kspr_idx);
+DLLIMPORT long _DK_do_a_plane_of_engine_columns_sub5(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3);
+DLLIMPORT void _DK_do_a_plane_of_engine_columns_sub1(struct EngineCol *ec1, struct EngineCol *ec2, int a3, short a4, int a5);
+DLLIMPORT void _DK_do_a_plane_of_engine_columns_sub3(struct EngineCol *ec1, struct EngineCol *ec2, int a3, short a4);
+DLLIMPORT void _DK_do_a_plane_of_engine_columns_sub4(struct EngineCol *ec1, struct EngineCol *ec2, int a3, short a4);
+DLLIMPORT void _DK_do_a_plane_of_engine_columns_sub2(struct EngineCol *ec1, struct EngineCol *ec2, int a3, short a4, int a5);
 /******************************************************************************/
 unsigned short shield_offset[] = {
  0x0,  0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x118, 0x80,
@@ -952,9 +957,34 @@ void do_a_plane_of_engine_columns_cluedo(long a1, long a2, long a3, long a4)
     _DK_do_a_plane_of_engine_columns_cluedo(a1, a2, a3, a4);
 }
 
+long do_a_plane_of_engine_columns_sub5(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3)
+{
+    return _DK_do_a_plane_of_engine_columns_sub5(ec1, ec2, ec3);
+}
+
+void do_a_plane_of_engine_columns_sub1(struct EngineCol *ec1, struct EngineCol *ec2, int a3, short a4, int a5)
+{
+    _DK_do_a_plane_of_engine_columns_sub1(ec1, ec2, a3, a4, a5);
+}
+
+void do_a_plane_of_engine_columns_sub3(struct EngineCol *ec1, struct EngineCol *ec2, int a3, short a4)
+{
+    _DK_do_a_plane_of_engine_columns_sub3(ec1, ec2, a3, a4);
+}
+
+void do_a_plane_of_engine_columns_sub4(struct EngineCol *ec1, struct EngineCol *ec2, int a3, short a4)
+{
+    _DK_do_a_plane_of_engine_columns_sub4(ec1, ec2, a3, a4);
+}
+
+void do_a_plane_of_engine_columns_sub2(struct EngineCol *ec1, struct EngineCol *ec2, int a3, short a4, int a5)
+{
+    _DK_do_a_plane_of_engine_columns_sub2(ec1, ec2, a3, a4, a5);
+}
+
 void do_a_plane_of_engine_columns_isometric(long xcell, long ycell, long a3, long a4)
 {
-    _DK_do_a_plane_of_engine_columns_isometric(xcell, ycell, a3, a4);
+    _DK_do_a_plane_of_engine_columns_isometric(xcell, ycell, a3, a4); return;
 }
 
 void draw_map_volume_box(long cor1_x, long cor1_y, long cor2_x, long cor2_y, long a5, unsigned char color)
@@ -2740,24 +2770,22 @@ void add_unkn19_to_polypool(long x, long y, long lvl, long bckt_idx)
 
 void prepare_lightness_intensity_array(long stl_x, long stl_y, long *arrp, long base_lightness)
 {
-    long *rndmis;
-    long rndi,nval;
-    long i;
-    i = 4 * stl_x + 17 * stl_y;
-    rndmis = &randomisors[i & 0xFF];
+    long i,n;
+    n = 4 * stl_x + 17 * stl_y;
     for (i=0; i < 9; i++)
     {
-      if ((base_lightness <= 256) || (base_lightness > 15872))
-      {
-          nval = base_lightness;
-      } else
-      {
-          rndi = *rndmis;
-          rndmis++;
-          nval = 32 * (rndi & 0x3F) + base_lightness - 256;
-      }
-      *arrp = nval << 8;
-      arrp++;
+        long rndi,nval;
+        if ((base_lightness <= 256) || (base_lightness > 15872))
+        {
+            nval = base_lightness;
+        } else
+        {
+            rndi = randomisors[n&RANDOMISORS_MASK];
+            n++;
+            nval = 32 * (rndi & 0x3F) + base_lightness - 256;
+        }
+        *arrp = nval << 8;
+        arrp++;
     }
 }
 

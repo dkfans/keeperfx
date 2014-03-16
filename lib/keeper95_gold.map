@@ -2068,3 +2068,8 @@
  0006:00001030       scale_up
  0006:00001034       xsteps_array
  0006:00001834       ysteps_array
+ 0001:0002A150       do_a_plane_of_engine_columns_sub5
+ 0001:0002A1B0       do_a_plane_of_engine_columns_sub1
+ 0001:0002A320       do_a_plane_of_engine_columns_sub2
+ 0001:0002A490       do_a_plane_of_engine_columns_sub3
+ 0001:0002A5B0       do_a_plane_of_engine_columns_sub4
