@@ -113,9 +113,9 @@ void store_localised_game_structure(void)
     boing.field_6 = game.creatures_tend_2;
     boing.hand_over_subtile_x = game.hand_over_subtile_x;
     boing.hand_over_subtile_y = game.hand_over_subtile_y;
-    boing.field_B = game.field_151801;
-    boing.field_F = game.field_151805;
-    boing.field_13 = game.field_151809;
+    boing.field_B = game.chosen_room_kind;
+    boing.field_F = game.chosen_room_look;
+    boing.field_13 = game.chosen_room_tooltip;
     boing.chosen_spell_type = game.chosen_spell_type;
     boing.chosen_spell_look = game.chosen_spell_look;
     boing.chosen_spell_tooltip = game.chosen_spell_tooltip;
@@ -135,9 +135,9 @@ void recall_localised_game_structure(void)
     game.creatures_tend_2 = boing.field_6;
     game.hand_over_subtile_x = boing.hand_over_subtile_x;
     game.hand_over_subtile_y = boing.hand_over_subtile_y;
-    game.field_151801 = boing.field_B;
-    game.field_151805 = boing.field_F;
-    game.field_151809 = boing.field_13;
+    game.chosen_room_kind = boing.field_B;
+    game.chosen_room_look = boing.field_F;
+    game.chosen_room_tooltip = boing.field_13;
     game.chosen_spell_type = boing.chosen_spell_type;
     game.chosen_spell_look = boing.chosen_spell_look;
     game.chosen_spell_tooltip = boing.chosen_spell_tooltip;

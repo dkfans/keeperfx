@@ -1625,7 +1625,7 @@ long creature_is_ambulating(struct Thing *thing)
 {
     //return _DK_creature_is_ambulating(thing);
     int n, i;
-    n = get_creature_breed_graphics(thing->model, 1);
+    n = get_creature_breed_graphics(thing->model, CGI_Ambulate);
     i = convert_td_iso(n);
     if (i != thing->field_44)
         return 0;
