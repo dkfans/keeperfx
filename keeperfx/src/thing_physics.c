@@ -27,6 +27,7 @@
 #include "thing_creature.h"
 #include "thing_list.h"
 #include "creature_control.h"
+#include "config_creature.h"
 #include "map_data.h"
 #include "map_columns.h"
 #include "map_utils.h"
@@ -397,6 +398,50 @@ TbBool map_is_solid_at_height(MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapCoord
     return false;
 }
 
+TbBool creature_can_pass_throgh_wall_at(const struct Thing *creatng, const struct Coord3d *pos)
+{
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(creatng);
+    if (crstat->can_go_locked_doors)
+    {
+        int radius;
+        long i;
+        if (thing_is_creature(creatng)) {
+            i = thing_nav_sizexy(creatng);
+        } else {
+            i = creatng->sizexy;
+        }
+        radius = i/2;
+        // Base on the radius, determine bounds of the object
+        MapSubtlCoord stl_x_beg, stl_x_end;
+        MapSubtlCoord stl_y_beg, stl_y_end;
+        MapCoord height_beg, height_end;
+        height_beg = pos->z.val;
+        height_end = height_beg + creatng->field_58;
+        stl_x_beg = coord_subtile(pos->x.val - radius);
+        stl_x_end = coord_subtile(pos->x.val + radius);
+        stl_y_beg = coord_subtile(pos->y.val - radius);
+        stl_y_end = coord_subtile(pos->y.val + radius);
+        TbBool allow;
+        allow = false;
+        MapSubtlCoord stl_x, stl_y;
+        for (stl_y = stl_y_beg; stl_y <= stl_y_end; stl_y++)
+        {
+            for (stl_x = stl_x_beg; stl_x <= stl_x_end; stl_x++)
+            {
+                if (subtile_is_door(stl_x, stl_y)) {
+                    allow = true;
+                } else
+                if (map_is_solid_at_height(stl_x, stl_y, height_beg, height_end)) {
+                    return false;
+                }
+            }
+        }
+        return allow;
+    }
+    return false;
+}
+
 long thing_in_wall_at(const struct Thing *thing, const struct Coord3d *pos)
 {
     int radius;
@@ -416,8 +461,8 @@ long thing_in_wall_at(const struct Thing *thing, const struct Coord3d *pos)
     height_end = height_beg + thing->field_58;
     stl_x_beg = coord_subtile(pos->x.val - radius);
     stl_x_end = coord_subtile(pos->x.val + radius);
-    stl_y_end = coord_subtile(pos->y.val + radius);
     stl_y_beg = coord_subtile(pos->y.val - radius);
+    stl_y_end = coord_subtile(pos->y.val + radius);
     MapSubtlCoord stl_x, stl_y;
     for (stl_y = stl_y_beg; stl_y <= stl_y_end; stl_y++)
     {
@@ -433,7 +478,42 @@ long thing_in_wall_at(const struct Thing *thing, const struct Coord3d *pos)
 
 long thing_in_wall_at_with_radius(const struct Thing *thing, const struct Coord3d *pos, unsigned long radius)
 {
-    return _DK_thing_in_wall_at_with_radius(thing, pos, radius);
+    //return _DK_thing_in_wall_at_with_radius(thing, pos, radius);
+    MapCoord z_beg, z_end;
+    z_beg = pos->z.val;
+    z_end = z_beg + thing->field_58;
+    MapSubtlCoord stl_x_beg, stl_x_end;
+    stl_x_beg = coord_subtile(pos->x.val - radius);
+    stl_x_end = coord_subtile(pos->x.val + radius);
+    MapSubtlCoord stl_y_beg, stl_y_end;
+    stl_y_beg = coord_subtile(pos->y.val - radius);
+    stl_y_end = coord_subtile(pos->y.val + radius);
+    MapSubtlCoord stl_x, stl_y;
+    for (stl_y = stl_y_beg; stl_y <= stl_y_end; stl_y++)
+    {
+        for (stl_x = stl_x_beg; stl_x <= stl_x_end; stl_x++)
+        {
+            struct Map *mapblk;
+            mapblk = get_map_block_at(stl_x, stl_y);
+            if ((mapblk->flags & MapFlg_IsTall) != 0) {
+                return true;
+            }
+            int floor_stl;
+            floor_stl = get_map_floor_filled_subtiles(mapblk);
+            if (subtile_coord(floor_stl,0) > z_beg) {
+                return true;
+            }
+            int ceiln_stl;
+            ceiln_stl = get_map_ceiling_filled_subtiles(mapblk);
+            if (ceiln_stl == 0) {
+                ceiln_stl = get_mapblk_filled_subtiles(mapblk);
+            }
+            if (subtile_coord(ceiln_stl,0) < z_end) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 long get_floor_height_under_thing_at(const struct Thing *thing, const struct Coord3d *pos)

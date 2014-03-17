@@ -201,7 +201,7 @@ TbBool thing_is_valid_scavenge_target(const struct Thing *calltng, const struct 
         return false;
     }
     //TODO [config] Add an option whether scavenging neutrals is possible
-    if (scavtng->owner != game.neutral_player_num)
+    if (!is_neutral_thing(scavtng))
     {
         if (!players_are_enemies(calltng->owner, scavtng->owner)) {
             return false;
@@ -218,7 +218,7 @@ TbBool thing_is_valid_scavenge_target(const struct Thing *calltng, const struct 
     }
     struct PlayerInfo *scavplyr;
     scavplyr = INVALID_PLAYER;
-    if (scavtng->owner != game.neutral_player_num) {
+    if (!is_neutral_thing(scavtng)) {
         scavplyr = get_player(scavtng->owner);
     }
     if (scavplyr->controlled_thing_idx != scavtng->index)
@@ -318,7 +318,7 @@ TbBool process_scavenge_creature_from_level(struct Thing *scavtng, struct Thing 
         ERRORLOG("The %s can't do scavenging - has no dungeon",thing_model_name(calltng));
         return false;
     }
-    if (scavtng->owner != game.neutral_player_num) {
+    if (!is_neutral_thing(scavtng)) {
         calldngn->field_894[scavtng->model]++;
         struct Dungeon *scavdngn;
         scavdngn = get_dungeon(scavtng->owner);
@@ -361,7 +361,7 @@ TbBool process_scavenge_creature_from_level(struct Thing *scavtng, struct Thing 
     // Make sure the scavenged creature is in correct state
     if (!creature_is_being_scavenged(scavtng))
     {
-        if (scavtng->owner != game.neutral_player_num) {
+        if (!is_neutral_thing(scavtng)) {
             external_set_thing_state(scavtng, CrSt_CreatureBeingScavenged);
         }
     }
