@@ -28,6 +28,7 @@
 #include "thing_objects.h"
 #include "config_terrain.h"
 #include "config_settings.h"
+#include "config_creature.h"
 #include "creature_senses.h"
 #include "player_utils.h"
 #include "ariadne_wallhug.h"
@@ -1567,19 +1568,9 @@ void check_map_explored(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoor
         return;
     }
 
-    struct PlayerInfo *player;
-    player = get_player(creatng->owner);
     int can_see_slabs;
-    if (player->controlled_thing_idx == creatng->index)
-    {
-        can_see_slabs = get_creature_can_see_subtiles() / STL_PER_SLB;
-        if (can_see_slabs <= 7)
-            can_see_slabs = 7;
-    } else
-    {
-        can_see_slabs = 7;
-    }
-    if (!player_cannot_win(creatng->owner)) {
+    can_see_slabs = get_explore_sight_distance_in_slabs(creatng);
+    if (!player_cannot_win(creatng->owner) && ((get_creature_model_flags(creatng) & MF_IsSpectator) == 0)) {
         claim_neutral_creatures_in_sight(creatng, &pos, can_see_slabs);
     }
     clear_slab_dig(slb_x, slb_y, creatng->owner);

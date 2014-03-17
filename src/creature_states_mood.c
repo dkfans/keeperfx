@@ -90,7 +90,26 @@ short creature_moan(struct Thing *thing)
 
 short creature_roar(struct Thing *thing)
 {
-  return _DK_creature_roar(thing);
+    struct CreatureControl *cctrl;
+    long i;
+    //return _DK_creature_roar(thing);
+    cctrl = creature_control_get_from_thing(thing);
+
+    if (cctrl->field_282 > 0) {
+        cctrl->field_282--;
+    }
+    if (cctrl->field_282 <= 0)
+    {
+        cctrl->last_roar_turn = game.play_gameturn;
+        set_start_state(thing);
+        return 0;
+    }
+    if (game.play_gameturn - cctrl->long_9A > 32)
+    {
+        play_creature_sound(thing, 4, 2, 0);
+        cctrl->long_9A = game.play_gameturn;
+    }
+    return 1;
 }
 
 short creature_be_happy(struct Thing *thing)

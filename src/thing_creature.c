@@ -1773,7 +1773,7 @@ long move_creature(struct Thing *thing)
     velo_z = thing->velocity.z.val;
     cctrl->flgfield_1 &= ~CCFlg_Unknown08;
     struct Coord3d nxpos;
-    if (thing_in_wall_at(thing, &thing->mappos))
+    if (thing_in_wall_at(thing, &thing->mappos) && !creature_can_pass_throgh_wall_at(thing, &thing->mappos))
     {
         nxpos.x.val = tngpos->x.val;
         nxpos.y.val = tngpos->y.val;
@@ -1831,7 +1831,7 @@ long move_creature(struct Thing *thing)
         nxpos.z.val = velo_z + tngpos->z.val;
         if ((thing->movement_flags & TMvF_Flying) != 0)
         {
-            if (thing_in_wall_at(thing, &nxpos))
+            if (thing_in_wall_at(thing, &nxpos) && !creature_can_pass_throgh_wall_at(thing, &nxpos))
             {
                 long blocked_flags;
                 blocked_flags = get_thing_blocked_flags_at(thing, &nxpos);
@@ -1843,7 +1843,7 @@ long move_creature(struct Thing *thing)
         }
         else
         {
-            if (thing_in_wall_at(thing, &nxpos))
+            if (thing_in_wall_at(thing, &nxpos) && !creature_can_pass_throgh_wall_at(thing, &nxpos))
             {
                 if (creature_cannot_move_directly_to(thing, &nxpos))
                 {
@@ -1862,7 +1862,9 @@ long move_creature(struct Thing *thing)
         }
         if ((cctrl->flgfield_1 & CCFlg_Unknown10) != 0)
         {
-            if (get_thing_collided_with_at_satisfying_filter(thing, &nxpos, collide_filter_thing_is_of_type, 5, -1))
+            struct Thing * collidtng;
+            collidtng = get_thing_collided_with_at_satisfying_filter(thing, &nxpos, collide_filter_thing_is_of_type, 5, -1);
+            if (!thing_is_invalid(collidtng))
             {
                 nxpos.x.val = tngpos->x.val;
                 nxpos.y.val = tngpos->y.val;
