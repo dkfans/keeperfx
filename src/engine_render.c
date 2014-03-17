@@ -82,10 +82,10 @@ DLLIMPORT long _DK_heap_manage_keepersprite(unsigned short kspr_n);
 DLLIMPORT void _DK_draw_single_keepersprite_xflip(long kspos_x, long kspos_y, struct KeeperSprite *kspr, long kspr_n, long scale);
 DLLIMPORT long _DK_load_single_frame(unsigned short kspr_idx);
 DLLIMPORT long _DK_do_a_plane_of_engine_columns_sub5(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3);
-DLLIMPORT void _DK_do_a_plane_of_engine_columns_sub1(struct EngineCol *ec1, struct EngineCol *ec2, int a3, short a4, int a5);
-DLLIMPORT void _DK_do_a_plane_of_engine_columns_sub3(struct EngineCol *ec1, struct EngineCol *ec2, int a3, short a4);
-DLLIMPORT void _DK_do_a_plane_of_engine_columns_sub4(struct EngineCol *ec1, struct EngineCol *ec2, int a3, short a4);
-DLLIMPORT void _DK_do_a_plane_of_engine_columns_sub2(struct EngineCol *ec1, struct EngineCol *ec2, int a3, short a4, int a5);
+DLLIMPORT void _DK_do_a_plane_of_engine_columns_sub1(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short a4, int a5);
+DLLIMPORT void _DK_do_a_plane_of_engine_columns_sub3(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short a4);
+DLLIMPORT void _DK_do_a_plane_of_engine_columns_sub4(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short a4);
+DLLIMPORT void _DK_do_a_plane_of_engine_columns_sub2(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short a4, int a5);
 /******************************************************************************/
 unsigned short shield_offset[] = {
  0x0,  0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x118, 0x80,
@@ -962,29 +962,195 @@ long do_a_plane_of_engine_columns_sub5(struct EngineCoord *ec1, struct EngineCoo
     return _DK_do_a_plane_of_engine_columns_sub5(ec1, ec2, ec3);
 }
 
-void do_a_plane_of_engine_columns_sub1(struct EngineCol *ec1, struct EngineCol *ec2, int a3, short a4, int a5)
+void do_a_plane_of_engine_columns_sub1(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short a4, int a5)
 {
-    _DK_do_a_plane_of_engine_columns_sub1(ec1, ec2, a3, a4, a5);
+    _DK_do_a_plane_of_engine_columns_sub1(ec1, ec2, ec3, a4, a5);
 }
 
-void do_a_plane_of_engine_columns_sub3(struct EngineCol *ec1, struct EngineCol *ec2, int a3, short a4)
+void do_a_plane_of_engine_columns_sub3(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short a4)
 {
-    _DK_do_a_plane_of_engine_columns_sub3(ec1, ec2, a3, a4);
+    _DK_do_a_plane_of_engine_columns_sub3(ec1, ec2, ec3, a4);
 }
 
-void do_a_plane_of_engine_columns_sub4(struct EngineCol *ec1, struct EngineCol *ec2, int a3, short a4)
+void do_a_plane_of_engine_columns_sub4(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short a4)
 {
-    _DK_do_a_plane_of_engine_columns_sub4(ec1, ec2, a3, a4);
+    _DK_do_a_plane_of_engine_columns_sub4(ec1, ec2, ec3, a4);
 }
 
-void do_a_plane_of_engine_columns_sub2(struct EngineCol *ec1, struct EngineCol *ec2, int a3, short a4, int a5)
+void do_a_plane_of_engine_columns_sub2(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short a4, int a5)
 {
-    _DK_do_a_plane_of_engine_columns_sub2(ec1, ec2, a3, a4, a5);
+    _DK_do_a_plane_of_engine_columns_sub2(ec1, ec2, ec3, a4, a5);
 }
 
 void do_a_plane_of_engine_columns_isometric(long xcell, long ycell, long a3, long a4)
 {
-    _DK_do_a_plane_of_engine_columns_isometric(xcell, ycell, a3, a4); return;
+    //_DK_do_a_plane_of_engine_columns_isometric(xcell, ycell, a3, a4); return;
+    if ((ycell < 1) || (ycell > 254)) {
+        return;
+    }
+    long xaval, xbval;
+    TbBool xaclip, xbclip;
+    xaval = a3;
+    xaclip = 0;
+    xbclip = 0;
+    if (xcell + a3 < 1) {
+        xaclip = 1;
+        xaval = 1 - xcell;
+    }
+    xbval = a4;
+    if (xcell + a4 > 255) {
+        xbclip = 1;
+        xbval = 255 - xcell;
+    }
+    struct EngineCol *bec;
+    struct EngineCol *fec;
+    bec = &back_ec[xaval + 31];
+    fec = &front_ec[xaval + 31];
+    int xidx, xdelta;
+    xdelta = xbval - xaval;
+    const struct Column *unrev_colmn;
+    unrev_colmn = get_column(game.unrevealed_column_idx);
+    for (xidx=0; xidx < xdelta; xidx++,fec++,bec++)
+    {
+        struct Map *cur_mapblk;
+        cur_mapblk = get_map_block_at(xcell + xaval + xidx, ycell);
+        // Get column to be drawn
+        const struct Column *cur_colmn;
+        cur_colmn = unrev_colmn;
+        if (map_block_revealed_bit(cur_mapblk, player_bit))
+        {
+            long i;
+            i = get_mapwho_thing_index(cur_mapblk);
+            if (i > 0) {
+              do_map_who(i);
+            }
+            cur_colmn = get_map_column(cur_mapblk);
+        }
+        // Get solidmasks of sibling columns
+        unsigned short solidmsk_cur, solidmsk_back, solidmsk_front, solidmsk_left, solidmsk_right;
+        solidmsk_cur = cur_colmn->solidmask;
+        solidmsk_back = unrev_colmn->solidmask;
+        solidmsk_right = unrev_colmn->solidmask;
+        solidmsk_front = unrev_colmn->solidmask;
+        solidmsk_left = unrev_colmn->solidmask;
+        struct Map *sib_mapblk;
+        sib_mapblk = get_map_block_at(xcell + xaval + xidx, ycell - 1);
+        if (map_block_revealed_bit(sib_mapblk, player_bit)) {
+            struct Column *colmn;
+            colmn = get_map_column(sib_mapblk);
+            solidmsk_back = colmn->solidmask;
+        }
+        sib_mapblk = get_map_block_at(xcell + xaval + xidx, ycell + 1);
+        if (map_block_revealed_bit(sib_mapblk, player_bit)) {
+            struct Column *colmn;
+            colmn = get_map_column(sib_mapblk);
+            solidmsk_front = colmn->solidmask;
+        }
+        sib_mapblk = get_map_block_at(xcell + xaval + xidx - 1, ycell);
+        if (map_block_revealed_bit(sib_mapblk, player_bit)) {
+            struct Column *colmn;
+            colmn = get_map_column(sib_mapblk);
+            solidmsk_left = colmn->solidmask;
+        }
+        sib_mapblk = get_map_block_at(xcell + xaval + xidx + 1, ycell);
+        if (map_block_revealed_bit(sib_mapblk, player_bit)) {
+            struct Column *colmn;
+            colmn = get_map_column(sib_mapblk);
+            solidmsk_right = colmn->solidmask;
+        }
+        if ( xaclip || xbclip || (ycell <= 1) || (ycell >= 254))
+        {
+            if (xaclip && (xidx == 0)) {
+                solidmsk_left = 0;
+            }
+            if (xbclip && (xdelta - xidx == 1)) {
+                solidmsk_right = 0;
+            }
+            if (ycell <= 1) {
+                solidmsk_back = 0;
+            }
+            if (ycell >= 254) {
+                solidmsk_front = 0;
+            }
+        }
+
+        unsigned short mask;
+        int ncor;
+        for (mask=1,ncor=0; mask <= solidmsk_cur; mask*=2,ncor++)
+        {
+            unsigned short textr_id;
+            struct CubeAttribs *cubed;
+            cubed = &game.cubes_data[cur_colmn->cubes[ncor]];
+            if ((mask & solidmsk_cur) == 0)
+            {
+                continue;
+            }
+            if ((mask & solidmsk_back) == 0)
+            {
+                textr_id = cubed->texture_id[sideoris[0].field_0];
+                do_a_plane_of_engine_columns_sub1(&bec[1].cors[ncor+1], &bec[0].cors[ncor+1], &bec[0].cors[ncor],   textr_id, normal_shade_back);
+                do_a_plane_of_engine_columns_sub2(&bec[0].cors[ncor],   &bec[1].cors[ncor],   &bec[1].cors[ncor+1], textr_id, normal_shade_back);
+            }
+            if ((solidmsk_front & mask) == 0)
+            {
+                textr_id = cubed->texture_id[sideoris[0].field_2];
+                do_a_plane_of_engine_columns_sub1(&fec[0].cors[ncor+1], &fec[1].cors[ncor+1], &fec[1].cors[ncor],   textr_id, normal_shade_front);
+                do_a_plane_of_engine_columns_sub2(&fec[1].cors[ncor],   &fec[0].cors[ncor],   &fec[0].cors[ncor+1], textr_id, normal_shade_front);
+            }
+            if ((solidmsk_left & mask) == 0)
+            {
+                textr_id = cubed->texture_id[sideoris[0].field_3];
+                do_a_plane_of_engine_columns_sub1(&bec[0].cors[ncor+1], &fec[0].cors[ncor+1], &fec[0].cors[ncor],   textr_id, normal_shade_left);
+                do_a_plane_of_engine_columns_sub2(&fec[0].cors[ncor],   &bec[0].cors[ncor],   &bec[0].cors[ncor+1], textr_id, normal_shade_left);
+            }
+            if ((solidmsk_right & mask) == 0)
+            {
+                textr_id = cubed->texture_id[sideoris[0].field_1];
+                do_a_plane_of_engine_columns_sub1(&fec[1].cors[ncor+1], &bec[1].cors[ncor+1], &bec[1].cors[ncor],   textr_id, normal_shade_right);
+                do_a_plane_of_engine_columns_sub2(&bec[1].cors[ncor],   &fec[1].cors[ncor],   &fec[1].cors[ncor+1], textr_id, normal_shade_right);
+            }
+        }
+
+        ncor = floor_height[solidmsk_cur];
+        if ( ncor )
+        {
+            if ((cur_mapblk->flags & (0x80|0x04)) == 0)
+            {
+                struct CubeAttribs * cubed;
+                cubed = &game.cubes_data[*(short *)((char *)&cur_colmn->baseblock + 2 * ncor + 1)];
+                do_a_plane_of_engine_columns_sub1(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], cubed->texture_id[4], -1);
+                do_a_plane_of_engine_columns_sub2(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], cubed->texture_id[4], -1);
+            } else
+            if ((cur_mapblk->flags & 0x01) != 0)
+            {
+                do_a_plane_of_engine_columns_sub3(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], 579);
+                do_a_plane_of_engine_columns_sub4(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], 579);
+            } else
+            {
+                do_a_plane_of_engine_columns_sub3(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], 578);
+                do_a_plane_of_engine_columns_sub4(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], 578);
+            }
+        } else
+        {
+            if ((cur_mapblk->flags & 0x04) == 0)
+            {
+                do_a_plane_of_engine_columns_sub1(&bec[0].cors[0], &bec[1].cors[0], &fec[1].cors[0], cur_colmn->baseblock, -1);
+                do_a_plane_of_engine_columns_sub2(&fec[1].cors[0], &fec[0].cors[0], &bec[0].cors[0], cur_colmn->baseblock, -1);
+            } else
+            {
+                do_a_plane_of_engine_columns_sub3(&bec[0].cors[0], &bec[1].cors[0], &fec[1].cors[0], 578);
+                do_a_plane_of_engine_columns_sub4(&fec[1].cors[0], &fec[0].cors[0], &bec[0].cors[0], 578);
+            }
+        }
+        ncor = lintel_top_height[solidmsk_cur];
+        if ( ncor )
+        {
+            struct CubeAttribs * cubed;
+            cubed = &game.cubes_data[*(short *)((char *)&cur_colmn->baseblock + 2 * ncor + 1)];
+            do_a_plane_of_engine_columns_sub1(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], cubed->texture_id[4], -1);
+            do_a_plane_of_engine_columns_sub2(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], cubed->texture_id[4], -1);
+        }
+    }
 }
 
 void draw_map_volume_box(long cor1_x, long cor1_y, long cor2_x, long cor2_y, long a5, unsigned char color)
