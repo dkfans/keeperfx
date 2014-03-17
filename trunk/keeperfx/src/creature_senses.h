@@ -40,7 +40,7 @@ TbBool sibling_line_of_sight_ignoring_door(const struct Coord3d *prevpos,
 
 TbBool line_of_sight_3d(const struct Coord3d *frpos, const struct Coord3d *topos);
 
-long get_explore_sight_distance_in_slabs(struct Thing *thing);
+long get_explore_sight_distance_in_slabs(const struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }

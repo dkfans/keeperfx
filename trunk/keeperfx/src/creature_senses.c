@@ -758,20 +758,21 @@ TbBool line_of_sight_3d(const struct Coord3d *frpos, const struct Coord3d *topos
     return true;
 }
 
-long get_explore_sight_distance_in_slabs(struct Thing *thing)
+long get_explore_sight_distance_in_slabs(const struct Thing *thing)
 {
     struct PlayerInfo *player;
+    if (!thing_exists(thing)) {
+        return 0;
+    }
     if (is_neutral_thing(thing)) {
         return 7;
     }
     player = get_player(thing->owner);
-    struct Thing *ctrltng;
-    ctrltng = thing_get(player->controlled_thing_idx);
     long dist;
-    if (ctrltng->index != thing->index) {
+    if (player->controlled_thing_idx != thing->index) {
         dist = 7;
     } else {
-        dist = get_creature_can_see_subtiles() / 3;
+        dist = get_creature_can_see_subtiles() / STL_PER_SLB;
         if (dist <= 7)
             dist = 7;
     }
