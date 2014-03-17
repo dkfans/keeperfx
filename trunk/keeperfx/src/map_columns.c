@@ -159,11 +159,11 @@ long get_map_ceiling_filled_subtiles(const struct Map *mapblk)
  */
 long get_ceiling_filled_subtiles_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    const struct Column *col;
-    col = get_column_at(stl_x, stl_y);
-    if (column_invalid(col))
+    const struct Column *colmn;
+    colmn = get_column_at(stl_x, stl_y);
+    if (column_invalid(colmn))
         return 0;
-    return (col->bitfields & 0x0E) >> 1;
+    return (colmn->bitfields & 0x0E) >> 1;
 }
 
 /**

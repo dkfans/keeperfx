@@ -1502,7 +1502,30 @@ const char *creature_own_name(const struct Thing *creatng)
     //TODO remove reference to specific creature model
     if (creatng->model == 7) {
         text = buf_sprintf("%s","Avatar");
-    } else
+        return text;
+    }
+    const char ** starts;
+    long starts_len;
+    const char ** vowels;
+    long vowels_len;
+    const char ** consonants;
+    long consonants_len;
+    const char ** end_vowels;
+    long end_vowels_len;
+    const char ** end_consonants;
+    long end_consonants_len;
+    {
+        starts = name_starts;
+        starts_len = sizeof(name_starts)/sizeof(name_starts[0]);
+        vowels = name_vowels;
+        vowels_len = sizeof(name_vowels)/sizeof(name_vowels[0]);
+        consonants = name_consonants;
+        consonants_len = sizeof(name_consonants)/sizeof(name_consonants[0]);
+        end_vowels = name_vowels;
+        end_vowels_len = sizeof(name_vowels)/sizeof(name_vowels[0]);
+        end_consonants = name_consonants;
+        end_consonants_len = sizeof(name_consonants)/sizeof(name_consonants[0]);
+    }
     {
         unsigned long seed;
         //TODO store creature name seed somewhere in CreatureControl instead making it from other parameters
@@ -1522,24 +1545,34 @@ const char *creature_own_name(const struct Thing *creatng)
         {
             const char *part;
             int n;
-            // Get a nonnegative index
-            n = LB_RANDOM(sizeof(name_starts)/sizeof(name_starts[0]), &seed);
-            part = name_starts[n];
+            n = LB_RANDOM(starts_len, &seed);
+            part = starts[n];
             text = buf_sprintf("%s", part);
         }
         // Append nucleus items to the name
         int i;
-        for (i=0; i < name_len; i++)
+        for (i=0; i < name_len-1; i++)
         {
             const char *part;
             int n;
-            // Get a nonnegative index
             if (i & 1) {
-                n = LB_RANDOM(sizeof(name_consonants)/sizeof(name_consonants[0]), &seed);
-                part = name_consonants[n];
+                n = LB_RANDOM(consonants_len, &seed);
+                part = consonants[n];
             } else {
-                n = LB_RANDOM(sizeof(name_vowels)/sizeof(name_vowels[0]), &seed);
-                part = name_vowels[n];
+                n = LB_RANDOM(vowels_len, &seed);
+                part = vowels[n];
+            }
+            strcat(text,part);
+        }
+        {
+            const char *part;
+            int n;
+            if (i & 1) {
+                n = LB_RANDOM(end_consonants_len, &seed);
+                part = end_consonants[n];
+            } else {
+                n = LB_RANDOM(end_vowels_len, &seed);
+                part = end_vowels[n];
             }
             strcat(text,part);
         }

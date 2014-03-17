@@ -351,14 +351,14 @@ void clear_cubes(void)
   int i;
   for (i=0; i < CUBE_ITEMS_MAX; i++)
   {
-      struct CubeAttribs *cube;
-      cube = &game.cubes_data[i];
+      struct CubeAttribs *cubed;
+      cubed = &game.cubes_data[i];
       int n;
       for (n=0; n < CUBE_TEXTURES; n++) {
-          cube->texture_id[n] = 0;
+          cubed->texture_id[n] = 0;
       }
       for (n=0; n < CUBE_TEXTURES; n++) {
-          cube->field_C[n] = 0;
+          cubed->field_C[n] = 0;
       }
   }
 }
@@ -412,14 +412,14 @@ long load_cube_file(void)
         cubuf = (struct CubeAttribs *)&buf[4];
         for (i=0; i < count; i++)
         {
-            struct CubeAttribs * cube;
-            cube = &game.cubes_data[i];
+            struct CubeAttribs * cubed;
+            cubed = &game.cubes_data[i];
             int n;
             for (n=0; n < CUBE_TEXTURES; n++) {
-                cube->texture_id[n] = cubuf->texture_id[n];
+                cubed->texture_id[n] = cubuf->texture_id[n];
             }
             for (n=0; n < CUBE_TEXTURES; n++) {
-                cube->field_C[n] = cubuf->field_C[n];
+                cubed->field_C[n] = cubuf->field_C[n];
             }
             cubuf++;
         }
