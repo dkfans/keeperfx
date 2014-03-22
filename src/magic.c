@@ -519,7 +519,7 @@ TbResult magic_use_power_armageddon(PlayerNumber plyr_idx)
     unsigned long your_time_gap,enemy_time_gap;
     your_time_gap = game.armageddon.count_down + game.play_gameturn;
     enemy_time_gap = game.armageddon.count_down + game.play_gameturn;
-    if (game.field_150356) {
+    if (game.armageddon_cast_turn) {
         return Lb_OK;
     }
     struct MagicStats *magstat;
@@ -530,8 +530,8 @@ TbResult magic_use_power_armageddon(PlayerNumber plyr_idx)
             output_message(SMsg_GoldNotEnough, 0, true);
         return Lb_OK;
     }
-    game.field_150356 = game.play_gameturn;
-    game.field_15035E = plyr_idx;
+    game.armageddon_cast_turn = game.play_gameturn;
+    game.armageddon_caster_idx = plyr_idx;
     struct Thing *heartng;
     heartng = get_player_soul_container(plyr_idx);
     game.armageddon.mappos.x.val = heartng->mappos.x.val;

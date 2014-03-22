@@ -576,7 +576,7 @@ void maintain_spell(struct GuiButton *gbtn)
   } else
   if (i == 19)
   {
-      if (game.field_150356 != 0)
+      if (game.armageddon_cast_turn != 0)
       {
         gbtn->field_1B |= 0x8000u;
         gbtn->flags &= ~LbBtnF_Unknown08;

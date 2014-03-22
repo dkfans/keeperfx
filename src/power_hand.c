@@ -161,7 +161,7 @@ TbBool thing_is_pickable_by_hand(struct PlayerInfo *player, const struct Thing *
 
 TbBool armageddon_blocks_creature_pickup(const struct Thing *thing, PlayerNumber plyr_idx)
 {
-    if ((game.field_150356 != 0) && (game.armageddon.count_down + game.field_150356 <= game.play_gameturn)) {
+    if ((game.armageddon_cast_turn != 0) && (game.armageddon.count_down + game.armageddon_cast_turn <= game.play_gameturn)) {
         return true;
     }
     return false;
