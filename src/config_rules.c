@@ -102,16 +102,17 @@ const struct NamedCommand rules_magic_commands[] = {
   {"HOLDAUDIENCETIME",              1},
   {"ARMAGEDONTELEPORTYOURTIMEGAP",  2},
   {"ARMAGEDONTELEPORTENEMYTIMEGAP", 3},
-  {"ARMEGEDDONCOUNTDOWN",           4},
-  {"ARMEGEDDONDURATION",            5},
-  {"DISEASETRANSFERPERCENTAGE",     6},
-  {"DISEASELOSEPERCENTAGEHEALTH",   7},
-  {"DISEASELOSEHEALTHTIME",         8},
-  {"MINDISTANCEFORTELEPORT",        9},
-  {"COLLAPSEDUNGEONDAMAGE",        10},
-  {"TURNSPERCOLLAPSEDUNGEONDAMAGE",11},
-  {"DEFAULTSACRIFICESCOREFORHORNY",12},
-  {"POWERHANDGOLDGRABAMOUNT",      13},
+  {"ARMEGEDDONTELEPORTNEUTRALS",    4},
+  {"ARMEGEDDONCOUNTDOWN",           5},
+  {"ARMEGEDDONDURATION",            6},
+  {"DISEASETRANSFERPERCENTAGE",     7},
+  {"DISEASELOSEPERCENTAGEHEALTH",   8},
+  {"DISEASELOSEHEALTHTIME",         9},
+  {"MINDISTANCEFORTELEPORT",       10},
+  {"COLLAPSEDUNGEONDAMAGE",        11},
+  {"TURNSPERCOLLAPSEDUNGEONDAMAGE",12},
+  {"DEFAULTSACRIFICESCOREFORHORNY",13},
+  {"POWERHANDGOLDGRABAMOUNT",      14},
   {NULL,                            0},
   };
 
@@ -973,7 +974,20 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 4: // ARMEGEDDONCOUNTDOWN
+      case 4: // ARMEGEDDONTELEPORTNEUTRALS
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            gameadd.armegeddon_teleport_neutrals = k;
+            n++;
+          }
+          if (n < 1)
+          {
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 5: // ARMEGEDDONCOUNTDOWN
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -986,7 +1000,7 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 5: // ARMEGEDDONDURATION
+      case 6: // ARMEGEDDONDURATION
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -999,7 +1013,7 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 6: // DISEASETRANSFERPERCENTAGE
+      case 7: // DISEASETRANSFERPERCENTAGE
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -1012,7 +1026,7 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 7: // DISEASELOSEPERCENTAGEHEALTH
+      case 8: // DISEASELOSEPERCENTAGEHEALTH
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -1025,7 +1039,7 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 8: // DISEASELOSEHEALTHTIME
+      case 9: // DISEASELOSEHEALTHTIME
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -1038,7 +1052,7 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 9: // MINDISTANCEFORTELEPORT
+      case 10: // MINDISTANCEFORTELEPORT
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -1051,7 +1065,7 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 10: // COLLAPSEDUNGEONDAMAGE
+      case 11: // COLLAPSEDUNGEONDAMAGE
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -1064,7 +1078,7 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 11: // TURNSPERCOLLAPSEDUNGEONDAMAGE
+      case 12: // TURNSPERCOLLAPSEDUNGEONDAMAGE
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -1077,10 +1091,10 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 12: // DEFAULTSACRIFICESCOREFORHORNY
+      case 13: // DEFAULTSACRIFICESCOREFORHORNY
           //Unused - scores are computed automatically
           break;
-      case 13: // POWERHANDGOLDGRABAMOUNT
+      case 14: // POWERHANDGOLDGRABAMOUNT
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);

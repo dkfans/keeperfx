@@ -554,17 +554,24 @@ TbResult magic_use_power_armageddon(PlayerNumber plyr_idx)
         // Per-thing code
         struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(thing);
-        if (!creature_affected_by_spell(thing, SplK_Chicken))
+        // Creatures unaffected by Armageddon
+        if (is_neutral_thing(thing) && !gameadd.armegeddon_teleport_neutrals)
         {
-            cctrl->field_2EF = your_time_gap;
+            cctrl->armageddon_teleport_turn = 0;
+        } else
+        // Creatures killed by Armageddon
+        if (creature_affected_by_spell(thing, SplK_Chicken))
+        {
+            kill_creature(thing, heartng, plyr_idx, CrDed_DiedInBattle);
+        } else
+        // Creatures teleported by Armageddon
+        {
+            cctrl->armageddon_teleport_turn = your_time_gap;
             if (thing->owner == plyr_idx) {
                 your_time_gap += game.armagedon_teleport_your_time_gap;
             } else {
                 enemy_time_gap += game.armagedon_teleport_enemy_time_gap;
             }
-        } else
-        {
-            kill_creature(thing, heartng, plyr_idx, CrDed_DiedInBattle);
         }
         // Per-thing code ends
         k++;

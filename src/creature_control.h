@@ -411,7 +411,7 @@ unsigned short field_2C5;
     unsigned long sulking_sleep_check_turn;
     unsigned long job_assigned_check_turn;
     unsigned long disease_start_turn;
-    unsigned long field_2EF;
+    unsigned long armageddon_teleport_turn;
     short battle_prev_creatr;
     short battle_next_creatr;
     unsigned char battle_id;

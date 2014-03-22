@@ -4633,9 +4633,10 @@ TngUpdateRet update_creature(struct Thing *thing)
     }
     if (game.field_150356 != 0)
     {
-        if ((cctrl->field_2EF != 0) && (cctrl->field_2EF <= game.play_gameturn))
+        // If Armageddon is on, teleport creature to its position
+        if ((cctrl->armageddon_teleport_turn != 0) && (cctrl->armageddon_teleport_turn <= game.play_gameturn))
         {
-            cctrl->field_2EF = 0;
+            cctrl->armageddon_teleport_turn = 0;
             create_effect(&thing->mappos, imp_spangle_effects[thing->owner], thing->owner);
             move_thing_in_map(thing, &game.armageddon.mappos);
         }
