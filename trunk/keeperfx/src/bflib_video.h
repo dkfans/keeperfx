@@ -105,6 +105,7 @@ struct GraphicsWindow {
     long y;
     long width;
     long height;
+    TbPixel *ptr;
 };
 typedef struct GraphicsWindow TbGraphicsWindow;
 

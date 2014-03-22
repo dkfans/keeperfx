@@ -3386,7 +3386,7 @@ void init_level(void)
     battle_initialise();
     ambient_sound_prepare();
     zero_messages();
-    game.field_150356 = 0;
+    game.armageddon_cast_turn = 0;
     game.field_15035A = 0;
     init_messages();
     game.creatures_tend_1 = 0;

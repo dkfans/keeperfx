@@ -68,7 +68,7 @@ TbBool generation_due_in_game(void)
 TbBool generation_due_for_dungeon(struct Dungeon * dungeon)
 {
     SYNCDBG(9,"Starting");
-    if ( (game.field_150356 == 0) || (game.armageddon.count_down + game.field_150356 > game.play_gameturn) )
+    if ( (game.armageddon_cast_turn == 0) || (game.armageddon.count_down + game.armageddon_cast_turn > game.play_gameturn) )
     {
         if ( (dungeon->turns_between_entrance_generation != -1) &&
              (game.play_gameturn - dungeon->last_entrance_generation_gameturn >= dungeon->turns_between_entrance_generation) ) {
@@ -323,7 +323,7 @@ void process_entrance_generation(void)
 
     if (generation_due_in_game())
     {
-        if (game.field_150356 == 0) {
+        if (game.armageddon_cast_turn == 0) {
             update_dungeons_scores();
             update_dungeon_generation_speeds();
             game.entrance_last_generate_turn = game.play_gameturn;

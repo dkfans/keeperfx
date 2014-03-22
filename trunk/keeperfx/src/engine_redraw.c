@@ -138,6 +138,7 @@ void store_engine_window(TbGraphicsWindow *ewnd,int divider)
         ewnd->width = player->engine_window_width/divider;
         ewnd->height = player->engine_window_height/divider;
     }
+    ewnd->ptr = NULL;
 }
 
 void load_engine_window(TbGraphicsWindow *ewnd)
@@ -400,9 +401,46 @@ void set_engine_view(struct PlayerInfo *player, long val)
     player->view_mode = val;
 }
 
-void draw_overlay_compass(long a1, long a2)
+void draw_overlay_compass(long base_x, long base_y)
 {
-  _DK_draw_overlay_compass(a1, a2);
+    //_DK_draw_overlay_compass(base_x, base_y);
+    unsigned short flg_mem;
+    flg_mem = lbDisplay.DrawFlags;
+    lbFontPtr = winfont;
+    lbDisplay.DrawFlags |= 0x0004;
+    LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+    int w,h;
+    w = pixel_size * LbSprFontCharWidth(lbFontPtr,'/') / 2;
+    h = pixel_size * LbSprFontCharHeight(lbFontPtr,'/') / 2 + 2;
+    struct PlayerInfo *player;
+    player = get_my_player();
+    struct Camera *cam;
+    cam = player->acamera;
+    int center_x, center_y;
+    int shift_x, shift_y;
+    center_x = base_x + 58;
+    center_y = base_y + 58;
+    shift_x = (-50 * LbSinL(cam->orient_a)) >> LbFPMath_TrigmBits;
+    shift_y = (-50 * LbCosL(cam->orient_a)) >> LbFPMath_TrigmBits;
+    if (LbScreenIsLocked()) {
+        LbTextDraw((center_x + shift_x - w) / pixel_size, (center_y + shift_y - h) / pixel_size, gui_strings[877]);
+    }
+    shift_x = ( 50 * LbSinL(cam->orient_a)) >> LbFPMath_TrigmBits;
+    shift_y = ( 50 * LbCosL(cam->orient_a)) >> LbFPMath_TrigmBits;
+    if (LbScreenIsLocked()) {
+        LbTextDraw((center_x + shift_x - w) / pixel_size, (center_y + shift_y - h) / pixel_size, gui_strings[879]);
+    }
+    shift_x = ( 50 * LbCosL(cam->orient_a)) >> LbFPMath_TrigmBits;
+    shift_y = (-50 * LbSinL(cam->orient_a)) >> LbFPMath_TrigmBits;
+    if (LbScreenIsLocked()) {
+        LbTextDraw((center_x + shift_x - w) / pixel_size, (center_y + shift_y - h) / pixel_size, gui_strings[878]);
+    }
+    shift_x = (-50 * LbCosL(cam->orient_a)) >> LbFPMath_TrigmBits;
+    shift_y = ( 50 * LbSinL(cam->orient_a)) >> LbFPMath_TrigmBits;
+    if (LbScreenIsLocked()) {
+        LbTextDraw((center_x + shift_x - w) / pixel_size, (center_y + shift_y - h) / pixel_size, gui_strings[880]);
+    }
+    lbDisplay.DrawFlags = flg_mem;
 }
 
 void message_draw(void)
@@ -957,19 +995,19 @@ void redraw_display(void)
           LbTextDraw(0/pixel_size, 0/pixel_size, text);
           LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
     }
-    if (game.field_150356 != 0)
+    if (game.armageddon_cast_turn != 0)
     {
       long pos_x,pos_y;
       long w,h;
       int i;
-      if (game.armageddon.count_down+game.field_150356 <= game.play_gameturn)
+      if (game.armageddon.count_down+game.armageddon_cast_turn <= game.play_gameturn)
       {
         i = 0;
         if ( game.field_15035A - game.armageddon.duration <= game.play_gameturn )
           i = game.field_15035A - game.play_gameturn;
       } else
       {
-        i = game.play_gameturn - game.field_150356 - game.armageddon.count_down;
+        i = game.play_gameturn - game.armageddon_cast_turn - game.armageddon.count_down;
       }
       LbTextSetFont(winfont);
       text = buf_sprintf(" %s %03d", gui_string(646), i/2); // Armageddon message

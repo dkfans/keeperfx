@@ -954,7 +954,13 @@ void LbTextUseByteCoding(TbBool is_enabled)
 
 int LbTextSetWindow(int posx, int posy, int width, int height)
 {
-    return _DK_LbTextSetWindow(posx, posy, width, height);
+    //return _DK_LbTextSetWindow(posx, posy, width, height);
+    lbTextJustifyWindow.x = posx;
+    lbTextJustifyWindow.y = posy;
+    lbTextJustifyWindow.width = width;
+    lbTextJustifyWindow.ptr = &lbDisplay.WScreen[posx + posy * lbDisplay.GraphicsScreenWidth];
+    LbTextSetClipWindow(posx, posy, width, height);
+    return 1;
 }
 
 TbBool change_dbcfont(int nfont)

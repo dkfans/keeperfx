@@ -86,17 +86,17 @@ void process_armageddon(void)
     long i;
     SYNCDBG(6,"Starting");
     //_DK_process_armageddon(); return;
-    if (game.field_150356 == 0)
+    if (game.armageddon_cast_turn == 0)
         return;
-    if (game.armageddon.count_down+game.field_150356 > game.play_gameturn)
+    if (game.armageddon.count_down+game.armageddon_cast_turn > game.play_gameturn)
     {
-        if (player_cannot_win(game.field_15035E))
+        if (player_cannot_win(game.armageddon_caster_idx))
         {
             // Stop the armageddon if its originator is just losing
-            game.field_150356 = 0;
+            game.armageddon_cast_turn = 0;
         }
     } else
-    if (game.armageddon.count_down+game.field_150356 == game.play_gameturn)
+    if (game.armageddon.count_down+game.armageddon_cast_turn == game.play_gameturn)
     {
         for (i=0; i < PLAYERS_COUNT; i++)
         {
@@ -108,7 +108,7 @@ void process_armageddon(void)
             }
         }
     } else
-    if (game.armageddon.count_down+game.field_150356 < game.play_gameturn)
+    if (game.armageddon.count_down+game.armageddon_cast_turn < game.play_gameturn)
     {
         for (i=0; i < PLAYERS_COUNT; i++)
         {
