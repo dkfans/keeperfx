@@ -244,10 +244,10 @@ void gui_video_cluedo_mode(struct GuiButton *gbtn)
 
 void gui_video_gamma_correction(struct GuiButton *gbtn)
 {
-  struct PlayerInfo *player;
-  player = get_my_player();
-  video_gamma_correction = (video_gamma_correction + 1) % GAMMA_LEVELS_COUNT;
-  set_players_packet_action(player, PckA_SetGammaLevel, video_gamma_correction, 0, 0, 0);
+    struct PlayerInfo *player;
+    player = get_my_player();
+    video_gamma_correction = (video_gamma_correction + 1) % GAMMA_LEVELS_COUNT;
+    set_players_packet_action(player, PckA_SetGammaLevel, video_gamma_correction, 0, 0, 0);
 }
 
 void gui_set_sound_volume(struct GuiButton *gbtn)
@@ -266,12 +266,26 @@ void gui_set_sound_volume(struct GuiButton *gbtn)
 
 void gui_set_music_volume(struct GuiButton *gbtn)
 {
-  _DK_gui_set_music_volume(gbtn);
+    //_DK_gui_set_music_volume(gbtn);
+    settings.redbook_volume = music_level;
+    save_settings();
+    SetMusicPlayerVolume(settings.redbook_volume);
 }
 
 void gui_video_cluedo_maintain(struct GuiButton *gbtn)
 {
-  _DK_gui_video_cluedo_maintain(gbtn);
+    //_DK_gui_video_cluedo_maintain(gbtn);
+    struct PlayerInfo *player;
+    player = get_my_player();
+    if (player->view_mode == 5)
+    {
+        gbtn->field_1B |= 0x8000;
+        gbtn->flags &= ~0x08;
+    } else
+    {
+        gbtn->field_1B = 0;
+        gbtn->flags |= 0x08;
+    }
 }
 
 void frontend_set_mouse_sensitivity(struct GuiButton *gbtn)
@@ -290,7 +304,22 @@ void frontend_invert_mouse(struct GuiButton *gbtn)
 
 void frontend_draw_invert_mouse(struct GuiButton *gbtn)
 {
-  _DK_frontend_draw_invert_mouse(gbtn);
+    //_DK_frontend_draw_invert_mouse(gbtn);
+    long content;
+    content = (long)gbtn->content;
+    if (frontend_mouse_over_button == content) {
+        LbTextSetFont(frontend_font[2]);
+    } else {
+        LbTextSetFont(frontend_font[frontend_button_info[content].font_index]);
+    }
+    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
+    const char *text;
+    if (settings.first_person_move_invert) {
+        text = gui_string(847);
+    } else {
+        text = gui_string(848);
+    }
+    LbTextDraw(0, 0, text);
 }
 
 /**
