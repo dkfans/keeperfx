@@ -29,6 +29,7 @@
 #include "config_trapdoor.h"
 #include "config_crtrstates.h"
 #include "config_objects.h"
+#include "config_effects.h"
 #include "creature_states.h"
 #include "player_data.h"
 #include "config_magic.h"

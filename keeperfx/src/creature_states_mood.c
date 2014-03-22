@@ -91,7 +91,6 @@ short creature_moan(struct Thing *thing)
 short creature_roar(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
-    long i;
     //return _DK_creature_roar(thing);
     cctrl = creature_control_get_from_thing(thing);
 
