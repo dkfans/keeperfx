@@ -568,11 +568,21 @@ DLLIMPORT int _DK_lbCosTable[2048];
 DLLIMPORT int _DK_lbSinTable[2048];
 #define lbSinTable _DK_lbSinTable
 /******************************************************************************/
+/**
+ * Gives sinus of given angle.
+ * @param x Angle as integer with reference to LbFPMath_PI.
+ * @return Value ranged -65536 to 65536.
+ */
 long LbSinL(long x)
 {
     return lbSinTable[(unsigned long)x & LbFPMath_AngleMask];
 }
 
+/**
+ * Gives cosinus of given angle.
+ * @param x Angle as integer with reference to LbFPMath_PI.
+ * @return Value ranged -65536 to 65536.
+ */
 long LbCosL(long x)
 {
     return lbCosTable[(unsigned long)x & LbFPMath_AngleMask];

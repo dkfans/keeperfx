@@ -30,6 +30,8 @@ extern "C" {
 /******************************************************************************/
 #define LbFPMath_PI 1024
 #define LbFPMath_AngleMask 0x7FF
+/** Amount of fractional bits in resulting values of trigonometric operations. */
+#define LbFPMath_TrigmBits 16
 
 enum MathOperator {
     MOp_UNDEFINED                      =  0,

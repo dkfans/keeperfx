@@ -730,6 +730,7 @@ TbResult LbScreenStoreGraphicsWindow(TbGraphicsWindow *grwnd)
   grwnd->y = lbDisplay.GraphicsWindowY;
   grwnd->width = lbDisplay.GraphicsWindowWidth;
   grwnd->height = lbDisplay.GraphicsWindowHeight;
+  grwnd->ptr = NULL;
   return Lb_SUCCESS;
 }
 
@@ -747,11 +748,11 @@ TbResult LbScreenLoadGraphicsWindow(TbGraphicsWindow *grwnd)
   lbDisplay.GraphicsWindowHeight = grwnd->height;
   if (lbDisplay.WScreen != NULL)
   {
-    lbDisplay.GraphicsWindowPtr = lbDisplay.WScreen
-      + lbDisplay.GraphicsScreenWidth*lbDisplay.GraphicsWindowY + lbDisplay.GraphicsWindowX;
+      lbDisplay.GraphicsWindowPtr = lbDisplay.WScreen
+        + lbDisplay.GraphicsScreenWidth*lbDisplay.GraphicsWindowY + lbDisplay.GraphicsWindowX;
   } else
   {
-    lbDisplay.GraphicsWindowPtr = NULL;
+      lbDisplay.GraphicsWindowPtr = NULL;
   }
   return Lb_SUCCESS;
 }

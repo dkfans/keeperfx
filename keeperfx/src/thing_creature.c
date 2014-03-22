@@ -4631,7 +4631,7 @@ TngUpdateRet update_creature(struct Thing *thing)
         kill_creature(thing, INVALID_THING, -1, CrDed_Default);
         return TUFRet_Deleted;
     }
-    if (game.field_150356 != 0)
+    if (game.armageddon_cast_turn != 0)
     {
         // If Armageddon is on, teleport creature to its position
         if ((cctrl->armageddon_teleport_turn != 0) && (cctrl->armageddon_teleport_turn <= game.play_gameturn))
