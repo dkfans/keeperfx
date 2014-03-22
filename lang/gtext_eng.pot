@@ -2521,6 +2521,7 @@ msgctxt "Menu interface item"
 msgid "Players"
 msgstr ""
 
+#. Creature experience level
 #: guitext:406
 msgctxt "Menu interface item"
 msgid "Level"

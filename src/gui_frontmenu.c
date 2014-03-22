@@ -144,7 +144,13 @@ void turn_off_menu(MenuID mnu_idx)
 
 void turn_off_roaming_menus(void)
 {
-  _DK_turn_off_roaming_menus();
+    //_DK_turn_off_roaming_menus();
+    turn_off_menu(GMnu_VIDEO);
+    turn_off_menu(GMnu_SOUND);
+    turn_off_menu(GMnu_QUIT);
+    turn_off_menu(GMnu_HOLD_AUDIENCE);
+    turn_off_menu(GMnu_ARMAGEDDON);
+    turn_off_menu(GMnu_TEXT_INFO);
 }
 
 void turn_off_query_menus(void)

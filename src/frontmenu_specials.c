@@ -113,24 +113,86 @@ struct GuiMenu armageddon_menu =
 }
 #endif
 /******************************************************************************/
+int selected_resurrect_creature(const struct Dungeon *dungeon, const struct GuiButton *gbtn)
+{
+    long i;
+    if (dungeon->dead_creatures_count < DEAD_CREATURES_MAX_COUNT)
+    {
+        i = resurrect_creature_scroll_offset + gbtn->field_1B;
+        if (i < dungeon->dead_creatures_count) {
+            return i;
+        }
+    } else
+    {
+        i = resurrect_creature_scroll_offset + gbtn->field_1B;
+        if (i < DEAD_CREATURES_MAX_COUNT) {
+            return abs(dungeon->dead_creature_idx + i) % DEAD_CREATURES_MAX_COUNT;
+        }
+    }
+    return -1;
+}
+
 void select_resurrect_creature(struct GuiButton *gbtn)
 {
-  _DK_select_resurrect_creature(gbtn);
+    //_DK_select_resurrect_creature(gbtn);
+    struct Dungeon *dungeon;
+    dungeon = get_my_dungeon();
+    int i;
+    i = selected_resurrect_creature(dungeon, gbtn);
+    struct CreatureStorage *cstore;
+    cstore = &dungeon->dead_creatures[i];
+    if (i != -1)
+    {
+        struct Packet *pckt;
+        pckt = get_packet(my_player_number);
+        set_packet_action(pckt, PckA_ResurrectCrtr, dungeon_special_selected, dungeon->owner | (cstore->model << 4) | (cstore->explevel << 12), 0, 0);
+        turn_off_menu(GMnu_RESURRECT_CREATURE);
+    }
 }
 
 void draw_resurrect_creature(struct GuiButton *gbtn)
 {
-  _DK_draw_resurrect_creature(gbtn);
+    //_DK_draw_resurrect_creature(gbtn);
+    unsigned short flg_mem;
+    flg_mem = lbDisplay.DrawFlags;
+    lbDisplay.DrawFlags = 0x0004;
+    LbDrawBox(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size, gbtn->width/pixel_size, gbtn->height/pixel_size, 0);
+    lbFontPtr = winfont;
+    LbTextSetWindow(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size, gbtn->width/pixel_size, gbtn->height/pixel_size);
+    struct Dungeon *dungeon;
+    dungeon = get_my_dungeon();
+    int i;
+    i = selected_resurrect_creature(dungeon, gbtn);
+    if (i != -1)
+    {
+        lbDisplay.DrawFlags = 0x0020;
+        struct CreatureStorage *cstore;
+        cstore = &dungeon->dead_creatures[i];
+        struct CreatureData *crdata;
+        crdata = creature_data_get(cstore->model);
+        LbTextDrawFmt(0/pixel_size, 0/pixel_size, " %s", campaign.strings[crdata->namestr_idx]);
+        lbDisplay.DrawFlags = 0x0080;
+        LbTextDrawFmt(0/pixel_size, 0/pixel_size, "%s %d ", gui_strings[406], cstore->explevel + 1);
+    }
+    lbDisplay.DrawFlags = flg_mem;
 }
 
 void select_resurrect_creature_up(struct GuiButton *gbtn)
 {
-  _DK_select_resurrect_creature_up(gbtn);
+    //_DK_select_resurrect_creature_up(gbtn);
+    if (resurrect_creature_scroll_offset > 0) {
+        resurrect_creature_scroll_offset--;
+    }
 }
 
 void select_resurrect_creature_down(struct GuiButton *gbtn)
 {
-  _DK_select_resurrect_creature_down(gbtn);
+    //_DK_select_resurrect_creature_down(gbtn);
+    struct Dungeon *dungeon;
+    dungeon = get_my_dungeon();
+    if (resurrect_creature_scroll_offset < dungeon->dead_creatures_count) {
+        resurrect_creature_scroll_offset++;
+    }
 }
 
 void select_transfer_creature(struct GuiButton *gbtn)
@@ -214,12 +276,30 @@ void select_transfer_creature_down(struct GuiButton *gbtn)
 
 void maintain_resurrect_creature_select(struct GuiButton *gbtn)
 {
-  _DK_maintain_resurrect_creature_select(gbtn);
+    //_DK_maintain_resurrect_creature_select(gbtn);
+    struct Dungeon *dungeon;
+    dungeon = get_my_dungeon();
+    gbtn->flags ^= (gbtn->flags ^ 8 * (resurrect_creature_scroll_offset + gbtn->field_1B < dungeon->dead_creatures_count)) & 0x08;
 }
 
 void maintain_resurrect_creature_scroll(struct GuiButton *gbtn)
 {
-  _DK_maintain_resurrect_creature_scroll(gbtn);
+    //_DK_maintain_resurrect_creature_scroll(gbtn);
+    struct Dungeon *dungeon;
+    dungeon = get_my_dungeon();
+    int count;
+    count = dungeon->dead_creatures_count;
+    if (resurrect_creature_scroll_offset >= count)
+    {
+        if (count > 0) {
+            transfer_creature_scroll_offset = count - 1;
+        }
+    }
+    if (gbtn->field_1B == 1) {
+        gbtn->flags ^= (gbtn->flags ^ 8 * (resurrect_creature_scroll_offset > 0)) & 0x08;
+    } else {
+        gbtn->flags ^= (gbtn->flags ^ 8 * (resurrect_creature_scroll_offset < count-1)) & 0x08;
+    }
 }
 
 void maintain_transfer_creature_select(struct GuiButton *gbtn)
