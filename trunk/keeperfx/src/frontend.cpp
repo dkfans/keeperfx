@@ -1101,9 +1101,51 @@ void gui_quit_game(struct GuiButton *gbtn)
   set_players_packet_action(player, PckA_Unknown001, 0, 0, 0, 0);
 }
 
+void draw_slider64k(long scr_x, long scr_y, long width)
+{
+    draw_bar64k(scr_x, scr_y, width);
+    // Inner size
+    int base_x, base_y, base_w;
+    base_w = width - 64;
+    base_x = scr_x + 32;
+    base_y = scr_y + 10;
+    if (base_w < 72) {
+        ERRORLOG("Bar is too small");
+        return;
+    }
+    int cur_x, cur_y;
+    cur_x = base_x;
+    cur_y = base_y;
+    int end_x;
+    end_x = base_x + base_w - 64;
+    LbSpriteDraw(cur_x/pixel_size, cur_y/pixel_size, &button_sprite[4]);
+    cur_x += 32;
+    while (cur_x < end_x)
+    {
+        cur_x += 32;
+        LbSpriteDraw(cur_x/pixel_size, cur_y/pixel_size, &button_sprite[5]);
+    }
+    cur_x = end_x;
+    LbSpriteDraw(cur_x/pixel_size, cur_y/pixel_size, &button_sprite[5]);
+    cur_x += 32;
+    LbSpriteDraw(cur_x/pixel_size, cur_y/pixel_size, &button_sprite[6]);
+}
+
 void gui_area_slider(struct GuiButton *gbtn)
 {
-  _DK_gui_area_slider(gbtn);
+    //_DK_gui_area_slider(gbtn);
+    if (gbtn->flags & 0x08)
+    {
+        gbtn->height = 32;
+        draw_slider64k(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width);
+        int shift_x;
+        shift_x = (gbtn->width - 64) * gbtn->slide_val >> 8;
+        if (gbtn->flags) {
+            LbSpriteDraw((gbtn->scr_pos_x + shift_x + 24) / pixel_size, (gbtn->scr_pos_y + 6) / pixel_size, &button_sprite[21]);
+        } else {
+            LbSpriteDraw((gbtn->scr_pos_x + shift_x + 24) / pixel_size, (gbtn->scr_pos_y + 6) / pixel_size, &button_sprite[20]);
+        }
+    }
 }
 
 #if (BFDEBUG_LEVEL > 0)
@@ -1178,12 +1220,34 @@ TbBool fronttestfont_input(void)
 
 void frontend_draw_icon(struct GuiButton *gbtn)
 {
-  _DK_frontend_draw_icon(gbtn);
+    //_DK_frontend_draw_icon(gbtn);
+    LbSpriteDraw(gbtn->scr_pos_x, gbtn->scr_pos_y, &frontend_sprite[gbtn->field_29]);
 }
 
 void frontend_draw_slider(struct GuiButton *gbtn)
 {
-  _DK_frontend_draw_slider(gbtn);
+    //_DK_frontend_draw_slider(gbtn);
+    if ((gbtn->flags & LbBtnF_Unknown08) == 0) {
+        return;
+    }
+    int cur_x, cur_y;
+    cur_x = gbtn->scr_pos_x;
+    cur_y = gbtn->scr_pos_y;
+    gbtn->height = 32;
+    LbSpriteDraw(cur_x, cur_y, &frontend_sprite[92]);
+    cur_x += frontend_sprite[92].SWidth;
+    LbSpriteDraw(cur_x, cur_y, &frontend_sprite[93]);
+    cur_x += frontend_sprite[93].SWidth;
+    LbSpriteDraw(cur_x, cur_y, &frontend_sprite[93]);
+    cur_x += frontend_sprite[93].SWidth;
+    LbSpriteDraw(cur_x, cur_y, &frontend_sprite[94]);
+    int val;
+    val = gbtn->slide_val * (gbtn->width - 64) >> 8;
+    if (gbtn->flags) {
+        LbSpriteDraw((gbtn->scr_pos_x + val + 24) / pixel_size, (gbtn->scr_pos_y + 3) / pixel_size, &frontend_sprite[91]);
+    } else {
+        LbSpriteDraw((gbtn->scr_pos_x + val + 24) / pixel_size, (gbtn->scr_pos_y + 3) / pixel_size, &frontend_sprite[78]);
+    }
 }
 
 void frontend_draw_small_slider(struct GuiButton *gbtn)

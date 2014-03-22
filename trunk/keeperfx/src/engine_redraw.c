@@ -406,7 +406,7 @@ void draw_overlay_compass(long base_x, long base_y)
     //_DK_draw_overlay_compass(base_x, base_y);
     unsigned short flg_mem;
     flg_mem = lbDisplay.DrawFlags;
-    lbFontPtr = winfont;
+    LbTextSetFont(winfont);
     lbDisplay.DrawFlags |= 0x0004;
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
     int w,h;

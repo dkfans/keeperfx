@@ -158,7 +158,7 @@ void draw_resurrect_creature(struct GuiButton *gbtn)
     flg_mem = lbDisplay.DrawFlags;
     lbDisplay.DrawFlags = 0x0004;
     LbDrawBox(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size, gbtn->width/pixel_size, gbtn->height/pixel_size, 0);
-    lbFontPtr = winfont;
+    LbTextSetFont(winfont);
     LbTextSetWindow(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size, gbtn->width/pixel_size, gbtn->height/pixel_size);
     struct Dungeon *dungeon;
     dungeon = get_my_dungeon();
