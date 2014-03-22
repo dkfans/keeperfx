@@ -653,6 +653,58 @@ long anywhere_thing_filter_is_creature_of_model_training_and_owned_by(const stru
  * @param param Parameters exchanged between filter calls.
  * @param maximizer Previous value which made a thing pass the filter.
  */
+long anywhere_thing_filter_call_bool_filter(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
+{
+    if ((param->class_id == -1) || (thing->class_id == param->class_id))
+    {
+        if ((param->model_id == -1) || (thing->model == param->model_id))
+        {
+            if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
+            {
+                Thing_Bool_Filter matcher_cb = (Thing_Bool_Filter)param->ptr3;
+                if ((matcher_cb != NULL) && matcher_cb(thing))
+                {
+                    return LONG_MAX;
+                }
+            }
+        }
+    }
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
+}
+
+/**
+ * Filter function.
+ * @param thing The thing being checked.
+ * @param param Parameters exchanged between filter calls.
+ * @param maximizer Previous value which made a thing pass the filter.
+ */
+long anywhere_thing_filter_call_neg_bool_filter(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
+{
+    if ((param->class_id == -1) || (thing->class_id == param->class_id))
+    {
+        if ((param->model_id == -1) || (thing->model == param->model_id))
+        {
+            if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
+            {
+                Thing_Bool_Filter matcher_cb = (Thing_Bool_Filter)param->ptr3;
+                if ((matcher_cb != NULL) && !matcher_cb(thing))
+                {
+                    return LONG_MAX;
+                }
+            }
+        }
+    }
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
+}
+
+/**
+ * Filter function.
+ * @param thing The thing being checked.
+ * @param param Parameters exchanged between filter calls.
+ * @param maximizer Previous value which made a thing pass the filter.
+ */
 long anywhere_thing_filter_is_trap_of_model_armed_and_owned_by(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
     if (thing->class_id == TCls_Trap)
@@ -1336,6 +1388,50 @@ struct Thing *get_nearest_object_owned_by_and_matching_bool_filter(MapCoord pos_
     param.num2 = pos_y;
     param.ptr3 = (void *)matcher_cb;
     return get_nth_thing_of_class_with_filter(filter, &param, 0);
+}
+
+/** Finds on whole map nth thing owned by given player, which matches given bool filter.
+ *
+ * @param pos_x Position to search around X coord.
+ * @param pos_y Position to search around Y coord.
+ * @param plyr_idx Player whose things will be searched. Allies are not included, use -1 to select all.
+ * @return The target thing pointer, or invalid thing pointer if not found.
+ */
+struct Thing *get_nth_creature_owned_by_and_matching_bool_filter(PlayerNumber plyr_idx, Thing_Bool_Filter matcher_cb, long n)
+{
+    Thing_Maximizer_Filter filter;
+    struct CompoundTngFilterParam param;
+    SYNCDBG(19,"Starting");
+    filter = anywhere_thing_filter_call_bool_filter;
+    param.class_id = TCls_Creature;
+    param.model_id = -1;
+    param.plyr_idx = plyr_idx;
+    param.num1 = -1;
+    param.num2 = -1;
+    param.ptr3 = (void *)matcher_cb;
+    return get_nth_thing_of_class_with_filter(filter, &param, n);
+}
+
+/** Finds on whole map nth thing owned by given player, which fails to match given bool filter.
+ *
+ * @param pos_x Position to search around X coord.
+ * @param pos_y Position to search around Y coord.
+ * @param plyr_idx Player whose things will be searched. Allies are not included, use -1 to select all.
+ * @return The target thing pointer, or invalid thing pointer if not found.
+ */
+struct Thing *get_nth_creature_owned_by_and_failing_bool_filter(PlayerNumber plyr_idx, Thing_Bool_Filter matcher_cb, long n)
+{
+    Thing_Maximizer_Filter filter;
+    struct CompoundTngFilterParam param;
+    SYNCDBG(19,"Starting");
+    filter = anywhere_thing_filter_call_neg_bool_filter;
+    param.class_id = TCls_Creature;
+    param.model_id = -1;
+    param.plyr_idx = plyr_idx;
+    param.num1 = -1;
+    param.num2 = -1;
+    param.ptr3 = (void *)matcher_cb;
+    return get_nth_thing_of_class_with_filter(filter, &param, n);
 }
 
 struct Thing *get_nearest_enemy_creature_possible_to_attack_by(struct Thing *creatng)
