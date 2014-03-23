@@ -2698,10 +2698,10 @@ long project_creature_attack_target_damage(const struct Thing *firing, const str
     if (crstat->attack_preference == AttckT_Ranged) {
         inst_id = get_best_combat_weapon_instance_to_use(firing, ranged_offensive_weapon, dist);
         if (inst_id == CrInst_NULL) {
-            inst_id = get_best_combat_weapon_instance_to_use(firing, melee_offensive_weapon, dist);;
+            inst_id = get_best_combat_weapon_instance_to_use(firing, melee_offensive_weapon, dist);
         }
     } else {
-        inst_id = get_best_combat_weapon_instance_to_use(firing, melee_offensive_weapon, dist);;
+        inst_id = get_best_combat_weapon_instance_to_use(firing, melee_offensive_weapon, dist);
         if (inst_id == CrInst_NULL) {
             inst_id = get_best_combat_weapon_instance_to_use(firing, ranged_offensive_weapon, dist);
         }
