@@ -2451,7 +2451,9 @@ long calculate_melee_damage(const struct Thing *thing)
     const struct CreatureStats *crstat;
     cctrl = creature_control_get_from_thing(thing);
     crstat = creature_stats_get_from_thing(thing);
-    return compute_creature_attack_damage(crstat->strength, crstat->luck, cctrl->explevel);
+    long strength;
+    strength = compute_creature_max_strength(crstat->strength,cctrl->explevel);
+    return compute_creature_attack_damage(strength, crstat->luck, cctrl->explevel);
 }
 
 /**
@@ -2488,7 +2490,9 @@ long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_mod
     if ( shotst->old->is_melee )
     {
         // Project melee damage
-        damage = project_creature_attack_damage(crstat->strength, crstat->luck, cctrl->explevel);
+        long strength;
+        strength = compute_creature_max_strength(crstat->strength,cctrl->explevel);
+        damage = project_creature_attack_damage(strength, crstat->luck, cctrl->explevel);
     } else
     {
         // Project shot damage
