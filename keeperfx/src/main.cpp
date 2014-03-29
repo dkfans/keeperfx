@@ -1164,24 +1164,24 @@ TbBool engine_point_to_map(struct Camera *camera, long screen_x, long screen_y, 
     {
         if ( players_cursor_is_at_top_of_view(player) )
         {
-              *map_x = ( top_pointed_at_x << 8) + top_pointed_at_frac_x;
-              *map_y = ( top_pointed_at_y << 8) + top_pointed_at_frac_y;
+              *map_x = subtile_coord(top_pointed_at_x,top_pointed_at_frac_x);
+              *map_y = subtile_coord(top_pointed_at_y,top_pointed_at_frac_y);
         } else
         {
-              *map_x = (block_pointed_at_x << 8) + pointed_at_frac_x;
-              *map_y = (block_pointed_at_y << 8) + pointed_at_frac_y;
+              *map_x = subtile_coord(block_pointed_at_x,pointed_at_frac_x);
+              *map_y = subtile_coord(block_pointed_at_y,pointed_at_frac_y);
         }
         // Clipping coordinates
         if (*map_y < 0)
           *map_y = 0;
         else
-        if (*map_y > ((map_subtiles_y<<8)-1))
-          *map_y = ((map_subtiles_y<<8)-1);
+        if (*map_y > subtile_coord(map_subtiles_y,-1))
+          *map_y = subtile_coord(map_subtiles_y,-1);
         if (*map_x < 0)
           *map_x = 0;
         else
-        if (*map_x > ((map_subtiles_x<<8)-1))
-          *map_x = ((map_subtiles_x<<8)-1);
+        if (*map_x > subtile_coord(map_subtiles_x,-1))
+          *map_x = subtile_coord(map_subtiles_x,-1);
         return true;
     }
     return false;
