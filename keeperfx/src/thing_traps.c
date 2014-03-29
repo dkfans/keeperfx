@@ -106,10 +106,147 @@ TbBool thing_is_deployed_trap(const struct Thing *thing)
     return true;
 }
 
-TbBool update_trap_trigger_line_of_sight_90(struct Thing *thing)
+TbBool update_trap_trigger_line_of_sight_90_on_subtile(struct Thing *traptng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    //TODO modify to disallow activation by spectators
-    return _DK_update_trap_trigger_line_of_sight_90(thing);
+    struct Thing *thing;
+    struct Map *mapblk;
+    long i;
+    unsigned long k;
+    mapblk = get_map_block_at(stl_x,stl_y);
+    k = 0;
+    i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_on_mapblk;
+        // Per thing code start
+        if (thing_is_creature(thing) && (thing->owner != traptng->owner))
+        {
+            if (players_are_enemies(traptng->owner,thing->owner) && !creature_is_being_unconscious(thing)
+             && !thing_is_dragged_or_pulled(thing) && ((get_creature_model_flags(thing) & MF_IsSpectator) == 0)) {
+                activate_trap(traptng, thing);
+                return true;
+            }
+        }
+        // Per thing code end
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return false;
+}
+
+TbBool update_trap_trigger_line_of_sight_90(struct Thing *traptng)
+{
+    //return _DK_update_trap_trigger_line_of_sight_90(thing);
+    MapSubtlCoord stl_x_beg, stl_x_end;
+    MapSubtlCoord stl_y_beg, stl_y_end;
+    {
+        MapCoord coord_x, coord_y;
+        MapCoordDelta trap_radius;
+        trap_radius = traptng->sizexy / 2;
+        coord_x = traptng->mappos.x.val;
+        stl_x_beg = coord_subtile(coord_x - trap_radius);
+        if (stl_x_beg <= 0)
+            stl_x_beg = 0;
+        stl_x_end = coord_subtile(coord_x + trap_radius);
+        if (stl_x_end >= map_subtiles_x)
+            stl_x_end = map_subtiles_x;
+        coord_y = traptng->mappos.y.val;
+        stl_y_beg = coord_subtile(coord_y - trap_radius);
+        if (stl_y_beg <= 0)
+            stl_y_beg = 0;
+        stl_y_end = coord_subtile(coord_y + trap_radius);
+        if (stl_y_end >= map_subtiles_y)
+            stl_y_end = map_subtiles_y;
+    }
+    MapSubtlCoord stl_x_pre, stl_x_aft;
+    MapSubtlCoord stl_y_pre, stl_y_aft;
+    {
+        stl_y_pre = stl_y_beg - 20;
+        if (stl_y_pre <= 0)
+            stl_y_pre = 0;
+        stl_y_aft = stl_y_end + 20;
+        if (stl_y_aft >= map_subtiles_y+1)
+            stl_y_aft = map_subtiles_y+1;
+        stl_x_pre = stl_x_beg - 20;
+        if (stl_x_pre <= 0)
+            stl_x_pre = 0;
+        stl_x_aft = stl_x_end + 20;
+        if (stl_x_aft >= map_subtiles_x+1)
+            stl_x_aft = map_subtiles_x+1;
+    }
+    stl_y_lim = stl_y_pre;
+    for (stl_x=stl_x_beg; stl_x <= stl_x_end; stl_x++)
+    {
+        for (stl_y = stl_y_beg; stl_y >= stl_y_lim; stl_y--)
+        {
+            mapblk = get_map_block_at(stl_x, stl_y);
+            if ((mapblk->flags & 0x10) != 0) {
+                stl_y_lim = stl_y + 1;
+                break;
+            }
+            if (update_trap_trigger_line_of_sight_90_on_subtile(traptng, stl_x, stl_y)) {
+                return true;
+            }
+        }
+    }
+    stl_y_lim = stl_y_aft;
+    for (stl_x=stl_x_beg; stl_x <= stl_x_end; stl_x++)
+    {
+        for (stl_y = stl_y_end; stl_y < stl_y_lim; stl_y++)
+        {
+            mapblk = get_map_block_at(stl_x, stl_y);
+            if ((mapblk->flags & 0x10) != 0) {
+                stl_y_lim = stl_y;
+                break;
+            }
+            if (update_trap_trigger_line_of_sight_90_on_subtile(traptng, stl_x, stl_y)) {
+                return true;
+            }
+        }
+    }
+    stl_x_lim = stl_x_aft;
+    for (stl_y=stl_y_beg; stl_y <= stl_y_end; stl_y++)
+    {
+        for (stl_x=stl_x_end; stl_x < stl_x_lim; stl_x++)
+        {
+            mapblk = get_map_block_at(stl_x, stl_y);
+            if ((mapblk->flags & 0x10) != 0) {
+                stl_x_lim = stl_x;
+                break;
+            }
+            if (update_trap_trigger_line_of_sight_90_on_subtile(traptng, stl_x, stl_y)) {
+                return true;
+            }
+        }
+    }
+    stl_x_lim = stl_x_pre;
+    for (stl_y=stl_y_beg; stl_y <= stl_y_end; stl_y++)
+    {
+        for (stl_x=stl_x_beg; stl_x >= stl_x_lim; stl_x--)
+        {
+            mapblk = get_map_block_at(stl_x, stl_y);
+            if ((mapblk->flags & 0x10) != 0) {
+                stl_x_lim = stl_x + 1;
+                break;
+            }
+            if (update_trap_trigger_line_of_sight_90_on_subtile(traptng, stl_x, stl_y)) {
+                return true;
+            }
+        }
+    }
+    return false;
+
 }
 
 void activate_trap_shot_head_for_target90(struct Thing *traptng, struct Thing *creatng)
