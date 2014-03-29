@@ -89,6 +89,7 @@ TbBool thing_is_deployed_trap(const struct Thing *thing);
 TbBool rearm_trap(struct Thing *traptng);
 TngUpdateRet update_trap(struct Thing *thing);
 void init_traps(void);
+void activate_trap(struct Thing *traptng, struct Thing *creatng);
 
 long remove_traps_around_subtile(long stl_x, long stl_y, long *sell_value);
 
