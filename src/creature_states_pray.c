@@ -176,7 +176,7 @@ long process_temple_cure(struct Thing *creatng)
         terminate_thing_spell_effect(creatng, SplK_Disease);
     if (creature_affected_by_spell(creatng, SplK_Chicken))
         terminate_thing_spell_effect(creatng, SplK_Chicken);
-    cctrl->field_3D = game.play_gameturn;
+    cctrl->temple_cure_gameturn = game.play_gameturn;
     return 1;
 }
 

@@ -1177,9 +1177,9 @@ void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long plane_s
         xaval = 1 - stl_x;
     }
     xbval = plane_end;
-    if (stl_x + plane_end > 255) {
+    if (stl_x + plane_end > map_subtiles_x) {
         xbclip = 1;
-        xbval = 255 - stl_x;
+        xbval = map_subtiles_x - stl_x;
     }
     int xidx, xdelta;
     xdelta = xbval - xaval;
@@ -2679,7 +2679,7 @@ void draw_view_map_plane(long aposc, long bposc, long xcell, long ycell)
     for (i = 2*cells_away-1; i > 0; i--)
     {
         ycell++;
-        bposc -= 256;
+        bposc -= (map_subtiles_y+1);
         mm++;
         draw_plane_of_engine_columns(aposc, bposc, xcell, ycell, mm);
     }

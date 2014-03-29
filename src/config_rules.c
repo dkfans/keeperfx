@@ -136,7 +136,8 @@ const struct NamedCommand rules_rooms_commands[] = {
   {"BODIESFORVAMPIRE",          17},
   {"GRAVEYARDCONVERTTIME",      18},
   {"SCAVENGEGOODALLOWED",       19},
-  {"TIMEBETWEENPRISONBREAK",    20},
+  {"SCAVENGENEUTRALALLOWED",    20},
+  {"TIMEBETWEENPRISONBREAK",    21},
   {NULL,                         0},
   };
 
@@ -1134,7 +1135,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
   if ((flags & CnfLd_AcceptPartial) == 0)
   {
       game.scavenge_cost_frequency = 64;
-      game.temple_scavenge_protection_time = 1000;
+      game.temple_scavenge_protection_turns = 1000;
       game.train_cost_frequency = 64;
       game.ghost_convert_chance = 10;
       game.default_generate_speed = 500;
@@ -1144,6 +1145,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
       game.bodies_for_vampire = 6;
       game.graveyard_convert_time = 300;
       gameadd.scavenge_good_allowed = 1;
+      gameadd.scavenge_neutral_allowed = 1;
       gameadd.time_between_prison_break = 64;
   }
   // Find the block
@@ -1183,7 +1185,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.temple_scavenge_protection_time = k;
+            game.temple_scavenge_protection_turns = k;
             n++;
           }
           if (n < 1)
@@ -1343,7 +1345,20 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 20: // TIMEBETWEENPRISONBREAK
+      case 20: // SCAVENGENEUTRALALLOWED
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            gameadd.scavenge_neutral_allowed = k;
+            n++;
+          }
+          if (n < 1)
+          {
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 21: // TIMEBETWEENPRISONBREAK
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);

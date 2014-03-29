@@ -200,7 +200,6 @@ TbBool thing_is_valid_scavenge_target(const struct Thing *calltng, const struct 
     if (!thing_is_creature(scavtng) || (scavtng->model != calltng->model)) {
         return false;
     }
-    //TODO [config] Add an option whether scavenging neutrals is possible
     if (!is_neutral_thing(scavtng))
     {
         if (!players_are_enemies(calltng->owner, scavtng->owner)) {
@@ -213,8 +212,11 @@ TbBool thing_is_valid_scavenge_target(const struct Thing *calltng, const struct 
     if (is_thing_passenger_controlled(scavtng) || creature_is_kept_in_custody(scavtng)) {
         return false;
     }
-    if (is_hero_thing(scavtng)) {
-        return (gameadd.scavenge_good_allowed != 0);
+    if (is_hero_thing(scavtng) && (!gameadd.scavenge_good_allowed)) {
+        return false;
+    }
+    if (is_neutral_thing(scavtng) && (!gameadd.scavenge_neutral_allowed)) {
+        return false;
     }
     struct PlayerInfo *scavplyr;
     scavplyr = INVALID_PLAYER;
@@ -225,7 +227,7 @@ TbBool thing_is_valid_scavenge_target(const struct Thing *calltng, const struct 
     {
         struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(scavtng);
-        if (game.play_gameturn - cctrl->field_3D > game.temple_scavenge_protection_time)
+        if (game.play_gameturn - cctrl->temple_cure_gameturn > game.temple_scavenge_protection_turns)
         {
             return true;
         }
@@ -262,7 +264,7 @@ struct Thing *select_scavenger_target(const struct Thing *calltng)
             SYNCDBG(18,"The %s is valid target for %s",thing_model_name(thing),thing_model_name(calltng));
             struct CreatureControl *cctrl;
             cctrl = creature_control_get_from_thing(thing);
-            if (game.play_gameturn - cctrl->field_3D > game.temple_scavenge_protection_time)
+            if (game.play_gameturn - cctrl->temple_cure_gameturn > game.temple_scavenge_protection_turns)
             {
                 long thingpts;
                 thingpts = calculate_correct_creature_scavenge_required(thing, calltng->owner);

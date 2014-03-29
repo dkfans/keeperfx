@@ -297,7 +297,7 @@ long field_15038E;
     long num_fps;
     unsigned long train_cost_frequency;
     unsigned long scavenge_cost_frequency;
-    unsigned long temple_scavenge_protection_time;
+    unsigned long temple_scavenge_protection_turns;
 char numfield_1503A2;
     unsigned char bodies_for_vampire;
     struct CreatureBattle battles[BATTLES_COUNT];

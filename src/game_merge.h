@@ -94,6 +94,7 @@ struct GameAdd {
     long critical_health_permil;
     unsigned char torture_convert_chance;
     TbBool scavenge_good_allowed;
+    TbBool scavenge_neutral_allowed;
     TbBool armegeddon_teleport_neutrals;
     unsigned short classic_bugs_flags;
     char quick_messages[QUICK_MESSAGES_COUNT][MESSAGE_TEXT_LEN];

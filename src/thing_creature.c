@@ -2445,12 +2445,12 @@ void process_creature_standing_on_corpses_at(struct Thing *thing, struct Coord3d
  * Calculates damage made by a creature by hand (using strength).
  * @param thing The creature which will be inflicting the damage.
  */
-long calculate_melee_damage(const struct Thing *thing)
+long calculate_melee_damage(const struct Thing *creatng)
 {
     const struct CreatureControl *cctrl;
     const struct CreatureStats *crstat;
-    cctrl = creature_control_get_from_thing(thing);
-    crstat = creature_stats_get_from_thing(thing);
+    cctrl = creature_control_get_from_thing(creatng);
+    crstat = creature_stats_get_from_thing(creatng);
     long strength;
     strength = compute_creature_max_strength(crstat->strength,cctrl->explevel);
     return compute_creature_attack_damage(strength, crstat->luck, cctrl->explevel);
@@ -2461,14 +2461,14 @@ long calculate_melee_damage(const struct Thing *thing)
  * @param thing The creature which will be shooting.
  * @param shot_model Shot kind which will be created.
  */
-long calculate_shot_damage(const struct Thing *thing, ThingModel shot_model)
+long calculate_shot_damage(const struct Thing *creatng, ThingModel shot_model)
 {
     const struct CreatureControl *cctrl;
     const struct CreatureStats *crstat;
     const struct ShotConfigStats *shotst;
     shotst = get_shot_model_stats(shot_model);
-    cctrl = creature_control_get_from_thing(thing);
-    crstat = creature_stats_get_from_thing(thing);
+    cctrl = creature_control_get_from_thing(creatng);
+    crstat = creature_stats_get_from_thing(creatng);
     return compute_creature_attack_damage(shotst->old->damage, crstat->luck, cctrl->explevel);
 }
 
@@ -2566,8 +2566,8 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
     }
     switch ( shot_model )
     {
-    case 4:
-    case 12:
+    case ShM_Lightning:
+    case ShM_Drain:
         if ((thing_is_invalid(target)) || (get_2d_distance(&firing->mappos, &pos2) > 5120))
         {
             project_point_to_wall_on_angle(&pos1, &pos2, firing->field_52, firing->field_54, 256, 20);
@@ -2583,7 +2583,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         shotng->shot.damage = shotst->old->damage;
         shotng->parent_idx = firing->index;
         break;
-    case 7:
+    case ShM_FlameBreathe:
         if ((thing_is_invalid(target)) || (get_2d_distance(&firing->mappos, &pos2) > 768))
           project_point_to_wall_on_angle(&pos1, &pos2, firing->field_52, firing->field_54, 256, 4);
         shotng = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, -1);
@@ -2594,7 +2594,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         shotng->shot.damage = shotst->old->damage;
         shotng->parent_idx = firing->index;
         break;
-    case 13:
+    case ShM_Hail_storm:
         for (i=0; i < 32; i++)
         {
             tmptng = create_thing(&pos1, TCls_Shot, shot_model, firing->owner, -1);

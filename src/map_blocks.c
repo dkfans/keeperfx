@@ -1054,7 +1054,7 @@ void mine_out_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_
     do_slab_efficiency_alteration(slb_x, slb_y);
     // Gold slabs are normally visible to all players,
     // so sine we're destroying it - make it invisible
-    // TODO MAP Maybe it should be cleared only if sibling non-gold slab are invisible
+    // TODO MAP Maybe it should be cleared only if sibling non-gold and non-rock slabs are invisible
     set_slab_explored_flags(1 << plyr_idx, slb_x, slb_y);
 }
 

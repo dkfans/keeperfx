@@ -157,7 +157,7 @@ unsigned char field_33[2];
     short field_35;
 unsigned char field_37[2];
     long hunger_level;
-    long field_3D;
+    long temple_cure_gameturn;
     unsigned char hunger_amount;
     unsigned char hunger_loss;
     long field_43;
