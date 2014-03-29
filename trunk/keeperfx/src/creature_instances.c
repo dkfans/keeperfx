@@ -411,11 +411,11 @@ long instf_creature_cast_spell(struct Thing *creatng, long *param)
         trthing = thing_get(cctrl->targtng_idx);
         if (!thing_is_invalid(trthing))
         {
-            creature_cast_spell_at_thing(creatng, trthing, spl_idx, 1);
+            creature_cast_spell_at_thing(creatng, trthing, spl_idx, cctrl->explevel);
             return 0;
         }
     }
-    creature_cast_spell(creatng, spl_idx, 1, cctrl->targtstl_x, cctrl->targtstl_y);
+    creature_cast_spell(creatng, spl_idx, cctrl->explevel, cctrl->targtstl_x, cctrl->targtstl_y);
     return 0;
 }
 
