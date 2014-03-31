@@ -185,14 +185,16 @@ TbBool update_trap_trigger_line_of_sight_90(struct Thing *traptng)
         if (stl_x_aft >= map_subtiles_x+1)
             stl_x_aft = map_subtiles_x+1;
     }
-    stl_y_lim = stl_y_pre;
+    MapSubtlCoord stl_lim, stl_x, stl_y;
+    stl_lim = stl_y_pre;
     for (stl_x=stl_x_beg; stl_x <= stl_x_end; stl_x++)
     {
-        for (stl_y = stl_y_beg; stl_y >= stl_y_lim; stl_y--)
+        for (stl_y = stl_y_beg; stl_y >= stl_lim; stl_y--)
         {
+            struct Map *mapblk;
             mapblk = get_map_block_at(stl_x, stl_y);
             if ((mapblk->flags & 0x10) != 0) {
-                stl_y_lim = stl_y + 1;
+                stl_lim = stl_y + 1;
                 break;
             }
             if (update_trap_trigger_line_of_sight_90_on_subtile(traptng, stl_x, stl_y)) {
@@ -200,14 +202,15 @@ TbBool update_trap_trigger_line_of_sight_90(struct Thing *traptng)
             }
         }
     }
-    stl_y_lim = stl_y_aft;
+    stl_lim = stl_y_aft;
     for (stl_x=stl_x_beg; stl_x <= stl_x_end; stl_x++)
     {
-        for (stl_y = stl_y_end; stl_y < stl_y_lim; stl_y++)
+        for (stl_y = stl_y_end; stl_y < stl_lim; stl_y++)
         {
+            struct Map *mapblk;
             mapblk = get_map_block_at(stl_x, stl_y);
             if ((mapblk->flags & 0x10) != 0) {
-                stl_y_lim = stl_y;
+                stl_lim = stl_y;
                 break;
             }
             if (update_trap_trigger_line_of_sight_90_on_subtile(traptng, stl_x, stl_y)) {
@@ -215,14 +218,15 @@ TbBool update_trap_trigger_line_of_sight_90(struct Thing *traptng)
             }
         }
     }
-    stl_x_lim = stl_x_aft;
+    stl_lim = stl_x_aft;
     for (stl_y=stl_y_beg; stl_y <= stl_y_end; stl_y++)
     {
-        for (stl_x=stl_x_end; stl_x < stl_x_lim; stl_x++)
+        for (stl_x=stl_x_end; stl_x < stl_lim; stl_x++)
         {
+            struct Map *mapblk;
             mapblk = get_map_block_at(stl_x, stl_y);
             if ((mapblk->flags & 0x10) != 0) {
-                stl_x_lim = stl_x;
+                stl_lim = stl_x;
                 break;
             }
             if (update_trap_trigger_line_of_sight_90_on_subtile(traptng, stl_x, stl_y)) {
@@ -230,14 +234,15 @@ TbBool update_trap_trigger_line_of_sight_90(struct Thing *traptng)
             }
         }
     }
-    stl_x_lim = stl_x_pre;
+    stl_lim = stl_x_pre;
     for (stl_y=stl_y_beg; stl_y <= stl_y_end; stl_y++)
     {
-        for (stl_x=stl_x_beg; stl_x >= stl_x_lim; stl_x--)
+        for (stl_x=stl_x_beg; stl_x >= stl_lim; stl_x--)
         {
+            struct Map *mapblk;
             mapblk = get_map_block_at(stl_x, stl_y);
             if ((mapblk->flags & 0x10) != 0) {
-                stl_x_lim = stl_x + 1;
+                stl_lim = stl_x + 1;
                 break;
             }
             if (update_trap_trigger_line_of_sight_90_on_subtile(traptng, stl_x, stl_y)) {

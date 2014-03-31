@@ -792,11 +792,6 @@ TbBool object_is_unaffected_by_terrain_changes(const struct Thing *thing)
     return (objst->genre == OCtg_Power);
 }
 
-long add_gold_to_hoarde(struct Thing *thing, struct Room *room, long amount)
-{
-  return _DK_add_gold_to_hoarde(thing, room, amount);
-}
-
 /**
  * Finds spellbook in a 3x3 subtiles area around given position.
  * Selects the spellbook which is nearest to center of given subtile.
@@ -1251,6 +1246,38 @@ struct Thing *create_gold_hoard_object(const struct Coord3d *pos, PlayerNumber p
     return thing;
 }
 
+struct Thing *create_gold_hoarde(struct Room *room, const struct Coord3d *pos, long value)
+{
+    struct Thing *thing;
+    long hoard_size_holds,hoard_size;
+    hoard_size_holds = 9 * game.pot_of_gold_holds / 5;
+    if ((value <= 0) || (room->slabs_count < 1)) {
+        ERRORLOG("Attempt to create a gold hoard with %ld gold", value);
+        return INVALID_THING;
+    }
+    if ( value > hoard_size_holds * room->total_capacity / room->slabs_count )
+        value = hoard_size_holds * room->total_capacity / room->slabs_count;
+    thing = create_gold_hoard_object(pos, room->owner, value);
+    if (!thing_is_invalid(thing))
+    {
+        struct Dungeon *dungeon;
+        room->capacity_used_for_storage += thing->valuable.gold_stored;
+        dungeon = get_dungeon(room->owner);
+        if (!dungeon_invalid(dungeon))
+            dungeon->total_money_owned += thing->valuable.gold_stored;
+        hoard_size = thing->valuable.gold_stored / hoard_size_holds;
+        if (hoard_size > 4)
+            hoard_size = 4;
+        room->used_capacity += hoard_size;
+    }
+    return thing;
+}
+
+long add_gold_to_hoarde(struct Thing *thing, struct Room *room, long amount)
+{
+  return _DK_add_gold_to_hoarde(thing, room, amount);
+}
+
 long remove_gold_from_hoarde(struct Thing *thing, struct Room *room, long amount)
 {
     return _DK_remove_gold_from_hoarde(thing, room, amount);
@@ -1311,9 +1338,12 @@ TbBool add_gold_to_pile(struct Thing *thing, long value)
     thing->creature.gold_carried += value;
     if (thing->creature.gold_carried < 0)
         thing->creature.gold_carried = LONG_MAX;
-    scaled_val = thing->creature.gold_carried / 2 + 150;
-    if ((scaled_val > 600) || (thing->creature.gold_carried >= game.gold_pile_maximum))
-      scaled_val = 600;
+    if (thing->creature.gold_carried < game.gold_pile_maximum)
+        scaled_val = 256 * thing->creature.gold_carried / game.gold_pile_maximum + 128;
+    else
+        scaled_val = 256 + (64 * (thing->creature.gold_carried-game.gold_pile_maximum) / game.gold_pile_maximum) / 2 + 128;
+    if (scaled_val > 640)
+      scaled_val = 640;
     thing->field_46 = scaled_val;
     return true;
 }

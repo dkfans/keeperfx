@@ -119,8 +119,10 @@ TbBool object_is_unaffected_by_terrain_changes(const struct Thing *thing);
 
 struct Thing *create_guard_flag_object(const struct Coord3d *pos, PlayerNumber plyr_idx, long parent_idx);
 struct Thing *create_gold_pot_at(long pos_x, long pos_y, PlayerNumber plyr_idx);
+
 struct Thing *create_gold_hoard_object(const struct Coord3d *pos, PlayerNumber plyr_idx, long value);
 struct Thing *find_gold_hoard_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+struct Thing *create_gold_hoarde(struct Room *room, const struct Coord3d *pos, long value);
 long add_gold_to_hoarde(struct Thing *thing, struct Room *room, long amount);
 long remove_gold_from_hoarde(struct Thing *thing, struct Room *room, long amount);
 
