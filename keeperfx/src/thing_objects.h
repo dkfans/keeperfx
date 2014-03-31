@@ -118,7 +118,6 @@ TbBool object_is_workshop_equipment(const struct Thing *thing);
 TbBool object_is_unaffected_by_terrain_changes(const struct Thing *thing);
 
 struct Thing *create_guard_flag_object(const struct Coord3d *pos, PlayerNumber plyr_idx, long parent_idx);
-struct Thing *create_gold_pot_at(long pos_x, long pos_y, PlayerNumber plyr_idx);
 
 struct Thing *create_gold_hoard_object(const struct Coord3d *pos, PlayerNumber plyr_idx, long value);
 struct Thing *find_gold_hoard_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
@@ -126,11 +125,14 @@ struct Thing *create_gold_hoarde(struct Room *room, const struct Coord3d *pos, l
 long add_gold_to_hoarde(struct Thing *thing, struct Room *room, long amount);
 long remove_gold_from_hoarde(struct Thing *thing, struct Room *room, long amount);
 
+struct Thing *drop_gold_pile(long value, struct Coord3d *pos);
+struct Thing *create_gold_pot_at(long pos_x, long pos_y, PlayerNumber plyr_idx);
+TbBool add_gold_to_pile(struct Thing *thing, long value);
+
 void set_call_to_arms_as_birthing(struct Thing *objtng);
 void set_call_to_arms_as_dying(struct Thing *objtng);
 void set_call_to_arms_as_rebirthing(struct Thing *objtng);
 
-struct Thing *drop_gold_pile(long value, struct Coord3d *pos);
 void create_rubble_for_dug_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSubtlCoord stl_z_max, PlayerNumber plyr_idx);
 /******************************************************************************/
 #ifdef __cplusplus
