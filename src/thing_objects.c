@@ -739,7 +739,7 @@ TbBool object_is_gold_pile(const struct Thing *thing)
       case 3: // Chest of gold
       case 6: // Pot of gold
       case 43: // Gold laying on the ground
-      case 128:
+      case 128: // Spinning coin
           return true;
       default:
           return false;
@@ -1216,6 +1216,8 @@ struct Thing *create_gold_pot_at(long pos_x, long pos_y, PlayerNumber plyr_idx)
     if (thing_is_invalid(thing))
         return INVALID_THING;
     thing->valuable.gold_stored = game.pot_of_gold_holds;
+    // Update size of the gold object
+    add_gold_to_pile(thing, 0);
     return thing;
 }
 
@@ -1330,18 +1332,50 @@ struct Thing *find_gold_hoard_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     return INVALID_THING;
 }
 
+GoldAmount gold_object_typical_value(ThingModel tngmodel)
+{
+    switch (tngmodel)
+    {
+      case 3:
+        return game.chest_gold_hold;
+      case 6:
+          return game.pot_of_gold_holds;
+      case 43:
+          return game.gold_pile_value;
+      case 128:
+          return game.gold_pile_maximum;
+      default:
+        break;
+    }
+    return 0;
+}
+
+/**
+ * Adds given amount of gold to gold pile, gold pot or gold chest.
+ * Scales size of the pile or pot accordingly.
+ *
+ * @param thing
+ * @param value
+ * @return
+ */
 TbBool add_gold_to_pile(struct Thing *thing, long value)
 {
     long scaled_val;
-    if (thing_is_invalid(thing))
+    if (thing_is_invalid(thing)) {
         return false;
+    }
+    GoldAmount typical_value;
+    typical_value = gold_object_typical_value(thing->model);
+    if (typical_value <= 0) {
+        return false;
+    }
     thing->creature.gold_carried += value;
     if (thing->creature.gold_carried < 0)
         thing->creature.gold_carried = LONG_MAX;
-    if (thing->creature.gold_carried < game.gold_pile_maximum)
-        scaled_val = 256 * thing->creature.gold_carried / game.gold_pile_maximum + 128;
+    if (thing->creature.gold_carried < typical_value)
+        scaled_val = 196 * thing->creature.gold_carried / typical_value + 128;
     else
-        scaled_val = 256 + (64 * (thing->creature.gold_carried-game.gold_pile_maximum) / game.gold_pile_maximum) / 2 + 128;
+        scaled_val = 196 + (24 * (thing->creature.gold_carried-typical_value) / typical_value) + 128;
     if (scaled_val > 640)
       scaled_val = 640;
     thing->field_46 = scaled_val;
