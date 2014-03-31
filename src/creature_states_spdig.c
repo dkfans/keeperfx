@@ -804,34 +804,6 @@ short imp_doing_nothing(struct Thing *thing)
     return 1;
 }
 
-struct Thing *create_gold_hoarde(struct Room *room, const struct Coord3d *pos, long value)
-{
-    struct Thing *thing;
-    long hoard_size_holds,hoard_size;
-    //return _DK_create_gold_hoarde(room, pos, value);
-    hoard_size_holds = 9 * game.pot_of_gold_holds / 5;
-    if ((value <= 0) || (room->slabs_count < 1)) {
-        ERRORLOG("Attempt to create a gold hoard with %ld gold", value);
-        return INVALID_THING;
-    }
-    if ( value > hoard_size_holds * room->total_capacity / room->slabs_count )
-        value = hoard_size_holds * room->total_capacity / room->slabs_count;
-    thing = create_gold_hoard_object(pos, room->owner, value);
-    if (!thing_is_invalid(thing))
-    {
-        struct Dungeon *dungeon;
-        room->capacity_used_for_storage += thing->valuable.gold_stored;
-        dungeon = get_dungeon(room->owner);
-        if (!dungeon_invalid(dungeon))
-            dungeon->total_money_owned += thing->valuable.gold_stored;
-        hoard_size = thing->valuable.gold_stored / hoard_size_holds;
-        if (hoard_size > 4)
-            hoard_size = 4;
-        room->used_capacity += hoard_size;
-    }
-    return thing;
-}
-
 short imp_drops_gold(struct Thing *thing)
 {
     struct Room *room;
@@ -931,9 +903,53 @@ short imp_last_did_job(struct Thing *thing)
     return 1;
 }
 
-long take_from_gold_pile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long limit)
+GoldAmount take_from_gold_pile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long limit)
 {
-    return _DK_take_from_gold_pile(stl_x, stl_y, limit);
+    //return _DK_take_from_gold_pile(stl_x, stl_y, limit);
+    struct Thing *thing;
+    struct Map *mapblk;
+    GoldAmount total_taken;
+    total_taken = 0;
+    long i;
+    unsigned long k;
+    mapblk = get_map_block_at(stl_x,stl_y);
+    k = 0;
+    i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_on_mapblk;
+        // Per thing code start
+        if ((thing->class_id == TCls_Object) && object_is_gold_pile(thing))
+        {
+            GoldAmount pot_stored;
+            pot_stored = thing->valuable.gold_stored;
+            if ((limit - total_taken >= pot_stored) || (limit == -1))
+            {
+                total_taken += pot_stored;
+                delete_thing_structure(thing, 0);
+            } else
+            {
+                thing->valuable.gold_stored += total_taken - limit;
+                add_gold_to_pile(thing, 0);
+                return limit;
+            }
+        }
+        // Per thing code end
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return total_taken;
 }
 
 short imp_picks_up_gold_pile(struct Thing *thing)
