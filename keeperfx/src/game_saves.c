@@ -212,38 +212,51 @@ int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
             {
                 if (LbFileSeek(fhandle, hdr.len, Lb_FILE_SEEK_CURRENT) < 0)
                     LbFileSeek(fhandle, 0, Lb_FILE_SEEK_END);
+                WARNLOG("Incompatible GameAdd chunk");
                 break;
             }
-            if (LbFileRead(fhandle, &gameadd, sizeof(struct GameAdd)) == sizeof(struct GameAdd))
-            //accept invalid saves -- if (LbFileRead(fhandle, &gameadd, hdr.len) == hdr.len)
+            if (LbFileRead(fhandle, &gameadd, sizeof(struct GameAdd)) == sizeof(struct GameAdd)) {
+            //accept invalid saves -- if (LbFileRead(fhandle, &gameadd, hdr.len) == hdr.len) {
                 chunks_done |= SGF_GameAdd;
+            } else {
+                WARNLOG("Could not read GameAdd chunk");
+            }
             break;
         case SGC_GameOrig:
             if (hdr.len != sizeof(struct Game))
             {
                 if (LbFileSeek(fhandle, hdr.len, Lb_FILE_SEEK_CURRENT) < 0)
                     LbFileSeek(fhandle, 0, Lb_FILE_SEEK_END);
+                WARNLOG("Incompatible GameOrig chunk");
                 break;
             }
-            if (LbFileRead(fhandle, &game, sizeof(struct Game)) == sizeof(struct Game))
+            if (LbFileRead(fhandle, &game, sizeof(struct Game)) == sizeof(struct Game)) {
                 chunks_done |= SGF_GameOrig;
+            } else {
+                WARNLOG("Could not read GameOrig chunk");
+            }
             break;
         case SGC_PacketHeader:
             if (hdr.len != sizeof(struct PacketSaveHead))
             {
                 if (LbFileSeek(fhandle, hdr.len, Lb_FILE_SEEK_CURRENT) < 0)
                     LbFileSeek(fhandle, 0, Lb_FILE_SEEK_END);
+                WARNLOG("Incompatible PacketHeader chunk");
                 break;
             }
             if (LbFileRead(fhandle, &game.packet_save_head, sizeof(struct PacketSaveHead))
-                == sizeof(struct PacketSaveHead))
+                == sizeof(struct PacketSaveHead)) {
                 chunks_done |= SGF_PacketHeader;
+            } else {
+                WARNLOG("Could not read GameOrig chunk");
+            }
             break;
         case SGC_PacketData:
             if (hdr.len != 0)
             {
                 if (LbFileSeek(fhandle, hdr.len, Lb_FILE_SEEK_CURRENT) < 0)
                     LbFileSeek(fhandle, 0, Lb_FILE_SEEK_END);
+                WARNLOG("Incompatible PacketData chunk");
                 break;
             }
             chunks_done |= SGF_PacketData;
