@@ -1003,6 +1003,7 @@ void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_star
         cur_mapblk = get_map_block_at(stl_x + xaval + xidx, stl_y);
         // Get solidmasks of sibling columns
         unsigned short solidmsk_cur_raw, solidmsk_cur, solidmsk_back, solidmsk_front, solidmsk_left, solidmsk_right;
+        solidmsk_cur_raw = unrev_colmn->solidmask;
         solidmsk_cur = unrev_colmn->solidmask & 3;
         solidmsk_back = unrev_colmn->solidmask & 3;
         solidmsk_right = unrev_colmn->solidmask & 3;
@@ -1021,9 +1022,9 @@ void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_star
             cur_colmn = get_map_column(cur_mapblk);
             solidmsk_cur_raw = cur_colmn->solidmask;
             solidmsk_cur = solidmsk_cur_raw;
-            if (solidmsk_cur >= 8)
+            if (solidmsk_cur >= (1<<3))
             {
-                if (((cur_mapblk->flags & 0x42) == 0) && ((cur_colmn->bitfields & 0xE) == 0)) {
+                if (((cur_mapblk->flags & (0x40|0x02)) == 0) && ((cur_colmn->bitfields & 0xE) == 0)) {
                     solidmsk_cur &= 3;
                 }
             }
@@ -1034,9 +1035,9 @@ void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_star
             struct Column *colmn;
             colmn = get_map_column(sib_mapblk);
             solidmsk_back = colmn->solidmask;
-            if (solidmsk_back >= 8)
+            if (solidmsk_back >= (1<<3))
             {
-                if (((sib_mapblk->flags & 0x42) == 0) && ((colmn->bitfields & 0xE) == 0)) {
+                if (((sib_mapblk->flags & (0x40|0x02)) == 0) && ((colmn->bitfields & 0xE) == 0)) {
                     solidmsk_back &= 3;
                 }
             }
@@ -1046,9 +1047,9 @@ void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_star
             struct Column *colmn;
             colmn = get_map_column(sib_mapblk);
             solidmsk_front = colmn->solidmask;
-            if (solidmsk_front >= 8)
+            if (solidmsk_front >= (1<<3))
             {
-                if (((sib_mapblk->flags & 0x42) == 0) && ((colmn->bitfields & 0xE) == 0)) {
+                if (((sib_mapblk->flags & (0x40|0x02)) == 0) && ((colmn->bitfields & 0xE) == 0)) {
                     solidmsk_front &= 3;
                 }
             }
@@ -1058,9 +1059,9 @@ void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_star
             struct Column *colmn;
             colmn = get_map_column(sib_mapblk);
             solidmsk_left = colmn->solidmask;
-            if (solidmsk_left >= 8)
+            if (solidmsk_left >= (1<<3))
             {
-                if (((sib_mapblk->flags & 0x42) == 0) && ((colmn->bitfields & 0xE) == 0)) {
+                if (((sib_mapblk->flags & (0x40|0x02)) == 0) && ((colmn->bitfields & 0xE) == 0)) {
                     solidmsk_left &= 3;
                 }
             }
@@ -1070,9 +1071,9 @@ void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_star
             struct Column *colmn;
             colmn = get_map_column(sib_mapblk);
             solidmsk_right = colmn->solidmask;
-            if (solidmsk_right >= 8)
+            if (solidmsk_right >= (1<<3))
             {
-                if (((sib_mapblk->flags & 0x42) == 0) && ((colmn->bitfields & 0xE) == 0)) {
+                if (((sib_mapblk->flags & (0x40|0x02)) == 0) && ((colmn->bitfields & 0xE) == 0)) {
                     solidmsk_right &= 3;
                 }
             }
@@ -1120,14 +1121,19 @@ void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_star
         }
 
         ncor = floor_height[solidmsk_cur];
-        if (ncor > 0)
+        if ((ncor > 0) && (ncor <= COLUMN_STACK_HEIGHT))
         {
+            int ncor_raw;
+            ncor_raw = floor_height[solidmsk_cur_raw];
             if ((cur_mapblk->flags & (0x80|0x04)) == 0)
             {
-                struct CubeAttribs * cubed;
-                cubed = &game.cubes_data[*(short *)((char *)&cur_colmn->baseblock + 2 * floor_height[solidmsk_cur_raw] + 1)];
-                do_a_gpoly_gourad_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], cubed->texture_id[4], -1);
-                do_a_gpoly_gourad_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], cubed->texture_id[4], -1);
+                if ((ncor_raw > 0) && (ncor_raw <= COLUMN_STACK_HEIGHT))
+                {
+                    struct CubeAttribs * cubed;
+                    cubed = &game.cubes_data[cur_colmn->cubes[ncor_raw-1]];
+                    do_a_gpoly_gourad_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], cubed->texture_id[4], -1);
+                    do_a_gpoly_gourad_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], cubed->texture_id[4], -1);
+                }
             } else
             if ((cur_mapblk->flags & 0x01) != 0)
             {
@@ -1151,10 +1157,10 @@ void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_star
             }
         }
         ncor = lintel_top_height[solidmsk_cur];
-        if (ncor > 0)
+        if ((ncor > 0) && (ncor <= COLUMN_STACK_HEIGHT))
         {
             struct CubeAttribs * cubed;
-            cubed = &game.cubes_data[*(short *)((char *)&cur_colmn->baseblock + 2 * ncor + 1)];
+            cubed = &game.cubes_data[cur_colmn->cubes[ncor-1]];
             do_a_gpoly_gourad_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], cubed->texture_id[4], -1);
             do_a_gpoly_gourad_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], cubed->texture_id[4], -1);
         }
