@@ -86,16 +86,16 @@ const struct NamedCommand rules_computer_commands[] = {
   };
 
 const struct NamedCommand rules_creatures_commands[] = {
-  {"RECOVERYFREQUENCY",          1},
-  {"FIGHTMAXHATE",               2},
-  {"FIGHTBORDERLINE",            3},
-  {"FIGHTMAXLOVE",               4},
-  {"BODYREMAINSFOR",             5},
-  {"FIGHTHATEKILLVALUE",         6},
-  {"FLEEZONERADIUS",             7},
-  {"GAMETURNSINFLEE",            8},
-  {"CRITICALHEALTHPERCENTAGE",   9},
-  {NULL,                         0},
+  {"RECOVERYFREQUENCY",             1},
+  {"FIGHTMAXHATE",                  2},
+  {"FIGHTBORDERLINE",               3},
+  {"FIGHTMAXLOVE",                  4},
+  {"BODYREMAINSFOR",                5},
+  {"FIGHTHATEKILLVALUE",            6},
+  {"FLEEZONERADIUS",                7},
+  {"GAMETURNSINFLEE",               8},
+  {"CRITICALHEALTHPERCENTAGE",      9},
+  {NULL,                            0},
   };
 
 const struct NamedCommand rules_magic_commands[] = {
@@ -113,6 +113,8 @@ const struct NamedCommand rules_magic_commands[] = {
   {"TURNSPERCOLLAPSEDUNGEONDAMAGE",12},
   {"DEFAULTSACRIFICESCOREFORHORNY",13},
   {"POWERHANDGOLDGRABAMOUNT",      14},
+  {"FRIENDLYFIGHTAREARANGEPERCENT",15},
+  {"FRIENDLYFIGHTAREADAMAGEPERCENT",16},
   {NULL,                            0},
   };
 
@@ -1100,6 +1102,32 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
           {
             k = atoi(word_buf);
             game.power_hand_gold_grab_amount = k;
+            n++;
+          }
+          if (n < 1)
+          {
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 15: // FRIENDLYFIGHTAREARANGEPERCENT
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            gameadd.friendly_fight_area_range_permil = k * 10;
+            n++;
+          }
+          if (n < 1)
+          {
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 16: // FRIENDLYFIGHTAREADAMAGEPERCENT
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            gameadd.friendly_fight_area_damage_permil = k * 10;
             n++;
           }
           if (n < 1)
