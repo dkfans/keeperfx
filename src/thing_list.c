@@ -1614,8 +1614,10 @@ TbBool electricity_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, c
     if (!line_of_sight_3d(pos, &tngdst->mappos)) {
         max_dist /= 3;
     }
-    if (tngdst->owner == owner) {
-        max_dist /= 3;
+    // Friendly fire usually causes less damage and at smaller distance
+    if ((tngdst->class_id == TCls_Creature) && (tngdst->owner == owner)) {
+        max_dist = max_dist * gameadd.friendly_fight_area_range_permil / 1000;
+        max_damage = max_damage * gameadd.friendly_fight_area_damage_permil / 1000;
     }
     distance = get_2d_box_distance(pos, &tngdst->mappos);
     if (distance < max_dist)

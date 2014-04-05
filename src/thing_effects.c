@@ -1148,9 +1148,10 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
     SYNCDBG(17,"Starting for %s, max damage %d, max blow %d, owner %d",thing_model_name(tngdst),(int)max_damage,(int)blow_strength,(int)owner);
     if (line_of_sight_3d(pos, &tngdst->mappos))
     {
-        // Friendly fire causes damage at smaller distance
+        // Friendly fire usually causes less damage and at smaller distance
         if ((tngdst->class_id == TCls_Creature) && (tngdst->owner == owner)) {
-            max_dist /= 3;
+            max_dist = max_dist * gameadd.friendly_fight_area_range_permil / 1000;
+            max_damage = max_damage * gameadd.friendly_fight_area_damage_permil / 1000;
         }
         distance = get_2d_distance(pos, &tngdst->mappos);
         if (distance < max_dist)
@@ -1486,6 +1487,7 @@ TbBool poison_cloud_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, 
     }
     if (line_of_sight_3d(pos, &tngdst->mappos))
     {
+        // Note that gas has no distinction over friendly and enemy fire
         MapCoordDelta distance;
         distance = get_2d_distance(pos, &tngdst->mappos);
         if (distance < max_dist)

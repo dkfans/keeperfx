@@ -92,6 +92,8 @@ struct GameAdd {
     unsigned long flee_zone_radius;
     unsigned long time_between_prison_break;
     long critical_health_permil;
+    long friendly_fight_area_damage_permil;
+    long friendly_fight_area_range_permil;
     unsigned char torture_convert_chance;
     TbBool scavenge_good_allowed;
     TbBool scavenge_neutral_allowed;
