@@ -488,6 +488,54 @@ struct ComputerTask *get_task_in_progress(struct Computer2 *comp, ComputerTaskTy
 }
 
 /**
+ * Returns first task of given type from given computer player in progress tasks list.
+ * @param comp The computer player to be checked.
+ * @param ttype Task type to search for.
+ * @return The task pointer, or invalid task pointer if not found.
+ */
+struct ComputerTask *get_task_in_progress_in_list(struct Computer2 *comp, const ComputerTaskType *ttypes)
+{
+    struct ComputerTask *ctask;
+    long i;
+    unsigned long k;
+    //return _DK_get_task_in_progress(comp, a2);
+    k = 0;
+    i = comp->task_idx;
+    while (i != 0)
+    {
+        if ((i < 0) || (i >= COMPUTER_TASKS_COUNT))
+        {
+          ERRORLOG("Jump to invalid computer task %ld detected",i);
+          break;
+        }
+        ctask = &game.computer_task[i];
+        i = ctask->next_task;
+        if ((ctask->flags & 0x01) != 0)
+        {
+            long n;
+            n = ctask->ttype;
+            // If it's a sub-task, compare the main task behind it
+            if (n == CTT_WaitForBridge)
+                n = ctask->ottype;
+            const ComputerTaskType *ttype;
+            for (ttype = ttypes; *ttype > CTT_None; ttype++)
+            {
+                if (n == *ttype) {
+                    return ctask;
+                }
+            }
+        }
+        k++;
+        if (k > COMPUTER_TASKS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping computer tasks");
+          break;
+        }
+    }
+    return NULL;
+}
+
+/**
  * Checks if given computer player has in progress task of given type.
  * @param comp The computer player to be checked.
  * @param ttype Task type to search for.

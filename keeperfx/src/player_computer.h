@@ -562,7 +562,7 @@ long computer_process_index(const struct Computer2 *comp, const struct ComputerP
 struct ComputerProcess *get_computer_process(struct Computer2 *comp, int cproc_idx);
 /******************************************************************************/
 struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind rkind, long width_slabs, long height_slabs, long a5);
-struct ComputerTask *is_there_an_attack_task(struct Computer2 *comp);
+TbBool is_there_an_attack_task(struct Computer2 *comp);
 struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d *pos, RoomKind rkind,
     long width_slabs, long height_slabs, long a6, long a7);
 long computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d *pos, struct GoldLookup **gldlookref);
@@ -581,6 +581,7 @@ long xy_walkable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx);
 /******************************************************************************/
 struct ComputerTask *get_computer_task(long idx);
 struct ComputerTask *get_task_in_progress(struct Computer2 *comp, ComputerTaskType ttype);
+struct ComputerTask *get_task_in_progress_in_list(struct Computer2 *comp, const ComputerTaskType *ttypes);
 TbBool is_task_in_progress(struct Computer2 *comp, ComputerTaskType ttype);
 struct ComputerTask *get_free_task(struct Computer2 *comp, long a2);
 TbBool computer_task_invalid(const struct ComputerTask *ctask);
