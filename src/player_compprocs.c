@@ -1106,11 +1106,18 @@ long computer_check_attack1(struct Computer2 *comp, struct ComputerProcess *proc
         suspend_process(comp, process);
         return 4;
     }
-    if ((100 * dungeon->num_active_creatrs / max_crtrs < process->field_10) || is_there_an_attack_task(comp)) {
+    if (100 * dungeon->num_active_creatrs / max_crtrs < process->field_10) {
+        SYNCDBG(7,"Not enough active creatures to fight, suspending");
+        suspend_process(comp, process);
+        return 4;
+    }
+    if (is_there_an_attack_task(comp)) {
+        SYNCDBG(7,"Attack task already exists, suspending");
         suspend_process(comp, process);
         return 4;
     }
     if (process->field_8 * count_creatures_availiable_for_fight(comp, 0) / 100 < process->field_C) {
+        SYNCDBG(7,"Not enough available creatures to fight, suspending");
         suspend_process(comp, process);
         return 4;
     }
@@ -1147,11 +1154,18 @@ long computer_check_safe_attack(struct Computer2 *comp, struct ComputerProcess *
         suspend_process(comp, process);
         return 4;
     }
-    if ((100 * dungeon->num_active_creatrs / max_crtrs < process->field_10) || is_there_an_attack_task(comp)) {
+    if (100 * dungeon->num_active_creatrs / max_crtrs < process->field_10) {
+        SYNCDBG(7,"Not enough active creatures to fight, suspending");
+        suspend_process(comp, process);
+        return 4;
+    }
+    if (is_there_an_attack_task(comp)) {
+        SYNCDBG(7,"Attack task already exists, suspending");
         suspend_process(comp, process);
         return 4;
     }
     if (process->field_8 * count_creatures_availiable_for_fight(comp, 0) / 100 < process->field_C) {
+        SYNCDBG(7,"Not enough available creatures to fight, suspending");
         suspend_process(comp, process);
         return 4;
     }
