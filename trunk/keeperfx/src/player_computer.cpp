@@ -658,9 +658,21 @@ long count_creatures_availiable_for_fight(struct Computer2 *comp, struct Coord3d
     return _DK_count_creatures_availiable_for_fight(comp, pos);
 }
 
-struct ComputerTask *is_there_an_attack_task(struct Computer2 *comp)
+TbBool is_there_an_attack_task(struct Computer2 *comp)
 {
-    return _DK_is_there_an_attack_task(comp);
+    //return _DK_is_there_an_attack_task(comp);
+    static const ComputerTaskType attack_tasks[] = {
+        CTT_DigToAttack,
+        CTT_MagicCallToArms,
+        CTT_PickupForAttack,
+        CTT_MoveCreatureToRoom,
+        CTT_MoveCreatureToPos,
+        CTT_MoveCreaturesToDefend,
+        CTT_None,
+    };
+    const struct ComputerTask *ctask;
+    ctask = get_task_in_progress_in_list(comp, attack_tasks);
+    return !computer_task_invalid(ctask);
 }
 
 /**
@@ -674,6 +686,7 @@ struct ComputerTask *is_there_an_attack_task(struct Computer2 *comp)
 void get_opponent(struct Computer2 *comp, struct THate hates[])
 {
     //_DK_get_opponent(comp, hate);
+    SYNCDBG(7,"Starting");
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
     long i;
@@ -766,6 +779,7 @@ long setup_computer_attack(struct Computer2 *comp, struct ComputerProcess *proce
     SYNCDBG(8,"Starting player %d attack on %d",(int)comp->dungeon->owner,(int)victim_plyr_idx);
     //return _DK_setup_computer_attack(comp, process, pos, a4);
     if (!computer_finds_nearest_room_to_pos(comp, &room, pos)) {
+        SYNCDBG(7,"Cannot find owned room near (%d,%d), giving up",(int)pos->x.stl.num,(int)pos->y.stl.num);
         return 0;
     }
     struct Coord3d startpos, endpos;
@@ -778,8 +792,10 @@ long setup_computer_attack(struct Computer2 *comp, struct ComputerProcess *proce
     long parent_cproc_idx;
     parent_cproc_idx = computer_process_index(comp, process);
     if (!create_task_dig_to_attack(comp, startpos, endpos, victim_plyr_idx, parent_cproc_idx)) {
+        SYNCDBG(7,"Cannot create task to dig to (%d,%d), giving up",(int)pos->x.stl.num,(int)pos->y.stl.num);
         return 0;
     }
+    SYNCDBG(7,"Attack setup complete for destination (%d,%d)",(int)pos->x.stl.num,(int)pos->y.stl.num);
     return 1;
 }
 
@@ -1138,6 +1154,7 @@ long computer_able_to_use_magic(struct Computer2 *comp, PowerKind pwkind, long p
 
 long check_call_to_arms(struct Computer2 *comp)
 {
+    SYNCDBG(8,"Starting for player %d",(int)comp->dungeon->owner);
     //return _DK_check_call_to_arms(comp);
     long ret;
     ret = 1;
@@ -1163,9 +1180,11 @@ long check_call_to_arms(struct Computer2 *comp)
                 if ((ctask->ttype == CTT_MagicCallToArms) && (ctask->field_1 == 2))
                 {
                     if (ret == 1) {
+                        SYNCDBG(8,"Found existing CTA task");
                         ret = 0;
                     }
                     if (ctask->field_60 + ctask->lastrun_turn - game.play_gameturn < ctask->field_60 - ctask->field_60/10) {
+                        SYNCDBG(8,"Less than 90% turns");
                         ret = -1;
                         break;
                     }
