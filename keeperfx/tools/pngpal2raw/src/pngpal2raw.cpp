@@ -881,7 +881,7 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
         LogErr("Incorrectly specified input file name.");
         return false;
     }
-    if ((opts.fmt != OutFmt_SSPR) && (opts.fmt != OutFmt_JSPR) && (opts.inp.size() != 1))
+    if ((opts.fmt != OutFmt_SSPR) && (opts.fmt != OutFmt_JSPR) && (opts.fmt != OutFmt_RAW) && (opts.inp.size() != 1))
     {
         LogErr("This format supports only one input file name.");
         return false;
@@ -982,26 +982,69 @@ short load_inp_palette_file(WorkingSet& ws, const std::string& fname_pal, Progra
     return ERR_OK;
 }
 
-short save_raw_file(WorkingSet& ws, ImageData& img, const std::string& fname_out, ProgramOptions& opts)
+short save_raw_file(WorkingSet& ws, std::vector<ImageData>& imgs, const std::string& fname_out, ProgramOptions& opts)
 {
     // Open and write the RAW file
+    FILE* rawfile;
     {
-        FILE* rawfile = fopen(fname_out.c_str(),"wb");
+        rawfile = fopen(fname_out.c_str(),"wb");
         if (rawfile == NULL) {
             perror(fname_out.c_str());
             return ERR_CANT_OPEN;
         }
+    }
+    if (opts.batch == Batch_FILELIST)
+    {
+        int tile_num_x, tile_width, tile_height;
+        {
+            tile_num_x = opts.inp[0].fd[0];
+            tile_width = opts.inp[0].fd[2];
+            tile_height = opts.inp[0].fd[3];
+        }
+        for (int i = 0; i < imgs.size(); i+=tile_num_x)
+        {
+            if (i+tile_num_x-1 >= imgs.size()) {
+                LogErr("Amount of images does not allow to completely fill whole line of RAW file");
+                break;
+            }
+            std::vector<png_bytep *> row_pointers;
+            row_pointers.resize(tile_num_x);
+            // For every row of tile images, get all row pointers
+            for (int k = 0; k < tile_num_x; k++)
+            {
+                ImageData &img = imgs[i+k];
+                row_pointers[k] = png_get_rows(img.png_ptr, img.info_ptr);
+            }
+            // Now, write output lines wchich merge the tiles
+            std::vector<png_byte> out_row;
+            out_row.resize(tile_num_x*tile_width);
+            for (int y=0; y<tile_height; y++)
+            {
+                for (int k = 0; k < tile_num_x; k++)
+                {
+                    ImageData &img = imgs[i+k];
+                    png_bytep inp_row = row_pointers[k][img.crop_y+y];
+                    int newLength = raw_pack(inp_row,img.crop_width,img.colorBPP());
+                    memcpy(&out_row.front()+k*tile_width,inp_row,newLength);
+                }
+                if (fwrite(&out_row.front(),out_row.size(),1,rawfile) != 1)
+                { perror(fname_out.c_str()); return ERR_FILE_WRITE; }
+            }
+        }
+    } else
+    {
+        ImageData & img = imgs[0];
         png_bytep * row_pointers = png_get_rows(img.png_ptr, img.info_ptr);
         for (int y=0; y<img.height; y++)
         {
             png_bytep row = row_pointers[y];
             int newLength = raw_pack(row,img.width,img.colorBPP());
-            if (fwrite(row,newLength,1,rawfile)!=1) {perror(fname_out.c_str()); return ERR_FILE_WRITE; }
+            if (fwrite(row,newLength,1,rawfile) != 1)
+            { perror(fname_out.c_str()); return ERR_FILE_WRITE; }
             for(int i=0; i<xorMaskLineLen(img)-newLength; ++i) writeByte(rawfile,0);
         }
-        fclose(rawfile);
-
     }
+    fclose(rawfile);
     return ERR_OK;
 }
 
@@ -1224,7 +1267,7 @@ int main(int argc, char* argv[])
     {
     case OutFmt_RAW:
         LogMsg("Saving RAW file \"%s\".",opts.fname_out.c_str());
-        if (save_raw_file(ws, imgs[0], opts.fname_out, opts) != ERR_OK) {
+        if (save_raw_file(ws, imgs, opts.fname_out, opts) != ERR_OK) {
             return 8;
         }
         break;
