@@ -124,6 +124,7 @@ enum TbLanguage {
     Lang_Hindi,
     Lang_Bengali,
     Lang_Javanese,
+    Lang_Latin,
 };
 
 enum TbConfigLoadFlags {

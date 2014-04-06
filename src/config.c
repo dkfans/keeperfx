@@ -69,6 +69,7 @@ const struct NamedCommand lang_type[] = {
   {"HIN", Lang_Hindi},
   {"BEN", Lang_Bengali},
   {"JAV", Lang_Javanese},
+  {"LAT", Lang_Latin}, // Classic Latin
   {NULL,  Lang_Unset},
   };
 
