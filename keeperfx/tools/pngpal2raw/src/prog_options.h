@@ -21,7 +21,8 @@ enum {
 };
 
 enum {
-    OutFmt_RAW = 0,
+    OutFmt_BMP = 0,
+    OutFmt_RAW,
     OutFmt_HSPR,
     OutFmt_SSPR,
     OutFmt_JSPR,

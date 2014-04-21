@@ -325,6 +325,26 @@ short convert_rgb_to_indexed(WorkingSet& ws, ImageData& img, bool hasAlpha)
 }
 
 /**
+ * Writes 2-byte little-endian number to given FILE.
+ */
+inline void write_int16_le_file (FILE *fp, unsigned short x)
+{
+    fputc ((int) (x&255), fp);
+    fputc ((int) ((x>>8)&255), fp);
+}
+
+/**
+ * Writes 4-byte little-endian number to given FILE.
+ */
+inline void write_int32_le_file (FILE *fp, unsigned long x)
+{
+    fputc ((int) (x&255), fp);
+    fputc ((int) ((x>>8)&255), fp);
+    fputc ((int) ((x>>16)&255), fp);
+    fputc ((int) ((x>>24)&255), fp);
+}
+
+/**
  * Packs a line of width pixels (1 byte per pixel) in row, with 8/nbits pixels packed into each byte.
  * @return the new number of bytes in row
  */
@@ -801,6 +821,8 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
                 opts.fmt = OutFmt_JSPR;
             else if (ci_string(optarg).compare("RAW") == 0)
                 opts.fmt = OutFmt_RAW;
+            else if (ci_string(optarg).compare("BMP") == 0)
+                opts.fmt = OutFmt_BMP;
             else
                 return false;
             break;
@@ -881,7 +903,7 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
         LogErr("Incorrectly specified input file name.");
         return false;
     }
-    if ((opts.fmt != OutFmt_SSPR) && (opts.fmt != OutFmt_JSPR) && (opts.fmt != OutFmt_RAW) && (opts.inp.size() != 1))
+    if ((opts.fmt != OutFmt_SSPR) && (opts.fmt != OutFmt_JSPR) && (opts.fmt != OutFmt_RAW)  && (opts.fmt != OutFmt_BMP) && (opts.inp.size() != 1))
     {
         LogErr("This format supports only one input file name.");
         return false;
@@ -897,6 +919,9 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
             break;
         case OutFmt_JSPR:
             opts.fname_out = file_name_change_extension(file_name_strip_path(opts.inp[0].fname),"jty");
+            break;
+        case OutFmt_BMP:
+            opts.fname_out = file_name_change_extension(file_name_strip_path(opts.inp[0].fname),"bmp");
             break;
         case OutFmt_RAW:
         default:
@@ -1045,6 +1070,128 @@ short save_raw_file(WorkingSet& ws, std::vector<ImageData>& imgs, const std::str
         }
     }
     fclose(rawfile);
+    return ERR_OK;
+}
+
+short save_bmp_file(WorkingSet& ws, std::vector<ImageData>& imgs, const std::string& fname_out, ProgramOptions& opts)
+{
+    // Open and write the BMP file
+    FILE* bmpfile;
+    {
+        bmpfile = fopen(fname_out.c_str(),"wb");
+        if (bmpfile == NULL) {
+            perror(fname_out.c_str());
+            return ERR_CANT_OPEN;
+        }
+    }
+    // Write zero-filled header
+    {
+        std::vector<unsigned char> head;
+        head.resize(0x36);
+        if (fwrite(&head.front(),head.size(),1,bmpfile) != 1)
+        { perror(fname_out.c_str()); return ERR_FILE_WRITE; }
+    }
+    // Write palette
+    {
+        int i;
+        for (i = 0; i < ws.palette.size(); i++)
+        {
+            unsigned int cval;
+            cval=(unsigned int)ws.palette[i].blue;
+            if (cval>255) cval=255;
+            fputc(cval, bmpfile);
+            cval=(unsigned int)ws.palette[i].green;
+            if (cval>255) cval=255;
+            fputc(cval, bmpfile);
+            cval=(unsigned int)ws.palette[i].red;
+            if (cval>255) cval=255;
+            fputc(cval, bmpfile);
+            fputc(0, bmpfile);
+        }
+        for (; i < 256; i++)
+        {
+            fputc(0, bmpfile);
+            fputc(0, bmpfile);
+            fputc(0, bmpfile);
+            fputc(0, bmpfile);
+        }
+
+    }
+    int full_width, full_height;
+    if (opts.batch == Batch_FILELIST)
+    {
+        int tile_num_x, tile_width, tile_height;
+        {
+            tile_num_x = opts.inp[0].fd[0];
+            tile_width = opts.inp[0].fd[2];
+            tile_height = opts.inp[0].fd[3];
+        }
+        full_width = tile_num_x*tile_width;
+        full_height = (imgs.size()/tile_num_x)*tile_height;
+        for (int i = 0; i < imgs.size(); i+=tile_num_x)
+        {
+            if (i+tile_num_x-1 >= imgs.size()) {
+                LogErr("Amount of images does not allow to completely fill whole line of RAW file");
+                break;
+            }
+            std::vector<png_bytep *> row_pointers;
+            row_pointers.resize(tile_num_x);
+            // For every row of tile images, get all row pointers
+            for (int k = 0; k < tile_num_x; k++)
+            {
+                ImageData &img = imgs[i+k];
+                row_pointers[k] = png_get_rows(img.png_ptr, img.info_ptr);
+            }
+            // Now, write output lines which merge the tiles
+            std::vector<png_byte> out_row;
+            out_row.resize(tile_num_x*tile_width);
+            for (int y=0; y<tile_height; y++)
+            {
+                for (int k = 0; k < tile_num_x; k++)
+                {
+                    ImageData &img = imgs[i+k];
+                    png_bytep inp_row = row_pointers[k][img.crop_y+y];
+                    int newLength = raw_pack(inp_row,img.crop_width,img.colorBPP());
+                    memcpy(&out_row.front()+k*tile_width,inp_row,newLength);
+                }
+                if (fwrite(&out_row.front(),out_row.size(),1,bmpfile) != 1)
+                { perror(fname_out.c_str()); return ERR_FILE_WRITE; }
+            }
+        }
+    } else
+    {
+        ImageData & img = imgs[0];
+        png_bytep * row_pointers = png_get_rows(img.png_ptr, img.info_ptr);
+        full_width = img.width;
+        full_height = img.height;
+        for (int y=0; y<img.height; y++)
+        {
+            png_bytep row = row_pointers[y];
+            int newLength = raw_pack(row,img.width,img.colorBPP());
+            if (fwrite(row,newLength,1,bmpfile) != 1)
+            { perror(fname_out.c_str()); return ERR_FILE_WRITE; }
+            for(int i=0; i<xorMaskLineLen(img)-newLength; ++i) writeByte(bmpfile,0);
+        }
+    }
+    {
+        long data_len,pal_len;
+        // Length of data
+        int padding_size = 4-(full_width&3);
+        data_len = (full_width+padding_size)*full_height;
+        // Length of palette
+        pal_len = 256*4;
+        fseek(bmpfile, 0, SEEK_SET);
+        fputs("BM",bmpfile);
+        write_int32_le_file(bmpfile, data_len+pal_len+0x36);
+        write_int32_le_file(bmpfile, 0);
+        write_int32_le_file(bmpfile, pal_len+0x36);
+        write_int32_le_file(bmpfile, 40);
+        write_int32_le_file(bmpfile, full_width);
+        write_int32_le_file(bmpfile, -full_height);
+        write_int16_le_file(bmpfile, 1);
+        write_int16_le_file(bmpfile, 8);
+    }
+    fclose(bmpfile);
     return ERR_OK;
 }
 
@@ -1268,6 +1415,12 @@ int main(int argc, char* argv[])
     case OutFmt_RAW:
         LogMsg("Saving RAW file \"%s\".",opts.fname_out.c_str());
         if (save_raw_file(ws, imgs, opts.fname_out, opts) != ERR_OK) {
+            return 8;
+        }
+        break;
+    case OutFmt_BMP:
+        LogMsg("Saving BMP file \"%s\".",opts.fname_out.c_str());
+        if (save_bmp_file(ws, imgs, opts.fname_out, opts) != ERR_OK) {
             return 8;
         }
         break;
