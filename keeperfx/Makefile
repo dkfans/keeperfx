@@ -812,24 +812,24 @@ pkg/ldata/frontft2.dat: gfx/font_front_std_red-64/filelist_frontft2.txt pkg/ldat
 pkg/ldata/frontft3.dat: gfx/font_front_std_ylw-64/filelist_frontft3.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)
 pkg/ldata/frontft4.dat: gfx/font_front_std_dkr-64/filelist_frontft4.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)
 
-pkg/data/frac00.raw: gfx/textures/frac00.png gfx/textures/fract_bw.pal $(PNGTORAW) $(RNC)
-pkg/data/frac01.raw: gfx/textures/frac01.png gfx/textures/fract_bw.pal $(PNGTORAW) $(RNC)
-pkg/data/frac02.raw: gfx/textures/frac02.png gfx/textures/fract_bw.pal $(PNGTORAW) $(RNC)
-pkg/data/frac03.raw: gfx/textures/frac03.png gfx/textures/fract_bw.pal $(PNGTORAW) $(RNC)
-pkg/data/frac04.raw: gfx/textures/frac04.png gfx/textures/fract_bw.pal $(PNGTORAW) $(RNC)
-pkg/data/frac05.raw: gfx/textures/frac05.png gfx/textures/fract_bw.pal $(PNGTORAW) $(RNC)
-pkg/data/frac06.raw: gfx/textures/frac06.png gfx/textures/fract_bw.pal $(PNGTORAW) $(RNC)
-pkg/data/frac07.raw: gfx/textures/frac07.png gfx/textures/fract_bw.pal $(PNGTORAW) $(RNC)
-pkg/data/frac08.raw: gfx/textures/frac08.png gfx/textures/fract_bw.pal $(PNGTORAW) $(RNC)
+pkg/data/frac00.raw: gfx/textures-32/frac00.png gfx/textures-32/fract_bw.pal $(PNGTORAW) $(RNC)
+pkg/data/frac01.raw: gfx/textures-32/frac01.png gfx/textures-32/fract_bw.pal $(PNGTORAW) $(RNC)
+pkg/data/frac02.raw: gfx/textures-32/frac02.png gfx/textures-32/fract_bw.pal $(PNGTORAW) $(RNC)
+pkg/data/frac03.raw: gfx/textures-32/frac03.png gfx/textures-32/fract_bw.pal $(PNGTORAW) $(RNC)
+pkg/data/frac04.raw: gfx/textures-32/frac04.png gfx/textures-32/fract_bw.pal $(PNGTORAW) $(RNC)
+pkg/data/frac05.raw: gfx/textures-32/frac05.png gfx/textures-32/fract_bw.pal $(PNGTORAW) $(RNC)
+pkg/data/frac06.raw: gfx/textures-32/frac06.png gfx/textures-32/fract_bw.pal $(PNGTORAW) $(RNC)
+pkg/data/frac07.raw: gfx/textures-32/frac07.png gfx/textures-32/fract_bw.pal $(PNGTORAW) $(RNC)
+pkg/data/frac08.raw: gfx/textures-32/frac08.png gfx/textures-32/fract_bw.pal $(PNGTORAW) $(RNC)
 
-pkg/data/tmapa000.dat: gfx/textures/tmapa000.png pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/tmapa001.dat: gfx/textures/tmapa001.png pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/tmapa002.dat: gfx/textures/tmapa002.png pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/tmapa003.dat: gfx/textures/tmapa003.png pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/tmapa004.dat: gfx/textures/tmapa004.png pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/tmapa005.dat: gfx/textures/tmapa005.png pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/tmapa006.dat: gfx/textures/tmapa006.png pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/tmapa007.dat: gfx/textures/tmapa007.png pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/tmapa000.dat: gfx/textures-32/filelist_tmapa000.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/tmapa001.dat: gfx/textures-32/filelist_tmapa001.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/tmapa002.dat: gfx/textures-32/filelist_tmapa002.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/tmapa003.dat: gfx/textures-32/filelist_tmapa003.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/tmapa004.dat: gfx/textures-32/filelist_tmapa004.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/tmapa005.dat: gfx/textures-32/filelist_tmapa005.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/tmapa006.dat: gfx/textures-32/filelist_tmapa006.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/tmapa007.dat: gfx/textures-32/filelist_tmapa007.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
 
 pkg/data/gmap32.raw: gfx/guimap/gmap32.png pkg/data/palette.dat $(PNGTORAW) $(RNC)
 pkg/data/gmap64.raw: gfx/guimap/gmap64.png pkg/data/palette.dat $(PNGTORAW) $(RNC)
@@ -885,7 +885,7 @@ pkg/data/frac%.raw:
 
 pkg/data/tmapa%.dat:
 	-$(ECHO) 'Building RAW texture: $@'
-	$(PNGTORAW) -o "$@" -p "$(word 2,$^)" -f raw -l 0 "$<"
+	$(PNGTORAW) -b -o "$@" -p "$(word 2,$^)" -f raw -l 0 "$<"
 	-$(RNC) "$@"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
