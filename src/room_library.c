@@ -89,23 +89,41 @@ TbBool remove_spell_from_library(struct Room *room, struct Thing *spelltng, Play
     if (thing_is_spellbook(spelltng))
     {
         remove_spell_from_player(book_thing_to_magic(spelltng), room->owner);
-        if (is_my_player_number(room->owner) && !is_my_player_number(new_owner))
-        {
+    }
+    return true;
+}
+
+EventIndex update_library_object_pickup_event(struct Thing *creatng, struct Thing *picktng)
+{
+    EventIndex evidx;
+    if (thing_is_spellbook(picktng))
+    {
+        evidx = event_create_event_or_update_nearby_existing_event(
+            picktng->mappos.x.val, picktng->mappos.y.val,
+            EvKind_SpellPickedUp, creatng->owner, picktng->index);
+        // Only play speech message if new event was created
+        if ((evidx > 0) && is_my_player_number(picktng->owner) && !is_my_player_number(creatng->owner)) {
             output_message(SMsg_SpellbookStolen, 0, true);
         } else
-        if (is_my_player_number(new_owner) && !is_my_player_number(room->owner))
-        {
+        if ((evidx > 0) && is_my_player_number(creatng->owner) && !is_my_player_number(picktng->owner)) {
             output_message(SMsg_SpellbookTaken, 0, true);
         }
     } else
-    if (thing_is_special_box(spelltng))
+    if (thing_is_special_box(picktng))
     {
-        if (is_my_player_number(new_owner) && !is_my_player_number(room->owner))
-        {
+        evidx = event_create_event_or_update_nearby_existing_event(
+            picktng->mappos.x.val, picktng->mappos.y.val,
+            EvKind_DnSpecialFound, creatng->owner, picktng->index);
+        // Only play speech message if new event was created
+        if ((evidx > 0) && is_my_player_number(creatng->owner) && !is_my_player_number(picktng->owner)) {
             output_message(SMsg_DiscoveredSpecial, 0, true);
         }
+    } else
+    {
+        WARNLOG("Strange pickup (model %d) - no event",(int)picktng->model);
+        evidx = 0;
     }
-    return true;
+    return evidx;
 }
 
 void init_dungeons_research(void)

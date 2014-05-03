@@ -240,7 +240,7 @@ struct SMessage messages[] = {
   {SpchIdx_PrisonersEscaping, 1, 0},
   {SpchIdx_GraveyardMadeVampire, 1, 0},
   {SpchIdx_CreaturesFreedFromPrison, 1, 0},
-  {SpchIdx_PrisonersStarving, 1, 0},
+  {SpchIdx_PrisonersStarving, 1, 0}, // [60] SMsg_PrisonersStarving
   {SpchIdx_CreatureScanvenged, 1, 0},
   {SpchIdx_MinionScanvenged, 1, 0},
   {SpchIdx_CreatureJoinedEnemy, 1, 0},
@@ -250,7 +250,7 @@ struct SMessage messages[] = {
   {SpchIdx_SacrificeNeutral, 1, 0},
   {SpchIdx_SacrificeBad, 1, 0},
   {SpchIdx_SacrificePunish, 1, 0},
-  {SpchIdx_SacrificeWishing, 1, 0},
+  {SpchIdx_SacrificeWishing, 1, 0}, // [70] SMsg_SacrificeWishing
   {SpchIdx_DiscoveredSpecial, 1, 0},
   {SpchIdx_DiscoveredSpell, 1, 0},
   {SpchIdx_DiscoveredDoor, 1, 0},

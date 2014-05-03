@@ -46,6 +46,8 @@ TbBool research_overriden_for_player(PlayerNumber plyr_idx);
 TbBool update_players_research_amount(PlayerNumber plyr_idx, long rtyp, long rkind, long amount);
 TbBool update_or_add_players_research_amount(PlayerNumber plyr_idx, long rtyp, long rkind, long amount);
 void process_player_research(PlayerNumber plyr_idx);
+
+EventIndex update_library_object_pickup_event(struct Thing *creatng, struct Thing *picktng);
 /******************************************************************************/
 #ifdef __cplusplus
 }

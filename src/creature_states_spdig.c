@@ -1191,6 +1191,8 @@ short creature_picks_up_spell_object(struct Thing *creatng)
     {
         remove_spell_from_library(enmroom, picktng, creatng->owner);
     }
+    // Create event to inform player about the spell or special (need to be done before pickup due to ownership changes)
+    update_library_object_pickup_event(creatng, picktng);
     creature_drag_object(creatng, picktng);
     if (!setup_person_move_to_position(creatng, pos.x.stl.num, pos.y.stl.num, 0))
     {
