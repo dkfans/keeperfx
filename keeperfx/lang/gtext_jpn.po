@@ -6091,3 +6091,14 @@ msgstr "コンピュータ追加"
 
 #~ msgid "unknown9"
 #~ msgstr "部屋を売り払い手下クリーチャーに給料を払わないキーパーは愚かだ。"
+
+#: guitext:945
+msgctxt "Game event name"
+msgid "Your creature cannot reach the room it needs"
+msgstr ""
+
+#: guitext:946
+msgctxt "Game event description"
+msgid "Room unreachable: LMB toggle. RMB delete."
+msgstr ""
+
