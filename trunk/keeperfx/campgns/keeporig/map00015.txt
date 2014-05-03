@@ -127,8 +127,10 @@ REM ****************************************************************************
 REM "You seem to have started a trend. Two other Dungeon Keepers also have designs on this dark domain. Expect no quarter from your rivals."
 DISPLAY_OBJECTIVE(113,PLAYER0)
 
-IF(PLAYER0,GAME_TURN >= 15000)
-	IF(PLAYER1,TOTAL_CREATURES >= 10)
+REM Wait enough game turns to make sure the player will have enough creatures from portal
+IF(PLAYER0,GAME_TURN >= 14000)
+    REM If the player has lost creatures, he must've digged to water with heroes
+	IF(PLAYER1,TOTAL_CREATURES <= 14)
 		IF(PLAYER1,DUNGEON_DESTROYED == 0)
 			REM "Can you see how vulnerable one of your opponents has become? Then kill him."
 			DISPLAY_INFORMATION(114)
@@ -136,8 +138,10 @@ IF(PLAYER0,GAME_TURN >= 15000)
 	ENDIF
 ENDIF
 
-IF(PLAYER0,GAME_TURN >= 20000)
-	IF(PLAYER2,TOTAL_CREATURES >= 10)
+REM Again, wait enough game turns to make sure the player will have enough creatures from portal
+IF(PLAYER0,GAME_TURN >= 16000)
+    REM If the player has lost creatures, he must've digged to water with heroes
+	IF(PLAYER2,TOTAL_CREATURES <= 14)
 		IF(PLAYER2,DUNGEON_DESTROYED == 0)
 			REM "I spy a keeper with hardly any creatures left under his control. I spy a Keeper who's about to die."
 			DISPLAY_INFORMATION(115)
