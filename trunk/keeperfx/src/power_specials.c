@@ -251,7 +251,7 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
       if ( used )
       {
         if (is_my_player(player))
-          output_message(special_desc[spkindidx].field_8, 0, true);
+          output_message(special_desc[spkindidx].speech_msg, 0, true);
         create_special_used_effect(&pos, player->id_number);
       }
   }
