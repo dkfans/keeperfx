@@ -2821,26 +2821,27 @@ short creature_pick_up_spell_to_steal(struct Thing *creatng)
 {
     struct Room *room;
     struct CreatureControl *cctrl;
-    struct Thing *spelltng;
+    struct Thing *picktng;
     TRACE_THING(creatng);
     SYNCDBG(18,"Starting");
     cctrl = creature_control_get_from_thing(creatng);
-    spelltng = thing_get(cctrl->pickup_object_id);
-    TRACE_THING(spelltng);
-    if ( thing_is_invalid(spelltng) || ((spelltng->field_1 & TF1_IsDragged1) != 0)
-      || (get_2d_box_distance(&creatng->mappos, &spelltng->mappos) >= 512))
+    picktng = thing_get(cctrl->pickup_object_id);
+    TRACE_THING(picktng);
+    if ( thing_is_invalid(picktng) || ((picktng->field_1 & TF1_IsDragged1) != 0)
+      || (get_2d_box_distance(&creatng->mappos, &picktng->mappos) >= 512))
     {
         set_start_state(creatng);
         return 0;
     }
-    room = get_room_thing_is_on(spelltng);
+    room = get_room_thing_is_on(picktng);
     // Check if we're stealing the spell from a library
     if (!room_is_invalid(room))
     {
-        remove_spell_from_library(room, spelltng, creatng->owner);
-        // Note that the above function will also play the speech of stolen spellbook
+        remove_spell_from_library(room, picktng, creatng->owner);
     }
-    creature_drag_object(creatng, spelltng);
+    // Create event to inform player about the spell or special (need to be done before pickup due to ownership changes)
+    update_library_object_pickup_event(creatng, picktng);
+    creature_drag_object(creatng, picktng);
     //TODO STEAL_SPELLS Maybe better than CrSt_GoodLeaveThroughExitDoor set continue_state to CrSt_GoodReturnsToStart?
     if (!good_setup_wander_to_exit(creatng)) {
         set_start_state(creatng);

@@ -2176,21 +2176,7 @@ long check_out_worker_pickup_spellbook(struct Thing *thing, struct DiggerStack *
         istack->task_id = DigTsk_None;
         return -1;
     }
-    if (thing_is_spellbook(sectng))
-    {
-        event_create_event_or_update_nearby_existing_event(
-            subtile_coord_center(stl_x), subtile_coord_center(stl_y),
-            EvKind_SpellPickedUp, thing->owner, sectng->index);
-    } else
-    if (thing_is_special_box(sectng))
-    {
-        event_create_event_or_update_nearby_existing_event(
-            subtile_coord_center(stl_x), subtile_coord_center(stl_y),
-            EvKind_DnSpecialFound, thing->owner, sectng->index);
-    } else
-    {
-        WARNLOG("Strange pickup (model %d) - no event",(int)sectng->model);
-    }
+    // Do not create event about spellbook or special yet - wait until we pick it up
     thing->continue_state = CrSt_CreaturePicksUpSpellObject;
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);

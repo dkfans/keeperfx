@@ -48,7 +48,8 @@ enum SpecialKinds {
 struct SpecialDesc {
 long field_0;
 long field_4;
-long field_8;
+    /** Speech message index, from TbSpeechMessages enum */
+    long speech_msg;
 };
 
 #pragma pack()
