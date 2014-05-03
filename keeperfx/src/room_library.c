@@ -78,7 +78,7 @@ struct Thing *create_spell_in_library(struct Room *room, ThingModel spkind, MapS
     return spelltng;
 }
 
-TbBool remove_spell_from_library(struct Room *room, struct Thing *spelltng, long new_owner)
+TbBool remove_spell_from_library(struct Room *room, struct Thing *spelltng, PlayerNumber new_owner)
 {
     if ( (room->kind != RoK_LIBRARY) || (spelltng->owner != room->owner) ) {
         SYNCDBG(4,"Spell %s owned by player %d found in a %s owned by player %d, instead of proper library",thing_model_name(spelltng),(int)spelltng->owner,room_code_name(room->kind),(int)room->owner);
@@ -86,14 +86,24 @@ TbBool remove_spell_from_library(struct Room *room, struct Thing *spelltng, long
     }
     if (!remove_item_from_room_capacity(room))
         return false;
-    remove_spell_from_player(book_thing_to_magic(spelltng), room->owner);
-    if (is_my_player_number(room->owner))
+    if (thing_is_spellbook(spelltng))
     {
-        output_message(SMsg_SpellbookStolen, 0, true);
+        remove_spell_from_player(book_thing_to_magic(spelltng), room->owner);
+        if (is_my_player_number(room->owner) && !is_my_player_number(new_owner))
+        {
+            output_message(SMsg_SpellbookStolen, 0, true);
+        } else
+        if (is_my_player_number(new_owner) && !is_my_player_number(room->owner))
+        {
+            output_message(SMsg_SpellbookTaken, 0, true);
+        }
     } else
-    if (is_my_player_number(new_owner))
+    if (thing_is_special_box(spelltng))
     {
-        output_message(SMsg_SpellbookTaken, 0, true);
+        if (is_my_player_number(new_owner) && !is_my_player_number(room->owner))
+        {
+            output_message(SMsg_DiscoveredSpecial, 0, true);
+        }
     }
     return true;
 }
