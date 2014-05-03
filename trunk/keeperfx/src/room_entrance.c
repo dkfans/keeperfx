@@ -295,19 +295,18 @@ void generate_creature_for_dungeon(struct Dungeon * dungeon)
         {
             generate_creature_at_random_entrance(dungeon, crkind);
 
-            if (is_my_player_number(dungeon->owner))
+            if (dungeon_has_room(dungeon, RoK_LAIR))
             {
-                if (dungeon_has_room(dungeon, RoK_LAIR)) {
-                    output_message(SMsg_LairTooSmall, MESSAGE_DELAY_ROOM_SMALL, true);
-                }
-                else {
-                    output_message(SMsg_RoomLairNeeded, MESSAGE_DELAY_ROOM_NEED, true);
-                }
-            }
-
-            if (dungeon_has_room(dungeon, RoK_LAIR)) {
                 event_create_event_or_update_nearby_existing_event(0, 0,
                     EvKind_NoMoreLivingSet, dungeon->owner, 0);
+                if (is_my_player_number(dungeon->owner)) {
+                    output_message(SMsg_LairTooSmall, MESSAGE_DELAY_ROOM_SMALL, true);
+                }
+            } else
+            {
+                if (is_my_player_number(dungeon->owner)) {
+                    output_message(SMsg_RoomLairNeeded, MESSAGE_DELAY_ROOM_NEED, true);
+                }
             }
         }
     }

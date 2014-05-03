@@ -284,7 +284,7 @@ long take_money_from_dungeon(PlayerNumber plyr_idx, GoldAmount amount_take, TbBo
                 if (is_my_player_number(plyr_idx))
                 {
                   if ((total_money >= 1000) && (total_money - amount_take < 1000)) {
-                      output_message(86, 500, 1);
+                      output_message(SMsg_GoldLow, MESSAGE_DELAY_TREASURY, 1);
                   }
                 }
                 return amount_take;

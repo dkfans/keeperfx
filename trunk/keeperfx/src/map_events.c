@@ -41,10 +41,10 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_event_create_event_or_update_nearby_existing_event(long map_x, long map_y, unsigned char evkind, unsigned char dngn_id, long msg_id);
+DLLIMPORT long _DK_event_create_event_or_update_nearby_existing_event(long map_x, long map_y, unsigned char evkind, unsigned char dngn_id, long target);
 DLLIMPORT void _DK_event_initialise_all(void);
 DLLIMPORT long _DK_event_move_player_towards_event(struct PlayerInfo *player, long var);
-DLLIMPORT struct Event *_DK_event_create_event(long map_x, long map_y, unsigned char evkind, unsigned char dngn_id, long msg_id);
+DLLIMPORT struct Event *_DK_event_create_event(long map_x, long map_y, unsigned char evkind, unsigned char dngn_id, long target);
 DLLIMPORT void _DK_go_on_then_activate_the_event_box(long plyr_idx, long val);
 DLLIMPORT long _DK_event_create_event_or_update_old_event(long a1, long a2, unsigned char combat_kind, unsigned char a4, long a5);
 DLLIMPORT void _DK_event_process_events(void);
@@ -75,6 +75,21 @@ struct Event *get_event_nearby_of_type_for_player(MapCoord map_x, MapCoord map_y
     return INVALID_EVENT;
 }
 
+struct Event *get_event_of_target_and_type_for_player(long target, EventKind evkind, PlayerNumber plyr_idx)
+{
+    int i;
+    for (i=1; i < EVENTS_COUNT; i++)
+    {
+        struct Event *event;
+        event = &game.event[i];
+        if (((event->flags & EvF_Exists) != 0) && (event->owner == plyr_idx) && (event->kind == evkind)
+         && (event->target == target)) {
+            return event;
+        }
+    }
+    return INVALID_EVENT;
+}
+
 struct Event *get_event_of_type_for_player(EventKind evkind, PlayerNumber plyr_idx)
 {
     int i;
@@ -89,7 +104,16 @@ struct Event *get_event_of_type_for_player(EventKind evkind, PlayerNumber plyr_i
     return INVALID_EVENT;
 }
 
-EventIndex event_create_event_or_update_nearby_existing_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long msg_id)
+/** Creates a map event or updates existing map event of given kind which is within 5 subtiles of the new event location.
+ *
+ * @param map_x Event position on map, X coord.
+ * @param map_y Event position on map, Y coord.
+ * @param evkind Event kind to be searched or created.
+ * @param dngn_id Owning dungeon index.
+ * @param target Event target identification parameter, its meaning depends on event kind.
+ * @return Index of the new event, or negative index of updated event. Zero if no action was taken.
+ */
+EventIndex event_create_event_or_update_nearby_existing_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long target)
 {
     //return _DK_event_create_event_or_update_nearby_existing_event(map_x, map_y, evkind, dngn_id, msg_id);
     struct Event *event;
@@ -97,32 +121,68 @@ EventIndex event_create_event_or_update_nearby_existing_event(MapCoord map_x, Ma
     if (!event_is_invalid(event))
     {
         SYNCDBG(3,"Updating event %d to be kind %d at (%d,%d)",(int)event->index,(int)evkind,(int)coord_subtile(map_x),(int)coord_subtile(map_y));
-        event_initialise_event(event, map_x, map_y, evkind, dngn_id, msg_id);
+        event_initialise_event(event, map_x, map_y, evkind, dngn_id, target);
         return -(EventIndex)event->index;
     }
     SYNCDBG(3,"Creating event kind %d at (%d,%d)",(int)evkind,(int)coord_subtile(map_x),(int)coord_subtile(map_y));
-    event = event_create_event(map_x, map_y, evkind, dngn_id, msg_id);
+    event = event_create_event(map_x, map_y, evkind, dngn_id, target);
     if (event_is_invalid(event)) {
         return 0;
     }
     return (EventIndex)event->index;
 }
 
-EventIndex event_create_event_or_update_old_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long msg_id)
+/** Creates a map event or updates existing map event of given kind which has the same target.
+ *
+ * @param map_x Event position on map, X coord.
+ * @param map_y Event position on map, Y coord.
+ * @param evkind Event kind to be searched or created.
+ * @param dngn_id Owning dungeon index.
+ * @param target Event target identification parameter, its meaning depends on event kind.
+ * @return Index of the new event, or negative index of updated event. Zero if no action was taken.
+ */
+EventIndex event_create_event_or_update_same_target_existing_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long target)
 {
-    //return _DK_event_create_event_or_update_old_event(map_x, map_y, evkind, dngn_id, msg_id);
+    struct Event *event;
+    event = get_event_of_target_and_type_for_player(target, evkind, dngn_id);
+    if (!event_is_invalid(event))
+    {
+        SYNCDBG(3,"Updating event %d to be kind %d at (%d,%d)",(int)event->index,(int)evkind,(int)coord_subtile(map_x),(int)coord_subtile(map_y));
+        event_initialise_event(event, map_x, map_y, evkind, dngn_id, target);
+        return -(EventIndex)event->index;
+    }
+    SYNCDBG(3,"Creating event kind %d at (%d,%d)",(int)evkind,(int)coord_subtile(map_x),(int)coord_subtile(map_y));
+    event = event_create_event(map_x, map_y, evkind, dngn_id, target);
+    if (event_is_invalid(event)) {
+        return 0;
+    }
+    return (EventIndex)event->index;
+}
+
+/** Creates a map event or updates existing map event of given kind if it exists anywhere on map.
+ *
+ * @param map_x Event position on map, X coord.
+ * @param map_y Event position on map, Y coord.
+ * @param evkind Event kind to be searched or created.
+ * @param dngn_id Owning dungeon index.
+ * @param target Event target identification parameter, its meaning depends on event kind.
+ * @return Index of the new event, or negative index of updated event. Zero if no action was taken.
+ */
+EventIndex event_create_event_or_update_old_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long target)
+{
+    //return _DK_event_create_event_or_update_old_event(map_x, map_y, evkind, dngn_id, target);
     struct Event *event;
     // Check if such event already exists
     event = get_event_of_type_for_player(evkind, dngn_id);
     // If we've found a matching event, replace it
     if (!event_is_invalid(event))
     {
-        event_initialise_event(event, map_x, map_y, evkind, dngn_id, msg_id);
+        event_initialise_event(event, map_x, map_y, evkind, dngn_id, target);
         event_add_to_event_buttons_list_or_replace_button(event, get_dungeon(dngn_id));
         return -(EventIndex)event->index;
     }
     // If no matching event found, then create new one
-    event = event_create_event(map_x, map_y, evkind, dngn_id, msg_id);
+    event = event_create_event(map_x, map_y, evkind, dngn_id, target);
     if (event_is_invalid(event)) {
         return 0;
     }
@@ -149,7 +209,7 @@ long event_move_player_towards_event(struct PlayerInfo *player, long var)
   return _DK_event_move_player_towards_event(player,var);
 }
 
-struct Event *event_create_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long msg_id)
+struct Event *event_create_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long target)
 {
     struct Dungeon *dungeon;
     struct Event *event;
@@ -191,7 +251,7 @@ struct Event *event_create_event(MapCoord map_x, MapCoord map_y, EventKind evkin
     if (event_is_invalid(event)) {
         return INVALID_EVENT;
     }
-    event_initialise_event(event, map_x, map_y, evkind, dngn_id, msg_id);
+    event_initialise_event(event, map_x, map_y, evkind, dngn_id, target);
     event_add_to_event_buttons_list_or_replace_button(event, dungeon);
     return event;
 }
@@ -213,14 +273,14 @@ struct Event *event_allocate_free_event_structure(void)
     return INVALID_EVENT;
 }
 
-void event_initialise_event(struct Event *event, MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long msg_id)
+void event_initialise_event(struct Event *event, MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long target)
 {
     event->mappos_x = map_x;
     event->mappos_y = map_y;
     event->kind = evkind;
     event->owner = dngn_id;
     event->lifespan_turns = event_button_info[evkind].lifespan_turns;
-    event->target = msg_id;
+    event->target = target;
     event->flags |= EvF_BtnFirstFall;
 }
 
@@ -522,6 +582,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
             turn_on_menu(GMnu_TEXT_INFO);
             break;
         case EvKind_RoomTakenOver:
+        case EvKind_RoomUnreachable:
             other_off = 1;
             rdata = room_data_get_for_kind(event->target);
             i = rdata->msg1str_idx;

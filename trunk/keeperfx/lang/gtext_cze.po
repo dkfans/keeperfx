@@ -6034,3 +6034,13 @@ msgctxt "Menu interface item"
 msgid "Add computer"
 msgstr ""
 
+#: guitext:945
+msgctxt "Game event name"
+msgid "Your creature cannot reach the room it needs"
+msgstr ""
+
+#: guitext:946
+msgctxt "Game event description"
+msgid "Room unreachable: LMB toggle. RMB delete."
+msgstr ""
+

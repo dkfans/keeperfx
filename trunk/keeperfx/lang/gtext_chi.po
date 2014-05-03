@@ -5815,3 +5815,14 @@ msgstr "中文版监制/项目主管"
 msgctxt "Menu interface item"
 msgid "Add computer"
 msgstr "中文版翻译"
+
+#: guitext:945
+msgctxt "Game event name"
+msgid "Your creature cannot reach the room it needs"
+msgstr ""
+
+#: guitext:946
+msgctxt "Game event description"
+msgid "Room unreachable: LMB toggle. RMB delete."
+msgstr ""
+
