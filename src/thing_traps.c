@@ -128,10 +128,14 @@ TbBool update_trap_trigger_line_of_sight_90_on_subtile(struct Thing *traptng, Ma
         // Per thing code start
         if (thing_is_creature(thing) && (thing->owner != traptng->owner))
         {
-            if (players_are_enemies(traptng->owner,thing->owner) && !creature_is_being_unconscious(thing)
-             && !thing_is_dragged_or_pulled(thing) && ((get_creature_model_flags(thing) & MF_IsSpectator) == 0)) {
-                activate_trap(traptng, thing);
-                return true;
+            // Trigger for enemy player, or any player for neutral traps (otherwise neutral traps would be useless)
+            if (players_are_enemies(traptng->owner,thing->owner) || is_neutral_thing(traptng))
+            {
+                if (!creature_is_being_unconscious(thing) && !thing_is_dragged_or_pulled(thing)
+                 && ((get_creature_model_flags(thing) & MF_IsSpectator) == 0)) {
+                    activate_trap(traptng, thing);
+                    return true;
+                }
             }
         }
         // Per thing code end
@@ -147,6 +151,7 @@ TbBool update_trap_trigger_line_of_sight_90_on_subtile(struct Thing *traptng, Ma
 
 TbBool update_trap_trigger_line_of_sight_90(struct Thing *traptng)
 {
+    static const MapSubtlDelta line_of_sight_90_range = 20;
     //return _DK_update_trap_trigger_line_of_sight_90(thing);
     MapSubtlCoord stl_x_beg, stl_x_end;
     MapSubtlCoord stl_y_beg, stl_y_end;
@@ -172,86 +177,113 @@ TbBool update_trap_trigger_line_of_sight_90(struct Thing *traptng)
     MapSubtlCoord stl_x_pre, stl_x_aft;
     MapSubtlCoord stl_y_pre, stl_y_aft;
     {
-        stl_y_pre = stl_y_beg - 20;
+        stl_y_pre = stl_y_beg - line_of_sight_90_range;
         if (stl_y_pre <= 0)
             stl_y_pre = 0;
-        stl_y_aft = stl_y_end + 20;
+        stl_y_aft = stl_y_end + line_of_sight_90_range;
         if (stl_y_aft >= map_subtiles_y+1)
             stl_y_aft = map_subtiles_y+1;
-        stl_x_pre = stl_x_beg - 20;
+        stl_x_pre = stl_x_beg - line_of_sight_90_range;
         if (stl_x_pre <= 0)
             stl_x_pre = 0;
-        stl_x_aft = stl_x_end + 20;
+        stl_x_aft = stl_x_end + line_of_sight_90_range;
         if (stl_x_aft >= map_subtiles_x+1)
             stl_x_aft = map_subtiles_x+1;
     }
-    MapSubtlCoord stl_lim, stl_x, stl_y;
-    stl_lim = stl_y_pre;
+    MapSubtlCoord stl_x, stl_y;
+    // Find a limit of where the trap will fit in negative Y
     for (stl_x=stl_x_beg; stl_x <= stl_x_end; stl_x++)
     {
-        for (stl_y = stl_y_beg; stl_y >= stl_lim; stl_y--)
+        for (stl_y = stl_y_beg; stl_y >= stl_y_pre; stl_y--)
         {
             struct Map *mapblk;
             mapblk = get_map_block_at(stl_x, stl_y);
-            if ((mapblk->flags & 0x10) != 0) {
-                stl_lim = stl_y + 1;
+            if ((mapblk->flags & MapFlg_IsTall) != 0) {
+                stl_y_pre = stl_y + 1;
                 break;
-            }
-            if (update_trap_trigger_line_of_sight_90_on_subtile(traptng, stl_x, stl_y)) {
-                return true;
             }
         }
     }
-    stl_lim = stl_y_aft;
+    // Check the area for activation
     for (stl_x=stl_x_beg; stl_x <= stl_x_end; stl_x++)
     {
-        for (stl_y = stl_y_end; stl_y < stl_lim; stl_y++)
+        for (stl_y = stl_y_beg; stl_y >= stl_y_pre; stl_y--)
         {
-            struct Map *mapblk;
-            mapblk = get_map_block_at(stl_x, stl_y);
-            if ((mapblk->flags & 0x10) != 0) {
-                stl_lim = stl_y;
-                break;
-            }
             if (update_trap_trigger_line_of_sight_90_on_subtile(traptng, stl_x, stl_y)) {
                 return true;
             }
         }
     }
-    stl_lim = stl_x_aft;
-    for (stl_y=stl_y_beg; stl_y <= stl_y_end; stl_y++)
+    // Find a limit of where the trap will fit in positive Y
+    for (stl_x=stl_x_beg; stl_x <= stl_x_end; stl_x++)
     {
-        for (stl_x=stl_x_end; stl_x < stl_lim; stl_x++)
+        for (stl_y = stl_y_end; stl_y <= stl_y_aft; stl_y++)
         {
             struct Map *mapblk;
             mapblk = get_map_block_at(stl_x, stl_y);
-            if ((mapblk->flags & 0x10) != 0) {
-                stl_lim = stl_x;
+            if ((mapblk->flags & MapFlg_IsTall) != 0) {
+                stl_y_aft = stl_y - 1;
                 break;
             }
+        }
+    }
+    // Check the area for activation
+    for (stl_x=stl_x_beg; stl_x <= stl_x_end; stl_x++)
+    {
+        for (stl_y = stl_y_end; stl_y <= stl_y_aft; stl_y++)
+        {
             if (update_trap_trigger_line_of_sight_90_on_subtile(traptng, stl_x, stl_y)) {
                 return true;
             }
         }
     }
-    stl_lim = stl_x_pre;
+    // Find a limit of where the trap will fit in positive X
     for (stl_y=stl_y_beg; stl_y <= stl_y_end; stl_y++)
     {
-        for (stl_x=stl_x_beg; stl_x >= stl_lim; stl_x--)
+        for (stl_x=stl_x_end; stl_x <= stl_x_aft; stl_x++)
         {
             struct Map *mapblk;
             mapblk = get_map_block_at(stl_x, stl_y);
-            if ((mapblk->flags & 0x10) != 0) {
-                stl_lim = stl_x + 1;
+            if ((mapblk->flags & MapFlg_IsTall) != 0) {
+                stl_x_aft = stl_x - 1;
                 break;
             }
+        }
+    }
+    // Check the area for activation
+    for (stl_y=stl_y_beg; stl_y <= stl_y_end; stl_y++)
+    {
+        for (stl_x=stl_x_end; stl_x <= stl_x_aft; stl_x++)
+        {
+            if (update_trap_trigger_line_of_sight_90_on_subtile(traptng, stl_x, stl_y)) {
+                return true;
+            }
+        }
+    }
+    // Find a limit of where the trap will fit in negative X
+    for (stl_y=stl_y_beg; stl_y <= stl_y_end; stl_y++)
+    {
+        for (stl_x=stl_x_beg; stl_x >= stl_x_pre; stl_x--)
+        {
+            struct Map *mapblk;
+            mapblk = get_map_block_at(stl_x, stl_y);
+            if ((mapblk->flags & MapFlg_IsTall) != 0) {
+                stl_x_pre = stl_x + 1;
+                break;
+            }
+        }
+    }
+    // Check the area for activation
+    for (stl_y=stl_y_beg; stl_y <= stl_y_end; stl_y++)
+    {
+        for (stl_x=stl_x_beg; stl_x >= stl_x_pre; stl_x--)
+        {
             if (update_trap_trigger_line_of_sight_90_on_subtile(traptng, stl_x, stl_y)) {
                 return true;
             }
         }
     }
     return false;
-
 }
 
 void activate_trap_shot_head_for_target90(struct Thing *traptng, struct Thing *creatng)

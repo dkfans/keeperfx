@@ -1157,44 +1157,48 @@ short creature_picks_up_corpse(struct Thing *thing)
     return 1;
 }
 
-short creature_picks_up_spell_object(struct Thing *thing)
+/**
+ * Picks up spell or special.
+ * @param creatng
+ */
+short creature_picks_up_spell_object(struct Thing *creatng)
 {
     struct Room *enmroom, *dstroom;
     struct CreatureControl *cctrl;
     struct Thing *picktng;
     struct Coord3d pos;
-    TRACE_THING(thing);
-    //return _DK_creature_picks_up_spell_object(thing);
-    cctrl = creature_control_get_from_thing(thing);
+    TRACE_THING(creatng);
+    //return _DK_creature_picks_up_spell_object(creatng);
+    cctrl = creature_control_get_from_thing(creatng);
     picktng = thing_get(cctrl->pickup_object_id);
     TRACE_THING(picktng);
     if ( thing_is_invalid(picktng) || ((picktng->field_1 & TF1_IsDragged1) != 0)
-      || (get_2d_box_distance(&thing->mappos, &picktng->mappos) >= 512))
+      || (get_2d_box_distance(&creatng->mappos, &picktng->mappos) >= 512))
     {
-        set_start_state(thing);
+        set_start_state(creatng);
         return 0;
     }
     enmroom = get_room_thing_is_on(picktng);
-    dstroom = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_LIBRARY, 0, 1);
-    if ( room_is_invalid(dstroom) || !find_random_valid_position_for_thing_in_room_avoiding_object(thing, dstroom, &pos) )
+    dstroom = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_LIBRARY, 0, 1);
+    if ( room_is_invalid(dstroom) || !find_random_valid_position_for_thing_in_room_avoiding_object(creatng, dstroom, &pos) )
     {
-        WARNLOG("Player %d can't pick %s - doesn't have proper %s to store it",(int)thing->owner,thing_model_name(picktng),room_code_name(RoK_LIBRARY));
-        set_start_state(thing);
+        WARNLOG("Player %d can't pick %s - doesn't have proper %s to store it",(int)creatng->owner,thing_model_name(picktng),room_code_name(RoK_LIBRARY));
+        set_start_state(creatng);
         return 0;
     }
     // Check if we're stealing the spell from a library
     if (!room_is_invalid(enmroom))
     {
-        remove_spell_from_library(enmroom, picktng, thing->owner);
+        remove_spell_from_library(enmroom, picktng, creatng->owner);
     }
-    creature_drag_object(thing, picktng);
-    if (!setup_person_move_to_position(thing, pos.x.stl.num, pos.y.stl.num, 0))
+    creature_drag_object(creatng, picktng);
+    if (!setup_person_move_to_position(creatng, pos.x.stl.num, pos.y.stl.num, 0))
     {
         SYNCDBG(8,"Cannot move to (%d,%d)",(int)pos.x.stl.num, (int)pos.y.stl.num);
-        set_start_state(thing);
+        set_start_state(creatng);
         return 0;
     }
-    thing->continue_state = CrSt_CreatureDropsSpellObjectInLibrary;
+    creatng->continue_state = CrSt_CreatureDropsSpellObjectInLibrary;
     return 1;
 }
 

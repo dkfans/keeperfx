@@ -2813,6 +2813,10 @@ short creature_steal_gold(struct Thing *creatng)
     return 0;
 }
 
+/**
+ * Steals spell or special form the library.
+ * @param creatng
+ */
 short creature_pick_up_spell_to_steal(struct Thing *creatng)
 {
     struct Room *room;

@@ -34,7 +34,7 @@ struct Thing;
 
 #pragma pack()
 /******************************************************************************/
-TbBool remove_spell_from_library(struct Room *room, struct Thing *spelltng, long new_owner);
+TbBool remove_spell_from_library(struct Room *room, struct Thing *spelltng, PlayerNumber new_owner);
 struct Thing *create_spell_in_library(struct Room *room, ThingModel spkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 void init_dungeons_research(void);
