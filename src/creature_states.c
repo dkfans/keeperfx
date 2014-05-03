@@ -1773,25 +1773,30 @@ short creature_doing_nothing(struct Thing *creatng)
                 SYNCDBG(8,"The %s index %d goes make lair",thing_model_name(creatng),creatng->index);
                 return 1;
             }
-            if (is_my_player_number(creatng->owner))
+            if (player_has_room(creatng->owner, RoK_LAIR))
             {
-                if (player_has_room(creatng->owner, RoK_LAIR))
+                struct Room *room;
+                room = find_room_with_spare_capacity(creatng->owner, RoK_LAIR, crstat->lair_size);
+                if (room_is_invalid(room))
                 {
-                    struct Room *room;
-                    room = find_room_with_spare_capacity(creatng->owner, RoK_LAIR, crstat->lair_size);
-                    if (room_is_invalid(room)) {
-                        output_message(SMsg_LairTooSmall, 500, 1);
-                    } else {
-                        output_message(SMsg_NoRouteToLair, 500, 1);
+                    event_create_event_or_update_nearby_existing_event(
+                        creatng->mappos.x.val, creatng->mappos.y.val, EvKind_NoMoreLivingSet, creatng->owner, creatng->index);
+                    if (is_my_player_number(creatng->owner)) {
+                        output_message(SMsg_LairTooSmall, MESSAGE_DELAY_ROOM_SMALL, 1);
                     }
                 } else
                 {
-                    output_message(SMsg_RoomLairNeeded, 500, 1);
+                    event_create_event_or_update_nearby_existing_event(
+                        creatng->mappos.x.val, creatng->mappos.y.val, EvKind_RoomUnreachable, creatng->owner, RoK_LAIR);
+                    if (is_my_player_number(creatng->owner)) {
+                        output_message(SMsg_NoRouteToLair, MESSAGE_DELAY_ROOM_NEED, 1);
+                    }
                 }
-            }
-            if (player_has_room(creatng->owner, RoK_LAIR)) {
-                event_create_event_or_update_nearby_existing_event(
-                    creatng->mappos.x.val, creatng->mappos.y.val, EvKind_NoMoreLivingSet, creatng->owner, creatng->index);
+            } else
+            {
+                if (is_my_player_number(creatng->owner)) {
+                    output_message(SMsg_RoomLairNeeded, MESSAGE_DELAY_ROOM_NEED, 1);
+                }
             }
         }
     }

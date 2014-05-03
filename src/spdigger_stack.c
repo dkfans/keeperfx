@@ -1747,9 +1747,9 @@ long check_out_imp_has_money_for_treasure_room(struct Thing *thing)
     // Check why the treasure room search failed. Maybe we don't have treasure room?
     if (!dungeon_has_room(dungeon, RoK_TREASURE))
     {
+        event_create_event_or_update_nearby_existing_event(0, 0, EvKind_NeedTreasureRoom, thing->owner, 0);
         if (is_my_player_number(thing->owner))
             output_message(SMsg_RoomTreasrNeeded, 1000, true);
-        event_create_event_or_update_nearby_existing_event(0, 0, EvKind_NeedTreasureRoom, thing->owner, 0);
         return 0;
     }
     // If we have it, is it unreachable, or just too small?
@@ -1757,9 +1757,9 @@ long check_out_imp_has_money_for_treasure_room(struct Thing *thing)
     if (room_is_invalid(room))
     {
         // No room with spare capacity - treasury is too small
+        event_create_event_or_update_nearby_existing_event(0, 0, EvKind_TreasureRoomFull, thing->owner, 0);
         if (is_my_player_number(thing->owner))
             output_message(SMsg_TreasuryTooSmall, 1000, true);
-        event_create_event_or_update_nearby_existing_event(0, 0, EvKind_TreasureRoomFull, thing->owner, 0);
     } else
     {
         // There are rooms with spare capacity - they must be just unreachable

@@ -292,6 +292,7 @@ short creature_change_lair(struct Thing *thing)
 
 short creature_choose_room_for_lair_site(struct Thing *thing)
 {
+    //TODO EVENTS This function needs support of EvKind_RoomUnreachable
     TRACE_THING(thing);
     return _DK_creature_choose_room_for_lair_site(thing);
 }

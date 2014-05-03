@@ -485,10 +485,11 @@ long instf_dig(struct Thing *creatng, long *param)
         dig_out_block(stl_x, stl_y, creatng->owner);
         if (dig_has_revealed_area(stl_x, stl_y, creatng->owner))
         {
-            event_create_event_or_update_nearby_existing_event(
+            EventIndex evidx;
+            evidx = event_create_event_or_update_nearby_existing_event(
                 subtile_coord_center(stl_x), subtile_coord_center(stl_y),
                 EvKind_AreaDiscovered, creatng->owner, 0);
-            if (is_my_player_number(creatng->owner))
+            if ((evidx > 0) && is_my_player_number(creatng->owner))
                 output_message(SMsg_DugIntoNewArea, 0, true);
         }
     }

@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-02-10 00:24+0100\n"
+"PO-Revision-Date: 2014-05-04 01:31+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: pl_PL\n"
@@ -6233,3 +6233,13 @@ msgstr "Kampanie"
 msgctxt "Menu interface item"
 msgid "Add computer"
 msgstr "Dodaj komputer"
+
+#: guitext:945
+msgctxt "Game event name"
+msgid "Your creature cannot reach the room it needs"
+msgstr "Część twoich stworów nie może dostać się do komnaty"
+
+#: guitext:946
+msgctxt "Game event description"
+msgid "Room unreachable: LMB toggle. RMB delete."
+msgstr "Komnata nieosiągalna: LPM przełącza, PPM likwiduje."
