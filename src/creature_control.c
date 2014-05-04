@@ -240,7 +240,7 @@ void clear_creature_instance(struct Thing *thing)
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
     cctrl->instance_id = CrInst_NULL;
-    cctrl->field_D4 = 0;
+    cctrl->inst_turn = 0;
 }
 
 struct Thing *get_group_last_member(struct Thing *thing)

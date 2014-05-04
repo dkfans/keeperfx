@@ -906,7 +906,7 @@ TbBool enemies_may_work_in_room(RoomKind rkind)
  * @param rkind The room kind to be checked.
  * @return True if given room kind cannot be vandalized or accidently destroyed, false otherwise.
  */
-TbBool room_cannot_vandalize(RoomKind rkind)
+TbBool room_cannot_vandalise(RoomKind rkind)
 {
     struct RoomConfigStats *roomst;
     roomst = get_room_kind_stats(rkind);

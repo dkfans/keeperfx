@@ -2666,7 +2666,33 @@ long creature_retreat_from_combat(struct Thing *figtng, struct Thing *enmtng, Cr
 short creature_attack_rooms(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    return _DK_creature_attack_rooms(creatng);
+    //return _DK_creature_attack_rooms(creatng);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    cctrl->target_room_id = 0;
+    // Destroy the room tile we're on
+    if (thing_is_on_any_room_tile(creatng))
+    {
+        if (cctrl->instance_id == CrInst_NULL) {
+            set_creature_instance(creatng, CrInst_ATTACK_ROOM_SLAB, 1, 0, 0);
+        }
+        return 1;
+    }
+    // If we're not (or no longer) on room tile, find adjacent one
+    int n, i;
+    n = ACTION_RANDOM(SMALL_AROUND_LENGTH);
+    for (i = 0; i < SMALL_AROUND_LENGTH; i++)
+    {
+        MapSubtlCoord stl_x,stl_y;
+        stl_x = creatng->mappos.x.stl.num + STL_PER_SLB * (int)small_around[n].delta_x;
+        stl_y = creatng->mappos.y.stl.num + STL_PER_SLB * (int)small_around[n].delta_y;
+        if (attempt_to_destroy_enemy_room(creatng, stl_x, stl_y)) {
+            return 1;
+        }
+        n = (n + 1) % SMALL_AROUND_LENGTH;
+    }
+    set_start_state(creatng);
+    return 0;
 }
 
 short creature_attempt_to_damage_walls(struct Thing *creatng)

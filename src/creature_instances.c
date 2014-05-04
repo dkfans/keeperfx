@@ -32,6 +32,7 @@
 #include "config_creature.h"
 #include "config_effects.h"
 #include "room_data.h"
+#include "room_util.h"
 #include "map_blocks.h"
 #include "map_utils.h"
 #include "ariadne_wallhug.h"
@@ -325,8 +326,8 @@ void process_creature_instance(struct Thing *thing)
     cctrl = creature_control_get_from_thing(thing);
     if (cctrl->instance_id != CrInst_NULL)
     {
-        cctrl->field_D4++;
-        if (cctrl->field_D6 == cctrl->field_D4)
+        cctrl->inst_turn++;
+        if (cctrl->inst_turn == cctrl->inst_action_turns)
         {
             inst_inf = creature_instance_info_get(cctrl->instance_id);
             if (inst_inf->func_cb != NULL)
@@ -335,18 +336,18 @@ void process_creature_instance(struct Thing *thing)
                 inst_inf->func_cb(thing, inst_inf->func_params);
             }
         }
-        if (cctrl->field_D8 == cctrl->field_D4)
+        if (cctrl->inst_turn >= cctrl->inst_total_turns)
         {
-            if (cctrl->field_D3)
+            if (cctrl->inst_repeat)
             {
-                cctrl->field_D4--;
-                cctrl->field_D3 = 0;
+                cctrl->inst_turn--;
+                cctrl->inst_repeat = 0;
                 return;
             }
             cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn;
             cctrl->instance_id = CrInst_NULL;
         }
-        cctrl->field_D3 = 0;
+        cctrl->inst_repeat = 0;
     }
 }
 
@@ -557,7 +558,37 @@ long instf_destroy(struct Thing *creatng, long *param)
 long instf_attack_room_slab(struct Thing *creatng, long *param)
 {
     TRACE_THING(creatng);
-    return _DK_instf_attack_room_slab(creatng, param);
+    //return _DK_instf_attack_room_slab(creatng, param);
+    struct Room *room;
+    room = get_room_thing_is_on(creatng);
+    if (room_is_invalid(room))
+    {
+        ERRORLOG("The %s is not on room",thing_model_name(creatng));
+        return 0;
+    }
+    struct SlabMap *slb;
+    slb = get_slabmap_thing_is_on(creatng);
+    if (slb->health > 2)
+    {
+        //TODO CONFIG damage made to room slabs is constant - doesn't look good
+        slb->health -= 2;
+        thing_play_sample(creatng, 128 + UNSYNC_RANDOM(3), 100, 0, 3, 0, 2, 256);
+        return 1;
+    }
+    if (room->owner != game.neutral_player_num)
+    {
+        struct Dungeon *dungeon;
+        dungeon = get_dungeon(room->owner);
+        dungeon->rooms_destroyed++;
+    }
+    if (!delete_room_slab(coord_slab(creatng->mappos.x.val), coord_slab(creatng->mappos.y.val), 1))
+    {
+        ERRORLOG("Cannot delete %s room tile destroyed by %s",room_code_name(room->kind),thing_model_name(creatng));
+        return 0;
+    }
+    create_effect(&creatng->mappos, 3, creatng->owner);
+    thing_play_sample(creatng, 47, 100, 0, 3, 0, 2, 256);
+    return 1;
 }
 
 long instf_damage_wall(struct Thing *creatng, long *param)
