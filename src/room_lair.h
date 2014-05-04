@@ -36,6 +36,8 @@ struct Dungeon;
 #pragma pack()
 /******************************************************************************/
 long calculate_free_lair_space(struct Dungeon * dungeon);
+EventIndex update_lair_cannot_make_event(struct Thing *creatng);
+struct Room *get_best_new_lair_for_creature(struct Thing *thing);
 
 /******************************************************************************/
 #ifdef __cplusplus

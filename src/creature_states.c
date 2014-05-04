@@ -158,7 +158,6 @@ DLLIMPORT long _DK_process_creature_needs_a_wage(struct Thing *creatng, const st
 DLLIMPORT long _DK_process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureStats *crstat);
 DLLIMPORT long _DK_anger_process_creature_anger(struct Thing *creatng, const struct CreatureStats *crstat);
 DLLIMPORT long _DK_process_creature_needs_to_heal(struct Thing *creatng, const struct CreatureStats *crstat);
-DLLIMPORT struct Room *_DK_get_best_new_lair_for_creature(struct Thing *creatng);
 DLLIMPORT long _DK_get_thing_navigation_distance(struct Thing *creatng, struct Coord3d *pos, unsigned char a3);
 DLLIMPORT unsigned char _DK_get_random_position_in_dungeon_for_creature(long plyr_idx, unsigned char wandr_slot, struct Thing *thing, struct Coord3d *pos);
 DLLIMPORT long _DK_creature_will_attack_creature(struct Thing *thing, struct Thing *enmtng);
@@ -1698,11 +1697,6 @@ short creature_change_to_chicken(struct Thing *creatng)
     return 1;
 }
 
-struct Room *get_best_new_lair_for_creature(struct Thing *thing)
-{
-    return _DK_get_best_new_lair_for_creature(thing);
-}
-
 TbBool creature_try_going_to_lazy_sleep(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
@@ -1773,31 +1767,7 @@ short creature_doing_nothing(struct Thing *creatng)
                 SYNCDBG(8,"The %s index %d goes make lair",thing_model_name(creatng),creatng->index);
                 return 1;
             }
-            if (player_has_room(creatng->owner, RoK_LAIR))
-            {
-                struct Room *room;
-                room = find_room_with_spare_capacity(creatng->owner, RoK_LAIR, crstat->lair_size);
-                if (room_is_invalid(room))
-                {
-                    event_create_event_or_update_nearby_existing_event(
-                        creatng->mappos.x.val, creatng->mappos.y.val, EvKind_NoMoreLivingSet, creatng->owner, creatng->index);
-                    if (is_my_player_number(creatng->owner)) {
-                        output_message(SMsg_LairTooSmall, MESSAGE_DELAY_ROOM_SMALL, 1);
-                    }
-                } else
-                {
-                    event_create_event_or_update_nearby_existing_event(
-                        creatng->mappos.x.val, creatng->mappos.y.val, EvKind_RoomUnreachable, creatng->owner, RoK_LAIR);
-                    if (is_my_player_number(creatng->owner)) {
-                        output_message(SMsg_NoRouteToLair, MESSAGE_DELAY_ROOM_NEED, 1);
-                    }
-                }
-            } else
-            {
-                if (is_my_player_number(creatng->owner)) {
-                    output_message(SMsg_RoomLairNeeded, MESSAGE_DELAY_ROOM_NEED, 1);
-                }
-            }
+            update_lair_cannot_make_event(creatng);
         }
     }
     if ((cctrl->job_assigned != Job_NULL) && (game.play_gameturn - cctrl->job_assigned_check_turn > 128))
