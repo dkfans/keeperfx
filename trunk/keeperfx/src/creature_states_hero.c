@@ -386,7 +386,7 @@ short good_arrived_at_attack_room(struct Thing *thing)
     struct Room *room;
     room = get_room_thing_is_on(thing);
     // If the current tile can be destroyed
-    if (room_exists(room) && (room->owner != thing->owner) && !room_cannot_vandalize(room->kind))
+    if (room_exists(room) && (room->owner != thing->owner) && !room_cannot_vandalise(room->kind))
     {
         internal_set_thing_state(thing, CrSt_GoodAttackRoom1);
         MapCoord ev_coord_x,ev_coord_y;
@@ -417,7 +417,7 @@ short good_attack_room(struct Thing *thing)
     struct Room *room;
     room = slab_room_get(base_slb_x, base_slb_y);
     // If the current tile can be destroyed
-    if (room_exists(room) && (room->owner != thing->owner) && !room_cannot_vandalize(room->kind))
+    if (room_exists(room) && (room->owner != thing->owner) && !room_cannot_vandalise(room->kind))
     {
         struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(thing);

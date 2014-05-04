@@ -2416,7 +2416,7 @@ TbBigChecksum get_thing_checksum(const struct Thing *thing)
     {
         struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(thing);
-        csum += (ulong)cctrl->field_D4 + (ulong)cctrl->instance_id
+        csum += (ulong)cctrl->inst_turn + (ulong)cctrl->instance_id
             + (ulong)thing->field_49 + (ulong)thing->field_48;
     }
     return csum * thing->index;

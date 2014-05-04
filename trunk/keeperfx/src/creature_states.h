@@ -326,6 +326,7 @@ void remove_health_from_thing_and_display_health(struct Thing *thing, long delta
 TbBool slab_by_players_land(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 TbBool process_creature_hunger(struct Thing *thing);
 void process_person_moods_and_needs(struct Thing *thing);
+TbBool attempt_to_destroy_enemy_room(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 TbBool room_initially_valid_as_type_for_thing(const struct Room *room, RoomKind rkind, const struct Thing *thing);
 TbBool room_still_valid_as_type_for_thing(const struct Room *room, RoomKind rkind, const struct Thing *thing);

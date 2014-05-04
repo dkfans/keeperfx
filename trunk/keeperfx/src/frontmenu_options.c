@@ -30,6 +30,7 @@
 #include "gui_draw.h"
 #include "config_strings.h"
 #include "gui_frontbtns.h"
+#include "music_player.h"
 #include "frontend.h"
 #include "kjm_input.h"
 #include "packets.h"

@@ -39,6 +39,7 @@
 #include "room_jobs.h"
 #include "room_workshop.h"
 #include "room_library.h"
+#include "room_lair.h"
 #include "tasks_list.h"
 #include "map_events.h"
 #include "map_blocks.h"
@@ -979,12 +980,12 @@ short arrive_at_alarm(struct Thing *creatng)
 long setup_head_for_room(struct Thing *thing, struct Room *room, unsigned char storage)
 {
     struct Coord3d pos;
-    if ( !find_first_valid_position_for_thing_in_room(thing, room, &pos) )
+    if ( !find_random_valid_position_for_thing_in_room(thing, room, &pos) )
         return false;
     return setup_person_move_to_position(thing, pos.x.stl.num, pos.y.stl.num, storage);
 }
 
-TbBool attempt_to_destroy_enemy_room(struct Thing *thing, unsigned char stl_x, unsigned char stl_y)
+TbBool attempt_to_destroy_enemy_room(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct CreatureControl *cctrl;
     struct Room *room;
@@ -994,14 +995,14 @@ TbBool attempt_to_destroy_enemy_room(struct Thing *thing, unsigned char stl_x, u
         return false;
     if (thing->owner == room->owner)
         return false;
-    if (room_cannot_vandalize(room->kind))
+    if (room_cannot_vandalise(room->kind))
         return false;
-    if ( !find_first_valid_position_for_thing_in_room(thing, room, &pos) )
+    if (!find_first_valid_position_for_thing_in_room(thing, room, &pos))
         return false;
-    if ( !creature_can_navigate_to_with_storage(thing, &pos, 1) )
+    if (!creature_can_navigate_to_with_storage(thing, &pos, 1))
         return false;
 
-    if ( !setup_head_for_room(thing, room, 1) )
+    if (!setup_head_for_room(thing, room, 1))
     {
         ERRORLOG("The %s cannot destroy %s because it can't reach it",thing_model_name(thing),room_code_name(room->kind));
         return false;
@@ -2959,7 +2960,7 @@ short creature_vandalise_rooms(struct Thing *creatng)
       set_start_state(creatng);
       return 0;
     }
-    if (room_cannot_vandalize(room->kind))
+    if (room_cannot_vandalise(room->kind))
     {
         return 1;
     }
