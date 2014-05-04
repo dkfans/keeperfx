@@ -36,6 +36,7 @@
 #include "thing_navigate.h"
 #include "room_data.h"
 #include "room_jobs.h"
+#include "room_lair.h"
 #include "engine_arrays.h"
 #include "game_legacy.h"
 
@@ -290,11 +291,70 @@ short creature_change_lair(struct Thing *thing)
     return _DK_creature_change_lair(thing);
 }
 
+TbBool setup_head_for_random_unused_lair_slab(struct Thing *creatng, struct Room *room)
+{
+    SlabCodedCoords slbnum;
+    long n;
+    unsigned long k;
+    n = ACTION_RANDOM(room->slabs_count);
+    slbnum = room->slabs_list;
+    for (k = n; k > 0; k--)
+    {
+        if (slbnum == 0)
+            break;
+        slbnum = get_next_slab_number_in_room(slbnum);
+    }
+    if (slbnum == 0) {
+        ERRORLOG("Taking random slab (%d/%d) in %s index %d failed - internal inconsistency.",(int)n,(int)room->slabs_count,room_code_name(room->kind),(int)room->index);
+        slbnum = room->slabs_list;
+    }
+    k = 0;
+    while (1)
+    {
+        MapSlabCoord slb_x,slb_y;
+        slb_x = slb_num_decode_x(slbnum);
+        slb_y = slb_num_decode_y(slbnum);
+        struct Thing *lairtng;
+        lairtng = find_creature_lair_at_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), 0);
+        if (thing_is_invalid(lairtng))
+        {
+            if (setup_person_move_to_position(creatng, slab_subtile_center(slb_x), slab_subtile_center(slb_y), 0)) {
+                return true;
+            }
+            WARNLOG("Cannot get somewhere in room");
+        }
+        slbnum = get_next_slab_number_in_room(slbnum);
+        if (slbnum == 0) {
+            slbnum = room->slabs_list;
+        }
+        k++;
+        if (k >= room->slabs_count) {
+            break;
+        }
+    }
+    return false;
+}
+
 short creature_choose_room_for_lair_site(struct Thing *thing)
 {
-    //TODO EVENTS This function needs support of EvKind_RoomUnreachable
     TRACE_THING(thing);
-    return _DK_creature_choose_room_for_lair_site(thing);
+    //return _DK_creature_choose_room_for_lair_site(thing);
+    struct Room *room;
+    room = get_best_new_lair_for_creature(thing);
+    if (room_is_invalid(room))
+    {
+        update_lair_cannot_make_event(thing);
+        set_start_state(thing);
+        return 0;
+    }
+    if (!setup_head_for_random_unused_lair_slab(thing, room))
+    {
+        ERRORLOG("Chosen lair is not valid, internal inconsistency.");
+        set_start_state(thing);
+        return 0;
+    }
+    thing->continue_state = CrSt_CreatureAtNewLair;
+    return 1;
 }
 
 short at_lair_to_sleep(struct Thing *thing)
