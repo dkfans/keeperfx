@@ -382,7 +382,7 @@ void draw_swipe_graphic(void)
             long allwidth;
             long i,n;
             lbDisplay.DrawFlags = 0x0004;
-            n = (int)cctrl->field_D4 * 1280 / cctrl->field_D8;
+            n = (int)cctrl->inst_turn * 1280 / cctrl->inst_total_turns;
             allwidth = 0;
             i = abs(n) >> 8;
             if (i >= SWIPE_SPRITE_FRAMES)
@@ -2754,6 +2754,13 @@ long creature_instance_has_reset(const struct Thing *thing, long inst_idx)
     return (delta >= ritime);
 }
 
+/**
+ * Gives times a creature spends on an instance, including spell modifiers.
+ * @param thing The creature thing.
+ * @param inst_idx Instance for which times will be computed.
+ * @param ritime Returns instance duration turns.
+ * @param raitime Returns instance turn on which action function is executed.
+ */
 void get_creature_instance_times(const struct Thing *thing, long inst_idx, long *ritime, long *raitime)
 {
     struct InstanceInfo *inst_inf;
@@ -2831,15 +2838,15 @@ void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long a2, lo
     {
         if (inst_inf->field_1A)
         {
-            cctrl->field_D3 = 1;
+            cctrl->inst_repeat = 1;
             return;
         }
     }
     cctrl->instance_id = inst_idx;
     cctrl->targtng_idx = targtng_idx;
-    cctrl->field_D4 = 0;
-    cctrl->field_D8 = itime;
-    cctrl->field_D6 = aitime;
+    cctrl->inst_turn = 0;
+    cctrl->inst_total_turns = itime;
+    cctrl->inst_action_turns = aitime;
     i = get_creature_breed_graphics(thing->model,inst_inf->graphics_idx);
     cctrl->field_1CE = get_lifespan_of_animation(i, 1) / itime;
     if (pos != NULL)

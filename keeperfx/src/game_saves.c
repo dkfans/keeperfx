@@ -332,7 +332,6 @@ TbBool is_save_game_loadable(long slot_num)
 TbBool load_game(long slot_num)
 {
     //return _DK_load_game(slot_num);
-    char *fname;
     TbFileHandle fh;
     long file_len;
     struct PlayerInfo *player;
@@ -342,15 +341,19 @@ TbBool load_game(long slot_num)
 //  char cmpgn_fname[CAMPAIGN_FNAME_LEN];
     SYNCDBG(6,"Starting");
     reset_eye_lenses();
-    fname = prepare_file_fmtpath(FGrp_Save,saved_game_filename,slot_num);
-    if (!wait_for_cd_to_be_available())
-      return false;
-    fh = LbFileOpen(fname,Lb_FILE_MODE_READ_ONLY);
-    if (fh == -1)
     {
-      WARNMSG("Cannot open saved game file \"%s\".",fname);
-      save_catalogue_slot_disable(slot_num);
-      return false;
+        // Use fname only here - it is overwritten by next use of prepare_file_fmtpath()
+        char *fname;
+        fname = prepare_file_fmtpath(FGrp_Save,saved_game_filename,slot_num);
+        if (!wait_for_cd_to_be_available())
+          return false;
+        fh = LbFileOpen(fname,Lb_FILE_MODE_READ_ONLY);
+        if (fh == -1)
+        {
+          WARNMSG("Cannot open saved game file \"%s\".",fname);
+          save_catalogue_slot_disable(slot_num);
+          return false;
+        }
     }
     file_len = LbFileLengthHandle(fh);
     if (is_primitive_save_version(file_len))
@@ -388,7 +391,7 @@ TbBool load_game(long slot_num)
     if (load_game_chunks(fh,centry) != GLoad_SavedGame)
     {
         LbFileClose(fh);
-        WARNMSG("Couldn't correctly load saved game \"%s\".",fname);
+        WARNMSG("Couldn't correctly load saved game in slot %d.",(int)slot_num);
         init_lookups();
         return false;
     }
