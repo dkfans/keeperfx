@@ -26,6 +26,7 @@
 #include "thing_data.h"
 #include "creature_control.h"
 #include "config_creature.h"
+#include "gui_soundmsgs.h"
 #include "game_legacy.h"
 
 #ifdef __cplusplus
@@ -33,6 +34,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT long _DK_calculate_free_lair_space(struct Dungeon * dungeon);
+DLLIMPORT struct Room *_DK_get_best_new_lair_for_creature(struct Thing *creatng);
 
 /******************************************************************************/
 #ifdef __cplusplus
@@ -104,5 +106,44 @@ long calculate_free_lair_space(struct Dungeon * dungeon)
     }
     SYNCDBG(9,"Total lair capacity %d, used %d, will need %d more",(int)cap_total,(int)cap_used,(int)cap_required);
     return cap_total - cap_used - cap_required;
+}
+
+EventIndex update_lair_cannot_make_event(struct Thing *creatng)
+{
+    EventIndex evidx;
+    if (player_has_room(creatng->owner, RoK_LAIR))
+    {
+        struct CreatureStats *crstat;
+        crstat = creature_stats_get_from_thing(creatng);
+        struct Room *room;
+        room = find_room_with_spare_capacity(creatng->owner, RoK_LAIR, crstat->lair_size);
+        if (room_is_invalid(room))
+        {
+            evidx = event_create_event_or_update_nearby_existing_event(
+                creatng->mappos.x.val, creatng->mappos.y.val, EvKind_NoMoreLivingSet, creatng->owner, creatng->index);
+            if ((evidx > 0) && is_my_player_number(creatng->owner)) {
+                output_message(SMsg_LairTooSmall, MESSAGE_DELAY_ROOM_SMALL, 1);
+            }
+        } else
+        {
+            evidx = event_create_event_or_update_nearby_existing_event(
+                creatng->mappos.x.val, creatng->mappos.y.val, EvKind_RoomUnreachable, creatng->owner, RoK_LAIR);
+            if ((evidx > 0) && is_my_player_number(creatng->owner)) {
+                output_message(SMsg_NoRouteToLair, MESSAGE_DELAY_ROOM_NEED, 1);
+            }
+        }
+    } else
+    {
+        evidx = 0;
+        if (is_my_player_number(creatng->owner)) {
+            output_message(SMsg_RoomLairNeeded, MESSAGE_DELAY_ROOM_NEED, 1);
+        }
+    }
+    return evidx;
+}
+
+struct Room *get_best_new_lair_for_creature(struct Thing *thing)
+{
+    return _DK_get_best_new_lair_for_creature(thing);
 }
 /******************************************************************************/
