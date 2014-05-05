@@ -36,6 +36,7 @@
 #include "gui_draw.h"
 #include "gui_parchment.h"
 #include "engine_redraw.h"
+#include "engine_textures.h"
 #include "config.h"
 #include "lens_api.h"
 #include "config_settings.h"
@@ -209,7 +210,7 @@ struct TbLoadFiles legal_load_files[] = {
 
 struct TbLoadFiles game_load_files[] = {
     {"*SCRATCH", &scratch, NULL, 0x10000, 0, 0},
-    {"*TEXTURE_PAGE", &block_mem, NULL, max(256*2176,960*720), 0, 0},// Store whole texture image or land view image
+    {"*TEXTURE_PAGE", &block_mem, NULL, max(544*32*32,960*720), 0, 0},// Store whole texture image or land view image
     {"data/creature.tab", (unsigned char**)&creature_table, 0, 0, 0, 0},
     {"data/palette.dat", &engine_palette, 0, 0, 0, 0},
     {"data/bluepal.dat", &blue_palette, 0, 0, 0,0},

@@ -57,7 +57,9 @@
 #define BOOKMARKS_COUNT               5
 // Static textures
 #define TEXTURE_BLOCKS_STAT_COUNT   544
-// Animated textures
+// Animated texture frames count
+#define TEXTURE_BLOCKS_ANIM_FRAMES    8
+// Animated textures amount
 #define TEXTURE_BLOCKS_ANIM_COUNT    48
 #define TEXTURE_BLOCKS_COUNT TEXTURE_BLOCKS_STAT_COUNT+TEXTURE_BLOCKS_ANIM_COUNT
 

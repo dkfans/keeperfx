@@ -155,6 +155,7 @@ obj/engine_camera.o \
 obj/engine_lenses.o \
 obj/engine_redraw.o \
 obj/engine_render.o \
+obj/engine_textures.o \
 obj/front_credits.o \
 obj/front_easter.o \
 obj/front_highscore.o \

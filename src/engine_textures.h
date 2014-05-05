@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file lvl_filesdk1.h
- *     Header file for lvl_filesdk1.c.
+/** @file engine_textures.h
+ *     Header file for engine_textures.c.
  * @par Purpose:
- *     Level files reading routines fore standard DK1 levels.
+ *     Texture blocks support.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   Tomasz Lis
- * @date     10 Mar 2009 - 20 Mar 2009
+ * @date     02 Apr 2010 - 02 May 2014
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -17,8 +17,8 @@
  */
 /******************************************************************************/
 
-#ifndef DK_LVL_FILESDK1_H
-#define DK_LVL_FILESDK1_H
+#ifndef DK_ENGNTEXTR_H
+#define DK_ENGNTEXTR_H
 
 #include "bflib_basics.h"
 #include "globals.h"
@@ -27,28 +27,21 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define MAX_LIF_SIZE 65535
-#define ANY_MAP_FILE_MAX_SIZE 1048576
-#define DEFAULT_LEVEL_VERSION 0
-
-enum LoadMapFileFlags {
-    LMFF_None     = 0x00,
-    LMFF_Optional = 0x01,
-};
+DLLIMPORT unsigned char *_DK_block_mem;
+#define block_mem _DK_block_mem
+DLLIMPORT unsigned char *_DK_block_ptrs[592];//[TEXTURE_BLOCKS_COUNT]
+#define block_ptrs _DK_block_ptrs
+DLLIMPORT long _DK_anim_counter;
+#define anim_counter _DK_anim_counter
 /******************************************************************************/
-extern long level_file_version;
+extern long block_dimension;
 /******************************************************************************/
-unsigned char *load_single_map_file_to_buffer(LevelNumber lvnum,const char *fext,long *ldsize,unsigned short flags);
-TbBool find_and_load_lif_files(void);
-TbBool find_and_load_lof_files(void);
-long convert_old_column_file(LevelNumber lv_num);
-TbBool load_column_file(LevelNumber lv_num);
-TbBool load_slab_file(void);
-TbBool load_map_data_file(LevelNumber lv_num);
-TbBool load_thing_file(LevelNumber lv_num);
-TbBool load_action_point_file(LevelNumber lv_num);
+void setup_texture_block_mem(void);
+short init_animating_texture_maps(void);
+short update_animating_texture_maps(void);
+TbBool load_texture_map_file(unsigned long tmapidx, unsigned char n);
+long load_texture_anim_file(void);
 
-TbBool load_map_file(LevelNumber lvnum);
 /******************************************************************************/
 #ifdef __cplusplus
 }

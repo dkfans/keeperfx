@@ -37,8 +37,8 @@ struct GameCampaign;
 #define MIN_CONFIG_FILE_SIZE          4
 #define MAX_CONFIG_FILE_SIZE      65535
 
-#define MAP_SCREEN_WIDTH           1280
-#define MAP_SCREEN_HEIGHT           960
+#define LANDVIEW_MAP_WIDTH         1280
+#define LANDVIEW_MAP_HEIGHT         960
 
 enum TbFileGroups {
         FGrp_None,

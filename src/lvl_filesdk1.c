@@ -32,6 +32,7 @@
 #include "config_terrain.h"
 #include "light_data.h"
 #include "thing_factory.h"
+#include "engine_textures.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 

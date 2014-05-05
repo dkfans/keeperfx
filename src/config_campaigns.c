@@ -112,10 +112,10 @@ void clear_level_info(struct LevelInformation *lvinfo)
   LbMemorySet(lvinfo->land_window, 0, DISKPATH_SIZE);
   lvinfo->name_id = 0;
   lvinfo->players = 1;
-  lvinfo->ensign_x = (MAP_SCREEN_WIDTH>>1);
-  lvinfo->ensign_y = (MAP_SCREEN_HEIGHT>>1);
-  lvinfo->ensign_zoom_x = (MAP_SCREEN_WIDTH>>1);
-  lvinfo->ensign_zoom_y = (MAP_SCREEN_HEIGHT>>1);
+  lvinfo->ensign_x = (LANDVIEW_MAP_WIDTH>>1);
+  lvinfo->ensign_y = (LANDVIEW_MAP_HEIGHT>>1);
+  lvinfo->ensign_zoom_x = (LANDVIEW_MAP_WIDTH>>1);
+  lvinfo->ensign_zoom_y = (LANDVIEW_MAP_HEIGHT>>1);
   lvinfo->options = LvOp_None;
   lvinfo->state = LvSt_Hidden;
   lvinfo->location = LvLc_VarLevels;
