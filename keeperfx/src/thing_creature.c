@@ -4681,9 +4681,8 @@ TngUpdateRet update_creature(struct Thing *thing)
 
     if (cctrl->field_B1 > 0)
         cctrl->field_B1--;
-    /*TODO CREATURES should we decrease force_invisible timer or is it done somewhere else already?
     if (cctrl->force_visible > 0)
-        cctrl->force_visible--;*/
+        cctrl->force_visible--;
     if (cctrl->byte_8B == 0)
         cctrl->byte_8B = game.field_14EA4B;
     if (cctrl->field_302 == 0) {
