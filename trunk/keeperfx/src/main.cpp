@@ -66,6 +66,7 @@
 #include "engine_lenses.h"
 #include "engine_camera.h"
 #include "engine_arrays.h"
+#include "engine_textures.h"
 #include "engine_redraw.h"
 #include "front_landview.h"
 #include "front_lvlstats.h"
@@ -141,7 +142,6 @@ DLLIMPORT void _DK_draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2,
 DLLIMPORT void _DK_draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long a3, long a4);
 DLLIMPORT void _DK_init_alpha_table(void);
 DLLIMPORT void _DK_engine_init(void);
-DLLIMPORT long _DK_load_anim_file(void);
 DLLIMPORT void _DK_init_colours(void);
 DLLIMPORT void _DK_place_animating_slab_type_on_map(long a1, char a2, unsigned char a3, unsigned char a4, unsigned char a5);
 DLLIMPORT void _DK_draw_spell_cursor(unsigned char a1, unsigned short a2, unsigned char stl_x, unsigned char stl_y);
@@ -180,7 +180,6 @@ DLLIMPORT void _DK_process_dungeon_power_magic(void);
 DLLIMPORT void _DK_process_dungeon_devastation_effects(void);
 DLLIMPORT void _DK_process_payday(void);
 DLLIMPORT unsigned long _DK_setup_move_off_lava(struct Thing *thing);
-DLLIMPORT long _DK_load_texture_map_file(unsigned long lv_num, unsigned char n);
 DLLIMPORT long _DK_get_foot_creature_has_down(struct Thing *thing);
 DLLIMPORT void _DK_process_keeper_spell_effect(struct Thing *thing);
 DLLIMPORT unsigned long _DK_lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos);
@@ -210,7 +209,6 @@ DLLIMPORT void _DK_engine(struct Camera *cam);
 DLLIMPORT void _DK_reinit_level_after_load(void);
 DLLIMPORT void _DK_reinit_tagged_blocks_for_player(unsigned char idx);
 DLLIMPORT void _DK_reset_gui_based_on_player_mode(void);
-DLLIMPORT void _DK_init_animating_texture_maps(void);
 DLLIMPORT void _DK_init_lookups(void);
 DLLIMPORT void _DK_restore_computer_player_after_load(void);
 DLLIMPORT int _DK_play_smacker_file(char *fname, int);
@@ -256,26 +254,6 @@ TbPixel get_player_path_colour(unsigned short owner)
   return player_path_colours[player_colors_map[owner % PLAYERS_EXT_COUNT]];
 }
 
-void setup_block_mem(void)
-{
-    unsigned char **dst;
-    unsigned char *src;
-    unsigned long i,k,n;
-    dst = block_ptrs;
-    n = 0;
-    for (i=0; i < 68; i++)
-    {
-        src = block_mem + n;
-        for (k=0; k < 8; k++)
-        {
-            *dst = src;
-            src += 32;
-            dst++;
-        }
-        n += 8192;
-    }
-}
-
 TbBool init_fades_table(void)
 {
     char *fname;
@@ -283,7 +261,6 @@ TbBool init_fades_table(void)
     static const char textname[] = "fade table";
     fname = prepare_file_path(FGrp_StdData,"tables.dat");
     SYNCDBG(0,"Reading %s file \"%s\".",textname,fname);
-    setup_block_mem();
     if (LbFileLoadAt(fname, &pixmap) != sizeof(struct TbColorTables))
     {
         compute_fade_tables(&pixmap,engine_palette,engine_palette);
@@ -373,6 +350,7 @@ void init_colours(void)
 
 void setup_stuff(void)
 {
+    setup_texture_block_mem();
     init_fades_table();
     init_alpha_table();
 }
@@ -777,21 +755,6 @@ void init_censorship(void)
   }
 }
 
-long load_anim_file(void)
-{
-    SYNCDBG(8,"Starting");
-    //return _DK_load_anim_file();
-    char *fname;
-    static const char textname[] = "animated tmap";
-    fname = prepare_file_path(FGrp_StdData,"tmapanim.dat");
-    SYNCDBG(0,"Reading %s file \"%s\".",textname,fname);
-    if (LbFileLoadAt(fname, game.texture_animation) != sizeof(game.texture_animation))
-    {
-        return false;
-    }
-    return true;
-}
-
 void engine_init(void)
 {
     //_DK_engine_init(); return;
@@ -818,7 +781,7 @@ void init_keeper(void)
     load_cubes_config(CnfLd_Standard);
     //load_cube_file();
     init_top_texture_to_cube_table();
-    load_anim_file();
+    load_texture_anim_file();
     game.neutral_player_num = neutral_player_number;
     game.field_14EA34 = 4;
     game.field_14EA38 = 200;
@@ -906,6 +869,8 @@ TbBool initial_setup(void)
     SYNCDBG(6,"Starting");
     // setting this will force video mode change, even if previous one is same
     MinimalResolutionSetup = true;
+    // Set size of static textures buffer
+    game_load_files[1].SLength = max(TEXTURE_BLOCKS_STAT_COUNT*block_dimension*block_dimension,LANDVIEW_MAP_WIDTH*LANDVIEW_MAP_HEIGHT);
     if (LbDataLoadAll(game_load_files))
     {
       ERRORLOG("Unable to load game_load_files");
@@ -1365,27 +1330,6 @@ TbBool toggle_computer_player(PlayerNumber plyr_idx)
     struct Computer2 *comp;
     comp = get_computer_player(player->id_number);
     fake_force_dump_held_things_on_map(comp, &dungeon->essential_pos);
-    return true;
-}
-
-TbBool load_texture_map_file(unsigned long tmapidx, unsigned char n)
-{
-    char *fname;
-    SYNCDBG(7,"Starting");
-    fname = prepare_file_fmtpath(FGrp_StdData,"tmapa%03d.dat",tmapidx);
-    if (!wait_for_cd_to_be_available())
-        return false;
-    if (!LbFileExists(fname))
-    {
-        WARNMSG("Texture file \"%s\" doesn't exits.",fname);
-        return false;
-    }
-    // The texture file has always over 500kb
-    if (LbFileLoadAt(fname, block_mem) < 65536)
-    {
-        WARNMSG("Texture file \"%s\" can't be loaded or is too small.",fname);
-        return false;
-    }
     return true;
 }
 
@@ -2535,26 +2479,6 @@ void update_footsteps_nearest_camera(struct Camera *camera)
     timeslice = (timeslice + 1) % 4;
 }
 
-short update_animating_texture_maps(void)
-{
-  int i;
-  SYNCDBG(18,"Starting");
-  anim_counter = (anim_counter+1) % 8;
-  short result=true;
-  for (i=0; i<TEXTURE_BLOCKS_ANIM_COUNT; i++)
-  {
-        short j = game.texture_animation[8*i+anim_counter];
-        if ((j>=0) && (j<TEXTURE_BLOCKS_STAT_COUNT))
-        {
-          block_ptrs[TEXTURE_BLOCKS_STAT_COUNT+i] = block_ptrs[j];
-        } else
-        {
-          result=false;
-        }
-  }
-  return result;
-}
-
 void add_creature_to_pool(long kind, long amount, unsigned long a3)
 {
     long prev_amount;
@@ -3451,14 +3375,6 @@ void post_init_level(void)
     init_all_creature_states();
     init_keepers_map_exploration();
     SYNCDBG(9,"Finished");
-}
-
-short init_animating_texture_maps(void)
-{
-    SYNCDBG(8,"Starting");
-    //_DK_init_animating_texture_maps(); return;
-    anim_counter = 7;
-    return update_animating_texture_maps();
 }
 
 void startup_saved_packet_game(void)

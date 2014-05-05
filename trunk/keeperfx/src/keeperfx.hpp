@@ -211,18 +211,12 @@ DLLIMPORT extern long _DK_top_pointed_at_frac_x;
 #define top_pointed_at_frac_x _DK_top_pointed_at_frac_x
 DLLIMPORT extern long _DK_top_pointed_at_frac_y;
 #define top_pointed_at_frac_y _DK_top_pointed_at_frac_y
-DLLIMPORT long _DK_anim_counter;
-#define anim_counter _DK_anim_counter
-DLLIMPORT unsigned char *_DK_block_ptrs[592];
-#define block_ptrs _DK_block_ptrs
 DLLIMPORT long _DK_frame_number;
 #define frame_number _DK_frame_number
 DLLIMPORT long _DK_draw_spell_cost;
 #define draw_spell_cost _DK_draw_spell_cost
 DLLIMPORT char _DK_level_name[88];
 #define level_name _DK_level_name
-DLLIMPORT unsigned char *_DK_block_mem;
-#define block_mem _DK_block_mem
 DLLIMPORT char _DK_top_of_breed_list;
 #define top_of_breed_list _DK_top_of_breed_list
 DLLIMPORT char _DK_no_of_breeds_owned;
@@ -290,7 +284,6 @@ void set_chosen_spell(long sptype, long sptooltip);
 void set_chosen_spell_none(void);
 unsigned char tag_cursor_blocks_place_room(unsigned char a1, long a2, long a3, long a4);
 TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player);
-short init_animating_texture_maps(void);
 void reset_gui_based_on_player_mode(void);
 void reinit_tagged_blocks_for_player(unsigned char idx);
 void draw_bonus_timer(void);

@@ -43,6 +43,7 @@
 #include "light_data.h"
 #include "lvl_filesdk1.h"
 #include "room_list.h"
+#include "engine_textures.h"
 #include "front_simple.h"
 #include "front_network.h"
 #include "frontend.h"
@@ -108,16 +109,16 @@ void draw_map_screen(void)
   SYNCDBG(18,"Starting");
   dstbuf = lbDisplay.WScreen;
   w = lbDisplay.PhysicalScreenWidth;
-  if (map_info.scrshift_x+w > MAP_SCREEN_WIDTH)
-    w = MAP_SCREEN_WIDTH-map_info.scrshift_x;
+  if (map_info.scrshift_x+w > LANDVIEW_MAP_WIDTH)
+    w = LANDVIEW_MAP_WIDTH-map_info.scrshift_x;
   h = LbGraphicsScreenHeight();
-  srcbuf = &map_screen[MAP_SCREEN_WIDTH*map_info.scrshift_y + map_info.scrshift_x];
+  srcbuf = &map_screen[LANDVIEW_MAP_WIDTH*map_info.scrshift_y + map_info.scrshift_x];
   for (i=0; i < h; i++)
   {
-    if (map_info.scrshift_y+i >= MAP_SCREEN_HEIGHT)
+    if (map_info.scrshift_y+i >= LANDVIEW_MAP_HEIGHT)
       break;
     memcpy(dstbuf, srcbuf, w);
-    srcbuf += MAP_SCREEN_WIDTH;
+    srcbuf += LANDVIEW_MAP_WIDTH;
     dstbuf += LbGraphicsScreenWidth();
   }
 }
@@ -439,12 +440,12 @@ void set_map_info_visible_hotspot(long map_x,long map_y)
 {
   map_info.hotspot_x = map_x - lbDisplay.PhysicalScreenWidth/2;
   map_info.hotspot_y = map_y - lbDisplay.PhysicalScreenHeight/2;
-  if (map_info.hotspot_x > MAP_SCREEN_WIDTH-lbDisplay.PhysicalScreenWidth)
-    map_info.hotspot_x = MAP_SCREEN_WIDTH-lbDisplay.PhysicalScreenWidth;
+  if (map_info.hotspot_x > LANDVIEW_MAP_WIDTH-lbDisplay.PhysicalScreenWidth)
+    map_info.hotspot_x = LANDVIEW_MAP_WIDTH-lbDisplay.PhysicalScreenWidth;
   if (map_info.hotspot_x < 0)
     map_info.hotspot_x = 0;
-  if (map_info.hotspot_y > MAP_SCREEN_HEIGHT-lbDisplay.PhysicalScreenHeight)
-    map_info.hotspot_y = MAP_SCREEN_HEIGHT-lbDisplay.PhysicalScreenHeight;
+  if (map_info.hotspot_y > LANDVIEW_MAP_HEIGHT-lbDisplay.PhysicalScreenHeight)
+    map_info.hotspot_y = LANDVIEW_MAP_HEIGHT-lbDisplay.PhysicalScreenHeight;
   if (map_info.hotspot_y < 0)
     map_info.hotspot_y = 0;
 }
@@ -458,12 +459,12 @@ void set_map_info_draw_hotspot(long map_x,long map_y)
 {
   map_info.scrshift_x = map_x - lbDisplay.PhysicalScreenWidth/2;
   map_info.scrshift_y = map_y - lbDisplay.PhysicalScreenHeight/2;
-  if (map_info.scrshift_x > MAP_SCREEN_WIDTH-lbDisplay.PhysicalScreenWidth)
-    map_info.scrshift_x = MAP_SCREEN_WIDTH-lbDisplay.PhysicalScreenWidth;
+  if (map_info.scrshift_x > LANDVIEW_MAP_WIDTH-lbDisplay.PhysicalScreenWidth)
+    map_info.scrshift_x = LANDVIEW_MAP_WIDTH-lbDisplay.PhysicalScreenWidth;
   if (map_info.scrshift_x < 0)
     map_info.scrshift_x = 0;
-  if (map_info.scrshift_y > MAP_SCREEN_HEIGHT-lbDisplay.PhysicalScreenHeight)
-    map_info.scrshift_y = MAP_SCREEN_HEIGHT-lbDisplay.PhysicalScreenHeight;
+  if (map_info.scrshift_y > LANDVIEW_MAP_HEIGHT-lbDisplay.PhysicalScreenHeight)
+    map_info.scrshift_y = LANDVIEW_MAP_HEIGHT-lbDisplay.PhysicalScreenHeight;
   if (map_info.scrshift_y < 0)
     map_info.scrshift_y = 0;
 }
@@ -477,12 +478,12 @@ void set_map_info_draw_hotspot_raw(long map_x,long map_y)
 {
   map_info.scrshift_x = map_x;
   map_info.scrshift_y = map_y;
-  if (map_info.scrshift_x > MAP_SCREEN_WIDTH-lbDisplay.PhysicalScreenWidth)
-    map_info.scrshift_x = MAP_SCREEN_WIDTH-lbDisplay.PhysicalScreenWidth;
+  if (map_info.scrshift_x > LANDVIEW_MAP_WIDTH-lbDisplay.PhysicalScreenWidth)
+    map_info.scrshift_x = LANDVIEW_MAP_WIDTH-lbDisplay.PhysicalScreenWidth;
   if (map_info.scrshift_x < 0)
     map_info.scrshift_x = 0;
-  if (map_info.scrshift_y > MAP_SCREEN_HEIGHT-lbDisplay.PhysicalScreenHeight)
-    map_info.scrshift_y = MAP_SCREEN_HEIGHT-lbDisplay.PhysicalScreenHeight;
+  if (map_info.scrshift_y > LANDVIEW_MAP_HEIGHT-lbDisplay.PhysicalScreenHeight)
+    map_info.scrshift_y = LANDVIEW_MAP_HEIGHT-lbDisplay.PhysicalScreenHeight;
   if (map_info.scrshift_y < 0)
     map_info.scrshift_y = 0;
 }
@@ -642,12 +643,12 @@ void frontzoom_to_point(long map_x, long map_y, long zoom)
     // Let's use scr_x,scr_y as temp values
     scr_x = ((lbDisplay.GraphicsScreenWidth*src_delta)>>9);
     scr_y = ((lbDisplay.GraphicsScreenHeight*src_delta)>>9);
-    if (map_x >= (MAP_SCREEN_WIDTH-scr_x))
-      map_x = (MAP_SCREEN_WIDTH-scr_x-1);
+    if (map_x >= (LANDVIEW_MAP_WIDTH-scr_x))
+      map_x = (LANDVIEW_MAP_WIDTH-scr_x-1);
     if (map_x < scr_x)
       map_x = scr_x;
-    if (map_y >= (MAP_SCREEN_HEIGHT-scr_y))
-      map_y = (MAP_SCREEN_HEIGHT-scr_y-1);
+    if (map_y >= (LANDVIEW_MAP_HEIGHT-scr_y))
+      map_y = (LANDVIEW_MAP_HEIGHT-scr_y-1);
     if (map_y < scr_y)
       map_y = scr_y;
     // Initializing variables used for all quadres of screen
@@ -657,7 +658,7 @@ void frontzoom_to_point(long map_x, long map_y, long zoom)
     scr_y = map_y - map_info.scrshift_y;
     if (scr_y > lbDisplay.PhysicalScreenHeight) scr_y = lbDisplay.PhysicalScreenHeight;
     if (scr_y < 0) scr_y = 0;
-    src_buf = &map_screen[MAP_SCREEN_WIDTH * map_y + map_x];
+    src_buf = &map_screen[LANDVIEW_MAP_WIDTH * map_y + map_x];
     dst_scanln = lbDisplay.GraphicsScreenWidth;
     dst_buf = &lbDisplay.WScreen[dst_scanln * scr_y + scr_x];
     // Drawing first quadre
@@ -812,11 +813,14 @@ TbBool load_map_and_window(LevelNumber lvnum)
         return false;
     }
     map_screen = &game.land_map_start;
+    unsigned char *ptr;
+    // Texture blocks memory isn't used here, so reuse it instead of allocating
+    ptr = block_mem;
     memcpy(frontend_backup_palette, &frontend_palette, PALETTE_SIZE);
     // Now prepare window sprite file name and load the file
     fname = prepare_file_fmtpath(FGrp_LandView,"%s.dat",land_window);
     wait_for_cd_to_be_available();
-    map_window_len = LbFileLoadAt(fname, block_mem);
+    map_window_len = LbFileLoadAt(fname, ptr);
     if (map_window_len < (long)(WINDOW_Y_SIZE*sizeof(long)))
     {
         ERRORLOG("Unable to load Land Map Window \"%s.dat\"",land_window);
@@ -824,9 +828,9 @@ TbBool load_map_and_window(LevelNumber lvnum)
         return false;
     }
     // Prepare pointer to offsets array; WINDOW_Y_SIZE entries
-    window_y_offset = (long *)&block_mem[0];
+    window_y_offset = (long *)&ptr[0];
     // Prepare pointer to window data
-    map_window = &block_mem[WINDOW_Y_SIZE*sizeof(long)];
+    map_window = &ptr[WINDOW_Y_SIZE*sizeof(long)];
     // Update length, so that it corresponds to map_window pointer
     map_window_len -= WINDOW_Y_SIZE*sizeof(long);
     // Load palette
@@ -895,8 +899,8 @@ TbBool frontnetmap_load(void)
     LbSpriteSetupAll(netmap_flag_setup_sprites);
     frontend_load_data_reset();
     frontnet_init_level_descriptions();
-    map_info.zoomspot_x = (MAP_SCREEN_WIDTH>>1);
-    map_info.zoomspot_y = (MAP_SCREEN_HEIGHT>>1);
+    map_info.zoomspot_x = (LANDVIEW_MAP_WIDTH>>1);
+    map_info.zoomspot_y = (LANDVIEW_MAP_HEIGHT>>1);
     set_map_info_draw_hotspot(map_info.zoomspot_x,map_info.zoomspot_y);
     fe_net_level_selected = SINGLEPLAYER_NOTSTARTED;
     net_level_hilighted = SINGLEPLAYER_NOTSTARTED;
@@ -1029,8 +1033,8 @@ TbBool frontmap_load(void)
           map_info.zoomspot_y = lvinfo->ensign_zoom_y;
         } else
         {
-          map_info.zoomspot_x = (MAP_SCREEN_WIDTH>>1);
-          map_info.zoomspot_y = (MAP_SCREEN_HEIGHT>>1);
+          map_info.zoomspot_x = (LANDVIEW_MAP_WIDTH>>1);
+          map_info.zoomspot_y = (LANDVIEW_MAP_HEIGHT>>1);
         }
         set_map_info_draw_hotspot(map_info.zoomspot_x,map_info.zoomspot_y);
         map_info.fade_pos = FRONTMAP_ZOOM_LENGTH;
@@ -1047,8 +1051,8 @@ TbBool frontmap_load(void)
             map_info.zoomspot_y = lvinfo->ensign_zoom_y;
         } else
         {
-            map_info.zoomspot_x = (MAP_SCREEN_WIDTH>>1);
-            map_info.zoomspot_y = (MAP_SCREEN_HEIGHT>>1);
+            map_info.zoomspot_x = (LANDVIEW_MAP_WIDTH>>1);
+            map_info.zoomspot_y = (LANDVIEW_MAP_HEIGHT>>1);
         }
         set_map_info_draw_hotspot(map_info.zoomspot_x,map_info.zoomspot_y);
         set_map_info_visible_hotspot(map_info.zoomspot_x, map_info.zoomspot_y);
@@ -1070,8 +1074,8 @@ TbBool frontmap_load(void)
             set_map_info_draw_hotspot(map_info.zoomspot_x,map_info.zoomspot_y);
         } else
         {
-            map_info.zoomspot_x = (MAP_SCREEN_WIDTH>>1);
-            map_info.zoomspot_y = (MAP_SCREEN_HEIGHT>>1);
+            map_info.zoomspot_x = (LANDVIEW_MAP_WIDTH>>1);
+            map_info.zoomspot_y = (LANDVIEW_MAP_HEIGHT>>1);
             set_map_info_draw_hotspot(map_info.zoomspot_x,map_info.zoomspot_y);
         }
         map_info.fade_pos = FRONTMAP_ZOOM_LENGTH;
@@ -1221,8 +1225,8 @@ void update_velocity(void)
   if (map_info.velocity_x != 0)
   {
     map_info.scrshift_x += map_info.velocity_x / 4;
-    if (MAP_SCREEN_WIDTH-lbDisplay.PhysicalScreenWidth < map_info.scrshift_x)
-      map_info.scrshift_x = MAP_SCREEN_WIDTH-lbDisplay.PhysicalScreenWidth;
+    if (LANDVIEW_MAP_WIDTH-lbDisplay.PhysicalScreenWidth < map_info.scrshift_x)
+      map_info.scrshift_x = LANDVIEW_MAP_WIDTH-lbDisplay.PhysicalScreenWidth;
     if (map_info.scrshift_x < 0)
       map_info.scrshift_x = 0;
     if (map_info.velocity_x < 0)
@@ -1233,8 +1237,8 @@ void update_velocity(void)
   if (map_info.velocity_y != 0)
   {
     map_info.scrshift_y += map_info.velocity_y / 4;
-    if (MAP_SCREEN_HEIGHT-lbDisplay.PhysicalScreenHeight < map_info.scrshift_y)
-      map_info.scrshift_y = MAP_SCREEN_HEIGHT - lbDisplay.PhysicalScreenHeight;
+    if (LANDVIEW_MAP_HEIGHT-lbDisplay.PhysicalScreenHeight < map_info.scrshift_y)
+      map_info.scrshift_y = LANDVIEW_MAP_HEIGHT - lbDisplay.PhysicalScreenHeight;
     if (map_info.scrshift_y < 0)
       map_info.scrshift_y = 0;
     if (map_info.velocity_y < 0)
@@ -1709,8 +1713,8 @@ TbBool frontnetmap_update(void)
             map_info.zoomspot_y = lvinfo->ensign_zoom_y;
         } else
         {
-            map_info.zoomspot_x = (MAP_SCREEN_WIDTH>>1);
-            map_info.zoomspot_y = (MAP_SCREEN_HEIGHT>>1);
+            map_info.zoomspot_x = (LANDVIEW_MAP_WIDTH>>1);
+            map_info.zoomspot_y = (LANDVIEW_MAP_HEIGHT>>1);
         }
         map_info.state_trigger = 8 - ((unsigned int)fe_network_active < 1);
         set_map_info_visible_hotspot(map_info.zoomspot_x, map_info.zoomspot_y);
