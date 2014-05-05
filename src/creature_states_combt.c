@@ -101,6 +101,7 @@ DLLIMPORT void _DK_combat_object_state_melee_combat(struct Thing *thing);
 DLLIMPORT void _DK_combat_object_state_ranged_combat(struct Thing *thing);
 DLLIMPORT void _DK_combat_door_state_melee_combat(struct Thing *thing);
 DLLIMPORT void _DK_combat_door_state_ranged_combat(struct Thing *thing);
+DLLIMPORT long _DK_process_creature_self_spell_casting(struct Thing *thing);
 /******************************************************************************/
 CrAttackType combat_has_line_of_sight(const struct Thing *creatng, const struct Thing *enmtng, MapCoordDelta enmdist);
 /******************************************************************************/
@@ -1831,6 +1832,42 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
     }
     return CrInst_NULL;
 }
+
+CrInstance get_self_spell_casting(const struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    if (!creature_affected_by_spell(thing, SplK_Sight))
+    {
+        INSTANCE_RET_IF_AVAIL(thing, CrInst_SIGHT);
+    }
+    if (thing->health < cctrl->max_health/3)
+    {
+        INSTANCE_RET_IF_AVAIL(thing, CrInst_HEAL);
+    }
+    if (!creature_is_kept_in_custody(thing))
+    {
+        // Is it casting wind when under influence of gas?
+        if ((cctrl->spell_flags & CSAfF_Unkn0400) != 0)
+        {
+            INSTANCE_RET_IF_AVAIL(thing, CrInst_WIND);
+        }
+        if (!creature_affected_by_spell(thing, SplK_Speed))
+        {
+            INSTANCE_RET_IF_AVAIL(thing, CrInst_SPEED);
+        }
+        if (!creature_affected_by_spell(thing, SplK_Fly))
+        {
+            INSTANCE_RET_IF_AVAIL(thing, CrInst_FLY);
+        }
+        if (!creature_affected_by_spell(thing, SplK_Invisibility))
+        {
+            INSTANCE_RET_IF_AVAIL(thing, CrInst_INVISIBILITY);
+        }
+    }
+    return CrInst_NULL;
+}
+
 #undef INSTANCE_RET_IF_AVAIL
 
 /**
@@ -2753,5 +2790,28 @@ long project_creature_attack_target_damage(const struct Thing *firing, const str
     dexterity = compute_creature_max_dexterity(crstat->dexterity,cctrl->explevel);
     damage = project_damage_of_melee_shot(dexterity, damage, target);
     return damage;
+}
+
+long process_creature_self_spell_casting(struct Thing *creatng)
+{
+    struct CreatureControl *cctrl;
+    //return _DK_process_creature_self_spell_casting(creatng);
+    TRACE_THING(creatng);
+    cctrl = creature_control_get_from_thing(creatng);
+    if (((creatng->alloc_flags & TAlF_IsControlled) != 0)
+      || (cctrl->conscious_back_turns != 0)
+      || ((cctrl->stateblock_flags & CCSpl_Freeze) != 0)) {
+        return 0;
+    }
+   if ((get_creature_state_type(creatng) == CrStTyp_Value0) || (cctrl->instance_id != 0)) {
+       return 0;
+   }
+   long inst_idx;
+   inst_idx = get_self_spell_casting(creatng);
+    if (inst_idx <= 0) {
+        return 0;
+    }
+    set_creature_instance(creatng, inst_idx, 1, creatng->index, 0);
+    return 1;
 }
 /******************************************************************************/

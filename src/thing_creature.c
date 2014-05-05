@@ -127,7 +127,7 @@ DLLIMPORT void _DK_anger_set_creature_anger_all_types(struct Thing *creatng, lon
 DLLIMPORT void _DK_change_creature_owner(struct Thing *creatng , char nowner);
 DLLIMPORT void _DK_cause_creature_death(struct Thing *creatng, unsigned char reason);
 DLLIMPORT void _DK_apply_spell_effect_to_thing(struct Thing *creatng, long spell_idx, long spell_lev);
-DLLIMPORT void _DK_creature_cast_spell_at_thing(struct Thing *castng, struct Thing *target, long targtng_idx, long no_effects);
+DLLIMPORT void _DK_creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, long targtng_idx, long no_effects);
 DLLIMPORT void _DK_creature_cast_spell(struct Thing *castng, long spl_idx, long blocked_flags, long trg_x, long trg_y);
 DLLIMPORT void _DK_set_first_creature(struct Thing *creatng);
 DLLIMPORT void _DK_remove_first_creature(struct Thing *creatng);
@@ -142,7 +142,7 @@ DLLIMPORT struct Thing *_DK_get_enemy_dungeon_heart_creature_can_see(struct Thin
 DLLIMPORT long _DK_set_creature_object_combat(struct Thing *creatng, struct Thing *goldtng);
 DLLIMPORT void _DK_set_creature_door_combat(struct Thing *creatng, struct Thing *goldtng);
 DLLIMPORT void _DK_food_eaten_by_creature(struct Thing *creatng, struct Thing *goldtng);
-DLLIMPORT void _DK_creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned short a1, char reason, unsigned char targtng_idx);
+DLLIMPORT void _DK_creature_fire_shot(struct Thing *firing,struct  Thing *targetng, unsigned short a1, char reason, unsigned char targtng_idx);
 DLLIMPORT unsigned long _DK_control_creature_as_controller(struct PlayerInfo *player, struct Thing *creatng);
 DLLIMPORT unsigned long _DK_control_creature_as_passenger(struct PlayerInfo *player, struct Thing *creatng);
 DLLIMPORT void _DK_load_swipe_graphic_for_creature(struct Thing *creatng);
@@ -687,10 +687,21 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
 
 }
 
+/**
+ * Returns remaining duration of a spell casted on a thing.
+ * @param thing The thing which can have spells casted on.
+ * @param spkind The spell kind to be checked.
+ * @see thing_affected_by_spell()
+ */
 long get_spell_duration_left_on_thing(const struct Thing *thing, SpellKind spkind)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
+    if (creature_control_invalid(cctrl))
+    {
+        ERRORLOG("Invalid creature control for thing %d",(int)thing->index);
+        return 0;
+    }
     int i;
     for (i=0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
     {
@@ -996,20 +1007,22 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
     cctrl = creature_control_get_from_thing(thing);
     if (spell_lev > SPELL_MAX_LEVEL)
         spell_lev = SPELL_MAX_LEVEL;
+    struct CastedSpellData * cspell;
+    cspell = &cctrl->casted_spells[idx];
     // This pointer may be invalid if spell_idx is incorrect. But we're using it only when correct.
     splconf = &game.spells_config[spell_idx];
     switch (spell_idx)
     {
     case SplK_Freeze:
-        cctrl->casted_spells[idx].duration = splconf->duration;
+        cspell->duration = splconf->duration;
         creature_set_speed(thing, 0);
         break;
     case SplK_Armour:
         magstat = &game.keeper_power_stats[PwrK_PROTECT];
-        cctrl->casted_spells[idx].duration = magstat->strength[spell_lev];
+        cspell->duration = magstat->strength[spell_lev];
         break;
     case SplK_Rebound:
-        cctrl->casted_spells[idx].duration = splconf->duration;
+        cspell->duration = splconf->duration;
         break;
     case SplK_Heal:
         crstat = creature_stats_get_from_thing(thing);
@@ -1028,37 +1041,37 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         break;
     case SplK_Invisibility:
         magstat = &game.keeper_power_stats[PwrK_CONCEAL];
-        cctrl->casted_spells[idx].duration = magstat->strength[spell_lev];
+        cspell->duration = magstat->strength[spell_lev];
         break;
     case SplK_Teleport:
-        cctrl->casted_spells[idx].duration = splconf->duration;
+        cspell->duration = splconf->duration;
         break;
     case SplK_Speed:
         magstat = &game.keeper_power_stats[PwrK_SPEEDCRTR];
-        cctrl->casted_spells[idx].duration = magstat->strength[spell_lev];
+        cspell->duration = magstat->strength[spell_lev];
         break;
     case SplK_Slow:
-        cctrl->casted_spells[idx].duration = splconf->duration;
+        cspell->duration = splconf->duration;
         break;
     case SplK_Light:
-        cctrl->casted_spells[idx].duration = splconf->duration;
+        cspell->duration = splconf->duration;
         break;
     case SplK_Fly:
-        cctrl->casted_spells[idx].duration = splconf->duration;
+        cspell->duration = splconf->duration;
         break;
     case SplK_Sight:
-        cctrl->casted_spells[idx].duration = splconf->duration;
+        cspell->duration = splconf->duration;
         break;
     case SplK_Disease:
         magstat = &game.keeper_power_stats[PwrK_DISEASE];
-        cctrl->casted_spells[idx].duration = magstat->strength[spell_lev];
+        cspell->duration = magstat->strength[spell_lev];
         cctrl->field_B6 = thing->owner;
         break;
     case SplK_Chicken:
         external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
         cctrl->field_282 = 10;
         magstat = &game.keeper_power_stats[PwrK_CHICKEN];
-        cctrl->casted_spells[idx].duration = magstat->strength[spell_lev];
+        cspell->duration = magstat->strength[spell_lev];
         break;
     default:
         WARNLOG("No action for spell %d at level %d",(int)spell_idx,(int)spell_lev);
@@ -1284,22 +1297,29 @@ short creature_take_wage_from_gold_pile(struct Thing *creatng,struct Thing *gold
     return true;
 }
 
-void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, long spl_idx, long shot_lvl)
+/**
+ * Casts a spell by caster creature targeted at given thing, most likely using shot to transfer the spell.
+ * @param castng The caster creature.
+ * @param targetng The target thing.
+ * @param spl_idx Spell index to be casted.
+ * @param shot_lvl Spell level to be casted.
+ */
+void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, long spl_idx, long shot_lvl)
 {
     const struct SpellInfo *spinfo;
     unsigned char hit_type;
-    if ((caster->alloc_flags & TAlF_IsControlled) != 0)
+    if ((castng->alloc_flags & TAlF_IsControlled) != 0)
     {
-        if (target->class_id == TCls_Object)
+        if (targetng->class_id == TCls_Object)
             hit_type = THit_CrtrsNObjcts;
         else
             hit_type = THit_CrtrsOnly;
     } else
     {
-        if (target->class_id == TCls_Object)
+        if (targetng->class_id == TCls_Object)
             hit_type = THit_CrtrsNObjctsNotOwn;
         else
-        if (target->owner == caster->owner)
+        if (targetng->owner == castng->owner)
             hit_type = THit_CrtrsOnly;
         else
             hit_type = THit_CrtrsOnlyNotOwn;
@@ -1307,12 +1327,18 @@ void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, lo
     spinfo = get_magic_info(spl_idx);
     if (magic_info_is_invalid(spinfo))
     {
-        ERRORLOG("The %s owned by player %d tried to cast invalid spell %d",thing_model_name(caster),(int)caster->owner,(int)spl_idx);
+        ERRORLOG("The %s owned by player %d tried to cast invalid spell %d",thing_model_name(castng),(int)castng->owner,(int)spl_idx);
         return;
     }
-    creature_fire_shot(caster, target, spinfo->shot_model, shot_lvl, hit_type);
+    creature_fire_shot(castng, targetng, spinfo->shot_model, shot_lvl, hit_type);
 }
 
+/**
+ * Casts a spell by caster creature targeted at given coordinates, most likely using shot to transfer the spell.
+ * @param castng The caster creature.
+ * @param spl_idx Spell index to be casted.
+ * @param shot_lvl Spell level to be casted.
+ */
 void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long trg_x, long trg_y)
 {
     const struct SpellInfo *spinfo;
@@ -1336,9 +1362,9 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
     if (spinfo->shot_model > 0)
     {
         if ((castng->alloc_flags & TAlF_IsControlled) != 0)
-          i = 1;
+          i = THit_CrtrsNObjcts;
         else
-          i = 4;
+          i = THit_CrtrsOnlyNotOwn;
         creature_fire_shot(castng, INVALID_THING, spinfo->shot_model, shot_lvl, i);
     } else
     // Check if the spell can be self-casted
@@ -2826,7 +2852,7 @@ void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long a2, lo
         ERRORLOG("Negative instance");
         return;
     }
-    if (inst_inf->force_visibility)
+    if (inst_inf->force_visibility > 0)
     {
         i = cctrl->force_visible;
         if (i <= inst_inf->force_visibility)
@@ -4439,9 +4465,9 @@ void process_landscape_affecting_creature(struct Thing *thing)
     int stl_idx;
     int i;
     SYNCDBG(18,"Starting");
-    set_flag_byte(&thing->movement_flags,TMvF_IsOnWater,false);
-    set_flag_byte(&thing->movement_flags,TMvF_IsOnLava,false);
-    set_flag_byte(&thing->movement_flags,TMvF_Unknown80,false);
+    thing->movement_flags &= ~TMvF_IsOnWater;
+    thing->movement_flags &= ~TMvF_IsOnLava;
+    thing->movement_flags &= ~TMvF_Unknown80;
     cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
@@ -4655,6 +4681,9 @@ TngUpdateRet update_creature(struct Thing *thing)
 
     if (cctrl->field_B1 > 0)
         cctrl->field_B1--;
+    /*TODO CREATURES should we decrease force_invisible timer or is it done somewhere else already?
+    if (cctrl->force_visible > 0)
+        cctrl->force_visible--;*/
     if (cctrl->byte_8B == 0)
         cctrl->byte_8B = game.field_14EA4B;
     if (cctrl->field_302 == 0) {
@@ -4753,8 +4782,8 @@ TngUpdateRet update_creature(struct Thing *thing)
     cctrl->moveaccel.x.val = 0;
     cctrl->moveaccel.y.val = 0;
     cctrl->moveaccel.z.val = 0;
-    set_flag_byte(&cctrl->flgfield_1,CCFlg_Unknown40,false);
-    set_flag_byte(&cctrl->flgfield_1,CCFlg_Unknown80,false);
+    cctrl->flgfield_1 &= ~CCFlg_Unknown40;
+    cctrl->flgfield_1 &= ~CCFlg_Unknown80;
     cctrl->spell_flags &= ~CSAfF_Unkn0400;
     process_thing_spell_effects(thing);
     SYNCDBG(19,"Finished");

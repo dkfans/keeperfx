@@ -76,6 +76,8 @@ TbBool battle_with_creature_of_player(PlayerNumber plyr_idx, BattleIndex battle_
 
 long project_creature_attack_target_damage(const struct Thing *firing, const struct Thing *target);
 
+long process_creature_self_spell_casting(struct Thing *thing);
+
 TbBool creature_will_do_combat(const struct Thing *thing);
 TbBool creature_look_for_combat(struct Thing *creatng);
 TbBool creature_look_for_enemy_heart_combat(struct Thing *thing);
