@@ -378,7 +378,6 @@ void process_dungeon_destroy(struct Thing *thing);
 void give_shooter_drained_health(struct Thing *shooter, long health_delta);
 long get_foot_creature_has_down(struct Thing *thing);
 void process_keeper_spell_effect(struct Thing *thing);
-long process_creature_self_spell_casting(struct Thing *thing);
 unsigned long setup_move_off_lava(struct Thing *thing);
 void set_thing_draw(struct Thing *thing, long anim, long speed, long a4, char a5, char start_frame, unsigned char a7);
 
