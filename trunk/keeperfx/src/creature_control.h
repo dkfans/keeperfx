@@ -147,7 +147,7 @@ struct CreatureControl {
     unsigned char opponents_ranged_count;
     unsigned short players_prev_creature_idx;
     unsigned short players_next_creature_idx;
-unsigned short slap_turns;
+    unsigned short slap_turns;
     unsigned char explevel;
     long exp_points;
     long prev_exp_points;

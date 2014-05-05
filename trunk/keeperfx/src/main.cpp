@@ -187,7 +187,6 @@ DLLIMPORT void _DK_affect_nearby_enemy_creatures_with_wind(struct Thing *thing);
 DLLIMPORT void _DK_affect_nearby_stuff_with_vortex(struct Thing *thing);
 DLLIMPORT void _DK_affect_nearby_friends_with_alarm(struct Thing *thing);
 DLLIMPORT long _DK_apply_wallhug_force_to_boulder(struct Thing *thing);
-DLLIMPORT long _DK_process_creature_self_spell_casting(struct Thing *thing);
 DLLIMPORT void _DK_check_and_auto_fix_stats(void);
 DLLIMPORT void _DK_delete_all_structures(void);
 DLLIMPORT void _DK_clear_game(void);
@@ -562,11 +561,6 @@ void process_keeper_spell_effect(struct Thing *thing)
         pos.z.val = thing->mappos.z.val;
         create_effect_element(&pos, TngEff_Unknown45, thing->owner);
     }
-}
-
-long process_creature_self_spell_casting(struct Thing *thing)
-{
-    return _DK_process_creature_self_spell_casting(thing);
 }
 
 unsigned long lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos)
