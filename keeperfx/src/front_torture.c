@@ -34,6 +34,7 @@
 #include "bflib_sndlib.h"
 #include "config.h"
 #include "engine_render.h"
+#include "engine_textures.h"
 #include "game_lghtshdw.h"
 #include "player_data.h"
 #include "room_list.h"
@@ -136,6 +137,7 @@ void fronttorture_load(void)
     wait_for_cd_to_be_available();
     frontend_load_data_from_cd();
     memcpy(frontend_backup_palette, &frontend_palette, PALETTE_SIZE);
+    // Texture blocks memory isn't used here, so reuse it instead of allocating
     ptr = block_mem;
     // Load RAW/PAL background
     fname = prepare_file_path(FGrp_LoData,"torture.raw");
