@@ -571,7 +571,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
             thing->field_4A = (eestat->sprite_size_max - (long)eestat->sprite_size_min) / thing->health;
             thing->field_50 &= ~0x02;
         }
-        thing->field_46 = eestat->sprite_size_min;
+        thing->sprite_size = eestat->sprite_size_min;
     } else
     {
         thing->field_4A = 0;

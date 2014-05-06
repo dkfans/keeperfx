@@ -778,13 +778,15 @@ short good_drops_gold(struct Thing *thing)
     amount = game.pot_of_gold_holds;
     if (thing->creature.gold_carried <= game.pot_of_gold_holds)
         amount = thing->creature.gold_carried;
-    struct Thing *objtng;
-    objtng = create_object(&thing->mappos, 6, thing->owner, -1);
-    if (thing_is_invalid(objtng)) {
+    struct Thing *gldtng;
+    gldtng = create_object(&thing->mappos, 6, thing->owner, -1);
+    if (thing_is_invalid(gldtng)) {
         return 0;
     }
-    objtng->valuable.gold_stored = amount;
+    gldtng->valuable.gold_stored = amount;
     thing->creature.gold_carried -= amount;
+    // Update size of the gold object
+    add_gold_to_pile(gldtng, 0);
     internal_set_thing_state(thing, CrSt_GoodBackAtStart);
     return 1;
 }

@@ -172,7 +172,7 @@ unsigned char field_22;
 unsigned short field_3E;
     long field_40;
 unsigned short field_44;
-unsigned short field_46;
+    unsigned short sprite_size;
 unsigned char field_48;
 unsigned char field_49;
     char field_4A;
