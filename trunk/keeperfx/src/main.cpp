@@ -656,12 +656,12 @@ void update_thing_animation(struct Thing *thing)
     }
     if (thing->field_4A != 0)
     {
-      thing->field_46 += thing->field_4A;
-      if (thing->field_46 > thing->field_4B)
+      thing->sprite_size += thing->field_4A;
+      if (thing->sprite_size > thing->field_4B)
       {
-        if (thing->field_46 >= thing->field_4D)
+        if (thing->sprite_size >= thing->field_4D)
         {
-          thing->field_46 = thing->field_4D;
+          thing->sprite_size = thing->field_4D;
           if (thing->field_50 & 0x02)
             thing->field_4A = -thing->field_4A;
           else
@@ -669,7 +669,7 @@ void update_thing_animation(struct Thing *thing)
         }
       } else
       {
-        thing->field_46 = thing->field_4B;
+        thing->sprite_size = thing->field_4B;
         if ((thing->field_50 & 0x02) != 0)
           thing->field_4A = -thing->field_4A;
         else
@@ -3060,7 +3060,7 @@ void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char
         thing->field_3E = speed;
     }
     if (scale != -1) {
-        thing->field_46 = scale;
+        thing->sprite_size = scale;
     }
     if (a5 != -1) {
         set_flag_byte(&thing->field_4F, 0x40, a5);

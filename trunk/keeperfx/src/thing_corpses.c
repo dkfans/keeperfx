@@ -388,7 +388,7 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
         play_creature_sound(thing, CrSnd_Die, 3, 0);
         break;
     }
-    thing->field_46 = (300 * (long)thing->byte_13) / 20 + 300;
+    thing->sprite_size = (300 * (long)thing->byte_13) / 20 + 300;
     return thing;
 }
 

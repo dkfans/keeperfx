@@ -1255,6 +1255,7 @@
  0001:00043BB0       object_is_gold
  0001:00044A20       thing_is_spellbook
  0001:0005ECF0       element_top_face_texture
+ 0001:0005EF30       find_base_thing_on_mapwho_excluding_self
  0001:00023AA0       draw_swipe
  0001:00033590       draw_status_sprites
  0001:00033F90       wander_point_initialise
@@ -1461,6 +1462,7 @@
  0001:000A7A20       play_sample_using_heap
  0001:000A7950       stop_sample_using_heap
  0001:000A5720       load_map_and_window
+ 0001:00019530       process_object_sacrifice
  0001:00019800       anger_apply_anger_to_creature
  0001:00019D30       anger_process_creature_anger
  0001:00043CF0       object_is_pickable_by_hand
