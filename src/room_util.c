@@ -58,7 +58,7 @@ struct Thing *create_room_surrounding_flame(struct Room *room, const struct Coor
     eething->mappos.z.val = get_thing_height_at(eething, &eething->mappos);
     eething->mappos.z.val += 10;
     // Size of the flame depends on room efficiency
-    eething->field_46 = ((eething->field_46 - 80) * ((long)room->efficiency) / 256) + 80;
+    eething->sprite_size = ((eething->sprite_size - 80) * ((long)room->efficiency) / 256) + 80;
   }
   return eething;
 }

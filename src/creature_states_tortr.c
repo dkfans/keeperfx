@@ -194,7 +194,7 @@ long setup_torture_move_to_device(struct Thing *creatng, struct Room *room, Crtr
             cctrl = creature_control_get_from_thing(creatng);
             creatng->continue_state = nstat;
             tortrtng->word_13 = creatng->index;
-            tortrtng->word_15 = tortrtng->field_46;
+            tortrtng->word_15 = tortrtng->sprite_size;
             cctrl->word_A6 = tortrtng->index;
             return 1;
         }

@@ -1621,9 +1621,9 @@ void set_creature_size_stuff(struct Thing *creatng)
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
     if (creature_affected_by_spell(creatng, SplK_Chicken)) {
-      creatng->field_46 = 300;
+      creatng->sprite_size = 300;
     } else {
-      creatng->field_46 = 300 + (300 * cctrl->explevel) / 20;
+      creatng->sprite_size = 300 + (300 * cctrl->explevel) / 20;
     }
 }
 

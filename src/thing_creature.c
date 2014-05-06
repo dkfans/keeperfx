@@ -2008,6 +2008,8 @@ void throw_out_gold(struct Thing *thing)
         GoldAmount delta;
         delta = (thing->creature.gold_carried - gold_dropped) / (num_pots_to_drop - npot);
         gldtng->valuable.gold_stored = delta;
+        // Update size of the gold object
+        add_gold_to_pile(gldtng, 0);
         gold_dropped += delta;
     }
 }
@@ -2709,10 +2711,7 @@ void set_creature_level(struct Thing *thing, long nlvl)
     cctrl->explevel = nlvl;
     max_health = compute_creature_max_health(crstat->health,cctrl->explevel);
     cctrl->max_health = max_health;
-    if (creature_affected_by_spell(thing, SplK_Chicken))
-      thing->field_46 = 300;
-    else
-      thing->field_46 = saturate_set_signed( 300 + (300*(unsigned long)(cctrl->explevel)) / 20, 16);
+    set_creature_size_stuff(thing);
     if (old_max_health > 0)
         thing->health = saturate_set_signed( (thing->health*max_health)/old_max_health, 16);
     else

@@ -3836,7 +3836,7 @@ void prepare_jonty_remap_and_scale(long *scale, const struct JontySpr *jspr)
         shade = 0;
     }
     shade_factor = shade >> 8;
-    *scale = (thelens * (long)thing->field_46) / fade;
+    *scale = (thelens * (long)thing->sprite_size) / fade;
     if ((thing->field_4F & 0xC) != 0)
     {
         lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;

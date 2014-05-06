@@ -866,12 +866,11 @@ short imp_improves_dungeon(struct Thing *thing)
     long slb_x,slb_y;
     SYNCDBG(19,"Starting");
     TRACE_THING(thing);
-    // return _DK_imp_digs_mines(thing);
+    //return _DK_imp_improves_dungeon(thing);
     cctrl = creature_control_get_from_thing(thing);
     // Check if we've arrived at the destination
     delta_x = abs(thing->mappos.x.stl.num - (MapSubtlDelta)cctrl->moveto_pos.x.stl.num);
     delta_y = abs(thing->mappos.y.stl.num - (MapSubtlDelta)cctrl->moveto_pos.y.stl.num);
-    //return _DK_imp_improves_dungeon(thing);
     if ( (delta_x > 0) || (delta_y > 0) )
     {
         clear_creature_instance(thing);

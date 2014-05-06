@@ -237,6 +237,7 @@
  0001:00019000       cleanup_sacrifice
  0001:00019040       creature_being_summoned
  0001:00019140       person_get_somewhere_adjacent_in_temple
+ 0001:00019530       process_object_sacrifice
  0001:00019800       anger_apply_anger_to_creature
  0001:00019D30       anger_process_creature_anger
  0001:0001A110       anger_set_creature_anger
@@ -577,6 +578,7 @@
  0001:0005ED80       place_thing_in_mapwho
  0001:0005EE00       remove_thing_from_mapwho
  0001:0005EEB0       find_base_thing_on_mapwho
+ 0001:0005EF30       find_base_thing_on_mapwho_excluding_self
  0001:0005F310       remove_gold_from_hoarde
  0001:0005F490       add_gold_to_hoarde
  0001:0005FB70       init_player
