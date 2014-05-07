@@ -592,6 +592,7 @@
  0001:00062BB0       init_colours
  0001:00063480       create_thing
  0001:000639F0       create_object
+ 0001:00063DF0       create_shot
  0001:00063FD0       create_effect_element
  0001:00064350       create_trap
  0001:00064520       create_door
