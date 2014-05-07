@@ -60,6 +60,7 @@ DLLIMPORT long _DK_shot_hit_object_at(struct Thing *shotng, struct Thing *trgtng
 DLLIMPORT void _DK_create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct Thing *trgtng);
 DLLIMPORT long _DK_check_hit_when_attacking_door(struct Thing *shotng);
 DLLIMPORT void _DK_process_dig_shot_hit_wall(struct Thing *shotng, long blocked_flags);
+DLLIMPORT struct Thing *_DK_create_shot(struct Coord3d *pos, unsigned short model, unsigned short owner);
 /******************************************************************************/
 TbBool thing_is_shot(const struct Thing *thing)
 {
@@ -1280,6 +1281,7 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     struct ShotConfigStats *shotst;
     struct InitLight ilght;
     struct Thing *thing;
+    //return _DK_create_shot(pos, model, owner);
     if ( !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots) )
     {
         ERRORDBG(3,"Cannot create shot %d for player %d. There are too many things allocated.",(int)model,(int)owner);
@@ -1313,7 +1315,8 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     thing->field_58 = shotst->old->field_B;
     thing->field_5A = shotst->old->field_9;
     thing->field_5C = shotst->old->field_B;
-    thing->word_13 = shotst->old->damage;
+    thing->shot.damage = shotst->old->damage;
+    thing->shot.dexterity = 255;
     thing->health = shotst->health;
     if (shotst->old->field_50)
     {
