@@ -152,7 +152,7 @@ TbBool update_trap_trigger_line_of_sight_90_on_subtile(struct Thing *traptng, Ma
 TbBool update_trap_trigger_line_of_sight_90(struct Thing *traptng)
 {
     static const MapSubtlDelta line_of_sight_90_range = 20;
-    //return _DK_update_trap_trigger_line_of_sight_90(thing);
+    //return _DK_update_trap_trigger_line_of_sight_90(traptng);
     MapSubtlCoord stl_x_beg, stl_x_end;
     MapSubtlCoord stl_y_beg, stl_y_end;
     {
@@ -309,15 +309,15 @@ void activate_trap_shot_head_for_target90(struct Thing *traptng, struct Thing *c
             if (abs(trpos_x - crpos_x) <= abs(trpos_y - crpos_y))
             {
                 if (crpos_y >= trpos_y)
-                    shotng->field_52 = 1024;
+                    shotng->field_52 = LbFPMath_PI;
                 else
                     shotng->field_52 = 0;
             } else
             {
                 if (crpos_x >= trpos_x)
-                    shotng->field_52 = 512;
+                    shotng->field_52 = LbFPMath_PI/2;
                 else
-                    shotng->field_52 = 1536;
+                    shotng->field_52 = 3*LbFPMath_PI/2;
             }
         }
         shotng->field_54 = 0;
