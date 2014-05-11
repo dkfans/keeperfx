@@ -1081,6 +1081,8 @@
  0001:00037900       set_player_state
  0001:000467E0       set_engine_view
  0001:000488D0       turn_off_sight_of_evil
+ 0001:00048CA0       process_magic_power_call_to_arms
+ 0001:00049430       magic_power_hold_audience_update
  0001:0009C7C0       turn_off_event_box_if_necessary
  0001:0006F1A0       set_autopilot_type
  0001:000C4CD0       dump_held_things_on_map
