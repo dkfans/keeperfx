@@ -241,6 +241,8 @@ DLLIMPORT void _DK_view_move_camera_left(struct Camera *cam, long a2);
 DLLIMPORT void _DK_view_move_camera_right(struct Camera *cam, long a2);
 DLLIMPORT void _DK_view_move_camera_up(struct Camera *cam, long a2);
 DLLIMPORT void _DK_view_move_camera_down(struct Camera *cam, long a2);
+DLLIMPORT void _DK_magic_power_hold_audience_update(unsigned short plyr_idx);
+DLLIMPORT void _DK_process_magic_power_call_to_arms(long plyr_idx);
 // Now variables
 DLLIMPORT extern HINSTANCE _DK_hInstance;
 
@@ -2037,10 +2039,60 @@ void check_players_lost(void)
   }
 }
 
+void magic_power_hold_audience_update(PlayerNumber plyr_idx)
+{
+    _DK_magic_power_hold_audience_update(plyr_idx);
+}
+
+void process_magic_power_call_to_arms(PlayerNumber plyr_idx)
+{
+    _DK_process_magic_power_call_to_arms(plyr_idx);
+}
+
 void process_dungeon_power_magic(void)
 {
     SYNCDBG(8,"Starting");
-    _DK_process_dungeon_power_magic();
+    //_DK_process_dungeon_power_magic();
+    long i;
+    for (i = 0; i < PLAYERS_COUNT; i++)
+    {
+        struct Dungeon *dungeon;
+        struct PlayerInfo *player;
+        player = get_player(i);
+        if (player_exists(player))
+        {
+            dungeon = get_players_dungeon(player);
+            if (dungeon->cta_start_turn > 0)
+            {
+                process_magic_power_call_to_arms(i);
+            }
+            if ( dungeon->field_88C[0] )
+            {
+                magic_power_hold_audience_update(i);
+            }
+            if (dungeon->must_obey_turn > 0)
+            {
+                long delta;
+                delta = game.play_gameturn - dungeon->must_obey_turn;
+                struct MagicStats *magstat;
+                magstat = &game.keeper_power_stats[PwrK_OBEY];
+                if ((delta % magstat->time) == 0)
+                {
+                    if (take_money_from_dungeon(i, magstat->cost[0], 1) < 0) {
+                        magic_use_power_obey(i);
+                    }
+                }
+            }
+            if (game.armageddon_cast_turn > 0)
+            {
+                if (game.play_gameturn > game.field_15035A)
+                {
+                  game.armageddon_cast_turn = 0;
+                  game.field_15035A = 0;
+                }
+            }
+        }
+    }
 }
 
 void blast_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx)
