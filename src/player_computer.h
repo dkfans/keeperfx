@@ -465,7 +465,7 @@ struct ComputerTask { // sizeof = 148
         short height;
         long long_80;
         short word_84;
-        long long_86;
+        long area;
         short word_8A;
     } create_room;
     };

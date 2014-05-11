@@ -484,6 +484,7 @@ struct ComputerTask *get_task_in_progress(struct Computer2 *comp, ComputerTaskTy
           break;
         }
     }
+    // TODO COMPUTER change to INVALID_COMPUTER_TASK when all functions chan handle this value correctly
     return NULL;
 }
 
@@ -532,6 +533,7 @@ struct ComputerTask *get_task_in_progress_in_list(struct Computer2 *comp, const 
           break;
         }
     }
+    // TODO COMPUTER change to INVALID_COMPUTER_TASK when all functions chan handle this value correctly
     return NULL;
 }
 
@@ -755,6 +757,7 @@ TbBool creature_could_be_placed_in_better_room(const struct Computer2 *comp, con
     }
     return false;
 }
+
 struct Room *get_room_to_place_creature(const struct Computer2 *comp, const struct Thing *thing)
 {
     const struct Dungeon *dungeon;
@@ -873,7 +876,7 @@ long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
         pos.x.val = ctask->pos_64.x.val;
         pos.y.val = ctask->pos_64.y.val;
         pos.z.val = ctask->pos_64.z.val;
-        setup_computer_dig_room(&ctask->dig, &pos, ctask->create_room.long_86);
+        setup_computer_dig_room(&ctask->dig, &pos, ctask->create_room.area);
         ctask->ttype = CTT_DigRoom;
         return 1;
     default:
@@ -1031,7 +1034,7 @@ long task_check_room_dug(struct Computer2 *comp, struct ComputerTask *ctask)
     long waiting_slabs,wrong_slabs;
     waiting_slabs = 0; wrong_slabs = 0;
     count_slabs_where_room_cannot_be_built(comp->dungeon->owner, ctask->pos_64.x.stl.num, ctask->pos_64.y.stl.num,
-        ctask->create_room.long_80, ctask->create_room.long_86, &waiting_slabs, &wrong_slabs);
+        ctask->create_room.long_80, ctask->create_room.area, &waiting_slabs, &wrong_slabs);
     if (wrong_slabs > 0) {
         WARNLOG("Task %s couldn't be completed as %d wrong slabs are in destination area, reset.",computer_task_code_name(ctask->ttype),(int)wrong_slabs);
         restart_task_process(comp, ctask);
@@ -1039,12 +1042,12 @@ long task_check_room_dug(struct Computer2 *comp, struct ComputerTask *ctask)
     }
     if (waiting_slabs > 0) {
         SYNCDBG(9,"The %d/%d tiles around %d,%d are not ready to place room",(int)wrong_slabs,
-            (int)ctask->create_room.long_86, (int)ctask->pos_64.x.stl.num, (int)ctask->pos_64.y.stl.num);
+            (int)ctask->create_room.area, (int)ctask->pos_64.x.stl.num, (int)ctask->pos_64.y.stl.num);
         return 4;
     }
     // The room digging task is complete - change it to room placing task
     ctask->ttype = CTT_PlaceRoom;
-    setup_computer_dig_room(&ctask->dig, &ctask->pos_64, ctask->create_room.long_86);
+    setup_computer_dig_room(&ctask->dig, &ctask->pos_64, ctask->create_room.area);
     return 1;
 }
 
@@ -1377,7 +1380,7 @@ struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d 
       ctask->create_room.startpos.z.val = startpos.z.val;
       ctask->create_room.width = width_slabs;
       ctask->create_room.height = height_slabs;
-      ctask->create_room.long_86 = area_buildable;
+      ctask->create_room.area = area_buildable;
       ctask->create_room.long_80 = rkind;
       ctask->flags |= 0x02;
       ctask->flags |= 0x04;

@@ -488,7 +488,39 @@ void gui_area_new_no_anim_button(struct GuiButton *gbtn)
 
 void gui_area_no_anim_button(struct GuiButton *gbtn)
 {
-    _DK_gui_area_no_anim_button(gbtn);
+    struct TbSprite *spr;
+    int spr_idx;
+    long pos_x,pos_y;
+    //_DK_gui_area_no_anim_button(gbtn);
+    spr_idx = gbtn->field_29;
+    if (gbtn->gbtype == 2)
+    {
+        unsigned char *ctptr;
+        ctptr = (unsigned char *)gbtn->content;
+        if (ctptr != NULL) {
+            spr_idx += *ctptr;
+        } else {
+            ERRORLOG("Cycle button must have a non-null UBYTE Data pointer!");
+        }
+        if (gbtn->field_2D == 0) {
+            ERRORLOG("Cycle button must have a non-zero MaxVal!");
+        }
+    }
+    pos_x = gbtn->scr_pos_x / (long)pixel_size;
+    pos_y = gbtn->scr_pos_y / (long)pixel_size;
+    if ((gbtn->flags & LbBtnF_Unknown08) != 0)
+    {
+        spr = &button_sprite[spr_idx];
+        if ( (gbtn->gbactn_1 != 0) || (gbtn->gbactn_2 != 0) ) {
+          LbSpriteDrawRemap(pos_x, pos_y, spr, &pixmap.fade_tables[44*256]);
+        } else {
+          LbSpriteDraw(pos_x, pos_y, spr);
+        }
+    } else
+    {
+        spr = &button_sprite[spr_idx];
+        LbSpriteDrawRemap(pos_x, pos_y, spr, &pixmap.fade_tables[12*256]);
+    }
 }
 
 void gui_area_normal_button(struct GuiButton *gbtn)
@@ -499,7 +531,9 @@ void gui_area_normal_button(struct GuiButton *gbtn)
     //_DK_gui_area_normal_button(gbtn);
     spr_idx = gbtn->field_29;
     if (gbtn->gbtype == 2)
-      ERRORLOG("Cycle button cannot have a normal button draw function!");
+    {
+        ERRORLOG("Cycle button cannot have a normal button draw function!");
+    }
     pos_x = gbtn->scr_pos_x / (long)pixel_size;
     pos_y = gbtn->scr_pos_y / (long)pixel_size;
     if ((gbtn->flags & LbBtnF_Unknown08) != 0)
@@ -764,7 +798,11 @@ void gui_area_null(struct GuiButton *gbtn)
 
 void reset_scroll_window(struct GuiMenu *gmnu)
 {
-  _DK_reset_scroll_window(gmnu);
+    //_DK_reset_scroll_window(gmnu);
+    game.evntbox_scroll_window.start_y = 0;
+    game.evntbox_scroll_window.action = 0;
+    game.evntbox_scroll_window.text_height = 0;
+    game.evntbox_scroll_window.window_height = 0;
 }
 
 void gui_set_menu_mode(struct GuiButton *gbtn)
@@ -774,7 +812,40 @@ void gui_set_menu_mode(struct GuiButton *gbtn)
 
 void gui_area_flash_cycle_button(struct GuiButton *gbtn)
 {
-  _DK_gui_area_flash_cycle_button(gbtn);
+    SYNCDBG(10,"Starting");
+    struct TbSprite *spr;
+    int i;
+    //_DK_gui_area_flash_cycle_button(gbtn);
+    i = gbtn->field_29;
+    long pos_x,pos_y;
+    pos_x = gbtn->scr_pos_x / (long)pixel_size;
+    pos_y = gbtn->scr_pos_y / (long)pixel_size;
+    i = gbtn->field_29;
+    if ((gbtn->flags & LbBtnF_Unknown08) == 0)
+    {
+        if ((!gbtn->gbactn_1) && (!gbtn->gbactn_2))
+        {
+            unsigned char *ctptr;
+            ctptr = (unsigned char *)gbtn->content;
+            if ((ctptr != NULL) && (*ctptr > 0))
+            {
+                if (game.play_gameturn & 1) {
+                    i += 2;
+                }
+            }
+        }
+        if ((gbtn->gbactn_1) || (gbtn->gbactn_2)) {
+            spr = &gui_panel_sprites[i];
+        } else {
+            spr = &gui_panel_sprites[i+1];
+        }
+        LbSpriteDraw(pos_x, pos_y, spr);
+    } else
+    {
+        spr = &gui_panel_sprites[i];
+        LbSpriteDrawRemap(pos_x, pos_y, spr, &pixmap.fade_tables[12*256]);
+    }
+    SYNCDBG(12,"Finished");
 }
 
 /******************************************************************************/
