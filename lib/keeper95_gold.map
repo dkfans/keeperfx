@@ -413,9 +413,11 @@
  0001:000486C0       magic_use_power_sight
  0001:000488D0       turn_off_sight_of_evil
  0001:00048960       magic_use_power_call_to_arms
+ 0001:00048CA0       process_magic_power_call_to_arms
  0001:00048F40       turn_off_call_to_arms
  0001:00049070       magic_use_power_cave_in
  0001:00049280       magic_use_power_hold_audience
+ 0001:00049430       magic_power_hold_audience_update
  0001:000494E0       magic_use_power_lightning
  0001:00049790       magic_use_power_speed
  0001:00049830       magic_use_power_chicken
