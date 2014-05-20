@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-02-06 18:11+0100\n"
+"PO-Revision-Date: 2014-05-20 22:33+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: zh_CN\n"
@@ -1058,11 +1058,12 @@ msgstr ""
 "人。"
 
 #: guitext:106
+#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "Your latest discovery is the Word of Power Trap. When activated, the trap "
-"triggers an expanding ring of fire that incinerates anything caught in its "
-"area of effect. What a scream that should be."
+"triggers an expanding ring of demonic energy that incinerates anything "
+"caught in its area of effect. What a scream that should be."
 msgstr ""
 "你最后的发现物是强力咒语陷井。当它被触发时，一个扩散的火轮将把它作用范围内的"
 "任何东西化为灰烬。我已经听到了绝望的尖叫声。"
@@ -1618,20 +1619,22 @@ msgid ""
 "There's only one Keeper to get rid of before becoming the absolute master! "
 "So, what are you waiting for?"
 msgstr ""
+"太棒了，守护者！圣者和他可悲的军队终于全军覆没了！只要击败最后一个守护者就可"
+"以成为万物的主宰了！现在，您还在等什么呢？"
 
 #: guitext:174
 msgctxt "In-game message"
 msgid ""
 "Did you see? Your Demon Spawn has evolved to become a powerful Dragon ready "
 "to reduces your enemies into ashes!"
-msgstr ""
+msgstr "你看见了吗？你的恶鬼进化成了一头强大的巨龙，时刻准备着将敌人化为灰烬！"
 
 #: guitext:175
 msgctxt "In-game message"
 msgid ""
 "Well done! Your immense wealth has drew the attention of a Thief. He will "
 "serve you well in the next realm!"
-msgstr ""
+msgstr "干得好！你无边的财富吸引了一个盗贼。他会在下一个王国为你服务！"
 
 #: guitext:176
 msgctxt "In-game message"
@@ -1640,6 +1643,7 @@ msgid ""
 "replenish the health of your creatures and keep them from dying for a while "
 "longer."
 msgstr ""
+"你的研究者们研究出了治疗术，它可以用来治愈你的怪物，让它们活得稍微久一些。"
 
 #: guitext:177
 msgctxt "In-game message"
@@ -1649,6 +1653,8 @@ msgid ""
 "possibility for them to take a nap. Be sure to have plenty of money so that "
 "the spell will stay activated."
 msgstr ""
+"试试无上权威魔法吧。开启后，它将迫使你的怪物服从所有命令，加快它们的工作速度"
+"并剥夺它们的睡眠时间。为了维持这个魔法，你最好准备大量的金钱。"
 
 #: guitext:178
 msgctxt "In-game message"
@@ -1657,14 +1663,19 @@ msgid ""
 "in water and their spine can even pierce the most solid armors and paralyze "
 "your enemies! Marvellous!"
 msgstr ""
+"一只水怪加入了你的地下城。这些罕见的小东西喜欢待在水里，它们的尖刺可以穿透最"
+"坚固的护甲并麻痹你的敌人。太棒了！"
 
 #: guitext:179
+#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "You have entered this realm to gain a creature for your further efforts. You "
 "got the creature from start, so you must only keep it safe. And the only way "
 "to make this place safe is to kill every hero in the realm."
 msgstr ""
+"你来到这个王国是为了获取一只怪物让其在以后为你服务。你一开始就获得了这只怪"
+"物，所以你必须保护它的安全。让这个王国安全的唯一方法就是除掉这里的所有英雄。"
 
 #: guitext:180 guitext:181 guitext:182 guitext:183 guitext:184 guitext:185
 #: guitext:186 guitext:187 guitext:188 guitext:189 guitext:190 guitext:191
@@ -1962,8 +1973,9 @@ msgstr "吸精术: [26.4]"
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Word of Power: Causes rings of fire to emanate from the creature's body and "
-"inflicts massive damage on the vicinity."
+"Word of Power: Causes rings of demonic energy to emanate from the creature's "
+"body and inflicts massive damage on the vicinity. Very effective against "
+"crowded hordes of enemies, also pushes them back."
 msgstr "强力咒语: [26.23]"
 
 #: guitext:248
@@ -2434,34 +2446,52 @@ msgstr "全屏地图: 进入地图画面。左键选择。[4.1.1]"
 
 #: guitext:324
 msgctxt "Slab description"
-msgid "Impenetrable Rock: Your Imps cannot dig through this. [12.4]"
-msgstr "不可穿越的岩石: 你的小鬼不能挖掘它。[12.4]"
+msgid ""
+"Impenetrable Rock: Your Imps cannot dig through this, the only solution is "
+"to go round. It is visible even if far from your territory."
+msgstr ""
+"无法挖掘的岩石:你的小鬼无法挖穿这样的岩石，唯一的办法就是绕过它。这类岩石永远"
+"可见。"
 
 #: guitext:325
 msgctxt "Slab description"
-msgid "Earth: You can excavate this. [12.1]"
-msgstr "泥土: 你可以挖掘它。[12.1]"
+msgid ""
+"Earth: You can excavate this. To dig out some new caverns, choose a location "
+"and tag for digging with LMB. Press LMB again to untag."
+msgstr ""
+"土块：你可以将其凿开。想要挖开一些洞穴，用鼠标左键标记一个区域。再次按下鼠标"
+"左键可解除标记。"
 
 #: guitext:326
+#, fuzzy
 msgctxt "Slab description"
 msgid ""
 "Gold Seam: Your source of wealth. Dig this out and your Imps will take it to "
-"your Treasure Room. [12.2]"
+"your Treasure Room. You can also pick up the lumps of treasure left on the "
+"ground."
 msgstr "金矿: 你的财富的源泉。挖掘它，你的小鬼将把它带入你的储金室。[12.2]"
 
 #: guitext:327
 msgctxt "Slab description"
-msgid "Lava: Burns any creature that step on it. [14.2]"
-msgstr "岩浆: 将燃烧任何走到上面的怪物。[14.2]"
+msgid ""
+"Lava: Burns any creature that step on it. Get over lava by casting Cave-In "
+"or building a Bridge."
+msgstr "岩浆:灼烧任何触碰到它的生物。施放一个塌方术或者建造一座桥来越过它。"
 
 #: guitext:328
+#, fuzzy
 msgctxt "Slab description"
-msgid "Water: Creatures move more slowly through water. [14.1]"
+msgid ""
+"Water: Creatures move more slowly through water. Build the Bridge to make "
+"new land on the water."
 msgstr "水: 怪物在水中移动得很慢。[14.1]"
 
 #: guitext:329
+#, fuzzy
 msgctxt "Slab description"
-msgid "Wall: A reinforced stone wall that enemies cannot break through. [12.1]"
+msgid ""
+"Wall: A reinforced stone wall that enemies cannot break through. At least "
+"without the Destroy Walls spell."
 msgstr "墙: 敌人无法穿越加固过的墙。[12.1]"
 
 #: guitext:330
@@ -2471,13 +2501,17 @@ msgstr "被损坏的墙: 除非进行修复，否则将最终倒塌。"
 
 #: guitext:331
 msgctxt "Slab description"
-msgid "Path: Unclaimed earth floor. [12.1]"
-msgstr "小径: 未被占领的地面。[12.1]"
+msgid ""
+"Path: Unclaimed earth floor. You can claim it if it is connected to already "
+"claimed territory."
+msgstr "泥地:未占领的地面。如果这里与你的领地相邻，你就可以占有此地。"
 
 #: guitext:332
 msgctxt "Slab description"
-msgid "Claimed area: Your dungeon territory. [12.1]"
-msgstr "被占领的地面: 你的地下城的区域。[12.1]"
+msgid ""
+"Claimed area: Your dungeon territory. You can build rooms and drop your "
+"creatures on it."
+msgstr "已占领的地面:你的地下城领地。你可以在此建造房间或是放置你的怪物。"
 
 #: guitext:333
 msgctxt "In-game interface item"
@@ -2839,6 +2873,7 @@ msgctxt "Menu interface item"
 msgid "Players"
 msgstr "游戏者"
 
+#. Creature experience level
 #: guitext:406
 msgctxt "Menu interface item"
 msgid "Level"
@@ -3051,53 +3086,82 @@ msgstr "类型"
 
 #: guitext:447
 msgctxt "In-game interface description"
-msgid "Information Panel: Miscellaneous information. [5.0]"
-msgstr "信息面板: 多方面的信息。[5.0]"
+msgid ""
+"Information Panel: Miscellaneous information. Shows your and enemy progress "
+"and allows changing creature tendencies."
+msgstr "信息面板:提供不同的信息。在此查看敌军的实力或者改变己方怪物的策略。"
 
 #: guitext:448
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Room Panel: The rooms available for you to build. [6.0]"
+msgid ""
+"Room Panel: The rooms available for you to build. Here you can center map on "
+"rooms or build new ones."
 msgstr "房间面板: 可以建造的房间。[6.0]"
 
 #: guitext:449
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Research Panel: The spells available to you. [7.0]"
+msgid ""
+"Research Panel: The spells available to you. Here you can cast or cancel "
+"them."
 msgstr "研究面板: 可以使用的魔法。[7.0]"
 
 #: guitext:450
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Workshop Panel: The traps and doors available to you. [8.0]"
+msgid ""
+"Workshop Panel: The traps and doors available to you. You can center the map "
+"on them, place new ones or sell existing."
 msgstr "工厂面板: 可以制造的陷井和门。[8.0]"
 
 #: guitext:451
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Creature Panel: Information on your creatures. [9.0]"
+msgid ""
+"Creature Panel: Information on your creatures. Shows activity of your "
+"creatures and allows picking them up."
 msgstr "怪物面板: 关于你的怪物的信息。[9.0]"
 
 #: guitext:452
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Research Time: The time until a new spell is researched. [5.4]"
+msgid ""
+"Research Time: The time until a new spell is researched. Scholars in your "
+"Library are making progress on this bar."
 msgstr "研究时间: 研究出新魔法需要的时间。[5.5]"
 
 #: guitext:453
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Workshop Time: The time until a new trap is manufactured. [5.5]"
+msgid ""
+"Workshop Time: The time until a new trap is manufactured. Workers in your "
+"Workshop are making progress on this bar."
 msgstr "制造时间: 制造一个新陷井需要的时间。[5.6]"
 
 #: guitext:454
 msgctxt "In-game interface description"
-msgid "Time: The time until the next Creature Payday. [5.3]"
-msgstr "发薪时间: 到下一个发薪日所需的时间。[5.4]"
+msgid ""
+"Time: The time until the next Creature Payday. This bar increases over time "
+"and, when it reaches its peak, all of your creatures receive their wages."
+msgstr ""
+"时间:下一个发薪日的剩余时间。这个进度条随着时间流逝而增加，当时间结束后，你的"
+"怪物将会领取它们的薪水。"
 
 #: guitext:455
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Number of Rooms: The number of rooms held by this Keeper. [5.6]"
+msgid ""
+"Number of Rooms: The number of rooms held by this Keeper. Allows you to "
+"compare your dungeon with the competitors."
 msgstr "房间数: 守护者拥有的房间数。[5.8]"
 
 #: guitext:456
+#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"Number of Creatures: The number of creatures owned by this Keeper. [5.7]"
+"Number of Creatures: The number of creatures owned by this Keeper. Allows "
+"you to compare your army with other Keepers."
 msgstr "怪物数: 守护者拥有的怪物数。[5.9]"
 
 #: guitext:457
@@ -3126,14 +3190,17 @@ msgid "Deathmatch"
 msgstr "死亡比赛"
 
 #: guitext:462
+#, fuzzy
 msgctxt "In-game interface description"
-msgid ""
-"Sell Room: Sell a room tile for half the building price. LMB select. [6.4]"
+msgid "Sell Room: Sell a room tile for half the building price. LMB select."
 msgstr "出售房间: 出售一格的房间得到造价的一半。左键选择。[6.4]"
 
 #: guitext:463
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Sell Item: Sell a Trap or Door. LMB select. [8.1.2]"
+msgid ""
+"Sell Item: Sell a Trap or Door. Allows you to earn gold on manufacturing. "
+"LMB select."
 msgstr "出售物品: 出售一个陷井或门。左键选择。[8.1.2]"
 
 #: guitext:464
@@ -3537,13 +3604,19 @@ msgid "Unable to join game"
 msgstr "无法加入游戏"
 
 #: guitext:544
+#, fuzzy
 msgctxt "Slab description"
-msgid "Gems: Infinite wealth for your Imps to extract. [12.3]"
+msgid ""
+"Gems: Infinite wealth for your Imps to extract. Cannot be destroyed, but "
+"takes longer to mine than Gold."
 msgstr "宝石: 供小鬼开采的无限的财富。[12.3]"
 
 #: guitext:545
+#, fuzzy
 msgctxt "Object description"
-msgid "Hero Gate: Heroes use this portal to invade your dungeon. [15.4]"
+msgid ""
+"Hero Gate: Heroes use this portal to invade your dungeon. It cannot be "
+"closed on your side."
 msgstr "英雄门: 英雄们使用这个入口入侵你的地下城。[15.4]"
 
 #: guitext:546
@@ -3557,24 +3630,27 @@ msgid "Avatar"
 msgstr "圣者"
 
 #: guitext:548
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Toggle Computer Assistant: Currently - Aggressive. LMB toggle. [3.2.4]"
+msgid "Toggle Computer Assistant: Currently - Aggressive. LMB toggle."
 msgstr "切换计算机助手: 目前 - 进攻性的。左键切换。[3.2.4]"
 
 #: guitext:549
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Toggle Computer Assistant: Currently - Defensive. LMB toggle. [3.2.4]"
+msgid "Toggle Computer Assistant: Currently - Defensive. LMB toggle."
 msgstr "切换计算机助手: 目前 - 防御性的。左键切换。[3.2.4]"
 
 #: guitext:550
+#, fuzzy
 msgctxt "In-game interface description"
-msgid ""
-"Toggle Computer Assistant: Currently - Construction Only. LMB toggle. [3.2.4]"
+msgid "Toggle Computer Assistant: Currently - Construction Only. LMB toggle."
 msgstr "切换计算机助手: 目前 - 仅进行建设。左键切换。[3.2.4]"
 
 #: guitext:551
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Toggle Computer Assistant: Currently - Move Only. LMB toggle. [3.2.4]"
+msgid "Toggle Computer Assistant: Currently - Move Only. LMB toggle."
 msgstr "切换计算机助手: 目前 - 仅进行移动。左键切换。[3.2.4]"
 
 #: guitext:552
@@ -3736,46 +3812,56 @@ msgid "Lava Trap"
 msgstr "岩浆陷井"
 
 #: guitext:584
+#, fuzzy
 msgctxt "Trap description"
 msgid ""
-"Boulder Trap: A rolling rock that crushes everything in its path. LMB "
-"select. RMB zoom. [20.1]"
+"Boulder Trap: A rolling rock that crushes everything in its path. Triggered "
+"when enemy creature is close and within line of sight, or when slapped by a "
+"Keeper. LMB select. RMB zoom."
 msgstr ""
 "圆石陷井: 一个滚动的巨石将碾碎一切阻挡它的东西。左键选择。右键缩放。[20.1]"
 
 #: guitext:585
+#, fuzzy
 msgctxt "Trap description"
-msgid "Alarm Trap: Triggers a Call To Arms spell. LMB select. RMB zoom. [20.2]"
+msgid ""
+"Alarm Trap: Triggers a Call To Arms spell, so that creatures in the area are "
+"summoned to it. LMB select. RMB zoom."
 msgstr "警戒陷井: 被引发后施展召唤军队魔法。左键选择。右键缩放。[20.2]"
 
 #: guitext:586
+#, fuzzy
 msgctxt "Trap description"
 msgid ""
-"Poison Gas Trap: A cloud of noxious vapours triggered by your enemies. LMB "
-"select. RMB zoom. [20.3]"
+"Poison Gas Trap: A cloud of noxious vapours triggered by your enemies. Can "
+"hurt owner creatures if they inhale it. LMB select. RMB zoom."
 msgstr "毒气陷井: 被你的敌人触发后放出有毒的烟雾。左键选择。右键缩放。[20.3]"
 
 #: guitext:587
+#, fuzzy
 msgctxt "Trap description"
 msgid ""
-"Lightning Trap: Strikes nearby enemy creatures with bolts of lightning. LMB "
-"select. RMB zoom. [20.4]"
+"Lightning Trap: Strikes nearby enemy creatures with bolts of lightning when "
+"tripped. Does no harm to owner creatures. LMB select. RMB zoom."
 msgstr "闪电陷井: 用闪电攻击附近的敌人的怪物。左键选择。右键缩放。[20.4]"
 
 #: guitext:588
+#, fuzzy
 msgctxt "Trap description"
 msgid ""
-"Word of Power Trap: Radiates devastating rings of demonic energy, damaging "
-"all creatures within range. LMB select. RMB zoom. [20.5]"
+"Word of Power Trap: Radiates devastating rings of demonic energy, pushing "
+"and damaging all enemy creatures within range. LMB select. RMB zoom."
 msgstr ""
 "强力咒语陷井: 释放出魔鬼般的环形能量，毁灭一切在它的作用范围内的怪物。左键选"
 "择。右键缩放。[20.5]"
 
 #: guitext:589
+#, fuzzy
 msgctxt "Trap description"
 msgid ""
-"Lava Trap: The tile disintegrates revealing a pool of molten lava. LMB "
-"select. RMB zoom. [20.6]"
+"Lava Trap: The tile disintegrates revealing a pool of molten lava. Effects "
+"are irreversible, so Bridge is needed to be able to step on affected area "
+"again. LMB select. RMB zoom."
 msgstr "岩浆陷井: 发出炙热的岩浆。左键选择。右键缩放。[20.6]"
 
 #: guitext:590
@@ -3799,30 +3885,35 @@ msgid "Magic Door"
 msgstr "魔法门"
 
 #: guitext:594
+#, fuzzy
 msgctxt "Door description"
 msgid ""
-"Wooden Door: The simplest means of restricting access. LMB select. RMB zoom. "
-"[21.1]"
+"Wooden Door: The simplest means of restricting access. Can be broken down "
+"easily. LMB select. RMB zoom."
 msgstr "木门: 最简单的限制通行的工具。左键选择。右键缩放。[21.1]"
 
 #: guitext:595
+#, fuzzy
 msgctxt "Door description"
 msgid ""
-"Braced Door: A wooden door reinforced with iron. LMB select. RMB zoom. [21.2]"
+"Braced Door: A wooden door reinforced with iron to last longer. LMB select. "
+"RMB zoom."
 msgstr "铁皮门: 包有铁皮的木门。左键选择。右键缩放。[21.2]"
 
 #: guitext:596
+#, fuzzy
 msgctxt "Door description"
 msgid ""
 "Iron Door: Strong, heavy door capable of sustaining massive damage. LMB "
-"select. RMB zoom. [21.3]"
+"select. RMB zoom."
 msgstr "铁门: 重而坚固的门，可以承受巨大的攻击。左键选择。右键缩放。[21.3]"
 
 #: guitext:597
+#, fuzzy
 msgctxt "Door description"
 msgid ""
 "Magic Door: A special door, highly resistant to physical damage but "
-"susceptible to magical damage. LMB select. RMB zoom. [21.4]"
+"susceptible to magical damage. LMB select. RMB zoom."
 msgstr ""
 "魔法门: 一种特殊的门，可以极大地抵抗物理攻击，但易受魔法攻击。左键选择。右键"
 "缩放。[21.4] "
@@ -5819,10 +5910,37 @@ msgstr "中文版翻译"
 #: guitext:945
 msgctxt "Game event name"
 msgid "Your creature cannot reach the room it needs"
-msgstr ""
+msgstr "你的怪物无法到达以下房间"
 
 #: guitext:946
 msgctxt "Game event description"
 msgid "Room unreachable: LMB toggle. RMB delete."
-msgstr ""
+msgstr "无法到达目的地：左键切换。右键删除。"
 
+#~ msgctxt "Slab description"
+#~ msgid "Impenetrable Rock: Your Imps cannot dig through this. [12.4]"
+#~ msgstr "不可穿越的岩石: 你的小鬼不能挖掘它。[12.4]"
+
+#~ msgctxt "Slab description"
+#~ msgid "Earth: You can excavate this. [12.1]"
+#~ msgstr "泥土: 你可以挖掘它。[12.1]"
+
+#~ msgctxt "Slab description"
+#~ msgid "Lava: Burns any creature that step on it. [14.2]"
+#~ msgstr "岩浆: 将燃烧任何走到上面的怪物。[14.2]"
+
+#~ msgctxt "Slab description"
+#~ msgid "Path: Unclaimed earth floor. [12.1]"
+#~ msgstr "小径: 未被占领的地面。[12.1]"
+
+#~ msgctxt "Slab description"
+#~ msgid "Claimed area: Your dungeon territory. [12.1]"
+#~ msgstr "被占领的地面: 你的地下城的区域。[12.1]"
+
+#~ msgctxt "In-game interface description"
+#~ msgid "Information Panel: Miscellaneous information. [5.0]"
+#~ msgstr "信息面板: 多方面的信息。[5.0]"
+
+#~ msgctxt "In-game interface description"
+#~ msgid "Time: The time until the next Creature Payday. [5.3]"
+#~ msgstr "发薪时间: 到下一个发薪日所需的时间。[5.4]"
