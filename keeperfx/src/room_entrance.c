@@ -35,6 +35,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
+//TODO CONFIG Put attraction scores into config files
 unsigned char const attract_score[CREATURE_TYPES_COUNT] = {
     0, 12, 11, 6, 7, 7, 14, 16,     //0
     6, 6, 12, 5, 6, 13, 14, 10,     //8
@@ -97,10 +98,14 @@ long calculate_attractive_room_quantity(RoomKind room_kind, PlayerNumber plyr_id
 
     switch (room_kind)
     {
-    case RoK_DUNGHEART:
     case RoK_LAIR:
+        // Add one attractiveness per 2 unused slabs in the room
+        used_fraction = get_room_kind_used_capacity_fraction(plyr_idx, room_kind);
+        return (slabs_count * (256-used_fraction)) / 256 / 2 - (long)dungeon->owned_creatures_of_model[crmodel];
+    case RoK_DUNGHEART:
     case RoK_BRIDGE:
-        return -(long)dungeon->owned_creatures_of_model[crmodel];
+        // Add one attractiveness per 9 slabs of such room
+        return slabs_count / 9 - (long)dungeon->owned_creatures_of_model[crmodel];
     case RoK_ENTRANCE:
     case RoK_LIBRARY:
     case RoK_PRISON:
@@ -111,11 +116,14 @@ long calculate_attractive_room_quantity(RoomKind room_kind, PlayerNumber plyr_id
     case RoK_GRAVEYARD:
     case RoK_BARRACKS:
     case RoK_GUARDPOST:
+        // Add one attractiveness per 3 slabs of such room
         return slabs_count / 3 - (long)dungeon->owned_creatures_of_model[crmodel];
     case RoK_WORKSHOP:
     case RoK_GARDEN:
+        // Add one attractiveness per 4 slabs of such room
         return slabs_count / 4 - (long)dungeon->owned_creatures_of_model[crmodel];
     case RoK_TREASURE:
+        // Add one attractiveness per 3 used slabs in the room
         used_fraction = get_room_kind_used_capacity_fraction(plyr_idx, room_kind);
         return (slabs_count * used_fraction) / 256 / 3;
     case RoK_NONE:
@@ -127,14 +135,21 @@ long calculate_attractive_room_quantity(RoomKind room_kind, PlayerNumber plyr_id
 long calculate_excess_attraction_for_creature(ThingModel crtr_kind, PlayerNumber plyr_idx)
 {
     struct CreatureStats * stats;
-    RoomKind room_kind;
 
     SYNCDBG(11, "Starting");
 
     stats = creature_stats_get(crtr_kind);
-    room_kind = stats->entrance_rooms[0];
-
-    return calculate_attractive_room_quantity(room_kind, plyr_idx, crtr_kind);
+    long excess_attraction = 0;
+    int i;
+    for (i=0; i < 3; i++)
+    {
+        RoomKind room_kind;
+        room_kind = stats->entrance_rooms[i];
+        if (room_kind != RoK_NONE) {
+            excess_attraction += calculate_attractive_room_quantity(room_kind, plyr_idx, crtr_kind);
+        }
+    }
+    return excess_attraction;
 }
 
 TbBool creature_will_generate_for_dungeon(const struct Dungeon * dungeon, ThingModel crtr_kind)
