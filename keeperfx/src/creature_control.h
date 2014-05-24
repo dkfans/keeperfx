@@ -619,6 +619,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     // New fields go there; don't change earlier fields.
     unsigned short fear_stronger;
     unsigned short fear_noflee_factor;
+    short entrance_score;
 };
 
 
