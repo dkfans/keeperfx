@@ -35,14 +35,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-//TODO CONFIG Put attraction scores into config files
-unsigned char const attract_score[CREATURE_TYPES_COUNT] = {
-    0, 12, 11, 6, 7, 7, 14, 16,     //0
-    6, 6, 12, 5, 6, 13, 14, 10,     //8
-    11, 13, 10, 3, 14, 12, 13, 2,   //16
-    6, 14, 8, 10, 5, 10, 10, 0      //24
-};
-/******************************************************************************/
 DLLIMPORT void _DK_process_entrance_generation(void);
 DLLIMPORT int _DK_create_creature_at_entrance(struct Room * room, unsigned short crmodel);
 /******************************************************************************/
@@ -145,8 +137,9 @@ long calculate_excess_attraction_for_creature(ThingModel crtr_kind, PlayerNumber
     {
         RoomKind room_kind;
         room_kind = stats->entrance_rooms[i];
-        if (room_kind != RoK_NONE) {
-            excess_attraction += calculate_attractive_room_quantity(room_kind, plyr_idx, crtr_kind);
+        if ((room_kind != RoK_NONE) && (stats->entrance_slabs_req[i] > 0)) {
+            // First room adds fully to attraction, second adds only 1/2, third adds 1/3
+            excess_attraction += calculate_attractive_room_quantity(room_kind, plyr_idx, crtr_kind) / (i+1);
         }
     }
     return excess_attraction;
@@ -220,10 +213,14 @@ int calculate_creature_to_generate_for_dungeon(struct Dungeon * dungeon)
     gen_count = 0;
     crtr_freq[0] = 0;
     for (i = 1; i < CREATURE_TYPES_COUNT; ++i) {
-        if (creature_will_generate_for_dungeon(dungeon, i)) {
+        if (creature_will_generate_for_dungeon(dungeon, i))
+        {
+            struct CreatureStats *crstat;
+            crstat = creature_stats_get(i);
+
             gen_count += 1;
 
-            score = (long)attract_score[i]
+            score = (long)crstat->entrance_score
                 + calculate_excess_attraction_for_creature(i, dungeon->owner);
             if (score < 1) {
                 score = 1;
