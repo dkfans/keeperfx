@@ -2672,7 +2672,7 @@ void process_frontend_packets(void)
       switch (nspckt->field_4 >> 3)
       {
       case 2:
-        add_message(i, (char *)&nspckt->field_A);
+        add_message(i, (char *)&nspckt->param1);
         break;
       case 3:
         if (!validate_versions())
@@ -2684,14 +2684,14 @@ void process_frontend_packets(void)
         frontend_set_state(FeSt_NETLAND_VIEW);
         break;
       case 4:
-        frontend_set_alliance(nspckt->field_A, nspckt->field_B);
+        frontend_set_alliance(nspckt->param1, nspckt->param2);
         break;
       case 7:
-        fe_computer_players = nspckt->field_A;
+        fe_computer_players = nspckt->param1;
         break;
       case 8:
         k = strlen(player->mp_message_text);
-        if (nspckt->field_A == KC_BACK)
+        if (nspckt->param1 == KC_BACK)
         {
           if (k > 0)
           {
@@ -2699,7 +2699,7 @@ void process_frontend_packets(void)
             player->mp_message_text[k] = '\0';
           }
         } else
-        if (nspckt->field_A == KC_RETURN)
+        if (nspckt->param1 == KC_RETURN)
         {
           if (k > 0)
           {
@@ -2709,7 +2709,7 @@ void process_frontend_packets(void)
           }
         } else
         {
-          c = key_to_ascii(nspckt->field_A, nspckt->field_B);
+          c = key_to_ascii(nspckt->param1, nspckt->param2);
           if ((c != 0) && (frontend_font_char_width(1,c) > 1) && (k < 62))
           {
             player->mp_message_text[k] = c;

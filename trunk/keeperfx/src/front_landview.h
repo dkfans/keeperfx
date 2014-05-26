@@ -61,8 +61,9 @@ struct ScreenPacket { // sizeof = 12
   char field_5;
   short field_6;
   short field_8;
-  char field_A;
-  unsigned char field_B;
+  //TODO This is unacceptable - level number won't fit in 8 bits; this causes zoom area to be invalid. Change to int when possible.
+  char param1;
+  unsigned char param2;
 };
 
 #pragma pack()

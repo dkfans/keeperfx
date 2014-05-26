@@ -220,7 +220,6 @@ short state_cleanup_unable_to_fight(struct Thing *creatng);
 short state_cleanup_unconscious(struct Thing *creatng);
 short creature_search_for_spell_to_steal_in_room(struct Thing *creatng);
 short creature_pick_up_spell_to_steal(struct Thing *creatng);
-void set_creature_size_stuff(struct Thing *creatng);
 
 /******************************************************************************/
 #ifdef __cplusplus
