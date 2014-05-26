@@ -319,6 +319,7 @@ void make_creature_unconscious(struct Thing *creatng);
 void make_creature_conscious_without_changing_state(struct Thing *creatng);
 
 TbBool check_experience_upgrade(struct Thing *thing);
+void set_creature_size_stuff(struct Thing *creatng);
 long process_work_speed_on_work_value(struct Thing *thing, long base_val);
 TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing *thing, const struct Room *room, struct Coord3d *pos);
 SubtlCodedCoords find_position_around_in_room(const struct Coord3d *pos, PlayerNumber owner, RoomKind rkind);
