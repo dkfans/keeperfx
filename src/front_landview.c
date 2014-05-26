@@ -550,6 +550,7 @@ short clicked_map_level_ensign(void)
     set_map_info_visible_hotspot(map_info.zoomspot_x, map_info.zoomspot_y);
     map_info.field_1E = map_info.scrshift_x << 8;
     map_info.field_22 = map_info.scrshift_y << 8;
+    SYNCDBG(8,"Level %ld hotspot (%d,%d) zoom (%d,%d)",(long)lvinfo->lvnum,(int)map_info.hotspot_x,(int)map_info.hotspot_y,(int)map_info.zoomspot_x,(int)map_info.zoomspot_y);
     return true;
   }
   return false;
@@ -1146,7 +1147,7 @@ TbBool test_hand_slap_collides(PlayerNumber plyr_idx)
     rctb.right = map_hand[9].SWidth + rctb.left;
     rctb.bottom = rctb.top + map_hand[9].SHeight;
   } else
-  if (nspck->field_A != SINGLEPLAYER_NOTSTARTED)
+  if (nspck->param1 != SINGLEPLAYER_NOTSTARTED)
   {
     rctb.left = nspck->field_6 - 20;
     rctb.top = nspck->field_8 - 14;
@@ -1271,12 +1272,12 @@ void draw_netmap_players_hands(void)
         n = nspck->field_4 & 0xF8;
         if (n == 8)
         {
-          k = (unsigned char)nspck->field_A;
+          k = (unsigned char)nspck->param1;
           spr = &map_hand[k];
         } else
         if (n == 16)
         {
-          k = nspck->field_B;
+          k = nspck->param2;
           if (k > 11)
             k = 11;
           if (k < 0)
@@ -1285,7 +1286,7 @@ void draw_netmap_players_hands(void)
           y = hand_limp_yoffset[k];
           spr = &map_hand[21];
         } else
-        if (nspck->field_A == SINGLEPLAYER_NOTSTARTED)
+        if (nspck->param1 == SINGLEPLAYER_NOTSTARTED)
         {
             k = LbTimerClock() / 150;
             spr = &map_hand[1 + (k%8)];
@@ -1482,13 +1483,14 @@ void frontnetmap_input(void)
         {
           if ( left_button_clicked )
           {
-            fe_net_level_selected = net_level_hilighted;
-            left_button_clicked = 0;
-            lvinfo = get_level_info(fe_net_level_selected);
-            if (lvinfo != NULL)
-              sprintf(level_name, "%s %d", gui_string(GUIStr_MnuLevel), (int)lvinfo->lvnum);
-            else
-              sprintf(level_name, "%s", gui_string(GUIStr_MnuLevel));
+              fe_net_level_selected = net_level_hilighted;
+              left_button_clicked = 0;
+              lvinfo = get_level_info(fe_net_level_selected);
+              if (lvinfo != NULL) {
+                sprintf(level_name, "%s %d", gui_string(GUIStr_MnuLevel), (int)lvinfo->lvnum);
+              } else {
+                sprintf(level_name, "%s", gui_string(GUIStr_MnuLevel));
+              }
           }
         }
       }
@@ -1554,14 +1556,14 @@ TbBool frontmap_exchange_screen_packet(void)
     LbMemorySet(net_screen_packet, 0, sizeof(net_screen_packet));
     nspck = &net_screen_packet[my_player_number];
     nspck->field_4 |= 0x01;
-    nspck->field_A = fe_net_level_selected;
+    nspck->param1 = fe_net_level_selected;
     if (net_map_limp_time > 0)
     {
       nspck->field_4 = (nspck->field_4 & 0x07) | 0x10;
       nspck->field_6 = limp_hand_x;
       nspck->field_8 = limp_hand_y;
       net_map_limp_time--;
-      nspck->field_B = net_map_limp_time;
+      nspck->param2 = net_map_limp_time;
       if (net_map_limp_time == 1)
       {
           LbMouseSetPosition(
@@ -1586,7 +1588,7 @@ TbBool frontmap_exchange_screen_packet(void)
         if (net_map_slap_frame <= 16)
         {
           nspck->field_4 = (nspck->field_4 & 0x07) | 0x08;
-          nspck->field_A = net_map_slap_frame;
+          nspck->param1 = net_map_slap_frame;
           net_map_slap_frame++;
         } else
         {
@@ -1621,7 +1623,7 @@ TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
         nspck = &net_screen_packet[i];
         if ((nspck->field_4 & 0x01) == 0)
           continue;
-        if (nspck->field_A == -2)
+        if (nspck->param1 == -2)
         {
             if (fe_network_active)
             {
@@ -1634,12 +1636,12 @@ TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
             }
             return false;
         }
-        if ((nspck->field_A == SINGLEPLAYER_NOTSTARTED) || ((nspck->field_4 & 0xF8) == 8))
+        if ((nspck->param1 == SINGLEPLAYER_NOTSTARTED) || ((nspck->field_4 & 0xF8) == 8))
         {
             nmps->tmp1++;
         } else
         {
-            pckt_lvnum = (unsigned char)nspck->field_A;
+            pckt_lvnum = nspck->param1;
             scratch[pckt_lvnum]++;
             if (scratch[pckt_lvnum] == tmp2)
             {
@@ -1652,7 +1654,7 @@ TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
                 nmps->is_selected = true;
             }
         }
-        if (((nspck->field_4 & 0xF8) == 0x08) && (nspck->field_A == 13))
+        if (((nspck->field_4 & 0xF8) == 0x08) && (nspck->param1 == 13))
         {
             if ( test_hand_slap_collides(i) )
             {
@@ -1720,6 +1722,7 @@ TbBool frontnetmap_update(void)
         set_map_info_visible_hotspot(map_info.zoomspot_x, map_info.zoomspot_y);
         map_info.field_1E = map_info.scrshift_x << 8;
         map_info.field_22 = map_info.scrshift_y << 8;
+        SYNCDBG(8,"Level %ld hotspot (%d,%d) zoom (%d,%d)",(long)nmps.lvnum,(int)map_info.hotspot_x,(int)map_info.hotspot_y,(int)map_info.zoomspot_x,(int)map_info.zoomspot_y);
         if (!fe_network_active)
             fe_computer_players = 1;
     }
