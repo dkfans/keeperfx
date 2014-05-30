@@ -409,45 +409,47 @@ void convert_find_info(struct TbFileFind *ffind)
 // to be used in _findnext and _findclose calls inside TbFileFind struct.
 int LbFileFindFirst(const char *filespec, struct TbFileFind *ffind,unsigned int attributes)
 {
-  // original Watcom code was
-  //dos_findfirst_(path, attributes,&(ffind->Reserved))
-  //The new code skips 'attributes' as Win32 prototypes seem not to use them
-  ffind->ReservedHandle=_findfirst(filespec,&(ffind->Reserved));
-  int result;
-  if (ffind->ReservedHandle == -1)
-  {
-    result = -1;
-  } else
-  {
-    convert_find_info(ffind);
-    result = 1;
-  }
-  return result;
+    // original Watcom code was
+    //dos_findfirst_(path, attributes,&(ffind->Reserved))
+    //The new code skips 'attributes' as Win32 prototypes seem not to use them
+    ffind->ReservedHandle = _findfirst(filespec,&(ffind->Reserved));
+    int result;
+    if (ffind->ReservedHandle == -1)
+    {
+      result = -1;
+    } else
+    {
+      convert_find_info(ffind);
+      result = 1;
+    }
+    return result;
 }
 
 // returns -1 if no match is found, otherwise returns 1
 int LbFileFindNext(struct TbFileFind *ffind)
 {
-  ;
-  int result;
-  if ( _findnext(ffind->ReservedHandle,&(ffind->Reserved)) < 0 )
-  {
-    _findclose(ffind->ReservedHandle);
-    result = -1;
-  }
-  else
-  {
-    convert_find_info(ffind);
-    result = 1;
-  }
-  return result;
+    int result;
+    if ( _findnext(ffind->ReservedHandle,&(ffind->Reserved)) < 0 )
+    {
+        _findclose(ffind->ReservedHandle);
+        ffind->ReservedHandle = -1;
+        result = -1;
+    } else
+    {
+        convert_find_info(ffind);
+        result = 1;
+    }
+    return result;
 }
 
 //Ends file searching sequence
 int LbFileFindEnd(struct TbFileFind *ffind)
 {
-  _findclose(ffind->ReservedHandle);
-  return 1;
+    if (ffind->ReservedHandle != -1)
+    {
+        _findclose(ffind->ReservedHandle);
+    }
+    return 1;
 }
 
 //Renames a disk file
