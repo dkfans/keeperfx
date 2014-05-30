@@ -415,51 +415,46 @@ void gui_pretty_background(struct GuiMenu *gmnu)
 void gui_area_new_normal_button(struct GuiButton *gbtn)
 {
   SYNCDBG(10,"Starting");
-  struct TbSprite *spr;
   int i;
   //_DK_gui_area_new_normal_button(gbtn);
-  spr = &gui_panel_sprites[gbtn->field_29];
-  if ((gbtn->flags & 0x08) != 0)
+  if ((gbtn->flags & LbBtnF_Unknown08) != 0)
   {
       i = 0;
-      if ((gbtn->gbactn_1) || (gbtn->gbactn_2))
+      if ((!gbtn->gbactn_1) && (!gbtn->gbactn_2))
           i = 1;
-      LbSpriteDraw(gbtn->scr_pos_x / pixel_size, gbtn->scr_pos_y / pixel_size, &spr[1-i]);
+      draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->field_29+i);
   } else
   {
-      LbSpriteDrawRemap(gbtn->scr_pos_x / pixel_size, gbtn->scr_pos_y / pixel_size, &spr[1], &pixmap.fade_tables[12*256]);
+      draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->field_29+1, 12);
   }
   SYNCDBG(12,"Finished");
 }
 
 void gui_draw_tab(struct GuiButton *gbtn)
 {
-  if (gbtn->gbtype == Lb_CYCLEBTN)
-    ERRORLOG("Cycle button cannot use this draw function!");
-  if ((gbtn->gbactn_1) || (gbtn->gbactn_2))
-    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->field_29);
-  else
-    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->field_29+1);
+    int i;
+    i = gbtn->field_29;
+    if (gbtn->gbtype == Lb_CYCLEBTN) {
+        ERRORLOG("Cycle button cannot use this draw function!");
+    }
+    if ((!gbtn->gbactn_1) && (!gbtn->gbactn_2))
+        i++;
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, i);
 }
 
 void gui_area_new_null_button(struct GuiButton *gbtn)
 {
-    struct TbSprite *spr;
-    long pos_x,pos_y;
     //_DK_gui_area_new_null_button(gbtn);
-    pos_x = gbtn->scr_pos_x / (long)pixel_size;
-    pos_y = gbtn->scr_pos_y / (long)pixel_size;
-    spr = &gui_panel_sprites[gbtn->field_29];
-    LbSpriteDraw(pos_x, pos_y, spr);
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->field_29);
 }
 
 void gui_area_new_no_anim_button(struct GuiButton *gbtn)
 {
     SYNCDBG(10,"Starting");
-    //_DK_gui_area_new_no_anim_button(gbtn);
+    //_DK_gui_area_new_no_anim_button(gbtn); return;
     int i;
     i = gbtn->field_29;
-    if (gbtn->gbtype == 2)
+    if (gbtn->gbtype == Lb_CYCLEBTN)
     {
         if (gbtn->content != NULL) {
             i += *(unsigned char *)gbtn->content;
@@ -470,18 +465,16 @@ void gui_area_new_no_anim_button(struct GuiButton *gbtn)
             ERRORLOG("Cycle button must have a non-zero MaxVal!");
         }
     }
-    struct TbSprite *spr;
-    spr = &gui_panel_sprites[i];
-    if ((gbtn->flags & 0x08) == 0)
+    if ((gbtn->flags & LbBtnF_Unknown08) == 0)
     {
-        LbSpriteDrawRemap(gbtn->scr_pos_x / (int)pixel_size, gbtn->scr_pos_y / (int)pixel_size, spr, &pixmap.fade_tables[12*256]);
+        draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, i, 12);
     } else
     if ((gbtn->gbactn_1) || (gbtn->gbactn_2))
     {
-        LbSpriteDrawRemap(gbtn->scr_pos_x / (int)pixel_size, gbtn->scr_pos_y / (int)pixel_size, spr, &pixmap.fade_tables[44*256]);
+        draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, i, 44);
     } else
     {
-        LbSpriteDraw(gbtn->scr_pos_x / (int)pixel_size, gbtn->scr_pos_y / (int)pixel_size, spr);
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, i);
     }
     SYNCDBG(12,"Finished");
 }
@@ -491,9 +484,9 @@ void gui_area_no_anim_button(struct GuiButton *gbtn)
     struct TbSprite *spr;
     int spr_idx;
     long pos_x,pos_y;
-    //_DK_gui_area_no_anim_button(gbtn);
+    //_DK_gui_area_no_anim_button(gbtn); return;
     spr_idx = gbtn->field_29;
-    if (gbtn->gbtype == 2)
+    if (gbtn->gbtype == Lb_CYCLEBTN)
     {
         unsigned char *ctptr;
         ctptr = (unsigned char *)gbtn->content;
@@ -530,7 +523,7 @@ void gui_area_normal_button(struct GuiButton *gbtn)
     long pos_x,pos_y;
     //_DK_gui_area_normal_button(gbtn);
     spr_idx = gbtn->field_29;
-    if (gbtn->gbtype == 2)
+    if (gbtn->gbtype == Lb_CYCLEBTN)
     {
         ERRORLOG("Cycle button cannot have a normal button draw function!");
     }
@@ -813,18 +806,14 @@ void gui_set_menu_mode(struct GuiButton *gbtn)
 void gui_area_flash_cycle_button(struct GuiButton *gbtn)
 {
     SYNCDBG(10,"Starting");
-    struct TbSprite *spr;
     int i;
-    //_DK_gui_area_flash_cycle_button(gbtn);
+    //_DK_gui_area_flash_cycle_button(gbtn); return;
     i = gbtn->field_29;
-    long pos_x,pos_y;
-    pos_x = gbtn->scr_pos_x / (long)pixel_size;
-    pos_y = gbtn->scr_pos_y / (long)pixel_size;
-    i = gbtn->field_29;
-    if ((gbtn->flags & LbBtnF_Unknown08) == 0)
+    if ((gbtn->flags & LbBtnF_Unknown08) != 0)
     {
         if ((!gbtn->gbactn_1) && (!gbtn->gbactn_2))
         {
+            // If function is active, the button should blink
             unsigned char *ctptr;
             ctptr = (unsigned char *)gbtn->content;
             if ((ctptr != NULL) && (*ctptr > 0))
@@ -834,16 +823,13 @@ void gui_area_flash_cycle_button(struct GuiButton *gbtn)
                 }
             }
         }
-        if ((gbtn->gbactn_1) || (gbtn->gbactn_2)) {
-            spr = &gui_panel_sprites[i];
-        } else {
-            spr = &gui_panel_sprites[i+1];
+        if ((!gbtn->gbactn_1) && (!gbtn->gbactn_2)) {
+            i++;
         }
-        LbSpriteDraw(pos_x, pos_y, spr);
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, i);
     } else
     {
-        spr = &gui_panel_sprites[i];
-        LbSpriteDrawRemap(pos_x, pos_y, spr, &pixmap.fade_tables[12*256]);
+        draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, i, 12);
     }
     SYNCDBG(12,"Finished");
 }
