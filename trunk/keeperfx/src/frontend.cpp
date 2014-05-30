@@ -1134,13 +1134,13 @@ void draw_slider64k(long scr_x, long scr_y, long width)
 void gui_area_slider(struct GuiButton *gbtn)
 {
     //_DK_gui_area_slider(gbtn);
-    if (gbtn->flags & 0x08)
+    if (gbtn->flags & LbBtnF_Unknown08)
     {
         gbtn->height = 32;
         draw_slider64k(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width);
         int shift_x;
         shift_x = (gbtn->width - 64) * gbtn->slide_val >> 8;
-        if (gbtn->flags) {
+        if (gbtn->flags != 0) {
             LbSpriteDraw((gbtn->scr_pos_x + shift_x + 24) / pixel_size, (gbtn->scr_pos_y + 6) / pixel_size, &button_sprite[21]);
         } else {
             LbSpriteDraw((gbtn->scr_pos_x + shift_x + 24) / pixel_size, (gbtn->scr_pos_y + 6) / pixel_size, &button_sprite[20]);
@@ -1243,7 +1243,7 @@ void frontend_draw_slider(struct GuiButton *gbtn)
     LbSpriteDraw(cur_x, cur_y, &frontend_sprite[94]);
     int val;
     val = gbtn->slide_val * (gbtn->width - 64) >> 8;
-    if (gbtn->flags) {
+    if (gbtn->flags != 0) {
         LbSpriteDraw((gbtn->scr_pos_x + val + 24) / pixel_size, (gbtn->scr_pos_y + 3) / pixel_size, &frontend_sprite[91]);
     } else {
         LbSpriteDraw((gbtn->scr_pos_x + val + 24) / pixel_size, (gbtn->scr_pos_y + 3) / pixel_size, &frontend_sprite[78]);
@@ -2365,13 +2365,13 @@ void frontend_level_select_down(struct GuiButton *gbtn)
 void frontend_level_select_up_maintain(struct GuiButton *gbtn)
 {
   if (gbtn != NULL)
-    set_flag_byte(&gbtn->flags, 0x08, (select_level_scroll_offset != 0));
+    set_flag_byte(&gbtn->flags, LbBtnF_Unknown08, (select_level_scroll_offset != 0));
 }
 
 void frontend_level_select_down_maintain(struct GuiButton *gbtn)
 {
   if (gbtn != NULL)
-    set_flag_byte(&gbtn->flags, 0x08, (select_level_scroll_offset < number_of_freeplay_levels-frontend_select_level_items_visible+1));
+    set_flag_byte(&gbtn->flags, LbBtnF_Unknown08, (select_level_scroll_offset < number_of_freeplay_levels-frontend_select_level_items_visible+1));
 }
 
 void frontend_level_select_maintain(struct GuiButton *gbtn)
@@ -2380,7 +2380,7 @@ void frontend_level_select_maintain(struct GuiButton *gbtn)
   if (gbtn != NULL)
   {
     i = (long)gbtn->content - 45;
-    set_flag_byte(&gbtn->flags, 0x08, (select_level_scroll_offset+i < number_of_freeplay_levels));
+    set_flag_byte(&gbtn->flags, LbBtnF_Unknown08, (select_level_scroll_offset+i < number_of_freeplay_levels));
   }
 }
 
@@ -3030,7 +3030,7 @@ void draw_menu_buttons(struct GuiMenu *gmnu)
     {
         gbtn = &active_buttons[i];
         callback = gbtn->draw_call;
-        if ((callback != NULL) && (gbtn->flags & 0x04) && (gbtn->flags & 0x01) && (gbtn->gmenu_idx == gmnu->number))
+        if ((callback != NULL) && (gbtn->flags & LbBtnF_Unknown04) && (gbtn->flags & LbBtnF_Unknown01) && (gbtn->gmenu_idx == gmnu->number))
         {
           if ( ((gbtn->gbactn_1 == 0) && (gbtn->gbactn_2 == 0)) || (gbtn->gbtype == Lb_SLIDER) || (callback == gui_area_null) )
             callback(gbtn);
@@ -3041,7 +3041,7 @@ void draw_menu_buttons(struct GuiMenu *gmnu)
     {
         gbtn = &active_buttons[i];
         callback = gbtn->draw_call;
-        if ((callback != NULL) && (gbtn->flags & 0x04) && (gbtn->flags & 0x01) && (gbtn->gmenu_idx == gmnu->number))
+        if ((callback != NULL) && (gbtn->flags & LbBtnF_Unknown04) && (gbtn->flags & LbBtnF_Unknown01) && (gbtn->gmenu_idx == gmnu->number))
         {
           if (((gbtn->gbactn_1) || (gbtn->gbactn_2)) && (gbtn->gbtype != Lb_SLIDER) && (callback != gui_area_null))
             callback(gbtn);
@@ -3119,7 +3119,7 @@ void draw_menu_spangle(struct GuiMenu *gmnu)
     for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
     {
         gbtn = &active_buttons[i];
-        if ((!gbtn->draw_call) || ((gbtn->flags & 0x04) == 0) || ((gbtn->flags & 0x01) == 0) || (game.flash_button_index == 0))
+        if ((!gbtn->draw_call) || ((gbtn->flags & LbBtnF_Unknown04) == 0) || ((gbtn->flags & 0x01) == 0) || (game.flash_button_index == 0))
           continue;
         in_range = 0;
         switch (gbtn->id_num)
