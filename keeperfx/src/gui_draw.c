@@ -382,7 +382,7 @@ void draw_gui_panel_sprite_rmleft(long x, long y, long spridx, unsigned long rem
   if ((spridx <= 0) || (spridx > GUI_PANEL_SPRITES_COUNT))
     return;
   spr = &gui_panel_sprites[spridx];
-  LbSpriteDrawRemap(x/pixel_size, y/pixel_size, spr, &pixmap.fade_tables[remap]);
+  LbSpriteDrawRemap(x/pixel_size, y/pixel_size, spr, &pixmap.fade_tables[remap*256]);
 }
 
 void draw_gui_panel_sprite_ocleft(long x, long y, long spridx, TbPixel color)
