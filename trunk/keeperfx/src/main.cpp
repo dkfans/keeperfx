@@ -1382,7 +1382,7 @@ TbBool set_default_startup_parameters(void)
 }
 
 /**
- * Clears the Game structure completely, and copies statrup parameters
+ * Clears the Game structure completely, and copies startup parameters
  * from start_params structure.
  */
 void clear_complete_game(void)
@@ -1552,7 +1552,8 @@ void clear_game_for_summary(void)
     clear_mapwho();
     game.entrance_room_id = 0;
     game.action_rand_seed = 0;
-    set_flag_byte(&game.numfield_C,0x04,false);
+    game.numfield_C &= ~0x04;
+    game.numfield_C &= ~0x01;
     clear_columns();
     clear_action_points();
     clear_players();
