@@ -96,6 +96,8 @@ void gui_load_game(struct GuiButton *gbtn)
   if (!load_game(gbtn->field_1B))
   {
       ERRORLOG("Loading game %d failed; quitting.",(int)gbtn->field_1B);
+      // Even on quit, we still should unpause the game
+      set_players_packet_action(player, PckA_TogglePause, 0, 0, 0, 0);
       quit_game = 1;
       return;
   }

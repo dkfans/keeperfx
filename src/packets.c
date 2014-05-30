@@ -87,7 +87,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_process_pause_packet(long a1, long a2);
+DLLIMPORT void _DK_process_pause_packet(long curr_pause, long new_pause);
 DLLIMPORT void _DK_process_map_packet_clicks(long plyr_idx);
 DLLIMPORT void _DK_process_quit_packet(struct PlayerInfo *, int);
 DLLIMPORT void _DK_process_dungeon_control_packet_clicks(long plyr_idx);
@@ -1462,7 +1462,7 @@ void load_packets_for_turn(GameTurn nturn)
     }
 }
 
-void process_pause_packet(long a1, long a2)
+void process_pause_packet(long curr_pause, long new_pause)
 {
   struct PlayerInfo *player;
   TbBool can;
@@ -1493,9 +1493,9 @@ void process_pause_packet(long a1, long a2)
   if ( can )
   {
       player = get_my_player();
-      set_flag_byte(&game.numfield_C, 0x01, a1);
+      set_flag_byte(&game.numfield_C, 0x01, curr_pause);
       if ((game.numfield_C & 0x01) != 0)
-          set_flag_byte(&game.numfield_C, 0x80, a2);
+          set_flag_byte(&game.numfield_C, 0x80, new_pause);
       else
           set_flag_byte(&game.numfield_C, 0x01, false);
       if ( !SoundDisabled )
