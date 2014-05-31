@@ -75,13 +75,20 @@ enum CreatureJobFlags {
     // Nonexisting jobs
     Job_EXEMPT           = 0x00008000,
     Job_TEMPLE_SACRIFICE = 0x00010000,
+    Job_PAINFUL_TORTURE  = 0x00020000,
+    Job_CAPTIVITY        = 0x00040000,
 };
 
 enum JobKindFlags {
+    JoKF_None = 0x00,
     JoKF_AssignHumanDropInRoom = 0x01,
     JoKF_AssignComputerDropInRoom = 0x02,
     JoKF_AssignDropOnRoomBorder = 0x04,
     JoKF_AssignDropOnRoomCenter = 0x08,
+    JoKF_OwnedCreatures = 0x10,
+    JoKF_EnemyCreatures = 0x20,
+    JoKF_OwnedDiggers = 0x40,
+    JoKF_EnemyDiggers = 0x80,
 };
 
 enum CreatureDeathKind {
@@ -231,7 +238,7 @@ CrtrStateId get_initial_state_for_job(CreatureJob jobpref);
 CrtrStateId get_arrive_at_state_for_room(RoomKind rkind);
 unsigned long get_flags_for_job(CreatureJob jobpref);
 CreatureJob get_creature_job_causing_stress(CreatureJob job_flags, RoomKind rkind);
-CreatureJob get_job_for_room(RoomKind rkind, TbBool only_computer);
+CreatureJob get_job_for_room(RoomKind rkind, unsigned long required_flags);
 const char *creature_job_code_name(CreatureJob job_flag);
 /******************************************************************************/
 #ifdef __cplusplus
