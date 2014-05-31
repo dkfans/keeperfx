@@ -439,7 +439,7 @@ long get_id(const struct NamedCommand *desc, const char *itmname)
     return -1;
   for (i=0; desc[i].name != NULL; i++)
   {
-    if (stricmp(desc[i].name, itmname) == 0)
+    if (strcasecmp(desc[i].name, itmname) == 0)
       return desc[i].num;
   }
   return -1;
@@ -459,10 +459,10 @@ long get_rid(const struct NamedCommand *desc, const char *itmname)
     return -1;
   for (i=0; desc[i].name != NULL; i++)
   {
-    if (stricmp(desc[i].name, itmname) == 0)
+    if (strcasecmp(desc[i].name, itmname) == 0)
       return desc[i].num;
   }
-  if (stricmp("RANDOM", itmname) == 0)
+  if (strcasecmp("RANDOM", itmname) == 0)
   {
       i = (rand() % i);
       return desc[i].num;

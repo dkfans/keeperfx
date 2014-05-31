@@ -4024,7 +4024,7 @@ TbBool creature_is_doing_job_in_room_of_kind(const struct Thing *creatng, RoomKi
         CrtrStateId pvstate;
         CrtrStateId nxstate;
         pvstate = get_creature_state_besides_interruptions(creatng);
-        nxstate = get_initial_state_for_job(get_job_for_room(rkind, false));
+        nxstate = get_initial_state_for_job(get_job_for_room(rkind, JoKF_None));
         if ((pvstate != CrSt_Unused) && (pvstate == nxstate)) {
             return true;
         }

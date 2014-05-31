@@ -1606,7 +1606,7 @@ short creature_being_dropped(struct Thing *creatng)
         set_start_state(creatng);
         return 2;
     }
-    set_creature_assigned_job(creatng, get_job_for_room(room->kind, false));
+    set_creature_assigned_job(creatng, get_job_for_room(room->kind, JoKF_None));
     return 2;
 }
 

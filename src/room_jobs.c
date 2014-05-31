@@ -353,6 +353,7 @@ TbBool creature_move_to_place_in_room(struct Thing *creatng, struct Room *room)
 
 short send_creature_to_room(struct Thing *creatng, struct Room *room)
 {
+    //TODO CREATURE_JOBS We need this function to have an indication of which job we want to do in that room, ie. sacrifice or pray in temple? Normal or kinky torture?
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
     SYNCDBG(6,"Starting for %s (owner %d) and room %s",thing_model_name(creatng),(int)creatng->owner,room_code_name(room->kind));

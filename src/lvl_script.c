@@ -1745,7 +1745,7 @@ void command_set_computer_events(char *plrname, char *evntname, long val1, long 
         event = &comp->events[k];
         if (event->name == NULL)
           break;
-        if (stricmp(evntname, event->name) == 0)
+        if (strcasecmp(evntname, event->name) == 0)
         {
           event->param1 = val1;
           event->param2 = val2;
@@ -1787,7 +1787,7 @@ void command_set_computer_process(char *plrname, char *procname, long val1, long
             break;
           if (process->name == NULL)
             break;
-          if (stricmp(procname, process->name) == 0)
+          if (strcasecmp(procname, process->name) == 0)
           {
             process->field_4 = val1;
             process->field_8 = val2;
