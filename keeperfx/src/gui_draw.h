@@ -85,6 +85,8 @@ void draw_gui_panel_sprite_rmleft(long x, long y, long spridx, unsigned long rem
 void draw_gui_panel_sprite_ocleft(long x, long y, long spridx, TbPixel color);
 void draw_gui_panel_sprite_centered(long x, long y, long spridx);
 void draw_gui_panel_sprite_occentered(long x, long y, long spridx, TbPixel color);
+void draw_button_sprite_left(long x, long y, long spridx);
+void draw_button_sprite_rmleft(long x, long y, long spridx, unsigned long remap);
 
 void frontend_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h);
 /******************************************************************************/

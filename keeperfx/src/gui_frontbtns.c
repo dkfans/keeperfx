@@ -481,9 +481,7 @@ void gui_area_new_no_anim_button(struct GuiButton *gbtn)
 
 void gui_area_no_anim_button(struct GuiButton *gbtn)
 {
-    struct TbSprite *spr;
     int spr_idx;
-    long pos_x,pos_y;
     //_DK_gui_area_no_anim_button(gbtn); return;
     spr_idx = gbtn->field_29;
     if (gbtn->gbtype == Lb_CYCLEBTN)
@@ -499,46 +497,36 @@ void gui_area_no_anim_button(struct GuiButton *gbtn)
             ERRORLOG("Cycle button must have a non-zero MaxVal!");
         }
     }
-    pos_x = gbtn->scr_pos_x / (long)pixel_size;
-    pos_y = gbtn->scr_pos_y / (long)pixel_size;
     if ((gbtn->flags & LbBtnF_Unknown08) != 0)
     {
-        spr = &button_sprite[spr_idx];
         if ( (gbtn->gbactn_1 != 0) || (gbtn->gbactn_2 != 0) ) {
-          LbSpriteDrawRemap(pos_x, pos_y, spr, &pixmap.fade_tables[44*256]);
+            draw_button_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, spr_idx, 44);
         } else {
-          LbSpriteDraw(pos_x, pos_y, spr);
+            draw_button_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, spr_idx);
         }
     } else
     {
-        spr = &button_sprite[spr_idx];
-        LbSpriteDrawRemap(pos_x, pos_y, spr, &pixmap.fade_tables[12*256]);
+        draw_button_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, spr_idx, 12);
     }
 }
 
 void gui_area_normal_button(struct GuiButton *gbtn)
 {
-    struct TbSprite *spr;
     int spr_idx;
-    long pos_x,pos_y;
     //_DK_gui_area_normal_button(gbtn);
     spr_idx = gbtn->field_29;
     if (gbtn->gbtype == Lb_CYCLEBTN)
     {
         ERRORLOG("Cycle button cannot have a normal button draw function!");
     }
-    pos_x = gbtn->scr_pos_x / (long)pixel_size;
-    pos_y = gbtn->scr_pos_y / (long)pixel_size;
     if ((gbtn->flags & LbBtnF_Unknown08) != 0)
     {
         if ( (gbtn->gbactn_1 != 0) || (gbtn->gbactn_2 != 0) )
             spr_idx++;
-        spr = &button_sprite[spr_idx];
-        LbSpriteDraw(pos_x, pos_y, spr);
+        draw_button_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, spr_idx);
     } else
     {
-        spr = &button_sprite[spr_idx];
-        LbSpriteDrawRemap(pos_x, pos_y, spr, &pixmap.fade_tables[12*256]);
+        draw_button_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, spr_idx, 12);
     }
 }
 
@@ -780,12 +768,10 @@ void gui_area_null(struct GuiButton *gbtn)
 {
   if ((gbtn->flags & LbBtnF_Unknown08) != 0)
   {
-    LbSpriteDraw(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size,
-      &button_sprite[gbtn->field_29]);
+      draw_button_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->field_29);
   } else
   {
-    LbSpriteDraw(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size,
-      &button_sprite[gbtn->field_29]);
+      draw_button_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->field_29);
   }
 }
 

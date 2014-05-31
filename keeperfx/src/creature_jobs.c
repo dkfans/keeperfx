@@ -454,6 +454,7 @@ TbBool creature_can_do_job_for_player(const struct Thing *creatng, PlayerNumber 
     }
     if (jobpref & Job_FREEZE_PRISONERS)
     {
+        // To freeze prisoners, our prison can't be empty
         struct Room *room;
         room = find_room_for_thing_with_used_capacity(creatng, creatng->owner, get_room_for_job(Job_FREEZE_PRISONERS), 0, 1);
         return creature_instance_is_available(creatng, CrInst_FREEZE) && !room_is_invalid(room);
@@ -483,6 +484,21 @@ TbBool creature_can_do_job_for_player(const struct Thing *creatng, PlayerNumber 
         struct Event *event;
         event = get_event_of_type_for_player(EvKind_EnemyFight, creatng->owner);
         return !event_is_invalid(event);
+    }
+    if ((jobpref & Job_GROUP) || (jobpref & Job_BARRACK))
+    {
+        // Grouping or barracking only makes sense if we have more than one creature
+        const struct Dungeon *dungeon;
+        dungeon = get_players_num_dungeon(plyr_idx);
+        return (dungeon->num_active_creatrs > 1);
+    }
+    if (jobpref & Job_TUNNEL)
+    {
+        //TODO CREATURE_JOBS what exactly is it supposed to do for players? Tunnel to enemy / neutral place?
+    }
+    if (jobpref & Job_DIG)
+    {
+        //TODO CREATURE_JOBS what exactly is it supposed to do? Should it be used to indicate any imp job?
     }
     return false;
 }

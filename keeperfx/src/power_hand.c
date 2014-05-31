@@ -814,7 +814,7 @@ void draw_mini_things_in_hand(long x, long y)
                     shift_y = (unsigned short)(pixel_size - 2) < 1u ? -8 : 8;
                 scrpos_x = scrbase_x + 16 * icol;
                 scrpos_y = scrbase_y + 18 * irow;
-                LbSpriteDraw((scrpos_x + expshift_x) / pixel_size, (scrpos_y + shift_y) / pixel_size, &button_sprite[expspr_idx]);
+                draw_button_sprite_left(scrpos_x + expshift_x, scrpos_y + shift_y, expspr_idx);
                 draw_gui_panel_sprite_left(scrpos_x, scrpos_y, spr_idx);
             }
         } else
