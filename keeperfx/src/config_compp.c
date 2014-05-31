@@ -115,7 +115,7 @@ int get_computer_process_config_list_index_mnem(const char *mnemonic)
   int i;
   for (i=1; i <= comp_player_conf.processes_count; i++)
   {
-    if (stricmp(computer_process_config_list[i].name, mnemonic) == 0)
+    if (strcasecmp(computer_process_config_list[i].name, mnemonic) == 0)
       return i;
   }
   return 0;
@@ -127,7 +127,7 @@ int get_computer_check_config_list_index_mnem(const char *mnemonic)
   const int arr_size = (int)(sizeof(computer_check_config_list)/sizeof(computer_check_config_list[0]));
   for (i=1; i < arr_size; i++)
   {
-    if (stricmp(computer_check_config_list[i].name, mnemonic) == 0)
+    if (strcasecmp(computer_check_config_list[i].name, mnemonic) == 0)
       return i;
   }
   return 0;

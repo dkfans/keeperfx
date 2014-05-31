@@ -1254,7 +1254,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
                 } else
                 {
                   crstat->lair_enemy = 0;
-                  if (stricmp(word_buf,"NULL") == 0)
+                  if (strcasecmp(word_buf,"NULL") == 0)
                     n++;
                 }
             }
@@ -1649,7 +1649,7 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
               } else
               {
                 crstat->grow_up = 0;
-                if (stricmp(word_buf,"NULL") == 0)
+                if (strcasecmp(word_buf,"NULL") == 0)
                   n++;
               }
             }

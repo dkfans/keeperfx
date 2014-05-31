@@ -172,7 +172,7 @@ int LbDataFindNameIndex(struct TbLoadFiles load_files[],char *fname)
   t_lfile = &load_files[i];
   while (t_lfile->Start != NULL)
   {
-    if (stricmp(t_lfile->FName,fname) == 0)
+    if (strcasecmp(t_lfile->FName,fname) == 0)
       return i;
     i++;
     t_lfile = &load_files[i];

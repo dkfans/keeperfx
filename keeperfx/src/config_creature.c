@@ -95,6 +95,10 @@ const struct NamedCommand creaturetype_job_assign[] = {
   {"BORDER_ONLY",            JoKF_AssignDropOnRoomBorder},
   {"CENTER_ONLY",            JoKF_AssignDropOnRoomCenter},
   {"WHOLE_ROOM",             JoKF_AssignDropOnRoomBorder|JoKF_AssignDropOnRoomCenter},
+  {"OWNED_CREATURES",        JoKF_OwnedCreatures},
+  {"ENEMY_CREATURES",        JoKF_EnemyCreatures},
+  {"OWNED_DIGGERS",          JoKF_OwnedDiggers},
+  {"ENEMY_DIGGERS",          JoKF_EnemyDiggers},
   {NULL,                     0},
   };
 
@@ -1061,7 +1065,7 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
                         n++;
                     } else
                     {
-                        if (stricmp(word_buf,"NULL") == 0)
+                        if (strcasecmp(word_buf,"NULL") == 0)
                             n++;
                     }
                 }
@@ -1115,7 +1119,7 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
                         n++;
                     } else
                     {
-                        if (stricmp(word_buf,"NONE") == 0)
+                        if (strcasecmp(word_buf,"NONE") == 0)
                             n++;
                     }
                 }
@@ -1600,11 +1604,12 @@ struct CreatureJobConfig *get_config_for_job(CreatureJob job_flags)
 /**
  * Returns a job creature can do in a room.
  * @param rkind Room kind for which job is to be returned.
- * @param only_computer Include either all jobs, or only those
- *   which can be assigned by dropping creatures by computer player.
+ * @param required_flags Only jobs which have all of the flags set can be returned.
+ *     For example, to only include jobs which can be assigned by dropping creatures by computer player,
+ *     use JoKF_AssignComputerDropInRoom flag.
  * @return A single job flag.
  */
-CreatureJob get_job_for_room(RoomKind rkind, TbBool only_computer)
+CreatureJob get_job_for_room(RoomKind rkind, unsigned long required_flags)
 {
     long i;
     if (rkind == RoK_NONE) {
@@ -1614,7 +1619,7 @@ CreatureJob get_job_for_room(RoomKind rkind, TbBool only_computer)
     {
         struct CreatureJobConfig *jobcfg;
         jobcfg = &crtr_conf.jobs[i];
-        if ((!only_computer) || (only_computer && (jobcfg->job_flags & JoKF_AssignComputerDropInRoom)))
+        if ((jobcfg->job_flags & required_flags) == required_flags)
         {
             if (jobcfg->room_kind == rkind) {
                 return 1<<(i-1);
@@ -1655,7 +1660,7 @@ unsigned long get_flags_for_job(CreatureJob jobpref)
 CrtrStateId get_arrive_at_state_for_room(RoomKind rkind)
 {
     CreatureJob jobpref;
-    jobpref = get_job_for_room(rkind, false);
+    jobpref = get_job_for_room(rkind, JoKF_None);
     struct CreatureJobConfig *jobcfg;
     jobcfg = get_config_for_job(jobpref);
     return jobcfg->initial_crstate;
