@@ -1845,6 +1845,10 @@ struct Thing *get_player_list_nth_creature_of_model(long thing_idx, ThingModel c
     return INVALID_THING;
 }
 
+/**
+ * Counts player creatures (not diggers) which are kept out of players control.
+ * @param plyr_idx
+ */
 long count_player_creatures_not_counting_to_total(PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
@@ -1868,7 +1872,7 @@ long count_player_creatures_not_counting_to_total(PlayerNumber plyr_idx)
         cctrl = creature_control_get_from_thing(thing);
         i = cctrl->players_next_creature_idx;
         // Per creature code
-        if (creature_is_kept_in_prison(thing))
+        if (creature_is_kept_in_custody_by_enemy(thing))
           count++;
         // Per creature code ends
         k++;

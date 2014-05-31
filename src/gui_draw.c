@@ -369,51 +369,69 @@ void draw_scroll_box(struct GuiButton *gbtn, long num_rows)
 
 void draw_gui_panel_sprite_left(long x, long y, long spridx)
 {
-  struct TbSprite *spr;
-  if ((spridx <= 0) || (spridx > GUI_PANEL_SPRITES_COUNT))
-    return;
-  spr = &gui_panel_sprites[spridx];
-  LbSpriteDraw(x/pixel_size, y/pixel_size, spr);
+    struct TbSprite *spr;
+    if ((spridx <= 0) || (spridx > GUI_PANEL_SPRITES_COUNT))
+      return;
+    spr = &gui_panel_sprites[spridx];
+    LbSpriteDraw(x/pixel_size, y/pixel_size, spr);
 }
 
 void draw_gui_panel_sprite_rmleft(long x, long y, long spridx, unsigned long remap)
 {
-  struct TbSprite *spr;
-  if ((spridx <= 0) || (spridx > GUI_PANEL_SPRITES_COUNT))
-    return;
-  spr = &gui_panel_sprites[spridx];
-  LbSpriteDrawRemap(x/pixel_size, y/pixel_size, spr, &pixmap.fade_tables[remap*256]);
+    struct TbSprite *spr;
+    if ((spridx <= 0) || (spridx > GUI_PANEL_SPRITES_COUNT))
+      return;
+    spr = &gui_panel_sprites[spridx];
+    LbSpriteDrawRemap(x/pixel_size, y/pixel_size, spr, &pixmap.fade_tables[remap*256]);
 }
 
 void draw_gui_panel_sprite_ocleft(long x, long y, long spridx, TbPixel color)
 {
-  struct TbSprite *spr;
-  if ((spridx <= 0) || (spridx > GUI_PANEL_SPRITES_COUNT))
-    return;
-  spr = &gui_panel_sprites[spridx];
-  LbSpriteDrawOneColour(x/pixel_size, y/pixel_size, spr, color);
+    struct TbSprite *spr;
+    if ((spridx <= 0) || (spridx > GUI_PANEL_SPRITES_COUNT))
+      return;
+    spr = &gui_panel_sprites[spridx];
+    LbSpriteDrawOneColour(x/pixel_size, y/pixel_size, spr, color);
 }
 
 void draw_gui_panel_sprite_centered(long x, long y, long spridx)
 {
-  struct TbSprite *spr;
-  if ((spridx <= 0) || (spridx > GUI_PANEL_SPRITES_COUNT))
-    return;
-  spr = &gui_panel_sprites[spridx];
-  x -= ((spr->SWidth*(long)pixel_size) >> 1);
-  y -= ((spr->SHeight*(long)pixel_size) >> 1);
-  LbSpriteDraw(x/pixel_size, y/pixel_size, spr);
+    struct TbSprite *spr;
+    if ((spridx <= 0) || (spridx > GUI_PANEL_SPRITES_COUNT))
+      return;
+    spr = &gui_panel_sprites[spridx];
+    x -= ((spr->SWidth*(long)pixel_size) >> 1);
+    y -= ((spr->SHeight*(long)pixel_size) >> 1);
+    LbSpriteDraw(x/pixel_size, y/pixel_size, spr);
 }
 
 void draw_gui_panel_sprite_occentered(long x, long y, long spridx, TbPixel color)
 {
-  struct TbSprite *spr;
-  if ((spridx <= 0) || (spridx > GUI_PANEL_SPRITES_COUNT))
-    return;
-  spr = &gui_panel_sprites[spridx];
-  x -= ((spr->SWidth*(long)pixel_size) >> 1);
-  y -= ((spr->SHeight*(long)pixel_size) >> 1);
-  LbSpriteDrawOneColour(x/pixel_size, y/pixel_size, spr, color);
+    struct TbSprite *spr;
+    if ((spridx <= 0) || (spridx > GUI_PANEL_SPRITES_COUNT))
+      return;
+    spr = &gui_panel_sprites[spridx];
+    x -= ((spr->SWidth*(long)pixel_size) >> 1);
+    y -= ((spr->SHeight*(long)pixel_size) >> 1);
+    LbSpriteDrawOneColour(x/pixel_size, y/pixel_size, spr, color);
+}
+
+void draw_button_sprite_left(long x, long y, long spridx)
+{
+    struct TbSprite *spr;
+    spr = &button_sprite[spridx];
+    if ((spr <= button_sprite) || (spr >= end_button_sprites))
+      return;
+    LbSpriteDraw(x/pixel_size, y/pixel_size, spr);
+}
+
+void draw_button_sprite_rmleft(long x, long y, long spridx, unsigned long remap)
+{
+    struct TbSprite *spr;
+    spr = &button_sprite[spridx];
+    if ((spr <= button_sprite) || (spr >= end_button_sprites))
+      return;
+    LbSpriteDrawRemap(x/pixel_size, y/pixel_size, spr, &pixmap.fade_tables[remap*256]);
 }
 
 void frontend_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h)
