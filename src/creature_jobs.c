@@ -404,6 +404,7 @@ TbBool creature_find_and_perform_anger_job(struct Thing *creatng)
  * @param creatng The creature which is planned for the job.
  * @param room The room in which the creature may want to do job.
  * @return
+ * @deprecated To be removed, as room no longer makes straight indication on which job the creature wants.
  */
 TbBool creature_will_reject_job_for_room(const struct Thing *creatng, const struct Room *room)
 {
@@ -503,6 +504,14 @@ TbBool creature_can_do_job_for_player(const struct Thing *creatng, PlayerNumber 
     return false;
 }
 
+/**
+ *
+ * @param creatng
+ * @param plyr_idx
+ * @param rkind
+ * @return
+ * @deprecated Room does not correspond to single job anymore, this should be avoided.
+ */
 TbBool creature_can_do_job_for_player_in_room(const struct Thing *creatng, PlayerNumber plyr_idx, RoomKind rkind)
 {
     return creature_can_do_job_for_player(creatng, plyr_idx, get_job_for_room(rkind, JoKF_AssignComputerDropInRoom));
@@ -522,9 +531,9 @@ TbBool attempt_job_work_in_room(struct Thing *creatng, CreatureJob jobpref)
     if (!find_random_valid_position_for_thing_in_room(creatng, room, &pos)) {
         return false;
     }
-    if (!get_arrive_at_state_for_room(room->kind))
+    if (get_arrive_at_state_for_job(jobpref) == CrSt_Unused)
     {
-        ERRORLOG("No arrive at state for %s room", room_code_name(room->kind));
+        ERRORLOG("No arrive at state for job %s in %s room",creature_job_code_name(jobpref),room_code_name(room->kind));
         return false;
     }
     if (!setup_person_move_to_position(creatng, pos.x.stl.num, pos.y.stl.num, 0)) {
@@ -532,7 +541,7 @@ TbBool attempt_job_work_in_room(struct Thing *creatng, CreatureJob jobpref)
     }
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
-    creatng->continue_state = get_arrive_at_state_for_room(room->kind);
+    creatng->continue_state = get_arrive_at_state_for_job(jobpref);
     cctrl->target_room_id = room->index;
     return true;
 }
@@ -658,14 +667,14 @@ TbBool attempt_job_secondary_preference(struct Thing *creatng, long jobpref)
     // Probably needs unification
     for (i=0; i < sizeof(jobs_list)/sizeof(jobs_list[0]); i++)
     {
-        long job_check = jobs_list[i];
+        CreatureJob job_check = jobs_list[i];
         if (select_val <= select_curr)
         {
             select_curr += select_delta;
         } else
         if (creature_can_do_job_for_player(creatng, creatng->owner, job_check))
         {
-            //TODO CREATURE_JOB this is a bit different than attempt_job_work_in_room(), should be unified.
+            //TODO CREATURE_JOBS this is a bit different than attempt_job_work_in_room(), should be unified.
             switch (job_check)
             {
             case Job_TRAIN:
@@ -680,7 +689,7 @@ TbBool attempt_job_secondary_preference(struct Thing *creatng, long jobpref)
                 room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, get_room_for_job(job_check), 0, 1);
                 if (!room_is_invalid(room))
                 {
-                    if (send_creature_to_room(creatng, room)) {
+                    if (send_creature_to_room(creatng, room, job_check)) {
                       return true;
                     }
                 }
@@ -705,7 +714,7 @@ TbBool attempt_job_secondary_preference(struct Thing *creatng, long jobpref)
         room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_TEMPLE, 0, 1);
         if (!room_is_invalid(room))
         {
-            if (send_creature_to_room(creatng, room)) {
+            if (send_creature_to_room(creatng, room, Job_TEMPLE_PRAY)) {
               return true;
             }
         }

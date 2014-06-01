@@ -1947,6 +1947,37 @@ TbBool slab_is_area_outer_border(MapSlabCoord slb_x, MapSlabCoord slb_y)
     return false;
 }
 
+/**
+ * Returns if given slab lies at inner fill of an area.
+ * Only slabs which are surrounded by the same slab kind from all 8 sides are inner fill of an area.
+ * @param slb_x The slab to be checked, X coordinate.
+ * @param slb_y The slab to be checked, y coordinate.
+ * @return True if the slab lies at inner fill of an area, false otherwise.
+ */
+TbBool slab_is_area_inner_fill(MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    PlayerNumber plyr_idx;
+    SlabKind slbkind;
+    struct SlabMap *slb;
+    // Store kind and owner of the slab
+    slb = get_slabmap_block(slb_x,slb_y);
+    slbkind = slb->kind;
+    plyr_idx = slabmap_owner(slb);
+    long n;
+    for (n=0; n < AROUND_EIGHT_LENGTH; n++)
+    {
+        long aslb_x,aslb_y;
+        aslb_x = slb_x + (long)my_around_eight[n].delta_x;
+        aslb_y = slb_y + (long)my_around_eight[n].delta_y;
+        struct SlabMap *slb;
+        slb = get_slabmap_block(aslb_x,aslb_y);
+        if ((slb->kind != slbkind) || (slabmap_owner(slb) != plyr_idx)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 TbBool find_random_position_at_border_of_room(struct Coord3d *pos, const struct Room *room)
 {
     long i;

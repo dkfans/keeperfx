@@ -671,15 +671,15 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
     case SplK_PoisonCloud:
         return false;
     case SplK_Fear:
-        return false;//TODO
+        return false;//TODO CREATURE_SPELL find out how to check this
     case SplK_Wind:
-        return false;//TODO
+        return false;//TODO CREATURE_SPELL find out how to check this
     case SplK_Light:
-        return false;//TODO
+        return false;//TODO CREATURE_SPELL find out how to check this
     case SplK_Hailstorm:
-        return false;//TODO
+        return false;//TODO CREATURE_SPELL find out how to check this
     case SplK_CrazyGas:
-        return false;//TODO
+        return false;//TODO CREATURE_SPELL find out how to check this
     default:
         SYNCDBG(3,"Unrecognized spell kind %d",(int)spkind);
         return false;
@@ -4090,7 +4090,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *
     // then should be placed in temple
     if ((anger_is_creature_angry(thing) ||
      (creature_affected_by_spell(thing, SplK_Disease) && (health_permil < 500)))
-     && creature_can_do_job_for_player_in_room(thing, dungeon->owner, RoK_TEMPLE))
+     && creature_can_do_job_for_player(thing, dungeon->owner, Job_TEMPLE_PRAY))
     {
         // If already at temple, then don't do anything
         if (creature_is_doing_temple_pray_activity(thing))

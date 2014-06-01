@@ -233,7 +233,7 @@ TbBool fronttorture_draw(void)
     h+=img_height;
   }
   // Starting point coords
-  //TODO: temporarely set to top left corner because input function is not rewritten
+  //TODO FRONTEND temporarily set to top left corner because input function is not rewritten
   spx = 0;//(mdinfo->Width-m*img_width)>>1;
   spy = 0;//(mdinfo->Height-m*img_height)>>1;
   copy_raw8_image_buffer(lbDisplay.WScreen,LbGraphicsScreenWidth(),LbGraphicsScreenHeight(),
