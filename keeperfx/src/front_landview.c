@@ -1502,14 +1502,14 @@ void frontnetmap_input(void)
 
 void frontmap_unload(void)
 {
-  SYNCDBG(8,"Starting");
-  set_pointer_graphic_none();
-  unload_map_and_window();
-  LbDataFreeAll(map_flag_load_files);
-  StopAllSamples();
-  stop_description_speech();
-  StopMusicPlayer();
-  SetMusicPlayerVolume(settings.redbook_volume);
+    SYNCDBG(8,"Starting");
+    set_pointer_graphic_none();
+    unload_map_and_window();
+    LbDataFreeAll(map_flag_load_files);
+    StopAllSamples();
+    stop_description_speech();
+    StopMusicPlayer();
+    SetMusicPlayerVolume(settings.redbook_volume);
 }
 
 long frontmap_update(void)

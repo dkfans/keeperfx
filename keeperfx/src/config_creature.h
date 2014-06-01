@@ -72,23 +72,28 @@ enum CreatureJobFlags {
     Job_TEMPLE_PRAY      = 0x00001000,
     Job_FREEZE_PRISONERS = 0x00002000,
     Job_EXPLORE          = 0x00004000,
-    // Nonexisting jobs
+    // Jobs which can't be assigned to a creature, are only working one time
     Job_EXEMPT           = 0x00008000,
     Job_TEMPLE_SACRIFICE = 0x00010000,
     Job_PAINFUL_TORTURE  = 0x00020000,
     Job_CAPTIVITY        = 0x00040000,
+    Job_PLACE_IN_VAULT   = 0x00080000,
+    Job_TAKE_SALARY      = 0x00100000,
+    Job_TAKE_FEED        = 0x00200000,
+    Job_TAKE_SLEEP       = 0x00400000,
 };
 
 enum JobKindFlags {
-    JoKF_None = 0x00,
-    JoKF_AssignHumanDropInRoom = 0x01,
-    JoKF_AssignComputerDropInRoom = 0x02,
-    JoKF_AssignDropOnRoomBorder = 0x04,
-    JoKF_AssignDropOnRoomCenter = 0x08,
-    JoKF_OwnedCreatures = 0x10,
-    JoKF_EnemyCreatures = 0x20,
-    JoKF_OwnedDiggers = 0x40,
-    JoKF_EnemyDiggers = 0x80,
+    JoKF_None = 0x0000,
+    JoKF_AssignHumanDropInRoom = 0x0001,
+    JoKF_AssignComputerDropInRoom = 0x0002,
+    JoKF_AssignDropOnRoomBorder = 0x0004,
+    JoKF_AssignDropOnRoomCenter = 0x0008,
+    JoKF_OwnedCreatures = 0x0010,
+    JoKF_EnemyCreatures = 0x0020,
+    JoKF_OwnedDiggers = 0x0040,
+    JoKF_EnemyDiggers = 0x0080,
+    JoKF_AssignOneTime = 0x0100,
 };
 
 enum CreatureDeathKind {
@@ -235,10 +240,12 @@ struct CreatureJobConfig *get_config_for_job(CreatureJob job_flags);
 RoomKind get_room_for_job(CreatureJob job_flags);
 EventKind get_event_for_job(CreatureJob job_flags);
 CrtrStateId get_initial_state_for_job(CreatureJob jobpref);
+CrtrStateId get_arrive_at_state_for_job(CreatureJob jobpref);
 CrtrStateId get_arrive_at_state_for_room(RoomKind rkind);
 unsigned long get_flags_for_job(CreatureJob jobpref);
 CreatureJob get_creature_job_causing_stress(CreatureJob job_flags, RoomKind rkind);
-CreatureJob get_job_for_room(RoomKind rkind, unsigned long required_flags);
+CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+CreatureJob get_job_for_room(RoomKind rkind, unsigned long required_kind_flags);
 const char *creature_job_code_name(CreatureJob job_flag);
 /******************************************************************************/
 #ifdef __cplusplus

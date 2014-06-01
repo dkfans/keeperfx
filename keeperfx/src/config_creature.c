@@ -34,6 +34,7 @@
 #include "thing_creature.h"
 #include "creature_instances.h"
 #include "creature_states.h"
+#include "creature_jobs.h"
 #include "engine_arrays.h"
 #include "game_legacy.h"
 
@@ -99,6 +100,7 @@ const struct NamedCommand creaturetype_job_assign[] = {
   {"ENEMY_CREATURES",        JoKF_EnemyCreatures},
   {"OWNED_DIGGERS",          JoKF_OwnedDiggers},
   {"ENEMY_DIGGERS",          JoKF_EnemyDiggers},
+  {"ONE_TIME",               JoKF_AssignOneTime},
   {NULL,                     0},
   };
 
@@ -1532,7 +1534,7 @@ const char *creature_own_name(const struct Thing *creatng)
     }
     {
         unsigned long seed;
-        //TODO store creature name seed somewhere in CreatureControl instead making it from other parameters
+        //TODO CREATURE store creature name seed somewhere in CreatureControl instead making it from other parameters
         seed = creatng->creation_turn + creatng->index + (cctrl->blood_type << 8);
         // Get amount of nucleus
         int name_len;
@@ -1602,14 +1604,66 @@ struct CreatureJobConfig *get_config_for_job(CreatureJob job_flags)
 }
 
 /**
+ * Returns a job which creature could be doing on specific subtile.
+ * @param creatng
+ * @param stl_x
+ * @param stl_y
+ * @return
+ */
+CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct Room *room;
+    room = get_room_thing_is_on(creatng);
+    if (!room_is_invalid(room))
+    {
+        unsigned long required_kind_flags;
+        // Detect the job which we will do in the room
+        required_kind_flags = JoKF_None;
+        if (creatng->owner == room->owner)
+        {
+            if (creatng->model == get_players_special_digger_model(creatng->owner)) {
+                required_kind_flags |= JoKF_OwnedDiggers;
+            } else {
+                required_kind_flags |= JoKF_OwnedCreatures;
+            }
+        } else
+        {
+            if (creatng->model == get_players_special_digger_model(creatng->owner)) {
+                required_kind_flags |= JoKF_EnemyDiggers;
+            } else {
+                required_kind_flags |= JoKF_EnemyCreatures;
+            }
+        }
+        if (slab_is_area_inner_fill(subtile_slab(stl_x), subtile_slab(stl_y))) {
+            required_kind_flags |= JoKF_AssignDropOnRoomCenter;
+        } else {
+            required_kind_flags |= JoKF_AssignDropOnRoomBorder;
+        }
+        CreatureJob jobpref;
+        jobpref = get_job_for_room(room->kind, required_kind_flags);
+        // Special hack for jobs which make no difference for the function above, but are distinct
+        if (jobpref == Job_KINKY_TORTURE)
+        {
+            // Allow kinky torture only if it is in creature jobs list
+            if ((creatng->owner != room->owner) || !creature_has_job(creatng, Job_KINKY_TORTURE)) {
+                jobpref = Job_PAINFUL_TORTURE;
+            }
+        }
+        return jobpref;
+    }
+    //TODO CREATURE_JOBS make support for jobs outside of rooms
+    return Job_NULL;
+}
+
+/**
  * Returns a job creature can do in a room.
  * @param rkind Room kind for which job is to be returned.
- * @param required_flags Only jobs which have all of the flags set can be returned.
+ * @param required_kind_flags Only jobs which have all of the flags set can be returned.
  *     For example, to only include jobs which can be assigned by dropping creatures by computer player,
  *     use JoKF_AssignComputerDropInRoom flag.
  * @return A single job flag.
  */
-CreatureJob get_job_for_room(RoomKind rkind, unsigned long required_flags)
+CreatureJob get_job_for_room(RoomKind rkind, unsigned long required_kind_flags)
 {
     long i;
     if (rkind == RoK_NONE) {
@@ -1619,7 +1673,7 @@ CreatureJob get_job_for_room(RoomKind rkind, unsigned long required_flags)
     {
         struct CreatureJobConfig *jobcfg;
         jobcfg = &crtr_conf.jobs[i];
-        if ((jobcfg->job_flags & required_flags) == required_flags)
+        if ((jobcfg->job_flags & required_kind_flags) == required_kind_flags)
         {
             if (jobcfg->room_kind == rkind) {
                 return 1<<(i-1);
@@ -1657,6 +1711,19 @@ unsigned long get_flags_for_job(CreatureJob jobpref)
     return jobcfg->job_flags;
 }
 
+CrtrStateId get_arrive_at_state_for_job(CreatureJob jobpref)
+{
+    struct CreatureJobConfig *jobcfg;
+    jobcfg = get_config_for_job(jobpref);
+    return jobcfg->initial_crstate;
+}
+
+/**
+ * Returns state for creature.
+ * @param rkind
+ * @return
+ * @deprecated Room kind isn't pointing a specific job.
+ */
 CrtrStateId get_arrive_at_state_for_room(RoomKind rkind)
 {
     CreatureJob jobpref;

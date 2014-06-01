@@ -1580,33 +1580,36 @@ short creature_being_dropped(struct Thing *creatng)
             return 2;
         }
     }
-    if ( room->kind == RoK_ENTRANCE || (room->kind == RoK_PRISON || room->kind == RoK_TORTURE) )
+    CreatureJob new_job;
+    new_job = get_job_for_subtile(creatng, stl_x, stl_y);
+    // Don't allow creatures changed to chickens to have any job assigned, besides praying in temple which can cure them
+    if (creature_affected_by_spell(creatng, SplK_Chicken) && (new_job != Job_TEMPLE_PRAY))
+    {
+        set_start_state(creatng);
+        return 2;
+    }
+    // If a new task definitely isn't a work-in-group thing, remove the creature from group
+    if ((new_job == Job_KINKY_TORTURE) || (new_job == Job_PAINFUL_TORTURE) || (new_job == Job_EXEMPT) || (new_job == Job_CAPTIVITY) || (new_job == Job_TEMPLE_SACRIFICE))
     {
         if (creature_is_group_member(creatng)) {
             remove_creature_from_group(creatng);
         }
     }
-    if (room->kind == RoK_TEMPLE)
-    {
-        if (subtile_has_sacrificial_on_top(stl_x, stl_y))
-        {
-            cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
-            set_start_state(creatng);
-            return 2;
-        }
-    }
-    if (creature_affected_by_spell(creatng, SplK_Chicken) && (room->kind != RoK_TEMPLE))
-    {
-        set_start_state(creatng);
-        return 2;
-    }
-    if (!send_creature_to_room(creatng, room))
+    SYNCDBG(3,"Job %s to be assigned to %s index %d owner %d",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+    // Now try sending the creature to do that job in that room
+    // Note that not all activities have jobs - the new job may be Job_NULL, ie. in case of hatchery or lair
+    if (!send_creature_to_room(creatng, room, new_job))
     {
         cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
         set_start_state(creatng);
         return 2;
     }
-    set_creature_assigned_job(creatng, get_job_for_room(room->kind, JoKF_None));
+    if ((get_flags_for_job(new_job) & JoKF_AssignOneTime) == 0) {
+        set_creature_assigned_job(creatng, new_job);
+    } else {
+        // One-time jobs are not assigned to the creature, they are just initialized to be performed once
+        set_creature_assigned_job(creatng, Job_NULL);
+    }
     return 2;
 }
 
@@ -2699,9 +2702,13 @@ void init_creature_state(struct Thing *thing)
         {
         case RoK_PRISON:
         case RoK_TORTURE:
-        case RoK_GUARDPOST:
-            if ( send_creature_to_room(thing, room) )
+        case RoK_GUARDPOST: {
+            CreatureJob new_job;
+            new_job = get_job_for_room(room->kind, JoKF_None);
+            if ( send_creature_to_room(thing, room, new_job) ) {
               return;
+            }
+            };break;
         default:
             break;
         }
@@ -4387,11 +4394,12 @@ long anger_process_creature_anger(struct Thing *thing, const struct CreatureStat
         room = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_TEMPLE, 0, 1);
         if (!room_is_invalid(room))
         {
-          if (!creature_will_reject_job_for_room(thing, room) && can_change_from_state_to(thing, thing->active_state, CrSt_AtTemple))
+          if (!creature_will_reject_job(thing, Job_TEMPLE_PRAY) && can_change_from_state_to(thing, thing->active_state, CrSt_AtTemple))
           {
               cleanup_current_thing_state(thing);
-              if (send_creature_to_room(thing, room))
+              if (send_creature_to_room(thing, room, Job_TEMPLE_PRAY)) {
                   return 1;
+              }
               set_start_state(thing);
               ERRORLOG("Tried sending creature to Temple, could not get there. Cleaned up old state.");
           }
