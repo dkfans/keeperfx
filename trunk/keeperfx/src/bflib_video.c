@@ -427,7 +427,7 @@ static TbResult LbScreenActivationUpdate(void)
  */
 TbResult LbScreenUpdateIcon(void)
 {
-    //TODO replace with portable version
+    //TODO BFLIB replace with portable version
 /*
     Uint32          colorkey;
     SDL_Surface     *image;

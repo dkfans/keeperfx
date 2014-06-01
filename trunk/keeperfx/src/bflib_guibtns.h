@@ -155,7 +155,7 @@ struct GuiButton {
        short tooltip_id;
        unsigned short field_2D;
        struct GuiMenu *parent_menu;
-       unsigned long *content; //TODO change it to GuiVariant
+       unsigned long *content; //TODO FRONTEND change it to GuiVariant
        unsigned short slide_val; // slider value, scaled 0..255
 };
 

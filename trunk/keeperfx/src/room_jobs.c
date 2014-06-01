@@ -351,9 +351,41 @@ TbBool creature_move_to_place_in_room(struct Thing *creatng, struct Room *room)
     return result;
 }
 
-short send_creature_to_room(struct Thing *creatng, struct Room *room)
+TbBool room_is_correct_to_perform_job(const struct Thing *creatng, const struct Room *room, CreatureJob jobpref)
 {
-    //TODO CREATURE_JOBS We need this function to have an indication of which job we want to do in that room, ie. sacrifice or pray in temple? Normal or kinky torture?
+    if (creatng->owner == room->owner)
+    {
+        if (creatng->model == get_players_special_digger_model(creatng->owner)) {
+            if ((get_flags_for_job(jobpref) & JoKF_OwnedDiggers) == 0)
+                return false;
+        } else {
+            if ((get_flags_for_job(jobpref) & JoKF_OwnedCreatures) == 0)
+                return false;
+        }
+    } else
+    {
+        if (creatng->model == get_players_special_digger_model(creatng->owner)) {
+            if ((get_flags_for_job(jobpref) & JoKF_EnemyDiggers) == 0)
+                return false;
+        } else {
+            if ((get_flags_for_job(jobpref) & JoKF_EnemyCreatures) == 0)
+                return false;
+        }
+    }
+    if (room->kind != get_room_for_job(jobpref)) {
+        return false;
+    }
+    return true;
+}
+
+/**
+ * Sends creature to a room where it should be performing a job.
+ * @param creatng The creature to be sent.
+ * @param room Target room.
+ * @param jobpref The job to be performed in that room.
+ */
+short send_creature_to_room(struct Thing *creatng, struct Room *room, CreatureJob jobpref)
+{
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
     SYNCDBG(6,"Starting for %s (owner %d) and room %s",thing_model_name(creatng),(int)creatng->owner,room_code_name(room->kind));
@@ -361,19 +393,22 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room)
     crstat = creature_stats_get_from_thing(creatng);
     struct Coord3d pos;
     //return _DK_send_creature_to_room(creatng, room);
-    if (creature_will_reject_job_for_room(creatng, room))
+    if (creature_will_reject_job(creatng, jobpref))
     {
         anger_apply_anger_to_creature(creatng, crstat->annoy_will_not_do_job, AngR_Other, 1);
         external_set_thing_state(creatng, CrSt_CreatureMoan);
         cctrl->field_282 = 50;
         return 0;
     }
+    // Check if job assign flags are met; if not - fail
+    if (!room_is_correct_to_perform_job(creatng, room, jobpref))
+    {
+        SYNCDBG(6,"Cannot assign job %s in room %s to %s (owner %d)",creature_job_code_name(jobpref),room_code_name(room->kind),thing_model_name(creatng),(int)creatng->owner);
+        return 0;
+    }
     switch (room->kind)
     {
     case RoK_ENTRANCE:
-        if ((creatng->owner != room->owner) || (creatng->model == get_players_special_digger_model(room->owner))) {
-            return 0;
-        }
         if (creature_move_to_place_in_room(creatng, room))
         {
             creatng->continue_state = CrSt_CreatureExempt;
@@ -382,9 +417,6 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room)
         }
         return 0;
     case RoK_TREASURE:
-        if (creatng->owner != room->owner) {
-            return 0;
-        }
         if (creatng->model == get_players_special_digger_model(room->owner))
         {
             if (creatng->creature.gold_carried > 0)
@@ -410,9 +442,6 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room)
         }
         return 0;
     case RoK_LIBRARY:
-        if (creatng->owner != room->owner) {
-            return 0;
-        }
         if (!creature_can_do_research(creatng))
         {
             struct Dungeon *dungeon;
@@ -445,9 +474,6 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room)
         }
         return 0;
     case RoK_PRISON:
-        if ((creatng->owner == room->owner) && (creatng->model == get_players_special_digger_model(room->owner))) {
-            return 0;
-        }
         if (creature_move_to_place_in_room(creatng, room))
         {
             cctrl->flgfield_1 |= CCFlg_NoCompControl;
@@ -457,9 +483,6 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room)
         }
         return 0;
     case RoK_TORTURE:
-        if ((creatng->owner == room->owner) && (creatng->model == get_players_special_digger_model(room->owner))) {
-            return 0;
-        }
         if (!room_has_enough_free_capacity_for_creature(room, creatng))
         {
             if (is_my_player_number(room->owner))
@@ -482,9 +505,6 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room)
         }
         return 0;
     case RoK_TRAINING:
-        if (creatng->owner != room->owner) {
-            return 0;
-        }
         if (!creature_can_be_trained(creatng)) {
             return 0;
         }
@@ -519,9 +539,6 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room)
         }
         return 0;
     case RoK_WORKSHOP:
-        if ((creatng->owner != room->owner) || (creatng->model == get_players_special_digger_model(room->owner))) {
-            return 0;
-        }
         if (!creature_can_do_manufacturing(creatng)) {
             return 0;
         }
@@ -542,9 +559,6 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room)
         }
         return 0;
     case RoK_SCAVENGER:
-        if ((creatng->owner != room->owner) || (creatng->model == get_players_special_digger_model(room->owner))) {
-            return 0;
-        }
         if (!creature_can_do_scavenging(creatng)) {
             return 0;
         }
@@ -565,9 +579,6 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room)
         }
         return 0;
     case RoK_TEMPLE:
-        if ((creatng->owner != room->owner) || (creatng->model == get_players_special_digger_model(room->owner))) {
-            return 0;
-        }
         if (!room_has_enough_free_capacity_for_creature(room, creatng))
         {
             if (is_my_player_number(room->owner))
@@ -586,9 +597,6 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room)
         }
         return 0;
     case RoK_BARRACKS:
-        if ((creatng->owner != room->owner) || (creatng->model == get_players_special_digger_model(room->owner))) {
-            return 0;
-        }
         if (!room_has_enough_free_capacity_for_creature(room, creatng))
         {
             if (is_my_player_number(room->owner))
@@ -643,9 +651,6 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room)
         }
         return 0;
     case RoK_GUARDPOST:
-        if ((creatng->owner != room->owner) || (creatng->model == get_players_special_digger_model(room->owner))) {
-            return 0;
-        }
         if (!room_has_enough_free_capacity_for_creature(room, creatng))
         {
             return 0;
