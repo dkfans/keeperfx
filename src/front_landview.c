@@ -1319,7 +1319,7 @@ void draw_map_level_descriptions(void)
 {
   struct LevelInformation *lvinfo;
   const char *lv_name;
-  long lvnum;
+  LevelNumber lvnum;
   long x,y,w,h;
   if ((fe_net_level_selected > 0) || (net_level_hilighted > 0))
   {
@@ -1334,10 +1334,11 @@ void draw_map_level_descriptions(void)
       lv_name = cmpgn_string(lvinfo->name_id);
     else
       lv_name = lvinfo->name;
-    if ((lv_name != NULL) && (strlen(lv_name) > 0))
-      sprintf(level_name, "%s %d: %s", gui_string(GUIStr_MnuLevel), (int)lvinfo->lvnum, lv_name);
-    else
-      sprintf(level_name, "%s %d", gui_string(GUIStr_MnuLevel), (int)lvinfo->lvnum);
+    if ((lv_name != NULL) && (strlen(lv_name) > 0)) {
+        sprintf(level_name, "%s %d: %s", gui_string(GUIStr_MnuLevel), (int)lvinfo->lvnum, lv_name);
+    } else {
+        sprintf(level_name, "%s %d", gui_string(GUIStr_MnuLevel), (int)lvinfo->lvnum);
+    }
     w = LbTextStringWidth(level_name);
     x = lvinfo->ensign_x - map_info.scrshift_x;
     y = lvinfo->ensign_y - map_info.scrshift_y - 8;
@@ -1443,9 +1444,10 @@ void frontnetmap_input(void)
   struct LevelInformation *lvinfo;
   if (lbKeyOn[KC_ESCAPE])
   {
-    fe_net_level_selected = -2;
-    lbKeyOn[KC_ESCAPE] = 0;
-    return;
+      fe_net_level_selected = LEVELNUMBER_ERROR;
+      lbKeyOn[KC_ESCAPE] = 0;
+      SYNCLOG("Escaped from level selection");
+      return;
   }
 
   if (net_map_limp_time == 0)
@@ -1453,21 +1455,18 @@ void frontnetmap_input(void)
     if (right_button_clicked)
     {
         right_button_clicked = 0;
-        if (fe_network_active)
+        if (fe_net_level_selected == SINGLEPLAYER_NOTSTARTED)
         {
-          if (fe_net_level_selected == SINGLEPLAYER_NOTSTARTED)
-          {
             if ((!net_map_slap_frame) && (!net_map_limp_time))
             {
                 net_map_slap_frame = 9;
             }
-          } else
-          {
+        } else
+        {
             lvinfo = get_level_info(fe_net_level_selected);
             if (lvinfo != NULL)
               LbMouseSetPosition(lvinfo->ensign_x - map_info.scrshift_x, lvinfo->ensign_y - map_info.scrshift_y);
             fe_net_level_selected = SINGLEPLAYER_NOTSTARTED;
-          }
         }
     }
 
@@ -1491,6 +1490,7 @@ void frontnetmap_input(void)
               } else {
                 sprintf(level_name, "%s", gui_string(GUIStr_MnuLevel));
               }
+              SYNCLOG("Selected level %d with description \"%s\"",(int)fe_net_level_selected,level_name);
           }
         }
       }
@@ -1623,7 +1623,7 @@ TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
         nspck = &net_screen_packet[i];
         if ((nspck->field_4 & 0x01) == 0)
           continue;
-        if (nspck->param1 == -2)
+        if (nspck->param1 == LEVELNUMBER_ERROR)
         {
             if (fe_network_active)
             {
@@ -1641,7 +1641,8 @@ TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
             nmps->tmp1++;
         } else
         {
-            pckt_lvnum = nspck->param1;
+            //TODO FRONTEND This is so wrong - remove casting when param1 is changed to int
+            pckt_lvnum = (unsigned char)nspck->param1;
             scratch[pckt_lvnum]++;
             if (scratch[pckt_lvnum] == tmp2)
             {
@@ -1658,12 +1659,13 @@ TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
         {
             if ( test_hand_slap_collides(i) )
             {
-              net_map_limp_time = 12;
-              fe_net_level_selected = SINGLEPLAYER_NOTSTARTED;
-              net_map_slap_frame = 0;
-              limp_hand_x = nspck->field_6;
-              limp_hand_y = nspck->field_8;
-              nspck->field_4 = (nspck->field_4 & 7) | 0x10;
+                net_map_limp_time = 12;
+                fe_net_level_selected = SINGLEPLAYER_NOTSTARTED;
+                net_map_slap_frame = 0;
+                limp_hand_x = nspck->field_6;
+                limp_hand_y = nspck->field_8;
+                nspck->field_4 = (nspck->field_4 & 7) | 0x10;
+                SYNCLOG("Slapped out of level");
             }
         }
     }
