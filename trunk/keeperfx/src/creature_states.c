@@ -1494,19 +1494,23 @@ short creature_being_dropped(struct Thing *creatng)
     struct Thing *leadtng;
     //return _DK_creature_being_dropped(thing);
     TRACE_THING(creatng);
+    SYNCDBG(17,"Starting for %s index %d",thing_model_name(creatng),(long)creatng->index);
     cctrl = creature_control_get_from_thing(creatng);
     cctrl->flgfield_1 |= CCFlg_NoCompControl;
+    // Cannot teleport for 100 turns after being dropped
     cctrl->instance_use_turn[CrInst_TELEPORT] = game.play_gameturn + 100;
     stl_x = creatng->mappos.x.stl.num;
     stl_y = creatng->mappos.y.stl.num;
     // If dropped on sacrificial ground, process the sacrifice
     if (subtile_has_sacrificial_on_top(stl_x, stl_y))
     {
+        SYNCDBG(3,"The %s index %d owner %d dropped at sacrificial ground (%d,%d)",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,(int)stl_x,(int)stl_y);
         return creature_being_dropped_at_sacrificial_ground(creatng);
     }
     // If dropping still in progress, do nothing
     if ( !thing_touching_floor(creatng) && ((creatng->movement_flags & TMvF_Flying) == 0) )
     {
+        SYNCDBG(17,"The %s index %d owner %d dropped at (%d,%d) isn't touching ground yet",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,(int)stl_x,(int)stl_y);
         return 1;
     }
     set_creature_assigned_job(creatng, Job_NULL);
@@ -1546,6 +1550,7 @@ short creature_being_dropped(struct Thing *creatng)
             {
                 if (check_out_available_spdigger_drop_tasks(creatng))
                 {
+                    SYNCDBG(3,"No digger job for %s index %d owner %d at (%d,%d)",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,(int)stl_x,(int)stl_y);
                     cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
                     return 2;
                 }
@@ -1554,12 +1559,15 @@ short creature_being_dropped(struct Thing *creatng)
         if ( creature_will_do_combat(creatng) )
         {
             if (creature_look_for_combat(creatng)) {
+                SYNCDBG(3,"The %s index %d owner %d found creature combat at (%d,%d)",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,(int)stl_x,(int)stl_y);
                 return 2;
             }
             if (creature_look_for_enemy_heart_combat(creatng)) {
+                SYNCDBG(3,"The %s index %d owner %d found heart combat at (%d,%d)",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,(int)stl_x,(int)stl_y);
                 return 2;
             }
             if (creature_look_for_enemy_door_combat(creatng)) {
+                SYNCDBG(3,"The %s index %d owner %d found enemy combat at (%d,%d)",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,(int)stl_x,(int)stl_y);
                 return 2;
             }
         }
@@ -1567,6 +1575,7 @@ short creature_being_dropped(struct Thing *creatng)
     room = get_room_thing_is_on(creatng);
     if (room_is_invalid(room))
     {
+        SYNCDBG(3,"No room found at (%d,%d) for %s index %d owner %d",(int)stl_x,(int)stl_y,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
         set_start_state(creatng);
         return 2;
@@ -1575,6 +1584,7 @@ short creature_being_dropped(struct Thing *creatng)
     {
         if (!enemies_may_work_in_room(room->kind))
         {
+            SYNCDBG(3,"The %s index %d owner %d cannot work in enemy room at (%d,%d)",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,(int)stl_x,(int)stl_y);
             cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
             set_start_state(creatng);
             return 2;
@@ -1582,9 +1592,16 @@ short creature_being_dropped(struct Thing *creatng)
     }
     CreatureJob new_job;
     new_job = get_job_for_subtile(creatng, stl_x, stl_y);
+    if (new_job == Job_NULL)
+    {
+        SYNCDBG(3,"No job found at (%d,%d) for %s index %d owner %d",(int)stl_x,(int)stl_y,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        //set_creature_assigned_job(creatng, Job_NULL); -- already assigned
+        return 2;
+    }
     // Don't allow creatures changed to chickens to have any job assigned, besides praying in temple which can cure them
     if (creature_affected_by_spell(creatng, SplK_Chicken) && (new_job != Job_TEMPLE_PRAY))
     {
+        SYNCDBG(3,"Cannot assign %s to %s index %d owner %d due to spell effects",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         set_start_state(creatng);
         return 2;
     }
@@ -1600,6 +1617,7 @@ short creature_being_dropped(struct Thing *creatng)
     // Note that not all activities have jobs - the new job may be Job_NULL, ie. in case of hatchery or lair
     if (!send_creature_to_room(creatng, room, new_job))
     {
+        SYNCDBG(3,"Cannot assign %s to %s index %d owner %d; sending to room failed",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
         set_start_state(creatng);
         return 2;
@@ -1608,7 +1626,7 @@ short creature_being_dropped(struct Thing *creatng)
         set_creature_assigned_job(creatng, new_job);
     } else {
         // One-time jobs are not assigned to the creature, they are just initialized to be performed once
-        set_creature_assigned_job(creatng, Job_NULL);
+        //set_creature_assigned_job(creatng, Job_NULL); -- already assigned
     }
     return 2;
 }
