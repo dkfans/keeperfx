@@ -91,6 +91,7 @@ struct GameAdd {
     unsigned long turn_last_checked_for_gold;
     unsigned long flee_zone_radius;
     unsigned long time_between_prison_break;
+    unsigned short game_turns_unconscious;
     long critical_health_permil;
     long friendly_fight_area_damage_permil;
     long friendly_fight_area_range_permil;
