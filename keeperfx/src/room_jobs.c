@@ -671,7 +671,7 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room, CreatureJo
     case Job_FREEZE_PRISONERS:
     case Job_EXPLORE:
     case Job_TEMPLE_SACRIFICE:
-        ERRORLOG("Unsupported job %s for %s (owner %d)",creature_job_code_name(jobpref),thing_model_name(creatng),(int)plyr_idx);
+        ERRORLOG("Unsupported job %s for %s (owner %d)",creature_job_code_name(jobpref),thing_model_name(creatng),(int)creatng->owner);
         break;
     default:
         break;
