@@ -687,6 +687,7 @@ long computer_finds_nearest_entrance2(struct Computer2 *comp, struct Coord3d *st
     long near_dist;
     struct Coord3d *near_startpos;
     near_entroom = NULL;
+    near_startpos = NULL;
     near_dist = LONG_MAX;
     *retroom = NULL;
     unsigned long k;

@@ -1263,7 +1263,7 @@ long add_unclaimed_spells_to_imp_stack(struct Dungeon *dungeon, long max_tasks)
                         // We had to wait til here with this check to make sure message should be played
                         SYNCDBG(8,"Dungeon %d has no free %s space",(int)dungeon->owner,room_code_name(RoK_LIBRARY));
                         if (is_my_player_number(dungeon->owner)) {
-                            output_message(SMsg_LibraryTooSmall, 1000, 1);
+                            output_message(SMsg_LibraryTooSmall, 1000, true);
                         }
                         break;
                     }
