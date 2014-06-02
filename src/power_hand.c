@@ -752,6 +752,7 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
 
 short dump_held_things_on_map(PlayerNumber plyr_idx, long a2, long a3, short a4)
 {
+    //TODO rewrite - this is quite high level function
     return _DK_dump_held_things_on_map(plyr_idx, a2, a3, a4);
 }
 
