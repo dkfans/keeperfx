@@ -3883,7 +3883,7 @@ short seek_the_enemy(struct Thing *creatng)
     } else
     if (get_random_position_in_dungeon_for_creature(creatng->owner, 1, creatng, &pos))
     {
-        if ( setup_person_move_to_position(creatng, pos.x.val >> 8, pos.y.val >> 8, 0) )
+        if ( setup_person_move_to_position(creatng, coord_subtile(pos.x.val), coord_subtile(pos.y.val), 0) )
         {
             creatng->continue_state = CrSt_SeekTheEnemy;
         }

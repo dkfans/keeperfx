@@ -581,6 +581,7 @@ long wander_point_initialise(struct Wander *wandr, PlayerNumber plyr_idx, long s
     SlabCodedCoords slb_num;
     stl_num_list_count = 0;
     stl_num_list = (SubtlCodedCoords *)scratch;
+    slb_num = 0;
     while (1)
     {
         MapSlabCoord slb_x,slb_y;
