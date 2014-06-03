@@ -1591,7 +1591,7 @@ short creature_being_dropped(struct Thing *creatng)
         }
     }
     CreatureJob new_job;
-    new_job = get_job_for_subtile(creatng, stl_x, stl_y);
+    new_job = get_job_for_subtile(creatng, stl_x, stl_y, JoKF_AssignHumanDropInRoom);
     if (new_job == Job_NULL)
     {
         SYNCDBG(3,"No job found at (%d,%d) for %s index %d owner %d",(int)stl_x,(int)stl_y,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);

@@ -244,7 +244,7 @@ CrtrStateId get_arrive_at_state_for_job(CreatureJob jobpref);
 CrtrStateId get_arrive_at_state_for_room(RoomKind rkind);
 unsigned long get_flags_for_job(CreatureJob jobpref);
 CreatureJob get_creature_job_causing_stress(CreatureJob job_flags, RoomKind rkind);
-CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long drop_kind_flags);
 CreatureJob get_job_for_room(RoomKind rkind, unsigned long required_kind_flags);
 const char *creature_job_code_name(CreatureJob job_flag);
 /******************************************************************************/
