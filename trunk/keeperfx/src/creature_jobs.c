@@ -667,15 +667,18 @@ TbBool attempt_job_secondary_preference(struct Thing *creatng, long jobpref)
     // Probably needs unification
     for (i=0; i < sizeof(jobs_list)/sizeof(jobs_list[0]); i++)
     {
-        CreatureJob job_check = jobs_list[i];
+        CreatureJob new_job = jobs_list[i];
+        if ((jobpref & new_job) == 0) {
+            continue;
+        }
         if (select_val <= select_curr)
         {
             select_curr += select_delta;
         } else
-        if (creature_can_do_job_for_player(creatng, creatng->owner, job_check))
+        if (creature_can_do_job_for_player(creatng, creatng->owner, new_job))
         {
             //TODO CREATURE_JOBS this is a bit different than attempt_job_work_in_room(), should be unified.
-            switch (job_check)
+            switch (new_job)
             {
             case Job_TRAIN:
             case Job_RESEARCH:
@@ -686,10 +689,10 @@ TbBool attempt_job_secondary_preference(struct Thing *creatng, long jobpref)
             case Job_TEMPLE_PRAY:
             case Job_BARRACK: {
                 struct Room *room;
-                room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, get_room_for_job(job_check), 0, 1);
+                room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, get_room_for_job(new_job), 0, 1);
                 if (!room_is_invalid(room))
                 {
-                    if (send_creature_to_room(creatng, room, job_check)) {
+                    if (send_creature_to_room(creatng, room, new_job)) {
                       return true;
                     }
                 }

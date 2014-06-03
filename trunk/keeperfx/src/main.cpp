@@ -438,7 +438,7 @@ void process_dungeon_destroy(struct Thing *heartng)
         // Drop all held things, by keeper
         if (dungeon->num_things_in_hand > 0)
         {
-            dump_held_things_on_map(plyr_idx, central_pos->x.stl.num, central_pos->y.stl.num, 0);
+            dump_all_held_things_on_map(plyr_idx, central_pos->x.stl.num, central_pos->y.stl.num);
         }
         // Drop all held things, by computer player
         {

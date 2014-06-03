@@ -1610,7 +1610,7 @@ struct CreatureJobConfig *get_config_for_job(CreatureJob job_flags)
  * @param stl_y
  * @return
  */
-CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long drop_kind_flags)
 {
     struct Room *room;
     room = get_room_thing_is_on(creatng);
@@ -1618,7 +1618,7 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
     {
         unsigned long required_kind_flags;
         // Detect the job which we will do in the room
-        required_kind_flags = JoKF_None;
+        required_kind_flags = drop_kind_flags;
         if (creatng->owner == room->owner)
         {
             if (creatng->model == get_players_special_digger_model(creatng->owner)) {
