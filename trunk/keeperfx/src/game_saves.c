@@ -208,16 +208,15 @@ int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
             }
             break;
         case SGC_GameAdd:
-            /*if (hdr.len != sizeof(struct GameAdd))
+            if (hdr.len != sizeof(struct GameAdd))
             {
                 if (LbFileSeek(fhandle, hdr.len, Lb_FILE_SEEK_CURRENT) < 0)
                     LbFileSeek(fhandle, 0, Lb_FILE_SEEK_END);
                 WARNLOG("Incompatible GameAdd chunk");
                 break;
             }
-            if (LbFileRead(fhandle, &gameadd, sizeof(struct GameAdd)) == sizeof(struct GameAdd)) {*/
-            //accept invalid saves --
-            if (LbFileRead(fhandle, &gameadd, hdr.len) == hdr.len) {
+            if (LbFileRead(fhandle, &gameadd, sizeof(struct GameAdd)) == sizeof(struct GameAdd)) {
+            //accept invalid saves -- if (LbFileRead(fhandle, &gameadd, hdr.len) == hdr.len) {
                 chunks_done |= SGF_GameAdd;
             } else {
                 WARNLOG("Could not read GameAdd chunk");
