@@ -23,6 +23,7 @@
 #include "bflib_math.h"
 #include "bflib_planar.h"
 #include "bflib_vidraw.h"
+#include "bflib_sound.h"
 
 #include "magic.h"
 #include "power_specials.h"
@@ -750,10 +751,113 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
     return 1;
 }
 
-short dump_held_things_on_map(PlayerNumber plyr_idx, long a2, long a3, short a4)
+void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    //TODO rewrite - this is quite high level function
-    return _DK_dump_held_things_on_map(plyr_idx, a2, a3, a4);
+    droptng->mappos.x.val = subtile_coord_center(stl_x);
+    droptng->mappos.y.val = subtile_coord_center(stl_y);
+    droptng->mappos.z.val = subtile_coord(8,0);
+    long fall_dist;
+    fall_dist = get_ceiling_height_at(&droptng->mappos) - get_floor_height_at(&droptng->mappos);
+    if (fall_dist < 0) {
+        fall_dist = 0;
+    } else
+    if (fall_dist > subtile_coord(3,0)) {
+        fall_dist = subtile_coord(3,0);
+    }
+    droptng->mappos.z.val = fall_dist + get_floor_height_at(&droptng->mappos);
+    droptng->alloc_flags &= ~0x10;
+    droptng->field_4F &= ~0x01;
+    place_thing_in_mapwho(droptng);
+    if (thing_is_creature(droptng))
+    {
+        initialise_thing_state(droptng, CrSt_CreatureBeingDropped);
+        stop_creature_sound(droptng, 5);
+        play_creature_sound(droptng, 6, 3, 0);
+        dungeon->field_14AE = game.play_gameturn;
+    } else
+    if (thing_is_object(droptng))
+    {
+        if (object_is_mature_food(droptng)) {
+            set_thing_draw(droptng, convert_td_iso(819), 256, -1, -1, 0, 2);
+        }
+        droptng->continue_state = droptng->active_state;
+        droptng->active_state = ObSt_BeingDropped;
+    }
+}
+
+short dump_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool update_hand)
+{
+    //return _DK_dump_held_things_on_map(plyr_idx, stl_x, stl_y, a4);
+    struct PlayerInfo *player;
+    player = get_player(plyr_idx);
+    struct Dungeon *dungeon;
+    dungeon = get_players_dungeon(player);
+    // If nothing in hand - nothing to do
+    if (dungeon->num_things_in_hand < 1) {
+        return 0;
+    }
+    // Check if drop position is allowed
+    struct Thing *droptng;
+    droptng = thing_get(dungeon->things_in_hand[0]);
+    if (!can_drop_thing_here(stl_x, stl_y, plyr_idx, thing_is_creature_special_digger(droptng))) {
+        return 0;
+    }
+    // Check if object will fit into that position
+    struct Coord3d pos;
+    pos.x.val = subtile_coord_center(stl_x);
+    pos.y.val = subtile_coord_center(stl_y);
+    pos.z.val = get_thing_height_at(droptng, &pos);
+    if (thing_in_wall_at(droptng, &pos)) {
+        return 0;
+    }
+    struct Thing *overtng;
+    overtng = thing_get(player->thing_under_hand);
+    if (thing_is_object(droptng) && object_is_gold_pile(droptng))
+    {
+        if (thing_is_creature(overtng) && !thing_is_creature_special_digger(overtng))
+        {
+            gold_being_dropped_on_creature(plyr_idx, droptng, overtng);
+        } else
+        {
+            drop_gold_coins(&pos, droptng->valuable.gold_stored, plyr_idx);
+            if (is_my_player_number(plyr_idx)) {
+                play_non_3d_sample(88);
+            }
+        }
+        delete_thing_structure(droptng, 0);
+    } else
+    if (thing_is_object(droptng) && object_is_mature_food(droptng))
+    {
+        if (thing_is_creature(overtng) && !thing_is_creature_special_digger(overtng))
+        {
+            food_eaten_by_creature(droptng, thing_get(player->thing_under_hand));
+        } else
+        {
+            drop_held_thing_on_ground(dungeon, droptng, stl_x, stl_y);
+        }
+    } else
+    {
+        drop_held_thing_on_ground(dungeon, droptng, stl_x, stl_y);
+    }
+    if (dungeon->num_things_in_hand == 1) {
+        set_player_instance(player, PI_Drop, 0);
+    }
+    remove_thing_from_power_hand_list(thing_get(dungeon->things_in_hand[0]), plyr_idx);
+    if ( update_hand ) {
+      set_power_hand_offset(player, thing_get(dungeon->things_in_hand[0]));
+    }
+    return 1;
+}
+
+int dump_all_held_things_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    int k;
+    // Dump all things
+    k = 0;
+    while (dump_held_thing_on_map(plyr_idx, stl_x, stl_y, 0) == 1) {
+        k++;
+    }
+    return k;
 }
 
 void clear_things_in_hand(struct PlayerInfo *player)

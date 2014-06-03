@@ -345,7 +345,7 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
         return Lb_SUCCESS;
     case GA_UsePwrHandDrop:
         // Note that we can drop things even if we have no hand power
-        if (!dump_held_things_on_map(plyr_idx, stl_x, stl_y, 0))
+        if (!dump_held_thing_on_map(plyr_idx, stl_x, stl_y, 0))
             return Lb_FAIL;
         return Lb_SUCCESS;
     case GA_UseMkDigger:
