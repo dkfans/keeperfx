@@ -1243,8 +1243,8 @@ void update_room_central_tile_position(struct Room *room)
     for (i=0; i < 256; i++)
     {
         sstep = &spiral_step[i];
-        cx = 3 * (mass_x + (long)sstep->h) + 1;
-        cy = 3 * (mass_y + (long)sstep->v) + 1;
+        cx = slab_subtile_center(mass_x + sstep->h);
+        cy = slab_subtile_center(mass_y + sstep->v);
         slb = get_slabmap_for_subtile(cx,cy);
         if (slabmap_block_invalid(slb))
             continue;

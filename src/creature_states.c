@@ -2714,24 +2714,22 @@ void init_creature_state(struct Thing *thing)
         return;
     }
     room = get_room_thing_is_on(thing);
-    if (!room_is_invalid(room))
+    if (room_is_invalid(room))
     {
-        switch (room->kind)
-        {
-        case RoK_PRISON:
-        case RoK_TORTURE:
-        case RoK_GUARDPOST: {
-            CreatureJob new_job;
-            new_job = get_job_for_room(room->kind, JoKF_None);
-            if ( send_creature_to_room(thing, room, new_job) ) {
-              return;
-            }
-            };break;
-        default:
-            break;
-        }
+        set_start_state(thing);
+        return;
     }
-    set_start_state(thing);
+    CreatureJob new_job;
+    new_job = get_job_for_room(room->kind, JoKF_AssignInitInRoom);
+    if (new_job == Job_NULL)
+    {
+        set_start_state(thing);
+        return;
+    }
+    if (!send_creature_to_room(thing, room, new_job)) {
+        set_start_state(thing);
+        return;
+    }
 }
 
 TbBool restore_backup_state(struct Thing *creatng, CrtrStateId active_state, CrtrStateId continue_state)
@@ -4411,7 +4409,7 @@ long anger_process_creature_anger(struct Thing *thing, const struct CreatureStat
         room = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_TEMPLE, 0, 1);
         if (!room_is_invalid(room))
         {
-          if (!creature_will_reject_job(thing, Job_TEMPLE_PRAY) && can_change_from_state_to(thing, thing->active_state, CrSt_AtTemple))
+          if (creature_can_do_job_for_player(thing, room->owner, Job_TEMPLE_PRAY) && can_change_from_state_to(thing, thing->active_state, CrSt_AtTemple))
           {
               cleanup_current_thing_state(thing);
               if (send_creature_to_room(thing, room, Job_TEMPLE_PRAY)) {
@@ -4455,7 +4453,7 @@ long process_training_need(struct Thing *thing, const struct CreatureStats *crst
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
-    if ((crstat->annoy_untrained < 0) || !creature_can_be_trained(thing)) {
+    if ((crstat->annoy_untrained == 0) || !creature_can_be_trained(thing)) {
         return 0;
     }
     if (creature_is_training(thing)) {

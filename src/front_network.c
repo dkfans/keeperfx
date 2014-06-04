@@ -267,7 +267,7 @@ void __stdcall enum_services_callback(struct TbNetworkCallbackData *netcdat, voi
     } else
     if (strcasecmp("TCP", netcdat->svc_name) == 0)
     {
-        LbStringCopy(net_service[net_number_of_services], "TCP/IP", NET_MESSAGE_LEN);//TODO put this in GUI strings
+        LbStringCopy(net_service[net_number_of_services], "TCP/IP", NET_MESSAGE_LEN);//TODO TRANSLATION put this in GUI strings
         net_number_of_services++;
     } else
     {
