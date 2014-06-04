@@ -85,15 +85,16 @@ enum CreatureJobFlags {
 
 enum JobKindFlags {
     JoKF_None = 0x0000,
-    JoKF_AssignHumanDropInRoom = 0x0001,
+    JoKF_AssignHumanDropInRoom    = 0x0001,
     JoKF_AssignComputerDropInRoom = 0x0002,
-    JoKF_AssignDropOnRoomBorder = 0x0004,
-    JoKF_AssignDropOnRoomCenter = 0x0008,
-    JoKF_OwnedCreatures = 0x0010,
-    JoKF_EnemyCreatures = 0x0020,
-    JoKF_OwnedDiggers = 0x0040,
-    JoKF_EnemyDiggers = 0x0080,
-    JoKF_AssignOneTime = 0x0100,
+    JoKF_AssignInitInRoom         = 0x0004,
+    JoKF_AssignDropOnRoomBorder   = 0x0008,
+    JoKF_AssignDropOnRoomCenter   = 0x0010,
+    JoKF_OwnedCreatures   = 0x0020,
+    JoKF_EnemyCreatures   = 0x0040,
+    JoKF_OwnedDiggers     = 0x0080,
+    JoKF_EnemyDiggers     = 0x0100,
+    JoKF_AssignOneTime    = 0x0200,
 };
 
 enum CreatureDeathKind {

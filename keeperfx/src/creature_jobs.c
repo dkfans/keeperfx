@@ -399,18 +399,6 @@ TbBool creature_find_and_perform_anger_job(struct Thing *creatng)
     return 0;
 }
 
-/** Returns if a creature will refuse to do job related to specific room kind.
- *
- * @param creatng The creature which is planned for the job.
- * @param room The room in which the creature may want to do job.
- * @return
- * @deprecated To be removed, as room no longer makes straight indication on which job the creature wants.
- */
-TbBool creature_will_reject_job_for_room(const struct Thing *creatng, const struct Room *room)
-{
-    return creature_will_reject_job(creatng, get_job_for_room(room->kind, JoKF_AssignComputerDropInRoom));
-}
-
 /** Returns if a creature will refuse to do specific job.
  *
  * @param creatng The creature which is planned for the job.
@@ -501,6 +489,13 @@ TbBool creature_can_do_job_for_player(const struct Thing *creatng, PlayerNumber 
     {
         //TODO CREATURE_JOBS what exactly is it supposed to do? Should it be used to indicate any imp job?
     }
+    return false;
+}
+
+TbBool creature_can_do_job_at_position(const struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob jobpref)
+{
+    //TODO write such test function, and use it where such check is needed
+    // Should be based on tests in send_creature_to_room().
     return false;
 }
 
@@ -598,7 +593,6 @@ long attempt_job_preference(struct Thing *creatng, long jobpref)
 {
     //return _DK_attempt_job_preference(creatng, jobpref);
     long i,n;
-    unsigned long k;
     // Start checking at random job
     if (crtr_conf.jobs_count < 1) {
         return false;
@@ -608,16 +602,17 @@ long attempt_job_preference(struct Thing *creatng, long jobpref)
     {
         if (n == 0)
             continue;
-        k = 1 << (n-1);
-        if (jobpref & k)
+        unsigned long new_job;
+        new_job = 1 << (n-1);
+        if (jobpref & new_job)
         {
-            if (creature_can_do_job_for_player(creatng, creatng->owner, k))
+            if (creature_can_do_job_for_player(creatng, creatng->owner, new_job))
             {
                 struct CreatureJobConfig *jobcfg;
-                jobcfg = get_config_for_job(k);
+                jobcfg = get_config_for_job(new_job);
                 if (jobcfg->func_assign != NULL)
                 {
-                    if (jobcfg->func_assign(creatng, k)) {
+                    if (jobcfg->func_assign(creatng, new_job)) {
                         return true;
                     }
                 }
@@ -629,23 +624,6 @@ long attempt_job_preference(struct Thing *creatng, long jobpref)
 
 TbBool attempt_job_secondary_preference(struct Thing *creatng, long jobpref)
 {
-    static const long jobs_list[] = {
-        Job_TRAIN,
-        Job_RESEARCH,
-        Job_MANUFACTURE,
-        Job_SCAVENGE,
-        Job_KINKY_TORTURE,
-        Job_GUARD,
-        Job_FREEZE_PRISONERS,
-        Job_SEEK_THE_ENEMY,
-        Job_EXPLORE,
-        Job_TEMPLE_PRAY,
-        Job_BARRACK,
-        Job_GROUP,
-        Job_TUNNEL,
-        Job_DIG,
-
-    };
     long i;
     unsigned long k;
     // Count the amount of jobs set
@@ -665,9 +643,10 @@ TbBool attempt_job_secondary_preference(struct Thing *creatng, long jobpref)
     select_curr = select_delta;
     // For some reason, this is a bit different than attempt_job_preference().
     // Probably needs unification
-    for (i=0; i < sizeof(jobs_list)/sizeof(jobs_list[0]); i++)
+    for (i=1; i < crtr_conf.jobs_count; i++)
     {
-        CreatureJob new_job = jobs_list[i];
+        CreatureJob new_job = 1<<(i-1);
+        SYNCDBG(19,"Check job %s",creature_job_code_name(new_job));
         if ((jobpref & new_job) == 0) {
             continue;
         }
@@ -699,10 +678,10 @@ TbBool attempt_job_secondary_preference(struct Thing *creatng, long jobpref)
                 };break;
             default: {
                 struct CreatureJobConfig *jobcfg;
-                jobcfg = get_config_for_job(k);
+                jobcfg = get_config_for_job(new_job);
                 if (jobcfg->func_assign != NULL)
                 {
-                    if (jobcfg->func_assign(creatng, k)) {
+                    if (jobcfg->func_assign(creatng, new_job)) {
                         return true;
                     }
                 }

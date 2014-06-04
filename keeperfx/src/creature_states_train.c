@@ -549,8 +549,9 @@ short at_training_room(struct Thing *thing)
     //return _DK_at_training_room(thing);
     cctrl = creature_control_get_from_thing(thing);
     cctrl->target_room_id = 0;
-    if ( !creature_can_be_trained(thing) )
+    if (!creature_can_be_trained(thing))
     {
+        SYNCDBG(9,"Ending training of %s level %d; creature is not trainable",thing_model_name(thing),(int)cctrl->explevel);
         set_start_state(thing);
         return 0;
     }
@@ -591,7 +592,7 @@ CrStateRet training(struct Thing *thing)
     // Check if we should finish training
     if (!creature_can_be_trained(thing))
     {
-        SYNCDBG(9,"Ending training %s level %d; creature isn't trainable",thing_model_name(thing),(int)cctrl->explevel);
+        SYNCDBG(9,"Ending training of %s level %d; creature is not trainable",thing_model_name(thing),(int)cctrl->explevel);
         remove_creature_from_work_room(thing);
         set_start_state(thing);
         return CrStRet_ResetOk;
