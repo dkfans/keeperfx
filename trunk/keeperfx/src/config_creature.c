@@ -93,6 +93,7 @@ const struct NamedCommand creaturetype_job_commands[] = {
 const struct NamedCommand creaturetype_job_assign[] = {
   {"HUMAN_DROP_IN_ROOM",     JoKF_AssignHumanDropInRoom},
   {"COMPUTER_DROP_IN_ROOM",  JoKF_AssignComputerDropInRoom},
+  {"INIT_IN_ROOM",           JoKF_AssignInitInRoom},
   {"BORDER_ONLY",            JoKF_AssignDropOnRoomBorder},
   {"CENTER_ONLY",            JoKF_AssignDropOnRoomCenter},
   {"WHOLE_ROOM",             JoKF_AssignDropOnRoomBorder|JoKF_AssignDropOnRoomCenter},
