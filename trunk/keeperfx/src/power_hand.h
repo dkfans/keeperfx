@@ -52,6 +52,7 @@ struct Thing *get_nearest_thing_for_hand_or_slap(PlayerNumber plyr_idx, MapCoord
 
 TbBool insert_thing_into_power_hand_list(struct Thing *thing, PlayerNumber plyr_idx);
 TbBool remove_thing_from_power_hand_list(struct Thing *thing, PlayerNumber plyr_idx);
+TbBool remove_first_thing_from_power_hand_list(PlayerNumber plyr_idx);
 TbBool thing_is_in_power_hand_list(const struct Thing *thing, PlayerNumber plyr_idx);
 
 long can_thing_be_picked_up_by_player(const struct Thing *thing, PlayerNumber plyr_idx);
