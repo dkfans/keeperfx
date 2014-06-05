@@ -227,7 +227,7 @@ void gui_video_rotate_mode(struct GuiButton *gbtn)
     //_DK_gui_video_rotate_mode(gbtn);
     struct Packet *pckt;
     pckt = get_packet(my_player_number);
-    if (settings.field_3) {
+    if (settings.video_rotate_mode) {
         set_packet_action(pckt, PckA_SwitchView, 5, 0, 0, 0);
     } else {
         set_packet_action(pckt, PckA_SwitchView, 2, 0, 0, 0);
