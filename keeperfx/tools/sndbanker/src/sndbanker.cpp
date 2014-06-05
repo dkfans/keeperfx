@@ -288,6 +288,7 @@ short load_inp_sample_file(SoundData& snd, const std::string& fname_inp, Program
 short save_dat_file(WorkingSet& ws, std::vector<SoundData>& snds, const std::string& fname_out, ProgramOptions& opts)
 {
     std::vector<SampleEntry> samples;
+    SoundSamplesFooter footer;
     // Open and write the Sound Bank file
     {
         FILE* sbfile = fopen(fname_out.c_str(),"wb");
@@ -300,24 +301,57 @@ short save_dat_file(WorkingSet& ws, std::vector<SoundData>& snds, const std::str
             samples.resize(snds.size()+1);
             samples[0].data = 0;
         }
+        // Write sound samples
         long base_pos = ftell(sbfile);
         for (int i = 0; i < snds.size(); i++)
         {
             SoundData &snd = snds[i];
             SampleEntry &smp = samples[i+1];
-            smp.data = ftell(sbfile) - base_pos;
-            strncpy(smp.fname,snd.fname.c_str()+snd.fname.rfind("/")+1,17);
-            smp.fname[17] = 0;
+            strncpy(smp.fname,snd.fname.c_str()+snd.fname.rfind("/")+1,SAMPLE_FNAME_LEN-1);
+            smp.fname[SAMPLE_FNAME_LEN-1] = 0;
             smp.length = snd.data.size();
-            if (fwrite(snd.data.data(),1,snd.data.size(),sbfile) != snd.data.size())
-            { perror(fname_out.c_str()); return ERR_FILE_WRITE; }
+            int prev_sample_reuse = -1;
+            // If this file was already added
+            for (int n = 0; n < i; n++)
+            {
+                SampleEntry &prevsmp = samples[n+1];
+                if ((strcmp(smp.fname,prevsmp.fname) == 0) && (smp.length == prevsmp.length))
+                {
+                    smp.data = prevsmp.data;
+                    prev_sample_reuse = n;
+                    break;
+                }
+
+            }
+            if (prev_sample_reuse == -1)
+            {
+                smp.data = ftell(sbfile) - base_pos;
+                if (fwrite(snd.data.data(),1,snd.data.size(),sbfile) != snd.data.size())
+                { perror(fname_out.c_str()); return ERR_FILE_WRITE; }
+            }
         }
+        // Update length in sample 0 to be whole data size
         {
             SampleEntry &smp = samples[0];
             smp.length = ftell(sbfile) - base_pos + sizeof(SampleEntry) * samples.size();
         }
+        // Prepare footer data
+        {
+            memset(&footer,0,sizeof(SoundSamplesFooter));
+            memset(footer.unkn2,-1,sizeof(footer.unkn2));
+            memset(footer.unkn6,-1,sizeof(footer.unkn6));
+            footer.unkn1[5] = 1;
+            footer.start1 = footer.start2 = footer.start3 = ftell(sbfile);
+        }
+        // Write samples catalog
         if (fwrite(samples.data(),sizeof(SampleEntry),samples.size(),sbfile) != samples.size())
         { perror(fname_out.c_str()); return ERR_FILE_WRITE; }
+        // Write footer
+        footer.footpos = ftell(sbfile);
+        footer.catsize1 = footer.catsize3 = sizeof(SampleEntry) * samples.size();
+        if (fwrite(&footer,sizeof(SoundSamplesFooter),1,sbfile) != 1)
+        { perror(fname_out.c_str()); return ERR_FILE_WRITE; }
+        // Done
         fclose(sbfile);
     }
     return ERR_OK;

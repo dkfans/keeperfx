@@ -492,7 +492,7 @@ TbBool creature_can_do_job_for_player(const struct Thing *creatng, PlayerNumber 
     return false;
 }
 
-TbBool creature_can_do_job_at_position(const struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob jobpref)
+TbBool creature_can_do_job_at_position(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob jobpref)
 {
     //TODO write such test function, and use it where such check is needed
     // Should be based on tests in send_creature_to_room().

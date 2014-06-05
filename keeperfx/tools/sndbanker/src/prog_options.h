@@ -20,6 +20,8 @@ enum {
     ERR_LIMIT_EXCEED= -6, // static limit exceeded
 };
 
+#define SAMPLE_FNAME_LEN 18
+
 class SoundData {
 public:
     /** Name of the sound file the sample comes from. */
@@ -36,7 +38,7 @@ public:
 class SampleEntry {
 public:
     /** Name of the sound file the sample comes from. */
-    char fname[18];
+    char fname[SAMPLE_FNAME_LEN];
     /** Offset of the sample data in DAT file. */
     size_t data;
     /** Unknown1. */
@@ -45,6 +47,31 @@ public:
     size_t length;
     /** Unknown3. */
     short unkn3;
+};
+
+class SoundSamplesFooter {
+public:
+    char unkn1[18];
+    /** Block 0xff filled */
+    char unkn2[32];
+    /** Offset of the first catalog entry in DAT file. */
+    size_t start1;
+    char unkn3[4];
+    /** Size of the catalog in DAT file. */
+    size_t catsize1;
+    /** Offset of the first catalog entry in DAT file. */
+    size_t start2;
+    /** Block 0xff filled */
+    char unkn6[96];
+    /** Block 0x00 filled */
+    char unkn7[16];
+    /** Offset of the first catalog entry in DAT file. */
+    size_t start3;
+    /** Size of the catalog in DAT file. */
+    size_t catsize3;
+    char unkn8[48];
+    /** Offset of the footer in DAT file. */
+    size_t footpos;
 };
 
 #pragma pack()
