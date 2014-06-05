@@ -342,6 +342,30 @@ struct Thing *get_first_thing_in_power_hand(struct PlayerInfo *player)
  * @param plyr_idx
  * @return
  */
+TbBool remove_first_thing_from_power_hand_list(PlayerNumber plyr_idx)
+{
+  struct Dungeon *dungeon;
+  long i;
+  dungeon = get_dungeon(plyr_idx);
+  if (dungeon->num_things_in_hand > 0)
+  {
+      for (i = 0; i < dungeon->num_things_in_hand-1; i++)
+      {
+        dungeon->things_in_hand[i] = dungeon->things_in_hand[i+1];
+      }
+      dungeon->num_things_in_hand--;
+      dungeon->things_in_hand[dungeon->num_things_in_hand] = 0;
+      return true;
+  }
+  return false;
+}
+
+/** Removes a thing from player's power hand list without any further processing.
+ *
+ * @param thing
+ * @param plyr_idx
+ * @return
+ */
 TbBool remove_thing_from_power_hand_list(struct Thing *thing, PlayerNumber plyr_idx)
 {
   struct Dungeon *dungeon;
@@ -787,7 +811,7 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, M
 
 short dump_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool update_hand)
 {
-    //return _DK_dump_held_things_on_map(plyr_idx, stl_x, stl_y, a4);
+    //return _DK_dump_held_things_on_map(plyr_idx, stl_x, stl_y, update_hand);
     struct PlayerInfo *player;
     player = get_player(plyr_idx);
     struct Dungeon *dungeon;
@@ -842,7 +866,7 @@ short dump_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubt
     if (dungeon->num_things_in_hand == 1) {
         set_player_instance(player, PI_Drop, 0);
     }
-    remove_thing_from_power_hand_list(thing_get(dungeon->things_in_hand[0]), plyr_idx);
+    remove_first_thing_from_power_hand_list(plyr_idx);
     if ( update_hand ) {
       set_power_hand_offset(player, thing_get(dungeon->things_in_hand[0]));
     }
