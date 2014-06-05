@@ -30,12 +30,12 @@ public:
     /** Unknown1. */
     long unkn1;
     /** Unknown3. */
-    long unkn3;
+    long sfxid;
 };
 
 #pragma pack(1)
 
-class SampleEntry {
+class SoundBankSample {
 public:
     /** Name of the sound file the sample comes from. */
     char fname[SAMPLE_FNAME_LEN];
@@ -45,24 +45,32 @@ public:
     long unkn1;
     /** Size of the sample file. */
     size_t length;
+    /** SFX ID. */
+    unsigned char sfxid;
     /** Unknown3. */
-    short unkn3;
+    unsigned char field_1F;
 };
 
-class SoundSamplesFooter {
+class SoundBankHead {
 public:
-    char unkn1[18];
-    /** Block 0xff filled */
-    char unkn2[32];
+  unsigned char field_0[14];
+  unsigned long field_E;
+};
+
+class SoundBankEntry {
+public:
     /** Offset of the first catalog entry in DAT file. */
-    size_t start1;
-    char unkn3[4];
-    /** Size of the catalog in DAT file. */
-    size_t catsize1;
+    unsigned long field_0;
+    /** Offset to the sample data area. */
+    unsigned long field_4;
+    /** Size of the sample catalog in DAT file. */
+    unsigned long field_8;
     /** Offset of the first catalog entry in DAT file. */
-    size_t start2;
-    /** Block 0xff filled */
-    char unkn6[96];
+    unsigned long field_C;
+};
+
+class SoundBankFoot {
+public:
     /** Block 0x00 filled */
     char unkn7[16];
     /** Offset of the first catalog entry in DAT file. */
@@ -78,10 +86,11 @@ public:
 
 class SoundFile {
 public:
-    SoundFile(const std::string &nname):
-        fname(nname) { };
+    SoundFile(const std::string &nname, const int nsfxid):
+        fname(nname),sfxid(nsfxid) { };
     /** Name of the source sound sample file */
     std::string fname;
+    int sfxid;
 };
 
 /** A class closing non-global command line parameters */

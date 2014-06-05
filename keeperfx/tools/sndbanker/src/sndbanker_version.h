@@ -24,7 +24,7 @@
 #define VER_MINOR         0
 #define VER_RELEASE       0
 #define VER_BUILD         1
-#define VER_STRING        "1.0.0.1"
+#define VER_STRING        "1.0.0.2"
 /* Program name, copyrights and file names */
 #define PROGRAM_NAME      "sndbanker"
 #define PROGRAM_FULL_NAME "Sound Banker - WAV to DAT sound bank creator"
