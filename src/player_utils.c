@@ -694,7 +694,7 @@ void init_players_local_game(void)
     player = get_my_player();
     player->id_number = my_player_number;
     player->field_0 |= 0x01;
-    if (settings.field_3 < 1)
+    if (settings.video_rotate_mode < 1)
       player->field_4B5 = 2;
     else
       player->field_4B5 = 5;

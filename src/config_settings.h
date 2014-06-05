@@ -39,7 +39,7 @@ struct GameSettings { // sizeof = 0x52 (82)
     unsigned char field_0;
     unsigned char video_shadows;
     unsigned char view_distance;
-    unsigned char field_3;
+    unsigned char video_rotate_mode;
     unsigned char video_textures;
     unsigned char video_cluedo_mode;
     unsigned char sound_volume;

@@ -84,7 +84,7 @@ struct GuiButtonInit video_menu_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, gui_area_text,                     1, 717,  0,       {0},            0, 0, NULL },
   { 2,  0, 0, 0, gui_video_shadows,  NULL,        NULL,               0,   8,  38,  10,  38, 46, 64, gui_area_no_anim_button,          27, 313,  0,{(long)&_DK_video_shadows}, 4, 0, NULL },
   { 2,  0, 0, 0, gui_video_view_distance_level,NULL,NULL,             0,  56,  38,  58,  38, 46, 64, gui_area_no_anim_button,          36, 316,  0,{(long)&video_view_distance_level}, 3, 0, NULL },
-  { 2,  0, 0, 0, gui_video_rotate_mode,NULL,      NULL,               0, 104,  38, 106,  38, 46, 64, gui_area_no_anim_button,          32, 314,  0,{(long)&settings.field_3}, 1, 0, NULL },
+  { 2,  0, 0, 0, gui_video_rotate_mode,NULL,      NULL,               0, 104,  38, 106,  38, 46, 64, gui_area_no_anim_button,          32, 314,  0,{(long)&settings.video_rotate_mode}, 1, 0, NULL },
   { 2,  0, 0, 0, gui_video_cluedo_mode,NULL,      NULL,               0,  32,  90,  32,  90, 46, 64, gui_area_no_anim_button,          42, 315,  0,{(long)&_DK_video_cluedo_mode},1, 0, gui_video_cluedo_maintain },
   { 0,  0, 0, 0, gui_video_gamma_correction,NULL, NULL,               0,  80,  90,  80,  90, 46, 64, gui_area_no_anim_button,          44, 317,  0,{(long)&video_gamma_correction}, 0, 0, NULL },
   {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       {0},            0, 0, NULL },
