@@ -468,7 +468,7 @@ long parse_sound_file(TbFileHandle fileh, unsigned char *buf, long *nsamples, lo
         _DK_LbFileRead(fileh, &bsample, sizeof(struct SoundBankSample));
         smpl->file_pos = k + bsample.field_12;
         smpl->data_size = bsample.data_size;
-        smpl->sfxid = bsample.field_1E;
+        smpl->sfxid = bsample.sfxid;
         smpl->hmhandle = NULL;
         smpl++;
     }
