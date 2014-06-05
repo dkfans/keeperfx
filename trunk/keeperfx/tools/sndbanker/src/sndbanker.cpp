@@ -133,8 +133,9 @@ int load_soundlist(ProgramOptions &opts, const std::string &fname)
         std::getline(infile, str, '\n');
         istringstream iss(str);
         iss >> str;
+        //TODO SndBanker Read sfxid from input file
         if (!str.empty()) {
-            opts.inp.push_back(SoundFile(lstpath+"/"+str));
+            opts.inp.push_back(SoundFile(lstpath+"/"+str,0));
         }
     }
     return true;
@@ -231,25 +232,25 @@ short show_usage(const std::string &fname)
     return ERR_OK;
 }
 
-short load_inp_sample_file(SoundData& snd, const std::string& fname_inp, ProgramOptions& opts)
+short load_inp_sample_file(SoundData& snd, const SoundFile& inp, ProgramOptions& opts)
 {
-    snd.fname = fname_inp;
+    snd.fname = inp.fname;
     snd.data.resize(0);
     snd.unkn1 = 0;
-    snd.unkn3 = 0;
-    FILE* smpfile = fopen(fname_inp.c_str(),"rb");
+    snd.sfxid = inp.sfxid;
+    FILE* smpfile = fopen(inp.fname.c_str(),"rb");
     if (smpfile == NULL) {
-        perror(fname_inp.c_str());
+        perror(inp.fname.c_str());
         return ERR_CANT_OPEN;
     }
     unsigned char header[8];
     if (fread(header,8,1,smpfile) != 1) {
-        perror(fname_inp.c_str());
+        perror(inp.fname.c_str());
         fclose(smpfile);
         return ERR_FILE_READ;
     }
     if (std::memcmp(header,"RIFF",4) != 0) {
-        LogErr("%s: Not a RIFF/WAV file",fname_inp.c_str());
+        LogErr("%s: Not a RIFF/WAV file",inp.fname.c_str());
         fclose(smpfile);
         return ERR_BAD_FILE;
     }
@@ -258,14 +259,14 @@ short load_inp_sample_file(SoundData& snd, const std::string& fname_inp, Program
     size_t len = file_length_opened(smpfile);
     // Compare it with size from header
     if ((riff_len > 128*1024*1024) || (riff_len > len)) {
-        LogErr("%s: The RIFF/WAV file header informs of too large file size",fname_inp.c_str());
+        LogErr("%s: The RIFF/WAV file header informs of too large file size",inp.fname.c_str());
         fclose(smpfile);
         return ERR_BAD_FILE;
     }
     if (len > riff_len+8) {
         // Padding of up to 24 bytes is normal (for files extracted from DK) an may go without a warning message
         if (len > riff_len+8+24) {
-            LogMsg("%s: Sample has %d excessive bytes and will be truncated.",fname_inp.c_str(),(int)(len-riff_len));
+            LogMsg("%s: Sample has %d excessive bytes and will be truncated.",inp.fname.c_str(),(int)(len-riff_len));
         }
         len = riff_len+8;
     }
@@ -275,7 +276,7 @@ short load_inp_sample_file(SoundData& snd, const std::string& fname_inp, Program
     fseek(smpfile, 0, SEEK_SET);
     if (fread(snd.data.data(), len, 1, smpfile) != 1)
     {
-        LogErr("%s: Cannot read the sample file",fname_inp.c_str());
+        LogErr("%s: Cannot read the sample file",inp.fname.c_str());
         fclose(smpfile);
         return ERR_BAD_FILE;
     }
@@ -287,8 +288,11 @@ short load_inp_sample_file(SoundData& snd, const std::string& fname_inp, Program
 
 short save_dat_file(WorkingSet& ws, std::vector<SoundData>& snds, const std::string& fname_out, ProgramOptions& opts)
 {
-    std::vector<SampleEntry> samples;
-    SoundSamplesFooter footer;
+    std::vector<SoundBankSample> samples;
+    // Sound banks have footer instead of header
+    SoundBankHead bhead;
+    SoundBankEntry bentries[9];
+    SoundBankFoot bfoot;
     // Open and write the Sound Bank file
     {
         FILE* sbfile = fopen(fname_out.c_str(),"wb");
@@ -306,15 +310,17 @@ short save_dat_file(WorkingSet& ws, std::vector<SoundData>& snds, const std::str
         for (int i = 0; i < snds.size(); i++)
         {
             SoundData &snd = snds[i];
-            SampleEntry &smp = samples[i+1];
+            SoundBankSample &smp = samples[i+1];
             strncpy(smp.fname,snd.fname.c_str()+snd.fname.rfind("/")+1,SAMPLE_FNAME_LEN-1);
             smp.fname[SAMPLE_FNAME_LEN-1] = 0;
             smp.length = snd.data.size();
+            smp.unkn1 = snd.unkn1;
+            smp.sfxid = snd.sfxid;
             int prev_sample_reuse = -1;
             // If this file was already added
             for (int n = 0; n < i; n++)
             {
-                SampleEntry &prevsmp = samples[n+1];
+                SoundBankSample &prevsmp = samples[n+1];
                 if ((strcmp(smp.fname,prevsmp.fname) == 0) && (smp.length == prevsmp.length))
                 {
                     smp.data = prevsmp.data;
@@ -332,24 +338,31 @@ short save_dat_file(WorkingSet& ws, std::vector<SoundData>& snds, const std::str
         }
         // Update length in sample 0 to be whole data size
         {
-            SampleEntry &smp = samples[0];
-            smp.length = ftell(sbfile) - base_pos + sizeof(SampleEntry) * samples.size();
+            SoundBankSample &smp = samples[0];
+            smp.length = ftell(sbfile) - base_pos + sizeof(SoundBankSample) * samples.size();
         }
         // Prepare footer data
         {
-            memset(&footer,0,sizeof(SoundSamplesFooter));
-            memset(footer.unkn2,-1,sizeof(footer.unkn2));
-            memset(footer.unkn6,-1,sizeof(footer.unkn6));
-            footer.unkn1[5] = 1;
-            footer.start1 = footer.start2 = footer.start3 = ftell(sbfile);
+            memset(&bhead,0,sizeof(SoundBankHead));
+            bhead.field_0[5] = 1;
+            memset(&bentries,-1,sizeof(SoundBankEntry)*9);
+            memset(&bentries[2],0,sizeof(SoundBankEntry));
+            bentries[2].field_0 = bentries[2].field_C = ftell(sbfile);
+            bentries[2].field_8 = sizeof(SoundBankSample) * samples.size();
+            memset(&bfoot,0,sizeof(SoundBankFoot));
+            bfoot.start3 = ftell(sbfile);
         }
         // Write samples catalog
-        if (fwrite(samples.data(),sizeof(SampleEntry),samples.size(),sbfile) != samples.size())
+        if (fwrite(samples.data(),sizeof(SoundBankSample),samples.size(),sbfile) != samples.size())
         { perror(fname_out.c_str()); return ERR_FILE_WRITE; }
-        // Write footer
-        footer.footpos = ftell(sbfile);
-        footer.catsize1 = footer.catsize3 = sizeof(SampleEntry) * samples.size();
-        if (fwrite(&footer,sizeof(SoundSamplesFooter),1,sbfile) != 1)
+        // Write file ending - header, entries and footer
+        bfoot.footpos = ftell(sbfile);
+        bfoot.catsize3 = sizeof(SoundBankSample) * samples.size();
+        if (fwrite(&bhead,sizeof(SoundBankHead),1,sbfile) != 1)
+        { perror(fname_out.c_str()); return ERR_FILE_WRITE; }
+        if (fwrite(&bentries,sizeof(SoundBankEntry),9,sbfile) != 9)
+        { perror(fname_out.c_str()); return ERR_FILE_WRITE; }
+        if (fwrite(&bfoot,sizeof(SoundBankFoot),1,sbfile) != 1)
         { perror(fname_out.c_str()); return ERR_FILE_WRITE; }
         // Done
         fclose(sbfile);
@@ -379,7 +392,7 @@ int main(int argc, char* argv[])
         {
             if (verbose)
                 LogMsg("Loading sound sample \"%s\".",opts.inp[i].fname.c_str());
-            if (load_inp_sample_file(snds[i], opts.inp[i].fname, opts) != ERR_OK) {
+            if (load_inp_sample_file(snds[i], opts.inp[i], opts) != ERR_OK) {
                 return 2;
             }
         }
