@@ -1118,17 +1118,21 @@ void draw_slider64k(long scr_x, long scr_y, long width)
     cur_y = base_y;
     int end_x;
     end_x = base_x + base_w - 64;
-    LbSpriteDraw(cur_x/pixel_size, cur_y/pixel_size, &button_sprite[4]);
-    cur_x += 32;
+    struct TbSprite *spr;
+    spr = &button_sprite[4];
+    LbSpriteDraw(cur_x/pixel_size, cur_y/pixel_size, spr);
+    cur_x += spr->SWidth;
+    spr = &button_sprite[5];
     while (cur_x < end_x)
     {
-        cur_x += 32;
-        LbSpriteDraw(cur_x/pixel_size, cur_y/pixel_size, &button_sprite[5]);
+        LbSpriteDraw(cur_x/pixel_size, cur_y/pixel_size, spr);
+        cur_x += spr->SWidth;
     }
     cur_x = end_x;
-    LbSpriteDraw(cur_x/pixel_size, cur_y/pixel_size, &button_sprite[5]);
-    cur_x += 32;
-    LbSpriteDraw(cur_x/pixel_size, cur_y/pixel_size, &button_sprite[6]);
+    LbSpriteDraw(cur_x/pixel_size, cur_y/pixel_size, spr);
+    cur_x += spr->SWidth;
+    spr = &button_sprite[6];
+    LbSpriteDraw(cur_x/pixel_size, cur_y/pixel_size, spr);
 }
 
 void gui_area_slider(struct GuiButton *gbtn)
