@@ -8,7 +8,7 @@
  * @par Comment:
  *     None.
  * @author   Tomasz Lis <listom@gmail.com>
- * @date     21 Sep 2013 - 26 Sep 2013
+ * @date     21 Sep 2013 - 06 Jul 2014
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -130,12 +130,14 @@ int load_soundlist(ProgramOptions &opts, const std::string &fname)
     }
     while (infile.good()) {
         std::string str;
+        int sfxid;
         std::getline(infile, str, '\n');
         istringstream iss(str);
-        iss >> str;
-        //TODO SndBanker Read sfxid from input file
+        sfxid = 0;
+        iss >> str >> sfxid;
         if (!str.empty()) {
-            opts.inp.push_back(SoundFile(lstpath+"/"+str,0));
+            opts.inp.push_back(SoundFile(lstpath+"/"+str,sfxid));
+            LogDbg("%s sfxid=%d\n",str.c_str(),sfxid);
         }
     }
     return true;
