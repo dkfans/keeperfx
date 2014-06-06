@@ -368,12 +368,6 @@ void powerful_magic_breaking_sparks(struct Thing *breaktng)
     }
 }
 
-void process_devastate_dungeon_from_heart(PlayerNumber plyr_idx)
-{
-    //TODO rewrite used to remove dungeon slabs when heart is destroyed
-    // probably near process_dungeon_devastation_effects()
-}
-
 void initialise_devastate_dungeon_from_heart(PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
