@@ -1506,9 +1506,10 @@ const char *creature_own_name(const struct Thing *creatng)
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
     char *text;
-    //TODO remove reference to specific creature model
-    if (creatng->model == 7) {
-        text = buf_sprintf("%s","Avatar");
+    if ((get_creature_model_flags(creatng) & MF_OneOfKind) != 0) {
+        struct CreatureData *crdata;
+        crdata = creature_data_get_from_thing(creatng);
+        text = buf_sprintf("%s",cmpgn_string(crdata->namestr_idx));
         return text;
     }
     const char ** starts;
