@@ -856,7 +856,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
       {
         if (!power_hand_is_empty(player))
         {
-          if (dump_held_thing_on_map(player->id_number, stl_x, stl_y, 1)) {
+          if (dump_first_held_thing_on_map(player->id_number, stl_x, stl_y, 1)) {
               player->field_4AF = 0;
               unset_packet_control(pckt, PCtr_RBtnRelease);
           }
@@ -2002,7 +2002,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         place_thing_in_power_hand(thing_get(pckt->field_6), plyr_idx);
       return 0;
   case PckA_DumpHeldThing:
-      dump_held_thing_on_map(plyr_idx, pckt->field_6, pckt->field_8, 1);
+      dump_first_held_thing_on_map(plyr_idx, pckt->field_6, pckt->field_8, 1);
       return 0;
   case PckA_Unknown092:
       if (game.event[pckt->field_6].kind == 3)
@@ -2070,12 +2070,12 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_GoSpectator:
       level_lost_go_first_person(plyr_idx);
       return 0;
-  case PckA_Unknown111:
+  case PckA_DumpHeldThingToOldPos:
       dungeon = get_players_num_dungeon(plyr_idx);
       if (!power_hand_is_empty(player))
       {
           thing = get_first_thing_in_power_hand(player);
-          dump_held_thing_on_map(plyr_idx, thing->mappos.x.stl.num, thing->mappos.y.stl.num, 1);
+          dump_first_held_thing_on_map(plyr_idx, thing->mappos.x.stl.num, thing->mappos.y.stl.num, 1);
       }
       return false;
   case PckA_PwrSOEDis:

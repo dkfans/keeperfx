@@ -505,7 +505,7 @@ short get_global_inputs(void)
   }
   if ( is_game_key_pressed(Gkey_Unknown29, &keycode, 0) )
   {
-      set_players_packet_action(player, PckA_Unknown111, 0, 0, 0, 0);
+      set_players_packet_action(player, PckA_DumpHeldThingToOldPos, 0, 0, 0, 0);
       clear_key_pressed(keycode);
   }
   return false;
