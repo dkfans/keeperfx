@@ -503,7 +503,7 @@ short get_global_inputs(void)
         return true;
       }
   }
-  if ( is_game_key_pressed(Gkey_Unknown29, &keycode, 0) )
+  if ( is_game_key_pressed(Gkey_DumpToOldPos, &keycode, 0) )
   {
       set_players_packet_action(player, PckA_DumpHeldThingToOldPos, 0, 0, 0, 0);
       clear_key_pressed(keycode);
@@ -639,7 +639,7 @@ TbBool get_level_lost_inputs(void)
             set_player_instance(player, PI_UnqueryCrtr, 0);
           } else
           {
-            inp_done=get_small_map_inputs(player->mouse_x, player->mouse_y, player->minimap_zoom / (3-pixel_size));
+            inp_done = get_small_map_inputs(player->mouse_x, player->mouse_y, player->minimap_zoom / (3-pixel_size));
             if ( !inp_done )
               get_bookmark_inputs();
             get_dungeon_control_nonaction_inputs();
@@ -905,14 +905,16 @@ short get_creature_control_action_inputs(void)
 
 void get_packet_control_mouse_clicks(void)
 {
-  struct PlayerInfo *player;
-  SYNCDBG(8,"Starting");
+    static int synthetic_left = 0; //arbitrary state machine, not deserving own enum
+    static int synthetic_right = 0;
+    SYNCDBG(8,"Starting");
 
-  static int synthetic_left = 0; //arbitrary state machine, not deserving own enum
-  static int synthetic_right = 0;
+    if ((game.numfield_C & 0x01) != 0)
+    {
+        return;
+    }
 
-  if ((game.numfield_C & 0x01) == 0)
-  {
+    struct PlayerInfo *player;
     player = get_my_player();
 
     if ( left_button_held || synthetic_left == 1)
@@ -969,7 +971,6 @@ void get_packet_control_mouse_clicks(void)
     if (synthetic_left == 2) {
         synthetic_left = 3;
     }
-  }
 }
 
 short get_map_action_inputs(void)
