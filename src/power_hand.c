@@ -809,7 +809,7 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, M
     }
 }
 
-short dump_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool update_hand)
+short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool update_hand)
 {
     //return _DK_dump_held_things_on_map(plyr_idx, stl_x, stl_y, update_hand);
     struct PlayerInfo *player;
@@ -873,12 +873,39 @@ short dump_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubt
     return 1;
 }
 
+TbBool dump_thing_held_by_any_player(struct Thing *thing)
+{
+    int i;
+    for (i=0; i<PLAYERS_COUNT; i++)
+    {
+        struct PlayerInfo *player;
+        player = get_player(i);
+        if (player_exists(player))
+        {
+            struct Dungeon *dungeon;
+            dungeon = get_players_num_dungeon(i);
+            if (dungeon_invalid(dungeon)) {
+                continue;
+            }
+            const struct Coord3d *pos;
+            pos = &dungeon->essential_pos;
+            // Remove from human player hand
+            drop_held_thing_on_ground(dungeon, thing, coord_subtile(pos->x.val), coord_subtile(pos->y.val));
+            remove_thing_from_power_hand_list(thing, dungeon->owner);
+            // Remove from computer player hand
+            struct Computer2 *comp;
+            comp = get_computer_player(dungeon->owner);
+            computer_force_dump_specific_held_thing(comp, thing, pos);
+        }
+    }
+}
+
 int dump_all_held_things_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     int k;
     // Dump all things
     k = 0;
-    while (dump_held_thing_on_map(plyr_idx, stl_x, stl_y, 0) == 1) {
+    while (dump_first_held_thing_on_map(plyr_idx, stl_x, stl_y, 0) == 1) {
         k++;
     }
     return k;

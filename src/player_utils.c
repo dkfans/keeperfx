@@ -146,8 +146,10 @@ void set_player_as_lost_level(struct PlayerInfo *player)
       turn_off_all_menus();
       clear_transfered_creature();
     }
-    clear_things_in_hand(player);
-    dungeon->num_things_in_hand = 0;
+    if ((gameadd.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) == 0) {
+        clear_things_in_hand(player);
+        dungeon->num_things_in_hand = 0;
+    }
     if (player_uses_call_to_arms(player->id_number))
         turn_off_call_to_arms(player->id_number);
     if (player_uses_power_sight(player->id_number))
