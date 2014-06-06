@@ -99,6 +99,7 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"TREMBLING_FAT",    20},
   {"FEMALE",           21},
   {"INSECT",           22},
+  {"ONE_OF_KIND",      23},
   {NULL,                0},
   };
 
@@ -699,6 +700,10 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 break;
             case 22: // INSECT
                 crconf->model_flags |= MF_Insect;
+                n++;
+                break;
+            case 23: // ONE_OF_KIND
+                crconf->model_flags |= MF_OneOfKind;
                 n++;
                 break;
             default:
