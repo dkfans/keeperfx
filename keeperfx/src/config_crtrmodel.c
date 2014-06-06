@@ -1392,8 +1392,8 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
               k = get_id(lenses_desc, word_buf);
               if (k >= 0)
               {
-                crstat->eye_effect = k;
-                n++;
+                  crstat->eye_effect = k;
+                  n++;
               }
             }
             if (n < 1)
@@ -1406,8 +1406,11 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->max_angle_change = (k * LbFPMath_PI) / 180;
-              n++;
+              if (k > 0)
+              {
+                  crstat->max_angle_change = (k * LbFPMath_PI) / 180;
+                  n++;
+              }
             }
             if (n < 1)
             {
