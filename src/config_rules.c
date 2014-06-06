@@ -69,11 +69,12 @@ const struct NamedCommand rules_game_commands[] = {
   };
 
 const struct NamedCommand rules_game_classicbugs_commands[] = {
-  {"RESURRECT_FOREVER",      1},
-  {"OVERFLOW_8BIT",          2},
-  {"CLAIM_ROOM_ALL_THINGS",  3},
-  {"RESURRECT_REMOVED",      4},
-  {NULL,                     0},
+  {"RESURRECT_FOREVER",       1},
+  {"OVERFLOW_8BIT",           2},
+  {"CLAIM_ROOM_ALL_THINGS",   3},
+  {"RESURRECT_REMOVED",       4},
+  {"NO_HAND_PURGE_ON_DEFEAT", 5},
+  {NULL,                      0},
   };
 
 const struct NamedCommand rules_computer_commands[] = {
@@ -592,6 +593,10 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
                   break;
               case 4: // RESURRECT_REMOVED
                   gameadd.classic_bugs_flags |= ClscBug_ResurrectRemoved;
+                  n++;
+                  break;
+              case 5: // NO_HAND_PURGE_ON_DEFEAT
+                  gameadd.classic_bugs_flags |= ClscBug_NoHandPurgeOnDefeat;
                   n++;
                   break;
               default:
