@@ -580,8 +580,8 @@ short do_right_map_click(long start_x, long start_y, long curr_mx, long curr_my,
         right_button_released = 0;
         if (subtile_has_slab(x, y))
         {
-          set_players_packet_action(player, PckA_DumpHeldThing, x, y, 0, 0);
-          return 1;
+            set_players_packet_action(player, PckA_DumpHeldThing, x, y, 0, 0);
+            return 1;
         }
     }
     return 0;

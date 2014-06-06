@@ -59,7 +59,7 @@ enum GameKeys {
     Gkey_ZoomCrAnnoyed,
     Gkey_Unknown27,
     Gkey_Unknown28,
-    Gkey_Unknown29,
+    Gkey_DumpToOldPos,
     Gkey_TogglePause, // 30
     Gkey_SwitchToMap,
 };
