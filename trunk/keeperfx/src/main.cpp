@@ -444,7 +444,7 @@ void process_dungeon_destroy(struct Thing *heartng)
         {
             struct Computer2 *comp;
             comp = get_computer_player(plyr_idx);
-            fake_force_dump_held_things_on_map(comp, central_pos);
+            computer_force_dump_held_things_on_map(comp, central_pos);
         }
         // Got to next phase
         dungeon->field_1060 = 4;
@@ -1325,7 +1325,7 @@ TbBool toggle_computer_player(PlayerNumber plyr_idx)
     }
     struct Computer2 *comp;
     comp = get_computer_player(player->id_number);
-    fake_force_dump_held_things_on_map(comp, &dungeon->essential_pos);
+    computer_force_dump_held_things_on_map(comp, &dungeon->essential_pos);
     return true;
 }
 

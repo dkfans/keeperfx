@@ -741,117 +741,117 @@ TbBool gui_process_option_inputs(struct GuiBox *gbox, struct GuiBoxOption *goptn
  */
 short gui_process_inputs(void)
 {
-  long mouse_y,mouse_x;
-  struct GuiBox *gbox;
-  struct GuiBox *hpbox;
-  struct GuiBoxOption *goptn;
-  short result;
-  SYNCDBG(8,"Starting");
-  mouse_x = GetMouseX();
-  mouse_y = GetMouseY();
-  result = false;
-  hpbox = gui_get_highest_priority_box();
-  goptn = NULL;
-  if (dragging_box.gbox != NULL)
-  {
-    if (left_button_held)
+    long mouse_y,mouse_x;
+    struct GuiBox *gbox;
+    struct GuiBox *hpbox;
+    struct GuiBoxOption *goptn;
+    short result;
+    SYNCDBG(8,"Starting");
+    mouse_x = GetMouseX();
+    mouse_y = GetMouseY();
+    result = false;
+    hpbox = gui_get_highest_priority_box();
+    goptn = NULL;
+    if (dragging_box.gbox != NULL)
     {
-      if (hpbox != dragging_box.gbox)
+      if (left_button_held)
       {
-        gui_remove_box_from_list(dragging_box.gbox);
-        gui_insert_box_at_list_top(dragging_box.gbox);
-      }
-      dragging_box.gbox->pos_x = mouse_x - dragging_box.start_x;
-      dragging_box.gbox->pos_y = mouse_y - dragging_box.start_y;
-    } else
-    {
-      dragging_box.gbox = NULL;
-      left_button_released = 0;
-    }
-    result = true;
-  } else
-  if (left_button_clicked)
-  {
-    LbTextSetFont(font_sprites);
-    gbox = gui_get_box_point_over(left_button_clicked_x, left_button_clicked_y);
-    if (gbox != NULL)
-    {
-      goptn = gui_get_box_option_point_over(gbox, left_button_clicked_x, left_button_clicked_y);
-      if (gbox != hpbox)
-      {
-        gui_remove_box_from_list(gbox);
-        gui_insert_box_at_list_top(gbox);
-        left_button_clicked = 0;
+        if (hpbox != dragging_box.gbox)
+        {
+          gui_remove_box_from_list(dragging_box.gbox);
+          gui_insert_box_at_list_top(dragging_box.gbox);
+        }
+        dragging_box.gbox->pos_x = mouse_x - dragging_box.start_x;
+        dragging_box.gbox->pos_y = mouse_y - dragging_box.start_y;
       } else
-      if (goptn == NULL)
       {
-        dragging_box.gbox = hpbox;
-        dragging_box.start_x = left_button_clicked_x - gbox->pos_x;
-        dragging_box.start_y = left_button_clicked_y - gbox->pos_y;
-        left_button_clicked = 0;
+        dragging_box.gbox = NULL;
+        left_button_released = 0;
       }
-      result = true;
-    }
-  } else
-  if (left_button_released)
-  {
-    gbox = gui_get_box_point_over(left_button_clicked_x, left_button_clicked_y);
-    if (gbox != NULL)
-    {
-      LbTextSetFont(font_sprites);
-      goptn = gui_get_box_option_point_over(gbox, left_button_clicked_x, left_button_clicked_y);
-      if ((gbox == hpbox) && (goptn != NULL))
-      {
-        gui_process_option_inputs(hpbox, goptn);
-      }
-      result = true;
-    }
-  }
-  if (right_button_released)
-  {
-    gbox = gui_get_box_point_over(left_button_clicked_x, left_button_clicked_y);
-    if (gbox != NULL)
-    {
-      LbTextSetFont(font_sprites);
-      goptn = gui_get_box_option_point_over(gbox, left_button_clicked_x, left_button_clicked_y);
-      if ((gbox == hpbox) && (goptn != NULL))
-      {
-        gui_process_option_inputs(hpbox, goptn);
-      }
-      result = true;
-    }
-  }
-/* These are making incorrect mouse function in possesion - thus disabled
-  if (hpbox != NULL)
-  {
-    if (is_key_pressed(KC_UP,KM_NONE))
-    {
-      goptn = gui_move_active_box_option(hpbox,-1);
-      clear_key_pressed(KC_UP);
       result = true;
     } else
-    if (is_key_pressed(KC_DOWN,KM_NONE))
+    if (left_button_clicked)
     {
-      goptn = gui_move_active_box_option(hpbox,1);
-      clear_key_pressed(KC_DOWN);
-      result = true;
-    }
-    if (is_key_pressed(KC_PGUP,KM_NONE))
+      LbTextSetFont(font_sprites);
+      gbox = gui_get_box_point_over(left_button_clicked_x, left_button_clicked_y);
+      if (gbox != NULL)
+      {
+        goptn = gui_get_box_option_point_over(gbox, left_button_clicked_x, left_button_clicked_y);
+        if (gbox != hpbox)
+        {
+          gui_remove_box_from_list(gbox);
+          gui_insert_box_at_list_top(gbox);
+          left_button_clicked = 0;
+        } else
+        if (goptn == NULL)
+        {
+          dragging_box.gbox = hpbox;
+          dragging_box.start_x = left_button_clicked_x - gbox->pos_x;
+          dragging_box.start_y = left_button_clicked_y - gbox->pos_y;
+          left_button_clicked = 0;
+        }
+        result = true;
+      }
+    } else
+    if (left_button_released)
     {
-      goptn = gui_move_active_box_option(hpbox,-2);
-      clear_key_pressed(KC_PGUP);
-      result = true;
+      gbox = gui_get_box_point_over(left_button_clicked_x, left_button_clicked_y);
+      if (gbox != NULL)
+      {
+        LbTextSetFont(font_sprites);
+        goptn = gui_get_box_option_point_over(gbox, left_button_clicked_x, left_button_clicked_y);
+        if ((gbox == hpbox) && (goptn != NULL))
+        {
+          gui_process_option_inputs(hpbox, goptn);
+        }
+        result = true;
+      }
     }
-    if (is_key_pressed(KC_PGDOWN,KM_NONE))
+    if (right_button_released)
     {
-      goptn = gui_move_active_box_option(hpbox,2);
-      clear_key_pressed(KC_PGDOWN);
-      result = true;
+      gbox = gui_get_box_point_over(left_button_clicked_x, left_button_clicked_y);
+      if (gbox != NULL)
+      {
+        LbTextSetFont(font_sprites);
+        goptn = gui_get_box_option_point_over(gbox, left_button_clicked_x, left_button_clicked_y);
+        if ((gbox == hpbox) && (goptn != NULL))
+        {
+          gui_process_option_inputs(hpbox, goptn);
+        }
+        result = true;
+      }
     }
-  }
+/* These are making incorrect mouse function in possesion - thus disabled
+    if (hpbox != NULL)
+    {
+      if (is_key_pressed(KC_UP,KM_NONE))
+      {
+        goptn = gui_move_active_box_option(hpbox,-1);
+        clear_key_pressed(KC_UP);
+        result = true;
+      } else
+      if (is_key_pressed(KC_DOWN,KM_NONE))
+      {
+        goptn = gui_move_active_box_option(hpbox,1);
+        clear_key_pressed(KC_DOWN);
+        result = true;
+      }
+      if (is_key_pressed(KC_PGUP,KM_NONE))
+      {
+        goptn = gui_move_active_box_option(hpbox,-2);
+        clear_key_pressed(KC_PGUP);
+        result = true;
+      }
+      if (is_key_pressed(KC_PGDOWN,KM_NONE))
+      {
+        goptn = gui_move_active_box_option(hpbox,2);
+        clear_key_pressed(KC_PGDOWN);
+        result = true;
+      }
+    }
 */
-  SYNCDBG(9,"Returning %s",result?"true":"false");
-  return result;
+    SYNCDBG(9,"Returning %s",result?"true":"false");
+    return result;
 }
 
 /******************************************************************************/

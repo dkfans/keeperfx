@@ -3160,6 +3160,14 @@ TbBool setup_creature_leave_or_die_if_possible(struct Thing *thing)
             SYNCDBG(19,"Forcing on %s index %d",thing_model_name(thing),(int)thing->index);
             // Drop creature if it's being dragged
             force_any_creature_dragging_thing_to_drop_it(thing);
+            // Drop creature if it's in hand
+            if (thing_is_picked_up(thing)) {
+                if ((gameadd.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) != 0) {
+                    SYNCDBG(19,"Skipped %s index %d due to classic bug",thing_model_name(thing),(int)thing->index);
+                    return false;
+                }
+                dump_thing_held_by_any_player(thing);
+            }
             // Setup leave state or kill the creature
             setup_creature_leaves_or_dies(thing);
             return true;
@@ -3176,6 +3184,14 @@ TbBool setup_creature_die_if_not_in_custody(struct Thing *thing)
         SYNCDBG(19,"Forcing on %s index %d",thing_model_name(thing),(int)thing->index);
         // Drop creature if it's being dragged
         force_any_creature_dragging_thing_to_drop_it(thing);
+        // Drop creature if it's in hand
+        if (thing_is_picked_up(thing)) {
+            if ((gameadd.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) != 0) {
+                SYNCDBG(19,"Skipped %s index %d due to classic bug",thing_model_name(thing),(int)thing->index);
+                return false;
+            }
+            dump_thing_held_by_any_player(thing);
+        }
         // And kill it
         kill_creature(thing, INVALID_THING, -1, CrDed_Default);
         return true;
