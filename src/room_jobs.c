@@ -316,25 +316,11 @@ struct Thing *find_object_in_room_for_creature_matching_bool_filter(struct Thing
     return rettng;
 }
 
-TbBool output_message_room_related_from_computer_or_player_action(long msg_idx)
-{
-    long delay;
-    struct Dungeon *dungeon;
-    dungeon = get_my_dungeon();
-    if ((dungeon->computer_enabled & 0x01) == 0) {
-        // Human player shouldn't be irritated too much with repeating messages
-        delay = 500;
-    } else {
-        // Computer player needs all messages to select next action correctly
-        delay = 0;
-    }
-    return output_message(msg_idx, delay, true);
-}
-
 TbBool creature_move_to_place_in_room(struct Thing *creatng, struct Room *room)
 {
     struct Coord3d pos;
     TbBool result;
+    //TODO CREATURE_JOBS check job flags instead
     if (room->kind == RoK_ENTRANCE)
     {
         pos.x.val = subtile_coord_center(room->central_stl_x);
@@ -355,6 +341,9 @@ TbBool creature_move_to_place_in_room(struct Thing *creatng, struct Room *room)
 
 TbBool room_is_correct_to_perform_job(const struct Thing *creatng, const struct Room *room, CreatureJob jobpref)
 {
+    if ((get_room_for_job(jobpref) != RoK_NONE) && (room->kind != get_room_for_job(jobpref))) {
+        return false;
+    }
     if (creatng->owner == room->owner)
     {
         if (creatng->model == get_players_special_digger_model(creatng->owner)) {
@@ -374,9 +363,6 @@ TbBool room_is_correct_to_perform_job(const struct Thing *creatng, const struct 
                 return false;
         }
     }
-    if (room->kind != get_room_for_job(jobpref)) {
-        return false;
-    }
     return true;
 }
 
@@ -388,295 +374,17 @@ TbBool room_is_correct_to_perform_job(const struct Thing *creatng, const struct 
  */
 short send_creature_to_room(struct Thing *creatng, struct Room *room, CreatureJob jobpref)
 {
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(creatng);
     SYNCDBG(6,"Starting for %s (owner %d) and room %s",thing_model_name(creatng),(int)creatng->owner,room_code_name(room->kind));
-    struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(creatng);
-    struct Coord3d pos;
     //return _DK_send_creature_to_room(creatng, room);
-    if (creature_will_reject_job(creatng, jobpref))
-    {
-        anger_apply_anger_to_creature(creatng, crstat->annoy_will_not_do_job, AngR_Other, 1);
-        external_set_thing_state(creatng, CrSt_CreatureMoan);
-        cctrl->field_282 = 50;
-        return 0;
-    }
-    // Check if job assign flags are met; if not - fail
-    if (!room_is_correct_to_perform_job(creatng, room, jobpref))
-    {
+    // Job selection is based on subtile, not on room - so select a subtile within the room
+    MapSubtlCoord stl_x,stl_y;
+    stl_x = slab_subtile(slb_num_decode_x(room->slabs_list),0);
+    stl_y = slab_subtile(slb_num_decode_y(room->slabs_list),0);
+    if (!creature_can_do_job_near_position(creatng, stl_x, stl_y, jobpref)) {
         SYNCDBG(6,"Cannot assign job %s in room %s to %s (owner %d)",creature_job_code_name(jobpref),room_code_name(room->kind),thing_model_name(creatng),(int)creatng->owner);
         return 0;
     }
-    switch (jobpref)
-    {
-    case Job_RESEARCH:
-        if (!creature_can_do_research(creatng))
-        {
-            struct Dungeon *dungeon;
-            dungeon = get_dungeon(room->owner);
-            if (!is_neutral_thing(creatng) && (dungeon->current_research_idx < 0))
-            {
-                if (is_my_player_number(dungeon->owner)) {
-                    output_message(SMsg_NoMoreReseach, 500, true);
-                }
-            }
-            set_start_state(creatng);
-            return 0;
-        }
-        if (!room_has_enough_free_capacity_for_creature(room, creatng))
-        {
-            if (is_my_player_number(room->owner)) {
-                output_message_room_related_from_computer_or_player_action(SMsg_LibraryTooSmall);
-            }
-            return 0;
-        }
-        if (find_first_valid_position_for_thing_in_room(creatng, room, &pos))
-        {
-            if (setup_person_move_to_position(creatng, pos.x.stl.num, pos.y.stl.num, 0))
-            {
-              creatng->continue_state = get_arrive_at_state_for_job(jobpref);
-              cctrl->target_room_id = room->index;
-              return 1;
-            }
-        }
-        return 0;
-    case Job_TRAIN:
-        if (!creature_can_be_trained(creatng)) {
-            return 0;
-        }
-        if (!room_has_enough_free_capacity_for_creature(room, creatng))
-        {
-            if (is_my_player_number(room->owner)) {
-                output_message_room_related_from_computer_or_player_action(SMsg_TrainingTooSmall);
-            }
-            return 0;
-        }
-        if (creatng->model == get_players_special_digger_model(room->owner))
-        {
-            if (find_first_valid_position_for_thing_in_room(creatng, room, &pos)
-              && setup_person_move_to_position(creatng, pos.x.stl.num, pos.y.stl.num, 0))
-            {
-                creatng->continue_state = get_arrive_at_state_for_job(jobpref);
-                cctrl->target_room_id = room->index;
-                cctrl->digger.last_did_job = SDLstJob_UseTraining4;
-                return 1;
-            }
-        }
-        else
-        {
-            if (find_first_valid_position_for_thing_in_room(creatng, room, &pos)
-              && setup_person_move_to_position(creatng, pos.x.stl.num, pos.y.stl.num, 0))
-            {
-                creatng->continue_state = get_arrive_at_state_for_job(jobpref);
-                cctrl->target_room_id = room->index;
-                return 1;
-            }
-        }
-        return 0;
-    case Job_MANUFACTURE:
-        if (!creature_can_do_manufacturing(creatng)) {
-            return 0;
-        }
-        if (!room_has_enough_free_capacity_for_creature(room, creatng))
-        {
-            if (is_my_player_number(room->owner)) {
-                output_message_room_related_from_computer_or_player_action(SMsg_WorkshopTooSmall);
-            }
-            return 0;
-        }
-        if (find_first_valid_position_for_thing_in_room(creatng, room, &pos)
-          && setup_person_move_to_position(creatng, pos.x.stl.num, pos.y.stl.num, 0))
-        {
-            creatng->continue_state = get_arrive_at_state_for_job(jobpref);
-            cctrl->target_room_id = room->index;
-            return 1;
-        }
-        return 0;
-    case Job_SCAVENGE:
-        if (!creature_can_do_scavenging(creatng)) {
-            return 0;
-        }
-        if (!room_has_enough_free_capacity_for_creature(room, creatng))
-        {
-            if (is_my_player_number(room->owner)) {
-                output_message_room_related_from_computer_or_player_action(SMsg_ScavengeTooSmall);
-            }
-            return 0;
-        }
-        if (find_first_valid_position_for_thing_in_room(creatng, room, &pos)
-          && setup_person_move_to_position(creatng, pos.x.stl.num, pos.y.stl.num, 0))
-        {
-            creatng->continue_state = get_arrive_at_state_for_job(jobpref);
-            cctrl->target_room_id = room->index;
-            return 1;
-        }
-        return 0;
-    case Job_KINKY_TORTURE:
-        if (!room_has_enough_free_capacity_for_creature(room, creatng))
-        {
-            if (is_my_player_number(room->owner))
-            {
-                output_message_room_related_from_computer_or_player_action(SMsg_TortureTooSmall);
-            }
-            return 0;
-        }
-        if (creature_move_to_place_in_room(creatng, room))
-        {
-            creatng->continue_state = get_arrive_at_state_for_job(jobpref);
-            cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
-            cctrl->target_room_id = room->index;
-            return 1;
-        }
-        return 0;
-    case Job_GUARD:
-        if (!room_has_enough_free_capacity_for_creature(room, creatng))
-        {
-            return 0;
-        }
-        if (find_first_valid_position_for_thing_in_room(creatng, room, &pos)
-          && setup_person_move_to_position(creatng, pos.x.stl.num, pos.y.stl.num, 0))
-        {
-            creatng->continue_state = get_arrive_at_state_for_job(jobpref);
-            cctrl->target_room_id = room->index;
-            return 1;
-        }
-        return 0;
-    case Job_BARRACK:
-        if (!room_has_enough_free_capacity_for_creature(room, creatng))
-        {
-            if (is_my_player_number(room->owner))
-            {
-                output_message_room_related_from_computer_or_player_action(SMsg_BarracksTooSmall);
-            }
-            return 0;
-        }
-        if (find_first_valid_position_for_thing_in_room(creatng, room, &pos)
-          && setup_person_move_to_position(creatng, pos.x.stl.num, pos.y.stl.num, 0))
-        {
-            creatng->continue_state = get_arrive_at_state_for_job(jobpref);
-            cctrl->target_room_id = room->index;
-            return 1;
-        }
-        return 0;
-    case Job_TEMPLE_PRAY:
-        if (!room_has_enough_free_capacity_for_creature(room, creatng))
-        {
-            if (is_my_player_number(room->owner))
-            {
-                output_message_room_related_from_computer_or_player_action(SMsg_TempleTooSmall);
-            }
-            return 0;
-        }
-        if (find_first_valid_position_for_thing_in_room(creatng, room, &pos)
-          && setup_person_move_to_position(creatng, pos.x.stl.num, pos.y.stl.num, 0))
-        {
-            creatng->continue_state = get_arrive_at_state_for_job(jobpref);
-            cctrl->target_room_id = room->index;
-            process_temple_cure(creatng);
-            return 1;
-        }
-        return 0;
-    case Job_EXEMPT:
-        if (creature_move_to_place_in_room(creatng, room))
-        {
-            creatng->continue_state = get_arrive_at_state_for_job(jobpref);
-            cctrl->target_room_id = room->index;
-            return 1;
-        }
-        return 0;
-    case Job_PAINFUL_TORTURE:
-        if (!room_has_enough_free_capacity_for_creature(room, creatng))
-        {
-            if (is_my_player_number(room->owner)) {
-                output_message_room_related_from_computer_or_player_action(SMsg_TortureTooSmall);
-            }
-            return 0;
-        }
-        if (creature_move_to_place_in_room(creatng, room))
-        {
-            creatng->continue_state = get_arrive_at_state_for_job(jobpref);
-            cctrl->flgfield_1 |= CCFlg_NoCompControl;
-            cctrl->target_room_id = room->index;
-            return 1;
-        }
-        return 0;
-    case Job_CAPTIVITY:
-        if (creature_move_to_place_in_room(creatng, room))
-        {
-            cctrl->flgfield_1 |= CCFlg_NoCompControl;
-            creatng->continue_state = get_arrive_at_state_for_job(jobpref);
-            cctrl->target_room_id = room->index;
-            return 1;
-        }
-        return 0;
-    case Job_PLACE_IN_VAULT:
-        if (creatng->creature.gold_carried > 0)
-        {
-            if (creature_move_to_place_in_room(creatng, room))
-            {
-                creatng->continue_state = get_arrive_at_state_for_job(jobpref);
-                cctrl->target_room_id = room->index;
-                return 1;
-            }
-        }
-        return 0;
-    case Job_TAKE_SALARY:
-        if (room->used_capacity > 0)
-        {
-            if (creature_move_to_place_in_room(creatng, room))
-            {
-                creatng->continue_state = get_arrive_at_state_for_job(jobpref);
-                cctrl->target_room_id = room->index;
-                return 1;
-            }
-        }
-        return 0;
-    case Job_TAKE_FEED:
-        if (find_first_valid_position_for_thing_in_room(creatng, room, &pos)
-          && setup_person_move_to_position(creatng, pos.x.stl.num, pos.y.stl.num, 0))
-        {
-            creatng->continue_state = get_arrive_at_state_for_job(jobpref);
-            cctrl->target_room_id = room->index;
-            return 1;
-        }
-        return 0;
-    case Job_TAKE_SLEEP:
-        cctrl->slap_turns = 0;
-        cctrl->max_speed = calculate_correct_creature_maxspeed(creatng);
-        if (!creature_free_for_sleep(creatng)) {
-            return 0;
-        }
-        if (creature_has_lair_room(creatng) && (room->index == cctrl->lair_room_id))
-        {
-            if (creature_move_to_home_lair(creatng))
-            {
-                creatng->continue_state = CrSt_CreatureGoingHomeToSleep;
-                return 1;
-            }
-        }
-        if (find_first_valid_position_for_thing_in_room(creatng, room, &pos)
-          && setup_person_move_to_position(creatng, pos.x.stl.num, pos.y.stl.num, 0))
-        {
-            creatng->continue_state = CrSt_CreatureChangeLair;
-            cctrl->target_room_id = room->index;
-            return 1;
-        }
-        return 0;
-    case Job_TUNNEL:
-    case Job_DIG:
-    case Job_FIGHT:
-    case Job_SEEK_THE_ENEMY:
-    case Job_GROUP:
-    case Job_FREEZE_PRISONERS:
-    case Job_EXPLORE:
-    case Job_TEMPLE_SACRIFICE:
-        ERRORLOG("Unsupported job %s for %s (owner %d)",creature_job_code_name(jobpref),thing_model_name(creatng),(int)creatng->owner);
-        break;
-    default:
-        break;
-    }
-    return 0;
+    return send_creature_to_job_near_position(creatng, stl_x, stl_y, jobpref);
 }
 
 TbBool worker_needed_in_dungeons_room_kind(const struct Dungeon *dungeon, RoomKind rkind)

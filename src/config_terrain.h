@@ -95,6 +95,9 @@ struct RoomConfigStats {
     long creature_creation_model;
     SlabKind assigned_slab;
     unsigned long flags;
+    long msg_needed;
+    long msg_too_small;
+    long msg_no_route;
 };
 
 struct SlabsConfig {

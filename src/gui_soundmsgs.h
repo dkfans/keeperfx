@@ -190,6 +190,7 @@ TbBool message_can_be_played(long msg_idx);
 void clear_messages(void);
 void init_messages_turns(long delay);
 void process_messages(void);
+TbBool output_message_room_related_from_computer_or_player_action(long msg_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

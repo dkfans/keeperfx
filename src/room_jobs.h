@@ -47,6 +47,7 @@ TbBool remove_creature_from_work_room(struct Thing *thing);
 TbBool remove_creature_from_torture_room(struct Thing *creatng);
 
 short send_creature_to_room(struct Thing *creatng, struct Room *room, CreatureJob jobpref);
+TbBool creature_move_to_place_in_room(struct Thing *creatng, struct Room *room);
 
 struct Thing *find_object_in_room_for_creature_matching_bool_filter(struct Thing *creatng, const struct Room *room, Thing_Bool_Filter matcher_cb);
 
