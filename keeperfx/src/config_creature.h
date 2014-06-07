@@ -96,6 +96,7 @@ enum JobKindFlags {
     JoKF_OwnedDiggers     = 0x0080,
     JoKF_EnemyDiggers     = 0x0100,
     JoKF_AssignOneTime    = 0x0200,
+    JoKF_NeedsCapacity    = 0x0400,
 };
 
 enum CreatureDeathKind {

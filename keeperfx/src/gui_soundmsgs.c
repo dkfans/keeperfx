@@ -516,6 +516,21 @@ void init_messages_turns(long delay)
         smsg->end_time = game.play_gameturn + delay;
     }
 }
+
+TbBool output_message_room_related_from_computer_or_player_action(long msg_idx)
+{
+    long delay;
+    struct Dungeon *dungeon;
+    dungeon = get_my_dungeon();
+    if ((dungeon->computer_enabled & 0x01) == 0) {
+        // Human player shouldn't be irritated too much with repeating messages
+        delay = 500;
+    } else {
+        // Computer player needs all messages to select next action correctly
+        delay = 0;
+    }
+    return output_message(msg_idx, delay, true);
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

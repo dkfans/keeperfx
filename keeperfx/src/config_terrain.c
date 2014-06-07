@@ -55,6 +55,7 @@ const struct NamedCommand terrain_room_commands[] = {
   {"PROPERTIES",      4},
   {"SLABASSIGN",      5},
   {"CREATURECREATION",6},
+  {"MESSAGES",        7},
   {NULL,              0},
   };
 
@@ -472,6 +473,9 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
             LbMemorySet(roomst->code_name, 0, COMMAND_WORD_LEN);
             roomst->tooltip_stridx = GUIStr_Empty;
             roomst->creature_creation_model = 0;
+            roomst->msg_needed = 0;
+            roomst->msg_too_small = 0;
+            roomst->msg_no_route = 0;
             if (i < slab_conf.room_types_count)
             {
                 room_desc[i].name = roomst->code_name;
@@ -614,6 +618,31 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 7: // MESSAGES
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                roomst->msg_needed = k;
+                n++;
+            }
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                roomst->msg_too_small = k;
+                n++;
+            }
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                roomst->msg_no_route = k;
+                n++;
+            }
+            if (n < 3)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
         case 0: // comment
