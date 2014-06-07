@@ -32,6 +32,7 @@
 #include "creature_instances.h"
 #include "room_jobs.h"
 #include "power_hand.h"
+#include "spdigger_stack.h"
 #include "player_instances.h"
 #include "game_legacy.h"
 #include "gui_soundmsgs.h"
@@ -43,6 +44,8 @@
 #include "creature_states_tortr.h"
 #include "creature_states_train.h"
 #include "creature_states_wrshp.h"
+#include "creature_states_lair.h"
+#include "creature_states_pray.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -412,6 +415,43 @@ TbBool creature_will_reject_job(const struct Thing *creatng, CreatureJob jobpref
     return (jobpref & crstat->jobs_not_do) != 0;
 }
 
+TbBool is_correct_place_to_perform_job(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob jobpref)
+{
+    const struct SlabMap *slb;
+    slb = get_slabmap_for_subtile(stl_x, stl_y);
+    const struct Room *room;
+    room = subtile_room_get(stl_x, stl_y);
+    if (get_room_for_job(jobpref) != RoK_NONE)
+    {
+        if (room_is_invalid(room)) {
+            return false;
+        }
+        if (room->kind != get_room_for_job(jobpref)) {
+            return false;
+        }
+    }
+    if (creatng->owner == slabmap_owner(slb))
+    {
+        if (creatng->model == get_players_special_digger_model(creatng->owner)) {
+            if ((get_flags_for_job(jobpref) & JoKF_OwnedDiggers) == 0)
+                return false;
+        } else {
+            if ((get_flags_for_job(jobpref) & JoKF_OwnedCreatures) == 0)
+                return false;
+        }
+    } else
+    {
+        if (creatng->model == get_players_special_digger_model(creatng->owner)) {
+            if ((get_flags_for_job(jobpref) & JoKF_EnemyDiggers) == 0)
+                return false;
+        } else {
+            if ((get_flags_for_job(jobpref) & JoKF_EnemyCreatures) == 0)
+                return false;
+        }
+    }
+    return true;
+}
+
 /** Returns if a creature can do specific job for the player.
  *
  * @param creatng The creature which is planned for the job.
@@ -492,10 +532,229 @@ TbBool creature_can_do_job_for_player(const struct Thing *creatng, PlayerNumber 
     return false;
 }
 
-TbBool creature_can_do_job_at_position(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob jobpref)
+TbBool creature_can_do_job_near_position(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob jobpref)
 {
-    //TODO write such test function, and use it where such check is needed
-    // Should be based on tests in send_creature_to_room().
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    SYNCDBG(6,"Starting for %s (owner %d) and job %s",thing_model_name(creatng),(int)creatng->owner,creature_job_code_name(jobpref));
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(creatng);
+    if (creature_will_reject_job(creatng, jobpref))
+    {
+        SYNCDBG(3,"Cannot assign %s at (%d,%d) for %s index %d owner %d; in not do jobs list",creature_job_code_name(jobpref),(int)stl_x,(int)stl_y,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        anger_apply_anger_to_creature(creatng, crstat->annoy_will_not_do_job, AngR_Other, 1);
+        external_set_thing_state(creatng, CrSt_CreatureMoan);
+        cctrl->field_282 = 50;
+        return 0;
+    }
+    // Check if the job is related to correct map place (room,slab)
+    if (!is_correct_place_to_perform_job(creatng, stl_x, stl_y, jobpref))
+    {
+        SYNCDBG(3,"Cannot assign %s at (%d,%d) for %s index %d owner %d; not correct place for job",creature_job_code_name(jobpref),(int)stl_x,(int)stl_y,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        return 0;
+    }
+    struct Room *room;
+    room = subtile_room_get(stl_x, stl_y);
+    switch (jobpref)
+    {
+    case Job_RESEARCH:
+        if (!creature_can_do_research(creatng))
+        {
+            struct Dungeon *dungeon;
+            dungeon = get_dungeon(room->owner);
+            if (!is_neutral_thing(creatng) && (dungeon->current_research_idx < 0))
+            {
+                if (is_my_player_number(dungeon->owner)) {
+                    output_message(SMsg_NoMoreReseach, 500, true);
+                }
+            }
+            set_start_state(creatng);
+            return false;
+        }
+        break;
+    case Job_TRAIN:
+        if (!creature_can_be_trained(creatng)) {
+            return false;
+        }
+        break;
+    case Job_MANUFACTURE:
+        if (!creature_can_do_manufacturing(creatng)) {
+            return false;
+        }
+        break;
+    case Job_SCAVENGE:
+        if (!creature_can_do_scavenging(creatng)) {
+            return false;
+        }
+        break;
+    case Job_KINKY_TORTURE:
+        break;
+    case Job_GUARD:
+        break;
+    case Job_BARRACK:
+        break;
+    case Job_TEMPLE_PRAY:
+        break;
+    case Job_EXEMPT:
+        break;
+    case Job_PAINFUL_TORTURE:
+        break;
+    case Job_CAPTIVITY:
+        break;
+    case Job_PLACE_IN_VAULT:
+        if (creatng->creature.gold_carried < 1) {
+            return false;
+        }
+        break;
+    case Job_TAKE_SALARY:
+        if (room->used_capacity < 1) {
+            return false;
+        }
+        break;
+    case Job_TAKE_FEED:
+        break;
+    case Job_TAKE_SLEEP:
+        if (!creature_free_for_sleep(creatng)) {
+            return false;
+        }
+        break;
+    case Job_TUNNEL:
+    case Job_DIG:
+    case Job_FIGHT:
+    case Job_SEEK_THE_ENEMY:
+    case Job_GROUP:
+    case Job_FREEZE_PRISONERS:
+    case Job_EXPLORE:
+    case Job_TEMPLE_SACRIFICE:
+    default:
+        ERRORLOG("Unsupported job %s for %s (owner %d)",creature_job_code_name(jobpref),thing_model_name(creatng),(int)creatng->owner);
+        break;
+    }
+    // If other tests pass, check if related room (if is needed) has capacity to be used for that job
+    if ((get_flags_for_job(jobpref) & JoKF_NeedsCapacity) != 0)
+    {
+        if (!room_has_enough_free_capacity_for_creature(room, creatng))
+        {
+            const struct RoomConfigStats *roomst;
+            roomst = get_room_kind_stats(room->kind);
+            if (is_my_player_number(room->owner) && (roomst->msg_too_small > 0)) {
+                output_message_room_related_from_computer_or_player_action(roomst->msg_too_small);
+            }
+            return false;
+        }
+    }
+    return true;
+}
+
+TbBool send_creature_to_job_near_position(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob jobpref)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    SYNCDBG(6,"Starting for %s (owner %d) and job %s",thing_model_name(creatng),(int)creatng->owner,creature_job_code_name(jobpref));
+    struct Room *room;
+    room = subtile_room_get(stl_x, stl_y);
+    struct Coord3d pos;
+    switch (jobpref)
+    {
+    case Job_RESEARCH:
+    case Job_MANUFACTURE:
+    case Job_SCAVENGE:
+    case Job_GUARD:
+    case Job_BARRACK:
+    case Job_TAKE_FEED:
+        if (find_first_valid_position_for_thing_in_room(creatng, room, &pos))
+        {
+            if (setup_person_move_to_position(creatng, pos.x.stl.num, pos.y.stl.num, 0))
+            {
+              creatng->continue_state = get_arrive_at_state_for_job(jobpref);
+              cctrl->target_room_id = room->index;
+              return 1;
+            }
+        }
+        return 0;
+    case Job_TRAIN:
+        if (find_first_valid_position_for_thing_in_room(creatng, room, &pos)
+          && setup_person_move_to_position(creatng, pos.x.stl.num, pos.y.stl.num, 0))
+        {
+            creatng->continue_state = get_arrive_at_state_for_job(jobpref);
+            cctrl->target_room_id = room->index;
+            if (creatng->model == get_players_special_digger_model(room->owner)) {
+                cctrl->digger.last_did_job = SDLstJob_UseTraining4;
+            }
+            return 1;
+        }
+        return 0;
+    case Job_KINKY_TORTURE:
+        if (creature_move_to_place_in_room(creatng, room))
+        {
+            creatng->continue_state = get_arrive_at_state_for_job(jobpref);
+            cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
+            cctrl->target_room_id = room->index;
+            return 1;
+        }
+        return 0;
+    case Job_TEMPLE_PRAY:
+        if (find_first_valid_position_for_thing_in_room(creatng, room, &pos)
+          && setup_person_move_to_position(creatng, pos.x.stl.num, pos.y.stl.num, 0))
+        {
+            creatng->continue_state = get_arrive_at_state_for_job(jobpref);
+            cctrl->target_room_id = room->index;
+            process_temple_cure(creatng);
+            return 1;
+        }
+        return 0;
+    case Job_EXEMPT:
+    case Job_PLACE_IN_VAULT:
+    case Job_TAKE_SALARY:
+        if (creature_move_to_place_in_room(creatng, room))
+        {
+            creatng->continue_state = get_arrive_at_state_for_job(jobpref);
+            cctrl->target_room_id = room->index;
+            return 1;
+        }
+        return 0;
+    case Job_PAINFUL_TORTURE:
+    case Job_CAPTIVITY:
+        if (creature_move_to_place_in_room(creatng, room))
+        {
+            creatng->continue_state = get_arrive_at_state_for_job(jobpref);
+            cctrl->flgfield_1 |= CCFlg_NoCompControl;
+            cctrl->target_room_id = room->index;
+            return 1;
+        }
+        return 0;
+    case Job_TAKE_SLEEP:
+        cctrl->slap_turns = 0;
+        cctrl->max_speed = calculate_correct_creature_maxspeed(creatng);
+        if (creature_has_lair_room(creatng) && (room->index == cctrl->lair_room_id))
+        {
+            if (creature_move_to_home_lair(creatng))
+            {
+                creatng->continue_state = CrSt_CreatureGoingHomeToSleep;
+                return 1;
+            }
+        }
+        if (find_first_valid_position_for_thing_in_room(creatng, room, &pos)
+          && setup_person_move_to_position(creatng, pos.x.stl.num, pos.y.stl.num, 0))
+        {
+            creatng->continue_state = CrSt_CreatureChangeLair;
+            cctrl->target_room_id = room->index;
+            return 1;
+        }
+        return 0;
+    case Job_TUNNEL:
+    case Job_DIG:
+    case Job_FIGHT:
+    case Job_SEEK_THE_ENEMY:
+    case Job_GROUP:
+    case Job_FREEZE_PRISONERS:
+    case Job_EXPLORE:
+    case Job_TEMPLE_SACRIFICE:
+        ERRORLOG("Unsupported job %s for %s (owner %d)",creature_job_code_name(jobpref),thing_model_name(creatng),(int)creatng->owner);
+        break;
+    default:
+        break;
+    }
     return false;
 }
 

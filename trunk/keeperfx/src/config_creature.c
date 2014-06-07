@@ -81,13 +81,13 @@ const struct NamedCommand creaturetype_instance_commands[] = {
   };
 
 const struct NamedCommand creaturetype_job_commands[] = {
-  {"NAME",            1},
-  {"RELATEDROOM",     2},
-  {"RELATEDEVENT",    3},
-  {"ASSIGN",          4},
-  {"INITIALSTATE",    5},
-  {"FUNCTIONS",       6},
-  {NULL,              0},
+  {"NAME",              1},
+  {"RELATEDROOM",       2},
+  {"RELATEDEVENT",      3},
+  {"ASSIGN",            4},
+  {"INITIALSTATE",      5},
+  {"FUNCTIONS",         6},
+  {NULL,                0},
   };
 
 const struct NamedCommand creaturetype_job_assign[] = {
@@ -102,6 +102,7 @@ const struct NamedCommand creaturetype_job_assign[] = {
   {"OWNED_DIGGERS",          JoKF_OwnedDiggers},
   {"ENEMY_DIGGERS",          JoKF_EnemyDiggers},
   {"ONE_TIME",               JoKF_AssignOneTime},
+  {"NEEDS_CAPACITY",         JoKF_NeedsCapacity},
   {NULL,                     0},
   };
 
