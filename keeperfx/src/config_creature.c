@@ -86,7 +86,7 @@ const struct NamedCommand creaturetype_job_commands[] = {
   {"RELATEDEVENT",      3},
   {"ASSIGN",            4},
   {"INITIALSTATE",      5},
-  {"FUNCTIONS",         6},
+  {"PLAYERFUNCTIONS",   6},
   {NULL,                0},
   };
 
@@ -186,7 +186,9 @@ struct NamedCommand angerjob_desc[INSTANCE_TYPES_MAX];
 struct NamedCommand attackpref_desc[INSTANCE_TYPES_MAX];
 /******************************************************************************/
 extern const struct NamedCommand creature_job_assign_func_type[];
-extern Creature_Job_Assign_Func creature_job_assign_func_list[];
+extern Creature_Job_Player_Check_Func creature_job_player_check_func_list[];
+extern const struct NamedCommand creature_job_check_func_type[];
+extern Creature_Job_Player_Assign_Func creature_job_player_assign_func_list[];
 
 const struct NamedCommand mevents_desc[] = {
     {"MEVENT_NOTHING",        EvKind_Nothing},
@@ -1002,7 +1004,8 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
             jobcfg->room_kind = RoK_NONE;
             jobcfg->initial_crstate = CrSt_Unused;
             jobcfg->job_flags = 0;
-            jobcfg->func_assign = NULL;
+            jobcfg->func_plyr_check = NULL;
+            jobcfg->func_plyr_assign = NULL;
             if (i < crtr_conf.jobs_count)
             {
                 creaturejob_desc[i].name = crtr_conf.jobs[i].name;
@@ -1133,15 +1136,22 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
                       COMMAND_TEXT(cmd_num),block_buf,config_textname);
                 }
                 break;
-            case 6: // FUNCTIONS
-                jobcfg->func_assign = NULL;
+            case 6: // PLAYERFUNCTIONS
+                jobcfg->func_plyr_check = NULL;
+                jobcfg->func_plyr_assign = NULL;
+                k = recognize_conf_parameter(buf,&pos,len,creature_job_check_func_type);
+                if (k > 0)
+                {
+                    jobcfg->func_plyr_check = creature_job_player_check_func_list[k];
+                    n++;
+                }
                 k = recognize_conf_parameter(buf,&pos,len,creature_job_assign_func_type);
                 if (k > 0)
                 {
-                    jobcfg->func_assign = creature_job_assign_func_list[k];
+                    jobcfg->func_plyr_assign = creature_job_player_assign_func_list[k];
                     n++;
                 }
-                if (n < 1)
+                if (n < 2)
                 {
                     CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                         COMMAND_TEXT(cmd_num),block_buf,config_textname);

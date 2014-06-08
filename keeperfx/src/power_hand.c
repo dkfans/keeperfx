@@ -873,7 +873,7 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     return 1;
 }
 
-TbBool dump_thing_held_by_any_player(struct Thing *thing)
+void dump_thing_held_by_any_player(struct Thing *thing)
 {
     int i;
     for (i=0; i<PLAYERS_COUNT; i++)

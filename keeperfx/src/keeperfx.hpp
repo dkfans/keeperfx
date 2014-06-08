@@ -361,7 +361,7 @@ void set_general_objective(long msg_id, long target, long x, long y);
 void turn_off_sight_of_evil(PlayerNumber plridx);
 short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool update_hand);
 int dump_all_held_things_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
-TbBool dump_thing_held_by_any_player(struct Thing *thing);
+void dump_thing_held_by_any_player(struct Thing *thing);
 long set_autopilot_type(PlayerNumber plridx, long aptype);
 void instant_instance_selected(long a1);
 void centre_engine_window(void);
