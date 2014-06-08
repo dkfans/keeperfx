@@ -131,11 +131,13 @@ struct CreatureInstanceConfig {
     char name[COMMAND_WORD_LEN];
 };
 
-typedef TbBool (*Creature_Job_Assign_Func)(struct Thing *, CreatureJob);
+typedef TbBool (*Creature_Job_Player_Check_Func)(const struct Thing *, PlayerNumber, CreatureJob);
+typedef TbBool (*Creature_Job_Player_Assign_Func)(struct Thing *, PlayerNumber, CreatureJob);
 
 struct CreatureJobConfig {
     char name[COMMAND_WORD_LEN];
-    Creature_Job_Assign_Func func_assign;
+    Creature_Job_Player_Check_Func func_plyr_check;
+    Creature_Job_Player_Assign_Func func_plyr_assign;
     RoomKind room_kind;
     EventKind event_kind;
     CrtrStateId initial_crstate;
