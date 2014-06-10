@@ -765,7 +765,7 @@ TbBool creature_could_be_placed_in_better_room(const struct Computer2 *comp, con
             return better_job_allowed;
         }
         if (dungeon_has_room(dungeon, rkind)
-         && creature_can_do_job_for_player_in_room(thing, dungeon->owner, rkind)
+         && creature_can_do_job_for_computer_player_in_room(thing, dungeon->owner, rkind)
          && worker_needed_in_dungeons_room_kind(dungeon, rkind)) {
             better_job_allowed = true;
         }
@@ -789,7 +789,7 @@ struct Room *get_room_to_place_creature(const struct Computer2 *comp, const stru
     for (k=0; move_to_room[k].kind != RoK_NONE; k++)
     {
         rkind = move_to_room[k].kind;
-        if (!creature_can_do_job_for_player_in_room(thing, dungeon->owner, rkind)) {
+        if (!creature_can_do_job_for_computer_player_in_room(thing, dungeon->owner, rkind)) {
             continue;
         }
         if (!worker_needed_in_dungeons_room_kind(dungeon, rkind)) {

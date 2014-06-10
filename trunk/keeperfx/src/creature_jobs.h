@@ -42,9 +42,9 @@ long attempt_job_preference(struct Thing *creatng, long jobpref);
 TbBool creature_try_doing_secondary_job(struct Thing *creatng);
 
 TbBool creature_can_do_job_for_player(const struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob jobpref);
-TbBool creature_can_do_job_near_position(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob jobpref);
-TbBool send_creature_to_job_near_position(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob jobpref);
-TbBool creature_can_do_job_for_player_in_room(const struct Thing *creatng, PlayerNumber plyr_idx, RoomKind rkind);
+TbBool creature_can_do_job_near_position(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job);
+TbBool send_creature_to_job_near_position(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job);
+TbBool creature_can_do_job_for_computer_player_in_room(const struct Thing *creatng, PlayerNumber plyr_idx, RoomKind rkind);
 TbBool creature_will_reject_job(const struct Thing *thing, CreatureJob jobpref);
 /******************************************************************************/
 #ifdef __cplusplus

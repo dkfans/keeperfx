@@ -91,12 +91,15 @@ enum JobKindFlags {
     JoKF_AssignInitInRoom         = 0x0004,
     JoKF_AssignDropOnRoomBorder   = 0x0008,
     JoKF_AssignDropOnRoomCenter   = 0x0010,
-    JoKF_OwnedCreatures   = 0x0020,
-    JoKF_EnemyCreatures   = 0x0040,
-    JoKF_OwnedDiggers     = 0x0080,
-    JoKF_EnemyDiggers     = 0x0100,
-    JoKF_AssignOneTime    = 0x0200,
-    JoKF_NeedsCapacity    = 0x0400,
+    JoKF_OwnedCreatures     = 0x0020,
+    JoKF_EnemyCreatures     = 0x0040,
+    JoKF_OwnedDiggers       = 0x0080,
+    JoKF_EnemyDiggers       = 0x0100,
+    JoKF_AssignOneTime      = 0x0200,
+    JoKF_NeedsCapacity      = 0x0400,
+    JoKF_WorkOnRoomBorder   = 0x0800,
+    JoKF_WorkOnRoomCenter   = 0x1000,
+    JoKF_NoSelfControl      = 0x2000,
 };
 
 enum CreatureDeathKind {
@@ -133,11 +136,15 @@ struct CreatureInstanceConfig {
 
 typedef TbBool (*Creature_Job_Player_Check_Func)(const struct Thing *, PlayerNumber, CreatureJob);
 typedef TbBool (*Creature_Job_Player_Assign_Func)(struct Thing *, PlayerNumber, CreatureJob);
+typedef TbBool (*Creature_Job_Coords_Check_Func)(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob jobpref);
+typedef TbBool (*Creature_Job_Coords_Assign_Func)(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob jobpref);
 
 struct CreatureJobConfig {
     char name[COMMAND_WORD_LEN];
     Creature_Job_Player_Check_Func func_plyr_check;
     Creature_Job_Player_Assign_Func func_plyr_assign;
+    Creature_Job_Coords_Check_Func func_cord_check;
+    Creature_Job_Coords_Assign_Func func_cord_assign;
     RoomKind room_kind;
     EventKind event_kind;
     CrtrStateId initial_crstate;
