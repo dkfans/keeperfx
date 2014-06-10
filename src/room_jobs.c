@@ -316,19 +316,27 @@ struct Thing *find_object_in_room_for_creature_matching_bool_filter(struct Thing
     return rettng;
 }
 
-TbBool creature_move_to_place_in_room(struct Thing *creatng, struct Room *room)
+TbBool creature_move_to_place_in_room(struct Thing *creatng, struct Room *room, CreatureJob jobpref)
 {
     struct Coord3d pos;
     TbBool result;
-    //TODO CREATURE_JOBS check job flags instead
-    if (room->kind == RoK_ENTRANCE)
+    unsigned long room_area = get_flags_for_job(jobpref) & (JoKF_WorkOnRoomBorder|JoKF_WorkOnRoomCenter);
+    switch (room_area)
     {
+    case JoKF_WorkOnRoomBorder:
+        result = find_random_position_at_border_of_room(&pos, room);
+        break;
+    case JoKF_WorkOnRoomCenter:
+        //TODO CREATURE_JOBS This should be improved - we can't assume room center is not a border position
         pos.x.val = subtile_coord_center(room->central_stl_x);
         pos.y.val = subtile_coord_center(room->central_stl_y);
         result = true;
-    } else
-    {
+        break;
+    default:
+        WARNLOG("Invalid room area flags for job %s.",creature_job_code_name(jobpref));
+    case JoKF_WorkOnRoomBorder|JoKF_WorkOnRoomCenter:
         result = find_random_valid_position_for_thing_in_room(creatng, room, &pos);
+        break;
     }
     if (result)
     {

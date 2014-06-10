@@ -87,6 +87,8 @@ const struct NamedCommand creaturetype_job_commands[] = {
   {"ASSIGN",            4},
   {"INITIALSTATE",      5},
   {"PLAYERFUNCTIONS",   6},
+  {"COORDSFUNCTIONS",   7},
+  {"PROPERTIES",        8},
   {NULL,                0},
   };
 
@@ -102,7 +104,15 @@ const struct NamedCommand creaturetype_job_assign[] = {
   {"OWNED_DIGGERS",          JoKF_OwnedDiggers},
   {"ENEMY_DIGGERS",          JoKF_EnemyDiggers},
   {"ONE_TIME",               JoKF_AssignOneTime},
+  {NULL,                     0},
+  };
+
+const struct NamedCommand creaturetype_job_properties[] = {
+  {"WORK_BORDER_ONLY",       JoKF_WorkOnRoomBorder},
+  {"WORK_CENTER_ONLY",       JoKF_WorkOnRoomCenter},
+  {"WORK_WHOLE_ROOM",        JoKF_WorkOnRoomBorder|JoKF_WorkOnRoomCenter},
   {"NEEDS_CAPACITY",         JoKF_NeedsCapacity},
+  {"NO_SELF_CONTROL",        JoKF_NoSelfControl},
   {NULL,                     0},
   };
 
@@ -185,10 +195,14 @@ struct NamedCommand creaturejob_desc[INSTANCE_TYPES_MAX];
 struct NamedCommand angerjob_desc[INSTANCE_TYPES_MAX];
 struct NamedCommand attackpref_desc[INSTANCE_TYPES_MAX];
 /******************************************************************************/
-extern const struct NamedCommand creature_job_assign_func_type[];
+extern const struct NamedCommand creature_job_player_assign_func_type[];
 extern Creature_Job_Player_Check_Func creature_job_player_check_func_list[];
-extern const struct NamedCommand creature_job_check_func_type[];
+extern const struct NamedCommand creature_job_player_check_func_type[];
 extern Creature_Job_Player_Assign_Func creature_job_player_assign_func_list[];
+extern const struct NamedCommand creature_job_coords_check_func_type[];
+extern Creature_Job_Coords_Check_Func creature_job_coords_check_func_list[];
+extern const struct NamedCommand creature_job_coords_assign_func_type[];
+extern Creature_Job_Coords_Assign_Func creature_job_coords_assign_func_list[];
 
 const struct NamedCommand mevents_desc[] = {
     {"MEVENT_NOTHING",        EvKind_Nothing},
@@ -1006,6 +1020,8 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
             jobcfg->job_flags = 0;
             jobcfg->func_plyr_check = NULL;
             jobcfg->func_plyr_assign = NULL;
+            jobcfg->func_cord_check = NULL;
+            jobcfg->func_cord_assign = NULL;
             if (i < crtr_conf.jobs_count)
             {
                 creaturejob_desc[i].name = crtr_conf.jobs[i].name;
@@ -1100,7 +1116,9 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
                 }
                 break;
             case 4: // ASSIGN
-                jobcfg->job_flags = 0;
+                jobcfg->job_flags &= ~(JoKF_AssignHumanDropInRoom|JoKF_AssignComputerDropInRoom|JoKF_AssignInitInRoom|
+                    JoKF_AssignDropOnRoomBorder|JoKF_AssignDropOnRoomCenter|JoKF_OwnedCreatures|JoKF_EnemyCreatures|
+                    JoKF_OwnedDiggers|JoKF_EnemyDiggers|JoKF_AssignOneTime);
                 while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
                 {
                     k = get_id(creaturetype_job_assign, word_buf);
@@ -1139,13 +1157,13 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
             case 6: // PLAYERFUNCTIONS
                 jobcfg->func_plyr_check = NULL;
                 jobcfg->func_plyr_assign = NULL;
-                k = recognize_conf_parameter(buf,&pos,len,creature_job_check_func_type);
+                k = recognize_conf_parameter(buf,&pos,len,creature_job_player_check_func_type);
                 if (k > 0)
                 {
                     jobcfg->func_plyr_check = creature_job_player_check_func_list[k];
                     n++;
                 }
-                k = recognize_conf_parameter(buf,&pos,len,creature_job_assign_func_type);
+                k = recognize_conf_parameter(buf,&pos,len,creature_job_player_assign_func_type);
                 if (k > 0)
                 {
                     jobcfg->func_plyr_assign = creature_job_player_assign_func_list[k];
@@ -1155,6 +1173,43 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
                 {
                     CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                         COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                }
+                break;
+            case 7: // COORDSFUNCTIONS
+                jobcfg->func_cord_check = NULL;
+                jobcfg->func_cord_assign = NULL;
+                k = recognize_conf_parameter(buf,&pos,len,creature_job_coords_check_func_type);
+                if (k > 0)
+                {
+                    jobcfg->func_cord_check = creature_job_coords_check_func_list[k];
+                    n++;
+                }
+                k = recognize_conf_parameter(buf,&pos,len,creature_job_coords_assign_func_type);
+                if (k > 0)
+                {
+                    jobcfg->func_cord_assign = creature_job_coords_assign_func_list[k];
+                    n++;
+                }
+                if (n < 2)
+                {
+                    CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                }
+                break;
+            case 8: // PROPERTIES
+                jobcfg->job_flags &= ~(JoKF_WorkOnRoomBorder|JoKF_WorkOnRoomCenter|JoKF_NeedsCapacity|JoKF_NoSelfControl);
+                while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+                {
+                    k = get_id(creaturetype_job_properties, word_buf);
+                    if (k > 0)
+                    {
+                        jobcfg->job_flags |= k;
+                      n++;
+                    } else {
+                        CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
+                            COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+                        break;
+                    }
                 }
                 break;
             case 0: // comment
