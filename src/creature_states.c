@@ -1617,7 +1617,7 @@ short creature_being_dropped(struct Thing *creatng)
     // Note that not all activities have jobs - the new job may be Job_NULL, ie. in case of hatchery or lair
     if (!send_creature_to_room(creatng, room, new_job))
     {
-        SYNCDBG(3,"Cannot assign %s to %s index %d owner %d; sending to room failed",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        SYNCDBG(13,"Cannot assign %s to %s index %d owner %d; could not send to room",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
         set_start_state(creatng);
         return 2;
@@ -4206,9 +4206,9 @@ TbBool external_set_thing_state_f(struct Thing *thing, CrtrStateId state, const 
     return true;
 }
 
-TbBool creature_free_for_sleep(struct Thing *thing)
+TbBool creature_free_for_sleep(const struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
+    const struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
     if ((cctrl->slap_turns != 0) || ((cctrl->spell_flags & CSAfF_Unkn0800) != 0))
         return false;
