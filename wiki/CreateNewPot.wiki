@@ -1,0 +1,13 @@
+#summary Creating new translation template.
+
+= Making new levels with future translation in mind =
+
+While making levels, you do not necessarily want to start with all messages in .pot files. If it much more convenient to keep all the messages inside your level script file. Later, when your campaign is almost ready, you can easily export all strings to .pot file, in a partially automated way.
+
+So, it is best to use `QUICK_INFORMATION()` and `QUICK_OBJECTIVE()` for displaying messages while creating levels. Just remember to use `QUICK_*()` commands for all the messages - don't mix them with `DISPLAY_*()`, as that would make automating .pot file generation much harder.
+
+= Creating new translation template =
+
+There is a [https://code.google.com/p/keeperfx/source/browse/#svn%2Ftrunk%2Fkeeperfx%2Ftools%2Fcampgn2pot script in KeeperFX code repository] which allows fast generation of .pot file based on `QUICK_INFORMATION()` and `QUICK_OBJECTIVE()` commands within levels.
+
+After your levels are ready, run this script under Unix shell (ie. any Linux distribution, or on Windows with MinGW installed). This will create a .pot file automatically, with only minor tweaks needed to make it correct.
