@@ -27,6 +27,7 @@ pkg/fxdata/gtext_fre.dat \
 pkg/fxdata/gtext_ger.dat \
 pkg/fxdata/gtext_ita.dat \
 pkg/fxdata/gtext_jpn.dat \
+pkg/fxdata/gtext_lat.dat \
 pkg/fxdata/gtext_pol.dat \
 pkg/fxdata/gtext_rus.dat \
 pkg/fxdata/gtext_spa.dat \
