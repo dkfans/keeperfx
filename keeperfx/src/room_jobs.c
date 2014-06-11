@@ -382,14 +382,14 @@ TbBool room_is_correct_to_perform_job(const struct Thing *creatng, const struct 
  */
 short send_creature_to_room(struct Thing *creatng, struct Room *room, CreatureJob jobpref)
 {
-    SYNCDBG(6,"Starting for %s (owner %d) and room %s",thing_model_name(creatng),(int)creatng->owner,room_code_name(room->kind));
+    SYNCDBG(16,"Starting for %s (owner %d) and room %s",thing_model_name(creatng),(int)creatng->owner,room_code_name(room->kind));
     //return _DK_send_creature_to_room(creatng, room);
     // Job selection is based on subtile, not on room - so select a subtile within the room
     MapSubtlCoord stl_x,stl_y;
     stl_x = slab_subtile(slb_num_decode_x(room->slabs_list),0);
     stl_y = slab_subtile(slb_num_decode_y(room->slabs_list),0);
     if (!creature_can_do_job_near_position(creatng, stl_x, stl_y, jobpref)) {
-        SYNCDBG(6,"Cannot assign job %s in room %s to %s (owner %d)",creature_job_code_name(jobpref),room_code_name(room->kind),thing_model_name(creatng),(int)creatng->owner);
+        SYNCDBG(16,"Cannot assign job %s in room %s to %s (owner %d)",creature_job_code_name(jobpref),room_code_name(room->kind),thing_model_name(creatng),(int)creatng->owner);
         return 0;
     }
     return send_creature_to_job_near_position(creatng, stl_x, stl_y, jobpref);

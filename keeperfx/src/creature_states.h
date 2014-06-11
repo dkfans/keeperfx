@@ -333,7 +333,7 @@ TbBool room_initially_valid_as_type_for_thing(const struct Room *room, RoomKind 
 TbBool room_still_valid_as_type_for_thing(const struct Room *room, RoomKind rkind, const struct Thing *thing);
 TbBool creature_work_in_room_no_longer_possible_f(const struct Room *room, RoomKind rkind, const struct Thing *thing, const char *func_name);
 #define creature_work_in_room_no_longer_possible(room, rkind, thing) creature_work_in_room_no_longer_possible_f(room, rkind, thing, __func__)
-TbBool creature_free_for_sleep(struct Thing *thing);
+TbBool creature_free_for_sleep(const struct Thing *thing);
 
 // Finding a nearby position to move during a job
 TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *thing);
