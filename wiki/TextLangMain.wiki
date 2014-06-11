@@ -22,15 +22,15 @@ As well as in-game messages, the `.dat` file also contains all the other informa
 ==Options==
 
   * [CorTran I want to correct errors in a non-English translated file]
- You have played KeeperFX and noticed badly translated messages, or missing and/or nonsensical messages, and wish to correct this.
+ Click the above link if you have played KeeperFX and noticed badly translated messages, or missing and/or nonsensical messages, and wish to correct this.
  * [NewTrans I want to generate a new language file for a campaign], where support for that langauge doesn't currently exist.
- You have noticed that a particular language (that is supported by KeeperFX currently, i.e. other campaigns have this support) is not supported for a campaign. You wish to add this language.
- * [NewLang I want to add a new language to KeeperFX]
- You want a new langauge added to KeeperFX.
- * [EngMod I want to make changes to the English language template for a campaign]
- You have noticed errors, or want to add more messages to a campaign
- * [NewPot I want to generate in-game messages for an in-progress new campaign]
- You are making a new campaign for KeeperFX and want the format to support multiple languages (either on publication, or in the future)
+ Read inside the above link if you have noticed that a particular language (that is supported by KeeperFX currently, i.e. other campaigns have this support) is not supported for a particular campaign. You wish to add this language.
+ * [NewLanguage I want to add a new language to KeeperFX]
+ Select the above if you want a new langauge added to KeeperFX, one which doesn't currently exist in any campaign.
+ * [ModifyExistingPot I want to make changes to the English language template for a campaign]
+ Click the link if you have noticed errors in English messages, or want to add more messages to a campaign.
+ * [CreateNewPot I want to generate in-game messages for an in-progress new campaign]
+ Use the above if you are making a new campaign for KeeperFX and want the format to support multiple languages (either on publication, or in the future).
 
 ==Notification==
 
