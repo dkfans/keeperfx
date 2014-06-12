@@ -31,7 +31,7 @@ extern "C" {
 /******************************************************************************/
 long const scavenge_effect_element[] = {60, 61, 62, 63, 64, 64,};
 /******************************************************************************/
-long get_scavenge_effect_element(unsigned short owner)
+long get_scavenge_effect_element(PlayerNumber owner)
 {
   return scavenge_effect_element[player_colors_map[owner % PLAYERS_EXT_COUNT]];
 }

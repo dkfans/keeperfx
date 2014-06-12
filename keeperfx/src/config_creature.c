@@ -1815,29 +1815,32 @@ const char *creature_job_code_name(CreatureJob job_flag)
     return "INVALID";
 }
 
-CreatureJob get_creature_job_causing_stress(CreatureJob job_flags, RoomKind rkind)
+/**
+ * Gives the job which can cause creature going postal in specific room.
+ *
+ * @param job_flags Primary job flags of a creature kind to be checked.
+ * @param rkind Room kind to be checked.
+ * @return Returns a single job flag, or Job_NULL.
+ */
+CreatureJob get_creature_job_causing_going_postal(CreatureJob job_flags, RoomKind rkind)
 {
-    //TODO CONFIG Place related rooms in [jobX] section of config file
-    switch (rkind)
+    long i;
+    if (rkind == RoK_NONE) {
+        return Job_NULL;
+    }
+    for (i=0; i < crtr_conf.jobs_count; i++)
     {
-    case RoK_LIBRARY:
-        return (job_flags & Job_RESEARCH);
-    case RoK_TRAINING:
-        return (job_flags & Job_TRAIN);
-    case RoK_WORKSHOP:
-        return (job_flags & Job_MANUFACTURE);
-    case RoK_SCAVENGER:
-        return (job_flags & Job_SCAVENGE);
-    case RoK_TORTURE:
-        return (job_flags & Job_KINKY_TORTURE);
-    case RoK_GUARDPOST:
-        return (job_flags & Job_GUARD);
-    case RoK_BARRACKS:
-        return (job_flags & Job_BARRACK);
-    case RoK_TEMPLE:
-        return (job_flags & Job_TEMPLE_PRAY);
-    case RoK_PRISON:
-        return (job_flags & Job_FREEZE_PRISONERS);
+        struct CreatureJobConfig *jobcfg;
+        jobcfg = &crtr_conf.jobs[i];
+        if ((jobcfg->job_flags & (JoKF_OwnedCreatures|JoKF_OwnedDiggers)) != 0)
+        {
+            if ((jobcfg->job_flags & (JoKF_EnemyCreatures|JoKF_EnemyDiggers)) == 0)
+            {
+                if (jobcfg->room_kind == rkind) {
+                    return (job_flags & (1<<(i-1)));
+                }
+            }
+        }
     }
     return Job_NULL;
 }
