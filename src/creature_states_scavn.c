@@ -20,6 +20,8 @@
 #include "globals.h"
 
 #include "bflib_math.h"
+#include "bflib_sound.h"
+
 #include "creature_states.h"
 #include "thing_list.h"
 #include "creature_control.h"
@@ -77,7 +79,7 @@ short at_scavenger_room(struct Thing *thing)
     room = get_room_thing_is_on(thing);
     if (!room_initially_valid_as_type_for_thing(room, RoK_SCAVENGER, thing))
     {
-        WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(thing));
+        WARNLOG("Room %s owned by player %d is invalid for %s index %d",room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->index);
         set_start_state(thing);
         return 0;
     }
@@ -91,7 +93,7 @@ short at_scavenger_room(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    if ( !add_creature_to_work_room(thing, room) )
+    if (!add_creature_to_work_room(thing, room))
     {
         set_start_state(thing);
         return 0;
@@ -101,9 +103,68 @@ short at_scavenger_room(struct Thing *thing)
     return 1;
 }
 
-short creature_being_scavenged(struct Thing *thing)
+short creature_being_scavenged(struct Thing *creatng)
 {
-  return _DK_creature_being_scavenged(thing);
+    //return _DK_creature_being_scavenged(creatng);
+    struct Thing *fellowtng;
+    struct Dungeon *dungeon;
+    SYNCDBG(8,"Starting");
+    //return _DK_make_all_players_creatures_angry(plyr_idx);
+    dungeon = get_players_num_dungeon(creatng->owner);
+    fellowtng = INVALID_THING;
+    if (dungeon->num_active_creatrs <= 1)
+    {
+        SYNCDBG(19,"No other creatures");
+        return 0;
+    }
+    int n;
+    n = ACTION_RANDOM(dungeon->num_active_creatrs-1);
+    unsigned long k;
+    int i;
+    k = 0;
+    i = dungeon->creatr_list_start;
+    while (i != 0)
+    {
+        struct Thing *thing;
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        if ((n <= 0) && (thing->index != creatng->index)) {
+            fellowtng = thing;
+            break;
+        }
+        n--;
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    if (thing_is_invalid(fellowtng))
+    {
+        SYNCDBG(19,"Cannot get creature");
+        return 0;
+    }
+    if (setup_person_move_to_coord(creatng, &fellowtng->mappos, 0) <= 0)
+    {
+        SYNCDBG(19,"Cannot move to coord");
+        return 0;
+    }
+    creatng->continue_state = CrSt_CreatureBeingScavenged;
+    if (!S3DEmitterIsPlayingSample(creatng->snd_emitter_id, 156, 0))
+        thing_play_sample(creatng, 156, 100, 0, 3, 1, 2, 256);
+    SYNCDBG(19,"Finished");
+    return 1;
 }
 
 short creature_scavenged_disappear(struct Thing *thing)
