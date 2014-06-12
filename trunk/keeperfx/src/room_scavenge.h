@@ -34,7 +34,7 @@ struct Thing;
 
 #pragma pack()
 /******************************************************************************/
-long get_scavenge_effect_element(unsigned short owner);
+long get_scavenge_effect_element(PlayerNumber owner);
 /******************************************************************************/
 #ifdef __cplusplus
 }
