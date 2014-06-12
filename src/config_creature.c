@@ -1751,6 +1751,36 @@ CreatureJob get_job_for_room(RoomKind rkind, unsigned long required_kind_flags)
     return Job_NULL;
 }
 
+/**
+ * Returns a job creature can do in a room.
+ * @param rkind Room kind for which job is to be returned.
+ * @param qualify_flags Only jobs which have at least one of the flags set can be returned.
+ * @param prevent_flags Only jobs which have none of the flags set can be returned.
+ * @return A single job flag.
+ */
+CreatureJob get_job_which_qualify_for_room(RoomKind rkind, unsigned long qualify_flags, unsigned long prevent_flags)
+{
+    long i;
+    if (rkind == RoK_NONE) {
+        return Job_NULL;
+    }
+    for (i=0; i < crtr_conf.jobs_count; i++)
+    {
+        struct CreatureJobConfig *jobcfg;
+        jobcfg = &crtr_conf.jobs[i];
+        if ((jobcfg->job_flags & qualify_flags) != 0)
+        {
+            if ((jobcfg->job_flags & prevent_flags) == 0)
+            {
+                if (jobcfg->room_kind == rkind) {
+                    return 1<<(i-1);
+                }
+            }
+        }
+    }
+    return Job_NULL;
+}
+
 RoomKind get_room_for_job(CreatureJob job_flags)
 {
     struct CreatureJobConfig *jobcfg;
@@ -1816,6 +1846,22 @@ const char *creature_job_code_name(CreatureJob job_flag)
 }
 
 /**
+ * Gives the job which can cause creature stress in specific room.
+ *
+ * @param job_flags Primary job flags of a creature kind to be checked.
+ * @param rkind Room kind to be checked.
+ * @return Returns a single job flag, or Job_NULL.
+ */
+CreatureJob get_creature_job_causing_stress(CreatureJob job_flags, RoomKind rkind)
+{
+    CreatureJob qualified_job;
+    // Allowing one-time jobs to be stressful would make this job selection ambiguous
+    // TODO CREATURE_JOBS it would be better to get stressful job based on creature state, not on room
+    qualified_job = get_job_which_qualify_for_room(rkind, JoKF_OwnedCreatures|JoKF_OwnedDiggers, JoKF_AssignOneTime);
+    return (job_flags & qualified_job);
+}
+
+/**
  * Gives the job which can cause creature going postal in specific room.
  *
  * @param job_flags Primary job flags of a creature kind to be checked.
@@ -1824,25 +1870,9 @@ const char *creature_job_code_name(CreatureJob job_flag)
  */
 CreatureJob get_creature_job_causing_going_postal(CreatureJob job_flags, RoomKind rkind)
 {
-    long i;
-    if (rkind == RoK_NONE) {
-        return Job_NULL;
-    }
-    for (i=0; i < crtr_conf.jobs_count; i++)
-    {
-        struct CreatureJobConfig *jobcfg;
-        jobcfg = &crtr_conf.jobs[i];
-        if ((jobcfg->job_flags & (JoKF_OwnedCreatures|JoKF_OwnedDiggers)) != 0)
-        {
-            if ((jobcfg->job_flags & (JoKF_EnemyCreatures|JoKF_EnemyDiggers)) == 0)
-            {
-                if (jobcfg->room_kind == rkind) {
-                    return (job_flags & (1<<(i-1)));
-                }
-            }
-        }
-    }
-    return Job_NULL;
+    CreatureJob qualified_job;
+    qualified_job = get_job_which_qualify_for_room(rkind, JoKF_OwnedCreatures|JoKF_OwnedDiggers, JoKF_EnemyCreatures|JoKF_EnemyDiggers|JoKF_AssignOneTime|JoKF_NoSelfControl);
+    return (job_flags & qualified_job);
 }
 
 /******************************************************************************/
