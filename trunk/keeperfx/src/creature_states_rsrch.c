@@ -371,37 +371,12 @@ TbBool find_combat_target_passing_by_room_but_having_unrelated_job(const struct 
     return false;
 }
 
-/**
- * Processes job stress and going postal due to annoying co-workers.
- * Creatures which aren't performing their primary jobs can be attacked by creatures
- * going postal.
- * Creature doing primary job in room may go postal and attack other creatures walking
- * through the same room which aren't performing the same job (ie. are just passing by),
- * or other workers in that room who does not have the job as primary job.
- *
- * @param creatng The thing being affected by job stress or going postal.
- * @param room The room where target creature should be searched for.
- * @return
- */
-TbBool process_job_stress_and_going_postal(struct Thing *creatng, struct Room *room)
+TbBool process_job_causes_going_postal(struct Thing *creatng, struct Room *room, CreatureJob going_postal_job)
 {
     struct CreatureControl *cctrl;
     struct CreatureStats *crstat;
-    CreatureJob going_postal_job;
     cctrl = creature_control_get_from_thing(creatng);
     crstat = creature_stats_get_from_thing(creatng);
-    if ( (crstat->job_stress <= 0) || (cctrl->instance_id != CrInst_NULL) ) {
-        return false;
-    }
-    // Process the stress once per 20 turns
-    if (((game.play_gameturn + creatng->index) % 20) != 0) {
-        return false;
-    }
-    // Make sure we really should go postal in that room
-    going_postal_job = get_creature_job_causing_going_postal(crstat->job_primary,room->kind);
-    if (going_postal_job == Job_NULL) {
-        return false;
-    }
     long inst_use;
     inst_use = get_best_quick_range_instance_to_use(creatng);
     if (inst_use <= 0) {
@@ -419,7 +394,7 @@ TbBool process_job_stress_and_going_postal(struct Thing *creatng, struct Room *r
         external_set_thing_state(combt_thing, CrSt_CreatureEvacuateRoom);
         combctrl = creature_control_get_from_thing(combt_thing);
         combctrl->word_9A = room->index;
-        anger_apply_anger_to_creature(creatng, crstat->annoy_job_stress, AngR_Other, 1);
+        anger_apply_anger_to_creature(creatng, crstat->annoy_going_postal, AngR_Other, 1);
         return true;
     }
     if (thing_is_invalid(combt_thing)) {
@@ -433,6 +408,59 @@ TbBool process_job_stress_and_going_postal(struct Thing *creatng, struct Room *r
     cctrl->field_82 = 0;
     cctrl->byte_9A = 3;
     return true;
+}
+
+/**
+ * Processes job stress and going postal due to annoying co-workers.
+ * Creatures which aren't performing their primary jobs can be attacked by creatures
+ * going postal.
+ * Creature doing primary job in room may go postal and attack other creatures walking
+ * through the same room which aren't performing the same job (ie. are just passing by),
+ * or other workers in that room who does not have the job as primary job.
+ *
+ * @param creatng The thing being affected by job stress or going postal.
+ * @param room The room where target creature should be searched for.
+ * @return
+ */
+TbBool process_job_stress_and_going_postal(struct Thing *creatng, struct Room *room)
+{
+    struct CreatureControl *cctrl;
+    struct CreatureStats *crstat;
+    cctrl = creature_control_get_from_thing(creatng);
+    crstat = creature_stats_get_from_thing(creatng);
+    if (cctrl->instance_id != CrInst_NULL) {
+        return false;
+    }
+    // Process the stress once per 20 turns
+    //TODO CONFIG export amount of turns to config file
+    if (((game.play_gameturn + creatng->index) % 20) != 0) {
+        return false;
+    }
+    // Process the job stress
+    if (crstat->annoy_job_stress != 0)
+    {
+        // Note that this kind of code won't allow one-time jobs, or jobs not related to rooms, to be stressful
+        CreatureJob stressful_job;
+        stressful_job = get_creature_job_causing_stress(crstat->job_stress,room->kind);
+        if (stressful_job != Job_NULL)
+        {
+            anger_apply_anger_to_creature(creatng, crstat->annoy_job_stress, AngR_Other, 1);
+        }
+    }
+    // Process going postal
+    if (crstat->annoy_going_postal != 0)
+    {
+        // Make sure we really should go postal in that room
+        CreatureJob going_postal_job;
+        going_postal_job = get_creature_job_causing_going_postal(crstat->job_primary,room->kind);
+        if (going_postal_job != Job_NULL)
+        {
+            if (process_job_causes_going_postal(creatng, room, going_postal_job)) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 /**
@@ -473,6 +501,7 @@ CrCheckRet process_research_function(struct Thing *creatng)
     SYNCDBG(19,"The %s index %d produced %d research points",thing_model_name(creatng),(int)creatng->index,(int)work_value);
     dungeon->total_research_points += work_value;
     dungeon->field_1193 += work_value;
+    //TODO CREATURE_JOBS going postal should be possible for all jobs, not only research
     process_job_stress_and_going_postal(creatng, room);
     return CrCkRet_Available;
 }

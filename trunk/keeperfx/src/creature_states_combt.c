@@ -2245,7 +2245,7 @@ long waiting_combat_move(struct Thing *figtng, struct Thing *enmtng, long enmdis
     struct CreatureControl *figctrl;
     //return _DK_waiting_combat_move(figtng, enmtng, enmdist, a4);
     figctrl = creature_control_get_from_thing(figtng);
-    if (figctrl->instance_id != 0)
+    if (figctrl->instance_id != CrInst_NULL)
     {
         creature_turn_to_face(figtng, &enmtng->mappos);
         return 0;
@@ -2803,7 +2803,7 @@ long process_creature_self_spell_casting(struct Thing *creatng)
       || ((cctrl->stateblock_flags & CCSpl_Freeze) != 0)) {
         return 0;
     }
-   if ((get_creature_state_type(creatng) == CrStTyp_Value0) || (cctrl->instance_id != 0)) {
+   if ((get_creature_state_type(creatng) == CrStTyp_Value0) || (cctrl->instance_id != CrInst_NULL)) {
        return 0;
    }
    long inst_idx;
