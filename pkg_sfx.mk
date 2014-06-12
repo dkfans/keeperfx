@@ -18,21 +18,26 @@
 #
 #******************************************************************************
 
-NGSOUNDDATS = \
-pkg/sound/speech_chi.dat \
-pkg/sound/speech_cht.dat \
-pkg/sound/speech_dut.dat \
-pkg/sound/speech_eng.dat \
-pkg/sound/speech_fre.dat \
-pkg/sound/speech_ger.dat \
-pkg/sound/speech_ita.dat \
-pkg/sound/speech_jpn.dat \
-pkg/sound/speech_lat.dat \
-pkg/sound/speech_pol.dat \
-pkg/sound/speech_rus.dat \
-pkg/sound/speech_spa.dat \
-pkg/sound/speech_swe.dat \
-pkg/sound/sound.dat
+NGSPEECHBANKS = \
+speech_chi \
+speech_cht \
+speech_dut \
+speech_eng \
+speech_fre \
+speech_ger \
+speech_ita \
+speech_jpn \
+speech_lat \
+speech_pol \
+speech_rus \
+speech_spa \
+speech_swe
+
+NGSOUNDDATS = $(patsubst %,pkg/sound/%.dat,$(NGSPEECHBANKS) sound)
+
+NGSOUNDLISTS = $(patsubst %,sfx/%/filelist.txt,$(NGSPEECHBANKS) sound)
+
+.PHONY: pkg-sfx convert-sfx
 
 pkg-sfx: $(NGSOUNDDATS)
 
@@ -56,6 +61,15 @@ pkg/sound/%.dat:
 	@$(MKDIR) $(@D)
 	$(WAVTODAT) -o "$@" "$<"
 	-$(ECHO) 'Finished building: $@'
+	-$(ECHO) ' '
+
+convert-sfx: $(patsubst %,convert-sfx-%,$(NGSPEECHBANKS))
+
+convert-sfx-%: sfx/%/filelist.txt
+	-$(ECHO) 'Converting sound samples in list: $<'
+	tail -n +2 "$<" | cut -f1 | xargs -d '\n' -I {} sox "$(<D)/design/{}" -c 1 -b 8 -r 22050 -e unsigned-integer "$(<D)/{}"
+	# compand 0.02,0.20 5:-60,-40,-10 -6 -90 0.1
+	-$(ECHO) 'Finished converting list: $<'
 	-$(ECHO) ' '
 
 sfx/%/filelist.txt: | sfx/$(SFXSRC_PACKAGE)

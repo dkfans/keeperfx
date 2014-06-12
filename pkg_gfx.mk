@@ -117,6 +117,8 @@ pkg/data/gmapbug.dat
 
 GUIDATTABS = $(LANDVIEWDATTABS) $(TOTRUREDATTABS) $(ENGINEDATTABS)
 
+.PHONY: pkg-gfx pkg-landviews pkg-menugfx pkg-enginegfx
+
 pkg-gfx: pkg-landviews pkg-menugfx pkg-enginegfx
 
 pkg-landviews: pkg-before $(LANDVIEWRAWS) $(LANDVIEWDATTABS)
