@@ -137,6 +137,7 @@ const struct NamedCommand creatmodel_annoyance_commands[] = {
   {"LAIRENEMY",           21},
   {"ANNOYLEVEL",          22},
   {"ANGERJOBS",           23},
+  {"GOINGPOSTAL",         24},
   {NULL,                   0},
   };
 
@@ -957,6 +958,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
         crstat->annoy_untrained = 0;
         crstat->annoy_others_leaving = 0;
         crstat->annoy_job_stress = 0;
+        crstat->annoy_going_postal = 0;
         crstat->annoy_queue = 0;
         crstat->lair_enemy = 0;
         crstat->annoy_level = 0;
@@ -1296,6 +1298,19 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
                 CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\", in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
               }
+            }
+            break;
+        case 24: // GOINGPOSTAL
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              k = atoi(word_buf);
+              crstat->annoy_going_postal = k;
+              n++;
+            }
+            if (n < 1)
+            {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
         case 0: // comment
