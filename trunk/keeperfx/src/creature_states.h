@@ -260,7 +260,7 @@ struct StateInfo { // sizeof = 41
   unsigned char field_20;
   unsigned short field_21;
   unsigned char field_23;
-  unsigned short field_24;
+  unsigned short sprite_idx;
   unsigned char field_26;
   unsigned char field_27;
   unsigned char field_28;
