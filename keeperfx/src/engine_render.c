@@ -1435,7 +1435,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
     myplyr = get_my_player();
 
     CrtrExpLevel exp;
-    short health_spridx,v31h;
+    short health_spridx,state_spridx;
     signed short anger_spridx;
     int h_add;
 
@@ -1444,7 +1444,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
     anger_spridx = 0;
     h_add = 0;
     health_spridx = 0;
-    v31h = 0;
+    state_spridx = 0;
     cctrl = creature_control_get_from_thing(thing);
     if ((game.flags_cd & 0x80) != 0)
     {
@@ -1511,7 +1511,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
                     stati = get_creature_state_with_task_completion(thing);
                 }
                 if ((*(short *)&stati->field_26 == 1) || (thing_pointed_at == thing))
-                  v31h = stati->field_24;
+                  state_spridx = stati->sprite_idx;
                 switch ( anger_get_creature_anger_type(thing) )
                 {
                 case 1:
@@ -1535,7 +1535,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
     }
     int w, h;
     struct TbSprite *spr;
-    if ( v31h || anger_spridx )
+    if ( state_spridx || anger_spridx )
     {
         spr = &button_sprite[70];
         h = (pixel_size * a4 * spr->SHeight) >> 13;
@@ -1551,12 +1551,12 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
     {
         spr = &button_sprite[anger_spridx];
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
-        spr = &button_sprite[v31h];
+        spr = &button_sprite[state_spridx];
         h_add = spr->SHeight;
     } else
-    if ( v31h )
+    if ( state_spridx )
     {
-        spr = &button_sprite[v31h];
+        spr = &button_sprite[state_spridx];
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
         h_add = spr->SHeight;
     }
