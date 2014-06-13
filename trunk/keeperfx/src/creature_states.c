@@ -944,6 +944,22 @@ TbBool creature_state_is_unset(const struct Thing *thing)
     return false;
 }
 
+TbBool restore_creature_flight_flag(struct Thing *creatng)
+{
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(creatng);
+    // Creature can fly either by spell or natural ability
+    if ((crstat->flying) || creature_affected_by_spell(creatng, SplK_Fly))
+    {
+        // Even flying creature is grounded while frozen
+        if (!creature_affected_by_spell(creatng, SplK_Freeze)) {
+            creatng->movement_flags |= TMvF_Flying;
+            return true;
+        }
+    }
+    return false;
+}
+
 short already_at_call_to_arms(struct Thing *creatng)
 {
     //return _DK_already_at_call_to_arms(thing);
@@ -1514,6 +1530,10 @@ short creature_being_dropped(struct Thing *creatng)
         return 1;
     }
     set_creature_assigned_job(creatng, Job_NULL);
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(creatng);
+    // If the creature has flight ability, return it to flying state
+    restore_creature_flight_flag(creatng);
     if (!creature_affected_by_spell(creatng, SplK_Chicken))
     {
         // For creatures with trembling fat and not changed to chickens, tremble the camera
@@ -1527,15 +1547,13 @@ short creature_being_dropped(struct Thing *creatng)
         set_start_state(creatng);
         struct SlabMap *slb;
         slb = get_slabmap_for_subtile(stl_x,stl_y);
-        if (slabmap_owner(slb) == creatng->owner)
+        if ((slabmap_owner(slb) == creatng->owner) || (slabmap_owner(slb) == game.neutral_player_num))
             cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
-        else
-            cctrl->flgfield_1 |= CCFlg_NoCompControl;
         check_map_explored(creatng, stl_x, stl_y);
         leadtng = get_group_leader(creatng);
         if (!thing_is_invalid(leadtng))
         {
-            if (leadtng != creatng)
+            if (leadtng->index != creatng->index)
             {
                 if (!thing_is_picked_up(leadtng))
                 {

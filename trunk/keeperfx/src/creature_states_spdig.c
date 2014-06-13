@@ -613,10 +613,8 @@ short imp_birth(struct Thing *thing)
     //return _DK_imp_birth(thing);
     if ( thing_touching_floor(thing) || (((thing->movement_flags & TMvF_Flying) != 0) && thing_touching_flight_altitude(thing)) )
     {
-        crstat = creature_stats_get_from_thing(thing);
-        if (crstat->flying) {
-            thing->movement_flags |= TMvF_Flying;
-        }
+        // If the creature has flight ability, make sure it returns to flying state
+        restore_creature_flight_flag(thing);
         if (!check_out_available_spdigger_drop_tasks(thing)) {
             set_start_state(thing);
         }

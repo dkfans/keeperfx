@@ -355,15 +355,12 @@ short creature_being_summoned(struct Thing *thing)
     return 0;
 }
 
-short cleanup_sacrifice(struct Thing *thing)
+short cleanup_sacrifice(struct Thing *creatng)
 {
-    struct CreatureStats *crstat;
-    //return _DK_cleanup_sacrifice(thing);
-    crstat = creature_stats_get_from_thing(thing);
-    if (crstat->flying) {
-        thing->movement_flags |= TMvF_Flying;
-    }
-    thing->movement_flags &= ~TMvF_Unknown04;
+    //return _DK_cleanup_sacrifice(creatng);
+    // If the creature has flight ability, return it to flying state
+    restore_creature_flight_flag(creatng);
+    creatng->movement_flags &= ~TMvF_Unknown04;
     return 1;
 }
 
