@@ -322,7 +322,7 @@ struct Thing *select_scavenger_target(const struct Thing *calltng)
         // Per-thing code
         if (thing_is_valid_scavenge_target(calltng, thing))
         {
-            SYNCDBG(18,"The %s is valid target for %s",thing_model_name(thing),thing_model_name(calltng));
+            SYNCDBG(18,"The %s index %d is valid target for %s index %d",thing_model_name(thing),(int)thing->index,thing_model_name(calltng),(int)calltng->index);
             struct CreatureControl *cctrl;
             cctrl = creature_control_get_from_thing(thing);
             if (game.play_gameturn - cctrl->temple_cure_gameturn > game.temple_scavenge_protection_turns)
@@ -344,7 +344,7 @@ struct Thing *select_scavenger_target(const struct Thing *calltng)
             break;
         }
     }
-    SYNCDBG(8,"The weakest valid target for %s is %s",thing_model_name(calltng),thing_model_name(weaktng));
+    SYNCDBG(8,"The weakest valid target for %s index %d is %s index %d",thing_model_name(calltng),(int)calltng->index,thing_model_name(weaktng),(int)weaktng->index);
     return weaktng;
 }
 
@@ -361,6 +361,7 @@ struct Thing *get_scavenger_target(const struct Thing *calltng)
         }
         if (thing_is_valid_scavenge_target(calltng, lastng))
         {
+            SYNCDBG(8,"The last target, %s index %d, is still valid",thing_model_name(lastng),(int)lastng->index);
             return lastng;
         }
     }
@@ -394,7 +395,7 @@ TbBool process_scavenge_creature_from_level(struct Thing *scavtng, struct Thing 
             (int)calltng->owner, thing_model_name(calltng));
         return false;
     }
-    SYNCDBG(18,"The %s scavenges %s",thing_model_name(calltng),thing_model_name(scavtng));
+    SYNCDBG(18,"The %s index %d scavenges %s index %d",thing_model_name(calltng),(int)calltng->index,thing_model_name(scavtng),(int)scavtng->index);
     // If we're starting to scavenge a new creature, do the switch
     if (calldngn->scavenge_targets[calltng->model] != scavtng->index)
     {
@@ -432,6 +433,7 @@ TbBool process_scavenge_creature_from_level(struct Thing *scavtng, struct Thing 
     scavpts = calculate_correct_creature_scavenge_required(scavtng, calltng->owner);
     if ((scavpts << 8) < calldngn->scavenge_turn_points[calltng->model])
     {
+        SYNCDBG(18,"The %s index %d accumulated enough points to turn to scavenger",thing_model_name(scavtng),(int)scavtng->index);
         turn_creature_to_scavenger(scavtng, calltng);
         calldngn->scavenge_turn_points[calltng->model] -= (scavpts << 8);
         return true;
@@ -483,7 +485,7 @@ TbBool process_scavenge_creature_from_pool(struct Thing *calltng, long work_valu
     calldngn->scavenge_turn_points[calltng->model] += work_value;
     long scavpts;
     scavpts = calculate_correct_creature_scavenge_required(calltng, calltng->owner);
-    if (scavpts << 8 < calldngn->scavenge_turn_points[calltng->model])
+    if ((scavpts << 8) < calldngn->scavenge_turn_points[calltng->model])
     {
         creature_scavenge_from_creature_pool(calltng);
         calldngn->scavenge_turn_points[calltng->model] -= scavpts;
