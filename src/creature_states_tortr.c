@@ -147,11 +147,8 @@ short cleanup_torturing(struct Thing *creatng)
         }
         cctrl->word_A6 = 0;
     }
-    struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(creatng);
-    if (crstat->flying) {
-        creatng->movement_flags |= 0x20;
-    }
+    // If the creature has flight ability, return it to flying state
+    restore_creature_flight_flag(creatng);
     cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
     remove_creature_from_torture_room(creatng);
     state_cleanup_in_room(creatng);

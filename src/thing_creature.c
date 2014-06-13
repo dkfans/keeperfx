@@ -3231,8 +3231,9 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     cctrl->flee_pos.z.val = crtng->mappos.z.val;
     cctrl->flee_pos.z.val = get_thing_height_at(crtng, pos);
     cctrl->fighting_player_idx = -1;
-    if (crstat->flying)
-      crtng->movement_flags |= TMvF_Flying;
+    if (crstat->flying) {
+        crtng->movement_flags |= TMvF_Flying;
+    }
     set_creature_level(crtng, 0);
     crtng->health = cctrl->max_health;
     add_thing_to_its_class_list(crtng);
