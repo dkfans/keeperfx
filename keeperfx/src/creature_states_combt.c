@@ -2803,7 +2803,7 @@ long process_creature_self_spell_casting(struct Thing *creatng)
       || ((cctrl->stateblock_flags & CCSpl_Freeze) != 0)) {
         return 0;
     }
-   if ((get_creature_state_type(creatng) == CrStTyp_Value0) || (cctrl->instance_id != CrInst_NULL)) {
+   if ((get_creature_state_type(creatng) == CrStTyp_Idle) || (cctrl->instance_id != CrInst_NULL)) {
        return 0;
    }
    long inst_idx;

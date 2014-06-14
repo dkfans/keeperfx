@@ -197,7 +197,7 @@ DLLIMPORT long _DK_add_to_trap_location(struct Computer2 *, struct Coord3d *);
 DLLIMPORT long _DK_check_for_gold(long simulation, long digflags, long l3);
 DLLIMPORT int _DK_search_spiral(struct Coord3d *pos, int owner, int i3, long (*cb)(long, long, long));
 DLLIMPORT struct ComputerTask * _DK_able_to_build_room(struct Computer2 *comp, struct Coord3d *pos, unsigned short width_slabs, unsigned short height_slabs, long a5, long a6, long perfect);
-DLLIMPORT struct Thing *_DK_find_creature_for_pickup(struct Computer2 *comp, struct Coord3d *pos, struct Room *room, long a4);
+DLLIMPORT struct Thing *_DK_find_creature_for_pickup(struct Computer2 *comp, struct Coord3d *pos, struct Room *room, long best_score);
 DLLIMPORT long _DK_get_ceiling_height_above_thing_at(struct Thing *thing, struct Coord3d *pos);
 DLLIMPORT long _DK_get_corridor(struct Coord3d *pos1, struct Coord3d * pos2, unsigned char a3, char a4, unsigned short a5);
 DLLIMPORT long _DK_other_build_here(struct Computer2 *comp, long a2, long a3, long a4, long a5);
@@ -1966,9 +1966,185 @@ long task_magic_call_to_arms(struct Computer2 *comp, struct ComputerTask *ctask)
     return _DK_task_magic_call_to_arms(comp,ctask);
 }
 
-struct Thing *find_creature_for_pickup(struct Computer2 *comp, struct Coord3d *pos, struct Room *room, long a4)
+struct Thing *find_creature_for_pickup(struct Computer2 *comp, struct Coord3d *pos, struct Room *room, CreatureJob new_job, long best_score)
 {
-    return _DK_find_creature_for_pickup(comp, pos, room, a4);
+    //TODO CREATURE_JOBS This function needs major rework, to base conditions on job, not on room we're dropping into
+    //TODO CREATURE_JOBS Rewrite all uses of this function before remaking it
+    struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
+    SYNCDBG(8,"Starting");
+    //return _DK_find_creature_for_pickup(comp, pos, room, a4);
+    MapSubtlCoord stl_x, stl_y;
+    stl_x = 0;
+    stl_y = 0;
+    if (pos != NULL)
+    {
+        stl_x = pos->x.stl.num;
+        stl_y = pos->y.stl.num;
+    } else
+    if (!room_is_invalid(room))
+    {
+        stl_x = room->central_stl_x;
+        stl_y = room->central_stl_y;
+    }
+    struct Thing *pick_thing;
+    long pick_score;
+    pick_score = LONG_MIN;
+    pick_thing = INVALID_THING;
+
+    unsigned long k;
+    int i;
+    k = 0;
+    i = dungeon->creatr_list_start;
+    while (i != 0)
+    {
+        struct Thing *thing;
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        long score;
+        if (can_thing_be_picked_up_by_player(thing, dungeon->owner) && !creature_is_being_dropped(thing))
+        {
+            if ((get_creature_state_type(thing) != CrStTyp_Work) || (thing_is_invalid(pick_thing) && best_score))
+            {
+                if (!room_is_invalid(room))
+                {
+                    if (creature_can_do_job_near_position(thing, stl_x, stl_y, new_job, JobChk_None))
+                    {
+                        struct CreatureStats *crstat;
+                        crstat = creature_stats_get_from_thing(thing);
+                        switch (room->kind)
+                        {
+                        case RoK_LIBRARY:
+                            score = compute_creature_work_value(crstat->research_value*256, ROOM_EFFICIENCY_MAX, cctrl->explevel);
+                            break;
+                        case RoK_WORKSHOP:
+                            score = compute_creature_work_value(crstat->manufacture_value*256, ROOM_EFFICIENCY_MAX, cctrl->explevel);
+                            break;
+                        case RoK_TRAINING:
+                            score = get_creature_thing_score(thing);
+                            break;
+                        default:
+                            score = 0; // Still more than LONG_MIN
+                            break;
+                        }
+                        if (score >= pick_score)
+                        {
+                            pick_score = score;
+                            pick_thing = thing;
+                        }
+                        continue;
+                    }
+                } else
+                {
+                    long delta_x, delta_y;
+                    delta_x = thing->mappos.x.stl.num - stl_x;
+                    delta_y = thing->mappos.y.stl.num - stl_y;
+                    if (abs(delta_x) + abs(delta_y) >= 2)
+                    {
+                        if (best_score) {
+                            score = get_creature_thing_score(thing);
+                        } else {
+                            score = 0; // Still more than LONG_MIN
+                        }
+                        if (score >= pick_score)
+                        {
+                            pick_score = score;
+                            pick_thing = thing;
+                        }
+                    }
+                }
+            }
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    SYNCDBG(19,"Finished");
+    return pick_thing;
+}
+
+long count_creatures_for_pickup(struct Computer2 *comp, struct Coord3d *pos, struct Room *room, long a4)
+{
+    //TODO COMPUTER_EVENT_BREACH needs this function; may be also used somewhere else - not sure
+    struct CreatureControl *cctrl;
+    struct Thing *thing;
+    unsigned long k;
+    int i;
+    SYNCDBG(8,"Starting");
+    int stl_x, stl_y;
+    stl_x = 0;
+    stl_y = 0;
+    if (pos != NULL)
+    {
+      stl_x = pos->x.stl.num;
+      stl_y = pos->y.stl.num;
+    }
+    int count;
+    count = 0;
+    k = 0;
+    i = comp->dungeon->creatr_list_start;
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        if (!thing_is_picked_up(thing))
+        {
+            if ((thing->active_state != CrSt_CreatureUnconscious) && (cctrl->combat_flags == 0))
+            {
+                if (!creature_is_called_to_arms(thing) && !creature_is_being_dropped(thing))
+                {
+                    struct StateInfo *stati;
+                    int n;
+                    n = get_creature_state_besides_move(thing);
+                    stati = get_thing_state_info_num(n);
+                    if ((stati->state_type != 1) || a4 )
+                    {
+                        if (room_is_invalid(room))
+                        {
+                            if (abs(thing->mappos.x.stl.num - stl_x) + abs(thing->mappos.y.stl.num - stl_y) < 2 )
+                              continue;
+                        } else
+                        {
+                            //This needs finishing
+                            //if ( !person_will_do_job_for_room(thing, room) )
+                              continue;
+                        }
+                        count++;
+                    }
+                }
+            }
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    SYNCDBG(19,"Finished");
+    return count;
 }
 
 long task_pickup_for_attack(struct Computer2 *comp, struct ComputerTask *ctask)
@@ -1999,7 +2175,7 @@ long task_pickup_for_attack(struct Computer2 *comp, struct ComputerTask *ctask)
         return CTaskRet_Unk1;
     }
     ctask->pickup_for_attack.repeat_num--;
-    thing = find_creature_for_pickup(comp, &ctask->pickup_for_attack.target_pos, 0, 1);
+    thing = find_creature_for_pickup(comp, &ctask->pickup_for_attack.target_pos, NULL, Job_SEEK_THE_ENEMY, 1);
     if (!thing_is_invalid(thing))
     {
         if (computer_place_thing_in_power_hand(comp, thing, &ctask->pickup_for_attack.target_pos)) {
@@ -2271,7 +2447,7 @@ long task_slap_imps(struct Computer2 *comp, struct ComputerTask *ctask)
                     {
                         long state_type;
                         state_type = get_creature_state_type(thing);
-                        if (state_type == 1)
+                        if (state_type == CrStTyp_Work)
                         {
                             if (try_game_action(comp, dungeon->owner, GA_UsePwrSlap, 0, 0, 0, thing->index, 0) > Lb_OK)
                             {

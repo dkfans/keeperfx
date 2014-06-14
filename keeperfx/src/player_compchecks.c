@@ -353,7 +353,7 @@ struct Thing * find_imp_for_pickup(struct Computer2 *comp, MapSubtlCoord stl_x, 
                     long state_type;
                     dist = abs(stl_x - (MapSubtlDelta)thing->mappos.x.stl.num) + abs(stl_y - (MapSubtlDelta)thing->mappos.y.stl.num);
                     state_type = get_creature_state_type(thing);
-                    if (state_type == CrStTyp_Value1)
+                    if (state_type == CrStTyp_Work)
                     {
                         if (dist < pick1_dist)
                         {
