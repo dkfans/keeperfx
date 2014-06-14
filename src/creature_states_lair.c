@@ -400,9 +400,11 @@ short at_lair_to_sleep(struct Thing *thing)
     return 1;
 }
 
-short cleanup_sleep(struct Thing *thing)
+short cleanup_sleep(struct Thing *creatng)
 {
-  return _DK_cleanup_sleep(thing);
+    //return _DK_cleanup_sleep(creatng);
+    restore_creature_flight_flag(creatng);
+    return 1;
 }
 
 short creature_going_home_to_sleep(struct Thing *thing)

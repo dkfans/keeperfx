@@ -255,7 +255,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     thing->alloc_flags |= TAlF_IsControlled;
     thing->field_4F |= 0x01;
     set_start_state(thing);
-    set_player_mode(player, 2);
+    set_player_mode(player, PVT_CreatureContrl);
     if (thing->class_id == TCls_Creature)
     {
         cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
@@ -314,7 +314,7 @@ TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *th
     player->field_31 = thing->creation_turn;
     if (cam != NULL)
       player->field_4B5 = cam->field_6;
-    set_player_mode(player, 3);
+    set_player_mode(player, PVT_CreaturePasngr);
     thing->field_4F |= 0x01;
     return true;
 }

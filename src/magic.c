@@ -1212,7 +1212,8 @@ TbResult magic_use_power_possess_thing(PlayerNumber plyr_idx, struct Thing *thin
     }
     player = get_player(plyr_idx);
     player->influenced_thing_idx = thing->index;
-    set_player_instance(player, 5, 0);
+    // Note that setting Direct Control player instance requires player->influenced_thing_idx to be set correctly
+    set_player_instance(player, PI_DirctCtrl, 0);
     return Lb_SUCCESS;
 }
 

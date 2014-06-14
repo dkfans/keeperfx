@@ -792,25 +792,25 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         player->field_455 = player->field_454;
       if (player->field_4AF != 0)
       {
+        thing = thing_get(player->thing_under_hand);
         if ((player->thing_under_hand != 0) && (player->field_4 != 0)
           && (dungeon->things_in_hand[0] != player->thing_under_hand)
-          && can_thing_be_possessed(thing_get(player->thing_under_hand), plyr_idx) )
+          && can_thing_be_possessed(thing, plyr_idx) )
         {
-            player->influenced_thing_idx = player->thing_under_hand;
             set_player_state(player, PSt_CtrlDirect, 0);
-            set_player_instance(player, PI_DirctCtrl, 0);
+            magic_use_power_possess_thing(plyr_idx, thing);
             unset_packet_control(pckt, PCtr_LBtnRelease);
         } else
         if ((player->thing_under_hand != 0) && (player->field_5 != 0)
           && (dungeon->things_in_hand[0] != player->thing_under_hand)
-          && can_thing_be_queried(thing_get(player->thing_under_hand), plyr_idx) )
+          && can_thing_be_queried(thing, plyr_idx) )
         {
           if (player->thing_under_hand != player->controlled_thing_idx)
           {
             if (is_my_player(player))
             {
               turn_off_all_panel_menus();
-              turn_on_menu(31);
+              turn_on_menu(GMnu_CREATURE_QUERY1);
             }
             player->influenced_thing_idx = player->thing_under_hand;
             set_player_state(player, PSt_Unknown12, 0);
@@ -1015,8 +1015,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         {
           if (player->thing_under_hand > 0)
           {
-            player->influenced_thing_idx = player->thing_under_hand;
-            set_player_instance(player, PI_DirctCtrl, 0);
+            magic_use_power_possess_thing(plyr_idx, thing);
             unset_packet_control(pckt, PCtr_LBtnRelease);
           }
         }
@@ -1046,8 +1045,8 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
               if (is_my_player(player))
               {
                 turn_off_all_panel_menus();
-                initialise_tab_tags_and_menu(31);
-                turn_on_menu(31);
+                initialise_tab_tags_and_menu(GMnu_CREATURE_QUERY1);
+                turn_on_menu(GMnu_CREATURE_QUERY1);
               }
               player->influenced_thing_idx = player->thing_under_hand;
               set_player_instance(player, PI_QueryCrtr, 0);
@@ -1936,10 +1935,10 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       {
         if (is_my_player_number(plyr_idx))
           toggle_status_menu((game.numfield_C & 0x40) != 0);
-        set_player_mode(player, 1);
+        set_player_mode(player, PVT_DungeonTop);
       } else
       {
-        set_player_mode(player, 6);
+        set_player_mode(player, PVT_MapFadeOut);
       }
       return 0;
   case PckA_Unknown082:

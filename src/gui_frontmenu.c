@@ -36,7 +36,7 @@ extern "C" {
 /******************************************************************************/
 DLLIMPORT void _DK_turn_off_roaming_menus(void);
 DLLIMPORT void _DK_turn_off_menu(char mnu_idx);
-DLLIMPORT void _DK_turn_on_menu(int);//char);
+DLLIMPORT void _DK_turn_on_menu(int);
 DLLIMPORT void _DK_turn_off_event_box_if_necessary(long plyr_idx, char event_idx);
 DLLIMPORT unsigned long _DK_turn_off_all_window_menus(void);
 DLLIMPORT void _DK_turn_off_all_panel_menus(void);
