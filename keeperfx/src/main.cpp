@@ -2061,7 +2061,7 @@ void process_dungeon_power_magic(void)
             {
                 process_magic_power_call_to_arms(i);
             }
-            if ( dungeon->field_88C[0] )
+            if ( dungeon->hold_audience_field_88C )
             {
                 magic_power_hold_audience_update(i);
             }

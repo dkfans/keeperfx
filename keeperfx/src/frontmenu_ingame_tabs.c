@@ -586,7 +586,7 @@ void maintain_spell(struct GuiButton *gbtn)
   } else
   if (i == 9)
   {
-      if (dungeon->field_88C[0])
+      if (dungeon->hold_audience_field_88C)
       {
         gbtn->field_1B |= 0x8000u;
         gbtn->flags &= ~LbBtnF_Unknown08;

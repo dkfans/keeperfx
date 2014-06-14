@@ -125,8 +125,11 @@ struct Dungeon {
     unsigned char cta_splevel;
     int cta_start_turn;
     unsigned long must_obey_turn;
-    int field_88C[2];
-    unsigned char field_894[CREATURE_TYPES_COUNT];
+    int hold_audience_field_88C;
+    int scavenge_counters_turn;
+    /** Counter of creatures scavenging of each kind, zeroized and recomputed each game turn. */
+    unsigned char creatures_scavenging[CREATURE_TYPES_COUNT];
+    /** Counter of creatures praying. */
     unsigned char creatures_praying[CREATURE_TYPES_COUNT];
     unsigned char chickens_sacrificed;
     unsigned char field_8D5;
