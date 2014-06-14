@@ -26,6 +26,15 @@
 extern "C" {
 #endif
 
+/**
+ * Flags for selecting creature_can_do_job_near_position() behavior.
+ */
+enum CreatureJobCheckFlags {
+    JobChk_None = 0x0000,          //**< Do not make any changes
+    JobChk_SetStateOnFail = 0x0001,//**< If check fails, update the creature state accordingly
+    JobChk_PlayMsgOnFail = 0x0002, //**< If check fails, prepare corresponding message for the player
+};
+
 /******************************************************************************/
 #pragma pack(1)
 
@@ -42,7 +51,7 @@ long attempt_job_preference(struct Thing *creatng, long jobpref);
 TbBool creature_try_doing_secondary_job(struct Thing *creatng);
 
 TbBool creature_can_do_job_for_player(const struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob jobpref);
-TbBool creature_can_do_job_near_position(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job);
+TbBool creature_can_do_job_near_position(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, unsigned long flags);
 TbBool send_creature_to_job_near_position(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job);
 TbBool creature_can_do_job_for_computer_player_in_room(const struct Thing *creatng, PlayerNumber plyr_idx, RoomKind rkind);
 TbBool creature_will_reject_job(const struct Thing *thing, CreatureJob jobpref);

@@ -4576,19 +4576,19 @@ void init_creature_scores(void)
 long get_creature_thing_score(const struct Thing *thing)
 {
     struct CreatureControl *cctrl;
-    long breed,exp;
+    long crmodel,exp;
     cctrl = creature_control_get_from_thing(thing);
-    breed = thing->model;
-    if (breed >= CREATURE_TYPES_COUNT)
-        breed = 0;
-    if (breed < 0)
-        breed = 0;
+    crmodel = thing->model;
+    if (crmodel >= CREATURE_TYPES_COUNT)
+        crmodel = 0;
+    if (crmodel < 0)
+        crmodel = 0;
     exp = cctrl->explevel;
     if (exp >= CREATURE_MAX_LEVEL)
         exp = 0;
     if (exp < 0)
         exp = 0;
-    return game.creature_scores[breed].value[exp];
+    return game.creature_scores[crmodel].value[exp];
 }
 
 long update_creature_levels(struct Thing *thing)

@@ -66,7 +66,7 @@ TbBool creature_can_do_research_for_player(const struct Thing *creatng, PlayerNu
 TbBool creature_can_do_manufacturing_for_player(const struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job);
 TbBool creature_can_do_scavenging_for_player(const struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job);
 TbBool creature_can_freeze_prisoners_for_player(const struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job);
-TbBool creature_can_do_fight_job_for_player(const struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job);
+TbBool creature_can_join_fight_for_player(const struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job);
 TbBool creature_can_do_barracking_for_player(const struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job);
 
 TbBool attempt_job_work_in_room_for_player(struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job);
@@ -74,14 +74,14 @@ TbBool attempt_job_in_state_on_room_content_for_player(struct Thing *creatng, Pl
 TbBool attempt_job_move_to_event_for_player(struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job);
 TbBool attempt_job_in_state_internal_for_player(struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job);
 
-TbBool creature_can_do_job_always_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job);
-TbBool creature_can_do_research_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job);
-TbBool creature_can_do_training_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job);
-TbBool creature_can_do_manufacturing_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job);
-TbBool creature_can_do_scavenging_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job);
-TbBool creature_can_place_in_vault_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job);
-TbBool creature_can_take_salary_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job);
-TbBool creature_can_take_sleep_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job);
+TbBool creature_can_do_job_always_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, unsigned long flags);
+TbBool creature_can_do_research_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, unsigned long flags);
+TbBool creature_can_do_training_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, unsigned long flags);
+TbBool creature_can_do_manufacturing_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, unsigned long flags);
+TbBool creature_can_do_scavenging_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, unsigned long flags);
+TbBool creature_can_place_in_vault_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, unsigned long flags);
+TbBool creature_can_take_salary_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, unsigned long flags);
+TbBool creature_can_take_sleep_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, unsigned long flags);
 
 TbBool attempt_job_work_in_room_near_pos(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job);
 TbBool attempt_job_work_in_room_and_cure_near_pos(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job);
@@ -94,7 +94,7 @@ const struct NamedCommand creature_job_player_check_func_type[] = {
   {"can_do_manufacturing",     4},
   {"can_do_scavenging",        5},
   {"can_freeze_prisoners",     6},
-  {"can_do_fight_job",         7},
+  {"can_join_fight",           7},
   {"can_do_barracking",        8},
   {"none",                     9},
   {NULL,                       0},
@@ -108,7 +108,7 @@ Creature_Job_Player_Check_Func creature_job_player_check_func_list[] = {
   creature_can_do_manufacturing_for_player,
   creature_can_do_scavenging_for_player,
   creature_can_freeze_prisoners_for_player,
-  creature_can_do_fight_job_for_player,
+  creature_can_join_fight_for_player,
   creature_can_do_barracking_for_player,
   NULL,
   NULL,
@@ -587,18 +587,22 @@ TbBool creature_can_freeze_prisoners_for_player(const struct Thing *creatng, Pla
     return creature_instance_is_available(creatng, CrInst_FREEZE) && !room_is_invalid(room);
 }
 
-TbBool creature_can_do_fight_job_for_player(const struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job)
+TbBool creature_can_join_fight_for_player(const struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job)
 {
     struct Event *event;
     event = get_event_of_type_for_player(EvKind_EnemyFight, creatng->owner);
+    if (event_is_invalid(event)) {
+        event = get_event_of_type_for_player(EvKind_HeartAttacked, creatng->owner);
+    }
     return !event_is_invalid(event);
 }
 
 TbBool creature_can_do_barracking_for_player(const struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job)
 {
-    struct Event *event;
-    event = get_event_of_type_for_player(EvKind_EnemyFight, creatng->owner);
-    return !event_is_invalid(event);
+    // Grouping or barracking only makes sense if we have more than one creature
+    const struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    return (dungeon->num_active_creatrs > 1);
 }
 
 /** Returns if a creature can do specific job for the player.
@@ -606,16 +610,20 @@ TbBool creature_can_do_barracking_for_player(const struct Thing *creatng, Player
  * @param creatng The creature which is planned for the job.
  * @param plyr_idx Player for whom the job is to be done.
  * @param new_job Job selection with single job flag set.
- * @return
+ * @return True if the creature can do the job specified, false otherwise.
+ * @note this should be used instead of person_will_do_job_for_room()
+ * @see creature_can_do_job_near_position() similar function for use when target position is known
  */
 TbBool creature_can_do_job_for_player(const struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job)
 {
     if (creature_will_reject_job(creatng, new_job))
     {
+        SYNCDBG(13,"Cannot assign %s for %s index %d owner %d; in not do jobs list",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         return false;
     }
     if (!is_correct_owner_to_perform_job(creatng, plyr_idx, new_job))
     {
+        SYNCDBG(13,"Cannot assign %s for %s index %d owner %d; not correct owner for job",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         return false;
     }
     struct CreatureJobConfig *jobcfg;
@@ -631,12 +639,12 @@ TbBool creature_can_do_job_for_player(const struct Thing *creatng, PlayerNumber 
     return true;
 }
 
-TbBool creature_can_do_job_always_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job)
+TbBool creature_can_do_job_always_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, unsigned long flags)
 {
     return true;
 }
 
-TbBool creature_can_do_research_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job)
+TbBool creature_can_do_research_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, unsigned long flags)
 {
     if (!creature_can_do_research(creatng))
     {
@@ -646,7 +654,7 @@ TbBool creature_can_do_research_near_pos(const struct Thing *creatng, MapSubtlCo
         dungeon = get_dungeon(room->owner);
         if (!is_neutral_thing(creatng) && (dungeon->current_research_idx < 0))
         {
-            if (is_my_player_number(dungeon->owner)) {
+            if (is_my_player_number(dungeon->owner) && ((flags & JobChk_PlayMsgOnFail) != 0)) {
                 output_message(SMsg_NoMoreReseach, 500, true);
             }
         }
@@ -655,7 +663,7 @@ TbBool creature_can_do_research_near_pos(const struct Thing *creatng, MapSubtlCo
     return true;
 }
 
-TbBool creature_can_do_training_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job)
+TbBool creature_can_do_training_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, unsigned long flags)
 {
     if (!creature_can_be_trained(creatng)) {
         return false;
@@ -663,7 +671,7 @@ TbBool creature_can_do_training_near_pos(const struct Thing *creatng, MapSubtlCo
     return true;
 }
 
-TbBool creature_can_do_manufacturing_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job)
+TbBool creature_can_do_manufacturing_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, unsigned long flags)
 {
     if (!creature_can_do_manufacturing(creatng)) {
         return false;
@@ -671,7 +679,7 @@ TbBool creature_can_do_manufacturing_near_pos(const struct Thing *creatng, MapSu
     return true;
 }
 
-TbBool creature_can_do_scavenging_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job)
+TbBool creature_can_do_scavenging_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, unsigned long flags)
 {
     if (!creature_can_do_scavenging(creatng)) {
         return false;
@@ -679,7 +687,7 @@ TbBool creature_can_do_scavenging_near_pos(const struct Thing *creatng, MapSubtl
     return true;
 }
 
-TbBool creature_can_place_in_vault_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job)
+TbBool creature_can_place_in_vault_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, unsigned long flags)
 {
     if (creatng->creature.gold_carried < 1) {
         return false;
@@ -687,7 +695,7 @@ TbBool creature_can_place_in_vault_near_pos(const struct Thing *creatng, MapSubt
     return true;
 }
 
-TbBool creature_can_take_salary_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job)
+TbBool creature_can_take_salary_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, unsigned long flags)
 {
     struct Room *room;
     room = subtile_room_get(stl_x, stl_y);
@@ -697,7 +705,7 @@ TbBool creature_can_take_salary_near_pos(const struct Thing *creatng, MapSubtlCo
     return true;
 }
 
-TbBool creature_can_take_sleep_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job)
+TbBool creature_can_take_sleep_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, unsigned long flags)
 {
     if (!creature_free_for_sleep(creatng)) {
         return false;
@@ -705,7 +713,16 @@ TbBool creature_can_take_sleep_near_pos(const struct Thing *creatng, MapSubtlCoo
     return true;
 }
 
-TbBool creature_can_do_job_near_position(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job)
+ /** Returns if a creature can do specific job at given map position.
+ *
+ * @param creatng The creature which is planned for the job.
+ * @param stl_x Target map position, x coord.
+ * @param stl_y Target map position, y coord.
+ * @param new_job Job selection with single job flag set.
+ * @return True if the creature can do the job specified, false otherwise.
+ * @see creature_can_do_job_for_player() similar function for use when only target player is known
+ */
+TbBool creature_can_do_job_near_position(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, unsigned long flags)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
@@ -715,9 +732,11 @@ TbBool creature_can_do_job_near_position(struct Thing *creatng, MapSubtlCoord st
     if (creature_will_reject_job(creatng, new_job))
     {
         SYNCDBG(3,"Cannot assign %s at (%d,%d) for %s index %d owner %d; in not do jobs list",creature_job_code_name(new_job),(int)stl_x,(int)stl_y,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
-        anger_apply_anger_to_creature(creatng, crstat->annoy_will_not_do_job, AngR_Other, 1);
-        external_set_thing_state(creatng, CrSt_CreatureMoan);
-        cctrl->field_282 = 50;
+        if ((flags & JobChk_SetStateOnFail) != 0) {
+            anger_apply_anger_to_creature(creatng, crstat->annoy_will_not_do_job, AngR_Other, 1);
+            external_set_thing_state(creatng, CrSt_CreatureMoan);
+            cctrl->field_282 = 50;
+        }
         return 0;
     }
     // Check if the job is related to correct map place (room,slab)
@@ -733,7 +752,7 @@ TbBool creature_can_do_job_near_position(struct Thing *creatng, MapSubtlCoord st
         SYNCDBG(3,"Cannot assign %s at (%d,%d) for %s index %d owner %d; job has no coord check function",creature_job_code_name(new_job),(int)stl_x,(int)stl_y,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         return false;
     }
-    if (!jobcfg->func_cord_check(creatng, stl_x, stl_y, new_job))
+    if (!jobcfg->func_cord_check(creatng, stl_x, stl_y, new_job, flags))
     {
         SYNCDBG(3,"Cannot assign %s at (%d,%d) for %s index %d owner %d; coord check failed",creature_job_code_name(new_job),(int)stl_x,(int)stl_y,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         return false;
@@ -746,10 +765,12 @@ TbBool creature_can_do_job_near_position(struct Thing *creatng, MapSubtlCoord st
         if (!room_has_enough_free_capacity_for_creature(room, creatng))
         {
             SYNCDBG(3,"Cannot assign %s at (%d,%d) for %s index %d owner %d; not enough room capacity",creature_job_code_name(new_job),(int)stl_x,(int)stl_y,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
-            const struct RoomConfigStats *roomst;
-            roomst = get_room_kind_stats(room->kind);
-            if (is_my_player_number(room->owner) && (roomst->msg_too_small > 0)) {
-                output_message_room_related_from_computer_or_player_action(roomst->msg_too_small);
+            if ((flags & JobChk_PlayMsgOnFail) != 0) {
+                const struct RoomConfigStats *roomst;
+                roomst = get_room_kind_stats(room->kind);
+                if (is_my_player_number(room->owner) && (roomst->msg_too_small > 0)) {
+                    output_message_room_related_from_computer_or_player_action(roomst->msg_too_small);
+                }
             }
             return false;
         }
@@ -922,6 +943,10 @@ TbBool attempt_job_move_to_event_for_player(struct Thing *creatng, PlayerNumber 
     struct Event *event;
     evkind = get_event_for_job(new_job);
     event = get_event_of_type_for_player(evkind, creatng->owner);
+    // Treat heart attack as enemy fight, too
+    if (event_is_invalid(event) && (evkind == EvKind_EnemyFight)) {
+        event = get_event_of_type_for_player(EvKind_HeartAttacked, creatng->owner);
+    }
     if (event_is_invalid(event)) {
         return false;
     }
@@ -939,6 +964,7 @@ TbBool attempt_job_in_state_internal_for_player(struct Thing *creatng, PlayerNum
     crstate = get_initial_state_for_job(new_job);
     cctrl = creature_control_get_from_thing(creatng);
     internal_set_thing_state(creatng, crstate);
+    // Some states need additional initialization
     if (crstate == CrSt_SeekTheEnemy) {
         cctrl->word_9A = 0;
     }

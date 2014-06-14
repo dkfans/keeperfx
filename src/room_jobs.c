@@ -388,7 +388,7 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room, CreatureJo
     MapSubtlCoord stl_x,stl_y;
     stl_x = slab_subtile(slb_num_decode_x(room->slabs_list),0);
     stl_y = slab_subtile(slb_num_decode_y(room->slabs_list),0);
-    if (!creature_can_do_job_near_position(creatng, stl_x, stl_y, jobpref)) {
+    if (!creature_can_do_job_near_position(creatng, stl_x, stl_y, jobpref, JobChk_SetStateOnFail|JobChk_PlayMsgOnFail)) {
         SYNCDBG(16,"Cannot assign job %s in room %s to %s (owner %d)",creature_job_code_name(jobpref),room_code_name(room->kind),thing_model_name(creatng),(int)creatng->owner);
         return 0;
     }
