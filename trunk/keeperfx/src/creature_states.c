@@ -1530,8 +1530,6 @@ short creature_being_dropped(struct Thing *creatng)
         return 1;
     }
     set_creature_assigned_job(creatng, Job_NULL);
-    struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(creatng);
     // If the creature has flight ability, return it to flying state
     restore_creature_flight_flag(creatng);
     if (!creature_affected_by_spell(creatng, SplK_Chicken))
@@ -4034,12 +4032,12 @@ TbBool internal_set_thing_state(struct Thing *thing, CrtrStateId nState)
     return true;
 }
 
-TbBool initialise_thing_state(struct Thing *thing, CrtrStateId nState)
+TbBool initialise_thing_state_f(struct Thing *thing, CrtrStateId nState, const char *func_name)
 {
     struct CreatureControl *cctrl;
     //return _DK_initialise_thing_state(thing, nState);
     TRACE_THING(thing);
-    SYNCDBG(9,"State change %s to %s for %s index %d",creature_state_code_name(thing->active_state),
+    SYNCDBG(9,"%s: State change %s to %s for %s index %d",func_name,creature_state_code_name(thing->active_state),
         creature_state_code_name(nState), thing_model_name(thing),(int)thing->index);
     cleanup_current_thing_state(thing);
     thing->continue_state = CrSt_Unused;
@@ -4048,14 +4046,14 @@ TbBool initialise_thing_state(struct Thing *thing, CrtrStateId nState)
     cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
-        ERRORLOG("The %s index %d has invalid control",thing_model_name(thing),(int)thing->index);
+        ERRORLOG("%s: The %s index %d has invalid control",func_name,thing_model_name(thing),(int)thing->index);
         return false;
     }
     cctrl->target_room_id = 0;
     cctrl->field_302 = 0;
     if ((cctrl->flgfield_1 & CCFlg_IsInRoomList) != 0)
     {
-        WARNLOG("The %s stays in room list even after cleanup",thing_model_name(thing));
+        WARNLOG("%s: The %s stays in room list even after cleanup",func_name,thing_model_name(thing));
         remove_creature_from_work_room(thing);
     }
     return true;

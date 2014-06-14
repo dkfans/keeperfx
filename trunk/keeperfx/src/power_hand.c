@@ -1061,7 +1061,7 @@ long prepare_thing_for_power_hand(unsigned short tng_idx, PlayerNumber plyr_idx)
     thing = thing_get(tng_idx);
     player->influenced_thing_idx = thing->index;
     player->influenced_thing_creation = thing->creation_turn;
-    set_player_instance(player, 1, 0);
+    set_player_instance(player, PI_Grab, 0);
     if (thing_is_creature(thing)) {
         clear_creature_instance(thing);
     }

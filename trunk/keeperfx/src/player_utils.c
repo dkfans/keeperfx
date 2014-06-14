@@ -160,8 +160,8 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     }
     if (is_my_player(player))
         gui_set_button_flashing(0, 0);
-    set_player_mode(player, 1);
-    set_player_state(player, 1, 0);
+    set_player_mode(player, PVT_DungeonTop);
+    set_player_state(player, PSt_CtrlDungeon, 0);
     if ((game.system_flags & GSF_NetworkActive) == 0)
         player->field_4EB = game.play_gameturn + 300;
     if ((game.system_flags & GSF_NetworkActive) != 0)
@@ -417,7 +417,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
     case GKind_NetworkGame:
         init_player_as_single_keeper(player);
         init_player_start(player, false);
-        reset_player_mode(player, 1);
+        reset_player_mode(player, PVT_DungeonTop);
         if ( !no_explore )
           init_keeper_map_exploration(player);
         break;
@@ -429,7 +429,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
         }
         init_player_as_single_keeper(player);
         init_player_start(player, false);
-        reset_player_mode(player, 1);
+        reset_player_mode(player, PVT_DungeonTop);
         init_keeper_map_exploration(player);
         break;
     default:

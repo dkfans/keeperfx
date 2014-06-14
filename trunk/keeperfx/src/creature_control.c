@@ -205,7 +205,7 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
     cctrl = creature_control_get_from_thing(thing);
     cctrl->field_2 |= 0x02;
     cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
-    set_player_mode(player, 2);
+    set_player_mode(player, PVT_CreatureContrl);
     set_start_state(thing);
     // Preparing light object
     LbMemorySet(&ilght, 0, sizeof(struct InitLight));
