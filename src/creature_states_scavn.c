@@ -322,7 +322,9 @@ struct Thing *select_scavenger_target(const struct Thing *calltng)
         // Per-thing code
         if (thing_is_valid_scavenge_target(calltng, thing))
         {
-            SYNCDBG(18,"The %s index %d is valid target for %s index %d",thing_model_name(thing),(int)thing->index,thing_model_name(calltng),(int)calltng->index);
+            SYNCDBG(18,"The %s index %d owner %d is valid target for %s index %d owner %d",
+                thing_model_name(thing),(int)thing->index,(int)thing->owner,
+                thing_model_name(calltng),(int)calltng->index,(int)calltng->owner);
             struct CreatureControl *cctrl;
             cctrl = creature_control_get_from_thing(thing);
             if (game.play_gameturn - cctrl->temple_cure_gameturn > game.temple_scavenge_protection_turns)
@@ -344,7 +346,9 @@ struct Thing *select_scavenger_target(const struct Thing *calltng)
             break;
         }
     }
-    SYNCDBG(8,"The weakest valid target for %s index %d is %s index %d",thing_model_name(calltng),(int)calltng->index,thing_model_name(weaktng),(int)weaktng->index);
+    SYNCDBG(18,"The weakest valid target for %s index %d owner %d is %s index %d owner %d",
+        thing_model_name(calltng),(int)calltng->index,(int)calltng->owner,
+        thing_model_name(weaktng),(int)weaktng->index,(int)weaktng->owner);
     return weaktng;
 }
 
@@ -361,7 +365,7 @@ struct Thing *get_scavenger_target(const struct Thing *calltng)
         }
         if (thing_is_valid_scavenge_target(calltng, lastng))
         {
-            SYNCDBG(8,"The last target, %s index %d, is still valid",thing_model_name(lastng),(int)lastng->index);
+            SYNCDBG(8,"The last target, %s index %d owner %d, is still valid",thing_model_name(lastng),(int)lastng->index,(int)lastng->owner);
             return lastng;
         }
     }
@@ -379,7 +383,7 @@ TbBool process_scavenge_creature_from_level(struct Thing *scavtng, struct Thing 
     long num_prayers;
     calldngn = get_dungeon(calltng->owner);
     if (dungeon_invalid(calldngn)) {
-        ERRORLOG("The %s can't do scavenging - has no dungeon",thing_model_name(calltng));
+        ERRORLOG("The %s owner %d can't do scavenging - has no dungeon",thing_model_name(calltng),(int)calltng->owner);
         return false;
     }
     if (!is_neutral_thing(scavtng)) {
@@ -390,9 +394,9 @@ TbBool process_scavenge_creature_from_level(struct Thing *scavtng, struct Thing 
     } else {
         num_prayers = 0;
     }
-    if (calldngn->field_894[calltng->model] <= 2 * num_prayers) {
-        SYNCDBG(8, "Player %d prayers are blocking player %d scavenging of %s", (int)scavtng->owner,
-            (int)calltng->owner, thing_model_name(calltng));
+    if (calldngn->field_894[calltng->model] < 2 * num_prayers) {
+        SYNCDBG(8, "Player %d prayers (%d) are blocking player %d scavenging (%d) of %s", (int)scavtng->owner,
+            (int)num_prayers, (int)calltng->owner, (int)calldngn->field_894[calltng->model], thing_model_name(calltng));
         return false;
     }
     SYNCDBG(18,"The %s index %d scavenges %s index %d",thing_model_name(calltng),(int)calltng->index,thing_model_name(scavtng),(int)scavtng->index);
@@ -417,7 +421,7 @@ TbBool process_scavenge_creature_from_level(struct Thing *scavtng, struct Thing 
         if (is_my_player_number(scavtng->owner)) {
             output_message(SMsg_CreatureScanvenged, 500, 1);
         }
-        event_create_event(scavtng->mappos.x.val, scavtng->mappos.y.val, 10, scavtng->owner, scavtng->index);
+        event_create_event(scavtng->mappos.x.val, scavtng->mappos.y.val, EvKind_CreatrScavenged, scavtng->owner, scavtng->index);
     } else
     {
         calldngn->scavenge_turn_points[calltng->model] += work_value;
@@ -433,7 +437,7 @@ TbBool process_scavenge_creature_from_level(struct Thing *scavtng, struct Thing 
     scavpts = calculate_correct_creature_scavenge_required(scavtng, calltng->owner);
     if ((scavpts << 8) < calldngn->scavenge_turn_points[calltng->model])
     {
-        SYNCDBG(18,"The %s index %d accumulated enough points to turn to scavenger",thing_model_name(scavtng),(int)scavtng->index);
+        SYNCDBG(8,"The %s index %d owner %d accumulated enough points to turn to scavenger",thing_model_name(scavtng),(int)scavtng->index,(int)scavtng->owner);
         turn_creature_to_scavenger(scavtng, calltng);
         calldngn->scavenge_turn_points[calltng->model] -= (scavpts << 8);
         return true;
@@ -496,7 +500,7 @@ TbBool process_scavenge_creature_from_pool(struct Thing *calltng, long work_valu
 
 CrCheckRet process_scavenge_function(struct Thing *calltng)
 {
-    SYNCDBG(8,"Starting %s",thing_model_name(calltng));
+    SYNCDBG(18,"Starting for %s owner %d",thing_model_name(calltng),(int)calltng->owner);
     //return _DK_process_scavenge_function(thing);
     struct CreatureControl *callctrl;
     callctrl = creature_control_get_from_thing(calltng);
@@ -526,7 +530,7 @@ CrCheckRet process_scavenge_function(struct Thing *calltng)
     long work_value;
     work_value = compute_creature_work_value(crstat->scavenge_value*256, room->efficiency, callctrl->explevel);
     work_value = process_work_speed_on_work_value(calltng, work_value);
-    SYNCDBG(19,"The %s index %d produced %d scavenge points",thing_model_name(calltng),(int)calltng->index,(int)work_value);
+    SYNCDBG(9,"The %s index %d owner %d produced %d scavenge points",thing_model_name(calltng),(int)calltng->index,(int)calltng->owner,(int)work_value);
     struct Thing *scavtng;
     scavtng = get_scavenger_target(calltng);
     if (!thing_is_invalid(scavtng))
