@@ -238,8 +238,8 @@ TbBool player_can_afford_to_scavenge_creature(const struct Thing *creatng)
 
 TbBool reset_scavenge_counts(struct Dungeon *dungeon)
 {
-    memset(dungeon->field_894, 0, CREATURE_TYPES_COUNT);
-    dungeon->field_88C[1] = game.play_gameturn;
+    memset(dungeon->creatures_scavenging, 0, CREATURE_TYPES_COUNT);
+    dungeon->scavenge_counters_turn = game.play_gameturn;
     return true;
 }
 
@@ -386,17 +386,20 @@ TbBool process_scavenge_creature_from_level(struct Thing *scavtng, struct Thing 
         ERRORLOG("The %s owner %d can't do scavenging - has no dungeon",thing_model_name(calltng),(int)calltng->owner);
         return false;
     }
+    // Compute amount of creatures praying against the scavenge
     if (!is_neutral_thing(scavtng)) {
-        calldngn->field_894[scavtng->model]++;
         struct Dungeon *scavdngn;
         scavdngn = get_dungeon(scavtng->owner);
         num_prayers = scavdngn->creatures_praying[scavtng->model];
     } else {
         num_prayers = 0;
     }
-    if (calldngn->field_894[calltng->model] < 2 * num_prayers) {
+    // Increase scavenging counter, used to break the prayers counter
+    calldngn->creatures_scavenging[scavtng->model]++;
+    // If scavenge is blocked by prayers, return
+    if (calldngn->creatures_scavenging[calltng->model] < 2 * num_prayers) {
         SYNCDBG(8, "Player %d prayers (%d) are blocking player %d scavenging (%d) of %s", (int)scavtng->owner,
-            (int)num_prayers, (int)calltng->owner, (int)calldngn->field_894[calltng->model], thing_model_name(calltng));
+            (int)num_prayers, (int)calltng->owner, (int)calldngn->creatures_scavenging[calltng->model], thing_model_name(calltng));
         return false;
     }
     SYNCDBG(18,"The %s index %d scavenges %s index %d",thing_model_name(calltng),(int)calltng->index,thing_model_name(scavtng),(int)scavtng->index);
@@ -523,7 +526,7 @@ CrCheckRet process_scavenge_function(struct Thing *calltng)
         set_start_state(calltng);
         return CrCkRet_Continue;
     }
-    if (calldngn->field_88C[1] != game.play_gameturn)
+    if (calldngn->scavenge_counters_turn != game.play_gameturn)
     {
         reset_scavenge_counts(calldngn);
     }
