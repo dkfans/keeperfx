@@ -65,7 +65,7 @@ enum CreatureJobFlags {
     Job_MANUFACTURE      = 0x00000010,
     Job_SCAVENGE         = 0x00000020,
     Job_KINKY_TORTURE    = 0x00000040,
-    Job_FIGHT            = 0x00000080,
+    Job_JOIN_FIGHT       = 0x00000080,
     Job_SEEK_THE_ENEMY   = 0x00000100,
     Job_GUARD            = 0x00000200,
     Job_GROUP            = 0x00000400, //This job doesn't do anything, should be removed?
@@ -136,7 +136,7 @@ struct CreatureInstanceConfig {
 
 typedef TbBool (*Creature_Job_Player_Check_Func)(const struct Thing *, PlayerNumber, CreatureJob);
 typedef TbBool (*Creature_Job_Player_Assign_Func)(struct Thing *, PlayerNumber, CreatureJob);
-typedef TbBool (*Creature_Job_Coords_Check_Func)(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob jobpref);
+typedef TbBool (*Creature_Job_Coords_Check_Func)(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob jobpref, unsigned long flags);
 typedef TbBool (*Creature_Job_Coords_Assign_Func)(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob jobpref);
 
 struct CreatureJobConfig {

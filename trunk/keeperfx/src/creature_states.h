@@ -199,21 +199,22 @@ enum CreatureTrainingModes {
 };
 
 enum CreatureStateTypes {
-    CrStTyp_Value0 = 0,
-    CrStTyp_Value1,
-    CrStTyp_Value2,
-    CrStTyp_Value3,
-    CrStTyp_Value4,
-    CrStTyp_Value5,
-    CrStTyp_Value6,
-    CrStTyp_Value7,
-    CrStTyp_Value8,
-    CrStTyp_Value9,
-    CrStTyp_Value10,
-    CrStTyp_Value11,
-    CrStTyp_Value12,
-    CrStTyp_Value13,
-    CrStTyp_Value14,
+    CrStTyp_Idle = 0,
+    CrStTyp_Work,
+    CrStTyp_OwnNeeds,
+    CrStTyp_Sleep,
+    CrStTyp_Feed,
+    CrStTyp_FightCrtr,
+    CrStTyp_Move,
+    CrStTyp_GetsSalary,
+    CrStTyp_Escape,
+    CrStTyp_Unconscious,
+    CrStTyp_AngerJob,
+    CrStTyp_FightDoor,
+    CrStTyp_FightObj,
+    CrStTyp_Called2Arms,
+    CrStTyp_Follow,
+    CrStTyp_ListEnd,
 };
 
 /** Defines return values of creature state functions. */
