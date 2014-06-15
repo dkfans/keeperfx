@@ -5915,7 +5915,7 @@ msgstr "你的怪物无法到达以下房间"
 #: guitext:946
 msgctxt "Game event description"
 msgid "Room unreachable: LMB toggle. RMB delete."
-msgstr "无法到达目的地：左键切换。右键删除。"
+msgstr "无法到达目的地: 左键切换。右键删除。"
 
 #~ msgctxt "Slab description"
 #~ msgid "Impenetrable Rock: Your Imps cannot dig through this. [12.4]"
