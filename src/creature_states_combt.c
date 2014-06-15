@@ -1302,8 +1302,6 @@ long set_creature_in_combat_to_the_death(struct Thing *fighter, struct Thing *en
 long find_fellow_creature_to_fight_in_room(struct Thing *fighter, struct Room *room,long crmodel, struct Thing **enemytng)
 {
     struct Dungeon *dungeon;
-    struct CreatureControl *cctrl;
-    struct Thing *thing;
     unsigned long k;
     int i;
     SYNCDBG(8,"Starting");
@@ -1312,41 +1310,43 @@ long find_fellow_creature_to_fight_in_room(struct Thing *fighter, struct Room *r
     i = dungeon->creatr_list_start;
     while (i != 0)
     {
-      thing = thing_get(i);
-      TRACE_THING(thing);
-      cctrl = creature_control_get_from_thing(thing);
-      if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
-      {
-        ERRORLOG("Jump to invalid creature detected");
-        break;
-      }
-      i = cctrl->players_next_creature_idx;
-      // Thing list loop body
-      if ( (thing->model == crmodel) && (cctrl->combat_flags == 0) )
-      {
-          if (!thing_is_picked_up(thing))
-          {
-              if ((thing != fighter) && (get_room_thing_is_on(thing) == room))
-              {
-                  long dist;
-                  CrAttackType attack_type;
-                  dist = get_combat_distance(fighter, thing);
-                  attack_type = creature_can_have_combat_with_creature(fighter, thing, dist, 0, 0);
-                  if (attack_type > AttckT_Unset)
-                  {
-                      *enemytng = thing;
-                      return attack_type;
-                  }
-              }
-          }
-      }
-      // Thing list loop body ends
-      k++;
-      if (k > CREATURES_COUNT)
-      {
-        ERRORLOG("Infinite loop detected when sweeping creatures list");
-        break;
-      }
+        struct Thing *thing;
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        if ( (thing->model == crmodel) && (cctrl->combat_flags == 0) )
+        {
+            if (!thing_is_picked_up(thing))
+            {
+                if ((thing != fighter) && (get_room_thing_is_on(thing) == room))
+                {
+                    long dist;
+                    CrAttackType attack_type;
+                    dist = get_combat_distance(fighter, thing);
+                    attack_type = creature_can_have_combat_with_creature(fighter, thing, dist, 0, 0);
+                    if (attack_type > AttckT_Unset)
+                    {
+                        *enemytng = thing;
+                        return attack_type;
+                    }
+                }
+            }
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
     }
     SYNCDBG(19,"Finished");
     *enemytng = INVALID_THING;
