@@ -194,7 +194,7 @@ unsigned char field_67;
     short target_room_id;
     long field_82;
 unsigned char field_86[2];
-unsigned char field_88;
+    unsigned char move_flags;
 // Hard to tell where exactly, but somewhere here a kind-specific, job-specific or owner-specific data starts
   union {
   struct {
@@ -415,8 +415,8 @@ unsigned short field_2C5;
     short battle_prev_creatr;
     short battle_next_creatr;
     unsigned char battle_id;
-    unsigned char field_2F8;
-    unsigned char field_2F9;
+    unsigned char alarm_stl_x;
+    unsigned char alarm_stl_y;
     unsigned long field_2FA;
     unsigned long field_2FE;
     unsigned char field_302;

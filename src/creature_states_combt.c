@@ -2675,7 +2675,7 @@ long creature_retreat_from_combat(struct Thing *figtng, struct Thing *enmtng, Cr
     }
     pos.z.val = get_thing_height_at(figtng, &pos);
 
-    if (setup_person_move_backwards_to_coord(figtng, &pos, 0))
+    if (setup_person_move_backwards_to_coord(figtng, &pos, NavTF_Default))
     {
       figtng->continue_state = continue_state;
       return 1;
@@ -2692,7 +2692,7 @@ long creature_retreat_from_combat(struct Thing *figtng, struct Thing *enmtng, Cr
     else
       pos.y.val += 768 * i;
     pos.z.val = get_thing_height_at(figtng, &pos);
-    if (setup_person_move_backwards_to_coord(figtng, &pos, 0))
+    if (setup_person_move_backwards_to_coord(figtng, &pos, NavTF_Default))
     {
       figtng->continue_state = continue_state;
       return 1;

@@ -171,7 +171,7 @@ struct Thing *find_prisoner_for_thing(struct Thing *creatng)
     struct Room *room;
     room = INVALID_ROOM;
     if (!is_neutral_thing(creatng)) {
-        room = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_PRISON, 0, 1);
+        room = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_PRISON, NavTF_Default, 1);
     }
     if (room_exists(room)) {
         i = room->creatures_list;

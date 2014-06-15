@@ -125,14 +125,14 @@ void person_search_for_food_again(struct Thing *creatng, struct Room *room)
         // Check whether there's a room which does have food
         struct Room *nroom;
         // Try to find one which has plenty of food
-        nroom = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_GARDEN, 0, crstat->hunger_fill+1);
+        nroom = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_GARDEN, NavTF_Default, crstat->hunger_fill+1);
         if (room_is_invalid(nroom)) {
             // If not found, maybe at least one chicken?
-            nroom = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_GARDEN, 0, 1);
+            nroom = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_GARDEN, NavTF_Default, 1);
         }
         if (!room_is_invalid(nroom))
         {
-            if (setup_random_head_for_room(creatng, nroom, 0)) {
+            if (setup_random_head_for_room(creatng, nroom, NavTF_Default)) {
                 creatng->continue_state = CrSt_CreatureArrivedAtGarden;
             } else {
                 ERRORLOG("Attempting to move to garden we cannot navigate to - this should not be possible");
@@ -152,7 +152,7 @@ void person_search_for_food_again(struct Thing *creatng, struct Room *room)
         return;
     }
     if (!setup_person_move_close_to_position(creatng,
-           near_food_tng->mappos.x.stl.num, near_food_tng->mappos.y.stl.num, 0))
+           near_food_tng->mappos.x.stl.num, near_food_tng->mappos.y.stl.num, NavTF_Default))
     {
         ERRORLOG("Cannot get near to food");
         person_eat_food(creatng, near_food_tng, room);
@@ -229,14 +229,14 @@ short creature_to_garden(struct Thing *creatng)
     } else
     {
         // Try to find one which has plenty of food
-        nroom = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_GARDEN, 0, crstat->hunger_fill+1);
+        nroom = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_GARDEN, NavTF_Default, crstat->hunger_fill+1);
         if (room_is_invalid(nroom)) {
             // If not found, maybe at least one chicken?
-            nroom = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_GARDEN, 0, 1);
+            nroom = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_GARDEN, NavTF_Default, 1);
         }
         if (room_is_invalid(nroom)) {
             // No correct room - but check what exactly is the problem
-            nroom = find_nearest_room_for_thing(creatng, creatng->owner, RoK_GARDEN, 0);
+            nroom = find_nearest_room_for_thing(creatng, creatng->owner, RoK_GARDEN, NavTF_Default);
             if (room_is_invalid(nroom)) {
                 // There seem to be a correct room, but we can't reach it
                 if (is_my_player_number(creatng->owner))
@@ -257,7 +257,7 @@ short creature_to_garden(struct Thing *creatng)
         set_start_state(creatng);
         return 0;
     }
-    if (!setup_random_head_for_room(creatng, nroom, 0))
+    if (!setup_random_head_for_room(creatng, nroom, NavTF_Default))
     {
         ERRORLOG("Attempting to move to garden we cannot navigate to - this should not be possible");
         set_start_state(creatng);

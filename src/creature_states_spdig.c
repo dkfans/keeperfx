@@ -109,7 +109,7 @@ long check_out_unclaimed_dead_bodies(struct Thing *spdigtng, long range)
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(spdigtng);
     struct Room *room;
-    room = find_nearest_room_for_thing_with_spare_capacity(spdigtng, spdigtng->owner, RoK_GRAVEYARD, 0, 1);
+    room = find_nearest_room_for_thing_with_spare_capacity(spdigtng, spdigtng->owner, RoK_GRAVEYARD, NavTF_Default, 1);
     if (room_is_invalid(room))
     {
         if (is_room_available(spdigtng->owner, RoK_GRAVEYARD))
@@ -145,7 +145,7 @@ long check_out_unclaimed_dead_bodies(struct Thing *spdigtng, long range)
             {
                 if (!imp_will_soon_be_working_at_excluding(spdigtng, thing->mappos.x.stl.num, thing->mappos.y.stl.num))
                 {
-                    if (setup_person_move_to_position(spdigtng, thing->mappos.x.stl.num, thing->mappos.y.stl.num, 0)) {
+                    if (setup_person_move_to_coord(spdigtng, &thing->mappos, NavTF_Default)) {
                         spdigtng->continue_state = CrSt_CreaturePicksUpCorpse;
                         cctrl->pickup_object_id = thing->index;
                         return 1;
@@ -281,9 +281,9 @@ long check_out_object_for_trap(struct Thing *spdigtng, struct Thing *traptng)
             slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
             if ( (slabmap_owner(slb) == find_owner) && ((thing->field_1 & TF1_IsDragged1) == 0) )
             {
-                if ( !imp_will_soon_be_getting_object(find_owner, thing) )
+                if (!imp_will_soon_be_getting_object(find_owner, thing))
                 {
-                    if ( setup_person_move_to_position(spdigtng, thing->mappos.x.stl.num, thing->mappos.y.stl.num, 0) )
+                    if (setup_person_move_to_coord(spdigtng, &thing->mappos, NavTF_Default))
                     {
                         spdigtng->continue_state = CrSt_CreaturePicksUpTrapObject;
                         cctrl->pickup_object_id = thing->index;
@@ -361,7 +361,7 @@ long check_out_unreinforced_drop_place(struct Thing *thing)
             stl_num = get_subtile_number_at_slab_center(slb_x, slb_y);
             if ( check_out_uncrowded_reinforce_position(thing, stl_num, &pos_x, &pos_y) )
             {
-                if ( setup_person_move_to_position(thing, pos_x, pos_y, 0) )
+                if ( setup_person_move_to_position(thing, pos_x, pos_y, NavTF_Default) )
                 {
                     thing->continue_state = CrSt_ImpArrivesAtReinforce;
                     cctrl->digger.working_stl = stl_num;
@@ -447,7 +447,7 @@ TbBool check_out_crates_to_arm_trap_in_room(struct Thing *spdigtng)
               traptng = check_for_empty_trap_for_imp(spdigtng, crate_thing_to_workshop_item_model(thing));
               if (!thing_is_invalid(traptng) && !imp_will_soon_be_getting_object(spdigtng->owner, thing))
               {
-                  if (setup_person_move_to_position(spdigtng, thing->mappos.x.stl.num, thing->mappos.y.stl.num, 0))
+                  if (setup_person_move_to_coord(spdigtng, &thing->mappos, NavTF_Default))
                   {
                       struct CreatureControl *cctrl;
                       cctrl = creature_control_get_from_thing(spdigtng);
@@ -553,7 +553,7 @@ TbBool move_imp_to_uncrowded_dig_mine_access_point(struct Thing *thing, SubtlCod
     long pos_x,pos_y;
     if (!check_place_to_dig_and_get_position(thing, stl_num, &pos_x, &pos_y))
         return false;
-    if (!setup_person_move_to_position(thing, pos_x, pos_y, 0))
+    if (!setup_person_move_to_position(thing, pos_x, pos_y, NavTF_Default))
         return false;
     thing->continue_state = CrSt_ImpArrivesAtDigDirt;
     return true;
@@ -1013,7 +1013,7 @@ TbBool creature_drop_thing_to_another_room(struct Thing *thing, struct Room *ski
     struct Room *ownroom;
     struct Coord3d pos;
     TRACE_THING(thing);
-    ownroom = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, rkind, 0, 1);
+    ownroom = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, rkind, NavTF_Default, 1);
     if ( room_is_invalid(ownroom) || (ownroom->index == skiproom->index) )
     {
         WARNLOG("Couldn't find a new %s for object dragged by %s owned by %d",room_code_name(rkind),thing_model_name(thing),(int)thing->owner);
@@ -1024,7 +1024,7 @@ TbBool creature_drop_thing_to_another_room(struct Thing *thing, struct Room *ski
         WARNLOG("Couldn't find a new destination in %s for object dragged by %s owned by %d",room_code_name(rkind),thing_model_name(thing),(int)thing->owner);
         return false;
     }
-    if (!setup_person_move_to_position(thing, pos.x.stl.num, pos.y.stl.num, 0))
+    if (!setup_person_move_to_coord(thing, &pos, NavTF_Default))
     {
         SYNCDBG(8,"Cannot move %s to %s at subtile (%d,%d)",thing_model_name(thing),room_code_name(rkind),(int)pos.x.stl.num,(int)pos.y.stl.num);
         return false;
@@ -1101,14 +1101,14 @@ short creature_pick_up_unconscious_body(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    ownroom = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_PRISON, 0, 1);
+    ownroom = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_PRISON, NavTF_Default, 1);
     if ( room_is_invalid(ownroom) || !find_random_valid_position_for_thing_in_room(thing, ownroom, &pos) )
     {
         WARNLOG("Player %d can't pick %s - doesn't have proper %s to store it",(int)thing->owner,thing_model_name(picktng),room_code_name(RoK_PRISON));
         set_start_state(thing);
         return 0;
     }
-    if (!setup_person_move_backwards_to_position(thing, pos.x.stl.num, pos.y.stl.num, 0))
+    if (!setup_person_move_backwards_to_coord(thing, &pos, NavTF_Default))
     {
         SYNCDBG(8,"Cannot drag %s to (%d,%d)",thing_model_name(picktng),(int)pos.x.stl.num,(int)pos.y.stl.num);
         set_start_state(thing);
@@ -1136,7 +1136,7 @@ short creature_picks_up_corpse(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    dstroom = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_GRAVEYARD, 0, 1);
+    dstroom = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_GRAVEYARD, NavTF_Default, 1);
     if ( room_is_invalid(dstroom) || !find_random_valid_position_for_thing_in_room_avoiding_object(thing, dstroom, &pos) )
     {
         WARNLOG("Player %d can't pick %s - doesn't have proper %s to store it",(int)thing->owner,thing_model_name(picktng),room_code_name(RoK_GRAVEYARD));
@@ -1144,7 +1144,7 @@ short creature_picks_up_corpse(struct Thing *thing)
         return 0;
     }
     creature_drag_object(thing, picktng);
-    if (!setup_person_move_backwards_to_position(thing, pos.x.stl.num, pos.y.stl.num, 0))
+    if (!setup_person_move_backwards_to_coord(thing, &pos, NavTF_Default))
     {
         SYNCDBG(8,"Cannot move to (%d,%d)",(int)pos.x.stl.num, (int)pos.y.stl.num);
         set_start_state(thing);
@@ -1176,7 +1176,7 @@ short creature_picks_up_spell_object(struct Thing *creatng)
         return 0;
     }
     enmroom = get_room_thing_is_on(picktng);
-    dstroom = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_LIBRARY, 0, 1);
+    dstroom = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_LIBRARY, NavTF_Default, 1);
     if ( room_is_invalid(dstroom) || !find_random_valid_position_for_thing_in_room_avoiding_object(creatng, dstroom, &pos) )
     {
         WARNLOG("Player %d can't pick %s - doesn't have proper %s to store it",(int)creatng->owner,thing_model_name(picktng),room_code_name(RoK_LIBRARY));
@@ -1191,7 +1191,7 @@ short creature_picks_up_spell_object(struct Thing *creatng)
     // Create event to inform player about the spell or special (need to be done before pickup due to ownership changes)
     update_library_object_pickup_event(creatng, picktng);
     creature_drag_object(creatng, picktng);
-    if (!setup_person_move_to_position(creatng, pos.x.stl.num, pos.y.stl.num, 0))
+    if (!setup_person_move_to_coord(creatng, &pos, NavTF_Default))
     {
         SYNCDBG(8,"Cannot move to (%d,%d)",(int)pos.x.stl.num, (int)pos.y.stl.num);
         set_start_state(creatng);
@@ -1221,7 +1221,7 @@ short creature_picks_up_trap_for_workshop(struct Thing *thing)
         return 0;
     }
     // Find room to drag the crate to
-    dstroom = find_nearest_room_for_thing_with_spare_item_capacity(thing, thing->owner, RoK_WORKSHOP, 0);
+    dstroom = find_nearest_room_for_thing_with_spare_item_capacity(thing, thing->owner, RoK_WORKSHOP, NavTF_Default);
     if ( room_is_invalid(dstroom) || !find_random_valid_position_for_thing_in_room_avoiding_object(thing, dstroom, &pos) )
     {
         WARNLOG("Player %d can't pick %s - doesn't have proper %s to store it",(int)thing->owner,thing_model_name(cratetng),room_code_name(RoK_WORKSHOP));
@@ -1229,7 +1229,7 @@ short creature_picks_up_trap_for_workshop(struct Thing *thing)
         return 0;
     }
     // Initialize dragging
-    if ( !setup_person_move_backwards_to_position(thing, pos.x.stl.num, pos.y.stl.num, 0) )
+    if ( !setup_person_move_backwards_to_coord(thing, &pos, NavTF_Default) )
     {
         set_start_state(thing);
         return 0;
@@ -1280,7 +1280,7 @@ short creature_picks_up_trap_object(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    if ( !setup_person_move_backwards_to_position(thing, traptng->mappos.x.stl.num, traptng->mappos.y.stl.num, 0) )
+    if ( !setup_person_move_backwards_to_coord(thing, &traptng->mappos, NavTF_Default) )
     {
         WARNLOG("Cannot deliver crate to position of %s index %d",thing_model_name(traptng),(int)traptng->index);
         cctrl->field_70 = 0;

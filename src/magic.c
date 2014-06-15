@@ -1073,11 +1073,11 @@ long update_creatures_influenced_by_call_to_arms(PlayerNumber plyr_idx)
                 stati = get_thing_state_info_num(get_creature_state_besides_interruptions(thing));
                 if ( stati->field_28 || creature_is_called_to_arms(thing) )
                 {
-                    if (creature_can_navigate_to_with_storage(thing, &pos, 0))
+                    if (creature_can_navigate_to_with_storage(thing, &pos, NavTF_Default))
                     {
                         if (creature_is_called_to_arms(thing))
                         {
-                            setup_person_move_to_position(thing, pos.x.stl.num, pos.y.stl.num, 0);
+                            setup_person_move_to_coord(thing, &pos, NavTF_Default);
                             thing->continue_state = CrSt_ArriveAtCallToArms;
                             if ((cctrl->flgfield_1 & CCFlg_NoCompControl) != 0) {
                                 WARNLOG("The %s index %d is re-called to arms with no comp control, fixing",thing_model_name(thing),(int)thing->index);
@@ -1087,7 +1087,7 @@ long update_creatures_influenced_by_call_to_arms(PlayerNumber plyr_idx)
                         } else
                         if (external_set_thing_state(thing, CrSt_ArriveAtCallToArms))
                         {
-                            setup_person_move_to_position(thing, pos.x.stl.num, pos.y.stl.num, 0);
+                            setup_person_move_to_coord(thing, &pos, NavTF_Default);
                             thing->continue_state = CrSt_ArriveAtCallToArms;
                             if ((cctrl->flgfield_1 & CCFlg_NoCompControl) != 0) {
                                 WARNLOG("The %s index %d is first called to arms with no comp control, fixing",thing_model_name(thing),(int)thing->index);

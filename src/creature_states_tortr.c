@@ -182,7 +182,7 @@ long setup_torture_move_to_device(struct Thing *creatng, struct Room *room, Crtr
         tortrtng = find_base_thing_on_mapwho(TCls_Object, 125, slab_subtile_center(slb_x), slab_subtile_center(slb_y));
         if (!thing_is_invalid(tortrtng) && (tortrtng->word_13 == 0))
         {
-            if (!setup_person_move_to_coord(creatng, &tortrtng->mappos, 0))
+            if (!setup_person_move_to_coord(creatng, &tortrtng->mappos, NavTF_Default))
             {
                 ERRORLOG("Move failed in torture");
                 break;

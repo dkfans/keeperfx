@@ -155,7 +155,7 @@ short creature_being_scavenged(struct Thing *creatng)
         SYNCDBG(19,"Cannot get creature");
         return 0;
     }
-    if (setup_person_move_to_coord(creatng, &fellowtng->mappos, 0) <= 0)
+    if (setup_person_move_to_coord(creatng, &fellowtng->mappos, NavTF_Default) <= 0)
     {
         SYNCDBG(19,"Cannot move to coord");
         return 0;

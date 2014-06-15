@@ -1483,7 +1483,7 @@ AriadneReturn ariadne_prepare_creature_route_target_reached(const struct Thing *
  * @return
  */
 AriadneReturn ariadne_prepare_creature_route_to_target_f(const struct Thing *thing, struct Ariadne *arid,
-    const struct Coord3d *srcpos, const struct Coord3d *dstpos, long speed, unsigned char no_owner, const char *func_name)
+    const struct Coord3d *srcpos, const struct Coord3d *dstpos, long speed, unsigned char flags, const char *func_name)
 {
     struct Path path;
     long nav_sizexy;
@@ -1499,7 +1499,7 @@ AriadneReturn ariadne_prepare_creature_route_to_target_f(const struct Thing *thi
     arid->endpos.z.val = dstpos->z.val;
     // Set the required parameters
     nav_thing_can_travel_over_lava = creature_can_travel_over_lava(thing);
-    if (no_owner)
+    if (flags)
         owner_player_navigating = -1;
     else
         owner_player_navigating = thing->owner;
@@ -1537,7 +1537,7 @@ AriadneReturn ariadne_prepare_creature_route_to_target_f(const struct Thing *thi
         k++;
     }
     arid->current_waypoint = 0;
-    arid->field_1E = no_owner;
+    arid->field_1E = flags;
     arid->pos_12.x.val = thing->mappos.x.val;
     arid->pos_12.y.val = thing->mappos.y.val;
     arid->pos_12.z.val = thing->mappos.z.val;
@@ -1556,7 +1556,7 @@ AriadneReturn ariadne_invalidate_creature_route(struct Thing *thing)
     return AridRet_OK;
 }
 
-AriadneReturn ariadne_initialise_creature_route_f(struct Thing *thing, const struct Coord3d *pos, long speed, unsigned char storage, const char *func_name)
+AriadneReturn ariadne_initialise_creature_route_f(struct Thing *thing, const struct Coord3d *pos, long speed, unsigned char no_owner, const char *func_name)
 {
     struct CreatureControl *cctrl;
     struct Ariadne *arid;
@@ -1578,7 +1578,7 @@ AriadneReturn ariadne_initialise_creature_route_f(struct Thing *thing, const str
         }
     } else
     {
-        ret = ariadne_prepare_creature_route_to_target_f(thing, arid, &thing->mappos, pos, speed, storage, func_name);
+        ret = ariadne_prepare_creature_route_to_target_f(thing, arid, &thing->mappos, pos, speed, no_owner, func_name);
         if (ret != AridRet_OK) {
             NAVIDBG(19,"%s: Failed to prepare route from %5d,%5d to %5d,%5d", func_name,
                 (int)thing->mappos.x.val,(int)thing->mappos.y.val, (int)pos->x.val,(int)pos->y.val);

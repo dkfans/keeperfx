@@ -80,7 +80,7 @@ TbBool setup_temple_move(struct Thing *thing, struct Room *room)
     {
         return false;
     }
-    if (!setup_person_move_to_coord(thing, &pos, 0)) {
+    if (!setup_person_move_to_coord(thing, &pos, NavTF_Default)) {
         ERRORLOG("Cannot move %s in %s room", thing_model_name(thing),room_code_name(room->kind));
         return false;
     }
