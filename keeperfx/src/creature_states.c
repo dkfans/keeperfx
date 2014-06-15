@@ -3046,6 +3046,7 @@ short creature_wants_a_home(struct Thing *creatng)
 short creature_wants_salary(struct Thing *creatng)
 {
     //return _DK_creature_wants_salary(creatng);
+    SYNCDBG(8,"Starting for %s index %d", thing_model_name(creatng), (int)creatng->index);
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
     struct Room *room;
