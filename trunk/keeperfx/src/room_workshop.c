@@ -236,7 +236,7 @@ TbBool create_workshop_object_in_workshop_room(PlayerNumber plyr_idx, ThingClass
         break;
     }
     create_effect(&pos, TngEff_Unknown56, cratetng->owner);
-    thing_play_sample(cratetng, 89, 100, 0, 3, 0, 2, 256);
+    thing_play_sample(cratetng, 89, 100, 0, 3, 0, 2, FULL_LOUDNESS);
     return true;
 }
 

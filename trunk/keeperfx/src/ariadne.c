@@ -99,6 +99,7 @@ DLLIMPORT void _DK_brute_fill_rectangle(long start_x, long start_y, long end_x, 
 DLLIMPORT void _DK_edgelen_set(long tri_id);
 DLLIMPORT long _DK_ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos, long outfri_y2);
 DLLIMPORT void _DK_triangulation_initxy(long outfri_x1, long outfri_y1, long outfri_x2, long outfri_y2);
+DLLIMPORT void _DK_nearest_search(long size, long srcx, long srcy, long dstx, long dsty, long *px, long *py);
 DLLIMPORT unsigned long _DK_nav_same_component(long ptAx, long ptAy, long ptBx, long ptBy);
 /******************************************************************************/
 DLLIMPORT long _DK_tri_initialised;
@@ -270,7 +271,7 @@ static void ariadne_compare_ways(const struct Ariadne *arid1, const struct Ariad
     if (memcmp(p1,p2,sizeof(struct Coord3d)) != 0) {
         ERRORLOG("pos_18 DIFFERS (%d,%d,%d) (%d,%d,%d)",(int)p1->x.val,(int)p1->y.val,(int)p1->z.val,(int)p2->x.val,(int)p2->y.val,(int)p2->z.val);
     }
-    if (memcmp(&arid1->field_1E,&arid2->field_1E,14) != 0) {
+    if (memcmp(&arid1->route_flags,&arid2->route_flags,14) != 0) {
         ERRORLOG("pos_18..field_24 DIFFERS");
     }
     if (arid1->move_speed != arid2->move_speed) {
@@ -666,6 +667,11 @@ long dest_node(long a1, long a2)
     if (!nav_rulesA2B(get_triangle_tree_alt(a1), get_triangle_tree_alt(n)))
         return -1;
     return n;
+}
+
+void nearest_search(long size, long srcx, long srcy, long dstx, long dsty, long *px, long *py)
+{
+    _DK_nearest_search(size, srcx, srcy, dstx, dsty, px, py);
 }
 
 long cost_to_start(long tri_idx)
@@ -1203,27 +1209,27 @@ void initialise_wallhugging_path_from_to(struct Navigation *navi, struct Coord3d
 long ariadne_get_blocked_flags(struct Thing *thing, const struct Coord3d *pos)
 {
     struct Coord3d lpos;
-    unsigned long flags;
+    unsigned long blkflags;
     lpos.x.val = pos->x.val;
     lpos.y.val = thing->mappos.y.val;
     lpos.z.val = thing->mappos.z.val;
-    flags = 0;
+    blkflags = 0;
     if (ariadne_creature_blocked_by_wall_at(thing, &lpos))
-        flags |= 0x01;
+        blkflags |= 0x01;
     lpos.x.val = thing->mappos.x.val;
     lpos.y.val = pos->y.val;
     lpos.z.val = thing->mappos.z.val;
     if (ariadne_creature_blocked_by_wall_at(thing, &lpos))
-        flags |= 0x02;
-    if (flags == 0)
+        blkflags |= 0x02;
+    if (blkflags == 0)
     {
         lpos.x.val = pos->x.val;
         lpos.y.val = pos->y.val;
         lpos.z.val = thing->mappos.z.val;
         if (ariadne_creature_blocked_by_wall_at(thing, &lpos))
-          flags |= 0x04;
+          blkflags |= 0x04;
     }
-    return flags;
+    return blkflags;
 }
 
 TbBool blocked_by_door_at(struct Thing *thing, struct Coord3d *pos, unsigned long blk_flags)
@@ -1467,7 +1473,7 @@ AriadneReturn ariadne_prepare_creature_route_target_reached(const struct Thing *
     arid->pos_12.z.val = thing->mappos.z.val;
     arid->stored_waypoints = 1;
     arid->total_waypoints = 1;
-    arid->field_1E = 0;
+    arid->route_flags = 0;
     return AridRet_OK;
 }
 
@@ -1478,42 +1484,43 @@ AriadneReturn ariadne_prepare_creature_route_target_reached(const struct Thing *
  * @param srcpos
  * @param dstpos
  * @param speed
- * @param no_owner
+ * @param flags
  * @param func_name
  * @return
  */
 AriadneReturn ariadne_prepare_creature_route_to_target_f(const struct Thing *thing, struct Ariadne *arid,
-    const struct Coord3d *srcpos, const struct Coord3d *dstpos, long speed, unsigned char flags, const char *func_name)
+    const struct Coord3d *srcpos, const struct Coord3d *dstpos, long speed, AriadneRouteFlags flags, const char *func_name)
 {
     struct Path path;
     long nav_sizexy;
-    long i,k;
-    NAVIDBG(18,"%s: The %s from %3d,%3d to %3d,%3d", func_name, thing_model_name(thing),
+    NAVIDBG(18,"%s: The %s index %d from %3d,%3d to %3d,%3d", func_name, thing_model_name(thing), (int)thing->index,
         (int)srcpos->x.stl.num, (int)srcpos->y.stl.num, (int)dstpos->x.stl.num, (int)dstpos->y.stl.num);
     LbMemorySet(&path, 0, sizeof(struct Path));
-    arid->startpos.x.val = srcpos->x.val;
-    arid->startpos.y.val = srcpos->y.val;
-    arid->startpos.z.val = srcpos->z.val;
-    arid->endpos.x.val = dstpos->x.val;
-    arid->endpos.y.val = dstpos->y.val;
-    arid->endpos.z.val = dstpos->z.val;
     // Set the required parameters
     nav_thing_can_travel_over_lava = creature_can_travel_over_lava(thing);
-    if (flags)
+    if ((flags & AridRtF_NoOwner) != 0)
         owner_player_navigating = -1;
     else
         owner_player_navigating = thing->owner;
     nav_sizexy = thing_nav_block_sizexy(thing);
     if (nav_sizexy > 0) nav_sizexy--;
     // Find the path
-    path_init8_wide_f(&path,
-        arid->startpos.x.val, arid->startpos.y.val,
-        arid->endpos.x.val, arid->endpos.y.val, -2, nav_sizexy, func_name);
+    path_init8_wide_f(&path, srcpos->x.val, srcpos->y.val,
+        dstpos->x.val, dstpos->y.val, -2, nav_sizexy, func_name);
     // Reset globals
     nav_thing_can_travel_over_lava = 0;
     owner_player_navigating = -1;
+    // Fill the Ariadne struct
+    arid->startpos.x.val = srcpos->x.val;
+    arid->startpos.y.val = srcpos->y.val;
+    arid->startpos.z.val = srcpos->z.val;
+    arid->endpos.x.val = dstpos->x.val;
+    arid->endpos.y.val = dstpos->y.val;
+    arid->endpos.z.val = dstpos->z.val;
     if (path.waypoints_num <= 0) {
         NAVIDBG(18,"%s: Cannot find route", func_name);
+        arid->total_waypoints = 0;
+        arid->stored_waypoints = arid->total_waypoints;
         return AridRet_Val2;
     }
     // Fill total waypoints number
@@ -1529,6 +1536,7 @@ AriadneReturn ariadne_prepare_creature_route_to_target_f(const struct Thing *thi
     } else {
         arid->stored_waypoints = ARID_WAYPOINTS_COUNT;
     }
+    long i,k;
     k = 0;
     for (i = 0; i < arid->stored_waypoints; i++)
     {
@@ -1537,12 +1545,49 @@ AriadneReturn ariadne_prepare_creature_route_to_target_f(const struct Thing *thi
         k++;
     }
     arid->current_waypoint = 0;
-    arid->field_1E = flags;
+    arid->route_flags = flags;
     arid->pos_12.x.val = thing->mappos.x.val;
     arid->pos_12.y.val = thing->mappos.y.val;
     arid->pos_12.z.val = thing->mappos.z.val;
     arid->move_speed = speed;
     return AridRet_OK;
+}
+
+/**
+ * Prepares creature route from source to destination position, and gives amount of waypoints.
+ * @param thing
+ * @param srcpos
+ * @param dstpos
+ * @param flags
+ * @param func_name
+ * @return
+ * @see ariadne_prepare_creature_route_to_target() similar function which stores resulting route in Ariadne struct.
+ */
+long ariadne_count_waypoints_on_creature_route_to_target_f(const struct Thing *thing,
+    const struct Coord3d *srcpos, const struct Coord3d *dstpos, AriadneRouteFlags flags, const char *func_name)
+{
+    struct Path path;
+    long nav_sizexy;
+    NAVIDBG(18,"%s: The %s index %d from %3d,%3d to %3d,%3d", func_name, thing_model_name(thing), (int)thing->index,
+        (int)srcpos->x.stl.num, (int)srcpos->y.stl.num, (int)dstpos->x.stl.num, (int)dstpos->y.stl.num);
+    LbMemorySet(&path, 0, sizeof(struct Path));
+    // Set the required parameters
+    nav_thing_can_travel_over_lava = creature_can_travel_over_lava(thing);
+    if ((flags & AridRtF_NoOwner) != 0)
+        owner_player_navigating = -1;
+    else
+        owner_player_navigating = thing->owner;
+    nav_sizexy = thing_nav_block_sizexy(thing);
+    if (nav_sizexy > 0) nav_sizexy--;
+    // Find the path
+    path_init8_wide_f(&path, srcpos->x.val, srcpos->y.val,
+        dstpos->x.val, dstpos->y.val, -2, nav_sizexy, func_name);
+    // Reset globals
+    nav_thing_can_travel_over_lava = 0;
+    owner_player_navigating = -1;
+    // Note: since this point, the function body should be identical to ariadne_prepare_creature_route_to_target().
+    NAVIDBG(19,"%s: Finished, %d waypoints",func_name,(int)path.waypoints_num);
+    return path.waypoints_num;
 }
 
 AriadneReturn ariadne_invalidate_creature_route(struct Thing *thing)
@@ -1556,7 +1601,7 @@ AriadneReturn ariadne_invalidate_creature_route(struct Thing *thing)
     return AridRet_OK;
 }
 
-AriadneReturn ariadne_initialise_creature_route_f(struct Thing *thing, const struct Coord3d *pos, long speed, unsigned char no_owner, const char *func_name)
+AriadneReturn ariadne_initialise_creature_route_f(struct Thing *thing, const struct Coord3d *pos, long speed, AriadneRouteFlags flags, const char *func_name)
 {
     struct CreatureControl *cctrl;
     struct Ariadne *arid;
@@ -1578,7 +1623,7 @@ AriadneReturn ariadne_initialise_creature_route_f(struct Thing *thing, const str
         }
     } else
     {
-        ret = ariadne_prepare_creature_route_to_target_f(thing, arid, &thing->mappos, pos, speed, no_owner, func_name);
+        ret = ariadne_prepare_creature_route_to_target_f(thing, arid, &thing->mappos, pos, speed, flags, func_name);
         if (ret != AridRet_OK) {
             NAVIDBG(19,"%s: Failed to prepare route from %5d,%5d to %5d,%5d", func_name,
                 (int)thing->mappos.x.val,(int)thing->mappos.y.val, (int)pos->x.val,(int)pos->y.val);
@@ -1619,7 +1664,7 @@ AriadneReturn ariadne_creature_get_next_waypoint(struct Thing *thing, struct Ari
     pos.z.val = arid->endpos.z.val;
     NAVIDBG(8,"Route for %s index %d from %3d,%3d to %3d,%3d", thing_model_name(thing),(int)thing->index,
         (int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num, (int)pos.x.stl.num, (int)pos.y.stl.num);
-    return ariadne_initialise_creature_route(thing, &pos, arid->move_speed, arid->field_1E);
+    return ariadne_initialise_creature_route(thing, &pos, arid->move_speed, arid->route_flags);
 }
 
 TbBool ariadne_creature_reached_waypoint(const struct Thing *thing, const struct Ariadne *arid)
@@ -1641,7 +1686,7 @@ AriadneReturn ariadne_update_state_manoeuvre_to_position(struct Thing *thing, st
         NAVIDBG(8,"Route for %s index %d from %3d,%3d to %3d,%3d", thing_model_name(thing),(int)thing->index,
             (int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num, (int)pos.x.stl.num, (int)pos.y.stl.num);
         AriadneReturn aret;
-        aret = ariadne_initialise_creature_route(thing, &pos, arid->move_speed, arid->field_1E);
+        aret = ariadne_initialise_creature_route(thing, &pos, arid->move_speed, arid->route_flags);
         if (aret != AridRet_OK) {
             return AridRet_PartOK;
         }
@@ -1692,7 +1737,7 @@ AriadneReturn ariadne_update_state_on_line(struct Thing *thing, struct Ariadne *
         pos.x.val = arid->endpos.x.val;
         pos.y.val = arid->endpos.y.val;
         pos.z.val = arid->endpos.z.val;
-        if (ariadne_initialise_creature_route(thing, &pos, arid->move_speed, arid->field_1E)) {
+        if (ariadne_initialise_creature_route(thing, &pos, arid->move_speed, arid->route_flags)) {
             return AridRet_PartOK;
         }
     } else
@@ -1721,7 +1766,7 @@ AriadneReturn ariadne_update_state_on_line(struct Thing *thing, struct Ariadne *
             pos.x.val = arid->endpos.x.val;
             pos.y.val = arid->endpos.y.val;
             pos.z.val = arid->endpos.z.val;
-            if (ariadne_initialise_creature_route(thing, &pos, arid->move_speed, arid->field_1E)) {
+            if (ariadne_initialise_creature_route(thing, &pos, arid->move_speed, arid->route_flags)) {
                 return AridRet_PartOK;
             }
         }
@@ -1800,7 +1845,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
         pos.x.val = arid->endpos.x.val;
         pos.y.val = arid->endpos.y.val;
         pos.z.val = arid->endpos.z.val;
-        if (ariadne_initialise_creature_route(thing, &pos, arid->move_speed, arid->field_1E)) {
+        if (ariadne_initialise_creature_route(thing, &pos, arid->move_speed, arid->route_flags)) {
             return 3;
         }
         return AridRet_OK;
@@ -1818,7 +1863,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
                 pos.x.val = arid->endpos.x.val;
                 pos.y.val = arid->endpos.y.val;
                 pos.z.val = arid->endpos.z.val;
-                if (ariadne_initialise_creature_route(thing, &pos, arid->move_speed, arid->field_1E)) {
+                if (ariadne_initialise_creature_route(thing, &pos, arid->move_speed, arid->route_flags)) {
                     return 3;
                 }
             }
@@ -1886,7 +1931,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
             pos.x.val = arid->endpos.x.val;
             pos.y.val = arid->endpos.y.val;
             pos.z.val = arid->endpos.z.val;
-            if (ariadne_initialise_creature_route(thing, &pos, arid->move_speed, arid->field_1E) >= 1) {
+            if (ariadne_initialise_creature_route(thing, &pos, arid->move_speed, arid->route_flags) >= 1) {
                 return 3;
             }
             return AridRet_OK;
@@ -1914,7 +1959,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
             pos.x.val = arid->endpos.x.val;
             pos.y.val = arid->endpos.y.val;
             pos.z.val = arid->endpos.z.val;
-            if (ariadne_initialise_creature_route(thing, &pos, arid->move_speed, arid->field_1E)) {
+            if (ariadne_initialise_creature_route(thing, &pos, arid->move_speed, arid->route_flags)) {
                 return 3;
             }
             return AridRet_OK;
@@ -1923,7 +1968,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
     return AridRet_OK;
 }
 
-AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Coord3d *finalpos, long speed, struct Coord3d *nextpos, unsigned char a5)
+AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Coord3d *finalpos, long speed, struct Coord3d *nextpos, AriadneRouteFlags flags)
 {
     struct CreatureControl *cctrl;
     struct Ariadne *arid;
@@ -1939,7 +1984,7 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
      || (finalpos->y.val != arid->endpos.y.val)
      || (arid->move_speed != speed))
     {
-        aret = ariadne_initialise_creature_route(thing, finalpos, speed, a5);
+        aret = ariadne_initialise_creature_route(thing, finalpos, speed, flags);
         if (aret != AridRet_OK) {
             return AridRet_Val2;
         }
@@ -1970,7 +2015,7 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
             ariadne_init_movement_to_current_waypoint(thing, arid);
         } else
         {
-            aret = ariadne_initialise_creature_route(thing, finalpos, speed, a5);
+            aret = ariadne_initialise_creature_route(thing, finalpos, speed, flags);
             if (aret != AridRet_OK) {
                 return AridRet_PartOK;
             }
@@ -2014,17 +2059,17 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
  * @param a5
  * @return
  */
-AriadneReturn creature_follow_route_to_using_gates(struct Thing *thing, struct Coord3d *finalpos, struct Coord3d *nextpos, long speed, unsigned char a5)
+AriadneReturn creature_follow_route_to_using_gates(struct Thing *thing, struct Coord3d *finalpos, struct Coord3d *nextpos, long speed, AriadneRouteFlags flags)
 {
     SYNCDBG(18,"Starting");
-    //return _DK_creature_follow_route_to_using_gates(thing, finalpos, nextpos, a4, a5);
+    //return _DK_creature_follow_route_to_using_gates(thing, finalpos, nextpos, speed, flags);
     if (game.field_14EA4B)
     {
         struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(thing);
         cctrl->arid.field_23 = 1;
     }
-    return ariadne_get_next_position_for_route(thing, finalpos, speed, nextpos, a5);
+    return ariadne_get_next_position_for_route(thing, finalpos, speed, nextpos, flags);
 }
 
 /**

@@ -123,7 +123,7 @@ TbBool creature_move_to_home_lair(struct Thing *creatng)
     if (thing_is_invalid(lairtng)) {
         return false;
     }
-    return setup_person_move_to_coord(creatng, &lairtng->mappos, NavTF_Default);
+    return setup_person_move_to_coord(creatng, &lairtng->mappos, NavRtF_Default);
 
 }
 
@@ -230,7 +230,7 @@ long creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
     objdat = get_objects_data_for_thing(lairtng);
     i = convert_td_iso(objdat->field_5);
     set_thing_draw(lairtng, i, objdat->field_7, lairtng->word_15, 0, -1, objdat->field_11);
-    thing_play_sample(creatng, 158, 100, 0, 3, 1, 2, 256);
+    thing_play_sample(creatng, 158, 100, 0, 3, 1, 2, FULL_LOUDNESS);
     create_effect(&pos, imp_spangle_effects[creatng->owner], creatng->owner);
     anger_set_creature_anger(creatng, 0, AngR_NoLair);
     remove_thing_from_mapwho(creatng);
@@ -318,7 +318,7 @@ TbBool setup_head_for_random_unused_lair_slab(struct Thing *creatng, struct Room
         lairtng = find_creature_lair_at_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), 0);
         if (thing_is_invalid(lairtng))
         {
-            if (setup_person_move_to_position(creatng, slab_subtile_center(slb_x), slab_subtile_center(slb_y), NavTF_Default)) {
+            if (setup_person_move_to_position(creatng, slab_subtile_center(slb_x), slab_subtile_center(slb_y), NavRtF_Default)) {
                 return true;
             }
             WARNLOG("Cannot get somewhere in room");

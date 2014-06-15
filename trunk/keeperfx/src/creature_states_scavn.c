@@ -155,14 +155,14 @@ short creature_being_scavenged(struct Thing *creatng)
         SYNCDBG(19,"Cannot get creature");
         return 0;
     }
-    if (setup_person_move_to_coord(creatng, &fellowtng->mappos, NavTF_Default) <= 0)
+    if (setup_person_move_to_coord(creatng, &fellowtng->mappos, NavRtF_Default) <= 0)
     {
         SYNCDBG(19,"Cannot move to coord");
         return 0;
     }
     creatng->continue_state = CrSt_CreatureBeingScavenged;
     if (!S3DEmitterIsPlayingSample(creatng->snd_emitter_id, 156, 0))
-        thing_play_sample(creatng, 156, 100, 0, 3, 1, 2, 256);
+        thing_play_sample(creatng, 156, 100, 0, 3, 1, 2, FULL_LOUDNESS);
     SYNCDBG(19,"Finished");
     return 1;
 }

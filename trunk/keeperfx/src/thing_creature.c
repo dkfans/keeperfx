@@ -1220,11 +1220,11 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
             pos.y.val = newpos->y.val;
             pos.z.val = newpos->z.val;
         }
-        pos.z.val += 512;
+        pos.z.val += subtile_coord(2,0);
         move_thing_in_map(thing, &pos);
         ariadne_invalidate_creature_route(thing);
         check_map_explored(thing, pos.x.stl.num, pos.y.stl.num);
-        if ((thing->movement_flags & 0x20) == 0)
+        if ((thing->movement_flags & TMvF_Flying) == 0)
         {
             thing->acceleration.x.val += ACTION_RANDOM(193) - 96;
             thing->acceleration.y.val += ACTION_RANDOM(193) - 96;
@@ -1372,7 +1372,7 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
     {
         i = (long)spinfo->caster_affect_sound;
         if (i > 0)
-          thing_play_sample(castng, i, 100, 0, 3, 0, 4, 256);
+          thing_play_sample(castng, i, 100, 0, 3, 0, 4, FULL_LOUDNESS);
         apply_spell_effect_to_thing(castng, spl_idx, cctrl->explevel);
     }
     // Check if the spell has an effect associated
@@ -2068,7 +2068,7 @@ void thing_death_flesh_explosion(struct Thing *thing)
     deadtng->pos_2C.x.val = memaccl.x.val;
     deadtng->pos_2C.y.val = memaccl.y.val;
     deadtng->pos_2C.z.val = memaccl.z.val;
-    thing_play_sample(deadtng, 47, 100, 0, 3, 0, 4, 256);
+    thing_play_sample(deadtng, 47, 100, 0, 3, 0, 4, FULL_LOUDNESS);
 }
 
 void thing_death_gas_and_flesh_explosion(struct Thing *thing)
@@ -2105,7 +2105,7 @@ void thing_death_gas_and_flesh_explosion(struct Thing *thing)
     deadtng->pos_2C.x.val = memaccl.x.val;
     deadtng->pos_2C.y.val = memaccl.y.val;
     deadtng->pos_2C.z.val = memaccl.z.val;
-    thing_play_sample(deadtng, 47, 100, 0, 3, 0, 4, 256);
+    thing_play_sample(deadtng, 47, 100, 0, 3, 0, 4, FULL_LOUDNESS);
 }
 
 void thing_death_smoke_explosion(struct Thing *thing)
@@ -2135,7 +2135,7 @@ void thing_death_smoke_explosion(struct Thing *thing)
     deadtng->pos_2C.x.val = memaccl.x.val;
     deadtng->pos_2C.y.val = memaccl.y.val;
     deadtng->pos_2C.z.val = memaccl.z.val;
-    thing_play_sample(deadtng, 47, 100, 0, 3, 0, 4, 256);
+    thing_play_sample(deadtng, 47, 100, 0, 3, 0, 4, FULL_LOUDNESS);
 }
 
 /**
@@ -2172,7 +2172,7 @@ void thing_death_ice_explosion(struct Thing *thing)
     deadtng->pos_2C.x.val = memaccl.x.val;
     deadtng->pos_2C.y.val = memaccl.y.val;
     deadtng->pos_2C.z.val = memaccl.z.val;
-    thing_play_sample(deadtng, 47, 100, 0, 3, 0, 4, 256);
+    thing_play_sample(deadtng, 47, 100, 0, 3, 0, 4, FULL_LOUDNESS);
 }
 
 void creature_death_as_nature_intended(struct Thing *thing)
@@ -2676,11 +2676,11 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
       if (shotst->old->firing_sound > 0)
       {
         thing_play_sample(firing, shotst->old->firing_sound + UNSYNC_RANDOM(shotst->old->firing_sound_variants),
-            100, 0, 3, 0, 3, 256);
+            100, 0, 3, 0, 3, FULL_LOUDNESS);
       }
       if (shotst->old->shot_sound > 0)
       {
-        thing_play_sample(shotng, shotst->old->shot_sound, 100, 0, 3, 0, shotst->old->field_20, 256);
+        thing_play_sample(shotng, shotst->old->shot_sound, 100, 0, 3, 0, shotst->old->field_20, FULL_LOUDNESS);
       }
       set_flag_byte(&shotng->movement_flags,TMvF_Unknown10,flag1);
     }
