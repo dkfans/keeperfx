@@ -979,7 +979,7 @@ short arrive_at_alarm(struct Thing *creatng)
     }
     if (ACTION_RANDOM(4) == 0)
     {
-        if (setup_person_move_close_to_position(creatng, cctrl->alarm_stl_x, cctrl->alarm_stl_y, NavTF_Default))
+        if (setup_person_move_close_to_position(creatng, cctrl->alarm_stl_x, cctrl->alarm_stl_y, NavRtF_Default))
         {
             creatng->continue_state = CrSt_ArriveAtAlarm;
             return 1;
@@ -1015,10 +1015,10 @@ TbBool attempt_to_destroy_enemy_room(struct Thing *thing, MapSubtlCoord stl_x, M
         return false;
     if (!find_first_valid_position_for_thing_in_room(thing, room, &pos))
         return false;
-    if (!creature_can_navigate_to_with_storage(thing, &pos, NavTF_NoOwner))
+    if (!creature_can_navigate_to_with_storage(thing, &pos, NavRtF_NoOwner))
         return false;
 
-    if (!setup_head_for_room(thing, room, NavTF_NoOwner))
+    if (!setup_head_for_room(thing, room, NavRtF_NoOwner))
     {
         ERRORLOG("The %s cannot destroy %s because it can't reach it",thing_model_name(thing),room_code_name(room->kind));
         return false;
@@ -1057,7 +1057,7 @@ short arrive_at_call_to_arms(struct Thing *creatng)
     {
       if (ACTION_RANDOM(7) == 0)
       {
-          if ( setup_person_move_close_to_position(creatng, dungeon->cta_stl_x, dungeon->cta_stl_y, NavTF_Default) )
+          if ( setup_person_move_close_to_position(creatng, dungeon->cta_stl_x, dungeon->cta_stl_y, NavRtF_Default) )
           {
               creatng->continue_state = CrSt_AlreadyAtCallToArms;
               return 1;
@@ -1748,7 +1748,7 @@ TbBool creature_try_going_to_lazy_sleep(struct Thing *creatng)
         return false;
     }
     cctrl->tasks_check_turn = game.play_gameturn;
-    if (!setup_random_head_for_room(creatng, room, NavTF_Default)) {
+    if (!setup_random_head_for_room(creatng, room, NavRtF_Default)) {
         return false;
     }
     creatng->continue_state = CrSt_CreatureDoingNothing;
@@ -1799,7 +1799,7 @@ short creature_doing_nothing(struct Thing *creatng)
         if (game.play_gameturn - cctrl->tasks_check_turn > 128)
         {
             cctrl->tasks_check_turn = game.play_gameturn;
-            if (find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_LAIR, NavTF_Default, crstat->lair_size))
+            if (find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_LAIR, NavRtF_Default, crstat->lair_size))
             {
                 internal_set_thing_state(creatng, CrSt_CreatureWantsAHome);
                 SYNCDBG(8,"The %s index %d goes make lair",thing_model_name(creatng),creatng->index);
@@ -1862,7 +1862,7 @@ short creature_doing_nothing(struct Thing *creatng)
         cctrl->wander_around_check_turn = game.play_gameturn;
         if (get_random_position_in_dungeon_for_creature(creatng->owner, 1, creatng, &pos))
         {
-            if (setup_person_move_to_coord(creatng, &pos, NavTF_Default))
+            if (setup_person_move_to_coord(creatng, &pos, NavRtF_Default))
             {
                 creatng->continue_state = CrSt_CreatureDoingNothing;
                 return 1;
@@ -1926,7 +1926,7 @@ TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *t
             struct Coord3d locpos;
             if (creature_find_safe_position_to_move_within_slab(&locpos, thing, slb_x, slb_y, start_stl))
             {
-                if (setup_person_move_to_coord(thing, &locpos, NavTF_Default))
+                if (setup_person_move_to_coord(thing, &locpos, NavRtF_Default))
                 {
                     SYNCDBG(8,"Moving thing %s from (%d,%d) to (%d,%d)", thing_model_name(thing),
                         (int)thing->index, (int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num,
@@ -1944,7 +1944,7 @@ TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *t
         struct Coord3d locpos;
         if (creature_find_any_position_to_move_within_slab(&locpos, thing, slb_x, slb_y, start_stl))
         {
-            if (setup_person_move_to_coord(thing, &locpos, NavTF_Default))
+            if (setup_person_move_to_coord(thing, &locpos, NavRtF_Default))
             {
                 SYNCDBG(8,"Short moving %s index %d from (%d,%d) to (%d,%d)", thing_model_name(thing),
                     (int)thing->index, (int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num,
@@ -2014,7 +2014,7 @@ short creature_evacuate_room(struct Thing *creatng)
         }
         return CrCkRet_Continue;
     }
-    if (!setup_person_move_to_coord(creatng, &pos, NavTF_Default))
+    if (!setup_person_move_to_coord(creatng, &pos, NavRtF_Default))
     {
         ERRORLOG("Cannot nav outside room");
         set_start_state(creatng);
@@ -2035,13 +2035,13 @@ short creature_explore_dungeon(struct Thing *creatng)
     {
         ret = get_random_position_in_dungeon_for_creature(creatng->owner, 0, creatng, &pos);
         if (ret) {
-            ret = setup_person_move_to_coord(creatng, &pos, NavTF_Default);
+            ret = setup_person_move_to_coord(creatng, &pos, NavRtF_Default);
         }
     }
     if (!ret) {
         ret = get_random_position_in_dungeon_for_creature(creatng->owner, 1, creatng, &pos);
         if (ret) {
-            ret = setup_person_move_to_coord(creatng, &pos, NavTF_Default);
+            ret = setup_person_move_to_coord(creatng, &pos, NavRtF_Default);
         }
     }
     if (!ret)
@@ -2204,7 +2204,7 @@ short creature_in_hold_audience(struct Thing *creatng)
         if (!find_random_valid_position_for_thing_in_room(creatng, room, &pos)) {
             return 1;
         }
-        setup_person_move_to_coord(creatng, &pos, NavTF_Default);
+        setup_person_move_to_coord(creatng, &pos, NavRtF_Default);
         creatng->continue_state = CrSt_CreatureInHoldAudience;
         cctrl->field_82 = 0;
         return 1;
@@ -2251,7 +2251,7 @@ short creature_kill_creatures(struct Thing *creatng)
         set_start_state(creatng);
         return 0;
     }
-    if (setup_person_move_to_coord(creatng, &thing->mappos, NavTF_Default)) {
+    if (setup_person_move_to_coord(creatng, &thing->mappos, NavRtF_Default)) {
         creatng->continue_state = CrSt_CreatureKillCreatures;
     }
     return 1;
@@ -2284,13 +2284,13 @@ short setup_creature_leaves_or_dies(struct Thing *creatng)
 {
     // Try heading for nearest entrance
     struct Room *room;
-    room = find_nearest_room_for_thing(creatng, creatng->owner, RoK_ENTRANCE, NavTF_Default);
+    room = find_nearest_room_for_thing(creatng, creatng->owner, RoK_ENTRANCE, NavRtF_Default);
     if (room_is_invalid(room))
     {
         kill_creature(creatng, INVALID_THING, -1, CrDed_Default);
         return -1;
     }
-    if (!setup_random_head_for_room(creatng, room, NavTF_Default))
+    if (!setup_random_head_for_room(creatng, room, NavRtF_Default))
     {
         kill_creature(creatng, INVALID_THING, -1, CrDed_Default);
         return -1;
@@ -2321,13 +2321,13 @@ short creature_leaving_dungeon(struct Thing *creatng)
 {
     struct Room *room;
     //return _DK_creature_leaving_dungeon(creatng);
-    room = find_nearest_room_for_thing(creatng, creatng->owner, RoK_ENTRANCE, NavTF_Default);
+    room = find_nearest_room_for_thing(creatng, creatng->owner, RoK_ENTRANCE, NavRtF_Default);
     if (room_is_invalid(room))
     {
         set_start_state(creatng);
         return 0;
     }
-    if (!setup_random_head_for_room(creatng, room, NavTF_Default))
+    if (!setup_random_head_for_room(creatng, room, NavRtF_Default))
     {
         set_start_state(creatng);
         return 0;
@@ -2379,7 +2379,7 @@ struct Thing *find_random_creature_for_persuade(PlayerNumber plyr_idx, struct Co
 TbBool make_creature_leave_dungeon(struct Thing *creatng)
 {
     struct Room *room;
-    room = find_nearest_room_for_thing(creatng, creatng->owner, RoK_ENTRANCE, NavTF_Default);
+    room = find_nearest_room_for_thing(creatng, creatng->owner, RoK_ENTRANCE, NavRtF_Default);
     if (room_is_invalid(room)) {
         set_start_state(creatng);
         return false;
@@ -2388,7 +2388,7 @@ TbBool make_creature_leave_dungeon(struct Thing *creatng)
         set_start_state(creatng);
         return false;
     }
-    if (!setup_random_head_for_room(creatng, room, NavTF_Default)) {
+    if (!setup_random_head_for_room(creatng, room, NavRtF_Default)) {
         set_start_state(creatng);
         return false;
     }
@@ -2423,7 +2423,7 @@ short creature_persuade(struct Thing *creatng)
     {
         struct Thing *perstng;
         perstng = find_random_creature_for_persuade(creatng->owner, &creatng->mappos);
-        if (setup_person_move_to_coord(creatng, &perstng->mappos, NavTF_Default)) {
+        if (setup_person_move_to_coord(creatng, &perstng->mappos, NavRtF_Default)) {
             creatng->continue_state = CrSt_CreaturePersuade;
         }
         return 1;
@@ -2593,7 +2593,7 @@ short creature_present_to_dungeon_heart(struct Thing *creatng)
 {
     //return _DK_creature_present_to_dungeon_heart(creatng);
     create_effect(&creatng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
-    thing_play_sample(creatng, 76, 100, 0, 3, 0, 2, 0x100);
+    thing_play_sample(creatng, 76, 100, 0, 3, 0, 2, FULL_LOUDNESS);
     if ( !external_set_thing_state(creatng, CrSt_CreatureDoingNothing) )
       set_start_state(creatng);
     return 1;
@@ -2677,7 +2677,7 @@ short creature_search_for_gold_to_steal_in_room(struct Thing *creatng)
         set_start_state(creatng);
         return 0;
     }
-    if (!setup_person_move_to_coord(creatng, &gldtng->mappos, NavTF_Default))
+    if (!setup_person_move_to_coord(creatng, &gldtng->mappos, NavRtF_Default))
     {
         SYNCDBG(8,"Cannot move to gold at (%d,%d)",(int)gldtng->mappos.x.stl.num, (int)gldtng->mappos.y.stl.num);
     }
@@ -2707,7 +2707,7 @@ short creature_search_for_spell_to_steal_in_room(struct Thing *creatng)
         return 0;
     }
     cctrl->pickup_object_id = spltng->index;
-    if (!setup_person_move_to_coord(creatng, &spltng->mappos, NavTF_Default))
+    if (!setup_person_move_to_coord(creatng, &spltng->mappos, NavRtF_Default))
     {
         SYNCDBG(8,"Cannot move to spell at (%d,%d)",(int)spltng->mappos.x.stl.num, (int)spltng->mappos.y.stl.num);
     }
@@ -2901,7 +2901,7 @@ short creature_take_salary(struct Thing *creatng)
         if (!thing_is_invalid(efftng))
         {
             efftng->effect.number = salary;
-            thing_play_sample(efftng, 32, 100, 0, 3, 0, 2, 256);
+            thing_play_sample(efftng, 32, 100, 0, 3, 0, 2, FULL_LOUDNESS);
         }
     }
     dungeon->lvstats.salary_cost += salary;
@@ -3033,7 +3033,7 @@ short creature_wants_a_home(struct Thing *creatng)
     lairtng = thing_get(cctrl->lairtng_idx);
     if (thing_exists(lairtng))
     {
-        if (setup_person_move_to_coord(creatng, &lairtng->mappos, NavTF_Default) == 1)
+        if (setup_person_move_to_coord(creatng, &lairtng->mappos, NavRtF_Default) == 1)
         {
             creatng->continue_state = CrSt_CreatureDoingNothing;
             return 1;
@@ -3050,17 +3050,17 @@ short creature_wants_salary(struct Thing *creatng)
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
     struct Room *room;
-    room = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_TREASURE, NavTF_Default, 1);
+    room = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_TREASURE, NavRtF_Default, 1);
     if (!room_is_invalid(room))
     {
-        if (setup_random_head_for_room(creatng, room, NavTF_Default))
+        if (setup_random_head_for_room(creatng, room, NavRtF_Default))
         {
             creatng->continue_state = CrSt_CreatureTakeSalary;
             cctrl->target_room_id = room->index;
             return 1;
         }
     } else {
-        room = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_TREASURE, NavTF_NoOwner, 1);
+        room = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_TREASURE, NavRtF_NoOwner, 1);
     }
     if (room_is_invalid(room))
     {
@@ -3078,7 +3078,7 @@ short creature_wants_salary(struct Thing *creatng)
     struct Coord3d pos;
     if (find_random_valid_position_for_thing_in_room(creatng, room, &pos))
     {
-        if (setup_person_move_to_coord(creatng, &pos, NavTF_NoOwner))
+        if (setup_person_move_to_coord(creatng, &pos, NavRtF_NoOwner))
         {
             creatng->continue_state = CrSt_CreatureTakeSalary;
             cctrl->target_room_id = room->index;
@@ -3466,7 +3466,7 @@ short person_sulk_head_for_lair(struct Thing *creatng)
     lairtng = thing_get(cctrl->lairtng_idx);
     if (thing_exists(lairtng))
     {
-        if (setup_person_move_to_coord(creatng, &lairtng->mappos, NavTF_Default) == 1) {
+        if (setup_person_move_to_coord(creatng, &lairtng->mappos, NavRtF_Default) == 1) {
             creatng->continue_state = CrSt_PersonSulkAtLair;
             return 1;
         }
@@ -3938,12 +3938,12 @@ short seek_the_enemy(struct Thing *creatng)
               if ((dist < 2304) && (game.play_gameturn-cctrl->field_282 < 20))
               {
                 set_creature_instance(creatng, CrInst_CELEBRATE_SHORT, 1, 0, 0);
-                thing_play_sample(creatng, 168+UNSYNC_RANDOM(3), 100, 0, 3, 0, 2, 256);
+                thing_play_sample(creatng, 168+UNSYNC_RANDOM(3), 100, 0, 3, 0, 2, FULL_LOUDNESS);
                 return 1;
               }
               if (ACTION_RANDOM(4) != 0)
               {
-                  if (setup_person_move_close_to_position(creatng, enemytng->mappos.x.stl.num, enemytng->mappos.y.stl.num, NavTF_Default))
+                  if (setup_person_move_close_to_position(creatng, enemytng->mappos.x.stl.num, enemytng->mappos.y.stl.num, NavRtF_Default))
                   {
                     creatng->continue_state = CrSt_SeekTheEnemy;
                     cctrl->field_282 = game.play_gameturn;
@@ -3960,7 +3960,7 @@ short seek_the_enemy(struct Thing *creatng)
         }
         if (ACTION_RANDOM(64) == 0)
         {
-            if (setup_person_move_close_to_position(creatng, enemytng->mappos.x.stl.num, enemytng->mappos.y.stl.num, NavTF_Default))
+            if (setup_person_move_close_to_position(creatng, enemytng->mappos.x.stl.num, enemytng->mappos.y.stl.num, NavRtF_Default))
             {
               creatng->continue_state = CrSt_SeekTheEnemy;
             }
@@ -3977,7 +3977,7 @@ short seek_the_enemy(struct Thing *creatng)
     } else
     if (get_random_position_in_dungeon_for_creature(creatng->owner, 1, creatng, &pos))
     {
-        if (setup_person_move_to_coord(creatng, &pos, NavTF_Default))
+        if (setup_person_move_to_coord(creatng, &pos, NavRtF_Default))
         {
             creatng->continue_state = CrSt_SeekTheEnemy;
         }
@@ -4375,7 +4375,7 @@ long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureS
         anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, AngR_Hungry, 1);
         return 0;
     }
-    nroom = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_GARDEN, NavTF_Default, 1);
+    nroom = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_GARDEN, NavRtF_Default, 1);
     if (room_is_invalid(nroom))
     {
         cctrl->garden_eat_check_turn = game.play_gameturn;
@@ -4485,7 +4485,7 @@ long anger_process_creature_anger(struct Thing *thing, const struct CreatureStat
         if (creature_is_doing_temple_pray_activity(thing))
             return 1;
         cctrl->temple_pray_check_turn = game.play_gameturn;
-        room = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_TEMPLE, NavTF_Default, 1);
+        room = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_TEMPLE, NavRtF_Default, 1);
         if (!room_is_invalid(room))
         {
           if (creature_can_do_job_for_player(thing, room->owner, Job_TEMPLE_PRAY) && can_change_from_state_to(thing, thing->active_state, CrSt_AtTemple))

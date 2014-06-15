@@ -2635,7 +2635,7 @@ long script_support_create_thing_at_action_point(long apt_idx, ThingClass tngcla
 
     cctrl = creature_control_get_from_thing(thing);
     heartng = get_player_soul_container(thing->owner);
-    if ( thing_exists(heartng) && creature_can_navigate_to(thing, &heartng->mappos, NavTF_NoOwner) )
+    if ( thing_exists(heartng) && creature_can_navigate_to(thing, &heartng->mappos, NavRtF_NoOwner) )
     {
         cctrl->field_AE |= 0x01;
     }

@@ -2322,7 +2322,7 @@ struct Room *find_nearest_room_for_thing_with_spare_capacity(struct Thing *thing
  * @param thing
  * @param owner
  * @param kind
- * @param nav_no_owner
+ * @param nav_flags
  * @return
  */
 long count_rooms_creature_can_navigate_to(struct Thing *thing, unsigned char owner, RoomKind rkind, unsigned char nav_flags)
@@ -2378,7 +2378,7 @@ TbBool creature_can_get_to_any_of_players_rooms(struct Thing *thing, PlayerNumbe
     RoomKind rkind;
     for (rkind=1; rkind < ROOM_TYPES_COUNT; rkind++)
     {
-        if (count_rooms_creature_can_navigate_to(thing, owner, rkind, NavTF_Default) > 0)
+        if (count_rooms_creature_can_navigate_to(thing, owner, rkind, NavRtF_Default) > 0)
             return true;
     }
     return false;
@@ -2390,7 +2390,7 @@ TbBool creature_can_get_to_any_of_players_rooms(struct Thing *thing, PlayerNumbe
  * @param thing
  * @param owner
  * @param kind
- * @param nav_no_owner
+ * @param nav_flags
  * @return
  */
 struct Room *find_random_room_creature_can_navigate_to(struct Thing *thing, unsigned char owner, RoomKind rkind, unsigned char nav_flags)
@@ -3369,7 +3369,7 @@ long claim_room(struct Room *room, struct Thing *claimtng)
     event_create_event(subtile_coord_center(room->central_stl_x), subtile_coord_center(room->central_stl_y),
         EvKind_RoomTakenOver, claimtng->owner, room->kind);
     do_room_integration(room);
-    thing_play_sample(claimtng, 116, 100, 0, 3, 0, 4, 256);
+    thing_play_sample(claimtng, 116, 100, 0, 3, 0, 4, FULL_LOUDNESS);
     output_room_takeover_message(room, oldowner, claimtng->owner);
     return 1;
 }

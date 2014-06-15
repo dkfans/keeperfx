@@ -38,12 +38,18 @@ extern "C" {
 struct Thing;
 
 typedef unsigned char AriadneReturn;
+typedef unsigned char AriadneRouteFlags;
 
 enum AriadneReturnValues {
     AridRet_OK    = 0,
     AridRet_FinalOK,
     AridRet_Val2,
     AridRet_PartOK,
+};
+
+enum AriadneRouteFlagValues {
+    AridRtF_Default   = 0x00,
+    AridRtF_NoOwner   = 0x01,
 };
 
 #define NAVMAP_FLOORHEIGHT_BIT  0
@@ -65,7 +71,7 @@ struct Ariadne { // sizeof = 102
     struct Coord3d current_waypoint_pos;
   struct Coord3d pos_12;
   struct Coord3d pos_18;
-  unsigned char field_1E;
+  unsigned char route_flags;
   unsigned char field_1F[2];
   unsigned char field_21;
   unsigned char field_22;
@@ -210,17 +216,20 @@ long init_navigation(void);
 long update_navigation_triangulation(long start_x, long start_y, long end_x, long end_y);
 TbBool triangulate_area(unsigned char *imap, long sx, long sy, long ex, long ey);
 
-AriadneReturn ariadne_initialise_creature_route_f(struct Thing *thing, const struct Coord3d *pos, long speed, unsigned char storage, const char *func_name);
-#define ariadne_initialise_creature_route(thing, pos, speed, storage) ariadne_initialise_creature_route_f(thing, pos, speed, storage, __func__)
-AriadneReturn creature_follow_route_to_using_gates(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2, long a4, unsigned char a5);
+AriadneReturn ariadne_initialise_creature_route_f(struct Thing *thing, const struct Coord3d *pos, long speed, AriadneRouteFlags flags, const char *func_name);
+#define ariadne_initialise_creature_route(thing, pos, speed, flags) ariadne_initialise_creature_route_f(thing, pos, speed, flags, __func__)
+AriadneReturn creature_follow_route_to_using_gates(struct Thing *thing, struct Coord3d *finalpos, struct Coord3d *nextpos, long speed, AriadneRouteFlags flags);
 #define ariadne_prepare_creature_route_to_target(thing, arid, srcpos, dstpos, speed, flags) ariadne_prepare_creature_route_to_target_f(thing, arid, srcpos, dstpos, speed, flags, __func__)
 AriadneReturn ariadne_prepare_creature_route_to_target_f(const struct Thing *thing, struct Ariadne *arid,
-    const struct Coord3d *srcpos, const struct Coord3d *dstpos, long speed, unsigned char flags, const char *func_name);
+    const struct Coord3d *srcpos, const struct Coord3d *dstpos, long speed, AriadneRouteFlags flags, const char *func_name);
+long ariadne_count_waypoints_on_creature_route_to_target_f(const struct Thing *thing,
+    const struct Coord3d *srcpos, const struct Coord3d *dstpos, AriadneRouteFlags flags, const char *func_name);
 AriadneReturn ariadne_invalidate_creature_route(struct Thing *thing);
 
 TbBool navigation_points_connected(struct Coord3d *pt1, struct Coord3d *pt2);
 void path_init8_wide_f(struct Path *path, long start_x, long start_y, long end_x, long end_y, long a6, unsigned char nav_size, const char *func_name);
 #define path_init8_wide(path, start_x, start_y, end_x, end_y, a6, nav_size) path_init8_wide_f(path, start_x, start_y, end_x, end_y, a6, nav_size, __func__)
+void nearest_search(long size, long srcx, long srcy, long dstx, long dsty, long *px, long *py);
 long get_navigation_colour(long stl_x, long stl_y);
 TbBool border_clip_horizontal(const unsigned char *imap, long a1, long a2, long a3, long a4);
 TbBool border_clip_vertical(const unsigned char *imap, long a1, long a2, long a3, long a4);

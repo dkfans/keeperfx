@@ -121,7 +121,7 @@ TbBool good_setup_wander_to_exit(struct Thing *creatng)
         SYNCLOG("Can't find any exit gate for hero %s.",thing_model_name(creatng));
         return false;
     }
-    if (!setup_person_move_to_coord(creatng, &gatetng->mappos, NavTF_Default))
+    if (!setup_person_move_to_coord(creatng, &gatetng->mappos, NavRtF_Default))
     {
         WARNLOG("Hero %s index %d can't move to exit gate at (%d,%d).",thing_model_name(creatng),
             (int)gatetng->index, (int)gatetng->mappos.x.stl.num, (int)gatetng->mappos.y.stl.num);
@@ -142,12 +142,12 @@ TbBool good_setup_attack_rooms(struct Thing *creatng, long dngn_id)
         return false;
     }
     if (!find_random_valid_position_for_thing_in_room(creatng, room, &pos)
-      || !creature_can_navigate_to_with_storage(creatng, &pos, NavTF_NoOwner) )
+      || !creature_can_navigate_to_with_storage(creatng, &pos, NavRtF_NoOwner) )
     {
         ERRORLOG("The %s cannot destroy %s because it can't reach position within it",thing_model_name(creatng),room_code_name(room->kind));
         return false;
     }
-    if (!setup_random_head_for_room(creatng, room, NavTF_NoOwner))
+    if (!setup_random_head_for_room(creatng, room, NavRtF_NoOwner))
     {
         ERRORLOG("The %s cannot destroy %s because it can't head for it",thing_model_name(creatng),room_code_name(room->kind));
         return false;
@@ -163,7 +163,7 @@ TbBool good_setup_loot_treasure_room(struct Thing *thing, long dngn_id)
     struct CreatureControl *cctrl;
     struct Room *room;
     //return _DK_good_setup_loot_treasure_room(thing, dngn_id);
-    room = find_random_room_creature_can_navigate_to(thing, dngn_id, RoK_TREASURE, NavTF_Default);
+    room = find_random_room_creature_can_navigate_to(thing, dngn_id, RoK_TREASURE, NavRtF_Default);
     if (room_is_invalid(room))
     {
         SYNCDBG(6,"No accessible player %d treasure room found",(int)dngn_id);
@@ -176,7 +176,7 @@ TbBool good_setup_loot_treasure_room(struct Thing *thing, long dngn_id)
             thing_model_name(thing),(int)thing->index,room_code_name(room->kind),(int)room->owner);
         return false;
     }
-    if (!setup_person_move_to_coord(thing, &pos, NavTF_Default))
+    if (!setup_person_move_to_coord(thing, &pos, NavRtF_Default))
     {
         WARNLOG("Cannot setup move to player %d treasure room",(int)dngn_id);
         return false;
@@ -191,7 +191,7 @@ TbBool good_setup_loot_research_room(struct Thing *thing, long dngn_id)
 {
     struct CreatureControl *cctrl;
     struct Room *room;
-    room = find_random_room_creature_can_navigate_to(thing, dngn_id, RoK_LIBRARY, NavTF_Default);
+    room = find_random_room_creature_can_navigate_to(thing, dngn_id, RoK_LIBRARY, NavRtF_Default);
     if (room_is_invalid(room))
     {
         SYNCDBG(6,"No accessible player %d library found",(int)dngn_id);
@@ -204,7 +204,7 @@ TbBool good_setup_loot_research_room(struct Thing *thing, long dngn_id)
             thing_model_name(thing),(int)thing->index,room_code_name(room->kind),(int)room->owner);
         return false;
     }
-    if (!setup_person_move_to_coord(thing, &pos, NavTF_Default))
+    if (!setup_person_move_to_coord(thing, &pos, NavRtF_Default))
     {
         SYNCDBG(6,"Cannot setup move %s index %d to %s owned by player %d",
             thing_model_name(thing),(int)thing->index,room_code_name(room->kind),(int)room->owner);
@@ -293,7 +293,7 @@ TbBool wander_to_specific_possible_target_in_list(long first_thing_idx, struct T
                 matched_thing_idx = thing->index;
             } else
             // If it is the one, try moving to it
-            if (setup_person_move_to_coord(wanderer, &thing->mappos, NavTF_Default))
+            if (setup_person_move_to_coord(wanderer, &thing->mappos, NavRtF_Default))
             {
                 SYNCDBG(8,"The %s wanders towards %s",thing_model_name(wanderer),thing_model_name(thing));
                 return true;
@@ -444,7 +444,7 @@ short good_attack_room(struct Thing *thing)
         room = slab_room_get(slb_x, slb_y);
         if (room_exists(room) && (room->owner != thing->owner))
         {
-            if (setup_person_move_to_position(thing, slb_x, slb_y, NavTF_Default))
+            if (setup_person_move_to_position(thing, slb_x, slb_y, NavRtF_Default))
             {
                 thing->continue_state = CrSt_GoodAttackRoom1;
                 return 1;
@@ -485,7 +485,7 @@ short good_back_at_start(struct Thing *thing)
             MapSubtlCoord stl_x, stl_y;
             stl_x = stl_num_decode_x(stl_num+around_map[m]);
             stl_y = stl_num_decode_y(stl_num+around_map[m]);
-            if (setup_person_move_to_position(thing, stl_x, stl_y, NavTF_Default)) {
+            if (setup_person_move_to_position(thing, stl_x, stl_y, NavRtF_Default)) {
                 thing->continue_state = CrSt_GoodDropsGold;
                 return 1;
             }
@@ -517,7 +517,7 @@ TbBool good_can_move_to_dungeon_heart(struct Thing *creatng, PlayerNumber plyr_i
         SYNCDBG(3,"The %s cannot move to player %d which has no heart", thing_model_name(creatng), (int)plyr_idx);
         return false;
     }
-    return creature_can_navigate_to(creatng, &heartng->mappos, NavTF_Default);
+    return creature_can_navigate_to(creatng, &heartng->mappos, NavRtF_Default);
 }
 
 TbBool good_setup_wander_to_dungeon_heart(struct Thing *creatng, PlayerNumber plyr_idx)
@@ -834,7 +834,7 @@ short good_returns_to_start(struct Thing *thing)
     heartng = get_player_soul_container(thing->owner);
     TRACE_THING(heartng);
     //TODO CREATURE_AI Heroes don't usually have hearts; maybe they should also go back to hero gates, or any room?
-    if (!setup_person_move_to_coord(thing, &heartng->mappos, NavTF_Default))
+    if (!setup_person_move_to_coord(thing, &heartng->mappos, NavRtF_Default))
     {
         return 0;
     }
@@ -1089,7 +1089,7 @@ short tunnelling(struct Thing *creatng)
     {
         return 0;
     }
-    if (!creature_can_navigate_to(creatng, pos, NavTF_Default))
+    if (!creature_can_navigate_to(creatng, pos, NavRtF_Default))
     {
         SYNCDBG(7,"The %s moves towards (%d,%d)",thing_model_name(creatng),(int)pos->x.stl.num,(int)pos->y.stl.num);
         return 0;

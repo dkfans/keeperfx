@@ -95,7 +95,7 @@ short at_research_room(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    if (!setup_random_head_for_room(thing, room, NavTF_Default))
+    if (!setup_random_head_for_room(thing, room, NavRtF_Default))
     {
         ERRORLOG("The %s can not move in research room", thing_model_name(thing));
         remove_creature_from_work_room(thing);
@@ -400,7 +400,7 @@ TbBool process_job_causes_going_postal(struct Thing *creatng, struct Room *room,
     if (thing_is_invalid(combt_thing)) {
         return false;
     }
-    if (!setup_person_move_to_coord(creatng, &combt_thing->mappos, NavTF_Default)) {
+    if (!setup_person_move_to_coord(creatng, &combt_thing->mappos, NavRtF_Default)) {
         return false;
     }
     //TODO this is weak - going postal may be used in other rooms
@@ -586,7 +586,7 @@ short researching(struct Thing *thing)
       return 1;
     }
     // Finished "Standing and thinking" - make "new idea" effect and go to next position
-    if (!setup_random_head_for_room(thing, room, NavTF_Default))
+    if (!setup_random_head_for_room(thing, room, NavRtF_Default))
     {
         ERRORLOG("Cannot move %s in %s room", thing_model_name(thing),room_code_name(room->kind));
         set_start_state(thing);

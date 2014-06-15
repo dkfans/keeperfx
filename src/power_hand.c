@@ -253,7 +253,7 @@ struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
       break;
     case 10:
       i = UNSYNC_RANDOM(3);
-      thing_play_sample(thing, 109+i, 100, 0, 3, 0, 2, 256);
+      thing_play_sample(thing, 109+i, 100, 0, 3, 0, 2, FULL_LOUDNESS);
       i = convert_td_iso(122);
       set_thing_draw(thing, i, 256, -1, -1, 0, 2);
       remove_food_from_food_room_if_possible(thing);

@@ -545,7 +545,7 @@ void destroy_food(struct Thing *thing)
     efftng = create_effect(&thing->mappos, TngEff_Unknown49, plyr_idx);
     if (!thing_is_invalid(efftng)) {
         i = UNSYNC_RANDOM(3);
-        thing_play_sample(efftng, 112+i, 100, 0, 3, 0, 2, 256);
+        thing_play_sample(efftng, 112+i, 100, 0, 3, 0, 2, FULL_LOUDNESS);
     }
     pos.x.val = thing->mappos.x.val;
     pos.y.val = thing->mappos.y.val;
@@ -1014,17 +1014,17 @@ void update_dungeon_heart_beat(struct Thing *heartng)
             heartng->byte_14 = (unsigned char)-1;
             if ( bounce )
             {
-                thing_play_sample(heartng, 151, 100, 0, 3, 1, 6, 256);
+                thing_play_sample(heartng, 151, 100, 0, 3, 1, 6, FULL_LOUDNESS);
             } else
             {
-                thing_play_sample(heartng, 150, 100, 0, 3, 1, 6, 256);
+                thing_play_sample(heartng, 150, 100, 0, 3, 1, 6, FULL_LOUDNESS);
             }
             bounce = !bounce;
         }
         k = (((unsigned long long)heartng->field_40 >> 32) & 0xFF) + heartng->field_40;
         heartng->field_48 = (k >> 8) & 0xFF;
         if ( !S3DEmitterIsPlayingSample(heartng->snd_emitter_id, 93, 0) )
-          thing_play_sample(heartng, 93, 100, -1, 3, 1, 6, 256);
+          thing_play_sample(heartng, 93, 100, -1, 3, 1, 6, FULL_LOUDNESS);
     }
 }
 
@@ -1105,7 +1105,7 @@ void set_call_to_arms_as_birthing(struct Thing *objtng)
     set_thing_draw(objtng, ctagfx->field_0, 256, objdat->field_D, 0, frame, 2);
     objtng->byte_13 = 1;
     stop_thing_playing_sample(objtng, 83);
-    thing_play_sample(objtng, 83, 100, 0, 3, 0, 6, 256);
+    thing_play_sample(objtng, 83, 100, 0, 3, 0, 6, FULL_LOUDNESS);
 }
 
 void set_call_to_arms_as_dying(struct Thing *objtng)
@@ -1166,7 +1166,7 @@ TngUpdateRet object_update_call_to_arms(struct Thing *thing)
             set_thing_draw(thing, ctagfx->field_0, 256, objdat->field_D, 0, 0, 2);
             thing->byte_13 = 1;
             stop_thing_playing_sample(thing, 83);
-            thing_play_sample(thing, 83, 100, 0, 3, 0, 6, 256);
+            thing_play_sample(thing, 83, 100, 0, 3, 0, 6, FULL_LOUDNESS);
         }
         break;
     default:
@@ -1250,7 +1250,7 @@ TngUpdateRet move_object(struct Thing *thing)
             slide_thing_against_wall_at(thing, &pos, blocked_flags);
             remove_relevant_forces_from_thing_after_slide(thing, &pos, blocked_flags);
             if (thing->model == 6)
-              thing_play_sample(thing, 79, 100, 0, 3, 0, 1, 256);
+              thing_play_sample(thing, 79, 100, 0, 3, 0, 1, FULL_LOUDNESS);
         }
         move_thing_in_map(thing, &pos);
     }

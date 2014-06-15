@@ -80,7 +80,7 @@ TbBool setup_temple_move(struct Thing *thing, struct Room *room)
     {
         return false;
     }
-    if (!setup_person_move_to_coord(thing, &pos, NavTF_Default)) {
+    if (!setup_person_move_to_coord(thing, &pos, NavRtF_Default)) {
         ERRORLOG("Cannot move %s in %s room", thing_model_name(thing),room_code_name(room->kind));
         return false;
     }
@@ -338,7 +338,7 @@ short creature_being_summoned(struct Thing *thing)
     {
         get_keepsprite_unscaled_dimensions(thing->field_44, thing->field_52, thing->field_48, &orig_w, &orig_h, &unsc_w, &unsc_h);
         create_effect(&thing->mappos, TngEff_Unknown04, thing->owner);
-        thing->movement_flags |= 0x04;
+        thing->movement_flags |= TMvF_Unknown04;
         cctrl->word_9A = 1;
         cctrl->word_9C = 48;//orig_h;
         return 0;
@@ -346,7 +346,7 @@ short creature_being_summoned(struct Thing *thing)
     cctrl->word_9A++;
     if (cctrl->word_9A > cctrl->word_9C)
     {
-        thing->movement_flags &= ~0x04;
+        thing->movement_flags &= ~TMvF_Unknown04;
         set_start_state(thing);
         return 0;
     }

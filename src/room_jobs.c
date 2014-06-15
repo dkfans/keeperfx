@@ -292,7 +292,7 @@ struct Thing *find_object_in_room_for_creature_matching_bool_filter(struct Thing
             subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, matcher_cb);
         if (!thing_is_invalid(tmptng))
         {
-            if (creature_can_navigate_to_with_storage(creatng, &tmptng->mappos, NavTF_Default))
+            if (creature_can_navigate_to_with_storage(creatng, &tmptng->mappos, NavRtF_Default))
             {
                 rettng = tmptng;
                 if (selected > 0)
@@ -340,7 +340,7 @@ TbBool creature_move_to_place_in_room(struct Thing *creatng, struct Room *room, 
     }
     if (result)
     {
-        if (!setup_person_move_to_coord(creatng, &pos, NavTF_Default)) {
+        if (!setup_person_move_to_coord(creatng, &pos, NavRtF_Default)) {
             result = false;
         }
     }

@@ -118,7 +118,7 @@ void play_thing_walking(struct Thing *thing)
         return;
     }
     long loudness;
-    loudness = ((myplyr->view_mode - 1) < 1u) ? 256 : 50;
+    loudness = ((myplyr->view_mode - 1) < 1u) ? (FULL_LOUDNESS) : (FULL_LOUDNESS/5);
     // Flying diptera has a buzzing noise sound
     if ((get_creature_model_flags(thing) & MF_IsDiptera) && ((thing->movement_flags & TMvF_Flying) != 0) && (thing->field_60 < (int)thing->mappos.z.val))
     {
@@ -167,7 +167,7 @@ void play_thing_walking(struct Thing *thing)
             }
             thing_play_sample(thing, smpl_idx, smpl_delay, 0, 3, 3, 1, loudness);
             if ((thing->movement_flags & TMvF_IsOnWater) != 0) {
-                thing_play_sample(thing, 21 + SOUND_RANDOM(4), 90 + SOUND_RANDOM(20), 0, 3, 3, 1, 256);
+                thing_play_sample(thing, 21 + SOUND_RANDOM(4), 90 + SOUND_RANDOM(20), 0, 3, 3, 1, FULL_LOUDNESS);
             }
         }
     }
@@ -198,11 +198,11 @@ void set_room_playing_ambient_sound(struct Coord3d *pos, long sample_idx)
             if ( !S3DEmitterIsPlayingSample(i, sample_idx, 0) )
             {
                 S3DDeleteAllSamplesFromEmitter(thing->snd_emitter_id);
-                thing_play_sample(thing, sample_idx, 100, -1, 3, 0, 6, 256);
+                thing_play_sample(thing, sample_idx, 100, -1, 3, 0, 6, FULL_LOUDNESS);
             }
         } else
         {
-            thing_play_sample(thing, sample_idx, 100, -1, 3, 0, 6, 256);
+            thing_play_sample(thing, sample_idx, 100, -1, 3, 0, 6, FULL_LOUDNESS);
         }
     } else
     {
