@@ -331,10 +331,11 @@ void activate_trap_shot_head_for_target90(struct Thing *traptng, struct Thing *c
         shotng->field_1 |= TF1_PushdByAccel;
         shotng->byte_16 = trapstat->field_1B;
         if (shotst->old->firing_sound > 0) {
-            thing_play_sample(traptng, shotst->old->firing_sound+UNSYNC_RANDOM(shotst->old->firing_sound_variants), 100, 0, 3, 0, 6, 256);
+            thing_play_sample(traptng, shotst->old->firing_sound+UNSYNC_RANDOM(shotst->old->firing_sound_variants),
+                100, 0, 3, 0, 6, FULL_LOUDNESS);
         }
         if (shotst->old->shot_sound > 0) {
-            thing_play_sample(shotng, shotst->old->shot_sound, 100, 0, 3, 0, 2, 256);
+            thing_play_sample(shotng, shotst->old->shot_sound, 100, 0, 3, 0, 2, FULL_LOUDNESS);
         }
     }
 }
@@ -398,7 +399,7 @@ void activate_trap(struct Thing *traptng, struct Thing *creatng)
     if (traptng->model == 2) {
         event_create_event(traptng->mappos.x.val, traptng->mappos.y.val, EvKind_AlarmTriggered, traptng->owner, 0);
     }
-    thing_play_sample(traptng, 176, 100, 0, 3, 0, 2, 256);
+    thing_play_sample(traptng, 176, 100, 0, 3, 0, 2, FULL_LOUDNESS);
     switch (trapstat->activation_type)
     {
     case 1:

@@ -74,9 +74,9 @@ struct SoundReceiver { // sizeof = 17
 struct S3DSample { // sizeof = 37
   unsigned long field_0;
   unsigned long time_turn;
-  unsigned short field_8;
+  unsigned short smptbl_id;
   unsigned char bank_id;
-  unsigned short field_B;
+  unsigned short base_pitch;
   unsigned short field_D;
   unsigned short volume;
   struct SampleInfo *smpinfo;
@@ -85,8 +85,8 @@ struct S3DSample { // sizeof = 37
   char field_1D; // signed
   unsigned char field_1E;
   unsigned char is_playing;
-  unsigned char field_20;
-  unsigned long field_21;
+  unsigned char sfxid;
+  unsigned long base_volume;
 };
 
 struct SampleTable { // sizeof = 16
@@ -96,7 +96,18 @@ struct SampleTable { // sizeof = 16
   struct HeapMgrHandle *hmhandle;
 };
 
+/** Sound bank ID. */
 typedef unsigned char SoundBankID;
+/** Sound SFXID parameter from bank table. */
+typedef unsigned char SoundSFXID;
+/** Sound emitter ID. */
+typedef long SoundEmitterID;
+/** Sound sample ID in bank table. */
+typedef short SoundSmplTblID;
+/** Volume level indicator, normal is 256. */
+typedef long SoundVolume;
+/** Pitch level indicator, normal is 100. */
+typedef long SoundPitch;
 
 #pragma pack()
 /******************************************************************************/
@@ -143,32 +154,32 @@ long S3DSetSoundReceiverPosition(int pos_x, int pos_y, int pos_z);
 long S3DSetSoundReceiverOrientation(int ori_a, int ori_b, int ori_c);
 void S3DSetSoundReceiverFlags(unsigned long nflags);
 void S3DSetSoundReceiverSensitivity(unsigned short nsensivity);
-long S3DDestroySoundEmitter(long eidx);
-TbBool S3DEmitterHasFinishedPlaying(long eidx);
-TbBool S3DMoveSoundEmitterTo(long eidx, long x, long y, long z);
+long S3DDestroySoundEmitter(SoundEmitterID eidx);
+TbBool S3DEmitterHasFinishedPlaying(SoundEmitterID eidx);
+TbBool S3DMoveSoundEmitterTo(SoundEmitterID eidx, long x, long y, long z);
 long S3DInit(void);
 long S3DSetNumberOfSounds(long nMaxSounds);
 long S3DSetMaximumSoundDistance(long nDistance);
-TbBool S3DAddSampleToEmitterPri(long emidx, long a2, long a3, long a4, long a5, long a6, char a7, long a8, long a9);
-long S3DCreateSoundEmitterPri(long x, long y, long z, long a4, long a5, long a6, long a7, long a8, long a9, long a10);
-TbBool S3DEmitterIsAllocated(long eidx);
-TbBool S3DEmitterIsPlayingAnySample(long eidx);
-TbBool S3DEmitterIsPlayingSample(long emitr, long smpl_idx, long a2);
-TbBool S3DDeleteSampleFromEmitter(long a1, long a2, long a3);
-TbBool S3DDeleteAllSamplesFromEmitter(long eidx);
-TbBool S3DDestroySoundEmitterAndSamples(long eidx);
+TbBool S3DAddSampleToEmitterPri(SoundEmitterID eidx, SoundSmplTblID smptbl_id, long bank_id, long pitch, SoundVolume loudness, long a6, char a7, long a8, long a9);
+long S3DCreateSoundEmitterPri(long x, long y, long z, SoundSmplTblID smptbl_id, long bank_id, long pitch, SoundVolume loudness, long a8, long a9, long a10);
+TbBool S3DEmitterIsAllocated(SoundEmitterID eidx);
+TbBool S3DEmitterIsPlayingAnySample(SoundEmitterID eidx);
+TbBool S3DEmitterIsPlayingSample(SoundEmitterID eidx, long smpl_idx, long a2);
+TbBool S3DDeleteSampleFromEmitter(SoundEmitterID eidx, long smpl_idx, long bank_id);
+TbBool S3DDeleteAllSamplesFromEmitter(SoundEmitterID eidx);
+TbBool S3DDestroySoundEmitterAndSamples(SoundEmitterID eidx);
 void S3DSetLineOfSightFunction(S3D_LineOfSight_Func);
 void S3DSetDeadzoneRadius(long dzradius);
 long S3DGetDeadzoneRadius(void);
 
 void play_non_3d_sample(long sample_idx);
 void play_non_3d_sample_no_overlap(long smpl_idx);
-short sound_emitter_in_use(long eidx);
+short sound_emitter_in_use(SoundEmitterID eidx);
 long get_best_sound_heap_size(long mem_size);
 struct SampleInfo *play_sample_using_heap(unsigned long a1, short a2, unsigned long a3, unsigned long a4, unsigned long a5, char a6, unsigned char a7, SoundBankID bank_id);
-void stop_sample_using_heap(unsigned long a1, short a2, unsigned char a3);
+void stop_sample_using_heap(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, SoundBankID bank_id);
 long speech_sample_playing(void);
-long play_speech_sample(long smpl_idx);
+long play_speech_sample(SoundSmplTblID smptbl_id);
 void close_sound_heap(void);
 void close_sound_bank(SoundBankID bank_id);
 long stop_emitter_samples(struct SoundEmitter *emit);

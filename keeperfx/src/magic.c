@@ -651,7 +651,7 @@ TbResult magic_use_power_chicken(PlayerNumber plyr_idx, struct Thing *thing, Map
         return Lb_SUCCESS;
     }
     apply_spell_effect_to_thing(thing, SplK_Chicken, splevel);
-    thing_play_sample(thing, 109, 100, 0, 3, 0, 2, 256);
+    thing_play_sample(thing, 109, 100, 0, 3, 0, 2, FULL_LOUDNESS);
     return Lb_SUCCESS;
 }
 
@@ -672,7 +672,7 @@ TbResult magic_use_power_disease(PlayerNumber plyr_idx, struct Thing *thing, Map
         cctrl = creature_control_get_from_thing(thing);
         cctrl->field_B6 = plyr_idx;
     }
-    thing_play_sample(thing, 59, 100, 0, 3, 0, 3, 256);
+    thing_play_sample(thing, 59, 100, 0, 3, 0, 3, FULL_LOUDNESS);
     return Lb_SUCCESS;
 }
 
@@ -819,7 +819,7 @@ TbResult magic_use_power_heal(PlayerNumber plyr_idx, struct Thing *thing, MapSub
         return Lb_FAIL;
     }
     // Apply spell effect
-    thing_play_sample(thing, 37, 100, 0, 3, 0, 2, 256);
+    thing_play_sample(thing, 37, 100, 0, 3, 0, 2, FULL_LOUDNESS);
     apply_spell_effect_to_thing(thing, SplK_Heal, splevel);
     return Lb_SUCCESS;
 }
@@ -839,7 +839,7 @@ TbResult magic_use_power_conceal(PlayerNumber plyr_idx, struct Thing *thing, Map
     if (!pay_for_spell(plyr_idx, PwrK_CONCEAL, splevel)) {
         return Lb_FAIL;
     }
-    thing_play_sample(thing, 154, 100, 0, 3, 0, 2, 256);
+    thing_play_sample(thing, 154, 100, 0, 3, 0, 2, FULL_LOUDNESS);
     apply_spell_effect_to_thing(thing, SplK_Invisibility, splevel);
     return Lb_SUCCESS;
 }
@@ -859,7 +859,7 @@ TbResult magic_use_power_armour(PlayerNumber plyr_idx, struct Thing *thing, MapS
     if (!pay_for_spell(plyr_idx, PwrK_PROTECT, splevel)) {
         return Lb_FAIL;
     }
-    thing_play_sample(thing, 153, 100, 0, 3, 0, 2, 256);
+    thing_play_sample(thing, 153, 100, 0, 3, 0, 2, FULL_LOUDNESS);
     apply_spell_effect_to_thing(thing, SplK_Armour, splevel);
     return Lb_SUCCESS;
 }
@@ -899,7 +899,7 @@ TbResult magic_use_power_speed(PlayerNumber plyr_idx, struct Thing *thing, MapSu
     if (!pay_for_spell(plyr_idx, PwrK_SPEEDCRTR, splevel)) {
         return Lb_FAIL;
     }
-    thing_play_sample(thing, 38, 100, 0, 3, 0, 2, 256);
+    thing_play_sample(thing, 38, 100, 0, 3, 0, 2, FULL_LOUDNESS);
     apply_spell_effect_to_thing(thing, SplK_Speed, splevel);
     return Lb_SUCCESS;
 }
@@ -961,7 +961,7 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
         efftng = create_effect(&shtng->mappos, TngEff_Unknown49, shtng->owner);
         if (!thing_is_invalid(efftng))
         {
-            thing_play_sample(efftng, 55, 100, 0, 3, 0, 2, 256);
+            thing_play_sample(efftng, 55, 100, 0, 3, 0, 2, FULL_LOUDNESS);
         }
     }
     player->field_4E3 = game.play_gameturn;
@@ -1025,7 +1025,7 @@ TbResult magic_use_power_sight(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
         dungeon->sight_casted_thing_idx = thing->index;
         LbMemorySet(dungeon->soe_explored_flags, 0, sizeof(dungeon->soe_explored_flags));
         thing->field_4F |= 0x01;
-        thing_play_sample(thing, 51, 100, -1, 3, 0, 3, 256);
+        thing_play_sample(thing, 51, 100, -1, 3, 0, 3, FULL_LOUDNESS);
     }
     return Lb_SUCCESS;
 }
@@ -1073,11 +1073,11 @@ long update_creatures_influenced_by_call_to_arms(PlayerNumber plyr_idx)
                 stati = get_thing_state_info_num(get_creature_state_besides_interruptions(thing));
                 if ( stati->field_28 || creature_is_called_to_arms(thing) )
                 {
-                    if (creature_can_navigate_to_with_storage(thing, &pos, NavTF_Default))
+                    if (creature_can_navigate_to_with_storage(thing, &pos, NavRtF_Default))
                     {
                         if (creature_is_called_to_arms(thing))
                         {
-                            setup_person_move_to_coord(thing, &pos, NavTF_Default);
+                            setup_person_move_to_coord(thing, &pos, NavRtF_Default);
                             thing->continue_state = CrSt_ArriveAtCallToArms;
                             if ((cctrl->flgfield_1 & CCFlg_NoCompControl) != 0) {
                                 WARNLOG("The %s index %d is re-called to arms with no comp control, fixing",thing_model_name(thing),(int)thing->index);
@@ -1087,7 +1087,7 @@ long update_creatures_influenced_by_call_to_arms(PlayerNumber plyr_idx)
                         } else
                         if (external_set_thing_state(thing, CrSt_ArriveAtCallToArms))
                         {
-                            setup_person_move_to_coord(thing, &pos, NavTF_Default);
+                            setup_person_move_to_coord(thing, &pos, NavRtF_Default);
                             thing->continue_state = CrSt_ArriveAtCallToArms;
                             if ((cctrl->flgfield_1 & CCFlg_NoCompControl) != 0) {
                                 WARNLOG("The %s index %d is first called to arms with no comp control, fixing",thing_model_name(thing),(int)thing->index);

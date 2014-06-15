@@ -230,15 +230,15 @@ signed char get_starting_angle_and_side_of_hug(struct Thing *creatng, struct Coo
 
 unsigned short get_hugging_blocked_flags(struct Thing *creatng, struct Coord3d *pos, long a3, unsigned char a4)
 {
-    unsigned short flags;
+    unsigned short blkflags;
     struct Coord3d tmpos;
-    flags = 0;
+    blkflags = 0;
     {
         tmpos.x.val = pos->x.val;
         tmpos.y.val = creatng->mappos.y.val;
         tmpos.z.val = creatng->mappos.z.val;
         if (creature_cannot_move_directly_to_with_collide(creatng, &tmpos, a3, a4) == 4) {
-            flags |= 0x01;
+            blkflags |= 0x01;
         }
     }
     {
@@ -246,19 +246,19 @@ unsigned short get_hugging_blocked_flags(struct Thing *creatng, struct Coord3d *
         tmpos.y.val = pos->y.val;
         tmpos.z.val = creatng->mappos.z.val;
         if (creature_cannot_move_directly_to_with_collide(creatng, &tmpos, a3, a4) == 4) {
-            flags |= 0x02;
+            blkflags |= 0x02;
         }
     }
-    if (flags == 0)
+    if (blkflags == 0)
     {
         tmpos.x.val = pos->x.val;
         tmpos.y.val = pos->y.val;
         tmpos.z.val = creatng->mappos.z.val;
         if (creature_cannot_move_directly_to_with_collide(creatng, &tmpos, a3, a4) == 4) {
-            flags |= 0x04;
+            blkflags |= 0x04;
         }
     }
-    return flags;
+    return blkflags;
 }
 
 void set_hugging_pos_using_blocked_flags(struct Coord3d *dstpos, struct Thing *creatng, unsigned short block_flags, int nav_radius)

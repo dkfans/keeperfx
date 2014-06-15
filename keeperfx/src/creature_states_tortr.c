@@ -182,7 +182,7 @@ long setup_torture_move_to_device(struct Thing *creatng, struct Room *room, Crtr
         tortrtng = find_base_thing_on_mapwho(TCls_Object, 125, slab_subtile_center(slb_x), slab_subtile_center(slb_y));
         if (!thing_is_invalid(tortrtng) && (tortrtng->word_13 == 0))
         {
-            if (!setup_person_move_to_coord(creatng, &tortrtng->mappos, NavTF_Default))
+            if (!setup_person_move_to_coord(creatng, &tortrtng->mappos, NavRtF_Default))
             {
                 ERRORLOG("Move failed in torture");
                 break;
@@ -247,7 +247,7 @@ long process_torture_visuals(struct Thing *thing, struct Room *room, CrtrStateId
         if (creature_turn_to_face_angle(thing, sectng->field_52) >= 85) {
             return 0;
         }
-        thing->movement_flags &= ~0x20;
+        thing->movement_flags &= ~TMvF_Flying;
         cctrl->spell_flags &= ~0x10;
         thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
         if (cctrl->instance_id == CrInst_NULL) {

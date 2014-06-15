@@ -364,7 +364,7 @@ void powerful_magic_breaking_sparks(struct Thing *breaktng)
     pos.z.val = get_floor_height_at(&pos);
     draw_lightning(&breaktng->mappos, &pos, 96, 60);
     if ( !S3DEmitterIsPlayingSample(breaktng->snd_emitter_id, 157, 0) ) {
-        thing_play_sample(breaktng, 157, 100, -1, 3, 1, 6, 256);
+        thing_play_sample(breaktng, 157, 100, -1, 3, 1, 6, FULL_LOUDNESS);
     }
 }
 
@@ -2544,7 +2544,7 @@ void update_near_creatures_for_footsteps(long *near_creatures, const struct Coor
                 if (ndist < near_distance[0])
                 {
                     if (((cctrl->field_9 != 0) && ((int)thing->field_60 >= (int)thing->mappos.z.val))
-                      || ((thing->movement_flags & 0x20) != 0))
+                      || ((thing->movement_flags & TMvF_Flying) != 0))
                     {
                         // Insert the new item to our list
                         int n;

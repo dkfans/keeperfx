@@ -145,7 +145,7 @@ short creature_piss(struct Thing *thing)
     //return _DK_creature_piss(thing);
     cctrl = creature_control_get_from_thing(thing);
     if ( !S3DEmitterIsPlayingSample(thing->snd_emitter_id, 171, 0) ) {
-        thing_play_sample(thing, 171, 100, 0, 3, 1, 6, 256);
+        thing_play_sample(thing, 171, 100, 0, 3, 1, 6, FULL_LOUDNESS);
     }
     i = cctrl->field_282;
     if (i > 0) i--;
@@ -173,7 +173,7 @@ short mad_killing_psycho(struct Thing *creatng)
         player = get_player(n);
         if (player_exists(player)) {
             if (get_random_position_in_dungeon_for_creature(n, 1, creatng, &pos)) {
-                if (creature_can_navigate_to_with_storage(creatng, &pos, NavTF_Default)) {
+                if (creature_can_navigate_to_with_storage(creatng, &pos, NavRtF_Default)) {
                     break;
                 }
             }
@@ -182,7 +182,7 @@ short mad_killing_psycho(struct Thing *creatng)
     }
     if (i >= PLAYERS_COUNT)
       return 1;
-    if (setup_person_move_to_coord(creatng, &pos, NavTF_Default))
+    if (setup_person_move_to_coord(creatng, &pos, NavRtF_Default))
     {
         if (game.play_gameturn - cctrl->last_roar_turn <= 200)
         {
