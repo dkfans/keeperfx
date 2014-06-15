@@ -307,7 +307,7 @@ TbBool creature_can_hear_within_distance(const struct Thing *thing, long dist);
 long get_thing_navigation_distance(struct Thing *creatng, struct Coord3d *pos , unsigned char a3);
 void create_effect_around_thing(struct Thing *thing, long eff_kind);
 long get_creature_gui_job(const struct Thing *thing);
-TbBool setup_random_head_for_room(struct Thing *thing, struct Room *room, unsigned char storage);
+TbBool setup_random_head_for_room(struct Thing *thing, struct Room *room, unsigned char flags);
 long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room);
 short setup_creature_leaves_or_dies(struct Thing *creatng);
 
@@ -344,8 +344,8 @@ TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *t
 TbBool person_get_somewhere_adjacent_in_room(const struct Thing *thing, const struct Room *room, struct Coord3d *pos);
 TbBool person_get_somewhere_adjacent_in_room_around_borders(const struct Thing *thing, const struct Room *room, struct Coord3d *pos);
 
-struct Room * find_nearest_room_for_thing(struct Thing *thing, PlayerNumber plyr_idx, RoomKind rkind, unsigned char a4);
-struct Room *find_nearest_room_for_thing_excluding_two_types(struct Thing *thing, char owner, char a3, char a4, unsigned char a5);
+struct Room * find_nearest_room_for_thing(struct Thing *thing, PlayerNumber plyr_idx, RoomKind rkind, unsigned char nav_flags);
+struct Room *find_nearest_room_for_thing_excluding_two_types(struct Thing *thing, PlayerNumber owner, RoomKind skip_rkind1, RoomKind skip_rkind2, unsigned char nav_flags);
 struct Room * find_nearest_room_for_thing_with_used_capacity(struct Thing *thing, PlayerNumber plyr_idx, RoomKind rkind, unsigned char a4, long a5);
 void place_thing_in_creature_controlled_limbo(struct Thing *thing);
 void remove_thing_from_creature_controlled_limbo(struct Thing *thing);

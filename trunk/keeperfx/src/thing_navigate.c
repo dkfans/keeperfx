@@ -40,14 +40,14 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT unsigned char _DK_creature_can_navigate_to(struct Thing *creatng, struct Coord3d *pos, unsigned char no_owner);
-DLLIMPORT long _DK_creature_move_to_using_gates(struct Thing *creatng, struct Coord3d *pos, short speed, long storage, long a5, unsigned char a6);
+DLLIMPORT unsigned char _DK_creature_can_navigate_to(struct Thing *creatng, struct Coord3d *pos, unsigned char flags);
+DLLIMPORT long _DK_creature_move_to_using_gates(struct Thing *creatng, struct Coord3d *pos, short speed, long flags, long a5, unsigned char a6);
 DLLIMPORT long _DK_creature_turn_to_face(struct Thing *creatng, struct Coord3d *pos);
 DLLIMPORT long _DK_creature_turn_to_face_backwards(struct Thing *creatng, struct Coord3d *pos);
 DLLIMPORT long _DK_creature_turn_to_face_angle(struct Thing *creatng, long a2);
 DLLIMPORT unsigned char _DK_get_nearest_valid_position_for_creature_at(struct Thing *creatng, struct Coord3d *pos);
 DLLIMPORT void _DK_nearest_search(long size, long srcx, long srcy, long dstx, long dsty, long *px, long *py);
-DLLIMPORT short _DK_setup_person_move_to_position(struct Thing *creatng, long stl_x, long stl_y, unsigned char storage);
+DLLIMPORT short _DK_setup_person_move_to_position(struct Thing *creatng, long stl_x, long stl_y, unsigned char flags);
 DLLIMPORT short _DK_move_to_position(struct Thing *creatng);
 DLLIMPORT long _DK_get_next_gap_creature_can_fit_in_below_point(struct Thing *creatng, struct Coord3d *pos);
 DLLIMPORT long _DK_thing_covers_same_blocks_in_two_positions(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2);
@@ -58,12 +58,12 @@ DLLIMPORT void _DK_move_thing_in_map(struct Thing *creatng, struct Coord3d *pos)
 }
 #endif
 /******************************************************************************/
-TbBool creature_can_navigate_to_with_storage_f(const struct Thing *creatng, struct Coord3d *pos, unsigned char storage, const char *func_name)
+TbBool creature_can_navigate_to_with_storage_f(const struct Thing *creatng, struct Coord3d *pos, unsigned char flags, const char *func_name)
 {
     AriadneReturn aret;
     NAVIDBG(8,"%s: Route for %s index %d from %3d,%3d to %3d,%3d", func_name, thing_model_name(creatng),(int)creatng->index,
         (int)creatng->mappos.x.stl.num, (int)creatng->mappos.y.stl.num, (int)pos->x.stl.num, (int)pos->y.stl.num);
-    aret = ariadne_initialise_creature_route_f((struct Thing *)creatng, pos, get_creature_speed(creatng), storage, func_name);
+    aret = ariadne_initialise_creature_route_f((struct Thing *)creatng, pos, get_creature_speed(creatng), flags, func_name);
     NAVIDBG(18,"Ariadne returned %d",(int)aret);
     return (aret == AridRet_OK);
 }
@@ -102,13 +102,13 @@ void get_nearest_navigable_point_for_thing(struct Thing *thing, struct Coord3d *
     nav_thing_can_travel_over_lava = 0;
 }
 
-TbBool setup_person_move_to_position(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char storage)
+TbBool setup_person_move_to_position(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char flags)
 {
     struct CreatureControl *cctrl;
     struct Coord3d locpos;
     SYNCDBG(18,"Moving %s index %d to (%d,%d)",thing_model_name(thing),(int)thing->index,(int)stl_x,(int)stl_y);
     TRACE_THING(thing);
-    //return _DK_setup_person_move_to_position(thing, stl_x, stl_y, storage);
+    //return _DK_setup_person_move_to_position(thing, stl_x, stl_y, flags);
     locpos.x.val = subtile_coord_center(stl_x);
     locpos.y.val = subtile_coord_center(stl_y);
     locpos.z.val = thing->mappos.z.val;
@@ -124,12 +124,12 @@ TbBool setup_person_move_to_position(struct Thing *thing, MapSubtlCoord stl_x, M
         SYNCDBG(16,"The %s would be trapped in wall at (%d,%d)",thing_model_name(thing),(int)stl_x,(int)stl_y);
         return false;
     }
-    if (!creature_can_navigate_to_with_storage(thing, &locpos, storage))
+    if (!creature_can_navigate_to_with_storage(thing, &locpos, flags))
     {
         SYNCDBG(19,"The %s cannot reach subtile (%d,%d)",thing_model_name(thing),(int)stl_x,(int)stl_y);
         return false;
     }
-    cctrl->field_88 = storage;
+    cctrl->move_flags = flags;
     internal_set_thing_state(thing, CrSt_MoveToPosition);
     cctrl->moveto_pos.x.val = locpos.x.val;
     cctrl->moveto_pos.y.val = locpos.y.val;
@@ -138,7 +138,7 @@ TbBool setup_person_move_to_position(struct Thing *thing, MapSubtlCoord stl_x, M
     return true;
 }
 
-TbBool setup_person_move_close_to_position(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char storage)
+TbBool setup_person_move_close_to_position(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char flags)
 {
     struct CreatureControl *cctrl;
     struct Coord3d trgpos;
@@ -153,13 +153,13 @@ TbBool setup_person_move_close_to_position(struct Thing *thing, MapSubtlCoord st
         WARNLOG("Tried to move invalid creature to (%d,%d)",(int)stl_x,(int)stl_y);
         return false;
     }
-    get_nearest_navigable_point_for_thing(thing, &trgpos, &navpos, storage);
-    if (!creature_can_navigate_to_with_storage(thing, &navpos, storage))
+    get_nearest_navigable_point_for_thing(thing, &trgpos, &navpos, flags);
+    if (!creature_can_navigate_to_with_storage(thing, &navpos, flags))
     {
         SYNCDBG(19,"The %s cannot reach subtile (%d,%d)",thing_model_name(thing),(int)stl_x,(int)stl_y);
         return false;
     }
-    cctrl->field_88 = storage;
+    cctrl->move_flags = flags;
     internal_set_thing_state(thing, CrSt_MoveToPosition);
     cctrl->moveto_pos.x.val = navpos.x.val;
     cctrl->moveto_pos.y.val = navpos.y.val;
@@ -167,7 +167,7 @@ TbBool setup_person_move_close_to_position(struct Thing *thing, MapSubtlCoord st
     return true;
 }
 
-TbBool setup_person_move_backwards_to_position(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char storage)
+TbBool setup_person_move_backwards_to_position(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char flags)
 {
     struct CreatureControl *cctrl;
     struct Coord3d locpos;
@@ -182,12 +182,12 @@ TbBool setup_person_move_backwards_to_position(struct Thing *thing, MapSubtlCoor
         SYNCDBG(16,"The %s would be trapped in wall at (%d,%d)",thing_model_name(thing),(int)stl_x,(int)stl_y);
         return false;
     }
-    if (!creature_can_navigate_to_with_storage(thing, &locpos, storage))
+    if (!creature_can_navigate_to_with_storage(thing, &locpos, flags))
     {
         SYNCDBG(19,"The %s cannot reach subtile (%d,%d)",thing_model_name(thing),(int)stl_x,(int)stl_y);
         return false;
     }
-    cctrl->field_88 = storage;
+    cctrl->move_flags = flags;
     internal_set_thing_state(thing, CrSt_MoveBackwardsToPosition);
     cctrl->moveto_pos.x.val = locpos.x.val;
     cctrl->moveto_pos.y.val = locpos.y.val;
@@ -195,14 +195,14 @@ TbBool setup_person_move_backwards_to_position(struct Thing *thing, MapSubtlCoor
     return true;
 }
 
-TbBool setup_person_move_to_coord(struct Thing *thing, struct Coord3d *pos, unsigned char storage)
+TbBool setup_person_move_to_coord(struct Thing *thing, const struct Coord3d *pos, unsigned char flags)
 {
-    return setup_person_move_to_position(thing, pos->x.stl.num, pos->y.stl.num, storage);
+    return setup_person_move_to_position(thing, pos->x.stl.num, pos->y.stl.num, flags);
 }
 
-TbBool setup_person_move_backwards_to_coord(struct Thing *thing, struct Coord3d *pos, unsigned char storage)
+TbBool setup_person_move_backwards_to_coord(struct Thing *thing, const struct Coord3d *pos, unsigned char flags)
 {
-    return setup_person_move_backwards_to_position(thing, pos->x.stl.num, pos->y.stl.num, storage);
+    return setup_person_move_backwards_to_position(thing, pos->x.stl.num, pos->y.stl.num, flags);
 }
 
 TbBool person_move_somewhere_adjacent_in_room(struct Thing *thing, const struct Room *room)
@@ -211,7 +211,7 @@ TbBool person_move_somewhere_adjacent_in_room(struct Thing *thing, const struct 
     if (!person_get_somewhere_adjacent_in_room(thing, room, &pos)) {
         return false;
     }
-    return setup_person_move_to_position(thing, pos.x.stl.num, pos.y.stl.num, 0);
+    return setup_person_move_to_position(thing, pos.x.stl.num, pos.y.stl.num, NavTF_Default);
 }
 
 /**
@@ -240,7 +240,7 @@ struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng)
         // Per thing code
         if (object_is_hero_gate(thing))
         {
-            if (creature_can_navigate_to_with_storage(herotng, &thing->mappos, 0)) {
+            if (creature_can_navigate_to_with_storage(herotng, &thing->mappos, NavTF_Default)) {
                 return thing;
             }
         }
@@ -303,17 +303,17 @@ TbBool creature_can_travel_over_lava(const struct Thing *creatng)
     return (crstat->hurt_by_lava <= 0) || ((creatng->movement_flags & TMvF_Flying) != 0);
 }
 
-TbBool creature_can_navigate_to_f(const struct Thing *thing, struct Coord3d *dstpos, TbBool no_owner, const char *func_name)
+TbBool creature_can_navigate_to_f(const struct Thing *thing, struct Coord3d *dstpos, unsigned char flags, const char *func_name)
 {
     NAVIDBG(18,"%s: The %s index %d from %3d,%3d to %3d,%3d", func_name, thing_model_name(thing), (int)thing->index,
         (int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num, (int)dstpos->x.stl.num, (int)dstpos->y.stl.num);
-    //return _DK_creature_can_navigate_to(thing, dstpos, no_owner);
+    //return _DK_creature_can_navigate_to(thing, dstpos, flags);
     struct Path path;
     long nav_sizexy;
     LbMemorySet(&path, 0, sizeof(struct Path));
     // Set the required parameters
     nav_thing_can_travel_over_lava = creature_can_travel_over_lava(thing);
-    if (no_owner)
+    if (flags)
       owner_player_navigating = -1;
     else
       owner_player_navigating = thing->owner;
@@ -358,7 +358,7 @@ TbBool creature_can_get_to_dungeon(struct Thing *creatng, PlayerNumber plyr_idx)
         SYNCDBG(18,"The %s index %d cannot get to player %d due to heart state",thing_model_name(creatng),(int)creatng->index,(int)plyr_idx);
         return false;
     }
-    return creature_can_navigate_to(creatng, &heartng->mappos, 0);
+    return creature_can_navigate_to(creatng, &heartng->mappos, NavTF_Default);
 }
 
 long creature_turn_to_face(struct Thing *thing, struct Coord3d *pos)
@@ -539,7 +539,7 @@ short move_to_position(struct Thing *creatng)
         SYNCDBG(8,"Teleporting %s index %d into (%d,%d)",thing_model_name(creatng),(int)creatng->index,(int)cctrl->moveto_pos.x.stl.num,(int)cctrl->moveto_pos.y.stl.num);
         return 1;
     }
-    move_result = creature_move_to_using_gates(creatng, &cctrl->moveto_pos, speed, -2, cctrl->field_88, 0);
+    move_result = creature_move_to_using_gates(creatng, &cctrl->moveto_pos, speed, -2, cctrl->move_flags, 0);
     state_check = CrCkRet_Available;
     stati = get_thing_continue_state_info(creatng);
     if (!state_info_invalid(stati))

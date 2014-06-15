@@ -213,9 +213,9 @@ TbBool triangulate_area(unsigned char *imap, long sx, long sy, long ex, long ey)
 AriadneReturn ariadne_initialise_creature_route_f(struct Thing *thing, const struct Coord3d *pos, long speed, unsigned char storage, const char *func_name);
 #define ariadne_initialise_creature_route(thing, pos, speed, storage) ariadne_initialise_creature_route_f(thing, pos, speed, storage, __func__)
 AriadneReturn creature_follow_route_to_using_gates(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2, long a4, unsigned char a5);
-#define ariadne_prepare_creature_route_to_target(thing, arid, srcpos, dstpos, speed, no_owner) ariadne_prepare_creature_route_to_target_f(thing, arid, srcpos, dstpos, speed, no_owner, __func__)
+#define ariadne_prepare_creature_route_to_target(thing, arid, srcpos, dstpos, speed, flags) ariadne_prepare_creature_route_to_target_f(thing, arid, srcpos, dstpos, speed, flags, __func__)
 AriadneReturn ariadne_prepare_creature_route_to_target_f(const struct Thing *thing, struct Ariadne *arid,
-    const struct Coord3d *srcpos, const struct Coord3d *dstpos, long speed, unsigned char no_owner, const char *func_name);
+    const struct Coord3d *srcpos, const struct Coord3d *dstpos, long speed, unsigned char flags, const char *func_name);
 AriadneReturn ariadne_invalidate_creature_route(struct Thing *thing);
 
 TbBool navigation_points_connected(struct Coord3d *pt1, struct Coord3d *pt2);
