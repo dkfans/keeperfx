@@ -2053,7 +2053,7 @@ struct Room *find_room_with_spare_room_item_capacity(PlayerNumber plyr_idx, Room
     return NULL;
 }
 
-struct Room *find_room_for_thing_with_used_capacity(const struct Thing *creatng, PlayerNumber plyr_idx, RoomKind rkind, unsigned char nav_no_owner, long min_used_cap)
+struct Room *find_room_for_thing_with_used_capacity(const struct Thing *creatng, PlayerNumber plyr_idx, RoomKind rkind, unsigned char nav_flags, long min_used_cap)
 {
     struct Dungeon *dungeon;
     struct Room *room;
@@ -2078,7 +2078,7 @@ struct Room *find_room_for_thing_with_used_capacity(const struct Thing *creatng,
         {
             if (thing_is_creature(creatng))
             {
-                if (creature_can_navigate_to(creatng, &pos, nav_no_owner)) {
+                if (creature_can_navigate_to(creatng, &pos, nav_flags)) {
                     return room;
                 }
             } else
@@ -2265,7 +2265,7 @@ TbBool find_first_valid_position_for_thing_in_room(const struct Thing *thing, st
     return false;
 }
 
-struct Room *find_nearest_room_for_thing_with_spare_capacity(struct Thing *thing, signed char owner, RoomKind rkind, unsigned char nav_no_owner, long spare)
+struct Room *find_nearest_room_for_thing_with_spare_capacity(struct Thing *thing, signed char owner, RoomKind rkind, unsigned char nav_flags, long spare)
 {
     struct Dungeon *dungeon;
     struct Room *nearoom;
@@ -2299,7 +2299,7 @@ struct Room *find_nearest_room_for_thing_with_spare_capacity(struct Thing *thing
             if (find_first_valid_position_for_thing_in_room(thing, room, &pos))
             {
                 if ((thing->class_id != TCls_Creature)
-                  || creature_can_navigate_to(thing, &pos, nav_no_owner))
+                  || creature_can_navigate_to(thing, &pos, nav_flags))
                 {
                     neardistance = distance;
                     nearoom = room;
@@ -2325,7 +2325,7 @@ struct Room *find_nearest_room_for_thing_with_spare_capacity(struct Thing *thing
  * @param nav_no_owner
  * @return
  */
-long count_rooms_creature_can_navigate_to(struct Thing *thing, unsigned char owner, RoomKind rkind, unsigned char nav_no_owner)
+long count_rooms_creature_can_navigate_to(struct Thing *thing, unsigned char owner, RoomKind rkind, unsigned char nav_flags)
 {
     struct Dungeon *dungeon;
     struct Room *room;
@@ -2350,7 +2350,7 @@ long count_rooms_creature_can_navigate_to(struct Thing *thing, unsigned char own
         struct Coord3d pos;
         if (find_first_valid_position_for_thing_in_room(thing, room, &pos) && (room->used_capacity > 0))
         {
-            if (creature_can_navigate_to(thing, &pos, nav_no_owner))
+            if (creature_can_navigate_to(thing, &pos, nav_flags))
             {
                 count++;
             }
@@ -2378,7 +2378,7 @@ TbBool creature_can_get_to_any_of_players_rooms(struct Thing *thing, PlayerNumbe
     RoomKind rkind;
     for (rkind=1; rkind < ROOM_TYPES_COUNT; rkind++)
     {
-        if (count_rooms_creature_can_navigate_to(thing, owner, rkind, 0) > 0)
+        if (count_rooms_creature_can_navigate_to(thing, owner, rkind, NavTF_Default) > 0)
             return true;
     }
     return false;
@@ -2393,7 +2393,7 @@ TbBool creature_can_get_to_any_of_players_rooms(struct Thing *thing, PlayerNumbe
  * @param nav_no_owner
  * @return
  */
-struct Room *find_random_room_creature_can_navigate_to(struct Thing *thing, unsigned char owner, RoomKind rkind, unsigned char nav_no_owner)
+struct Room *find_random_room_creature_can_navigate_to(struct Thing *thing, unsigned char owner, RoomKind rkind, unsigned char nav_flags)
 {
     struct Dungeon *dungeon;
     struct Room *room;
@@ -2401,7 +2401,7 @@ struct Room *find_random_room_creature_can_navigate_to(struct Thing *thing, unsi
     int i;
     long count,selected;
     SYNCDBG(18,"Starting");
-    count = count_rooms_creature_can_navigate_to(thing, owner, rkind, nav_no_owner);
+    count = count_rooms_creature_can_navigate_to(thing, owner, rkind, nav_flags);
     if (count < 1)
         return NULL;
     dungeon = get_dungeon(owner);
@@ -2421,7 +2421,7 @@ struct Room *find_random_room_creature_can_navigate_to(struct Thing *thing, unsi
         struct Coord3d pos;
         if (find_first_valid_position_for_thing_in_room(thing, room, &pos) && (room->used_capacity > 0))
         {
-            if (creature_can_navigate_to(thing, &pos, nav_no_owner))
+            if (creature_can_navigate_to(thing, &pos, nav_flags))
             {
                 if (selected > 0)
                 {
@@ -2962,9 +2962,9 @@ struct Room *place_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x,
     return room;
 }
 
-struct Room *find_nearest_room_for_thing_with_spare_item_capacity(struct Thing *thing, char a2, char a3, unsigned char a4)
+struct Room *find_nearest_room_for_thing_with_spare_item_capacity(struct Thing *thing, char plyr_idx, char rkind, unsigned char nav_flags)
 {
-    return _DK_find_nearest_room_for_thing_with_spare_item_capacity(thing, a2, a3, a4);
+    return _DK_find_nearest_room_for_thing_with_spare_item_capacity(thing, plyr_idx, rkind, nav_flags);
 }
 
 struct Room * pick_random_room(PlayerNumber plyr_idx, RoomKind rkind)

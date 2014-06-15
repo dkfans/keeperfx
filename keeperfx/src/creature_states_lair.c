@@ -123,7 +123,7 @@ TbBool creature_move_to_home_lair(struct Thing *creatng)
     if (thing_is_invalid(lairtng)) {
         return false;
     }
-    return setup_person_move_to_position(creatng, lairtng->mappos.x.stl.num, lairtng->mappos.y.stl.num, 0);
+    return setup_person_move_to_coord(creatng, &lairtng->mappos, NavTF_Default);
 
 }
 
@@ -318,7 +318,7 @@ TbBool setup_head_for_random_unused_lair_slab(struct Thing *creatng, struct Room
         lairtng = find_creature_lair_at_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), 0);
         if (thing_is_invalid(lairtng))
         {
-            if (setup_person_move_to_position(creatng, slab_subtile_center(slb_x), slab_subtile_center(slb_y), 0)) {
+            if (setup_person_move_to_position(creatng, slab_subtile_center(slb_x), slab_subtile_center(slb_y), NavTF_Default)) {
                 return true;
             }
             WARNLOG("Cannot get somewhere in room");

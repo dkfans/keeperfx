@@ -173,7 +173,7 @@ short mad_killing_psycho(struct Thing *creatng)
         player = get_player(n);
         if (player_exists(player)) {
             if (get_random_position_in_dungeon_for_creature(n, 1, creatng, &pos)) {
-                if (creature_can_navigate_to_with_storage(creatng, &pos, 0)) {
+                if (creature_can_navigate_to_with_storage(creatng, &pos, NavTF_Default)) {
                     break;
                 }
             }
@@ -182,7 +182,7 @@ short mad_killing_psycho(struct Thing *creatng)
     }
     if (i >= PLAYERS_COUNT)
       return 1;
-    if (setup_person_move_to_position(creatng, pos.x.stl.num, pos.y.stl.num, 0))
+    if (setup_person_move_to_coord(creatng, &pos, NavTF_Default))
     {
         if (game.play_gameturn - cctrl->last_roar_turn <= 200)
         {

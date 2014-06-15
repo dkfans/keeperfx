@@ -233,13 +233,13 @@ TbBool attempt_anger_job_destroy_rooms(struct Thing *creatng)
     if (!find_random_valid_position_for_thing_in_room(creatng, room, &pos)) {
         return false;
     }
-    if (!creature_can_navigate_to_with_storage(creatng, &pos, 1)) {
+    if (!creature_can_navigate_to_with_storage(creatng, &pos, NavTF_NoOwner)) {
         return false;
     }
     if (!external_set_thing_state(creatng, CrSt_CreatureVandaliseRooms)) {
         return false;
     }
-    if (!setup_random_head_for_room(creatng, room, 1)) {
+    if (!setup_random_head_for_room(creatng, room, NavTF_NoOwner)) {
         return false;
     }
     struct CreatureControl *cctrl;
@@ -262,20 +262,20 @@ TbBool attempt_anger_job_steal_gold(struct Thing *creatng)
     }
     struct Room *room;
     struct Coord3d pos;
-    room = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, 2, 1, 1);
+    room = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_TREASURE, NavTF_NoOwner, 1);
     if (room_is_invalid(room)) {
         return false;
     }
     if (!find_random_valid_position_for_thing_in_room(creatng, room, &pos)) {
         return false;
     }
-    if (!creature_can_navigate_to_with_storage(creatng, &pos, 1)) {
+    if (!creature_can_navigate_to_with_storage(creatng, &pos, NavTF_NoOwner)) {
         return false;
     }
     if (!external_set_thing_state(creatng, CrSt_CreatureStealGold)) {
         return false;
     }
-    if (!setup_random_head_for_room(creatng, room, 1))
+    if (!setup_random_head_for_room(creatng, room, NavTF_NoOwner))
     {
         ERRORLOG("Cannot setup head for treasury.");
         return false;
@@ -304,14 +304,14 @@ TbBool attempt_anger_job_leave_dungeon(struct Thing *creatng)
         return false;
     }
     struct Room *room;
-    room = find_nearest_room_for_thing(creatng, creatng->owner, RoK_ENTRANCE, 0);
+    room = find_nearest_room_for_thing(creatng, creatng->owner, RoK_ENTRANCE, NavTF_Default);
     if (room_is_invalid(room)) {
         return false;
     }
     if (!external_set_thing_state(creatng, CrSt_CreatureLeaves)) {
         return false;
     }
-    if (!setup_random_head_for_room(creatng, room, 0)) {
+    if (!setup_random_head_for_room(creatng, room, NavTF_Default)) {
         return false;
     }
     creatng->continue_state = CrSt_CreatureLeaves;
@@ -330,7 +330,7 @@ TbBool attempt_anger_job_damage_walls(struct Thing *creatng)
     if (!external_set_thing_state(creatng, CrSt_CreatureAttemptToDamageWalls)) {
         return false;
     }
-    setup_person_move_to_position(creatng, pos.x.stl.num, pos.y.stl.num, 0);
+    setup_person_move_to_coord(creatng, &pos, NavTF_Default);
     creatng->continue_state = CrSt_CreatureAttemptToDamageWalls;
     return true;
 }
@@ -390,7 +390,7 @@ TbBool attempt_anger_job_join_enemy(struct Thing *creatng)
         if (thing_exists(heartng) && (heartng->active_state != 3))
         {
             TRACE_THING(heartng);
-            if (creature_can_navigate_to(creatng, &heartng->mappos, 0)) {
+            if (creature_can_navigate_to(creatng, &heartng->mappos, NavTF_Default)) {
                 change_creature_owner(creatng, n);
                 anger_set_creature_anger_all_types(creatng, 0);
             }
@@ -583,7 +583,7 @@ TbBool creature_can_freeze_prisoners_for_player(const struct Thing *creatng, Pla
 {
     // To freeze prisoners, our prison can't be empty
     struct Room *room;
-    room = find_room_for_thing_with_used_capacity(creatng, creatng->owner, get_room_for_job(Job_FREEZE_PRISONERS), 0, 1);
+    room = find_room_for_thing_with_used_capacity(creatng, creatng->owner, get_room_for_job(Job_FREEZE_PRISONERS), NavTF_Default, 1);
     return creature_instance_is_available(creatng, CrInst_FREEZE) && !room_is_invalid(room);
 }
 
@@ -815,7 +815,7 @@ TbBool attempt_job_work_in_room_for_player(struct Thing *creatng, PlayerNumber p
     RoomKind rkind;
     rkind = get_room_for_job(new_job);
     SYNCDBG(6,"Starting for %s (owner %d) and job %s in %s room",thing_model_name(creatng),(int)creatng->owner,creature_job_code_name(new_job),room_code_name(rkind));
-    room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, rkind, 0, 1);
+    room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, rkind, NavTF_Default, 1);
     if (room_is_invalid(room)) {
         return false;
     }
@@ -826,7 +826,7 @@ TbBool attempt_job_work_in_room_for_player(struct Thing *creatng, PlayerNumber p
         ERRORLOG("No arrive at state for job %s in %s room",creature_job_code_name(new_job),room_code_name(room->kind));
         return false;
     }
-    if (!setup_person_move_to_position(creatng, pos.x.stl.num, pos.y.stl.num, 0)) {
+    if (!setup_person_move_to_coord(creatng, &pos, NavTF_Default)) {
         return false;
     }
     struct CreatureControl *cctrl;
@@ -878,7 +878,7 @@ TbBool attempt_job_work_in_room_and_cure_near_pos(struct Thing *creatng, MapSubt
     if (!find_first_valid_position_for_thing_in_room(creatng, room, &pos)) {
         return false;
     }
-    if (!setup_person_move_to_position(creatng, pos.x.stl.num, pos.y.stl.num, 0)) {
+    if (!setup_person_move_to_position(creatng, pos.x.stl.num, pos.y.stl.num, NavTF_Default)) {
         return false;
     }
     creatng->continue_state = get_arrive_at_state_for_job(new_job);
@@ -915,7 +915,7 @@ TbBool attempt_job_sleep_in_lair_near_pos(struct Thing *creatng, MapSubtlCoord s
     }
     struct Coord3d pos;
     if (find_first_valid_position_for_thing_in_room(creatng, room, &pos)
-      && setup_person_move_to_position(creatng, pos.x.stl.num, pos.y.stl.num, 0))
+      && setup_person_move_to_coord(creatng, &pos, NavTF_Default))
     {
         creatng->continue_state = CrSt_CreatureChangeLair;
         cctrl->target_room_id = room->index;
@@ -929,7 +929,7 @@ TbBool attempt_job_in_state_on_room_content_for_player(struct Thing *creatng, Pl
     struct Room *room;
     RoomKind rkind;
     rkind = get_room_for_job(new_job);
-    room = find_room_for_thing_with_used_capacity(creatng, creatng->owner, rkind, 0, 1);
+    room = find_room_for_thing_with_used_capacity(creatng, creatng->owner, rkind, NavTF_Default, 1);
     if (room_is_invalid(room)) {
         return false;
     }
@@ -950,7 +950,7 @@ TbBool attempt_job_move_to_event_for_player(struct Thing *creatng, PlayerNumber 
     if (event_is_invalid(event)) {
         return false;
     }
-    if (!setup_person_move_to_position(creatng, coord_subtile(event->mappos_x), coord_subtile(event->mappos_y), 0)) {
+    if (!setup_person_move_to_position(creatng, coord_subtile(event->mappos_x), coord_subtile(event->mappos_y), NavTF_Default)) {
         return false;
     }
     creatng->continue_state = get_initial_state_for_job(new_job);
@@ -1056,7 +1056,7 @@ TbBool attempt_job_secondary_preference(struct Thing *creatng, long jobpref)
             case Job_TEMPLE_PRAY:
             case Job_BARRACK: {
                 struct Room *room;
-                room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, get_room_for_job(new_job), 0, 1);
+                room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, get_room_for_job(new_job), NavTF_Default, 1);
                 if (!room_is_invalid(room))
                 {
                     if (send_creature_to_room(creatng, room, new_job)) {
@@ -1081,7 +1081,7 @@ TbBool attempt_job_secondary_preference(struct Thing *creatng, long jobpref)
     if (ACTION_RANDOM(100) == 0)
     {
         struct Room *room;
-        room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_TEMPLE, 0, 1);
+        room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_TEMPLE, NavTF_Default, 1);
         if (!room_is_invalid(room))
         {
             if (send_creature_to_room(creatng, room, Job_TEMPLE_PRAY)) {

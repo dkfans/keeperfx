@@ -1092,7 +1092,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
             {
               thing = thing_get(player->controlled_thing_idx);
-              if (!setup_person_move_to_position(thing, stl_x, stl_y, 0))
+              if (!setup_person_move_to_position(thing, stl_x, stl_y, NavTF_Default))
                   WARNLOG("Move %s order failed",thing_model_name(thing));
               thing->continue_state = CrSt_ManualControl;
             }

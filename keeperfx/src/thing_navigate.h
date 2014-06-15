@@ -39,6 +39,11 @@ enum SlabBlockedFlags {
     SlbBloF_WalledZ = 0x04,
 };
 
+enum NaviTracingFlags {
+    NavTF_Default   = 0x00,
+    NavTF_NoOwner   = 0x01,
+};
+
 #pragma pack()
 /******************************************************************************/
 DLLIMPORT long _DK_owner_player_navigating;
@@ -46,18 +51,18 @@ DLLIMPORT long _DK_owner_player_navigating;
 DLLIMPORT long _DK_nav_thing_can_travel_over_lava;
 #define nav_thing_can_travel_over_lava _DK_nav_thing_can_travel_over_lava
 /******************************************************************************/
-TbBool setup_person_move_to_position(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char storage);
-TbBool setup_person_move_close_to_position(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char storage);
-TbBool setup_person_move_backwards_to_position(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char storage);
-TbBool setup_person_move_to_coord(struct Thing *thing, struct Coord3d *pos, unsigned char storage);
-TbBool setup_person_move_backwards_to_coord(struct Thing *thing, struct Coord3d *pos, unsigned char storage);
+TbBool setup_person_move_to_position(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char flags);
+TbBool setup_person_move_close_to_position(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char flags);
+TbBool setup_person_move_backwards_to_position(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char flags);
+TbBool setup_person_move_to_coord(struct Thing *thing, const struct Coord3d *pos, unsigned char flags);
+TbBool setup_person_move_backwards_to_coord(struct Thing *thing, const struct Coord3d *pos, unsigned char flags);
 TbBool person_move_somewhere_adjacent_in_room(struct Thing *thing, const struct Room *room);
 
 TbBool creature_can_travel_over_lava(const struct Thing *creatng);
-TbBool creature_can_navigate_to_f(const struct Thing *thing, struct Coord3d *pos, TbBool no_owner, const char *func_name);
-#define creature_can_navigate_to(thing,pos,no_owner) creature_can_navigate_to_f(thing,pos,no_owner,__func__)
-TbBool creature_can_navigate_to_with_storage_f(const struct Thing *crtng, struct Coord3d *pos, unsigned char storage, const char *func_name);
-#define creature_can_navigate_to_with_storage(crtng,pos,storage) creature_can_navigate_to_with_storage_f(crtng,pos,storage,__func__)
+TbBool creature_can_navigate_to_f(const struct Thing *thing, struct Coord3d *pos, unsigned char flags, const char *func_name);
+#define creature_can_navigate_to(thing,pos,flags) creature_can_navigate_to_f(thing,pos,flags,__func__)
+TbBool creature_can_navigate_to_with_storage_f(const struct Thing *crtng, struct Coord3d *pos, unsigned char flags, const char *func_name);
+#define creature_can_navigate_to_with_storage(crtng,pos,flags) creature_can_navigate_to_with_storage_f(crtng,pos,flags,__func__)
 TbBool creature_can_get_to_dungeon(struct Thing *thing, PlayerNumber plyr_idx);
 struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng);
 unsigned char get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Coord3d *pos);

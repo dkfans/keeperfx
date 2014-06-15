@@ -303,7 +303,7 @@ long check_out_unprettied_or_unconverted_area(struct Thing *thing)
                 navpos.x.val = subtile_coord_center(stl_x);
                 navpos.y.val = subtile_coord_center(stl_y);
                 navpos.z.val = get_thing_height_at(thing, &navpos);
-                if (creature_can_navigate_to_with_storage(thing, &navpos, 0))
+                if (creature_can_navigate_to_with_storage(thing, &navpos, NavTF_Default))
                 {
                     min_taskid = 1;
                     min_dist = new_dist;
@@ -325,7 +325,7 @@ long check_out_unprettied_or_unconverted_area(struct Thing *thing)
               navpos.x.val = subtile_coord_center(stl_x);
               navpos.y.val = subtile_coord_center(stl_y);
               navpos.z.val = get_thing_height_at(thing, &navpos);
-              if (creature_can_navigate_to_with_storage(thing, &navpos, 0))
+              if (creature_can_navigate_to_with_storage(thing, &navpos, NavTF_Default))
               {
                   min_taskid = 2;
                   min_dist = new_dist;
@@ -342,7 +342,7 @@ long check_out_unprettied_or_unconverted_area(struct Thing *thing)
     }
     if (min_dist == 28)
       return 0;
-    if (!setup_person_move_to_coord(thing, &min_pos, 0))
+    if (!setup_person_move_to_coord(thing, &min_pos, NavTF_Default))
     {
         ERRORLOG("Digger can navigate but not move to.");
         return 0;
@@ -381,7 +381,7 @@ TbBool check_out_unconverted_spot(struct Thing *creatng, MapSlabCoord slb_x, Map
     if (imp_will_soon_be_converting_at_excluding(creatng, stl_x, stl_y)) {
         return false;
     }
-    if (!setup_person_move_to_position(creatng, stl_x, stl_y, 0)) {
+    if (!setup_person_move_to_position(creatng, stl_x, stl_y, NavTF_Default)) {
         return false;
     }
     creatng->continue_state = CrSt_ImpArrivesAtConvertDungeon;
@@ -452,7 +452,7 @@ TbBool check_out_unprettied_spot(struct Thing *creatng, long slb_x, long slb_y)
     if (imp_will_soon_be_working_at_excluding(creatng, stl_x, stl_y)) {
         return false;
     }
-    if (!setup_person_move_to_position(creatng, stl_x, stl_y, 0)) {
+    if (!setup_person_move_to_position(creatng, stl_x, stl_y, NavTF_Default)) {
         return false;
     }
     creatng->continue_state = CrSt_ImpArrivesAtImproveDungeon;
@@ -653,7 +653,7 @@ TbBool check_out_unconverted_place(struct Thing *thing)
     if ( check_place_to_convert_excluding(thing, slb_x, slb_y)
       && !imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y) )
     {
-        if (setup_person_move_to_position(thing, stl_x, stl_y, 0))
+        if (setup_person_move_to_position(thing, stl_x, stl_y, NavTF_Default))
         {
             thing->continue_state = CrSt_ImpArrivesAtConvertDungeon;
             return true;
@@ -679,7 +679,7 @@ long check_out_unprettied_place(struct Thing *thing)
   if ( check_place_to_pretty_excluding(thing, slb_x, slb_y)
     && !imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y) )
   {
-      if (setup_person_move_to_position(thing, stl_x, stl_y, 0))
+      if (setup_person_move_to_position(thing, stl_x, stl_y, NavTF_Default))
       {
           thing->continue_state = CrSt_ImpArrivesAtImproveDungeon;
           return true;
@@ -750,7 +750,7 @@ long check_out_undug_place(struct Thing *creatng)
             long mv_x,mv_y;
             mv_x = 0; mv_y = 0;
             if (check_place_to_dig_and_get_position(creatng, task_pos, &mv_x, &mv_y)
-                && setup_person_move_to_position(creatng, mv_x, mv_y, 0))
+                && setup_person_move_to_position(creatng, mv_x, mv_y, NavTF_Default))
             {
                 cctrl->word_91 = task_idx;
                 cctrl->word_8F = task_pos;
@@ -821,7 +821,7 @@ long check_out_undug_area(struct Thing *thing)
     if (best_dist >= 24) {
         return 0;
     }
-    if (!setup_person_move_to_position(thing, best_stl_x, best_stl_y, 0)) {
+    if (!setup_person_move_to_position(thing, best_stl_x, best_stl_y, NavTF_Default)) {
         return 0;
     }
     cctrl->digger.word_91 = best_tsk_id;
@@ -1502,7 +1502,7 @@ long check_out_uncrowded_reinforce_position(struct Thing *thing, SubtlCodedCoord
                     pos.x.val = (stl_x << 8) + 128;
                     pos.y.val = (stl_y << 8) + 128;
                     pos.z.val = get_thing_height_at(thing, &pos);
-                    if ( creature_can_navigate_to_with_storage(thing, &pos, 0) != -1 ) {
+                    if ( creature_can_navigate_to_with_storage(thing, &pos, NavTF_Default) != -1 ) {
                         *retstl_x = stl_x;
                         *retstl_y = stl_y;
                         return 1;
@@ -1574,7 +1574,7 @@ long check_place_to_dig_and_get_position(struct Thing *thing, SubtlCodedCoords s
                         {
                           set_coords_to_subtile_center(&pos, stl_x, stl_y, 0);
                           pos.z.val = get_thing_height_at(thing, &pos);
-                          if (creature_can_navigate_to_with_storage(thing, &pos, 0))
+                          if (creature_can_navigate_to_with_storage(thing, &pos, NavTF_Default))
                           {
                               *retstl_x = stl_x;
                               *retstl_y = stl_y;
@@ -1733,7 +1733,7 @@ long check_out_imp_has_money_for_treasure_room(struct Thing *thing)
         return 0;
     }
     // Find a treasure room to drop the money
-    room = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_TREASURE, 0, 1);
+    room = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_TREASURE, NavTF_Default, 1);
     if (!room_is_invalid(room))
     {
         if (setup_head_for_empty_treasure_space(thing, room))
@@ -1880,10 +1880,10 @@ long check_out_imp_last_did(struct Thing *creatng)
   case SDLstJob_UseTraining4:
       if ( !creature_can_be_trained(creatng) || !player_can_afford_to_train_creature(creatng) )
         break;
-      room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_TRAINING, 0, 1);
+      room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_TRAINING, NavTF_Default, 1);
       if (!room_is_invalid(room))
       {
-          if ( setup_random_head_for_room(creatng, room, 0) )
+          if ( setup_random_head_for_room(creatng, room, NavTF_Default) )
           {
             creatng->continue_state = CrSt_AtTrainingRoom;
             cctrl->target_room_id = room->index;
@@ -1960,7 +1960,7 @@ long check_out_worker_improve_dungeon(struct Thing *thing, struct DiggerStack *i
     {
         return 0;
     }
-    if (!setup_person_move_to_position(thing, stl_x, stl_y, 0))
+    if (!setup_person_move_to_position(thing, stl_x, stl_y, NavTF_Default))
     {
         istack->task_id = DigTsk_None;
         return -1;
@@ -1988,7 +1988,7 @@ long check_out_worker_convert_dungeon(struct Thing *thing, struct DiggerStack *i
     {
         return 0;
     }
-    if (!setup_person_move_to_position(thing, stl_x, stl_y, 0))
+    if (!setup_person_move_to_position(thing, stl_x, stl_y, NavTF_Default))
     {
         istack->task_id = DigTsk_None;
         return -1;
@@ -2025,7 +2025,7 @@ long check_out_worker_reinforce_wall(struct Thing *thing, struct DiggerStack *is
         istack->task_id = DigTsk_None;
         return -1;
     }
-    if (!setup_person_move_to_position(thing, stl_x, stl_y, 0) )
+    if (!setup_person_move_to_position(thing, stl_x, stl_y, NavTF_Default))
     {
         istack->task_id = DigTsk_None;
         return -1;
@@ -2050,7 +2050,7 @@ long check_out_worker_pickup_unconscious(struct Thing *thing, struct DiggerStack
         return 0;
     }
     struct Room * room;
-    room = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_PRISON, 0, 1);
+    room = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_PRISON, NavTF_Default, 1);
     if (room_is_invalid(room))
     {
         if (is_my_player_number(thing->owner))
@@ -2075,7 +2075,7 @@ long check_out_worker_pickup_unconscious(struct Thing *thing, struct DiggerStack
         istack->task_id = DigTsk_None;
         return -1;
     }
-    if (!setup_person_move_to_position(thing, stl_x, stl_y, 0) )
+    if (!setup_person_move_to_position(thing, stl_x, stl_y, NavTF_Default))
     {
         istack->task_id = DigTsk_None;
         return -1;
@@ -2096,7 +2096,7 @@ long check_out_worker_pickup_corpse(struct Thing *creatng, struct DiggerStack *i
         return 0;
     }
     struct Room * room;
-    room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_GRAVEYARD, 0, 1);
+    room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_GRAVEYARD, NavTF_Default, 1);
     if (room_is_invalid(room))
     {
         if (is_my_player_number(creatng->owner))
@@ -2129,7 +2129,7 @@ long check_out_worker_pickup_corpse(struct Thing *creatng, struct DiggerStack *i
             return 0;
         }
     }
-    if (!setup_person_move_to_position(creatng, stl_x, stl_y, 0))
+    if (!setup_person_move_to_position(creatng, stl_x, stl_y, NavTF_Default))
     {
         istack->task_id = DigTsk_None;
         return -1;
@@ -2149,7 +2149,7 @@ long check_out_worker_pickup_spellbook(struct Thing *thing, struct DiggerStack *
     if (!player_has_room(thing->owner, RoK_LIBRARY)) {
         return 0;
     }
-    if (!find_nearest_room_for_thing_with_spare_item_capacity(thing, thing->owner, RoK_LIBRARY, 0))
+    if (!find_nearest_room_for_thing_with_spare_item_capacity(thing, thing->owner, RoK_LIBRARY, NavTF_Default))
     {
         if (is_my_player_number(thing->owner))
         {
@@ -2171,7 +2171,7 @@ long check_out_worker_pickup_spellbook(struct Thing *thing, struct DiggerStack *
         istack->task_id = DigTsk_None;
         return -1;
     }
-    if (!setup_person_move_to_position(thing, stl_x, stl_y, 0) )
+    if (!setup_person_move_to_position(thing, stl_x, stl_y, NavTF_Default))
     {
         istack->task_id = DigTsk_None;
         return -1;
@@ -2217,7 +2217,7 @@ long check_out_worker_pickup_trapbox(struct Thing *creatng, struct DiggerStack *
     {
         return 0;
     }
-    if (!setup_person_move_to_position(creatng, stl_x, stl_y, 0))
+    if (!setup_person_move_to_position(creatng, stl_x, stl_y, NavTF_Default))
     {
         istack->task_id = DigTsk_None;
         return -1;
@@ -2239,7 +2239,7 @@ long check_out_worker_pickup_trap_for_workshop(struct Thing *thing, struct Digge
     if (!player_has_room(thing->owner, RoK_WORKSHOP)) {
         return 0;
     }
-    if (!find_nearest_room_for_thing_with_spare_item_capacity(thing, thing->owner, RoK_WORKSHOP, 0))
+    if (!find_nearest_room_for_thing_with_spare_item_capacity(thing, thing->owner, RoK_WORKSHOP, NavTF_Default))
     {
       if (is_my_player_number(thing->owner))
       {
@@ -2261,7 +2261,7 @@ long check_out_worker_pickup_trap_for_workshop(struct Thing *thing, struct Digge
         istack->task_id = DigTsk_None;
         return -1;
     }
-    if (!setup_person_move_to_position(thing, stl_x, stl_y, 0))
+    if (!setup_person_move_to_position(thing, stl_x, stl_y, NavTF_Default))
     {
         istack->task_id = DigTsk_None;
         return -1;
@@ -2301,7 +2301,7 @@ long check_out_worker_dig_or_mine(struct Thing *thing, struct DiggerStack *istac
     }
     stl_x = 0; stl_y = 0;
     if (!check_place_to_dig_and_get_position(thing, istack->field_0, &stl_x, &stl_y)
-      || !setup_person_move_to_position(thing, stl_x, stl_y, 0))
+      || !setup_person_move_to_position(thing, stl_x, stl_y, NavTF_Default))
     {
         istack->task_id = DigTsk_None;
         return -1;
@@ -2350,7 +2350,7 @@ long check_out_worker_pickup_gold_pile(struct Thing *thing, struct DiggerStack *
     {
         return 0;
     }
-    if (!setup_person_move_to_position(thing, stl_x, stl_y, 0))
+    if (!setup_person_move_to_position(thing, stl_x, stl_y, NavTF_Default))
     {
         istack->task_id = DigTsk_None;
         return -1;
