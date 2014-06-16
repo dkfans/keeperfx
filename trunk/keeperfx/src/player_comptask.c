@@ -2223,7 +2223,11 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
     if (!thing_is_invalid(thing))
     {
         room = room_get(ctask->move_to_room.room_idx2);
-        if (get_drop_position_for_creature_job_in_room(&pos,room,get_job_for_room(room->kind, JoKF_AssignComputerDropInRoom)))
+        struct CreatureStats *crstat;
+        crstat = creature_stats_get_from_thing(thing);
+        CreatureJob jobpref;
+        jobpref = get_job_for_room(room->kind, JoKF_AssignComputerDropInRoom, crstat->job_primary|crstat->job_secondary);
+        if (get_drop_position_for_creature_job_in_room(&pos, room, jobpref))
         {
             if (computer_dump_held_creatures_on_map(comp, thing, &pos) > 0) {
                 return CTaskRet_Unk2;
@@ -2247,7 +2251,11 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
         //TODO CREATURE_AI don't place creatures at center of a temple/portal if we don't want to get rid of them
         //TODO CREATURE_AI make sure to place creatures at "active" portal tile if we do want them to leave
         ctask->move_to_room.room_idx2 = room->index;
-        if (get_drop_position_for_creature_job_in_room(&pos,room,get_job_for_room(room->kind, JoKF_AssignComputerDropInRoom)))
+        struct CreatureStats *crstat;
+        crstat = creature_stats_get_from_thing(thing);
+        CreatureJob jobpref;
+        jobpref = get_job_for_room(room->kind, JoKF_AssignComputerDropInRoom, crstat->job_primary|crstat->job_secondary);
+        if (get_drop_position_for_creature_job_in_room(&pos, room, jobpref))
         {
             if (computer_place_thing_in_power_hand(comp, thing, &pos)) {
                 SYNCDBG(9,"Player %d picked %s index %d to place in %s index %d",(int)comp->dungeon->owner,thing_model_name(thing),(int)thing->index,
