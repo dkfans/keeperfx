@@ -261,7 +261,7 @@ unsigned long get_flags_for_job(CreatureJob jobpref);
 CreatureJob get_creature_job_causing_going_postal(CreatureJob job_flags, RoomKind rkind);
 CreatureJob get_creature_job_causing_stress(CreatureJob job_flags, RoomKind rkind);
 CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long drop_kind_flags);
-CreatureJob get_job_for_room(RoomKind rkind, unsigned long required_kind_flags);
+CreatureJob get_job_for_room(RoomKind rkind, unsigned long required_kind_flags, CreatureJob has_jobs);
 CreatureJob get_job_which_qualify_for_room(RoomKind rkind, unsigned long qualify_flags, unsigned long prevent_flags);
 const char *creature_job_code_name(CreatureJob job_flag);
 /******************************************************************************/

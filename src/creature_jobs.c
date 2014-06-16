@@ -911,7 +911,11 @@ TbBool send_creature_to_job_near_position(struct Thing *creatng, MapSubtlCoord s
  */
 TbBool creature_can_do_job_for_computer_player_in_room(const struct Thing *creatng, PlayerNumber plyr_idx, RoomKind rkind)
 {
-    return creature_can_do_job_for_player(creatng, plyr_idx, get_job_for_room(rkind, JoKF_AssignComputerDropInRoom), JobChk_None);
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(creatng);
+    CreatureJob jobpref;
+    jobpref = get_job_for_room(rkind, JoKF_AssignComputerDropInRoom, crstat->job_primary|crstat->job_secondary);
+    return creature_can_do_job_for_player(creatng, plyr_idx, jobpref, JobChk_None);
 }
 
 TbBool attempt_job_work_in_room_for_player(struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job)
