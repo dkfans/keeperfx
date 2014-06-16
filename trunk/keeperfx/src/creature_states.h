@@ -293,7 +293,7 @@ TbBool can_change_from_state_to(const struct Thing *thing, CrtrStateId curr_stat
 TbBool internal_set_thing_state(struct Thing *thing, CrtrStateId nState);
 TbBool external_set_thing_state_f(struct Thing *thing, CrtrStateId state, const char *func_name);
 #define external_set_thing_state(thing,state) external_set_thing_state_f(thing,state,__func__)
-void init_creature_state(struct Thing *thing);
+TbBool init_creature_state(struct Thing *creatng);
 TbBool initialise_thing_state_f(struct Thing *thing, CrtrStateId nState, const char *func_name);
 #define initialise_thing_state(thing, nState) initialise_thing_state_f(thing, nState,__func__)
 TbBool cleanup_current_thing_state(struct Thing *thing);

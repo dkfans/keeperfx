@@ -1372,7 +1372,7 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
     {
         i = (long)spinfo->caster_affect_sound;
         if (i > 0)
-          thing_play_sample(castng, i, 100, 0, 3, 0, 4, FULL_LOUDNESS);
+          thing_play_sample(castng, i, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
         apply_spell_effect_to_thing(castng, spl_idx, cctrl->explevel);
     }
     // Check if the spell has an effect associated
@@ -2068,7 +2068,7 @@ void thing_death_flesh_explosion(struct Thing *thing)
     deadtng->pos_2C.x.val = memaccl.x.val;
     deadtng->pos_2C.y.val = memaccl.y.val;
     deadtng->pos_2C.z.val = memaccl.z.val;
-    thing_play_sample(deadtng, 47, 100, 0, 3, 0, 4, FULL_LOUDNESS);
+    thing_play_sample(deadtng, 47, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
 }
 
 void thing_death_gas_and_flesh_explosion(struct Thing *thing)
@@ -2105,7 +2105,7 @@ void thing_death_gas_and_flesh_explosion(struct Thing *thing)
     deadtng->pos_2C.x.val = memaccl.x.val;
     deadtng->pos_2C.y.val = memaccl.y.val;
     deadtng->pos_2C.z.val = memaccl.z.val;
-    thing_play_sample(deadtng, 47, 100, 0, 3, 0, 4, FULL_LOUDNESS);
+    thing_play_sample(deadtng, 47, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
 }
 
 void thing_death_smoke_explosion(struct Thing *thing)
@@ -2135,7 +2135,7 @@ void thing_death_smoke_explosion(struct Thing *thing)
     deadtng->pos_2C.x.val = memaccl.x.val;
     deadtng->pos_2C.y.val = memaccl.y.val;
     deadtng->pos_2C.z.val = memaccl.z.val;
-    thing_play_sample(deadtng, 47, 100, 0, 3, 0, 4, FULL_LOUDNESS);
+    thing_play_sample(deadtng, 47, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
 }
 
 /**
@@ -2172,7 +2172,7 @@ void thing_death_ice_explosion(struct Thing *thing)
     deadtng->pos_2C.x.val = memaccl.x.val;
     deadtng->pos_2C.y.val = memaccl.y.val;
     deadtng->pos_2C.z.val = memaccl.z.val;
-    thing_play_sample(deadtng, 47, 100, 0, 3, 0, 4, FULL_LOUDNESS);
+    thing_play_sample(deadtng, 47, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
 }
 
 void creature_death_as_nature_intended(struct Thing *thing)
@@ -2680,7 +2680,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
       }
       if (shotst->old->shot_sound > 0)
       {
-        thing_play_sample(shotng, shotst->old->shot_sound, 100, 0, 3, 0, shotst->old->field_20, FULL_LOUDNESS);
+        thing_play_sample(shotng, shotst->old->shot_sound, NORMAL_PITCH, 0, 3, 0, shotst->old->field_20, FULL_LOUDNESS);
       }
       set_flag_byte(&shotng->movement_flags,TMvF_Unknown10,flag1);
     }
@@ -4091,7 +4091,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *
     // then should be placed in temple
     if ((anger_is_creature_angry(thing) ||
      (creature_affected_by_spell(thing, SplK_Disease) && (health_permil < 500)))
-     && creature_can_do_job_for_player(thing, dungeon->owner, Job_TEMPLE_PRAY))
+     && creature_can_do_job_for_player(thing, dungeon->owner, Job_TEMPLE_PRAY, JobChk_None))
     {
         // If already at temple, then don't do anything
         if (creature_is_doing_temple_pray_activity(thing))

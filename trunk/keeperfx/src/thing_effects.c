@@ -1038,11 +1038,11 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
                 sectng = create_effect(&elemtng->mappos, TngEff_Unknown49, thing->owner);
                 TRACE_THING(sectng);
                 if (!thing_is_invalid(sectng)) {
-                    thing_play_sample(sectng, egenstat->sound_sample_idx + ACTION_RANDOM(egenstat->sound_sample_rng), 100, 0, 3, 0, 2, FULL_LOUDNESS);
+                    thing_play_sample(sectng, egenstat->sound_sample_idx + ACTION_RANDOM(egenstat->sound_sample_rng), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
                 }
             }
             if (egenstat->sound_sample_sec > 0) {
-                thing_play_sample(elemtng, egenstat->sound_sample_sec, 100, 0, 3, 0, 2, FULL_LOUDNESS);
+                thing_play_sample(elemtng, egenstat->sound_sample_sec, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
             }
         }
     }
@@ -1095,7 +1095,7 @@ struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, Play
     add_thing_to_its_class_list(thing);
     place_thing_in_mapwho(thing);
     if (ieffect->field_C != 0) {
-        thing_play_sample(thing, ieffect->field_C, 100, 0, 3, 0, 3, FULL_LOUDNESS);
+        thing_play_sample(thing, ieffect->field_C, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
     }
     return thing;
 }

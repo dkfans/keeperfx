@@ -359,9 +359,9 @@ void play_creature_sound(struct Thing *thing, long snd_idx, long a3, long a4)
     i = UNSYNC_RANDOM(crsound->count);
     SYNCDBG(18,"Playing sample %d (index %d) for creature %d",snd_idx,crsound->index+i,thing->model);
     if ( a4 ) {
-        thing_play_sample(thing, crsound->index+i, 100, 0, 3, 8, a3, FULL_LOUDNESS);
+        thing_play_sample(thing, crsound->index+i, NORMAL_PITCH, 0, 3, 8, a3, FULL_LOUDNESS);
     } else {
-        thing_play_sample(thing, crsound->index+i, 100, 0, 3, 0, a3, FULL_LOUDNESS);
+        thing_play_sample(thing, crsound->index+i, NORMAL_PITCH, 0, 3, 0, a3, FULL_LOUDNESS);
     }
 }
 
@@ -381,7 +381,7 @@ void play_creature_sound_and_create_sound_thing(struct Thing *thing, long snd_id
     i = UNSYNC_RANDOM(crsound->count);
     efftng = create_effect(&thing->mappos, TngEff_Unknown49, thing->owner);
     if (!thing_is_invalid(efftng)) {
-        thing_play_sample(efftng, crsound->index+i, 100, 0, 3, 0, a2, FULL_LOUDNESS);
+        thing_play_sample(efftng, crsound->index+i, NORMAL_PITCH, 0, 3, 0, a2, FULL_LOUDNESS);
     }
 }
 

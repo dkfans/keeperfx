@@ -364,7 +364,7 @@ void powerful_magic_breaking_sparks(struct Thing *breaktng)
     pos.z.val = get_floor_height_at(&pos);
     draw_lightning(&breaktng->mappos, &pos, 96, 60);
     if ( !S3DEmitterIsPlayingSample(breaktng->snd_emitter_id, 157, 0) ) {
-        thing_play_sample(breaktng, 157, 100, -1, 3, 1, 6, FULL_LOUDNESS);
+        thing_play_sample(breaktng, 157, NORMAL_PITCH, -1, 3, 1, 6, FULL_LOUDNESS);
     }
 }
 

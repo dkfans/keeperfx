@@ -145,7 +145,7 @@ short creature_piss(struct Thing *thing)
     //return _DK_creature_piss(thing);
     cctrl = creature_control_get_from_thing(thing);
     if ( !S3DEmitterIsPlayingSample(thing->snd_emitter_id, 171, 0) ) {
-        thing_play_sample(thing, 171, 100, 0, 3, 1, 6, FULL_LOUDNESS);
+        thing_play_sample(thing, 171, NORMAL_PITCH, 0, 3, 1, 6, FULL_LOUDNESS);
     }
     i = cctrl->field_282;
     if (i > 0) i--;

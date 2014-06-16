@@ -43,6 +43,11 @@ enum SoundEmitterFlags {
     Emi_IsMoving     = 0x04,
 };
 
+enum SoundSampleFlags {
+    Smp_Unknown01  = 0x01,
+    Smp_Unknown02  = 0x02,
+};
+
 typedef long (*S3D_LineOfSight_Func)(long, long, long, long, long, long);
 
 struct SoundCoord3d {
@@ -77,13 +82,13 @@ struct S3DSample { // sizeof = 37
   unsigned short smptbl_id;
   unsigned char bank_id;
   unsigned short base_pitch;
-  unsigned short field_D;
+  unsigned short pan;
   unsigned short volume;
   struct SampleInfo *smpinfo;
   struct SoundEmitter *emit_ptr;
   long emit_idx;
   char field_1D; // signed
-  unsigned char field_1E;
+  unsigned char flags;
   unsigned char is_playing;
   unsigned char sfxid;
   unsigned long base_volume;
@@ -160,8 +165,8 @@ TbBool S3DMoveSoundEmitterTo(SoundEmitterID eidx, long x, long y, long z);
 long S3DInit(void);
 long S3DSetNumberOfSounds(long nMaxSounds);
 long S3DSetMaximumSoundDistance(long nDistance);
-TbBool S3DAddSampleToEmitterPri(SoundEmitterID eidx, SoundSmplTblID smptbl_id, long bank_id, long pitch, SoundVolume loudness, long a6, char a7, long a8, long a9);
-long S3DCreateSoundEmitterPri(long x, long y, long z, SoundSmplTblID smptbl_id, long bank_id, long pitch, SoundVolume loudness, long a8, long a9, long a10);
+TbBool S3DAddSampleToEmitterPri(SoundEmitterID eidx, SoundSmplTblID smptbl_id, SoundBankID bank_id, SoundPitch pitch, SoundVolume loudness, long a6, char a7, long a8, long a9);
+long S3DCreateSoundEmitterPri(long x, long y, long z, SoundSmplTblID smptbl_id, SoundBankID bank_id, SoundPitch pitch, SoundVolume loudness, long a8, long a9, long a10);
 TbBool S3DEmitterIsAllocated(SoundEmitterID eidx);
 TbBool S3DEmitterIsPlayingAnySample(SoundEmitterID eidx);
 TbBool S3DEmitterIsPlayingSample(SoundEmitterID eidx, long smpl_idx, long a2);
