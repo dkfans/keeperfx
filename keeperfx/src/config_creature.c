@@ -1710,16 +1710,10 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
         } else {
             required_kind_flags |= JoKF_AssignDropOnRoomBorder;
         }
+        struct CreatureStats *crstat;
+        crstat = creature_stats_get_from_thing(creatng);
         CreatureJob jobpref;
-        jobpref = get_job_for_room(room->kind, required_kind_flags);
-        // Special hack for jobs which make no difference for the function above, but are distinct
-        if (jobpref == Job_KINKY_TORTURE)
-        {
-            // Allow kinky torture only if it is in creature jobs list
-            if ((creatng->owner != room->owner) || !creature_has_job(creatng, Job_KINKY_TORTURE)) {
-                jobpref = Job_PAINFUL_TORTURE;
-            }
-        }
+        jobpref = get_job_for_room(room->kind, required_kind_flags, crstat->job_primary|crstat->job_secondary);
         return jobpref;
     }
     //TODO CREATURE_JOBS make support for jobs outside of rooms
@@ -1732,9 +1726,11 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
  * @param required_kind_flags Only jobs which have all of the flags set can be returned.
  *     For example, to only include jobs which can be assigned by dropping creatures by computer player,
  *     use JoKF_AssignComputerDropInRoom flag.
+ * @param has_jobs Primary and secondary jobs of a creature to be assigned; if only jobs which have
+ *     no need to be in primary/secondary list should be qualified, this can be Job_NULL.
  * @return A single job flag.
  */
-CreatureJob get_job_for_room(RoomKind rkind, unsigned long required_kind_flags)
+CreatureJob get_job_for_room(RoomKind rkind, unsigned long required_kind_flags, CreatureJob has_jobs)
 {
     long i;
     if (rkind == RoK_NONE) {
@@ -1746,8 +1742,13 @@ CreatureJob get_job_for_room(RoomKind rkind, unsigned long required_kind_flags)
         jobcfg = &crtr_conf.jobs[i];
         if ((jobcfg->job_flags & required_kind_flags) == required_kind_flags)
         {
-            if (jobcfg->room_kind == rkind) {
-                return 1<<(i-1);
+            CreatureJob new_job;
+            new_job = 1<<(i-1);
+            if (((jobcfg->job_flags & JoKF_NeedsHaveJob) == 0) || ((has_jobs & new_job) != 0))
+            {
+                if (jobcfg->room_kind == rkind) {
+                    return new_job;
+                }
             }
         }
     }
@@ -1828,7 +1829,7 @@ CrtrStateId get_arrive_at_state_for_job(CreatureJob jobpref)
 CrtrStateId get_arrive_at_state_for_room(RoomKind rkind)
 {
     CreatureJob jobpref;
-    jobpref = get_job_for_room(rkind, JoKF_None);
+    jobpref = get_job_for_room(rkind, JoKF_None, Job_NULL);
     struct CreatureJobConfig *jobcfg;
     jobcfg = get_config_for_job(jobpref);
     return jobcfg->initial_crstate;
