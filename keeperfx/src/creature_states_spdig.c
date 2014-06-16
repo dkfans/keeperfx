@@ -844,7 +844,7 @@ short imp_drops_gold(struct Thing *thing)
         if (!thing_is_invalid(gldtng))
             thing->creature.gold_carried -= gldtng->valuable.gold_stored;
     }
-    thing_play_sample(thing, UNSYNC_RANDOM(3) + 32, 100, 0, 3, 0, 2, FULL_LOUDNESS);
+    thing_play_sample(thing, UNSYNC_RANDOM(3) + 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     if ( (thing->creature.gold_carried == 0) || (room->used_capacity >= room->total_capacity) ) {
         internal_set_thing_state(thing, CrSt_ImpLastDidJob);
         return 1;

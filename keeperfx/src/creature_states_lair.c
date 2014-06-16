@@ -230,7 +230,7 @@ long creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
     objdat = get_objects_data_for_thing(lairtng);
     i = convert_td_iso(objdat->field_5);
     set_thing_draw(lairtng, i, objdat->field_7, lairtng->word_15, 0, -1, objdat->field_11);
-    thing_play_sample(creatng, 158, 100, 0, 3, 1, 2, FULL_LOUDNESS);
+    thing_play_sample(creatng, 158, NORMAL_PITCH, 0, 3, 1, 2, FULL_LOUDNESS);
     create_effect(&pos, imp_spangle_effects[creatng->owner], creatng->owner);
     anger_set_creature_anger(creatng, 0, AngR_NoLair);
     remove_thing_from_mapwho(creatng);
