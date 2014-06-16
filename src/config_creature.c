@@ -104,6 +104,7 @@ const struct NamedCommand creaturetype_job_assign[] = {
   {"OWNED_DIGGERS",          JoKF_OwnedDiggers},
   {"ENEMY_DIGGERS",          JoKF_EnemyDiggers},
   {"ONE_TIME",               JoKF_AssignOneTime},
+  {"NEEDS_HAVE_JOB",         JoKF_NeedsHaveJob},
   {NULL,                     0},
   };
 
@@ -113,6 +114,8 @@ const struct NamedCommand creaturetype_job_properties[] = {
   {"WORK_WHOLE_ROOM",        JoKF_WorkOnRoomBorder|JoKF_WorkOnRoomCenter},
   {"NEEDS_CAPACITY",         JoKF_NeedsCapacity},
   {"NO_SELF_CONTROL",        JoKF_NoSelfControl},
+  {"NO_GROUPS",              JoKF_NoGroups},
+  {"ALLOW_CHICKENIZED",      JoKF_AllowChickenized},
   {NULL,                     0},
   };
 

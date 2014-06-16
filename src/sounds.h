@@ -27,6 +27,7 @@ extern "C" {
 #endif
 
 #define FULL_LOUDNESS 256
+#define NORMAL_PITCH 100
 
 /******************************************************************************/
 #pragma pack(1)

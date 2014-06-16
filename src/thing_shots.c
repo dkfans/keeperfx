@@ -246,12 +246,12 @@ void process_dig_shot_hit_wall(struct Thing *thing, unsigned long blocked_flags)
         { // Valuables require counting gold
             give_gold_to_creature_or_drop_on_map_when_digging(diggertng, stl_x, stl_y, damage);
             mine_out_block(stl_x, stl_y, diggertng->owner);
-            thing_play_sample(diggertng, 72+UNSYNC_RANDOM(3), 100, 0, 3, 0, 2, FULL_LOUDNESS);
+            thing_play_sample(diggertng, 72+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         } else
         if ((mapblk->flags & MapFlg_IsDoor) == 0)
         { // All non-gold and non-door slabs are just destroyed
             dig_out_block(stl_x, stl_y, diggertng->owner);
-            thing_play_sample(diggertng, 72+UNSYNC_RANDOM(3), 100, 0, 3, 0, 2, FULL_LOUDNESS);
+            thing_play_sample(diggertng, 72+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         }
         check_map_explored(diggertng, stl_x, stl_y);
     } else
@@ -283,7 +283,7 @@ struct Thing *create_shot_hit_effect(struct Coord3d *effpos, long effowner, long
             i = snd_idx;
             if (snd_range > 1)
                 i += UNSYNC_RANDOM(snd_range);
-            thing_play_sample(efftng, i, 100, 0, 3, 0, 2, FULL_LOUDNESS);
+            thing_play_sample(efftng, i, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         }
     }
     return efftng;
@@ -430,7 +430,7 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
           {
               if (!thing_is_invalid(efftng)) {
                   i = shotst->old->field_35;
-                  thing_play_sample(efftng, n + ACTION_RANDOM(i), 100, 0, 3, 0, 2, FULL_LOUDNESS);
+                  thing_play_sample(efftng, n + ACTION_RANDOM(i), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
               }
           }
           // Shall the shot be destroyed on impact
@@ -517,7 +517,7 @@ long shot_kill_object(struct Thing *shotng, struct Thing *target)
     } else
     if (object_is_mature_food(target))
     {
-        thing_play_sample(shotng, 112+UNSYNC_RANDOM(3), 100, 0, 3, 0, 2, FULL_LOUDNESS);
+        thing_play_sample(shotng, 112+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         remove_food_from_food_room_if_possible(target);
         delete_thing_structure(target, 0);
     } else
@@ -555,11 +555,11 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
     {
         if (shotng->model == 21) //TODO CONFIG Make config option instead of model dependency
         {
-            thing_play_sample(target, 134+UNSYNC_RANDOM(3), 100, 0, 3, 0, 3, FULL_LOUDNESS);
+            thing_play_sample(target, 134+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
         } else
         if (shotng->model == 22) //TODO CONFIG Make config option instead of model dependency
         {
-            thing_play_sample(target, 144+UNSYNC_RANDOM(3), 100, 0, 3, 0, 3, FULL_LOUDNESS);
+            thing_play_sample(target, 144+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
         }
         event_create_event_or_update_nearby_existing_event(
           target->mappos.x.val, target->mappos.y.val,
@@ -570,9 +570,9 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
     } else
     {
         int i;
-        i = shotst->old->field_22;
+        i = shotst->old->hit_sound;
         if (i > 0) {
-            thing_play_sample(target, i, 100, 0, 3, 0, 3, FULL_LOUDNESS);
+            thing_play_sample(target, i, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
         }
     }
     if (shotng->word_14)
@@ -745,9 +745,9 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
     damage = get_damage_of_melee_shot(shotng, trgtng);
     if (damage != 0)
     {
-      if (shotst->old->field_22 > 0)
+      if (shotst->old->hit_sound > 0)
       {
-          thing_play_sample(trgtng, shotst->old->field_22, 100, 0, 3, 0, 2, FULL_LOUDNESS);
+          thing_play_sample(trgtng, shotst->old->hit_sound, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
           play_creature_sound(trgtng, CrSnd_Hurt, 3, 0);
       }
       if (!thing_is_invalid(shooter)) {
@@ -877,10 +877,10 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             return 1;
         }
     }
-    if (shotst->old->field_22 != 0)
+    if (shotst->old->hit_sound != 0)
     {
         play_creature_sound(trgtng, CrSnd_Hurt, 1, 0);
-        thing_play_sample(trgtng, shotst->old->field_22, 100, 0, 3, 0, 2, FULL_LOUDNESS);
+        thing_play_sample(trgtng, shotst->old->hit_sound, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     }
     if (shotng->word_14 != 0)
     {
@@ -1148,7 +1148,7 @@ TngUpdateRet update_shot(struct Thing *thing)
     if (shotst->old->shot_sound != 0)
     {
         if (!S3DEmitterIsPlayingSample(thing->snd_emitter_id, shotst->old->shot_sound, 0))
-            thing_play_sample(thing, shotst->old->shot_sound, 100, 0, 3, 0, 2, FULL_LOUDNESS);
+            thing_play_sample(thing, shotst->old->shot_sound, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     }
     if (shotst->old->field_47)
         thing->health--;

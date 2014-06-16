@@ -68,7 +68,7 @@ DLLIMPORT int _DK_process_3d_sounds(void);
 DLLIMPORT void _DK_sound_reinit_after_load(void);
 DLLIMPORT void _DK_play_thing_walking(struct Thing *thing);
 /******************************************************************************/
-void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short a3, char a4, unsigned char a5, unsigned char a6, long a7, long loudness)
+void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short pitch, char a4, unsigned char a5, unsigned char a6, long a7, long loudness)
 {
     struct Coord3d rcpos;
     long eidx;
@@ -86,11 +86,11 @@ void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short a3,
         eidx = thing->snd_emitter_id;
         if (eidx > 0)
         {
-            S3DAddSampleToEmitterPri(eidx, smptbl_idx, 0, a3, loudness, a4, a5, a6 | 0x01, a7);
+            S3DAddSampleToEmitterPri(eidx, smptbl_idx, 0, pitch, loudness, a4, a5, a6 | 0x01, a7);
         } else
         {
             eidx = S3DCreateSoundEmitterPri(thing->mappos.x.val, thing->mappos.y.val, thing->mappos.z.val,
-               smptbl_idx, 0, a3, loudness, a4, a6 | 0x01, a7);
+               smptbl_idx, 0, pitch, loudness, a4, a6 | 0x01, a7);
            thing->snd_emitter_id = eidx;
         }
     }
@@ -198,11 +198,11 @@ void set_room_playing_ambient_sound(struct Coord3d *pos, long sample_idx)
             if ( !S3DEmitterIsPlayingSample(i, sample_idx, 0) )
             {
                 S3DDeleteAllSamplesFromEmitter(thing->snd_emitter_id);
-                thing_play_sample(thing, sample_idx, 100, -1, 3, 0, 6, FULL_LOUDNESS);
+                thing_play_sample(thing, sample_idx, NORMAL_PITCH, -1, 3, 0, 6, FULL_LOUDNESS);
             }
         } else
         {
-            thing_play_sample(thing, sample_idx, 100, -1, 3, 0, 6, FULL_LOUDNESS);
+            thing_play_sample(thing, sample_idx, NORMAL_PITCH, -1, 3, 0, 6, FULL_LOUDNESS);
         }
     } else
     {

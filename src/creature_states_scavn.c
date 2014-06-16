@@ -162,7 +162,7 @@ short creature_being_scavenged(struct Thing *creatng)
     }
     creatng->continue_state = CrSt_CreatureBeingScavenged;
     if (!S3DEmitterIsPlayingSample(creatng->snd_emitter_id, 156, 0))
-        thing_play_sample(creatng, 156, 100, 0, 3, 1, 2, FULL_LOUDNESS);
+        thing_play_sample(creatng, 156, NORMAL_PITCH, 0, 3, 1, 2, FULL_LOUDNESS);
     SYNCDBG(19,"Finished");
     return 1;
 }

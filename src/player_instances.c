@@ -323,7 +323,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
           pos.z.val = thing->mappos.z.val + (thing->field_58 >> 1);
           if ( creature_model_bleeds(thing->model) )
               create_effect(&pos, TngEff_Unknown06, thing->owner);
-          thing_play_sample(thing, 75, 100, 0, 3, 0, 3, FULL_LOUDNESS);
+          thing_play_sample(thing, 75, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
           cam = player->acamera;
           if (cam != NULL)
           {
@@ -352,7 +352,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
       {
         efftng = create_effect(&thing->mappos, TngEff_Unknown49, thing->owner);
         if (!thing_is_invalid(efftng))
-          thing_play_sample(efftng, 75, 100, 0, 3, 0, 3, FULL_LOUDNESS);
+          thing_play_sample(efftng, 75, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
         slap_object(thing);
       }
       break;
