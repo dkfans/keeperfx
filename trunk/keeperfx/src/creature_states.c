@@ -1723,7 +1723,7 @@ short creature_try_going_to_healing_sleep(struct Thing *creatng)
         return false;
     }
     cctrl->healing_sleep_check_turn = game.play_gameturn;
-    if (!creature_free_for_sleep(creatng)) {
+    if (!creature_free_for_sleep(creatng, CrSt_CreatureGoingHomeToSleep)) {
         return false;
     }
     if (!creature_has_lair_room(creatng) && room_is_invalid(get_best_new_lair_for_creature(creatng))) {
@@ -4260,13 +4260,13 @@ TbBool external_set_thing_state_f(struct Thing *thing, CrtrStateId state, const 
     return true;
 }
 
-TbBool creature_free_for_sleep(const struct Thing *thing)
+TbBool creature_free_for_sleep(const struct Thing *thing,  CrtrStateId state)
 {
     const struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
     if ((cctrl->slap_turns != 0) || ((cctrl->spell_flags & CSAfF_Unkn0800) != 0))
         return false;
-    return can_change_from_state_to(thing, thing->active_state, CrSt_CreatureGoingHomeToSleep);
+    return can_change_from_state_to(thing, thing->active_state, state);
 }
 
 /**
@@ -4279,18 +4279,31 @@ long process_creature_needs_to_heal_critical(struct Thing *thing, const struct C
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
     //return _DK_process_creature_needs_to_heal_critical(thing, crstat);
-    if (!creature_can_do_healing_sleep(thing)
-      || (get_creature_health_permil(thing) >= gameadd.critical_health_permil)) {
+    if (get_creature_health_permil(thing) >= gameadd.critical_health_permil) {
+        return 0;
+    }
+    if (!creature_can_do_healing_sleep(thing))
+    {
+        // Creature needs healing but cannot heal in lair - try toking
+        if (!creature_free_for_sleep(thing, CrSt_ImpToking)) {
+            return 0;
+        }
+        if (get_creature_state_besides_interruptions(thing) == CrSt_ImpToking) {
+            return 0;
+        }
+        internal_set_thing_state(thing, CrSt_ImpToking);
+        thing->continue_state = CrSt_ImpDoingNothing;
+        cctrl->field_282 = 200;
         return 0;
     }
     if (creature_is_doing_lair_activity(thing)) {
         return 1;
     }
-    if (!creature_free_for_sleep(thing)) {
+    if (!creature_free_for_sleep(thing, CrSt_CreatureGoingHomeToSleep)) {
         return 0;
     }
     if ( (game.play_gameturn - cctrl->healing_sleep_check_turn > 128) &&
-      ((cctrl->lair_room_id != 0) || get_best_new_lair_for_creature(thing)) )
+      ((cctrl->lair_room_id != 0) || !room_is_invalid(get_best_new_lair_for_creature(thing))) )
     {
         if ( external_set_thing_state(thing, CrSt_CreatureGoingHomeToSleep) )
             return 1;
@@ -4304,9 +4317,79 @@ long process_creature_needs_to_heal_critical(struct Thing *thing, const struct C
     return 0;
 }
 
+long creature_setup_head_for_treasure_room_door(struct Thing *creatng, struct Room *room)
+{
+    struct Coord3d pos;
+    if (find_random_valid_position_for_thing_in_room(creatng, room, &pos))
+    {
+        if (setup_person_move_to_position(creatng, pos.x.stl.num, pos.y.stl.num, NavRtF_NoOwner))
+        {
+            struct CreatureControl *cctrl;
+            cctrl = creature_control_get_from_thing(creatng);
+            creatng->continue_state = CrSt_CreatureTakeSalary;
+            cctrl->target_room_id = room->index;
+            return 1;
+        }
+    }
+    return 0;
+}
+
 long process_creature_needs_a_wage(struct Thing *thing, const struct CreatureStats *crstat)
 {
-    return _DK_process_creature_needs_a_wage(thing, crstat);
+    struct CreatureControl *cctrl;
+    //return _DK_process_creature_needs_a_wage(thing, crstat);
+    cctrl = creature_control_get_from_thing(thing);
+    if ((crstat->pay == 0) || (cctrl->field_48 == 0)) {
+      return 0;
+    }
+    if (creature_is_taking_salary_activity(thing)) {
+        return 1;
+    }
+    if (!can_change_from_state_to(thing, thing->active_state, CrSt_CreatureWantsSalary)) {
+        return 0;
+    }
+    struct Room *room;
+    room = find_nearest_room_for_thing_with_used_capacity(thing, thing->owner, RoK_TREASURE, NavRtF_Default, 1);
+    if (!room_is_invalid(room))
+    {
+        if (external_set_thing_state(thing, CrSt_CreatureWantsSalary))
+        {
+            anger_apply_anger_to_creature(thing, crstat->annoy_got_wage, 1, 1);
+            return 1;
+        }
+        return 0;
+    }
+    room = find_nearest_room_for_thing_with_used_capacity(thing, thing->owner, RoK_TREASURE, NavRtF_NoOwner, 1);
+    if (!room_is_invalid(room))
+    {
+        cleanup_current_thing_state(thing);
+        if (creature_setup_head_for_treasure_room_door(thing, room))
+        {
+            return 1;
+        }
+        ERRORLOG("Shit, could not get to treasure room door and I've cleaned up my old state");
+        set_start_state(thing);
+        return 0;
+    }
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(thing->owner);
+    room = find_nearest_room_for_thing(thing, thing->owner, RoK_TREASURE, NavRtF_Default);
+    if ((dungeon->total_money_owned >= calculate_correct_creature_pay(thing)) && !room_is_invalid(room))
+    {
+        cleanup_current_thing_state(thing);
+        if (setup_random_head_for_room(thing, room, NavRtF_Default))
+        {
+            thing->continue_state = CrSt_CreatureTakeSalary;
+            cctrl->target_room_id = room->index;
+            return 1;
+        }
+        ERRORLOG("Shit, could not get to treasure room and I've cleaned up my old state");
+        set_start_state(thing);
+        return 0;
+    }
+    cctrl->field_48--;
+    anger_apply_anger_to_creature(thing, crstat->annoy_no_salary, 1, 1);
+    return 0;
 }
 
 char creature_free_for_lunchtime(struct Thing *creatng)
@@ -4489,7 +4572,30 @@ long anger_process_creature_anger(struct Thing *creatng, const struct CreatureSt
 
 long process_creature_needs_to_heal(struct Thing *creatng, const struct CreatureStats *crstat)
 {
-    return _DK_process_creature_needs_to_heal(creatng, crstat);
+    //return _DK_process_creature_needs_to_heal(creatng, crstat);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    if (!creature_can_do_healing_sleep(creatng) || !creature_requires_healing(creatng)) {
+        return 0;
+    }
+    if (creature_is_doing_lair_activity(creatng)) {
+        return 1;
+    }
+    if (!creature_free_for_sleep(creatng, CrSt_CreatureGoingHomeToSleep)) {
+        return 0;
+    }
+    if (((game.play_gameturn - cctrl->healing_sleep_check_turn) > 128)
+      && ((cctrl->lair_room_id != 0) || !room_is_invalid(get_best_new_lair_for_creature(creatng))))
+    {
+        if (external_set_thing_state(creatng, CrSt_CreatureGoingHomeToSleep)) {
+            return 1;
+        }
+    } else
+    {
+      anger_apply_anger_to_creature(creatng, crstat->annoy_no_lair, AngR_NoLair, 1);
+    }
+    cctrl->healing_sleep_check_turn = game.play_gameturn;
+    return 0;
 }
 
 long process_training_need(struct Thing *thing, const struct CreatureStats *crstat)
@@ -4538,12 +4644,8 @@ long process_piss_need(struct Thing *thing, const struct CreatureStats *crstat)
 void process_person_moods_and_needs(struct Thing *thing)
 {
     //_DK_process_person_moods_and_needs(thing); return;
-    if (get_players_special_digger_model(thing->owner) == thing->model) {
-        // Special diggers have no special needs
-        return;
-    }
     if (is_hero_thing(thing) || is_neutral_thing(thing)) {
-        // Same goes to heroes and neutral creatures
+        // Heroes and neutral creatures have no special needs
         return;
     }
     if (creature_is_kept_in_custody(thing)) {
