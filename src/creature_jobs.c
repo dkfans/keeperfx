@@ -791,7 +791,7 @@ TbBool creature_can_take_salary_near_pos(const struct Thing *creatng, MapSubtlCo
 
 TbBool creature_can_take_sleep_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, unsigned long flags)
 {
-    if (!creature_free_for_sleep(creatng)) {
+    if (!creature_free_for_sleep(creatng, CrSt_CreatureGoingHomeToSleep)) {
         return false;
     }
     return true;
