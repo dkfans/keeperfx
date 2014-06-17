@@ -81,7 +81,7 @@ TbBool slab_has_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y);
 
 TbBool destroy_trap(struct Thing *thing);
 struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber plyr_idx);
-struct Thing *get_trap_for_position(long pos_x, long pos_y);
+struct Thing *get_trap_for_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Thing *get_trap_for_slab_position(MapSlabCoord slb_x, MapSlabCoord slb_y);
 TbBool trap_is_active(const struct Thing *thing);
 TbBool trap_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx);

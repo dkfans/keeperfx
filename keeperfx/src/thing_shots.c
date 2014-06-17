@@ -965,49 +965,139 @@ long shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *target, str
     return 0;
 }
 
-long collide_filter_thing_is_shootable_by_any_player_including_objects(struct Thing *thing, struct Thing *coltng, long a3, long a4)
+long collide_filter_thing_is_shootable_by_any_player_including_objects(struct Thing *thing, struct Thing *parntng, long a3, long a4)
 {
     PlayerNumber shot_owner = -1;
-    if (thing_exists(coltng))
-        shot_owner = coltng->owner;
+    if (thing_exists(parntng))
+        shot_owner = parntng->owner;
     return thing_is_shootable_by_any_player_including_objects(thing, shot_owner);
 }
 
-long collide_filter_thing_is_shootable_by_any_player_excluding_objects(struct Thing *thing, struct Thing *coltng, long a3, long a4)
+long collide_filter_thing_is_shootable_by_any_player_excluding_objects(struct Thing *thing, struct Thing *parntng, long a3, long a4)
 {
     PlayerNumber shot_owner = -1;
-    if (thing_exists(coltng))
-        shot_owner = coltng->owner;
+    if (thing_exists(parntng))
+        shot_owner = parntng->owner;
     return thing_is_shootable_by_any_player_excluding_objects(thing, shot_owner);
 }
 
-long collide_filter_thing_is_shootable_by_any_player_except_own_including_objects(struct Thing *thing, struct Thing *coltng, long a3, long a4)
+long collide_filter_thing_is_shootable_by_any_player_except_own_including_objects(struct Thing *thing, struct Thing *parntng, long a3, long a4)
 {
     PlayerNumber shot_owner = -1;
-    if (thing_exists(coltng))
-        shot_owner = coltng->owner;
+    if (thing_exists(parntng))
+        shot_owner = parntng->owner;
     return thing_is_shootable_by_any_player_except_own_including_objects(thing, shot_owner);
 }
 
-long collide_filter_thing_is_shootable_by_any_player_except_own_excluding_objects(struct Thing *thing, struct Thing *coltng, long a3, long a4)
+long collide_filter_thing_is_shootable_by_any_player_except_own_excluding_objects(struct Thing *thing, struct Thing *parntng, long a3, long a4)
 {
     PlayerNumber shot_owner = -1;
-    if (thing_exists(coltng))
-        shot_owner = coltng->owner;
+    if (thing_exists(parntng))
+        shot_owner = parntng->owner;
     return thing_is_shootable_by_any_player_except_own_excluding_objects(thing, shot_owner);
 }
 
-long collide_filter_thing_is_shootable_dungeon_heart_only(struct Thing *thing, struct Thing *coltng, long a3, long a4)
+long collide_filter_thing_is_shootable_dungeon_heart_only(struct Thing *thing, struct Thing *parntng, long a3, long a4)
 {
     PlayerNumber shot_owner = -1;
-    if (thing_exists(coltng))
-        shot_owner = coltng->owner;
+    if (thing_exists(parntng))
+        shot_owner = parntng->owner;
     return (thing_is_dungeon_heart(thing) && (shot_owner != thing->owner));
 }
 
-struct Thing *get_thing_collided_with_at_satisfying_filter(struct Thing *thing, struct Coord3d *pos, Thing_Collide_Func filter, long a4, long a5)
+TbBool thing_on_thing_at(struct Thing *shotng, struct Coord3d *pos, struct Thing *ontng)
 {
-    return _DK_get_thing_collided_with_at_satisfying_filter(thing, pos, filter, a4, a5);
+    if (ontng->parent_idx == shotng->parent_idx)
+        return false;
+    int i;
+    i = (ontng->field_5A + shotng->field_5A) / 2;
+    if ((abs(pos->x.val - (long)ontng->mappos.x.val) >= i) || (abs(pos->y.val - (long)ontng->mappos.y.val) >= i))
+        return false;
+    i = (ontng->field_5C + shotng->field_5C) / 2;
+    if (abs(pos->z.val - (long)ontng->mappos.z.val - (ontng->field_5C >> 1) + (shotng->field_5C >> 1)) >= i)
+        return false;
+    return true;
+}
+
+struct Thing *get_thing_collided_with_at_satisfying_filter_for_subtile(struct Thing *shotng, struct Coord3d *pos, Thing_Collide_Func filter, long a4, long a5, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct Thing *parntng;
+    parntng = INVALID_THING;
+    if (shotng->parent_idx > 0) {
+        parntng = thing_get(shotng->parent_idx);
+    }
+    struct Thing *thing;
+    struct Map *mapblk;
+    long i;
+    unsigned long k;
+    mapblk = get_map_block_at(stl_x,stl_y);
+    k = 0;
+    i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_on_mapblk;
+        // Per thing code start
+        if (thing->index != shotng->index)
+        {
+            if (filter(thing, parntng, a4, a5))
+            {
+                if (thing_on_thing_at(shotng, pos, thing)) {
+                    return thing;
+                }
+            }
+        }
+        // Per thing code end
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return false;
+}
+
+struct Thing *get_thing_collided_with_at_satisfying_filter(struct Thing *shotng, struct Coord3d *pos, Thing_Collide_Func filter, long a4, long a5)
+{
+    //return _DK_get_thing_collided_with_at_satisfying_filter(thing, pos, filter, a4, a5);
+    MapSubtlCoord stl_x_min, stl_y_min;
+    MapSubtlCoord stl_x_max, stl_y_max;
+    {
+        int radius;
+        radius = 384;
+        stl_x_min = coord_subtile(pos->x.val - radius);
+        if (stl_x_min < 0)
+            stl_x_min = 0;
+        stl_y_min = coord_subtile(pos->y.val - radius);
+        if (stl_y_min < 0)
+            stl_y_min = 0;
+        stl_x_max = coord_subtile(pos->x.val + radius);
+        if (stl_x_max > map_subtiles_x)
+            stl_x_max = map_subtiles_x;
+        stl_y_max = coord_subtile(pos->y.val + radius);
+        if (stl_y_max > map_subtiles_y)
+            stl_y_max = map_subtiles_y;
+    }
+    MapSubtlCoord stl_x, stl_y;
+    for (stl_y = stl_y_min; stl_y < stl_y_max; stl_y++)
+    {
+        for (stl_x = stl_x_min; stl_x < stl_x_max; stl_x++)
+        {
+            struct Thing *coltng;
+            coltng = get_thing_collided_with_at_satisfying_filter_for_subtile(shotng, pos, filter, a4, a5, stl_x, stl_y);
+            if (!thing_is_invalid(coltng)) {
+                return coltng;
+            }
+        }
+    }
+    return INVALID_THING;
 }
 
 /**
