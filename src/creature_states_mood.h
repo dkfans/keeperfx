@@ -38,11 +38,15 @@ TbBool anger_is_creature_livid(const struct Thing *thing);
 TbBool anger_is_creature_angry(const struct Thing *thing);
 TbBool anger_free_for_anger_increase(struct Thing *creatng);
 TbBool anger_free_for_anger_decrease(struct Thing *creatng);
-void anger_increase_creature_anger(struct Thing *creatng, long anger, AnnoyMotive reason);
-void anger_reduce_creature_anger(struct Thing *creatng, long anger, AnnoyMotive reason);
+void anger_increase_creature_anger_f(struct Thing *creatng, long anger, AnnoyMotive reason, const char *func_name);
+#define anger_increase_creature_anger(creatng, anger, reason) anger_increase_creature_anger_f(creatng, anger, reason, __func__)
+void anger_reduce_creature_anger_f(struct Thing *creatng, long anger, AnnoyMotive reason, const char *func_name);
+#define anger_reduce_creature_anger(creatng, anger, reason) anger_reduce_creature_anger_f(creatng, anger, reason, __func__)
 AnnoyMotive anger_get_creature_anger_type(const struct Thing *creatng);
-void anger_set_creature_anger(struct Thing *thing, long annoy_lv, AnnoyMotive reason);
-void anger_apply_anger_to_creature_all_types(struct Thing *thing, long anger);
+void anger_set_creature_anger_f(struct Thing *creatng, long annoy_lv, AnnoyMotive reason, const char *func_name);
+#define anger_set_creature_anger(creatng, annoy_lv, reason) anger_set_creature_anger_f(creatng, annoy_lv, reason, __func__)
+void anger_apply_anger_to_creature_all_types_f(struct Thing *thing, long anger, const char *func_name);
+#define anger_apply_anger_to_creature_all_types(thing, anger) anger_apply_anger_to_creature_all_types_f(thing, anger, __func__)
 TbBool anger_make_creature_angry(struct Thing *thing, AnnoyMotive reason);
 
 short creature_moan(struct Thing *thing);
