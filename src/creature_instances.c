@@ -725,4 +725,15 @@ long instf_tunnel(struct Thing *creatng, long *param)
     }
     return 1;
 }
+
+/**
+ * Delays the possibility to use teleport spell, to make sure creature won't leave the area too soon.
+ * @param creatng The creature to be affected.
+ */
+void delay_teleport(struct Thing *creatng)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    cctrl->instance_use_turn[CrInst_TELEPORT] = game.play_gameturn + 100;
+}
 /******************************************************************************/
