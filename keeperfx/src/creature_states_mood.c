@@ -247,7 +247,7 @@ TbBool anger_free_for_anger_decrease(struct Thing *creatng)
     return true;
 }
 
-void anger_increase_creature_anger(struct Thing *creatng, long anger, AnnoyMotive reason)
+void anger_increase_creature_anger_f(struct Thing *creatng, long anger, AnnoyMotive reason, const char *func_name)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
@@ -258,23 +258,23 @@ void anger_increase_creature_anger(struct Thing *creatng, long anger, AnnoyMotiv
         if (!dungeon_invalid(dungeon)) {
             dungeon->lvstats.lies_told++;
         }
-        anger_set_creature_anger(creatng, anger + cctrl->annoyance_level[reason], reason);
+        anger_set_creature_anger_f(creatng, anger + cctrl->annoyance_level[reason], reason, func_name);
     }
 }
 
-void anger_reduce_creature_anger(struct Thing *creatng, long anger, AnnoyMotive reason)
+void anger_reduce_creature_anger_f(struct Thing *creatng, long anger, AnnoyMotive reason, const char *func_name)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
     if (anger_free_for_anger_decrease(creatng))
     {
-        anger_set_creature_anger(creatng, anger + cctrl->annoyance_level[reason], reason);
+        anger_set_creature_anger_f(creatng, anger + cctrl->annoyance_level[reason], reason, func_name);
     }
 }
 
-void anger_set_creature_anger(struct Thing *creatng, long annoy_lv, AnnoyMotive reason)
+void anger_set_creature_anger_f(struct Thing *creatng, long annoy_lv, AnnoyMotive reason, const char *func_name)
 {
-    SYNCDBG(8,"Setting reason %d to %d for %s index %d",(int)reason,(int)annoy_lv,thing_model_name(creatng),(int)creatng->index);
+    SYNCDBG(8,"%s: Setting reason %d to %d for %s index %d",func_name,(int)reason,(int)annoy_lv,thing_model_name(creatng),(int)creatng->index);
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
     //_DK_anger_set_creature_anger(creatng, annoy_lv, reason);
@@ -311,7 +311,7 @@ void anger_set_creature_anger(struct Thing *creatng, long annoy_lv, AnnoyMotive 
           if (dungeon->creatures_annoyed > 0) {
               dungeon->creatures_annoyed--;
           } else {
-              ERRORLOG("Removing annoyed creature - non to Remove");
+              ERRORLOG("%s: Removing annoyed creature - none to Remove",func_name);
           }
         }
     }
@@ -363,23 +363,23 @@ AnnoyMotive anger_get_creature_anger_type(const struct Thing *creatng)
     return anger_type;
 }
 
-void anger_apply_anger_to_creature_all_types(struct Thing *thing, long anger)
+void anger_apply_anger_to_creature_all_types_f(struct Thing *thing, long anger, const char *func_name)
 {
     if (!creature_can_get_angry(thing)) {
         return;
     }
     if (anger > 0)
     {
-        anger_increase_creature_anger(thing, anger, AngR_Other);
-        anger_increase_creature_anger(thing, anger, AngR_NotPaid);
-        anger_increase_creature_anger(thing, anger, AngR_NoLair);
-        anger_increase_creature_anger(thing, anger, AngR_Hungry);
+        anger_increase_creature_anger_f(thing, anger, AngR_Other, func_name);
+        anger_increase_creature_anger_f(thing, anger, AngR_NotPaid, func_name);
+        anger_increase_creature_anger_f(thing, anger, AngR_NoLair, func_name);
+        anger_increase_creature_anger_f(thing, anger, AngR_Hungry, func_name);
     } else
     {
-        anger_reduce_creature_anger(thing, -anger, AngR_Other);
-        anger_reduce_creature_anger(thing, -anger, AngR_NotPaid);
-        anger_reduce_creature_anger(thing, -anger, AngR_NoLair);
-        anger_reduce_creature_anger(thing, -anger, AngR_Hungry);
+        anger_reduce_creature_anger_f(thing, -anger, AngR_Other, func_name);
+        anger_reduce_creature_anger_f(thing, -anger, AngR_NotPaid, func_name);
+        anger_reduce_creature_anger_f(thing, -anger, AngR_NoLair, func_name);
+        anger_reduce_creature_anger_f(thing, -anger, AngR_Hungry, func_name);
     }
 }
 
