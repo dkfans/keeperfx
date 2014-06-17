@@ -844,7 +844,7 @@ TbBool creature_can_do_job_near_position(struct Thing *creatng, MapSubtlCoord st
     }
     if (!jobcfg->func_cord_check(creatng, stl_x, stl_y, new_job, flags))
     {
-        SYNCDBG(3,"Cannot assign %s at (%d,%d) for %s index %d owner %d; coord check failed",creature_job_code_name(new_job),(int)stl_x,(int)stl_y,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        SYNCDBG(3,"Cannot assign %s at (%d,%d) for %s index %d owner %d; coord check not passed",creature_job_code_name(new_job),(int)stl_x,(int)stl_y,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         return false;
     }
     // If other tests pass, check if related room (if is needed) has capacity to be used for that job

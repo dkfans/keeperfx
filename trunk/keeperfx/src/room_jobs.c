@@ -332,9 +332,11 @@ TbBool creature_move_to_place_in_room(struct Thing *creatng, struct Room *room, 
         pos.y.val = subtile_coord_center(room->central_stl_y);
         result = true;
         break;
+    case (JoKF_WorkOnRoomBorder|JoKF_WorkOnRoomCenter):
+        result = find_random_valid_position_for_thing_in_room(creatng, room, &pos);
+        break;
     default:
-        WARNLOG("Invalid room area flags for job %s.",creature_job_code_name(jobpref));
-    case JoKF_WorkOnRoomBorder|JoKF_WorkOnRoomCenter:
+        WARNLOG("Invalid room area flags 0x%04x for job %s.",(int)room_area,creature_job_code_name(jobpref));
         result = find_random_valid_position_for_thing_in_room(creatng, room, &pos);
         break;
     }
