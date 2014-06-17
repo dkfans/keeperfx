@@ -86,6 +86,7 @@ enum CreatureJobFlags {
 
 enum JobKindFlags {
     JoKF_None               = 0x00000000,
+    // "Assign" field
     JoKF_AssignHumanDropInRoom    = 0x00000001,
     JoKF_AssignComputerDropInRoom = 0x00000002,
     JoKF_AssignInitInRoom         = 0x00000004,
@@ -97,6 +98,7 @@ enum JobKindFlags {
     JoKF_EnemyDiggers       = 0x00000100,
     JoKF_AssignOneTime      = 0x00000200,
     JoKF_NeedsHaveJob       = 0x00000400,
+    // "Flags" field
     JoKF_NeedsCapacity      = 0x00001000,
     JoKF_WorkOnRoomBorder   = 0x00002000,
     JoKF_WorkOnRoomCenter   = 0x00004000,

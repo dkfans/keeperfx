@@ -1121,7 +1121,7 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
             case 4: // ASSIGN
                 jobcfg->job_flags &= ~(JoKF_AssignHumanDropInRoom|JoKF_AssignComputerDropInRoom|JoKF_AssignInitInRoom|
                     JoKF_AssignDropOnRoomBorder|JoKF_AssignDropOnRoomCenter|JoKF_OwnedCreatures|JoKF_EnemyCreatures|
-                    JoKF_OwnedDiggers|JoKF_EnemyDiggers|JoKF_AssignOneTime);
+                    JoKF_OwnedDiggers|JoKF_EnemyDiggers|JoKF_AssignOneTime|JoKF_NeedsHaveJob);
                 while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
                 {
                     k = get_id(creaturetype_job_assign, word_buf);
@@ -1200,7 +1200,7 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
                 }
                 break;
             case 8: // PROPERTIES
-                jobcfg->job_flags &= ~(JoKF_WorkOnRoomBorder|JoKF_WorkOnRoomCenter|JoKF_NeedsCapacity|JoKF_NoSelfControl);
+                jobcfg->job_flags &= ~(JoKF_WorkOnRoomBorder|JoKF_WorkOnRoomCenter|JoKF_NeedsCapacity|JoKF_NoSelfControl|JoKF_NoGroups|JoKF_AllowChickenized);
                 while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
                 {
                     k = get_id(creaturetype_job_properties, word_buf);
@@ -1225,6 +1225,10 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
                 break;
             }
             skip_conf_to_next_line(buf,&pos,len);
+        }
+        if (((jobcfg->job_flags & JoKF_NeedsHaveJob) != 0) && ((jobcfg->job_flags & JoKF_AssignOneTime) != 0))
+        {
+            WARNLOG("Job configured to need to have worker primary or secondary job set, but is one time job which cannot; in [%s] block of %s file.",block_buf,config_textname);
         }
 #undef COMMAND_TEXT
     }

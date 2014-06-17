@@ -1483,8 +1483,8 @@ short creature_being_dropped(struct Thing *creatng)
     SYNCDBG(17,"Starting for %s index %d",thing_model_name(creatng),(long)creatng->index);
     cctrl = creature_control_get_from_thing(creatng);
     cctrl->flgfield_1 |= CCFlg_NoCompControl;
-    // Cannot teleport for 100 turns after being dropped
-    cctrl->instance_use_turn[CrInst_TELEPORT] = game.play_gameturn + 100;
+    // Cannot teleport for a few turns after being dropped
+    delay_teleport(creatng);
     stl_x = creatng->mappos.x.stl.num;
     stl_y = creatng->mappos.y.stl.num;
     // If dropping still in progress, do nothing
