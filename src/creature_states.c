@@ -4305,8 +4305,10 @@ long process_creature_needs_to_heal_critical(struct Thing *thing, const struct C
     if ( (game.play_gameturn - cctrl->healing_sleep_check_turn > 128) &&
       ((cctrl->lair_room_id != 0) || !room_is_invalid(get_best_new_lair_for_creature(thing))) )
     {
-        if ( external_set_thing_state(thing, CrSt_CreatureGoingHomeToSleep) )
+        SYNCDBG(4,"Healing critical for %s",thing_model_name(thing));
+        if (external_set_thing_state(thing, CrSt_CreatureGoingHomeToSleep)) {
             return 1;
+        }
     } else
     {
         struct CreatureStats *crstat;
