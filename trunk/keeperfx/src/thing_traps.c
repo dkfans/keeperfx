@@ -76,9 +76,40 @@ TbBool trap_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx)
     return false;
 }
 
-struct Thing *get_trap_for_position(long pos_x, long pos_y)
+struct Thing *get_trap_for_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    return _DK_get_trap_for_position(pos_x, pos_y);
+    //return _DK_get_trap_for_position(stl_x, stl_y);
+    struct Thing *thing;
+    struct Map *mapblk;
+    long i;
+    unsigned long k;
+    long dist;
+    mapblk = get_map_block_at(stl_x,stl_y);
+    k = 0;
+    i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_on_mapblk;
+        // Per thing code start
+        if (thing->class_id == TCls_Trap) {
+            return thing;
+        }
+        // Per thing code end
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return INVALID_THING;
 }
 
 struct Thing *get_trap_for_slab_position(MapSlabCoord slb_x, MapSlabCoord slb_y)
@@ -728,7 +759,41 @@ long remove_traps_around_subtile(long stl_x, long stl_y, long *sell_value)
 
 void external_activate_trap_shot_at_angle(struct Thing *thing, long a2)
 {
-    _DK_external_activate_trap_shot_at_angle(thing, a2);
+    //_DK_external_activate_trap_shot_at_angle(thing, a2);
+    struct TrapStats *trapstat;
+    trapstat = &trap_stats[thing->model];
+    if (trapstat->field_1A <= 0) {
+        ERRORLOG("Cannot activate trap with shot model %d",(int)trapstat->field_1A);
+        return;
+    }
+    struct Thing *shotng;
+    shotng = create_shot(&thing->mappos, trapstat->field_1A, thing->owner);
+    if (thing_is_invalid(shotng)) {
+        return;
+    }
+    struct ShotConfigStats *shotst;
+    shotst = get_shot_model_stats(shotng->model);
+    struct ComponentVector cvect;
+    shotng->field_52 = a2;
+    shotng->field_54 = 0;
+    angles_to_vector(shotng->field_52, 0, shotst->old->speed, &cvect);
+    shotng->acceleration.x.val += cvect.x;
+    shotng->acceleration.y.val += cvect.y;
+    shotng->acceleration.z.val += cvect.z;
+    shotng->field_1 |= 0x04;
+    shotng->byte_16 = trapstat->field_1B;
+    const struct ManfctrConfig *mconf;
+    mconf = &game.traps_config[thing->model];
+    thing->long_14 = game.play_gameturn + mconf->shots_delay;
+    if (thing->byte_13 != 255)
+    {
+        if (thing->byte_13 > 0) {
+            thing->byte_13--;
+        }
+        if (thing->byte_13 <= 0) {
+            thing->health = -1;
+        }
+    }
 }
 
 TbBool tag_cursor_blocks_place_trap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
