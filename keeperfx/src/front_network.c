@@ -77,18 +77,18 @@ const struct ConfigInfo default_net_config_info = {
 /******************************************************************************/
 long modem_initialise_callback(void)
 {
-  if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
-  {
-    clear_key_pressed(KC_ESCAPE);
-    return -7;
-  }
-  if (LbScreenLock() == Lb_SUCCESS)
-  {
-    draw_text_box(gui_string(GUIStr_NetInitingModem));
-    LbScreenUnlock();
-  }
-  LbScreenSwap();
-  return 0;
+    if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
+    {
+      clear_key_pressed(KC_ESCAPE);
+      return -7;
+    }
+    if (LbScreenLock() == Lb_SUCCESS)
+    {
+      draw_text_box(gui_string(GUIStr_NetInitingModem));
+      LbScreenUnlock();
+    }
+    LbScreenSwap();
+    return 0;
 }
 
 long modem_connect_callback(void)
@@ -204,7 +204,19 @@ void setup_alliances(void)
 
 void frontnet_service_update(void)
 {
-    _DK_frontnet_service_update();
+    //_DK_frontnet_service_update();
+    if (net_number_of_services < 1)
+    {
+        net_service_scroll_offset = 0;
+    } else
+    if (net_service_scroll_offset < 0)
+    {
+        net_service_scroll_offset = 0;
+    } else
+    if (net_service_scroll_offset > net_number_of_services - 1)
+    {
+        net_service_scroll_offset = net_number_of_services - 1;
+    }
 }
 
 void __stdcall enum_players_callback(struct TbNetworkCallbackData *netcdat, void *a2)
@@ -357,12 +369,56 @@ void frontnet_session_update(void)
 
 void frontnet_modem_update(void)
 {
-  _DK_frontnet_modem_update();
+    //_DK_frontnet_modem_update();
+    if (net_comport_scroll_offset < 0)
+    {
+        net_comport_scroll_offset = 0;
+    } else
+    if (net_comport_scroll_offset > number_of_comports - 1)
+    {
+        net_comport_scroll_offset = number_of_comports - 1;
+    }
+    if (net_speed_scroll_offset < 0)
+    {
+        net_speed_scroll_offset = 0;
+    } else
+    if (net_speed_scroll_offset > number_of_speeds - 1)
+    {
+        net_speed_scroll_offset = number_of_speeds - 1;
+    }
+    if (number_of_speeds - 1 < net_speed_index_active) {
+        net_speed_index_active = -1;
+    }
+    if (number_of_comports - 1 < net_comport_index_active) {
+        net_comport_index_active = -1;
+    }
 }
 
 void frontnet_serial_update(void)
 {
-  _DK_frontnet_serial_update();
+    //_DK_frontnet_serial_update();
+    if (net_comport_scroll_offset < 0)
+    {
+        net_comport_scroll_offset = 0;
+    } else
+    if (net_comport_scroll_offset > number_of_comports - 1)
+    {
+        net_comport_scroll_offset = number_of_comports - 1;
+    }
+    if (net_speed_scroll_offset < 0)
+    {
+        net_speed_scroll_offset = 0;
+    } else
+    if (net_speed_scroll_offset > number_of_speeds - 1)
+    {
+        net_speed_scroll_offset = number_of_speeds - 1;
+    }
+    if (number_of_speeds - 1 < net_speed_index_active) {
+        net_speed_index_active = -1;
+    }
+    if (number_of_comports - 1 < net_comport_index_active) {
+        net_comport_index_active = -1;
+    }
 }
 
 void frontnet_rewite_net_messages(void)
@@ -446,6 +502,24 @@ void net_load_config_file(void)
     LbStringCopy(net_config_info.str_u2, gui_string(GUIStr_MnuNoName), 20);
 }
 
+void net_write_config_file(void)
+{
+    TbFileHandle handle;
+    char *fname;
+    // Try to load the config file
+    fname = prepare_file_path(FGrp_Save,keeper_netconf_file);
+    handle = LbFileOpen(fname, Lb_FILE_MODE_NEW);
+    if (handle != -1)
+    {
+        strupr(net_config_info.str_atz);
+        strupr(net_config_info.str_ath);
+        strupr(net_config_info.str_atdt);
+        strupr(net_config_info.str_ats);
+        LbFileWrite(handle, &net_config_info, sizeof(net_config_info));
+        LbFileClose(handle);
+    }
+}
+
 void frontnet_service_setup(void)
 {
     net_number_of_services = 0;
@@ -465,21 +539,68 @@ void frontnet_service_setup(void)
 
 void frontnet_session_setup(void)
 {
-  _DK_frontnet_session_setup();
+    //_DK_frontnet_session_setup();
+    if (net_player_name[0] == '\0')
+    {
+      strncpy(net_player_name, net_config_info.str_u2, sizeof(net_player_name));
+      strcpy(tmp_net_player_name, net_config_info.str_u2);
+    }
+    net_session_index_active = -1;
+    fe_computer_players = 2;
+    lbInkey = 0;
+    net_session_index_active_id = -1;
 }
 
 void frontnet_start_setup(void)
 {
-  _DK_frontnet_start_setup();
+    //_DK_frontnet_start_setup();
+    frontend_alliances = -1;
+    net_current_message_index = 0;
+    net_current_message[0] = 0;
+    net_number_of_messages = 0;
+    net_player_scroll_offset = 0;
+    net_message_scroll_offset = 0;
+    //net_old_number_of_players = 0;
+    players_currently_in_session = 0;
+    int i;
+    for (i=0; i < PLAYERS_COUNT; i++)
+    {
+        struct PlayerInfo *player;
+        player = get_player(i);
+        player->mp_message_text[0] = '\0';
+    }
 }
 
 void frontnet_modem_setup(void)
 {
-  _DK_frontnet_modem_setup();
+    //_DK_frontnet_modem_setup();
+    net_load_config_file();
+    number_of_comports = 8;
+    net_comport_index_active = net_config_info.numfield_0;
+    net_speed_index_active = net_config_info.numfield_9;
+    if (net_comport_index_active == -1)
+      strcpy(tmp_net_irq, "4");
+    else
+      sprintf(tmp_net_irq, "%d", net_config_info.numfield_1[net_comport_index_active]);
+    number_of_speeds = 8;
+    strcpy(tmp_net_modem_init, net_config_info.str_atz);
+    strcpy(tmp_net_modem_dial, net_config_info.str_atdt);
+    strcpy(tmp_net_modem_hangup, net_config_info.str_ath);
+    strcpy(tmp_net_modem_answer, net_config_info.str_ats);
+    strcpy(tmp_net_phone_number, net_config_info.str_join);
 }
 
 void frontnet_serial_setup(void)
 {
-  _DK_frontnet_serial_setup();
+    //_DK_frontnet_serial_setup();
+    net_load_config_file();
+    number_of_comports = 8;
+    net_comport_index_active = net_config_info.numfield_0;
+    net_speed_index_active = net_config_info.numfield_9;
+    if (net_comport_index_active == -1)
+      strcpy(tmp_net_irq, "4");
+    else
+      sprintf(tmp_net_irq, "%d", net_config_info.numfield_1[net_comport_index_active]);
+    number_of_speeds = 7;
 }
 /******************************************************************************/

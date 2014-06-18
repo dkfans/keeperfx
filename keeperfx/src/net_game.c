@@ -47,6 +47,14 @@ DLLIMPORT int _DK_noOfEnumeratedDPlayServices;
 DLLIMPORT struct _GUID _DK_clientGuidTable[];
 #define clientGuidTable _DK_clientGuidTable
 /******************************************************************************/
+long number_of_comports;
+long number_of_speeds;
+long net_comport_scroll_offset;
+long net_speed_scroll_offset;
+char tmp_net_irq[8];
+char net_current_message[64];
+long net_current_message_index;
+/******************************************************************************/
 short setup_network_service(int srvidx)
 {
   struct ServiceInitData *init_data;
@@ -56,13 +64,13 @@ short setup_network_service(int srvidx)
   {
   case 0:
       maxplayrs = 2;
-      init_data = &_DK_net_serial_data;
+      init_data = &net_serial_data;
       set_flag_byte(&game.flags_font,FFlg_unk10,true);
       SYNCMSG("Initializing %d-players serial network",maxplayrs);
       break;
   case 1:
       maxplayrs = 2;
-      init_data = &_DK_net_modem_data;
+      init_data = &net_modem_data;
       set_flag_byte(&game.flags_font,FFlg_unk10,true);
       SYNCMSG("Initializing %d-players modem network",maxplayrs);
       break;

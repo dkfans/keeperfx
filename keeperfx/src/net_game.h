@@ -62,6 +62,14 @@ DLLIMPORT struct ServiceInitData _DK_net_modem_data;
 DLLIMPORT struct TbModemDev _DK_modem_dev;
 #define modem_dev _DK_modem_dev
 /******************************************************************************/
+extern long number_of_comports;
+extern long number_of_speeds;
+extern long net_comport_scroll_offset;
+extern long net_speed_scroll_offset;
+extern char tmp_net_irq[8];
+extern char net_current_message[64];
+extern long net_current_message_index;
+/******************************************************************************/
 short setup_network_service(int srvidx);
 int setup_old_network_service(void);
 void init_players_network_game(void);
