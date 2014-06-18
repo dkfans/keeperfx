@@ -3383,7 +3383,40 @@ short patrol_here(struct Thing *creatng)
 
 short patrolling(struct Thing *creatng)
 {
-  return _DK_patrolling(creatng);
+    //return _DK_patrolling(creatng);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    if (cctrl->patrol.word_89 <= 0) {
+        set_start_state(creatng);
+        return 0;
+    }
+    cctrl->patrol.word_89--;
+    MapSubtlCoord stl_x, stl_y;
+    // Try random positions near the patrolling point
+    int i;
+    for (i=0; i < 5; i++)
+    {
+        stl_x = cctrl->patrol.word_8B + ACTION_RANDOM(5) - 2;
+        stl_y = cctrl->patrol.word_8D + ACTION_RANDOM(5) - 2;
+        if (setup_person_move_to_position(creatng, stl_x, stl_y, 0))
+        {
+            creatng->continue_state = CrSt_Patrolling;
+            return 1;
+        }
+    }
+    // Try the exact patrolling point
+    {
+        stl_x = cctrl->patrol.word_8B;
+        stl_y = cctrl->patrol.word_8D;
+        if (setup_person_move_to_position(creatng, stl_x, stl_y, 0))
+        {
+            creatng->continue_state = CrSt_Patrolling;
+            return 1;
+        }
+    }
+    // Cannot patrol any longer - reset
+    set_start_state(creatng);
+    return 0;
 }
 
 short person_sulk_at_lair(struct Thing *creatng)

@@ -446,7 +446,7 @@ long parse_sound_file(TbFileHandle fileh, unsigned char *buf, long *nsamples, lo
     _DK_LbFileRead(fileh, &rbuf, 4);
     i = read_int32_le_buf(rbuf);
     _DK_LbFileSeek(fileh, i, Lb_FILE_SEEK_BEGINNING);
-    _DK_LbFileRead(fileh, &bhead, 18);
+    _DK_LbFileRead(fileh, &bhead, sizeof(bhead));
     _DK_LbFileRead(fileh, bentries, sizeof(bentries));
     bentry = &bentries[k];
     if (bentry->field_0 == 0) {

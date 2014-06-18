@@ -203,7 +203,7 @@ unsigned char field_86[2];
     long long_8B;
     unsigned char byte_8F;
     unsigned short member_pos_stl[5];
-    } party;
+  } party;
   struct {
     long stack_update_turn;
     short working_stl;
@@ -215,6 +215,13 @@ unsigned char field_86[2];
     unsigned char field_96[4];
   } digger;
   struct {
+    short word_89;
+    short word_8B;
+    short word_8D;
+    unsigned char byte_8F;
+    unsigned short word_90[5];
+  } patrol;
+  struct {
     char sbyte_89;
     unsigned char byte_8A;
     unsigned char byte_8B;
@@ -225,7 +232,7 @@ unsigned char field_86[2];
     short word_93;
     unsigned char field_95;
     unsigned char field_96[4];
-    };
+  };
   struct {
     long long_89;
     long long_8D;
