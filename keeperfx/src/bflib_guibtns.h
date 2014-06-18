@@ -228,6 +228,7 @@ void setup_input_field(struct GuiButton *gbtn, const char * empty_text);
 TbBool check_if_pos_is_over_button(const struct GuiButton *gbtn, TbScreenPos pos_x, TbScreenPos pos_y);
 // Defined in the interface but external
 extern void do_button_click_actions(struct GuiButton *, unsigned char *, Gf_Btn_Callback);
+void do_button_press_actions(struct GuiButton *, unsigned char *, Gf_Btn_Callback);
 extern void do_button_release_actions(struct GuiButton *, unsigned char *, Gf_Btn_Callback);
 /******************************************************************************/
 #ifdef __cplusplus
