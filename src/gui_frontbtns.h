@@ -54,6 +54,7 @@ void gui_area_null(struct GuiButton *gbtn);
 void gui_area_flash_cycle_button(struct GuiButton *gbtn);
 
 void gui_draw_tab(struct GuiButton *gbtn);
+void frontend_over_button(struct GuiButton *gbtn);;
 void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const char *text, unsigned int drw_flags);
 void frontend_draw_large_menu_button(struct GuiButton *gbtn);
 void frontend_draw_vlarge_menu_button(struct GuiButton *gbtn);
