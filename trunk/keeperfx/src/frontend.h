@@ -284,6 +284,7 @@ extern struct FrontEndButtonData frontend_button_info[FRONTEND_BUTTON_INFO_COUNT
 extern struct GuiMenu *menu_list[MENU_LIST_ITEMS_COUNT];
 
 extern int status_panel_width;
+extern const unsigned long alliance_grid[4][4];
 
 #if (BFDEBUG_LEVEL > 0)
 #define TESTFONTS_COUNT 12

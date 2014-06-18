@@ -312,12 +312,12 @@ TbBool update_dungeon_scores_for_player(struct PlayerInfo *player)
  */
 long update_dungeons_scores(void)
 {
-    struct PlayerInfo *player;
     int i,k;
     //return _DK_update_dungeon_scores();
     k = 0;
     for (i=0; i < PLAYERS_COUNT; i++)
     {
+        struct PlayerInfo *player;
         player = get_player(i);
         if (!player_exists(player))
             continue;
