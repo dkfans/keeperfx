@@ -341,7 +341,6 @@ TbBool frontend_should_all_players_quit(void);
 void frontend_init_options_menu(struct GuiMenu *gmnu);
 void frontend_draw_text(struct GuiButton *gbtn);
 void frontend_change_state(struct GuiButton *gbtn);
-void frontend_over_button(struct GuiButton *gbtn);
 void frontend_draw_enter_text(struct GuiButton *gbtn);
 void frontend_draw_small_menu_button(struct GuiButton *gbtn);
 void frontend_toggle_computer_players(struct GuiButton *gbtn);

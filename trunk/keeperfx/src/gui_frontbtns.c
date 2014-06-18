@@ -54,6 +54,7 @@ DLLIMPORT void _DK_gui_area_new_null_button(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_area_new_no_anim_button(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_area_no_anim_button(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_area_normal_button(struct GuiButton *gbtn);
+DLLIMPORT void _DK_frontend_over_button(struct GuiButton *gbtn);
 DLLIMPORT void _DK_frontend_draw_button(struct GuiButton *gbtn, long a2, const char *text, long a4);
 DLLIMPORT void _DK_frontend_draw_large_menu_button(struct GuiButton *gbtn);
 DLLIMPORT void _DK_frontend_draw_vlarge_menu_button(struct GuiButton *gbtn);
@@ -528,6 +529,20 @@ void gui_area_normal_button(struct GuiButton *gbtn)
     {
         draw_button_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, spr_idx, 12);
     }
+}
+
+void frontend_over_button(struct GuiButton *gbtn)
+{
+    //_DK_frontend_over_button(gbtn);
+    int i;
+
+    if (gbtn->gbtype == Lb_EDITBTN)
+      i = gbtn->field_1B;
+    else
+      i = (long)gbtn->content;
+    if (old_mouse_over_button != i)
+      frontend_mouse_over_button_start_time = timeGetTime();
+    frontend_mouse_over_button = i;
 }
 
 void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const char *text, unsigned int drw_flags)
