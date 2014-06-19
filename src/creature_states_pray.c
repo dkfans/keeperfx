@@ -37,6 +37,7 @@
 #include "thing_physics.h"
 #include "room_data.h"
 #include "room_jobs.h"
+#include "room_workshop.h"
 #include "power_hand.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
@@ -272,36 +273,21 @@ TbBool make_all_players_creatures_angry(long plyr_idx)
 long force_complete_current_manufacturing(long plyr_idx)
 {
     struct Dungeon *dungeon;
-    const struct ManfctrConfig *mconf;
     int manufct_required;
     long i;
     //return _DK_force_complete_current_manufacturing(plyr_idx);
     dungeon = get_players_num_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon))
     {
-        ERRORLOG("Player %d cannot manufacture.",plyr_idx);
+        ERRORLOG("Player %d cannot manufacture.",(int)plyr_idx);
         return 0;
     }
-    switch (dungeon->manufacture_class)
+    if (dungeon->manufacture_class == TCls_Empty)
     {
-    case TCls_Trap:
-        i = dungeon->manufacture_kind;
-        mconf = &game.traps_config[i];
-        manufct_required = mconf->manufct_required;
-        break;
-    case TCls_Door:
-        i = dungeon->manufacture_kind;
-        mconf = &game.doors_config[i];
-        manufct_required = mconf->manufct_required;
-        break;
-    case TCls_Empty:
-        manufct_required = 0;
-        break;
-    default:
-        ERRORLOG("Invalid class of new manufacture, %d",(int)dungeon->manufacture_class);
-        manufct_required = 0;
-        break;
+        WARNLOG("No manufacture in progress for player %d",(int)plyr_idx);
+        return 0;
     }
+    manufct_required = manufacture_points_required(dungeon->manufacture_class, dungeon->manufacture_kind);
     if (manufct_required <= 0)
     {
         WARNLOG("No points required to finish manufacture of class %d",(int)dungeon->manufacture_class);

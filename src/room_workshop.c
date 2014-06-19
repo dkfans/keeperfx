@@ -693,16 +693,19 @@ TbBool get_next_manufacture(struct Dungeon *dungeon)
 
 long manufacture_points_required_f(long mfcr_type, unsigned long mfcr_kind, const char *func_name)
 {
-  switch (mfcr_type)
-  {
-  case TCls_Trap:
-      return game.traps_config[mfcr_kind%TRAP_TYPES_COUNT].manufct_required;
-  case TCls_Door:
-      return game.doors_config[mfcr_kind%DOOR_TYPES_COUNT].manufct_required;
-  default:
-      ERRORMSG("%s: Invalid type of manufacture",func_name);
-      return 0;
-  }
+    const struct ManfctrConfig *mconf;
+    switch (mfcr_type)
+    {
+    case TCls_Trap:
+        mconf = &game.traps_config[mfcr_kind%TRAP_TYPES_COUNT];
+        return mconf->manufct_required;
+    case TCls_Door:
+        mconf = &game.doors_config[mfcr_kind%DOOR_TYPES_COUNT];
+        return mconf->manufct_required;
+    default:
+        ERRORMSG("%s: Invalid type of manufacture: %d",func_name,(int)mfcr_type);
+        return 0;
+    }
 }
 
 short process_player_manufacturing(PlayerNumber plyr_idx)
@@ -723,7 +726,7 @@ short process_player_manufacturing(PlayerNumber plyr_idx)
         get_next_manufacture(dungeon);
         return true;
     }
-    k = manufacture_points_required_f(dungeon->manufacture_class, dungeon->manufacture_kind, __func__);
+    k = manufacture_points_required(dungeon->manufacture_class, dungeon->manufacture_kind);
     // If we don't have enough manufacture points, don't do anything
     if (dungeon->manufacture_progress < (k << 8))
         return true;
