@@ -1361,32 +1361,41 @@ void frontend_set_player_number(long plr_num)
 
 const char *frontend_button_caption_text(const struct GuiButton *gbtn)
 {
-    unsigned long btninfo_idx;
-    int idx;
-    btninfo_idx = (unsigned long)gbtn->content;
-    if (btninfo_idx < FRONTEND_BUTTON_INFO_COUNT)
-        idx = frontend_button_info[btninfo_idx].capstr_idx;
+    unsigned long febtn_idx;
+    int text_idx;
+    febtn_idx = (unsigned long)gbtn->content;
+    if (febtn_idx < FRONTEND_BUTTON_INFO_COUNT)
+        text_idx = frontend_button_info[febtn_idx].capstr_idx;
     else
-        idx = GUIStr_Empty;
-    return gui_string(idx);
+        text_idx = GUIStr_Empty;
+    return gui_string(text_idx);
+}
+
+int frontend_button_caption_font(const struct GuiButton *gbtn, long mouse_over_btn_idx)
+{
+    unsigned long febtn_idx;
+    int font_idx;
+    febtn_idx = (unsigned long)gbtn->content;
+    if (febtn_idx < FRONTEND_BUTTON_INFO_COUNT)
+        font_idx = frontend_button_info[febtn_idx].font_index;
+    else
+        font_idx = 3;
+    if ((febtn_idx != 0) && (mouse_over_btn_idx == febtn_idx))
+        font_idx = 2;
+    return font_idx;
 }
 
 void frontend_draw_text(struct GuiButton *gbtn)
 {
-  struct FrontEndButtonData *febtn_data;
-  long i;
-  i = (long)gbtn->content;
   lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
-  febtn_data = &frontend_button_info[i%FRONTEND_BUTTON_INFO_COUNT];
+  int font_idx;
   if ((gbtn->flags & LbBtnF_Unknown08) == 0)
-    LbTextSetFont(frontend_font[3]);
+      font_idx = 3;
   else
-  if ((i != 0) && (frontend_mouse_over_button == i))
-    LbTextSetFont(frontend_font[2]);
-  else
-    LbTextSetFont(frontend_font[febtn_data->font_index]);
+      font_idx = frontend_button_caption_font(gbtn, frontend_mouse_over_button);
+  LbTextSetFont(frontend_font[font_idx]);
   LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
-  LbTextDraw(0, 0, gui_string(febtn_data->capstr_idx));
+  LbTextDraw(0, 0, frontend_button_caption_text(gbtn));
 }
 
 void frontend_change_state(struct GuiButton *gbtn)
@@ -1421,12 +1430,31 @@ void frontend_toggle_computer_players(struct GuiButton *gbtn)
 
 void frontend_draw_computer_players(struct GuiButton *gbtn)
 {
-  _DK_frontend_draw_computer_players(gbtn);
+    //_DK_frontend_draw_computer_players(gbtn);
+    int font_idx;
+    font_idx = frontend_button_caption_font(gbtn,frontend_mouse_over_button);
+    LbTextSetFont(frontend_font[font_idx]);
+    const char *text;
+    if (fe_computer_players) {
+        text = gui_string(847);
+    } else {
+        text = gui_string(848);
+    }
+    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, LbTextHeight(text));
+    lbDisplay.DrawFlags = 0x20;
+    LbTextDraw(0, 0, frontend_button_caption_text(gbtn));
+    lbDisplay.DrawFlags = 0x80;
+    LbTextDraw(0, 0, text);
+    lbDisplay.DrawFlags = 0;
 }
 
 void set_packet_start(struct GuiButton *gbtn)
 {
-  _DK_set_packet_start(gbtn);
+    //_DK_set_packet_start(gbtn);
+    struct ScreenPacket *nspck;
+    nspck = &net_screen_packet[my_player_number];
+    if ((nspck->field_4 & 0xF8) == 0)
+        nspck->field_4 = (nspck->field_4 & 7) | 0x18;
 }
 
 void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
@@ -1509,24 +1537,31 @@ void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
 
 void gui_area_scroll_window(struct GuiButton *gbtn)
 {
-  struct TextScrollWindow *scrollwnd;
-  char *text;
-  //_DK_gui_area_scroll_window(gbtn); return;
-  if ((gbtn->flags & LbBtnF_Unknown08) == 0) {
-      return;
-  }
-  scrollwnd = (struct TextScrollWindow *)gbtn->content;
-  if (scrollwnd == NULL) {
-      ERRORLOG("Button doesn't point to a TextScrollWindow data item");
-      return;
-  }
-  text = buf_sprintf("%s", scrollwnd->text);
-  draw_scrolling_button_string(gbtn, text);
+    struct TextScrollWindow *scrollwnd;
+    char *text;
+    //_DK_gui_area_scroll_window(gbtn); return;
+    if ((gbtn->flags & LbBtnF_Unknown08) == 0) {
+        return;
+    }
+    scrollwnd = (struct TextScrollWindow *)gbtn->content;
+    if (scrollwnd == NULL) {
+        ERRORLOG("Button doesn't point to a TextScrollWindow data item");
+        return;
+    }
+    text = buf_sprintf("%s", scrollwnd->text);
+    draw_scrolling_button_string(gbtn, text);
 }
 
 void gui_go_to_event(struct GuiButton *gbtn)
 {
-  _DK_gui_go_to_event(gbtn);
+    //_DK_gui_go_to_event(gbtn);
+    struct PlayerInfo *player;
+    struct Dungeon *dungeon;
+    player = get_my_player();
+    dungeon = get_players_dungeon(player);
+    if (dungeon->visible_event_idx) {
+        set_players_packet_action(player, PckA_Unknown083, dungeon->visible_event_idx, 0, 0, 0);
+    }
 }
 
 void gui_close_objective(struct GuiButton *gbtn)
@@ -1536,12 +1571,18 @@ void gui_close_objective(struct GuiButton *gbtn)
 
 void gui_scroll_text_up(struct GuiButton *gbtn)
 {
-  _DK_gui_scroll_text_up(gbtn);
+    //_DK_gui_scroll_text_up(gbtn);
+    struct TextScrollWindow *scroll_window;
+    scroll_window = (struct TextScrollWindow *)gbtn->content;
+    scroll_window->action = 1;
 }
 
 void gui_scroll_text_down(struct GuiButton *gbtn)
 {
-  _DK_gui_scroll_text_down(gbtn);
+    //_DK_gui_scroll_text_down(gbtn);
+    struct TextScrollWindow *scroll_window;
+    scroll_window = (struct TextScrollWindow *)gbtn->content;
+    scroll_window->action = 2;
 }
 
 void frontend_draw_levels_scroll_tab(struct GuiButton *gbtn)
@@ -1570,69 +1611,69 @@ void frontend_ldcampaign_change_state(struct GuiButton *gbtn)
  */
 void frontend_netservice_change_state(struct GuiButton *gbtn)
 {
-  TbBool set_cmpg;
-  set_cmpg = false;
-  if (!is_campaign_loaded())
-  {
-    set_cmpg = true;
-  } else
-  if (campaign.multi_levels_count < 1)
-  {
-    set_cmpg = true;
-  }
-  if (set_cmpg)
-  {
-    if (!change_campaign(""))
-      return;
-  }
-  frontend_change_state(gbtn);
+    TbBool set_cmpg;
+    set_cmpg = false;
+    if (!is_campaign_loaded())
+    {
+        set_cmpg = true;
+    } else
+    if (campaign.multi_levels_count < 1)
+    {
+        set_cmpg = true;
+    }
+    if (set_cmpg)
+    {
+        if (!change_campaign(""))
+          return;
+    }
+    frontend_change_state(gbtn);
 }
 
 TbBool frontend_start_new_campaign(const char *cmpgn_fname)
 {
-  struct PlayerInfo *player;
-  int i;
-  SYNCDBG(7,"Starting");
-  if (!change_campaign(cmpgn_fname))
-    return false;
-  set_continue_level_number(first_singleplayer_level());
-  for (i=0; i < PLAYERS_COUNT; i++)
-  {
-    player = get_player(i);
-    player->field_6 &= ~0x02;
-  }
-  player = get_my_player();
-  clear_transfered_creature();
-  calculate_moon_phase(false,false);
-  hide_all_bonus_levels(player);
-  update_extra_levels_visibility();
-  return true;
+    struct PlayerInfo *player;
+    int i;
+    SYNCDBG(7,"Starting");
+    if (!change_campaign(cmpgn_fname))
+        return false;
+    set_continue_level_number(first_singleplayer_level());
+    for (i=0; i < PLAYERS_COUNT; i++)
+    {
+        player = get_player(i);
+        player->field_6 &= ~0x02;
+    }
+    player = get_my_player();
+    clear_transfered_creature();
+    calculate_moon_phase(false,false);
+    hide_all_bonus_levels(player);
+    update_extra_levels_visibility();
+    return true;
 }
 
 void frontend_start_new_game(struct GuiButton *gbtn)
 {
-  const char *cmpgn_fname;
-  SYNCDBG(6,"Clicked");
-  // Check if we can just start the game without campaign selection screen
-  if (campaigns_list.items_num < 1)
-    cmpgn_fname = lbEmptyString;
-  else
-  if (campaigns_list.items_num == 1)
-    cmpgn_fname = campaigns_list.items[0].fname;
-  else
-    cmpgn_fname = NULL;
-  if (cmpgn_fname != NULL)
-  { // If there's only one campaign, then start it
-    if (!frontend_start_new_campaign(cmpgn_fname))
-    {
-      ERRORLOG("Unable to start new campaign");
-      return;
+    const char *cmpgn_fname;
+    SYNCDBG(6,"Clicked");
+    // Check if we can just start the game without campaign selection screen
+    if (campaigns_list.items_num < 1)
+      cmpgn_fname = lbEmptyString;
+    else
+    if (campaigns_list.items_num == 1)
+      cmpgn_fname = campaigns_list.items[0].fname;
+    else
+      cmpgn_fname = NULL;
+    if (cmpgn_fname != NULL)
+    { // If there's only one campaign, then start it
+      if (!frontend_start_new_campaign(cmpgn_fname))
+      {
+        ERRORLOG("Unable to start new campaign");
+        return;
+      }
+      frontend_set_state(FeSt_LAND_VIEW);
+    } else
+    { // If there's more campaigns, go to selection screen
+      frontend_set_state(FeSt_CAMPAIGN_SELECT);
     }
-    frontend_set_state(FeSt_LAND_VIEW);
-  } else
-  { // If there's more campaigns, go to selection screen
-    frontend_set_state(FeSt_CAMPAIGN_SELECT);
-  }
 }
 
 /**
@@ -1690,8 +1731,8 @@ void frontend_load_continue_game(struct GuiButton *gbtn)
 
 void frontend_load_game_maintain(struct GuiButton *gbtn)
 {
-  long game_index=load_game_scroll_offset+(long)(gbtn->content)-45;
-  set_flag_byte(&gbtn->flags, LbBtnF_Unknown08, (game_index < number_of_saved_games));
+    long game_index=load_game_scroll_offset+(long)(gbtn->content)-45;
+    set_flag_byte(&gbtn->flags, LbBtnF_Unknown08, (game_index < number_of_saved_games));
 }
 
 void clear_radio_buttons(struct GuiMenu *gmnu)
@@ -3443,9 +3484,45 @@ void update_player_objectives(PlayerNumber plyr_idx)
     }
 }
 
-void display_objectives(PlayerNumber plyr_idx,long x,long y)
+void display_objectives(PlayerNumber plyr_idx, long x, long y)
 {
-  _DK_display_objectives(plyr_idx,x,y);
+    //_DK_display_objectives(plyr_idx,x,y);
+    long cor_x, cor_y;
+    cor_y = 0;
+    cor_x = 0;
+    if ((x > 0) || (y > 0))
+    {
+        cor_x = subtile_coord_center(x);
+        cor_y = subtile_coord_center(y);
+    }
+    int evbtn_idx;
+    for (evbtn_idx=0; evbtn_idx < EVENT_BUTTONS_COUNT+1; evbtn_idx++)
+    {
+        struct Dungeon *dungeon;
+        dungeon = get_players_num_dungeon(plyr_idx);
+        EventIndex evnt_idx;
+        evnt_idx = dungeon->event_button_index[evbtn_idx];
+        struct Event *event;
+        event = &game.event[evnt_idx];
+        if (event->kind == EvKind_Objective)
+        {
+            event_create_event_or_update_old_event(cor_x, cor_y, EvKind_Objective, plyr_idx, 0);
+            return;
+        }
+    }
+    if ((x == 255) && (y == 255))
+    {
+        struct Thing *creatng;
+        creatng = lord_of_the_land_find();
+        if (!thing_is_invalid(creatng))
+        {
+            event_create_event_or_update_nearby_existing_event(
+              creatng->mappos.x.val, creatng->mappos.y.val, EvKind_Objective, plyr_idx, creatng->index);
+        }
+    } else
+    {
+        event_create_event_or_update_nearby_existing_event(cor_x, cor_y, EvKind_Objective, plyr_idx, 0);
+    }
 }
 
 void frontend_update(short *finish_menu)

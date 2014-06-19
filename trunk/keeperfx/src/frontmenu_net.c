@@ -626,7 +626,7 @@ void frontnet_draw_session_selected(struct GuiButton *gbtn)
             spr++;
         }
         text = net_session[net_session_index_active]->text;
-        i = frontend_button_info[(long)gbtn->content].font_index;
+        i = frontend_button_caption_font(gbtn, 0);
         if (text != NULL)
         {
             lbDisplay.DrawFlags = 0;
@@ -653,20 +653,17 @@ void frontnet_draw_session_button(struct GuiButton *gbtn)
 {
   //_DK_frontnet_draw_session_button(gbtn);
   long sessionIndex;
-  long font_idx;
-  long btnIndex;
+  long febtn_idx;
   long height;
 
-  btnIndex = (long)gbtn->content;
-  sessionIndex = net_session_scroll_offset + btnIndex - 45;
+  febtn_idx = (long)gbtn->content;
+  sessionIndex = net_session_scroll_offset + febtn_idx - 45;
   if ((sessionIndex < 0) || (sessionIndex >= net_number_of_sessions))
       return;
-  font_idx = frontend_button_info[btnIndex%FRONTEND_BUTTON_INFO_COUNT].font_index;
-  if ((btnIndex > 0) && (frontend_mouse_over_button == btnIndex)) {
-      font_idx = 2;
-  }
-  lbDisplay.DrawFlags = 0;
+  int font_idx;
+  font_idx = frontend_button_caption_font(gbtn,frontend_mouse_over_button);
   LbTextSetFont(frontend_font[font_idx]);
+  lbDisplay.DrawFlags = 0;
   height = LbTextLineHeight();
   LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, height);
   LbTextDraw(0, 0, net_session[sessionIndex]->text);
@@ -696,7 +693,7 @@ void frontnet_draw_net_session_players(struct GuiButton *gbtn)
 {
     //_DK_frontnet_draw_net_session_players(gbtn);
     int i;
-    i = frontend_button_info[(long)gbtn->content].font_index;
+    i = frontend_button_caption_font(gbtn, 0);
     lbDisplay.DrawFlags = 0;
     LbTextSetFont(frontend_font[i]);
     int height;
@@ -847,7 +844,7 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
 {
     //_DK_frontnet_draw_net_start_players(gbtn);
     int i;
-    i = frontend_button_info[(long)gbtn->content].font_index;
+    i = frontend_button_caption_font(gbtn, 0);
     lbDisplay.DrawFlags = 0;
     LbTextSetFont(frontend_font[i]);
     int height;
@@ -1026,7 +1023,7 @@ void frontnet_draw_current_message(struct GuiButton *gbtn)
     static TbBool print_with_cursor = 1;
 
     struct PlayerInfo *player;
-    int button_info_font_index;
+    int font_idx;
     char text[2048];
     //_DK_frontnet_draw_current_message(gbtn);
 
@@ -1045,9 +1042,9 @@ void frontnet_draw_current_message(struct GuiButton *gbtn)
 
     // Prepare text buffer and font
     snprintf(text, sizeof(text), "%s%s", player->mp_message_text, print_with_cursor?"_":"");
-    button_info_font_index = frontend_button_info[(unsigned) gbtn->content].font_index;
+    font_idx = frontend_button_caption_font(gbtn, 0);
     // And draw the message
-    frontnet_draw_scroll_selection_box(gbtn, button_info_font_index, text);
+    frontnet_draw_scroll_selection_box(gbtn, font_idx, text);
 }
 
 void frontnet_draw_messages(struct GuiButton *gbtn)
@@ -1066,7 +1063,7 @@ void frontnet_draw_messages(struct GuiButton *gbtn)
 
   y = 0;
   scroll_offset = net_message_scroll_offset;
-  font_idx = frontend_button_info[(unsigned) gbtn->content].font_index;
+  font_idx = frontend_button_caption_font(gbtn, 0);
   lbDisplay.DrawFlags = 0;
   LbTextSetFont(frontend_font[font_idx]);
   if ( gbtn->height )
@@ -1189,9 +1186,9 @@ void frontnet_draw_comport_selected(struct GuiButton *gbtn)
 {
     //_DK_frontnet_draw_comport_selected(gbtn);
     if (net_comport_index_active == -1)
-        frontnet_draw_small_scroll_selection_box(gbtn, frontend_button_info[(long)gbtn->content].font_index, 0);
+        frontnet_draw_small_scroll_selection_box(gbtn, frontend_button_caption_font(gbtn, 0), 0);
     else
-        frontnet_draw_small_scroll_selection_box(gbtn, frontend_button_info[(long)gbtn->content].font_index, get_net_comport_text(net_comport_index_active));
+        frontnet_draw_small_scroll_selection_box(gbtn, frontend_button_caption_font(gbtn, 0), get_net_comport_text(net_comport_index_active));
 }
 
 void frontnet_comport_select(struct GuiButton *gbtn)
@@ -1210,14 +1207,9 @@ void frontnet_draw_comport_button(struct GuiButton *gbtn)
     if (i < number_of_comports)
     {
         int font_idx;
-        font_idx = frontend_button_info[febtn_idx].font_index;
-        if (febtn_idx > 0)
-        {
-          if (frontend_mouse_over_button == febtn_idx)
-            font_idx = 2;
-        }
-        lbDisplay.DrawFlags = 0;
+        font_idx = frontend_button_caption_font(gbtn,frontend_mouse_over_button);
         LbTextSetFont(frontend_font[font_idx]);
+        lbDisplay.DrawFlags = 0;
         const char *text;
         text = get_net_comport_text(i);
         LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, LbTextHeight(text));
@@ -1248,10 +1240,11 @@ void frontnet_draw_speed_scroll_tab(struct GuiButton *gbtn)
 void frontnet_draw_speed_selected(struct GuiButton *gbtn)
 {
     //_DK_frontnet_draw_speed_selected(gbtn);
+    // Select font to draw
     if (net_speed_index_active == -1)
-        frontnet_draw_small_scroll_selection_box(gbtn, frontend_button_info[(long)gbtn->content].font_index, 0);
+        frontnet_draw_small_scroll_selection_box(gbtn, frontend_button_caption_font(gbtn, 0), 0);
     else
-        frontnet_draw_small_scroll_selection_box(gbtn, frontend_button_info[(long)gbtn->content].font_index, get_net_speed_text(net_speed_index_active));
+        frontnet_draw_small_scroll_selection_box(gbtn, frontend_button_caption_font(gbtn, 0), get_net_speed_text(net_speed_index_active));
 }
 
 void frontnet_speed_select(struct GuiButton *gbtn)
@@ -1269,15 +1262,11 @@ void frontnet_draw_speed_button(struct GuiButton *gbtn)
     i = net_comport_scroll_offset + febtn_idx - 47;
     if (i < number_of_speeds)
     {
+        // Select font to draw
         int font_idx;
-        font_idx = frontend_button_info[febtn_idx].font_index;
-        if (febtn_idx > 0)
-        {
-          if (frontend_mouse_over_button == febtn_idx)
-            font_idx = 2;
-        }
-        lbDisplay.DrawFlags = 0;
+        font_idx = frontend_button_caption_font(gbtn,frontend_mouse_over_button);
         LbTextSetFont(frontend_font[font_idx]);
+        lbDisplay.DrawFlags = 0;
         const char *text;
         text = get_net_speed_text(i);
         LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, LbTextHeight(text));
@@ -1398,17 +1387,15 @@ void frontnet_service_maintain(struct GuiButton *gbtn)
 void frontnet_draw_service_button(struct GuiButton *gbtn)
 {
   int srvidx;
-  long fbinfo_idx;
-  int font_idx;
+  long febtn_idx;
   // Find and verify selected network service
-  fbinfo_idx = (long)(gbtn->content);
-  srvidx = fbinfo_idx + net_service_scroll_offset - 45;
+  febtn_idx = (long)(gbtn->content);
+  srvidx = febtn_idx + net_service_scroll_offset - 45;
   if (srvidx >= net_number_of_services)
     return;
   // Select font to draw
-  font_idx = frontend_button_info[fbinfo_idx%FRONTEND_BUTTON_INFO_COUNT].font_index;
-  if ((fbinfo_idx != 0) && (frontend_mouse_over_button == fbinfo_idx))
-      font_idx = 2;
+  int font_idx;
+  font_idx = frontend_button_caption_font(gbtn,frontend_mouse_over_button);
   LbTextSetFont(frontend_font[font_idx]);
   // Set drawing window
   int height;

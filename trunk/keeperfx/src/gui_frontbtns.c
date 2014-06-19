@@ -549,25 +549,25 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
 {
     static const long large_button_sprite_anims[] =
         { 2, 5, 8, 11, 14, 11, 8, 5, };
-    unsigned int fbinfo_idx;
+    unsigned int febtn_idx;
     unsigned int spridx;
     int fntidx;
     long x,y;
     int h;
     SYNCDBG(9,"Drawing type %d, text \"%s\"",(int)btntype,text);
-    fbinfo_idx = (unsigned int)gbtn->content;
+    febtn_idx = (unsigned int)gbtn->content;
     if ((gbtn->flags & LbBtnF_Unknown08) == 0)
     {
         fntidx = 3;
         spridx = 14;
     } else
-    if ((fbinfo_idx > 0) && (frontend_mouse_over_button == fbinfo_idx))
+    if ((febtn_idx > 0) && (frontend_mouse_over_button == febtn_idx))
     {
         fntidx = 2;
         spridx = large_button_sprite_anims[((timeGetTime()-frontend_mouse_over_button_start_time)/100) & 7];
     } else
     {
-        fntidx = frontend_button_info[fbinfo_idx%FRONTEND_BUTTON_INFO_COUNT].font_index;
+        fntidx = frontend_button_caption_font(gbtn, 0);
         spridx = 14;
     }
     x = gbtn->scr_pos_x;
