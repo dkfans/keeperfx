@@ -766,7 +766,7 @@ void gui_creature_query_background1(struct GuiMenu *gmnu)
         spr_idx = get_creature_model_graphics(ctrltng->model, CGI_ButtonPortrait);
         LbSpriteDraw((gmnu->pos_x + 16) / pixel_size, (gmnu->pos_y + 200) / pixel_size, &button_sprite[spr_idx]);
     }
-    LbSpriteDraw((gmnu->pos_x + 4) / pixel_size, (gmnu->pos_y + 188) / pixel_size, &gui_panel_sprites[464]);
+    draw_gui_panel_sprite_left(gmnu->pos_x + 4, gmnu->pos_y + 188, 464);
 }
 
 void gui_creature_query_background2(struct GuiMenu *gmnu)
@@ -782,7 +782,7 @@ void gui_creature_query_background2(struct GuiMenu *gmnu)
     {
         long spr_idx;
         spr_idx = get_creature_model_graphics(ctrltng->model, CGI_GUIPanelSymbol);
-        LbSpriteDraw((gmnu->pos_x + 4) / pixel_size, (gmnu->pos_y + 196) / pixel_size, &gui_panel_sprites[spr_idx]);
+        draw_gui_panel_sprite_left(gmnu->pos_x + 4, gmnu->pos_y + 196, spr_idx);
     }
 }
 
@@ -823,7 +823,7 @@ void gui_go_to_next_creature_activity(struct GuiButton *gbtn)
     // Get index from pointer
     int job_idx;
     job_idx = ((long *)gbtn->content - &activity_list[0]);
-    go_to_next_creature_of_breed_and_gui_job(crmodel, (job_idx & 0xC) >> 2);
+    go_to_next_creature_of_model_and_gui_job(crmodel, (job_idx & 0xC) >> 2);
 }
 
 RoomIndex find_my_next_room_of_type(RoomKind rkind)
@@ -871,7 +871,8 @@ void gui_go_to_next_room(struct GuiButton *gbtn)
 
 void gui_over_room_button(struct GuiButton *gbtn)
 {
-  _DK_gui_over_room_button(gbtn);
+    //_DK_gui_over_room_button(gbtn);
+    gui_room_type_highlighted = (long)gbtn->content;
 }
 
 void gui_area_room_button(struct GuiButton *gbtn)
@@ -905,7 +906,17 @@ void pick_up_next_creature(struct GuiButton *gbtn)
 
 void gui_go_to_next_creature(struct GuiButton *gbtn)
 {
-  _DK_gui_go_to_next_creature(gbtn);
+    long i;
+    SYNCDBG(8,"Starting");
+    //_DK_gui_go_to_next_creature(gbtn);
+    i = gbtn->field_1B;
+    ThingModel crmodel;
+    if (i > 0) {
+        crmodel = breed_activities[(top_of_breed_list+i)%CREATURE_TYPES_COUNT];
+    } else {
+        crmodel = get_players_special_digger_model(my_player_number);
+    }
+    go_to_next_creature_of_model_and_gui_job(crmodel, -1);
 }
 
 void gui_area_anger_button(struct GuiButton *gbtn)
@@ -999,12 +1010,31 @@ void gui_activity_background(struct GuiMenu *gmnu)
 
 void maintain_activity_up(struct GuiButton *gbtn)
 {
-  _DK_maintain_activity_up(gbtn);
+    //_DK_maintain_activity_up(gbtn);
+    if (no_of_breeds_owned <= 6)
+    {
+        gbtn->flags &= ~0x04;
+        gbtn->flags &= ~0x08;
+    } else
+    {
+        gbtn->flags |= 0x04;
+        gbtn->flags ^= (gbtn->flags ^ 8 * (top_of_breed_list > 0)) & 8;
+    }
 }
 
 void maintain_activity_down(struct GuiButton *gbtn)
 {
-  _DK_maintain_activity_down(gbtn);
+    //_DK_maintain_activity_down(gbtn);
+    if (no_of_breeds_owned <= 6)
+    {
+        gbtn->flags &= ~0x04;
+        gbtn->flags &= ~0x08;
+    }
+    else
+    {
+        gbtn->flags |= 0x04;
+        gbtn->flags ^= (gbtn->flags ^ 8 * (no_of_breeds_owned - 6 > top_of_breed_list)) & 8;
+    }
 }
 
 void maintain_activity_pic(struct GuiButton *gbtn)
@@ -1302,7 +1332,7 @@ void pick_up_next_wanderer(struct GuiButton *gbtn)
 void gui_go_to_next_wanderer(struct GuiButton *gbtn)
 {
     //_DK_gui_go_to_next_wanderer(gbtn);
-    go_to_next_creature_of_breed_and_gui_job(-1, 0);
+    go_to_next_creature_of_model_and_gui_job(-1, 0);
 }
 
 void pick_up_next_worker(struct GuiButton *gbtn)
@@ -1320,7 +1350,7 @@ void pick_up_next_worker(struct GuiButton *gbtn)
 void gui_go_to_next_worker(struct GuiButton *gbtn)
 {
     //_DK_gui_go_to_next_worker(gbtn);
-    go_to_next_creature_of_breed_and_gui_job(-1, 1);
+    go_to_next_creature_of_model_and_gui_job(-1, 1);
 }
 
 void pick_up_next_fighter(struct GuiButton *gbtn)
@@ -1337,12 +1367,8 @@ void pick_up_next_fighter(struct GuiButton *gbtn)
 
 void gui_area_progress_bar(struct GuiButton *gbtn, int progress, int total)
 {
-    struct TbSprite *base_spr;
-    base_spr = &gui_panel_sprites[462];
-    LbSpriteDraw(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size, base_spr);
-    int spr_idx;
-    spr_idx = gbtn->field_29;
-    LbSpriteDraw((gbtn->scr_pos_x - 8) / pixel_size, (gbtn->scr_pos_y - 10) / pixel_size, &gui_panel_sprites[spr_idx]);
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, 462);
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x - 8, gbtn->scr_pos_y - 10, gbtn->field_29);
     int bar_fill;
     bar_fill = 32;
     if (progress > total)
@@ -1363,13 +1389,13 @@ void gui_area_progress_bar(struct GuiButton *gbtn, int progress, int total)
 void gui_go_to_next_fighter(struct GuiButton *gbtn)
 {
     //_DK_gui_go_to_next_fighter(gbtn);
-    go_to_next_creature_of_breed_and_gui_job(-1, 2);
+    go_to_next_creature_of_model_and_gui_job(-1, 2);
 }
 
 void gui_area_payday_button(struct GuiButton *gbtn)
 {
     //_DK_gui_area_payday_button(gbtn);
-    LbSpriteDraw(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size, &gui_panel_sprites[gbtn->field_29]);
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->field_29);
     int turns_passed;
     turns_passed = game.field_15033A;
     if (game.field_15033A > game.pay_day_gap)
