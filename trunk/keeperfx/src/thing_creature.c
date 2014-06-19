@@ -1653,7 +1653,7 @@ long creature_is_ambulating(struct Thing *thing)
 {
     //return _DK_creature_is_ambulating(thing);
     int n, i;
-    n = get_creature_breed_graphics(thing->model, CGI_Ambulate);
+    n = get_creature_model_graphics(thing->model, CGI_Ambulate);
     i = convert_td_iso(n);
     if (i != thing->field_44)
         return 0;
@@ -2874,7 +2874,7 @@ void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long a2, lo
     cctrl->inst_turn = 0;
     cctrl->inst_total_turns = itime;
     cctrl->inst_action_turns = aitime;
-    i = get_creature_breed_graphics(thing->model,inst_inf->graphics_idx);
+    i = get_creature_model_graphics(thing->model,inst_inf->graphics_idx);
     cctrl->field_1CE = get_lifespan_of_animation(i, 1) / itime;
     if (pos != NULL)
     {
