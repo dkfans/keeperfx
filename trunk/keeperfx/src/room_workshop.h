@@ -69,6 +69,8 @@ struct ManufactureData {
 struct ManufactureData *get_manufacture_data(int manufctr_idx);
 int get_manufacture_data_index_for_thing(ThingClass tngclass, ThingModel tngmodel);
 struct ManufactureData *get_manufacture_data_for_thing(ThingClass tngclass, ThingModel tngmodel);
+#define manufacture_points_required(mfcr_type, mfcr_kind) manufacture_points_required_f(mfcr_type, mfcr_kind, __func__)
+long manufacture_points_required_f(long mfcr_type, unsigned long mfcr_kind, const char *func_name);
 
 #define add_workshop_item_to_amounts(plyr_idx, tngclass, tngmodel) add_workshop_item_to_amounts_f(plyr_idx, tngclass, tngmodel, __func__)
 TbBool add_workshop_item_to_amounts_f(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel, const char *func_name);
