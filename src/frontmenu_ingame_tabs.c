@@ -178,7 +178,29 @@ void menu_tab_maintain(struct GuiButton *gbtn)
 
 void gui_area_autopilot_button(struct GuiButton *gbtn)
 {
-  _DK_gui_area_autopilot_button(gbtn);
+    //_DK_gui_area_autopilot_button(gbtn);
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(my_player_number);
+    int spr_idx;
+    spr_idx = gbtn->field_29;
+    if (gbtn->gbtype == Lb_CYCLEBTN) {
+        ERRORLOG("Cycle button cannot have a normal button draw function!");
+    }
+    if ((gbtn->flags & 0x08) != 0)
+    {
+        if ((dungeon->computer_enabled & 0x01) != 0)
+        {
+          if (game.play_gameturn & 1)
+            spr_idx += 2;
+        }
+        if ((gbtn->gbactn_1 == 0) && (gbtn->gbactn_2 == 0))
+          spr_idx += 1;
+        draw_button_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, spr_idx);
+    }
+    else
+    {
+        draw_button_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, spr_idx, 12);
+    }
 }
 
 void maintain_turn_on_autopilot(struct GuiButton *gbtn)
@@ -741,7 +763,7 @@ void gui_creature_query_background1(struct GuiMenu *gmnu)
     if (thing_is_creature(ctrltng) && (ctrltng->ccontrol_idx > 0))
     {
         long spr_idx;
-        spr_idx = get_creature_breed_graphics(ctrltng->model, CGI_QuerySymbol);
+        spr_idx = get_creature_model_graphics(ctrltng->model, CGI_ButtonPortrait);
         LbSpriteDraw((gmnu->pos_x + 16) / pixel_size, (gmnu->pos_y + 200) / pixel_size, &button_sprite[spr_idx]);
     }
     LbSpriteDraw((gmnu->pos_x + 4) / pixel_size, (gmnu->pos_y + 188) / pixel_size, &gui_panel_sprites[464]);
@@ -759,40 +781,92 @@ void gui_creature_query_background2(struct GuiMenu *gmnu)
     if (thing_is_creature(ctrltng) && (ctrltng->ccontrol_idx > 0))
     {
         long spr_idx;
-        spr_idx = get_creature_breed_graphics(ctrltng->model, CGI_Portrait);
+        spr_idx = get_creature_model_graphics(ctrltng->model, CGI_GUIPanelSymbol);
         LbSpriteDraw((gmnu->pos_x + 4) / pixel_size, (gmnu->pos_y + 196) / pixel_size, &gui_panel_sprites[spr_idx]);
     }
 }
 
 void pick_up_creature_doing_activity(struct GuiButton *gbtn)
 {
-    long i,job_idx,kind;
+    long i;
     unsigned char pick_flags;
     SYNCDBG(8,"Starting");
     //_DK_pick_up_creature_doing_activity(gbtn); return;
     i = gbtn->field_1B;
-    // Get index from pointer
-    job_idx = ((long *)gbtn->content - &activity_list[0]);
+    ThingModel crmodel;
     if (i > 0)
-        kind = breed_activities[(top_of_breed_list+i)%CREATURE_TYPES_COUNT];
+        crmodel = breed_activities[(top_of_breed_list+i)%CREATURE_TYPES_COUNT];
     else
-        kind = get_players_special_digger_model(my_player_number);
+        crmodel = get_players_special_digger_model(my_player_number);
+    // Get index from pointer
+    long job_idx;
+    job_idx = ((long *)gbtn->content - &activity_list[0]);
     pick_flags = TPF_PickableCheck;
     if (lbKeyOn[KC_LCONTROL] || lbKeyOn[KC_RCONTROL])
         pick_flags |= TPF_OrderedPick;
     if (lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT])
         pick_flags |= TPF_OrderedPick | TPF_ReverseOrder;
-    pick_up_creature_of_breed_and_gui_job(kind, (job_idx & 0x03), my_player_number, pick_flags);
+    pick_up_creature_of_breed_and_gui_job(crmodel, (job_idx & 0x03), my_player_number, pick_flags);
 }
 
 void gui_go_to_next_creature_activity(struct GuiButton *gbtn)
 {
-  _DK_gui_go_to_next_creature_activity(gbtn);
+    //_DK_gui_go_to_next_creature_activity(gbtn);
+    ThingModel crmodel;
+    int i;
+    i = gbtn->field_1B;
+    if (i > 0) {
+        crmodel = breed_activities[(top_of_breed_list+i)%CREATURE_TYPES_COUNT];
+    } else {
+        crmodel = get_players_special_digger_model(my_player_number);
+    }
+    // Get index from pointer
+    int job_idx;
+    job_idx = ((long *)gbtn->content - &activity_list[0]);
+    go_to_next_creature_of_breed_and_gui_job(crmodel, (job_idx & 0xC) >> 2);
+}
+
+RoomIndex find_my_next_room_of_type(RoomKind rkind)
+{
+    static RoomIndex next_room[ROOM_TYPES_COUNT];
+    if (next_room[rkind] > 0)
+    {
+        struct Room *room;
+        room = room_get(next_room[rkind]);
+        if (room_exists(room) && (room->owner == my_player_number) && (room->kind == rkind))
+          next_room[rkind] = room->next_of_owner;
+        else
+          next_room[rkind] = 0;
+    }
+    if (next_room[rkind] <= 0)
+    {
+        struct Dungeon *dungeon;
+        dungeon = get_my_dungeon();
+        next_room[rkind] = dungeon->room_kind[rkind];
+    }
+    return next_room[rkind];
+}
+
+void go_to_my_next_room_of_type_and_select(unsigned long rkind)
+{
+    RoomIndex room_idx;
+    room_idx = find_my_next_room_of_type(rkind);
+    struct PlayerInfo *player;
+    player = get_my_player();
+    if (room_idx > 0) {
+        set_players_packet_action(player, PckA_ZoomToRoom, room_idx, 0, 0, 0);
+    }
 }
 
 void gui_go_to_next_room(struct GuiButton *gbtn)
 {
-  _DK_gui_go_to_next_room(gbtn);
+    //_DK_gui_go_to_next_room(gbtn);
+    unsigned long rkind;
+    rkind = (long)gbtn->content;
+    go_to_my_next_room_of_type_and_select(rkind);
+    game.chosen_room_kind = rkind;
+    game.chosen_room_look = room_info[rkind].field_0;
+    game.chosen_room_tooltip = gbtn->tooltip_id;
 }
 
 void gui_over_room_button(struct GuiButton *gbtn)
@@ -935,22 +1009,61 @@ void maintain_activity_down(struct GuiButton *gbtn)
 
 void maintain_activity_pic(struct GuiButton *gbtn)
 {
-  _DK_maintain_activity_pic(gbtn);
+    //_DK_maintain_activity_pic(gbtn); return;
+    ThingModel crmodel;
+    int i;
+    i = gbtn->field_1B;
+    if (i > 0) {
+        crmodel = breed_activities[(top_of_breed_list+i)%CREATURE_TYPES_COUNT];
+    } else {
+        crmodel = get_players_special_digger_model(my_player_number);
+    }
+    struct Dungeon *dungeon;
+    dungeon = get_my_dungeon();
+    int amount;
+    /*if (crmodel == get_players_special_digger_model(my_player_number))
+      amount = dungeon->num_active_diggers;
+    else*/
+    amount = dungeon->owned_creatures_of_model[crmodel];
+    gbtn->flags ^= (gbtn->flags ^ 8 * (amount > 0)) & 8;
+    gbtn->flags ^= (gbtn->flags ^ 4 * (no_of_breeds_owned > i)) & 4;
+    gbtn->field_29 = get_creature_model_graphics(crmodel, CGI_GUIPanelSymbol);
 }
 
 void maintain_activity_row(struct GuiButton *gbtn)
 {
-  _DK_maintain_activity_row(gbtn);
+    //_DK_maintain_activity_row(gbtn); return;
+    ThingModel crmodel;
+    int i;
+    i = gbtn->field_1B;
+    if (i > 0) {
+        crmodel = breed_activities[(top_of_breed_list+i)%CREATURE_TYPES_COUNT];
+    } else {
+        crmodel = get_players_special_digger_model(my_player_number);
+    }
+    struct Dungeon *dungeon;
+    dungeon = get_my_dungeon();
+    int amount;
+    /*if (crmodel == get_players_special_digger_model(my_player_number))
+      amount = dungeon->num_active_diggers;
+    else*/
+    amount = dungeon->owned_creatures_of_model[crmodel];
+    gbtn->flags ^= (gbtn->flags ^ 8 * (amount > 0)) & 8;
+    gbtn->flags ^= (gbtn->flags ^ 4 * (no_of_breeds_owned > i)) & 4;
 }
 
 void gui_scroll_activity_up(struct GuiButton *gbtn)
 {
-  _DK_gui_scroll_activity_up(gbtn);
+    //_DK_gui_scroll_activity_up(gbtn);
+    if (top_of_breed_list > 0)
+      top_of_breed_list--;
 }
 
 void gui_scroll_activity_down(struct GuiButton *gbtn)
 {
-  _DK_gui_scroll_activity_down(gbtn);
+    //_DK_gui_scroll_activity_down(gbtn);
+    if (top_of_breed_list + 6 < no_of_breeds_owned)
+        top_of_breed_list++;
 }
 
 void gui_area_ally(struct GuiButton *gbtn)
@@ -1138,7 +1251,20 @@ void maintain_ally(struct GuiButton *gbtn)
 
 void maintain_prison_bar(struct GuiButton *gbtn)
 {
-  _DK_maintain_prison_bar(gbtn);
+    //_DK_maintain_prison_bar(gbtn);
+    if (player_has_room(my_player_number, RoK_PRISON))
+    {
+        gbtn->field_29 = 350;
+        gbtn->flags |= LbBtnF_Unknown08;
+    } else
+    {
+        gbtn->field_29 = 354;
+        gbtn->flags &= ~LbBtnF_Unknown08;
+        /*if (gbtn->gbactn_1) - this does nothing, but was in original function
+        {
+            menu_id_to_number(7);
+        }*/
+    }
 }
 
 void maintain_room_and_creature_button(struct GuiButton *gbtn)

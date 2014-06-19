@@ -36,7 +36,7 @@ enum CreatureGraphicsInstances {
     CGI_Drag        =  2,
     CGI_Attack      =  3,
     CGI_Dig         =  4,
-    CGI_Portrait    =  5,
+    CGI_GFX05       =  5,
     CGI_Relax       =  6,
     CGI_PrettyDance =  7,
     CGI_GotHit      =  8,
@@ -50,9 +50,9 @@ enum CreatureGraphicsInstances {
     CGI_DropDead    = 16,
     CGI_DeadSplat   = 17,
     CGI_GFX18       = 18,
-    CGI_QuerySymbol = 19,
-    CGI_HandSymbol  = 20,
-    CGI_GFX21       = 21,
+    CGI_ButtonPortrait  = 19,
+    CGI_GUIPanelSymbol  = 20,
+    CGI_GFX21           = 21,
 };
 /******************************************************************************/
 #pragma pack(1)
@@ -100,7 +100,7 @@ unsigned char previous_keeper_frame(unsigned short n, unsigned char c);
 void get_keepsprite_unscaled_dimensions(long kspr_frame, long a2, long a3, short *orig_w, short *orig_h, short *unsc_w, short *unsc_h);
 long get_lifespan_of_animation(long ani, long frameskip);
 unsigned long get_creature_anim(struct Thing *thing, unsigned short frame);
-unsigned long get_creature_breed_graphics(long breed, unsigned short frame);
+unsigned long get_creature_model_graphics(long breed, unsigned short frame);
 void set_creature_breed_graphics(long breed, unsigned short frame, unsigned long val);
 void set_creature_graphic(struct Thing *thing);
 

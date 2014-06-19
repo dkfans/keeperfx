@@ -342,11 +342,17 @@ void maintain_transfer_creature_scroll(struct GuiButton *gbtn)
 
 void choose_hold_audience(struct GuiButton *gbtn)
 {
-  _DK_choose_hold_audience(gbtn);
+    //_DK_choose_hold_audience(gbtn);
+    struct PlayerInfo *player;
+    player = get_my_player();
+    set_players_packet_action(player, PckA_HoldAudience, 0, 0, 0, 0);
 }
 
 void choose_armageddon(struct GuiButton *gbtn)
 {
-  _DK_choose_armageddon(gbtn);
+    //_DK_choose_armageddon(gbtn);
+    struct PlayerInfo *player;
+    player = get_my_player();
+    set_players_packet_action(player, PckA_PwrArmagUse, 0, 0, 0, 0);
 }
 /******************************************************************************/

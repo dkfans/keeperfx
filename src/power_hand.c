@@ -934,7 +934,7 @@ void draw_mini_things_in_hand(long x, long y)
     int i;
     int expshift_x;
     unsigned long spr_idx;
-    spr_idx = get_creature_breed_graphics(23, CGI_HandSymbol);
+    spr_idx = get_creature_model_graphics(23, CGI_GUIPanelSymbol);
     if ((spr_idx > 0) && (spr_idx < GUI_PANEL_SPRITES_COUNT))
         i = gui_panel_sprites[spr_idx].SWidth - button_sprite[184].SWidth;
     else
@@ -957,7 +957,7 @@ void draw_mini_things_in_hand(long x, long y)
         int shift_y;
         if (thing->class_id == TCls_Creature)
         {
-            spr_idx = get_creature_breed_graphics(thing->model, CGI_HandSymbol);
+            spr_idx = get_creature_model_graphics(thing->model, CGI_GUIPanelSymbol);
             if (spr_idx > 0)
             {
                 struct CreatureControl *cctrl;
