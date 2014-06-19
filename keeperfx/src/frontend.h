@@ -301,6 +301,7 @@ void create_error_box(unsigned short msg_idx);
 void gui_area_text(struct GuiButton *gbtn);
 TbBool get_button_area_input(struct GuiButton *gbtn, int a2);
 const char *frontend_button_caption_text(const struct GuiButton *gbtn);
+int frontend_button_caption_font(const struct GuiButton *gbtn, long mouse_over_btn_idx);
 void maintain_loadsave(struct GuiButton *gbtn);
 void gui_video_cluedo_maintain(struct GuiButton *gbtn);
 void maintain_zoom_to_event(struct GuiButton *gbtn);
