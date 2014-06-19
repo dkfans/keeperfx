@@ -1506,6 +1506,37 @@ struct Thing *get_random_door_of_model_owned_by_and_locked(ThingModel tngmodel, 
     return get_nth_thing_of_class_with_filter(filter, &param, ACTION_RANDOM(match_count));
 }
 
+long creature_of_model_find_first(ThingModel crmodel)
+{
+    struct Thing *thing;
+    long i,k;
+    i = game.thing_lists[TngList_Creatures].index;
+    k = 0;
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_of_class;
+        // Thing list loop body
+        if ((crmodel <= 0) || (thing->model == crmodel))
+        {
+            return i;
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return 0;
+}
+
 long creature_of_model_in_prison_or_tortured(ThingModel crmodel)
 {
     struct Thing *thing;
@@ -1552,6 +1583,24 @@ TbBool lord_of_the_land_in_prison_or_tortured(void)
         }
     }
     return false;
+}
+
+struct Thing *lord_of_the_land_find(void)
+{
+    struct CreatureModelConfig *crconf;
+    long crtr_model;
+    for (crtr_model=0; crtr_model < crtr_conf.model_count; crtr_model++)
+    {
+        crconf = &crtr_conf.model[crtr_model];
+        if ((crconf->model_flags & MF_IsLordOTLand) != 0)
+        {
+            int i;
+            i = creature_of_model_find_first(crtr_model);
+            if (i > 0)
+                return thing_get(i);
+        }
+    }
+    return INVALID_THING;
 }
 
 TbBool perform_action_on_all_creatures_in_group(struct Thing *thing, Thing_Bool_Modifier action)

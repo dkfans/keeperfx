@@ -83,7 +83,6 @@ struct Thing *get_trap_for_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     struct Map *mapblk;
     long i;
     unsigned long k;
-    long dist;
     mapblk = get_map_block_at(stl_x,stl_y);
     k = 0;
     i = get_mapwho_thing_index(mapblk);

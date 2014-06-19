@@ -113,25 +113,25 @@ struct Packet bad_packet;
 /******************************************************************************/
 void set_packet_action(struct Packet *pckt, unsigned char pcktype, unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4)
 {
-  pckt->field_6 = par1;
-  pckt->field_8 = par2;
-  pckt->action = pcktype;
+    pckt->field_6 = par1;
+    pckt->field_8 = par2;
+    pckt->action = pcktype;
 }
 
 void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype, unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4)
 {
-  struct Packet *pckt;
-  pckt = get_packet_direct(player->packet_num);
-  pckt->field_6 = par1;
-  pckt->field_8 = par2;
-  pckt->action = pcktype;
+    struct Packet *pckt;
+    pckt = get_packet_direct(player->packet_num);
+    pckt->field_6 = par1;
+    pckt->field_8 = par2;
+    pckt->action = pcktype;
 }
 
 unsigned char get_players_packet_action(struct PlayerInfo *player)
 {
-  struct Packet *pckt;
-  pckt = get_packet_direct(player->packet_num);
-  return pckt->action;
+    struct Packet *pckt;
+    pckt = get_packet_direct(player->packet_num);
+    return pckt->action;
 }
 
 void set_packet_control(struct Packet *pckt, unsigned long flag)

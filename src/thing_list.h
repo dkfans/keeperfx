@@ -214,6 +214,7 @@ long count_player_creatures_of_model(PlayerNumber plyr_idx, ThingModel crmodel);
 long count_player_list_creatures_of_model(long thing_idx, ThingModel crmodel);
 long count_player_creatures_not_counting_to_total(PlayerNumber plyr_idx);
 TbBool lord_of_the_land_in_prison_or_tortured(void);
+struct Thing *lord_of_the_land_find(void);
 long electricity_affecting_area(const struct Coord3d *pos, PlayerNumber immune_plyr_idx, long range, long max_damage);
 
 void update_things(void);

@@ -306,13 +306,9 @@ void frontend_invert_mouse(struct GuiButton *gbtn)
 void frontend_draw_invert_mouse(struct GuiButton *gbtn)
 {
     //_DK_frontend_draw_invert_mouse(gbtn);
-    long content;
-    content = (long)gbtn->content;
-    if (frontend_mouse_over_button == content) {
-        LbTextSetFont(frontend_font[2]);
-    } else {
-        LbTextSetFont(frontend_font[frontend_button_info[content].font_index]);
-    }
+    int font_idx;
+    font_idx = frontend_button_caption_font(gbtn,frontend_mouse_over_button);
+    LbTextSetFont(frontend_font[font_idx]);
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
     const char *text;
     if (settings.first_person_move_invert) {
