@@ -284,17 +284,17 @@ void get_keepsprite_unscaled_dimensions(long kspr_frame, long a2, long a3, short
 
 }
 
-unsigned long get_creature_breed_graphics(long breed, unsigned short seq_idx)
+unsigned long get_creature_model_graphics(long crmodel, unsigned short seq_idx)
 {
   if (seq_idx >= CREATURE_GRAPHICS_INSTANCES) {
-      ERRORLOG("Invalid breed %d graphics sequence %d",breed,seq_idx);
+      ERRORLOG("Invalid model %d graphics sequence %d",crmodel,seq_idx);
       seq_idx = 0;
   }
-  if ((breed < 0) || (breed >= CREATURE_TYPES_COUNT)) {
-      ERRORLOG("Invalid breed %d graphics sequence %d",breed,seq_idx);
-      breed = 0;
+  if ((crmodel < 0) || (crmodel >= CREATURE_TYPES_COUNT)) {
+      ERRORLOG("Invalid model %d graphics sequence %d",crmodel,seq_idx);
+      crmodel = 0;
   }
-  return creature_graphics[breed][seq_idx];
+  return creature_graphics[crmodel][seq_idx];
 }
 
 void set_creature_breed_graphics(long breed, unsigned short seq_idx, unsigned long val)
@@ -313,7 +313,7 @@ void set_creature_breed_graphics(long breed, unsigned short seq_idx, unsigned lo
 unsigned long get_creature_anim(struct Thing *thing, unsigned short seq_idx)
 {
   unsigned long idx;
-  idx = get_creature_breed_graphics(thing->model, seq_idx);
+  idx = get_creature_model_graphics(thing->model, seq_idx);
   return convert_td_iso(idx);
 }
 

@@ -657,7 +657,7 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
       switch (thing->class_id)
       {
       case TCls_Creature:
-        spridx = get_creature_breed_graphics(thing->model,CGI_HandSymbol);
+        spridx = get_creature_model_graphics(thing->model,CGI_GUIPanelSymbol);
         if ((game.play_gameturn & 0x04) != 0)
         {
           color = get_player_path_colour(thing->owner);

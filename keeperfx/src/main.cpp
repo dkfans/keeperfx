@@ -520,7 +520,7 @@ long get_foot_creature_has_down(struct Thing *thing)
     val = thing->field_48;
     if (val == (cctrl->field_CE >> 8))
         return 0;
-    n = get_creature_breed_graphics(thing->model, CGI_Ambulate);
+    n = get_creature_model_graphics(thing->model, CGI_Ambulate);
     i = convert_td_iso(n);
     if (i != thing->field_44)
         return 0;

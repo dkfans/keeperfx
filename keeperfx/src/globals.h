@@ -160,6 +160,8 @@ typedef unsigned char CrtrExpLevel;
 typedef unsigned char AnnoyMotive;
 /** Type which stores room kind index. */
 typedef unsigned char RoomKind;
+/** Type which stores room index. */
+typedef unsigned short RoomIndex;
 /** Type which stores slab kind index. */
 typedef unsigned char SlabKind;
 /** Type which stores SplK_* values. */
