@@ -33,6 +33,7 @@
 #include "thing_doors.h"
 #include "creature_control.h"
 #include "creature_graphics.h"
+#include "creature_states_rsrch.h"
 #include "config_creature.h"
 #include "config_magic.h"
 #include "config_trapdoor.h"
@@ -135,12 +136,22 @@ DLLIMPORT void _DK_gui_set_query(struct GuiButton *gbtn);
 /******************************************************************************/
 void gui_zoom_in(struct GuiButton *gbtn)
 {
-  _DK_gui_zoom_in(gbtn);
+    //_DK_gui_zoom_in(gbtn);
+    struct PlayerInfo *player;
+    player = get_my_player();
+    if (player->minimap_zoom > 0x80) {
+        set_players_packet_action(player, PckA_SetMinimapConf, player->minimap_zoom >> 1, 0, 0, 0);
+    }
 }
 
 void gui_zoom_out(struct GuiButton *gbtn)
 {
-  _DK_gui_zoom_out(gbtn);
+    //_DK_gui_zoom_out(gbtn);
+    struct PlayerInfo *player;
+    player = get_my_player();
+    if (player->minimap_zoom < 0x800) {
+        set_players_packet_action(player, PckA_SetMinimapConf, player->minimap_zoom << 1, 0, 0, 0);
+    }
 }
 
 void gui_go_to_map(struct GuiButton *gbtn)
@@ -1198,6 +1209,31 @@ void pick_up_next_fighter(struct GuiButton *gbtn)
     pick_up_creature_of_breed_and_gui_job(-1, 2, my_player_number, pick_flags);
 }
 
+void gui_area_progress_bar(struct GuiButton *gbtn, int progress, int total)
+{
+    struct TbSprite *base_spr;
+    base_spr = &gui_panel_sprites[462];
+    LbSpriteDraw(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size, base_spr);
+    int spr_idx;
+    spr_idx = gbtn->field_29;
+    LbSpriteDraw((gbtn->scr_pos_x - 8) / pixel_size, (gbtn->scr_pos_y - 10) / pixel_size, &gui_panel_sprites[spr_idx]);
+    int bar_fill;
+    bar_fill = 32;
+    if (progress > total)
+        progress = total;
+    if (total > 0)
+    {
+        bar_fill = 2 * (16 - (16 * progress / total));
+        if (bar_fill < 0) {
+            bar_fill = 0;
+        } else
+        if (bar_fill > 32) {
+            bar_fill = 32;
+        }
+    }
+    LbDrawBox((gbtn->scr_pos_x + 24 - bar_fill + 30) / pixel_size, (gbtn->scr_pos_y + 8) / pixel_size, bar_fill / pixel_size, 8 / pixel_size, colours[0][0][0]);
+}
+
 void gui_go_to_next_fighter(struct GuiButton *gbtn)
 {
     //_DK_gui_go_to_next_fighter(gbtn);
@@ -1206,17 +1242,68 @@ void gui_go_to_next_fighter(struct GuiButton *gbtn)
 
 void gui_area_payday_button(struct GuiButton *gbtn)
 {
-  _DK_gui_area_payday_button(gbtn);
+    //_DK_gui_area_payday_button(gbtn);
+    LbSpriteDraw(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size, &gui_panel_sprites[gbtn->field_29]);
+    int turns_passed;
+    turns_passed = game.field_15033A;
+    if (game.field_15033A > game.pay_day_gap)
+      turns_passed = game.pay_day_gap;
+    if (game.pay_day_gap > 0)
+    {
+        int bar_fill;
+        bar_fill = 96 - 2 * (48 * turns_passed / game.pay_day_gap);
+        if (bar_fill < 0) {
+            bar_fill = 0;
+        } else
+        if (bar_fill > 96) {
+            bar_fill = 96;
+        }
+        LbDrawBox((gbtn->scr_pos_x + 30 - bar_fill + 94) / pixel_size, (gbtn->scr_pos_y + 12) / pixel_size,
+            bar_fill / pixel_size, 8 / pixel_size, colours[0][0][0]);
+    }
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(my_player_number);
+    char *text;
+    text = buf_sprintf("%d", (int)dungeon->creatures_total_pay);
+    draw_centred_string64k(text, gbtn->scr_pos_x + (gbtn->width >> 1), gbtn->scr_pos_y + 8, gbtn->width);
 }
 
 void gui_area_research_bar(struct GuiButton *gbtn)
 {
-  _DK_gui_area_research_bar(gbtn);
+    //_DK_gui_area_research_bar(gbtn);
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(my_player_number);
+    int resrch_required, resrch_progress;
+    struct ResearchVal *rsrchval;
+    rsrchval = get_players_current_research_val(my_player_number);
+    if (rsrchval != NULL)
+    {
+        resrch_required = rsrchval->req_amount;
+        resrch_progress = (dungeon->research_progress >> 8);
+    } else
+    {
+        resrch_required = 0;
+        resrch_progress = 0;
+    }
+    gui_area_progress_bar(gbtn, resrch_progress, resrch_required);
 }
 
 void gui_area_workshop_bar(struct GuiButton *gbtn)
 {
-  _DK_gui_area_workshop_bar(gbtn);
+    //_DK_gui_area_workshop_bar(gbtn);
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(my_player_number);
+    int manufct_required, manufct_progress;
+    if (dungeon->manufacture_class != TCls_Empty)
+    {
+        manufct_required = manufacture_points_required(dungeon->manufacture_class, dungeon->manufacture_kind);
+        manufct_progress = (dungeon->manufacture_progress >> 8);
+    } else
+    {
+        manufct_required = 0;
+        manufct_progress = 0;
+    }
+    gui_area_progress_bar(gbtn, manufct_progress, manufct_required);
 }
 
 void gui_area_player_creature_info(struct GuiButton *gbtn)

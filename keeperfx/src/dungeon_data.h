@@ -227,7 +227,7 @@ long field_1181;
     unsigned char manufacture_kind;
 long field_118B;
 long manufacture_level;
-long field_1193;
+    long research_progress;
     struct LevelStats lvstats;
     struct CreatureStorage dead_creatures[DEAD_CREATURES_MAX_COUNT];
     long dead_creatures_count;

@@ -202,7 +202,7 @@ TbBool force_complete_current_research(PlayerNumber plyr_idx)
     if (rsrchval != NULL)
     {
         if ( research_needed(rsrchval, dungeon) ) {
-            dungeon->field_1193 = rsrchval->req_amount << 8;
+            dungeon->research_progress = rsrchval->req_amount << 8;
             return true;
         }
     }
@@ -210,7 +210,7 @@ TbBool force_complete_current_research(PlayerNumber plyr_idx)
     rsrchval = get_players_current_research_val(plyr_idx);
     if (rsrchval != NULL)
     {
-        dungeon->field_1193 = rsrchval->req_amount << 8;
+        dungeon->research_progress = rsrchval->req_amount << 8;
         return true;
     }
     return false;
@@ -500,7 +500,7 @@ CrCheckRet process_research_function(struct Thing *creatng)
     work_value = process_work_speed_on_work_value(creatng, work_value);
     SYNCDBG(19,"The %s index %d produced %d research points",thing_model_name(creatng),(int)creatng->index,(int)work_value);
     dungeon->total_research_points += work_value;
-    dungeon->field_1193 += work_value;
+    dungeon->research_progress += work_value;
     //TODO CREATURE_JOBS going postal should be possible for all jobs, not only research
     process_job_stress_and_going_postal(creatng, room);
     return CrCkRet_Available;
