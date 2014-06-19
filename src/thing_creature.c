@@ -4015,7 +4015,13 @@ struct Thing *pick_up_creature_of_breed_and_gui_job(long crmodel, long job_idx, 
     return thing;
 }
 
-void go_to_next_creature_of_breed_and_gui_job(long crmodel, long job_idx)
+/**
+ *
+ * @param crmodel
+ * @param job_idx
+ * @note originally was go_to_next_creature_of_breed_and_job()
+ */
+void go_to_next_creature_of_model_and_gui_job(long crmodel, long job_idx)
 {
     _DK_go_to_next_creature_of_breed_and_job(crmodel, job_idx); return;
 }
