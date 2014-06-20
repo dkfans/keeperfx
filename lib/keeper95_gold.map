@@ -1619,6 +1619,9 @@
  0003:000207B8       fade_palette_in
  0003:000207C0       frontstory_load_files
  0003:00020870       frontstory_setup_sprites
+ 0003:00020F3C       PrevPixelSize
+ 0003:00020F48       PrevRoomHighlight
+ 0003:00020F4C       PrevDoorHighlight
  0003:00021FE0       poly_screen
  0003:00021FE4       vec_screen
  0003:00021FE8       vec_map
@@ -2038,10 +2041,14 @@
  0003:00247F60       frontend_end_font
  0003:00247F70       credits_end
  0003:00247F78       frontend_font_data
+ 0003:00247F88       MapBackColours
  0003:00248088       MapShapeStart
  0003:00248258       MapShapeEnd
+ 0003:00248428       PannelColours
+ 0003:00249428       MapBackground
  0003:0024C8B8       PannelMapY
  0003:0024C8BC       PannelMapX
+ 0003:0025C8C0       NoBackColours
  0003:0025C8C8       reinforce_stack
  0003:0025C9C8       r_stackpos
  0003:0025C9F4       pixmap

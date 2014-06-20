@@ -229,6 +229,10 @@ DLLIMPORT extern unsigned short _DK_MyScreenHeight;
 #define MyScreenHeight _DK_MyScreenHeight
 DLLIMPORT extern unsigned short _DK_pixel_size;
 #define pixel_size _DK_pixel_size
+DLLIMPORT unsigned short _DK_pixels_per_block;
+#define pixels_per_block _DK_pixels_per_block
+DLLIMPORT unsigned short _DK_units_per_pixel;
+#define units_per_pixel _DK_units_per_pixel
 DLLIMPORT extern int _DK_lbUseSdk;
 //#define lbUseSdk _DK_lbUseSdk
 

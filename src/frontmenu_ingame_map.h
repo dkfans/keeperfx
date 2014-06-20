@@ -39,10 +39,24 @@ DLLIMPORT long _DK_MapShapeStart[116];
 #define MapShapeStart _DK_MapShapeStart
 DLLIMPORT long _DK_MapShapeEnd[116];
 #define MapShapeEnd _DK_MapShapeEnd
+DLLIMPORT long _DK_NoBackColours;
+#define NoBackColours _DK_NoBackColours
+DLLIMPORT long _DK_PrevPixelSize;
+#define PrevPixelSize _DK_PrevPixelSize
+DLLIMPORT unsigned char _DK_MapBackColours[256];
+#define MapBackColours _DK_MapBackColours
+DLLIMPORT unsigned char _DK_MapBackground[116*116];
+#define MapBackground _DK_MapBackground
+DLLIMPORT unsigned char _DK_PannelColours[4096];
+#define PannelColours _DK_PannelColours
+DLLIMPORT long _DK_PrevRoomHighlight;
+#define PrevRoomHighlight _DK_PrevRoomHighlight
+DLLIMPORT long _DK_PrevDoorHighlight;
+#define PrevDoorHighlight _DK_PrevDoorHighlight
 /******************************************************************************/
 void pannel_map_update(long x, long y, long w, long h);
-void pannel_map_draw(long x, long y, long zoom);
-void draw_overlay_things(long zoom);
+void pannel_map_draw(long x, long y, long units_per_px, long zoom);
+void draw_overlay_things(long units_per_px, long zoom);
 
 void do_map_rotate_stuff(long a1, long a2, long *a3, long *a4, long a5);
 short do_left_map_drag(long begin_x, long begin_y, long curr_x, long curr_y, long zoom);
