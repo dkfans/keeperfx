@@ -2048,6 +2048,7 @@
  0003:00249428       MapBackground
  0003:0024C8B8       PannelMapY
  0003:0024C8BC       PannelMapX
+ 0003:0024C8C0       PannelMap
  0003:0025C8C0       NoBackColours
  0003:0025C8C8       reinforce_stack
  0003:0025C9C8       r_stackpos

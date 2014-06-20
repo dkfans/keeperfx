@@ -36,23 +36,25 @@ DLLIMPORT long _DK_PannelMapY;
 DLLIMPORT long _DK_PannelMapX;
 #define PannelMapX _DK_PannelMapX
 DLLIMPORT long _DK_MapShapeStart[116];
-#define MapShapeStart _DK_MapShapeStart
+//#define MapShapeStart _DK_MapShapeStart
 DLLIMPORT long _DK_MapShapeEnd[116];
-#define MapShapeEnd _DK_MapShapeEnd
+//#define MapShapeEnd _DK_MapShapeEnd
 DLLIMPORT long _DK_NoBackColours;
 #define NoBackColours _DK_NoBackColours
 DLLIMPORT long _DK_PrevPixelSize;
 #define PrevPixelSize _DK_PrevPixelSize
 DLLIMPORT unsigned char _DK_MapBackColours[256];
 #define MapBackColours _DK_MapBackColours
-DLLIMPORT unsigned char _DK_MapBackground[116*116];
-#define MapBackground _DK_MapBackground
+DLLIMPORT unsigned char _DK_MapBackground[116*116];//pannel map size in pixels
+//#define MapBackground _DK_MapBackground
 DLLIMPORT unsigned char _DK_PannelColours[4096];
 #define PannelColours _DK_PannelColours
 DLLIMPORT long _DK_PrevRoomHighlight;
 #define PrevRoomHighlight _DK_PrevRoomHighlight
 DLLIMPORT long _DK_PrevDoorHighlight;
 #define PrevDoorHighlight _DK_PrevDoorHighlight
+DLLIMPORT unsigned char _DK_PannelMap[256*256];//map subtiles x*y
+#define PannelMap _DK_PannelMap
 /******************************************************************************/
 void pannel_map_update(long x, long y, long w, long h);
 void pannel_map_draw(long x, long y, long units_per_px, long zoom);

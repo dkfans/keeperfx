@@ -57,6 +57,12 @@ DLLIMPORT void _DK_draw_call_to_arms_circle(unsigned char owner, long x1, long y
 }
 #endif
 /******************************************************************************/
+/**
+ * Background behind the map area.
+ */
+unsigned char *MapBackground = NULL;
+long *MapShapeStart;
+long *MapShapeEnd;
 const TbPixel RoomColours[] = {132, 92, 164, 183, 21, 132};
 /******************************************************************************/
 void pannel_map_draw_pixel(long x, long y, long col)
@@ -593,10 +599,18 @@ short do_right_map_click(long start_x, long start_y, long curr_mx, long curr_my,
     return 0;
 }
 
-void setup_background(void)
+void setup_background(long units_per_px)
 {
     long map_size;
-    map_size = 116 / pixel_size;
+    map_size = units_per_px * 116 / 16;
+    LbMemoryFree(MapBackground);
+    MapBackground = LbMemoryAlloc(map_size*map_size*sizeof(TbPixel));
+    LbMemoryFree(MapShapeStart);
+    MapShapeStart = (long *)LbMemoryAlloc(map_size*sizeof(long));
+    LbMemoryFree(MapShapeEnd);
+    MapShapeEnd = (long *)LbMemoryAlloc(map_size*sizeof(long));
+    if ((MapBackground == NULL) || (MapShapeStart == NULL) || (MapShapeEnd == NULL))
+        return;
     long radius;
     radius = map_size / 2;
     long quarter_area;
@@ -826,12 +840,12 @@ void update_pannel_colours(void)
     }
 }
 
-void auto_gen_tables(void)
+void auto_gen_tables(long units_per_px)
 {
-    if (256 / pixel_size != PrevPixelSize)
+    if (PrevPixelSize != 256 * units_per_px / 16)
     {
-        PrevPixelSize = 256 / pixel_size;
-        setup_background();
+        PrevPixelSize = 256 * units_per_px / 16;
+        setup_background(units_per_px);
         setup_pannel_colours();
     }
 }
@@ -840,8 +854,81 @@ void pannel_map_draw(long x, long y, long units_per_px, long zoom)
 {
     PannelMapX = x / pixel_size;
     PannelMapY = y / pixel_size;
-    auto_gen_tables();
+    auto_gen_tables(units_per_px);
     update_pannel_colours();
-    _DK_pannel_map_draw(x, y, zoom);
+    //_DK_pannel_map_draw(x, y, zoom);
+    struct PlayerInfo *player;
+    player = get_my_player();
+    struct Camera *cam;
+    cam = player->acamera;
+    int map_size;
+    map_size = units_per_px * 116 / 16;
+    long shift_x, shift_y;
+    long shift_stl_x, shift_stl_y;
+    {
+        int angle;
+        angle = cam->orient_a & 0x1FFC;
+        shift_x = -LbSinL(angle) * zoom / 256;
+        shift_y = LbCosL(angle) * zoom / 256;
+        shift_stl_x = (cam->mappos.x.stl.num << 16) - map_size * shift_x / 2 - map_size * shift_y / 2;
+        shift_stl_y = (cam->mappos.y.stl.num << 16) - map_size * shift_y / 2 + map_size * shift_x / 2;
+    }
+
+    TbPixel *bkgnd_line;
+    bkgnd_line = MapBackground;
+    TbPixel *out_line;
+    out_line = &lbDisplay.WScreen[PannelMapX + lbDisplay.GraphicsScreenWidth * PannelMapY];
+    int h;
+    for (h = 0; h < map_size; h++)
+    {
+        int start_w, end_w;
+        start_w = MapShapeStart[h];
+        end_w = MapShapeEnd[h];
+        int subpos_x, subpos_y;
+        subpos_y = shift_stl_x + shift_y * (end_w - 1);
+        subpos_x = shift_stl_y - shift_x * (end_w - 1);
+        for (; end_w > start_w; end_w--)
+        {
+            if ((subpos_y >= 0) && (subpos_x >= 0) && (subpos_y < (2<<24)) && (subpos_x < (2<<24))) {
+                break;
+            }
+            subpos_y -= shift_y;
+            subpos_x += shift_x;
+        }
+        subpos_y = shift_stl_x + shift_y * start_w;
+        subpos_x = shift_stl_y - shift_x * start_w;
+        for (; start_w < end_w; start_w++)
+        {
+            if ((subpos_y >= 0) && (subpos_x >= 0) && (subpos_y < (2<<24)) && (subpos_x < (2<<24))) {
+                break;
+            }
+            subpos_y += shift_y;
+            subpos_x -= shift_x;
+        }
+        TbPixel *bkgnd;
+        bkgnd = &bkgnd_line[start_w];
+        TbPixel *out;
+        out = &out_line[start_w];
+        unsigned int precor_y, precor_x;
+        precor_x = subpos_y;
+        precor_y = subpos_x;
+        int w;
+        for (w = end_w-start_w; w > 0; w--)
+        {
+            int pnmap_idx;
+            pnmap_idx = ((precor_x>>16) & 0xff) | (((precor_y>>16) & 0xff) << 8);
+            int pncol_idx;
+            pncol_idx = PannelMap[pnmap_idx] | (*bkgnd << 8);
+            *out = PannelColours[pncol_idx];
+            precor_x += shift_y;
+            precor_y -= shift_x;
+            out++;
+            bkgnd++;
+        }
+        out_line += lbDisplay.GraphicsScreenWidth;
+        bkgnd_line += map_size;
+        shift_stl_x += shift_x;
+        shift_stl_y += shift_y;
+    }
 }
 /******************************************************************************/
