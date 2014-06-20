@@ -329,7 +329,7 @@ void clear_computer(void);
 TbBool swap_creature(long ncrt_id, long crtr_id);
 void place_animating_slab_type_on_map(long a1, char a2, unsigned char a3, unsigned char a4, unsigned char a5);
 void engine(struct PlayerInfo *player, struct Camera *cam);
-void draw_gold_total(unsigned char a1, long scr_x, long scr_y, long long value);
+void draw_gold_total(PlayerNumber plyr_idx, long scr_x, long scr_y, long units_per_px, long long value);
 void draw_mini_things_in_hand(long x, long y);
 TbBool screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct Coord3d *mappos);
 void update_breed_activities(void);

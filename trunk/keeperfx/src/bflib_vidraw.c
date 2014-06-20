@@ -4047,7 +4047,7 @@ TbResult LbHugeSpriteDraw(const unsigned char *sp, long * sp_y_offset, long sp_l
     return Lb_SUCCESS;
 }
 
-void DrawBigSprite(long start_x, long start_y, struct BigSprite *bigspr, struct TbSprite *sprite)
+void DrawBigSprite(long start_x, long start_y, long units_per_px, struct BigSprite *bigspr, struct TbSprite *sprite)
 {
     // Will be probably replaced by LbHugeSpriteDraw()
     //_DK_DrawBigSprite(x, y, bigspr, sprite);
@@ -4063,11 +4063,11 @@ void DrawBigSprite(long start_x, long start_y, struct BigSprite *bigspr, struct 
         spr_idx = &bigspr->spr_idx[spnum_y][0];
         for (spnum_x = 0; spnum_x < bigspr->x_num; spnum_x++)
         {
-            delta_x = pixel_size * sprite[*spr_idx].SWidth;
-            delta_y = pixel_size * sprite[*spr_idx].SHeight;
+            delta_x = units_per_px * sprite[*spr_idx].SWidth / 16;
+            delta_y = units_per_px * sprite[*spr_idx].SHeight / 16;
             if (*spr_idx)
             {
-                LbSpriteDraw(x / pixel_size, y / pixel_size, &sprite[*spr_idx]);
+                LbSpriteDrawScaled(x, y, &sprite[*spr_idx], delta_x, delta_y);
             } else
             {
                 unsigned short *prev_spr_idx;
@@ -4076,7 +4076,7 @@ void DrawBigSprite(long start_x, long start_y, struct BigSprite *bigspr, struct 
                 for (spnum_p = 1; spnum_p <= spnum_y; spnum_p++)
                 {
                     if (*prev_spr_idx) {
-                        delta_x = pixel_size * sprite[bigspr->spr_idx[(spnum_y - spnum_p)][spnum_x]].SWidth;
+                        delta_x = units_per_px * sprite[bigspr->spr_idx[(spnum_y - spnum_p)][spnum_x]].SWidth / 16;
                         break;
                     }
                     prev_spr_idx -= 10;
