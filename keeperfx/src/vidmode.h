@@ -53,10 +53,6 @@ struct TbAlphaTables {
     //unsigned char unused[215*256];
 };
 /******************************************************************************/
-DLLIMPORT unsigned short _DK_pixels_per_block;
-#define pixels_per_block _DK_pixels_per_block
-DLLIMPORT unsigned short _DK_units_per_pixel;
-#define units_per_pixel _DK_units_per_pixel
 DLLIMPORT int _DK_MinimalResolutionSetup;
 #define MinimalResolutionSetup _DK_MinimalResolutionSetup
 

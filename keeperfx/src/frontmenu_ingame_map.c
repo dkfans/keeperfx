@@ -39,6 +39,7 @@
 #include "power_hand.h"
 #include "kjm_input.h"
 #include "frontmenu_ingame_tabs.h"
+#include "vidmode.h"
 #include "vidfade.h"
 
 #ifdef __cplusplus
@@ -55,6 +56,8 @@ DLLIMPORT void _DK_draw_call_to_arms_circle(unsigned char owner, long x1, long y
 #ifdef __cplusplus
 }
 #endif
+/******************************************************************************/
+const TbPixel RoomColours[] = {132, 92, 164, 183, 21, 132};
 /******************************************************************************/
 void pannel_map_draw_pixel(long x, long y, long col)
 {
@@ -87,7 +90,7 @@ void draw_call_to_arms_circle(unsigned char owner, long x1, long y1, long x2, lo
  * @param zoom Zoom level of the minimap.
  * @return Amount of objects drawn.
  */
-int draw_overlay_call_to_arms(struct PlayerInfo *player, long zoom)
+int draw_overlay_call_to_arms(struct PlayerInfo *player, long units_per_px, long zoom)
 {
     unsigned long k;
     int i,n;
@@ -143,7 +146,7 @@ int draw_overlay_call_to_arms(struct PlayerInfo *player, long zoom)
  * @param zoom Zoom level of the minimap.
  * @return Amount of traps drawn.
  */
-int draw_overlay_traps(struct PlayerInfo *player, long zoom)
+int draw_overlay_traps(struct PlayerInfo *player, long units_per_px, long zoom)
 {
     unsigned long k;
     int i,n;
@@ -215,7 +218,7 @@ int draw_overlay_traps(struct PlayerInfo *player, long zoom)
  * @param zoom Zoom level of the minimap.
  * @return Amount of objects drawn.
  */
-int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long zoom)
+int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, long zoom)
 {
     unsigned long k;
     int i,n;
@@ -278,7 +281,7 @@ int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long zoom)
     return n;
 }
 
-int draw_overlay_creatures(struct PlayerInfo *player, long zoom)
+int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zoom)
 {
     unsigned long k;
     int i,n;
@@ -412,7 +415,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long zoom)
  * @param zoom Zoom level of the minimap.
  * @return Amount of hearts drawn, either 0 or 1.
  */
-int draw_line_to_heart(struct PlayerInfo *player, long zoom)
+int draw_line_to_heart(struct PlayerInfo *player, long units_per_px, long zoom)
 {
     if (player->acamera == NULL)
         return 0;
@@ -458,7 +461,7 @@ int draw_line_to_heart(struct PlayerInfo *player, long zoom)
     return 1;
 }
 
-void draw_overlay_things(long zoom)
+void draw_overlay_things(long units_per_px, long zoom)
 {
     SYNCDBG(7,"Starting");
     //_DK_draw_overlay_things(zoom); return;
@@ -467,20 +470,23 @@ void draw_overlay_things(long zoom)
     }
     struct PlayerInfo *player;
     player = get_my_player();
-    draw_overlay_call_to_arms(player, zoom);
-    draw_overlay_traps(player, zoom);
-    draw_overlay_creatures(player, zoom);
+    draw_overlay_call_to_arms(player, units_per_px, zoom);
+    draw_overlay_traps(player, units_per_px, zoom);
+    draw_overlay_creatures(player, units_per_px, zoom);
     if ((game.play_gameturn & 3) == 1) {
-        draw_overlay_spells_and_boxes(player, zoom);
+        draw_overlay_spells_and_boxes(player, units_per_px, zoom);
     }
-    draw_line_to_heart(player, zoom);
+    draw_line_to_heart(player, units_per_px, zoom);
     if ((game.play_gameturn & 1) && (player->acamera->field_6 == 1))
     {
-        pannel_map_draw_pixel(116/pixel_size/2,   116/pixel_size/2,   colours[15][15][15]);
-        pannel_map_draw_pixel(116/pixel_size/2-1, 116/pixel_size/2,   colours[15][15][15]);
-        pannel_map_draw_pixel(116/pixel_size/2+1, 116/pixel_size/2,   colours[15][15][15]);
-        pannel_map_draw_pixel(116/pixel_size/2,   116/pixel_size/2+1, colours[15][15][15]);
-        pannel_map_draw_pixel(116/pixel_size/2,   116/pixel_size/2-1, colours[15][15][15]);
+        long scr_x,scr_y;
+        scr_x = units_per_px * 116 / 16 / 2;
+        scr_y = units_per_px * 116 / 16 / 2;
+        pannel_map_draw_pixel(scr_x,   scr_y,   colours[15][15][15]);
+        pannel_map_draw_pixel(scr_x-1, scr_y,   colours[15][15][15]);
+        pannel_map_draw_pixel(scr_x+1, scr_y,   colours[15][15][15]);
+        pannel_map_draw_pixel(scr_x,   scr_y+1, colours[15][15][15]);
+        pannel_map_draw_pixel(scr_x,   scr_y-1, colours[15][15][15]);
     }
 }
 
@@ -587,8 +593,255 @@ short do_right_map_click(long start_x, long start_y, long curr_mx, long curr_my,
     return 0;
 }
 
-void pannel_map_draw(long x, long y, long zoom)
+void setup_background(void)
 {
-  _DK_pannel_map_draw(x, y, zoom);
+    long map_size;
+    map_size = 116 / pixel_size;
+    long radius;
+    radius = map_size / 2;
+    long quarter_area;
+    quarter_area = radius * radius;
+    int i;
+    for (i=0; i < map_size; i++)
+    {
+        long n;
+        n = (radius - i - 1) * (i - radius + 1) + quarter_area;
+        MapShapeStart[i] = radius - LbSqrL(n);
+        MapShapeEnd[i] = radius + LbSqrL(n);
+    }
+
+    int num_colours;
+    num_colours = 0;
+    long out_scanline;
+    out_scanline = lbDisplay.GraphicsScreenWidth;
+    long bkgnd_pos;
+    bkgnd_pos = 0;
+    TbPixel *out;
+    out = &lbDisplay.WScreen[PannelMapX + out_scanline * PannelMapY];
+    int w,h;
+    for (h=0; h < map_size; h++)
+    {
+        for (w = MapShapeStart[h]; w < MapShapeEnd[h]; w++)
+        {
+            TbPixel orig;
+            orig = out[w];
+            out[w] = 255;
+            int colour;
+            for (colour=0; colour < num_colours; colour++)
+            {
+                if (MapBackColours[colour] == orig) {
+                    break;
+                }
+            }
+            if (num_colours == colour)
+            {
+                MapBackColours[num_colours] = orig;
+                num_colours++;
+            }
+            MapBackground[bkgnd_pos+w] = colour;
+        }
+        bkgnd_pos += map_size;
+        out += out_scanline;
+    }
+    NoBackColours = num_colours;
+}
+
+void setup_pannel_colours(void)
+{
+    int frame;
+    frame = game.play_gameturn & 3;
+    unsigned int frcol;
+    frcol = RoomColours[frame];
+    int bkcol_idx, pncol_idx;
+    pncol_idx = 0;
+    for (bkcol_idx=0; bkcol_idx < NoBackColours; bkcol_idx++)
+    {
+        unsigned int bkcol;
+        bkcol = MapBackColours[bkcol_idx];
+        int n;
+        n = pncol_idx;
+        if (frame != 0)
+        {
+            PannelColours[n + 3] = pixmap.ghost[bkcol + 1664];
+            PannelColours[n + 4] = pixmap.ghost[bkcol + 8960];
+        } else
+        {
+            PannelColours[n + 3] = bkcol;
+            PannelColours[n + 4] = bkcol;
+        }
+        PannelColours[n + 0] = bkcol;
+        PannelColours[n + 1] = pixmap.ghost[bkcol + 1024];
+        PannelColours[n + 2] = 0;
+        PannelColours[n + 5] = pixmap.ghost[bkcol + 8960];
+        PannelColours[n + 6] = 146;
+        PannelColours[n + 7] = 85;
+        n = pncol_idx + 8;
+        int i, k;
+        for (i=17; i > 0; i--)
+        {
+            PannelColours[n + 0] = 132;
+            PannelColours[n + 1] = 92;
+            PannelColours[n + 2] = 164;
+            PannelColours[n + 3] = 183;
+            PannelColours[n + 4] = 21;
+            PannelColours[n + 5] = frcol;
+            n += 6;
+        }
+        n = pncol_idx + 8 + 17*6 + 12*5;
+        {
+            PannelColours[n + 0] = 131;
+            PannelColours[n + 1] = 90;
+            PannelColours[n + 2] = 163;
+            PannelColours[n + 3] = 181;
+            PannelColours[n + 4] = 20;
+            PannelColours[n + 5] = 4;
+        }
+        n = pncol_idx + 8 + 17*6;
+        for (i=5; i > 0; i--)
+        {
+            for (k=0; k < 6; k++)
+            {
+              PannelColours[n + k] = 60;
+            }
+            n += 6;
+            for (k=0; k < 6; k++)
+            {
+              PannelColours[n + k] = 79;
+            }
+            n += 6;
+        }
+        pncol_idx += 256;
+    }
+}
+
+void update_pannel_colours(void)
+{
+    int frame;
+    frame = game.play_gameturn & 3;
+    unsigned int frcol;
+    frcol = RoomColours[frame];
+    int bkcol_idx, pncol_idx;
+    pncol_idx = 0;
+    for (bkcol_idx=0; bkcol_idx < NoBackColours; bkcol_idx++)
+    {
+        unsigned int bkcol;
+        bkcol = MapBackColours[bkcol_idx];
+        int n;
+        n = pncol_idx;
+        if (frame != 0)
+        {
+            PannelColours[n + 3] = pixmap.ghost[bkcol + 1664];
+            PannelColours[n + 4] = pixmap.ghost[bkcol + 8960];
+        } else
+        {
+            PannelColours[n + 3] = bkcol;
+            PannelColours[n + 4] = bkcol;
+        }
+        n = pncol_idx + 8;
+        int i;
+        for (i=17; i > 0; i--)
+        {
+            PannelColours[n + 5] = frcol;
+            n += 6;
+        }
+        pncol_idx += 256;
+    }
+
+    int highlight;
+    highlight = gui_room_type_highlighted;
+    frame = game.play_gameturn & 1;
+    if (frame != 0)
+        highlight = -1;
+    if (PrevRoomHighlight != highlight)
+    {
+        if ((PrevRoomHighlight >= 0) && (NoBackColours > 0))
+        {
+            int i, n;
+            n = 6 * PrevRoomHighlight + 8;
+            for (i=NoBackColours; i > 0; i--)
+            {
+                PannelColours[n + 0] = RoomColours[0];
+                PannelColours[n + 1] = RoomColours[1];
+                PannelColours[n + 2] = RoomColours[2];
+                PannelColours[n + 3] = RoomColours[3];
+                PannelColours[n + 4] = RoomColours[4];
+                PannelColours[n + 5] = RoomColours[5];
+                n += 256;
+            }
+        }
+        if ((highlight >= 0) && (NoBackColours > 0))
+        {
+            int i, n;
+            n = 6 * highlight + 8;
+            for (i=NoBackColours; i > 0; i--)
+            {
+                PannelColours[n + 0] = 31;
+                PannelColours[n + 1] = 31;
+                PannelColours[n + 2] = 31;
+                PannelColours[n + 3] = 31;
+                PannelColours[n + 4] = 31;
+                PannelColours[n + 5] = 31;
+                n += 256;
+            }
+        }
+        PrevRoomHighlight = highlight;
+    }
+
+    highlight = gui_door_type_highlighted;
+    if (frame != 0)
+        highlight = -1;
+    if (highlight != PrevDoorHighlight)
+    {
+        if ((PrevDoorHighlight >= 0) && (PrevDoorHighlight != 5) && (NoBackColours > 0))
+        {
+            int i, n;
+            n = 12 * PrevDoorHighlight;
+            for (i=NoBackColours; i > 0; i--)
+            {
+                int k;
+                for (k=0; k < 6; k+=2)
+                {
+                  PannelColours[n + 110 + k] = 60;
+                  PannelColours[n + 116 + k] = 79;
+                }
+                n += 256;
+            }
+        }
+        if ((highlight >= 0) && (NoBackColours > 0))
+        {
+            int i, n;
+            n = 12 * highlight;
+            for (i = NoBackColours; i > 0; i--)
+            {
+                int k;
+                for (k=0; k < 6; k+=2)
+                {
+                  PannelColours[n + 110 + k] = 31;
+                  PannelColours[n + 116 + k] = 31;
+                }
+                n += 256;
+            }
+        }
+        PrevDoorHighlight = highlight;
+    }
+}
+
+void auto_gen_tables(void)
+{
+    if (256 / pixel_size != PrevPixelSize)
+    {
+        PrevPixelSize = 256 / pixel_size;
+        setup_background();
+        setup_pannel_colours();
+    }
+}
+
+void pannel_map_draw(long x, long y, long units_per_px, long zoom)
+{
+    PannelMapX = x / pixel_size;
+    PannelMapY = y / pixel_size;
+    auto_gen_tables();
+    update_pannel_colours();
+    _DK_pannel_map_draw(x, y, zoom);
 }
 /******************************************************************************/

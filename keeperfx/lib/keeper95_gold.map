@@ -68,13 +68,19 @@
  0001:000DF200       LbSpriteDrawOneColour
  0001:000E0D70       KeyboardProc@12
  0001:000DDC80       PointerDraw
-
  0003:000AB430       keeper_runtime_directory
  0003:00241510       my_player_number
+ 0003:00247F88       MapBackColours
  0003:00248088       MapShapeStart
  0003:00248258       MapShapeEnd
+ 0003:00248428       PannelColours
+ 0003:00249428       MapBackground
  0003:0024C8B8       PannelMapY
  0003:0024C8BC       PannelMapX
+ 0003:0025C8C0       NoBackColours
+ 0003:00020F3C       PrevPixelSize
+ 0003:00020F48       PrevRoomHighlight
+ 0003:00020F4C       PrevDoorHighlight
  0003:000ED310       game
  0003:0027377C       hInstance
  0003:00014968       SoundDisabled
