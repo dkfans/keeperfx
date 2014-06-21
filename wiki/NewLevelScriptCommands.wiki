@@ -45,9 +45,11 @@ BONUS_LEVEL_TIME(12000)
   CREATURE_AVAILABLE(​[player],​[creature],​[can be attracted],​[amount forced])
 }}}
   where:
+
   `[can be attracted]` - If set to 1, it is possible to attract
       the creature, either by rooms or by forced attraction.
       (so it works like 4th parameter in original command).
+
   `[amount forced]` - Amount of creatures of that kind which
       can be force-attracted (attracted even if player doesn't
       have rooms required by that creature). Originally
@@ -55,10 +57,10 @@ BONUS_LEVEL_TIME(12000)
 
 ==`DISPLAY_OBJECTIVE`==
   The 2nd parameter can now have the following values:
-  - `PLAYERx` - zoom to player's dungeon heart
-  - positive integer - zoom to Action Point of given number
-  - negative integer - zoom to Hero Gate of given number
-  - `ALL_PLAYERS` - zoom button will be inactive
+  * `PLAYERx` - zoom to player's dungeon heart
+  * positive integer - zoom to Action Point of given number
+  * negative integer - zoom to Hero Gate of given number
+  * `ALL_PLAYERS` - zoom button will be inactive
 
 ==`LEVEL_VERSION`==
   Lets the game know if the level was designed specially for
@@ -83,16 +85,16 @@ PLAY_MESSAGE(PLAYER0,SPEECH,107)
   Same as in DD, but allows longer messages and more control
   over zoom button (like in `DISPLAY_OBJECTIVE`).
 
-==`QUICK_INFORMATION_WITH_POS', `QUICK_OBJECTIVE_WITH_POS`==
+==`QUICK_INFORMATION_WITH_POS`, `QUICK_OBJECTIVE_WITH_POS`==
   Accepts additional XY coordinates of the zoom place.
 
 ==`SET_CREATURE_TENDENCIES`==
-  Allows to set tendencies: IMPRISON and FLEE, for a player's
+  Allows to set tendencies: `IMPRISON` and `FLEE`, for a player's
   creatures. Example:
 {{{
 SET_CREATURE_TENDENCIES(PLAYER2,FLEE,1)
 }}}
-  Note that a player must have prison when IMPRISON command
+  Note that a player must have prison when `IMPRISON` command
   is triggered; otherwise it won't make any change.
 
 ==`SET_CREATURE_FEAR_WOUNDED`==
@@ -103,6 +105,7 @@ SET_CREATURE_TENDENCIES(PLAYER2,FLEE,1)
   one creature of the same kind.
   Example:
 {{{
+    REM Make Imp escape combat only when his health drops below half
     SET_CREATURE_FEAR_WOUNDED(IMP,50)
 }}}
 
@@ -111,6 +114,7 @@ SET_CREATURE_TENDENCIES(PLAYER2,FLEE,1)
   for our creature to escape from combat. The value is in %.
   Example:
 {{{
+    REM Make Avatar fear any other creature which is twice as strong as him
     SET_CREATURE_FEAR_STRONGER(AVATAR,200)
 }}}
 
@@ -160,7 +164,9 @@ SET_CREATURE_TENDENCIES(PLAYER2,FLEE,1)
 }}}
   but may also be used instead of any other value. Examples:
 {{{
+    REM Human player will have random creature limit between 12 and 19
     MAX_CREATURES(PLAYER0,RANDOM(12,19))
+    REM Random creature will be added to pool
     ADD_CREATURE_TO_POOL(RANDOM,20)
 }}}
   Note that when used instead of player name, RANDOM may return
