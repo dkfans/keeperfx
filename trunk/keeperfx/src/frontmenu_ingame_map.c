@@ -66,7 +66,7 @@ long *MapShapeEnd = NULL;
 long MapDiagonalLength = 0;
 const TbPixel RoomColours[] = {132, 92, 164, 183, 21, 132};
 /******************************************************************************/
-void pannel_map_draw_pixel(long x, long y, long col)
+void pannel_map_draw_pixel(RealScreenCoord x, RealScreenCoord y, TbPixel col)
 {
     if ((y >= 0) && (y < MapDiagonalLength))
     {
@@ -126,9 +126,12 @@ int draw_overlay_call_to_arms(struct PlayerInfo *player, long units_per_px, long
         {
             if (thing->model == 24)
             {
+                // Position of the thing on unrotated map
+                // for camera, coordinates within subtile are skipped; the thing uses full resolution coordinates
                 long zmpos_x, zmpos_y;
-                zmpos_x = ((thing->mappos.x.stl.num - (MapSubtlDelta)cam->mappos.x.stl.num) << 8) / zoom;
-                zmpos_y = ((thing->mappos.y.stl.num - (MapSubtlDelta)cam->mappos.y.stl.num) << 8) / zoom;
+                zmpos_x = (thing->mappos.x.val - (MapCoordDelta)subtile_coord(cam->mappos.x.stl.num,0)) / zoom;
+                zmpos_y = (thing->mappos.y.val - (MapCoordDelta)subtile_coord(cam->mappos.y.stl.num,0)) / zoom;
+                // Now rotate the coordinates to receive minimap points
                 long mapos_x, mapos_y;
                 mapos_x = (zmpos_x * LbCosL(cam->orient_a) + zmpos_y * LbSinL(cam->orient_a)) >> 16;
                 mapos_y = (zmpos_y * LbCosL(cam->orient_a) - zmpos_x * LbSinL(cam->orient_a)) >> 16;
@@ -150,7 +153,7 @@ int draw_overlay_call_to_arms(struct PlayerInfo *player, long units_per_px, long
 /**
  * Draws all owned traps on minimap.
  * @param player The player for whom drawing occurs.
- * @param zoom Zoom level of the minimap.
+ * @param zoom Scale between map coordinates and minimap pixels.
  * @return Amount of traps drawn.
  */
 int draw_overlay_traps(struct PlayerInfo *player, long units_per_px, long zoom)
@@ -178,34 +181,32 @@ int draw_overlay_traps(struct PlayerInfo *player, long units_per_px, long zoom)
         // Per-thing code
         if (player->id_number == thing->owner)
         {
+            // Position of the thing on unrotated map
+            // for camera, coordinates within subtile are skipped; the thing uses full resolution coordinates
             long zmpos_x, zmpos_y;
-            zmpos_x = ((thing->mappos.x.stl.num - (MapSubtlDelta)cam->mappos.x.stl.num) << 8) / zoom;
-            zmpos_y = ((thing->mappos.y.stl.num - (MapSubtlDelta)cam->mappos.y.stl.num) << 8) / zoom;
-            long mapos_x, mapos_y;
+            zmpos_x = (thing->mappos.x.val - (MapCoordDelta)subtile_coord(cam->mappos.x.stl.num,0)) / zoom;
+            zmpos_y = (thing->mappos.y.val - (MapCoordDelta)subtile_coord(cam->mappos.y.stl.num,0)) / zoom;
+            // Now rotate the coordinates to receive minimap points
+            RealScreenCoord mapos_x, mapos_y;
             mapos_x = (zmpos_x * LbCosL(cam->orient_a) + zmpos_y * LbSinL(cam->orient_a)) >> 16;
             mapos_y = (zmpos_y * LbCosL(cam->orient_a) - zmpos_x * LbSinL(cam->orient_a)) >> 16;
-            long basepos;
-            basepos = 116/pixel_size/2;
-            if (((mapos_x+basepos) * pixel_size >= 0) && ((mapos_x+basepos) * pixel_size < 116))
+            RealScreenCoord basepos;
+            basepos = MapDiagonalLength/2;
+            // Do the drawing
+            if ((thing->byte_18) || (player->id_number == thing->owner))
             {
-                if (((mapos_y+basepos) * pixel_size >= 0) && ((mapos_y+basepos) * pixel_size < 116))
-                {
-                    if ((thing->byte_18) || (player->id_number == thing->owner))
-                    {
-                        TbPixel col;
-                        if ((thing->model == gui_trap_type_highlighted) && (game.play_gameturn & 1)) {
-                            col = player_highlight_colours[thing->owner];
-                        } else {
-                            col = 60;
-                        }
-                        pannel_map_draw_pixel(mapos_x+basepos,   mapos_y+basepos,   col);
-                        pannel_map_draw_pixel(mapos_x+basepos-1, mapos_y+basepos,   col);
-                        pannel_map_draw_pixel(mapos_x+basepos+1, mapos_y+basepos,   col);
-                        pannel_map_draw_pixel(mapos_x+basepos,   mapos_y+basepos+1, col);
-                        pannel_map_draw_pixel(mapos_x+basepos,   mapos_y+basepos-1, col);
-                        n++;
-                    }
+                TbPixel col;
+                if ((thing->model == gui_trap_type_highlighted) && (game.play_gameturn & 1)) {
+                    col = player_highlight_colours[thing->owner];
+                } else {
+                    col = 60;
                 }
+                pannel_map_draw_pixel(mapos_x+basepos,   mapos_y+basepos,   col);
+                pannel_map_draw_pixel(mapos_x+basepos-1, mapos_y+basepos,   col);
+                pannel_map_draw_pixel(mapos_x+basepos+1, mapos_y+basepos,   col);
+                pannel_map_draw_pixel(mapos_x+basepos,   mapos_y+basepos+1, col);
+                pannel_map_draw_pixel(mapos_x+basepos,   mapos_y+basepos-1, col);
+                n++;
             }
         }
         // Per-thing code ends
@@ -254,25 +255,23 @@ int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, 
         {
             if (subtile_revealed(thing->mappos.x.stl.num, thing->mappos.y.stl.num, player->id_number))
             {
+                // Position of the thing on unrotated map
+                // for camera, coordinates within subtile are skipped; the thing uses full resolution coordinates
                 long zmpos_x, zmpos_y;
-                zmpos_x = ((thing->mappos.x.stl.num - (MapSubtlDelta)cam->mappos.x.stl.num) << 8) / zoom;
-                zmpos_y = ((thing->mappos.y.stl.num - (MapSubtlDelta)cam->mappos.y.stl.num) << 8) / zoom;
+                zmpos_x = (thing->mappos.x.val - (MapCoordDelta)subtile_coord(cam->mappos.x.stl.num,0)) / zoom;
+                zmpos_y = (thing->mappos.y.val - (MapCoordDelta)subtile_coord(cam->mappos.y.stl.num,0)) / zoom;
                 long mapos_x, mapos_y;
+                // Now rotate the coordinates to receive minimap points
                 mapos_x = (zmpos_x * LbCosL(cam->orient_a) + zmpos_y * LbSinL(cam->orient_a)) >> 16;
                 mapos_y = (zmpos_y * LbCosL(cam->orient_a) - zmpos_x * LbSinL(cam->orient_a)) >> 16;
-                long basepos;
-                basepos = 116/pixel_size/2;
-                if (((mapos_x+basepos) * pixel_size >= 0) && ((mapos_x+basepos) * pixel_size < 116))
+                RealScreenCoord basepos;
+                basepos = MapDiagonalLength/2;
+                // Do the drawing
+                if ((thing->byte_18) || (player->id_number == thing->owner))
                 {
-                    if (((mapos_y+basepos) * pixel_size >= 0) && ((mapos_y+basepos) * pixel_size < 116))
-                    {
-                        if ((thing->byte_18) || (player->id_number == thing->owner))
-                        {
-                            if (thing_is_special_box(thing) || thing_is_spellbook(thing)) {
-                                pannel_map_draw_pixel(mapos_x+basepos, mapos_y+basepos, colours[15][0][15]);
-                                n++;
-                            }
-                        }
+                    if (thing_is_special_box(thing) || thing_is_spellbook(thing)) {
+                        pannel_map_draw_pixel(mapos_x+basepos, mapos_y+basepos, colours[15][0][15]);
+                        n++;
                     }
                 }
             }
@@ -323,41 +322,39 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                     col1 = player_room_colours[thing->owner];
                     col2 = player_room_colours[thing->owner];
                 }
+                // Position of the thing on unrotated map
+                // for camera, coordinates within subtile are skipped; the thing uses full resolution coordinates
                 long zmpos_x, zmpos_y;
-                zmpos_x = ((thing->mappos.x.stl.num - (MapSubtlDelta)cam->mappos.x.stl.num) << 8) / zoom;
-                zmpos_y = ((thing->mappos.y.stl.num - (MapSubtlDelta)cam->mappos.y.stl.num) << 8) / zoom;
+                zmpos_x = (thing->mappos.x.val - (MapCoordDelta)subtile_coord(cam->mappos.x.stl.num,0)) / zoom;
+                zmpos_y = (thing->mappos.y.val - (MapCoordDelta)subtile_coord(cam->mappos.y.stl.num,0)) / zoom;
+                // Now rotate the coordinates to receive minimap points
                 long mapos_x, mapos_y;
                 mapos_x = (zmpos_x * LbCosL(cam->orient_a) + zmpos_y * LbSinL(cam->orient_a)) >> 16;
                 mapos_y = (zmpos_y * LbCosL(cam->orient_a) - zmpos_x * LbSinL(cam->orient_a)) >> 16;
-                long basepos;
-                basepos = 116/pixel_size/2;
-                if (((mapos_x+basepos) * pixel_size >= 0) && ((mapos_x+basepos) * pixel_size < 116))
+                RealScreenCoord basepos;
+                basepos = MapDiagonalLength/2;
+                // Do the drawing
+                if (thing->owner == player->id_number)
                 {
-                    if (((mapos_y+basepos) * pixel_size >= 0) && ((mapos_y+basepos) * pixel_size < 116))
+                    if ((thing->model == gui_creature_type_highlighted) && (game.play_gameturn & 1))
                     {
-                        if (thing->owner == player->id_number)
-                        {
-                            if ((thing->model == gui_creature_type_highlighted) && (game.play_gameturn & 1))
-                            {
-                                pannel_map_draw_pixel(mapos_x+basepos,   mapos_y+basepos,   31);
-                                pannel_map_draw_pixel(mapos_x+basepos-1, mapos_y+basepos,   col2);
-                                pannel_map_draw_pixel(mapos_x+basepos+1, mapos_y+basepos,   col2);
-                                pannel_map_draw_pixel(mapos_x+basepos,   mapos_y+basepos,   col2);
-                                pannel_map_draw_pixel(mapos_x+basepos,   mapos_y+basepos-1, col2);
-                            } else
-                            {
-                                pannel_map_draw_pixel(mapos_x+basepos, mapos_y+basepos, col2);
-                            }
-                        } else
-                        {
-                            if (thing->owner == game.neutral_player_num) {
-                                col = player_room_colours[(game.play_gameturn + 1) & 3];
-                            } else {
-                                col = col1;
-                            }
-                            pannel_map_draw_pixel(mapos_x+basepos, mapos_y+basepos, col);
-                        }
+                        pannel_map_draw_pixel(mapos_x+basepos,   mapos_y+basepos,   31);
+                        pannel_map_draw_pixel(mapos_x+basepos-1, mapos_y+basepos,   col2);
+                        pannel_map_draw_pixel(mapos_x+basepos+1, mapos_y+basepos,   col2);
+                        pannel_map_draw_pixel(mapos_x+basepos,   mapos_y+basepos,   col2);
+                        pannel_map_draw_pixel(mapos_x+basepos,   mapos_y+basepos-1, col2);
+                    } else
+                    {
+                        pannel_map_draw_pixel(mapos_x+basepos, mapos_y+basepos, col2);
                     }
+                } else
+                {
+                    if (thing->owner == game.neutral_player_num) {
+                        col = player_room_colours[(game.play_gameturn + 1) & 3];
+                    } else {
+                        col = col1;
+                    }
+                    pannel_map_draw_pixel(mapos_x+basepos, mapos_y+basepos, col);
                 }
             }
             // Hero tunnelers may be visible even on unrevealed terrain
@@ -434,14 +431,18 @@ int draw_line_to_heart(struct PlayerInfo *player, long units_per_px, long zoom)
         return 0;
     }
     lbDisplay.DrawFlags |= 0x0004;
+    // Position of the thing on unrotated map
+    // for camera, coordinates within subtile are skipped; the thing uses full resolution coordinates
     long zmpos_x, zmpos_y;
-    zmpos_x = ((heartng->mappos.x.stl.num - (MapSubtlDelta)cam->mappos.x.stl.num) << 8) / zoom;
-    zmpos_y = ((heartng->mappos.y.stl.num - (MapSubtlDelta)cam->mappos.y.stl.num) << 8) / zoom;
-    long mapos_x, mapos_y;
+    zmpos_x = (heartng->mappos.x.val - (MapCoordDelta)subtile_coord(cam->mappos.x.stl.num,0)) / zoom;
+    zmpos_y = (heartng->mappos.y.val - (MapCoordDelta)subtile_coord(cam->mappos.y.stl.num,0)) / zoom;
+    // Now rotate the coordinates to receive minimap points
+    RealScreenCoord mapos_x, mapos_y;
     mapos_x = (zmpos_x * LbCosL(cam->orient_a) + zmpos_y * LbSinL(cam->orient_a)) >> 16;
     mapos_y = (zmpos_y * LbCosL(cam->orient_a) - zmpos_x * LbSinL(cam->orient_a)) >> 16;
-    long basepos;
-    basepos = 116/pixel_size/2;
+    RealScreenCoord basepos;
+    basepos = MapDiagonalLength/2;
+    // Do the drawing
     long dist, angle;
     dist = get_distance_xy(basepos, basepos, mapos_x + basepos, mapos_y + basepos);
     angle = -(LbArcTanAngle(mapos_x, mapos_y) & LbFPMath_AngleMask) & 0x1FFC;
@@ -468,6 +469,25 @@ int draw_line_to_heart(struct PlayerInfo *player, long units_per_px, long zoom)
     return 1;
 }
 
+int draw_overlay_possessed_thing(struct PlayerInfo *player, long units_per_px, long zoom)
+{
+    if (player->acamera == NULL)
+        return 0;
+    struct Camera *cam;
+    cam = player->acamera;
+    if (cam->field_6 != 1)
+        return 0;
+    long scr_x,scr_y;
+    scr_x = MapDiagonalLength / 2;
+    scr_y = MapDiagonalLength / 2;
+    pannel_map_draw_pixel(scr_x,   scr_y,   colours[15][15][15]);
+    pannel_map_draw_pixel(scr_x-1, scr_y,   colours[15][15][15]);
+    pannel_map_draw_pixel(scr_x+1, scr_y,   colours[15][15][15]);
+    pannel_map_draw_pixel(scr_x,   scr_y+1, colours[15][15][15]);
+    pannel_map_draw_pixel(scr_x,   scr_y-1, colours[15][15][15]);
+    return 1;
+}
+
 void draw_overlay_things(long units_per_px, long zoom)
 {
     SYNCDBG(7,"Starting");
@@ -484,16 +504,9 @@ void draw_overlay_things(long units_per_px, long zoom)
         draw_overlay_spells_and_boxes(player, units_per_px, zoom);
     }
     draw_line_to_heart(player, units_per_px, zoom);
-    if ((game.play_gameturn & 1) && (player->acamera->field_6 == 1))
+    if ((game.play_gameturn & 1) != 0)
     {
-        long scr_x,scr_y;
-        scr_x = units_per_px * 116 / 16 / 2;
-        scr_y = units_per_px * 116 / 16 / 2;
-        pannel_map_draw_pixel(scr_x,   scr_y,   colours[15][15][15]);
-        pannel_map_draw_pixel(scr_x-1, scr_y,   colours[15][15][15]);
-        pannel_map_draw_pixel(scr_x+1, scr_y,   colours[15][15][15]);
-        pannel_map_draw_pixel(scr_x,   scr_y+1, colours[15][15][15]);
-        pannel_map_draw_pixel(scr_x,   scr_y-1, colours[15][15][15]);
+        draw_overlay_possessed_thing(player, units_per_px, zoom);
     }
 }
 
