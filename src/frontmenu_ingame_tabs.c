@@ -273,7 +273,57 @@ void gui_go_to_next_spell(struct GuiButton *gbtn)
 
 void gui_area_spell_button(struct GuiButton *gbtn)
 {
-  _DK_gui_area_spell_button(gbtn);
+    //_DK_gui_area_spell_button(gbtn);
+    unsigned short flg_mem;
+    flg_mem = lbDisplay.DrawFlags;
+    PowerKind pwkind;
+    pwkind = (long)gbtn->content;
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, 24);
+    struct Dungeon *dungeon;
+    dungeon = get_my_dungeon();
+    int spr_idx;
+    if ((dungeon->magic_resrchable[pwkind]) || (dungeon->magic_level[pwkind] > 0))
+    {
+        if ((gbtn->flags & 0x08) != 0)
+        {
+            int i;
+            i = spell_data[pwkind].field_4;
+            if (((i == 6) && (dungeon->cta_start_turn != 0))
+             || ((i == 8) && (dungeon->sight_casted_thing_idx != 0))
+             || ((pwkind == PwrK_OBEY) && (dungeon->must_obey_turn != 0))) {
+                draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, 27);
+            }
+            spr_idx = gbtn->field_29;
+            if (game.keeper_power_stats[pwkind].cost[0] > dungeon->total_money_owned)
+                spr_idx++;
+            TbBool drawn;
+            drawn = false;
+            if ((gbtn->gbactn_1 == 0) && (gbtn->gbactn_2 == 0))
+            {
+                if ((((i != 6) || (dungeon->cta_start_turn == 0))
+                  && ((i != 8) || (dungeon->sight_casted_thing_idx == 0)))
+                 || ((game.play_gameturn & 1) == 0))
+                {
+                    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, spr_idx);
+                    drawn = true;
+                }
+            }
+            if (!drawn)
+            {
+                draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, spr_idx, 44);
+            }
+        } else
+        {
+            if ((pwkind == PwrK_HOLDAUDNC) && (dungeon->magic_level[pwkind] > 0)) {
+                spr_idx = gbtn->field_29 + 1;
+            } else {
+                // Draw a question mark over the button, to indicate it can be researched
+                spr_idx = 25;
+            }
+            draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, spr_idx);
+        }
+    }
+    lbDisplay.DrawFlags = flg_mem;
 }
 
 void gui_choose_special_spell(struct GuiButton *gbtn)
@@ -877,7 +927,34 @@ void gui_over_room_button(struct GuiButton *gbtn)
 
 void gui_area_room_button(struct GuiButton *gbtn)
 {
-  _DK_gui_area_room_button(gbtn);
+    //_DK_gui_area_room_button(gbtn);
+    unsigned short flg_mem;
+    flg_mem = lbDisplay.DrawFlags;
+    RoomKind rkind;
+    rkind = (long)gbtn->content;
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, 24);
+    struct Dungeon *dungeon;
+    dungeon = get_my_dungeon();
+    int spr_idx;
+    if (dungeon->room_resrchable[rkind] || dungeon->room_buildable[rkind])
+    {
+        if ((gbtn->flags & 0x08) != 0)
+        {
+            if (dungeon->room_kind[rkind] > 0)
+                draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, 27);
+            spr_idx = (dungeon->total_money_owned < game.room_stats[rkind].cost) + gbtn->field_29;
+            if ((gbtn->gbactn_1 == 0) && (gbtn->gbactn_2 == 0)) {
+                draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, spr_idx);
+            } else {
+                draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, spr_idx, 44);
+            }
+        } else
+        {
+            // Draw a question mark over the button, to indicate it can be researched
+            draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, 25);
+        }
+    }
+    lbDisplay.DrawFlags = flg_mem;
 }
 
 void pick_up_next_creature(struct GuiButton *gbtn)
