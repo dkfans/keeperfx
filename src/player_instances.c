@@ -1132,15 +1132,17 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
     // Check if we are allowed to build the room
     if (!is_room_available(plyr_idx, rkind)) {
         // It shouldn't be possible to select unavailable room
-        WARNLOG("Player %d tried to build %s which is unavailable",(int)plyr_idx,room_code_name(rkind));
-        play_non_3d_sample(119);
+        WARNLOG("Player %d tried to build %s which is unavailable at (%d,%d)",(int)plyr_idx,room_code_name(rkind),(int)stl_x,(int)stl_y);
+        if (is_my_player(player))
+            play_non_3d_sample(119);
         return INVALID_ROOM;
     }
     if (!can_build_room_at_slab(plyr_idx, rkind, subtile_slab(stl_x), subtile_slab(stl_y))) {
         // It shouldn't be possible to select unavailable room
         WARNLOG("Player %d tried to build %s on a forbidden subtile (%d,%d)",(int)plyr_idx,
             room_code_name(rkind),(int)stl_x,(int)stl_y);
-        play_non_3d_sample(119);
+        if (is_my_player(player))
+            play_non_3d_sample(119);
         return INVALID_ROOM;
     }
     // Check if there's a place for new room

@@ -2529,6 +2529,10 @@ long task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask)
         restart_task_process(comp, ctask);
         return 0;
     }
+    if (!is_room_available(plyr_idx, RoK_BRIDGE))
+    {
+        return 4;
+    }
     long n;
     for (n=0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {
