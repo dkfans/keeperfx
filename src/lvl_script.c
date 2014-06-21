@@ -392,26 +392,26 @@ const struct CommandDesc *get_next_word(char **line, char *param, unsigned char 
     cmnd_desc = NULL;
     if (level_file_version > 0)
     {
-      while (command_desc[i].textptr != NULL)
-      {
-        if (strcmp(param, command_desc[i].textptr) == 0)
+        while (command_desc[i].textptr != NULL)
         {
-          cmnd_desc = &command_desc[i];
-          break;
+          if (strcmp(param, command_desc[i].textptr) == 0)
+          {
+            cmnd_desc = &command_desc[i];
+            break;
+          }
+          i++;
         }
-        i++;
-      }
     } else
     {
-      while (dk1_command_desc[i].textptr != NULL)
-      {
-        if (strcmp(param, dk1_command_desc[i].textptr) == 0)
+        while (dk1_command_desc[i].textptr != NULL)
         {
-          cmnd_desc = &dk1_command_desc[i];
-          break;
+          if (strcmp(param, dk1_command_desc[i].textptr) == 0)
+          {
+            cmnd_desc = &dk1_command_desc[i];
+            break;
+          }
+          i++;
         }
-        i++;
-      }
     }
     // Support of the RANDOM function
     if (strcmp(param, "RANDOM") == 0)
