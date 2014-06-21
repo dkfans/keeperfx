@@ -41,10 +41,10 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_event_create_event_or_update_nearby_existing_event(long map_x, long map_y, unsigned char evkind, unsigned char dngn_id, long target);
+DLLIMPORT long _DK_event_create_event_or_update_nearby_existing_event(long map_x, long map_y, unsigned char evkind, unsigned char plyr_idx, long target);
 DLLIMPORT void _DK_event_initialise_all(void);
 DLLIMPORT long _DK_event_move_player_towards_event(struct PlayerInfo *player, long var);
-DLLIMPORT struct Event *_DK_event_create_event(long map_x, long map_y, unsigned char evkind, unsigned char dngn_id, long target);
+DLLIMPORT struct Event *_DK_event_create_event(long map_x, long map_y, unsigned char evkind, unsigned char plyr_idx, long target);
 DLLIMPORT void _DK_go_on_then_activate_the_event_box(long plyr_idx, long val);
 DLLIMPORT long _DK_event_create_event_or_update_old_event(long a1, long a2, unsigned char combat_kind, unsigned char a4, long a5);
 DLLIMPORT void _DK_event_process_events(void);
@@ -164,25 +164,25 @@ EventIndex event_create_event_or_update_same_target_existing_event(MapCoord map_
  * @param map_x Event position on map, X coord.
  * @param map_y Event position on map, Y coord.
  * @param evkind Event kind to be searched or created.
- * @param dngn_id Owning dungeon index.
+ * @param plyr_idx Owning player index.
  * @param target Event target identification parameter, its meaning depends on event kind.
  * @return Index of the new event, or negative index of updated event. Zero if no action was taken.
  */
-EventIndex event_create_event_or_update_old_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long target)
+EventIndex event_create_event_or_update_old_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char plyr_idx, long target)
 {
     //return _DK_event_create_event_or_update_old_event(map_x, map_y, evkind, dngn_id, target);
     struct Event *event;
     // Check if such event already exists
-    event = get_event_of_type_for_player(evkind, dngn_id);
+    event = get_event_of_type_for_player(evkind, plyr_idx);
     // If we've found a matching event, replace it
     if (!event_is_invalid(event))
     {
-        event_initialise_event(event, map_x, map_y, evkind, dngn_id, target);
-        event_add_to_event_buttons_list_or_replace_button(event, get_dungeon(dngn_id));
+        event_initialise_event(event, map_x, map_y, evkind, plyr_idx, target);
+        event_add_to_event_buttons_list_or_replace_button(event, get_dungeon(plyr_idx));
         return -(EventIndex)event->index;
     }
     // If no matching event found, then create new one
-    event = event_create_event(map_x, map_y, evkind, dngn_id, target);
+    event = event_create_event(map_x, map_y, evkind, plyr_idx, target);
     if (event_is_invalid(event)) {
         return 0;
     }
