@@ -375,118 +375,105 @@ New in-game commands:
 
 New and modified level script commands:
 
- ADD_GOLD_TO_PLAYER
-  Allows to add some off-map gold as a reward to a player.
-  Example: ADD_GOLD_TO_PLAYER(PLAYER0,5000)
- ALLY_PLAYERS
-  Marks two players as allied, or ends the alliance. The
-  difference to original DK is that this command takes 3
-  parameters - 2 are players, and third one is 1 if the
-  alliance is being created, and 0 if it is being broken.
-  Note that computer players will not break the alliance
-  by themselves, but human player may do so. So this command
-  is mostly for controlling the computer players behavior.
- BONUS_LEVEL_TIME
-  Sets time to be displayed on "bonus timer" - on-screen
-  time field, used mostly for bonus levels.
-  Like in original DK, this command accepts one parameter
-  - number of game turns to start the countdown from.
-  But now this command can be used to show bonus timer in
-  any level. Setting game turns to 0 will hide the timer.
-  Example: BONUS_LEVEL_TIME(12000)
- CREATURE_AVAILABLE
-  Tells the game whether a creature of specific kind can
-  come through that player's Portal. Parameters of this
-  command are changed to original, an now look like this:
-  CREATURE_AVAILABLE(​[player],​[creature],​[can be attracted],
-      ​[amount forced])
-  where:
-  [can be attracted] - If set to 1, it is possible to attract
-      the creature, either by rooms or by forced attraction.
-      (so it works like 4th parameter in original command).
-  [amount forced] - Amount of creatures of that kind which
-      can be force-attracted (attracted even if player doesn't
-      have rooms required by that creature). Originally
-      there was no possibility to skip attraction conditions.
- DISPLAY_OBJECTIVE
-  The 2nd parameter can now have the following values:
-  - 'PLAYERx' - zoom to player's dungeon heart
-  - positive integer - zoom to Action Point of given number
-  - negative integer - zoom to Hero Gate of given number
-  - 'ALL_PLAYERS' - zoom button will be inactive
- LEVEL_VERSION
-  Lets the game know if the level was designed specially for
-  KeeperFX. To use new script commands, you must start the
-  script with LEVEL_VERSION(1). Without it, the new commands
-  will not work properly, and the game will try to emulate old
-  behavior of commands which were modified.
- PLAY_MESSAGE
-  Allows to play any SOUND or SPEECH from the game.
-  Example: PLAY_MESSAGE(PLAYER0,SPEECH,107)
- QUICK_INFORMATION
-  These works same as in Deeper Dungeons, but allows message
-  length up to 1024 characters. There are 50 quick message
-  slots.
- QUICK_OBJECTIVE
-  Same as in DD, but allows longer messages and more control
-  over zoom button (like in DISPLAY_OBJECTIVE).
- QUICK_INFORMATION_WITH_POS
- QUICK_OBJECTIVE_WITH_POS
-  Accepts additional XY coordinates of the zoom place.
- SET_CREATURE_TENDENCIES
-  Allows to set tendencies: IMPRISON and FLEE, for a player's
-  creatures. Example: SET_CREATURE_TENDENCIES(PLAYER2,FLEE,1)
-  Note that a player must have prison when IMPRISON command
-  is triggered; otherwise it won't make any change.
- SET_CREATURE_FEAR_WOUNDED
-  Replacements for SET_CREATURE_FEAR. The value taken by this
-  function is a percentage (0..100) and defines health drop
-  required for the creature to escape from combat. A special
-  value of 101 makes creature avoid any combat other than with
-  one creature of the same kind.
-  Example: SET_CREATURE_FEAR_WOUNDED(IMP,50)
- SET_CREATURE_FEAR_STRONGER
-  Allows to define how many times stronger the enemy has to be
-  for our creature to escape from combat. The value is in %.
-  Example: SET_CREATURE_FEAR_STRONGER(AVATAR,200)
- REVEAL_MAP_RECT
-  Reveals rectangular map area for given player. Requires
-  coordinates of area center point, and rectangle dimensions.
-  Numbers are scaled in subtiles (range is 1..254).
-  Example: REVEAL_MAP_RECT(PLAYER0,132,96,13,11)
- REVEAL_MAP_LOCATION
-  Reveals square area of subtiles around given location.
-  Location meaning is identical to the one in DISPLAY_OBJECTIVE.
-  For example, to reveal Hero Gate no.1:
-  REVEAL_MAP_LOCATION(PLAYER0,-1,11)
- RESEARCH
-  Changes amount of research points needed to discover an item
-  in library. It doesn't affect research order, only amount
-  of points. If the item never was in research list, it's added
-  at end. Example: RESEARCH(PLAYER1,MAGIC,POWER_CHICKEN,10000)
- RESEARCH_ORDER
-  When this command is first called, the research list for
-  specified players is cleared. Using it you may create
-  a research list from beginning. Note that if you won't place
-  an item on the list, it will not be possible to research it.
-  So if you're using this command, you must add all items
-  available on the level to the research list. Example:
-   RESEARCH_ORDER(ALL_PLAYERS,ROOM,SCAVENGER,50000)
-   [...] - more RESEARCH_ORDER commands should follow.
- RANDOM
-  It's not a command, but may be used instead of most parameters.
-  If used instead of a number, then should look like:
-   RANDOM(min,max)
-  but may also be used instead of any other value. Examples:
-    MAX_CREATURES(PLAYER0,RANDOM(12,19))
-    ADD_CREATURE_TO_POOL(RANDOM,20)
-  Note that when used instead of player name, RANDOM may return
-  ALL_PLAYERS. Also, the command shouldn't be used in multiplayer
-  maps, as it will lead to synchronization problems.
-  Value represented by RANDOM is selected at start of a map,
-  and never changes during the gameplay.
+  The commands list has been moved to Wiki, to make it easier to maintain:
+  https://code.google.com/p/keeperfx/wiki/NewLevelScriptCommands
 
 Changelog:
+
+Version: 0.4.5
+  Rewritten drawing the pannel minimap.
+  Rewritten a lot of network GUI routines.
+  Rewritten a few functions related to traps and shots.
+  Rewritten some of moods and needs processing. Allowed diggers to have moods and needs if their config file permits that.
+  Made creatures unable to teleport just after a battle.
+  Improved recognition between KINKY_TORTURE and PAINFUL_TORTURE jobs.
+  Rewritten payday processing.
+  Fixed restoring Flight spell state when creature is being dropped, or ends other state which prevented it from flying.
+  Started renaming 'job stress' to 'going postal'. Also rewritten some of scavenging.
+  Introduced ONE_OF_KIND creature property, for Avatar.
+  Introduced NO_HAND_PURGE_ON_DEFEAT classic bug.
+  Creature job first initialization remade to be configurable in creature.cfg.
+  Moved creature unconscious time to config file.
+  Changed concept behind job assigning to be based on job selection, not on room selection.
+  Work around for issues with multiplayer level number in level selection screen. The number is exchanged as 8-bit int, which should be correctly fixed when possible.
+  Unifications in creature jobs system. Also added definitions of a few more jobs.
+  Fixed directory listing to correctly use MS Windows API.
+  Fix for loading damaged saved game during another game.
+  Updated attraction score computations to include scores from all 3 rooms required to attract.
+  Updated Chinese translation.
+  Rewritten keeper powers update function.
+  Removed area of effect damage from lightning creature spell.
+  Modified ForceVisibility option to be in game turns.
+  Rewritten code of destroying a room with CTA. Modified it to get more random order of destroyed tiles.
+  Made new "room unreachable" event for lair.
+  Updated events when a spellbook or dungeon special is discovered or stolen.
+  Neutral boulder traps will now activate for any creatures other than neutral.
+  Moved several creatures from "United Kingdom" level to being triggered by script.
+  Added classic latin as recognized language.
+  Added friendly fire on area damage as config parameter.
+  Updated gold pots scaling algorithm. Pots are now generally smaller, and those with lots of gold are growing slower than small ones.
+  Rewritten boulder trap activation check. Spectators can no longer trigger boulder traps.
+  Added config option to select whether neutral creatures can be scavenged.
+  Fixed problem with creature strength not being increased with experience.
+  Armageddon no longer teleports neutrals by default.
+  Added rules option to disable affecting neutral creatures by armageddon.
+  Progressed the implementation of going through locked doors property.
+  Rewritten drawing plane of engine columns in isometric and clueo mode.
+  Added two new creature properties - FEMALE and INSECT.
+  Retwritten some GUI functions and creation of creature own name.
+  Added SDL_mixer to pre-compiled libraries and to linking process. The library isn't used yet.
+  Rewritten the check if a creature can move directly to a place.
+  Rewritten the function which destroys creature lair.
+  Modified uses of apply_damage_to_thing() so that the function is always informed about the type of damage being inflicted.
+  Rewritten and highly modified poison gas effect affecting creatures.
+  Made some improvements to creature movement system. Creatures will now reset their routes after being teleported.
+  Added fixing travel speed if the next travel point returned by ariadne is too far.
+  Rewritten and fixed picking up creatures based only on their job and not their model.
+  Removed some of references to manual from english translation.
+  Modified area damage to be applied on detonation of every shot.
+  Fixed problem with line of sight computation which caused word of power trap to not do any damage.
+  Started integrating OGG music support made by Lukas Niemeier.
+  Added Czech characters to European conversion table.
+  Made more advanced scaling of parchment view.
+  Renamed spells to start with SPELL_ and shots to start with SHOT_.
+  Traps placed on strange terrain are now destroyed when depleted.
+  Added support of off-map traps and off-map doors.
+  Selling traps change - only get a refund if armed trap was sold.
+  Made computer player cancel any defend drops while his heart is ongoing destruction.
+  Introduced types of damage, ie. physical, magical, electric, combustion.
+  Rewritten some code related to gold and paydays.
+  Updated language names to meet ISO 639-2 standard. Japanese is now JPN.
+  Rewritten a lot of code related to workshop selling, to fix a bug in counting workshop items which are being sold.
+  Added states which cannot be blocked by spells - currently there's one, the being dropped state.
+  Modified battle event support to ignore the event if there are no enemies nearby.
+  Modified battle events to properly react on heart being attacked.
+  Added a new state which allows to attack doors and enemies while moving to attack room.
+  Rewritten door collision detection.
+  Rewritten some code around creature fights with doors.
+  Some minor updates to polish translations.
+  Fixed problem with magic door being recognized as sacrificial ground.
+  Updated russian fonts to be correctly included in multilingual font files.
+  Fixed problem with finding a creature dragging given thing.
+  Made kinky torture to not remove creature control.
+  Fixed problem with imps escaping from creatures behind doors.
+  Removed possible infinite loop in pathfinding, and enabled some rewritten routines.
+  Rewritten dungeon devastation when heart is destroyed.
+  Some serious changes in line of sight computation.
+  Computer players can now sell traps where they intend to place room.
+  Fixed imps transporting enemy creatures to drop them when enemy is defeated.
+  Fixed some possible problems related to creatures attack.
+  Rewritten some functions related to fight with doors and objects.
+  Forced creatures to become visible when dying or losing consciousness.
+  Fixed inconsistency in resetting states of creatures working in a room taken over.
+  Updated leaving or dying function (for defeated player creatures) to not wake unconscious creatures.
+  Rewritten some code related to dragging unconscious creatures.
+  Added regaining comp control when creature is called to arms.
+  Updated computer player gold digging code.
+  Updated room building code to prevent placing rooms on slabs with traps.
+  Fixed lava trap activation on room area to not break list of room slabs.
+  Added cleaning combat when computer player picks up creature.
+  Updated computer player digging path routine.
+  Updated Ancient Keeper translations, and added German translation.
 
 Version: 0.4.4
   Added auto-generating possession swipe sprites.
