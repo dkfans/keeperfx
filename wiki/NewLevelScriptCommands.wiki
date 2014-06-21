@@ -1,89 +1,168 @@
 #summary New and Modified Level Script Commands
+#labels Mapmaking
 
 = Introduction =
 
-Level script commands that have a new or different meaning to Keeper FX can be found here.
+Level script commands that have a new or different meaning in KeeperFX can be found here.
+
+This page can be treated as an addendrum to the [http://keeper.lubiki.pl/dk1_docs/dk_scripting_ref.htm script commands reference].
 
 = Details =
 
-ADD_GOLD_TO_PLAYER
+==`ADD_GOLD_TO_PLAYER`==
   Allows to add some off-map gold as a reward to a player.
-  Example: ADD_GOLD_TO_PLAYER(PLAYER0,5000)
-ALLY_PLAYERS
-  KeeperFX uses an extra parameter, allowing alliances to be
-  turned on and off in the script (1=on, 0=off)
-  Example: ALLY_PLAYERS(PLAYER1,PLAYER2,1)
-  (Note: if you enable KeeperFX commands with LEVEL_VERSION
-  old 'ally_players' commands without the extra parameter
-  will no longer work. Add a '1' or '0' to fix this)
-BONUS_LEVEL_TIME
+  Example:
+{{{
+ADD_GOLD_TO_PLAYER(PLAYER0,5000)
+}}}
+
+==`ALLY_PLAYERS`==
+  Marks two players as allied, or ends the alliance. The
+  difference to original DK is that this command takes 3
+  parameters - 2 are players, and third one is 1 if the
+  alliance is being created, and 0 if it is being broken.
+  Note that computer players will not break the alliance
+  by themselves, but human player may do so. So this command
+  is mostly for controlling the computer players behaviour.
+
+==`BONUS_LEVEL_TIME`==
   Sets time to be displayed on "bonus timer" - on-screen
   time field, used mostly for bonus levels.
   Like in original DK, this command accepts one parameter
   - number of game turns to start the countdown from.
   But now this command can be used to show bonus timer in
   any level. Setting game turns to 0 will hide the timer.
-  Example: BONUS_LEVEL_TIME(12000)
-DISPLAY_OBJECTIVE
+  Example:
+{{{
+BONUS_LEVEL_TIME(12000)
+}}}
+
+==`CREATURE_AVAILABLE`==
+  Tells the game whether a creature of specific kind can
+  come through that player's Portal. Parameters of this
+  command are changed to original, an now look like this:
+{{{
+  CREATURE_AVAILABLE(​[player],​[creature],​[can be attracted],​[amount forced])
+}}}
+  where:
+  `[can be attracted]` - If set to 1, it is possible to attract
+      the creature, either by rooms or by forced attraction.
+      (so it works like 4th parameter in original command).
+  `[amount forced]` - Amount of creatures of that kind which
+      can be force-attracted (attracted even if player doesn't
+      have rooms required by that creature). Originally
+      there was no possibility to skip attraction conditions.
+
+==`DISPLAY_OBJECTIVE`==
   The 2nd parameter can now have the following values:
-  - 'PLAYERx' - zoom to player's dungeon heart
+  - `PLAYERx` - zoom to player's dungeon heart
   - positive integer - zoom to Action Point of given number
   - negative integer - zoom to Hero Gate of given number
-  - 'ALL_PLAYERS' - zoom button will be inactive
-LEVEL_VERSION
+  - `ALL_PLAYERS` - zoom button will be inactive
+
+==`LEVEL_VERSION`==
   Lets the game know if the level was designed specially for
   KeeperFX. To use new script commands, you must start the
-  script with LEVEL_VERSION(1). Without it, the new commands
-  will not work properly.
-PLAY_MESSAGE
-  Allows to play any SOUND or SPEECH from the game.
-  Example: PLAY_MESSAGE(PLAYER0,SPEECH,107)
-QUICK_INFORMATION
+  script with `LEVEL_VERSION(1)`. Without it, the new commands
+  will not work properly, and the game will try to emulate old
+  behavior of commands which were modified.
+
+==`PLAY_MESSAGE`==
+  Allows to play any `SOUND` or `SPEECH` from the game.
+  Example:
+{{{
+PLAY_MESSAGE(PLAYER0,SPEECH,107)
+}}}
+
+==`QUICK_INFORMATION`==
   These works same as in Deeper Dungeons, but allows message
   length up to 1024 characters. There are 50 quick message
   slots.
-QUICK_OBJECTIVE
+
+==`QUICK_OBJECTIVE`==
   Same as in DD, but allows longer messages and more control
-  over zoom button (like in DISPLAY_OBJECTIVE).
-QUICK_INFORMATION_WITH_POS
-QUICK_OBJECTIVE_WITH_POS
+  over zoom button (like in `DISPLAY_OBJECTIVE`).
+
+==`QUICK_INFORMATION_WITH_POS', `QUICK_OBJECTIVE_WITH_POS`==
   Accepts additional XY coordinates of the zoom place.
-SET_CREATURE_TENDENCIES
+
+==`SET_CREATURE_TENDENCIES`==
   Allows to set tendencies: IMPRISON and FLEE, for a player's
-  creatures. Example: SET_CREATURE_TENDENCIES(PLAYER2,FLEE,1)
+  creatures. Example:
+{{{
+SET_CREATURE_TENDENCIES(PLAYER2,FLEE,1)
+}}}
   Note that a player must have prison when IMPRISON command
-  is trigered; otherwise it won't make any change.
-REVEAL_MAP_RECT
+  is triggered; otherwise it won't make any change.
+
+==`SET_CREATURE_FEAR_WOUNDED`==
+  Replacements for `SET_CREATURE_FEAR`. The value taken by this
+  function is a percentage (0..100) and defines health drop
+  required for the creature to escape from combat. A special
+  value of 101 makes creature avoid any combat other than with
+  one creature of the same kind.
+  Example:
+{{{
+    SET_CREATURE_FEAR_WOUNDED(IMP,50)
+}}}
+
+==`SET_CREATURE_FEAR_STRONGER`==
+  Allows to define how many times stronger the enemy has to be
+  for our creature to escape from combat. The value is in %.
+  Example:
+{{{
+    SET_CREATURE_FEAR_STRONGER(AVATAR,200)
+}}}
+
+==`REVEAL_MAP_RECT`==
   Reveals rectangular map area for given player. Requires
   coordinates of area center point, and rectangle dimensions.
   Numbers are scaled in subtiles (range is 1..254).
-  Example: REVEAL_MAP_RECT(PLAYER0,132,96,13,11)
-REVEAL_MAP_LOCATION
+  Example:
+{{{
+    REVEAL_MAP_RECT(PLAYER0,132,96,13,11)
+}}}
+
+==`REVEAL_MAP_LOCATION`==
   Reveals square area of subtiles around given location.
-  Location meaning is identical to the one in DISPLAY_OBJECTIVE.
+  Location meaning is identical to the one in `DISPLAY_OBJECTIVE`.
   For example, to reveal Hero Gate no.1:
+{{{
   REVEAL_MAP_LOCATION(PLAYER0,-1,11)
-RESEARCH
+}}}
+
+==`RESEARCH`==
   Changes amount of research points needed to discover an item
   in library. It doesn't affect research order, only amount
   of points. If the item never was in research list, it's added
-  at end. Example: RESEARCH(PLAYER1,MAGIC,POWER_CHICKEN,10000)
-RESEARCH_ORDER
+  at end. Example:
+{{{
+    RESEARCH(PLAYER1,MAGIC,POWER_CHICKEN,10000)
+}}}
+
+==`RESEARCH_ORDER`==
   When this command is first called, the research list for
   specified players is cleared. Using it you may create
   a research list from beginning. Note that if you won't place
   an item on the list, it will not be possible to research it.
   So if you're using this command, you must add all items
   available on the level to the research list. Example:
+{{{
    RESEARCH_ORDER(ALL_PLAYERS,ROOM,SCAVENGER,50000)
    [...] - more RESEARCH_ORDER commands should follow.
-RANDOM
+}}}
+
+==`RANDOM`==
   It's not a command, but may be used instead of most parameters.
   If used instead of a number, then should look like:
-  RANDOM(min,max)
+{{{
+   RANDOM(min,max)
+}}}
   but may also be used instead of any other value. Examples:
+{{{
     MAX_CREATURES(PLAYER0,RANDOM(12,19))
     ADD_CREATURE_TO_POOL(RANDOM,20)
+}}}
   Note that when used instead of player name, RANDOM may return
   ALL_PLAYERS. Also, the command shouldn't be used in multiplayer
   maps, as it will lead to synchronization problems.
