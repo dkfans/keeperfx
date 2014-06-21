@@ -451,7 +451,7 @@ void init_key_to_strings(void)
  * @param y Pannel map circle start Y coordinate.
  * @return
  */
-TbBool mouse_is_over_pannel_map(long x, long y)
+TbBool mouse_is_over_pannel_map(ScreenCoord x, ScreenCoord y)
 {
     long cmx,cmy;
     long px,py;
