@@ -123,7 +123,7 @@ struct Dungeon {
     unsigned char cta_stl_x;
     unsigned char cta_stl_y;
     unsigned char cta_splevel;
-    int cta_start_turn;
+    unsigned long cta_start_turn;
     unsigned long must_obey_turn;
     int hold_audience_field_88C;
     int scavenge_counters_turn;
