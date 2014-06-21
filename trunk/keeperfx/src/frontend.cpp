@@ -426,7 +426,7 @@ struct EventTypeInfo event_button_info[] = {
   {260, GUIStr_Empty, GUIStr_Empty,    1,   1},
   {260, GUIStr_EventDnHeartAttackedDesc,GUIStr_EventHeartAttacked,      300, 250, EvKind_Nothing},
   {262, GUIStr_EventFightDesc,          GUIStr_EventFight,               -1,   0, EvKind_FriendlyFight},
-  {258, GUIStr_EventObjective,          GUIStr_Empty,                    -1,   0, EvKind_Nothing},
+  {258, GUIStr_EventObjective,          GUIStr_Empty,                    -1,   0, GUIStr_EventObjective},
   {260, GUIStr_EventBreachDesc,         GUIStr_EventBreach,             300,   0, EvKind_Nothing},
   {250, GUIStr_EventNewRoomResrchDesc,  GUIStr_EventNewRoomResearched, 1200,   0, EvKind_Nothing},
   {256, GUIStr_EventNewCreatureDesc,    GUIStr_EventNewCreature,       1200,   0, EvKind_Nothing},
@@ -3516,9 +3516,10 @@ void display_objectives(PlayerNumber plyr_idx, long x, long y)
         creatng = lord_of_the_land_find();
         if (!thing_is_invalid(creatng))
         {
-            event_create_event_or_update_nearby_existing_event(
-              creatng->mappos.x.val, creatng->mappos.y.val, EvKind_Objective, plyr_idx, creatng->index);
+            cor_x = creatng->mappos.x.val;
+            cor_y = creatng->mappos.x.val;
         }
+        event_create_event_or_update_nearby_existing_event(cor_x, cor_y, EvKind_Objective, plyr_idx, creatng->index);
     } else
     {
         event_create_event_or_update_nearby_existing_event(cor_x, cor_y, EvKind_Objective, plyr_idx, 0);

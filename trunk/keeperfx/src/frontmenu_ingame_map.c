@@ -907,7 +907,7 @@ void pannel_map_draw(long x, long y, long units_per_px, long zoom)
         subpos_x = shift_stl_y - shift_x * (end_w - 1);
         for (; end_w > start_w; end_w--)
         {
-            if ((subpos_y >= 0) && (subpos_x >= 0) && (subpos_y < (2<<24)) && (subpos_x < (2<<24))) {
+            if ((subpos_y >= 0) && (subpos_x >= 0) && (subpos_y < (1<<24)) && (subpos_x < (1<<24))) {
                 break;
             }
             subpos_y -= shift_y;
@@ -917,7 +917,7 @@ void pannel_map_draw(long x, long y, long units_per_px, long zoom)
         subpos_x = shift_stl_y - shift_x * start_w;
         for (; start_w < end_w; start_w++)
         {
-            if ((subpos_y >= 0) && (subpos_x >= 0) && (subpos_y < (2<<24)) && (subpos_x < (2<<24))) {
+            if ((subpos_y >= 0) && (subpos_x >= 0) && (subpos_y < (1<<24)) && (subpos_x < (1<<24))) {
                 break;
             }
             subpos_y += shift_y;
