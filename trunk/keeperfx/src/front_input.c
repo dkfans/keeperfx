@@ -298,7 +298,7 @@ long get_small_map_inputs(long x, long y, long zoom)
   dummy = 1;
   if (!grabbed_small_map)
     game.small_map_state = 0;
-  if (((game.numfield_C & 0x20) != 0) && (mouse_is_over_small_map(x,y) || grabbed_small_map))
+  if (((game.numfield_C & 0x20) != 0) && (mouse_is_over_pannel_map(x,y) || grabbed_small_map))
   {
     if (left_button_clicked)
     {
@@ -639,7 +639,7 @@ TbBool get_level_lost_inputs(void)
             set_player_instance(player, PI_UnqueryCrtr, 0);
           } else
           {
-            inp_done = get_small_map_inputs(player->mouse_x, player->mouse_y, player->minimap_zoom / (3-pixel_size));
+            inp_done = get_small_map_inputs(player->minimap_pos_x, player->minimap_pos_y, player->minimap_zoom / (3-pixel_size));
             if ( !inp_done )
               get_bookmark_inputs();
             get_dungeon_control_nonaction_inputs();
@@ -721,7 +721,7 @@ long get_dungeon_control_action_inputs(void)
         val = (player->minimap_zoom) / (3-pixel_size);
     else
         val = player->minimap_zoom;
-    if (get_small_map_inputs(player->mouse_x, player->mouse_y, val))
+    if (get_small_map_inputs(player->minimap_pos_x, player->minimap_pos_y, val))
       return 1;
 
     if (get_bookmark_inputs())
@@ -1806,7 +1806,7 @@ short get_gui_inputs(short gameplay_on)
       callback = gbtn->maintain_call;
       if (callback != NULL)
           callback(gbtn);
-      if (((gbtn->field_1B & 0x4000u) != 0) || mouse_is_over_small_map(player->mouse_x,player->mouse_y))
+      if (((gbtn->field_1B & 0x4000u) != 0) || mouse_is_over_pannel_map(player->minimap_pos_x,player->minimap_pos_y))
           continue;
       if ( (check_if_mouse_is_over_button(gbtn) && !game_is_busy_doing_gui_string_input())
         || ((gbtn->gbtype == Lb_UNKNBTN6) && (gbtn->gbactn_1 != 0)) )

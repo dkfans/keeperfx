@@ -46,6 +46,7 @@
 #include "frontend.h"
 #include "frontmenu_ingame_tabs.h"
 #include "frontmenu_ingame_evnt.h"
+#include "frontmenu_ingame_map.h"
 #include "creature_graphics.h"
 #include "vidmode.h"
 #include "config.h"
@@ -61,22 +62,18 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_redraw_display(void);
 DLLIMPORT void _DK_process_pointer_graphic(void);
 DLLIMPORT void _DK_smooth_screen_area(unsigned char *a1, long a2, long a3, long a4, long a5, long a6);
 DLLIMPORT void _DK_redraw_creature_view(void);
 DLLIMPORT void _DK_redraw_isometric_view(void);
 DLLIMPORT void _DK_redraw_frontview(void);
 DLLIMPORT void _DK_draw_overlay_compass(long a1, long a2);
-DLLIMPORT long _DK_map_fade_in(long a);
-DLLIMPORT long _DK_map_fade_out(long a);
 DLLIMPORT void _DK_message_draw(void);
 DLLIMPORT void _DK_draw_sound_stuff(void);
 DLLIMPORT void _DK_set_engine_view(struct PlayerInfo *player, long a2);
 DLLIMPORT void _DK_set_sprite_view_3d(void);
 DLLIMPORT void _DK_set_sprite_view_isometric(void);
 DLLIMPORT void _DK_map_fade(unsigned char *a1, unsigned char *a2, unsigned char *a3, unsigned char *a4, unsigned char *a5, long a6, long const a7, long const a8, long a9);
-DLLIMPORT void _DK_generate_map_fade_ghost_table(const char *fname, unsigned char *a2, unsigned char *a3);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -158,7 +155,6 @@ void map_fade(unsigned char *a1, unsigned char *a2, unsigned char *a3, unsigned 
 
 void generate_map_fade_ghost_table(const char *fname, unsigned char *palette, unsigned char *ghost_table)
 {
-    //_DK_generate_map_fade_ghost_table(fname, pal, ghost_table); return;
     if (LbFileLoadAt(fname, ghost_table) != PALETTE_COLORS*PALETTE_COLORS)
     {
         unsigned char *out;
@@ -234,7 +230,6 @@ void prepare_map_fade_buffers(unsigned char *fade_src, unsigned char *fade_dest,
 long map_fade_in(long a)
 {
     SYNCDBG(6,"Starting");
-    //return _DK_map_fade_in(a);
     if (a == 0)
     {
         map_fade_ghost_table = poly_pool;
@@ -254,7 +249,6 @@ long map_fade_in(long a)
 long map_fade_out(long a)
 {
     SYNCDBG(6,"Starting");
-    //return _DK_map_fade_out(a);
     if (a == 32)
     {
         map_fade_ghost_table = poly_pool;
@@ -418,8 +412,8 @@ void draw_overlay_compass(long base_x, long base_y)
     cam = player->acamera;
     int center_x, center_y;
     int shift_x, shift_y;
-    center_x = base_x + 58;
-    center_y = base_y + 58;
+    center_x = base_x + PANNEL_MAP_RADIUS;
+    center_y = base_y + PANNEL_MAP_RADIUS;
     shift_x = (-50 * LbSinL(cam->orient_a)) >> LbFPMath_TrigmBits;
     shift_y = (-50 * LbCosL(cam->orient_a)) >> LbFPMath_TrigmBits;
     if (LbScreenIsLocked()) {
@@ -490,7 +484,7 @@ void redraw_creature_view(void)
     }
     draw_gui();
     if ((game.numfield_C & 0x20) != 0) {
-        draw_overlay_compass(player->mouse_x, player->mouse_y);
+        draw_overlay_compass(player->minimap_pos_x, player->minimap_pos_y);
     }
     message_draw();
     gui_draw_all_boxes();
@@ -601,7 +595,7 @@ void redraw_isometric_view(void)
     }
     draw_gui();
     if ((game.numfield_C & 0x20) != 0) {
-        draw_overlay_compass(player->mouse_x, player->mouse_y);
+        draw_overlay_compass(player->minimap_pos_x, player->minimap_pos_y);
     }
     message_draw();
     gui_draw_all_boxes();
@@ -638,7 +632,7 @@ void redraw_frontview(void)
     }
     draw_gui();
     if ((game.numfield_C & 0x20) != 0) {
-        draw_overlay_compass(player->mouse_x, player->mouse_y);
+        draw_overlay_compass(player->minimap_pos_x, player->minimap_pos_y);
     }
     message_draw();
     draw_power_hand();
@@ -736,7 +730,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         return;
     }
     // Mouse over panel map
-    if (((game.numfield_C & 0x20) != 0) && mouse_is_over_small_map(player->mouse_x, player->mouse_y))
+    if (((game.numfield_C & 0x20) != 0) && mouse_is_over_pannel_map(player->minimap_pos_x, player->minimap_pos_y))
     {
         if (game.small_map_state == 2) {
             set_pointer_graphic(0);
@@ -903,7 +897,6 @@ void process_pointer_graphic(void)
 
 void redraw_display(void)
 {
-    //_DK_redraw_display();return;
     const char *text;
     struct PlayerInfo *player;
     SYNCDBG(5,"Starting");

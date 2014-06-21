@@ -1579,7 +1579,7 @@ void draw_whole_status_panel(void)
         mmzoom = (player->minimap_zoom) / (3-pixel_size);
     else
         mmzoom = player->minimap_zoom;
-    pannel_map_draw(player->mouse_x, player->mouse_y, (16/pixel_size), mmzoom);
+    pannel_map_draw(player->minimap_pos_x, player->minimap_pos_y, (16/pixel_size), mmzoom);
     draw_overlay_things((16/pixel_size), mmzoom);
 }
 
