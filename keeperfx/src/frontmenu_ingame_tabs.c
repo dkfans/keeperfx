@@ -873,7 +873,7 @@ void gui_go_to_next_creature_activity(struct GuiButton *gbtn)
     // Get index from pointer
     int job_idx;
     job_idx = ((long *)gbtn->content - &activity_list[0]);
-    go_to_next_creature_of_model_and_gui_job(crmodel, (job_idx & 0xC) >> 2);
+    go_to_next_creature_of_model_and_gui_job(crmodel, (job_idx & 0x3));
 }
 
 RoomIndex find_my_next_room_of_type(RoomKind rkind)
