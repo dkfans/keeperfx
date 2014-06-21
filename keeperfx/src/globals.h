@@ -145,6 +145,11 @@ extern "C" {
 
 #pragma pack(1)
 
+/** Screen coordinate in scale of the game (resolution independent). */
+typedef int ScreenCoord;
+/** Screen coordinate in scale of the real screen. */
+typedef int RealScreenCoord;
+/** Player identification number, or owner of in-game thing/room/slab. */
 typedef signed char PlayerNumber;
 /** Type which stores thing class. */
 typedef unsigned char ThingClass;

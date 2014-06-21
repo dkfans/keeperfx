@@ -27,6 +27,8 @@
 extern "C" {
 #endif
 /******************************************************************************/
+#define PANNEL_MAP_RADIUS       58
+/******************************************************************************/
 DLLIMPORT long _DK_clicked_on_small_map;
 #define clicked_on_small_map _DK_clicked_on_small_map
 DLLIMPORT unsigned char _DK_grabbed_small_map;
