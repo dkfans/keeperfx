@@ -61,13 +61,14 @@ DLLIMPORT void _DK_draw_call_to_arms_circle(unsigned char owner, long x1, long y
  * Background behind the map area.
  */
 unsigned char *MapBackground = NULL;
-long *MapShapeStart;
-long *MapShapeEnd;
+long *MapShapeStart = NULL;
+long *MapShapeEnd = NULL;
+long MapDiagonalLength = 0;
 const TbPixel RoomColours[] = {132, 92, 164, 183, 21, 132};
 /******************************************************************************/
 void pannel_map_draw_pixel(long x, long y, long col)
 {
-    if ((y >= 0) && (y < 116))
+    if ((y >= 0) && (y < MapDiagonalLength))
     {
         if ((x >= MapShapeStart[y]) && (x < MapShapeEnd[y]))
         {
@@ -575,7 +576,7 @@ short do_right_map_click(long start_x, long start_y, long curr_mx, long curr_my,
     SYNCDBG(17,"Starting");
     struct PlayerInfo *player;
     struct Thing *thing;
-    do_map_rotate_stuff(curr_mx-start_x-58, curr_my-start_y-58, &x, &y, zoom);
+    do_map_rotate_stuff(curr_mx-start_x-PANNEL_MAP_RADIUS, curr_my-start_y-PANNEL_MAP_RADIUS, &x, &y, zoom);
     game.hand_over_subtile_x = x;
     game.hand_over_subtile_y = y;
     player = get_my_player();
@@ -601,22 +602,26 @@ short do_right_map_click(long start_x, long start_y, long curr_mx, long curr_my,
 
 void setup_background(long units_per_px)
 {
-    long map_size;
-    map_size = units_per_px * 116 / 16;
-    LbMemoryFree(MapBackground);
-    MapBackground = LbMemoryAlloc(map_size*map_size*sizeof(TbPixel));
-    LbMemoryFree(MapShapeStart);
-    MapShapeStart = (long *)LbMemoryAlloc(map_size*sizeof(long));
-    LbMemoryFree(MapShapeEnd);
-    MapShapeEnd = (long *)LbMemoryAlloc(map_size*sizeof(long));
-    if ((MapBackground == NULL) || (MapShapeStart == NULL) || (MapShapeEnd == NULL))
+    if (MapDiagonalLength != units_per_px * 2*PANNEL_MAP_RADIUS / 16)
+    {
+        MapDiagonalLength = units_per_px * 2*PANNEL_MAP_RADIUS / 16;
+        LbMemoryFree(MapBackground);
+        MapBackground = LbMemoryAlloc(MapDiagonalLength*MapDiagonalLength*sizeof(TbPixel));
+        LbMemoryFree(MapShapeStart);
+        MapShapeStart = (long *)LbMemoryAlloc(MapDiagonalLength*sizeof(long));
+        LbMemoryFree(MapShapeEnd);
+        MapShapeEnd = (long *)LbMemoryAlloc(MapDiagonalLength*sizeof(long));
+    }
+    if ((MapBackground == NULL) || (MapShapeStart == NULL) || (MapShapeEnd == NULL)) {
+        MapDiagonalLength = 0;
         return;
+    }
     long radius;
-    radius = map_size / 2;
+    radius = MapDiagonalLength / 2;
     long quarter_area;
     quarter_area = radius * radius;
     int i;
-    for (i=0; i < map_size; i++)
+    for (i=0; i < MapDiagonalLength; i++)
     {
         long n;
         n = (radius - i - 1) * (i - radius + 1) + quarter_area;
@@ -633,7 +638,7 @@ void setup_background(long units_per_px)
     TbPixel *out;
     out = &lbDisplay.WScreen[PannelMapX + out_scanline * PannelMapY];
     int w,h;
-    for (h=0; h < map_size; h++)
+    for (h=0; h < MapDiagonalLength; h++)
     {
         for (w = MapShapeStart[h]; w < MapShapeEnd[h]; w++)
         {
@@ -654,7 +659,7 @@ void setup_background(long units_per_px)
             }
             MapBackground[bkgnd_pos+w] = colour;
         }
-        bkgnd_pos += map_size;
+        bkgnd_pos += MapDiagonalLength;
         out += out_scanline;
     }
     NoBackColours = num_colours;
@@ -852,8 +857,8 @@ void auto_gen_tables(long units_per_px)
 
 void pannel_map_draw(long x, long y, long units_per_px, long zoom)
 {
-    PannelMapX = x / pixel_size;
-    PannelMapY = y / pixel_size;
+    PannelMapX = units_per_px * x / 16;
+    PannelMapY = units_per_px * y / 16;
     auto_gen_tables(units_per_px);
     update_pannel_colours();
     //_DK_pannel_map_draw(x, y, zoom);
@@ -861,8 +866,8 @@ void pannel_map_draw(long x, long y, long units_per_px, long zoom)
     player = get_my_player();
     struct Camera *cam;
     cam = player->acamera;
-    int map_size;
-    map_size = units_per_px * 116 / 16;
+    if ((cam == NULL) || (MapDiagonalLength < 1))
+        return;
     long shift_x, shift_y;
     long shift_stl_x, shift_stl_y;
     {
@@ -870,8 +875,8 @@ void pannel_map_draw(long x, long y, long units_per_px, long zoom)
         angle = cam->orient_a & 0x1FFC;
         shift_x = -LbSinL(angle) * zoom / 256;
         shift_y = LbCosL(angle) * zoom / 256;
-        shift_stl_x = (cam->mappos.x.stl.num << 16) - map_size * shift_x / 2 - map_size * shift_y / 2;
-        shift_stl_y = (cam->mappos.y.stl.num << 16) - map_size * shift_y / 2 + map_size * shift_x / 2;
+        shift_stl_x = (cam->mappos.x.stl.num << 16) - MapDiagonalLength * shift_x / 2 - MapDiagonalLength * shift_y / 2;
+        shift_stl_y = (cam->mappos.y.stl.num << 16) - MapDiagonalLength * shift_y / 2 + MapDiagonalLength * shift_x / 2;
     }
 
     TbPixel *bkgnd_line;
@@ -879,7 +884,7 @@ void pannel_map_draw(long x, long y, long units_per_px, long zoom)
     TbPixel *out_line;
     out_line = &lbDisplay.WScreen[PannelMapX + lbDisplay.GraphicsScreenWidth * PannelMapY];
     int h;
-    for (h = 0; h < map_size; h++)
+    for (h = 0; h < MapDiagonalLength; h++)
     {
         int start_w, end_w;
         start_w = MapShapeStart[h];
@@ -926,7 +931,7 @@ void pannel_map_draw(long x, long y, long units_per_px, long zoom)
             bkgnd++;
         }
         out_line += lbDisplay.GraphicsScreenWidth;
-        bkgnd_line += map_size;
+        bkgnd_line += MapDiagonalLength;
         shift_stl_x += shift_x;
         shift_stl_y += shift_y;
     }

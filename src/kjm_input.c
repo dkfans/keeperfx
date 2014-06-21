@@ -28,6 +28,7 @@
 #include "bflib_math.h"
 
 #include "config_settings.h"
+#include "frontmenu_ingame_map.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -445,20 +446,20 @@ void init_key_to_strings(void)
 }
 
 /**
- * Returns if the mouse is over "small map" - the circular minimap area on top left.
- * @param x Small map circle start X coordinate.
- * @param y Small map circle start Y coordinate.
+ * Returns if the mouse is over "pannel map" - the circular minimap area on top left.
+ * @param x Pannel map circle start X coordinate.
+ * @param y Pannel map circle start Y coordinate.
  * @return
  */
-TbBool mouse_is_over_small_map(long x, long y)
+TbBool mouse_is_over_pannel_map(long x, long y)
 {
     long cmx,cmy;
     long px,py;
     cmx = GetMouseX();
     cmy = GetMouseY();
-    px = (cmx-(x+SMALL_MAP_RADIUS));
-    py = (cmy-(y+SMALL_MAP_RADIUS));
-    return (LbSqrL(px*px + py*py) < SMALL_MAP_RADIUS);
+    px = (cmx-(x+PANNEL_MAP_RADIUS));
+    py = (cmy-(y+PANNEL_MAP_RADIUS));
+    return (LbSqrL(px*px + py*py) < PANNEL_MAP_RADIUS);
 }
 /******************************************************************************/
 #ifdef __cplusplus

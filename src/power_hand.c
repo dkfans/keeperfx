@@ -480,7 +480,7 @@ void draw_power_hand(void)
   render_alpha = (unsigned char *)&alpha_sprite_table;
   // Now draw
   if (((game.numfield_C & 0x20) != 0) && (game.small_map_state != 2)
-    && mouse_is_over_small_map(player->mouse_x, player->mouse_y) )
+    && mouse_is_over_pannel_map(player->minimap_pos_x, player->minimap_pos_y) )
   {
     stl_x = game.hand_over_subtile_x;
     stl_y = game.hand_over_subtile_y;

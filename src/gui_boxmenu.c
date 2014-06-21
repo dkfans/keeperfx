@@ -618,97 +618,97 @@ struct GuiBoxOption *gui_move_active_box_option(struct GuiBox *gbox, int val)
 
 void gui_draw_box(struct GuiBox *gbox)
 {
-  SYNCDBG(6,"Drawing box, first optn \"%s\"",gbox->optn_list->label);
-  struct GuiBox *gbox_over;
-  struct GuiBoxOption *goptn_over;
-  struct GuiBoxOption *goptn;
-  long lnheight;
-  long mouse_x,mouse_y;
-  long pos_x,pos_y;
-  LbTextSetWindow(0, 0, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-  mouse_x = GetMouseX();
-  mouse_y = GetMouseY();
-  goptn_over = NULL;
-  gbox_over = gui_get_box_point_over(mouse_x, mouse_y);
-  if (gbox_over != NULL)
-  {
-    goptn_over = gui_get_box_option_point_over(gbox_over, mouse_x, mouse_y);
-  }
+    SYNCDBG(6,"Drawing box, first optn \"%s\"",gbox->optn_list->label);
+    struct GuiBox *gbox_over;
+    struct GuiBoxOption *goptn_over;
+    struct GuiBoxOption *goptn;
+    long lnheight;
+    long mouse_x,mouse_y;
+    long pos_x,pos_y;
+    LbTextSetWindow(0, 0, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+    mouse_x = GetMouseX();
+    mouse_y = GetMouseY();
+    goptn_over = NULL;
+    gbox_over = gui_get_box_point_over(mouse_x, mouse_y);
+    if (gbox_over != NULL)
+    {
+      goptn_over = gui_get_box_option_point_over(gbox_over, mouse_x, mouse_y);
+    }
 
-  LbTextSetFont(font_sprites);
-  lnheight = pixel_size * LbTextLineHeight() + 2;
-  pos_y = gbox->pos_y + 8;
-  pos_x = gbox->pos_x + 8;
-  if (gbox != gui_get_highest_priority_box())
-  {
-    lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
-    LbDrawBox(gbox->pos_x/pixel_size, gbox->pos_y/pixel_size, gbox->width/pixel_size, gbox->height/pixel_size, colours[6][0][0]);
-    if (lbDisplay.DrawFlags & Lb_SPRITE_UNKNOWN0010)
+    LbTextSetFont(font_sprites);
+    lnheight = pixel_size * LbTextLineHeight() + 2;
+    pos_y = gbox->pos_y + 8;
+    pos_x = gbox->pos_x + 8;
+    if (gbox != gui_get_highest_priority_box())
     {
-      LbDrawBox(gbox->pos_x/pixel_size, gbox->pos_y/pixel_size, gbox->width/pixel_size, gbox->height/pixel_size, colours[0][0][0]);
-    } else
-    {
-      lbDisplay.DrawFlags ^= Lb_SPRITE_UNKNOWN0010;
-      LbDrawBox(gbox->pos_x/pixel_size, gbox->pos_y/pixel_size, gbox->width/pixel_size, gbox->height/pixel_size, colours[0][0][0]);
-      lbDisplay.DrawFlags ^= Lb_SPRITE_UNKNOWN0010;
-    }
-    lbDisplay.DrawFlags ^= Lb_SPRITE_TRANSPAR4;
-    lbDisplay.DrawColour = colours[3][3][3];
-    goptn = gbox->optn_list;
-    while (goptn->label[0] != '!')
-    {
-      if (goptn->active_cb != NULL)
-        goptn->field_26 = (goptn->active_cb)(gbox, goptn, &goptn->field_D);
-      else
-        goptn->field_26 = 1;
-      if (!goptn->field_26)
-        lbDisplay.DrawColour = colours[0][0][0];
-      else
+        lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
+        LbDrawBox(gbox->pos_x/pixel_size, gbox->pos_y/pixel_size, gbox->width/pixel_size, gbox->height/pixel_size, colours[6][0][0]);
+        if (lbDisplay.DrawFlags & Lb_SPRITE_UNKNOWN0010)
+        {
+          LbDrawBox(gbox->pos_x/pixel_size, gbox->pos_y/pixel_size, gbox->width/pixel_size, gbox->height/pixel_size, colours[0][0][0]);
+        } else
+        {
+          lbDisplay.DrawFlags ^= Lb_SPRITE_UNKNOWN0010;
+          LbDrawBox(gbox->pos_x/pixel_size, gbox->pos_y/pixel_size, gbox->width/pixel_size, gbox->height/pixel_size, colours[0][0][0]);
+          lbDisplay.DrawFlags ^= Lb_SPRITE_UNKNOWN0010;
+        }
+        lbDisplay.DrawFlags ^= Lb_SPRITE_TRANSPAR4;
         lbDisplay.DrawColour = colours[3][3][3];
-      if (LbScreenIsLocked())
-      {
-        LbTextDraw(pos_x/pixel_size, pos_y/pixel_size, goptn->label);
-      }
-      goptn++;
-      pos_y += lnheight;
-    }
-  } else
-  {
-    lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
-    LbDrawBox(gbox->pos_x/pixel_size, gbox->pos_y/pixel_size, gbox->width/pixel_size, gbox->height/pixel_size, colours[12][0][0]);
-    if (lbDisplay.DrawFlags & Lb_SPRITE_UNKNOWN0010)
-    {
-      LbDrawBox(gbox->pos_x/pixel_size, gbox->pos_y/pixel_size, gbox->width/pixel_size, gbox->height/pixel_size, colours[2][0][0]);
+        goptn = gbox->optn_list;
+        while (goptn->label[0] != '!')
+        {
+          if (goptn->active_cb != NULL)
+            goptn->field_26 = (goptn->active_cb)(gbox, goptn, &goptn->field_D);
+          else
+            goptn->field_26 = 1;
+          if (!goptn->field_26)
+            lbDisplay.DrawColour = colours[0][0][0];
+          else
+            lbDisplay.DrawColour = colours[3][3][3];
+          if (LbScreenIsLocked())
+          {
+            LbTextDraw(pos_x/pixel_size, pos_y/pixel_size, goptn->label);
+          }
+          goptn++;
+          pos_y += lnheight;
+        }
     } else
     {
-      lbDisplay.DrawFlags ^= Lb_SPRITE_UNKNOWN0010;
-      LbDrawBox(gbox->pos_x/pixel_size, gbox->pos_y/pixel_size, gbox->width/pixel_size, gbox->height/pixel_size, colours[2][0][0]);
-      lbDisplay.DrawFlags ^= Lb_SPRITE_UNKNOWN0010;
+        lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
+        LbDrawBox(gbox->pos_x/pixel_size, gbox->pos_y/pixel_size, gbox->width/pixel_size, gbox->height/pixel_size, colours[12][0][0]);
+        if (lbDisplay.DrawFlags & Lb_SPRITE_UNKNOWN0010)
+        {
+            LbDrawBox(gbox->pos_x/pixel_size, gbox->pos_y/pixel_size, gbox->width/pixel_size, gbox->height/pixel_size, colours[2][0][0]);
+        } else
+        {
+            lbDisplay.DrawFlags ^= Lb_SPRITE_UNKNOWN0010;
+            LbDrawBox(gbox->pos_x/pixel_size, gbox->pos_y/pixel_size, gbox->width/pixel_size, gbox->height/pixel_size, colours[2][0][0]);
+            lbDisplay.DrawFlags ^= Lb_SPRITE_UNKNOWN0010;
+        }
+        lbDisplay.DrawFlags ^= Lb_SPRITE_TRANSPAR4;
+        goptn = gbox->optn_list;
+        while (goptn->label[0] != '!')
+        {
+            if (goptn->active_cb != NULL)
+              goptn->field_26 = (goptn->active_cb)(gbox, goptn, &goptn->field_D);
+            else
+              goptn->field_26 = 1;
+            if (!goptn->field_26)
+              lbDisplay.DrawColour = colours[0][0][0];
+            else
+            if ( ((gbox == gbox_over) && (goptn == goptn_over) && (gbox != dragging_box.gbox)) ||
+                 ((gbox != NULL) && (goptn->active != 0)) )
+              lbDisplay.DrawColour = colours[15][15][15];
+            else
+              lbDisplay.DrawColour = colours[9][9][9];
+            if (LbScreenIsLocked())
+            {
+              LbTextDraw(pos_x/pixel_size, pos_y/pixel_size, goptn->label);
+            }
+            goptn++;
+            pos_y += lnheight;
+        }
     }
-    lbDisplay.DrawFlags ^= Lb_SPRITE_TRANSPAR4;
-    goptn = gbox->optn_list;
-    while (goptn->label[0] != '!')
-    {
-      if (goptn->active_cb != NULL)
-        goptn->field_26 = (goptn->active_cb)(gbox, goptn, &goptn->field_D);
-      else
-        goptn->field_26 = 1;
-      if (!goptn->field_26)
-        lbDisplay.DrawColour = colours[0][0][0];
-      else
-      if ( ((gbox == gbox_over) && (goptn == goptn_over) && (gbox != dragging_box.gbox)) ||
-           ((gbox != NULL) && (goptn->active != 0)) )
-        lbDisplay.DrawColour = colours[15][15][15];
-      else
-        lbDisplay.DrawColour = colours[9][9][9];
-      if (LbScreenIsLocked())
-      {
-        LbTextDraw(pos_x/pixel_size, pos_y/pixel_size, goptn->label);
-      }
-      goptn++;
-      pos_y += lnheight;
-    }
-  }
 }
 
 TbBool gui_process_option_inputs(struct GuiBox *gbox, struct GuiBoxOption *goptn)

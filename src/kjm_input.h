@@ -28,11 +28,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define SMALL_MAP_RADIUS       58
-/******************************************************************************/
-#pragma pack(1)
-
-/******************************************************************************/
 #pragma pack(1)
 
 struct KeyToStringInit { // sizeof = 5
@@ -40,7 +35,6 @@ struct KeyToStringInit { // sizeof = 5
   long str_idx;
 };
 
-#pragma pack()
 /******************************************************************************/
 DLLIMPORT extern unsigned long _DK_key_modifiers;
 #define key_modifiers _DK_key_modifiers
@@ -120,7 +114,7 @@ void update_key_modifiers(void);
 void define_key_input(void);
 void init_key_to_strings(void);
 
-TbBool mouse_is_over_small_map(long x, long y);
+TbBool mouse_is_over_pannel_map(long x, long y);
 /******************************************************************************/
 #ifdef __cplusplus
 }
