@@ -723,6 +723,10 @@ char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname)
       mdir=keeper_runtime_directory;
       sdir="hdata";
       break;
+  case FGrp_Music:
+      mdir=keeper_runtime_directory;
+      sdir="music";
+      break;
   case FGrp_VarLevels:
       mdir=install_info.inst_path;
       sdir="levels";

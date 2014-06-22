@@ -383,7 +383,7 @@ TbResult LbScreenInitialize(void)
         putenv(buf);
     }
     // Initialize SDL library
-    if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE) < 0) {
+    if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE|SDL_INIT_AUDIO) < 0) {
        ERRORLOG("SDL init: %s",SDL_GetError());
        return Lb_FAIL;
     }
