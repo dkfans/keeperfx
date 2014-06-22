@@ -488,7 +488,7 @@ int draw_overlay_possessed_thing(struct PlayerInfo *player, long units_per_px, l
     return 1;
 }
 
-void draw_overlay_things(long units_per_px, long zoom)
+void pannel_map_draw_overlay_things(long units_per_px, long zoom)
 {
     SYNCDBG(7,"Starting");
     //_DK_draw_overlay_things(zoom); return;
@@ -694,17 +694,17 @@ void setup_pannel_colours(void)
         n = pncol_idx;
         if (frame != 0)
         {
-            PannelColours[n + 3] = pixmap.ghost[bkcol + 1664];
-            PannelColours[n + 4] = pixmap.ghost[bkcol + 8960];
+            PannelColours[n + 3] = pixmap.ghost[bkcol + 26*256];
+            PannelColours[n + 4] = pixmap.ghost[bkcol + 140*256];
         } else
         {
             PannelColours[n + 3] = bkcol;
             PannelColours[n + 4] = bkcol;
         }
         PannelColours[n + 0] = bkcol;
-        PannelColours[n + 1] = pixmap.ghost[bkcol + 1024];
+        PannelColours[n + 1] = pixmap.ghost[bkcol + 16*256];
         PannelColours[n + 2] = 0;
-        PannelColours[n + 5] = pixmap.ghost[bkcol + 8960];
+        PannelColours[n + 5] = pixmap.ghost[bkcol + 140*256];
         PannelColours[n + 6] = 146;
         PannelColours[n + 7] = 85;
         n = pncol_idx + 8;
@@ -762,8 +762,8 @@ void update_pannel_colours(void)
         n = pncol_idx;
         if (frame != 0)
         {
-            PannelColours[n + 3] = pixmap.ghost[bkcol + 1664];
-            PannelColours[n + 4] = pixmap.ghost[bkcol + 8960];
+            PannelColours[n + 3] = pixmap.ghost[bkcol + 26*256];
+            PannelColours[n + 4] = pixmap.ghost[bkcol + 140*256];
         } else
         {
             PannelColours[n + 3] = bkcol;
@@ -868,7 +868,7 @@ void auto_gen_tables(long units_per_px)
     }
 }
 
-void pannel_map_draw(long x, long y, long units_per_px, long zoom)
+void pannel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
 {
     PannelMapX = units_per_px * x / 16;
     PannelMapY = units_per_px * y / 16;
