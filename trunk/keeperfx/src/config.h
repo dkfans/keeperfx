@@ -60,6 +60,7 @@ enum TbFileGroups {
         FGrp_CrtrData,
         FGrp_CmpgCrtrs,
         FGrp_CmpgConfig,
+        FGrp_Music,
 };
 
 enum TbFeature {

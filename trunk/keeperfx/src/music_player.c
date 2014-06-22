@@ -28,6 +28,11 @@
 extern "C" {
 #endif
 /******************************************************************************/
+#define MAX_TRACK 7
+
+Mix_Music* tracks[MAX_TRACK];
+int current_track;
+/******************************************************************************/
 
 int IsRedbookMusicActive(void)
 {
@@ -41,7 +46,34 @@ int InitializeMusicPlayer(void)
         return true;
     }
 
-    SYNCLOG("Music player using folder not supported.");
+    current_track = -1;
+    int initted = Mix_Init(MIX_INIT_OGG);
+    if((initted & MIX_INIT_OGG) == MIX_INIT_OGG)
+    {
+        if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) >= 0)
+        {
+            int i;
+            for (i = 1; i <= MAX_TRACK; i++)
+            {
+                const char *fname;
+                fname = prepare_file_fmtpath(FGrp_Music, "keeper%02d.ogg", i);
+                tracks[i] = Mix_LoadMUS(fname);
+                if (tracks[i] == NULL)
+                {
+                    WARNLOG("Can't load track %d: %s", i, Mix_GetError());
+                }
+            }
+        }
+        else
+        {
+            SYNCLOG("Can't open music device: %s", Mix_GetError());
+        }
+    }
+    else
+    {
+        SYNCLOG("Missing music types. %s", Mix_GetError());
+    }
+    SYNCLOG("Music player using folder initialized.");
     return true;
 }
 
@@ -51,6 +83,21 @@ void ShutdownMusicPlayer(void)
     {
         return;
     }
+
+    while(Mix_Init(0))
+    {
+        Mix_Quit();
+    }
+    Mix_HaltMusic();
+    int i;
+    for (i = 1; i <= MAX_TRACK; i++)
+    {
+        if (tracks[i] != NULL)
+        {
+            Mix_FreeMusic(tracks[i]);
+        }
+    }
+    Mix_CloseAudio();
 }
 
 void PlayMusicPlayer(int track)
@@ -60,7 +107,21 @@ void PlayMusicPlayer(int track)
         PlayRedbookTrack(track);
     } else
     {
-        SYNCLOG("Music player using folder not supported.");
+        if (track != current_track)
+        {
+            current_track = track;
+            if(tracks[track] != NULL)
+            {
+                if(Mix_PlayMusic(tracks[track], -1) == -1)
+                {
+                    SYNCLOG("Can't play track %d: %s", track, Mix_GetError());
+                }
+            }
+            else
+            {
+                SYNCLOG("This track was not loaded: %d", track);
+            }
+        }
     }
 }
 
@@ -71,7 +132,17 @@ void StopMusicPlayer(void)
         StopRedbookTrack();
     } else
     {
-        SYNCLOG("Music player using folder not supported.");
+        if(Mix_PlayingMusic())
+        {
+            if(Mix_FadeOutMusic(1000) == 1)
+            {
+                current_track = -1;
+            }
+            else
+            {
+                SYNCLOG("Can't stop music: %s", Mix_GetError());
+            }
+        }
     }
 }
 
@@ -82,7 +153,10 @@ void SetMusicPlayerVolume(int volume)
         SetRedbookVolume(volume);
     } else
     {
-        SYNCLOG("Music player using folder not supported.");
+        float volume_f = (float) volume;
+        int normalized_volume = (int)((volume_f / MIX_MAX_VOLUME) * MIX_MAX_VOLUME);
+        Mix_VolumeMusic(normalized_volume);
+        SYNCLOG("Music volume set: %d.", normalized_volume);
     }
 }
 
