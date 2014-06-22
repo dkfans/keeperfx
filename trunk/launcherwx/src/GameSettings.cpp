@@ -66,7 +66,7 @@ wxString supported_languages_code[] = {
     //_T("KOR"),
     //_T("DAN"),
     //_T("NOR"),
-    //_T("CZE"),
+    _T("CZE"),
     //_T("ARA"),
     _T("RUS"),
     _T("JPN"),
@@ -76,6 +76,7 @@ wxString supported_languages_code[] = {
     //_T("HIN"),
     //_T("BEN"),
     //_T("JAV"),
+    _T("LAT"),
 };
 
 wxString supported_languages_text[] = {
@@ -91,7 +92,7 @@ wxString supported_languages_text[] = {
     //_T("Korean"),
     //_T("Dansk"),
     //_T("Norsk"),
-    //_T("Česky"),
+    _T("Česky"),
     //_T("Arabic"),
     _T("Русский"),
     _T("にほんご"),
@@ -101,6 +102,7 @@ wxString supported_languages_text[] = {
     //_T("Hindi"),
     //_T("Bengali"),
     //_T("Javanese"),
+    _T("sermo Latinus"),
 };
 
 wxString tooltips_eng[] = {
@@ -343,69 +345,170 @@ GameSettings::~GameSettings()
 
 void GameSettings::ChangeResolutionOptions(int scr_ctrl)
 {
+#define MAX_RESOLUTIONS 5
     {
+        // Get previous values
+        wxString resolutions[MAX_RESOLUTIONS];
+        size_t res_num,i;
+        res_num = MAX_RESOLUTIONS;
+        resIngameBox->GetSelected(resolutions, res_num);
+        // Prepare new options
         wxString * arr_ptr;
         size_t arr_size;
-        if (scr_ctrl != 1) {
-            arr_ptr = resolutions_ingame_full_init;
-            arr_size = WXSIZEOF(resolutions_ingame_full_init);
-        } else {
+        switch (scr_ctrl)
+        {
+        case 1:
+            // Replace all resolutions with windowed modes
+            for (i=0; i < res_num; i++) {
+                size_t n = resolutions[i].find_last_of("xwXW");
+                if (n > resolutions[i].find_first_of("xwXW"))
+                    resolutions[i].SetChar(n,'w');
+            }
             arr_ptr = resolutions_ingame_wind_init;
             arr_size = WXSIZEOF(resolutions_ingame_wind_init);
+            break;
+        case 0:
+            // Replace all resolutions with fullscreen modes
+            for (i=0; i < res_num; i++) {
+                size_t n = resolutions[i].find_last_of("xwXW");
+                if (n > resolutions[i].find_first_of("xwXW"))
+                    resolutions[i].SetChar(n,'x');
+            }
+            arr_ptr = resolutions_ingame_full_init;
+            arr_size = WXSIZEOF(resolutions_ingame_full_init);
+            break;
+        case 2:
+        default:
+            arr_ptr = resolutions_ingame_full_init;
+            arr_size = WXSIZEOF(resolutions_ingame_full_init);
+            break;
         }
+        // Switch the list to new options
         resIngameBox->ClearOptionCheckboxes();
         resIngameBox->CreateOptionCheckboxes(arr_ptr, arr_ptr, arr_size, 3);
+        // Select resolution values
+        resIngameBox->SetSelected(4, resolutions, res_num);
     }
+#undef MAX_RESOLUTIONS
 
     {
         wxString * arr_ptr;
         size_t arr_size;
-        if (scr_ctrl != 1) {
-            arr_ptr = resolutions_menu_full_init;
-            arr_size = WXSIZEOF(resolutions_menu_full_init);
-        } else {
+        wxString resolution;
+        if (resMovieCombo != NULL)
+            resolution = resMovieCombo->GetValue();
+        switch (scr_ctrl)
+        {
+        case 1:
+            {
+                size_t n = resolution.find_last_of("xwXW");
+                if (n > resolution.find_first_of("xwXW"))
+                    resolution.SetChar(n,'w');
+            }
             arr_ptr = resolutions_menu_wind_init;
             arr_size = WXSIZEOF(resolutions_menu_wind_init);
+            break;
+        case 0:
+            {
+                size_t n = resolution.find_last_of("xwXW");
+                if (n > resolution.find_first_of("xwXW"))
+                    resolution.SetChar(n,'x');
+            }
+            arr_ptr = resolutions_menu_full_init;
+            arr_size = WXSIZEOF(resolutions_menu_full_init);
+            break;
+        case 2:
+        default:
+            arr_ptr = resolutions_menu_full_init;
+            arr_size = WXSIZEOF(resolutions_menu_full_init);
+            break;
         }
         resMenuBoxSizer->Clear();
         delete resMenuCombo;
         resMenuCombo = new wxComboBox(resOtherPanel, wxID_ANY, arr_ptr[0], wxDefaultPosition, wxDefaultSize, arr_size, arr_ptr, wxCB_DROPDOWN);
         resMenuCombo->SetToolTip(tooltips_eng[4]);
         resMenuBoxSizer->Add(resMenuCombo, 1, wxEXPAND);
+        resMenuCombo->SetValue(resolution);
     }
 
     {
         wxString * arr_ptr;
         size_t arr_size;
-        if (scr_ctrl != 1) {
-            arr_ptr = resolutions_movies_full_init;
-            arr_size = WXSIZEOF(resolutions_movies_full_init);
-        } else {
+        wxString resolution;
+        if (resMovieCombo != NULL)
+            resolution = resMovieCombo->GetValue();
+        switch (scr_ctrl)
+        {
+        case 1:
+            {
+                size_t n = resolution.find_last_of("xwXW");
+                if (n > resolution.find_first_of("xwXW"))
+                    resolution.SetChar(n,'w');
+            }
             arr_ptr = resolutions_movies_wind_init;
             arr_size = WXSIZEOF(resolutions_movies_wind_init);
+            break;
+        case 0:
+            {
+                size_t n = resolution.find_last_of("xwXW");
+                if (n > resolution.find_first_of("xwXW"))
+                    resolution.SetChar(n,'x');
+            }
+            arr_ptr = resolutions_movies_full_init;
+            arr_size = WXSIZEOF(resolutions_movies_full_init);
+            break;
+        case 2:
+        default:
+            arr_ptr = resolutions_movies_full_init;
+            arr_size = WXSIZEOF(resolutions_movies_full_init);
+            break;
         }
         resMovieBoxSizer->Clear();
         delete resMovieCombo;
         resMovieCombo = new wxComboBox(resOtherPanel, wxID_ANY, arr_ptr[0], wxDefaultPosition, wxDefaultSize, arr_size, arr_ptr, wxCB_DROPDOWN);
         resMovieCombo->SetToolTip(tooltips_eng[3]);
         resMovieBoxSizer->Add(resMovieCombo, 1, wxEXPAND);
+        resMovieCombo->SetValue(resolution);
     }
 
     {
         wxString * arr_ptr;
         size_t arr_size;
-        if (scr_ctrl != 1) {
-            arr_ptr = resolutions_failsafe_full_init;
-            arr_size = WXSIZEOF(resolutions_failsafe_full_init);
-        } else {
+        wxString resolution;
+        if (resFailCombo != NULL)
+            resolution = resFailCombo->GetValue();
+        switch (scr_ctrl)
+        {
+        case 1:
+            {
+                size_t n = resolution.find_last_of("xwXW");
+                if (n > resolution.find_first_of("xwXW"))
+                    resolution.SetChar(n,'w');
+            }
             arr_ptr = resolutions_failsafe_wind_init;
             arr_size = WXSIZEOF(resolutions_failsafe_wind_init);
+            break;
+        case 0:
+            {
+                size_t n = resolution.find_last_of("xwXW");
+                if (n > resolution.find_first_of("xwXW"))
+                    resolution.SetChar(n,'x');
+            }
+            arr_ptr = resolutions_failsafe_full_init;
+            arr_size = WXSIZEOF(resolutions_failsafe_full_init);
+            break;
+        case 2:
+        default:
+            arr_ptr = resolutions_failsafe_full_init;
+            arr_size = WXSIZEOF(resolutions_failsafe_full_init);
+            break;
         }
         resFailBoxSizer->Clear();
         delete resFailCombo;
         resFailCombo = new wxComboBox(resOtherPanel, wxID_ANY, arr_ptr[0], wxDefaultPosition, wxDefaultSize, arr_size, arr_ptr, wxCB_DROPDOWN);
         resFailCombo->SetToolTip(tooltips_eng[5]);
         resFailBoxSizer->Add(resFailCombo, 1, wxEXPAND);
+        resFailCombo->SetValue(resolution);
     }
 }
 
