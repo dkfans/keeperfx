@@ -54,11 +54,11 @@ wxString options_flags_code[] = {
 };
 
 wxString options_flags_text[] = {
-    _T("Skip intro"),
-    _T("No CD music"),
+    _T("Skip intro animation"),
+    _T("Music files instead of CD"),
     _T("Disable sound"),
     _T("No AWE32/64 Banks"),
-    _T("Easter Egg"),
+    _T("Allow Easter Egg"),
     _T("Column convert"),
     _T("Light convert"),
     _T("Smoothen video"),
