@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: Speeches for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-02-22 14:26+0100\n"
+"PO-Revision-Date: 2014-06-22 22:59+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: pl_PL\n"
@@ -154,507 +154,513 @@ msgstr "Potrzebny większy Skarbiec."
 #: speech:24
 msgctxt "In-game mentor"
 msgid "Your Library is too small."
-msgstr ""
+msgstr "Biblioteka jest zbyt mała."
 
 #: speech:25
 msgctxt "In-game mentor"
 msgid "Your Prison is too small."
-msgstr ""
+msgstr "Więzienie jest za małe."
 
 #: speech:26
 msgctxt "In-game mentor"
 msgid "Your Torture Chamber is not big enough."
-msgstr ""
+msgstr "Sala Tortur jest za mała."
 
 #: speech:27
 msgctxt "In-game mentor"
 msgid "You need a bigger Training Room."
-msgstr ""
+msgstr "Potrzebna większa sala Treningowa."
 
 #: speech:28
 msgctxt "In-game mentor"
 msgid "Your Workshop is not big enough."
-msgstr ""
+msgstr "Warsztaty są za małe."
 
 #: speech:29
 msgctxt "In-game mentor"
 msgid "Your Scavenge Room is too small."
-msgstr ""
+msgstr "Oczyszczalnia jest zbyt mała."
 
 #: speech:30
 msgctxt "In-game mentor"
 msgid "You need a bigger Temple."
-msgstr ""
+msgstr "Potrzebna większa Świątynia."
 
 #: speech:31
 msgctxt "In-game mentor"
 msgid "Your Graveyard is not big enough."
-msgstr ""
+msgstr "Cmentarzysko jest za małe."
 
 #: speech:32
 msgctxt "In-game mentor"
 msgid "Your Barracks require expansion."
-msgstr ""
+msgstr "Koszary wymagają rozbudowy."
 
 #: speech:33
 msgctxt "In-game mentor"
 msgid "Hungry creatures cannot get to a Hatchery."
-msgstr ""
+msgstr "Głodne stwory nie mogą dostać się do Kurnika."
 
 #: speech:34
 msgctxt "In-game mentor"
 msgid "Some of your minions are unable to reach the Treasure Room."
-msgstr ""
+msgstr "Część sług nie może dostać się do Skarbca."
 
 #: speech:35
 msgctxt "In-game mentor"
 msgid "Some of your minions are unable to reach their lairs."
-msgstr ""
+msgstr "Część sług nie może dostać się do swych legowisk."
 
 #: speech:36
+#, fuzzy
 msgctxt "In-game mentor"
 msgid "An Entrance have been claimed."
-msgstr ""
+msgstr "Wejście jest atakowane."
 
 #: speech:37
 msgctxt "In-game mentor"
 msgid "You have lost an entrance."
-msgstr ""
+msgstr "Straciłeś Wejście."
 
 #: speech:38
 msgctxt "In-game mentor"
 msgid "You must build a Treasure Room, to store gold."
-msgstr ""
+msgstr "Musisz zbudować Skarbiec, by gromadzić złoto."
 
 #: speech:39
 msgctxt "In-game mentor"
 msgid "You need to build a Lair for your creatures."
-msgstr ""
+msgstr "Musisz zbudować Leża dla stworów."
 
 #: speech:40
 msgctxt "In-game mentor"
 msgid "You should build a Hatchery, to feed your minions."
-msgstr ""
+msgstr "Musisz zbudować Kurnik, by wyżywić sługi."
 
 #: speech:41
 msgctxt "In-game mentor"
 msgid "A new room has been researched."
-msgstr ""
+msgstr "Opracowano nową komnatę."
 
 #: speech:42
 msgctxt "In-game mentor"
 msgid "A new spell has been researched."
-msgstr ""
+msgstr "Opracowano nowe zaklęcie."
 
 #: speech:43
 msgctxt "In-game mentor"
 msgid "A door has been manufactured."
-msgstr ""
+msgstr "Wyprodukowano drzwi."
 
 #: speech:44
 msgctxt "In-game mentor"
 msgid "A trap has been manufactured."
-msgstr ""
+msgstr "Wyprodukowano pułapkę."
 
 #: speech:45
 msgctxt "In-game mentor"
 msgid "There is nothing new to research."
-msgstr ""
+msgstr "Brak tematów do badań."
 
 #: speech:46
 msgctxt "In-game mentor"
 msgid "You have taken an enemy's spellbook."
-msgstr ""
+msgstr "Przejąłeś księgę zaklęć wroga."
 
 #: speech:47
 msgctxt "In-game mentor"
 msgid "You have taken an enemy's trap design."
-msgstr ""
+msgstr "Przejąłeś projekt pułapki wroga."
 
 #: speech:48
 msgctxt "In-game mentor"
 msgid "You have taken an enemy's door design."
-msgstr ""
+msgstr "Przejąłeś projekt drzwi wroga."
 
 #: speech:49
 msgctxt "In-game mentor"
 msgid "The enemy has stolen a spellbook!"
-msgstr ""
+msgstr "Wróg ukradł księgę zaklęć."
 
 #: speech:50
 msgctxt "In-game mentor"
 msgid "A trap design has been taken from you."
-msgstr ""
+msgstr "Straciłeś projekt pułapki."
 
 #: speech:51
 msgctxt "In-game mentor"
 msgid "The enemy has taken a door design."
-msgstr ""
+msgstr "Wróg zabrał projekt drzwi."
 
 #: speech:52
 msgctxt "In-game mentor"
 msgid "Information has been tortured from the enemy."
-msgstr ""
+msgstr "Torturami wydobyto informacje od wrogów."
 
 #: speech:53
 msgctxt "In-game mentor"
 msgid "An enemy has been converted to your cause."
-msgstr ""
+msgstr "Wróg został przekrztałcony na twoje podobieństwo."
 
 #: speech:54
 msgctxt "In-game mentor"
 msgid "A prisonner have died and returned as a Skeleton."
-msgstr ""
+msgstr "Więzień zmarł i odrodził się jako Szkieletor."
 
 #: speech:55
 msgctxt "In-game mentor"
 msgid "A torture victim has died and returned as a Ghost."
-msgstr ""
+msgstr "Ofiara tortur zmarła i powróciła jako Duch."
 
 #: speech:56
 msgctxt "In-game mentor"
 msgid "Your prisonners are escaping!"
-msgstr ""
+msgstr "Więźniowie uciekają!"
 
 #: speech:57
 msgctxt "In-game mentor"
 msgid "A Vampire has risen on your Graveyard."
-msgstr ""
+msgstr "Na cmentarzysku przerodził się Wampir."
 
 #: speech:58
 msgctxt "In-game mentor"
 msgid "You have freed your creatures from prison!"
-msgstr ""
+msgstr "Uwolniłeś stwory z więzienia!"
 
 #: speech:59
+#, fuzzy
 msgctxt "In-game mentor"
 msgid "Your prisonners are starving to death."
-msgstr ""
+msgstr "Więźniowie zostali zagłodzeni na śmierć."
 
 #: speech:60
+#, fuzzy
 msgctxt "In-game mentor"
 msgid "One of your creatures is being scavenged!"
-msgstr ""
+msgstr "Stwór jest pozyskiwany!"
 
 #: speech:61
 msgctxt "In-game mentor"
 msgid "One of your minions is being scavenged!"
-msgstr ""
+msgstr "Pozyskano jednego sługę!"
 
 #: speech:62
 msgctxt "In-game mentor"
 msgid "One of your creatures has joined the enemy."
-msgstr ""
+msgstr "Jeden ze stworów przyłączył się do wroga."
 
 #: speech:63
 msgctxt "In-game mentor"
 msgid "Secrets have been tortured from your creatures!"
-msgstr ""
+msgstr "Naskutek tortur, twój stwór zdradził sekret!"
 
 #: speech:64
 msgctxt "In-game mentor"
 msgid "The Gods are pleased with your sacrifice."
-msgstr ""
+msgstr "Bogowie cieszą się z twojego poświęcenia."
 
 #: speech:65
 msgctxt "In-game mentor"
 msgid "The Gods have rewarded your offering."
-msgstr ""
+msgstr "Bogowie przyjęli twoją ofiarę."
 
 #: speech:66
 msgctxt "In-game mentor"
 msgid "The Gods do not care for your sacrifice."
-msgstr ""
+msgstr "Bogowie nie dbają o twe poświęcenia."
 
 #: speech:67
 msgctxt "In-game mentor"
 msgid "Your offering has made the Gods angry!"
-msgstr ""
+msgstr "Twoja ofiara rozzłościła bogów!"
 
 #: speech:68
+#, fuzzy
 msgctxt "In-game mentor"
 msgid "The Gods have punished your unwothy offering."
-msgstr ""
+msgstr "Bogowie odrzucili twoją bezwartościową daninę."
 
 #: speech:69
+#, fuzzy
 msgctxt "In-game mentor"
 msgid "This is no wishing well, keeper."
-msgstr ""
+msgstr "Idzie ku gorszemu, strażniku."
 
 #: speech:70
 msgctxt "In-game mentor"
 msgid "Your creatures have discovered a misterious magic box."
-msgstr ""
+msgstr "Stwory odkryły tajemniczą magiczną skrzynię."
 
 #: speech:71
 msgctxt "In-game mentor"
 msgid "Your creatures have found a spell."
-msgstr ""
+msgstr "Stwory znalazły zaklęcie."
 
 #: speech:72
 msgctxt "In-game mentor"
 msgid "A door design has been discovered."
-msgstr ""
+msgstr "Odkryto projekt drzwi."
 
 #: speech:73
 msgctxt "In-game mentor"
 msgid "A trap design has been discovered."
-msgstr ""
+msgstr "Odkryto projekt pułapki."
 
 #: speech:74
 msgctxt "In-game mentor"
 msgid "New creatures have joined your dungeon."
-msgstr ""
+msgstr "Nowe stwory zamieszkały w twoim lochu."
 
 #: speech:75
 msgctxt "In-game mentor"
 msgid "You have thalowed into a new area."
-msgstr ""
+msgstr "Przebiłeś się do nowego obszaru."
 
 #: speech:76
 msgctxt "In-game mentor"
 msgid "The entire realm has been revealed to you."
-msgstr ""
+msgstr "Objawiło ci się całe królestwo."
 
 #: speech:77
 msgctxt "In-game mentor"
 msgid "You may resurrect one creature."
-msgstr ""
+msgstr "Możesz wskrzesić jednego stwora."
 
 #: speech:78
 msgctxt "In-game mentor"
 msgid "Select a creature to take with you to the next realm."
-msgstr ""
+msgstr "Wybierz stwora, którego zabierzesz do następnego królestwa."
 
 #: speech:79
 msgctxt "In-game mentor"
 msgid "So be it."
-msgstr ""
+msgstr "Niech tak będzie."
 
 #: speech:80
 msgctxt "In-game mentor"
 msgid "You have bewitched a hero."
-msgstr ""
+msgstr "Zaczarowałeś śmiałka."
 
 #: speech:81
 msgctxt "In-game mentor"
 msgid "Your creatures have been doubled in number."
-msgstr ""
+msgstr "Liczba stworów podwoiła się."
 
 #: speech:82
 msgctxt "In-game mentor"
 msgid "Your creatures have been blessed with experience."
-msgstr ""
+msgstr "Stwory otrzymały błogosławieństwo doświadczenia."
 
 #: speech:83
 msgctxt "In-game mentor"
 msgid "Your dungeon has been fortified."
-msgstr ""
+msgstr "Loch został ufortyfikowany."
 
 #: speech:84
 msgctxt "In-game mentor"
 msgid ""
 "You have found a hidden realm. Go there when you've conquered this land."
-msgstr ""
+msgstr "Ukryte królestwo! Idź tam gdy podbijesz ten obszar."
 
 #: speech:85
 msgctxt "In-game mentor"
 msgid "Your gold reserves are running low."
-msgstr ""
+msgstr "Wyczerpują się zapasy złota."
 
 #: speech:86
 msgctxt "In-game mentor"
 msgid "You do not have enough gold."
-msgstr ""
+msgstr "Masz za mało złota."
 
 #: speech:87
 msgctxt "In-game mentor"
 msgid "You are too poor to scavenge creatures."
-msgstr ""
+msgstr "Jesteś zbyt biedny by pozyskiwać stwory."
 
 #: speech:88
 msgctxt "In-game mentor"
 msgid "You cannot afford to train creatures."
-msgstr ""
+msgstr "Nie stać cię na trening stworów."
 
 #: speech:89
 msgctxt "In-game mentor"
 msgid "It is payday."
-msgstr ""
+msgstr "Dzień wypłaty."
 
 #: speech:90
 msgctxt "In-game mentor"
 msgid "My god, it's full of pies."
-msgstr ""
+msgstr "Bogowie, ale kwach."
 
 #: speech:91
 msgctxt "In-game mentor"
 msgid "Something surreal is happening."
-msgstr ""
+msgstr "Dzieje się coś nierealnego."
 
 #: speech:92
 msgctxt "In-game mentor"
 msgid "Your creatures are developing a strange accent."
-msgstr ""
+msgstr "Twoje stwory mówią z dziwnym akcentem."
 
 #: speech:93
 msgctxt "In-game mentor"
 msgid "Your pants are definitely too tight."
-msgstr ""
+msgstr "Masz zdecydowanie za ciasne kalesony."
 
 #: speech:94
 msgctxt "In-game mentor"
 msgid "Your minions have a craving for chocolate."
-msgstr ""
+msgstr "Twe stwory są spragnione czekolady."
 
 #: speech:95
 msgctxt "In-game mentor"
 msgid "There's that smell again."
-msgstr ""
+msgstr "Znów ten smród."
 
 #: speech:96
 msgctxt "In-game mentor"
 msgid "Hello."
-msgstr ""
+msgstr "Cześć."
 
 #: speech:97
 msgctxt "In-game mentor"
 msgid "Blech."
-msgstr ""
+msgstr "Blondynka? O nie."
 
 #: speech:98
 msgctxt "In-game mentor"
 msgid "Achoo"
-msgstr ""
+msgstr "A-psik!"
 
 #: speech:99
 msgctxt "In-game mentor"
 msgid "Cough"
-msgstr ""
+msgstr " Yhy yhy"
 
 #: speech:100
 msgctxt "In-game mentor"
 msgid "You cannot give your Imps any more jobs."
-msgstr ""
+msgstr "Chochliki nie mogą wziąść więcej roboty."
 
 #: speech:101
 msgctxt "In-game mentor"
 msgid "Game loaded."
-msgstr ""
+msgstr "Gra załadowana."
 
 #: speech:102
 msgctxt "In-game mentor"
 msgid "Game saved."
-msgstr ""
+msgstr "Gra zapisana."
 
 #: speech:103
 msgctxt "In-game mentor"
 msgid "You have defeated an enemy Keeper."
-msgstr ""
+msgstr "Zwyciężyłeś wrogów, strażniku."
 
 #: speech:104
 msgctxt "In-game mentor"
 msgid "You have been defeated."
-msgstr ""
+msgstr "Zostałeś pokonany."
 
 #: speech:105
 msgctxt "In-game mentor"
 msgid "You have conquered this realm!"
-msgstr ""
+msgstr "Podbiłeś to królestwo."
 
 #: speech:106
 msgctxt "In-game mentor"
 msgid "Master, I sence the presence of the Avatar!"
-msgstr ""
+msgstr "Panie, wyczuwam obecność Awatara!"
 
 #: speech:107
 msgctxt "In-game mentor"
 msgid "What trickery is this? The Avatar's body has vanished."
-msgstr ""
+msgstr "Czary, czy co? Ciało Awatara zniknęło!"
 
 #: speech:108
+#, fuzzy
 msgctxt "In-game mentor"
 msgid ""
 "You are victorious, your darkness pervades througout the kingdom. All hail "
 "the new lord of shadows."
-msgstr ""
+msgstr "Jesteś zwycięzcą! Witaj, nowy władco!"
 
 #: speech:109
 msgctxt "Enemy Keeper Harassment"
 msgid "Your efforts are futile!"
-msgstr ""
+msgstr "Twoje wysiłki są daremne!"
 
 #: speech:110
 msgctxt "Enemy Keeper Harassment"
 msgid "My dungeon is the finest You shall ever see!"
-msgstr ""
+msgstr "Nie zobaczysz piękniejszego lochu niż mój!"
 
 #: speech:111
 msgctxt "Enemy Keeper Harassment"
 msgid "My minions will leave your dungeon a crumbling ruin!"
-msgstr ""
+msgstr "Moi słudzy zmienią twój loch z zwietrzałą ruinę."
 
 #: speech:112
 msgctxt "Enemy Keeper Harassment"
 msgid "You entrails will decorate the darkest alchow of my domain!"
-msgstr ""
+msgstr "Twoje wnętrzności udekorują me dominium!"
 
 #: speech:113
 msgctxt "Enemy Keeper Harassment"
 msgid "Your corpse shall se my minions yet, keeper!"
-msgstr ""
+msgstr "Twe ciało będzie ciało dla mych sług, strażniku!"
 
 #: speech:114
 msgctxt "Enemy Keeper Harassment"
 msgid "Prepare for oblivion, Keeper!"
-msgstr ""
+msgstr "Czeka cię niebyt, strażniku!"
 
 #: speech:115
 msgctxt "Enemy Keeper Harassment"
 msgid "Pathetic creature, I shall crush you in an instant!"
-msgstr ""
+msgstr "Patetyczny stworze, zniszczę się w mgnieniu oka!"
 
 #: speech:116
 msgctxt "Enemy Keeper Harassment"
 msgid "Ho ho ho ho!"
-msgstr ""
+msgstr "Ha ha ha ha!"
 
 #: speech:117
 msgctxt "Hero Talk Upon Entering"
 msgid "Your dark days are numbered, evil one!"
-msgstr ""
+msgstr "Twe mroczne dni są policzone, demonie!"
 
 #: speech:118
 msgctxt "Hero Talk Upon Entering"
 msgid "We come to rid the world of your evil!"
-msgstr ""
+msgstr "Przyszliśmy by uwolnić od ciebie świat!"
 
 #: speech:119
 msgctxt "Hero Talk Upon Entering"
 msgid "We shall send you back to the pits, vile one!"
-msgstr ""
+msgstr "Poslemy cię z powrotem do piachu, głupcze!"
 
 #: speech:120
 msgctxt "Hero Talk Upon Entering"
 msgid "Your reign shall end before this day is done!"
-msgstr ""
+msgstr "Twe panowanie skończy się nim minie dzień!"
 
 #: speech:121
 msgctxt "Hero Talk Upon Entering"
 msgid "We shall cast you back into the shadows, keeper!"
-msgstr ""
+msgstr "Odeślemy cię do krainy cieni, strażniku!"
 
 #: speech:122
 msgctxt "Hero Talk Upon Entering"
 msgid "Leave us to live our lives in peace!"
-msgstr ""
+msgstr "Odejdź, chcemy żyć w pokoju!"
 
 #: speech:123
 msgctxt "Hero Talk Upon Entering"
 msgid "In the name of all that is good, we shall defeat you!"
-msgstr ""
+msgstr "W imie wszystkiego co dobre, pokonamy cię!"
 
 #: speech:124
 msgctxt "Hero Talk Upon Entering"
 msgid "We shall not tolerate your evil presence any longer!"
-msgstr ""
+msgstr "Nie zniesiemy dłużej twej demonicznej obecności!"
