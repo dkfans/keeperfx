@@ -1008,7 +1008,7 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
     set_player_mode(player, PVT_DungeonTop);
     thing->alloc_flags &= ~TAlF_IsControlled;
     thing->field_4F &= ~0x01;
-    player->field_0 &= 0xF7;
+    player->field_0 &= ~0x08;
     set_engine_view(player, player->field_4B5);
     i = player->acamera->orient_a;
     crstat = creature_stats_get_from_thing(thing);

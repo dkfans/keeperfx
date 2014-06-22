@@ -4582,7 +4582,7 @@ long anger_process_creature_anger(struct Thing *creatng, const struct CreatureSt
             if (send_creature_to_job_for_player(creatng, creatng->owner, Job_TEMPLE_PRAY)) {
                 return 1;
             }
-            ERRORLOG("Tried sending creature to Temple, could not get there.");
+            ERRORLOG("Tried sending %s owner %d to job %s, could not do this",thing_model_name(creatng),(int)creatng->owner,creature_job_code_name(Job_TEMPLE_PRAY));
         }
     }
     if (creature_has_lair_room(creatng) && creature_can_do_healing_sleep(creatng))
