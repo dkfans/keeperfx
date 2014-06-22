@@ -650,6 +650,9 @@ void GameSettings::readConfiguration()
         else
             index = 0;
         scrnControlRadio->SetSelection(index);
+        // SetSelection() doesn't generate event to update resolution options, so lrt's call it:
+        ChangeResolutionOptions(index);
+        Layout();
         // Set in-game resolutions
         resIngameBox->SetSelected(4, selected_resolutions, selected_num);
 
