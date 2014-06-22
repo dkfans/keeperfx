@@ -24,6 +24,13 @@ ADD_GOLD_TO_PLAYER(PLAYER0,5000)
   Note that computer players will not break the alliance
   by themselves, but human player may do so. So this command
   is mostly for controlling the computer players behaviour.
+  Example:
+{{{
+ALLY_PLAYERS(PLAYER1,PLAYER2,1)
+}}}
+  Note: if you enable KeeperFX commands with `LEVEL_VERSION`,
+  old `ALLY_PLAYERS` commands (without the extra parameter)
+  will no longer work. Add a '1' to fix this.
 
 ==`BONUS_LEVEL_TIME`==
   Sets time to be displayed on "bonus timer" - on-screen
