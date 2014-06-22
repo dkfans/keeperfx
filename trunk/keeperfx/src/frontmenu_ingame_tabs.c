@@ -1656,8 +1656,8 @@ void draw_whole_status_panel(void)
         mmzoom = (player->minimap_zoom) / (3-pixel_size);
     else
         mmzoom = player->minimap_zoom;
-    pannel_map_draw(player->minimap_pos_x, player->minimap_pos_y, (16/pixel_size), mmzoom);
-    draw_overlay_things((16/pixel_size), mmzoom);
+    pannel_map_draw_slabs(player->minimap_pos_x, player->minimap_pos_y, (16/pixel_size), mmzoom);
+    pannel_map_draw_overlay_things((16/pixel_size), mmzoom);
 }
 
 void gui_set_button_flashing(long btn_idx, long gameturns)

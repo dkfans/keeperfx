@@ -134,17 +134,18 @@ void set_player_as_lost_level(struct PlayerInfo *player)
         WARNLOG("Victory state already set to %d",(int)player->victory_state);
         return;
     }
+    SYNCLOG("Player %d lost",(int)player->id_number);
     if (is_my_player(player))
-      frontstats_initialise();
+        frontstats_initialise();
     player->victory_state = VicS_LostLevel;
     dungeon = get_dungeon(player->id_number);
     // Computing player score
     dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->max_gameplay_score);
     if (is_my_player(player))
     {
-      output_message(SMsg_LevelFailed, 0, true);
-      turn_off_all_menus();
-      clear_transfered_creature();
+        output_message(SMsg_LevelFailed, 0, true);
+        turn_off_all_menus();
+        clear_transfered_creature();
     }
     if ((gameadd.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) == 0) {
         clear_things_in_hand(player);
