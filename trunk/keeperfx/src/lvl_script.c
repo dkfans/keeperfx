@@ -2422,10 +2422,10 @@ short load_script(long lvnum)
     game.flags_cd |= MFlg_DeadBackToPool;
     reset_creature_max_levels();
     reset_script_timers_and_flags();
-    if (game.numfield_C & 0x08)
+    if ((game.numfield_C & 0x08) != 0)
     {
-      convert_old_column_file(lvnum);
-      set_flag_byte(&game.numfield_C,0x08,false);
+        convert_old_column_file(lvnum);
+        game.numfield_C &= ~0x08;
     }
     // Load the file
     script_len = 1;
