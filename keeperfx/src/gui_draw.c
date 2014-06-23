@@ -47,83 +47,242 @@ DLLIMPORT void _DK_draw_ornate_slab_outline64k(long pos_x, long pos_y, long widt
 
 int get_bitmap_max_scale(int img_w,int img_h,int rect_w,int rect_h)
 {
-  int w,h,m;
-  w = 0;
-  h = 0;
-  for (m=0; m < 5; m++)
-  {
-    w += img_w;
-    h += img_h;
-    if (w > rect_w) break;
-    if (h > rect_h) break;
-  }
-  // The image width can't be larger than video resolution
-  if (m < 1)
-  {
-    if (w > lbDisplay.PhysicalScreenWidth)
-      return 0;
-    m = 1;
-  }
-  return m;
+    int w,h,m;
+    w = 0;
+    h = 0;
+    for (m=0; m < 5; m++)
+    {
+        w += img_w;
+        h += img_h;
+        if (w > rect_w) break;
+        if (h > rect_h) break;
+    }
+    // The image width can't be larger than video resolution
+    if (m < 1)
+    {
+        if (w > lbDisplay.PhysicalScreenWidth)
+          return 0;
+        m = 1;
+    }
+    return m;
 }
 
 void draw_bar64k(long pos_x, long pos_y, long width)
 {
-  long body_end;
-  long x;
-  if (width < 72)
-  {
-    ERRORLOG("Bar is too small");
-    return;
-  }
-  // Button opening sprite
-  LbSpriteDraw(pos_x/pixel_size, pos_y/pixel_size, &button_sprite[1]);
-  // Button body
-  body_end = pos_x + width - 64;
-  for (x = pos_x+32; x<body_end; x+=32)
-  {
-      LbSpriteDraw(x/pixel_size, pos_y/pixel_size, &button_sprite[2]);
-  }
-  LbSpriteDraw(body_end/pixel_size, pos_y/pixel_size, &button_sprite[2]);
-  // Button ending sprite
-  LbSpriteDraw((pos_x + width - 32)/pixel_size, pos_y/pixel_size, &button_sprite[3]);
+    long body_end;
+    long x;
+    if (width < 72)
+    {
+        ERRORLOG("Bar is too small");
+        return;
+    }
+    // Button opening sprite
+    struct TbSprite *spr;
+    spr = &button_sprite[1];
+    LbSpriteDraw(pos_x/pixel_size, pos_y/pixel_size, spr);
+    // Button body
+    body_end = pos_x + width - 64;
+    for (x = pos_x+32; x<body_end; x+=32)
+    {
+        spr = &button_sprite[2];
+        LbSpriteDraw(x/pixel_size, pos_y/pixel_size, spr);
+    }
+    spr = &button_sprite[2];
+    LbSpriteDraw(body_end/pixel_size, pos_y/pixel_size, spr);
+    // Button ending sprite
+    spr = &button_sprite[3];
+    LbSpriteDraw((pos_x + width - 32)/pixel_size, pos_y/pixel_size, spr);
 }
 
 void draw_lit_bar64k(long pos_x, long pos_y, long width)
 {
-  long body_end;
-  long x;
-  if (width < 32)
-  {
-    ERRORLOG("Bar is too small");
-    return;
-  }
-  // opening sprite
-  LbSpriteDraw(pos_x/pixel_size, pos_y/pixel_size, &button_sprite[7]);
-  // body
-  body_end = pos_x+width-64;
-  for (x = pos_x+32; x<body_end; x+=32)
-  {
-      LbSpriteDraw(x/pixel_size, pos_y/pixel_size, &button_sprite[8]);
-  }
-  LbSpriteDraw(body_end/pixel_size, pos_y/pixel_size, &button_sprite[8]);
-  // ending sprite
-  LbSpriteDraw((pos_x+width-32)/pixel_size, pos_y/pixel_size, &button_sprite[9]);
+    long body_end;
+    long x;
+    if (width < 32)
+    {
+        ERRORLOG("Bar is too small");
+        return;
+    }
+    // opening sprite
+    struct TbSprite *spr;
+    spr = &button_sprite[7];
+    LbSpriteDraw(pos_x/pixel_size, pos_y/pixel_size, spr);
+    // body
+    body_end = pos_x+width-64;
+    for (x = pos_x+32; x<body_end; x+=32)
+    {
+        spr = &button_sprite[8];
+        LbSpriteDraw(x/pixel_size, pos_y/pixel_size, spr);
+    }
+    spr = &button_sprite[8];
+    LbSpriteDraw(body_end/pixel_size, pos_y/pixel_size, spr);
+    // ending sprite
+    spr = &button_sprite[9];
+    LbSpriteDraw((pos_x+width-32)/pixel_size, pos_y/pixel_size, spr);
+}
+
+void draw_slab64k_background(long pos_x, long pos_y, long width, long height)
+{
+    long scr_x, scr_y;
+    long scr_w, scr_h;
+    long i;
+    scr_x = pos_x / pixel_size;
+    scr_y = pos_y / pixel_size;
+    scr_h = height / pixel_size;
+    scr_w = width / pixel_size;
+    if (scr_x < 0)
+    {
+        i = scr_x + width / pixel_size;
+        scr_x = 0;
+        scr_w = i;
+    }
+    if (scr_y < 0)
+    {
+        i = scr_y + scr_h;
+        scr_y = 0;
+        scr_h = i;
+    }
+    i = lbDisplay.PhysicalScreenWidth * pixel_size;
+    if (scr_x + scr_w > i)
+        scr_w = i - scr_x;
+    i = MyScreenHeight;
+    if (scr_y + scr_h > i)
+        scr_h = i - scr_y;
+    TbPixel *out;
+    out = &lbDisplay.WScreen[scr_x + lbDisplay.GraphicsScreenWidth * scr_y];
+    for (i=0; scr_h > i; i++)
+    {
+        TbPixel *inp;
+        inp = &gui_slab[GUI_SLAB_DIMENSION * (i % GUI_SLAB_DIMENSION)];
+        if (scr_w >= GUI_SLAB_DIMENSION)
+        {
+            int k;
+            memcpy(out, inp, GUI_SLAB_DIMENSION);
+            for (k=GUI_SLAB_DIMENSION; k < scr_w-GUI_SLAB_DIMENSION; k+=GUI_SLAB_DIMENSION) {
+                memcpy(out + k, inp, GUI_SLAB_DIMENSION);
+            }
+            if (width - k > 0) {
+                memcpy(out + k, inp, scr_w - k);
+            }
+        } else
+        {
+            memcpy(out, inp, scr_w);
+        }
+        out += lbDisplay.GraphicsScreenWidth;
+    }
 }
 
 void draw_slab64k(long pos_x, long pos_y, long width, long height)
 {
-  _DK_draw_slab64k(pos_x, pos_y, width, height);
+    //_DK_draw_slab64k(pos_x, pos_y, width, height);
+    draw_slab64k_background(pos_x, pos_y, width, height);
+    struct TbSprite *spr;
+    int i;
+    for (i=10; i < width-12; i+=16)
+    {
+        spr = &button_sprite[210];
+        LbSpriteDraw((i + pos_x) / pixel_size, (pos_y - 6) / pixel_size, spr);
+        spr = &button_sprite[211];
+        LbSpriteDraw((i + pos_x) / pixel_size, (height + pos_y) / pixel_size, spr);
+    }
+    for (i=10; i < height-12; i+=16)
+    {
+        spr = &button_sprite[212];
+        LbSpriteDraw((pos_x - 6) / pixel_size, (i + pos_y) / pixel_size, spr);
+        spr = &button_sprite[213];
+        LbSpriteDraw((width + pos_x) / pixel_size, (i + pos_y) / pixel_size, spr);
+    }
+    spr = &button_sprite[206];
+    LbSpriteDraw((pos_x - 6) / pixel_size, (pos_y - 6) / pixel_size, spr);
+    spr = &button_sprite[207];
+    LbSpriteDraw((pos_x + width - 12) / pixel_size, (pos_y - 6) / pixel_size, spr);
+    spr = &button_sprite[208];
+    LbSpriteDraw((pos_x - 6) / pixel_size, (pos_y + height - 12) / pixel_size, spr);
+    spr = &button_sprite[209];
+    LbSpriteDraw((pos_x + width - 12) / pixel_size, (pos_y + height - 12) / pixel_size, spr);
 }
 
 void draw_ornate_slab64k(long pos_x, long pos_y, long width, long height)
 {
-  _DK_draw_ornate_slab64k(pos_x, pos_y, width, height);
+    //_DK_draw_ornate_slab64k(pos_x, pos_y, width, height);
+    draw_slab64k_background(pos_x, pos_y, width, height);
+    struct TbSprite *spr;
+    int i;
+    for (i=10; i < width-12; i+=32)
+    {
+        spr = &button_sprite[13];
+        LbSpriteDraw((i + pos_x)/pixel_size, (pos_y - 4)/pixel_size, spr);
+        spr = &button_sprite[18];
+        LbSpriteDraw((i + pos_x)/pixel_size, (height + pos_y)/pixel_size, spr);
+    }
+    for (i=10; i < height-16; i+=32)
+    {
+        spr = &button_sprite[15];
+        LbSpriteDraw((pos_x - 4)/pixel_size, (i + pos_y)/pixel_size, spr);
+        spr = &button_sprite[16];
+        LbSpriteDraw((width + pos_x)/pixel_size, (i + pos_y)/pixel_size, spr);
+    }
+    spr = &button_sprite[12];
+    LbSpriteDraw((pos_x - 4)/pixel_size, (pos_y - 4)/pixel_size, spr);
+    spr = &button_sprite[14];
+    LbSpriteDraw((pos_x + width - 28)/pixel_size, (pos_y - 4)/pixel_size, spr);
+    spr = &button_sprite[17];
+    LbSpriteDraw((pos_x - 4) / pixel_size, (pos_y + height - 28) / pixel_size, spr);
+    spr = &button_sprite[19];
+    LbSpriteDraw((pos_x + width - 28) / pixel_size, (pos_y + height - 28) / pixel_size, spr);
+    spr = &button_sprite[10];
+    LbSpriteDraw((pos_x - 32) / pixel_size, (pos_y - 14) / pixel_size, spr);
+    spr = &button_sprite[11];
+    LbSpriteDraw((pos_x - 34) / pixel_size, (pos_y + height - 78) / pixel_size, spr);
+    lbDisplay.DrawFlags |= 0x0001;
+    spr = &button_sprite[10];
+    LbSpriteDraw((pos_x + width - 96) / pixel_size, (pos_y - 14) / pixel_size, spr);
+    spr = &button_sprite[11];
+    LbSpriteDraw((pos_x + width - 92) / pixel_size, (pos_y + height - 78) / pixel_size, spr);
+    lbDisplay.DrawFlags &= ~0x0001;
 }
 
 void draw_ornate_slab_outline64k(long pos_x, long pos_y, long width, long height)
 {
-  _DK_draw_ornate_slab_outline64k(pos_x, pos_y, width, height);
+    //_DK_draw_ornate_slab_outline64k(pos_x, pos_y, width, height);
+    long x, y;
+    struct TbSprite *spr;
+    x = pos_x;
+    y = pos_y;
+    int i;
+    for (i=10; i < width - 12; i+=32)
+    {
+        spr = &button_sprite[13];
+        LbSpriteDraw((pos_x + i) / pixel_size, (pos_y - 4) / pixel_size, spr);
+        spr = &button_sprite[18];
+        LbSpriteDraw((pos_x + i) / pixel_size, (pos_y + height) / pixel_size, spr);
+    }
+    spr = button_sprite;
+    for (i=10; i < height - 16; i+=32)
+    {
+        spr = &button_sprite[15];
+        LbSpriteDraw((x - 4) / pixel_size, (i + y) / pixel_size, spr);
+        spr = &button_sprite[16];
+        LbSpriteDraw((x + width) / pixel_size, (i + y) / pixel_size, spr);
+    }
+    spr = &button_sprite[12];
+    LbSpriteDraw((x - 4) / pixel_size, (y - 4) / pixel_size, spr);
+    spr = &button_sprite[14];
+    LbSpriteDraw((width + x - 28) / pixel_size, (y - 4) / pixel_size, spr);
+    spr = &button_sprite[17];
+    LbSpriteDraw((x - 4) / pixel_size, (y - 28 + height) / pixel_size, spr);
+    spr = &button_sprite[19];
+    LbSpriteDraw((width + x - 28) / pixel_size, (y - 28 + height) / pixel_size, spr);
+    spr = &button_sprite[10];
+    LbSpriteDraw((x - 32) / pixel_size, (y - 14) / pixel_size, spr);
+    spr = &button_sprite[11];
+    LbSpriteDraw((x - 34) / pixel_size, (y - 78 + height) / pixel_size, spr);
+    lbDisplay.DrawFlags |= 0x0001;
+    spr = &button_sprite[10];
+    LbSpriteDraw((width + x - 96) / pixel_size, (y - 14) / pixel_size, spr);
+    spr = &button_sprite[11];
+    LbSpriteDraw((width + x - 92) / pixel_size, (y - 78 + height) / pixel_size, spr);
+    lbDisplay.DrawFlags &= ~0x0001;
 }
 
 void draw_round_slab64k(long pos_x, long pos_y, long width, long height)
@@ -436,33 +595,33 @@ void draw_button_sprite_rmleft(long x, long y, long spridx, unsigned long remap)
 
 void frontend_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h)
 {
-  const int img_width = 640;
-  const int img_height = 480;
-  const unsigned char *srcbuf=frontend_background;
-  TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(LbScreenActiveMode());
-  int m;
-  int spx,spy;
-  // Only 8bpp supported for now
-  if (LbGraphicsScreenBPP() != 8)
-    return;
-  if (rect_w == POS_AUTO)
-    rect_w = mdinfo->Width-rect_x;
-  if (rect_h == POS_AUTO)
-    rect_h = mdinfo->Height-rect_y;
-  if (rect_w<0) rect_w=0;
-  if (rect_h<0) rect_h=0;
-  m = get_bitmap_max_scale(img_width, img_height, rect_w, rect_h);
-  if (m < 1)
-  {
-    SYNCMSG("The %dx%d frontend image does not fit in %dx%d window, skipped.", img_width, img_height,rect_w,rect_h);
-    return;
-  }
-  // Starting point coords
-  spx = rect_x + ((rect_w-m*img_width)>>1);
-  spy = rect_y + ((rect_h-m*img_height)>>1);
-  // Do the drawing
-  copy_raw8_image_buffer(lbDisplay.WScreen,LbGraphicsScreenWidth(),LbGraphicsScreenHeight(),
-      img_width*m,img_height*m,spx,spy,srcbuf,img_width,img_height);
+    const int img_width = 640;
+    const int img_height = 480;
+    const unsigned char *srcbuf=frontend_background;
+    TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(LbScreenActiveMode());
+    int m;
+    int spx,spy;
+    // Only 8bpp supported for now
+    if (LbGraphicsScreenBPP() != 8)
+      return;
+    if (rect_w == POS_AUTO)
+      rect_w = mdinfo->Width-rect_x;
+    if (rect_h == POS_AUTO)
+      rect_h = mdinfo->Height-rect_y;
+    if (rect_w<0) rect_w=0;
+    if (rect_h<0) rect_h=0;
+    m = get_bitmap_max_scale(img_width, img_height, rect_w, rect_h);
+    if (m < 1)
+    {
+      SYNCMSG("The %dx%d frontend image does not fit in %dx%d window, skipped.", img_width, img_height,rect_w,rect_h);
+      return;
+    }
+    // Starting point coords
+    spx = rect_x + ((rect_w-m*img_width)>>1);
+    spy = rect_y + ((rect_h-m*img_height)>>1);
+    // Do the drawing
+    copy_raw8_image_buffer(lbDisplay.WScreen,LbGraphicsScreenWidth(),LbGraphicsScreenHeight(),
+        img_width*m,img_height*m,spx,spy,srcbuf,img_width,img_height);
 }
 
 /******************************************************************************/

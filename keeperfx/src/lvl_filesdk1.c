@@ -567,7 +567,9 @@ TbBool find_and_load_lof_files(void)
 
 long convert_old_column_file(LevelNumber lv_num)
 {
-  return _DK_convert_old_column_file(lv_num);
+    //return _DK_convert_old_column_file(lv_num);
+    ERRORLOG("Converting old column format no longer supported.");
+    return 0;
 }
 
 TbBool load_column_file(LevelNumber lv_num)
@@ -580,10 +582,10 @@ TbBool load_column_file(LevelNumber lv_num)
     long total;
     unsigned char *buf;
     long fsize;
-    if (game.numfield_C & 0x08)
+    if ((game.numfield_C & 0x08) != 0)
     {
-      convert_old_column_file(lv_num);
-      set_flag_byte(&game.numfield_C,0x08,false);
+        convert_old_column_file(lv_num);
+        game.numfield_C &= ~0x08;
     }
     fsize = 8;
     buf = load_single_map_file_to_buffer(lv_num,"clm",&fsize,LMFF_None);

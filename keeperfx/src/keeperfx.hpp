@@ -235,8 +235,6 @@ DLLIMPORT long _DK_my_mouse_x;
 #define my_mouse_x _DK_my_mouse_x
 DLLIMPORT long _DK_my_mouse_y;
 #define my_mouse_y _DK_my_mouse_y
-DLLIMPORT unsigned char _DK_gui_slab;
-#define gui_slab _DK_gui_slab
 DLLIMPORT char *_DK_level_names_data;
 #define level_names_data _DK_level_names_data
 DLLIMPORT char *_DK_end_level_names_data;
