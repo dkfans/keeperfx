@@ -192,7 +192,8 @@ struct FrontEndButtonData {
         unsigned char font_index;
 };
 
-struct EventTypeInfo { //sizeof=0x10
+// Modified from original
+struct EventTypeInfo {
     int field_0;
     unsigned short tooltip_stridx;
     unsigned short msgstr_id;
@@ -200,7 +201,7 @@ struct EventTypeInfo { //sizeof=0x10
     /** Indicates how many turns must pass before another event of the kind is created. */
     int turns_between_events;
     /** Indicates the event kind which is to be replaced by new event. */
-    unsigned char replace_event_kind_button;
+    unsigned short replace_event_kind_button;
 };
 
 
