@@ -29,6 +29,7 @@
 // Sprites
 // note - this is temporary value; not correct
 #define GUI_PANEL_SPRITES_COUNT      9000
+#define GUI_SLAB_DIMENSION 64
 // Positioning constants for menus
 #define POS_AUTO -9999
 #define POS_MOUSMID -999
@@ -56,6 +57,8 @@ DLLIMPORT extern unsigned char * _DK_gui_panel_sprite_data;
 #define gui_panel_sprite_data _DK_gui_panel_sprite_data
 DLLIMPORT extern unsigned char * _DK_end_gui_panel_sprite_data;
 #define end_gui_panel_sprite_data _DK_end_gui_panel_sprite_data
+DLLIMPORT unsigned char *_DK_gui_slab;
+#define gui_slab _DK_gui_slab
 DLLIMPORT extern unsigned char *_DK_frontend_background;
 #define frontend_background _DK_frontend_background
 DLLIMPORT struct TbSprite *_DK_frontend_sprite;
