@@ -41,7 +41,7 @@ msgstr ""
 #: landview:11
 msgctxt "Level summary"
 msgid ""
-"Branahawk. War and anthrax have taken to this land likes fleas to a rat. The "
+"Brana Hauk. War and anthrax have taken to this land likes fleas to a rat. The "
 "region is, thanks to your unstinting efforts, now a major eyesore."
 msgstr ""
 
