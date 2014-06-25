@@ -1513,8 +1513,6 @@ short creature_being_dropped(struct Thing *creatng)
             if (!dungeon_invalid(dungeon))
                 dungeon->camera_deviate_jump = 96;
         }
-        struct SlabMap *slb;
-        slb = get_slabmap_for_subtile(stl_x,stl_y);
         // Make sure computer control flag is set accordingly to job, so that we won't start a fight when in captivity
         if (new_job != Job_NULL)
         {
@@ -1542,6 +1540,12 @@ short creature_being_dropped(struct Thing *creatng)
                 }
             }
         }
+    }
+    // TODO it would be great if these jobs were also returned by get_job_for_subtile()
+    if (!creature_affected_by_spell(creatng, SplK_Chicken))
+    {
+        struct SlabMap *slb;
+        slb = get_slabmap_for_subtile(stl_x,stl_y);
         // Special tasks for diggers
         if ((get_creature_model_flags(creatng) & MF_IsSpecDigger) != 0)
         {

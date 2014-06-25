@@ -1757,14 +1757,20 @@ long check_out_imp_has_money_for_treasure_room(struct Thing *thing)
     if (room_is_invalid(room))
     {
         // No room with spare capacity - treasury is too small
-        event_create_event_or_update_nearby_existing_event(0, 0, EvKind_TreasureRoomFull, thing->owner, 0);
-        if (is_my_player_number(thing->owner))
+        EventIndex evidx;
+        evidx = event_create_event_or_update_nearby_existing_event(0, 0, EvKind_TreasureRoomFull, thing->owner, 0);
+        if ((evidx > 0) && is_my_player_number(thing->owner)) {
             output_message(SMsg_TreasuryTooSmall, 1000, true);
+        }
     } else
     {
         // There are rooms with spare capacity - they must be just unreachable
-        if (is_my_player_number(thing->owner))
+        EventIndex evidx;
+        evidx = event_create_event_or_update_nearby_existing_event(
+            thing->mappos.x.val, thing->mappos.y.val, EvKind_RoomUnreachable, thing->owner, RoK_TREASURE);
+        if ((evidx > 0) && is_my_player_number(thing->owner)) {
             output_message(SMsg_NoRouteToTreasury, 1000, true);
+        }
     }
     return 0;
 }
