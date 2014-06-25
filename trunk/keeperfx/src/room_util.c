@@ -32,6 +32,8 @@
 #include "room_workshop.h"
 #include "ariadne_wallhug.h"
 #include "config_terrain.h"
+#include "config_creature.h"
+#include "gui_soundmsgs.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 
@@ -394,5 +396,73 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
         return true;
     }
     return true;
+}
+
+EventIndex update_cannot_find_room_wth_capacity_event(PlayerNumber plyr_idx, struct Thing *creatng, RoomKind rkind)
+{
+    EventIndex evidx;
+    const struct RoomConfigStats *roomst;
+    roomst = get_room_kind_stats(rkind);
+    if (player_has_room(plyr_idx, rkind))
+    {
+        // Could not find room to send thing - either no capacity or not navigable
+        struct CreatureStats *crstat;
+        crstat = creature_stats_get_from_thing(creatng);
+        struct Room *room;
+        room = find_room_with_spare_capacity(plyr_idx, rkind, crstat->lair_size);
+        if (room_is_invalid(room))
+        {
+            SYNCDBG(5,"Player %d has %s which cannot find large enough %s",(int)plyr_idx,thing_model_name(creatng),room_code_name(rkind));
+            switch (rkind)
+            {
+            case RoK_LAIR:
+                evidx = event_create_event_or_update_nearby_existing_event(
+                    creatng->mappos.x.val, creatng->mappos.y.val, EvKind_NoMoreLivingSet, plyr_idx, creatng->index);
+                break;
+            case RoK_TREASURE:
+                evidx = event_create_event_or_update_nearby_existing_event(
+                    0, 0, EvKind_TreasureRoomFull, plyr_idx, 0);
+                break;
+            default:
+                evidx = 1;
+                break;
+            }
+            if ((evidx > 0) && is_my_player_number(plyr_idx) && (roomst->msg_too_small > 0)) {
+                output_message(roomst->msg_too_small, MESSAGE_DELAY_ROOM_SMALL, true);
+            }
+        } else
+        {
+            SYNCDBG(5,"Player %d has %s which cannot reach %s",(int)plyr_idx,thing_model_name(creatng),room_code_name(rkind));
+            evidx = event_create_event_or_update_nearby_existing_event(
+                creatng->mappos.x.val, creatng->mappos.y.val, EvKind_RoomUnreachable, plyr_idx, rkind);
+            if ((evidx > 0) && is_my_player_number(plyr_idx) && (roomst->msg_no_route > 0)) {
+                output_message(roomst->msg_no_route, MESSAGE_DELAY_ROOM_NEED, true);
+            }
+        }
+    } else
+    {
+        // We simply don't have the room of that kind
+        if ((rkind == RoK_LAIR) || (rkind == RoK_TREASURE) || is_room_available(plyr_idx, rkind))
+        {
+            switch (rkind)
+            {
+            case RoK_LAIR:
+                evidx = event_create_event_or_update_nearby_existing_event(
+                    creatng->mappos.x.val, creatng->mappos.y.val, EvKind_NoMoreLivingSet, plyr_idx, creatng->index);
+                break;
+            case RoK_TREASURE:
+                evidx = event_create_event_or_update_nearby_existing_event(
+                    0, 0, EvKind_NeedTreasureRoom, plyr_idx, 0);
+                break;
+            default:
+                evidx = 1;
+                break;
+            }
+            if ((evidx > 0) && is_my_player_number(plyr_idx) && (roomst->msg_needed > 0)) {
+                output_message_room_related_from_computer_or_player_action(roomst->msg_needed);
+            }
+        }
+    }
+    return evidx;
 }
 /******************************************************************************/
