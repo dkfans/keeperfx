@@ -245,7 +245,7 @@ msgstr ""
 #: guitext:24
 msgctxt "In-game message"
 msgid ""
-"Remember the lessons you learned in Eversmile. You must build a Treasure "
+"Remember the lessons you learned in Brana Hauk. You must build a Treasure "
 "Room, a Lair and a Hatchery and you will need to claim a Portal. Build rooms "
 "in squares of at least nine tiles to increase the efficiency of the room."
 msgstr ""

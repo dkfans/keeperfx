@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-06-24 00:33+0100\n"
+"PO-Revision-Date: 2014-06-25 17:04+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: pl_PL\n"
@@ -323,11 +323,11 @@ msgstr ""
 #: guitext:24
 msgctxt "In-game message"
 msgid ""
-"Remember the lessons you learned in Eversmile. You must build a Treasure "
+"Remember the lessons you learned in Brana Hauk. You must build a Treasure "
 "Room, a Lair and a Hatchery and you will need to claim a Portal. Build rooms "
 "in squares of at least nine tiles to increase the efficiency of the room."
 msgstr ""
-"Pamiętaj lekcje, jakie otrzymałeś zdobywając Śmiechowice. Musisz zbudować "
+"Pamiętaj lekcje, jakie otrzymałeś zdobywając Wyrzynowo. Musisz zbudować "
 "Skarbiec, Legowisko i Kurnik, powinieneś też przejąć jakieś Wejście. Buduj "
 "pomieszczenia o rozmiarach co najmniej dziewięciu segmentów, aby podnieść "
 "ich wydajność."
@@ -2861,13 +2861,13 @@ msgstr ""
 "Woda: Spowalnia ruch stworów. Aby zapobiec brodzeniu stworów, zbuduj Most."
 
 #: guitext:329
-#, fuzzy
 msgctxt "Slab description"
 msgid ""
 "Wall: A reinforced stone wall that enemies cannot break through. At least "
 "without the Destroy Walls spell."
 msgstr ""
-"Ściana: Przez umocnioną ścianę nie przedostanie się nieprzyjaciel. [12.1]"
+"Ściana: Przez umocnioną ścianę nie przedostanie się nieprzyjaciel. O ile nie "
+"dysponuje odpowiednim zaklęciem."
 
 #: guitext:330
 msgctxt "Slab description"
@@ -3478,20 +3478,23 @@ msgstr ""
 "twojego i wrogów, pozwala też na zmianę zachowania stworów."
 
 #: guitext:448
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Room Panel: The rooms available for you to build. Here you can center map on "
 "rooms or build new ones."
-msgstr "Pulpit pomieszczeń: Dostępne pomieszczenia. [6.0]"
+msgstr ""
+"Pulpit pomieszczeń: Dostępne pomieszczenia. Ustaw widok na posiadane "
+"pomieszczenie PPM, lub zbuduj nowe wybierając LPM i klikając LPM na terenie "
+"lochu."
 
 #: guitext:449
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Research Panel: The spells available to you. Here you can cast or cancel "
 "them."
-msgstr "Pulpit badań: Dostępne zaklęcia. [7.0]"
+msgstr ""
+"Pulpit badań: Dostępne zaklęcia. Tu możesz je rzucać, lub przerwać ich "
+"działanie."
 
 #: guitext:450
 #, fuzzy
