@@ -398,7 +398,7 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
     return true;
 }
 
-EventIndex update_cannot_find_room_wth_capacity_event(PlayerNumber plyr_idx, struct Thing *creatng, RoomKind rkind)
+EventIndex update_cannot_find_room_wth_spare_capacity_event(PlayerNumber plyr_idx, struct Thing *creatng, RoomKind rkind)
 {
     EventIndex evidx;
     const struct RoomConfigStats *roomst;

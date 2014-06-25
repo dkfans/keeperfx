@@ -1737,7 +1737,7 @@ long check_out_imp_has_money_for_treasure_room(struct Thing *thing)
     if (room_is_invalid(room))
     {
         // Check why the treasure room search failed and inform the player
-        update_cannot_find_room_wth_capacity_event(thing->owner, thing, RoK_TREASURE);
+        update_cannot_find_room_wth_spare_capacity_event(thing->owner, thing, RoK_TREASURE);
         return 0;
     }
     if (setup_head_for_empty_treasure_space(thing, room))
