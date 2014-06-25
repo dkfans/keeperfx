@@ -39,6 +39,7 @@
 #include "room_workshop.h"
 #include "room_library.h"
 #include "room_graveyard.h"
+#include "room_util.h"
 #include "ariadne_wallhug.h"
 #include "spdigger_stack.h"
 #include "gui_topmsg.h"
@@ -105,20 +106,7 @@ long check_out_unclaimed_unconscious_bodies(struct Thing *spdigtng, long range)
     cctrl = creature_control_get_from_thing(spdigtng);
     struct Room *room;
     room = find_nearest_room_for_thing_with_spare_capacity(spdigtng, spdigtng->owner, RoK_PRISON, NavRtF_Default, 1);
-    if (room_is_invalid(room))
-    {
-        if (is_room_available(spdigtng->owner, RoK_PRISON))
-        {
-            if (is_my_player_number(spdigtng->owner))
-            {
-                room = find_room_with_spare_capacity(spdigtng->owner, RoK_PRISON, 1);
-                if (room_is_invalid(room)) {
-                    output_message(SMsg_PrisonTooSmall, 1000, 1);
-                }
-            }
-        }
-        return 0;
-    }
+    // We either found a room or not - but we can't generate event based on it yet, because we don't even know if there's any thing to pick
     const struct StructureList *slist;
     slist = get_list_for_thing_class(TCls_Creature);
     long i;
@@ -140,6 +128,11 @@ long check_out_unclaimed_unconscious_bodies(struct Thing *spdigtng, long range)
             {
                 if (!imp_will_soon_be_working_at_excluding(spdigtng, thing->mappos.x.stl.num, thing->mappos.y.stl.num))
                 {
+                    // We have a thing which we should pick - now check if the room we found is correct
+                    if (room_is_invalid(room)) {
+                        update_cannot_find_room_wth_capacity_event(spdigtng->owner, spdigtng, RoK_PRISON);
+                        return 0;
+                    }
                     if (setup_person_move_to_coord(spdigtng, &thing->mappos, NavRtF_Default)) {
                         spdigtng->continue_state = CrSt_CreaturePickUpUnconsciousBody;
                         cctrl->pickup_creature_id = thing->index;
@@ -169,20 +162,7 @@ long check_out_unclaimed_dead_bodies(struct Thing *spdigtng, long range)
     cctrl = creature_control_get_from_thing(spdigtng);
     struct Room *room;
     room = find_nearest_room_for_thing_with_spare_capacity(spdigtng, spdigtng->owner, RoK_GRAVEYARD, NavRtF_Default, 1);
-    if (room_is_invalid(room))
-    {
-        if (is_room_available(spdigtng->owner, RoK_GRAVEYARD))
-        {
-            if (is_my_player_number(spdigtng->owner))
-            {
-                room = find_room_with_spare_capacity(spdigtng->owner, RoK_GRAVEYARD, 1);
-                if (room_is_invalid(room)) {
-                    output_message(SMsg_GraveyardTooSmall, 1000, 1);
-                }
-            }
-        }
-        return 0;
-    }
+    // We either found a room or not - but we can't generate event based on it yet, because we don't even know if there's any thing to pick
     const struct StructureList *slist;
     slist = get_list_for_thing_class(TCls_DeadCreature);
     long i;
@@ -204,7 +184,14 @@ long check_out_unclaimed_dead_bodies(struct Thing *spdigtng, long range)
             {
                 if (!imp_will_soon_be_working_at_excluding(spdigtng, thing->mappos.x.stl.num, thing->mappos.y.stl.num))
                 {
+                    // We have a thing which we should pick - now check if the room we found is correct
+                    if (room_is_invalid(room)) {
+                        update_cannot_find_room_wth_capacity_event(spdigtng->owner, spdigtng, RoK_GRAVEYARD);
+                        return 0;
+                    }
                     if (setup_person_move_to_coord(spdigtng, &thing->mappos, NavRtF_Default)) {
+                        SYNCDBG(8,"Assigned %s with %s pickup at subtile (%d,%d)",thing_model_name(spdigtng),
+                            thing_model_name(thing),(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num);
                         spdigtng->continue_state = CrSt_CreaturePicksUpCorpse;
                         cctrl->pickup_object_id = thing->index;
                         return 1;
@@ -538,6 +525,7 @@ long check_out_available_spdigger_drop_tasks(struct Thing *spdigtng)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(spdigtng);
+    SYNCDBG(9,"Starting for %s index %d",thing_model_name(spdigtng),(int)spdigtng->index);
 
     if ( check_out_unclaimed_unconscious_bodies(spdigtng, 768) )
     {
@@ -1163,25 +1151,8 @@ short creature_pick_up_unconscious_body(struct Thing *thing)
     dstroom = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_PRISON, NavRtF_Default, 1);
     if (room_is_invalid(dstroom))
     {
-        struct Room *room;
-        // Could not find room to store prisoner - either no capacity or not navigable
-        room = find_room_with_spare_capacity(thing->owner, RoK_PRISON, 1);
-        if (room_is_invalid(room))
-        {
-            WARNLOG("Player %d can't pick %s - no %s with enough capacity",(int)thing->owner,thing_model_name(picktng),room_code_name(RoK_PRISON));
-            if (is_my_player_number(thing->owner)) {
-                output_message(SMsg_PrisonTooSmall, 1000, true);
-            }
-        } else
-        {
-            WARNLOG("Player %d can't pick %s - cannot reach %s to store it",(int)thing->owner,thing_model_name(picktng),room_code_name(RoK_PRISON));
-            EventIndex evidx;
-            evidx = event_create_event_or_update_nearby_existing_event(
-                thing->mappos.x.val, thing->mappos.y.val, EvKind_RoomUnreachable, thing->owner, RoK_PRISON);
-            if ((evidx > 0) && is_my_player_number(thing->owner)) {
-                output_message(SMsg_NoRouteToPrison, 1000, true);
-            }
-        }
+        // Check why the treasure room search failed and inform the player
+        update_cannot_find_room_wth_capacity_event(thing->owner, thing, RoK_PRISON);
         set_start_state(thing);
         return 0;
     }
@@ -1222,25 +1193,8 @@ short creature_picks_up_corpse(struct Thing *thing)
     dstroom = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_GRAVEYARD, NavRtF_Default, 1);
     if (room_is_invalid(dstroom))
     {
-        struct Room *room;
-        // Could not find room to store prisoner - either no capacity or not navigable
-        room = find_room_with_spare_capacity(thing->owner, RoK_GRAVEYARD, 1);
-        if (room_is_invalid(room))
-        {
-            WARNLOG("Player %d can't pick %s - no %s with enough capacity",(int)thing->owner,thing_model_name(picktng),room_code_name(RoK_GRAVEYARD));
-            if (is_my_player_number(thing->owner)) {
-                output_message(SMsg_GraveyardTooSmall, 1000, true);
-            }
-        } else
-        {
-            WARNLOG("Player %d can't pick %s - cannot reach %s to store it",(int)thing->owner,thing_model_name(picktng),room_code_name(RoK_GRAVEYARD));
-            EventIndex evidx;
-            evidx = event_create_event_or_update_nearby_existing_event(
-                thing->mappos.x.val, thing->mappos.y.val, EvKind_RoomUnreachable, thing->owner, RoK_GRAVEYARD);
-            if ((evidx > 0) && is_my_player_number(thing->owner)) {
-                output_message(SMsg_NoRouteToGraveyard, 1000, true);
-            }
-        }
+        // Check why the treasure room search failed and inform the player
+        update_cannot_find_room_wth_capacity_event(thing->owner, thing, RoK_PRISON);
         set_start_state(thing);
         return 0;
     }
