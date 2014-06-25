@@ -63,7 +63,7 @@ enum EventKinds {
     EvKind_DnSpecialFound,
     EvKind_QuickInformation,
     EvKind_FriendlyFight,
-    EvKind_RoomUnreachable, //TODO Make support of such event
+    EvKind_RoomUnreachable,
 };
 
 enum EventFlags {

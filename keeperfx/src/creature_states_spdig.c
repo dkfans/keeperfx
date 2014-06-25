@@ -97,7 +97,66 @@ DLLIMPORT long _DK_take_from_gold_pile(unsigned short stl_x, unsigned short stl_
 /******************************************************************************/
 long check_out_unclaimed_unconscious_bodies(struct Thing *spdigtng, long range)
 {
-    return _DK_check_out_unclaimed_unconscious_bodies(spdigtng, range);
+    //return _DK_check_out_unclaimed_unconscious_bodies(spdigtng, range);
+    if (!player_has_room(spdigtng->owner, RoK_PRISON)) {
+        return 0;
+    }
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(spdigtng);
+    struct Room *room;
+    room = find_nearest_room_for_thing_with_spare_capacity(spdigtng, spdigtng->owner, RoK_PRISON, NavRtF_Default, 1);
+    if (room_is_invalid(room))
+    {
+        if (is_room_available(spdigtng->owner, RoK_PRISON))
+        {
+            if (is_my_player_number(spdigtng->owner))
+            {
+                room = find_room_with_spare_capacity(spdigtng->owner, RoK_PRISON, 1);
+                if (room_is_invalid(room)) {
+                    output_message(SMsg_PrisonTooSmall, 1000, 1);
+                }
+            }
+        }
+        return 0;
+    }
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_Creature);
+    long i;
+    unsigned long k;
+    k = 0;
+    i = slist->index;
+    while (i > 0)
+    {
+        struct Thing *thing;
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+          break;
+        i = thing->next_of_class;
+        // Per-thing code
+        if (((thing->field_1 & TF1_IsDragged1) == 0) && (thing->owner != spdigtng->owner)
+          && creature_is_being_unconscious(thing))
+        {
+            if ((range < 0) || get_2d_box_distance(&thing->mappos, &spdigtng->mappos) < range)
+            {
+                if (!imp_will_soon_be_working_at_excluding(spdigtng, thing->mappos.x.stl.num, thing->mappos.y.stl.num))
+                {
+                    if (setup_person_move_to_coord(spdigtng, &thing->mappos, NavRtF_Default)) {
+                        spdigtng->continue_state = CrSt_CreaturePickUpUnconsciousBody;
+                        cctrl->pickup_creature_id = thing->index;
+                        return 1;
+                    }
+                }
+            }
+        }
+        // Per-thing code ends
+        k++;
+        if (k > slist->count)
+        {
+          ERRORLOG("Infinite loop detected when sweeping things list");
+          break;
+        }
+    }
+    return 0;
 }
 
 long check_out_unclaimed_dead_bodies(struct Thing *spdigtng, long range)
@@ -1077,7 +1136,7 @@ TbBool creature_is_dragging_or_being_dragged(const struct Thing *thing)
 
 short creature_pick_up_unconscious_body(struct Thing *thing)
 {
-    struct Room *ownroom;
+    struct Room *dstroom;
     struct CreatureControl *cctrl;
     struct Thing *picktng;
     struct Coord3d pos;
@@ -1101,10 +1160,34 @@ short creature_pick_up_unconscious_body(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    ownroom = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_PRISON, NavRtF_Default, 1);
-    if ( room_is_invalid(ownroom) || !find_random_valid_position_for_thing_in_room(thing, ownroom, &pos) )
+    dstroom = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_PRISON, NavRtF_Default, 1);
+    if (room_is_invalid(dstroom))
     {
-        WARNLOG("Player %d can't pick %s - doesn't have proper %s to store it",(int)thing->owner,thing_model_name(picktng),room_code_name(RoK_PRISON));
+        struct Room *room;
+        // Could not find room to store prisoner - either no capacity or not navigable
+        room = find_room_with_spare_capacity(thing->owner, RoK_PRISON, 1);
+        if (room_is_invalid(room))
+        {
+            WARNLOG("Player %d can't pick %s - no %s with enough capacity",(int)thing->owner,thing_model_name(picktng),room_code_name(RoK_PRISON));
+            if (is_my_player_number(thing->owner)) {
+                output_message(SMsg_PrisonTooSmall, 1000, true);
+            }
+        } else
+        {
+            WARNLOG("Player %d can't pick %s - cannot reach %s to store it",(int)thing->owner,thing_model_name(picktng),room_code_name(RoK_PRISON));
+            EventIndex evidx;
+            evidx = event_create_event_or_update_nearby_existing_event(
+                thing->mappos.x.val, thing->mappos.y.val, EvKind_RoomUnreachable, thing->owner, RoK_PRISON);
+            if ((evidx > 0) && is_my_player_number(thing->owner)) {
+                output_message(SMsg_NoRouteToPrison, 1000, true);
+            }
+        }
+        set_start_state(thing);
+        return 0;
+    }
+    if (!find_random_valid_position_for_thing_in_room(thing, dstroom, &pos))
+    {
+        WARNLOG("Player %d can't pick %s - no position within %s to store it",(int)thing->owner,thing_model_name(picktng),room_code_name(RoK_PRISON));
         set_start_state(thing);
         return 0;
     }
@@ -1137,9 +1220,33 @@ short creature_picks_up_corpse(struct Thing *thing)
         return 0;
     }
     dstroom = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_GRAVEYARD, NavRtF_Default, 1);
-    if ( room_is_invalid(dstroom) || !find_random_valid_position_for_thing_in_room_avoiding_object(thing, dstroom, &pos) )
+    if (room_is_invalid(dstroom))
     {
-        WARNLOG("Player %d can't pick %s - doesn't have proper %s to store it",(int)thing->owner,thing_model_name(picktng),room_code_name(RoK_GRAVEYARD));
+        struct Room *room;
+        // Could not find room to store prisoner - either no capacity or not navigable
+        room = find_room_with_spare_capacity(thing->owner, RoK_GRAVEYARD, 1);
+        if (room_is_invalid(room))
+        {
+            WARNLOG("Player %d can't pick %s - no %s with enough capacity",(int)thing->owner,thing_model_name(picktng),room_code_name(RoK_GRAVEYARD));
+            if (is_my_player_number(thing->owner)) {
+                output_message(SMsg_GraveyardTooSmall, 1000, true);
+            }
+        } else
+        {
+            WARNLOG("Player %d can't pick %s - cannot reach %s to store it",(int)thing->owner,thing_model_name(picktng),room_code_name(RoK_GRAVEYARD));
+            EventIndex evidx;
+            evidx = event_create_event_or_update_nearby_existing_event(
+                thing->mappos.x.val, thing->mappos.y.val, EvKind_RoomUnreachable, thing->owner, RoK_GRAVEYARD);
+            if ((evidx > 0) && is_my_player_number(thing->owner)) {
+                output_message(SMsg_NoRouteToGraveyard, 1000, true);
+            }
+        }
+        set_start_state(thing);
+        return 0;
+    }
+    if (!find_random_valid_position_for_thing_in_room_avoiding_object(thing, dstroom, &pos) )
+    {
+        WARNLOG("Player %d can't pick %s - no position within %s to store it",(int)thing->owner,thing_model_name(picktng),room_code_name(RoK_GRAVEYARD));
         set_start_state(thing);
         return 0;
     }

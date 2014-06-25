@@ -149,25 +149,25 @@ enum SpeechPhraseIndex {
     SpchIdx_SenceAvatar,
     SpchIdx_AvatarBodyVanished,
     SpchIdx_GameFinalVictory,
-    SpchIdx_Unkn110,
-    SpchIdx_Unkn111,
-    SpchIdx_Unkn112,
-    SpchIdx_Unkn113,
-    SpchIdx_Unkn114,
-    SpchIdx_Unkn115,
-    SpchIdx_Unkn116,
-    SpchIdx_Unkn117,
-    SpchIdx_Unkn118,
-    SpchIdx_Unkn119,
-    SpchIdx_Unkn120,
-    SpchIdx_Unkn121,
-    SpchIdx_Unkn122,
-    SpchIdx_Unkn123,
-    SpchIdx_Unkn124,
-    SpchIdx_Unkn125,
+    SpchIdx_KeeperHarassment1,
+    SpchIdx_KeeperHarassment2,
+    SpchIdx_KeeperHarassment3,
+    SpchIdx_KeeperHarassment4,
+    SpchIdx_KeeperHarassment5,
+    SpchIdx_KeeperHarassment6,
+    SpchIdx_KeeperHarassment7,
+    SpchIdx_KeeperHarassment8,
+    SpchIdx_HeroHarassment1,
+    SpchIdx_HeroHarassment2,
+    SpchIdx_HeroHarassment3,
+    SpchIdx_HeroHarassment4,
+    SpchIdx_HeroHarassment5,
+    SpchIdx_HeroHarassment6,
+    SpchIdx_HeroHarassment7,
+    SpchIdx_HeroHarassment8,
 };
 
-/** Array used for converting phrase index into sample data. */
+/** Array used for converting speech phrase index into sample data. */
 Phrase phrases[] = {
     0,  1,  2,  3,  4,  5,  6,  7,  8, 9,  10, 11, 12, 13, 14, 15,
    16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
@@ -260,7 +260,7 @@ struct SMessage messages[] = {
   {SpchIdx_SpecialRevealMap, 1, 0},
   {SpchIdx_SpecialResurrect, 1, 0},
   {SpchIdx_SpecialTransfer, 1, 0},
-  {SpchIdx_CommonAcknowledge, 1, 0},
+  {SpchIdx_CommonAcknowledge, 1, 0}, // [80]
   {SpchIdx_SpecialHeroStolen, 1, 0},
   {SpchIdx_SpecialCreaturesDoubled, 1, 0},
   {SpchIdx_SpecialIncreasedLevel, 1, 0},
@@ -270,7 +270,7 @@ struct SMessage messages[] = {
   {SpchIdx_GoldNotEnough, 1, 0},
   {SpchIdx_NoGoldToScavenge, 1, 0},
   {SpchIdx_NoGoldToTrain, 1, 0},
-  {SpchIdx_Payday, 1, 0},
+  {SpchIdx_Payday, 1, 0}, // [90]
   {SpchIdx_FullOfPies, 1, 0},
   {SpchIdx_SurrealHappen, 1, 0},
   {SpchIdx_StrangeAccent, 1, 0},
@@ -280,7 +280,7 @@ struct SMessage messages[] = {
   {SpchIdx_Hello, 1, 0},
   {SpchIdx_Glaagh, 1, 0},
   {SpchIdx_Achew, 1, 0},
-  {SpchIdx_Chgreche, 1, 0},
+  {SpchIdx_Chgreche, 1, 0}, // [100]
   {SpchIdx_ImpJobsLimit, 1, 0},
   {SpchIdx_GameLoaded, 1, 0},
   {SpchIdx_GameSaved, 1, 0},
@@ -290,22 +290,22 @@ struct SMessage messages[] = {
   {SpchIdx_SenceAvatar, 1, 0},
   {SpchIdx_AvatarBodyVanished, 1, 0},
   {SpchIdx_GameFinalVictory, 1, 0},
-  {SpchIdx_Unkn110, 1, 0},
-  {SpchIdx_Unkn111, 1, 0},
-  {SpchIdx_Unkn112, 1, 0},
-  {SpchIdx_Unkn113, 1, 0},
-  {SpchIdx_Unkn114, 1, 0},
-  {SpchIdx_Unkn115, 1, 0},
-  {SpchIdx_Unkn116, 1, 0},
-  {SpchIdx_Unkn117, 1, 0},
-  {SpchIdx_Unkn118, 1, 0},
-  {SpchIdx_Unkn119, 1, 0},
-  {SpchIdx_Unkn120, 1, 0},
-  {SpchIdx_Unkn121, 1, 0},
-  {SpchIdx_Unkn122, 1, 0},
-  {SpchIdx_Unkn123, 1, 0},
-  {SpchIdx_Unkn124, 1, 0},
-  {SpchIdx_Unkn125, 1, 0},
+  {SpchIdx_KeeperHarassment1, 1, 0}, // [110]
+  {SpchIdx_KeeperHarassment2, 1, 0},
+  {SpchIdx_KeeperHarassment3, 1, 0},
+  {SpchIdx_KeeperHarassment4, 1, 0},
+  {SpchIdx_KeeperHarassment5, 1, 0},
+  {SpchIdx_KeeperHarassment6, 1, 0},
+  {SpchIdx_KeeperHarassment7, 1, 0},
+  {SpchIdx_KeeperHarassment8, 1, 0},
+  {SpchIdx_HeroHarassment1, 1, 0},
+  {SpchIdx_HeroHarassment2, 1, 0},
+  {SpchIdx_HeroHarassment3, 1, 0}, // [120]
+  {SpchIdx_HeroHarassment4, 1, 0},
+  {SpchIdx_HeroHarassment5, 1, 0},
+  {SpchIdx_HeroHarassment6, 1, 0},
+  {SpchIdx_HeroHarassment7, 1, 0},
+  {SpchIdx_HeroHarassment8, 1, 0},
 };
 
 /******************************************************************************/
@@ -335,7 +335,7 @@ TbBool output_message(long msg_idx, long delay, TbBool queue)
       i = get_phrase_sample(get_phrase_for_message(msg_idx));
       if (i == 0)
       {
-          SYNCDBG(8,"No phrase sample, skipping");
+          SYNCDBG(8,"No phrase %d sample, skipping",(int)msg_idx);
           return false;
       }
       if (play_speech_sample(i))
