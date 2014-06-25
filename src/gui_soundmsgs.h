@@ -164,6 +164,10 @@ enum TbSpeechMessages {
 #define SMsg_EnemyHarassments  110  // Starts a list of harassments
 #define SMsg_EnemyLordQuote    118  // Starts a list of lord of the land quotes
 
+// Define empty messages, which may be used later
+#define SMsg_NoRouteToPrison SMsg_None
+#define SMsg_NoRouteToGraveyard SMsg_None
+
 typedef unsigned long Phrase;
 
 struct SMessage {
