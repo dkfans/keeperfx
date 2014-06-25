@@ -40,6 +40,7 @@
 #include "room_workshop.h"
 #include "room_library.h"
 #include "room_lair.h"
+#include "room_util.h"
 #include "tasks_list.h"
 #include "map_events.h"
 #include "map_blocks.h"
@@ -1766,7 +1767,7 @@ short creature_doing_nothing(struct Thing *creatng)
                 SYNCDBG(8,"The %s index %d goes make lair",thing_model_name(creatng),creatng->index);
                 return 1;
             }
-            update_lair_cannot_make_event(creatng);
+            update_cannot_find_room_wth_capacity_event(creatng->owner, creatng, RoK_LAIR);
         }
     }
     if ((cctrl->job_assigned != Job_NULL) && (game.play_gameturn - cctrl->job_assigned_check_turn > 128))

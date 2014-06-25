@@ -37,6 +37,7 @@
 #include "room_data.h"
 #include "room_jobs.h"
 #include "room_lair.h"
+#include "room_util.h"
 #include "engine_arrays.h"
 #include "game_legacy.h"
 
@@ -343,7 +344,7 @@ short creature_choose_room_for_lair_site(struct Thing *thing)
     room = get_best_new_lair_for_creature(thing);
     if (room_is_invalid(room))
     {
-        update_lair_cannot_make_event(thing);
+        update_cannot_find_room_wth_capacity_event(thing->owner, thing, RoK_LAIR);
         set_start_state(thing);
         return 0;
     }

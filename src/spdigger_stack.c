@@ -36,6 +36,7 @@
 #include "thing_objects.h"
 #include "thing_traps.h"
 #include "room_data.h"
+#include "room_util.h"
 #include "power_hand.h"
 #include "map_events.h"
 #include "ariadne_wallhug.h"
@@ -1725,7 +1726,6 @@ struct Thing *check_place_to_pickup_crate(const struct Thing *creatng, MapSubtlC
  */
 long check_out_imp_has_money_for_treasure_room(struct Thing *thing)
 {
-    struct Dungeon *dungeon;
     struct Room *room;
     SYNCDBG(8,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
     //If the imp doesn't have any money - then just return
@@ -1734,43 +1734,16 @@ long check_out_imp_has_money_for_treasure_room(struct Thing *thing)
     }
     // Find a treasure room to drop the money
     room = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_TREASURE, NavRtF_Default, 1);
-    if (!room_is_invalid(room))
-    {
-        if (setup_head_for_empty_treasure_space(thing, room))
-        {
-            thing->continue_state = CrSt_ImpDropsGold;
-            return 1;
-        }
-        return 0;
-    }
-    dungeon = get_dungeon(thing->owner);
-    // Check why the treasure room search failed. Maybe we don't have treasure room?
-    if (!dungeon_has_room(dungeon, RoK_TREASURE))
-    {
-        event_create_event_or_update_nearby_existing_event(0, 0, EvKind_NeedTreasureRoom, thing->owner, 0);
-        if (is_my_player_number(thing->owner))
-            output_message(SMsg_RoomTreasrNeeded, 1000, true);
-        return 0;
-    }
-    // If we have it, is it unreachable, or just too small?
-    room = find_room_with_spare_capacity(thing->owner, RoK_TREASURE, 1);
     if (room_is_invalid(room))
     {
-        // No room with spare capacity - treasury is too small
-        EventIndex evidx;
-        evidx = event_create_event_or_update_nearby_existing_event(0, 0, EvKind_TreasureRoomFull, thing->owner, 0);
-        if ((evidx > 0) && is_my_player_number(thing->owner)) {
-            output_message(SMsg_TreasuryTooSmall, 1000, true);
-        }
-    } else
+        // Check why the treasure room search failed and inform the player
+        update_cannot_find_room_wth_capacity_event(thing->owner, thing, RoK_TREASURE);
+        return 0;
+    }
+    if (setup_head_for_empty_treasure_space(thing, room))
     {
-        // There are rooms with spare capacity - they must be just unreachable
-        EventIndex evidx;
-        evidx = event_create_event_or_update_nearby_existing_event(
-            thing->mappos.x.val, thing->mappos.y.val, EvKind_RoomUnreachable, thing->owner, RoK_TREASURE);
-        if ((evidx > 0) && is_my_player_number(thing->owner)) {
-            output_message(SMsg_NoRouteToTreasury, 1000, true);
-        }
+        thing->continue_state = CrSt_ImpDropsGold;
+        return 1;
     }
     return 0;
 }
