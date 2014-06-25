@@ -130,7 +130,7 @@ long check_out_unclaimed_unconscious_bodies(struct Thing *spdigtng, long range)
                 {
                     // We have a thing which we should pick - now check if the room we found is correct
                     if (room_is_invalid(room)) {
-                        update_cannot_find_room_wth_capacity_event(spdigtng->owner, spdigtng, RoK_PRISON);
+                        update_cannot_find_room_wth_spare_capacity_event(spdigtng->owner, spdigtng, RoK_PRISON);
                         return 0;
                     }
                     if (setup_person_move_to_coord(spdigtng, &thing->mappos, NavRtF_Default)) {
@@ -186,7 +186,7 @@ long check_out_unclaimed_dead_bodies(struct Thing *spdigtng, long range)
                 {
                     // We have a thing which we should pick - now check if the room we found is correct
                     if (room_is_invalid(room)) {
-                        update_cannot_find_room_wth_capacity_event(spdigtng->owner, spdigtng, RoK_GRAVEYARD);
+                        update_cannot_find_room_wth_spare_capacity_event(spdigtng->owner, spdigtng, RoK_GRAVEYARD);
                         return 0;
                     }
                     if (setup_person_move_to_coord(spdigtng, &thing->mappos, NavRtF_Default)) {
@@ -212,7 +212,74 @@ long check_out_unclaimed_dead_bodies(struct Thing *spdigtng, long range)
 
 long check_out_unclaimed_spells(struct Thing *spdigtng, long range)
 {
-    return _DK_check_out_unclaimed_spells(spdigtng, range);
+    //return _DK_check_out_unclaimed_spells(spdigtng, range);
+    if (!player_has_room(spdigtng->owner, RoK_LIBRARY)) {
+        return 0;
+    }
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(spdigtng);
+    struct Room *room;
+    room = find_nearest_room_for_thing_with_spare_item_capacity(spdigtng, spdigtng->owner, RoK_LIBRARY, NavRtF_Default);
+    // We either found a room or not - but we can't generate event based on it yet, because we don't even know if there's any thing to pick
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_Object);
+    long i;
+    unsigned long k;
+    k = 0;
+    i = slist->index;
+    while (i > 0)
+    {
+        struct Thing *thing;
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+          break;
+        i = thing->next_of_class;
+        // Per-thing code
+        if (thing_is_spellbook(thing) || thing_is_special_box(thing))
+        {
+            struct SlabMap *slb;
+            slb = get_slabmap_thing_is_on(thing);
+            if ((thing->owner != spdigtng->owner) && ((thing->alloc_flags & 0x80) == 0) && (slabmap_owner(slb) == spdigtng->owner))
+            {
+                if ((range < 0) || get_2d_box_distance(&thing->mappos, &spdigtng->mappos) < range)
+                {
+                    if (!imp_will_soon_be_working_at_excluding(spdigtng, thing->mappos.x.stl.num, thing->mappos.y.stl.num))
+                    {
+                        // We have a thing which we should pick - now check if the room we found is correct
+                        if (room_is_invalid(room)) {
+                            update_cannot_find_room_wth_spare_capacity_event(spdigtng->owner, spdigtng, RoK_LIBRARY);
+                            return 0;
+                        }
+                        if (setup_person_move_to_coord(spdigtng, &thing->mappos, NavRtF_Default)) {
+                            SYNCDBG(8,"Assigned %s with %s pickup at subtile (%d,%d)",thing_model_name(spdigtng),
+                                thing_model_name(thing),(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num);
+                            if (thing_is_spellbook(thing))
+                            {
+                                event_create_event_or_update_nearby_existing_event(thing->mappos.x.val, thing->mappos.y.val,
+                                    EvKind_SpellPickedUp, spdigtng->owner, thing->index);
+                            } else
+                            if (thing_is_special_box(thing))
+                            {
+                                event_create_event_or_update_nearby_existing_event(thing->mappos.x.val, thing->mappos.y.val,
+                                    EvKind_DnSpecialFound, spdigtng->owner, thing->index);
+                            }
+                            spdigtng->continue_state = CrSt_CreaturePicksUpSpellObject;
+                            cctrl->pickup_object_id = thing->index;
+                            return 1;
+                        }
+                    }
+                }
+            }
+        }
+        // Per-thing code ends
+        k++;
+        if (k > slist->count)
+        {
+          ERRORLOG("Infinite loop detected when sweeping things list");
+          break;
+        }
+    }
+    return 0;
 }
 
 long check_out_unclaimed_traps(struct Thing *spdigtng, long range)
@@ -1152,7 +1219,7 @@ short creature_pick_up_unconscious_body(struct Thing *thing)
     if (room_is_invalid(dstroom))
     {
         // Check why the treasure room search failed and inform the player
-        update_cannot_find_room_wth_capacity_event(thing->owner, thing, RoK_PRISON);
+        update_cannot_find_room_wth_spare_capacity_event(thing->owner, thing, RoK_PRISON);
         set_start_state(thing);
         return 0;
     }
@@ -1194,7 +1261,7 @@ short creature_picks_up_corpse(struct Thing *thing)
     if (room_is_invalid(dstroom))
     {
         // Check why the treasure room search failed and inform the player
-        update_cannot_find_room_wth_capacity_event(thing->owner, thing, RoK_PRISON);
+        update_cannot_find_room_wth_spare_capacity_event(thing->owner, thing, RoK_PRISON);
         set_start_state(thing);
         return 0;
     }
