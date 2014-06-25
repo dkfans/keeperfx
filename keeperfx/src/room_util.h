@@ -39,7 +39,7 @@ void process_rooms(void);
 
 TbBool delete_room_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned char gnd_slab);
 short check_and_asimilate_thing_by_room(struct Thing *thing);
-EventIndex update_cannot_find_room_wth_capacity_event(PlayerNumber plyr_idx, struct Thing *creatng, RoomKind rkind);
+EventIndex update_cannot_find_room_wth_spare_capacity_event(PlayerNumber plyr_idx, struct Thing *creatng, RoomKind rkind);
 /******************************************************************************/
 #ifdef __cplusplus
 }
