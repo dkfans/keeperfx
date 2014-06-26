@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-05-20 22:33+0100\n"
+"PO-Revision-Date: 2014-06-26 21:11+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: zh_CN\n"
@@ -236,7 +236,7 @@ msgstr ""
 "趁现在享受你的胜利吧。你已经激怒了这个王国的统治者。他和他的党徒很快要进攻你"
 "的地下城了。"
 
-#. Level Eversmile objective when LOTL comes
+#. Levels Eversmile and Tickle objective, when LOTL comes
 #: guitext:19
 msgctxt "In-game message"
 msgid ""
@@ -442,6 +442,7 @@ msgstr ""
 "知识的神秘的气味诱使贪婪的魔术师进入了你的地下城。不要忘偶尔训练他们一下。他"
 "们的施展魔法的能力使他们成为善于远程作战的战士。"
 
+#. Level Waterdream Warm objective
 #: guitext:39
 msgctxt "In-game message"
 msgid ""
@@ -452,6 +453,7 @@ msgstr ""
 "第一波的攻击者已经尸横遍野，你的领域中又出现了生存的感觉，但敌人很快就会发起"
 "第二次攻击。"
 
+#. Level Waterdream Warm objective
 #: guitext:40
 msgctxt "In-game message"
 msgid ""
@@ -462,6 +464,7 @@ msgstr ""
 "守护者，你再一次的获得了胜利。那些尸体将保持你的孵化室的土壤的肥沃。这对那些"
 "有勇无谋的冒险家们也是一种警告。"
 
+#. Level Waterdream Warm objective
 #: guitext:41
 msgctxt "In-game message"
 msgid ""
@@ -471,17 +474,20 @@ msgstr ""
 "一切又恢复了平静。利用这短暂的时间为抵抗下一次进攻做准备吧。敌人正在重新组织"
 "军队。他们仍然没有被彻底击败。"
 
+#. Level Waterdream Warm information
 #: guitext:42
 msgctxt "In-game message"
 msgid ""
 "Is that Imp playing football with a decapitated head? Stay alert, Keeper."
 msgstr "这个小鬼在用被砍下的头颅踢足球吗？请保持警戒，守护者。"
 
+#. Level Waterdream Warm objective
 #: guitext:43
 msgctxt "In-game message"
 msgid "Now would be an excellent time to train a Warlock."
 msgstr "现在是训练一个魔术师的最佳时间。"
 
+#. Level Waterdream Warm information
 #: guitext:44
 msgctxt "In-game message"
 msgid ""
@@ -492,6 +498,7 @@ msgstr ""
 "你的研究有成果了。速度术已经研制成功了。对一个怪物施法，然后观察他的速度的神"
 "奇般的提高。魔法在一段时间后会失效。"
 
+#. Level Flowerhat objective
 #: guitext:45
 msgctxt "In-game message"
 msgid ""
@@ -502,6 +509,7 @@ msgstr ""
 "继续建设你的地下城，建造房间并占领附近的入口。但不要冒险向北边发展，强大的敌"
 "人潜伏在那里。在你有充分的准备之前不要打扰他们，这是明智的作法。"
 
+#. Level Flowerhat information
 #: guitext:46
 msgctxt "In-game message"
 msgid ""
@@ -511,6 +519,7 @@ msgstr ""
 "通过研究，你的小鬼获得了造桥的技巧。你需要通过桥来穿越地下世界中更加危险的地"
 "方。"
 
+#. Level Flowerhat objective
 #: guitext:47
 msgctxt "In-game message"
 msgid ""
@@ -522,6 +531,7 @@ msgstr ""
 "新的研究成果表明工厂可以制造一些重要的物品，例如，门和陷井。如果你有一个大小"
 "为九个格以上的工厂，它将吸引地下世界中最好的工匠加入你的地下城。"
 
+#. Level Flowerhat information
 #: guitext:48
 msgctxt "In-game message"
 msgid ""
@@ -532,6 +542,7 @@ msgstr ""
 "要在你的工厂中制造陷井和门，你需要把怪物放到工厂中，指派怪物去进行制造工作。"
 "只要物品的制造完成，你就可以通过工厂面板选择并使用它们。"
 
+#. Level Flowerhat objective
 #: guitext:49
 msgctxt "In-game message"
 msgid ""
@@ -541,6 +552,7 @@ msgstr ""
 "当你有了一定数量的军队，而且经过了一定的训练，那么就向北前进，消灭一切敢于抵"
 "抗的势力。"
 
+#. Level Flowerhat objective
 #: guitext:50
 msgctxt "In-game message"
 msgid ""
@@ -548,6 +560,7 @@ msgid ""
 "way."
 msgstr "你必须找到一条穿越岩浆的路，它阻挡了你。"
 
+#. Level Flowerhat objective
 #: guitext:51
 msgctxt "In-game message"
 msgid ""
@@ -555,6 +568,7 @@ msgid ""
 "and administer the coup de grace."
 msgstr "敌人的地下城的心脏在你面前跳动。集合你的军队，进行最后的一击。"
 
+#. Level Flowerhat information
 #: guitext:52
 msgctxt "In-game message"
 msgid ""
@@ -565,6 +579,7 @@ msgstr ""
 "一个精灵加入了你的阵营。精灵是在工厂中执行制造任务的最佳人选，他们从不抱怨工"
 "作的艰辛，因为这样可以使他们远离战场。"
 
+#. Level Flowerhat objective
 #: guitext:53
 msgctxt "In-game message"
 msgid ""
@@ -574,6 +589,7 @@ msgstr ""
 "随着敌人地下城心脏的毁灭，你给了曾经不可一视的敌人致命一击。让恐怖和憎恨降临"
 "在你统治的土地吧！"
 
+#. Level Flowerhat information
 #: guitext:54
 msgctxt "In-game message"
 msgid ""
@@ -584,6 +600,7 @@ msgstr ""
 "你的工厂制造了一个木头门。将它放在通道中可以限制敌人的通行，而你的怪物可以自"
 "由地通过。用鼠标左键单击门，可以将它上锁或开锁。"
 
+#. Level Flowerhat information
 #: guitext:55
 msgctxt "In-game message"
 msgid ""
@@ -593,6 +610,7 @@ msgstr ""
 "你的工厂生产了一个毒气陷井。将它安置在合适的位置，当敌人经过时会被触发，致命"
 "的毒气将覆盖这个区域。"
 
+#. Level Flowerhat information
 #: guitext:56
 msgctxt "In-game message"
 msgid ""
@@ -605,6 +623,7 @@ msgstr ""
 "目的区域再次使用它，你的军队将向目的地前进。如果目标区域是你没有控制的区域，"
 "这个魔法将消耗金子。"
 
+#. Level Lushmeadow-on-Down objective
 #: guitext:57
 msgctxt "In-game message"
 msgid ""
@@ -615,6 +634,7 @@ msgstr ""
 "另一个守护者控制了地下王国。他的地下城在你的北边。如果你想引诱怪物们为你工作"
 "而不是为他工作，你必须建造一个更加华丽的地下城。继续吧。"
 
+#. Level Lushmeadow-on-Down objective
 #: guitext:58
 msgctxt "In-game message"
 msgid ""
@@ -624,6 +644,7 @@ msgstr ""
 "你已经击败了你的对手。他的失败是对你的高超的地下城设计技巧的证明。你具备一个"
 "成功的守护者的素质。地下城守护者，你拥有这个名字当之无愧。"
 
+#. Level Lushmeadow-on-Down information
 #: guitext:59
 msgctxt "In-game message"
 msgid ""
@@ -634,6 +655,7 @@ msgstr ""
 "一个巨魔投靠了你。巨魔需要大的巢穴和充足的食物。这些肥胖的畸形有时会随意地搞"
 "破坏。"
 
+#. Level Lushmeadow-on-Down information
 #: guitext:60
 msgctxt "In-game message"
 msgid ""
@@ -643,6 +665,7 @@ msgstr ""
 "你的忠实的研究者们研制出了邪恶之眼。在未探索的区域里施展它，这个区域将被揭示"
 "一段时间。"
 
+#. Level Lushmeadow-on-Down information
 #: guitext:61
 msgctxt "In-game message"
 msgid ""
@@ -655,6 +678,7 @@ msgstr ""
 "昏，然后你的小鬼将把敌人拖到监狱中。被饿死的囚犯可能会变成骷髅战士加入你的军"
 "队。"
 
+#. Level Lushmeadow-on-Down information
 #: guitext:62
 msgctxt "In-game message"
 msgid ""
@@ -665,6 +689,7 @@ msgstr ""
 "你忠诚的图书管理员们研究出了警戒哨所。将警戒哨所放置在战略要地上，然后将一个"
 "怪物放置在这里。这个怪物就担任了守卫的工作。"
 
+#. Level Lushmeadow-on-Down information
 #: guitext:63
 msgctxt "In-game message"
 msgid ""
@@ -675,6 +700,7 @@ msgstr ""
 "一个蜘蛛加入了你的地下城。他们是苍蝇的天敌，因此请尽量使他们分开。克服这样的"
 "障碍将磨练你的性格，无论它意味着什么。"
 
+#. Level Snuggledell objective
 #: guitext:64
 msgctxt "In-game message"
 msgid ""
@@ -683,6 +709,7 @@ msgid ""
 "failure shall be oblivion."
 msgstr "到了惩罚一个敢于挑战你的地下帝国的守护者的时间了。失败的代价是被遗忘。"
 
+#. Level Snuggledell objective
 #: guitext:65
 msgctxt "In-game message"
 msgid ""
@@ -693,6 +720,7 @@ msgstr ""
 "看着一个敌对的守护者的地下城的崩溃和丧失他的力量是一件多么愉快的事情啊！你的"
 "胜利是无可争议的。"
 
+#. Level Snuggledell information
 #: guitext:66
 msgctxt "In-game message"
 msgid ""
@@ -704,6 +732,7 @@ msgstr ""
 "你占领了一个审讯室。将被囚禁的英雄和怪物带到这恐怖的房间中受审，使它们成为你"
 "的奴仆。同样你也可以将你的怪物放到这里，不论他们是否应受惩罚。"
 
+#. Level Snuggledell information
 #: guitext:67
 msgctxt "In-game message"
 msgid ""
@@ -714,6 +743,7 @@ msgstr ""
 "你终于拥有了一个可以吸引黑暗女王加入的地下城。你必须经常惩罚这些邪恶的女仆。"
 "他们对于被打耳光的反应异常的好。"
 
+#. Level Snuggledell information
 #: guitext:68
 msgctxt "In-game message"
 msgid ""
@@ -722,6 +752,7 @@ msgid ""
 "curtain and a hole in the wall is no help at all."
 msgstr "你的工匠们制造了一个铁皮门。如果安全有问题，你可以确定何时购买它。"
 
+#. Level Snuggledell information
 #: guitext:69
 msgctxt "In-game message"
 msgid ""
@@ -732,6 +763,7 @@ msgstr ""
 "你的研究者设计出了可以释放雷电的能量的魔法。选择这个魔法并对一个敌对的怪物使"
 "用它，敌人将受到闪电的打击。"
 
+#. Level Snuggledell information
 #: guitext:70
 msgctxt "In-game message"
 msgid ""
@@ -739,6 +771,7 @@ msgid ""
 "give someone a shock."
 msgstr "你已经研制成功了一个强力的闪电陷井。试试它，它将使敌人遭到电击。"
 
+#. Level Wishvale objective
 #: guitext:71
 msgctxt "In-game message"
 msgid ""
@@ -749,6 +782,7 @@ msgstr ""
 "你似乎卷入了激战。但先养精畜锐，直到你已经足够强大了以后再给双方敌人一个致命"
 "的打击是更聪明的策略。"
 
+#. Level Wishvale information
 #: guitext:72
 msgctxt "In-game message"
 msgid ""
@@ -758,6 +792,7 @@ msgstr ""
 "一个兽人军官加入了你方，同时它也为你带来了兵营的设计图。在这个房间里你可以将"
 "你的怪物编队。"
 
+#. Level Wishvale objective
 #: guitext:73
 msgctxt "In-game message"
 msgid ""
@@ -768,6 +803,7 @@ msgstr ""
 "我想我听到了金属铠甲的撞击声。是的，国王被从醉生梦死中唤醒了，他想来看看，他"
 "的那些忠实的奴仆消失在什么地方。"
 
+#. Level Wishvale objective
 #: guitext:74
 msgctxt "In-game message"
 msgid ""
@@ -777,6 +813,7 @@ msgstr ""
 "你已经让这个地方的英雄成为了将要灭绝的物种，现在让同样的命运降临在敌对的守护"
 "者身上吧！"
 
+#. Level Wishvale objective
 #: guitext:75
 msgctxt "In-game message"
 msgid ""
@@ -785,6 +822,7 @@ msgid ""
 "you at bay."
 msgstr "你已经获胜了，守护者。你的敌人们尸横遍野，它们的徒劳令人感慨。"
 
+#. Level Tickle objective
 #: guitext:76
 msgctxt "In-game message"
 msgid ""
@@ -795,6 +833,7 @@ msgstr ""
 "寻找一个将在这个地下城中成为你的竞争者的人。向他解释提前退休的好处。同时把他"
 "吊起来，也许这是他唯一可以理解的语言。"
 
+#. Level Tickle information
 #: guitext:77
 msgctxt "In-game message"
 msgid ""
@@ -802,6 +841,7 @@ msgid ""
 "it from enemy eyes."
 msgstr "你已经研究出了隐身术。对一个怪物施展这个魔法可以使他在敌人的眼中消失。"
 
+#. Level Tickle information
 #: guitext:78
 msgctxt "In-game message"
 msgid ""
@@ -809,6 +849,7 @@ msgid ""
 "creature to increase its toughness."
 msgstr "保护术魔法终于研制成功了。对一个怪物施展它可以提高他的防御能力。"
 
+#. Level Tickle objective
 #: guitext:79
 msgctxt "In-game message"
 msgid ""
@@ -819,6 +860,7 @@ msgstr ""
 "另一个敌人被成功地除掉了。这片土地的没有反抗能力的居民跪倒在你的面前，仿佛这"
 "样就能拯救他们……"
 
+#. Level Tickle information
 #: guitext:80
 msgctxt "In-game message"
 msgid ""
@@ -830,6 +872,7 @@ msgstr ""
 "研究者设计出了一个祭祀黑暗之神的庙宇。将怪物做为供品放到祭坛上，你将得到神赐"
 "予的礼物。你需要用不同的祭品来试验，黑暗之神不是容易被取悦的。"
 
+#. Level Moonbrush Wood objective
 #: guitext:81
 msgctxt "In-game message"
 msgid ""
@@ -840,6 +883,7 @@ msgstr ""
 "这个王国被四个骄傲的巫师统治，他们以为一切都在他们的掌握之下。因为他们微弱的"
 "法力给当地的居民以深刻的印象。但你并非来自他们当中。"
 
+#. Level Moonbrush Wood objective
 #: guitext:82
 msgctxt "In-game message"
 msgid ""
@@ -849,6 +893,7 @@ msgstr ""
 "很好，你把这里搞定了。现在是把你介绍给本地的居民的时间了，并且重新安排他们的"
 "美满的生活。"
 
+#. Levels Tickle and Moonbrush Wood information
 #: guitext:83
 msgctxt "In-game message"
 msgid ""
@@ -860,6 +905,7 @@ msgstr ""
 "看，你召唤到了一个冥界使者。小心地不要让它生气，但这样你将失败因为一切的一切"
 "只会带给他愤怒。不过你可以使在他周围的都是敌人，这样他就上了轨道了。"
 
+#. Level Moonbrush Wood information
 #: guitext:84
 msgctxt "In-game message"
 msgid ""
@@ -869,6 +915,7 @@ msgstr ""
 "你的研究者研制成功了疾病术。将它施展到敌人的怪物身上，然后观察苦难如何象瘟疫"
 "一样传播。"
 
+#. Level Moonbrush Wood information
 #: guitext:85
 msgctxt "In-game message"
 msgid ""
@@ -880,6 +927,7 @@ msgstr ""
 "一个吸血鬼在陵墓中诞生了，他来自那些被带到这里的死者的灵魂。你必须巴结吸血"
 "鬼，否则他们将因愤怒而爆炸，但他们是极为强大的，你的雇佣军团中可怕的成员。"
 
+#. Level Moonbrush Wood information
 #: guitext:86
 msgctxt "In-game message"
 msgid ""
@@ -890,12 +938,14 @@ msgstr ""
 "你研制出了陵墓。你的小鬼将把尸体拖到这里使其腐烂……也可能再生为吸血鬼供你驱"
 "谴。"
 
+#. Levels Tickle and Moonbrush Wood information
 #: guitext:87
 msgctxt "In-game message"
 msgid ""
 "You have manufactured an Iron Door. It's a formidable barrier. Use it well."
 msgstr "你制造出了一个铁门。它是有力的屏障。请很好地使用它。"
 
+#. Level Elf's Dance objective
 #: guitext:88
 msgctxt "In-game message"
 msgid ""
@@ -907,6 +957,7 @@ msgstr ""
 "强力的怪物居住在南面的洞穴里。在你和他们中间有一群英雄，如果你接触到他们，并"
 "在别的守护者招募他们之前使他们加入你一方，你将成为不可阻挡的，除非你干蠢事。"
 
+#. Level Elf's Dance objective
 #: guitext:89
 msgctxt "In-game message"
 msgid ""
@@ -916,6 +967,7 @@ msgstr ""
 "噢，卑鄙的家伙，你已经消灭了所有的抵抗。现在是使地面上的可悲的居民驱从于你的"
 "时候了。"
 
+#. Level Nevergrim information
 #: guitext:90
 msgctxt "In-game message"
 msgid ""
@@ -925,6 +977,7 @@ msgstr ""
 "你制造出了一个圆石陷井。将它放在通道上，它将发出无情的隆隆声咆哮着碾碎那些大"
 "意的入侵者。"
 
+#. Level Nevergrim information
 #: guitext:91
 msgctxt "In-game message"
 msgid ""
@@ -935,6 +988,7 @@ msgstr ""
 "伴随着象征性的光辉，你研制出了塌方魔法。使用它可以阻挡敌人的通过和修复地下城"
 "的裂缝。有趣地是它也会压死任何遇到它的怪物。"
 
+#. Level Nevergrim information
 #: guitext:92
 msgctxt "In-game message"
 msgid ""
@@ -945,6 +999,7 @@ msgstr ""
 "你的不知疲倦的图书管理员研制出了招募中心。将怪物放到招募中心中，他们会引诱其"
 "它的地下城中的和外面世界中的他们的同类进入你的地下城。"
 
+#. Level Nevergrim information
 #: guitext:93
 msgctxt "In-game message"
 msgid ""
@@ -954,11 +1009,13 @@ msgstr ""
 "你巨大的财富收买了一个经过这里的龙的忠诚。他们是反复无常的家伙，随时注意他们"
 "的动向。"
 
+#. Level Nevergrim information
 #: guitext:94
 msgctxt "In-game message"
 msgid "A Hell Hound has been lured to your domain by your Scavenger Room."
 msgstr "一个地狱之犬被你的招募中心吸引到了你的地下城中。"
 
+#. Level Buffy Oak objective
 #: guitext:95
 msgctxt "In-game message"
 msgid ""
@@ -969,6 +1026,7 @@ msgstr ""
 "这个区域中的另外两个守护者暂时不计前嫌，结成了反对你的同盟。这近乎于是对你的"
 "赞扬。干掉这些爬虫。"
 
+#. Level Buffy Oak objective
 #: guitext:96
 msgctxt "In-game message"
 msgid ""
@@ -978,6 +1036,7 @@ msgstr ""
 "你赢得了辉煌的胜利，主人。你有与生俱来的残忍，这使得每一个败在你手下的守护者"
 "看起来都象是好人。"
 
+#. Level Hearth information
 #: guitext:97
 msgctxt "In-game message"
 msgid ""
@@ -987,6 +1046,7 @@ msgstr ""
 "你研制出了极富破坏性的魔法。它可以把一个可怕的怪物变成一个可爱的小鸡。了不"
 "起！"
 
+#. Level Hearth information
 #: guitext:98
 msgctxt "In-game message"
 msgid ""
@@ -996,6 +1056,7 @@ msgstr ""
 "你的工人制造出了一个警戒陷井。它将在敌人靠近时发出警报，并召唤附近的怪物去对"
 "付入侵者。"
 
+#. Level Buffy Oak information
 #: guitext:99
 msgctxt "In-game message"
 msgid ""
@@ -1005,6 +1066,7 @@ msgstr ""
 "你制造了一个魔法门。除了魔法攻击外，它几乎是劳不可破的。我建议你将它放在你的"
 "储金室或地下城的心脏附近。"
 
+#. Level Nevergrim objective
 #: guitext:100
 msgctxt "In-game message"
 msgid ""
@@ -1012,6 +1074,7 @@ msgid ""
 "advise extreme antisocial behaviour on your part."
 msgstr "在这个火热的王国中，一个守护者与你竞争。我站在极端反社会的你这一方。"
 
+#. Level Nevergrim objective
 #: guitext:101
 msgctxt "In-game message"
 msgid ""
@@ -1020,6 +1083,7 @@ msgid ""
 msgstr ""
 "最恶毒的人，你又获得了另一个胜利。你可以把另一片土地加入你的凄凉的收藏。"
 
+#. Level Hearth objective
 #: guitext:102
 msgctxt "In-game message"
 msgid ""
@@ -1030,12 +1094,14 @@ msgstr ""
 "你对第一波攻击的毁灭性打击得到了来自第五层地狱的魔鬼们的赞赏。训练你的怪物，"
 "准备另一场战斗。你正在吸引一个怪物加入。"
 
+#. Level Hearth objective
 #: guitext:103
 msgctxt "In-game message"
 msgid ""
 "The enemy are upon us. I'm just telling you in case you were having a doze."
 msgstr "敌人迫近了，我提醒你是因为怕你在打瞌睡。"
 
+#. Level Hearth objective
 #: guitext:104
 msgctxt "In-game message"
 msgid ""
@@ -1045,6 +1111,7 @@ msgstr ""
 "所有的英雄都得到了他们应有的下场，死亡。这片土地和所有的战利品都属于你。我会"
 "建议你浪费任何东西吗？"
 
+#. Level Hearth objective
 #: guitext:105
 msgctxt "In-game message"
 msgid ""
@@ -1057,6 +1124,7 @@ msgstr ""
 "地下城发动总攻击。这是用一个伟大的天平来检验终极的邪恶的理想机会。进行吧，主"
 "人。"
 
+#. Level Woodly Rhyme information
 #: guitext:106
 #, fuzzy
 msgctxt "In-game message"
@@ -1068,6 +1136,7 @@ msgstr ""
 "你最后的发现物是强力咒语陷井。当它被触发时，一个扩散的火轮将把它作用范围内的"
 "任何东西化为灰烬。我已经听到了绝望的尖叫声。"
 
+#. Level Moonbrush Wood information
 #: guitext:107
 msgctxt "In-game message"
 msgid ""
@@ -1078,6 +1147,7 @@ msgstr ""
 "召唤魔法研制成功。它将会把你所有的怪物传送到地下城的心脏。我希望你永远不需要"
 "它。"
 
+#. Level Sleepiburgh objective
 #: guitext:108
 msgctxt "In-game message"
 msgid ""
@@ -1085,6 +1155,7 @@ msgid ""
 "region. It should fall to you to settle the disagreement once and for all."
 msgstr "你不能指望轻松的战胜任何守护者，因为这样无法解决纠纷。"
 
+#. Level Buffy Oak information
 #: guitext:109
 msgctxt "In-game message"
 msgid ""
@@ -1095,6 +1166,7 @@ msgstr ""
 "你的研究者们发现了破坏性的变为小鸡的魔法。将它施展到任何怪物身上，他们将立即"
 "变为家禽。这是一个家禽武器。"
 
+#. Level Sleepiburgh information
 #: guitext:110
 msgctxt "In-game message"
 msgid ""
@@ -1105,6 +1177,7 @@ msgstr ""
 "现在你有一个可以把强化过的墙壁转变为尘埃的魔法。使用它的代价是昂贵的，同样你"
 "的敌人也可能有这个魔法。"
 
+#. Level Sleepiburgh objective
 #: guitext:111
 msgctxt "In-game message"
 msgid ""
@@ -1113,11 +1186,13 @@ msgid ""
 msgstr ""
 "只有国王还存在于你和这片荒芜和苦难的土地之间。我相信你不会等到他来会见你。"
 
+#. Level Sleepiburgh objective
 #: guitext:112
 msgctxt "In-game message"
 msgid "Your continued success makes me sick. Thank you, your wickedness."
 msgstr "你的持续的胜利使我生病。谢谢，你的邪恶。"
 
+#. Level Woodly Rhyme objective
 #: guitext:113
 msgctxt "In-game message"
 msgid ""
@@ -1127,12 +1202,14 @@ msgstr ""
 "你看起来已经开始行动了。在这个领域里，两个其他的守护者也有他们的野心。希望你"
 "不要被你的对手分尸。"
 
+#. Level Woodly Rhyme information
 #: guitext:114
 msgctxt "In-game message"
 msgid ""
 "Can you see how vulnerable one of your opponents has become? Then kill him."
 msgstr "你能看到你的对手变得多么脆弱吗？如果这样，杀死他们。"
 
+#. Level Woodly Rhyme information
 #: guitext:115
 msgctxt "In-game message"
 msgid ""
@@ -1140,6 +1217,7 @@ msgid ""
 "Keeper who's about to die."
 msgstr "我侦察到一个守护者几乎没有控制任何怪物。我觉得一个守护者将要死亡。"
 
+#. Level Woodly Rhyme information
 #: guitext:116
 msgctxt "In-game message"
 msgid ""
@@ -1150,6 +1228,7 @@ msgstr ""
 "这个古代的地下城有重大的考古学价值。这意味着这里有一些有趣的宝藏值得窃取。这"
 "就是我所谓的实用主义的考古学。"
 
+#. Level Woodly Rhyme information
 #: guitext:117
 msgctxt "In-game message"
 msgid ""
@@ -1159,6 +1238,7 @@ msgstr ""
 "你的图书管理员们学到了一个可以打破强化过的墙壁的魔法。如果谁没有尽快地将它学"
 "会就打他的耳光。"
 
+#. Level Woodly Rhyme information
 #: guitext:118
 msgctxt "In-game message"
 msgid ""
@@ -1168,6 +1248,7 @@ msgstr ""
 "一个你的敌人发现了一个可以打破被加固的墙壁的魔法。你的防守现在成为了一种象征"
 "性的东西。"
 
+#. Level Woodly Rhyme information
 #: guitext:119
 msgctxt "In-game message"
 msgid ""
@@ -1177,6 +1258,7 @@ msgstr ""
 "你已经开发出末日审判魔法。这是美好生活的同意词。在你施展它之前请确定你是这个"
 "区域中最强大的力量。"
 
+#. Level Tulipscent information
 #: guitext:120
 msgctxt "In-game message"
 msgid ""
@@ -1187,11 +1269,13 @@ msgstr ""
 "你无法找到通过这个区域的任何捷径。你必须为前进的每一步进行艰苦地战斗。但是，"
 "如果你想要统治这个世界，你只需要简单地度过这艰难的每一天。"
 
+#. Level Elf's Dance information
 #: guitext:121
 msgctxt "In-game message"
 msgid "Your manufacturers have crafted the Lava Trap."
 msgstr "你的工人们制造出了岩浆陷井。"
 
+#. Level Mirthshire objective
 #: guitext:122
 msgctxt "In-game message"
 msgid ""
@@ -1202,6 +1286,7 @@ msgstr ""
 "你的位置已经被这片土地的英雄们查明。他们已经迅速地动员了他们的力量进攻你。这"
 "实在令人伤感。因为他们的厚颜无耻，他们的头颅将被刺穿。"
 
+#. Level Mirthshire objective
 #: guitext:123
 msgctxt "In-game message"
 msgid ""
@@ -1209,6 +1294,7 @@ msgid ""
 "media?"
 msgstr "你已经令本地的国王坐立不安。他就要上路了。我应该警告你吗？"
 
+#. Level Mirthshire information
 #: guitext:124
 msgctxt "In-game message"
 msgid ""
@@ -1219,6 +1305,7 @@ msgstr ""
 "这个王国的英雄拥有具有非常力量的宝藏。显然，它们应该属于你。我确信你将会把他"
 "们拥有的财富收缴。"
 
+#. Level Tulipscent objective
 #: guitext:125
 msgctxt "In-game message"
 msgid ""
@@ -1228,11 +1315,13 @@ msgstr ""
 "看来你有一个竞争对手。另一个守护者相信他比你更加残忍，更加邪恶。我们很快就会"
 "看到结果。"
 
+#. Level Tulipscent information
 #: guitext:126
 msgctxt "In-game message"
 msgid "This ancient realm is rich in magical artifacts. Go forth and plunder."
 msgstr "这个古代的王国有丰富的魔法物品。前进并且掠夺。"
 
+#. Level Blaise End objective
 #: guitext:127
 msgctxt "In-game message"
 msgid ""
@@ -1243,6 +1332,7 @@ msgstr ""
 "这个王国的守护者们还在睡梦中。尽快地攻击他们，否则他们将被唤醒，屠杀将变得更"
 "为艰难。"
 
+#. Level Blaise End information
 #: guitext:128
 msgctxt "In-game message"
 msgid ""
@@ -1253,6 +1343,7 @@ msgstr ""
 "如果你遇到巡逻的英雄，不要留下活口。否则你的存在将被泄露，那么你就遇到麻烦"
 "了。"
 
+#. Level Blaise End information
 #: guitext:129
 msgctxt "In-game message"
 msgid ""
@@ -1260,12 +1351,14 @@ msgid ""
 "soon, preferably before hell freezes over."
 msgstr "你即将永远接管这里。尽快攻击并捣毁英雄的要塞，最好在地狱完全结冰之前。"
 
+#. Level Blaise End information
 #: guitext:130
 msgctxt "In-game message"
 msgid ""
 "Enemy reinforcements have arrived. So what? Let's hear it for more killing."
 msgstr "敌人的增援到达了。这又如何？让我们期待更辉煌的战果。"
 
+#. Level Blaise End objective
 #: guitext:131
 msgctxt "In-game message"
 msgid ""
@@ -1276,6 +1369,7 @@ msgstr ""
 "这个王国的英雄们已经建造好了一个地下要塞等待你的到来。他们认为自己是什么人？"
 "抱歉，主人，这是一个修辞学的问题。"
 
+#. Level Bonus 6 information
 #: guitext:132
 msgctxt "In-game message"
 msgid ""
@@ -1283,6 +1377,7 @@ msgid ""
 "Here it comes, ready or not."
 msgstr "你将面临对你邪恶渴望的最大的挑战。它来了，准备好了吗？"
 
+#. Level Bonus 6 objective
 #: guitext:133
 msgctxt "In-game message"
 msgid ""
@@ -1293,6 +1388,7 @@ msgstr ""
 "三个其他的守护者，他们与你一样的邪恶和强大，他们将自己的帝国扩展到了这里。最"
 "终只有一个统治了地下世界的人可以征服这个王国。"
 
+#. Level Skybird Trill objective
 #: guitext:134
 msgctxt "In-game message"
 msgid ""
@@ -1302,6 +1398,7 @@ msgstr ""
 "这个王国乞求投入黑暗的怀抱。圣者自己拥有一个城堡。另一个守护者也在寻找他的灵"
 "魂。这可能会使你有麻烦。"
 
+#. Level Skybird Trill objective
 #: guitext:135
 msgctxt "In-game message"
 msgid ""
@@ -1313,6 +1410,7 @@ msgstr ""
 "你已经摧毁了圣者的城堡，而你的竞争者则囚禁了圣者。只有一个最心狠手辣的守护者"
 "可以击败传说中的英雄，所以搜索你的敌人的地下城，拿走你的战利品。"
 
+#. Level Skybird Trill objective
 #: guitext:136
 msgctxt "In-game message"
 msgid ""
@@ -1325,6 +1423,7 @@ msgstr ""
 "在召集所有那些反对你的力量。主人，现在是给那些自以为是的畸形儿们上一课的时候"
 "了。"
 
+#. Level Bonus 5 objective
 #: guitext:137
 msgctxt "In-game message"
 msgid ""
@@ -1335,6 +1434,7 @@ msgstr ""
 "强力的魔法遍及这个王国的每一块岩石，它妨碍了地下城的建设。你必须用别的方法征"
 "服这个王国。"
 
+#. Level Bonus 5 information
 #: guitext:138
 msgctxt "In-game message"
 msgid ""
@@ -1345,6 +1445,7 @@ msgstr ""
 "控制一只龙可以帮助你穿越炙热的岩浆，但在环境需要的时候你要准备将你的灵魂转移"
 "到更加合适的怪物中。"
 
+#. Level Bonus 5 objective
 #: guitext:139
 msgctxt "In-game message"
 msgid ""
@@ -1354,6 +1455,7 @@ msgstr ""
 "控制吸血鬼。你应该可以杀死这个区域中的每一个英雄，吸血鬼将陪伴你来到上面的王"
 "国。"
 
+#. Level Bonus 2 objective
 #: guitext:140
 msgctxt "In-game message"
 msgid ""
@@ -1364,11 +1466,13 @@ msgstr ""
 "这些小鬼们全部染上了恶习，因此他们必须去死。你完成对他们的毁灭的时间将决定你"
 "对前面更加伟大的任务的适应程度。"
 
+#. Level Bonus 2 information
 #: guitext:141
 msgctxt "In-game message"
 msgid "Tempus fugit, Keeper. You have been warned."
 msgstr "光阴似箭，守护者。你被警告了。"
 
+#. Level Bonus 2 objective
 #: guitext:142
 msgctxt "In-game message"
 msgid ""
@@ -1376,6 +1480,7 @@ msgid ""
 "darkness were hoping for."
 msgstr "你失败了。可能你不是黑暗的力量所需要的天命的先驱者。"
 
+#. Level Bonus 2 objective
 #: guitext:143
 msgctxt "In-game message"
 msgid ""
@@ -1386,6 +1491,7 @@ msgstr ""
 "你的确有一个扭曲的灵魂，主人。你用这样夸张的手段使小鬼灭绝了，以至于除了两个"
 "黑暗女王外没有人会帮助你完成下一个目标。你可以继续你的下一个征服了。"
 
+#. Level Bonus 3 objective
 #: guitext:144
 msgctxt "In-game message"
 msgid ""
@@ -1393,16 +1499,19 @@ msgid ""
 "these Imps as quickly as you can."
 msgstr "你必须有闪电术才能完成你面前的任务。尽可能地迅速杀掉这些小鬼。"
 
+#. Level Bonus 3 information
 #: guitext:145
 msgctxt "In-game message"
 msgid "Half your allotted time has elapsed."
 msgstr "你的时间已经过去了一半。"
 
+#. Level Bonus 3 objective
 #: guitext:146
 msgctxt "In-game message"
 msgid "You are out of time. That was a shocking performance."
 msgstr "你的时间用完了。这是一个可怕的成绩。"
 
+#. Level Bonus 3 objective
 #: guitext:147
 #, fuzzy
 msgctxt "In-game message"
@@ -1414,6 +1523,7 @@ msgstr ""
 "完成了。许多尸体在这个小鬼曾经站立过的地方被烧烤。你把握了时间的脉搏。黑暗之"
 "神将给你一个巨人帮助你征服下一个王国。"
 
+#. Level Bonus 3 objective
 #: guitext:148
 msgctxt "In-game message"
 msgid ""
@@ -1431,11 +1541,13 @@ msgstr ""
 "你被召唤到这个王国惩罚一个背叛的巨魔的部落，你要用地下城周围的圆石陷井将它们"
 "碾碎。你只有很少的时间，让我们干吧。"
 
+#. Level Bonus 4 objective
 #: guitext:150
 msgctxt "In-game message"
 msgid "Half your time has expired."
 msgstr "你的一半时间已经过去。"
 
+#. Level Bonus 4 objective
 #: guitext:151
 msgctxt "In-game message"
 msgid ""
@@ -1443,6 +1555,7 @@ msgid ""
 "inter-dimensional void as you."
 msgstr "时间用完了，你失败了。我同样感到尴尬。"
 
+#. Level Bonus 4 objective
 #: guitext:152
 #, fuzzy
 msgctxt "In-game message"
@@ -1454,6 +1567,7 @@ msgstr ""
 "干得漂亮。你已经超越了使用大石球的境界，为此黑暗之神们将要报答你。当你达到下"
 "一个王国时你将获得三个出色的小鬼。"
 
+#. Level Bonus 4 objective
 #: guitext:153
 #, fuzzy
 msgctxt "In-game message"
@@ -1466,6 +1580,7 @@ msgstr ""
 "这个区域将考验你横穿洞穴网的能力。时间是你真正的敌人。打败它你将发现传说中的"
 "战士的所在，乌格，被囚禁的野蛮人。乌格将在以后为你服务。"
 
+#. Level Mistle objective
 #: guitext:154
 msgctxt "In-game message"
 msgid ""
@@ -1477,6 +1592,7 @@ msgstr ""
 "这个王国的人告诉你有关一个叫维泽的守护者的事，他将阻止你。他这样做的时候你不"
 "得不把他变成历史。资源将因为他的活动而变得稀少。"
 
+#. Level Mistle objective
 #: guitext:155
 msgctxt "In-game message"
 msgid ""
@@ -1484,6 +1600,7 @@ msgid ""
 "eternity. Give 'em hell, master."
 msgstr "维泽被打败了。这片土地成为了你的永远的战利品。给他们降临苦难吧，主人。"
 
+#. Level Mistle information
 #: guitext:156
 msgctxt "In-game message"
 msgid ""
@@ -1496,6 +1613,7 @@ msgstr ""
 "伤亡的时候，这个武士甚至会召唤来他在军队中的兄弟帮助你。多么的善良，多么的愚"
 "蠢！"
 
+#. Level Mistle information
 #: guitext:157
 msgctxt "In-game message"
 msgid ""
@@ -1504,6 +1622,7 @@ msgid ""
 msgstr ""
 "这个区域象一个迷宫，许多英雄在探索他们的道路。没有人说邪恶是一件轻松的事情。"
 
+#. Level Mistle information
 #: guitext:158
 msgctxt "In-game message"
 msgid ""
@@ -1511,6 +1630,7 @@ msgid ""
 "Were you to find them and free them, they would make powerful servants."
 msgstr "传说龙被囚禁在这个地方的东边。找到并释放他们，他们将成为你有力的工具。"
 
+#. Level Mistle information
 #: guitext:159
 msgctxt "In-game message"
 msgid ""
@@ -1521,6 +1641,7 @@ msgstr ""
 "一个向北的隧道通向国王的领域。这个门戒备森严。将人类的注意力引向你地下的敌人"
 "是明智的抉择。"
 
+#. Level Mistle information
 #: guitext:160
 msgctxt "In-game message"
 msgid ""
@@ -1534,6 +1655,7 @@ msgctxt "In-game message"
 msgid "May I suggest that you kill or imprison anything that gets in your way?"
 msgstr "我可以建议你杀死或囚禁任何阻挡你的意志的家伙吗？"
 
+#. Level Blaise End objective
 #: guitext:162
 msgctxt "In-game message"
 msgid ""
@@ -1543,6 +1665,7 @@ msgstr ""
 "另一个王国被划入了在你的邪恶统治之下的区域。另一片悲惨和绝望的云雾聚集了。有"
 "趣。"
 
+#. Level Skybird Trill objective
 #: guitext:163
 msgctxt "In-game message"
 msgid "You have failed. This is a grim day for evil."
@@ -1565,11 +1688,13 @@ msgid ""
 "realm."
 msgstr "小心你的巨魔，否则你将永远见不到阳光。"
 
+#. Level Bonus 1 objective
 #: guitext:166
 msgctxt "In-game message"
 msgid "How time flies... hurry!"
 msgstr "光阴似箭，快一点！"
 
+#. Level Skybird Trill information
 #: guitext:167
 msgctxt "In-game message"
 msgid ""
@@ -1586,6 +1711,7 @@ msgid ""
 "Prepare thyself..."
 msgstr "圣者和他的同盟被打败了，在这土地上的他的魔力正在消失。你自己准备好吧。"
 
+#. Level Skybird Trill objective
 #: guitext:169
 msgctxt "In-game message"
 msgid ""
@@ -1595,16 +1721,19 @@ msgstr ""
 "你轻松地除掉了这个守护者。现在，在你和这个世界之间的是铠甲上的鲜红色。让我们"
 "得到它。"
 
+#. Level Mirthshire objective
 #: guitext:170
 msgctxt "In-game message"
 msgid "Success is thine. Truly, you have earned your title, Dungeon Keeper."
 msgstr "成功属于你。你已经赢得了你的称号，地下城守护者。"
 
+#. Level Skybird Trill objective
 #: guitext:171
 msgctxt "In-game message"
 msgid "What is this? The Avatar lives!"
 msgstr "这是什么？圣者还活着。"
 
+#. Level Skybird Trill win objective, also used in DD Level Belial
 #: guitext:172
 msgctxt "In-game message"
 msgid ""
@@ -1612,6 +1741,7 @@ msgid ""
 "bet you have never felt so bad."
 msgstr "最终，你拥有无可争辩的权威。世界是你的。我打赌你的感觉从为这么糟糕。"
 
+#. Level Skybird Trill objective
 #: guitext:173
 msgctxt "In-game message"
 msgid ""
@@ -1622,6 +1752,7 @@ msgstr ""
 "太棒了，守护者！圣者和他可悲的军队终于全军覆没了！只要击败最后一个守护者就可"
 "以成为万物的主宰了！现在，您还在等什么呢？"
 
+#. Levels Moonbrush Wood and Bonus 1 information
 #: guitext:174
 msgctxt "In-game message"
 msgid ""
@@ -1629,6 +1760,7 @@ msgid ""
 "to reduces your enemies into ashes!"
 msgstr "你看见了吗？你的恶鬼进化成了一头强大的巨龙，时刻准备着将敌人化为灰烬！"
 
+#. Level Bonus 6 objective
 #: guitext:175
 msgctxt "In-game message"
 msgid ""
@@ -1636,6 +1768,7 @@ msgid ""
 "serve you well in the next realm!"
 msgstr "干得好！你无边的财富吸引了一个盗贼。他会在下一个王国为你服务！"
 
+#. Level Flowerhat information
 #: guitext:176
 msgctxt "In-game message"
 msgid ""
@@ -1645,6 +1778,7 @@ msgid ""
 msgstr ""
 "你的研究者们研究出了治疗术，它可以用来治愈你的怪物，让它们活得稍微久一些。"
 
+#. Level Tulipscent information
 #: guitext:177
 msgctxt "In-game message"
 msgid ""
@@ -1656,6 +1790,7 @@ msgstr ""
 "试试无上权威魔法吧。开启后，它将迫使你的怪物服从所有命令，加快它们的工作速度"
 "并剥夺它们的睡眠时间。为了维持这个魔法，你最好准备大量的金钱。"
 
+#. Level Tulipscent information
 #: guitext:178
 msgctxt "In-game message"
 msgid ""
@@ -1666,6 +1801,7 @@ msgstr ""
 "一只水怪加入了你的地下城。这些罕见的小东西喜欢待在水里，它们的尖刺可以穿透最"
 "坚固的护甲并麻痹你的敌人。太棒了！"
 
+#. Level Bonus 1 objective
 #: guitext:179
 #, fuzzy
 msgctxt "In-game message"
@@ -5913,8 +6049,21 @@ msgid "Your creature cannot reach the room it needs"
 msgstr "你的怪物无法到达以下房间"
 
 #: guitext:946
+#, fuzzy
 msgctxt "Game event description"
-msgid "Room unreachable: LMB toggle. RMB delete."
+msgid "Work room unreachable: LMB toggle. RMB delete."
+msgstr "无法到达目的地: 左键切换。右键删除。"
+
+#: guitext:947
+#, fuzzy
+msgctxt "Game event name"
+msgid "Your Imp cannot reach a room to drag something into"
+msgstr "你的怪物无法到达以下房间"
+
+#: guitext:948
+#, fuzzy
+msgctxt "Game event description"
+msgid "Storage room unreachable: LMB toggle. RMB delete."
 msgstr "无法到达目的地: 左键切换。右键删除。"
 
 #~ msgctxt "Slab description"
