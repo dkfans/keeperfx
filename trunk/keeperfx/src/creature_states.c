@@ -1761,7 +1761,9 @@ short creature_doing_nothing(struct Thing *creatng)
         if (game.play_gameturn - cctrl->tasks_check_turn > 128)
         {
             cctrl->tasks_check_turn = game.play_gameturn;
-            if (find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_LAIR, NavRtF_Default, crstat->lair_size))
+            struct Room *room;
+            room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_LAIR, NavRtF_Default, crstat->lair_size);
+            if (!room_is_invalid(room))
             {
                 internal_set_thing_state(creatng, CrSt_CreatureWantsAHome);
                 SYNCDBG(8,"The %s index %d goes make lair",thing_model_name(creatng),creatng->index);

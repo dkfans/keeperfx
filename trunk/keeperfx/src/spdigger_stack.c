@@ -2028,20 +2028,6 @@ long check_out_worker_pickup_unconscious(struct Thing *thing, struct DiggerStack
     if (!player_creature_tends_to(thing->owner, CrTend_Imprison)) {
         return 0;
     }
-    struct Room * room;
-    room = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_PRISON, NavRtF_Default, 1);
-    if (room_is_invalid(room))
-    {
-        if (is_my_player_number(thing->owner))
-        {
-            room = find_room_with_spare_capacity(thing->owner, RoK_PRISON, 1);
-            if (room_is_invalid(room)) {
-                output_message(SMsg_PrisonTooSmall, 1000, true);
-            }
-        }
-        istack->task_id = DigTsk_None;
-        return -1;
-    }
     struct Thing *sectng;
     sectng = check_place_to_pickup_unconscious_body(thing, stl_x, stl_y);
     if (thing_is_invalid(sectng))
@@ -2051,6 +2037,14 @@ long check_out_worker_pickup_unconscious(struct Thing *thing, struct DiggerStack
     }
     if (imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
     {
+        istack->task_id = DigTsk_None;
+        return -1;
+    }
+    struct Room * room;
+    room = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_PRISON, NavRtF_Default, 1);
+    if (room_is_invalid(room))
+    {
+        update_cannot_find_room_wth_spare_capacity_event(thing->owner, thing, RoK_PRISON);
         istack->task_id = DigTsk_None;
         return -1;
     }
@@ -2074,20 +2068,6 @@ long check_out_worker_pickup_corpse(struct Thing *creatng, struct DiggerStack *i
     if (!player_has_room(creatng->owner, RoK_GRAVEYARD)) {
         return 0;
     }
-    struct Room * room;
-    room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_GRAVEYARD, NavRtF_Default, 1);
-    if (room_is_invalid(room))
-    {
-        if (is_my_player_number(creatng->owner))
-        {
-            room = find_room_with_spare_capacity(creatng->owner, RoK_GRAVEYARD, 1);
-            if (room_is_invalid(room)) {
-                output_message(SMsg_GraveyardTooSmall, 1000, true);
-            }
-        }
-        istack->task_id = DigTsk_None;
-        return -1;
-    }
     struct Thing *deadtng;
     deadtng = check_place_to_pickup_dead_body(creatng, stl_x, stl_y);
     if (thing_is_invalid(deadtng))
@@ -2097,6 +2077,14 @@ long check_out_worker_pickup_corpse(struct Thing *creatng, struct DiggerStack *i
     }
     if (imp_will_soon_be_working_at_excluding(creatng, stl_x, stl_y))
     {
+        istack->task_id = DigTsk_None;
+        return -1;
+    }
+    struct Room * room;
+    room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_GRAVEYARD, NavRtF_Default, 1);
+    if (room_is_invalid(room))
+    {
+        update_cannot_find_room_wth_spare_capacity_event(creatng->owner, creatng, RoK_GRAVEYARD);
         istack->task_id = DigTsk_None;
         return -1;
     }
@@ -2128,16 +2116,6 @@ long check_out_worker_pickup_spellbook(struct Thing *thing, struct DiggerStack *
     if (!player_has_room(thing->owner, RoK_LIBRARY)) {
         return 0;
     }
-    if (!find_nearest_room_for_thing_with_spare_item_capacity(thing, thing->owner, RoK_LIBRARY, NavRtF_Default))
-    {
-        if (is_my_player_number(thing->owner))
-        {
-          if (!find_room_with_spare_room_item_capacity(thing->owner, RoK_LIBRARY))
-            output_message(SMsg_LibraryTooSmall, 1000, true);
-        }
-        istack->task_id = DigTsk_None;
-        return -1;
-    }
     struct Thing *sectng;
     sectng = check_place_to_pickup_spell(thing, stl_x, stl_y);
     if (thing_is_invalid(sectng))
@@ -2147,6 +2125,14 @@ long check_out_worker_pickup_spellbook(struct Thing *thing, struct DiggerStack *
     }
     if (imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
     {
+        istack->task_id = DigTsk_None;
+        return -1;
+    }
+    struct Room *room;
+    room = find_nearest_room_for_thing_with_spare_item_capacity(thing, thing->owner, RoK_LIBRARY, NavRtF_Default);
+    if (room_is_invalid(room))
+    {
+        update_cannot_find_room_wth_spare_capacity_event(thing->owner, thing, RoK_LIBRARY);
         istack->task_id = DigTsk_None;
         return -1;
     }
@@ -2218,16 +2204,6 @@ long check_out_worker_pickup_trap_for_workshop(struct Thing *thing, struct Digge
     if (!player_has_room(thing->owner, RoK_WORKSHOP)) {
         return 0;
     }
-    if (!find_nearest_room_for_thing_with_spare_item_capacity(thing, thing->owner, RoK_WORKSHOP, NavRtF_Default))
-    {
-      if (is_my_player_number(thing->owner))
-      {
-        if (!find_room_with_spare_room_item_capacity(thing->owner, RoK_WORKSHOP))
-          output_message(SMsg_WorkshopTooSmall, 1000, true);
-      }
-      istack->task_id = DigTsk_None;
-      return -1;
-    }
     struct Thing *sectng;
     sectng = check_place_to_pickup_crate(thing, stl_x, stl_y, 0);
     if (thing_is_invalid(sectng))
@@ -2237,6 +2213,14 @@ long check_out_worker_pickup_trap_for_workshop(struct Thing *thing, struct Digge
     }
     if (imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
     {
+        istack->task_id = DigTsk_None;
+        return -1;
+    }
+    struct Room *room;
+    room = find_nearest_room_for_thing_with_spare_item_capacity(thing, thing->owner, RoK_WORKSHOP, NavRtF_Default);
+    if (room_is_invalid(room))
+    {
+        update_cannot_find_room_wth_spare_capacity_event(thing->owner, thing, RoK_WORKSHOP);
         istack->task_id = DigTsk_None;
         return -1;
     }
