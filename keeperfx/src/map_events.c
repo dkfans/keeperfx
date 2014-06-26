@@ -232,7 +232,8 @@ struct Event *event_create_event(MapCoord map_x, MapCoord map_y, EventKind evkin
     case EvKind_FriendlyFight:
         i = dungeon->field_13B4[EvKind_EnemyFight];
         break;
-    case EvKind_RoomUnreachable:
+    case EvKind_WorkRoomUnreachable:
+    case EvKind_StorageRoomUnreachable:
         i = dungeon->field_13B4[EvKind_NoMoreLivingSet];
         break;
     default:
@@ -310,7 +311,8 @@ void event_update_last_use(struct Event *event)
     case EvKind_FriendlyFight:
         dungeon->field_13B4[EvKind_EnemyFight] = game.play_gameturn;
         break;
-    case EvKind_RoomUnreachable:
+    case EvKind_WorkRoomUnreachable:
+    case EvKind_StorageRoomUnreachable:
         dungeon->field_13B4[EvKind_NoMoreLivingSet] = game.play_gameturn;
         break;
     default:
@@ -582,7 +584,8 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
             turn_on_menu(GMnu_TEXT_INFO);
             break;
         case EvKind_RoomTakenOver:
-        case EvKind_RoomUnreachable:
+        case EvKind_WorkRoomUnreachable:
+        case EvKind_StorageRoomUnreachable:
             other_off = 1;
             rdata = room_data_get_for_kind(event->target);
             i = rdata->msg1str_idx;

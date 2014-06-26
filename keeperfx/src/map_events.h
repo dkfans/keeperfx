@@ -27,7 +27,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 #define EVENT_BUTTONS_COUNT    12
-#define EVENT_KIND_COUNT       30
+#define EVENT_KIND_COUNT       31
 #define EVENTS_COUNT          100
 #define INVALID_EVENT &game.event[0]
 /******************************************************************************/
@@ -63,7 +63,8 @@ enum EventKinds {
     EvKind_DnSpecialFound,
     EvKind_QuickInformation,
     EvKind_FriendlyFight,
-    EvKind_RoomUnreachable,
+    EvKind_WorkRoomUnreachable,
+    EvKind_StorageRoomUnreachable, //30
 };
 
 enum EventFlags {
