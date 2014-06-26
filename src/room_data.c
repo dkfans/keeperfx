@@ -2016,41 +2016,14 @@ TbBool find_random_position_at_border_of_room(struct Coord3d *pos, const struct 
 
 struct Room *find_room_with_spare_room_item_capacity(PlayerNumber plyr_idx, RoomKind rkind)
 {
-    struct Dungeon *dungeon;
-    struct Room *room;
-    unsigned long k;
-    int i;
-    SYNCDBG(18,"Starting");
     //return _DK_find_room_with_spare_room_item_capacity(a1, a2);
+    struct Dungeon *dungeon;
     if ((rkind < 0) || (rkind >= ROOM_TYPES_COUNT))
-        return NULL;
+        return INVALID_ROOM;
     dungeon = get_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon))
-        return NULL;
-    k = 0;
-    i = dungeon->room_kind[rkind];
-    while (i != 0)
-    {
-        room = room_get(i);
-        if (room_is_invalid(room))
-        {
-            ERRORLOG("Jump to invalid room detected");
-            break;
-        }
-        i = room->next_of_owner;
-        // Per-room code
-        if (room->capacity_used_for_storage < room->total_capacity) {
-            return room;
-        }
-        // Per-room code ends
-        k++;
-        if (k > ROOMS_COUNT)
-        {
-          ERRORLOG("Infinite loop detected when sweeping rooms list");
-          break;
-        }
-    }
-    return NULL;
+        return INVALID_ROOM;
+    return find_room_with_spare_capacity_starting_with(dungeon->room_kind[rkind], 1);
 }
 
 struct Room *find_room_for_thing_with_used_capacity(const struct Thing *creatng, PlayerNumber plyr_idx, RoomKind rkind, unsigned char nav_flags, long min_used_cap)

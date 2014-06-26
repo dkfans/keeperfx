@@ -417,8 +417,10 @@ enum GUIStrings {
     GUIStr_MnuLandSelection = 942,
     GUIStr_MnuCampaigns = 943,
     GUIStr_MnuAddComputer = 944,
-    GUIStr_EventRoomUnreachable,
-    GUIStr_EventRoomUnreachableDesc,
+    GUIStr_EventWorkRoomUnreachbl,
+    GUIStr_EventWorkRoomUnreachblDesc,
+    GUIStr_EventStorgRoomUnreachbl,
+    GUIStr_EventStorgRoomUnreachblDesc,
 };
 
 enum CampaignStrings {

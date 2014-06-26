@@ -407,9 +407,25 @@ EventIndex update_cannot_find_room_wth_spare_capacity_event(PlayerNumber plyr_id
     {
         // Could not find room to send thing - either no capacity or not navigable
         struct CreatureStats *crstat;
-        crstat = creature_stats_get_from_thing(creatng);
         struct Room *room;
-        room = find_room_with_spare_capacity(plyr_idx, rkind, crstat->lair_size);
+        switch (rkind)
+        {
+        case RoK_LAIR:
+            // Find room with lair capacity
+            crstat = creature_stats_get_from_thing(creatng);
+            room = find_room_with_spare_capacity(plyr_idx, rkind, crstat->lair_size);
+            break;
+        case RoK_TREASURE:
+        case RoK_WORKSHOP:
+        case RoK_LIBRARY:
+            // Find room with item capacity
+            room = find_room_with_spare_room_item_capacity(plyr_idx, rkind);
+            break;
+        default:
+            // Find room with worker capacity
+            room = find_room_with_spare_capacity(plyr_idx, rkind, 1);
+            break;
+        }
         if (room_is_invalid(room))
         {
             SYNCDBG(5,"Player %d has %s which cannot find large enough %s",(int)plyr_idx,thing_model_name(creatng),room_code_name(rkind));
@@ -434,7 +450,7 @@ EventIndex update_cannot_find_room_wth_spare_capacity_event(PlayerNumber plyr_id
         {
             SYNCDBG(5,"Player %d has %s which cannot reach %s",(int)plyr_idx,thing_model_name(creatng),room_code_name(rkind));
             evidx = event_create_event_or_update_nearby_existing_event(
-                creatng->mappos.x.val, creatng->mappos.y.val, EvKind_RoomUnreachable, plyr_idx, rkind);
+                creatng->mappos.x.val, creatng->mappos.y.val, EvKind_WorkRoomUnreachable, plyr_idx, rkind);
             if ((evidx > 0) && is_my_player_number(plyr_idx) && (roomst->msg_no_route > 0)) {
                 output_message(roomst->msg_no_route, MESSAGE_DELAY_ROOM_NEED, true);
             }
