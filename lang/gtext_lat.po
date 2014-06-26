@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-04-06 15:18+0100\n"
+"PO-Revision-Date: 2014-06-26 22:04+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: la_LA\n"
@@ -199,7 +199,7 @@ msgid ""
 "Lord of this realm. His party will soon be here."
 msgstr ""
 
-#. Level Eversmile objective when LOTL comes
+#. Levels Eversmile and Tickle objective, when LOTL comes
 #: guitext:19
 msgctxt "In-game message"
 msgid ""
@@ -372,6 +372,7 @@ msgid ""
 "abilities make them fine long range fighters."
 msgstr ""
 
+#. Level Waterdream Warm objective
 #: guitext:39
 msgctxt "In-game message"
 msgid ""
@@ -380,6 +381,7 @@ msgid ""
 "launch another assault."
 msgstr ""
 
+#. Level Waterdream Warm objective
 #: guitext:40
 msgctxt "In-game message"
 msgid ""
@@ -388,6 +390,7 @@ msgid ""
 "adventurers, of course."
 msgstr ""
 
+#. Level Waterdream Warm objective
 #: guitext:41
 msgctxt "In-game message"
 msgid ""
@@ -395,17 +398,20 @@ msgid ""
 "The enemy is only regrouping. It is not yet defeated."
 msgstr ""
 
+#. Level Waterdream Warm information
 #: guitext:42
 msgctxt "In-game message"
 msgid ""
 "Is that Imp playing football with a decapitated head? Stay alert, Keeper."
 msgstr ""
 
+#. Level Waterdream Warm objective
 #: guitext:43
 msgctxt "In-game message"
 msgid "Now would be an excellent time to train a Warlock."
 msgstr ""
 
+#. Level Waterdream Warm information
 #: guitext:44
 msgctxt "In-game message"
 msgid ""
@@ -414,6 +420,7 @@ msgid ""
 "speed. The effect wears off after a while."
 msgstr ""
 
+#. Level Flowerhat objective
 #: guitext:45
 msgctxt "In-game message"
 msgid ""
@@ -422,6 +429,7 @@ msgid ""
 "would be wiser not to disturb them until you are prepared."
 msgstr ""
 
+#. Level Flowerhat information
 #: guitext:46
 msgctxt "In-game message"
 msgid ""
@@ -429,6 +437,7 @@ msgid ""
 "You will need Bridges to cross some of the more hazardous underworld terrain."
 msgstr ""
 
+#. Level Flowerhat objective
 #: guitext:47
 msgctxt "In-game message"
 msgid ""
@@ -438,6 +447,7 @@ msgid ""
 "artisans into your dungeon."
 msgstr ""
 
+#. Level Flowerhat information
 #: guitext:48
 msgctxt "In-game message"
 msgid ""
@@ -446,6 +456,7 @@ msgid ""
 "selected from the Workshop Panel as soon as they're ready."
 msgstr ""
 
+#. Level Flowerhat objective
 #: guitext:49
 msgctxt "In-game message"
 msgid ""
@@ -453,6 +464,7 @@ msgid ""
 "them north and crush any who oppose you."
 msgstr ""
 
+#. Level Flowerhat objective
 #: guitext:50
 msgctxt "In-game message"
 msgid ""
@@ -460,6 +472,7 @@ msgid ""
 "way."
 msgstr ""
 
+#. Level Flowerhat objective
 #: guitext:51
 msgctxt "In-game message"
 msgid ""
@@ -467,6 +480,7 @@ msgid ""
 "and administer the coup de grace."
 msgstr ""
 
+#. Level Flowerhat information
 #: guitext:52
 msgctxt "In-game message"
 msgid ""
@@ -475,6 +489,7 @@ msgid ""
 "the hours, because their labours keep them away from combat."
 msgstr ""
 
+#. Level Flowerhat objective
 #: guitext:53
 msgctxt "In-game message"
 msgid ""
@@ -482,6 +497,7 @@ msgid ""
 "opposition. Rule your new domain with terror and loathing, for a laugh."
 msgstr ""
 
+#. Level Flowerhat information
 #: guitext:54
 msgctxt "In-game message"
 msgid ""
@@ -490,6 +506,7 @@ msgid ""
 "clicking over them with the left mouse button."
 msgstr ""
 
+#. Level Flowerhat information
 #: guitext:55
 msgctxt "In-game message"
 msgid ""
@@ -497,6 +514,7 @@ msgid ""
 "intruder sets it off, it will envelop the area in deadly vapours."
 msgstr ""
 
+#. Level Flowerhat information
 #: guitext:56
 msgctxt "In-game message"
 msgid ""
@@ -506,6 +524,7 @@ msgid ""
 "territory."
 msgstr ""
 
+#. Level Lushmeadow-on-Down objective
 #: guitext:57
 msgctxt "In-game message"
 msgid ""
@@ -514,6 +533,7 @@ msgid ""
 "will have to build a more magnificent dungeon. Get on with it then."
 msgstr ""
 
+#. Level Lushmeadow-on-Down objective
 #: guitext:58
 msgctxt "In-game message"
 msgid ""
@@ -521,6 +541,7 @@ msgid ""
 "design. You have the makings of a Dungeon Keeper worthy of the name."
 msgstr ""
 
+#. Level Lushmeadow-on-Down information
 #: guitext:59
 msgctxt "In-game message"
 msgid ""
@@ -529,6 +550,7 @@ msgid ""
 "unconventionally."
 msgstr ""
 
+#. Level Lushmeadow-on-Down information
 #: guitext:60
 msgctxt "In-game message"
 msgid ""
@@ -536,6 +558,7 @@ msgid ""
 "unexplored area and it will be revealed to you for a moment."
 msgstr ""
 
+#. Level Lushmeadow-on-Down information
 #: guitext:61
 msgctxt "In-game message"
 msgid ""
@@ -545,6 +568,7 @@ msgid ""
 "warriors for you to command."
 msgstr ""
 
+#. Level Lushmeadow-on-Down information
 #: guitext:62
 msgctxt "In-game message"
 msgid ""
@@ -553,6 +577,7 @@ msgid ""
 "them there."
 msgstr ""
 
+#. Level Lushmeadow-on-Down information
 #: guitext:63
 msgctxt "In-game message"
 msgid ""
@@ -561,6 +586,7 @@ msgid ""
 "mettle - whatever that means."
 msgstr ""
 
+#. Level Snuggledell objective
 #: guitext:64
 msgctxt "In-game message"
 msgid ""
@@ -569,6 +595,7 @@ msgid ""
 "failure shall be oblivion."
 msgstr ""
 
+#. Level Snuggledell objective
 #: guitext:65
 msgctxt "In-game message"
 msgid ""
@@ -577,6 +604,7 @@ msgid ""
 "nomination."
 msgstr ""
 
+#. Level Snuggledell information
 #: guitext:66
 msgctxt "In-game message"
 msgid ""
@@ -586,6 +614,7 @@ msgid ""
 "disciplinary measures become necessary."
 msgstr ""
 
+#. Level Snuggledell information
 #: guitext:67
 msgctxt "In-game message"
 msgid ""
@@ -594,6 +623,7 @@ msgid ""
 "particularly well to a good slapping."
 msgstr ""
 
+#. Level Snuggledell information
 #: guitext:68
 msgctxt "In-game message"
 msgid ""
@@ -602,6 +632,7 @@ msgid ""
 "curtain and a hole in the wall is no help at all."
 msgstr ""
 
+#. Level Snuggledell information
 #: guitext:69
 msgctxt "In-game message"
 msgid ""
@@ -610,6 +641,7 @@ msgid ""
 "hostile creature and flash-fry him with a Lightning Strike."
 msgstr ""
 
+#. Level Snuggledell information
 #: guitext:70
 msgctxt "In-game message"
 msgid ""
@@ -617,6 +649,7 @@ msgid ""
 "give someone a shock."
 msgstr ""
 
+#. Level Wishvale objective
 #: guitext:71
 msgctxt "In-game message"
 msgid ""
@@ -625,6 +658,7 @@ msgid ""
 "eliminate both sides."
 msgstr ""
 
+#. Level Wishvale information
 #: guitext:72
 msgctxt "In-game message"
 msgid ""
@@ -632,6 +666,7 @@ msgid ""
 "Barracks. In this room you can form creatures into teams."
 msgstr ""
 
+#. Level Wishvale objective
 #: guitext:73
 msgctxt "In-game message"
 msgid ""
@@ -640,6 +675,7 @@ msgid ""
 "servants have gone."
 msgstr ""
 
+#. Level Wishvale objective
 #: guitext:74
 msgctxt "In-game message"
 msgid ""
@@ -647,6 +683,7 @@ msgid ""
 "make the enemy Dungeon Keeper extinct."
 msgstr ""
 
+#. Level Wishvale objective
 #: guitext:75
 msgctxt "In-game message"
 msgid ""
@@ -655,6 +692,7 @@ msgid ""
 "you at bay."
 msgstr ""
 
+#. Level Tickle objective
 #: guitext:76
 msgctxt "In-game message"
 msgid ""
@@ -663,6 +701,7 @@ msgid ""
 "him up. It's in the only language he understands."
 msgstr ""
 
+#. Level Tickle information
 #: guitext:77
 msgctxt "In-game message"
 msgid ""
@@ -670,6 +709,7 @@ msgid ""
 "it from enemy eyes."
 msgstr ""
 
+#. Level Tickle information
 #: guitext:78
 msgctxt "In-game message"
 msgid ""
@@ -677,6 +717,7 @@ msgid ""
 "creature to increase its toughness."
 msgstr ""
 
+#. Level Tickle objective
 #: guitext:79
 msgctxt "In-game message"
 msgid ""
@@ -685,6 +726,7 @@ msgid ""
 "save them..."
 msgstr ""
 
+#. Level Tickle information
 #: guitext:80
 msgctxt "In-game message"
 msgid ""
@@ -694,6 +736,7 @@ msgid ""
 "not easy to please."
 msgstr ""
 
+#. Level Moonbrush Wood objective
 #: guitext:81
 msgctxt "In-game message"
 msgid ""
@@ -702,6 +745,7 @@ msgid ""
 "locals. But you're not from these parts..."
 msgstr ""
 
+#. Level Moonbrush Wood objective
 #: guitext:82
 msgctxt "In-game message"
 msgid ""
@@ -709,6 +753,7 @@ msgid ""
 "organise their nice little lives."
 msgstr ""
 
+#. Levels Tickle and Moonbrush Wood information
 #: guitext:83
 msgctxt "In-game message"
 msgid ""
@@ -718,6 +763,7 @@ msgid ""
 "ballistic."
 msgstr ""
 
+#. Level Moonbrush Wood information
 #: guitext:84
 msgctxt "In-game message"
 msgid ""
@@ -725,6 +771,7 @@ msgid ""
 "and watch the affliction spread like the plague."
 msgstr ""
 
+#. Level Moonbrush Wood information
 #: guitext:85
 msgctxt "In-game message"
 msgid ""
@@ -734,6 +781,7 @@ msgid ""
 "your employ."
 msgstr ""
 
+#. Level Moonbrush Wood information
 #: guitext:86
 msgctxt "In-game message"
 msgid ""
@@ -742,12 +790,14 @@ msgid ""
 "That's style."
 msgstr ""
 
+#. Levels Tickle and Moonbrush Wood information
 #: guitext:87
 msgctxt "In-game message"
 msgid ""
 "You have manufactured an Iron Door. It's a formidable barrier. Use it well."
 msgstr ""
 
+#. Level Elf's Dance objective
 #: guitext:88
 msgctxt "In-game message"
 msgid ""
@@ -757,6 +807,7 @@ msgid ""
 "something stupid."
 msgstr ""
 
+#. Level Elf's Dance objective
 #: guitext:89
 msgctxt "In-game message"
 msgid ""
@@ -764,6 +815,7 @@ msgid ""
 "to flex the old misery muscle on the pathetic inhabitants of the land above."
 msgstr ""
 
+#. Level Nevergrim information
 #: guitext:90
 msgctxt "In-game message"
 msgid ""
@@ -771,6 +823,7 @@ msgid ""
 "deliriously as it rumbles inexorably towards unwary trespassers."
 msgstr ""
 
+#. Level Nevergrim information
 #: guitext:91
 msgctxt "In-game message"
 msgid ""
@@ -779,6 +832,7 @@ msgid ""
 "will crush to death any creatures caught beneath it."
 msgstr ""
 
+#. Level Nevergrim information
 #: guitext:92
 msgctxt "In-game message"
 msgid ""
@@ -787,6 +841,7 @@ msgid ""
 "the outside world, into your domain."
 msgstr ""
 
+#. Level Nevergrim information
 #: guitext:93
 msgctxt "In-game message"
 msgid ""
@@ -794,11 +849,13 @@ msgid ""
 "fickle creatures. Keep your eye on this one."
 msgstr ""
 
+#. Level Nevergrim information
 #: guitext:94
 msgctxt "In-game message"
 msgid "A Hell Hound has been lured to your domain by your Scavenger Room."
 msgstr ""
 
+#. Level Buffy Oak objective
 #: guitext:95
 msgctxt "In-game message"
 msgid ""
@@ -807,6 +864,7 @@ msgid ""
 "compliment. Kill the creeps."
 msgstr ""
 
+#. Level Buffy Oak objective
 #: guitext:96
 msgctxt "In-game message"
 msgid ""
@@ -814,6 +872,7 @@ msgid ""
 "mercilessness that makes other Keepers look well behaved by comparison."
 msgstr ""
 
+#. Level Hearth information
 #: guitext:97
 msgctxt "In-game message"
 msgid ""
@@ -821,6 +880,7 @@ msgid ""
 "creature to transform a fearsome monster into a clucking chicken. Marvellous."
 msgstr ""
 
+#. Level Hearth information
 #: guitext:98
 msgctxt "In-game message"
 msgid ""
@@ -828,6 +888,7 @@ msgid ""
 "enemies' approach and summon nearby creatures to deal with the intruders."
 msgstr ""
 
+#. Level Buffy Oak information
 #: guitext:99
 msgctxt "In-game message"
 msgid ""
@@ -835,6 +896,7 @@ msgid ""
 "magical attacks. I recommend sealing off your Treasure Room or Dungeon Heart."
 msgstr ""
 
+#. Level Nevergrim objective
 #: guitext:100
 msgctxt "In-game message"
 msgid ""
@@ -842,6 +904,7 @@ msgid ""
 "advise extreme antisocial behaviour on your part."
 msgstr ""
 
+#. Level Nevergrim objective
 #: guitext:101
 msgctxt "In-game message"
 msgid ""
@@ -849,6 +912,7 @@ msgid ""
 "to your dismal collection."
 msgstr ""
 
+#. Level Hearth objective
 #: guitext:102
 msgctxt "In-game message"
 msgid ""
@@ -857,12 +921,14 @@ msgid ""
 "another battle. You're attracting quite an audience."
 msgstr ""
 
+#. Level Hearth objective
 #: guitext:103
 msgctxt "In-game message"
 msgid ""
 "The enemy are upon us. I'm just telling you in case you were having a doze."
 msgstr ""
 
+#. Level Hearth objective
 #: guitext:104
 msgctxt "In-game message"
 msgid ""
@@ -870,6 +936,7 @@ msgid ""
 "spoils are yours. May I suggest that you waste everything?"
 msgstr ""
 
+#. Level Hearth objective
 #: guitext:105
 msgctxt "In-game message"
 msgid ""
@@ -879,6 +946,7 @@ msgid ""
 "master."
 msgstr ""
 
+#. Level Woodly Rhyme information
 #: guitext:106
 msgctxt "In-game message"
 msgid ""
@@ -887,6 +955,7 @@ msgid ""
 "caught in its area of effect. What a scream that should be."
 msgstr ""
 
+#. Level Moonbrush Wood information
 #: guitext:107
 msgctxt "In-game message"
 msgid ""
@@ -895,6 +964,7 @@ msgid ""
 "it."
 msgstr ""
 
+#. Level Sleepiburgh objective
 #: guitext:108
 msgctxt "In-game message"
 msgid ""
@@ -902,6 +972,7 @@ msgid ""
 "region. It should fall to you to settle the disagreement once and for all."
 msgstr ""
 
+#. Level Buffy Oak information
 #: guitext:109
 msgctxt "In-game message"
 msgid ""
@@ -910,6 +981,7 @@ msgid ""
 "weapon."
 msgstr ""
 
+#. Level Sleepiburgh information
 #: guitext:110
 msgctxt "In-game message"
 msgid ""
@@ -918,6 +990,7 @@ msgid ""
 "power. This could still turn out to be one of those days."
 msgstr ""
 
+#. Level Sleepiburgh objective
 #: guitext:111
 msgctxt "In-game message"
 msgid ""
@@ -925,11 +998,13 @@ msgid ""
 "woe. I bet you can't wait to meet him."
 msgstr ""
 
+#. Level Sleepiburgh objective
 #: guitext:112
 msgctxt "In-game message"
 msgid "Your continued success makes me sick. Thank you, your wickedness."
 msgstr ""
 
+#. Level Woodly Rhyme objective
 #: guitext:113
 msgctxt "In-game message"
 msgid ""
@@ -937,12 +1012,14 @@ msgid ""
 "designs on this dark domain. Expect no quarter from your rivals."
 msgstr ""
 
+#. Level Woodly Rhyme information
 #: guitext:114
 msgctxt "In-game message"
 msgid ""
 "Can you see how vulnerable one of your opponents has become? Then kill him."
 msgstr ""
 
+#. Level Woodly Rhyme information
 #: guitext:115
 msgctxt "In-game message"
 msgid ""
@@ -950,6 +1027,7 @@ msgid ""
 "Keeper who's about to die."
 msgstr ""
 
+#. Level Woodly Rhyme information
 #: guitext:116
 msgctxt "In-game message"
 msgid ""
@@ -958,6 +1036,7 @@ msgid ""
 "that's what I call practical archaeology."
 msgstr ""
 
+#. Level Woodly Rhyme information
 #: guitext:117
 msgctxt "In-game message"
 msgid ""
@@ -965,6 +1044,7 @@ msgid ""
 "Give them a slap for not learning it earlier."
 msgstr ""
 
+#. Level Woodly Rhyme information
 #: guitext:118
 msgctxt "In-game message"
 msgid ""
@@ -972,6 +1052,7 @@ msgid ""
 "walls. Typical. Be on your guard."
 msgstr ""
 
+#. Level Woodly Rhyme information
 #: guitext:119
 msgctxt "In-game message"
 msgid ""
@@ -979,6 +1060,7 @@ msgid ""
 "Make sure you're the most powerful force in the region before casting it."
 msgstr ""
 
+#. Level Tulipscent information
 #: guitext:120
 msgctxt "In-game message"
 msgid ""
@@ -987,11 +1069,13 @@ msgid ""
 "simply got to get through days like this."
 msgstr ""
 
+#. Level Elf's Dance information
 #: guitext:121
 msgctxt "In-game message"
 msgid "Your manufacturers have crafted the Lava Trap."
 msgstr ""
 
+#. Level Mirthshire objective
 #: guitext:122
 msgctxt "In-game message"
 msgid ""
@@ -1000,6 +1084,7 @@ msgid ""
 "have their heads impaled on lances for such impudence."
 msgstr ""
 
+#. Level Mirthshire objective
 #: guitext:123
 msgctxt "In-game message"
 msgid ""
@@ -1007,6 +1092,7 @@ msgid ""
 "media?"
 msgstr ""
 
+#. Level Mirthshire information
 #: guitext:124
 msgctxt "In-game message"
 msgid ""
@@ -1015,6 +1101,7 @@ msgid ""
 "ownership in your own way."
 msgstr ""
 
+#. Level Tulipscent objective
 #: guitext:125
 msgctxt "In-game message"
 msgid ""
@@ -1022,11 +1109,13 @@ msgid ""
 "evil than you. We shall soon see."
 msgstr ""
 
+#. Level Tulipscent information
 #: guitext:126
 msgctxt "In-game message"
 msgid "This ancient realm is rich in magical artifacts. Go forth and plunder."
 msgstr ""
 
+#. Level Blaise End objective
 #: guitext:127
 msgctxt "In-game message"
 msgid ""
@@ -1035,6 +1124,7 @@ msgid ""
 "to slaughter."
 msgstr ""
 
+#. Level Blaise End information
 #: guitext:128
 msgctxt "In-game message"
 msgid ""
@@ -1043,6 +1133,7 @@ msgid ""
 "trouble."
 msgstr ""
 
+#. Level Blaise End information
 #: guitext:129
 msgctxt "In-game message"
 msgid ""
@@ -1050,12 +1141,14 @@ msgid ""
 "soon, preferably before hell freezes over."
 msgstr ""
 
+#. Level Blaise End information
 #: guitext:130
 msgctxt "In-game message"
 msgid ""
 "Enemy reinforcements have arrived. So what? Let's hear it for more killing."
 msgstr ""
 
+#. Level Blaise End objective
 #: guitext:131
 msgctxt "In-game message"
 msgid ""
@@ -1064,6 +1157,7 @@ msgid ""
 "master, that was a rhetorical question."
 msgstr ""
 
+#. Level Bonus 6 information
 #: guitext:132
 msgctxt "In-game message"
 msgid ""
@@ -1071,6 +1165,7 @@ msgid ""
 "Here it comes, ready or not."
 msgstr ""
 
+#. Level Bonus 6 objective
 #: guitext:133
 msgctxt "In-game message"
 msgid ""
@@ -1079,6 +1174,7 @@ msgid ""
 "underworld can conquer the realms above."
 msgstr ""
 
+#. Level Skybird Trill objective
 #: guitext:134
 msgctxt "In-game message"
 msgid ""
@@ -1086,6 +1182,7 @@ msgid ""
 "castle here. Another Keeper also seeks his soul. This could get messy."
 msgstr ""
 
+#. Level Skybird Trill objective
 #: guitext:135
 msgctxt "In-game message"
 msgid ""
@@ -1095,6 +1192,7 @@ msgid ""
 "the prize."
 msgstr ""
 
+#. Level Skybird Trill objective
 #: guitext:136
 msgctxt "In-game message"
 msgid ""
@@ -1104,6 +1202,7 @@ msgid ""
 "oaf a proper kicking, master."
 msgstr ""
 
+#. Level Bonus 5 objective
 #: guitext:137
 msgctxt "In-game message"
 msgid ""
@@ -1112,6 +1211,7 @@ msgid ""
 "another way."
 msgstr ""
 
+#. Level Bonus 5 information
 #: guitext:138
 msgctxt "In-game message"
 msgid ""
@@ -1120,6 +1220,7 @@ msgid ""
 "it."
 msgstr ""
 
+#. Level Bonus 5 objective
 #: guitext:139
 msgctxt "In-game message"
 msgid ""
@@ -1127,6 +1228,7 @@ msgid ""
 "region, the Vampire will accompany you to the realm beyond."
 msgstr ""
 
+#. Level Bonus 2 objective
 #: guitext:140
 msgctxt "In-game message"
 msgid ""
@@ -1135,11 +1237,13 @@ msgid ""
 "greater tasks ahead."
 msgstr ""
 
+#. Level Bonus 2 information
 #: guitext:141
 msgctxt "In-game message"
 msgid "Tempus fugit, Keeper. You have been warned."
 msgstr ""
 
+#. Level Bonus 2 objective
 #: guitext:142
 msgctxt "In-game message"
 msgid ""
@@ -1147,6 +1251,7 @@ msgid ""
 "darkness were hoping for."
 msgstr ""
 
+#. Level Bonus 2 objective
 #: guitext:143
 msgctxt "In-game message"
 msgid ""
@@ -1155,6 +1260,7 @@ msgid ""
 "helping you achieve your next goal. You may proceed to your next conquest."
 msgstr ""
 
+#. Level Bonus 3 objective
 #: guitext:144
 msgctxt "In-game message"
 msgid ""
@@ -1162,16 +1268,19 @@ msgid ""
 "these Imps as quickly as you can."
 msgstr ""
 
+#. Level Bonus 3 information
 #: guitext:145
 msgctxt "In-game message"
 msgid "Half your allotted time has elapsed."
 msgstr ""
 
+#. Level Bonus 3 objective
 #: guitext:146
 msgctxt "In-game message"
 msgid "You are out of time. That was a shocking performance."
 msgstr ""
 
+#. Level Bonus 3 objective
 #: guitext:147
 msgctxt "In-game message"
 msgid ""
@@ -1180,6 +1289,7 @@ msgid ""
 "you a vicious creature to help you conquer the next realm."
 msgstr ""
 
+#. Level Bonus 3 objective
 #: guitext:148
 msgctxt "In-game message"
 msgid ""
@@ -1195,11 +1305,13 @@ msgid ""
 "the dungeon. You have very little time, so rock and roll!"
 msgstr ""
 
+#. Level Bonus 4 objective
 #: guitext:150
 msgctxt "In-game message"
 msgid "Half your time has expired."
 msgstr ""
 
+#. Level Bonus 4 objective
 #: guitext:151
 msgctxt "In-game message"
 msgid ""
@@ -1207,6 +1319,7 @@ msgid ""
 "inter-dimensional void as you."
 msgstr ""
 
+#. Level Bonus 4 objective
 #: guitext:152
 msgctxt "In-game message"
 msgid ""
@@ -1215,6 +1328,7 @@ msgid ""
 "when you reach the next realm."
 msgstr ""
 
+#. Level Bonus 4 objective
 #: guitext:153
 msgctxt "In-game message"
 msgid ""
@@ -1224,6 +1338,7 @@ msgid ""
 "the future."
 msgstr ""
 
+#. Level Mistle objective
 #: guitext:154
 msgctxt "In-game message"
 msgid ""
@@ -1233,6 +1348,7 @@ msgid ""
 "activities."
 msgstr ""
 
+#. Level Mistle objective
 #: guitext:155
 msgctxt "In-game message"
 msgid ""
@@ -1240,6 +1356,7 @@ msgid ""
 "eternity. Give 'em hell, master."
 msgstr ""
 
+#. Level Mistle information
 #: guitext:156
 msgctxt "In-game message"
 msgid ""
@@ -1249,6 +1366,7 @@ msgid ""
 "stupid!"
 msgstr ""
 
+#. Level Mistle information
 #: guitext:157
 msgctxt "In-game message"
 msgid ""
@@ -1256,6 +1374,7 @@ msgid ""
 "explore their labyrinthine ways. No-one said being evil would be easy."
 msgstr ""
 
+#. Level Mistle information
 #: guitext:158
 msgctxt "In-game message"
 msgid ""
@@ -1263,6 +1382,7 @@ msgid ""
 "Were you to find them and free them, they would make powerful servants."
 msgstr ""
 
+#. Level Mistle information
 #: guitext:159
 msgctxt "In-game message"
 msgid ""
@@ -1271,6 +1391,7 @@ msgid ""
 "subterranean enemy."
 msgstr ""
 
+#. Level Mistle information
 #: guitext:160
 msgctxt "In-game message"
 msgid ""
@@ -1283,6 +1404,7 @@ msgctxt "In-game message"
 msgid "May I suggest that you kill or imprison anything that gets in your way?"
 msgstr ""
 
+#. Level Blaise End objective
 #: guitext:162
 msgctxt "In-game message"
 msgid ""
@@ -1290,6 +1412,7 @@ msgid ""
 "despair gathers. Lovely."
 msgstr ""
 
+#. Level Skybird Trill objective
 #: guitext:163
 msgctxt "In-game message"
 msgid "You have failed. This is a grim day for evil."
@@ -1310,11 +1433,13 @@ msgid ""
 "realm."
 msgstr ""
 
+#. Level Bonus 1 objective
 #: guitext:166
 msgctxt "In-game message"
 msgid "How time flies... hurry!"
 msgstr ""
 
+#. Level Skybird Trill information
 #: guitext:167
 msgctxt "In-game message"
 msgid ""
@@ -1329,6 +1454,7 @@ msgid ""
 "Prepare thyself..."
 msgstr ""
 
+#. Level Skybird Trill objective
 #: guitext:169
 msgctxt "In-game message"
 msgid ""
@@ -1336,16 +1462,19 @@ msgid ""
 "world domination is that ponce in shining armour. Let's get him."
 msgstr ""
 
+#. Level Mirthshire objective
 #: guitext:170
 msgctxt "In-game message"
 msgid "Success is thine. Truly, you have earned your title, Dungeon Keeper."
 msgstr ""
 
+#. Level Skybird Trill objective
 #: guitext:171
 msgctxt "In-game message"
 msgid "What is this? The Avatar lives!"
 msgstr ""
 
+#. Level Skybird Trill win objective, also used in DD Level Belial
 #: guitext:172
 msgctxt "In-game message"
 msgid ""
@@ -1353,6 +1482,7 @@ msgid ""
 "bet you have never felt so bad."
 msgstr ""
 
+#. Level Skybird Trill objective
 #: guitext:173
 msgctxt "In-game message"
 msgid ""
@@ -1361,6 +1491,7 @@ msgid ""
 "So, what are you waiting for?"
 msgstr ""
 
+#. Levels Moonbrush Wood and Bonus 1 information
 #: guitext:174
 msgctxt "In-game message"
 msgid ""
@@ -1368,6 +1499,7 @@ msgid ""
 "to reduces your enemies into ashes!"
 msgstr ""
 
+#. Level Bonus 6 objective
 #: guitext:175
 msgctxt "In-game message"
 msgid ""
@@ -1375,6 +1507,7 @@ msgid ""
 "serve you well in the next realm!"
 msgstr ""
 
+#. Level Flowerhat information
 #: guitext:176
 msgctxt "In-game message"
 msgid ""
@@ -1383,6 +1516,7 @@ msgid ""
 "longer."
 msgstr ""
 
+#. Level Tulipscent information
 #: guitext:177
 msgctxt "In-game message"
 msgid ""
@@ -1392,6 +1526,7 @@ msgid ""
 "the spell will stay activated."
 msgstr ""
 
+#. Level Tulipscent information
 #: guitext:178
 msgctxt "In-game message"
 msgid ""
@@ -1400,6 +1535,7 @@ msgid ""
 "your enemies! Marvellous!"
 msgstr ""
 
+#. Level Bonus 1 objective
 #: guitext:179
 msgctxt "In-game message"
 msgid ""
@@ -5482,6 +5618,15 @@ msgstr ""
 
 #: guitext:946
 msgctxt "Game event description"
-msgid "Room unreachable: LMB toggle. RMB delete."
+msgid "Work room unreachable: LMB toggle. RMB delete."
 msgstr ""
 
+#: guitext:947
+msgctxt "Game event name"
+msgid "Your Imp cannot reach a room to drag something into"
+msgstr ""
+
+#: guitext:948
+msgctxt "Game event description"
+msgid "Storage room unreachable: LMB toggle. RMB delete."
+msgstr ""

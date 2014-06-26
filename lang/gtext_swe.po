@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-02-06 18:07+0100\n"
+"PO-Revision-Date: 2014-06-26 22:05+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: sv_SE\n"
@@ -256,7 +256,7 @@ msgstr ""
 "Njut av din seger medan du kan. Du har dragit på dig vreden från detta lands "
 "härskare. Han och sina hejdukar kommer snart vara här."
 
-#. Level Eversmile objective when LOTL comes
+#. Levels Eversmile and Tickle objective, when LOTL comes
 #: guitext:19
 msgctxt "In-game message"
 msgid ""
@@ -482,6 +482,7 @@ msgstr ""
 "inte bort att träna dina magiker ibland. Deras förmåga att kasta "
 "trollformler gör dem till fina långdistanskämpar."
 
+#. Level Waterdream Warm objective
 #: guitext:39
 msgctxt "In-game message"
 msgid ""
@@ -493,6 +494,7 @@ msgstr ""
 "domäner den här hemtrevliga känslan, men det kommer inte dröja länge innan "
 "deras släktingar drar igång nästa attack."
 
+#. Level Waterdream Warm objective
 #: guitext:40
 msgctxt "In-game message"
 msgid ""
@@ -504,6 +506,7 @@ msgstr ""
 "odlingsanstaltens ytskikt bördigt. Självklart tjänar de också som en varning "
 "åt andra dumdristiga äventyrare."
 
+#. Level Waterdream Warm objective
 #: guitext:41
 msgctxt "In-game message"
 msgid ""
@@ -513,6 +516,7 @@ msgstr ""
 "Allt är lugnt igen. Använd denna tid till att förbereda dig på nästa attack. "
 "Fienden grupperar bara om sig. De är ännu inte besegrade."
 
+#. Level Waterdream Warm information
 #: guitext:42
 msgctxt "In-game message"
 msgid ""
@@ -521,11 +525,13 @@ msgstr ""
 "Spelar den där impen fotboll med ett halshugget huvud? Du måste vara mer "
 "uppmärksam, väktare."
 
+#. Level Waterdream Warm objective
 #: guitext:43
 msgctxt "In-game message"
 msgid "Now would be an excellent time to train a Warlock."
 msgstr "Nu är den idealiska tidpunkten för att träna en magiker."
 
+#. Level Waterdream Warm information
 #: guitext:44
 msgctxt "In-game message"
 msgid ""
@@ -537,6 +543,7 @@ msgstr ""
 "Kasta den på varelser och lägg märke till den dramatiska fartökning de får. "
 "Effekten försvinner efter ett tag."
 
+#. Level Flowerhat objective
 #: guitext:45
 msgctxt "In-game message"
 msgid ""
@@ -548,6 +555,7 @@ msgstr ""
 "närliggande portalen, men ge dig ännu inte av norrut. Kraftfulla motståndare "
 "lurar där. Det är smartare att inte störa dem förrän du är redo."
 
+#. Level Flowerhat information
 #: guitext:46
 msgctxt "In-game message"
 msgid ""
@@ -558,6 +566,7 @@ msgstr ""
 "bryggor. Du behöver bryggor för att kunna ta dig över en del av den "
 "farligare underjordiska terrängen."
 
+#. Level Flowerhat objective
 #: guitext:47
 msgctxt "In-game message"
 msgid ""
@@ -571,6 +580,7 @@ msgstr ""
 "dess närvaro att locka ned underjordens bästa hantverkare till dina växande "
 "domäner."
 
+#. Level Flowerhat information
 #: guitext:48
 msgctxt "In-game message"
 msgid ""
@@ -582,6 +592,7 @@ msgstr ""
 "varelser dit, genom att släppa dem i rummet. Tillverkade föremål kan väljas "
 "från verkstadspanelen så snart de är klara."
 
+#. Level Flowerhat objective
 #: guitext:49
 msgctxt "In-game message"
 msgid ""
@@ -591,6 +602,7 @@ msgstr ""
 "När dina trupper är tillräckligt många i antal och har fått träning, led dem "
 "norrut och krossa allt motstånd du möter."
 
+#. Level Flowerhat objective
 #: guitext:50
 msgctxt "In-game message"
 msgid ""
@@ -598,6 +610,7 @@ msgid ""
 "way."
 msgstr "Du måste finna en väg över lavafloden som korsar din väg."
 
+#. Level Flowerhat objective
 #: guitext:51
 msgctxt "In-game message"
 msgid ""
@@ -607,6 +620,7 @@ msgstr ""
 "Fiendens grotthjärta vibrerar framför dig. Installera dina underhuggare i "
 "närheten och sätt in nådastöten."
 
+#. Level Flowerhat information
 #: guitext:52
 msgctxt "In-game message"
 msgid ""
@@ -618,6 +632,7 @@ msgstr ""
 "för svarta handlingar i din verkstad. De klagar heller inte på arbetstiden, "
 "eftersom deras arbete håller dem borta från stridens hetta."
 
+#. Level Flowerhat objective
 #: guitext:53
 msgctxt "In-game message"
 msgid ""
@@ -628,6 +643,7 @@ msgstr ""
 "motståndet. För ett gott skratt, regera din nya domän med terror och "
 "vämjelse."
 
+#. Level Flowerhat information
 #: guitext:54
 msgctxt "In-game message"
 msgid ""
@@ -639,6 +655,7 @@ msgstr ""
 "att fienden klampar in. Dina varelser kan passera fritt. Lås eller lås upp "
 "dörrar genom att klicka över dem med vänster musknapp."
 
+#. Level Flowerhat information
 #: guitext:55
 msgctxt "In-game message"
 msgid ""
@@ -648,6 +665,7 @@ msgstr ""
 "Din verkstad har producerat en giftmolnsfälla. Fyll den med gift och den "
 "kommer att dränka in området med dödliga ångor när en inkräktare utlöser den."
 
+#. Level Flowerhat information
 #: guitext:56
 msgctxt "In-game message"
 msgid ""
@@ -661,6 +679,7 @@ msgstr ""
 "den igen i målområdet. Vapengriparen kostar bara guld när dess mål ligger "
 "utanför ditt territorium."
 
+#. Level Lushmeadow-on-Down objective
 #: guitext:57
 msgctxt "In-game message"
 msgid ""
@@ -672,6 +691,7 @@ msgstr ""
 "norr. Om du tänkt dig att övertala varelserna att arbeta för dig istället "
 "för åt honom, måste du bygga en praktfullare grotta. Sätt fart då!"
 
+#. Level Lushmeadow-on-Down objective
 #: guitext:58
 msgctxt "In-game message"
 msgid ""
@@ -681,6 +701,7 @@ msgstr ""
 "Du har slaktat din rival. Hans nederlag är ett bevis på din intelligenta "
 "grottdesign. Du har goda förutsättningar att bli en grottväktare värd namnet."
 
+#. Level Lushmeadow-on-Down information
 #: guitext:59
 msgctxt "In-game message"
 msgid ""
@@ -692,6 +713,7 @@ msgstr ""
 "och stora odlingsanstalter. Dessa korpulenta monster attackerar dock en "
 "aning okonventionellt."
 
+#. Level Lushmeadow-on-Down information
 #: guitext:60
 msgctxt "In-game message"
 msgid ""
@@ -701,6 +723,7 @@ msgstr ""
 "Dina lojala forskare har fulländat trollformeln ondskans syn. Kasta den på "
 "ett outforskat område och du kommer under en tid se dess hemligheter."
 
+#. Level Lushmeadow-on-Down information
 #: guitext:61
 msgctxt "In-game message"
 msgid ""
@@ -714,6 +737,7 @@ msgstr ""
 "cell. Fångar som dör av svält kan uppstå igen som skelettkrigare under ditt "
 "kommando."
 
+#. Level Lushmeadow-on-Down information
 #: guitext:62
 msgctxt "In-game message"
 msgid ""
@@ -725,6 +749,7 @@ msgstr ""
 "på en strategiskt viktig plats och tilldela varelser dit genom att släppa "
 "ned dem där."
 
+#. Level Lushmeadow-on-Down information
 #: guitext:63
 msgctxt "In-game message"
 msgid ""
@@ -736,6 +761,7 @@ msgstr ""
 "så se till att hålla dem ifrån varandra. Att övervinna sådana hinder kommer "
 "pröva ditt kurage - vad nu det betyder."
 
+#. Level Snuggledell objective
 #: guitext:64
 msgctxt "In-game message"
 msgid ""
@@ -747,6 +773,7 @@ msgstr ""
 "utmana dig över detta hörn av ditt underjordiska imperium. Priset för "
 "misslyckande skall vara glömska."
 
+#. Level Snuggledell objective
 #: guitext:65
 msgctxt "In-game message"
 msgid ""
@@ -758,6 +785,7 @@ msgstr ""
 "försvinna. Det kommer inte vara några kontroverser över detta års "
 "nomineringar till årets nidingsdåd."
 
+#. Level Snuggledell information
 #: guitext:66
 msgctxt "In-game message"
 msgid ""
@@ -771,6 +799,7 @@ msgstr ""
 "Alternativt, placera dina egna varelser i rummet när disciplinära åtgärder "
 "blivit ofrånkomliga."
 
+#. Level Snuggledell information
 #: guitext:67
 msgctxt "In-game message"
 msgid ""
@@ -782,6 +811,7 @@ msgstr ""
 "till sig mörkrets älskarinnor. Du måste med jämna mellanrum disciplinera "
 "dessa galna slinkor. De svarar speciellt bra på en rejäl smäll."
 
+#. Level Snuggledell information
 #: guitext:68
 msgctxt "In-game message"
 msgid ""
@@ -793,6 +823,7 @@ msgstr ""
 "känna dig säker när du köper en förstärkt dörr. Du kan inte vara säker med "
 "bara en gardin och bara ett hål i väggen är ingen hjälp alls."
 
+#. Level Snuggledell information
 #: guitext:69
 msgctxt "In-game message"
 msgid ""
@@ -804,6 +835,7 @@ msgstr ""
 "blixt på önskat mål. Välj denna trollformel, sikta på en fientlig varelse "
 "och stek honom med ett rejält blixtnedslag."
 
+#. Level Snuggledell information
 #: guitext:70
 msgctxt "In-game message"
 msgid ""
@@ -813,6 +845,7 @@ msgstr ""
 "Du har tillverkat en kraftfull blixtfälla. Testa den. Den kommer garanterat "
 "ge någon en chock."
 
+#. Level Wishvale objective
 #: guitext:71
 msgctxt "In-game message"
 msgid ""
@@ -823,6 +856,7 @@ msgstr ""
 "Det verkar som om du anlänt till en pågående strid. Det kanske är bäst att "
 "hålla sig undan tills du är stark nog att eliminera båda sidor."
 
+#. Level Wishvale information
 #: guitext:72
 msgctxt "In-game message"
 msgid ""
@@ -833,6 +867,7 @@ msgstr ""
 "ritningarna för byggnad av barracker. I detta rum kan du formera varelser "
 "till grupper."
 
+#. Level Wishvale objective
 #: guitext:73
 msgctxt "In-game message"
 msgid ""
@@ -844,6 +879,7 @@ msgstr ""
 "slutligen vaknat upp från slumrandet framför öppna spisen, för att försöka "
 "ta reda på vart alla hans lojala tjänare tagit vägen."
 
+#. Level Wishvale objective
 #: guitext:74
 msgctxt "In-game message"
 msgid ""
@@ -853,6 +889,7 @@ msgstr ""
 "Du har fått de lokala hjältarna att bli en utrotningshotad ras, utrota nu "
 "den fientliga grottväktaren."
 
+#. Level Wishvale objective
 #: guitext:75
 msgctxt "In-game message"
 msgid ""
@@ -864,6 +901,7 @@ msgstr ""
 "bersåerna i dina domäner, i sin tribut till deras fåfänga försök att hålla "
 "dig stången."
 
+#. Level Tickle objective
 #: guitext:76
 msgctxt "In-game message"
 msgid ""
@@ -875,6 +913,7 @@ msgstr ""
 "konceptet med förtidspensionering för honom. Å andra sidan, häng upp honom. "
 "Det är det enda språk han förstår."
 
+#. Level Tickle information
 #: guitext:77
 msgctxt "In-game message"
 msgid ""
@@ -884,6 +923,7 @@ msgstr ""
 "Du har forskat fram trollformeln för osynlighet. Kasta den på en varelse för "
 "att dölja honom från fiendens ögon."
 
+#. Level Tickle information
 #: guitext:78
 msgctxt "In-game message"
 msgid ""
@@ -893,6 +933,7 @@ msgstr ""
 "Trollformeln för skydda varelser har äntligen forskats fram. Kasta den på en "
 "varelse för att öka hans tuffhet."
 
+#. Level Tickle objective
 #: guitext:79
 msgctxt "In-game message"
 msgid ""
@@ -904,6 +945,7 @@ msgstr ""
 "invånarna i landet ovan bugar sig inför din depraverade närvaro. Som om det "
 "skulle rädda dem..."
 
+#. Level Tickle information
 #: guitext:80
 msgctxt "In-game message"
 msgid ""
@@ -917,6 +959,7 @@ msgstr ""
 "dessa gudar. Du kanske måste experimentera lite med dina gåvor. De onda "
 "gudarna är inte lätta att behaga."
 
+#. Level Moonbrush Wood objective
 #: guitext:81
 msgctxt "In-game message"
 msgid ""
@@ -928,6 +971,7 @@ msgstr ""
 "under kontroll, eftersom deras kraftlösa magiska krafter imponerar på "
 "invånarna. Men du kommer inte härifrån..."
 
+#. Level Moonbrush Wood objective
 #: guitext:82
 msgctxt "In-game message"
 msgid ""
@@ -937,6 +981,7 @@ msgstr ""
 "Jaha, du är klar här. Dags att presentera dig för invånarna och organisera "
 "om deras trevliga små liv."
 
+#. Levels Tickle and Moonbrush Wood information
 #: guitext:83
 msgctxt "In-game message"
 msgid ""
@@ -949,6 +994,7 @@ msgstr ""
 "kommer att misslyckas - allting gör den arg. Se i alla fall till att det "
 "enda som finns nära när den exploderar är en fiendevarelse."
 
+#. Level Moonbrush Wood information
 #: guitext:84
 msgctxt "In-game message"
 msgid ""
@@ -958,6 +1004,7 @@ msgstr ""
 "Dina forskare har kokat ihop en sjukdomstrollformel. Kasta den på "
 "fiendevarelser och se sjukdomen sprida sig som pesten."
 
+#. Level Moonbrush Wood information
 #: guitext:85
 msgctxt "In-game message"
 msgid ""
@@ -970,6 +1017,7 @@ msgstr ""
 "hit. Du måste hålla kvar vampyrerna, annars drar de iväg på nolltid. De är "
 "extremt kraftfulla och skräckinjagande underhuggare att ha till din tjänst."
 
+#. Level Moonbrush Wood information
 #: guitext:86
 msgctxt "In-game message"
 msgid ""
@@ -981,6 +1029,7 @@ msgstr ""
 "ruttna... och möjligtvis uppstå som vampyrer, redo att uppfylla dina "
 "önskemål. Det är klass det."
 
+#. Levels Tickle and Moonbrush Wood information
 #: guitext:87
 msgctxt "In-game message"
 msgid ""
@@ -988,6 +1037,7 @@ msgid ""
 msgstr ""
 "Du har tillverkat en järndörr. Den är en formidabel barriär. Använd den väl."
 
+#. Level Elf's Dance objective
 #: guitext:88
 msgctxt "In-game message"
 msgid ""
@@ -1001,6 +1051,7 @@ msgstr ""
 "slår sig samman med andra väktare i området, kommer du vara ostoppbar. "
 "Såvida du inte gör någonting korkat."
 
+#. Level Elf's Dance objective
 #: guitext:89
 msgctxt "In-game message"
 msgid ""
@@ -1010,6 +1061,7 @@ msgstr ""
 "Du har klarat av allt motstånd, du uslaste usling. Det är dags att spänna de "
 "gamla olycksmusklerna på de patetiska invånarna i landet ovan."
 
+#. Level Nevergrim information
 #: guitext:90
 msgctxt "In-game message"
 msgid ""
@@ -1019,6 +1071,7 @@ msgstr ""
 "Du har tillverkat en Indy-fälla. Placera den i en korridor och skratta "
 "hysteriskt när den obevekligt rasar mot omedvetna inkräktare."
 
+#. Level Nevergrim information
 #: guitext:91
 msgctxt "In-game message"
 msgid ""
@@ -1031,6 +1084,7 @@ msgstr ""
 "att de nedfallande klipporna kommer krossa alla varelser som råkar befinna "
 "sig nedanför."
 
+#. Level Nevergrim information
 #: guitext:92
 msgctxt "In-game message"
 msgid ""
@@ -1042,6 +1096,7 @@ msgstr ""
 "placerade i asätarrummet kommer locka till sig släktingar från andra grottor "
 "och från världen utanför till din domän."
 
+#. Level Nevergrim information
 #: guitext:93
 msgctxt "In-game message"
 msgid ""
@@ -1051,11 +1106,13 @@ msgstr ""
 "Dina stora rikedomar har köpt lojaliteten hos en passerande drake. De är "
 "nyckfulla varelser. Håll ditt öga på denna."
 
+#. Level Nevergrim information
 #: guitext:94
 msgctxt "In-game message"
 msgid "A Hell Hound has been lured to your domain by your Scavenger Room."
 msgstr "En helveteshund har lockats till din domän av asätarrummet."
 
+#. Level Buffy Oak objective
 #: guitext:95
 msgctxt "In-game message"
 msgid ""
@@ -1067,6 +1124,7 @@ msgstr ""
 "sidan ett tag och slagit sig samman. Allt i ett försök att krossa dig. Det "
 "är nästan som en komplimang. Döda krypen."
 
+#. Level Buffy Oak objective
 #: guitext:96
 msgctxt "In-game message"
 msgid ""
@@ -1076,6 +1134,7 @@ msgstr ""
 "Du har vunnit en magnifik seger, herre. Du har en talang för sjuk "
 "obarmhärtighet som får andra väktare att verka väluppfostrade vid jämförelse."
 
+#. Level Hearth information
 #: guitext:97
 msgctxt "In-game message"
 msgid ""
@@ -1085,6 +1144,7 @@ msgstr ""
 "Du har upptäckt en förödande magisk kraft. Rikta den mot en varelse för att "
 "förvandla ett rysligt monster till en kluckande kyckling. Underbart."
 
+#. Level Hearth information
 #: guitext:98
 msgctxt "In-game message"
 msgid ""
@@ -1095,6 +1155,7 @@ msgstr ""
 "närmar sig och sammankalla varelser i närheten för att ta hand om "
 "inkräktarna."
 
+#. Level Buffy Oak information
 #: guitext:99
 msgctxt "In-game message"
 msgid ""
@@ -1105,6 +1166,7 @@ msgstr ""
 "magiska attackar. Jag rekommenderar att du tillsluter skattkammaren eller "
 "ditt grotthjärta med denna dörr."
 
+#. Level Nevergrim objective
 #: guitext:100
 msgctxt "In-game message"
 msgid ""
@@ -1114,6 +1176,7 @@ msgstr ""
 "Någonstans i detta glödheta rike har du en rivaliserande väktare att brottas "
 "med. Jag rekommenderar extremt asocialt beteende från din sida."
 
+#. Level Nevergrim objective
 #: guitext:101
 msgctxt "In-game message"
 msgid ""
@@ -1123,6 +1186,7 @@ msgstr ""
 "Bokför ännu en seger, du mest ondskefulla. Du har ytterligare ett land att "
 "lägga till din förskräckliga samling."
 
+#. Level Hearth objective
 #: guitext:102
 msgctxt "In-game message"
 msgid ""
@@ -1134,6 +1198,7 @@ msgstr ""
 "demoner från helvetets femte plan. Träna dina varelser och förbered dem för "
 "ytterligare ett slag. Det är ingen liten publik du drar till dig."
 
+#. Level Hearth objective
 #: guitext:103
 msgctxt "In-game message"
 msgid ""
@@ -1141,6 +1206,7 @@ msgid ""
 msgstr ""
 "Fienden är över oss. Jag bara säger det ifall att du hade slumrat till."
 
+#. Level Hearth objective
 #: guitext:104
 msgctxt "In-game message"
 msgid ""
@@ -1150,6 +1216,7 @@ msgstr ""
 "Alla hjältar är döda, vilket är precis som det skall vara. Detta land och "
 "dess byten är ditt. Får jag rekommendera att du förgör rubbet?"
 
+#. Level Hearth objective
 #: guitext:105
 msgctxt "In-game message"
 msgid ""
@@ -1162,17 +1229,20 @@ msgstr ""
 "en fullskalig attack mot din grotta. Detta är ett idealiskt tillfälle att "
 "praktisera onämnbar ondska i massiv skala. Kör hårt, mästare."
 
+#. Level Woodly Rhyme information
 #: guitext:106
+#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "Your latest discovery is the Word of Power Trap. When activated, the trap "
-"triggers an expanding ring of fire that incinerates anything caught in its "
-"area of effect. What a scream that should be."
+"triggers an expanding ring of demonic energy that incinerates anything "
+"caught in its area of effect. What a scream that should be."
 msgstr ""
 "Din senaste upptäckt är ordets makt-fällan. När den aktiverats utlöser "
 "fällan en expanderande eldring som kremerar allt som fångas i mitten. Vilket "
 "skrikande det kommer bli."
 
+#. Level Moonbrush Wood information
 #: guitext:107
 msgctxt "In-game message"
 msgid ""
@@ -1184,6 +1254,7 @@ msgstr ""
 "alla dina varelser tillbaka till grotthjärtat. Låt oss hoppas på att du "
 "aldrig behöver använda den."
 
+#. Level Sleepiburgh objective
 #: guitext:108
 msgctxt "In-game message"
 msgid ""
@@ -1193,6 +1264,7 @@ msgstr ""
 "Du kan inte titta på när andra grottväktare slåss om ödet för denna region. "
 "Det bör ligga i ditt eget intresse att avgöra detta en gång för alla."
 
+#. Level Buffy Oak information
 #: guitext:109
 msgctxt "In-game message"
 msgid ""
@@ -1204,6 +1276,7 @@ msgstr ""
 "varelse för att genast förvandla målet till en fågel. Det är ett "
 "fjäderfävapen."
 
+#. Level Sleepiburgh information
 #: guitext:110
 msgctxt "In-game message"
 msgid ""
@@ -1215,6 +1288,7 @@ msgstr ""
 "är dyr att använda och det finns en möjlighet att dina fiender har samma "
 "magiska kraft. Detta skulle kunna visa sig vara en sådan dag."
 
+#. Level Sleepiburgh objective
 #: guitext:111
 msgctxt "In-game message"
 msgid ""
@@ -1224,6 +1298,7 @@ msgstr ""
 "Endast detta rikes härskare står mellan dig och alla hektar av ödeläggelse "
 "och elände. Jag slår vad om att du är ivrig att få träffa honom."
 
+#. Level Sleepiburgh objective
 #: guitext:112
 msgctxt "In-game message"
 msgid "Your continued success makes me sick. Thank you, your wickedness."
@@ -1231,6 +1306,7 @@ msgstr ""
 "Din fortsatta framgång får mig att må dåligt. Tack ska du ha din gamla "
 "galning."
 
+#. Level Woodly Rhyme objective
 #: guitext:113
 msgctxt "In-game message"
 msgid ""
@@ -1240,6 +1316,7 @@ msgstr ""
 "Du verkar ha startat en ny trend. Två andra grottväktare har också designer "
 "på denna mörka domän. Förvänta dig ingen hyra från dina rivaler."
 
+#. Level Woodly Rhyme information
 #: guitext:114
 msgctxt "In-game message"
 msgid ""
@@ -1248,6 +1325,7 @@ msgstr ""
 "Kan du se hur sårbar en av dina motståndare har blivit? Döda honom när du "
 "tittat klart."
 
+#. Level Woodly Rhyme information
 #: guitext:115
 msgctxt "In-game message"
 msgid ""
@@ -1257,6 +1335,7 @@ msgstr ""
 "Jag ser en väktare som knappt har några varelser kvar i tjänst. Jag ser en "
 "väktare som snart skall dö."
 
+#. Level Woodly Rhyme information
 #: guitext:116
 msgctxt "In-game message"
 msgid ""
@@ -1268,6 +1347,7 @@ msgstr ""
 "att det bör finnas spännande skatter att stjäla. Det är vad jag kallar "
 "praktisk arkeologi."
 
+#. Level Woodly Rhyme information
 #: guitext:117
 msgctxt "In-game message"
 msgid ""
@@ -1277,6 +1357,7 @@ msgstr ""
 "Dina bokmalar har lärt sig en trollformel som kan slå igenom förstärkta "
 "väggar. Ge dem en smäll för att de inte lärt sig den tidigare."
 
+#. Level Woodly Rhyme information
 #: guitext:118
 msgctxt "In-game message"
 msgid ""
@@ -1286,6 +1367,7 @@ msgstr ""
 "En av dina motståndare har utvecklat en trollformel som kan ta sig igenom "
 "förstärkta väggar. Typiskt. Var på din vakt."
 
+#. Level Woodly Rhyme information
 #: guitext:119
 msgctxt "In-game message"
 msgid ""
@@ -1296,6 +1378,7 @@ msgstr ""
 "till. Var säker på att du är den kraftfullaste i området innan du använder "
 "den."
 
+#. Level Tulipscent information
 #: guitext:120
 msgctxt "In-game message"
 msgid ""
@@ -1307,11 +1390,13 @@ msgstr ""
 "för att nå ett övertag. Men om du hade tänkt dig att styra världen, måste du "
 "helt enkelt bara klara av dagar som denna."
 
+#. Level Elf's Dance information
 #: guitext:121
 msgctxt "In-game message"
 msgid "Your manufacturers have crafted the Lava Trap."
 msgstr "Dina tillverkare har tagit fram lavafällan."
 
+#. Level Mirthshire objective
 #: guitext:122
 msgctxt "In-game message"
 msgid ""
@@ -1323,6 +1408,7 @@ msgstr ""
 "snabbt för att mobilisera sina styrkor mot dig. Det är patetiskt. De "
 "förtjänar att få sina huvuden spetsade på lansar för sådan oförskämdhet."
 
+#. Level Mirthshire objective
 #: guitext:123
 msgctxt "In-game message"
 msgid ""
@@ -1332,6 +1418,7 @@ msgstr ""
 "Du har retat upp den lokala härskaren. Han är på väg hit nu. Skall jag "
 "kontakta media?"
 
+#. Level Mirthshire information
 #: guitext:124
 msgctxt "In-game message"
 msgid ""
@@ -1343,6 +1430,7 @@ msgstr ""
 "tillhöra dig. Jag är övertygad om att du kommer lösa "
 "äganderättsförhållandena på ditt eget speciella sätt."
 
+#. Level Tulipscent objective
 #: guitext:125
 msgctxt "In-game message"
 msgid ""
@@ -1352,11 +1440,13 @@ msgstr ""
 "Det verkar som om du har en rival. En annan väktare tror att han är "
 "hänsynlösare och ondare än du. Vi skall snart bli varse svaret."
 
+#. Level Tulipscent information
 #: guitext:126
 msgctxt "In-game message"
 msgid "This ancient realm is rich in magical artifacts. Go forth and plunder."
 msgstr "Detta gamla rike är rikt på magiska artefakter. Gå vidare och plundra."
 
+#. Level Blaise End objective
 #: guitext:127
 msgctxt "In-game message"
 msgid ""
@@ -1368,6 +1458,7 @@ msgstr ""
 "annars kommer de snart ha fått sin frukost, vara klarvakna och mycket "
 "svårare att slakta."
 
+#. Level Blaise End information
 #: guitext:128
 msgctxt "In-game message"
 msgid ""
@@ -1378,6 +1469,7 @@ msgstr ""
 "Om du skulle stöta på en hjältepatrull, se till att ingen av dem slipper "
 "undan. Annars kan din närvaro avslöjas och då kommer du hamna i trubbel."
 
+#. Level Blaise End information
 #: guitext:129
 msgctxt "In-game message"
 msgid ""
@@ -1387,6 +1479,7 @@ msgstr ""
 "Du tar en enorm tid på dig för detta. Anfall och förstör hjältarnas fäste "
 "snart, helst innan helvetetet fryser till is."
 
+#. Level Blaise End information
 #: guitext:130
 msgctxt "In-game message"
 msgid ""
@@ -1394,6 +1487,7 @@ msgid ""
 msgstr ""
 "Fiendeförstärkningar har anlänt. Och? Låt oss höra lite mer dödande nu då."
 
+#. Level Blaise End objective
 #: guitext:131
 msgctxt "In-game message"
 msgid ""
@@ -1405,6 +1499,7 @@ msgstr ""
 "eget underjordiskt fäste. Vilka tror de att de är? Jag är ledsen, herre, det "
 "var en retorisk fråga."
 
+#. Level Bonus 6 information
 #: guitext:132
 msgctxt "In-game message"
 msgid ""
@@ -1414,6 +1509,7 @@ msgstr ""
 "Du kommer snart att möta den hittills svåraste utmaningen för dina onda mål. "
 "Här kommer den, klar eller inte."
 
+#. Level Bonus 6 objective
 #: guitext:133
 msgctxt "In-game message"
 msgid ""
@@ -1425,6 +1521,7 @@ msgstr ""
 "sina imperium till detta rike. Slutligen kan endast den som styr underjorden "
 "erövra riket ovanför."
 
+#. Level Skybird Trill objective
 #: guitext:134
 msgctxt "In-game message"
 msgid ""
@@ -1434,6 +1531,7 @@ msgstr ""
 "Detta rike ber om att få bli kastat in i mörkret. Avataren själv har boskap "
 "här. En annan väktare söker också hans själ. Detta kan bli kladdigt."
 
+#. Level Skybird Trill objective
 #: guitext:135
 msgctxt "In-game message"
 msgid ""
@@ -1446,6 +1544,7 @@ msgstr ""
 "fånga. Det är som det är. Endast väktaren med svartast hjärta kan förgöra "
 "denna legendariska hjälte, så leta igenom din rivals grotta och ta priset."
 
+#. Level Skybird Trill objective
 #: guitext:136
 msgctxt "In-game message"
 msgid ""
@@ -1459,6 +1558,7 @@ msgstr ""
 "skulle kunna vara emot dig. Det är dags att du ger denna självrättfärdiga "
 "fåne en rejäl spark, herre."
 
+#. Level Bonus 5 objective
 #: guitext:137
 msgctxt "In-game message"
 msgid ""
@@ -1469,6 +1569,7 @@ msgstr ""
 "Kraftfull magisk genomträngning genom klippan från riket ovanför förhindrar "
 "att en grotta byggs här. Du måste erövra detta rike på något annat sätt."
 
+#. Level Bonus 5 information
 #: guitext:138
 msgctxt "In-game message"
 msgid ""
@@ -1480,6 +1581,7 @@ msgstr ""
 "beredd på att överföra din själ till en lämpligare varelse när situationen "
 "kräver det."
 
+#. Level Bonus 5 objective
 #: guitext:139
 msgctxt "In-game message"
 msgid ""
@@ -1489,6 +1591,7 @@ msgstr ""
 "Besätt vampyren nedan. Om du skulle lyckas med att döda alla hjältar i detta "
 "område, kommer vampyren följa med dig till riket bortanför."
 
+#. Level Bonus 2 objective
 #: guitext:140
 msgctxt "In-game message"
 msgid ""
@@ -1500,11 +1603,13 @@ msgstr ""
 "hastighet med vilken du klarar av denna utrensning kommer avgöra din "
 "kondition för de större uppgifter som ligger framför."
 
+#. Level Bonus 2 information
 #: guitext:141
 msgctxt "In-game message"
 msgid "Tempus fugit, Keeper. You have been warned."
 msgstr "Tempus Fugit, väktare. Du har varnats."
 
+#. Level Bonus 2 objective
 #: guitext:142
 msgctxt "In-game message"
 msgid ""
@@ -1514,6 +1619,7 @@ msgstr ""
 "Du har misslyckats. Kanske är du inte den undergångens budbärare som "
 "ondskans krafter har hoppats på."
 
+#. Level Bonus 2 objective
 #: guitext:143
 msgctxt "In-game message"
 msgid ""
@@ -1526,6 +1632,7 @@ msgstr ""
 "att hjälpa dig uppnå ditt nästa mål. Du kan fortsätta till din nästa "
 "erövring."
 
+#. Level Bonus 3 objective
 #: guitext:144
 msgctxt "In-game message"
 msgid ""
@@ -1535,16 +1642,19 @@ msgstr ""
 "Du måste ha blixtsnabba reflexer för att klara av den uppgift som ligger "
 "framför dig. Döda dessa impar så snabbt du kan."
 
+#. Level Bonus 3 information
 #: guitext:145
 msgctxt "In-game message"
 msgid "Half your allotted time has elapsed."
 msgstr "Halva din tilldelade tid har förflutit."
 
+#. Level Bonus 3 objective
 #: guitext:146
 msgctxt "In-game message"
 msgid "You are out of time. That was a shocking performance."
 msgstr "Tiden är ute. Det var en chockerande föreställning."
 
+#. Level Bonus 3 objective
 #: guitext:147
 #, fuzzy
 msgctxt "In-game message"
@@ -1557,6 +1667,7 @@ msgstr ""
 "stod. Du hade verkligen fingret på avtryckaren denna gång. De svarta gudarna "
 "kommer sända dig en jätte för att hjälpa dig erövra nästa rike."
 
+#. Level Bonus 3 objective
 #: guitext:148
 msgctxt "In-game message"
 msgid ""
@@ -1576,11 +1687,13 @@ msgstr ""
 "gallgasdemoner genom att krossa dem med Indy-fällor placerade runt grottans "
 "ytterkanter. Du har kort tid på dig, så ROCK AND ROLL!"
 
+#. Level Bonus 4 objective
 #: guitext:150
 msgctxt "In-game message"
 msgid "Half your time has expired."
 msgstr "Halva din tid har gått."
 
+#. Level Bonus 4 objective
 #: guitext:151
 msgctxt "In-game message"
 msgid ""
@@ -1590,6 +1703,7 @@ msgstr ""
 "Tiden är ute. Du har misslyckats. Jag skäms över att komma från samma "
 "interdimensionella rymd som du."
 
+#. Level Bonus 4 objective
 #: guitext:152
 #, fuzzy
 msgctxt "In-game message"
@@ -1602,6 +1716,7 @@ msgstr ""
 "kommer de svarta gudarna belöna dig, genom att ge dig tre överlägsna impar "
 "när du kommer till nästa rike."
 
+#. Level Bonus 4 objective
 #: guitext:153
 #, fuzzy
 msgctxt "In-game message"
@@ -1616,6 +1731,7 @@ msgstr ""
 "den legendariske krigaren barbaren Hugo sitter fängslad. Hugo kommer tjäna "
 "dig väl i framtiden."
 
+#. Level Mistle objective
 #: guitext:154
 msgctxt "In-game message"
 msgid ""
@@ -1629,6 +1745,7 @@ msgstr ""
 "historien. Detta kommer inte vara alltför svårt. Hans resurser är knappa på "
 "grund av hans aktiviteter."
 
+#. Level Mistle objective
 #: guitext:155
 msgctxt "In-game message"
 msgid ""
@@ -1638,6 +1755,7 @@ msgstr ""
 "Kloker är besegrad. Landet är ditt att plundra och ödelägga för all framtid. "
 "Gör deras liv till ett helvete, mästare."
 
+#. Level Mistle information
 #: guitext:156
 msgctxt "In-game message"
 msgid ""
@@ -1651,6 +1769,7 @@ msgstr ""
 "skador, kommer denna krigare till och med att kalla på sina vapenbröder till "
 "hjälp. Vad snällt, vad korkat!"
 
+#. Level Mistle information
 #: guitext:157
 msgctxt "In-game message"
 msgid ""
@@ -1661,6 +1780,7 @@ msgstr ""
 "utforskar deras labyrintgångar. Ingen sa att det skulle vara enkelt att vara "
 "ond."
 
+#. Level Mistle information
 #: guitext:158
 msgctxt "In-game message"
 msgid ""
@@ -1670,6 +1790,7 @@ msgstr ""
 "Det ryktas att två drakar hålls fängslade någonstans i öster. Om du hittar "
 "dem och fritar dem kommer de att bli kraftfullare tjänare."
 
+#. Level Mistle information
 #: guitext:159
 msgctxt "In-game message"
 msgid ""
@@ -1681,6 +1802,7 @@ msgstr ""
 "välbevakad. Det kan vara smart att rikta medborgarnas uppmärksamhet mot din "
 "underjordiska fiende."
 
+#. Level Mistle information
 #: guitext:160
 msgctxt "In-game message"
 msgid ""
@@ -1695,6 +1817,7 @@ msgctxt "In-game message"
 msgid "May I suggest that you kill or imprison anything that gets in your way?"
 msgstr "Får jag föreslå att du dödar eller fängslar allt som kommer i din väg?"
 
+#. Level Blaise End objective
 #: guitext:162
 msgctxt "In-game message"
 msgid ""
@@ -1704,6 +1827,7 @@ msgstr ""
 "Ytterligare ett rike har fallit under ditt ondskefulla styre. Ytterligare "
 "ett moln av misär och förtvivlan samlas. Härligt."
 
+#. Level Skybird Trill objective
 #: guitext:163
 msgctxt "In-game message"
 msgid "You have failed. This is a grim day for evil."
@@ -1729,11 +1853,13 @@ msgstr ""
 "Ta bättre hand om dina gallgasdemoner, annars kommer du inte klara dig "
 "bortanför detta rike."
 
+#. Level Bonus 1 objective
 #: guitext:166
 msgctxt "In-game message"
 msgid "How time flies... hurry!"
 msgstr "Vad tiden går fort... Skynda dig!"
 
+#. Level Skybird Trill information
 #: guitext:167
 msgctxt "In-game message"
 msgid ""
@@ -1752,6 +1878,7 @@ msgstr ""
 "Avataren och hans allierade är besegrade, men ändå fortlever hans makt över "
 "detta land. Var beredd."
 
+#. Level Skybird Trill objective
 #: guitext:169
 msgctxt "In-game message"
 msgid ""
@@ -1762,16 +1889,19 @@ msgstr ""
 "mellan dig och total världsdominans är den där veklingen i skinande "
 "rustning. Låt oss ta honom."
 
+#. Level Mirthshire objective
 #: guitext:170
 msgctxt "In-game message"
 msgid "Success is thine. Truly, you have earned your title, Dungeon Keeper."
 msgstr "Segern är din. Du har verkligen förtjänat din titel, grottväktare."
 
+#. Level Skybird Trill objective
 #: guitext:171
 msgctxt "In-game message"
 msgid "What is this? The Avatar lives!"
 msgstr "Vad är det här? Avataren lever!"
 
+#. Level Skybird Trill win objective, also used in DD Level Belial
 #: guitext:172
 msgctxt "In-game message"
 msgid ""
@@ -1781,6 +1911,7 @@ msgstr ""
 "Slutligen är du utan motstånd. Världen är din att förgöra och ödelägga. Jag "
 "slår vad om att du aldrig känt dig så ond tidigare."
 
+#. Level Skybird Trill objective
 #: guitext:173
 msgctxt "In-game message"
 msgid ""
@@ -1789,6 +1920,7 @@ msgid ""
 "So, what are you waiting for?"
 msgstr ""
 
+#. Levels Moonbrush Wood and Bonus 1 information
 #: guitext:174
 msgctxt "In-game message"
 msgid ""
@@ -1796,6 +1928,7 @@ msgid ""
 "to reduces your enemies into ashes!"
 msgstr ""
 
+#. Level Bonus 6 objective
 #: guitext:175
 msgctxt "In-game message"
 msgid ""
@@ -1803,6 +1936,7 @@ msgid ""
 "serve you well in the next realm!"
 msgstr ""
 
+#. Level Flowerhat information
 #: guitext:176
 msgctxt "In-game message"
 msgid ""
@@ -1811,6 +1945,7 @@ msgid ""
 "longer."
 msgstr ""
 
+#. Level Tulipscent information
 #: guitext:177
 msgctxt "In-game message"
 msgid ""
@@ -1820,6 +1955,7 @@ msgid ""
 "the spell will stay activated."
 msgstr ""
 
+#. Level Tulipscent information
 #: guitext:178
 msgctxt "In-game message"
 msgid ""
@@ -1828,6 +1964,7 @@ msgid ""
 "your enemies! Marvellous!"
 msgstr ""
 
+#. Level Bonus 1 objective
 #: guitext:179
 msgctxt "In-game message"
 msgid ""
@@ -2132,8 +2269,9 @@ msgstr "Uttömning: [26.4]"
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Word of Power: Causes rings of fire to emanate from the creature's body and "
-"inflicts massive damage on the vicinity."
+"Word of Power: Causes rings of demonic energy to emanate from the creature's "
+"body and inflicts massive damage on the vicinity. Very effective against "
+"crowded hordes of enemies, also pushes them back."
 msgstr "Ordets makt: [26.23]"
 
 #: guitext:248
@@ -2620,38 +2758,54 @@ msgid ""
 msgstr "Fullskärmskarta: Tar dig till kartmenyn. VMK väljer. [4.1.1]"
 
 #: guitext:324
+#, fuzzy
 msgctxt "Slab description"
-msgid "Impenetrable Rock: Your Imps cannot dig through this. [12.4]"
-msgstr ""
+msgid ""
+"Impenetrable Rock: Your Imps cannot dig through this, the only solution is "
+"to go round. It is visible even if far from your territory."
 "Ogenomtränglig klippa: Dina impar kan inte gräva sig igenom denna. [12.4]"
 
 #: guitext:325
+#, fuzzy
 msgctxt "Slab description"
-msgid "Earth: You can excavate this. [12.1]"
+msgid ""
+"Earth: You can excavate this. To dig out some new caverns, choose a location "
+"and tag for digging with LMB. Press LMB again to untag."
 msgstr "Jord: Du kan gräva upp detta. [12.1]"
 
 #: guitext:326
+#, fuzzy
 msgctxt "Slab description"
 msgid ""
 "Gold Seam: Your source of wealth. Dig this out and your Imps will take it to "
-"your Treasure Room. [12.2]"
+"your Treasure Room. You can also pick up the lumps of treasure left on the "
+"ground."
 msgstr ""
 "Guldåder: Din källa till rikedom. Bryt denna och dina impar kommer ta den "
 "till din skattkammare. [12.2]"
 
 #: guitext:327
+#, fuzzy
 msgctxt "Slab description"
-msgid "Lava: Burns any creature that step on it. [14.2]"
+msgid ""
+"Lava: Burns any creature that step on it. Get over lava by casting Cave-In "
+"or building a Bridge."
 msgstr "Lava: Bränner alla varelser som kliver på den. [14.2]"
 
 #: guitext:328
+#, fuzzy
 msgctxt "Slab description"
-msgid "Water: Creatures move more slowly through water. [14.1]"
+msgid ""
+"Water: Creatures move more slowly through water. Build the Bridge to make "
+"new land on the water."
 msgstr "Vatten: Varelser rör sig långsamt genom vatten [14.1]"
 
 #: guitext:329
+#, fuzzy
 msgctxt "Slab description"
-msgid "Wall: A reinforced stone wall that enemies cannot break through. [12.1]"
+msgid ""
+"Wall: A reinforced stone wall that enemies cannot break through. At least "
+"without the Destroy Walls spell."
 msgstr ""
 "Vägg: En förstärkt stenvägg som fiender inte kan bryta sig igenom. [12.1]"
 
@@ -2661,13 +2815,19 @@ msgid "Damaged Wall: Unless repaired, this wall will eventually collapse."
 msgstr "Skadad vägg: Om den inte repareras kommer den till slut att kollapsa"
 
 #: guitext:331
+#, fuzzy
 msgctxt "Slab description"
-msgid "Path: Unclaimed earth floor. [12.1]"
+msgid ""
+"Path: Unclaimed earth floor. You can claim it if it is connected to already "
+"claimed territory."
 msgstr "Jordgolv: Ointaget område. [12.1]"
 
 #: guitext:332
+#, fuzzy
 msgctxt "Slab description"
-msgid "Claimed area: Your dungeon territory. [12.1]"
+msgid ""
+"Claimed area: Your dungeon territory. You can build rooms and drop your "
+"creatures on it."
 msgstr "Intaget område: Någon väktares grottområde. [12.1]"
 
 #: guitext:333
@@ -3031,6 +3191,7 @@ msgctxt "Menu interface item"
 msgid "Players"
 msgstr "Spelare"
 
+#. Creature experience level
 #: guitext:406
 msgctxt "Menu interface item"
 msgid "Level"
@@ -3248,61 +3409,89 @@ msgid "Type"
 msgstr "Typ"
 
 #: guitext:447
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Information Panel: Miscellaneous information. [5.0]"
+msgid ""
+"Information Panel: Miscellaneous information. Shows your and enemy progress "
+"and allows changing creature tendencies."
 msgstr "Informationspanel: Blandad information. [5.0]"
 
 #: guitext:448
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Room Panel: The rooms available for you to build. [6.0]"
+msgid ""
+"Room Panel: The rooms available for you to build. Here you can center map on "
+"rooms or build new ones."
 msgstr "Rumspanel: De rum som finns tillgängliga för dig att bygga. [6.0]"
 
 #: guitext:449
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Research Panel: The spells available to you. [7.0]"
+msgid ""
+"Research Panel: The spells available to you. Here you can cast or cancel "
+"them."
 msgstr "Forskningspanel: De trollformler som finns tillgängliga för dig. [7.0]"
 
 #: guitext:450
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Workshop Panel: The traps and doors available to you. [8.0]"
+msgid ""
+"Workshop Panel: The traps and doors available to you. You can center the map "
+"on them, place new ones or sell existing."
 msgstr ""
 "Verkstadspanel: De fällor och dörrar som finns tillgängliga för dig. [8.0]"
 
 #: guitext:451
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Creature Panel: Information on your creatures. [9.0]"
+msgid ""
+"Creature Panel: Information on your creatures. Shows activity of your "
+"creatures and allows picking them up."
 msgstr "Varelsepanel: Information om dina varelser. [9.0]"
 
 #: guitext:452
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Research Time: The time until a new spell is researched. [5.4]"
+msgid ""
+"Research Time: The time until a new spell is researched. Scholars in your "
+"Library are making progress on this bar."
 msgstr ""
 "Forskningstid: Den tid det tar innan en ny trollformel har forskats fram. "
 "[5.4]"
 
 #: guitext:453
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Workshop Time: The time until a new trap is manufactured. [5.5]"
+msgid ""
+"Workshop Time: The time until a new trap is manufactured. Workers in your "
+"Workshop are making progress on this bar."
 msgstr ""
 "Verkstadstid: Den tid det tar innan en ny fälla eller dörr är tillverkad. "
 "[5.5]"
 
 #: guitext:454
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Time: The time until the next Creature Payday. [5.3]"
-msgstr ""
+msgid ""
+"Time: The time until the next Creature Payday. This bar increases over time "
+"and, when it reaches its peak, all of your creatures receive their wages."
 "Lönedags: Den tid som återstår innan nästa löneutbetalning till varelserna. "
 "[5.3]"
 
 #: guitext:455
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Number of Rooms: The number of rooms held by this Keeper. [5.6]"
+msgid ""
+"Number of Rooms: The number of rooms held by this Keeper. Allows you to "
+"compare your dungeon with the competitors."
 msgstr "Antal rum: Det antal rum som hålls av denna väktare. [5.6]"
 
 #: guitext:456
+#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"Number of Creatures: The number of creatures owned by this Keeper. [5.7]"
+"Number of Creatures: The number of creatures owned by this Keeper. Allows "
+"you to compare your army with other Keepers."
 msgstr "Antal varelser: Det antal varelser som ägs av denna väktare. [5.7]"
 
 #: guitext:457
@@ -3331,15 +3520,18 @@ msgid "Deathmatch"
 msgstr "Dödsmatch"
 
 #: guitext:462
+#, fuzzy
 msgctxt "In-game interface description"
-msgid ""
-"Sell Room: Sell a room tile for half the building price. LMB select. [6.4]"
+msgid "Sell Room: Sell a room tile for half the building price. LMB select."
 msgstr ""
 "Sälj rum: Sälj en rumsplatta för halva byggnadspriset. VMK väljer. [6.4]"
 
 #: guitext:463
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Sell Item: Sell a Trap or Door. LMB select. [8.1.2]"
+msgid ""
+"Sell Item: Sell a Trap or Door. Allows you to earn gold on manufacturing. "
+"LMB select."
 msgstr "Sälj objekt: Sälj en fälla eller dörr. VMK väljer. [8.1.2]"
 
 #: guitext:464
@@ -3743,14 +3935,20 @@ msgid "Unable to join game"
 msgstr "KAN INTE GÅ MED I SPEL"
 
 #: guitext:544
+#, fuzzy
 msgctxt "Slab description"
-msgid "Gems: Infinite wealth for your Imps to extract. [12.3]"
+msgid ""
+"Gems: Infinite wealth for your Imps to extract. Cannot be destroyed, but "
+"takes longer to mine than Gold."
 msgstr ""
 "Ädelstenar: Obegränsat med rikedomar för dina impar att utvinna. [12.3]"
 
 #: guitext:545
+#, fuzzy
 msgctxt "Object description"
-msgid "Hero Gate: Heroes use this portal to invade your dungeon. [15.4]"
+msgid ""
+"Hero Gate: Heroes use this portal to invade your dungeon. It cannot be "
+"closed on your side."
 msgstr ""
 "Hjälteport: Hjältar använder denna portal för att invadera din grotta. [15.4]"
 
@@ -3765,24 +3963,27 @@ msgid "Avatar"
 msgstr "Avatar"
 
 #: guitext:548
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Toggle Computer Assistant: Currently - Aggressive. LMB toggle. [3.2.4]"
+msgid "Toggle Computer Assistant: Currently - Aggressive. LMB toggle."
 msgstr "Växla datorhjälp: Nuvarande - Aggressiv. VMK växlar. [3.2.4]"
 
 #: guitext:549
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Toggle Computer Assistant: Currently - Defensive. LMB toggle. [3.2.4]"
+msgid "Toggle Computer Assistant: Currently - Defensive. LMB toggle."
 msgstr "Växla datorhjälp: Nuvarande - Defensiv. VMK växlar. [3.2.4]"
 
 #: guitext:550
+#, fuzzy
 msgctxt "In-game interface description"
-msgid ""
-"Toggle Computer Assistant: Currently - Construction Only. LMB toggle. [3.2.4]"
+msgid "Toggle Computer Assistant: Currently - Construction Only. LMB toggle."
 msgstr "Växla datorhjälp: Nuvarande - Endast konstruktion. VMK växlar. [3.2.4]"
 
 #: guitext:551
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Toggle Computer Assistant: Currently - Move Only. LMB toggle. [3.2.4]"
+msgid "Toggle Computer Assistant: Currently - Move Only. LMB toggle."
 msgstr "Växla datorhjälp: Nuvarande - Endast flytta. VMK växlar. [3.2.4]"
 
 #: guitext:552
@@ -3944,52 +4145,62 @@ msgid "Lava Trap"
 msgstr "Lavafälla"
 
 #: guitext:584
+#, fuzzy
 msgctxt "Trap description"
 msgid ""
-"Boulder Trap: A rolling rock that crushes everything in its path. LMB "
-"select. RMB zoom. [20.1]"
+"Boulder Trap: A rolling rock that crushes everything in its path. Triggered "
+"when enemy creature is close and within line of sight, or when slapped by a "
+"Keeper. LMB select. RMB zoom."
 msgstr ""
 "Indy-fälla: En rullande sten som krossar allt i sin väg. VMK väljer. HMK "
 "zoomar. [20.1]"
 
 #: guitext:585
+#, fuzzy
 msgctxt "Trap description"
-msgid "Alarm Trap: Triggers a Call To Arms spell. LMB select. RMB zoom. [20.2]"
+msgid ""
+"Alarm Trap: Triggers a Call To Arms spell, so that creatures in the area are "
+"summoned to it. LMB select. RMB zoom."
 msgstr ""
 "Alarmfälla: Utlöser trollformeln Vapengripare. VMK väljer. HMK zoomar. [20.2]"
 
 #: guitext:586
+#, fuzzy
 msgctxt "Trap description"
 msgid ""
-"Poison Gas Trap: A cloud of noxious vapours triggered by your enemies. LMB "
-"select. RMB zoom. [20.3]"
+"Poison Gas Trap: A cloud of noxious vapours triggered by your enemies. Can "
+"hurt owner creatures if they inhale it. LMB select. RMB zoom."
 msgstr ""
 "Giftmolnsfälla: Ett moln av skadliga ångor utlöses av dina fiender. VMK "
 "väljer. HMK zoomar. [20.3]"
 
 #: guitext:587
+#, fuzzy
 msgctxt "Trap description"
 msgid ""
-"Lightning Trap: Strikes nearby enemy creatures with bolts of lightning. LMB "
-"select. RMB zoom. [20.4]"
+"Lightning Trap: Strikes nearby enemy creatures with bolts of lightning when "
+"tripped. Does no harm to owner creatures. LMB select. RMB zoom."
 msgstr ""
 "Blixtfälla: Gör att varelser som befinner sig nära fällan träffas av "
 "blixten. VMK väljer. HMK zoomar. [20.4]"
 
 #: guitext:588
+#, fuzzy
 msgctxt "Trap description"
 msgid ""
-"Word of Power Trap: Radiates devastating rings of demonic energy, damaging "
-"all creatures within range. LMB select. RMB zoom. [20.5]"
+"Word of Power Trap: Radiates devastating rings of demonic energy, pushing "
+"and damaging all enemy creatures within range. LMB select. RMB zoom."
 msgstr ""
 "Ordets makt-fälla: Strålar ut förödande ringar med demonisk energi, vilket "
 "skadar alla varelser inom räckhåll. VMK väljer. HMK zoomar. [20.5]"
 
 #: guitext:589
+#, fuzzy
 msgctxt "Trap description"
 msgid ""
-"Lava Trap: The tile disintegrates revealing a pool of molten lava. LMB "
-"select. RMB zoom. [20.6]"
+"Lava Trap: The tile disintegrates revealing a pool of molten lava. Effects "
+"are irreversible, so Bridge is needed to be able to step on affected area "
+"again. LMB select. RMB zoom."
 msgstr ""
 "Lavafälla: Plattan löses upp och avslöjar en pool med flytande lava. VMK "
 "väljer. HMK zoomar. [20.6]"
@@ -4015,35 +4226,40 @@ msgid "Magic Door"
 msgstr "Magisk dörr"
 
 #: guitext:594
+#, fuzzy
 msgctxt "Door description"
 msgid ""
-"Wooden Door: The simplest means of restricting access. LMB select. RMB zoom. "
-"[21.1]"
+"Wooden Door: The simplest means of restricting access. Can be broken down "
+"easily. LMB select. RMB zoom."
 msgstr ""
 "Trädörr: Den enklaste lösningen för att begränsa andras frihet. VMK väljer. "
 "HMK zoomar. [21.1]"
 
 #: guitext:595
+#, fuzzy
 msgctxt "Door description"
 msgid ""
-"Braced Door: A wooden door reinforced with iron. LMB select. RMB zoom. [21.2]"
+"Braced Door: A wooden door reinforced with iron to last longer. LMB select. "
+"RMB zoom."
 msgstr ""
 "Förstärkt dörr: En trädörr förstärkt med järn. VMK väljer. HMK zoomar. [21.2]"
 
 #: guitext:596
+#, fuzzy
 msgctxt "Door description"
 msgid ""
 "Iron Door: Strong, heavy door capable of sustaining massive damage. LMB "
-"select. RMB zoom. [21.3]"
+"select. RMB zoom."
 msgstr ""
 "Järndörr: Stark, tung dörr kapabel att stå emot betydande påverkan. VMK "
 "väljer. HMK zoomar. [21.3]"
 
 #: guitext:597
+#, fuzzy
 msgctxt "Door description"
 msgid ""
 "Magic Door: A special door, highly resistant to physical damage but "
-"susceptible to magical damage. LMB select. RMB zoom. [21.4]"
+"susceptible to magical damage. LMB select. RMB zoom."
 msgstr ""
 "Magisk dörr: En specialdörr som är väldigt motståndskraftig mot fysisk skada "
 "men känslig för magisk påverkan. VMK väljer. HMK zoomar. [21.4]"
@@ -6190,7 +6406,49 @@ msgid "Your creature cannot reach the room it needs"
 msgstr ""
 
 #: guitext:946
+#, fuzzy
 msgctxt "Game event description"
-msgid "Room unreachable: LMB toggle. RMB delete."
+msgid "Work room unreachable: LMB toggle. RMB delete."
+msgstr "Nytt rum: VMK växlar. HMK raderar."
+
+#: guitext:947
+msgctxt "Game event name"
+msgid "Your Imp cannot reach a room to drag something into"
 msgstr ""
 
+#: guitext:948
+#, fuzzy
+msgctxt "Game event description"
+msgid "Storage room unreachable: LMB toggle. RMB delete."
+msgstr "Nytt rum: VMK växlar. HMK raderar."
+
+#~ msgctxt "Slab description"
+#~ msgid "Impenetrable Rock: Your Imps cannot dig through this. [12.4]"
+#~ msgstr ""
+#~ "Ogenomtränglig klippa: Dina impar kan inte gräva sig igenom denna. [12.4]"
+
+#~ msgctxt "Slab description"
+#~ msgid "Earth: You can excavate this. [12.1]"
+#~ msgstr "Jord: Du kan gräva upp detta. [12.1]"
+
+#~ msgctxt "Slab description"
+#~ msgid "Lava: Burns any creature that step on it. [14.2]"
+#~ msgstr "Lava: Bränner alla varelser som kliver på den. [14.2]"
+
+#~ msgctxt "Slab description"
+#~ msgid "Path: Unclaimed earth floor. [12.1]"
+#~ msgstr "Jordgolv: Ointaget område. [12.1]"
+
+#~ msgctxt "Slab description"
+#~ msgid "Claimed area: Your dungeon territory. [12.1]"
+#~ msgstr "Intaget område: Någon väktares grottområde. [12.1]"
+
+#~ msgctxt "In-game interface description"
+#~ msgid "Information Panel: Miscellaneous information. [5.0]"
+#~ msgstr "Informationspanel: Blandad information. [5.0]"
+
+#~ msgctxt "In-game interface description"
+#~ msgid "Time: The time until the next Creature Payday. [5.3]"
+#~ msgstr ""
+#~ "Lönedags: Den tid som återstår innan nästa löneutbetalning till "
+#~ "varelserna. [5.3]"

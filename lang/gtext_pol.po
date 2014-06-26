@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-06-25 17:04+0100\n"
+"PO-Revision-Date: 2014-06-26 22:52+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: pl_PL\n"
@@ -3588,12 +3588,13 @@ msgstr ""
 "Sprzedaż pomieszczenia: Kliknij LPM, a otrzymasz połowę kosztów budowy. [6.4]"
 
 #: guitext:463
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Sell Item: Sell a Trap or Door. Allows you to earn gold on manufacturing. "
 "LMB select."
-msgstr "Sprzedaż obiektu: Kliknij LPM< aby sprzedać drzwi lub pułapkę. [8.12]"
+msgstr ""
+"Sprzedaż obiektu: Kliknij LPM aby sprzedać drzwi lub pułapkę, otrzymując "
+"równowartość w złocie."
 
 #: guitext:464
 msgctxt "In-game interface description"
@@ -6463,9 +6464,21 @@ msgid "Your creature cannot reach the room it needs"
 msgstr "Część twoich stworów nie może dostać się do komnaty"
 
 #: guitext:946
+#, fuzzy
 msgctxt "Game event description"
-msgid "Room unreachable: LMB toggle. RMB delete."
+msgid "Work room unreachable: LMB toggle. RMB delete."
 msgstr "Komnata nieosiągalna: LPM przełącza, PPM likwiduje."
+
+#: guitext:947
+#, fuzzy
+msgctxt "Game event name"
+msgid "Your Imp cannot reach a room to drag something into"
+msgstr "Część twoich stworów nie może dostać się do komnaty"
+
+#: guitext:948
+msgctxt "Game event description"
+msgid "Storage room unreachable: LMB toggle. RMB delete."
+msgstr "Komnata magazynująca nieosiągalna: LPM przełącza, PPM likwiduje."
 
 #~ msgctxt "Slab description"
 #~ msgid "Impenetrable Rock: Your Imps cannot dig through this. [12.4]"
