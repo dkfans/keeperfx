@@ -21,15 +21,15 @@ msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-03-09 14:15+0100\n"
+"PO-Revision-Date: 2014-06-26 21:15+0100\n"
 "Last-Translator: Ing. Jiří Vejda <jiri.vejda@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
+"Language: cs_CZ\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.6.4\n"
+"X-Generator: Poedit 1.5.7\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"Language: cs_CZ\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
 #. Generic victory message
@@ -254,7 +254,7 @@ msgstr ""
 "Vychutnej si sve prvni vitezstvi, dokud mas cas. Prilakal jsi totiz na sebe "
 "hnev Vladce zdejsiho kralovstvi. Urcite se brzo prizene se svou druzinou."
 
-#. Level Eversmile objective when LOTL comes
+#. Levels Eversmile and Tickle objective, when LOTL comes
 #: guitext:19
 msgctxt "In-game message"
 msgid ""
@@ -475,6 +475,7 @@ msgstr ""
 "Vzhledem k tomu ze umi kouzlit, je vhodne je pouzivat jako bojovniky na "
 "vetsi vzdalenosti."
 
+#. Level Waterdream Warm objective
 #: guitext:39
 msgctxt "In-game message"
 msgid ""
@@ -485,6 +486,7 @@ msgstr ""
 "Tvi bojovnici roztrhali prvni utocniky na kusy. Ted ale nesmis usnout na "
 "vavrinech. Nebude dlouho trvat a prijdou dalsi kandidati na sezrani."
 
+#. Level Waterdream Warm objective
 #: guitext:40
 msgctxt "In-game message"
 msgid ""
@@ -496,6 +498,7 @@ msgstr ""
 "krmeni a navic samozrejme poslouzi jako varovani ostatnim dostatecne hloupym "
 "dobrodruhum."
 
+#. Level Waterdream Warm objective
 #: guitext:41
 msgctxt "In-game message"
 msgid ""
@@ -505,17 +508,20 @@ msgstr ""
 "Zvlastni, to ticho kolem. Ale radsi se priprav na dalsi utoky. Nepritel jen "
 "nabira nove sily a jeste zdaleka neni porazen."
 
+#. Level Waterdream Warm information
 #: guitext:42
 msgctxt "In-game message"
 msgid ""
 "Is that Imp playing football with a decapitated head? Stay alert, Keeper."
 msgstr "Ten skret snad hraje fotbal s utrzenou hlavou?! Dej si pozor!"
 
+#. Level Waterdream Warm objective
 #: guitext:43
 msgctxt "In-game message"
 msgid "Now would be an excellent time to train a Warlock."
 msgstr "Ted je ten pravy cas vycvicit kouzelnika."
 
+#. Level Waterdream Warm information
 #: guitext:44
 msgctxt "In-game message"
 msgid ""
@@ -527,6 +533,7 @@ msgstr ""
 "obludu. Pouzij ho na nektere z tvych stvoreni a zpozorujes jeji velke "
 "zrychleni. Ucinek kouzla vsak po jiste dobe odezni."
 
+#. Level Flowerhat objective
 #: guitext:45
 msgctxt "In-game message"
 msgid ""
@@ -538,6 +545,7 @@ msgstr ""
 "nachazi pobliz. Nepostupuj vsak na sever, narazis zde na silne protivniky. "
 "Bude moudrejsi se na ne nejdriv radne pripravit."
 
+#. Level Flowerhat information
 #: guitext:46
 msgctxt "In-game message"
 msgid ""
@@ -547,6 +555,7 @@ msgstr ""
 "Vedci vykoumali zpusob, jakym tvi skreti mohou stavet Mosty. Mosty jsou "
 "potreba pri prekonavani nebezpecneho terenu v podzemí."
 
+#. Level Flowerhat objective
 #: guitext:47
 msgctxt "In-game message"
 msgid ""
@@ -559,6 +568,7 @@ msgstr ""
 "veci, jako napriklad dvere a pasti. Pokud je dilna velika minimalne devet "
 "poli, tak muze prilakat do tveho sklepeni nejlepsi remeslniky podzemi."
 
+#. Level Flowerhat information
 #: guitext:48
 msgctxt "In-game message"
 msgid ""
@@ -570,6 +580,7 @@ msgstr ""
 "jecjich vhozením do místnosti. Vyrobené předměty můžeš vybrat ze záložky "
 "Dílna jakmile budou připraveny."
 
+#. Level Flowerhat objective
 #: guitext:49
 msgctxt "In-game message"
 msgid ""
@@ -579,6 +590,7 @@ msgstr ""
 "Jakmile mas dost kvalitne vycvicenych vojaku, prokopej se na sever a podivej "
 "se na zoubek nepratelum, ktere zde najdes."
 
+#. Level Flowerhat objective
 #: guitext:50
 msgctxt "In-game message"
 msgid ""
@@ -587,6 +599,7 @@ msgid ""
 msgstr ""
 "Musis nejakym zpusobem prekrocit proud zhave lavy, ktery ti stoji v ceste."
 
+#. Level Flowerhat objective
 #: guitext:51
 msgctxt "In-game message"
 msgid ""
@@ -596,6 +609,7 @@ msgstr ""
 "Pred tebou lezi srdce nepratelskeho sklepeni. Shromazdi sve miniony a udelej "
 "to, co musis udelat."
 
+#. Level Flowerhat information
 #: guitext:52
 msgctxt "In-game message"
 msgid ""
@@ -606,6 +620,7 @@ msgstr ""
 "Mezi tve sluzebniky se pridal i Trol. Je to pilny pracovnik a proto by bylo "
 "nejlepsi jej zamestnat v tve dilne. Navic neumi moc dobre bojovat."
 
+#. Level Flowerhat objective
 #: guitext:53
 msgctxt "In-game message"
 msgid ""
@@ -615,6 +630,7 @@ msgstr ""
 "Znicenim Srdce sklepeni jsi znicil sveho nepritele. Obsad dobita uzemi a "
 "nastol desivy teror a bezpravi."
 
+#. Level Flowerhat information
 #: guitext:54
 msgctxt "In-game message"
 msgid ""
@@ -626,6 +642,7 @@ msgstr ""
 "znemoznis nepratelum pruchod. Tvé stvoření jimi mohou volně prochazet. "
 "Kliknutim levým tlačítkem myši nad dveřmi je můzeš zamknout či odemknout."
 
+#. Level Flowerhat information
 #: guitext:55
 msgctxt "In-game message"
 msgid ""
@@ -635,6 +652,7 @@ msgstr ""
 "V dilne se podarilo sestrojit Past s jedovatym plynem. Pokud tuto past "
 "vetrelci spusti, budou okamzite zahaleni oblaky jedovateho plynu."
 
+#. Level Flowerhat information
 #: guitext:56
 msgctxt "In-game message"
 msgid ""
@@ -648,6 +666,7 @@ msgstr ""
 "kouzlo pouzit tam, kde chces mit sve vojaky. Pokud posles vojaky za hranice "
 "tveho uzemi, bude te to stat nejake penize."
 
+#. Level Lushmeadow-on-Down objective
 #: guitext:57
 msgctxt "In-game message"
 msgid ""
@@ -659,6 +678,7 @@ msgstr ""
 "jiny Strazce. Pokud se ti podari primet obludy aby nepracovaly pro nej ale "
 "pro tebe, budes schopen vytvorit vetsi a lepsi sklepeni. Takze do toho!"
 
+#. Level Lushmeadow-on-Down objective
 #: guitext:58
 msgctxt "In-game message"
 msgid ""
@@ -668,6 +688,7 @@ msgstr ""
 "Tvuj rival je porazen. Jeho porazka svedci o kvalitnim vybaveni tvych "
 "sklepeni. Dokazal jsi ze jsi hoden nosit titul Strazce."
 
+#. Level Lushmeadow-on-Down information
 #: guitext:59
 msgctxt "In-game message"
 msgid ""
@@ -679,6 +700,7 @@ msgstr ""
 "doupata a bohate kurniky. Tyto zavalite stvury utoci na nepratele ponekud "
 "zvlastnim zpusobem."
 
+#. Level Lushmeadow-on-Down information
 #: guitext:60
 msgctxt "In-game message"
 msgid ""
@@ -688,6 +710,7 @@ msgstr ""
 "Tvi vedci zaznamenali dalsi uspech a vytvorili kouzlo Oko zla. Toto kouzlo "
 "ti docasne odhali neprozkoumana uzemi"
 
+#. Level Lushmeadow-on-Down information
 #: guitext:61
 msgctxt "In-game message"
 msgid ""
@@ -700,6 +723,7 @@ msgstr ""
 "skreti odvlecou omracene nepratele do hladomorny. Vezni, kteri v hladomorne "
 "zemrou mohou byt znovu oziveni a budou pro tebe bojovat jako Kostlivci."
 
+#. Level Lushmeadow-on-Down information
 #: guitext:62
 msgctxt "In-game message"
 msgid ""
@@ -711,6 +735,7 @@ msgstr ""
 "strategicky vyznamnych mistech. V straznici musi byt take strazni. Temi muze "
 "byt kterakoliv obluda, kterou preneses do straznice."
 
+#. Level Lushmeadow-on-Down information
 #: guitext:63
 msgctxt "In-game message"
 msgid ""
@@ -721,6 +746,7 @@ msgstr ""
 "Do tveho sklepeni dorazil Pavouk. Pavouci jsou prirozeni nepratele much, "
 "proto se snaz drzet mouchy a pavouky oddelene od sebe."
 
+#. Level Snuggledell objective
 #: guitext:64
 msgctxt "In-game message"
 msgid ""
@@ -731,6 +757,7 @@ msgstr ""
 "Nastal cas ztrestat troufaleho strazce, ktery se odvazil ziskat tuto cast "
 "tve podzemni rise. Odplatou mu budiz vecne zapomeni."
 
+#. Level Snuggledell objective
 #: guitext:65
 msgctxt "In-game message"
 msgid ""
@@ -741,6 +768,7 @@ msgstr ""
 "Jak sladky je pohled na pokoreneho nepratelskeho Strazce. Neni pochyb o tom, "
 "kdo letos provadi nejdabelstejsi kousky."
 
+#. Level Snuggledell information
 #: guitext:66
 msgctxt "In-game message"
 msgid ""
@@ -753,6 +781,7 @@ msgstr ""
 "a nakladat s nimi podle tvych nejzvrhlejsich predstav. Pro utuzeni "
 "discipliny muzes do mucirny odvlect i sve vlastni obludy."
 
+#. Level Snuggledell information
 #: guitext:67
 msgctxt "In-game message"
 msgid ""
@@ -763,6 +792,7 @@ msgstr ""
 "Podařilo se ti konečně vytvořit kobku dost rozsáhlou abys přilákal Temnou "
 "milenku"
 
+#. Level Snuggledell information
 #: guitext:68
 msgctxt "In-game message"
 msgid ""
@@ -773,6 +803,7 @@ msgstr ""
 "V dilne vyrobili Zpevnene dvere. Pokud chces neco bezpecne zajistit, zamkni "
 "to za zpevnenymi dvermi."
 
+#. Level Snuggledell information
 #: guitext:69
 msgctxt "In-game message"
 msgid ""
@@ -784,6 +815,7 @@ msgstr ""
 "nepratele silny proud energie. Vyber toto kouzlo, zamer nepritele a usmaz ho "
 "oslnivym Bleskem."
 
+#. Level Snuggledell information
 #: guitext:70
 msgctxt "In-game message"
 msgid ""
@@ -793,6 +825,7 @@ msgstr ""
 "Vyrobil jsi Past s blesky. Urcite stoji za vyzkouseni. Pokud ji nekdo "
 "spusti, zpusobi mu tato past doslova sokujici prekvapeni."
 
+#. Level Wishvale objective
 #: guitext:71
 msgctxt "In-game message"
 msgid ""
@@ -803,6 +836,7 @@ msgstr ""
 "Vpadl jsi doprostred zurici bitvy. Mozna bude moudrejsi vyckat do doby, nez "
 "budes chopen porazit obe bojujici strany."
 
+#. Level Wishvale information
 #: guitext:72
 msgctxt "In-game message"
 msgid ""
@@ -812,6 +846,7 @@ msgstr ""
 "Na tvou stranu se pridal Orcky valecnik a prinesl s sebou plany na stavbu "
 "Kasaren. V tomto zarizeni muzes sve obludy formovat do bojovych skupin."
 
+#. Level Wishvale objective
 #: guitext:73
 msgctxt "In-game message"
 msgid ""
@@ -823,6 +858,7 @@ msgstr ""
 "druzinou opustil teplo domaciho krbu a vydal se zjistit, kde se ztraci jeho "
 "bojovnici."
 
+#. Level Wishvale objective
 #: guitext:74
 msgctxt "In-game message"
 msgid ""
@@ -832,6 +868,7 @@ msgstr ""
 "Diky tobe se z mistnich hrdinu stal vymirajici druh. Myslim, ze ted je pravy "
 "cas si pohrat s nepratelskym Strazcem."
 
+#. Level Wishvale objective
 #: guitext:75
 msgctxt "In-game message"
 msgid ""
@@ -842,6 +879,7 @@ msgstr ""
 "Zvitezil jsi, Strazce a tela tvych nepratel se povaluji v nejzapomenutejsich "
 "castech tvych sklepeni. Je to dan za jejich marnou snahu te pokorit."
 
+#. Level Tickle objective
 #: guitext:76
 msgctxt "In-game message"
 msgid ""
@@ -854,6 +892,7 @@ msgstr ""
 "Jenze on tomu asi nebude chtit rozumet, proto mam jeste pripraven plan B. "
 "Zabij ho."
 
+#. Level Tickle information
 #: guitext:77
 msgctxt "In-game message"
 msgid ""
@@ -863,6 +902,7 @@ msgstr ""
 "Ziskal jsi kouzlo Neviditelnost. Pusobenim tohoto kouzla ucinis vybranou "
 "obludu neviditelnou."
 
+#. Level Tickle information
 #: guitext:78
 msgctxt "In-game message"
 msgid ""
@@ -872,6 +912,7 @@ msgstr ""
 "Vedci vyvinuli kouzlo Ochranit obludu. Obluda na kterou toto kouzlo pouzijes "
 "vydrzi vice uderu."
 
+#. Level Tickle objective
 #: guitext:79
 msgctxt "In-game message"
 msgid ""
@@ -882,6 +923,7 @@ msgstr ""
 "Rozmazl jsi dalsiho nepritele. Ubozi bezbrani obyvatele krajiny nad tebou "
 "sklaneji sve hlavy pred tvym hnevem. Asi si mysli, ze je to zachrani..."
 
+#. Level Tickle information
 #: guitext:80
 msgctxt "In-game message"
 msgid ""
@@ -894,6 +936,7 @@ msgstr ""
 "obetovat ruzna stvoreni. Tyto bozstva se ti pak mohou odmenit. Bohy ale neni "
 "snadne uspokojit."
 
+#. Level Moonbrush Wood objective
 #: guitext:81
 msgctxt "In-game message"
 msgid ""
@@ -905,6 +948,7 @@ msgstr ""
 "obavaji jejich iluzionistickych triku, tak maji ti ctyri pocit ze jsou "
 "neomezenymi vladci."
 
+#. Level Moonbrush Wood objective
 #: guitext:82
 #, fuzzy
 msgctxt "In-game message"
@@ -913,6 +957,7 @@ msgid ""
 "organise their nice little lives."
 msgstr "Je nacase jim vysvetlit, jak se veci maji."
 
+#. Levels Tickle and Moonbrush Wood information
 #: guitext:83
 msgctxt "In-game message"
 msgid ""
@@ -926,6 +971,7 @@ msgstr ""
 "Proto kdyz uz se sekac rozjede, dbej na to aby kolem nej byli hlavne tvi "
 "nepratele."
 
+#. Level Moonbrush Wood information
 #: guitext:84
 msgctxt "In-game message"
 msgid ""
@@ -935,6 +981,7 @@ msgstr ""
 "Vedci objevili kouzlo Choroba. Pouzij toto kouzlo na nepratelske obludy a "
 "pokochej se utrpenim a smrtelnymi krecemi tvych nepratel."
 
+#. Level Moonbrush Wood information
 #: guitext:85
 msgctxt "In-game message"
 msgid ""
@@ -947,6 +994,7 @@ msgstr ""
 "Bohuzel, upiri mivaji zvlastni stravovaci navyky. Pokud jses ochoten se s "
 "tim smirit, ziskas na svou stranu silneho a strasliveho sluzebnika."
 
+#. Level Moonbrush Wood information
 #: guitext:86
 msgctxt "In-game message"
 msgid ""
@@ -958,6 +1006,7 @@ msgstr ""
 "mrtvych nepratel, aby tam shnila. Cas od casu nektera tela opet povstanou "
 "jako Upiri, pripraveni plnit tve rozkazy."
 
+#. Levels Tickle and Moonbrush Wood information
 #: guitext:87
 msgctxt "In-game message"
 msgid ""
@@ -966,6 +1015,7 @@ msgstr ""
 "V dilne vyrobili Zelezne dvere. Tyto dvere jsou vskutku velice odolne. "
 "Použij je dobře."
 
+#. Level Elf's Dance objective
 #: guitext:88
 msgctxt "In-game message"
 msgid ""
@@ -979,6 +1029,7 @@ msgstr ""
 "skupinu ovladnout drive, nez tak ucini jini strazci, stanes se temer "
 "neporazitelnym. Pokud ovsem neprovedes nejakou hloupost."
 
+#. Level Elf's Dance objective
 #: guitext:89
 msgctxt "In-game message"
 msgid ""
@@ -988,6 +1039,7 @@ msgstr ""
 "Rozdrtil jsi vsechen odpor, o Hnusny. Ted se muzes pobavit mrzkymi obyvateli "
 "tam nahore."
 
+#. Level Nevergrim information
 #: guitext:90
 msgctxt "In-game message"
 msgid ""
@@ -998,6 +1050,7 @@ msgstr ""
 "vypousti velke kamenne koule. Tobe pak uz zbyva jen sledovat, jak vypustene "
 "koule drti neopatrne vetrelce."
 
+#. Level Nevergrim information
 #: guitext:91
 msgctxt "In-game message"
 msgid ""
@@ -1009,6 +1062,7 @@ msgstr ""
 "a k oprave prulomu v tvych sklepenich. Na tomto kouzlu je zajimavy fakt, ze "
 "zabije jakekoliv stvoreni ktere zaval zasahne."
 
+#. Level Nevergrim information
 #: guitext:92
 msgctxt "In-game message"
 msgid ""
@@ -1020,6 +1074,7 @@ msgstr ""
 "mistnosti umistis nejakou obludu, ta zacne k tobe lakat z jinych sklepeni ci "
 "svetu obludy podobne jejimu druhu."
 
+#. Level Nevergrim information
 #: guitext:93
 msgctxt "In-game message"
 msgid ""
@@ -1029,11 +1084,13 @@ msgstr ""
 "Diky svemu bohatstvi jsi ziskal do svych sluzeb potulneho Draka. Draci jsou "
 "nevypocitatelni, proto na ne davej dobry pozor."
 
+#. Level Nevergrim information
 #: guitext:94
 msgctxt "In-game message"
 msgid "A Hell Hound has been lured to your domain by your Scavenger Room."
 msgstr "Do tvych sklepeni byl z Ocistne mistnosti prilakan Pekelny pes."
 
+#. Level Buffy Oak objective
 #: guitext:95
 msgctxt "In-game message"
 msgid ""
@@ -1045,6 +1102,7 @@ msgstr ""
 "proti tobe. Vypada to, ze uz mas povest mocneho protivnika. Nic to ale "
 "nemeni na faktu, ze by meli chcipnout."
 
+#. Level Buffy Oak objective
 #: guitext:96
 msgctxt "In-game message"
 msgid ""
@@ -1054,6 +1112,7 @@ msgstr ""
 "Dosahl jsi velkeho vitezstvi, Mistre. Diky tve zvracene nemilosrdnosti "
 "vypadaji ostatni strazci v porovnani s tebou jako neskodne ovce."
 
+#. Level Hearth information
 #: guitext:97
 msgctxt "In-game message"
 msgid ""
@@ -1063,6 +1122,7 @@ msgstr ""
 "Odhalil jsi znicujici magickou silu. Zamerenim tohoto kouzla zmenis vybranou "
 "sebevice nebezpecnou obludu v kdakavou slepici. Mas rad kureci?"
 
+#. Level Hearth information
 #: guitext:98
 msgctxt "In-game message"
 msgid ""
@@ -1072,6 +1132,7 @@ msgstr ""
 "Tvi sluzebnici postavili Poplasne zarizeni. Toto zarizeni te upozorni na "
 "blizici se nepratele a zburcuje strazici obludy v okoli."
 
+#. Level Buffy Oak information
 #: guitext:99
 msgctxt "In-game message"
 msgid ""
@@ -1081,6 +1142,7 @@ msgstr ""
 "Vyvinul jsi Kouzelne dvere, ktere jsou temer neprekonatelna. Odolaji vsemu "
 "krome kouzel. Doporucuji umistnit je k tve pokladnici nebo srdci sklepeni."
 
+#. Level Nevergrim objective
 #: guitext:100
 msgctxt "In-game message"
 msgid ""
@@ -1090,6 +1152,7 @@ msgstr ""
 "Kdesi v teto risi ohne sidli dalsi nebezpecny Strazce. Doporucuji ti odlozit "
 "posledni zbytky slusneho vychovani a nicit."
 
+#. Level Nevergrim objective
 #: guitext:101
 msgctxt "In-game message"
 msgid ""
@@ -1099,6 +1162,7 @@ msgstr ""
 "Muzes si udelat dalsi zarez za zniceneho nepritele. Zisklal jsi dalsi "
 "prostory pro rozsireni tveho ponureho kralovstvi."
 
+#. Level Hearth objective
 #: guitext:102
 msgctxt "In-game message"
 msgid ""
@@ -1110,12 +1174,14 @@ msgstr ""
 "Trenuj sve potvory a priprav se na dalsi bitvu. Zda se ze se u tebe schazi "
 "vybrana spolecnost."
 
+#. Level Hearth objective
 #: guitext:103
 msgctxt "In-game message"
 msgid ""
 "The enemy are upon us. I'm just telling you in case you were having a doze."
 msgstr "Nepritel se blizi. Rikam to jen pro pripad, kdyby sis dal slofika..."
 
+#. Level Hearth objective
 #: guitext:104
 msgctxt "In-game message"
 msgid ""
@@ -1125,6 +1191,7 @@ msgstr ""
 "Vsichni nepratele jsou mrtvi, vsechno slape tak jak ma. Cela tato rise je "
 "ted tvoje. Doporucuji vydrancovat, znasilnit, pozabijet a vypalit."
 
+#. Level Hearth objective
 #: guitext:105
 msgctxt "In-game message"
 msgid ""
@@ -1138,17 +1205,20 @@ msgstr ""
 "Naskyta se ti tak skvela prilezitost vyzkouset ucinky tve nevyslovitelne "
 "zloby ve velkem."
 
+#. Level Woodly Rhyme information
 #: guitext:106
+#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "Your latest discovery is the Word of Power Trap. When activated, the trap "
-"triggers an expanding ring of fire that incinerates anything caught in its "
-"area of effect. What a scream that should be."
+"triggers an expanding ring of demonic energy that incinerates anything "
+"caught in its area of effect. What a scream that should be."
 msgstr ""
 "Tvym nejnovejsim objevem je Ohniva past. Pokud je past aktivovana, vyvola "
 "rozsirujici se kruh ohne, ktery spali cokoliv uvnitr kruhu. Upozornuji ze "
 "posledni okamziky obeti byvaji velice zabavne."
 
+#. Level Moonbrush Wood information
 #: guitext:107
 msgctxt "In-game message"
 msgid ""
@@ -1160,6 +1230,7 @@ msgstr ""
 "vsechny tve obludy zpet k Srdci sklepeni. Doufejme, ze to nebudes nikdy "
 "potrebovat."
 
+#. Level Sleepiburgh objective
 #: guitext:108
 msgctxt "In-game message"
 msgid ""
@@ -1170,6 +1241,7 @@ msgstr ""
 "osudu tohoto kraje. Vyreseni tohoto problemu ovsem lezi na tobe a tvych "
 "obludach."
 
+#. Level Buffy Oak information
 #: guitext:109
 msgctxt "In-game message"
 msgid ""
@@ -1180,6 +1252,7 @@ msgstr ""
 "Tvi vedci vyzkoumali znicujici kouzlo Drubezator. Pusobenim tohoto kouzla se "
 "kterakoliv obluda okamzite zmeni v neskodnou drubez."
 
+#. Level Sleepiburgh information
 #: guitext:110
 msgctxt "In-game message"
 msgid ""
@@ -1191,6 +1264,7 @@ msgstr ""
 "kouzla je znacne narocne, a navic je mozne ze nepritel take ovlada toto "
 "kouzlo. Je na tobe, jak s temito fakty nalozis."
 
+#. Level Sleepiburgh objective
 #: guitext:111
 msgctxt "In-game message"
 msgid ""
@@ -1200,11 +1274,13 @@ msgstr ""
 "Mezi tebou a hektary zalu a utrpeni jiz stoji pouze Vladce zdejsi rise. "
 "Vsadim se, ze se ho uz nemuzes dockat."
 
+#. Level Sleepiburgh objective
 #: guitext:112
 msgctxt "In-game message"
 msgid "Your continued success makes me sick. Thank you, your wickedness."
 msgstr "Z tvého nekonečnéhoúpěchu je mi špatně. Děkuji, Vaše zvrácenosti."
 
+#. Level Woodly Rhyme objective
 #: guitext:113
 msgctxt "In-game message"
 msgid ""
@@ -1215,12 +1291,14 @@ msgstr ""
 "buduji sva sklepeni jeste dva jini Strazci. Neocekavej ale od svych souperu "
 "zadne slitovani."
 
+#. Level Woodly Rhyme information
 #: guitext:114
 msgctxt "In-game message"
 msgid ""
 "Can you see how vulnerable one of your opponents has become? Then kill him."
 msgstr "Vsiml sis, jak je jeden z tvych souperu zranitelny? Zab ho!"
 
+#. Level Woodly Rhyme information
 #: guitext:115
 msgctxt "In-game message"
 msgid ""
@@ -1230,6 +1308,7 @@ msgstr ""
 "Zda se, ze tento strazce ma pomerne malo oblud. A strazce bez oblud je "
 "zhavym kandidatem na mrtvolu dne. Takze mu dej co mu nalezi."
 
+#. Level Woodly Rhyme information
 #: guitext:116
 msgctxt "In-game message"
 msgid ""
@@ -1241,6 +1320,7 @@ msgstr ""
 "techto chodbach se muze skryvat zajimavy poklad, ktery se ti muze velice "
 "hodit. Takze ted budeme provadet praktickou archeologii."
 
+#. Level Woodly Rhyme information
 #: guitext:117
 msgctxt "In-game message"
 msgid ""
@@ -1250,6 +1330,7 @@ msgstr ""
 "Tvi vedci vyvinuli kouzlo na bourani zpevnenych zdi. Dej jim poradnou ranu "
 "za to, ze to kouzlo nevynalezli driv."
 
+#. Level Woodly Rhyme information
 #: guitext:118
 msgctxt "In-game message"
 msgid ""
@@ -1259,6 +1340,7 @@ msgstr ""
 "Jeden z tvych protivniku vyvinul kouzlo na bourani zpevnenych zdi. To se ale "
 "dalo cekat. Proto si dej pozor."
 
+#. Level Woodly Rhyme information
 #: guitext:119
 msgctxt "In-game message"
 msgid ""
@@ -1269,6 +1351,7 @@ msgstr ""
 "hodlas toto kouzlo pouzit, tak radne zkontroluj ze opravdu mas prevahu nad "
 "svymi neprateli."
 
+#. Level Tulipscent information
 #: guitext:120
 msgctxt "In-game message"
 msgid ""
@@ -1280,11 +1363,13 @@ msgstr ""
 "budes muset tezce vybojovat. Pokud ale hodlas dobyt tento svet, musel jsi "
 "takove problemy cekat."
 
+#. Level Elf's Dance information
 #: guitext:121
 msgctxt "In-game message"
 msgid "Your manufacturers have crafted the Lava Trap."
 msgstr "Tvi delnici vyvinuli Lavovou past."
 
+#. Level Mirthshire objective
 #: guitext:122
 msgctxt "In-game message"
 msgid ""
@@ -1296,6 +1381,7 @@ msgstr ""
 "vojsko a vyrazili dobyt tve pozice. Malem me to dojalo. Za svou drzost si "
 "zaslouzi, aby jejich hlavy byly narazeny na jejich vlastni kopi."
 
+#. Level Mirthshire objective
 #: guitext:123
 msgctxt "In-game message"
 msgid ""
@@ -1305,6 +1391,7 @@ msgstr ""
 "Vladce zdejsiho kralovstvi se rozlitil a vyrazil dobit nase sklepeni. Mam "
 "zavolat novinare?"
 
+#. Level Mirthshire information
 #: guitext:124
 msgctxt "In-game message"
 msgid ""
@@ -1316,6 +1403,7 @@ msgstr ""
 "patri samozrejme tobe. Jsem si jisty, ze si sve problemy ohledne vlastnictvi "
 "techto artefaktu vyresis ke sve plne spokojenosti."
 
+#. Level Tulipscent objective
 #: guitext:125
 msgctxt "In-game message"
 msgid ""
@@ -1325,6 +1413,7 @@ msgstr ""
 "Abys mohl vyrabet dvere a pasti, musis v Dilne zamestnat nejake pracovniky. "
 "Proste je preneses do dilny. Vyrobene veci muzes pouzit z menu Dilna."
 
+#. Level Tulipscent information
 #: guitext:126
 msgctxt "In-game message"
 msgid "This ancient realm is rich in magical artifacts. Go forth and plunder."
@@ -1332,6 +1421,7 @@ msgstr ""
 "Tato starobyla rise je bohata na magicke artefakty. Musis rychle vyrazit a "
 "rabovat."
 
+#. Level Blaise End objective
 #: guitext:127
 msgctxt "In-game message"
 msgid ""
@@ -1343,6 +1433,7 @@ msgstr ""
 "co nejrychleji zautocit, jinak se probudi a to s nimi bude o poznani tezsi "
 "porizeni."
 
+#. Level Blaise End information
 #: guitext:128
 msgctxt "In-game message"
 msgid ""
@@ -1354,6 +1445,7 @@ msgstr ""
 "neunikne. Jinak by totiz byly tve pozice prozrazeny a ty bys mel velky "
 "problem."
 
+#. Level Blaise End information
 #: guitext:129
 msgctxt "In-game message"
 msgid ""
@@ -1363,6 +1455,7 @@ msgstr ""
 "Už ti to trvá věky. Napadni a znič už pevnost hrdinů, ideálně dřív než "
 "zamrzne peklo."
 
+#. Level Blaise End information
 #: guitext:130
 msgctxt "In-game message"
 msgid ""
@@ -1370,6 +1463,7 @@ msgid ""
 msgstr ""
 "Prave dorazily nepratelske posily. Co to znamena? No ze bude vic mrtvolek."
 
+#. Level Blaise End objective
 #: guitext:131
 msgctxt "In-game message"
 msgid ""
@@ -1381,6 +1475,7 @@ msgstr ""
 "pevnost. Co si o sobe vubec mysli?! Omlouvam se, Mistre. To byla samozrejme "
 "jen recnicka otazka."
 
+#. Level Bonus 6 information
 #: guitext:132
 msgctxt "In-game message"
 msgid ""
@@ -1390,6 +1485,7 @@ msgstr ""
 "Nyni se pred tebou nachazi prozatim nejtezsi zkouska tvych schopnosti. Bud "
 "obstojis, nebo zemres."
 
+#. Level Bonus 6 objective
 #: guitext:133
 msgctxt "In-game message"
 msgid ""
@@ -1401,6 +1497,7 @@ msgstr ""
 "straslivi a mocni jako jsi ty. Vsichni chteji drancovat risi na povrchu. "
 "Avsak vystoupit na povrch muze pouze jeden, a to Vladce podzemi."
 
+#. Level Skybird Trill objective
 #: guitext:134
 msgctxt "In-game message"
 msgid ""
@@ -1411,6 +1508,7 @@ msgstr ""
 "Jeho dusi se vsak snazi ziskat jeste jiny Strazce. To ti muze zpusobit vazne "
 "problemy."
 
+#. Level Skybird Trill objective
 #: guitext:135
 msgctxt "In-game message"
 msgid ""
@@ -1424,6 +1522,7 @@ msgstr ""
 "Strazce. Proto dokaz ze ty jsi tim nejmocnejsim, vyplen souperova sklepeni a "
 "vezmi si svou korist."
 
+#. Level Skybird Trill objective
 #: guitext:136
 msgctxt "In-game message"
 msgid ""
@@ -1436,6 +1535,7 @@ msgstr ""
 "Avatar nyni vsechny sily schopne se ti postavit, muj pane. Je nacase s tim "
 "drzym spratkem konecne zuctovat."
 
+#. Level Bonus 5 objective
 #: guitext:137
 msgctxt "In-game message"
 msgid ""
@@ -1446,6 +1546,7 @@ msgstr ""
 "Diky silnym magickym silam vysilanym z povrchu nemuzeme ve zdejsim "
 "kralovstvi postavit sklepeni. Budes muset najit jiny zpusob jak ho dobyt."
 
+#. Level Bonus 5 information
 #: guitext:138
 msgctxt "In-game message"
 msgid ""
@@ -1457,6 +1558,7 @@ msgstr ""
 "ale pripraven prenest svou dusi do jineho k danym ucelum vhodnejsiho "
 "stvoreni, pokud to bude situace vyzadovat."
 
+#. Level Bonus 5 objective
 #: guitext:139
 msgctxt "In-game message"
 msgid ""
@@ -1466,6 +1568,7 @@ msgstr ""
 "Ovladni upira. Pokud uspejes a pobijes vsechny hrdiny tohoto kraje, pripoji "
 "se tento upir k tvym silam v podzemnich sklepenich."
 
+#. Level Bonus 2 objective
 #: guitext:140
 msgctxt "In-game message"
 msgid ""
@@ -1477,11 +1580,13 @@ msgstr ""
 "dokazes potrestat tyto zradce urci, jestli jsi schopen schopen zvladnout "
 "vetsi ukoly."
 
+#. Level Bonus 2 information
 #: guitext:141
 msgctxt "In-game message"
 msgid "Tempus fugit, Keeper. You have been warned."
 msgstr "Cas uplynul, Strazce. Ja te varoval."
 
+#. Level Bonus 2 objective
 #: guitext:142
 msgctxt "In-game message"
 msgid ""
@@ -1491,6 +1596,7 @@ msgstr ""
 "Selhal jsi, priteli. Zrejme nejsi dost dobry posel zkazy jak doufaly sily "
 "temnot."
 
+#. Level Bonus 2 objective
 #: guitext:143
 msgctxt "In-game message"
 msgid ""
@@ -1502,6 +1608,7 @@ msgstr ""
 "hned dve Temne pani se rozhodly vstoupit do tvych sluzeb a pomohou dosahnout "
 "dalsiho uspechu. Muzes postoupit do dalsiho kralovstvi."
 
+#. Level Bonus 3 objective
 #: guitext:144
 msgctxt "In-game message"
 msgid ""
@@ -1511,16 +1618,19 @@ msgstr ""
 "Splneni tohoto ukolu vyzaduje velikou rychlost a zrucnost. Pobij tyto skrety "
 "jak nejrychleji muzes."
 
+#. Level Bonus 3 information
 #: guitext:145
 msgctxt "In-game message"
 msgid "Half your allotted time has elapsed."
 msgstr "Jiz uplynula polovina vyhrazeneho casu."
 
+#. Level Bonus 3 objective
 #: guitext:146
 msgctxt "In-game message"
 msgid "You are out of time. That was a shocking performance."
 msgstr "Cas vyprsel. Zklamal jsi, pane."
 
+#. Level Bonus 3 objective
 #: guitext:147
 msgctxt "In-game message"
 msgid ""
@@ -1532,6 +1642,7 @@ msgstr ""
 "chodeb v mistech, kde jsi skrety dostihl. Temni bohove ti jako odmenu za "
 "rychlost poslali Obra, aby ti pomohl dobyt dalsi risi."
 
+#. Level Bonus 3 objective
 #: guitext:148
 msgctxt "In-game message"
 msgid ""
@@ -1550,11 +1661,13 @@ msgstr ""
 "kamenne pasti rozmistnene po obvodu sklepeni. Mas velmi malo casu, proto "
 "sebou budes muset trochu hodit."
 
+#. Level Bonus 4 objective
 #: guitext:150
 msgctxt "In-game message"
 msgid "Half your time has expired."
 msgstr "Prave uplynula polovina urceneho casu."
 
+#. Level Bonus 4 objective
 #: guitext:151
 msgctxt "In-game message"
 msgid ""
@@ -1563,6 +1676,7 @@ msgid ""
 msgstr ""
 "Tvuj cas vyprsel. Selhal jsi. Je mi trapne, ze jsem s tebou musel travit cas!"
 
+#. Level Bonus 4 objective
 #: guitext:152
 msgctxt "In-game message"
 msgid ""
@@ -1574,6 +1688,7 @@ msgstr ""
 "Temni bohove se ti odmeni pridelenim tri Superskretu, kteri ti pomohou "
 "dosahnout dalsiho uspechu."
 
+#. Level Bonus 4 objective
 #: guitext:153
 msgctxt "In-game message"
 msgid ""
@@ -1587,6 +1702,7 @@ msgstr ""
 "najdes uvezneneho legendarniho valecnika jmenem Ug. Ug ti totiz dobre "
 "poslouzi v dalsich ukolech."
 
+#. Level Mistle objective
 #: guitext:154
 msgctxt "In-game message"
 msgid ""
@@ -1599,6 +1715,7 @@ msgstr ""
 "postavit do cesty. Pokud tak ucini, budes ho muset nalezite usmernit. Ovsem "
 "nebude to jednoduche, protoze Wisel uz stacil vetsinu zlata vytezit."
 
+#. Level Mistle objective
 #: guitext:155
 msgctxt "In-game message"
 msgid ""
@@ -1608,6 +1725,7 @@ msgstr ""
 "Wisel je porazen. Jeho uzemi ted muzes pro vecnou slavu beztrestne vyplenit "
 "a znicit."
 
+#. Level Mistle information
 #: guitext:156
 msgctxt "In-game message"
 msgid ""
@@ -1620,6 +1738,7 @@ msgstr ""
 "tvem boku. Pokud tvi verni utrpi tezke ztraty, samuraj privola sve bratry ve "
 "zbrani, aby ti nabidli svou pomoc."
 
+#. Level Mistle information
 #: guitext:157
 msgctxt "In-game message"
 msgid ""
@@ -1627,6 +1746,7 @@ msgid ""
 "explore their labyrinthine ways. No-one said being evil would be easy."
 msgstr "Tato cast podzemi je protkana chodbami, kterymi bloudi mnoho hrdinu."
 
+#. Level Mistle information
 #: guitext:158
 msgctxt "In-game message"
 msgid ""
@@ -1636,6 +1756,7 @@ msgstr ""
 "Koluji zvesti, ze na vychod odtud jsou uvezneni dva draci. Pokud je dokazes "
 "najit a osvobodit, mohou ti dobre poslouzit."
 
+#. Level Mistle information
 #: guitext:159
 msgctxt "In-game message"
 msgid ""
@@ -1647,6 +1768,7 @@ msgstr ""
 "je ovsem dobre strazena. Ucinis velice moudre, pokud upoutas pozornost svych "
 "nepratel na tve podzemni nepratele."
 
+#. Level Mistle information
 #: guitext:160
 msgctxt "In-game message"
 msgid ""
@@ -1661,6 +1783,7 @@ msgctxt "In-game message"
 msgid "May I suggest that you kill or imprison anything that gets in your way?"
 msgstr "Navrhuji zabit nebo uveznit vsechny, kteri se ti postavi do cesty."
 
+#. Level Blaise End objective
 #: guitext:162
 msgctxt "In-game message"
 msgid ""
@@ -1670,6 +1793,7 @@ msgstr ""
 "Dalsi kralovstvi podlehlo tvym silam zla. Nad dobitym uzemim stoupa narek a "
 "zoufalstvi prezivsich."
 
+#. Level Skybird Trill objective
 #: guitext:163
 msgctxt "In-game message"
 msgid "You have failed. This is a grim day for evil."
@@ -1694,11 +1818,13 @@ msgid ""
 "realm."
 msgstr "Davej na sve dive demony vetsi pozor, jinak tuto risi tezko dobudes."
 
+#. Level Bonus 1 objective
 #: guitext:166
 msgctxt "In-game message"
 msgid "How time flies... hurry!"
 msgstr "Cas rychle ubiha... pospes si!"
 
+#. Level Skybird Trill information
 #: guitext:167
 msgctxt "In-game message"
 msgid ""
@@ -1718,6 +1844,7 @@ msgstr ""
 "Avatar a jeho sluzebnici jsou porazeni, a jejich mrzke duse nyni bloumaji po "
 "kraji. Priprav se..."
 
+#. Level Skybird Trill objective
 #: guitext:169
 msgctxt "In-game message"
 msgid ""
@@ -1728,17 +1855,20 @@ msgstr ""
 "a krvavou vladou nad celym svetem stoji pouze tenhle hlupak v lesklem "
 "brneni. Krasna hracka..."
 
+#. Level Mirthshire objective
 #: guitext:170
 msgctxt "In-game message"
 msgid "Success is thine. Truly, you have earned your title, Dungeon Keeper."
 msgstr ""
 "Uspel jsi ve svem poslani. Dokazal jsi, ze jsi hoden titulu Strazce Sklepeni."
 
+#. Level Skybird Trill objective
 #: guitext:171
 msgctxt "In-game message"
 msgid "What is this? The Avatar lives!"
 msgstr "Co se to tu deje? Avatar žije!"
 
+#. Level Skybird Trill win objective, also used in DD Level Belial
 #: guitext:172
 msgctxt "In-game message"
 msgid ""
@@ -1748,6 +1878,7 @@ msgstr ""
 "Konecne jsi zlomil posledni odpor tvych nepratel. Nyni muzes bez problemu "
 "nicit a drancovat cely svet. Vsadim se, ze sis nikdy nepripadal tak zlej."
 
+#. Level Skybird Trill objective
 #: guitext:173
 msgctxt "In-game message"
 msgid ""
@@ -1759,6 +1890,7 @@ msgstr ""
 "jen jeden Správce, kterého se musíš zbavit, aby jsi se stal absolutním "
 "pánem! Takže, na co čekáš?"
 
+#. Levels Moonbrush Wood and Bonus 1 information
 #: guitext:174
 msgctxt "In-game message"
 msgid ""
@@ -1768,6 +1900,7 @@ msgstr ""
 "Viděl jsi? Tvůj Dábelský zplozenec se vyvinul, a stal se mocným Drakem, "
 "který je připraven zredudovat tvé nepřátele na popel!"
 
+#. Level Bonus 6 objective
 #: guitext:175
 msgctxt "In-game message"
 msgid ""
@@ -1777,6 +1910,7 @@ msgstr ""
 "Výborně! Tvé nesmírné bohatství přilákalo Zloděje. Bude ti dobře sloužit v "
 "příští říši!"
 
+#. Level Flowerhat information
 #: guitext:176
 msgctxt "In-game message"
 msgid ""
@@ -1787,6 +1921,7 @@ msgstr ""
 "Tví vědci objevili kouzlo Uzdravit příšeru, které umožňuje doplnit zdraví "
 "tvých bytostí a udrží je o chvíli déle na živu."
 
+#. Level Tulipscent information
 #: guitext:177
 msgctxt "In-game message"
 msgid ""
@@ -1800,6 +1935,7 @@ msgstr ""
 "možnosti si zdřímnout. Ujisti se, že máš spoustu peněz, aby kouzlo zůstalo "
 "aktivováno."
 
+#. Level Tulipscent information
 #: guitext:178
 msgctxt "In-game message"
 msgid ""
@@ -1811,6 +1947,7 @@ msgstr ""
 "jejich páteře mohou prorazit ty nejpevnější brnění a ochromit tvé nepřátele! "
 "Úžasné!"
 
+#. Level Bonus 1 objective
 #: guitext:179
 msgctxt "In-game message"
 msgid ""
@@ -2100,10 +2237,12 @@ msgid ""
 msgstr "Vycerpani:"
 
 #: guitext:247
+#, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Word of Power: Causes rings of fire to emanate from the creature's body and "
-"inflicts massive damage on the vicinity."
+"Word of Power: Causes rings of demonic energy to emanate from the creature's "
+"body and inflicts massive damage on the vicinity. Very effective against "
+"crowded hordes of enemies, also pushes them back."
 msgstr "Slovo moci:"
 
 #: guitext:248
@@ -2561,37 +2700,54 @@ msgstr ""
 "[4.1.1]"
 
 #: guitext:324
+#, fuzzy
 msgctxt "Slab description"
-msgid "Impenetrable Rock: Your Imps cannot dig through this. [12.4]"
+msgid ""
+"Impenetrable Rock: Your Imps cannot dig through this, the only solution is "
+"to go round. It is visible even if far from your territory."
 msgstr "Nerozbitný kamen: Tvi skreti se tim nedokazou prokopat. [12.4]"
 
 #: guitext:325
+#, fuzzy
 msgctxt "Slab description"
-msgid "Earth: You can excavate this. [12.1]"
+msgid ""
+"Earth: You can excavate this. To dig out some new caverns, choose a location "
+"and tag for digging with LMB. Press LMB again to untag."
 msgstr "Zeme: Tim se muzes prokopat. [12.1]"
 
 #: guitext:326
+#, fuzzy
 msgctxt "Slab description"
 msgid ""
 "Gold Seam: Your source of wealth. Dig this out and your Imps will take it to "
-"your Treasure Room. [12.2]"
+"your Treasure Room. You can also pick up the lumps of treasure left on the "
+"ground."
 msgstr ""
 "Zlata zila: To je zdroj tveho bohatstvi. Nech ji tezit a skreti vytezene "
 "zlato odnesou do pokladnice. [12.2]"
 
 #: guitext:327
+#, fuzzy
 msgctxt "Slab description"
-msgid "Lava: Burns any creature that step on it. [14.2]"
+msgid ""
+"Lava: Burns any creature that step on it. Get over lava by casting Cave-In "
+"or building a Bridge."
 msgstr "Lava: Spali vsechna stvoreni, ktera do ni vstoupi. [14.2]"
 
 #: guitext:328
+#, fuzzy
 msgctxt "Slab description"
-msgid "Water: Creatures move more slowly through water. [14.1]"
+msgid ""
+"Water: Creatures move more slowly through water. Build the Bridge to make "
+"new land on the water."
 msgstr "Voda: Voda zpomali pohyb vsech stvoreni. [14.1]"
 
 #: guitext:329
+#, fuzzy
 msgctxt "Slab description"
-msgid "Wall: A reinforced stone wall that enemies cannot break through. [12.1]"
+msgid ""
+"Wall: A reinforced stone wall that enemies cannot break through. At least "
+"without the Destroy Walls spell."
 msgstr "Zed: Zpevnena kamenna zed dokaze zadrzet nepritele. 12.1"
 
 #: guitext:330
@@ -2601,12 +2757,16 @@ msgstr "Poskozena zed: Pokud tuto zed neopravis, muze se zhroutit."
 
 #: guitext:331
 msgctxt "Slab description"
-msgid "Path: Unclaimed earth floor. [12.1]"
+msgid ""
+"Path: Unclaimed earth floor. You can claim it if it is connected to already "
+"claimed territory."
 msgstr "Cesta: Nezabrane podzemní uzemí . [12.1]"
 
 #: guitext:332
 msgctxt "Slab description"
-msgid "Claimed area: Your dungeon territory. [12.1]"
+msgid ""
+"Claimed area: Your dungeon territory. You can build rooms and drop your "
+"creatures on it."
 msgstr "Zabrane uzemi: Uzemi tveho sklepeni. [12.1]"
 
 #: guitext:333
@@ -2969,6 +3129,7 @@ msgctxt "Menu interface item"
 msgid "Players"
 msgstr "Hráči"
 
+#. Creature experience level
 #: guitext:406
 msgctxt "Menu interface item"
 msgid "Level"
@@ -3182,56 +3343,83 @@ msgid "Type"
 msgstr "Typ"
 
 #: guitext:447
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Information Panel: Miscellaneous information. [5.0]"
+msgid ""
+"Information Panel: Miscellaneous information. Shows your and enemy progress "
+"and allows changing creature tendencies."
 msgstr "Informační panel: Různé informace. [5.0]"
 
 #: guitext:448
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Room Panel: The rooms available for you to build. [6.0]"
+msgid ""
+"Room Panel: The rooms available for you to build. Here you can center map on "
+"rooms or build new ones."
 msgstr ""
 "Panel místností: Typy místností, které jsou ti dispozici ke stavbě. [6.0]"
 
 #: guitext:449
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Research Panel: The spells available to you. [7.0]"
+msgid ""
+"Research Panel: The spells available to you. Here you can cast or cancel "
+"them."
 msgstr "Menu Vyzkum: Nabidne kouzla ke zkoumani. [7.0]"
 
 #: guitext:450
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Workshop Panel: The traps and doors available to you. [8.0]"
+msgid ""
+"Workshop Panel: The traps and doors available to you. You can center the map "
+"on them, place new ones or sell existing."
 msgstr "Menu Dilna: Zde muzes vyrabet ruzne dvere a pasti. [8.0]"
 
 #: guitext:451
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Creature Panel: Information on your creatures. [9.0]"
+msgid ""
+"Creature Panel: Information on your creatures. Shows activity of your "
+"creatures and allows picking them up."
 msgstr "Menu Obludy: Poda informace o tvych priserkach. [9.0]"
 
 #: guitext:452
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Research Time: The time until a new spell is researched. [5.4]"
+msgid ""
+"Research Time: The time until a new spell is researched. Scholars in your "
+"Library are making progress on this bar."
 msgstr "Doba vyzkumu: Kolik casu je potreba na vyzkoumani kouzla. [5.4]"
 
 #: guitext:453
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Workshop Time: The time until a new trap is manufactured. [5.5]"
+msgid ""
+"Workshop Time: The time until a new trap is manufactured. Workers in your "
+"Workshop are making progress on this bar."
 msgstr "Doba vyroby: Kolik casu je potreba na vyrobu nove pasti. [5.5]"
 
 #: guitext:454
 msgctxt "In-game interface description"
-msgid "Time: The time until the next Creature Payday. [5.3]"
+msgid ""
+"Time: The time until the next Creature Payday. This bar increases over time "
+"and, when it reaches its peak, all of your creatures receive their wages."
 msgstr ""
-"Zbyva dni: Za kolik dni budes muset svym obludam muset vyplatit zold. [5.3]"
 
 #: guitext:455
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Number of Rooms: The number of rooms held by this Keeper. [5.6]"
+msgid ""
+"Number of Rooms: The number of rooms held by this Keeper. Allows you to "
+"compare your dungeon with the competitors."
 msgstr "Pocet mistnosti: Kolik mistnosti vlastni tento Strazce. [5.6]"
 
 #: guitext:456
+#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"Number of Creatures: The number of creatures owned by this Keeper. [5.7]"
+"Number of Creatures: The number of creatures owned by this Keeper. Allows "
+"you to compare your army with other Keepers."
 msgstr "Pocet oblud: Kolik oblud slouzi tomuto Strazci. [5.7]"
 
 #: guitext:457
@@ -3260,16 +3448,19 @@ msgid "Deathmatch"
 msgstr "Deathmatch"
 
 #: guitext:462
+#, fuzzy
 msgctxt "In-game interface description"
-msgid ""
-"Sell Room: Sell a room tile for half the building price. LMB select. [6.4]"
+msgid "Sell Room: Sell a room tile for half the building price. LMB select."
 msgstr ""
 "Prodat místnost: Prodá políčko místnosti za poloviční cenu. Položku vyberes "
 "LTM. [6.4]"
 
 #: guitext:463
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Sell Item: Sell a Trap or Door. LMB select. [8.1.2]"
+msgid ""
+"Sell Item: Sell a Trap or Door. Allows you to earn gold on manufacturing. "
+"LMB select."
 msgstr "Prodat předmět: Prodá dveře nebo past. Položku vybereš LTM. [8.1.2]"
 
 #: guitext:464
@@ -3673,15 +3864,21 @@ msgid "Unable to join game"
 msgstr "Nemohu se připojit ke hře"
 
 #: guitext:544
+#, fuzzy
 msgctxt "Slab description"
-msgid "Gems: Infinite wealth for your Imps to extract. [12.3]"
+msgid ""
+"Gems: Infinite wealth for your Imps to extract. Cannot be destroyed, but "
+"takes longer to mine than Gold."
 msgstr ""
 "Drahokamy: Nekonecný zdroj bohatství, které pro tebe mohou Skřeti těžit. "
 "[12.3]"
 
 #: guitext:545
+#, fuzzy
 msgctxt "Object description"
-msgid "Hero Gate: Heroes use this portal to invade your dungeon. [15.4]"
+msgid ""
+"Hero Gate: Heroes use this portal to invade your dungeon. It cannot be "
+"closed on your side."
 msgstr ""
 "Brána hrdinů: Hrdinové pouzívají tento portál k invazi do tvé kobky. [15.4]"
 
@@ -3696,28 +3893,31 @@ msgid "Avatar"
 msgstr "Avatar"
 
 #: guitext:548
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Toggle Computer Assistant: Currently - Aggressive. LMB toggle. [3.2.4]"
+msgid "Toggle Computer Assistant: Currently - Aggressive. LMB toggle."
 msgstr ""
 "Přepnout počítačového asisteta: Momentálně - Agresivní. Přepnes LTM. [3.2.4]"
 
 #: guitext:549
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Toggle Computer Assistant: Currently - Defensive. LMB toggle. [3.2.4]"
+msgid "Toggle Computer Assistant: Currently - Defensive. LMB toggle."
 msgstr ""
 "Přepnout počítačového asisteta: Momentálně - Obranný. Přepnes LTM. [3.2.4]"
 
 #: guitext:550
+#, fuzzy
 msgctxt "In-game interface description"
-msgid ""
-"Toggle Computer Assistant: Currently - Construction Only. LMB toggle. [3.2.4]"
+msgid "Toggle Computer Assistant: Currently - Construction Only. LMB toggle."
 msgstr ""
 "Přepnout počítačového asisteta: Momentálně - pouze stavět. Přepnes LTM. "
 "[3.2.4]"
 
 #: guitext:551
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Toggle Computer Assistant: Currently - Move Only. LMB toggle. [3.2.4]"
+msgid "Toggle Computer Assistant: Currently - Move Only. LMB toggle."
 msgstr ""
 "Přepnout počítačového asisteta: Momentálně - pouze přesuny. Přepnes LTM. "
 "[3.2.4]"
@@ -3881,53 +4081,63 @@ msgid "Lava Trap"
 msgstr "Past s lávou"
 
 #: guitext:584
+#, fuzzy
 msgctxt "Trap description"
 msgid ""
-"Boulder Trap: A rolling rock that crushes everything in its path. LMB "
-"select. RMB zoom. [20.1]"
+"Boulder Trap: A rolling rock that crushes everything in its path. Triggered "
+"when enemy creature is close and within line of sight, or when slapped by a "
+"Keeper. LMB select. RMB zoom."
 msgstr ""
 "Past s balvanem: Valici se kamen, ktery rozdrti vse co mu stoji v ceste. "
 "Zvoli se LTM, PTM zvetsi oblast. [20.1]"
 
 #: guitext:585
+#, fuzzy
 msgctxt "Trap description"
-msgid "Alarm Trap: Triggers a Call To Arms spell. LMB select. RMB zoom. [20.2]"
+msgid ""
+"Alarm Trap: Triggers a Call To Arms spell, so that creatures in the area are "
+"summoned to it. LMB select. RMB zoom."
 msgstr ""
 "Poplasne zarizeni: Spusteni poplasneho zarizeni vyvola kouzlo Mobilizace. "
 "Zvoli se LTM, PTM zvetsi oblast. [20.2]"
 
 #: guitext:586
+#, fuzzy
 msgctxt "Trap description"
 msgid ""
-"Poison Gas Trap: A cloud of noxious vapours triggered by your enemies. LMB "
-"select. RMB zoom. [20.3]"
+"Poison Gas Trap: A cloud of noxious vapours triggered by your enemies. Can "
+"hurt owner creatures if they inhale it. LMB select. RMB zoom."
 msgstr ""
 "Past s jedovatym plynem: Past po aktivaci vypusti na nepratele oblak "
 "jedovateho plynu. Zvoli se LTM, PTM zvetsi oblast. [20.3]"
 
 #: guitext:587
+#, fuzzy
 msgctxt "Trap description"
 msgid ""
-"Lightning Trap: Strikes nearby enemy creatures with bolts of lightning. LMB "
-"select. RMB zoom. [20.4]"
+"Lightning Trap: Strikes nearby enemy creatures with bolts of lightning when "
+"tripped. Does no harm to owner creatures. LMB select. RMB zoom."
 msgstr ""
 "Past s blesky: Zasahne nepratele ve svem okoli svazkem blesku. Zvoli se LTM, "
 "PTM zvetsi oblast. [20.4]"
 
 #: guitext:588
+#, fuzzy
 msgctxt "Trap description"
 msgid ""
-"Word of Power Trap: Radiates devastating rings of demonic energy, damaging "
-"all creatures within range. LMB select. RMB zoom. [20.5]"
+"Word of Power Trap: Radiates devastating rings of demonic energy, pushing "
+"and damaging all enemy creatures within range. LMB select. RMB zoom."
 msgstr ""
 "Past Slovo moci: Vysila kruhy nicive energie a zrani vsechny obludy v "
 "dosahu. Zvoli se LTM, PTM zvetsi oblast. [20.5]"
 
 #: guitext:589
+#, fuzzy
 msgctxt "Trap description"
 msgid ""
-"Lava Trap: The tile disintegrates revealing a pool of molten lava. LMB "
-"select. RMB zoom. [20.6]"
+"Lava Trap: The tile disintegrates revealing a pool of molten lava. Effects "
+"are irreversible, so Bridge is needed to be able to step on affected area "
+"again. LMB select. RMB zoom."
 msgstr ""
 "Past s lavou: Zmeni vybrane policko na zhavou lavu. Zvoli se LTM, PTM zvetsi "
 "oblast. [20.6]"
@@ -3953,36 +4163,41 @@ msgid "Magic Door"
 msgstr "Kouzelné dveře"
 
 #: guitext:594
+#, fuzzy
 msgctxt "Door description"
 msgid ""
-"Wooden Door: The simplest means of restricting access. LMB select. RMB zoom. "
-"[21.1]"
+"Wooden Door: The simplest means of restricting access. Can be broken down "
+"easily. LMB select. RMB zoom."
 msgstr ""
 "Drevene dvere: Nejjednodussi zpusob jak omezit pohyb po sklepenich. Zvoli se "
 "LTM, PTM zvetsi oblast. [21.1]"
 
 #: guitext:595
+#, fuzzy
 msgctxt "Door description"
 msgid ""
-"Braced Door: A wooden door reinforced with iron. LMB select. RMB zoom. [21.2]"
+"Braced Door: A wooden door reinforced with iron to last longer. LMB select. "
+"RMB zoom."
 msgstr ""
 "Zpevnene dvere: Drevene dvere vylepsene zelezem. Zvoli se LTM, PTM zvetsi "
 "oblast. [21.2]"
 
 #: guitext:596
+#, fuzzy
 msgctxt "Door description"
 msgid ""
 "Iron Door: Strong, heavy door capable of sustaining massive damage. LMB "
-"select. RMB zoom. [21.3]"
+"select. RMB zoom."
 msgstr ""
 "Zelezne dvere: Tezke a pevne dvere. Snesou velke poskozeni. Zvoli se LTM, "
 "PTM zvetsi oblast. [21.3]"
 
 #: guitext:597
+#, fuzzy
 msgctxt "Door description"
 msgid ""
 "Magic Door: A special door, highly resistant to physical damage but "
-"susceptible to magical damage. LMB select. RMB zoom. [21.4]"
+"susceptible to magical damage. LMB select. RMB zoom."
 msgstr ""
 "Kouzelne dvere: Specialni dvere. Jsou velice odolne vuci fyzickemu "
 "poskozeni, ale neodolaji ruznym kouzlum. Zvoli se LTM, PTM zvetsi oblast. "
@@ -6040,7 +6255,48 @@ msgid "Your creature cannot reach the room it needs"
 msgstr ""
 
 #: guitext:946
+#, fuzzy
 msgctxt "Game event description"
-msgid "Room unreachable: LMB toggle. RMB delete."
+msgid "Work room unreachable: LMB toggle. RMB delete."
+msgstr "Vynalezen nový typ místnosti: LTM prepnout, PTM smazat."
+
+#: guitext:947
+msgctxt "Game event name"
+msgid "Your Imp cannot reach a room to drag something into"
 msgstr ""
 
+#: guitext:948
+#, fuzzy
+msgctxt "Game event description"
+msgid "Storage room unreachable: LMB toggle. RMB delete."
+msgstr "Vynalezen nový typ místnosti: LTM prepnout, PTM smazat."
+
+#~ msgctxt "Slab description"
+#~ msgid "Impenetrable Rock: Your Imps cannot dig through this. [12.4]"
+#~ msgstr "Nerozbitný kamen: Tvi skreti se tim nedokazou prokopat. [12.4]"
+
+#~ msgctxt "Slab description"
+#~ msgid "Earth: You can excavate this. [12.1]"
+#~ msgstr "Zeme: Tim se muzes prokopat. [12.1]"
+
+#~ msgctxt "Slab description"
+#~ msgid "Lava: Burns any creature that step on it. [14.2]"
+#~ msgstr "Lava: Spali vsechna stvoreni, ktera do ni vstoupi. [14.2]"
+
+#~ msgctxt "Slab description"
+#~ msgid "Path: Unclaimed earth floor. [12.1]"
+#~ msgstr "Cesta: Nezabrane podzemní uzemí . [12.1]"
+
+#~ msgctxt "Slab description"
+#~ msgid "Claimed area: Your dungeon territory. [12.1]"
+#~ msgstr "Zabrane uzemi: Uzemi tveho sklepeni. [12.1]"
+
+#~ msgctxt "In-game interface description"
+#~ msgid "Information Panel: Miscellaneous information. [5.0]"
+#~ msgstr "Informační panel: Různé informace. [5.0]"
+
+#~ msgctxt "In-game interface description"
+#~ msgid "Time: The time until the next Creature Payday. [5.3]"
+#~ msgstr ""
+#~ "Zbyva dni: Za kolik dni budes muset svym obludam muset vyplatit zold. "
+#~ "[5.3]"

@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-02-06 18:10+0100\n"
+"PO-Revision-Date: 2014-06-26 22:03+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: de_DE\n"
@@ -266,7 +266,7 @@ msgstr ""
 "Kostet Euren ersten Sieg aus, solange Ihr könnt. Ihr habt Euch den Zorn des "
 "Landesherrn zugezogen. Seine Leute werden bald hier sein."
 
-#. Level Eversmile objective when LOTL comes
+#. Levels Eversmile and Tickle objective, when LOTL comes
 #: guitext:19
 msgctxt "In-game message"
 msgid ""
@@ -498,6 +498,7 @@ msgstr ""
 "gelockt. Vergesst nicht, Eure Zauberer von Zeit zu Zeit zu trainieren. Ihre "
 "Sprücheklopferei macht sie nämlich zu ziemlich guten Distanz-Kämpfern."
 
+#. Level Waterdream Warm objective
 #: guitext:39
 msgctxt "In-game message"
 msgid ""
@@ -509,6 +510,7 @@ msgstr ""
 "sorgt für ein richtig frisches Gefühl. Aber es wird mit Sicherheit nicht "
 "lange dauern, bis die Sippe einen weiteren Versuch starten wird."
 
+#. Level Waterdream Warm objective
 #: guitext:40
 msgctxt "In-game message"
 msgid ""
@@ -520,6 +522,7 @@ msgstr ""
 "Hühnerfarm gut düngen. Davon abgesehen sind sie natürlich eine gute "
 "Abschreckung für andere Schwachköpfige Abenteurer."
 
+#. Level Waterdream Warm objective
 #: guitext:41
 msgctxt "In-game message"
 msgid ""
@@ -530,17 +533,20 @@ msgstr ""
 "auf den nächsten Angriff vorzubereiten. Der Gegner gruppiert sich nur neu. "
 "Noch ist nichts gewonnen."
 
+#. Level Waterdream Warm information
 #: guitext:42
 msgctxt "In-game message"
 msgid ""
 "Is that Imp playing football with a decapitated head? Stay alert, Keeper."
 msgstr "Schaut mal, Keeper! Spielt dieser Imp nicht gerade Kopfball? Vorsicht!"
 
+#. Level Waterdream Warm objective
 #: guitext:43
 msgctxt "In-game message"
 msgid "Now would be an excellent time to train a Warlock."
 msgstr "Es ist genau die richtige Zeit, um einen Zauberer zu trainieren."
 
+#. Level Waterdream Warm information
 #: guitext:44
 msgctxt "In-game message"
 msgid ""
@@ -553,6 +559,7 @@ msgstr ""
 "lasst Euch von dem dramatischen Geschwindigkeitsschub mitreißen. Nach einer "
 "gewissen Zeit lässt die Wirkung nach."
 
+#. Level Flowerhat objective
 #: guitext:45
 msgctxt "In-game message"
 msgid ""
@@ -565,6 +572,7 @@ msgstr ""
 "lauern nämlich mächtige Gegner. Es wäre klüger, sie nicht zu stören, bis Ihr "
 "vorbereitet seid."
 
+#. Level Flowerhat information
 #: guitext:46
 msgctxt "In-game message"
 msgid ""
@@ -575,6 +583,7 @@ msgstr ""
 "daß sie jetzt BRÜCKEN bauen können. Die benötigt Ihr, um einige "
 "gefährlichere Gebiete der Unterwelt zu überbrücken."
 
+#. Level Flowerhat objective
 #: guitext:47
 msgctxt "In-game message"
 msgid ""
@@ -588,6 +597,7 @@ msgstr ""
 "Handwerkskammer mindestens neun Fliesen im Quadrat groß ist, wird ihre bloße "
 "Präsenz die besten Designer der Unterwelt in Euren Dungeon locken."
 
+#. Level Flowerhat information
 #: guitext:48
 msgctxt "In-game message"
 msgid ""
@@ -599,6 +609,7 @@ msgstr ""
 "einfach in die Handwerkskammer setzt. Fertige Gegenstände können dann aus "
 "dem Menü HANDWERKSKAMMER ausgewählt werden."
 
+#. Level Flowerhat objective
 #: guitext:49
 msgctxt "In-game message"
 msgid ""
@@ -609,6 +620,7 @@ msgstr ""
 "einfach Richtung Norden auf und überrennt alles, was sich Euch in den Weg "
 "stellt."
 
+#. Level Flowerhat objective
 #: guitext:50
 msgctxt "In-game message"
 msgid ""
@@ -618,6 +630,7 @@ msgstr ""
 "Ihr müsst einen Weg finden, um über den Lava-Fluß zu kommen, der Euch in die "
 "Quere kommt."
 
+#. Level Flowerhat objective
 #: guitext:51
 msgctxt "In-game message"
 msgid ""
@@ -627,6 +640,7 @@ msgstr ""
 "Das Dungeon-Herz des Gegners schlägt Euch entgegen. Ruft Eure Untergebenen "
 "zusammen und befehlt den Gnadenstoß."
 
+#. Level Flowerhat information
 #: guitext:52
 msgctxt "In-game message"
 msgid ""
@@ -639,6 +653,7 @@ msgstr ""
 "auf die Einhaltung der Arbeitszeit, da sie, bedingt durch ihr "
 "Aufgabengebiet, nicht kämpfen müssen."
 
+#. Level Flowerhat objective
 #: guitext:53
 msgctxt "In-game message"
 msgid ""
@@ -649,6 +664,7 @@ msgstr ""
 "stolzen Gegner in die Knie gezwungen. Regiert Euer neues Reich mit Angst und "
 "Schrecken."
 
+#. Level Flowerhat information
 #: guitext:54
 msgctxt "In-game message"
 msgid ""
@@ -660,6 +676,7 @@ msgstr ""
 "plaziert, kann der Gegner nicht weiter, wohl aber Eure Kreaturen. Türen "
 "werden über einen Linksklick auf- oder abgeschlossen."
 
+#. Level Flowerhat information
 #: guitext:55
 msgctxt "In-game message"
 msgid ""
@@ -670,6 +687,7 @@ msgstr ""
 "sie, und wenn ein Eindringling hineintappt, wird die Umgebung in giftige "
 "Gase gehüllt."
 
+#. Level Flowerhat information
 #: guitext:56
 msgctxt "In-game message"
 msgid ""
@@ -683,6 +701,7 @@ msgstr ""
 "Spruch entstanden ist. Der Spruch kostet nur dann Geld, wenn er jenseits "
 "Eures Gebietes ausgesprochen wird."
 
+#. Level Lushmeadow-on-Down objective
 #: guitext:57
 msgctxt "In-game message"
 msgid ""
@@ -695,6 +714,7 @@ msgstr ""
 "nicht für Ihn zu arbeiten, müsst Ihr einen größeren Dungeon bauen. Na dann "
 "mal los!"
 
+#. Level Lushmeadow-on-Down objective
 #: guitext:58
 msgctxt "In-game message"
 msgid ""
@@ -705,6 +725,7 @@ msgstr ""
 "für Euer ausgeklügeltes Dungeon-Modell. Eure Taten sind denen eines Dungeon "
 "Keepers würdig."
 
+#. Level Lushmeadow-on-Down information
 #: guitext:59
 msgctxt "In-game message"
 msgid ""
@@ -716,6 +737,7 @@ msgstr ""
 "Verstecke und reichlich Hühner. Diese korpulenten Monster greifen dafür auch "
 "auf recht ungewöhnliche Weise an."
 
+#. Level Lushmeadow-on-Down information
 #: guitext:60
 msgctxt "In-game message"
 msgid ""
@@ -726,6 +748,7 @@ msgstr ""
 "in einem unerforschten Gebiet aus, und Ihr werdet einen kurzen Moment den "
 "Überblick haben."
 
+#. Level Lushmeadow-on-Down information
 #: guitext:61
 msgctxt "In-game message"
 msgid ""
@@ -739,6 +762,7 @@ msgstr ""
 "Gefangene, die verhungern, stehen möglicherweise als Skelett wieder auf und "
 "Euch dann als Kämpfer zur Verfügung."
 
+#. Level Lushmeadow-on-Down information
 #: guitext:62
 msgctxt "In-game message"
 msgid ""
@@ -750,6 +774,7 @@ msgstr ""
 "diesen in ein strategisch wertvolles Gebiet und befehlt Euren Kreaturen, "
 "dieses zu besetzen, indem Ihr sie dort absetzt."
 
+#. Level Lushmeadow-on-Down information
 #: guitext:63
 msgctxt "In-game message"
 msgid ""
@@ -761,6 +786,7 @@ msgstr ""
 "Feinde der Fliegen, also solltet Ihr die beiden getrennt halten. Wenn diese "
 "Kreaturen es schaffen, die Hindernisse zu überwinden, dann gnade Euch Satan!"
 
+#. Level Snuggledell objective
 #: guitext:64
 msgctxt "In-game message"
 msgid ""
@@ -772,6 +798,7 @@ msgstr ""
 "Eures unterirdischen Reiches herauszufordern. Der Preis für Versagen soll "
 "Vergessenheit sein."
 
+#. Level Snuggledell objective
 #: guitext:65
 msgctxt "In-game message"
 msgid ""
@@ -784,6 +811,7 @@ msgstr ""
 "Meinungsverschiedenheiten über die Nominierung für einen Oscar der "
 "Niedertracht."
 
+#. Level Snuggledell information
 #: guitext:66
 msgctxt "In-game message"
 msgid ""
@@ -797,6 +825,7 @@ msgstr ""
 "eigenen Kreaturen durch die Mühle drehen, wann immer Euch disziplinarische "
 "Maßnahmen sinnvoll erscheinen."
 
+#. Level Snuggledell information
 #: guitext:67
 msgctxt "In-game message"
 msgid ""
@@ -809,6 +838,7 @@ msgstr ""
 "gelegentlich durch einen Schlag auf den Hintern aufgemuntert werden. Das mag "
 "sie besonders gerne."
 
+#. Level Snuggledell information
 #: guitext:68
 msgctxt "In-game message"
 msgid ""
@@ -820,6 +850,7 @@ msgstr ""
 "solltet Ihr Euch eine solche Tür anschaffen, ein Vorhang oder ein Loch in "
 "der Wand sind nun wirklich kein Schutz."
 
+#. Level Snuggledell information
 #: guitext:69
 msgctxt "In-game message"
 msgid ""
@@ -831,6 +862,7 @@ msgstr ""
 "Ziel Eurer Wahl loslässt. Wählt den Spruch BLITZ, richtet ihn auf eine "
 "gegnerische Kreatur und elektrisiert sie mit dem Blitzschlag."
 
+#. Level Snuggledell information
 #: guitext:70
 msgctxt "In-game message"
 msgid ""
@@ -840,6 +872,7 @@ msgstr ""
 "Ihr habt eine wirkungsvolle Blitz-Falle erstellt. Probiert sie aus, dann "
 "trifft jemanden der Schlag."
 
+#. Level Wishvale objective
 #: guitext:71
 msgctxt "In-game message"
 msgid ""
@@ -851,6 +884,7 @@ msgstr ""
 "Vielleicht ist es doch sinvoller, so lange beiseite zu treten, bis Ihr stark "
 "genug seid, gleich beide Seiten zu vernichten."
 
+#. Level Wishvale information
 #: guitext:72
 msgctxt "In-game message"
 msgid ""
@@ -860,6 +894,7 @@ msgstr ""
 "Ein Orc-Krieger ist zu Euch gekommen und bringt Pläne für den Barrackenbau "
 "mit. In diesen Räumen könnt Ihr Kreaturen zu Teams zusammenstellen."
 
+#. Level Wishvale objective
 #: guitext:73
 msgctxt "In-game message"
 msgid ""
@@ -871,6 +906,7 @@ msgstr ""
 "Ritter selbst hat sich erhoben, um herauszufinden, wo alle seine treuen "
 "Diener geblieben sind."
 
+#. Level Wishvale objective
 #: guitext:74
 msgctxt "In-game message"
 msgid ""
@@ -880,6 +916,7 @@ msgstr ""
 "Ihr habt die örtlichen Helden in eine hilflose Spezies verwandelt. Das "
 "gleiche solltet Ihr jetzt mit dem gegnerischen Dungeon Keeper tun."
 
+#. Level Wishvale objective
 #: guitext:75
 msgctxt "In-game message"
 msgid ""
@@ -891,6 +928,7 @@ msgstr ""
 "den trübsinnigsten Alkoven Eures Reiches - als Tribut für Ihre sinnlosen "
 "Versuche, Euch in Schach zu halten."
 
+#. Level Tickle objective
 #: guitext:76
 msgctxt "In-game message"
 msgid ""
@@ -902,6 +940,7 @@ msgstr ""
 "Erklärt ihm das Konzept des Vorruhestandes und knüpft ihn dabei auf. Das ist "
 "die einzige Sprache, die er verstehen wird."
 
+#. Level Tickle information
 #: guitext:77
 msgctxt "In-game message"
 msgid ""
@@ -911,6 +950,7 @@ msgstr ""
 "Ihr habt die Wirkung der UNSICHTBARKEIT erforscht. Mit diesem Spruch könnt "
 "Ihr eine Kreatur vor den Augen eines Gegners verbergen."
 
+#. Level Tickle information
 #: guitext:78
 msgctxt "In-game message"
 msgid ""
@@ -920,6 +960,7 @@ msgstr ""
 "Ihr habt den Zauberspruch KREATUREN SCHÜTZEN erforscht. Damit könnt Ihr die "
 "Stärke einer Kreatur erhöhen."
 
+#. Level Tickle objective
 #: guitext:79
 msgctxt "In-game message"
 msgid ""
@@ -931,6 +972,7 @@ msgstr ""
 "Einwohner des Landes da oben unterwerfen sich Eurer verkommenen Gegenwart. "
 "Als ob sie das schützen könnte ..."
 
+#. Level Tickle information
 #: guitext:80
 msgctxt "In-game message"
 msgid ""
@@ -945,6 +987,7 @@ msgstr ""
 "herumexperimentieren, da es nicht leicht ist, den Göttern ein geeignetes "
 "Angebot zu machen."
 
+#. Level Moonbrush Wood objective
 #: guitext:81
 msgctxt "In-game message"
 msgid ""
@@ -956,6 +999,7 @@ msgstr ""
 "unter Kontrolle zu haben, weil ihre kläglichen magischen Fähigkeiten die "
 "Einheimischen beeindrucken. Ihr seid aber nicht einheimisch ..."
 
+#. Level Moonbrush Wood objective
 #: guitext:82
 msgctxt "In-game message"
 msgid ""
@@ -965,6 +1009,7 @@ msgstr ""
 "Nun, jetzt seid Ihr hier. Zeit, Euch den Einheimischen mal vorzustellen und "
 "Ihre kleinen, niedlichen Leben ein wenig umzugestalten."
 
+#. Levels Tickle and Moonbrush Wood information
 #: guitext:83
 msgctxt "In-game message"
 msgid ""
@@ -978,6 +1023,7 @@ msgstr ""
 "Kümmert Euch nur darum, daß alles in seiner Umgebung eine gegnerische "
 "Kreatur ist, wenn es zum Schlimmsten kommen sollte."
 
+#. Level Moonbrush Wood information
 #: guitext:84
 msgctxt "In-game message"
 msgid ""
@@ -987,6 +1033,7 @@ msgstr ""
 "Eure Forscher haben einen VIRUS-SPRUCH ausgebrütet. Auf eine gegnerische "
 "Kreatur angewandt, könnt Ihr genußvoll die Auswirkung von Plagen betrachten."
 
+#. Level Moonbrush Wood information
 #: guitext:85
 msgctxt "In-game message"
 msgid ""
@@ -1000,6 +1047,7 @@ msgstr ""
 "beleidigt. Dennoch sind sie gewinnbringende und furchteinflößende "
 "Untergebene."
 
+#. Level Moonbrush Wood information
 #: guitext:86
 msgctxt "In-game message"
 msgid ""
@@ -1011,6 +1059,7 @@ msgstr ""
 "Kompost verwenden werden - vielleicht wachsen ja auch ein paar Vampire "
 "darauf, die zu Diensten stehen. Das hat doch Stil, oder?"
 
+#. Levels Tickle and Moonbrush Wood information
 #: guitext:87
 msgctxt "In-game message"
 msgid ""
@@ -1019,6 +1068,7 @@ msgstr ""
 "Ihr habt eine eiserne Tür gebaut. Das ist eine ziemlich gute Barriere. "
 "Benutzt sie wohlüberlegt."
 
+#. Level Elf's Dance objective
 #: guitext:88
 msgctxt "In-game message"
 msgid ""
@@ -1032,6 +1082,7 @@ msgstr ""
 "Seite bringen könnt, bevor sie zu den anderen Keepern gehen, kann Euch "
 "keiner mehr aufhalten, es sei denn, Ihr macht einen Fehler ..."
 
+#. Level Elf's Dance objective
 #: guitext:89
 msgctxt "In-game message"
 msgid ""
@@ -1042,6 +1093,7 @@ msgstr ""
 "Abscheulicher. Es ist nun an der Zeit, die Muskeln oben bei den pathetischen "
 "Einwohnern spielen zu lassen."
 
+#. Level Nevergrim information
 #: guitext:90
 msgctxt "In-game message"
 msgid ""
@@ -1051,6 +1103,7 @@ msgstr ""
 "Ihr habt die INDY-FALLE hergestellt. Plaziert sie im Flur und freut Euch des "
 "Lebens, wenn die Felsen auf unaufmerksame Eindringlinge zudonnern."
 
+#. Level Nevergrim information
 #: guitext:91
 msgctxt "In-game message"
 msgid ""
@@ -1063,6 +1116,7 @@ msgstr ""
 "repairieren. Interessanterweise werden dadurch auch Kreaturen zerquetscht, "
 "die zufällig unter den Felsen stehen."
 
+#. Level Nevergrim information
 #: guitext:92
 msgctxt "In-game message"
 msgid ""
@@ -1074,6 +1128,7 @@ msgstr ""
 "die dort hineingesetzt werden, locken Ihre Familien aus anderen Dungeons "
 "oder der restlichen Welt in Euren Einflußbereich."
 
+#. Level Nevergrim information
 #: guitext:93
 msgctxt "In-game message"
 msgid ""
@@ -1083,11 +1138,13 @@ msgstr ""
 "Euer Wohlstand hat die Loyalität eines vorbeikommenden Drachen erworben. "
 "Drachen sind launische Zeitgenossen. Behaltet sie im Auge."
 
+#. Level Nevergrim information
 #: guitext:94
 msgctxt "In-game message"
 msgid "A Hell Hound has been lured to your domain by your Scavenger Room."
 msgstr "Durch den Köderraum ist ein Höllenhund zu Euch gelockt worden."
 
+#. Level Buffy Oak objective
 #: guitext:95
 msgctxt "In-game message"
 msgid ""
@@ -1099,6 +1156,7 @@ msgstr ""
 "momentan beiseite, und ihre Truppen zusammengeschoben, um Euch zu "
 "vernichten. Das ist schon fast ein Kompliment. Macht sie fertig!"
 
+#. Level Buffy Oak objective
 #: guitext:96
 msgctxt "In-game message"
 msgid ""
@@ -1108,6 +1166,7 @@ msgstr ""
 "Ihr habt einen unglaublichen Sieg errungen. Durch Euer faszinierendes Talent "
 "zur Gnadenlosigkeit sehen andere Keeper neben Euch geradezu artig aus."
 
+#. Level Hearth information
 #: guitext:97
 msgctxt "In-game message"
 msgid ""
@@ -1118,6 +1177,7 @@ msgstr ""
 "gerichtet, morpht dieser Spruch ein furchteinflößendes Monster in ein dummes "
 "Huhn. Großartig!"
 
+#. Level Hearth information
 #: guitext:98
 msgctxt "In-game message"
 msgid ""
@@ -1128,6 +1188,7 @@ msgstr ""
 "Gegner herankommen, und ruft nebenbei noch Kreaturen zusammen, die mit den "
 "Besuchern umzugehen wissen."
 
+#. Level Buffy Oak information
 #: guitext:99
 msgctxt "In-game message"
 msgid ""
@@ -1138,6 +1199,7 @@ msgstr ""
 "enorme Resistenz aus. Sie sind nur durch Zauberei angreifbar. Ich empfehle "
 "sie zum Einsatz vor Schatzkammern oder dem Dungeon-Herz."
 
+#. Level Nevergrim objective
 #: guitext:100
 msgctxt "In-game message"
 msgid ""
@@ -1147,6 +1209,7 @@ msgstr ""
 "Irgendwo hier in der Umgebung gibt es einen Rivalen, mit dem Ihr "
 "zurechtkommen müßt. Ich empfehle Euch grob asoziales Verhalten."
 
+#. Level Nevergrim objective
 #: guitext:101
 msgctxt "In-game message"
 msgid ""
@@ -1156,6 +1219,7 @@ msgstr ""
 "Noch ein Sieg, Unberechenbarer! Ihr habt ein weiteres Land gewonnen, das Ihr "
 "Eurer kranken Sammlung hinzufügen könnt."
 
+#. Level Hearth objective
 #: guitext:102
 msgctxt "In-game message"
 msgid ""
@@ -1168,6 +1232,7 @@ msgstr ""
 "die Kreaturen und bereitet sie auf einen weiteren Kampf vor. Ihr zieht fast "
 "ein ganzes Regiment an."
 
+#. Level Hearth objective
 #: guitext:103
 msgctxt "In-game message"
 msgid ""
@@ -1176,6 +1241,7 @@ msgstr ""
 "Die Gegner sind über uns. Ich erwähne das nur, falls Ihr gerade ein "
 "Nickerchen macht."
 
+#. Level Hearth objective
 #: guitext:104
 msgctxt "In-game message"
 msgid ""
@@ -1185,6 +1251,7 @@ msgstr ""
 "Alle Helden sind vernichtet, so wie es sein soll. Das Land und alles, was "
 "dazugehört, ist Euer. Darf ich annehmen, daß Ihr alles zerstört?"
 
+#. Level Hearth objective
 #: guitext:105
 msgctxt "In-game message"
 msgid ""
@@ -1198,17 +1265,20 @@ msgstr ""
 "vor. Das ist wohl die geeignete Möglichkeit, umfassend böse zu sein. Worauf "
 "wartet Ihr, Meister?"
 
+#. Level Woodly Rhyme information
 #: guitext:106
+#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "Your latest discovery is the Word of Power Trap. When activated, the trap "
-"triggers an expanding ring of fire that incinerates anything caught in its "
-"area of effect. What a scream that should be."
+"triggers an expanding ring of demonic energy that incinerates anything "
+"caught in its area of effect. What a scream that should be."
 msgstr ""
 "Eure neueste Errungenschaft ist die MACHTWORT-FALLE. Wenn Sie aktiviert "
 "wird, verschleudert sie einen ausgedehnten Feuerkranz, der alles in seinem "
 "Umkreis einäschert. Das wird ein Geschrei geben!"
 
+#. Level Moonbrush Wood information
 #: guitext:107
 msgctxt "In-game message"
 msgid ""
@@ -1220,6 +1290,7 @@ msgstr ""
 "Kreaturen zurück zum Dungeon-Herz gerufen. Wollen wir mal hoffen, daß Ihr "
 "den nie braucht!"
 
+#. Level Sleepiburgh objective
 #: guitext:108
 msgctxt "In-game message"
 msgid ""
@@ -1230,6 +1301,7 @@ msgstr ""
 "dieser Region kämpfen. Es sollte Eure Aufgabe sein, diese ewigen "
 "Auseinandersetzungen eindeutig und für immer zu beenden."
 
+#. Level Buffy Oak information
 #: guitext:109
 msgctxt "In-game message"
 msgid ""
@@ -1241,6 +1313,7 @@ msgstr ""
 "eine Kreatur angewandt, bewirkt er die appetitanregende Metamorphose in "
 "Brathähnchen. Tolle Waffe."
 
+#. Level Sleepiburgh information
 #: guitext:110
 msgctxt "In-game message"
 msgid ""
@@ -1253,6 +1326,7 @@ msgstr ""
 "Gegner die gleiche Macht besitzt. Und es könnte ja sein, daß es einer dieser "
 "Tage ist, an denen ..."
 
+#. Level Sleepiburgh objective
 #: guitext:111
 msgctxt "In-game message"
 msgid ""
@@ -1262,12 +1336,14 @@ msgstr ""
 "Nur der Ritter steht noch zwischen Euch und Kilometern von Verwüstung und "
 "Jammer. Ich bin sicher, Ihr könnt es kaum noch erwarten."
 
+#. Level Sleepiburgh objective
 #: guitext:112
 msgctxt "In-game message"
 msgid "Your continued success makes me sick. Thank you, your wickedness."
 msgstr ""
 "Euer dauernder Erfolg macht mich wahnsinnig. Ich danke Euch, Hinterhältiger."
 
+#. Level Woodly Rhyme objective
 #: guitext:113
 msgctxt "In-game message"
 msgid ""
@@ -1278,6 +1354,7 @@ msgstr ""
 "Dungeon Keeper haben ebenfalls Modelle dieses dunklen Reiches. Ihr braucht "
 "kein Pardon zu erwarten."
 
+#. Level Woodly Rhyme information
 #: guitext:114
 msgctxt "In-game message"
 msgid ""
@@ -1286,6 +1363,7 @@ msgstr ""
 "Habt Ihr eigentlich gesehen, wie verwundbar einer Euer Gegner jetzt ist? "
 "Dann bringt's doch endlich zu Ende!"
 
+#. Level Woodly Rhyme information
 #: guitext:115
 msgctxt "In-game message"
 msgid ""
@@ -1295,6 +1373,7 @@ msgstr ""
 "Ich habe einen Keeper erspäht, der kaum noch eine Kreatur unter seiner "
 "Kontrolle hat. Er steht kurz vor dem Ende."
 
+#. Level Woodly Rhyme information
 #: guitext:116
 msgctxt "In-game message"
 msgid ""
@@ -1306,6 +1385,7 @@ msgstr ""
 "Das heißt nichts anderes, als daß es da einige wertvolle Dinge gibt, die es "
 "sich zu stehlen lohnt. Das nenne ich angewandte Archäologie."
 
+#. Level Woodly Rhyme information
 #: guitext:117
 msgctxt "In-game message"
 msgid ""
@@ -1316,6 +1396,7 @@ msgstr ""
 "Wände gehen könnt. Schlagt sie, weil sie den Spruch nicht früher gelernt "
 "haben."
 
+#. Level Woodly Rhyme information
 #: guitext:118
 msgctxt "In-game message"
 msgid ""
@@ -1325,6 +1406,7 @@ msgstr ""
 "Einer Eurer Gegner hat einen Spruch entwickelt, mit dem man durch verstärkte "
 "Wände gehen kann. Typisch! Seid wachsam!"
 
+#. Level Woodly Rhyme information
 #: guitext:119
 msgctxt "In-game message"
 msgid ""
@@ -1335,6 +1417,7 @@ msgstr ""
 "anfangen. Ihr solltet Euch aber vergewissern, daß Ihr die mächtigsten "
 "Truppen in dieser Region habt, bevor Ihr den Spruch anwendet."
 
+#. Level Tulipscent information
 #: guitext:120
 msgctxt "In-game message"
 msgid ""
@@ -1346,11 +1429,13 @@ msgstr ""
 "werdet hart um einen Vorteil kämpfen müssen. Aber wenn Ihr vorhabt, die Welt "
 "zu regieren, müsst Ihr auch solche Tage in Kauf nehmen."
 
+#. Level Elf's Dance information
 #: guitext:121
 msgctxt "In-game message"
 msgid "Your manufacturers have crafted the Lava Trap."
 msgstr "Eure Handwerker haben die LAVA-FALLE entwickelt."
 
+#. Level Mirthshire objective
 #: guitext:122
 msgctxt "In-game message"
 msgid ""
@@ -1363,6 +1448,7 @@ msgstr ""
 "jämmerlich. Sie verdienen es, wegen Ihrer Unverschämtheit den Kopf unter dem "
 "Arm zu tragen."
 
+#. Level Mirthshire objective
 #: guitext:123
 msgctxt "In-game message"
 msgid ""
@@ -1372,6 +1458,7 @@ msgstr ""
 "Ihr habt den örtlichen Ritter verärgert. Er ist schon auf dem Weg. Soll ich "
 "bei den Medien Alarm schlagen?"
 
+#. Level Mirthshire information
 #: guitext:124
 msgctxt "In-game message"
 msgid ""
@@ -1383,6 +1470,7 @@ msgstr ""
 "Selbstverständlich gehören diese Dinge ein Eure Hände. Ich bin sicher, daß "
 "Ihr die Besitzverhältnisse auf Eure Weise klären werdet."
 
+#. Level Tulipscent objective
 #: guitext:125
 msgctxt "In-game message"
 msgid ""
@@ -1392,6 +1480,7 @@ msgstr ""
 "Sieht so aus, als hättet Ihr einen Rivalen. Ein anderer Keeper glaubt, "
 "ruchloser und böser zu sein als Ihr. Das wird sich dann wohl zeigen."
 
+#. Level Tulipscent information
 #: guitext:126
 msgctxt "In-game message"
 msgid "This ancient realm is rich in magical artifacts. Go forth and plunder."
@@ -1399,6 +1488,7 @@ msgstr ""
 "Dieses antike Königreich ist reich an magischen Artefakten. Zieht los und "
 "plündert!"
 
+#. Level Blaise End objective
 #: guitext:127
 msgctxt "In-game message"
 msgid ""
@@ -1410,6 +1500,7 @@ msgstr ""
 "an, sonst haben sie gefrühstückt, sind ausgeschlafen und weitaus schwerer zu "
 "besiegen."
 
+#. Level Blaise End information
 #: guitext:128
 msgctxt "In-game message"
 msgid ""
@@ -1420,6 +1511,7 @@ msgstr ""
 "Solltet Ihr Helden-Patroullien entdecken, sorgt dafür, daß keiner von Ihnen "
 "entkommt. Sonst wird Eure Anwesenheit aufgedeckt, und daß kann Ärger geben."
 
+#. Level Blaise End information
 #: guitext:129
 msgctxt "In-game message"
 msgid ""
@@ -1429,6 +1521,7 @@ msgstr ""
 "Darüber werdet Ihr für immer die Macht haben. Greift die Festung der Helden "
 "an und vernichtet sie - am besten heute noch."
 
+#. Level Blaise End information
 #: guitext:130
 msgctxt "In-game message"
 msgid ""
@@ -1437,6 +1530,7 @@ msgstr ""
 "Die gegnerische Verstärkung ist eingetroffen. Was nun? Vielleicht sollten "
 "wir noch einen draufsetzen?"
 
+#. Level Blaise End objective
 #: guitext:131
 msgctxt "In-game message"
 msgid ""
@@ -1448,6 +1542,7 @@ msgstr ""
 "eine eigene unterirdische Festung gebaut haben. Was glauben die eigentlich, "
 "wer sie sind?"
 
+#. Level Bonus 6 information
 #: guitext:132
 msgctxt "In-game message"
 msgid ""
@@ -1458,6 +1553,7 @@ msgstr ""
 "Ihr nicht mal in Euren kühnsten Träumen gedacht habt. Hier ist sie, seid Ihr "
 "bereit?"
 
+#. Level Bonus 6 objective
 #: guitext:133
 msgctxt "In-game message"
 msgid ""
@@ -1469,6 +1565,7 @@ msgstr ""
 "sie sind alle genauso bösartig und mächtig wie Ihr. Es ist aber nun mal so, "
 "daß nur derjenige, der die Unterwelt regiert, die Reiche oben erobern kann."
 
+#. Level Skybird Trill objective
 #: guitext:134
 msgctxt "In-game message"
 msgid ""
@@ -1479,6 +1576,7 @@ msgstr ""
 "werden. Der Avatar selbst hat hier seine Burg, aber ein anderer Keeper will "
 "auch seine Seele. Das kann ganz schön aufregend werden."
 
+#. Level Skybird Trill objective
 #: guitext:135
 msgctxt "In-game message"
 msgid ""
@@ -1492,6 +1590,7 @@ msgstr ""
 "Seele kann den legendären Helden zur Strecke bringen, also plündert den "
 "Dungeon Eures Rivalen und nehmt die Trophäe entgegen."
 
+#. Level Skybird Trill objective
 #: guitext:136
 msgctxt "In-game message"
 msgid ""
@@ -1505,6 +1604,7 @@ msgstr ""
 "die gegen Euch antreten könnten. Es wird allmählich Zeit, daß Ihr dem "
 "selbstgerechten Lümmel einen Tritt in den Hintern versetzt, Meister!"
 
+#. Level Bonus 5 objective
 #: guitext:137
 msgctxt "In-game message"
 msgid ""
@@ -1516,6 +1616,7 @@ msgstr ""
 "verhindern somit den Bau eines Dungeons. Ihr müsst das Reich auf andere "
 "Weise erobern."
 
+#. Level Bonus 5 information
 #: guitext:138
 msgctxt "In-game message"
 msgid ""
@@ -1527,6 +1628,7 @@ msgstr ""
 "überwinden, aber bereitet Euch darauf vor, Eure Seele in eine angemessenere "
 "Kreatur zu transferieren, wenn die Situation es verlangt."
 
+#. Level Bonus 5 objective
 #: guitext:139
 msgctxt "In-game message"
 msgid ""
@@ -1537,6 +1639,7 @@ msgstr ""
 "allen Helden in diesem Königreich das Licht ausblasen, wird der Vampir Euch "
 "in das nächste Reich folgen."
 
+#. Level Bonus 2 objective
 #: guitext:140
 msgctxt "In-game message"
 msgid ""
@@ -1548,11 +1651,13 @@ msgstr ""
 "werden. Die Geschwindigkeit, mit der Ihr deren Zerstörung vornehmt, wird "
 "Eure Fitness für größere bevorstehende Aufgaben bestimmen."
 
+#. Level Bonus 2 information
 #: guitext:141
 msgctxt "In-game message"
 msgid "Tempus fugit, Keeper. You have been warned."
 msgstr "Zeit verrinnt, Keeper. Ihr wart gewarnt!"
 
+#. Level Bonus 2 objective
 #: guitext:142
 msgctxt "In-game message"
 msgid ""
@@ -1562,6 +1667,7 @@ msgstr ""
 "Ihr habt versagt. Wahrscheinlich seid Ihr gar nicht der satanische Bote, auf "
 "den die dunklen Kräfte hofften."
 
+#. Level Bonus 2 objective
 #: guitext:143
 msgctxt "In-game message"
 msgid ""
@@ -1574,6 +1680,7 @@ msgstr ""
 "unterworfen haben, damit Ihr Euer nächstes Ziel erreicht. Ihr müsst zur "
 "nächsten Eroberung schreiten."
 
+#. Level Bonus 3 objective
 #: guitext:144
 msgctxt "In-game message"
 msgid ""
@@ -1583,16 +1690,19 @@ msgstr ""
 "Ihr müsst blitzschnelle Reflexe haben, um die vor Euch stehende Aufgabe zu "
 "bewältigen. Beseitigt diese Imps so schnell es geht."
 
+#. Level Bonus 3 information
 #: guitext:145
 msgctxt "In-game message"
 msgid "Half your allotted time has elapsed."
 msgstr "Die Hälfte Eurer Zeit ist abgelaufen."
 
+#. Level Bonus 3 objective
 #: guitext:146
 msgctxt "In-game message"
 msgid "You are out of time. That was a shocking performance."
 msgstr "Die Zeit ist abgelaufen. Was für ein trauriger Auftritt."
 
+#. Level Bonus 3 objective
 #: guitext:147
 #, fuzzy
 msgctxt "In-game message"
@@ -1606,6 +1716,7 @@ msgstr ""
 "werden Euch einen Riesen schicken, der Euch bei der Eroberung des nächsten "
 "Reiches helfen wird."
 
+#. Level Bonus 3 objective
 #: guitext:148
 msgctxt "In-game message"
 msgid ""
@@ -1626,11 +1737,13 @@ msgstr ""
 "bestrafen, indem Ihr sie mit um den Dungeon verstreuten Indy-Fallen "
 "beseitigt. Ihr habt nur wenig Zeit, also bringt das Ganze ins Rollen."
 
+#. Level Bonus 4 objective
 #: guitext:150
 msgctxt "In-game message"
 msgid "Half your time has expired."
 msgstr "Halbzeit!"
 
+#. Level Bonus 4 objective
 #: guitext:151
 msgctxt "In-game message"
 msgid ""
@@ -1640,6 +1753,7 @@ msgstr ""
 "Eure Zeit ist abgelaufen. Ihr habt versagt. Es erschüttert mich, daß ich aus "
 "der gleichen interdimensionalen Leere komme wie Ihr."
 
+#. Level Bonus 4 objective
 #: guitext:152
 #, fuzzy
 msgctxt "In-game message"
@@ -1652,6 +1766,7 @@ msgstr ""
 "Die dunklen Götter werden Euch mit drei an Wissen reichen Imps bereichern, "
 "wenn Ihr das nächste Reich erreicht habt."
 
+#. Level Bonus 4 objective
 #: guitext:153
 #, fuzzy
 msgctxt "In-game message"
@@ -1666,6 +1781,7 @@ msgstr ""
 "schafft, werdet Ihr die Stelle finden, an der der legendäre Krieger, KAI, "
 "der Barbar, gefangen ist. Kai wird Euch in Zukunft gut dienen."
 
+#. Level Mistle objective
 #: guitext:154
 msgctxt "In-game message"
 msgid ""
@@ -1680,6 +1796,7 @@ msgstr ""
 "Das wird kein großes Kunststück sein. Nachschub ist wegen seiner Aktivitäten "
 "knapp."
 
+#. Level Mistle objective
 #: guitext:155
 msgctxt "In-game message"
 msgid ""
@@ -1689,6 +1806,7 @@ msgstr ""
 "Abszess ist besiegt. Das Land steht Euch nun zur Plünderung und Verwüstung "
 "in alle Ewigkeit offen. Jagt's zur Hölle, Meister."
 
+#. Level Mistle information
 #: guitext:156
 msgctxt "In-game message"
 msgid ""
@@ -1702,6 +1820,7 @@ msgstr ""
 "Opfer erleiden, wird dieser Krieger sogar seine Waffenbrüder zu Hilfe rufen. "
 "Nett und Dumm!"
 
+#. Level Mistle information
 #: guitext:157
 msgctxt "In-game message"
 msgid ""
@@ -1712,6 +1831,7 @@ msgstr ""
 "erforschen die Wege des Labyrinths. Niemand hat behauptet, daß bösesein "
 "einfach ist ..."
 
+#. Level Mistle information
 #: guitext:158
 msgctxt "In-game message"
 msgid ""
@@ -1722,6 +1842,7 @@ msgstr ""
 "gefangengehalten werden. Wenn Ihr sie finden und befreien könntet, hättet "
 "Ihr zwei feurige Diener."
 
+#. Level Mistle information
 #: guitext:159
 msgctxt "In-game message"
 msgid ""
@@ -1733,6 +1854,7 @@ msgstr ""
 "bewacht. Es wäre eine gute Idee, die Aufmerksamkeit der Leute auf Euren "
 "unterirdischen Gegner zu lenken."
 
+#. Level Mistle information
 #: guitext:160
 msgctxt "In-game message"
 msgid ""
@@ -1749,6 +1871,7 @@ msgstr ""
 "Darf ich Euch darauf hinweisen, daß Ihr alles, was Euch in den Weg kommt, "
 "vernichtet oder gefangennehmt?"
 
+#. Level Blaise End objective
 #: guitext:162
 msgctxt "In-game message"
 msgid ""
@@ -1758,6 +1881,7 @@ msgstr ""
 "Ein weiteres Königreich fällt Eurer Bosheit zu. Und wieder zieht die Wolke "
 "der Not und Verzweiflung heran. Herrlich!"
 
+#. Level Skybird Trill objective
 #: guitext:163
 msgctxt "In-game message"
 msgid "You have failed. This is a grim day for evil."
@@ -1784,11 +1908,13 @@ msgstr ""
 "Wenn Ihr Euch nicht besser um Eure Teufler kümmert, werdet Ihr es nie bis "
 "zum nächsten Königreich schaffen."
 
+#. Level Bonus 1 objective
 #: guitext:166
 msgctxt "In-game message"
 msgid "How time flies... hurry!"
 msgstr "Oh je! Wie die Zeit vergeht! Beeilung!"
 
+#. Level Skybird Trill information
 #: guitext:167
 msgctxt "In-game message"
 msgid ""
@@ -1807,6 +1933,7 @@ msgstr ""
 "Der Avatar und seine Verbündeten sind geschlagen. Noch hält sich sein "
 "Einfluß im Land. Seid gewappnet."
 
+#. Level Skybird Trill objective
 #: guitext:169
 msgctxt "In-game message"
 msgid ""
@@ -1817,6 +1944,7 @@ msgstr ""
 "Weltmacht trennt, ist dieser Zuhälter in seiner Chromrüstung. Macht ihn zur "
 "Konserve!"
 
+#. Level Mirthshire objective
 #: guitext:170
 msgctxt "In-game message"
 msgid "Success is thine. Truly, you have earned your title, Dungeon Keeper."
@@ -1824,11 +1952,13 @@ msgstr ""
 "Der Ruhm ist Euer! Wahrhaftig, Ihr seid würdig, den Titel DUNGEON KEEPER zu "
 "tragen."
 
+#. Level Skybird Trill objective
 #: guitext:171
 msgctxt "In-game message"
 msgid "What is this? The Avatar lives!"
 msgstr "Was soll das? Der Avatar lebt!"
 
+#. Level Skybird Trill win objective, also used in DD Level Belial
 #: guitext:172
 msgctxt "In-game message"
 msgid ""
@@ -1839,6 +1969,7 @@ msgstr ""
 "Euch offen zur Verwüstung und Plünderung. Ich wette, Ihr habt Euch noch nie "
 "so schlecht gefühlt ..."
 
+#. Level Skybird Trill objective
 #: guitext:173
 msgctxt "In-game message"
 msgid ""
@@ -1847,6 +1978,7 @@ msgid ""
 "So, what are you waiting for?"
 msgstr ""
 
+#. Levels Moonbrush Wood and Bonus 1 information
 #: guitext:174
 msgctxt "In-game message"
 msgid ""
@@ -1854,6 +1986,7 @@ msgid ""
 "to reduces your enemies into ashes!"
 msgstr ""
 
+#. Level Bonus 6 objective
 #: guitext:175
 msgctxt "In-game message"
 msgid ""
@@ -1861,6 +1994,7 @@ msgid ""
 "serve you well in the next realm!"
 msgstr ""
 
+#. Level Flowerhat information
 #: guitext:176
 msgctxt "In-game message"
 msgid ""
@@ -1869,6 +2003,7 @@ msgid ""
 "longer."
 msgstr ""
 
+#. Level Tulipscent information
 #: guitext:177
 msgctxt "In-game message"
 msgid ""
@@ -1878,6 +2013,7 @@ msgid ""
 "the spell will stay activated."
 msgstr ""
 
+#. Level Tulipscent information
 #: guitext:178
 msgctxt "In-game message"
 msgid ""
@@ -1886,6 +2022,7 @@ msgid ""
 "your enemies! Marvellous!"
 msgstr ""
 
+#. Level Bonus 1 objective
 #: guitext:179
 msgctxt "In-game message"
 msgid ""
@@ -2189,8 +2326,9 @@ msgstr "Auslaugen: [26.4]"
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Word of Power: Causes rings of fire to emanate from the creature's body and "
-"inflicts massive damage on the vicinity."
+"Word of Power: Causes rings of demonic energy to emanate from the creature's "
+"body and inflicts massive damage on the vicinity. Very effective against "
+"crowded hordes of enemies, also pushes them back."
 msgstr "Wort der Macht: [26.23]"
 
 #: guitext:248
@@ -2703,37 +2841,54 @@ msgstr ""
 "[4.1.1]"
 
 #: guitext:324
+#, fuzzy
 msgctxt "Slab description"
-msgid "Impenetrable Rock: Your Imps cannot dig through this. [12.4]"
+msgid ""
+"Impenetrable Rock: Your Imps cannot dig through this, the only solution is "
+"to go round. It is visible even if far from your territory."
 msgstr "Undurchdringlicher Felsen: Eure Imps können nicht durchgraben. [12.4]"
 
 #: guitext:325
+#, fuzzy
 msgctxt "Slab description"
-msgid "Earth: You can excavate this. [12.1]"
+msgid ""
+"Earth: You can excavate this. To dig out some new caverns, choose a location "
+"and tag for digging with LMB. Press LMB again to untag."
 msgstr "Erde: Darin könnt Ihr buddeln. [12.1]"
 
 #: guitext:326
+#, fuzzy
 msgctxt "Slab description"
 msgid ""
 "Gold Seam: Your source of wealth. Dig this out and your Imps will take it to "
-"your Treasure Room. [12.2]"
+"your Treasure Room. You can also pick up the lumps of treasure left on the "
+"ground."
 msgstr ""
 "Goldader: Das ist die Quelle Eures Wohlstands. Baut das Gold ab, und Eure "
 "Imps werden es zur Schatzkammer bringen. [12.2]"
 
 #: guitext:327
+#, fuzzy
 msgctxt "Slab description"
-msgid "Lava: Burns any creature that step on it. [14.2]"
+msgid ""
+"Lava: Burns any creature that step on it. Get over lava by casting Cave-In "
+"or building a Bridge."
 msgstr "Lava: Schmilzt jede Kreatur ein, die hineintritt. [14.2]"
 
 #: guitext:328
+#, fuzzy
 msgctxt "Slab description"
-msgid "Water: Creatures move more slowly through water. [14.1]"
+msgid ""
+"Water: Creatures move more slowly through water. Build the Bridge to make "
+"new land on the water."
 msgstr "Wasser: Kreaturen bewegen sich langsamer durch Wasser. [14.1]"
 
 #: guitext:329
+#, fuzzy
 msgctxt "Slab description"
-msgid "Wall: A reinforced stone wall that enemies cannot break through. [12.1]"
+msgid ""
+"Wall: A reinforced stone wall that enemies cannot break through. At least "
+"without the Destroy Walls spell."
 msgstr ""
 "Wand: Eine verstärkte Steinwand, durch die Gegner nicht eindringen können. "
 "[12.1]"
@@ -2746,13 +2901,19 @@ msgstr ""
 "wahrscheinlich ein."
 
 #: guitext:331
+#, fuzzy
 msgctxt "Slab description"
-msgid "Path: Unclaimed earth floor. [12.1]"
+msgid ""
+"Path: Unclaimed earth floor. You can claim it if it is connected to already "
+"claimed territory."
 msgstr "Pfad: Unbenutzter Trampelpfad. [12.1]"
 
 #: guitext:332
+#, fuzzy
 msgctxt "Slab description"
-msgid "Claimed area: Your dungeon territory. [12.1]"
+msgid ""
+"Claimed area: Your dungeon territory. You can build rooms and drop your "
+"creatures on it."
 msgstr "Benutztes Gebiet: Euer Dungeon-Gebiet. [12.1]"
 
 #: guitext:333
@@ -3116,6 +3277,7 @@ msgctxt "Menu interface item"
 msgid "Players"
 msgstr "SPIELER"
 
+#. Creature experience level
 #: guitext:406
 msgctxt "Menu interface item"
 msgid "Level"
@@ -3333,54 +3495,83 @@ msgid "Type"
 msgstr "Typ"
 
 #: guitext:447
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Information Panel: Miscellaneous information. [5.0]"
+msgid ""
+"Information Panel: Miscellaneous information. Shows your and enemy progress "
+"and allows changing creature tendencies."
 msgstr "Informationsmenü: Verschiedene Informationen. [5.0]"
 
 #: guitext:448
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Room Panel: The rooms available for you to build. [6.0]"
+msgid ""
+"Room Panel: The rooms available for you to build. Here you can center map on "
+"rooms or build new ones."
 msgstr "Raum-Menü: Verfügbare Räume zum Bauen. [6.0]"
 
 #: guitext:449
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Research Panel: The spells available to you. [7.0]"
+msgid ""
+"Research Panel: The spells available to you. Here you can cast or cancel "
+"them."
 msgstr "Forschungsmenü: Verfügbare Sprüche. [7.0]"
 
 #: guitext:450
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Workshop Panel: The traps and doors available to you. [8.0]"
+msgid ""
+"Workshop Panel: The traps and doors available to you. You can center the map "
+"on them, place new ones or sell existing."
 msgstr "Menü Handwerkskammer: Verfügbare Fallen und Türen. [8.0]"
 
 #: guitext:451
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Creature Panel: Information on your creatures. [9.0]"
+msgid ""
+"Creature Panel: Information on your creatures. Shows activity of your "
+"creatures and allows picking them up."
 msgstr "Kreaturen-Menü: Infos zu Kreaturen. [9.0]"
 
 #: guitext:452
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Research Time: The time until a new spell is researched. [5.4]"
+msgid ""
+"Research Time: The time until a new spell is researched. Scholars in your "
+"Library are making progress on this bar."
 msgstr "Forschungszeit: Zeit, bis ein neuer Spruch erforscht ist. [5.4]"
 
 #: guitext:453
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Workshop Time: The time until a new trap is manufactured. [5.5]"
+msgid ""
+"Workshop Time: The time until a new trap is manufactured. Workers in your "
+"Workshop are making progress on this bar."
 msgstr "Arbeitszeit: Zeit, bis eine neue Falle gebaut ist. [5.5]"
 
 #: guitext:454
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Time: The time until the next Creature Payday. [5.3]"
+msgid ""
+"Time: The time until the next Creature Payday. This bar increases over time "
+"and, when it reaches its peak, all of your creatures receive their wages."
 msgstr "Galgenfrist: Zeit bis zum nächsten Zahltag. [5.3]"
 
 #: guitext:455
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Number of Rooms: The number of rooms held by this Keeper. [5.6]"
+msgid ""
+"Number of Rooms: The number of rooms held by this Keeper. Allows you to "
+"compare your dungeon with the competitors."
 msgstr "Anzahl Räume: Die Zahl der Räume, die diesem Keeper gehören. [5.6]"
 
 #: guitext:456
+#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"Number of Creatures: The number of creatures owned by this Keeper. [5.7]"
+"Number of Creatures: The number of creatures owned by this Keeper. Allows "
+"you to compare your army with other Keepers."
 msgstr ""
 "Anzahl Kreaturen: Die Zahl der Kreaturen, die diesem Keeper gehören. [5.7]"
 
@@ -3410,16 +3601,19 @@ msgid "Deathmatch"
 msgstr "Gefährliches Spiel"
 
 #: guitext:462
+#, fuzzy
 msgctxt "In-game interface description"
-msgid ""
-"Sell Room: Sell a room tile for half the building price. LMB select. [6.4]"
+msgid "Sell Room: Sell a room tile for half the building price. LMB select."
 msgstr ""
 "Raum verkaufen: Verkauft einen Raum zur Hälfte des Baupreises. Mit der "
 "linken Maustaste wählen. [6.4]"
 
 #: guitext:463
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Sell Item: Sell a Trap or Door. LMB select. [8.1.2]"
+msgid ""
+"Sell Item: Sell a Trap or Door. Allows you to earn gold on manufacturing. "
+"LMB select."
 msgstr ""
 "Gegenstand verkaufen: Verkauft eine Falle oder eine Tür. Mit der linken "
 "Maustaste wählen. [8.1.2]"
@@ -3827,13 +4021,19 @@ msgid "Unable to join game"
 msgstr "Keine Teilnahme am Spiel möglich"
 
 #: guitext:544
+#, fuzzy
 msgctxt "Slab description"
-msgid "Gems: Infinite wealth for your Imps to extract. [12.3]"
+msgid ""
+"Gems: Infinite wealth for your Imps to extract. Cannot be destroyed, but "
+"takes longer to mine than Gold."
 msgstr "Juwelen: Unendlicher Wohlstand, den Eure Imps gewinnen können. [12.3]"
 
 #: guitext:545
+#, fuzzy
 msgctxt "Object description"
-msgid "Hero Gate: Heroes use this portal to invade your dungeon. [15.4]"
+msgid ""
+"Hero Gate: Heroes use this portal to invade your dungeon. It cannot be "
+"closed on your side."
 msgstr ""
 "Heldentor: Helden benutzen diesen Eingang, um in Euren Dungeon einzufallen. "
 "[15.4]"
@@ -3849,30 +4049,33 @@ msgid "Avatar"
 msgstr "Avatar"
 
 #: guitext:548
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Toggle Computer Assistant: Currently - Aggressive. LMB toggle. [3.2.4]"
+msgid "Toggle Computer Assistant: Currently - Aggressive. LMB toggle."
 msgstr ""
 "Computer-Hilfe ein- und ausschalten: Aktuell - Aggressiv. Mit der linken "
 "Maustaste umschalten. [3.2.4]"
 
 #: guitext:549
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Toggle Computer Assistant: Currently - Defensive. LMB toggle. [3.2.4]"
+msgid "Toggle Computer Assistant: Currently - Defensive. LMB toggle."
 msgstr ""
 "Computer-Hilfe ein- und ausschalten: Aktuell - Defensiv. Mit der linken "
 "Maustaste umschalten. [3.2.4]"
 
 #: guitext:550
+#, fuzzy
 msgctxt "In-game interface description"
-msgid ""
-"Toggle Computer Assistant: Currently - Construction Only. LMB toggle. [3.2.4]"
+msgid "Toggle Computer Assistant: Currently - Construction Only. LMB toggle."
 msgstr ""
 "Computer-Hilfe ein- und ausschalten: Aktuell - Nur Konstruktion. Mit der "
 "linken Maustaste umschalten. [3.2.4]"
 
 #: guitext:551
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Toggle Computer Assistant: Currently - Move Only. LMB toggle. [3.2.4]"
+msgid "Toggle Computer Assistant: Currently - Move Only. LMB toggle."
 msgstr ""
 "Computer-Hilfe ein- und ausschalten: Aktuell - Nur bewegen. Mit der linken "
 "Maustaste umschalten. [3.2.4]"
@@ -4036,54 +4239,64 @@ msgid "Lava Trap"
 msgstr "Lava-Falle"
 
 #: guitext:584
+#, fuzzy
 msgctxt "Trap description"
 msgid ""
-"Boulder Trap: A rolling rock that crushes everything in its path. LMB "
-"select. RMB zoom. [20.1]"
+"Boulder Trap: A rolling rock that crushes everything in its path. Triggered "
+"when enemy creature is close and within line of sight, or when slapped by a "
+"Keeper. LMB select. RMB zoom."
 msgstr ""
 "Indy-Falle: Ein rollender Felsen, der alles auf seinem Weg niederwalzt. Mit "
 "der linken Maustaste wählen. Mit der rechten Maustaste zoomen. [20.1]"
 
 #: guitext:585
+#, fuzzy
 msgctxt "Trap description"
-msgid "Alarm Trap: Triggers a Call To Arms spell. LMB select. RMB zoom. [20.2]"
+msgid ""
+"Alarm Trap: Triggers a Call To Arms spell, so that creatures in the area are "
+"summoned to it. LMB select. RMB zoom."
 msgstr ""
 "Alarm-Falle: Löst den Spruch Zusammenrufen aus. Mit der linken Maustaste "
 "wählen. Mit der rechten Maustaste zoomen. [20.2]"
 
 #: guitext:586
+#, fuzzy
 msgctxt "Trap description"
 msgid ""
-"Poison Gas Trap: A cloud of noxious vapours triggered by your enemies. LMB "
-"select. RMB zoom. [20.3]"
+"Poison Gas Trap: A cloud of noxious vapours triggered by your enemies. Can "
+"hurt owner creatures if they inhale it. LMB select. RMB zoom."
 msgstr ""
 "Giftgas-Falle: Eine Wolke übler Dämpfe wird durch Gegner ausgelöst. Mit der "
 "linken Maustaste wählen. Mit der rechten Maustaste zoomen. [20.3]"
 
 #: guitext:587
+#, fuzzy
 msgctxt "Trap description"
 msgid ""
-"Lightning Trap: Strikes nearby enemy creatures with bolts of lightning. LMB "
-"select. RMB zoom. [20.4]"
+"Lightning Trap: Strikes nearby enemy creatures with bolts of lightning when "
+"tripped. Does no harm to owner creatures. LMB select. RMB zoom."
 msgstr ""
 "Blitz-Falle: Gegner in der nächsten Umgebung werden von Blitzen getroffen. "
 "Mit der linken Maustaste wählen. Mit der rechten Maustaste zoomen. [20.4]"
 
 #: guitext:588
+#, fuzzy
 msgctxt "Trap description"
 msgid ""
-"Word of Power Trap: Radiates devastating rings of demonic energy, damaging "
-"all creatures within range. LMB select. RMB zoom. [20.5]"
+"Word of Power Trap: Radiates devastating rings of demonic energy, pushing "
+"and damaging all enemy creatures within range. LMB select. RMB zoom."
 msgstr ""
 "Machtwort-Falle: Setzt einen Ring dämonischer Energie frei, die alle Gegner "
 "in Reichweite zu Schaden bringt. Mit der linken Maustaste wählen. Mit der "
 "rechten Maustaste zoomen. [20.5]"
 
 #: guitext:589
+#, fuzzy
 msgctxt "Trap description"
 msgid ""
-"Lava Trap: The tile disintegrates revealing a pool of molten lava. LMB "
-"select. RMB zoom. [20.6]"
+"Lava Trap: The tile disintegrates revealing a pool of molten lava. Effects "
+"are irreversible, so Bridge is needed to be able to step on affected area "
+"again. LMB select. RMB zoom."
 msgstr ""
 "Lava-Falle: Damit wird ein Strom geschmolzener Lava ausgelöst. Mit der "
 "linken Maustaste wählen. Mit der rechten Maustaste zoomen. [20.6]"
@@ -4109,36 +4322,41 @@ msgid "Magic Door"
 msgstr "Magische Tür"
 
 #: guitext:594
+#, fuzzy
 msgctxt "Door description"
 msgid ""
-"Wooden Door: The simplest means of restricting access. LMB select. RMB zoom. "
-"[21.1]"
+"Wooden Door: The simplest means of restricting access. Can be broken down "
+"easily. LMB select. RMB zoom."
 msgstr ""
 "Holztür: Die einfachste Art, Eintritt zu verwehren. Mit der linken Maustaste "
 "wählen. Mit der rechten Maustaste zoomen. [21.1]"
 
 #: guitext:595
+#, fuzzy
 msgctxt "Door description"
 msgid ""
-"Braced Door: A wooden door reinforced with iron. LMB select. RMB zoom. [21.2]"
+"Braced Door: A wooden door reinforced with iron to last longer. LMB select. "
+"RMB zoom."
 msgstr ""
 "Verstärkte Tür: Eine Holztür, die mit Eisen verstärkt wurde. Mit der linken "
 "Maustaste wählen. Mit der rechten Maustaste zoomen. [21.2]"
 
 #: guitext:596
+#, fuzzy
 msgctxt "Door description"
 msgid ""
 "Iron Door: Strong, heavy door capable of sustaining massive damage. LMB "
-"select. RMB zoom. [21.3]"
+"select. RMB zoom."
 msgstr ""
 "Eisentür: Eine massive und starke Tür, die eine Menge Schaden verkraftet. "
 "Mit der linken Maustaste wählen. Mit der rechten Maustaste zoomen. [21.3]"
 
 #: guitext:597
+#, fuzzy
 msgctxt "Door description"
 msgid ""
 "Magic Door: A special door, highly resistant to physical damage but "
-"susceptible to magical damage. LMB select. RMB zoom. [21.4]"
+"susceptible to magical damage. LMB select. RMB zoom."
 msgstr ""
 "Magische Tür: Eine spezielle Tür, die hochgradig gegen physische Schäden "
 "geschützt ist, leider aber nicht gegen magische. Mit der linken Maustaste "
@@ -6370,7 +6588,51 @@ msgid "Your creature cannot reach the room it needs"
 msgstr ""
 
 #: guitext:946
+#, fuzzy
 msgctxt "Game event description"
-msgid "Room unreachable: LMB toggle. RMB delete."
+msgid "Work room unreachable: LMB toggle. RMB delete."
+msgstr ""
+"Neuer Raum erforscht: Mit der linken Maustaste lesen. Mit der rechten "
+"Maustaste löschen."
+
+#: guitext:947
+msgctxt "Game event name"
+msgid "Your Imp cannot reach a room to drag something into"
 msgstr ""
 
+#: guitext:948
+#, fuzzy
+msgctxt "Game event description"
+msgid "Storage room unreachable: LMB toggle. RMB delete."
+msgstr ""
+"Neuer Raum erforscht: Mit der linken Maustaste lesen. Mit der rechten "
+"Maustaste löschen."
+
+#~ msgctxt "Slab description"
+#~ msgid "Impenetrable Rock: Your Imps cannot dig through this. [12.4]"
+#~ msgstr ""
+#~ "Undurchdringlicher Felsen: Eure Imps können nicht durchgraben. [12.4]"
+
+#~ msgctxt "Slab description"
+#~ msgid "Earth: You can excavate this. [12.1]"
+#~ msgstr "Erde: Darin könnt Ihr buddeln. [12.1]"
+
+#~ msgctxt "Slab description"
+#~ msgid "Lava: Burns any creature that step on it. [14.2]"
+#~ msgstr "Lava: Schmilzt jede Kreatur ein, die hineintritt. [14.2]"
+
+#~ msgctxt "Slab description"
+#~ msgid "Path: Unclaimed earth floor. [12.1]"
+#~ msgstr "Pfad: Unbenutzter Trampelpfad. [12.1]"
+
+#~ msgctxt "Slab description"
+#~ msgid "Claimed area: Your dungeon territory. [12.1]"
+#~ msgstr "Benutztes Gebiet: Euer Dungeon-Gebiet. [12.1]"
+
+#~ msgctxt "In-game interface description"
+#~ msgid "Information Panel: Miscellaneous information. [5.0]"
+#~ msgstr "Informationsmenü: Verschiedene Informationen. [5.0]"
+
+#~ msgctxt "In-game interface description"
+#~ msgid "Time: The time until the next Creature Payday. [5.3]"
+#~ msgstr "Galgenfrist: Zeit bis zum nächsten Zahltag. [5.3]"
