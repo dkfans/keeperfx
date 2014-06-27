@@ -50,7 +50,7 @@ short imp_toking(struct Thing *thing);
 short creature_pick_up_unconscious_body(struct Thing *thing);
 short creature_picks_up_corpse(struct Thing *thing);
 short creature_picks_up_spell_object(struct Thing *thing);
-short creature_picks_up_trap_for_workshop(struct Thing *thing);
+short creature_picks_up_crate_for_workshop(struct Thing *thing);
 short creature_picks_up_trap_object(struct Thing *thing);
 short creature_drops_corpse_in_graveyard(struct Thing *thing);
 short creature_drops_crate_in_workshop(struct Thing *thing);
