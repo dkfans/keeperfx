@@ -350,51 +350,61 @@ msgctxt "In-game mentor"
 msgid "Secrets have been tortured from your creatures!"
 msgstr ""
 
+#. Message when good sacrifice recipe progressed
 #: speech:64
 msgctxt "In-game mentor"
 msgid "The Gods are pleased with your sacrifice."
 msgstr ""
 
+#. Message when good sacrifice recipe finished
 #: speech:65
 msgctxt "In-game mentor"
 msgid "The Gods have rewarded your offering."
 msgstr ""
 
+#. Message when sacrifice didn't progressed any recipe
 #: speech:66
 msgctxt "In-game mentor"
 msgid "The Gods do not care for your sacrifice."
 msgstr ""
 
+#. Message when bad sacrifice recipe progressed
 #: speech:67
 msgctxt "In-game mentor"
 msgid "Your offering has made the Gods angry!"
 msgstr ""
 
+#. Message when bad sacrifice recipe finished
 #: speech:68
 msgctxt "In-game mentor"
 msgid "The Gods have punished your unwothy offering."
 msgstr ""
 
+#. Message when dropping gold into Temple water
 #: speech:69
 msgctxt "In-game mentor"
 msgid "This is no wishing well, keeper."
 msgstr ""
 
+#. Message when Dungeon Special found on level
 #: speech:70
 msgctxt "In-game mentor"
 msgid "Your creatures have discovered a misterious magic box."
 msgstr ""
 
+#. Message when spellbook found on level
 #: speech:71
 msgctxt "In-game mentor"
 msgid "Your creatures have found a spell."
 msgstr ""
 
+#. Message when door crate found on level
 #: speech:72
 msgctxt "In-game mentor"
 msgid "A door design has been discovered."
 msgstr ""
 
+#. Message when trap crate found on level
 #: speech:73
 msgctxt "In-game mentor"
 msgid "A trap design has been discovered."
@@ -405,6 +415,7 @@ msgctxt "In-game mentor"
 msgid "New creatures have joined your dungeon."
 msgstr ""
 
+#. Message when digging has revealed a cavern
 #: speech:75
 msgctxt "In-game mentor"
 msgid "You have thalowed into a new area."
@@ -481,52 +492,52 @@ msgid "It is payday."
 msgstr ""
 
 #: speech:90
-msgctxt "In-game mentor"
+msgctxt "In-game mentor random funny message"
 msgid "My god, it's full of pies."
 msgstr ""
 
 #: speech:91
-msgctxt "In-game mentor"
+msgctxt "In-game mentor random funny message"
 msgid "Something surreal is happening."
 msgstr ""
 
 #: speech:92
-msgctxt "In-game mentor"
+msgctxt "In-game mentor random funny message"
 msgid "Your creatures are developing a strange accent."
 msgstr ""
 
 #: speech:93
-msgctxt "In-game mentor"
+msgctxt "In-game mentor random funny message"
 msgid "Your pants are definitely too tight."
 msgstr ""
 
 #: speech:94
-msgctxt "In-game mentor"
+msgctxt "In-game mentor random funny message"
 msgid "Your minions have a craving for chocolate."
 msgstr ""
 
 #: speech:95
-msgctxt "In-game mentor"
+msgctxt "In-game mentor random funny message"
 msgid "There's that smell again."
 msgstr ""
 
 #: speech:96
-msgctxt "In-game mentor"
+msgctxt "In-game mentor random funny message"
 msgid "Hello."
 msgstr ""
 
 #: speech:97
-msgctxt "In-game mentor"
+msgctxt "In-game mentor random funny message"
 msgid "Blech."
 msgstr ""
 
 #: speech:98
-msgctxt "In-game mentor"
+msgctxt "In-game mentor random funny message"
 msgid "Achoo"
 msgstr ""
 
 #: speech:99
-msgctxt "In-game mentor"
+msgctxt "In-game mentor random funny message"
 msgid "Cough"
 msgstr ""
 
