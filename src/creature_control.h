@@ -181,7 +181,7 @@ unsigned char field_67;
     /** Index of a thing being dragged by the creature, or index of a thing which is dragging this thing.
      *  Specific case is determined by flags. */
     short dragtng_idx;
-    unsigned short field_70;
+    unsigned short arming_thing_id;
     unsigned short pickup_object_id;
     unsigned short pickup_creature_id;
     unsigned short next_in_group;

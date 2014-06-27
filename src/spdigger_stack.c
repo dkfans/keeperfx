@@ -78,6 +78,8 @@ DLLIMPORT long _DK_check_place_to_reinforce(struct Thing *creatng, long slb_x, l
 DLLIMPORT struct Thing *_DK_check_place_to_pickup_crate(struct Thing *creatng, long stl_x, long stl_y);
 DLLIMPORT long _DK_add_to_pretty_to_imp_stack_if_need_to(long creatng, long slb_x, struct Dungeon *dungeon);
 DLLIMPORT long _DK_imp_will_soon_be_converting_at_excluding(struct Thing *creatng, long slb_x, long slb_y);
+DLLIMPORT long _DK_imp_will_soon_be_getting_object(long plyr_idx, struct Thing *objtng);
+DLLIMPORT long _DK_imp_will_soon_be_arming_trap(struct Thing *spdigtng);
 DLLIMPORT long _DK_imp_already_reinforcing_at_excluding(struct Thing *creatng, long stl_x, long stl_y);
 /******************************************************************************/
 long const dig_pos[] = {0, -1, 1};
@@ -147,6 +149,56 @@ long imp_will_soon_be_working_at_excluding(struct Thing *thing, long a2, long a3
     return _DK_imp_will_soon_be_working_at_excluding(thing, a2, a3);
 }
 
+TbBool imp_will_soon_be_getting_object(PlayerNumber plyr_idx, const struct Thing *objtng)
+{
+    const struct Thing *spdigtng;
+    const struct CreatureControl *cctrl;
+    const struct Dungeon *dungeon;
+    unsigned long k;
+    int i;
+    SYNCDBG(8,"Starting");
+    //return _DK_imp_will_soon_be_getting_object(a2, objtng);
+    dungeon = get_players_num_dungeon(plyr_idx);
+    k = 0;
+    i = dungeon->digger_list_start;
+    while (i != 0)
+    {
+        spdigtng = thing_get(i);
+        TRACE_THING(spdigtng);
+        cctrl = creature_control_get_from_thing(spdigtng);
+        if (thing_is_invalid(spdigtng) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        if (cctrl->pickup_object_id == objtng->index)
+        {
+            CrtrStateId crstate;
+            crstate = get_creature_state_besides_interruptions(spdigtng);
+            if (crstate == CrSt_CreaturePicksUpTrapObject)
+                return true;
+            if (crstate == CrSt_CreatureArmsTrap)
+                return true;
+            if (crstate == CrSt_CreaturePicksUpCrateForWorkshop)
+                return true;
+            if (crstate == CrSt_CreaturePicksUpSpellObject)
+                return true;
+            // Note that picking up gold pile does not currently fill pickup_object_id, so can't be checked here
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    SYNCDBG(19,"Finished");
+    return false;
+}
+
 /** Returns if the player owns any digger who is working on re-arming given trap.
  *
  * @param traptng The trap that needs re-arming.
@@ -172,13 +224,12 @@ TbBool imp_will_soon_be_arming_trap(struct Thing *traptng)
         cctrl = creature_control_get_from_thing(thing);
         i = cctrl->players_next_creature_idx;
         // Per-thing code
-        if (cctrl->field_70 == traptng->index)
+        if (cctrl->arming_thing_id == traptng->index)
         {
-            crstate = get_creature_state_besides_move(thing);
+            crstate = get_creature_state_besides_interruptions(thing);
             if (crstate == CrSt_CreaturePicksUpTrapObject) {
                 return true;
             }
-            crstate = get_creature_state_besides_drag(thing);
             if (crstate == CrSt_CreatureArmsTrap) {
                 return true;
             }
@@ -1128,16 +1179,14 @@ long add_unclaimed_unconscious_bodies_to_imp_stack(struct Dungeon *dungeon, long
         }
         if (players_are_enemies(dungeon->owner,thing->owner) && creature_is_being_unconscious(thing) && !thing_is_dragged_or_pulled(thing))
         {
-            if (room_is_invalid(room))
+            if (subtile_revealed(thing->mappos.x.stl.num, thing->mappos.y.stl.num, dungeon->owner))
             {
-                SYNCDBG(8,"Dungeon %d has no free %s space",(int)dungeon->owner,room_code_name(RoK_PRISON));
-                if (is_my_player_number(dungeon->owner)) {
-                    output_message(SMsg_PrisonTooSmall, 1000, true);
+                if (room_is_invalid(room))
+                {
+                    // Check why the room search failed and inform the player
+                    update_cannot_find_room_wth_spare_capacity_event(dungeon->owner, thing, RoK_PRISON);
+                    return 0;
                 }
-                return 0;
-            }
-            if ( subtile_revealed(thing->mappos.x.stl.num,thing->mappos.y.stl.num,dungeon->owner) )
-            {
                 SubtlCodedCoords stl_num;
                 stl_num = get_subtile_number(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
                 if (!add_to_imp_stack_using_pos(stl_num, DigTsk_PickUpUnconscious, dungeon)) {
@@ -1193,16 +1242,14 @@ TbBool add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, long max_
         if ( ((thing->field_1 & TF1_IsDragged1) == 0) && (thing->active_state == DCrSt_Unknown02)
            && (thing->byte_14 == 0) && corpse_is_rottable(thing) )
         {
-            if (room_is_invalid(room))
+            if (subtile_revealed(thing->mappos.x.stl.num, thing->mappos.y.stl.num, dungeon->owner))
             {
-                SYNCDBG(8,"Dungeon %d has no free %s space",(int)dungeon->owner,room_code_name(RoK_GRAVEYARD));
-                if (is_my_player_number(dungeon->owner)) {
-                    output_message(SMsg_GraveyardTooSmall, 1000, true);
+                if (room_is_invalid(room))
+                {
+                    // Check why the room search failed and inform the player
+                    update_cannot_find_room_wth_spare_capacity_event(dungeon->owner, thing, RoK_GRAVEYARD);
+                    return 0;
                 }
-                return 0;
-            }
-            if ( subtile_revealed(thing->mappos.x.stl.num,thing->mappos.y.stl.num,dungeon->owner) )
-            {
                 stl_num = get_subtile_number(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
                 if (!add_to_imp_stack_using_pos(stl_num, DigTsk_PickUpCorpse, dungeon)) {
                     break;
@@ -1255,17 +1302,15 @@ long add_unclaimed_spells_to_imp_stack(struct Dungeon *dungeon, long max_tasks)
         {
             if ((thing->owner != dungeon->owner) && ((thing->alloc_flags & TAlF_IsDragged) == 0))
             {
+                // We don't have to do subtile_revealed() call, as owned ground is always revealed
                 struct SlabMap *slb;
                 slb = get_slabmap_thing_is_on(thing);
                 if (slabmap_owner(slb) == dungeon->owner)
                 {
                     if (room_is_invalid(room))
                     {
-                        // We had to wait til here with this check to make sure message should be played
-                        SYNCDBG(8,"Dungeon %d has no free %s space",(int)dungeon->owner,room_code_name(RoK_LIBRARY));
-                        if (is_my_player_number(dungeon->owner)) {
-                            output_message(SMsg_LibraryTooSmall, 1000, true);
-                        }
+                        // Check why the room search failed and inform the player
+                        update_cannot_find_room_wth_spare_capacity_event(dungeon->owner, thing, RoK_LIBRARY);
                         break;
                     }
                     SubtlCodedCoords stl_num;
@@ -2155,29 +2200,31 @@ long check_out_worker_pickup_trapbox(struct Thing *creatng, struct DiggerStack *
     stl_x = stl_num_decode_x(istack->field_0);
     stl_y = stl_num_decode_y(istack->field_0);
     struct Thing *cratng;
-    struct Thing *trdtng;
+    struct Thing *armtng;
     long n;
     for (n=0; true; n++)
     {
         cratng = check_place_to_pickup_crate(creatng, stl_x, stl_y, n);
         if (thing_is_invalid(cratng)) {
-            trdtng = INVALID_THING;
+            armtng = INVALID_THING;
             break;
         }
         // Allow only trap boxes on that subtile which have a corresponding trap to be armed
         if (thing_is_trap_box(cratng))
         {
-            trdtng = check_for_empty_trap_for_imp_not_being_armed(creatng, crate_thing_to_workshop_item_model(cratng));
-            if (!thing_is_invalid(trdtng)) {
+            armtng = check_for_empty_trap_for_imp_not_being_armed(creatng, crate_thing_to_workshop_item_model(cratng));
+            if (!thing_is_invalid(armtng)) {
                 break;
             }
         }
     }
+    // Either the crate or thing to arm is gone - remove the task
     if (thing_is_invalid(cratng))
     {
         istack->task_id = DigTsk_None;
         return 0;
     }
+    // The task is being covered by another creature
     if (imp_will_soon_be_working_at_excluding(creatng, stl_x, stl_y))
     {
         return 0;
@@ -2191,7 +2238,7 @@ long check_out_worker_pickup_trapbox(struct Thing *creatng, struct DiggerStack *
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
     cctrl->pickup_object_id = cratng->index;
-    cctrl->field_70 = trdtng->index;
+    cctrl->arming_thing_id = armtng->index;
     return 1;
 }
 
@@ -2245,7 +2292,7 @@ long check_out_worker_pickup_trap_for_workshop(struct Thing *thing, struct Digge
     {
         WARNLOG("Strange pickup (class %d) - no event",(int)i);
     }
-    thing->continue_state = CrSt_CreaturePicksUpTrapForWorkshop;
+    thing->continue_state = CrSt_CreaturePicksUpCrateForWorkshop;
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
     cctrl->pickup_object_id = sectng->index;

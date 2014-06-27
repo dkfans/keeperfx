@@ -86,16 +86,47 @@ DLLIMPORT long _DK_check_out_unconverted_drop_place(struct Thing *spdigtng);
 DLLIMPORT long _DK_check_out_undug_drop_place(struct Thing *spdigtng);
 DLLIMPORT long _DK_check_out_unprettied_drop_place(struct Thing *spdigtng);
 DLLIMPORT long _DK_check_out_unclaimed_gold(struct Thing *spdigtng, long a1);
-DLLIMPORT long _DK_imp_will_soon_be_arming_trap(struct Thing *spdigtng);
 DLLIMPORT long _DK_check_out_object_for_trap(struct Thing *traptng, struct Thing *spdigtng);
 DLLIMPORT struct Thing *_DK_check_for_empty_trap_for_imp(struct Thing *traptng, long plyr_idx);
-DLLIMPORT long _DK_imp_will_soon_be_getting_object(long plyr_idx, struct Thing *objtng);
 DLLIMPORT long _DK_take_from_gold_pile(unsigned short stl_x, unsigned short stl_y, long limit);
 /******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
 /******************************************************************************/
+struct Thing *check_for_empty_trap_for_imp(struct Thing *spdigtng, long tngmodel)
+{
+    struct Thing *thing;
+    long i;
+    unsigned long k;
+    //return _DK_check_for_empty_trap_for_imp(spdigtng, tngmodel);
+    k = 0;
+    i = game.thing_lists[TngList_Traps].index;
+    while (i > 0)
+    {
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        if (thing_is_invalid(thing))
+            break;
+        i = thing->next_of_class;
+        // Per-thing code
+        if ((thing->model == tngmodel) && (thing->trap.num_shots == 0) && (thing->owner == spdigtng->owner))
+        {
+            if ( !imp_will_soon_be_arming_trap(thing) ) {
+                return thing;
+            }
+        }
+        // Per-thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return INVALID_THING;
+}
+
 long check_out_unclaimed_unconscious_bodies(struct Thing *spdigtng, long range)
 {
     //return _DK_check_out_unclaimed_unconscious_bodies(spdigtng, range);
@@ -239,7 +270,7 @@ long check_out_unclaimed_spells(struct Thing *spdigtng, long range)
         {
             struct SlabMap *slb;
             slb = get_slabmap_thing_is_on(thing);
-            if ((thing->owner != spdigtng->owner) && ((thing->alloc_flags & 0x80) == 0) && (slabmap_owner(slb) == spdigtng->owner))
+            if ((thing->owner != spdigtng->owner) && ((thing->alloc_flags & TAlF_IsDragged) == 0) && (slabmap_owner(slb) == spdigtng->owner))
             {
                 if ((range < 0) || get_2d_box_distance(&thing->mappos, &spdigtng->mappos) < range)
                 {
@@ -284,7 +315,98 @@ long check_out_unclaimed_spells(struct Thing *spdigtng, long range)
 
 long check_out_unclaimed_traps(struct Thing *spdigtng, long range)
 {
-    return _DK_check_out_unclaimed_traps(spdigtng, range);
+    //return _DK_check_out_unclaimed_traps(spdigtng, range);
+    if (!player_has_room(spdigtng->owner, RoK_WORKSHOP)) {
+        return 0;
+    }
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(spdigtng);
+    struct Room *room;
+    room = find_nearest_room_for_thing_with_spare_item_capacity(spdigtng, spdigtng->owner, RoK_WORKSHOP, NavRtF_Default);
+    // We either found a room or not - but we can't generate event based on it yet, because we don't even know if there's any thing to pick
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_Object);
+    long i;
+    unsigned long k;
+    k = 0;
+    i = slist->index;
+    while (i > 0)
+    {
+        struct Thing *thing;
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+          break;
+        i = thing->next_of_class;
+        // Per-thing code
+        if (thing_is_door_or_trap_box(thing) && ((thing->field_1 & TF1_IsDragged1) == 0))
+        {
+            struct SlabMap *slb;
+            slb = get_slabmap_thing_is_on(thing);
+            if (slabmap_owner(slb) == spdigtng->owner)
+            {
+                if ((range < 0) || get_2d_box_distance(&thing->mappos, &spdigtng->mappos) < range)
+                {
+                    if (!imp_will_soon_be_getting_object(spdigtng->owner, thing))
+                    {
+                        // If there is a trap to arm, go arming
+                        struct Thing *traptng;
+                        if (thing_is_trap_box(thing)) {
+                            traptng = check_for_empty_trap_for_imp(spdigtng, crate_to_workshop_item_model(thing->model));
+                        } else {
+                            traptng = INVALID_THING;
+                        }
+                        if (!thing_is_invalid(traptng))
+                        {
+                            if (setup_person_move_to_coord(spdigtng, &thing->mappos, NavRtF_Default))
+                            {
+                                spdigtng->continue_state = CrSt_CreaturePicksUpTrapObject;
+                                cctrl->pickup_object_id = thing->index;
+                                cctrl->arming_thing_id = traptng->index;
+                                return 1;
+                            }
+                        }
+                        // No trap to arm - get the crate in workshop, if it's not already on it
+                        struct Room * onroom;
+                        onroom = get_room_thing_is_on(thing);
+                        if (room_is_invalid(onroom) || (onroom->kind != RoK_WORKSHOP))
+                        {
+                            // We have a thing which we should pick - now check if the room we found is correct
+                            if (room_is_invalid(room)) {
+                                update_cannot_find_room_wth_spare_capacity_event(spdigtng->owner, spdigtng, RoK_WORKSHOP);
+                                return 0;
+                            }
+                            if (setup_person_move_to_coord(spdigtng, &thing->mappos, NavRtF_Default))
+                            {
+                                SYNCDBG(8,"Assigned %s with %s pickup at subtile (%d,%d)",thing_model_name(spdigtng),
+                                    thing_model_name(thing),(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num);
+                                if (thing_is_trap_box(thing))
+                                {
+                                    event_create_event_or_update_nearby_existing_event(thing->mappos.x.val, thing->mappos.y.val,
+                                        EvKind_TrapCrateFound, spdigtng->owner, thing->index);
+                                } else
+                                if (thing_is_door_box(thing))
+                                {
+                                    event_create_event_or_update_nearby_existing_event(thing->mappos.x.val, thing->mappos.y.val,
+                                        EvKind_DoorCrateFound, spdigtng->owner, thing->index);
+                                }
+                                spdigtng->continue_state = CrSt_CreaturePicksUpCrateForWorkshop;
+                                cctrl->pickup_object_id = thing->index;
+                                return 1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        // Per-thing code ends
+        k++;
+        if (k > slist->count)
+        {
+          ERRORLOG("Infinite loop detected when sweeping things list");
+          break;
+        }
+    }
+    return 0;
 }
 
 long check_out_unconverted_drop_place(struct Thing *thing)
@@ -305,55 +427,6 @@ long check_out_unclaimed_gold(struct Thing *thing, long a1)
 long check_out_unprettied_drop_place(struct Thing *thing)
 {
     return _DK_check_out_unprettied_drop_place(thing);
-}
-
-TbBool imp_will_soon_be_getting_object(PlayerNumber plyr_idx, const struct Thing *objtng)
-{
-    const struct Thing *spdigtng;
-    const struct CreatureControl *cctrl;
-    const struct Dungeon *dungeon;
-    unsigned long k;
-    int i;
-    SYNCDBG(8,"Starting");
-    //return _DK_imp_will_soon_be_getting_object(a2, objtng);
-    dungeon = get_players_num_dungeon(plyr_idx);
-    k = 0;
-    i = dungeon->digger_list_start;
-    while (i != 0)
-    {
-        spdigtng = thing_get(i);
-        TRACE_THING(spdigtng);
-        cctrl = creature_control_get_from_thing(spdigtng);
-        if (thing_is_invalid(spdigtng) || creature_control_invalid(cctrl))
-        {
-            ERRORLOG("Jump to invalid creature detected");
-            break;
-        }
-        i = cctrl->players_next_creature_idx;
-        // Thing list loop body
-        if (cctrl->pickup_object_id == objtng->index)
-        {
-            CrtrStateId crstate;
-            crstate = get_creature_state_besides_move(spdigtng);
-            if (crstate == CrSt_CreaturePicksUpTrapObject)
-                return true;
-            crstate = get_creature_state_besides_drag(spdigtng);
-            if (crstate == CrSt_CreatureArmsTrap)
-                return true;
-            crstate = get_creature_state_besides_move(spdigtng);
-            if (crstate == CrSt_CreaturePicksUpTrapForWorkshop)
-                return true;
-        }
-        // Thing list loop body ends
-        k++;
-        if (k > CREATURES_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping creatures list");
-            break;
-        }
-    }
-    SYNCDBG(19,"Finished");
-    return false;
 }
 
 long check_out_object_for_trap(struct Thing *spdigtng, struct Thing *traptng)
@@ -400,7 +473,7 @@ long check_out_object_for_trap(struct Thing *spdigtng, struct Thing *traptng)
                     {
                         spdigtng->continue_state = CrSt_CreaturePicksUpTrapObject;
                         cctrl->pickup_object_id = thing->index;
-                        cctrl->field_70 = traptng->index;
+                        cctrl->arming_thing_id = traptng->index;
                         return 1;
                     }
                 }
@@ -488,39 +561,6 @@ long check_out_unreinforced_drop_place(struct Thing *thing)
     return 0;
 }
 
-struct Thing *check_for_empty_trap_for_imp(struct Thing *spdigtng, long tngmodel)
-{
-    struct Thing *thing;
-    long i;
-    unsigned long k;
-    //return _DK_check_for_empty_trap_for_imp(spdigtng, tngmodel);
-    k = 0;
-    i = game.thing_lists[TngList_Traps].index;
-    while (i > 0)
-    {
-        thing = thing_get(i);
-        TRACE_THING(thing);
-        if (thing_is_invalid(thing))
-            break;
-        i = thing->next_of_class;
-        // Per-thing code
-        if ((thing->model == tngmodel) && (thing->trap.num_shots == 0) && (thing->owner == spdigtng->owner))
-        {
-            if ( !imp_will_soon_be_arming_trap(thing) ) {
-                return thing;
-            }
-        }
-        // Per-thing code ends
-        k++;
-        if (k > THINGS_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping things list");
-            break;
-        }
-    }
-    return INVALID_THING;
-}
-
 /**
  * Checks if there are crates in room the creature is on, which could be used to re-arm one of players traps.
  * If there are, setups given digger to do the task of re-arming trap.
@@ -566,7 +606,7 @@ TbBool check_out_crates_to_arm_trap_in_room(struct Thing *spdigtng)
                       cctrl = creature_control_get_from_thing(spdigtng);
                       spdigtng->continue_state = CrSt_CreaturePicksUpTrapObject;
                       cctrl->pickup_object_id = thing->index;
-                      cctrl->field_70 = traptng->index;
+                      cctrl->arming_thing_id = traptng->index;
                       return true;
                   }
               }
@@ -1329,7 +1369,7 @@ short creature_picks_up_spell_object(struct Thing *creatng)
     return 1;
 }
 
-short creature_picks_up_trap_for_workshop(struct Thing *thing)
+short creature_picks_up_crate_for_workshop(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     struct Thing *cratetng;
@@ -1384,12 +1424,12 @@ short creature_picks_up_trap_object(struct Thing *thing)
     cratetng = thing_get(cctrl->pickup_object_id);
     TRACE_THING(cratetng);
     room = get_room_thing_is_on(cratetng);
-    traptng = thing_get(cctrl->field_70);
+    traptng = thing_get(cctrl->arming_thing_id);
     TRACE_THING(traptng);
     if ( !thing_exists(cratetng) || !thing_exists(traptng) )
     {
         WARNLOG("The %s index %d or %s index %d no longer exists",thing_model_name(cratetng),(int)cratetng->index,thing_model_name(traptng),(int)traptng->index);
-        cctrl->field_70 = 0;
+        cctrl->arming_thing_id = 0;
         set_start_state(thing);
         return 0;
     }
@@ -1397,21 +1437,21 @@ short creature_picks_up_trap_object(struct Thing *thing)
       || (traptng->class_id != TCls_Trap) || (crate_thing_to_workshop_item_model(cratetng) != traptng->model))
     {
         WARNLOG("Cannot use %s index %d to refill %s index %d",thing_model_name(cratetng),(int)cratetng->index,thing_model_name(traptng),(int)traptng->index);
-        cctrl->field_70 = 0;
+        cctrl->arming_thing_id = 0;
         set_start_state(thing);
         return 0;
     }
     if (get_2d_box_distance(&thing->mappos, &cratetng->mappos) >= 512)
     {
         WARNLOG("The %s index %d was supposed to be near %s index %d for pickup, but it's too far",thing_model_name(cratetng),(int)cratetng->index,thing_model_name(thing),(int)thing->index);
-        cctrl->field_70 = 0;
+        cctrl->arming_thing_id = 0;
         set_start_state(thing);
         return 0;
     }
     if ( !setup_person_move_backwards_to_coord(thing, &traptng->mappos, NavRtF_Default) )
     {
         WARNLOG("Cannot deliver crate to position of %s index %d",thing_model_name(traptng),(int)traptng->index);
-        cctrl->field_70 = 0;
+        cctrl->arming_thing_id = 0;
         set_start_state(thing);
         return 0;
     }
@@ -1611,7 +1651,7 @@ short creature_arms_trap(struct Thing *thing)
     dungeon = get_dungeon(thing->owner);
     cratetng = thing_get(cctrl->dragtng_idx);
     TRACE_THING(cratetng);
-    traptng = thing_get(cctrl->field_70);
+    traptng = thing_get(cctrl->arming_thing_id);
     TRACE_THING(traptng);
     if ( !thing_exists(cratetng) || !thing_exists(traptng) )
     {
