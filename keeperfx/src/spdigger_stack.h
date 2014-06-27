@@ -92,8 +92,11 @@ long add_unclaimed_spells_to_imp_stack(struct Dungeon *dungeon, long a2);
 TbBool add_object_for_trap_to_imp_stack(struct Dungeon *dungeon, struct Thing *thing);
 TbBool add_empty_traps_to_imp_stack(struct Dungeon *dungeon, long num);
 TbBool add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon);
+
 TbBool imp_will_soon_be_arming_trap(struct Thing *traptng);
 long imp_will_soon_be_working_at_excluding(struct Thing *thing, long a2, long a3);
+TbBool imp_will_soon_be_getting_object(PlayerNumber plyr_idx, const struct Thing *objtng);
+
 void add_reinforce_to_imp_stack(struct Dungeon *dungeon);
 TbBool imp_stack_update(struct Thing *thing);
 long check_out_imp_stack(struct Thing *thing);

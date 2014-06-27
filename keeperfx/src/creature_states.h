@@ -50,7 +50,7 @@ enum CreatureStates {
     CrSt_ImpImprovesDungeon,//[10]
     CrSt_CreaturePicksUpTrapObject,
     CrSt_CreatureArmsTrap,
-    CrSt_CreaturePicksUpTrapForWorkshop,
+    CrSt_CreaturePicksUpCrateForWorkshop,
     CrSt_MoveToPosition,
     CrSt_Null15,
     CrSt_CreatureDropsCrateInWorkshop,

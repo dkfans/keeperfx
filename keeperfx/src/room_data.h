@@ -223,9 +223,11 @@ long calculate_room_efficiency(const struct Room *room);
 void kill_room_slab_and_contents(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 void free_room_structure(struct Room *room);
 void reset_creatures_rooms(struct Room *room);
+
 TbBool remove_item_from_room_capacity(struct Room *room);
 TbBool add_item_to_room_capacity(struct Room *room, TbBool force);
 TbBool room_has_enough_free_capacity_for_creature(const struct Room *room, const struct Thing *creatng);
+
 long count_slabs_of_room_type(PlayerNumber plyr_idx, RoomKind rkind);
 long claim_enemy_room(struct Room *room,struct Thing *claimtng);
 long claim_room(struct Room *room,struct Thing *claimtng);
