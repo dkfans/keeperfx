@@ -34,8 +34,8 @@ enum SpecialDiggerTask {
     DigTsk_PickUpUnconscious,
     DigTsk_PickUpCorpse,
     DigTsk_PicksUpSpellBook,
-    DigTsk_PicksUpTrapBox,
-    DigTsk_PicksUpTrapForWorkshop,
+    DigTsk_PicksUpCrateToArm,
+    DigTsk_PicksUpCrateForWorkshop,
     DigTsk_DigOrMine,
     DigTsk_PicksUpGoldPile, // 10
 };

@@ -713,7 +713,7 @@ short process_player_manufacturing(PlayerNumber plyr_idx)
     struct Dungeon *dungeon;
     struct Room *room;
     int k;
-    SYNCDBG(17,"Starting for player %d",(int)plyr_idx);
+    SYNCDBG(7,"Starting for player %d",(int)plyr_idx);
     //return _DK_process_player_manufacturing(plr_idx);
 
     dungeon = get_players_num_dungeon(plyr_idx);

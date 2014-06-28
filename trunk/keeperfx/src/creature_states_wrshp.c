@@ -430,10 +430,10 @@ short manufacturing(struct Thing *creatng)
         set_start_state(creatng);
         return CrStRet_ResetFail;
     }
-    if (room->total_capacity < room->used_capacity)
+    if (room->used_capacity > room->total_capacity)
     {
         if (is_my_player_number(creatng->owner))
-            output_message(SMsg_WorkshopTooSmall, 0, true);
+            output_message(SMsg_WorkshopTooSmall, 500, true);
         remove_creature_from_work_room(creatng);
         set_start_state(creatng);
         return CrStRet_ResetOk;
@@ -454,7 +454,12 @@ short manufacturing(struct Thing *creatng)
         dungeon->field_1181 += work_value;
     } else
     {
-        WARNDBG(9,"The %s index %d is manufacturing nothing",thing_model_name(creatng),(int)creatng->index);
+        WARNDBG(9,"The %s index %d owner %d is manufacturing nothing",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        // This may be cause by a creature taking up place in workshop where crate should be created; the creature should take a break
+        if (room->used_capacity >= room->total_capacity) {
+            external_set_thing_state(creatng, CrSt_CreatureGoingHomeToSleep);
+            return CrStRet_Modified;
+        }
     }
     process_creature_in_workshop(creatng, room);
     return CrStRet_Modified;
