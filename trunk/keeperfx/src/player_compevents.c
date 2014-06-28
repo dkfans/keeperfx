@@ -209,13 +209,13 @@ long computer_event_find_link(struct Computer2 *comp, struct ComputerEvent *ceve
     {
         struct ComputerProcess *cproc;
         cproc = &comp->processes[i];
-        if ((cproc->flags & 0x02) != 0)
+        if ((cproc->flags & ComProc_Unkn0002) != 0)
             break;
         if (cproc->parent == cevent->process)
         {
-            cproc->flags &= ~0x0008;
-            cproc->flags &= ~0x0001;
-            cproc->field_3C = 0;
+            cproc->flags &= ~ComProc_Unkn0008;
+            cproc->flags &= ~ComProc_Unkn0001;
+            cproc->param_4 = 0;
             cproc_idx = 1;
         }
     }
@@ -477,8 +477,8 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
                 ret = 1;
                 cproc->flags &= ~ComProc_Unkn0008;
                 cproc->flags &= ~ComProc_Unkn0001;
-                cproc->field_3C = 0;
-                cproc->field_38 = 0;
+                cproc->param_4 = 0;
+                cproc->param_3 = 0;
             }
         }
     }

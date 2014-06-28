@@ -207,11 +207,11 @@ typedef unsigned char ComputerType;
 typedef unsigned short ComputerTaskType;
 typedef char ComputerName[LINEMSG_SIZE];
 
-typedef long (*Comp_Process_Func)(struct Computer2 *comp, struct ComputerProcess *process);
-typedef long (*Comp_Check_Func)(struct Computer2 *comp, struct ComputerCheck * check);
-typedef long (*Comp_Event_Func)(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event);
-typedef long (*Comp_EvntTest_Func)(struct Computer2 *comp, struct ComputerEvent *cevent);
-typedef long (*Comp_Task_Func)(struct Computer2 *comp, struct ComputerTask *ctask);
+typedef long (*Comp_Process_Func)(struct Computer2 *, struct ComputerProcess *);
+typedef long (*Comp_Check_Func)(struct Computer2 *, struct ComputerCheck *);
+typedef long (*Comp_Event_Func)(struct Computer2 *, struct ComputerEvent *,struct Event *);
+typedef long (*Comp_EvntTest_Func)(struct Computer2 *, struct ComputerEvent *);
+typedef long (*Comp_Task_Func)(struct Computer2 *, struct ComputerTask *);
 
 struct Comp_Check_Func_ListItem {
   const char *name;
@@ -225,22 +225,22 @@ struct TaskFunctions {
 
 struct ComputerProcess { // sizeof = 72
   char *name;
-  long field_4;
-  unsigned long field_8;
-  unsigned long field_C;
-  unsigned long field_10;
-  unsigned long field_14;
+  long priority;
+  unsigned long confval_2;
+  unsigned long confval_3;
+  unsigned long confval_4;
+  unsigned long confval_5;
   Comp_Process_Func func_check;
   Comp_Process_Func func_setup;
   Comp_Process_Func func_task;
   Comp_Process_Func func_complete;
   Comp_Process_Func func_pause;
   struct ComputerProcess *parent;
-  unsigned long field_30;
-  unsigned long field_34;
-  unsigned long field_38;
-  unsigned long field_3C;
-  unsigned long field_40;
+  unsigned long param_1;
+  unsigned long param_2;
+  unsigned long param_3;
+  unsigned long param_4;
+  unsigned long param_5;
   unsigned long flags; /**< Values from ComProc_* enumeration. */
 };
 
@@ -555,10 +555,10 @@ struct Computer2 *get_computer_player_f(long plyr_idx,const char *func_name);
 #define get_computer_player(plyr_idx) get_computer_player_f(plyr_idx,__func__)
 TbBool computer_player_invalid(const struct Computer2 *comp);
 /******************************************************************************/
-void shut_down_process(struct Computer2 *comp, struct ComputerProcess *process);
-void reset_process(struct Computer2 *comp, struct ComputerProcess *process);
-void suspend_process(struct Computer2 *comp, struct ComputerProcess *process);
-long computer_process_index(const struct Computer2 *comp, const struct ComputerProcess *process);
+void shut_down_process(struct Computer2 *comp, struct ComputerProcess *cproc);
+void reset_process(struct Computer2 *comp, struct ComputerProcess *cproc);
+void suspend_process(struct Computer2 *comp, struct ComputerProcess *cproc);
+long computer_process_index(const struct Computer2 *comp, const struct ComputerProcess *cproc);
 struct ComputerProcess *get_computer_process(struct Computer2 *comp, int cproc_idx);
 /******************************************************************************/
 struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind rkind, long width_slabs, long height_slabs, long a5);
@@ -630,7 +630,7 @@ long count_creatures_for_defend_pickup(struct Computer2 *comp);
 long count_creatures_for_pickup(struct Computer2 *comp, struct Coord3d *pos, struct Room *room, long a4);
 long count_creatures_availiable_for_fight(struct Computer2 *comp, struct Coord3d *pos);
 /******************************************************************************/
-long setup_computer_attack(struct Computer2 *comp, struct ComputerProcess *process, struct Coord3d *pos, long victim_plyr_idx);
+long setup_computer_attack(struct Computer2 *comp, struct ComputerProcess *cproc, struct Coord3d *pos, long victim_plyr_idx);
 /******************************************************************************/
 TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model);
 void process_computer_players2(void);

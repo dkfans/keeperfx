@@ -293,8 +293,8 @@ void restart_task_process(struct Computer2 *comp, struct ComputerTask *ctask)
         onproc = get_computer_process(comp, comp->ongoing_process);
         if (onproc != cproc)
         {
-            cproc->flags &= ~0x0020;
-            cproc->flags &= ~0x0008;
+            cproc->flags &= ~ComProc_Unkn0020;
+            cproc->flags &= ~ComProc_Unkn0008;
         }
     } else {
         ERRORLOG("Invalid computer process %d referenced",(int)ctask->field_8C);
@@ -879,7 +879,7 @@ long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
     case -3:
     case -2:
         cproc =  get_computer_process(comp, ctask->field_8C);
-        if ((cproc->flags & 0x20) != 0) {
+        if ((cproc->flags & ComProc_Unkn0020) != 0) {
             shut_down_process(comp, cproc);
         }
         if (!computer_task_invalid(ctask)) {
@@ -943,7 +943,7 @@ long task_dig_room(struct Computer2 *comp, struct ComputerTask *ctask)
                             {
                                 struct ComputerProcess *cproc;
                                 cproc =  get_computer_process(comp, ctask->field_8C);
-                                if ((cproc->flags & 0x20) != 0) {
+                                if ((cproc->flags & ComProc_Unkn0020) != 0) {
                                     shut_down_process(comp, cproc);
                                 }
                                 if (!computer_task_invalid(ctask)) {
@@ -1942,7 +1942,7 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
     if ((retval == -3) || (retval == -2))
     {
         gold_lookup = get_gold_lookup(ctask->dig_to_gold.target_lookup_idx);
-        set_flag_byte(&gold_lookup->player_interested[dungeon->owner], 0x02, true);
+        gold_lookup->player_interested[dungeon->owner] |= 0x02;
         remove_task(comp, ctask);
     } else
     if (retval == -1) // unnecessary check as retval < -3 and retval > -1 did return before

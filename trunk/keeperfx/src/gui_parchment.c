@@ -417,7 +417,7 @@ int draw_overhead_creatures(const struct TbRect *map_area, long block_size, Play
             TbPixel col1,col2;
             col1 = player_highlight_colours[thing->owner];
             col2 = 1;
-            if (subtile_revealed(thing->mappos.x.stl.num, thing->mappos.y.stl.num, plyr_idx))
+            if (thing_revealed(thing, plyr_idx))
             {
                 if ((game.play_gameturn & 4) == 0)
                 {
@@ -538,7 +538,7 @@ int draw_overhead_spells(const struct TbRect *map_area, long block_size, PlayerN
         // Per-thing code
         if (!thing_is_picked_up(thing))
         {
-            if (subtile_revealed(thing->mappos.x.stl.num, thing->mappos.y.stl.num, plyr_idx))
+            if (thing_revealed(thing, plyr_idx))
             {
               if ( thing_is_special_box(thing) || thing_is_spellbook(thing) )
               {

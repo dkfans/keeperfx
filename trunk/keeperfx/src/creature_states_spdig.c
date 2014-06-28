@@ -42,6 +42,7 @@
 #include "room_util.h"
 #include "ariadne_wallhug.h"
 #include "spdigger_stack.h"
+#include "power_hand.h"
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
@@ -153,7 +154,7 @@ long check_out_unclaimed_unconscious_bodies(struct Thing *spdigtng, long range)
         i = thing->next_of_class;
         // Per-thing code
         if (((thing->field_1 & TF1_IsDragged1) == 0) && (thing->owner != spdigtng->owner)
-          && creature_is_being_unconscious(thing))
+          && thing_revealed(thing, spdigtng->owner) && creature_is_being_unconscious(thing))
         {
             if ((range < 0) || get_2d_box_distance(&thing->mappos, &spdigtng->mappos) < range)
             {
@@ -209,7 +210,7 @@ long check_out_unclaimed_dead_bodies(struct Thing *spdigtng, long range)
         i = thing->next_of_class;
         // Per-thing code
         if (((thing->field_1 & TF1_IsDragged1) == 0) && (thing->active_state == DCrSt_Unknown02)
-         && (thing->byte_14 == 0) && corpse_is_rottable(thing))
+         && (thing->byte_14 == 0) && thing_revealed(thing, spdigtng->owner) && corpse_is_rottable(thing))
         {
             if ((range < 0) || get_2d_box_distance(&thing->mappos, &spdigtng->mappos) < range)
             {
@@ -270,7 +271,8 @@ long check_out_unclaimed_spells(struct Thing *spdigtng, long range)
         {
             struct SlabMap *slb;
             slb = get_slabmap_thing_is_on(thing);
-            if ((thing->owner != spdigtng->owner) && ((thing->alloc_flags & TAlF_IsDragged) == 0) && (slabmap_owner(slb) == spdigtng->owner))
+            if ((thing->owner != spdigtng->owner) && ((thing->alloc_flags & TAlF_IsDragged) == 0)
+              && (slabmap_owner(slb) == spdigtng->owner) && thing_revealed(thing, spdigtng->owner))
             {
                 if ((range < 0) || get_2d_box_distance(&thing->mappos, &spdigtng->mappos) < range)
                 {
@@ -342,7 +344,7 @@ long check_out_unclaimed_traps(struct Thing *spdigtng, long range)
         {
             struct SlabMap *slb;
             slb = get_slabmap_thing_is_on(thing);
-            if (slabmap_owner(slb) == spdigtng->owner)
+            if ((slabmap_owner(slb) == spdigtng->owner) && thing_revealed(thing, spdigtng->owner))
             {
                 if ((range < 0) || get_2d_box_distance(&thing->mappos, &spdigtng->mappos) < range)
                 {
@@ -419,9 +421,65 @@ long check_out_undug_drop_place(struct Thing *thing)
     return _DK_check_out_undug_drop_place(thing);
 }
 
-long check_out_unclaimed_gold(struct Thing *thing, long a1)
+long check_out_unclaimed_gold(struct Thing *spdigtng, long range)
 {
-    return _DK_check_out_unclaimed_gold(thing, a1);
+    //return _DK_check_out_unclaimed_gold(thing, a1);
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(spdigtng);
+    // If the creature holds more gold than its able
+    if (spdigtng->creature.gold_carried >= crstat->gold_hold) {
+        return 0;
+    }
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_Object);
+    long i;
+    unsigned long k;
+    k = 0;
+    i = slist->index;
+    while (i > 0)
+    {
+        struct Thing *thing;
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+          break;
+        i = thing->next_of_class;
+        // Per-thing code
+        if (thing_is_object(thing) && !thing_is_picked_up(thing) && thing_revealed(thing, spdigtng->owner))
+        {
+            if (object_is_gold_pile(thing))
+            {
+                struct SlabMap *slb;
+                slb = get_slabmap_thing_is_on(thing);
+                if ((slabmap_owner(slb) == spdigtng->owner) || (slabmap_owner(slb) == game.neutral_player_num))
+                {
+                    if ((range < 0) || get_2d_box_distance(&thing->mappos, &spdigtng->mappos) < range)
+                    {
+                        if (!imp_will_soon_be_working_at_excluding(spdigtng, thing->mappos.x.stl.num, thing->mappos.y.stl.num))
+                        {
+                            if (setup_person_move_to_coord(spdigtng, &thing->mappos, NavRtF_Default)) {
+                                spdigtng->continue_state = CrSt_ImpPicksUpGoldPile;
+                                //cctrl->pickup_object_id = thing->index; -- don't do that; picking up gold destroys the object
+                                return 1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        // Per-thing code ends
+        k++;
+        if (k > slist->count)
+        {
+          ERRORLOG("Infinite loop detected when sweeping things list");
+          break;
+        }
+    }
+    return 0;
+
+
+
+
+
 }
 
 long check_out_unprettied_drop_place(struct Thing *thing)
