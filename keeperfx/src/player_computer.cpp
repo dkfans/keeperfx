@@ -62,7 +62,7 @@ DLLIMPORT long _DK_get_computer_money_less_cost(struct Computer2 *comp);
 DLLIMPORT long _DK_count_creatures_availiable_for_fight(struct Computer2 *comp, struct Coord3d *pos);
 DLLIMPORT struct ComputerTask *_DK_is_there_an_attack_task(struct Computer2 *comp);
 DLLIMPORT void _DK_get_opponent(struct Computer2 *comp, struct THate *hate);
-DLLIMPORT long _DK_setup_computer_attack(struct Computer2 *comp, struct ComputerProcess *process, struct Coord3d *pos, long a4);
+DLLIMPORT long _DK_setup_computer_attack(struct Computer2 *comp, struct ComputerProcess *cproc, struct Coord3d *pos, long a4);
 DLLIMPORT long _DK_count_creatures_for_defend_pickup(struct Computer2 *comp);
 DLLIMPORT long _DK_computer_find_non_solid_block(struct Computer2 *comp, struct Coord3d *pos);
 DLLIMPORT long _DK_computer_able_to_use_magic(struct Computer2 *comp, long a2, long a3, long a4);
@@ -72,9 +72,9 @@ DLLIMPORT long _DK_computer_finds_nearest_room_to_pos(struct Computer2 *comp, st
 
 /******************************************************************************/
 // Function definition needed to compare pointers - remove pending
-long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *process);
-long computer_check_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *process);
-long computer_setup_any_room(struct Computer2 *comp, struct ComputerProcess *process);
+long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *cproc);
+long computer_check_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *cproc);
+long computer_setup_any_room(struct Computer2 *comp, struct ComputerProcess *cproc);
 
 /******************************************************************************/
 DLLIMPORT extern struct ComputerProcess _DK_BuildAllRooms3x3;
@@ -702,11 +702,11 @@ long computer_finds_nearest_room_to_pos(struct Computer2 *comp, struct Room **re
     return _DK_computer_finds_nearest_room_to_pos(comp, retroom, nearpos);
 }
 
-long setup_computer_attack(struct Computer2 *comp, struct ComputerProcess *process, struct Coord3d *pos, long victim_plyr_idx)
+long setup_computer_attack(struct Computer2 *comp, struct ComputerProcess *cproc, struct Coord3d *pos, long victim_plyr_idx)
 {
     struct Room *room;
     SYNCDBG(8,"Starting player %d attack on %d",(int)comp->dungeon->owner,(int)victim_plyr_idx);
-    //return _DK_setup_computer_attack(comp, process, pos, a4);
+    //return _DK_setup_computer_attack(comp, cproc, pos, a4);
     if (!computer_finds_nearest_room_to_pos(comp, &room, pos)) {
         SYNCDBG(7,"Cannot find owned room near (%d,%d), giving up",(int)pos->x.stl.num,(int)pos->y.stl.num);
         return 0;
@@ -719,7 +719,7 @@ long setup_computer_attack(struct Computer2 *comp, struct ComputerProcess *proce
     endpos.y.val = pos->y.val;
     endpos.z.val = pos->z.val;
     long parent_cproc_idx;
-    parent_cproc_idx = computer_process_index(comp, process);
+    parent_cproc_idx = computer_process_index(comp, cproc);
     if (!create_task_dig_to_attack(comp, startpos, endpos, victim_plyr_idx, parent_cproc_idx)) {
         SYNCDBG(7,"Cannot create task to dig to (%d,%d), giving up",(int)pos->x.stl.num,(int)pos->y.stl.num);
         return 0;
@@ -1023,9 +1023,10 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
           //TODO COMPUTER_PLAYER comparing function pointers is a bad practice
           if (cproc->func_check == computer_check_dig_to_gold)
           {
-            cproc->field_4++;
-            if (game.play_gameturn - cproc->field_3C > 20)
-              cproc->field_3C = 0;
+              cproc->priority++;
+              if (game.play_gameturn - cproc->param_4 > 20) {
+                  cproc->param_4 = 0;
+              }
           }
       }
     }
@@ -1134,7 +1135,7 @@ long check_call_to_arms(struct Computer2 *comp)
 TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
 {
     struct ComputerProcessTypes *cpt;
-    struct ComputerProcess *process;
+    struct ComputerProcess *cproc;
     struct ComputerProcess *newproc;
     struct ComputerCheck *check;
     struct ComputerCheck *newchk;
@@ -1187,22 +1188,22 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
 
     for (i=0; i < COMPUTER_PROCESSES_COUNT; i++)
     {
-        process = cpt->processes[i];
+        cproc = cpt->processes[i];
         newproc = &comp->processes[i];
-        if ((process == NULL) || (process->name == NULL))
+        if ((cproc == NULL) || (cproc->name == NULL))
         {
           newproc->name = NULL;
           break;
         }
         // Modifying original ComputerProcessTypes structure - I don't like it!
         //TODO COMPUTER_PLAYER comparing function pointers is a bad practice
-        if (process->func_setup == computer_setup_any_room)
+        if (cproc->func_setup == computer_setup_any_room)
         {
-          if (process->field_14 >= 0)
-            process->field_14 = get_room_look_through(process->field_14);
+          if (cproc->confval_5 >= 0)
+            cproc->confval_5 = get_room_look_through(cproc->confval_5);
         }
-        LbMemoryCopy(newproc, process, sizeof(struct ComputerProcess));
-        newproc->parent = process;
+        LbMemoryCopy(newproc, cproc, sizeof(struct ComputerProcess));
+        newproc->parent = cproc;
     }
     newproc = &comp->processes[i];
     newproc->flags |= ComProc_Unkn0002;
@@ -1404,21 +1405,21 @@ void process_computer_player2(PlayerNumber plyr_idx)
 
 struct ComputerProcess *computer_player_find_process_by_func_setup(PlayerNumber plyr_idx,Comp_Process_Func func_setup)
 {
-  struct ComputerProcess *process;
+  struct ComputerProcess *cproc;
   struct Computer2 *comp;
   comp = get_computer_player(plyr_idx);
   if (computer_player_invalid(comp)) {
       ERRORLOG("Player %d has no computer capability",(int)plyr_idx);
       return NULL;
   }
-  process = &comp->processes[0];
-  while ((process->flags & ComProc_Unkn0002) == 0)
+  cproc = &comp->processes[0];
+  while ((cproc->flags & ComProc_Unkn0002) == 0)
   {
-    if (process->func_setup == func_setup)
-    {
-        return process;
-    }
-    process++;
+      if (cproc->func_setup == func_setup)
+      {
+          return cproc;
+      }
+      cproc++;
   }
   return NULL;
 }

@@ -89,11 +89,14 @@ extern long nav_map_initialised;
 struct Map *get_map_block_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Map *get_map_block_at_pos(long stl_num);
 TbBool map_block_invalid(const struct Map *map);
+
 void reveal_map_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
 TbBool subtile_revealed(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
+#define thing_revealed(thing, plyr_idx) subtile_revealed(thing->mappos.x.stl.num, thing->mappos.y.stl.num, plyr_idx)
 void reveal_map_block(struct Map *map, PlayerNumber plyr_idx);
 TbBool map_block_revealed(const struct Map *map, PlayerNumber plyr_idx);
 TbBool map_block_revealed_bit(const struct Map *map, long plyr_bit);
+
 TbBool valid_dig_position(PlayerNumber plyr_idx, long stl_x, long stl_y);
 long get_ceiling_height(const struct Coord3d *pos);
 long get_mapwho_thing_index(const struct Map *map);
