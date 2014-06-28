@@ -2467,7 +2467,7 @@ void update_manufacturing(void)
 {
   int i;
   struct PlayerInfo *player;
-  SYNCDBG(6,"Starting");
+  SYNCDBG(16,"Starting");
   for (i=0; i<PLAYERS_COUNT; i++)
   {
       player = get_player(i);

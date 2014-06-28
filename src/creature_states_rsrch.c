@@ -547,7 +547,7 @@ short researching(struct Thing *thing)
             output_message(SMsg_LibraryTooSmall, 0, true);
         remove_creature_from_work_room(thing);
         set_start_state(thing);
-        return CrStRet_Unchanged;
+        return CrStRet_ResetOk;
     }
     process_research_function(thing);
     struct CreatureControl *cctrl;
