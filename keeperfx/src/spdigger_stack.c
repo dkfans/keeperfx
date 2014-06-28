@@ -1336,9 +1336,8 @@ long add_unclaimed_spells_to_imp_stack(struct Dungeon *dungeon, long max_tasks)
     return (max_tasks-remain_num);
 }
 
-TbBool add_object_for_trap_to_imp_stack(struct Dungeon *dungeon, struct Thing *boxtng)
+TbBool add_object_for_trap_to_imp_stack(struct Dungeon *dungeon, struct Thing *armtng)
 {
-    struct Thing *thing;
     unsigned long k;
     int i;
     //return _DK_add_object_for_trap_to_imp_stack(dungeon, thing);
@@ -1346,13 +1345,14 @@ TbBool add_object_for_trap_to_imp_stack(struct Dungeon *dungeon, struct Thing *b
     i = game.thing_lists[TngList_Objects].index;
     while (i > 0)
     {
+        struct Thing *thing;
         thing = thing_get(i);
         TRACE_THING(thing);
         if (thing_is_invalid(thing))
             break;
         i = thing->next_of_class;
         // Per-thing code
-        if (thing->model == trap_crate_object_model(boxtng->model))
+        if (thing->model == trap_crate_object_model(armtng->model))
         {
             struct SlabMap *slb;
             slb = get_slabmap_thing_is_on(thing);
@@ -1360,9 +1360,9 @@ TbBool add_object_for_trap_to_imp_stack(struct Dungeon *dungeon, struct Thing *b
             {
                 SubtlCodedCoords stl_num;
                 stl_num = get_subtile_number(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-                if (find_in_imp_stack_using_pos(stl_num, DigTsk_PicksUpTrapBox, dungeon) == -1)
+                if (find_in_imp_stack_using_pos(stl_num, DigTsk_PicksUpCrateToArm, dungeon) == -1)
                 {
-                    add_to_imp_stack_using_pos(stl_num, DigTsk_PicksUpTrapBox, dungeon);
+                    add_to_imp_stack_using_pos(stl_num, DigTsk_PicksUpCrateToArm, dungeon);
                     return true;
                 }
             }
@@ -1378,16 +1378,20 @@ TbBool add_object_for_trap_to_imp_stack(struct Dungeon *dungeon, struct Thing *b
     return false;
 }
 
-TbBool add_empty_traps_to_imp_stack(struct Dungeon *dungeon, long num)
+TbBool add_empty_traps_to_imp_stack(struct Dungeon *dungeon, long max_tasks)
 {
-    struct Thing *thing;
-    unsigned long k;
-    int i;
     SYNCDBG(18,"Starting");
+    int remain_num;
+    remain_num = max_tasks;
+    long i;
+    unsigned long k;
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_Trap);
     k = 0;
-    i = game.thing_lists[TngList_Traps].index;
+    i = slist->index;
     while (i != 0)
     {
+        struct Thing *thing;
         thing = thing_get(i);
         if (thing_is_invalid(thing))
         {
@@ -1396,12 +1400,12 @@ TbBool add_empty_traps_to_imp_stack(struct Dungeon *dungeon, long num)
         }
         i = thing->next_of_class;
         // Thing list loop body
-        if ((num <= 0) || (dungeon->digger_stack_length >= IMP_TASK_MAX_COUNT))
+        if ((remain_num <= 0) || (dungeon->digger_stack_length >= IMP_TASK_MAX_COUNT))
           break;
         if ((thing->trap.num_shots == 0) && (thing->owner == dungeon->owner))
         {
             if ( add_object_for_trap_to_imp_stack(dungeon, thing) ) {
-                num--;
+                remain_num--;
             }
         }
         // Thing list loop body ends
@@ -1412,8 +1416,8 @@ TbBool add_empty_traps_to_imp_stack(struct Dungeon *dungeon, long num)
             break;
         }
     }
-    SYNCDBG(19,"Finished");
-    return true;
+    SYNCDBG(8,"Done, added %d tasks",(int)(max_tasks-remain_num));
+    return (max_tasks-remain_num);
 }
 
 TbBool add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon)
@@ -1456,7 +1460,7 @@ TbBool add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon)
                     if (room_is_invalid(room) || (room->kind != RoK_WORKSHOP))
                     {
                       stl_num = get_subtile_number(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
-                      add_to_imp_stack_using_pos(stl_num, DigTsk_PicksUpTrapForWorkshop, dungeon);
+                      add_to_imp_stack_using_pos(stl_num, DigTsk_PicksUpCrateForWorkshop, dungeon);
                     }
                 }
             }
@@ -2414,10 +2418,10 @@ long check_out_imp_stack(struct Thing *thing)
         case DigTsk_PicksUpSpellBook:
             ret = check_out_worker_pickup_spellbook(thing, istack);
             break;
-        case DigTsk_PicksUpTrapBox:
+        case DigTsk_PicksUpCrateToArm:
             ret = check_out_worker_pickup_trapbox(thing, istack);
             break;
-        case DigTsk_PicksUpTrapForWorkshop:
+        case DigTsk_PicksUpCrateForWorkshop:
             ret = check_out_worker_pickup_trap_for_workshop(thing, istack);
             break;
         case DigTsk_DigOrMine:
