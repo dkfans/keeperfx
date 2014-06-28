@@ -1763,7 +1763,7 @@ void command_set_computer_events(char *plrname, char *evntname, long val1, long 
 
 void command_set_computer_process(char *plrname, char *procname, long val1, long val2, long val3, long val4, long val5)
 {
-  struct ComputerProcess *process;
+  struct ComputerProcess *cproc;
   int plr_start, plr_end;
   long i,k,n;
   if (get_players_range(plrname, &plr_start, &plr_end) < 0)
@@ -1782,19 +1782,19 @@ void command_set_computer_process(char *plrname, char *procname, long val1, long
       }
       for (k=0; k < COMPUTER_PROCESSES_COUNT; k++)
       {
-          process = &comp->processes[k];
-          if ((process->flags & 0x02) != 0)
-            break;
-          if (process->name == NULL)
-            break;
-          if (strcasecmp(procname, process->name) == 0)
+          cproc = &comp->processes[k];
+          if ((cproc->flags & ComProc_Unkn0002) != 0)
+              break;
+          if (cproc->name == NULL)
+              break;
+          if (strcasecmp(procname, cproc->name) == 0)
           {
-            process->field_4 = val1;
-            process->field_8 = val2;
-            process->field_C = val3;
-            process->field_10 = val4;
-            process->field_14 = val5;
-            n++;
+              cproc->priority = val1;
+              cproc->confval_2 = val2;
+              cproc->confval_3 = val3;
+              cproc->confval_4 = val4;
+              cproc->confval_5 = val5;
+              n++;
           }
       }
   }

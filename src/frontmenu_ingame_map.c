@@ -253,7 +253,7 @@ int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, 
         // Per-thing code
         if (((thing->alloc_flags & 0x10) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0))
         {
-            if (subtile_revealed(thing->mappos.x.stl.num, thing->mappos.y.stl.num, player->id_number))
+            if (thing_revealed(thing, player->id_number))
             {
                 // Position of the thing on unrotated map
                 // for camera, coordinates within subtile are skipped; the thing uses full resolution coordinates
@@ -315,7 +315,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
         col2 = 1;
         if (((thing->alloc_flags & 0x10) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0))
         {
-            if (subtile_revealed(thing->mappos.x.stl.num, thing->mappos.y.stl.num, player->id_number))
+            if (thing_revealed(thing, player->id_number))
             {
                 if ((game.play_gameturn & 4) == 0)
                 {

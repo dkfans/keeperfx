@@ -99,12 +99,12 @@ struct ComputerPlayerConfig comp_player_conf;
 
 /******************************************************************************/
 
-int get_computer_process_config_list_index_prc(struct ComputerProcess *process)
+int get_computer_process_config_list_index_prc(struct ComputerProcess *cproc)
 {
   int i;
   for (i=1; i <= comp_player_conf.processes_count; i++)
   {
-    if (computer_process_config_list[i].process == process)
+    if (computer_process_config_list[i].process == cproc)
       return i;
   }
   return 0;
@@ -162,14 +162,14 @@ TbBool computer_type_clear_processes(struct ComputerProcessTypes *cpt)
   return true;
 }
 
-int computer_type_add_process(struct ComputerProcessTypes *cpt, struct ComputerProcess *process)
+int computer_type_add_process(struct ComputerProcessTypes *cpt, struct ComputerProcess *cproc)
 {
   int i;
   for (i=0; i<COMPUTER_PROCESSES_COUNT; i++)
   {
       if (cpt->processes[i] == NULL)
       {
-        cpt->processes[i] = process;
+        cpt->processes[i] = cproc;
         return i;
       }
   }
@@ -364,7 +364,7 @@ TbBool parse_computer_player_common_blocks(char *buf, long len, const char *conf
 
 short parse_computer_player_process_blocks(char *buf,long len)
 {
-  struct ComputerProcess *process;
+  struct ComputerProcess *cproc;
   long pos;
   int i,k,n;
   int cmd_num;
@@ -381,8 +381,8 @@ short parse_computer_player_process_blocks(char *buf,long len)
       WARNMSG("Block [%s] not found in Computer Player file.",block_buf);
       continue;
     }
-    process = computer_process_config_list[i].process;
-    process->parent = NULL;
+    cproc = computer_process_config_list[i].process;
+    cproc->parent = NULL;
     while (pos<len)
     {
       // Finding command number in this line
@@ -399,31 +399,31 @@ short parse_computer_player_process_blocks(char *buf,long len)
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            process->field_4 = k;
+            cproc->priority = k;
             n++;
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            process->field_8 = k;
+            cproc->confval_2 = k;
             n++;
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            process->field_C = k;
+            cproc->confval_3 = k;
             n++;
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            process->field_10 = k;
+            cproc->confval_4 = k;
             n++;
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            process->field_14 = k;
+            cproc->confval_5 = k;
             n++;
           }
           if (n < 5)
@@ -435,31 +435,31 @@ short parse_computer_player_process_blocks(char *buf,long len)
           k = recognize_conf_parameter(buf,&pos,len,computer_process_func_type);
           if (k > 0)
           {
-              process->func_check = computer_process_func_list[k];
+              cproc->func_check = computer_process_func_list[k];
               n++;
           }
           k = recognize_conf_parameter(buf,&pos,len,computer_process_func_type);
           if (k > 0)
           {
-              process->func_setup = computer_process_func_list[k];
+              cproc->func_setup = computer_process_func_list[k];
               n++;
           }
           k = recognize_conf_parameter(buf,&pos,len,computer_process_func_type);
           if (k > 0)
           {
-              process->func_task = computer_process_func_list[k];
+              cproc->func_task = computer_process_func_list[k];
               n++;
           }
           k = recognize_conf_parameter(buf,&pos,len,computer_process_func_type);
           if (k > 0)
           {
-              process->func_complete = computer_process_func_list[k];
+              cproc->func_complete = computer_process_func_list[k];
               n++;
           }
           k = recognize_conf_parameter(buf,&pos,len,computer_process_func_type);
           if (k > 0)
           {
-              process->func_pause = computer_process_func_list[k];
+              cproc->func_pause = computer_process_func_list[k];
               n++;
           }
           if (n < 5)
@@ -471,37 +471,37 @@ short parse_computer_player_process_blocks(char *buf,long len)
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            process->field_30 = k;
+            cproc->param_1 = k;
             n++;
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            process->field_34 = k;
+            cproc->param_2 = k;
             n++;
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            process->field_38 = k;
+            cproc->param_3 = k;
             n++;
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            process->field_3C = k;
+            cproc->param_4 = k;
             n++;
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            process->field_40 = k;
+            cproc->param_5 = k;
             n++;
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            process->flags = k;
+            cproc->flags = k;
             n++;
           }
           if (n < 6)

@@ -1179,7 +1179,7 @@ long add_unclaimed_unconscious_bodies_to_imp_stack(struct Dungeon *dungeon, long
         }
         if (players_are_enemies(dungeon->owner,thing->owner) && creature_is_being_unconscious(thing) && !thing_is_dragged_or_pulled(thing))
         {
-            if (subtile_revealed(thing->mappos.x.stl.num, thing->mappos.y.stl.num, dungeon->owner))
+            if (thing_revealed(thing, dungeon->owner))
             {
                 if (room_is_invalid(room))
                 {
@@ -1242,7 +1242,7 @@ TbBool add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, long max_
         if ( ((thing->field_1 & TF1_IsDragged1) == 0) && (thing->active_state == DCrSt_Unknown02)
            && (thing->byte_14 == 0) && corpse_is_rottable(thing) )
         {
-            if (subtile_revealed(thing->mappos.x.stl.num, thing->mappos.y.stl.num, dungeon->owner))
+            if (thing_revealed(thing, dungeon->owner))
             {
                 if (room_is_invalid(room))
                 {
