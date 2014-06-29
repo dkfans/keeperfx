@@ -276,6 +276,8 @@ DLLIMPORT long _DK_r_stackpos;
 #define r_stackpos _DK_r_stackpos
 DLLIMPORT struct DiggerStack _DK_reinforce_stack[];
 #define reinforce_stack _DK_reinforce_stack
+
+extern long const state_type_to_gui_state[];
 /******************************************************************************/
 CrtrStateId get_creature_state_besides_move(const struct Thing *thing);
 CrtrStateId get_creature_state_besides_drag(const struct Thing *thing);
