@@ -278,6 +278,9 @@ DLLIMPORT struct DiggerStack _DK_reinforce_stack[];
 
 #pragma pack()
 /******************************************************************************/
+
+extern long const state_type_to_gui_state[];
+/******************************************************************************/
 CrtrStateId get_creature_state_besides_move(const struct Thing *thing);
 CrtrStateId get_creature_state_besides_drag(const struct Thing *thing);
 CrtrStateId get_creature_state_besides_interruptions(const struct Thing *thing);

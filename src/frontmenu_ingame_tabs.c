@@ -33,6 +33,7 @@
 #include "thing_doors.h"
 #include "creature_control.h"
 #include "creature_graphics.h"
+#include "creature_states.h"
 #include "creature_states_rsrch.h"
 #include "config_creature.h"
 #include "config_magic.h"
@@ -998,21 +999,21 @@ void gui_go_to_next_creature(struct GuiButton *gbtn)
 
 void gui_area_anger_button(struct GuiButton *gbtn)
 {
-    long i,job_idx,kind;
+    long i,job_idx,crmodel;
     SYNCDBG(10,"Starting");
     i = gbtn->field_1B;
     // Get index from pointer
     job_idx = ((long *)gbtn->content - &activity_list[0]);
     if ( (i > 0) && (top_of_breed_list+i < CREATURE_TYPES_COUNT) )
-        kind = breed_activities[top_of_breed_list+i];
+        crmodel = breed_activities[top_of_breed_list+i];
     else
-        kind = get_players_special_digger_model(my_player_number);
+        crmodel = get_players_special_digger_model(my_player_number);
     // Now draw the button
     struct Dungeon *dungeon;
     int spridx;
     long cr_total;
     cr_total = 0;
-    if ((kind > 0) && (kind < CREATURE_TYPES_COUNT) && (gbtn->flags & LbBtnF_Unknown08))
+    if ((crmodel > 0) && (crmodel < CREATURE_TYPES_COUNT) && (gbtn->flags & LbBtnF_Unknown08))
     {
         dungeon = get_players_num_dungeon(my_player_number);
         spridx = gbtn->field_29;
@@ -1021,10 +1022,10 @@ void gui_area_anger_button(struct GuiButton *gbtn)
           cr_total = *(long *)gbtn->content;
           if (cr_total > 0)
           {
-            i = dungeon->guijob_angry_creatrs_count[kind][(job_idx & 0x03)];
+            i = dungeon->guijob_angry_creatrs_count[crmodel][(job_idx & 0x03)];
             if (i > cr_total)
             {
-              WARNDBG(7,"Creature %d stats inconsistency; total=%d, doing activity%d=%d",kind,cr_total,(job_idx & 0x03),i);
+              WARNDBG(7,"Creature %d stats inconsistency; total=%d, doing activity%d=%d",crmodel,cr_total,(job_idx & 0x03),i);
               i = cr_total;
             }
             if (i < 0)
@@ -1046,7 +1047,7 @@ void gui_area_anger_button(struct GuiButton *gbtn)
           sprintf(gui_textbuf, "%ld", cr_total);
           // We will use a special coding for our "string" - we want chars to represent
           // sprite index directly, without code pages and multibyte chars interpretation
-          if ((cr_total > 0) && (dungeon->guijob_all_creatrs_count[kind][(job_idx & 0x03)] ))
+          if ((cr_total > 0) && (dungeon->guijob_all_creatrs_count[crmodel][(job_idx & 0x03)] ))
           {
               for (i=0; gui_textbuf[i] != '\0'; i++)
                   gui_textbuf[i] -= 120;
@@ -1081,8 +1082,59 @@ void maintain_instance(struct GuiButton *gbtn)
 
 void gui_activity_background(struct GuiMenu *gmnu)
 {
-  SYNCDBG(9,"Starting");
-  _DK_gui_activity_background(gmnu);
+    SYNCDBG(9,"Starting");
+    //_DK_gui_activity_background(gmnu);
+    unsigned short flg_mem;
+    flg_mem = lbDisplay.DrawFlags;
+    lbDisplay.DrawFlags &= ~0x0040;
+    if (no_of_breeds_owned <= 6) {
+        top_of_breed_list = 0;
+    }
+    struct Dungeon *dungeon;
+    dungeon = get_my_dungeon();
+    int visible_count;
+    visible_count = no_of_breeds_owned;
+    if (no_of_breeds_owned <= 1)
+      visible_count = 1;
+    if (visible_count >= 6)
+        visible_count = 6;
+    int i;
+    for (i=0; i < visible_count; i++)
+    {
+        ThingModel crmodel;
+        if ( (i > 0) && (top_of_breed_list+i < CREATURE_TYPES_COUNT) )
+            crmodel = breed_activities[top_of_breed_list+i];
+        else
+            crmodel = get_players_special_digger_model(my_player_number);
+        // Clear activity list
+        activity_list[4*i+0] = 0;
+        activity_list[4*i+1] = 0;
+        activity_list[4*i+2] = 0;
+        int n;
+        for (n=0; n < 15; n++)
+        {
+            int job_idx;
+            job_idx = state_type_to_gui_state[n];
+            switch (job_idx)
+            {
+            case 0:
+                activity_list[4*i+0] += dungeon->field_64[crmodel][n];
+                break;
+            case 1:
+                activity_list[4*i+1] += dungeon->field_64[crmodel][n];
+                break;
+            case 2:
+                activity_list[4*i+2] += dungeon->field_64[crmodel][n];
+                break;
+            default:
+                ERRORLOG("Outranged GUI state value %d",(int)job_idx);
+                break;
+            }
+        }
+    }
+    lbDisplay.DrawFlags |= 0x0004;
+    LbDrawBox((gmnu->pos_x + 2) / pixel_size, (gmnu->pos_y + 218) / pixel_size, 134 / pixel_size, 24 / pixel_size, colours[0][0][0]);
+    lbDisplay.DrawFlags = flg_mem;
 }
 
 void maintain_activity_up(struct GuiButton *gbtn)
