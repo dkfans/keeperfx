@@ -196,14 +196,14 @@ TbBool creature_instance_info_invalid(const struct InstanceInfo *inst_inf)
     return (inst_inf < &instance_info[1]);
 }
 
-TbBool creature_instance_is_available(const struct Thing *thing, CrInstance inum)
+TbBool creature_instance_is_available(const struct Thing *thing, CrInstance inst_id)
 {
     struct CreatureControl *cctrl;
     TRACE_THING(thing);
     cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
         return false;
-    return cctrl->instance_available[inum];
+    return cctrl->instance_available[inst_id];
 }
 
 TbBool creature_choose_first_available_instance(struct Thing *thing)
@@ -247,26 +247,91 @@ void creature_increase_available_instances(struct Thing *thing)
     }
 }
 
-int creature_increase_get_available_index(struct Thing *thing, CrInstance req_inst_id)
+/**
+ * Given instance ID, returns its position in compacted list of instances.
+ * Compacted list of instances is a list of available creature instances without holes.
+ * @param thing
+ * @param req_inst_id
+ * @return
+ */
+int creature_instance_get_available_pos_for_id(struct Thing *thing, CrInstance req_inst_id)
 {
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(thing);
+    int avail_pos;
+    avail_pos = 0;
     int avail_num;
-    avail_num = 0;
-    int i;
-    for (i=0; i < CREATURE_MAX_LEVEL; i++)
+    for (avail_num=0; avail_num < CREATURE_MAX_LEVEL; avail_num++)
     {
         CrInstance inst_id;
-        inst_id = crstat->instance_spell[i];
+        inst_id = crstat->instance_spell[avail_num];
         if (creature_instance_is_available(thing, inst_id))
         {
             if (inst_id == req_inst_id) {
-                return avail_num;
+                return avail_pos;
             }
-            avail_num++;
+            avail_pos++;
         }
     }
     return -1;
+}
+
+/**
+ * For position in compacted list of instances, gives instance position in availability list.
+ * Compacted list of instances is a list of available creature instances without holes.
+ * @param thing
+ * @param req_avail_pos
+ * @return
+ */
+int creature_instance_get_available_number_for_pos(struct Thing *thing, int req_avail_pos)
+{
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(thing);
+    int avail_pos;
+    avail_pos = 0;
+    int avail_num;
+    for (avail_num=0; avail_num < CREATURE_MAX_LEVEL; avail_num++)
+    {
+        CrInstance inst_id;
+        inst_id = crstat->instance_spell[avail_num];
+        if (creature_instance_is_available(thing, inst_id))
+        {
+            if (avail_pos == req_avail_pos) {
+                return avail_num;
+            }
+            avail_pos++;
+        }
+    }
+    return -1;
+}
+
+/**
+ * For position in compacted list of instances, gives instance ID from availability list.
+ * Compacted list of instances is a list of available creature instances without holes.
+ * @param thing
+ * @param req_avail_pos
+ * @return
+ */
+CrInstance creature_instance_get_available_id_for_pos(struct Thing *thing, int req_avail_pos)
+{
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(thing);
+    int avail_pos;
+    avail_pos = 0;
+    int avail_num;
+    for (avail_num=0; avail_num < CREATURE_MAX_LEVEL; avail_num++)
+    {
+        CrInstance inst_id;
+        inst_id = crstat->instance_spell[avail_num];
+        if (creature_instance_is_available(thing, inst_id))
+        {
+            if (avail_pos == req_avail_pos) {
+                return inst_id;
+            }
+            avail_pos++;
+        }
+    }
+    return CrInst_NULL;
 }
 
 TbBool instance_is_ranged_weapon(CrInstance inum)
