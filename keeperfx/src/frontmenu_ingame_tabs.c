@@ -43,6 +43,7 @@
 #include "gui_frontbtns.h"
 #include "gui_draw.h"
 #include "packets.h"
+#include "magic.h"
 #include "frontmenu_ingame_evnt.h"
 #include "frontmenu_ingame_opts.h"
 #include "frontmenu_ingame_map.h"
@@ -785,16 +786,16 @@ void draw_name_box(long x, long y, struct Thing *thing)
         //draw_percentage_bar();
         if (maxhealth > 0)
         {
-            long i, fill_width;
-            i = -63 * curhealth / maxhealth;
-            fill_width = 2 * i + 126;
-            if (fill_width < 0) {
-                fill_width = 0;
+            long i, bar_fill;
+            i = 63 * curhealth / maxhealth;
+            bar_fill = 126 - 2 * i;
+            if (bar_fill < 0) {
+                bar_fill = 0;
             } else
-            if ( fill_width > 126 ) {
-                fill_width = 126;
+            if (bar_fill > 126) {
+                bar_fill = 126;
             }
-            LbDrawBox((x - fill_width + 128) / pixel_size, (y + 4) / pixel_size, fill_width / pixel_size, 14 / pixel_size, colours[0][0][0]);
+            LbDrawBox((x - bar_fill + 128) / pixel_size, (y + 4) / pixel_size, bar_fill / pixel_size, 14 / pixel_size, colours[0][0][0]);
         }
         // Draw creature name
         const char *text;
@@ -1061,6 +1062,56 @@ void gui_area_anger_button(struct GuiButton *gbtn)
     SYNCDBG(12,"Finished");
 }
 
+#define BAR_FULL_WIDTH 32
+void gui_area_progress_bar_short(struct GuiButton *gbtn, int progress, int total)
+{
+    int bar_fill;
+    bar_fill = BAR_FULL_WIDTH;
+    if (progress < 0) {
+        progress = 0;
+    } else
+    if (progress > total) {
+        progress = total;
+    }
+    if (total > 0)
+    {
+        bar_fill = 2 * ((BAR_FULL_WIDTH/2) - ((BAR_FULL_WIDTH/2) * progress / total));
+        if (bar_fill < 0) {
+            bar_fill = 0;
+        } else
+        if (bar_fill > BAR_FULL_WIDTH) {
+            bar_fill = BAR_FULL_WIDTH;
+        }
+    }
+    LbDrawBox((gbtn->scr_pos_x + 22 - bar_fill + BAR_FULL_WIDTH) / pixel_size, (gbtn->scr_pos_y + 8) / pixel_size, bar_fill / pixel_size, 8 / pixel_size, colours[0][0][0]);
+}
+#undef BAR_FULL_WIDTH
+
+#define BAR_FULL_WIDTH 48
+void gui_area_progress_bar_med(struct GuiButton *gbtn, int progress, int total)
+{
+    int bar_fill;
+    bar_fill = BAR_FULL_WIDTH;
+    if (progress < 0) {
+        progress = 0;
+    } else
+    if (progress > total) {
+        progress = total;
+    }
+    if (total > 0)
+    {
+        bar_fill = 2 * ((BAR_FULL_WIDTH/2) - ((BAR_FULL_WIDTH/2) * progress / total));
+        if (bar_fill < 0) {
+            bar_fill = 0;
+        } else
+        if (bar_fill > BAR_FULL_WIDTH) {
+            bar_fill = BAR_FULL_WIDTH;
+        }
+    }
+    LbDrawBox((gbtn->scr_pos_x +  4 - bar_fill + BAR_FULL_WIDTH) / pixel_size, (gbtn->scr_pos_y + 4) / pixel_size, bar_fill / pixel_size, 16 / pixel_size, colours[0][0][0]);
+}
+#undef BAR_FULL_WIDTH
+
 void gui_area_smiley_anger_button(struct GuiButton *gbtn)
 {
   _DK_gui_area_smiley_anger_button(gbtn);
@@ -1068,12 +1119,94 @@ void gui_area_smiley_anger_button(struct GuiButton *gbtn)
 
 void gui_area_experience_button(struct GuiButton *gbtn)
 {
-  _DK_gui_area_experience_button(gbtn);
+    //_DK_gui_area_experience_button(gbtn); return;
+    struct PlayerInfo *player;
+    player = get_my_player();
+    struct Thing *ctrltng;
+    ctrltng = thing_get(player->controlled_thing_idx);
+    TRACE_THING(ctrltng);
+    if (thing_is_creature(ctrltng))
+    {
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->field_29);
+        struct CreatureStats *crstat;
+        crstat = creature_stats_get_from_thing(ctrltng);
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(ctrltng);
+        long points_progress, points_required;
+        points_progress = cctrl->exp_points;
+        points_required = (crstat->to_level[cctrl->explevel] << 8);
+        gui_area_progress_bar_med(gbtn, points_progress, points_required);
+        char * text;
+        text = buf_sprintf("%d", (int)(cctrl->explevel + 1));
+        draw_button_string(gbtn, text);
+    } else
+    if (thing_is_dead_creature(ctrltng))
+    {
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->field_29);
+        //TODO maybe show some info about dead creature too?
+    }
 }
 
 void gui_area_instance_button(struct GuiButton *gbtn)
 {
-  _DK_gui_area_instance_button(gbtn);
+    //_DK_gui_area_instance_button(gbtn); return;
+    struct PlayerInfo *player;
+    player = get_my_player();
+    struct Thing *ctrltng;
+    ctrltng = thing_get(player->controlled_thing_idx);
+    TRACE_THING(ctrltng);
+    if (!thing_is_creature(ctrltng))
+    {
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, 463);
+        LbDrawBox((gbtn->scr_pos_x + 22) / pixel_size, (gbtn->scr_pos_y + 8) / pixel_size, 32 / pixel_size, 8 / pixel_size, colours[0][0][0]);
+        return;
+    }
+    int curbtn_avail_pos;
+    curbtn_avail_pos = (long)gbtn->content;
+    if (!first_person_instance_top_half_selected)
+        curbtn_avail_pos += 4;
+    int curbtn_inst_id;
+    curbtn_inst_id = creature_instance_get_available_id_for_pos(ctrltng, curbtn_avail_pos);
+    if (!creature_instance_is_available(ctrltng, curbtn_inst_id))
+    {
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, 463);
+        LbDrawBox((gbtn->scr_pos_x + 22) / pixel_size, (gbtn->scr_pos_y + 8) / pixel_size, 32 / pixel_size, 8 / pixel_size, colours[0][0][0]);
+        return;
+    }
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(ctrltng);
+    int spr_idx;
+    if (cctrl->field_1E8 == curbtn_inst_id) {
+      spr_idx = 462;
+    } else {
+      spr_idx = 463;
+    }
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, spr_idx);
+    struct InstanceInfo *inst_inf;
+    inst_inf = creature_instance_info_get(curbtn_inst_id);
+    if (!creature_instance_has_reset(ctrltng, curbtn_inst_id))
+    {
+        long turns_progress, turns_required;
+        if ((ctrltng->alloc_flags & TAlF_IsControlled) != 0) {
+            turns_required = inst_inf->fp_reset_time;
+        } else {
+            turns_required = inst_inf->reset_time;
+        }
+        turns_progress = (long)game.play_gameturn - (long)cctrl->instance_use_turn[curbtn_inst_id];
+        gui_area_progress_bar_short(gbtn, turns_progress, turns_required);
+    } else
+    {
+        gui_area_progress_bar_short(gbtn, 32, 32);
+    }
+    const char * text;
+    text = buf_sprintf("%d", (curbtn_avail_pos + 1) % 10);
+    LbTextDraw((gbtn->scr_pos_x + 52) / pixel_size, (gbtn->scr_pos_y + 9) / pixel_size, text);
+    spr_idx = gbtn->field_29;
+    long spkind;
+    spkind = inst_inf->func_params[0];
+    if (!creature_instance_has_reset(ctrltng, curbtn_inst_id) || ((spkind != 0) && thing_affected_by_spell(ctrltng, spkind)))
+      spr_idx++;
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4, gbtn->scr_pos_y - 8, spr_idx);
 }
 
 void maintain_instance(struct GuiButton *gbtn)
@@ -1092,23 +1225,22 @@ void maintain_instance(struct GuiButton *gbtn)
     }
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(ctrltng);
-    int chosen_avail_num;
-    chosen_avail_num = creature_increase_get_available_index(ctrltng, cctrl->field_1E8);
-    CrInstance curbtn_inst_id;
-    if ((chosen_avail_num < 6) && (first_person_instance_top_half_selected || chosen_avail_num < 4))
+    // Switch to correct menu page based on selected instance position
+    int chosen_avail_pos;
+    chosen_avail_pos = creature_instance_get_available_pos_for_id(ctrltng, cctrl->field_1E8);
+    int curbtn_avail_pos;
+    if ((chosen_avail_pos < 6) && (first_person_instance_top_half_selected || chosen_avail_pos < 4))
     {
         first_person_instance_top_half_selected = 1;
-        curbtn_inst_id = (long)gbtn->content;
+        curbtn_avail_pos = (long)gbtn->content;
     } else
     {
         first_person_instance_top_half_selected = 0;
-        curbtn_inst_id = ((long)gbtn->content) + 4;
+        curbtn_avail_pos = ((long)gbtn->content) + 4;
     }
-    int curbtn_avail_num;
-    curbtn_avail_num = creature_increase_get_available_index(ctrltng, curbtn_inst_id);
-    if (curbtn_avail_num < 0) {
-        curbtn_inst_id = CrInst_NULL;
-    }
+    // Now handle instance for this button
+    int curbtn_inst_id;
+    curbtn_inst_id = creature_instance_get_available_id_for_pos(ctrltng, curbtn_avail_pos);
     int i;
     i = instance_button_init[curbtn_inst_id].numfield_0;
     if ( i )
@@ -1116,7 +1248,7 @@ void maintain_instance(struct GuiButton *gbtn)
         gbtn->field_29 = i;
         gbtn->tooltip_id = instance_button_init[curbtn_inst_id].numfield_4;
     }
-    if ((curbtn_inst_id > CrInst_NULL) && creature_instance_is_available(ctrltng, curbtn_inst_id))
+    if (creature_instance_is_available(ctrltng, curbtn_inst_id))
     {
         gbtn->field_1B = 0;
         gbtn->flags |= 0x0008;
@@ -1540,27 +1672,6 @@ void pick_up_next_fighter(struct GuiButton *gbtn)
     pick_up_creature_of_breed_and_gui_job(-1, 2, my_player_number, pick_flags);
 }
 
-void gui_area_progress_bar(struct GuiButton *gbtn, int progress, int total)
-{
-    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, 462);
-    draw_gui_panel_sprite_left(gbtn->scr_pos_x - 8, gbtn->scr_pos_y - 10, gbtn->field_29);
-    int bar_fill;
-    bar_fill = 32;
-    if (progress > total)
-        progress = total;
-    if (total > 0)
-    {
-        bar_fill = 2 * (16 - (16 * progress / total));
-        if (bar_fill < 0) {
-            bar_fill = 0;
-        } else
-        if (bar_fill > 32) {
-            bar_fill = 32;
-        }
-    }
-    LbDrawBox((gbtn->scr_pos_x + 24 - bar_fill + 30) / pixel_size, (gbtn->scr_pos_y + 8) / pixel_size, bar_fill / pixel_size, 8 / pixel_size, colours[0][0][0]);
-}
-
 void gui_go_to_next_fighter(struct GuiButton *gbtn)
 {
     //_DK_gui_go_to_next_fighter(gbtn);
@@ -1612,7 +1723,9 @@ void gui_area_research_bar(struct GuiButton *gbtn)
         resrch_required = 0;
         resrch_progress = 0;
     }
-    gui_area_progress_bar(gbtn, resrch_progress, resrch_required);
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, 462);
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x - 8, gbtn->scr_pos_y - 10, gbtn->field_29);
+    gui_area_progress_bar_short(gbtn, resrch_progress, resrch_required);
 }
 
 void gui_area_workshop_bar(struct GuiButton *gbtn)
@@ -1630,7 +1743,9 @@ void gui_area_workshop_bar(struct GuiButton *gbtn)
         manufct_required = 0;
         manufct_progress = 0;
     }
-    gui_area_progress_bar(gbtn, manufct_progress, manufct_required);
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, 462);
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x - 8, gbtn->scr_pos_y - 10, gbtn->field_29);
+    gui_area_progress_bar_short(gbtn, manufct_progress, manufct_required);
 }
 
 void gui_area_player_creature_info(struct GuiButton *gbtn)
