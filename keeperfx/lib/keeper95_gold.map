@@ -168,6 +168,7 @@
  0003:00247730       high_score_entry
  0003:00247F40       high_score_entry_index
  0003:00020870       frontstory_setup_sprites
+ 0003:00246E48       first_person_instance_top_half_selected
  0003:00246E58       enemy_battler_list
  0003:00246FD0       friendly_battler_list
  0003:00246ED0       active_menus
@@ -191,6 +192,7 @@
  0003:0000E270       spell_data
  0003:0000E4A8       room_data
  0003:0000E630       trap_data
+ 0003:0000F8A0       instance_button_init
  0003:0000FC58       object_to_magic
  0003:0000FCE0       object_to_special
  0003:0000FD68       magic_to_object

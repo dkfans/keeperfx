@@ -38,6 +38,11 @@ struct GuiButton;
 #define BID_TRAP_TAB      4
 #define BID_CREATR_TAB    5
 
+struct InstanceButtonInit {  // sizeof=0x6
+    long numfield_0;
+    short numfield_4;
+};
+
 #pragma pack()
 /******************************************************************************/
 DLLIMPORT long _DK_activity_list[24];
@@ -52,6 +57,7 @@ DLLIMPORT struct GuiButtonInit _DK_query_menu_buttons[];
 DLLIMPORT struct GuiButtonInit _DK_creature_query_buttons1[];
 DLLIMPORT struct GuiButtonInit _DK_creature_query_buttons2[];
 DLLIMPORT struct GuiButtonInit _DK_creature_query_buttons3[];
+DLLIMPORT struct BigSprite _DK_status_panel;
 DLLIMPORT char _DK_gui_room_type_highlighted;
 #define gui_room_type_highlighted _DK_gui_room_type_highlighted
 DLLIMPORT char _DK_gui_door_type_highlighted;
@@ -60,7 +66,10 @@ DLLIMPORT char _DK_gui_trap_type_highlighted;
 #define gui_trap_type_highlighted _DK_gui_trap_type_highlighted
 DLLIMPORT char _DK_gui_creature_type_highlighted;
 #define gui_creature_type_highlighted _DK_gui_creature_type_highlighted
-DLLIMPORT struct BigSprite _DK_status_panel;
+DLLIMPORT struct InstanceButtonInit _DK_instance_button_init[48];
+#define instance_button_init _DK_instance_button_init
+DLLIMPORT unsigned long _DK_first_person_instance_top_half_selected;
+#define first_person_instance_top_half_selected _DK_first_person_instance_top_half_selected
 /******************************************************************************/
 extern struct GuiMenu main_menu;
 extern struct GuiMenu room_menu;

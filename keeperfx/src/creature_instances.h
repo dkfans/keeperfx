@@ -118,6 +118,8 @@ void creature_increase_available_instances(struct Thing *thing);
 TbBool creature_has_ranged_weapon(const struct Thing *thing);
 TbBool creature_has_ranged_object_weapon(const struct Thing *creatng);
 
+int creature_increase_get_available_index(struct Thing *thing, CrInstance req_inst_id);
+
 void delay_teleport(struct Thing *creatng);
 /******************************************************************************/
 #ifdef __cplusplus

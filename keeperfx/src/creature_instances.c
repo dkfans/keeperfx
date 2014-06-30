@@ -247,6 +247,28 @@ void creature_increase_available_instances(struct Thing *thing)
     }
 }
 
+int creature_increase_get_available_index(struct Thing *thing, CrInstance req_inst_id)
+{
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(thing);
+    int avail_num;
+    avail_num = 0;
+    int i;
+    for (i=0; i < CREATURE_MAX_LEVEL; i++)
+    {
+        CrInstance inst_id;
+        inst_id = crstat->instance_spell[i];
+        if (creature_instance_is_available(thing, inst_id))
+        {
+            if (inst_id == req_inst_id) {
+                return avail_num;
+            }
+            avail_num++;
+        }
+    }
+    return -1;
+}
+
 TbBool instance_is_ranged_weapon(CrInstance inum)
 {
     switch (inum)
