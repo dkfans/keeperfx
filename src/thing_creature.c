@@ -3067,6 +3067,15 @@ TbBool thing_is_creature(const struct Thing *thing)
   return true;
 }
 
+TbBool thing_is_dead_creature(const struct Thing *thing)
+{
+  if (thing_is_invalid(thing))
+    return false;
+  if (thing->class_id != TCls_DeadCreature)
+    return false;
+  return true;
+}
+
 /** Returns if a thing is special digger creature.
  *
  * @param thing The thing to be checked.

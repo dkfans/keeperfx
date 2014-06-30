@@ -387,7 +387,6 @@ void update_creature_graphic_anim(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     struct CreatureStats *crstat;
-    struct InstanceInfo *inst_inf;
     long i;
 
     TRACE_THING(thing);
@@ -410,6 +409,7 @@ void update_creature_graphic_anim(struct Thing *thing)
           {
               thing->field_4F &= ~0x30;
           }
+          struct InstanceInfo *inst_inf;
           inst_inf = creature_instance_info_get(cctrl->instance_id);
           update_creature_anim(thing, cctrl->field_1CE, inst_inf->graphics_idx);
         } else
