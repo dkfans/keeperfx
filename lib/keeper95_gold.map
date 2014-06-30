@@ -1421,6 +1421,7 @@
  0003:0000EED0       spell_info
  0003:0000F160       player_instance_info
  0003:0000F620       trap_stats
+ 0003:0000F8A0       instance_button_init
  0003:0000FC20       class_functions
  0003:0000FC58       object_to_magic
  0003:0000FCE0       object_to_special
@@ -1962,6 +1963,7 @@
  0003:00245B14       video_gamma_correction
  0003:00245B18       no_of_breeds_owned
  0003:00245B20       active_buttons
+ 0003:00246E48       first_person_instance_top_half_selected
  0003:00246E4C       video_cluedo_mode
  0003:00246E50       top_of_breed_list
  0003:00246E58       enemy_battler_list

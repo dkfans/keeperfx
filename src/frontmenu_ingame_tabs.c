@@ -35,6 +35,7 @@
 #include "creature_graphics.h"
 #include "creature_states.h"
 #include "creature_states_rsrch.h"
+#include "creature_instances.h"
 #include "config_creature.h"
 #include "config_magic.h"
 #include "config_trapdoor.h"
@@ -1077,13 +1078,58 @@ void gui_area_instance_button(struct GuiButton *gbtn)
 
 void maintain_instance(struct GuiButton *gbtn)
 {
-  _DK_maintain_instance(gbtn);
+    //_DK_maintain_instance(gbtn); return;
+    struct PlayerInfo *player;
+    player = get_my_player();
+    struct Thing *ctrltng;
+    ctrltng = thing_get(player->controlled_thing_idx);
+    TRACE_THING(ctrltng);
+    if (!thing_is_creature(ctrltng))
+    {
+        gbtn->field_1B |= 0x8000;
+        gbtn->flags &= ~0x0008;
+        return;
+    }
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(ctrltng);
+    int chosen_avail_num;
+    chosen_avail_num = creature_increase_get_available_index(ctrltng, cctrl->field_1E8);
+    CrInstance curbtn_inst_id;
+    if ((chosen_avail_num < 6) && (first_person_instance_top_half_selected || chosen_avail_num < 4))
+    {
+        first_person_instance_top_half_selected = 1;
+        curbtn_inst_id = (long)gbtn->content;
+    } else
+    {
+        first_person_instance_top_half_selected = 0;
+        curbtn_inst_id = ((long)gbtn->content) + 4;
+    }
+    int curbtn_avail_num;
+    curbtn_avail_num = creature_increase_get_available_index(ctrltng, curbtn_inst_id);
+    if (curbtn_avail_num < 0) {
+        curbtn_inst_id = CrInst_NULL;
+    }
+    int i;
+    i = instance_button_init[curbtn_inst_id].numfield_0;
+    if ( i )
+    {
+        gbtn->field_29 = i;
+        gbtn->tooltip_id = instance_button_init[curbtn_inst_id].numfield_4;
+    }
+    if ((curbtn_inst_id > CrInst_NULL) && creature_instance_is_available(ctrltng, curbtn_inst_id))
+    {
+        gbtn->field_1B = 0;
+        gbtn->flags |= 0x0008;
+        return;
+    }
+    gbtn->field_1B |= 0x8000;
+    gbtn->flags &= ~0x0008;
 }
 
 void gui_activity_background(struct GuiMenu *gmnu)
 {
     SYNCDBG(9,"Starting");
-    //_DK_gui_activity_background(gmnu);
+    //_DK_gui_activity_background(gmnu);return;
     unsigned short flg_mem;
     flg_mem = lbDisplay.DrawFlags;
     lbDisplay.DrawFlags &= ~0x0040;
