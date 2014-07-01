@@ -1179,24 +1179,72 @@ TbBool screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct
   return result;
 }
 
-void update_breed_activities(void)
+void update_creatr_model_activities_list(void)
 {
-  _DK_update_breed_activities();
+    //_DK_update_breed_activities();
+    struct Dungeon *dungeon;
+    dungeon = get_my_dungeon();
+    ThingModel crmodel;
+    int num_breeds;
+    num_breeds = no_of_breeds_owned;
+    // Add to breed activities
+    for (crmodel=1; crmodel < CREATURE_TYPES_COUNT; crmodel++)
+    {
+        if ((dungeon->owned_creatures_of_model[crmodel] > 0)
+            && (crmodel != get_players_spectator_breed(my_player_number)))
+        {
+            int i;
+            for (i=0; i < num_breeds; i++)
+            {
+                if (breed_activities[i] == crmodel)
+                {
+                    break;
+                }
+            }
+            if (num_breeds == i)
+            {
+                breed_activities[i] = crmodel;
+                num_breeds++;
+            }
+        }
+    }
+    // Remove from breed activities
+    for (crmodel=1; crmodel < CREATURE_TYPES_COUNT; crmodel++)
+    {
+        if ((dungeon->owned_creatures_of_model[crmodel] <= 0)
+          && (crmodel != get_players_special_digger_model(my_player_number)))
+        {
+            int i;
+            for (i=0; i < num_breeds; i++)
+            {
+                if (breed_activities[i] == crmodel)
+                {
+                    for (; i < num_breeds-1;  i++) {
+                        breed_activities[i] = breed_activities[i+1];
+                    }
+                    num_breeds--;
+                    breed_activities[i] = 0;
+                    break;
+                }
+            }
+        }
+        no_of_breeds_owned = num_breeds;
+    }
 }
 
 void toggle_hero_health_flowers(void)
 {
-  const char *statstr;
-  toggle_flag_byte(&game.flags_cd,0x80);
-  if (game.flags_cd & 0x80)
-  {
-    statstr = "off";
-  } else
-  {
-    do_sound_menu_click();
-    statstr = "on";
-  }
-  show_onscreen_msg(2*game.num_fps, "Hero health flowers %s", statstr);
+    const char *statstr;
+    toggle_flag_byte(&game.flags_cd,0x80);
+    if (game.flags_cd & 0x80)
+    {
+      statstr = "off";
+    } else
+    {
+      do_sound_menu_click();
+      statstr = "on";
+    }
+    show_onscreen_msg(2*game.num_fps, "Hero health flowers %s", statstr);
 }
 
 void zoom_to_map(void)

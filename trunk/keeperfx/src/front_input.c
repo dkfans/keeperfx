@@ -1764,7 +1764,7 @@ short get_gui_inputs(short gameplay_on)
 {
   static char over_slider_button=-1;
   SYNCDBG(7,"Starting");
-  update_breed_activities();
+  update_creatr_model_activities_list();
   battle_creature_over = 0;
   gui_room_type_highlighted = -1;
   gui_door_type_highlighted = -1;
