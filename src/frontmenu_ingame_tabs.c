@@ -1088,7 +1088,7 @@ void gui_area_progress_bar_short(struct GuiButton *gbtn, int progress, int total
 #undef BAR_FULL_WIDTH
 
 #define BAR_FULL_WIDTH 48
-void gui_area_progress_bar_med(struct GuiButton *gbtn, int progress, int total)
+void gui_area_progress_bar_med2(struct GuiButton *gbtn, int progress, int total)
 {
     int bar_fill;
     bar_fill = BAR_FULL_WIDTH;
@@ -1112,9 +1112,77 @@ void gui_area_progress_bar_med(struct GuiButton *gbtn, int progress, int total)
 }
 #undef BAR_FULL_WIDTH
 
+long anger_get_creature_highest_anger_type_and_byte_percentage(struct Thing *creatng, long *out_angr_typ, long *out_angr_prct)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(creatng);
+    int angr_typ;
+    long angr_lvl, angr_lmt;
+    angr_lmt = crstat->annoy_level;
+    angr_typ = 0;
+    angr_lvl = 0;
+    int i;
+    for (i=1; i < 5; i++)
+    {
+        if (angr_lvl < cctrl->annoyance_level[i])
+        {
+            angr_lvl = cctrl->annoyance_level[i];
+            angr_typ = i;
+        }
+    }
+    if (angr_lmt <= 0)
+    {
+        *out_angr_prct = 0;
+        *out_angr_typ = 0;
+        return 0;
+    }
+    if (angr_lvl < 0) {
+        angr_lvl = 0;
+    } else
+    if (angr_lvl > 2 * angr_lmt) {
+        angr_lvl = 2 * angr_lmt;
+    }
+    // Return value scaled 0..256
+    *out_angr_prct = (angr_lvl << 8) / (2 * angr_lmt);
+    *out_angr_typ = angr_typ;
+    return 1;
+}
+
 void gui_area_smiley_anger_button(struct GuiButton *gbtn)
 {
-  _DK_gui_area_smiley_anger_button(gbtn);
+    //_DK_gui_area_smiley_anger_button(gbtn);
+    struct PlayerInfo *player;
+    player = get_my_player();
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->field_29);
+    struct Thing *ctrltng;
+    ctrltng = thing_get(player->controlled_thing_idx);
+    TRACE_THING(ctrltng);
+    if (thing_is_creature(ctrltng))
+    {
+        long angr_typ, angr_prct;
+        anger_get_creature_highest_anger_type_and_byte_percentage(ctrltng, &angr_typ, &angr_prct);
+        int angr_pos;
+        angr_pos = 5 * angr_prct / 256;
+        if (angr_pos < 0) {
+            angr_pos = 0;
+        } else
+        if (angr_pos > 4) {
+            angr_pos = 4;
+        }
+        int spr_idx;
+        int shift_x;
+        spr_idx = angr_pos + 468;
+        shift_x = (48 * angr_prct - 16) / 256;
+        if (shift_x < 0) {
+            shift_x = 0;
+        } else
+        if ( shift_x > 36 ) {
+            shift_x = 36;
+        }
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x + shift_x - 12, gbtn->scr_pos_y - 22, spr_idx);
+    }
 }
 
 void gui_area_experience_button(struct GuiButton *gbtn)
@@ -1135,7 +1203,7 @@ void gui_area_experience_button(struct GuiButton *gbtn)
         long points_progress, points_required;
         points_progress = cctrl->exp_points;
         points_required = (crstat->to_level[cctrl->explevel] << 8);
-        gui_area_progress_bar_med(gbtn, points_progress, points_required);
+        gui_area_progress_bar_med2(gbtn, points_progress, points_required);
         char * text;
         text = buf_sprintf("%d", (int)(cctrl->explevel + 1));
         draw_button_string(gbtn, text);

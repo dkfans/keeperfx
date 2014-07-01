@@ -1267,14 +1267,14 @@ void frontend_draw_slider(struct GuiButton *gbtn)
     scr_x += spr->SWidth;
     spr = &frontend_sprite[94];
     LbSpriteDraw(scr_x, scr_y, spr);
-    int val;
-    val = gbtn->slide_val * (gbtn->width - 64) >> 8;
+    int shift_x;
+    shift_x = gbtn->slide_val * (gbtn->width - 64) >> 8;
     if (gbtn->gbactn_1 != 0) {
         spr = &frontend_sprite[91];
     } else {
         spr = &frontend_sprite[78];
     }
-    LbSpriteDraw((gbtn->scr_pos_x + val + 24) / pixel_size, (gbtn->scr_pos_y + 3) / pixel_size, spr);
+    LbSpriteDraw((gbtn->scr_pos_x + shift_x + 24) / pixel_size, (gbtn->scr_pos_y + 3) / pixel_size, spr);
 }
 
 void frontend_draw_small_slider(struct GuiButton *gbtn)
