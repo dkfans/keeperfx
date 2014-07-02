@@ -6275,7 +6275,7 @@ msgstr ""
 #, fuzzy
 msgctxt "Game event description"
 msgid "Work room unreachable: LMB toggle. RMB delete."
-msgstr "新しい部屋の研究完了: 左クリックで切り替え。右クリックで削除。"
+msgstr "Work room unreachable: 左クリックで切り替え。右クリックで削除。"
 
 #: guitext:947
 msgctxt "Game event name"
@@ -6286,7 +6286,7 @@ msgstr ""
 #, fuzzy
 msgctxt "Game event description"
 msgid "Storage room unreachable: LMB toggle. RMB delete."
-msgstr "新しい部屋の研究完了: 左クリックで切り替え。右クリックで削除。"
+msgstr "Storage room unreachable: 左クリックで切り替え。右クリックで削除。"
 
 #~ msgctxt "Slab description"
 #~ msgid "Impenetrable Rock: Your Imps cannot dig through this. [12.4]"

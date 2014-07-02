@@ -6461,7 +6461,7 @@ msgstr ""
 #, fuzzy
 msgctxt "Game event description"
 msgid "Work room unreachable: LMB toggle. RMB delete."
-msgstr "Disponibile nuova stanza. TSM: attiva - disattiva. TDM: cancella."
+msgstr "Work room unreachable. TSM: attiva - disattiva. TDM: cancella."
 
 #: guitext:947
 msgctxt "Game event name"
@@ -6472,7 +6472,7 @@ msgstr ""
 #, fuzzy
 msgctxt "Game event description"
 msgid "Storage room unreachable: LMB toggle. RMB delete."
-msgstr "Disponibile nuova stanza. TSM: attiva - disattiva. TDM: cancella."
+msgstr "Storage room unreachable. TSM: attiva - disattiva. TDM: cancella."
 
 #~ msgctxt "Slab description"
 #~ msgid "Impenetrable Rock: Your Imps cannot dig through this. [12.4]"

@@ -6397,7 +6397,7 @@ msgstr ""
 #, fuzzy
 msgctxt "Game event description"
 msgid "Work room unreachable: LMB toggle. RMB delete."
-msgstr "Nieuwe ruimte onderzocht: LMK: bladeren. RMK: wissen."
+msgstr "Work room unreachable: LMK: bladeren. RMK: wissen."
 
 #: guitext:947
 msgctxt "Game event name"
@@ -6408,7 +6408,7 @@ msgstr ""
 #, fuzzy
 msgctxt "Game event description"
 msgid "Storage room unreachable: LMB toggle. RMB delete."
-msgstr "Nieuwe ruimte onderzocht: LMK: bladeren. RMK: wissen."
+msgstr "Work room unreachable: LMK: bladeren. RMK: wissen."
 
 #~ msgctxt "Slab description"
 #~ msgid "Impenetrable Rock: Your Imps cannot dig through this. [12.4]"

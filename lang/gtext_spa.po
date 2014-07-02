@@ -3514,7 +3514,16 @@ msgstr ""
 "Tiempo para taller: el tiempo que falta para que se fabrique una nueva "
 "trampa."
 
-#: guitext:454 guitext:455
+#: guitext:454
+#, fuzzy
+msgctxt "In-game interface description"
+msgid "Time: The time until the next Creature Payday. This bar increases over time and, when it reaches its peak, "
+"all of your creatures receive their wages."
+msgstr ""
+"Tiempo para día de pago: el tiempo que falta para el próximo día de pago de "
+"las criaturas."
+
+#: guitext:455
 #, fuzzy
 msgctxt "In-game interface description"
 msgid ""
@@ -6468,7 +6477,7 @@ msgstr ""
 #, fuzzy
 msgctxt "Game event description"
 msgid "Work room unreachable: LMB toggle. RMB delete."
-msgstr "Investigada nueva sala: conmutar con BIR. Borrar con BDR."
+msgstr "Work room unreachable: conmutar con BIR. Borrar con BDR."
 
 #: guitext:947
 msgctxt "Game event name"
@@ -6479,7 +6488,7 @@ msgstr ""
 #, fuzzy
 msgctxt "Game event description"
 msgid "Storage room unreachable: LMB toggle. RMB delete."
-msgstr "Investigada nueva sala: conmutar con BIR. Borrar con BDR."
+msgstr "Storage room unreachable: conmutar con BIR. Borrar con BDR."
 
 #~ msgctxt "Slab description"
 #~ msgid "Impenetrable Rock: Your Imps cannot dig through this. [12.4]"
