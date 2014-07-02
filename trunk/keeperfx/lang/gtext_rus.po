@@ -6424,7 +6424,7 @@ msgstr ""
 msgctxt "Game event description"
 msgid "Work room unreachable: LMB toggle. RMB delete."
 msgstr ""
-"Новое помещение разработано: Лев. Клик переключают. Пpав. Клик удаляют."
+"Помещение unreachable: Лев. Клик переключают. Пpав. Клик удаляют."
 
 #: guitext:947
 msgctxt "Game event name"
@@ -6436,7 +6436,7 @@ msgstr ""
 msgctxt "Game event description"
 msgid "Storage room unreachable: LMB toggle. RMB delete."
 msgstr ""
-"Новое помещение разработано: Лев. Клик переключают. Пpав. Клик удаляют."
+"Помещение unreachable: Лев. Клик переключают. Пpав. Клик удаляют."
 
 #~ msgctxt "Slab description"
 #~ msgid "Impenetrable Rock: Your Imps cannot dig through this. [12.4]"
