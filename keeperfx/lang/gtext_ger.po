@@ -6592,7 +6592,7 @@ msgstr ""
 msgctxt "Game event description"
 msgid "Work room unreachable: LMB toggle. RMB delete."
 msgstr ""
-"Neuer Raum erforscht: Mit der linken Maustaste lesen. Mit der rechten "
+"Work room unreachable: Mit der linken Maustaste lesen. Mit der rechten "
 "Maustaste löschen."
 
 #: guitext:947
@@ -6605,7 +6605,7 @@ msgstr ""
 msgctxt "Game event description"
 msgid "Storage room unreachable: LMB toggle. RMB delete."
 msgstr ""
-"Neuer Raum erforscht: Mit der linken Maustaste lesen. Mit der rechten "
+"Storage room unreachable: Mit der linken Maustaste lesen. Mit der rechten "
 "Maustaste löschen."
 
 #~ msgctxt "Slab description"

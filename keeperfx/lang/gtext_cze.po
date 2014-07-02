@@ -3400,11 +3400,13 @@ msgid ""
 msgstr "Doba vyroby: Kolik casu je potreba na vyrobu nove pasti. [5.5]"
 
 #: guitext:454
+#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Time: The time until the next Creature Payday. This bar increases over time "
 "and, when it reaches its peak, all of your creatures receive their wages."
 msgstr ""
+"Zbyva dni: Za kolik dni budes muset svym obludam muset vyplatit zold. [5.3]"
 
 #: guitext:455
 #, fuzzy
@@ -6258,7 +6260,7 @@ msgstr ""
 #, fuzzy
 msgctxt "Game event description"
 msgid "Work room unreachable: LMB toggle. RMB delete."
-msgstr "Vynalezen nový typ místnosti: LTM prepnout, PTM smazat."
+msgstr "Work room unreachable: LTM prepnout, PTM smazat."
 
 #: guitext:947
 msgctxt "Game event name"
@@ -6269,7 +6271,7 @@ msgstr ""
 #, fuzzy
 msgctxt "Game event description"
 msgid "Storage room unreachable: LMB toggle. RMB delete."
-msgstr "Vynalezen nový typ místnosti: LTM prepnout, PTM smazat."
+msgstr "Storage room unreachable: LTM prepnout, PTM smazat."
 
 #~ msgctxt "Slab description"
 #~ msgid "Impenetrable Rock: Your Imps cannot dig through this. [12.4]"

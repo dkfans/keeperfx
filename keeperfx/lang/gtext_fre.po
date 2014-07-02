@@ -6573,12 +6573,9 @@ msgid "Your creature cannot reach the room it needs"
 msgstr ""
 
 #: guitext:946
-#, fuzzy
 msgctxt "Game event description"
 msgid "Work room unreachable: LMB toggle. RMB delete."
 msgstr ""
-"Nouvelle salle découverte: Changez avec le bouton gauche de la souris et "
-"supprimez avec le bouton droit."
 
 #: guitext:947
 msgctxt "Game event name"
@@ -6586,12 +6583,9 @@ msgid "Your Imp cannot reach a room to drag something into"
 msgstr ""
 
 #: guitext:948
-#, fuzzy
 msgctxt "Game event description"
 msgid "Storage room unreachable: LMB toggle. RMB delete."
 msgstr ""
-"Nouvelle salle découverte: Changez avec le bouton gauche de la souris et "
-"supprimez avec le bouton droit."
 
 #~ msgctxt "Slab description"
 #~ msgid "Impenetrable Rock: Your Imps cannot dig through this. [12.4]"
