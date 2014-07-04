@@ -50,6 +50,7 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
 void slap_creature(struct PlayerInfo *player, struct Thing *thing);
 void update_power_sight_explored(struct PlayerInfo *player);
 long compute_power_price(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel);
+long find_spell_age_percentage(PlayerNumber plyr_idx, PowerKind pwkind);
 TbBool pay_for_spell(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel);
 long thing_affected_by_spell(const struct Thing *thing, long spkind);
 

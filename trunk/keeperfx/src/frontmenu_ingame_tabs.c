@@ -338,7 +338,62 @@ void gui_choose_special_spell(struct GuiButton *gbtn)
 
 void gui_area_big_spell_button(struct GuiButton *gbtn)
 {
-  _DK_gui_area_big_spell_button(gbtn);
+    //_DK_gui_area_big_spell_button(gbtn); return;
+    unsigned short flg_mem;
+    flg_mem = lbDisplay.DrawFlags;
+    PowerKind pwkind;
+    pwkind = (long)gbtn->content;
+    struct SpellData *pwrdata;
+    pwrdata = get_power_data(pwkind);
+    if (power_data_is_invalid(pwrdata))
+    {
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, 26);
+        lbDisplay.DrawFlags = flg_mem;
+        return;
+    }
+    struct PlayerInfo *player;
+    player = get_my_player();
+    struct Dungeon *dungeon;
+    dungeon = get_players_dungeon(player);
+
+    lbDisplay.DrawFlags &= ~0x0004;
+    lbDisplay.DrawFlags &= ~0x0010;
+    int pwage;
+    pwage = find_spell_age_percentage(player->id_number, pwkind);
+    if ((pwrdata->flag_8 != 0) && (pwage >= 0))
+    {
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, 23);
+        int fill_bar;
+        fill_bar = 42 - (2 * 21 * pwage / 256);
+        LbDrawBox((gbtn->scr_pos_x - fill_bar + 114) / pixel_size, (gbtn->scr_pos_y + 12) / pixel_size,
+          fill_bar / pixel_size, 6 / pixel_size, colours[0][0][0]);
+    } else
+    {
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, 26);
+    }
+    lbDisplay.DrawFlags &= ~0x0040;
+
+    GoldAmount price;
+    price = compute_power_price(dungeon->owner, pwkind, 0);
+    char *text;
+    text = buf_sprintf("%ld", (long)price);
+    if (dungeon->total_money_owned >= price)
+    {
+        if ((player->work_state == pwrdata->field_4) && ((game.play_gameturn & 1) != 0)) {
+            draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x - 4, gbtn->scr_pos_y - 32, gbtn->field_29, 44);
+        } else {
+            draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4, gbtn->scr_pos_y - 32, gbtn->field_29);
+        }
+        char *c;
+        for (c=text; *c != 0; c++) {
+            *c = (*c) - 120;
+        }
+    } else
+    {
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4, gbtn->scr_pos_y - 32, gbtn->field_29 + 1);
+    }
+    draw_string64k(gbtn->scr_pos_x + 44, gbtn->scr_pos_y + 8 - 6, text);
+    lbDisplay.DrawFlags = flg_mem;
 }
 
 /**

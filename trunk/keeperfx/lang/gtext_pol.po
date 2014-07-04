@@ -1406,7 +1406,7 @@ msgstr ""
 #: guitext:121
 msgctxt "In-game message"
 msgid ""
-"Your manufacturers have crafted the Lava Trap. Afrer enemy creature steps on "
+"Your manufacturers have crafted the Lava Trap. After enemy creature steps on "
 "it, the area around changes into molten lava, which most creatures won't "
 "even try to pass."
 msgstr ""
