@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-06-26 22:52+0100\n"
+"PO-Revision-Date: 2014-07-04 18:30+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: pl_PL\n"
@@ -1405,8 +1405,14 @@ msgstr ""
 #. Level Elf's Dance information
 #: guitext:121
 msgctxt "In-game message"
-msgid "Your manufacturers have crafted the Lava Trap."
-msgstr "Twoi rzemieślnicy skonstruowali Pułapkę Magmową."
+msgid ""
+"Your manufacturers have crafted the Lava Trap. Afrer enemy creature steps on "
+"it, the area around changes into molten lava, which most creatures won't "
+"even try to pass."
+msgstr ""
+"Twoi rzemieślnicy skonstruowali Pułapkę Magmową. Gdy depnie na nią wróg, "
+"teren wokól zmieni się w płynną Magmę, której większość stworów nie będzie w "
+"stanie przebyć."
 
 #. Level Mirthshire objective
 #: guitext:122
@@ -1640,12 +1646,12 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "You are indeed a twisted soul, master. You made the Imps extinct with such "
-"panache that not one but two Dark Mistresses have devoted themselves to "
-"helping you achieve your next goal. You may proceed to your next conquest."
+"panache that Dark Mistress have devoted herself to helping you achieve your "
+"next goal. You may proceed to your next conquest."
 msgstr ""
 "Zaiste, masz pokrętną duszę, panie. Zagładę tych Chochlików uczyniłeś tak "
-"bolesną, że nie jedna, a dwie Czarne Damy ofiarują ci swoją pomoc w "
-"wykonaniu następnego zlecenia. Zajmij się kolejnym podbojem."
+"bolesną, że Czarna Dama ofiaruje ci swoją pomoc w wykonaniu następnego "
+"zlecenia. Zajmij się kolejnym podbojem."
 
 #. Level Bonus 3 objective
 #: guitext:144
@@ -1667,7 +1673,7 @@ msgstr "Upłynęła połowa wyznaczonego czasu."
 #: guitext:146
 msgctxt "In-game message"
 msgid "You are out of time. That was a shocking performance."
-msgstr "Zabrakło ci czasu. Twa niezdarność przyprawia o czkawkę."
+msgstr "Zabrakło ci czasu. Ten ładunek niezdarności przyprawia o czkawkę."
 
 #. Level Bonus 3 objective
 #: guitext:147
@@ -1689,7 +1695,7 @@ msgid ""
 "You have no gold left. It pays to keep your head in such a charged "
 "environment."
 msgstr ""
-"Nie masz już złota. W tej zmienionej sytuacji opłaca się działać z głową."
+"Nie masz już złota. W tak elektryzującej sytuacji opłaca się działać z głową."
 
 #: guitext:149
 msgctxt "In-game message"
@@ -3497,36 +3503,40 @@ msgstr ""
 "działanie."
 
 #: guitext:450
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Workshop Panel: The traps and doors available to you. You can center the map "
 "on them, place new ones or sell existing."
-msgstr "Pulpit warsztatu: Dostępne drzwi i pułapki. [8.0]"
+msgstr ""
+"Pulpit warsztatu: Dostępne drzwi i pułapki. Możesz ustawić na nich widok "
+"PPM, rozstawić nowe lub sprzedać już rozstawione LPM."
 
 #: guitext:451
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Creature Panel: Information on your creatures. Shows activity of your "
 "creatures and allows picking them up."
-msgstr "Pulpit stworów: Informacje o Twoich stworach. [9.0]"
+msgstr ""
+"Pulpit stworów: Informacje o Twoich stworach. Tu sprawdzisz czym się "
+"zajmują, możesz też je podnosić."
 
 #: guitext:452
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Research Time: The time until a new spell is researched. Scholars in your "
 "Library are making progress on this bar."
-msgstr "Czas badań: Czas, jaki upłynie do odkrycia nowego zaklęcia. [5.4]"
+msgstr ""
+"Czas badań: Czas, jaki upłynie do odkrycia nowego zaklęcia. Rośnie gdy "
+"stwory w twojej bibliotece czynią postępy w badaniach."
 
 #: guitext:453
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Workshop Time: The time until a new trap is manufactured. Workers in your "
 "Workshop are making progress on this bar."
-msgstr "Czas konstrukcji: Czas, jaki upłynie do ukończenia pułapki. [5.5]"
+msgstr ""
+"Czas konstrukcji: Czas, jaki upłynie do ukończenia pułapki. Rośnie wraz z "
+"postępami pracowników Warsztatu."
 
 #: guitext:454
 msgctxt "In-game interface description"
@@ -3539,21 +3549,22 @@ msgstr ""
 "wynagrodzenie."
 
 #: guitext:455
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Number of Rooms: The number of rooms held by this Keeper. Allows you to "
 "compare your dungeon with the competitors."
 msgstr ""
-"Liczba pomieszczeń: Liczba pomieszczeń, jakie posiada dany strażnik. [5.6]"
+"Liczba pomieszczeń: Liczba pomieszczeń, jakie posiada dany strażnik. Pozwala "
+"ci porównać rozwój lochu z rywalami."
 
 #: guitext:456
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Number of Creatures: The number of creatures owned by this Keeper. Allows "
 "you to compare your army with other Keepers."
-msgstr "Liczba stworów: Liczba stworów, jakie posiada dany strażnik. [5.7]"
+msgstr ""
+"Liczba stworów: Liczba stworów, jakie posiada dany strażnik. Pozwala ci "
+"porównać liczność armii z innymi strażnikami."
 
 #: guitext:457
 msgctxt "Menu interface item"
@@ -3581,11 +3592,11 @@ msgid "Deathmatch"
 msgstr "Śmiertelne starcie"
 
 #: guitext:462
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Sell Room: Sell a room tile for half the building price. LMB select."
 msgstr ""
-"Sprzedaż pomieszczenia: Kliknij LPM, a otrzymasz połowę kosztów budowy. [6.4]"
+"Sprzedaż pomieszczenia: Kliknij LPM, a spieniężysz komnatę otrzymując połowę "
+"kosztów budowy."
 
 #: guitext:463
 msgctxt "In-game interface description"
@@ -4006,14 +4017,13 @@ msgstr ""
 "wykopane, ale wydobywa się je wolniej niż Złoto."
 
 #: guitext:545
-#, fuzzy
 msgctxt "Object description"
 msgid ""
 "Hero Gate: Heroes use this portal to invade your dungeon. It cannot be "
 "closed on your side."
 msgstr ""
 "Wejście bohaterów: Za pośrednictwem tego przejścia bohaterowie dostają się "
-"do lochu. [15.4]"
+"do lochu. Od tej strony nie można go zamknąć."
 
 #: guitext:546
 msgctxt "Creature name"
@@ -4026,36 +4036,30 @@ msgid "Avatar"
 msgstr "Avatar"
 
 #: guitext:548
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Toggle Computer Assistant: Currently - Aggressive. LMB toggle."
 msgstr ""
-"Przełącznik komputerowego pomocnika: Bieżący tryb - agresywny. LPM "
-"przełącza. [3.2.4]"
+"Przełącznik komputerowego pomocnika: Bieżący tryb - agresywny. LPM przełącza."
 
 #: guitext:549
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Toggle Computer Assistant: Currently - Defensive. LMB toggle."
 msgstr ""
 "Przełącznik komputerowego pomocnika: Bieżący tryb - defensywny. LPM "
-"przełącza. [3.2.4]"
+"przełącza."
 
 #: guitext:550
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Toggle Computer Assistant: Currently - Construction Only. LMB toggle."
 msgstr ""
-"Przełącznik komputerowego pomocnika: Bieżący tryb - rozbudowa. LPM "
-"przełącza. [3.2.4]"
+"Przełącznik komputerowego pomocnika: Bieżący tryb - rozbudowa. LPM przełącza."
 
 #: guitext:551
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Toggle Computer Assistant: Currently - Move Only. LMB toggle."
 msgstr ""
 "Przełącznik komputerowego pomocnika: Bieżący tryb - przemieszczanie. LPM "
-"przełącza. [3.2.4]"
+"przełącza."
 
 #: guitext:552
 msgctxt "In-game tab with rooms"
@@ -4216,7 +4220,6 @@ msgid "Lava Trap"
 msgstr "Pułapka magmowa"
 
 #: guitext:584
-#, fuzzy
 msgctxt "Trap description"
 msgid ""
 "Boulder Trap: A rolling rock that crushes everything in its path. Triggered "
@@ -4224,37 +4227,37 @@ msgid ""
 "Keeper. LMB select. RMB zoom."
 msgstr ""
 "Pułapka kamienna: Toczący się głaz, który miażdży wszystko na swej drodze. "
-"LPM uaktywnia. PPM przybliża. [20.1]"
+"Aktywuje się gdy wróg ukaże się w linii toczenia, bądź gdy dasz jej klapsa. "
+"LPM uaktywnia. PPM przybliża."
 
 #: guitext:585
-#, fuzzy
 msgctxt "Trap description"
 msgid ""
 "Alarm Trap: Triggers a Call To Arms spell, so that creatures in the area are "
 "summoned to it. LMB select. RMB zoom."
 msgstr ""
-"Czujnik alarmowy: Uruchamia zaklęcie 'Do broni'. LPM uaktywnia. PPM "
-"przybliża. [20.2]"
+"Czujnik alarmowy: Uruchamia zaklęcie 'Do broni', wzywając twe okoliczne "
+"stwory w miejsce uaktywnienia. LPM uaktywnia. PPM przybliża."
 
 #: guitext:586
-#, fuzzy
 msgctxt "Trap description"
 msgid ""
 "Poison Gas Trap: A cloud of noxious vapours triggered by your enemies. Can "
 "hurt owner creatures if they inhale it. LMB select. RMB zoom."
 msgstr ""
 "Pułapka gazowa: Obłok trujących oparów, wyzwalany przez nieostrożnych "
-"intruzów. LPM uaktywnia. PPM przybliża. [20.3]"
+"intruzów. Działa na wszystkie wdychające je stwory, również twoje. LPM "
+"uaktywnia. PPM przybliża."
 
 #: guitext:587
-#, fuzzy
 msgctxt "Trap description"
 msgid ""
 "Lightning Trap: Strikes nearby enemy creatures with bolts of lightning when "
 "tripped. Does no harm to owner creatures. LMB select. RMB zoom."
 msgstr ""
-"Pułapka elektryczna: Ostrzeliwuje błyskawicami pobliskie wrogie stwory. LPM "
-"uaktywnia. PPM przybliża. [20.4]"
+"Pułapka elektryczna: Ostrzeliwuje błyskawicami pobliskie wrogie stwory. "
+"Wystarczająco precyzyjna by nie szkodzić twoim stworom. LPM uaktywnia. PPM "
+"przybliża."
 
 #: guitext:588
 msgctxt "Trap description"
@@ -6464,21 +6467,25 @@ msgid "Your creature cannot reach the room it needs"
 msgstr "Część twoich stworów nie może dostać się do komnaty"
 
 #: guitext:946
-#, fuzzy
 msgctxt "Game event description"
 msgid "Work room unreachable: LMB toggle. RMB delete."
-msgstr "Komnata nieosiągalna: LPM przełącza, PPM likwiduje."
+msgstr "Komnata nieosiągalna dla pracownika: LPM przełącza, PPM likwiduje."
 
 #: guitext:947
-#, fuzzy
 msgctxt "Game event name"
 msgid "Your Imp cannot reach a room to drag something into"
-msgstr "Część twoich stworów nie może dostać się do komnaty"
+msgstr ""
+"Część twoich stworów nie może dostać się do komnaty by zaciągnąć tam co "
+"trzeba"
 
 #: guitext:948
 msgctxt "Game event description"
 msgid "Storage room unreachable: LMB toggle. RMB delete."
 msgstr "Komnata magazynująca nieosiągalna: LPM przełącza, PPM likwiduje."
+
+#~ msgctxt "In-game message"
+#~ msgid "Your manufacturers have crafted the Lava Trap."
+#~ msgstr "Twoi rzemieślnicy skonstruowali Pułapkę Magmową."
 
 #~ msgctxt "Slab description"
 #~ msgid "Impenetrable Rock: Your Imps cannot dig through this. [12.4]"
