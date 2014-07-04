@@ -282,7 +282,7 @@ struct GuiButtonInit frontend_net_serial_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0,  41, 178,  41, 178, 212, 26, frontnet_draw_small_scroll_box_tab,0, 201,  0,  {28}, 0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0,  41, 204,  41, 204, 268, 70, frontnet_draw_small_scroll_box,    0, 201,  0,  {24}, 0, 0, NULL },
   { 1,  0, 0, 0, frontnet_comport_up,NULL,   frontend_over_button,    0, 275, 204, 275, 204,  26, 14, frontnet_draw_slider_button,       0, 201,  0,  {17}, 0, 0, frontnet_comport_up_maintain },
-  { 1,  0, 0, 0, frontnet_comport_down,NULL, frontend_over_button,    0, 275, 262, 275, 262,  26, 14, frontnet_draw_slider_button,       0, 201,  0,  {18}, 0, 0, frontnet_comport_down_maintain },
+  { 1,  0, 0, 0, frontnet_comport_down,NULL, frontend_over_button,    0, 275, 261, 275, 261,  26, 14, frontnet_draw_slider_button,       0, 201,  0,  {18}, 0, 0, frontnet_comport_down_maintain },
   { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0, 279, 218, 279, 218,  22, 44, frontnet_draw_comport_scroll_tab,  0, 201,  0,  {40}, 0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0,  61, 179,  61, 179, 172, 25, frontend_draw_text,                0, 201,  0,  {55}, 0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0,  41, 274,  41, 274, 268, 23, frontnet_draw_comport_selected,    0, 201,  0,  {57}, 0, 0, NULL },
@@ -291,7 +291,7 @@ struct GuiButtonInit frontend_net_serial_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0, 331, 178, 331, 178, 212, 26, frontnet_draw_small_scroll_box_tab,0, 201,  0,  {28}, 0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0, 331, 204, 331, 204, 268, 70, frontnet_draw_small_scroll_box,    0, 201,  0,  {24}, 0, 0, NULL },
   { 1,  0, 0, 0, frontnet_speed_up,NULL,     frontend_over_button,    0, 565, 204, 565, 204,  26, 14, frontnet_draw_slider_button,       0, 201,  0,  {36}, 0, 0, frontnet_speed_up_maintain },
-  { 1,  0, 0, 0, frontnet_speed_down,NULL,   frontend_over_button,    0, 565, 262, 565, 262,  26, 14, frontnet_draw_slider_button,       0, 201,  0,  {37}, 0, 0, frontnet_speed_down_maintain },
+  { 1,  0, 0, 0, frontnet_speed_down,NULL,   frontend_over_button,    0, 565, 261, 565, 261,  26, 14, frontnet_draw_slider_button,       0, 201,  0,  {37}, 0, 0, frontnet_speed_down_maintain },
   { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0, 569, 218, 569, 218,  22, 44, frontnet_draw_speed_scroll_tab,    0, 201,  0,  {40}, 0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0, 351, 179, 351, 179, 172, 25, frontend_draw_text,                0, 201,  0,  {56}, 0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0, 331, 274, 331, 274, 450, 23, frontnet_draw_speed_selected,      0, 201,  0,  {58}, 0, 0, NULL },
@@ -1159,7 +1159,94 @@ void frontnet_draw_small_scroll_selection_box(struct GuiButton *gbtn, long font_
 
 void frontnet_draw_small_scroll_box(struct GuiButton *gbtn)
 {
-  _DK_frontnet_draw_small_scroll_box(gbtn);
+    //_DK_frontnet_draw_small_scroll_box(gbtn); return;
+    long pos_x, pos_y;
+    struct TbSprite *spr;
+    pos_x = gbtn->scr_pos_x;
+    pos_y = gbtn->scr_pos_y;
+    int btn_type;
+    int len;
+    btn_type = (long)gbtn->content;
+    if (btn_type == 24) {
+        len = 2;
+    } else
+    if (btn_type == 25) {
+        len = 3;
+    } else
+    if (btn_type == 26) {
+        len = 7;
+    } else {
+        ERRORLOG("Unknown button type %d",(int)btn_type);
+        return;
+    }
+    spr = &frontend_sprite[25];
+    LbSpriteDraw(pos_x, pos_y, spr);
+    pos_x += spr->SWidth;
+    spr++;
+    LbSpriteDraw(pos_x, pos_y, spr);
+    pos_x += spr->SWidth;
+    spr++;
+    LbSpriteDraw(pos_x, pos_y, spr);
+    pos_x += spr->SWidth;
+    spr += 3;
+    LbSpriteDraw(pos_x, pos_y, spr);
+    pos_x += spr->SWidth;
+    spr++;
+    LbSpriteDraw(pos_x, pos_y, spr);
+
+    int dlen;
+    dlen = 3;
+    spr = &frontend_sprite[25];
+    pos_y += spr->SHeight;
+    for ( ; len > 0; len -= dlen)
+    {
+      pos_x = gbtn->scr_pos_x;
+      int spr_idx;
+      if (len < 3)
+          spr_idx = 33;
+      else
+          spr_idx = 40;
+      spr = &frontend_sprite[spr_idx];
+      LbSpriteDraw(pos_x, pos_y, spr);
+      pos_x += spr->SWidth;
+      spr++;
+      LbSpriteDraw(pos_x, pos_y, spr);
+      pos_x += spr->SWidth;
+      spr++;
+      LbSpriteDraw(pos_x, pos_y, spr);
+      pos_x += spr->SWidth;
+      spr += 3;
+      LbSpriteDraw(pos_x, pos_y, spr);
+      pos_x += spr->SWidth;
+      if (len < 3)
+          spr_idx = 39;
+      else
+          spr_idx = 46;
+      spr = &frontend_sprite[spr_idx];
+      LbSpriteDraw(pos_x, pos_y, spr);
+      pos_y += spr->SHeight;
+      if (len < 3)
+          dlen = 1;
+      else
+          dlen = 3;
+    }
+
+    pos_x = gbtn->scr_pos_x;
+    spr = &frontend_sprite[47];
+    pos_y = gbtn->scr_pos_y + gbtn->height - spr->SHeight;
+    LbSpriteDraw(pos_x, pos_y, spr);
+    pos_x += spr->SWidth;
+    spr++;
+    LbSpriteDraw(pos_x, pos_y, spr);
+    pos_x += spr->SWidth;
+    spr++;
+    LbSpriteDraw(pos_x, pos_y, spr);
+    pos_x += spr->SWidth;
+    spr += 3;
+    LbSpriteDraw(pos_x, pos_y, spr);
+    pos_x += spr->SWidth;
+    spr++;
+    LbSpriteDraw(pos_x, pos_y, spr);
 }
 
 void frontnet_comport_up(struct GuiButton *gbtn)
@@ -1259,7 +1346,7 @@ void frontnet_draw_speed_button(struct GuiButton *gbtn)
     int i;
     int febtn_idx;
     febtn_idx = (long)gbtn->content;
-    i = net_comport_scroll_offset + febtn_idx - 47;
+    i = net_speed_scroll_offset + febtn_idx - 47;
     if (i < number_of_speeds)
     {
         // Select font to draw

@@ -593,6 +593,15 @@ void draw_button_sprite_rmleft(long x, long y, long spridx, unsigned long remap)
     LbSpriteDrawRemap(x/pixel_size, y/pixel_size, spr, &pixmap.fade_tables[remap*256]);
 }
 
+void draw_string64k(long x, long y, const char * text)
+{
+    unsigned short drwflags_mem;
+    drwflags_mem = lbDisplay.DrawFlags;
+    lbDisplay.DrawFlags &= ~0x0040;
+    LbTextDraw(x/pixel_size, y/pixel_size, text);
+    lbDisplay.DrawFlags = drwflags_mem;
+}
+
 void frontend_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h)
 {
     const int img_width = 640;
