@@ -491,6 +491,43 @@ long compute_power_price(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel)
     return price;
 }
 
+long find_spell_age_percentage(PlayerNumber plyr_idx, PowerKind pwkind)
+{
+    struct Dungeon *dungeon;
+    struct MagicStats *magstat;
+    magstat = &game.keeper_power_stats[pwkind];
+    struct Thing * thing;
+    thing = INVALID_THING;
+    unsigned long curr, total;
+    curr = 0;
+    total = 0;
+    switch (pwkind)
+    {
+    case PwrK_SIGHT:
+        dungeon = get_players_num_dungeon(plyr_idx);
+        if (dungeon->sight_casted_thing_idx > 0)
+            thing = thing_get(dungeon->sight_casted_thing_idx);
+        if (thing_exists(thing)) {
+            curr = game.play_gameturn - thing->creation_turn;
+            total = magstat->strength[dungeon->sight_casted_splevel] + 8;
+        }
+        break;
+    case PwrK_CALL2ARMS:
+        dungeon = get_players_num_dungeon(plyr_idx);
+        if (dungeon->cta_start_turn != 0)
+        {
+            curr = game.play_gameturn - dungeon->cta_start_turn;
+            total = magstat->time;
+        }
+        break;
+    default:
+        break;
+    }
+    if (total > 0)
+        return (curr << 8) / total;
+    return -1;
+}
+
 TbBool pay_for_spell(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel)
 {
     long price;
