@@ -1071,7 +1071,9 @@ msgstr ""
 #. Level Elf's Dance information
 #: guitext:121
 msgctxt "In-game message"
-msgid "Your manufacturers have crafted the Lava Trap."
+msgid "Your manufacturers have crafted the Lava Trap. Afrer enemy creature steps "
+"on it, the area around changes into molten lava, which most creatures won't even "
+"try to pass."
 msgstr ""
 
 #. Level Mirthshire objective
@@ -1255,8 +1257,8 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "You are indeed a twisted soul, master. You made the Imps extinct with such "
-"panache that not one but two Dark Mistresses have devoted themselves to "
-"helping you achieve your next goal. You may proceed to your next conquest."
+"panache that Dark Mistress have devoted herself to helping you achieve "
+"your next goal. You may proceed to your next conquest."
 msgstr ""
 
 #. Level Bonus 3 objective
