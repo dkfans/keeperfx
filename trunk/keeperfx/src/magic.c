@@ -38,6 +38,7 @@
 #include "thing_physics.h"
 #include "thing_shots.h"
 #include "thing_traps.h"
+#include "thing_factory.h"
 #include "thing_navigate.h"
 #include "creature_control.h"
 #include "creature_states.h"
@@ -1050,9 +1051,9 @@ TbResult magic_use_power_sight(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
             output_message(SMsg_GoldNotEnough, 0, true);
         return Lb_FAIL;
     }
-    pos.x.val = (stl_x << 8) + 128;
-    pos.y.val = (stl_y << 8) + 128;
-    pos.z.val = (5 << 8) + 128;
+    pos.x.val = subtile_coord_center(stl_x);
+    pos.y.val = subtile_coord_center(stl_y);
+    pos.z.val = subtile_coord_center(5);
     thing = create_object(&pos, 123, plyr_idx, -1);
     if (!thing_is_invalid(thing))
     {
@@ -1069,7 +1070,57 @@ TbResult magic_use_power_sight(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
 
 TbResult magic_use_power_cave_in(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)
 {
-    _DK_magic_use_power_cave_in(plyr_idx, stl_x, stl_y, splevel);
+    //_DK_magic_use_power_cave_in(plyr_idx, stl_x, stl_y, splevel);
+    MapSlabCoord slb_x, slb_y;
+    slb_y = subtile_slab_fast(stl_y);
+    slb_x = subtile_slab_fast(stl_x);
+    struct Map *mapblk;
+    mapblk = get_map_block_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+    long i;
+    unsigned long k;
+    k = 0;
+    i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
+    {
+        struct Thing *thing;
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_on_mapblk;
+        // Per thing code start
+        if ((thing->class_id == TCls_EffectElem) && (thing->model == 46)) {
+            break;
+        }
+        // Per thing code end
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            i = 0;
+            break;
+        }
+    }
+    if (i == 0)
+    {
+        if (plyr_idx != game.neutral_player_num)
+        {
+            if (!pay_for_spell(plyr_idx, PwrK_CAVEIN, splevel)) {
+                return Lb_FAIL;
+            }
+            struct Dungeon *dungeon;
+            dungeon = get_players_num_dungeon(plyr_idx);
+            dungeon->lvstats.num_caveins++;
+        }
+        struct Coord3d pos;
+        pos.x.val = subtile_coord_center(slab_subtile_center(slb_x));
+        pos.y.val = subtile_coord_center(slab_subtile_center(slb_y));
+        pos.z.val = 0;
+        create_thing(&pos, TCls_CaveIn, splevel, plyr_idx, -1);
+    }
     return Lb_SUCCESS;
 }
 
