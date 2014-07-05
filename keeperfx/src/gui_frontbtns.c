@@ -272,8 +272,9 @@ int guibutton_get_unused_slot(void)
 
 void kill_button(struct GuiButton *gbtn)
 {
-  if (gbtn != NULL)
-    set_flag_byte(&gbtn->flags, LbBtnF_Unknown01, false);
+    if (gbtn != NULL) {
+        gbtn->flags &= ~LbBtnF_Unknown01;
+    }
 }
 
 void kill_button_area_input(void)
