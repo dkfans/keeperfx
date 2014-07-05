@@ -1257,7 +1257,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "You are indeed a twisted soul, master. You made the Imps extinct with panache "
-"which certain females find very attractive. Dark Mistress has devoted herself "
+"which certain females find very attractive. A Dark Mistress has devoted herself "
 "to helping you achieve your next goal. You may proceed to your next conquest."
 msgstr ""
 
