@@ -2083,7 +2083,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_EventBoxActivate:
       go_on_then_activate_the_event_box(plyr_idx, pckt->field_6);
       return false;
-  case PckA_Unknown116:
+  case PckA_EventBoxClose:
       dungeon = get_players_num_dungeon(plyr_idx);
       turn_off_event_box_if_necessary(plyr_idx, dungeon->visible_event_idx);
       dungeon->visible_event_idx = 0;
