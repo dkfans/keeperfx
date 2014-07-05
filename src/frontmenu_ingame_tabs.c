@@ -44,6 +44,7 @@
 #include "gui_draw.h"
 #include "packets.h"
 #include "magic.h"
+#include "player_instances.h"
 #include "frontmenu_ingame_evnt.h"
 #include "frontmenu_ingame_opts.h"
 #include "frontmenu_ingame_map.h"
@@ -575,7 +576,13 @@ void gui_over_door_button(struct GuiButton *gbtn)
 
 void gui_remove_area_for_traps(struct GuiButton *gbtn)
 {
-    _DK_gui_remove_area_for_traps(gbtn);
+    //_DK_gui_remove_area_for_traps(gbtn);
+    struct PlayerInfo *player;
+    player = get_my_player();
+    game.manufactr_element = 0;
+    game.numfield_15181D = 0;
+    game.manufactr_tooltip = 0;
+    set_players_packet_action(player, PckA_SetPlyrState, PSt_Sell, 0, 0, 0);
 }
 
 void gui_area_big_trap_button(struct GuiButton *gbtn)
@@ -1941,7 +1948,7 @@ void gui_set_query(struct GuiButton *gbtn)
   //_DK_gui_set_query(gbtn);
     struct PlayerInfo *player;
     player = get_my_player();
-    set_players_packet_action(player, PckA_SetPlyrState, 12, 0, 0, 0);
+    set_players_packet_action(player, PckA_SetPlyrState, PSt_Unknown12, 0, 0, 0);
 }
 
 void draw_gold_total(PlayerNumber plyr_idx, long scr_x, long scr_y, long units_per_px, long long value)

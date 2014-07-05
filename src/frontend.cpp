@@ -564,12 +564,12 @@ void get_player_gui_clicks(void)
             if (player->work_state == PSt_Unknown12)
             {
               turn_off_query_menus();
-              set_players_packet_action(player, PckA_SetPlyrState, 1, 0, 0, 0);
+              set_players_packet_action(player, PckA_SetPlyrState, PSt_CtrlDungeon, 0, 0, 0);
               right_button_released = 0;
             } else
             if ((player->work_state != PSt_Unknown15) && (player->work_state != PSt_CtrlDungeon))
             {
-              set_players_packet_action(player, PckA_SetPlyrState, 1, 0, 0, 0);
+              set_players_packet_action(player, PckA_SetPlyrState, PSt_CtrlDungeon, 0, 0, 0);
               right_button_released = 0;
             }
           }

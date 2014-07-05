@@ -284,12 +284,76 @@ void gui_area_friendly_battlers(struct GuiButton *gbtn)
 
 void gui_setup_enemy_over(struct GuiButton *gbtn)
 {
-  _DK_gui_setup_enemy_over(gbtn);
+    //_DK_gui_setup_enemy_over(gbtn); return;
+    int visbtl_id;
+    visbtl_id = gbtn->field_1B;
+    if (battle_creature_over == 0)
+    {
+        struct Dungeon *dungeon;
+        dungeon = get_my_dungeon();
+        struct Thing *thing;
+        thing = INVALID_THING;
+        if (dungeon->visible_battles[visbtl_id] != 0)
+        {
+            int battlr_id;
+            battlr_id = (lbDisplay.MMouseX * pixel_size - gbtn->scr_pos_x) / (gbtn->width / 7);
+            if (battlr_id < MESSAGE_BATTLERS_COUNT-1) {
+                thing = thing_get(enemy_battler_list[battlr_id + MESSAGE_BATTLERS_COUNT * visbtl_id]);
+            }
+        }
+        if (!thing_is_invalid(thing) && thing_revealed(thing, dungeon->owner))
+        {
+            battle_creature_over = thing->index;
+        }
+    }
 }
 
 void gui_area_enemy_battlers(struct GuiButton *gbtn)
 {
-  _DK_gui_area_enemy_battlers(gbtn);
+    //_DK_gui_area_enemy_battlers(gbtn); return;
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(my_player_number);
+    BattleIndex battle_id;
+    battle_id = dungeon->visible_battles[gbtn->field_1B];
+    struct CreatureBattle *battle;
+    battle = creature_battle_get(battle_id);
+    if (creature_battle_invalid(battle)) {
+        return;
+    }
+    if (battle->fighters_num <= 0) {
+        return;
+    }
+    int scr_pos_x, wdelta;
+    wdelta = gbtn->width / 7;
+    scr_pos_x = gbtn->scr_pos_x;
+    lbDisplay.DrawFlags |= 0x0004;
+    LbDrawBox(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size,
+        gbtn->width/pixel_size, gbtn->height/pixel_size, colours[0][0][0]);
+    lbDisplay.DrawFlags &= ~0x0004;
+    int i,n;
+    for (n=0; n < 7; n++)
+    {
+        struct Thing *thing;
+        i = enemy_battler_list[n + MESSAGE_BATTLERS_COUNT*gbtn->field_1B];
+        thing = thing_get(i);
+        if (thing_is_creature(thing))
+        {
+            draw_battle_head(thing, scr_pos_x + wdelta / 2, gbtn->scr_pos_y);
+            if (thing->index == battle_creature_over)
+            {
+              if (game.play_gameturn & 2)
+              {
+                  TbPixel col;
+                  col = player_flash_colours[game.play_gameturn & 3];
+                  lbDisplay.DrawFlags |= (0x0010|0x0004);
+                  LbDrawBox(scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size,
+                    wdelta/pixel_size, gbtn->height/pixel_size, col);
+                  lbDisplay.DrawFlags &= ~(0x0010|0x0004);
+              }
+            }
+            scr_pos_x += wdelta;
+        }
+    }
 }
 
 short zoom_to_fight(unsigned char a1)
