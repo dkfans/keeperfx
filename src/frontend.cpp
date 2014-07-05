@@ -1407,7 +1407,35 @@ void frontend_change_state(struct GuiButton *gbtn)
 
 void frontend_draw_enter_text(struct GuiButton *gbtn)
 {
-    _DK_frontend_draw_enter_text(gbtn);
+    //_DK_frontend_draw_enter_text(gbtn); return;
+    int font_idx;
+    font_idx = 1;
+    if (gbtn == input_button) {
+        font_idx = 2;
+    } else
+    if ((gbtn->flags & 0x08) == 0) {
+        font_idx = 3;
+    } else
+    if ((gbtn->content != NULL) && (gbtn->field_1B == frontend_mouse_over_button)) {
+        font_idx = 2;
+    }
+    char *srctext;
+    srctext = (char *)gbtn->content;
+    while (LbTextStringWidth(srctext) > 240)
+        srctext[strlen(srctext)-2] = 0;
+    char text[2048];
+    // Prepare text buffer
+    TbBool print_with_cursor = 0;
+    if (gbtn == input_button)
+    {
+        if ((LbTimerClock() / 200 & 1) != 0)
+            print_with_cursor = 1;
+    }
+    snprintf(text, sizeof(text), "%s%s", srctext, print_with_cursor?"_":"");
+    LbTextSetFont(frontend_font[font_idx]);
+    lbDisplay.DrawFlags = 0x0020;
+    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, 240 + LbTextCharWidth('_'), gbtn->height);
+    LbTextDraw(0, 0, text);
 }
 
 void frontend_draw_small_menu_button(struct GuiButton *gbtn)
@@ -1568,7 +1596,14 @@ void gui_go_to_event(struct GuiButton *gbtn)
 
 void gui_close_objective(struct GuiButton *gbtn)
 {
-  _DK_gui_close_objective(gbtn);
+    //_DK_gui_close_objective(gbtn); return;
+    struct PlayerInfo *player;
+    player = get_my_player();
+    set_players_packet_action(player, PckA_EventBoxClose, 0, 0, 0, 0);
+    // The final effect of this packet should be 3 menus disabled
+    /*turn_off_menu(GMnu_TEXT_INFO);
+    turn_off_menu(GMnu_BATTLE);
+    turn_off_menu(GMnu_DUNGEON_SPECIAL);*/
 }
 
 void gui_scroll_text_up(struct GuiButton *gbtn)

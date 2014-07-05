@@ -392,13 +392,13 @@ void set_menu_visible_off(MenuID menu_id)
 
 void kill_menu(struct GuiMenu *gmnu)
 {
-    struct GuiButton *gbtn;
     int i;
     if (gmnu->visible)
     {
       gmnu->visible = 0;
       for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
       {
+          struct GuiButton *gbtn;
           gbtn = &active_buttons[i];
           if ((gbtn->flags & LbBtnF_Unknown01) && (gbtn->gmenu_idx == gmnu->number)) {
               kill_button(gbtn);
