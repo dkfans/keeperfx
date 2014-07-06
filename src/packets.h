@@ -133,7 +133,7 @@ enum TbPacketAction {
         PckA_Unknown103,
         PckA_Unknown104,
         PckA_Unknown105,//105
-        PckA_Unknown106,
+        PckA_ZoomToSpell,
         PckA_ToggleComputer,
         PckA_PlyrFastMsg,
         PckA_SetComputerKind,

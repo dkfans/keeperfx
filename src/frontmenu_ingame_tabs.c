@@ -255,9 +255,142 @@ void gui_remove_area_for_rooms(struct GuiButton *gbtn)
   _DK_gui_remove_area_for_rooms(gbtn);
 }
 
+long find_room_type_capacity_total_percentage(PlayerNumber plyr_idx, RoomKind rkind)
+{
+    int used_cap, total_cap;
+    struct Dungeon *dungeon;
+    long i;
+    unsigned long k;
+    used_cap = 0;
+    total_cap = 0;
+    dungeon = get_dungeon(plyr_idx);
+    i = dungeon->room_kind[rkind];
+    k = 0;
+    while (i != 0)
+    {
+        struct Room *room;
+        room = room_get(i);
+        if (room_is_invalid(room))
+        {
+            ERRORLOG("Jump to invalid room detected");
+            break;
+        }
+        i = room->next_of_owner;
+        // Per-room code
+        used_cap += room->used_capacity;
+        total_cap += room->total_capacity;
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping rooms list");
+            break;
+        }
+    }
+    if (total_cap < 1)
+        return -1;
+    return (used_cap << 8) / total_cap;
+}
+
+long count_rooms_of_type(PlayerNumber plyr_idx, RoomKind rkind)
+{
+    struct Dungeon *dungeon;
+    long i;
+    unsigned long k;
+    dungeon = get_dungeon(plyr_idx);
+    i = dungeon->room_kind[rkind];
+    k = 0;
+    while (i != 0)
+    {
+        struct Room *room;
+        room = room_get(i);
+        if (room_is_invalid(room))
+        {
+            ERRORLOG("Jump to invalid room detected");
+            break;
+        }
+        i = room->next_of_owner;
+        // Per-room code
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping rooms list");
+            break;
+        }
+    }
+    return k;
+}
 void gui_area_big_room_button(struct GuiButton *gbtn)
 {
-  _DK_gui_area_big_room_button(gbtn);
+    //_DK_gui_area_big_room_button(gbtn);
+    struct PlayerInfo * player;
+    RoomKind rkind;
+    rkind = (int)gbtn->content;
+    player = get_my_player();
+    struct Dungeon *dungeon;
+    dungeon = get_players_dungeon(player);
+
+    unsigned short flg_mem;
+    flg_mem = lbDisplay.DrawFlags;
+
+    if (rkind == 0) {
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, 26);
+        lbDisplay.DrawFlags = flg_mem;
+        return;
+    }
+    lbDisplay.DrawFlags &= ~0x0004;
+    lbDisplay.DrawFlags &= ~0x0010;
+    int i;
+    i = find_room_type_capacity_total_percentage(player->id_number, rkind);
+    if ((rkind == RoK_ENTRANCE) || (rkind == RoK_DUNGHEART) || (i < 0))
+    {
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, 26);
+    } else
+    {
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, 23);
+        int fill_part;
+        fill_part = 42 - (2 * 21 * i / 256);
+        LbDrawBox(
+          (gbtn->scr_pos_x - fill_part + 114) / pixel_size,
+          (gbtn->scr_pos_y + 12) / pixel_size,
+          fill_part / pixel_size,
+          6 / pixel_size,
+          colours[0][0][0]);
+    }
+    lbDisplay.DrawFlags &= ~0x0040;
+
+    struct RoomStats *rstat;
+    rstat = room_stats_get_for_kind(rkind);
+    //game.chosen_room_kind
+    sprintf(gui_textbuf, "%ld", (long)rstat->cost);
+    if (rstat->cost <= dungeon->total_money_owned)
+    {
+        if ((player->work_state == 2) && (player->chosen_room_kind == game.chosen_room_kind)
+          && ((game.play_gameturn & 1) == 0))
+        {
+            draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x - 4, gbtn->scr_pos_y - 32, gbtn->field_29, 44);
+        } else {
+            draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4, gbtn->scr_pos_y - 32, gbtn->field_29);
+        }
+        // We will use a special coding for our "string" - we want chars to represent
+        // sprite index directly, without code pages and multibyte chars interpretation
+        for (i=0; gui_textbuf[i] != '\0'; i++)
+            gui_textbuf[i] -= 120;
+    } else
+    {
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4, gbtn->scr_pos_y - 32, gbtn->field_29 + 1);
+    }
+    LbTextUseByteCoding(false);
+    draw_string64k(gbtn->scr_pos_x + 44, gbtn->scr_pos_y + 8 - 6, gui_textbuf);
+    LbTextUseByteCoding(true);
+
+    long amount;
+    amount = count_rooms_of_type(player->id_number, rkind);
+    // Note that "@" is "x" in that font
+    sprintf(gui_textbuf, "@%ld", amount);
+    draw_string64k(gbtn->scr_pos_x + 40, gbtn->scr_pos_y - 14 - 6, gui_textbuf);
+    lbDisplay.DrawFlags = flg_mem;
 }
 
 /**
@@ -274,7 +407,7 @@ void go_to_next_spell_of_type(PowerKind pwkind, PlayerNumber plyr_idx)
 {
     struct Packet *pckt;
     pckt = get_packet(plyr_idx);
-    set_packet_action(pckt, PckA_Unknown106, pwkind, 0, 0, 0);
+    set_packet_action(pckt, PckA_ZoomToSpell, pwkind, 0, 0, 0);
 }
 
 void gui_go_to_next_spell(struct GuiButton *gbtn)
@@ -697,8 +830,8 @@ void gui_area_big_trap_button(struct GuiButton *gbtn)
         amount = 0;
         break;
     }
-    char *text;
-    text = buf_sprintf("@%ld", (long)amount);
+    // Note that "@" is "x" in that font
+    sprintf(gui_textbuf, "@%ld", (long)amount);
     if (amount <= 0) {
         draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4, gbtn->scr_pos_y - 32, gbtn->field_29 + 1);
     } else
@@ -710,8 +843,7 @@ void gui_area_big_trap_button(struct GuiButton *gbtn)
     } else {
         draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4, gbtn->scr_pos_y - 32, gbtn->field_29);
     }
-    lbDisplay.DrawFlags &= ~0x0040;
-    LbTextDraw((gbtn->scr_pos_x + 44) / (int)pixel_size, (gbtn->scr_pos_y + 8 - 6) / (int)pixel_size, text);
+    draw_string64k(gbtn->scr_pos_x + 44, gbtn->scr_pos_y + 8 - 6, gui_textbuf);
     lbDisplay.DrawFlags = flg_mem;
 }
 
