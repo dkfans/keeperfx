@@ -2026,30 +2026,17 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         turn_off_query(plyr_idx);
       battle_move_player_towards_battle(player, pckt->field_6);
       return 0;
-  case PckA_Unknown106:
+  case PckA_ZoomToSpell:
       if (player->work_state == PSt_Unknown15)
         turn_off_query(plyr_idx);
-      dungeon = get_players_num_dungeon(plyr_idx);
-      switch (pckt->field_6)
       {
-      case 5:
-          if (player_uses_power_sight(plyr_idx))
+          struct Coord3d locpos;
+          if (find_power_cast_place(plyr_idx, pckt->field_6, &locpos))
           {
-            struct Thing *thing;
-            thing = thing_get(dungeon->sight_casted_thing_idx);
-            player->zoom_to_pos_x = thing->mappos.x.val;
-            player->zoom_to_pos_y = thing->mappos.y.val;
-            set_player_instance(player, PI_ZoomToPos, 0);
+              player->zoom_to_pos_x = locpos.x.val;
+              player->zoom_to_pos_y = locpos.y.val;
+              set_player_instance(player, PI_ZoomToPos, 0);
           }
-          break;
-      case 6:
-          if (player_uses_call_to_arms(plyr_idx))
-          {
-            player->zoom_to_pos_x = ((unsigned long)dungeon->cta_stl_x) << 8;
-            player->zoom_to_pos_y = ((unsigned long)dungeon->cta_stl_y) << 8;
-            set_player_instance(player, PI_ZoomToPos, 0);
-          }
-          break;
       }
       pwrdata = get_power_data(pckt->field_6);
       if ( pwrdata->field_0 )

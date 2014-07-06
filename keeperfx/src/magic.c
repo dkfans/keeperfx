@@ -550,6 +550,36 @@ TbBool pay_for_spell(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel)
     return false;
 }
 
+TbBool find_power_cast_place(PlayerNumber plyr_idx, PowerKind pwkind, struct Coord3d *pos)
+{
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    switch (pwkind)
+    {
+    case PwrK_SIGHT:
+        if (player_uses_power_sight(plyr_idx))
+        {
+            struct Thing *thing;
+            thing = thing_get(dungeon->sight_casted_thing_idx);
+            pos->x.val = thing->mappos.x.val;
+            pos->y.val = thing->mappos.y.val;
+            pos->z.val = thing->mappos.z.val;
+            return true;
+        }
+        break;
+    case PwrK_CALL2ARMS:
+        if (player_uses_call_to_arms(plyr_idx))
+        {
+            pos->x.val = subtile_coord_center(dungeon->cta_stl_x);
+            pos->y.val = subtile_coord_center(dungeon->cta_stl_y);
+            pos->z.val = subtile_coord(1,0);
+            return true;
+        }
+        break;
+    }
+    return false;
+}
+
 TbResult magic_use_power_armageddon(PlayerNumber plyr_idx)
 {
     SYNCDBG(6,"Starting");
