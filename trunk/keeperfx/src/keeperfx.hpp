@@ -278,7 +278,7 @@ void tag_cursor_blocks_sell_area(unsigned char a1, long a2, long a3, long a4);
 long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel dormodel, unsigned char a5);
 void delete_room_slabbed_objects(long a1);
 unsigned char tag_cursor_blocks_place_door(unsigned char a1, long a2, long a3);
-void set_chosen_spell(long sptype, long sptooltip);
+void set_chosen_spell(PowerKind pwkind, long sptooltip);
 void set_chosen_spell_none(void);
 unsigned char tag_cursor_blocks_place_room(unsigned char a1, long a2, long a3, long a4);
 TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player);
