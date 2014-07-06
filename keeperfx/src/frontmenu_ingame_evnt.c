@@ -117,12 +117,44 @@ void activate_event_box(long evnt_idx)
 
 void gui_previous_battle(struct GuiButton *gbtn)
 {
-    _DK_gui_previous_battle(gbtn); return;
+    //_DK_gui_previous_battle(gbtn); return;
+    struct Dungeon *dungeon;
+    dungeon = get_my_dungeon();
+    BattleIndex battle_idx;
+    battle_idx = dungeon->visible_battles[0];
+    if (battle_idx != 0)
+    {
+        battle_idx = find_previous_battle_of_mine_excluding_current_list(dungeon->owner, battle_idx);
+        if (battle_idx > 0)
+        {
+            dungeon->visible_battles[0] = battle_idx;
+            battle_idx = find_next_battle_of_mine_excluding_current_list(dungeon->owner, battle_idx);
+            dungeon->visible_battles[1] = battle_idx;
+            battle_idx = find_next_battle_of_mine_excluding_current_list(dungeon->owner, battle_idx);
+            dungeon->visible_battles[2] = battle_idx;
+        }
+    }
 }
 
 void gui_next_battle(struct GuiButton *gbtn)
 {
-    _DK_gui_next_battle(gbtn); return;
+    //_DK_gui_next_battle(gbtn); return;
+    struct Dungeon *dungeon;
+    dungeon = get_my_dungeon();
+    BattleIndex battle_idx;
+    battle_idx = dungeon->visible_battles[2];
+    if (battle_idx != 0)
+    {
+        battle_idx = find_next_battle_of_mine_excluding_current_list(dungeon->owner, battle_idx);
+        if (battle_idx > 0)
+        {
+            dungeon->visible_battles[2] = battle_idx;
+            battle_idx = find_previous_battle_of_mine_excluding_current_list(dungeon->owner, battle_idx);
+            dungeon->visible_battles[1] = battle_idx;
+            battle_idx = find_previous_battle_of_mine_excluding_current_list(dungeon->owner, battle_idx);
+            dungeon->visible_battles[0] = battle_idx;
+        }
+    }
 }
 
 void gui_get_creature_in_battle(struct GuiButton *gbtn)
@@ -166,7 +198,15 @@ void gui_get_creature_in_battle(struct GuiButton *gbtn)
 
 void gui_go_to_person_in_battle(struct GuiButton *gbtn)
 {
-    _DK_gui_go_to_person_in_battle(gbtn);
+    //_DK_gui_go_to_person_in_battle(gbtn);
+    struct Thing *thing;
+    thing = thing_get(battle_creature_over);
+    if (thing_exists(thing))
+    {
+        struct Packet *pckt;
+        pckt = get_packet(my_player_number);
+        set_packet_action(pckt, PckA_Unknown087, thing->mappos.x.val, thing->mappos.y.val, 0, 0);
+    }
 }
 
 void gui_setup_friend_over(struct GuiButton *gbtn)

@@ -270,9 +270,22 @@ void gui_choose_spell(struct GuiButton *gbtn)
     choose_spell((int) gbtn->content, gbtn->tooltip_id);
 }
 
+void go_to_next_spell_of_type(PowerKind pwkind, PlayerNumber plyr_idx)
+{
+    struct Packet *pckt;
+    pckt = get_packet(plyr_idx);
+    set_packet_action(pckt, PckA_Unknown106, pwkind, 0, 0, 0);
+}
+
 void gui_go_to_next_spell(struct GuiButton *gbtn)
 {
-  _DK_gui_go_to_next_spell(gbtn);
+    PowerKind pwkind;
+    //_DK_gui_go_to_next_spell(gbtn);
+    pwkind = (int)gbtn->content;
+    struct PlayerInfo * player;
+    player = get_my_player();
+    go_to_next_spell_of_type(pwkind, player->id_number);
+    set_chosen_spell(pwkind, gbtn->tooltip_id);
 }
 
 void gui_area_spell_button(struct GuiButton *gbtn)
@@ -425,19 +438,19 @@ void gui_choose_trap(struct GuiButton *gbtn)
     choose_workshop_item((int) gbtn->content, gbtn->tooltip_id);
 }
 
-void go_to_next_trap_of_type(unsigned long kind, PlayerNumber plyr_idx)
+void go_to_next_trap_of_type(ThingModel tngmodel, PlayerNumber plyr_idx)
 {
-    static unsigned short trap[8];
+    static unsigned short seltrap[8];
     struct Thing *thing;
     int i;
     unsigned long k;
-    if (kind >= 8) {
+    if (tngmodel >= 8) {
         ERRORLOG("Bad trap kind");
         return;
     }
     k = 0;
-    i = trap[kind];
-    trap[kind] = 0;
+    i = seltrap[tngmodel];
+    seltrap[tngmodel] = 0;
     while (i != 0)
     {
         thing = thing_get(i);
@@ -448,8 +461,8 @@ void go_to_next_trap_of_type(unsigned long kind, PlayerNumber plyr_idx)
         }
         i = thing->next_of_class;
         // Per-thing code
-        if ((thing->owner == plyr_idx) && (thing->model == kind)) {
-            trap[kind] = thing->index;
+        if ((thing->owner == plyr_idx) && (thing->model == tngmodel)) {
+            seltrap[tngmodel] = thing->index;
             break;
         }
         if (i == 0) {
@@ -463,11 +476,57 @@ void go_to_next_trap_of_type(unsigned long kind, PlayerNumber plyr_idx)
           break;
         }
     }
-    i = trap[kind];
+    i = seltrap[tngmodel];
     if (i > 0) {
         struct Packet *pckt;
         pckt = get_packet(plyr_idx);
         set_packet_action(pckt, PckA_ZoomToTrap, i, 0, 0, 0);
+    }
+}
+
+void go_to_next_door_of_type(ThingModel tngmodel, PlayerNumber plyr_idx)
+{
+    static unsigned short seldoor[8];
+    struct Thing *thing;
+    int i;
+    unsigned long k;
+    if (tngmodel >= 8) {
+        ERRORLOG("Bad door kind");
+        return;
+    }
+    k = 0;
+    i = seldoor[tngmodel];
+    seldoor[tngmodel] = 0;
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+          ERRORLOG("Jump to invalid thing detected");
+          break;
+        }
+        i = thing->next_of_class;
+        // Per-thing code
+        if ((thing->owner == plyr_idx) && (thing->model == tngmodel)) {
+            seldoor[tngmodel] = thing->index;
+            break;
+        }
+        if (i == 0) {
+            i = get_thing_class_list_head(TCls_Door);
+        }
+        // Per-thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping things list");
+          break;
+        }
+    }
+    i = seldoor[tngmodel];
+    if (i > 0) {
+        struct Packet *pckt;
+        pckt = get_packet(plyr_idx);
+        set_packet_action(pckt, PckA_ZoomToDoor, i, 0, 0, 0);
     }
 }
 
@@ -488,7 +547,12 @@ void gui_go_to_next_trap(struct GuiButton *gbtn)
 
 void gui_over_trap_button(struct GuiButton *gbtn)
 {
-    _DK_gui_over_trap_button(gbtn);
+    int manufctr_idx;
+    //_DK_gui_over_trap_button(gbtn);
+    manufctr_idx = (long)gbtn->content;
+    struct ManufactureData *manufctr;
+    manufctr = get_manufacture_data(manufctr_idx);
+    gui_trap_type_highlighted = manufctr->tngmodel;
 }
 
 void gui_area_trap_button(struct GuiButton *gbtn)
@@ -566,12 +630,27 @@ void gui_area_trap_button(struct GuiButton *gbtn)
 
 void gui_go_to_next_door(struct GuiButton *gbtn)
 {
-    _DK_gui_go_to_next_door(gbtn);
+    struct PlayerInfo * player;
+    int manufctr_idx;
+    manufctr_idx = (int)gbtn->content;
+    player = get_my_player();
+    struct ManufactureData *manufctr;
+    manufctr = get_manufacture_data(manufctr_idx);
+    //_DK_gui_go_to_next_door(gbtn);
+    go_to_next_door_of_type(manufctr->tngmodel, player->id_number);
+    game.manufactr_element = manufctr_idx;
+    game.numfield_15181D = manufctr->field_8;
+    game.manufactr_tooltip = gbtn->tooltip_id;
 }
 
 void gui_over_door_button(struct GuiButton *gbtn)
 {
-    _DK_gui_over_door_button(gbtn);
+    int manufctr_idx;
+    //_DK_gui_over_door_button(gbtn);
+    manufctr_idx = (long)gbtn->content;
+    struct ManufactureData *manufctr;
+    manufctr = get_manufacture_data(manufctr_idx);
+    gui_door_type_highlighted = manufctr->tngmodel;
 }
 
 void gui_remove_area_for_traps(struct GuiButton *gbtn)

@@ -3533,14 +3533,14 @@ void init_level(void)
     game.manufactr_tooltip = 0;
 }
 
-void set_chosen_spell(long sptype, long sptooltip)
+void set_chosen_spell(PowerKind pwkind, long sptooltip)
 {
     struct SpellData *pwrdata;
-    pwrdata = get_power_data(sptype);
+    pwrdata = get_power_data(pwkind);
     if (power_data_is_invalid(pwrdata))
-      sptype = 0;
-    SYNCDBG(6,"Setting to %ld",sptype);
-    game.chosen_spell_type = sptype;
+      pwkind = 0;
+    SYNCDBG(6,"Setting to %ld",pwkind);
+    game.chosen_spell_type = pwkind;
     game.chosen_spell_look = pwrdata->field_9;
     game.chosen_spell_tooltip = sptooltip;
 }
