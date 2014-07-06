@@ -88,7 +88,80 @@ void pannel_map_draw_pixel(RealScreenCoord x, RealScreenCoord y, TbPixel col)
  */
 void draw_call_to_arms_circle(unsigned char owner, long x1, long y1, long x2, long y2, long zoom)
 {
-    _DK_draw_call_to_arms_circle(owner, x1, y1, x2, y2, zoom); return;
+    //_DK_draw_call_to_arms_circle(owner, x1, y1, x2, y2, zoom); return;
+    struct MagicStats *magstat;
+    magstat = &game.keeper_power_stats[PwrK_CALL2ARMS];
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(owner);
+    TbPixel col;
+    col = player_room_colours[owner];
+    int i;
+    i = 2*PANNEL_MAP_RADIUS / pixel_size / 2;
+    long center_x, center_y;
+    center_x = i + x2;
+    center_y = i + y2;
+    long long cscale;
+    cscale = ((game.play_gameturn + owner) & 7) * magstat->strength[dungeon->cta_splevel];
+    int dxq1, dyq1;
+    int dxq2, dyq2;
+    int dxq3, dyq3;
+    int dxq4, dyq4;
+
+    int sx, sy;
+    long base_y;
+    base_y = ((cscale >> 3) << 8) / zoom;
+    if ( base_y > 1 )
+    {
+      sy = base_y;
+      i = 3 - 2 * base_y;
+      for (sx=0; sx < sy; sx++)
+      {
+          dxq1 = center_x - sx;
+          dyq1 = center_y - sy;
+          pannel_map_draw_pixel(x1 + dxq1, y1 + dyq1, col);
+          dxq2 = center_x + sx;
+          pannel_map_draw_pixel(x1 + dxq2, y1 + dyq1, col);
+          dyq2 = sy + center_y;
+          pannel_map_draw_pixel(x1 + dxq1, y1 + dyq2, col);
+          pannel_map_draw_pixel(x1 + dxq2, y1 + dyq2, col);
+          dxq3 = center_x - sy;
+          dyq3 = center_y - sx;
+          pannel_map_draw_pixel(x1 + dxq3, y1 + dyq3, col);
+          dxq4 = center_x + sy;
+          pannel_map_draw_pixel(x1 + dxq4, y1 + dyq3, col);
+          dyq4 = sx + center_y;
+          pannel_map_draw_pixel(x1 + dxq3, y1 + dyq4, col);
+          pannel_map_draw_pixel(x1 + dxq4, y1 + dyq4, col);
+          if (i >= 0)
+          {
+              i += 4 * (sx - sy) + 10;
+              sy--;
+          } else
+          {
+              i += 4 * (sx - 1) + 10;
+          }
+      }
+
+      if (sy == sx)
+      {
+        dxq1 = center_x - sx;
+        dyq1 = center_y - sy;
+        pannel_map_draw_pixel(x1 + dxq1, y1 + dyq1, col);
+        dxq2 = center_x + sx;
+        pannel_map_draw_pixel(x1 + dxq2, y1 + dyq1, col);
+        dyq2 = sy + center_y;
+        pannel_map_draw_pixel(x1 + dxq1, y1 + dyq2, col);
+        pannel_map_draw_pixel(x1 + dxq2, y1 + dyq2, col);
+        dxq3 = center_x - sy;
+        dyq3 = center_y - sx;
+        pannel_map_draw_pixel(x1 + dxq3, y1 + dyq3, col);
+        dxq4 = center_x + sy;
+        pannel_map_draw_pixel(x1 + dxq4, y1 + dyq3, col);
+        dyq4 = sx + center_y;
+        pannel_map_draw_pixel(x1 + dxq3, y1 + dyq4, col);
+        pannel_map_draw_pixel(dxq4 + x1, dyq4 + y1, col);
+      }
+    }
 }
 
 /**
