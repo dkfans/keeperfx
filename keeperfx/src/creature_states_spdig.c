@@ -340,7 +340,7 @@ long check_out_unclaimed_traps(struct Thing *spdigtng, long range)
           break;
         i = thing->next_of_class;
         // Per-thing code
-        if (thing_is_door_or_trap_box(thing) && ((thing->field_1 & TF1_IsDragged1) == 0))
+        if (thing_is_door_or_trap_crate(thing) && ((thing->field_1 & TF1_IsDragged1) == 0))
         {
             struct SlabMap *slb;
             slb = get_slabmap_thing_is_on(thing);
@@ -352,7 +352,7 @@ long check_out_unclaimed_traps(struct Thing *spdigtng, long range)
                     {
                         // If there is a trap to arm, go arming
                         struct Thing *traptng;
-                        if (thing_is_trap_box(thing)) {
+                        if (thing_is_trap_crate(thing)) {
                             traptng = check_for_empty_trap_for_imp(spdigtng, crate_to_workshop_item_model(thing->model));
                         } else {
                             traptng = INVALID_THING;
@@ -381,12 +381,12 @@ long check_out_unclaimed_traps(struct Thing *spdigtng, long range)
                             {
                                 SYNCDBG(8,"Assigned %s with %s pickup at subtile (%d,%d)",thing_model_name(spdigtng),
                                     thing_model_name(thing),(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num);
-                                if (thing_is_trap_box(thing))
+                                if (thing_is_trap_crate(thing))
                                 {
                                     event_create_event_or_update_nearby_existing_event(thing->mappos.x.val, thing->mappos.y.val,
                                         EvKind_TrapCrateFound, spdigtng->owner, thing->index);
                                 } else
-                                if (thing_is_door_box(thing))
+                                if (thing_is_door_crate(thing))
                                 {
                                     event_create_event_or_update_nearby_existing_event(thing->mappos.x.val, thing->mappos.y.val,
                                         EvKind_DoorCrateFound, spdigtng->owner, thing->index);
@@ -651,7 +651,7 @@ TbBool check_out_crates_to_arm_trap_in_room(struct Thing *spdigtng)
           break;
         i = thing->next_of_class;
         // Per-thing code
-        if ( thing_is_trap_box(thing) )
+        if ( thing_is_trap_crate(thing) )
         {
           if ( ((thing->field_1 & TF1_IsDragged1) == 0) && (get_room_thing_is_on(thing) == room) )
           {
@@ -1629,8 +1629,16 @@ short creature_drops_crate_in_workshop(struct Thing *thing)
         return 0;
     }
     creature_drop_dragged_object(thing, cratetng);
-    cratetng->owner = thing->owner;
-    if (add_workshop_object_to_workshop(room, cratetng)) {
+    cratetng->owner = game.neutral_player_num;
+    if (thing_is_door_or_trap_crate(cratetng))
+    {
+        if (!add_workshop_object_to_workshop(room, cratetng))
+        {
+            WARNLOG("Adding %s index %d to %s room capacity failed",thing_model_name(spelltng),(int)spelltng->index,room_code_name(RoK_WORKSHOP));
+            set_start_state(thing);
+            return 1;
+        }
+        cratetng->owner = thing->owner;
         add_workshop_item_to_amounts(room->owner, crate_thing_to_workshop_item_class(cratetng),
             crate_thing_to_workshop_item_model(cratetng));
     }
@@ -1686,7 +1694,7 @@ short creature_drops_spell_object_in_library(struct Thing *thing)
     }
     // Do the dropping
     creature_drop_dragged_object(thing, spelltng);
-    spelltng->owner = thing->owner;
+    spelltng->owner = game.neutral_player_num;
     if (thing_is_spellbook(spelltng))
     {
         if (!add_item_to_room_capacity(room, true)) {
@@ -1694,6 +1702,7 @@ short creature_drops_spell_object_in_library(struct Thing *thing)
             set_start_state(thing);
             return 1;
         }
+        spelltng->owner = thing->owner;
         add_spell_to_player(book_thing_to_magic(spelltng), thing->owner);
     }
     // The action of moving object is now finished

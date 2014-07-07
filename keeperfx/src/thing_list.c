@@ -2518,7 +2518,7 @@ TbBool thing_is_shootable_by_any_player_including_objects(const struct Thing *th
             return true;
         if (object_is_gold_pile(thing))
             return true;
-        if (thing_is_door_or_trap_box(thing))
+        if (thing_is_door_or_trap_crate(thing))
             return true;
         if (thing_is_spellbook(thing) || thing_is_special_box(thing))
             return true;
@@ -2552,7 +2552,7 @@ TbBool thing_is_shootable_by_any_player_except_own_including_objects(const struc
             return true;
         if (object_is_gold_pile(thing))
             return true;
-        if (thing_is_door_or_trap_box(thing))
+        if (thing_is_door_or_trap_crate(thing))
             return true;
         if (thing_is_spellbook(thing) || thing_is_special_box(thing))
             return true;

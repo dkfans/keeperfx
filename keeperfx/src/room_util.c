@@ -372,7 +372,7 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
         thing->owner = room->owner;
         return true;
     }
-    if (thing_is_door_or_trap_box(thing))
+    if (thing_is_door_or_trap_crate(thing))
     {
         room = get_room_thing_is_on(thing);
         if (room_is_invalid(room) || (room->kind != RoK_WORKSHOP))

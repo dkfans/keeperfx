@@ -98,9 +98,9 @@ PowerKind book_thing_to_magic(const struct Thing *thing);
 
 TbBool thing_is_special_box(const struct Thing *thing);
 #define is_dungeon_special thing_is_special_box
-TbBool thing_is_door_or_trap_box(const struct Thing *thing);
-TbBool thing_is_trap_box(const struct Thing *thing);
-TbBool thing_is_door_box(const struct Thing *thing);
+TbBool thing_is_door_or_trap_crate(const struct Thing *thing);
+TbBool thing_is_trap_crate(const struct Thing *thing);
+TbBool thing_is_door_crate(const struct Thing *thing);
 TbBool thing_is_dungeon_heart(const struct Thing *thing);
 TbBool thing_is_mature_food(const struct Thing *thing);
 TbBool object_is_hero_gate(const struct Thing *thing);
