@@ -635,17 +635,17 @@ TbBool thing_is_special_box(const struct Thing *thing)
     return (box_thing_to_special(thing) > 0);
 }
 
-TbBool thing_is_door_or_trap_box(const struct Thing *thing)
+TbBool thing_is_door_or_trap_crate(const struct Thing *thing)
 {
     return (crate_thing_to_workshop_item_model(thing) > 0);
 }
 
-TbBool thing_is_trap_box(const struct Thing *thing)
+TbBool thing_is_trap_crate(const struct Thing *thing)
 {
     return (crate_thing_to_workshop_item_class(thing) == TCls_Trap);
 }
 
-TbBool thing_is_door_box(const struct Thing *thing)
+TbBool thing_is_door_crate(const struct Thing *thing)
 {
     return (crate_thing_to_workshop_item_class(thing) == TCls_Door);
 }
@@ -834,7 +834,7 @@ struct Thing *get_crate_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     //return _DK_get_crate_at_position(x, y);
     return get_object_around_owned_by_and_matching_bool_filter(
-        subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, thing_is_door_or_trap_box);
+        subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, thing_is_door_or_trap_crate);
 }
 
 long food_moves(struct Thing *objtng)

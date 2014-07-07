@@ -1447,7 +1447,7 @@ TbBool add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon)
     // Thing list loop body
     if (dungeon->digger_stack_length >= IMP_TASK_MAX_COUNT)
       break;
-    if ( thing_is_door_or_trap_box(thing) )
+    if ( thing_is_door_or_trap_crate(thing) )
     {
         if ((thing->field_1 & TF1_IsDragged1) == 0)
         {
@@ -1741,7 +1741,7 @@ struct Thing *check_place_to_pickup_crate(const struct Thing *creatng, MapSubtlC
         }
         i = thing->next_on_mapblk;
         // Per thing code start
-        if (thing_is_door_or_trap_box(thing))
+        if (thing_is_door_or_trap_crate(thing))
         {
           if ((thing->owner == creatng->owner) || is_neutral_thing(thing))
           {
@@ -2214,7 +2214,7 @@ long check_out_worker_pickup_trapbox(struct Thing *creatng, struct DiggerStack *
             break;
         }
         // Allow only trap boxes on that subtile which have a corresponding trap to be armed
-        if (thing_is_trap_box(cratng))
+        if (thing_is_trap_crate(cratng))
         {
             armtng = check_for_empty_trap_for_imp_not_being_armed(creatng, crate_thing_to_workshop_item_model(cratng));
             if (!thing_is_invalid(armtng)) {

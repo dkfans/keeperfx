@@ -742,7 +742,7 @@ int check_crates_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCo
         // Per thing code
         if (thing->class_id == TCls_Object)
         {
-            if (thing_is_door_or_trap_box(thing) && ((thing->field_1 & TF1_IsDragged1) == 0))
+            if (thing_is_door_or_trap_crate(thing) && ((thing->field_1 & TF1_IsDragged1) == 0))
             {
                 // If exceeded capacity of the library
                 if (room->used_capacity >= room->total_capacity)
@@ -792,7 +792,7 @@ void reposition_all_crates_in_room_on_subtile(struct Room *room, MapSubtlCoord s
         }
         i = thing->next_on_mapblk;
         // Per thing code
-        if (thing_is_door_or_trap_box(thing) && ((thing->field_1 & TF1_IsDragged1) == 0))
+        if (thing_is_door_or_trap_crate(thing) && ((thing->field_1 & TF1_IsDragged1) == 0))
         {
             ThingModel objkind;
             objkind = thing->model;
@@ -2711,7 +2711,7 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
             }
             i = thing->next_on_mapblk;
             // Per thing code start
-            if (thing_is_door_or_trap_box(thing) && ((thing->field_1 & TF1_IsDragged1) == 0))
+            if (thing_is_door_or_trap_crate(thing) && ((thing->field_1 & TF1_IsDragged1) == 0))
             {
                 struct Coord3d pos;
                 // Try to move crate within the room
@@ -3016,7 +3016,7 @@ void change_ownership_or_delete_object_thing_in_room(struct Room *room, struct T
         break;
     case RoK_WORKSHOP:
         // Workshop owns trap boxes, machines and anvils
-        if (thing_is_door_or_trap_box(thing) && !thing_is_dragged_or_pulled(thing))
+        if (thing_is_door_or_trap_crate(thing) && !thing_is_dragged_or_pulled(thing))
         {
             ThingClass tngclass;
             ThingModel tngmodel;
