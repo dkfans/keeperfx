@@ -1184,19 +1184,19 @@ short imp_reinforces(struct Thing *thing)
     return _DK_imp_reinforces(thing);
 }
 
-short imp_toking(struct Thing *thing)
+short imp_toking(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
-    TRACE_THING(thing);
+    TRACE_THING(creatng);
     //return _DK_imp_toking(thing);
-    cctrl = creature_control_get_from_thing(thing);
+    cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->field_282 > 0)
     {
         cctrl->field_282--;
     } else
     {
         if (cctrl->instance_id == CrInst_NULL) {
-          internal_set_thing_state(thing, thing->continue_state);
+          internal_set_thing_state(creatng, creatng->continue_state);
           return 1;
         }
     }
@@ -1205,12 +1205,21 @@ short imp_toking(struct Thing *thing)
         if (cctrl->instance_id == CrInst_NULL)
         {
             if ( ACTION_RANDOM(8) )
-                set_creature_instance(thing, CrInst_RELAXING, 0, 0, 0);
+                set_creature_instance(creatng, CrInst_RELAXING, 0, 0, 0);
             else
-                set_creature_instance(thing, CrInst_TOKING, 0, 0, 0);
+                set_creature_instance(creatng, CrInst_TOKING, 0, 0, 0);
         }
     }
-    apply_health_to_thing_and_display_health(thing, 10); //TODO CONFIG Would be nice to have toking heal as config parameter
+    if ((cctrl->instance_id == CrInst_TOKING) && (cctrl->inst_turn == cctrl->inst_action_turns))
+    {
+        struct CreatureStats *crstat;
+        crstat = creature_stats_get_from_thing(creatng);
+        if (crstat->toking_recovery != 0) {
+            HitPoints recover;
+            recover = compute_creature_max_health(crstat->toking_recovery, cctrl->explevel);
+            apply_health_to_thing_and_display_health(creatng, recover);
+        }
+    }
     return 1;
 }
 

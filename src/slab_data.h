@@ -97,6 +97,7 @@ struct SlabObj { // sizeof = 13
 #pragma pack()
 /******************************************************************************/
 #define INVALID_SLABMAP_BLOCK (&bad_slabmap_block)
+#define AROUND_SLAB_LENGTH 9
 extern const short around_slab[];
 #define SMALL_AROUND_SLAB_LENGTH 4
 extern const short small_around_slab[];

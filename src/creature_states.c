@@ -161,8 +161,8 @@ DLLIMPORT long _DK_process_creature_needs_to_eat(struct Thing *creatng, const st
 DLLIMPORT long _DK_anger_process_creature_anger(struct Thing *creatng, const struct CreatureStats *crstat);
 DLLIMPORT long _DK_process_creature_needs_to_heal(struct Thing *creatng, const struct CreatureStats *crstat);
 DLLIMPORT long _DK_get_thing_navigation_distance(struct Thing *creatng, struct Coord3d *pos, unsigned char a3);
-DLLIMPORT unsigned char _DK_get_random_position_in_dungeon_for_creature(long plyr_idx, unsigned char wandr_slot, struct Thing *thing, struct Coord3d *pos);
-DLLIMPORT long _DK_creature_will_attack_creature(struct Thing *thing, struct Thing *enmtng);
+DLLIMPORT unsigned char _DK_get_random_position_in_dungeon_for_creature(long plyr_idx, unsigned char wandr_slot, struct Thing *creatng, struct Coord3d *pos);
+DLLIMPORT long _DK_creature_will_attack_creature(struct Thing *creatng, struct Thing *enmtng);
 /******************************************************************************/
 short already_at_call_to_arms(struct Thing *creatng);
 short arrive_at_alarm(struct Thing *creatng);
@@ -1174,7 +1174,7 @@ struct Room *get_room_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
  * @param room The room inside which we want to move
  * @return
  */
-TbBool fill_mobveable_small_around_slabs_array_in_room(TbBool *avail, const struct Thing *thing, const struct Room *room)
+TbBool fill_moveable_small_around_slabs_array_in_room(TbBool *avail, const struct Thing *thing, const struct Room *room)
 {
     long n;
     long slab_base;
@@ -1310,7 +1310,7 @@ TbBool person_get_somewhere_adjacent_in_room_around_borders(const struct Thing *
     {
         // Fill the avail[] array
         TbBool avail[SMALL_AROUND_SLAB_LENGTH];
-        fill_mobveable_small_around_slabs_array_in_room(avail, thing, room);
+        fill_moveable_small_around_slabs_array_in_room(avail, thing, room);
         // Use the array to get first index
         long n;
         int arnd;
@@ -4314,46 +4314,51 @@ TbBool creature_free_for_sleep(const struct Thing *thing,  CrtrStateId state)
  * @param thing
  * @param crstat
  */
-long process_creature_needs_to_heal_critical(struct Thing *thing, const struct CreatureStats *crstat)
+long process_creature_needs_to_heal_critical(struct Thing *creatng, const struct CreatureStats *crstat)
 {
     struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
-    //return _DK_process_creature_needs_to_heal_critical(thing, crstat);
-    if (get_creature_health_permil(thing) >= gameadd.critical_health_permil) {
+    cctrl = creature_control_get_from_thing(creatng);
+    //return _DK_process_creature_needs_to_heal_critical(creatng, crstat);
+    if (get_creature_health_permil(creatng) >= gameadd.critical_health_permil) {
         return 0;
     }
-    if (!creature_can_do_healing_sleep(thing))
+    if (!creature_can_do_healing_sleep(creatng))
     {
         // Creature needs healing but cannot heal in lair - try toking
-        if (!creature_free_for_sleep(thing, CrSt_ImpToking)) {
+        struct SlabMap *slb;
+        slb = get_slabmap_thing_is_on(creatng);
+        if (slabmap_owner(slb) != creatng->owner) {
             return 0;
         }
-        if (get_creature_state_besides_interruptions(thing) == CrSt_ImpToking) {
+        if (!creature_free_for_sleep(creatng, CrSt_ImpToking)) {
             return 0;
         }
-        internal_set_thing_state(thing, CrSt_ImpToking);
-        thing->continue_state = CrSt_ImpDoingNothing;
+        if (get_creature_state_besides_interruptions(creatng) == CrSt_ImpToking) {
+            return 0;
+        }
+        internal_set_thing_state(creatng, CrSt_ImpToking);
+        creatng->continue_state = CrSt_ImpDoingNothing;
         cctrl->field_282 = 200;
         return 0;
     }
-    if (creature_is_doing_lair_activity(thing)) {
+    if (creature_is_doing_lair_activity(creatng)) {
         return 1;
     }
-    if (!creature_free_for_sleep(thing, CrSt_CreatureGoingHomeToSleep)) {
+    if (!creature_free_for_sleep(creatng, CrSt_CreatureGoingHomeToSleep)) {
         return 0;
     }
     if ( (game.play_gameturn - cctrl->healing_sleep_check_turn > 128) &&
-      ((cctrl->lair_room_id != 0) || !room_is_invalid(get_best_new_lair_for_creature(thing))) )
+      ((cctrl->lair_room_id != 0) || !room_is_invalid(get_best_new_lair_for_creature(creatng))) )
     {
-        SYNCDBG(4,"Healing critical for %s",thing_model_name(thing));
-        if (external_set_thing_state(thing, CrSt_CreatureGoingHomeToSleep)) {
+        SYNCDBG(4,"Healing critical for %s",thing_model_name(creatng));
+        if (external_set_thing_state(creatng, CrSt_CreatureGoingHomeToSleep)) {
             return 1;
         }
     } else
     {
         struct CreatureStats *crstat;
-        crstat = creature_stats_get_from_thing(thing);
-        anger_apply_anger_to_creature(thing, crstat->annoy_no_lair, AngR_NoLair, 1);
+        crstat = creature_stats_get_from_thing(creatng);
+        anger_apply_anger_to_creature(creatng, crstat->annoy_no_lair, AngR_NoLair, 1);
     }
     cctrl->healing_sleep_check_turn = game.play_gameturn;
     return 0;
