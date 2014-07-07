@@ -445,7 +445,7 @@ struct CreatureStatsOLD { // sizeof = 230
   unsigned char fear_wounded;
   unsigned char defense;
   unsigned char luck;
-  unsigned char recovery;
+  unsigned char sleep_recovery;
   unsigned short hunger_rate;
   unsigned char hunger_fill;
   unsigned short annoy_level;
@@ -540,7 +540,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned char fear_wounded;
     unsigned char defense;
     unsigned char luck;
-    unsigned char recovery;
+    unsigned char sleep_recovery;
     unsigned short hunger_rate;
     unsigned char hunger_fill;
     unsigned short annoy_level;
@@ -629,6 +629,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned short fear_noflee_factor;
     short entrance_score;
     short annoy_going_postal;
+    short toking_recovery;
 };
 
 
