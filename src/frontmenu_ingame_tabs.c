@@ -701,14 +701,18 @@ void gui_area_trap_button(struct GuiButton *gbtn)
     // Check if we should draw anything
     if (manufctr->tngclass == TCls_Trap)
     {
-        if (!is_trap_buildable(my_player_number, manufctr->tngmodel) && !is_trap_placeable(my_player_number, manufctr->tngmodel)) {
+        if (!is_trap_buildable(my_player_number, manufctr->tngmodel)
+          && !is_trap_placeable(my_player_number, manufctr->tngmodel)
+          && !is_trap_built(my_player_number, manufctr->tngmodel)) {
             lbDisplay.DrawFlags = flg_mem;
             return;
         }
     } else
     if (manufctr->tngclass == TCls_Door)
     {
-        if (!is_door_buildable(my_player_number, manufctr->tngmodel) && !is_door_placeable(my_player_number, manufctr->tngmodel)) {
+        if (!is_door_buildable(my_player_number, manufctr->tngmodel)
+          && !is_door_placeable(my_player_number, manufctr->tngmodel)
+          && !is_door_built(my_player_number, manufctr->tngmodel)) {
             lbDisplay.DrawFlags = flg_mem;
             return;
         }
