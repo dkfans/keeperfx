@@ -74,6 +74,7 @@ const struct NamedCommand creatmodel_attributes_commands[] = {
   {"PROPERTIES",      28},
   {"NAMETEXTID",      29},
   {"FEARNOFLEEFACTOR",30},
+  {"TOKINGRECOVERY",  31},
   {NULL,               0},
   };
 
@@ -221,7 +222,8 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       crstat->fear_noflee_factor = 20;
       crstat->defense = 0;
       crstat->luck = 0;
-      crstat->recovery = 1;
+      crstat->sleep_recovery = 1;
+      crstat->toking_recovery = 10;
       crstat->hunger_rate = 1;
       crstat->hunger_fill = 1;
       crstat->lair_size = 1;
@@ -405,7 +407,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->recovery = k;
+            crstat->sleep_recovery = k;
             n++;
           }
           if (n < 1)
@@ -735,6 +737,19 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           {
             k = atoi(word_buf);
             crstat->fear_noflee_factor = k;
+            n++;
+          }
+          if (n < 1)
+          {
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 31: // TOKINGRECOVERY
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            crstat->toking_recovery = k;
             n++;
           }
           if (n < 1)

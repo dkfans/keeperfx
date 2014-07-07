@@ -413,9 +413,98 @@ short creature_going_home_to_sleep(struct Thing *thing)
   return _DK_creature_going_home_to_sleep(thing);
 }
 
+long room_has_slab_adjacent(const struct Room *room, long slbkind)
+{
+    long i;
+    unsigned long k;
+    k = 0;
+    i = room->slabs_list;
+    while (i > 0)
+    {
+        // Per room tile code
+        long n;
+        for (n=0; n < AROUND_SLAB_LENGTH; n++)
+        {
+            long slab_num;
+            slab_num = i + around_slab[n];
+            struct SlabMap *slb;
+            slb = get_slabmap_direct(slab_num);
+            if (!slabmap_block_invalid(slb))
+            {
+                if (slb->kind == slbkind) {
+                    return true;
+                }
+            }
+        }
+        // Per room tile code ends
+        i = get_next_slab_number_in_room(i);
+        k++;
+        if (k > room->slabs_count)
+        {
+            ERRORLOG("Room slabs list length exceeded when sweeping");
+            break;
+        }
+    }
+    return 0;
+}
+
 short creature_sleep(struct Thing *thing)
 {
-  return _DK_creature_sleep(thing);
+    //return _DK_creature_sleep(thing);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    if ((cctrl->slap_turns > 0) || !creature_will_sleep(thing)) {
+        set_start_state(thing);
+        return 0;
+    }
+    struct Room *room;
+    room = get_room_thing_is_on(thing);
+    if (room_is_invalid(room) || (room->kind != RoK_LAIR)
+        || (cctrl->lair_room_id != room->index) || (room->owner != thing->owner)) {
+        set_start_state(thing);
+        return 0;
+    }
+    thing->movement_flags &= ~0x0020;
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(thing);
+    if (((game.play_gameturn + thing->index) % game.recovery_frequency) == 0)
+    {
+        HitPoints recover;
+        recover = compute_creature_max_health(crstat->sleep_recovery, cctrl->explevel);
+        apply_health_to_thing_and_display_health(thing, recover);
+    }
+    anger_set_creature_anger(thing, 0, AngR_NoLair);
+    anger_apply_anger_to_creature(thing, crstat->annoy_sleeping, AngR_Other, 1);
+    if (cctrl->field_82 > 0) {
+        cctrl->field_82--;
+    }
+    if (((game.play_gameturn + thing->index) & 0x3F) == 0)
+    {
+        if (ACTION_RANDOM(100) < 5) {
+            struct Dungeon *dungeon;
+            dungeon = get_dungeon(thing->owner);
+            dungeon->lvstats.backs_stabbed++;
+        }
+    }
+    if (crstat->sleep_exp_slab != SlbT_ROCK)
+    {
+        if (creature_can_gain_experience(thing) && room_has_slab_adjacent(room, crstat->sleep_exp_slab))
+        {
+            cctrl->exp_points += crstat->sleep_experience;
+            check_experience_upgrade(thing);
+        }
+    }
+    {
+        HitPoints health_max;
+        health_max = compute_creature_max_health(crstat->health, cctrl->explevel);
+        if ((crstat->heal_threshold * health_max / 256 <= thing->health) && (!cctrl->field_82))
+        {
+            set_start_state(thing);
+            return 1;
+        }
+    }
+    process_lair_enemy(thing, room);
+    return 0;
 }
 
 /******************************************************************************/
