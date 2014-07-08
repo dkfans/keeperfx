@@ -48,6 +48,8 @@ void turn_on_event_info_panel_if_necessary(unsigned short evnt_idx);
 void activate_event_box(long evnt_idx);
 
 short zoom_to_fight(unsigned char a1);
+
+void draw_bonus_timer(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

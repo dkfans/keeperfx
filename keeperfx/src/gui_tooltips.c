@@ -560,14 +560,14 @@ void draw_tooltip_at(long ttpos_x,long ttpos_y,char *tttext)
 
 void draw_tooltip(void)
 {
-  SYNCDBG(7,"Starting");
-  LbTextSetFont(winfont);
-  if ((tool_tip_box.flags & TTip_Visible) != 0)
-  {
-    draw_tooltip_at(tool_tip_box.pos_x,tool_tip_box.pos_y,tool_tip_box.text);
-  }
-  LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-  set_flag_byte(&tool_tip_box.flags,TTip_Visible,false);
+    SYNCDBG(7,"Starting");
+    LbTextSetFont(winfont);
+    if ((tool_tip_box.flags & TTip_Visible) != 0)
+    {
+        draw_tooltip_at(tool_tip_box.pos_x,tool_tip_box.pos_y,tool_tip_box.text);
+    }
+    LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+    set_flag_byte(&tool_tip_box.flags,TTip_Visible,false);
 }
 
 /******************************************************************************/
