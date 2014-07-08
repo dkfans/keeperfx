@@ -28,7 +28,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define MAX_TRACK 7
+#define MAX_TRACK 8
 
 Mix_Music* tracks[MAX_TRACK];
 int current_track;
@@ -52,8 +52,9 @@ int InitializeMusicPlayer(void)
     {
         if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) >= 0)
         {
+            tracks[0] = NULL;
             int i;
-            for (i = 1; i <= MAX_TRACK; i++)
+            for (i = 1; i < MAX_TRACK; i++)
             {
                 const char *fname;
                 fname = prepare_file_fmtpath(FGrp_Music, "keeper%02d.ogg", i);
@@ -90,7 +91,7 @@ void ShutdownMusicPlayer(void)
     }
     Mix_HaltMusic();
     int i;
-    for (i = 1; i <= MAX_TRACK; i++)
+    for (i = 0; i < MAX_TRACK; i++)
     {
         if (tracks[i] != NULL)
         {
