@@ -22,6 +22,7 @@
 
 #include "bflib_guibtns.h"
 #include "bflib_vidraw.h"
+#include "bflib_sprfnt.h"
 
 #include "player_data.h"
 #include "player_states.h"
@@ -53,6 +54,7 @@ DLLIMPORT void _DK_gui_area_friendly_battlers(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_setup_enemy_over(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_area_enemy_battlers(struct GuiButton *gbtn);
 DLLIMPORT void _DK_draw_battle_head(struct Thing *thing, long scr_x, long scr_y);
+DLLIMPORT void _DK_draw_bonus_timer(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -409,5 +411,32 @@ short zoom_to_fight(unsigned char a1)
         return true;
     }
     return false;
+}
+
+void draw_bonus_timer(void)
+{
+    //_DK_draw_bonus_timer(); return;
+    int nturns;
+    nturns = game.bonus_time - game.play_gameturn;
+    if (nturns < 0) {
+        nturns = 0;
+    } else
+    if (nturns > 99999) {
+        nturns = 99999;
+    }
+    LbTextSetFont(winfont);
+    char * text;
+    text = buf_sprintf("%05d", nturns/2);
+    long width, height;
+    width = 10 * pixel_size * LbTextCharWidth('0');
+    height = pixel_size * LbTextStringHeight(text) + pixel_size * LbTextStringHeight(text) / 2;
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
+    long scr_x, scr_y;
+    scr_x = MyScreenWidth - width - 16;
+    scr_y = 16;
+    LbTextSetWindow(scr_x/pixel_size, scr_y/pixel_size, width/pixel_size, height/pixel_size);
+    draw_slab64k(scr_x, scr_y, width, height);
+    LbTextDraw(0/pixel_size, 0/pixel_size, text);
+    LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
 /******************************************************************************/
