@@ -1634,7 +1634,7 @@ short creature_drops_crate_in_workshop(struct Thing *thing)
     {
         if (!add_workshop_object_to_workshop(room, cratetng))
         {
-            WARNLOG("Adding %s index %d to %s room capacity failed",thing_model_name(spelltng),(int)spelltng->index,room_code_name(RoK_WORKSHOP));
+            WARNLOG("Adding %s index %d to %s room capacity failed",thing_model_name(cratetng),(int)cratetng->index,room_code_name(RoK_WORKSHOP));
             set_start_state(thing);
             return 1;
         }

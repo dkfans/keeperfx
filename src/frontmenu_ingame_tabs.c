@@ -252,7 +252,13 @@ void gui_area_event_button(struct GuiButton *gbtn)
 
 void gui_remove_area_for_rooms(struct GuiButton *gbtn)
 {
-  _DK_gui_remove_area_for_rooms(gbtn);
+    //_DK_gui_remove_area_for_rooms(gbtn);
+    game.chosen_room_kind = 0;
+    game.chosen_room_look = 0;
+    game.chosen_room_tooltip = 0;
+    struct Packet *pckt;
+    pckt = get_packet(my_player_number);
+    set_packet_action(pckt, PckA_SetPlyrState, PSt_Sell, 0, 0, 0);
 }
 
 long find_room_type_capacity_total_percentage(PlayerNumber plyr_idx, RoomKind rkind)

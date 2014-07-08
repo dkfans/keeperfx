@@ -1764,14 +1764,15 @@ short get_gui_inputs(short gameplay_on)
 {
   static char over_slider_button=-1;
   SYNCDBG(7,"Starting");
-  update_creatr_model_activities_list();
   battle_creature_over = 0;
   gui_room_type_highlighted = -1;
   gui_door_type_highlighted = -1;
   gui_trap_type_highlighted = -1;
   gui_creature_type_highlighted = -1;
-  if (gameplay_on)
-    maintain_my_battle_list();
+  if (gameplay_on) {
+      update_creatr_model_activities_list();
+      maintain_my_battle_list();
+  }
   if (!lbDisplay.MLeftButton)
   {
     drag_menu_x = -999;

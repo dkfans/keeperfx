@@ -583,15 +583,119 @@ void pannel_map_draw_overlay_things(long units_per_px, long zoom)
     }
 }
 
+void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    MapSlabCoord slb_x, slb_y;
+    slb_y = subtile_slab_fast(stl_y);
+    slb_x = subtile_slab_fast(stl_x);
+    SubtlCodedCoords stl_num;
+    stl_num = get_subtile_number(stl_x, stl_y);
+    struct Map *mapblk;
+    mapblk = get_map_block_at_pos(stl_num);
+    struct SlabMap *slb;
+    slb = get_slabmap_block(slb_x, slb_y);
+    int col;
+    col = 0;
+    int owner_col;
+    owner_col = slabmap_owner(slb);
+    if (owner_col > 6) {
+        owner_col -= 3;
+    }
+
+    if (mapblk->flags & 0x04)
+    {
+        col = 3;
+    } else
+    if (mapblk->flags & 0x80)
+    {
+        col = 4;
+    } else
+    if (mapblk->flags & 0x01)
+    {
+        col = 5;
+    } else
+    if (map_block_revealed(mapblk, plyr_idx))
+    {
+        if (mapblk->flags & 0x02)
+        {
+            struct Room *room;
+            room = room_get(slb->room_index);
+            col = owner_col + 6 * room->kind + 8;
+        } else
+        if (slb->kind == SlbT_ROCK)
+        {
+            col = 2;
+        } else
+        if (mapblk->flags & 0x20)
+        {
+            col = 1;
+        } else
+        if (mapblk->flags & 0x40)
+        {
+            struct Thing *doortng;
+            doortng = get_door_for_position(stl_x, stl_y);
+            if (!thing_is_invalid(doortng)) {
+                col = owner_col + 6 * ((doortng->byte_18 == 1) + 2 * doortng->model) + 110;
+            } else {
+                ERRORLOG("No door for flagged position");
+            }
+        } else
+        if ((mapblk->flags & 0x10) == 0)
+        {
+            if (slb->kind == SlbT_LAVA) {
+                col = 6;
+            } else
+            if (slb->kind == SlbT_WATER) {
+                col = 7;
+            } else {
+                col = owner_col + 170;
+            }
+        }
+    }
+    TbPixel *mapptr;
+    mapptr = &PannelMap[stl_num];
+    *mapptr = col;
+}
+
 void pannel_map_update(long x, long y, long w, long h)
 {
     SYNCDBG(7,"Starting");
-    _DK_pannel_map_update(x, y, w, h);
+    //_DK_pannel_map_update(x, y, w, h);
+    struct PlayerInfo *player;
+    player = get_my_player();
+    MapSubtlCoord stl_x, stl_y;
+    for (stl_y = y; stl_y < y + h; stl_y++)
+    {
+        if (stl_y >= 256)
+            break;
+        for (stl_x = x; stl_x < x + w; stl_x++)
+        {
+            if (stl_x >= 256)
+                break;
+            if (subtile_has_slab(stl_x, stl_y))
+            {
+                pannel_map_update_subtile(player->id_number, stl_x, stl_y);
+            }
+        }
+    }
 }
 
 void do_map_rotate_stuff(long a1, long a2, long *a3, long *a4, long a5)
 {
-    _DK_do_map_rotate_stuff(a1, a2, a3, a4, a5);
+    //_DK_do_map_rotate_stuff(a1, a2, a3, a4, a5);
+    struct PlayerInfo *player;
+    player = get_my_player();
+    struct Camera *cam;
+    cam = player->acamera;
+    int angle;
+    angle = cam->orient_a & 0x1FFC;
+    int shift_x, shift_y;
+    shift_x = -LbSinL(angle);
+    shift_y = LbCosL(angle);
+    *a3 = (shift_y * a1 / pixel_size + shift_x * a2 / pixel_size) >> 16;
+    *a4 = (shift_y * a2 / pixel_size - shift_x * a1 / pixel_size) >> 16;
+    *a3 = a5 * (*a3) / 256 + cam->mappos.x.stl.num;
+    *a4 = a5 * (*a4) / 256 + cam->mappos.y.stl.num;
 }
 
 short do_left_map_drag(long begin_x, long begin_y, long curr_x, long curr_y, long zoom)

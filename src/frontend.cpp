@@ -3175,7 +3175,43 @@ void draw_defining_a_key_box(void)
 
 char update_menu_fade_level(struct GuiMenu *gmnu)
 {
-    return _DK_update_menu_fade_level(gmnu);
+    //return _DK_update_menu_fade_level(gmnu);
+    int i;
+    switch (gmnu->visible)
+    {
+    case 1:
+        if (gmnu->fade_time == 0) {
+            gmnu->fade_time = 1;
+            return 0;
+        }
+        gmnu->fade_time--;
+        if (gmnu->fade_time != 0) {
+            return 0;
+        }
+        i = gmnu->menu_init->fade_time;
+        if (i)
+        {
+            gmnu->visible = 2;
+            gmnu->fade_time = i;
+        } else
+        {
+            gmnu->visible = 2;
+            gmnu->fade_time = 1;
+        }
+        return 1;
+    case 3:
+        if (gmnu->fade_time == 0) {
+            return -1;
+        }
+        gmnu->fade_time--;
+        if (gmnu->fade_time <= 0) {
+            return -1;
+        }
+        return 0;
+    default:
+        break;
+    }
+    return 0;
 }
 
 void toggle_gui_overlay_map(void)
