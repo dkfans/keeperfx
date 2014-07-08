@@ -203,7 +203,6 @@ DLLIMPORT void _DK_lose_level(struct PlayerInfo *player);
 DLLIMPORT void _DK_level_lost_go_first_person(long plridx);
 DLLIMPORT void _DK_complete_level(struct PlayerInfo *player);
 DLLIMPORT void _DK_free_swipe_graphic(void);
-DLLIMPORT void _DK_draw_bonus_timer(void);
 DLLIMPORT void _DK_engine(struct Camera *cam);
 DLLIMPORT void _DK_reinit_level_after_load(void);
 DLLIMPORT void _DK_reinit_tagged_blocks_for_player(unsigned char idx);
@@ -2839,11 +2838,6 @@ void draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, unsigned 
     }
     i = pwrdata->field_13;
     set_pointer_graphic_spell(i, game.play_gameturn);
-}
-
-void draw_bonus_timer(void)
-{
-  _DK_draw_bonus_timer(); return;
 }
 
 long near_map_block_thing_filter_queryable_object(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
