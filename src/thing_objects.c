@@ -924,6 +924,20 @@ long gold_being_dropped_at_treasury(struct Thing *thing, struct Room *room)
     return 0;
 }
 
+long process_temple_special(struct Thing *thing)
+{
+    struct Dungeon *dungeon;
+    dungeon = get_dungeon(thing->owner);
+    if (object_is_mature_food(thing))
+    {
+        dungeon->chickens_sacrificed++;
+    } else
+    {
+        dungeon->field_8D5++;
+    }
+    return 0;
+}
+
 void process_object_sacrifice(struct Thing *thing, long a2)
 {
     _DK_process_object_sacrifice(thing, a2);

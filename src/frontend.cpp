@@ -48,6 +48,7 @@
 #include "vidmode.h"
 #include "front_simple.h"
 #include "front_input.h"
+#include "front_fmvids.h"
 #include "game_saves.h"
 #include "engine_render.h"
 #include "engine_redraw.h"
@@ -470,16 +471,6 @@ struct DoorDesc doors[] = {
 };
 */
 
-const struct DemoItem demo_item[] = {
-    {DIK_SwitchState, (char *)13},
-/*
-    {DIK_LoadPacket, "PACKET1.SAV"},
-    {DIK_LoadPacket, "PACKET2.SAV"},
-*/
-    {DIK_PlaySmkVideo, "intromix.smk"},
-    {DIK_ListEnd, NULL},
-};
-
 const unsigned long alliance_grid[4][4] = {
   {0x00, 0x01, 0x02, 0x04,},
   {0x01, 0x00, 0x08, 0x10,},
@@ -698,36 +689,6 @@ void create_error_box(unsigned short msg_idx)
         strncpy(gui_error_text, gui_string(msg_idx), TEXT_BUFFER_LENGTH-1);
         turn_on_menu(GMnu_ERROR_BOX);
     }
-}
-
-void demo(void)
-{
-    static long index = 0;
-    char *fname;
-    switch (demo_item[index].numfield_0)
-    {
-    case DIK_PlaySmkVideo:
-        fname = prepare_file_path(FGrp_LoData,demo_item[index].fname);
-        play_smacker_file(fname, 1);
-        break;
-    case DIK_LoadPacket:
-        fname = prepare_file_path(FGrp_FxData,demo_item[index].fname);
-        wait_for_cd_to_be_available();
-        if ( LbFileExists(fname) )
-        {
-          strcpy(game.packet_fname, fname);
-          game.packet_load_enable = 1;
-          game.turns_fastforward = 0;
-          frontend_set_state(FeSt_PACKET_DEMO);
-        }
-        break;
-    case DIK_SwitchState:
-        frontend_set_state((long)demo_item[index].fname);
-        break;
-    }
-    index++;
-    if (demo_item[index].numfield_0 == DIK_ListEnd)
-      index = 0;
 }
 
 short game_is_busy_doing_gui(void)
@@ -1054,7 +1015,7 @@ void choose_special_spell(PowerKind pwkind, TextStringId tooltip_id)
     }
 
     dungeon = get_players_num_dungeon(my_player_number);
-    set_chosen_spell(pwkind, tooltip_id);
+    set_chosen_power(pwkind, tooltip_id);
     magstat = &game.keeper_power_stats[pwkind];
 
     if (dungeon->total_money_owned >= magstat->cost[0]) {
@@ -1095,7 +1056,7 @@ void choose_spell(PowerKind pwkind, TextStringId tooltip_id)
             (int) game.chosen_spell_type, pwkind);
     }
 
-    set_chosen_spell(pwkind, tooltip_id);
+    set_chosen_power(pwkind, tooltip_id);
 }
 
 void frontend_draw_scroll_tab(struct GuiButton *gbtn, long scroll_offset, long first_elem, long last_elem)

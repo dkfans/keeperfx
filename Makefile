@@ -79,6 +79,7 @@ obj/bflib_guibtns.o \
 obj/bflib_heapmgr.o \
 obj/bflib_inputctrl.o \
 obj/bflib_keybrd.o \
+obj/bflib_main.o \
 obj/bflib_math.o \
 obj/bflib_memory.o \
 obj/bflib_mouse.o \
@@ -158,6 +159,7 @@ obj/engine_render.o \
 obj/engine_textures.o \
 obj/front_credits.o \
 obj/front_easter.o \
+obj/front_fmvids.o \
 obj/front_highscore.o \
 obj/front_input.o \
 obj/front_landview.o \

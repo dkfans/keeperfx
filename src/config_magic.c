@@ -1107,7 +1107,7 @@ void remove_spell_from_player(PowerKind spl_idx, PlayerNumber plyr_idx)
     }
     if (game.chosen_spell_type == spl_idx)
     {
-        set_chosen_spell_none();
+        set_chosen_power_none();
     }
 }
 

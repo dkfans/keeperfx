@@ -424,7 +424,7 @@ void gui_go_to_next_spell(struct GuiButton *gbtn)
     struct PlayerInfo * player;
     player = get_my_player();
     go_to_next_spell_of_type(pwkind, player->id_number);
-    set_chosen_spell(pwkind, gbtn->tooltip_id);
+    set_chosen_power(pwkind, gbtn->tooltip_id);
 }
 
 void gui_area_spell_button(struct GuiButton *gbtn)
