@@ -1596,9 +1596,9 @@ TngUpdateRet process_creature_state(struct Thing *thing)
     SYNCDBG(18,"Executing state %s for %s index %d.",creature_state_code_name(thing->active_state),thing_model_name(thing),(int)thing->index);
     struct StateInfo *stati;
     stati = get_thing_active_state_info(thing);
-    if (stati->ofsfield_0 != NULL) {
+    if (stati->process_state != NULL) {
         short k;
-        k = stati->ofsfield_0(thing);
+        k = stati->process_state(thing);
         if (k == CrStRet_Deleted) {
             SYNCDBG(18,"Finished with creature deleted");
             return TUFRet_Deleted;
