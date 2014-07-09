@@ -265,11 +265,7 @@ void game_loop(void);
 short reset_game(void);
 void update(void);
 
-void intro(void);
-void outro(void);
-
 int can_thing_be_queried(struct Thing *thing, long a2);
-TbBool can_thing_be_possessed(struct Thing *thing, PlayerNumber plyr_idx);
 struct Thing *get_queryable_object_near(MapCoord pos_x, MapCoord pos_y, long plyr_idx);
 long tag_blocks_for_digging_in_rectangle_around(long a1, long a2, char a3);
 void untag_blocks_for_digging_in_rectangle_around(long a1, long a2, char a3);
@@ -277,8 +273,6 @@ void tag_cursor_blocks_sell_area(unsigned char a1, long a2, long a3, long a4);
 long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel dormodel, unsigned char a5);
 void delete_room_slabbed_objects(long a1);
 unsigned char tag_cursor_blocks_place_door(unsigned char a1, long a2, long a3);
-void set_chosen_spell(PowerKind pwkind, long sptooltip);
-void set_chosen_spell_none(void);
 unsigned char tag_cursor_blocks_place_room(unsigned char a1, long a2, long a3, long a4);
 TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player);
 void reset_gui_based_on_player_mode(void);
@@ -341,7 +335,6 @@ unsigned long seed_check_random(unsigned long range, unsigned long *seed, const 
 void init_lookups(void);
 void place_single_slab_type_on_map(SlabKind slbkind, MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx);
 void shuffle_unattached_things_on_slab(long a1, long a2);
-short play_smacker_file(char *filename, int nstate);
 void turn_off_query(short a);
 TbBool set_gamma(char corrlvl, TbBool do_set);
 void level_lost_go_first_person(PlayerNumber plyr_idx);
@@ -365,7 +358,6 @@ void message_add(char c);
 void init_messages(void);
 void update_thing_animation(struct Thing *thing);
 long update_cave_in(struct Thing *thing);
-long slabs_count_near(long tx,long ty,long rad,unsigned short slbtype);
 void initialise_map_collides(void);
 void initialise_map_health(void);
 void setup_3d(void);
@@ -376,7 +368,6 @@ void give_shooter_drained_health(struct Thing *shooter, long health_delta);
 long get_foot_creature_has_down(struct Thing *thing);
 void process_keeper_spell_effect(struct Thing *thing);
 unsigned long setup_move_off_lava(struct Thing *thing);
-void set_thing_draw(struct Thing *thing, long anim, long speed, long a4, char a5, char start_frame, unsigned char a7);
 
 TbPixel get_player_path_colour(unsigned short owner);
 

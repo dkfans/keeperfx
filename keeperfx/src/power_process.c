@@ -33,6 +33,7 @@
 #include "front_simple.h"
 #include "slab_data.h"
 #include "game_legacy.h"
+#include "power_hand.h"
 
 #include "keeperfx.hpp"
 
@@ -52,11 +53,39 @@ DLLIMPORT void _DK_draw_god_lightning(struct Thing *thing);
 DLLIMPORT void _DK_turn_off_call_to_arms(long a);
 DLLIMPORT void _DK_remove_explored_flags_for_power_sight(struct PlayerInfo *player);
 DLLIMPORT void _DK_update_explored_flags_for_power_sight(struct PlayerInfo *player);
+DLLIMPORT int _DK_can_thing_be_possessed(struct Thing *thing, long a2);
 /******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
 /******************************************************************************/
+/**
+ * Sets keeper power selected by local human player.
+ *
+ * @param pwkind Power to select.
+ * @param sptooltip Tooltip string index.
+ * @note Was set_chosen_spell()
+ */
+void set_chosen_power(PowerKind pwkind, TextStringId sptooltip)
+{
+    struct SpellData *pwrdata;
+    pwrdata = get_power_data(pwkind);
+    if (power_data_is_invalid(pwrdata))
+      pwkind = 0;
+    SYNCDBG(6,"Setting to %ld",pwkind);
+    game.chosen_spell_type = pwkind;
+    game.chosen_spell_look = pwrdata->field_9;
+    game.chosen_spell_tooltip = sptooltip;
+}
+
+void set_chosen_power_none(void)
+{
+    SYNCDBG(6,"Setting to %d",0);
+    game.chosen_spell_type = 0;
+    game.chosen_spell_look = 0;
+    game.chosen_spell_tooltip = 0;
+}
+
 unsigned char general_expand_check(void)
 {
     struct PlayerInfo *player;
@@ -76,6 +105,38 @@ unsigned char call_to_arms_expand_check(void)
     struct PlayerInfo *myplyr;
     myplyr = get_my_player();
     return (myplyr->field_4D2 != 0) && (!player_uses_call_to_arms(myplyr->id_number));
+}
+
+TbBool can_thing_be_possessed(const struct Thing *thing, PlayerNumber plyr_idx)
+{
+    //return _DK_can_thing_be_possessed(thing, plyr_idx);
+    if (thing->owner != plyr_idx)
+        return false;
+    if (thing_is_creature(thing))
+    {
+        if (thing_is_picked_up(thing))  {
+            return false;
+        }
+        if ((thing->active_state == CrSt_CreatureUnconscious)
+          || creature_affected_by_spell(thing, SplK_Teleport))  {
+            return false;
+        }
+        if (creature_is_being_sacrificed(thing) || creature_is_being_summoned(thing))  {
+            return false;
+        }
+        if (creature_is_kept_in_custody_by_enemy(thing))  {
+            return false;
+        }
+        return true;
+    }
+    if (thing_is_object(thing))
+    {
+        if (object_is_mature_food(thing))  {
+            return true;
+        }
+        return false;
+    }
+    return false;
 }
 
 void process_armageddon(void)

@@ -3,8 +3,6 @@
 #include <winbase.h>
 #include <math.h>
 #include <string>
-#include <SDL/SDL.h>
-#include <SDL/SDL_net.h>
 #include "keeperfx.hpp"
 
 #include "bflib_math.h"
@@ -72,6 +70,7 @@
 #include "front_landview.h"
 #include "front_lvlstats.h"
 #include "front_easter.h"
+#include "front_fmvids.h"
 #include "thing_stats.h"
 #include "thing_physics.h"
 #include "thing_creature.h"
@@ -147,7 +146,6 @@ DLLIMPORT void _DK_draw_spell_cursor(unsigned char a1, unsigned short a2, unsign
 DLLIMPORT void _DK_update_breed_activities(void);
 DLLIMPORT struct Thing *_DK_get_queryable_object_near(unsigned short a1, unsigned short a2, long a3);
 DLLIMPORT int _DK_can_thing_be_queried(struct Thing *thing, long a2);
-DLLIMPORT int _DK_can_thing_be_possessed(struct Thing *thing, long a2);
 DLLIMPORT long _DK_tag_blocks_for_digging_in_rectangle_around(long a1, long a2, char a3);
 DLLIMPORT void _DK_untag_blocks_for_digging_in_rectangle_around(long a1, long a2, char a3);
 DLLIMPORT void _DK_tag_cursor_blocks_sell_area(unsigned char a1, long a2, long a3, long a4);
@@ -163,7 +161,6 @@ DLLIMPORT void _DK_setup_3d(void);
 DLLIMPORT void _DK_setup_stuff(void);
 DLLIMPORT void _DK_init_keeper(void);
 DLLIMPORT void _DK_check_map_for_gold(void);
-DLLIMPORT void _DK_set_thing_draw(struct Thing *thing, long a2, long a3, long a4, char a5, char a6, unsigned char a7);
 DLLIMPORT void _DK_go_to_my_next_room_of_type(unsigned long rkind);
 DLLIMPORT void _DK_instant_instance_selected(long a1);
 DLLIMPORT void _DK_initialise_map_collides(void);
@@ -207,7 +204,6 @@ DLLIMPORT void _DK_reinit_tagged_blocks_for_player(unsigned char idx);
 DLLIMPORT void _DK_reset_gui_based_on_player_mode(void);
 DLLIMPORT void _DK_init_lookups(void);
 DLLIMPORT void _DK_restore_computer_player_after_load(void);
-DLLIMPORT int _DK_play_smacker_file(char *fname, int);
 DLLIMPORT long _DK_ceiling_set_info(long a1, long a2, long a3);
 DLLIMPORT void _DK_startup_saved_packet_game(void);
 DLLIMPORT void __stdcall _DK_IsRunningMark(void);
@@ -215,7 +211,6 @@ DLLIMPORT void __stdcall _DK_IsRunningUnmark(void);
 DLLIMPORT int __stdcall _DK_play_smk_(char *fname, int smkflags, int plyflags);
 DLLIMPORT void _DK_cumulative_screen_shot(void);
 DLLIMPORT void _DK_frontend_set_state(long);
-DLLIMPORT void _DK_demo(void);
 DLLIMPORT void _DK_draw_gui(void);
 DLLIMPORT void _DK_process_dungeons(void);
 DLLIMPORT void _DK_process_level_script(void);
@@ -576,68 +571,6 @@ void update_thing_animation(struct Thing *thing)
     }
 }
 
-/**
- * Plays a smacker animation file and sets frontend state to nstate.
- * @param nstate Frontend state; -1 means no change, -2 means don't even
- *    change screen mode.
- * @return Returns false if fatal error occurred and program execution should end.
- */
-short play_smacker_file(char *filename, int nstate)
-{
-  unsigned int movie_flags = 0;
-  if ( SoundDisabled )
-    movie_flags |= 0x01;
-  short result;
-
-  result = 1;
-  if ((result)&&(nstate>-2))
-  {
-    if ( setup_screen_mode_minimal(get_movies_vidmode()) )
-    {
-      LbMouseChangeSprite(NULL);
-      LbScreenClear(0);
-      LbScreenSwap();
-    } else
-    {
-      ERRORLOG("Can't enter movies video mode to play a Smacker file");
-      result=0;
-    }
-  }
-  if (result)
-  {
-    // Fail in playing shouldn't set result=0, because result=0 means fatal error.
-    if (play_smk_(filename, 0, movie_flags | 0x100) == 0)
-    {
-      ERRORLOG("Smacker play error");
-      result=0;
-    }
-  }
-  if (nstate>-2)
-  {
-    if ( !setup_screen_mode_minimal(get_frontend_vidmode()) )
-    {
-      ERRORLOG("Can't re-enter frontend video mode after playing Smacker file");
-      FatalError = 1;
-      exit_keeper = 1;
-      return 0;
-    }
-  } else
-  {
-    memset(frontend_palette, 0, PALETTE_SIZE);
-  }
-  LbScreenClear(0);
-  LbScreenSwap();
-  LbPaletteSet(frontend_palette);
-  if (nstate >= 0)
-    frontend_set_state(nstate);
-  lbDisplay.LeftButton = 0;
-  lbDisplay.RightButton = 0;
-  lbDisplay.MiddleButton = 0;
-  if (nstate > -2)
-    LbMouseSetPosition(lbDisplay.PhysicalScreenWidth/2, lbDisplay.PhysicalScreenHeight/2);
-  return result;
-}
-
 void init_censorship(void)
 {
   if ( censorship_enabled() )
@@ -792,7 +725,6 @@ TbBool initial_setup(void)
 short setup_game(void)
 {
   struct CPU_INFO cpu_info; // CPU status variable
-  char *fname;
   short result;
 
   // Do only a very basic setup
@@ -801,7 +733,7 @@ short setup_game(void)
       (int)cpu_get_type(&cpu_info),(int)cpu_get_family(&cpu_info),(int)cpu_get_model(&cpu_info),
       (int)cpu_get_stepping(&cpu_info),cpu_info.feature_edx);
   update_memory_constraits();
-  // Enable features thar require more resources
+  // Enable features that require more resources
   update_features(mem_size);
 
   // Configuration file
@@ -862,10 +794,10 @@ short setup_game(void)
   if ( is_new_moon )
     if ( !game.no_intro )
     {
-      fname = prepare_file_path(FGrp_LoData,"bullfrog.smk");
-      result = play_smacker_file(fname, -2);
-      if ( !result )
-        ERRORLOG("Unable to play new moon movie");
+        result = moon_video();
+        if ( !result ) {
+            ERRORLOG("Unable to play new moon movie");
+        }
     }
 
   result = 1;
@@ -889,8 +821,7 @@ short setup_game(void)
   }
   if ( result && (!game.no_intro) )
   {
-      fname = prepare_file_path(FGrp_LoData,"intromix.smk");
-      result = play_smacker_file(fname, -2);
+      result = intro_replay();
   }
   // Intro problems shouldn't force the game to quit,
   // so we're re-setting the result flag
@@ -3108,93 +3039,9 @@ void keeper_gameplay_loop(void)
     SYNCDBG(0,"Gameplay loop finished after %lu turns",(unsigned long)game.play_gameturn);
 }
 
-void intro(void)
-{
-    char *fname;
-    fname = prepare_file_path(FGrp_LoData, "intromix.smk");
-    SYNCDBG(0,"Playing intro movie \"%s\"",fname);
-    play_smacker_file(fname, 1);
-}
-
-void outro(void)
-{
-    char *fname;
-    fname = prepare_file_path(FGrp_LoData, "outromix.smk");
-    SYNCDBG(0,"Playing outro movie \"%s\"",fname);
-    play_smacker_file(fname, 17);
-}
-
-void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char a5, char start_frame, unsigned char a7)
-{
-    unsigned long i;
-    //_DK_set_thing_draw(thing, anim, speed, a4, a5, start_frame, a7); return;
-    thing->field_44 = convert_td_iso(anim);
-    thing->field_50 &= 0x03;
-    thing->field_50 |= (a7 << 2);
-    thing->field_49 = keepersprite_frames(thing->field_44);
-    if (speed != -1) {
-        thing->field_3E = speed;
-    }
-    if (scale != -1) {
-        thing->sprite_size = scale;
-    }
-    if (a5 != -1) {
-        set_flag_byte(&thing->field_4F, 0x40, a5);
-    }
-    if (start_frame == -2)
-    {
-      i = keepersprite_frames(thing->field_44) - 1;
-      thing->field_48 = i;
-      thing->field_40 = i << 8;
-    } else
-    if (start_frame == -1)
-    {
-      i = ACTION_RANDOM(thing->field_49);
-      thing->field_48 = i;
-      thing->field_40 = i << 8;
-    } else
-    {
-      i = start_frame;
-      thing->field_48 = i;
-      thing->field_40 = i << 8;
-    }
-}
-
 int can_thing_be_queried(struct Thing *thing, long a2)
 {
   return _DK_can_thing_be_queried(thing, a2);
-}
-
-TbBool can_thing_be_possessed(struct Thing *thing, PlayerNumber plyr_idx)
-{
-    //return _DK_can_thing_be_possessed(thing, plyr_idx);
-    if (thing->owner != plyr_idx)
-        return false;
-    if (thing_is_creature(thing))
-    {
-        if (thing_is_picked_up(thing))  {
-            return false;
-        }
-        if ((thing->active_state == CrSt_CreatureUnconscious)
-          || creature_affected_by_spell(thing, SplK_Teleport))  {
-            return false;
-        }
-        if (creature_is_being_sacrificed(thing) || creature_is_being_summoned(thing))  {
-            return false;
-        }
-        if (creature_is_kept_in_custody_by_enemy(thing))  {
-            return false;
-        }
-        return true;
-    }
-    if (thing_is_object(thing))
-    {
-        if (object_is_mature_food(thing))  {
-            return true;
-        }
-        return false;
-    }
-    return false;
 }
 
 long tag_blocks_for_digging_in_rectangle_around(long a1, long a2, char a3)
@@ -3258,48 +3105,9 @@ void initialise_map_health(void)
     _DK_initialise_map_health();
 }
 
-long slabs_count_near(long tx,long ty,long rad,unsigned short slbkind)
-{
-  long dx,dy;
-  long x,y;
-  long count;
-  count=0;
-  struct SlabMap *slb;
-  for (dy=-rad; dy <= rad; dy++)
-  {
-    y = ty+dy;
-    if ((y>=0) && (y<map_tiles_y))
-      for (dx=-rad; dx <= rad; dx++)
-      {
-        x = tx+dx;
-        if ((x>=0) && (x<map_tiles_x))
-        {
-          slb = get_slabmap_block(x, y);
-          if (slb->kind == slbkind)
-            count++;
-        }
-      }
-  }
-  return count;
-}
-
 long ceiling_init(unsigned long a1, unsigned long a2)
 {
     return _DK_ceiling_init(a1, a2);
-}
-
-long process_temple_special(struct Thing *thing)
-{
-    struct Dungeon *dungeon;
-    dungeon = get_dungeon(thing->owner);
-    if (object_is_mature_food(thing))
-    {
-        dungeon->chickens_sacrificed++;
-    } else
-    {
-        dungeon->field_8D5++;
-    }
-    return 0;
 }
 
 void do_creature_swap(long ncrt_id, long crtr_id)
@@ -3389,30 +3197,10 @@ void init_level(void)
     game.chosen_room_kind = 0;
     game.chosen_room_look = 0;
     game.chosen_room_tooltip = 0;
-    set_chosen_spell_none();
+    set_chosen_power_none();
     game.manufactr_element = 0;
     game.numfield_15181D = 0;
     game.manufactr_tooltip = 0;
-}
-
-void set_chosen_spell(PowerKind pwkind, long sptooltip)
-{
-    struct SpellData *pwrdata;
-    pwrdata = get_power_data(pwkind);
-    if (power_data_is_invalid(pwrdata))
-      pwkind = 0;
-    SYNCDBG(6,"Setting to %ld",pwkind);
-    game.chosen_spell_type = pwkind;
-    game.chosen_spell_look = pwrdata->field_9;
-    game.chosen_spell_tooltip = sptooltip;
-}
-
-void set_chosen_spell_none(void)
-{
-    SYNCDBG(6,"Setting to %d",0);
-    game.chosen_spell_type = 0;
-    game.chosen_spell_look = 0;
-    game.chosen_spell_tooltip = 0;
 }
 
 void post_init_level(void)
@@ -3552,170 +3340,170 @@ void faststartup_network_game(void)
 
 void wait_at_frontend(void)
 {
-  struct PlayerInfo *player;
-  SYNCDBG(0,"Falling into frontend menu.");
-  // Moon phase calculation
-  calculate_moon_phase(true,false);
-  update_extra_levels_visibility();
-  // Returning from Demo Mode
-  if (game.flags_cd & MFlg_IsDemoMode)
-  {
-    close_packet_file();
-    game.packet_load_enable = 0;
-  }
-  game.numfield_15 = -1;
-  // Make sure campaign is loaded
-  if (!load_campaigns_list())
-  {
-    ERRORLOG("No valid campaign files found");
-    exit_keeper = 1;
-    return;
-  }
-  // Init load/save catalogue
-  initialise_load_game_slots();
-  // Prepare to enter PacketLoad game
-  if ((game.packet_load_enable) && (!game.numfield_149F47))
-  {
-    faststartup_saved_packet_game();
-    return;
-  }
-  // Prepare to enter network/standard game
-  if ((game.numfield_C & 0x02) != 0)
-  {
-    faststartup_network_game();
-    return;
-  }
-
-  if ( !setup_screen_mode_minimal(get_frontend_vidmode()) )
-  {
-    FatalError = 1;
-    exit_keeper = 1;
-    return;
-  }
-  LbScreenClear(0);
-  LbScreenSwap();
-  if (frontend_load_data() != Lb_SUCCESS)
-  {
-    ERRORLOG("Unable to load frontend data");
-    exit_keeper = 1;
-    return;
-  }
-  memset(scratch, 0, PALETTE_SIZE);
-  LbPaletteSet(scratch);
-  frontend_set_state(get_startup_menu_state());
-
-  short finish_menu = 0;
-  set_flag_byte(&game.flags_cd,0x40,false);
-  // Begin the frontend loop
-  long last_loop_time = LbTimerClock();
-  do
-  {
-    if (!LbWindowsControl())
+    struct PlayerInfo *player;
+    SYNCDBG(0,"Falling into frontend menu.");
+    // Moon phase calculation
+    calculate_moon_phase(true,false);
+    update_extra_levels_visibility();
+    // Returning from Demo Mode
+    if (game.flags_cd & MFlg_IsDemoMode)
     {
-      if ((game.system_flags & GSF_NetworkActive) == 0)
+      close_packet_file();
+      game.packet_load_enable = 0;
+    }
+    game.numfield_15 = -1;
+    // Make sure campaign is loaded
+    if (!load_campaigns_list())
+    {
+      ERRORLOG("No valid campaign files found");
+      exit_keeper = 1;
+      return;
+    }
+    // Init load/save catalogue
+    initialise_load_game_slots();
+    // Prepare to enter PacketLoad game
+    if ((game.packet_load_enable) && (!game.numfield_149F47))
+    {
+      faststartup_saved_packet_game();
+      return;
+    }
+    // Prepare to enter network/standard game
+    if ((game.numfield_C & 0x02) != 0)
+    {
+      faststartup_network_game();
+      return;
+    }
+
+    if ( !setup_screen_mode_minimal(get_frontend_vidmode()) )
+    {
+      FatalError = 1;
+      exit_keeper = 1;
+      return;
+    }
+    LbScreenClear(0);
+    LbScreenSwap();
+    if (frontend_load_data() != Lb_SUCCESS)
+    {
+      ERRORLOG("Unable to load frontend data");
+      exit_keeper = 1;
+      return;
+    }
+    memset(scratch, 0, PALETTE_SIZE);
+    LbPaletteSet(scratch);
+    frontend_set_state(get_startup_menu_state());
+
+    short finish_menu = 0;
+    set_flag_byte(&game.flags_cd,0x40,false);
+    // Begin the frontend loop
+    long last_loop_time = LbTimerClock();
+    do
+    {
+      if (!LbWindowsControl())
       {
-          exit_keeper = 1;
-          SYNCDBG(0,"Windows Control exit condition invoked");
-          break;
+        if ((game.system_flags & GSF_NetworkActive) == 0)
+        {
+            exit_keeper = 1;
+            SYNCDBG(0,"Windows Control exit condition invoked");
+            break;
+        }
       }
-    }
-    update_mouse();
-    update_key_modifiers();
-    old_mouse_over_button = frontend_mouse_over_button;
-    frontend_mouse_over_button = 0;
+      update_mouse();
+      update_key_modifiers();
+      old_mouse_over_button = frontend_mouse_over_button;
+      frontend_mouse_over_button = 0;
 
-    frontend_input();
-    if ( exit_keeper )
-    {
-      SYNCDBG(0,"Frontend Input exit condition invoked");
-      break; // end while
-    }
+      frontend_input();
+      if ( exit_keeper )
+      {
+        SYNCDBG(0,"Frontend Input exit condition invoked");
+        break; // end while
+      }
 
-    frontend_update(&finish_menu);
-    if ( exit_keeper )
-    {
-      SYNCDBG(0,"Frontend Update exit condition invoked");
-      break; // end while
-    }
+      frontend_update(&finish_menu);
+      if ( exit_keeper )
+      {
+        SYNCDBG(0,"Frontend Update exit condition invoked");
+        break; // end while
+      }
 
-    if ((!finish_menu) && (LbIsActive()))
-    {
-      frontend_draw();
-      LbScreenSwap();
-    }
+      if ((!finish_menu) && (LbIsActive()))
+      {
+        frontend_draw();
+        LbScreenSwap();
+      }
 
-    if (!SoundDisabled)
-    {
-      process_3d_sounds();
-      process_sound_heap();
-      MonitorStreamedSoundTrack();
-    }
+      if (!SoundDisabled)
+      {
+        process_3d_sounds();
+        process_sound_heap();
+        MonitorStreamedSoundTrack();
+      }
 
-    if (fade_palette_in)
-    {
-      fade_in();
-      fade_palette_in = 0;
-    } else
-    {
-      LbSleepUntil(last_loop_time + 30);
-    }
-    last_loop_time = LbTimerClock();
-  } while (!finish_menu);
+      if (fade_palette_in)
+      {
+        fade_in();
+        fade_palette_in = 0;
+      } else
+      {
+        LbSleepUntil(last_loop_time + 30);
+      }
+      last_loop_time = LbTimerClock();
+    } while (!finish_menu);
 
-  LbPaletteFade(0, 8, Lb_PALETTE_FADE_CLOSED);
-  LbScreenClear(0);
-  LbScreenSwap();
-  short prev_state;
-  prev_state = frontend_menu_state;
-  frontend_set_state(0);
-  if (exit_keeper)
-  {
+    LbPaletteFade(0, 8, Lb_PALETTE_FADE_CLOSED);
+    LbScreenClear(0);
+    LbScreenSwap();
+    short prev_state;
+    prev_state = frontend_menu_state;
+    frontend_set_state(0);
+    if (exit_keeper)
+    {
+      player = get_my_player();
+      player->field_6 &= ~0x02;
+      return;
+    }
+    reenter_video_mode();
+
+    display_loading_screen();
+    short flgmem;
+    switch (prev_state)
+    {
+    case FeSt_START_KPRLEVEL:
+          my_player_number = default_loc_player;
+          game.game_kind = GKind_NetworkGame;
+          set_flag_byte(&game.system_flags,GSF_NetworkActive,false);
+          player = get_my_player();
+          player->field_2C = 1;
+          startup_network_game(true);
+          break;
+    case FeSt_START_MPLEVEL:
+          set_flag_byte(&game.system_flags,GSF_NetworkActive,true);
+          game.game_kind = GKind_KeeperGame;
+          player = get_my_player();
+          player->field_2C = 1;
+          startup_network_game(false);
+          break;
+    case FeSt_LOAD_GAME:
+          flgmem = game.numfield_15;
+          set_flag_byte(&game.system_flags,GSF_NetworkActive,false);
+          LbScreenClear(0);
+          LbScreenSwap();
+          if (!load_game(game.numfield_15))
+          {
+              ERRORLOG("Loading game %d failed; quitting.",(int)game.numfield_15);
+              quit_game = 1;
+          }
+          game.numfield_15 = flgmem;
+          break;
+    case FeSt_PACKET_DEMO:
+          game.flags_cd |= MFlg_IsDemoMode;
+          startup_saved_packet_game();
+          set_gui_visible(false);
+          set_flag_byte(&game.numfield_C,0x40,false);
+          break;
+    }
     player = get_my_player();
     player->field_6 &= ~0x02;
-    return;
-  }
-  reenter_video_mode();
-
-  display_loading_screen();
-  short flgmem;
-  switch (prev_state)
-  {
-  case FeSt_START_KPRLEVEL:
-        my_player_number = default_loc_player;
-        game.game_kind = GKind_NetworkGame;
-        set_flag_byte(&game.system_flags,GSF_NetworkActive,false);
-        player = get_my_player();
-        player->field_2C = 1;
-        startup_network_game(true);
-        break;
-  case FeSt_START_MPLEVEL:
-        set_flag_byte(&game.system_flags,GSF_NetworkActive,true);
-        game.game_kind = GKind_KeeperGame;
-        player = get_my_player();
-        player->field_2C = 1;
-        startup_network_game(false);
-        break;
-  case FeSt_LOAD_GAME:
-        flgmem = game.numfield_15;
-        set_flag_byte(&game.system_flags,GSF_NetworkActive,false);
-        LbScreenClear(0);
-        LbScreenSwap();
-        if (!load_game(game.numfield_15))
-        {
-            ERRORLOG("Loading game %d failed; quitting.",(int)game.numfield_15);
-            quit_game = 1;
-        }
-        game.numfield_15 = flgmem;
-        break;
-  case FeSt_PACKET_DEMO:
-        game.flags_cd |= MFlg_IsDemoMode;
-        startup_saved_packet_game();
-        set_gui_visible(false);
-        set_flag_byte(&game.numfield_C,0x40,false);
-        break;
-  }
-  player = get_my_player();
-  player->field_6 &= ~0x02;
 }
 
 void game_loop(void)
@@ -4077,21 +3865,6 @@ int main(int argc, char *argv[])
   memcpy(_DK_room_data,room_data,17*sizeof(struct RoomData));
 
 #if (BFDEBUG_LEVEL > 1)
-/*  {
-      struct PlayerInfo *player;
-      player = get_player(0);
-      text = buf_sprintf("Position of the first Player is %06x, first Camera is %06x bytes.\n",((int)player) - ((int)&_DK_game),((int)&(player->acamera)) - ((int)player));
-      error_dialog(__func__, 1, text);
-      return 0;
-  }
-  {
-      struct Dungeon *dungeon;
-      dungeon = get_dungeon(0);
-      text = buf_sprintf("Position of the first Dungeon is %06x, field_ACF is at %06x bytes.\n",
-                  ((int)dungeon) - ((int)&game),((int)(&dungeon->field_ACF)) - ((int)dungeon));
-      error_dialog(__func__, 1, text);
-      return 0;
-  }*/
   if (sizeof(struct Game) != SIZEOF_Game)
   {
       long delta1,delta2,delta3;
