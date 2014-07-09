@@ -96,6 +96,9 @@ DLLIMPORT void _DK_compressed_window_draw(void);
 DLLIMPORT void _DK_check_mouse_scroll(void);
 DLLIMPORT void _DK_update_velocity(void);
 /******************************************************************************/
+extern struct TbSetupSprite map_flag_setup_sprites[];
+extern struct TbSetupSprite netmap_flag_setup_sprites[];
+/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif

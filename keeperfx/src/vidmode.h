@@ -2,7 +2,7 @@
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
 /** @file vidmode.h
- *     Header file for vidmode.cpp.
+ *     Header file for vidmode.c.
  *     Note that this file is a C header, while its code is CPP.
  * @par Purpose:
  *     Video mode switching/setting function.
@@ -68,10 +68,15 @@ DLLIMPORT struct TbLoadFiles _DK_map_flag_load_files[];
 //#define map_flag_load_files _DK_map_flag_load_files
 DLLIMPORT struct TbLoadFiles _DK_game_load_files[];
 //#define game_load_files _DK_game_load_files
+DLLIMPORT unsigned char _DK_white_pal[256];
+#define white_pal _DK_white_pal
+DLLIMPORT unsigned char _DK_red_pal[256];
+#define red_pal _DK_red_pal
 /******************************************************************************/
 extern struct TbSprite *pointer_sprites;
 extern struct TbLoadFiles legal_load_files[];
 extern struct TbLoadFiles map_flag_load_files[];
+extern struct TbLoadFiles netmap_flag_load_files[];
 extern struct TbLoadFiles game_load_files[];
 extern unsigned short units_per_pixel_min;
 extern long base_mouse_sensitivity;
@@ -99,6 +104,10 @@ TbBool update_screen_mode_data(long width, long height);
 void load_pointer_file(short hi_res);
 TbBool load_testfont_fonts(void);
 void free_testfont_fonts(void);
+
+TbBool init_fades_table(void);
+TbBool init_alpha_table(void);
+void init_colours(void);
 
 TbBool set_pointer_graphic_none(void);
 TbBool set_pointer_graphic_menu(void);

@@ -439,4 +439,12 @@ void draw_bonus_timer(void)
     LbTextDraw(0/pixel_size, 0/pixel_size, text);
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
+
+/**
+ * Returns if there is a bonus timer visible on the level.
+ */
+TbBool bonus_timer_enabled(void)
+{
+  return ((game.flags_gui & GGUI_CountdownTimer) != 0);
+}
 /******************************************************************************/

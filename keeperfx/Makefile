@@ -255,6 +255,7 @@ obj/config_magic_data.o \
 obj/frontend.o \
 obj/sounds.o \
 obj/vidmode.o \
+obj/vidmode_data.o \
 obj/vidfade.o \
 obj/KeeperSpeechImp.o \
 obj/music_player.o \
