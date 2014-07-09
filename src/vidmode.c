@@ -29,6 +29,7 @@
 #include "bflib_sprfnt.h"
 #include "bflib_filelst.h"
 
+#include "vidfade.h"
 #include "front_simple.h"
 #include "front_landview.h"
 #include "frontend.h"
@@ -64,192 +65,44 @@ TbScreenMode frontend_vidmode = Lb_SCREEN_MODE_640_480_8;
 //struct IPOINT_2D units_per_pixel;
 unsigned short units_per_pixel_min;
 long base_mouse_sensitivity = 256;
-/******************************************************************************/
+
+short force_video_mode_reset = true;
+
 struct TbSprite *pointer_sprites;
 struct TbSprite *end_pointer_sprites;
 unsigned char * pointer_data;
 
-struct TbSetupSprite setup_sprites_minimal[] = {
-  {&frontend_font[0],     &frontend_end_font[0],  &frontend_font_data[0]},
-  {&frontend_font[1],     &frontend_end_font[1],  &frontend_font_data[1]},
-  {&frontend_font[2],     &frontend_end_font[2],  &frontend_font_data[2]},
-  {&frontend_font[3],     &frontend_end_font[3],  &frontend_font_data[3]},
-  {NULL,                  NULL,                   NULL},
-};
-
-struct TbSetupSprite setup_sprites[] = {
-  {&pointer_sprites,      &end_pointer_sprites,   &pointer_data},
-  {&font_sprites,         &end_font_sprites,      &font_data},
-  {&edit_icon_sprites,    &end_edit_icon_sprites, &edit_icon_data},
-  {&winfont,              &end_winfonts,          &winfont_data},
-  {&button_sprite,        &end_button_sprites,    &button_sprite_data},
-  {&port_sprite,          &end_port_sprites,      &port_sprite_data},
-  {&gui_panel_sprites,    &end_gui_panel_sprites, &gui_panel_sprite_data},
-  {NULL,                  NULL,                   NULL},
-};
-
-#if (BFDEBUG_LEVEL > 0)
-// Declarations for font testing screen (debug version only)
-struct TbSetupSprite setup_testfont[] = {
-  {&testfont[0],          &testfont_end[0],       &testfont_data[0]},
-  {&testfont[1],          &testfont_end[1],       &testfont_data[1]},
-  {&testfont[2],          &testfont_end[2],       &testfont_data[2]},
-  {&testfont[3],          &testfont_end[3],       &testfont_data[3]},
-  {&testfont[4],          &testfont_end[4],       &testfont_data[4]},
-  {&testfont[5],          &testfont_end[5],       &testfont_data[5]},
-  {&testfont[6],          &testfont_end[6],       &testfont_data[6]},
-  {&testfont[7],          &testfont_end[7],       &testfont_data[7]},
-  {&testfont[8],          &testfont_end[8],       &testfont_data[8]},
-  {&testfont[9],          &testfont_end[9],       &testfont_data[9]},
-  {&testfont[10],         &testfont_end[10],      &testfont_data[10]},
-  {NULL,                  NULL,                   NULL},
-};
-
-struct TbLoadFiles testfont_load_files[] = {
-  {"ldata/frontft1.dat", (unsigned char **)&testfont_data[0], NULL,                                          0, 0, 0},
-  {"ldata/frontft1.tab", (unsigned char **)&testfont[0],      (unsigned char **)&testfont_end[0],            0, 0, 0},
-  {"ldata/frontft2.dat", (unsigned char **)&testfont_data[1], NULL,                                          0, 0, 0},
-  {"ldata/frontft2.tab", (unsigned char **)&testfont[1],      (unsigned char **)&testfont_end[1],            0, 0, 0},
-  {"ldata/frontft3.dat", (unsigned char **)&testfont_data[2], NULL,                                          0, 0, 0},
-  {"ldata/frontft3.tab", (unsigned char **)&testfont[2],      (unsigned char **)&testfont_end[2],            0, 0, 0},
-  {"ldata/frontft4.dat", (unsigned char **)&testfont_data[3], NULL,                                          0, 0, 0},
-  {"ldata/frontft4.tab", (unsigned char **)&testfont[3],      (unsigned char **)&testfont_end[3],            0, 0, 0},
-  {"data/font0-0.dat",   (unsigned char **)&testfont_data[4], NULL,                                          0, 0, 0},
-  {"data/font0-0.tab",   (unsigned char **)&testfont[4],      (unsigned char **)&testfont_end[4],            0, 0, 0},
-  {"data/font0-1.dat",   (unsigned char **)&testfont_data[5], NULL,                                          0, 0, 0},
-  {"data/font0-1.tab",   (unsigned char **)&testfont[5],      (unsigned char **)&testfont_end[5],            0, 0, 0},
-  {"data/font2-32.dat",   (unsigned char **)&testfont_data[6], NULL,                                          0, 0, 0},
-  {"data/font2-32.tab",   (unsigned char **)&testfont[6],      (unsigned char **)&testfont_end[6],            0, 0, 0},
-  {"data/font2-64.dat",   (unsigned char **)&testfont_data[7], NULL,                                          0, 0, 0},
-  {"data/font2-64.tab",   (unsigned char **)&testfont[7],      (unsigned char **)&testfont_end[7],            0, 0, 0},
-  {"data/font1-64.dat",  (unsigned char **)&testfont_data[8], NULL,                                          0, 0, 0},
-  {"data/font1-64.tab",  (unsigned char **)&testfont[8],      (unsigned char **)&testfont_end[8],            0, 0, 0},
-  {"data/font1-32.dat",  (unsigned char **)&testfont_data[9], NULL,                                          0, 0, 0},
-  {"data/font1-32.tab",  (unsigned char **)&testfont[9],      (unsigned char **)&testfont_end[9],            0, 0, 0},
-  {"ldata/netfont.dat",  (unsigned char **)&testfont_data[10],NULL,                                          0, 0, 0},
-  {"ldata/netfont.tab",  (unsigned char **)&testfont[10],     (unsigned char **)&testfont_end[10],           0, 0, 0},
-  {"data/frontend.pal",  (unsigned char **)&testfont_palette[0],NULL,                                        0, 0, 0},
-  {"data/palette.dat",   (unsigned char **)&testfont_palette[1],NULL,                                        0, 0, 0},
-  {"",                    NULL,                               NULL,                                          0, 0, 0},
-};
-#endif
-
-struct TbLoadFiles mcga_load_files[] = {
-  {"data/gui1-32.dat",   (unsigned char **)&button_sprite_data,    (unsigned char **)&end_button_sprite_data,      0, 0, 0},
-  {"data/gui1-32.tab",   (unsigned char **)&button_sprite,         (unsigned char **)&end_button_sprites,          0, 0, 0},
-  {"data/font2-32.dat",  (unsigned char **)&winfont_data,          (unsigned char **)&end_winfont_data,            0, 0, 0},
-  {"data/font2-32.tab",  (unsigned char **)&winfont,               (unsigned char **)&end_winfonts,                0, 0, 0},
-  {"data/font1-32.dat",  (unsigned char **)&font_data,             NULL,                                           0, 0, 0},
-  {"data/font1-32.tab",  (unsigned char **)&font_sprites,          (unsigned char **)&end_font_sprites,            0, 0, 0},
-  {"data/slab0-0.dat",   (unsigned char **)&gui_slab,              NULL,                                           0, 0, 0},
-  {"data/gui2-32.dat",  (unsigned char **)&gui_panel_sprite_data, (unsigned char **)&end_gui_panel_sprite_data,   0, 0, 0},
-  {"data/gui2-32.tab",  (unsigned char **)&gui_panel_sprites,     (unsigned char **)&end_gui_panel_sprites,       0, 0, 0},
-  {"",                    NULL,                                     NULL,                                           0, 0, 0},
-};
-
-struct TbLoadFiles vres256_load_files[] = {
-  {"data/gui1-64.dat",   (unsigned char **)&button_sprite_data,    (unsigned char **)&end_button_sprite_data,      0, 0, 0},
-  {"data/gui1-64.tab",   (unsigned char **)&button_sprite,         (unsigned char **)&end_button_sprites,          0, 0, 0},
-  {"data/font2-64.dat",  (unsigned char **)&winfont_data,          (unsigned char **)&end_winfont_data,            0, 0, 0},
-  {"data/font2-64.tab",  (unsigned char **)&winfont,               (unsigned char **)&end_winfonts,                0, 0, 0},
-  {"data/font1-64.dat",  (unsigned char **)&font_data,             NULL,                                           0, 0, 0},
-  {"data/font1-64.tab",  (unsigned char **)&font_sprites,          (unsigned char **)&end_font_sprites,            0, 0, 0},
-  {"data/slab0-1.dat",   (unsigned char **)&gui_slab,              NULL,                                           0, 0, 0},
-  {"data/gui2-64.dat",  (unsigned char **)&gui_panel_sprite_data, (unsigned char **)&end_gui_panel_sprite_data,   0, 0, 0},
-  {"data/gui2-64.tab",  (unsigned char **)&gui_panel_sprites,     (unsigned char **)&end_gui_panel_sprites,       0, 0, 0},
-  {"*B_SCREEN",           (unsigned char **)&hires_parchment,       NULL,                                     640*480, 0, 0},
-  {"",                    NULL,                                     NULL,                                           0, 0, 0},
-};
-
-struct TbLoadFiles mcga_load_files_minimal[] = {
-  {"",                    NULL,                                     NULL,                                          0, 0, 0},
-};
-
-struct TbLoadFiles vres256_load_files_minimal[] = {
-  {"ldata/frontft1.dat", (unsigned char **)&frontend_font_data[0], (unsigned char **)&frontend_end_font_data[0],  0, 0, 0},
-  {"ldata/frontft1.tab", (unsigned char **)&frontend_font[0],      (unsigned char **)&frontend_end_font[0],       0, 0, 0},
-  {"ldata/frontft2.dat", (unsigned char **)&frontend_font_data[1], (unsigned char **)&frontend_end_font_data[1],  0, 0, 0},
-  {"ldata/frontft2.tab", (unsigned char **)&frontend_font[1],      (unsigned char **)&frontend_end_font[1],       0, 0, 0},
-  {"ldata/frontft3.dat", (unsigned char **)&frontend_font_data[2], (unsigned char **)&frontend_end_font_data[2],  0, 0, 0},
-  {"ldata/frontft3.tab", (unsigned char **)&frontend_font[2],      (unsigned char **)&frontend_end_font[2],       0, 0, 0},
-  {"ldata/frontft4.dat", (unsigned char **)&frontend_font_data[3], (unsigned char **)&frontend_end_font_data[3],  0, 0, 0},
-  {"ldata/frontft4.tab", (unsigned char **)&frontend_font[3],      (unsigned char **)&frontend_end_font[3],       0, 0, 0},
-//  {"levels/levels.txt",  (unsigned char **)&level_names_data,      (unsigned char **)&end_level_names_data,       0, 0, 0},
-  {"*FE_BACKUP_PAL",      (unsigned char **)&frontend_backup_palette,NULL,                                       768, 0, 0},
-  {"",                    NULL,                                     NULL,                                          0, 0, 0},
-};
-
-struct TbLoadFiles low_res_pointer_load_files[] = {
-  {"data/pointer32.dat",   (unsigned char **)&pointer_data,          NULL,                                          0, 0, 0},
-  {"data/pointer32.tab",   (unsigned char **)&pointer_sprites,       (unsigned char **)&end_pointer_sprites,        0, 0, 0},
-  {"",                    NULL,                                     NULL,                                          0, 0, 0},
-};
-
-struct TbLoadFiles low_res_small_pointer_load_files[] = {
-  {"data/points32.dat",    (unsigned char **)&pointer_data,          NULL,                                          0, 0, 0},
-  {"data/points32.tab",    (unsigned char **)&pointer_sprites,      (unsigned char **)&end_pointer_sprites,         0, 0, 0},
-  {"",                    NULL,                                     NULL,                                          0, 0, 0},
-};
-
-struct TbLoadFiles hi_res_pointer_load_files[] = {
-  {"data/pointer64.dat",   (unsigned char **)&pointer_data,          NULL,                                          0, 0, 0},
-  {"data/pointer64.tab",   (unsigned char **)&pointer_sprites,       (unsigned char **)&end_pointer_sprites,        0, 0, 0},
-  {"",                    NULL,                                     NULL,                                          0, 0, 0},
-};
-
-struct TbLoadFiles hi_res_small_pointer_load_files[] = {
-  {"data/points64.dat",    (unsigned char **)&pointer_data,          NULL,                                          0, 0, 0},
-  {"data/points64.tab",    (unsigned char **)&pointer_sprites,       (unsigned char **)&end_pointer_sprites,        0, 0, 0},
-  {"",                    NULL,                                     NULL,                                          0, 0, 0},
-};
-
-struct TbLoadFiles legal_load_files[] = {
-    {"*PALETTE", &engine_palette, NULL, PALETTE_SIZE, 0, 0},
-    {"*SCRATCH", &scratch, NULL, 0x10000, 1, 0},
-    {"", NULL, NULL, 0, 0, 0}, };
-
-struct TbLoadFiles game_load_files[] = {
-    {"*SCRATCH", &scratch, NULL, 0x10000, 0, 0},
-    {"*TEXTURE_PAGE", &block_mem, NULL, max(544*32*32,960*720), 0, 0},// Store whole texture image or land view image
-    {"data/creature.tab", (unsigned char**)&creature_table, 0, 0, 0, 0},
-    {"data/palette.dat", &engine_palette, 0, 0, 0, 0},
-    {"data/bluepal.dat", &blue_palette, 0, 0, 0,0},
-    {"data/redpall.dat", &red_palette, 0, 0, 0,0},
-    {"data/lightng.pal", &lightning_palette, 0, 0, 0, 0},
-    {"data/dogpal.pal", &dog_palette, 0, 0, 0, 0},
-    {"data/vampal.pal", &vampire_palette, 0, 0, 0, 0},
-    {"", NULL, NULL, 0, 0, 0}, };
-
-/*
 unsigned char *nocd_raw;
 unsigned char *nocd_pal;
 
-struct TbLoadFiles nocd_load_files[] = {
-    {"data/nocd.raw", &nocd_raw, NULL, 0, 0, 0},
-    {"data/nocd.pal", &nocd_pal, NULL, 0, 0, 0},
-    {"", NULL, NULL, 0, 0, 0}, };
-*/
+struct TbSprite *end_map_font;
+struct TbSprite *end_map_hand;
+TbSpriteData map_font_data;
+TbSpriteData end_map_font_data;
+TbSpriteData map_hand_data;
+TbSpriteData end_map_hand_data;
+/******************************************************************************/
 
-struct TbLoadFiles map_flag_load_files[] = {
-  {"ldata/dkflag00.dat", (unsigned char **)&map_flag_data,(unsigned char **)&end_map_flag_data, 0, 0, 0},
-  {"ldata/dkflag00.tab", (unsigned char **)&map_flag,     (unsigned char **)&end_map_flag,      0, 0, 0},
-  {"",                   NULL,                            NULL,                                 0, 0, 0},
-};
-/*
-struct TbSetupSprite map_flag_setup_sprites[] = {
-  {&map_flag, &end_map_flag, &map_flag_data},
-  {NULL,      NULL,          NULL,},
-};
+extern struct TbSetupSprite setup_sprites_minimal[];
+extern struct TbSetupSprite setup_sprites[];
+#if (BFDEBUG_LEVEL > 0)
+// Declarations for font testing screen (debug version only)
+extern struct TbSetupSprite setup_testfont[];
+extern struct TbLoadFiles testfont_load_files[];
+#endif
 
-struct TbSetupSprite netmap_flag_setup_sprites[] = {
-  {&map_flag, &end_map_flag, &map_flag_data},
-  {&map_font, &end_map_font, &map_font_data},
-  {&map_hand, &end_map_hand, &map_hand_data},
-  {NULL,      NULL,          NULL,},
-};
-*/
-
-short force_video_mode_reset = true;
+extern struct TbLoadFiles mcga_load_files[];
+extern struct TbLoadFiles vres256_load_files[];
+extern struct TbLoadFiles mcga_load_files_minimal[];
+extern struct TbLoadFiles vres256_load_files_minimal[];
+extern struct TbLoadFiles low_res_pointer_load_files[];
+extern struct TbLoadFiles low_res_small_pointer_load_files[];
+extern struct TbLoadFiles hi_res_pointer_load_files[];
+extern struct TbLoadFiles hi_res_small_pointer_load_files[];
+extern struct TbLoadFiles legal_load_files[];
+extern struct TbLoadFiles game_load_files[];
+extern struct TbLoadFiles nocd_load_files[];
+extern struct TbLoadFiles map_flag_load_files[];
 /******************************************************************************/
 
 /**
@@ -602,6 +455,97 @@ void unload_pointer_file(short hi_res)
       ldfiles = low_res_pointer_load_files;
   }
   LbDataFreeAll(ldfiles);
+}
+
+TbBool init_fades_table(void)
+{
+    char *fname;
+    long i;
+    static const char textname[] = "fade table";
+    fname = prepare_file_path(FGrp_StdData,"tables.dat");
+    SYNCDBG(0,"Reading %s file \"%s\".",textname,fname);
+    if (LbFileLoadAt(fname, &pixmap) != sizeof(struct TbColorTables))
+    {
+        compute_fade_tables(&pixmap,engine_palette,engine_palette);
+        LbFileSaveAt(fname, &pixmap, sizeof(struct TbColorTables));
+    }
+    lbDisplay.FadeTable = pixmap.fade_tables;
+    TbPixel cblack = 144;
+    // Update black color
+    for (i=0; i < 8192; i++)
+    {
+        if (pixmap.fade_tables[i] == 0) {
+            pixmap.fade_tables[i] = cblack;
+        }
+    }
+    return true;
+}
+
+TbBool init_alpha_table(void)
+{
+    char *fname;
+    static const char textname[] = "alpha color table";
+    fname = prepare_file_path(FGrp_StdData,"alpha.col");
+    SYNCDBG(0,"Reading %s file \"%s\".",textname,fname);
+    // Loading file data
+    if (LbFileLoadAt(fname, &alpha_sprite_table) != sizeof(struct TbAlphaTables))
+    {
+        compute_alpha_tables(&alpha_sprite_table,engine_palette,engine_palette);
+        LbFileSaveAt(fname, &alpha_sprite_table, sizeof(struct TbAlphaTables));
+    }
+    return true;
+}
+
+TbBool init_rgb2idx_table(void)
+{
+    char *fname;
+    static const char textname[] = "rgb-to-index color table";
+    fname = prepare_file_path(FGrp_StdData,"colours.col");
+    SYNCDBG(0,"Reading %s file \"%s\".",textname,fname);
+    // Loading file data
+    if (LbFileLoadAt(fname, &colours) != sizeof(TbRGBColorTable))
+    {
+        compute_rgb2idx_table(colours,engine_palette);
+        LbFileSaveAt(fname, &colours, sizeof(TbRGBColorTable));
+    }
+    return true;
+}
+
+TbBool init_redpal_table(void)
+{
+    char *fname;
+    static const char textname[] = "red-blended color table";
+    fname = prepare_file_path(FGrp_StdData,"redpal.col");
+    SYNCDBG(0,"Reading %s file \"%s\".",textname,fname);
+    // Loading file data
+    if (LbFileLoadAt(fname, &red_pal) != 256)
+    {
+        compute_shifted_palette_table(red_pal, engine_palette, engine_palette, 20, -10, -10);
+        LbFileSaveAt(fname, &red_pal, 256);
+    }
+    return true;
+}
+
+TbBool init_whitepal_table(void)
+{
+    char *fname;
+    static const char textname[] = "white-blended color table";
+    fname = prepare_file_path(FGrp_StdData,"whitepal.col");
+    SYNCDBG(0,"Reading %s file \"%s\".",textname,fname);
+    // Loading file data
+    if (LbFileLoadAt(fname, &white_pal) != 256)
+    {
+        compute_shifted_palette_table(white_pal, engine_palette, engine_palette, 48, 48, 48);
+        LbFileSaveAt(fname, &white_pal, 256);
+    }
+    return true;
+}
+
+void init_colours(void)
+{
+    init_rgb2idx_table();
+    init_redpal_table();
+    init_whitepal_table();
 }
 
 char *get_vidmode_name(unsigned short mode)

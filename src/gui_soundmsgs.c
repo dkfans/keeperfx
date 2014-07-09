@@ -531,6 +531,13 @@ TbBool output_message_room_related_from_computer_or_player_action(long msg_idx)
     }
     return output_message(msg_idx, delay, true);
 }
+
+void init_messages(void)
+{
+    clear_messages();
+    // Set end turn
+    init_messages_turns(0);
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

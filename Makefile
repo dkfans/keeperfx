@@ -258,6 +258,7 @@ obj/thing_shots.o \
 obj/thing_stats.o \
 obj/thing_traps.o \
 obj/vidfade.o \
+obj/vidmode_data.o \
 obj/vidmode.o \
 obj/KeeperSpeechImp.o \
 obj/main.o \
