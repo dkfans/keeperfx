@@ -22,11 +22,15 @@
 #include "bflib_basics.h"
 #include "bflib_sound.h"
 #include "bflib_memory.h"
+#include "bflib_math.h"
+
 #include "config_creature.h"
 #include "config_effects.h"
 #include "thing_stats.h"
 #include "thing_effects.h"
+#include "creature_graphics.h"
 #include "game_legacy.h"
+#include "engine_arrays.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -293,6 +297,40 @@ struct PlayerInfo *get_player_thing_is_controlled_by(const struct Thing *thing)
     return get_player(thing->owner);
 }
 
+void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char a5, char start_frame, unsigned char a7)
+{
+    unsigned long i;
+    thing->field_44 = convert_td_iso(anim);
+    thing->field_50 &= 0x03;
+    thing->field_50 |= (a7 << 2);
+    thing->field_49 = keepersprite_frames(thing->field_44);
+    if (speed != -1) {
+        thing->field_3E = speed;
+    }
+    if (scale != -1) {
+        thing->sprite_size = scale;
+    }
+    if (a5 != -1) {
+        set_flag_byte(&thing->field_4F, 0x40, a5);
+    }
+    if (start_frame == -2)
+    {
+      i = keepersprite_frames(thing->field_44) - 1;
+      thing->field_48 = i;
+      thing->field_40 = i << 8;
+    } else
+    if (start_frame == -1)
+    {
+      i = ACTION_RANDOM(thing->field_49);
+      thing->field_48 = i;
+      thing->field_40 = i << 8;
+    } else
+    {
+      i = start_frame;
+      thing->field_48 = i;
+      thing->field_40 = i << 8;
+    }
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

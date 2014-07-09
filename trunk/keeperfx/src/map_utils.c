@@ -193,4 +193,29 @@ TbBool get_position_spiral_near_map_block_with_filter(struct Coord3d *retpos, Ma
     }
     return (maximizer > 0);
 }
+
+long slabs_count_near(MapSlabCoord tx, MapSlabCoord ty, long rad, SlabKind slbkind)
+{
+    long dx,dy;
+    long x,y;
+    long count;
+    count=0;
+    struct SlabMap *slb;
+    for (dy=-rad; dy <= rad; dy++)
+    {
+        y = ty+dy;
+        if ((y < 0) || (y >= map_tiles_y))
+            continue;
+        for (dx=-rad; dx <= rad; dx++)
+        {
+          x = tx+dx;
+          if ((x < 0) || (x >= map_tiles_x))
+              continue;
+          slb = get_slabmap_block(x, y);
+          if (slb->kind == slbkind)
+            count++;
+        }
+    }
+    return count;
+}
 /******************************************************************************/

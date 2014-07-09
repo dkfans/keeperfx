@@ -97,6 +97,7 @@ obj/bflib_tcpsp.o \
 obj/bflib_threadcond.o \
 obj/bflib_video.o \
 obj/bflib_semphr.o \
+obj/bflib_main.o \
 obj/scrcapt.o \
 obj/gui_draw.o \
 obj/gui_msgs.o \
@@ -107,6 +108,7 @@ obj/net_game.o \
 obj/config.o \
 obj/front_input.o \
 obj/front_network.o \
+obj/front_fmvids.o \
 obj/thing_data.o \
 obj/thing_factory.o \
 obj/thing_list.o \
