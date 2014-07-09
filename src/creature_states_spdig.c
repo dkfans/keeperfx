@@ -1650,61 +1650,65 @@ short creature_drops_crate_in_workshop(struct Thing *thing)
  * @param thing The creature dragging a spell.
  * @return Gives true if the action shall continue, false if it's finished.
  */
-short creature_drops_spell_object_in_library(struct Thing *thing)
+short creature_drops_spell_object_in_library(struct Thing *creatng)
 {
     struct Thing *spelltng;
     struct CreatureControl *cctrl;
     struct Room *room;
-    TRACE_THING(thing);
-    //return _DK_creature_drops_spell_object_in_library(thing);
-    cctrl = creature_control_get_from_thing(thing);
+    TRACE_THING(creatng);
+    //return _DK_creature_drops_spell_object_in_library(creatng);
+    cctrl = creature_control_get_from_thing(creatng);
     spelltng = thing_get(cctrl->dragtng_idx);
     TRACE_THING(spelltng);
     // Check if spell is ok
     if ( !thing_exists(spelltng) )
     {
-        ERRORLOG("The %s index %d tried to drop a spell, but it's gone",thing_model_name(thing),(int)thing->index);
-        set_start_state(thing);
+        ERRORLOG("The %s index %d tried to drop a spell, but it's gone",thing_model_name(creatng),(int)creatng->index);
+        set_start_state(creatng);
         return 0;
     }
     // Check if we're on correct room
-    room = get_room_thing_is_on(thing);
+    room = get_room_thing_is_on(creatng);
     if ( room_is_invalid(room) )
     {
         WARNLOG("Tried to drop %s index %d in %s, but room no longer exists",thing_model_name(spelltng),(int)spelltng->index,room_code_name(RoK_LIBRARY));
-        if (creature_drop_thing_to_another_room(thing, room, RoK_LIBRARY)) {
-            thing->continue_state = CrSt_CreatureDropsSpellObjectInLibrary;
+        if (creature_drop_thing_to_another_room(creatng, room, RoK_LIBRARY)) {
+            creatng->continue_state = CrSt_CreatureDropsSpellObjectInLibrary;
             return 1;
         }
-        set_start_state(thing);
+        set_start_state(creatng);
         return 0;
     }
-    if ( (room->kind != RoK_LIBRARY) || (room->owner != thing->owner)
+    if ( (room->kind != RoK_LIBRARY) || (room->owner != creatng->owner)
         || (room->used_capacity >= room->total_capacity) )
     {
         WARNLOG("Tried to drop %s index %d in %s room, but room won't accept it",thing_model_name(spelltng),(int)spelltng->index,room_code_name(RoK_LIBRARY));
-        if (creature_drop_thing_to_another_room(thing, room, RoK_LIBRARY)) {
-            thing->continue_state = CrSt_CreatureDropsSpellObjectInLibrary;
+        if (creature_drop_thing_to_another_room(creatng, room, RoK_LIBRARY)) {
+            creatng->continue_state = CrSt_CreatureDropsSpellObjectInLibrary;
             return 1;
         }
-        set_start_state(thing);
+        set_start_state(creatng);
         return 0;
     }
     // Do the dropping
-    creature_drop_dragged_object(thing, spelltng);
+    creature_drop_dragged_object(creatng, spelltng);
     spelltng->owner = game.neutral_player_num;
     if (thing_is_spellbook(spelltng))
     {
         if (!add_item_to_room_capacity(room, true)) {
             WARNLOG("Adding %s index %d to %s room capacity failed",thing_model_name(spelltng),(int)spelltng->index,room_code_name(RoK_LIBRARY));
-            set_start_state(thing);
+            set_start_state(creatng);
             return 1;
         }
-        spelltng->owner = thing->owner;
-        add_spell_to_player(book_thing_to_magic(spelltng), thing->owner);
+        spelltng->owner = creatng->owner;
+        add_spell_to_player(book_thing_to_magic(spelltng), creatng->owner);
+    } else
+    if (thing_is_special_box(spelltng))
+    {
+        spelltng->owner = creatng->owner;
     }
     // The action of moving object is now finished
-    set_start_state(thing);
+    set_start_state(creatng);
     return 1;
 }
 
