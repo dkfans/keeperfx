@@ -632,7 +632,6 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     short toking_recovery;
 };
 
-
 struct Persons {
     struct CreatureControl *cctrl_lookup[CREATURES_COUNT];
     struct CreatureControl *cctrl_end;

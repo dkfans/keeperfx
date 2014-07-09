@@ -100,6 +100,7 @@ struct Thing *check_for_empty_trap_for_imp(struct Thing *spdigtng, long tngmodel
     struct Thing *thing;
     long i;
     unsigned long k;
+    TRACE_THING(spdigtng);
     //return _DK_check_for_empty_trap_for_imp(spdigtng, tngmodel);
     k = 0;
     i = game.thing_lists[TngList_Traps].index;
@@ -475,11 +476,6 @@ long check_out_unclaimed_gold(struct Thing *spdigtng, long range)
         }
     }
     return 0;
-
-
-
-
-
 }
 
 long check_out_unprettied_drop_place(struct Thing *thing)
@@ -691,6 +687,7 @@ long check_out_available_spdigger_drop_tasks(struct Thing *spdigtng)
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(spdigtng);
     SYNCDBG(9,"Starting for %s index %d",thing_model_name(spdigtng),(int)spdigtng->index);
+    TRACE_THING(spdigtng);
 
     if ( check_out_unclaimed_unconscious_bodies(spdigtng, 768) )
     {
@@ -760,54 +757,55 @@ short imp_arrives_at_convert_dungeon(struct Thing *thing)
     return 1;
 }
 
-TbBool move_imp_to_uncrowded_dig_mine_access_point(struct Thing *thing, SubtlCodedCoords stl_num)
+TbBool move_imp_to_uncrowded_dig_mine_access_point(struct Thing *spdigtng, SubtlCodedCoords stl_num)
 {
     long pos_x,pos_y;
-    if (!check_place_to_dig_and_get_position(thing, stl_num, &pos_x, &pos_y))
+    TRACE_THING(spdigtng);
+    if (!check_place_to_dig_and_get_position(spdigtng, stl_num, &pos_x, &pos_y))
         return false;
-    if (!setup_person_move_to_position(thing, pos_x, pos_y, NavRtF_Default))
+    if (!setup_person_move_to_position(spdigtng, pos_x, pos_y, NavRtF_Default))
         return false;
-    thing->continue_state = CrSt_ImpArrivesAtDigDirt;
+    spdigtng->continue_state = CrSt_ImpArrivesAtDigDirt;
     return true;
 }
 
-short imp_arrives_at_dig_or_mine(struct Thing *thing)
+short imp_arrives_at_dig_or_mine(struct Thing *spdigtng)
 {
     struct CreatureControl *cctrl;
     SYNCDBG(19,"Starting");
-    TRACE_THING(thing);
+    TRACE_THING(spdigtng);
     //return _DK_imp_arrives_at_dig_or_mine(thing);
-    if ( imp_already_digging_at_excluding(thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num) )
+    if ( imp_already_digging_at_excluding(spdigtng, spdigtng->mappos.x.stl.num, spdigtng->mappos.y.stl.num) )
     {
-        cctrl = creature_control_get_from_thing(thing);
+        cctrl = creature_control_get_from_thing(spdigtng);
 
-        if ( !move_imp_to_uncrowded_dig_mine_access_point(thing, cctrl->word_8F) )
+        if ( !move_imp_to_uncrowded_dig_mine_access_point(spdigtng, cctrl->word_8F) )
         {
-            internal_set_thing_state(thing, CrSt_ImpLastDidJob);
+            internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
             return 1;
         }
     } else
     {
-        if (thing->active_state == CrSt_ImpArrivesAtDigDirt)
-            internal_set_thing_state(thing, CrSt_ImpDigsDirt);
+        if (spdigtng->active_state == CrSt_ImpArrivesAtDigDirt)
+            internal_set_thing_state(spdigtng, CrSt_ImpDigsDirt);
         else
-            internal_set_thing_state(thing, CrSt_ImpMinesGold);
+            internal_set_thing_state(spdigtng, CrSt_ImpMinesGold);
     }
     return 1;
 }
 
-short imp_arrives_at_improve_dungeon(struct Thing *thing)
+short imp_arrives_at_improve_dungeon(struct Thing *spdigtng)
 {
-    TRACE_THING(thing);
+    TRACE_THING(spdigtng);
     //return _DK_imp_arrives_at_improve_dungeon(thing);
-    if ( check_place_to_pretty_excluding(thing,
-        subtile_slab_fast(thing->mappos.x.stl.num),
-        subtile_slab_fast(thing->mappos.y.stl.num)) )
+    if ( check_place_to_pretty_excluding(spdigtng,
+        subtile_slab_fast(spdigtng->mappos.x.stl.num),
+        subtile_slab_fast(spdigtng->mappos.y.stl.num)) )
     {
-        internal_set_thing_state(thing, CrSt_ImpImprovesDungeon);
+        internal_set_thing_state(spdigtng, CrSt_ImpImprovesDungeon);
     } else
     {
-        internal_set_thing_state(thing, CrSt_ImpLastDidJob);
+        internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
     }
     return 1;
 }
@@ -842,26 +840,26 @@ short imp_birth(struct Thing *thing)
     return 0;
 }
 
-short imp_converts_dungeon(struct Thing *thing)
+short imp_converts_dungeon(struct Thing *spdigtng)
 {
     struct CreatureControl *cctrl;
     struct Room *room;
     MapSubtlCoord stl_x,stl_y;
     MapSlabCoord slb_x,slb_y;
-    TRACE_THING(thing);
+    TRACE_THING(spdigtng);
     //return _DK_imp_converts_dungeon(thing);
-    stl_x = thing->mappos.x.stl.num;
-    stl_y = thing->mappos.y.stl.num;
-    cctrl = creature_control_get_from_thing(thing);
+    stl_x = spdigtng->mappos.x.stl.num;
+    stl_y = spdigtng->mappos.y.stl.num;
+    cctrl = creature_control_get_from_thing(spdigtng);
     slb_x = subtile_slab_fast(stl_x);
     slb_y = subtile_slab_fast(stl_y);
     if ( (stl_x - (MapSubtlDelta)cctrl->moveto_pos.x.stl.num >= 1) || (stl_y - (MapSubtlDelta)cctrl->moveto_pos.y.stl.num >= 1) )
     {
-        clear_creature_instance(thing);
-        internal_set_thing_state(thing, CrSt_ImpLastDidJob);
+        clear_creature_instance(spdigtng);
+        internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
         return 0;
     }
-    if ( check_place_to_convert_excluding(thing, slb_x, slb_y) )
+    if ( check_place_to_convert_excluding(spdigtng, slb_x, slb_y) )
     {
       if (cctrl->instance_id == CrInst_NULL)
       {
@@ -869,7 +867,7 @@ short imp_converts_dungeon(struct Thing *thing)
           struct SlabAttr *slbattr;
           slb = get_slabmap_block(slb_x, slb_y);
           slbattr = get_slab_attrs(slb);
-          set_creature_instance(thing, CrInst_DESTROY_AREA, 0, 0, 0);
+          set_creature_instance(spdigtng, CrInst_DESTROY_AREA, 0, 0, 0);
           if (slbattr->category == SlbAtCtg_RoomInterior)
           {
             room = room_get(slb->room_index);
@@ -888,14 +886,14 @@ short imp_converts_dungeon(struct Thing *thing)
       }
       return 1;
     }
-    if ( !check_place_to_pretty_excluding(thing, slb_x, slb_y) )
+    if ( !check_place_to_pretty_excluding(spdigtng, slb_x, slb_y) )
     {
-        clear_creature_instance(thing);
-        internal_set_thing_state(thing, CrSt_ImpLastDidJob);
+        clear_creature_instance(spdigtng);
+        internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
         return 0;
     }
     if (cctrl->instance_id != CrInst_PRETTY_PATH) {
-        set_creature_instance(thing, CrInst_PRETTY_PATH, 0, 0, 0);
+        set_creature_instance(spdigtng, CrInst_PRETTY_PATH, 0, 0, 0);
     }
     return 1;
 }
@@ -906,7 +904,7 @@ TbBool too_much_gold_lies_around_thing(const struct Thing *thing)
     return gold_pile_with_maximum_at_xy(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
 }
 
-short imp_digs_mines(struct Thing *thing)
+short imp_digs_mines(struct Thing *spdigtng)
 {
     struct CreatureControl *cctrl;
     struct CreatureStats *crstat;
@@ -916,28 +914,28 @@ short imp_digs_mines(struct Thing *thing)
     MapSubtlCoord stl_x,stl_y;
     MapSubtlDelta delta_x,delta_y;
     SYNCDBG(19,"Starting");
-    TRACE_THING(thing);
+    TRACE_THING(spdigtng);
     // return _DK_imp_digs_mines(thing);
-    cctrl = creature_control_get_from_thing(thing);
-    mtask = get_task_list_entry(thing->owner, cctrl->word_91);
+    cctrl = creature_control_get_from_thing(spdigtng);
+    mtask = get_task_list_entry(spdigtng->owner, cctrl->word_91);
     stl_x = stl_num_decode_x(cctrl->word_8F);
     stl_y = stl_num_decode_y(cctrl->word_8F);
     slb = get_slabmap_for_subtile(stl_x, stl_y);
 
     // Check if we've arrived at the destination
-    delta_x = abs(thing->mappos.x.stl.num - (MapSubtlDelta)cctrl->moveto_pos.x.stl.num);
-    delta_y = abs(thing->mappos.y.stl.num - (MapSubtlDelta)cctrl->moveto_pos.y.stl.num);
+    delta_x = abs(spdigtng->mappos.x.stl.num - (MapSubtlDelta)cctrl->moveto_pos.x.stl.num);
+    delta_y = abs(spdigtng->mappos.y.stl.num - (MapSubtlDelta)cctrl->moveto_pos.y.stl.num);
     if ((mtask->coords != cctrl->word_8F) || (delta_x > 0) || (delta_y > 0))
     {
-      clear_creature_instance(thing);
-      internal_set_thing_state(thing, CrSt_ImpLastDidJob);
+      clear_creature_instance(spdigtng);
+      internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
       return 1;
     }
     // If gems are marked for digging, but there is too much gold laying around, then don't dig
-    if (!slab_kind_is_indestructible(slb->kind) && too_much_gold_lies_around_thing(thing))
+    if (!slab_kind_is_indestructible(slb->kind) && too_much_gold_lies_around_thing(spdigtng))
     {
-      clear_creature_instance(thing);
-      internal_set_thing_state(thing, CrSt_ImpLastDidJob);
+      clear_creature_instance(spdigtng);
+      internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
       return 1;
     }
     // Turn to the correct direction to do the task
@@ -945,158 +943,158 @@ short imp_digs_mines(struct Thing *thing)
     pos.y.stl.num = stl_y;
     pos.x.stl.pos = 128;
     pos.y.stl.pos = 128;
-    if (creature_turn_to_face(thing, &pos))
+    if (creature_turn_to_face(spdigtng, &pos))
     {
       return 1;
     }
 
     if (mtask->kind == SDDigTask_None)
     {
-        clear_creature_instance(thing);
-        internal_set_thing_state(thing, CrSt_ImpLastDidJob);
+        clear_creature_instance(spdigtng);
+        internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
         return 1;
     }
 
     if (cctrl->instance_id == CrInst_NULL)
     {
-        set_creature_instance(thing, CrInst_DIG, 0, 0, 0);
+        set_creature_instance(spdigtng, CrInst_DIG, 0, 0, 0);
     }
 
     if (mtask->kind == SDDigTask_MineGold)
     {
-        crstat = creature_stats_get_from_thing(thing);
+        crstat = creature_stats_get_from_thing(spdigtng);
         // If the creature holds more gold than its able
-        if (thing->creature.gold_carried > crstat->gold_hold)
+        if (spdigtng->creature.gold_carried > crstat->gold_hold)
         {
           if (game.play_gameturn - cctrl->tasks_check_turn > 128)
           {
-            if (check_out_imp_has_money_for_treasure_room(thing))
+            if (check_out_imp_has_money_for_treasure_room(spdigtng))
               return 1;
             cctrl->tasks_check_turn = game.play_gameturn;
           }
-          drop_gold_pile(thing->creature.gold_carried - crstat->gold_hold, &thing->mappos);
-          thing->creature.gold_carried = crstat->gold_hold;
+          drop_gold_pile(spdigtng->creature.gold_carried - crstat->gold_hold, &spdigtng->mappos);
+          spdigtng->creature.gold_carried = crstat->gold_hold;
         }
     }
     return 1;
 }
 
-short imp_doing_nothing(struct Thing *thing)
+short imp_doing_nothing(struct Thing *spdigtng)
 {
     struct CreatureControl *cctrl;
     struct Dungeon *dungeon;
     SYNCDBG(19,"Starting");
-    TRACE_THING(thing);
+    TRACE_THING(spdigtng);
     //return _DK_imp_doing_nothing(thing);
-    if (!thing_is_creature_special_digger(thing))
+    if (!thing_is_creature_special_digger(spdigtng))
     {
-        ERRORLOG("Non digger thing %ld, %s, owner %ld - reset",(long)thing->index,thing_model_name(thing),(long)thing->owner);
-        set_start_state(thing);
+        ERRORLOG("Non digger thing %ld, %s, owner %ld - reset",(long)spdigtng->index,thing_model_name(spdigtng),(long)spdigtng->owner);
+        set_start_state(spdigtng);
         erstat_inc(ESE_BadCreatrState);
         return 0;
     }
-    cctrl = creature_control_get_from_thing(thing);
-    dungeon = get_dungeon(thing->owner);
+    cctrl = creature_control_get_from_thing(spdigtng);
+    dungeon = get_dungeon(spdigtng->owner);
     if (game.play_gameturn-cctrl->idle.start_gameturn <= 1)
         return 1;
-    if (check_out_imp_last_did(thing))
+    if (check_out_imp_last_did(spdigtng))
         return 1;
-    if (check_out_available_imp_tasks(thing))
+    if (check_out_available_imp_tasks(spdigtng))
         return 1;
-    if (check_out_imp_tokes(thing))
+    if (check_out_imp_tokes(spdigtng))
         return 1;
-    if (creature_choose_random_destination_on_valid_adjacent_slab(thing))
+    if (creature_choose_random_destination_on_valid_adjacent_slab(spdigtng))
     {
-        thing->continue_state = CrSt_ImpDoingNothing;
+        spdigtng->continue_state = CrSt_ImpDoingNothing;
         return 1;
     }
     dungeon->lvstats.promises_broken++;
     return 1;
 }
 
-short imp_drops_gold(struct Thing *thing)
+short imp_drops_gold(struct Thing *spdigtng)
 {
     struct Room *room;
     struct Thing *gldtng;
     //return _DK_imp_drops_gold(thing);
-    if (thing->creature.gold_carried == 0)
+    if (spdigtng->creature.gold_carried == 0)
     {
-        set_start_state(thing);
+        set_start_state(spdigtng);
         return 1;
     }
-    room = get_room_thing_is_on(thing);
-    if (room_is_invalid(room) || (room->owner != thing->owner) || (room->kind != RoK_TREASURE))
+    room = get_room_thing_is_on(spdigtng);
+    if (room_is_invalid(room) || (room->owner != spdigtng->owner) || (room->kind != RoK_TREASURE))
     {
         WARNLOG("Tried to drop gold in %s of player %d, but room %s owned by played %d is no longer valid to do that",
-            room_code_name(RoK_TREASURE),(int)thing->owner,room_code_name(room->kind),(int)room->owner);
-        internal_set_thing_state(thing, CrSt_ImpLastDidJob);
+            room_code_name(RoK_TREASURE),(int)spdigtng->owner,room_code_name(room->kind),(int)room->owner);
+        internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
         return 1;
     }
     MapSubtlCoord center_stl_x,center_stl_y;
-    center_stl_x = slab_subtile_center(subtile_slab_fast(thing->mappos.x.stl.num));
-    center_stl_y = slab_subtile_center(subtile_slab_fast(thing->mappos.y.stl.num));
+    center_stl_x = slab_subtile_center(subtile_slab_fast(spdigtng->mappos.x.stl.num));
+    center_stl_y = slab_subtile_center(subtile_slab_fast(spdigtng->mappos.y.stl.num));
     struct Room *curoom;
-    curoom = subtile_room_get(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+    curoom = subtile_room_get(spdigtng->mappos.x.stl.num, spdigtng->mappos.y.stl.num);
     if (!room_exists(curoom) || (curoom->index != room->index))
     {
-        internal_set_thing_state(thing, CrSt_ImpLastDidJob);
+        internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
         return 1;
     }
     gldtng = find_gold_hoard_at(center_stl_x, center_stl_y);
     if (!thing_is_invalid(gldtng))
     {
-        thing->creature.gold_carried -= add_gold_to_hoarde(gldtng, room, thing->creature.gold_carried);
+        spdigtng->creature.gold_carried -= add_gold_to_hoarde(gldtng, room, spdigtng->creature.gold_carried);
     } else
     {
         struct Coord3d pos;
         pos.x.val = subtile_coord_center(center_stl_x);
         pos.y.val = subtile_coord_center(center_stl_y);
-        pos.z.val = thing->mappos.z.val;
-        gldtng = create_gold_hoarde(room, &pos, thing->creature.gold_carried);
+        pos.z.val = spdigtng->mappos.z.val;
+        gldtng = create_gold_hoarde(room, &pos, spdigtng->creature.gold_carried);
         if (!thing_is_invalid(gldtng))
-            thing->creature.gold_carried -= gldtng->valuable.gold_stored;
+            spdigtng->creature.gold_carried -= gldtng->valuable.gold_stored;
     }
-    thing_play_sample(thing, UNSYNC_RANDOM(3) + 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-    if ( (thing->creature.gold_carried == 0) || (room->used_capacity >= room->total_capacity) ) {
-        internal_set_thing_state(thing, CrSt_ImpLastDidJob);
+    thing_play_sample(spdigtng, UNSYNC_RANDOM(3) + 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    if ( (spdigtng->creature.gold_carried == 0) || (room->used_capacity >= room->total_capacity) ) {
+        internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
         return 1;
     }
-    if (!setup_head_for_empty_treasure_space(thing, room)) {
-        internal_set_thing_state(thing, CrSt_ImpLastDidJob);
+    if (!setup_head_for_empty_treasure_space(spdigtng, room)) {
+        internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
         return 1;
     }
-    thing->continue_state = CrSt_ImpDropsGold;
+    spdigtng->continue_state = CrSt_ImpDropsGold;
     return 1;
 }
 
-short imp_improves_dungeon(struct Thing *thing)
+short imp_improves_dungeon(struct Thing *spdigtng)
 {
     struct CreatureControl *cctrl;
     MapSubtlDelta delta_x,delta_y;
     long slb_x,slb_y;
     SYNCDBG(19,"Starting");
-    TRACE_THING(thing);
+    TRACE_THING(spdigtng);
     //return _DK_imp_improves_dungeon(thing);
-    cctrl = creature_control_get_from_thing(thing);
+    cctrl = creature_control_get_from_thing(spdigtng);
     // Check if we've arrived at the destination
-    delta_x = abs(thing->mappos.x.stl.num - (MapSubtlDelta)cctrl->moveto_pos.x.stl.num);
-    delta_y = abs(thing->mappos.y.stl.num - (MapSubtlDelta)cctrl->moveto_pos.y.stl.num);
+    delta_x = abs(spdigtng->mappos.x.stl.num - (MapSubtlDelta)cctrl->moveto_pos.x.stl.num);
+    delta_y = abs(spdigtng->mappos.y.stl.num - (MapSubtlDelta)cctrl->moveto_pos.y.stl.num);
     if ( (delta_x > 0) || (delta_y > 0) )
     {
-        clear_creature_instance(thing);
-        internal_set_thing_state(thing, CrSt_ImpLastDidJob);
+        clear_creature_instance(spdigtng);
+        internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
         return 0;
     }
-    slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
-    slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
-    if (!check_place_to_pretty_excluding(thing, slb_x, slb_y))
+    slb_x = subtile_slab_fast(spdigtng->mappos.x.stl.num);
+    slb_y = subtile_slab_fast(spdigtng->mappos.y.stl.num);
+    if (!check_place_to_pretty_excluding(spdigtng, slb_x, slb_y))
     {
-        clear_creature_instance(thing);
-        internal_set_thing_state(thing, CrSt_ImpLastDidJob);
+        clear_creature_instance(spdigtng);
+        internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
         return 0;
     }
     if (cctrl->instance_id == CrInst_NULL) {
-        set_creature_instance(thing, CrInst_PRETTY_PATH, 0, 0, 0);
+        set_creature_instance(spdigtng, CrInst_PRETTY_PATH, 0, 0, 0);
     }
     return 1;
 }
@@ -1161,20 +1159,20 @@ GoldAmount take_from_gold_pile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long li
     return total_taken;
 }
 
-short imp_picks_up_gold_pile(struct Thing *thing)
+short imp_picks_up_gold_pile(struct Thing *spdigtng)
 {
     struct CreatureStats *crstat;
     long gold_taken;
     SYNCDBG(19,"Starting");
-    TRACE_THING(thing);
+    TRACE_THING(spdigtng);
     //return _DK_imp_picks_up_gold_pile(thing);
-    crstat = creature_stats_get_from_thing(thing);
-    if (crstat->gold_hold > thing->creature.gold_carried)
+    crstat = creature_stats_get_from_thing(spdigtng);
+    if (crstat->gold_hold > spdigtng->creature.gold_carried)
     {
-        gold_taken = take_from_gold_pile(thing->mappos.x.stl.num, thing->mappos.y.stl.num, crstat->gold_hold - thing->creature.gold_carried);
-        thing->creature.gold_carried += gold_taken;
+        gold_taken = take_from_gold_pile(spdigtng->mappos.x.stl.num, spdigtng->mappos.y.stl.num, crstat->gold_hold - spdigtng->creature.gold_carried);
+        spdigtng->creature.gold_carried += gold_taken;
     }
-    internal_set_thing_state(thing, CrSt_ImpLastDidJob);
+    internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
     return 0;
 }
 

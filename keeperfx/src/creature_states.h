@@ -238,7 +238,7 @@ typedef char (*CreatureStateFunc2)(struct Thing *);
 typedef CrCheckRet (*CreatureStateCheck)(struct Thing *);
 
 struct StateInfo { // sizeof = 41
-    CreatureStateFunc1 ofsfield_0;
+    CreatureStateFunc1 process_state;
     CreatureStateFunc1 cleanup_state;
     CreatureStateFunc2 move_from_slab;
     CreatureStateCheck move_check;
