@@ -37,6 +37,7 @@
 #include "gui_tooltips.h"
 #include "gui_parchment.h"
 #include "gui_frontmenu.h"
+#include "gui_msgs.h"
 #include "scrcapt.h"
 #include "vidmode.h"
 #include "kjm_input.h"
@@ -140,9 +141,7 @@ extern "C" {
 
 DLLIMPORT void _DK_draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4);
 DLLIMPORT void _DK_draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long a3, long a4);
-DLLIMPORT void _DK_init_alpha_table(void);
 DLLIMPORT void _DK_engine_init(void);
-DLLIMPORT void _DK_init_colours(void);
 DLLIMPORT void _DK_place_animating_slab_type_on_map(long a1, char a2, unsigned char a3, unsigned char a4, unsigned char a5);
 DLLIMPORT void _DK_draw_spell_cursor(unsigned char a1, unsigned short a2, unsigned char stl_x, unsigned char stl_y);
 DLLIMPORT void _DK_update_breed_activities(void);
@@ -193,7 +192,6 @@ DLLIMPORT void _DK_clear_game(void);
 DLLIMPORT void _DK_clear_game_for_save(void);
 DLLIMPORT long _DK_update_cave_in(struct Thing *thing);
 DLLIMPORT void _DK_update_thing_animation(struct Thing *thing);
-DLLIMPORT void _DK_init_messages(void);
 DLLIMPORT void _DK_message_add(char c);
 DLLIMPORT void _DK_toggle_creature_tendencies(struct PlayerInfo *player, char val);
 DLLIMPORT long _DK_set_autopilot_type(long plridx, long aptype);
@@ -221,7 +219,6 @@ DLLIMPORT void _DK_demo(void);
 DLLIMPORT void _DK_draw_gui(void);
 DLLIMPORT void _DK_process_dungeons(void);
 DLLIMPORT void _DK_process_level_script(void);
-DLLIMPORT void _DK_message_update(void);
 DLLIMPORT void _DK_update_player_camera(struct PlayerInfo *player);
 DLLIMPORT void _DK_set_level_objective(char *msg_text);
 DLLIMPORT void _DK_update_flames_nearest_camera(struct Camera *camera);
@@ -252,100 +249,6 @@ DLLIMPORT extern HINSTANCE _DK_hInstance;
 TbPixel get_player_path_colour(unsigned short owner)
 {
   return player_path_colours[player_colors_map[owner % PLAYERS_EXT_COUNT]];
-}
-
-TbBool init_fades_table(void)
-{
-    char *fname;
-    long i;
-    static const char textname[] = "fade table";
-    fname = prepare_file_path(FGrp_StdData,"tables.dat");
-    SYNCDBG(0,"Reading %s file \"%s\".",textname,fname);
-    if (LbFileLoadAt(fname, &pixmap) != sizeof(struct TbColorTables))
-    {
-        compute_fade_tables(&pixmap,engine_palette,engine_palette);
-        LbFileSaveAt(fname, &pixmap, sizeof(struct TbColorTables));
-    }
-    lbDisplay.FadeTable = pixmap.fade_tables;
-    TbPixel cblack = 144;
-    // Update black color
-    for (i=0; i < 8192; i++)
-    {
-        if (pixmap.fade_tables[i] == 0) {
-            pixmap.fade_tables[i] = cblack;
-        }
-    }
-    return true;
-}
-
-
-TbBool init_alpha_table(void)
-{
-    char *fname;
-    static const char textname[] = "alpha color table";
-    fname = prepare_file_path(FGrp_StdData,"alpha.col");
-    SYNCDBG(0,"Reading %s file \"%s\".",textname,fname);
-    //_DK_init_alpha_table(); return true;
-    // Loading file data
-    if (LbFileLoadAt(fname, &alpha_sprite_table) != sizeof(struct TbAlphaTables))
-    {
-        compute_alpha_tables(&alpha_sprite_table,engine_palette,engine_palette);
-        LbFileSaveAt(fname, &alpha_sprite_table, sizeof(struct TbAlphaTables));
-    }
-    return true;
-}
-
-TbBool init_rgb2idx_table(void)
-{
-    char *fname;
-    static const char textname[] = "rgb-to-index color table";
-    fname = prepare_file_path(FGrp_StdData,"colours.col");
-    SYNCDBG(0,"Reading %s file \"%s\".",textname,fname);
-    // Loading file data
-    if (LbFileLoadAt(fname, &colours) != sizeof(TbRGBColorTable))
-    {
-        compute_rgb2idx_table(colours,engine_palette);
-        LbFileSaveAt(fname, &colours, sizeof(TbRGBColorTable));
-    }
-    return true;
-}
-
-TbBool init_redpal_table(void)
-{
-    char *fname;
-    static const char textname[] = "red-blended color table";
-    fname = prepare_file_path(FGrp_StdData,"redpal.col");
-    SYNCDBG(0,"Reading %s file \"%s\".",textname,fname);
-    // Loading file data
-    if (LbFileLoadAt(fname, &red_pal) != 256)
-    {
-        compute_shifted_palette_table(red_pal, engine_palette, engine_palette, 20, -10, -10);
-        LbFileSaveAt(fname, &red_pal, 256);
-    }
-    return true;
-}
-
-TbBool init_whitepal_table(void)
-{
-    char *fname;
-    static const char textname[] = "white-blended color table";
-    fname = prepare_file_path(FGrp_StdData,"whitepal.col");
-    SYNCDBG(0,"Reading %s file \"%s\".",textname,fname);
-    // Loading file data
-    if (LbFileLoadAt(fname, &white_pal) != 256)
-    {
-        compute_shifted_palette_table(white_pal, engine_palette, engine_palette, 48, 48, 48);
-        LbFileSaveAt(fname, &white_pal, 256);
-    }
-    return true;
-}
-
-void init_colours(void)
-{
-    //_DK_init_colours(); return true;
-    init_rgb2idx_table();
-    init_redpal_table();
-    init_whitepal_table();
 }
 
 void setup_stuff(void)
@@ -1067,24 +970,6 @@ short setup_game(void)
   return result;
 }
 
-void init_messages(void)
-{
-    //_DK_init_messages();
-    clear_messages();
-    // Set end turn
-    init_messages_turns(0);
-}
-
-void zero_messages(void)
-{
-    int i;
-    game.active_messages_count = 0;
-    for (i=0; i<3; i++)
-    {
-      memset(&game.messages[i], 0, sizeof(struct GuiMessage));
-    }
-}
-
 /** Returns if cursor for given player is at top of the dungeon in 3D view.
  *  Cursor placed at top of dungeon is marked by green/red "volume box";
  *   if there's no volume box, cursor should be of the field behind it
@@ -1631,13 +1516,13 @@ void clear_game_for_save(void)
 
 void reset_creature_max_levels(void)
 {
-    struct Dungeon *dungeon;
     int i,k;
     for (i=0; i < DUNGEONS_COUNT; i++)
     {
+        struct Dungeon *dungeon;
+        dungeon = get_dungeon(i);
         for (k=1; k < CREATURE_TYPES_COUNT; k++)
         {
-            dungeon = get_dungeon(i);
             dungeon->creature_max_level[k] = CREATURE_MAX_LEVEL+1;
         }
     }
@@ -2364,17 +2249,6 @@ void process_dungeons(void)
   SYNCDBG(9,"Finished");
 }
 
-/**
- * Returns if there is a bonus timer visible on the level.
- */
-TbBool bonus_timer_enabled(void)
-{
-  return ((game.flags_gui & GGUI_CountdownTimer) != 0);
-/*  LevelNumber lvnum;
-  lvnum = get_loaded_level_number();
-  return (is_bonus_level(lvnum) || is_extra_level(lvnum));*/
-}
-
 void process_level_script(void)
 {
   SYNCDBG(6,"Starting");
@@ -2392,12 +2266,6 @@ void process_level_script(void)
 //  show_onscreen_msg(8, "Flags %d %d %d %d %d %d", game.dungeon[0].script_flags[0],game.dungeon[0].script_flags[1],
 //    game.dungeon[0].script_flags[2],game.dungeon[0].script_flags[3],game.dungeon[0].script_flags[4],game.dungeon[0].script_flags[5]);
   SYNCDBG(19,"Finished");
-}
-
-void message_update(void)
-{
-  SYNCDBG(6,"Starting");
-  _DK_message_update();
 }
 
 void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
@@ -3550,21 +3418,12 @@ void set_chosen_spell_none(void)
 void post_init_level(void)
 {
     SYNCDBG(8,"Starting");
-    struct Dungeon *dungeon;
     //_DK_post_init_level(); return;
     if (game.packet_save_enable)
         open_new_packet_file_for_save();
     calculate_dungeon_area_scores();
     init_animating_texture_maps();
-    int i,k;
-    for (i=0; i < DUNGEONS_COUNT; i++)
-    {
-        dungeon = get_dungeon(i);
-        for (k=0; k < CREATURE_TYPES_COUNT; k++)
-        {
-          dungeon->creature_max_level[k] = 10;
-        }
-    }
+    reset_creature_max_levels();
     clear_creature_pool();
     setup_computer_players2();
     load_script(get_loaded_level_number());

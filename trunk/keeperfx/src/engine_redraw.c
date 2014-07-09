@@ -36,6 +36,7 @@
 #include "gui_parchment.h"
 #include "gui_draw.h"
 #include "gui_boxmenu.h"
+#include "gui_msgs.h"
 #include "gui_tooltips.h"
 #include "power_hand.h"
 #include "power_process.h"
@@ -68,7 +69,6 @@ DLLIMPORT void _DK_redraw_creature_view(void);
 DLLIMPORT void _DK_redraw_isometric_view(void);
 DLLIMPORT void _DK_redraw_frontview(void);
 DLLIMPORT void _DK_draw_overlay_compass(long a1, long a2);
-DLLIMPORT void _DK_message_draw(void);
 DLLIMPORT void _DK_draw_sound_stuff(void);
 DLLIMPORT void _DK_set_engine_view(struct PlayerInfo *player, long a2);
 DLLIMPORT void _DK_set_sprite_view_3d(void);
@@ -435,25 +435,6 @@ void draw_overlay_compass(long base_x, long base_y)
         LbTextDraw((center_x + shift_x - w) / pixel_size, (center_y + shift_y - h) / pixel_size, gui_strings[880]);
     }
     lbDisplay.DrawFlags = flg_mem;
-}
-
-void message_draw(void)
-{
-  int i,h;
-  long x,y;
-  SYNCDBG(7,"Starting");
-  LbTextSetFont(winfont);
-  h = LbTextLineHeight();
-  x = 148;
-  y = 28;
-  for (i=0; i < game.active_messages_count; i++)
-  {
-      LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
-      set_flag_word(&lbDisplay.DrawFlags,Lb_TEXT_UNKNOWN0040,false);
-      LbTextDraw((x+32)/pixel_size, y/pixel_size, game.messages[i].text);
-      draw_gui_panel_sprite_left(x, y, 488+game.messages[i].field_40);
-      y += pixel_size * h;
-  }
 }
 
 void redraw_creature_view(void)

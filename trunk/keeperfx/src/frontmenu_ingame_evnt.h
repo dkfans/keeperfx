@@ -50,6 +50,7 @@ void activate_event_box(long evnt_idx);
 short zoom_to_fight(unsigned char a1);
 
 void draw_bonus_timer(void);
+TbBool bonus_timer_enabled(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

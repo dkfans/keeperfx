@@ -31,6 +31,7 @@
 #include "engine_camera.h"
 #include "gui_soundmsgs.h"
 #include "gui_topmsg.h"
+#include "frontmenu_ingame_evnt.h"
 #include "thing_data.h"
 #include "thing_navigate.h"
 #include "config_creature.h"

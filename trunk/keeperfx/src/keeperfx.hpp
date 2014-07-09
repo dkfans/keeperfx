@@ -174,7 +174,6 @@ DLLIMPORT extern int _DK_FatalError;
 DLLIMPORT extern struct TbLoadFiles _DK_frontstory_load_files[4];
 #define frontstory_load_files _DK_frontstory_load_files
 DLLIMPORT extern struct TbLoadFiles _DK_netmap_flag_load_files[7];
-#define netmap_flag_load_files _DK_netmap_flag_load_files
 DLLIMPORT extern long _DK_define_key_scroll_offset;
 #define define_key_scroll_offset _DK_define_key_scroll_offset
 DLLIMPORT extern struct TbSetupSprite _DK_frontstory_setup_sprites[2];
@@ -295,7 +294,6 @@ void process_dungeon_power_magic(void);
 void process_dungeon_devastation_effects(void);
 void process_things_in_dungeon_hand(void);
 void process_payday(void);
-TbBool bonus_timer_enabled(void);
 
 TbBool toggle_computer_player(PlayerNumber plyr_idx);
 void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal);

@@ -449,10 +449,6 @@ DLLIMPORT long _DK_gtblock_clip_height;
 #define gtblock_clip_height _DK_gtblock_clip_height
 DLLIMPORT long _DK_gtblock_screen_width;
 #define gtblock_screen_width _DK_gtblock_screen_width
-DLLIMPORT unsigned char _DK_white_pal[256];
-#define white_pal _DK_white_pal
-DLLIMPORT unsigned char _DK_red_pal[256];
-#define red_pal _DK_red_pal
 DLLIMPORT long _DK_thelens;
 #define thelens _DK_thelens
 DLLIMPORT long _DK_fade_mmm;

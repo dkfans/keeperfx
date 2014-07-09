@@ -20,14 +20,69 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_sprfnt.h"
+
+#include "gui_draw.h"
+#include "frontend.h"
+#include "game_legacy.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
+DLLIMPORT void _DK_message_update(void);
+DLLIMPORT void _DK_message_draw(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
 /******************************************************************************/
+void message_draw(void)
+{
+    int i,h;
+    long x,y;
+    SYNCDBG(7,"Starting");
+    LbTextSetFont(winfont);
+    h = LbTextLineHeight();
+    x = 148;
+    y = 28;
+    for (i=0; i < game.active_messages_count; i++)
+    {
+        LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
+        set_flag_word(&lbDisplay.DrawFlags,Lb_TEXT_UNKNOWN0040,false);
+        LbTextDraw((x+32)/pixel_size, y/pixel_size, game.messages[i].text);
+        draw_gui_panel_sprite_left(x, y, 488+game.messages[i].field_40);
+        y += pixel_size * h;
+    }
+}
+
+void message_update(void)
+{
+    SYNCDBG(6,"Starting");
+    //_DK_message_update();
+    int i;
+    i = game.active_messages_count - 1;
+    // Set end turn for all messages
+    while (i >= 0)
+    {
+        struct GuiMessage *gmsg;
+        gmsg = &game.messages[i];
+        if (gmsg->field_41 + 400 < game.play_gameturn)
+        {
+            game.active_messages_count--;
+            game.messages[game.active_messages_count].text[0] = 0;
+        }
+        i--;
+    }
+}
+
+void zero_messages(void)
+{
+    int i;
+    game.active_messages_count = 0;
+    for (i=0; i<3; i++)
+    {
+      memset(&game.messages[i], 0, sizeof(struct GuiMessage));
+    }
+}
 /******************************************************************************/
