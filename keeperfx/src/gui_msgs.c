@@ -51,7 +51,7 @@ void message_draw(void)
         LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
         set_flag_word(&lbDisplay.DrawFlags,Lb_TEXT_UNKNOWN0040,false);
         LbTextDraw((x+32)/pixel_size, y/pixel_size, game.messages[i].text);
-        draw_gui_panel_sprite_left(x, y, 488+game.messages[i].field_40);
+        draw_gui_panel_sprite_left(x, y, 488+game.messages[i].plyr_idx);
         y += pixel_size * h;
     }
 }
@@ -67,7 +67,7 @@ void message_update(void)
     {
         struct GuiMessage *gmsg;
         gmsg = &game.messages[i];
-        if (gmsg->field_41 + 400 < game.play_gameturn)
+        if (gmsg->creation_turn + 400 < game.play_gameturn)
         {
             game.active_messages_count--;
             game.messages[game.active_messages_count].text[0] = 0;
@@ -83,6 +83,22 @@ void zero_messages(void)
     for (i=0; i<3; i++)
     {
       memset(&game.messages[i], 0, sizeof(struct GuiMessage));
+    }
+}
+
+void message_add(PlayerNumber plyr_idx)
+{
+    int i;
+    for (i=GUI_MESSAGES_COUNT-1; i > 0; i--) {
+        memcpy(&game.messages[i], &game.messages[i-1], sizeof(struct GuiMessage));
+    }
+    struct PlayerInfo *player;
+    player = get_player(plyr_idx);
+    strcpy(game.messages[0].text, player->mp_message_text);
+    game.messages[0].plyr_idx = plyr_idx;
+    game.messages[0].creation_turn = game.play_gameturn;
+    if (game.active_messages_count < GUI_MESSAGES_COUNT) {
+        game.active_messages_count++;
     }
 }
 /******************************************************************************/

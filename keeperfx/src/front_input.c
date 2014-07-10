@@ -557,12 +557,12 @@ TbBool get_level_lost_inputs(void)
         if ( is_game_key_pressed(Gkey_SwitchToMap, &keycode, 0) )
         {
             lbKeyOn[keycode] = 0;
-            zoom_from_map();
+            zoom_from_patchment_map();
         } else
         if ( right_button_released )
         {
             right_button_released = 0;
-            zoom_from_map();
+            zoom_from_patchment_map();
         } else
         if ( left_button_released )
         {
@@ -774,7 +774,7 @@ long get_dungeon_control_action_inputs(void)
       if ((player->view_mode != PVM_ParchFadeOut) && (game.small_map_state != PVM_IsometricView))
       {
           turn_off_all_window_menus();
-          zoom_to_map();
+          zoom_to_patchment_map();
       }
       return 1;
     }
@@ -1007,7 +1007,7 @@ short get_map_action_inputs(void)
   if ( right_button_released )
   {
     right_button_released = 0;
-    zoom_from_map();
+    zoom_from_patchment_map();
     return true;
   } else
   {
@@ -1027,7 +1027,7 @@ short get_map_action_inputs(void)
     {
       clear_key_pressed(keycode);
       turn_off_all_window_menus();
-      zoom_from_map();
+      zoom_from_patchment_map();
       return true;
     }
     return false;
