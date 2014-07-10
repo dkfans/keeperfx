@@ -41,6 +41,7 @@
 #include "config_trapdoor.h"
 #include "room_workshop.h"
 #include "gui_frontbtns.h"
+#include "gui_parchment.h"
 #include "gui_draw.h"
 #include "packets.h"
 #include "magic.h"
@@ -160,7 +161,7 @@ void gui_zoom_out(struct GuiButton *gbtn)
 
 void gui_go_to_map(struct GuiButton *gbtn)
 {
-    zoom_to_map();
+    zoom_to_patchment_map();
 }
 
 void gui_turn_on_autopilot(struct GuiButton *gbtn)

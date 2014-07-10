@@ -33,8 +33,8 @@ extern "C" {
 
 struct GuiMessage { // sizeof = 0x45 (69)
     char text[64];
-unsigned char field_40;
-unsigned long field_41;
+unsigned char plyr_idx;
+unsigned long creation_turn;
 };
 
 #pragma pack()
@@ -42,6 +42,7 @@ unsigned long field_41;
 void message_update(void);
 void message_draw(void);
 void zero_messages(void);
+void message_add(PlayerNumber plyr_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }
