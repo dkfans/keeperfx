@@ -189,7 +189,6 @@ DLLIMPORT void _DK_clear_game(void);
 DLLIMPORT void _DK_clear_game_for_save(void);
 DLLIMPORT long _DK_update_cave_in(struct Thing *thing);
 DLLIMPORT void _DK_update_thing_animation(struct Thing *thing);
-DLLIMPORT void _DK_message_add(char c);
 DLLIMPORT void _DK_toggle_creature_tendencies(struct PlayerInfo *player, char val);
 DLLIMPORT long _DK_set_autopilot_type(long plridx, long aptype);
 DLLIMPORT void _DK_turn_off_sight_of_evil(long plridx);
@@ -633,37 +632,37 @@ void init_keeper(void)
 
 short ceiling_set_info(long height_max, long height_min, long step)
 {
-  SYNCDBG(6,"Starting");
-  long dist;
-  if (step <= 0)
-  {
-    ERRORLOG("Illegal ceiling step value");
-    return 0;
-  }
-  if (height_max > 15)
-  {
-    ERRORLOG("Max height is too high");
-    return 0;
-  }
-  if (height_min > height_max)
-  {
-    ERRORLOG("Ceiling max height is smaller than min height");
-    return 0;
-  }
-  dist = (height_max - height_min) / step;
-  if ( dist >= 2500 )
-    dist = 2500;
-  game.field_14A80C = dist;
-  if (dist > 20)
-  {
-    ERRORLOG("Ceiling search distance too big");
-    return 0;
-  }
-  game.field_14A804 = height_max;
-  game.field_14A808 = height_min;
-  game.field_14A814 = step;
-  game.field_14A810 = (2*game.field_14A80C+1) * (2*game.field_14A80C+1);
-  return 1;
+    SYNCDBG(6,"Starting");
+    long dist;
+    if (step <= 0)
+    {
+      ERRORLOG("Illegal ceiling step value");
+      return 0;
+    }
+    if (height_max > 15)
+    {
+      ERRORLOG("Max height is too high");
+      return 0;
+    }
+    if (height_min > height_max)
+    {
+      ERRORLOG("Ceiling max height is smaller than min height");
+      return 0;
+    }
+    dist = (height_max - height_min) / step;
+    if ( dist >= 2500 )
+      dist = 2500;
+    game.field_14A80C = dist;
+    if (dist > 20)
+    {
+      ERRORLOG("Ceiling search distance too big");
+      return 0;
+    }
+    game.field_14A804 = height_max;
+    game.field_14A808 = height_min;
+    game.field_14A814 = step;
+    game.field_14A810 = (2*game.field_14A80C+1) * (2*game.field_14A80C+1);
+    return 1;
 }
 
 void IsRunningMark(void)
@@ -698,14 +697,14 @@ TbBool initial_setup(void)
     game_load_files[1].SLength = max(TEXTURE_BLOCKS_STAT_COUNT*block_dimension*block_dimension,LANDVIEW_MAP_WIDTH*LANDVIEW_MAP_HEIGHT);
     if (LbDataLoadAll(game_load_files))
     {
-      ERRORLOG("Unable to load game_load_files");
-      return false;
+        ERRORLOG("Unable to load game_load_files");
+        return false;
     }
     // was LoadMcgaData, but minimal should be enough at this point.
-    if ( !LoadMcgaDataMinimal() )
+    if (!LoadMcgaDataMinimal())
     {
-      ERRORLOG("Loading MCGA files failed");
-      return false;
+        ERRORLOG("Loading MCGA files failed");
+        return false;
     }
     load_pointer_file(0);
     update_screen_mode_data(320, 200);
@@ -959,39 +958,39 @@ TbBool engine_point_to_map(struct Camera *camera, long screen_x, long screen_y, 
 
 TbBool screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct Coord3d *mappos)
 {
-  TbBool result;
-  long x,y;
-  //SYNCDBG(19,"Starting");
-  result = false;
-  if (camera != NULL)
-  {
-    switch (camera->field_6)
+    TbBool result;
+    long x,y;
+    SYNCDBG(19,"Starting");
+    result = false;
+    if (camera != NULL)
     {
-      case 1:
-      case 2:
-      case 5:
-        // 3D view mode
-        result = engine_point_to_map(camera,screen_x,screen_y,&x,&y);
-        break;
-      case 3: //map mode
-        result = point_to_overhead_map(camera,screen_x/pixel_size,screen_y/pixel_size,&x,&y);
-        break;
-      default:
-        result = false;
-        break;
+      switch (camera->field_6)
+      {
+        case 1:
+        case 2:
+        case 5:
+          // 3D view mode
+          result = engine_point_to_map(camera,screen_x,screen_y,&x,&y);
+          break;
+        case 3: //map mode
+          result = point_to_overhead_map(camera,screen_x/pixel_size,screen_y/pixel_size,&x,&y);
+          break;
+        default:
+          result = false;
+          break;
+      }
     }
-  }
-  if ( result )
-  {
-    mappos->x.val = x;
-    mappos->y.val = y;
-  }
-  if ( mappos->x.val > ((map_subtiles_x<<8)-1) )
-    mappos->x.val = ((map_subtiles_x<<8)-1);
-  if ( mappos->y.val > ((map_subtiles_y<<8)-1) )
-    mappos->y.val = ((map_subtiles_y<<8)-1);
-  //SYNCDBG(19,"Finished");
-  return result;
+    if ( result )
+    {
+      mappos->x.val = x;
+      mappos->y.val = y;
+    }
+    if ( mappos->x.val > ((map_subtiles_x<<8)-1) )
+      mappos->x.val = ((map_subtiles_x<<8)-1);
+    if ( mappos->y.val > ((map_subtiles_y<<8)-1) )
+      mappos->y.val = ((map_subtiles_y<<8)-1);
+    SYNCDBG(19,"Finished");
+    return result;
 }
 
 void update_creatr_model_activities_list(void)
@@ -1060,45 +1059,6 @@ void toggle_hero_health_flowers(void)
       statstr = "on";
     }
     show_onscreen_msg(2*game.num_fps, "Hero health flowers %s", statstr);
-}
-
-void zoom_to_map(void)
-{
-  struct PlayerInfo *player;
-  turn_off_all_window_menus();
-  if ((game.numfield_C & 0x20) == 0)
-    set_flag_byte(&game.numfield_C,0x40,false);
-  else
-    set_flag_byte(&game.numfield_C,0x40,true);
-  player=get_my_player();
-  if (((game.system_flags & GSF_NetworkActive) != 0)
-      || (lbDisplay.PhysicalScreenWidth > 320))
-  {
-    if (!toggle_status_menu(0))
-      set_flag_byte(&game.numfield_C,0x40,false);
-    set_players_packet_action(player, PckA_Unknown119, 4, 0, 0, 0);
-    turn_off_roaming_menus();
-  } else
-  {
-    set_players_packet_action(player, PckA_Unknown080, 5, 0, 0, 0);
-    turn_off_roaming_menus();
-  }
-}
-
-void zoom_from_map(void)
-{
-  struct PlayerInfo *player;
-  player=get_my_player();
-  if (((game.system_flags & GSF_NetworkActive) != 0)
-      || (lbDisplay.PhysicalScreenWidth > 320))
-  {
-      if ((game.numfield_C & 0x40) != 0)
-        toggle_status_menu(1);
-      set_players_packet_action(player, PckA_Unknown120,1,0,0,0);
-  } else
-  {
-      set_players_packet_action(player, PckA_Unknown080,6,0,0,0);
-  }
 }
 
 void reset_gui_based_on_player_mode(void)
@@ -1493,11 +1453,6 @@ void init_good_player_as(PlayerNumber plr_idx)
     player->field_0 |= 0x01;
     player->field_0 |= 0x40;
     player->id_number = game.hero_player_num;
-}
-
-void message_add(char c)
-{
-    _DK_message_add(c);
 }
 
 void change_engine_window_relative_size(long w_delta, long h_delta)
