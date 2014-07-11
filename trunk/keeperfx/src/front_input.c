@@ -653,7 +653,7 @@ TbBool get_level_lost_inputs(void)
         {
           struct CreatureControl *cctrl;
           cctrl = creature_control_get_from_thing(thing);
-          if ((cctrl->field_2 & 0x02) == 0)
+          if ((cctrl->flgfield_2 & 0x02) == 0)
           {
             set_players_packet_action(player, PckA_Unknown033, player->controlled_thing_idx,0,0,0);
             inp_done = true;
@@ -1651,7 +1651,7 @@ short get_inputs(void)
             return true;
         }
         cctrl = creature_control_get_from_thing(thing);
-        if ((cctrl->field_2 & 0x02) == 0)
+        if ((cctrl->flgfield_2 & 0x02) == 0)
         {
             get_level_lost_inputs();
             return true;
