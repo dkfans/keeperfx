@@ -136,7 +136,7 @@ struct CastedSpellData {
 struct CreatureControl {
     unsigned char index;
     unsigned char flgfield_1;
-    unsigned char field_2;
+    unsigned char flgfield_2;
     unsigned char combat_flags;
     unsigned char party_objective;
     long field_5;

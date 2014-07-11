@@ -136,7 +136,7 @@ struct WayPoints { // sizeof = 1040
 };
 
 struct Navigation { // sizeof = 0x27
-  unsigned char field_0;
+  unsigned char navstate;
   unsigned char field_1[3];
   unsigned char field_4;
   long field_5;
@@ -146,8 +146,8 @@ struct Navigation { // sizeof = 0x27
   unsigned short field_15;
   unsigned short field_17;
   unsigned char field_19[2];
-  struct Coord3d pos_1B;
-  struct Coord3d pos_21;
+  struct Coord3d pos_next;
+  struct Coord3d pos_final;
 };
 
 #pragma pack()
@@ -251,6 +251,7 @@ long triangle_brute_find8_near(long pos_x, long pos_y);
 long thing_nav_block_sizexy(const struct Thing *thing);
 long thing_nav_sizexy(const struct Thing *thing);
 
+void clear_wallhugging_path(struct Navigation *navi);
 void initialise_wallhugging_path_from_to(struct Navigation *navi, struct Coord3d *mvstart, struct Coord3d *mvend);
 
 /******************************************************************************/
