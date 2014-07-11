@@ -203,7 +203,7 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
     thing->alloc_flags |= TAlF_IsControlled;
     thing->field_4F |= 0x01;
     cctrl = creature_control_get_from_thing(thing);
-    cctrl->field_2 |= 0x02;
+    cctrl->flgfield_2 |= 0x02;
     cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
     set_player_mode(player, PVT_CreatureContrl);
     set_start_state(thing);

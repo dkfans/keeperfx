@@ -998,11 +998,13 @@ long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short speed)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
+    SYNCDBG(6,"Move %s from (%d,%d) to (%d,%d) with speed %d",thing_model_name(creatng),(int)creatng->mappos.x.stl.num,(int)creatng->mappos.y.stl.num,(int)pos->x.stl.num,(int)pos->y.stl.num,(int)speed);
     //return _DK_creature_tunnel_to(creatng, pos, a3);
     long i;
     cctrl->navi.field_19[0] = 0;
     if (get_2d_box_distance(&creatng->mappos, pos) <= 32)
     {
+        // We've reached the destination
         creature_set_speed(creatng, 0);
         return 1;
     }
@@ -1011,14 +1013,16 @@ long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short speed)
     {
         cctrl->party.long_8B++;
     }
-    if ((pos->x.val != cctrl->navi.pos_21.x.val)
-     || (pos->y.val != cctrl->navi.pos_21.y.val)
-     || (pos->z.val != cctrl->navi.pos_21.z.val))
+    if ((pos->x.val != cctrl->navi.pos_final.x.val)
+     || (pos->y.val != cctrl->navi.pos_final.y.val)
+     || (pos->z.val != cctrl->navi.pos_final.z.val))
     {
         pos->z.val = get_thing_height_at(creatng, pos);
         initialise_wallhugging_path_from_to(&cctrl->navi, &creatng->mappos, pos);
     }
-    if (get_next_position_and_angle_required_to_tunnel_creature_to(creatng, pos, cctrl->party.byte_8F) == 2)
+    long tnlret;
+    tnlret = get_next_position_and_angle_required_to_tunnel_creature_to(creatng, pos, cctrl->party.byte_8F);
+    if (tnlret == 2)
     {
         i = cctrl->navi.field_15;
         if (cctrl->navi.field_17 != i)
@@ -1030,28 +1034,32 @@ long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short speed)
             set_creature_instance(creatng, CrInst_TUNNEL, 0, 0, 0);
         }
     }
-    MapCoord dist;
-    dist = get_2d_distance(&creatng->mappos, &cctrl->navi.pos_1B);
+    MapCoordDelta dist;
+    dist = get_2d_distance(&creatng->mappos, &cctrl->navi.pos_next);
     if (dist <= 16)
     {
         creature_turn_to_face_angle(creatng, cctrl->navi.field_D);
         creature_set_speed(creatng, 0);
         return 0;
     }
-    if (creature_turn_to_face(creatng, &cctrl->navi.pos_1B))
+    if (dist > 768)
+    {
+        ERRORLOG("Move %s index %d to (%d,%d) reset - wallhug distance %d too large",thing_model_name(creatng),(int)creatng->index,(int)pos->x.stl.num,(int)pos->y.stl.num,(int)dist);
+        clear_wallhugging_path(&cctrl->navi);
+        creature_set_speed(creatng, speed);
+        return 0;
+    }
+    if (creature_turn_to_face(creatng, &cctrl->navi.pos_next))
     {
         creature_set_speed(creatng, 0);
         return 0;
     }
-    else
-    {
-      cctrl->moveaccel.x.val = cctrl->navi.pos_1B.x.val - (MapCoordDelta)creatng->mappos.x.val;
-      cctrl->moveaccel.y.val = cctrl->navi.pos_1B.y.val - (MapCoordDelta)creatng->mappos.y.val;
-      cctrl->moveaccel.z.val = 0;
-      cctrl->field_2 |= 0x01;
-      creature_set_speed(creatng, min(speed,dist));
-      return 0;
-    }
+    cctrl->moveaccel.x.val = cctrl->navi.pos_next.x.val - (MapCoordDelta)creatng->mappos.x.val;
+    cctrl->moveaccel.y.val = cctrl->navi.pos_next.y.val - (MapCoordDelta)creatng->mappos.y.val;
+    cctrl->moveaccel.z.val = 0;
+    cctrl->flgfield_2 |= 0x01;
+    creature_set_speed(creatng, min(speed,dist));
+    return 0;
 }
 
 short tunnelling(struct Thing *creatng)
@@ -1085,16 +1093,16 @@ short tunnelling(struct Thing *creatng)
         creatng->continue_state = CrSt_Unused;
         return 0;
     }
-    if (((game.play_gameturn + creatng->index) & 0x7F) != 0)
+    // Once per 128 turns, check if we've done digging and can now walk to the place
+    if (((game.play_gameturn + creatng->index) & 0x7F) == 0)
     {
-        return 0;
+        if (creature_can_navigate_to(creatng, pos, NavRtF_Default))
+        {
+            SYNCDBG(7,"The %s can now walk to (%d,%d), no need to tunnel",thing_model_name(creatng),(int)pos->x.stl.num,(int)pos->y.stl.num);
+            return 1;
+        }
     }
-    if (!creature_can_navigate_to(creatng, pos, NavRtF_Default))
-    {
-        SYNCDBG(7,"The %s moves towards (%d,%d)",thing_model_name(creatng),(int)pos->x.stl.num,(int)pos->y.stl.num);
-        return 0;
-    }
-    SYNCDBG(7,"The %s reached (%d,%d)",thing_model_name(creatng),(int)pos->x.stl.num,(int)pos->y.stl.num);
-    return 1;
+    SYNCDBG(7,"The %s cannot reach (%d,%d) by walk",thing_model_name(creatng),(int)pos->x.stl.num,(int)pos->y.stl.num);
+    return 0;
 }
 /******************************************************************************/

@@ -1195,12 +1195,23 @@ AriadneReturn ariadne_init_wallhug(struct Thing *thing, struct Ariadne *arid, st
     return _DK_ariadne_init_wallhug(thing, arid, pos);
 }
 
+void clear_wallhugging_path(struct Navigation *navi)
+{
+    navi->navstate = 1;
+    navi->pos_final.x.val = subtile_coord_center(map_subtiles_x/2);
+    navi->pos_final.y.val = subtile_coord_center(map_subtiles_y/2);
+    navi->pos_final.z.val = subtile_coord(1,0);
+    navi->field_1[2] = 0;
+    navi->field_1[1] = 0;
+    navi->field_4 = 0;
+}
+
 void initialise_wallhugging_path_from_to(struct Navigation *navi, struct Coord3d *mvstart, struct Coord3d *mvend)
 {
-    navi->field_0 = 1;
-    navi->pos_21.x.val = mvend->x.val;
-    navi->pos_21.y.val = mvend->y.val;
-    navi->pos_21.z.val = mvend->z.val;
+    navi->navstate = 1;
+    navi->pos_final.x.val = mvend->x.val;
+    navi->pos_final.y.val = mvend->y.val;
+    navi->pos_final.z.val = mvend->z.val;
     navi->field_1[2] = 0;
     navi->field_1[1] = 0;
     navi->field_4 = 0;

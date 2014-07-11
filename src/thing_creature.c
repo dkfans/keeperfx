@@ -3031,7 +3031,7 @@ void remove_first_creature(struct Thing *thing)
             secctrl = creature_control_get_from_thing(sectng);
             secctrl->players_prev_creature_idx = cctrl->players_prev_creature_idx;
         }
-        if ((cctrl->field_2 & 0x02) == 0)
+        if ((cctrl->flgfield_2 & 0x02) == 0)
         {
             dungeon->num_active_creatrs--;
             dungeon->owned_creatures_of_model[thing->model]--;
@@ -4353,7 +4353,7 @@ short update_creature_movements(struct Thing *thing)
         cctrl->moveaccel.y.val = 0;
         cctrl->moveaccel.z.val = 0;
         cctrl->move_speed = 0;
-        cctrl->field_2 &= ~0x01;
+        cctrl->flgfield_2 &= ~0x01;
     } else
     {
       if ((thing->alloc_flags & TAlF_IsControlled) != 0)
@@ -4362,10 +4362,10 @@ short update_creature_movements(struct Thing *thing)
               upd_done = 1;
           }
       } else
-      if ((cctrl->field_2 & 0x01) != 0)
+      if ((cctrl->flgfield_2 & 0x01) != 0)
       {
           upd_done = 1;
-          cctrl->field_2 &= ~0x01;
+          cctrl->flgfield_2 &= ~0x01;
       } else
       if (cctrl->move_speed != 0)
       {

@@ -56,7 +56,7 @@ long camera_zoom;
 }
 #endif
 /******************************************************************************/
-MapCoord get_3d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
+MapCoordDelta get_3d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
 {
   long dist_x;
   long dist_y;
@@ -71,7 +71,7 @@ MapCoord get_3d_box_distance(const struct Coord3d *pos1, const struct Coord3d *p
   return dist_y;
 }
 
-MapCoord get_2d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
+MapCoordDelta get_2d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
 {
   long dist_x,dist_y;
   dist_y = abs(pos1->y.val - (long)pos2->y.val);
@@ -81,7 +81,7 @@ MapCoord get_2d_box_distance(const struct Coord3d *pos1, const struct Coord3d *p
   return dist_y;
 }
 
-MapCoord get_2d_box_distance_xy(long pos1_x, long pos1_y, long pos2_x, long pos2_y)
+MapCoordDelta get_2d_box_distance_xy(long pos1_x, long pos1_y, long pos2_x, long pos2_y)
 {
     long dist_x,dist_y;
     dist_x = abs((long)pos1_x - (long)pos2_x);

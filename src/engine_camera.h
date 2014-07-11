@@ -79,9 +79,9 @@ DLLIMPORT extern struct MinMax _DK_minmaxs[MINMAX_LENGTH];
 
 extern long camera_zoom;
 /******************************************************************************/
-MapCoord get_3d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2);
-MapCoord get_2d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2);
-MapCoord get_2d_box_distance_xy(long pos1_x, long pos1_y, long pos2_x, long pos2_y);
+MapCoordDelta get_3d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2);
+MapCoordDelta get_2d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2);
+MapCoordDelta get_2d_box_distance_xy(long pos1_x, long pos1_y, long pos2_x, long pos2_y);
 void angles_to_vector(short theta, short phi, long dist, struct ComponentVector *cvect);
 long get_angle_xy_to(const struct Coord3d *pos1, const struct Coord3d *pos2);
 long get_angle_yz_to(const struct Coord3d *pos1, const struct Coord3d *pos2);

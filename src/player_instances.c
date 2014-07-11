@@ -1022,7 +1022,7 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
         set_start_state(thing);
         cctrl = creature_control_get_from_thing(thing);
         cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
-        if ((cctrl->field_2 & 0x02) != 0) {
+        if ((cctrl->flgfield_2 & 0x02) != 0) {
           delete_thing_structure(thing, 0);
         } else {
           disband_creatures_group(thing);
