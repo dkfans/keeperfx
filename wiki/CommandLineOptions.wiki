@@ -4,7 +4,7 @@
 
 This page displays the command line options available in the most recent release of KeeperFX.
 
-Note that the [Launcher Application] can be used to choose command line options - this way you won't have to type them by youself, but check the ones you want in a list.
+Note that the [LauncherApplication Launcher App] can be used to choose command line options - this way you won't have to type them by youself, but check the ones you want in a list.
 
 = Details =
 
