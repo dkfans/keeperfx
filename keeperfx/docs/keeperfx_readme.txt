@@ -94,76 +94,15 @@ a few hours of play it will have several hundreds megabytes.
 This is why you should use standard "keeperfx.exe" if you're
 not planning reporting any errors.
 
-Both versions will recognize all command line options described
+Both versions will recognize all command line options mentioned
 below.
 
 Command line options:
 
--nointro
-  The intro sequence won't play at startup.
--nocd
-  The CD Sound tracks won't play.
--1player
-  Allows playing multiplayer maps in skirmish mode.
-  This is normally ON, so the option has no effect.
--nosound or -s
-  Disables all the sounds.
--fps <num>
-  Changes the game speed; default <num> is 20.
--usersfont
-  Disable the AWE32/64 SoundFonts (.SBK files).
--alex
-  Used to show the 'JLW' easter egg. And not only that.
--level <num>
-  Brings you directly to level number <num>.
-  After the level is finished, quits the game.
-  Note that level number must be 1..65534.
--human <num>
-  Changes human player to <num>. This option will
-  work properly only in skirmish mode. Single player
-  levels must be specially designed for this option
-  to work. Also, the selected player must have
-  heart on the map.
--q
-  Works like '-level 1'.
--columnconvert
-  I assume it converts the columns data. Watch out with
-  this one or you may be unable to play the game again.
--lightconvert
-  Same thing, but for lights.
--vidsmooth
-  Smoothes the 3D view using 1-pixel bilinear blur.
-  This consumes more CPU, and the effect is merely visible,
-  so blurring is disabled by default.
--ppropoly <mode>
-  Allows to control "pentium pro polygon rendering". Default
-  value is 0, which means the game will detect if the CPU is
-  modern enough and enable advanced rendering based on that.
-  For processors below Pentium Pro (today such CPU would be
-  ancient) the game disables advanced polygon lightning
-  computing. Setting <mode> to 1 will make sure the advanced
-  rendering is always enabled, and setting it to 2 disables
-  Pentium Pro polygons regardless of the CPU.
--altinput
-  Uses alternate mouse input method. This changes the way of
-  computing mouse position; with this option, position is not
-  reset to screen center every time movement is detected.
-  May be helpful if original method isn't working right
-  (ie. mouse stops).
--packetsave <filename>
-  Writes a packet file (replay file) when playing.
-  After using this option, you must start a new level
-  (or use '-level' parameter). Saved replay will work
-  properly as long as you won't change any of the game
-  files. Even a minor change in map or configuration
-  may make the replay invalid.
--packetload <filename>
-  Loads a previously created packet file. Starts the
-  level for which packet file was created, and continues
-  the gameplay. You may exit this mode by pressing
-  Alt+X, or take over the control by pressing ALT+T.
-  Note that this option is experimental, and packet files
-  may sometimes not work as intended.
+  KeeperFX accepts many command line options, which you can type
+  while starting the game, or select from launcher.
+  All the options are listed and described on Wiki page:
+  https://code.google.com/p/keeperfx/wiki/CommandLineOptions
 
 Troubleshooting:
 

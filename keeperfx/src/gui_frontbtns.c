@@ -306,13 +306,13 @@ void setup_radio_buttons(struct GuiMenu *gmnu)
 
 void frontend_copy_mnu_background(struct GuiMenu *gmnu)
 {
-  SYNCDBG(9,"Starting");
-  frontend_copy_background_at(gmnu->pos_x,gmnu->pos_y,gmnu->width,gmnu->height);
+    SYNCDBG(9,"Starting");
+    draw_frontmenu_background(gmnu->pos_x, gmnu->pos_y, gmnu->width, gmnu->height);
 }
 
 void frontend_copy_background(void)
 {
-    frontend_copy_background_at(0,0,POS_AUTO,POS_AUTO);
+    draw_frontmenu_background(0,0,POS_AUTO,POS_AUTO);
 }
 
 void gui_round_glass_background(struct GuiMenu *gmnu)
@@ -571,38 +571,40 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
         fntidx = frontend_button_caption_font(gbtn, 0);
         spridx = 14;
     }
+    int units_per_px;
+    units_per_px = gbtn->height * 16 / frontend_sprite[14].SHeight;
     x = gbtn->scr_pos_x;
     y = gbtn->scr_pos_y;
     switch (btntype)
     {
      case 1:
-        LbSpriteDraw(x, y, &frontend_sprite[spridx]);
-        x += frontend_sprite[spridx].SWidth;
-        LbSpriteDraw(x, y, &frontend_sprite[spridx+1]);
-        x += frontend_sprite[spridx+1].SWidth;
+        LbSpriteDrawResized(x, y, &frontend_sprite[spridx], units_per_px);
+        x += frontend_sprite[spridx].SWidth * units_per_px / 16;
+        LbSpriteDrawResized(x, y, &frontend_sprite[spridx+1], units_per_px);
+        x += frontend_sprite[spridx+1].SWidth * units_per_px / 16;
         break;
     case 2:
-        LbSpriteDraw(x, y, &frontend_sprite[spridx]);
-        x += frontend_sprite[spridx].SWidth;
-        LbSpriteDraw(x, y, &frontend_sprite[spridx+1]);
-        x += frontend_sprite[spridx+1].SWidth;
-        LbSpriteDraw(x, y, &frontend_sprite[spridx+1]);
-        x += frontend_sprite[spridx+1].SWidth;
+        LbSpriteDrawResized(x, y, &frontend_sprite[spridx], units_per_px);
+        x += frontend_sprite[spridx].SWidth * units_per_px / 16;
+        LbSpriteDrawResized(x, y, &frontend_sprite[spridx+1], units_per_px);
+        x += frontend_sprite[spridx+1].SWidth * units_per_px / 16;
+        LbSpriteDrawResized(x, y, &frontend_sprite[spridx+1], units_per_px);
+        x += frontend_sprite[spridx+1].SWidth * units_per_px / 16;
         break;
     default:
-        LbSpriteDraw(x, y, &frontend_sprite[spridx]);
-        x += frontend_sprite[spridx].SWidth;
+        LbSpriteDrawResized(x, y, &frontend_sprite[spridx], units_per_px);
+        x += frontend_sprite[spridx].SWidth * units_per_px / 16;
         break;
     }
-    LbSpriteDraw(x, y, &frontend_sprite[spridx+2]);
+    LbSpriteDrawResized(x, y, &frontend_sprite[spridx+2], units_per_px);
     if (text != NULL)
     {
         lbDisplay.DrawFlags = drw_flags;
         LbTextSetFont(frontend_font[fntidx]);
         h = LbTextHeight(text);
-        x = gbtn->scr_pos_x + ((40) >> 1);
-        y = gbtn->scr_pos_y + ((frontend_sprite[spridx].SHeight-h) >> 1);
-        LbTextSetWindow(x, y, gbtn->width-40, h);
+        x = gbtn->scr_pos_x + ((40*units_per_px/16) >> 1);
+        y = gbtn->scr_pos_y + ((frontend_sprite[spridx].SHeight-h) >> 1) * units_per_px / 16;
+        LbTextSetWindow(x, y, gbtn->width-40*units_per_px/16, h);
         LbTextDraw(0, 0, text);
     }
 }

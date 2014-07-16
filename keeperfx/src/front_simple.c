@@ -124,6 +124,9 @@ TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const in
           dst = dst_buf + (dhstart+k)*scanline;
           int dwstart;
           dwstart = spw;
+          if (dwstart > 0) {
+              LbMemorySet(dst, 0, dwstart);
+          }
           for (sw=0; sw<src_width; sw++)
           {
               int dwend;
@@ -136,6 +139,9 @@ TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const in
                   dst[dwstart+i] = src[sw];
               }
               dwstart = dwend;
+          }
+          if (dwstart < scanline) {
+              LbMemorySet(dst+dwstart, 0, scanline-dwstart);
           }
       }
       dhstart = dhend;
