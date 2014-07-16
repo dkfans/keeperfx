@@ -319,11 +319,11 @@ void frontend_draw_error_text_box(struct GuiButton *gbtn);
 void frontend_maintain_error_text_box(struct GuiButton *gbtn);
 short is_toggleable_menu(short mnu_idx);
 
-void activate_room_build_mode(int rkind, TextStringId tooltip_id);
+void activate_room_build_mode(RoomKind rkind, TextStringId tooltip_id);
 void choose_spell(PowerKind pwkind, TextStringId tooltip_id);
 TbBool is_special_spell(PowerKind pwkind);
 void choose_special_spell(PowerKind pwkind, TextStringId tooltip_id);
-void choose_workshop_item(int manufctr_idx, int tooltip_id);
+void choose_workshop_item(int manufctr_idx, TextStringId tooltip_id);
 
 // Campaign selection screen
 void frontend_campaign_select_up(struct GuiButton *gbtn);

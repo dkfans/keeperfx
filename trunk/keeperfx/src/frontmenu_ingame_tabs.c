@@ -555,7 +555,7 @@ void gui_area_big_spell_button(struct GuiButton *gbtn)
  * @param manufctr_idx An index into manufacture data array, beware as this is different from models.
  * @param tooltip_id The tooltip string to display.
  */
-void choose_workshop_item(int manufctr_idx, int tooltip_id)
+void choose_workshop_item(int manufctr_idx, TextStringId tooltip_id)
 {
     struct PlayerInfo * player;
     struct ManufactureData *manufctr;
