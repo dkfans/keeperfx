@@ -933,12 +933,16 @@ TbResult frontend_load_data(void)
     long len;
     //return _DK_frontend_load_data();
     ret = Lb_SUCCESS;
+    frontend_sprite_scale = 16;
     wait_for_cd_to_be_available();
     frontend_background = (unsigned char *)game.map;
     fname = prepare_file_path(FGrp_LoData,"front.raw");
     len = LbFileLoadAt(fname, frontend_background);
-    if (len != 307200) {
+    if (len < 307200) {
         ret = Lb_FAIL;
+    }
+    if (len > sizeof(game.map)) {
+        WARNLOG("Reused memory area exceeded for frontend background.");
     }
     frontend_sprite_data = (unsigned char *)poly_pool;
     fname = prepare_file_path(FGrp_LoData,"frontbit.dat");
@@ -958,11 +962,15 @@ TbResult frontend_load_data(void)
     } else {
         frontend_end_sprite = (struct TbSprite *)((unsigned char *)frontend_sprite + len);
     }
+    if (((long)frontend_end_sprite - (long)frontend_sprite_data) > sizeof(poly_pool)) {
+        WARNLOG("Reused memory area exceeded for frontend sprites.");
+    }
+    frontend_sprite_scale = units_per_pixel;
     LbSpriteSetup(frontend_sprite, frontend_end_sprite, frontend_sprite_data);
     return ret;
 }
 
-void activate_room_build_mode(int rkind, TextStringId tooltip_id)
+void activate_room_build_mode(RoomKind rkind, TextStringId tooltip_id)
 {
     struct PlayerInfo *player;
     player = get_my_player();
@@ -1061,23 +1069,23 @@ void choose_spell(PowerKind pwkind, TextStringId tooltip_id)
 
 void frontend_draw_scroll_tab(struct GuiButton *gbtn, long scroll_offset, long first_elem, long last_elem)
 {
-  struct TbSprite *spr;
-  long i,k,n;
-  spr = &frontend_sprite[78];
-  i = last_elem - first_elem;
-  k = gbtn->height - spr->SHeight;
-  if (i <= 1)
-    n = (gbtn->height - spr->SHeight) ^ k;
-  else
-    n = (scroll_offset * (k << 8) / (i - 1)) >> 8;
-  LbSpriteDraw(gbtn->scr_pos_x, n+gbtn->scr_pos_y, spr);
+    struct TbSprite *spr;
+    long i,k,n;
+    spr = &frontend_sprite[78];
+    i = last_elem - first_elem;
+    k = gbtn->height - spr->SHeight;
+    if (i <= 1)
+        n = (gbtn->height - spr->SHeight) ^ k;
+    else
+        n = (scroll_offset * (k << 8) / (i - 1)) >> 8;
+    LbSpriteDraw(gbtn->scr_pos_x, n+gbtn->scr_pos_y, spr);
 }
 
 void gui_quit_game(struct GuiButton *gbtn)
 {
-  struct PlayerInfo *player;
-  player = get_my_player();
-  set_players_packet_action(player, PckA_Unknown001, 0, 0, 0, 0);
+    struct PlayerInfo *player;
+    player = get_my_player();
+    set_players_packet_action(player, PckA_Unknown001, 0, 0, 0, 0);
 }
 
 void draw_slider64k(long scr_x, long scr_y, long width)
@@ -1363,7 +1371,7 @@ void frontend_draw_text(struct GuiButton *gbtn)
 
 void frontend_change_state(struct GuiButton *gbtn)
 {
-  frontend_set_state(gbtn->field_1B);
+    frontend_set_state(gbtn->field_1B);
 }
 
 void frontend_draw_enter_text(struct GuiButton *gbtn)
@@ -1962,26 +1970,26 @@ short is_toggleable_menu(short mnu_idx)
 
 void init_slider_bars(struct GuiMenu *gmnu)
 {
-  struct GuiButton *gbtn;
-  long sldpos;
-  int i;
-  for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
-  {
-    gbtn = &active_buttons[i];
-    if ((gbtn->content) && (gbtn->gmenu_idx == gmnu->number))
+    struct GuiButton *gbtn;
+    long sldpos;
+    int i;
+    for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
     {
-      if (gbtn->gbtype == Lb_SLIDER)
-      {
-          sldpos = *(long *)gbtn->content;
-          if (sldpos < 0)
-            sldpos = 0;
-          else
-          if (sldpos > gbtn->field_2D)
-            sldpos = gbtn->field_2D;
-          gbtn->slide_val = (sldpos << 8) / (gbtn->field_2D + 1);
-      }
+        gbtn = &active_buttons[i];
+        if ((gbtn->content) && (gbtn->gmenu_idx == gmnu->number))
+        {
+          if (gbtn->gbtype == Lb_SLIDER)
+          {
+              sldpos = *(long *)gbtn->content;
+              if (sldpos < 0)
+                sldpos = 0;
+              else
+              if (sldpos > gbtn->field_2D)
+                sldpos = gbtn->field_2D;
+              gbtn->slide_val = (sldpos << 8) / (gbtn->field_2D + 1);
+          }
+        }
     }
-  }
 }
 
 void init_menu_buttons(struct GuiMenu *gmnu)
@@ -1998,7 +2006,7 @@ void init_menu_buttons(struct GuiMenu *gmnu)
     }
 }
 
-int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit)
+int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit, int units_per_px)
 {
     struct GuiButton *gbtn;
     int gidx;
@@ -2021,8 +2029,8 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit)
     gbtn->rclick_event = gbinit->rclick_event;
     gbtn->ptover_event = gbinit->ptover_event;
     gbtn->field_1B = gbinit->field_13;
-    gbtn->width = gbinit->width;
-    gbtn->height = gbinit->height;
+    gbtn->width = gbinit->width * units_per_px / 16;
+    gbtn->height = gbinit->height * units_per_px / 16;
     gbtn->draw_call = gbinit->draw_call;
     gbtn->field_29 = gbinit->field_25;
     gbtn->tooltip_id = gbinit->tooltip_id;
@@ -2037,23 +2045,23 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit)
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown20 * (gbinit->field_5 >> 8)) & LbBtnF_Unknown20;
     if ((gbinit->scr_pos_x == 999) || (gbinit->pos_x == 999))
     {
-        i = gmnu->pos_x + (gmnuinit->width >> 1) - (gbinit->width >> 1);
+        i = gmnu->pos_x + ((gmnuinit->width >> 1) - (gbinit->width >> 1)) * units_per_px / 16;
         gbtn->scr_pos_x = i;
         gbtn->pos_x = i;
     } else
     {
-        gbtn->pos_x = gmnu->pos_x + gbinit->pos_x;
-        gbtn->scr_pos_x = gmnu->pos_x + gbinit->scr_pos_x;
+        gbtn->pos_x = gmnu->pos_x + gbinit->pos_x * units_per_px / 16;
+        gbtn->scr_pos_x = gmnu->pos_x + gbinit->scr_pos_x * units_per_px / 16;
     }
     if ((gbinit->scr_pos_y == 999) || (gbinit->pos_y == 999))
     {
-        i = gmnu->pos_y + (gmnuinit->height >> 1) - (gbinit->height >> 1);
+        i = gmnu->pos_y + ((gmnuinit->height >> 1) - (gbinit->height >> 1)) * units_per_px / 16;
         gbtn->scr_pos_y = i;
         gbtn->pos_y = i;
     } else
     {
-        gbtn->pos_y = gbinit->pos_y + gmnu->pos_y;
-        gbtn->scr_pos_y = gmnu->pos_y + gbinit->scr_pos_y;
+        gbtn->pos_y = gbinit->pos_y * units_per_px / 16 + gmnu->pos_y;
+        gbtn->scr_pos_y = gmnu->pos_y + gbinit->scr_pos_y * units_per_px / 16;
     }
     if (gbtn->gbtype == 3)
     {
@@ -2079,32 +2087,34 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit)
 
 }
 
-long compute_menu_position_x(long desired_pos,int menu_width)
+long compute_menu_position_x(long desired_pos,int menu_width, int units_per_px)
 {
   struct PlayerInfo *player;
   player = get_my_player();
+  long scaled_width;
+  scaled_width = menu_width * units_per_px / 16;
   long pos;
   switch (desired_pos)
   {
   case POS_MOUSMID: // Place menu centered over mouse
-      pos = GetMouseX() - (menu_width >> 1);
+      pos = GetMouseX() - (scaled_width >> 1);
       break;
   case POS_GAMECTR: // Player-based positioning
-      pos = (player->engine_window_x) + (player->engine_window_width >> 1) - (menu_width >> 1);
+      pos = (player->engine_window_x) + (player->engine_window_width >> 1) - (scaled_width >> 1);
       break;
   case POS_MOUSPRV: // Place menu centered over previous mouse position
-      pos = old_menu_mouse_x - (menu_width >> 1);
+      pos = old_menu_mouse_x - (scaled_width >> 1);
       break;
   case POS_SCRCTR:
-      pos = (MyScreenWidth >> 1) - (menu_width >> 1);
+      pos = (MyScreenWidth >> 1) - (scaled_width >> 1);
       break;
   case POS_SCRBTM:
-      pos = MyScreenWidth - menu_width;
+      pos = MyScreenWidth - scaled_width;
       break;
   default: // Desired position have direct coordinates
       pos = ((desired_pos*(long)units_per_pixel)>>4)*((long)pixel_size);
-      if (pos+menu_width > lbDisplay.PhysicalScreenWidth*((long)pixel_size))
-        pos = lbDisplay.PhysicalScreenWidth*((long)pixel_size)-menu_width;
+      if (pos+scaled_width > lbDisplay.PhysicalScreenWidth*((long)pixel_size))
+        pos = lbDisplay.PhysicalScreenWidth*((long)pixel_size)-scaled_width;
 /* Helps not to touch left panel - disabling, as needs additional conditions
       if (pos < status_panel_width)
         pos = status_panel_width;
@@ -2114,56 +2124,60 @@ long compute_menu_position_x(long desired_pos,int menu_width)
   // Clipping position X
   if (desired_pos == POS_GAMECTR)
   {
-    if (pos+menu_width > MyScreenWidth)
-      pos = MyScreenWidth-menu_width;
+    if (pos+scaled_width > MyScreenWidth)
+      pos = MyScreenWidth-scaled_width;
     if (pos < player->engine_window_x)
       pos = player->engine_window_x;
   } else
   {
-    if (pos+menu_width > MyScreenWidth)
-      pos = MyScreenWidth-menu_width;
+    if (pos+scaled_width > MyScreenWidth)
+      pos = MyScreenWidth-scaled_width;
     if (pos < 0)
       pos = 0;
   }
   return pos;
 }
 
-long compute_menu_position_y(long desired_pos,int menu_height)
+long compute_menu_position_y(long desired_pos,int menu_height, int units_per_px)
 {
   struct PlayerInfo *player;
   player = get_my_player();
+  long scaled_height;
+  scaled_height = menu_height * units_per_px / 16;
   long pos;
   switch (desired_pos)
   {
   case POS_MOUSMID: // Place menu centered over mouse
-      pos = GetMouseY() - (menu_height >> 1);
+      pos = GetMouseY() - (scaled_height >> 1);
       break;
   case POS_GAMECTR: // Player-based positioning
-      pos = (player->engine_window_height >> 1) - ((menu_height+20) >> 1);
+      pos = (player->engine_window_height >> 1) - ((scaled_height+20*units_per_px/16) >> 1);
       break;
   case POS_MOUSPRV: // Place menu centered over previous mouse position
-      pos = old_menu_mouse_y - (menu_height >> 1);
+      pos = old_menu_mouse_y - (scaled_height >> 1);
       break;
   case POS_SCRCTR:
-      pos = (MyScreenHeight >> 1) - (menu_height >> 1);
+      pos = (MyScreenHeight >> 1) - (scaled_height >> 1);
       break;
   case POS_SCRBTM:
-      pos = MyScreenHeight - menu_height;
+      pos = MyScreenHeight - scaled_height;
       break;
   default: // Desired position have direct coordinates
       pos = ((desired_pos*((long)units_per_pixel))>>4)*((long)pixel_size);
-      if (pos+menu_height > lbDisplay.PhysicalScreenHeight*((long)pixel_size))
-        pos = lbDisplay.PhysicalScreenHeight*((long)pixel_size)-menu_height;
+      if (pos+scaled_height > lbDisplay.PhysicalScreenHeight*((long)pixel_size))
+        pos = lbDisplay.PhysicalScreenHeight*((long)pixel_size)-scaled_height;
       break;
   }
   // Clipping position Y
-  if (pos+menu_height > MyScreenHeight)
-    pos = MyScreenHeight-menu_height;
+  if (pos+scaled_height > MyScreenHeight)
+    pos = MyScreenHeight-scaled_height;
   if (pos < 0)
     pos = 0;
   return pos;
 }
 
+// TODO RESCALE Replace this with units_per_pixel when rescaling is ready
+#define MNU_UNITS_PER_PX 16
 MenuNumber create_menu(struct GuiMenu *gmnu)
 {
     MenuNumber mnu_num;
@@ -2201,16 +2215,16 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
       old_menu_mouse_y = GetMouseY();
     }
     // Setting position X
-    amnu->pos_x = compute_menu_position_x(gmnu->pos_x,gmnu->width);
+    amnu->pos_x = compute_menu_position_x(gmnu->pos_x,gmnu->width,MNU_UNITS_PER_PX);
     // Setting position Y
-    amnu->pos_y = compute_menu_position_y(gmnu->pos_y,gmnu->height);
+    amnu->pos_y = compute_menu_position_y(gmnu->pos_y,gmnu->height,MNU_UNITS_PER_PX);
 
     amnu->fade_time = gmnu->fade_time;
     if (amnu->fade_time < 1)
         ERRORLOG("Fade time %d is less than 1.",(int)amnu->fade_time);
     amnu->buttons = gmnu->buttons;
-    amnu->width = gmnu->width;
-    amnu->height = gmnu->height;
+    amnu->width = gmnu->width * MNU_UNITS_PER_PX / 16;
+    amnu->height = gmnu->height * MNU_UNITS_PER_PX / 16;
     amnu->draw_cb = gmnu->draw_cb;
     amnu->create_cb = gmnu->create_cb;
     amnu->flgfield_1E = gmnu->flgfield_1E;
@@ -2222,7 +2236,7 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
     btninit = gmnu->buttons;
     for (i=0; btninit[i].field_0 != -1; i++)
     {
-      if (create_button(amnu, &btninit[i]) == -1)
+      if (create_button(amnu, &btninit[i], MNU_UNITS_PER_PX) == -1)
       {
         ERRORLOG("Cannot Allocate button");
         return -1;
@@ -2235,6 +2249,7 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
         (int)mnu_num,(int)amnu->pos_x,(int)amnu->pos_y,(int)amnu->width,(int)amnu->height);
     return mnu_num;
 }
+#undef MNU_UNITS_PER_PX
 
 //TODO: Remove when original toggle_status_menu() won't be used anymore.
 DLLIMPORT unsigned char _DK_room_on;
@@ -2476,8 +2491,8 @@ void inline frontstory_unload(void)
 
 void frontend_level_select_up(struct GuiButton *gbtn)
 {
-  if (select_level_scroll_offset > 0)
-    select_level_scroll_offset--;
+    if (select_level_scroll_offset > 0)
+      select_level_scroll_offset--;
 }
 
 void frontend_level_select_down(struct GuiButton *gbtn)
@@ -2488,8 +2503,8 @@ void frontend_level_select_down(struct GuiButton *gbtn)
 
 void frontend_level_select_up_maintain(struct GuiButton *gbtn)
 {
-  if (gbtn != NULL)
-    set_flag_byte(&gbtn->flags, LbBtnF_Unknown08, (select_level_scroll_offset != 0));
+    if (gbtn != NULL)
+      set_flag_byte(&gbtn->flags, LbBtnF_Unknown08, (select_level_scroll_offset != 0));
 }
 
 void frontend_level_select_down_maintain(struct GuiButton *gbtn)
@@ -2500,40 +2515,40 @@ void frontend_level_select_down_maintain(struct GuiButton *gbtn)
 
 void frontend_level_select_maintain(struct GuiButton *gbtn)
 {
-  long i;
-  if (gbtn != NULL)
-  {
-    i = (long)gbtn->content - 45;
-    set_flag_byte(&gbtn->flags, LbBtnF_Unknown08, (select_level_scroll_offset+i < number_of_freeplay_levels));
-  }
+    long i;
+    if (gbtn != NULL)
+    {
+      i = (long)gbtn->content - 45;
+      set_flag_byte(&gbtn->flags, LbBtnF_Unknown08, (select_level_scroll_offset+i < number_of_freeplay_levels));
+    }
 }
 
 void frontend_draw_level_select_button(struct GuiButton *gbtn)
 {
-  struct LevelInformation *lvinfo;
-  long btn_idx;
-  long lvnum;
-  long i;
-  btn_idx = (long)gbtn->content;
-  i = btn_idx + select_level_scroll_offset - 45;
-  lvnum = 0;
-  if ((i >= 0) && (i < campaign.freeplay_levels_count))
-    lvnum = campaign.freeplay_levels[i];
-  lvinfo = get_level_info(lvnum);
-  if (lvinfo == NULL)
-    return;
-  if ((btn_idx > 0) && (frontend_mouse_over_button == btn_idx))
-    i = 2;
-  else
-  if (get_level_highest_score(lvnum))
-    i = 3;
-  else
-    i = 1;
-  lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
-  LbTextSetFont(frontend_font[i]);
-  i = LbTextLineHeight();
-  LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, i);
-  LbTextDraw(0, 0, lvinfo->name);
+    struct LevelInformation *lvinfo;
+    long btn_idx;
+    long lvnum;
+    long i;
+    btn_idx = (long)gbtn->content;
+    i = btn_idx + select_level_scroll_offset - 45;
+    lvnum = 0;
+    if ((i >= 0) && (i < campaign.freeplay_levels_count))
+      lvnum = campaign.freeplay_levels[i];
+    lvinfo = get_level_info(lvnum);
+    if (lvinfo == NULL)
+      return;
+    if ((btn_idx > 0) && (frontend_mouse_over_button == btn_idx))
+      i = 2;
+    else
+    if (get_level_highest_score(lvnum))
+      i = 3;
+    else
+      i = 1;
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+    LbTextSetFont(frontend_font[i]);
+    i = LbTextLineHeight();
+    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, i);
+    LbTextDraw(0, 0, lvinfo->name);
 }
 
 void frontend_level_select(struct GuiButton *gbtn)
@@ -2671,18 +2686,18 @@ void frontend_campaign_select(struct GuiButton *gbtn)
 
 void frontend_campaign_select_update(void)
 {
-  if (campaigns_list.items_num <= 0)
-  {
-    select_level_scroll_offset = 0;
-  } else
-  if (select_level_scroll_offset < 0)
-  {
-    select_level_scroll_offset = 0;
-  } else
-  if (select_level_scroll_offset > campaigns_list.items_num-1)
-  {
-    select_level_scroll_offset = campaigns_list.items_num-1;
-  }
+    if (campaigns_list.items_num <= 0)
+    {
+      select_level_scroll_offset = 0;
+    } else
+    if (select_level_scroll_offset < 0)
+    {
+      select_level_scroll_offset = 0;
+    } else
+    if (select_level_scroll_offset > campaigns_list.items_num-1)
+    {
+      select_level_scroll_offset = campaigns_list.items_num-1;
+    }
 }
 
 void frontend_draw_campaign_scroll_tab(struct GuiButton *gbtn)

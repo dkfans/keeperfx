@@ -73,6 +73,7 @@ DLLIMPORT extern unsigned char * _DK_frontend_end_sprite_data;
 #pragma pack()
 /******************************************************************************/
 extern char gui_textbuf[TEXT_BUFFER_LENGTH];
+extern long frontend_sprite_scale;
 /******************************************************************************/
 int get_bitmap_max_scale(int img_w,int img_h,int rect_w,int rect_h);
 
@@ -96,7 +97,7 @@ void draw_gui_panel_sprite_occentered(long x, long y, long spridx, TbPixel color
 void draw_button_sprite_left(long x, long y, long spridx);
 void draw_button_sprite_rmleft(long x, long y, long spridx, unsigned long remap);
 
-void frontend_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h);
+void draw_frontmenu_background(int rect_x,int rect_y,int rect_w,int rect_h);
 /******************************************************************************/
 #ifdef __cplusplus
 }

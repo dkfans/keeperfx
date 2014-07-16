@@ -23,6 +23,7 @@
 #include "bflib_memory.h"
 #include "bflib_video.h"
 #include "bflib_sprite.h"
+#include "bflib_planar.h"
 #include "bflib_vidraw.h"
 #include "bflib_sprfnt.h"
 #include "bflib_guibtns.h"
@@ -35,6 +36,8 @@ extern "C" {
 #endif
 /******************************************************************************/
 char gui_textbuf[TEXT_BUFFER_LENGTH];
+
+long frontend_sprite_scale = 16;
 /******************************************************************************/
 DLLIMPORT void _DK_draw_button_string(struct GuiButton *gbtn, const char *text);
 DLLIMPORT int _DK_draw_text_box(char *text);
@@ -602,37 +605,68 @@ void draw_string64k(long x, long y, const char * text)
     lbDisplay.DrawFlags = drwflags_mem;
 }
 
-void frontend_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h)
+TbBool frontmenu_copy_background_at(const struct TbRect *bkgnd_area, int units_per_px)
 {
-    const int img_width = 640;
-    const int img_height = 480;
-    const unsigned char *srcbuf=frontend_background;
-    TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(LbScreenActiveMode());
-    int m;
-    int spx,spy;
+    int img_width, img_height;
+    img_width = 640;
+    img_height = 480;
+    const unsigned char *srcbuf = frontend_background;
     // Only 8bpp supported for now
     if (LbGraphicsScreenBPP() != 8)
-      return;
+        return false;
+    // Do the drawing
+    copy_raw8_image_buffer(lbDisplay.WScreen,LbGraphicsScreenWidth(),LbGraphicsScreenHeight(),
+        img_width*units_per_px/16,img_height*units_per_px/16,bkgnd_area->left,bkgnd_area->top,srcbuf,img_width,img_height);
+    // Burning candle flames
+    return true;
+}
+
+long get_frontmenu_background_area_rect(int rect_x, int rect_y, int rect_w, int rect_h, struct TbRect *bkgnd_area)
+{
+    int img_width, img_height;
+    img_width = 640;
+    img_height = 480;
+    // Parchment bitmap scaling
+    int units_per_px, units_per_px_max;
+    units_per_px = max(16*rect_w/img_width, 16*rect_h/img_height);
+    units_per_px_max = min(16*7*rect_w/(6*img_width), 16*4*rect_h/(3*img_height));
+    if (units_per_px > units_per_px_max)
+        units_per_px = units_per_px_max;
+    // The image width can't be larger than video resolution
+    if (units_per_px < 1) {
+        units_per_px = 1;
+    }
+    // Set rectangle coords
+    bkgnd_area->left = rect_x + (rect_w-units_per_px*img_width/16)/2;
+    bkgnd_area->top = rect_y + (rect_h-units_per_px*img_height/16)/2;
+    if (bkgnd_area->top < 0) bkgnd_area->top = 0;
+    bkgnd_area->right = bkgnd_area->left + units_per_px*img_width/16;
+    bkgnd_area->bottom = bkgnd_area->top + units_per_px*img_height/16;
+    if (bkgnd_area->bottom > rect_y+rect_h) bkgnd_area->bottom = rect_y+rect_h;
+    return units_per_px;
+}
+
+/**
+ * Draws menu background.
+ */
+void draw_frontmenu_background(int rect_x,int rect_y,int rect_w,int rect_h)
+{
+    // Validate parameters with video mode
+    TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(LbScreenActiveMode());
     if (rect_w == POS_AUTO)
       rect_w = mdinfo->Width-rect_x;
     if (rect_h == POS_AUTO)
       rect_h = mdinfo->Height-rect_y;
     if (rect_w<0) rect_w=0;
     if (rect_h<0) rect_h=0;
-    m = get_bitmap_max_scale(img_width, img_height, rect_w, rect_h);
-    if (m < 1)
-    {
-      SYNCMSG("The %dx%d frontend image does not fit in %dx%d window, skipped.", img_width, img_height,rect_w,rect_h);
-      return;
-    }
-    // Starting point coords
-    spx = rect_x + ((rect_w-m*img_width)>>1);
-    spy = rect_y + ((rect_h-m*img_height)>>1);
-    // Do the drawing
-    copy_raw8_image_buffer(lbDisplay.WScreen,LbGraphicsScreenWidth(),LbGraphicsScreenHeight(),
-        img_width*m,img_height*m,spx,spy,srcbuf,img_width,img_height);
+    // Get background area rectangle
+    struct TbRect bkgnd_area;
+    int units_per_px;
+    units_per_px = get_frontmenu_background_area_rect(rect_x, rect_y, rect_w, rect_h, &bkgnd_area);
+    // Draw it
+    frontmenu_copy_background_at(&bkgnd_area, units_per_px);
+    SYNCDBG(9,"Done");
 }
-
 /******************************************************************************/
 #ifdef __cplusplus
 }
