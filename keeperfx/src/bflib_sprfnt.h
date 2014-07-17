@@ -93,6 +93,7 @@ DLLIMPORT extern unsigned char _DK_lbSpacesPerTab;
 /******************************************************************************/
 TbBool LbTextDraw(int posx, int posy, const char *text);
 TbBool LbTextDrawFmt(int posx, int posy, const char *fmt, ...);
+TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text);
 int LbTextHeight(const char *text);
 int LbTextLineHeight(void);
 int LbTextSetWindow(int posx, int posy, int width, int height);
