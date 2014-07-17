@@ -605,7 +605,7 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
         x = gbtn->scr_pos_x + ((40*units_per_px/16) >> 1);
         y = gbtn->scr_pos_y + ((frontend_sprite[spridx].SHeight-h) >> 1) * units_per_px / 16;
         LbTextSetWindow(x, y, gbtn->width-40*units_per_px/16, h);
-        LbTextDraw(0, 0, text);
+        LbTextDrawResized(0, 0, units_per_px, text);
     }
 }
 

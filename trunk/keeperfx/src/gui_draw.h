@@ -45,7 +45,6 @@ extern "C" {
 struct GuiButton;
 /******************************************************************************/
 extern char gui_textbuf[TEXT_BUFFER_LENGTH];
-extern long frontend_sprite_scale;
 /******************************************************************************/
 DLLIMPORT extern struct TbSprite *_DK_button_sprite;
 #define button_sprite _DK_button_sprite
