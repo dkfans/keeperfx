@@ -933,7 +933,6 @@ TbResult frontend_load_data(void)
     long len;
     //return _DK_frontend_load_data();
     ret = Lb_SUCCESS;
-    frontend_sprite_scale = 16;
     wait_for_cd_to_be_available();
     frontend_background = (unsigned char *)game.map;
     fname = prepare_file_path(FGrp_LoData,"front.raw");
@@ -965,7 +964,6 @@ TbResult frontend_load_data(void)
     if (((long)frontend_end_sprite - (long)frontend_sprite_data) > sizeof(poly_pool)) {
         WARNLOG("Reused memory area exceeded for frontend sprites.");
     }
-    frontend_sprite_scale = units_per_pixel;
     LbSpriteSetup(frontend_sprite, frontend_end_sprite, frontend_sprite_data);
     return ret;
 }
@@ -2211,8 +2209,8 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
     amnu->ident = gmnu->ident;
     if (amnu->ident == GMnu_MAIN)
     {
-      old_menu_mouse_x = GetMouseX();
-      old_menu_mouse_y = GetMouseY();
+        old_menu_mouse_x = GetMouseX();
+        old_menu_mouse_y = GetMouseY();
     }
     // Setting position X
     amnu->pos_x = compute_menu_position_x(gmnu->pos_x,gmnu->width,MNU_UNITS_PER_PX);

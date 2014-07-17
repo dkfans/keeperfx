@@ -37,7 +37,6 @@ extern "C" {
 /******************************************************************************/
 char gui_textbuf[TEXT_BUFFER_LENGTH];
 
-long frontend_sprite_scale = 16;
 /******************************************************************************/
 DLLIMPORT void _DK_draw_button_string(struct GuiButton *gbtn, const char *text);
 DLLIMPORT int _DK_draw_text_box(char *text);

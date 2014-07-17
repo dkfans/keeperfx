@@ -73,7 +73,6 @@ DLLIMPORT extern unsigned char * _DK_frontend_end_sprite_data;
 #pragma pack()
 /******************************************************************************/
 extern char gui_textbuf[TEXT_BUFFER_LENGTH];
-extern long frontend_sprite_scale;
 /******************************************************************************/
 int get_bitmap_max_scale(int img_w,int img_h,int rect_w,int rect_h);
 
