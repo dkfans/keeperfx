@@ -166,7 +166,7 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
     LbTextDraw(0, (gbtn->height - h) / 2, gui_string(definable_key_string[key_id]));
     unsigned char mods;
     mods = settings.kbkeys[key_id].mods;
-    lbDisplay.DrawFlags = 0x0080;
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
 
     char text[255];
     text[0] = '\0';

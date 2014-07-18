@@ -1364,7 +1364,7 @@ void draw_engine_number(struct Number *num)
     long w,h,pos_x;
     flg_mem = lbDisplay.DrawFlags;
     player = get_my_player();
-    lbDisplay.DrawFlags &= ~Lb_SPRITE_ONECOLOUR1;
+    lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
     spr = &button_sprite[71];
     w = spr->SWidth;
     h = spr->SHeight;
@@ -1462,7 +1462,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
       health_spridx = choose_health_sprite(thing);
       if (is_my_player_number(thing->owner))
       {
-        lbDisplay.DrawFlags |= 0x04;
+        lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
         cctrl = creature_control_get_from_thing(thing);
         if (cctrl->field_43 - game.play_gameturn != -1)
         {
@@ -1545,8 +1545,8 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
     {
       h = 0;
     }
-    lbDisplay.DrawFlags &= ~0x08;
-    lbDisplay.DrawFlags &= ~0x04;
+    lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR8;
+    lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
     if (((game.play_gameturn & 4) == 0) && (anger_spridx > 0))
     {
         spr = &button_sprite[anger_spridx];
@@ -3663,9 +3663,9 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
     else
         needs_xflip = 1;
     if ( needs_xflip )
-      lbDisplay.DrawFlags |= Lb_SPRITE_ONECOLOUR1;
+      lbDisplay.DrawFlags |= Lb_SPRITE_FLIP_HORIZ;
     else
-      lbDisplay.DrawFlags &= ~Lb_SPRITE_ONECOLOUR1;
+      lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
     sprite_group = sprgroup;
     lltemp = 4 - ((((long)kspr_frame + 128) & 0x7FF) >> 8);
     sprite_delta = llabs(lltemp);

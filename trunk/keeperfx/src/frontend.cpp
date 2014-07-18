@@ -1400,7 +1400,7 @@ void frontend_draw_enter_text(struct GuiButton *gbtn)
     }
     snprintf(text, sizeof(text), "%s%s", srctext, print_with_cursor?"_":"");
     LbTextSetFont(frontend_font[font_idx]);
-    lbDisplay.DrawFlags = 0x0020;
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, 240 + LbTextCharWidth('_'), gbtn->height);
     LbTextDraw(0, 0, text);
 }
@@ -1438,9 +1438,9 @@ void frontend_draw_computer_players(struct GuiButton *gbtn)
         text = gui_string(848);
     }
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, LbTextHeight(text));
-    lbDisplay.DrawFlags = 0x20;
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
     LbTextDraw(0, 0, frontend_button_caption_text(gbtn));
-    lbDisplay.DrawFlags = 0x80;
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
     LbTextDraw(0, 0, text);
     lbDisplay.DrawFlags = 0;
 }
@@ -1460,7 +1460,7 @@ void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
   unsigned short flg_mem;
   long text_height,area_height;
   flg_mem = lbDisplay.DrawFlags;
-  lbDisplay.DrawFlags &= ~Lb_TEXT_UNKNOWN0040;
+  lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
   lbDisplay.DrawFlags |= Lb_TEXT_HALIGN_CENTER;
   LbTextSetWindow(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size,
         gbtn->width/pixel_size, gbtn->height/pixel_size);
@@ -2912,7 +2912,7 @@ int frontend_setup_state(long nstate)
           credits_offset = lbDisplay.PhysicalScreenHeight;
           credits_end = 0;
           LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
-          lbDisplay.DrawFlags = 0x0100;
+          lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
           break;
       case FeSt_NET_MODEM:
           turn_on_menu(GMnu_FENET_MODEM);
@@ -3138,7 +3138,7 @@ void frontstory_draw(void)
     frontend_copy_background();
     LbTextSetWindow(70, 70, 500, 340);
     LbTextSetFont(frontstory_font);
-    lbDisplay.DrawFlags = 0x0100;
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
     LbTextDraw(0, 0, gui_string(frontstory_text_no));
 }
 

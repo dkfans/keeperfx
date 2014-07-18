@@ -266,7 +266,7 @@ void gui_draw_all_boxes(void)
 {
   struct GuiBox *gbox;
   SYNCDBG(5,"Starting");
-  lbDisplay.DrawFlags = 0x0040;
+  lbDisplay.DrawFlags = Lb_TEXT_ONE_COLOR;
   LbTextSetFont(font_sprites);
   gbox = gui_get_lowest_priority_box();
   while (gbox != NULL)

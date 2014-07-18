@@ -401,7 +401,7 @@ void draw_overlay_compass(long base_x, long base_y)
     unsigned short flg_mem;
     flg_mem = lbDisplay.DrawFlags;
     LbTextSetFont(winfont);
-    lbDisplay.DrawFlags |= 0x0004;
+    lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
     int w,h;
     w = pixel_size * LbSprFontCharWidth(lbFontPtr,'/') / 2;
@@ -922,7 +922,7 @@ void redraw_display(void)
     }
     //LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
     LbTextSetFont(winfont);
-    lbDisplay.DrawFlags &= ~Lb_TEXT_UNKNOWN0040;
+    lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
     LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
     if ((player->field_0 & 0x04) != 0)
     {
