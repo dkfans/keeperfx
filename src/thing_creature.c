@@ -381,7 +381,7 @@ void draw_swipe_graphic(void)
             struct TbSprite *sprlist;
             long allwidth;
             long i,n;
-            lbDisplay.DrawFlags = 0x0004;
+            lbDisplay.DrawFlags = Lb_SPRITE_TRANSPAR4;
             n = (int)cctrl->inst_turn * 1280 / cctrl->inst_total_turns;
             allwidth = 0;
             i = abs(n) >> 8;
@@ -420,7 +420,7 @@ void draw_swipe_graphic(void)
             } else
             {
                 int deltay;
-                lbDisplay.DrawFlags = 0x04|0x01;
+                lbDisplay.DrawFlags = Lb_SPRITE_TRANSPAR4 | Lb_SPRITE_FLIP_HORIZ;
                 for (i=0; i < SWIPE_SPRITES_X*SWIPE_SPRITES_Y; i+=SWIPE_SPRITES_X)
                 {
                     spr = &sprlist[SWIPE_SPRITES_X+i];

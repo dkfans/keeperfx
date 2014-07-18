@@ -185,7 +185,7 @@ void draw_eastegg(void)
       eastegg_skeksis_cntr++;
       LbTextSetFont(winfont);
       text=buf_sprintf("Dene says a big 'Hello' to Goth Buns, Tarts and Barbies");
-      lbDisplay.DrawFlags = Lb_TEXT_UNKNOWN0040;
+      lbDisplay.DrawFlags = Lb_TEXT_ONE_COLOR;
       for (i=0; i<30; i+=2)
       {
         pos = game.play_gameturn - i;
@@ -193,7 +193,7 @@ void draw_eastegg(void)
         LbTextDraw((LbCosL(16*(long)pos) / 512 + 120) / pixel_size,
           (LbSinL(32*(long)pos) / 512 + 200) / pixel_size, text);
       }
-      set_flag_word(&lbDisplay.DrawFlags,Lb_TEXT_UNKNOWN0040,false);
+      set_flag_word(&lbDisplay.DrawFlags,Lb_TEXT_ONE_COLOR,false);
       pos=game.play_gameturn;
       LbTextDraw((LbCosL(16*(long)pos) / 512 + 120) / pixel_size,
         (LbSinL(32*(long)pos) / 512 + 200) / pixel_size, text);
@@ -205,7 +205,7 @@ void draw_eastegg(void)
   if (game.eastegg01_cntr >= eastegg_feckoff_codes.length)
   {
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-    lbDisplay.DrawFlags &= ~Lb_TEXT_UNKNOWN0040;
+    lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
     LbTextSetFont(winfont);
     i = 0;
     text = buf_sprintf("Simon says Hi to everyone he knows...");
@@ -245,7 +245,7 @@ void draw_eastegg(void)
   if (game.eastegg02_cntr >= eastegg_jlw_codes.length)
   {
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-    lbDisplay.DrawFlags &= ~Lb_TEXT_UNKNOWN0040;
+    lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
     LbTextSetFont(winfont);
     i = 1;
     text = buf_sprintf("Alex, hopefully lying on a beach with Jo, says Hi");

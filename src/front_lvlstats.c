@@ -290,10 +290,10 @@ void frontstats_draw_scrolling_stats(struct GuiButton *gbtn)
     pos_y = -scrolling_offset;
     for ( stat = &scrolling_stats_data[scrolling_index]; pos_y < gbtn->height; pos_y += ln_height + 4 )
     {
-        lbDisplay.DrawFlags = 0x20;
+        lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
         LbTextSetFont(frontend_font[1]);
         LbTextDraw(pos_x, pos_y, gui_string(stat->name_stridx));
-        lbDisplay.DrawFlags = 0x80;
+        lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
         if (stat->get_value != NULL) {
             stat_val = stat->get_value(stat->get_arg);
         } else {

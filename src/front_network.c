@@ -171,7 +171,7 @@ void draw_out_of_sync_box(long a1, long a2, long box_width)
         y = (MyScreenHeight-ornate_height) / 2;
         draw_ornate_slab64k(x, y, ornate_width, ornate_height);
         LbTextSetFont(winfont);
-        lbDisplay.DrawFlags = 0x100;
+        lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
         LbTextSetWindow(x/pixel_size, y/pixel_size, ornate_width/pixel_size, ornate_height/pixel_size);
         text_h = LbTextHeight("Wq");
         text_x = x-max_width+100;

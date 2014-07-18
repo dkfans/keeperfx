@@ -601,9 +601,9 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
     {
         lbDisplay.DrawFlags = drw_flags;
         LbTextSetFont(frontend_font[fntidx]);
-        h = LbTextHeight(text);
+        h = LbTextHeight(text) * units_per_px / 16;
         x = gbtn->scr_pos_x + ((40*units_per_px/16) >> 1);
-        y = gbtn->scr_pos_y + ((frontend_sprite[spridx].SHeight-h) >> 1) * units_per_px / 16;
+        y = gbtn->scr_pos_y + ((frontend_sprite[spridx].SHeight*units_per_px/16 - h) >> 1);
         LbTextSetWindow(x, y, gbtn->width-40*units_per_px/16, h);
         LbTextDrawResized(0, 0, units_per_px, text);
     }

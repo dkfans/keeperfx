@@ -365,7 +365,7 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
           6 / pixel_size,
           colours[0][0][0]);
     }
-    lbDisplay.DrawFlags &= ~0x0040;
+    lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
 
     struct RoomStats *rstat;
     rstat = room_stats_get_for_kind(rkind);
@@ -525,7 +525,7 @@ void gui_area_big_spell_button(struct GuiButton *gbtn)
     {
         draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, 26);
     }
-    lbDisplay.DrawFlags &= ~0x0040;
+    lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
 
     GoldAmount price;
     price = compute_power_price(dungeon->owner, pwkind, 0);
@@ -827,7 +827,7 @@ void gui_area_big_trap_button(struct GuiButton *gbtn)
         lbDisplay.DrawFlags = flg_mem;
         return;
     }
-    lbDisplay.DrawFlags &= ~0x0040;
+    lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
     unsigned int amount;
     switch (manufctr->tngclass)
     {
@@ -1033,7 +1033,7 @@ void draw_centred_string64k(const char *text, short x, short y, short w)
 {
     unsigned long flg_mem;
     flg_mem = lbDisplay.DrawFlags;
-    lbDisplay.DrawFlags &= ~0x0040;
+    lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
     LbTextSetJustifyWindow((x - (w / 2)) / pixel_size, y / (int)pixel_size, w / (int)pixel_size);
     LbTextSetClipWindow( (x - (w / 2)) / pixel_size, y / (int)pixel_size, w / (int)pixel_size, 16 / pixel_size);
     lbDisplay.DrawFlags |= 0x0100;
@@ -1616,7 +1616,7 @@ void gui_activity_background(struct GuiMenu *gmnu)
     //_DK_gui_activity_background(gmnu);return;
     unsigned short flg_mem;
     flg_mem = lbDisplay.DrawFlags;
-    lbDisplay.DrawFlags &= ~0x0040;
+    lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
     if (no_of_breeds_owned <= 6) {
         top_of_breed_list = 0;
     }

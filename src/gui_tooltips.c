@@ -449,7 +449,7 @@ void draw_tooltip_slab64k(char *tttext, long pos_x, long pos_y, long ttwidth, lo
     if (tttext != NULL)
     {
         x = pos_x+26;
-        lbDisplay.DrawFlags &= ~Lb_TEXT_UNKNOWN0040;
+        lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
         y = pos_y - (ttheight+28);
         if (x > MyScreenWidth)
           x = MyScreenWidth;
@@ -539,7 +539,7 @@ void draw_tooltip_at(long ttpos_x,long ttpos_y,char *tttext)
   if (tttext == NULL)
     return;
   flg_mem = lbDisplay.DrawFlags;
-  lbDisplay.DrawFlags &= ~Lb_TEXT_UNKNOWN0040;
+  lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
   hdwidth = find_and_pad_string_width_to_first_character(tttext, ':');
   ttwidth = pixel_size * LbTextStringWidth(tttext);
   ttheight = pixel_size * LbTextStringHeight(tttext);

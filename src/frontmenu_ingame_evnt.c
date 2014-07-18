@@ -313,10 +313,10 @@ void gui_area_friendly_battlers(struct GuiButton *gbtn)
               {
                   TbPixel col;
                   col = player_flash_colours[game.play_gameturn & 3];
-                  lbDisplay.DrawFlags |= (0x0010|0x0004);
+                  lbDisplay.DrawFlags |= (Lb_SPRITE_UNKNOWN0010|0x0004);
                   LbDrawBox(scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size,
                     wdelta/pixel_size, gbtn->height/pixel_size, col);
-                  lbDisplay.DrawFlags &= ~(0x0010|0x0004);
+                  lbDisplay.DrawFlags &= ~(Lb_SPRITE_UNKNOWN0010|0x0004);
               }
             }
             scr_pos_x -= wdelta;
@@ -387,10 +387,10 @@ void gui_area_enemy_battlers(struct GuiButton *gbtn)
               {
                   TbPixel col;
                   col = player_flash_colours[game.play_gameturn & 3];
-                  lbDisplay.DrawFlags |= (0x0010|0x0004);
+                  lbDisplay.DrawFlags |= (Lb_SPRITE_UNKNOWN0010|0x0004);
                   LbDrawBox(scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size,
                     wdelta/pixel_size, gbtn->height/pixel_size, col);
-                  lbDisplay.DrawFlags &= ~(0x0010|0x0004);
+                  lbDisplay.DrawFlags &= ~(Lb_SPRITE_UNKNOWN0010|0x0004);
               }
             }
             scr_pos_x += wdelta;
