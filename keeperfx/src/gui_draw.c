@@ -291,10 +291,10 @@ void draw_round_slab64k(long pos_x, long pos_y, long width, long height)
 {
     unsigned short drwflags_mem;
     drwflags_mem = lbDisplay.DrawFlags;
-    lbDisplay.DrawFlags &= ~0x0010;
-    lbDisplay.DrawFlags |= 0x0004;
+    lbDisplay.DrawFlags &= ~Lb_SPRITE_UNKNOWN0010;
+    lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
     LbDrawBox((pos_x + 4) / pixel_size, (pos_y + 4) / pixel_size, (width - 8) / pixel_size, (height - 8) / pixel_size, 1);
-    lbDisplay.DrawFlags &= ~0x0004;
+    lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
     int x,y;
     struct TbSprite *spr;
     long i;
@@ -469,7 +469,7 @@ int draw_text_box(const char *text)
     starty = (lbDisplay.PhysicalScreenHeight - box_height) / 2;
     draw_message_box_at(startx, starty, box_width, box_height, spritesx, spritesy);
     // Draw the text inside box
-    lbDisplay.DrawFlags = 0x0100;
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
     LbTextSetWindow(startx, starty, box_width, box_height);
     n = LbTextLineHeight();
     return LbTextDraw(0, (box_height - spritesy * n) / 2, text);
@@ -599,7 +599,7 @@ void draw_string64k(long x, long y, const char * text)
 {
     unsigned short drwflags_mem;
     drwflags_mem = lbDisplay.DrawFlags;
-    lbDisplay.DrawFlags &= ~0x0040;
+    lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
     LbTextDraw(x/pixel_size, y/pixel_size, text);
     lbDisplay.DrawFlags = drwflags_mem;
 }

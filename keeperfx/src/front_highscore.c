@@ -55,7 +55,7 @@ void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int 
     if ((idx >= campaign.hiscore_count) || (campaign.hiscore_table == NULL))
       return;
     hscore = &campaign.hiscore_table[idx];
-    lbDisplay.DrawFlags = 0x80;
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
     i = pos_x + col1_width;
     LbTextNumberDraw(i, pos_y, idx+1, Fnt_RightJustify);
     i += col2_width;
