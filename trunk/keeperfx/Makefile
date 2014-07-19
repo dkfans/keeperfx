@@ -144,6 +144,7 @@ obj/front_lvlstats.o \
 obj/front_lvlstats_data.o \
 obj/front_easter.o \
 obj/frontmenu_net.o \
+obj/frontmenu_net_data.o \
 obj/frontmenu_options.o \
 obj/frontmenu_options_data.o \
 obj/frontmenu_saves.o \
@@ -618,12 +619,6 @@ $(HVLOGBIN): $(GENSRC) $(HVLOGOBJS) $(LIBS)
 
 # Some C files have to be compiled in c++ compiler, usually due to c++ initialization
 obj/std/front_network.o obj/hvlog/front_network.o: src/front_network.c
-	-$(ECHO) 'Building file: $<'
-	$(CPP) $(CXXFLAGS) -o"$@" "$<"
-	-$(ECHO) 'Finished building: $<'
-	-$(ECHO) ' '
-
-obj/std/frontmenu_net.o obj/hvlog/frontmenu_net.o: src/frontmenu_net.c
 	-$(ECHO) 'Building file: $<'
 	$(CPP) $(CXXFLAGS) -o"$@" "$<"
 	-$(ECHO) 'Finished building: $<'

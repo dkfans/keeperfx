@@ -122,12 +122,7 @@ void frontend_define_key(struct GuiButton *gbtn)
 
 void frontend_draw_define_key_scroll_tab(struct GuiButton *gbtn)
 {
-    struct TbSprite *spr;
-    long pos;
-    //_DK_frontend_draw_define_key_scroll_tab(gbtn);
-    spr = &frontend_sprite[78];
-    pos = (define_key_scroll_offset * ((gbtn->height - spr->SHeight) << 8) / (GAME_KEYS_COUNT-1) >> 8);
-    LbSpriteDraw(gbtn->scr_pos_x, gbtn->scr_pos_y + pos, spr);
+    frontend_draw_scroll_tab(gbtn, define_key_scroll_offset, 0, GAME_KEYS_COUNT);
 }
 
 void frontend_draw_define_key(struct GuiButton *gbtn)
@@ -139,6 +134,8 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
     if (key_id >= GAME_KEYS_COUNT) {
         return;
     }
+    int units_per_px;
+    units_per_px = gbtn->height * 16 / 22;
     unsigned char code;
     code = settings.kbkeys[key_id].code;
     long i;
@@ -162,8 +159,8 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
     lbDisplay.DrawFlags = 0x0020;
     int h;
-    h = LbTextLineHeight();
-    LbTextDraw(0, (gbtn->height - h) / 2, gui_string(definable_key_string[key_id]));
+    h = LbTextLineHeight() * units_per_px / 16;
+    LbTextDrawResized(0, (gbtn->height - h) / 2, units_per_px, gui_string(definable_key_string[key_id]));
     unsigned char mods;
     mods = settings.kbkeys[key_id].mods;
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
@@ -206,8 +203,8 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
         break;
     }
     strcat(text, keytext);
-    h = LbTextLineHeight();
-    LbTextDraw(0, (gbtn->height - h) / 2, text);
+    h = LbTextLineHeight() * units_per_px / 16;
+    LbTextDrawResized(0, (gbtn->height - h) / 2, units_per_px, text);
 }
 
 void gui_video_shadows(struct GuiButton *gbtn)
