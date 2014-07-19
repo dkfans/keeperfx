@@ -50,7 +50,7 @@ void frontcredits_draw(void)
     credits_offset -= credits_scroll_speed;
     frontend_copy_background();
 
-    lbDisplay.DrawFlags = Lb_SPRITE_UNKNOWN0010 | Lb_TEXT_HALIGN_CENTER;
+    lbDisplay.DrawFlags = Lb_SPRITE_OUTLINE | Lb_TEXT_HALIGN_CENTER;
     LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
     fontid = 1;
     LbTextSetFont(frontend_font[fontid]);

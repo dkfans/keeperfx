@@ -379,7 +379,7 @@ int draw_overhead_call_to_arms(const struct TbRect *map_area, long block_size, P
         {
             struct Dungeon *dungeon;
             dungeon = get_dungeon(i);
-            lbDisplay.DrawFlags = Lb_SPRITE_UNKNOWN0010;
+            lbDisplay.DrawFlags = Lb_SPRITE_OUTLINE;
             struct MagicStats *magstat;
             magstat = &game.keeper_power_stats[PwrK_CALL2ARMS];
             long m;
@@ -782,10 +782,10 @@ void draw_zoom_box(void)
       }
       scr_y += subtile_size;
     }
-    lbDisplay.DrawFlags |= Lb_SPRITE_UNKNOWN0010;
+    lbDisplay.DrawFlags |= Lb_SPRITE_OUTLINE;
     LbDrawBox(scrtop_x/pixel_size, scrtop_y/pixel_size,
         (draw_tiles_x*subtile_size)/pixel_size, (draw_tiles_y*subtile_size)/pixel_size, 0);
-    lbDisplay.DrawFlags &= ~Lb_SPRITE_UNKNOWN0010;
+    lbDisplay.DrawFlags &= ~Lb_SPRITE_OUTLINE;
     // Draw thing sprites on the map
     LbScreenSetGraphicsWindow( (scrtop_x+2)/pixel_size, (scrtop_y+2)/pixel_size,
         (draw_tiles_x*subtile_size-4)/pixel_size, (draw_tiles_y*subtile_size-4)/pixel_size);

@@ -475,7 +475,7 @@ void put_down_dbctext_sprites(const char *sbuf, const char *ebuf, long x, long y
             lbDisplay.DrawFlags ^= Lb_SPRITE_TRANSPAR8;
             break;
           case 3:
-            lbDisplay.DrawFlags ^= Lb_SPRITE_UNKNOWN0010;
+            lbDisplay.DrawFlags ^= Lb_SPRITE_OUTLINE;
             break;
           case 4:
             lbDisplay.DrawFlags ^= Lb_SPRITE_FLIP_HORIZ;
@@ -578,7 +578,7 @@ void put_down_dbctext_sprites_resized(const char *sbuf, const char *ebuf, long x
             lbDisplay.DrawFlags ^= Lb_SPRITE_TRANSPAR8;
             break;
           case 3:
-            lbDisplay.DrawFlags ^= Lb_SPRITE_UNKNOWN0010;
+            lbDisplay.DrawFlags ^= Lb_SPRITE_OUTLINE;
             break;
           case 4:
             lbDisplay.DrawFlags ^= Lb_SPRITE_FLIP_HORIZ;
@@ -692,7 +692,7 @@ void put_down_simpletext_sprites(const char *sbuf, const char *ebuf, long x, lon
           lbDisplay.DrawFlags ^= Lb_SPRITE_TRANSPAR8;
           break;
         case 3:
-          lbDisplay.DrawFlags ^= Lb_SPRITE_UNKNOWN0010;
+          lbDisplay.DrawFlags ^= Lb_SPRITE_OUTLINE;
           break;
         case 4:
           lbDisplay.DrawFlags ^= Lb_SPRITE_FLIP_HORIZ;
@@ -784,7 +784,7 @@ void put_down_simpletext_sprites_resized(const char *sbuf, const char *ebuf, lon
           lbDisplay.DrawFlags ^= Lb_SPRITE_TRANSPAR8;
           break;
         case 3:
-          lbDisplay.DrawFlags ^= Lb_SPRITE_UNKNOWN0010;
+          lbDisplay.DrawFlags ^= Lb_SPRITE_OUTLINE;
           break;
         case 4:
           lbDisplay.DrawFlags ^= Lb_SPRITE_FLIP_HORIZ;
