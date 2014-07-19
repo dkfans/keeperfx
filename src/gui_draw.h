@@ -46,9 +46,6 @@ extern "C" {
 
 struct GuiButton;
 /******************************************************************************/
-DLLIMPORT extern struct TbSprite *_DK_button_sprite;
-#define button_sprite _DK_button_sprite
-
 DLLIMPORT struct TbSprite *_DK_gui_panel_sprites;
 #define gui_panel_sprites _DK_gui_panel_sprites
 DLLIMPORT struct TbSprite *_DK_end_gui_panel_sprites;
@@ -57,10 +54,13 @@ DLLIMPORT extern unsigned char * _DK_gui_panel_sprite_data;
 #define gui_panel_sprite_data _DK_gui_panel_sprite_data
 DLLIMPORT extern unsigned char * _DK_end_gui_panel_sprite_data;
 #define end_gui_panel_sprite_data _DK_end_gui_panel_sprite_data
+
 DLLIMPORT unsigned char *_DK_gui_slab;
 #define gui_slab _DK_gui_slab
+
 DLLIMPORT extern unsigned char *_DK_frontend_background;
 #define frontend_background _DK_frontend_background
+
 DLLIMPORT struct TbSprite *_DK_frontend_sprite;
 #define frontend_sprite _DK_frontend_sprite
 DLLIMPORT struct TbSprite *_DK_frontend_end_sprite;
@@ -75,6 +75,8 @@ DLLIMPORT extern unsigned char * _DK_frontend_end_sprite_data;
 extern char gui_textbuf[TEXT_BUFFER_LENGTH];
 /******************************************************************************/
 int get_bitmap_max_scale(int img_w,int img_h,int rect_w,int rect_h);
+int simple_button_sprite_units_per_px(const struct GuiButton *gbtn, long spridx);
+int simple_frontend_sprite_units_per_px(const struct GuiButton *gbtn, long spridx);
 
 void draw_bar64k(long pos_x, long pos_y, long width);
 void draw_lit_bar64k(long pos_x, long pos_y, long width);
@@ -93,8 +95,10 @@ void draw_gui_panel_sprite_rmleft(long x, long y, long spridx, unsigned long rem
 void draw_gui_panel_sprite_ocleft(long x, long y, long spridx, TbPixel color);
 void draw_gui_panel_sprite_centered(long x, long y, long spridx);
 void draw_gui_panel_sprite_occentered(long x, long y, long spridx, TbPixel color);
-void draw_button_sprite_left(long x, long y, long spridx);
+void draw_button_sprite_left(long x, long y, int units_per_px, long spridx);
 void draw_button_sprite_rmleft(long x, long y, long spridx, unsigned long remap);
+
+void draw_frontend_sprite_left(long x, long y, int units_per_px, long spridx);
 
 void draw_frontmenu_background(int rect_x,int rect_y,int rect_w,int rect_h);
 /******************************************************************************/

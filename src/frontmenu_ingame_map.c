@@ -503,7 +503,7 @@ int draw_line_to_heart(struct PlayerInfo *player, long units_per_px, long zoom)
     if (thing_is_invalid(heartng)) {
         return 0;
     }
-    lbDisplay.DrawFlags |= 0x0004;
+    lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
     // Position of the thing on unrotated map
     // for camera, coordinates within subtile are skipped; the thing uses full resolution coordinates
     long zmpos_x, zmpos_y;
@@ -538,7 +538,7 @@ int draw_line_to_heart(struct PlayerInfo *player, long units_per_px, long zoom)
         draw_y += delta_y;
         pannel_map_draw_pixel(draw_x >> 8, draw_y >> 8, 15);
     }
-    lbDisplay.DrawFlags &= ~0x0004;
+    lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
     return 1;
 }
 

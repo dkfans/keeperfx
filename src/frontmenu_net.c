@@ -30,6 +30,7 @@
 
 #include "front_network.h"
 #include "gui_frontbtns.h"
+#include "gui_draw.h"
 #include "frontend.h"
 #include "front_landview.h"
 #include "net_game.h"
@@ -972,7 +973,7 @@ void frontnet_draw_bottom_scroll_box_tab(struct GuiButton *gbtn)
     struct TbSprite *spr;
     pos_x = gbtn->scr_pos_x;
     pos_y = gbtn->scr_pos_y;
-    lbDisplay.DrawFlags = 0x02;
+    lbDisplay.DrawFlags = Lb_SPRITE_FLIP_VERTIC;
     spr = &frontend_sprite[74];
     LbSpriteDraw(pos_x, pos_y, spr);
     pos_x += spr->SWidth;

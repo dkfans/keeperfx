@@ -330,7 +330,7 @@ void LbDrawBoxClip(long x, long y, unsigned long width, unsigned long height, Tb
  */
 TbResult LbDrawBox(long x, long y, unsigned long width, unsigned long height, TbPixel colour)
 {
-    if (lbDisplay.DrawFlags & Lb_SPRITE_UNKNOWN0010)
+    if (lbDisplay.DrawFlags & Lb_SPRITE_OUTLINE)
     {
         if ((width < 1) || (height < 1))
           return Lb_FAIL;
@@ -4336,7 +4336,7 @@ void LbDrawCircleOutline(long x, long y, long radius, TbPixel colour)
 
 void LbDrawCircle(long x, long y, long radius, TbPixel colour)
 {
-    if ((lbDisplay.DrawFlags & Lb_SPRITE_UNKNOWN0010) != 0)
+    if ((lbDisplay.DrawFlags & Lb_SPRITE_OUTLINE) != 0)
         LbDrawCircleOutline(x, y, radius, colour);
     else
         LbDrawCircleFilled(x, y, radius, colour);

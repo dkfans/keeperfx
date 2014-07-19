@@ -294,10 +294,10 @@ void gui_area_friendly_battlers(struct GuiButton *gbtn)
     int scr_pos_x, wdelta;
     wdelta = gbtn->width / 7;
     scr_pos_x = gbtn->scr_pos_x - wdelta + gbtn->width;
-    lbDisplay.DrawFlags |= 0x0004;
+    lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
     LbDrawBox(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size,
         gbtn->width/pixel_size, gbtn->height/pixel_size, colours[0][0][0]);
-    lbDisplay.DrawFlags &= ~0x0004;
+    lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
     int i,n;
     for (n=0; n < 7; n++)
     {
@@ -313,10 +313,10 @@ void gui_area_friendly_battlers(struct GuiButton *gbtn)
               {
                   TbPixel col;
                   col = player_flash_colours[game.play_gameturn & 3];
-                  lbDisplay.DrawFlags |= (Lb_SPRITE_UNKNOWN0010|0x0004);
+                  lbDisplay.DrawFlags |= (Lb_SPRITE_OUTLINE|0x0004);
                   LbDrawBox(scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size,
                     wdelta/pixel_size, gbtn->height/pixel_size, col);
-                  lbDisplay.DrawFlags &= ~(Lb_SPRITE_UNKNOWN0010|0x0004);
+                  lbDisplay.DrawFlags &= ~(Lb_SPRITE_OUTLINE|0x0004);
               }
             }
             scr_pos_x -= wdelta;
@@ -368,10 +368,10 @@ void gui_area_enemy_battlers(struct GuiButton *gbtn)
     int scr_pos_x, wdelta;
     wdelta = gbtn->width / 7;
     scr_pos_x = gbtn->scr_pos_x;
-    lbDisplay.DrawFlags |= 0x0004;
+    lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
     LbDrawBox(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size,
         gbtn->width/pixel_size, gbtn->height/pixel_size, colours[0][0][0]);
-    lbDisplay.DrawFlags &= ~0x0004;
+    lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
     int i,n;
     for (n=0; n < 7; n++)
     {
@@ -387,10 +387,10 @@ void gui_area_enemy_battlers(struct GuiButton *gbtn)
               {
                   TbPixel col;
                   col = player_flash_colours[game.play_gameturn & 3];
-                  lbDisplay.DrawFlags |= (Lb_SPRITE_UNKNOWN0010|0x0004);
+                  lbDisplay.DrawFlags |= (Lb_SPRITE_OUTLINE|0x0004);
                   LbDrawBox(scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size,
                     wdelta/pixel_size, gbtn->height/pixel_size, col);
-                  lbDisplay.DrawFlags &= ~(Lb_SPRITE_UNKNOWN0010|0x0004);
+                  lbDisplay.DrawFlags &= ~(Lb_SPRITE_OUTLINE|0x0004);
               }
             }
             scr_pos_x += wdelta;
