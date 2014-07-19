@@ -109,8 +109,8 @@ int LbTextWordWidth(const char *str);
 int LbTextCharWidth(const long chr);
 int LbTextCharHeight(const long chr);
 
-int LbTextNumberDraw(int pos_x, int pos_y, long number, unsigned short fdflags);
-int LbTextStringDraw(int pos_x, int pos_y, const char *text, unsigned short fdflags);
+int LbTextNumberDraw(int pos_x, int pos_y, int units_per_px, long number, unsigned short fdflags);
+int LbTextStringDraw(int pos_x, int pos_y, int units_per_px, const char *text, unsigned short fdflags);
 
 // Sub-routines, used for drawing text strings. For use in custom drawing methods.
 TbBool LbAlignMethodSet(unsigned short fdflags);

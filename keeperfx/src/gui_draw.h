@@ -72,9 +72,10 @@ DLLIMPORT extern unsigned char * _DK_frontend_end_sprite_data;
 /******************************************************************************/
 int get_bitmap_max_scale(int img_w,int img_h,int rect_w,int rect_h);
 int simple_button_sprite_units_per_px(const struct GuiButton *gbtn, long spridx);
-int simple_frontend_sprite_units_per_px(const struct GuiButton *gbtn, long spridx);
+int simple_frontend_sprite_height_units_per_px(const struct GuiButton *gbtn, long spridx);
+int simple_frontend_sprite_width_units_per_px(const struct GuiButton *gbtn, long spridx);
 
-void draw_bar64k(long pos_x, long pos_y, long width);
+void draw_bar64k(long pos_x, long pos_y, int units_per_px, long width);
 void draw_lit_bar64k(long pos_x, long pos_y, long width);
 void draw_slab64k(long pos_x, long pos_y, long width, long height);
 void draw_ornate_slab64k(long pos_x, long pos_y, long width, long height);

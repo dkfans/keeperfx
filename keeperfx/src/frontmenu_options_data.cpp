@@ -42,7 +42,7 @@ struct GuiButtonInit frontend_define_keys_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  82, 117,  82, 117,450,246, frontend_draw_scroll_box,          0, 201,  0,      {94},            0, 0, NULL },
   { 1,  0, 0, 0, frontend_define_key_up,NULL, frontend_over_button,   0, 532, 116, 532, 116, 26, 14, frontend_draw_slider_button,       0, 201,  0,      {17},            0, 0, frontend_define_key_up_maintain },
   { 1,  0, 0, 0, frontend_define_key_down,NULL,frontend_over_button,  0, 532, 350, 532, 350, 26, 14, frontend_draw_slider_button,       0, 201,  0,      {18},            0, 0, frontend_define_key_down_maintain },
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 536, 130, 536, 130, 10,220, frontend_draw_define_key_scroll_tab,0,201,  0,      {40},            0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 536, 130, 536, 130, 20,220, frontend_draw_define_key_scroll_tab,0,201,  0,      {40},            0, 0, NULL },
   { 0,  0, 0, 0, frontend_define_key,NULL,       frontend_over_button,0,  95, 130,  95, 130,424, 22, frontend_draw_define_key,          0, 201,  0,      {-1},            0, 0, frontend_define_key_maintain },
   { 0,  0, 0, 0, frontend_define_key,NULL,       frontend_over_button,0,  95, 152,  95, 152,424, 22, frontend_draw_define_key,          0, 201,  0,      {-2},            0, 0, frontend_define_key_maintain },
   { 0,  0, 0, 0, frontend_define_key,NULL,       frontend_over_button,0,  95, 174,  95, 174,424, 22, frontend_draw_define_key,          0, 201,  0,      {-3},            0, 0, frontend_define_key_maintain },
