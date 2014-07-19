@@ -743,7 +743,7 @@ void put_down_simpletext_sprites_resized(const char *sbuf, const char *ebuf, lon
             //TODO RESCALE Write sizing support
             LbSpriteDrawOneColour(x, y, spr, lbDisplay.DrawColour);
         } else {
-            LbSpriteDrawResized(x, y, spr, units_per_px);
+            LbSpriteDrawResized(x, y, units_per_px, spr);
         }
         w = spr->SWidth * units_per_px / 16;
         if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
@@ -1395,15 +1395,15 @@ int LbTextStringHeight(const char *str)
     return h*lines;
 }
 
-int LbTextNumberDraw(int pos_x, int pos_y, long number, unsigned short fdflags)
+int LbTextNumberDraw(int pos_x, int pos_y, int units_per_px, long number, unsigned short fdflags)
 {
   char text[16];
   int w,h;
   if (lbFontPtr == NULL)
     return 0;
   sprintf(text,"%ld",number);
-  h = LbTextLineHeight();
-  w = LbTextStringWidth(text);
+  h = LbTextLineHeight() * units_per_px / 16;
+  w = LbTextStringWidth(text) * units_per_px / 16;
   switch (fdflags & 0x03)
   {
   case Fnt_LeftJustify:
@@ -1416,19 +1416,19 @@ int LbTextNumberDraw(int pos_x, int pos_y, long number, unsigned short fdflags)
     LbTextSetWindow(pos_x-(w>>1), pos_y, w, h);
     break;
   }
-  LbTextDraw(0, 0, text);
+  LbTextDrawResized(0, 0, units_per_px, text);
   return w;
 }
 
-int LbTextStringDraw(int pos_x, int pos_y, const char *text, unsigned short fdflags)
+int LbTextStringDraw(int pos_x, int pos_y, int units_per_px, const char *text, unsigned short fdflags)
 {
   int w,h;
   if (lbFontPtr == NULL)
     return 0;
   if (text == NULL)
     return 0;
-  h = LbTextLineHeight();
-  w = LbTextStringWidth(text);
+  h = LbTextLineHeight() * units_per_px / 16;
+  w = LbTextStringWidth(text) * units_per_px / 16;
   switch (fdflags & 0x03)
   {
   case Fnt_LeftJustify:
@@ -1441,7 +1441,7 @@ int LbTextStringDraw(int pos_x, int pos_y, const char *text, unsigned short fdfl
     LbTextSetWindow(pos_x-(w>>1), pos_y, w, h);
     break;
   }
-  LbTextDraw(0, 0, text);
+  LbTextDrawResized(0, 0, units_per_px, text);
   return w;
 }
 
