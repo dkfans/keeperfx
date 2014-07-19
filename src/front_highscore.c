@@ -58,27 +58,27 @@ void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int 
     hscore = &campaign.hiscore_table[idx];
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
     i = pos_x + col1_width;
-    LbTextNumberDraw(i, pos_y, idx+1, Fnt_RightJustify);
+    LbTextNumberDraw(i, pos_y, units_per_px, idx+1, Fnt_RightJustify);
     i += col2_width;
-    LbTextNumberDraw(i, pos_y, hscore->score, Fnt_RightJustify);
+    LbTextNumberDraw(i, pos_y, units_per_px, hscore->score, Fnt_RightJustify);
     i += col3_width;
-    LbTextNumberDraw(i, pos_y, hscore->lvnum, Fnt_RightJustify);
+    LbTextNumberDraw(i, pos_y, units_per_px, hscore->lvnum, Fnt_RightJustify);
     i += col4_width;
     if (idx == high_score_entry_input_active)
     {
         memcpy(str,high_score_entry,sizeof(str));
         str[sizeof(str)-1] = '\0';
-        LbTextStringDraw(i, pos_y, str, Fnt_LeftJustify);
+        LbTextStringDraw(i, pos_y, units_per_px, str, Fnt_LeftJustify);
         str[high_score_entry_index] = '\0';
-        i += LbTextStringWidth(str);
+        i += LbTextStringWidth(str) * units_per_px / 16;
         // Blinking cursor
         if ((LbTimerClock() & 0x0100) != 0)
         {
-            LbTextStringDraw(i, pos_y, "_", Fnt_LeftJustify);
+            LbTextStringDraw(i, pos_y, units_per_px, "_", Fnt_LeftJustify);
         }
     } else
     {
-        LbTextStringDraw(i, pos_y, hscore->name, Fnt_LeftJustify);
+        LbTextStringDraw(i, pos_y, units_per_px, hscore->name, Fnt_LeftJustify);
     }
 }
 
@@ -89,7 +89,6 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
     long pos_x,pos_y;
     long col1_width,col2_width,col3_width,col4_width;
     long i,k;
-//    _DK_frontend_draw_high_score_table(gbtn); return;
     // Detect scaling factor is quite complicated for this item
     int units_per_px;
     {
@@ -110,7 +109,7 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
     swpspr = spr;
     for (i=6; i > 0; i--)
     {
-        LbSpriteDrawResized(pos_x, pos_y, swpspr, units_per_px);
+        LbSpriteDrawResized(pos_x, pos_y, units_per_px, swpspr);
         pos_x += swpspr->SWidth * units_per_px / 16;
         swpspr++;
     }
@@ -128,7 +127,7 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
         swpspr = spr;
         for (i=6; i > 0; i--)
         {
-          LbSpriteDrawResized(pos_x, pos_y, swpspr, units_per_px);
+          LbSpriteDrawResized(pos_x, pos_y, units_per_px, swpspr);
           pos_x += swpspr->SWidth * units_per_px / 16;
           swpspr++;
         }
@@ -144,7 +143,7 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
     swpspr = spr;
     for (i=6; i > 0; i--)
     {
-        LbSpriteDrawResized(pos_x, pos_y, swpspr, units_per_px);
+        LbSpriteDrawResized(pos_x, pos_y, units_per_px, swpspr);
         pos_x += swpspr->SWidth * units_per_px / 16;
         swpspr++;
     }

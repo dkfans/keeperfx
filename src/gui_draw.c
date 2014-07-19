@@ -69,8 +69,9 @@ int get_bitmap_max_scale(int img_w,int img_h,int rect_w,int rect_h)
     return m;
 }
 
-void draw_bar64k(long pos_x, long pos_y, long width)
+void draw_bar64k(long pos_x, long pos_y, int units_per_px, long width)
 {
+    //RESCALE
     long body_end;
     long x;
     if (width < 72)
@@ -81,19 +82,24 @@ void draw_bar64k(long pos_x, long pos_y, long width)
     // Button opening sprite
     struct TbSprite *spr;
     spr = &button_sprite[1];
-    LbSpriteDraw(pos_x/pixel_size, pos_y/pixel_size, spr);
+    x = pos_x;
+    LbSpriteDrawResized(x/pixel_size, pos_y/pixel_size, units_per_px, spr);
+    x += spr->SWidth * units_per_px / 16;
     // Button body
     body_end = pos_x + width - 64;
-    for (x = pos_x+32; x<body_end; x+=32)
+    while (x < body_end)
     {
         spr = &button_sprite[2];
-        LbSpriteDraw(x/pixel_size, pos_y/pixel_size, spr);
+        LbSpriteDrawResized(x/pixel_size, pos_y/pixel_size, units_per_px, spr);
+        x += spr->SWidth * units_per_px / 16;
     }
+    x = body_end;
     spr = &button_sprite[2];
-    LbSpriteDraw(body_end/pixel_size, pos_y/pixel_size, spr);
+    LbSpriteDrawResized(x/pixel_size, pos_y/pixel_size, units_per_px, spr);
+    x += spr->SWidth * units_per_px / 16;
     // Button ending sprite
     spr = &button_sprite[3];
-    LbSpriteDraw((pos_x + width - 32)/pixel_size, pos_y/pixel_size, spr);
+    LbSpriteDrawResized(x/pixel_size, pos_y/pixel_size, units_per_px, spr);
 }
 
 void draw_lit_bar64k(long pos_x, long pos_y, long width)
@@ -343,11 +349,12 @@ int simple_button_sprite_units_per_px(const struct GuiButton *gbtn, long spridx)
 
 /**
  * Returns units-per-pixel to be used for drawing given GUI button, assuming it consists of one sprite.
+ * Uses sprite height as constant factor.
  * @param gbtn
  * @param spridx
  * @return
  */
-int simple_frontend_sprite_units_per_px(const struct GuiButton *gbtn, long spridx)
+int simple_frontend_sprite_height_units_per_px(const struct GuiButton *gbtn, long spridx)
 {
     int units_per_px;
     struct TbSprite *spr;
@@ -355,6 +362,26 @@ int simple_frontend_sprite_units_per_px(const struct GuiButton *gbtn, long sprid
     if ((spr <= frontend_sprite) || (spr >= frontend_end_sprite) || (spr->SHeight < 1))
         return 16;
     units_per_px = gbtn->height * 16 / spr->SHeight;
+    if (units_per_px < 1)
+        units_per_px = 1;
+    return units_per_px;
+}
+
+/**
+ * Returns units-per-pixel to be used for drawing given GUI button, assuming it consists of one sprite.
+ * Uses sprite width as constant factor.
+ * @param gbtn
+ * @param spridx
+ * @return
+ */
+int simple_frontend_sprite_width_units_per_px(const struct GuiButton *gbtn, long spridx)
+{
+    int units_per_px;
+    struct TbSprite *spr;
+    spr = &frontend_sprite[spridx];
+    if ((spr <= frontend_sprite) || (spr >= frontend_end_sprite) || (spr->SHeight < 1))
+        return 16;
+    units_per_px = gbtn->width * 16 / spr->SWidth;
     if (units_per_px < 1)
         units_per_px = 1;
     return units_per_px;
@@ -639,7 +666,7 @@ void draw_frontend_sprite_left(long x, long y, int units_per_px, long spridx)
     spr = &frontend_sprite[spridx];
     if ((spr <= frontend_sprite) || (spr >= frontend_end_sprite))
         return;
-    LbSpriteDrawResized(x, y, spr, units_per_px);
+    LbSpriteDrawResized(x, y, units_per_px, spr);
 }
 
 void draw_string64k(long x, long y, const char * text)

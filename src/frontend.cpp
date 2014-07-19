@@ -207,7 +207,7 @@ struct GuiButtonInit frontend_select_level_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  82, 154,  82, 154,450,180, frontnet_draw_scroll_box,          0, GUIStr_Empty,  0,      {26},            0, 0, NULL},
   { 1,  0, 0, 0, frontend_level_select_up,NULL,frontend_over_button,  0, 532, 153, 532, 153, 26, 14, frontnet_draw_slider_button,       0, GUIStr_Empty,  0,      {17},            0, 0, frontend_level_select_up_maintain},
   { 1,  0, 0, 0, frontend_level_select_down,NULL,frontend_over_button,0, 532, 321, 532, 321, 26, 14, frontnet_draw_slider_button,       0, GUIStr_Empty,  0,      {18},            0, 0, frontend_level_select_down_maintain},
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 536, 167, 536, 167, 10,154, frontend_draw_levels_scroll_tab,   0, GUIStr_Empty,  0,      {40},            0, 0, NULL},
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 536, 167, 536, 167, 20,154, frontend_draw_levels_scroll_tab,   0, GUIStr_Empty,  0,      {40},            0, 0, NULL},
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 102, 129, 102, 129,220, 26, frontend_draw_text,                0, GUIStr_Empty,  0,      {32},            0, 0, NULL},
   { 0,  0, 0, 0, frontend_level_select,NULL,frontend_over_button,     0,  95, 167,  95, 169,424, 14, frontend_draw_level_select_button, 0, GUIStr_Empty,  0,      {45},            0, 0, frontend_level_select_maintain},
   { 0,  0, 0, 0, frontend_level_select,NULL,frontend_over_button,     0,  95, 189,  95, 191,424, 14, frontend_draw_level_select_button, 0, GUIStr_Empty,  0,      {46},            0, 0, frontend_level_select_maintain},
@@ -227,7 +227,7 @@ struct GuiButtonInit frontend_select_campaign_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  82, 154,  82, 154,450,180, frontnet_draw_scroll_box,          0, GUIStr_Empty,  0,      {26},            0, 0, NULL},
   { 1,  0, 0, 0, frontend_campaign_select_up,NULL,frontend_over_button,0, 532,153, 532, 153, 26, 14, frontnet_draw_slider_button,       0, GUIStr_Empty,  0,      {17},            0, 0, frontend_campaign_select_up_maintain},
   { 1,  0, 0, 0, frontend_campaign_select_down,NULL,frontend_over_button,0,532,321,532, 321, 26, 14, frontnet_draw_slider_button,       0, GUIStr_Empty,  0,      {18},            0, 0, frontend_campaign_select_down_maintain},
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 536, 167, 536, 167, 10,154, frontend_draw_campaign_scroll_tab, 0, GUIStr_Empty,  0,      {40},            0, 0, NULL},
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 536, 167, 536, 167, 20,154, frontend_draw_campaign_scroll_tab, 0, GUIStr_Empty,  0,      {40},            0, 0, NULL},
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 102, 129, 102, 129,220, 26, frontend_draw_text,                0, GUIStr_Empty,  0,     {109},            0, 0, NULL},
   { 0,  0, 0, 0, frontend_campaign_select,NULL,frontend_over_button,  0,  95, 167,  95, 169,424, 14, frontend_draw_campaign_select_button,0,GUIStr_Empty, 0,      {45},            0, 0, frontend_campaign_select_maintain},
   { 0,  0, 0, 0, frontend_campaign_select,NULL,frontend_over_button,  0,  95, 189,  95, 191,424, 14, frontend_draw_campaign_select_button,0,GUIStr_Empty, 0,      {46},            0, 0, frontend_campaign_select_maintain},
@@ -1069,14 +1069,16 @@ void frontend_draw_scroll_tab(struct GuiButton *gbtn, long scroll_offset, long f
 {
     struct TbSprite *spr;
     long i,k,n;
+    int units_per_px;
+    units_per_px = simple_frontend_sprite_width_units_per_px(gbtn, 78);
     spr = &frontend_sprite[78];
     i = last_elem - first_elem;
-    k = gbtn->height - spr->SHeight;
+    k = gbtn->height - spr->SHeight * units_per_px / 16;
     if (i <= 1)
-        n = (gbtn->height - spr->SHeight) ^ k;
+        n = 0;
     else
         n = (scroll_offset * (k << 8) / (i - 1)) >> 8;
-    LbSpriteDraw(gbtn->scr_pos_x, n+gbtn->scr_pos_y, spr);
+    LbSpriteDrawResized(gbtn->scr_pos_x, n+gbtn->scr_pos_y, units_per_px, spr);
 }
 
 void gui_quit_game(struct GuiButton *gbtn)
@@ -1086,9 +1088,9 @@ void gui_quit_game(struct GuiButton *gbtn)
     set_players_packet_action(player, PckA_Unknown001, 0, 0, 0, 0);
 }
 
-void draw_slider64k(long scr_x, long scr_y, long width)
+void draw_slider64k(long scr_x, long scr_y, int units_per_px, long width)
 {
-    draw_bar64k(scr_x, scr_y, width);
+    draw_bar64k(scr_x, scr_y, units_per_px, width);
     // Inner size
     int base_x, base_y, base_w;
     base_w = width - 64;
@@ -1105,36 +1107,40 @@ void draw_slider64k(long scr_x, long scr_y, long width)
     end_x = base_x + base_w - 64;
     struct TbSprite *spr;
     spr = &button_sprite[4];
-    LbSpriteDraw(cur_x/pixel_size, cur_y/pixel_size, spr);
-    cur_x += spr->SWidth;
+    LbSpriteDrawResized(cur_x/pixel_size, cur_y/pixel_size, units_per_px, spr);
+    cur_x += spr->SWidth * units_per_px / 16;
     spr = &button_sprite[5];
     while (cur_x < end_x)
     {
-        LbSpriteDraw(cur_x/pixel_size, cur_y/pixel_size, spr);
-        cur_x += spr->SWidth;
+        LbSpriteDrawResized(cur_x/pixel_size, cur_y/pixel_size, units_per_px, spr);
+        cur_x += spr->SWidth * units_per_px / 16;
     }
     cur_x = end_x;
-    LbSpriteDraw(cur_x/pixel_size, cur_y/pixel_size, spr);
-    cur_x += spr->SWidth;
+    LbSpriteDrawResized(cur_x/pixel_size, cur_y/pixel_size, units_per_px, spr);
+    cur_x += spr->SWidth * units_per_px / 16;
     spr = &button_sprite[6];
-    LbSpriteDraw(cur_x/pixel_size, cur_y/pixel_size, spr);
+    LbSpriteDrawResized(cur_x/pixel_size, cur_y/pixel_size, units_per_px, spr);
 }
 
 void gui_area_slider(struct GuiButton *gbtn)
 {
     //_DK_gui_area_slider(gbtn);
-    if (gbtn->flags & LbBtnF_Unknown08)
-    {
-        gbtn->height = 32;
-        draw_slider64k(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width);
-        int shift_x;
-        shift_x = (gbtn->width - 64) * gbtn->slide_val >> 8;
-        if (gbtn->flags != 0) {
-            LbSpriteDraw((gbtn->scr_pos_x + shift_x + 24) / pixel_size, (gbtn->scr_pos_y + 6) / pixel_size, &button_sprite[21]);
-        } else {
-            LbSpriteDraw((gbtn->scr_pos_x + shift_x + 24) / pixel_size, (gbtn->scr_pos_y + 6) / pixel_size, &button_sprite[20]);
-        }
+    if ((gbtn->flags & LbBtnF_Unknown08) == 0) {
+        return;
     }
+    //gbtn->height = 32;
+    int units_per_px;
+    units_per_px = gbtn->height * 16 / 32;
+    draw_slider64k(gbtn->scr_pos_x, gbtn->scr_pos_y, units_per_px, gbtn->width);
+    int shift_x;
+    shift_x = (gbtn->width - 64*units_per_px/16) * gbtn->slide_val >> 8;
+    struct TbSprite *spr;
+    if (gbtn->flags != 0) {
+        spr = &button_sprite[21];
+    } else {
+        spr = &button_sprite[20];
+    }
+    LbSpriteDrawResized((gbtn->scr_pos_x + shift_x + 24*units_per_px/16) / pixel_size, (gbtn->scr_pos_y + 6*units_per_px/16) / pixel_size, units_per_px, spr);
 }
 
 #if (BFDEBUG_LEVEL > 0)
@@ -1223,7 +1229,7 @@ void frontend_draw_slider(struct GuiButton *gbtn)
     scr_x = gbtn->scr_pos_x;
     scr_y = gbtn->scr_pos_y;
     struct TbSprite *spr;
-    gbtn->height = 32;
+    //gbtn->height = 32;
     spr = &frontend_sprite[92];
     LbSpriteDraw(scr_x, scr_y, spr);
     scr_x += spr->SWidth;
@@ -1254,7 +1260,7 @@ void frontend_draw_small_slider(struct GuiButton *gbtn)
     scr_x = gbtn->scr_pos_x;
     scr_y = gbtn->scr_pos_y;
     struct TbSprite *spr;
-    gbtn->height = 32;
+    //gbtn->height = 32;
     spr = &frontend_sprite[92];
     LbSpriteDraw(scr_x, scr_y, spr);
     scr_x += spr->SWidth;
@@ -1279,22 +1285,24 @@ void gui_area_text(struct GuiButton *gbtn)
     if ((gbtn->flags & LbBtnF_Unknown08) == 0) {
         return;
     }
+    int units_per_px;
+    units_per_px = gbtn->height * 16 / 32;
     switch (gbtn->field_29)
     {
     case 1:
-        gbtn->height = 32;
+        //gbtn->height = 32;
         if ( gbtn->gbactn_1 || gbtn->gbactn_2 )
         {
-            draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width);
+            draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, units_per_px, gbtn->width);
             draw_lit_bar64k(gbtn->scr_pos_x - 6, gbtn->scr_pos_y - 6, gbtn->width + 6);
         } else
         {
-            draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width);
+            draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, units_per_px, gbtn->width);
         }
         break;
     case 2:
-        gbtn->height = 32;
-        draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width);
+        //gbtn->height = 32;
+        draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, units_per_px, gbtn->width);
         break;
     }
     if (gbtn->tooltip_id != GUIStr_Empty)
@@ -1356,15 +1364,17 @@ int frontend_button_caption_font(const struct GuiButton *gbtn, long mouse_over_b
 
 void frontend_draw_text(struct GuiButton *gbtn)
 {
-  lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
-  int font_idx;
-  if ((gbtn->flags & LbBtnF_Unknown08) == 0)
-      font_idx = 3;
-  else
-      font_idx = frontend_button_caption_font(gbtn, frontend_mouse_over_button);
-  LbTextSetFont(frontend_font[font_idx]);
-  LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
-  LbTextDraw(0, 0, frontend_button_caption_text(gbtn));
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+    int font_idx;
+    if ((gbtn->flags & LbBtnF_Unknown08) == 0)
+        font_idx = 3;
+    else
+        font_idx = frontend_button_caption_font(gbtn, frontend_mouse_over_button);
+    LbTextSetFont(frontend_font[font_idx]);
+    int units_per_px;
+    units_per_px = gbtn->height * 16 / 26;
+    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
+    LbTextDrawResized(0, 0, units_per_px, frontend_button_caption_text(gbtn));
 }
 
 void frontend_change_state(struct GuiButton *gbtn)
