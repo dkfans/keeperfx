@@ -1215,8 +1215,11 @@ TbBool fronttestfont_input(void)
 
 void frontend_draw_icon(struct GuiButton *gbtn)
 {
-    //_DK_frontend_draw_icon(gbtn);
-    LbSpriteDraw(gbtn->scr_pos_x, gbtn->scr_pos_y, &frontend_sprite[gbtn->field_29]);
+    int units_per_px;
+    units_per_px = simple_frontend_sprite_width_units_per_px(gbtn, gbtn->field_29);
+    struct TbSprite *spr;
+    spr = &frontend_sprite[gbtn->field_29];
+    LbSpriteDrawResized(gbtn->scr_pos_x, gbtn->scr_pos_y, units_per_px, spr);
 }
 
 void frontend_draw_slider(struct GuiButton *gbtn)
@@ -1229,25 +1232,28 @@ void frontend_draw_slider(struct GuiButton *gbtn)
     scr_x = gbtn->scr_pos_x;
     scr_y = gbtn->scr_pos_y;
     struct TbSprite *spr;
+    spr = &frontend_sprite[93];
+    int units_per_px;
+    units_per_px = gbtn->height * 16 / spr->SHeight;
     //gbtn->height = 32;
     spr = &frontend_sprite[92];
-    LbSpriteDraw(scr_x, scr_y, spr);
-    scr_x += spr->SWidth;
+    LbSpriteDrawResized(scr_x, scr_y, units_per_px, spr);
+    scr_x += spr->SWidth * units_per_px / 16;
     spr = &frontend_sprite[93];
-    LbSpriteDraw(scr_x, scr_y, spr);
-    scr_x += spr->SWidth;
-    LbSpriteDraw(scr_x, scr_y, spr);
-    scr_x += spr->SWidth;
+    LbSpriteDrawResized(scr_x, scr_y, units_per_px, spr);
+    scr_x += spr->SWidth * units_per_px / 16;
+    LbSpriteDrawResized(scr_x, scr_y, units_per_px, spr);
+    scr_x += spr->SWidth * units_per_px / 16;
     spr = &frontend_sprite[94];
-    LbSpriteDraw(scr_x, scr_y, spr);
+    LbSpriteDrawResized(scr_x, scr_y, units_per_px, spr);
     int shift_x;
-    shift_x = gbtn->slide_val * (gbtn->width - 64) >> 8;
+    shift_x = gbtn->slide_val * (gbtn->width - 64*units_per_px/16) >> 8;
     if (gbtn->gbactn_1 != 0) {
         spr = &frontend_sprite[91];
     } else {
         spr = &frontend_sprite[78];
     }
-    LbSpriteDraw((gbtn->scr_pos_x + shift_x + 24) / pixel_size, (gbtn->scr_pos_y + 3) / pixel_size, spr);
+    LbSpriteDrawResized((gbtn->scr_pos_x + shift_x + 24*units_per_px/16) / pixel_size, (gbtn->scr_pos_y + 3*units_per_px/16) / pixel_size, units_per_px, spr);
 }
 
 void frontend_draw_small_slider(struct GuiButton *gbtn)
@@ -1260,23 +1266,26 @@ void frontend_draw_small_slider(struct GuiButton *gbtn)
     scr_x = gbtn->scr_pos_x;
     scr_y = gbtn->scr_pos_y;
     struct TbSprite *spr;
+    spr = &frontend_sprite[93];
+    int units_per_px;
+    units_per_px = gbtn->height * 16 / spr->SHeight;
     //gbtn->height = 32;
     spr = &frontend_sprite[92];
-    LbSpriteDraw(scr_x, scr_y, spr);
-    scr_x += spr->SWidth;
+    LbSpriteDrawResized(scr_x, scr_y, units_per_px, spr);
+    scr_x += spr->SWidth * units_per_px / 16;
     spr = &frontend_sprite[93];
-    LbSpriteDraw(scr_x, scr_y, spr);
-    scr_x += spr->SWidth;
+    LbSpriteDrawResized(scr_x, scr_y, units_per_px, spr);
+    scr_x += spr->SWidth * units_per_px / 16;
     spr = &frontend_sprite[94];
-    LbSpriteDraw(scr_x, scr_y, spr);
+    LbSpriteDrawResized(scr_x, scr_y, units_per_px, spr);
     int val;
-    val = gbtn->slide_val * (gbtn->width - 64) >> 8;
+    val = gbtn->slide_val * (gbtn->width - 64*units_per_px/16) >> 8;
     if (gbtn->gbactn_1 != 0) {
         spr = &frontend_sprite[91];
     } else {
         spr = &frontend_sprite[78];
     }
-    LbSpriteDraw((gbtn->scr_pos_x + val + 24) / pixel_size, (gbtn->scr_pos_y + 3) / pixel_size, spr);
+    LbSpriteDrawResized((gbtn->scr_pos_x + val + 24*units_per_px/16) / pixel_size, (gbtn->scr_pos_y + 3*units_per_px/16) / pixel_size, units_per_px, spr);
 }
 
 void gui_area_text(struct GuiButton *gbtn)
@@ -1601,7 +1610,7 @@ void gui_scroll_text_down(struct GuiButton *gbtn)
 
 void frontend_draw_levels_scroll_tab(struct GuiButton *gbtn)
 {
-  frontend_draw_scroll_tab(gbtn, select_level_scroll_offset, frontend_select_level_items_visible-2, number_of_freeplay_levels);
+    frontend_draw_scroll_tab(gbtn, select_level_scroll_offset, frontend_select_level_items_visible-2, number_of_freeplay_levels);
 }
 
 /**
