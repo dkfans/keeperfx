@@ -30,6 +30,7 @@
 #include "config_campaigns.h"
 #include "config_strings.h"
 #include "frontend.h"
+#include "gui_draw.h"
 #include "player_data.h"
 #include "dungeon_data.h"
 #include "game_merge.h"
@@ -47,7 +48,7 @@ DLLIMPORT void _DK_frontend_high_score_table_input(void);
 }
 #endif
 /******************************************************************************/
-void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int col2_width, int col3_width, int col4_width)
+void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int col2_width, int col3_width, int col4_width, int units_per_px)
 {
     struct HighScore *hscore;
     char str[64];
@@ -89,6 +90,19 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
     long col1_width,col2_width,col3_width,col4_width;
     long i,k;
 //    _DK_frontend_draw_high_score_table(gbtn); return;
+    // Detect scaling factor is quite complicated for this item
+    int units_per_px;
+    {
+        int orig_size;
+        orig_size = 0;
+        spr = &frontend_sprite[33];
+        for (i=0; i < 6; i++)
+        {
+            orig_size += spr->SWidth;
+            spr++;
+        }
+        units_per_px = (gbtn->width * 16 + 8) / orig_size;
+    }
     // Draw the high scores area - top
     pos_x = gbtn->scr_pos_x;
     pos_y = gbtn->scr_pos_y;
@@ -96,11 +110,11 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
     swpspr = spr;
     for (i=6; i > 0; i--)
     {
-      LbSpriteDraw(pos_x, pos_y, swpspr);
-      pos_x += swpspr->SWidth;
-      swpspr++;
+        LbSpriteDrawResized(pos_x, pos_y, swpspr, units_per_px);
+        pos_x += swpspr->SWidth * units_per_px / 16;
+        swpspr++;
     }
-    pos_y += spr->SHeight;
+    pos_y += spr->SHeight * units_per_px / 16;
     // Draw the high scores area - filling
     k = 12;
     while (k > 0)
@@ -114,11 +128,11 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
         swpspr = spr;
         for (i=6; i > 0; i--)
         {
-          LbSpriteDraw(pos_x, pos_y, swpspr);
-          pos_x += swpspr->SWidth;
+          LbSpriteDrawResized(pos_x, pos_y, swpspr, units_per_px);
+          pos_x += swpspr->SWidth * units_per_px / 16;
           swpspr++;
         }
-        pos_y += spr->SHeight;
+        pos_y += spr->SHeight * units_per_px / 16;
         if (k < 3)
           k--;
         else
@@ -130,29 +144,29 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
     swpspr = spr;
     for (i=6; i > 0; i--)
     {
-        LbSpriteDraw(pos_x, pos_y, swpspr);
-        pos_x += swpspr->SWidth;
+        LbSpriteDrawResized(pos_x, pos_y, swpspr, units_per_px);
+        pos_x += swpspr->SWidth * units_per_px / 16;
         swpspr++;
     }
     LbTextSetFont(frontend_font[1]);
     lbDisplay.DrawFlags = 0;
     spr = &frontend_sprite[33];
-    pos_x = gbtn->scr_pos_x + spr->SWidth;
+    pos_x = gbtn->scr_pos_x + spr->SWidth * units_per_px / 16;
     spr = &frontend_sprite[25];
-    pos_y = spr->SHeight + gbtn->scr_pos_y + 3;
-    col1_width = LbTextStringWidth("99");
-    col2_width = LbTextStringWidth(" 99999");
-    col3_width = LbTextStringWidth(" 999");
-    col4_width = LbTextCharWidth('-');
+    pos_y = spr->SHeight * units_per_px / 16 + gbtn->scr_pos_y + 3;
+    col1_width = LbTextStringWidth("99") * units_per_px / 16;
+    col2_width = LbTextStringWidth(" 99999") * units_per_px / 16;
+    col3_width = LbTextStringWidth(" 999") * units_per_px / 16;
+    col4_width = LbTextCharWidth('-') * units_per_px / 16;
     for (k=0; k < VISIBLE_HIGH_SCORES_COUNT-1; k++)
     {
-      draw_high_score_entry(k, pos_x, pos_y, col1_width, col2_width, col3_width, col4_width);
-      pos_y += LbTextLineHeight();
+      draw_high_score_entry(k, pos_x, pos_y, col1_width, col2_width, col3_width, col4_width, units_per_px);
+      pos_y += LbTextLineHeight() * units_per_px / 16;
     }
     if (high_score_entry_input_active > k)
-      draw_high_score_entry(high_score_entry_input_active, pos_x, pos_y, col1_width, col2_width, col3_width, col4_width);
+      draw_high_score_entry(high_score_entry_input_active, pos_x, pos_y, col1_width, col2_width, col3_width, col4_width, units_per_px);
     else
-      draw_high_score_entry(k, pos_x, pos_y, col1_width, col2_width, col3_width, col4_width);
+      draw_high_score_entry(k, pos_x, pos_y, col1_width, col2_width, col3_width, col4_width, units_per_px);
 }
 
 void frontend_quit_high_score_table(struct GuiButton *gbtn)

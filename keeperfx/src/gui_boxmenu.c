@@ -643,14 +643,14 @@ void gui_draw_box(struct GuiBox *gbox)
     {
         lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
         LbDrawBox(gbox->pos_x/pixel_size, gbox->pos_y/pixel_size, gbox->width/pixel_size, gbox->height/pixel_size, colours[6][0][0]);
-        if (lbDisplay.DrawFlags & Lb_SPRITE_UNKNOWN0010)
+        if (lbDisplay.DrawFlags & Lb_SPRITE_OUTLINE)
         {
           LbDrawBox(gbox->pos_x/pixel_size, gbox->pos_y/pixel_size, gbox->width/pixel_size, gbox->height/pixel_size, colours[0][0][0]);
         } else
         {
-          lbDisplay.DrawFlags ^= Lb_SPRITE_UNKNOWN0010;
+          lbDisplay.DrawFlags ^= Lb_SPRITE_OUTLINE;
           LbDrawBox(gbox->pos_x/pixel_size, gbox->pos_y/pixel_size, gbox->width/pixel_size, gbox->height/pixel_size, colours[0][0][0]);
-          lbDisplay.DrawFlags ^= Lb_SPRITE_UNKNOWN0010;
+          lbDisplay.DrawFlags ^= Lb_SPRITE_OUTLINE;
         }
         lbDisplay.DrawFlags ^= Lb_SPRITE_TRANSPAR4;
         lbDisplay.DrawColour = colours[3][3][3];
@@ -676,14 +676,14 @@ void gui_draw_box(struct GuiBox *gbox)
     {
         lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
         LbDrawBox(gbox->pos_x/pixel_size, gbox->pos_y/pixel_size, gbox->width/pixel_size, gbox->height/pixel_size, colours[12][0][0]);
-        if (lbDisplay.DrawFlags & Lb_SPRITE_UNKNOWN0010)
+        if (lbDisplay.DrawFlags & Lb_SPRITE_OUTLINE)
         {
             LbDrawBox(gbox->pos_x/pixel_size, gbox->pos_y/pixel_size, gbox->width/pixel_size, gbox->height/pixel_size, colours[2][0][0]);
         } else
         {
-            lbDisplay.DrawFlags ^= Lb_SPRITE_UNKNOWN0010;
+            lbDisplay.DrawFlags ^= Lb_SPRITE_OUTLINE;
             LbDrawBox(gbox->pos_x/pixel_size, gbox->pos_y/pixel_size, gbox->width/pixel_size, gbox->height/pixel_size, colours[2][0][0]);
-            lbDisplay.DrawFlags ^= Lb_SPRITE_UNKNOWN0010;
+            lbDisplay.DrawFlags ^= Lb_SPRITE_OUTLINE;
         }
         lbDisplay.DrawFlags ^= Lb_SPRITE_TRANSPAR4;
         goptn = gbox->optn_list;

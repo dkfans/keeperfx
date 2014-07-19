@@ -236,12 +236,12 @@ void draw_ornate_slab64k(long pos_x, long pos_y, long width, long height)
     LbSpriteDraw((pos_x - 32) / pixel_size, (pos_y - 14) / pixel_size, spr);
     spr = &button_sprite[11];
     LbSpriteDraw((pos_x - 34) / pixel_size, (pos_y + height - 78) / pixel_size, spr);
-    lbDisplay.DrawFlags |= 0x0001;
+    lbDisplay.DrawFlags |= Lb_SPRITE_FLIP_HORIZ;
     spr = &button_sprite[10];
     LbSpriteDraw((pos_x + width - 96) / pixel_size, (pos_y - 14) / pixel_size, spr);
     spr = &button_sprite[11];
     LbSpriteDraw((pos_x + width - 92) / pixel_size, (pos_y + height - 78) / pixel_size, spr);
-    lbDisplay.DrawFlags &= ~0x0001;
+    lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
 }
 
 void draw_ornate_slab_outline64k(long pos_x, long pos_y, long width, long height)
@@ -279,19 +279,19 @@ void draw_ornate_slab_outline64k(long pos_x, long pos_y, long width, long height
     LbSpriteDraw((x - 32) / pixel_size, (y - 14) / pixel_size, spr);
     spr = &button_sprite[11];
     LbSpriteDraw((x - 34) / pixel_size, (y - 78 + height) / pixel_size, spr);
-    lbDisplay.DrawFlags |= 0x0001;
+    lbDisplay.DrawFlags |= Lb_SPRITE_FLIP_HORIZ;
     spr = &button_sprite[10];
     LbSpriteDraw((width + x - 96) / pixel_size, (y - 14) / pixel_size, spr);
     spr = &button_sprite[11];
     LbSpriteDraw((width + x - 92) / pixel_size, (y - 78 + height) / pixel_size, spr);
-    lbDisplay.DrawFlags &= ~0x0001;
+    lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
 }
 
 void draw_round_slab64k(long pos_x, long pos_y, long width, long height)
 {
     unsigned short drwflags_mem;
     drwflags_mem = lbDisplay.DrawFlags;
-    lbDisplay.DrawFlags &= ~Lb_SPRITE_UNKNOWN0010;
+    lbDisplay.DrawFlags &= ~Lb_SPRITE_OUTLINE;
     lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
     LbDrawBox((pos_x + 4) / pixel_size, (pos_y + 4) / pixel_size, (width - 8) / pixel_size, (height - 8) / pixel_size, 1);
     lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
@@ -320,6 +320,44 @@ void draw_round_slab64k(long pos_x, long pos_y, long width, long height)
     LbSpriteDraw(pos_x / pixel_size, y / pixel_size, &spr[247]);
     LbSpriteDraw(x / pixel_size, y / pixel_size, &spr[249]);
     lbDisplay.DrawFlags = drwflags_mem;
+}
+
+/**
+ * Returns units-per-pixel to be used for drawing given GUI button, assuming it consists of one sprite.
+ * @param gbtn
+ * @param spridx
+ * @return
+ */
+int simple_button_sprite_units_per_px(const struct GuiButton *gbtn, long spridx)
+{
+    int units_per_px;
+    struct TbSprite *spr;
+    spr = &button_sprite[spridx];
+    if ((spr <= button_sprite) || (spr >= end_button_sprites) || (spr->SHeight < 1))
+        return 16;
+    units_per_px = gbtn->height * 16 / spr->SHeight;
+    if (units_per_px < 1)
+        units_per_px = 1;
+    return units_per_px;
+}
+
+/**
+ * Returns units-per-pixel to be used for drawing given GUI button, assuming it consists of one sprite.
+ * @param gbtn
+ * @param spridx
+ * @return
+ */
+int simple_frontend_sprite_units_per_px(const struct GuiButton *gbtn, long spridx)
+{
+    int units_per_px;
+    struct TbSprite *spr;
+    spr = &frontend_sprite[spridx];
+    if ((spr <= frontend_sprite) || (spr >= frontend_end_sprite) || (spr->SHeight < 1))
+        return 16;
+    units_per_px = gbtn->height * 16 / spr->SHeight;
+    if (units_per_px < 1)
+        units_per_px = 1;
+    return units_per_px;
 }
 
 /** Draws a string on GUI button.
@@ -577,7 +615,7 @@ void draw_gui_panel_sprite_occentered(long x, long y, long spridx, TbPixel color
     LbSpriteDrawOneColour(x/pixel_size, y/pixel_size, spr, color);
 }
 
-void draw_button_sprite_left(long x, long y, long spridx)
+void draw_button_sprite_left(long x, long y, int units_per_px, long spridx)
 {
     struct TbSprite *spr;
     spr = &button_sprite[spridx];
@@ -593,6 +631,15 @@ void draw_button_sprite_rmleft(long x, long y, long spridx, unsigned long remap)
     if ((spr <= button_sprite) || (spr >= end_button_sprites))
       return;
     LbSpriteDrawRemap(x/pixel_size, y/pixel_size, spr, &pixmap.fade_tables[remap*256]);
+}
+
+void draw_frontend_sprite_left(long x, long y, int units_per_px, long spridx)
+{
+    struct TbSprite *spr;
+    spr = &frontend_sprite[spridx];
+    if ((spr <= frontend_sprite) || (spr >= frontend_end_sprite))
+        return;
+    LbSpriteDrawResized(x, y, spr, units_per_px);
 }
 
 void draw_string64k(long x, long y, const char * text)

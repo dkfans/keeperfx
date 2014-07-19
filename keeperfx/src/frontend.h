@@ -208,9 +208,6 @@ DLLIMPORT extern unsigned char * _DK_frontend_font_data[FRONTEND_FONTS_COUNT];
 DLLIMPORT extern unsigned char * _DK_frontend_end_font_data[FRONTEND_FONTS_COUNT];
 #define frontend_end_font_data _DK_frontend_end_font_data
 
-DLLIMPORT extern struct TbSprite *_DK_frontend_sprite;
-#define frontend_sprite _DK_frontend_sprite
-
 DLLIMPORT extern struct TbSprite *_DK_button_sprite;
 #define button_sprite _DK_button_sprite
 DLLIMPORT extern struct TbSprite *_DK_end_button_sprites;

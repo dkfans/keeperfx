@@ -96,7 +96,7 @@ void frontbirthday_draw(void)
     frontend_copy_background();
     LbTextSetWindow(70, 70, 500, 340);
     LbTextSetFont(frontstory_font);
-    lbDisplay.DrawFlags = Lb_SPRITE_UNKNOWN0010;
+    lbDisplay.DrawFlags = Lb_SPRITE_OUTLINE;
     const char *name=get_team_birthday();
     if ( name != NULL )
     {

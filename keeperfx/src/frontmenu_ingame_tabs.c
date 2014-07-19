@@ -191,6 +191,8 @@ void gui_area_autopilot_button(struct GuiButton *gbtn)
     if (gbtn->gbtype == Lb_CYCLEBTN) {
         ERRORLOG("Cycle button cannot have a normal button draw function!");
     }
+    int units_per_px;
+    units_per_px = simple_button_sprite_units_per_px(gbtn, spr_idx);
     if ((gbtn->flags & 0x08) != 0)
     {
         if ((dungeon->computer_enabled & 0x01) != 0)
@@ -200,7 +202,7 @@ void gui_area_autopilot_button(struct GuiButton *gbtn)
         }
         if ((gbtn->gbactn_1 == 0) && (gbtn->gbactn_2 == 0))
           spr_idx += 1;
-        draw_button_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, spr_idx);
+        draw_button_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, units_per_px, spr_idx);
     }
     else
     {
@@ -346,8 +348,8 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
         lbDisplay.DrawFlags = flg_mem;
         return;
     }
-    lbDisplay.DrawFlags &= ~0x0004;
-    lbDisplay.DrawFlags &= ~0x0010;
+    lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
+    lbDisplay.DrawFlags &= ~Lb_SPRITE_OUTLINE;
     int i;
     i = find_room_type_capacity_total_percentage(player->id_number, rkind);
     if ((rkind == RoK_ENTRANCE) || (rkind == RoK_DUNGHEART) || (i < 0))
@@ -510,8 +512,8 @@ void gui_area_big_spell_button(struct GuiButton *gbtn)
     struct Dungeon *dungeon;
     dungeon = get_players_dungeon(player);
 
-    lbDisplay.DrawFlags &= ~0x0004;
-    lbDisplay.DrawFlags &= ~0x0010;
+    lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
+    lbDisplay.DrawFlags &= ~Lb_SPRITE_OUTLINE;
     int pwage;
     pwage = find_spell_age_percentage(player->id_number, pwkind);
     if ((pwrdata->flag_8 != 0) && (pwage >= 0))
@@ -1036,7 +1038,7 @@ void draw_centred_string64k(const char *text, short x, short y, short w)
     lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
     LbTextSetJustifyWindow((x - (w / 2)) / pixel_size, y / (int)pixel_size, w / (int)pixel_size);
     LbTextSetClipWindow( (x - (w / 2)) / pixel_size, y / (int)pixel_size, w / (int)pixel_size, 16 / pixel_size);
-    lbDisplay.DrawFlags |= 0x0100;
+    lbDisplay.DrawFlags |= Lb_TEXT_HALIGN_CENTER;
     LbTextDraw(0 / pixel_size, -6 / pixel_size, text);
     LbTextSetJustifyWindow(0 / pixel_size, 0 / pixel_size, 640 / pixel_size);
     LbTextSetClipWindow(0 / pixel_size, 0 / pixel_size, 640 / pixel_size, 480 / pixel_size);
@@ -1662,7 +1664,7 @@ void gui_activity_background(struct GuiMenu *gmnu)
             }
         }
     }
-    lbDisplay.DrawFlags |= 0x0004;
+    lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
     LbDrawBox((gmnu->pos_x + 2) / pixel_size, (gmnu->pos_y + 218) / pixel_size, 134 / pixel_size, 24 / pixel_size, colours[0][0][0]);
     lbDisplay.DrawFlags = flg_mem;
 }
