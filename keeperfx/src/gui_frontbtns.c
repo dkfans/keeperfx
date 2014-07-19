@@ -127,22 +127,24 @@ TbBool gui_slider_button_inputs(int gbtn_idx)
     gbtn = &active_buttons[gbtn_idx];
     mouse_x = GetMouseX();
     gbtn->gbactn_1 = 1;
-    slide_start = gbtn->pos_x+32;
-    slide_end = gbtn->pos_x+gbtn->width-32;
+    int units_per_px;
+    units_per_px = gbtn->height * 16 / 22;
+    slide_start = gbtn->pos_x + 32*units_per_px/16;
+    slide_end = gbtn->pos_x + gbtn->width - 32*units_per_px/16;
     if (mouse_x < slide_start)
     {
-      gbtn->slide_val = 0;
+        gbtn->slide_val = 0;
     } else
     if (mouse_x >= slide_end)
     {
-      gbtn->slide_val = 255;
+        gbtn->slide_val = 255;
     } else
-    if (gbtn->width > 64)
+    if (gbtn->width > 64*units_per_px/16)
     {
-      gbtn->slide_val = ((mouse_x-slide_start) << 8) / (gbtn->width-64);
+        gbtn->slide_val = ((mouse_x-slide_start) << 8) / (gbtn->width-64*units_per_px/16);
     } else
     {
-      gbtn->slide_val = ((mouse_x-gbtn->pos_x) << 8) / (gbtn->width+1);
+        gbtn->slide_val = ((mouse_x-gbtn->pos_x) << 8) / (gbtn->width+1);
     }
     *gbtn->content = (gbtn->slide_val) * (((long)gbtn->field_2D)+1) >> 8;
     callback = gbtn->click_event;
