@@ -26,15 +26,17 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define NUM_DRAWITEMS 238
-#define SPRITE_SCALING_XSTEPS 256
-#define SPRITE_SCALING_YSTEPS 312
+#define MAX_SUPPORTED_SPRITE_DIM 256
 
+#define NUM_DRAWITEMS 238
+#define SPRITE_SCALING_XSTEPS max(MAX_SUPPORTED_SPRITE_DIM,MAX_SUPPORTED_SCREEN_WIDTH)
+#define SPRITE_SCALING_YSTEPS max(MAX_SUPPORTED_SPRITE_DIM,MAX_SUPPORTED_SCREEN_HEIGHT)
 /******************************************************************************/
 #pragma pack(1)
 
-struct BigSprite;
+struct TiledSprite;
 struct TbSprite;
+struct TbHugeSprite;
 
 typedef void __fastcall FlicFunc(void);
 
@@ -182,17 +184,13 @@ DLLIMPORT unsigned char *_DK_lbSpriteReMapPtr;
 #define lbSpriteReMapPtr _DK_lbSpriteReMapPtr
 DLLIMPORT long _DK_scale_up;
 #define scale_up _DK_scale_up
-DLLIMPORT long _DK_xsteps_array[2*SPRITE_SCALING_XSTEPS];
-#define xsteps_array _DK_xsteps_array
-DLLIMPORT long _DK_ysteps_array[2*SPRITE_SCALING_YSTEPS];
-#define ysteps_array _DK_ysteps_array
+DLLIMPORT long _DK_xsteps_array[2*256];
+DLLIMPORT long _DK_ysteps_array[2*320];
 
 DLLIMPORT long _DK_alpha_scale_up;
 #define alpha_scale_up _DK_alpha_scale_up
-DLLIMPORT long _DK_alpha_xsteps_array[2*SPRITE_SCALING_XSTEPS];
-#define alpha_xsteps_array _DK_alpha_xsteps_array
-DLLIMPORT long _DK_alpha_ysteps_array[2*SPRITE_SCALING_YSTEPS];
-#define alpha_ysteps_array _DK_alpha_ysteps_array
+DLLIMPORT long _DK_alpha_xsteps_array[2*256];
+DLLIMPORT long _DK_alpha_ysteps_array[2*320];
 /******************************************************************************/
 //Routines to be moved into bflib_vipurp
 /*
@@ -231,9 +229,9 @@ TbResult DrawAlphaSpriteUsingScalingData(long posx, long posy, struct TbSprite *
 void SetAlphaScalingData(long a1, long a2, long a3, long a4, long a5, long a6);
 #define LbSpriteDrawResized(xpos, ypos, un_per_px, sprite) LbSpriteDrawScaled(xpos, ypos, sprite, (sprite)->SWidth * un_per_px / 16, (sprite)->SHeight * un_per_px / 16)
 
-TbResult LbHugeSpriteDraw(const unsigned char *sp, long * sp_y_offset, long sp_len,
-    unsigned char *r, int r_row_delta, int r_height, short xshift, short yshift);
-void DrawBigSprite(long x, long y, long units_per_px, struct BigSprite *bigspr, struct TbSprite *sprite);
+TbResult LbHugeSpriteDraw(const struct TbHugeSprite * spr, long sp_len,
+    unsigned char *r, int r_row_delta, int r_height, short xshift, short yshift, int units_per_px);
+void DrawBigSprite(long x, long y, long units_per_px, struct TiledSprite *bigspr, struct TbSprite *sprite);
 /*
 int __fastcall LbDrawBoxCoords(long xpos1, long ypos1, long xpos2, long ypos2, TbPixel colour);
 void __fastcall LbDrawTriangle(long x1, long y1, long x2, long y2, long x3, long y3, TbPixel colour);

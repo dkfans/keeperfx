@@ -32,6 +32,9 @@ extern "C" {
 #define PALETTE_COLORS 256
 #define PALETTE_SIZE (3*PALETTE_COLORS)
 
+#define MAX_SUPPORTED_SCREEN_WIDTH  3840
+#define MAX_SUPPORTED_SCREEN_HEIGHT 2160
+
 #pragma pack(1)
 
 /** Pixel definition - represents value of one point on the graphics screen. */
