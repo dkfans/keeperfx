@@ -35,6 +35,7 @@ struct GuiButton;
 #pragma pack()
 /******************************************************************************/
 extern struct GuiMenu frontend_define_keys_menu;
+#define frontend_define_keys_menu_items_visible  10
 extern struct GuiMenu frontend_option_menu;
 /******************************************************************************/
 DLLIMPORT long _DK_fe_mouse_sensitivity;
