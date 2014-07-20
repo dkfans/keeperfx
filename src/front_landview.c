@@ -107,25 +107,10 @@ extern struct TbSetupSprite netmap_flag_setup_sprites[];
 /******************************************************************************/
 void draw_map_screen(void)
 {
-  unsigned char *dstbuf;
-  unsigned char *srcbuf;
-  long i;
-  long w,h;
-  SYNCDBG(18,"Starting");
-  dstbuf = lbDisplay.WScreen;
-  w = lbDisplay.PhysicalScreenWidth;
-  if (map_info.scrshift_x+w > LANDVIEW_MAP_WIDTH)
-    w = LANDVIEW_MAP_WIDTH-map_info.scrshift_x;
-  h = LbGraphicsScreenHeight();
-  srcbuf = &map_screen[LANDVIEW_MAP_WIDTH*map_info.scrshift_y + map_info.scrshift_x];
-  for (i=0; i < h; i++)
-  {
-    if (map_info.scrshift_y+i >= LANDVIEW_MAP_HEIGHT)
-      break;
-    memcpy(dstbuf, srcbuf, w);
-    srcbuf += LANDVIEW_MAP_WIDTH;
-    dstbuf += LbGraphicsScreenWidth();
-  }
+    copy_raw8_image_buffer(lbDisplay.WScreen,LbGraphicsScreenWidth(),LbGraphicsScreenHeight(),
+        LANDVIEW_MAP_WIDTH*units_per_pixel/16,LANDVIEW_MAP_HEIGHT*units_per_pixel/16,
+        -map_info.scrshift_x*units_per_pixel/16,-map_info.scrshift_y*units_per_pixel/16,
+        map_screen,LANDVIEW_MAP_WIDTH,LANDVIEW_MAP_HEIGHT);
 }
 
 struct TbSprite *get_map_ensign(long idx)
@@ -148,8 +133,8 @@ short is_over_ensign(struct LevelInformation *lvinfo, long scr_x, long scr_y)
 {
   struct TbSprite *spr;
   long map_x,map_y,spr_w,spr_h;
-  map_x = map_info.scrshift_x+scr_x;
-  map_y = map_info.scrshift_y+scr_y;
+  map_x = map_info.scrshift_x + scr_x*16/units_per_pixel;
+  map_y = map_info.scrshift_y + scr_y*16/units_per_pixel;
   spr = get_map_ensign(10);
   spr_w = spr->SWidth;
   spr_h = spr->SHeight;
@@ -166,8 +151,8 @@ short is_over_ensign(struct LevelInformation *lvinfo, long scr_x, long scr_y)
  */
 short is_ensign_in_screen_rect(struct LevelInformation *lvinfo)
 {
-  if ((lvinfo->ensign_zoom_x >= map_info.scrshift_x) && (lvinfo->ensign_zoom_x < map_info.scrshift_x+lbDisplay.PhysicalScreenWidth))
-    if ((lvinfo->ensign_zoom_y >= map_info.scrshift_y) && (lvinfo->ensign_zoom_y < map_info.scrshift_y+lbDisplay.PhysicalScreenHeight))
+  if ((lvinfo->ensign_zoom_x >= map_info.scrshift_x) && (lvinfo->ensign_zoom_x < map_info.scrshift_x+lbDisplay.PhysicalScreenWidth*16/units_per_pixel))
+    if ((lvinfo->ensign_zoom_y >= map_info.scrshift_y) && (lvinfo->ensign_zoom_y < map_info.scrshift_y+lbDisplay.PhysicalScreenHeight*16/units_per_pixel))
       return true;
   return false;
 }
@@ -433,9 +418,9 @@ void draw_map_level_ensigns(void)
     spr = get_ensign_sprite_for_level(lvinfo,k);
     if (spr != NULL)
     {
-      x = lvinfo->ensign_x - map_info.scrshift_x - (int)(spr->SWidth>>1);
-      y = lvinfo->ensign_y - map_info.scrshift_y -  (int)(spr->SHeight);
-      LbSpriteDraw(x, y, spr);
+        x = lvinfo->ensign_x - map_info.scrshift_x - (int)(spr->SWidth>>1);
+        y = lvinfo->ensign_y - map_info.scrshift_y -  (int)(spr->SHeight);
+        LbSpriteDrawResized(x*units_per_pixel/16, y*units_per_pixel/16, units_per_pixel, spr);
     }
     lvinfo = get_prev_level_info(lvinfo);
   }
@@ -443,16 +428,16 @@ void draw_map_level_ensigns(void)
 
 void set_map_info_visible_hotspot(long map_x,long map_y)
 {
-  map_info.hotspot_x = map_x - lbDisplay.PhysicalScreenWidth/2;
-  map_info.hotspot_y = map_y - lbDisplay.PhysicalScreenHeight/2;
-  if (map_info.hotspot_x > LANDVIEW_MAP_WIDTH-lbDisplay.PhysicalScreenWidth)
-    map_info.hotspot_x = LANDVIEW_MAP_WIDTH-lbDisplay.PhysicalScreenWidth;
+  map_info.hotspot_x = map_x - (lbDisplay.PhysicalScreenWidth*16/units_per_pixel)/2;
+  map_info.hotspot_y = map_y - (lbDisplay.PhysicalScreenHeight*16/units_per_pixel)/2;
+  if (map_info.hotspot_x > LANDVIEW_MAP_WIDTH - lbDisplay.PhysicalScreenWidth*16/units_per_pixel)
+      map_info.hotspot_x = LANDVIEW_MAP_WIDTH - lbDisplay.PhysicalScreenWidth*16/units_per_pixel;
   if (map_info.hotspot_x < 0)
-    map_info.hotspot_x = 0;
-  if (map_info.hotspot_y > LANDVIEW_MAP_HEIGHT-lbDisplay.PhysicalScreenHeight)
-    map_info.hotspot_y = LANDVIEW_MAP_HEIGHT-lbDisplay.PhysicalScreenHeight;
+      map_info.hotspot_x = 0;
+  if (map_info.hotspot_y > LANDVIEW_MAP_HEIGHT - lbDisplay.PhysicalScreenHeight*16/units_per_pixel)
+      map_info.hotspot_y = LANDVIEW_MAP_HEIGHT - lbDisplay.PhysicalScreenHeight*16/units_per_pixel;
   if (map_info.hotspot_y < 0)
-    map_info.hotspot_y = 0;
+      map_info.hotspot_y = 0;
 }
 
 /** Sets visible land picture area to be centered over given coordinates.
@@ -462,16 +447,16 @@ void set_map_info_visible_hotspot(long map_x,long map_y)
  */
 void set_map_info_draw_hotspot(long map_x,long map_y)
 {
-  map_info.scrshift_x = map_x - lbDisplay.PhysicalScreenWidth/2;
-  map_info.scrshift_y = map_y - lbDisplay.PhysicalScreenHeight/2;
-  if (map_info.scrshift_x > LANDVIEW_MAP_WIDTH-lbDisplay.PhysicalScreenWidth)
-    map_info.scrshift_x = LANDVIEW_MAP_WIDTH-lbDisplay.PhysicalScreenWidth;
-  if (map_info.scrshift_x < 0)
-    map_info.scrshift_x = 0;
-  if (map_info.scrshift_y > LANDVIEW_MAP_HEIGHT-lbDisplay.PhysicalScreenHeight)
-    map_info.scrshift_y = LANDVIEW_MAP_HEIGHT-lbDisplay.PhysicalScreenHeight;
-  if (map_info.scrshift_y < 0)
-    map_info.scrshift_y = 0;
+    map_info.scrshift_x = map_x - (lbDisplay.PhysicalScreenWidth*16/units_per_pixel)/2;
+    map_info.scrshift_y = map_y - (lbDisplay.PhysicalScreenHeight*16/units_per_pixel)/2;
+    if (map_info.scrshift_x > LANDVIEW_MAP_WIDTH - lbDisplay.PhysicalScreenWidth*16/units_per_pixel)
+        map_info.scrshift_x = LANDVIEW_MAP_WIDTH - lbDisplay.PhysicalScreenWidth*16/units_per_pixel;
+    if (map_info.scrshift_x < 0)
+        map_info.scrshift_x = 0;
+    if (map_info.scrshift_y > LANDVIEW_MAP_HEIGHT - lbDisplay.PhysicalScreenHeight*16/units_per_pixel)
+        map_info.scrshift_y = LANDVIEW_MAP_HEIGHT - lbDisplay.PhysicalScreenHeight*16/units_per_pixel;
+    if (map_info.scrshift_y < 0)
+        map_info.scrshift_y = 0;
 }
 
 /** Sets visible land picture area to have top left corner on given coordinates.
@@ -481,16 +466,16 @@ void set_map_info_draw_hotspot(long map_x,long map_y)
  */
 void set_map_info_draw_hotspot_raw(long map_x,long map_y)
 {
-  map_info.scrshift_x = map_x;
-  map_info.scrshift_y = map_y;
-  if (map_info.scrshift_x > LANDVIEW_MAP_WIDTH-lbDisplay.PhysicalScreenWidth)
-    map_info.scrshift_x = LANDVIEW_MAP_WIDTH-lbDisplay.PhysicalScreenWidth;
-  if (map_info.scrshift_x < 0)
-    map_info.scrshift_x = 0;
-  if (map_info.scrshift_y > LANDVIEW_MAP_HEIGHT-lbDisplay.PhysicalScreenHeight)
-    map_info.scrshift_y = LANDVIEW_MAP_HEIGHT-lbDisplay.PhysicalScreenHeight;
-  if (map_info.scrshift_y < 0)
-    map_info.scrshift_y = 0;
+    map_info.scrshift_x = map_x;
+    map_info.scrshift_y = map_y;
+    if (map_info.scrshift_x > LANDVIEW_MAP_WIDTH - lbDisplay.PhysicalScreenWidth*16/units_per_pixel)
+        map_info.scrshift_x = LANDVIEW_MAP_WIDTH - lbDisplay.PhysicalScreenWidth*16/units_per_pixel;
+    if (map_info.scrshift_x < 0)
+        map_info.scrshift_x = 0;
+    if (map_info.scrshift_y > LANDVIEW_MAP_HEIGHT - lbDisplay.PhysicalScreenHeight*16/units_per_pixel)
+        map_info.scrshift_y = LANDVIEW_MAP_HEIGHT - lbDisplay.PhysicalScreenHeight*16/units_per_pixel;
+    if (map_info.scrshift_y < 0)
+        map_info.scrshift_y = 0;
 }
 
 void update_frontmap_info_draw_hotspot(void)
@@ -644,24 +629,27 @@ void frontzoom_to_point(long map_x, long map_y, long zoom)
     long src_delta,bpos_x,bpos_y;
     long dst_width,dst_height,dst_scanln;
     long x,y;
-    src_delta = 256 - zoom;
+    src_delta = (256 - zoom)*16/units_per_pixel;
+    long smap_x, smap_y;
+    smap_x = map_x*units_per_pixel/16;
+    smap_y = map_y*units_per_pixel/16;
     // Restricting coordinates - to make sure we won't go outside of the buffer
     // Let's use scr_x,scr_y as temp values
     scr_x = ((lbDisplay.GraphicsScreenWidth*src_delta)>>9);
     scr_y = ((lbDisplay.GraphicsScreenHeight*src_delta)>>9);
-    if (map_x >= (LANDVIEW_MAP_WIDTH-scr_x))
-      map_x = (LANDVIEW_MAP_WIDTH-scr_x-1);
-    if (map_x < scr_x)
-      map_x = scr_x;
-    if (map_y >= (LANDVIEW_MAP_HEIGHT-scr_y))
-      map_y = (LANDVIEW_MAP_HEIGHT-scr_y-1);
-    if (map_y < scr_y)
-      map_y = scr_y;
+    if (smap_x >= (LANDVIEW_MAP_WIDTH*units_per_pixel/16-scr_x))
+        smap_x = (LANDVIEW_MAP_WIDTH*units_per_pixel/16-scr_x-1);
+    if (smap_x < scr_x)
+        smap_x = scr_x;
+    if (smap_y >= (LANDVIEW_MAP_HEIGHT*units_per_pixel/16-scr_y))
+        smap_y = (LANDVIEW_MAP_HEIGHT*units_per_pixel/16-scr_y-1);
+    if (smap_y < scr_y)
+        smap_y = scr_y;
     // Initializing variables used for all quadres of screen
-    scr_x = map_x - map_info.scrshift_x;
+    scr_x = smap_x - map_info.scrshift_x*units_per_pixel/16;
     if (scr_x > lbDisplay.PhysicalScreenWidth) scr_x = lbDisplay.PhysicalScreenWidth;
     if (scr_x < 0) scr_x = 0;
-    scr_y = map_y - map_info.scrshift_y;
+    scr_y = smap_y - map_info.scrshift_y*units_per_pixel/16;
     if (scr_y > lbDisplay.PhysicalScreenHeight) scr_y = lbDisplay.PhysicalScreenHeight;
     if (scr_y < 0) scr_y = 0;
     src_buf = &map_screen[LANDVIEW_MAP_WIDTH * map_y + map_x];
@@ -1176,18 +1164,18 @@ TbBool test_hand_slap_collides(PlayerNumber plyr_idx)
 
 void frontmap_draw(void)
 {
-  SYNCDBG(8,"Starting");
-  if (map_info.fading)
-  {
-      frontzoom_to_point(map_info.zoomspot_x, map_info.zoomspot_y, map_info.fade_pos);
-      compressed_window_draw();
-  } else
-  {
-      draw_map_screen();
-      draw_map_level_ensigns();
-      set_pointer_graphic_spland(0);
-      compressed_window_draw();
-  }
+    SYNCDBG(8,"Starting");
+    if (map_info.fading)
+    {
+        frontzoom_to_point(map_info.zoomspot_x, map_info.zoomspot_y, map_info.fade_pos);
+        compressed_window_draw();
+    } else
+    {
+        draw_map_screen();
+        draw_map_level_ensigns();
+        set_pointer_graphic_spland(0);
+        compressed_window_draw();
+    }
 }
 
 void check_mouse_scroll(void)
@@ -1234,8 +1222,8 @@ void update_velocity(void)
   if (map_info.velocity_x != 0)
   {
     map_info.scrshift_x += map_info.velocity_x / 4;
-    if (LANDVIEW_MAP_WIDTH-lbDisplay.PhysicalScreenWidth < map_info.scrshift_x)
-      map_info.scrshift_x = LANDVIEW_MAP_WIDTH-lbDisplay.PhysicalScreenWidth;
+    if (LANDVIEW_MAP_WIDTH-lbDisplay.PhysicalScreenWidth*16/units_per_pixel < map_info.scrshift_x)
+      map_info.scrshift_x = LANDVIEW_MAP_WIDTH-lbDisplay.PhysicalScreenWidth*16/units_per_pixel;
     if (map_info.scrshift_x < 0)
       map_info.scrshift_x = 0;
     if (map_info.velocity_x < 0)
@@ -1246,8 +1234,8 @@ void update_velocity(void)
   if (map_info.velocity_y != 0)
   {
     map_info.scrshift_y += map_info.velocity_y / 4;
-    if (LANDVIEW_MAP_HEIGHT-lbDisplay.PhysicalScreenHeight < map_info.scrshift_y)
-      map_info.scrshift_y = LANDVIEW_MAP_HEIGHT - lbDisplay.PhysicalScreenHeight;
+    if (LANDVIEW_MAP_HEIGHT-lbDisplay.PhysicalScreenHeight*16/units_per_pixel < map_info.scrshift_y)
+      map_info.scrshift_y = LANDVIEW_MAP_HEIGHT - lbDisplay.PhysicalScreenHeight*16/units_per_pixel;
     if (map_info.scrshift_y < 0)
       map_info.scrshift_y = 0;
     if (map_info.velocity_y < 0)
@@ -1358,19 +1346,19 @@ void draw_map_level_descriptions(void)
 
 void frontnetmap_draw(void)
 {
-  SYNCDBG(8,"Starting");
-  if (map_info.fading)
-  {
-    frontzoom_to_point(map_info.zoomspot_x, map_info.zoomspot_y, map_info.fade_pos);
-    compressed_window_draw();
-  } else
-  {
-    draw_map_screen();
-    draw_map_level_ensigns();
-    draw_netmap_players_hands();
-    draw_map_level_descriptions();
-    compressed_window_draw();
-  }
+    SYNCDBG(8,"Starting");
+    if (map_info.fading)
+    {
+        frontzoom_to_point(map_info.zoomspot_x, map_info.zoomspot_y, map_info.fade_pos);
+        compressed_window_draw();
+    } else
+    {
+        draw_map_screen();
+        draw_map_level_ensigns();
+        draw_netmap_players_hands();
+        draw_map_level_descriptions();
+        compressed_window_draw();
+    }
 }
 
 void frontmap_input(void)
@@ -1472,8 +1460,10 @@ void frontnetmap_input(void)
         } else
         {
             lvinfo = get_level_info(fe_net_level_selected);
-            if (lvinfo != NULL)
-              LbMouseSetPosition(lvinfo->ensign_x - map_info.scrshift_x, lvinfo->ensign_y - map_info.scrshift_y);
+            if (lvinfo != NULL) {
+              LbMouseSetPosition((lvinfo->ensign_x - map_info.scrshift_x)*units_per_pixel/16,
+                  (lvinfo->ensign_y - map_info.scrshift_y)*units_per_pixel/16);
+            }
             fe_net_level_selected = SINGLEPLAYER_NOTSTARTED;
         }
     }
@@ -1591,8 +1581,8 @@ TbBool frontmap_exchange_screen_packet(void)
     } else
     if (net_map_slap_frame > 0)
     {
-        nspck->field_6 = GetMouseX() + map_info.scrshift_x;
-        nspck->field_8 = GetMouseY() + map_info.scrshift_y;
+        nspck->field_6 = GetMouseX()*16/units_per_pixel + map_info.scrshift_x;
+        nspck->field_8 = GetMouseY()*16/units_per_pixel + map_info.scrshift_y;
         if (net_map_slap_frame <= 16)
         {
           nspck->field_4 = (nspck->field_4 & 0x07) | 0x08;
@@ -1604,8 +1594,8 @@ TbBool frontmap_exchange_screen_packet(void)
         }
     } else
     {
-        nspck->field_6 = GetMouseX() + map_info.scrshift_x;
-        nspck->field_8 = GetMouseY() + map_info.scrshift_y;
+        nspck->field_6 = GetMouseX()*16/units_per_pixel + map_info.scrshift_x;
+        nspck->field_8 = GetMouseY()*16/units_per_pixel + map_info.scrshift_y;
     }
     if (fe_network_active)
     {

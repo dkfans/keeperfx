@@ -69,7 +69,7 @@ unsigned char palette_buf[PALETTE_SIZE];
 }
 #endif
 /******************************************************************************/
-/** Copies the given RAW image at center of screen buffer.
+/** Copies the given RAW image at given point of screen buffer.
  *
  * @param dst_buf Destination screen buffer.
  * @param scanline Amount of bytes making up one line in screen buffer.
@@ -156,38 +156,26 @@ TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const in
  */
 TbBool copy_raw8_image_to_screen_center(const unsigned char *buf,const int img_width,const int img_height)
 {
-    int w,h,m;
-    int spx,spy;
     // Only 8bpp supported for now
     if (LbGraphicsScreenBPP() != 8)
-      return false;
-    w=0;
-    h=0;
-    for (m=0; m < 5; m++)
+        return false;
+    // Compute scaling ratio
+    int units_per_px;
     {
-        w+=img_width;
-        h+=img_height;
-        if (w > LbScreenWidth()) break;
-        if (h > LbScreenHeight()) break;
-    }
-    // The image width can't be larger than video resolution
-    if (m < 1)
-    {
-        if (w > LbScreenWidth())
-        {
-          SYNCMSG("The %dx%d image does not fit on %dx%d screen, skipped.", img_width, img_height,(int)LbScreenWidth(),(int)LbScreenHeight());
-          return false;
-        }
-        m=1;
+        int width,height;
+        width = LbScreenWidth();
+        height = LbScreenHeight();
+        units_per_px = (width>height?width:height)/((img_width>img_height?img_width:img_height)/16);
     }
     // Locking screen
     if (LbScreenLock() != Lb_SUCCESS)
       return false;
     // Starting point coords
-    spx = (LbScreenWidth()-m*img_width)>>1;
-    spy = (LbScreenHeight()-m*img_height)>>1;
+    int spx,spy;
+    spx = (LbScreenWidth()-img_width*units_per_px/16)>>1;
+    spy = (LbScreenHeight()-img_height*units_per_px/16)>>1;
     copy_raw8_image_buffer(lbDisplay.WScreen,LbGraphicsScreenWidth(),LbGraphicsScreenHeight(),
-        img_width*m,img_height*m,spx,spy,buf,img_width,img_height);
+        img_width*units_per_px/16,img_height*units_per_px/16,spx,spy,buf,img_width,img_height);
     perform_any_screen_capturing();
     LbScreenUnlock();
     LbScreenSwap();
