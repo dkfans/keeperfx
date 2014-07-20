@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: Ancient Keeper campaign for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-07-02 23:25+0100\n"
+"PO-Revision-Date: 2014-07-20 22:41+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: pl_PL\n"
@@ -139,6 +139,9 @@ msgid ""
 "Proceed with great caution. Dig slowly and you will avoid defeat. You must "
 "leave your dungeon without allowing access to it. Are you capable, Keeper?"
 msgstr ""
+"Postępuj z najwyższą ostrożnością. Kop rozważnie, a moze unikniesz porażki. "
+"Twój loch musi pozostać niedostępny dla postronnych. Czy masz wystarczające "
+"zdolności, Strażniku?"
 
 #: guitext:13
 msgctxt "In-game message"
@@ -153,6 +156,8 @@ msgid ""
 "Hmmm. I believe T'Kaan's wife will be pleased, but you have done yourself no "
 "credit at all."
 msgstr ""
+"Hmmm. Żona T'Kaan'a z pewnością będzie zadowolona, ale swoimi działaniami "
+"nie zrobiłeś sobie przysługi."
 
 #: guitext:15
 msgctxt "In-game message"
@@ -872,8 +877,10 @@ msgstr ""
 #: guitext:125
 msgctxt "In-game message"
 msgid ""
-"Ancient Keeper is written for the AI patched version of Dungeon Keeper only. "
-"Please ensure you are playing this version (patched 1.35MB, old 1.34MB)."
+"Ancient Keeper is written for the AI patched version of original Dungeon "
+"Keeper. Playability within KeeperFX may vary, as the maps are exploiting "
+"some of the game bugs. Also, this campaign is considered to have high "
+"difficulity."
 msgstr ""
 
 #: guitext:126
@@ -936,7 +943,7 @@ msgstr ""
 #: guitext:136
 msgctxt "In-game message"
 msgid "Sorry I'm late."
-msgstr ""
+msgstr "Przepraszam za spóźnienie."
 
 #: guitext:137
 msgctxt "In-game message"
@@ -1073,6 +1080,8 @@ msgstr ""
 msgctxt "In-game message"
 msgid "Well done, Keeper! You have pleased Salaar. You are a worthy successor!"
 msgstr ""
+"Dobra robota, Strażniku! Przekonałeś do siebie Salaar'a. Jesteś godnym "
+"następcą!"
 
 #: guitext:185 guitext:186 guitext:187 guitext:188 guitext:189 guitext:190
 #: guitext:191 guitext:192 guitext:193 guitext:194 guitext:195 guitext:196

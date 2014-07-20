@@ -827,8 +827,9 @@ msgstr ""
 #: guitext:125
 msgctxt "In-game message"
 msgid ""
-"Ancient Keeper is written for the AI patched version of Dungeon Keeper only. "
-"Please ensure you are playing this version (patched 1.35MB, old 1.34MB)."
+"Ancient Keeper is written for the AI patched version of original Dungeon Keeper. "
+"Playability within KeeperFX may vary, as the maps are exploiting some of the game bugs. "
+"Also, this campaign is considered to have high difficulity."
 msgstr ""
 
 #: guitext:126
