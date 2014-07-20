@@ -105,7 +105,7 @@ void frontend_define_key_up(struct GuiButton *gbtn)
 void frontend_define_key_down(struct GuiButton *gbtn)
 {
     //_DK_frontend_define_key_down(gbtn);
-    if (define_key_scroll_offset < GAME_KEYS_COUNT-1) {
+    if (define_key_scroll_offset < GAME_KEYS_COUNT-(frontend_define_keys_menu_items_visible-1)) {
         define_key_scroll_offset++;
     }
 }
@@ -122,7 +122,7 @@ void frontend_define_key(struct GuiButton *gbtn)
 
 void frontend_draw_define_key_scroll_tab(struct GuiButton *gbtn)
 {
-    frontend_draw_scroll_tab(gbtn, define_key_scroll_offset, 0, GAME_KEYS_COUNT);
+    frontend_draw_scroll_tab(gbtn, define_key_scroll_offset, frontend_define_keys_menu_items_visible-2, GAME_KEYS_COUNT);
 }
 
 void frontend_draw_define_key(struct GuiButton *gbtn)
@@ -302,18 +302,19 @@ void frontend_invert_mouse(struct GuiButton *gbtn)
 
 void frontend_draw_invert_mouse(struct GuiButton *gbtn)
 {
-    //_DK_frontend_draw_invert_mouse(gbtn);
     int font_idx;
     font_idx = frontend_button_caption_font(gbtn,frontend_mouse_over_button);
     LbTextSetFont(frontend_font[font_idx]);
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
+    int units_per_px;
+    units_per_px = gbtn->height * 16 / 26;
     const char *text;
     if (settings.first_person_move_invert) {
         text = gui_string(847);
     } else {
         text = gui_string(848);
     }
-    LbTextDraw(0, 0, text);
+    LbTextDrawResized(0, 0, units_per_px, text);
 }
 
 /**
