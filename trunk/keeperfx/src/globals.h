@@ -232,6 +232,8 @@ typedef char ItemAvailability;
 typedef unsigned char DamageType;
 /** Type which stores hit filters for things as THit_* values. */
 typedef unsigned char ThingHitType;
+/** Index within active_buttons[] array. */
+typedef char ActiveButtonID;
 
 struct Coord2d {
     union {
