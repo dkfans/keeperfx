@@ -67,6 +67,7 @@ struct NetMapPlayersState {
 };
 
 /******************************************************************************/
+#define WINDOW_X_SIZE 960
 #define WINDOW_Y_SIZE 720
 TbPixel net_player_colours[] = { 251, 58, 182, 11};
 const long hand_limp_xoffset[] = { 32,  31,  30,  29,  28,  27,  26,  24,  22,  19,  15,  9, };
@@ -77,6 +78,7 @@ long limp_hand_x = 0;
 long limp_hand_y = 0;
 LevelNumber mouse_over_lvnum;
 LevelNumber playing_speech_lvnum;
+struct TbHugeSprite map_window;
 long map_window_len = 0;
 /******************************************************************************/
 DLLIMPORT long _DK_frontnetmap_update(void);
@@ -741,9 +743,9 @@ void compressed_window_draw(void)
     SYNCDBG(18,"Starting");
     xshift = map_info.scrshift_x / 2;
     yshift = map_info.scrshift_y / 2;
-    LbHugeSpriteDraw(map_window, window_y_offset, map_window_len,
+    LbHugeSpriteDraw(&map_window, map_window_len,
         lbDisplay.WScreen, lbDisplay.GraphicsScreenWidth, lbDisplay.PhysicalScreenHeight,
-        xshift, yshift);
+        xshift, yshift, units_per_pixel);
 }
 
 void unload_map_and_window(void)
@@ -832,9 +834,12 @@ TbBool load_map_and_window(LevelNumber lvnum)
         return false;
     }
     // Prepare pointer to offsets array; WINDOW_Y_SIZE entries
-    window_y_offset = (long *)&ptr[0];
+    map_window.Lines = (long *)&ptr[0];
     // Prepare pointer to window data
-    map_window = &ptr[WINDOW_Y_SIZE*sizeof(long)];
+    map_window.Data = &ptr[WINDOW_Y_SIZE*sizeof(long)];
+    // Fill the rest of huge sprite
+    map_window.SWidth = WINDOW_X_SIZE;
+    map_window.SHeight = WINDOW_Y_SIZE;
     // Update length, so that it corresponds to map_window pointer
     map_window_len -= WINDOW_Y_SIZE*sizeof(long);
     // Load palette
@@ -917,14 +922,14 @@ TbBool frontnetmap_load(void)
     SetMusicPlayerVolume(settings.redbook_volume);
     if (fe_network_active)
     {
-      struct ScreenPacket *nspck;
-      net_number_of_players = 0;
-      for (i=0; i < 4; i++)
-      {
-        nspck = &net_screen_packet[i];
-        if ((nspck->field_4 & 0x01) != 0)
-          net_number_of_players++;
-      }
+        struct ScreenPacket *nspck;
+        net_number_of_players = 0;
+        for (i=0; i < 4; i++)
+        {
+            nspck = &net_screen_packet[i];
+            if ((nspck->field_4 & 0x01) != 0)
+              net_number_of_players++;
+        }
     } else
     {
       net_number_of_players = 1;
@@ -976,22 +981,22 @@ TbBool frontmap_update_zoom(void)
     SYNCDBG(8,"Starting");
     if (map_info.fade_step == 4)
     {
-      process_map_zoom_in();
+        process_map_zoom_in();
     }
     map_info.fade_pos += map_info.fade_step;
     if ((map_info.fade_pos <= 1) || (map_info.fade_pos >= FRONTMAP_ZOOM_LENGTH))
     {
-      SYNCDBG(8,"Stopping fade");
-      LbPaletteStopOpenFade();
-      map_info.fading = false;
-      if (map_info.state_trigger != 0)
-      {
-        frontend_set_state(map_info.state_trigger);
-        LbScreenClear(0);
-        LbScreenSwap();
-        map_info.state_trigger = 0;
-        return true;
-      }
+        SYNCDBG(8,"Stopping fade");
+        LbPaletteStopOpenFade();
+        map_info.fading = false;
+        if (map_info.state_trigger != 0)
+        {
+          frontend_set_state(map_info.state_trigger);
+          LbScreenClear(0);
+          LbScreenSwap();
+          map_info.state_trigger = 0;
+          return true;
+        }
     }
     process_zoom_palette();
     return false;
@@ -1109,20 +1114,20 @@ TbBool frontmap_load(void)
 
 TbBool rectangle_intersects(struct TbRect *rcta, struct TbRect *rctb)
 {
-  long left, top, right, bottom;
-  left = rcta->left;
-  if (rcta->left <= rctb->left)
-    left = rctb->left;
-  top = rcta->top;
-  if (top <= rctb->top)
-    top = rctb->top;
-  right = rcta->right;
-  if (right >= rctb->right)
-    right = rctb->right;
-  bottom = rcta->bottom;
-  if (bottom >= rctb->bottom)
-    bottom = rctb->bottom;
-  return (left < right) && (top < bottom);
+    long left, top, right, bottom;
+    left = rcta->left;
+    if (rcta->left <= rctb->left)
+      left = rctb->left;
+    top = rcta->top;
+    if (top <= rctb->top)
+      top = rctb->top;
+    right = rcta->right;
+    if (right >= rctb->right)
+      right = rctb->right;
+    bottom = rcta->bottom;
+    if (bottom >= rctb->bottom)
+      bottom = rctb->bottom;
+    return (left < right) && (top < bottom);
 }
 
 TbBool test_hand_slap_collides(PlayerNumber plyr_idx)

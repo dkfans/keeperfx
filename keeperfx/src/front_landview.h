@@ -99,9 +99,7 @@ DLLIMPORT extern long _DK_map_sound_fade;
 DLLIMPORT extern unsigned char *_DK_map_screen;
 #define map_screen _DK_map_screen
 DLLIMPORT extern long *_DK_window_y_offset;
-#define window_y_offset _DK_window_y_offset
 DLLIMPORT extern unsigned char *_DK_map_window;
-#define map_window _DK_map_window
 DLLIMPORT extern struct TbSetupSprite _DK_map_flag_setup_sprites[];
 DLLIMPORT extern struct TbSetupSprite _DK_netmap_flag_setup_sprites[];
 DLLIMPORT extern long _DK_fe_net_level_selected;
