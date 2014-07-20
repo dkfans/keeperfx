@@ -428,16 +428,16 @@ void draw_map_level_ensigns(void)
 
 void set_map_info_visible_hotspot(long map_x,long map_y)
 {
-  map_info.hotspot_x = map_x - (lbDisplay.PhysicalScreenWidth*16/units_per_pixel)/2;
-  map_info.hotspot_y = map_y - (lbDisplay.PhysicalScreenHeight*16/units_per_pixel)/2;
-  if (map_info.hotspot_x > LANDVIEW_MAP_WIDTH - lbDisplay.PhysicalScreenWidth*16/units_per_pixel)
-      map_info.hotspot_x = LANDVIEW_MAP_WIDTH - lbDisplay.PhysicalScreenWidth*16/units_per_pixel;
-  if (map_info.hotspot_x < 0)
-      map_info.hotspot_x = 0;
-  if (map_info.hotspot_y > LANDVIEW_MAP_HEIGHT - lbDisplay.PhysicalScreenHeight*16/units_per_pixel)
-      map_info.hotspot_y = LANDVIEW_MAP_HEIGHT - lbDisplay.PhysicalScreenHeight*16/units_per_pixel;
-  if (map_info.hotspot_y < 0)
-      map_info.hotspot_y = 0;
+    map_info.hotspot_x = map_x - (lbDisplay.PhysicalScreenWidth*16/units_per_pixel)/2;
+    map_info.hotspot_y = map_y - (lbDisplay.PhysicalScreenHeight*16/units_per_pixel)/2;
+    if (map_info.hotspot_x > LANDVIEW_MAP_WIDTH - lbDisplay.PhysicalScreenWidth*16/units_per_pixel)
+        map_info.hotspot_x = LANDVIEW_MAP_WIDTH - lbDisplay.PhysicalScreenWidth*16/units_per_pixel;
+    if (map_info.hotspot_x < 0)
+        map_info.hotspot_x = 0;
+    if (map_info.hotspot_y > LANDVIEW_MAP_HEIGHT - lbDisplay.PhysicalScreenHeight*16/units_per_pixel)
+        map_info.hotspot_y = LANDVIEW_MAP_HEIGHT - lbDisplay.PhysicalScreenHeight*16/units_per_pixel;
+    if (map_info.hotspot_y < 0)
+        map_info.hotspot_y = 0;
 }
 
 /** Sets visible land picture area to be centered over given coordinates.
@@ -507,43 +507,43 @@ void update_frontmap_info_draw_hotspot(void)
 
 TbBool frontmap_input_active_ensign(long curr_mx, long curr_my)
 {
-  struct LevelInformation *lvinfo;
-  lvinfo = get_first_level_info();
-  while (lvinfo != NULL)
-  {
-    if (lvinfo->state == LvSt_Visible)
-      if (is_over_ensign(lvinfo, curr_mx, curr_my))
-      {
-          mouse_over_lvnum = lvinfo->lvnum;
-          return true;
-      }
-    lvinfo = get_next_level_info(lvinfo);
-  }
-  mouse_over_lvnum = SINGLEPLAYER_NOTSTARTED;
-  return false;
+    struct LevelInformation *lvinfo;
+    lvinfo = get_first_level_info();
+    while (lvinfo != NULL)
+    {
+      if (lvinfo->state == LvSt_Visible)
+        if (is_over_ensign(lvinfo, curr_mx, curr_my))
+        {
+            mouse_over_lvnum = lvinfo->lvnum;
+            return true;
+        }
+      lvinfo = get_next_level_info(lvinfo);
+    }
+    mouse_over_lvnum = SINGLEPLAYER_NOTSTARTED;
+    return false;
 }
 
 short clicked_map_level_ensign(void)
 {
-  struct LevelInformation *lvinfo;
-  lvinfo = get_level_info(mouse_over_lvnum);
-  if (lvinfo != NULL)
-  {
-    set_selected_level_number(lvinfo->lvnum);
-    map_info.field_0 = 1;
-    map_info.fading = true;
-    map_info.fade_pos = 1;
-    map_info.zoomspot_x = lvinfo->ensign_zoom_x;
-    map_info.zoomspot_y = lvinfo->ensign_zoom_y;
-    map_info.fade_step = 4;
-    map_info.state_trigger = 7;
-    set_map_info_visible_hotspot(map_info.zoomspot_x, map_info.zoomspot_y);
-    map_info.field_1E = map_info.scrshift_x << 8;
-    map_info.field_22 = map_info.scrshift_y << 8;
-    SYNCDBG(8,"Level %ld hotspot (%d,%d) zoom (%d,%d)",(long)lvinfo->lvnum,(int)map_info.hotspot_x,(int)map_info.hotspot_y,(int)map_info.zoomspot_x,(int)map_info.zoomspot_y);
-    return true;
-  }
-  return false;
+    struct LevelInformation *lvinfo;
+    lvinfo = get_level_info(mouse_over_lvnum);
+    if (lvinfo != NULL)
+    {
+      set_selected_level_number(lvinfo->lvnum);
+      map_info.field_0 = 1;
+      map_info.fading = true;
+      map_info.fade_pos = 1;
+      map_info.zoomspot_x = lvinfo->ensign_zoom_x;
+      map_info.zoomspot_y = lvinfo->ensign_zoom_y;
+      map_info.fade_step = 4;
+      map_info.state_trigger = 7;
+      set_map_info_visible_hotspot(map_info.zoomspot_x, map_info.zoomspot_y);
+      map_info.field_1E = map_info.scrshift_x << 8;
+      map_info.field_22 = map_info.scrshift_y << 8;
+      SYNCDBG(8,"Level %ld hotspot (%d,%d) zoom (%d,%d)",(long)lvinfo->lvnum,(int)map_info.hotspot_x,(int)map_info.hotspot_y,(int)map_info.zoomspot_x,(int)map_info.zoomspot_y);
+      return true;
+    }
+    return false;
 }
 
 TbBool initialize_description_speech(void)
@@ -611,12 +611,12 @@ TbBool play_description_speech(LevelNumber lvnum, short play_good)
 
 TbBool set_pointer_graphic_spland(long frame)
 {
-  struct TbSprite *spr;
-  spr = get_map_ensign(1);
-  if (spr == &dummy_sprite)
-    ERRORLOG("Can't get Land view Mouse sprite");
-  LbMouseChangeSprite(spr);
-  return (spr != &dummy_sprite);
+    struct TbSprite *spr;
+    spr = get_map_ensign(1);
+    if (spr == &dummy_sprite)
+      ERRORLOG("Can't get Land view Mouse sprite");
+    LbMouseChangeSprite(spr);
+    return (spr != &dummy_sprite);
 }
 
 void frontzoom_to_point(long map_x, long map_y, long zoom)
@@ -738,15 +738,15 @@ void compressed_window_draw(void)
 
 void unload_map_and_window(void)
 {
-  clear_light_system(&game.lish);
-  clear_things_and_persons_data();
-  clear_mapmap();
-  clear_computer();
-  clear_slabs();
-  clear_rooms();
-  clear_dungeons();
-  LbMemoryCopy(frontend_palette, frontend_backup_palette, PALETTE_SIZE);
-  map_window_len = 0;
+    clear_light_system(&game.lish);
+    clear_things_and_persons_data();
+    clear_mapmap();
+    clear_computer();
+    clear_slabs();
+    clear_rooms();
+    clear_dungeons();
+    LbMemoryCopy(frontend_palette, frontend_backup_palette, PALETTE_SIZE);
+    map_window_len = 0;
 }
 
 TbBool load_map_and_window(LevelNumber lvnum)
@@ -757,7 +757,6 @@ TbBool load_map_and_window(LevelNumber lvnum)
     char *fname;
     long flen;
     SYNCDBG(8,"Starting");
-//    return _DK_load_map_and_window(cmpgidx);
     // Select proper land view image for the level
     land_view = NULL;
     land_window = NULL;
@@ -996,7 +995,6 @@ TbBool frontmap_load(void)
     struct LevelInformation *lvinfo;
     LevelNumber lvnum;
     SYNCDBG(4,"Starting");
-//  return _DK_frontmap_load();
     LbMemorySet(scratch, 0, PALETTE_SIZE);
     LbPaletteSet(scratch);
     initialize_description_speech();
@@ -1293,7 +1291,7 @@ void draw_netmap_players_hands(void)
         }
         x += nspck->field_6 - map_info.scrshift_x - 18;
         y += nspck->field_8 - map_info.scrshift_y - 25;
-        LbSpriteDraw(x, y, spr);
+        LbSpriteDrawResized(x*units_per_pixel/16, y*units_per_pixel/16, units_per_pixel, spr);
         w = LbTextStringWidth(plyr_nam);
         if (w > 0)
         {
@@ -1301,8 +1299,8 @@ void draw_netmap_players_hands(void)
           h = LbTextHeight(level_name);
           y += 32;
           x += 32;
-          LbDrawBox(x-4, y, w+8, h, colr);
-          LbTextDraw(x, y, plyr_nam);
+          LbDrawBox((x-4)*units_per_pixel/16, y*units_per_pixel/16, (w+8)*units_per_pixel/16, h*units_per_pixel/16, colr);
+          LbTextDrawResized(x*units_per_pixel/16, y*units_per_pixel/16, units_per_pixel, plyr_nam);
         }
       }
   }
@@ -1339,8 +1337,8 @@ void draw_map_level_descriptions(void)
     x = lvinfo->ensign_x - map_info.scrshift_x;
     y = lvinfo->ensign_y - map_info.scrshift_y - 8;
     h = LbTextHeight(level_name);
-    LbDrawBox(x-4, y, w+8, h, 0);
-    LbTextDraw(x, y, level_name);
+    LbDrawBox((x-4)*units_per_pixel/16, y*units_per_pixel/16, (w+8)*units_per_pixel/16, h*units_per_pixel/16, 0);
+    LbTextDrawResized(x*units_per_pixel/16, y*units_per_pixel/16, units_per_pixel, level_name);
   }
 }
 
