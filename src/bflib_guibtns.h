@@ -47,7 +47,7 @@ enum TbButtonType {
     Lb_UNKNBTN1  =  1,
     Lb_CYCLEBTN  =  2,
     Lb_RADIOBTN  =  3,
-    Lb_SLIDER    =  4,
+    Lb_SLIDERH   =  4,
     Lb_EDITBTN   =  5,
     Lb_UNKNBTN6  =  6,
 };

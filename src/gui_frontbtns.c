@@ -153,6 +153,29 @@ TbBool gui_slider_button_inputs(int gbtn_idx)
     return true;
 }
 
+TbBool gui_slider_button_mouse_over_slider_tracker(int gbtn_idx)
+{
+    struct GuiButton *gbtn;
+    if (gbtn_idx < 0)
+      return false;
+    gbtn = &active_buttons[gbtn_idx];
+    int units_per_px;
+    units_per_px = gbtn->height * 16 / 22;
+    int slider_pos_x;
+    slider_pos_x = gbtn->scr_pos_x + 32*units_per_px/16 + ((gbtn->slide_val)*(gbtn->width-64*units_per_px/16) >> 8);
+
+    int mouse_x, mouse_y;
+    mouse_x = GetMouseX();
+    if ((mouse_x >= (slider_pos_x-11*units_per_px/16)) && (mouse_x <= (slider_pos_x+11*units_per_px/16)))
+    {
+        mouse_y = GetMouseY();
+        if ((mouse_y >= gbtn->pos_y) && (mouse_y <= (gbtn->pos_y+gbtn->height))) {
+            return true;
+        }
+    }
+    return false;
+}
+
 TbBool gui_button_click_inputs(int gmbtn_idx)
 {
     TbBool result;

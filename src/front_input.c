@@ -1762,7 +1762,7 @@ void input(void)
 
 short get_gui_inputs(short gameplay_on)
 {
-  static char over_slider_button=-1;
+  static ActiveButtonID over_slider_button = -1;
   SYNCDBG(7,"Starting");
   battle_creature_over = 0;
   gui_room_type_highlighted = -1;
@@ -1794,6 +1794,7 @@ short get_gui_inputs(short gameplay_on)
   fmmenu_idx = first_monopoly_menu();
   player = get_my_player();
   gmbtn_idx = -1;
+  ActiveButtonID nx_over_slider_button = -1;
   struct GuiButton *gbtn;
   // Sweep through buttons
   for (gidx=0; gidx<ACTIVE_BUTTONS_COUNT; gidx++)
@@ -1812,18 +1813,18 @@ short get_gui_inputs(short gameplay_on)
       if ( (check_if_mouse_is_over_button(gbtn) && !game_is_busy_doing_gui_string_input())
         || ((gbtn->gbtype == Lb_UNKNBTN6) && (gbtn->gbactn_1 != 0)) )
       {
-          if ((fmmenu_idx==-1) || (gbtn->gmenu_idx == fmmenu_idx))
+          if ((fmmenu_idx == -1) || (gbtn->gmenu_idx == fmmenu_idx))
           {
             gmbtn_idx = gidx;
             gbtn->flags |= LbBtnF_Unknown10;
             busy_doing_gui = 1;
             callback = gbtn->ptover_event;
             if (callback != NULL)
-              callback(gbtn);
+                callback(gbtn);
             if (gbtn->gbtype == Lb_UNKNBTN6)
-              break;
-            if (gbtn->gbtype != Lb_SLIDER)
-              over_slider_button = -1;
+                break;
+            if (gbtn->gbtype == Lb_SLIDERH)
+                nx_over_slider_button = gidx;
           } else
           {
             gbtn->flags &= ~LbBtnF_Unknown10;
@@ -1832,28 +1833,24 @@ short get_gui_inputs(short gameplay_on)
       {
           gbtn->flags &= ~LbBtnF_Unknown10;
       }
-      if (gbtn->gbtype == Lb_SLIDER)
+      if (gbtn->gbtype == Lb_SLIDERH)
       {
-          int mouse_x;
-          int mouse_y;
-          int btnsize;
-          mouse_x = GetMouseX();
-          btnsize = gbtn->scr_pos_x + ((gbtn->slide_val)*(((long)gbtn->width)-64) >> 8);
-          if ((mouse_x>(btnsize+22)) && (mouse_x<=(btnsize+44)))
+          if (gui_slider_button_mouse_over_slider_tracker(gidx))
           {
-            mouse_y = GetMouseY();
-            if ((mouse_y>gbtn->pos_y) && (mouse_y<=(gbtn->pos_y+gbtn->height)))
-            {
               if ( left_button_clicked )
               {
                 left_button_clicked = 0;
+                nx_over_slider_button = gidx;
                 over_slider_button = gidx;
                 do_sound_menu_click();
               }
-            }
           }
       }
   }  // end for
+
+  // Reset slider button if we were not really over it
+  if (over_slider_button != nx_over_slider_button)
+      over_slider_button = -1;
 
   short result = 0;
   if (game_is_busy_doing_gui_string_input())
@@ -1865,15 +1862,17 @@ short get_gui_inputs(short gameplay_on)
   if ((over_slider_button != -1) && (left_button_released))
   {
       left_button_released = 0;
-      if (gmbtn_idx!=-1)
-        active_buttons[gmbtn_idx].gbactn_1 = 0;
+      if (gmbtn_idx != -1) {
+          gbtn = &active_buttons[gmbtn_idx];
+          gbtn->gbactn_1 = 0;
+      }
       over_slider_button = -1;
       do_sound_menu_click();
   }
 
   gui_button_tooltip_update(gmbtn_idx);
   if (gui_slider_button_inputs(over_slider_button))
-    return true;
+      return true;
   result |= gui_button_click_inputs(gmbtn_idx);
   gui_clear_buttons_not_over_mouse(gmbtn_idx);
   result |= gui_button_release_inputs(gmbtn_idx);

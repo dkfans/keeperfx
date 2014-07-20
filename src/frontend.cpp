@@ -1917,7 +1917,7 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_
     gmnu = get_active_menu(gbtn->gmenu_idx);
     if (gbtn->parent_menu != NULL)
       create_menu(gbtn->parent_menu);
-    if ((gbtn->flags & LbBtnF_Unknown02) && (gbtn->gbtype != 5))
+    if ((gbtn->flags & LbBtnF_Unknown02) && (gbtn->gbtype != Lb_EDITBTN))
     {
       if (callback == NULL)
         do_sound_menu_click();
@@ -1995,7 +1995,7 @@ void init_slider_bars(struct GuiMenu *gmnu)
         gbtn = &active_buttons[i];
         if ((gbtn->content) && (gbtn->gmenu_idx == gmnu->number))
         {
-          if (gbtn->gbtype == Lb_SLIDER)
+          if (gbtn->gbtype == Lb_SLIDERH)
           {
               sldpos = *(long *)gbtn->content;
               if (sldpos < 0)
@@ -2080,7 +2080,7 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit, int units_
         gbtn->pos_y = gbinit->pos_y * units_per_px / 16 + gmnu->pos_y;
         gbtn->scr_pos_y = gmnu->pos_y + gbinit->scr_pos_y * units_per_px / 16;
     }
-    if (gbtn->gbtype == 3)
+    if (gbtn->gbtype == Lb_RADIOBTN)
     {
         struct TextScrollWindow *scrollwnd;
         scrollwnd = (struct TextScrollWindow *)gbtn->content;
@@ -3224,7 +3224,7 @@ void draw_menu_buttons(struct GuiMenu *gmnu)
         callback = gbtn->draw_call;
         if ((callback != NULL) && (gbtn->flags & LbBtnF_Unknown04) && (gbtn->flags & LbBtnF_Unknown01) && (gbtn->gmenu_idx == gmnu->number))
         {
-          if ( ((gbtn->gbactn_1 == 0) && (gbtn->gbactn_2 == 0)) || (gbtn->gbtype == Lb_SLIDER) || (callback == gui_area_null) )
+          if ( ((gbtn->gbactn_1 == 0) && (gbtn->gbactn_2 == 0)) || (gbtn->gbtype == Lb_SLIDERH) || (callback == gui_area_null) )
             callback(gbtn);
         }
     }
@@ -3235,7 +3235,7 @@ void draw_menu_buttons(struct GuiMenu *gmnu)
         callback = gbtn->draw_call;
         if ((callback != NULL) && (gbtn->flags & LbBtnF_Unknown04) && (gbtn->flags & LbBtnF_Unknown01) && (gbtn->gmenu_idx == gmnu->number))
         {
-          if (((gbtn->gbactn_1) || (gbtn->gbactn_2)) && (gbtn->gbtype != Lb_SLIDER) && (callback != gui_area_null))
+          if (((gbtn->gbactn_1) || (gbtn->gbactn_2)) && (gbtn->gbtype != Lb_SLIDERH) && (callback != gui_area_null))
             callback(gbtn);
         }
     }
