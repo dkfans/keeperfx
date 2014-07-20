@@ -54,8 +54,12 @@ DLLIMPORT int _DK_LbSpriteDrawUsingScalingData(long posx, long posy, struct TbSp
 DLLIMPORT int _DK_DrawAlphaSpriteUsingScalingData(long posx, long posy, struct TbSprite *sprite);
 DLLIMPORT void _DK_LbSpriteSetScalingData(long start_x, long start_y, long swidth, long sheight, long dwidth, long dheight);
 DLLIMPORT void _DK_SetAlphaScalingData(long a1, long a2, long a3, long a4, long a5, long a6);
-DLLIMPORT void _DK_DrawBigSprite(long start_x, long start_y, struct BigSprite *bigspr, struct TbSprite *sprite);
+DLLIMPORT void _DK_DrawBigSprite(long start_x, long start_y, struct TiledSprite *bigspr, struct TbSprite *sprite);
 /******************************************************************************/
+long xsteps_array[2*SPRITE_SCALING_XSTEPS];
+long ysteps_array[2*SPRITE_SCALING_YSTEPS];
+long alpha_xsteps_array[2*SPRITE_SCALING_XSTEPS];
+long alpha_ysteps_array[2*SPRITE_SCALING_YSTEPS];
 /*
 bool sprscale_enlarge;
 long  sprscale_wbuf[512];
@@ -1976,6 +1980,15 @@ void LbSpriteClearAlphaScalingHeight(void)
     LbSpriteClearScalingHeightArray(alpha_ysteps_array, SPRITE_SCALING_YSTEPS);
 }
 
+/**
+ * Sets scaling data for drawing scaled sprites.
+ * @param x Position of the sprite in output buffer, X coord.
+ * @param y Position of the sprite in output buffer, Y coord.
+ * @param swidth Source sprite original width.
+ * @param sheight Source sprite original height.
+ * @param dwidth Width which the sprite should have on destination buffer.
+ * @param dheight Height which the sprite should have on destination buffer.
+ */
 void LbSpriteSetScalingData(long x, long y, long swidth, long sheight, long dwidth, long dheight)
 {
     //_DK_LbSpriteSetScalingData(x, y, swidth, sheight, dwidth, dheight); return;
@@ -3936,11 +3949,112 @@ void setup_vecs(unsigned char *screenbuf, unsigned char *nvec_map,
     vec_window_width = width;
 }
 
+/**
+ * Draws a scaled up big sprite on given buffer, with original colours, from left to right.
+ * Requires step arrays for scaling.
+ *
+ * @param outbuf The output buffer.
+ * @param scanline Length of the output buffer scanline.
+ * @param xstep Scaling steps array, x dimension.
+ * @param ystep Scaling steps array, y dimension.
+ * @param sprite The source sprite.
+ * @return Gives 0 on success.
+ */
+TbResult LbHugeSpriteDrawUsingScalingUpData(uchar *outbuf, int scanline, int outheight,
+    long *xstep, long *ystep, const struct TbHugeSprite *sprite)
+{
+    SYNCDBG(17,"Drawing");
+    int ystep_delta;
+    const unsigned char *sprdata;
+    long *ycurstep;
+
+    ystep_delta = 2;
+    if (scanline < 0) {
+        ystep_delta = -2;
+    }
+    ycurstep = ystep;
+
+    int h;
+    for (h=0; h < sprite->SHeight; h++)
+    {
+        if (ycurstep[1] != 0)
+        {
+            int ycur;
+            int solid_len;
+            TbPixel * out_line;
+            int xdup, ydup;
+            long *xcurstep;
+            ydup = ycurstep[1];
+            if (ycurstep[0]+ydup > outheight)
+                ydup = outheight-ycurstep[0];
+            xcurstep = xstep;
+            sprdata = &sprite->Data[sprite->Lines[h]];
+            TbPixel *out_end;
+            out_end = outbuf;
+            while (out_end - outbuf < scanline)
+            {
+                int pxlen;
+                pxlen = *(unsigned long *)sprdata;
+                sprdata += 4;
+                TbPixel *out_start;
+                out_start = out_end;
+                for(;pxlen > 0; pxlen--)
+                {
+                    xdup = xcurstep[1];
+                    if (xcurstep[0]+xdup > abs(scanline))
+                        xdup = abs(scanline)-xcurstep[0];
+                    if (xdup > 0)
+                    {
+                        unsigned char pxval;
+                        pxval = *sprdata;
+                        for (;xdup > 0; xdup--)
+                        {
+                            *out_end = pxval;
+                            out_end++;
+                        }
+                    }
+                    sprdata++;
+                    xcurstep += 2;
+                }
+                ycur = ydup - 1;
+                if (ycur > 0)
+                {
+                    solid_len = out_end - out_start;
+                    out_line = out_start + scanline;
+                    for (;ycur > 0; ycur--)
+                    {
+                        if (solid_len > 0) {
+                            LbPixelBlockCopyForward(out_line, out_start, solid_len);
+                        }
+                        out_line += scanline;
+                    }
+                }
+                // Transparent bytes count
+                pxlen = *(unsigned long *)sprdata;
+                sprdata += 4;
+                out_end -= xcurstep[0];
+                xcurstep += 2 * pxlen;
+                // In case we've exceeded sprite width, don't try to access xcurstep[] any more
+                if ((xcurstep - xstep)/2 >= sprite->SWidth)
+                    break;
+                out_end += xcurstep[0];
+            }
+            outbuf += scanline;
+            ycur = ydup - 1;
+            for (;ycur > 0; ycur--)
+            {
+                outbuf += scanline;
+            }
+        }
+        ycurstep += ystep_delta;
+    }
+    return Lb_SUCCESS;
+}
+
 /** Draws a huge sprite, used ie. as frame in land view.
  *  What differs huge sprite from standard one is the index of y line starts, which
  *  speeds up finding a specific line to be drawn.
- * @param sp Sprite data.
- * @param sp_y_offset Index of line starts in the sprite data.
+ * @param spr Sprite data struct.
  * @param sp_len Length of the sprite data.
  * @param r Destination buffer.
  * @param r_row_delta Row interline in the destination buffer.
@@ -3949,100 +4063,23 @@ void setup_vecs(unsigned char *screenbuf, unsigned char *nvec_map,
  * @param yshift Shift of the drawing, Y coord.
  * @return
  */
-TbResult LbHugeSpriteDraw(const unsigned char *sp, long * sp_y_offset, long sp_len,
-    unsigned char *r, int r_row_delta, int r_height, short xshift, short yshift)
+TbResult LbHugeSpriteDraw(const struct TbHugeSprite * spr, long sp_len,
+    unsigned char *r, int r_row_delta, int r_height, short xshift, short yshift, int units_per_px)
 {
-    const unsigned char *src;
-    const unsigned char *sp_end;
-    unsigned char *dst;
-    int wcopy;
-    int wdata;
-    int wskip;
-    long w,h;
-    SYNCDBG(18,"Starting");
-
-    sp_end = &sp[sp_len];
-    for (h=0; h < r_height; h++)
-    {
-        dst = &r[r_row_delta * h];
-        src = &sp[sp_y_offset[yshift + h]];
-        if (src+4 > sp_end) {
-            ERRORLOG("Outranged offset to sprite line %d (%d>%d)",(int)(yshift + h),(int)sp_y_offset[yshift + h],(int)sp_len);
-            return Lb_FAIL;
-        }
-        w = 0;
-        while (w < xshift)
-        {
-            wdata = *(unsigned long *)src;
-            src += 4;
-            wcopy = wdata + w - xshift;
-            if (wcopy >= 0)
-            {
-                // Draw non-transparent area
-                if (wcopy > r_row_delta)
-                    wcopy = r_row_delta;
-                if (wcopy < 0)
-                    wcopy = 0;
-                if (wcopy != 0)
-                {
-                    memcpy(dst, src - w + xshift, wcopy);
-                    dst += wcopy;
-                }
-                src += wdata;
-                w += wdata;
-                // Skip the transparent area
-                wskip = *(unsigned long *)src;
-                src += 4;
-                dst += wskip;
-                w += wskip;
-            } else
-            {
-                // Skip non-transparent area
-                src += wdata;
-                w += wdata;
-                // Skip the transparent area
-                wskip = *(unsigned long *)src;
-                src += 4;
-                w += wskip;
-                if (w > xshift)
-                    dst += w-xshift;
-            }
-        }
-        while (w < r_row_delta + xshift)
-        {
-            wdata = *(unsigned long *)src;
-            src += 4;
-            if (r_row_delta + xshift >= wdata + w)
-            {
-                wcopy = wdata;
-            } else
-            {
-                wcopy = r_row_delta + xshift - w;
-                if (wcopy > r_row_delta)
-                    wcopy = r_row_delta;
-                if (wcopy < 0)
-                    wcopy = 0;
-            }
-            if (src+wcopy > sp_end) {
-                return Lb_SUCCESS;
-            }
-            memcpy(dst, src, wcopy);
-            src += wdata;
-            dst += wdata;
-            w += wdata;
-            // Transparent bytes count
-            wskip = *((unsigned long *)src);
-            src += 4;
-            dst += wskip;
-            w += wskip;
-        }
-    }
-    return Lb_SUCCESS;
+    LbSpriteSetScalingData(-xshift, -yshift, spr->SWidth, spr->SHeight, spr->SWidth*units_per_px/16, spr->SHeight*units_per_px/16);
+    return LbHugeSpriteDrawUsingScalingUpData(r, r_row_delta, r_height, xsteps_array, ysteps_array, spr);
 }
 
-void DrawBigSprite(long start_x, long start_y, long units_per_px, struct BigSprite *bigspr, struct TbSprite *sprite)
+/**
+ * Draws a 'big sprite' which consists of multiple sprites.
+ * @param start_x
+ * @param start_y
+ * @param units_per_px
+ * @param bigspr
+ * @param sprite
+ */
+void DrawBigSprite(long start_x, long start_y, long units_per_px, struct TiledSprite *bigspr, struct TbSprite *sprite)
 {
-    // Will be probably replaced by LbHugeSpriteDraw()
     //_DK_DrawBigSprite(x, y, bigspr, sprite);
     long x, y;
     int delta_x, delta_y;

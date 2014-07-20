@@ -34,18 +34,25 @@ extern "C" {
 typedef unsigned char * TbSpriteData;
 
 struct TbSprite {
-        TbSpriteData Data;
-        unsigned char SWidth;
-        unsigned char SHeight;
+    TbSpriteData Data;
+    unsigned char SWidth;
+    unsigned char SHeight;
 };
 
 struct TbSetupSprite {
-        struct TbSprite **Start;
-        struct TbSprite **End;
-        TbSpriteData *Data;
+    struct TbSprite **Start;
+    struct TbSprite **End;
+    TbSpriteData *Data;
 };
 
-struct BigSprite {
+struct TbHugeSprite {
+    TbSpriteData Data;  //**< Raw sprite data, with RLE coded transparency.
+    long * Lines;  //**< Index of line starts in the sprite data.
+    unsigned long SWidth;
+    unsigned long SHeight;
+};
+
+struct TiledSprite {
     unsigned char x_num;
     unsigned char y_num;
     unsigned short spr_idx[10][10];
