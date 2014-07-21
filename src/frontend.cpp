@@ -1429,7 +1429,7 @@ void frontend_draw_small_menu_button(struct GuiButton *gbtn)
     //_DK_frontend_draw_small_menu_button(gbtn);
     const char *text;
     text = frontend_button_caption_text(gbtn);
-    frontend_draw_button(gbtn, 0, text, 0x0100);
+    frontend_draw_button(gbtn, 0, text, Lb_TEXT_HALIGN_CENTER);
 }
 
 void frontend_toggle_computer_players(struct GuiButton *gbtn)
