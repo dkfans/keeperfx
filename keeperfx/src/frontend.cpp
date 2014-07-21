@@ -209,13 +209,13 @@ struct GuiButtonInit frontend_select_level_buttons[] = {
   { 1,  0, 0, 0, frontend_level_select_down,NULL,frontend_over_button,0, 532, 321, 532, 321, 26, 14, frontnet_draw_slider_button,       0, GUIStr_Empty,  0,      {18},            0, 0, frontend_level_select_down_maintain},
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 536, 167, 536, 167, 20,154, frontend_draw_levels_scroll_tab,   0, GUIStr_Empty,  0,      {40},            0, 0, NULL},
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 102, 129, 102, 129,220, 26, frontend_draw_text,                0, GUIStr_Empty,  0,      {32},            0, 0, NULL},
-  { 0,  0, 0, 0, frontend_level_select,NULL,frontend_over_button,     0,  95, 167,  95, 169,424, 14, frontend_draw_level_select_button, 0, GUIStr_Empty,  0,      {45},            0, 0, frontend_level_select_maintain},
-  { 0,  0, 0, 0, frontend_level_select,NULL,frontend_over_button,     0,  95, 189,  95, 191,424, 14, frontend_draw_level_select_button, 0, GUIStr_Empty,  0,      {46},            0, 0, frontend_level_select_maintain},
-  { 0,  0, 0, 0, frontend_level_select,NULL,frontend_over_button,     0,  95, 211,  95, 213,424, 14, frontend_draw_level_select_button, 0, GUIStr_Empty,  0,      {47},            0, 0, frontend_level_select_maintain},
-  { 0,  0, 0, 0, frontend_level_select,NULL,frontend_over_button,     0,  95, 233,  95, 235,424, 14, frontend_draw_level_select_button, 0, GUIStr_Empty,  0,      {48},            0, 0, frontend_level_select_maintain},
-  { 0,  0, 0, 0, frontend_level_select,NULL,frontend_over_button,     0,  95, 255,  95, 257,424, 14, frontend_draw_level_select_button, 0, GUIStr_Empty,  0,      {49},            0, 0, frontend_level_select_maintain},
-  { 0,  0, 0, 0, frontend_level_select,NULL,frontend_over_button,     0,  95, 277,  95, 279,424, 14, frontend_draw_level_select_button, 0, GUIStr_Empty,  0,      {50},            0, 0, frontend_level_select_maintain},
-  { 0,  0, 0, 0, frontend_level_select,NULL,frontend_over_button,     0,  95, 299,  95, 301,424, 14, frontend_draw_level_select_button, 0, GUIStr_Empty,  0,      {51},            0, 0, frontend_level_select_maintain},
+  { 0,  0, 0, 0, frontend_level_select,NULL,frontend_over_button,     0,  95, 167,  95, 169,424, 22, frontend_draw_level_select_button, 0, GUIStr_Empty,  0,      {45},            0, 0, frontend_level_select_maintain},
+  { 0,  0, 0, 0, frontend_level_select,NULL,frontend_over_button,     0,  95, 189,  95, 191,424, 22, frontend_draw_level_select_button, 0, GUIStr_Empty,  0,      {46},            0, 0, frontend_level_select_maintain},
+  { 0,  0, 0, 0, frontend_level_select,NULL,frontend_over_button,     0,  95, 211,  95, 213,424, 22, frontend_draw_level_select_button, 0, GUIStr_Empty,  0,      {47},            0, 0, frontend_level_select_maintain},
+  { 0,  0, 0, 0, frontend_level_select,NULL,frontend_over_button,     0,  95, 233,  95, 235,424, 22, frontend_draw_level_select_button, 0, GUIStr_Empty,  0,      {48},            0, 0, frontend_level_select_maintain},
+  { 0,  0, 0, 0, frontend_level_select,NULL,frontend_over_button,     0,  95, 255,  95, 257,424, 22, frontend_draw_level_select_button, 0, GUIStr_Empty,  0,      {49},            0, 0, frontend_level_select_maintain},
+  { 0,  0, 0, 0, frontend_level_select,NULL,frontend_over_button,     0,  95, 277,  95, 279,424, 22, frontend_draw_level_select_button, 0, GUIStr_Empty,  0,      {50},            0, 0, frontend_level_select_maintain},
+  { 0,  0, 0, 0, frontend_level_select,NULL,frontend_over_button,     0,  95, 299,  95, 301,424, 22, frontend_draw_level_select_button, 0, GUIStr_Empty,  0,      {51},            0, 0, frontend_level_select_maintain},
   { 0,  0, 0, 0, frontend_change_state,NULL,frontend_over_button,     1, 999, 404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,       {6},            0, 0, NULL},
   {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
 };
@@ -229,13 +229,13 @@ struct GuiButtonInit frontend_select_campaign_buttons[] = {
   { 1,  0, 0, 0, frontend_campaign_select_down,NULL,frontend_over_button,0,532,321,532, 321, 26, 14, frontnet_draw_slider_button,       0, GUIStr_Empty,  0,      {18},            0, 0, frontend_campaign_select_down_maintain},
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 536, 167, 536, 167, 20,154, frontend_draw_campaign_scroll_tab, 0, GUIStr_Empty,  0,      {40},            0, 0, NULL},
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 102, 129, 102, 129,220, 26, frontend_draw_text,                0, GUIStr_Empty,  0,     {109},            0, 0, NULL},
-  { 0,  0, 0, 0, frontend_campaign_select,NULL,frontend_over_button,  0,  95, 167,  95, 169,424, 14, frontend_draw_campaign_select_button,0,GUIStr_Empty, 0,      {45},            0, 0, frontend_campaign_select_maintain},
-  { 0,  0, 0, 0, frontend_campaign_select,NULL,frontend_over_button,  0,  95, 189,  95, 191,424, 14, frontend_draw_campaign_select_button,0,GUIStr_Empty, 0,      {46},            0, 0, frontend_campaign_select_maintain},
-  { 0,  0, 0, 0, frontend_campaign_select,NULL,frontend_over_button,  0,  95, 211,  95, 213,424, 14, frontend_draw_campaign_select_button,0,GUIStr_Empty, 0,      {47},            0, 0, frontend_campaign_select_maintain},
-  { 0,  0, 0, 0, frontend_campaign_select,NULL,frontend_over_button,  0,  95, 233,  95, 235,424, 14, frontend_draw_campaign_select_button,0,GUIStr_Empty, 0,      {48},            0, 0, frontend_campaign_select_maintain},
-  { 0,  0, 0, 0, frontend_campaign_select,NULL,frontend_over_button,  0,  95, 255,  95, 257,424, 14, frontend_draw_campaign_select_button,0,GUIStr_Empty, 0,      {49},            0, 0, frontend_campaign_select_maintain},
-  { 0,  0, 0, 0, frontend_campaign_select,NULL,frontend_over_button,  0,  95, 277,  95, 279,424, 14, frontend_draw_campaign_select_button,0,GUIStr_Empty, 0,      {50},            0, 0, frontend_campaign_select_maintain},
-  { 0,  0, 0, 0, frontend_campaign_select,NULL,frontend_over_button,  0,  95, 299,  95, 301,424, 14, frontend_draw_campaign_select_button,0,GUIStr_Empty, 0,      {51},            0, 0, frontend_campaign_select_maintain},
+  { 0,  0, 0, 0, frontend_campaign_select,NULL,frontend_over_button,  0,  95, 167,  95, 169,424, 22, frontend_draw_campaign_select_button,0,GUIStr_Empty, 0,      {45},            0, 0, frontend_campaign_select_maintain},
+  { 0,  0, 0, 0, frontend_campaign_select,NULL,frontend_over_button,  0,  95, 189,  95, 191,424, 22, frontend_draw_campaign_select_button,0,GUIStr_Empty, 0,      {46},            0, 0, frontend_campaign_select_maintain},
+  { 0,  0, 0, 0, frontend_campaign_select,NULL,frontend_over_button,  0,  95, 211,  95, 213,424, 22, frontend_draw_campaign_select_button,0,GUIStr_Empty, 0,      {47},            0, 0, frontend_campaign_select_maintain},
+  { 0,  0, 0, 0, frontend_campaign_select,NULL,frontend_over_button,  0,  95, 233,  95, 235,424, 22, frontend_draw_campaign_select_button,0,GUIStr_Empty, 0,      {48},            0, 0, frontend_campaign_select_maintain},
+  { 0,  0, 0, 0, frontend_campaign_select,NULL,frontend_over_button,  0,  95, 255,  95, 257,424, 22, frontend_draw_campaign_select_button,0,GUIStr_Empty, 0,      {49},            0, 0, frontend_campaign_select_maintain},
+  { 0,  0, 0, 0, frontend_campaign_select,NULL,frontend_over_button,  0,  95, 277,  95, 279,424, 22, frontend_draw_campaign_select_button,0,GUIStr_Empty, 0,      {50},            0, 0, frontend_campaign_select_maintain},
+  { 0,  0, 0, 0, frontend_campaign_select,NULL,frontend_over_button,  0,  95, 299,  95, 301,424, 22, frontend_draw_campaign_select_button,0,GUIStr_Empty, 0,      {51},            0, 0, frontend_campaign_select_maintain},
   { 0,  0, 0, 0, frontend_change_state,NULL,frontend_over_button,     1, 999, 404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,       {6},            0, 0, NULL},
   {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
 };
@@ -2563,9 +2563,11 @@ void frontend_draw_level_select_button(struct GuiButton *gbtn)
       i = 1;
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
     LbTextSetFont(frontend_font[i]);
-    i = LbTextLineHeight();
+    int units_per_px;
+    units_per_px = gbtn->height * 16 / 22;
+    i = LbTextLineHeight()*units_per_px/16;
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, i);
-    LbTextDraw(0, 0, lvinfo->name);
+    LbTextDrawResized(0, 0, units_per_px, lvinfo->name);
 }
 
 void frontend_level_select(struct GuiButton *gbtn)
@@ -2674,9 +2676,11 @@ void frontend_draw_campaign_select_button(struct GuiButton *gbtn)
     i = 1;
   lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
   LbTextSetFont(frontend_font[i]);
-  i = LbTextLineHeight();
+  int units_per_px;
+  units_per_px = gbtn->height * 16 / 22;
+  i = LbTextLineHeight()*units_per_px/16;
   LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, i);
-  LbTextDraw(0, 0, campgn->name);
+  LbTextDrawResized(0, 0, units_per_px, campgn->name);
 }
 
 void frontend_campaign_select(struct GuiButton *gbtn)
