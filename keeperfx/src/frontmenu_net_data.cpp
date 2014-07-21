@@ -68,7 +68,7 @@ struct GuiButtonInit frontend_net_session_buttons[] = {
   { 1,  0, 0, 0, frontnet_session_down,NULL,     frontend_over_button,0, 532, 217, 532, 217, 26, 14, frontnet_draw_slider_button,       0, 201,  0,      {18},            0, 0, frontnet_session_down_maintain },
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 536, 151, 536, 151, 20, 66, frontnet_draw_sessions_scroll_tab, 0, 201,  0,      {40},            0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 102, 113, 102, 113,220, 26, frontend_draw_text,                0, 201,  0,      {29},            0, 0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  82, 230,  82, 230,450, 23, frontnet_draw_session_selected,    0, 201,  0,      {35},            0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  82, 230,  82, 230,450, 28, frontnet_draw_session_selected,    0, 201,  0,      {35},            0, 0, NULL },
   { 0,  0, 0, 0, frontnet_session_select,NULL,   frontend_over_button,0,  95, 141,  95, 141,424, 26, frontnet_draw_session_button,      0, 201,  0,      {45},            0, 0, frontnet_session_maintain },
   { 0,  0, 0, 0, frontnet_session_select,NULL,   frontend_over_button,0,  95, 167,  95, 167,424, 26, frontnet_draw_session_button,      0, 201,  0,      {46},            0, 0, frontnet_session_maintain },
   { 0,  0, 0, 0, frontnet_session_select,NULL,   frontend_over_button,0,  95, 193,  95, 193,424, 26, frontnet_draw_session_button,      0, 201,  0,      {47},            0, 0, frontnet_session_maintain },
@@ -242,34 +242,31 @@ void frontnet_draw_session_selected(struct GuiButton *gbtn)
     int i;
     pos_x = gbtn->scr_pos_x;
     pos_y = gbtn->scr_pos_y;
-    if (net_session_index_active == -1)
+    int units_per_px;
+    units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, 56);
+    spr = &frontend_sprite[55];
+    for (i=0; i < 6; i++)
     {
-        spr = &frontend_sprite[55];
-        for (i=0; i < 6; i++)
-        {
-            LbSpriteDraw(pos_x, pos_y, spr);
-            pos_x += spr->SWidth;
-            spr++;
-        }
+        LbSpriteDrawResized(pos_x, pos_y, units_per_px, spr);
+        pos_x += spr->SWidth * units_per_px / 16;
+        spr++;
     }
-    else
+    if (net_session_index_active >= 0)
     {
         const char *text;
-        spr = &frontend_sprite[55];
-        for (i=0; i < 6; i++)
-        {
-            LbSpriteDraw(pos_x, pos_y, spr);
-            pos_x += spr->SWidth;
-            spr++;
-        }
         text = net_session[net_session_index_active]->text;
         i = frontend_button_caption_font(gbtn, 0);
         if (text != NULL)
         {
             lbDisplay.DrawFlags = 0;
             LbTextSetFont(frontend_font[i]);
-            LbTextSetWindow(gbtn->scr_pos_x + 13, gbtn->scr_pos_y, gbtn->width - 26, LbTextHeight(text));
-            LbTextDraw(0, 0, text);
+            // Set drawing window and draw the text
+            int tx_units_per_px;
+            tx_units_per_px = (gbtn->height*13/14) * 16 / LbTextLineHeight();
+            int h;
+            h = LbTextLineHeight()*tx_units_per_px/16;
+            LbTextSetWindow(gbtn->scr_pos_x + 13*units_per_px/16, gbtn->scr_pos_y, gbtn->width - 26*units_per_px/16, h);
+            LbTextDrawResized(0, 0, tx_units_per_px, text);
         }
     }
 }
