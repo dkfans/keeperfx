@@ -2157,40 +2157,40 @@ long compute_menu_position_x(long desired_pos,int menu_width, int units_per_px)
 
 long compute_menu_position_y(long desired_pos,int menu_height, int units_per_px)
 {
-  struct PlayerInfo *player;
-  player = get_my_player();
-  long scaled_height;
-  scaled_height = menu_height * units_per_px / 16;
-  long pos;
-  switch (desired_pos)
-  {
-  case POS_MOUSMID: // Place menu centered over mouse
-      pos = GetMouseY() - (scaled_height >> 1);
-      break;
-  case POS_GAMECTR: // Player-based positioning
-      pos = (player->engine_window_height >> 1) - ((scaled_height+20*units_per_px/16) >> 1);
-      break;
-  case POS_MOUSPRV: // Place menu centered over previous mouse position
-      pos = old_menu_mouse_y - (scaled_height >> 1);
-      break;
-  case POS_SCRCTR:
-      pos = (MyScreenHeight >> 1) - (scaled_height >> 1);
-      break;
-  case POS_SCRBTM:
-      pos = MyScreenHeight - scaled_height;
-      break;
-  default: // Desired position have direct coordinates
-      pos = ((desired_pos*((long)units_per_pixel))>>4)*((long)pixel_size);
-      if (pos+scaled_height > lbDisplay.PhysicalScreenHeight*((long)pixel_size))
-        pos = lbDisplay.PhysicalScreenHeight*((long)pixel_size)-scaled_height;
-      break;
-  }
-  // Clipping position Y
-  if (pos+scaled_height > MyScreenHeight)
-    pos = MyScreenHeight-scaled_height;
-  if (pos < 0)
-    pos = 0;
-  return pos;
+    struct PlayerInfo *player;
+    player = get_my_player();
+    long scaled_height;
+    scaled_height = menu_height * units_per_px / 16;
+    long pos;
+    switch (desired_pos)
+    {
+    case POS_MOUSMID: // Place menu centered over mouse
+        pos = GetMouseY() - (scaled_height >> 1);
+        break;
+    case POS_GAMECTR: // Player-based positioning
+        pos = (player->engine_window_height >> 1) - ((scaled_height+20*units_per_px/16) >> 1);
+        break;
+    case POS_MOUSPRV: // Place menu centered over previous mouse position
+        pos = old_menu_mouse_y - (scaled_height >> 1);
+        break;
+    case POS_SCRCTR:
+        pos = (MyScreenHeight >> 1) - (scaled_height >> 1);
+        break;
+    case POS_SCRBTM:
+        pos = MyScreenHeight - scaled_height;
+        break;
+    default: // Desired position have direct coordinates
+        pos = ((desired_pos*((long)units_per_pixel))>>4)*((long)pixel_size);
+        if (pos+scaled_height > lbDisplay.PhysicalScreenHeight*((long)pixel_size))
+          pos = lbDisplay.PhysicalScreenHeight*((long)pixel_size)-scaled_height;
+        break;
+    }
+    // Clipping position Y
+    if (pos+scaled_height > MyScreenHeight)
+      pos = MyScreenHeight-scaled_height;
+    if (pos < 0)
+      pos = 0;
+    return pos;
 }
 
 // TODO RESCALE Replace this with units_per_pixel when rescaling is ready

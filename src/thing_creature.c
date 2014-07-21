@@ -392,47 +392,46 @@ void draw_swipe_graphic(void)
             endspr = &sprlist[1];
             for (n=0; n < SWIPE_SPRITES_X; n++)
             {
-                allwidth += pixel_size * endspr->SWidth;
+                allwidth += endspr->SWidth;
                 endspr++;
             }
+            int units_per_px;
+            units_per_px = (LbScreenWidth()*59/64) * 16 / allwidth;
             int scrpos_x, scrpos_y;
-            if (lbDisplay.ScreenMode == 1)
-              scrpos_y = 0;
-            else
-              scrpos_y = (MyScreenHeight - (startspr->SHeight + endspr->SHeight)) / 2;
+            scrpos_y = (MyScreenHeight * 16 / units_per_px - (startspr->SHeight + endspr->SHeight)) / 2;
             struct TbSprite *spr;
             if ((myplyr->field_1 & 4) != 0)
             {
-                int deltay;
-                deltay = pixel_size * sprlist[1].SHeight;
+                int delta_y;
+                delta_y = sprlist[1].SHeight;
                 for (i=0; i < SWIPE_SPRITES_X*SWIPE_SPRITES_Y; i+=SWIPE_SPRITES_X)
                 {
                     spr = &startspr[i];
-                    scrpos_x = (MyScreenWidth - allwidth) / 2;
+                    scrpos_x = (MyScreenWidth * 16 / units_per_px - allwidth) / 2;
                     for (n=0; n < SWIPE_SPRITES_X; n++)
                     {
-                        LbSpriteDraw(scrpos_x / pixel_size, scrpos_y / pixel_size, spr);
-                        scrpos_x += pixel_size * spr->SWidth;
+                        LbSpriteDrawResized(scrpos_x * units_per_px / 16, scrpos_y * units_per_px / 16, units_per_px, spr);
+                        scrpos_x += spr->SWidth;
                         spr++;
                     }
-                    scrpos_y += deltay;
+                    scrpos_y += delta_y;
                 }
             } else
             {
-                int deltay;
+                int delta_y;
                 lbDisplay.DrawFlags = Lb_SPRITE_TRANSPAR4 | Lb_SPRITE_FLIP_HORIZ;
                 for (i=0; i < SWIPE_SPRITES_X*SWIPE_SPRITES_Y; i+=SWIPE_SPRITES_X)
                 {
                     spr = &sprlist[SWIPE_SPRITES_X+i];
-                    deltay = pixel_size * spr->SHeight;
-                    scrpos_x = (MyScreenWidth - allwidth) / 2;
+                    delta_y = spr->SHeight;
+                    scrpos_x = (MyScreenWidth * 16 / units_per_px - allwidth) / 2;
                     for (n=0; n < SWIPE_SPRITES_X; n++)
                     {
-                        LbSpriteDraw(scrpos_x / pixel_size, scrpos_y / pixel_size, spr);
-                        scrpos_x += pixel_size * spr->SWidth;
+                        LbSpriteDrawResized(scrpos_x * units_per_px / 16, scrpos_y * units_per_px / 16, units_per_px, spr);
+                        scrpos_x += spr->SWidth;
                         spr--;
                     }
-                    scrpos_y += deltay;
+                    scrpos_y += delta_y;
                 }
             }
             lbDisplay.DrawFlags = 0;

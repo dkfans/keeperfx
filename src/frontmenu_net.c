@@ -1165,13 +1165,13 @@ void frontnet_draw_service_button(struct GuiButton *gbtn)
   int font_idx;
   font_idx = frontend_button_caption_font(gbtn,frontend_mouse_over_button);
   LbTextSetFont(frontend_font[font_idx]);
-  int i;
+  int h;
   lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
   // Set drawing window and draw the text
   int units_per_px;
   units_per_px = gbtn->height * 16 / 22;
-  i = LbTextLineHeight()*units_per_px/16;
-  LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, i);
+  h = LbTextLineHeight()*units_per_px/16;
+  LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, h);
   LbTextDrawResized(0, 0, units_per_px, net_service[srvidx]);
 }
 
