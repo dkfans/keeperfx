@@ -291,8 +291,9 @@ extern unsigned char * testfont_data[TESTFONTS_COUNT];
 extern unsigned char *testfont_palette[3];
 #endif
 /******************************************************************************/
-
-// Reworked functions
+int frontend_font_char_width(int fnt_idx,char c);
+int frontend_font_string_width(int fnt_idx, const char *str);
+TbBool frontend_font_string_draw(int scr_x, int scr_y, int dst_width, int dst_height, int fnt_idx, const char *str, unsigned short fdflags);
 
 void create_error_box(unsigned short msg_idx);
 void gui_area_text(struct GuiButton *gbtn);
@@ -394,8 +395,6 @@ int get_startup_menu_state(void);
 void frontend_input(void);
 void frontend_update(short *finish_menu);
 short frontend_draw(void);
-int frontend_font_char_width(int fnt_idx,char c);
-int frontend_font_string_width(int fnt_idx,char *str);
 void create_frontend_error_box(long showTime, const char * text);
 
 short menu_is_active(short idx);

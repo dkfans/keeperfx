@@ -540,7 +540,24 @@ int draw_text_box(const char *text)
     return LbTextDraw(0, (box_height - spritesy * n) / 2, text);
 }
 
-void draw_scroll_box(struct GuiButton *gbtn, long num_rows)
+int scroll_box_get_units_per_px(struct GuiButton *gbtn)
+{
+    struct TbSprite *spr;
+    int width;
+    int spridx;
+    int i;
+    width = 0;
+    spridx = 40;
+    spr = &frontend_sprite[spridx];
+    for (i = 6; i > 0; i--)
+    {
+        width += spr->SWidth;
+        spr++;
+    }
+    return (gbtn->width * 16 + 8) / width;
+}
+
+void draw_scroll_box(struct GuiButton *gbtn, int units_per_px, int num_rows)
 {
     struct TbSprite *spr;
     int pos_x,pos_y;
@@ -554,12 +571,12 @@ void draw_scroll_box(struct GuiButton *gbtn, long num_rows)
         spr = &frontend_sprite[25];
         for (i = 6; i > 0; i--)
         {
-            LbSpriteDraw(pos_x, pos_y, spr);
-            pos_x += spr->SWidth;
+            LbSpriteDrawResized(pos_x, pos_y, units_per_px, spr);
+            pos_x += spr->SWidth * units_per_px / 16;
             spr++;
         }
         spr = &frontend_sprite[25];
-        pos_y += spr->SHeight;
+        pos_y += spr->SHeight * units_per_px / 16;
     }
     // Further rows
     while (num_rows > 0)
@@ -571,12 +588,12 @@ void draw_scroll_box(struct GuiButton *gbtn, long num_rows)
         pos_x = gbtn->scr_pos_x;
         for (i = 6; i > 0; i--)
         {
-            LbSpriteDraw(pos_x, pos_y, spr);
-            pos_x += spr->SWidth;
+            LbSpriteDrawResized(pos_x, pos_y, units_per_px, spr);
+            pos_x += spr->SWidth * units_per_px / 16;
             spr++;
         }
         spr = &frontend_sprite[spridx];
-        pos_y += spr->SHeight;
+        pos_y += spr->SHeight * units_per_px / 16;
         delta = 3;
         if (num_rows < 3)
             delta = 1;
@@ -587,8 +604,8 @@ void draw_scroll_box(struct GuiButton *gbtn, long num_rows)
     pos_x = gbtn->scr_pos_x;
     for (i = 6; i > 0; i--)
     {
-        LbSpriteDraw(pos_x, pos_y, spr);
-        pos_x += spr->SWidth;
+        LbSpriteDrawResized(pos_x, pos_y, units_per_px, spr);
+        pos_x += spr->SWidth * units_per_px / 16;
         spr++;
     }
 }

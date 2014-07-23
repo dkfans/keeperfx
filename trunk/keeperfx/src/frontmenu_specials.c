@@ -156,7 +156,7 @@ void draw_resurrect_creature(struct GuiButton *gbtn)
     //_DK_draw_resurrect_creature(gbtn);
     unsigned short flg_mem;
     flg_mem = lbDisplay.DrawFlags;
-    lbDisplay.DrawFlags = 0x0004;
+    lbDisplay.DrawFlags = Lb_SPRITE_TRANSPAR4;
     LbDrawBox(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size, gbtn->width/pixel_size, gbtn->height/pixel_size, 0);
     LbTextSetFont(winfont);
     LbTextSetWindow(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size, gbtn->width/pixel_size, gbtn->height/pixel_size);

@@ -157,7 +157,7 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
         LbTextSetFont(frontend_font[1]);
     }
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
-    lbDisplay.DrawFlags = 0x0020;
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
     int h;
     h = LbTextLineHeight() * units_per_px / 16;
     LbTextDrawResized(0, (gbtn->height - h) / 2, units_per_px, gui_string(definable_key_string[key_id]));

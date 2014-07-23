@@ -85,7 +85,8 @@ void draw_string64k(long x, long y, const char * text);
 
 void draw_button_string(struct GuiButton *gbtn, char *text);
 int draw_text_box(const char *text);
-void draw_scroll_box(struct GuiButton *gbtn, long a2);
+void draw_scroll_box(struct GuiButton *gbtn, int units_per_px, int num_rows);
+int scroll_box_get_units_per_px(struct GuiButton *gbtn);
 
 void draw_gui_panel_sprite_left(long x, long y, long spridx);
 void draw_gui_panel_sprite_rmleft(long x, long y, long spridx, unsigned long remap);

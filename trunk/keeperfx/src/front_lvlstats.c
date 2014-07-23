@@ -248,27 +248,36 @@ void frontstats_draw_main_stats(struct GuiButton *gbtn)
     int stat_val;
     int pos_x,pos_y;
     //_DK_frontstats_draw_main_stats(gbtn);
-    draw_scroll_box(gbtn, 6);
+    int fs_units_per_px;
+    fs_units_per_px = scroll_box_get_units_per_px(gbtn);
+    draw_scroll_box(gbtn, fs_units_per_px, 6);
     LbTextSetFont(frontend_font[1]);
+    int tx_units_per_px;
+    // The GUI item height should be 6 lines of text
+    tx_units_per_px = gbtn->height * 16 / (6*(LbTextLineHeight()+1));
+    int ln_height;
+    ln_height = LbTextLineHeight() * tx_units_per_px / 16;
     pos_x = gbtn->scr_pos_x;
-    pos_y = LbTextLineHeight()/2 + gbtn->scr_pos_y;
+    pos_y = gbtn->scr_pos_y + ln_height/2;
     for (stat = main_stats_data; stat->name_stridx > 0; stat++)
     {
-        struct TbSprite *spr;
-        spr = &frontend_sprite[25];
-        LbTextSetWindow( (spr->SWidth + pos_x) / pixel_size, pos_y / pixel_size,
-          (gbtn->width - 2 * spr->SWidth) / pixel_size, LbTextLineHeight() / pixel_size);
+        int border;
+        {
+            struct TbSprite *spr;
+            spr = &frontend_sprite[25];
+            border = spr->SWidth * fs_units_per_px / 16;
+        }
+        LbTextSetWindow(pos_x + border, pos_y, gbtn->width - 2 * border, ln_height);
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
-        LbTextSetFont(frontend_font[1]);
-        LbTextDraw(0, 0, gui_string(stat->name_stridx));
+        LbTextDrawResized(0, 0, tx_units_per_px, gui_string(stat->name_stridx));
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
         if (stat->get_value != NULL) {
             stat_val = stat->get_value(stat->get_arg);
         } else {
             stat_val = -1;
         }
-        LbTextDrawFmt(0, 0, "%d", stat_val);
-        pos_y += LbTextLineHeight() + 1;
+        LbTextDrawResizedFmt(0, 0, tx_units_per_px, "%d", stat_val);
+        pos_y += ln_height + 1 * units_per_pixel / 16;
     }
 }
 
@@ -277,33 +286,38 @@ void frontstats_draw_scrolling_stats(struct GuiButton *gbtn)
     struct StatsData *stat;
     int stat_val;
     int pos_x,pos_y;
-    int ln_height;
     //_DK_frontstats_draw_scrolling_stats(gbtn);
-    draw_scroll_box(gbtn, 5);
+    int fs_units_per_px;
+    fs_units_per_px = scroll_box_get_units_per_px(gbtn);
+    draw_scroll_box(gbtn, fs_units_per_px, 5);
+    LbTextSetFont(frontend_font[1]);
     {
         struct TbSprite *spr;
         spr = &frontend_sprite[25];
-        LbTextSetWindow(spr->SWidth + gbtn->scr_pos_x, spr->SHeight + gbtn->scr_pos_y - 7,
-          gbtn->width - 2 * spr->SWidth, gbtn->height + 2 * (8 - spr->SHeight));
+        LbTextSetWindow(gbtn->scr_pos_x + spr->SWidth * fs_units_per_px / 16, gbtn->scr_pos_y + (spr->SHeight-7) * fs_units_per_px / 16,
+          gbtn->width - 2 * (spr->SWidth * fs_units_per_px / 16), gbtn->height + 2 * (8 - spr->SHeight) * fs_units_per_px / 16);
     }
+    // The GUI item height should be 5 lines of text
+    int tx_units_per_px;
+    tx_units_per_px = gbtn->height * 16 / (5*(LbTextLineHeight()+1));
+    int ln_height;
+    ln_height = LbTextLineHeight() * tx_units_per_px / 16;
     pos_x = 0;
-    pos_y = -scrolling_offset;
-    for ( stat = &scrolling_stats_data[scrolling_index]; pos_y < gbtn->height; pos_y += ln_height + 4 )
+    pos_y = -scrolling_offset * tx_units_per_px / 16;
+    for ( stat = &scrolling_stats_data[scrolling_index]; pos_y < gbtn->height; pos_y += ln_height + 4 * units_per_pixel / 16)
     {
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
-        LbTextSetFont(frontend_font[1]);
-        LbTextDraw(pos_x, pos_y, gui_string(stat->name_stridx));
+        LbTextDrawResized(pos_x, pos_y, tx_units_per_px, gui_string(stat->name_stridx));
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
         if (stat->get_value != NULL) {
             stat_val = stat->get_value(stat->get_arg);
         } else {
             stat_val = -1;
         }
-        LbTextDrawFmt(pos_x, pos_y, "%d", stat_val);
+        LbTextDrawResizedFmt(pos_x, pos_y, tx_units_per_px, "%d", stat_val);
         stat++;
         if (!stat->name_stridx)
           stat = scrolling_stats_data;
-        ln_height = LbTextLineHeight();
     }
 }
 
@@ -360,7 +374,6 @@ void frontstats_set_timer(void)
 
 void frontstats_update(void)
 {
-    LevelNumber lvnum;
     int h;
     scrolling_offset++;
     LbTextSetFont(frontend_font[1]);
@@ -372,9 +385,10 @@ void frontstats_update(void)
         if (!scrolling_stats_data[scrolling_index].name_stridx)
             scrolling_index = 0;
     }
-    lvnum = get_loaded_level_number();
     if (frontstats_timer != 0)
     {
+        LevelNumber lvnum;
+        lvnum = get_loaded_level_number();
         if (LbTimerClock() > frontstats_timer)
         {
             play_description_speech(lvnum,0);
