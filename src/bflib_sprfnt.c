@@ -1107,6 +1107,22 @@ TbBool LbTextDrawFmt(int posx, int posy, const char *fmt, ...)
     return result;
 }
 
+/**
+ * Draws a formatted string in the current text window.
+ * @param posx Position of the text, X coord.
+ * @param posy Position of the text, Y coord.
+ * @param fmt The text format to be drawn.
+ * @return
+ */
+TbBool LbTextDrawResizedFmt(int posx, int posy, int units_per_px, const char *fmt, ...)
+{
+    va_list val;
+    va_start(val, fmt);
+    TbBool result = LbTextDrawResizedVA(posx, posy, units_per_px, fmt, val);
+    va_end(val);
+    return result;
+}
+
 /** Returns standard height of a line of text, in currently active font.
  *  Supports both sprite fonts and dbc fonts.
  */
@@ -1397,52 +1413,52 @@ int LbTextStringHeight(const char *str)
 
 int LbTextNumberDraw(int pos_x, int pos_y, int units_per_px, long number, unsigned short fdflags)
 {
-  char text[16];
-  int w,h;
-  if (lbFontPtr == NULL)
-    return 0;
-  sprintf(text,"%ld",number);
-  h = LbTextLineHeight() * units_per_px / 16;
-  w = LbTextStringWidth(text) * units_per_px / 16;
-  switch (fdflags & 0x03)
-  {
-  case Fnt_LeftJustify:
-    LbTextSetWindow(pos_x, pos_y, w, h);
-    break;
-  case Fnt_RightJustify:
-    LbTextSetWindow(pos_x-w, pos_y, w, h);
-    break;
-  case Fnt_CenterPos:
-    LbTextSetWindow(pos_x-(w>>1), pos_y, w, h);
-    break;
-  }
-  LbTextDrawResized(0, 0, units_per_px, text);
-  return w;
+    char text[16];
+    int w,h;
+    if (lbFontPtr == NULL)
+      return 0;
+    sprintf(text,"%ld",number);
+    h = LbTextLineHeight() * units_per_px / 16;
+    w = LbTextStringWidth(text) * units_per_px / 16;
+    switch (fdflags & 0x03)
+    {
+    case Fnt_LeftJustify:
+        LbTextSetWindow(pos_x, pos_y, w, h);
+        break;
+    case Fnt_RightJustify:
+        LbTextSetWindow(pos_x-w, pos_y, w, h);
+        break;
+    case Fnt_CenterPos:
+        LbTextSetWindow(pos_x-(w>>1), pos_y, w, h);
+        break;
+    }
+    LbTextDrawResized(0, 0, units_per_px, text);
+    return w;
 }
 
 int LbTextStringDraw(int pos_x, int pos_y, int units_per_px, const char *text, unsigned short fdflags)
 {
-  int w,h;
-  if (lbFontPtr == NULL)
-    return 0;
-  if (text == NULL)
-    return 0;
-  h = LbTextLineHeight() * units_per_px / 16;
-  w = LbTextStringWidth(text) * units_per_px / 16;
-  switch (fdflags & 0x03)
-  {
-  case Fnt_LeftJustify:
-    LbTextSetWindow(pos_x, pos_y, w, h);
-    break;
-  case Fnt_RightJustify:
-    LbTextSetWindow(pos_x-w, pos_y, w, h);
-    break;
-  case Fnt_CenterPos:
-    LbTextSetWindow(pos_x-(w>>1), pos_y, w, h);
-    break;
-  }
-  LbTextDrawResized(0, 0, units_per_px, text);
-  return w;
+    int w,h;
+    if (lbFontPtr == NULL)
+      return 0;
+    if (text == NULL)
+      return 0;
+    h = LbTextLineHeight() * units_per_px / 16;
+    w = LbTextStringWidth(text) * units_per_px / 16;
+    switch (fdflags & 0x03)
+    {
+    case Fnt_LeftJustify:
+        LbTextSetWindow(pos_x, pos_y, w, h);
+        break;
+    case Fnt_RightJustify:
+        LbTextSetWindow(pos_x-w, pos_y, w, h);
+        break;
+    case Fnt_CenterPos:
+        LbTextSetWindow(pos_x-(w>>1), pos_y, w, h);
+        break;
+    }
+    LbTextDrawResized(0, 0, units_per_px, text);
+    return w;
 }
 
 TbBool LbAlignMethodSet(unsigned short fdflags)

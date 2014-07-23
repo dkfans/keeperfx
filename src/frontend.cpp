@@ -509,6 +509,50 @@ TbBool a_menu_window_is_active(void)
   return false;
 }
 
+int frontend_font_char_width(int fnt_idx,char c)
+{
+    struct TbSprite *fnt;
+    int i;
+    fnt = frontend_font[fnt_idx];
+    i = (unsigned short)c - 31;
+    if (i >= 0)
+        return fnt[i].SWidth;
+    return 0;
+}
+
+int frontend_font_string_width(int fnt_idx, const char *str)
+{
+    LbTextSetFont(frontend_font[fnt_idx]);
+    return LbTextStringWidth(str);
+}
+
+TbBool frontend_font_string_draw(int scr_x, int scr_y, int dst_width, int dst_height, int fnt_idx, const char *str, unsigned short fdflags)
+{
+    int units_per_px;
+    units_per_px = dst_height * 16 / LbTextLineHeight();
+    if (units_per_px < 1)
+        units_per_px = 1;
+    lbDisplay.DrawFlags = 0;
+    LbTextSetFont(frontend_font[fnt_idx]);
+    int w,h;
+    h = LbTextLineHeight() * units_per_px / 16;
+    w = LbTextStringWidth(str) * units_per_px / 16;
+    if (w > dst_width) w = dst_width;
+    switch (fdflags & 0x03)
+    {
+    case Fnt_LeftJustify:
+        LbTextSetWindow(scr_x, scr_y, w, h);
+        break;
+    case Fnt_RightJustify:
+        LbTextSetWindow(scr_x+dst_width-w, scr_y, w, h);
+        break;
+    case Fnt_CenterPos:
+        LbTextSetWindow(scr_x+((dst_width-w)>>1), scr_y, w, h);
+        break;
+    }
+    return LbTextDrawResized(0, 0, units_per_px, str);
+}
+
 void get_player_gui_clicks(void)
 {
   struct PlayerInfo *player;
@@ -802,23 +846,6 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
     }
     clear_key_pressed(key);
     return true;
-}
-
-int frontend_font_char_width(int fnt_idx,char c)
-{
-  struct TbSprite *fnt;
-  int i;
-  fnt = frontend_font[fnt_idx];
-  i = (unsigned short)c - 31;
-  if (i >= 0)
-    return fnt[i].SWidth;
-  return 0;
-}
-
-int frontend_font_string_width(int fnt_idx,char *str)
-{
-  LbTextSetFont(frontend_font[fnt_idx]);
-  return LbTextStringWidth(str);
 }
 
 void maintain_loadsave(struct GuiButton *gbtn)
@@ -1380,10 +1407,10 @@ void frontend_draw_text(struct GuiButton *gbtn)
     else
         font_idx = frontend_button_caption_font(gbtn, frontend_mouse_over_button);
     LbTextSetFont(frontend_font[font_idx]);
-    int units_per_px;
-    units_per_px = gbtn->height * 16 / 26;
+    int tx_units_per_px;
+    tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
-    LbTextDrawResized(0, 0, units_per_px, frontend_button_caption_text(gbtn));
+    LbTextDrawResized(0, 0, tx_units_per_px, frontend_button_caption_text(gbtn));
 }
 
 void frontend_change_state(struct GuiButton *gbtn)
@@ -1420,8 +1447,10 @@ void frontend_draw_enter_text(struct GuiButton *gbtn)
     snprintf(text, sizeof(text), "%s%s", srctext, print_with_cursor?"_":"");
     LbTextSetFont(frontend_font[font_idx]);
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
-    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, 240 + LbTextCharWidth('_'), gbtn->height);
-    LbTextDraw(0, 0, text);
+    int tx_units_per_px;
+    tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
+    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, (240 + LbTextCharWidth('_')) * tx_units_per_px / 16, gbtn->height);
+    LbTextDrawResized(0, 0, tx_units_per_px, text);
 }
 
 void frontend_draw_small_menu_button(struct GuiButton *gbtn)
@@ -1456,11 +1485,15 @@ void frontend_draw_computer_players(struct GuiButton *gbtn)
     } else {
         text = gui_string(848);
     }
-    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, LbTextHeight(text));
+    int tx_units_per_px;
+    tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
+    int ln_height;
+    ln_height = LbTextLineHeight() * tx_units_per_px / 16;
+    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, ln_height);
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
-    LbTextDraw(0, 0, frontend_button_caption_text(gbtn));
+    LbTextDrawResized(0, 0, tx_units_per_px, frontend_button_caption_text(gbtn));
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
-    LbTextDraw(0, 0, text);
+    LbTextDrawResized(0, 0, tx_units_per_px, text);
     lbDisplay.DrawFlags = 0;
 }
 
@@ -2206,12 +2239,12 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
     mnu_num = menu_id_to_number(gmnu->ident);
     if (mnu_num >= 0)
     {
-      amnu = get_active_menu(mnu_num);
-      amnu->visible = 1;
-      amnu->fade_time = gmnu->fade_time;
-      amnu->flgfield_1D = ((game.numfield_C & 0x20) != 0) || (!is_toggleable_menu(gmnu->ident));
-      SYNCDBG(18,"Menu number %d already active",(int)mnu_num);
-      return mnu_num;
+        amnu = get_active_menu(mnu_num);
+        amnu->visible = 1;
+        amnu->fade_time = gmnu->fade_time;
+        amnu->flgfield_1D = ((game.numfield_C & 0x20) != 0) || (!is_toggleable_menu(gmnu->ident));
+        SYNCDBG(18,"Menu number %d already active",(int)mnu_num);
+        return mnu_num;
     }
     add_to_menu_stack(gmnu->ident);
     mnu_num = first_available_menu();
@@ -2237,8 +2270,9 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
     amnu->pos_y = compute_menu_position_y(gmnu->pos_y,gmnu->height,MNU_UNITS_PER_PX);
 
     amnu->fade_time = gmnu->fade_time;
-    if (amnu->fade_time < 1)
+    if (amnu->fade_time < 1) {
         ERRORLOG("Fade time %d is less than 1.",(int)amnu->fade_time);
+    }
     amnu->buttons = gmnu->buttons;
     amnu->width = gmnu->width * MNU_UNITS_PER_PX / 16;
     amnu->height = gmnu->height * MNU_UNITS_PER_PX / 16;
@@ -2253,11 +2287,11 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
     btninit = gmnu->buttons;
     for (i=0; btninit[i].field_0 != -1; i++)
     {
-      if (create_button(amnu, &btninit[i], MNU_UNITS_PER_PX) == -1)
-      {
-        ERRORLOG("Cannot Allocate button");
-        return -1;
-      }
+        if (create_button(amnu, &btninit[i], MNU_UNITS_PER_PX) == -1)
+        {
+          ERRORLOG("Cannot Allocate button");
+          return -1;
+        }
     }
     update_radio_button_data(amnu);
     init_slider_bars(amnu);
@@ -2563,11 +2597,12 @@ void frontend_draw_level_select_button(struct GuiButton *gbtn)
       i = 1;
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
     LbTextSetFont(frontend_font[i]);
-    int units_per_px;
-    units_per_px = gbtn->height * 16 / 22;
-    i = LbTextLineHeight()*units_per_px/16;
+    int tx_units_per_px;
+    // This text is a bit condensed - button size is smaller than text height
+    tx_units_per_px = (gbtn->height*13/11) * 16 / LbTextLineHeight();
+    i = LbTextLineHeight() * tx_units_per_px / 16;
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, i);
-    LbTextDrawResized(0, 0, units_per_px, lvinfo->name);
+    LbTextDrawResized(0, 0, tx_units_per_px, lvinfo->name);
 }
 
 void frontend_level_select(struct GuiButton *gbtn)
@@ -2676,11 +2711,12 @@ void frontend_draw_campaign_select_button(struct GuiButton *gbtn)
     i = 1;
   lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
   LbTextSetFont(frontend_font[i]);
-  int units_per_px;
-  units_per_px = gbtn->height * 16 / 22;
-  i = LbTextLineHeight()*units_per_px/16;
+  int tx_units_per_px;
+  // This text is a bit condensed - button size is smaller than text height
+  tx_units_per_px = (gbtn->height*13/11) * 16 / LbTextLineHeight();
+  i = LbTextLineHeight() * tx_units_per_px / 16;
   LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, i);
-  LbTextDrawResized(0, 0, units_per_px, campgn->name);
+  LbTextDrawResized(0, 0, tx_units_per_px, campgn->name);
 }
 
 void frontend_campaign_select(struct GuiButton *gbtn)

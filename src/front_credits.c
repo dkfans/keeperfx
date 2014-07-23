@@ -66,7 +66,9 @@ void frontcredits_draw(void)
           fontid = credit->font;
           LbTextSetFont(frontend_font[fontid]);
         }
-        if (h > -LbTextLineHeight())
+        int ln_height;
+        ln_height = -LbTextLineHeight() * units_per_pixel / 16;
+        if (h > ln_height)
         {
             switch (credit->kind)
             {
@@ -83,10 +85,10 @@ void frontcredits_draw(void)
                 text = "";
                 break;
             }
-            LbTextDraw(0, h, text);
+            LbTextDrawResized(0, h, units_per_pixel, text);
             did_draw = 1;
         }
-        h += LbTextLineHeight() + 2;
+        h += ln_height + 2 * units_per_pixel / 16;
     }
     if (!did_draw)
     {
@@ -98,19 +100,19 @@ void frontcredits_draw(void)
 void frontcredits_input(void)
 {
     int fontid;
-    credits_scroll_speed = 1;
+    credits_scroll_speed = 1 * units_per_pixel / 16;
     fontid = 1;
     int speed;
     if ( lbKeyOn[KC_DOWN] )
     {
         LbTextSetFont(frontend_font[fontid]);
-        speed = LbTextLineHeight();
+        speed = LbTextLineHeight() * units_per_pixel / 16;
         credits_scroll_speed = speed;
     } else
     if ((lbKeyOn[KC_UP]) && (credits_offset <= 0))
     {
         LbTextSetFont(frontend_font[fontid]);
-        speed = -LbTextLineHeight();
+        speed = -LbTextLineHeight() * units_per_pixel / 16;
         if (speed <= credits_offset)
           speed = credits_offset;
         credits_scroll_speed = speed;

@@ -285,22 +285,24 @@ void frontnet_session_select(struct GuiButton *gbtn)
 
 void frontnet_draw_session_button(struct GuiButton *gbtn)
 {
-  //_DK_frontnet_draw_session_button(gbtn);
-  long sessionIndex;
-  long febtn_idx;
-  long height;
+    long sessionIndex;
+    long febtn_idx;
+    long height;
 
-  febtn_idx = (long)gbtn->content;
-  sessionIndex = net_session_scroll_offset + febtn_idx - 45;
-  if ((sessionIndex < 0) || (sessionIndex >= net_number_of_sessions))
-      return;
-  int font_idx;
-  font_idx = frontend_button_caption_font(gbtn,frontend_mouse_over_button);
-  LbTextSetFont(frontend_font[font_idx]);
-  lbDisplay.DrawFlags = 0;
-  height = LbTextLineHeight();
-  LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, height);
-  LbTextDraw(0, 0, net_session[sessionIndex]->text);
+    febtn_idx = (long)gbtn->content;
+    sessionIndex = net_session_scroll_offset + febtn_idx - 45;
+    if ((sessionIndex < 0) || (sessionIndex >= net_number_of_sessions))
+        return;
+    int font_idx;
+    font_idx = frontend_button_caption_font(gbtn,frontend_mouse_over_button);
+    LbTextSetFont(frontend_font[font_idx]);
+    lbDisplay.DrawFlags = 0;
+    int tx_units_per_px;
+    // This text is a bit condensed - button size is smaller than text height
+    tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
+    height = LbTextLineHeight() * tx_units_per_px / 16;
+    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, height);
+    LbTextDrawResized(0, 0, tx_units_per_px, net_session[sessionIndex]->text);
 }
 
 void frontnet_session_create(struct GuiButton *gbtn)
