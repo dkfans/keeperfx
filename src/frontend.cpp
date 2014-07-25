@@ -2440,6 +2440,9 @@ unsigned long toggle_status_menu(short visible)
       set_menu_visible_off(GMnu_DUNGEON_SPECIAL);
     }
   }
+  // Update pannel width
+  k = menu_id_to_number(GMnu_MAIN);
+  status_panel_width = get_active_menu(k)->width;
   return i;
 }
 

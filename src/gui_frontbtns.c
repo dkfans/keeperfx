@@ -667,8 +667,10 @@ void frontend_draw_scroll_box_tab(struct GuiButton *gbtn)
     long pos_x,pos_y;
     int units_per_px;
     units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, 75);
+    spr = &frontend_sprite[75];
     pos_x = gbtn->scr_pos_x;
-    pos_y = gbtn->scr_pos_y;
+    // Since this tab is attachable from top, it is important to keep bottom position without variation
+    pos_y = gbtn->scr_pos_y + gbtn->height - spr->SHeight * units_per_px / 16;
     spr = &frontend_sprite[74];
     LbSpriteDrawResized(pos_x, pos_y, units_per_px, spr);
     pos_x += spr->SWidth * units_per_px / 16;

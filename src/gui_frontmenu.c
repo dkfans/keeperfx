@@ -293,7 +293,7 @@ short turn_off_all_window_menus(void)
 
 void turn_on_main_panel_menu(void)
 {
-  if (menu_id_to_number(GMnu_MAIN) == -1)
+  if (menu_id_to_number(GMnu_MAIN) == MENU_INVALID_ID)
   {
     turn_on_menu(GMnu_MAIN);
   }
