@@ -147,7 +147,7 @@ struct GuiButtonInit frontend_net_start_buttons[] = {
   { 1,  0, 0, 0, frontnet_messages_down,NULL,frontend_over_button,    0, 532, 373, 532, 373,  26, 14, frontnet_draw_slider_button,       0, 201,  0,  {39}, 0, 0, frontnet_messages_down_maintain },
   { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0, 102, 247, 102, 247, 220, 26, frontend_draw_text,                0, 201,  0,  {34}, 0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0, 536, 285, 536, 285,  20, 88, frontnet_draw_messages_scroll_tab, 0, 201,  0,  {40}, 0, 0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0,  82, 386,  82, 386, 459, 23, frontnet_draw_current_message,     0, 201,  0,  {43}, 0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0,  82, 386,  82, 386, 459, 28, frontnet_draw_current_message,     0, 201,  0,  {43}, 0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0,  89, 273,  89, 273, 438,104, frontnet_draw_messages,            0, 201,  0,  {44}, 0, 0, NULL },
   { 0,  0, 0, 0, set_packet_start,   NULL,   frontend_over_button,    0,  49, 412,  49, 412, 247, 46, frontend_draw_small_menu_button,   0, 201,  0,  {15}, 0, 0, frontnet_start_game_maintain },
   { 0,  0, 0, 0, frontnet_return_to_session_menu,NULL,frontend_over_button,1, 345,412,345,412,247,46, frontend_draw_small_menu_button,   0, 201,  0,  {16}, 0, 0, NULL },
@@ -171,7 +171,7 @@ struct GuiButtonInit frontend_net_modem_buttons[] = {
   { 1,  0, 0, 0, frontnet_speed_down,NULL,   frontend_over_button,    0, 565, 186, 565, 186,  26, 14, frontnet_draw_slider_button,       0, 201,  0,  {37}, 0, 0, frontnet_speed_down_maintain },
   { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0, 569, 142, 569, 142,  20, 44, frontnet_draw_speed_scroll_tab,    0, 201,  0,  {40}, 0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0, 351, 103, 351, 103, 172, 25, frontend_draw_text,                0, 201,  0,  {56}, 0, 0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0, 331, 198, 331, 198, 450, 23, frontnet_draw_speed_selected,      0, 201,  0,  {58}, 0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0, 331, 198, 331, 198, 450, 28, frontnet_draw_speed_selected,      0, 201,  0,  {58}, 0, 0, NULL },
   { 0,  0, 0, 0, frontnet_speed_select,NULL, frontend_over_button,    0, 344, 136, 344, 136, 190, 14, frontnet_draw_speed_button,        0, 201,  0,  {47}, 0, 0, frontnet_speed_select_maintain },
   { 0,  0, 0, 0, frontnet_speed_select,NULL, frontend_over_button,    0, 344, 164, 344, 164, 190, 14, frontnet_draw_speed_button,        0, 201,  0,  {48}, 0, 0, frontnet_speed_select_maintain },
   { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0,  82, 254,  82, 254, 165, 28, frontnet_draw_text_cont_bar,       0, 201,  0,  {27}, 0, 0, NULL },
@@ -211,7 +211,7 @@ struct GuiButtonInit frontend_net_serial_buttons[] = {
   { 1,  0, 0, 0, frontnet_speed_down,NULL,   frontend_over_button,    0, 565, 261, 565, 261,  26, 14, frontnet_draw_slider_button,       0, 201,  0,  {37}, 0, 0, frontnet_speed_down_maintain },
   { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0, 569, 218, 569, 218,  20, 44, frontnet_draw_speed_scroll_tab,    0, 201,  0,  {40}, 0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0, 351, 179, 351, 179, 172, 25, frontend_draw_text,                0, 201,  0,  {56}, 0, 0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0, 331, 274, 331, 274, 450, 23, frontnet_draw_speed_selected,      0, 201,  0,  {58}, 0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0, 331, 274, 331, 274, 450, 28, frontnet_draw_speed_selected,      0, 201,  0,  {58}, 0, 0, NULL },
   { 0,  0, 0, 0, frontnet_speed_select,NULL, frontend_over_button,    0, 344, 212, 344, 212, 190, 26, frontnet_draw_speed_button,        0, 201,  0,  {47}, 0, 0, frontnet_speed_select_maintain },
   { 0,  0, 0, 0, frontnet_speed_select,NULL, frontend_over_button,    0, 344, 240, 344, 240, 190, 26, frontnet_draw_speed_button,        0, 201,  0,  {48}, 0, 0, frontnet_speed_select_maintain },
   { 0,  0, 0, 0, frontnet_net_serial_start,NULL,frontend_over_button, 0,  49, 412,  49, 412, 247, 46, frontend_draw_small_menu_button,   0, 201,  0,  {73}, 0, 0, frontnet_net_serial_start_maintain },
@@ -242,13 +242,13 @@ void frontnet_draw_session_selected(struct GuiButton *gbtn)
     int i;
     pos_x = gbtn->scr_pos_x;
     pos_y = gbtn->scr_pos_y;
-    int units_per_px;
-    units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, 56);
+    int fs_units_per_px;
+    fs_units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, 56);
     spr = &frontend_sprite[55];
     for (i=0; i < 6; i++)
     {
-        LbSpriteDrawResized(pos_x, pos_y, units_per_px, spr);
-        pos_x += spr->SWidth * units_per_px / 16;
+        LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
+        pos_x += spr->SWidth * fs_units_per_px / 16;
         spr++;
     }
     if (net_session_index_active >= 0)
@@ -265,7 +265,7 @@ void frontnet_draw_session_selected(struct GuiButton *gbtn)
             tx_units_per_px = (gbtn->height*13/14) * 16 / LbTextLineHeight();
             int h;
             h = LbTextLineHeight()*tx_units_per_px/16;
-            LbTextSetWindow(gbtn->scr_pos_x + 13*units_per_px/16, gbtn->scr_pos_y, gbtn->width - 26*units_per_px/16, h);
+            LbTextSetWindow(gbtn->scr_pos_x + 13*fs_units_per_px/16, gbtn->scr_pos_y, gbtn->width - 26*fs_units_per_px/16, h);
             LbTextDrawResized(0, 0, tx_units_per_px, text);
         }
     }
@@ -298,7 +298,6 @@ void frontnet_draw_session_button(struct GuiButton *gbtn)
     LbTextSetFont(frontend_font[font_idx]);
     lbDisplay.DrawFlags = 0;
     int tx_units_per_px;
-    // This text is a bit condensed - button size is smaller than text height
     tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
     height = LbTextLineHeight() * tx_units_per_px / 16;
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, height);
