@@ -2351,6 +2351,8 @@ unsigned long toggle_status_menu(short visible)
   unsigned long i;
   k = menu_id_to_number(GMnu_MAIN);
   if (k < 0) return 0;
+  // Update pannel width
+  status_panel_width = get_active_menu(k)->width;
   i = get_active_menu(k)->flgfield_1D;
   if (visible != i)
   {
@@ -2440,9 +2442,6 @@ unsigned long toggle_status_menu(short visible)
       set_menu_visible_off(GMnu_DUNGEON_SPECIAL);
     }
   }
-  // Update pannel width
-  k = menu_id_to_number(GMnu_MAIN);
-  status_panel_width = get_active_menu(k)->width;
   return i;
 }
 

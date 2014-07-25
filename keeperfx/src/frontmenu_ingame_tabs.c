@@ -2190,20 +2190,21 @@ void draw_gold_total(PlayerNumber plyr_idx, long scr_x, long scr_y, long units_p
         ndigits++;
     }
     spr = &button_sprite[71];
-    val_width = (pixel_size * (int)spr->SWidth) * (ndigits - 1);
+    val_width = (spr->SWidth * units_per_px / 16) * ndigits;
     if (ndigits > 0)
     {
-        pos_x = val_width / 2 + scr_x;
+        pos_x = scr_x + val_width / 2;
         for (i = value; i > 0; i /= 10)
         {
+            // Make space for the character first, as we're drawing right char towards left
+            pos_x -= spr->SWidth * units_per_px / 16;
             spr = &button_sprite[i % 10 + 71];
-            LbSpriteDraw(pos_x / pixel_size, scr_y / pixel_size, spr);
-            pos_x -= pixel_size * spr->SWidth;
+            LbSpriteDrawResized(pos_x, scr_y, units_per_px, spr);
         }
     } else
     {
         spr = &button_sprite[71];
-        LbSpriteDraw(scr_x / pixel_size, scr_y / pixel_size, spr);
+        LbSpriteDrawResized(scr_x, scr_y, units_per_px, spr);
     }
     lbDisplay.DrawFlags = flg_mem;
 }
@@ -2215,10 +2216,19 @@ void draw_whole_status_panel(void)
     long mmzoom;
     player = get_my_player();
     dungeon = get_players_dungeon(player);
+    // Get the menu scale
+    struct GuiMenu *gmnu;
+    int fs_units_per_px;
+    {
+        int mnu_num;
+        mnu_num = menu_id_to_number(GMnu_MAIN);
+        gmnu = get_active_menu(mnu_num);
+        fs_units_per_px = (gmnu->height * 16 + 8) / TiledSpriteHeight(&status_panel, gui_panel_sprites);
+    }
     lbDisplay.DrawColour = colours[15][15][15];
     lbDisplay.DrawFlags = 0;
-    DrawBigSprite(0, 0, 16/pixel_size, &status_panel, gui_panel_sprites);
-    draw_gold_total(player->id_number, (16/pixel_size)*60/16, (16/pixel_size)*134/16, (16/pixel_size), dungeon->total_money_owned);
+    TiledSpriteDraw(0, 0, fs_units_per_px, &status_panel, gui_panel_sprites);
+    draw_gold_total(player->id_number, gmnu->pos_x + gmnu->width/2, gmnu->pos_y + gmnu->height*67/200, gmnu->width*4/35, dungeon->total_money_owned);
     if (pixel_size < 3)
         mmzoom = (player->minimap_zoom) / (3-pixel_size);
     else
