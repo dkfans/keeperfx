@@ -439,85 +439,84 @@ void draw_message_box_at(long startx, long starty, long box_width, long box_heig
     y = starty;
     {
         spr = &frontend_sprite[25];
-        LbSpriteDraw(x, y, spr);
-        x += spr->SWidth;
+        LbSpriteDrawResized(x, y, units_per_pixel, spr);
+        x += spr->SWidth * units_per_pixel / 16;
     }
     for (n=0; n < spritesx; n++)
     {
         spr = &frontend_sprite[(n % 4) + 26];
-        LbSpriteDraw(x, y, spr);
-        x += spr->SWidth;
+        LbSpriteDrawResized(x, y, units_per_pixel, spr);
+        x += spr->SWidth * units_per_pixel / 16;
     }
     x = startx;
     {
         spr = &frontend_sprite[25];
-        x += spr->SWidth;
+        x += spr->SWidth * units_per_pixel / 16;
     }
     for (n=0; n < spritesx; n++)
     {
         spr = &frontend_sprite[(n % 4) + 26];
-        LbSpriteDraw(x, y, spr);
-        x += spr->SWidth;
+        LbSpriteDrawResized(x, y, units_per_pixel, spr);
+        x += spr->SWidth * units_per_pixel / 16;
     }
     {
         spr = &frontend_sprite[30];
-        LbSpriteDraw(x, y, spr);
+        LbSpriteDrawResized(x, y, units_per_pixel, spr);
     }
     // Draw centered line of sprites
     spr = &frontend_sprite[25];
     x = startx;
-    y += spr->SHeight;
+    y += spr->SHeight * units_per_pixel / 16;
     {
         spr = &frontend_sprite[40];
-        LbSpriteDraw(x, y, spr);
-        x += spr->SWidth;
+        LbSpriteDrawResized(x, y, units_per_pixel, spr);
+        x += spr->SWidth * units_per_pixel / 16;
     }
     for (n=0; n < spritesx; n++)
     {
         spr = &frontend_sprite[(n % 4) + 41];
-        LbSpriteDraw(x, y, spr);
-        x += spr->SWidth;
+        LbSpriteDrawResized(x, y, units_per_pixel, spr);
+        x += spr->SWidth * units_per_pixel / 16;
     }
     {
         spr = &frontend_sprite[45];
-        LbSpriteDraw(x, y, spr);
+        LbSpriteDrawResized(x, y, units_per_pixel, spr);
     }
     // Draw bottom line of sprites
     spr = &frontend_sprite[40];
     x = startx;
-    y += spr->SHeight;
+    y += spr->SHeight * units_per_pixel / 16;
     {
         spr = &frontend_sprite[47];
-        LbSpriteDraw(x, y, spr);
-        x += spr->SWidth;
+        LbSpriteDrawResized(x, y, units_per_pixel, spr);
+        x += spr->SWidth * units_per_pixel / 16;
     }
     for (n=0; n < spritesx; n++)
     {
         spr = &frontend_sprite[(n % 4) + 48];
-        LbSpriteDraw(x, y, spr);
-        x += spr->SWidth;
+        LbSpriteDrawResized(x, y, units_per_pixel, spr);
+        x += spr->SWidth * units_per_pixel / 16;
     }
     {
         spr = &frontend_sprite[52];
-        LbSpriteDraw(x, y, spr);
+        LbSpriteDrawResized(x, y, units_per_pixel, spr);
     }
 }
 
-int draw_text_box(const char *text)
+TbBool draw_text_box(const char *text)
 {
-    //return _DK_draw_text_box(text);
     long spritesy,spritesx;
     long box_width,box_height;
     long startx,starty;
     long n;
     LbTextSetFont(frontend_font[1]);
     n = LbTextStringWidth(text);
-    if (n < 432) {
+    if (n < (4*108)) {
         spritesy = 1;
         spritesx = n / 108;
     } else {
         spritesx = 4;
-        spritesy = n / 324;
+        spritesy = n / (3*108);
     }
     if (spritesy > 4) {
       ERRORLOG("Text too long for error box");
@@ -528,16 +527,18 @@ int draw_text_box(const char *text)
     if (spritesx > 4) {
         spritesx = 4;
     }
-    box_width = 108 * spritesx + 18;
-    box_height = 92;
+    box_width = (108 * spritesx + 18) * units_per_pixel / 16;
+    box_height = 92 * units_per_pixel / 16;
     startx = (lbDisplay.PhysicalScreenWidth - box_width) / 2;
     starty = (lbDisplay.PhysicalScreenHeight - box_height) / 2;
     draw_message_box_at(startx, starty, box_width, box_height, spritesx, spritesy);
     // Draw the text inside box
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
+    int tx_units_per_px;
+    tx_units_per_px = ((box_height/4)*13/11) * 16 / LbTextLineHeight();
     LbTextSetWindow(startx, starty, box_width, box_height);
-    n = LbTextLineHeight();
-    return LbTextDraw(0, (box_height - spritesy * n) / 2, text);
+    n = LbTextLineHeight() * tx_units_per_px / 16;
+    return LbTextDrawResized(0, (box_height - spritesy * n) / 2, tx_units_per_px, text);
 }
 
 int scroll_box_get_units_per_px(struct GuiButton *gbtn)

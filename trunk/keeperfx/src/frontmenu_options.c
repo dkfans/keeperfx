@@ -134,8 +134,6 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
     if (key_id >= GAME_KEYS_COUNT) {
         return;
     }
-    int units_per_px;
-    units_per_px = gbtn->height * 16 / 22;
     unsigned char code;
     code = settings.kbkeys[key_id].code;
     long i;
@@ -156,11 +154,14 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
     } else {
         LbTextSetFont(frontend_font[1]);
     }
-    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
-    int h;
-    h = LbTextLineHeight() * units_per_px / 16;
-    LbTextDrawResized(0, (gbtn->height - h) / 2, units_per_px, gui_string(definable_key_string[key_id]));
+    int tx_units_per_px;
+    // This text is a bit condensed - button size is smaller than text height
+    tx_units_per_px = (gbtn->height*13/11) * 16 / LbTextLineHeight();
+    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
+    int height;
+    height = LbTextLineHeight() * tx_units_per_px / 16;
+    LbTextDrawResized(0, (gbtn->height - height) / 2, tx_units_per_px, gui_string(definable_key_string[key_id]));
     unsigned char mods;
     mods = settings.kbkeys[key_id].mods;
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
@@ -203,8 +204,8 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
         break;
     }
     strcat(text, keytext);
-    h = LbTextLineHeight() * units_per_px / 16;
-    LbTextDrawResized(0, (gbtn->height - h) / 2, units_per_px, text);
+    height = LbTextLineHeight() * tx_units_per_px / 16;
+    LbTextDrawResized(0, (gbtn->height - height) / 2, tx_units_per_px, text);
 }
 
 void gui_video_shadows(struct GuiButton *gbtn)
@@ -306,15 +307,15 @@ void frontend_draw_invert_mouse(struct GuiButton *gbtn)
     font_idx = frontend_button_caption_font(gbtn,frontend_mouse_over_button);
     LbTextSetFont(frontend_font[font_idx]);
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
-    int units_per_px;
-    units_per_px = gbtn->height * 16 / 26;
+    int tx_units_per_px;
+    tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
     const char *text;
     if (settings.first_person_move_invert) {
         text = gui_string(847);
     } else {
         text = gui_string(848);
     }
-    LbTextDrawResized(0, 0, units_per_px, text);
+    LbTextDrawResized(0, 0, tx_units_per_px, text);
 }
 
 /**
