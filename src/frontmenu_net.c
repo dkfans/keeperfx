@@ -451,7 +451,7 @@ void frontnet_draw_net_session_players(struct GuiButton *gbtn)
             break;
         spr = &frontend_sprite[21+netplyr_idx];
         i = height - spr->SHeight * fs_units_per_px / 16;
-        LbSpriteDraw(gbtn->scr_pos_x, gbtn->scr_pos_y + shift_y + abs(i)/2, spr);
+        LbSpriteDrawResized(gbtn->scr_pos_x, gbtn->scr_pos_y + shift_y + abs(i)/2, fs_units_per_px, spr);
         LbTextSetWindow(gbtn->scr_pos_x, shift_y + gbtn->scr_pos_y, gbtn->width - spr->SWidth * fs_units_per_px / 16, height);
         LbTextDrawResized(spr->SWidth * fs_units_per_px / 16, 0, tx_units_per_px, text);
     }
