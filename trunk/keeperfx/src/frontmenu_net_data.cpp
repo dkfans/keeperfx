@@ -213,7 +213,7 @@ void frontnet_draw_session_selected(struct GuiButton *gbtn)
     pos_x = gbtn->scr_pos_x;
     pos_y = gbtn->scr_pos_y;
     int fs_units_per_px;
-    fs_units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, 56);
+    fs_units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, 56, 100);
     spr = &frontend_sprite[55];
     for (i=0; i < 6; i++)
     {

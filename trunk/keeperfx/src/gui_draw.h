@@ -71,9 +71,12 @@ DLLIMPORT extern unsigned char * _DK_frontend_end_sprite_data;
 #define frontend_end_sprite_data _DK_frontend_end_sprite_data
 /******************************************************************************/
 int get_bitmap_max_scale(int img_w,int img_h,int rect_w,int rect_h);
-int simple_button_sprite_units_per_px(const struct GuiButton *gbtn, long spridx);
-int simple_frontend_sprite_height_units_per_px(const struct GuiButton *gbtn, long spridx);
-int simple_frontend_sprite_width_units_per_px(const struct GuiButton *gbtn, long spridx);
+int simple_button_sprite_height_units_per_px(const struct GuiButton *gbtn, long spridx, int fraction);
+int simple_button_sprite_width_units_per_px(const struct GuiButton *gbtn, long spridx, int fraction);
+int simple_frontend_sprite_height_units_per_px(const struct GuiButton *gbtn, long spridx, int fraction);
+int simple_frontend_sprite_width_units_per_px(const struct GuiButton *gbtn, long spridx, int fraction);
+int simple_gui_panel_sprite_height_units_per_px(const struct GuiButton *gbtn, long spridx, int fraction);
+int simple_gui_panel_sprite_width_units_per_px(const struct GuiButton *gbtn, long spridx, int fraction);
 
 void draw_bar64k(long pos_x, long pos_y, int units_per_px, long width);
 void draw_lit_bar64k(long pos_x, long pos_y, long width);
@@ -88,13 +91,13 @@ TbBool draw_text_box(const char *text);
 void draw_scroll_box(struct GuiButton *gbtn, int units_per_px, int num_rows);
 int scroll_box_get_units_per_px(struct GuiButton *gbtn);
 
-void draw_gui_panel_sprite_left(long x, long y, long spridx);
-void draw_gui_panel_sprite_rmleft(long x, long y, long spridx, unsigned long remap);
-void draw_gui_panel_sprite_ocleft(long x, long y, long spridx, TbPixel color);
-void draw_gui_panel_sprite_centered(long x, long y, long spridx);
-void draw_gui_panel_sprite_occentered(long x, long y, long spridx, TbPixel color);
+void draw_gui_panel_sprite_left(long x, long y, int units_per_px, long spridx);
+void draw_gui_panel_sprite_rmleft(long x, long y, int units_per_px, long spridx, unsigned long remap);
+void draw_gui_panel_sprite_ocleft(long x, long y, int units_per_px, long spridx, TbPixel color);
+void draw_gui_panel_sprite_centered(long x, long y, int units_per_px, long spridx);
+void draw_gui_panel_sprite_occentered(long x, long y, int units_per_px, long spridx, TbPixel color);
 void draw_button_sprite_left(long x, long y, int units_per_px, long spridx);
-void draw_button_sprite_rmleft(long x, long y, long spridx, unsigned long remap);
+void draw_button_sprite_rmleft(long x, long y, int units_per_px, long spridx, unsigned long remap);
 
 void draw_frontend_sprite_left(long x, long y, int units_per_px, long spridx);
 
