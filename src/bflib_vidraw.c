@@ -4078,7 +4078,7 @@ TbResult LbHugeSpriteDraw(const struct TbHugeSprite * spr, long sp_len,
  * @param sprite
  * @note originally named DrawBigSprite()
  */
-void TiledSpriteDraw(long start_x, long start_y, long units_per_px, struct TiledSprite *bigspr, struct TbSprite *sprite)
+void LbTiledSpriteDraw(long start_x, long start_y, long units_per_px, struct TiledSprite *bigspr, struct TbSprite *sprite)
 {
     //_DK_DrawBigSprite(x, y, bigspr, sprite);
     long x, y;
@@ -4119,10 +4119,9 @@ void TiledSpriteDraw(long start_x, long start_y, long units_per_px, struct Tiled
     }
 }
 
-int TiledSpriteHeight(struct TiledSprite *bigspr, struct TbSprite *sprite)
+int LbTiledSpriteHeight(struct TiledSprite *bigspr, struct TbSprite *sprite)
 {
     long height;
-    int delta_y;
     int spnum_y;
     height = 0;
     for (spnum_y = 0; spnum_y < bigspr->y_num; spnum_y++)

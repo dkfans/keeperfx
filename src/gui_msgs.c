@@ -51,7 +51,7 @@ void message_draw(void)
         LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
         set_flag_word(&lbDisplay.DrawFlags,Lb_TEXT_ONE_COLOR,false);
         LbTextDraw((x+32)/pixel_size, y/pixel_size, game.messages[i].text);
-        draw_gui_panel_sprite_left(x, y, 488+game.messages[i].plyr_idx);
+        draw_gui_panel_sprite_left(x, y, 16, 488+game.messages[i].plyr_idx);
         y += pixel_size * h;
     }
 }

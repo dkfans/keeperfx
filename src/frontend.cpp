@@ -1097,7 +1097,7 @@ void frontend_draw_scroll_tab(struct GuiButton *gbtn, long scroll_offset, long f
     struct TbSprite *spr;
     long i,k,n;
     int units_per_px;
-    units_per_px = simple_frontend_sprite_width_units_per_px(gbtn, 78);
+    units_per_px = simple_frontend_sprite_width_units_per_px(gbtn, 78, 100);
     spr = &frontend_sprite[78];
     i = last_elem - first_elem;
     k = gbtn->height - spr->SHeight * units_per_px / 16;
@@ -1151,23 +1151,21 @@ void draw_slider64k(long scr_x, long scr_y, int units_per_px, long width)
 
 void gui_area_slider(struct GuiButton *gbtn)
 {
-    //_DK_gui_area_slider(gbtn);
     if ((gbtn->flags & LbBtnF_Unknown08) == 0) {
         return;
     }
-    //gbtn->height = 32;
-    int units_per_px;
-    units_per_px = gbtn->height * 16 / 32;
-    draw_slider64k(gbtn->scr_pos_x, gbtn->scr_pos_y, units_per_px, gbtn->width);
+    int bs_units_per_px;
+    bs_units_per_px = simple_button_sprite_height_units_per_px(gbtn, 2, 44);
+    draw_slider64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, gbtn->width);
     int shift_x;
-    shift_x = (gbtn->width - 64*units_per_px/16) * gbtn->slide_val >> 8;
+    shift_x = (gbtn->width - 64*bs_units_per_px/16) * gbtn->slide_val >> 8;
     struct TbSprite *spr;
     if (gbtn->flags != 0) {
         spr = &button_sprite[21];
     } else {
         spr = &button_sprite[20];
     }
-    LbSpriteDrawResized((gbtn->scr_pos_x + shift_x + 24*units_per_px/16) / pixel_size, (gbtn->scr_pos_y + 6*units_per_px/16) / pixel_size, units_per_px, spr);
+    LbSpriteDrawResized((gbtn->scr_pos_x + shift_x + 24*bs_units_per_px/16) / pixel_size, (gbtn->scr_pos_y + 6*bs_units_per_px/16) / pixel_size, bs_units_per_px, spr);
 }
 
 #if (BFDEBUG_LEVEL > 0)
@@ -1243,7 +1241,7 @@ TbBool fronttestfont_input(void)
 void frontend_draw_icon(struct GuiButton *gbtn)
 {
     int units_per_px;
-    units_per_px = simple_frontend_sprite_width_units_per_px(gbtn, gbtn->field_29);
+    units_per_px = simple_frontend_sprite_width_units_per_px(gbtn, gbtn->field_29, 100);
     struct TbSprite *spr;
     spr = &frontend_sprite[gbtn->field_29];
     LbSpriteDrawResized(gbtn->scr_pos_x, gbtn->scr_pos_y, units_per_px, spr);
@@ -1255,32 +1253,30 @@ void frontend_draw_slider(struct GuiButton *gbtn)
     if ((gbtn->flags & LbBtnF_Unknown08) == 0) {
         return;
     }
+    int fs_units_per_px;
+    fs_units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, 93, 100);
     int scr_x, scr_y;
     scr_x = gbtn->scr_pos_x;
     scr_y = gbtn->scr_pos_y;
     struct TbSprite *spr;
-    spr = &frontend_sprite[93];
-    int units_per_px;
-    units_per_px = gbtn->height * 16 / spr->SHeight;
-    //gbtn->height = 32;
     spr = &frontend_sprite[92];
-    LbSpriteDrawResized(scr_x, scr_y, units_per_px, spr);
-    scr_x += spr->SWidth * units_per_px / 16;
+    LbSpriteDrawResized(scr_x, scr_y, fs_units_per_px, spr);
+    scr_x += spr->SWidth * fs_units_per_px / 16;
     spr = &frontend_sprite[93];
-    LbSpriteDrawResized(scr_x, scr_y, units_per_px, spr);
-    scr_x += spr->SWidth * units_per_px / 16;
-    LbSpriteDrawResized(scr_x, scr_y, units_per_px, spr);
-    scr_x += spr->SWidth * units_per_px / 16;
+    LbSpriteDrawResized(scr_x, scr_y, fs_units_per_px, spr);
+    scr_x += spr->SWidth * fs_units_per_px / 16;
+    LbSpriteDrawResized(scr_x, scr_y, fs_units_per_px, spr);
+    scr_x += spr->SWidth * fs_units_per_px / 16;
     spr = &frontend_sprite[94];
-    LbSpriteDrawResized(scr_x, scr_y, units_per_px, spr);
+    LbSpriteDrawResized(scr_x, scr_y, fs_units_per_px, spr);
     int shift_x;
-    shift_x = gbtn->slide_val * (gbtn->width - 64*units_per_px/16) >> 8;
+    shift_x = gbtn->slide_val * (gbtn->width - 64*fs_units_per_px/16) >> 8;
     if (gbtn->gbactn_1 != 0) {
         spr = &frontend_sprite[91];
     } else {
         spr = &frontend_sprite[78];
     }
-    LbSpriteDrawResized((gbtn->scr_pos_x + shift_x + 24*units_per_px/16) / pixel_size, (gbtn->scr_pos_y + 3*units_per_px/16) / pixel_size, units_per_px, spr);
+    LbSpriteDrawResized((gbtn->scr_pos_x + shift_x + 24*fs_units_per_px/16) / pixel_size, (gbtn->scr_pos_y + 3*fs_units_per_px/16) / pixel_size, fs_units_per_px, spr);
 }
 
 void frontend_draw_small_slider(struct GuiButton *gbtn)
@@ -1289,56 +1285,51 @@ void frontend_draw_small_slider(struct GuiButton *gbtn)
     if ((gbtn->flags & LbBtnF_Unknown08) == 0) {
         return;
     }
+    int fs_units_per_px;
+    fs_units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, 93, 100);
     int scr_x, scr_y;
     scr_x = gbtn->scr_pos_x;
     scr_y = gbtn->scr_pos_y;
     struct TbSprite *spr;
-    spr = &frontend_sprite[93];
-    int units_per_px;
-    units_per_px = gbtn->height * 16 / spr->SHeight;
-    //gbtn->height = 32;
     spr = &frontend_sprite[92];
-    LbSpriteDrawResized(scr_x, scr_y, units_per_px, spr);
-    scr_x += spr->SWidth * units_per_px / 16;
+    LbSpriteDrawResized(scr_x, scr_y, fs_units_per_px, spr);
+    scr_x += spr->SWidth * fs_units_per_px / 16;
     spr = &frontend_sprite[93];
-    LbSpriteDrawResized(scr_x, scr_y, units_per_px, spr);
-    scr_x += spr->SWidth * units_per_px / 16;
+    LbSpriteDrawResized(scr_x, scr_y, fs_units_per_px, spr);
+    scr_x += spr->SWidth * fs_units_per_px / 16;
     spr = &frontend_sprite[94];
-    LbSpriteDrawResized(scr_x, scr_y, units_per_px, spr);
+    LbSpriteDrawResized(scr_x, scr_y, fs_units_per_px, spr);
     int val;
-    val = gbtn->slide_val * (gbtn->width - 64*units_per_px/16) >> 8;
+    val = gbtn->slide_val * (gbtn->width - 64*fs_units_per_px/16) >> 8;
     if (gbtn->gbactn_1 != 0) {
         spr = &frontend_sprite[91];
     } else {
         spr = &frontend_sprite[78];
     }
-    LbSpriteDrawResized((gbtn->scr_pos_x + val + 24*units_per_px/16) / pixel_size, (gbtn->scr_pos_y + 3*units_per_px/16) / pixel_size, units_per_px, spr);
+    LbSpriteDrawResized((gbtn->scr_pos_x + val + 24*fs_units_per_px/16) / pixel_size, (gbtn->scr_pos_y + 3*fs_units_per_px/16) / pixel_size, fs_units_per_px, spr);
 }
 
 void gui_area_text(struct GuiButton *gbtn)
 {
-    //_DK_gui_area_text(gbtn);
     if ((gbtn->flags & LbBtnF_Unknown08) == 0) {
         return;
     }
-    int units_per_px;
-    units_per_px = gbtn->height * 16 / 32;
+    int bs_units_per_px;
+    bs_units_per_px = simple_button_sprite_height_units_per_px(gbtn, 2, 94);
     switch (gbtn->field_29)
     {
     case 1:
-        //gbtn->height = 32;
         if ( gbtn->gbactn_1 || gbtn->gbactn_2 )
         {
-            draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, units_per_px, gbtn->width);
+            draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, gbtn->width);
             draw_lit_bar64k(gbtn->scr_pos_x - 6, gbtn->scr_pos_y - 6, gbtn->width + 6);
         } else
         {
-            draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, units_per_px, gbtn->width);
+            draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, gbtn->width);
         }
         break;
     case 2:
-        //gbtn->height = 32;
-        draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, units_per_px, gbtn->width);
+        draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, gbtn->width);
         break;
     }
     if (gbtn->tooltip_id != GUIStr_Empty)

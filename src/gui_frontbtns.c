@@ -127,10 +127,10 @@ TbBool gui_slider_button_inputs(int gbtn_idx)
     gbtn = &active_buttons[gbtn_idx];
     mouse_x = GetMouseX();
     gbtn->gbactn_1 = 1;
-    int units_per_px;
-    units_per_px = gbtn->height * 16 / 22;
-    slide_start = gbtn->pos_x + 32*units_per_px/16;
-    slide_end = gbtn->pos_x + gbtn->width - 32*units_per_px/16;
+    int bs_units_per_px;
+    bs_units_per_px = simple_button_sprite_height_units_per_px(gbtn, 2, 44);
+    slide_start = gbtn->pos_x + 32*bs_units_per_px/16;
+    slide_end = gbtn->pos_x + gbtn->width - 32*bs_units_per_px/16;
     if (mouse_x < slide_start)
     {
         gbtn->slide_val = 0;
@@ -139,9 +139,9 @@ TbBool gui_slider_button_inputs(int gbtn_idx)
     {
         gbtn->slide_val = 255;
     } else
-    if (gbtn->width > 64*units_per_px/16)
+    if (gbtn->width > 64*bs_units_per_px/16)
     {
-        gbtn->slide_val = ((mouse_x-slide_start) << 8) / (gbtn->width-64*units_per_px/16);
+        gbtn->slide_val = ((mouse_x-slide_start) << 8) / (gbtn->width-64*bs_units_per_px/16);
     } else
     {
         gbtn->slide_val = ((mouse_x-gbtn->pos_x) << 8) / (gbtn->width+1);
@@ -159,14 +159,14 @@ TbBool gui_slider_button_mouse_over_slider_tracker(int gbtn_idx)
     if (gbtn_idx < 0)
       return false;
     gbtn = &active_buttons[gbtn_idx];
-    int units_per_px;
-    units_per_px = gbtn->height * 16 / 22;
+    int bs_units_per_px;
+    bs_units_per_px = gbtn->height * 16 / 22;
     int slider_pos_x;
-    slider_pos_x = gbtn->scr_pos_x + 32*units_per_px/16 + ((gbtn->slide_val)*(gbtn->width-64*units_per_px/16) >> 8);
+    slider_pos_x = gbtn->scr_pos_x + 32*bs_units_per_px/16 + ((gbtn->slide_val)*(gbtn->width-64*bs_units_per_px/16) >> 8);
 
     int mouse_x, mouse_y;
     mouse_x = GetMouseX();
-    if ((mouse_x >= (slider_pos_x-11*units_per_px/16)) && (mouse_x <= (slider_pos_x+11*units_per_px/16)))
+    if ((mouse_x >= (slider_pos_x-11*bs_units_per_px/16)) && (mouse_x <= (slider_pos_x+11*bs_units_per_px/16)))
     {
         mouse_y = GetMouseY();
         if ((mouse_y >= gbtn->pos_y) && (mouse_y <= (gbtn->pos_y+gbtn->height))) {
@@ -449,10 +449,10 @@ void gui_area_new_normal_button(struct GuiButton *gbtn)
       i = 0;
       if ((!gbtn->gbactn_1) && (!gbtn->gbactn_2))
           i = 1;
-      draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->field_29+i);
+      draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, 16, gbtn->field_29+i);
   } else
   {
-      draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->field_29+1, 12);
+      draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, 16, gbtn->field_29+1, 12);
   }
   SYNCDBG(12,"Finished");
 }
@@ -466,13 +466,13 @@ void gui_draw_tab(struct GuiButton *gbtn)
     }
     if ((!gbtn->gbactn_1) && (!gbtn->gbactn_2))
         i++;
-    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, i);
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, 16, i);
 }
 
 void gui_area_new_null_button(struct GuiButton *gbtn)
 {
     //_DK_gui_area_new_null_button(gbtn);
-    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->field_29);
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, 16, gbtn->field_29);
 }
 
 void gui_area_new_no_anim_button(struct GuiButton *gbtn)
@@ -494,14 +494,14 @@ void gui_area_new_no_anim_button(struct GuiButton *gbtn)
     }
     if ((gbtn->flags & LbBtnF_Unknown08) == 0)
     {
-        draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, i, 12);
+        draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, 16, i, 12);
     } else
     if ((gbtn->gbactn_1) || (gbtn->gbactn_2))
     {
-        draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, i, 44);
+        draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, 16, i, 44);
     } else
     {
-        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, i);
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, 16, i);
     }
     SYNCDBG(12,"Finished");
 }
@@ -524,40 +524,39 @@ void gui_area_no_anim_button(struct GuiButton *gbtn)
             ERRORLOG("Cycle button must have a non-zero MaxVal!");
         }
     }
-    int units_per_px;
-    units_per_px = simple_button_sprite_units_per_px(gbtn, spr_idx);
+    int bs_units_per_px;
+    bs_units_per_px = simple_button_sprite_height_units_per_px(gbtn, spr_idx, 100);
     if ((gbtn->flags & LbBtnF_Unknown08) != 0)
     {
         if ( (gbtn->gbactn_1 != 0) || (gbtn->gbactn_2 != 0) ) {
-            draw_button_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, spr_idx, 44);
+            draw_button_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, spr_idx, 44);
         } else {
-            draw_button_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, units_per_px, spr_idx);
+            draw_button_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, spr_idx);
         }
     } else
     {
-        draw_button_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, spr_idx, 12);
+        draw_button_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, spr_idx, 12);
     }
 }
 
 void gui_area_normal_button(struct GuiButton *gbtn)
 {
     int spr_idx;
-    //_DK_gui_area_normal_button(gbtn);
     spr_idx = gbtn->field_29;
     if (gbtn->gbtype == Lb_CYCLEBTN)
     {
         ERRORLOG("Cycle button cannot have a normal button draw function!");
     }
-    int units_per_px;
-    units_per_px = simple_button_sprite_units_per_px(gbtn, spr_idx);
+    int bs_units_per_px;
+    bs_units_per_px = simple_button_sprite_width_units_per_px(gbtn, spr_idx, 114);
     if ((gbtn->flags & LbBtnF_Unknown08) != 0)
     {
         if ( (gbtn->gbactn_1 != 0) || (gbtn->gbactn_2 != 0) )
             spr_idx++;
-        draw_button_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, units_per_px, spr_idx);
+        draw_button_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, spr_idx);
     } else
     {
-        draw_button_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, spr_idx, 12);
+        draw_button_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, spr_idx, 12);
     }
 }
 
@@ -603,7 +602,7 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
     struct TbSprite *spr;
     // Detect scaling factor
     int units_per_px;
-    units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, 14);
+    units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, 14, 100);
     x = gbtn->scr_pos_x;
     y = gbtn->scr_pos_y;
     switch (btntype)
@@ -666,7 +665,7 @@ void frontend_draw_scroll_box_tab(struct GuiButton *gbtn)
     struct TbSprite *spr;
     long pos_x,pos_y;
     int units_per_px;
-    units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, 75);
+    units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, 75, 100);
     spr = &frontend_sprite[75];
     pos_x = gbtn->scr_pos_x;
     // Since this tab is attachable from top, it is important to keep bottom position without variation
@@ -834,21 +833,21 @@ void frontend_draw_slider_button(struct GuiButton *gbtn)
     {
         // Detect scaling factor
         int units_per_px;
-        units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, spr_idx);
+        units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, spr_idx, 100);
         draw_frontend_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, units_per_px, spr_idx);
     }
 }
 
 void gui_area_null(struct GuiButton *gbtn)
 {
-    int units_per_px;
-    units_per_px = simple_button_sprite_units_per_px(gbtn, gbtn->field_29);
+    int bs_units_per_px;
+    bs_units_per_px = simple_button_sprite_height_units_per_px(gbtn, gbtn->field_29, 100);
     if ((gbtn->flags & LbBtnF_Unknown08) != 0)
     {
-        draw_button_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, units_per_px, gbtn->field_29);
+        draw_button_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, gbtn->field_29);
     } else
     {
-        draw_button_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, units_per_px, gbtn->field_29);
+        draw_button_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, gbtn->field_29);
     }
 }
 
@@ -889,10 +888,10 @@ void gui_area_flash_cycle_button(struct GuiButton *gbtn)
         if ((!gbtn->gbactn_1) && (!gbtn->gbactn_2)) {
             i++;
         }
-        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, i);
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, 16, i);
     } else
     {
-        draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, i, 12);
+        draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, 16, i, 12);
     }
     SYNCDBG(12,"Finished");
 }

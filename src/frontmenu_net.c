@@ -372,19 +372,19 @@ void frontnet_draw_text_bar(struct GuiButton *gbtn)
     long pos_x, pos_y;
     pos_x = gbtn->scr_pos_x;
     pos_y = gbtn->scr_pos_y;
-    int units_per_px;
-    units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, 72);
+    int fs_units_per_px;
+    fs_units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, 72, 100);
     spr = &frontend_sprite[71];
-    LbSpriteDrawResized(pos_x, pos_y, units_per_px, spr);
-    pos_x += spr->SWidth * units_per_px / 16;
+    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
+    pos_x += spr->SWidth * fs_units_per_px / 16;
     spr = &frontend_sprite[72];
     for (i=0; i < 4; i++)
     {
-        LbSpriteDrawResized(pos_x, pos_y, units_per_px, spr);
-        pos_x += spr->SWidth * units_per_px / 16;
+        LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
+        pos_x += spr->SWidth * fs_units_per_px / 16;
     }
     spr = &frontend_sprite[73];
-    LbSpriteDrawResized(pos_x, pos_y, units_per_px, spr);
+    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
 }
 
 void frontnet_session_up(struct GuiButton *gbtn)
