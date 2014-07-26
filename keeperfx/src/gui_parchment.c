@@ -661,10 +661,10 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
         if ((game.play_gameturn & 0x04) != 0)
         {
           color = get_player_path_colour(thing->owner);
-          draw_gui_panel_sprite_occentered(scr_x+spos_x, scr_y+spos_y, spridx, color);
+          draw_gui_panel_sprite_occentered(scr_x+spos_x, scr_y+spos_y, 16, spridx, color);
         } else
         {
-          draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, spridx);
+          draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, 16, spridx);
         }
         draw_status_sprites((spos_x+scr_x)/pixel_size - 10, (spos_y+scr_y-20)/pixel_size, thing, 4096);
         break;
@@ -673,29 +673,29 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
             break;
         manufctr = get_manufacture_data_for_thing(thing->class_id, thing->model);
         spridx = manufctr->parchment_spridx;
-        draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, spridx);
+        draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, 16, spridx);
         break;
       case TCls_Object:
         if (thing_is_dungeon_heart(thing))
         {
             spridx = 512;
-            draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, spridx);
+            draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, 16, spridx);
         } else
         if (object_is_gold(thing))
         {
             spridx = 511;
-            draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, spridx);
+            draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, 16, spridx);
         } else
         if (thing_is_special_box(thing))
         {
             spridx = 164;
-            draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, spridx);
+            draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, 16, spridx);
         } else
         if (thing_is_spellbook(thing))
         {
             pwrdata = get_power_data(book_thing_to_magic(thing));
             spridx = pwrdata->field_B;
-            draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, spridx);
+            draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, 16, spridx);
         }
         break;
       default:

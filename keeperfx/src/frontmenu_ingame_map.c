@@ -564,7 +564,6 @@ int draw_overlay_possessed_thing(struct PlayerInfo *player, long units_per_px, l
 void pannel_map_draw_overlay_things(long units_per_px, long zoom)
 {
     SYNCDBG(7,"Starting");
-    //_DK_draw_overlay_things(zoom); return;
     if (zoom < 1) {
         return;
     }
@@ -1047,8 +1046,8 @@ void auto_gen_tables(long units_per_px)
 
 void pannel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
 {
-    PannelMapX = units_per_px * x / 16;
-    PannelMapY = units_per_px * y / 16;
+    PannelMapX = x * units_per_px / 16;
+    PannelMapY = y * units_per_px / 16;
     auto_gen_tables(units_per_px);
     update_pannel_colours();
     //_DK_pannel_map_draw(x, y, zoom);

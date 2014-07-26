@@ -57,7 +57,7 @@ struct GuiButtonInit quit_menu_buttons[] = {
 
 struct GuiButtonInit error_box_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, gui_area_text,                     1, 670,  0,       {0},            0, 0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,   0, 999,   0,155,155, gui_area_text,                     0, 201,  0,{(long)&gui_error_text},0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,   0, 999,   0,155, 32, gui_area_text,                     0, 201,  0,{(long)&gui_error_text},0, 0, NULL },
   { 0,  0, 0, 1, NULL,               NULL,        NULL,               0, 999, 100, 999, 132, 46, 34, gui_area_normal_button,           48, 201,  0,       {0},            0, 0, NULL },
   {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       {0},            0, 0, NULL },
 };
@@ -67,7 +67,7 @@ struct GuiButtonInit instance_menu_buttons[] = {
 };
 
 struct GuiButtonInit pause_buttons[] = {
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999, 999, 999, 999,140,100, gui_area_text,                     0, 320,  0,       {0},            0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999, 999, 999, 999,140, 32, gui_area_text,                     0, 320,  0,       {0},            0, 0, NULL },
   {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       {0},            0, 0, NULL },
 };
 

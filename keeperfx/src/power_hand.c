@@ -488,7 +488,7 @@ void draw_power_hand(void)
     if ((!room_is_invalid(room)) && (subtile_revealed(stl_x, stl_y, player->id_number)))
     {
       rdata = room_data_get_for_room(room);
-      draw_gui_panel_sprite_centered(GetMouseX()+24, GetMouseY()+32, rdata->numfield_1);
+      draw_gui_panel_sprite_centered(GetMouseX()+24, GetMouseY()+32, 16, rdata->numfield_1);
     }
     if ((!power_hand_is_empty(player)) && (game.small_map_state == 1))
     {
@@ -971,7 +971,7 @@ void draw_mini_things_in_hand(long x, long y)
                 scrpos_x = scrbase_x + 16 * icol;
                 scrpos_y = scrbase_y + 18 * irow;
                 draw_button_sprite_left(scrpos_x + expshift_x, scrpos_y + shift_y, 16, expspr_idx);
-                draw_gui_panel_sprite_left(scrpos_x, scrpos_y, spr_idx);
+                draw_gui_panel_sprite_left(scrpos_x, scrpos_y, 16, spr_idx);
             }
         } else
         if ((thing->class_id == TCls_Object) && object_is_gold_pile(thing))
@@ -983,7 +983,7 @@ void draw_mini_things_in_hand(long x, long y)
                 shift_y = 0;
             scrpos_x = scrbase_x + 16 * icol;
             scrpos_y = scrbase_y + 14 * irow;
-            draw_gui_panel_sprite_left(scrpos_x - 2, scrpos_y + shift_y, spr_idx);
+            draw_gui_panel_sprite_left(scrpos_x - 2, scrpos_y + shift_y, 16, spr_idx);
         } else
         {
             spr_idx = 59;
@@ -993,7 +993,7 @@ void draw_mini_things_in_hand(long x, long y)
                 shift_y = 0;
             scrpos_x = scrbase_x + 16 * icol;
             scrpos_y = scrbase_y + 14 * irow;
-            draw_gui_panel_sprite_left(scrpos_x - 2, scrpos_y + shift_y, spr_idx);
+            draw_gui_panel_sprite_left(scrpos_x - 2, scrpos_y + shift_y, 16, spr_idx);
         }
     }
 }
