@@ -622,6 +622,7 @@ void draw_map_level_name(void)
     // Drawing
     if (lv_name != NULL)
     {
+
         LbTextSetWindow(x, y, w, h);
         LbTextDraw((w-LbTextStringWidth(lv_name))/2, (h/10 - 8), lv_name);
     }
@@ -637,6 +638,12 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
   long spridx;
   unsigned long k;
   long i;
+  int ps_units_per_px;
+  {
+      struct TbSprite *spr;
+      spr = &gui_panel_sprites[164]; // Use dungeon special box as reference
+      ps_units_per_px = (46 * units_per_pixel) / spr->SHeight;
+  }
   player = get_my_player();
   k = 0;
   i = get_mapwho_thing_index(mapblk);
@@ -661,10 +668,10 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
         if ((game.play_gameturn & 0x04) != 0)
         {
           color = get_player_path_colour(thing->owner);
-          draw_gui_panel_sprite_occentered(scr_x+spos_x, scr_y+spos_y, 16, spridx, color);
+          draw_gui_panel_sprite_occentered(scr_x+spos_x, scr_y+spos_y, ps_units_per_px, spridx, color);
         } else
         {
-          draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, 16, spridx);
+          draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, ps_units_per_px, spridx);
         }
         draw_status_sprites((spos_x+scr_x)/pixel_size - 10, (spos_y+scr_y-20)/pixel_size, thing, 4096);
         break;
@@ -673,29 +680,29 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
             break;
         manufctr = get_manufacture_data_for_thing(thing->class_id, thing->model);
         spridx = manufctr->parchment_spridx;
-        draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, 16, spridx);
+        draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, ps_units_per_px, spridx);
         break;
       case TCls_Object:
         if (thing_is_dungeon_heart(thing))
         {
             spridx = 512;
-            draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, 16, spridx);
+            draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, ps_units_per_px, spridx);
         } else
         if (object_is_gold(thing))
         {
             spridx = 511;
-            draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, 16, spridx);
+            draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, ps_units_per_px, spridx);
         } else
         if (thing_is_special_box(thing))
         {
             spridx = 164;
-            draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, 16, spridx);
+            draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, ps_units_per_px, spridx);
         } else
         if (thing_is_spellbook(thing))
         {
             pwrdata = get_power_data(book_thing_to_magic(thing));
             spridx = pwrdata->field_B;
-            draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, 16, spridx);
+            draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, ps_units_per_px, spridx);
         }
         break;
       default:
@@ -717,7 +724,6 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
  */
 void draw_zoom_box(void)
 {
-    //_DK_draw_zoom_box(); return;
     struct PlayerInfo *player;
     player = get_my_player();
 
@@ -736,7 +742,7 @@ void draw_zoom_box(void)
     mouse_y = GetMouseY();
 
     struct Map *mapblk;
-    const int subtile_size = 8;
+    const int subtile_size = (8*units_per_pixel+8)/16;
     int map_dx,map_dy;
     int scr_x,scr_y;
     int stl_x,stl_y;
@@ -745,8 +751,8 @@ void draw_zoom_box(void)
     lbDisplay.DrawFlags = 0;
     // Drawing coordinates
     long scrtop_x,scrtop_y;
-    scrtop_x = mouse_x + 24;
-    scrtop_y = mouse_y + 24;
+    scrtop_x = mouse_x + 24*units_per_pixel/16;
+    scrtop_y = mouse_y + 24*units_per_pixel/16;
     // Source map coordinates
     stl_x = STL_PER_SLB * (mouse_x/pixel_size-map_area.left) / block_size - draw_tiles_x/2;
     stl_y = STL_PER_SLB * (mouse_y/pixel_size-map_area.top)  / block_size - draw_tiles_y/2;
@@ -755,8 +761,8 @@ void draw_zoom_box(void)
      || (stl_y < -draw_tiles_y+4) || (stl_y >= map_subtiles_x+1-draw_tiles_y+6))
       return;
 
-    scrtop_x += 4;
-    scrtop_y -= 4;
+    scrtop_x += 4*units_per_pixel/16;
+    scrtop_y -= 4*units_per_pixel/16;
     setup_vecs(lbDisplay.WScreen, 0, lbDisplay.GraphicsScreenWidth, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
     if (scrtop_y > MyScreenHeight-draw_tiles_y*subtile_size)
       scrtop_y = MyScreenHeight-draw_tiles_y*subtile_size;
@@ -776,19 +782,18 @@ void draw_zoom_box(void)
           draw_texture(scr_x, scr_y, subtile_size, subtile_size, k, 0, -1);
         } else
         {
-          LbDrawBox(scr_x/pixel_size, scr_y/pixel_size, 8/pixel_size, 8/pixel_size, 1);
+          LbDrawBox(scr_x, scr_y, subtile_size, subtile_size, 1);
         }
         scr_x += subtile_size;
       }
       scr_y += subtile_size;
     }
     lbDisplay.DrawFlags |= Lb_SPRITE_OUTLINE;
-    LbDrawBox(scrtop_x/pixel_size, scrtop_y/pixel_size,
-        (draw_tiles_x*subtile_size)/pixel_size, (draw_tiles_y*subtile_size)/pixel_size, 0);
+    LbDrawBox(scrtop_x, scrtop_y, draw_tiles_x*subtile_size, draw_tiles_y*subtile_size, 0);
     lbDisplay.DrawFlags &= ~Lb_SPRITE_OUTLINE;
     // Draw thing sprites on the map
-    LbScreenSetGraphicsWindow( (scrtop_x+2)/pixel_size, (scrtop_y+2)/pixel_size,
-        (draw_tiles_x*subtile_size-4)/pixel_size, (draw_tiles_y*subtile_size-4)/pixel_size);
+    LbScreenSetGraphicsWindow(scrtop_x + 2*units_per_pixel/16, scrtop_y + 2*units_per_pixel/16,
+        draw_tiles_x*subtile_size - 4*units_per_pixel/16, draw_tiles_y*subtile_size - 4*units_per_pixel/16);
     scr_y = 0;
     for (map_dy=0; map_dy < draw_tiles_y; map_dy++)
     {
@@ -805,11 +810,23 @@ void draw_zoom_box(void)
       scr_y += subtile_size;
     }
     // Draw sprites surrounding the box
+    int bs_units_per_px;
+    {
+        struct TbSprite *spr;
+        spr = &button_sprite[194];
+        bs_units_per_px = (74 * units_per_pixel) / spr->SWidth;
+    }
     LbScreenSetGraphicsWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-    LbSpriteDraw((scrtop_x-24)/pixel_size, (scrtop_y-20)/pixel_size, &button_sprite[194]);
-    LbSpriteDraw((scrtop_x+54)/pixel_size, (scrtop_y-20)/pixel_size, &button_sprite[195]);
-    LbSpriteDraw((scrtop_x-24)/pixel_size, (scrtop_y+50)/pixel_size, &button_sprite[196]);
-    LbSpriteDraw((scrtop_x+54)/pixel_size, (scrtop_y+50)/pixel_size, &button_sprite[197]);
+    int beg_x,beg_y;
+    int end_x,end_y;
+    beg_x = scrtop_x-(24*units_per_pixel+8)/16;
+    beg_y = scrtop_y-(20*units_per_pixel+8)/16;
+    end_x = scrtop_x-(50*units_per_pixel+8)/16 + draw_tiles_x*subtile_size;
+    end_y = scrtop_y-(54*units_per_pixel+8)/16 + draw_tiles_y*subtile_size;
+    LbSpriteDrawResized(beg_x, beg_y, bs_units_per_px, &button_sprite[194]);
+    LbSpriteDrawResized(end_x, beg_y, bs_units_per_px, &button_sprite[195]);
+    LbSpriteDrawResized(beg_x, end_y, bs_units_per_px, &button_sprite[196]);
+    LbSpriteDrawResized(end_x, end_y, bs_units_per_px, &button_sprite[197]);
     // Finish
     LbScreenSetGraphicsWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
