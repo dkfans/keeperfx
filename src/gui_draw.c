@@ -71,10 +71,9 @@ int get_bitmap_max_scale(int img_w,int img_h,int rect_w,int rect_h)
 
 void draw_bar64k(long pos_x, long pos_y, int units_per_px, long width)
 {
-    //RESCALE
     long body_end;
     long x;
-    if (width < 72)
+    if (width < 72*units_per_px/16)
     {
         ERRORLOG("Bar is too small");
         return;
@@ -83,10 +82,10 @@ void draw_bar64k(long pos_x, long pos_y, int units_per_px, long width)
     struct TbSprite *spr;
     spr = &button_sprite[1];
     x = pos_x;
-    LbSpriteDrawResized(x/pixel_size, pos_y/pixel_size, units_per_px, spr);
-    x += spr->SWidth * units_per_px / 16;
+    LbSpriteDrawResized(x, pos_y, units_per_px, spr);
+    x += (spr->SWidth * units_per_px + 8) / 16;
     // Button body
-    body_end = pos_x + width - 64;
+    body_end = pos_x + width - 2 * ((32*units_per_px+8) / 16);
     while (x < body_end)
     {
         spr = &button_sprite[2];
@@ -96,37 +95,42 @@ void draw_bar64k(long pos_x, long pos_y, int units_per_px, long width)
     x = body_end;
     spr = &button_sprite[2];
     LbSpriteDrawResized(x/pixel_size, pos_y/pixel_size, units_per_px, spr);
-    x += spr->SWidth * units_per_px / 16;
+    x += (spr->SWidth * units_per_px + 8) / 16;
     // Button ending sprite
     spr = &button_sprite[3];
     LbSpriteDrawResized(x/pixel_size, pos_y/pixel_size, units_per_px, spr);
 }
 
-void draw_lit_bar64k(long pos_x, long pos_y, long width)
+void draw_lit_bar64k(long pos_x, long pos_y, int units_per_px, long width)
 {
     long body_end;
     long x;
-    if (width < 32)
+    if (width < 32*units_per_px/16)
     {
         ERRORLOG("Bar is too small");
         return;
     }
     // opening sprite
     struct TbSprite *spr;
+    x = pos_x;
     spr = &button_sprite[7];
-    LbSpriteDraw(pos_x/pixel_size, pos_y/pixel_size, spr);
+    LbSpriteDrawResized(x, pos_y, units_per_px, spr);
+    x += (spr->SWidth * units_per_px + 8) / 16;
     // body
-    body_end = pos_x+width-64;
-    for (x = pos_x+32; x<body_end; x+=32)
+    body_end = pos_x + width - 2 * ((32*units_per_px+8) / 16);
+    while (x < body_end)
     {
         spr = &button_sprite[8];
-        LbSpriteDraw(x/pixel_size, pos_y/pixel_size, spr);
+        LbSpriteDrawResized(x, pos_y, units_per_px, spr);
+        x += (spr->SWidth * units_per_px + 8) / 16;
     }
+    x = body_end;
     spr = &button_sprite[8];
-    LbSpriteDraw(body_end/pixel_size, pos_y/pixel_size, spr);
+    LbSpriteDrawResized(x, pos_y, units_per_px, spr);
+    x += (spr->SWidth * units_per_px + 8) / 16;
     // ending sprite
     spr = &button_sprite[9];
-    LbSpriteDraw((pos_x+width-32)/pixel_size, pos_y/pixel_size, spr);
+    LbSpriteDrawResized(x, pos_y, units_per_px, spr);
 }
 
 void draw_slab64k_background(long pos_x, long pos_y, long width, long height)
@@ -451,14 +455,14 @@ int simple_frontend_sprite_width_units_per_px(const struct GuiButton *gbtn, long
 /** Draws a string on GUI button.
  *  Note that the source text buffer may be damaged by this function.
  * @param gbtn Button to draw text on.
+ * @param base_width Width of the button before scaling.
  * @param text Text to be displayed. The buffer may be changed by this function.
  *     It should have at least TEXT_BUFFER_LENGTH in size.
  */
-void draw_button_string(struct GuiButton *gbtn, char *text)
+void draw_button_string(struct GuiButton *gbtn, int base_width, char *text)
 {
     unsigned long flgmem;
     static unsigned char cursor_type = 0;
-    //_DK_draw_button_string(gbtn, text);
     flgmem = lbDisplay.DrawFlags;
     long cursor_pos = -1;
     if ((gbtn->gbtype == Lb_EDITBTN) && (gbtn == input_button))
@@ -470,20 +474,21 @@ void draw_button_string(struct GuiButton *gbtn, char *text)
         lbDisplay.DrawColour = LbTextGetFontFaceColor();
         lbDisplayEx.ShadowColour = LbTextGetFontBackColor();
     }
-    LbTextSetJustifyWindow(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size, gbtn->width/pixel_size);
-    LbTextSetClipWindow(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size,
-        gbtn->width/pixel_size, gbtn->height/pixel_size);
-    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER | Lb_TEXT_UNDERLNSHADOW;
+    LbTextSetJustifyWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width);
+    LbTextSetClipWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;// | Lb_TEXT_UNDERLNSHADOW;
     if (cursor_pos >= 0) {
         // Mind the order, 'cause inserting makes positions shift
         LbLocTextStringInsert(text, "\x0B", cursor_pos+1, TEXT_BUFFER_LENGTH);
         LbLocTextStringInsert(text, "\x0B", cursor_pos, TEXT_BUFFER_LENGTH);
     }
+    int tx_units_per_px;
+    tx_units_per_px = (gbtn->width * 16 + 8) / base_width;
     unsigned long w,h;
-    w = 4;
-    h = ((gbtn->height - text_string_height(text))/2 - 4);
-    LbTextDraw(w/pixel_size, h/pixel_size, text);
-    LbTextSetJustifyWindow(0/pixel_size, 0/pixel_size, 640/pixel_size);
+    w = 4 * tx_units_per_px / 16;
+    h = (gbtn->height - text_string_height(tx_units_per_px, text))/2 - 4*tx_units_per_px/16;
+    LbTextDrawResized(w, h, tx_units_per_px, text);
+    LbTextSetJustifyWindow(0, 0, LbGraphicsScreenWidth());
     LbTextSetClipWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
     lbDisplay.DrawFlags = flgmem;

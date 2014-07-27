@@ -1322,7 +1322,7 @@ void gui_area_text(struct GuiButton *gbtn)
         if ( gbtn->gbactn_1 || gbtn->gbactn_2 )
         {
             draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, gbtn->width);
-            draw_lit_bar64k(gbtn->scr_pos_x - 6, gbtn->scr_pos_y - 6, gbtn->width + 6);
+            draw_lit_bar64k(gbtn->scr_pos_x - 6*units_per_pixel/16, gbtn->scr_pos_y - 6*units_per_pixel/16, bs_units_per_px, gbtn->width + 6*units_per_pixel/16);
         } else
         {
             draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, gbtn->width);
@@ -1335,12 +1335,14 @@ void gui_area_text(struct GuiButton *gbtn)
     if (gbtn->tooltip_id != GUIStr_Empty)
     {
         snprintf(gui_textbuf,sizeof(gui_textbuf), "%s", gui_string(gbtn->tooltip_id));
-        draw_button_string(gbtn, gui_textbuf);
+        draw_button_string(gbtn, (gbtn->width*32 + 16)/gbtn->height, gui_textbuf);
     } else
     if (gbtn->content != NULL)
     {
         snprintf(gui_textbuf,sizeof(gui_textbuf), "%s", (char *)gbtn->content);
-        draw_button_string(gbtn, gui_textbuf);
+        // Since this button can have various width, but its height is always 32,
+        // unscaled width is deduced based on height scale
+        draw_button_string(gbtn, (gbtn->width*32 + 16)/gbtn->height, gui_textbuf);
     }
 }
 
@@ -1519,7 +1521,7 @@ void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
   text_height = scrollwnd->text_height;
   if (text_height == 0)
   {
-      text_height = text_string_height(text);
+      text_height = text_string_height(16, text);
       SYNCDBG(18,"Computed message height %ld for \"%s\"",text_height,text);
       scrollwnd->text_height = text_height;
   }
@@ -2070,8 +2072,8 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit, int units_
     gbtn->rclick_event = gbinit->rclick_event;
     gbtn->ptover_event = gbinit->ptover_event;
     gbtn->field_1B = gbinit->field_13;
-    gbtn->width = gbinit->width * units_per_px / 16;
-    gbtn->height = gbinit->height * units_per_px / 16;
+    gbtn->width = (gbinit->width * units_per_px + 8) / 16;
+    gbtn->height = (gbinit->height * units_per_px + 8) / 16;
     gbtn->draw_call = gbinit->draw_call;
     gbtn->field_29 = gbinit->field_25;
     gbtn->tooltip_id = gbinit->tooltip_id;
@@ -2091,18 +2093,18 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit, int units_
         gbtn->pos_x = i;
     } else
     {
-        gbtn->pos_x = gmnu->pos_x + gbinit->pos_x * units_per_px / 16;
-        gbtn->scr_pos_x = gmnu->pos_x + gbinit->scr_pos_x * units_per_px / 16;
+        gbtn->pos_x = gmnu->pos_x + (gbinit->pos_x * units_per_px + 8) / 16;
+        gbtn->scr_pos_x = gmnu->pos_x + (gbinit->scr_pos_x * units_per_px + 8) / 16;
     }
     if ((gbinit->scr_pos_y == 999) || (gbinit->pos_y == 999))
     {
-        i = gmnu->pos_y + ((gmnuinit->height >> 1) - (gbinit->height >> 1)) * units_per_px / 16;
+        i = gmnu->pos_y + (((gmnuinit->height >> 1) - (gbinit->height >> 1)) * units_per_px + 8) / 16;
         gbtn->scr_pos_y = i;
         gbtn->pos_y = i;
     } else
     {
-        gbtn->pos_y = gbinit->pos_y * units_per_px / 16 + gmnu->pos_y;
-        gbtn->scr_pos_y = gmnu->pos_y + gbinit->scr_pos_y * units_per_px / 16;
+        gbtn->pos_y = (gbinit->pos_y * units_per_px + 8) / 16 + gmnu->pos_y;
+        gbtn->scr_pos_y = gmnu->pos_y + (gbinit->scr_pos_y * units_per_px + 8) / 16;
     }
     if (gbtn->gbtype == Lb_RADIOBTN)
     {
@@ -2133,7 +2135,7 @@ long compute_menu_position_x(long desired_pos,int menu_width, int units_per_px)
   struct PlayerInfo *player;
   player = get_my_player();
   long scaled_width;
-  scaled_width = menu_width * units_per_px / 16;
+  scaled_width = (menu_width * units_per_px + 8) / 16;
   long pos;
   switch (desired_pos)
   {
@@ -2184,7 +2186,7 @@ long compute_menu_position_y(long desired_pos,int menu_height, int units_per_px)
     struct PlayerInfo *player;
     player = get_my_player();
     long scaled_height;
-    scaled_height = menu_height * units_per_px / 16;
+    scaled_height = (menu_height * units_per_px + 8) / 16;
     long pos;
     switch (desired_pos)
     {
@@ -2265,8 +2267,8 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
         ERRORLOG("Fade time %d is less than 1.",(int)amnu->fade_time);
     }
     amnu->buttons = gmnu->buttons;
-    amnu->width = gmnu->width * MNU_UNITS_PER_PX / 16;
-    amnu->height = gmnu->height * MNU_UNITS_PER_PX / 16;
+    amnu->width = (gmnu->width * MNU_UNITS_PER_PX + 8) / 16;
+    amnu->height = (gmnu->height * MNU_UNITS_PER_PX + 8) / 16;
     amnu->draw_cb = gmnu->draw_cb;
     amnu->create_cb = gmnu->create_cb;
     amnu->flgfield_1E = gmnu->flgfield_1E;

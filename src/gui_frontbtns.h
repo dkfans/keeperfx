@@ -47,8 +47,10 @@ void frontend_copy_mnu_background(struct GuiMenu *gmnu);
 void frontend_copy_background(void);
 
 void gui_area_new_normal_button(struct GuiButton *gbtn);
+void gui_area_new_vertical_button(struct GuiButton *gbtn);
 void gui_area_new_null_button(struct GuiButton *gbtn);
 void gui_area_new_no_anim_button(struct GuiButton *gbtn);
+void gui_area_creatrmodel_button(struct GuiButton *gbtn);
 void gui_area_no_anim_button(struct GuiButton *gbtn);
 void gui_area_normal_button(struct GuiButton *gbtn);
 void gui_area_null(struct GuiButton *gbtn);
