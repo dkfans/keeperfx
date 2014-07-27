@@ -117,7 +117,7 @@ int LbTextStringDraw(int pos_x, int pos_y, int units_per_px, const char *text, u
 TbBool LbAlignMethodSet(unsigned short fdflags);
 long LbGetJustifiedCharPosX(long startx, long all_chars_width, long spr_width, long mul_width, unsigned short fdflags);
 long LbGetJustifiedCharPosY(long starty, long all_lines_height, long spr_height, unsigned short fdflags);
-long LbGetJustifiedCharWidth(long all_chars_width, long spr_width, long words_count, unsigned short fdflags);
+long LbGetJustifiedCharWidth(long all_chars_width, long spr_width, long words_count, int units_per_px, unsigned short fdflags);
 long LbGetJustifiedCharHeight(long all_lines_height, long spr_height, long lines_count, unsigned short fdflags);
 
 // Function which require font sprites as parameter
@@ -127,7 +127,7 @@ int LbSprFontCharHeight(const struct TbSprite *font,const unsigned long chr);
 const struct TbSprite *LbFontCharSprite(const struct TbSprite *font,const unsigned long chr);
 
 void LbTextUseByteCoding(TbBool is_enabled);
-long text_string_height(const char *text);
+long text_string_height(int units_per_px, const char *text);
 void dbc_set_language(short ilng);
 short dbc_initialize(const char *fpath);
 

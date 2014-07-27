@@ -79,14 +79,14 @@ int simple_gui_panel_sprite_height_units_per_px(const struct GuiButton *gbtn, lo
 int simple_gui_panel_sprite_width_units_per_px(const struct GuiButton *gbtn, long spridx, int fraction);
 
 void draw_bar64k(long pos_x, long pos_y, int units_per_px, long width);
-void draw_lit_bar64k(long pos_x, long pos_y, long width);
+void draw_lit_bar64k(long pos_x, long pos_y, int units_per_px, long width);
 void draw_slab64k(long pos_x, long pos_y, long width, long height);
 void draw_ornate_slab64k(long pos_x, long pos_y, long width, long height);
 void draw_ornate_slab_outline64k(long pos_x, long pos_y, long width, long height);
 void draw_round_slab64k(long pos_x, long pos_y, long width, long height);
 void draw_string64k(long x, long y, const char * text);
 
-void draw_button_string(struct GuiButton *gbtn, char *text);
+void draw_button_string(struct GuiButton *gbtn, int base_width, char *text);
 TbBool draw_text_box(const char *text);
 void draw_scroll_box(struct GuiButton *gbtn, int units_per_px, int num_rows);
 int scroll_box_get_units_per_px(struct GuiButton *gbtn);
