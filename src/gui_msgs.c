@@ -43,16 +43,24 @@ void message_draw(void)
     long x,y;
     SYNCDBG(7,"Starting");
     LbTextSetFont(winfont);
+    int tx_units_per_px;
+    tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+    int ps_units_per_px;
+    {
+        struct TbSprite *spr;
+        spr = &gui_panel_sprites[488];
+        ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
+    }
     h = LbTextLineHeight();
-    x = 148;
-    y = 28;
+    x = 148*units_per_pixel/16;
+    y = 28*units_per_pixel/16;
     for (i=0; i < game.active_messages_count; i++)
     {
         LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
         set_flag_word(&lbDisplay.DrawFlags,Lb_TEXT_ONE_COLOR,false);
-        LbTextDraw((x+32)/pixel_size, y/pixel_size, game.messages[i].text);
-        draw_gui_panel_sprite_left(x, y, 16, 488+game.messages[i].plyr_idx);
-        y += pixel_size * h;
+        LbTextDrawResized(x+32*units_per_pixel/16, y, tx_units_per_px, game.messages[i].text);
+        draw_gui_panel_sprite_left(x, y, ps_units_per_px, 488+game.messages[i].plyr_idx);
+        y += h*units_per_pixel/16;
     }
 }
 
