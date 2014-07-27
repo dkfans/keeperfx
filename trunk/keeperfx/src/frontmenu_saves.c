@@ -112,7 +112,7 @@ void draw_load_button(struct GuiButton *gbtn)
     if ((gbtn->gbactn_1) || (gbtn->gbactn_2))
     {
         draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, gbtn->width);
-        draw_lit_bar64k(gbtn->scr_pos_x - 6, gbtn->scr_pos_y - 6, gbtn->width + 6);
+        draw_lit_bar64k(gbtn->scr_pos_x - 6*bs_units_per_px/16, gbtn->scr_pos_y - 6*bs_units_per_px/16, bs_units_per_px, gbtn->width + 6*bs_units_per_px/16);
     } else
     {
         draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, gbtn->width);
@@ -120,7 +120,7 @@ void draw_load_button(struct GuiButton *gbtn)
     if (gbtn->content != NULL)
     {
         sprintf(gui_textbuf, "%s", (const char *)gbtn->content);
-        draw_button_string(gbtn, gui_textbuf);
+        draw_button_string(gbtn, 300, gui_textbuf);
     }
 }
 
