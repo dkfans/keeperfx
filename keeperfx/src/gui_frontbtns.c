@@ -494,8 +494,40 @@ void gui_draw_tab(struct GuiButton *gbtn)
 void gui_area_new_null_button(struct GuiButton *gbtn)
 {
     int ps_units_per_px;
-    ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, gbtn->field_29, 100);
+    ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, gbtn->field_29, 128);
     draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->field_29);
+}
+
+void gui_area_compsetting_button(struct GuiButton *gbtn)
+{
+    SYNCDBG(10,"Starting");
+    int spr_idx;
+    spr_idx = gbtn->field_29;
+    if (gbtn->gbtype == Lb_CYCLEBTN)
+    {
+        if (gbtn->content != NULL) {
+            spr_idx += *(unsigned char *)gbtn->content;
+        } else {
+            ERRORLOG("Cycle button must have a non-null UBYTE Data pointer!");
+        }
+        if (gbtn->field_2D == 0) {
+            ERRORLOG("Cycle button must have a non-zero MaxVal!");
+        }
+    }
+    int ps_units_per_px;
+    ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, spr_idx, 100);
+    if ((gbtn->flags & LbBtnF_Unknown08) == 0)
+    {
+        draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, 12);
+    } else
+    if ((gbtn->gbactn_1) || (gbtn->gbactn_2))
+    {
+        draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, 44);
+    } else
+    {
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx);
+    }
+    SYNCDBG(12,"Finished");
 }
 
 void gui_area_creatrmodel_button(struct GuiButton *gbtn)
@@ -547,7 +579,7 @@ void gui_area_new_no_anim_button(struct GuiButton *gbtn)
         }
     }
     int ps_units_per_px;
-    ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, spr_idx, 100);
+    ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, spr_idx, 128);
     if ((gbtn->flags & LbBtnF_Unknown08) == 0)
     {
         draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, 12);
