@@ -448,27 +448,29 @@ void draw_tooltip_slab64k(char *tttext, long pos_x, long pos_y, long ttwidth, lo
     }
     if (tttext != NULL)
     {
-        x = pos_x+26;
+        x = pos_x + 26*units_per_pixel/16;
         lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
-        y = pos_y - (ttheight+28);
+        y = pos_y - (ttheight+28)*units_per_pixel/16;
         if (x > MyScreenWidth)
           x = MyScreenWidth;
-        if (x < 6)
-          x = 6;
+        if (x < 6*units_per_pixel/16)
+          x = 6*units_per_pixel/16;
         if (y > MyScreenHeight)
           y = MyScreenHeight;
-        if (y < 4)
-          y = 4;
-        if (x+viswidth >= MyScreenWidth)
-          x = MyScreenWidth-viswidth;
-        if (y+ttheight >= MyScreenHeight)
-          y = MyScreenHeight-ttheight;
+        if (y < 4*units_per_pixel/16)
+          y = 4*units_per_pixel/16;
+        if (x + viswidth*units_per_pixel/16 >= MyScreenWidth)
+          x = MyScreenWidth - viswidth*units_per_pixel/16;
+        if (y + ttheight*units_per_pixel/16 >= MyScreenHeight)
+          y = MyScreenHeight - ttheight*units_per_pixel/16;
         if (tttext[0] != '\0')
         {
-            LbTextSetWindow(x/pixel_size, y/pixel_size, viswidth/pixel_size, ttheight/pixel_size);
-            draw_slab64k(x, y, viswidth, ttheight);
+            LbTextSetWindow(x, y, viswidth*units_per_pixel/16, ttheight*units_per_pixel/16);
+            draw_slab64k(x, y, viswidth*units_per_pixel/16, ttheight*units_per_pixel/16);
             lbDisplay.DrawFlags = 0;
-            LbTextDraw(tooltip_scroll_offset/pixel_size, -2/pixel_size, tttext);
+            int tx_units_per_px;
+            tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+            LbTextDrawResized(tooltip_scroll_offset*units_per_pixel/16, -2*units_per_pixel/16, tx_units_per_px, tttext);
         }
     }
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenHeight/pixel_size, MyScreenWidth/pixel_size);
@@ -541,17 +543,17 @@ void draw_tooltip_at(long ttpos_x,long ttpos_y,char *tttext)
   flg_mem = lbDisplay.DrawFlags;
   lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
   hdwidth = find_and_pad_string_width_to_first_character(tttext, ':');
-  ttwidth = pixel_size * LbTextStringWidth(tttext);
-  ttheight = pixel_size * LbTextStringHeight(tttext);
+  ttwidth = LbTextStringWidth(tttext);
+  ttheight = LbTextStringHeight(tttext);
   lbDisplay.DrawFlags = flg_mem;
   player = get_my_player();
   pos_x = ttpos_x;
   pos_y = ttpos_y;
   if (player->view_type == PVT_MapScreen)
   {
-      pos_y = GetMouseY() + 24;
-      if (pos_y > MyScreenHeight-104)
-          pos_y = MyScreenHeight - 104;
+      pos_y = GetMouseY() + 24*units_per_pixel/16;
+      if (pos_y > MyScreenHeight - 104*units_per_pixel/16)
+          pos_y = MyScreenHeight - 104*units_per_pixel/16;
       if (pos_y < 0)
           pos_y = 0;
   }

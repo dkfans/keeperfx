@@ -343,6 +343,8 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
     unsigned short flg_mem;
     flg_mem = lbDisplay.DrawFlags;
 
+    int units_per_px;
+    units_per_px = (gbtn->width * 16 + 8) / 126;
     int ps_units_per_px;
     ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, 26, 100);
 
@@ -364,10 +366,10 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
         int fill_part;
         fill_part = 42 - (2 * 21 * i / 256);
         LbDrawBox(
-          (gbtn->scr_pos_x - fill_part + 114) / pixel_size,
-          (gbtn->scr_pos_y + 12) / pixel_size,
-          fill_part / pixel_size,
-          6 / pixel_size,
+          gbtn->scr_pos_x + (114 - fill_part)*units_per_px/16,
+          gbtn->scr_pos_y + 12*units_per_px/16,
+          fill_part*units_per_px/16,
+          6*units_per_px/16,
           colours[0][0][0]);
     }
     lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
@@ -381,9 +383,9 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
         if ((player->work_state == 2) && (player->chosen_room_kind == game.chosen_room_kind)
           && ((game.play_gameturn & 1) == 0))
         {
-            draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x - 4, gbtn->scr_pos_y - 32, ps_units_per_px, gbtn->field_29, 44);
+            draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->field_29, 44);
         } else {
-            draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4, gbtn->scr_pos_y - 32, ps_units_per_px, gbtn->field_29);
+            draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->field_29);
         }
         // We will use a special coding for our "string" - we want chars to represent
         // sprite index directly, without code pages and multibyte chars interpretation
@@ -391,17 +393,19 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
             gui_textbuf[i] -= 120;
     } else
     {
-        draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4, gbtn->scr_pos_y - 32, ps_units_per_px, gbtn->field_29 + 1);
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->field_29 + 1);
     }
     LbTextUseByteCoding(false);
-    draw_string64k(gbtn->scr_pos_x + 44, gbtn->scr_pos_y + 8 - 6, gui_textbuf);
+    int tx_units_per_px;
+    tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+    draw_string64k(gbtn->scr_pos_x + 44*units_per_px/16, gbtn->scr_pos_y + (8 - 6)*units_per_px/16, tx_units_per_px, gui_textbuf);
     LbTextUseByteCoding(true);
 
     long amount;
     amount = count_rooms_of_type(player->id_number, rkind);
     // Note that "@" is "x" in that font
     sprintf(gui_textbuf, "@%ld", amount);
-    draw_string64k(gbtn->scr_pos_x + 40, gbtn->scr_pos_y - 14 - 6, gui_textbuf);
+    draw_string64k(gbtn->scr_pos_x + 40*units_per_px/16, gbtn->scr_pos_y - (14 + 6)*units_per_px/16, tx_units_per_px, gui_textbuf);
     lbDisplay.DrawFlags = flg_mem;
 }
 
@@ -503,6 +507,8 @@ void gui_area_big_spell_button(struct GuiButton *gbtn)
     unsigned short flg_mem;
     flg_mem = lbDisplay.DrawFlags;
 
+    int units_per_px;
+    units_per_px = (gbtn->width * 16 + 8) / 126;
     int ps_units_per_px;
     ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, 26, 100);
 
@@ -530,8 +536,10 @@ void gui_area_big_spell_button(struct GuiButton *gbtn)
         draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 23);
         int fill_bar;
         fill_bar = 42 - (2 * 21 * pwage / 256);
-        LbDrawBox((gbtn->scr_pos_x - fill_bar + 114) / pixel_size, (gbtn->scr_pos_y + 12) / pixel_size,
-          fill_bar / pixel_size, 6 / pixel_size, colours[0][0][0]);
+        LbDrawBox(
+            gbtn->scr_pos_x + (114 - fill_bar)*units_per_px/16,
+            gbtn->scr_pos_y + 12*units_per_px/16,
+          fill_bar*units_per_px/16, 6*units_per_px/16, colours[0][0][0]);
     } else
     {
         draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 26);
@@ -545,9 +553,9 @@ void gui_area_big_spell_button(struct GuiButton *gbtn)
     if (dungeon->total_money_owned >= price)
     {
         if ((player->work_state == pwrdata->field_4) && ((game.play_gameturn & 1) != 0)) {
-            draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x - 4, gbtn->scr_pos_y - 32, ps_units_per_px, gbtn->field_29, 44);
+            draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->field_29, 44);
         } else {
-            draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4, gbtn->scr_pos_y - 32, ps_units_per_px, gbtn->field_29);
+            draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->field_29);
         }
         char *c;
         for (c=text; *c != 0; c++) {
@@ -555,9 +563,11 @@ void gui_area_big_spell_button(struct GuiButton *gbtn)
         }
     } else
     {
-        draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4, gbtn->scr_pos_y - 32, ps_units_per_px, gbtn->field_29 + 1);
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->field_29 + 1);
     }
-    draw_string64k(gbtn->scr_pos_x + 44, gbtn->scr_pos_y + 8 - 6, text);
+    int tx_units_per_px;
+    tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+    draw_string64k(gbtn->scr_pos_x + 44*units_per_px/16, gbtn->scr_pos_y + (8 - 6)*units_per_px/16, tx_units_per_px, text);
     lbDisplay.DrawFlags = flg_mem;
 }
 
@@ -832,6 +842,8 @@ void gui_area_big_trap_button(struct GuiButton *gbtn)
     unsigned short flg_mem;
     flg_mem = lbDisplay.DrawFlags;
 
+    int units_per_px;
+    units_per_px = (gbtn->width * 16 + 8) / 126;
     int ps_units_per_px;
     ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, 26, 100);
 
@@ -857,17 +869,19 @@ void gui_area_big_trap_button(struct GuiButton *gbtn)
     // Note that "@" is "x" in that font
     sprintf(gui_textbuf, "@%ld", (long)amount);
     if (amount <= 0) {
-        draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4, gbtn->scr_pos_y - 32, ps_units_per_px, gbtn->field_29 + 1);
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->field_29 + 1);
     } else
     if ((((manufctr->tngclass == TCls_Trap) && (player->chosen_trap_kind == manufctr->tngmodel))
       || ((manufctr->tngclass == TCls_Door) && (player->chosen_door_kind == manufctr->tngmodel)))
       && ((game.play_gameturn & 1) == 0) )
     {
-        draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x - 4, gbtn->scr_pos_y - 32, ps_units_per_px, gbtn->field_29, 44);
+        draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->field_29, 44);
     } else {
-        draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4, gbtn->scr_pos_y - 32, ps_units_per_px, gbtn->field_29);
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->field_29);
     }
-    draw_string64k(gbtn->scr_pos_x + 44, gbtn->scr_pos_y + 8 - 6, gui_textbuf);
+    int tx_units_per_px;
+    tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+    draw_string64k(gbtn->scr_pos_x + 44*units_per_px/16, gbtn->scr_pos_y + (8 - 6)*units_per_px/16, tx_units_per_px, gui_textbuf);
     lbDisplay.DrawFlags = flg_mem;
 }
 
