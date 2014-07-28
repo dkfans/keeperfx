@@ -186,32 +186,35 @@ void draw_slab64k_background(long pos_x, long pos_y, long width, long height)
 
 void draw_slab64k(long pos_x, long pos_y, long width, long height)
 {
-    //_DK_draw_slab64k(pos_x, pos_y, width, height);
-    draw_slab64k_background(pos_x, pos_y, width, height);
+    // Draw one pixel more, to make sure we won't get empty area after scaling
+    draw_slab64k_background(pos_x, pos_y, width+1, height+1);
     struct TbSprite *spr;
+    spr = &button_sprite[206];
+    int bs_units_per_spr = 16*units_per_pixel/spr->SWidth;
+    int border_shift = 6*units_per_pixel/16;
     int i;
-    for (i=10; i < width-12; i+=16)
+    for (i=16*units_per_pixel/16 - border_shift; i < width-2*border_shift; i += 16*units_per_pixel/16)
     {
         spr = &button_sprite[210];
-        LbSpriteDraw((i + pos_x) / pixel_size, (pos_y - 6) / pixel_size, spr);
+        LbSpriteDrawResized(pos_x + i, pos_y - border_shift, bs_units_per_spr, spr);
         spr = &button_sprite[211];
-        LbSpriteDraw((i + pos_x) / pixel_size, (height + pos_y) / pixel_size, spr);
+        LbSpriteDrawResized(pos_x + i, pos_y + height, bs_units_per_spr, spr);
     }
-    for (i=10; i < height-12; i+=16)
+    for (i=16*units_per_pixel/16 - border_shift; i < height-2*border_shift; i += 16*units_per_pixel/16)
     {
         spr = &button_sprite[212];
-        LbSpriteDraw((pos_x - 6) / pixel_size, (i + pos_y) / pixel_size, spr);
+        LbSpriteDrawResized(pos_x - border_shift, pos_y + i, bs_units_per_spr, spr);
         spr = &button_sprite[213];
-        LbSpriteDraw((width + pos_x) / pixel_size, (i + pos_y) / pixel_size, spr);
+        LbSpriteDrawResized(pos_x + width, pos_y + i, bs_units_per_spr, spr);
     }
     spr = &button_sprite[206];
-    LbSpriteDraw((pos_x - 6) / pixel_size, (pos_y - 6) / pixel_size, spr);
+    LbSpriteDrawResized(pos_x - border_shift, pos_y - border_shift, bs_units_per_spr, spr);
     spr = &button_sprite[207];
-    LbSpriteDraw((pos_x + width - 12) / pixel_size, (pos_y - 6) / pixel_size, spr);
+    LbSpriteDrawResized(pos_x + width - 2*border_shift, pos_y - border_shift, bs_units_per_spr, spr);
     spr = &button_sprite[208];
-    LbSpriteDraw((pos_x - 6) / pixel_size, (pos_y + height - 12) / pixel_size, spr);
+    LbSpriteDrawResized(pos_x - border_shift, pos_y + height - 2*border_shift, bs_units_per_spr, spr);
     spr = &button_sprite[209];
-    LbSpriteDraw((pos_x + width - 12) / pixel_size, (pos_y + height - 12) / pixel_size, spr);
+    LbSpriteDrawResized(pos_x + width - 2*border_shift, pos_y + height - 2*border_shift, bs_units_per_spr, spr);
 }
 
 void draw_ornate_slab64k(long pos_x, long pos_y, long width, long height)
@@ -753,12 +756,12 @@ void draw_frontend_sprite_left(long x, long y, int units_per_px, long spridx)
     LbSpriteDrawResized(x, y, units_per_px, spr);
 }
 
-void draw_string64k(long x, long y, const char * text)
+void draw_string64k(long x, long y, int units_per_px, const char * text)
 {
     unsigned short drwflags_mem;
     drwflags_mem = lbDisplay.DrawFlags;
     lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
-    LbTextDraw(x/pixel_size, y/pixel_size, text);
+    LbTextDrawResized(x, y, units_per_px, text);
     lbDisplay.DrawFlags = drwflags_mem;
 }
 
