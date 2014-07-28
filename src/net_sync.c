@@ -153,7 +153,7 @@ void resync_game(void)
     SYNCDBG(2,"Starting");
     //return _DK_resync_game();
     player = get_my_player();
-    draw_out_of_sync_box(0, 32, player->engine_window_x);
+    draw_out_of_sync_box(0, 32*units_per_pixel/16, player->engine_window_x);
     reset_eye_lenses();
     store_localised_game_structure();
     i = get_resync_sender();

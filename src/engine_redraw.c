@@ -397,42 +397,45 @@ void set_engine_view(struct PlayerInfo *player, long val)
 
 void draw_overlay_compass(long base_x, long base_y)
 {
-    //_DK_draw_overlay_compass(base_x, base_y);
     unsigned short flg_mem;
     flg_mem = lbDisplay.DrawFlags;
     LbTextSetFont(winfont);
     lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
-    LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+    LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
+    int units_per_px;
+    units_per_px = (16*status_panel_width + 70) / 140;
+    int tx_units_per_px;
+    tx_units_per_px = (22 * units_per_px) / LbTextLineHeight();
     int w,h;
-    w = pixel_size * LbSprFontCharWidth(lbFontPtr,'/') / 2;
-    h = pixel_size * LbSprFontCharHeight(lbFontPtr,'/') / 2 + 2;
+    w = (LbSprFontCharWidth(lbFontPtr,'/')*tx_units_per_px/16) / 2;
+    h = (LbSprFontCharHeight(lbFontPtr,'/')*tx_units_per_px/16) / 2 + 2*units_per_px/16;
     struct PlayerInfo *player;
     player = get_my_player();
     struct Camera *cam;
     cam = player->acamera;
     int center_x, center_y;
     int shift_x, shift_y;
-    center_x = base_x + PANNEL_MAP_RADIUS;
-    center_y = base_y + PANNEL_MAP_RADIUS;
-    shift_x = (-50 * LbSinL(cam->orient_a)) >> LbFPMath_TrigmBits;
-    shift_y = (-50 * LbCosL(cam->orient_a)) >> LbFPMath_TrigmBits;
+    center_x = base_x*units_per_px/16 + PANNEL_MAP_RADIUS*units_per_px/16;
+    center_y = base_y*units_per_px/16 + PANNEL_MAP_RADIUS*units_per_px/16;
+    shift_x = ((-(PANNEL_MAP_RADIUS*7/8)*units_per_px/16) * LbSinL(cam->orient_a)) >> LbFPMath_TrigmBits;
+    shift_y = ((-(PANNEL_MAP_RADIUS*7/8)*units_per_px/16) * LbCosL(cam->orient_a)) >> LbFPMath_TrigmBits;
     if (LbScreenIsLocked()) {
-        LbTextDraw((center_x + shift_x - w) / pixel_size, (center_y + shift_y - h) / pixel_size, gui_strings[877]);
+        LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, gui_strings[877]);
     }
-    shift_x = ( 50 * LbSinL(cam->orient_a)) >> LbFPMath_TrigmBits;
-    shift_y = ( 50 * LbCosL(cam->orient_a)) >> LbFPMath_TrigmBits;
+    shift_x = (( (PANNEL_MAP_RADIUS*7/8)*units_per_px/16) * LbSinL(cam->orient_a)) >> LbFPMath_TrigmBits;
+    shift_y = (( (PANNEL_MAP_RADIUS*7/8)*units_per_px/16) * LbCosL(cam->orient_a)) >> LbFPMath_TrigmBits;
     if (LbScreenIsLocked()) {
-        LbTextDraw((center_x + shift_x - w) / pixel_size, (center_y + shift_y - h) / pixel_size, gui_strings[879]);
+        LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, gui_strings[879]);
     }
-    shift_x = ( 50 * LbCosL(cam->orient_a)) >> LbFPMath_TrigmBits;
-    shift_y = (-50 * LbSinL(cam->orient_a)) >> LbFPMath_TrigmBits;
+    shift_x = (( (PANNEL_MAP_RADIUS*7/8)*units_per_px/16) * LbCosL(cam->orient_a)) >> LbFPMath_TrigmBits;
+    shift_y = ((-(PANNEL_MAP_RADIUS*7/8)*units_per_px/16) * LbSinL(cam->orient_a)) >> LbFPMath_TrigmBits;
     if (LbScreenIsLocked()) {
-        LbTextDraw((center_x + shift_x - w) / pixel_size, (center_y + shift_y - h) / pixel_size, gui_strings[878]);
+        LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, gui_strings[878]);
     }
-    shift_x = (-50 * LbCosL(cam->orient_a)) >> LbFPMath_TrigmBits;
-    shift_y = ( 50 * LbSinL(cam->orient_a)) >> LbFPMath_TrigmBits;
+    shift_x = ((-(PANNEL_MAP_RADIUS*7/8)*units_per_px/16) * LbCosL(cam->orient_a)) >> LbFPMath_TrigmBits;
+    shift_y = (( (PANNEL_MAP_RADIUS*7/8)*units_per_px/16) * LbSinL(cam->orient_a)) >> LbFPMath_TrigmBits;
     if (LbScreenIsLocked()) {
-        LbTextDraw((center_x + shift_x - w) / pixel_size, (center_y + shift_y - h) / pixel_size, gui_strings[880]);
+        LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, gui_strings[880]);
     }
     lbDisplay.DrawFlags = flg_mem;
 }
@@ -923,11 +926,13 @@ void redraw_display(void)
     //LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
     LbTextSetFont(winfont);
     lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
+    int tx_units_per_px;
+    tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
     LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
     if ((player->field_0 & 0x04) != 0)
     {
         text = buf_sprintf( ">%s_", player->mp_message_text);
-        LbTextDraw(148/pixel_size, 8/pixel_size, text);
+        LbTextDrawResized(148*units_per_pixel/16, 8*units_per_pixel/16, tx_units_per_px, text);
     }
     if ( draw_spell_cost )
     {
@@ -938,9 +943,9 @@ void redraw_display(void)
         lbDisplay.DrawFlags = 0;
         LbTextSetFont(winfont);
         text = buf_sprintf("%d", draw_spell_cost);
-        pos_y = GetMouseY() - pixel_size*LbTextStringHeight(text)/2 - 2;
-        pos_x = GetMouseX() - pixel_size*LbTextStringWidth(text)/2;
-        LbTextDraw(pos_x/pixel_size, pos_y/pixel_size, text);
+        pos_y = GetMouseY() - (LbTextStringHeight(text)*units_per_pixel/16)/2 - 2*units_per_pixel/16;
+        pos_x = GetMouseX() - (LbTextStringWidth(text)*units_per_pixel/16)/2;
+        LbTextDrawResized(pos_x, pos_y, tx_units_per_px, text);
         lbDisplay.DrawFlags = drwflags_mem;
         draw_spell_cost = 0;
     }
@@ -953,20 +958,20 @@ void redraw_display(void)
           long pos_x,pos_y;
           long w,h;
           int i;
-          i = LbTextCharWidth(' ');
-          w = pixel_size * (LbTextStringWidth(text) + 2*i);
+          i = LbTextCharWidth(' ')*units_per_pixel/16;
+          w = (LbTextStringWidth(text)*units_per_pixel/16 + 2*i);
           i = player->view_mode;
           if ((i == 2) || (i == 5) || (i == 1))
             pos_x = player->engine_window_x + (MyScreenWidth-w-player->engine_window_x)/2;
           else
             pos_x = (MyScreenWidth-w)/2;
-          pos_y=16;
-          i = LbTextLineHeight();
+          pos_y = 16*units_per_pixel/16;
+          i = LbTextLineHeight()*units_per_pixel/16;
           lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
-          h = pixel_size*i + pixel_size*i/2;
-          LbTextSetWindow(pos_x/pixel_size, pos_y/pixel_size, w/pixel_size, h/pixel_size);
+          h = i + i/2;
+          LbTextSetWindow(pos_x, pos_y, w, h);
           draw_slab64k(pos_x, pos_y, w, h);
-          LbTextDraw(0/pixel_size, 0/pixel_size, text);
+          LbTextDrawResized(0/pixel_size, 0/pixel_size, units_per_pixel, text);
           LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
     }
     if (game.armageddon_cast_turn != 0)
@@ -985,16 +990,16 @@ void redraw_display(void)
       }
       LbTextSetFont(winfont);
       text = buf_sprintf(" %s %03d", gui_string(646), i/2); // Armageddon message
-      i = LbTextCharWidth(' ');
-      w = pixel_size*LbTextStringWidth(text) + 6*i;
-      pos_x = MyScreenWidth - w - 16;
-      pos_y = 16;
-      i = LbTextLineHeight();
+      i = LbTextCharWidth(' ')*units_per_pixel/16;
+      w = LbTextStringWidth(text)*units_per_pixel/16 + 6*i;
+      pos_x = MyScreenWidth - w - 16*units_per_pixel/16;
+      pos_y = 16*units_per_pixel/16;
+      i = LbTextLineHeight()*units_per_pixel/16;
       lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
       h = pixel_size*i + pixel_size*i/2;
-      LbTextSetWindow(pos_x/pixel_size, pos_y/pixel_size, w/pixel_size, h/pixel_size);
+      LbTextSetWindow(pos_x, pos_y, w, h);
       draw_slab64k(pos_x, pos_y, w, h);
-      LbTextDraw(0/pixel_size, 0/pixel_size, text);
+      LbTextDrawResized(0/pixel_size, 0/pixel_size, tx_units_per_px, text);
       LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
     }
     draw_eastegg();

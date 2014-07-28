@@ -165,20 +165,22 @@ void draw_out_of_sync_box(long a1, long a2, long box_width)
     }
     if (LbScreenLock() == Lb_SUCCESS)
     {
-        ornate_width = 200;
-        ornate_height = 100;
+        ornate_width = 200*units_per_pixel/16;
+        ornate_height = 100*units_per_pixel/16;
         x = box_width + (MyScreenWidth-box_width-ornate_width) / 2;
         y = (MyScreenHeight-ornate_height) / 2;
         draw_ornate_slab64k(x, y, ornate_width, ornate_height);
         LbTextSetFont(winfont);
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
-        LbTextSetWindow(x/pixel_size, y/pixel_size, ornate_width/pixel_size, ornate_height/pixel_size);
-        text_h = LbTextHeight("Wq");
-        text_x = x-max_width+100;
-        text_y = y+58;
-        LbTextDraw(0/pixel_size, (50-pixel_size*text_h)/pixel_size, gui_string(GUIStr_NetResyncing));
-        LbDrawBox(text_x/pixel_size, text_y/pixel_size, 2*max_width/pixel_size, 16/pixel_size, 0);
-        LbDrawBox(text_x/pixel_size, text_y/pixel_size, 2*min_width/pixel_size, 16/pixel_size, 133);
+        LbTextSetWindow(x, y, ornate_width, ornate_height);
+        int tx_units_per_px;
+        tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+        text_h = LbTextLineHeight()*tx_units_per_px/16;
+        text_x = x-max_width+100*units_per_pixel/16;
+        text_y = y+58*units_per_pixel/16;
+        LbTextDrawResized(0, 50*units_per_pixel/16 - text_h, tx_units_per_px, gui_string(GUIStr_NetResyncing));
+        LbDrawBox(text_x, text_y, 2*max_width, 16*units_per_pixel/16, 0);
+        LbDrawBox(text_x, text_y, 2*min_width, 16*units_per_pixel/16, 133);
         LbScreenUnlock();
         LbScreenSwap();
     }
