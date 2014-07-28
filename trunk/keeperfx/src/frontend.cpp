@@ -1507,8 +1507,7 @@ void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
   flg_mem = lbDisplay.DrawFlags;
   lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
   lbDisplay.DrawFlags |= Lb_TEXT_HALIGN_CENTER;
-  LbTextSetWindow(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size,
-        gbtn->width/pixel_size, gbtn->height/pixel_size);
+  LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
   scrollwnd = (struct TextScrollWindow *)gbtn->content;
   if (scrollwnd == NULL)
   {
@@ -1519,9 +1518,11 @@ void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
   area_height = gbtn->height;
   scrollwnd->window_height = area_height;
   text_height = scrollwnd->text_height;
+  int tx_units_per_px;
+  tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
   if (text_height == 0)
   {
-      text_height = text_string_height(16, text);
+      text_height = text_string_height(tx_units_per_px, text);
       SYNCDBG(18,"Computed message height %ld for \"%s\"",text_height,text);
       scrollwnd->text_height = text_height;
   }
@@ -1537,10 +1538,10 @@ void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
     switch ( scrollwnd->action )
     {
     case 1:
-      scrollwnd->start_y += 8;
+      scrollwnd->start_y += 8*units_per_pixel/16;
       break;
     case 2:
-      scrollwnd->start_y -= 8;
+      scrollwnd->start_y -= 8*units_per_pixel/16;
       break;
     case 3:
       scrollwnd->start_y += area_height;
@@ -1571,7 +1572,7 @@ void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
     scrollwnd->action = 0;
   }
   // Finally, draw the text
-  LbTextDraw(0/pixel_size, scrollwnd->start_y/pixel_size, text);
+  LbTextDrawResized(0, scrollwnd->start_y, tx_units_per_px, text);
   // And restore default drawing options
   LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenHeight/pixel_size, MyScreenWidth/pixel_size);
   lbDisplay.DrawFlags = flg_mem;
@@ -3190,10 +3191,12 @@ void frontend_input(void)
 void frontstory_draw(void)
 {
     frontend_copy_background();
-    LbTextSetWindow(70, 70, 500, 340);
+    LbTextSetWindow(70*units_per_pixel/16, 70*units_per_pixel/16, 500*units_per_pixel/16, 340*units_per_pixel/16);
     LbTextSetFont(frontstory_font);
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
-    LbTextDraw(0, 0, gui_string(frontstory_text_no));
+    int tx_units_per_px;
+    tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+    LbTextDrawResized(0, 0, tx_units_per_px, gui_string(frontstory_text_no));
 }
 
 void draw_defining_a_key_box(void)

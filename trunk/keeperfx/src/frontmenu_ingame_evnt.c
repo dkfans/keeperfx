@@ -415,7 +415,6 @@ short zoom_to_fight(unsigned char a1)
 
 void draw_bonus_timer(void)
 {
-    //_DK_draw_bonus_timer(); return;
     int nturns;
     nturns = game.bonus_time - game.play_gameturn;
     if (nturns < 0) {
@@ -428,15 +427,17 @@ void draw_bonus_timer(void)
     char * text;
     text = buf_sprintf("%05d", nturns/2);
     long width, height;
-    width = 10 * pixel_size * LbTextCharWidth('0');
-    height = pixel_size * LbTextStringHeight(text) + pixel_size * LbTextStringHeight(text) / 2;
+    width = 10 * (LbTextCharWidth('0')*units_per_pixel/16);
+    height = LbTextLineHeight()*units_per_pixel/16 + (LbTextLineHeight()*units_per_pixel/16) / 2;
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
     long scr_x, scr_y;
-    scr_x = MyScreenWidth - width - 16;
-    scr_y = 16;
-    LbTextSetWindow(scr_x/pixel_size, scr_y/pixel_size, width/pixel_size, height/pixel_size);
+    scr_x = MyScreenWidth - width - 16*units_per_pixel/16;
+    scr_y = 16*units_per_pixel/16;
+    LbTextSetWindow(scr_x, scr_y, width, height);
     draw_slab64k(scr_x, scr_y, width, height);
-    LbTextDraw(0/pixel_size, 0/pixel_size, text);
+    int tx_units_per_px;
+    tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+    LbTextDrawResized(0, 0, tx_units_per_px, text);
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
 
