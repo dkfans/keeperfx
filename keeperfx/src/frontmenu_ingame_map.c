@@ -30,6 +30,7 @@
 #include "bflib_mouse.h"
 #include "bflib_planar.h"
 
+#include "frontend.h"
 #include "front_input.h"
 #include "player_data.h"
 #include "game_legacy.h"
@@ -88,15 +89,16 @@ void pannel_map_draw_pixel(RealScreenCoord x, RealScreenCoord y, TbPixel col)
  */
 void draw_call_to_arms_circle(unsigned char owner, long x1, long y1, long x2, long y2, long zoom)
 {
-    //_DK_draw_call_to_arms_circle(owner, x1, y1, x2, y2, zoom); return;
     struct MagicStats *magstat;
     magstat = &game.keeper_power_stats[PwrK_CALL2ARMS];
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(owner);
+    int units_per_px;
+    units_per_px = (16*status_panel_width + 70) / 140;
     TbPixel col;
     col = player_room_colours[owner];
     int i;
-    i = 2*PANNEL_MAP_RADIUS / pixel_size / 2;
+    i = 2*(PANNEL_MAP_RADIUS*units_per_px/16) / 2;
     long center_x, center_y;
     center_x = i + x2;
     center_y = i + y2;
@@ -134,11 +136,11 @@ void draw_call_to_arms_circle(unsigned char owner, long x1, long y1, long x2, lo
           pannel_map_draw_pixel(x1 + dxq4, y1 + dyq4, col);
           if (i >= 0)
           {
-              i += 4 * (sx - sy) + 10;
+              i += 4 * (sx - sy) + 10*units_per_px/16;
               sy--;
           } else
           {
-              i += 4 * (sx - 1) + 10;
+              i += 4 * (sx - 1) + 10*units_per_px/16;
           }
       }
 
@@ -520,8 +522,8 @@ int draw_line_to_heart(struct PlayerInfo *player, long units_per_px, long zoom)
     dist = get_distance_xy(basepos, basepos, mapos_x + basepos, mapos_y + basepos);
     angle = -(LbArcTanAngle(mapos_x, mapos_y) & LbFPMath_AngleMask) & 0x1FFC;
     int delta_x, delta_y;
-    delta_x = -1024 * LbSinL(angle) >> 16;
-    delta_y = -1024 * LbCosL(angle) >> 16;
+    delta_x = (-1024*units_per_px/16) * LbSinL(angle) >> 16;
+    delta_y = (-1024*units_per_px/16) * LbCosL(angle) >> 16;
     long frame;
     frame = (game.play_gameturn & 3) + 1;
     int draw_x, draw_y;
@@ -530,9 +532,9 @@ int draw_line_to_heart(struct PlayerInfo *player, long units_per_px, long zoom)
     int i;
     for (i = dist - 4; i > 0; i -= 4)
     {
-        if ((pixel_size * draw_x < 0) || (pixel_size * draw_x >= 29696))
+        if ((draw_x < 0) || (draw_x >> 8 >= MapDiagonalLength))
             break;
-        if ((pixel_size * draw_y < 0) || (pixel_size * draw_y >= 29696))
+        if ((draw_y < 0) || (draw_y >> 8 >= MapDiagonalLength))
             break;
         draw_x += delta_x;
         draw_y += delta_y;
@@ -791,9 +793,9 @@ short do_right_map_click(long start_x, long start_y, long curr_mx, long curr_my,
 
 void setup_background(long units_per_px)
 {
-    if (MapDiagonalLength != units_per_px * 2*PANNEL_MAP_RADIUS / 16)
+    if (MapDiagonalLength != 2*(PANNEL_MAP_RADIUS*units_per_px/16))
     {
-        MapDiagonalLength = units_per_px * 2*PANNEL_MAP_RADIUS / 16;
+        MapDiagonalLength = 2*(PANNEL_MAP_RADIUS*units_per_px/16);
         LbMemoryFree(MapBackground);
         MapBackground = LbMemoryAlloc(MapDiagonalLength*MapDiagonalLength*sizeof(TbPixel));
         LbMemoryFree(MapShapeStart);
