@@ -28,6 +28,7 @@
 #include "bflib_math.h"
 
 #include "config_settings.h"
+#include "frontend.h"
 #include "frontmenu_ingame_map.h"
 
 #ifdef __cplusplus
@@ -457,9 +458,11 @@ TbBool mouse_is_over_pannel_map(ScreenCoord x, ScreenCoord y)
     long px,py;
     cmx = GetMouseX();
     cmy = GetMouseY();
-    px = (cmx-(x+PANNEL_MAP_RADIUS));
-    py = (cmy-(y+PANNEL_MAP_RADIUS));
-    return (LbSqrL(px*px + py*py) < PANNEL_MAP_RADIUS);
+    int units_per_px;
+    units_per_px = (16*status_panel_width + 70) / 140;
+    px = (cmx-(x+PANNEL_MAP_RADIUS*units_per_px/16));
+    py = (cmy-(y+PANNEL_MAP_RADIUS*units_per_px/16));
+    return (LbSqrL(px*px + py*py) < PANNEL_MAP_RADIUS*units_per_px/16);
 }
 /******************************************************************************/
 #ifdef __cplusplus
