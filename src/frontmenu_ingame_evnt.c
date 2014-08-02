@@ -239,7 +239,6 @@ void gui_setup_friend_over(struct GuiButton *gbtn)
 
 void draw_battle_head(struct Thing *thing, long scr_x, long scr_y)
 {
-    //_DK_draw_battle_head(thing, a2, a3); return;
     if (thing_is_invalid(thing)) {
         return;
     }

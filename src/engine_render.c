@@ -1431,7 +1431,6 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
     struct PlayerInfo *myplyr;
     struct Camera *mycam;
     unsigned short flg_mem;
-    //_DK_draw_status_sprites(a1, a2, thing, a4);
     myplyr = get_my_player();
 
     CrtrExpLevel exp;
@@ -1567,10 +1566,10 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
         w = pixel_size * spr->SWidth;
         if (is_neutral_thing(thing))
         {
-            LbSpriteDrawOneColour(scrpos_x - w / pixel_size / 2, scrpos_y - h / pixel_size - h_add, spr, player_flash_colours[game.play_gameturn & 3]);
+            LbSpriteDrawScaledOneColour(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h, player_flash_colours[game.play_gameturn & 3]);
         } else
         {
-            LbSpriteDrawOneColour(scrpos_x - w / pixel_size / 2, scrpos_y - h / pixel_size - h_add, spr, player_flash_colours[thing->owner]);
+            LbSpriteDrawScaledOneColour(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h, player_flash_colours[thing->owner]);
         }
     }
     else

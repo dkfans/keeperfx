@@ -740,8 +740,7 @@ void put_down_simpletext_sprites_resized(const char *sbuf, const char *ebuf, lon
       if (spr != NULL)
       {
         if ((lbDisplay.DrawFlags & Lb_TEXT_ONE_COLOR) != 0) {
-            //TODO RESCALE Write sizing support
-            LbSpriteDrawOneColour(x, y, spr, lbDisplay.DrawColour);
+            LbSpriteDrawResizedOneColour(x, y, units_per_px, spr, lbDisplay.DrawColour);
         } else {
             LbSpriteDrawResized(x, y, units_per_px, spr);
         }
