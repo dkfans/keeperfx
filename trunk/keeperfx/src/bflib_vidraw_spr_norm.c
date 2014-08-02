@@ -10,7 +10,7 @@
  *     Medium level library, draws on screen buffer used in bflib_video.
  *     Used for drawing screen components.
  * @author   Tomasz Lis
- * @date     12 Feb 2008 - 10 Jan 2009
+ * @date     12 Feb 2008 - 01 Aug 2014
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
