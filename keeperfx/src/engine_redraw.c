@@ -415,25 +415,25 @@ void draw_overlay_compass(long base_x, long base_y)
     cam = player->acamera;
     int center_x, center_y;
     int shift_x, shift_y;
-    center_x = base_x*units_per_px/16 + PANNEL_MAP_RADIUS*units_per_px/16;
-    center_y = base_y*units_per_px/16 + PANNEL_MAP_RADIUS*units_per_px/16;
-    shift_x = ((-(PANNEL_MAP_RADIUS*7/8)*units_per_px/16) * LbSinL(cam->orient_a)) >> LbFPMath_TrigmBits;
-    shift_y = ((-(PANNEL_MAP_RADIUS*7/8)*units_per_px/16) * LbCosL(cam->orient_a)) >> LbFPMath_TrigmBits;
+    center_x = base_x*units_per_px/16 + MapDiagonalLength/2;
+    center_y = base_y*units_per_px/16 + MapDiagonalLength/2;
+    shift_x = (-(MapDiagonalLength*7/16) * LbSinL(cam->orient_a)) >> LbFPMath_TrigmBits;
+    shift_y = (-(MapDiagonalLength*7/16) * LbCosL(cam->orient_a)) >> LbFPMath_TrigmBits;
     if (LbScreenIsLocked()) {
         LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, gui_strings[877]);
     }
-    shift_x = (( (PANNEL_MAP_RADIUS*7/8)*units_per_px/16) * LbSinL(cam->orient_a)) >> LbFPMath_TrigmBits;
-    shift_y = (( (PANNEL_MAP_RADIUS*7/8)*units_per_px/16) * LbCosL(cam->orient_a)) >> LbFPMath_TrigmBits;
+    shift_x = ( (MapDiagonalLength*7/16) * LbSinL(cam->orient_a)) >> LbFPMath_TrigmBits;
+    shift_y = ( (MapDiagonalLength*7/16) * LbCosL(cam->orient_a)) >> LbFPMath_TrigmBits;
     if (LbScreenIsLocked()) {
         LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, gui_strings[879]);
     }
-    shift_x = (( (PANNEL_MAP_RADIUS*7/8)*units_per_px/16) * LbCosL(cam->orient_a)) >> LbFPMath_TrigmBits;
-    shift_y = ((-(PANNEL_MAP_RADIUS*7/8)*units_per_px/16) * LbSinL(cam->orient_a)) >> LbFPMath_TrigmBits;
+    shift_x = ( (MapDiagonalLength*7/16) * LbCosL(cam->orient_a)) >> LbFPMath_TrigmBits;
+    shift_y = (-(MapDiagonalLength*7/16) * LbSinL(cam->orient_a)) >> LbFPMath_TrigmBits;
     if (LbScreenIsLocked()) {
         LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, gui_strings[878]);
     }
-    shift_x = ((-(PANNEL_MAP_RADIUS*7/8)*units_per_px/16) * LbCosL(cam->orient_a)) >> LbFPMath_TrigmBits;
-    shift_y = (( (PANNEL_MAP_RADIUS*7/8)*units_per_px/16) * LbSinL(cam->orient_a)) >> LbFPMath_TrigmBits;
+    shift_x = (-(MapDiagonalLength*7/16) * LbCosL(cam->orient_a)) >> LbFPMath_TrigmBits;
+    shift_y = ( (MapDiagonalLength*7/16) * LbSinL(cam->orient_a)) >> LbFPMath_TrigmBits;
     if (LbScreenIsLocked()) {
         LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, gui_strings[880]);
     }
@@ -446,7 +446,6 @@ void redraw_creature_view(void)
     TbGraphicsWindow ewnd;
     struct PlayerInfo *player;
     struct Thing *thing;
-    //_DK_redraw_creature_view(); return;
     player = get_my_player();
     if (player->field_45F != 2)
       player->field_45F = 2;

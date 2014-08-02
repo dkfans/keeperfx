@@ -686,7 +686,7 @@ void draw_gui_panel_sprite_left(long x, long y, int units_per_px, long spridx)
     if ((spridx <= 0) || (spridx > GUI_PANEL_SPRITES_COUNT))
       return;
     spr = &gui_panel_sprites[spridx];
-    LbSpriteDrawResized(x/pixel_size, y/pixel_size, units_per_px, spr);
+    LbSpriteDrawResized(x, y, units_per_px, spr);
 }
 
 void draw_gui_panel_sprite_rmleft(long x, long y, int units_per_px, long spridx, unsigned long remap)
@@ -695,7 +695,7 @@ void draw_gui_panel_sprite_rmleft(long x, long y, int units_per_px, long spridx,
     if ((spridx <= 0) || (spridx > GUI_PANEL_SPRITES_COUNT))
       return;
     spr = &gui_panel_sprites[spridx];
-    LbSpriteDrawRemap(x/pixel_size, y/pixel_size, spr, &pixmap.fade_tables[remap*256]);
+    LbSpriteDrawResizedRemap(x, y, units_per_px, spr, &pixmap.fade_tables[remap*256]);
 }
 
 void draw_gui_panel_sprite_ocleft(long x, long y, int units_per_px, long spridx, TbPixel color)
@@ -704,7 +704,7 @@ void draw_gui_panel_sprite_ocleft(long x, long y, int units_per_px, long spridx,
     if ((spridx <= 0) || (spridx > GUI_PANEL_SPRITES_COUNT))
       return;
     spr = &gui_panel_sprites[spridx];
-    LbSpriteDrawOneColour(x/pixel_size, y/pixel_size, spr, color);
+    LbSpriteDrawResizedOneColour(x, y, units_per_px, spr, color);
 }
 
 void draw_gui_panel_sprite_centered(long x, long y, int units_per_px, long spridx)
@@ -713,9 +713,9 @@ void draw_gui_panel_sprite_centered(long x, long y, int units_per_px, long sprid
     if ((spridx <= 0) || (spridx > GUI_PANEL_SPRITES_COUNT))
       return;
     spr = &gui_panel_sprites[spridx];
-    x -= ((spr->SWidth*(long)pixel_size) >> 1);
-    y -= ((spr->SHeight*(long)pixel_size) >> 1);
-    LbSpriteDrawResized(x/pixel_size, y/pixel_size, units_per_px, spr);
+    x -= ((spr->SWidth*units_per_px/16) >> 1);
+    y -= ((spr->SHeight*units_per_px/16) >> 1);
+    LbSpriteDrawResized(x, y, units_per_px, spr);
 }
 
 void draw_gui_panel_sprite_occentered(long x, long y, int units_per_px, long spridx, TbPixel color)
@@ -724,9 +724,9 @@ void draw_gui_panel_sprite_occentered(long x, long y, int units_per_px, long spr
     if ((spridx <= 0) || (spridx > GUI_PANEL_SPRITES_COUNT))
       return;
     spr = &gui_panel_sprites[spridx];
-    x -= ((spr->SWidth*(long)pixel_size) >> 1);
-    y -= ((spr->SHeight*(long)pixel_size) >> 1);
-    LbSpriteDrawOneColour(x/pixel_size, y/pixel_size, spr, color);
+    x -= ((spr->SWidth*units_per_px/16) >> 1);
+    y -= ((spr->SHeight*units_per_px/16) >> 1);
+    LbSpriteDrawResizedOneColour(x, y, units_per_px, spr, color);
 }
 
 void draw_button_sprite_left(long x, long y, int units_per_px, long spridx)
@@ -735,7 +735,7 @@ void draw_button_sprite_left(long x, long y, int units_per_px, long spridx)
     spr = &button_sprite[spridx];
     if ((spr <= button_sprite) || (spr >= end_button_sprites))
       return;
-    LbSpriteDrawResized(x/pixel_size, y/pixel_size, units_per_px, spr);
+    LbSpriteDrawResized(x, y, units_per_px, spr);
 }
 
 void draw_button_sprite_rmleft(long x, long y, int units_per_px, long spridx, unsigned long remap)
@@ -744,7 +744,7 @@ void draw_button_sprite_rmleft(long x, long y, int units_per_px, long spridx, un
     spr = &button_sprite[spridx];
     if ((spr <= button_sprite) || (spr >= end_button_sprites))
       return;
-    LbSpriteDrawRemap(x/pixel_size, y/pixel_size, spr, &pixmap.fade_tables[remap*256]);
+    LbSpriteDrawResizedRemap(x, y, units_per_px, spr, &pixmap.fade_tables[remap*256]);
 }
 
 void draw_frontend_sprite_left(long x, long y, int units_per_px, long spridx)
