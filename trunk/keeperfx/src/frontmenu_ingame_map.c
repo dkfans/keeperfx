@@ -742,10 +742,10 @@ short do_left_map_click(long begin_x, long begin_y, long curr_x, long curr_y, lo
       if (grabbed_small_map)
       {
         game.small_map_state = 2;
-        LbMouseSetPosition((begin_x+58)/pixel_size, (begin_y+58)/pixel_size);
+        LbMouseSetPosition(begin_x + MapDiagonalLength/2, begin_y + MapDiagonalLength/2);
       } else
       {
-        do_map_rotate_stuff(curr_x-begin_x-58, curr_y-begin_y-58, &curr_x, &curr_y, zoom);
+        do_map_rotate_stuff(curr_x - begin_x - MapDiagonalLength/2, curr_y - begin_y - MapDiagonalLength/2, &curr_x, &curr_y, zoom);
         game.hand_over_subtile_x = curr_x;
         game.hand_over_subtile_y = curr_y;
         if (subtile_has_slab(curr_x, curr_y))
@@ -767,7 +767,7 @@ short do_right_map_click(long start_x, long start_y, long curr_mx, long curr_my,
     SYNCDBG(17,"Starting");
     struct PlayerInfo *player;
     struct Thing *thing;
-    do_map_rotate_stuff(curr_mx-start_x-PANNEL_MAP_RADIUS, curr_my-start_y-PANNEL_MAP_RADIUS, &x, &y, zoom);
+    do_map_rotate_stuff(curr_mx - start_x - MapDiagonalLength/2, curr_my - start_y - MapDiagonalLength/2, &x, &y, zoom);
     game.hand_over_subtile_x = x;
     game.hand_over_subtile_y = y;
     player = get_my_player();
