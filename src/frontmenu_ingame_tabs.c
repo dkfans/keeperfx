@@ -1681,7 +1681,6 @@ void maintain_instance(struct GuiButton *gbtn)
 void gui_activity_background(struct GuiMenu *gmnu)
 {
     SYNCDBG(9,"Starting");
-    //_DK_gui_activity_background(gmnu);return;
     unsigned short flg_mem;
     flg_mem = lbDisplay.DrawFlags;
     lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
@@ -1731,7 +1730,9 @@ void gui_activity_background(struct GuiMenu *gmnu)
         }
     }
     lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
-    LbDrawBox((gmnu->pos_x + 2) / pixel_size, (gmnu->pos_y + 218) / pixel_size, 134 / pixel_size, 24 / pixel_size, colours[0][0][0]);
+    int units_per_px;
+    units_per_px = gmnu->width * 16 / 140;
+    LbDrawBox(gmnu->pos_x + 2*units_per_px/16, gmnu->pos_y + 218*units_per_px/16, 134*units_per_px/16, 24*units_per_px/16, colours[0][0][0]);
     lbDisplay.DrawFlags = flg_mem;
 }
 
