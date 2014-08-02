@@ -221,6 +221,7 @@ void setup_vecs(unsigned char *screenbuf, unsigned char *nvec_map,
         unsigned int line_len, unsigned int width, unsigned int height);
 TbResult LbSpriteDrawUsingScalingData(long posx, long posy, const struct TbSprite *sprite);
 TbResult LbSpriteDrawRemapUsingScalingData(long posx, long posy, const struct TbSprite *sprite, const TbPixel *cmap);
+TbResult LbSpriteDrawOneColourUsingScalingData(long posx, long posy, const struct TbSprite *sprite, TbPixel colour);
 void LbSpriteSetScalingData(long x, long y, long swidth, long sheight, long dwidth, long dheight);
 TbResult DrawAlphaSpriteUsingScalingData(long posx, long posy, struct TbSprite *sprite);
 void SetAlphaScalingData(long a1, long a2, long a3, long a4, long a5, long a6);
