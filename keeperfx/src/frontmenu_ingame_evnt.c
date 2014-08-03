@@ -237,7 +237,7 @@ void gui_setup_friend_over(struct GuiButton *gbtn)
     }
 }
 
-void draw_battle_head(struct Thing *thing, long scr_x, long scr_y)
+void draw_battle_head(struct Thing *thing, long scr_x, long scr_y, int units_per_px)
 {
     if (thing_is_invalid(thing)) {
         return;
@@ -246,17 +246,19 @@ void draw_battle_head(struct Thing *thing, long scr_x, long scr_y)
     spr_idx = get_creature_model_graphics(thing->model, CGI_GUIPanelSymbol);
     struct TbSprite *spr;
     spr = &gui_panel_sprites[spr_idx];
+    int ps_units_per_px;
+    ps_units_per_px = (50 * units_per_px + 50/2) / spr->SHeight;
     int curscr_x, curscr_y;
-    curscr_x = scr_x - ((pixel_size * spr->SWidth) >> 1);
-    curscr_y = scr_y - ((pixel_size * spr->SHeight) >> 1);
+    curscr_x = scr_x - ((spr->SWidth*ps_units_per_px/16) >> 1);
+    curscr_y = scr_y - ((spr->SHeight*ps_units_per_px/16) >> 1);
     if ((thing->creature.health_bar_turns) && ((game.play_gameturn & 1) != 0)) {
-        LbSpriteDrawOneColour(curscr_x / pixel_size, curscr_y / pixel_size, spr, player_flash_colours[thing->owner]);
+        LbSpriteDrawResizedOneColour(curscr_x, curscr_y, ps_units_per_px, spr, player_flash_colours[thing->owner]);
     } else {
-        LbSpriteDraw(curscr_x / pixel_size, curscr_y / pixel_size, spr);
+        LbSpriteDrawResized(curscr_x, curscr_y, ps_units_per_px, spr);
     }
     curscr_x = scr_x - 8;
     curscr_y = scr_y + ((pixel_size * spr->SHeight) >> 1) - 8;
-    LbDrawBox(curscr_x / pixel_size, curscr_y / pixel_size, 16 / pixel_size, 6 / pixel_size, colours[0][0][0]);
+    LbDrawBox(curscr_x, curscr_y, 16*units_per_px/16, 6*units_per_px/16, colours[0][0][0]);
     // Show health
     struct CreatureStats *crstat;
     struct CreatureControl *cctrl;
@@ -267,12 +269,15 @@ void draw_battle_head(struct Thing *thing, long scr_x, long scr_y)
     max_health = compute_creature_max_health(crstat->health,cctrl->explevel);
     if (health <= 0)
         health = 0;
-    LbDrawBox((curscr_x + 2) / pixel_size, (curscr_y + 2) / pixel_size, ((12 * health)/max_health) / pixel_size, 2 / pixel_size, player_room_colours[thing->owner]);
+    LbDrawBox(curscr_x + 2*units_per_px/16, curscr_y + 2*units_per_px/16, ((12 * health)/max_health)*units_per_px/16, 2*units_per_px/16, player_room_colours[thing->owner]);
     // Draw experience level
     spr = &button_sprite[184];
-    curscr_y = (scr_y - ((pixel_size * spr->SHeight) >> 1));
-    curscr_x = (scr_x - ((pixel_size * spr->SWidth) >> 1));
-    LbSpriteDraw(curscr_x / pixel_size, curscr_y / pixel_size, &button_sprite[184 + cctrl->explevel]);
+    int bs_units_per_px;
+    bs_units_per_px = (17 * units_per_px + 17/2) / spr->SHeight;
+    curscr_y = (scr_y - ((spr->SHeight*bs_units_per_px/16) >> 1));
+    curscr_x = (scr_x - ((spr->SWidth*bs_units_per_px/16) >> 1));
+    spr = &button_sprite[184 + cctrl->explevel];
+    LbSpriteDrawResized(curscr_x, curscr_y, bs_units_per_px, spr);
 }
 
 void gui_area_friendly_battlers(struct GuiButton *gbtn)
@@ -290,12 +295,14 @@ void gui_area_friendly_battlers(struct GuiButton *gbtn)
     if (battle->fighters_num <= 0) {
         return;
     }
+    int units_per_px;
+    units_per_px = (gbtn->width * 16 + gbtn->width/2) / 160;
     int scr_pos_x, wdelta;
     wdelta = gbtn->width / 7;
     scr_pos_x = gbtn->scr_pos_x - wdelta + gbtn->width;
     lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
-    LbDrawBox(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size,
-        gbtn->width/pixel_size, gbtn->height/pixel_size, colours[0][0][0]);
+    LbDrawBox(gbtn->scr_pos_x, gbtn->scr_pos_y,
+        gbtn->width, gbtn->height, colours[0][0][0]);
     lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
     int i,n;
     for (n=0; n < 7; n++)
@@ -305,7 +312,7 @@ void gui_area_friendly_battlers(struct GuiButton *gbtn)
         thing = thing_get(i);
         if (thing_is_creature(thing))
         {
-            draw_battle_head(thing, scr_pos_x + wdelta / 2, gbtn->scr_pos_y);
+            draw_battle_head(thing, scr_pos_x + wdelta / 2, gbtn->scr_pos_y, units_per_px);
             if (thing->index == battle_creature_over)
             {
               if (game.play_gameturn & 2)
@@ -313,8 +320,8 @@ void gui_area_friendly_battlers(struct GuiButton *gbtn)
                   TbPixel col;
                   col = player_flash_colours[game.play_gameturn & 3];
                   lbDisplay.DrawFlags |= (Lb_SPRITE_OUTLINE|0x0004);
-                  LbDrawBox(scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size,
-                    wdelta/pixel_size, gbtn->height/pixel_size, col);
+                  LbDrawBox(scr_pos_x, gbtn->scr_pos_y,
+                    wdelta, gbtn->height, col);
                   lbDisplay.DrawFlags &= ~(Lb_SPRITE_OUTLINE|0x0004);
               }
             }
@@ -364,12 +371,14 @@ void gui_area_enemy_battlers(struct GuiButton *gbtn)
     if (battle->fighters_num <= 0) {
         return;
     }
+    int units_per_px;
+    units_per_px = (gbtn->width * 16 + 8) / 160;
     int scr_pos_x, wdelta;
     wdelta = gbtn->width / 7;
     scr_pos_x = gbtn->scr_pos_x;
     lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
-    LbDrawBox(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size,
-        gbtn->width/pixel_size, gbtn->height/pixel_size, colours[0][0][0]);
+    LbDrawBox(gbtn->scr_pos_x, gbtn->scr_pos_y,
+        gbtn->width, gbtn->height, colours[0][0][0]);
     lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
     int i,n;
     for (n=0; n < 7; n++)
@@ -379,7 +388,7 @@ void gui_area_enemy_battlers(struct GuiButton *gbtn)
         thing = thing_get(i);
         if (thing_is_creature(thing))
         {
-            draw_battle_head(thing, scr_pos_x + wdelta / 2, gbtn->scr_pos_y);
+            draw_battle_head(thing, scr_pos_x + wdelta / 2, gbtn->scr_pos_y, units_per_px);
             if (thing->index == battle_creature_over)
             {
               if (game.play_gameturn & 2)
@@ -387,8 +396,8 @@ void gui_area_enemy_battlers(struct GuiButton *gbtn)
                   TbPixel col;
                   col = player_flash_colours[game.play_gameturn & 3];
                   lbDisplay.DrawFlags |= (Lb_SPRITE_OUTLINE|0x0004);
-                  LbDrawBox(scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size,
-                    wdelta/pixel_size, gbtn->height/pixel_size, col);
+                  LbDrawBox(scr_pos_x, gbtn->scr_pos_y,
+                    wdelta, gbtn->height, col);
                   lbDisplay.DrawFlags &= ~(Lb_SPRITE_OUTLINE|0x0004);
               }
             }
