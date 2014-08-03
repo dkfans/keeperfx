@@ -248,7 +248,7 @@ TbBool fronttorture_draw(void)
     {
       spr = &doors[i].sprites[1];
     }
-    LbSpriteDraw(spx+doors[i].field_0, spy+doors[i].field_4, spr);
+    LbSpriteDrawResized(spx+doors[i].field_0, spy+doors[i].field_4, 16*m, spr);
   }
   return true;
 }
