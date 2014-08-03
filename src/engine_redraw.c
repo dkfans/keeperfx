@@ -969,7 +969,7 @@ void redraw_display(void)
           lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
           h = i + i/2;
           LbTextSetWindow(pos_x, pos_y, w, h);
-          draw_slab64k(pos_x, pos_y, w, h);
+          draw_slab64k(pos_x, pos_y, units_per_pixel, w, h);
           LbTextDrawResized(0/pixel_size, 0/pixel_size, units_per_pixel, text);
           LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
     }
@@ -997,7 +997,7 @@ void redraw_display(void)
       lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
       h = pixel_size*i + pixel_size*i/2;
       LbTextSetWindow(pos_x, pos_y, w, h);
-      draw_slab64k(pos_x, pos_y, w, h);
+      draw_slab64k(pos_x, pos_y, units_per_pixel, w, h);
       LbTextDrawResized(0/pixel_size, 0/pixel_size, tx_units_per_px, text);
       LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
     }

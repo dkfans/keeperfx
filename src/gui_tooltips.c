@@ -466,7 +466,7 @@ void draw_tooltip_slab64k(char *tttext, long pos_x, long pos_y, long ttwidth, lo
         if (tttext[0] != '\0')
         {
             LbTextSetWindow(x, y, viswidth*units_per_pixel/16, ttheight*units_per_pixel/16);
-            draw_slab64k(x, y, viswidth*units_per_pixel/16, ttheight*units_per_pixel/16);
+            draw_slab64k(x, y, units_per_pixel, viswidth*units_per_pixel/16, ttheight*units_per_pixel/16);
             lbDisplay.DrawFlags = 0;
             int tx_units_per_px;
             tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();

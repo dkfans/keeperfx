@@ -442,7 +442,7 @@ void draw_bonus_timer(void)
     scr_x = MyScreenWidth - width - 16*units_per_pixel/16;
     scr_y = 16*units_per_pixel/16;
     LbTextSetWindow(scr_x, scr_y, width, height);
-    draw_slab64k(scr_x, scr_y, width, height);
+    draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
     int tx_units_per_px;
     tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
     LbTextDrawResized(0, 0, tx_units_per_px, text);

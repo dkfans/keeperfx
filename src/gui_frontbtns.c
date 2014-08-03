@@ -370,72 +370,71 @@ void gui_round_glass_background(struct GuiMenu *gmnu)
     case 3:
         px = gmnu->pos_x;
         py = fade_h * (gmnu->menu_init->fade_time - gmnu->fade_time) + gmnu->pos_y;
-        draw_round_slab64k(px, py, gmnu->width, gmnu->height);
+        draw_round_slab64k(px, py, units_per_pixel, gmnu->width, gmnu->height);
         break;
     case 1:
         px = gmnu->pos_x;
         py = MyScreenHeight - fade_h * (gmnu->menu_init->fade_time - gmnu->fade_time);
-        draw_round_slab64k(px, py, gmnu->width, gmnu->height);
+        draw_round_slab64k(px, py, units_per_pixel, gmnu->width, gmnu->height);
         break;
     default:
         px = gmnu->pos_x;
         py = gmnu->pos_y;
-        draw_round_slab64k(px, py, gmnu->width, gmnu->height);
+        draw_round_slab64k(px, py, units_per_pixel, gmnu->width, gmnu->height);
         break;
     }
 }
 
 void gui_pretty_background(struct GuiMenu *gmnu)
 {
-  SYNCDBG(9,"Starting");
-  //_DK_gui_pretty_background(gmnu);
-  int fade_w,fade_h;
-  int i;
-  fade_w = 0;
-  fade_h = 0;
-  if (game.time_delta < 12)
-  {
-    if (gmnu->visible == 1) {
-        gmnu->fade_time = 1;
-        gmnu->visible = 2;
-    }
-  } else
-  {
-      i = gmnu->menu_init->fade_time;
-      if (i <= 0)
-      {
+    SYNCDBG(9,"Starting");
+    int fade_w,fade_h;
+    int i;
+    fade_w = 0;
+    fade_h = 0;
+    if (game.time_delta < 12)
+    {
+      if (gmnu->visible == 1) {
+          gmnu->fade_time = 1;
           gmnu->visible = 2;
-      } else {
-          fade_w = (gmnu->width - 86) / i;
-          if (fade_w < 0)
-              fade_w = 0;
-          fade_h = (gmnu->height - 64) / i;
-          if (fade_h < 0)
-              fade_h = 0;
       }
-  }
-  long px,py;
-  int width, height;
-  switch (gmnu->visible)
-  {
-  case 1:
-      width = fade_w * (gmnu->menu_init->fade_time - gmnu->fade_time) + 86;
-      height = fade_h * (gmnu->menu_init->fade_time - gmnu->fade_time) + 64;
-      px = gmnu->pos_x + gmnu->width/2 - width/2;
-      py = gmnu->pos_y + gmnu->height/2 - height/2;
-      draw_ornate_slab_outline64k(px, py, width, height);
-      break;
-  case 3:
-      width = gmnu->width;
-      height = gmnu->height;
-      px = gmnu->pos_x + gmnu->width/2 - width/2;
-      py = gmnu->pos_y + gmnu->height/2 - (gmnu->height - fade_h)/2;
-      draw_ornate_slab_outline64k(px, py, width, height);
-      break;
-  default:
-      draw_ornate_slab64k(gmnu->pos_x, gmnu->pos_y, gmnu->width, gmnu->height);
-      break;
-  }
+    } else
+    {
+        i = gmnu->menu_init->fade_time;
+        if (i <= 0)
+        {
+            gmnu->visible = 2;
+        } else {
+            fade_w = (gmnu->width - 86) / i;
+            if (fade_w < 0)
+                fade_w = 0;
+            fade_h = (gmnu->height - 64) / i;
+            if (fade_h < 0)
+                fade_h = 0;
+        }
+    }
+    long px,py;
+    int width, height;
+    switch (gmnu->visible)
+    {
+    case 1:
+        width = fade_w * (gmnu->menu_init->fade_time - gmnu->fade_time) + 86;
+        height = fade_h * (gmnu->menu_init->fade_time - gmnu->fade_time) + 64;
+        px = gmnu->pos_x + gmnu->width/2 - width/2;
+        py = gmnu->pos_y + gmnu->height/2 - height/2;
+        draw_ornate_slab_outline64k(px, py, units_per_pixel, width, height);
+        break;
+    case 3:
+        width = gmnu->width;
+        height = gmnu->height;
+        px = gmnu->pos_x + gmnu->width/2 - width/2;
+        py = gmnu->pos_y + gmnu->height/2 - (gmnu->height - fade_h)/2;
+        draw_ornate_slab_outline64k(px, py, units_per_pixel, width, height);
+        break;
+    default:
+        draw_ornate_slab64k(gmnu->pos_x, gmnu->pos_y, units_per_pixel, gmnu->width, gmnu->height);
+        break;
+    }
 }
 
 void gui_area_new_normal_button(struct GuiButton *gbtn)
