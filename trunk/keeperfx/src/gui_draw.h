@@ -80,10 +80,10 @@ int simple_gui_panel_sprite_width_units_per_px(const struct GuiButton *gbtn, lon
 
 void draw_bar64k(long pos_x, long pos_y, int units_per_px, long width);
 void draw_lit_bar64k(long pos_x, long pos_y, int units_per_px, long width);
-void draw_slab64k(long pos_x, long pos_y, long width, long height);
-void draw_ornate_slab64k(long pos_x, long pos_y, long width, long height);
-void draw_ornate_slab_outline64k(long pos_x, long pos_y, long width, long height);
-void draw_round_slab64k(long pos_x, long pos_y, long width, long height);
+void draw_slab64k(long pos_x, long pos_y, int units_per_px, long width, long height);
+void draw_ornate_slab64k(long pos_x, long pos_y, int units_per_px, long width, long height);
+void draw_ornate_slab_outline64k(long pos_x, long pos_y, int units_per_px, long width, long height);
+void draw_round_slab64k(long pos_x, long pos_y, int units_per_px, long width, long height);
 void draw_string64k(long x, long y, int units_per_px, const char * text);
 
 void draw_button_string(struct GuiButton *gbtn, int base_width, char *text);
