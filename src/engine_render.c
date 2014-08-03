@@ -1534,11 +1534,14 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
     }
     int w, h;
     struct TbSprite *spr;
+    int bs_units_per_px;
+    spr = &button_sprite[70];
+    bs_units_per_px = 17 * units_per_pixel / spr->SHeight;
     if ( state_spridx || anger_spridx )
     {
         spr = &button_sprite[70];
-        h = (pixel_size * a4 * spr->SHeight) >> 13;
-        w = (pixel_size * a4 * spr->SWidth) >> 13;
+        h = (a4 * spr->SHeight * bs_units_per_px/16) >> 13;
+        w = (a4 * spr->SWidth * bs_units_per_px/16) >> 13;
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
     } else
     {
@@ -1551,19 +1554,19 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
         spr = &button_sprite[anger_spridx];
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
         spr = &button_sprite[state_spridx];
-        h_add = spr->SHeight;
+        h_add = spr->SHeight * bs_units_per_px/16;
     } else
     if ( state_spridx )
     {
         spr = &button_sprite[state_spridx];
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
-        h_add = spr->SHeight;
+        h_add = spr->SHeight * bs_units_per_px/16;
     }
     if ((thing->word_17 > 0) && (health_spridx > 0) && ((game.play_gameturn & 1) != 0))
     {
         spr = &button_sprite[health_spridx];
-        h = pixel_size * spr->SHeight;
-        w = pixel_size * spr->SWidth;
+        h = spr->SHeight * bs_units_per_px/16;
+        w = spr->SWidth * bs_units_per_px/16;
         if (is_neutral_thing(thing))
         {
             LbSpriteDrawScaledOneColour(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h, player_flash_colours[game.play_gameturn & 3]);
@@ -1581,11 +1584,11 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
         || (mycam->field_6 == 3) )
       {
           spr = &button_sprite[health_spridx];
-          w = pixel_size * spr->SWidth;
-          h = pixel_size * spr->SHeight;
-          LbSpriteDraw(scrpos_x - w / pixel_size / 2, scrpos_y - h / pixel_size - h_add, spr);
+          w = spr->SWidth * bs_units_per_px/16;
+          h = spr->SHeight * bs_units_per_px/16;
+          LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
           spr = &button_sprite[184 + exp];
-          LbSpriteDraw(scrpos_x - w / pixel_size / 2, scrpos_y - h / pixel_size - h_add, spr);
+          LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
       }
     }
     lbDisplay.DrawFlags = flg_mem;

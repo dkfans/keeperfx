@@ -343,7 +343,6 @@ void frontend_copy_background(void)
 void gui_round_glass_background(struct GuiMenu *gmnu)
 {
     SYNCDBG(19,"Starting");
-    //_DK_gui_round_glass_background(gmnu);
     int fade_h;
     int i;
     fade_h = 0;

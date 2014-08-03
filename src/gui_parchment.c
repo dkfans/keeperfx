@@ -336,7 +336,12 @@ void draw_overhead_room_icons(const struct TbRect *map_area, long block_size, Pl
     struct Room *room;
     long rkind_select;
     long room_visibility;
-    //_DK_draw_overhead_room_icons(x,y);
+    int ps_units_per_px;
+    {
+        struct TbSprite *spr;
+        spr = &gui_panel_sprites[57];
+        ps_units_per_px = 32 * block_size * 4 / spr->SHeight;
+    }
     rkind_select = (game.play_gameturn >> 1) % ROOM_TYPES_COUNT;
     for (room = start_rooms; room < end_rooms; room++)
     {
@@ -358,9 +363,9 @@ void draw_overhead_room_icons(const struct TbRect *map_area, long block_size, Pl
                     struct TbSprite *spr;
                     long pos_x,pos_y;
                     spr = &gui_panel_sprites[rdata->numfield_1];
-                    pos_x = map_area->left + (block_size * room->central_stl_x / STL_PER_SLB) - (spr->SWidth  / 2);
-                    pos_y = map_area->top  + (block_size * room->central_stl_y / STL_PER_SLB) - (spr->SHeight / 2);
-                    LbSpriteDraw(pos_x, pos_y, spr);
+                    pos_x = map_area->left + (block_size * room->central_stl_x / STL_PER_SLB) - (spr->SWidth*ps_units_per_px/16  / 2);
+                    pos_y = map_area->top  + (block_size * room->central_stl_y / STL_PER_SLB) - (spr->SHeight*ps_units_per_px/16 / 2);
+                    LbSpriteDrawResized(pos_x, pos_y, ps_units_per_px, spr);
                 }
             }
           }

@@ -3331,12 +3331,17 @@ void draw_active_menus_buttons(void)
 
 void spangle_button(struct GuiButton *gbtn)
 {
+    struct TbSprite *spr;
+    spr = &button_sprite[176];
+    int bs_units_per_px;
+    bs_units_per_px = 50 * units_per_pixel / spr->SHeight;
     long x,y;
     unsigned long i;
-    x = ((gbtn->width >> 1) - pixel_size * ((long)button_sprite[176].SWidth) / 2 + gbtn->pos_x);
-    y = ((gbtn->height >> 1) - pixel_size * ((long)button_sprite[176].SHeight) / 2 + gbtn->pos_y);
+    x = gbtn->pos_x + (gbtn->width >> 1)  - ((spr->SWidth*bs_units_per_px/16) / 2);
+    y = gbtn->pos_y + (gbtn->height >> 1) - ((spr->SHeight*bs_units_per_px/16) / 2);
     i = 176+((game.play_gameturn >> 1) & 7);
-    LbSpriteDraw(x/pixel_size, y/pixel_size, &button_sprite[i]);
+    spr = &button_sprite[i];
+    LbSpriteDrawResized(x, y, bs_units_per_px, spr);
 }
 
 void draw_menu_spangle(struct GuiMenu *gmnu)
