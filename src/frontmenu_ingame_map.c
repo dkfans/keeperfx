@@ -94,7 +94,7 @@ void draw_call_to_arms_circle(unsigned char owner, long x1, long y1, long x2, lo
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(owner);
     int units_per_px;
-    units_per_px = (16*status_panel_width + 70) / 140;
+    units_per_px = (16*status_panel_width + 140/2) / 140;
     TbPixel col;
     col = player_room_colours[owner];
     int i;
@@ -459,20 +459,15 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                         long mapos_x, mapos_y;
                         mapos_x = (zmpos_x * LbCosL(cam->orient_a) + zmpos_y * LbSinL(cam->orient_a)) >> 16;
                         mapos_y = (zmpos_y * LbCosL(cam->orient_a) - zmpos_x * LbSinL(cam->orient_a)) >> 16;
-                        long basepos;
-                        basepos = 116/pixel_size/2;
-                        if (((mapos_x+basepos) * pixel_size >= 0) && ((mapos_x+basepos) * pixel_size < 116))
-                        {
-                            if (((mapos_y+basepos) * pixel_size >= 0) && ((mapos_y+basepos) * pixel_size < 116))
-                            {
-                                if (thing->owner == player->id_number) {
-                                    col = col2;
-                                } else {
-                                    col = col1;
-                                }
-                                pannel_map_draw_pixel(mapos_x+basepos, mapos_y+basepos, col);
-                            }
+                        RealScreenCoord basepos;
+                        basepos = MapDiagonalLength/2;
+                        // Do the drawing
+                        if (thing->owner == player->id_number) {
+                            col = col2;
+                        } else {
+                            col = col1;
                         }
+                        pannel_map_draw_pixel(mapos_x+basepos, mapos_y+basepos, col);
                     }
                 }
             }

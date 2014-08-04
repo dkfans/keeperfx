@@ -459,7 +459,7 @@ TbBool mouse_is_over_pannel_map(ScreenCoord x, ScreenCoord y)
     cmx = GetMouseX();
     cmy = GetMouseY();
     int units_per_px;
-    units_per_px = (16*status_panel_width + 70) / 140;
+    units_per_px = (16*status_panel_width + 140/2) / 140;
     px = (cmx-(x+PANNEL_MAP_RADIUS*units_per_px/16));
     py = (cmy-(y+PANNEL_MAP_RADIUS*units_per_px/16));
     return (LbSqrL(px*px + py*py) < PANNEL_MAP_RADIUS*units_per_px/16);

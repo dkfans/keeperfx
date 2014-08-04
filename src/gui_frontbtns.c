@@ -823,7 +823,7 @@ void frontend_draw_scroll_box(struct GuiButton *gbtn)
             orig_size += spr->SWidth;
             spr++;
         }
-        units_per_px = (gbtn->width * 16 + 8) / orig_size;
+        units_per_px = (gbtn->width * 16 + orig_size/2) / orig_size;
     }
     // Draw top border
     spr = &frontend_sprite[25];

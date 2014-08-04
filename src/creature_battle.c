@@ -310,7 +310,6 @@ void set_creature_in_combat(struct Thing *fightng, struct Thing *enmtng, long co
 
 TbBool active_battle_exists(PlayerNumber plyr_idx)
 {
-    //return _DK_active_battle_exists(a1);
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
     return (dungeon->visible_battles[0] != 0);
@@ -320,7 +319,6 @@ TbBool step_battles_forward(PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
-    //return _DK_step_battles_forward(plyr_idx);
     if (dungeon_invalid(dungeon)) {
         return false;
     }

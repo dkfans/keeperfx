@@ -231,7 +231,7 @@ void draw_ornate_slab64k(long pos_x, long pos_y, int units_per_px, long width, l
         spr = &button_sprite[18];
         LbSpriteDrawResized(pos_x + i, pos_y + height, bs_units_per_spr, spr);
     }
-    for (i=10; i < height-16; i+=32)
+    for (i=10*units_per_px/16; i < height-16*units_per_px/16; i+=32*units_per_px/16)
     {
         spr = &button_sprite[15];
         LbSpriteDrawResized(pos_x - 4*units_per_px/16, pos_y + i, bs_units_per_spr, spr);
@@ -308,32 +308,43 @@ void draw_round_slab64k(long pos_x, long pos_y, int units_per_px, long width, lo
     drwflags_mem = lbDisplay.DrawFlags;
     lbDisplay.DrawFlags &= ~Lb_SPRITE_OUTLINE;
     lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
-    LbDrawBox((pos_x + 4) / pixel_size, (pos_y + 4) / pixel_size, (width - 8) / pixel_size, (height - 8) / pixel_size, 1);
+    LbDrawBox(pos_x + 4*units_per_px/16, pos_y + 4*units_per_px/16, width - 8*units_per_px/16, height - 8*units_per_px/16, 1);
     lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
     int x,y;
     struct TbSprite *spr;
+    spr = &gui_panel_sprites[242];
+    int ps_units_per_spr = 26*units_per_px/spr->SWidth;
     long i;
-    spr = gui_panel_sprites;
-    for (i = 0; i < width - 68; i += 26)
+    for (i = 0; i < width - 68*units_per_px/16; i += 26*units_per_px/16)
     {
-        x = pos_x + i + 34;
-        y = pos_y + height - 4;
-        LbSpriteDraw(x / pixel_size, pos_y / pixel_size, &spr[242]);
-        LbSpriteDraw(x / pixel_size, y / pixel_size, &spr[248]);
+        x = pos_x + i + 34*units_per_px/16;
+        y = pos_y;
+        spr = &gui_panel_sprites[242];
+        LbSpriteDrawResized(x, y, ps_units_per_spr, spr);
+        y += height - 4*units_per_px/16;
+        spr = &gui_panel_sprites[248];
+        LbSpriteDrawResized(x, y, ps_units_per_spr, spr);
     }
-    for (i = 0; i < height - 56; i += 20)
+    for (i = 0; i < height - 56*units_per_px/16; i += 20*units_per_px/16)
     {
-        x = pos_x + width - 4;
-        y = i + 28 + pos_y;
-        LbSpriteDraw(pos_x / pixel_size, y / pixel_size, &spr[244]);
-        LbSpriteDraw(x / pixel_size, y / pixel_size, &spr[246]);
+        x = pos_x;
+        y = pos_y + i + 28*units_per_px/16;
+        spr = &gui_panel_sprites[244];
+        LbSpriteDrawResized(x, y, ps_units_per_spr, spr);
+        x += width - 4*units_per_px/16;
+        spr = &gui_panel_sprites[246];
+        LbSpriteDrawResized(x, y, ps_units_per_spr, spr);
     }
-    x = pos_x + width - 34;
-    y = pos_y + height - 28;
-    LbSpriteDraw(pos_x / pixel_size, pos_y / pixel_size, &spr[241]);
-    LbSpriteDraw(x / pixel_size, pos_y / pixel_size, &spr[243]);
-    LbSpriteDraw(pos_x / pixel_size, y / pixel_size, &spr[247]);
-    LbSpriteDraw(x / pixel_size, y / pixel_size, &spr[249]);
+    x = pos_x + width - 34*units_per_px/16;
+    y = pos_y + height - 28*units_per_px/16;
+    spr = &gui_panel_sprites[241];
+    LbSpriteDrawResized(pos_x, pos_y, ps_units_per_spr, spr);
+    spr = &gui_panel_sprites[243];
+    LbSpriteDrawResized(x,     pos_y, ps_units_per_spr, spr);
+    spr = &gui_panel_sprites[247];
+    LbSpriteDrawResized(pos_x, y,     ps_units_per_spr, spr);
+    spr = &gui_panel_sprites[249];
+    LbSpriteDrawResized(x,     y,     ps_units_per_spr, spr);
     lbDisplay.DrawFlags = drwflags_mem;
 }
 
@@ -351,7 +362,7 @@ int simple_gui_panel_sprite_height_units_per_px(const struct GuiButton *gbtn, lo
     spr = &gui_panel_sprites[spridx];
     if ((spr <= gui_panel_sprites) || (spr >= end_gui_panel_sprites) || (spr->SHeight < 1))
         return 16;
-    units_per_px = ((gbtn->height*fraction/100) * 16 + 8) / spr->SHeight;
+    units_per_px = ((gbtn->height*fraction/100) * 16 + spr->SHeight/2) / spr->SHeight;
     if (units_per_px < 1)
         units_per_px = 1;
     return units_per_px;
@@ -371,7 +382,7 @@ int simple_gui_panel_sprite_width_units_per_px(const struct GuiButton *gbtn, lon
     spr = &gui_panel_sprites[spridx];
     if ((spr <= gui_panel_sprites) || (spr >= end_gui_panel_sprites) || (spr->SWidth < 1))
         return 16;
-    units_per_px = ((gbtn->width*fraction/100) * 16 + 8) / spr->SWidth;
+    units_per_px = ((gbtn->width*fraction/100) * 16 + spr->SWidth/2) / spr->SWidth;
     if (units_per_px < 1)
         units_per_px = 1;
     return units_per_px;
@@ -391,7 +402,7 @@ int simple_button_sprite_height_units_per_px(const struct GuiButton *gbtn, long 
     spr = &button_sprite[spridx];
     if ((spr <= button_sprite) || (spr >= end_button_sprites) || (spr->SHeight < 1))
         return 16;
-    units_per_px = ((gbtn->height*fraction/100) * 16 + 8) / spr->SHeight;
+    units_per_px = ((gbtn->height*fraction/100) * 16 + spr->SHeight/2) / spr->SHeight;
     if (units_per_px < 1)
         units_per_px = 1;
     return units_per_px;
@@ -411,7 +422,7 @@ int simple_button_sprite_width_units_per_px(const struct GuiButton *gbtn, long s
     spr = &button_sprite[spridx];
     if ((spr <= button_sprite) || (spr >= end_button_sprites) || (spr->SWidth < 1))
         return 16;
-    units_per_px = ((gbtn->width*fraction/100) * 16 + 8) / spr->SWidth;
+    units_per_px = ((gbtn->width*fraction/100) * 16 + spr->SWidth/2) / spr->SWidth;
     if (units_per_px < 1)
         units_per_px = 1;
     return units_per_px;
@@ -431,7 +442,7 @@ int simple_frontend_sprite_height_units_per_px(const struct GuiButton *gbtn, lon
     spr = &frontend_sprite[spridx];
     if ((spr <= frontend_sprite) || (spr >= frontend_end_sprite) || (spr->SHeight < 1))
         return 16;
-    units_per_px = ((gbtn->height*fraction/100) * 16 + 8) / spr->SHeight;
+    units_per_px = ((gbtn->height*fraction/100) * 16 + spr->SHeight/2) / spr->SHeight;
     if (units_per_px < 1)
         units_per_px = 1;
     return units_per_px;
@@ -451,7 +462,7 @@ int simple_frontend_sprite_width_units_per_px(const struct GuiButton *gbtn, long
     spr = &frontend_sprite[spridx];
     if ((spr <= frontend_sprite) || (spr >= frontend_end_sprite) || (spr->SWidth < 1))
         return 16;
-    units_per_px = ((gbtn->width*fraction/100) * 16 + 8) / spr->SWidth;
+    units_per_px = ((gbtn->width*fraction/100) * 16 + spr->SWidth/2) / spr->SWidth;
     if (units_per_px < 1)
         units_per_px = 1;
     return units_per_px;
@@ -488,7 +499,7 @@ void draw_button_string(struct GuiButton *gbtn, int base_width, char *text)
         LbLocTextStringInsert(text, "\x0B", cursor_pos, TEXT_BUFFER_LENGTH);
     }
     int tx_units_per_px;
-    tx_units_per_px = (gbtn->width * 16 + 8) / base_width;
+    tx_units_per_px = (gbtn->width * 16 + base_width/2) / base_width;
     unsigned long w,h;
     w = 4 * tx_units_per_px / 16;
     h = (gbtn->height - text_string_height(tx_units_per_px, text))/2 - 4*tx_units_per_px/16;

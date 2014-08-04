@@ -100,7 +100,7 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
             orig_size += spr->SWidth;
             spr++;
         }
-        fs_units_per_px = (gbtn->width * 16 + 8) / orig_size;
+        fs_units_per_px = (gbtn->width * 16 + orig_size/2) / orig_size;
     }
     // Draw the high scores area - top
     pos_x = gbtn->scr_pos_x;

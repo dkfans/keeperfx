@@ -403,7 +403,7 @@ void draw_overlay_compass(long base_x, long base_y)
     lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
     LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
     int units_per_px;
-    units_per_px = (16*status_panel_width + 70) / 140;
+    units_per_px = (16*status_panel_width + 140/2) / 140;
     int tx_units_per_px;
     tx_units_per_px = (22 * units_per_px) / LbTextLineHeight();
     int w,h;
