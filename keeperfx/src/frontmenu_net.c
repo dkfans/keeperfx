@@ -485,7 +485,7 @@ void frontnet_return_to_main_menu(struct GuiButton *gbtn)
 void frontnet_draw_alliance_box_tab(struct GuiButton *gbtn)
 {
     int units_per_px;
-    units_per_px = (gbtn->width * 16 + gbtn->width/2) / 100;
+    units_per_px = (gbtn->width * 16 + 100/2) / 100;
 
     const struct TbSprite *spr;
     int pos_x, pos_y;
@@ -678,7 +678,7 @@ void frontnet_messages_down(struct GuiButton *gbtn)
 void frontnet_draw_bottom_scroll_box_tab(struct GuiButton *gbtn)
 {
     int units_per_px;
-    units_per_px = (gbtn->width * 16 + gbtn->width/2) / 240;
+    units_per_px = (gbtn->width * 16 + 240/2) / 240;
 
     long pos_x, pos_y;
     struct TbSprite *spr;
@@ -1108,7 +1108,7 @@ void frontnet_draw_speed_button(struct GuiButton *gbtn)
 void frontnet_draw_text_cont_bar(struct GuiButton *gbtn)
 {
     int units_per_px;
-    units_per_px = (gbtn->width * 16 + gbtn->width/2) / 165;
+    units_per_px = (gbtn->width * 16 + 165/2) / 165;
 
     int pos_x, pos_y;
     pos_y = gbtn->scr_pos_y;

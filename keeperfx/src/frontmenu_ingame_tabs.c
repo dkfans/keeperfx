@@ -254,6 +254,126 @@ void gui_area_event_button(struct GuiButton *gbtn)
     }
 }
 
+#define BAR_FULL_WIDTH 32
+void gui_area_progress_bar_short(struct GuiButton *gbtn, int units_per_px, int progress, int total)
+{
+    int bar_fill;
+    bar_fill = BAR_FULL_WIDTH;
+    if (progress < 0) {
+        progress = 0;
+    } else
+    if (progress > total) {
+        progress = total;
+    }
+    if (total > 0)
+    {
+        bar_fill = 2 * ((BAR_FULL_WIDTH/2) - ((BAR_FULL_WIDTH/2) * progress / total));
+        if (bar_fill < 0) {
+            bar_fill = 0;
+        } else
+        if (bar_fill > BAR_FULL_WIDTH) {
+            bar_fill = BAR_FULL_WIDTH;
+        }
+    }
+    int bar_fill_scaled, bar_whole_scaled;
+    bar_fill_scaled = (bar_fill*units_per_px + units_per_px/2) / 16;
+    bar_whole_scaled = (BAR_FULL_WIDTH*units_per_px + units_per_px/2) / 16;
+    LbDrawBox(gbtn->scr_pos_x + (22*units_per_px+units_per_px/2)/16 + bar_whole_scaled - bar_fill_scaled,
+              gbtn->scr_pos_y + (8*units_per_px+units_per_px/2)/16,
+              bar_fill_scaled, (8*units_per_px+units_per_px/2)/16, colours[0][0][0]);
+}
+#undef BAR_FULL_WIDTH
+
+#define BAR_FULL_WIDTH 42
+void gui_area_progress_bar_med1(struct GuiButton *gbtn, int units_per_px, int progress, int total)
+{
+    int bar_fill;
+    bar_fill = BAR_FULL_WIDTH;
+    if (progress < 0) {
+        progress = 0;
+    } else
+    if (progress > total) {
+        progress = total;
+    }
+    if (total > 0)
+    {
+        bar_fill = 2 * ((BAR_FULL_WIDTH/2) - ((BAR_FULL_WIDTH/2) * progress / total));
+        if (bar_fill < 0) {
+            bar_fill = 0;
+        } else
+        if (bar_fill > BAR_FULL_WIDTH) {
+            bar_fill = BAR_FULL_WIDTH;
+        }
+    }
+    int bar_fill_scaled, bar_whole_scaled;
+    bar_fill_scaled = (bar_fill*units_per_px + units_per_px/2) / 16;
+    bar_whole_scaled = (BAR_FULL_WIDTH*units_per_px + units_per_px/2) / 16;
+    LbDrawBox(gbtn->scr_pos_x + (72*units_per_px+units_per_px/2)/16 + bar_whole_scaled - bar_fill_scaled,
+              gbtn->scr_pos_y + (12*units_per_px+units_per_px/2)/16,
+              bar_fill_scaled, (6*units_per_px+units_per_px/2)/16, colours[0][0][0]);
+}
+#undef BAR_FULL_WIDTH
+
+#define BAR_FULL_WIDTH 48
+void gui_area_progress_bar_med2(struct GuiButton *gbtn, int units_per_px, int progress, int total)
+{
+    int bar_fill;
+    bar_fill = BAR_FULL_WIDTH;
+    if (progress < 0) {
+        progress = 0;
+    } else
+    if (progress > total) {
+        progress = total;
+    }
+    if (total > 0)
+    {
+        bar_fill = 2 * ((BAR_FULL_WIDTH/2) - ((BAR_FULL_WIDTH/2) * progress / total));
+        if (bar_fill < 0) {
+            bar_fill = 0;
+        } else
+        if (bar_fill > BAR_FULL_WIDTH) {
+            bar_fill = BAR_FULL_WIDTH;
+        }
+    }
+    int bar_fill_scaled, bar_whole_scaled;
+    bar_fill_scaled = (bar_fill*units_per_px + units_per_px/2) / 16;
+    bar_whole_scaled = (BAR_FULL_WIDTH*units_per_px + units_per_px/2) / 16;
+    LbDrawBox(gbtn->scr_pos_x + (4*units_per_px+units_per_px/2)/16 + bar_whole_scaled - bar_fill_scaled,
+              gbtn->scr_pos_y + (4*units_per_px+units_per_px/2)/16,
+              bar_fill_scaled, (16*units_per_px+units_per_px/2)/16, colours[0][0][0]);
+}
+#undef BAR_FULL_WIDTH
+
+#define BAR_FULL_WIDTH 96
+void gui_area_progress_bar_wide(struct GuiButton *gbtn, int units_per_px, int progress, int total)
+{
+    int bar_fill;
+    bar_fill = BAR_FULL_WIDTH;
+    if (progress < 0) {
+        progress = 0;
+    } else
+    if (progress > total) {
+        progress = total;
+    }
+    if (total > 0)
+    {
+        bar_fill = 2 * ((BAR_FULL_WIDTH/2) - ((BAR_FULL_WIDTH/2) * progress / total));
+        if (bar_fill < 0) {
+            bar_fill = 0;
+        } else
+        if (bar_fill > BAR_FULL_WIDTH) {
+            bar_fill = BAR_FULL_WIDTH;
+        }
+    }
+    int bar_fill_scaled, bar_whole_scaled;
+    bar_fill_scaled = (bar_fill*units_per_px + units_per_px/2) / 16;
+    bar_whole_scaled = (BAR_FULL_WIDTH*units_per_px + units_per_px/2) / 16;
+    LbDrawBox(gbtn->scr_pos_x + (28*units_per_px+units_per_px/2)/16 + bar_whole_scaled - bar_fill_scaled,
+              gbtn->scr_pos_y + (12*units_per_px+units_per_px/2)/16,
+              bar_fill_scaled, (8*units_per_px+units_per_px/2)/16, colours[0][0][0]);
+}
+#undef BAR_FULL_WIDTH
+
 void gui_remove_area_for_rooms(struct GuiButton *gbtn)
 {
     //_DK_gui_remove_area_for_rooms(gbtn);
@@ -344,7 +464,7 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
     flg_mem = lbDisplay.DrawFlags;
 
     int units_per_px;
-    units_per_px = (gbtn->width * 16 + 8) / 126;
+    units_per_px = (gbtn->width * 16 + 126/2) / 126;
     int ps_units_per_px;
     ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, 26, 100);
 
@@ -363,14 +483,7 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
     } else
     {
         draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 23);
-        int fill_part;
-        fill_part = 42 - (2 * 21 * i / 256);
-        LbDrawBox(
-          gbtn->scr_pos_x + (114 - fill_part)*units_per_px/16,
-          gbtn->scr_pos_y + 12*units_per_px/16,
-          fill_part*units_per_px/16,
-          6*units_per_px/16,
-          colours[0][0][0]);
+        gui_area_progress_bar_med1(gbtn, units_per_px, i, 256);
     }
     lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
 
@@ -508,7 +621,7 @@ void gui_area_big_spell_button(struct GuiButton *gbtn)
     flg_mem = lbDisplay.DrawFlags;
 
     int units_per_px;
-    units_per_px = (gbtn->width * 16 + 8) / 126;
+    units_per_px = (gbtn->width * 16 + 126/2) / 126;
     int ps_units_per_px;
     ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, 26, 100);
 
@@ -843,7 +956,7 @@ void gui_area_big_trap_button(struct GuiButton *gbtn)
     flg_mem = lbDisplay.DrawFlags;
 
     int units_per_px;
-    units_per_px = (gbtn->width * 16 + 8) / 126;
+    units_per_px = (gbtn->width * 16 + 126/2) / 126;
     int ps_units_per_px;
     ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, 26, 100);
 
@@ -1124,7 +1237,7 @@ void gui_creature_query_background1(struct GuiMenu *gmnu)
 {
     SYNCDBG(19,"Starting");
     int units_per_px;
-    units_per_px = (gmnu->width * 16 + 8) / 140;
+    units_per_px = (gmnu->width * 16 + 140/2) / 140;
     struct PlayerInfo *player;
     player = get_my_player();
     struct Thing *ctrltng;
@@ -1156,7 +1269,7 @@ void gui_creature_query_background2(struct GuiMenu *gmnu)
 {
     SYNCDBG(19,"Starting");
     int units_per_px;
-    units_per_px = (gmnu->width * 16 + 8) / 140;
+    units_per_px = (gmnu->width * 16 + 140/2) / 140;
     struct PlayerInfo *player;
     player = get_my_player();
     struct Thing *ctrltng;
@@ -1404,56 +1517,6 @@ void gui_area_anger_button(struct GuiButton *gbtn)
     SYNCDBG(12,"Finished");
 }
 
-#define BAR_FULL_WIDTH 32
-void gui_area_progress_bar_short(struct GuiButton *gbtn, int units_per_px, int progress, int total)
-{
-    int bar_fill;
-    bar_fill = BAR_FULL_WIDTH;
-    if (progress < 0) {
-        progress = 0;
-    } else
-    if (progress > total) {
-        progress = total;
-    }
-    if (total > 0)
-    {
-        bar_fill = 2 * ((BAR_FULL_WIDTH/2) - ((BAR_FULL_WIDTH/2) * progress / total));
-        if (bar_fill < 0) {
-            bar_fill = 0;
-        } else
-        if (bar_fill > BAR_FULL_WIDTH) {
-            bar_fill = BAR_FULL_WIDTH;
-        }
-    }
-    LbDrawBox(gbtn->scr_pos_x + (22 - bar_fill + BAR_FULL_WIDTH)*units_per_px/16, gbtn->scr_pos_y + 8*units_per_px/16, (bar_fill*units_per_px+8)/16, (8*units_per_px+8)/16, colours[0][0][0]);
-}
-#undef BAR_FULL_WIDTH
-
-#define BAR_FULL_WIDTH 48
-void gui_area_progress_bar_med2(struct GuiButton *gbtn, int units_per_px, int progress, int total)
-{
-    int bar_fill;
-    bar_fill = BAR_FULL_WIDTH;
-    if (progress < 0) {
-        progress = 0;
-    } else
-    if (progress > total) {
-        progress = total;
-    }
-    if (total > 0)
-    {
-        bar_fill = 2 * ((BAR_FULL_WIDTH/2) - ((BAR_FULL_WIDTH/2) * progress / total));
-        if (bar_fill < 0) {
-            bar_fill = 0;
-        } else
-        if (bar_fill > BAR_FULL_WIDTH) {
-            bar_fill = BAR_FULL_WIDTH;
-        }
-    }
-    LbDrawBox(gbtn->scr_pos_x +  (4 - bar_fill + BAR_FULL_WIDTH)*units_per_px/16, gbtn->scr_pos_y + 4*units_per_px/16, bar_fill*units_per_px/16, 16*units_per_px/16, colours[0][0][0]);
-}
-#undef BAR_FULL_WIDTH
-
 long anger_get_creature_highest_anger_type_and_byte_percentage(struct Thing *creatng, long *out_angr_typ, long *out_angr_prct)
 {
     struct CreatureControl *cctrl;
@@ -1498,7 +1561,7 @@ void gui_area_smiley_anger_button(struct GuiButton *gbtn)
     player = get_my_player();
     // Get scale factor
     int units_per_px;
-    units_per_px = (gbtn->width * 16 + 8) / 56;
+    units_per_px = (gbtn->width * 16 + 56/2) / 56;
     int ps_units_per_px;
     ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, gbtn->field_29, 100);
     draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->field_29);
@@ -1567,7 +1630,7 @@ void gui_area_instance_button(struct GuiButton *gbtn)
     struct PlayerInfo *player;
     player = get_my_player();
     int units_per_px;
-    units_per_px = (gbtn->width * 16 + 8) / 60;
+    units_per_px = (gbtn->width * 16 + 60/2) / 60;
     int ps_units_per_px;
     ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, 463, 100);
     struct Thing *ctrltng;
@@ -2106,27 +2169,11 @@ void gui_go_to_next_fighter(struct GuiButton *gbtn)
 void gui_area_payday_button(struct GuiButton *gbtn)
 {
     int units_per_px;
-    units_per_px = (gbtn->width * 16 + 8) / 132;
+    units_per_px = (gbtn->width * 16 + 132/2) / 132;
     int ps_units_per_px;
     ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, gbtn->field_29, 100);
     draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->field_29);
-    int turns_passed;
-    turns_passed = game.field_15033A;
-    if (game.field_15033A > game.pay_day_gap)
-      turns_passed = game.pay_day_gap;
-    if (game.pay_day_gap > 0)
-    {
-        int bar_fill;
-        bar_fill = 96 - 2 * (48 * turns_passed / game.pay_day_gap);
-        if (bar_fill < 0) {
-            bar_fill = 0;
-        } else
-        if (bar_fill > 96) {
-            bar_fill = 96;
-        }
-        LbDrawBox(gbtn->scr_pos_x + ((30 - bar_fill + 94)*units_per_px+8)/16, gbtn->scr_pos_y + (12*units_per_px+8)/16,
-            (bar_fill*units_per_px+8)/16, (8*units_per_px+8)/16, colours[0][0][0]);
-    }
+    gui_area_progress_bar_wide(gbtn, units_per_px, game.field_15033A, game.pay_day_gap);
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(my_player_number);
     char *text;
@@ -2136,6 +2183,8 @@ void gui_area_payday_button(struct GuiButton *gbtn)
 
 void gui_area_research_bar(struct GuiButton *gbtn)
 {
+    int units_per_px;
+    units_per_px = (gbtn->width * 16 + 60/2) / 60;
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(my_player_number);
     int resrch_required, resrch_progress;
@@ -2153,7 +2202,7 @@ void gui_area_research_bar(struct GuiButton *gbtn)
     int ps_units_per_px;
     ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, 462, 100);
     draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 462);
-    draw_gui_panel_sprite_left(gbtn->scr_pos_x - 8, gbtn->scr_pos_y - 10, ps_units_per_px, gbtn->field_29);
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x - 8*units_per_px/16, gbtn->scr_pos_y - 10*units_per_px/16, ps_units_per_px, gbtn->field_29);
     gui_area_progress_bar_short(gbtn, ps_units_per_px, resrch_progress, resrch_required);
 }
 
@@ -2303,7 +2352,7 @@ void draw_whole_status_panel(void)
         mnu_num = menu_id_to_number(GMnu_MAIN);
         gmnu = get_active_menu(mnu_num);
         fs_units_per_px = (gmnu->height * 16 + 8) / LbTiledSpriteHeight(&status_panel, gui_panel_sprites);
-        mm_units_per_px = (gmnu->width * 16 + 8) / 136;
+        mm_units_per_px = (gmnu->width * 16 + 136/2) / 136;
         bs_units_per_px = gmnu->width * 4 / 35;
     }
     lbDisplay.DrawColour = colours[15][15][15];
