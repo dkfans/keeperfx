@@ -157,9 +157,9 @@ void draw_resurrect_creature(struct GuiButton *gbtn)
     unsigned short flg_mem;
     flg_mem = lbDisplay.DrawFlags;
     lbDisplay.DrawFlags = Lb_SPRITE_TRANSPAR4;
-    LbDrawBox(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size, gbtn->width/pixel_size, gbtn->height/pixel_size, 0);
+    LbDrawBox(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height, 0);
     LbTextSetFont(winfont);
-    LbTextSetWindow(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size, gbtn->width/pixel_size, gbtn->height/pixel_size);
+    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
     struct Dungeon *dungeon;
     dungeon = get_my_dungeon();
     int i;
@@ -238,10 +238,10 @@ void draw_transfer_creature(struct GuiButton *gbtn)
     flgmem = lbDisplay.DrawFlags;
     lbDisplay.DrawFlags = Lb_SPRITE_TRANSPAR4;
     LbTextSetFont(winfont);
-    LbDrawBox(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size,
-        gbtn->width/pixel_size, gbtn->height/pixel_size, 0); // The 0 means black color
-    LbTextSetWindow(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size,
-        gbtn->width/pixel_size, gbtn->height/pixel_size);
+    LbDrawBox(gbtn->scr_pos_x, gbtn->scr_pos_y,
+        gbtn->width, gbtn->height, 0); // The 0 means black color
+    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y,
+        gbtn->width, gbtn->height);
     struct Dungeon *dungeon;
     dungeon = get_my_dungeon();
     struct Thing *thing;

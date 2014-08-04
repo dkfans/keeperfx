@@ -247,17 +247,17 @@ void draw_battle_head(struct Thing *thing, long scr_x, long scr_y, int units_per
     struct TbSprite *spr;
     spr = &gui_panel_sprites[spr_idx];
     int ps_units_per_px;
-    ps_units_per_px = (50 * units_per_px + 50/2) / spr->SHeight;
+    ps_units_per_px = (50 * units_per_px + spr->SHeight/2) / spr->SHeight;
     int curscr_x, curscr_y;
-    curscr_x = scr_x - ((spr->SWidth*ps_units_per_px/16) >> 1);
-    curscr_y = scr_y - ((spr->SHeight*ps_units_per_px/16) >> 1);
+    curscr_x = scr_x - (spr->SWidth*ps_units_per_px/16)/2;
+    curscr_y = scr_y - (spr->SHeight*ps_units_per_px/16)/2;
     if ((thing->creature.health_bar_turns) && ((game.play_gameturn & 1) != 0)) {
         LbSpriteDrawResizedOneColour(curscr_x, curscr_y, ps_units_per_px, spr, player_flash_colours[thing->owner]);
     } else {
         LbSpriteDrawResized(curscr_x, curscr_y, ps_units_per_px, spr);
     }
-    curscr_x = scr_x - 8;
-    curscr_y = scr_y + ((pixel_size * spr->SHeight) >> 1) - 8;
+    curscr_x = scr_x - 8*units_per_px/16;
+    curscr_y = scr_y - 8*units_per_px/16 + (spr->SHeight*ps_units_per_px/16)/2;
     LbDrawBox(curscr_x, curscr_y, 16*units_per_px/16, 6*units_per_px/16, colours[0][0][0]);
     // Show health
     struct CreatureStats *crstat;
@@ -273,7 +273,7 @@ void draw_battle_head(struct Thing *thing, long scr_x, long scr_y, int units_per
     // Draw experience level
     spr = &button_sprite[184];
     int bs_units_per_px;
-    bs_units_per_px = (17 * units_per_px + 17/2) / spr->SHeight;
+    bs_units_per_px = (17 * units_per_px + spr->SHeight/2) / spr->SHeight;
     curscr_y = (scr_y - ((spr->SHeight*bs_units_per_px/16) >> 1));
     curscr_x = (scr_x - ((spr->SWidth*bs_units_per_px/16) >> 1));
     spr = &button_sprite[184 + cctrl->explevel];
@@ -296,7 +296,7 @@ void gui_area_friendly_battlers(struct GuiButton *gbtn)
         return;
     }
     int units_per_px;
-    units_per_px = (gbtn->width * 16 + gbtn->width/2) / 160;
+    units_per_px = (gbtn->width * 16 + 160/2) / 160;
     int scr_pos_x, wdelta;
     wdelta = gbtn->width / 7;
     scr_pos_x = gbtn->scr_pos_x - wdelta + gbtn->width;
@@ -372,7 +372,7 @@ void gui_area_enemy_battlers(struct GuiButton *gbtn)
         return;
     }
     int units_per_px;
-    units_per_px = (gbtn->width * 16 + 8) / 160;
+    units_per_px = (gbtn->width * 16 + 160/2) / 160;
     int scr_pos_x, wdelta;
     wdelta = gbtn->width / 7;
     scr_pos_x = gbtn->scr_pos_x;
@@ -406,16 +406,16 @@ void gui_area_enemy_battlers(struct GuiButton *gbtn)
     }
 }
 
-short zoom_to_fight(unsigned char a1)
+short zoom_to_fight(PlayerNumber plyr_idx)
 {
     struct PlayerInfo *player;
     struct Dungeon *dungeon;
     player = get_my_player();
-    if (active_battle_exists(a1))
+    if (active_battle_exists(plyr_idx))
     {
         dungeon = get_players_num_dungeon(my_player_number);
         set_players_packet_action(player, PckA_Unknown104, dungeon->visible_battles[0], 0, 0, 0);
-        step_battles_forward(a1);
+        step_battles_forward(plyr_idx);
         return true;
     }
     return false;
