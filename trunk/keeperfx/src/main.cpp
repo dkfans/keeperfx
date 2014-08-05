@@ -1087,7 +1087,7 @@ void reset_gui_based_on_player_mode(void)
             turn_on_menu(GMnu_ROOM);
         }
     }
-    settings.video_cluedo_mode = player->field_4DA;
+    settings.video_cluedo_mode = player->video_cluedo_mode;
     set_gui_visible(true);
 }
 

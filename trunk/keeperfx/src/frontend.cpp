@@ -1362,9 +1362,7 @@ void frontend_set_player_number(long plr_num)
     my_player_number = plr_num;
     player = get_my_player();
     player->id_number = plr_num;
-//  setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight); - maybe better?
-    setup_engine_window(0, 0, 640, 480);
-
+    setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
 }
 
 const char *frontend_button_caption_text(const struct GuiButton *gbtn)
@@ -2223,7 +2221,8 @@ long compute_menu_position_y(long desired_pos,int menu_height, int units_per_px)
 }
 
 // TODO RESCALE Replace this with units_per_pixel when rescaling is ready
-#define MNU_UNITS_PER_PX 16
+// TODO make menus to be re-created on resolution change
+#define MNU_UNITS_PER_PX units_per_pixel
 MenuNumber create_menu(struct GuiMenu *gmnu)
 {
     MenuNumber mnu_num;
@@ -2503,7 +2502,15 @@ void set_gui_visible(TbBool visible)
 
 void toggle_gui(void)
 {
-    short visible=((game.numfield_C & 0x20) == 0);
+    TbBool visible = ((game.numfield_C & 0x20) == 0);
+    set_gui_visible(visible);
+}
+
+void reinit_all_menus(void)
+{
+    TbBool visible = ((game.numfield_C & 0x20) != 0);
+    init_gui();
+    reset_gui_based_on_player_mode();
     set_gui_visible(visible);
 }
 
