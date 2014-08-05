@@ -170,7 +170,7 @@ char field_462;
     char field_4D1;
     long field_4D2;
     long field_4D6;
-    char field_4DA;
+    char video_cluedo_mode;
     long field_4DB;
     long field_4DF;
     long field_4E3;

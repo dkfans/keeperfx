@@ -1826,11 +1826,15 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       return 0;
   case PckA_ToggleLights:
       if (is_my_player(player))
-        light_set_lights_on(game.lish.field_4614D == 0);
+      {
+          light_set_lights_on(game.lish.field_4614D == 0);
+      }
       return 1;
   case PckA_SwitchScrnRes:
-        if (is_my_player(player))
-        switch_to_next_video_mode();
+      if (is_my_player(player))
+      {
+          switch_to_next_video_mode();
+      }
       return 1;
   case PckA_TogglePause:
       process_pause_packet((game.numfield_C & 0x01) == 0, pckt->field_6);
@@ -1838,10 +1842,10 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_SetCluedo:
       if (is_my_player(player))
       {
-        settings.video_cluedo_mode = pckt->field_6;
-        save_settings();
+          settings.video_cluedo_mode = pckt->field_6;
+          save_settings();
       }
-      player->field_4DA = pckt->field_6;
+      player->video_cluedo_mode = pckt->field_6;
       return 0;
   case PckA_Unknown025:
       if (is_my_player(player))
