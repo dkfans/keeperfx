@@ -889,11 +889,7 @@ TbScreenMode switch_to_next_video_mode(void)
     }
     SYNCLOG("Switched video to %s (mode %d)", get_vidmode_name(scrmode),(int)scrmode);
     save_settings();
-    if (game.numfield_C & 0x20)
-      setup_engine_window(status_panel_width, 0, MyScreenWidth, MyScreenHeight);
-    else
-      setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
-//    reinit_all_menus();
+    reinit_all_menus();
     return scrmode;
 }
 
