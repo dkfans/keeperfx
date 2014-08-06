@@ -15,7 +15,7 @@ Open the file in any text editor (ie. Notepad under Ms Windows) and replace stri
 
 After the .pot file is ready, comment out all the `QUICK_*()` commands in your scripts and insert `DISPLAY_*()` commands below, using the same message numbers you've assigned to each string in .pot file with `guitext:`.
 
-To convert .pot file to .dat, get [http://keeper.lubiki.pl/html/dk_keeperfx_devel.php#tools KeeperFX tools] (or compile them from KeeperFX source code), and use [https://code.google.com/p/keeperfx/source/browse/trunk/keeperfx/tools/po2ngdat/docs/po2ngdat_readme.txt `po2ngdat` command line utility] to convert .pot file into .dat.
+To convert .pot file to .dat, follow [ConvertPoToDat conversion instructions].
 
 = Automating extraction of strings to translate =
 
