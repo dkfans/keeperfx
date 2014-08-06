@@ -1,4 +1,5 @@
 #summary generate a new translation
+#labels Translation
 
 =I want to add a translation for a campaign=
 
@@ -30,7 +31,11 @@ POEdit will now have highlighted all the campaign specific messages that need th
 
 Translate the highlighted messages into the new language, either all at once, or some at a time.
 
-When the file is completed, e-mail it to Mefistotelis (see contact information on [http://keeper.lubiki.pl/html/contact.php his site]) for inclusion in the campaign.
+When the file is completed, you have to send it to KeeperFX developers. You may either create an enhacement proposal in [https://code.google.com/p/keeperfx/issues/list KeeperFX tracker], or e-mail it to a developer (ie. [http://keeper.lubiki.pl/html/contact.php Mefistotelis]) for inclusion in the campaign. 
+
+==Testing the results==
+
+If you'll send the translation to developers, you will soon be able to see the results in new [http://keeper.lubiki.pl/html/dk_keeperfx_nightly.php Nightly Builds]. But if you'd like to integrate the changes to the game by yourself, you need to [ConvertPoToDat convert the file to `.dat` format].
 
 ==Problems==
 
