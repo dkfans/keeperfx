@@ -26,3 +26,9 @@ After your levels are ready, run this script under Unix shell (ie. any Linux dis
 If you don't know how to use that script, ask a programmer to do so - ie. by creating a request in KeeperFX issue tracker, and attaching an archive with all your levels to it.
 
 After .pot file is ready, you still have to replace `QUICK_*()` commands with `DISPLAY_*()` in all your scripts - that part is not automated.
+
+==Testing the results==
+
+After you've made a few strings, you may want to check how the changes look inside the game. This is not trivial, as KeeperFX needs translation to be converted to `.dat` format before use in the game.
+
+If the translation is to be added to official KeeperFX builds, then send it to developers, and you will soon be able to see the results in new [http://keeper.lubiki.pl/html/dk_keeperfx_nightly.php Nightly Builds]. But if you'd like to integrate the changes to the game by yourself, you need to [ConvertPoToDat convert the file to `.dat` format].
