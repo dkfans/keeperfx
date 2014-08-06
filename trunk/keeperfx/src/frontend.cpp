@@ -2220,8 +2220,6 @@ long compute_menu_position_y(long desired_pos,int menu_height, int units_per_px)
     return pos;
 }
 
-// TODO RESCALE Replace this with units_per_pixel when rescaling is ready
-// TODO make menus to be re-created on resolution change
 #define MNU_UNITS_PER_PX units_per_pixel
 MenuNumber create_menu(struct GuiMenu *gmnu)
 {
