@@ -405,10 +405,10 @@ void gui_pretty_background(struct GuiMenu *gmnu)
         {
             gmnu->visible = 2;
         } else {
-            fade_w = (gmnu->width - 86) / i;
+            fade_w = (gmnu->width - 86*units_per_pixel/16) / i;
             if (fade_w < 0)
                 fade_w = 0;
-            fade_h = (gmnu->height - 64) / i;
+            fade_h = (gmnu->height - 64*units_per_pixel/16) / i;
             if (fade_h < 0)
                 fade_h = 0;
         }
@@ -418,8 +418,8 @@ void gui_pretty_background(struct GuiMenu *gmnu)
     switch (gmnu->visible)
     {
     case 1:
-        width = fade_w * (gmnu->menu_init->fade_time - gmnu->fade_time) + 86;
-        height = fade_h * (gmnu->menu_init->fade_time - gmnu->fade_time) + 64;
+        width = fade_w * (gmnu->menu_init->fade_time - gmnu->fade_time) + 86*units_per_pixel/16;
+        height = fade_h * (gmnu->menu_init->fade_time - gmnu->fade_time) + 64*units_per_pixel/16;
         px = gmnu->pos_x + gmnu->width/2 - width/2;
         py = gmnu->pos_y + gmnu->height/2 - height/2;
         draw_ornate_slab_outline64k(px, py, units_per_pixel, width, height);
