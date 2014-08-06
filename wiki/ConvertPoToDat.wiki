@@ -5,7 +5,7 @@
 
 KeeperFX cannot read `.po` or `.pot` files directly. These formats are used to help with translations, but then have to be converted into a format which the game engine supports, which is `.dat`.
 
-You don't really have to deal with that - if you will send the new `.po` or `.pot` to be included in new KeeperFX builds, it will be converted automatically and included in the next nighty build. To send the file to KeeperFX developers, you may either create an enhacement proposal in KeeperFX tracker, or e-mail it to a developer (ie [http://keeper.lubiki.pl/html/contact.php Mefistotelis]) for inclusion in the campaign. 
+You don't really have to deal with that - if you will send the new `.po` or `.pot` to be included in new KeeperFX builds, it will be converted automatically and included in the next nighty build. To send the file to KeeperFX developers, you may either create an enhacement proposal in [https://code.google.com/p/keeperfx/issues/list KeeperFX tracker], or e-mail it to a developer (ie [http://keeper.lubiki.pl/html/contact.php Mefistotelis]) for inclusion in the campaign. 
 
 Still, if you'd like to test your translation by yourself, here's how to do the conversion:
 
