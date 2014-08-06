@@ -23,6 +23,10 @@ You are now able to make changes, but before correcting any translations, go to:
 
 `Catalogue -> update from pot file`
 
-And when prompted choose the text_eng.pot file. When complete, this will highlight all pre-existing changes needed for the translation file, as it may have been changed since the first translation.
+And when prompted, choose the text_eng.pot file. When complete, this will highlight all pre-existing changes needed for the translation file, as it may have been changed since the first translation.
 
-When the file is completed, e-mail it to Mefistotelis (see [http://keeper.lubiki.pl/html/contact.php contact information on his site]) for inclusion in the campaign. If you'd like to check the changes within the game by yourself, you need to [ConvertPoToDat convert the file to `.dat` format].
+==Testing the results==
+
+After you've made a few corrections, you may want to check how the changes look inside the game. This is not trivial, as KeeperFX needs translation to be converted to `.dat` format before use in the game.
+
+If you'll send the translation to developers, you will soon be able to see the results in new [http://keeper.lubiki.pl/html/dk_keeperfx_nightly.php Nightly Builds]. But if you'd like to integrate the changes to the game by yourself, you need to [ConvertPoToDat convert the file to `.dat` format].
