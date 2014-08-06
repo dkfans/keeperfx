@@ -1,4 +1,5 @@
-#summary Main page for .dat files
+#summary Main page for translations manipulation manual
+#labels Translation
 
 = In-game Texts & Language Support =
 
@@ -31,6 +32,8 @@ As well as in-game messages, the `.dat` file also contains all the other informa
  Click the link if you have noticed errors in English messages, or want to add more messages to a campaign.
  * [CreateNewPot I want to generate in-game messages for an in-progress new campaign]
  Use the above if you are making a new campaign for KeeperFX and want the format to support multiple languages (either on publication, or in the future).
+ * [ConvertPoToDat I want to convert existing `.po` or `.pot` into `.dat` format].
+ This will only explain you what to do if you have a `.po` or `.pot` file and want to integrate it into the game.
 
 ==Notification==
 
