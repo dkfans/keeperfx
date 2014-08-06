@@ -1,4 +1,5 @@
 #summary correct a translation
+#labels Translation
 
 = Correcting A Translation =
 
@@ -24,4 +25,4 @@ You are now able to make changes, but before correcting any translations, go to:
 
 And when prompted choose the text_eng.pot file. When complete, this will highlight all pre-existing changes needed for the translation file, as it may have been changed since the first translation.
 
-When the file is completed, e-mail it to Mefistotelis (see contact information [http://keeper.lubiki.pl/html/contact.php here]) for inclusion in the campaign.
+When the file is completed, e-mail it to Mefistotelis (see [http://keeper.lubiki.pl/html/contact.php contact information on his site]) for inclusion in the campaign. If you'd like to check the changes within the game by yourself, you need to [ConvertPoToDat convert the file to `.dat` format].
