@@ -1120,10 +1120,10 @@ void draw_slider64k(long scr_x, long scr_y, int units_per_px, long width)
     draw_bar64k(scr_x, scr_y, units_per_px, width);
     // Inner size
     int base_x, base_y, base_w;
-    base_w = width - 64;
-    base_x = scr_x + 32;
-    base_y = scr_y + 10;
-    if (base_w < 72) {
+    base_w = width - 64*units_per_px/16;
+    base_x = scr_x + 32*units_per_px/16;
+    base_y = scr_y + 10*units_per_px/16;
+    if (base_w < 72*units_per_px/16) {
         ERRORLOG("Bar is too small");
         return;
     }
@@ -1131,20 +1131,20 @@ void draw_slider64k(long scr_x, long scr_y, int units_per_px, long width)
     cur_x = base_x;
     cur_y = base_y;
     int end_x;
-    end_x = base_x + base_w - 64;
+    end_x = base_x + base_w - 64*units_per_px/16;
     struct TbSprite *spr;
     spr = &button_sprite[4];
-    LbSpriteDrawResized(cur_x/pixel_size, cur_y/pixel_size, units_per_px, spr);
-    cur_x += spr->SWidth * units_per_px / 16;
+    LbSpriteDrawResized(cur_x, cur_y, units_per_px, spr);
+    cur_x += spr->SWidth*units_per_px/16;
     spr = &button_sprite[5];
     while (cur_x < end_x)
     {
-        LbSpriteDrawResized(cur_x/pixel_size, cur_y/pixel_size, units_per_px, spr);
-        cur_x += spr->SWidth * units_per_px / 16;
+        LbSpriteDrawResized(cur_x, cur_y, units_per_px, spr);
+        cur_x += spr->SWidth*units_per_px/16;
     }
     cur_x = end_x;
     LbSpriteDrawResized(cur_x/pixel_size, cur_y/pixel_size, units_per_px, spr);
-    cur_x += spr->SWidth * units_per_px / 16;
+    cur_x += spr->SWidth*units_per_px/16;
     spr = &button_sprite[6];
     LbSpriteDrawResized(cur_x/pixel_size, cur_y/pixel_size, units_per_px, spr);
 }
@@ -1167,7 +1167,7 @@ void gui_area_slider(struct GuiButton *gbtn)
     } else {
         spr = &button_sprite[20];
     }
-    LbSpriteDrawResized((gbtn->scr_pos_x + shift_x + 24*units_per_px/16) / pixel_size, (gbtn->scr_pos_y + 6*units_per_px/16) / pixel_size, bs_units_per_px, spr);
+    LbSpriteDrawResized(gbtn->scr_pos_x + shift_x + 24*units_per_px/16, gbtn->scr_pos_y + 6*units_per_px/16, bs_units_per_px, spr);
 }
 
 #if (BFDEBUG_LEVEL > 0)
