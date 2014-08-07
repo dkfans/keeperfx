@@ -28,201 +28,90 @@
 #include "bflib_mouse.h"
 #include "bflib_sprite.h"
 #include "bflib_vidsurface.h"
+#include "bflib_vidraw.h"
 
 #include "keeperfx.hpp"
 /******************************************************************************/
 struct SSurface;
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-DLLIMPORT __cdecl long _DK_PointerDraw(long x, long y, struct TbSprite *spr, unsigned char *a4, unsigned long a5);
-
-extern volatile TbBool lbInteruptMouse;
-#ifdef __cplusplus
-}
-#endif
 /******************************************************************************/
 // Global variables
 volatile TbBool lbPointerAdvancedDraw;
-
+long cursor_xsteps_array[2*CURSOR_SCALING_XSTEPS];
+long cursor_ysteps_array[2*CURSOR_SCALING_YSTEPS];
 /******************************************************************************/
+// function used for actual drawing
+extern "C" {
+TbResult LbSpriteDrawUsingScalingUpDataSolidLR(uchar *outbuf, int scanline, int outheight, long *xstep, long *ystep, const struct TbSprite *sprite);
+}
+/******************************************************************************/
+
+void LbCursorSpriteSetScalingWidthClipped(long x, long swidth, long dwidth, long gwidth)
+{
+    SYNCDBG(17,"Starting %d -> %d at %d",(int)swidth,(int)dwidth,(int)x);
+    if (swidth > CURSOR_SCALING_XSTEPS)
+        swidth = CURSOR_SCALING_XSTEPS;
+    LbSpriteSetScalingWidthClippedArray(cursor_xsteps_array, x, swidth, dwidth, gwidth);
+}
+
+void LbCursorSpriteSetScalingWidthSimple(long x, long swidth, long dwidth)
+{
+    SYNCDBG(17,"Starting %d -> %d at %d",(int)swidth,(int)dwidth,(int)x);
+    if (swidth > CURSOR_SCALING_XSTEPS)
+        swidth = CURSOR_SCALING_XSTEPS;
+    LbSpriteSetScalingWidthSimpleArray(cursor_xsteps_array, x, swidth, dwidth);
+}
+
+void LbCursorSpriteSetScalingHeightClipped(long y, long sheight, long dheight, long gheight)
+{
+    SYNCDBG(17,"Starting %d -> %d at %d",(int)sheight,(int)dheight,(int)y);
+    if (sheight > CURSOR_SCALING_YSTEPS)
+        sheight = CURSOR_SCALING_YSTEPS;
+    LbSpriteSetScalingHeightClippedArray(cursor_ysteps_array, y, sheight, dheight, gheight);
+}
+
+void LbCursorSpriteSetScalingHeightSimple(long y, long sheight, long dheight)
+{
+    SYNCDBG(17,"Starting %d -> %d at %d",(int)sheight,(int)dheight,(int)y);
+    if (sheight > CURSOR_SCALING_YSTEPS)
+        sheight = CURSOR_SCALING_YSTEPS;
+    LbSpriteSetScalingHeightSimpleArray(cursor_ysteps_array, y, sheight, dheight);
+}
+
 /**
  * Draws the mouse pointer sprite on a display buffer.
  */
-long PointerDraw(long x, long y, struct TbSprite *spr, TbPixel *buf, unsigned long buf_linesize)
+long PointerDraw(long x, long y, struct TbSprite *spr, TbPixel *outbuf, unsigned long scanline)
 {
-    //show_onscreen_msg(5, "POS %3d x %3d", x,y);
-    //return _DK_PointerDraw(x,y,spr,buf,a5);
-    unsigned int width,height;
-    int start_x,start_y,end_x,end_y;
-    char *src;
-    unsigned char *dst;
-    unsigned char *dstend;
-    int nlines,npixels;
-    int delta;
-    int sprval;
-    int width_mstart,height_mstart;
-    int width_to_draw,height_to_draw;
-
+    unsigned int dwidth,dheight;
     // Prepare bounds
-    width = spr->SWidth;
-    height = spr->SHeight;
-    if ( (width <= 0) || (height <= 0) )
+    dwidth = spr->SWidth*units_per_pixel/16;
+    dheight = spr->SHeight*units_per_pixel/16;
+    if ( (dwidth <= 0) || (dheight <= 0) )
         return 1;
     if ( (lbDisplay.MouseWindowWidth <= 0) || (lbDisplay.MouseWindowHeight <= 0) )
         return 1;
-
-    start_x = lbDisplay.MouseWindowX - x;
-    if (start_x <= 0) {
-      start_x = 0;
-    } else
-    if (start_x >= width) {
-        return 1;
-    }
-
-    end_x = x - lbDisplay.MouseWindowWidth - lbDisplay.MouseWindowX + width;
-    if (end_x <= 0) {
-        end_x = 0;
-    } else
-    if (end_x >= width) {
-        return 1;
-    }
-    width -= end_x;
-
-    start_y = lbDisplay.MouseWindowY - y;
-    if (start_y <= 0) {
-      start_y = 0;
-    } else
-    if (start_y >= height) {
-        return 1;
-    }
-
-    end_y = y - lbDisplay.MouseWindowHeight - lbDisplay.MouseWindowY + height;
-    if (end_y <= 0) {
-        end_y = 0;
-    } else
-    if (end_y >= height) {
-        return 1;
-    }
-    height -= end_y;
-
-    nlines = start_y;
-    height_mstart = height - start_y;
-    width_mstart = width - start_x;
-    dst = &buf[buf_linesize * (start_y + y) + (start_x + x)];
-    src = (char *)spr->Data;
-    // Skip starting lines of the sprite
-    while (nlines > 0)
+    // Normally it would be enough to check if ((dwidth+x) >= gwidth), but due to rounding we need to add swidth
+    if ((x < 0) || ((dwidth + spr->SWidth + x) >= lbDisplay.MouseWindowWidth))
     {
-        while ((sprval = *src) > 0)
-        {
-          src += sprval + 1;
-        }
-        src++;
-        if (sprval == 0)
-        {
-          nlines--;
-        }
+        LbCursorSpriteSetScalingWidthClipped(x, spr->SWidth, dwidth, lbDisplay.MouseWindowWidth);
+    } else {
+        LbCursorSpriteSetScalingWidthSimple(x, spr->SWidth, dwidth);
     }
-    // Now process the lines which should be drawn
-    dstend = &dst[buf_linesize];
-    width_to_draw = width_mstart;
-    height_to_draw = height_mstart;
-
-    while ( 1 )
+    // Normally it would be enough to check if ((dheight+y) >= gheight), but our simple rounding may enlarge the image
+    if ((y < 0) || ((dheight + spr->SHeight + y) >= lbDisplay.MouseWindowHeight))
     {
-        npixels = start_x;
-        while (npixels > 0)
-        {
-              sprval = *src;
-              if (sprval == 0)
-              {
-                  width_to_draw = 0;
-                  break;
-              } else
-              if (sprval < 0)
-              {
-                  if (sprval < -npixels)
-                  {
-                      delta = -(npixels + sprval);
-                      if (delta > width_mstart)
-                          delta = width_mstart;
-                      src++;
-                      dst += delta;
-                      width_to_draw -= delta;
-                      break;
-                  }
-                  npixels += sprval;
-                  src++;
-              } else
-              {
-                  if (sprval > npixels)
-                  {
-                      delta = sprval - npixels;
-                      if (delta > width_mstart)
-                          delta = width_mstart;
-                      memcpy(dst, &src[npixels + 1], delta);
-                      dst += delta;
-                      width_to_draw -= delta;
-                      src += sprval + 1;
-                      break;
-                  }
-                  npixels -= sprval;
-                  src += sprval + 1;
-              }
-        }
-
-        while (1)
-        {
-            if (width_to_draw <= 0)
-            {
-              height_to_draw--;
-              if (height_to_draw == 0)
-                  return 1;
-              do {
-                  while ((sprval = *src) > 0)
-                  {
-                    src += sprval + 1;
-                  }
-                  src++;
-              } while (sprval != 0);
-            } else
-            {
-                sprval = *src;
-                if (sprval > 0)
-                {
-                    delta = sprval;
-                    if (delta > width_to_draw)
-                        delta = width_to_draw;
-                    memcpy(dst, src+1, delta);
-                    delta = *src;
-                    width_to_draw -= delta;
-                    dst += delta;
-                    src += delta + 1;
-                    continue;
-                } else
-                if (sprval < 0)
-                {
-                    width_to_draw += sprval;
-                    dst += -sprval;
-                    src++;
-                    continue;
-                } else
-                {
-                    height_to_draw--;
-                    if (height_to_draw == 0)
-                        return 1;
-                    src++;
-                }
-            }
-            dst = dstend;
-            dstend += buf_linesize;
-            width_to_draw = width_mstart;
-            break;
-        }
+        LbCursorSpriteSetScalingHeightClipped(y, spr->SHeight, dheight, lbDisplay.MouseWindowHeight);
+    } else {
+        LbCursorSpriteSetScalingHeightSimple(y, spr->SHeight, dheight);
     }
-    return 1;
+    long *xstep;
+    long *ystep;
+    {
+        xstep = &cursor_xsteps_array[0];
+        ystep = &cursor_ysteps_array[0];
+    }
+    outbuf = &outbuf[xstep[0] + scanline * ystep[0]];
+    return LbSpriteDrawUsingScalingUpDataSolidLR(outbuf, scanline, lbDisplay.MouseWindowHeight, xstep, ystep, spr);
 }
 
 // Methods
@@ -297,12 +186,15 @@ void LbI_PointerHandler::Initialise(struct TbSprite *spr, struct TbPoint *npos, 
     void *surfbuf;
     TbPixel *buf;
     long i;
+    int dstwidth, dstheight;
     Release();
     LbSemaLock semlock(&sema_rel,0);
     semlock.Lock(true);
     sprite = spr;
-    LbScreenSurfaceCreate(&surf1, sprite->SWidth, sprite->SHeight);
-    LbScreenSurfaceCreate(&surf2, sprite->SWidth, sprite->SHeight);
+    dstwidth = sprite->SWidth*units_per_pixel/16;
+    dstheight = sprite->SHeight*units_per_pixel/16;
+    LbScreenSurfaceCreate(&surf1, dstwidth, dstheight);
+    LbScreenSurfaceCreate(&surf2, dstwidth, dstheight);
     surfbuf = LbScreenSurfaceLock(&surf1);
     if (surfbuf == NULL)
     {
@@ -312,7 +204,7 @@ void LbI_PointerHandler::Initialise(struct TbSprite *spr, struct TbPoint *npos, 
         return;
     }
     buf = (TbPixel *)surfbuf;
-    for (i=0; i < sprite->SHeight; i++)
+    for (i=0; i < dstheight; i++)
     {
         memset(buf, 255, surf1.pitch);
         buf += surf1.pitch;
@@ -376,26 +268,29 @@ void LbI_PointerHandler::Release(void)
 
 void LbI_PointerHandler::NewMousePos(void)
 {
-    this->draw_pos_x = position->x - spr_offset->x;
-    this->draw_pos_y = position->y - spr_offset->y;
-    LbSetRect(&rect_1038, 0, 0, sprite->SWidth, sprite->SHeight);
+    this->draw_pos_x = position->x - spr_offset->x*units_per_pixel/16;
+    this->draw_pos_y = position->y - spr_offset->y*units_per_pixel/16;
+    int dstwidth, dstheight;
+    dstwidth = sprite->SWidth*units_per_pixel/16;
+    dstheight = sprite->SHeight*units_per_pixel/16;
+    LbSetRect(&rect_1038, 0, 0, dstwidth, dstheight);
     if (this->draw_pos_x < 0)
     {
         rect_1038.left -= this->draw_pos_x;
         this->draw_pos_x = 0;
     } else
-    if (this->draw_pos_x+sprite->SWidth > lbDisplay.PhysicalScreenWidth)
+    if (this->draw_pos_x+dstwidth > lbDisplay.PhysicalScreenWidth)
     {
-        rect_1038.right += lbDisplay.PhysicalScreenWidth-sprite->SWidth-this->draw_pos_x;
+        rect_1038.right += lbDisplay.PhysicalScreenWidth-dstwidth-this->draw_pos_x;
     }
     if (this->draw_pos_y < 0)
     {
         rect_1038.top -= this->draw_pos_y;
         this->draw_pos_y = 0;
     } else
-    if (this->draw_pos_y+sprite->SHeight > lbDisplay.PhysicalScreenHeight)
+    if (this->draw_pos_y+dstheight > lbDisplay.PhysicalScreenHeight)
     {
-        rect_1038.bottom += lbDisplay.PhysicalScreenHeight - sprite->SHeight - this->draw_pos_y;
+        rect_1038.bottom += lbDisplay.PhysicalScreenHeight - dstheight - this->draw_pos_y;
     }
 }
 
@@ -446,7 +341,7 @@ void LbI_PointerHandler::OnBeginSwap(void)
     } else
     if (LbScreenLock() == Lb_SUCCESS)
     {
-      PointerDraw(position->x - spr_offset->x, position->y - spr_offset->y,
+      PointerDraw(position->x - spr_offset->x*units_per_pixel/16, position->y - spr_offset->y*units_per_pixel/16,
           sprite, lbDisplay.WScreen, lbDisplay.GraphicsScreenWidth);
       LbScreenUnlock();
     }

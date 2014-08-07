@@ -24,7 +24,13 @@
 #include "bflib_semphr.hpp"
 #include "bflib_planar.h"
 #include "bflib_vidsurface.h"
+#include "bflib_video.h"
 
+/******************************************************************************/
+#define CURSOR_SCALING_XSTEPS MAX_SUPPORTED_SCREEN_WIDTH/10
+#define CURSOR_SCALING_YSTEPS MAX_SUPPORTED_SCREEN_HEIGHT/10
+extern long cursor_xsteps_array[2*CURSOR_SCALING_XSTEPS];
+extern long cursor_ysteps_array[2*CURSOR_SCALING_YSTEPS];
 /******************************************************************************/
 
 // Exported class

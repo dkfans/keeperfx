@@ -596,6 +596,7 @@ TbResult LbSpriteDrawUsingScalingUpDataSolidRL(uchar *outbuf, int scanline, int 
  *
  * @param outbuf The output buffer.
  * @param scanline Length of the output buffer scanline.
+ * @param outheight
  * @param xstep Scaling steps array, x dimension.
  * @param ystep Scaling steps array, y dimension.
  * @param sprite The source sprite.

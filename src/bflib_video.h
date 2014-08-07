@@ -266,6 +266,7 @@ extern unsigned short lbVesaPage;
 */
 extern volatile TbBool lbScreenInitialised;
 extern volatile TbBool lbUseSdk;
+extern volatile TbBool lbInteruptMouse;
 extern volatile TbDisplayStructEx lbDisplayEx;
 extern unsigned char lbPalette[PALETTE_SIZE];
 /******************************************************************************/
