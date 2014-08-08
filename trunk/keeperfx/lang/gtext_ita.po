@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-06-26 22:03+0100\n"
+"PO-Revision-Date: 2014-08-08 21:22+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: it_IT\n"
@@ -1414,8 +1414,12 @@ msgstr ""
 
 #. Level Elf's Dance information
 #: guitext:121
+#, fuzzy
 msgctxt "In-game message"
-msgid "Your manufacturers have crafted the Lava Trap."
+msgid ""
+"Your manufacturers have crafted the Lava Trap. After enemy creature steps on "
+"it, the area around changes into molten lava, which most creatures won't "
+"even try to pass."
 msgstr "I tuoi artigiani hanno creato la trappola lava."
 
 #. Level Mirthshire objective
@@ -1644,11 +1648,13 @@ msgstr ""
 
 #. Level Bonus 2 objective
 #: guitext:143
+#, fuzzy
 msgctxt "In-game message"
 msgid ""
-"You are indeed a twisted soul, master. You made the Imps extinct with such "
-"panache that not one but two Dark Mistresses have devoted themselves to "
-"helping you achieve your next goal. You may proceed to your next conquest."
+"You are indeed a twisted soul, master. You made the Imps extinct with "
+"panache which certain females find very attractive. A Dark Mistress has "
+"devoted herself to helping you achieve your next goal. You may proceed to "
+"your next conquest."
 msgstr ""
 "Sei davvero uno spirito perverso, Padrone. Hai massacrato i folletti con una "
 "tale disinvoltura che non una ma due dame nere hanno deciso di unirsi a te "
@@ -2533,8 +2539,14 @@ msgctxt "Menu interface item"
 msgid "Network Menu"
 msgstr "Menù Network"
 
-#: guitext:290 guitext:343
+#: guitext:290
 msgctxt "Menu interface item"
+msgid "Main Menu"
+msgstr "Menù Principale"
+
+#: guitext:343
+#, fuzzy
+msgctxt "Menu interface, Main Menu title"
 msgid "Main Menu"
 msgstr "Menù Principale"
 
@@ -2795,12 +2807,11 @@ msgstr ""
 "Mappa a Tutto Schermo: Porta allo Schermo Mappa. TSM: seleziona. [4.1.1]"
 
 #: guitext:324
-#, fuzzy
 msgctxt "Slab description"
 msgid ""
 "Impenetrable Rock: Your Imps cannot dig through this, the only solution is "
 "to go round. It is visible even if far from your territory."
-"Roccia Impenetrabile: I folletti non possono scavarci attraverso. [12.4]"
+msgstr ""
 
 #: guitext:325
 #, fuzzy
@@ -2822,13 +2833,11 @@ msgstr ""
 "porteranno alla tua Camera del Tesoro. [12.2]"
 
 #: guitext:327
-#, fuzzy
 msgctxt "Slab description"
 msgid ""
 "Lava: Burns any creature that step on it. Get over lava by casting Cave-In "
 "or building a Bridge."
-"Lava: Ustiona mortalmente qualsiasi creatura che ci si avventuri dentro. "
-"[14.2]"
+msgstr ""
 
 #: guitext:328
 #, fuzzy
@@ -2925,17 +2934,17 @@ msgid "Load Menu"
 msgstr "Menù Carica"
 
 #: guitext:345
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Main Menu item"
 msgid "Load Game"
 msgstr "Carica Partita"
 
 #: guitext:346
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Main Menu item"
 msgid "Continue Game"
 msgstr "Continua la Partita"
 
 #: guitext:347
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Main Menu item"
 msgid "Multiplayer"
 msgstr "Multiplayer"
 
@@ -2995,12 +3004,12 @@ msgid "UNUSED"
 msgstr "Non Usato"
 
 #: guitext:359
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Main Menu item"
 msgid "Quit"
 msgstr "Esci"
 
 #: guitext:360
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Main Menu item"
 msgid "Start New Game"
 msgstr "Inizia una Nuova Partita"
 
@@ -3365,7 +3374,7 @@ msgid "Bonus"
 msgstr "Bonus"
 
 #: guitext:431
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Main Menu item"
 msgid "High Score Table"
 msgstr "Tabellone Record"
 
@@ -3504,13 +3513,11 @@ msgstr ""
 "Tempo Lavoro: Il tempo necessario per produrre una nuova trappola. [5.6]"
 
 #: guitext:454
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Time: The time until the next Creature Payday. This bar increases over time "
 "and, when it reaches its peak, all of your creatures receive their wages."
-"Tempo Pagamenti: Il tempo che manca al prossimo Giorno di Paga delle "
-"Creature. [5.4]"
+msgstr ""
 
 #: guitext:455
 #, fuzzy
@@ -5015,7 +5022,7 @@ msgid "Dungeon special found: LMB toggle. RMB delete."
 msgstr "Trovato Dungeon speciale. TSM: attiva - disattiva. TDM: cancella."
 
 #: guitext:716
-msgctxt "In-game interface item"
+msgctxt "Menu interface, Main Menu item; In-game interface, Options title"
 msgid "Options"
 msgstr "Opzioni"
 
@@ -6432,7 +6439,7 @@ msgstr "Moo2"
 
 #: guitext:941
 #, fuzzy
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Main Menu item"
 msgid "Free Play levels"
 msgstr "Deeper Dungeons"
 
@@ -6473,6 +6480,10 @@ msgstr ""
 msgctxt "Game event description"
 msgid "Storage room unreachable: LMB toggle. RMB delete."
 msgstr "Storage room unreachable. TSM: attiva - disattiva. TDM: cancella."
+
+#~ msgctxt "In-game message"
+#~ msgid "Your manufacturers have crafted the Lava Trap."
+#~ msgstr "I tuoi artigiani hanno creato la trappola lava."
 
 #~ msgctxt "Slab description"
 #~ msgid "Impenetrable Rock: Your Imps cannot dig through this. [12.4]"

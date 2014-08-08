@@ -21,15 +21,15 @@ msgstr ""
 "Project-Id-Version: Speeches for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-03-09 14:10+0100\n"
-"Last-Translator: Ing. Jiří Vejda <jiri.vejda@gmail.com>\n"
+"PO-Revision-Date: 2014-08-08 21:40+0100\n"
+"Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
+"Language: cs_CZ\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.6.4\n"
+"X-Generator: Poedit 1.5.7\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"Language: cs_CZ\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
 #: speech:0
@@ -352,51 +352,61 @@ msgctxt "In-game mentor"
 msgid "Secrets have been tortured from your creatures!"
 msgstr "Tajemství byla získána mučením z tvých stvoření."
 
+#. Message when good sacrifice recipe progressed
 #: speech:64
 msgctxt "In-game mentor"
 msgid "The Gods are pleased with your sacrifice."
 msgstr "Bohové jsou spokojeni s tvou obětí."
 
+#. Message when good sacrifice recipe finished
 #: speech:65
 msgctxt "In-game mentor"
 msgid "The Gods have rewarded your offering."
 msgstr "Bohové odměněnili tvou nabídku."
 
+#. Message when sacrifice didn't progressed any recipe
 #: speech:66
 msgctxt "In-game mentor"
 msgid "The Gods do not care for your sacrifice."
 msgstr "Tvá oběť bohy nezajímá."
 
+#. Message when bad sacrifice recipe progressed
 #: speech:67
 msgctxt "In-game mentor"
 msgid "Your offering has made the Gods angry!"
 msgstr "Tvá nabídka rozzuřila bohy!"
 
+#. Message when bad sacrifice recipe finished
 #: speech:68
 msgctxt "In-game mentor"
 msgid "The Gods have punished your unwothy offering."
 msgstr "Bohové tě potrestali za tvou nedůstojnou nabídku."
 
+#. Message when dropping gold into Temple water
 #: speech:69
 msgctxt "In-game mentor"
 msgid "This is no wishing well, keeper."
 msgstr "Toto není žádné sbohem, Správče!"
 
+#. Message when Dungeon Special found on level
 #: speech:70
 msgctxt "In-game mentor"
 msgid "Your creatures have discovered a misterious magic box."
 msgstr "Tvé stvoření objevily tajemnou magickou bednu."
 
+#. Message when spellbook found on level
 #: speech:71
 msgctxt "In-game mentor"
 msgid "Your creatures have found a spell."
 msgstr "Tví tvorové našli kouzlo."
 
+#. Message when door crate found on level
 #: speech:72
 msgctxt "In-game mentor"
 msgid "A door design has been discovered."
 msgstr "Byla objevena nová konstrukce dveří."
 
+#. Message when trap crate found on level
 #: speech:73
 msgctxt "In-game mentor"
 msgid "A trap design has been discovered."
@@ -407,6 +417,7 @@ msgctxt "In-game mentor"
 msgid "New creatures have joined your dungeon."
 msgstr "Nové stvoření přišly do tvé kobky."
 
+#. Message when digging has revealed a cavern
 #: speech:75
 msgctxt "In-game mentor"
 msgid "You have thalowed into a new area."
@@ -484,52 +495,52 @@ msgid "It is payday."
 msgstr "Je den výplaty."
 
 #: speech:90
-msgctxt "In-game mentor"
+msgctxt "In-game mentor random funny message"
 msgid "My god, it's full of pies."
 msgstr "Můj bože, je to plné koláčů."
 
 #: speech:91
-msgctxt "In-game mentor"
+msgctxt "In-game mentor random funny message"
 msgid "Something surreal is happening."
 msgstr "Děje se něco neskutečného."
 
 #: speech:92
-msgctxt "In-game mentor"
+msgctxt "In-game mentor random funny message"
 msgid "Your creatures are developing a strange accent."
 msgstr "Tvé bytosti si rozvíjí zvláštní přízvuk."
 
 #: speech:93
-msgctxt "In-game mentor"
+msgctxt "In-game mentor random funny message"
 msgid "Your pants are definitely too tight."
 msgstr "Tvé kalhoty jsou rozhodně příliš těsné."
 
 #: speech:94
-msgctxt "In-game mentor"
+msgctxt "In-game mentor random funny message"
 msgid "Your minions have a craving for chocolate."
 msgstr "Tví přisluhovači mají chuť na čokoládu."
 
 #: speech:95
-msgctxt "In-game mentor"
+msgctxt "In-game mentor random funny message"
 msgid "There's that smell again."
 msgstr "A je tu ten smrad, opět."
 
 #: speech:96
-msgctxt "In-game mentor"
+msgctxt "In-game mentor random funny message"
 msgid "Hello."
 msgstr "Ahoj."
 
 #: speech:97
-msgctxt "In-game mentor"
+msgctxt "In-game mentor random funny message"
 msgid "Blech."
 msgstr "Blech."
 
 #: speech:98
-msgctxt "In-game mentor"
+msgctxt "In-game mentor random funny message"
 msgid "Achoo"
 msgstr "Achoo"
 
 #: speech:99
-msgctxt "In-game mentor"
+msgctxt "In-game mentor random funny message"
 msgid "Cough"
 msgstr "Zakašlání."
 
