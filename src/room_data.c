@@ -1490,7 +1490,6 @@ struct Room *create_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x
 {
     struct Room *room;
     SYNCDBG(7,"Starting to make %s at (%d,%d)",room_code_name(rkind),(int)stl_x,(int)stl_y);
-    //room = _DK_create_room(owner, rkind, stl_x, stl_y); return room;
     // Try linking the new room slab to existing room
     room = link_adjacent_rooms_of_type(owner, stl_x, stl_y, rkind);
     if (room_is_invalid(room))
@@ -1516,15 +1515,14 @@ void create_room_flag(struct Room *room)
     struct Thing *thing;
     struct Coord3d pos;
     MapSubtlCoord stl_x,stl_y;
-    //_DK_create_room_flag(room);
     stl_x = slab_subtile_center(slb_num_decode_x(room->slabs_list));
     stl_y = slab_subtile_center(slb_num_decode_y(room->slabs_list));
     SYNCDBG(7,"Starting for %s at (%d,%d)",room_code_name(room->kind),(int)stl_x,(int)stl_y);
     if (room_can_have_ensign(room->kind))
     {
-        pos.z.val = 2 << 8;
-        pos.x.val = stl_x << 8;
-        pos.y.val = stl_y << 8;
+        pos.z.val = subtile_coord(2,0);
+        pos.x.val = subtile_coord(stl_x,0);
+        pos.y.val = subtile_coord(stl_y,0);
         thing = find_base_thing_on_mapwho(TCls_Object, 25, stl_x, stl_y);
         if (thing_is_invalid(thing))
         {
@@ -1557,7 +1555,6 @@ void delete_room_flag(struct Room *room)
 struct Room *allocate_free_room_structure(void)
 {
     struct Room *room;
-    //return _DK_allocate_free_room_structure();
     int i;
     for (i = 1; i < ROOMS_COUNT; i++)
     {
