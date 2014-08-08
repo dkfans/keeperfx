@@ -45,7 +45,9 @@
 #include "front_simple.h"
 #include "frontend.h"
 #include "vidmode.h"
+#include "vidfade.h"
 #include "config_settings.h"
+#include "config_terrain.h"
 #include "config_creature.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
@@ -1391,7 +1393,37 @@ void draw_engine_number(struct Number *num)
 
 void draw_engine_room_flagpole(struct RoomFlag *rflg)
 {
-    _DK_draw_engine_room_flagpole(rflg);
+    struct Room *room;
+    //_DK_draw_engine_room_flagpole(rflg);
+    lbDisplay.DrawFlags &= ~0x0001;
+    room = room_get(rflg->lvl);
+    if (!room_exists(room) || !room_can_have_ensign(room->kind)) {
+        return;
+    }
+    struct PlayerInfo *myplyr;
+    myplyr = get_my_player();
+    struct Camera *cam;
+    cam = myplyr->acamera;
+    if ((cam->field_6 == 2) || (cam->field_6 == 5))
+    {
+        if ( settings.field_8 )
+        {
+            int scale;
+            int deltay;
+            int height;
+            scale = cam->zoom/ pixel_size;
+            if (cam->field_6 == 5)
+              scale = 4094;
+            deltay = pixel_size * (scale << 7 >> 13);
+            height = pixel_size * (2 * (71 * scale) >> 13);
+            LbDrawBox((pixel_size * rflg->x) / pixel_size,
+                      (pixel_size * rflg->y - deltay) / pixel_size,
+                      4 / pixel_size, height / pixel_size, colours[3][1][0]);
+            LbDrawBox((pixel_size * rflg->x + 2) / pixel_size,
+                      (pixel_size * rflg->y - deltay) / pixel_size,
+                      2 / pixel_size, height / pixel_size, colours[1][0][0]);
+        }
+    }
 }
 
 /**
