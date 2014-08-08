@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-06-26 22:04+0100\n"
+"PO-Revision-Date: 2014-08-08 19:34+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: la_LA\n"
@@ -1072,7 +1072,10 @@ msgstr ""
 #. Level Elf's Dance information
 #: guitext:121
 msgctxt "In-game message"
-msgid "Your manufacturers have crafted the Lava Trap."
+msgid ""
+"Your manufacturers have crafted the Lava Trap. After enemy creature steps on "
+"it, the area around changes into molten lava, which most creatures won't "
+"even try to pass."
 msgstr ""
 
 #. Level Mirthshire objective
@@ -1255,9 +1258,10 @@ msgstr ""
 #: guitext:143
 msgctxt "In-game message"
 msgid ""
-"You are indeed a twisted soul, master. You made the Imps extinct with such "
-"panache that not one but two Dark Mistresses have devoted themselves to "
-"helping you achieve your next goal. You may proceed to your next conquest."
+"You are indeed a twisted soul, master. You made the Imps extinct with "
+"panache which certain females find very attractive. A Dark Mistress has "
+"devoted herself to helping you achieve your next goal. You may proceed to "
+"your next conquest."
 msgstr ""
 
 #. Level Bonus 3 objective
@@ -2046,8 +2050,13 @@ msgctxt "Menu interface item"
 msgid "Network Menu"
 msgstr ""
 
-#: guitext:290 guitext:343
+#: guitext:290
 msgctxt "Menu interface item"
+msgid "Main Menu"
+msgstr "Opta Actionem"
+
+#: guitext:343
+msgctxt "Menu interface, Main Menu title"
 msgid "Main Menu"
 msgstr "Opta Actionem"
 
@@ -2369,17 +2378,17 @@ msgid "Load Menu"
 msgstr ""
 
 #: guitext:345
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Main Menu item"
 msgid "Load Game"
 msgstr "Resurgat Ludus"
 
 #: guitext:346
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Main Menu item"
 msgid "Continue Game"
 msgstr "Perge Ludum"
 
 #: guitext:347
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Main Menu item"
 msgid "Multiplayer"
 msgstr "Lude Cum Amico"
 
@@ -2439,12 +2448,12 @@ msgid "UNUSED"
 msgstr ""
 
 #: guitext:359
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Main Menu item"
 msgid "Quit"
 msgstr "Decede"
 
 #: guitext:360
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Main Menu item"
 msgid "Start New Game"
 msgstr "Incipe Ludum Novum"
 
@@ -2805,7 +2814,7 @@ msgid "Bonus"
 msgstr ""
 
 #: guitext:431
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Main Menu item"
 msgid "High Score Table"
 msgstr "Tabula Optimorum Lusorum"
 
@@ -4322,7 +4331,7 @@ msgid "Dungeon special found: LMB toggle. RMB delete."
 msgstr ""
 
 #: guitext:716
-msgctxt "In-game interface item"
+msgctxt "Menu interface, Main Menu item; In-game interface, Options title"
 msgid "Options"
 msgstr "Optiones"
 
@@ -5592,7 +5601,7 @@ msgid "Moo2"
 msgstr ""
 
 #: guitext:941
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Main Menu item"
 msgid "Free Play levels"
 msgstr ""
 

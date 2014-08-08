@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-07-04 18:30+0100\n"
+"PO-Revision-Date: 2014-08-08 21:20+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: pl_PL\n"
@@ -1645,9 +1645,10 @@ msgstr ""
 #: guitext:143
 msgctxt "In-game message"
 msgid ""
-"You are indeed a twisted soul, master. You made the Imps extinct with such "
-"panache that Dark Mistress have devoted herself to helping you achieve your "
-"next goal. You may proceed to your next conquest."
+"You are indeed a twisted soul, master. You made the Imps extinct with "
+"panache which certain females find very attractive. A Dark Mistress has "
+"devoted herself to helping you achieve your next goal. You may proceed to "
+"your next conquest."
 msgstr ""
 "Zaiste, masz pokrętną duszę, panie. Zagładę tych Chochlików uczyniłeś tak "
 "bolesną, że Czarna Dama ofiaruje ci swoją pomoc w wykonaniu następnego "
@@ -2579,8 +2580,13 @@ msgctxt "Menu interface item"
 msgid "Network Menu"
 msgstr "Menu Sieciowe"
 
-#: guitext:290 guitext:343
+#: guitext:290
 msgctxt "Menu interface item"
+msgid "Main Menu"
+msgstr "Menu Główne"
+
+#: guitext:343
+msgctxt "Menu interface, Main Menu title"
 msgid "Main Menu"
 msgstr "Menu Główne"
 
@@ -2954,17 +2960,17 @@ msgid "Load Menu"
 msgstr "Menu wczytywania"
 
 #: guitext:345
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Main Menu item"
 msgid "Load Game"
 msgstr "Wczytanie gry"
 
 #: guitext:346
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Main Menu item"
 msgid "Continue Game"
 msgstr "Kontynuacja gry"
 
 #: guitext:347
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Main Menu item"
 msgid "Multiplayer"
 msgstr "Gra wieloosobowa"
 
@@ -3024,12 +3030,12 @@ msgid "UNUSED"
 msgstr "NIEUŻYWANE"
 
 #: guitext:359
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Main Menu item"
 msgid "Quit"
 msgstr "Wyjście"
 
 #: guitext:360
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Main Menu item"
 msgid "Start New Game"
 msgstr "Rozpoczęcie nowej gry"
 
@@ -3395,7 +3401,7 @@ msgid "Bonus"
 msgstr "Premiowa kraina"
 
 #: guitext:431
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Main Menu item"
 msgid "High Score Table"
 msgstr "Tabela rekordów"
 
@@ -4157,7 +4163,7 @@ msgstr "Ctrl"
 #: guitext:571
 msgctxt "Keyboard"
 msgid "Alt"
-msgstr "ALT"
+msgstr "Alt"
 
 #: guitext:572
 msgctxt "Credits"
@@ -5029,7 +5035,7 @@ msgid "Dungeon special found: LMB toggle. RMB delete."
 msgstr "Znaleziono coś specjalnego: LPM przełącza, PPM likwiduje."
 
 #: guitext:716
-msgctxt "In-game interface item"
+msgctxt "Menu interface, Main Menu item; In-game interface, Options title"
 msgid "Options"
 msgstr "Opcje"
 
@@ -6442,7 +6448,7 @@ msgid "Moo2"
 msgstr "Muu2"
 
 #: guitext:941
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Main Menu item"
 msgid "Free Play levels"
 msgstr "Odrębne poziomy"
 
