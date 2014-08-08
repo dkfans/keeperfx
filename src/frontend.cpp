@@ -148,6 +148,7 @@ TbClockMSec gui_message_timeout = 0;
 char gui_message_text[TEXT_BUFFER_LENGTH];
 
 int select_level_scroll_offset = 0;
+int select_campaign_scroll_offset = 0;
 int number_of_freeplay_levels = 0;
 
 struct GuiButtonInit frontend_main_menu_buttons[] = {
@@ -2650,34 +2651,34 @@ void frontend_level_select_update(void)
   {
     select_level_scroll_offset = 0;
   } else
-  if (select_level_scroll_offset > number_of_freeplay_levels-1)
+  if (select_level_scroll_offset > number_of_freeplay_levels-frontend_select_level_items_visible+1)
   {
-    select_level_scroll_offset = number_of_freeplay_levels - 1;
+    select_level_scroll_offset = number_of_freeplay_levels-frontend_select_level_items_visible+1;
   }
 }
 
 void frontend_campaign_select_up(struct GuiButton *gbtn)
 {
-  if (select_level_scroll_offset > 0)
-    select_level_scroll_offset--;
+  if (select_campaign_scroll_offset > 0)
+      select_campaign_scroll_offset--;
 }
 
 void frontend_campaign_select_down(struct GuiButton *gbtn)
 {
-  if (select_level_scroll_offset < campaigns_list.items_num-frontend_select_campaign_items_visible+1)
-    select_level_scroll_offset++;
+  if (select_campaign_scroll_offset < campaigns_list.items_num-frontend_select_campaign_items_visible+1)
+      select_campaign_scroll_offset++;
 }
 
 void frontend_campaign_select_up_maintain(struct GuiButton *gbtn)
 {
   if (gbtn != NULL)
-    set_flag_byte(&gbtn->flags, 0x08, (select_level_scroll_offset != 0));
+    set_flag_byte(&gbtn->flags, 0x08, (select_campaign_scroll_offset != 0));
 }
 
 void frontend_campaign_select_down_maintain(struct GuiButton *gbtn)
 {
   if (gbtn != NULL)
-    set_flag_byte(&gbtn->flags, LbBtnF_Unknown08, (select_level_scroll_offset < campaigns_list.items_num-frontend_select_campaign_items_visible+1));
+    set_flag_byte(&gbtn->flags, LbBtnF_Unknown08, (select_campaign_scroll_offset < campaigns_list.items_num-frontend_select_campaign_items_visible+1));
 }
 
 void frontend_campaign_select_maintain(struct GuiButton *gbtn)
@@ -2687,7 +2688,7 @@ void frontend_campaign_select_maintain(struct GuiButton *gbtn)
   if (gbtn == NULL)
     return;
   btn_idx = (long)gbtn->content;
-  i = select_level_scroll_offset + btn_idx-45;
+  i = select_campaign_scroll_offset + btn_idx-45;
   set_flag_byte(&gbtn->flags, LbBtnF_Unknown08, (i < campaigns_list.items_num));
 }
 
@@ -2699,7 +2700,7 @@ void frontend_draw_campaign_select_button(struct GuiButton *gbtn)
   if (gbtn == NULL)
     return;
   btn_idx = (long)gbtn->content;
-  i = select_level_scroll_offset + btn_idx-45;
+  i = select_campaign_scroll_offset + btn_idx-45;
   campgn = NULL;
   if ((i >= 0) && (i < campaigns_list.items_num))
     campgn = &campaigns_list.items[i];
@@ -2730,7 +2731,7 @@ void frontend_campaign_select(struct GuiButton *gbtn)
     if (gbtn == NULL)
         return;
     btn_idx = (long)gbtn->content;
-    i = select_level_scroll_offset + btn_idx-45;
+    i = select_campaign_scroll_offset + btn_idx-45;
     campgn = NULL;
     if ((i >= 0) && (i < campaigns_list.items_num))
         campgn = &campaigns_list.items[i];
@@ -2748,21 +2749,21 @@ void frontend_campaign_select_update(void)
 {
     if (campaigns_list.items_num <= 0)
     {
-      select_level_scroll_offset = 0;
+        select_campaign_scroll_offset = 0;
     } else
-    if (select_level_scroll_offset < 0)
+    if (select_campaign_scroll_offset < 0)
     {
-      select_level_scroll_offset = 0;
+        select_campaign_scroll_offset = 0;
     } else
-    if (select_level_scroll_offset > campaigns_list.items_num-1)
+    if (select_campaign_scroll_offset > campaigns_list.items_num-frontend_select_campaign_items_visible+1)
     {
-      select_level_scroll_offset = campaigns_list.items_num-1;
+        select_campaign_scroll_offset = campaigns_list.items_num-frontend_select_campaign_items_visible+1;
     }
 }
 
 void frontend_draw_campaign_scroll_tab(struct GuiButton *gbtn)
 {
-    frontend_draw_scroll_tab(gbtn, select_level_scroll_offset, frontend_select_campaign_items_visible-2, campaigns_list.items_num);
+    frontend_draw_scroll_tab(gbtn, select_campaign_scroll_offset, frontend_select_campaign_items_visible-2, campaigns_list.items_num);
 }
 
 void initialise_tab_tags(MenuID menu_id)
