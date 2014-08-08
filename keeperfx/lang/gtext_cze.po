@@ -21,8 +21,8 @@ msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-06-26 21:15+0100\n"
-"Last-Translator: Ing. Jiří Vejda <jiri.vejda@gmail.com>\n"
+"PO-Revision-Date: 2014-08-08 21:28+0100\n"
+"Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: cs_CZ\n"
 "MIME-Version: 1.0\n"
@@ -1365,8 +1365,12 @@ msgstr ""
 
 #. Level Elf's Dance information
 #: guitext:121
+#, fuzzy
 msgctxt "In-game message"
-msgid "Your manufacturers have crafted the Lava Trap."
+msgid ""
+"Your manufacturers have crafted the Lava Trap. After enemy creature steps on "
+"it, the area around changes into molten lava, which most creatures won't "
+"even try to pass."
 msgstr "Tvi delnici vyvinuli Lavovou past."
 
 #. Level Mirthshire objective
@@ -1598,11 +1602,13 @@ msgstr ""
 
 #. Level Bonus 2 objective
 #: guitext:143
+#, fuzzy
 msgctxt "In-game message"
 msgid ""
-"You are indeed a twisted soul, master. You made the Imps extinct with such "
-"panache that not one but two Dark Mistresses have devoted themselves to "
-"helping you achieve your next goal. You may proceed to your next conquest."
+"You are indeed a twisted soul, master. You made the Imps extinct with "
+"panache which certain females find very attractive. A Dark Mistress has "
+"devoted herself to helping you achieve your next goal. You may proceed to "
+"your next conquest."
 msgstr ""
 "Zvladl jsi to skvele, muj pane. Zabil jsi skrety s takovou zrucnosti, ze "
 "hned dve Temne pani se rozhodly vstoupit do tvych sluzeb a pomohou dosahnout "
@@ -2472,8 +2478,14 @@ msgctxt "Menu interface item"
 msgid "Network Menu"
 msgstr "Síťové menu"
 
-#: guitext:290 guitext:343
+#: guitext:290
 msgctxt "Menu interface item"
+msgid "Main Menu"
+msgstr "Hlavní menu"
+
+#: guitext:343
+#, fuzzy
+msgctxt "Menu interface, Main Menu title"
 msgid "Main Menu"
 msgstr "Hlavní menu"
 
@@ -2825,17 +2837,20 @@ msgid "Load Menu"
 msgstr "Menu načtení"
 
 #: guitext:345
-msgctxt "Menu interface item"
+#, fuzzy
+msgctxt "Menu interface, Main Menu item"
 msgid "Load Game"
 msgstr "Načíst hru"
 
 #: guitext:346
-msgctxt "Menu interface item"
+#, fuzzy
+msgctxt "Menu interface, Main Menu item"
 msgid "Continue Game"
 msgstr "Pokračovat ve hře"
 
 #: guitext:347
-msgctxt "Menu interface item"
+#, fuzzy
+msgctxt "Menu interface, Main Menu item"
 msgid "Multiplayer"
 msgstr "Hra více hráčů"
 
@@ -2895,12 +2910,14 @@ msgid "UNUSED"
 msgstr "NEPOUŽITO"
 
 #: guitext:359
-msgctxt "Menu interface item"
+#, fuzzy
+msgctxt "Menu interface, Main Menu item"
 msgid "Quit"
 msgstr "Ukončit"
 
 #: guitext:360
-msgctxt "Menu interface item"
+#, fuzzy
+msgctxt "Menu interface, Main Menu item"
 msgid "Start New Game"
 msgstr "Začít novou hru"
 
@@ -3263,7 +3280,8 @@ msgid "Bonus"
 msgstr "Bonus"
 
 #: guitext:431
-msgctxt "Menu interface item"
+#, fuzzy
+msgctxt "Menu interface, Main Menu item"
 msgid "High Score Table"
 msgstr "Tabulka nejvyššího skóre"
 
@@ -4898,7 +4916,8 @@ msgid "Dungeon special found: LMB toggle. RMB delete."
 msgstr "Byl nalezen zvlastni bonus: LTM prepnout, PTM smazat."
 
 #: guitext:716
-msgctxt "In-game interface item"
+#, fuzzy
+msgctxt "Menu interface, Main Menu item; In-game interface, Options title"
 msgid "Options"
 msgstr "Nastavení"
 
@@ -6232,7 +6251,7 @@ msgid "Moo2"
 msgstr ""
 
 #: guitext:941
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Main Menu item"
 msgid "Free Play levels"
 msgstr ""
 
@@ -6272,6 +6291,10 @@ msgstr ""
 msgctxt "Game event description"
 msgid "Storage room unreachable: LMB toggle. RMB delete."
 msgstr "Storage room unreachable: LTM prepnout, PTM smazat."
+
+#~ msgctxt "In-game message"
+#~ msgid "Your manufacturers have crafted the Lava Trap."
+#~ msgstr "Tvi delnici vyvinuli Lavovou past."
 
 #~ msgctxt "Slab description"
 #~ msgid "Impenetrable Rock: Your Imps cannot dig through this. [12.4]"

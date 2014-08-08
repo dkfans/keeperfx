@@ -2047,8 +2047,13 @@ msgctxt "Menu interface item"
 msgid "Network Menu"
 msgstr ""
 
-#: guitext:290 guitext:343
+#: guitext:290
 msgctxt "Menu interface item"
+msgid "Main Menu"
+msgstr ""
+
+#: guitext:343
+msgctxt "Menu interface, Main Menu title"
 msgid "Main Menu"
 msgstr ""
 
@@ -2355,17 +2360,17 @@ msgid "Load Menu"
 msgstr ""
 
 #: guitext:345
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Main Menu item"
 msgid "Load Game"
 msgstr ""
 
 #: guitext:346
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Main Menu item"
 msgid "Continue Game"
 msgstr ""
 
 #: guitext:347
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Main Menu item"
 msgid "Multiplayer"
 msgstr ""
 
@@ -2425,12 +2430,12 @@ msgid "UNUSED"
 msgstr ""
 
 #: guitext:359
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Main Menu item"
 msgid "Quit"
 msgstr ""
 
 #: guitext:360
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Main Menu item"
 msgid "Start New Game"
 msgstr ""
 
@@ -2791,7 +2796,7 @@ msgid "Bonus"
 msgstr ""
 
 #: guitext:431
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Main Menu item"
 msgid "High Score Table"
 msgstr ""
 
@@ -4280,7 +4285,7 @@ msgid "Dungeon special found: LMB toggle. RMB delete."
 msgstr ""
 
 #: guitext:716
-msgctxt "In-game interface item"
+msgctxt "Menu interface, Main Menu item; In-game interface, Options title"
 msgid "Options"
 msgstr ""
 
@@ -5550,7 +5555,7 @@ msgid "Moo2"
 msgstr ""
 
 #: guitext:941
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Main Menu item"
 msgid "Free Play levels"
 msgstr ""
 

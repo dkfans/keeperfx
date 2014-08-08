@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-06-26 22:03+0100\n"
+"PO-Revision-Date: 2014-08-08 21:24+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: de_DE\n"
@@ -1431,8 +1431,12 @@ msgstr ""
 
 #. Level Elf's Dance information
 #: guitext:121
+#, fuzzy
 msgctxt "In-game message"
-msgid "Your manufacturers have crafted the Lava Trap."
+msgid ""
+"Your manufacturers have crafted the Lava Trap. After enemy creature steps on "
+"it, the area around changes into molten lava, which most creatures won't "
+"even try to pass."
 msgstr "Eure Handwerker haben die LAVA-FALLE entwickelt."
 
 #. Level Mirthshire objective
@@ -1669,11 +1673,13 @@ msgstr ""
 
 #. Level Bonus 2 objective
 #: guitext:143
+#, fuzzy
 msgctxt "In-game message"
 msgid ""
-"You are indeed a twisted soul, master. You made the Imps extinct with such "
-"panache that not one but two Dark Mistresses have devoted themselves to "
-"helping you achieve your next goal. You may proceed to your next conquest."
+"You are indeed a twisted soul, master. You made the Imps extinct with "
+"panache which certain females find very attractive. A Dark Mistress has "
+"devoted herself to helping you achieve your next goal. You may proceed to "
+"your next conquest."
 msgstr ""
 "Ihr seid tatsächlich eine miese Seele, Meister. Ihr habt die Imps so "
 "schwungvoll ausgelöscht, daß sich Euch sogar zwei Eiserne Jungfrauen "
@@ -2568,8 +2574,14 @@ msgctxt "Menu interface item"
 msgid "Network Menu"
 msgstr "Netzwerk-Menü"
 
-#: guitext:290 guitext:343
+#: guitext:290
 msgctxt "Menu interface item"
+msgid "Main Menu"
+msgstr "HAUPTMENÜ"
+
+#: guitext:343
+#, fuzzy
+msgctxt "Menu interface, Main Menu title"
 msgid "Main Menu"
 msgstr "HAUPTMENÜ"
 
@@ -2972,17 +2984,17 @@ msgid "Load Menu"
 msgstr "Menü laden"
 
 #: guitext:345
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Main Menu item"
 msgid "Load Game"
 msgstr "SPIEL LADEN"
 
 #: guitext:346
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Main Menu item"
 msgid "Continue Game"
 msgstr "SPIEL FORTSETZEN"
 
 #: guitext:347
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Main Menu item"
 msgid "Multiplayer"
 msgstr "MEHRSPIELER"
 
@@ -3042,12 +3054,12 @@ msgid "UNUSED"
 msgstr "LEER"
 
 #: guitext:359
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Main Menu item"
 msgid "Quit"
 msgstr "VERLASSEN"
 
 #: guitext:360
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Main Menu item"
 msgid "Start New Game"
 msgstr "NEUES SPIEL STARTEN"
 
@@ -3415,7 +3427,7 @@ msgid "Bonus"
 msgstr "BONUS"
 
 #: guitext:431
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Main Menu item"
 msgid "High Score Table"
 msgstr "HIGHSCORE-TABELLE"
 
@@ -5112,7 +5124,7 @@ msgstr ""
 "Maustaste löschen."
 
 #: guitext:716
-msgctxt "In-game interface item"
+msgctxt "Menu interface, Main Menu item; In-game interface, Options title"
 msgid "Options"
 msgstr "OPTIONEN"
 
@@ -6560,7 +6572,7 @@ msgstr "Moo2"
 
 #: guitext:941
 #, fuzzy
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Main Menu item"
 msgid "Free Play levels"
 msgstr "DEEPER DUNGEONS"
 
@@ -6571,16 +6583,14 @@ msgid "Land selection"
 msgstr "Deeper Dungeons"
 
 #: guitext:943
-#, fuzzy
 msgctxt "Menu interface item"
 msgid "Campaigns"
-msgstr "Campaigns"
+msgstr ""
 
 #: guitext:944
-#, fuzzy
 msgctxt "Menu interface item"
 msgid "Add computer"
-msgstr "Add computer"
+msgstr ""
 
 #: guitext:945
 msgctxt "Game event name"
@@ -6607,6 +6617,10 @@ msgid "Storage room unreachable: LMB toggle. RMB delete."
 msgstr ""
 "Storage room unreachable: Mit der linken Maustaste lesen. Mit der rechten "
 "Maustaste löschen."
+
+#~ msgctxt "In-game message"
+#~ msgid "Your manufacturers have crafted the Lava Trap."
+#~ msgstr "Eure Handwerker haben die LAVA-FALLE entwickelt."
 
 #~ msgctxt "Slab description"
 #~ msgid "Impenetrable Rock: Your Imps cannot dig through this. [12.4]"
