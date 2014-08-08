@@ -1431,10 +1431,10 @@ long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos, M
     MapSubtlCoord end_x,end_y;
     MapSubtlCoord range_stl;
     //_DK_explosion_affecting_area(tngsrc, pos, range, max_damage, hit_type); return;
-    if ((hit_type < 1) || (hit_type >= THit_TypesCount))
+    if ((hit_type <= THit_None) || (hit_type >= THit_TypesCount))
     {
         ERRORLOG("The %s tries to affect area up to distance %d with invalid hit type %d",thing_model_name(tngsrc),(int)max_dist,(int)hit_type);
-        hit_type = 1;
+        hit_type = THit_CrtrsNObjcts;
     }
     range_stl = (max_dist+5*COORD_PER_STL/6)/COORD_PER_STL;
     if (pos->x.stl.num > range_stl)
