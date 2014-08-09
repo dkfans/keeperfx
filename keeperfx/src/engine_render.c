@@ -1395,7 +1395,7 @@ void draw_engine_room_flagpole(struct RoomFlag *rflg)
 {
     struct Room *room;
     //_DK_draw_engine_room_flagpole(rflg);
-    lbDisplay.DrawFlags &= ~0x0001;
+    lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
     room = room_get(rflg->lvl);
     if (!room_exists(room) || !room_can_have_ensign(room->kind)) {
         return;
@@ -1459,23 +1459,15 @@ unsigned short choose_health_sprite(struct Thing *thing)
 
 void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long a4)
 {
-    struct CreatureControl *cctrl;
     struct PlayerInfo *myplyr;
     struct Camera *mycam;
     unsigned short flg_mem;
     myplyr = get_my_player();
 
-    CrtrExpLevel exp;
-    short health_spridx,state_spridx;
-    signed short anger_spridx;
-    int h_add;
-
     flg_mem = lbDisplay.DrawFlags;
     lbDisplay.DrawFlags = 0;
-    anger_spridx = 0;
-    h_add = 0;
-    health_spridx = 0;
-    state_spridx = 0;
+
+    struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
     if ((game.flags_cd & 0x80) != 0)
     {
@@ -1486,6 +1478,15 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
       }
       cctrl->field_47 = 40;
     }
+
+    short health_spridx,state_spridx;
+    signed short anger_spridx;
+
+    anger_spridx = 0;
+    health_spridx = 0;
+    state_spridx = 0;
+
+    CrtrExpLevel exp;
     exp = min(cctrl->explevel,9);
     mycam = myplyr->acamera;
     if ((mycam->field_6 == 2) || (mycam->field_6 == 5))
@@ -1564,6 +1565,8 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
         }
       }
     }
+    int h_add;
+    h_add = 0;
     int w, h;
     struct TbSprite *spr;
     int bs_units_per_px;
@@ -1572,40 +1575,41 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
     if ( state_spridx || anger_spridx )
     {
         spr = &button_sprite[70];
-        h = (a4 * spr->SHeight * bs_units_per_px/16) >> 13;
         w = (a4 * spr->SWidth * bs_units_per_px/16) >> 13;
+        h = (a4 * spr->SHeight * bs_units_per_px/16) >> 13;
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
-    } else
-    {
-      h = 0;
     }
     lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR8;
     lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
     if (((game.play_gameturn & 4) == 0) && (anger_spridx > 0))
     {
         spr = &button_sprite[anger_spridx];
+        w = spr->SWidth * bs_units_per_px/16;
+        h = spr->SHeight * bs_units_per_px/16;
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
         spr = &button_sprite[state_spridx];
-        h_add = spr->SHeight * bs_units_per_px/16;
+        h_add += spr->SHeight * bs_units_per_px/16;
     } else
     if ( state_spridx )
     {
         spr = &button_sprite[state_spridx];
+        w = spr->SWidth * bs_units_per_px/16;
+        h = spr->SHeight * bs_units_per_px/16;
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
-        h_add = spr->SHeight * bs_units_per_px/16;
+        h_add += h;
     }
     if ((thing->word_17 > 0) && (health_spridx > 0) && ((game.play_gameturn & 1) != 0))
     {
-        spr = &button_sprite[health_spridx];
-        h = spr->SHeight * bs_units_per_px/16;
-        w = spr->SWidth * bs_units_per_px/16;
-        if (is_neutral_thing(thing))
-        {
-            LbSpriteDrawScaledOneColour(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h, player_flash_colours[game.play_gameturn & 3]);
-        } else
-        {
-            LbSpriteDrawScaledOneColour(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h, player_flash_colours[thing->owner]);
+        int flash_owner;
+        if (is_neutral_thing(thing)) {
+            flash_owner = game.play_gameturn & 3;
+        } else {
+            flash_owner = thing->owner;
         }
+        spr = &button_sprite[health_spridx];
+        w = spr->SWidth * bs_units_per_px/16;
+        h = spr->SHeight * bs_units_per_px/16;
+        LbSpriteDrawScaledOneColour(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h, player_flash_colours[flash_owner]);
     }
     else
     {
@@ -1613,13 +1617,17 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
         || ((myplyr->id_number != thing->owner) && !creature_is_invisible(thing))
         || (cctrl->combat_flags != 0)
         || (thing->word_17 > 0)
-        || (mycam->field_6 == 3) )
+        || (mycam->field_6 == 3))
       {
-          spr = &button_sprite[health_spridx];
+          if (health_spridx > 0) {
+              spr = &button_sprite[health_spridx];
+              w = spr->SWidth * bs_units_per_px/16;
+              h = spr->SHeight * bs_units_per_px/16;
+              LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
+          }
+          spr = &button_sprite[184 + exp];
           w = spr->SWidth * bs_units_per_px/16;
           h = spr->SHeight * bs_units_per_px/16;
-          LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
-          spr = &button_sprite[184 + exp];
           LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
       }
     }
