@@ -2354,8 +2354,10 @@ void draw_whole_status_panel(void)
         int mnu_num;
         mnu_num = menu_id_to_number(GMnu_MAIN);
         gmnu = get_active_menu(mnu_num);
-        fs_units_per_px = (gmnu->height * 16 + 8) / LbTiledSpriteHeight(&status_panel, gui_panel_sprites);
         mm_units_per_px = (gmnu->width * 16 + 136/2) / 136;
+        if (mm_units_per_px < 1)
+            mm_units_per_px = 1;
+        fs_units_per_px = (gmnu->height * 16 + 8) / LbTiledSpriteHeight(&status_panel, gui_panel_sprites);
         bs_units_per_px = gmnu->width * 4 / 35;
     }
     lbDisplay.DrawColour = colours[15][15][15];
