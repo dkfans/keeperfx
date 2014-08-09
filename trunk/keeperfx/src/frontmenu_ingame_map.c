@@ -48,8 +48,8 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT void _DK_pannel_map_update(long x, long y, long w, long h);
-DLLIMPORT void _DK_gui_set_button_flashing(long a1, long a2);
-DLLIMPORT void _DK_do_map_rotate_stuff(long a1, long a2, long *a3, long *a4, long a5);
+DLLIMPORT void _DK_gui_set_button_flashing(long relpos_x, long relpos_y);
+DLLIMPORT void _DK_do_map_rotate_stuff(long relpos_x, long relpos_y, long *stl_x, long *stl_y, long zoom);
 DLLIMPORT void _DK_pannel_map_draw(long x, long y, long zoom);
 DLLIMPORT void _DK_draw_overlay_things(long zoom);
 DLLIMPORT void _DK_draw_call_to_arms_circle(unsigned char owner, long x1, long y1, long x2, long y2, long zoom);
@@ -662,11 +662,11 @@ void pannel_map_update(long x, long y, long w, long h)
     MapSubtlCoord stl_x, stl_y;
     for (stl_y = y; stl_y < y + h; stl_y++)
     {
-        if (stl_y >= 256)
+        if (stl_y > map_subtiles_y)
             break;
         for (stl_x = x; stl_x < x + w; stl_x++)
         {
-            if (stl_x >= 256)
+            if (stl_x > map_subtiles_x)
                 break;
             if (subtile_has_slab(stl_x, stl_y))
             {
@@ -676,22 +676,22 @@ void pannel_map_update(long x, long y, long w, long h)
     }
 }
 
-void do_map_rotate_stuff(long a1, long a2, long *a3, long *a4, long a5)
+void do_map_rotate_stuff(long relpos_x, long relpos_y, long *stl_x, long *stl_y, long zoom)
 {
     //_DK_do_map_rotate_stuff(a1, a2, a3, a4, a5);
-    struct PlayerInfo *player;
+    const struct PlayerInfo *player;
     player = get_my_player();
-    struct Camera *cam;
+    const struct Camera *cam;
     cam = player->acamera;
     int angle;
     angle = cam->orient_a & 0x1FFC;
     int shift_x, shift_y;
     shift_x = -LbSinL(angle);
     shift_y = LbCosL(angle);
-    *a3 = (shift_y * a1 / pixel_size + shift_x * a2 / pixel_size) >> 16;
-    *a4 = (shift_y * a2 / pixel_size - shift_x * a1 / pixel_size) >> 16;
-    *a3 = a5 * (*a3) / 256 + cam->mappos.x.stl.num;
-    *a4 = a5 * (*a4) / 256 + cam->mappos.y.stl.num;
+    *stl_x = (shift_y * relpos_x + shift_x * relpos_y) >> 16;
+    *stl_y = (shift_y * relpos_y - shift_x * relpos_x) >> 16;
+    *stl_x = zoom * (*stl_x) / 256 + cam->mappos.x.stl.num;
+    *stl_y = zoom * (*stl_y) / 256 + cam->mappos.y.stl.num;
 }
 
 short do_left_map_drag(long begin_x, long begin_y, long curr_x, long curr_y, long zoom)
