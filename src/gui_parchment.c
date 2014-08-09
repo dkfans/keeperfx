@@ -724,7 +724,7 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
     }
 }
 
-void draw_zoom_box_terrain(long scrtop_x, long scrtop_y, int stl_x, int stl_y, PlayerNumber plyr_idx, long draw_tiles_x, long draw_tiles_y)
+void draw_zoom_box_terrain(long scrtop_x, long scrtop_y, int stl_x, int stl_y, PlayerNumber plyr_idx, long draw_tiles_x, long draw_tiles_y, int subtile_size)
 {
     int map_dx,map_dy;
     int scr_x,scr_y;
@@ -732,7 +732,6 @@ void draw_zoom_box_terrain(long scrtop_x, long scrtop_y, int stl_x, int stl_y, P
     lbDisplay.DrawFlags = 0;
     scrtop_x += 4*units_per_pixel/16;
     scrtop_y -= 4*units_per_pixel/16;
-    const int subtile_size = (8*units_per_pixel+8)/16;
     setup_vecs(lbDisplay.WScreen, 0, lbDisplay.GraphicsScreenWidth, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
     if (scrtop_y > MyScreenHeight-draw_tiles_y*subtile_size)
       scrtop_y = MyScreenHeight-draw_tiles_y*subtile_size;
@@ -764,9 +763,8 @@ void draw_zoom_box_terrain(long scrtop_x, long scrtop_y, int stl_x, int stl_y, P
     lbDisplay.DrawFlags &= ~Lb_SPRITE_OUTLINE;
 }
 
-void draw_zoom_box_things(long scrtop_x, long scrtop_y, int stl_x, int stl_y, PlayerNumber plyr_idx, long draw_tiles_x, long draw_tiles_y)
+void draw_zoom_box_things(long scrtop_x, long scrtop_y, int stl_x, int stl_y, PlayerNumber plyr_idx, long draw_tiles_x, long draw_tiles_y, int subtile_size)
 {
-    const int subtile_size = (8*units_per_pixel+8)/16;
     LbScreenSetGraphicsWindow(scrtop_x + 2*units_per_pixel/16, scrtop_y + 2*units_per_pixel/16,
         draw_tiles_x*subtile_size - 4*units_per_pixel/16, draw_tiles_y*subtile_size - 4*units_per_pixel/16);
     int map_dx,map_dy;
@@ -812,6 +810,7 @@ void draw_zoom_box(void)
     mouse_x = GetMouseX();
     mouse_y = GetMouseY();
 
+    // zoom box block size
     const int subtile_size = (8*units_per_pixel+8)/16;
     int stl_x,stl_y;
 
@@ -827,9 +826,9 @@ void draw_zoom_box(void)
      || (stl_y < -draw_tiles_y+4) || (stl_y >= map_subtiles_x+1-draw_tiles_y+6))
       return;
 
-    draw_zoom_box_terrain(scrtop_x, scrtop_y, stl_x, stl_y, player->id_number, draw_tiles_x, draw_tiles_y);
+    draw_zoom_box_terrain(scrtop_x, scrtop_y, stl_x, stl_y, player->id_number, draw_tiles_x, draw_tiles_y, subtile_size);
     // Draw thing sprites on the map
-    draw_zoom_box_things(scrtop_x, scrtop_y, stl_x, stl_y, player->id_number, draw_tiles_x, draw_tiles_y);
+    draw_zoom_box_things(scrtop_x, scrtop_y, stl_x, stl_y, player->id_number, draw_tiles_x, draw_tiles_y, subtile_size);
     // Draw sprites surrounding the box
     int bs_units_per_px;
     {

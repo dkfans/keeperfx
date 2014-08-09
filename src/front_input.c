@@ -636,13 +636,28 @@ TbBool get_level_lost_inputs(void)
         {
           if (player->work_state == PSt_Unknown15)
           {
-            set_player_instance(player, PI_UnqueryCrtr, 0);
+              set_player_instance(player, PI_UnqueryCrtr, 0);
           } else
           {
-            inp_done = get_small_map_inputs(player->minimap_pos_x, player->minimap_pos_y, player->minimap_zoom / (3-pixel_size));
-            if ( !inp_done )
-              get_bookmark_inputs();
-            get_dungeon_control_nonaction_inputs();
+              int mm_units_per_px;
+              {
+                  int mnu_num;
+                  mnu_num = menu_id_to_number(GMnu_MAIN);
+                  struct GuiMenu *gmnu;
+                  gmnu = get_active_menu(mnu_num);
+                  mm_units_per_px = (gmnu->width * 16 + 136/2) / 136;
+                  if (mm_units_per_px < 1)
+                      mm_units_per_px = 1;
+              }
+              long mmzoom;
+              if (16/mm_units_per_px < 3)
+                  mmzoom = (player->minimap_zoom) / (3-16/mm_units_per_px);
+              else
+                  mmzoom = (player->minimap_zoom);
+              inp_done = get_small_map_inputs(player->minimap_pos_x*mm_units_per_px/16, player->minimap_pos_y*mm_units_per_px/16, mmzoom);
+              if ( !inp_done )
+                get_bookmark_inputs();
+              get_dungeon_control_nonaction_inputs();
           }
         }
         break;
@@ -717,11 +732,22 @@ long get_dungeon_control_action_inputs(void)
     player = get_my_player();
     if (get_players_packet_action(player) != PckA_None)
       return 1;
-    if (pixel_size < 3)
-        val = (player->minimap_zoom) / (3-pixel_size);
+    int mm_units_per_px;
+    {
+        int mnu_num;
+        mnu_num = menu_id_to_number(GMnu_MAIN);
+        struct GuiMenu *gmnu;
+        gmnu = get_active_menu(mnu_num);
+        mm_units_per_px = (gmnu->width * 16 + 136/2) / 136;
+        if (mm_units_per_px < 1)
+            mm_units_per_px = 1;
+    }
+    long mmzoom;
+    if (16/mm_units_per_px < 3)
+        mmzoom = (player->minimap_zoom) / (3-16/mm_units_per_px);
     else
-        val = player->minimap_zoom;
-    if (get_small_map_inputs(player->minimap_pos_x, player->minimap_pos_y, val))
+        mmzoom = (player->minimap_zoom);
+    if (get_small_map_inputs(player->minimap_pos_x*mm_units_per_px/16, player->minimap_pos_y*mm_units_per_px/16, mmzoom))
       return 1;
 
     if (get_bookmark_inputs())
