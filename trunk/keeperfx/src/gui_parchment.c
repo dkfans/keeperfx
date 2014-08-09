@@ -636,92 +636,157 @@ void draw_map_level_name(void)
 
 void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_size,int scr_x,int scr_y)
 {
-  struct PlayerInfo *player;
-  struct SpellData *pwrdata;
-  struct Thing *thing;
-  int spos_x,spos_y;
-  TbPixel color;
-  long spridx;
-  unsigned long k;
-  long i;
-  int ps_units_per_px;
-  {
-      struct TbSprite *spr;
-      spr = &gui_panel_sprites[164]; // Use dungeon special box as reference
-      ps_units_per_px = (46 * units_per_pixel) / spr->SHeight;
-  }
-  player = get_my_player();
-  k = 0;
-  i = get_mapwho_thing_index(mapblk);
-  while (i != 0)
-  {
-    thing = thing_get(i);
-    if (thing_is_invalid(thing))
+    struct PlayerInfo *player;
+    struct SpellData *pwrdata;
+    struct Thing *thing;
+    int spos_x,spos_y;
+    TbPixel color;
+    long spridx;
+    unsigned long k;
+    long i;
+    int ps_units_per_px;
     {
-      WARNLOG("Jump out of things array");
-      break;
+        struct TbSprite *spr;
+        spr = &gui_panel_sprites[164]; // Use dungeon special box as reference
+        ps_units_per_px = (46 * units_per_pixel) / spr->SHeight;
     }
-    i = thing->next_on_mapblk;
-    if (!thing_is_picked_up(thing))
+    player = get_my_player();
+    k = 0;
+    i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
     {
-      struct ManufactureData *manufctr;
-      spos_x = ((subtile_size * ((long)thing->mappos.x.stl.pos)) >> 8);
-      spos_y = ((subtile_size * ((long)thing->mappos.y.stl.pos)) >> 8);
-      switch (thing->class_id)
-      {
-      case TCls_Creature:
-        spridx = get_creature_model_graphics(thing->model,CGI_GUIPanelSymbol);
-        if ((game.play_gameturn & 0x04) != 0)
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
         {
-          color = get_player_path_colour(thing->owner);
-          draw_gui_panel_sprite_occentered(scr_x+spos_x, scr_y+spos_y, ps_units_per_px, spridx, color);
-        } else
-        {
-          draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, ps_units_per_px, spridx);
-        }
-        draw_status_sprites((spos_x+scr_x)/pixel_size - 10, (spos_y+scr_y-20)/pixel_size, thing, 4096);
-        break;
-      case TCls_Trap:
-        if ((!thing->byte_18) && (player->id_number != thing->owner))
+            WARNLOG("Jump out of things array");
             break;
-        manufctr = get_manufacture_data_for_thing(thing->class_id, thing->model);
-        spridx = manufctr->parchment_spridx;
-        draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, ps_units_per_px, spridx);
-        break;
-      case TCls_Object:
-        if (thing_is_dungeon_heart(thing))
-        {
-            spridx = 512;
-            draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, ps_units_per_px, spridx);
-        } else
-        if (object_is_gold(thing))
-        {
-            spridx = 511;
-            draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, ps_units_per_px, spridx);
-        } else
-        if (thing_is_special_box(thing))
-        {
-            spridx = 164;
-            draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, ps_units_per_px, spridx);
-        } else
-        if (thing_is_spellbook(thing))
-        {
-            pwrdata = get_power_data(book_thing_to_magic(thing));
-            spridx = pwrdata->field_B;
-            draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, ps_units_per_px, spridx);
         }
-        break;
-      default:
-        break;
-      }
+        i = thing->next_on_mapblk;
+        if (!thing_is_picked_up(thing))
+        {
+            struct ManufactureData *manufctr;
+            spos_x = ((subtile_size * ((long)thing->mappos.x.stl.pos)) >> 8);
+            spos_y = ((subtile_size * ((long)thing->mappos.y.stl.pos)) >> 8);
+            switch (thing->class_id)
+            {
+            case TCls_Creature:
+                spridx = get_creature_model_graphics(thing->model,CGI_GUIPanelSymbol);
+                if ((game.play_gameturn & 0x04) != 0)
+                {
+                    color = get_player_path_colour(thing->owner);
+                    draw_gui_panel_sprite_occentered(scr_x + spos_x, scr_y + spos_y - 13*units_per_pixel/16, ps_units_per_px, spridx, color);
+                } else
+                {
+                    draw_gui_panel_sprite_centered(scr_x + spos_x, scr_y + spos_y - 13*units_per_pixel/16, ps_units_per_px, spridx);
+                }
+                draw_status_sprites(spos_x + scr_x, scr_y + spos_y - 12*units_per_pixel/16, thing, 4096);
+                break;
+            case TCls_Trap:
+                if ((!thing->byte_18) && (player->id_number != thing->owner))
+                    break;
+                manufctr = get_manufacture_data_for_thing(thing->class_id, thing->model);
+                spridx = manufctr->parchment_spridx;
+                draw_gui_panel_sprite_centered(scr_x + spos_x, scr_y + spos_y - 13*units_per_pixel/16, ps_units_per_px, spridx);
+                break;
+            case TCls_Object:
+                if (thing_is_dungeon_heart(thing))
+                {
+                    spridx = 512;
+                    draw_gui_panel_sprite_centered(scr_x + spos_x, scr_y + spos_y - 13*units_per_pixel/16, ps_units_per_px, spridx);
+                } else
+                if (object_is_gold(thing))
+                {
+                    spridx = 511;
+                    draw_gui_panel_sprite_centered(scr_x + spos_x, scr_y + spos_y - 13*units_per_pixel/16, ps_units_per_px, spridx);
+                } else
+                if (thing_is_special_box(thing))
+                {
+                    spridx = 164;
+                    draw_gui_panel_sprite_centered(scr_x + spos_x, scr_y + spos_y - 13*units_per_pixel/16, ps_units_per_px, spridx);
+                } else
+                if (thing_is_spellbook(thing))
+                {
+                    pwrdata = get_power_data(book_thing_to_magic(thing));
+                    spridx = pwrdata->field_B;
+                    draw_gui_panel_sprite_centered(scr_x + spos_x, scr_y + spos_y - 13*units_per_pixel/16, ps_units_per_px, spridx);
+                }
+                break;
+            default:
+                break;
+            }
+        }
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
     }
-    k++;
-    if (k > THINGS_COUNT)
+}
+
+void draw_zoom_box_terrain(long scrtop_x, long scrtop_y, int stl_x, int stl_y, PlayerNumber plyr_idx, long draw_tiles_x, long draw_tiles_y)
+{
+    int map_dx,map_dy;
+    int scr_x,scr_y;
+    int k;
+    lbDisplay.DrawFlags = 0;
+    scrtop_x += 4*units_per_pixel/16;
+    scrtop_y -= 4*units_per_pixel/16;
+    const int subtile_size = (8*units_per_pixel+8)/16;
+    setup_vecs(lbDisplay.WScreen, 0, lbDisplay.GraphicsScreenWidth, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+    if (scrtop_y > MyScreenHeight-draw_tiles_y*subtile_size)
+      scrtop_y = MyScreenHeight-draw_tiles_y*subtile_size;
+    if (scrtop_y < 0)
+        scrtop_y = 0;
+    // Draw the actual map
+    scr_y = scrtop_y;
+    for (map_dy=0; map_dy < draw_tiles_y; map_dy++)
     {
-      ERRORLOG("Infinite loop detected when sweeping things list");
-      break;
+      scr_x = scrtop_x;
+      for (map_dx=0; map_dx < draw_tiles_x; map_dx++)
+      {
+          struct Map *mapblk;
+          mapblk = get_map_block_at(stl_x+map_dx,stl_y+map_dy);
+          if (map_block_revealed(mapblk, plyr_idx))
+          {
+            k = element_top_face_texture(mapblk);
+            draw_texture(scr_x, scr_y, subtile_size, subtile_size, k, 0, -1);
+          } else
+          {
+            LbDrawBox(scr_x, scr_y, subtile_size, subtile_size, 1);
+          }
+          scr_x += subtile_size;
+      }
+      scr_y += subtile_size;
     }
-  }
+    lbDisplay.DrawFlags |= Lb_SPRITE_OUTLINE;
+    LbDrawBox(scrtop_x, scrtop_y, draw_tiles_x*subtile_size, draw_tiles_y*subtile_size, 0);
+    lbDisplay.DrawFlags &= ~Lb_SPRITE_OUTLINE;
+}
+
+void draw_zoom_box_things(long scrtop_x, long scrtop_y, int stl_x, int stl_y, PlayerNumber plyr_idx, long draw_tiles_x, long draw_tiles_y)
+{
+    const int subtile_size = (8*units_per_pixel+8)/16;
+    LbScreenSetGraphicsWindow(scrtop_x + 2*units_per_pixel/16, scrtop_y + 2*units_per_pixel/16,
+        draw_tiles_x*subtile_size - 4*units_per_pixel/16, draw_tiles_y*subtile_size - 4*units_per_pixel/16);
+    int map_dx,map_dy;
+    int scr_x,scr_y;
+    scr_y = 0;
+    for (map_dy=0; map_dy < draw_tiles_y; map_dy++)
+    {
+      scr_x = 0;
+      for (map_dx=0; map_dx < draw_tiles_x; map_dx++)
+      {
+          struct Map *mapblk;
+          mapblk = get_map_block_at(stl_x+map_dx,stl_y+map_dy);
+          if (map_block_revealed(mapblk, plyr_idx))
+          {
+            draw_zoom_box_things_on_mapblk(mapblk,subtile_size,scr_x,scr_y);
+          }
+          scr_x += subtile_size;
+      }
+      scr_y += subtile_size;
+    }
 }
 
 /**
@@ -747,14 +812,9 @@ void draw_zoom_box(void)
     mouse_x = GetMouseX();
     mouse_y = GetMouseY();
 
-    struct Map *mapblk;
     const int subtile_size = (8*units_per_pixel+8)/16;
-    int map_dx,map_dy;
-    int scr_x,scr_y;
     int stl_x,stl_y;
-    int k;
 
-    lbDisplay.DrawFlags = 0;
     // Drawing coordinates
     long scrtop_x,scrtop_y;
     scrtop_x = mouse_x + 24*units_per_pixel/16;
@@ -767,54 +827,9 @@ void draw_zoom_box(void)
      || (stl_y < -draw_tiles_y+4) || (stl_y >= map_subtiles_x+1-draw_tiles_y+6))
       return;
 
-    scrtop_x += 4*units_per_pixel/16;
-    scrtop_y -= 4*units_per_pixel/16;
-    setup_vecs(lbDisplay.WScreen, 0, lbDisplay.GraphicsScreenWidth, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-    if (scrtop_y > MyScreenHeight-draw_tiles_y*subtile_size)
-      scrtop_y = MyScreenHeight-draw_tiles_y*subtile_size;
-    if (scrtop_y < 0)
-        scrtop_y = 0;
-    // Draw the actual map
-    scr_y = scrtop_y;
-    for (map_dy=0; map_dy < draw_tiles_y; map_dy++)
-    {
-      scr_x = scrtop_x;
-      for (map_dx=0; map_dx < draw_tiles_x; map_dx++)
-      {
-        mapblk = get_map_block_at(stl_x+map_dx,stl_y+map_dy);
-        if (map_block_revealed(mapblk, player->id_number))
-        {
-          k = element_top_face_texture(mapblk);
-          draw_texture(scr_x, scr_y, subtile_size, subtile_size, k, 0, -1);
-        } else
-        {
-          LbDrawBox(scr_x, scr_y, subtile_size, subtile_size, 1);
-        }
-        scr_x += subtile_size;
-      }
-      scr_y += subtile_size;
-    }
-    lbDisplay.DrawFlags |= Lb_SPRITE_OUTLINE;
-    LbDrawBox(scrtop_x, scrtop_y, draw_tiles_x*subtile_size, draw_tiles_y*subtile_size, 0);
-    lbDisplay.DrawFlags &= ~Lb_SPRITE_OUTLINE;
+    draw_zoom_box_terrain(scrtop_x, scrtop_y, stl_x, stl_y, player->id_number, draw_tiles_x, draw_tiles_y);
     // Draw thing sprites on the map
-    LbScreenSetGraphicsWindow(scrtop_x + 2*units_per_pixel/16, scrtop_y + 2*units_per_pixel/16,
-        draw_tiles_x*subtile_size - 4*units_per_pixel/16, draw_tiles_y*subtile_size - 4*units_per_pixel/16);
-    scr_y = 0;
-    for (map_dy=0; map_dy < draw_tiles_y; map_dy++)
-    {
-      scr_x = 0;
-      for (map_dx=0; map_dx < draw_tiles_x; map_dx++)
-      {
-        mapblk = get_map_block_at(stl_x+map_dx,stl_y+map_dy);
-        if (map_block_revealed(mapblk, player->id_number))
-        {
-          draw_zoom_box_things_on_mapblk(mapblk,subtile_size,scr_x,scr_y);
-        }
-        scr_x += subtile_size;
-      }
-      scr_y += subtile_size;
-    }
+    draw_zoom_box_things(scrtop_x, scrtop_y, stl_x, stl_y, player->id_number, draw_tiles_x, draw_tiles_y);
     // Draw sprites surrounding the box
     int bs_units_per_px;
     {

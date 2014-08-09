@@ -652,7 +652,6 @@ short good_doing_nothing(struct Thing *creatng)
     struct PlayerInfo *player;
     long nturns;
     PlayerNumber target_plyr_idx;
-    //return _DK_good_doing_nothing(creatng);
     SYNCDBG(18,"Starting");
     TRACE_THING(creatng);
     // Debug code to find incorrect states
