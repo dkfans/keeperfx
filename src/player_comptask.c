@@ -718,52 +718,16 @@ TbBool computer_force_dump_held_things_on_map(struct Computer2 *comp, const stru
     struct Thing *thing;
     // Remove thing from hand
     thing = thing_get(comp->held_thing_idx);
-    if (!thing_is_invalid(thing))
-    {
-        struct Coord3d locpos;
-        locpos.z.val = 0;
-        locpos.x.val = subtile_coord_center(pos->x.stl.num);
-        locpos.y.val = subtile_coord_center(pos->y.stl.num);
-        locpos.z.val = get_thing_height_at(thing, &locpos);
-        computer_drop_held_thing_at(comp, thing, &locpos);
-        comp->held_thing_idx = 0;
+    if (thing_is_invalid(thing)) {
+        return false;
     }
-    // Remove bugged things which think they are in hand
-    unsigned long k;
-    long i;
-    i = game.thing_lists[TngList_Creatures].index;
-    k = 0;
-    while (i != 0)
-    {
-        thing = thing_get(i);
-        if (thing_is_invalid(thing))
-        {
-          ERRORLOG("Jump to invalid thing detected");
-          break;
-        }
-        i = thing->next_of_class;
-        // Per-thing code
-        if ((thing->alloc_flags & TAlF_IsInLimbo) != 0)
-        {
-            if (thing->owner == comp->dungeon->owner)
-            {
-                ERRORLOG("The %s index %d owner %d was stuck in limbo",thing_model_name(thing),(int)thing->index,(int)thing->owner);
-                struct Coord3d locpos;
-                locpos.z.val = 0;
-                locpos.x.val = subtile_coord_center(pos->x.stl.num);
-                locpos.y.val = subtile_coord_center(pos->y.stl.num);
-                locpos.z.val = get_thing_height_at(thing, &locpos);
-                computer_drop_held_thing_at(comp, thing, &locpos);
-            }
-        }
-        // Per-thing code ends
-        k++;
-        if (k > THINGS_COUNT)
-        {
-          ERRORLOG("Infinite loop detected when sweeping things list");
-          break;
-        }
-    }
+    struct Coord3d locpos;
+    locpos.z.val = 0;
+    locpos.x.val = subtile_coord_center(pos->x.stl.num);
+    locpos.y.val = subtile_coord_center(pos->y.stl.num);
+    locpos.z.val = get_thing_height_at(thing, &locpos);
+    computer_drop_held_thing_at(comp, thing, &locpos);
+    comp->held_thing_idx = 0;
     return true;
 }
 
