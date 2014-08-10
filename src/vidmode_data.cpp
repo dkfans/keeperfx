@@ -125,9 +125,9 @@ struct TbLoadFiles mcga_load_files[] = {
   {"data/font1-32.dat",  (unsigned char **)&font_data,             NULL,                                           0, 0, 0},
   {"data/font1-32.tab",  (unsigned char **)&font_sprites,          (unsigned char **)&end_font_sprites,            0, 0, 0},
   {"data/slab0-0.dat",   (unsigned char **)&gui_slab,              NULL,                                           0, 0, 0},
-  {"data/gui2-32.dat",  (unsigned char **)&gui_panel_sprite_data, (unsigned char **)&end_gui_panel_sprite_data,   0, 0, 0},
-  {"data/gui2-32.tab",  (unsigned char **)&gui_panel_sprites,     (unsigned char **)&end_gui_panel_sprites,       0, 0, 0},
-  {"",                    NULL,                                     NULL,                                           0, 0, 0},
+  {"data/gui2-32.dat",  (unsigned char **)&gui_panel_sprite_data, (unsigned char **)&end_gui_panel_sprite_data,    0, 0, 0},
+  {"data/gui2-32.tab",  (unsigned char **)&gui_panel_sprites,     (unsigned char **)&end_gui_panel_sprites,        0, 0, 0},
+  {"",                    NULL,                                     NULL,                                          0, 0, 0},
 };
 
 struct TbLoadFiles vres256_load_files[] = {
@@ -138,10 +138,10 @@ struct TbLoadFiles vres256_load_files[] = {
   {"data/font1-64.dat",  (unsigned char **)&font_data,             NULL,                                           0, 0, 0},
   {"data/font1-64.tab",  (unsigned char **)&font_sprites,          (unsigned char **)&end_font_sprites,            0, 0, 0},
   {"data/slab0-1.dat",   (unsigned char **)&gui_slab,              NULL,                                           0, 0, 0},
-  {"data/gui2-64.dat",  (unsigned char **)&gui_panel_sprite_data, (unsigned char **)&end_gui_panel_sprite_data,   0, 0, 0},
-  {"data/gui2-64.tab",  (unsigned char **)&gui_panel_sprites,     (unsigned char **)&end_gui_panel_sprites,       0, 0, 0},
-  {"*B_SCREEN",           (unsigned char **)&hires_parchment,       NULL,                                     640*480, 0, 0},
-  {"",                    NULL,                                     NULL,                                           0, 0, 0},
+  {"data/gui2-64.dat",  (unsigned char **)&gui_panel_sprite_data, (unsigned char **)&end_gui_panel_sprite_data,    0, 0, 0},
+  {"data/gui2-64.tab",  (unsigned char **)&gui_panel_sprites,     (unsigned char **)&end_gui_panel_sprites,        0, 0, 0},
+  {"*B_SCREEN",           (unsigned char **)&hires_parchment,       NULL,                                    640*480, 0, 0},
+  {"",                    NULL,                                     NULL,                                          0, 0, 0},
 };
 
 struct TbLoadFiles mcga_load_files_minimal[] = {
@@ -165,25 +165,25 @@ struct TbLoadFiles vres256_load_files_minimal[] = {
 struct TbLoadFiles low_res_pointer_load_files[] = {
   {"data/pointer32.dat",   (unsigned char **)&pointer_data,          NULL,                                          0, 0, 0},
   {"data/pointer32.tab",   (unsigned char **)&pointer_sprites,       (unsigned char **)&end_pointer_sprites,        0, 0, 0},
-  {"",                    NULL,                                     NULL,                                          0, 0, 0},
+  {"",                    NULL,                                     NULL,                                           0, 0, 0},
 };
 
 struct TbLoadFiles low_res_small_pointer_load_files[] = {
   {"data/points32.dat",    (unsigned char **)&pointer_data,          NULL,                                          0, 0, 0},
   {"data/points32.tab",    (unsigned char **)&pointer_sprites,      (unsigned char **)&end_pointer_sprites,         0, 0, 0},
-  {"",                    NULL,                                     NULL,                                          0, 0, 0},
+  {"",                    NULL,                                     NULL,                                           0, 0, 0},
 };
 
 struct TbLoadFiles hi_res_pointer_load_files[] = {
   {"data/pointer64.dat",   (unsigned char **)&pointer_data,          NULL,                                          0, 0, 0},
   {"data/pointer64.tab",   (unsigned char **)&pointer_sprites,       (unsigned char **)&end_pointer_sprites,        0, 0, 0},
-  {"",                    NULL,                                     NULL,                                          0, 0, 0},
+  {"",                    NULL,                                     NULL,                                           0, 0, 0},
 };
 
 struct TbLoadFiles hi_res_small_pointer_load_files[] = {
   {"data/points64.dat",    (unsigned char **)&pointer_data,          NULL,                                          0, 0, 0},
   {"data/points64.tab",    (unsigned char **)&pointer_sprites,       (unsigned char **)&end_pointer_sprites,        0, 0, 0},
-  {"",                    NULL,                                     NULL,                                          0, 0, 0},
+  {"",                    NULL,                                     NULL,                                           0, 0, 0},
 };
 
 struct TbLoadFiles legal_load_files[] = {

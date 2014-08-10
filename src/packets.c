@@ -2107,13 +2107,10 @@ void process_players_map_packet_control(long plyr_idx)
     SYNCDBG(6,"Starting");
     player = get_player(plyr_idx);
     pckt = get_packet_direct(player->packet_num);
-    // Get map coordinates based on screen coords in packet
-    //TODO PACKET Never use screen coordinates from packet!
-    long map_x, map_y;
-    point_to_overhead_map(player->acamera, pckt->pos_x/pixel_size, pckt->pos_y/pixel_size, &map_x, &map_y);
+    // Get map coordinates
     process_map_packet_clicks(plyr_idx);
-    player->cameras[2].mappos.x.val = map_x;
-    player->cameras[2].mappos.y.val = map_y;
+    player->cameras[2].mappos.x.val = pckt->pos_x;
+    player->cameras[2].mappos.y.val = pckt->pos_x;
     set_mouse_light(player);
     SYNCDBG(8,"Finished");
 }

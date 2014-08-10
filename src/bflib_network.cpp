@@ -349,13 +349,13 @@ static void SendServerFrame(void)
 
     ptr = netstate.msg_buffer;
     *ptr = NETMSG_FRAME;
-    ptr += 1;
+    ptr += sizeof(char);
 
     *(int *) ptr = netstate.seq_nbr;
-    ptr += 4;
+    ptr += sizeof(int);
 
     *ptr = CountLoggedInClients() + 1;
-    ptr += 1;
+    ptr += sizeof(char);
 
     size = (CountLoggedInClients() + 1) * netstate.user_frame_size;
     LbMemoryCopy(ptr, netstate.exchg_buffer, size);
