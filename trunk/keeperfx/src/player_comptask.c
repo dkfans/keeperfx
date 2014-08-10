@@ -649,6 +649,26 @@ void computer_pick_thing_by_hand(struct Computer2 *comp, struct Thing *thing)
     place_thing_in_limbo(thing);
 }
 
+/** Checks if given thing is placed in power hand of given player.
+ *
+ * @param thing
+ * @param plyr_idx
+ * @return
+ */
+TbBool thing_is_in_computer_power_hand_list(const struct Thing *thing, PlayerNumber plyr_idx)
+{
+    struct Computer2 *comp;
+    comp = get_computer_player(plyr_idx);
+    return (comp->held_thing_idx == thing->index);
+}
+
+/**
+ * Dumps computer player held creatures on map.
+ * @param comp
+ * @param thing
+ * @param pos
+ * @note originally named fake_dump_held_creatures_on_map()
+ */
 short computer_dump_held_creatures_on_map(struct Computer2 *comp, struct Thing *thing, struct Coord3d *pos)
 {
     if (thing_is_creature(thing) &&(thing->active_state == CrSt_CreatureUnconscious)) {
@@ -711,20 +731,65 @@ long computer_place_thing_in_power_hand(struct Computer2 *comp, struct Thing *th
     return 1;
 }
 
+/**
+ * Dumps computer player held creatures on map, without checking if target position is valid.
+ * @param comp
+ * @param thing
+ * @param pos
+ * @note originally named fake_dump_held_creatures_on_map()
+ */
 TbBool computer_force_dump_held_things_on_map(struct Computer2 *comp, const struct Coord3d *pos)
 {
+    SYNCDBG(7,"Starting");
     struct Thing *thing;
+    // Remove thing from hand
     thing = thing_get(comp->held_thing_idx);
-    if (thing_is_invalid(thing)) {
-        return false;
+    if (!thing_is_invalid(thing))
+    {
+        struct Coord3d locpos;
+        locpos.z.val = 0;
+        locpos.x.val = subtile_coord_center(pos->x.stl.num);
+        locpos.y.val = subtile_coord_center(pos->y.stl.num);
+        locpos.z.val = get_thing_height_at(thing, &locpos);
+        computer_drop_held_thing_at(comp, thing, &locpos);
+        comp->held_thing_idx = 0;
     }
-    struct Coord3d locpos;
-    locpos.z.val = 0;
-    locpos.x.val = subtile_coord_center(pos->x.stl.num);
-    locpos.y.val = subtile_coord_center(pos->y.stl.num);
-    locpos.z.val = get_thing_height_at(thing, &locpos);
-    computer_drop_held_thing_at(comp, thing, &locpos);
-    comp->held_thing_idx = 0;
+    // Remove bugged things which think they are in hand
+    unsigned long k;
+    long i;
+    i = game.thing_lists[TngList_Creatures].index;
+    k = 0;
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+          ERRORLOG("Jump to invalid thing detected");
+          break;
+        }
+        i = thing->next_of_class;
+        // Per-thing code
+        if ((thing->alloc_flags & TAlF_IsInLimbo) != 0)
+        {
+            if (thing->owner == comp->dungeon->owner)
+            {
+                ERRORLOG("The %s index %d owner %d was stuck in limbo",thing_model_name(thing),(int)thing->index,(int)thing->owner);
+                struct Coord3d locpos;
+                locpos.z.val = 0;
+                locpos.x.val = subtile_coord_center(pos->x.stl.num);
+                locpos.y.val = subtile_coord_center(pos->y.stl.num);
+                locpos.z.val = get_thing_height_at(thing, &locpos);
+                computer_drop_held_thing_at(comp, thing, &locpos);
+            }
+        }
+        // Per-thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping things list");
+          break;
+        }
+    }
     return true;
 }
 
@@ -2167,6 +2232,7 @@ long task_pickup_for_attack(struct Computer2 *comp, struct ComputerTask *ctask)
         if (computer_dump_held_creatures_on_map(comp, thing, &ctask->pickup_for_attack.target_pos)) {
             return CTaskRet_Unk2;
         }
+        computer_force_dump_held_things_on_map(comp, &comp->dungeon->essential_pos);
         return CTaskRet_Unk4;
     }
     if (ctask->pickup_for_attack.repeat_num <= 0)
@@ -2233,6 +2299,7 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
                 return CTaskRet_Unk2;
             }
         }
+        computer_force_dump_held_things_on_map(comp, &comp->dungeon->essential_pos);
         remove_task(comp, ctask);
         return CTaskRet_Unk0;
     }
@@ -2286,6 +2353,7 @@ long task_move_creature_to_pos(struct Computer2 *comp, struct ComputerTask *ctas
                 remove_task(comp, ctask);
                 return CTaskRet_Unk2;
             }
+            computer_force_dump_held_things_on_map(comp, &comp->dungeon->essential_pos);
             remove_task(comp, ctask);
             return CTaskRet_Unk0;
         }
@@ -2381,15 +2449,16 @@ long task_move_creatures_to_defend(struct Computer2 *comp, struct ComputerTask *
         remove_task(comp, ctask);
         return CTaskRet_Unk0;
     }
-    // If everything is fine wand we're keeping the thing to move in "fake hand"
+    // If everything is fine and we're keeping the thing to move in "fake hand"
     if (!thing_is_invalid(thing))
     {
-        if (!computer_dump_held_creatures_on_map(comp, thing, &ctask->move_to_defend.target_pos))
+        if (computer_dump_held_creatures_on_map(comp, thing, &ctask->move_to_defend.target_pos))
         {
-            remove_task(comp, ctask);
-            return CTaskRet_Unk0;
+            return CTaskRet_Unk2;
         }
-        return CTaskRet_Unk2;
+        computer_force_dump_held_things_on_map(comp, &comp->dungeon->essential_pos);
+        remove_task(comp, ctask);
+        return CTaskRet_Unk0;
     }
     if (game.play_gameturn - ctask->lastrun_turn < ctask->field_60) {
         return CTaskRet_Unk4;

@@ -629,15 +629,17 @@ long check_call_to_arms(struct Computer2 *comp);
 long count_creatures_for_defend_pickup(struct Computer2 *comp);
 long count_creatures_for_pickup(struct Computer2 *comp, struct Coord3d *pos, struct Room *room, long a4);
 long count_creatures_availiable_for_fight(struct Computer2 *comp, struct Coord3d *pos);
-/******************************************************************************/
+
 long setup_computer_attack(struct Computer2 *comp, struct ComputerProcess *cproc, struct Coord3d *pos, long victim_plyr_idx);
-/******************************************************************************/
+
 TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model);
 void process_computer_players2(void);
 void setup_computer_players2(void);
 void restore_computer_player_after_load(void);
+
 TbBool computer_force_dump_held_things_on_map(struct Computer2 *comp, const struct Coord3d *pos);
 TbBool computer_force_dump_specific_held_thing(struct Computer2 *comp, struct Thing *thing, const struct Coord3d *pos);
+TbBool thing_is_in_computer_power_hand_list(const struct Thing *thing, PlayerNumber plyr_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

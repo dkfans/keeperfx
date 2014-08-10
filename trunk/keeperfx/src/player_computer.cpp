@@ -50,22 +50,11 @@ ComputerType computer_assist_types[] = { 6, 7, 8, 9 };
 unsigned short computer_types[] = { 201, 201, 201, 201, 201, 201, 729, 730, 731, 732 };
 
 /******************************************************************************/
-DLLIMPORT void _DK_setup_computer_players2(void);
-DLLIMPORT void _DK_process_computer_player2(unsigned long plridx);
-DLLIMPORT void _DK_setup_a_computer_player(unsigned long a1, long a2);
-DLLIMPORT struct ComputerTask *_DK_computer_setup_build_room(struct Computer2 *comp, unsigned short a2, long a3, long a4, long a5);
-DLLIMPORT void _DK_process_computer_players2(void);
-DLLIMPORT void _DK_computer_check_events(struct Computer2 *comp);
-DLLIMPORT long _DK_process_checks(struct Computer2 *comp);
-DLLIMPORT long _DK_process_tasks(struct Computer2 *comp);
 DLLIMPORT long _DK_get_computer_money_less_cost(struct Computer2 *comp);
 DLLIMPORT long _DK_count_creatures_availiable_for_fight(struct Computer2 *comp, struct Coord3d *pos);
 DLLIMPORT struct ComputerTask *_DK_is_there_an_attack_task(struct Computer2 *comp);
-DLLIMPORT void _DK_get_opponent(struct Computer2 *comp, struct THate *hate);
-DLLIMPORT long _DK_setup_computer_attack(struct Computer2 *comp, struct ComputerProcess *cproc, struct Coord3d *pos, long a4);
 DLLIMPORT long _DK_count_creatures_for_defend_pickup(struct Computer2 *comp);
 DLLIMPORT long _DK_computer_find_non_solid_block(struct Computer2 *comp, struct Coord3d *pos);
-DLLIMPORT long _DK_computer_able_to_use_magic(struct Computer2 *comp, long a2, long a3, long a4);
 DLLIMPORT long _DK_check_call_to_arms(struct Computer2 *comp);
 DLLIMPORT long _DK_computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d *pos, struct GoldLookup **gldlook);
 DLLIMPORT long _DK_computer_finds_nearest_room_to_pos(struct Computer2 *comp, struct Room **retroom, struct Coord3d *nearpos);
@@ -227,7 +216,6 @@ GoldAmount get_computer_money_less_cost(const struct Computer2 *comp)
     unsigned long k;
     int i;
     SYNCDBG(8,"Starting");
-    //return _DK_get_computer_money_less_cost(comp);
     k = 0;
     i = dungeon->creatr_list_start;
     while (i != 0)
@@ -352,7 +340,6 @@ struct ComputerTask * able_to_build_room_from_room(struct Computer2 *comp, RoomK
 struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind rkind, long width_slabs, long height_slabs, long look_randstart)
 {
     struct Dungeon *dungeon;
-    //return _DK_computer_setup_build_room(comp, rkind, a3, a4, a5);
     dungeon = comp->dungeon;
     long max_slabs;
     long area_min,area_max;
@@ -516,7 +503,6 @@ long computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d 
     long lookups_checked;
     long i;
     SYNCDBG(5,"Starting");
-    //return _DK_computer_finds_nearest_room_to_gold(comp, pos, gldlookref);
     dungeon = comp->dungeon;
     gldlooksel = NULL;
     *gldlookref = gldlooksel;
@@ -589,7 +575,6 @@ long count_creatures_availiable_for_fight(struct Computer2 *comp, struct Coord3d
 
 TbBool is_there_an_attack_task(struct Computer2 *comp)
 {
-    //return _DK_is_there_an_attack_task(comp);
     static const ComputerTaskType attack_tasks[] = {
         CTT_DigToAttack,
         CTT_MagicCallToArms,
@@ -614,7 +599,6 @@ TbBool is_there_an_attack_task(struct Computer2 *comp)
  */
 void get_opponent(struct Computer2 *comp, struct THate hates[])
 {
-    //_DK_get_opponent(comp, hate);
     SYNCDBG(7,"Starting");
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
@@ -706,7 +690,6 @@ long setup_computer_attack(struct Computer2 *comp, struct ComputerProcess *cproc
 {
     struct Room *room;
     SYNCDBG(8,"Starting player %d attack on %d",(int)comp->dungeon->owner,(int)victim_plyr_idx);
-    //return _DK_setup_computer_attack(comp, cproc, pos, a4);
     if (!computer_finds_nearest_room_to_pos(comp, &room, pos)) {
         SYNCDBG(7,"Cannot find owned room near (%d,%d), giving up",(int)pos->x.stl.num,(int)pos->y.stl.num);
         return 0;
@@ -867,7 +850,6 @@ long computer_check_for_place_trap(struct Computer2 *comp, struct ComputerCheck 
     struct Dungeon *dungeon;
     long i;
     SYNCDBG(8,"Starting");
-    //return _DK_computer_check_for_place_trap(comp, check);
     dungeon = comp->dungeon;
     long kind_chosen;
     kind_chosen = computer_choose_best_trap_kind_to_place(dungeon, check->param1, check->param2);
@@ -1009,7 +991,6 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
     long ret;
     long i;
     SYNCDBG(8,"Starting");
-    //return _DK_computer_check_for_money(comp, check);
     ret = 4;
     // Try creating digging for gold process
     money = get_computer_money_less_cost(comp);
@@ -1065,7 +1046,6 @@ long computer_able_to_use_magic(struct Computer2 *comp, PowerKind pwkind, long p
 {
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
-    //return _DK_computer_able_to_use_magic(comp, pwkind, a3, a4);
     if (!is_power_available(dungeon->owner, pwkind)) {
         return 4;
     }
@@ -1085,7 +1065,6 @@ long computer_able_to_use_magic(struct Computer2 *comp, PowerKind pwkind, long p
 long check_call_to_arms(struct Computer2 *comp)
 {
     SYNCDBG(8,"Starting for player %d",(int)comp->dungeon->owner);
-    //return _DK_check_call_to_arms(comp);
     long ret;
     ret = 1;
     if (comp->dungeon->cta_start_turn != 0)
@@ -1144,7 +1123,6 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
     struct Comp2_UnkStr1 *unkptr;
     struct Computer2 *comp;
     long i;
-    //_DK_setup_a_computer_player(plyridx, comp_model); return;
     if ((plyr_idx >= PLAYERS_COUNT) || (plyr_idx == game.hero_player_num)
         || (plyr_idx == game.neutral_player_num)) {
         WARNLOG("Tried to setup player %d which can't be used this way",(int)plyr_idx);
@@ -1246,7 +1224,6 @@ void computer_check_events(struct Computer2 *comp)
     struct Event * event;
     long i,n;
     SYNCDBG(17,"Starting");
-    //_DK_computer_check_events(comp);
     dungeon = comp->dungeon;
     for (i=0; i < COMPUTER_EVENTS_COUNT; i++)
     {
@@ -1301,7 +1278,6 @@ TbBool process_checks(struct Computer2 *comp)
     long delta;
     long i;
     SYNCDBG(17,"Starting");
-    //return _DK_process_checks(comp);
     for (i=0; i < COMPUTER_CHECKS_COUNT; i++)
     {
         ccheck = &comp->checks[i];
@@ -1379,7 +1355,6 @@ void process_computer_player2(PlayerNumber plyr_idx)
 {
     struct Computer2 *comp;
     SYNCDBG(7,"Starting for player %d",(int)plyr_idx);
-    //_DK_process_computer_player2(plyr_idx);
     if (plyr_idx >= PLAYERS_COUNT) {
         return;
     }
@@ -1456,7 +1431,6 @@ void process_computer_players2(void)
     struct Dungeon *dungeon;
     TbBool needs_gold_check;
     int i;
-    //_DK_process_computer_players2();
     needs_gold_check = false;
 #ifdef PETTER_AI
     SAI_run_shared();
@@ -1533,7 +1507,6 @@ void restore_computer_player_after_load(void)
     long plyr_idx;
     long i;
     SYNCDBG(7,"Starting");
-    //_DK_restore_computer_player_after_load();
     for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         player = get_player(plyr_idx);

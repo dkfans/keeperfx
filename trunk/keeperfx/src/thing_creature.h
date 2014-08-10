@@ -106,7 +106,7 @@ void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, lo
 void creature_cast_spell(struct Thing *caster, long trg_x, long trg_y, long a4, long a5);
 unsigned int get_creature_blocked_flags_at(struct Thing *thing, struct Coord3d *newpos);
 
-struct Thing *get_enemy_dungeon_heart_creature_can_see(struct Thing *thing);
+struct Thing *get_enemy_soul_container_creature_can_see(struct Thing *thing);
 void food_eaten_by_creature(struct Thing *crthing, struct Thing *obthing);
 short creature_take_wage_from_gold_pile(struct Thing *crthing,struct Thing *obthing);
 struct Thing *get_creature_near(unsigned short pos_x, unsigned short pos_y);
