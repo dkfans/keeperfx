@@ -443,7 +443,6 @@ void draw_swipe_graphic(void)
 
 long creature_available_for_combat_this_turn(struct Thing *creatng)
 {
-    //return _DK_creature_available_for_combat_this_turn(thing);
     TRACE_THING(creatng);
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
@@ -461,7 +460,7 @@ long creature_available_for_combat_this_turn(struct Thing *creatng)
     if (creature_is_being_unconscious(creatng) || creature_is_dying(creatng)) {
         return false;
     }
-    if (creature_is_being_dropped(creatng)) {
+    if (thing_is_picked_up(creatng) || creature_is_being_dropped(creatng)) {
         return false;
     }
     if ((creatng->owner == game.neutral_player_num) || ((cctrl->flgfield_1 & CCFlg_NoCompControl) != 0)) {
@@ -472,7 +471,7 @@ long creature_available_for_combat_this_turn(struct Thing *creatng)
     return can_change_from_state_to(creatng, i, CrSt_CreatureInCombat);
 }
 
-struct Thing *get_players_dungeon_heart_creature_can_see(struct Thing *creatng, PlayerNumber heart_owner)
+struct Thing *get_players_soul_container_creature_can_see(struct Thing *creatng, PlayerNumber heart_owner)
 {
     struct Thing * heartng;
     int dist;
@@ -495,7 +494,13 @@ struct Thing *get_players_dungeon_heart_creature_can_see(struct Thing *creatng, 
     return heartng;
 }
 
-struct Thing *get_enemy_dungeon_heart_creature_can_see(struct Thing *creatng)
+/**
+ *
+ * @param creatng
+ * @return
+ * @note originally named get_enemy_dungeon_heart_creature_can_see()
+ */
+struct Thing *get_enemy_soul_container_creature_can_see(struct Thing *creatng)
 {
     PlayerNumber enemy_idx;
 
@@ -510,7 +515,7 @@ struct Thing *get_enemy_dungeon_heart_creature_can_see(struct Thing *creatng)
         if ( players_are_enemies(creatng->owner, enemy_idx) )
         {
             struct Thing * heartng;
-            heartng = get_players_dungeon_heart_creature_can_see(creatng, enemy_idx);
+            heartng = get_players_soul_container_creature_can_see(creatng, enemy_idx);
             if (!thing_is_invalid(heartng))
             {
                 return heartng;
@@ -1587,7 +1592,11 @@ TngUpdateRet process_creature_state(struct Thing *thing)
     // Creatures that are not special diggers will pick up any nearby gold or food
     if (((thing->movement_flags & TMvF_Flying) == 0) && ((model_flags & MF_IsSpecDigger) == 0))
     {
-        creature_pick_up_interesting_object_laying_nearby(thing);
+        if (!creature_is_being_unconscious(thing) && !creature_is_dying(thing) &&
+            !thing_is_picked_up(thing) && !creature_is_being_dropped(thing))
+        {
+            creature_pick_up_interesting_object_laying_nearby(thing);
+        }
     }
     // Enable this to know which function hangs on update_creature.
     //TODO CREATURE_AI rewrite state subfunctions so they won't hang
