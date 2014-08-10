@@ -856,7 +856,7 @@ TbScreenMode reenter_video_mode(void)
       scrmode=get_failsafe_vidmode();
       if ( !setup_screen_mode(scrmode) )
       {
-        _DK_FatalError = 1;
+        FatalError = 1;
         exit_keeper = 1;
         return Lb_SCREEN_MODE_INVALID;
       }

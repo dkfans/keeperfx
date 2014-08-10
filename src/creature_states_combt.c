@@ -2592,7 +2592,7 @@ TbBool creature_look_for_enemy_heart_combat(struct Thing *thing)
         return false;
     }
     struct Thing *heartng;
-    heartng = get_enemy_dungeon_heart_creature_can_see(thing);
+    heartng = get_enemy_soul_container_creature_can_see(thing);
     if (thing_is_invalid(heartng)) {
         return false;
     }

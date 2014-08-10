@@ -8,7 +8,7 @@
  * @par Comment:
  *     None.
  * @author   Tomasz Lis
- * @date     20 Jan 2009 - 30 Jan 2009
+ * @date     20 Jan 2009 - 09 Aug 2014
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -72,25 +72,6 @@ unsigned short const zoom_key_room_order[] =
 
 KEEPERSPEECH_EVENT last_speech_event;
 
-/******************************************************************************/
-DLLIMPORT void _DK_input(void);
-DLLIMPORT char _DK_game_is_busy_doing_gui_string_input(void);
-DLLIMPORT void _DK_get_packet_control_mouse_clicks(void);
-DLLIMPORT int _DK_is_game_key_pressed(long, long *, unsigned int);
-DLLIMPORT long _DK_get_inputs(void);
-DLLIMPORT void _DK_get_isometric_view_nonaction_inputs(void);
-DLLIMPORT void _DK_get_overhead_view_nonaction_inputs(void);
-DLLIMPORT void _DK_get_front_view_nonaction_inputs(void);
-DLLIMPORT long _DK_get_small_map_inputs(long x, long y, long zoom);
-DLLIMPORT void _DK_get_level_lost_inputs(void);
-DLLIMPORT long _DK_get_global_inputs(void);
-DLLIMPORT long _DK_get_dungeon_control_action_inputs(void);
-DLLIMPORT void _DK_get_dungeon_control_nonaction_inputs(void);
-DLLIMPORT void _DK_get_creature_control_nonaction_inputs(void);
-DLLIMPORT void _DK_get_map_nonaction_inputs(void);
-DLLIMPORT long _DK_get_bookmark_inputs(void);
-DLLIMPORT int _DK_get_gui_inputs(int);
-DLLIMPORT void _DK_get_level_lost_inputs(void);
 /******************************************************************************/
 void get_dungeon_control_nonaction_inputs(void);
 void get_creature_control_nonaction_inputs(void);
@@ -516,7 +497,6 @@ TbBool get_level_lost_inputs(void)
     struct PlayerInfo *player;
     long keycode;
     SYNCDBG(6,"Starting");
-    //_DK_get_level_lost_inputs(); return 0;
     player = get_my_player();
     if ((player->field_0 & 0x04) != 0)
     {
@@ -1109,7 +1089,6 @@ void get_isometric_view_nonaction_inputs(void)
     struct Packet *pckt;
     int rotate_pressed,speed_pressed;
     TbBool no_mods;
-    //_DK_get_isometric_view_nonaction_inputs(); return;
     player = get_my_player();
     pckt = get_packet(my_player_number);
     rotate_pressed = is_game_key_pressed(Gkey_RotateMod, NULL, true);
@@ -1197,7 +1176,6 @@ void get_front_view_nonaction_inputs(void)
     struct Packet *pckt;
     int rotate_pressed,speed_pressed;
     TbBool no_mods;
-    //_DK_get_front_view_nonaction_inputs();
     player = get_my_player();
     pckt = get_packet(my_player_number);
     rotate_pressed = is_game_key_pressed(Gkey_RotateMod, NULL, true);
