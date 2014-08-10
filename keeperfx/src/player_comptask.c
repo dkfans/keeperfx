@@ -639,15 +639,15 @@ TbBool thing_is_in_computer_power_hand_list(const struct Thing *thing, PlayerNum
 }
 
 /**
- * Dumps computer player held creatures on map.
+ * Dumps computer player held things on map.
  * @param comp
  * @param thing
  * @param pos
  * @note originally named fake_dump_held_creatures_on_map()
  */
-short computer_dump_held_creatures_on_map(struct Computer2 *comp, struct Thing *thing, struct Coord3d *pos)
+short computer_dump_held_things_on_map(struct Computer2 *comp, struct Thing *thing, struct Coord3d *pos)
 {
-    if (thing_is_creature(thing) &&(thing->active_state == CrSt_CreatureUnconscious)) {
+    if (thing_is_creature(thing) && (thing->active_state == CrSt_CreatureUnconscious)) {
         WARNLOG("The %s Held By computer is unconscious",creature_code_name(thing->model));
     }
     if (!computer_find_non_solid_block(comp, pos)) {
@@ -2188,7 +2188,7 @@ long task_pickup_for_attack(struct Computer2 *comp, struct ComputerTask *ctask)
     thing = thing_get(comp->held_thing_idx);
     if (!thing_is_invalid(thing))
     {
-        if (computer_dump_held_creatures_on_map(comp, thing, &ctask->pickup_for_attack.target_pos)) {
+        if (computer_dump_held_things_on_map(comp, thing, &ctask->pickup_for_attack.target_pos)) {
             return CTaskRet_Unk2;
         }
         computer_force_dump_held_things_on_map(comp, &comp->dungeon->essential_pos);
@@ -2253,7 +2253,7 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
         jobpref = get_job_for_room(room->kind, JoKF_AssignComputerDropInRoom, crstat->job_primary|crstat->job_secondary);
         if (get_drop_position_for_creature_job_in_room(&pos, room, jobpref))
         {
-            if (computer_dump_held_creatures_on_map(comp, thing, &pos) > 0) {
+            if (computer_dump_held_things_on_map(comp, thing, &pos) > 0) {
                 return CTaskRet_Unk2;
             }
         }
@@ -2306,7 +2306,7 @@ long task_move_creature_to_pos(struct Computer2 *comp, struct ComputerTask *ctas
     {
         if (ctask->move_to_pos.word_76 == comp->held_thing_idx)
         {
-            if (computer_dump_held_creatures_on_map(comp, thing, &ctask->move_to_pos.pos_86)) {
+            if (computer_dump_held_things_on_map(comp, thing, &ctask->move_to_pos.pos_86)) {
                 remove_task(comp, ctask);
                 return CTaskRet_Unk2;
             }
@@ -2408,7 +2408,7 @@ long task_move_creatures_to_defend(struct Computer2 *comp, struct ComputerTask *
     // If everything is fine and we're keeping the thing to move in "fake hand"
     if (!thing_is_invalid(thing))
     {
-        if (computer_dump_held_creatures_on_map(comp, thing, &ctask->move_to_defend.target_pos))
+        if (computer_dump_held_things_on_map(comp, thing, &ctask->move_to_defend.target_pos))
         {
             return CTaskRet_Unk2;
         }
@@ -2439,6 +2439,67 @@ long task_move_creatures_to_defend(struct Computer2 *comp, struct ComputerTask *
         return CTaskRet_Unk2;
     }
     return CTaskRet_Unk2;
+}
+
+struct Thing *find_gold_laying_in_dungeon(struct Dungeon *dungeon)
+{
+    // TODO COMPUTER_PLAYER MOVE_GOLD implement finding gold
+    return INVALID_THING;
+}
+
+long task_move_gold_to_treasury(struct Computer2 *comp, struct ComputerTask *ctask)
+{
+    struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
+    if (dungeon_invalid(dungeon)) {
+        ERRORLOG("Invalid dungeon in computer player.");
+        return 0;
+    }
+    SYNCDBG(9,"Starting for player %d",(int)dungeon->owner);
+    struct Thing *thing;
+    struct Room *room;
+    struct Coord3d pos;
+    long i;
+    room = INVALID_ROOM;
+    thing = thing_get(comp->held_thing_idx);
+    if (!thing_is_invalid(thing))
+    {
+        room = room_get(ctask->move_gold.room_idx);
+        if (object_is_gold_pile(thing) && find_random_valid_position_for_thing_in_room(thing, room, &pos))
+        {
+            if (computer_dump_held_things_on_map(comp, thing, &pos) > 0) {
+                return CTaskRet_Unk2;
+            }
+        }
+        ERRORLOG("Could not find valid position for gold to be dropped");
+        computer_force_dump_held_things_on_map(comp, &comp->dungeon->essential_pos);
+        remove_task(comp, ctask);
+        return CTaskRet_Unk0;
+    }
+    i = ctask->move_gold.items_amount;
+    ctask->move_gold.items_amount--;
+    if (i <= 0)
+    {
+        remove_task(comp, ctask);
+        return CTaskRet_Unk1;
+    }
+    thing = find_gold_laying_in_dungeon(comp->dungeon);
+    if (!thing_is_invalid(thing))
+    {
+        struct Room *room;
+        room = find_room_with_spare_capacity(comp->dungeon->owner, RoK_TRAINING, 1);
+        if (!room_is_invalid(room))
+        {
+            ctask->move_gold.room_idx = room->index;
+            if (computer_place_thing_in_power_hand(comp, thing, &pos)) {
+                SYNCDBG(9,"Player %d picked %s index %d to place in %s index %d",(int)comp->dungeon->owner,thing_model_name(thing),(int)thing->index,
+                    room_code_name(room->kind),(int)room->index);
+                return CTaskRet_Unk2;
+            }
+        }
+    }
+    remove_task(comp, ctask);
+    return CTaskRet_Unk0;
 }
 
 long task_slap_imps(struct Computer2 *comp, struct ComputerTask *ctask)
@@ -2791,20 +2852,6 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
     return 0;
 }
 
-long task_move_gold_to_treasury(struct Computer2 *comp, struct ComputerTask *ctask)
-{
-    struct Dungeon *dungeon;
-    dungeon = comp->dungeon;
-    if (dungeon_invalid(dungeon)) {
-        ERRORLOG("Invalid dungeon in computer player.");
-        return 0;
-    }
-    SYNCDBG(9,"Starting for player %d",(int)dungeon->owner);
-    // TODO COMPUTER_PLAYER implement moving gold
-    remove_task(comp, ctask);
-    return 0;
-}
-
 void setup_dig_to(struct ComputerDig *cdig, const struct Coord3d startpos, const struct Coord3d endpos)
 {
     memset(cdig,0,sizeof(struct ComputerDig));
@@ -2994,7 +3041,6 @@ TbBool create_task_sell_traps_and_doors(struct Computer2 *comp, long num_to_sell
  */
 TbBool create_task_move_gold_to_treasury(struct Computer2 *comp, long num_to_move, long gold_up_to)
 {
-    //TODO COMPUTER_PLAYER Use the gold moving task - it is currently never created
     struct ComputerTask *ctask;
     SYNCDBG(7,"Starting");
     ctask = get_free_task(comp, 1);
