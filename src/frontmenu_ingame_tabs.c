@@ -724,6 +724,19 @@ void go_to_next_trap_of_type(ThingModel tngmodel, PlayerNumber plyr_idx)
     }
     k = 0;
     i = seltrap[tngmodel];
+    SYNCDBG(9,"Starting, prev index %d",i);
+    {
+        if (i != 0) {
+            thing = thing_get(i);
+        } else {
+            thing = INVALID_THING;
+        }
+        if (!thing_exists(thing) || (thing->class_id != TCls_Trap)) {
+            i = get_thing_class_list_head(TCls_Trap);
+        } else {
+            i = thing->next_of_class;
+        }
+    }
     seltrap[tngmodel] = 0;
     while (i != 0)
     {
@@ -770,6 +783,18 @@ void go_to_next_door_of_type(ThingModel tngmodel, PlayerNumber plyr_idx)
     }
     k = 0;
     i = seldoor[tngmodel];
+    {
+        if (i != 0) {
+            thing = thing_get(i);
+        } else {
+            thing = INVALID_THING;
+        }
+        if (!thing_exists(thing) || (thing->class_id != TCls_Door)) {
+            i = get_thing_class_list_head(TCls_Door);
+        } else {
+            i = thing->next_of_class;
+        }
+    }
     seldoor[tngmodel] = 0;
     while (i != 0)
     {
