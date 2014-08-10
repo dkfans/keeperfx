@@ -1376,13 +1376,14 @@ void get_map_nonaction_inputs(void)
   pos.y.val = 0;
   pos.z.val = 0;
   player = get_my_player();
-  set_players_packet_position(player,GetMouseX(),GetMouseY());
+  TbBool coords_valid;
+  coords_valid = screen_to_map(player->acamera, GetMouseX(), GetMouseY(), &pos);
+  set_players_packet_position(player, pos.x.val, pos.y.val);
   pckt = get_packet(my_player_number);
-  unset_packet_control(pckt, PCtr_MapCoordsValid);
-  //TODO PACKET Never use screen coordinates from packet! Set map coordinates instead.
-  if (screen_to_map(player->acamera, pckt->pos_x, pckt->pos_y, &pos))
-  {
-    set_packet_control(pckt, PCtr_MapCoordsValid);
+  if (coords_valid) {
+      set_packet_control(pckt, PCtr_MapCoordsValid);
+  } else {
+      unset_packet_control(pckt, PCtr_MapCoordsValid);
   }
   if (((game.numfield_C & 0x01) == 0) && (player->view_mode == PVM_ParchmentView))
   {
