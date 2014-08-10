@@ -53,6 +53,7 @@ DLLIMPORT void _DK_maintain_transfer_creature_scroll(struct GuiButton *gbtn);
 DLLIMPORT void _DK_choose_hold_audience(struct GuiButton *gbtn);
 DLLIMPORT void _DK_choose_armageddon(struct GuiButton *gbtn);
 /******************************************************************************/
+#define resurrect_creature_items_visible  6
 struct GuiButtonInit resurrect_creature_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,200, 32, gui_area_text,                     1, 428,  0,       {0},            0, 0, NULL },
   { 0,  0, 0, 0, select_resurrect_creature,NULL,  NULL,               0, 999,  62, 999,  62,250, 26, draw_resurrect_creature,           0, 201,  0,       {0},            0, 0, maintain_resurrect_creature_select },
@@ -67,6 +68,7 @@ struct GuiButtonInit resurrect_creature_buttons[] = {
   {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       {0},            0, 0, NULL },
 };
 
+#define transfer_creature_items_visible  6
 struct GuiButtonInit transfer_creature_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,200, 32, gui_area_text,                     1, 429,  0,       {0},            0, 0, NULL },
   { 0,  0, 0, 0, select_transfer_creature,NULL,   NULL,               0, 999,  62, 999,  62,250, 26, draw_transfer_creature,            0, 201,  0,       {0},            0, 0, maintain_transfer_creature_select },
@@ -153,7 +155,6 @@ void select_resurrect_creature(struct GuiButton *gbtn)
 
 void draw_resurrect_creature(struct GuiButton *gbtn)
 {
-    //_DK_draw_resurrect_creature(gbtn);
     unsigned short flg_mem;
     flg_mem = lbDisplay.DrawFlags;
     lbDisplay.DrawFlags = Lb_SPRITE_TRANSPAR4;
@@ -164,6 +165,8 @@ void draw_resurrect_creature(struct GuiButton *gbtn)
     dungeon = get_my_dungeon();
     int i;
     i = selected_resurrect_creature(dungeon, gbtn);
+    int tx_units_per_px;
+    tx_units_per_px = ((gbtn->height*22/26) * 16) / LbTextLineHeight();
     if (i != -1)
     {
         struct CreatureStorage *cstore;
@@ -171,16 +174,15 @@ void draw_resurrect_creature(struct GuiButton *gbtn)
         struct CreatureData *crdata;
         crdata = creature_data_get(cstore->model);
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
-        LbTextDrawFmt(0/pixel_size, 0/pixel_size, " %s", cmpgn_string(crdata->namestr_idx));
+        LbTextDrawResizedFmt(0, 0, tx_units_per_px, " %s", cmpgn_string(crdata->namestr_idx));
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
-        LbTextDrawFmt(0/pixel_size, 0/pixel_size, "%s %d ", gui_string(406), cstore->explevel + 1);
+        LbTextDrawResizedFmt(0, 0, tx_units_per_px, "%s %d ", gui_string(406), cstore->explevel + 1);
     }
     lbDisplay.DrawFlags = flg_mem;
 }
 
 void select_resurrect_creature_up(struct GuiButton *gbtn)
 {
-    //_DK_select_resurrect_creature_up(gbtn);
     if (resurrect_creature_scroll_offset > 0) {
         resurrect_creature_scroll_offset--;
     }
@@ -188,10 +190,9 @@ void select_resurrect_creature_up(struct GuiButton *gbtn)
 
 void select_resurrect_creature_down(struct GuiButton *gbtn)
 {
-    //_DK_select_resurrect_creature_down(gbtn);
     struct Dungeon *dungeon;
     dungeon = get_my_dungeon();
-    if (resurrect_creature_scroll_offset < dungeon->dead_creatures_count) {
+    if (resurrect_creature_scroll_offset < dungeon->dead_creatures_count-resurrect_creature_items_visible+1) {
         resurrect_creature_scroll_offset++;
     }
 }
@@ -208,7 +209,6 @@ int selected_transfer_creature(const struct Dungeon *dungeon, const struct GuiBu
 
 void select_transfer_creature(struct GuiButton *gbtn)
 {
-    //_DK_select_transfer_creature(gbtn);
     struct Dungeon *dungeon;
     dungeon = get_my_dungeon();
     struct Thing *thing;
@@ -234,7 +234,6 @@ void draw_transfer_creature(struct GuiButton *gbtn)
     if (gbtn == NULL)
       return;
     SYNCDBG(7,"Starting");
-    //_DK_draw_transfer_creature(gbtn); return;
     flgmem = lbDisplay.DrawFlags;
     lbDisplay.DrawFlags = Lb_SPRITE_TRANSPAR4;
     LbTextSetFont(winfont);
@@ -248,6 +247,8 @@ void draw_transfer_creature(struct GuiButton *gbtn)
     thing = INVALID_THING;
     int listitm_idx;
     listitm_idx = selected_transfer_creature(dungeon, gbtn);
+    int tx_units_per_px;
+    tx_units_per_px = ((gbtn->height*22/26) * 16) / LbTextLineHeight();
     if (listitm_idx != -1)
     {
         thing = get_player_list_nth_creature_of_model(dungeon->creatr_list_start, 0, listitm_idx);
@@ -259,16 +260,15 @@ void draw_transfer_creature(struct GuiButton *gbtn)
         const struct CreatureData *crdata;
         crdata = creature_data_get_from_thing(thing);
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
-        LbTextDrawFmt(0/pixel_size, 0/pixel_size, " %s", cmpgn_string(crdata->namestr_idx));
+        LbTextDrawResizedFmt(0, 0, tx_units_per_px, " %s", cmpgn_string(crdata->namestr_idx));
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
-        LbTextDrawFmt(0/pixel_size, 0/pixel_size, "%s %d ", gui_string(406), (int)(cctrl->explevel+1));
+        LbTextDrawResizedFmt(0, 0, tx_units_per_px, "%s %d ", gui_string(406), (int)(cctrl->explevel+1));
     }
     lbDisplay.DrawFlags = flgmem;
 }
 
 void select_transfer_creature_up(struct GuiButton *gbtn)
 {
-    //_DK_select_transfer_creature_up(gbtn);
     if (transfer_creature_scroll_offset > 0) {
         transfer_creature_scroll_offset--;
     }
@@ -276,17 +276,15 @@ void select_transfer_creature_up(struct GuiButton *gbtn)
 
 void select_transfer_creature_down(struct GuiButton *gbtn)
 {
-    //_DK_select_transfer_creature_down(gbtn);
     struct Dungeon *dungeon;
     dungeon = get_my_dungeon();
-    if (transfer_creature_scroll_offset < dungeon->num_active_creatrs) {
+    if (transfer_creature_scroll_offset < dungeon->num_active_creatrs-transfer_creature_items_visible+1) {
         transfer_creature_scroll_offset++;
     }
 }
 
 void maintain_resurrect_creature_select(struct GuiButton *gbtn)
 {
-    //_DK_maintain_resurrect_creature_select(gbtn);
     struct Dungeon *dungeon;
     dungeon = get_my_dungeon();
     gbtn->flags ^= (gbtn->flags ^ 8 * (resurrect_creature_scroll_offset + gbtn->field_1B < dungeon->dead_creatures_count)) & 0x08;
@@ -299,25 +297,26 @@ void maintain_resurrect_creature_scroll(struct GuiButton *gbtn)
     dungeon = get_my_dungeon();
     int count;
     count = dungeon->dead_creatures_count;
-    if (resurrect_creature_scroll_offset >= count)
+    if (resurrect_creature_scroll_offset >= count-resurrect_creature_items_visible+1)
     {
-        if (count > 0) {
-            resurrect_creature_scroll_offset = count - 1;
+        if (count > resurrect_creature_items_visible) {
+            resurrect_creature_scroll_offset = count-resurrect_creature_items_visible+1;
+        } else {
+            resurrect_creature_scroll_offset = 0;
         }
     }
     if (gbtn->field_1B == 1) {
         gbtn->flags ^= (gbtn->flags ^ 8 * (resurrect_creature_scroll_offset > 0)) & 0x08;
     } else {
-        gbtn->flags ^= (gbtn->flags ^ 8 * (resurrect_creature_scroll_offset < count-1)) & 0x08;
+        gbtn->flags ^= (gbtn->flags ^ 8 * (resurrect_creature_scroll_offset < count-resurrect_creature_items_visible+1)) & 0x08;
     }
 }
 
 void maintain_transfer_creature_select(struct GuiButton *gbtn)
 {
-    //_DK_maintain_transfer_creature_select(gbtn);
     struct Dungeon *dungeon;
     dungeon = get_my_dungeon();
-    gbtn->flags ^= (gbtn->flags ^ 8 * (transfer_creature_scroll_offset + gbtn->field_1B < dungeon->num_active_creatrs)) & 0x08;
+    gbtn->flags ^= (gbtn->flags ^ 8 * (transfer_creature_scroll_offset + gbtn->field_1B < dungeon->num_active_creatrs-transfer_creature_items_visible+1)) & 0x08;
 }
 
 void maintain_transfer_creature_scroll(struct GuiButton *gbtn)
@@ -327,16 +326,18 @@ void maintain_transfer_creature_scroll(struct GuiButton *gbtn)
     dungeon = get_my_dungeon();
     int count;
     count = dungeon->num_active_creatrs;
-    if (transfer_creature_scroll_offset >= count)
+    if (transfer_creature_scroll_offset > count-transfer_creature_items_visible+1)
     {
-        if (count > 0) {
-            transfer_creature_scroll_offset = count - 1;
+        if (count > transfer_creature_items_visible) {
+            transfer_creature_scroll_offset = count-transfer_creature_items_visible+1;
+        } else {
+            transfer_creature_scroll_offset = 0;
         }
     }
     if (gbtn->field_1B == 1) {
         gbtn->flags ^= (gbtn->flags ^ 8 * (transfer_creature_scroll_offset > 0)) & 0x08;
     } else {
-        gbtn->flags ^= (gbtn->flags ^ 8 * (transfer_creature_scroll_offset < count-1)) & 0x08;
+        gbtn->flags ^= (gbtn->flags ^ 8 * (transfer_creature_scroll_offset < count-transfer_creature_items_visible+1)) & 0x08;
     }
 }
 

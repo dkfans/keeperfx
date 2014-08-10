@@ -166,35 +166,15 @@ const struct MyLookup lookup[] = {
 };
 
 /******************************************************************************/
-DLLIMPORT long _DK_task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask);
-DLLIMPORT long _DK_task_dig_room(struct Computer2 *comp, struct ComputerTask *ctask);
-DLLIMPORT long _DK_task_check_room_dug(struct Computer2 *comp, struct ComputerTask *ctask);
-DLLIMPORT long _DK_task_place_room(struct Computer2 *comp, struct ComputerTask *ctask);
-DLLIMPORT long _DK_task_dig_to_entrance(struct Computer2 *comp, struct ComputerTask *ctask);
-//DLLIMPORT long _DK_task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask);
 DLLIMPORT long _DK_task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask);
 DLLIMPORT long _DK_task_magic_call_to_arms(struct Computer2 *comp, struct ComputerTask *ctask);
 DLLIMPORT long _DK_task_pickup_for_attack(struct Computer2 *comp, struct ComputerTask *ctask);
-DLLIMPORT long _DK_task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *ctask);
-DLLIMPORT long _DK_task_move_creature_to_pos(struct Computer2 *comp, struct ComputerTask *ctask);
-DLLIMPORT long _DK_task_move_creatures_to_defend(struct Computer2 *comp, struct ComputerTask *ctask);
-DLLIMPORT long _DK_task_slap_imps(struct Computer2 *comp, struct ComputerTask *ctask);
 DLLIMPORT long _DK_task_dig_to_neutral(struct Computer2 *comp, struct ComputerTask *ctask);
 DLLIMPORT long _DK_task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask);
-DLLIMPORT long _DK_task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask);
-DLLIMPORT long _DK_task_attack_magic(struct Computer2 *comp, struct ComputerTask *ctask);
 DLLIMPORT long _DK_task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctask);
-DLLIMPORT struct ComputerTask *_DK_get_task_in_progress(struct Computer2 *comp, long basestl_y);
 DLLIMPORT struct ComputerTask *_DK_get_free_task(struct Computer2 *comp, long basestl_y);
-DLLIMPORT short _DK_fake_dump_held_creatures_on_map(struct Computer2 *comp, struct Thing *thing, struct Coord3d *pos);
-DLLIMPORT long _DK_fake_place_thing_in_power_hand(struct Computer2 *comp, struct Thing *thing, struct Coord3d *pos);
-DLLIMPORT struct Thing *_DK_find_creature_to_be_placed_in_room(struct Computer2 *comp, struct Room **roomp);
-DLLIMPORT short _DK_game_action(char basestl_x, unsigned short basestl_y, unsigned short plyr_idx, unsigned short a4,
- unsigned short a5, unsigned short a6, unsigned short perfect);
-DLLIMPORT short _DK_tool_dig_to_pos2(struct Computer2 *, struct ComputerDig *, long, long);
 DLLIMPORT long _DK_add_to_trap_location(struct Computer2 *, struct Coord3d *);
 //DLLIMPORT long _DK_find_next_gold(struct Computer2 *, struct ComputerTask *);
-DLLIMPORT long _DK_check_for_gold(long simulation, long digflags, long l3);
 DLLIMPORT int _DK_search_spiral(struct Coord3d *pos, int owner, int i3, long (*cb)(long, long, long));
 DLLIMPORT struct ComputerTask * _DK_able_to_build_room(struct Computer2 *comp, struct Coord3d *pos, unsigned short width_slabs, unsigned short height_slabs, long a5, long a6, long perfect);
 DLLIMPORT struct Thing *_DK_find_creature_for_pickup(struct Computer2 *comp, struct Coord3d *pos, struct Room *room, long best_score);
@@ -320,7 +300,6 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
     struct SlabMap *slb;
     struct Room *room;
     SYNCDBG(9,"Starting action %d",(int)gaction);
-    //return _DK_game_action(plyr_idx, gaction, alevel, stl_x, stl_y, param1, param2);
     if (subtile_has_slab(stl_x, stl_y)) {
         slb_x = subtile_slab_fast(stl_x);
         slb_y = subtile_slab_fast(stl_y);
@@ -454,7 +433,6 @@ struct ComputerTask *get_task_in_progress(struct Computer2 *comp, ComputerTaskTy
     struct ComputerTask *ctask;
     long i;
     unsigned long k;
-    //return _DK_get_task_in_progress(comp, a2);
     k = 0;
     i = comp->task_idx;
     while (i != 0)
@@ -499,7 +477,6 @@ struct ComputerTask *get_task_in_progress_in_list(struct Computer2 *comp, const 
     struct ComputerTask *ctask;
     long i;
     unsigned long k;
-    //return _DK_get_task_in_progress(comp, a2);
     k = 0;
     i = comp->task_idx;
     while (i != 0)
@@ -557,7 +534,6 @@ struct ComputerTask *get_free_task(struct Computer2 *comp, long a2)
 
 long get_ceiling_height_above_thing_at(struct Thing *thing, struct Coord3d *pos)
 {
-    //return _DK_get_ceiling_height_above_thing_at(thing, pos);
     int nav_sizexy;
     if (thing_is_creature(thing))
         nav_sizexy = thing_nav_sizexy(thing);
@@ -674,7 +650,6 @@ short computer_dump_held_creatures_on_map(struct Computer2 *comp, struct Thing *
     if (thing_is_creature(thing) &&(thing->active_state == CrSt_CreatureUnconscious)) {
         WARNLOG("The %s Held By computer is unconscious",creature_code_name(thing->model));
     }
-    //return _DK_fake_dump_held_creatures_on_map(comp, thing, pos);
     if (!computer_find_non_solid_block(comp, pos)) {
         return 0;
     }
@@ -711,7 +686,6 @@ short computer_dump_held_creatures_on_map(struct Computer2 *comp, struct Thing *
 long computer_place_thing_in_power_hand(struct Computer2 *comp, struct Thing *thing, struct Coord3d *pos)
 {
     SYNCDBG(9,"Starting");
-    //return _DK_fake_place_thing_in_power_hand(comp, thing, pos);
     if (!can_thing_be_picked_up_by_player(thing, comp->dungeon->owner)) {
         ERRORLOG("Computer tries to pick up %s which is not pickable", thing_model_name(thing));
         return 0;
@@ -887,7 +861,6 @@ struct Thing *find_creature_to_be_placed_in_room(struct Computer2 *comp, struct 
         ERRORLOG("Invalid dungeon in computer player.");
         return INVALID_THING;
     }
-    //return _DK_find_creature_to_be_placed_in_room(comp, roomp);
     param.ptr1 = (void *)comp;
     param.num2 = RoK_NONE; // Our filter function will update that
     filter = player_list_creature_filter_needs_to_be_placed_in_room;
@@ -932,7 +905,6 @@ void setup_computer_dig_room(struct ComputerDig *cdig, const struct Coord3d *pos
 long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
-    //return _DK_task_dig_room_passage(comp,ctask);
     struct Coord3d pos;
     struct ComputerProcess *cproc;
     switch (tool_dig_to_pos2(comp, &ctask->dig, 0, 0))
@@ -972,7 +944,6 @@ long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
 long task_dig_room(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
-    //return _DK_task_dig_room(comp,ctask);
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
     {
@@ -1110,7 +1081,6 @@ long task_check_room_dug(struct Computer2 *comp, struct ComputerTask *ctask)
         restart_task_process(comp, ctask);
         return 0;
     }
-    //return _DK_task_check_room_dug(comp,ctask);
     long waiting_slabs,wrong_slabs;
     waiting_slabs = 0; wrong_slabs = 0;
     count_slabs_where_room_cannot_be_built(comp->dungeon->owner, ctask->pos_64.x.stl.num, ctask->pos_64.y.stl.num,
@@ -1157,7 +1127,6 @@ long task_place_room(struct Computer2 *comp, struct ComputerTask *ctask)
     MapSubtlCoord stl_x, stl_y;
     int i;
     SYNCDBG(9,"Starting");
-    //return _DK_task_place_room(comp,ctask);
     dungeon = comp->dungeon;
     rkind = ctask->create_room.long_80;
     rstat = room_stats_get_for_kind(rkind);
@@ -1208,7 +1177,6 @@ long task_place_room(struct Computer2 *comp, struct ComputerTask *ctask)
 long task_dig_to_entrance(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
-    //return _DK_task_dig_to_entrance(comp,ctask);
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
     struct Room *room;
@@ -1389,7 +1357,6 @@ long other_build_here(struct Computer2 *comp, long a2, long a3, long a4, long a5
 
 struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d *pos, RoomKind rkind, long width_slabs, long height_slabs, long a6, long perfect)
 {
-    //return _DK_able_to_build_room(comp, pos, rkind, width_slabs, height_slabs, a6, perfect);
     MapSubtlCoord stl_x, stl_y;
     struct Coord3d dstpos;
     struct Coord3d startpos;
@@ -1502,7 +1469,6 @@ unsigned int small_around_index_towards_destination(long curr_x,long curr_y,long
 short get_hug_side(struct ComputerDig * cdig, MapSubtlCoord stl1_x, MapSubtlCoord stl1_y, MapSubtlCoord stl2_x, MapSubtlCoord stl2_y, unsigned short a6, PlayerNumber plyr_idx)
 {
     SYNCDBG(4,"Starting");
-    //return _DK_get_hug_side(cdig, stl1_x, stl1_y, stl2_x, stl2_y, a6, plyr_idx);
     MapSubtlCoord stl_b_x, stl_b_y;
     MapSubtlCoord stl_a_x, stl_a_y;
     int i;
@@ -1682,7 +1648,6 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
     long counter1;
     long i;
     SYNCDBG(14,"%s: Starting",func_name);
-    //return _DK_tool_dig_to_pos2(comp, cdig, simulation, digflags);
     dungeon = comp->dungeon;
     // Limit amount of calls
     cdig->calls_count++;
@@ -1827,7 +1792,6 @@ long add_to_trap_location(struct Computer2 * comp, struct Coord3d * coord)
     MapSlabCoord slb_x, slb_y;
     long i;
     SYNCDBG(6,"Starting");
-    //return _DK_add_to_trap_location(comp, coord);
     // Avoid duplicating entries
     slb_x = subtile_slab(coord->x.stl.num);
     slb_y = subtile_slab(coord->y.stl.num);
@@ -1859,7 +1823,6 @@ long check_for_gold(MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, long plyr_
     struct SlabAttr *slbattr;
     SubtlCodedCoords stl_num;
     SYNCDBG(15,"Starting");
-    //return _DK_check_for_gold(l1, l2, l3);
     basestl_x = stl_slab_center_subtile(basestl_x);
     basestl_y = stl_slab_center_subtile(basestl_y);
     stl_num = get_subtile_number(basestl_x,basestl_y);
@@ -1883,7 +1846,6 @@ int search_spiral_f(struct Coord3d *pos, PlayerNumber owner, int i3, long (*cb)(
 long find_next_gold(struct Computer2 * comp, struct ComputerTask * ctask)
 {
     SYNCDBG(5,"Starting");
-    //return _DK_find_next_gold(comp, ctask);
 
     memcpy(&ctask->dig.pos_dest, &ctask->dig.pos_next, sizeof(struct Coord3d));
 
@@ -1920,7 +1882,6 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     long i;
     SYNCDBG(2,"Starting");
-    //return _DK_task_dig_to_gold(comp,ctask);
     struct Dungeon* dungeon = comp->dungeon;
 
     i = dungeon->total_area * comp->field_1C / 100;
@@ -2038,7 +1999,6 @@ struct Thing *find_creature_for_pickup(struct Computer2 *comp, struct Coord3d *p
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
     SYNCDBG(8,"Starting");
-    //return _DK_find_creature_for_pickup(comp, pos, room, a4);
     MapSubtlCoord stl_x, stl_y;
     stl_x = 0;
     stl_y = 0;
@@ -2215,7 +2175,6 @@ long count_creatures_for_pickup(struct Computer2 *comp, struct Coord3d *pos, str
 long task_pickup_for_attack(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(19,"Starting");
-    //return _DK_task_pickup_for_attack(comp,ctask);
     if (game.play_gameturn - ctask->created_turn > 7500)
     {
         remove_task(comp, ctask);
@@ -2283,7 +2242,6 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
     struct Coord3d pos;
     long i;
     SYNCDBG(19,"Starting");
-    //return _DK_task_move_creature_to_room(comp,ctask);
     room = INVALID_ROOM;
     thing = thing_get(comp->held_thing_idx);
     if (!thing_is_invalid(thing))
@@ -2341,7 +2299,6 @@ long task_move_creature_to_pos(struct Computer2 *comp, struct ComputerTask *ctas
 {
     struct Dungeon *dungeon;
     SYNCDBG(19,"Starting");
-    //return _DK_task_move_creature_to_pos(comp,ctask);
     dungeon = comp->dungeon;
     struct Thing *thing;
     thing = thing_get(comp->held_thing_idx);
@@ -2437,7 +2394,6 @@ long task_move_creatures_to_defend(struct Computer2 *comp, struct ComputerTask *
 {
     SYNCDBG(19,"Starting");
     struct Thing *thing;
-    //return _DK_task_move_creatures_to_defend(comp,ctask);
     thing = thing_get(comp->held_thing_idx);
     // If the heart is just being destroyed - dump held thing and finish task
     if (player_cannot_win(comp->dungeon->owner))
@@ -2489,7 +2445,6 @@ long task_slap_imps(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     struct Dungeon *dungeon;
     SYNCDBG(9,"Starting");
-    //return _DK_task_slap_imps(comp,ctask);
     dungeon = comp->dungeon;
     ctask->attack_magic.repeat_num--;
     if (ctask->attack_magic.repeat_num >= 0)
@@ -2550,7 +2505,6 @@ long task_slap_imps(struct Computer2 *comp, struct ComputerTask *ctask)
 long task_dig_to_neutral(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
-    //return _DK_task_dig_to_neutral(comp,ctask);
     int i;
     short digret;
     digret = tool_dig_to_pos2(comp, &ctask->dig, 0, 0);
@@ -2582,7 +2536,6 @@ long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask)
 long task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
-    //return _DK_task_wait_for_bridge(comp,ctask);
     if (game.play_gameturn - ctask->created_turn > 7500)
     {
         restart_task_process(comp, ctask);
@@ -2633,7 +2586,6 @@ long task_attack_magic(struct Computer2 *comp, struct ComputerTask *ctask)
     struct Thing *thing;
     long i;
     SYNCDBG(9,"Starting");
-    //return _DK_task_attack_magic(comp,ctask);
     dungeon = comp->dungeon;
     thing = thing_get(ctask->attack_magic.target_thing_idx);
     if (thing_is_invalid(thing)) {
@@ -2673,7 +2625,6 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
         return 0;
     }
     SYNCDBG(19,"Starting for player %d",(int)dungeon->owner);
-    //return _DK_task_sell_traps_and_doors(comp,ctask);
     if ((ctask->sell_traps_doors.gold_gain <= ctask->sell_traps_doors.gold_gain_limit) && (dungeon->total_money_owned <= ctask->sell_traps_doors.total_money_limit))
     {
         i = 0;
@@ -3207,7 +3158,6 @@ long process_tasks(struct Computer2 *comp)
     long ndone;
     long i,n;
     unsigned long k;
-    //return _DK_process_tasks(comp);
     ndone = 0;
     k = 0;
     i = comp->task_idx;
