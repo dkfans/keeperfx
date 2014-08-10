@@ -42,6 +42,7 @@
 #include "game_lghtshdw.h"
 #include "game_heap.h"
 #include "kjm_input.h"
+#include "gui_draw.h"
 #include "front_simple.h"
 #include "frontend.h"
 #include "vidmode.h"
@@ -1640,9 +1641,65 @@ void draw_iso_only_fastview_mapwho(struct Camera *cam, struct JontySpr *spr)
       draw_fastview_mapwho(cam, spr);
 }
 
+void draw_room_flag_top(long x, long y, const struct Room *room)
+{
+    unsigned long flg_mem;
+    flg_mem = lbDisplay.DrawFlags;
+    int bar_fill;
+    int bar_empty;
+    struct TbSprite *spr;
+    spr = &gui_panel_sprites[303];
+    LbSpriteDraw(x / pixel_size, y / pixel_size, spr);
+    spr = &gui_panel_sprites[room_info[room->kind].field_2];
+    bar_fill = LbSpriteDraw((x - 2) / pixel_size, (y - 4) / pixel_size, spr);
+    bar_empty = 0;
+    if (room->slabs_count > 0)
+    {
+        bar_fill = 10 * room->field_C / room->slabs_count;
+        bar_empty = 10 - bar_fill;
+    }
+    LbDrawBox((x + 2 * (26 - bar_empty)) / pixel_size, (y + 8) / pixel_size, 2 * bar_empty / pixel_size, 4 / pixel_size, colours[0][0][0]);
+    bar_empty = 0;
+    if (room->total_capacity > 0)
+    {
+        bar_fill = 10 * room->used_capacity / room->total_capacity;
+        bar_empty = 10 - bar_fill;
+    }
+    LbDrawBox((x + 2 * (26 - bar_empty)) / pixel_size, (y + 16) / pixel_size, 2 * bar_empty / pixel_size, 4 / pixel_size, colours[0][0][0]);
+    bar_empty = 0;
+    {
+        bar_fill = 10 * room->efficiency / 256;
+        bar_empty = 10 - bar_fill;
+    }
+    LbDrawBox((x + 2 * (26 - bar_empty)) / pixel_size, (y + 24) / pixel_size, 2 * bar_empty / pixel_size, 4 / pixel_size, colours[0][0][0]);
+    lbDisplay.DrawFlags = flg_mem;
+}
+
 void draw_engine_room_flag_top(struct RoomFlag *rflg)
 {
-    _DK_draw_engine_room_flag_top(rflg);
+    //_DK_draw_engine_room_flag_top(rflg);
+    lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
+    struct Room *room;
+    room = room_get(rflg->lvl);
+    if (!room_exists(room) || !room_can_have_ensign(room->kind)) {
+        return;
+    }
+    struct PlayerInfo *myplyr;
+    myplyr = get_my_player();
+    struct Camera *cam;
+    cam = myplyr->acamera;
+
+    int zoom;
+    if ((cam->field_6 == 2) || (cam->field_6 == 5))
+    {
+      if (settings.field_8)
+      {
+        zoom = cam->zoom / pixel_size;
+        if (cam->field_6 == 5)
+          zoom = 4094;
+        draw_room_flag_top(rflg->x, rflg->y - pixel_size * (zoom << 7 >> 13), room);
+      }
+    }
 }
 
 void draw_stripey_line(long a1, long a2, long a3, long a4, unsigned char a5)
