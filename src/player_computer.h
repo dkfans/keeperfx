@@ -349,7 +349,7 @@ struct ComputerTask { // sizeof = 148
     struct {
         /* Amount of gold piles/pots to move */
         long items_amount;
-        short field_74;
+        short room_idx;
         long gold_gain;
         short field_7A;
         long gold_gain_limit;

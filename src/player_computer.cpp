@@ -1012,8 +1012,8 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
       }
     }
 
-    // Try selling traps and doors
     dungeon = comp->dungeon;
+    // Try selling traps and doors
     if ((dungeon->creatures_total_pay > dungeon->total_money_owned) && dungeon_has_room(dungeon, RoK_WORKSHOP))
     {
         if (!is_task_in_progress(comp, CTT_SellTrapsAndDoors))
@@ -1023,12 +1023,23 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
             }
         }
     }
-    if (3*dungeon->creatures_total_pay/2 <= dungeon->total_money_owned)
-      return ret;
-
-    // Move creatures away from rooms which costs a lot
-    if (computer_pick_expensive_job_creatures_and_place_on_lair(comp, 3) > 0)
-        ret = 1;
+    // Move creatures away from rooms which cost a lot to use
+    if (3*dungeon->creatures_total_pay/2 > dungeon->total_money_owned)
+    {
+        if (computer_pick_expensive_job_creatures_and_place_on_lair(comp, 3) > 0) {
+            ret = 1;
+        }
+    }
+    // Move any gold laying around to treasure room
+    if ((2*dungeon->creatures_total_pay > dungeon->total_money_owned) && dungeon_has_room(dungeon, RoK_TREASURE))
+    {
+        if (!is_task_in_progress(comp, CTT_MoveGoldToTreasury))
+        {
+            if (create_task_move_gold_to_treasury(comp, 10, 2*dungeon->creatures_total_pay)) {
+                ret = 1;
+            }
+        }
+    }
     return ret;
 }
 
