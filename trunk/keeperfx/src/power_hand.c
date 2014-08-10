@@ -920,6 +920,56 @@ int dump_all_held_things_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapS
     return k;
 }
 
+/**
+ * Dumps bugged things which think they are in hand.
+ * @param plyr_idx
+ * @param stl_x
+ * @param stl_y
+ * @return
+ */
+void dump_things_lost_in_limbo_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    SYNCDBG(7,"Starting");
+    struct Thing *thing;
+    unsigned long k;
+    long i;
+    i = game.thing_lists[TngList_Creatures].index;
+    k = 0;
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+          ERRORLOG("Jump to invalid thing detected");
+          break;
+        }
+        i = thing->next_of_class;
+        // Per-thing code
+        if ((thing->alloc_flags & TAlF_IsInLimbo) != 0)
+        {
+            if (thing->owner == dungeon->owner)
+            {
+                ERRORLOG("The %s index %d owner %d was stuck in limbo",thing_model_name(thing),(int)thing->index,(int)thing->owner);
+                struct Coord3d locpos;
+                locpos.z.val = 0;
+                locpos.x.val = subtile_coord_center(stl_x);
+                locpos.y.val = subtile_coord_center(stl_y);
+                locpos.z.val = get_thing_height_at(thing, &locpos);
+                drop_held_thing_on_ground(dungeon, thing, stl_x, stl_y);
+            }
+        }
+        // Per-thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping things list");
+          break;
+        }
+    }
+}
+
 void clear_things_in_hand(struct PlayerInfo *player)
 {
   struct Dungeon *dungeon;
