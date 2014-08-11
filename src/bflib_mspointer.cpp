@@ -84,8 +84,8 @@ long PointerDraw(long x, long y, struct TbSprite *spr, TbPixel *outbuf, unsigned
 {
     unsigned int dwidth,dheight;
     // Prepare bounds
-    dwidth = spr->SWidth*units_per_pixel/16;
-    dheight = spr->SHeight*units_per_pixel/16;
+    dwidth = (spr->SWidth*units_per_pixel)/16;
+    dheight = (spr->SHeight*units_per_pixel)/16;
     if ( (dwidth <= 0) || (dheight <= 0) )
         return 1;
     if ( (lbDisplay.MouseWindowWidth <= 0) || (lbDisplay.MouseWindowHeight <= 0) )
@@ -191,8 +191,8 @@ void LbI_PointerHandler::Initialise(struct TbSprite *spr, struct TbPoint *npos, 
     LbSemaLock semlock(&sema_rel,0);
     semlock.Lock(true);
     sprite = spr;
-    dstwidth = sprite->SWidth*units_per_pixel/16;
-    dstheight = sprite->SHeight*units_per_pixel/16;
+    dstwidth = (sprite->SWidth*units_per_pixel + 16)/16;
+    dstheight = (sprite->SHeight*units_per_pixel + 16)/16;
     LbScreenSurfaceCreate(&surf1, dstwidth, dstheight);
     LbScreenSurfaceCreate(&surf2, dstwidth, dstheight);
     surfbuf = LbScreenSurfaceLock(&surf1);
@@ -271,8 +271,8 @@ void LbI_PointerHandler::NewMousePos(void)
     this->draw_pos_x = position->x - spr_offset->x*units_per_pixel/16;
     this->draw_pos_y = position->y - spr_offset->y*units_per_pixel/16;
     int dstwidth, dstheight;
-    dstwidth = sprite->SWidth*units_per_pixel/16;
-    dstheight = sprite->SHeight*units_per_pixel/16;
+    dstwidth = (sprite->SWidth*units_per_pixel)/16;
+    dstheight = (sprite->SHeight*units_per_pixel)/16;
     LbSetRect(&rect_1038, 0, 0, dstwidth, dstheight);
     if (this->draw_pos_x < 0)
     {
