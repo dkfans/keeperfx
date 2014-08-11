@@ -57,7 +57,7 @@ class LbI_PointerHandler {
     // Properties
     struct SSurface surf1;
     struct SSurface surf2;
-    unsigned char sprite_data[4096];
+    //unsigned char sprite_data[4096];
     struct TbPoint *position;
     struct TbPoint *spr_offset;
     struct TbRect rect_1038;
