@@ -1488,6 +1488,8 @@ void gui_area_anger_button(struct GuiButton *gbtn)
     else
         crmodel = get_players_special_digger_model(my_player_number);
     // Get scale factor
+    int units_per_px;
+    units_per_px = (gbtn->width * 16 + 32/2) / 32;
     int ps_units_per_px;
     ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, 288, 113);
     // Now draw the button
@@ -1519,10 +1521,10 @@ void gui_area_anger_button(struct GuiButton *gbtn)
         }
         if ((gbtn->gbactn_1) || (gbtn->gbactn_2))
         {
-          draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y-2, ps_units_per_px, spridx, 12);
+          draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y-2*units_per_px/16, ps_units_per_px, spridx, 12);
         } else
         {
-          draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y-2, ps_units_per_px, spridx);
+          draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y-2*units_per_px/16, ps_units_per_px, spridx);
         }
         if (gbtn->content != NULL)
         {
