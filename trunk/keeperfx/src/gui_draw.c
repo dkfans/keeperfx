@@ -498,11 +498,13 @@ void draw_button_string(struct GuiButton *gbtn, int base_width, char *text)
         LbLocTextStringInsert(text, "\x0B", cursor_pos+1, TEXT_BUFFER_LENGTH);
         LbLocTextStringInsert(text, "\x0B", cursor_pos, TEXT_BUFFER_LENGTH);
     }
+    int units_per_px;
+    units_per_px = (gbtn->width * 16 + base_width/2) / base_width;
     int tx_units_per_px;
-    tx_units_per_px = (gbtn->width * 16 + base_width/2) / base_width;
+    tx_units_per_px = units_per_px*22/LbTextLineHeight();
     unsigned long w,h;
-    w = 4 * tx_units_per_px / 16;
-    h = (gbtn->height - text_string_height(tx_units_per_px, text))/2 - 4*tx_units_per_px/16;
+    w = 4 * units_per_px / 16;
+    h = (gbtn->height - text_string_height(tx_units_per_px, text))/2 - 3*units_per_px/16;
     LbTextDrawResized(w, h, tx_units_per_px, text);
     LbTextSetJustifyWindow(0, 0, LbGraphicsScreenWidth());
     LbTextSetClipWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
