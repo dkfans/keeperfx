@@ -1091,7 +1091,7 @@ int add_high_score_entry(unsigned long score, LevelNumber lvnum, const char *nam
         if (k >= 0)
             break;
     }
-    WARNMSG("New entry index %d, overwrite index %d",(int)dest_idx,(int)overwrite_idx);
+    SYNCDBG(4,"New high score entry index %d, overwrite index %d",(int)dest_idx,(int)overwrite_idx);
     // In case nothing was found to overwrite
     if (overwrite_idx < 10) {
         overwrite_idx = campaign.hiscore_count;
