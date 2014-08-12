@@ -198,102 +198,102 @@ void frontend_quit_high_score_table(struct GuiButton *gbtn)
 
 TbBool frontend_high_score_table_input(void)
 {
-  struct HighScore *hscore;
-  char chr;
-  long i;
-  if (high_score_entry_input_active >= campaign.hiscore_count)
-    return false;
-  if (lbInkey == KC_BACK)
-  {
-      if (high_score_entry_index > 0)
-      {
-          i = high_score_entry_index-1;
-          high_score_entry[i] = '\0';
-          high_score_entry_index = i;
-      }
-      lbInkey = KC_UNASSIGNED;
-      return true;
-  }
-  if (lbInkey == KC_DELETE)
-  {
-      i = high_score_entry_index;
-      while (high_score_entry[i] != '\0')
-      {
-          high_score_entry[i] = high_score_entry[i+1];
-          i++;
-      }
-      lbInkey = KC_UNASSIGNED;
-      return true;
-  }
-  if ((lbInkey == KC_RETURN) || (lbInkey == KC_NUMPADENTER) || (lbInkey == KC_ESCAPE))
-  {
-      hscore = &campaign.hiscore_table[high_score_entry_input_active];
-      if (lbInkey == KC_ESCAPE)
-          strncpy(hscore->name, gui_string(442), HISCORE_NAME_LENGTH);
-      else
-          strncpy(hscore->name, high_score_entry, HISCORE_NAME_LENGTH);
-      high_score_entry_input_active = -1;
-      save_high_score_table();
-      lbInkey = KC_UNASSIGNED;
-      return true;
-  }
-  if (high_score_entry_index < HISCORE_NAME_LENGTH)
-  {
-    chr = key_to_ascii(lbInkey, key_modifiers);
-    if (chr != 0)
+    struct HighScore *hscore;
+    char chr;
+    long i;
+    if (high_score_entry_input_active >= campaign.hiscore_count)
+      return false;
+    if (lbInkey == KC_BACK)
     {
-      LbTextSetFont(frontend_font[1]);
-      i = LbTextCharWidth(chr);
-      if ((i > 0) && (i+LbTextStringWidth(high_score_entry) < 308))
-      {
-        high_score_entry[high_score_entry_index] = chr;
-        i = high_score_entry_index+1;
-        high_score_entry[i] = 0;
-        high_score_entry_index = i;
+        if (high_score_entry_index > 0)
+        {
+            i = high_score_entry_index-1;
+            high_score_entry[i] = '\0';
+            high_score_entry_index = i;
+        }
         lbInkey = KC_UNASSIGNED;
         return true;
+    }
+    if (lbInkey == KC_DELETE)
+    {
+        i = high_score_entry_index;
+        while (high_score_entry[i] != '\0')
+        {
+            high_score_entry[i] = high_score_entry[i+1];
+            i++;
+        }
+        lbInkey = KC_UNASSIGNED;
+        return true;
+    }
+    if ((lbInkey == KC_RETURN) || (lbInkey == KC_NUMPADENTER) || (lbInkey == KC_ESCAPE))
+    {
+        hscore = &campaign.hiscore_table[high_score_entry_input_active];
+        if (lbInkey == KC_ESCAPE)
+            strncpy(hscore->name, gui_string(442), HISCORE_NAME_LENGTH);
+        else
+            strncpy(hscore->name, high_score_entry, HISCORE_NAME_LENGTH);
+        high_score_entry_input_active = -1;
+        save_high_score_table();
+        lbInkey = KC_UNASSIGNED;
+        return true;
+    }
+    if (high_score_entry_index < HISCORE_NAME_LENGTH)
+    {
+      chr = key_to_ascii(lbInkey, key_modifiers);
+      if (chr != 0)
+      {
+        LbTextSetFont(frontend_font[1]);
+        i = LbTextCharWidth(chr);
+        if ((i > 0) && (i+LbTextStringWidth(high_score_entry) < 308))
+        {
+          high_score_entry[high_score_entry_index] = chr;
+          i = high_score_entry_index+1;
+          high_score_entry[i] = 0;
+          high_score_entry_index = i;
+          lbInkey = KC_UNASSIGNED;
+          return true;
+        }
       }
     }
-  }
-  return false;
+    return false;
 }
 
 void frontend_maintain_high_score_ok_button(struct GuiButton *gbtn)
 {
-  set_flag_byte(&gbtn->flags, LbBtnF_Unknown08, (high_score_entry_input_active == -1));
+    set_flag_byte(&gbtn->flags, LbBtnF_Unknown08, (high_score_entry_input_active == -1));
 }
 
 void add_score_to_high_score_table(void)
 {
-  struct Dungeon *dungeon;
-  struct PlayerInfo *player;
-  int idx;
-  player = get_my_player();
-  dungeon = get_players_dungeon(player);
-  idx = add_high_score_entry(dungeon->lvstats.player_score, get_loaded_level_number(), "");
-  if (idx >= 0)
-  {
-    // Preparing input in the new entry
-    // Note that we're not clearing previous name - this way it may be easily kept unchanged
-    high_score_entry_input_active = idx;
-    high_score_entry_index = strlen(high_score_entry);
-  } else
-  {
-    high_score_entry_input_active = -1;
-    high_score_entry_index = 0;
-  }
+    struct Dungeon *dungeon;
+    struct PlayerInfo *player;
+    int idx;
+    player = get_my_player();
+    dungeon = get_players_dungeon(player);
+    idx = add_high_score_entry(dungeon->lvstats.player_score, get_loaded_level_number(), "");
+    if (idx >= 0)
+    {
+        // Preparing input in the new entry
+        // Note that we're not clearing previous name - this way it may be easily kept unchanged
+        high_score_entry_input_active = idx;
+        high_score_entry_index = strlen(high_score_entry);
+    } else
+    {
+        high_score_entry_input_active = -1;
+        high_score_entry_index = 0;
+    }
 }
 
 void frontstats_save_high_score(void)
 {
-  struct Dungeon *dungeon;
-  dungeon = get_players_num_dungeon(my_player_number);
-  if (dungeon->lvstats.allow_save_score)
-  {
-    dungeon->lvstats.allow_save_score = false;
-    add_score_to_high_score_table();
-  }
-  lbInkey = 0;
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(my_player_number);
+    if (dungeon->lvstats.allow_save_score)
+    {
+        dungeon->lvstats.allow_save_score = false;
+        add_score_to_high_score_table();
+    }
+    lbInkey = 0;
 }
 
 /******************************************************************************/
