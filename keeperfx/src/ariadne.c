@@ -2243,7 +2243,47 @@ TbBool delete_point(long pt_tri, long pt_cor)
 
 void edgelen_set(long tri_id)
 {
-    _DK_edgelen_set(tri_id);
+    NAVIDBG(19,"Starting");
+    //_DK_edgelen_set(tri_id); return;
+    static const unsigned long EdgeLenBits[][4] = {
+        {1, 1, 2, 3},
+        {1, 1, 2, 3},
+        {2, 2, 2, 3},
+        {3, 3, 3, 3}
+    };
+    struct Triangle *tri;
+    tri = &Triangles[tri_id];
+    int pt0idx;
+    int pt2idx;
+    pt2idx = tri->points[2];
+    pt0idx = tri->points[0];
+    int delta_x, delta_y;
+    delta_x = abs(Points[pt2idx].x - Points[pt0idx].x);
+    delta_y = abs(Points[pt2idx].y - Points[pt0idx].y);
+    if (delta_x > 3)
+        delta_x = 3;
+    if (delta_y > 3)
+        delta_y = 3;
+    unsigned long edge_len;
+    edge_len = (EdgeLenBits[delta_y][delta_x] << 4);
+    int pt1idx;
+    pt1idx = tri->points[1];
+    delta_x = abs(Points[pt1idx].x - Points[pt2idx].x);
+    delta_y = abs(Points[pt1idx].y - Points[pt2idx].y);
+    if (delta_x > 3)
+        delta_x = 3;
+    if (delta_y > 3)
+        delta_y = 3;
+    edge_len |= (EdgeLenBits[delta_y][delta_x] << 2);
+    delta_x = abs(Points[pt0idx].x - Points[pt1idx].x);
+    delta_y = abs(Points[pt0idx].y - Points[pt1idx].y);
+    if (delta_x > 3)
+        delta_x = 3;
+    if (delta_y > 3)
+        delta_y = 3;
+    edge_len |= (EdgeLenBits[delta_y][delta_x] << 0);
+    tri->field_E &= ~0x003F;
+    tri->field_E |= edge_len;
 }
 
 long tri_split3(long btri_id, long pt_x, long pt_y)
