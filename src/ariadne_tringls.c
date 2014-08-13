@@ -193,13 +193,15 @@ long point_loop(long pt_tri, long pt_cor)
     k = 0;
     do
     {
-      n = Triangles[ntri].tags[ncor];
-      i = link_find(n, ntri);
-      if (i < 0)
-          return -1;
-      ncor = MOD3[i+1];
-      ntri = n;
-      k++;
+        n = Triangles[ntri].tags[ncor];
+        i = link_find(n, ntri);
+        if (i < 0)
+            return -1;
+        ncor = MOD3[i+1];
+        ntri = n;
+        k++;
+        if (k > TRIANLGLES_COUNT)
+            return -1;
     } while (n != pt_tri);
     return k;
 }

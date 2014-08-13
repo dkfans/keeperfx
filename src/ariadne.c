@@ -96,7 +96,7 @@ DLLIMPORT long _DK_ariadne_push_position_against_wall(struct Thing *thing, const
 DLLIMPORT void _DK_fill_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned char pt_id1);
 DLLIMPORT long _DK_triangle_area1(long tri_id1);
 DLLIMPORT void _DK_brute_fill_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned char pt_id1);
-DLLIMPORT void _DK_edgelen_set(long tri_id);
+DLLIMPORT void _DK_edgelen_set(long tri1_id);
 DLLIMPORT long _DK_ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos, long outfri_y2);
 DLLIMPORT void _DK_triangulation_initxy(long outfri_x1, long outfri_y1, long outfri_x2, long outfri_y2);
 DLLIMPORT void _DK_nearest_search(long size, long srcx, long srcy, long dstx, long dsty, long *px, long *py);
@@ -2200,47 +2200,6 @@ long make_3or4point(long *pt_tri, long *pt_cor)
     return n;
 }
 
-long delete_4point(long a1, long a2)
-{
-    //Note: uses LbCompareMultiplications()
-    return _DK_delete_4point(a1, a2);
-}
-
-long delete_3point(long a1, long a2)
-{
-    return _DK_delete_3point(a1, a2);
-}
-
-TbBool delete_point(long pt_tri, long pt_cor)
-{
-    long n;
-    long ntri,ncor;
-    ntri = pt_tri;
-    ncor = pt_cor;
-    n = make_3or4point(&ntri, &ncor);
-    if (n <= 0)
-    {
-        ERRORLOG("make_3or4point failure");
-        return false;
-    }
-    if (n == 4)
-    {
-        if (!delete_4point(ntri, ncor))
-        {
-          ERRORLOG("variant 4 fails");
-          return false;
-        }
-    } else
-    {
-        if (!delete_3point(ntri, ncor))
-        {
-          ERRORLOG("variant 3 fails");
-          return false;
-        }
-    }
-    return true;
-}
-
 void edgelen_set(long tri_id)
 {
     NAVIDBG(19,"Starting");
@@ -2284,6 +2243,168 @@ void edgelen_set(long tri_id)
     edge_len |= (EdgeLenBits[delta_y][delta_x] << 0);
     tri->field_E &= ~0x003F;
     tri->field_E |= edge_len;
+}
+
+long delete_4point(long tri1_id, long cor1_id)
+{
+    //Note: uses LbCompareMultiplications()
+    //return _DK_delete_4point(tri_id, cor_id);
+    struct Triangle *tri1;
+    tri1 = &Triangles[tri1_id];
+    long del_pt_id;
+    del_pt_id = tri1->points[cor1_id];
+    long cor2_id, cor3_id, cor4_id;
+    long tri2_id, tri3_id, tri4_id;
+
+    tri2_id = tri1->tags[cor1_id];
+    cor2_id = link_find(tri2_id, tri1_id);
+    cor2_id = MOD3[cor2_id+1];
+    struct Triangle *tri2;
+    tri2 = &Triangles[tri2_id];
+
+    tri3_id = tri2->tags[cor2_id];
+    cor3_id = link_find(tri3_id, tri2_id);
+    cor3_id = MOD3[cor3_id+1];
+    struct Triangle *tri3;
+    tri3 = &Triangles[tri3_id];
+
+    tri4_id = tri3->tags[cor3_id];
+    cor4_id = link_find(tri4_id, tri3_id);
+    cor4_id = MOD3[cor4_id+1];
+    struct Triangle *tri4;
+    tri4 = &Triangles[tri4_id];
+
+    if (tri4->tags[cor4_id] != tri1_id) {
+        return false;
+    }
+
+    int nreg;
+    long tri5_id, tri6_id;
+    long cor5_id, cor6_id;
+
+    int ptA_cor, ptB_cor, ptC_cor, ptD_cor;
+    ptA_cor = tri1->points[MOD3[cor1_id+1]];
+    ptB_cor = tri3->points[MOD3[cor3_id+1]];
+
+    int diff_ax, diff_ay;
+    diff_ax = Points[ptA_cor].x - Points[ptB_cor].x;
+    diff_ay = Points[ptA_cor].y - Points[ptB_cor].y;
+    ptC_cor = tri3->points[MOD3[cor3_id+2]];
+    int diff_bx, diff_by;
+    diff_bx = Points[ptC_cor].x - Points[ptB_cor].x;
+    diff_by = Points[ptC_cor].y - Points[ptB_cor].y;
+
+    ptD_cor = tri1->points[MOD3[cor1_id + 2]];
+    int diff_cx, diff_cy;
+    diff_cx = Points[ptD_cor].x - Points[ptB_cor].x;
+    diff_cy = Points[ptD_cor].y - Points[ptB_cor].y;
+
+    if ((LbCompareMultiplications(diff_ay, diff_bx, diff_ax, diff_by) >= 0) ||
+        (LbCompareMultiplications(diff_ay, diff_cx, diff_ax, diff_cy) <= 0))
+    {
+        tri5_id = tri2->tags[MOD3[cor2_id+1]];
+        cor5_id = link_find(tri5_id, tri2_id);
+        struct Triangle *tri5;
+        tri5 = &Triangles[tri5_id];
+        tri1->points[cor1_id] = tri2->points[MOD3[cor2_id+1]];
+        tri1->tags[cor1_id] = tri5_id;
+        tri5->tags[cor5_id] = tri1_id;
+
+        tri6_id = tri4->tags[MOD3[cor4_id+1]];
+        cor6_id = link_find(tri6_id, tri4_id);
+        struct Triangle *tri6;
+        tri6 = &Triangles[tri6_id];
+        tri3->points[cor3_id] = tri4->points[MOD3[cor4_id+1]];
+        tri3->tags[cor3_id] = tri6_id;
+        tri6->tags[cor6_id] = tri3_id;
+
+        tri1->tags[MOD3[cor1_id+2]] = tri3_id;
+        tri3->tags[MOD3[cor3_id+2]] = tri1_id;
+
+        nreg = tri2->field_E >> 6;
+        if (nreg) {
+            region_unset(tri2_id, nreg);
+        }
+        nreg = tri4->field_E >> 6;
+        if (nreg) {
+            region_unset(tri4_id, nreg);
+        }
+        tri_dispose(tri2_id);
+        tri_dispose(tri4_id);
+        edgelen_set(tri1_id);
+        edgelen_set(tri3_id);
+    }
+    else
+    {
+        tri5_id = tri3->tags[MOD3[cor3_id+1]];
+        cor5_id = link_find(tri5_id, tri3_id);
+        struct Triangle *tri5;
+        tri5 = &Triangles[tri5_id];
+        tri2->points[cor2_id] = ptB_cor;
+        tri2->tags[cor2_id] = tri5_id;
+        tri5->tags[cor5_id] = tri2_id;
+
+        tri6_id = tri1->tags[MOD3[cor1_id+1]];
+        cor6_id = link_find(tri6_id, tri1_id);
+        struct Triangle *tri6;
+        tri6 = &Triangles[tri6_id];
+        tri4->points[cor4_id] = tri1->points[MOD3[cor1_id+1]];
+        tri4->tags[cor4_id] = tri6_id;
+        tri6->tags[cor6_id] = tri4_id;
+
+        tri2->tags[MOD3[cor2_id+2]] = tri4_id;
+        tri4->tags[MOD3[cor4_id+2]] = tri2_id;
+
+        nreg = tri3->field_E >> 6;
+        if (nreg) {
+            region_unset(tri3_id, nreg);
+        }
+        nreg = tri1->field_E >> 6;
+        if (nreg) {
+            region_unset(tri1_id, nreg);
+        }
+        tri_dispose(tri3_id);
+        tri_dispose(tri1_id);
+        edgelen_set(tri2_id);
+        edgelen_set(tri4_id);
+    }
+    point_dispose(del_pt_id);
+    return 1;
+}
+
+long delete_3point(long a1, long a2)
+{
+    return _DK_delete_3point(a1, a2);
+}
+
+TbBool delete_point(long pt_tri, long pt_cor)
+{
+    long n;
+    long ntri,ncor;
+    ntri = pt_tri;
+    ncor = pt_cor;
+    n = make_3or4point(&ntri, &ncor);
+    if (n <= 0)
+    {
+        ERRORLOG("make_3or4point failure");
+        return false;
+    }
+    if (n == 4)
+    {
+        if (!delete_4point(ntri, ncor))
+        {
+          ERRORLOG("variant 4 fails");
+          return false;
+        }
+    } else
+    {
+        if (!delete_3point(ntri, ncor))
+        {
+          ERRORLOG("variant 3 fails");
+          return false;
+        }
+    }
+    return true;
 }
 
 long tri_split3(long btri_id, long pt_x, long pt_y)
