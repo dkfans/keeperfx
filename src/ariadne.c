@@ -641,7 +641,18 @@ void tag_open_closed_init(void)
 
 unsigned long nav_same_component(long ptAx, long ptAy, long ptBx, long ptBy)
 {
-    return _DK_nav_same_component(ptAx, ptAy, ptBx, ptBy);
+    //return _DK_nav_same_component(ptAx, ptAy, ptBx, ptBy);
+    NAVIDBG(19,"F=%d Connect %03d,%03d %03d,%03d", game.play_gameturn, ptAx, ptAy, ptBx, ptBy);
+    long tri1_id, tri2_id;
+    tri1_id = triangle_findSE8(ptAx, ptAy);
+    tri2_id = triangle_findSE8(ptBx, ptBy);
+    if ((tree_triA == -1) || (tree_triB == -1)) {
+        ERRORLOG("triangle not found");
+    }
+    TbBool reg_con;
+    reg_con = regions_connected(tri1_id, tri2_id);
+    NAVIDBG(19,"ret %d", reg_con);
+    return reg_con;
 }
 
 TbBool navigation_points_connected(struct Coord3d *pt1, struct Coord3d *pt2)
