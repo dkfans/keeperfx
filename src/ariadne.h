@@ -247,6 +247,7 @@ void triangulation_init(void);
 void triangulation_initxy(long sx, long sy, long ex, long ey);
 long pointed_at8(long pos_x, long pos_y, long *ret_tri, long *ret_pt);
 long triangle_brute_find8_near(long pos_x, long pos_y);
+long edge_rotateAC(long a1, long a2);
 
 long thing_nav_block_sizexy(const struct Thing *thing);
 long thing_nav_sizexy(const struct Thing *thing);

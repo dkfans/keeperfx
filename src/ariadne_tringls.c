@@ -22,6 +22,7 @@
 #include "bflib_basics.h"
 #include "bflib_math.h"
 #include "ariadne_points.h"
+#include "ariadne.h"
 #include "gui_topmsg.h"
 
 #define EDGELEN_BITS 6
@@ -29,8 +30,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-/******************************************************************************/
-DLLIMPORT long _DK_edge_rotateAC(long a1, long a2);
 /******************************************************************************/
 DLLIMPORT long _DK_free_Triangles;
 #define free_Triangles _DK_free_Triangles
@@ -204,12 +203,6 @@ long point_loop(long pt_tri, long pt_cor)
             return -1;
     } while (n != pt_tri);
     return k;
-}
-
-long edge_rotateAC(long a1, long a2)
-{
-    //Note: uses LbCompareMultiplications()
-    return _DK_edge_rotateAC(a1, a2);
 }
 
 long reduce_point(long *pt_tri, long *pt_cor)
