@@ -101,6 +101,7 @@ DLLIMPORT long _DK_ariadne_check_forward_for_wallhug_gap(struct Thing *thing, st
 DLLIMPORT void _DK_triangulation_initxy(long outfri_x1, long outfri_y1, long outfri_x2, long outfri_y2);
 DLLIMPORT void _DK_nearest_search(long size, long srcx, long srcy, long dstx, long dsty, long *px, long *py);
 DLLIMPORT unsigned long _DK_nav_same_component(long ptAx, long ptAy, long ptBx, long ptBy);
+DLLIMPORT long _DK_edge_rotateAC(long a1, long a2);
 /******************************************************************************/
 DLLIMPORT long _DK_tri_initialised;
 #define tri_initialised _DK_tri_initialised
@@ -2372,9 +2373,66 @@ long delete_4point(long tri1_id, long cor1_id)
     return 1;
 }
 
-long delete_3point(long a1, long a2)
+long delete_3point(long tri1_id, long cor1_id)
 {
-    return _DK_delete_3point(a1, a2);
+    //return _DK_delete_3point(tri1_id, cor1_id);
+    struct Triangle *tri1;
+    tri1 = &Triangles[tri1_id];
+    long del_pt_id;
+    del_pt_id = tri1->points[cor1_id];
+
+    int tri2_id;
+    tri2_id = tri1->tags[cor1_id];
+    if (tri2_id == -1) {
+        return false;
+    }
+    int cor2_id;
+    cor2_id = link_find(tri2_id, tri1_id);
+    cor2_id = MOD3[cor2_id + 1];
+    struct Triangle *tri2;
+    tri2 = &Triangles[tri2_id];
+
+    long tri3_id;
+    tri3_id = tri2->tags[cor2_id];
+    if (tri3_id == -1) {
+      return false;
+    }
+    int cor3_id;
+    cor3_id = link_find(tri3_id, tri2_id);
+    cor3_id = MOD3[cor3_id+1];
+    struct Triangle *tri3;
+    tri3 = &Triangles[tri3_id];
+
+    if (tri3->tags[cor3_id] != tri1_id) {
+      return false;
+    }
+    int cor4_id, cor5_id;
+    cor4_id = tri2->tags[MOD3[cor2_id+1]];
+    cor5_id = tri3->tags[MOD3[cor3_id+1]];
+    int tri4_id, tri5_id;
+    tri4_id = link_find(cor4_id, tri2_id);
+    tri5_id = link_find(cor5_id, tri3_id);
+    tri1->points[cor1_id] = tri2->points[MOD3[cor2_id+1]];
+    tri1->tags[cor1_id] = cor4_id;
+    tri1->tags[MOD3[cor1_id+2]] = cor5_id;
+    Triangles[cor4_id].tags[tri4_id] = tri1_id;
+    Triangles[cor5_id].tags[tri5_id] = tri1_id;
+    int nreg;
+    nreg = (tri2->field_E >> 6);
+    if (nreg)
+    {
+        region_unset(tri2_id, nreg);
+    }
+    nreg = (tri3->field_E >> 6);
+    if (nreg)
+    {
+        region_unset(tri3_id, nreg);
+    }
+    tri_dispose(tri2_id);
+    tri_dispose(tri3_id);
+    edgelen_set(tri1_id);
+    point_dispose(del_pt_id);
+    return true;
 }
 
 TbBool delete_point(long pt_tri, long pt_cor)
@@ -2404,6 +2462,106 @@ TbBool delete_point(long pt_tri, long pt_cor)
           return false;
         }
     }
+    return true;
+}
+
+long edge_rotateAC(long tri1_id, long cor1_id)
+{
+    //Note: uses LbCompareMultiplications()
+    //return _DK_edge_rotateAC(tri1_id, cor1_id);
+    long tri2_id;
+    tri2_id = Triangles[tri1_id].tags[cor1_id];
+    if (tri2_id == -1) {
+        return false;
+    }
+    int cor2_id;
+    cor2_id = link_find(tri2_id, tri1_id);
+    if ( cor2_id == -1 ) {
+        ERRORLOG("lB not found");
+    }
+
+    int cor1b_id, cor2b_id, cor1c_id, cor2c_id;
+    cor1b_id = MOD3[cor1_id+1];
+    cor2b_id = MOD3[cor2_id+1];
+    cor1c_id = MOD3[cor1_id+2];
+    cor2c_id = MOD3[cor2_id+2];
+
+    long tri3_id, tri4_id;
+    tri3_id = Triangles[tri1_id].tags[cor1b_id];
+    tri4_id = Triangles[tri2_id].tags[cor2b_id];
+
+    {
+        unsigned short tri2_fld, tri1_fld;
+        tri1_fld = Triangles[tri1_id].field_D;
+        tri2_fld = Triangles[tri2_id].field_D;
+        if ( (1 << (cor1_id + 3)) & tri1_fld || ((1 << (cor2_id + 3)) & tri2_fld) ) {
+            return false;
+        }
+        Triangles[tri1_id].field_D &= ~(1 << (cor1b_id + 3));
+        Triangles[tri2_id].field_D &= ~(1 << (cor2b_id + 3));
+        Triangles[tri1_id].field_D &= ~(1 << (cor1_id + 3));
+        Triangles[tri1_id].field_D |= ((((1 << (cor2b_id + 3)) & tri2_fld) != 0) << (cor1_id + 3));
+        Triangles[tri2_id].field_D &= ~(1 << (cor2_id + 3));
+        Triangles[tri2_id].field_D |= ((((1 << (cor1b_id + 3)) & tri1_fld) != 0) << (cor2_id + 3));
+    }
+
+    int pt1_id, pt2_id, pt3_id, pt4_id;
+    pt1_id = Triangles[tri1_id].points[cor1_id];
+    pt2_id = Triangles[tri1_id].points[cor1c_id];
+    long diff_ax, diff_ay;
+    diff_ax = Points[pt1_id].x - Points[pt2_id].x;
+    diff_ay = Points[pt1_id].y - Points[pt2_id].y;
+    pt3_id = Triangles[tri2_id].points[cor2c_id];
+    long diff_bx, diff_by;
+    diff_bx = Points[pt3_id].x - Points[pt2_id].x;
+    diff_by = Points[pt3_id].y - Points[pt2_id].y;
+    if (LbCompareMultiplications(diff_ay, diff_bx, diff_ax, diff_by) <= 0) {
+        return false;
+    }
+    pt4_id = Triangles[tri2_id].points[cor2_id];
+    long diff_cx, diff_cy;
+    diff_cx = Points[pt4_id].x - Points[pt2_id].x;
+    diff_cy = Points[pt4_id].y - Points[pt2_id].y;
+    if (LbCompareMultiplications(diff_cy, diff_bx, diff_cx, diff_by) >= 0) {
+        return false;
+    }
+    Triangles[tri1_id].points[cor1b_id] = pt3_id;
+    Triangles[tri2_id].points[cor2b_id] = pt2_id;
+    Triangles[tri1_id].tags[cor1_id] = tri4_id;
+    Triangles[tri1_id].tags[cor1b_id] = tri2_id;
+    Triangles[tri2_id].tags[cor2_id] = tri3_id;
+    Triangles[tri2_id].tags[cor2b_id] = tri1_id;
+    if (tri3_id != -1)
+    {
+        int tmcor_id;
+        tmcor_id = link_find(tri3_id, tri1_id);
+        if (tmcor_id == -1) {
+            ERRORLOG("A not found");
+        }
+        Triangles[tri3_id].tags[tmcor_id] = tri2_id;
+    }
+    if (tri4_id != -1)
+    {
+        int tmcor_id;
+        tmcor_id = link_find(tri4_id, tri2_id);
+        if (tmcor_id == -1) {
+            ERRORLOG("B not found");
+        }
+        Triangles[tri4_id].tags[tmcor_id] = tri1_id;
+    }
+    unsigned short tri2_fld, tri1_fld;
+    tri1_fld = Triangles[tri1_id].field_D;
+    tri2_fld = Triangles[tri2_id].field_D;
+    Triangles[tri1_id].field_D &= ~(1 << cor1_id);
+    Triangles[tri1_id].field_D |= ((((1 << cor2b_id) & tri2_fld) != 0) << cor1_id);
+    Triangles[tri1_id].field_D &= ~(1 << cor1b_id);
+    Triangles[tri1_id].field_D |= ((((1 << cor1_id) & tri1_fld) != 0) << cor1b_id);
+    Triangles[tri2_id].field_D &= ~(1 << cor2_id);
+    Triangles[tri2_id].field_D |= ((((1 << cor1b_id) & tri1_fld) != 0) << cor2_id);
+    Triangles[tri2_id].field_D &= ~(1 << cor2b_id);
+    Triangles[tri2_id].field_D |= ((((1 << cor2_id) & tri2_fld) != 0) << cor2b_id);
+    edgelen_set(tri1_id);
+    edgelen_set(tri2_id);
     return true;
 }
 
