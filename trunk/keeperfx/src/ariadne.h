@@ -150,6 +150,15 @@ struct Navigation { // sizeof = 0x27
   struct Coord3d pos_final;
 };
 
+struct FOV { // sizeof=0x18
+    long field_0;
+    long field_4;
+    long field_8;
+    long field_C;
+    long field_10;
+    long field_14;
+};
+
 #pragma pack()
 /******************************************************************************/
 DLLIMPORT unsigned long *_DK_EdgeFit;

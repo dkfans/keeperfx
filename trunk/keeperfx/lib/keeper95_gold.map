@@ -777,6 +777,7 @@
  0006:00001834       ysteps_array
 
  0001:00065630       setup_eye_lens
+ 0001:0006A4E0       edge_points8
  0001:000DA960       LbFileOpen
  0001:000DA9F0       LbFileClose
  0001:000DAA10       LbFileSeek
