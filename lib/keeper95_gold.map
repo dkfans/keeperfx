@@ -641,6 +641,7 @@
  0001:00069FD0       brute_fill_rectangle
  0001:0006A120       fill_rectangle
  0001:0006A440       tri_set_rectangle
+ 0001:0006A4E0       edge_points8
  0001:0006A690       heap_down
  0001:0006A730       triangle_route_do_fwd
  0001:0006AB50       triangle_route_do_bak

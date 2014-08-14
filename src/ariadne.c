@@ -50,10 +50,10 @@ extern "C" {
 /******************************************************************************/
 DLLIMPORT AriadneReturn _DK_ariadne_initialise_creature_route(struct Thing *thing, struct Coord3d *pos, long ptstart_x, unsigned char ptstart_y);
 DLLIMPORT AriadneReturn _DK_creature_follow_route_to_using_gates(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2, long ptstart_y, unsigned char pt_id1);
-DLLIMPORT void _DK_path_init8_wide(struct Path *path, long start_x, long start_y, long end_x, long end_y, long a6, unsigned char nav_size);
-DLLIMPORT long _DK_route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, long *pt_id1, long a6, struct Path *path, long *a8);
+DLLIMPORT void _DK_path_init8_wide(struct Path *path, long start_x, long start_y, long end_x, long end_y, long wp_lim, unsigned char nav_size);
+DLLIMPORT long _DK_route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, long *pt_id1, long wp_lim, struct Path *path, long *a8);
 DLLIMPORT void _DK_path_out_a_bit(struct Path *path, long *ptfind_y);
-DLLIMPORT void _DK_gate_navigator_init8(struct Pathway *pway, long ptfind_y, long ptstart_x, long ptstart_y, long pt_id1, long a6, unsigned char a7);
+DLLIMPORT void _DK_gate_navigator_init8(struct Pathway *pway, long ptfind_y, long ptstart_x, long ptstart_y, long pt_id1, long wp_lim, unsigned char a7);
 DLLIMPORT void _DK_route_through_gates(struct Pathway *pway, struct Path *path, long ptstart_x);
 DLLIMPORT long _DK_triangle_findSE8(long, long);
 DLLIMPORT long _DK_ma_triangle_route(long ptfind_x, long ptfind_y, long *ptstart_x);
@@ -70,7 +70,7 @@ DLLIMPORT void _DK_tri_set_rectangle(long ptfind_x, long ptfind_y, long ptstart_
 DLLIMPORT long _DK_fringe_get_rectangle(long *ptfind_x, long *ptfind_y, long *ptstart_x, long *ptstart_y, unsigned char *pt_id1);
 DLLIMPORT void _DK_border_unlock(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y);
 DLLIMPORT void _DK_triangulation_border_start(long *ptfind_x, long *ptfind_y);
-DLLIMPORT long _DK_edge_find(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, long *pt_id1, long *a6);
+DLLIMPORT long _DK_edge_find(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, long *pt_id1, long *wp_lim);
 DLLIMPORT long _DK_make_3or4point(long *ptfind_x, long *ptfind_y);
 DLLIMPORT long _DK_delete_4point(long ptfind_x, long ptfind_y);
 DLLIMPORT long _DK_delete_3point(long ptfind_x, long ptfind_y);
@@ -90,7 +90,7 @@ DLLIMPORT void _DK_tri_split3(long ptfind_x, long ptfind_y, long ptstart_x);
 DLLIMPORT long _DK_pointed_at8(long pos_x, long pos_y, long *ret_tri, long *ret_pt);
 DLLIMPORT long _DK_triangle_brute_find8_near(long pos_x, long pos_y);
 DLLIMPORT void _DK_waypoint_normal(long ptfind_x, long ptfind_y, long *norm_x, long *norm_y);
-DLLIMPORT long _DK_gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *pt_id1, long a6, struct Pathway *pway, long a8);
+DLLIMPORT long _DK_gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *pt_id1, long wp_lim, struct Pathway *pway, long a8);
 DLLIMPORT long _DK_fill_concave(long tri_id1, long cor_id1, long speed);
 DLLIMPORT long _DK_ariadne_push_position_against_wall(struct Thing *thing, const struct Coord3d *pos1, struct Coord3d *pos_out);
 DLLIMPORT void _DK_fill_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned char pt_id1);
@@ -102,6 +102,7 @@ DLLIMPORT void _DK_triangulation_initxy(long outfri_x1, long outfri_y1, long out
 DLLIMPORT void _DK_nearest_search(long size, long srcx, long srcy, long dstx, long dsty, long *px, long *py);
 DLLIMPORT unsigned long _DK_nav_same_component(long ptAx, long ptAy, long ptBx, long ptBy);
 DLLIMPORT long _DK_edge_rotateAC(long a1, long a2);
+DLLIMPORT void _DK_edge_points8(long a1, long a2, long *a3, long *a4, long *a5, long *wp_lim);
 /******************************************************************************/
 DLLIMPORT long _DK_tri_initialised;
 #define tri_initialised _DK_tri_initialised
@@ -241,9 +242,9 @@ long ix_Points = 0;
 long free_Points = -1;
 */
 /******************************************************************************/
-long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, long *pt_id1, long a6, struct Path *path, long *a8);
+long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, long *pt_id1, long wp_lim, struct Path *path, long *a8);
 void path_out_a_bit(struct Path *path, long *ptfind_y);
-void gate_navigator_init8(struct Pathway *pway, long trAx, long trAy, long trBx, long trBy, long a6, unsigned char a7);
+void gate_navigator_init8(struct Pathway *pway, long trAx, long trAy, long trBx, long trBy, long wp_lim, unsigned char a7);
 void route_through_gates(struct Pathway *pway, struct Path *path, long ptstart_x);
 long triangle_findSE8(long ptfind_x, long ptfind_y);
 long ma_triangle_route(long ptfind_x, long ptfind_y, long *ptstart_x);
@@ -464,11 +465,145 @@ long update_navigation_triangulation(long start_x, long start_y, long end_x, lon
     return true;
 }
 
-long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, long *a5, long a6, struct Path *path, long *a8)
+void edge_points8(long a1, long a2, long *a3, long *a4, long *a5, long *a6)
+{
+    _DK_edge_points8(a1, a2, a3, a4, a5, a6);
+}
+
+long fov_region(long a1, long a2, const struct FOV *fov)
+{
+    long diff_ax, diff_ay;
+    diff_ax = a1 - fov->field_0;
+    diff_ay = a2 - fov->field_4;
+    long diff_bx, diff_by;
+    diff_bx = fov->field_8 - fov->field_0;
+    diff_by = fov->field_C - fov->field_4;
+    if (LbCompareMultiplications(diff_ay, diff_bx, diff_ax, diff_by) < 0) {
+        return -1;
+    }
+    long diff_cx, diff_cy;
+    diff_cx = fov->field_10 - fov->field_0;
+    diff_cy = fov->field_14 - fov->field_4;
+    return (LbCompareMultiplications(diff_ay, diff_cx, diff_ax, diff_cy) > 0);
+}
+
+long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, long *a5, long wp_lim, struct Path *path, long *a8)
 {
     //Note: uses LbCompareMultiplications()
     NAVIDBG(19,"Starting");
-    return _DK_route_to_path(ptfind_x, ptfind_y, ptstart_x, ptstart_y, a5, a6, path, a8);
+    //return _DK_route_to_path(ptfind_x, ptfind_y, ptstart_x, ptstart_y, a5, a6, path, a8);
+
+    struct FOV fov_AC;
+    long edge1_x, edge1_y;
+    long edge2_x, edge2_y;
+    char reg1, reg2;
+    long wp1, wp2, wpi;
+    int wp_num;
+
+    path->field_0 = ptfind_x;
+    path->field_4 = ptfind_y;
+    path->field_8 = ptstart_x;
+    path->field_C = ptstart_y;
+    *a8 = 0;
+    fov_AC.field_0 = ptfind_x;
+    fov_AC.field_4 = ptfind_y;
+    wp_num = 0;
+    if ( !wp_lim )
+    {
+      *a8 = LbSqrL((ptstart_x - ptfind_x) * (ptstart_x - ptfind_x) + (ptstart_y - ptfind_y) * (ptstart_y - ptfind_y));
+      path->waypoints[0].x = ptstart_x;
+      path->waypoints[0].y = ptstart_y;
+      wayPoints.field_10[0] = 0;
+      path->waypoints_num = 1;
+      return 1;
+    }
+    wp2 = 0;
+    wp1 = 0;
+    edge_points8(a5[0], a5[1], &fov_AC.field_8, &fov_AC.field_C, &fov_AC.field_10, &fov_AC.field_14);
+    wayPoints.field_8 = 0;
+    wpi = 1;
+    wayPoints.field_C = 0;
+    while ( 1 )
+    {
+      if (wpi < wp_lim)
+      {
+        edge_points8(a5[wpi+0], a5[wpi+1], &edge1_x, &edge1_y, &edge2_x, &edge2_y);
+        wayPoints.field_0 = wpi;
+        wayPoints.field_4 = wpi;
+        reg1 = fov_region(edge1_x, edge1_y, &fov_AC);
+        reg2 = fov_region(edge2_x, edge2_y, &fov_AC);
+      } else
+      {
+          reg2 = fov_region(ptstart_x, ptstart_y, &fov_AC);
+          reg1 = reg2;
+          if ( !reg2 )
+            break;
+      }
+      if (reg1 == 0)
+      {
+          fov_AC.field_8 = edge1_x;
+          fov_AC.field_C = edge1_y;
+          wayPoints.field_8 = wayPoints.field_0;
+          wp1 = wpi;
+      }
+      if (reg2 == 0)
+      {
+          fov_AC.field_10 = edge2_x;
+          fov_AC.field_14 = edge2_y;
+          wayPoints.field_C = wayPoints.field_4;
+          wp2 = wpi;
+      }
+      if (reg2 == -1)
+      {
+        if (wp_num == 256) {
+            ERRORLOG("rtp:Exceeded max path length (i:%d,L:%d) (%d,%d)->(%d,%d)",
+            wpi, wp_lim, ptfind_x, ptfind_y, ptstart_x, ptstart_y);
+        }
+        *a8 += LbSqrL((fov_AC.field_8 - fov_AC.field_0) * (fov_AC.field_8 - fov_AC.field_0)
+            + (fov_AC.field_C - fov_AC.field_4) * (fov_AC.field_C - fov_AC.field_4));
+        fov_AC.field_0 = fov_AC.field_8;
+        path->waypoints[wp_num].x = fov_AC.field_8;
+        path->waypoints[wp_num].y = fov_AC.field_C;
+        wayPoints.field_10[wp_num] = wayPoints.field_8;
+        wp_num++;
+        wpi = wp1;
+        fov_AC.field_4 = fov_AC.field_C;
+        edge_points8(a5[wp1+0], a5[wp1+1], &fov_AC.field_8, &fov_AC.field_C, &fov_AC.field_10, &fov_AC.field_14);
+        wayPoints.field_8 = wp1;
+        wayPoints.field_C = wp1;
+      } else
+      if (reg1 == 1)
+      {
+        if (wp_num == 256) {
+            ERRORLOG("rtp:Exceeded max path length (i:%d,R:%d) (%d,%d)->(%d,%d)",
+            wpi, wp_lim, ptfind_x, ptfind_y, ptstart_x, ptstart_y);
+        }
+        *a8 += LbSqrL((fov_AC.field_10 - fov_AC.field_0) * (fov_AC.field_10 - fov_AC.field_0)
+            + (fov_AC.field_14 - fov_AC.field_4) * (fov_AC.field_14 - fov_AC.field_4));
+        fov_AC.field_0 = fov_AC.field_10;
+        path->waypoints[wp_num].x = fov_AC.field_10;
+        path->waypoints[wp_num].y = fov_AC.field_14;
+        wayPoints.field_10[wp_num] = wayPoints.field_C;
+        wp_num++;
+        wpi = wp2;
+        fov_AC.field_4 = fov_AC.field_14;
+        edge_points8(a5[wp2+0], a5[wp2+1], &fov_AC.field_8, &fov_AC.field_C, &fov_AC.field_10, &fov_AC.field_14);
+        wayPoints.field_8 = wp2;
+        wayPoints.field_C = wp2;
+      }
+      ++wpi;
+    }
+    if (wp_num == 256) {
+        ERRORLOG("rtp:Exceeded max path length - gate_route_to_coords");
+    }
+    *a8 += LbSqrL((ptstart_x - fov_AC.field_0) * (ptstart_x - fov_AC.field_0)
+        + (ptstart_y - fov_AC.field_4) * (ptstart_y - fov_AC.field_4));
+    path->waypoints[wp_num].x = ptstart_x;
+    path->waypoints[wp_num].y = ptstart_y;
+    wayPoints.field_10[wp_num] = wp_lim;
+    wp_num++;
+    path->waypoints_num = wp_num;
+    return wp_num;
 }
 
 void waypoint_normal(long a1, long a2, long *norm_x, long *norm_y)
@@ -521,7 +656,7 @@ long gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, 
     return _DK_gate_route_to_coords(trAx, trAy, trBx, trBy, a5, a6, pway, a8);
 }
 
-void gate_navigator_init8(struct Pathway *pway, long trAx, long trAy, long trBx, long trBy, long a6, unsigned char a7)
+void gate_navigator_init8(struct Pathway *pway, long trAx, long trAy, long trBx, long trBy, long wp_lim, unsigned char a7)
 {
     //_DK_gate_navigator_init8(pway, trAx, trAy, trBx, trBy, a6, a7);
     pway->field_0 = trAx;
@@ -542,7 +677,7 @@ void gate_navigator_init8(struct Pathway *pway, long trAx, long trAy, long trBx,
     {
         tree_routelen = ma_triangle_route(tree_triA, tree_triB, &tree_routecost);
         if (tree_routelen != -1) {
-            pway->points_num = gate_route_to_coords(trAx, trAy, trBx, trBy, tree_route, tree_routelen, pway, a6);
+            pway->points_num = gate_route_to_coords(trAx, trAy, trBx, trBy, tree_route, tree_routelen, pway, wp_lim);
         }
     }
 }
