@@ -51,7 +51,7 @@ extern "C" {
 DLLIMPORT AriadneReturn _DK_ariadne_initialise_creature_route(struct Thing *thing, struct Coord3d *pos, long ptstart_x, unsigned char ptstart_y);
 DLLIMPORT AriadneReturn _DK_creature_follow_route_to_using_gates(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2, long ptstart_y, unsigned char pt_id1);
 DLLIMPORT void _DK_path_init8_wide(struct Path *path, long start_x, long start_y, long end_x, long end_y, long wp_lim, unsigned char nav_size);
-DLLIMPORT long _DK_route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, long *pt_id1, long wp_lim, struct Path *path, long *a8);
+DLLIMPORT long _DK_route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, long *pt_id1, long wp_lim, struct Path *path, long *total_len);
 DLLIMPORT void _DK_path_out_a_bit(struct Path *path, long *ptfind_y);
 DLLIMPORT void _DK_gate_navigator_init8(struct Pathway *pway, long ptfind_y, long ptstart_x, long ptstart_y, long pt_id1, long wp_lim, unsigned char a7);
 DLLIMPORT void _DK_route_through_gates(struct Pathway *pway, struct Path *path, long ptstart_x);
@@ -90,7 +90,7 @@ DLLIMPORT void _DK_tri_split3(long ptfind_x, long ptfind_y, long ptstart_x);
 DLLIMPORT long _DK_pointed_at8(long pos_x, long pos_y, long *ret_tri, long *ret_pt);
 DLLIMPORT long _DK_triangle_brute_find8_near(long pos_x, long pos_y);
 DLLIMPORT void _DK_waypoint_normal(long ptfind_x, long ptfind_y, long *norm_x, long *norm_y);
-DLLIMPORT long _DK_gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *pt_id1, long wp_lim, struct Pathway *pway, long a8);
+DLLIMPORT long _DK_gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *pt_id1, long wp_lim, struct Pathway *pway, long total_len);
 DLLIMPORT long _DK_fill_concave(long tri_id1, long cor_id1, long speed);
 DLLIMPORT long _DK_ariadne_push_position_against_wall(struct Thing *thing, const struct Coord3d *pos1, struct Coord3d *pos_out);
 DLLIMPORT void _DK_fill_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned char pt_id1);
@@ -103,6 +103,9 @@ DLLIMPORT void _DK_nearest_search(long size, long srcx, long srcy, long dstx, lo
 DLLIMPORT unsigned long _DK_nav_same_component(long ptAx, long ptAy, long ptBx, long ptBy);
 DLLIMPORT long _DK_edge_rotateAC(long a1, long a2);
 DLLIMPORT void _DK_edge_points8(long a1, long a2, long *a3, long *a4, long *a5, long *wp_lim);
+DLLIMPORT long _DK_calc_intersection(struct Gate *gt, long a2, long a3, long a4, long a5);
+DLLIMPORT void _DK_cull_gate_to_point(struct Gate *gt, long a2);
+DLLIMPORT void _DK_cull_gate_to_best_point(struct Gate *gt, long a2);
 /******************************************************************************/
 DLLIMPORT long _DK_tri_initialised;
 #define tri_initialised _DK_tri_initialised
@@ -203,6 +206,7 @@ const unsigned long actual_sizexy_to_nav_sizexy_table[] = {
 
 struct Path fwd_path;
 struct Path bak_path;
+struct Path best_path;
 /******************************************************************************/
 long thing_nav_block_sizexy(const struct Thing *thing)
 {
@@ -242,7 +246,7 @@ long ix_Points = 0;
 long free_Points = -1;
 */
 /******************************************************************************/
-long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, long *pt_id1, long wp_lim, struct Path *path, long *a8);
+long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, long *pt_id1, long wp_lim, struct Path *path, long *total_len);
 void path_out_a_bit(struct Path *path, long *ptfind_y);
 void gate_navigator_init8(struct Pathway *pway, long trAx, long trAy, long trBx, long trBy, long wp_lim, unsigned char a7);
 void route_through_gates(struct Pathway *pway, struct Path *path, long ptstart_x);
@@ -487,7 +491,7 @@ long fov_region(long a1, long a2, const struct FOV *fov)
     return (LbCompareMultiplications(diff_ay, diff_cx, diff_ax, diff_cy) > 0);
 }
 
-long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, long *a5, long wp_lim, struct Path *path, long *a8)
+long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, long *a5, long wp_lim, struct Path *path, long *total_len)
 {
     //Note: uses LbCompareMultiplications()
     NAVIDBG(19,"Starting");
@@ -504,13 +508,13 @@ long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y,
     path->field_4 = ptfind_y;
     path->field_8 = ptstart_x;
     path->field_C = ptstart_y;
-    *a8 = 0;
+    *total_len = 0;
     fov_AC.field_0 = ptfind_x;
     fov_AC.field_4 = ptfind_y;
     wp_num = 0;
     if ( !wp_lim )
     {
-      *a8 = LbSqrL((ptstart_x - ptfind_x) * (ptstart_x - ptfind_x) + (ptstart_y - ptfind_y) * (ptstart_y - ptfind_y));
+      *total_len = LbSqrL((ptstart_x - ptfind_x) * (ptstart_x - ptfind_x) + (ptstart_y - ptfind_y) * (ptstart_y - ptfind_y));
       path->waypoints[0].x = ptstart_x;
       path->waypoints[0].y = ptstart_y;
       wayPoints.field_10[0] = 0;
@@ -559,7 +563,7 @@ long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y,
             ERRORLOG("rtp:Exceeded max path length (i:%d,L:%d) (%d,%d)->(%d,%d)",
             wpi, wp_lim, ptfind_x, ptfind_y, ptstart_x, ptstart_y);
         }
-        *a8 += LbSqrL((fov_AC.field_8 - fov_AC.field_0) * (fov_AC.field_8 - fov_AC.field_0)
+        *total_len += LbSqrL((fov_AC.field_8 - fov_AC.field_0) * (fov_AC.field_8 - fov_AC.field_0)
             + (fov_AC.field_C - fov_AC.field_4) * (fov_AC.field_C - fov_AC.field_4));
         fov_AC.field_0 = fov_AC.field_8;
         path->waypoints[wp_num].x = fov_AC.field_8;
@@ -578,7 +582,7 @@ long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y,
             ERRORLOG("rtp:Exceeded max path length (i:%d,R:%d) (%d,%d)->(%d,%d)",
             wpi, wp_lim, ptfind_x, ptfind_y, ptstart_x, ptstart_y);
         }
-        *a8 += LbSqrL((fov_AC.field_10 - fov_AC.field_0) * (fov_AC.field_10 - fov_AC.field_0)
+        *total_len += LbSqrL((fov_AC.field_10 - fov_AC.field_0) * (fov_AC.field_10 - fov_AC.field_0)
             + (fov_AC.field_14 - fov_AC.field_4) * (fov_AC.field_14 - fov_AC.field_4));
         fov_AC.field_0 = fov_AC.field_10;
         path->waypoints[wp_num].x = fov_AC.field_10;
@@ -596,7 +600,7 @@ long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y,
     if (wp_num == 256) {
         ERRORLOG("rtp:Exceeded max path length - gate_route_to_coords");
     }
-    *a8 += LbSqrL((ptstart_x - fov_AC.field_0) * (ptstart_x - fov_AC.field_0)
+    *total_len += LbSqrL((ptstart_x - fov_AC.field_0) * (ptstart_x - fov_AC.field_0)
         + (ptstart_y - fov_AC.field_4) * (ptstart_y - fov_AC.field_4));
     path->waypoints[wp_num].x = ptstart_x;
     path->waypoints[wp_num].y = ptstart_y;
@@ -650,10 +654,214 @@ void path_out_a_bit(struct Path *path, long *route)
     }
 }
 
+void cull_gate_to_point(struct Gate *gt, long a2)
+{
+    _DK_cull_gate_to_point(gt, a2);
+}
+
+long calc_intersection(struct Gate *gt, long a2, long a3, long a4, long a5)
+{
+    return _DK_calc_intersection(gt, a2, a3, a4, a5);
+}
+
+void cull_gate_to_best_point(struct Gate *gt, long a2)
+{
+    _DK_cull_gate_to_best_point(gt, a2);
+}
+
 long gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, long a6, struct Pathway *pway, long a8)
 {
     //Note: uses LbCompareMultiplications()
-    return _DK_gate_route_to_coords(trAx, trAy, trBx, trBy, a5, a6, pway, a8);
+    //return _DK_gate_route_to_coords(trAx, trAy, trBx, trBy, a5, a6, pway, a8);
+
+    long total_len;
+    best_path.waypoints_num = route_to_path(trAx, trAy, trBx, trBy, a5, a6, &best_path, &total_len);
+    pway->field_0 = trAx;
+    pway->field_4 = trAy;
+    pway->field_8 = trBx;
+    pway->field_C = trBy;
+    if (a6 < 1)
+    {
+        pway->points[0].field_C = trBy;
+        pway->points[0].field_8 = trBx;
+        pway->points[0].field_0 = trBx;
+        pway->points[0].field_4 = trBy;
+        pway->points[0].field_18 = 0;
+        pway->points_num = 1;
+        return 1;
+    }
+    struct FOV fov1;
+    struct FOV fov2;
+    fov1.field_0 = trAx;
+    fov1.field_4 = trAy;
+    edge_points8(a5[0], a5[1], &fov1.field_8, &fov1.field_C, &fov1.field_10, &fov1.field_14);
+    memcpy(&fov2, &fov1, sizeof(struct FOV));
+    int pt_num, wp_idx;
+    wp_idx = 0;
+    pt_num = 0;
+    int wp_x, wp_y;
+    wp_x = pway->field_0;
+    wp_y = pway->field_4;
+
+    struct Gate *gt;
+    gt = pway->points;
+    int wpi;
+    for (wpi=1; wpi <= a6; wpi++)
+    {
+        long edge_x1, edge_y1;
+        long edge_x2, edge_y2;
+        if (wpi < a6)
+        {
+            edge_points8(a5[wpi+0], a5[wpi+1], &edge_x1, &edge_y1, &edge_x2, &edge_y2);
+        } else
+        {
+            edge_x2 = trBx;
+            edge_x1 = trBx;
+            edge_y2 = trBy;
+            edge_y1 = trBy;
+        }
+        char reg1, reg2, reg3, reg4;
+        reg1 = fov_region(edge_x1, edge_y1, &fov1);
+        reg2 = fov_region(edge_x2, edge_y2, &fov1);
+        reg3 = fov_region(edge_x1, edge_y1, &fov2);
+        reg4 = fov_region(edge_x2, edge_y2, &fov2);
+
+        if ( reg1 || reg2 || reg3 || reg4 )
+        {
+            if (pt_num == 256) {
+                ERRORLOG("grtc:Exceeded max path length (i:%d,rl:%d)", wpi, a6);
+            }
+            gt->field_0 = fov1.field_8;
+            gt->field_4 = fov1.field_C;
+            gt->field_8 = fov1.field_10;
+            gt->field_C = fov1.field_14;
+            gt->field_18 = -1;
+            int dist_x, dist_y;
+            int bwp_x, bwp_y;
+
+            int dist_A, dist_B;
+            bwp_x = best_path.waypoints[wp_idx].x;
+            dist_x = abs(gt->field_0 - bwp_x);
+            bwp_y = best_path.waypoints[wp_idx].y;
+            dist_y = abs(gt->field_4 - bwp_y);
+            if (dist_x <= dist_y)
+                dist_A = (dist_x >> 1) + dist_y;
+            else
+                dist_A = (dist_y >> 1) + dist_x;
+            dist_B = dist_A;
+
+            int dist_C, dist_D;
+            dist_x = abs(gt->field_8 - bwp_x);
+            dist_y = abs(gt->field_C - bwp_y);
+            if ( dist_x <= dist_y )
+                dist_x >>= 1;
+            else
+                dist_y >>= 1;
+
+            dist_C = dist_x + dist_y;
+            dist_D = dist_C;
+
+            if (wp_idx < best_path.waypoints_num-1)
+            {
+              bwp_x = best_path.waypoints[wp_idx+1].x;
+              dist_x = abs(gt->field_0 - bwp_x);
+              bwp_y = best_path.waypoints[wp_idx+1].y;
+              dist_y = abs(gt->field_4 - bwp_y);
+              if (dist_x <= dist_y)
+                  dist_B = (dist_x >> 1) + dist_y;
+              else
+                  dist_B = dist_x + (dist_y >> 1);
+              dist_x = abs(gt->field_8 - bwp_x);
+              dist_y = abs(gt->field_C - bwp_y);
+              if (dist_y >= dist_x)
+                  dist_D = (dist_x >> 1) + dist_y;
+              else
+                  dist_D = dist_x + (dist_y >> 1);
+            }
+            int dist_min1, dist_min2;
+            dist_min1 = dist_C;
+            if (dist_min1 >= dist_A)
+              dist_min1 = dist_A;
+            dist_min2 = dist_D;
+            if (dist_min2 >= dist_B)
+              dist_min2 = dist_B;
+            if (dist_min1 >= dist_min2)
+            {
+                gt->field_18 = (dist_D <= dist_B);
+                if (wp_idx < best_path.waypoints_num-1)
+                {
+                    wp_x = best_path.waypoints[wp_idx].x;
+                    wp_y = best_path.waypoints[wp_idx].y;
+                    wp_idx++;
+                }
+            } else
+            {
+                gt->field_18 = (dist_C <= dist_A);
+                dist_min2 = dist_min1;
+            }
+            if (dist_min2 < 256)
+            {
+                cull_gate_to_point(gt, a8);
+            } else
+            {
+                int fld18_mem;
+                fld18_mem = gt->field_18;
+                gt->field_18 = 2;
+                if ( !calc_intersection(gt, wp_x, wp_y, best_path.waypoints[wp_idx].x, best_path.waypoints[wp_idx].y) )
+                {
+                  if (calc_intersection(gt,
+                         best_path.waypoints[wp_idx].x, best_path.waypoints[wp_idx].y,
+                         best_path.waypoints[wp_idx+1].x, best_path.waypoints[wp_idx+1].y) )
+                  {
+                    if ( best_path.waypoints_num - 1 > wp_idx )
+                    {
+                        wp_x = best_path.waypoints[wp_idx].x;
+                        wp_y = best_path.waypoints[wp_idx].y;
+                        ++wp_idx;
+                    }
+                  }
+                  else
+                  {
+                    gt->field_18 = fld18_mem;
+                  }
+              }
+              if (gt->field_18 == 2)
+              {
+                  cull_gate_to_best_point(gt, a8);
+                  gt->field_18 = fld18_mem;
+              } else
+              {
+                  cull_gate_to_point(gt, a8);
+                  gt->field_18 = fld18_mem;
+              }
+            }
+            fov1.field_0 = gt->field_0;
+            fov1.field_4 = gt->field_4;
+            fov2.field_0 = gt->field_8;
+            fov2.field_4 = gt->field_C;
+            pt_num++;
+            gt++;
+        }
+        fov2.field_8 = edge_x1;
+        fov1.field_8 = edge_x1;
+        fov2.field_C = edge_y1;
+        fov1.field_C = edge_y1;
+        fov2.field_10 = edge_x2;
+        fov1.field_10 = edge_x2;
+        fov2.field_14 = edge_y2;
+        fov1.field_14 = edge_y2;
+    }
+    if (pt_num == 256) {
+        ERRORLOG("grtc:Exceeded max path length (i:%d,rl:%d)", wpi, a6);
+    }
+    pt_num++;
+    gt->field_8 = trBx;
+    gt->field_0 = trBx;
+    gt->field_C = trBy;
+    gt->field_4 = trBy;
+    gt->field_18 = 0;
+    pway->points_num = pt_num;
+    return pt_num;
 }
 
 void gate_navigator_init8(struct Pathway *pway, long trAx, long trAy, long trBx, long trBy, long wp_lim, unsigned char a7)
@@ -684,7 +892,7 @@ void gate_navigator_init8(struct Pathway *pway, long trAx, long trAy, long trBx,
 
 void route_through_gates(struct Pathway *pway, struct Path *path, long mag)
 {
-    struct PathPoint *ppoint;
+    struct Gate *ppoint;
     struct PathWayPoint *wpoint;
     long i;
     //_DK_route_through_gates(pway, path, a3);
