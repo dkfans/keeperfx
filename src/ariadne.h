@@ -107,7 +107,7 @@ struct Path { // sizeof = 2068
     struct PathWayPoint waypoints[256];
 };
 
-struct PathPoint { // sizeof = 28
+struct Gate { // sizeof = 28
   long field_0;
   long field_4;
   long field_8;
@@ -122,7 +122,7 @@ struct Pathway { // sizeof = 7192
   long field_4;
   long field_8;
   long field_C;
-  struct PathPoint points[256];
+  struct Gate points[256];
   long points_num;
   long field_1C14;
 };
