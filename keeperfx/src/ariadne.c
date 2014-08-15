@@ -666,7 +666,140 @@ long calc_intersection(struct Gate *gt, long a2, long a3, long a4, long a5)
 
 void cull_gate_to_best_point(struct Gate *gt, long a2)
 {
-    _DK_cull_gate_to_best_point(gt, a2);
+    //_DK_cull_gate_to_best_point(gt, a2);
+    int diff_min1, diff_min2;
+    {
+        int diff_x, diff_y;
+        diff_x = abs(gt->field_0 - gt->field_10);
+        diff_y = abs(gt->field_4 - gt->field_14);
+        if (diff_x <= diff_y)
+            diff_min1 = (diff_x >> 1) + diff_y;
+        else
+            diff_min1 = (diff_y >> 1) + diff_x;
+        diff_x = abs(gt->field_8 - gt->field_10);
+        diff_y = abs(gt->field_C - gt->field_14);
+        if (diff_x <= diff_y)
+            diff_min2 = diff_y + (diff_x >> 1);
+        else
+            diff_min2 = (diff_y >> 1) + diff_x;
+    }
+    if ((diff_min1 >= (a2 >> 1)) || (diff_min2 >= (a2 >> 1)))
+    {
+        int diff_lim;
+        diff_lim = (a2 + 2) >> 1;
+        if (diff_min1 < diff_lim)
+        {
+            gt->field_18 = 0;
+            cull_gate_to_point(gt, a2);
+        } else
+        if (diff_min2 < diff_lim)
+        {
+            gt->field_18 = 1;
+            cull_gate_to_point(gt, a2);
+        } else
+        {
+            int rel_A, rel_B;
+            {
+                int diff_B, diff_A;
+                diff_A = (gt->field_8 - gt->field_0) << 6;
+                diff_B = (gt->field_C - gt->field_4) << 6;
+                int dlen_A, dlen_B;
+                dlen_A = LbSqrL(((unsigned long long)(diff_A * diff_A) >> 14) + ((unsigned long long)(diff_B * diff_B) >> 14)) << 7;
+                dlen_B = dlen_A;
+                if (dlen_A)
+                {
+                    if (diff_A < 0)
+                    {
+                        diff_A = -diff_A;
+                        dlen_A = -dlen_A;
+                    }
+                    rel_A = (((unsigned long long)diff_A << 14) / dlen_A) >> 6;
+                } else
+                {
+                    rel_A = 0;
+                }
+                if ( dlen_B )
+                {
+                    if (diff_B < 0)
+                    {
+                        diff_B = -diff_B;
+                        dlen_B = -dlen_B;
+                    }
+                    rel_B = (((unsigned long long)diff_B << 14) / dlen_B) >> 6;
+                } else
+                {
+                  rel_B = 0;
+                }
+            }
+
+            long delta_A, delta_B;
+            delta_A = (a2 >> 9) * rel_A;
+            delta_B = (a2 >> 9) * rel_B;
+            int cmin_y, cmin_x;
+            int cmax_x, cmax_y;
+            cmin_x = gt->field_10 - delta_A;
+            cmin_y = gt->field_14 - delta_B;
+            cmax_y = gt->field_14 + delta_B;
+            cmax_x = gt->field_10 + delta_A;
+
+            int ctst_x1, ctst_x2;
+            int ctst_y1, ctst_y2;
+
+            ctst_x1 = gt->field_8;
+            if (ctst_x1 >= gt->field_0)
+              ctst_x1 = gt->field_0;
+            if (ctst_x1 <= cmin_x)
+            {
+                ctst_x2 = gt->field_8;
+                if (ctst_x2 <= gt->field_0)
+                    ctst_x2 = gt->field_0;
+                if (ctst_x2 >= cmin_x)
+                {
+                  ctst_y2 = gt->field_4;
+                  ctst_y1 = ctst_y2;
+                  if (ctst_y1 >= gt->field_C)
+                      ctst_y1 = gt->field_C;
+                  if (ctst_y1 <= cmin_y)
+                  {
+                    if (ctst_y2 <= gt->field_C)
+                        ctst_y2 = gt->field_C;
+                    if (ctst_y2 >= cmin_y)
+                    {
+                        gt->field_0 = cmin_x;
+                        gt->field_4 = cmin_y;
+                    }
+                  }
+                }
+            }
+
+            ctst_x1 = gt->field_8;
+            if (ctst_x1 >= gt->field_0)
+                ctst_x1 = gt->field_0;
+            if (ctst_x1 <= cmax_x)
+            {
+                ctst_x2 = gt->field_8;
+                if (ctst_x2 <= gt->field_0)
+                    ctst_x2 = gt->field_0;
+                if (ctst_x2 >= cmax_x)
+                {
+                  ctst_y2 = gt->field_4;
+                  ctst_y1 = gt->field_4;
+                  if (ctst_y2 >= gt->field_C)
+                      ctst_y1 = gt->field_C;
+                  if (ctst_y1 <= cmax_y)
+                  {
+                    if (ctst_y2 <= gt->field_C)
+                      ctst_y2 = gt->field_C;
+                    if (ctst_y2 >= cmax_y)
+                    {
+                        gt->field_8 = cmax_x;
+                        gt->field_C = cmax_y;
+                    }
+                  }
+                }
+            }
+        }
+    }
 }
 
 long gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, long a6, struct Pathway *pway, long a8)
