@@ -661,7 +661,57 @@ void cull_gate_to_point(struct Gate *gt, long a2)
 
 long calc_intersection(struct Gate *gt, long a2, long a3, long a4, long a5)
 {
-    return _DK_calc_intersection(gt, a2, a3, a4, a5);
+    //return _DK_calc_intersection(gt, a2, a3, a4, a5);
+    int diff_a, diff_b, diff_c, diff_d, diff_e, diff_f;
+    diff_a = (gt->field_0 - a2) << 6;
+    diff_b = (a3 - a5) << 6;
+    diff_c = (gt->field_4 - a3) << 6;
+    diff_d = (a2 - a4) << 6;
+    diff_e = (gt->field_8 - gt->field_0) << 6;
+    diff_f = (gt->field_C - gt->field_4) << 6;
+    int area_m, area_d, factor;
+    area_m = ((unsigned long long)(diff_a * diff_b) >> 14)
+       - ((unsigned long long)(diff_c * diff_d) >> 14);
+    area_d = ((unsigned long long)(diff_d * diff_f) >> 14)
+       - ((unsigned long long)(diff_b * diff_e) >> 14);
+    if (area_d == 0)
+        return 0;
+    if (area_m < 0) {
+      area_m = -area_m;
+      area_d = -area_d;
+    }
+    factor = ((unsigned long long)area_m << 14) / area_d;
+    if ((factor < -16384) || (factor > 16384))
+        return 0;
+    gt->field_10 = gt->field_0 + (((unsigned long long)(diff_e * factor) >> 14) >> 6);
+    gt->field_14 = gt->field_4 + (((unsigned long long)(diff_f * factor) >> 14) >> 6);
+
+    int vmin;
+    vmin = gt->field_8;
+    if (vmin >= gt->field_0)
+      vmin = gt->field_0;
+    if (vmin > gt->field_10)
+        return 0;
+
+    vmin = gt->field_8;
+    if (vmin <= gt->field_0)
+      vmin = gt->field_0;
+    if (vmin < gt->field_10)
+        return 0;
+
+    vmin = gt->field_4;
+    if (vmin >= gt->field_C)
+      vmin = gt->field_C;
+    if (vmin > gt->field_14)
+        return 0;
+
+    vmin = gt->field_4;
+    if (vmin <= gt->field_C)
+      vmin = gt->field_C;
+    if (vmin < gt->field_14)
+        return 0;
+
+    return 1;
 }
 
 void cull_gate_to_best_point(struct Gate *gt, long a2)
