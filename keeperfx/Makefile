@@ -291,6 +291,8 @@ undedkpr
 
 CAMPAIGN_CFGS = $(patsubst %,pkg/campgns/%.cfg,$(CAMPAIGNS))
 
+LANGS = eng chi cht cze dut fre ger ita jpn lat pol rus spa swe
+
 NGTEXTDATS = \
 pkg/fxdata/gtext_chi.dat \
 pkg/fxdata/gtext_cht.dat \
@@ -385,6 +387,30 @@ pkg/ldata/dkflag00.dat \
 pkg/ldata/netflag.dat \
 pkg/ldata/maphand.dat \
 pkg/ldata/netfont.dat
+
+LANDVIEWSPEECH = \
+$(foreach lng,eng,ancntkpr_$(lng)) \
+$(foreach lng,eng,burdnimp_$(lng)) \
+$(foreach lng,eng,cqarctic_$(lng)) \
+$(foreach lng,eng,dstninja_$(lng)) \
+$(foreach lng,eng dut,dzjr06lv_$(lng)) \
+$(foreach lng,eng,dzjr10lv_$(lng)) \
+$(foreach lng,eng,dzjr25lv_$(lng)) \
+$(foreach lng,eng fre ger,evilkeep_$(lng)) \
+$(foreach lng,eng,grkreign_$(lng)) \
+$(foreach lng,eng,jdkmaps8_$(lng)) \
+$(foreach lng,eng,kdklvpck_$(lng)) \
+$(foreach lng,eng chi cht dut fre ger ita jpn pol rus spa swe,keeporig_$(lng)) \
+$(foreach lng,eng dut,lqizgood_$(lng)) \
+$(foreach lng,eng,lrdvexer_$(lng)) \
+$(foreach lng,eng,ncastles_$(lng)) \
+$(foreach lng,eng,postanck_$(lng)) \
+$(foreach lng,eng,pstunded_$(lng)) \
+$(foreach lng,eng,questfth_$(lng)) \
+$(foreach lng,eng dut,twinkprs_$(lng)) \
+$(foreach lng,eng,undedkpr_$(lng))
+
+LANDVIEWSPEECHDIRS = $(patsubst %,pkg/campgns/%,$(LANDVIEWSPEECH))
 
 TOTRUREGFX = \
 pkg/ldata/torture.raw \
@@ -571,7 +597,7 @@ pkg-languages: $(NGTEXTDATS) $(NCTEXTDATS)
 
 pkg-gfx: pkg-landviews pkg-menugfx pkg-enginegfx
 
-pkg-sfx: $(NGSOUNDDATS)
+pkg-sfx: $(NGSOUNDDATS) $(LANDVIEWSPEECHDIRS)
 
 pkg-landviews: $(LANDVIEWRAWS) $(LANDVIEWDATTABS)
 
@@ -782,6 +808,19 @@ endef
 
 $(foreach campaign,$(sort $(CAMPAIGNS)),$(eval $(call define_campaign_landview_rule,$(campaign))))
 
+# Creation of land view speeches for campaigns
+define define_campaign_speeches_rule
+pkg/campgns/$(1)_$(2): sfx/campgns/$(1)_$(2)/filelist.txt
+	-$(ECHO) 'Copying campaign SFX: $$@'
+	@$(MKDIR) "$$@"
+	tail -n +2 "$$<" | cut -f1 | xargs -d '\n' -I {} $(CP) "$$(<D)/{}" "$$@/"
+	-$(ECHO) 'Finished copying: $$@'
+	-$(ECHO) ' '
+
+endef
+
+$(foreach campaign,$(sort $(CAMPAIGNS)),$(foreach lng,$(sort $(LANGS)),$(eval $(call define_campaign_speeches_rule,$(campaign),$(lng)))))
+
 pkg/ldata/torture.pal: gfx/torturescr/tortr_background.png gfx/torturescr/tortr_doora_open11.png gfx/torturescr/tortr_doorb_open11.png gfx/torturescr/tortr_doorc_open11.png gfx/torturescr/tortr_doord_open11.png gfx/torturescr/tortr_doore_open11.png gfx/torturescr/tortr_doorf_open11.png gfx/torturescr/tortr_doorg_open11.png gfx/torturescr/tortr_doorh_open11.png gfx/torturescr/tortr_doori_open11.png gfx/torturescr/cursor_horny.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
 pkg/data/legal32.pal: gfx/loading/legal32.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
 pkg/data/legal64.pal: gfx/loading/legal64.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
@@ -924,7 +963,7 @@ pkg/ldata/%.raw pkg/data/%.raw:
 
 pkg/ldata/%.dat pkg/data/%.dat:
 	-$(ECHO) 'Building tabulated sprites: $@'
-	@$(MKDIR) $(@D)
+	@$(MKDIR) "$(@D)"
 	$(PNGTORAW) -b -o "$@" -p "$(word 2,$^)" -f sspr -l 0 "$<"
 	-$(RNC) "$@"
 	-$(ECHO) 'Finished building: $@'
@@ -932,17 +971,24 @@ pkg/ldata/%.dat pkg/data/%.dat:
 
 pkg/creatrs/%.jty pkg/data/%.jty:
 	-$(ECHO) 'Building jonty sprites: $@'
-	@$(MKDIR) $(@D)
+	@$(MKDIR) "$(@D)"
 	$(PNGTORAW) -m -o "$@" -p "$(word 2,$^)" -f jspr -l 0 "$<"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
-convert-sfx: $(patsubst %,convert-sfx-%,$(NGSPEECHBANKS))
+convert-sfx: $(patsubst %,convert-speech-sfx-%,$(NGSPEECHBANKS)) $(patsubst %,convert-campaign-sfx-%,$(LANDVIEWSPEECH))
 
-convert-sfx-%: sfx/%/filelist.txt
-	-$(ECHO) 'Converting sound samples in list: $<'
-	tail -n +2 "$<" | cut -f1 | xargs -d '\n' -I {} sox "$(<D)/design/{}" -c 1 -b 8 -r 22050 -e unsigned-integer "$(<D)/{}"
-	# compand 0.02,0.20 5:-60,-40,-10 -6 -90 0.1
+convert-speech-sfx-%: sfx/%/filelist.txt
+	-$(ECHO) 'Converting speech samples in list: $<'
+	tail -n +2 "$<" | cut -f1 | xargs -d '\n' -I {} sox "$(<D)/design/{}" -c 1 -b 8 -r 22050 -e unsigned-integer "$(<D)/{}" compand 0.02,0.20 5:-40,-40,-35,-20,-10 -6 -90 0.1 gain -n -0.1
+#	best would be "compand 0.02,0.20 5:-60,-40,-10 -6 -90 0.1", modification is to skip noise
+	-$(ECHO) 'Finished converting list: $<'
+	-$(ECHO) ' '
+
+convert-campaign-sfx-%: sfx/campgns/%/filelist.txt
+	-$(ECHO) 'Converting campaign speeches in list: $<'
+	tail -n +2 "$<" | cut -f1 | xargs -d '\n' -I {} sox "$(<D)/design/{}" -c 1 -r 22050 -e ms-adpcm "$(<D)/{}" compand 0.02,0.20 5:-40,-40,-35,-20,-10 -6 -90 0.1 gain -n -0.1
+#	best would be "compand 0.02,0.20 5:-60,-40,-10 -6 -90 0.1", modification is to skip noise
 	-$(ECHO) 'Finished converting list: $<'
 	-$(ECHO) ' '
 
