@@ -88,7 +88,6 @@ DLLIMPORT void _DK_make_edge(long start_x, long end_x, long start_y, long end_y)
 DLLIMPORT long _DK_tri_split2(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, long pt_id1);
 DLLIMPORT void _DK_tri_split3(long ptfind_x, long ptfind_y, long ptstart_x);
 DLLIMPORT long _DK_pointed_at8(long pos_x, long pos_y, long *ret_tri, long *ret_pt);
-DLLIMPORT long _DK_triangle_brute_find8_near(long pos_x, long pos_y);
 DLLIMPORT void _DK_waypoint_normal(long ptfind_x, long ptfind_y, long *norm_x, long *norm_y);
 DLLIMPORT long _DK_gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *pt_id1, long wp_lim, struct Pathway *pway, long total_len);
 DLLIMPORT long _DK_fill_concave(long tri_id1, long cor_id1, long speed);
@@ -101,11 +100,11 @@ DLLIMPORT long _DK_ariadne_check_forward_for_wallhug_gap(struct Thing *thing, st
 DLLIMPORT void _DK_triangulation_initxy(long outfri_x1, long outfri_y1, long outfri_x2, long outfri_y2);
 DLLIMPORT void _DK_nearest_search(long size, long srcx, long srcy, long dstx, long dsty, long *px, long *py);
 DLLIMPORT unsigned long _DK_nav_same_component(long ptAx, long ptAy, long ptBx, long ptBy);
-DLLIMPORT long _DK_edge_rotateAC(long a1, long a2);
-DLLIMPORT void _DK_edge_points8(long a1, long a2, long *a3, long *a4, long *a5, long *wp_lim);
-DLLIMPORT long _DK_calc_intersection(struct Gate *gt, long a2, long a3, long a4, long a5);
-DLLIMPORT void _DK_cull_gate_to_point(struct Gate *gt, long a2);
-DLLIMPORT void _DK_cull_gate_to_best_point(struct Gate *gt, long a2);
+DLLIMPORT long _DK_edge_rotateAC(long tri_beg_id, long tag_id);
+DLLIMPORT void _DK_edge_points8(long tri_beg_id, long tag_id, long *tri_end_id, long *a4, long *a5, long *wp_lim);
+DLLIMPORT long _DK_calc_intersection(struct Gate *gt, long tag_id, long tri_end_id, long a4, long a5);
+DLLIMPORT void _DK_cull_gate_to_point(struct Gate *gt, long tag_id);
+DLLIMPORT void _DK_cull_gate_to_best_point(struct Gate *gt, long tag_id);
 /******************************************************************************/
 DLLIMPORT long _DK_tri_initialised;
 #define tri_initialised _DK_tri_initialised
@@ -493,9 +492,8 @@ long fov_region(long a1, long a2, const struct FOV *fov)
 
 long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, long *a5, long wp_lim, struct Path *path, long *total_len)
 {
-    //Note: uses LbCompareMultiplications()
     NAVIDBG(19,"Starting");
-    //return _DK_route_to_path(ptfind_x, ptfind_y, ptstart_x, ptstart_y, a5, a6, path, a8);
+    //return _DK_route_to_path(ptfind_x, ptfind_y, ptstart_x, ptstart_y, a5, wp_lim, path, total_len);
 
     struct FOV fov_AC;
     long edge1_x, edge1_y;
@@ -1291,11 +1289,6 @@ long pointed_at8(long pos_x, long pos_y, long *ret_tri, long *ret_pt)
         ntri = tri_id;
     }
     return -1;
-}
-
-long triangle_brute_find8_near(long pos_x, long pos_y)
-{
-    return _DK_triangle_brute_find8_near(pos_x, pos_y);
 }
 
 TbBool triangle_check_and_add_navitree_fwd(long ttri)
@@ -2785,8 +2778,7 @@ void edgelen_set(long tri_id)
 
 long delete_4point(long tri1_id, long cor1_id)
 {
-    //Note: uses LbCompareMultiplications()
-    //return _DK_delete_4point(tri_id, cor_id);
+    //return _DK_delete_4point(tri1_id, cor1_id);
     struct Triangle *tri1;
     tri1 = &Triangles[tri1_id];
     long del_pt_id;
@@ -3004,7 +2996,6 @@ TbBool delete_point(long pt_tri, long pt_cor)
 
 long edge_rotateAC(long tri1_id, long cor1_id)
 {
-    //Note: uses LbCompareMultiplications()
     //return _DK_edge_rotateAC(tri1_id, cor1_id);
     long tri2_id;
     tri2_id = Triangles[tri1_id].tags[cor1_id];
@@ -3315,9 +3306,44 @@ TbBool insert_point(long pt_x, long pt_y)
     return tri_split3(ntri, pt_x, pt_y) >= 0;
 }
 
-long fill_concave(long a1, long a2, long a3)
+long fill_concave(long tri_beg_id, long tag_id, long tri_end_id)
 {
-    return _DK_fill_concave(a1, a2, a3);
+    //return _DK_fill_concave(a1, a2, a3);
+    long tri_id;
+    long cor_id;
+    while ( 1 )
+    {
+      tri_id = Triangles[tri_beg_id].tags[tag_id];
+      if (tri_id == -1) {
+        return 0;
+      }
+      cor_id = link_find(tri_id, tri_beg_id);
+      cor_id = MOD3[cor_id+1];
+      int rotate_n, rotate_y;
+      rotate_y = 0;
+      rotate_n = 0;
+      while (Triangles[tri_id].tags[cor_id] != tri_end_id)
+      {
+          if (edge_rotateAC(tri_id, cor_id))
+          {
+              rotate_y++;
+          } else
+          {
+              long n;
+              n = Triangles[tri_id].tags[cor_id];
+              if ((n == -1) || (n == tri_beg_id)) {
+                  return 0;
+              }
+              cor_id = link_find(n, tri_id);
+              cor_id = MOD3[cor_id+1];
+              tri_id = n;
+              rotate_n++;
+          }
+      }
+      if ( !rotate_n || !rotate_y )
+        break;
+    }
+    return 1;
 }
 
 void make_edge_sub(long start_tri_id1, long start_cor_id1, long start_tri_id4, long start_cor_id4, long sx, long sy, long ex, long ey)

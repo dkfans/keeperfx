@@ -33,7 +33,63 @@ DLLIMPORT long _DK_find_cache[4][4];
 #define find_cache _DK_find_cache
 
 DLLIMPORT long _DK_triangle_find8(long ptfind_x, long ptfind_y);
+DLLIMPORT long _DK_triangle_brute_find8_near(long pos_x, long pos_y);
 /******************************************************************************/
+long triangle_brute_find8_near(long pos_x, long pos_y)
+{
+    //return _DK_triangle_brute_find8_near(pos_x, pos_y);
+    long cx, cy;
+    cx = pos_x >> 14;
+    if (cx < 0)
+        cx = 0;
+    if (cx > 3)
+        cx = 3;
+    cy = pos_y >> 14;
+    if (cy < 0)
+        cy = 0;
+    if (cy > 3)
+        cy = 3;
+   // Try sibling
+    long tri_id;
+    if (cx-1 >= 0)
+    {
+        tri_id = find_cache[cy][cx-1];
+        if (get_triangle_tree_alt(tri_id) != -1)
+            return tri_id;
+    }
+    if (cx+1 < 4)
+    {
+        tri_id = find_cache[cy][cx+1];
+        if (get_triangle_tree_alt(tri_id) != -1)
+            return tri_id;
+    }
+    if (cy-1 >= 0)
+    {
+        tri_id = find_cache[cy-1][cx];
+        if (get_triangle_tree_alt(tri_id) != -1)
+            return tri_id;
+    }
+    if (cy+1 < 4)
+    {
+        tri_id = find_cache[cy+1][cx];
+        if (get_triangle_tree_alt(tri_id) != -1)
+            return tri_id;
+    }
+    // Try any in cache
+    for (cy=0; cy < 4; cy++)
+    {
+        for (cx=0; cx < 4; cx++)
+        {
+            tri_id = find_cache[cy][cx];
+            if (get_triangle_tree_alt(tri_id) != -1)
+                return tri_id;
+        }
+    }
+    // Try any
+    tri_id = triangle_find_first_used();
+    return tri_id;
+}
+
 long triangle_find_cache_get(long pos_x, long pos_y)
 {
   long cache_x,cache_y;
