@@ -35,6 +35,16 @@ DLLIMPORT void _DK_region_alloc(unsigned long tree_reg);
  */
 DLLIMPORT struct RegionT _DK_Regions[REGIONS_COUNT];
 #define Regions _DK_Regions
+DLLIMPORT long _DK_max_RegionStore;
+#define max_RegionStore _DK_max_RegionStore
+DLLIMPORT long _DK_ix_RegionQput;
+#define ix_RegionQput _DK_ix_RegionQput
+DLLIMPORT long _DK_ix_RegionQget;
+#define ix_RegionQget _DK_ix_RegionQget
+DLLIMPORT long _DK_count_RegionQ;
+#define count_RegionQ _DK_count_RegionQ
+DLLIMPORT long _DK_RegionQueue[REGION_QUEUE_LEN];
+#define RegionQueue _DK_RegionQueue
 /******************************************************************************/
 struct RegionT bad_region;
 /******************************************************************************/
@@ -145,6 +155,51 @@ TbBool regions_connected(long tree_reg1, long tree_reg2)
     region_alloc(tree_reg1);
     intersect = (Triangles[tree_reg2].field_E ^ Triangles[tree_reg1].field_E);
     return ((intersect & 0xFFC0) == 0);
+}
+
+void region_store_init(void)
+{
+    ix_RegionQput = 0;
+    ix_RegionQget = 0;
+    count_RegionQ = 0;
+}
+
+long region_get(void)
+{
+    long qget;
+    qget = ix_RegionQget;
+    count_RegionQ--;
+    long regn;
+    if (ix_RegionQget != ix_RegionQput)
+    {
+        qget = ix_RegionQget + 1;
+        if (qget >= REGION_QUEUE_LEN)
+            qget = 0;
+        regn = RegionQueue[ix_RegionQget];
+    } else
+    {
+        regn = -1;
+    }
+    ix_RegionQget = qget;
+    return regn;
+}
+
+void region_put(long nreg)
+{
+    long qpos;
+    qpos = ix_RegionQput;
+    ix_RegionQput++;
+    if (ix_RegionQput >= REGION_QUEUE_LEN) {
+        ix_RegionQput = 0;
+    }
+    if (ix_RegionQput == ix_RegionQget) {
+        ERRORLOG("Q overflow");
+    }
+    RegionQueue[qpos] = nreg;
+    count_RegionQ++;
+    if (max_RegionStore < count_RegionQ) {
+        max_RegionStore = count_RegionQ;
+    }
 }
 
 void region_set_f(long ntri, unsigned long nreg, const char *func_name)

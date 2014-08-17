@@ -68,12 +68,12 @@ long tri_new(void)
 
 void tri_dispose(long tri_idx)
 {
-  long pfree_idx;
-  pfree_idx = free_Triangles;
-  free_Triangles = tri_idx;
-  Triangles[tri_idx].tags[0] = pfree_idx;
-  Triangles[tri_idx].tree_alt = 255;
-  count_Triangles--;
+    long pfree_idx;
+    pfree_idx = free_Triangles;
+    free_Triangles = tri_idx;
+    Triangles[tri_idx].tags[0] = pfree_idx;
+    Triangles[tri_idx].tree_alt = 255;
+    count_Triangles--;
 }
 
 long get_triangle_region_id(long tri_id)

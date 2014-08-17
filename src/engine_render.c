@@ -1470,7 +1470,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
 
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
-    if ((game.flags_cd & 0x80) != 0)
+    if ((game.flags_cd & MFlg_unk80) != 0)
     {
       if ( myplyr->thing_under_hand != thing->index )
       {
@@ -2994,9 +2994,9 @@ void display_fast_drawlist(struct Camera *cam)
                 break;
             case QK_StatusSprites:
                 if (pixel_size == 1)
-                    draw_status_sprites(item.unk14->field_C, item.unk14->field_10, item.unk14->thing, 12288);
+                    draw_status_sprites(item.unk14->field_C, item.unk14->field_10, item.unk14->thing, 48*256);
                 else
-                    draw_status_sprites(item.unk14->field_C, item.unk14->field_10, item.unk14->thing, 4096);
+                    draw_status_sprites(item.unk14->field_C, item.unk14->field_10, item.unk14->thing, 16*256);
                 break;
             case QK_TextureQuad:
                 draw_texturedquad_block(item.txquad);

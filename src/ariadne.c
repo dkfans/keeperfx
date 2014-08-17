@@ -98,13 +98,14 @@ DLLIMPORT void _DK_brute_fill_rectangle(long start_x, long start_y, long end_x, 
 DLLIMPORT void _DK_edgelen_set(long tri1_id);
 DLLIMPORT long _DK_ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos, long outfri_y2);
 DLLIMPORT void _DK_triangulation_initxy(long outfri_x1, long outfri_y1, long outfri_x2, long outfri_y2);
-DLLIMPORT void _DK_nearest_search(long size, long srcx, long srcy, long dstx, long dsty, long *px, long *py);
+DLLIMPORT void _DK_nearest_search(long sizexy, long srcx, long srcy, long dstx, long dsty, long *px, long *py);
 DLLIMPORT unsigned long _DK_nav_same_component(long ptAx, long ptAy, long ptBx, long ptBy);
 DLLIMPORT long _DK_edge_rotateAC(long tri_beg_id, long tag_id);
 DLLIMPORT void _DK_edge_points8(long tri_beg_id, long tag_id, long *tri_end_id, long *a4, long *a5, long *wp_lim);
 DLLIMPORT long _DK_calc_intersection(struct Gate *gt, long tag_id, long tri_end_id, long a4, long a5);
 DLLIMPORT void _DK_cull_gate_to_point(struct Gate *gt, long tag_id);
 DLLIMPORT void _DK_cull_gate_to_best_point(struct Gate *gt, long tag_id);
+DLLIMPORT void _DK_set_nearpoint(long tri_id, long cor_id, long dstx, long dsty, long *px, long *py);
 /******************************************************************************/
 DLLIMPORT long _DK_tri_initialised;
 #define tri_initialised _DK_tri_initialised
@@ -608,9 +609,77 @@ long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y,
     return wp_num;
 }
 
-void waypoint_normal(long a1, long a2, long *norm_x, long *norm_y)
+void waypoint_normal(long tri1_id, long cor1_id, long *norm_x, long *norm_y)
 {
-    _DK_waypoint_normal(a1, a2, norm_x, norm_y);
+    //_DK_waypoint_normal(a1, a2, norm_x, norm_y);
+    int tri2_id, tri3_id;
+    int cor2_id, cor3_id;
+    tri3_id = tri1_id;
+    cor3_id = MOD3[cor1_id+2];
+    tri2_id = Triangles[tri1_id].tags[cor1_id];
+    cor2_id = link_find(tri2_id, tri1_id);
+    cor2_id = MOD3[cor2_id+1];
+    while (1)
+    {
+        int ntri;
+        ntri = Triangles[tri2_id].tags[cor2_id];
+        if (!nav_rulesA2B(get_triangle_tree_alt(tri2_id), get_triangle_tree_alt(ntri)))
+            break;
+        cor2_id = link_find(ntri, tri2_id);
+        if (cor2_id < 0)
+            break;
+        cor2_id = MOD3[cor2_id+1];
+        tri2_id = ntri;
+        if (tri1_id == tri2_id)
+        {
+            tri2_id = Triangles[tri1_id].tags[cor1_id];
+            cor2_id = link_find(tri2_id, tri1_id);
+            cor2_id = MOD3[cor2_id+1];
+            break;
+        }
+    }
+
+    while ( 1 )
+    {
+        int ntri;
+        ntri = Triangles[tri3_id].tags[cor3_id];
+        if (!nav_rulesA2B(get_triangle_tree_alt(tri3_id), get_triangle_tree_alt(ntri)))
+            break;
+        cor3_id = link_find(ntri, tri3_id);
+        if (cor3_id < 0)
+            break;
+        cor3_id = MOD3[cor3_id+2];
+        tri3_id = ntri;
+        if (tri1_id == ntri)
+        {
+            tri3_id = tri1_id;
+            cor3_id = MOD3[cor1_id+2];
+            break;
+        }
+    }
+
+    int diff_x, diff_y;
+    if ((cor2_id >= 0) && (cor3_id >= 0))
+    {
+        int pt1, pt2;
+        pt1 = Triangles[tri2_id].points[MOD3[cor2_id+1]];
+        pt2 = Triangles[tri3_id].points[cor3_id];
+        diff_y = Points[pt1].y - Points[pt2].y;
+        diff_x = Points[pt2].x - Points[pt1].x;
+    } else
+    {
+        diff_y = 0;
+        diff_x = 0;
+    }
+    long nx, ny;
+    nx = -1;
+    if (diff_y >= 0)
+        nx = diff_y != 0;
+    ny = -1;
+    if (diff_x >= 0)
+        ny = diff_x != 0;
+    *norm_x = nx;
+    *norm_y = ny;
 }
 
 void path_out_a_bit(struct Path *path, long *route)
@@ -1194,20 +1263,133 @@ TbBool triangulation_border_tag(void)
     return true;
 }
 
-long dest_node(long a1, long a2)
+long dest_node(long tri_id, long cor_id)
 {
     long n;
-    n = Triangles[a1].tags[a2];
+    n = Triangles[tri_id].tags[cor_id];
     if (n < 0)
         return -1;
-    if (!nav_rulesA2B(get_triangle_tree_alt(a1), get_triangle_tree_alt(n)))
+    if (!nav_rulesA2B(get_triangle_tree_alt(tri_id), get_triangle_tree_alt(n)))
         return -1;
     return n;
 }
 
-void nearest_search(long size, long srcx, long srcy, long dstx, long dsty, long *px, long *py)
+void creature_radius_set(long radius)
 {
-    _DK_nearest_search(size, srcx, srcy, dstx, dsty, px, py);
+    edgelen_init();
+    if ((radius < 1) || (radius > EDGEOR_COUNT)) {
+        ERRORLOG("only radius 1..%d allowed, got %d",EDGEOR_COUNT,(int)radius);
+        if (radius < 1) {
+            radius = 1;
+        } else {
+            radius = EDGEOR_COUNT;
+        }
+    }
+    EdgeFit = RadiusEdgeFit[radius-1];
+}
+
+void set_nearpoint(long tri_id, long cor_id, long dstx, long dsty, long *px, long *py)
+{
+    _DK_set_nearpoint(tri_id, cor_id, dstx, dsty, px, py);
+}
+
+void nearest_search_f(long sizexy, long srcx, long srcy, long dstx, long dsty, long *px, long *py, const char *func_name)
+{
+    //TODO PATHFINDING debug and enable rewritten code
+    _DK_nearest_search(sizexy, srcx, srcy, dstx, dsty, px, py); return;
+
+    creature_radius_set(sizexy+1);
+    tags_init();
+    long tri1_id, tri2_id;
+    tri1_id = triangle_findSE8(srcx, srcy);
+    tri2_id = triangle_findSE8(dstx, dsty);
+    region_store_init();
+    store_current_tag(tri1_id);
+    region_put(tri1_id);
+    if (tri2_id == tri1_id)
+    {
+        *px = dstx;
+        *py = dsty;
+        return;
+    }
+    long seltri_id;
+    int selcor_id;
+    long min_dist;
+    signed int cor_id;
+    min_dist = LONG_MAX;
+    for (cor_id = 0; cor_id < 3; cor_id++)
+    {
+        int pt_id;
+        pt_id = Triangles[tri1_id].points[cor_id];
+        long diff_x, diff_y;
+        diff_x = ((Points[pt_id].x << 8) - dstx) >> 5;
+        diff_y = ((Points[pt_id].y << 8) - dsty) >> 5;
+        long dist;
+        dist = diff_x * diff_x + diff_y * diff_y;
+        if (min_dist > dist)
+        {
+          min_dist = dist;
+          seltri_id = tri1_id;
+          selcor_id = cor_id;
+        }
+    }
+
+    while (1)
+    {
+        int regn;
+        regn = region_get();
+        if (regn == -1)
+        {
+            if ((Triangles[seltri_id].tree_alt & 0xF) == 15) {
+                ERRORLOG("%s: non navigable found",func_name);
+            }
+            break;
+        }
+        struct Triangle *tri;
+        tri = &Triangles[regn] + 1;
+        unsigned int ncor1;
+        for (ncor1=0; ncor1 < 3; ncor1++)
+        {
+            long ntri;
+            int dist;
+            ntri = tri->points[ncor1];
+            if ((ntri != -1) && is_current_tag(ntri))
+            {
+                if ((Triangles[ntri].tree_alt & 0xF) != 15)
+                {
+                    if (fits_thro(regn, ncor1))
+                    {
+                        store_current_tag(ntri);
+                        region_put(ntri);
+                        if (tri2_id == ntri)
+                        {
+                            *px = dstx;
+                            *py = dsty;
+                            return;
+                        }
+                        unsigned int ncor2;
+                        for (ncor2=0; ncor2 < 3; ncor2++)
+                        {
+                            int pt_id;
+                            long diff_x;
+                            long diff_y;
+                            pt_id = Triangles[ntri].points[ncor2];
+                            diff_x = ((Points[pt_id].x << 8) - dstx) >> 5;
+                            diff_y = ((Points[pt_id].y << 8) - dsty) >> 5;
+                            dist = diff_x * diff_x + diff_y * diff_y;
+                            if (min_dist > dist)
+                            {
+                              min_dist = dist;
+                              seltri_id = ntri;
+                              selcor_id = ncor2;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    set_nearpoint(seltri_id, selcor_id, dstx, dsty, px, py);
 }
 
 long cost_to_start(long tri_idx)

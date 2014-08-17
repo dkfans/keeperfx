@@ -664,6 +664,7 @@
  0001:0006DB40       route_through_gates
  0001:0006DC10       nav_same_component
  0001:0006E050       path_init8_wide
+ 0001:0006E660       set_nearpoint
  0001:0006E7B0       nearest_search
  0001:0006EC80       setup_a_computer_player
  0001:0006EE60       restore_computer_player_after_load
@@ -1471,6 +1472,7 @@
  0003:0001339C       free_Points
  0003:000133B0       tag_current
  0003:000133B4       edgelen_initialised
+ 0003:000133B8       max_RegionStore
  0003:000133BC       ix_Border
  0003:000133C4       ix_delaunay
  0003:000133E0       ix_EdgePoints
@@ -1812,6 +1814,7 @@
  0003:00055EA0       map_fade_dest
  0003:00055EA4       map_fade_src
  0003:00055EA8       map_fade_ghost_table
+ 0003:00055EB0       ix_RegionQget
  0003:00055EB4       EdgeFit
  0003:00055EB8       EdgePoints
  0003:000564F8       tree_Bx8
@@ -1827,15 +1830,18 @@
  0003:0005FA50       wayPoints
  0003:00060E00       delaunay_stack
  0003:00061DA0       fringe_y
+ 0003:000621A0       ix_RegionQput
  0003:000621A8       Border
  0003:00062338       tree_triA
  0003:0006233C       tree_triB
  0003:00062560       RadiusEdgeFit
  0003:00062960       Triangles
+ 0003:00085BE0       count_RegionQ
  0003:000892E0       Regions
  0003:00089668       tree_dad
  0003:00092310       Tags
  0003:00094638       ap_GPathway
+ 0003:00096250       RegionQueue
  0003:00096574       fringe_y1
  0003:00096578       fringe_y2
  0003:0009657C       fringe_x1
