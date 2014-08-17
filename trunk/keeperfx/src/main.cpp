@@ -1051,8 +1051,8 @@ void update_creatr_model_activities_list(void)
 void toggle_hero_health_flowers(void)
 {
     const char *statstr;
-    toggle_flag_byte(&game.flags_cd,0x80);
-    if (game.flags_cd & 0x80)
+    toggle_flag_byte(&game.flags_cd,MFlg_unk80);
+    if (game.flags_cd & MFlg_unk80)
     {
       statstr = "off";
     } else
@@ -3350,7 +3350,7 @@ void wait_at_frontend(void)
     frontend_set_state(get_startup_menu_state());
 
     short finish_menu = 0;
-    set_flag_byte(&game.flags_cd,0x40,false);
+    set_flag_byte(&game.flags_cd,MFlg_unk40,false);
     // Begin the frontend loop
     long last_loop_time = LbTimerClock();
     do
