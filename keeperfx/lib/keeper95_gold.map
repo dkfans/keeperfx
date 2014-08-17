@@ -700,6 +700,11 @@
  0003:00024D05       vec_mode
  0003:00024D04       vec_colour
  0003:00055EB4       EdgeFit
+ 0003:00055EB0       ix_RegionQget
+ 0003:000621A0       ix_RegionQput
+ 0003:00085BE0       count_RegionQ
+ 0003:00096250       RegionQueue
+ 0003:000133B8       max_RegionStore
  0003:000564F8       tree_Bx8
  0003:000564FC       tree_By8
  0003:00056544       tree_Ax8
@@ -1035,6 +1040,7 @@
  0001:0005DB00       get_next_gap_creature_can_fit_in_below_point
  0001:0006EF80       process_computer_players2
  0001:00065E50       event_process_events
+ 0001:0006E660       set_nearpoint
  0001:00066100       update_all_events
  0001:000AFD40       process_player_manufacturing
  0001:0001CD90       process_player_research

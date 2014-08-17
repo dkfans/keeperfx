@@ -22,7 +22,8 @@
 #include "bflib_basics.h"
 #include "globals.h"
 
-#define REGIONS_COUNT 300
+#define REGIONS_COUNT        300
+#define REGION_QUEUE_LEN     200
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,6 +43,9 @@ extern struct RegionT bad_region;
 #define INVALID_REGION &bad_region;
 /******************************************************************************/
 TbBool regions_connected(long tree_reg1, long tree_reg2);
+void region_store_init(void);
+long region_get(void);
+void region_put(long nreg);
 #define region_set(ntri, nreg) region_set_f(ntri, nreg, __func__)
 void region_set_f(long ntri, unsigned long nreg, const char *func_name);
 #define region_unset(ntri, nreg) region_unset_f(ntri, nreg, __func__)

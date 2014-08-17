@@ -42,6 +42,7 @@ void tags_init(void);
 long update_border_tags(long tag_id, long *border_pt, long border_len);
 long border_tags_to_current(long *border_pt, long border_len);
 TbBool is_current_tag(long tag_id);
+void store_current_tag(long tag_id);
 
 TbBool navitree_add(long itm_pos, long itm_dat, long mvcost);
 long copy_tree_to_route(long tag_start_id, long tag_end_id, long *route_pts, long route_len);

@@ -203,8 +203,6 @@ DLLIMPORT long _DK_fringe_y[256];
 #define fringe_y _DK_fringe_y
 DLLIMPORT long _DK_ix_Border;
 #define ix_Border _DK_ix_Border
-//DLLIMPORT long _DK_count_RegionQ;
-//#define count_RegionQ _DK_count_RegionQ
 DLLIMPORT long _DK_Border[BORDER_LENGTH];
 #define Border _DK_Border
 DLLIMPORT long _DK_route_fwd[ROUTE_LENGTH];
@@ -238,7 +236,8 @@ AriadneReturn ariadne_invalidate_creature_route(struct Thing *thing);
 TbBool navigation_points_connected(struct Coord3d *pt1, struct Coord3d *pt2);
 void path_init8_wide_f(struct Path *path, long start_x, long start_y, long end_x, long end_y, long a6, unsigned char nav_size, const char *func_name);
 #define path_init8_wide(path, start_x, start_y, end_x, end_y, a6, nav_size) path_init8_wide_f(path, start_x, start_y, end_x, end_y, a6, nav_size, __func__)
-void nearest_search(long size, long srcx, long srcy, long dstx, long dsty, long *px, long *py);
+void nearest_search_f(long sizexy, long srcx, long srcy, long dstx, long dsty, long *px, long *py, const char *func_name);
+#define nearest_search(sizexy, srcx, srcy, dstx, dsty, px, py) nearest_search_f(sizexy, srcx, srcy, dstx, dsty, px, py, __func__)
 long get_navigation_colour(long stl_x, long stl_y);
 TbBool border_clip_horizontal(const unsigned char *imap, long a1, long a2, long a3, long a4);
 TbBool border_clip_vertical(const unsigned char *imap, long a1, long a2, long a3, long a4);

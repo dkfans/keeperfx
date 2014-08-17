@@ -180,6 +180,11 @@ TbBool is_current_tag(long tag_id)
     return (tag_current == Tags[tag_id]);
 }
 
+void store_current_tag(long tag_id)
+{
+    Tags[tag_id] = tag_current;
+}
+
 TbBool navitree_add(long itm_pos, long itm_dat, long mvcost)
 {
     long tag_pos;
