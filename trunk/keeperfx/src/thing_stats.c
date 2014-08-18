@@ -249,7 +249,7 @@ long compute_creature_kind_score(ThingModel crkind,unsigned short crlevel)
     return compute_creature_max_health(crstat->health,crlevel)
         + compute_creature_max_defense(crstat->defense,crlevel)
         + compute_creature_max_dexterity(crstat->dexterity,crlevel)
-        + compute_creature_max_armour(crstat->armour,crlevel)
+        + compute_creature_max_armour(crstat->armour,crlevel,false)
         + compute_creature_max_strength(crstat->strength,crlevel);
 }
 
@@ -346,7 +346,28 @@ long compute_creature_max_loyalty(long base_param,unsigned short crlevel)
 }
 
 /**
- * Projects expected damage of an attack, taking luck and creature level into account.
+ * Computes loyalty of a creature on given level.
+ */
+long compute_creature_max_armour(long base_param, unsigned short crlevel, TbBool armour_spell)
+{
+  long max_param;
+  if ((base_param <= 0) || (base_param > 60000))
+    base_param = 60000;
+  if (crlevel >= CREATURE_MAX_LEVEL)
+    crlevel = CREATURE_MAX_LEVEL-1;
+  max_param = base_param + (crtr_conf.exp.armour_increase_on_exp*base_param*(long)crlevel)/100;
+  if (armour_spell)
+      max_param = (320 * max_param) / 256;
+  // This limit makes armor absorb up to 80% of damage, never more
+  if (max_param > 204)
+      max_param = 204;
+  if (max_param < 0)
+      max_param = 0;
+  return max_param;
+}
+
+/**
+ * Projects expected damage of a melee attack, taking luck and creature level into account.
  * Uses no random factors - instead, projects a best estimate.
  * This function allows evaluating damage creature can make. It shouldn't be used
  * to actually inflict the damage.
@@ -354,16 +375,14 @@ long compute_creature_max_loyalty(long base_param,unsigned short crlevel)
  * @param luck Creature luck, scaled 0..100.
  * @param crlevel Creature level, 0..9.
  */
-long project_creature_attack_damage(long base_param,long luck,unsigned short crlevel)
+long project_creature_attack_melee_damage(long base_param,long luck,unsigned short crlevel)
 {
     long max_param;
     if (base_param < -60000)
         base_param = -60000;
     if (base_param > 60000)
         base_param = 60000;
-    if (crlevel >= CREATURE_MAX_LEVEL)
-        crlevel = CREATURE_MAX_LEVEL-1;
-    max_param = base_param + (crtr_conf.exp.damage_increase_on_exp*base_param*(long)crlevel)/100;
+    max_param = base_param;
     if (luck > 0)
     {
         if (luck > 100) luck = 100;
@@ -373,12 +392,15 @@ long project_creature_attack_damage(long base_param,long luck,unsigned short crl
 }
 
 /**
- * Computes damage of an attack, taking luck and creature level into account.
+ * Projects expected damage of an attack shot, taking luck and creature level into account.
+ * Uses no random factors - instead, projects a best estimate.
+ * This function allows evaluating damage creature can make. It shouldn't be used
+ * to actually inflict the damage.
  * @param base_param Base damage.
  * @param luck Creature luck, scaled 0..100.
  * @param crlevel Creature level, 0..9.
  */
-long compute_creature_attack_damage(long base_param, long luck, unsigned short crlevel)
+long project_creature_attack_spell_damage(long base_param,long luck,unsigned short crlevel)
 {
     long max_param;
     if (base_param < -60000)
@@ -387,7 +409,53 @@ long compute_creature_attack_damage(long base_param, long luck, unsigned short c
         base_param = 60000;
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
-    max_param = base_param + (crtr_conf.exp.damage_increase_on_exp*base_param*(long)crlevel)/100;
+    max_param = base_param + (crtr_conf.exp.spell_damage_increase_on_exp*base_param*(long)crlevel)/100;
+    if (luck > 0)
+    {
+        if (luck > 100) luck = 100;
+          max_param += luck*max_param/100;
+    }
+    return saturate_set_signed(max_param, 16);
+}
+
+/**
+ * Computes damage of a melee attack, taking luck and creature level into account.
+ * @param base_param Base damage.
+ * @param luck Creature luck, scaled 0..100.
+ * @param crlevel Creature level, 0..9.
+ */
+long compute_creature_attack_melee_damage(long base_param, long luck, unsigned short crlevel)
+{
+    long max_param;
+    if (base_param < -60000)
+        base_param = -60000;
+    if (base_param > 60000)
+        base_param = 60000;
+    max_param = base_param;
+    if (luck > 0)
+    {
+        if (ACTION_RANDOM(101) < luck)
+          max_param *= 2;
+    }
+    return saturate_set_signed(max_param, 16);
+}
+
+/**
+ * Computes damage of an attack shot, taking luck and creature level into account.
+ * @param base_param Base damage.
+ * @param luck Creature luck, scaled 0..100.
+ * @param crlevel Creature level, 0..9.
+ */
+long compute_creature_attack_spell_damage(long base_param, long luck, unsigned short crlevel)
+{
+    long max_param;
+    if (base_param < -60000)
+        base_param = -60000;
+    if (base_param > 60000)
+        base_param = 60000;
+    if (crlevel >= CREATURE_MAX_LEVEL)
+        crlevel = CREATURE_MAX_LEVEL-1;
+    max_param = base_param + (crtr_conf.exp.spell_damage_increase_on_exp*base_param*(long)crlevel)/100;
     if (luck > 0)
     {
         if (ACTION_RANDOM(101) < luck)
@@ -631,14 +699,7 @@ static void apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
     if ((cctrl->flgfield_1 & CCFlg_Immortal) == 0)
     {
         // Compute armor value
-        carmor = compute_creature_max_armour(crstat->armour,cctrl->explevel);
-        if (creature_affected_by_spell(thing, SplK_Armour))
-            carmor = (320 * carmor) / 256;
-        // This limit makes armor absorb up to 80% of damage, never more
-        if (carmor > 204)
-            carmor = 204;
-        if (carmor < 0)
-            carmor = 0;
+        carmor = compute_creature_max_armour(crstat->armour,cctrl->explevel,creature_affected_by_spell(thing, SplK_Armour));
         // Now compute damage
         cdamage = (dmg * (256 - carmor)) / 256;
         if (cdamage <= 0)
