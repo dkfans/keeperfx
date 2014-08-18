@@ -1965,58 +1965,8 @@ void gui_area_stat_button(struct GuiButton *gbtn)
         return;
     if (thing->class_id == TCls_Creature)
     {
-        struct CreatureStats *crstat;
-        struct CreatureControl *cctrl;
-        char *text;
-        crstat = creature_stats_get_from_thing(thing);
-        cctrl = creature_control_get_from_thing(thing);
-        switch ((long)gbtn->content)
-        {
-        case 0: // kills
-            i = cctrl->kills_num;
-            text = buf_sprintf("%ld", i);
-            break;
-        case 1: // strength
-            i = compute_creature_max_strength(crstat->strength,cctrl->explevel);
-            text = buf_sprintf("%ld", i);
-            break;
-        case 2: // gold held
-            i = thing->creature.gold_carried;
-            text = buf_sprintf("%ld", i);
-            break;
-        case 3: // payday wage
-            i = calculate_correct_creature_pay(thing);
-            text = buf_sprintf("%ld", i);
-            break;
-        case 4: // armour
-            i = compute_creature_max_armour(crstat->armour,cctrl->explevel,creature_affected_by_spell(thing, SplK_Armour));
-            text = buf_sprintf("%ld", i);
-            break;
-        case 5: // defence
-            i = compute_creature_max_defense(crstat->defense,cctrl->explevel);
-            text = buf_sprintf("%ld", i);
-            break;
-        case 6: // time in dungeon
-            i = (game.play_gameturn-thing->creation_turn) / 2000 + cctrl->joining_age;
-            if (i >= 99)
-              i = 99;
-            text = buf_sprintf("%ld", i);
-            break;
-        case 7: // dexterity
-            i = compute_creature_max_dexterity(crstat->dexterity,cctrl->explevel);
-            text = buf_sprintf("%ld", i);
-            break;
-        case 8: // luck
-            i = compute_creature_max_luck(crstat->luck,cctrl->explevel);
-            text = buf_sprintf("%ld", i);
-            break;
-        case 9: // blood type
-            i = cctrl->blood_type;
-            text = buf_sprintf("%s", blood_types[i%BLOOD_TYPES_COUNT]);
-            break;
-        default:
-            return;
-        }
+        const char *text;
+        text = creature_statistic_text(thing, (long)gbtn->content);
         draw_gui_panel_sprite_left(gbtn->scr_pos_x - 6*ps_units_per_px/16, gbtn->scr_pos_y - 12*ps_units_per_px/16, ps_units_per_px, gbtn->field_29);
         draw_button_string(gbtn, 60, text);
     }
