@@ -193,7 +193,7 @@ struct CreatureModelConfig {
  */
 struct CreatureExperience {
     long pay_increase_on_exp;
-    long damage_increase_on_exp;
+    long spell_damage_increase_on_exp;
     long range_increase_on_exp;
     long job_value_increase_on_exp;
     long health_increase_on_exp;
@@ -201,6 +201,7 @@ struct CreatureExperience {
     long dexterity_increase_on_exp;
     long defense_increase_on_exp;
     long loyalty_increase_on_exp;
+    long armour_increase_on_exp;
 };
 
 struct CreatureConfig {

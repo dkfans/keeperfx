@@ -1989,7 +1989,7 @@ void gui_area_stat_button(struct GuiButton *gbtn)
             text = buf_sprintf("%ld", i);
             break;
         case 4: // armour
-            i = compute_creature_max_armour(crstat->armour,cctrl->explevel);
+            i = compute_creature_max_armour(crstat->armour,cctrl->explevel,creature_affected_by_spell(thing, SplK_Armour));
             text = buf_sprintf("%ld", i);
             break;
         case 5: // defence

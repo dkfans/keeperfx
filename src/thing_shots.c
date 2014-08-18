@@ -121,7 +121,7 @@ TbBool detonate_shot(struct Thing *shotng)
         cctrl = creature_control_get_from_thing(castng);
         long dist, damage;
         dist = compute_creature_attack_range(shotst->area_range*COORD_PER_STL, crstat->luck, cctrl->explevel);
-        damage = compute_creature_attack_damage(shotst->area_damage, crstat->luck, cctrl->explevel);
+        damage = compute_creature_attack_spell_damage(shotst->area_damage, crstat->luck, cctrl->explevel);
         explosion_affecting_area(castng, &shotng->mappos, dist, damage, shotst->area_blow, shotst->area_hit_type, shotst->damage_type);
     }
     switch (shotng->model)

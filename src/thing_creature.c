@@ -2491,7 +2491,7 @@ long calculate_melee_damage(const struct Thing *creatng)
     crstat = creature_stats_get_from_thing(creatng);
     long strength;
     strength = compute_creature_max_strength(crstat->strength,cctrl->explevel);
-    return compute_creature_attack_damage(strength, crstat->luck, cctrl->explevel);
+    return compute_creature_attack_melee_damage(strength, crstat->luck, cctrl->explevel);
 }
 
 /**
@@ -2507,7 +2507,7 @@ long calculate_shot_damage(const struct Thing *creatng, ThingModel shot_model)
     shotst = get_shot_model_stats(shot_model);
     cctrl = creature_control_get_from_thing(creatng);
     crstat = creature_stats_get_from_thing(creatng);
-    return compute_creature_attack_damage(shotst->old->damage, crstat->luck, cctrl->explevel);
+    return compute_creature_attack_spell_damage(shotst->old->damage, crstat->luck, cctrl->explevel);
 }
 
 /**
@@ -2530,11 +2530,11 @@ long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_mod
         // Project melee damage
         long strength;
         strength = compute_creature_max_strength(crstat->strength,cctrl->explevel);
-        damage = project_creature_attack_damage(strength, crstat->luck, cctrl->explevel);
+        damage = project_creature_attack_melee_damage(strength, crstat->luck, cctrl->explevel);
     } else
     {
         // Project shot damage
-        damage = project_creature_attack_damage(shotst->old->damage, crstat->luck, cctrl->explevel);
+        damage = project_creature_attack_spell_damage(shotst->old->damage, crstat->luck, cctrl->explevel);
     }
     return damage;
 }
