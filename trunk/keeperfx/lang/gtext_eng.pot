@@ -2108,8 +2108,8 @@ msgstr ""
 #: guitext:299
 msgctxt "In-game interface description"
 msgid ""
-"Dexterity: The chance a creature will avoid a trap or an enemy weapon. The "
-"higher the number, the greater the chance of avoidance."
+"Dexterity: The chance of a successful attack. Used to break enemy defence. "
+"The higher the number, the greater the chance of hitting."
 msgstr ""
 
 #: guitext:300
@@ -5592,4 +5592,23 @@ msgstr ""
 #: guitext:948
 msgctxt "Game event description"
 msgid "Storage room unreachable: LMB toggle. RMB delete."
+msgstr ""
+
+#: guitext:949
+msgctxt "In-game interface description"
+msgid ""
+"Armour: Part of the damage which won't affect creature health. "
+"The higher the number, the larger part of damage is discarded."
+msgstr ""
+
+#: guitext:950
+msgctxt "In-game interface description"
+msgid ""
+"Speed: How fast the creature moves and perform its dungeon tasks."
+msgstr ""
+
+#: guitext:951
+msgctxt "In-game interface description"
+msgid ""
+"Loyalty: How resistant the creature is against scavenging by the enemy."
 msgstr ""

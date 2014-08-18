@@ -27,15 +27,38 @@ extern "C" {
 #endif
 /******************************************************************************/
 #define CREATURE_MAX_LEVEL     10
+
+enum CreatureLiveStatistics {
+    CrLStat_FirstName,
+    CrLStat_BloodType,
+    CrLStat_ExpLevel,
+    CrLStat_Health,
+    CrLStat_MaxHealth,
+    CrLStat_Strength,
+    CrLStat_Armour,
+    CrLStat_Defence,
+    CrLStat_Dexterity,
+    CrLStat_Luck,
+    CrLStat_Speed,
+    CrLStat_Loyalty,
+    CrLStat_AgeTime,
+    CrLStat_Kills,
+    CrLStat_GoldHeld,
+    CrLStat_GoldWage,
+    CrLStat_Score,
+};
 /******************************************************************************/
 #pragma pack(1)
 
 struct Thing;
 struct SlabMap;
 
+typedef short CreatureLiveStatId;
+
 #pragma pack()
 /******************************************************************************/
-extern const char *blood_types[];
+#define BLOOD_TYPES_COUNT (sizeof(blood_types)/sizeof(blood_types[0]))
+extern const char *blood_types[15];
 /******************************************************************************/
 const char *thing_model_name(const struct Thing *thing);
 const char *thing_class_and_model_name(int class_id, int model);
@@ -69,6 +92,8 @@ long compute_value_8bpercentage(long base_val, short npercent);
 long calculate_correct_creature_maxspeed(const struct Thing *thing);
 long calculate_correct_creature_pay(const struct Thing *thing);
 long calculate_correct_creature_scavenge_required(const struct Thing *thing, PlayerNumber callplyr_idx);
+
+const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveStatId cstat_id);
 
 long calculate_damage_did_to_slab_with_single_hit(const struct Thing *diggertng, const struct SlabMap *slb);
 long calculate_gold_digged_out_of_slab_with_single_hit(long damage_did_to_slab, PlayerNumber plyr_idx, unsigned short crlevel, const struct SlabMap *slb);
