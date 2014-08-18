@@ -322,18 +322,33 @@ struct GuiButtonInit creature_query_buttons2[] = {
 };
 
 struct GuiButtonInit creature_query_buttons3[] = {
-  { 0,  0, 0, 1, NULL,               NULL,        NULL,               0,  44, 374,  44, 374, 52, 20, gui_area_new_normal_button,      473, 433,&creature_query_menu1,{0}, 0, 0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,   4, 226,   4, 226, 60, 24, gui_area_stat_button,            331, 292,  0,       {0},            0, 0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  72, 226,  72, 226, 60, 24, gui_area_stat_button,            332, 293,  0,       {1},            0, 0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,   4, 256,   4, 256, 60, 24, gui_area_stat_button,            333, 295,  0,       {2},            0, 0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  72, 256,  72, 256, 60, 24, gui_area_stat_button,            334, 294,  0,       {3},            0, 0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,   4, 286,   4, 286, 60, 24, gui_area_stat_button,            335, 296,  0,       {4},            0, 0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  72, 286,  72, 286, 60, 24, gui_area_stat_button,            336, 297,  0,       {5},            0, 0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,   4, 316,   4, 316, 60, 24, gui_area_stat_button,            337, 298,  0,       {6},            0, 0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  72, 316,  72, 316, 60, 24, gui_area_stat_button,            338, 299,  0,       {7},            0, 0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,   4, 346,   4, 346, 60, 24, gui_area_stat_button,            339, 300,  0,       {8},            0, 0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  72, 346,  72, 346, 60, 24, gui_area_stat_button,            340, 301,  0,       {9},            0, 0, NULL },
-  {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       {0},            0, 0, NULL },
+  { 0,  0, 0, 1, NULL,               NULL,        NULL,               0,  44, 374,  44, 374, 52, 20, gui_area_new_normal_button,      473, 433,&creature_query_menu1,    {0}, 0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,   4, 226,   4, 226, 60, 24, gui_area_stat_button,            331, 292,  0,          {CrLStat_Kills}, 0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  72, 226,  72, 226, 60, 24, gui_area_stat_button,            332, 293,  0,       {CrLStat_Strength}, 0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,   4, 256,   4, 256, 60, 24, gui_area_stat_button,            333, 295,  0,       {CrLStat_GoldHeld}, 0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  72, 256,  72, 256, 60, 24, gui_area_stat_button,            334, 294,  0,       {CrLStat_GoldWage}, 0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,   4, 286,   4, 286, 60, 24, gui_area_stat_button,            335, 949,  0,         {CrLStat_Armour}, 0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  72, 286,  72, 286, 60, 24, gui_area_stat_button,            338, 296,  0,        {CrLStat_Defence}, 0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,   4, 316,   4, 316, 60, 24, gui_area_stat_button,            339, 300,  0,           {CrLStat_Luck}, 0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  72, 316,  72, 316, 60, 24, gui_area_stat_button,            337, 299,  0,      {CrLStat_Dexterity}, 0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,   4, 346,   4, 346, 60, 24, gui_area_stat_button,            336, 298,  0,        {CrLStat_AgeTime}, 0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  72, 346,  72, 346, 60, 24, gui_area_stat_button,            340, 301,  0,      {CrLStat_BloodType}, 0, 0, NULL },
+  {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,                      {0}, 0, 0, NULL },
+};
+
+struct GuiButtonInit creature_query_buttons4[] = {
+  { 0,  0, 0, 1, NULL,               NULL,        NULL,               0,  44, 374,  44, 374, 52, 20, gui_area_new_normal_button,      473, 433,&creature_query_menu1,    {0}, 0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,   4, 226,   4, 226, 60, 24, gui_area_stat_button,            340, 950,  0,          {CrLStat_Speed}, 0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  72, 226,  72, 226, 60, 24, gui_area_stat_button,            340, 951,  0,        {CrLStat_Loyalty}, 0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,   4, 256,   4, 256, 60, 24, gui_area_stat_button,            340, 297,  0,          {CrLStat_Score}, 0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  72, 256,  72, 256, 60, 24, gui_area_stat_button,            340, 297,  0,          {CrLStat_Score}, 0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,   4, 286,   4, 286, 60, 24, gui_area_stat_button,            340, 297,  0,          {CrLStat_Score}, 0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  72, 286,  72, 286, 60, 24, gui_area_stat_button,            340, 297,  0,          {CrLStat_Score}, 0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,   4, 316,   4, 316, 60, 24, gui_area_stat_button,            340, 297,  0,          {CrLStat_Score}, 0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  72, 316,  72, 316, 60, 24, gui_area_stat_button,            340, 297,  0,          {CrLStat_Score}, 0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,   4, 346,   4, 346, 60, 24, gui_area_stat_button,            340, 297,  0,          {CrLStat_Score}, 0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  72, 346,  72, 346, 60, 24, gui_area_stat_button,            340, 297,  0,          {CrLStat_Score}, 0, 0, NULL },
+  {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,                      {0}, 0, 0, NULL },
 };
 
 struct GuiMenu main_menu =
@@ -358,6 +373,8 @@ struct GuiMenu creature_query_menu2 =
  { 35, 0, 1, creature_query_buttons2,             0,          0, 140, 400, gui_creature_query_background1,0,NULL,   NULL,                    0, 0, 1,};
 struct GuiMenu creature_query_menu3 =
  { 32, 0, 1, creature_query_buttons3,             0,          0, 140, 400, gui_creature_query_background2,0,NULL,   NULL,                    0, 0, 1,};
+struct GuiMenu creature_query_menu4 =
+ { 32, 0, 1, creature_query_buttons4,             0,          0, 140, 400, gui_creature_query_background2,0,NULL,   NULL,                    0, 0, 1,};
 
 struct TiledSprite status_panel = {
     2, 4, {

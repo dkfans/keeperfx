@@ -21,6 +21,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_math.h"
+#include "bflib_memory.h"
 #include "game_merge.h"
 #include "thing_list.h"
 #include "creature_control.h"
@@ -42,13 +43,20 @@ extern "C" {
 /******************************************************************************/
 const char *blood_types[] = {
     "ARh+",
-    "O",
+    "O-",
     "MoO+",
     "BA",
     "PoE",
     "BO",
     "IkI",
-    NULL,
+    "C++",
+    "AB-",
+    "IgG",
+    "RhoD",
+    "A-",
+    "A+",
+    "ABO",
+    "B+",
 };
 
 const char *thing_classes[] = {
@@ -819,6 +827,93 @@ long calculate_gold_digged_out_of_slab_with_single_hit(long damage_did_to_slab, 
       return 1;
     return gold;
 }
+
+const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveStatId cstat_id)
+{
+    struct CreatureStats *crstat;
+    struct CreatureControl *cctrl;
+    const char *text;
+    crstat = creature_stats_get_from_thing(creatng);
+    cctrl = creature_control_get_from_thing(creatng);
+    long i;
+    switch (cstat_id)
+    {
+    case CrLStat_FirstName:
+        //TODO CREATURE_STSTS make support
+        break;
+    case CrLStat_BloodType:
+        i = cctrl->blood_type;
+        text = buf_sprintf("%s", blood_types[i%BLOOD_TYPES_COUNT]);
+        break;
+    case CrLStat_ExpLevel:
+        i = cctrl->explevel + 1;
+        text = buf_sprintf("%ld", i);
+        break;
+    case CrLStat_Health:
+        i = creatng->health;
+        text = buf_sprintf("%ld", i);
+        break;
+    case CrLStat_MaxHealth:
+        i = compute_creature_max_health(crstat->health,cctrl->explevel);
+        text = buf_sprintf("%ld", i);
+        break;
+    case CrLStat_Strength:
+        i = compute_creature_max_strength(crstat->strength,cctrl->explevel);
+        text = buf_sprintf("%ld", i);
+        break;
+    case CrLStat_Armour:
+        i = compute_creature_max_armour(crstat->armour,cctrl->explevel,creature_affected_by_spell(creatng, SplK_Armour));
+        text = buf_sprintf("%ld", i);
+        break;
+    case CrLStat_Defence:
+        i = compute_creature_max_defense(crstat->defense,cctrl->explevel);
+        text = buf_sprintf("%ld", i);
+        break;
+    case CrLStat_Dexterity:
+        i = compute_creature_max_dexterity(crstat->dexterity,cctrl->explevel);
+        text = buf_sprintf("%ld", i);
+        break;
+    case CrLStat_Luck:
+        i = compute_creature_max_luck(crstat->luck,cctrl->explevel);
+        text = buf_sprintf("%ld", i);
+        break;
+    case CrLStat_Speed:
+        i = calculate_correct_creature_maxspeed(creatng);
+        text = buf_sprintf("%ld", i);
+        break;
+    case CrLStat_Loyalty:
+        i = compute_creature_max_loyalty(crstat->scavenge_require,cctrl->explevel);
+        text = buf_sprintf("%ld", i);
+        break;
+    case CrLStat_AgeTime:
+        i = (game.play_gameturn-creatng->creation_turn) / 2000 + cctrl->joining_age;
+        if (i >= 99)
+          i = 99;
+        text = buf_sprintf("%ld", i);
+        break;
+    case CrLStat_Kills:
+        i = cctrl->kills_num;
+        text = buf_sprintf("%ld", i);
+        break;
+    case CrLStat_GoldHeld:
+        i = creatng->creature.gold_carried;
+        text = buf_sprintf("%ld", i);
+        break;
+    case CrLStat_GoldWage:
+        i = calculate_correct_creature_pay(creatng);
+        text = buf_sprintf("%ld", i);
+        break;
+    case CrLStat_Score:
+        i = compute_creature_kind_score(creatng->model,cctrl->explevel);
+        text = buf_sprintf("%ld", i);
+        break;
+    default:
+        text = lbEmptyString;
+        break;
+    }
+    return text;
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
