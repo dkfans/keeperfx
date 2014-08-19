@@ -45,8 +45,13 @@ enum CreatureLiveStatistics {
     CrLStat_Kills,
     CrLStat_GoldHeld,
     CrLStat_GoldWage,
+    CrLStat_ResearchSkill,
+    CrLStat_ManufactureSkill,
+    CrLStat_TrainingSkill,
+    CrLStat_ScavengeSkill,
     CrLStat_Score,
 };
+
 /******************************************************************************/
 #pragma pack(1)
 

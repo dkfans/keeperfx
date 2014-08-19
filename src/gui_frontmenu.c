@@ -155,9 +155,10 @@ void turn_off_roaming_menus(void)
 
 void turn_off_query_menus(void)
 {
-  turn_off_menu(GMnu_CREATURE_QUERY1);
-  turn_off_menu(GMnu_CREATURE_QUERY2);
-  turn_off_menu(GMnu_CREATURE_QUERY3);
+    turn_off_menu(GMnu_CREATURE_QUERY1);
+    turn_off_menu(GMnu_CREATURE_QUERY2);
+    turn_off_menu(GMnu_CREATURE_QUERY3);
+    turn_off_menu(GMnu_CREATURE_QUERY4);
 }
 
 void turn_off_all_panel_menus(void)
@@ -201,6 +202,10 @@ void turn_off_all_panel_menus(void)
   if ( menu_is_active(GMnu_CREATURE_QUERY3) )
   {
     turn_off_menu(GMnu_CREATURE_QUERY3);
+  }
+  if ( menu_is_active(GMnu_CREATURE_QUERY4) )
+  {
+    turn_off_menu(GMnu_CREATURE_QUERY4);
   }
   if ( menu_is_active(GMnu_SPELL_LOST) )
   {

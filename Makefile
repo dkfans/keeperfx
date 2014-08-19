@@ -175,6 +175,8 @@ obj/front_torture_data.o \
 obj/frontend.o \
 obj/frontmenu_options_data.o \
 obj/frontmenu_saves_data.o \
+obj/frontmenu_select.o \
+obj/frontmenu_select_data.o \
 obj/frontmenu_ingame_evnt.o \
 obj/frontmenu_ingame_evnt_data.o \
 obj/frontmenu_ingame_map.o \

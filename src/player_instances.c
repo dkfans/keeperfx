@@ -570,9 +570,7 @@ long pinstfs_direct_leave_creature(struct PlayerInfo *player, long *n)
       PaletteSetPlayerPalette(player, engine_palette);
       player->field_4C5 = 11;
       turn_off_all_window_menus();
-      turn_off_menu(GMnu_CREATURE_QUERY1);
-      turn_off_menu(GMnu_CREATURE_QUERY2);
-      turn_off_menu(GMnu_CREATURE_QUERY3);
+      turn_off_query_menus();
       turn_on_main_panel_menu();
       set_flag_byte(&game.numfield_C, 0x40, (game.numfield_C & 0x20) != 0);
   }
@@ -615,9 +613,7 @@ long pinstfs_passenger_leave_creature(struct PlayerInfo *player, long *n)
     PaletteSetPlayerPalette(player, engine_palette);
     player->field_4C5 = 11;
     turn_off_all_window_menus();
-    turn_off_menu(GMnu_CREATURE_QUERY1);
-    turn_off_menu(GMnu_CREATURE_QUERY2);
-    turn_off_menu(GMnu_CREATURE_QUERY3);
+    turn_off_query_menus();
     turn_on_main_panel_menu();
     set_flag_byte(&game.numfield_C, 0x40, (game.numfield_C & 0x20) != 0);
   }

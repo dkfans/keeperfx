@@ -4102,7 +4102,7 @@ short state_cleanup_unconscious(struct Thing *creatng)
     return 1;
 }
 
-long process_work_speed_on_work_value(struct Thing *thing, long base_val)
+long process_work_speed_on_work_value(const struct Thing *thing, long base_val)
 {
     struct Dungeon *dungeon;
     struct CreatureControl *cctrl;

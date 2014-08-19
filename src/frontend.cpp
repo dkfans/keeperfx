@@ -63,6 +63,7 @@
 #include "frontmenu_options.h"
 #include "frontmenu_specials.h"
 #include "frontmenu_saves.h"
+#include "frontmenu_select.h"
 #include "frontmenu_ingame_tabs.h"
 #include "frontmenu_ingame_evnt.h"
 #include "frontmenu_ingame_opts.h"
@@ -147,10 +148,6 @@ DLLIMPORT void _DK_do_button_release_actions(struct GuiButton *gbtn, unsigned ch
 TbClockMSec gui_message_timeout = 0;
 char gui_message_text[TEXT_BUFFER_LENGTH];
 
-int select_level_scroll_offset = 0;
-int select_campaign_scroll_offset = 0;
-int number_of_freeplay_levels = 0;
-
 struct GuiButtonInit frontend_main_menu_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,  26, 999,  26, 371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,       {1},            0, 0, NULL },
   { 0,  0, 0, 0, frontend_start_new_game,NULL,frontend_over_button,     3, 999,  92, 999,  92, 371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,       {2},            0, 0, NULL },
@@ -163,19 +160,7 @@ struct GuiButtonInit frontend_main_menu_buttons[] = {
   { 0,  0, 0, 0, frontend_change_state,NULL, frontend_over_button,      9, 999, 414, 999, 414, 371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,       {5},            0, 0, NULL },
   {-1,  0, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,   0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
 };
-/*
-struct GuiButtonInit frontend_main_menu_buttons[] = {
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,  30, 999,  30,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,       {1},            0, 0, NULL },
-  { 0,  0, 0, 0, frontend_start_new_game,NULL,frontend_over_button,   3, 999, 104, 999, 104,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,       {2},            0, 0, NULL },
-  { 0,  0, 0, 0, frontend_load_continue_game,NULL,frontend_over_button,0,999, 154, 999, 154,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,       {8},            0, 0, frontend_continue_game_maintain },
-  { 0,  0, 0, 0, frontend_change_state,NULL, frontend_over_button,    2, 999, 204, 999, 204,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,       {3},            0, 0, frontend_main_menu_load_game_maintain },
-  { 0,  0, 0, 0, frontend_change_state,NULL, frontend_over_button,    4, 999, 254, 999, 254,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,       {4},            0, 0, frontend_main_menu_netservice_maintain },
-  { 0,  0, 0, 0, frontend_change_state,NULL, frontend_over_button,   27, 999, 304, 999, 304,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {97},            0, 0, NULL },
-  { 0,  0, 0, 0, frontend_change_state,NULL, frontend_over_button,   18, 999, 354, 999, 354,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,     {104},            0, 0, frontend_main_menu_highscores_maintain },
-  { 0,  0, 0, 0, frontend_change_state,NULL, frontend_over_button,    9, 999, 404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,       {5},            0, 0, NULL },
-  {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
-};
-*/
+
 struct GuiButtonInit frontend_statistics_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,  30, 999,  30,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {84},            0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,  90, 999,  90,450,162, frontstats_draw_main_stats,        0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
@@ -196,51 +181,6 @@ struct GuiButtonInit frontend_error_box_buttons[] = {
   {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
 };
 
-struct GuiButtonInit frontend_add_session_buttons[] = {//TODO GUI prepare add session screen
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,   0, 999,   0,450, 92, frontend_draw_error_text_box,      0, GUIStr_Empty,  0,{(long)gui_message_text},0, 0, frontend_maintain_error_text_box},
-  {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
-};
-
-#define frontend_select_level_items_visible  7
-struct GuiButtonInit frontend_select_level_buttons[] = {
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,  30, 999,  30,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,     {107},            0, 0, NULL},
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  82, 128,  82, 128,220, 26, frontnet_draw_scroll_box_tab,      0, GUIStr_Empty,  0,      {28},            0, 0, NULL},
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  82, 154,  82, 154,450,180, frontnet_draw_scroll_box,          0, GUIStr_Empty,  0,      {26},            0, 0, NULL},
-  { 1,  0, 0, 0, frontend_level_select_up,NULL,frontend_over_button,  0, 532, 153, 532, 153, 26, 14, frontnet_draw_slider_button,       0, GUIStr_Empty,  0,      {17},            0, 0, frontend_level_select_up_maintain},
-  { 1,  0, 0, 0, frontend_level_select_down,NULL,frontend_over_button,0, 532, 321, 532, 321, 26, 14, frontnet_draw_slider_button,       0, GUIStr_Empty,  0,      {18},            0, 0, frontend_level_select_down_maintain},
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 536, 167, 536, 167, 20,154, frontend_draw_levels_scroll_tab,   0, GUIStr_Empty,  0,      {40},            0, 0, NULL},
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 102, 129, 102, 129,220, 26, frontend_draw_text,                0, GUIStr_Empty,  0,      {32},            0, 0, NULL},
-  { 0,  0, 0, 0, frontend_level_select,NULL,frontend_over_button,     0,  95, 167,  95, 169,424, 22, frontend_draw_level_select_button, 0, GUIStr_Empty,  0,      {45},            0, 0, frontend_level_select_maintain},
-  { 0,  0, 0, 0, frontend_level_select,NULL,frontend_over_button,     0,  95, 189,  95, 191,424, 22, frontend_draw_level_select_button, 0, GUIStr_Empty,  0,      {46},            0, 0, frontend_level_select_maintain},
-  { 0,  0, 0, 0, frontend_level_select,NULL,frontend_over_button,     0,  95, 211,  95, 213,424, 22, frontend_draw_level_select_button, 0, GUIStr_Empty,  0,      {47},            0, 0, frontend_level_select_maintain},
-  { 0,  0, 0, 0, frontend_level_select,NULL,frontend_over_button,     0,  95, 233,  95, 235,424, 22, frontend_draw_level_select_button, 0, GUIStr_Empty,  0,      {48},            0, 0, frontend_level_select_maintain},
-  { 0,  0, 0, 0, frontend_level_select,NULL,frontend_over_button,     0,  95, 255,  95, 257,424, 22, frontend_draw_level_select_button, 0, GUIStr_Empty,  0,      {49},            0, 0, frontend_level_select_maintain},
-  { 0,  0, 0, 0, frontend_level_select,NULL,frontend_over_button,     0,  95, 277,  95, 279,424, 22, frontend_draw_level_select_button, 0, GUIStr_Empty,  0,      {50},            0, 0, frontend_level_select_maintain},
-  { 0,  0, 0, 0, frontend_level_select,NULL,frontend_over_button,     0,  95, 299,  95, 301,424, 22, frontend_draw_level_select_button, 0, GUIStr_Empty,  0,      {51},            0, 0, frontend_level_select_maintain},
-  { 0,  0, 0, 0, frontend_change_state,NULL,frontend_over_button,     1, 999, 404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,       {6},            0, 0, NULL},
-  {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
-};
-
-#define frontend_select_campaign_items_visible  7
-struct GuiButtonInit frontend_select_campaign_buttons[] = {
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,  30, 999,  30,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,     {108},            0, 0, NULL},
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  82, 128,  82, 128,220, 26, frontnet_draw_scroll_box_tab,      0, GUIStr_Empty,  0,      {28},            0, 0, NULL},
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  82, 154,  82, 154,450,180, frontnet_draw_scroll_box,          0, GUIStr_Empty,  0,      {26},            0, 0, NULL},
-  { 1,  0, 0, 0, frontend_campaign_select_up,NULL,frontend_over_button,0, 532,153, 532, 153, 26, 14, frontnet_draw_slider_button,       0, GUIStr_Empty,  0,      {17},            0, 0, frontend_campaign_select_up_maintain},
-  { 1,  0, 0, 0, frontend_campaign_select_down,NULL,frontend_over_button,0,532,321,532, 321, 26, 14, frontnet_draw_slider_button,       0, GUIStr_Empty,  0,      {18},            0, 0, frontend_campaign_select_down_maintain},
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 536, 167, 536, 167, 20,154, frontend_draw_campaign_scroll_tab, 0, GUIStr_Empty,  0,      {40},            0, 0, NULL},
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 102, 129, 102, 129,220, 26, frontend_draw_text,                0, GUIStr_Empty,  0,     {109},            0, 0, NULL},
-  { 0,  0, 0, 0, frontend_campaign_select,NULL,frontend_over_button,  0,  95, 167,  95, 169,424, 22, frontend_draw_campaign_select_button,0,GUIStr_Empty, 0,      {45},            0, 0, frontend_campaign_select_maintain},
-  { 0,  0, 0, 0, frontend_campaign_select,NULL,frontend_over_button,  0,  95, 189,  95, 191,424, 22, frontend_draw_campaign_select_button,0,GUIStr_Empty, 0,      {46},            0, 0, frontend_campaign_select_maintain},
-  { 0,  0, 0, 0, frontend_campaign_select,NULL,frontend_over_button,  0,  95, 211,  95, 213,424, 22, frontend_draw_campaign_select_button,0,GUIStr_Empty, 0,      {47},            0, 0, frontend_campaign_select_maintain},
-  { 0,  0, 0, 0, frontend_campaign_select,NULL,frontend_over_button,  0,  95, 233,  95, 235,424, 22, frontend_draw_campaign_select_button,0,GUIStr_Empty, 0,      {48},            0, 0, frontend_campaign_select_maintain},
-  { 0,  0, 0, 0, frontend_campaign_select,NULL,frontend_over_button,  0,  95, 255,  95, 257,424, 22, frontend_draw_campaign_select_button,0,GUIStr_Empty, 0,      {49},            0, 0, frontend_campaign_select_maintain},
-  { 0,  0, 0, 0, frontend_campaign_select,NULL,frontend_over_button,  0,  95, 277,  95, 279,424, 22, frontend_draw_campaign_select_button,0,GUIStr_Empty, 0,      {50},            0, 0, frontend_campaign_select_maintain},
-  { 0,  0, 0, 0, frontend_campaign_select,NULL,frontend_over_button,  0,  95, 299,  95, 301,424, 22, frontend_draw_campaign_select_button,0,GUIStr_Empty, 0,      {51},            0, 0, frontend_campaign_select_maintain},
-  { 0,  0, 0, 0, frontend_change_state,NULL,frontend_over_button,     1, 999, 404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,       {6},            0, 0, NULL},
-  {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
-};
-
 
 struct GuiMenu frontend_main_menu =
  { GMnu_FEMAIN,             0, 1, frontend_main_menu_buttons,          0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
@@ -248,14 +188,8 @@ struct GuiMenu frontend_statistics_menu =
  { GMnu_FESTATISTICS,       0, 1, frontend_statistics_buttons,         0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu frontend_high_score_table_menu =
  { GMnu_FEHIGH_SCORE_TABLE, 0, 1, frontend_high_score_score_buttons,   0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
-struct GuiMenu frontend_select_level_menu =
- { GMnu_FELEVEL_SELECT,     0, 1, frontend_select_level_buttons,       0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
-struct GuiMenu frontend_select_campaign_menu =
- { GMnu_FECAMPAIGN_SELECT,  0, 1, frontend_select_campaign_buttons,    0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu frontend_error_box = // Error box has no background defined - the buttons drawing adds it
  { GMnu_FEERROR_BOX,        0, 1, frontend_error_box_buttons,POS_GAMECTR,POS_GAMECTR, 450,  92, NULL,                        0, NULL,    NULL,                    0, 1, 0,};
-struct GuiMenu frontend_add_session_box =
- { GMnu_FEADD_SESSION,      0, 1, frontend_add_session_buttons,POS_GAMECTR,POS_GAMECTR,450, 92, NULL,                        0, NULL,    NULL,                    0, 1, 0,};
 
 // Note: update size in .h file when changing this array.
 struct GuiMenu *menu_list[] = {
@@ -292,7 +226,7 @@ struct GuiMenu *menu_list[] = {
     &armageddon_menu,//30
     &creature_query_menu1,
     &creature_query_menu3,
-    NULL,
+    &creature_query_menu4,
     &battle_menu,
     &creature_query_menu2,
     &frontend_define_keys_menu,
@@ -1636,11 +1570,6 @@ void gui_scroll_text_down(struct GuiButton *gbtn)
     scroll_window->action = 2;
 }
 
-void frontend_draw_levels_scroll_tab(struct GuiButton *gbtn)
-{
-    frontend_draw_scroll_tab(gbtn, select_level_scroll_offset, frontend_select_level_items_visible-2, number_of_freeplay_levels);
-}
-
 /**
  * Changes state based on a parameter inside GuiButton.
  * But first, loads the default campaign if no campaign is loaded yet.
@@ -1974,9 +1903,10 @@ short is_toggleable_menu(short mnu_idx)
   case GMnu_TEXT_INFO:
   case GMnu_DUNGEON_SPECIAL:
   case GMnu_CREATURE_QUERY1:
-  case GMnu_CREATURE_QUERY3:
-  case GMnu_BATTLE:
   case GMnu_CREATURE_QUERY2:
+  case GMnu_CREATURE_QUERY3:
+  case GMnu_CREATURE_QUERY4:
+  case GMnu_BATTLE:
   case GMnu_SPELL_LOST:
       return true;
   case GMnu_OPTIONS:
@@ -2000,7 +1930,6 @@ short is_toggleable_menu(short mnu_idx)
   case GMnu_RESURRECT_CREATURE:
   case GMnu_TRANSFER_CREATURE:
   case GMnu_ARMAGEDDON:
-  case 33:
   case GMnu_FEDEFINE_KEYS:
   case GMnu_AUTOPILOT:
   case GMnu_FEOPTION:
@@ -2296,37 +2225,8 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
 }
 #undef MNU_UNITS_PER_PX
 
-//TODO: Remove when original toggle_status_menu() won't be used anymore.
-DLLIMPORT unsigned char _DK_room_on;
-#define room_on _DK_room_on
-DLLIMPORT unsigned char _DK_spell_on;
-#define spell_on _DK_spell_on
-DLLIMPORT unsigned char _DK_spell_lost_on;
-#define spell_lost_on _DK_spell_lost_on
-DLLIMPORT unsigned char _DK_trap_on;
-#define trap_on _DK_trap_on
-DLLIMPORT unsigned char _DK_creat_on;
-#define creat_on _DK_creat_on
-DLLIMPORT unsigned char _DK_event_on;
-#define event_on _DK_event_on
-DLLIMPORT unsigned char _DK_query_on;
-#define query_on _DK_query_on
-DLLIMPORT unsigned char _DK_creature_query1_on;
-#define creature_query1_on _DK_creature_query1_on
-DLLIMPORT unsigned char _DK_creature_query2_on;
-#define creature_query2_on _DK_creature_query2_on
-DLLIMPORT unsigned char _DK_creature_query3_on;
-#define creature_query3_on _DK_creature_query3_on
-DLLIMPORT unsigned char _DK_objective_on;
-#define objective_on _DK_objective_on
-DLLIMPORT unsigned char _DK_battle_on;
-#define battle_on _DK_battle_on
-DLLIMPORT unsigned char _DK_special_on;
-#define special_on _DK_special_on
-
 unsigned long toggle_status_menu(short visible)
 {
-/*
   static unsigned char room_on = 0;
   static unsigned char spell_on = 0;
   static unsigned char spell_lost_on = 0;
@@ -2337,10 +2237,11 @@ unsigned long toggle_status_menu(short visible)
   static unsigned char creature_query1_on = 0;
   static unsigned char creature_query2_on = 0;
   static unsigned char creature_query3_on = 0;
+  static unsigned char creature_query4_on = 0;
   static unsigned char objective_on = 0;
   static unsigned char battle_on = 0;
   static unsigned char special_on = 0;
-*/
+
   long k;
   unsigned long i;
   k = menu_id_to_number(GMnu_MAIN);
@@ -2373,6 +2274,8 @@ unsigned long toggle_status_menu(short visible)
         set_menu_visible_on(GMnu_CREATURE_QUERY2);
       if ( creature_query3_on )
         set_menu_visible_on(GMnu_CREATURE_QUERY3);
+      if ( creature_query4_on )
+        set_menu_visible_on(GMnu_CREATURE_QUERY4);
       if ( battle_on )
         set_menu_visible_on(GMnu_BATTLE);
       if ( objective_on )
@@ -2382,54 +2285,72 @@ unsigned long toggle_status_menu(short visible)
     } else
     {
       set_menu_visible_off(GMnu_MAIN);
+
       k = menu_id_to_number(GMnu_ROOM);
       if (k >= 0)
         room_on = get_active_menu(k)->flgfield_1D;
       set_menu_visible_off(GMnu_ROOM);
+
       k = menu_id_to_number(GMnu_SPELL);
       if (k >= 0)
         spell_on = get_active_menu(k)->flgfield_1D;
       set_menu_visible_off(GMnu_SPELL);
+
       k = menu_id_to_number(GMnu_SPELL_LOST);
       if (k >= 0)
         spell_lost_on = get_active_menu(k)->flgfield_1D;
       set_menu_visible_off(GMnu_SPELL_LOST);
+
       k = menu_id_to_number(GMnu_TRAP);
       if (k >= 0)
       trap_on = get_active_menu(k)->flgfield_1D;
       set_menu_visible_off(GMnu_TRAP);
+
       k = menu_id_to_number(GMnu_CREATURE);
       if (k >= 0)
         creat_on = get_active_menu(k)->flgfield_1D;
       set_menu_visible_off(GMnu_CREATURE);
+
       k = menu_id_to_number(GMnu_EVENT);
       if (k >= 0)
         event_on = get_active_menu(k)->flgfield_1D;
       set_menu_visible_off(GMnu_EVENT);
+
       k = menu_id_to_number(GMnu_QUERY);
       if (k >= 0)
         query_on = get_active_menu(k)->flgfield_1D;
       set_menu_visible_off(GMnu_QUERY);
+
       k = menu_id_to_number(GMnu_CREATURE_QUERY1);
       if (k >= 0)
         creature_query1_on = get_active_menu(k)->flgfield_1D;
       set_menu_visible_off(GMnu_CREATURE_QUERY1);
+
       k = menu_id_to_number(GMnu_CREATURE_QUERY2);
       if (k >= 0)
         creature_query2_on = get_active_menu(k)->flgfield_1D;
       set_menu_visible_off(GMnu_CREATURE_QUERY2);
+
       k = menu_id_to_number(GMnu_CREATURE_QUERY3);
       if (k >= 0)
         creature_query3_on = get_active_menu(k)->flgfield_1D;
       set_menu_visible_off(GMnu_CREATURE_QUERY3);
+
+      k = menu_id_to_number(GMnu_CREATURE_QUERY4);
+      if (k >= 0)
+        creature_query4_on = get_active_menu(k)->flgfield_1D;
+      set_menu_visible_off(GMnu_CREATURE_QUERY4);
+
       k = menu_id_to_number(GMnu_TEXT_INFO);
       if (k >= 0)
         objective_on = get_active_menu(k)->flgfield_1D;
       set_menu_visible_off(GMnu_TEXT_INFO);
+
       k = menu_id_to_number(GMnu_BATTLE);
       if (k >= 0)
         battle_on = get_active_menu(k)->flgfield_1D;
       set_menu_visible_off(GMnu_BATTLE);
+
       k = menu_id_to_number(GMnu_DUNGEON_SPECIAL);
       if (k >= 0)
         special_on = get_active_menu(k)->flgfield_1D;
@@ -2544,232 +2465,10 @@ void inline frontstory_unload(void)
     LbDataFreeAll(frontstory_load_files);
 }
 
-void frontend_level_select_up(struct GuiButton *gbtn)
-{
-    if (select_level_scroll_offset > 0)
-      select_level_scroll_offset--;
-}
-
-void frontend_level_select_down(struct GuiButton *gbtn)
-{
-  if (select_level_scroll_offset < number_of_freeplay_levels-frontend_select_level_items_visible+1)
-    select_level_scroll_offset++;
-}
-
-void frontend_level_select_up_maintain(struct GuiButton *gbtn)
-{
-    if (gbtn != NULL)
-      set_flag_byte(&gbtn->flags, LbBtnF_Unknown08, (select_level_scroll_offset != 0));
-}
-
-void frontend_level_select_down_maintain(struct GuiButton *gbtn)
-{
-  if (gbtn != NULL)
-    set_flag_byte(&gbtn->flags, LbBtnF_Unknown08, (select_level_scroll_offset < number_of_freeplay_levels-frontend_select_level_items_visible+1));
-}
-
-void frontend_level_select_maintain(struct GuiButton *gbtn)
-{
-    long i;
-    if (gbtn != NULL)
-    {
-      i = (long)gbtn->content - 45;
-      set_flag_byte(&gbtn->flags, LbBtnF_Unknown08, (select_level_scroll_offset+i < number_of_freeplay_levels));
-    }
-}
-
-void frontend_draw_level_select_button(struct GuiButton *gbtn)
-{
-    struct LevelInformation *lvinfo;
-    long btn_idx;
-    long lvnum;
-    long i;
-    btn_idx = (long)gbtn->content;
-    i = btn_idx + select_level_scroll_offset - 45;
-    lvnum = 0;
-    if ((i >= 0) && (i < campaign.freeplay_levels_count))
-      lvnum = campaign.freeplay_levels[i];
-    lvinfo = get_level_info(lvnum);
-    if (lvinfo == NULL)
-      return;
-    if ((btn_idx > 0) && (frontend_mouse_over_button == btn_idx))
-      i = 2;
-    else
-    if (get_level_highest_score(lvnum))
-      i = 3;
-    else
-      i = 1;
-    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
-    LbTextSetFont(frontend_font[i]);
-    int tx_units_per_px;
-    // This text is a bit condensed - button size is smaller than text height
-    tx_units_per_px = (gbtn->height*13/11) * 16 / LbTextLineHeight();
-    i = LbTextLineHeight() * tx_units_per_px / 16;
-    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, i);
-    LbTextDrawResized(0, 0, tx_units_per_px, lvinfo->name);
-}
-
-void frontend_level_select(struct GuiButton *gbtn)
-{
-    // Find the level number
-    long i;
-    long lvnum;
-    i = (long)gbtn->content + select_level_scroll_offset - 45;
-    lvnum = 0;
-    if (i < campaign.freeplay_levels_count)
-      lvnum = campaign.freeplay_levels[i];
-    if (lvnum <= 0)
-        return;
-    game.selected_level_number = lvnum;
-    game.flags_font |= FFlg_unk80;
-    frontend_set_state(FeSt_START_KPRLEVEL);
-}
-
-void frontend_level_list_unload(void)
-{
-  // Nothing needs to be really unloaded; just menu cleanup here
-  number_of_freeplay_levels = 0;
-}
-
-void frontend_level_list_load(void)
-{
-    // Load the default campaign (free play levels should be played with default campaign settings)
-    if (!change_campaign("")) {
-        number_of_freeplay_levels = 0;
-        return;
-    }
-    number_of_freeplay_levels = campaign.freeplay_levels_count;
-}
-
-void frontend_level_select_update(void)
-{
-  if (number_of_freeplay_levels <= 0)
-  {
-    select_level_scroll_offset = 0;
-  } else
-  if (select_level_scroll_offset < 0)
-  {
-    select_level_scroll_offset = 0;
-  } else
-  if (select_level_scroll_offset > number_of_freeplay_levels-frontend_select_level_items_visible+1)
-  {
-    select_level_scroll_offset = number_of_freeplay_levels-frontend_select_level_items_visible+1;
-  }
-}
-
-void frontend_campaign_select_up(struct GuiButton *gbtn)
-{
-  if (select_campaign_scroll_offset > 0)
-      select_campaign_scroll_offset--;
-}
-
-void frontend_campaign_select_down(struct GuiButton *gbtn)
-{
-  if (select_campaign_scroll_offset < campaigns_list.items_num-frontend_select_campaign_items_visible+1)
-      select_campaign_scroll_offset++;
-}
-
-void frontend_campaign_select_up_maintain(struct GuiButton *gbtn)
-{
-  if (gbtn != NULL)
-    set_flag_byte(&gbtn->flags, 0x08, (select_campaign_scroll_offset != 0));
-}
-
-void frontend_campaign_select_down_maintain(struct GuiButton *gbtn)
-{
-  if (gbtn != NULL)
-    set_flag_byte(&gbtn->flags, LbBtnF_Unknown08, (select_campaign_scroll_offset < campaigns_list.items_num-frontend_select_campaign_items_visible+1));
-}
-
-void frontend_campaign_select_maintain(struct GuiButton *gbtn)
-{
-  long btn_idx;
-  long i;
-  if (gbtn == NULL)
-    return;
-  btn_idx = (long)gbtn->content;
-  i = select_campaign_scroll_offset + btn_idx-45;
-  set_flag_byte(&gbtn->flags, LbBtnF_Unknown08, (i < campaigns_list.items_num));
-}
-
-void frontend_draw_campaign_select_button(struct GuiButton *gbtn)
-{
-  struct GameCampaign *campgn;
-  long btn_idx;
-  long i;
-  if (gbtn == NULL)
-    return;
-  btn_idx = (long)gbtn->content;
-  i = select_campaign_scroll_offset + btn_idx-45;
-  campgn = NULL;
-  if ((i >= 0) && (i < campaigns_list.items_num))
-    campgn = &campaigns_list.items[i];
-  if (campgn == NULL)
-    return;
-  if ((btn_idx > 0) && (frontend_mouse_over_button == btn_idx))
-    i = 2;
-  else
-/*  if (campaign has been passed)
-    i = 3;
-  else*/
-    i = 1;
-  lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
-  LbTextSetFont(frontend_font[i]);
-  int tx_units_per_px;
-  // This text is a bit condensed - button size is smaller than text height
-  tx_units_per_px = (gbtn->height*13/11) * 16 / LbTextLineHeight();
-  i = LbTextLineHeight() * tx_units_per_px / 16;
-  LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, i);
-  LbTextDrawResized(0, 0, tx_units_per_px, campgn->name);
-}
-
-void frontend_campaign_select(struct GuiButton *gbtn)
-{
-    long i;
-    long btn_idx;
-    struct GameCampaign *campgn;
-    if (gbtn == NULL)
-        return;
-    btn_idx = (long)gbtn->content;
-    i = select_campaign_scroll_offset + btn_idx-45;
-    campgn = NULL;
-    if ((i >= 0) && (i < campaigns_list.items_num))
-        campgn = &campaigns_list.items[i];
-    if (campgn == NULL)
-        return;
-    if (!frontend_start_new_campaign(campgn->fname))
-    {
-        ERRORLOG("Unable to start new campaign");
-        return;
-    }
-    frontend_set_state(FeSt_LAND_VIEW);
-}
-
-void frontend_campaign_select_update(void)
-{
-    if (campaigns_list.items_num <= 0)
-    {
-        select_campaign_scroll_offset = 0;
-    } else
-    if (select_campaign_scroll_offset < 0)
-    {
-        select_campaign_scroll_offset = 0;
-    } else
-    if (select_campaign_scroll_offset > campaigns_list.items_num-frontend_select_campaign_items_visible+1)
-    {
-        select_campaign_scroll_offset = campaigns_list.items_num-frontend_select_campaign_items_visible+1;
-    }
-}
-
-void frontend_draw_campaign_scroll_tab(struct GuiButton *gbtn)
-{
-    frontend_draw_scroll_tab(gbtn, select_campaign_scroll_offset, frontend_select_campaign_items_visible-2, campaigns_list.items_num);
-}
-
 void initialise_tab_tags(MenuID menu_id)
 {
     info_tag =  (menu_id == GMnu_QUERY) || (menu_id == GMnu_CREATURE_QUERY1) ||
-        (menu_id == GMnu_CREATURE_QUERY2) || (menu_id == GMnu_CREATURE_QUERY3);
+        (menu_id == GMnu_CREATURE_QUERY2) || (menu_id == GMnu_CREATURE_QUERY3) || (menu_id == GMnu_CREATURE_QUERY4);
     room_tag = (menu_id == GMnu_ROOM);
     spell_tag = (menu_id == GMnu_SPELL);
     trap_tag = (menu_id == GMnu_TRAP);

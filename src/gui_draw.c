@@ -472,21 +472,22 @@ int simple_frontend_sprite_width_units_per_px(const struct GuiButton *gbtn, long
  *  Note that the source text buffer may be damaged by this function.
  * @param gbtn Button to draw text on.
  * @param base_width Width of the button before scaling.
- * @param text Text to be displayed. The buffer may be changed by this function.
- *     It should have at least TEXT_BUFFER_LENGTH in size.
+ * @param text Text to be displayed.
  */
-void draw_button_string(struct GuiButton *gbtn, int base_width, char *text)
+void draw_button_string(struct GuiButton *gbtn, int base_width, const char *text)
 {
     unsigned long flgmem;
     static unsigned char cursor_type = 0;
+    static char dtext[TEXT_BUFFER_LENGTH];
     flgmem = lbDisplay.DrawFlags;
     long cursor_pos = -1;
+    LbStringCopy(dtext,text,TEXT_BUFFER_LENGTH);
     if ((gbtn->gbtype == Lb_EDITBTN) && (gbtn == input_button))
     {
         cursor_type++;
         if ((cursor_type & 0x02) == 0)
           cursor_pos = input_field_pos;
-        LbLocTextStringConcat(text, " ", TEXT_BUFFER_LENGTH);
+        LbLocTextStringConcat(dtext, " ", TEXT_BUFFER_LENGTH);
         lbDisplay.DrawColour = LbTextGetFontFaceColor();
         lbDisplayEx.ShadowColour = LbTextGetFontBackColor();
     }
@@ -495,8 +496,8 @@ void draw_button_string(struct GuiButton *gbtn, int base_width, char *text)
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;// | Lb_TEXT_UNDERLNSHADOW;
     if (cursor_pos >= 0) {
         // Mind the order, 'cause inserting makes positions shift
-        LbLocTextStringInsert(text, "\x0B", cursor_pos+1, TEXT_BUFFER_LENGTH);
-        LbLocTextStringInsert(text, "\x0B", cursor_pos, TEXT_BUFFER_LENGTH);
+        LbLocTextStringInsert(dtext, "\x0B", cursor_pos+1, TEXT_BUFFER_LENGTH);
+        LbLocTextStringInsert(dtext, "\x0B", cursor_pos, TEXT_BUFFER_LENGTH);
     }
     int units_per_px;
     units_per_px = (gbtn->width * 16 + base_width/2) / base_width;
@@ -504,8 +505,8 @@ void draw_button_string(struct GuiButton *gbtn, int base_width, char *text)
     tx_units_per_px = units_per_px*22/LbTextLineHeight();
     unsigned long w,h;
     w = 4 * units_per_px / 16;
-    h = (gbtn->height - text_string_height(tx_units_per_px, text))/2 - 3*units_per_px/16;
-    LbTextDrawResized(w, h, tx_units_per_px, text);
+    h = (gbtn->height - text_string_height(tx_units_per_px, dtext))/2 - 3*units_per_px/16;
+    LbTextDrawResized(w, h, tx_units_per_px, dtext);
     LbTextSetJustifyWindow(0, 0, LbGraphicsScreenWidth());
     LbTextSetClipWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);

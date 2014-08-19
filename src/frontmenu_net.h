@@ -39,6 +39,7 @@ extern struct GuiMenu frontend_net_session_menu;
 extern struct GuiMenu frontend_net_start_menu;
 extern struct GuiMenu frontend_net_modem_menu;
 extern struct GuiMenu frontend_net_serial_menu;
+extern struct GuiMenu frontend_add_session_box;
 /******************************************************************************/
 void frontnet_session_up_maintain(struct GuiButton *gbtn);
 void frontnet_session_down_maintain(struct GuiButton *gbtn);
