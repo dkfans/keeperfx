@@ -47,16 +47,6 @@ struct InstanceButtonInit {  // sizeof=0x6
 /******************************************************************************/
 DLLIMPORT long _DK_activity_list[24];
 #define activity_list _DK_activity_list
-DLLIMPORT struct GuiButtonInit _DK_main_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_room_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_spell_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_spell_lost_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_trap_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_creature_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_query_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_creature_query_buttons1[];
-DLLIMPORT struct GuiButtonInit _DK_creature_query_buttons2[];
-DLLIMPORT struct GuiButtonInit _DK_creature_query_buttons3[];
 DLLIMPORT struct TiledSprite _DK_status_panel;
 DLLIMPORT char _DK_gui_room_type_highlighted;
 #define gui_room_type_highlighted _DK_gui_room_type_highlighted
@@ -82,6 +72,7 @@ extern struct GuiMenu query_menu;
 extern struct GuiMenu creature_query_menu1;
 extern struct GuiMenu creature_query_menu2;
 extern struct GuiMenu creature_query_menu3;
+extern struct GuiMenu creature_query_menu4;
 extern struct TiledSprite status_panel;
 /******************************************************************************/
 void draw_whole_status_panel(void);

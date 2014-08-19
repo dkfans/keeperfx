@@ -1953,7 +1953,6 @@ void gui_area_ally(struct GuiButton *gbtn)
 
 void gui_area_stat_button(struct GuiButton *gbtn)
 {
-    long i;
     int ps_units_per_px;
     ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, 459, 100);
     draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 459);
