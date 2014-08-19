@@ -350,7 +350,7 @@ long compute_creature_max_loyalty(long base_param,unsigned short crlevel)
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
   max_param = base_param + (crtr_conf.exp.loyalty_increase_on_exp*base_param*(long)crlevel)/100;
-  return saturate_set_unsigned(max_param, 15);
+  return saturate_set_unsigned(max_param, 24);
 }
 
 /**
@@ -828,86 +828,127 @@ long calculate_gold_digged_out_of_slab_with_single_hit(long damage_did_to_slab, 
     return gold;
 }
 
-const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveStatId cstat_id)
+const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveStatId clstat_id)
 {
     struct CreatureStats *crstat;
     struct CreatureControl *cctrl;
+    static char loc_text[16];
     const char *text;
     crstat = creature_stats_get_from_thing(creatng);
     cctrl = creature_control_get_from_thing(creatng);
     long i;
-    switch (cstat_id)
+    switch (clstat_id)
     {
     case CrLStat_FirstName:
-        //TODO CREATURE_STSTS make support
+        text = creature_own_name(creatng);
         break;
     case CrLStat_BloodType:
         i = cctrl->blood_type;
-        text = buf_sprintf("%s", blood_types[i%BLOOD_TYPES_COUNT]);
+        text = blood_types[i%BLOOD_TYPES_COUNT];
         break;
     case CrLStat_ExpLevel:
         i = cctrl->explevel + 1;
-        text = buf_sprintf("%ld", i);
+        snprintf(loc_text,sizeof(loc_text),"%ld", i);
+        text = loc_text;
         break;
     case CrLStat_Health:
         i = creatng->health;
-        text = buf_sprintf("%ld", i);
+        snprintf(loc_text,sizeof(loc_text),"%ld", i);
+        text = loc_text;
         break;
     case CrLStat_MaxHealth:
         i = compute_creature_max_health(crstat->health,cctrl->explevel);
-        text = buf_sprintf("%ld", i);
+        snprintf(loc_text,sizeof(loc_text),"%ld", i);
+        text = loc_text;
         break;
     case CrLStat_Strength:
         i = compute_creature_max_strength(crstat->strength,cctrl->explevel);
-        text = buf_sprintf("%ld", i);
+        snprintf(loc_text,sizeof(loc_text),"%ld", i);
+        text = loc_text;
         break;
     case CrLStat_Armour:
         i = compute_creature_max_armour(crstat->armour,cctrl->explevel,creature_affected_by_spell(creatng, SplK_Armour));
-        text = buf_sprintf("%ld", i);
+        snprintf(loc_text,sizeof(loc_text),"%ld", i);
+        text = loc_text;
         break;
     case CrLStat_Defence:
         i = compute_creature_max_defense(crstat->defense,cctrl->explevel);
-        text = buf_sprintf("%ld", i);
+        snprintf(loc_text,sizeof(loc_text),"%ld", i);
+        text = loc_text;
         break;
     case CrLStat_Dexterity:
         i = compute_creature_max_dexterity(crstat->dexterity,cctrl->explevel);
-        text = buf_sprintf("%ld", i);
+        snprintf(loc_text,sizeof(loc_text),"%ld", i);
+        text = loc_text;
         break;
     case CrLStat_Luck:
         i = compute_creature_max_luck(crstat->luck,cctrl->explevel);
-        text = buf_sprintf("%ld", i);
+        snprintf(loc_text,sizeof(loc_text),"%ld", i);
+        text = loc_text;
         break;
     case CrLStat_Speed:
         i = calculate_correct_creature_maxspeed(creatng);
-        text = buf_sprintf("%ld", i);
+        snprintf(loc_text,sizeof(loc_text),"%ld", i);
+        text = loc_text;
         break;
     case CrLStat_Loyalty:
         i = compute_creature_max_loyalty(crstat->scavenge_require,cctrl->explevel);
-        text = buf_sprintf("%ld", i);
+        snprintf(loc_text,sizeof(loc_text),"%ld", i/256);
+        text = loc_text;
         break;
     case CrLStat_AgeTime:
         i = (game.play_gameturn-creatng->creation_turn) / 2000 + cctrl->joining_age;
         if (i >= 99)
           i = 99;
-        text = buf_sprintf("%ld", i);
+        snprintf(loc_text,sizeof(loc_text),"%ld", i);
+        text = loc_text;
         break;
     case CrLStat_Kills:
         i = cctrl->kills_num;
-        text = buf_sprintf("%ld", i);
+        snprintf(loc_text,sizeof(loc_text),"%ld", i);
+        text = loc_text;
         break;
     case CrLStat_GoldHeld:
         i = creatng->creature.gold_carried;
-        text = buf_sprintf("%ld", i);
+        snprintf(loc_text,sizeof(loc_text),"%ld", i);
+        text = loc_text;
         break;
     case CrLStat_GoldWage:
         i = calculate_correct_creature_pay(creatng);
-        text = buf_sprintf("%ld", i);
+        snprintf(loc_text,sizeof(loc_text),"%ld", i);
+        text = loc_text;
         break;
     case CrLStat_Score:
         i = compute_creature_kind_score(creatng->model,cctrl->explevel);
-        text = buf_sprintf("%ld", i);
+        snprintf(loc_text,sizeof(loc_text),"%ld", i);
+        text = loc_text;
+        break;
+    case CrLStat_ResearchSkill:
+        i = compute_creature_work_value(crstat->research_value*256, ROOM_EFFICIENCY_MAX, cctrl->explevel);
+        i = process_work_speed_on_work_value(creatng, i);
+        snprintf(loc_text,sizeof(loc_text),"%ld", i/256);
+        text = loc_text;
+        break;
+    case CrLStat_ManufactureSkill:
+        i = compute_creature_work_value(crstat->manufacture_value*256, ROOM_EFFICIENCY_MAX, cctrl->explevel);
+        i = process_work_speed_on_work_value(creatng, i);
+        snprintf(loc_text,sizeof(loc_text),"%ld", i/256);
+        text = loc_text;
+        break;
+    case CrLStat_TrainingSkill:
+        i = compute_creature_work_value(crstat->training_value*256, ROOM_EFFICIENCY_MAX, cctrl->explevel);
+        i = process_work_speed_on_work_value(creatng, i);
+        snprintf(loc_text,sizeof(loc_text),"%ld", i/256);
+        text = loc_text;
+        break;
+    case CrLStat_ScavengeSkill:
+        i = compute_creature_work_value(crstat->scavenge_value*256, ROOM_EFFICIENCY_MAX, cctrl->explevel);
+        i = process_work_speed_on_work_value(creatng, i);
+        snprintf(loc_text,sizeof(loc_text),"%ld", i/256);
+        text = loc_text;
         break;
     default:
+        ERRORLOG("Invalid statistic %d",(int)clstat_id);
         text = lbEmptyString;
         break;
     }

@@ -86,7 +86,7 @@ void draw_ornate_slab_outline64k(long pos_x, long pos_y, int units_per_px, long 
 void draw_round_slab64k(long pos_x, long pos_y, int units_per_px, long width, long height);
 void draw_string64k(long x, long y, int units_per_px, const char * text);
 
-void draw_button_string(struct GuiButton *gbtn, int base_width, char *text);
+void draw_button_string(struct GuiButton *gbtn, int base_width, const char *text);
 TbBool draw_text_box(const char *text);
 void draw_scroll_box(struct GuiButton *gbtn, int units_per_px, int num_rows);
 int scroll_box_get_units_per_px(struct GuiButton *gbtn);

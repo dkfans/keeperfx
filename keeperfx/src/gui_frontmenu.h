@@ -62,6 +62,7 @@ enum GUI_Menus {
   GMnu_ARMAGEDDON         = 30,
   GMnu_CREATURE_QUERY1    = 31,
   GMnu_CREATURE_QUERY3    = 32,
+  GMnu_CREATURE_QUERY4    = 33,
   GMnu_BATTLE             = 34,
   GMnu_CREATURE_QUERY2    = 35,
   GMnu_FEDEFINE_KEYS      = 36,
@@ -74,7 +75,14 @@ enum GUI_Menus {
   GMnu_FEADD_SESSION      = 43,
 };
 
+/**
+ * Type to store GMnu_* items from GUI_Menus enumeration.
+ */
 typedef long MenuID;
+
+/**
+ * Type to store menu number.
+ */
 typedef long MenuNumber;
 #define MENU_INVALID_ID -1
 /******************************************************************************/

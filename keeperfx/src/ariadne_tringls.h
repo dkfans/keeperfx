@@ -73,6 +73,8 @@ TbBool outer_locked(long ntri, long ncor);
 
 long point_loop(long pt_tri, long pt_cor);
 long reduce_point(long *pt_tri, long *pt_cor);
+void edgelen_set(long tri_id);
+long edge_rotateAC(long tri1_id, long cor1_id);
 
 void triangulation_init_triangles(long pt_id1, long pt_id2, long pt_id3, long pt_id4);
 char triangle_divide_areas_s8differ(long ntri, long ncorA, long ncorB, long pt_x, long pt_y);

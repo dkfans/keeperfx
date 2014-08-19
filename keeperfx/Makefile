@@ -152,6 +152,8 @@ obj/frontmenu_options.o \
 obj/frontmenu_options_data.o \
 obj/frontmenu_saves.o \
 obj/frontmenu_saves_data.o \
+obj/frontmenu_select.o \
+obj/frontmenu_select_data.o \
 obj/frontmenu_specials.o \
 obj/frontmenu_ingame_tabs.o \
 obj/frontmenu_ingame_tabs_data.o \

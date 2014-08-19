@@ -87,7 +87,7 @@ unsigned long region_alloc_id(void)
         tri = &Triangles[i];
         if (tri->field_D != -1)
         {
-          sreg_id = (tri->field_E >> 6);
+          sreg_id = get_triangle_region_id(i);
           if (sreg_id >= REGIONS_COUNT) {
               ERRORLOG("triangle %ld in outranged region",(long)i);
               continue;
@@ -96,7 +96,7 @@ unsigned long region_alloc_id(void)
           {
               if (sreg_id > 0) {
                   Regions[sreg_id].num_triangles--;
-                  tri->field_E &= 0x3F;
+                  set_triangle_region_id(i, 0);
                   Regions[sreg_id].field_2 = 0;
                   Regions[0].num_triangles++;
               }
@@ -153,6 +153,7 @@ TbBool regions_connected(long tree_reg1, long tree_reg2)
     if (Regions[reg_id2].field_2 == 1)
         return (reg_id2 == reg_id1);
     region_alloc(tree_reg1);
+    // Fast version of comparing region id values
     intersect = (Triangles[tree_reg2].field_E ^ Triangles[tree_reg1].field_E);
     return ((intersect & 0xFFC0) == 0);
 }

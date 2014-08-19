@@ -27,6 +27,7 @@
 #include "bflib_sprite.h"
 #include "bflib_sprfnt.h"
 
+#include "config_strings.h"
 #include "front_network.h"
 #include "gui_frontbtns.h"
 #include "gui_draw.h"
@@ -189,6 +190,11 @@ struct GuiButtonInit frontend_net_serial_buttons[] = {
   {-1,  0, 0, 0, NULL,               NULL,   NULL,                    0,   0,   0,   0,   0,   0,  0, NULL,                              0,   0,  0,   {0}, 0, 0, NULL },
 };
 
+struct GuiButtonInit frontend_add_session_buttons[] = {//TODO GUI prepare add session screen
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,   0, 999,   0,450, 92, frontend_draw_error_text_box,      0, GUIStr_Empty,  0,{(long)gui_message_text},0, 0, frontend_maintain_error_text_box},
+  {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
+};
+
 struct GuiMenu frontend_net_service_menu =
  { 20, 0, 1, frontend_net_service_buttons,        0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu frontend_net_session_menu =
@@ -199,6 +205,8 @@ struct GuiMenu frontend_net_modem_menu =
  { 23, 0, 1, frontend_net_modem_buttons,          0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu frontend_net_serial_menu =
  { 24, 0, 1, frontend_net_serial_buttons,         0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
+struct GuiMenu frontend_add_session_box =
+ { GMnu_FEADD_SESSION,      0, 1, frontend_add_session_buttons,POS_GAMECTR,POS_GAMECTR,450, 92, NULL,                        0, NULL,    NULL,                    0, 1, 0,};
 /******************************************************************************/
 #ifdef __cplusplus
 }

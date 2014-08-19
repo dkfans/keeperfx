@@ -277,6 +277,7 @@ extern struct GuiMenu frontend_main_menu;
 extern struct GuiMenu frontend_statistics_menu;
 extern struct GuiMenu frontend_high_score_table_menu;
 extern struct FrontEndButtonData frontend_button_info[FRONTEND_BUTTON_INFO_COUNT];
+extern char gui_message_text[];
 
 extern struct GuiMenu *menu_list[MENU_LIST_ITEMS_COUNT];
 
@@ -323,17 +324,6 @@ TbBool is_special_spell(PowerKind pwkind);
 void choose_special_spell(PowerKind pwkind, TextStringId tooltip_id);
 void choose_workshop_item(int manufctr_idx, TextStringId tooltip_id);
 
-// Campaign selection screen
-void frontend_campaign_select_up(struct GuiButton *gbtn);
-void frontend_campaign_select_down(struct GuiButton *gbtn);
-void frontend_campaign_select_up_maintain(struct GuiButton *gbtn);
-void frontend_campaign_select_down_maintain(struct GuiButton *gbtn);
-void frontend_campaign_select_maintain(struct GuiButton *gbtn);
-void frontend_draw_campaign_select_button(struct GuiButton *gbtn);
-void frontend_campaign_select(struct GuiButton *gbtn);
-void frontend_campaign_select_update(void);
-void frontend_draw_campaign_scroll_tab(struct GuiButton *gbtn);
-
 int frontend_load_data(void);
 void frontend_draw_scroll_tab(struct GuiButton *gbtn, long a2, long a3, long a4);
 TbBool frontend_should_all_players_quit(void);
@@ -354,14 +344,6 @@ void gui_scroll_text_down(struct GuiButton *gbtn);
 void maintain_scroll_up(struct GuiButton *gbtn);
 void maintain_scroll_down(struct GuiButton *gbtn);
 void gui_scroll_text_down(struct GuiButton *gbtn);
-void frontend_draw_levels_scroll_tab(struct GuiButton *gbtn);
-void frontend_draw_level_select_button(struct GuiButton *gbtn);
-void frontend_level_select(struct GuiButton *gbtn);
-void frontend_level_select_up(struct GuiButton *gbtn);
-void frontend_level_select_down(struct GuiButton *gbtn);
-void frontend_level_select_up_maintain(struct GuiButton *gbtn);
-void frontend_level_select_down_maintain(struct GuiButton *gbtn);
-void frontend_level_select_maintain(struct GuiButton *gbtn);
 void frontend_ldcampaign_change_state(struct GuiButton *gbtn);
 void frontend_netservice_change_state(struct GuiButton *gbtn);
 void frontend_start_new_game(struct GuiButton *gbtn);
@@ -425,6 +407,7 @@ void initialise_tab_tags_and_menu(MenuID menu_id);
 void turn_off_roaming_menus(void);
 
 void frontend_set_player_number(long plr_num);
+TbBool frontend_start_new_campaign(const char *cmpgn_fname);
 /******************************************************************************/
 #ifdef __cplusplus
 }
