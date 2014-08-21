@@ -919,7 +919,6 @@ void cull_gate_to_best_point(struct Gate *gt, long a2)
 
 long gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, long a6, struct Pathway *pway, long a8)
 {
-    //Note: uses LbCompareMultiplications()
     //return _DK_gate_route_to_coords(trAx, trAy, trBx, trBy, a5, a6, pway, a8);
 
     long total_len;
@@ -1175,7 +1174,6 @@ void route_through_gates(struct Pathway *pway, struct Path *path, long mag)
 
 long triangle_findSE8(long ptfind_x, long ptfind_y)
 {
-    //Note: uses LbCompareMultiplications()
     //return _DK_triangle_findSE8(ptfind_x, ptfind_y);
     long ntri, ncor;
     ntri = triangle_find8(ptfind_x, ptfind_y);
@@ -1283,7 +1281,7 @@ void creature_radius_set(long radius)
             radius = EDGEOR_COUNT;
         }
     }
-    EdgeFit = RadiusEdgeFit[radius-1];
+    EdgeFit = RadiusEdgeFit[radius];
 }
 
 void set_nearpoint(long tri_id, long cor_id, long dstx, long dsty, long *px, long *py)
@@ -1293,9 +1291,7 @@ void set_nearpoint(long tri_id, long cor_id, long dstx, long dsty, long *px, lon
 
 void nearest_search_f(long sizexy, long srcx, long srcy, long dstx, long dsty, long *px, long *py, const char *func_name)
 {
-    //TODO PATHFINDING debug and enable rewritten code
-    _DK_nearest_search(sizexy, srcx, srcy, dstx, dsty, px, py); return;
-
+    //_DK_nearest_search(sizexy, srcx, srcy, dstx, dsty, px, py); return;
     creature_radius_set(sizexy+1);
     tags_init();
     long tri1_id, tri2_id;
@@ -1331,7 +1327,6 @@ void nearest_search_f(long sizexy, long srcx, long srcy, long dstx, long dsty, l
           selcor_id = cor_id;
         }
     }
-
     while (1)
     {
         int regn;
@@ -1344,14 +1339,13 @@ void nearest_search_f(long sizexy, long srcx, long srcy, long dstx, long dsty, l
             break;
         }
         struct Triangle *tri;
-        tri = &Triangles[regn] + 1;
+        tri = &Triangles[regn];
         unsigned int ncor1;
         for (ncor1=0; ncor1 < 3; ncor1++)
         {
             long ntri;
-            int dist;
-            ntri = tri->points[ncor1];
-            if ((ntri != -1) && is_current_tag(ntri))
+            ntri = tri->tags[ncor1];
+            if ((ntri != -1) && !is_current_tag(ntri))
             {
                 if ((Triangles[ntri].tree_alt & 0xF) != 15)
                 {
@@ -1374,6 +1368,7 @@ void nearest_search_f(long sizexy, long srcx, long srcy, long dstx, long dsty, l
                             pt_id = Triangles[ntri].points[ncor2];
                             diff_x = ((Points[pt_id].x << 8) - dstx) >> 5;
                             diff_y = ((Points[pt_id].y << 8) - dsty) >> 5;
+                            int dist;
                             dist = diff_x * diff_x + diff_y * diff_y;
                             if (min_dist > dist)
                             {
@@ -1420,7 +1415,6 @@ long cost_to_start(long tri_idx)
  */
 long pointed_at8(long pos_x, long pos_y, long *ret_tri, long *ret_pt)
 {
-    //Note: uses LbCompareMultiplications()
     //TODO PATHFINDING triangulate_area sub-sub-sub-function, verify
     //return _DK_pointed_at8(pos_x, pos_y, ret_tri, ret_pt);
     long npt;
@@ -1773,6 +1767,11 @@ void edgelen_init(void)
     edgelen_initialised = true;
     int i;
     // Fill edge values
+    EdgeFit = RadiusEdgeFit[0];
+    for (i=0; i < EDGEFIT_LEN; i++)
+    {
+        EdgeFit[i] = 0;
+    }
     EdgeFit = RadiusEdgeFit[1];
     for (i=0; i < EDGEFIT_LEN; i++)
     {
