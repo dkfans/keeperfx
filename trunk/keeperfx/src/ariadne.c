@@ -3340,9 +3340,7 @@ long tri_split3(long btri_id, long pt_x, long pt_y)
 long tri_split2(long tri_id1, long cor_id1, long pt_x, long pt_y, long pt_id1)
 {
     long tri_id2;
-    //TODO PATHFINDING rewritten version has errors; fix
-    tri_id2 = _DK_tri_split2(tri_id1, cor_id1, pt_x, pt_y, pt_id1); return tri_id2;
-
+    //tri_id2 = _DK_tri_split2(tri_id1, cor_id1, pt_x, pt_y, pt_id1); return tri_id2;
     tri_id2 = tri_new();
     if (tri_id2 < 0) {
         return -1;
@@ -3351,7 +3349,7 @@ long tri_split2(long tri_id1, long cor_id1, long pt_x, long pt_y, long pt_id1)
     struct Triangle *tri2;
     tri1 = &Triangles[tri_id1];
     tri2 = &Triangles[tri_id2];
-    memcpy(tri1,tri2,sizeof(struct Triangle));
+    memcpy(tri2, tri1, sizeof(struct Triangle));
     long cor_id2, reg_id1;
     cor_id2 = MOD3[cor_id1 + 1];
     tri1->points[cor_id2] = pt_id1;
