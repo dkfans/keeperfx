@@ -44,6 +44,11 @@
 
 typedef long (*NavRules)(long, long);
 
+struct QuadrantOffset {
+    long x;
+    long y;
+};
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -469,7 +474,39 @@ long update_navigation_triangulation(long start_x, long start_y, long end_x, lon
 
 void edge_points8(long a1, long a2, long *a3, long *a4, long *a5, long *a6)
 {
-    _DK_edge_points8(a1, a2, a3, a4, a5, a6);
+    //_DK_edge_points8(a1, a2, a3, a4, a5, a6);
+    struct Point *pt;
+    if (Triangles[a1].tags[0] == a2)
+    {
+        pt = get_triangle_point(a1,1);
+        *a3 = pt->x << 8;
+        *a4 = pt->y << 8;
+        pt = get_triangle_point(a1,0);
+        *a5 = pt->x << 8;
+        *a6 = pt->y << 8;
+    } else
+    if (Triangles[a1].tags[1] == a2)
+    {
+        pt = get_triangle_point(a1,2);
+        *a3 = pt->x << 8;
+        *a4 = pt->y << 8;
+        pt = get_triangle_point(a1,1);
+        *a5 = pt->x << 8;
+        *a6 = pt->y << 8;
+    } else
+    if (Triangles[a1].tags[2] == a2)
+    {
+        pt = get_triangle_point(a1,0);
+        *a3 = pt->x << 8;
+        *a4 = pt->y << 8;
+        pt = get_triangle_point(a1,2);
+        *a5 = pt->x << 8;
+        *a6 = pt->y << 8;
+    }
+    else
+    {
+        ERRORLOG("edge not found %d->%d", a1, a2);
+    }
 }
 
 long fov_region(long a1, long a2, const struct FOV *fov)
@@ -721,7 +758,57 @@ void path_out_a_bit(struct Path *path, long *route)
 
 void cull_gate_to_point(struct Gate *gt, long a2)
 {
-    _DK_cull_gate_to_point(gt, a2);
+    //_DK_cull_gate_to_point(gt, a2);
+    int diff_a, diff_b;
+    diff_a = abs(gt->field_0 - gt->field_8);
+    diff_b = abs(gt->field_4 - gt->field_C);
+    if (diff_a <= diff_b)
+    {
+      if (diff_b + (diff_a >> 1) < a2)
+          return;
+    } else
+    {
+      if (diff_a + (diff_b >> 1) < a2)
+          return;
+    }
+    if (gt->field_18 == 1)
+    {
+        diff_a = (gt->field_0 - gt->field_8) << 6;
+        diff_b = (gt->field_4 - gt->field_C) << 6;
+    } else
+    {
+        diff_a = (gt->field_8 - gt->field_0) << 6;
+        diff_b = (gt->field_C - gt->field_4) << 6;
+    }
+    long div_a, div_b;
+    long cmul;
+    long val_x, val_y;
+    div_b = LbSqrL(((unsigned long long)(diff_a * diff_a) >> 14) + ((unsigned long long)(diff_b * diff_b) >> 14)) << 13;
+    if (div_b < 1)
+        div_b = 1;
+    div_a = div_b;
+    if (diff_a < 0)
+    {
+        diff_a = -diff_a;
+        div_a = -div_b;
+    }
+    cmul = (a2 >> 8) - 1;
+    val_x = cmul * ((unsigned long long)diff_a << 14) / div_a;
+    if (diff_b < 0)
+    {
+        diff_b = -diff_b;
+        div_b = -div_b;
+    }
+    val_y = cmul * ((unsigned long long)diff_b << 14) / div_b;
+    if (gt->field_18 == 1)
+    {
+        gt->field_0 = val_x + gt->field_8;
+        gt->field_4 = val_y + gt->field_C;
+    } else
+    {
+        gt->field_8 = val_x + gt->field_0;
+        gt->field_C = val_y + gt->field_4;
+    }
 }
 
 long calc_intersection(struct Gate *gt, long a2, long a3, long a4, long a5)
@@ -1286,7 +1373,49 @@ void creature_radius_set(long radius)
 
 void set_nearpoint(long tri_id, long cor_id, long dstx, long dsty, long *px, long *py)
 {
-    _DK_set_nearpoint(tri_id, cor_id, dstx, dsty, px, py);
+    static struct QuadrantOffset qdrnt_offs[] = {
+       {   0,   0},{ 128, 128},{-128, 128},{   0, 128},
+       { 128,-128},{ 128,   0},{ 128, 128},{ 128, 128},
+       {-128,-128},{ 128,-128},{-128,   0},{-128, 128},
+       {   0,-128},{ 128,-128},{-128,-128},{   0,   0},
+    };
+
+    //_DK_set_nearpoint(tri_id, cor_id, dstx, dsty, px, py);
+    struct Point *pt1;
+    pt1 = get_triangle_point(tri_id,cor_id);
+    unsigned int tngflags;
+    tngflags = 0;
+    if ((LastTriangulatedMap[256 * (pt1->y-1) + (pt1->x-1)] & 0x0F) == 0x0F)
+      tngflags = 0x01;
+    if ((LastTriangulatedMap[256 * (pt1->y-1) + (pt1->x)]   & 0x0F) == 0x0F)
+      tngflags |= 0x02;
+    if ((LastTriangulatedMap[256 * (pt1->y)   + (pt1->x-1)] & 0x0F) == 0x0F)
+      tngflags |= 0x04;
+    if ((LastTriangulatedMap[256 * (pt1->y)   + (pt1->x)]   & 0x0F) == 0x0F)
+      tngflags |= 0x08;
+    struct Point *pt2;
+    switch (tngflags)
+    {
+    case 6:
+        pt2 = get_triangle_point(tri_id,MOD3[cor_id+1]);
+        if ((pt2->x < pt1->x) || (pt2->y > pt1->y))
+            tngflags |= 0x08;
+        else
+            tngflags |= 0x01;
+        break;
+    case 9:
+        pt2 = get_triangle_point(tri_id,MOD3[cor_id+1]);
+        if ((pt2->x < pt1->x) || (pt2->y > pt1->y))
+            tngflags |= 0x02;
+        else
+            tngflags |= 0x04;
+        break;
+    case 15:
+        ERRORLOG("solid");
+        break;
+    }
+    *px = (pt1->x << 8) + qdrnt_offs[tngflags].x;
+    *py = (pt1->y << 8) + qdrnt_offs[tngflags].y;
 }
 
 void nearest_search_f(long sizexy, long srcx, long srcy, long dstx, long dsty, long *px, long *py, const char *func_name)
@@ -3449,7 +3578,6 @@ TbBool make_edge(long start_x, long start_y, long end_x, long end_y)
     long tri_id3,cor_id3;
     long tmpX,tmpY,pt_cor;
     unsigned long k;
-    //Note: uses LbCompareMultiplications()
     NAVIDBG(19,"Starting");
     //TODO PATHFINDING triangulate_area sub-sub-function, verify
     //_DK_make_edge(start_x, start_y, end_x, end_y); return;
