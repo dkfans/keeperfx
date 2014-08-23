@@ -4079,7 +4079,8 @@ void brute_fill_rectangle(long start_x, long start_y, long end_x, long end_y, un
     }
 }
 
-void fill_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned char a5)
+#define fill_rectangle(start_x, start_y, end_x, end_y, a5) fill_rectangle_f(start_x, start_y, end_x, end_y, a5, __func__)
+void fill_rectangle_f(long start_x, long start_y, long end_x, long end_y, unsigned char a5, const char *func_name)
 {
     //_DK_fill_rectangle(start_x, start_y, end_x, end_y, a5); return;
     long tri_n0,tri_k0;
@@ -4089,13 +4090,21 @@ void fill_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned
     long tri_area;
     long req_area;
     req_area = 2 * (end_x - start_x) * (end_y - start_y);
-    edge_find(start_x, start_y, start_x, end_y, &tri_n0, &tri_k0);
+    if (!edge_find(start_x, start_y, start_x, end_y, &tri_n0, &tri_k0))
+    {
+        ERRORMSG("%s: edge from (%d,%d) to (%d,%d) not found",func_name,(int)start_x, (int)start_y, (int)start_x, (int)end_y);
+        return;
+    }
     Triangles[tri_n0].tree_alt = a5;
     tri_area = triangle_area1(tri_n0);
     if (tri_area == req_area) {
         return;
     }
-    edge_find(end_x, end_y, end_x, start_y, &tri_n1, &tri_k1);
+    if (!edge_find(end_x, end_y, end_x, start_y, &tri_n1, &tri_k1))
+    {
+        ERRORMSG("%s: edge from (%d,%d) to (%d,%d) not found",func_name,(int)end_x, (int)end_y, (int)end_x, (int)start_y);
+        return;
+    }
     if (tri_n1 != tri_n0)
     {
         Triangles[tri_n1].tree_alt = a5;
@@ -4104,7 +4113,11 @@ void fill_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned
     if (tri_area == req_area) {
         return;
     }
-    edge_find(end_x, start_y, start_x, start_y, &tri_n2, &tri_k2);
+    if (!edge_find(end_x, start_y, start_x, start_y, &tri_n2, &tri_k2))
+    {
+        ERRORMSG("%s: edge from (%d,%d) to (%d,%d) not found",func_name,(int)end_x, (int)start_y, (int)start_x, (int)start_y);
+        return;
+    }
     if ((tri_n2 != tri_n0) && (tri_n2 != tri_n1))
     {
         Triangles[tri_n2].tree_alt = a5;
@@ -4113,7 +4126,11 @@ void fill_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned
     if (tri_area == req_area) {
         return;
     }
-    edge_find(start_x, end_y, end_x, end_y, &tri_n3, &tri_k3);
+    if (!edge_find(start_x, end_y, end_x, end_y, &tri_n3, &tri_k3))
+    {
+        ERRORMSG("%s: edge from (%d,%d) to (%d,%d) not found",func_name,(int)start_x, (int)end_y, (int)end_x, (int)end_y);
+        return;
+    }
     if ((tri_n3 != tri_n0) && (tri_n1 != tri_n3) && (tri_n2 != tri_n3))
     {
         Triangles[tri_n3].tree_alt = a5;
