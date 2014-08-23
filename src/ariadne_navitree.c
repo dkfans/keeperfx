@@ -208,6 +208,9 @@ void delaunay_init(void)
 
 TbBool delaunay_add(long itm_pos)
 {
+    if (ix_delaunay >= DELAUNAY_COUNT) {
+        return false;
+    }
     delaunay_stack[ix_delaunay] = itm_pos;
     ix_delaunay++;
     Tags[itm_pos] = tag_current;
@@ -256,6 +259,8 @@ void delaunay_stack_point(long pt_x, long pt_y)
     {
       tri_idx = dst_tri_idx;
       cor_idx = dst_cor_idx;
+      unsigned long k;
+      k = 0;
       do
       {
           tri_id2 = Triangles[tri_idx].tags[cor_idx];
@@ -271,6 +276,11 @@ void delaunay_stack_point(long pt_x, long pt_y)
           cor_idx = MOD3[i+1];
           tri_idx = tri_id2;
           delaunay_add_triangle(tri_idx);
+          k++;
+          if (k >= TRIANLGLES_COUNT) {
+              ERRORDBG(9,"Infinite loop detected");
+              break;
+          }
       }
       while (tri_idx != dst_tri_idx);
     }

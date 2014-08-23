@@ -27,7 +27,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT unsigned long _DK_regions_connected(long tree_reg1, long tree_reg2);
-DLLIMPORT void _DK_region_alloc(unsigned long tree_reg);
+DLLIMPORT void _DK_region_connect(unsigned long tree_reg);
 /******************************************************************************/
 /** Array of regions.
  * Note that region[0] is used for storing unused triangles and shouldn't be
@@ -52,7 +52,7 @@ struct RegionT bad_region;
  * Allocates region ID.
  * @return The region ID, or 0 on failure.
  */
-unsigned long region_alloc_id(void)
+unsigned long region_alloc(void)
 {
     struct RegionT * rgn;
     struct Triangle * tri;
@@ -78,7 +78,7 @@ unsigned long region_alloc_id(void)
         }
     }
     if (reg_id == -1) {
-        ERRORLOG("region_alloc:overflow");
+        ERRORLOG("regions overflow");
         return 0;
     }
     NAVIDBG(19,"removing triangles from region %ld",reg_id);
@@ -108,12 +108,96 @@ unsigned long region_alloc_id(void)
     return reg_id;
 }
 
-void region_alloc(unsigned long tree_reg)
+void region_lnk(int nreg)
 {
-    /* Note that the beginning of this function is:
-       reg_id = region_alloc_id();
-    */
-    _DK_region_alloc(tree_reg); return;
+  int ncor;
+  for (ncor=0; ncor < 3; ncor++)
+  {
+      TbBool notfound;
+      int ctri_id;
+      int ccor_id;
+      ctri_id = nreg;
+      ccor_id = ncor;
+      while ( 1 )
+      {
+          int ntri_id;
+          if ((Triangles[ctri_id].tree_alt & 0xF) == 15) {
+            notfound = 1;
+            break;
+          }
+          ntri_id = Triangles[ctri_id].tags[ccor_id];
+          if (ntri_id == -1) {
+              notfound = 1;
+              break;
+            }
+          ccor_id = link_find(ntri_id, ctri_id);
+          ccor_id = MOD3[ccor_id+1];
+          ctri_id = ntri_id;
+          if (nreg == ntri_id) {
+              notfound = 0;
+              break;
+          }
+      }
+      if (notfound) {
+          continue;
+      }
+      ctri_id = nreg;
+      ccor_id = ncor;
+      while ( 1 )
+      {
+          int ntri_id;
+          set_triangle_edgelen(ctri_id, get_triangle_edgelen(ctri_id) | (3 << 2 * ccor_id));
+          ntri_id = Triangles[ctri_id].tags[ccor_id];
+          if (ntri_id == -1)
+              break;
+          ccor_id = link_find(ntri_id, ctri_id);
+          ctri_id = ntri_id;
+          set_triangle_edgelen(ctri_id, get_triangle_edgelen(ctri_id) | (3 << 2 * ccor_id));
+          ccor_id = MOD3[ccor_id+1];
+          if (nreg == ntri_id) {
+              break;
+          }
+      }
+  }
+}
+
+void region_connect(unsigned long tree_reg)
+{
+    //_DK_region_connect(tree_reg); return;
+    long nreg_id;
+    nreg_id = region_alloc();
+    Regions[nreg_id].field_2 = 1;
+    region_store_init();
+    region_set(tree_reg, nreg_id);
+    region_put(tree_reg);
+    region_lnk(tree_reg);
+    while ( 1 )
+    {
+        long creg_id;
+        creg_id = region_get();
+        if (creg_id == -1)
+          break;
+        unsigned int ncor1;
+        for (ncor1=0; ncor1 < 3; ncor1++)
+        {
+            int ntri_id;
+            ntri_id = Triangles[creg_id].tags[ncor1];
+            if (ntri_id != -1)
+            {
+              if ((Triangles[ntri_id].tree_alt & 0xF) != 15)
+              {
+                  long preg_id;
+                  preg_id = get_triangle_region_id(ntri_id);
+                  if (preg_id != nreg_id)
+                  {
+                      region_lnk(creg_id);
+                      region_set(ntri_id, nreg_id);
+                      region_put(ntri_id);
+                  }
+              }
+            }
+        }
+    }
 }
 
 void triangulation_init_regions(void)
@@ -152,7 +236,7 @@ TbBool regions_connected(long tree_reg1, long tree_reg2)
         return (reg_id2 == reg_id1);
     if (Regions[reg_id2].field_2 == 1)
         return (reg_id2 == reg_id1);
-    region_alloc(tree_reg1);
+    region_connect(tree_reg1);
     // Fast version of comparing region id values
     intersect = (Triangles[tree_reg2].field_E ^ Triangles[tree_reg1].field_E);
     return ((intersect & 0xFFC0) == 0);

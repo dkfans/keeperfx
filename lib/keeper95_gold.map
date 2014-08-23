@@ -617,7 +617,7 @@
  0001:00066220       triangulation_initxy
  0001:000663E0       edgelen_init
  0001:00066480       edgelen_set
- 0001:000665C0       region_alloc
+ 0001:000665C0       region_connect
  0001:00066950       regions_connected
  0001:00066A90       pointed_at8
  0001:00066C60       triangulation_border_start
