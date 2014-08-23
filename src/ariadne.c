@@ -654,6 +654,8 @@ void waypoint_normal(long tri1_id, long cor1_id, long *norm_x, long *norm_y)
     tri2_id = Triangles[tri1_id].tags[cor1_id];
     cor2_id = link_find(tri2_id, tri1_id);
     cor2_id = MOD3[cor2_id+1];
+    unsigned long k;
+    k = 0;
     while (1)
     {
         int ntri;
@@ -672,8 +674,15 @@ void waypoint_normal(long tri1_id, long cor1_id, long *norm_x, long *norm_y)
             cor2_id = MOD3[cor2_id+1];
             break;
         }
+        k++;
+        if (k > TRIANLGLES_COUNT) {
+            ERRORLOG("Infinite loop detected");
+            cor2_id = -1;
+            break;
+        }
     }
 
+    k = 0;
     while ( 1 )
     {
         int ntri;
@@ -689,6 +698,12 @@ void waypoint_normal(long tri1_id, long cor1_id, long *norm_x, long *norm_y)
         {
             tri3_id = tri1_id;
             cor3_id = MOD3[cor1_id+2];
+            break;
+        }
+        k++;
+        if (k > TRIANLGLES_COUNT) {
+            ERRORLOG("Infinite loop detected");
+            cor3_id = -1;
             break;
         }
     }
@@ -1563,6 +1578,8 @@ long pointed_at8(long pos_x, long pos_y, long *ret_tri, long *ret_pt)
     char pt_rel;
     pt_rel = LbCompareMultiplications(ptBy, ptAx, ptBx, ptAy) > 0;
     char prev_rel;
+    unsigned long k;
+    k = 0;
     while ( 1 )
     {
         prev_rel = pt_rel;
@@ -1590,6 +1607,11 @@ long pointed_at8(long pos_x, long pos_y, long *ret_tri, long *ret_pt)
         }
         npt = MOD3[tri_link+1];
         ntri = tri_id;
+        k++;
+        if (k > TRIANLGLES_COUNT) {
+            ERRORLOG("Infinite loop detected");
+            break;
+        }
     }
     return -1;
 }
@@ -3779,6 +3801,8 @@ long edge_find(long stlstart_x, long stlstart_y, long stlend_x, long stlend_y, l
     cor_idx = dst_cor_idx;
     len_y = stlend_y - stlstart_y;
     len_x = stlend_x - stlstart_x;
+    unsigned long k;
+    k = 0;
     do
     {
         pt = get_triangle_point(tri_idx, MOD3[cor_idx+1]);
@@ -3798,8 +3822,17 @@ long edge_find(long stlstart_x, long stlstart_y, long stlend_x, long stlend_y, l
         if (tri_id2 == -1)
           break;
         i = link_find(tri_id2, tri_idx);
+        if (i < 0) {
+            ERRORLOG("no tri link");
+            break;
+        }
         tri_idx = tri_id2;
         cor_idx = MOD3[i+1];
+        k++;
+        if (k > TRIANLGLES_COUNT) {
+            ERRORLOG("Infinite loop detected");
+            break;
+        }
     }
     while (tri_idx != dst_tri_idx);
     return 0;
