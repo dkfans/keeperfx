@@ -2932,9 +2932,54 @@ struct Room *place_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x,
     return room;
 }
 
-struct Room *find_nearest_room_for_thing_with_spare_item_capacity(struct Thing *thing, char plyr_idx, char rkind, unsigned char nav_flags)
+struct Room *find_nearest_room_for_thing_with_spare_item_capacity(struct Thing *thing, PlayerNumber plyr_idx, RoomKind rkind, unsigned char nav_flags)
 {
-    return _DK_find_nearest_room_for_thing_with_spare_item_capacity(thing, plyr_idx, rkind, nav_flags);
+    //return _DK_find_nearest_room_for_thing_with_spare_item_capacity(thing, plyr_idx, rkind, nav_flags);
+    long retdist;
+    struct Room *retroom;
+    retdist = LONG_MAX;
+    retroom = INVALID_ROOM;
+
+    struct Dungeon *dungeon;
+    long i;
+    unsigned long k;
+    dungeon = get_dungeon(plyr_idx);
+    i = dungeon->room_kind[rkind];
+    k = 0;
+    while (i != 0)
+    {
+        struct Room *room;
+        room = room_get(i);
+        if (room_is_invalid(room))
+        {
+            ERRORLOG("Jump to invalid room detected");
+            break;
+        }
+        i = room->next_of_owner;
+        // Per-room code
+        long dist;
+        dist = abs(thing->mappos.x.stl.num - room->central_stl_x) + abs(thing->mappos.y.stl.num - room->central_stl_y);
+        if ((dist < retdist) && (room->total_capacity > room->capacity_used_for_storage))
+        {
+            struct Coord3d pos;
+            if (find_first_valid_position_for_thing_in_room(thing, room, &pos))
+            {
+                if (!thing_is_creature(thing) || creature_can_navigate_to(thing, &pos, nav_flags))
+                {
+                    retdist = dist;
+                    retroom = room;
+                }
+            }
+        }
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping rooms list");
+            break;
+        }
+    }
+    return retroom;
 }
 
 struct Room * pick_random_room(PlayerNumber plyr_idx, RoomKind rkind)
