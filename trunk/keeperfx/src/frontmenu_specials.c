@@ -287,7 +287,9 @@ void maintain_resurrect_creature_select(struct GuiButton *gbtn)
 {
     struct Dungeon *dungeon;
     dungeon = get_my_dungeon();
-    gbtn->flags ^= (gbtn->flags ^ 8 * (resurrect_creature_scroll_offset + gbtn->field_1B < dungeon->dead_creatures_count)) & 0x08;
+    long listitm_idx;
+    listitm_idx = resurrect_creature_scroll_offset + gbtn->field_1B;
+    gbtn->flags ^= (gbtn->flags ^ 8 * (listitm_idx < dungeon->dead_creatures_count)) & 0x08;
 }
 
 void maintain_resurrect_creature_scroll(struct GuiButton *gbtn)
@@ -316,7 +318,9 @@ void maintain_transfer_creature_select(struct GuiButton *gbtn)
 {
     struct Dungeon *dungeon;
     dungeon = get_my_dungeon();
-    gbtn->flags ^= (gbtn->flags ^ 8 * (transfer_creature_scroll_offset + gbtn->field_1B < dungeon->num_active_creatrs-transfer_creature_items_visible+1)) & 0x08;
+    long listitm_idx;
+    listitm_idx = transfer_creature_scroll_offset + gbtn->field_1B;
+    gbtn->flags ^= (gbtn->flags ^ 8 * (listitm_idx < dungeon->num_active_creatrs)) & 0x08;
 }
 
 void maintain_transfer_creature_scroll(struct GuiButton *gbtn)
