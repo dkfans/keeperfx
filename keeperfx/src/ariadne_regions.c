@@ -118,6 +118,8 @@ void region_lnk(int nreg)
       int ccor_id;
       ctri_id = nreg;
       ccor_id = ncor;
+      unsigned long k;
+      k = 0;
       while ( 1 )
       {
           int ntri_id;
@@ -131,10 +133,21 @@ void region_lnk(int nreg)
               break;
             }
           ccor_id = link_find(ntri_id, ctri_id);
+          if (ccor_id < 0) {
+              ERRORLOG("no tri link");
+              notfound = 1;
+              break;
+          }
           ccor_id = MOD3[ccor_id+1];
           ctri_id = ntri_id;
           if (nreg == ntri_id) {
               notfound = 0;
+              break;
+          }
+          k++;
+          if (k > TRIANLGLES_COUNT) {
+              ERRORLOG("Infinite loop detected");
+              notfound = 1;
               break;
           }
       }
