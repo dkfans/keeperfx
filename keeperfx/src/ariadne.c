@@ -3732,6 +3732,8 @@ TbBool point_redundant(long tri_idx, long cor_idx)
     long tri_secnd,cor_secnd;
     tri_first = tri_idx;
     cor_first = cor_idx;
+    unsigned long k;
+    k = 0;
     while ( 1 )
     {
         tri_secnd = Triangles[tri_first].tags[cor_first];
@@ -3747,6 +3749,11 @@ TbBool point_redundant(long tri_idx, long cor_idx)
         if (tri_secnd == tri_idx)
         {
             return true;
+        }
+        k++;
+        if (k >= TRIANLGLES_COUNT) {
+            ERRORDBG(9,"Infinite loop detected");
+            break;
         }
     }
     return false;

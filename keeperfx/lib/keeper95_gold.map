@@ -2050,7 +2050,7 @@
  0001:00066A90       pointed_at8
  0001:00066D20       triangle_brute_find8_near
  0001:0006C140       waypoint_normal
- 0001:000665C0       region_alloc
+ 0001:000665C0       region_connect
  0001:0006CC50       gate_route_to_coords
  0001:00069320       fill_concave
  0003:00055EA0       map_fade_dest
