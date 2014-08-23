@@ -20,8 +20,10 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_math.h"
 
 #include "thing_creature.h"
+#include "thing_navigate.h"
 #include "thing_effects.h"
 #include "player_data.h"
 #include "dungeon_data.h"
@@ -175,9 +177,84 @@ void increase_level(struct PlayerInfo *player)
     }
 }
 
-unsigned long steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
+TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
 {
-  return _DK_steal_hero(player, pos);
+    //return _DK_steal_hero(player, pos);
+    //TODO put creature models in config files
+    static ThingModel skip_steal_models[] = {6, 7};
+    static ThingModel prefer_steal_models[] = {3, 12};
+    struct Thing *herotng;
+    herotng = INVALID_THING;
+    int heronum;
+    struct Dungeon *herodngn;
+    struct CreatureControl *cctrl;
+    unsigned long k;
+    int i;
+    SYNCDBG(8,"Starting");
+    herodngn = get_players_num_dungeon(game.hero_player_num);
+    k = 0;
+    if (herodngn->num_active_creatrs <= 0) {
+        heronum = ACTION_RANDOM(herodngn->num_active_creatrs);
+        i = herodngn->creatr_list_start;
+    } else {
+        heronum = 0;
+        i = 0;
+    }
+    while (i != 0)
+    {
+        struct Thing *thing;
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        TbBool heroallow;
+        heroallow = true;
+        ThingModel skipidx;
+        for (skipidx=0; skipidx < sizeof(skip_steal_models)/sizeof(skip_steal_models[0]); skipidx++)
+        {
+            if (thing->model == skip_steal_models[skipidx]) {
+                heroallow = false;
+            }
+        }
+        if (heroallow) {
+            herotng = thing;
+        }
+        // If we've reached requested hero number, return either current hero on previously selected one
+        if ((heronum <= 0) && thing_is_creature(herotng)) {
+            break;
+        }
+        heronum--;
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    if (!thing_is_invalid(herotng))
+    {
+        move_thing_in_map(herotng, pos);
+        change_creature_owner(herotng, player->id_number);
+    }
+    else
+    {
+        i = ACTION_RANDOM(sizeof(prefer_steal_models)/sizeof(prefer_steal_models[0]));
+        ThingModel crmodel;
+        crmodel = prefer_steal_models[i];
+        struct Thing *creatng;
+        creatng = create_creature(pos, crmodel, player->id_number);
+        if (thing_is_invalid(creatng))
+            return false;
+    }
+    SYNCDBG(19,"Finished");
+    return true;
 }
 
 void make_safe(struct PlayerInfo *player)
