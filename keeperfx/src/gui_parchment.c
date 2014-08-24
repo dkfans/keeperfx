@@ -733,10 +733,6 @@ void draw_zoom_box_terrain(long scrtop_x, long scrtop_y, int stl_x, int stl_y, P
     scrtop_x += 4*units_per_pixel/16;
     scrtop_y -= 4*units_per_pixel/16;
     setup_vecs(lbDisplay.WScreen, 0, lbDisplay.GraphicsScreenWidth, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-    if (scrtop_y > MyScreenHeight-draw_tiles_y*subtile_size)
-      scrtop_y = MyScreenHeight-draw_tiles_y*subtile_size;
-    if (scrtop_y < 0)
-        scrtop_y = 0;
     // Draw the actual map
     scr_y = scrtop_y;
     for (map_dy=0; map_dy < draw_tiles_y; map_dy++)
@@ -818,12 +814,20 @@ void draw_zoom_box(void)
     long scrtop_x,scrtop_y;
     scrtop_x = mouse_x + 24*units_per_pixel/16;
     scrtop_y = mouse_y + 24*units_per_pixel/16;
+    if (scrtop_x > MyScreenWidth-draw_tiles_x*subtile_size)
+      scrtop_x = MyScreenWidth-draw_tiles_x*subtile_size;
+    if (scrtop_x < 0)
+        scrtop_x = 0;
+    if (scrtop_y > MyScreenHeight-draw_tiles_y*subtile_size)
+      scrtop_y = MyScreenHeight-draw_tiles_y*subtile_size;
+    if (scrtop_y < 0)
+        scrtop_y = 0;
     // Source map coordinates
     stl_x = STL_PER_SLB * (mouse_x/pixel_size-map_area.left) / block_size - draw_tiles_x/2;
     stl_y = STL_PER_SLB * (mouse_y/pixel_size-map_area.top)  / block_size - draw_tiles_y/2;
     // Draw only on map area (do not allow zoom box to be empty)
-    if ((stl_x < -draw_tiles_x+4) || (stl_x >= map_subtiles_x+1-draw_tiles_x+6)
-     || (stl_y < -draw_tiles_y+4) || (stl_y >= map_subtiles_x+1-draw_tiles_y+6))
+    if ((stl_x < -draw_tiles_x/2) || (stl_x >= map_subtiles_x+1-draw_tiles_x/2)
+     || (stl_y < -draw_tiles_y/2) || (stl_y >= map_subtiles_y+1-draw_tiles_y/2))
       return;
 
     draw_zoom_box_terrain(scrtop_x, scrtop_y, stl_x, stl_y, player->id_number, draw_tiles_x, draw_tiles_y, subtile_size);
