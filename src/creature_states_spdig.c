@@ -1701,7 +1701,7 @@ short creature_drops_spell_object_in_library(struct Thing *creatng)
             return 1;
         }
         spelltng->owner = creatng->owner;
-        add_spell_to_player(book_thing_to_magic(spelltng), creatng->owner);
+        add_spell_to_player(book_thing_to_power_kind(spelltng), creatng->owner);
     } else
     if (thing_is_special_box(spelltng))
     {

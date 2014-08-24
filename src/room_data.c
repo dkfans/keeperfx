@@ -490,7 +490,7 @@ void reposition_all_books_in_room_on_subtile(struct Room *room, MapSubtlCoord st
             PowerKind spl_idx;
             ThingModel objkind;
             objkind = thing->model;
-            spl_idx = book_thing_to_magic(thing);
+            spl_idx = book_thing_to_power_kind(thing);
             if ((spl_idx > 0) && ((thing->alloc_flags & 0x80) == 0))
             {
                 if (!store_reposition_entry(rrepos, objkind)) {
@@ -563,7 +563,7 @@ int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoo
         if (thing->class_id == TCls_Object)
         {
             PowerKind spl_idx;
-            spl_idx = book_thing_to_magic(thing);
+            spl_idx = book_thing_to_power_kind(thing);
             if ((spl_idx > 0) && ((thing->alloc_flags & 0x80) == 0))
             {
                 // If exceeded capacity of the library
@@ -2680,7 +2680,7 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
                 // Cannot store the spellbook anywhere - remove the spell
                 {
                     if (!is_neutral_thing(thing)) {
-                        remove_spell_from_player(book_thing_to_magic(thing), thing->owner);
+                        remove_spell_from_player(book_thing_to_power_kind(thing), thing->owner);
                     }
                     delete_thing_structure(thing, 0);
                 }
@@ -3048,10 +3048,10 @@ void change_ownership_or_delete_object_thing_in_room(struct Room *room, struct T
             oldowner = thing->owner;
             thing->owner = newowner;
             if (oldowner != game.neutral_player_num) {
-                remove_spell_from_player(book_thing_to_magic(thing), oldowner);
+                remove_spell_from_player(book_thing_to_power_kind(thing), oldowner);
             }
             if (newowner != game.neutral_player_num) {
-                add_spell_to_player(book_thing_to_magic(thing), newowner);
+                add_spell_to_player(book_thing_to_power_kind(thing), newowner);
             }
             return;
         }

@@ -578,7 +578,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
             thing = thing_get(event->target);
             if (thing_is_invalid(thing))
               break;
-            i = get_power_name_strindex(book_thing_to_magic(thing));
+            i = get_power_name_strindex(book_thing_to_power_kind(thing));
             text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, cmpgn_string(i));
             strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
             turn_on_menu(GMnu_TEXT_INFO);

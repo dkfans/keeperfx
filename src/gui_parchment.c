@@ -706,8 +706,8 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
                 } else
                 if (thing_is_spellbook(thing))
                 {
-                    pwrdata = get_power_data(book_thing_to_magic(thing));
-                    spridx = pwrdata->field_B;
+                    pwrdata = get_power_data(book_thing_to_power_kind(thing));
+                    spridx = pwrdata->medsym_sprite_idx;
                     draw_gui_panel_sprite_centered(scr_x + spos_x, scr_y + spos_y - 13*units_per_pixel/16, ps_units_per_px, spridx);
                 }
                 break;

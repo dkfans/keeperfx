@@ -72,43 +72,43 @@ unsigned char destroy_effect[][9] = {
 };
 
 /******************************************************************************/
-DLLIMPORT void _DK_magic_use_power_chicken(unsigned char plyr_idx, struct Thing *thing, long pwmodel, long stl_y, long pwlevel);
-DLLIMPORT void _DK_magic_use_power_disease(unsigned char plyr_idx, struct Thing *thing, long pwmodel, long stl_y, long pwlevel);
-DLLIMPORT void _DK_magic_use_power_destroy_walls(unsigned char plyr_idx, long a2, long pwmodel, long stl_y);
-DLLIMPORT short _DK_magic_use_power_imp(unsigned short plyr_idx, unsigned short a2, unsigned short pwmodel);
-DLLIMPORT void _DK_magic_use_power_heal(unsigned char plyr_idx, struct Thing *thing, long pwmodel, long stl_y, long pwlevel);
-DLLIMPORT void _DK_magic_use_power_conceal(unsigned char plyr_idx, struct Thing *thing, long pwmodel, long stl_y, long pwlevel);
-DLLIMPORT void _DK_magic_use_power_armour(unsigned char plyr_idx, struct Thing *thing, long pwmodel, long stl_y, long pwlevel);
-DLLIMPORT void _DK_magic_use_power_speed(unsigned char plyr_idx, struct Thing *thing, long pwmodel, long stl_y, long pwlevel);
-DLLIMPORT void _DK_magic_use_power_lightning(unsigned char plyr_idx, long a2, long pwmodel, long stl_y);
-DLLIMPORT long _DK_magic_use_power_sight(unsigned char plyr_idx, long a2, long pwmodel, long stl_y);
-DLLIMPORT void _DK_magic_use_power_cave_in(unsigned char plyr_idx, long a2, long pwmodel, long stl_y);
-DLLIMPORT long _DK_magic_use_power_call_to_arms(unsigned char plyr_idx, long a2, long pwmodel, long stl_y, long pwlevel);
-DLLIMPORT short _DK_magic_use_power_hand(unsigned short plyr_idx, unsigned short a2, unsigned short pwmodel, unsigned short stl_y);
-DLLIMPORT short _DK_magic_use_power_slap(unsigned short plyr_idx, unsigned short a2, unsigned short pwmodel);
+DLLIMPORT void _DK_magic_use_power_chicken(unsigned char plyr_idx, struct Thing *thing, long pwkind, long stl_y, long pwlevel);
+DLLIMPORT void _DK_magic_use_power_disease(unsigned char plyr_idx, struct Thing *thing, long pwkind, long stl_y, long pwlevel);
+DLLIMPORT void _DK_magic_use_power_destroy_walls(unsigned char plyr_idx, long a2, long pwkind, long stl_y);
+DLLIMPORT short _DK_magic_use_power_imp(unsigned short plyr_idx, unsigned short a2, unsigned short pwkind);
+DLLIMPORT void _DK_magic_use_power_heal(unsigned char plyr_idx, struct Thing *thing, long pwkind, long stl_y, long pwlevel);
+DLLIMPORT void _DK_magic_use_power_conceal(unsigned char plyr_idx, struct Thing *thing, long pwkind, long stl_y, long pwlevel);
+DLLIMPORT void _DK_magic_use_power_armour(unsigned char plyr_idx, struct Thing *thing, long pwkind, long stl_y, long pwlevel);
+DLLIMPORT void _DK_magic_use_power_speed(unsigned char plyr_idx, struct Thing *thing, long pwkind, long stl_y, long pwlevel);
+DLLIMPORT void _DK_magic_use_power_lightning(unsigned char plyr_idx, long a2, long pwkind, long stl_y);
+DLLIMPORT long _DK_magic_use_power_sight(unsigned char plyr_idx, long a2, long pwkind, long stl_y);
+DLLIMPORT void _DK_magic_use_power_cave_in(unsigned char plyr_idx, long a2, long pwkind, long stl_y);
+DLLIMPORT long _DK_magic_use_power_call_to_arms(unsigned char plyr_idx, long a2, long pwkind, long stl_y, long pwlevel);
+DLLIMPORT short _DK_magic_use_power_hand(unsigned short plyr_idx, unsigned short a2, unsigned short pwkind, unsigned short stl_y);
+DLLIMPORT short _DK_magic_use_power_slap(unsigned short plyr_idx, unsigned short a2, unsigned short pwkind);
 DLLIMPORT short _DK_magic_use_power_obey(unsigned short plridx);
 DLLIMPORT long _DK_magic_use_power_armageddon(unsigned char val);
 DLLIMPORT void _DK_magic_use_power_hold_audience(unsigned char idx);
 
 DLLIMPORT long _DK_power_sight_explored(long stl_x, long stl_y, unsigned char plyr_idx);
 DLLIMPORT void _DK_update_power_sight_explored(struct PlayerInfo *player);
-DLLIMPORT unsigned char _DK_can_cast_spell_at_xy(unsigned char plyr_idx, unsigned char a2, unsigned char pwmodel, unsigned char stl_y, long pwlevel);
-DLLIMPORT long _DK_can_cast_spell_on_creature(long plyr_idx, struct Thing *thing, long pwmodel);
+DLLIMPORT unsigned char _DK_can_cast_spell_at_xy(unsigned char plyr_idx, unsigned char a2, unsigned char pwkind, unsigned char stl_y, long pwlevel);
+DLLIMPORT long _DK_can_cast_spell_on_creature(long plyr_idx, struct Thing *thing, long pwkind);
 /******************************************************************************/
-TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, const struct Thing *thing, unsigned long flags, const char *func_name)
+TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, const struct Thing *thing, unsigned long flags, const char *func_name)
 {
-    if (!is_power_available(plyr_idx, pwmodel)) {
+    if (!is_power_available(plyr_idx, pwkind)) {
         return false;
     }
     TbBool cast_at_xy,cast_on_tng;
-    cast_at_xy = can_cast_spell_at_xy(plyr_idx, pwmodel, stl_x, stl_y, 0);
+    cast_at_xy = can_cast_spell_at_xy(plyr_idx, pwkind, stl_x, stl_y, 0);
     struct SpellData *pwrdata;
-    pwrdata = get_power_data(pwmodel);
+    pwrdata = get_power_data(pwkind);
     cast_on_tng = true;
     if (((pwrdata->can_cast_flags & PwCast_AllThings) != 0) && ((flags & CastChk_SkipThing) == 0))
     {
         if (thing_exists(thing)) {
-            cast_on_tng = can_cast_power_on_thing(plyr_idx, thing, pwmodel);
+            cast_on_tng = can_cast_power_on_thing(plyr_idx, thing, pwkind);
         } else {
             cast_on_tng = false;
         }
@@ -119,7 +119,7 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwmodel, MapSubtlCoord 
         if (!cast_at_xy && !cast_on_tng) {
             if ((flags & CastChk_Final) != 0) {
                 WARNLOG("%s: Player %d tried to cast %s on %s which can't be targeted",func_name,(int)plyr_idx,
-                    power_code_name(pwmodel), (!cast_on_tng)?"a thing":(!cast_at_xy)?"a subtile":"thing or subtile");
+                    power_code_name(pwkind), (!cast_on_tng)?"a thing":(!cast_at_xy)?"a subtile":"thing or subtile");
             }
             return false;
         }
@@ -129,7 +129,7 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwmodel, MapSubtlCoord 
         if (!cast_at_xy || !cast_on_tng) {
             if ((flags & CastChk_Final) != 0) {
                 WARNLOG("%s: Player %d tried to cast %s on %s which can't be targeted",func_name,(int)plyr_idx,
-                    power_code_name(pwmodel), (!cast_on_tng)?"a thing":(!cast_at_xy)?"a subtile":"thing or subtile");
+                    power_code_name(pwkind), (!cast_on_tng)?"a thing":(!cast_at_xy)?"a subtile":"thing or subtile");
             }
             return false;
         }
@@ -145,15 +145,15 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwmodel, MapSubtlCoord 
  * @param pwmodel
  * @return
  */
-TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing, PowerKind pwmodel)
+TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing, PowerKind pwkind)
 {
-    SYNCDBG(18,"Starting for %s on %s",power_code_name(pwmodel),thing_model_name(thing));
-    //return _DK_can_cast_spell_on_creature(plyr_idx, thing, pwmodel);
+    SYNCDBG(18,"Starting for %s on %s",power_code_name(pwkind),thing_model_name(thing));
+    //return _DK_can_cast_spell_on_creature(plyr_idx, thing, pwkind);
     // Picked up things are immune to spells
     if (thing_is_picked_up(thing))
         return false;
     struct SpellData *pwrdata;
-    pwrdata = get_power_data(pwmodel);
+    pwrdata = get_power_data(pwkind);
     if (power_data_is_invalid(pwrdata))
         return false;
     if (thing_is_object(thing))
@@ -230,26 +230,26 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
         if ((pwrdata->can_cast_flags & PwCast_NConscCrtrs) == 0)
         {
             if (creature_is_being_unconscious(thing) || creature_is_dying(thing)) {
-                SYNCDBG(8,"Cannot cast %s on unconscious %s",power_code_name(pwmodel),thing_model_name(thing));
+                SYNCDBG(8,"Cannot cast %s on unconscious %s",power_code_name(pwkind),thing_model_name(thing));
                 return false;
             }
         }
         if ((pwrdata->can_cast_flags & PwCast_BoundCrtrs) == 0)
         {
             if (armageddon_blocks_creature_pickup(thing, plyr_idx)) {
-                SYNCDBG(8,"Cannot cast %s while armageddon blocks %s",power_code_name(pwmodel),thing_model_name(thing));
+                SYNCDBG(8,"Cannot cast %s while armageddon blocks %s",power_code_name(pwkind),thing_model_name(thing));
                 return false;
             }
             if (creature_is_dragging_something(thing)) {
-                SYNCDBG(8,"Cannot cast %s while %s is dragging something",power_code_name(pwmodel),thing_model_name(thing));
+                SYNCDBG(8,"Cannot cast %s while %s is dragging something",power_code_name(pwkind),thing_model_name(thing));
                 return false;
             }
             if (creature_is_being_sacrificed(thing) || creature_is_being_summoned(thing)) {
-                SYNCDBG(8,"Cannot cast %s on %s while entering/leaving",power_code_name(pwmodel),thing_model_name(thing));
+                SYNCDBG(8,"Cannot cast %s on %s while entering/leaving",power_code_name(pwkind),thing_model_name(thing));
                 return false;
             }
             if (creature_affected_by_spell(thing, SplK_Teleport)) {
-                SYNCDBG(8,"Cannot cast %s on %s while teleporting",power_code_name(pwmodel),thing_model_name(thing));
+                SYNCDBG(8,"Cannot cast %s on %s while teleporting",power_code_name(pwkind),thing_model_name(thing));
                 return false;
             }
         }
@@ -279,7 +279,7 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
             }
         }
     }
-    SYNCDBG(8,"Cannot cast %s on %s, no condition met",power_code_name(pwmodel),thing_model_name(thing));
+    SYNCDBG(8,"Cannot cast %s on %s, no condition met",power_code_name(pwkind),thing_model_name(thing));
     return false;
 }
 
@@ -344,7 +344,7 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
     play_creature_sound(thing, CrSnd_Hurt, 3, 0);
 }
 
-TbBool can_cast_spell_at_xy(PlayerNumber plyr_idx, PowerKind pwmodel,
+TbBool can_cast_spell_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags)
 {
     struct Map *mapblk;
@@ -353,7 +353,7 @@ TbBool can_cast_spell_at_xy(PlayerNumber plyr_idx, PowerKind pwmodel,
     mapblk = get_map_block_at(stl_x, stl_y);
     slb = get_slabmap_for_subtile(stl_x, stl_y);
     struct SpellData *pwrdata;
-    pwrdata = get_power_data(pwmodel);
+    pwrdata = get_power_data(pwkind);
     if (power_data_is_invalid(pwrdata))
         return false;
     can_cast = pwrdata->can_cast_flags | allow_flags;
@@ -1346,24 +1346,24 @@ TbResult magic_use_power_possess_thing(PlayerNumber plyr_idx, struct Thing *thin
  * @param stl_y The casting subtile, Y coord.
  * @return
  */
-TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind pwmodel,
+TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind pwkind,
     unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing)
 {
     TbResult ret;
     ret = Lb_OK;
-    if (!is_power_available(plyr_idx, pwmodel)) {
+    if (!is_power_available(plyr_idx, pwkind)) {
         // It shouldn't be possible to select unavailable spell
-        WARNLOG("Player %d tried to cast %s which is unavailable",(int)plyr_idx,power_code_name(pwmodel));
+        WARNLOG("Player %d tried to cast %s which is unavailable",(int)plyr_idx,power_code_name(pwkind));
         ret = Lb_FAIL;
     }
     if (!thing_exists(thing)) {
-        WARNLOG("Player %d tried to cast %s on non-existing thing",(int)plyr_idx,power_code_name(pwmodel));
+        WARNLOG("Player %d tried to cast %s on non-existing thing",(int)plyr_idx,power_code_name(pwkind));
         ret = Lb_FAIL;
     }
     if (ret == Lb_OK)
     {// Zero coords mean we should take real ones from the thing. But even if they're not zero, we might want to fix them sometimes
         struct SpellData *pwrdata;
-        pwrdata = get_power_data(pwmodel);
+        pwrdata = get_power_data(pwkind);
         if (((stl_x == 0) && (stl_y == 0)) || ((pwrdata->can_cast_flags & PwCast_AllThings) != 0)) {
             stl_x = thing->mappos.x.stl.num;
             stl_y = thing->mappos.y.stl.num;
@@ -1371,7 +1371,7 @@ TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind pwm
     }
     if (ret == Lb_OK)
     {
-        if (!can_cast_spell(plyr_idx, pwmodel, stl_x, stl_y, thing, CastChk_Final)) {
+        if (!can_cast_spell(plyr_idx, pwkind, stl_x, stl_y, thing, CastChk_Final)) {
             ret = Lb_FAIL;
         }
     }
@@ -1384,7 +1384,7 @@ TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind pwm
     }
     if (ret == Lb_OK)
     {
-        switch (pwmodel)
+        switch (pwkind)
         {
         case PwrK_HAND:
             //TODO check if we should use magic_use_power_hand()
@@ -1424,7 +1424,7 @@ TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind pwm
             ret = magic_use_power_lightning(plyr_idx, stl_x, stl_y, splevel);
             break;
         default:
-            ERRORLOG("Power not supported here: %d", (int)pwmodel);
+            ERRORLOG("Power not supported here: %d", (int)pwkind);
             ret = Lb_FAIL;
             break;
         }

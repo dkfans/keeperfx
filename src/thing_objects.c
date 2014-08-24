@@ -621,7 +621,7 @@ int box_thing_to_special(const struct Thing *thing)
  * @param thing The spellbook object thing.
  * @return Power kind, or 0 if the thing is not a spellbook object.
  */
-PowerKind book_thing_to_magic(const struct Thing *thing)
+PowerKind book_thing_to_power_kind(const struct Thing *thing)
 {
     if (thing_is_invalid(thing))
         return 0;
@@ -671,7 +671,7 @@ TbBool thing_is_mature_food(const struct Thing *thing)
 TbBool thing_is_spellbook(const struct Thing *thing)
 {
     //return _DK_thing_is_spellbook(thing);
-    return (book_thing_to_magic(thing) > 0);
+    return (book_thing_to_power_kind(thing) > 0);
 }
 
 TbBool object_is_hero_gate(const struct Thing *thing)
