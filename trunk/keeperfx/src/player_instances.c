@@ -838,7 +838,7 @@ long pinstfs_fade_to_map(struct PlayerInfo *player, long *n)
     settings.tooltips_on = 0;
     set_flag_byte(&player->field_1, 0x01, toggle_status_menu(0));
   }
-  set_engine_view(player, 6);
+  set_engine_view(player, PVM_ParchFadeIn);
   return 0;
 
 }
@@ -870,7 +870,7 @@ long pinstfs_fade_from_map(struct PlayerInfo *player, long *n)
   }
   player->field_4BD = 32;
   set_player_mode(player, PVT_DungeonTop);
-  set_engine_view(player, 7);
+  set_engine_view(player, PVM_ParchFadeOut);
   return 0;
 }
 

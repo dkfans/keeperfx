@@ -194,7 +194,7 @@ void prepare_map_fade_buffers(unsigned char *fade_src, unsigned char *fade_dest,
     struct PlayerInfo *player;
     player=get_my_player();
     // render the 3D screen
-    if (player->field_4B5 == 2)
+    if (player->field_4B5 == PVM_IsometricView)
       redraw_isometric_view();
     else
       redraw_frontview();
@@ -347,7 +347,7 @@ void set_engine_view(struct PlayerInfo *player, long val)
     //_DK_set_engine_view(player, val);
     switch ( val )
     {
-    case 0:
+    case PVM_EmptyView:
         player->acamera = &player->cameras[0];
         // Allow view mode 0 only for non-local-human players
         if (!is_my_player(player))
@@ -355,8 +355,8 @@ void set_engine_view(struct PlayerInfo *player, long val)
         // If it's local human player, then setting this mode is an error
     default:
         ERRORLOG("Invalid view mode %d",(int)val);
-        val = 1;
-    case 1:
+        val = PVM_CreatureView;
+    case PVM_CreatureView:
         player->acamera = &player->cameras[1];
         if (!is_my_player(player))
             break;
@@ -366,7 +366,7 @@ void set_engine_view(struct PlayerInfo *player, long val)
         S3DSetDeadzoneRadius(0);
         LbMouseSetPosition((MyScreenWidth/pixel_size) >> 1,(MyScreenHeight/pixel_size) >> 1);
         break;
-    case 2:
+    case PVM_IsometricView:
         player->acamera = &player->cameras[0];
         if (!is_my_player(player))
             break;
@@ -375,14 +375,14 @@ void set_engine_view(struct PlayerInfo *player, long val)
         S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
         S3DSetDeadzoneRadius(1280);
         break;
-    case 3:
+    case PVM_ParchmentView:
         player->acamera = &player->cameras[2];
         if (!is_my_player(player))
             break;
         S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
         S3DSetDeadzoneRadius(1280);
         break;
-    case 5:
+    case PVM_FrontView:
         player->acamera = &player->cameras[3];
         if (!is_my_player(player))
             break;
