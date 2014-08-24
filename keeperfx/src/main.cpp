@@ -2592,7 +2592,7 @@ void draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, unsigned 
             return;
         }
     }
-    i = pwrdata->field_13;
+    i = pwrdata->pointer_spridx;
     set_pointer_graphic_spell(i, game.play_gameturn);
 }
 

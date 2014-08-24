@@ -85,6 +85,7 @@ enum PlayerStates {
     PSt_CastDisease,
     PSt_TurnChicken,
     PSt_MkGoldPot, // 28
+    PSt_TimeBomb,
 };
 
 /******************************************************************************/

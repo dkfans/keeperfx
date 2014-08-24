@@ -167,7 +167,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
   if (!thing_is_invalid(thing))
   {
     update_gui_tooltip_target(thing);
-    i = book_thing_to_magic(thing);
+    i = book_thing_to_power_kind(thing);
     set_gui_tooltip_box_fmt(5,"%s",cmpgn_string(get_power_name_strindex(i)));
     return true;
   }

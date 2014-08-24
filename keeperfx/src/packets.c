@@ -2043,11 +2043,11 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
           }
       }
       pwrdata = get_power_data(pckt->field_6);
-      if ( pwrdata->field_0 )
+      if (pwrdata->pcktype)
       {
         i = get_power_index_for_work_state(player->work_state);
         if (i > 0)
-          set_player_state(player, pwrdata->field_4, 0);
+          set_player_state(player, pwrdata->work_state, 0);
       }
       return 0;
   case PckA_PlyrFastMsg:

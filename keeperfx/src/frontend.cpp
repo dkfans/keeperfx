@@ -940,27 +940,27 @@ void activate_room_build_mode(RoomKind rkind, TextStringId tooltip_id)
     game.chosen_room_tooltip = tooltip_id;
 }
 
-TbBool set_players_packet_change_spell(struct PlayerInfo *player,int sptype)
+TbBool set_players_packet_change_spell(struct PlayerInfo *player,PowerKind pwkind)
 {
-  struct SpellData *pwrdata;
-  long k;
-  if (spell_is_stupid(game.chosen_spell_type))
-      return false;
-  pwrdata = get_power_data(sptype);
-  k = pwrdata->field_4;
-  if ((k == PSt_CallToArms) && (player->work_state == PSt_CallToArms))
-  {
-      set_players_packet_action(player, PckA_PwrCTADis, 0, 0, 0, 0);
-  } else
-  if ((k == PSt_SightOfEvil) && (player->work_state == PSt_SightOfEvil))
-  {
-      set_players_packet_action(player, PckA_PwrSOEDis, 0, 0, 0, 0);
-  } else
-  {
-      set_players_packet_action(player, pwrdata->field_0, k, 0, 0, 0);
-      play_non_3d_sample(pwrdata->field_11);
-  }
-  return true;
+    struct SpellData *pwrdata;
+    long k;
+    if (power_is_stupid(game.chosen_spell_type))
+        return false;
+    pwrdata = get_power_data(pwkind);
+    k = pwrdata->work_state;
+    if ((k == PSt_CallToArms) && (player->work_state == PSt_CallToArms))
+    {
+        set_players_packet_action(player, PckA_PwrCTADis, 0, 0, 0, 0);
+    } else
+    if ((k == PSt_SightOfEvil) && (player->work_state == PSt_SightOfEvil))
+    {
+        set_players_packet_action(player, PckA_PwrSOEDis, 0, 0, 0, 0);
+    } else
+    {
+        set_players_packet_action(player, pwrdata->pcktype, k, 0, 0, 0);
+        play_non_3d_sample(pwrdata->select_sample_idx);
+    }
+    return true;
 }
 
 TbBool is_special_spell(PowerKind pwkind)
@@ -988,7 +988,7 @@ void choose_special_spell(PowerKind pwkind, TextStringId tooltip_id)
 
     if (dungeon->total_money_owned >= magstat->cost[0]) {
         pwrdata = get_power_data(pwkind);
-        play_non_3d_sample_no_overlap(pwrdata->field_11); // Play the spell speech
+        play_non_3d_sample_no_overlap(pwrdata->select_sample_idx); // Play the spell speech
         switch (pwkind)
         {
         case PwrK_ARMAGEDDON:

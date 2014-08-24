@@ -242,18 +242,17 @@ TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
     {
         move_thing_in_map(herotng, pos);
         change_creature_owner(herotng, player->id_number);
+        SYNCDBG(9,"Converted %s to owner %d",thing_model_name(herotng),(int)player->id_number);
     }
     else
     {
         i = ACTION_RANDOM(sizeof(prefer_steal_models)/sizeof(prefer_steal_models[0]));
-        ThingModel crmodel;
-        crmodel = prefer_steal_models[i];
         struct Thing *creatng;
-        creatng = create_creature(pos, crmodel, player->id_number);
+        creatng = create_creature(pos, prefer_steal_models[i], player->id_number);
         if (thing_is_invalid(creatng))
             return false;
+        SYNCDBG(9,"Created %s owner %d",thing_model_name(creatng),(int)player->id_number);
     }
-    SYNCDBG(19,"Finished");
     return true;
 }
 
