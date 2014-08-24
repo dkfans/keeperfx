@@ -548,12 +548,12 @@ void get_player_gui_clicks(void)
       if (lbKeyOn[KC_ESCAPE])
       {
         lbKeyOn[KC_ESCAPE] = 0;
-        if ( a_menu_window_is_active() )
+        if (a_menu_window_is_active())
         {
-          turn_off_all_window_menus();
+            turn_off_all_window_menus();
         } else
         {
-          turn_on_menu(GMnu_OPTIONS);
+            turn_on_menu(GMnu_OPTIONS);
         }
       }
       break;
