@@ -707,7 +707,27 @@ void init_players_local_game(void)
 void process_player_states(void)
 {
     SYNCDBG(6,"Starting");
-    _DK_process_player_states();
+    //_DK_process_player_states();
+    PlayerNumber plyr_idx;
+    for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    {
+        struct PlayerInfo *player;
+        player = get_player(plyr_idx);
+        if (player_exists(player) && ((player->field_0 & 0x40) == 0))
+        {
+            if (player->work_state == PSt_Unknown15)
+            {
+                struct Thing *thing;
+                thing = thing_get(player->controlled_thing_idx);
+                struct Camera *cam;
+                cam = player->acamera;
+                if ((cam != NULL) && thing_exists(thing)) {
+                    cam->mappos.x.val = thing->mappos.x.val;
+                    cam->mappos.y.val = thing->mappos.y.val;
+                }
+            }
+        }
+    }
 }
 
 void process_players(void)
