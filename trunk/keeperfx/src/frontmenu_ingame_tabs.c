@@ -493,7 +493,7 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
     sprintf(gui_textbuf, "%ld", (long)rstat->cost);
     if (rstat->cost <= dungeon->total_money_owned)
     {
-        if ((player->work_state == 2) && (player->chosen_room_kind == game.chosen_room_kind)
+        if ((player->work_state == PSt_BuildRoom) && (player->chosen_room_kind == game.chosen_room_kind)
           && ((game.play_gameturn & 1) == 0))
         {
             draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->field_29, 44);
@@ -569,7 +569,7 @@ void gui_area_spell_button(struct GuiButton *gbtn)
         if ((gbtn->flags & 0x08) != 0)
         {
             int i;
-            i = spell_data[pwkind].field_4;
+            i = spell_data[pwkind].work_state;
             if (((i == 6) && (dungeon->cta_start_turn != 0))
              || ((i == 8) && (dungeon->sight_casted_thing_idx != 0))
              || ((pwkind == PwrK_OBEY) && (dungeon->must_obey_turn != 0))) {
@@ -644,7 +644,7 @@ void gui_area_big_spell_button(struct GuiButton *gbtn)
     lbDisplay.DrawFlags &= ~Lb_SPRITE_OUTLINE;
     int pwage;
     pwage = find_spell_age_percentage(player->id_number, pwkind);
-    if ((pwrdata->flag_8 != 0) && (pwage >= 0))
+    if ((pwrdata->has_progress != 0) && (pwage >= 0))
     {
         draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 23);
         int fill_bar;
@@ -665,7 +665,7 @@ void gui_area_big_spell_button(struct GuiButton *gbtn)
     text = buf_sprintf("%ld", (long)price);
     if (dungeon->total_money_owned >= price)
     {
-        if ((player->work_state == pwrdata->field_4) && ((game.play_gameturn & 1) != 0)) {
+        if ((player->work_state == pwrdata->work_state) && ((game.play_gameturn & 1) != 0)) {
             draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->field_29, 44);
         } else {
             draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->field_29);

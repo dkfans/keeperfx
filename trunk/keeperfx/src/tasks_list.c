@@ -29,8 +29,8 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_find_dig_from_task_list(long a1, long a2);
-DLLIMPORT long _DK_remove_from_task_list(long a1, long a2);
+DLLIMPORT long _DK_find_dig_from_task_list(long plyr_idx, long stack_pos);
+DLLIMPORT long _DK_remove_from_task_list(long plyr_idx, long stack_pos);
 
 struct MapTask bad_map_task;
 /******************************************************************************/
@@ -152,9 +152,32 @@ TbBool task_list_entry_invalid(struct MapTask *task)
     return false;
 }
 
-long remove_from_task_list(long a1, long a2)
+long remove_from_task_list(long plyr_idx, long stack_pos)
 {
-    return _DK_remove_from_task_list(a1, a2);
+    //return _DK_remove_from_task_list(a1, a2);
+    struct Dungeon *dungeon;
+    dungeon = get_dungeon(plyr_idx);
+    if ((stack_pos < 0) || (dungeon->field_AF7 <= stack_pos)) {
+      ERRORLOG("Invalid stack pos");
+      return 0;
+    }
+    struct MapTask *mtask;
+    mtask = &dungeon->task_list[stack_pos];
+    mtask->kind = 0;
+    mtask->coords = 0;
+    dungeon->field_E8F--;
+    long i;
+    if (dungeon->field_AF7 - stack_pos == 1)
+    {
+        for (i=stack_pos; i >= 0; i--)
+        {
+            mtask = &dungeon->task_list[i];
+            if (mtask->kind != 0)
+              break;
+        }
+        dungeon->field_AF7 = i + 1;
+    }
+    return 1;
 }
 /******************************************************************************/
 #ifdef __cplusplus

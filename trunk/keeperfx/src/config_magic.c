@@ -191,7 +191,7 @@ long get_power_index_for_work_state(long work_state)
   long i;
   for (i=0; i<POWER_TYPES_COUNT; i++)
   {
-    if (spell_data[i].field_4 == work_state)
+    if (spell_data[i].work_state == work_state)
     {
       return i;
     }
@@ -199,15 +199,15 @@ long get_power_index_for_work_state(long work_state)
   return 0;
 }
 
-TbBool spell_is_stupid(int sptype)
+TbBool power_is_stupid(int pwkind)
 {
   struct SpellData *pwrdata;
-  pwrdata = get_power_data(sptype);
+  pwrdata = get_power_data(pwkind);
   // now a test similar to the one in power_data_is_invalid()
   // but we accept the NULL power (power 0)
   if (pwrdata < &spell_data[0])
     return true;
-  return (pwrdata->field_0 <= 0);
+  return (pwrdata->pcktype <= 0);
 }
 
 struct SpellConfigStats *get_spell_model_stats(SpellKind spmodel)
@@ -224,11 +224,11 @@ struct ShotConfigStats *get_shot_model_stats(ThingModel tngmodel)
     return &magic_conf.shot_cfgstats[tngmodel];
 }
 
-struct PowerConfigStats *get_power_model_stats(PowerKind pwmodel)
+struct PowerConfigStats *get_power_model_stats(PowerKind pwkind)
 {
-    if ((pwmodel < 0) || (pwmodel >= magic_conf.power_types_count))
+    if ((pwkind < 0) || (pwkind >= magic_conf.power_types_count))
         return &magic_conf.power_cfgstats[0];
-    return &magic_conf.power_cfgstats[pwmodel];
+    return &magic_conf.power_cfgstats[pwkind];
 }
 
 short write_magic_shot_to_log(const struct ShotConfigStats *shotst, int num)
