@@ -1441,31 +1441,31 @@ TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind pwk
  * Unified function for using powers which are castable on map subtile.
  *
  * @param plyr_idx The casting player.
- * @param pwmodel Power kind to be casted.
+ * @param pwkind Power kind to be casted.
  * @param splevel Power overcharge level.
  * @param stl_x The target subtile, X coord.
  * @param stl_y The target subtile, Y coord.
  * @param allow_flags Additional castability flags, to loosen constaints in the spell config.
  * @return
  */
-TbResult magic_use_available_power_on_subtile(PlayerNumber plyr_idx, PowerKind pwmodel,
+TbResult magic_use_available_power_on_subtile(PlayerNumber plyr_idx, PowerKind pwkind,
     unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags)
 {
     TbResult ret;
     ret = Lb_OK;
-    if (!is_power_available(plyr_idx, pwmodel)) {
+    if (!is_power_available(plyr_idx, pwkind)) {
         // It shouldn't be possible to select unavailable spell
-        WARNLOG("Player %d tried to cast %s which is unavailable",(int)plyr_idx,power_code_name(pwmodel));
+        WARNLOG("Player %d tried to cast %s which is unavailable",(int)plyr_idx,power_code_name(pwkind));
         ret = Lb_FAIL;
     }
     if (ret == Lb_OK)
     {
         TbBool cast_at_xy;
-        cast_at_xy = can_cast_spell_at_xy(plyr_idx, pwmodel, stl_x, stl_y, allow_flags);
+        cast_at_xy = can_cast_spell_at_xy(plyr_idx, pwkind, stl_x, stl_y, allow_flags);
         // Fail if the function has failed
         if (!cast_at_xy) {
             WARNLOG("Player %d tried to cast %s on %s which can't be targeted",
-                (int)plyr_idx,power_code_name(pwmodel),"a subtile");
+                (int)plyr_idx,power_code_name(pwkind),"a subtile");
             ret = Lb_FAIL;
         }
     }
@@ -1478,7 +1478,8 @@ TbResult magic_use_available_power_on_subtile(PlayerNumber plyr_idx, PowerKind p
     }
     if (ret == Lb_OK)
     {
-        switch (pwmodel)
+        SYNCDBG(7,"Player %d is casting %s level %d",(int)plyr_idx,power_code_name(pwkind),(int)splevel);
+        switch (pwkind)
         {
         case PwrK_MKDIGGER:
             ret = magic_use_power_imp(plyr_idx, stl_x, stl_y);
@@ -1502,7 +1503,7 @@ TbResult magic_use_available_power_on_subtile(PlayerNumber plyr_idx, PowerKind p
             ret = magic_use_power_time_bomb(plyr_idx, stl_x, stl_y, splevel);
             break;
         default:
-            ERRORLOG("Power not supported here: %d", (int)pwmodel);
+            ERRORLOG("Power not supported here: %d", (int)pwkind);
             ret = Lb_FAIL;
             break;
         }

@@ -319,7 +319,7 @@ void set_player_mode(struct PlayerInfo *player, long nview)
   player->field_0 &= ~0x08;
   if (is_my_player(player))
   {
-    game.numfield_D &= 0xF7;
+    game.numfield_D &= ~0x08;
     game.numfield_D |= 0x01;
     if (is_my_player(player))
       stop_all_things_playing_samples();
@@ -327,11 +327,11 @@ void set_player_mode(struct PlayerInfo *player, long nview)
   switch (player->view_type)
   {
   case PVT_DungeonTop:
-      i = 2;
-      if (player->field_4B5 == 5)
+      i = PVM_IsometricView;
+      if (player->field_4B5 == PVM_FrontView)
       {
-        set_engine_view(player, 2);
-        i = 5;
+        set_engine_view(player, PVM_IsometricView);
+        i = PVM_FrontView;
       }
       set_engine_view(player, i);
       if (is_my_player(player))
@@ -343,14 +343,14 @@ void set_player_mode(struct PlayerInfo *player, long nview)
       break;
   case PVT_CreatureContrl:
   case PVT_CreaturePasngr:
-      set_engine_view(player, 1);
+      set_engine_view(player, PVM_CreatureView);
       if (is_my_player(player))
         game.numfield_D &= ~0x01;
       setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
       break;
   case PVT_MapScreen:
       player->continue_work_state = player->work_state;
-      set_engine_view(player, 3);
+      set_engine_view(player, PVM_ParchmentView);
       break;
   case PVT_MapFadeIn:
       set_player_instance(player, PI_MapFadeTo, 0);
@@ -367,25 +367,25 @@ void reset_player_mode(struct PlayerInfo *player, unsigned short nmode)
   player->view_type = nmode;
   switch (nmode)
   {
-    case 1:
+    case PVT_DungeonTop:
       player->work_state = player->continue_work_state;
-      if (player->field_4B5 == 5)
-        set_engine_view(player, 5);
+      if (player->field_4B5 == PVM_FrontView)
+        set_engine_view(player, PVM_FrontView);
       else
-        set_engine_view(player, 2);
+        set_engine_view(player, PVM_IsometricView);
       if (is_my_player(player))
         game.numfield_D &= ~0x01;
       break;
-    case 2:
-    case 3:
+    case PVT_CreatureContrl:
+    case PVT_CreaturePasngr:
       player->work_state = player->continue_work_state;
-      set_engine_view(player, 1);
+      set_engine_view(player, PVM_CreatureView);
       if (is_my_player(player))
         game.numfield_D |= 0x01;
       break;
-    case 4:
+    case PVT_MapScreen:
       player->work_state = player->continue_work_state;
-      set_engine_view(player, 3);
+      set_engine_view(player, PVM_ParchmentView);
       if (is_my_player(player))
         game.numfield_D &= ~0x01;
       break;

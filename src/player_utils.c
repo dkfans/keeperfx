@@ -698,9 +698,9 @@ void init_players_local_game(void)
     player->id_number = my_player_number;
     player->field_0 |= 0x01;
     if (settings.video_rotate_mode < 1)
-      player->field_4B5 = 2;
+      player->field_4B5 = PVM_IsometricView;
     else
-      player->field_4B5 = 5;
+      player->field_4B5 = PVM_FrontView;
     init_player(player, 0);
 }
 

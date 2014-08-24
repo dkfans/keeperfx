@@ -129,9 +129,9 @@ void setup_exchange_player_number(void)
           player->id_number = k;
           player->field_0 |= 0x01;
           if (pckt->field_8 < 1)
-            player->field_4B5 = 2;
+            player->field_4B5 = PVM_IsometricView;
           else
-            player->field_4B5 = 5;
+            player->field_4B5 = PVM_FrontView;
           player->field_2C = pckt->field_6;
           init_player(player, 0);
           strncpy(player->field_15,net_player[i].name,sizeof(struct TbNetworkPlayerName));
