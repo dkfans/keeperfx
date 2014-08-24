@@ -25,6 +25,9 @@
 #include "thing_list.h"
 #include "thing_creature.h"
 #include "creature_control.h"
+#include "creature_states.h"
+#include "config_creature.h"
+#include "room_jobs.h"
 #include "game_legacy.h"
 
 #ifdef __cplusplus
@@ -232,7 +235,50 @@ TbBool make_group_member_leader(struct Thing *leadtng)
 
 long process_obey_leader(struct Thing *thing)
 {
-  return _DK_process_obey_leader(thing);
+    //return _DK_process_obey_leader(thing);
+    struct Thing *leadtng;
+    leadtng = get_group_leader(thing);
+    if (thing_is_invalid(leadtng)) {
+        set_start_state(thing);
+        return 1;
+    }
+    if ((leadtng->alloc_flags & 0x20) != 0)
+    {
+        if (thing->active_state != CrSt_CreatureFollowLeader) {
+            external_set_thing_state(thing, CrSt_CreatureFollowLeader);
+        }
+        return 1;
+    }
+    struct CreatureControl *cctrl;
+    struct CreatureControl *leadctrl;
+    struct StateInfo *stati;
+    stati = get_creature_state_with_task_completion(leadtng);
+    switch (stati->field_21)
+    {
+    case 1:
+        if (thing->active_state != CrSt_CreatureFollowLeader) {
+            external_set_thing_state(thing, CrSt_CreatureFollowLeader);
+        }
+        break;
+    case 2:
+        cctrl = creature_control_get_from_thing(thing);
+        leadctrl = creature_control_get_from_thing(leadtng);
+        if ((cctrl->work_room_id != leadctrl->work_room_id) && (cctrl->target_room_id != leadctrl->work_room_id))
+        {
+            struct Room *room;
+            room = get_room_creature_works_in(leadtng);
+            struct CreatureStats *crstat;
+            crstat = creature_stats_get_from_thing(thing);
+            CreatureJob jobpref;
+            jobpref = get_job_for_room(room->kind, JoKF_None, crstat->job_primary|crstat->job_secondary);
+            cleanup_current_thing_state(thing);
+            send_creature_to_room(thing, room, jobpref);
+        }
+        break;
+    default:
+        break;
+    }
+    return 1;
 }
 
 void leader_find_positions_for_followers(struct Thing *thing)
