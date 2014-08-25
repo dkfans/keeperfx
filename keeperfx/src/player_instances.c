@@ -398,7 +398,7 @@ long pinstfs_passenger_control_creature(struct PlayerInfo *player, long *n)
 {
   struct Camera *cam;
   //return _DK_pinstfs_control_creature(player, n);
-  player->field_0 |= 0x80;
+  player->allocflags |= PlaF_Unknown80;
   if (is_my_player(player))
   {
     player->field_4C5 = 1;
@@ -409,7 +409,7 @@ long pinstfs_passenger_control_creature(struct PlayerInfo *player, long *n)
     game.flags_font |= FFlg_unk04;
   }
   cam = player->acamera;
-  player->field_0 |= 0x10;
+  player->allocflags |= PlaF_Unknown10;
   player->dungeon_camera_zoom = get_camera_zoom(cam);
   // Play possession sound
   if (is_my_player(player))
@@ -446,8 +446,8 @@ long pinstfm_control_creature(struct PlayerInfo *player, long *n)
         if (is_my_player(player))
             PaletteSetPlayerPalette(player, engine_palette);
         player->influenced_thing_idx = 0;
-        player->field_0 &= ~0x10;
-        player->field_0 &= ~0x80;
+        player->allocflags &= ~PlaF_Unknown10;
+        player->allocflags &= ~PlaF_Unknown80;
         set_player_instance(player, PI_Unset, true);
         return 0;
     }
@@ -521,8 +521,8 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, long *n)
         if (is_my_player(player)) {
             PaletteSetPlayerPalette(player, engine_palette);
         }
-        player->field_0 &= ~0x10;
-        player->field_0 &= ~0x80;
+        player->allocflags &= ~PlaF_Unknown10;
+        player->allocflags &= ~PlaF_Unknown80;
         return 0;
     }
     set_player_instance(player, PI_CrCtrlFade, false);
@@ -562,7 +562,7 @@ long pinstfs_direct_leave_creature(struct PlayerInfo *player, long *n)
     set_player_instance(player, PI_Unset, true);
     return 0;
   }
-  player->field_0 |= 0x80;
+  player->allocflags |= PlaF_Unknown80;
   thing = thing_get(player->influenced_thing_idx);
   reset_creature_eye_lens(thing);
   if (is_my_player(player))
@@ -576,7 +576,7 @@ long pinstfs_direct_leave_creature(struct PlayerInfo *player, long *n)
   }
   thing = thing_get(player->influenced_thing_idx);
   leave_creature_as_controller(player, thing);
-  player->field_0 |= 0x10;
+  player->allocflags |= PlaF_Unknown10;
   player->influenced_thing_idx = 0;
   light_turn_light_on(player->field_460);
   play_non_3d_sample(177);
@@ -605,7 +605,7 @@ long pinstfs_passenger_leave_creature(struct PlayerInfo *player, long *n)
       set_player_instance(player, PI_Unset, true);
       return 0;
   }
-  player->field_0 |= 0x80;
+  player->allocflags |= PlaF_Unknown80;
   thing = thing_get(player->influenced_thing_idx);
   reset_creature_eye_lens(thing);
   if (is_my_player(player))
@@ -618,7 +618,7 @@ long pinstfs_passenger_leave_creature(struct PlayerInfo *player, long *n)
     set_flag_byte(&game.numfield_C, 0x40, (game.numfield_C & 0x20) != 0);
   }
   leave_creature_as_passenger(player, thing);
-  player->field_0 |= 0x10;
+  player->allocflags |= PlaF_Unknown10;
   player->influenced_thing_idx = 0;
   light_turn_light_on(player->field_460);
   play_non_3d_sample(177);
@@ -631,8 +631,8 @@ long pinstfe_leave_creature(struct PlayerInfo *player, long *n)
   set_camera_zoom(player->acamera, player->dungeon_camera_zoom);
   if (is_my_player(player))
     PaletteSetPlayerPalette(player, engine_palette);
-  player->field_0 &= ~0x10;
-  player->field_0 &= ~0x80;
+  player->allocflags &= ~PlaF_Unknown10;
+  player->allocflags &= ~PlaF_Unknown80;
   return 0;
 }
 
@@ -676,8 +676,8 @@ long pinstfs_zoom_to_heart(struct PlayerInfo *player, long *n)
     {
         cctrl = creature_control_get_from_thing(thing);
         cctrl->flgfield_1 |= CCFlg_NoCompControl;
-        player->field_0 |= 0x10;
-        player->field_0 |= 0x80;
+        player->allocflags |= PlaF_Unknown10;
+        player->allocflags |= PlaF_Unknown80;
         game.numfield_D |= 0x08;
     }
     return 0;
@@ -793,8 +793,8 @@ long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, long *n)
     cam->orient_a = 256;
   }
   light_turn_light_on(player->field_460);
-  player->field_0 &= ~0x10;
-  player->field_0 &= ~0x80;
+  player->allocflags &= ~PlaF_Unknown10;
+  player->allocflags &= ~PlaF_Unknown80;
   game.numfield_D &= ~0x08;
   if (is_my_player(player))
     PaletteSetPlayerPalette(player, engine_palette);
@@ -804,7 +804,7 @@ long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, long *n)
 long pinstfm_control_creature_fade(struct PlayerInfo *player, long *n)
 {
   //return _DK_pinstfm_control_creature_fade(player, n);
-  player->field_0 |= 0x80;
+  player->allocflags |= PlaF_Unknown80;
   return 0;
 }
 
@@ -818,9 +818,9 @@ long pinstfe_control_creature_fade(struct PlayerInfo *player, long *n)
     else
       PaletteSetPlayerPalette(player, engine_palette);
   }
-  player->field_0 &= ~0x10;
+  player->allocflags &= ~PlaF_Unknown10;
   light_turn_light_off(player->field_460);
-  player->field_0 &= ~0x80;
+  player->allocflags &= ~PlaF_Unknown80;
   return 0;
 }
 
@@ -830,7 +830,7 @@ long pinstfs_fade_to_map(struct PlayerInfo *player, long *n)
   //return _DK_pinstfs_fade_to_map(player, n);
   cam = player->acamera;
   player->field_4BD = 0;
-  player->field_0 |= 0x80;
+  player->allocflags |= PlaF_Unknown80;
   player->field_4B5 = cam->field_6;
   if (is_my_player(player))
   {
@@ -854,14 +854,14 @@ long pinstfe_fade_to_map(struct PlayerInfo *player, long *n)
   set_player_mode(player, PVT_MapScreen);
   if (is_my_player(player))
     settings.tooltips_on = ((player->field_1 & 0x02) != 0);
-  player->field_0 &= ~0x80;
+  player->allocflags &= ~PlaF_Unknown80;
   return 0;
 }
 
 long pinstfs_fade_from_map(struct PlayerInfo *player, long *n)
 {
   //return _DK_pinstfs_fade_from_map(player, n);
-  player->field_0 |= 0x80;
+  player->allocflags |= PlaF_Unknown80;
   if (is_my_player(player))
   {
     set_flag_byte(&player->field_1, 0x02, settings.tooltips_on);
@@ -913,8 +913,8 @@ long pinstfm_zoom_to_position(struct PlayerInfo *player, long *n)
 long pinstfe_zoom_to_position(struct PlayerInfo *player, long *n)
 {
     //return _DK_pinstfe_zoom_to_position(player, n);
-    player->field_0 &= ~0x80;
-    player->field_0 &= ~0x10;
+    player->allocflags &= ~PlaF_Unknown80;
+    player->allocflags &= ~PlaF_Unknown10;
     return 0;
 }
 
@@ -991,7 +991,7 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
         clear_selected_creature(player);
         player->field_31 = 0;
         set_player_mode(player, PVT_DungeonTop);
-        player->field_0 &= ~0x08;
+        player->allocflags &= ~PlaF_Unknown8;
         set_engine_view(player, player->field_4B5);
         player->cameras[0].mappos.x.val = 0;
         player->cameras[0].mappos.y.val = 0;
@@ -1004,7 +1004,7 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
     set_player_mode(player, PVT_DungeonTop);
     thing->alloc_flags &= ~TAlF_IsControlled;
     thing->field_4F &= ~0x01;
-    player->field_0 &= ~0x08;
+    player->allocflags &= ~PlaF_Unknown8;
     set_engine_view(player, player->field_4B5);
     i = player->acamera->orient_a;
     crstat = creature_stats_get_from_thing(thing);
@@ -1041,7 +1041,7 @@ void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
     clear_selected_creature(player);
     player->field_31 = 0;
     set_player_mode(player, PVT_DungeonTop);
-    player->field_0 &= ~0x08;
+    player->allocflags &= ~PlaF_Unknown8;
     set_engine_view(player, player->field_4B5);
     player->cameras[0].mappos.x.val = 0;
     player->cameras[0].mappos.y.val = 0;
@@ -1051,7 +1051,7 @@ void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
   }
   set_player_mode(player, PVT_DungeonTop);
   thing->field_4F &= ~0x01;
-  player->field_0 &= ~0x08;
+  player->allocflags &= ~PlaF_Unknown8;
   set_engine_view(player, player->field_4B5);
   i = player->acamera->orient_a;
   crstat = creature_stats_get_from_thing(thing);

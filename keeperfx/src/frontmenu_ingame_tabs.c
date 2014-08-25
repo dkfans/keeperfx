@@ -2040,7 +2040,7 @@ void maintain_ally(struct GuiButton *gbtn)
     //_DK_maintain_ally(gbtn);
     plyr_idx = (int)gbtn->content;
     player = get_player(plyr_idx);
-    if (!is_my_player_number(plyr_idx) && ((player->field_0 & 0x01) != 0))
+    if (!is_my_player_number(plyr_idx) && ((player->allocflags & PlaF_Allocated) != 0))
     {
         gbtn->field_1B = 0;
         gbtn->flags |= LbBtnF_Unknown08;

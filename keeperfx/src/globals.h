@@ -215,7 +215,8 @@ typedef short MapSlabCoord;
 typedef unsigned long SubtlCodedCoords;
 /** Map slab 2D coordinates, coded into one number. */
 typedef unsigned long SlabCodedCoords;
-typedef unsigned char PlayerFlags;
+/** A variable which bits store bool value for each player. */
+typedef unsigned char PerPlayerFlags;
 /** Movement speed on objects in the game. */
 typedef short MoveSpeed;
 /** Parameter for storing gold sum or price. */

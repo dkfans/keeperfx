@@ -221,7 +221,7 @@ TbBigChecksum compute_player_checksum(struct PlayerInfo *player)
     struct Coord3d *mappos;
     TbBigChecksum sum;
     sum = 0;
-    if (((player->field_0 & 0x40) == 0) && (player->acamera != NULL))
+    if (((player->allocflags & PlaF_CompCtrl) == 0) && (player->acamera != NULL))
     {
         mappos = &(player->acamera->mappos);
         sum += (TbBigChecksum)player->field_4B1 + (TbBigChecksum)player->instance_num;
@@ -270,7 +270,7 @@ short checksums_different(void)
   for (i=0; i<PLAYERS_COUNT; i++)
   {
     player = get_player(i);
-    if (player_exists(player) && ((player->field_0 & 0x40) == 0))
+    if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
     {
         pckt = get_packet_direct(player->packet_num);
         if (!is_set)
@@ -697,7 +697,10 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         {
         case 1:
           i = get_subtile_number(stl_slab_center_subtile(player->field_4AB),stl_slab_center_subtile(player->field_4AD));
-          set_flag_byte(&player->field_0, 0x20, find_from_task_list(plyr_idx,i) != -1);
+          if (find_from_task_list(plyr_idx,i) != -1)
+              player->allocflags |= PlaF_Unknown20;
+          else
+              player->allocflags &= ~PlaF_Unknown20;
           break;
         case 2:
           thing = get_door_for_position(player->field_4AB, player->field_4AD);
@@ -715,7 +718,10 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
           if (player->thing_under_hand == 0)
           {
             i = get_subtile_number(stl_slab_center_subtile(player->field_4AB),stl_slab_center_subtile(player->field_4AD));
-            set_flag_byte(&player->field_0, 0x20, find_from_task_list(plyr_idx,i) != -1);
+            if (find_from_task_list(plyr_idx,i) != -1)
+                player->allocflags |= PlaF_Unknown20;
+            else
+                player->allocflags &= ~PlaF_Unknown20;
             player->field_3 |= 0x01;
           }
           break;
@@ -739,7 +745,10 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
           if (player->field_454 == 1)
           {
             i = get_subtile_number(stl_slab_center_subtile(stl_x),stl_slab_center_subtile(stl_y));
-            set_flag_byte(&player->field_0, 0x20, find_from_task_list(plyr_idx,i) != -1);
+            if (find_from_task_list(plyr_idx,i) != -1)
+                player->allocflags |= PlaF_Unknown20;
+            else
+                player->allocflags &= ~PlaF_Unknown20;
           }
         }
         if (player->field_4AF != 0)
@@ -748,7 +757,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
           {
             if (player->field_455 == 1)
             {
-              if ((player->field_0 & 0x20) != 0)
+              if ((player->allocflags & PlaF_Unknown20) != 0)
               {
                 untag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
               } else
@@ -763,7 +772,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
             } else
             if ((player->field_455 == 3) && ((player->field_3 & 0x01) != 0))
             {
-              if ((player->field_0 & 0x20) != 0)
+              if ((player->allocflags & PlaF_Unknown20) != 0)
               {
                 untag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
               } else
@@ -822,7 +831,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         {
           if (player->field_454 == 1)
           {
-            if ((player->field_0 & 0x20) != 0)
+            if ((player->allocflags & PlaF_Unknown20) != 0)
             {
               untag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
             } else
@@ -1361,7 +1370,7 @@ TbBool open_new_packet_file_for_save(void)
         if (player_exists(player))
         {
             game.packet_save_head.field_C |= (1 << i) & 0xff;
-            if ((player->field_0 & 0x40) != 0)
+            if ((player->allocflags & PlaF_CompCtrl) != 0)
               game.packet_save_head.field_D |= (1 << i) & 0xff;
         }
     }
@@ -1473,7 +1482,7 @@ void process_pause_packet(long curr_pause, long new_pause)
     player = get_player(i);
     if (player_exists(player) && (player->field_2C == 1))
     {
-        if ((player->field_0 & 0x40) == 0)
+        if ((player->allocflags & PlaF_CompCtrl) == 0)
         {
             if ((player->instance_num == PI_MapFadeTo)
              || (player->instance_num == PI_MapFadeFrom)
@@ -1701,10 +1710,10 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit)
         {
           if (player->victory_state != VicS_Undecided)
           {
-            player->field_0 &= ~0x01;
+            player->allocflags &= ~PlaF_Allocated;
           } else
           {
-            player->field_0 |= 0x40;
+            player->allocflags |= PlaF_CompCtrl;
             toggle_computer_player(player->id_number);
           }
           if (player == myplyr)
@@ -1730,17 +1739,17 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit)
           swplyr = get_player(i);
           if (player_exists(swplyr))
           {
-            swplyr->field_0 &= ~0x01;
+            swplyr->allocflags &= ~PlaF_Allocated;
             swplyr->field_6 |= 0x02;
           }
         }
       } else
       {
-        player->field_0 &= ~0x01;
+        player->allocflags &= ~PlaF_Allocated;
       }
       return;
     }
-    player->field_0 &= ~0x01;
+    player->allocflags &= ~PlaF_Allocated;
     if (player == myplyr)
     {
         quit_game = 1;
@@ -1809,17 +1818,17 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
           resign_level(player);
           break;
       }
-      player->field_0 &= ~0x01;
+      player->allocflags &= ~PlaF_Allocated;
       if (is_my_player(player))
       {
         frontend_save_continue_game(false);
       }
       return 0;
   case PckA_PlyrMsgBegin:
-      player->field_0 |= 0x04;
+      player->allocflags |= PlaF_Unknown4;
       return 0;
   case PckA_PlyrMsgEnd:
-      player->field_0 &= ~0x04;
+      player->allocflags &= ~PlaF_Unknown4;
       if (player->mp_message_text[0] != '\0')
         message_add(player->id_number);
       LbMemorySet(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
@@ -2131,7 +2140,7 @@ void process_players_packet(long idx)
   SYNCDBG(6,"Processing player %d packet of type %d.",idx,(int)pckt->action);
   player->field_4 = ((pckt->field_10 & 0x20) != 0);
   player->field_5 = ((pckt->field_10 & 0x40) != 0);
-  if (((player->field_0 & 0x04) != 0) && (pckt->action == PckA_PlyrMsgChar))
+  if (((player->allocflags & PlaF_Unknown4) != 0) && (pckt->action == PckA_PlyrMsgChar))
   {
      process_players_message_character(player);
   } else
@@ -2537,7 +2546,7 @@ void process_packets(void)
         player = get_player(i);
         if (network_player_active(player->packet_num))
         {
-          player->field_0 |= 0x40;
+          player->allocflags |= PlaF_CompCtrl;
           toggle_computer_player(i);
         }
       }
@@ -2574,7 +2583,7 @@ void process_packets(void)
   for (i=0; i<PACKETS_COUNT; i++)
   {
     player = get_player(i);
-    if (player_exists(player) && ((player->field_0 & 0x40) == 0))
+    if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
       process_players_packet(i);
   }
   // Clear all packets
