@@ -1452,7 +1452,7 @@ void process_computer_players2(void)
         if (!player_exists(player))
           continue;
         dungeon = get_players_dungeon(player);
-        if (((player->field_0 & 0x40) != 0) || ((dungeon->computer_enabled & 0x01) != 0))
+        if (((player->allocflags & PlaF_CompCtrl) != 0) || ((dungeon->computer_enabled & 0x01) != 0))
         {
           if (player->field_2C == 1)
           {

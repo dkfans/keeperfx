@@ -1191,6 +1191,7 @@
  0001:000CA130       load_ceiling_table
  0001:000B7820       set_room_capacity
  0001:00047620       ceiling_init
+ 0001:00047DF0       ceiling_block_is_solid_including_corners_return_height
 
  0001:000C28E0       init_creature_level
  0001:0001CC50       get_next_research_item

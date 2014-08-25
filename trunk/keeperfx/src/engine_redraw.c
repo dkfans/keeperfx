@@ -928,7 +928,7 @@ void redraw_display(void)
     int tx_units_per_px;
     tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
     LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
-    if ((player->field_0 & 0x04) != 0)
+    if ((player->allocflags & PlaF_Unknown4) != 0)
     {
         text = buf_sprintf( ">%s_", player->mp_message_text);
         LbTextDrawResized(148*units_per_pixel/16, 8*units_per_pixel/16, tx_units_per_px, text);

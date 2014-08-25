@@ -69,7 +69,7 @@ long get_resync_sender(void)
   for (i=0; i < NET_PLAYERS_COUNT; i++)
   {
     player = get_player(i);
-    if (player_exists(player) && ((player->field_0 & 0x40) == 0))
+    if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
       return i;
   }
   return -1;

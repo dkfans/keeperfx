@@ -127,7 +127,7 @@ void setup_exchange_player_number(void)
       {
           player = get_player(k);
           player->id_number = k;
-          player->field_0 |= 0x01;
+          player->allocflags |= PlaF_Allocated;
           if (pckt->field_8 < 1)
             player->field_4B5 = PVM_IsometricView;
           else

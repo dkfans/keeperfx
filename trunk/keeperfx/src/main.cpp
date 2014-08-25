@@ -233,6 +233,7 @@ DLLIMPORT void _DK_view_move_camera_up(struct Camera *cam, long a2);
 DLLIMPORT void _DK_view_move_camera_down(struct Camera *cam, long a2);
 DLLIMPORT void _DK_magic_power_hold_audience_update(unsigned short plyr_idx);
 DLLIMPORT void _DK_process_magic_power_call_to_arms(long plyr_idx);
+DLLIMPORT long _DK_ceiling_block_is_solid_including_corners_return_height(long a1, long a2, long a3);
 // Now variables
 DLLIMPORT extern HINSTANCE _DK_hInstance;
 
@@ -504,7 +505,7 @@ TbBool any_player_close_enough_to_see(const struct Coord3d *pos)
     for (i=0; i < PLAYERS_COUNT; i++)
     {
       player = get_player(i);
-      if ( (player_exists(player)) && ((player->field_0 & 0x40) == 0))
+      if ( (player_exists(player)) && ((player->allocflags & PlaF_CompCtrl) == 0))
       {
         if (player->acamera == NULL)
           continue;
@@ -1305,7 +1306,7 @@ void init_keepers_map_exploration(void)
       player = get_player(i);
       if (player_exists(player) && (player->field_2C == 1))
       {
-          if ((player->field_0 & 0x40) != 0)
+          if ((player->allocflags & PlaF_CompCtrl) != 0)
             init_keeper_map_exploration(player);
       }
     }
@@ -1322,13 +1323,13 @@ void clear_players_for_save(void)
       player = get_player(i);
       id_mem = player->id_number;
       mem2 = player->field_2C;
-      memflg = player->field_0;
+      memflg = player->allocflags;
       LbMemoryCopy(&cammem,&player->cameras[1],sizeof(struct Camera));
       memset(player, 0, sizeof(struct PlayerInfo));
       player->id_number = id_mem;
       player->field_2C = mem2;
-      set_flag_byte(&player->field_0,0x01,((memflg & 0x01) != 0));
-      set_flag_byte(&player->field_0,0x40,((memflg & 0x40) != 0));
+      set_flag_byte(&player->allocflags,PlaF_Allocated,((memflg & PlaF_Allocated) != 0));
+      set_flag_byte(&player->allocflags,PlaF_CompCtrl,((memflg & PlaF_CompCtrl) != 0));
       LbMemoryCopy(&player->cameras[1],&cammem,sizeof(struct Camera));
       player->acamera = &player->cameras[1];
     }
@@ -1452,8 +1453,8 @@ void init_good_player_as(PlayerNumber plr_idx)
     struct PlayerInfo *player;
     game.hero_player_num = plr_idx;
     player = get_player(plr_idx);
-    player->field_0 |= 0x01;
-    player->field_0 |= 0x40;
+    player->allocflags |= PlaF_Allocated;
+    player->allocflags |= PlaF_CompCtrl;
     player->id_number = game.hero_player_num;
 }
 
@@ -2293,7 +2294,7 @@ void update_all_players_cameras(void)
   for (i=0; i<PLAYERS_COUNT; i++)
   {
     player = get_player(i);
-    if (player_exists(player) && ((player->field_0 & 0x40) == 0))
+    if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
     {
           update_player_camera(player);
     }
@@ -3062,9 +3063,124 @@ void initialise_map_health(void)
     _DK_initialise_map_health();
 }
 
+long ceiling_block_is_solid_including_corners_return_height(long a1, long a2, long a3)
+{
+    return _DK_ceiling_block_is_solid_including_corners_return_height(a1, a2, a3);
+}
+
+long get_ceiling_filled_subtiles_from_cubes(const struct Column *col)
+{
+    if (col->solidmask == 0) {
+        return 0;
+    }
+    int i;
+    for (i = COLUMN_STACK_HEIGHT-1; i >= 0; i--)
+    {
+        if (col->cubes[i] != 0)
+            break;
+    }
+    return i + 1;
+}
+
+int get_ceiling_or_floor_filled_subtiles(int stl_num)
+{
+    const struct Map *mapblk;
+    mapblk = get_map_block_at_pos(stl_num);
+    const struct Column *col;
+    col = get_map_column(mapblk);
+    if (get_map_ceiling_filled_subtiles(mapblk) > 0) {
+        return get_ceiling_filled_subtiles_from_cubes(col);
+    } else {
+        return get_map_floor_filled_subtiles(mapblk);
+    }
+}
 long ceiling_init(unsigned long a1, unsigned long a2)
 {
     return _DK_ceiling_init(a1, a2);
+    //TODO Fix, then enable rewritten version
+    MapSubtlCoord stl_x, stl_y;
+    for (stl_y=0; stl_y < map_subtiles_y; stl_y++)
+    {
+        for (stl_x=0; stl_x < map_subtiles_x; stl_x++)
+        {
+            int filled_h;
+            if (map_pos_solid_at_ceiling(stl_x, stl_y))
+            {
+                filled_h = get_ceiling_or_floor_filled_subtiles(get_subtile_number(stl_x,stl_y));
+            } else
+            if (stl_x > 0 && map_pos_solid_at_ceiling(stl_x-1, stl_y))
+            {
+                filled_h = get_ceiling_or_floor_filled_subtiles(get_subtile_number(stl_x-1,stl_y));
+            } else
+            if (stl_y > 0 && map_pos_solid_at_ceiling(stl_x, stl_y-1))
+            {
+                filled_h = get_ceiling_or_floor_filled_subtiles(get_subtile_number(stl_x,stl_y-1));
+            } else
+            if (stl_x > 0 && stl_y > 0 && map_pos_solid_at_ceiling(stl_x-1, stl_y-1)) {
+                filled_h = get_ceiling_or_floor_filled_subtiles(get_subtile_number(stl_x-1,stl_y-1));
+            } else {
+                filled_h = -1;
+            }
+
+            if (filled_h <= -1)
+            {
+              if (game.field_14A810 <= 0)
+              {
+                  filled_h = game.field_14A804;
+              }
+              else
+              {
+                int i;
+                i = 0;
+                while ( 1 )
+                {
+                    struct MapOffset *mpoffs;
+                    mpoffs = &spiral_step[i];
+                    MapSubtlCoord cstl_x, cstl_y;
+                    cstl_x = mpoffs->h + stl_x;
+                    cstl_y = mpoffs->v + stl_y;
+                    if ((cstl_x >= 0) && (cstl_x <= map_subtiles_x))
+                    {
+                        if ((cstl_y >= 0) && (cstl_y <= map_subtiles_y))
+                        {
+                            filled_h = ceiling_block_is_solid_including_corners_return_height(mpoffs->both + get_subtile_number(stl_x,stl_y), cstl_x, cstl_y);
+                            if (filled_h > -1)
+                            {
+                                int delta_tmp, delta_max;
+                                delta_tmp = abs(stl_x - cstl_x);
+                                delta_max = abs(stl_y - cstl_y);
+                                if (delta_max <= delta_tmp)
+                                    delta_max = delta_tmp;
+                                if (filled_h < game.field_14A804)
+                                {
+                                    filled_h += game.field_14A814 * delta_max;
+                                    if (filled_h >= game.field_14A804)
+                                        filled_h = game.field_14A804;
+                                } else
+                                if ( filled_h > game.field_14A804 )
+                                {
+                                    filled_h -= game.field_14A814 * delta_max;
+                                    if (filled_h <= game.field_14A808)
+                                        filled_h = game.field_14A808;
+                                }
+                                break;
+                            }
+                        }
+                    }
+                    ++i;
+                    if (i >= game.field_14A810) {
+                        filled_h = game.field_14A804;
+                        break;
+                    }
+                }
+              }
+            }
+            struct Map *mapblk;
+            mapblk = get_map_block_at(stl_x,stl_y);
+            set_mapblk_filled_subtiles(mapblk, filled_h);
+        }
+    }
+    return 1;
 }
 
 void do_creature_swap(long ncrt_id, long crtr_id)

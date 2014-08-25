@@ -221,7 +221,7 @@ long get_flee_position(struct Thing *thing, struct Coord3d *pos)
     } else
     {
         player = get_player(thing->owner);
-        if ( ((player->field_0 & 0x01) != 0) && (player->field_2C == 1) && (player->victory_state != VicS_LostLevel) )
+        if ( ((player->allocflags & PlaF_Allocated) != 0) && (player->field_2C == 1) && (player->victory_state != VicS_LostLevel) )
         {
             ERRORLOG("The %s has no dungeon heart or lair to flee to",thing_model_name(thing));
             return 0;
