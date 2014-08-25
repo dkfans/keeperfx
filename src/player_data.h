@@ -41,6 +41,17 @@ extern "C" {
 
 #define WANDER_POINTS_COUNT    200
 
+enum PlayerInitFlags {
+    PlaF_Allocated          = 0x01,
+    PlaF_Unknown2           = 0x02,
+    PlaF_Unknown4           = 0x04,
+    PlaF_Unknown8           = 0x08,
+    PlaF_Unknown10          = 0x10,
+    PlaF_Unknown20          = 0x20,
+    PlaF_CompCtrl          = 0x40,
+    PlaF_Unknown80          = 0x80,
+};
+
 enum PlayerViewModes {
     PVM_EmptyView = 0,
     PVM_CreatureView,
@@ -98,7 +109,7 @@ struct Wander // sizeof = 424
 
 #define SIZEOF_PlayerInfo 0x4EF
 struct PlayerInfo {
-    unsigned char field_0;
+    unsigned char allocflags;
     unsigned char field_1;
     unsigned char field_2; //seems to be never used
     unsigned char field_3;

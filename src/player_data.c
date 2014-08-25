@@ -71,7 +71,7 @@ TbBool player_exists(const struct PlayerInfo *player)
 {
     if (player_invalid(player))
         return false;
-    return ((player->field_0 & RoF_Allocated) != 0);
+    return ((player->allocflags & PlaF_Allocated) != 0);
 }
 
 TbBool is_my_player(const struct PlayerInfo *player)
@@ -316,7 +316,7 @@ void set_player_mode(struct PlayerInfo *player, long nview)
   if (player->view_type == nview)
     return;
   player->view_type = nview;
-  player->field_0 &= ~0x08;
+  player->allocflags &= ~PlaF_Unknown8;
   if (is_my_player(player))
   {
     game.numfield_D &= ~0x08;

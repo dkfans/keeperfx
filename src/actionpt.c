@@ -163,7 +163,7 @@ unsigned long get_action_point_activated_by_players_mask(ActionPointId apt_idx)
     return apt->activated;
 }
 
-PlayerFlags action_point_get_players_within(long apt_idx)
+PerPlayerFlags action_point_get_players_within(long apt_idx)
 {
     return _DK_action_point_get_players_within(apt_idx);
 }

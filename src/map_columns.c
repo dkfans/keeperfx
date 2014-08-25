@@ -192,6 +192,15 @@ void set_map_ceiling_filled_subtiles(struct Map *mapblk, MapSubtlCoord n)
     col->bitfields |= (n<<1) & 0x0E;
 }
 
+TbBool map_pos_solid_at_ceiling(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    const struct Map *mapblk;
+    mapblk = get_map_block_at(stl_x, stl_y);
+    if ((mapblk->flags & MapFlg_IsTall) != 0)
+        return true;
+    return get_map_ceiling_filled_subtiles(mapblk) > 0;
+}
+
 long get_top_cube_at_pos(long stl_num)
 {
     struct Column *col;

@@ -76,6 +76,7 @@ long get_map_ceiling_filled_subtiles(const struct Map *mapblk);
 long get_ceiling_filled_subtiles_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 void set_column_ceiling_filled_subtiles(struct Column *col, MapSubtlCoord n);
 void set_map_ceiling_filled_subtiles(struct Map *mapblk, MapSubtlCoord n);
+TbBool map_pos_solid_at_ceiling(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 
 long get_top_cube_at_pos(long mpos);

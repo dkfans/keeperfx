@@ -420,7 +420,7 @@ short get_global_inputs(void)
     return false;
   player = get_my_player();
   long keycode;
-  if ((player->field_0 & 0x04) != 0)
+  if ((player->allocflags & PlaF_Unknown4) != 0)
   {
     get_players_message_inputs();
     return true;
@@ -498,7 +498,7 @@ TbBool get_level_lost_inputs(void)
     long keycode;
     SYNCDBG(6,"Starting");
     player = get_my_player();
-    if ((player->field_0 & 0x04) != 0)
+    if ((player->allocflags & PlaF_Unknown4) != 0)
     {
       get_players_message_inputs();
       return true;
@@ -1091,7 +1091,7 @@ void get_isometric_view_nonaction_inputs(void)
     pckt = get_packet(my_player_number);
     rotate_pressed = is_game_key_pressed(Gkey_RotateMod, NULL, true);
     speed_pressed = is_game_key_pressed(Gkey_SpeedMod, NULL, true);
-    if ((player->field_0 & 0x10) != 0)
+    if ((player->allocflags & PlaF_Unknown10) != 0)
       return;
     if (speed_pressed != 0)
       pckt->field_10 |= 0x01;
@@ -1145,7 +1145,7 @@ void get_overhead_view_nonaction_inputs(void)
     mx = my_mouse_x;
     rotate_pressed = is_game_key_pressed(Gkey_RotateMod, NULL, true);
     speed_pressed = is_game_key_pressed(Gkey_SpeedMod, NULL, true);
-    if ((player->field_0 & 0x10) == 0)
+    if ((player->allocflags & PlaF_Unknown10) == 0)
     {
         if (speed_pressed)
           pckt->field_10 |= 0x01;
@@ -1182,7 +1182,7 @@ void get_front_view_nonaction_inputs(void)
     if ((rotate_pressed != 0) || (speed_pressed != 0))
       no_mods = true;
 
-    if ((player->field_0 & 0x10) != 0)
+    if ((player->allocflags & PlaF_Unknown10) != 0)
       return;
     if (speed_pressed != 0)
       pckt->field_10 |= 0x01;
@@ -1441,7 +1441,7 @@ void get_creature_control_nonaction_inputs(void)
   TRACE_THING(thing);
   pckt->pos_x = 127;
   pckt->pos_y = 127;
-  if ((player->field_0 & 0x08) != 0)
+  if ((player->allocflags & PlaF_Unknown8) != 0)
     return;
   while (((MyScreenWidth >> 1) != GetMouseX()) || (GetMouseY() != y))
     LbMouseSetPosition((MyScreenWidth/pixel_size) >> 1, y/pixel_size);
@@ -1618,7 +1618,7 @@ short get_inputs(void)
         return get_packet_load_game_inputs();
     }
     player = get_my_player();
-    if ((player->field_0 & 0x80) != 0)
+    if ((player->allocflags & PlaF_Unknown80) != 0)
     {
         SYNCDBG(5,"Starting for creature fade");
         set_players_packet_position(player,127,127);

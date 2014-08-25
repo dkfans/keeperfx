@@ -456,12 +456,18 @@ void init_players(void)
     for (i=0;i<PLAYERS_COUNT;i++)
     {
         player = get_player(i);
-        player->field_0 ^= (player->field_0 ^ ((game.packet_save_head.field_C & (1 << i)) >> i)) & 1;
+        if ((game.packet_save_head.field_C & (1 << i)) != 0)
+            player->allocflags |= PlaF_Allocated;
+        else
+            player->allocflags &= ~PlaF_Allocated;
         if (player_exists(player))
         {
             player->id_number = i;
-            player->field_0 ^= (player->field_0 ^ (((game.packet_save_head.field_D & (1 << i)) >> i) << 6)) & 0x40;
-            if ((player->field_0 & 0x40) == 0)
+            if ((game.packet_save_head.field_D & (1 << i)) != 0)
+                player->allocflags |= PlaF_CompCtrl;
+            else
+                player->allocflags &= ~PlaF_CompCtrl;
+            if ((player->allocflags & PlaF_CompCtrl) == 0)
             {
               game.field_14E495++;
               player->field_2C = 1;
@@ -670,7 +676,7 @@ void post_init_player(struct PlayerInfo *player)
         wander_point_initialise(&player->wandr2, player->id_number, 0);
         break;
     default:
-        if ((player->field_0 & 0x40) == 0)
+        if ((player->allocflags & PlaF_CompCtrl) == 0)
           ERRORLOG("Invalid GameMode");
         break;
     }
@@ -684,7 +690,7 @@ void post_init_players(void)
     {
         struct PlayerInfo *player;
         player = get_player(plyr_idx);
-        if ((player->field_0 & 0x01) != 0) {
+        if ((player->allocflags & PlaF_Allocated) != 0) {
             post_init_player(player);
         }
     }
@@ -696,7 +702,7 @@ void init_players_local_game(void)
     SYNCDBG(4,"Starting");
     player = get_my_player();
     player->id_number = my_player_number;
-    player->field_0 |= 0x01;
+    player->allocflags |= PlaF_Allocated;
     if (settings.video_rotate_mode < 1)
       player->field_4B5 = PVM_IsometricView;
     else
@@ -713,7 +719,7 @@ void process_player_states(void)
     {
         struct PlayerInfo *player;
         player = get_player(plyr_idx);
-        if (player_exists(player) && ((player->field_0 & 0x40) == 0))
+        if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
         {
             if (player->work_state == PSt_Unknown15)
             {

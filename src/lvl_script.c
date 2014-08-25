@@ -816,14 +816,14 @@ TbBool script_support_setup_player_as_computer_keeper(PlayerNumber plyridx, long
         SCRPTWRNLOG("Tried to set up invalid player %d",(int)plyridx);
         return false;
     }
-    player->field_0 |= 0x01;
+    player->allocflags |= PlaF_Allocated;
     player->id_number = plyridx;
     player->field_2C = 1;
-    player->field_0 |= 0x40;
+    player->allocflags |= PlaF_CompCtrl;
     init_player_start(player, false);
     if (!setup_a_computer_player(plyridx, comp_model)) {
-        player->field_0 &= ~0x40;
-        player->field_0 &= ~0x01;
+        player->allocflags &= ~PlaF_CompCtrl;
+        player->allocflags &= ~PlaF_Allocated;
         return false;
     }
     return true;
@@ -838,10 +838,10 @@ TbBool script_support_setup_player_as_zombie_keeper(unsigned short plyridx)
         SCRPTWRNLOG("Tried to set up invalid player %d",(int)plyridx);
         return false;
     }
-    player->field_0 &= ~0x01; // mark as non-existing
+    player->allocflags &= ~PlaF_Allocated; // mark as non-existing
     player->id_number = plyridx;
     player->field_2C = 0;
-    player->field_0 &= ~0x40;
+    player->allocflags &= ~PlaF_CompCtrl;
     init_player_start(player, false);
     return true;
 }
