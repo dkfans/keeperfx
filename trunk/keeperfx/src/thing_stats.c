@@ -653,28 +653,23 @@ long compute_value_8bpercentage(long base_val, short npercent)
 
 TbBool update_creature_health_to_max(struct Thing *thing)
 {
-  struct CreatureStats *crstat;
   struct CreatureControl *cctrl;
-  crstat = creature_stats_get_from_thing(thing);
   cctrl = creature_control_get_from_thing(thing);
-  thing->health = compute_creature_max_health(crstat->health,cctrl->explevel);
+  thing->health = cctrl->max_health;
   return true;
 }
 
 TbBool apply_health_to_thing(struct Thing *thing, long amount)
 {
-    struct CreatureStats *crstat;
     struct CreatureControl *cctrl;
-    long max_health,new_health;
-    crstat = creature_stats_get_from_thing(thing);
+    long new_health;
     cctrl = creature_control_get_from_thing(thing);
-    max_health = compute_creature_max_health(crstat->health,cctrl->explevel);
     new_health = thing->health;
-    if ((max_health != new_health) && (amount > 0))
+    if ((cctrl->max_health != new_health) && (amount > 0))
     {
         new_health += amount;
-        if (new_health >= max_health)
-            new_health = max_health;
+        if (new_health >= cctrl->max_health)
+            new_health = cctrl->max_health;
         thing->health = new_health;
         return true;
     }
@@ -721,7 +716,7 @@ static void apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
             player = get_player(thing->owner);
             if (player->controlled_thing_idx == thing->index)
             {
-              i = (10 * cdamage) / compute_creature_max_health(crstat->health,cctrl->explevel);
+              i = (10 * cdamage) / cctrl->max_health;
               if (i > 10)
               {
                   i = 10;
