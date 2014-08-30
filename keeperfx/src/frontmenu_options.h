@@ -52,6 +52,7 @@ DLLIMPORT char _DK_video_view_distance_level;
 /******************************************************************************/
 void frontend_define_key_up(struct GuiButton *gbtn);
 void frontend_define_key_down(struct GuiButton *gbtn);
+void frontend_define_key_scroll(struct GuiButton *gbtn);
 void frontend_define_key(struct GuiButton *gbtn);
 void frontend_define_key_up_maintain(struct GuiButton *gbtn);
 void frontend_define_key_down_maintain(struct GuiButton *gbtn);
