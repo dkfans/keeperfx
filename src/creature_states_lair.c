@@ -104,9 +104,8 @@ TbBool creature_requires_healing(const struct Thing *thing)
     struct CreatureStats *crstat;
     cctrl = creature_control_get_from_thing(thing);
     crstat = creature_stats_get_from_thing(thing);
-    long maxhealth, minhealth;
-    maxhealth = compute_creature_max_health(crstat->health,cctrl->explevel);
-    minhealth = crstat->heal_requirement * maxhealth / 256;
+    long minhealth;
+    minhealth = crstat->heal_requirement * cctrl->max_health / 256;
     if ((long)thing->health <= minhealth)
         return true;
     return false;
@@ -495,9 +494,7 @@ short creature_sleep(struct Thing *thing)
         }
     }
     {
-        HitPoints health_max;
-        health_max = compute_creature_max_health(crstat->health, cctrl->explevel);
-        if ((crstat->heal_threshold * health_max / 256 <= thing->health) && (!cctrl->field_82))
+        if ((thing->health >= crstat->heal_threshold * cctrl->max_health / 256) && (!cctrl->field_82))
         {
             set_start_state(thing);
             return 1;

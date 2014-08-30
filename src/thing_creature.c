@@ -814,7 +814,6 @@ TbBool free_spell_slot(struct Thing *thing, long slot_idx)
 void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev)
 {
     struct CreatureControl *cctrl;
-    struct CreatureStats *crstat;
     struct SpellConfig *splconf;
     struct MagicStats *magstat;
     struct ComponentVector cvect;
@@ -881,16 +880,13 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         }
         break;
     case SplK_Heal:
-        crstat = creature_stats_get_from_thing(thing);
         magstat = &game.keeper_power_stats[PwrK_HEALCRTR];
         i = saturate_set_signed(thing->health + magstat->strength[spell_lev],16);
         if (i < 0)
         {
           thing->health = 0;
-        } else
-        {
-          k = compute_creature_max_health(crstat->health,cctrl->explevel);
-          thing->health = min(i,k);
+        } else {
+          thing->health = min(i,cctrl->max_health);
         }
         cctrl->field_2B0 = 7;
         cctrl->field_2AE = magstat->time;
@@ -1006,10 +1002,9 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
 void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spell_lev, long idx)
 {
     struct CreatureControl *cctrl;
-    struct CreatureStats *crstat;
     struct SpellConfig *splconf;
     struct MagicStats *magstat;
-    long i,k;
+    long i;
     cctrl = creature_control_get_from_thing(thing);
     if (spell_lev > SPELL_MAX_LEVEL)
         spell_lev = SPELL_MAX_LEVEL;
@@ -1031,16 +1026,13 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         cspell->duration = splconf->duration;
         break;
     case SplK_Heal:
-        crstat = creature_stats_get_from_thing(thing);
         magstat = &game.keeper_power_stats[PwrK_HEALCRTR];
         i = saturate_set_signed(thing->health + magstat->strength[spell_lev],16);
         if (i < 0)
         {
           thing->health = 0;
-        } else
-        {
-          k = compute_creature_max_health(crstat->health,cctrl->explevel);
-          thing->health = min(i,k);
+        } else {
+          thing->health = min(i,cctrl->max_health);
         }
         cctrl->field_2B0 = 7;
         cctrl->field_2AE = magstat->time;
