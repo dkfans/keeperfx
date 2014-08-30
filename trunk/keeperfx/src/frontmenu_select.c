@@ -32,6 +32,7 @@
 #include "packets.h"
 #include "frontend.h"
 #include "game_legacy.h"
+#include "kjm_input.h"
 #include "keeperfx.hpp"
 
 /******************************************************************************/
@@ -49,6 +50,11 @@ void frontend_level_select_down(struct GuiButton *gbtn)
 {
   if (select_level_scroll_offset < number_of_freeplay_levels-frontend_select_level_items_visible+1)
     select_level_scroll_offset++;
+}
+
+void frontend_level_select_scroll(struct GuiButton *gbtn)
+{
+    select_level_scroll_offset = frontend_scroll_tab_to_offset(gbtn, GetMouseY(), frontend_select_level_items_visible-2, number_of_freeplay_levels);
 }
 
 void frontend_level_select_up_maintain(struct GuiButton *gbtn)
@@ -167,6 +173,11 @@ void frontend_campaign_select_down(struct GuiButton *gbtn)
 {
   if (select_campaign_scroll_offset < campaigns_list.items_num-frontend_select_campaign_items_visible+1)
       select_campaign_scroll_offset++;
+}
+
+void frontend_campaign_select_scroll(struct GuiButton *gbtn)
+{
+    select_campaign_scroll_offset = frontend_scroll_tab_to_offset(gbtn, GetMouseY(), frontend_select_campaign_items_visible-2, campaigns_list.items_num);
 }
 
 void frontend_campaign_select_up_maintain(struct GuiButton *gbtn)

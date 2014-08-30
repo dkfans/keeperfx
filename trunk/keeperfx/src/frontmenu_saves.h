@@ -45,6 +45,7 @@ void frontend_load_game(struct GuiButton *gbtn);
 void frontend_draw_load_game_button(struct GuiButton *gbtn);
 void frontend_load_game_up(struct GuiButton *gbtn);
 void frontend_load_game_down(struct GuiButton *gbtn);
+void frontend_load_game_scroll(struct GuiButton *gbtn);
 void frontend_load_game_up_maintain(struct GuiButton *gbtn);
 void frontend_load_game_down_maintain(struct GuiButton *gbtn);
 void frontend_load_game_maintain(struct GuiButton *gbtn);

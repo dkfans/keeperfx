@@ -110,6 +110,11 @@ void frontend_define_key_down(struct GuiButton *gbtn)
     }
 }
 
+void frontend_define_key_scroll(struct GuiButton *gbtn)
+{
+    define_key_scroll_offset = frontend_scroll_tab_to_offset(gbtn, GetMouseY(), frontend_define_keys_menu_items_visible-2, GAME_KEYS_COUNT);
+}
+
 void frontend_define_key(struct GuiButton *gbtn)
 {
     long key_id;

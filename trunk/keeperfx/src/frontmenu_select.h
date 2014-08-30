@@ -43,6 +43,7 @@ void frontend_draw_level_select_button(struct GuiButton *gbtn);
 void frontend_level_select(struct GuiButton *gbtn);
 void frontend_level_select_up(struct GuiButton *gbtn);
 void frontend_level_select_down(struct GuiButton *gbtn);
+void frontend_level_select_scroll(struct GuiButton *gbtn);
 void frontend_level_select_up_maintain(struct GuiButton *gbtn);
 void frontend_level_select_down_maintain(struct GuiButton *gbtn);
 void frontend_level_select_maintain(struct GuiButton *gbtn);
@@ -53,6 +54,7 @@ void frontend_level_select_update(void);
 // Campaign selection screen
 void frontend_campaign_select_up(struct GuiButton *gbtn);
 void frontend_campaign_select_down(struct GuiButton *gbtn);
+void frontend_campaign_select_scroll(struct GuiButton *gbtn);
 void frontend_campaign_select_up_maintain(struct GuiButton *gbtn);
 void frontend_campaign_select_down_maintain(struct GuiButton *gbtn);
 void frontend_campaign_select_maintain(struct GuiButton *gbtn);
