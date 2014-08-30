@@ -53,6 +53,7 @@ extern struct GuiMenu frontend_option_menu;
 /******************************************************************************/
 void frontend_define_key_up(struct GuiButton *gbtn);
 void frontend_define_key_down(struct GuiButton *gbtn);
+void frontend_define_key_scroll(struct GuiButton *gbtn);
 void frontend_define_key(struct GuiButton *gbtn);
 void frontend_define_key_up_maintain(struct GuiButton *gbtn);
 void frontend_define_key_down_maintain(struct GuiButton *gbtn);

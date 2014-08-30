@@ -32,6 +32,7 @@
 #include "packets.h"
 #include "frontend.h"
 #include "game_legacy.h"
+#include "kjm_input.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -222,9 +223,14 @@ void frontend_load_game_down(struct GuiButton *gbtn)
       load_game_scroll_offset++;
 }
 
+void frontend_load_game_scroll(struct GuiButton *gbtn)
+{
+    load_game_scroll_offset = frontend_scroll_tab_to_offset(gbtn, GetMouseY(), frontend_load_menu_items_visible-2, number_of_saved_games);
+}
+
 void frontend_draw_games_scroll_tab(struct GuiButton *gbtn)
 {
-  frontend_draw_scroll_tab(gbtn, load_game_scroll_offset, frontend_load_menu_items_visible-2, number_of_saved_games);
+    frontend_draw_scroll_tab(gbtn, load_game_scroll_offset, frontend_load_menu_items_visible-2, number_of_saved_games);
 }
 
 void init_load_menu(struct GuiMenu *gmnu)

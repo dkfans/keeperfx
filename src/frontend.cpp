@@ -1043,6 +1043,22 @@ void frontend_draw_scroll_tab(struct GuiButton *gbtn, long scroll_offset, long f
     LbSpriteDrawResized(gbtn->scr_pos_x, n+gbtn->scr_pos_y, units_per_px, spr);
 }
 
+long frontend_scroll_tab_to_offset(struct GuiButton *gbtn, long scr_pos, long first_elem, long last_elem)
+{
+    long elem_num;
+    elem_num = last_elem - first_elem;
+    if (elem_num < 1) {
+        return 0;
+    }
+    long bar_pos;
+    bar_pos = scr_pos - gbtn->scr_pos_y;
+    if (bar_pos < 0) bar_pos = 0;
+    if (bar_pos >= gbtn->height) bar_pos = gbtn->height-1;
+    long scroll_offset;
+    scroll_offset = bar_pos * elem_num / gbtn->height;
+    return scroll_offset;
+}
+
 void gui_quit_game(struct GuiButton *gbtn)
 {
     struct PlayerInfo *player;
