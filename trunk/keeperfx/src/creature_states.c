@@ -4384,10 +4384,11 @@ long process_creature_needs_to_heal_critical(struct Thing *creatng, const struct
         if (get_creature_state_besides_interruptions(creatng) == CrSt_ImpToking) {
             return 0;
         }
-        internal_set_thing_state(creatng, CrSt_ImpToking);
-        creatng->continue_state = CrSt_ImpDoingNothing;
-        cctrl->field_282 = 200;
-        return 0;
+        if (external_set_thing_state(creatng, CrSt_ImpToking)) {
+            creatng->continue_state = CrSt_ImpDoingNothing;
+            cctrl->field_282 = 200;
+            return 1;
+        }
     }
     if (creature_is_doing_lair_activity(creatng)) {
         return 1;
