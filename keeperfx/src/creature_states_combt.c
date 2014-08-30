@@ -311,8 +311,6 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
 {
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(creatng);
-    struct CreatureStats *enmstat;
-    enmstat = creature_stats_get_from_thing(enmtng);
     // Neutral creatures are not easily scared, as they shouldn't have enemies
     if (is_neutral_thing(creatng))
         return false;
@@ -338,8 +336,8 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
     struct CreatureControl *enmctrl;
     cctrl = creature_control_get_from_thing(creatng);
     enmctrl = creature_control_get_from_thing(enmtng);
-    crmaxhealth = compute_creature_max_health(crstat->health,cctrl->explevel);
-    enmaxhealth = compute_creature_max_health(enmstat->health,enmctrl->explevel);
+    crmaxhealth = cctrl->max_health;
+    enmaxhealth = enmctrl->max_health;
     if (creatng->health <= (fear * (long long)crmaxhealth) / 100)
     {
         SYNCDBG(8,"The %s is scared due to low health (%ld/%ld)",thing_model_name(creatng),(long)creatng->health,crmaxhealth);
@@ -1812,7 +1810,7 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
     {
         INSTANCE_RET_IF_AVAIL(thing, CrInst_INVISIBILITY);
     }
-    if (thing->health < cctrl->max_health/3)
+    if (creature_requires_healing(thing))
     {
         INSTANCE_RET_IF_AVAIL(thing, CrInst_HEAL);
     }
@@ -1843,7 +1841,7 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
     {
         INSTANCE_RET_IF_AVAIL(thing, CrInst_SIGHT);
     }
-    if (thing->health < cctrl->max_health/3)
+    if (creature_requires_healing(thing))
     {
         INSTANCE_RET_IF_AVAIL(thing, CrInst_HEAL);
     }
