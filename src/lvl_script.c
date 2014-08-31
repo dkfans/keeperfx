@@ -49,6 +49,7 @@
 #include "creature_states_hero.h"
 #include "creature_groups.h"
 #include "room_library.h"
+#include "room_entrance.h"
 #include "lvl_filesdk1.h"
 #include "frontend.h"
 #include "game_merge.h"
@@ -104,6 +105,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_CREATURE_FEAR_WOUNDED",    "AN      ", Cmd_SET_CREATURE_FEAR_WOUNDED},
   {"SET_CREATURE_FEAR_STRONGER",   "AN      ", Cmd_SET_CREATURE_FEAR_STRONGER},
   {"IF_AVAILABLE",                 "AAAN    ", Cmd_IF_AVAILABLE},
+  {"IF_CONTROLS",                  "AAAN    ", Cmd_IF_CONTROLS},
   {"SET_COMPUTER_GLOBALS",         "ANNNNNN ", Cmd_SET_COMPUTER_GLOBALS},
   {"SET_COMPUTER_CHECKS",          "AANNNNN ", Cmd_SET_COMPUTER_CHECKS},
   {"SET_COMPUTER_EVENT",           "AANN    ", Cmd_SET_COMPUTER_EVENT},
@@ -1602,52 +1604,92 @@ void command_set_hate(long a1, long a2, long a3)
 
 void command_if_available(char *plrname, char *varib_name, char *operatr, long value)
 {
-  long plr_id,opertr_id;
-  long varib_type,varib_id;
-  if (game.script.conditions_num >= CONDITIONS_COUNT)
-  {
-    SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
-    return;
-  }
-  // Recognize player
-  if (!get_player_id(plrname, &plr_id))
-    return;
-  // Recognize variable
-  varib_id = -1;
-  if (varib_id == -1)
-  {
-    varib_id = get_id(door_desc, varib_name);
-    varib_type = SVar_AVAILABLE_DOOR;
-  }
-  if (varib_id == -1)
-  {
-    varib_id = get_id(trap_desc, varib_name);
-    varib_type = SVar_AVAILABLE_TRAP;
-  }
-  if (varib_id == -1)
-  {
-    varib_id = get_id(room_desc, varib_name);
-    varib_type = SVar_AVAILABLE_ROOM;
-  }
-  if (varib_id == -1)
-  {
-    varib_id = get_id(power_desc, varib_name);
-    varib_type = SVar_AVAILABLE_MAGIC;
-  }
-  if (varib_id == -1)
-  {
-    SCRPTERRLOG("Unrecognized VARIABLE, '%s'", varib_name);
-    return;
-  }
-  // Recognize comparison
-  opertr_id = get_id(comparison_desc, operatr);
-  if (opertr_id == -1)
-  {
-    SCRPTERRLOG("Unknown comparison name, '%s'", operatr);
-    return;
-  }
-  // Add the condition to script structure
-  command_add_condition(plr_id, opertr_id, varib_type, varib_id, value);
+    long plr_id,opertr_id;
+    long varib_type,varib_id;
+    if (game.script.conditions_num >= CONDITIONS_COUNT)
+    {
+      SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
+      return;
+    }
+    // Recognize player
+    if (!get_player_id(plrname, &plr_id))
+      return;
+    // Recognize variable
+    varib_id = -1;
+    if (varib_id == -1)
+    {
+      varib_id = get_id(door_desc, varib_name);
+      varib_type = SVar_AVAILABLE_DOOR;
+    }
+    if (varib_id == -1)
+    {
+      varib_id = get_id(trap_desc, varib_name);
+      varib_type = SVar_AVAILABLE_TRAP;
+    }
+    if (varib_id == -1)
+    {
+      varib_id = get_id(room_desc, varib_name);
+      varib_type = SVar_AVAILABLE_ROOM;
+    }
+    if (varib_id == -1)
+    {
+      varib_id = get_id(power_desc, varib_name);
+      varib_type = SVar_AVAILABLE_MAGIC;
+    }
+    if (varib_id == -1)
+    {
+      varib_id = get_id(creature_desc, varib_name);
+      varib_type = SVar_AVAILABLE_CREATURE;
+    }
+    if (varib_id == -1)
+    {
+      SCRPTERRLOG("Unrecognized VARIABLE, '%s'", varib_name);
+      return;
+    }
+    // Recognize comparison
+    opertr_id = get_id(comparison_desc, operatr);
+    if (opertr_id == -1)
+    {
+      SCRPTERRLOG("Unknown comparison name, '%s'", operatr);
+      return;
+    }
+    // Add the condition to script structure
+    command_add_condition(plr_id, opertr_id, varib_type, varib_id, value);
+}
+
+void command_if_controls(char *plrname, char *varib_name, char *operatr, long value)
+{
+    long plr_id,opertr_id;
+    long varib_type,varib_id;
+    if (game.script.conditions_num >= CONDITIONS_COUNT)
+    {
+      SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
+      return;
+    }
+    // Recognize player
+    if (!get_player_id(plrname, &plr_id))
+      return;
+    // Recognize variable
+    varib_id = -1;
+    if (varib_id == -1)
+    {
+      varib_id = get_id(creature_desc, varib_name);
+      varib_type = SVar_CONTROLS_CREATURE;
+    }
+    if (varib_id == -1)
+    {
+      SCRPTERRLOG("Unrecognized VARIABLE, '%s'", varib_name);
+      return;
+    }
+    // Recognize comparison
+    opertr_id = get_id(comparison_desc, operatr);
+    if (opertr_id == -1)
+    {
+      SCRPTERRLOG("Unknown comparison name, '%s'", operatr);
+      return;
+    }
+    // Add the condition to script structure
+    command_add_condition(plr_id, opertr_id, varib_type, varib_id, value);
 }
 
 void command_set_computer_globals(char *plrname, long val1, long val2, long val3, long val4, long val5, long val6)
@@ -2251,6 +2293,9 @@ long script_scan_line(char *line,TbBool preloaded)
       break;
   case Cmd_IF_AVAILABLE:
       command_if_available(scline->tp[0], scline->tp[1], scline->tp[2], scline->np[3]);
+      break;
+  case Cmd_IF_CONTROLS:
+      command_if_controls(scline->tp[0], scline->tp[1], scline->tp[2], scline->np[3]);
       break;
   case Cmd_SET_COMPUTER_GLOBALS:
       command_set_computer_globals(scline->tp[0], scline->np[1], scline->np[2], scline->np[3], scline->np[4], scline->np[5], scline->np[6]);
@@ -3148,6 +3193,16 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
   case SVar_AVAILABLE_ROOM: // IF_AVAILABLE(ROOM)
       dungeon = get_dungeon(plyr_idx);
       return dungeon->room_buildable[validx%ROOM_TYPES_COUNT];
+  case SVar_AVAILABLE_CREATURE: // IF_AVAILABLE(CREATURE)
+      dungeon = get_dungeon(plyr_idx);
+      if (creature_will_generate_for_dungeon(dungeon, validx)) {
+          return min(game.pool.crtr_kind[validx%CREATURE_TYPES_COUNT],dungeon->max_creatures_attracted - (long)dungeon->num_active_creatrs);
+      }
+      return 0;
+  case SVar_CONTROLS_CREATURE: // IF_CONTROLS(CREATURE)
+      dungeon = get_dungeon(plyr_idx);
+      return dungeon->owned_creatures_of_model[validx%CREATURE_TYPES_COUNT]
+        - count_player_list_creatures_of_model_matching_bool_filter(plyr_idx, validx, creature_is_kept_in_custody_by_enemy);
   case SVar_ALL_DUNGEONS_DESTROYED:
       player = get_player(plyr_idx);
       return all_dungeons_destroyed(player);
