@@ -69,6 +69,29 @@ BONUS_LEVEL_TIME(12000)
   * negative integer - zoom to Hero Gate of given number
   * `ALL_PLAYERS` - zoom button will be inactive
 
+==`IF_AVAILABLE`==
+  Checks availability of an item for the player. New option values have been
+added to this command:
+{{{
+  IF_AVAILABLE(​[player],​[name]​[comparison]​[a])
+}}}
+  where:
+
+  `[name]` -  The name of a creature, spell, trap or door.
+  * Checking creature availability returns how many creatures of that kind can come from portal to that player. The check includes creature pool, players creature limit and whether attraction criteria are met.
+  * Checking spell availability returns whether the spell can be casted by a player. Cost of the spell is not considered.
+  * Checking trap or door availability returns amount of traps and doors a player has stored, either in workshop or in off-map storage.
+
+==`IF_CONTROLS`==
+  Allows to execute commands based on the items a player controls.
+{{{
+  IF_CONTROLS(​[player],​[name]​[comparison]​[a])
+}}}
+  where:
+
+  `[name]` -  The name of a creature. Returns how many creatures
+of given kind the player owns, excluding these under enemy control (in custody).
+
 ==`LEVEL_VERSION`==
   Lets the game know if the level was designed specially for
   KeeperFX. To use new script commands, you must start the
