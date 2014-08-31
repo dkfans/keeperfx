@@ -37,6 +37,7 @@ struct Thing;
 void process_entrance_generation(void);
 
 TbBool remove_creature_from_generate_pool(ThingModel crtr_kind);
+TbBool creature_will_generate_for_dungeon(const struct Dungeon * dungeon, ThingModel crtr_kind);
 /******************************************************************************/
 #ifdef __cplusplus
 }

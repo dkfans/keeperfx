@@ -107,6 +107,7 @@ enum TbScriptCommands {
     Cmd_RESEARCH_ORDER                 = 91,
     Cmd_KILL_CREATURE                  = 92,
     Cmd_SET_CREATURE_FEAR_STRONGER     = 93,
+    Cmd_IF_CONTROLS                    = 94,
 };
 
 enum ScriptVatiables {
@@ -139,8 +140,10 @@ enum ScriptVatiables {
   SVar_AVAILABLE_TRAP                  = 31,
   SVar_AVAILABLE_DOOR                  = 32,
   SVar_AVAILABLE_ROOM                  = 33,
-  SVar_ALL_DUNGEONS_DESTROYED          = 34,
-  SVar_DOOR_NUM                        = 35,
+  SVar_AVAILABLE_CREATURE              = 34,
+  SVar_CONTROLS_CREATURE               = 35,
+  SVar_ALL_DUNGEONS_DESTROYED          = 36,
+  SVar_DOOR_NUM                        = 37,
 };
 
 enum MapLocationTypes {
@@ -296,6 +299,7 @@ void command_add_tunneller_to_level(char *plrname, char *dst_place, char *object
 void command_display_objective(long msg_num, char *plrname, long a3, long a4);
 void command_add_tunneller_party_to_level(char *plrname, char *prtname, char *apt_num, char *objectv, long target, char crtr_level, unsigned long carried_gold);
 void command_if_available(char *plrname, char *varib_name, char *operatr, long value);
+void command_if_controls(char *plrname, char *varib_name, char *operatr, long value);
 void command_set_computer_globals(char *plrname, long a1, long a2, long a3, long a4, long a5, long a6);
 void command_set_computer_checks(char *plrname, char *chkname, long a1, long a2, long a3, long a4, long a5);
 void command_set_computer_events(char *plrname, char *evntname, long a1, long a2);
