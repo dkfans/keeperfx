@@ -70,8 +70,7 @@ BONUS_LEVEL_TIME(12000)
   * `ALL_PLAYERS` - zoom button will be inactive
 
 ==`IF_AVAILABLE`==
-  Checks availability of an item for the player. New option values have been
-added to this command:
+  Checks availability of an item for the player. New option values have been added to this command:
 {{{
   IF_AVAILABLE(​[player],​[name]​[comparison]​[a])
 }}}
@@ -89,8 +88,7 @@ added to this command:
 }}}
   where:
 
-  `[name]` -  The name of a creature. Returns how many creatures
-of given kind the player owns, excluding these under enemy control (in custody).
+  `[name]` -  The name of a creature. Returns how many creatures of given kind the player owns, excluding these under enemy control (in custody).
 
 ==`LEVEL_VERSION`==
   Lets the game know if the level was designed specially for
