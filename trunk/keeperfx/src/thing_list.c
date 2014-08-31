@@ -1993,6 +1993,32 @@ long count_player_list_creatures_with_filter(long thing_idx, Thing_Maximizer_Fil
     return count;
 }
 
+/** Counts on whole map creatures owned by given player, which match given bool filter.
+ *
+ * @param plyr_idx Player whose things will be searched. Allies are not included, use -1 to select all.
+ * @return Amount of matching things.
+ */
+long count_player_list_creatures_of_model_matching_bool_filter(PlayerNumber plyr_idx, ThingModel tngmodel, Thing_Bool_Filter matcher_cb)
+{
+    struct Dungeon *dungeon;
+    Thing_Maximizer_Filter filter;
+    struct CompoundTngFilterParam param;
+    SYNCDBG(19,"Starting");
+    dungeon = get_players_num_dungeon(plyr_idx);
+    filter = anywhere_thing_filter_call_bool_filter;
+    param.class_id = TCls_Creature;
+    param.model_id = tngmodel;
+    param.plyr_idx = plyr_idx;
+    param.num1 = -1;
+    param.num2 = -1;
+    param.ptr3 = (void *)matcher_cb;
+    if (tngmodel == get_players_special_digger_model(plyr_idx)) {
+        return count_player_list_creatures_with_filter(dungeon->digger_list_start, filter, &param);
+    } else {
+        return count_player_list_creatures_with_filter(dungeon->creatr_list_start, filter, &param);
+    }
+}
+
 /**
  * Returns filtered creature from the players creature list starting from thing_idx.
  * The creature which will return highest nonnegative value from given filter function

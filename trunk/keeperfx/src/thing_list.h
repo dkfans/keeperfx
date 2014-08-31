@@ -150,6 +150,7 @@ long creature_near_filter_is_owned_by(const struct Thing *thing, FilterParam val
 struct Thing *get_player_list_creature_with_filter(ThingIndex thing_idx, Thing_Maximizer_Filter filter, MaxTngFilterParam param);
 struct Thing *get_player_list_random_creature_with_filter(ThingIndex thing_idx, Thing_Maximizer_Filter filter, MaxTngFilterParam param);
 long count_player_list_creatures_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxTngFilterParam param);
+long count_player_list_creatures_of_model_matching_bool_filter(PlayerNumber plyr_idx, ThingModel tngmodel, Thing_Bool_Filter matcher_cb);
 // Final routines to select creature anywhere on map but belonging to given player
 struct Thing *get_player_list_nth_creature_of_model(long thing_idx, ThingModel crmodel, long crtr_idx);
 struct Thing *get_random_players_creature_of_model(PlayerNumber plyr_idx, ThingModel crmodel);
