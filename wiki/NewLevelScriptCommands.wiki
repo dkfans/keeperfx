@@ -76,8 +76,9 @@ BONUS_LEVEL_TIME(12000)
 }}}
   where:
 
-  `[name]` -  The name of a creature, spell, trap or door.
+  `[name]` -  The name of a creature, room, spell, trap or door.
   * Checking creature availability returns how many creatures of that kind can come from portal to that player. The check includes creature pool, players creature limit and whether attraction criteria are met.
+  * Checking room availability returns whether the room can be built by a player. Cost of the room is not considered.
   * Checking spell availability returns whether the spell can be casted by a player. Cost of the spell is not considered.
   * Checking trap or door availability returns amount of traps and doors a player has stored, either in workshop or in off-map storage.
 
