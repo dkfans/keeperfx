@@ -47,6 +47,13 @@ extern "C" {
 
 #define INVALID_DUNGEON (&bad_dungeon)
 
+enum CreatureGUIJob {
+    CrGUIJob_Any        =-1,
+    CrGUIJob_Wandering  = 0,
+    CrGUIJob_Working    = 1,
+    CrGUIJob_Fighting   = 2,
+};
+
 enum DungeonCreatureTendencies {
     CrTend_None       = 0,
     CrTend_Imprison   = 1,

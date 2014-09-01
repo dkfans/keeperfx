@@ -3492,6 +3492,33 @@ long player_list_creature_filter_dragging_specific_thing(const struct Thing *thi
 }
 
 /**
+ * Filter function for selecting most experienced creature.
+ *
+ * @param thing Creature thing to be filtered.
+ * @param param Struct with creature model, owner and GUI job to be accepted.
+ * @param maximizer Previous max value.
+ * @return If returned value is greater than maximizer, then the filtering result should be updated.
+ */
+long player_list_creature_filter_most_experienced(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
+{
+    struct CreatureControl *cctrl;
+    long nmaxim;
+    cctrl = creature_control_get_from_thing(thing);
+    // New 'maximizer' value. Should be at least 1; maximum is, in this case, CREATURE_MAX_LEVEL.
+    nmaxim = cctrl->explevel+1;
+    if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
+        && (thing->class_id == param->class_id)
+        && ((param->model_id == -1) || (thing->model == param->model_id))
+        && ((param->num1 == -1) || (get_creature_gui_job(thing) == param->num1))
+        && (nmaxim > maximizer) )
+    {
+        return nmaxim;
+    }
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
+}
+
+/**
  * Filter function for selecting most experienced and pickable creature.
  *
  * @param thing Creature thing to be filtered.
@@ -3554,6 +3581,33 @@ long player_list_creature_filter_most_experienced_and_pickable2(const struct Thi
 }
 
 /**
+ * Filter function for selecting least experienced creature.
+ *
+ * @param thing Creature thing to be filtered.
+ * @param param Struct with creature model, owner and GUI job to be accepted.
+ * @param maximizer Previous max value.
+ * @return If returned value is greater than maximizer, then the filtering result should be updated.
+ */
+long player_list_creature_filter_least_experienced(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
+{
+    struct CreatureControl *cctrl;
+    long nmaxim;
+    cctrl = creature_control_get_from_thing(thing);
+    // New 'maximizer' value. Should be at least 1; maximum is, in this case, CREATURE_MAX_LEVEL.
+    nmaxim = CREATURE_MAX_LEVEL-cctrl->explevel;
+    if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
+      && (thing->class_id == param->class_id)
+      && ((param->model_id == -1) || (thing->model == param->model_id))
+      && ((param->num1 == -1) || (get_creature_gui_job(thing) == param->num1))
+      && (nmaxim > maximizer) )
+    {
+        return nmaxim;
+    }
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
+}
+
+/**
  * Filter function for selecting least experienced and pickable creature.
  *
  * @param thing Creature thing to be filtered.
@@ -3610,6 +3664,29 @@ long player_list_creature_filter_least_experienced_and_pickable2(const struct Th
       {
         return nmaxim;
       }
+    }
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
+}
+
+/**
+ * Filter function for selecting first creature with given GUI Job.
+ *
+ * @param thing Creature thing to be filtered.
+ * @param param Struct with creature model, owner and GUI Job to be accepted.
+ * @param maximizer Previous max value.
+ * @return If returned value is greater than maximizer, then the filtering result should be updated.
+ */
+long player_list_creature_filter_of_gui_job(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
+{
+    if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
+      && (thing->class_id == param->class_id)
+      && ((param->model_id == -1) || (thing->model == param->model_id))
+      && ((param->num1 == -1) || (get_creature_gui_job(thing) == param->num1))) // job_idx
+    {
+        // New 'maximizer' equal to MAX_LONG will stop the sweeping
+        // and return this thing immediately.
+        return LONG_MAX;
     }
     // If conditions are not met, return -1 to be sure thing will not be returned.
     return -1;
@@ -3748,7 +3825,7 @@ struct Thing *find_creature_dragging_thing(const struct Thing *dragtng)
  * @param pick_check Changes the check function which determines whether the creature is pickable.
  * @return
  */
-struct Thing *find_players_highest_level_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, TbBool pick_check)
+struct Thing *find_players_highest_level_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, unsigned char pick_check)
 {
     Thing_Maximizer_Filter filter;
     struct CompoundTngFilterParam param;
@@ -3758,12 +3835,19 @@ struct Thing *find_players_highest_level_creature_of_breed_and_gui_job(long crmo
     param.class_id = TCls_Creature;
     param.model_id = crmodel;
     param.num1 = job_idx;
-    if (pick_check)
+    switch (pick_check)
     {
+    default:
+        WARNLOG("Invalid check selection, %d",(int)pick_check);
+    case 0:
+        filter = player_list_creature_filter_most_experienced;
+        break;
+    case 1:
         filter = player_list_creature_filter_most_experienced_and_pickable1;
-    } else
-    {
+        break;
+    case 2:
         filter = player_list_creature_filter_most_experienced_and_pickable2;
+        break;
     }
     TbBool is_spec_digger;
     is_spec_digger = false;
@@ -3784,7 +3868,7 @@ struct Thing *find_players_highest_level_creature_of_breed_and_gui_job(long crmo
     {
         thing = get_player_list_creature_with_filter(dungeon->creatr_list_start, filter, &param);
     }
-return thing;
+    return thing;
 }
 
 /**
@@ -3793,7 +3877,7 @@ return thing;
  * @param pick_check Changes the check function which determines whether the creature is pickable.
  * @return
  */
-struct Thing *find_players_lowest_level_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, TbBool pick_check)
+struct Thing *find_players_lowest_level_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, unsigned char pick_check)
 {
     Thing_Maximizer_Filter filter;
     struct CompoundTngFilterParam param;
@@ -3803,12 +3887,19 @@ struct Thing *find_players_lowest_level_creature_of_breed_and_gui_job(long crmod
     param.class_id = TCls_Creature;
     param.model_id = crmodel;
     param.num1 = job_idx;
-    if (pick_check)
+    switch (pick_check)
     {
+    default:
+        WARNLOG("Invalid check selection, %d",(int)pick_check);
+    case 0:
+        filter = player_list_creature_filter_least_experienced;
+        break;
+    case 1:
         filter = player_list_creature_filter_least_experienced_and_pickable1;
-    } else
-    {
+        break;
+    case 2:
         filter = player_list_creature_filter_least_experienced_and_pickable2;
+        break;
     }
     TbBool is_spec_digger;
     is_spec_digger = false;
@@ -3839,7 +3930,7 @@ struct Thing *find_players_lowest_level_creature_of_breed_and_gui_job(long crmod
  * @param pick_check Changes the check function which determines whether the creature is pickable.
  * @return
  */
-struct Thing *find_players_first_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, TbBool pick_check)
+struct Thing *find_players_first_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, unsigned char pick_check)
 {
     Thing_Maximizer_Filter filter;
     struct CompoundTngFilterParam param;
@@ -3850,12 +3941,19 @@ struct Thing *find_players_first_creature_of_breed_and_gui_job(long crmodel, lon
     param.class_id = TCls_Creature;
     param.model_id = crmodel;
     param.num1 = job_idx;
-    if (pick_check)
+    switch (pick_check)
     {
+    default:
+        WARNLOG("Invalid check selection, %d",(int)pick_check);
+    case 0:
+        filter = player_list_creature_filter_of_gui_job;
+        break;
+    case 1:
         filter = player_list_creature_filter_of_gui_job_and_pickable1;
-    } else
-    {
+        break;
+    case 2:
         filter = player_list_creature_filter_of_gui_job_and_pickable2;
+        break;
     }
     TbBool is_spec_digger;
     is_spec_digger = false;
@@ -3944,10 +4042,10 @@ struct Thing *find_players_next_creature_of_breed_and_gui_job(long crmodel, long
     {
         if ((pick_flags & TPF_ReverseOrder) != 0)
         {
-            thing = find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, job_idx, plyr_idx, (pick_flags & TPF_PickableCheck) != 0);
+            thing = find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, job_idx, plyr_idx, (pick_flags & TPF_PickableCheck) ? 1 : 2);
         } else
         {
-            thing = find_players_highest_level_creature_of_breed_and_gui_job(crmodel, job_idx, plyr_idx, (pick_flags & TPF_PickableCheck) != 0);
+            thing = find_players_highest_level_creature_of_breed_and_gui_job(crmodel, job_idx, plyr_idx, (pick_flags & TPF_PickableCheck) ? 1 : 2);
         }
     } else
     /* If filtering is unordered, use the index of previous creature */
@@ -3969,7 +4067,7 @@ struct Thing *find_players_next_creature_of_breed_and_gui_job(long crmodel, long
     // If nothing found yet, use an algorithm which returns a first match
     if (thing_is_invalid(thing))
     {
-        thing = find_players_first_creature_of_breed_and_gui_job(crmodel, job_idx, plyr_idx, (pick_flags & TPF_PickableCheck) != 0);
+        thing = find_players_first_creature_of_breed_and_gui_job(crmodel, job_idx, plyr_idx, (pick_flags & TPF_PickableCheck) ? 1 : 2);
     }
     // If no matches were found, then there are simply no matching creatures
     if (thing_is_invalid(thing))
