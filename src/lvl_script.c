@@ -300,7 +300,13 @@ const struct NamedCommand tendency_desc[] = {
 
 const struct NamedCommand creature_select_criteria_desc[] = {
   {"MOST_EXPERIENCED",     CSelCrit_MostExperienced},
+  {"MOST_EXP_WANDERING",   CSelCrit_MostExpWandering},
+  {"MOST_EXP_WORKING",     CSelCrit_MostExpWorking},
+  {"MOST_EXP_FIGHTING",    CSelCrit_MostExpFighting},
   {"LEAST_EXPERIENCED",    CSelCrit_LeastExperienced},
+  {"LEAST_EXP_WANDERING",  CSelCrit_LeastExpWandering},
+  {"LEAST_EXP_WORKING",    CSelCrit_LeastExpWorking},
+  {"LEAST_EXP_FIGHTING",   CSelCrit_LeastExpFighting},
   {"NEAR_OWN_HEART",       CSelCrit_NearOwnHeart},
   {"NEAR_ENEMY_HEART",     CSelCrit_NearEnemyHeart},
   {"ON_ENEMY_GROUND",      CSelCrit_OnEnemyGround},
@@ -3035,25 +3041,25 @@ TbBool script_kill_creature_with_criteria(PlayerNumber plyr_idx, long crmodel, l
     case CSelCrit_MostExperienced:
         thing = find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Any, plyr_idx, 0);
         break;
-    case CSelCrit_MostExpWanderer:
+    case CSelCrit_MostExpWandering:
         thing = find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Wandering, plyr_idx, 0);
         break;
-    case CSelCrit_MostExpWorker:
+    case CSelCrit_MostExpWorking:
         thing = find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Working, plyr_idx, 0);
         break;
-    case CSelCrit_MostExpfighter:
+    case CSelCrit_MostExpFighting:
         thing = find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Fighting, plyr_idx, 0);
         break;
     case CSelCrit_LeastExperienced:
         thing = find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Any, plyr_idx, 0);
         break;
-    case CSelCrit_LeastExpWanderer:
+    case CSelCrit_LeastExpWandering:
         thing = find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Wandering, plyr_idx, 0);
         break;
-    case CSelCrit_LeastExpWorker:
+    case CSelCrit_LeastExpWorking:
         thing = find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Working, plyr_idx, 0);
         break;
-    case CSelCrit_LeastExpfighter:
+    case CSelCrit_LeastExpFighting:
         thing = find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Fighting, plyr_idx, 0);
         break;
     case CSelCrit_NearOwnHeart:

@@ -72,18 +72,18 @@ enum ThingUpdateFuncReturns {
 };
 
 enum CreatureSelectCriteria {
-    CSelCrit_Any              =  0,
-    CSelCrit_MostExperienced  =  1,
-    CSelCrit_MostExpWanderer  =  2,
-    CSelCrit_MostExpWorker    =  3,
-    CSelCrit_MostExpfighter   =  4,
-    CSelCrit_LeastExperienced =  5,
-    CSelCrit_LeastExpWanderer =  6,
-    CSelCrit_LeastExpWorker   =  7,
-    CSelCrit_LeastExpfighter  =  8,
-    CSelCrit_NearOwnHeart     =  9,
-    CSelCrit_NearEnemyHeart   = 10,
-    CSelCrit_OnEnemyGround    = 11,
+    CSelCrit_Any               =  0,
+    CSelCrit_MostExperienced   =  1,
+    CSelCrit_MostExpWandering  =  2,
+    CSelCrit_MostExpWorking    =  3,
+    CSelCrit_MostExpFighting   =  4,
+    CSelCrit_LeastExperienced  =  5,
+    CSelCrit_LeastExpWandering =  6,
+    CSelCrit_LeastExpWorking   =  7,
+    CSelCrit_LeastExpFighting  =  8,
+    CSelCrit_NearOwnHeart      =  9,
+    CSelCrit_NearEnemyHeart    = 10,
+    CSelCrit_OnEnemyGround     = 11,
 };
 
 /******************************************************************************/
