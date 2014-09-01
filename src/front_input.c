@@ -1532,16 +1532,16 @@ static void get_dungeon_speech_inputs(void)
 
     switch (last_speech_event.type) {
     case KS_PICKUP_IDLE:
-        speech_pickup_of_gui_job(0);
+        speech_pickup_of_gui_job(CrGUIJob_Wandering);
         break;
     case KS_PICKUP_WORKING:
-        speech_pickup_of_gui_job(1);
+        speech_pickup_of_gui_job(CrGUIJob_Working);
         break;
     case KS_PICKUP_FIGHTING:
-        speech_pickup_of_gui_job(2);
+        speech_pickup_of_gui_job(CrGUIJob_Fighting);
         break;
     case KS_PICKUP_ANY:
-        speech_pickup_of_gui_job(-1);
+        speech_pickup_of_gui_job(CrGUIJob_Any);
         break;
     case KS_SELECT_ROOM:
         room_stats = get_room_kind_stats(last_speech_event.u.room.id);
