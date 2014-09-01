@@ -1459,7 +1459,7 @@ void pick_up_next_creature(struct GuiButton *gbtn)
         pick_flags |= TPF_OrderedPick;
     if (lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT])
         pick_flags |= TPF_ReverseOrder;
-    pick_up_creature_of_breed_and_gui_job(kind, -1, my_player_number, pick_flags);
+    pick_up_creature_of_breed_and_gui_job(kind, CrGUIJob_Any, my_player_number, pick_flags);
 }
 
 void gui_go_to_next_creature(struct GuiButton *gbtn)
@@ -1473,7 +1473,7 @@ void gui_go_to_next_creature(struct GuiButton *gbtn)
     } else {
         crmodel = get_players_special_digger_model(my_player_number);
     }
-    go_to_next_creature_of_model_and_gui_job(crmodel, -1);
+    go_to_next_creature_of_model_and_gui_job(crmodel, CrGUIJob_Any);
 }
 
 void gui_area_anger_button(struct GuiButton *gbtn)
@@ -2098,13 +2098,13 @@ void pick_up_next_wanderer(struct GuiButton *gbtn)
         pick_flags |= TPF_OrderedPick;
     if (lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT])
         pick_flags |= TPF_ReverseOrder;
-    pick_up_creature_of_breed_and_gui_job(-1, 0, my_player_number, pick_flags);
+    pick_up_creature_of_breed_and_gui_job(-1, CrGUIJob_Wandering, my_player_number, pick_flags);
 }
 
 void gui_go_to_next_wanderer(struct GuiButton *gbtn)
 {
     //_DK_gui_go_to_next_wanderer(gbtn);
-    go_to_next_creature_of_model_and_gui_job(-1, 0);
+    go_to_next_creature_of_model_and_gui_job(-1, CrGUIJob_Wandering);
 }
 
 void pick_up_next_worker(struct GuiButton *gbtn)
@@ -2116,13 +2116,13 @@ void pick_up_next_worker(struct GuiButton *gbtn)
         pick_flags |= TPF_OrderedPick;
     if (lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT])
         pick_flags |= TPF_ReverseOrder;
-    pick_up_creature_of_breed_and_gui_job(-1, 1, my_player_number, pick_flags);
+    pick_up_creature_of_breed_and_gui_job(-1, CrGUIJob_Working, my_player_number, pick_flags);
 }
 
 void gui_go_to_next_worker(struct GuiButton *gbtn)
 {
     //_DK_gui_go_to_next_worker(gbtn);
-    go_to_next_creature_of_model_and_gui_job(-1, 1);
+    go_to_next_creature_of_model_and_gui_job(-1, CrGUIJob_Working);
 }
 
 void pick_up_next_fighter(struct GuiButton *gbtn)
@@ -2134,13 +2134,13 @@ void pick_up_next_fighter(struct GuiButton *gbtn)
         pick_flags |= TPF_OrderedPick;
     if (lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT])
         pick_flags |= TPF_ReverseOrder;
-    pick_up_creature_of_breed_and_gui_job(-1, 2, my_player_number, pick_flags);
+    pick_up_creature_of_breed_and_gui_job(-1, CrGUIJob_Fighting, my_player_number, pick_flags);
 }
 
 void gui_go_to_next_fighter(struct GuiButton *gbtn)
 {
     //_DK_gui_go_to_next_fighter(gbtn);
-    go_to_next_creature_of_model_and_gui_job(-1, 2);
+    go_to_next_creature_of_model_and_gui_job(-1, CrGUIJob_Fighting);
 }
 
 void gui_area_payday_button(struct GuiButton *gbtn)

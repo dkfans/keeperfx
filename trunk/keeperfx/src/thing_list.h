@@ -72,12 +72,18 @@ enum ThingUpdateFuncReturns {
 };
 
 enum CreatureSelectCriteria {
-    CSelCrit_Any              = 0,
-    CSelCrit_MostExperienced  = 1,
-    CSelCrit_LeastExperienced = 2,
-    CSelCrit_NearOwnHeart     = 3,
-    CSelCrit_NearEnemyHeart   = 4,
-    CSelCrit_OnEnemyGround    = 5,
+    CSelCrit_Any              =  0,
+    CSelCrit_MostExperienced  =  1,
+    CSelCrit_MostExpWanderer  =  2,
+    CSelCrit_MostExpWorker    =  3,
+    CSelCrit_MostExpfighter   =  4,
+    CSelCrit_LeastExperienced =  5,
+    CSelCrit_LeastExpWanderer =  6,
+    CSelCrit_LeastExpWorker   =  7,
+    CSelCrit_LeastExpfighter  =  8,
+    CSelCrit_NearOwnHeart     =  9,
+    CSelCrit_NearEnemyHeart   = 10,
+    CSelCrit_OnEnemyGround    = 11,
 };
 
 /******************************************************************************/
@@ -154,6 +160,8 @@ long count_player_list_creatures_of_model_matching_bool_filter(PlayerNumber plyr
 // Final routines to select creature anywhere on map but belonging to given player
 struct Thing *get_player_list_nth_creature_of_model(long thing_idx, ThingModel crmodel, long crtr_idx);
 struct Thing *get_random_players_creature_of_model(PlayerNumber plyr_idx, ThingModel crmodel);
+struct Thing *find_players_highest_level_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, unsigned char pick_check);
+struct Thing *find_players_lowest_level_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, unsigned char pick_check);
 long do_to_players_all_creatures_of_model(PlayerNumber plyr_idx, int crmodel, Thing_Bool_Modifier do_cb);
 void setup_all_player_creatures_and_diggers_leave_or_die(PlayerNumber plyr_idx);
 
