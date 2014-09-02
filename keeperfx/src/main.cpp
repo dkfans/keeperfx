@@ -2233,7 +2233,7 @@ void update_player_camera(struct PlayerInfo *player)
             ctrltng = thing_get(player->controlled_thing_idx);
             update_player_camera_fp(cam, ctrltng);
         } else
-        if (player->instance_num != 11) {
+        if (player->instance_num != PI_HeartZoom) {
             ERRORLOG("Cannot go first person without controlling creature");
         }
         break;

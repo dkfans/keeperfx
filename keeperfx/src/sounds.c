@@ -35,6 +35,7 @@
 #include "thing_data.h"
 #include "thing_navigate.h"
 #include "config_creature.h"
+#include "config_terrain.h"
 #include "game_legacy.h"
 
 #include "music_player.h"
@@ -230,30 +231,33 @@ void find_nearest_rooms_for_ambient_sound(void)
     if ((SoundDisabled) || (GetCurrentSoundMasterVolume() <= 0))
         return;
     player = get_my_player();
-    if (player->acamera == NULL)
+    struct Camera *cam;
+    cam = player->acamera;
+    if (cam == NULL)
     {
         ERRORLOG("No active camera");
         set_room_playing_ambient_sound(NULL, 0);
         return;
     }
-    slb_x = subtile_slab(player->acamera->mappos.x.stl.num);
-    slb_y = subtile_slab(player->acamera->mappos.y.stl.num);
+    slb_x = subtile_slab(cam->mappos.x.stl.num);
+    slb_y = subtile_slab(cam->mappos.y.stl.num);
     for (i = 0; i < 120; i++)
     {
         sstep = &spiral_step[i];
-        stl_x = 3 * (slb_x + sstep->h);
-        stl_y = 3 * (slb_y + sstep->v);
+        stl_x = slab_subtile_center(slb_x + sstep->h);
+        stl_y = slab_subtile_center(slb_y + sstep->v);
         if (subtile_is_player_room(player->id_number,stl_x,stl_y))
         {
             room = subtile_room_get(stl_x, stl_y);
             if (room_is_invalid(room))
                 continue;
-            k = room_info[room->kind].field_4;
+            k = room_info[room->kind].ambient_snd_smp_id;
             if (k > 0)
             {
-                pos.x.val = (stl_x << 8);
-                pos.y.val = (stl_y << 8);
-                pos.z.val = (1 << 8);
+                SYNCDBG(8,"Playing ambient for %s at (%d,%d)",room_code_name(room->kind),(int)stl_x,(int)stl_y);
+                pos.x.val = subtile_coord_center(stl_x);
+                pos.y.val = subtile_coord_center(stl_y);
+                pos.z.val = subtile_coord(1,0);
                 set_room_playing_ambient_sound(&pos, k);
                 return;
             }

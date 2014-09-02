@@ -41,13 +41,13 @@ DLLIMPORT long _DK_get_angle_yz_to(const struct Coord3d *pos1, const struct Coor
 DLLIMPORT long _DK_get_2d_distance(const struct Coord3d *pos1, const struct Coord3d *pos2);
 DLLIMPORT void _DK_project_point_to_wall_on_angle(struct Coord3d *pos1, struct Coord3d *pos2, long angle_xy, long angle_z, long distance, long num_steps);
 DLLIMPORT void _DK_angles_to_vector(short angle_xy, short angle_yz, long dist, struct ComponentVector *cvect);
-DLLIMPORT void _DK_view_zoom_camera_in(struct Camera *cam, long a2, long angle_xy);
+DLLIMPORT void _DK_view_zoom_camera_in(struct Camera *cam, long delta, long angle_xy);
 DLLIMPORT void _DK_set_camera_zoom(struct Camera *cam, long val);
-DLLIMPORT void _DK_view_zoom_camera_out(struct Camera *cam, long a2, long angle_xy);
+DLLIMPORT void _DK_view_zoom_camera_out(struct Camera *cam, long delta, long angle_xy);
 DLLIMPORT long _DK_get_camera_zoom(struct Camera *camera);
-DLLIMPORT void _DK_view_set_camera_y_inertia(struct Camera *cam, long a2, long a3);
-DLLIMPORT void _DK_view_set_camera_x_inertia(struct Camera *cam, long a2, long a3);
-DLLIMPORT void _DK_view_set_camera_rotation_inertia(struct Camera *cam, long a2, long a3);
+DLLIMPORT void _DK_view_set_camera_y_inertia(struct Camera *cam, long delta, long ilimit);
+DLLIMPORT void _DK_view_set_camera_x_inertia(struct Camera *cam, long delta, long ilimit);
+DLLIMPORT void _DK_view_set_camera_rotation_inertia(struct Camera *cam, long delta, long ilimit);
 DLLIMPORT void _DK_init_player_cameras(struct PlayerInfo *player);
 /******************************************************************************/
 long camera_zoom;
@@ -335,14 +335,34 @@ unsigned long scale_camera_zoom_to_screen(unsigned long zoom_lvl)
     return  ((zoom_lvl*size_wide) >> 8) + ((zoom_lvl*size_narr) >> 8);
 }
 
-void view_set_camera_y_inertia(struct Camera *cam, long a2, long a3)
+void view_set_camera_y_inertia(struct Camera *cam, long delta, long ilimit)
 {
-  _DK_view_set_camera_y_inertia(cam, a2, a3);
+    //_DK_view_set_camera_y_inertia(cam, delta, ilimit);
+    long abslimit;
+    abslimit = abs(ilimit);
+    cam->field_25 += delta;
+    if (cam->field_25 < -abslimit) {
+        cam->field_25 = -abslimit;
+    } else
+    if (cam->field_25 > abslimit) {
+        cam->field_25 = abslimit;
+    }
+    cam->field_29 = 1;
 }
 
-void view_set_camera_x_inertia(struct Camera *cam, long a2, long a3)
+void view_set_camera_x_inertia(struct Camera *cam, long delta, long ilimit)
 {
-  _DK_view_set_camera_x_inertia(cam, a2, a3);
+    //_DK_view_set_camera_x_inertia(cam, delta, ilimit);
+    long abslimit;
+    abslimit = abs(ilimit);
+    cam->field_20 += delta;
+    if (cam->field_20 < -abslimit) {
+        cam->field_20 = -abslimit;
+    } else
+    if (cam->field_20 > abslimit) {
+        cam->field_20 = abslimit;
+    }
+    cam->field_24 = 1;
 }
 
 void view_set_camera_rotation_inertia(struct Camera *cam, long a2, long a3)
