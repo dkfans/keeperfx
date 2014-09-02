@@ -1403,7 +1403,7 @@ void draw_engine_room_flagpole(struct RoomFlag *rflg)
     }
     struct PlayerInfo *myplyr;
     myplyr = get_my_player();
-    struct Camera *cam;
+    const struct Camera *cam;
     cam = myplyr->acamera;
     if ((cam->field_6 == 2) || (cam->field_6 == 5))
     {
@@ -1461,7 +1461,7 @@ unsigned short choose_health_sprite(struct Thing *thing)
 void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long a4)
 {
     struct PlayerInfo *myplyr;
-    struct Camera *mycam;
+    const struct Camera *mycam;
     unsigned short flg_mem;
     myplyr = get_my_player();
 
@@ -1686,7 +1686,7 @@ void draw_engine_room_flag_top(struct RoomFlag *rflg)
     }
     struct PlayerInfo *myplyr;
     myplyr = get_my_player();
-    struct Camera *cam;
+    const struct Camera *cam;
     cam = myplyr->acamera;
 
     int zoom;
@@ -2492,7 +2492,7 @@ void draw_unkn09(struct BasicUnk09 *unk09)
 void display_drawlist(void)
 {
     struct PlayerInfo *player;
-    struct Camera *cam;
+    const struct Camera *cam;
     union {
       struct BasicQ *b;
       struct BasicUnk00 *unk00;
@@ -3970,7 +3970,7 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
       angle = thing->field_52;
     prepare_jonty_remap_and_scale(&scale, jspr);
     EngineSpriteDrawUsingAlpha = 0;
-    switch (thing->field_4F & 0x30)
+    switch (thing->field_4F & (0x10|0x20))
     {
     case 0x10:
         lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;

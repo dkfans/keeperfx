@@ -181,7 +181,7 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
     struct CreatureControl *cctrl;
     struct Dungeon *dungeon;
     struct Thing *thing;
-    struct Camera *cam;
+    const struct Camera *cam;
     struct InitLight ilght;
     SYNCDBG(6,"Request for model %ld at (%d,%d,%d)",breed,(int)pos->x.val,(int)pos->y.val,(int)pos->z.val);
     //return _DK_create_and_control_creature_as_controller(player, a2, pos);

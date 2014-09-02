@@ -179,7 +179,7 @@ int draw_overlay_call_to_arms(struct PlayerInfo *player, long units_per_px, long
     SYNCDBG(18,"Starting");
     if (player->acamera == NULL)
         return 0;
-    struct Camera *cam;
+    const struct Camera *cam;
     cam = player->acamera;
     n = 0;
     const struct StructureList *slist;
@@ -238,7 +238,7 @@ int draw_overlay_traps(struct PlayerInfo *player, long units_per_px, long zoom)
     SYNCDBG(18,"Starting");
     if (player->acamera == NULL)
         return 0;
-    struct Camera *cam;
+    const struct Camera *cam;
     cam = player->acamera;
     n = 0;
     k = 0;
@@ -308,7 +308,7 @@ int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, 
     SYNCDBG(18,"Starting");
     if (player->acamera == NULL)
         return 0;
-    struct Camera *cam;
+    const struct Camera *cam;
     cam = player->acamera;
     n = 0;
     const struct StructureList *slist;
@@ -369,7 +369,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
     SYNCDBG(18,"Starting");
     if (player->acamera == NULL)
         return 0;
-    struct Camera *cam;
+    const struct Camera *cam;
     cam = player->acamera;
     n = 0;
     k = 0;
@@ -493,7 +493,7 @@ int draw_line_to_heart(struct PlayerInfo *player, long units_per_px, long zoom)
 {
     if (player->acamera == NULL)
         return 0;
-    struct Camera *cam;
+    const struct Camera *cam;
     cam = player->acamera;
     struct Thing *heartng;
     heartng = get_player_soul_container(player->id_number);
@@ -541,10 +541,10 @@ int draw_line_to_heart(struct PlayerInfo *player, long units_per_px, long zoom)
 
 int draw_overlay_possessed_thing(struct PlayerInfo *player, long units_per_px, long zoom)
 {
-    if (player->acamera == NULL)
-        return 0;
-    struct Camera *cam;
+    const struct Camera *cam;
     cam = player->acamera;
+    if (cam == NULL)
+        return 0;
     if (cam->field_6 != 1)
         return 0;
     long scr_x,scr_y;

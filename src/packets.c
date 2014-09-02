@@ -1864,7 +1864,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       }
       return 0;
   case PckA_BookmarkLoad:
-      set_player_cameras_position(player, pckt->field_6 << 8, pckt->field_8 << 8);
+      set_player_cameras_position(player, subtile_coord_center(pckt->field_6), subtile_coord_center(pckt->field_8));
       return 0;
   case PckA_SetGammaLevel:
       if (is_my_player(player))
@@ -1932,7 +1932,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       set_player_mode(player, pckt->field_6);
       return 0;
   case PckA_ZoomFromMap:
-      set_player_cameras_position(player, pckt->field_6 << 8, pckt->field_8 << 8);
+      set_player_cameras_position(player, subtile_coord_center(pckt->field_6), subtile_coord_center(pckt->field_8));
       player->cameras[2].orient_a = 0;
       player->cameras[3].orient_a = 0;
       player->cameras[0].orient_a = 0;
@@ -2112,7 +2112,7 @@ void process_players_map_packet_control(long plyr_idx)
     // Get map coordinates
     process_map_packet_clicks(plyr_idx);
     player->cameras[2].mappos.x.val = pckt->pos_x;
-    player->cameras[2].mappos.y.val = pckt->pos_x;
+    player->cameras[2].mappos.y.val = pckt->pos_y;
     set_mouse_light(player);
     SYNCDBG(8,"Finished");
 }
