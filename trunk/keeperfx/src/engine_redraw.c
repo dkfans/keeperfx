@@ -411,7 +411,7 @@ void draw_overlay_compass(long base_x, long base_y)
     h = (LbSprFontCharHeight(lbFontPtr,'/')*tx_units_per_px/16) / 2 + 2*units_per_px/16;
     struct PlayerInfo *player;
     player = get_my_player();
-    struct Camera *cam;
+    const struct Camera *cam;
     cam = player->acamera;
     int center_x, center_y;
     int shift_x, shift_y;
