@@ -62,12 +62,31 @@ BONUS_LEVEL_TIME(12000)
       have rooms required by that creature). Originally
       there was no possibility to skip attraction conditions.
 
-==`DISPLAY_OBJECTIVE`==
-  The 2nd parameter can now have the following values:
+==`DISPLAY_INFORMATION`==
+Displays one of the text messages from language-specific strings banks in an Information Box. Each Information Box stacks over previous messages, and can be removed by right clicking. It disappears automatically some time after has been read.
+{{{
+  DISPLAY_INFORMATION(​[a],​[place])
+}}}
+  where:
+
+  `[a]` - The number of the message, assigned to it in .po or .pot translation file.
+
+  `[place]` - Location where the view should be centered if the player clicks on the "zoom to" icon on the Message Panel. It can now have the following values:
   * `PLAYERx` - zoom to player's dungeon heart
   * positive integer - zoom to Action Point of given number
   * negative integer - zoom to Hero Gate of given number
   * `ALL_PLAYERS` - zoom button will be inactive
+
+==`DISPLAY_OBJECTIVE`==
+Displays one of the text messages from language-specific strings banks in an Objective Box. Each Objective Box replaces previous one, and cannot be removed from the messages list. It removes itself only after level is won or lost.
+{{{
+  DISPLAY_OBJECTIVE(​[a],​[place])
+}}}
+  where:
+
+  `[a]` - The number of the message, assigned to it in .po or .pot translation file.
+
+  `[place]` - Location where the view should be centered if the player clicks on the "zoom to" icon on the Message Panel. It can have the same values as in `DISPLAY_INFORMATION` command above.
 
 ==`IF_AVAILABLE`==
   Checks availability of an item for the player. New option values have been added to this command:
@@ -106,13 +125,25 @@ PLAY_MESSAGE(PLAYER0,SPEECH,107)
 }}}
 
 ==`QUICK_INFORMATION`==
-  These works same as in Deeper Dungeons, but allows message
-  length up to 1024 characters. There are 50 quick message
-  slots.
+Works like `DISPLAY_INFORMATION`, but instead of using a string from translations, allows to type it directly.
+{{{
+  QUICK_INFORMATION(​[a],​["message"],[place])
+}}}
+  where:
+
+  `[a]` -  Message slot selection. There are 50 quick message slots, and each message you're making should use a different one. Using one message slot twice will lead to the first message being lost.
+
+  `["message"]` -  The message string to be shown in a box. Message
+  length may be up to 1024 characters.
+
+  `[place]` - Location where the view should be centered if the player clicks on the "zoom to" icon on the Message Panel. It can have the same values as in `DISPLAY_INFORMATION` command.
 
 ==`QUICK_OBJECTIVE`==
-  Same as in DD, but allows longer messages and more control
-  over zoom button (like in `DISPLAY_OBJECTIVE`).
+Works like `DISPLAY_OBJECTIVE`, but instead of using a string from translations, allows to type it directly.
+{{{
+  QUICK_OBJECTIVE(​[a],​["message"],[place])
+}}}
+Parameters have the same meaning as in `QUICK_INFORMATION` command.
 
 ==`QUICK_INFORMATION_WITH_POS`, `QUICK_OBJECTIVE_WITH_POS`==
   Accepts additional XY coordinates of the zoom place.
