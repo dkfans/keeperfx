@@ -189,9 +189,11 @@ int get_creature_health_permil(const struct Thing *thing)
     struct CreatureControl *cctrl;
     crstat = creature_stats_get_from_thing(thing);
     cctrl = creature_control_get_from_thing(thing);
-    long health,max_health;
+    HitPoints health,max_health;
     health = thing->health * 1000;
-    max_health = compute_creature_max_health(crstat->health,cctrl->explevel);
+    max_health = cctrl->max_health;
+    if (max_health < 1)
+        max_health = 1;
     return health/max_health;
 }
 
@@ -2708,6 +2710,8 @@ void set_creature_level(struct Thing *thing, long nlvl)
         nlvl = 0;
     }
     old_max_health = compute_creature_max_health(crstat->health,cctrl->explevel);
+    if (old_max_health < 1)
+        old_max_health = 1;
     cctrl->explevel = nlvl;
     max_health = compute_creature_max_health(crstat->health,cctrl->explevel);
     cctrl->max_health = max_health;

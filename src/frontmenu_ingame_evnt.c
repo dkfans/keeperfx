@@ -264,11 +264,13 @@ void draw_battle_head(struct Thing *thing, long scr_x, long scr_y, int units_per
     struct CreatureControl *cctrl;
     crstat = creature_stats_get_from_thing(thing);
     cctrl = creature_control_get_from_thing(thing);
-    long health,max_health;
+    HitPoints health,max_health;
     health = thing->health;
-    max_health = compute_creature_max_health(crstat->health,cctrl->explevel);
-    if (health <= 0)
+    if (health < 0)
         health = 0;
+    max_health = cctrl->max_health;
+    if (max_health < 1)
+        max_health = 1;
     LbDrawBox(curscr_x + 2*units_per_px/16, curscr_y + 2*units_per_px/16, ((12 * health)/max_health)*units_per_px/16, 2*units_per_px/16, player_room_colours[thing->owner]);
     // Draw experience level
     spr = &button_sprite[184];

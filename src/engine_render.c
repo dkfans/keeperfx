@@ -1437,10 +1437,10 @@ unsigned short choose_health_sprite(struct Thing *thing)
     struct CreatureStats *crstat;
     cctrl = creature_control_get_from_thing(thing);
     crstat = creature_stats_get_from_thing(thing);
-    long health, maxhealth;
+    HitPoints health, maxhealth;
     int color_idx;
     health = thing->health;
-    maxhealth = compute_creature_max_health(crstat->health,cctrl->explevel);
+    maxhealth = cctrl->max_health;
     color_idx = (thing->owner % 5);
     if (is_neutral_thing(thing)) {
         color_idx = game.play_gameturn & 3;
