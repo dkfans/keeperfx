@@ -1229,8 +1229,8 @@ void draw_name_box(long x, long y, int width, struct Thing *thing)
         cctrl = creature_control_get_from_thing(ctrltng);
         struct CreatureStats *crstat;
         crstat = creature_stats_get_from_thing(ctrltng);
-        long maxhealth, curhealth;
-        maxhealth = compute_creature_max_health(crstat->health,cctrl->explevel);
+        HitPoints maxhealth, curhealth;
+        maxhealth = cctrl->max_health;
         curhealth = ctrltng->health;
         if (curhealth <= 0) {
             curhealth = 0;

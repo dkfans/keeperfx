@@ -326,7 +326,8 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
     }
     // Creatures are scared if their health drops lower than
     // fear_wounded percent of base health
-    long crmaxhealth,enmaxhealth,fear;
+    HitPoints crmaxhealth,enmaxhealth;
+    long fear;
     if (player_creature_tends_to(creatng->owner,CrTend_Flee) || (crstat->fear_noflee_factor <= 0)) {
         fear = crstat->fear_wounded;
     } else {

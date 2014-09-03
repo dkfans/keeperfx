@@ -393,7 +393,7 @@ void clear_creature_pool(void)
 void give_shooter_drained_health(struct Thing *shooter, long health_delta)
 {
     struct CreatureControl *cctrl;
-    long max_health,health;
+    HitPoints max_health,health;
     if ( !thing_exists(shooter) )
         return;
     cctrl = creature_control_get_from_thing(shooter);
