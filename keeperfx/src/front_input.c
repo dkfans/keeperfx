@@ -777,7 +777,7 @@ long get_dungeon_control_action_inputs(void)
     if (is_game_key_pressed(Gkey_SwitchToMap, &val, 0))
     {
       clear_key_pressed(val);
-      if ((player->view_mode != PVM_ParchFadeOut) && (game.small_map_state != PVM_IsometricView))
+      if ((player->view_mode != PVM_ParchFadeOut) && (game.small_map_state != 2))
       {
           turn_off_all_window_menus();
           zoom_to_patchment_map();
@@ -1804,7 +1804,10 @@ short get_gui_inputs(short gameplay_on)
       callback = gbtn->maintain_call;
       if (callback != NULL)
           callback(gbtn);
-      if (((gbtn->field_1B & 0x4000u) != 0) || mouse_is_over_pannel_map(player->minimap_pos_x,player->minimap_pos_y))
+      if ((gbtn->field_1B & 0x4000u) != 0)
+          continue;
+      // TODO GUI Introduce circular buttons instead of specific condition for pannel map
+      if ((menu_id_to_number(GMnu_MAIN) >= 0) && mouse_is_over_pannel_map(player->minimap_pos_x,player->minimap_pos_y))
           continue;
       if ( (check_if_mouse_is_over_button(gbtn) && !game_is_busy_doing_gui_string_input())
         || ((gbtn->gbtype == Lb_UNKNBTN6) && (gbtn->gbactn_1 != 0)) )
