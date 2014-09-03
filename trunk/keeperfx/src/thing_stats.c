@@ -662,7 +662,7 @@ TbBool update_creature_health_to_max(struct Thing *thing)
 TbBool apply_health_to_thing(struct Thing *thing, long amount)
 {
     struct CreatureControl *cctrl;
-    long new_health;
+    HitPoints new_health;
     cctrl = creature_control_get_from_thing(thing);
     new_health = thing->health;
     if ((cctrl->max_health != new_health) && (amount > 0))
@@ -716,16 +716,20 @@ static void apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
             player = get_player(thing->owner);
             if (player->controlled_thing_idx == thing->index)
             {
-              i = (10 * cdamage) / cctrl->max_health;
-              if (i > 10)
-              {
-                  i = 10;
-              } else
-              if (i <= 0)
-              {
-                  i = 1;
-              }
-              PaletteApplyPainToPlayer(player, i);
+                HitPoints max_health;
+                max_health = cctrl->max_health;
+                if (max_health < 1)
+                    max_health = 1;
+                i = (10 * cdamage) / max_health;
+                if (i > 10)
+                {
+                    i = 10;
+                } else
+                if (i <= 0)
+                {
+                    i = 1;
+                }
+                PaletteApplyPainToPlayer(player, i);
             }
         }
     }
