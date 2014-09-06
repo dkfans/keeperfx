@@ -651,12 +651,20 @@ long compute_value_8bpercentage(long base_val, short npercent)
     return (base_val*(long)npercent+127)/256;
 }
 
+/**
+ * Re-computes max health of a creature and changes it current health to max.
+ * @param thing
+ * @return
+ */
 TbBool update_creature_health_to_max(struct Thing *thing)
 {
-  struct CreatureControl *cctrl;
-  cctrl = creature_control_get_from_thing(thing);
-  thing->health = cctrl->max_health;
-  return true;
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(thing);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->max_health = compute_creature_max_health(crstat->health,cctrl->explevel);
+    thing->health = cctrl->max_health;
+    return true;
 }
 
 TbBool apply_health_to_thing(struct Thing *thing, long amount)
