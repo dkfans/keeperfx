@@ -2204,6 +2204,7 @@ TbBool change_max_health_of_creature_kind(ThingModel crmodel, long new_max)
         ERRORLOG("Invalid creature model %d",(int)crmodel);
         return false;
     }
+    SYNCDBG(3,"Changing all %s health from %d to %d.",creature_code_name(crmodel),(int)crstat->health,(int)new_max);
     crstat->health = saturate_set_signed(new_max, 16);
     creature_stats_updated(crmodel);
     PlayerNumber plyr_idx;

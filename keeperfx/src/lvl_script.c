@@ -204,34 +204,73 @@ const struct NamedCommand player_desc[] = {
 };
 
 const struct NamedCommand variable_desc[] = {
-  {"MONEY",                       SVar_MONEY},
-  {"GAME_TURN",                   SVar_GAME_TURN},
-  {"BREAK_IN",                    SVar_BREAK_IN},
-//{"CREATURE_NUM",                SVar_CREATURE_NUM},
-  {"TOTAL_IMPS",                  SVar_TOTAL_IMPS},
-  {"TOTAL_CREATURES",             SVar_TOTAL_CREATURES},
-  {"TOTAL_RESEARCH",              SVar_TOTAL_RESEARCH},
-  {"TOTAL_DOORS",                 SVar_TOTAL_DOORS},
-  {"TOTAL_AREA",                  SVar_TOTAL_AREA},
-  {"TOTAL_CREATURES_LEFT",        SVar_TOTAL_CREATURES_LEFT},
-  {"CREATURES_ANNOYED",           SVar_CREATURES_ANNOYED},
-  {"BATTLES_LOST",                SVar_BATTLES_LOST},
-  {"BATTLES_WON",                 SVar_BATTLES_WON},
-  {"ROOMS_DESTROYED",             SVar_ROOMS_DESTROYED},
-  {"SPELLS_STOLEN",               SVar_SPELLS_STOLEN},
-  {"TIMES_BROKEN_INTO",           SVar_TIMES_BROKEN_INTO},
-  {"GOLD_POTS_STOLEN",            SVar_GOLD_POTS_STOLEN},
-//  {"TIMER",                     SVar_TIMER},
-  {"DUNGEON_DESTROYED",           SVar_DUNGEON_DESTROYED},
-  {"TOTAL_GOLD_MINED",            SVar_TOTAL_GOLD_MINED},
-//  {"FLAG",                      SVar_FLAG},
-//  {"ROOM",                      SVar_ROOM_SLABS},
-  {"DOORS_DESTROYED",             SVar_DOORS_DESTROYED},
-  {"CREATURES_SCAVENGED_LOST",    SVar_CREATURES_SCAVENGED_LOST},
-  {"CREATURES_SCAVENGED_GAINED",  SVar_CREATURES_SCAVENGED_GAINED},
-  {"ALL_DUNGEONS_DESTROYED",      SVar_ALL_DUNGEONS_DESTROYED},
-//  {"DOOR",                      SVar_DOOR_NUM},
-  {NULL,                           0},
+    {"MONEY",                       SVar_MONEY},
+    {"GAME_TURN",                   SVar_GAME_TURN},
+    {"BREAK_IN",                    SVar_BREAK_IN},
+    //{"CREATURE_NUM",                SVar_CREATURE_NUM},
+    {"TOTAL_DIGGERS",               SVar_TOTAL_DIGGERS},
+    {"TOTAL_CREATURES",             SVar_TOTAL_CREATURES},
+    {"TOTAL_RESEARCH",              SVar_TOTAL_RESEARCH},
+    {"TOTAL_DOORS",                 SVar_TOTAL_DOORS},
+    {"TOTAL_AREA",                  SVar_TOTAL_AREA},
+    {"TOTAL_CREATURES_LEFT",        SVar_TOTAL_CREATURES_LEFT},
+    {"CREATURES_ANNOYED",           SVar_CREATURES_ANNOYED},
+    {"BATTLES_LOST",                SVar_BATTLES_LOST},
+    {"BATTLES_WON",                 SVar_BATTLES_WON},
+    {"ROOMS_DESTROYED",             SVar_ROOMS_DESTROYED},
+    {"SPELLS_STOLEN",               SVar_SPELLS_STOLEN},
+    {"TIMES_BROKEN_INTO",           SVar_TIMES_BROKEN_INTO},
+    {"GOLD_POTS_STOLEN",            SVar_GOLD_POTS_STOLEN},
+    //{"TIMER",                     SVar_TIMER},
+    {"DUNGEON_DESTROYED",           SVar_DUNGEON_DESTROYED},
+    {"TOTAL_GOLD_MINED",            SVar_TOTAL_GOLD_MINED},
+    //{"FLAG",                      SVar_FLAG},
+    //{"ROOM",                      SVar_ROOM_SLABS},
+    {"DOORS_DESTROYED",             SVar_DOORS_DESTROYED},
+    {"CREATURES_SCAVENGED_LOST",    SVar_CREATURES_SCAVENGED_LOST},
+    {"CREATURES_SCAVENGED_GAINED",  SVar_CREATURES_SCAVENGED_GAINED},
+    {"ALL_DUNGEONS_DESTROYED",      SVar_ALL_DUNGEONS_DESTROYED},
+    //{"DOOR",                      SVar_DOOR_NUM},
+    {NULL,                           0},
+};
+
+const struct NamedCommand dk1_variable_desc[] = {
+    {"MONEY",                       SVar_MONEY},
+    {"GAME_TURN",                   SVar_GAME_TURN},
+    {"BREAK_IN",                    SVar_BREAK_IN},
+    //{"CREATURE_NUM",                SVar_CREATURE_NUM},
+    {"TOTAL_IMPS",                  SVar_TOTAL_DIGGERS},
+    {"TOTAL_CREATURES",             SVar_CONTROLS_TOTAL_CREATURES},
+    {"TOTAL_RESEARCH",              SVar_TOTAL_RESEARCH},
+    {"TOTAL_DOORS",                 SVar_TOTAL_DOORS},
+    {"TOTAL_AREA",                  SVar_TOTAL_AREA},
+    {"TOTAL_CREATURES_LEFT",        SVar_TOTAL_CREATURES_LEFT},
+    {"CREATURES_ANNOYED",           SVar_CREATURES_ANNOYED},
+    {"BATTLES_LOST",                SVar_BATTLES_LOST},
+    {"BATTLES_WON",                 SVar_BATTLES_WON},
+    {"ROOMS_DESTROYED",             SVar_ROOMS_DESTROYED},
+    {"SPELLS_STOLEN",               SVar_SPELLS_STOLEN},
+    {"TIMES_BROKEN_INTO",           SVar_TIMES_BROKEN_INTO},
+    {"GOLD_POTS_STOLEN",            SVar_GOLD_POTS_STOLEN},
+    //{"TIMER",                     SVar_TIMER},
+    {"DUNGEON_DESTROYED",           SVar_DUNGEON_DESTROYED},
+    {"TOTAL_GOLD_MINED",            SVar_TOTAL_GOLD_MINED},
+    //{"FLAG",                      SVar_FLAG},
+    //{"ROOM",                      SVar_ROOM_SLABS},
+    {"DOORS_DESTROYED",             SVar_DOORS_DESTROYED},
+    {"CREATURES_SCAVENGED_LOST",    SVar_CREATURES_SCAVENGED_LOST},
+    {"CREATURES_SCAVENGED_GAINED",  SVar_CREATURES_SCAVENGED_GAINED},
+    {"ALL_DUNGEONS_DESTROYED",      SVar_ALL_DUNGEONS_DESTROYED},
+    //{"DOOR",                      SVar_DOOR_NUM},
+    {NULL,                           0},
+};
+
+const struct NamedCommand controls_variable_desc[] = {
+    {"TOTAL_DIGGERS",               SVar_CONTROLS_TOTAL_DIGGERS},
+    {"TOTAL_CREATURES",             SVar_CONTROLS_TOTAL_CREATURES},
+    {"TOTAL_DOORS",                 SVar_TOTAL_DOORS},
+    {"TOTAL_AREA",                  SVar_TOTAL_AREA},
+    {NULL,                           0},
 };
 
 const struct NamedCommand comparison_desc[] = {
@@ -1050,7 +1089,13 @@ void command_if(char *plrname, char *varib_name, char *operatr, long value)
     if (!get_player_id(plrname, &plr_id))
       return;
     // Recognize variable
-    varib_type = get_id(variable_desc, varib_name);
+    if (level_file_version > 0)
+    {
+        varib_type = get_id(variable_desc, varib_name);
+    } else
+    {
+        varib_type = get_id(dk1_variable_desc, varib_name);
+    }
     if (varib_type == -1)
       varib_id = -1;
     else
@@ -1676,7 +1721,11 @@ void command_if_controls(char *plrname, char *varib_name, char *operatr, long va
     if (!get_player_id(plrname, &plr_id))
       return;
     // Recognize variable
-    varib_id = -1;
+    varib_type = get_id(controls_variable_desc, varib_name);
+    if (varib_type == -1)
+      varib_id = -1;
+    else
+      varib_id = 0;
     if (varib_id == -1)
     {
       varib_id = get_id(creature_desc, varib_name);
@@ -3088,6 +3137,7 @@ TbBool script_kill_creature_with_criteria(PlayerNumber plyr_idx, long crmodel, l
 
 void script_kill_creatures(PlayerNumber plyr_idx, long crmodel, long criteria, long copies_num)
 {
+    SYNCDBG(3,"Killing %d of %s owned by player %d.",(int)copies_num,creature_code_name(crmodel),(int)plyr_idx);
     long i;
     for (i=0; i < copies_num; i++) {
         script_kill_creature_with_criteria(plyr_idx, crmodel, criteria);
@@ -3140,12 +3190,12 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
       {
         return count_player_creatures_of_model(plyr_idx, validx);
       }
-  case SVar_TOTAL_IMPS:
+  case SVar_TOTAL_DIGGERS:
       dungeon = get_dungeon(plyr_idx);
       return dungeon->num_active_diggers;
   case SVar_TOTAL_CREATURES:
       dungeon = get_dungeon(plyr_idx);
-      return dungeon->num_active_creatrs - count_player_creatures_not_counting_to_total(plyr_idx);
+      return dungeon->num_active_creatrs;
   case SVar_TOTAL_RESEARCH:
       dungeon = get_dungeon(plyr_idx);
       return dungeon->total_research_points / 256;
@@ -3225,6 +3275,12 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
       dungeon = get_dungeon(plyr_idx);
       return dungeon->owned_creatures_of_model[validx%CREATURE_TYPES_COUNT]
         - count_player_list_creatures_of_model_matching_bool_filter(plyr_idx, validx, creature_is_kept_in_custody_by_enemy);
+  case SVar_CONTROLS_TOTAL_CREATURES:// IF_CONTROLS(TOTAL_CREATURES)
+      dungeon = get_dungeon(plyr_idx);
+      return dungeon->num_active_creatrs - count_player_creatures_not_counting_to_total(plyr_idx);
+  case SVar_CONTROLS_TOTAL_DIGGERS:// IF_CONTROLS(TOTAL_DIGGERS)
+      dungeon = get_dungeon(plyr_idx);
+      return dungeon->num_active_diggers - count_player_diggers_not_counting_to_total(plyr_idx);
   case SVar_ALL_DUNGEONS_DESTROYED:
       player = get_player(plyr_idx);
       return all_dungeons_destroyed(player);
