@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-08-14 21:23+0100\n"
+"PO-Revision-Date: 2014-08-27 21:35+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: es_ES\n"
@@ -2734,8 +2734,8 @@ msgstr ""
 #, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"Dexterity: The chance a creature will avoid a trap or an enemy weapon. The "
-"higher the number, the greater the chance of avoidance."
+"Dexterity: The chance of a successful attack. Used to break enemy defence. "
+"The higher the number, the greater the chance of hitting."
 msgstr ""
 "Destreza: Las probabilidades de una criatura de evitar una trampa o arma "
 "enemiga. Cuanto más alto es el número, mayor es la probabilidad de evitarlo."
@@ -6665,6 +6665,30 @@ msgstr "Tu duende no puede alcanzar la sala para arrastrar algo hasta ella."
 msgctxt "Game event description"
 msgid "Storage room unreachable: LMB toggle. RMB delete."
 msgstr "Sala de almacenaje inalcanzable: Conmutar con BIR. Borrar con BDR."
+
+#: guitext:949
+#, fuzzy
+msgctxt "In-game interface description"
+msgid ""
+"Armour: Part of the damage which won't affect creature health. The higher "
+"the number, the larger part of damage is discarded."
+msgstr ""
+"Armadura: Parte de los daños que no afectarán a la salud de la criatura. "
+"Cuanto mayor sea el número, más cantidad de daño es desechado."
+
+#: guitext:950
+#, fuzzy
+msgctxt "In-game interface description"
+msgid "Speed: How fast the creature moves and perform its dungeon tasks."
+msgstr ""
+"Velocidad: La rapidez con la que la criatura se mueve y realiza tareas en la "
+"mazmorra."
+
+#: guitext:951
+#, fuzzy
+msgctxt "In-game interface description"
+msgid "Loyalty: How resistant the creature is against scavenging by the enemy."
+msgstr "Lealtad: La resistencia de la criatura a ser depredada por el enemigo."
 
 #~ msgctxt "In-game message"
 #~ msgid "Your manufacturers have crafted the Lava Trap."
