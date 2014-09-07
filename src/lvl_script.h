@@ -115,7 +115,7 @@ enum ScriptVatiables {
   SVar_GAME_TURN                       =  5,
   SVar_BREAK_IN                        =  6,
   SVar_CREATURE_NUM                    =  7,
-  SVar_TOTAL_IMPS                      =  8,
+  SVar_TOTAL_DIGGERS                   =  8,
   SVar_TOTAL_CREATURES                 =  9,
   SVar_TOTAL_RESEARCH                  = 10,
   SVar_TOTAL_DOORS                     = 11,
@@ -142,8 +142,10 @@ enum ScriptVatiables {
   SVar_AVAILABLE_ROOM                  = 33,
   SVar_AVAILABLE_CREATURE              = 34,
   SVar_CONTROLS_CREATURE               = 35,
-  SVar_ALL_DUNGEONS_DESTROYED          = 36,
-  SVar_DOOR_NUM                        = 37,
+  SVar_CONTROLS_TOTAL_CREATURES        = 36,
+  SVar_CONTROLS_TOTAL_DIGGERS          = 37,
+  SVar_ALL_DUNGEONS_DESTROYED          = 38,
+  SVar_DOOR_NUM                        = 39,
 };
 
 enum MapLocationTypes {
