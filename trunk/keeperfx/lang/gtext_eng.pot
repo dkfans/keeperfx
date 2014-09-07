@@ -1451,7 +1451,7 @@ msgstr ""
 #: guitext:168
 msgctxt "In-game message"
 msgid ""
-"The Avatar and his allys are defeated, yet his power over this land lingers. "
+"The Avatar and his allies are defeated, yet his power over this land lingers. "
 "Prepare thyself..."
 msgstr ""
 
