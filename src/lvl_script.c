@@ -1954,7 +1954,7 @@ void command_set_creature_armour(char *crtr_name, long val)
   command_add_value(Cmd_SET_CREATURE_ARMOUR, 0, crtr_id, val, 0);
 }
 
-void command_set_creature_fear(char *crtr_name, long val)
+void command_set_creature_fear_wounded(char *crtr_name, long val)
 {
   long crtr_id;
   crtr_id = get_rid(creature_desc, crtr_name);
@@ -1969,6 +1969,23 @@ void command_set_creature_fear(char *crtr_name, long val)
     return;
   }
   command_add_value(Cmd_SET_CREATURE_FEAR_WOUNDED, 0, crtr_id, val, 0);
+}
+
+void command_set_creature_fear_stronger(char *crtr_name, long val)
+{
+  long crtr_id;
+  crtr_id = get_rid(creature_desc, crtr_name);
+  if (crtr_id == -1)
+  {
+    SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
+    return;
+  }
+  if ((val < 0) || (val > 32767))
+  {
+    SCRPTERRLOG("Invalid '%s' fear value, %d", crtr_name, val);
+    return;
+  }
+  command_add_value(Cmd_SET_CREATURE_FEAR_STRONGER, 0, crtr_id, val, 0);
 }
 
 /**
@@ -2341,7 +2358,10 @@ long script_scan_line(char *line,TbBool preloaded)
       command_set_creature_armour(scline->tp[0], scline->np[1]);
       break;
   case Cmd_SET_CREATURE_FEAR_WOUNDED:
-      command_set_creature_fear(scline->tp[0], scline->np[1]);
+      command_set_creature_fear_wounded(scline->tp[0], scline->np[1]);
+      break;
+  case Cmd_SET_CREATURE_FEAR_STRONGER:
+      command_set_creature_fear_stronger(scline->tp[0], scline->np[1]);
       break;
   case Cmd_DISPLAY_OBJECTIVE_WITH_POS:
       command_display_objective(scline->np[0], NULL, scline->np[1], scline->np[2]);
