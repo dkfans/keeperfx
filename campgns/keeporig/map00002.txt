@@ -12,6 +12,7 @@ REM    it under the terms of the GNU General Public License as published by
 REM    the Free Software Foundation; either version 2 of the License, or
 REM    (at your option) any later version.
 REM ****************************************************************************
+LEVEL_VERSION(1)
 
 REM New rooms for the player:
 REM   TRAINING - when basic 3 are built
@@ -36,9 +37,9 @@ ADD_CREATURE_TO_POOL(BUG,3)
 ADD_CREATURE_TO_POOL(FLY,3)
 ADD_CREATURE_TO_POOL(DEMONSPAWN,24)
 
-CREATURE_AVAILABLE(PLAYER0,FLY,1,1)
-CREATURE_AVAILABLE(PLAYER0,BUG,1,1)
-CREATURE_AVAILABLE(PLAYER0,DEMONSPAWN,1,1)
+CREATURE_AVAILABLE(PLAYER0,FLY,1,0)
+CREATURE_AVAILABLE(PLAYER0,BUG,1,0)
+CREATURE_AVAILABLE(PLAYER0,DEMONSPAWN,1,0)
 
 SET_CREATURE_MAX_LEVEL(PLAYER0,DEMONSPAWN,10)
 SET_CREATURE_MAX_LEVEL(PLAYER_GOOD,KNIGHT,2)
@@ -76,14 +77,14 @@ REM ****************************************************************************
 REM "First of all, establish a basic dungeon. Remember, you will need to build a treasure room, a lair and a hatchery and you will also need to claim a creature entrance."
 DISPLAY_OBJECTIVE(24,PLAYER0)
 
-IF(PLAYER0,GAME_TURN >= 10)
+IF(PLAYER0,GAME_TURN >= 100)
 REM "Possess creatures by choosing the possess spell from the spells menu and left-click on the creature you want to control. Right-click to get back to normal view."
-	DISPLAY_INFORMATION(23)
+	DISPLAY_INFORMATION(23,ALL_PLAYERS)
 ENDIF
 
 IF(PLAYER0,GAME_TURN >= 1000)
 REM "When your imps have no active tasks, they will run around reinforcing your dungeon. Rooms with reinforced walls are more efficient."
-	DISPLAY_INFORMATION(22)
+	DISPLAY_INFORMATION(22,ALL_PLAYERS)
 ENDIF
 
 IF(PLAYER0,LAIR >= 9)
@@ -150,15 +151,15 @@ ENDIF
 IF(PLAYER0,FLAG3 == 1)
 	REM "Good. Now get your imps to fortify the walls in your rooms. This will increase the efficiency of the rooms and repel invaders."
 	DISPLAY_OBJECTIVE(26,PLAYER0)
-	CREATURE_AVAILABLE(PLAYER0,FLY,1,0)
-	CREATURE_AVAILABLE(PLAYER0,BUG,1,0)
-	CREATURE_AVAILABLE(PLAYER0,DEMONSPAWN,1,1)
+	CREATURE_AVAILABLE(PLAYER0,FLY,0,0)
+	CREATURE_AVAILABLE(PLAYER0,BUG,0,0)
+	CREATURE_AVAILABLE(PLAYER0,DEMONSPAWN,1,0)
 	REM "A training room will attract fighters, especially demon spawn. Fighters are good for training."
-	DISPLAY_INFORMATION(27)
+	DISPLAY_INFORMATION(27,ALL_PLAYERS)
 	SET_TIMER(PLAYER0,TIMER0)
 	IF(PLAYER0,DEMONSPAWN > 0)
 		REM "To train creatures, put them in the training room. The number that you will see coming out is the amount it costs a creature to train."
-		DISPLAY_INFORMATION(28)
+		DISPLAY_INFORMATION(28,ALL_PLAYERS)
 	ENDIF
 ENDIF
 
@@ -167,28 +168,28 @@ IF(PLAYER0,DEMONSPAWN > 0)
 	SET_TIMER(PLAYER0,TIMER1)
 	IF(PLAYER0,TIMER1 >= 500)
 		REM "Remember, you can speed up the creatures training by slapping them while they're in the training room."
-		DISPLAY_INFORMATION(29)
+		DISPLAY_INFORMATION(29,ALL_PLAYERS)
 	ENDIF
 ENDIF
 
 IF(PLAYER0,DEMONSPAWN >= 2)
 	IF(PLAYER2,FLAG1 == 0)
 		SET_FLAG(PLAYER2,FLAG0,1)
-		CREATURE_AVAILABLE(PLAYER0,FLY,1,1)
-		CREATURE_AVAILABLE(PLAYER0,BUG,1,1)
-		CREATURE_AVAILABLE(PLAYER0,DEMONSPAWN,1,1)
+		CREATURE_AVAILABLE(PLAYER0,FLY,1,0)
+		CREATURE_AVAILABLE(PLAYER0,BUG,1,0)
+		CREATURE_AVAILABLE(PLAYER0,DEMONSPAWN,1,0)
 		IF(PLAYER0,TIMER0 >= 4000)
 			ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,THIEVES,1,DUNGEON,0,1,500)
 			ADD_PARTY_TO_LEVEL(PLAYER_GOOD,DWARVES,1,1)
 			REM "The heroes are on their way. Make sure your creatures are well trained and ready for the attack."
 			DISPLAY_OBJECTIVE(30,PLAYER0)
-			IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
+			IF_CONTROLS(PLAYER_GOOD,TOTAL_CREATURES <= 0)
 				IF(PLAYER0,TOTAL_CREATURES >= 8)
 					ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,ELITE,-1,DUNGEON,0,1,500)
-					IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
+					IF_CONTROLS(PLAYER_GOOD,TOTAL_CREATURES <= 0)
 						IF(PLAYER0,TOTAL_CREATURES >= 8)
 							ADD_PARTY_TO_LEVEL(PLAYER_GOOD,LANDLORD,-1,1)
-							IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
+							IF_CONTROLS(PLAYER_GOOD,TOTAL_CREATURES <= 0)
 								REM "Congratulations. You have conquered the enemy hordes."
 								DISPLAY_OBJECTIVE(31,PLAYER0)
 								WIN_GAME
@@ -208,13 +209,13 @@ IF_ACTION_POINT(2,PLAYER0)
 		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,DWARVES,1,1)
 		REM "The heroes are on their way. Make sure your creatures are well trained and ready for the attack."
 		DISPLAY_OBJECTIVE(32,PLAYER0)
-		IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
+		IF_CONTROLS(PLAYER_GOOD,TOTAL_CREATURES <= 0)
 			IF(PLAYER0,TOTAL_CREATURES >= 8)
 				ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,ELITE,-1,DUNGEON,0,1,500)
-				IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
+				IF_CONTROLS(PLAYER_GOOD,TOTAL_CREATURES <= 0)
 					IF(PLAYER0,TOTAL_CREATURES >= 8)
 						ADD_PARTY_TO_LEVEL(PLAYER_GOOD,LANDLORD,-1,1)
-						IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
+						IF_CONTROLS(PLAYER_GOOD,TOTAL_CREATURES <= 0)
 							REM "Congratulations. You have conquered the enemy hordes."
 							DISPLAY_OBJECTIVE(33,PLAYER0)
 							WIN_GAME
@@ -225,3 +226,5 @@ IF_ACTION_POINT(2,PLAYER0)
 		ENDIF
 	ENDIF
 ENDIF
+
+REM ****************************************************************************
