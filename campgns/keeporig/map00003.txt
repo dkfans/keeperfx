@@ -5,13 +5,14 @@ REM  Script for Level Waterdream Warm
 REM  Campaign: DK Original
 REM  Authors:  based on Bullfrog script
 REM            KeeperFX CCP Team
-REM  Date:     17 Dec 1996 - 06 Feb 2011
+REM  Date:     17 Dec 1996 - 07 Sep 2014
 REM  Copying and copyrights:
 REM    This program is free software; you can redistribute it and/or modify
 REM    it under the terms of the GNU General Public License as published by
 REM    the Free Software Foundation; either version 2 of the License, or
 REM    (at your option) any later version.
 REM ****************************************************************************
+LEVEL_VERSION(1)
 
 REM New rooms for the player:
 REM   RESEARCH - when four basic rooms are built
@@ -59,9 +60,9 @@ SET_CREATURE_MAX_LEVEL(PLAYER0,DEMONSPAWN,10)
 SET_CREATURE_STRENGTH(KNIGHT,70)
 SET_CREATURE_ARMOUR(KNIGHT,80)
 
-CREATURE_AVAILABLE(PLAYER0,BUG,1,1)
-CREATURE_AVAILABLE(PLAYER0,FLY,1,1)
-CREATURE_AVAILABLE(PLAYER0,DEMONSPAWN,1,1)
+CREATURE_AVAILABLE(PLAYER0,BUG,1,0)
+CREATURE_AVAILABLE(PLAYER0,FLY,1,0)
+CREATURE_AVAILABLE(PLAYER0,DEMONSPAWN,1,0)
 
 ROOM_AVAILABLE(PLAYER0,TREASURE,1,1)
 ROOM_AVAILABLE(PLAYER0,LAIR,1,1)
@@ -92,7 +93,7 @@ CREATE_PARTY(LANDLORD)
 
 REM ****************************************************************************
 
-REM "Build a dungeon with a Treasure Room, a Lair, a Hatchery and a Training Room. Make sure they're all big enough. Cramped conditions do nothing for the morale of your minions."
+REM "Build a dungeon with a Treasure Room, a Lair, a Hatchery and a Training Room. Make sure they're all big enough..."
 DISPLAY_OBJECTIVE(34,PLAYER0)
 
 IF(PLAYER0,TREASURE >= 9)
@@ -145,15 +146,15 @@ IF(PLAYER0,FLAG6 == 0)
 ENDIF
 
 IF(PLAYER0,FLAG6 >= 1)
-	REM "The time has come to build a Library. Libraries are where new devices, room designs and magic spells are researched. Make a Library at least as big as the other rooms. Researchers like quiet too, so try to build your Library off the side of a corridor."
+	REM "The time has come to build a Library. Libraries are where new devices, room designs and magic spells are researched..."
 	DISPLAY_OBJECTIVE(35,PLAYER0)
 	ROOM_AVAILABLE(PLAYER0,RESEARCH,1,1)
 	TUTORIAL_FLASH_BUTTON(9,-1)
 ENDIF
 
 IF(PLAYER0,RESEARCH > 0)
-	REM "Your new Library will attract creatures like Warlocks, who are interested in researching magic and dungeon designs. These evil mages are real bookworms, as well as being magically proficient themselves."
-	DISPLAY_INFORMATION(36)
+	REM "Your new Library will attract creatures like Warlocks, who are interested in researching magic and dungeon designs..."
+	DISPLAY_INFORMATION(36,ALL_PLAYERS)
 	REM if the player isn't going to build large enough library, allow a timeout
 	SET_TIMER(PLAYER0,TIMER6)
 	IF(PLAYER0,TIMER6 > 6000)
@@ -167,23 +168,23 @@ ENDIF
 
 REM If the library is ready, make sure the player will get at least one SORCEROR
 IF(PLAYER0,FLAG7 == 1)
-	REM "That's a fine collection of parchments and tomes you've assembled. Most creatures can engage in research but Warlocks make the best and keenest researchers. Stupid Trolls have trouble holding books the right way up and sometimes even chew the pages."
+	REM "That's a fine collection of parchments and tomes you've assembled. Most creatures can engage in research but Warlocks make the best..."
 	DISPLAY_OBJECTIVE(37,PLAYER0)
 	MAX_CREATURES(PLAYER0,12)
-	CREATURE_AVAILABLE(PLAYER0,BUG,1,0)
-	CREATURE_AVAILABLE(PLAYER0,FLY,1,0)
-	CREATURE_AVAILABLE(PLAYER0,DEMONSPAWN,1,0)
-	CREATURE_AVAILABLE(PLAYER0,SORCEROR,1,1)
+	CREATURE_AVAILABLE(PLAYER0,BUG,0,0)
+	CREATURE_AVAILABLE(PLAYER0,FLY,0,0)
+	CREATURE_AVAILABLE(PLAYER0,DEMONSPAWN,0,0)
+	CREATURE_AVAILABLE(PLAYER0,SORCEROR,1,0)
 	SET_FLAG(PLAYER0,FLAG6,2)
 ENDIF
 
 IF(PLAYER0,SORCEROR > 0)
-	REM "The scent of arcane knowledge has lured a greedy Warlock into your dungeon. Don't forget to train your Warlocks occasionally. Their spell casting abilities make them fine long range fighters."
+	REM "The scent of arcane knowledge has lured a greedy Warlock into your dungeon. Don't forget to train your Warlocks..."
 	DISPLAY_OBJECTIVE(38,PLAYER0)
-	CREATURE_AVAILABLE(PLAYER0,BUG,1,1)
-	CREATURE_AVAILABLE(PLAYER0,FLY,1,1)
-	CREATURE_AVAILABLE(PLAYER0,DEMONSPAWN,1,1)
-	CREATURE_AVAILABLE(PLAYER0,SORCEROR,1,1)
+	CREATURE_AVAILABLE(PLAYER0,BUG,1,0)
+	CREATURE_AVAILABLE(PLAYER0,FLY,1,0)
+	CREATURE_AVAILABLE(PLAYER0,DEMONSPAWN,1,0)
+	CREATURE_AVAILABLE(PLAYER0,SORCEROR,1,0)
 	SET_FLAG(PLAYER0,FLAG6,3)
 ENDIF
 
@@ -216,7 +217,7 @@ IF(PLAYER_GOOD,FLAG0 >= 1)
 ENDIF
 
 IF(PLAYER0,TIMER1 > 100)
-	IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
+	IF_CONTROLS(PLAYER_GOOD,TOTAL_CREATURES <= 0)
 		REM "The first wave of attackers lie dead. Prepare for the next assault."
 		DISPLAY_OBJECTIVE(39,PLAYER0)
 		SET_TIMER(PLAYER0,TIMER2)
@@ -233,7 +234,7 @@ IF(PLAYER0,TIMER2 > 2000)
 ENDIF
 
 IF(PLAYER0,TIMER3 > 100)
-	IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
+	IF_CONTROLS(PLAYER_GOOD,TOTAL_CREATURES <= 0)
 		REM "All is quiet again. Use this time to ready yourself for the next attacks. The enemy is only regrouping. It is not yet defeated."
 		DISPLAY_OBJECTIVE(41,PLAYER0)
 	ENDIF
@@ -245,15 +246,15 @@ IF(PLAYER0,TIMER3 > 2000)
 		ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,ELITE,-1,DUNGEON,0,1,500)
 		ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,LANDLORD,-1,DUNGEON,0,1,500)
 		REM "Is that Imp playing football with a decapitated head? Stay alert, Keeper."
-		DISPLAY_INFORMATION(42)
+		DISPLAY_INFORMATION(42,ALL_PLAYERS)
 		SET_TIMER(PLAYER0,TIMER4)
 	ENDIF
 ENDIF
 
 REM When all are dead, win the game
 IF(PLAYER0,TIMER4 > 100)
-	IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
-		REM "Congratulations, the bloody carcasses of the fallen heroes lie with expressions of writhing agony at your creatures' feet. Press space to go on to the next land."
+	IF_CONTROLS(PLAYER_GOOD,TOTAL_CREATURES <= 0)
+		REM "Congratulations, the bloody carcasses of the fallen heroes lie with expressions of writhing agony at your creatures' feet..."
 		DISPLAY_OBJECTIVE(40,PLAYER0)
 		WIN_GAME
 	ENDIF
@@ -262,5 +263,7 @@ ENDIF
 REM Somewhere in the meantime, the player may research a spell
 IF_AVAILABLE(PLAYER0,POWER_SPEED == 1)
 	REM "You have researched the speed up spell. Cast it on creatures to increase their speed."
-	DISPLAY_INFORMATION(44)
+	DISPLAY_INFORMATION(44,ALL_PLAYERS)
 ENDIF
+
+REM ****************************************************************************
