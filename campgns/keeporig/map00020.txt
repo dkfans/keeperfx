@@ -150,8 +150,8 @@ REM Avatar death command chain
 
 IF_CONTROLS(PLAYER_GOOD,AVATAR <= 0)
 	SET_TIMER(PLAYER_GOOD,TIMER0)
-	REM TODO We should kill the Avatar by script if it was converted instead of killed
-	REM TODO Then we should remove dead body of the Avatar
+	KILL_CREATURE(PLAYER_GOOD,AVATAR,MOST_EXPERIENCED,1)
+	REM TODO We should remove dead body of the Avatar
 	REM "What trickery is this? The Avatar's body has vanished!"
 	PLAY_MESSAGE(PLAYER0,SPEECH,108)
 ENDIF
