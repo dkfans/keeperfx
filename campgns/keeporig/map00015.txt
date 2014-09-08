@@ -5,13 +5,14 @@ REM  Script for Level Woodly Rhyme
 REM  Campaign: DK Original
 REM  Authors:  based on Bullfrog script
 REM            KeeperFX CCP Team
-REM  Date:     17 Dec 1996 - 11 Feb 2011
+REM  Date:     17 Dec 1996 - 07 Sep 2014
 REM  Copying and copyrights:
 REM    This program is free software; you can redistribute it and/or modify
 REM    it under the terms of the GNU General Public License as published by
 REM    the Free Software Foundation; either version 2 of the License, or
 REM    (at your option) any later version.
 REM ****************************************************************************
+LEVEL_VERSION(1)
 
 REM New powers for the player:
 REM   POWER_ARMAGEDDON - researchable
@@ -47,13 +48,13 @@ ADD_CREATURE_TO_POOL(VAMPIRE,3)
 ADD_CREATURE_TO_POOL(ORC,25)
 
 REM Creature availability
-CREATURE_AVAILABLE(ALL_PLAYERS,TROLL,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,SORCEROR,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,DARK_MISTRESS,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,DRAGON,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,HELL_HOUND,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,VAMPIRE,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,ORC,1,1)
+CREATURE_AVAILABLE(ALL_PLAYERS,TROLL,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,SORCEROR,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,DARK_MISTRESS,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,DRAGON,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,HELL_HOUND,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,VAMPIRE,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,ORC,1,0)
 
 REM Room availability
 ROOM_AVAILABLE(ALL_PLAYERS,TREASURE,1,1)
@@ -130,10 +131,10 @@ DISPLAY_OBJECTIVE(113,PLAYER0)
 REM Wait enough game turns to make sure the player will have enough creatures from portal
 IF(PLAYER0,GAME_TURN >= 14000)
     REM If the player has lost creatures, he must've digged to water with heroes
-	IF(PLAYER1,TOTAL_CREATURES <= 14)
+	IF_CONTROLS(PLAYER1,TOTAL_CREATURES <= 14)
 		IF(PLAYER1,DUNGEON_DESTROYED == 0)
 			REM "Can you see how vulnerable one of your opponents has become? Then kill him."
-			DISPLAY_INFORMATION(114)
+			DISPLAY_INFORMATION(114,PLAYER1)
 		ENDIF
 	ENDIF
 ENDIF
@@ -141,42 +142,42 @@ ENDIF
 REM Again, wait enough game turns to make sure the player will have enough creatures from portal
 IF(PLAYER0,GAME_TURN >= 16000)
     REM If the player has lost creatures, he must've digged to water with heroes
-	IF(PLAYER2,TOTAL_CREATURES <= 14)
+	IF_CONTROLS(PLAYER2,TOTAL_CREATURES <= 14)
 		IF(PLAYER2,DUNGEON_DESTROYED == 0)
 			REM "I spy a keeper with hardly any creatures left under his control. I spy a Keeper who's about to die."
-			DISPLAY_INFORMATION(115)
+			DISPLAY_INFORMATION(115,PLAYER2)
 		ENDIF
 	ENDIF
 ENDIF
 
-IF_AVAILABLE(PLAYER0,POWER_DESTROY_WALLS == 1)
+IF_AVAILABLE(PLAYER0,POWER_DESTROY_WALLS >= 1)
 	REM "This ancient dungeon possesses great archaeological significance. This simply means there should be some interesting treasure worth stealing. Now that's what I call practical archaeology."
-	DISPLAY_INFORMATION(116)
+	DISPLAY_INFORMATION(116,ALL_PLAYERS)
 	REM "Your librarians have learned a spell that can break through fortified walls. Give them a slap for not learning it earlier."
-	DISPLAY_INFORMATION(117)
+	DISPLAY_INFORMATION(117,ALL_PLAYERS)
 ENDIF
 
 REM Show a message when any of computer players discovers POWER_DESTROY_WALLS
 IF(PLAYER0,FLAG0 == 0)
-	IF_AVAILABLE(PLAYER1,POWER_DESTROY_WALLS == 1)
+	IF_AVAILABLE(PLAYER1,POWER_DESTROY_WALLS >= 1)
 		REM "One of your opponents has developed a spell that can break through fortified walls. Typical. Be on your guard."
-		DISPLAY_INFORMATION(118)
+		DISPLAY_INFORMATION(118,ALL_PLAYERS)
 		SET_FLAG(PLAYER0,FLAG0,1)
 	ENDIF
-	IF_AVAILABLE(PLAYER2,POWER_DESTROY_WALLS == 1)
-		DISPLAY_INFORMATION(118)
+	IF_AVAILABLE(PLAYER2,POWER_DESTROY_WALLS >= 1)
+		DISPLAY_INFORMATION(118,ALL_PLAYERS)
 		SET_FLAG(PLAYER0,FLAG0,1)
 	ENDIF
 ENDIF
 
-IF_AVAILABLE(PLAYER0,POWER_ARMAGEDDON == 1)
+IF_AVAILABLE(PLAYER0,POWER_ARMAGEDDON >= 1)
 	REM "You have developed the Armageddon spell. That's quite a name to live up to. Make sure you're the most powerful force in the region before casting it."
-	DISPLAY_INFORMATION(119)
+	DISPLAY_INFORMATION(119,ALL_PLAYERS)
 ENDIF
 
-IF_AVAILABLE(PLAYER0,WORD_OF_POWER == 1)
+IF_AVAILABLE(PLAYER0,WORD_OF_POWER >= 1)
 	REM "Your latest discovery is the Word of Power Trap. When activated, the trap triggers an expanding ring of fire that incinerates anything caught in its area of effect."
-	DISPLAY_INFORMATION(106)
+	DISPLAY_INFORMATION(106,ALL_PLAYERS)
 ENDIF
 
 IF(PLAYER0,PRISON > 0)
@@ -212,11 +213,13 @@ IF(PLAYER_GOOD,TIMER0 >= 1000)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WITCHES,5,1)
 ENDIF
 
-REM To win, both computers must be defeated and all good creatures killed
+REM To win, both computers must be defeated and all good creatures killed or captured
 IF(PLAYER1,DUNGEON_DESTROYED == 1)
 	IF(PLAYER2,DUNGEON_DESTROYED == 1)
-		IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
+		IF_CONTROLS(PLAYER_GOOD,TOTAL_CREATURES <= 0)
 			WIN_GAME
 		ENDIF
 	ENDIF
 ENDIF
+
+REM ****************************************************************************

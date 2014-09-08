@@ -5,13 +5,14 @@ REM  Script for Level Mistle
 REM  Campaign: DK Original
 REM  Authors:  based on Bullfrog script
 REM            KeeperFX CCP Team
-REM  Date:     17 Dec 1996 - 11 Feb 2011
+REM  Date:     17 Dec 1996 - 07 Sep 2014
 REM  Copying and copyrights:
 REM    This program is free software; you can redistribute it and/or modify
 REM    it under the terms of the GNU General Public License as published by
 REM    the Free Software Foundation; either version 2 of the License, or
 REM    (at your option) any later version.
 REM ****************************************************************************
+LEVEL_VERSION(1)
 
 REM Nothing new for the player
 
@@ -31,13 +32,13 @@ ADD_CREATURE_TO_POOL(SKELETON,20)
 ADD_CREATURE_TO_POOL(SPIDER,10)
 
 REM Creature availability
-CREATURE_AVAILABLE(PLAYER0,TROLL,1,1)
-CREATURE_AVAILABLE(PLAYER0,DEMONSPAWN,1,1)
-CREATURE_AVAILABLE(PLAYER0,DARK_MISTRESS,1,1)
-CREATURE_AVAILABLE(PLAYER0,BILE_DEMON,1,1)
-CREATURE_AVAILABLE(PLAYER1,SORCEROR,1,1)
-CREATURE_AVAILABLE(PLAYER1,SPIDER,1,1)
-CREATURE_AVAILABLE(PLAYER1,SKELETON,1,1)
+CREATURE_AVAILABLE(PLAYER0,TROLL,1,0)
+CREATURE_AVAILABLE(PLAYER0,DEMONSPAWN,1,0)
+CREATURE_AVAILABLE(PLAYER0,DARK_MISTRESS,1,0)
+CREATURE_AVAILABLE(PLAYER0,BILE_DEMON,1,0)
+CREATURE_AVAILABLE(PLAYER1,SORCEROR,1,0)
+CREATURE_AVAILABLE(PLAYER1,SPIDER,1,0)
+CREATURE_AVAILABLE(PLAYER1,SKELETON,1,0)
 
 REM Room availability
 ROOM_AVAILABLE(ALL_PLAYERS,GUARD_POST,1,0)
@@ -159,12 +160,12 @@ ENDIF
 
 IF(PLAYER0,SAMURAI > 0)
 	REM "Your evil has corrupted a Samurai Warrior, he has forsaken honour to join your cause. Should your minions suffer heavy casualties, this Warrior will even call upon his brothers in arms to offer assistance. How kind. How stupid!"
-	DISPLAY_INFORMATION(156)
+	DISPLAY_INFORMATION(156,ALL_PLAYERS)
 ENDIF
 
 IF_ACTION_POINT(1,PLAYER0)
 	REM "This region of the underworld is riddled with tunnels and many heroes explore their labyrinthine ways. No-one said being evil would be easy."
-	DISPLAY_INFORMATION(157)
+	DISPLAY_INFORMATION(157,ALL_PLAYERS)
 ENDIF
 
 IF_ACTION_POINT(2,PLAYER0)
@@ -179,7 +180,7 @@ ENDIF
 
 IF_ACTION_POINT(4,PLAYER0)
 	REM "It is rumoured that two Dragons are held captive somewhere east of here. Were you to find them and free them, they would make powerful servants."
-	DISPLAY_INFORMATION(158)
+	DISPLAY_INFORMATION(158,ALL_PLAYERS)
 ENDIF
 
 IF_ACTION_POINT(5,PLAYER0)
@@ -188,12 +189,12 @@ ENDIF
 
 IF_ACTION_POINT(6,PLAYER0)
 	REM "A tunnel to the north leads to the Lord of the Realm's domain. This gate is guarded well. It might be wise to direct the humans' attention towards your subterranean enemy."
-	DISPLAY_INFORMATION(159)
+	DISPLAY_INFORMATION(159,6)
 ENDIF
 	
 IF_ACTION_POINT(10,PLAYER0)
 	REM "These Boulder Traps are ideal for crushing the foe but there are only three of them at your disposal, so use them wisely."
-	DISPLAY_INFORMATION(160)
+	DISPLAY_INFORMATION(160,10)
 	IF_AVAILABLE(PLAYER0,BOULDER >= 1)
 		TUTORIAL_FLASH_BUTTON(53,-1)
 	ENDIF
@@ -204,3 +205,5 @@ IF(PLAYER1,DUNGEON_DESTROYED == 1)
 	DISPLAY_OBJECTIVE(155,PLAYER0)
 	WIN_GAME
 ENDIF
+
+REM ****************************************************************************
