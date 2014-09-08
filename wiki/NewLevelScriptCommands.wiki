@@ -110,6 +110,22 @@ Displays one of the text messages from language-specific strings banks in an Obj
 
   `[name]` -  The name of a creature. Returns how many creatures of given kind the player owns, excluding these under enemy control (in custody).
 
+==`KILL_CREATURE`==
+  Kills given amount of creatures based on given criteria.
+
+{{{
+  KILL_CREATURE(​[player],​[creature],​[criteria],​[count])
+}}}
+  where:
+
+  `[player]` - The player who owns creatures to be affected.
+
+  `[creature]` - Creature model to be searched.
+
+  `[criteria]` - Creature selection criteria.
+
+  `[count]` - Amount of creatures affected.
+
 ==`LEVEL_VERSION`==
   Lets the game know if the level was designed specially for
   KeeperFX. To use new script commands, you must start the
