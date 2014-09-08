@@ -5,13 +5,14 @@ REM  Script for Level Tickle
 REM  Campaign: DK Original
 REM  Authors:  based on Bullfrog script
 REM            KeeperFX CCP Team
-REM  Date:     17 Dec 1996 - 11 Feb 2011
+REM  Date:     17 Dec 1996 - 07 Sep 2014
 REM  Copying and copyrights:
 REM    This program is free software; you can redistribute it and/or modify
 REM    it under the terms of the GNU General Public License as published by
 REM    the Free Software Foundation; either version 2 of the License, or
 REM    (at your option) any later version.
 REM ****************************************************************************
+LEVEL_VERSION(1)
 
 REM New rooms for the player:
 REM   TEMPLE - researchable from start
@@ -43,13 +44,13 @@ ADD_CREATURE_TO_POOL(BILE_DEMON,10)
 ADD_CREATURE_TO_POOL(ORC,10)
 
 REM	Creature availability
-CREATURE_AVAILABLE(ALL_PLAYERS,FLY,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,DEMONSPAWN,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,TROLL,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,DARK_MISTRESS,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,SORCEROR,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,BILE_DEMON,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,ORC,1,1)
+CREATURE_AVAILABLE(ALL_PLAYERS,FLY,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,DEMONSPAWN,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,TROLL,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,DARK_MISTRESS,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,SORCEROR,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,BILE_DEMON,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,ORC,1,0)
 
 SET_CREATURE_MAX_LEVEL(PLAYER0,DEMONSPAWN,10)
 
@@ -93,31 +94,31 @@ DISPLAY_OBJECTIVE(76,PLAYER0)
 
 IF_AVAILABLE(PLAYER0,POWER_CONCEAL >= 1)
 	REM "You have researched the power of Invisibility. Cast it on a creature to hide it from enemy eyes."
-	DISPLAY_INFORMATION(77)
+	DISPLAY_INFORMATION(77,ALL_PLAYERS)
 ENDIF
 
 IF_AVAILABLE(PLAYER0,POWER_PROTECT >= 1)
 	REM "The Protect Creature spell has been researched at last. Cast it on a creature to increase its toughness."
-	DISPLAY_INFORMATION(78)
+	DISPLAY_INFORMATION(78,ALL_PLAYERS)
 ENDIF
 
 IF_AVAILABLE(PLAYER0,TEMPLE >= 1)
 	REM "Researchers have found instructions for building a Temple to the dark gods. Sacrifice creatures in the Temple's pool to receive gifts from these gods."
-	DISPLAY_INFORMATION(80)
+	DISPLAY_INFORMATION(80,ALL_PLAYERS)
 ENDIF
 
 IF_AVAILABLE(PLAYER0,STEEL >= 1)
 	REM "You have manufactured an Iron Door. It's a formidable barrier. Use it well."
-	DISPLAY_INFORMATION(87)
+	DISPLAY_INFORMATION(87,ALL_PLAYERS)
 ENDIF
 
 IF(PLAYER0,HORNY >= 1)
 	REM "Behold, you have summoned a Horned Reaper. Try not make it angry. You'll fail, because everything makes a Horned Reaper angry."
-	DISPLAY_INFORMATION(83)
+	DISPLAY_INFORMATION(83,ALL_PLAYERS)
 ENDIF
 
 IF(PLAYER1,DUNGEON_DESTROYED >= 1)
-	IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
+	IF_CONTROLS(PLAYER_GOOD,TOTAL_CREATURES <= 0)
 		SET_TIMER(PLAYER0,TIMER0)
 	ENDIF
 ENDIF
@@ -131,9 +132,11 @@ IF(PLAYER0,TIMER0 >= 600)
 ENDIF
 
 IF(PLAYER0,TIMER0 >= 800)
-	IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
+	IF_CONTROLS(PLAYER_GOOD,TOTAL_CREATURES <= 0)
 		REM "That's another enemy successfully written off. The defenceless inhabitants of the land above bow down before your depraved presence."
 		DISPLAY_OBJECTIVE(79,PLAYER0)
 		WIN_GAME
 	ENDIF
 ENDIF
+
+REM ****************************************************************************

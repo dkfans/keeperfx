@@ -5,13 +5,14 @@ REM  Script for Level Nevergrim
 REM  Campaign: DK Original
 REM  Authors:  based on Bullfrog script
 REM            KeeperFX CCP Team
-REM  Date:     17 Dec 1996 - 11 Feb 2011
+REM  Date:     17 Dec 1996 - 07 Sep 2014
 REM  Copying and copyrights:
 REM    This program is free software; you can redistribute it and/or modify
 REM    it under the terms of the GNU General Public License as published by
 REM    the Free Software Foundation; either version 2 of the License, or
 REM    (at your option) any later version.
 REM ****************************************************************************
+LEVEL_VERSION(1)
 
 REM New rooms for the player:
 REM   SCAVENGER - researchable from start
@@ -50,12 +51,12 @@ ADD_CREATURE_TO_POOL(DRAGON,12)
 ADD_CREATURE_TO_POOL(ORC,12)
 
 REM	Creature availability
-CREATURE_AVAILABLE(ALL_PLAYERS,DARK_MISTRESS,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,SORCEROR,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,BILE_DEMON,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,HELL_HOUND,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,DRAGON,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,ORC,1,1)
+CREATURE_AVAILABLE(ALL_PLAYERS,DARK_MISTRESS,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,SORCEROR,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,BILE_DEMON,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,HELL_HOUND,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,DRAGON,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,ORC,1,0)
 	
 REM	Room availability
 ROOM_AVAILABLE(ALL_PLAYERS,TREASURE,1,1)
@@ -107,27 +108,27 @@ ENDIF
 
 IF_AVAILABLE(PLAYER0,BOULDER == 1)
 	REM "You have a manufactured a Boulder Trap. Place it in a corridor and howl deliriously as it rumbles inexorably towards unwary trespassers."
-	DISPLAY_INFORMATION(90)
+	DISPLAY_INFORMATION(90,ALL_PLAYERS)
 ENDIF
 
 IF_AVAILABLE(PLAYER0,POWER_CAVE_IN == 1)
-	REM "With typical brilliance, you have researched the Cave-In spell. Use it to block off passages and repair dungeon breaches. Interestingly, the rockfall will crush to death any creatures caught beneath it."
-	DISPLAY_INFORMATION(91)
+	REM "With typical brilliance, you have researched the Cave-In spell. Use it to block off passages and repair dungeon breaches..."
+	DISPLAY_INFORMATION(91,ALL_PLAYERS)
 ENDIF
 
 IF_AVAILABLE(PLAYER0,SCAVENGER >= 1)
-	REM "Your tireless librarians have researched the Scavenger Room. Creatures placed within a Scavenger Room will lure their kin from other dungeons and the outside world, into your domain."
-	DISPLAY_INFORMATION(92)
+	REM "Your tireless librarians have researched the Scavenger Room. Creatures placed within a Scavenger Room will lure their kin..."
+	DISPLAY_INFORMATION(92,ALL_PLAYERS)
 ENDIF
 
 IF(PLAYER0,DRAGON > 0)
 	REM "Your great wealth has bought the loyalty of a passing Dragon. They are fickle creatures. Keep your eye on this one."
-	DISPLAY_INFORMATION(93)
+	DISPLAY_INFORMATION(93,ALL_PLAYERS)
 ENDIF
 
 IF(PLAYER0,HELL_HOUND > 0)
 	REM	"A Hell Hound has been lured to your domain by your Scavenger Room."
-	DISPLAY_INFORMATION(94)
+	DISPLAY_INFORMATION(94,ALL_PLAYERS)
 ENDIF
 
 IF(PLAYER1,DUNGEON_DESTROYED == 1)
@@ -135,3 +136,5 @@ IF(PLAYER1,DUNGEON_DESTROYED == 1)
 	DISPLAY_OBJECTIVE(101,PLAYER0)
 	WIN_GAME
 ENDIF
+
+REM ****************************************************************************
