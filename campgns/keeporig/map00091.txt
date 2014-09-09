@@ -5,13 +5,14 @@ REM  Script for DD Level Netzcaro
 REM  Campaign: Deeper Dungeons
 REM  Authors:  based on Bullfrog script
 REM            KeeperFX CCP Team
-REM  Date:     17 Dec 1996 - 11 Feb 2011
+REM  Date:     17 Dec 1996 - 9 Sep 2014
 REM  Copying and copyrights:
 REM    This program is free software; you can redistribute it and/or modify
 REM    it under the terms of the GNU General Public License as published by
 REM    the Free Software Foundation; either version 2 of the License, or
 REM    (at your option) any later version.
 REM ****************************************************************************
+LEVEL_VERSION(1)
 
 SET_GENERATE_SPEED(500)
 
@@ -23,9 +24,9 @@ ADD_CREATURE_TO_POOL(SORCEROR,10)
 ADD_CREATURE_TO_POOL(DARK_MISTRESS,20)
 ADD_CREATURE_TO_POOL(ORC,20)
 
-CREATURE_AVAILABLE(PLAYER0,SORCEROR,1,1)
-CREATURE_AVAILABLE(PLAYER0,DARK_MISTRESS,1,1)
-CREATURE_AVAILABLE(PLAYER0,ORC,1,1)
+CREATURE_AVAILABLE(PLAYER0,SORCEROR,1,0)
+CREATURE_AVAILABLE(PLAYER0,DARK_MISTRESS,1,0)
+CREATURE_AVAILABLE(PLAYER0,ORC,1,0)
 
 ROOM_AVAILABLE(ALL_PLAYERS,TREASURE,1,1)
 ROOM_AVAILABLE(ALL_PLAYERS,LAIR,1,1)
@@ -142,7 +143,7 @@ REM Actions when reaching Action Points
 
 IF_ACTION_POINT(2,PLAYER0)
 	REM "This realm will be a test of your cunning and deviousness. Your dungeon has been fortified with seven steel doors to aid you in your conquest."
-	DISPLAY_INFORMATION(905)
+	DISPLAY_INFORMATION(905,2)
 ENDIF
 	
 IF(PLAYER0,GAME_TURN >= 25000)
@@ -219,8 +220,10 @@ ENDIF
 
 IF(PLAYER_GOOD,TIMER6 >= 400)
 	IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
-		IF(PLAYER_GOOD,KNIGHT == 0)
+		IF_CONTROLS(PLAYER_GOOD,KNIGHT <= 0)
 			WIN_GAME
 		ENDIF
 	ENDIF
 ENDIF
+
+REM ***  End of File  **********************************************************

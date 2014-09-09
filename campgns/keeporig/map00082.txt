@@ -12,6 +12,7 @@ REM    it under the terms of the GNU General Public License as published by
 REM    the Free Software Foundation; either version 2 of the License, or
 REM    (at your option) any later version.
 REM ****************************************************************************
+LEVEL_VERSION(1)
 
 SET_GENERATE_SPEED(500)
 
@@ -35,16 +36,16 @@ ADD_CREATURE_TO_POOL(ORC,15)
 ADD_CREATURE_TO_POOL(DRAGON,15)
 
 REM	Creature availability
-CREATURE_AVAILABLE(ALL_PLAYERS,TROLL,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,SORCEROR,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,BILE_DEMON,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,DARK_MISTRESS,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,ORC,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,DRAGON,1,1) 
-CREATURE_AVAILABLE(ALL_PLAYERS,SPIDER,1,1) 
-CREATURE_AVAILABLE(ALL_PLAYERS,FLY,1,1) 
-CREATURE_AVAILABLE(ALL_PLAYERS,BUG,1,1) 
-CREATURE_AVAILABLE(ALL_PLAYERS,TROLL,1,1) 
+CREATURE_AVAILABLE(ALL_PLAYERS,TROLL,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,SORCEROR,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,BILE_DEMON,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,DARK_MISTRESS,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,ORC,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,DRAGON,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,SPIDER,1,0) 
+CREATURE_AVAILABLE(ALL_PLAYERS,FLY,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,BUG,1,0) 
+CREATURE_AVAILABLE(ALL_PLAYERS,TROLL,1,0)
 
 REM	Room availability
 ROOM_AVAILABLE(ALL_PLAYERS,TREASURE,1,1)
@@ -85,15 +86,19 @@ TRAP_AVAILABLE(ALL_PLAYERS,LAVA,1,0)
 
 REM ****************************************************************************
 
-REM "Another Keeper has already claimed this realm. He is unfit to rule so destroy him and take what is rightfully yours. Great riches lie in the caverns around the land; explore to gain more power."
+REM "Another Keeper has already claimed this realm. He is unfit to rule so destroy him and take what is rightfully yours..."
 DISPLAY_OBJECTIVE(893,PLAYER0)
 
 IF(PLAYER0,WORKSHOP >= 1)
 	ROOM_AVAILABLE(PLAYER0,WORKSHOP,1,1)
 ENDIF
 
+IF(PLAYER3,PRISON >= 9)
+	SET_CREATURE_TENDENCIES(PLAYER3,IMPRISON,1)
+ENDIF
+
 IF(PLAYER3,DUNGEON_DESTROYED == 1)
 	WIN_GAME
 ENDIF
 
-REM End of File
+REM ***  End of File  **********************************************************

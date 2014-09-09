@@ -5,13 +5,14 @@ REM  Script for DD Level Caddis Fell
 REM  Campaign: Deeper Dungeons
 REM  Authors:  based on Bullfrog script
 REM            KeeperFX CCP Team
-REM  Date:     17 Dec 1996 - 11 Feb 2011
+REM  Date:     17 Dec 1996 - 9 Sep 2014
 REM  Copying and copyrights:
 REM    This program is free software; you can redistribute it and/or modify
 REM    it under the terms of the GNU General Public License as published by
 REM    the Free Software Foundation; either version 2 of the License, or
 REM    (at your option) any later version.
 REM ****************************************************************************
+LEVEL_VERSION(1)
 
 SET_GENERATE_SPEED(500)
 
@@ -36,18 +37,18 @@ ADD_CREATURE_TO_POOL(VAMPIRE,5)
 ADD_CREATURE_TO_POOL(FLY,10)
 
 REM Creature availability
-CREATURE_AVAILABLE(ALL_PLAYERS,SORCEROR,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,ORC,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,BILE_DEMON,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,BUG,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,SPIDER,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,DARK_MISTRESS,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,TROLL,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,FLY,1,1)
-CREATURE_AVAILABLE(PLAYER1,VAMPIRE,1,1)
-CREATURE_AVAILABLE(PLAYER1,DRAGON,1,1)
+CREATURE_AVAILABLE(ALL_PLAYERS,SORCEROR,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,ORC,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,BILE_DEMON,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,BUG,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,SPIDER,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,DARK_MISTRESS,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,TROLL,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,FLY,1,0)
+CREATURE_AVAILABLE(PLAYER1,VAMPIRE,1,0)
+CREATURE_AVAILABLE(PLAYER1,DRAGON,1,0)
 
-SET_CREATURE_FEAR(FLY,30)
+SET_CREATURE_FEAR_WOUNDED(FLY,30)
 
 REM Room availability
 ROOM_AVAILABLE(ALL_PLAYERS,LAIR,1,1)
@@ -158,7 +159,7 @@ DISPLAY_OBJECTIVE(913,PLAYER0)
 
 IF(PLAYER0,ENTRANCE > 0)
 	IF(PLAYER0,TOTAL_GOLD_MINED > 0)
-		REM "The Lord of the Land is a pathetic individual who breeds fluffy bunnies. Pound him into the ground and then destroy the rival Keeper to achieve total domination."
+		REM "The Lord of the Land is a pathetic individual who breeds fluffy bunnies. Pound him into the ground and..."
 		DISPLAY_OBJECTIVE(916,PLAYER0)
 	ENDIF
 ENDIF
@@ -237,10 +238,14 @@ IF_ACTION_POINT(12,PLAYER0)
 ENDIF
 
 IF_ACTION_POINT(15,PLAYER0)
-	REM "A black shadow is creeping over this land. Now is the time to strike. Take control of your Vampire and use him to find and kill the Lord of the Land. If you succeed, the Vampire will join you in the next realm."
+	REM "A black shadow is creeping over this land. Now is the time to strike. Take control of your Vampire..."
 	DISPLAY_OBJECTIVE(933,PLAYER0)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY15,16,1)
 	SET_FLAG(PLAYER0,FLAG0,1)
+ENDIF
+
+IF(PLAYER1,PRISON >= 9)
+	SET_CREATURE_TENDENCIES(PLAYER1,IMPRISON,1)
 ENDIF
 
 IF(PLAYER1,DUNGEON_DESTROYED == 1)
@@ -261,11 +266,11 @@ REM Allow to win only if both dungeons destroyed, all heroes killed and reached 
 IF(PLAYER1,DUNGEON_DESTROYED == 1)
 	IF(PLAYER0,FLAG0 == 1)
 		IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
-			IF(PLAYER_GOOD,KNIGHT == 0)
+			IF_CONTROLS(PLAYER_GOOD,KNIGHT <= 0)
 				WIN_GAME
 			ENDIF
 		ENDIF
 	ENDIF
 ENDIF
 
-REM End of File
+REM ***  End of File  **********************************************************

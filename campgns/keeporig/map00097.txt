@@ -5,13 +5,14 @@ REM  Script for DD Level Dixaroc
 REM  Campaign: Deeper Dungeons
 REM  Authors:  based on Bullfrog script
 REM            KeeperFX CCP Team
-REM  Date:     17 Dec 1996 - 10 Oct 2012
+REM  Date:     17 Dec 1996 - 9 Sep 2014
 REM  Copying and copyrights:
 REM    This program is free software; you can redistribute it and/or modify
 REM    it under the terms of the GNU General Public License as published by
 REM    the Free Software Foundation; either version 2 of the License, or
 REM    (at your option) any later version.
 REM ****************************************************************************
+LEVEL_VERSION(1)
 
 COMPUTER_PLAYER(PLAYER1,2)
 COMPUTER_PLAYER(PLAYER2,2)
@@ -119,7 +120,7 @@ REM ****************************************************************************
 REM "A devious Wizard has cheated you of your magical powers. Use your only Spider and explore the realm. Find the Wizard, kill him and make an example of his foolishness."
 DISPLAY_OBJECTIVE(925,PLAYER0)
 
-IF(PLAYER0,BILE_DEMON >= 1)
+IF_CONTROLS(PLAYER0,BILE_DEMON >= 1)
 	REM "You have discovered a group of Bile Demons who will aid you in your fight."
 	DISPLAY_INFORMATION(927,ALL_PLAYERS)
 ENDIF
@@ -151,22 +152,22 @@ IF_ACTION_POINT(5,PLAYER0)
 	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,GIANT,9,4,8,0)
 ENDIF
 
-IF(PLAYER0,IMP >= 1)
+IF_CONTROLS(PLAYER0,IMP >= 1)
 	REM "You have found some Imps who consider it a great honour to serve you."
-	DISPLAY_INFORMATION(926)
+	DISPLAY_INFORMATION(926,ALL_PLAYERS)
 	SET_FLAG(PLAYER0,FLAG1,1)
 ENDIF
 
 IF(PLAYER1,DUNGEON_DESTROYED == 1)
-	REM "The destruction of this pathetic Keeper brings with it a useful bonus. You now have the ability to build Bridges. Dig deeper and you may find more secrets to strengthen your powers."
-	DISPLAY_INFORMATION(928)
+	REM "The destruction of this pathetic Keeper brings with it a useful bonus. You now have the ability to build Bridges..."
+	DISPLAY_INFORMATION(928,ALL_PLAYERS)
 	ROOM_AVAILABLE(PLAYER0,BRIDGE,1,1)
 	SET_TIMER(PLAYER_GOOD,TIMER2)
 ENDIF
 
 IF(PLAYER_GOOD,TIMER2 >= 600)
 	REM "A warning, Keeper. There is a stench of hero in the air."
-	DISPLAY_INFORMATION(929)
+	DISPLAY_INFORMATION(929,-1)
 ENDIF
 
 IF(PLAYER_GOOD,TIMER2 >= 800)
@@ -188,7 +189,8 @@ IF(PLAYER_GOOD,TIMER4 >= 200)
 ENDIF
 
 IF_ACTION_POINT(14,PLAYER0)
-	DISPLAY_INFORMATION(930)
+	REM "You have done well to get this far Keeper. Do not become complacent, however. A great struggle lies ahead."
+	DISPLAY_INFORMATION(930,ALL_PLAYERS)
 ENDIF
 
 IF_ACTION_POINT(15,PLAYER0)
@@ -213,11 +215,11 @@ ENDIF
 
 IF_ACTION_POINT(20,PLAYER0)
 	REM "Before you lies the Wizard's domain. Defeat him and you will regain your powers."
-	DISPLAY_INFORMATION(931)
+	DISPLAY_INFORMATION(931,20)
 ENDIF
 
 REM	Once the WIZARD dies
-IF(PLAYER_GOOD,WIZARD < 1)
+IF_CONTROLS(PLAYER_GOOD,WIZARD <= 0)
 	ROOM_AVAILABLE(PLAYER0,GUARD_POST,1,0)
 	ROOM_AVAILABLE(PLAYER0,RESEARCH,1,1)
 	ROOM_AVAILABLE(PLAYER0,WORKSHOP,1,0)
@@ -245,16 +247,16 @@ ENDIF
 
 REM	Outcome conditions
 
-IF(PLAYER0,TOTAL_CREATURES == 0)
+IF_CONTROLS(PLAYER0,TOTAL_CREATURES <= 0)
 	IF(PLAYER0,FLAG1 == 0)
 		LOSE_GAME
 	ENDIF
 ENDIF
 
-IF(PLAYER0,TOTAL_IMPS == 0)
+IF_CONTROLS(PLAYER0,TOTAL_DIGGERS <= 0)
 	IF(PLAYER0,FLAG1 == 1)
-		IF_AVAILABLE(PLAYER0,POWER_IMP == 0)
-			IF(PLAYER0,RESEARCH == 0)
+		IF_AVAILABLE(PLAYER0,POWER_IMP <= 0)
+			IF(PLAYER0,RESEARCH <= 0)
 				LOSE_GAME
 			ENDIF
 		ENDIF
@@ -262,7 +264,7 @@ IF(PLAYER0,TOTAL_IMPS == 0)
 ENDIF
 
 REM Win when both players are killed and wizard is dead
-IF(PLAYER_GOOD,WIZARD < 1)
+IF_CONTROLS(PLAYER_GOOD,WIZARD <= 0)
 	IF(PLAYER1,DUNGEON_DESTROYED == 1)
 		IF(PLAYER2,DUNGEON_DESTROYED == 1)
 			WIN_GAME
@@ -270,4 +272,4 @@ IF(PLAYER_GOOD,WIZARD < 1)
 	ENDIF
 ENDIF
 
-REM End of File
+REM ***  End of File  **********************************************************
