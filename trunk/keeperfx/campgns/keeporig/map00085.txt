@@ -5,13 +5,14 @@ REM  Script for DD Level Pladitz
 REM  Campaign: Deeper Dungeons
 REM  Authors:  based on Bullfrog script
 REM            KeeperFX CCP Team
-REM  Date:     17 Dec 1996 - 11 Feb 2011
+REM  Date:     17 Dec 1996 - 9 Sep 2014
 REM  Copying and copyrights:
 REM    This program is free software; you can redistribute it and/or modify
 REM    it under the terms of the GNU General Public License as published by
 REM    the Free Software Foundation; either version 2 of the License, or
 REM    (at your option) any later version.
 REM ****************************************************************************
+LEVEL_VERSION(1)
 
 SET_GENERATE_SPEED(500)
 
@@ -34,15 +35,15 @@ ADD_CREATURE_TO_POOL(ORC,10)
 ADD_CREATURE_TO_POOL(DRAGON,15)
 
 REM Creature availability
-CREATURE_AVAILABLE(ALL_PLAYERS,TROLL,1,1) 
-CREATURE_AVAILABLE(ALL_PLAYERS,SORCEROR,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,BILE_DEMON,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,DARK_MISTRESS,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,ORC,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,DRAGON,1,1) 
-CREATURE_AVAILABLE(ALL_PLAYERS,SPIDER,1,1) 
-CREATURE_AVAILABLE(ALL_PLAYERS,FLY,1,1) 
-CREATURE_AVAILABLE(ALL_PLAYERS,BUG,1,1) 
+CREATURE_AVAILABLE(ALL_PLAYERS,TROLL,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,SORCEROR,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,BILE_DEMON,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,DARK_MISTRESS,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,ORC,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,DRAGON,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,SPIDER,1,0) 
+CREATURE_AVAILABLE(ALL_PLAYERS,FLY,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,BUG,1,0) 
 
 REM Room availability
 ROOM_AVAILABLE(ALL_PLAYERS,TREASURE,1,1)
@@ -91,11 +92,15 @@ CREATE_PARTY(PARTY1)
 
 REM ****************************************************************************
 
-REM "You and a rival Dungeon Keeper are vying for control of this realm but the Lord of the Land has constructed his own dungeon between you to halt your conquest. Destroy him and the enemy Keeper to reign supreme."
+REM "You and a rival Dungeon Keeper are vying for control of this realm but the Lord of the Land has..."
 DISPLAY_OBJECTIVE(896,PLAYER0)
 
 IF(PLAYER0,BRIDGE >= 1)
 	ROOM_AVAILABLE(PLAYER0,BRIDGE,1,1)
+ENDIF
+
+IF(PLAYER1,PRISON >= 9)
+	SET_CREATURE_TENDENCIES(PLAYER1,IMPRISON,1)
 ENDIF
 
 IF_ACTION_POINT(1,PLAYER0)
@@ -104,21 +109,21 @@ IF_ACTION_POINT(1,PLAYER0)
 ENDIF
 
 IF_ACTION_POINT(2,PLAYER0)
-	REM "You have done well to come this far but further hardships await. Search the map carefully and you may find many secrets to aid your conquest."
+	REM "You have done well to come this far but further hardships await. Search the map carefully..."
 	DISPLAY_OBJECTIVE(897,PLAYER0)
 ENDIF
 
 IF(PLAYER0,FLAG0 == 1)
-	IF(PLAYER_GOOD,KNIGHT == 0)
+	IF_CONTROLS(PLAYER_GOOD,KNIGHT <= 0)
 		IF(PLAYER1,DUNGEON_DESTROYED == 0)
-			REM "The Lord of the Land and his pitiful band of followers lie dead. Good riddance to them and their sad, happy lives. Now seize your chance and attack your rival Keeper. Domination awaits."
+			REM "The Lord of the Land and his pitiful band of followers lie dead. Good riddance..."
 			DISPLAY_OBJECTIVE(895,PLAYER0)
 		ENDIF
 	ENDIF
 ENDIF
 
 IF(PLAYER0,FLAG0 == 1)
-	IF(PLAYER_GOOD,KNIGHT == 0)
+	IF_CONTROLS(PLAYER_GOOD,KNIGHT <= 0)
 		IF(PLAYER1,DUNGEON_DESTROYED == 1)
 			IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
 				WIN_GAME
@@ -127,4 +132,4 @@ IF(PLAYER0,FLAG0 == 1)
 	ENDIF
 ENDIF
 
-REM End of File
+REM ***  End of File  **********************************************************

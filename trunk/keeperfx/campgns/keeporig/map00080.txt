@@ -12,6 +12,7 @@ REM    it under the terms of the GNU General Public License as published by
 REM    the Free Software Foundation; either version 2 of the License, or
 REM    (at your option) any later version.
 REM ****************************************************************************
+LEVEL_VERSION(1)
 
 SET_GENERATE_SPEED(700)
 
@@ -34,14 +35,14 @@ ADD_CREATURE_TO_POOL(VAMPIRE,20)
 ADD_CREATURE_TO_POOL(ORC,28)
 
 REM	Creature availability
-CREATURE_AVAILABLE(ALL_PLAYERS,TROLL,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,DARK_MISTRESS,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,SORCEROR,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,BILE_DEMON,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,HELL_HOUND,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,DRAGON,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,VAMPIRE,1,1)
-CREATURE_AVAILABLE(ALL_PLAYERS,ORC,1,1)
+CREATURE_AVAILABLE(ALL_PLAYERS,TROLL,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,DARK_MISTRESS,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,SORCEROR,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,BILE_DEMON,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,HELL_HOUND,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,DRAGON,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,VAMPIRE,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,ORC,1,0)
 
 REM	Room availability
 ROOM_AVAILABLE(ALL_PLAYERS,TREASURE,1,1)
@@ -95,12 +96,16 @@ CREATE_PARTY(ONE)
 
 REM ****************************************************************************
 
-REM "Your opponent for this realm has foolishly challenged your superior skill. Such disrespect should be punished so make an example of his insolence."
+REM "Your opponent for this realm has foolishly challenged your superior skill. Such disrespect should be punished..."
 DISPLAY_OBJECTIVE(900,PLAYER0)
 
 IF(PLAYER0,GAME_TURN >= 1500)
 	REM "Ancient powers lie hidden in this realm. Seek them out and use them for your own evil purposes."
-	DISPLAY_INFORMATION(901)
+	DISPLAY_INFORMATION(901,ALL_PLAYERS)
+ENDIF
+
+IF(PLAYER1,PRISON >= 9)
+	SET_CREATURE_TENDENCIES(PLAYER1,IMPRISON,1)
 ENDIF
 
 IF_ACTION_POINT(1,PLAYER0)
@@ -127,4 +132,4 @@ IF(PLAYER1,DUNGEON_DESTROYED == 1)
 	WIN_GAME
 ENDIF
 
-REM End of File
+REM ***  End of File  **********************************************************
