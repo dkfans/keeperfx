@@ -219,6 +219,10 @@ IF(PLAYER_GOOD,GAME_TURN >= 20000)
 	SET_TIMER(PLAYER_GOOD,TIMER6)
 ENDIF
 
+IF(PLAYER1,PRISON >= 9)
+	SET_CREATURE_TENDENCIES(PLAYER1,IMPRISON,1)
+ENDIF
+
 REM When the parties are stopped and there are no more heroes on level, make the lord enter (with some delay)
 IF(PLAYER_GOOD,TIMER6 >= 1000)
 	IF_CONTROLS(PLAYER_GOOD,TOTAL_CREATURES <= 0)
