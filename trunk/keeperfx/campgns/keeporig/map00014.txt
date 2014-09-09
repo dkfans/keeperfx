@@ -113,6 +113,14 @@ REM IF(PLAYER0,TOTAL_CREATURES == 20)
 REM		PRINT("I KNOW THY NAME, I WILL DESTROY THY EVIL PRESENCE. The Avatar")
 REM ENDIF
 
+IF(PLAYER1,PRISON >= 9)
+	SET_CREATURE_TENDENCIES(PLAYER1,IMPRISON,1)
+ENDIF
+
+IF(PLAYER2,PRISON >= 9)
+	SET_CREATURE_TENDENCIES(PLAYER2,IMPRISON,1)
+ENDIF
+
 REM "You can't swing a cat for Dungeon Keepers fighting over the destiny of this region. It should fall to you to settle the disagreement once and for all."
 DISPLAY_OBJECTIVE(108,PLAYER0)
 

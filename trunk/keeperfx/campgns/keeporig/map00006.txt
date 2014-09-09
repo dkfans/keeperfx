@@ -101,19 +101,23 @@ IF(PLAYER0,DARK_MISTRESS > 0)
 	DISPLAY_INFORMATION(67,ALL_PLAYERS)
 ENDIF
 
-IF_AVAILABLE(PLAYER0,BRACED == 1)
+IF_AVAILABLE(PLAYER0,BRACED >= 1)
 	REM "Your engineers have manufactured a braced door. These are stronger than wooden doors."
 	DISPLAY_INFORMATION(68,ALL_PLAYERS)
 ENDIF
 
-IF_AVAILABLE(PLAYER0,POWER_LIGHTNING == 1)
+IF_AVAILABLE(PLAYER0,POWER_LIGHTNING >= 1)
 	REM "Your researchers have given you the power of lightning. Cast it on a creature to unleash a deadly bolt of electricity which will fry him crispy."
 	DISPLAY_INFORMATION(69,ALL_PLAYERS)
 ENDIF
 
-IF_AVAILABLE(PLAYER0,LIGHTNING == 1)
+IF_AVAILABLE(PLAYER0,LIGHTNING >= 1)
 	REM "You have manufactured a powerful trap, a lightning trap."
 	DISPLAY_INFORMATION(70,ALL_PLAYERS)
+ENDIF
+
+IF(PLAYER1,PRISON >= 9)
+	SET_CREATURE_TENDENCIES(PLAYER1,IMPRISON,1)
 ENDIF
 
 IF(PLAYER1,DUNGEON_DESTROYED == 1)
