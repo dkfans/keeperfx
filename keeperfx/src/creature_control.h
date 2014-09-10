@@ -211,7 +211,7 @@ unsigned char field_86[2];
     unsigned short word_91;
     unsigned char byte_93;
     unsigned char last_did_job;
-    unsigned char imp_stack_pos;
+    unsigned char task_stack_pos;
     unsigned char field_96[4];
   } digger;
   struct {

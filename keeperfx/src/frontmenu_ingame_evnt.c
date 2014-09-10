@@ -260,9 +260,7 @@ void draw_battle_head(struct Thing *thing, long scr_x, long scr_y, int units_per
     curscr_y = scr_y - 8*units_per_px/16 + (spr->SHeight*ps_units_per_px/16)/2;
     LbDrawBox(curscr_x, curscr_y, 16*units_per_px/16, 6*units_per_px/16, colours[0][0][0]);
     // Show health
-    struct CreatureStats *crstat;
     struct CreatureControl *cctrl;
-    crstat = creature_stats_get_from_thing(thing);
     cctrl = creature_control_get_from_thing(thing);
     HitPoints health,max_health;
     health = thing->health;

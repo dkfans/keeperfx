@@ -36,7 +36,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 #define DUNGEONS_COUNT          5
-#define IMP_TASK_MAX_COUNT     64
+#define DIGGER_TASK_MAX_COUNT  64
 #define DUNGEON_RESEARCH_COUNT 34
 #define MAX_THINGS_IN_HAND      8
 #define KEEPER_SPELLS_COUNT    20
@@ -76,8 +76,8 @@ enum DungeonManufactureBuildFlags {
 #pragma pack(1)
 
 struct DiggerStack { // sizeof = 4
-      unsigned short field_0;
-      unsigned short task_id;
+      unsigned short stl_num;
+      SpDiggerTaskType task_type;
 };
 
 struct ResearchVal { // sizeof = 6
@@ -219,7 +219,7 @@ unsigned char field_F7D;
     unsigned char field_1060;
     long field_1061;
     struct Coord3d essential_pos;
-    struct DiggerStack imp_stack[IMP_TASK_MAX_COUNT];
+    struct DiggerStack digger_stack[DIGGER_TASK_MAX_COUNT];
     unsigned long digger_stack_update_turn;
     unsigned long digger_stack_length;
     unsigned char visible_event_idx;

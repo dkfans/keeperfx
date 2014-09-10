@@ -183,6 +183,9 @@ void check_treasure_map(unsigned char *treasure_map, unsigned short *vein_list, 
     }
 }
 
+/**
+ * Scans map for gold veins, and fills up gold_lookup array with veins found.
+ */
 void check_map_for_gold(void)
 {
     MapSlabCoord slb_x,slb_y;
@@ -215,6 +218,7 @@ void check_map_for_gold(void)
             }
         }
     }
+    // Add treasures to lookup as gold veins
     gold_next_idx = 0;
     for (slb_y = 0; slb_y < map_tiles_y; slb_y++)
     {

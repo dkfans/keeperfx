@@ -408,10 +408,10 @@ long computer_check_for_pretty(struct Computer2 *comp, struct ComputerCheck * ch
         if (n < 0) {
             return 4;
         }
-        const struct DiggerStack *istack;
-        istack = &dungeon->imp_stack[n];
-        stl_x = stl_num_decode_x(istack->field_0);
-        stl_y = stl_num_decode_y(istack->field_0);
+        const struct DiggerStack *dstack;
+        dstack = &dungeon->digger_stack[n];
+        stl_x = stl_num_decode_x(dstack->stl_num);
+        stl_y = stl_num_decode_y(dstack->stl_num);
     }
     struct Thing * creatng;
     creatng = find_imp_for_pickup(comp, stl_x, stl_y);
