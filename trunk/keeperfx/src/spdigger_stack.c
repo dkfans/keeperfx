@@ -1273,7 +1273,7 @@ TbBool add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, long max_
         if ( (dungeon->digger_stack_length >= DIGGER_TASK_MAX_COUNT) || (remain_num <= 0) ) {
             break;
         }
-        if ( ((thing->field_1 & TF1_IsDragged1) == 0) && (thing->active_state == DCrSt_Unknown02)
+        if ( ((thing->state_flags & TF1_IsDragged1) == 0) && (thing->active_state == DCrSt_Unknown02)
            && (thing->byte_14 == 0) && corpse_is_rottable(thing) )
         {
             if (thing_revealed(thing, dungeon->owner))
@@ -1483,7 +1483,7 @@ TbBool add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon)
       break;
     if ( thing_is_door_or_trap_crate(thing) )
     {
-        if ((thing->field_1 & TF1_IsDragged1) == 0)
+        if ((thing->state_flags & TF1_IsDragged1) == 0)
         {
             if ((thing->owner == dungeon->owner) || (thing->owner == game.neutral_player_num))
             {
@@ -1694,7 +1694,7 @@ struct Thing *check_place_to_pickup_dead_body(struct Thing *creatng, long stl_x,
         }
         i = thing->next_on_mapblk;
         // Per thing code start
-        if ((thing->class_id == TCls_DeadCreature) && ((thing->field_1 & TF1_IsDragged1) == 0)
+        if ((thing->class_id == TCls_DeadCreature) && ((thing->state_flags & TF1_IsDragged1) == 0)
             && (thing->active_state == DCrSt_Unknown02) && (thing->byte_14 == 0) && corpse_is_rottable(thing)) {
             return thing;
         }
@@ -1779,7 +1779,7 @@ struct Thing *check_place_to_pickup_crate(const struct Thing *creatng, MapSubtlC
         {
           if ((thing->owner == creatng->owner) || is_neutral_thing(thing))
           {
-            if ((thing->field_1 & TF1_IsDragged1) == 0) {
+            if ((thing->state_flags & TF1_IsDragged1) == 0) {
                 if (n > 0) {
                     n--;
                 } else {

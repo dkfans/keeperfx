@@ -2677,14 +2677,14 @@ long script_support_create_thing_at_hero_door(long gate_num, ThingClass tngclass
     //return _DK_script_support_create_thing_at_hero_door(gate_num, tngclass, tngmodel, tngowner, random_factor);
     if (gate_num <= 0)
     {
-      ERRORLOG("Script error - invalid hero gate index %d",(int)gate_num);
-      return 0;
+        ERRORLOG("Script error - invalid hero gate index %d",(int)gate_num);
+        return 0;
     }
     gatetng = find_hero_gate_of_number(gate_num);
     if (thing_is_invalid(gatetng))
     {
-      ERRORLOG("Script error - could not find hero gate index %d",(int)gate_num);
-      return 0;
+        ERRORLOG("Script error - attempt to create thing at non-existing hero gate index %d",(int)gate_num);
+        return 0;
     }
     pos.x.val = gatetng->mappos.x.val;
     pos.y.val = gatetng->mappos.y.val;
@@ -2698,14 +2698,14 @@ long script_support_create_thing_at_hero_door(long gate_num, ThingClass tngclass
     cctrl = creature_control_get_from_thing(thing);
     cctrl->field_AE |= 0x02;
     cctrl->spell_flags |= CSAfF_Unkn2000;
-    thing->acceleration.x.val += ACTION_RANDOM(193) - 96;
-    thing->acceleration.y.val += ACTION_RANDOM(193) - 96;
+    thing->veloc_push_add.x.val += ACTION_RANDOM(193) - 96;
+    thing->veloc_push_add.y.val += ACTION_RANDOM(193) - 96;
     if ((thing->movement_flags & TMvF_Flying) != 0) {
-        thing->acceleration.z.val -= ACTION_RANDOM(32);
+        thing->veloc_push_add.z.val -= ACTION_RANDOM(32);
     } else {
-        thing->acceleration.z.val += ACTION_RANDOM(96) + 80;
+        thing->veloc_push_add.z.val += ACTION_RANDOM(96) + 80;
     }
-    thing->field_1 |= TF1_PushdByAccel;
+    thing->state_flags |= TF1_PushAdd;
 
     if ((get_creature_model_flags(thing) & MF_IsLordOTLand) != 0)
     {
@@ -2729,7 +2729,7 @@ long script_support_create_thing_at_action_point(long apt_idx, ThingClass tngcla
     apt = action_point_get(apt_idx);
     if (!action_point_exists(apt))
     {
-        ERRORLOG("Attempt to create thing at non-existing action point %d",(int)apt_idx);
+        ERRORLOG("Script error - attempt to create thing at non-existing action point %d",(int)apt_idx);
         return 0;
     }
 
@@ -2785,7 +2785,7 @@ long script_support_create_thing_at_dungeon_heart(ThingClass tngclass, ThingMode
     TRACE_THING(heartng);
     if (thing_is_invalid(heartng))
     {
-        ERRORLOG("Attempt to create thing in player %d dungeon with no heart",(int)plyr_idx);
+        ERRORLOG("Script error - attempt to create thing in player %d dungeon with no heart",(int)plyr_idx);
         return 0;
     }
     struct Coord3d pos;

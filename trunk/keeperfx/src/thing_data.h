@@ -43,8 +43,8 @@ enum ThingAllocFlags {
 enum ThingFlags1 {
     TF1_IsDragged1     = 0x01,
     TF1_InCtrldLimbo   = 0x02,
-    TF1_PushdByAccel   = 0x04,
-    TF1_Unkn08         = 0x08,
+    TF1_PushAdd        = 0x04,
+    TF1_PushOnce       = 0x08,
     TF1_Unkn10         = 0x10,
     TF1_Unkn20         = 0x20,
 };
@@ -74,7 +74,7 @@ struct Room;
 
 struct Thing {
     unsigned char alloc_flags;
-    unsigned char field_1;
+    unsigned char state_flags;
     unsigned short next_on_mapblk;
     unsigned short prev_on_mapblk;
     unsigned char owner;
@@ -165,9 +165,9 @@ unsigned char field_22;
     unsigned char field_23;
     unsigned char field_24;
     unsigned char movement_flags;
-    struct CoordDelta3d pos_26;
-    struct CoordDelta3d pos_2C;
-    struct CoordDelta3d acceleration;
+    struct CoordDelta3d veloc_push_once;
+    struct CoordDelta3d veloc_base;
+    struct CoordDelta3d veloc_push_add;
     struct CoordDelta3d velocity;
 unsigned short field_3E;
     long field_40;

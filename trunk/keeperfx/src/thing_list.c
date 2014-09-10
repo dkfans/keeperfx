@@ -2439,28 +2439,28 @@ TbBool update_thing(struct Thing *thing)
         return false;
     if ((thing->movement_flags & TMvF_Unknown40) == 0)
     {
-        if ((thing->field_1 & TF1_PushdByAccel) != 0)
+        if ((thing->state_flags & TF1_PushAdd) != 0)
         {
-            thing->pos_2C.x.val += thing->acceleration.x.val;
-            thing->pos_2C.y.val += thing->acceleration.y.val;
-            thing->pos_2C.z.val += thing->acceleration.z.val;
-            thing->acceleration.x.val = 0;
-            thing->acceleration.y.val = 0;
-            thing->acceleration.z.val = 0;
-            thing->field_1 &= ~TF1_PushdByAccel;
+            thing->veloc_base.x.val += thing->veloc_push_add.x.val;
+            thing->veloc_base.y.val += thing->veloc_push_add.y.val;
+            thing->veloc_base.z.val += thing->veloc_push_add.z.val;
+            thing->veloc_push_add.x.val = 0;
+            thing->veloc_push_add.y.val = 0;
+            thing->veloc_push_add.z.val = 0;
+            thing->state_flags &= ~TF1_PushAdd;
         }
-        thing->velocity.x.val = thing->pos_2C.x.val;
-        thing->velocity.y.val = thing->pos_2C.y.val;
-        thing->velocity.z.val = thing->pos_2C.z.val;
-        if ((thing->field_1 & TF1_Unkn08) != 0)
+        thing->velocity.x.val = thing->veloc_base.x.val;
+        thing->velocity.y.val = thing->veloc_base.y.val;
+        thing->velocity.z.val = thing->veloc_base.z.val;
+        if ((thing->state_flags & TF1_PushOnce) != 0)
         {
-          thing->velocity.x.val += thing->pos_26.x.val;
-          thing->velocity.y.val += thing->pos_26.y.val;
-          thing->velocity.z.val += thing->pos_26.z.val;
-          thing->pos_26.x.val = 0;
-          thing->pos_26.y.val = 0;
-          thing->pos_26.z.val = 0;
-          thing->field_1 &= ~TF1_Unkn08;
+          thing->velocity.x.val += thing->veloc_push_once.x.val;
+          thing->velocity.y.val += thing->veloc_push_once.y.val;
+          thing->velocity.z.val += thing->veloc_push_once.z.val;
+          thing->veloc_push_once.x.val = 0;
+          thing->veloc_push_once.y.val = 0;
+          thing->veloc_push_once.z.val = 0;
+          thing->state_flags &= ~TF1_PushOnce;
         }
     }
     if (thing->class_id < sizeof(class_functions)/sizeof(class_functions[0]))
@@ -2477,25 +2477,25 @@ TbBool update_thing(struct Thing *thing)
     {
         if (thing->mappos.z.val > thing->field_60)
         {
-            if (thing->pos_2C.x.val != 0)
-              thing->pos_2C.x.val = thing->pos_2C.x.val * (256 - (int)thing->field_24) / 256;
-            if (thing->pos_2C.y.val != 0)
-              thing->pos_2C.y.val = thing->pos_2C.y.val * (256 - (int)thing->field_24) / 256;
+            if (thing->veloc_base.x.val != 0)
+              thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - (int)thing->field_24) / 256;
+            if (thing->veloc_base.y.val != 0)
+              thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - (int)thing->field_24) / 256;
             if ((thing->movement_flags & TMvF_Flying) == 0)
             {
-                thing->acceleration.z.val -= thing->field_20;
-                thing->field_1 |= TF1_PushdByAccel;
+                thing->veloc_push_add.z.val -= thing->field_20;
+                thing->state_flags |= TF1_PushAdd;
             }
         } else
         {
-            if (thing->pos_2C.x.val != 0)
-              thing->pos_2C.x.val = thing->pos_2C.x.val * (256 - (int)thing->field_23) / 256;
-            if (thing->pos_2C.y.val != 0)
-              thing->pos_2C.y.val = thing->pos_2C.y.val * (256 - (int)thing->field_23) / 256;
+            if (thing->veloc_base.x.val != 0)
+              thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - (int)thing->field_23) / 256;
+            if (thing->veloc_base.y.val != 0)
+              thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - (int)thing->field_23) / 256;
             thing->mappos.z.val = thing->field_60;
             if ((thing->movement_flags & TMvF_Unknown08) != 0)
             {
-              thing->pos_2C.z.val = 0;
+              thing->veloc_base.z.val = 0;
             }
         }
     }

@@ -829,10 +829,10 @@ TbResult magic_use_power_time_bomb(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
         ERRORLOG("There was place to create new thing, but creation failed");
         return Lb_OK;
     }
-    thing->acceleration.x.val += ACTION_RANDOM(321) - 160;
-    thing->acceleration.y.val += ACTION_RANDOM(321) - 160;
-    thing->acceleration.z.val += 40;
-    thing->field_1 |= TF1_PushdByAccel;
+    thing->veloc_push_add.x.val += ACTION_RANDOM(321) - 160;
+    thing->veloc_push_add.y.val += ACTION_RANDOM(321) - 160;
+    thing->veloc_push_add.z.val += 40;
+    thing->state_flags |= TF1_PushAdd;
     return Lb_SUCCESS;
 }
 
@@ -859,10 +859,10 @@ TbResult magic_use_power_imp(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubt
         ERRORLOG("There was place to create new creature, but creation failed");
         return Lb_OK;
     }
-    thing->acceleration.x.val += ACTION_RANDOM(161) - 80;
-    thing->acceleration.y.val += ACTION_RANDOM(161) - 80;
-    thing->acceleration.z.val += 160;
-    thing->field_1 |= TF1_PushdByAccel;
+    thing->veloc_push_add.x.val += ACTION_RANDOM(161) - 80;
+    thing->veloc_push_add.y.val += ACTION_RANDOM(161) - 80;
+    thing->veloc_push_add.z.val += 160;
+    thing->state_flags |= TF1_PushAdd;
     thing->field_52 = 0;
     initialise_thing_state(thing, CrSt_ImpBirth);
     play_creature_sound(thing, 3, 2, 0);

@@ -327,8 +327,8 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
           cam = player->acamera;
           if (cam != NULL)
           {
-            thing->pos_2C.x.val += distance_with_angle_to_coord_x(64, cam->orient_a);
-            thing->pos_2C.y.val += distance_with_angle_to_coord_y(64, cam->orient_a);
+            thing->veloc_base.x.val += distance_with_angle_to_coord_x(64, cam->orient_a);
+            thing->veloc_base.y.val += distance_with_angle_to_coord_y(64, cam->orient_a);
           }
       }
       break;

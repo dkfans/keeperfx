@@ -32,7 +32,9 @@ extern "C" {
 /******************************************************************************/
 #define CREATURE_TYPES_COUNT  32
 #define DEAD_CREATURES_MAX_COUNT 64
-#define NORMAL_FLYING_ALTITUDE 256
+/** The standard altitude at which a creature is flying.
+ * Should be over one tile, to allow flying creatures leave water areas. */
+#define NORMAL_FLYING_ALTITUDE (256+16)
 
 #define SWIPE_SPRITES_X 3
 #define SWIPE_SPRITES_Y 2

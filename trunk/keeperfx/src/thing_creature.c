@@ -862,10 +862,10 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
                     ntng->field_52 = thing->field_52;
                     ntng->field_54 = thing->field_54;
                     angles_to_vector(ntng->field_52, ntng->field_54, 32, &cvect);
-                    ntng->acceleration.x.val += cvect.x;
-                    ntng->acceleration.y.val += cvect.y;
-                    ntng->acceleration.z.val += cvect.z;
-                    ntng->field_1 |= TF1_PushdByAccel;
+                    ntng->veloc_push_add.x.val += cvect.x;
+                    ntng->veloc_push_add.y.val += cvect.y;
+                    ntng->veloc_push_add.z.val += cvect.z;
+                    ntng->state_flags |= TF1_PushAdd;
                 }
                 n += 2*LbFPMath_PI/3;
             }
@@ -973,10 +973,10 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
                 ntng->field_52 = thing->field_52;
                 ntng->field_54 = thing->field_54;
                 angles_to_vector(ntng->field_52, ntng->field_54, 32, &cvect);
-                ntng->acceleration.x.val += cvect.x;
-                ntng->acceleration.y.val += cvect.y;
-                ntng->acceleration.z.val += cvect.z;
-                ntng->field_1 |= TF1_PushdByAccel;
+                ntng->veloc_push_add.x.val += cvect.x;
+                ntng->veloc_push_add.y.val += cvect.y;
+                ntng->veloc_push_add.z.val += cvect.z;
+                ntng->state_flags |= TF1_PushAdd;
               }
               n += 2*LbFPMath_PI/3;
           }
@@ -1224,10 +1224,10 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
         check_map_explored(thing, pos.x.stl.num, pos.y.stl.num);
         if ((thing->movement_flags & TMvF_Flying) == 0)
         {
-            thing->acceleration.x.val += ACTION_RANDOM(193) - 96;
-            thing->acceleration.y.val += ACTION_RANDOM(193) - 96;
-            thing->acceleration.z.val += ACTION_RANDOM(96) + 40;
-            thing->field_1 |= TF1_PushdByAccel;
+            thing->veloc_push_add.x.val += ACTION_RANDOM(193) - 96;
+            thing->veloc_push_add.y.val += ACTION_RANDOM(193) - 96;
+            thing->veloc_push_add.z.val += ACTION_RANDOM(96) + 40;
+            thing->state_flags |= TF1_PushAdd;
         }
     }
 }
@@ -2002,10 +2002,10 @@ void throw_out_gold(struct Thing *thing)
         radius = ACTION_RANDOM(128);
         x = (radius * LbSinL(angle)) / 256;
         y = (radius * LbCosL(angle)) / 256;
-        gldtng->acceleration.x.val += x/256;
-        gldtng->acceleration.y.val -= y/256;
-        gldtng->acceleration.z.val += ACTION_RANDOM(64) + 96;
-        gldtng->field_1 |= TF1_PushdByAccel;
+        gldtng->veloc_push_add.x.val += x/256;
+        gldtng->veloc_push_add.y.val -= y/256;
+        gldtng->veloc_push_add.z.val += ACTION_RANDOM(64) + 96;
+        gldtng->state_flags |= TF1_PushAdd;
         // Set the amount of gold and mark that we've dropped that gold
         GoldAmount delta;
         delta = (thing->creature.gold_carried - gold_dropped) / (num_pots_to_drop - npot);
@@ -2022,9 +2022,9 @@ void thing_death_normal(struct Thing *thing)
     struct Coord3d memaccl;
     long memp1;
     memp1 = thing->field_52;
-    memaccl.x.val = thing->pos_2C.x.val;
-    memaccl.y.val = thing->pos_2C.y.val;
-    memaccl.z.val = thing->pos_2C.z.val;
+    memaccl.x.val = thing->veloc_base.x.val;
+    memaccl.y.val = thing->veloc_base.y.val;
+    memaccl.z.val = thing->veloc_base.z.val;
     deadtng = destroy_creature_and_create_corpse(thing, 1);
     if (thing_is_invalid(deadtng))
     {
@@ -2032,9 +2032,9 @@ void thing_death_normal(struct Thing *thing)
         return;
     }
     deadtng->field_52 = memp1;
-    deadtng->pos_2C.x.val = memaccl.x.val;
-    deadtng->pos_2C.y.val = memaccl.y.val;
-    deadtng->pos_2C.z.val = memaccl.z.val;
+    deadtng->veloc_base.x.val = memaccl.x.val;
+    deadtng->veloc_base.y.val = memaccl.y.val;
+    deadtng->veloc_base.z.val = memaccl.z.val;
 }
 
 /**
@@ -2050,9 +2050,9 @@ void thing_death_flesh_explosion(struct Thing *thing)
     long i;
     //_DK_thing_death_flesh_explosion(thing);return;
     memp1 = thing->field_52;
-    memaccl.x.val = thing->pos_2C.x.val;
-    memaccl.y.val = thing->pos_2C.y.val;
-    memaccl.z.val = thing->pos_2C.z.val;
+    memaccl.x.val = thing->veloc_base.x.val;
+    memaccl.y.val = thing->veloc_base.y.val;
+    memaccl.z.val = thing->veloc_base.z.val;
     for (i = 0; i <= thing->field_58; i+=64)
     {
         pos.x.val = thing->mappos.x.val;
@@ -2067,9 +2067,9 @@ void thing_death_flesh_explosion(struct Thing *thing)
         return;
     }
     deadtng->field_52 = memp1;
-    deadtng->pos_2C.x.val = memaccl.x.val;
-    deadtng->pos_2C.y.val = memaccl.y.val;
-    deadtng->pos_2C.z.val = memaccl.z.val;
+    deadtng->veloc_base.x.val = memaccl.x.val;
+    deadtng->veloc_base.y.val = memaccl.y.val;
+    deadtng->veloc_base.z.val = memaccl.z.val;
     thing_play_sample(deadtng, 47, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
 }
 
@@ -2082,9 +2082,9 @@ void thing_death_gas_and_flesh_explosion(struct Thing *thing)
     long i;
     //_DK_thing_death_gas_and_flesh_explosion(thing);return;
     memp1 = thing->field_52;
-    memaccl.x.val = thing->pos_2C.x.val;
-    memaccl.y.val = thing->pos_2C.y.val;
-    memaccl.z.val = thing->pos_2C.z.val;
+    memaccl.x.val = thing->veloc_base.x.val;
+    memaccl.y.val = thing->veloc_base.y.val;
+    memaccl.z.val = thing->veloc_base.z.val;
     for (i = 0; i <= thing->field_58; i+=64)
     {
         pos.x.val = thing->mappos.x.val;
@@ -2104,9 +2104,9 @@ void thing_death_gas_and_flesh_explosion(struct Thing *thing)
         return;
     }
     deadtng->field_52 = memp1;
-    deadtng->pos_2C.x.val = memaccl.x.val;
-    deadtng->pos_2C.y.val = memaccl.y.val;
-    deadtng->pos_2C.z.val = memaccl.z.val;
+    deadtng->veloc_base.x.val = memaccl.x.val;
+    deadtng->veloc_base.y.val = memaccl.y.val;
+    deadtng->veloc_base.z.val = memaccl.z.val;
     thing_play_sample(deadtng, 47, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
 }
 
@@ -2119,9 +2119,9 @@ void thing_death_smoke_explosion(struct Thing *thing)
     long i;
     //_DK_thing_death_smoke_explosion(thing);return;
     memp1 = thing->field_52;
-    memaccl.x.val = thing->pos_2C.x.val;
-    memaccl.y.val = thing->pos_2C.y.val;
-    memaccl.z.val = thing->pos_2C.z.val;
+    memaccl.x.val = thing->veloc_base.x.val;
+    memaccl.y.val = thing->veloc_base.y.val;
+    memaccl.z.val = thing->veloc_base.z.val;
     i = (thing->field_58 >> 1);
     pos.x.val = thing->mappos.x.val;
     pos.y.val = thing->mappos.y.val;
@@ -2134,9 +2134,9 @@ void thing_death_smoke_explosion(struct Thing *thing)
         return;
     }
     deadtng->field_52 = memp1;
-    deadtng->pos_2C.x.val = memaccl.x.val;
-    deadtng->pos_2C.y.val = memaccl.y.val;
-    deadtng->pos_2C.z.val = memaccl.z.val;
+    deadtng->veloc_base.x.val = memaccl.x.val;
+    deadtng->veloc_base.y.val = memaccl.y.val;
+    deadtng->veloc_base.z.val = memaccl.z.val;
     thing_play_sample(deadtng, 47, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
 }
 
@@ -2154,9 +2154,9 @@ void thing_death_ice_explosion(struct Thing *thing)
     long i;
     //_DK_thing_death_ice_explosion(thing);return;
     memp1 = thing->field_52;
-    memaccl.x.val = thing->pos_2C.x.val;
-    memaccl.y.val = thing->pos_2C.y.val;
-    memaccl.z.val = thing->pos_2C.z.val;
+    memaccl.x.val = thing->veloc_base.x.val;
+    memaccl.y.val = thing->veloc_base.y.val;
+    memaccl.z.val = thing->veloc_base.z.val;
     for (i = 0; i <= thing->field_58; i+=64)
     {
         pos.x.val = thing->mappos.x.val;
@@ -2171,9 +2171,9 @@ void thing_death_ice_explosion(struct Thing *thing)
         return;
     }
     deadtng->field_52 = memp1;
-    deadtng->pos_2C.x.val = memaccl.x.val;
-    deadtng->pos_2C.y.val = memaccl.y.val;
-    deadtng->pos_2C.z.val = memaccl.z.val;
+    deadtng->veloc_base.x.val = memaccl.x.val;
+    deadtng->veloc_base.y.val = memaccl.y.val;
+    deadtng->veloc_base.z.val = memaccl.z.val;
     thing_play_sample(deadtng, 47, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
 }
 
@@ -2633,10 +2633,10 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
             shotng->field_52 = (angle_xy + ACTION_RANDOM(101) - 50) & 0x7FF;
             shotng->field_54 = (angle_yz + ACTION_RANDOM(101) - 50) & 0x7FF;
             angles_to_vector(shotng->field_52, shotng->field_54, shotst->old->speed, &cvect);
-            shotng->acceleration.x.val += cvect.x;
-            shotng->acceleration.y.val += cvect.y;
-            shotng->acceleration.z.val += cvect.z;
-            shotng->field_1 |= TF1_PushdByAccel;
+            shotng->veloc_push_add.x.val += cvect.x;
+            shotng->veloc_push_add.y.val += cvect.y;
+            shotng->veloc_push_add.z.val += cvect.z;
+            shotng->state_flags |= TF1_PushAdd;
             shotng->shot.damage = damage;
             shotng->health = shotst->health;
             shotng->parent_idx = firing->index;
@@ -2649,10 +2649,10 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         shotng->field_52 = angle_xy;
         shotng->field_54 = angle_yz;
         angles_to_vector(shotng->field_52, shotng->field_54, shotst->old->speed, &cvect);
-        shotng->acceleration.x.val += cvect.x;
-        shotng->acceleration.y.val += cvect.y;
-        shotng->acceleration.z.val += cvect.z;
-        shotng->field_1 |= TF1_PushdByAccel;
+        shotng->veloc_push_add.x.val += cvect.x;
+        shotng->veloc_push_add.y.val += cvect.y;
+        shotng->veloc_push_add.z.val += cvect.z;
+        shotng->state_flags |= TF1_PushAdd;
         shotng->shot.damage = damage;
         shotng->health = shotst->health;
         shotng->parent_idx = firing->index;
@@ -4411,7 +4411,11 @@ TbBool update_flight_altitude_towards_typical(struct Thing *thing)
     struct CreatureControl *cctrl;
     int floor_height,thing_height,i;
     cctrl = creature_control_get_from_thing(thing);
-    floor_height = get_floor_height_under_thing_at(thing, &thing->mappos);
+    struct Coord3d nxpos;
+    nxpos.x.val = thing->mappos.x.val + cctrl->moveaccel.x.val;
+    nxpos.y.val = thing->mappos.y.val + cctrl->moveaccel.y.val;
+    nxpos.z.val = subtile_coord(1,0);
+    floor_height = get_floor_height_under_thing_at(thing, &nxpos);
     thing_height = thing->mappos.z.val;
     i = floor_height + NORMAL_FLYING_ALTITUDE - thing_height;
     if (i > 0)
@@ -4885,7 +4889,7 @@ TngUpdateRet update_creature(struct Thing *thing)
     if (cctrl->dragtng_idx > 0)
     {
         tngp = thing_get(cctrl->dragtng_idx);
-        if ((tngp->field_1 & TF1_IsDragged1) != 0)
+        if ((tngp->state_flags & TF1_IsDragged1) != 0)
           move_thing_in_map(tngp, &thing->mappos);
     }
     if (update_creature_levels(thing) == -1)
