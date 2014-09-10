@@ -185,9 +185,7 @@ DLLIMPORT void _DK_go_to_next_creature_of_breed_and_job(long crmodel, long job_i
  */
 int get_creature_health_permil(const struct Thing *thing)
 {
-    struct CreatureStats *crstat;
     struct CreatureControl *cctrl;
-    crstat = creature_stats_get_from_thing(thing);
     cctrl = creature_control_get_from_thing(thing);
     HitPoints health,max_health;
     health = thing->health * 1000;

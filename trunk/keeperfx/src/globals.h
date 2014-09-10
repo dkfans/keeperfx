@@ -235,6 +235,8 @@ typedef unsigned char DamageType;
 typedef unsigned char ThingHitType;
 /** Index within active_buttons[] array. */
 typedef char ActiveButtonID;
+/** Type which stores digger task type as DigTsk_* values. */
+typedef unsigned short SpDiggerTaskType;
 
 struct Coord2d {
     union {

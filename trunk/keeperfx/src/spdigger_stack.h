@@ -79,9 +79,13 @@ struct ExtraSquares {
 
 #pragma pack()
 /******************************************************************************/
-TbBool add_to_imp_stack_using_pos(long stl_num, long task_type, struct Dungeon *dungeon);
-long find_in_imp_stack_using_pos(long stl_num, long task_type, const struct Dungeon *dungeon);
-long find_in_imp_stack_starting_at(long task_type, long start_pos, const struct Dungeon *dungeon);
+TbBool creature_task_needs_check_out_after_digger_stack_change(const struct Thing *creatng);
+
+long find_in_imp_stack_using_pos(SubtlCodedCoords stl_num, SpDiggerTaskType task_type, const struct Dungeon *dungeon);
+long find_in_imp_stack_starting_at(SpDiggerTaskType task_type, long start_pos, const struct Dungeon *dungeon);
+long find_in_imp_stack_task_other_than_starting_at(SpDiggerTaskType excl_task_type, long start_pos, const struct Dungeon *dungeon);
+
+TbBool add_to_imp_stack_using_pos(SubtlCodedCoords stl_num, SpDiggerTaskType task_type, struct Dungeon *dungeon);
 long add_undug_to_imp_stack(struct Dungeon *dungeon, long num);
 void add_pretty_and_convert_to_imp_stack(struct Dungeon *dungeon);
 long add_unclaimed_gold_to_imp_stack(struct Dungeon *dungeon);
@@ -92,12 +96,12 @@ long add_unclaimed_spells_to_imp_stack(struct Dungeon *dungeon, long a2);
 TbBool add_object_for_trap_to_imp_stack(struct Dungeon *dungeon, struct Thing *thing);
 TbBool add_empty_traps_to_imp_stack(struct Dungeon *dungeon, long num);
 TbBool add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon);
+void add_reinforce_to_imp_stack(struct Dungeon *dungeon);
 
 TbBool imp_will_soon_be_arming_trap(struct Thing *traptng);
 long imp_will_soon_be_working_at_excluding(struct Thing *thing, long a2, long a3);
 TbBool imp_will_soon_be_getting_object(PlayerNumber plyr_idx, const struct Thing *objtng);
 
-void add_reinforce_to_imp_stack(struct Dungeon *dungeon);
 TbBool imp_stack_update(struct Thing *thing);
 long check_out_imp_stack(struct Thing *thing);
 long check_out_imp_last_did(struct Thing *thing);
