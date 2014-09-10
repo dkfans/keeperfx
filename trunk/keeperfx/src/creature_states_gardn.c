@@ -66,7 +66,35 @@ TbBool hunger_is_creature_hungry(const struct Thing *creatng)
 
 void person_eat_food(struct Thing *creatng, struct Thing *foodtng, struct Room *room)
 {
-    return _DK_person_eat_food(creatng, foodtng, room);
+    //return _DK_person_eat_food(creatng, foodtng, room);
+    thing_play_sample(creatng, 112+UNSYNC_RANDOM(3), 100, 0, 3, 0, 2, 256);
+    internal_set_thing_state(creatng, CrSt_CreatureEat);
+    set_creature_instance(creatng, CrInst_EAT, 1, 0, 0);
+    creatng->continue_state = CrSt_CreatureToGarden;
+    {
+        // TODO ANGER Maybe better either zero the hunger anger or apply annoy_eat_food points, based on the annoy_eat_food value?
+        /*struct CreatureStats *crstat;
+        crstat = creature_stats_get_from_thing(creatng);
+        anger_apply_anger_to_creature(creatng, crstat->annoy_eat_food, AngR_Other, 1);*/
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(creatng);
+        anger_apply_anger_to_creature(creatng, -cctrl->annoyance_level[AngR_Hungry], AngR_Hungry, 1);
+    }
+    if (thing_is_creature(foodtng))
+    {
+        foodtng->health = -1;
+    } else
+    {
+        if (room->used_capacity > 0) {
+            room->used_capacity--;
+        } else {
+            ERRORLOG("Trying to remove some food not in room");
+        }
+        delete_thing_structure(foodtng, 0);
+    }
+    struct Dungeon *dungeon;
+    dungeon = get_dungeon(creatng->owner);
+    dungeon->lvstats.chickens_eaten++;
 }
 
 void person_search_for_food_again(struct Thing *creatng, struct Room *room)
