@@ -1434,9 +1434,7 @@ void draw_engine_room_flagpole(struct RoomFlag *rflg)
 unsigned short choose_health_sprite(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
-    struct CreatureStats *crstat;
     cctrl = creature_control_get_from_thing(thing);
-    crstat = creature_stats_get_from_thing(thing);
     HitPoints health, maxhealth;
     int color_idx;
     health = thing->health;

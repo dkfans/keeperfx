@@ -273,7 +273,7 @@ DLLIMPORT struct StateInfo _DK_states[];
 extern struct StateInfo states[];
 DLLIMPORT long _DK_r_stackpos;
 #define r_stackpos _DK_r_stackpos
-DLLIMPORT struct DiggerStack _DK_reinforce_stack[];
+DLLIMPORT struct DiggerStack _DK_reinforce_stack[DIGGER_TASK_MAX_COUNT];
 #define reinforce_stack _DK_reinforce_stack
 
 #pragma pack()
