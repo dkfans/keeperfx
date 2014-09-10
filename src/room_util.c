@@ -328,7 +328,7 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
 {
     struct Room *room;
     unsigned long n;
-    if ((thing->field_1 & TF1_IsDragged1) != 0)
+    if ((thing->state_flags & TF1_IsDragged1) != 0)
     {
         ERRORLOG("It shouldn't be possible to drag %s during initial asimilation",thing_model_name(thing));
         thing->owner = game.neutral_player_num;

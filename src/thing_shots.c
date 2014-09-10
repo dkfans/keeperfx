@@ -760,9 +760,9 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
       }
       if ( shotst->old->field_2A )
       {
-          trgtng->acceleration.x.val += (throw_strength * (long)shotng->velocity.x.val) / 16;
-          trgtng->acceleration.y.val += (throw_strength * (long)shotng->velocity.y.val) / 16;
-          trgtng->field_1 |= TF1_PushdByAccel;
+          trgtng->veloc_push_add.x.val += (throw_strength * (long)shotng->velocity.x.val) / 16;
+          trgtng->veloc_push_add.y.val += (throw_strength * (long)shotng->velocity.y.val) / 16;
+          trgtng->state_flags |= TF1_PushAdd;
       }
       create_relevant_effect_for_shot_hitting_thing(shotng, trgtng);
       if (trgtng->health >= 0)
@@ -783,9 +783,9 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
 
 void clear_thing_acceleration(struct Thing *thing)
 {
-    thing->acceleration.x.val = 0;
-    thing->acceleration.y.val = 0;
-    thing->acceleration.z.val = 0;
+    thing->veloc_push_add.x.val = 0;
+    thing->veloc_push_add.y.val = 0;
+    thing->veloc_push_add.z.val = 0;
 }
 
 void set_thing_acceleration_angles(struct Thing *thing, long angle_xy, long angle_yz)
@@ -794,9 +794,9 @@ void set_thing_acceleration_angles(struct Thing *thing, long angle_xy, long angl
     thing->field_52 = angle_xy;
     thing->field_54 = angle_yz;
     angles_to_vector(thing->field_52, thing->field_54, 256, &cvect);
-    thing->pos_2C.x.val = cvect.x;
-    thing->pos_2C.y.val = cvect.y;
-    thing->pos_2C.z.val = cvect.z;
+    thing->veloc_base.x.val = cvect.x;
+    thing->veloc_base.y.val = cvect.y;
+    thing->veloc_base.z.val = cvect.z;
 }
 
 TbBool shot_model_makes_flesh_explosion(long shot_model)
@@ -924,10 +924,10 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     if (shotst->old->field_2A != 0)
     {
         i = amp * (long)shotng->velocity.x.val;
-        trgtng->acceleration.x.val += i / 16;
+        trgtng->veloc_push_add.x.val += i / 16;
         i = amp * (long)shotng->velocity.y.val;
-        trgtng->acceleration.y.val += i / 16;
-        trgtng->field_1 |= TF1_PushdByAccel;
+        trgtng->veloc_push_add.y.val += i / 16;
+        trgtng->state_flags |= TF1_PushAdd;
     }
     create_relevant_effect_for_shot_hitting_thing(shotng, trgtng);
     if (shotst->old->field_45 != 0)
@@ -1283,9 +1283,9 @@ TngUpdateRet update_shot(struct Thing *thing)
                 thing->field_52 = get_angle_xy_to(&thing->mappos, &pos2);
                 thing->field_54 = get_angle_yz_to(&thing->mappos, &pos2);
                 angles_to_vector(thing->field_52, thing->field_54, shotst->old->speed, &cvect);
-                dtpos.x.val = cvect.x - thing->pos_2C.x.val;
-                dtpos.y.val = cvect.y - thing->pos_2C.y.val;
-                dtpos.z.val = cvect.z - thing->pos_2C.z.val;
+                dtpos.x.val = cvect.x - thing->veloc_base.x.val;
+                dtpos.y.val = cvect.y - thing->veloc_base.y.val;
+                dtpos.z.val = cvect.z - thing->veloc_base.z.val;
                 cvect.x = dtpos.x.val;
                 cvect.y = dtpos.y.val;
                 cvect.z = dtpos.z.val;
@@ -1299,10 +1299,10 @@ TngUpdateRet update_shot(struct Thing *thing)
                   cvect.y = dtpos.y.val;
                   cvect.z = dtpos.z.val;
                 }
-                thing->acceleration.x.val += cvect.x;
-                thing->acceleration.y.val += cvect.y;
-                thing->acceleration.z.val += cvect.z;
-                thing->field_1 |= TF1_PushdByAccel;
+                thing->veloc_push_add.x.val += cvect.x;
+                thing->veloc_push_add.y.val += cvect.y;
+                thing->veloc_push_add.z.val += cvect.z;
+                thing->state_flags |= TF1_PushAdd;
             }
             break;
         case ShM_Wind:

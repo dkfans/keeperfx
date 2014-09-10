@@ -2292,8 +2292,8 @@ long waiting_combat_move(struct Thing *figtng, struct Thing *enmtng, long enmdis
     {
         if (ACTION_RANDOM(6) == 0)
         {
-            figtng->acceleration.z.val += ACTION_RANDOM(80) + 40;
-            figtng->field_1 |= TF1_PushdByAccel;
+            figtng->veloc_push_add.z.val += ACTION_RANDOM(80) + 40;
+            figtng->state_flags |= TF1_PushAdd;
         }
     }
     return 1;

@@ -287,7 +287,7 @@ TbBool thing_exists(const struct Thing *thing)
 
 TbBool thing_is_dragged_or_pulled(const struct Thing *thing)
 {
-    return ((thing->field_1 & TF1_IsDragged1) != 0) || ((thing->alloc_flags & TAlF_IsDragged) != 0);
+    return ((thing->state_flags & TF1_IsDragged1) != 0) || ((thing->alloc_flags & TAlF_IsDragged) != 0);
 }
 
 struct PlayerInfo *get_player_thing_is_controlled_by(const struct Thing *thing)

@@ -758,41 +758,41 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
         move_effect_element(elemtng);
         break;
     case 2:
-        i = elemtng->pos_2C.x.val;
-        elemtng->pos_2C.x.val = 2*i/3;
-        i = elemtng->pos_2C.y.val;
-        elemtng->pos_2C.y.val = 2*i/3;
-        i = elemtng->pos_2C.z.val;
+        i = elemtng->veloc_base.x.val;
+        elemtng->veloc_base.x.val = 2*i/3;
+        i = elemtng->veloc_base.y.val;
+        elemtng->veloc_base.y.val = 2*i/3;
+        i = elemtng->veloc_base.z.val;
         if (i > 32)
         {
-          elemtng->pos_2C.z.val = 2*i/3;
+          elemtng->veloc_base.z.val = 2*i/3;
         } else
         if (i > 16)
         {
           i = i-16;
           if (i < 16) i = 16;
-          elemtng->pos_2C.z.val = i;
+          elemtng->veloc_base.z.val = i;
         } else
         if (i < -16)
         {
-          elemtng->pos_2C.z.val = 2*i/3;
+          elemtng->veloc_base.z.val = 2*i/3;
         } else
         {
             i = i+16;
             if (i > 16) i = 16;
-            elemtng->pos_2C.z.val = i;
+            elemtng->veloc_base.z.val = i;
         }
         move_effect_element(elemtng);
         break;
     case 3:
-        elemtng->pos_2C.z.val = 32;
+        elemtng->veloc_base.z.val = 32;
         move_effect_element(elemtng);
         break;
     case 4:
         health = elemtng->health;
         if ((health >= 0) && (health < 16))
         {
-            elemtng->pos_2C.z.val = bounce_table[health];
+            elemtng->veloc_base.z.val = bounce_table[health];
         } else
         {
             ERRORLOG("Illegal effect element bounce life: %d", (int)health);
@@ -809,11 +809,11 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
 
     if (eestats->field_2 != 1)
       return TUFRet_Modified;
-    i = get_angle_yz_to_vec(&elemtng->pos_2C);
+    i = get_angle_yz_to_vec(&elemtng->veloc_base);
     if (i > LbFPMath_PI)
       i -= LbFPMath_PI;
     prop_val = i / (LbFPMath_PI/8);
-    elemtng->field_52 = get_angle_xy_to_vec(&elemtng->pos_2C);
+    elemtng->field_52 = get_angle_xy_to_vec(&elemtng->veloc_base);
     elemtng->field_48 = prop_val;
     elemtng->field_3E = 0;
     elemtng->field_40 = (prop_val & 0xff) << 8;
@@ -893,14 +893,14 @@ void effect_generate_effect_elements(const struct Thing *thing)
               k = abs(effnfo->accel_xy_max - effnfo->accel_xy_min);
               if (k <= 1) k = 1;
               mag = effnfo->accel_xy_min + ACTION_RANDOM(k);
-              elemtng->acceleration.x.val += distance_with_angle_to_coord_x(mag,arg);
-              elemtng->acceleration.y.val += distance_with_angle_to_coord_y(mag,arg);
+              elemtng->veloc_push_add.x.val += distance_with_angle_to_coord_x(mag,arg);
+              elemtng->veloc_push_add.y.val += distance_with_angle_to_coord_y(mag,arg);
               // Setting Z acceleration
               k = abs(effnfo->accel_z_max - effnfo->accel_z_min);
               if (k <= 1) k = 1;
               mag = effnfo->accel_z_min + ACTION_RANDOM(k);
-              elemtng->acceleration.z.val += distance_with_angle_to_coord_z(mag,argZ);
-              elemtng->field_1 |= TF1_PushdByAccel;
+              elemtng->veloc_push_add.z.val += distance_with_angle_to_coord_z(mag,argZ);
+              elemtng->state_flags |= TF1_PushAdd;
           }
           break;
     case 2:
@@ -1029,10 +1029,10 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
             acc_x = egenstat->acc_x_min + ACTION_RANDOM(egenstat->acc_x_max - egenstat->acc_x_min + 1);
             acc_y = egenstat->acc_y_min + ACTION_RANDOM(egenstat->acc_y_max - egenstat->acc_y_min + 1);
             acc_z = egenstat->acc_z_min + ACTION_RANDOM(egenstat->acc_z_max - egenstat->acc_z_min + 1);
-            elemtng->acceleration.x.val += acc_x;
-            elemtng->acceleration.y.val += acc_y;
-            elemtng->acceleration.z.val += acc_z;
-            elemtng->field_1 |= TF1_PushdByAccel;
+            elemtng->veloc_push_add.x.val += acc_x;
+            elemtng->veloc_push_add.y.val += acc_y;
+            elemtng->veloc_push_add.z.val += acc_z;
+            elemtng->state_flags |= TF1_PushAdd;
             if (egenstat->sound_sample_idx > 0)
             {
                 sectng = create_effect(&elemtng->mappos, TngEff_Unknown49, thing->owner);
@@ -1172,9 +1172,9 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                 move_dist = get_radially_decaying_value(blow_strength,max_dist/4,3*max_dist/4,distance);
                 if (move_dist > 0)
                 {
-                    tngdst->acceleration.x.val += distance_with_angle_to_coord_x(move_dist, move_angle);
-                    tngdst->acceleration.y.val += distance_with_angle_to_coord_y(move_dist, move_angle);
-                    tngdst->field_1 |= TF1_PushdByAccel;
+                    tngdst->veloc_push_add.x.val += distance_with_angle_to_coord_x(move_dist, move_angle);
+                    tngdst->veloc_push_add.y.val += distance_with_angle_to_coord_y(move_dist, move_angle);
+                    tngdst->state_flags |= TF1_PushAdd;
                     affected = true;
                 }
             } else

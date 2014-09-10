@@ -447,7 +447,7 @@ void update_creature_graphic_anim(struct Thing *thing)
         {
             update_creature_anim(thing, 256, 0);
         } else
-        if ((cctrl->dragtng_idx != 0) && (thing_get(cctrl->dragtng_idx)->field_1 & TF1_IsDragged1))
+        if ((cctrl->dragtng_idx != 0) && (thing_get(cctrl->dragtng_idx)->state_flags & TF1_IsDragged1))
         {
             i = (((long)cctrl->field_9) << 8) / (crstat->walking_anim_speed+1);
             update_creature_anim(thing, i, 2);

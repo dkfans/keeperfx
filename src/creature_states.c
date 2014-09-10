@@ -1697,7 +1697,7 @@ short creature_change_to_chicken(struct Thing *creatng)
     cctrl->spell_flags |= CSAfF_Chicken;
     creatng->field_4F &= ~0x01;
     set_creature_size_stuff(creatng);
-    creatng->field_1 &= ~TF1_Unkn10;
+    creatng->state_flags &= ~TF1_Unkn10;
     creatng->active_state = CrSt_CreaturePretendChickenSetupMove;
     creatng->continue_state = CrSt_Unused;
     cctrl->field_302 = 0;
@@ -2431,7 +2431,7 @@ void creature_drag_object(struct Thing *creatng, struct Thing *dragtng)
     cctrl = creature_control_get_from_thing(creatng);
     cctrl->dragtng_idx = dragtng->index;
     dragtng->alloc_flags |= TAlF_IsDragged;
-    dragtng->field_1 |= TF1_IsDragged1;
+    dragtng->state_flags |= TF1_IsDragged1;
     dragtng->owner = game.neutral_player_num;
     if (dragtng->light_id != 0) {
       light_turn_light_off(dragtng->light_id);
@@ -2452,7 +2452,7 @@ void creature_drop_dragged_object(struct Thing *creatng, struct Thing *dragtng)
     }
     cctrl->dragtng_idx = 0;
     dragtng->alloc_flags &= ~TAlF_IsDragged;
-    dragtng->field_1 &= ~TF1_IsDragged1;
+    dragtng->state_flags &= ~TF1_IsDragged1;
     move_thing_in_map(dragtng, &creatng->mappos);
     if (dragtng->light_id != 0) {
         light_turn_light_on(dragtng->light_id);
@@ -2854,7 +2854,7 @@ short creature_pick_up_spell_to_steal(struct Thing *creatng)
     cctrl = creature_control_get_from_thing(creatng);
     picktng = thing_get(cctrl->pickup_object_id);
     TRACE_THING(picktng);
-    if ( thing_is_invalid(picktng) || ((picktng->field_1 & TF1_IsDragged1) != 0)
+    if ( thing_is_invalid(picktng) || ((picktng->state_flags & TF1_IsDragged1) != 0)
       || (get_2d_box_distance(&creatng->mappos, &picktng->mappos) >= 512))
     {
         set_start_state(creatng);
@@ -2939,7 +2939,7 @@ void stop_creature_being_dragged_by(struct Thing *dragtng, struct Thing *creatng
     if (dragctrl->dragtng_idx <= 0) {
         WARNLOG("The %s is not dragged by something",thing_model_name(dragtng));
     }
-    dragtng->field_1 &= ~TF1_IsDragged1;
+    dragtng->state_flags &= ~TF1_IsDragged1;
     dragctrl->dragtng_idx = 0;
 }
 
@@ -2965,7 +2965,7 @@ void make_creature_conscious_without_changing_state(struct Thing *creatng)
     cctrl->flgfield_1 &= ~CCFlg_Immortal;
     cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
     cctrl->conscious_back_turns = 0;
-    if ((creatng->field_1 & TF1_IsDragged1) != 0)
+    if ((creatng->state_flags & TF1_IsDragged1) != 0)
     {
         struct Thing *sectng;
         sectng = thing_get(cctrl->dragtng_idx);
@@ -3255,12 +3255,12 @@ void place_thing_in_creature_controlled_limbo(struct Thing *thing)
 {
     remove_thing_from_mapwho(thing);
     thing->field_4F |= 0x01;
-    thing->field_1 |= TF1_InCtrldLimbo;
+    thing->state_flags |= TF1_InCtrldLimbo;
 }
 
 void remove_thing_from_creature_controlled_limbo(struct Thing *thing)
 {
-    thing->field_1 &= ~TF1_InCtrldLimbo;
+    thing->state_flags &= ~TF1_InCtrldLimbo;
     thing->field_4F &= ~0x01;
     place_thing_in_mapwho(thing);
 }
@@ -4150,7 +4150,7 @@ TbBool internal_set_thing_state(struct Thing *thing, CrtrStateId nState)
 {
     struct CreatureControl *cctrl;
     thing->active_state = nState;
-    thing->field_1 &= ~TF1_Unkn10;
+    thing->state_flags &= ~TF1_Unkn10;
     thing->continue_state = CrSt_Unused;
     cctrl = creature_control_get_from_thing(thing);
     cctrl->field_302 = 0;
@@ -4168,7 +4168,7 @@ TbBool initialise_thing_state_f(struct Thing *thing, CrtrStateId nState, const c
     cleanup_current_thing_state(thing);
     thing->continue_state = CrSt_Unused;
     thing->active_state = nState;
-    thing->field_1 &= ~TF1_Unkn10;
+    thing->state_flags &= ~TF1_Unkn10;
     cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
@@ -4194,7 +4194,7 @@ TbBool cleanup_current_thing_state(struct Thing *creatng)
     if (cleanup_cb != NULL)
     {
         cleanup_cb(creatng);
-        creatng->field_1 |= TF1_Unkn10;
+        creatng->state_flags |= TF1_Unkn10;
     } else
     {
         clear_creature_instance(creatng);

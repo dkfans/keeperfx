@@ -355,10 +355,10 @@ void activate_trap_shot_head_for_target90(struct Thing *traptng, struct Thing *c
         shotst = get_shot_model_stats(trapstat->field_1A);
         struct ComponentVector cvect;
         angles_to_vector(shotng->field_52, 0, shotst->old->speed, &cvect);
-        shotng->acceleration.x.val += cvect.x;
-        shotng->acceleration.y.val += cvect.y;
-        shotng->acceleration.z.val += cvect.z;
-        shotng->field_1 |= TF1_PushdByAccel;
+        shotng->veloc_push_add.x.val += cvect.x;
+        shotng->veloc_push_add.y.val += cvect.y;
+        shotng->veloc_push_add.z.val += cvect.z;
+        shotng->state_flags |= TF1_PushAdd;
         shotng->byte_16 = trapstat->field_1B;
         if (shotst->old->firing_sound > 0) {
             thing_play_sample(traptng, shotst->old->firing_sound+UNSYNC_RANDOM(shotst->old->firing_sound_variants),
@@ -401,10 +401,10 @@ void activate_trap_shot_on_trap(struct Thing *traptng, struct Thing *creatng)
     if (!thing_is_invalid(shotng)) {
         shotng->byte_16 = trapstat->field_1B;
         shotng->parent_idx = 0;
-        shotng->acceleration.x.val += trapstat->field_30;
-        shotng->acceleration.y.val += trapstat->field_32;
-        shotng->acceleration.z.val += trapstat->field_34;
-        shotng->field_1 |= TF1_PushdByAccel;
+        shotng->veloc_push_add.x.val += trapstat->field_30;
+        shotng->veloc_push_add.y.val += trapstat->field_32;
+        shotng->veloc_push_add.z.val += trapstat->field_34;
+        shotng->state_flags |= TF1_PushAdd;
     }
 }
 
@@ -472,7 +472,7 @@ TbBool find_pressure_trigger_trap_target_passing_by_subtile(const struct Thing *
         // Per thing code start
         if (thing_is_creature(thing) && (thing->owner != traptng->owner))
         {
-            if ((thing->field_1 & TF1_IsDragged1) == 0)
+            if ((thing->state_flags & TF1_IsDragged1) == 0)
             {
                 if (!creature_is_dying(thing) && !creature_is_being_unconscious(thing)
                     && ((get_creature_model_flags(thing) & MF_IsSpectator) == 0))
@@ -776,10 +776,10 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, long a2)
     shotng->field_52 = a2;
     shotng->field_54 = 0;
     angles_to_vector(shotng->field_52, 0, shotst->old->speed, &cvect);
-    shotng->acceleration.x.val += cvect.x;
-    shotng->acceleration.y.val += cvect.y;
-    shotng->acceleration.z.val += cvect.z;
-    shotng->field_1 |= 0x04;
+    shotng->veloc_push_add.x.val += cvect.x;
+    shotng->veloc_push_add.y.val += cvect.y;
+    shotng->veloc_push_add.z.val += cvect.z;
+    shotng->state_flags |= TF1_PushAdd;
     shotng->byte_16 = trapstat->field_1B;
     const struct ManfctrConfig *mconf;
     mconf = &game.traps_config[thing->model];
