@@ -4450,7 +4450,7 @@ long process_creature_needs_a_wage(struct Thing *thing, const struct CreatureSta
     {
         if (external_set_thing_state(thing, CrSt_CreatureWantsSalary))
         {
-            anger_apply_anger_to_creature(thing, crstat->annoy_got_wage, 1, 1);
+            anger_apply_anger_to_creature(thing, crstat->annoy_got_wage, AngR_NotPaid, 1);
             return 1;
         }
         return 0;

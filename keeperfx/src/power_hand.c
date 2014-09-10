@@ -847,6 +847,7 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     overtng = thing_get(player->thing_under_hand);
     if (thing_is_object(droptng) && object_is_gold_pile(droptng))
     {
+        //TODO HUNGER allow creature to eat if it can it - special digger condition is incorrect
         if (thing_is_creature(overtng) && !thing_is_creature_special_digger(overtng))
         {
             gold_being_dropped_on_creature(plyr_idx, droptng, overtng);
@@ -861,6 +862,7 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     } else
     if (thing_is_object(droptng) && object_is_mature_food(droptng))
     {
+        //TODO HUNGER allow creature to eat if it can it - special digger condition is incorrect
         if (thing_is_creature(overtng) && !thing_is_creature_special_digger(overtng))
         {
             food_eaten_by_creature(droptng, thing_get(player->thing_under_hand));
@@ -1266,9 +1268,22 @@ TbBool is_dangerous_drop_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     return false;
 }
 
-unsigned long can_drop_thing_here(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long a3, unsigned long allow_unclaimed)
+unsigned long can_drop_thing_here(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx, unsigned long allow_unclaimed)
 {
-  return _DK_can_drop_thing_here(stl_x, stl_y, a3, allow_unclaimed);
+    //return _DK_can_drop_thing_here(stl_x, stl_y, plyr_idx, allow_unclaimed);
+    struct Map *mapblk;
+    mapblk = get_map_block_at(stl_x, stl_y);
+    if (!map_block_revealed(mapblk, plyr_idx))
+        return false;
+    if (((mapblk->flags & 0x10) != 0) || ((mapblk->flags & 0x40) != 0))
+        return false;
+    struct SlabMap *slb;
+    slb = get_slabmap_for_subtile(stl_x, stl_y);
+    if (slabmap_owner(slb) == plyr_idx)
+        return true;
+    if (allow_unclaimed && slabmap_owner(slb) == game.neutral_player_num && slb->kind == SlbT_PATH)
+        return true;
+    return false;
 }
 
 short can_place_thing_here(struct Thing *thing, long stl_x, long stl_y, long dngn_idx)
