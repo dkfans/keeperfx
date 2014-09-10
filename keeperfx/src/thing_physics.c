@@ -55,12 +55,12 @@ TbBool thing_touching_floor(const struct Thing *thing)
 TbBool thing_touching_flight_altitude(const struct Thing *thing)
 {
     int i;
-    if (thing->acceleration.z.val > 0) {
+    if (thing->veloc_push_add.z.val != 0) {
         return false;
     }
     i = get_floor_height_under_thing_at(thing, &thing->mappos);
-    return (thing->mappos.z.val >= i + 9*NORMAL_FLYING_ALTITUDE/10)
-        && (thing->mappos.z.val <= i + 11*NORMAL_FLYING_ALTITUDE/10);
+    return (thing->mappos.z.val >= i + 16*NORMAL_FLYING_ALTITUDE/17)
+        && (thing->mappos.z.val <= i + 19*NORMAL_FLYING_ALTITUDE/17);
 }
 
 void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long a3)
@@ -78,30 +78,30 @@ void remove_relevant_forces_from_thing_after_slide(struct Thing *thing, struct C
     switch ( a3 )
     {
     case 1:
-        thing->pos_2C.x.val = 0;
+        thing->veloc_base.x.val = 0;
         break;
     case 2:
-        thing->pos_2C.y.val = 0;
+        thing->veloc_base.y.val = 0;
         break;
     case 3:
-        thing->pos_2C.x.val = 0;
-        thing->pos_2C.y.val = 0;
+        thing->veloc_base.x.val = 0;
+        thing->veloc_base.y.val = 0;
         break;
     case 4:
-        thing->pos_2C.z.val = 0;
+        thing->veloc_base.z.val = 0;
         break;
     case 5:
-        thing->pos_2C.x.val = 0;
-        thing->pos_2C.z.val = 0;
+        thing->veloc_base.x.val = 0;
+        thing->veloc_base.z.val = 0;
         break;
     case 6:
-        thing->pos_2C.y.val = 0;
-        thing->pos_2C.z.val = 0;
+        thing->veloc_base.y.val = 0;
+        thing->veloc_base.z.val = 0;
         break;
     case 7:
-        thing->pos_2C.x.val = 0;
-        thing->pos_2C.y.val = 0;
-        thing->pos_2C.z.val = 0;
+        thing->veloc_base.x.val = 0;
+        thing->veloc_base.y.val = 0;
+        thing->veloc_base.z.val = 0;
         break;
     }
 }

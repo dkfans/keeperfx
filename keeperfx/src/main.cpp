@@ -2332,8 +2332,8 @@ void update_near_creatures_for_footsteps(long *near_creatures, const struct Coor
         }
         i = thing->next_of_class;
         // Per-thing code
-        thing->field_1 &= ~0x20;
-        if (((thing->alloc_flags & 0x10) == 0) && ((thing->field_1 & 0x02) == 0))
+        thing->state_flags &= ~TF1_Unkn20;
+        if (((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->state_flags & TF1_InCtrldLimbo) == 0))
         {
             struct CreatureSound *crsound;
             crsound = get_creature_sound(thing, CrSnd_Foot);
@@ -2390,7 +2390,7 @@ long stop_playing_flight_sample_in_all_flying_creatures(void)
         }
         i = thing->next_of_class;
         // Per-thing code
-        if ((get_creature_model_flags(thing) & MF_IsDiptera) && ((thing->field_1 & 0x20) == 0))
+        if ((get_creature_model_flags(thing) & MF_IsDiptera) && ((thing->state_flags & TF1_Unkn20) == 0))
         {
             if ( S3DEmitterIsPlayingSample(thing->snd_emitter_id, 25, 0) ) {
                 S3DDeleteSampleFromEmitter(thing->snd_emitter_id, 25, 0);
@@ -2430,7 +2430,7 @@ void update_footsteps_nearest_camera(struct Camera *camera)
             break;
         thing = thing_get(near_creatures[i]);
         if (thing_is_creature(thing)) {
-            thing->field_1 |= TF1_Unkn20;
+            thing->state_flags |= TF1_Unkn20;
             play_thing_walking(thing);
         }
     }
