@@ -53,6 +53,18 @@ DLLIMPORT void _DK_person_eat_food(struct Thing *creatng, struct Thing *foodtng,
 }
 #endif
 /******************************************************************************/
+/**
+ * Returns if given creature has the ability to eat.
+ */
+TbBool creature_able_to_eat(const struct Thing *creatng)
+{
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(creatng);
+    if (creature_stats_invalid(crstat))
+        return false;
+    return (crstat->hunger_rate != 0);
+}
+
 TbBool hunger_is_creature_hungry(const struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
@@ -67,7 +79,7 @@ TbBool hunger_is_creature_hungry(const struct Thing *creatng)
 void person_eat_food(struct Thing *creatng, struct Thing *foodtng, struct Room *room)
 {
     //return _DK_person_eat_food(creatng, foodtng, room);
-    thing_play_sample(creatng, 112+UNSYNC_RANDOM(3), 100, 0, 3, 0, 2, 256);
+    thing_play_sample(creatng, 112+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     internal_set_thing_state(creatng, CrSt_CreatureEat);
     set_creature_instance(creatng, CrInst_EAT, 1, 0, 0);
     creatng->continue_state = CrSt_CreatureToGarden;

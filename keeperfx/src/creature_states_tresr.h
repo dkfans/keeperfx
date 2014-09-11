@@ -33,6 +33,7 @@ struct Thing;
 
 #pragma pack()
 /******************************************************************************/
+TbBool creature_able_to_get_salary(const struct Thing *creatng);
 
 /******************************************************************************/
 #ifdef __cplusplus
