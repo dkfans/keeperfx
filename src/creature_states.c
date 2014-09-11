@@ -4484,7 +4484,7 @@ long process_creature_needs_a_wage(struct Thing *thing, const struct CreatureSta
         return 0;
     }
     cctrl->field_48--;
-    anger_apply_anger_to_creature(thing, crstat->annoy_no_salary, 1, 1);
+    anger_apply_anger_to_creature(thing, crstat->annoy_no_salary, AngR_NotPaid, 1);
     return 0;
 }
 
