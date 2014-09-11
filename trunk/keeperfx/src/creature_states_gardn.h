@@ -33,6 +33,7 @@ struct Thing;
 
 #pragma pack()
 /******************************************************************************/
+TbBool creature_able_to_eat(const struct Thing *creatng);
 TbBool hunger_is_creature_hungry(const struct Thing *creatng);
 
 short creature_arrived_at_garden(struct Thing *thing);

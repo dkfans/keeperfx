@@ -40,6 +40,8 @@
 #include "creature_states.h"
 #include "creature_states_mood.h"
 #include "creature_states_combt.h"
+#include "creature_states_tresr.h"
+#include "creature_states_gardn.h"
 #include "config_creature.h"
 #include "player_instances.h"
 #include "kjm_input.h"
@@ -847,8 +849,7 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     overtng = thing_get(player->thing_under_hand);
     if (thing_is_object(droptng) && object_is_gold_pile(droptng))
     {
-        //TODO HUNGER allow creature to eat if it can it - special digger condition is incorrect
-        if (thing_is_creature(overtng) && !thing_is_creature_special_digger(overtng))
+        if (thing_is_creature(overtng) && creature_able_to_get_salary(overtng))
         {
             gold_being_dropped_on_creature(plyr_idx, droptng, overtng);
         } else
@@ -862,8 +863,7 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     } else
     if (thing_is_object(droptng) && object_is_mature_food(droptng))
     {
-        //TODO HUNGER allow creature to eat if it can it - special digger condition is incorrect
-        if (thing_is_creature(overtng) && !thing_is_creature_special_digger(overtng))
+        if (thing_is_creature(overtng) && creature_able_to_eat(overtng))
         {
             food_eaten_by_creature(droptng, thing_get(player->thing_under_hand));
         } else

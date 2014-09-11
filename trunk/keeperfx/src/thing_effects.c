@@ -624,7 +624,7 @@ void move_effect_blocked(struct Thing *thing, struct Coord3d *prev_pos, struct C
           }
           sample_id = effstat->field_2C;
           if (sample_id > 0) {
-              thing_play_sample(efftng, sample_id, 100, 0, 3, 0, 2, effstat->field_2E);
+              thing_play_sample(efftng, sample_id, NORMAL_PITCH, 0, 3, 0, 2, effstat->field_2E);
           }
           if ( effstat->field_30 )
               thing->health = 0;
@@ -638,7 +638,7 @@ void move_effect_blocked(struct Thing *thing, struct Coord3d *prev_pos, struct C
             }
             sample_id = effstat->field_33;
             if (sample_id > 0) {
-                thing_play_sample(efftng, sample_id, 100, 0, 3, 0, 2, effstat->field_35);
+                thing_play_sample(efftng, sample_id, NORMAL_PITCH, 0, 3, 0, 2, effstat->field_35);
             }
             if ( effstat->field_37 )
                 thing->health = 0;
@@ -651,7 +651,7 @@ void move_effect_blocked(struct Thing *thing, struct Coord3d *prev_pos, struct C
             }
             sample_id = effstat->field_25;
             if (sample_id > 0) {
-                thing_play_sample(efftng, sample_id, 100, 0, 3, 0, 2, effstat->field_27);
+                thing_play_sample(efftng, sample_id, NORMAL_PITCH, 0, 3, 0, 2, effstat->field_27);
             }
             if ( effstat->field_29 )
                 thing->health = 0;
