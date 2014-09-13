@@ -114,7 +114,7 @@ struct Planner
 
     Planner(int plyr_idx, NodeCompareFunc open_compare,
             NodeCompareFunc leaf_compare) : my_idx(plyr_idx),
-        next_node_id(0), env(), open(open_compare), leaves(leaf_compare),
+        next_node_id(0), env(), root(NULL), open(open_compare), leaves(leaf_compare),
         freelist_head(), freelist_tail(), livelist_head() {
     }
 };
@@ -524,7 +524,7 @@ static void visit_node(struct Node * node)
 
     //2) room build nodes
     can_wait_to_research = node->decision.type == SAI_PLAN_WAIT &&
-        node->state.rooms_built & (1 << RoK_LIBRARY)?
+        (node->state.rooms_built & (1 << RoK_LIBRARY))?
             planner->env.rooms_researchable : 0;
     can_build = ~node->state.rooms_built & (node->state.rooms_available | can_wait_to_research);
     for (i = 0; i < ROOM_TYPES_COUNT; ++i) {
@@ -540,19 +540,19 @@ static void visit_node(struct Node * node)
             insert_creature_prioritize_node(node, SAI_CP_SAVE_MONEY);
         }
         if (node->state.creature_prio != SAI_CP_TRAIN &&
-                node->state.rooms_built & (1 << RoK_TRAINING)) {
+                (node->state.rooms_built & (1 << RoK_TRAINING))) {
             insert_creature_prioritize_node(node, SAI_CP_TRAIN);
         }
         if (node->state.creature_prio != SAI_CP_RESEARCH &&
-                node->state.rooms_built & (1 << RoK_LIBRARY)) {
+                (node->state.rooms_built & (1 << RoK_LIBRARY))) {
             insert_creature_prioritize_node(node, SAI_CP_RESEARCH);
         }
         if (node->state.creature_prio != SAI_CP_MANUFACTURE &&
-                node->state.rooms_built & (1 << RoK_WORKSHOP)) {
+                (node->state.rooms_built & (1 << RoK_WORKSHOP))) {
             insert_creature_prioritize_node(node, SAI_CP_MANUFACTURE);
         }
         if (node->state.creature_prio != SAI_CP_SCAVENGE &&
-                node->state.rooms_built & (1 << RoK_SCAVENGER)) {
+                (node->state.rooms_built & (1 << RoK_SCAVENGER))) {
             insert_creature_prioritize_node(node, SAI_CP_SCAVENGE);
         }
     }
@@ -582,6 +582,7 @@ static const char * decision_param_string(struct SAI_PlanDecision * decision)
         case SAI_CP_SCAVENGE:
             return "Scavenging";
         }
+        // no break
     default:
         return "(N/A)";
     }

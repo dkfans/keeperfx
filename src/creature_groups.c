@@ -34,9 +34,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_add_creature_to_group(struct Thing *crthing, struct Thing *grthing);
 DLLIMPORT long _DK_get_highest_experience_level_in_group(struct Thing *thing);
-DLLIMPORT long _DK_process_obey_leader(struct Thing *thing);
 DLLIMPORT void _DK_leader_find_positions_for_followers(struct Thing *thing);
 
 /******************************************************************************/
@@ -110,7 +108,6 @@ struct Thing *get_last_creature_in_group(const struct Thing *grptng)
 TbBool add_creature_to_group(struct Thing *crthing, struct Thing *grthing)
 {
     struct Thing *pvthing;
-    //return _DK_add_creature_to_group(crthing, grthing);
     pvthing = get_last_creature_in_group(grthing);
     if ((grthing == crthing) || (grthing->owner != crthing->owner)) {
         return false;
@@ -235,7 +232,6 @@ TbBool make_group_member_leader(struct Thing *leadtng)
 
 long process_obey_leader(struct Thing *thing)
 {
-    //return _DK_process_obey_leader(thing);
     struct Thing *leadtng;
     leadtng = get_group_leader(thing);
     if (thing_is_invalid(leadtng)) {

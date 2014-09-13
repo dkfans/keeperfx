@@ -73,7 +73,6 @@ long navigation_map_size_y = 256;
 unsigned char *IanMap = NULL;
 long nav_map_initialised = 0;
 /******************************************************************************/
-DLLIMPORT void _DK_clear_mapwho(void);
 DLLIMPORT void _DK_clear_slab_dig(long a1, long a2, char a3);
 /******************************************************************************/
 /**
@@ -453,7 +452,6 @@ MapSubtlCoord stl_slab_ending_subtile(MapSubtlCoord stl_v)
 
 void clear_mapwho(void)
 {
-  //_DK_clear_mapwho();
   struct Map *mapblk;
   MapSubtlCoord x,y;
   for (y=0; y < (map_subtiles_y+1); y++)

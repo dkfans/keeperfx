@@ -47,19 +47,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT short _DK_good_attack_room(struct Thing *creatng);
-DLLIMPORT short _DK_good_back_at_start(struct Thing *creatng);
-DLLIMPORT short _DK_good_doing_nothing(struct Thing *creatng);
-DLLIMPORT short _DK_good_drops_gold(struct Thing *creatng);
-DLLIMPORT short _DK_good_leave_through_exit_door(struct Thing *creatng);
-DLLIMPORT short _DK_good_returns_to_start(struct Thing *creatng);
-DLLIMPORT short _DK_good_wait_in_exit_door(struct Thing *creatng);
-DLLIMPORT long _DK_good_setup_loot_treasure_room(struct Thing *creatng, long dngn_id);
-DLLIMPORT short _DK_creature_hero_entering(struct Thing *creatng);
 DLLIMPORT long _DK_get_best_dungeon_to_tunnel_to(struct Thing *creatng);
-DLLIMPORT long _DK_creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short a3);
-DLLIMPORT short _DK_tunneller_doing_nothing(struct Thing *creatng);
-DLLIMPORT short _DK_tunnelling(struct Thing *creatng);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -162,7 +150,6 @@ TbBool good_setup_loot_treasure_room(struct Thing *thing, long dngn_id)
 {
     struct CreatureControl *cctrl;
     struct Room *room;
-    //return _DK_good_setup_loot_treasure_room(thing, dngn_id);
     room = find_random_room_creature_can_navigate_to(thing, dngn_id, RoK_TREASURE, NavRtF_Default);
     if (room_is_invalid(room))
     {
@@ -410,7 +397,6 @@ short good_attack_room(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    //return _DK_good_attack_room(thing);
     MapSlabCoord base_slb_x,base_slb_y;
     base_slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
     base_slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
@@ -465,7 +451,6 @@ short good_back_at_start(struct Thing *thing)
         set_start_state(thing);
         return false;
     }
-    //return _DK_good_back_at_start(thing);
     if (thing->creature.gold_carried <= 0)
     {
         set_start_state(thing);
@@ -772,7 +757,6 @@ short good_drops_gold(struct Thing *thing)
         erstat_inc(ESE_BadCreatrState);
         return 0;
     }
-    //return _DK_good_drops_gold(thing);
     GoldAmount amount;
     amount = game.pot_of_gold_holds;
     if (thing->creature.gold_carried <= game.pot_of_gold_holds)
@@ -802,7 +786,6 @@ short good_leave_through_exit_door(struct Thing *thing)
         erstat_inc(ESE_BadCreatrState);
         return false;
     }
-    //return _DK_good_leave_through_exit_door(thing);
     tmptng = find_base_thing_on_mapwho(TCls_Object, 49, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     if (thing_is_invalid(tmptng))
     {
@@ -829,7 +812,6 @@ short good_returns_to_start(struct Thing *thing)
         erstat_inc(ESE_BadCreatrState);
         return 0;
     }
-    //return _DK_good_returns_to_start(thing);
     heartng = get_player_soul_container(thing->owner);
     TRACE_THING(heartng);
     //TODO CREATURE_AI Heroes don't usually have hearts; maybe they should also go back to hero gates, or any room?
@@ -854,7 +836,6 @@ short good_wait_in_exit_door(struct Thing *thing)
         erstat_inc(ESE_BadCreatrState);
         return 0;
     }
-    //return _DK_good_wait_in_exit_door(thing);
     cctrl = creature_control_get_from_thing(thing);
     if (cctrl->field_282 <= 0)
         return 0;
@@ -887,7 +868,6 @@ short creature_hero_entering(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     TRACE_THING(thing);
-    //return _DK_creature_hero_entering(thing);
     cctrl = creature_control_get_from_thing(thing);
     if (cctrl->field_282 > 0)
     {
@@ -945,7 +925,6 @@ TbBool send_tunneller_to_point_in_dungeon(struct Thing *creatng, PlayerNumber pl
 
 short tunneller_doing_nothing(struct Thing *creatng)
 {
-    //return _DK_tunneller_doing_nothing(creatng);
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
     // Wait for some time
@@ -998,7 +977,6 @@ long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short speed)
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
     SYNCDBG(6,"Move %s from (%d,%d) to (%d,%d) with speed %d",thing_model_name(creatng),(int)creatng->mappos.x.stl.num,(int)creatng->mappos.y.stl.num,(int)pos->x.stl.num,(int)pos->y.stl.num,(int)speed);
-    //return _DK_creature_tunnel_to(creatng, pos, a3);
     long i;
     cctrl->navi.field_19[0] = 0;
     if (get_2d_box_distance(&creatng->mappos, pos) <= 32)
@@ -1066,7 +1044,6 @@ short tunnelling(struct Thing *creatng)
     struct SlabMap *slb;
     long speed;
     SYNCDBG(7,"Move %s from (%d,%d)",thing_model_name(creatng),(int)creatng->mappos.x.stl.num,(int)creatng->mappos.y.stl.num);
-    //return _DK_tunnelling(creatng);
     speed = get_creature_speed(creatng);
     slb = get_slabmap_for_subtile(creatng->mappos.x.stl.num,creatng->mappos.y.stl.num);
     struct CreatureControl *cctrl;

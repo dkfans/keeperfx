@@ -99,10 +99,6 @@ extern struct TbLoadFiles low_res_pointer_load_files[];
 extern struct TbLoadFiles low_res_small_pointer_load_files[];
 extern struct TbLoadFiles hi_res_pointer_load_files[];
 extern struct TbLoadFiles hi_res_small_pointer_load_files[];
-extern struct TbLoadFiles legal_load_files[];
-extern struct TbLoadFiles game_load_files[];
-extern struct TbLoadFiles nocd_load_files[];
-extern struct TbLoadFiles map_flag_load_files[];
 /******************************************************************************/
 
 /**

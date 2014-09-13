@@ -43,16 +43,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT struct Thing *_DK_create_trap(struct Coord3d *pos, unsigned short trpkind, unsigned short plyr_idx);
-DLLIMPORT struct Thing *_DK_get_trap_for_position(long pos_x, long pos_y);
-DLLIMPORT struct Thing *_DK_get_trap_for_slab_position(long slb_x, long slb_y);
-DLLIMPORT long _DK_update_trap(struct Thing *traptng);
-DLLIMPORT void _DK_update_trap_trigger(struct Thing *traptng);
-DLLIMPORT void _DK_external_activate_trap_shot_at_angle(struct Thing *traptng, long plyr_idx);
-DLLIMPORT unsigned char _DK_tag_cursor_blocks_place_trap(unsigned char trpkind, long plyr_idx, long a3);
-DLLIMPORT long _DK_update_trap_trigger_line_of_sight_90(struct Thing *traptng);
-DLLIMPORT void _DK_activate_trap(struct Thing *traptng, struct Thing *creatng);
-/******************************************************************************/
 TbBool destroy_trap(struct Thing *traptng)
 {
     if ((traptng->trap.num_shots == 0) && !is_neutral_thing(traptng) && !is_hero_thing(traptng)) {
@@ -78,7 +68,6 @@ TbBool trap_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx)
 
 struct Thing *get_trap_for_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    //return _DK_get_trap_for_position(stl_x, stl_y);
     struct Thing *thing;
     struct Map *mapblk;
     long i;
@@ -114,7 +103,6 @@ struct Thing *get_trap_for_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 struct Thing *get_trap_for_slab_position(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     MapCoord pos_x,pos_y;
-    //return _DK_get_trap_for_slab_position(slb_x, slb_y);
     pos_x = subtile_coord_center(slab_subtile_center(slb_x));
     pos_y = subtile_coord_center(slab_subtile_center(slb_y));
     return get_trap_around_of_model_and_owned_by(pos_x, pos_y, -1, -1);
@@ -182,7 +170,6 @@ TbBool update_trap_trigger_line_of_sight_90_on_subtile(struct Thing *traptng, Ma
 TbBool update_trap_trigger_line_of_sight_90(struct Thing *traptng)
 {
     static const MapSubtlDelta line_of_sight_90_range = 20;
-    //return _DK_update_trap_trigger_line_of_sight_90(traptng);
     MapSubtlCoord stl_x_beg, stl_x_end;
     MapSubtlCoord stl_y_beg, stl_y_end;
     {
@@ -422,7 +409,6 @@ void activate_trap_slab_change(struct Thing *traptng, struct Thing *creatng)
 
 void activate_trap(struct Thing *traptng, struct Thing *creatng)
 {
-    //_DK_activate_trap(traptng, creatng); return;
     const struct TrapStats *trapstat;
     traptng->trap.byte_18t = 1;
     trapstat = &trap_stats[traptng->model];
@@ -527,7 +513,6 @@ TngUpdateRet update_trap_trigger(struct Thing *traptng)
     if (traptng->trap.num_shots <= 0) {
         return TUFRet_Unchanged;
     }
-    //_DK_update_trap_trigger(thing); return;
     TbBool do_trig;
     switch (trap_stats[traptng->model].trigger_type)
     {
@@ -587,7 +572,6 @@ TngUpdateRet update_trap(struct Thing *traptng)
 {
     SYNCDBG(18,"Starting");
     TRACE_THING(traptng);
-    //return _DK_update_trap(thing);
     if (traptng->health < 0)
     {
         destroy_trap(traptng);
@@ -607,7 +591,6 @@ TngUpdateRet update_trap(struct Thing *traptng)
 struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber plyr_idx)
 {
     SYNCDBG(7,"Starting");
-    //return _DK_create_trap(pos, trpkind, plyr_idx);
     struct TrapStats *trapstat;
     trapstat = &trap_stats[trpkind];
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots)) {
@@ -758,7 +741,6 @@ long remove_traps_around_subtile(long stl_x, long stl_y, long *sell_value)
 
 void external_activate_trap_shot_at_angle(struct Thing *thing, long a2)
 {
-    //_DK_external_activate_trap_shot_at_angle(thing, a2);
     struct TrapStats *trapstat;
     trapstat = &trap_stats[thing->model];
     if (trapstat->field_1A <= 0) {
@@ -798,7 +780,6 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, long a2)
 TbBool tag_cursor_blocks_place_trap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     SYNCDBG(7,"Starting");
-    //return _DK_tag_cursor_blocks_place_trap(plyr_idx, stl_x, stl_y);
     int par1;
     TbBool can_place;
     can_place = 0;
