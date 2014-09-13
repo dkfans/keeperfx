@@ -69,6 +69,9 @@ extern "C" {
 #ifndef true
 #define true 1
 #endif
+#ifndef NULL
+#define NULL 0
+#endif
 #ifndef max
 #define max(a,b) ((a)>(b)?(a):(b))
 #endif

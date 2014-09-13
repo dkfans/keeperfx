@@ -586,6 +586,7 @@ void draw_power_hand(void)
           } else
           if ((picktng->class_id == TCls_Object) && object_is_gold_pile(picktng))
             break;
+          // no break
       default:
           stl_x = GetMouseX();
           stl_y = GetMouseY();

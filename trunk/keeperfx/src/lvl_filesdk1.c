@@ -45,16 +45,6 @@ const char slabclm_fname[] = "slabs.clm";
 const char slabdat_fname[] = "slabs.dat";
 long level_file_version = 0;
 /******************************************************************************/
-DLLIMPORT long _DK_convert_old_column_file(unsigned long lv_num);
-DLLIMPORT unsigned char _DK_load_map_slab_file(unsigned long lv_num);
-DLLIMPORT long _DK_load_column_file(unsigned long lv_num);
-DLLIMPORT void _DK_load_slab_file(void);
-DLLIMPORT long _DK_load_map_data_file(unsigned long lv_num);
-DLLIMPORT void _DK_load_thing_file(unsigned long lv_num);
-DLLIMPORT long _DK_load_action_point_file(unsigned long lv_num);
-DLLIMPORT void _DK_load_level_file(long lvnum);
-DLLIMPORT void _DK_initialise_extra_slab_info(unsigned long lv_num);
-/******************************************************************************/
 
 /**
  * Loads map file with given level number and file extension.
@@ -568,14 +558,12 @@ TbBool find_and_load_lof_files(void)
 
 long convert_old_column_file(LevelNumber lv_num)
 {
-    //return _DK_convert_old_column_file(lv_num);
     ERRORLOG("Converting old column format no longer supported.");
     return 0;
 }
 
 TbBool load_column_file(LevelNumber lv_num)
 {
-    //return _DK_load_column_file(lv_num);
     struct Column *colmn;
     unsigned long i;
     long k;
@@ -630,7 +618,6 @@ TbBool load_column_file(LevelNumber lv_num)
 
 TbBool load_map_data_file(LevelNumber lv_num)
 {
-    //return _DK_load_map_data_file(lv_num);
     struct Map *mapblk;
     unsigned long x,y;
     unsigned char *buf;
@@ -718,7 +705,6 @@ TbBool load_action_point_file(LevelNumber lv_num)
   unsigned char *buf;
   long fsize;
   SYNCDBG(5,"Starting");
-  //return _DK_load_action_point_file(lv_num);
   fsize = 4;
   buf = load_single_map_file_to_buffer(lv_num,"apt",&fsize,LMFF_None);
   if (buf == NULL)
@@ -1148,7 +1134,6 @@ TbBool initialise_extra_slab_info(unsigned long lv_num)
 short load_map_slab_file(unsigned long lv_num)
 {
     SYNCDBG(7,"Starting");
-    //return _DK_load_map_slab_file(lv_num);
     struct SlabMap *slb;
     unsigned long x,y;
     unsigned char *buf;

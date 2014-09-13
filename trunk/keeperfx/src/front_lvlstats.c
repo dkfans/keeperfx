@@ -52,13 +52,6 @@ DLLIMPORT extern struct LevelStats _DK_frontstats_data;
 DLLIMPORT extern TbClockMSec _DK_frontstats_timer;
 #define frontstats_timer _DK_frontstats_timer
 /******************************************************************************/
-DLLIMPORT void _DK_frontstats_update(void);
-DLLIMPORT void _DK_frontstats_set_timer(void);
-DLLIMPORT void _DK_frontstats_initialise(void);
-DLLIMPORT void _DK_frontstats_draw_main_stats(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontstats_draw_scrolling_stats(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontstats_leave(struct GuiButton *gbtn);
-/******************************************************************************/
 extern struct StatsData main_stats_data[];
 extern struct StatsData scrolling_stats_data[];
 /******************************************************************************/
@@ -212,7 +205,6 @@ long calculate_traps_unused(PlayerNumber plyr_idx)
 void frontstats_initialise(void)
 {
     struct Dungeon *dungeon;
-    //_DK_frontstats_initialise();
     // Initialize stats in dungeon
     dungeon = get_my_dungeon();
     dungeon->lvstats.end_time = LbTimerClock();
@@ -247,7 +239,6 @@ void frontstats_draw_main_stats(struct GuiButton *gbtn)
     struct StatsData *stat;
     int stat_val;
     int pos_x,pos_y;
-    //_DK_frontstats_draw_main_stats(gbtn);
     int fs_units_per_px;
     fs_units_per_px = scroll_box_get_units_per_px(gbtn);
     draw_scroll_box(gbtn, fs_units_per_px, 6);
@@ -286,7 +277,6 @@ void frontstats_draw_scrolling_stats(struct GuiButton *gbtn)
     struct StatsData *stat;
     int stat_val;
     int pos_x,pos_y;
-    //_DK_frontstats_draw_scrolling_stats(gbtn);
     int fs_units_per_px;
     fs_units_per_px = scroll_box_get_units_per_px(gbtn);
     draw_scroll_box(gbtn, fs_units_per_px, 5);

@@ -35,11 +35,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT  long _DK_set_game_key(long key_id, unsigned char key, long shift_state, long ctrl_state);
-DLLIMPORT void _DK_update_mouse(void);
-DLLIMPORT long _DK_GetMouseY(void);
-DLLIMPORT char _DK_mouse_is_over_small_map(int, int);
-/******************************************************************************/
 /** Initialization array, used to create array which stores index of text name of keyboard keys. */
 struct KeyToStringInit key_to_string_init[] = {
   {KC_A,  -65},
@@ -130,7 +125,6 @@ long GetMouseX(void)
  */
 long GetMouseY(void)
 {
-  //return _DK_GetMouseY();
   long result;
   result = lbDisplay.MMouseY * (long)pixel_size;
   return result;
@@ -303,7 +297,6 @@ void update_key_modifiers(void)
 
 long set_game_key(long key_id, unsigned char key, unsigned int mods)
 {
-    //return _DK_set_game_key(key_id, key, shift_state, ctrl_state);
     if (!key_to_string[key]) {
       return 0;
     }

@@ -44,18 +44,10 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT struct Thing *_DK_create_effect_element(const struct Coord3d *pos, unsigned short a2, unsigned short max_dist);
 DLLIMPORT struct Thing *_DK_create_effect_generator(struct Coord3d *pos, unsigned short a1, unsigned short a2, unsigned short max_dist, long a4);
-DLLIMPORT void _DK_poison_cloud_affecting_area(struct Thing *efftng, struct Coord3d *pos, long max_dist, long a4, unsigned char a5);
 DLLIMPORT void _DK_process_spells_affected_by_effect_elements(struct Thing *efftng);
-DLLIMPORT long _DK_update_effect_element(struct Thing *efftng);
-DLLIMPORT long _DK_update_effect(struct Thing *efftng);
-DLLIMPORT long _DK_process_effect_generator(struct Thing *efftng);
-DLLIMPORT struct Thing *_DK_create_effect(const struct Coord3d *pos, unsigned short a2, unsigned char max_dist);
 DLLIMPORT long _DK_move_effect(struct Thing *efftng);
-DLLIMPORT long _DK_move_effect_element(struct Thing *efftng);
 DLLIMPORT void _DK_change_effect_element_into_another(struct Thing *efftng, long nmodel);
-DLLIMPORT void _DK_explosion_affecting_area(struct Thing *efftng, const struct Coord3d *pos, long max_dist, long a4, unsigned char a5);
 
 /******************************************************************************/
 extern struct EffectElementStats _DK_effect_element_stats[95];
@@ -501,7 +493,6 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
     struct EffectElementStats *eestat;
     struct Thing *thing;
     long i,n;
-    //return _DK_create_effect_element(pos, eelmodel, owner);
     if (!i_can_allocate_free_thing_structure(FTAF_Default)) {
         return INVALID_THING;
     }
@@ -666,7 +657,6 @@ TngUpdateRet move_effect_element(struct Thing *thing)
     TbBool move_allowed;
     SYNCDBG(18,"Starting");
     TRACE_THING(thing);
-    //return _DK_move_effect_element(thing);
     move_allowed = get_thing_next_position(&pos, thing);
     if ( positions_equivalent(&thing->mappos, &pos) ) {
         return TUFRet_Unchanged;
@@ -703,7 +693,6 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
     long i;
     SYNCDBG(18,"Starting");
     TRACE_THING(elemtng);
-    //return _DK_update_effect_element(thing);
     if (elemtng->model < sizeof(effect_element_stats)/sizeof(effect_element_stats[0])) {
         eestats = &effect_element_stats[elemtng->model];
     } else {
@@ -972,7 +961,6 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
     long i,k;
     SYNCDBG(18,"Starting");
     TRACE_THING(thing);
-    //return _DK_process_effect_generator(thing);
     if (thing->health > 0)
         thing->health--;
     if (thing->health == 0)
@@ -1054,7 +1042,6 @@ struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, Play
 {
     struct Thing *thing;
     struct InitEffect *ieffect;
-    //return _DK_create_effect(pos, effmodel, owner);
     ieffect = &effect_info[effmodel];
     if (!i_can_allocate_free_thing_structure(1)) {
         return INVALID_THING;
@@ -1430,7 +1417,6 @@ long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos, M
     MapSubtlCoord start_x,start_y;
     MapSubtlCoord end_x,end_y;
     MapSubtlCoord range_stl;
-    //_DK_explosion_affecting_area(tngsrc, pos, range, max_damage, hit_type); return;
     if ((hit_type <= THit_None) || (hit_type >= THit_TypesCount))
     {
         ERRORLOG("The %s tries to affect area up to distance %d with invalid hit type %d",thing_model_name(tngsrc),(int)max_dist,(int)hit_type);
@@ -1569,7 +1555,6 @@ long poison_cloud_affecting_map_block(struct Thing *tngsrc, const struct Map *ma
 
 long poison_cloud_affecting_area(struct Thing *tngsrc, struct Coord3d *pos, long max_dist, long max_damage, unsigned char area_affect_type)
 {
-    //_DK_poison_cloud_affecting_area(tngsrc, pos, max_dist, max_damage, area_affect_type); return 0;
     int dmg_divider;
     dmg_divider = 10;
     if (thing_is_effect(tngsrc)) {
@@ -1627,7 +1612,6 @@ TngUpdateRet update_effect(struct Thing *efftng)
     struct Thing *subtng;
     SYNCDBG(18,"Starting for %s",thing_model_name(efftng));
     TRACE_THING(efftng);
-    //return _DK_update_effect(thing);
     subtng = NULL;
     effnfo = get_effect_info_for_thing(efftng);
     if (efftng->parent_idx > 0) {

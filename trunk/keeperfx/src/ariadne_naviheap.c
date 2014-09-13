@@ -33,8 +33,6 @@ DLLIMPORT long _DK_heap_end;
 DLLIMPORT long _DK_Heap[PATH_HEAP_LEN];
 #define Heap _DK_Heap
 /******************************************************************************/
-DLLIMPORT void _DK_heap_down(long heapid);
-/******************************************************************************/
 /** Initializes navigation heap for new use.
  */
 void naviheap_init(void)
@@ -83,7 +81,6 @@ void heap_down(long heapid)
     unsigned long hpos,hnew,hend;
     long tree_idb,tree_ids;
     long tval_idb;
-    //_DK_heap_down(heapid); return;
     // Insert dummy value (there is no associated triangle for it)
     Heap[heap_end+1] = TREEVALS_COUNT-1;
     tree_val[TREEVALS_COUNT-1] = LONG_MAX;
