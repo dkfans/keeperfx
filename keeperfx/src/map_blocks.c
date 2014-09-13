@@ -1306,7 +1306,7 @@ void clear_dig_and_set_explored_can_see_x(MapSlabCoord slb_x, MapSlabCoord slb_y
                   clear_slab_dig(hslb_x, lslb_y, plyr_idx);
                   slb = get_slabmap_block(hslb_x, lslb_y);
                   slbattr = get_slab_attrs(slb);
-                  if (go_dir1 || slbattr->flags & SlbAtFlg_Blocking) {
+                  if (go_dir1 || (slbattr->flags & SlbAtFlg_Blocking)) {
                       set_slab_explored(plyr_idx, hslb_x, lslb_y);
                   }
                   if (slbattr->flags & (SlbAtFlg_IsDoor|SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) {
@@ -1322,7 +1322,7 @@ void clear_dig_and_set_explored_can_see_x(MapSlabCoord slb_x, MapSlabCoord slb_y
                     if (slbattr->flags & 0x20)
                     {
                       clear_slab_dig(hslb_x, lslb_y, plyr_idx);
-                      if (go_dir1 || slbattr->flags & SlbAtFlg_Blocking) {
+                      if (go_dir1 || (slbattr->flags & SlbAtFlg_Blocking)) {
                           set_slab_explored(plyr_idx, hslb_x, lslb_y);
                       }
                     }
@@ -1364,7 +1364,7 @@ void clear_dig_and_set_explored_can_see_x(MapSlabCoord slb_x, MapSlabCoord slb_y
                   clear_slab_dig(hslb_x, hslb_y, plyr_idx);
                   slb = get_slabmap_block(hslb_x, hslb_y);
                   slbattr = get_slab_attrs(slb);
-                  if (go_dir2 || slbattr->flags & SlbAtFlg_Blocking) {
+                  if (go_dir2 || (slbattr->flags & SlbAtFlg_Blocking)) {
                       set_slab_explored(plyr_idx, hslb_x, hslb_y);
                   }
                   if (slbattr->flags & (SlbAtFlg_IsDoor|SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) {
@@ -1382,7 +1382,7 @@ void clear_dig_and_set_explored_can_see_x(MapSlabCoord slb_x, MapSlabCoord slb_y
                       clear_slab_dig(hslb_x, hslb_y, plyr_idx);
                       slb = get_slabmap_block(hslb_x, hslb_y);
                       slbattr = get_slab_attrs(slb);
-                      if (go_dir2 || slbattr->flags & SlbAtFlg_Blocking) {
+                      if (go_dir2 || (slbattr->flags & SlbAtFlg_Blocking)) {
                           set_slab_explored(plyr_idx, hslb_x, hslb_y);
                       }
                   }
@@ -1464,7 +1464,7 @@ void clear_dig_and_set_explored_can_see_y(MapSlabCoord slb_x, MapSlabCoord slb_y
                     clear_slab_dig(lslb_x, hslb_y, plyr_idx);
                     slb = get_slabmap_block(lslb_x, hslb_y);
                     slbattr = get_slab_attrs(slb);
-                    if ( go_dir1 || slbattr->flags & SlbAtFlg_Blocking) {
+                    if ( go_dir1 || (slbattr->flags & SlbAtFlg_Blocking)) {
                         set_slab_explored(plyr_idx, lslb_x, hslb_y);
                     }
                     if (slbattr->flags & (SlbAtFlg_IsDoor|SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) {
@@ -1479,7 +1479,7 @@ void clear_dig_and_set_explored_can_see_y(MapSlabCoord slb_x, MapSlabCoord slb_y
                     if (slbattr->flags & 0x20)
                     {
                         clear_slab_dig(lslb_x, hslb_y, plyr_idx);
-                        if ( go_dir1 || slbattr->flags & SlbAtFlg_Blocking) {
+                        if ( go_dir1 || (slbattr->flags & SlbAtFlg_Blocking)) {
                             set_slab_explored(plyr_idx, lslb_x, hslb_y);
                         }
                     }
@@ -1520,7 +1520,7 @@ void clear_dig_and_set_explored_can_see_y(MapSlabCoord slb_x, MapSlabCoord slb_y
                 clear_slab_dig(hslb_x, hslb_y, plyr_idx);
                 slb = get_slabmap_block(hslb_x, hslb_y);
                 slbattr = get_slab_attrs(slb);
-                if ( go_dir2 || slbattr->flags & SlbAtFlg_Blocking)
+                if (go_dir2 || (slbattr->flags & SlbAtFlg_Blocking))
                   set_slab_explored(plyr_idx, hslb_x, hslb_y);
                 if (slbattr->flags & (SlbAtFlg_IsDoor|SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable))
                   go_dir2 = 0;
@@ -1533,7 +1533,7 @@ void clear_dig_and_set_explored_can_see_y(MapSlabCoord slb_x, MapSlabCoord slb_y
                   if (slbattr->flags & 0x20)
                   {
                       clear_slab_dig(hslb_x, hslb_y, plyr_idx);
-                      if ( go_dir2 || slbattr->flags & SlbAtFlg_Blocking ) {
+                      if (go_dir2 || (slbattr->flags & SlbAtFlg_Blocking)) {
                           set_slab_explored(plyr_idx, hslb_x, hslb_y);
                       }
                   }

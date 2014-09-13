@@ -81,23 +81,6 @@ LevelNumber playing_speech_lvnum;
 struct TbHugeSprite map_window;
 long map_window_len = 0;
 /******************************************************************************/
-DLLIMPORT long _DK_frontnetmap_update(void);
-DLLIMPORT void _DK_frontnetmap_draw(void);
-DLLIMPORT void _DK_frontnetmap_input(void);
-DLLIMPORT void _DK_frontnetmap_unload(void);
-DLLIMPORT void _DK_frontnetmap_load(void);
-DLLIMPORT long _DK_frontmap_update(void);
-DLLIMPORT void _DK_frontmap_draw(void);
-DLLIMPORT void _DK_frontmap_input(void);
-DLLIMPORT void _DK_frontmap_unload(void);
-DLLIMPORT void _DK_frontnet_init_level_descriptions(void);
-DLLIMPORT int _DK_frontmap_load(void);
-DLLIMPORT long _DK_load_map_and_window(unsigned long lv_num);
-DLLIMPORT void _DK_frontzoom_to_point(long a1, long a2, long a3);
-DLLIMPORT void _DK_compressed_window_draw(void);
-DLLIMPORT void _DK_check_mouse_scroll(void);
-DLLIMPORT void _DK_update_velocity(void);
-/******************************************************************************/
 extern struct TbSetupSprite map_flag_setup_sprites[];
 extern struct TbSetupSprite netmap_flag_setup_sprites[];
 /******************************************************************************/
@@ -1674,7 +1657,6 @@ TbBool frontnetmap_update(void)
     struct LevelInformation *lvinfo;
     long i;
     SYNCDBG(8,"Starting");
-//  return _DK_frontnetmap_update();
     if (map_sound_fade > 0)
     {
         i = map_sound_fade * ((long)settings.redbook_volume) / 256;

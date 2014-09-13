@@ -422,4 +422,6 @@
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 		<project id="keeperfx.null.1370875105" name="keeperfx"/>
 	</storageModule>
+	<storageModule moduleId="refreshScope"/>
+	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 </cproject>

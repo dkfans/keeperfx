@@ -78,21 +78,7 @@ Thing_Class_Func class_functions[] = {
 unsigned long thing_create_errors = 0;
 
 /******************************************************************************/
-DLLIMPORT long _DK_update_thing(struct Thing *thing);
-DLLIMPORT long _DK_get_thing_checksum(struct Thing *thing);
-DLLIMPORT long _DK_update_thing_sound(struct Thing *thing);
-DLLIMPORT void _DK_update_creatures_not_in_list(void);
-DLLIMPORT long _DK_update_things_in_list(struct StructureList *list);
-DLLIMPORT void _DK_update_things(void);
-DLLIMPORT long _DK_thing_is_shootable_by_any_player_including_objects(const struct Thing *thing);
-DLLIMPORT long _DK_thing_is_shootable_by_any_player_except_own_including_objects(struct Thing *shooter, struct Thing *thing);
-DLLIMPORT long _DK_thing_is_shootable_by_any_player_except_own_excluding_objects(struct Thing *shooter, struct Thing *thing);
-DLLIMPORT long _DK_thing_is_shootable_by_any_player_excluding_objects(struct Thing *thing);
-DLLIMPORT void _DK_add_thing_to_list(struct Thing *thing, struct StructureList *list);
-DLLIMPORT void _DK_remove_thing_from_list(struct Thing *thing, struct StructureList *slist);
 DLLIMPORT struct Thing *_DK_get_nearest_object_at_position(long stl_x, long stl_y);
-DLLIMPORT struct Thing *_DK_find_base_thing_on_mapwho(unsigned char oclass, unsigned short model, unsigned short x, unsigned short y);
-DLLIMPORT void _DK_remove_thing_from_mapwho(struct Thing *thing);
 DLLIMPORT void _DK_place_thing_in_mapwho(struct Thing *thing);
 /******************************************************************************/
 /**
@@ -102,7 +88,6 @@ DLLIMPORT void _DK_place_thing_in_mapwho(struct Thing *thing);
  */
 void add_thing_to_list(struct Thing *thing, struct StructureList *list)
 {
-    //_DK_add_thing_to_list(thing, list);
     if ((thing->alloc_flags & TAlF_IsInStrucList) != 0)
     {
         ERRORLOG("Thing is already in list");
@@ -126,7 +111,6 @@ void add_thing_to_list(struct Thing *thing, struct StructureList *list)
 void remove_thing_from_list(struct Thing *thing, struct StructureList *slist)
 {
     struct Thing *sibtng;
-    //_DK_remove_thing_from_list(thing, slist);
     if ((thing->alloc_flags & TAlF_IsInStrucList) == 0)
         return;
     if (thing->index == slist->index)
@@ -881,7 +865,6 @@ unsigned long update_creatures_not_in_list(void)
   unsigned long k;
   int i;
   SYNCDBG(18,"Starting");
-  //_DK_update_creatures_not_in_list();
   k = 0;
   i = game.thing_lists[TngList_Creatures].index;
   while (i != 0)
@@ -922,7 +905,6 @@ unsigned long update_creatures_not_in_list(void)
 void update_things(void)
 {
     SYNCDBG(7,"Starting");
-    //_DK_update_things(); return;
     TbBigChecksum sum;
     optimised_lights = 0;
     total_lights = 0;
@@ -1088,7 +1070,6 @@ void remove_thing_from_mapwho(struct Thing *thing)
     struct Map *mapblk;
     struct Thing *mwtng;
     SYNCDBG(18,"Starting");
-    //_DK_remove_thing_from_mapwho(thing);
     if ((thing->alloc_flags & TAlF_IsInMapWho) == 0)
         return;
     if (thing->prev_on_mapblk > 0)
@@ -1118,7 +1099,6 @@ void place_thing_in_mapwho(struct Thing *thing)
 
 struct Thing *find_base_thing_on_mapwho(ThingClass oclass, ThingModel model, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    //return _DK_find_base_thing_on_mapwho(oclass, model, stl_x, stl_y);
     struct Map *mapblk;
     long i;
     unsigned long k;
@@ -2523,7 +2503,6 @@ TbBigChecksum get_thing_checksum(const struct Thing *thing)
 {
     TbBigChecksum csum;
     SYNCDBG(18,"Starting");
-    //return _DK_get_thing_checksum(thing);
     if (!thing_exists(thing))
         return 0;
     csum = (ulong)thing->class_id +
@@ -2561,7 +2540,6 @@ short update_thing_sound(struct Thing *thing)
 
 TbBool thing_is_shootable_by_any_player_including_objects(const struct Thing *thing, PlayerNumber shot_owner)
 {
-    //return _DK_thing_is_shootable_by_any_player_including_objects(thing);
     if (thing_is_creature(thing))
     {
         // spectators are not shootable
@@ -2595,7 +2573,6 @@ TbBool thing_is_shootable_by_any_player_including_objects(const struct Thing *th
 
 TbBool thing_is_shootable_by_any_player_except_own_including_objects(const struct Thing *thing, PlayerNumber shot_owner)
 {
-    //return _DK_thing_is_shootable_by_any_player_except_own_including_objects(shooter, thing);
     if (thing_is_creature(thing))
     {
         struct CreatureControl *cctrl;
@@ -2629,7 +2606,6 @@ TbBool thing_is_shootable_by_any_player_except_own_including_objects(const struc
 
 TbBool thing_is_shootable_by_any_player_except_own_excluding_objects(const struct Thing *thing, PlayerNumber shot_owner)
 {
-    //return _DK_thing_is_shootable_by_any_player_except_own_excluding_objects(shooter, thing);
     if (thing_is_creature(thing))
     {
         struct CreatureControl *cctrl;
@@ -2662,7 +2638,6 @@ TbBool thing_is_shootable_by_any_player_except_own_excluding_objects_and_not_und
 
 TbBool thing_is_shootable_by_any_player_excluding_objects(const struct Thing *thing, PlayerNumber shot_owner)
 {
-    //return _DK_thing_is_shootable_by_any_player_excluding_objects(thing);
     if (thing_is_creature(thing))
     {
         struct CreatureControl *cctrl;
@@ -2841,7 +2816,6 @@ TbBool apply_anger_to_all_players_creatures_excluding(PlayerNumber plyr_idx, lon
     unsigned long k;
     int i;
     SYNCDBG(8,"Starting");
-    //return _DK_make_all_players_creatures_angry(plyr_idx);
     dungeon = get_players_num_dungeon(plyr_idx);
     k = 0;
     i = dungeon->creatr_list_start;
@@ -3047,7 +3021,6 @@ struct Thing *get_nearest_thing_for_slap(PlayerNumber plyr_idx, MapCoord pos_x, 
     Thing_Maximizer_Filter filter;
     struct CompoundTngFilterParam param;
     SYNCDBG(19,"Starting");
-    //return _DK_get_nearest_thing_for_slap(plyr_idx, pos_x, pos_y);
     filter = near_map_block_thing_filter_is_slappable;
     param.class_id = -1;
     param.plyr_idx = plyr_idx;
@@ -3214,7 +3187,6 @@ struct Thing *get_door_for_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     MapSlabCoord slb_x,slb_y;
     long i,n;
     SYNCDBG(19,"Starting");
-    //return _DK_get_door_for_position(pos_x, pos_y);
     filter = anywhere_thing_filter_is_of_class_and_model_and_owned_by;
     param.class_id = TCls_Door;
     param.model_id = -1;

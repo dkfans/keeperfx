@@ -27,9 +27,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT struct ActionPoint *_DK_allocate_free_action_point_structure_with_number(long apt_num);
 DLLIMPORT unsigned long _DK_action_point_get_players_within(long apt_idx);
-DLLIMPORT long _DK_process_action_points(void);
 
 /******************************************************************************/
 struct ActionPoint *action_point_get_free(void)
@@ -48,7 +46,6 @@ struct ActionPoint *action_point_get_free(void)
 struct ActionPoint *allocate_free_action_point_structure_with_number(long apt_num)
 {
     struct ActionPoint *apt;
-    //return _DK_allocate_free_action_point_structure_with_number(apt_num);
     apt = action_point_get_by_number(apt_num);
     if (action_point_exists(apt)) {
         ERRORLOG("Attempt to allocate action point over old one");

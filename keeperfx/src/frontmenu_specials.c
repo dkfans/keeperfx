@@ -38,21 +38,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_select_resurrect_creature(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_resurrect_creature_select(struct GuiButton *gbtn);
-DLLIMPORT void _DK_draw_resurrect_creature(struct GuiButton *gbtn);
-DLLIMPORT void _DK_select_resurrect_creature_up(struct GuiButton *gbtn);
-DLLIMPORT void _DK_select_resurrect_creature_down(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_resurrect_creature_scroll(struct GuiButton *gbtn);
-DLLIMPORT void _DK_select_transfer_creature(struct GuiButton *gbtn);
-DLLIMPORT void _DK_draw_transfer_creature(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_transfer_creature_select(struct GuiButton *gbtn);
-DLLIMPORT void _DK_select_transfer_creature_up(struct GuiButton *gbtn);
-DLLIMPORT void _DK_select_transfer_creature_down(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_transfer_creature_scroll(struct GuiButton *gbtn);
-DLLIMPORT void _DK_choose_hold_audience(struct GuiButton *gbtn);
-DLLIMPORT void _DK_choose_armageddon(struct GuiButton *gbtn);
-/******************************************************************************/
 #define resurrect_creature_items_visible  6
 struct GuiButtonInit resurrect_creature_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,200, 32, gui_area_text,                     1, 428,  0,       {0},            0, 0, NULL },
@@ -137,7 +122,6 @@ int selected_resurrect_creature(const struct Dungeon *dungeon, const struct GuiB
 
 void select_resurrect_creature(struct GuiButton *gbtn)
 {
-    //_DK_select_resurrect_creature(gbtn);
     struct Dungeon *dungeon;
     dungeon = get_my_dungeon();
     int i;
@@ -294,7 +278,6 @@ void maintain_resurrect_creature_select(struct GuiButton *gbtn)
 
 void maintain_resurrect_creature_scroll(struct GuiButton *gbtn)
 {
-    //_DK_maintain_resurrect_creature_scroll(gbtn);
     struct Dungeon *dungeon;
     dungeon = get_my_dungeon();
     int count;
@@ -325,7 +308,6 @@ void maintain_transfer_creature_select(struct GuiButton *gbtn)
 
 void maintain_transfer_creature_scroll(struct GuiButton *gbtn)
 {
-    //_DK_maintain_transfer_creature_scroll(gbtn);
     struct Dungeon *dungeon;
     dungeon = get_my_dungeon();
     int count;
@@ -347,7 +329,6 @@ void maintain_transfer_creature_scroll(struct GuiButton *gbtn)
 
 void choose_hold_audience(struct GuiButton *gbtn)
 {
-    //_DK_choose_hold_audience(gbtn);
     struct PlayerInfo *player;
     player = get_my_player();
     set_players_packet_action(player, PckA_HoldAudience, 0, 0, 0, 0);
@@ -355,7 +336,6 @@ void choose_hold_audience(struct GuiButton *gbtn)
 
 void choose_armageddon(struct GuiButton *gbtn)
 {
-    //_DK_choose_armageddon(gbtn);
     struct PlayerInfo *player;
     player = get_my_player();
     set_players_packet_action(player, PckA_PwrArmagUse, 0, 0, 0, 0);

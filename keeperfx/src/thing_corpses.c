@@ -43,12 +43,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_update_dead_creature(struct Thing *thing);
-DLLIMPORT struct Thing *_DK_create_dead_creature(struct Coord3d *pos, unsigned short model, unsigned short a1, unsigned short owner, long explevel);
-DLLIMPORT struct Thing *_DK_destroy_creature_and_create_corpse(struct Thing *thing, long a1);
-/******************************************************************************/
-
-
 /******************************************************************************/
 /**
  *  Returns if given corpse can rot in graveyard.
@@ -173,7 +167,6 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
     long i;
     SYNCDBG(18,"Starting");
     TRACE_THING(thing);
-    //return _DK_update_dead_creature(thing);
     if ((thing->alloc_flags & TAlF_IsDragged) == 0)
     {
         if (thing->active_state == DCrSt_Unknown01)
@@ -337,7 +330,6 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
 {
     struct Thing *thing;
     unsigned long k;
-    //return _DK_create_dead_creature(pos, model, a1, owner, explevel);
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
     {
         ERRORDBG(3,"Cannot create dead creature model %d for player %d. There are too many things allocated.",(int)model,(int)owner);
@@ -410,7 +402,6 @@ struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long a1)
     long explevel;
     long prev_idx;
 
-    //return _DK_destroy_creature_and_create_corpse(thing, a1);
     crmodel = thing->model;
     memf1 = ((thing->alloc_flags & TAlF_IsControlled) != 0);
     pos.x.val = thing->mappos.x.val;

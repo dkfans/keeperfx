@@ -281,7 +281,7 @@ long edge_rotateAC(long tri1_id, long cor1_id)
         unsigned short tri2_fld, tri1_fld;
         tri1_fld = Triangles[tri1_id].field_D;
         tri2_fld = Triangles[tri2_id].field_D;
-        if ( (1 << (cor1_id + 3)) & tri1_fld || ((1 << (cor2_id + 3)) & tri2_fld) ) {
+        if ( ((1 << (cor1_id + 3)) & tri1_fld) || ((1 << (cor2_id + 3)) & tri2_fld) ) {
             return false;
         }
         Triangles[tri1_id].field_D &= ~(1 << (cor1b_id + 3));

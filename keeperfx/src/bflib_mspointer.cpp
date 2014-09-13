@@ -125,6 +125,8 @@ LbI_PointerHandler::LbI_PointerHandler(void)
     this->sprite = NULL;
     this->position = NULL;
     this->spr_offset = NULL;
+    draw_pos_x = 0;
+    draw_pos_y = 0;
 }
 
 LbI_PointerHandler::~LbI_PointerHandler(void)

@@ -48,8 +48,6 @@ const struct NamedCommand cubes_cube_commands[] = {
 struct CubesConfig cube_conf;
 struct NamedCommand cube_desc[CUBE_ITEMS_MAX];
 /******************************************************************************/
-DLLIMPORT long _DK_load_cube_file(void);
-/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
@@ -376,7 +374,6 @@ long load_cube_file(void)
     static const char textname[] = "binary cubes config";
     fname = prepare_file_path(FGrp_StdData,"cube.dat");
     SYNCDBG(0,"%s %s file \"%s\".","Reading",textname,fname);
-    //return _DK_load_cube_file();
     clear_cubes();
     len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)

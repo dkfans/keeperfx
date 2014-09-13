@@ -49,14 +49,10 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_delete_room_structure(struct Room *room);
 DLLIMPORT struct Room * _DK_find_random_room_for_thing(struct Thing *thing, signed char plyr_idx, signed char rkind, unsigned char a4);
 DLLIMPORT struct Room * _DK_find_random_room_for_thing_with_spare_room_item_capacity(struct Thing *thing, signed char newowner, signed char rkind, unsigned char a4);
-DLLIMPORT long _DK_claim_room(struct Room *room,struct Thing *claimtng);
-DLLIMPORT long _DK_claim_enemy_room(struct Room *room,struct Thing *claimtng);
-DLLIMPORT struct Room *_DK_get_room_thing_is_on(struct Thing *thing);
-DLLIMPORT void _DK_change_room_map_element_ownership(struct Room *room, unsigned char plyr_idx);
 DLLIMPORT void _DK_copy_block_with_cube_groups(short a1, unsigned char plyr_idx, unsigned char a3);
+DLLIMPORT unsigned short _DK_i_can_allocate_free_room_structure(void);
 /******************************************************************************/
 void count_slabs(struct Room *room);
 void count_gold_slabs_with_efficiency(struct Room *room);
@@ -153,35 +149,14 @@ DLLIMPORT long _DK_find_random_valid_position_for_item_in_different_room_avoidin
 DLLIMPORT unsigned char _DK_find_random_valid_position_for_thing_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos);
 DLLIMPORT void _DK_count_gold_slabs_with_efficiency(struct Room *room);
 DLLIMPORT void _DK_count_gold_hoardes_in_room(struct Room *room);
-DLLIMPORT void _DK_count_books_in_room(struct Room *room);
-DLLIMPORT void _DK_count_workers_in_room(struct Room *room);
-DLLIMPORT void _DK_count_crates_in_room(struct Room *room);
 DLLIMPORT void _DK_count_workers_in_room(struct Room *room);
 DLLIMPORT void _DK_count_bodies_in_room(struct Room *room);
 DLLIMPORT void _DK_count_food_in_room(struct Room *room);
 DLLIMPORT void _DK_count_lair_occupants(struct Room *room);
 DLLIMPORT short _DK_room_grow_food(struct Room *room);
-DLLIMPORT void _DK_set_room_capacity(struct Room *room, long skip_integration);
-DLLIMPORT void _DK_set_room_efficiency(struct Room *room);
-DLLIMPORT struct Room *_DK_link_adjacent_rooms_of_type(unsigned char owner, long stl_x, long stl_y, unsigned char rkind);
-DLLIMPORT struct Room *_DK_create_room(unsigned char a1, unsigned char plyr_idx, unsigned short a3, unsigned short a4);
-DLLIMPORT void _DK_create_room_flag(struct Room *room);
-DLLIMPORT struct Room *_DK_allocate_free_room_structure(void);
-DLLIMPORT unsigned short _DK_i_can_allocate_free_room_structure(void);
-DLLIMPORT struct Room *_DK_find_room_with_spare_room_item_capacity(unsigned char a1, signed char plyr_idx);
-DLLIMPORT long _DK_create_workshop_object_in_workshop_room(long a1, long plyr_idx, long a3);
-DLLIMPORT unsigned char _DK_find_first_valid_position_for_thing_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos);
-DLLIMPORT struct Room* _DK_find_nearest_room_for_thing_with_spare_capacity(struct Thing *thing,
-    signed char plyr_idx, signed char a3, unsigned char a4, long is_destroyed);
-DLLIMPORT struct Room* _DK_find_room_with_spare_capacity(unsigned char a1, signed char plyr_idx, long a3);
 DLLIMPORT short _DK_delete_room_slab_when_no_free_room_structures(long a1, long plyr_idx, unsigned char a3);
-DLLIMPORT long _DK_calculate_room_efficiency(struct Room *room);
-DLLIMPORT void _DK_kill_room_slab_and_contents(unsigned char a1, unsigned char plyr_idx, unsigned char a3);
 DLLIMPORT void _DK_free_room_structure(struct Room *room);
 DLLIMPORT void _DK_reset_creatures_rooms(struct Room *room);
-DLLIMPORT void _DK_replace_room_slab(struct Room *room, long plyr_idx, long a3, unsigned char a4, unsigned char is_destroyed);
-DLLIMPORT struct Room *_DK_place_room(unsigned char a1, unsigned char plyr_idx, unsigned short a3, unsigned short a4);
-DLLIMPORT struct Room *_DK_find_nearest_room_for_thing_with_spare_item_capacity(struct Thing *thing, char plyr_idx, char a3, unsigned char a4);
 DLLIMPORT struct Room * _DK_pick_random_room(PlayerNumber newowner, int rkind);
 DLLIMPORT struct Thing *_DK_find_lair_at(unsigned short stl_x, unsigned short stl_y);
 /******************************************************************************/
@@ -392,7 +367,6 @@ long get_room_kind_used_capacity_fraction(PlayerNumber plyr_idx, RoomKind room_k
 void set_room_capacity(struct Room *room, TbBool skip_integration)
 {
     struct RoomData *rdata;
-    //_DK_set_room_capacity(room, capac); return;
     rdata = room_data_get_for_room(room);
     if ((!skip_integration) || (rdata->field_F))
     {
@@ -402,7 +376,6 @@ void set_room_capacity(struct Room *room, TbBool skip_integration)
 
 void set_room_efficiency(struct Room *room)
 {
-    //_DK_set_room_efficiency(room);
     room->efficiency = calculate_room_efficiency(room);
 }
 
@@ -632,7 +605,6 @@ void count_books_in_room(struct Room *room)
 {
     long n;
     SYNCDBG(17,"Starting for %s",room_code_name(room->kind));
-    //_DK_count_books_in_room(room); return;
     struct RoomReposition rrepos;
     init_reposition_struct(&rrepos);
     // Making two loops guarantees that no rrepos things will be lost
@@ -857,7 +829,6 @@ void count_crates_in_room(struct Room *room)
 {
     long n;
     SYNCDBG(17,"Starting for %s",room_code_name(room->kind));
-    //_DK_count_crates_in_room(room); return;
     struct RoomReposition rrepos;
     init_reposition_struct(&rrepos);
     // Making two loops guarantees that no rrepos things will be lost
@@ -929,7 +900,6 @@ void count_lair_occupants(struct Room *room)
 
 void delete_room_structure(struct Room *room)
 {
-    //_DK_delete_room_structure(room); return;
     if (room_is_invalid(room))
     {
         WARNLOG("Attempt to delete invalid room");
@@ -1120,7 +1090,6 @@ struct Room *link_adjacent_rooms_of_type(PlayerNumber owner, MapSubtlCoord x, Ma
     MapSlabCoord central_slb_x, central_slb_y;
     central_slb_x = subtile_slab_fast(x);
     central_slb_y = subtile_slab_fast(y);
-    //return _DK_link_adjacent_rooms_of_type(owner, x, y, rkind);
     // Localize the room to be merged with other rooms
     linkroom = INVALID_ROOM;
     for (n = 0; n < SMALL_AROUND_LENGTH; n++)
@@ -1714,7 +1683,6 @@ long calculate_room_efficiency(const struct Room *room)
 {
     long nslabs,score,widespread,effic;
     long expected_base;
-    //return _DK_calculate_room_efficiency(room);
     nslabs = room->slabs_count;
     if (nslabs <= 0)
     {
@@ -1787,7 +1755,6 @@ TbBool thing_is_on_own_room_tile(const struct Thing *thing)
 
 struct Room *get_room_thing_is_on(const struct Thing *thing)
 {
-    //return _DK_get_room_thing_is_on(thing);
     return subtile_room_get(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
 }
 
@@ -2013,7 +1980,6 @@ TbBool find_random_position_at_border_of_room(struct Coord3d *pos, const struct 
 
 struct Room *find_room_with_spare_room_item_capacity(PlayerNumber plyr_idx, RoomKind rkind)
 {
-    //return _DK_find_room_with_spare_room_item_capacity(a1, a2);
     struct Dungeon *dungeon;
     if ((rkind < 0) || (rkind >= ROOM_TYPES_COUNT))
         return INVALID_ROOM;
@@ -2177,7 +2143,6 @@ struct Room *find_room_with_most_spare_capacity_starting_with(long room_idx,long
 TbBool find_first_valid_position_for_thing_in_room(const struct Thing *thing, struct Room *room, struct Coord3d *pos)
 {
     long block_radius;
-    //return _DK_find_first_valid_position_for_thing_in_room(thing, room, pos);
     if (!room_exists(room))
     {
         ERRORLOG("Tried to find position in non-existing room");
@@ -2814,7 +2779,6 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
 
 void kill_room_slab_and_contents(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    //_DK_kill_room_slab_and_contents(plyr_idx, slb_x, slb_y); return;
     struct SlabMap *slb;
     slb = get_slabmap_block(slb_x, slb_y);
     // Get the room, and clear room index
@@ -2846,7 +2810,6 @@ void reset_creatures_rooms(struct Room *room)
 void replace_room_slab(struct Room *room, MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned char owner, unsigned char is_destroyed)
 {
     struct SlabMap *slb;
-    //_DK_replace_room_slab(room, slb_x, slb_y, owner, a5);
     if (room->kind == RoK_BRIDGE)
     {
         slb = get_slabmap_block(slb_x, slb_y);
@@ -2884,7 +2847,6 @@ struct Room *place_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x,
     struct SlabMap *slb;
     long slb_x, slb_y;
     long i;
-    //return _DK_place_room(owner, rkind, stl_x, stl_y);
     game.field_14EA4B = 1;
     if (subtile_coords_invalid(stl_x, stl_y))
         return INVALID_ROOM;
@@ -2934,7 +2896,6 @@ struct Room *place_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x,
 
 struct Room *find_nearest_room_for_thing_with_spare_item_capacity(struct Thing *thing, PlayerNumber plyr_idx, RoomKind rkind, unsigned char nav_flags)
 {
-    //return _DK_find_nearest_room_for_thing_with_spare_item_capacity(thing, plyr_idx, rkind, nav_flags);
     long retdist;
     struct Room *retroom;
     retdist = LONG_MAX;
@@ -3197,7 +3158,6 @@ TbBool change_room_subtile_things_ownership(struct Room *room, MapSubtlCoord stl
 void change_room_map_element_ownership(struct Room *room, PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
-    //_DK_change_room_map_element_ownership(room, plyr_idx); return;
     dungeon = get_dungeon(plyr_idx);
     {
         struct SlabMap *slb;
@@ -3369,7 +3329,6 @@ long claim_room(struct Room *room, struct Thing *claimtng)
 {
     PlayerNumber oldowner;
     SYNCDBG(7,"Starting for %s index %d claimed by player %d",room_code_name(room->kind),(int)room->index,(int)claimtng->owner);
-    //return _DK_claim_room(room,claimtng);
     oldowner = room->owner;
     if ((oldowner != game.neutral_player_num) || (claimtng->owner == game.neutral_player_num))
     {
@@ -3399,7 +3358,6 @@ long claim_enemy_room(struct Room *room, struct Thing *claimtng)
 {
     PlayerNumber oldowner;
     SYNCDBG(7,"Starting for %s index %d claimed by player %d",room_code_name(room->kind),(int)room->index,(int)claimtng->owner);
-    //return _DK_claim_enemy_room(room,claimtng);
     oldowner = room->owner;
     if ((oldowner == claimtng->owner) || (claimtng->owner == game.neutral_player_num))
     {
