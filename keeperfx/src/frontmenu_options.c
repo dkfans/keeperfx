@@ -41,28 +41,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_frontend_define_key_up(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_define_key_down(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_define_key(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_define_key_up_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_define_key_down_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_define_key_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_draw_define_key_scroll_tab(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_draw_define_key(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_video_shadows(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_video_view_distance_level(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_video_rotate_mode(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_video_cluedo_mode(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_video_gamma_correction(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_video_cluedo_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_set_sound_volume(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_set_music_volume(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_set_mouse_sensitivity(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_invert_mouse(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_draw_invert_mouse(struct GuiButton *gbtn);
-DLLIMPORT void _DK_init_video_menu(struct GuiMenu *gmnu);
-DLLIMPORT void _DK_init_audio_menu(struct GuiMenu *gmnu);
-/******************************************************************************/
 const long definable_key_string[] = {
     471, 472, 473, 474, 475, 476, 477, 478,
     479, 480, 552, 553, 554, 555, 556, 557,
@@ -76,27 +54,23 @@ const long definable_key_string[] = {
 /******************************************************************************/
 void frontend_define_key_up_maintain(struct GuiButton *gbtn)
 {
-    //_DK_frontend_define_key_up_maintain(gbtn);
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown08 * (define_key_scroll_offset != 0)) & LbBtnF_Unknown08;
 }
 
 void frontend_define_key_down_maintain(struct GuiButton *gbtn)
 {
-    //_DK_frontend_define_key_down_maintain(gbtn);
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown08 * (define_key_scroll_offset < GAME_KEYS_COUNT-1)) & LbBtnF_Unknown08;
 }
 
 void frontend_define_key_maintain(struct GuiButton *gbtn)
 {
     long key_id;
-  //_DK_frontend_define_key_maintain(gbtn);
     key_id = define_key_scroll_offset - ((long)gbtn->content) - 1;
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown08 * (key_id < GAME_KEYS_COUNT)) & LbBtnF_Unknown08;
 }
 
 void frontend_define_key_up(struct GuiButton *gbtn)
 {
-    //_DK_frontend_define_key_up(gbtn);
     if (define_key_scroll_offset > 0) {
         define_key_scroll_offset--;
     }
@@ -104,7 +78,6 @@ void frontend_define_key_up(struct GuiButton *gbtn)
 
 void frontend_define_key_down(struct GuiButton *gbtn)
 {
-    //_DK_frontend_define_key_down(gbtn);
     if (define_key_scroll_offset < GAME_KEYS_COUNT-(frontend_define_keys_menu_items_visible-1)) {
         define_key_scroll_offset++;
     }
@@ -118,7 +91,6 @@ void frontend_define_key_scroll(struct GuiButton *gbtn)
 void frontend_define_key(struct GuiButton *gbtn)
 {
     long key_id;
-    //_DK_frontend_define_key(gbtn);
     key_id = define_key_scroll_offset - ((long)gbtn->content) - 1;
     defining_a_key = 1;
     defining_a_key_id = key_id;
@@ -133,7 +105,6 @@ void frontend_draw_define_key_scroll_tab(struct GuiButton *gbtn)
 void frontend_draw_define_key(struct GuiButton *gbtn)
 {
     long content, key_id;
-    //_DK_frontend_draw_define_key(gbtn);
     content = (long)gbtn->content;
     key_id = define_key_scroll_offset - content - 1;
     if (key_id >= GAME_KEYS_COUNT) {
@@ -215,19 +186,16 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
 
 void gui_video_shadows(struct GuiButton *gbtn)
 {
-    //_DK_gui_video_shadows(gbtn);
     settings.video_shadows = _DK_video_shadows;
 }
 
 void gui_video_view_distance_level(struct GuiButton *gbtn)
 {
-    //_DK_gui_video_view_distance_level(gbtn);
     settings.view_distance = video_view_distance_level;
 }
 
 void gui_video_rotate_mode(struct GuiButton *gbtn)
 {
-    //_DK_gui_video_rotate_mode(gbtn);
     struct Packet *pckt;
     pckt = get_packet(my_player_number);
     if (settings.video_rotate_mode) {
@@ -240,7 +208,6 @@ void gui_video_rotate_mode(struct GuiButton *gbtn)
 
 void gui_video_cluedo_mode(struct GuiButton *gbtn)
 {
-    //_DK_gui_video_cluedo_mode(gbtn);
     struct Packet *pckt;
     pckt = get_packet(my_player_number);
     set_packet_action(pckt, PckA_SetCluedo, _DK_video_cluedo_mode, 0, 0, 0);
@@ -256,7 +223,6 @@ void gui_video_gamma_correction(struct GuiButton *gbtn)
 
 void gui_set_sound_volume(struct GuiButton *gbtn)
 {
-    //_DK_gui_set_sound_volume(gbtn);
     if (gbtn->id_num == 75)
     {
       if (settings.sound_volume != sound_level)
@@ -270,7 +236,6 @@ void gui_set_sound_volume(struct GuiButton *gbtn)
 
 void gui_set_music_volume(struct GuiButton *gbtn)
 {
-    //_DK_gui_set_music_volume(gbtn);
     settings.redbook_volume = music_level;
     save_settings();
     SetMusicPlayerVolume(settings.redbook_volume);
@@ -278,7 +243,6 @@ void gui_set_music_volume(struct GuiButton *gbtn)
 
 void gui_video_cluedo_maintain(struct GuiButton *gbtn)
 {
-    //_DK_gui_video_cluedo_maintain(gbtn);
     struct PlayerInfo *player;
     player = get_my_player();
     if (player->view_mode == 5)
@@ -294,14 +258,12 @@ void gui_video_cluedo_maintain(struct GuiButton *gbtn)
 
 void frontend_set_mouse_sensitivity(struct GuiButton *gbtn)
 {
-    //_DK_frontend_set_mouse_sensitivity(gbtn);
     settings.first_person_move_sensitivity = fe_mouse_sensitivity;
     save_settings();
 }
 
 void frontend_invert_mouse(struct GuiButton *gbtn)
 {
-    //_DK_frontend_invert_mouse(gbtn);
     settings.first_person_move_invert = !settings.first_person_move_invert;
     save_settings();
 }
@@ -329,7 +291,6 @@ void frontend_draw_invert_mouse(struct GuiButton *gbtn)
  */
 void init_video_menu(struct GuiMenu *gmnu)
 {
-    //_DK_init_video_menu(gmnu);
     _DK_video_shadows = settings.video_shadows;
     video_view_distance_level = settings.view_distance;
     _DK_video_textures = settings.video_textures;
@@ -343,7 +304,6 @@ void init_video_menu(struct GuiMenu *gmnu)
  */
 void init_audio_menu(struct GuiMenu *gmnu)
 {
-    //_DK_init_audio_menu(gmnu);
     music_level = settings.redbook_volume;
     sound_level = settings.sound_volume;
 }

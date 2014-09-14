@@ -35,18 +35,6 @@
 #include "dungeon_data.h"
 #include "game_merge.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-/******************************************************************************/
-DLLIMPORT void _DK_frontend_draw_high_score_table(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_quit_high_score_table(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_maintain_high_score_ok_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_high_score_table_input(void);
-/******************************************************************************/
-#ifdef __cplusplus
-}
-#endif
 /******************************************************************************/
 void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int col2_width, int col3_width, int col4_width, int units_per_px)
 {

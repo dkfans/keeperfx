@@ -58,82 +58,8 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_draw_gold_total(unsigned char plyr_idx, long a2, long a3, long a4);
-DLLIMPORT void _DK_gui_zoom_in(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_zoom_out(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_go_to_map(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_turn_on_autopilot(struct GuiButton *gbtn);
-DLLIMPORT void _DK_menu_tab_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_autopilot_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_turn_on_autopilot(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_choose_room(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_event_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_remove_area_for_rooms(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_big_room_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_choose_spell(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_go_to_next_spell(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_spell_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_choose_special_spell(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_big_spell_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_choose_trap(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_go_to_next_trap(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_over_trap_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_trap(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_trap_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_go_to_next_door(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_door(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_over_door_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_remove_area_for_traps(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_big_trap_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_big_trap(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_creature_query_background1(struct GuiMenu *gmnu);
-DLLIMPORT void _DK_gui_creature_query_background2(struct GuiMenu *gmnu);
-DLLIMPORT void _DK_maintain_room(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_big_room(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_spell(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_big_spell(struct GuiButton *gbtn);
-DLLIMPORT void _DK_pick_up_creature_doing_activity(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_go_to_next_creature_activity(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_go_to_next_room(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_over_room_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_room_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_pick_up_next_creature(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_go_to_next_creature(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_anger_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_smiley_anger_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_experience_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_instance_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_instance(struct GuiButton *gbtn);
-DLLIMPORT void _DK_pick_up_next_wanderer(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_go_to_next_wanderer(struct GuiButton *gbtn);
-DLLIMPORT void _DK_pick_up_next_worker(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_go_to_next_worker(struct GuiButton *gbtn);
-DLLIMPORT void _DK_pick_up_next_fighter(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_go_to_next_fighter(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_scroll_activity_up(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_scroll_activity_up(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_scroll_activity_down(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_scroll_activity_down(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_activity_up(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_activity_down(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_activity_pic(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_activity_row(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_activity_background(struct GuiMenu *gmnu);
-DLLIMPORT void _DK_gui_area_ally(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_stat_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_event_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_toggle_ally(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_ally(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_prison_bar(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_room_and_creature_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_payday_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_research_bar(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_workshop_bar(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_player_creature_info(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_player_room_info(struct GuiButton *gbtn);
-DLLIMPORT void _DK_spell_lost_first_person(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_set_tend_to(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_set_query(struct GuiButton *gbtn);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -141,7 +67,6 @@ DLLIMPORT void _DK_gui_set_query(struct GuiButton *gbtn);
 /******************************************************************************/
 void gui_zoom_in(struct GuiButton *gbtn)
 {
-    //_DK_gui_zoom_in(gbtn);
     struct PlayerInfo *player;
     player = get_my_player();
     if (player->minimap_zoom > 0x80) {
@@ -151,7 +76,6 @@ void gui_zoom_in(struct GuiButton *gbtn)
 
 void gui_zoom_out(struct GuiButton *gbtn)
 {
-    //_DK_gui_zoom_out(gbtn);
     struct PlayerInfo *player;
     player = get_my_player();
     if (player->minimap_zoom < 0x800) {
@@ -376,7 +300,6 @@ void gui_area_progress_bar_wide(struct GuiButton *gbtn, int units_per_px, int pr
 
 void gui_remove_area_for_rooms(struct GuiButton *gbtn)
 {
-    //_DK_gui_remove_area_for_rooms(gbtn);
     game.chosen_room_kind = 0;
     game.chosen_room_look = 0;
     game.chosen_room_tooltip = 0;
@@ -542,7 +465,6 @@ void go_to_next_spell_of_type(PowerKind pwkind, PlayerNumber plyr_idx)
 void gui_go_to_next_spell(struct GuiButton *gbtn)
 {
     PowerKind pwkind;
-    //_DK_gui_go_to_next_spell(gbtn);
     pwkind = (int)gbtn->content;
     struct PlayerInfo * player;
     player = get_my_player();
@@ -706,8 +628,6 @@ void choose_workshop_item(int manufctr_idx, TextStringId tooltip_id)
 
 void gui_choose_trap(struct GuiButton *gbtn)
 {
-    //_DK_gui_choose_trap(gbtn);
-
     //Note by Petter: factored out gui_choose_trap to choose_workshop_item (better name as well)
     choose_workshop_item((int) gbtn->content, gbtn->tooltip_id);
 }
@@ -837,7 +757,6 @@ void gui_go_to_next_trap(struct GuiButton *gbtn)
     player = get_my_player();
     struct ManufactureData *manufctr;
     manufctr = get_manufacture_data(manufctr_idx);
-    //_DK_gui_go_to_next_trap(gbtn);
     go_to_next_trap_of_type(manufctr->tngmodel, player->id_number);
     game.manufactr_element = manufctr_idx;
     game.numfield_15181D = manufctr->field_8;
@@ -941,7 +860,6 @@ void gui_go_to_next_door(struct GuiButton *gbtn)
     player = get_my_player();
     struct ManufactureData *manufctr;
     manufctr = get_manufacture_data(manufctr_idx);
-    //_DK_gui_go_to_next_door(gbtn);
     go_to_next_door_of_type(manufctr->tngmodel, player->id_number);
     game.manufactr_element = manufctr_idx;
     game.numfield_15181D = manufctr->field_8;
@@ -1025,7 +943,6 @@ void gui_area_big_trap_button(struct GuiButton *gbtn)
 
 void maintain_big_spell(struct GuiButton *gbtn)
 {
-    //_DK_maintain_big_spell(gbtn);
     long spl_idx;
     spl_idx = game.chosen_spell_type;
     if ((spl_idx < 0) || (spl_idx >= KEEPER_SPELLS_COUNT)) {
@@ -1047,7 +964,6 @@ void maintain_big_spell(struct GuiButton *gbtn)
 
 void maintain_room(struct GuiButton *gbtn)
 {
-    //_DK_maintain_room(gbtn);
     RoomKind rkind;
     rkind = (long)gbtn->content;
     struct Dungeon *dungeon;
@@ -1070,7 +986,6 @@ void maintain_room(struct GuiButton *gbtn)
 
 void maintain_big_room(struct GuiButton *gbtn)
 {
-    //_DK_maintain_big_room(gbtn);
     long rkind;
     rkind = game.chosen_room_kind;
     struct Dungeon *dungeon;
@@ -1143,7 +1058,6 @@ void maintain_trap(struct GuiButton *gbtn)
     manufctr_idx = (unsigned int)gbtn->content;
     struct ManufactureData *manufctr;
     manufctr = get_manufacture_data(manufctr_idx);
-    //_DK_maintain_trap(gbtn);
     if (is_trap_placeable(my_player_number, manufctr->tngmodel) || is_trap_built(my_player_number, manufctr->tngmodel))
     {
         gbtn->field_1B = 0;
@@ -1175,7 +1089,6 @@ void maintain_door(struct GuiButton *gbtn)
 void maintain_big_trap(struct GuiButton *gbtn)
 {
     int manufctr_idx;
-    //_DK_maintain_big_trap(gbtn);
     manufctr_idx = game.manufactr_element%MANUFCTR_TYPES_COUNT;
     struct ManufactureData *manufctr;
     manufctr = get_manufacture_data(manufctr_idx);
@@ -1318,7 +1231,6 @@ void pick_up_creature_doing_activity(struct GuiButton *gbtn)
     long i;
     unsigned char pick_flags;
     SYNCDBG(8,"Starting");
-    //_DK_pick_up_creature_doing_activity(gbtn); return;
     i = gbtn->field_1B;
     ThingModel crmodel;
     if (i > 0)
@@ -1338,7 +1250,6 @@ void pick_up_creature_doing_activity(struct GuiButton *gbtn)
 
 void gui_go_to_next_creature_activity(struct GuiButton *gbtn)
 {
-    //_DK_gui_go_to_next_creature_activity(gbtn);
     ThingModel crmodel;
     int i;
     i = gbtn->field_1B;
@@ -1387,7 +1298,6 @@ void go_to_my_next_room_of_type_and_select(unsigned long rkind)
 
 void gui_go_to_next_room(struct GuiButton *gbtn)
 {
-    //_DK_gui_go_to_next_room(gbtn);
     unsigned long rkind;
     rkind = (long)gbtn->content;
     go_to_my_next_room_of_type_and_select(rkind);
@@ -1441,8 +1351,6 @@ void pick_up_next_creature(struct GuiButton *gbtn)
     int kind;
     int i;
     unsigned short pick_flags;
-
-    //_DK_pick_up_next_creature(gbtn);
 
     i = gbtn->field_1B;
     if (i > 0) {
@@ -1827,7 +1735,6 @@ void gui_activity_background(struct GuiMenu *gmnu)
 
 void maintain_activity_up(struct GuiButton *gbtn)
 {
-    //_DK_maintain_activity_up(gbtn);
     if (no_of_breeds_owned <= 6)
     {
         gbtn->flags &= ~0x04;
@@ -1841,7 +1748,6 @@ void maintain_activity_up(struct GuiButton *gbtn)
 
 void maintain_activity_down(struct GuiButton *gbtn)
 {
-    //_DK_maintain_activity_down(gbtn);
     if (no_of_breeds_owned <= 6)
     {
         gbtn->flags &= ~0x04;
@@ -1856,7 +1762,6 @@ void maintain_activity_down(struct GuiButton *gbtn)
 
 void maintain_activity_pic(struct GuiButton *gbtn)
 {
-    //_DK_maintain_activity_pic(gbtn); return;
     ThingModel crmodel;
     int i;
     i = gbtn->field_1B;
@@ -1879,7 +1784,6 @@ void maintain_activity_pic(struct GuiButton *gbtn)
 
 void maintain_activity_row(struct GuiButton *gbtn)
 {
-    //_DK_maintain_activity_row(gbtn); return;
     ThingModel crmodel;
     int i;
     i = gbtn->field_1B;
@@ -1901,14 +1805,12 @@ void maintain_activity_row(struct GuiButton *gbtn)
 
 void gui_scroll_activity_up(struct GuiButton *gbtn)
 {
-    //_DK_gui_scroll_activity_up(gbtn);
     if (top_of_breed_list > 0)
       top_of_breed_list--;
 }
 
 void gui_scroll_activity_down(struct GuiButton *gbtn)
 {
-    //_DK_gui_scroll_activity_down(gbtn);
     if (top_of_breed_list + 6 < no_of_breeds_owned)
         top_of_breed_list++;
 }
@@ -1916,7 +1818,6 @@ void gui_scroll_activity_down(struct GuiButton *gbtn)
 void gui_area_ally(struct GuiButton *gbtn)
 {
     PlayerNumber plyr_idx;
-    //_DK_gui_area_ally(gbtn);
     plyr_idx = (int)gbtn->content;
     int spr_idx;
     spr_idx = 498;
@@ -2022,7 +1923,6 @@ void maintain_event_button(struct GuiButton *gbtn)
 void gui_toggle_ally(struct GuiButton *gbtn)
 {
     PlayerNumber plyr_idx;
-    //_DK_gui_toggle_ally(gbtn);
     plyr_idx = (int)gbtn->content;
     if ((gbtn->flags & LbBtnF_Unknown08) != 0) {
         struct Packet *pckt;
@@ -2035,7 +1935,6 @@ void maintain_ally(struct GuiButton *gbtn)
 {
     PlayerNumber plyr_idx;
     struct PlayerInfo *player;
-    //_DK_maintain_ally(gbtn);
     plyr_idx = (int)gbtn->content;
     player = get_player(plyr_idx);
     if (!is_my_player_number(plyr_idx) && ((player->allocflags & PlaF_Allocated) != 0))
@@ -2051,7 +1950,6 @@ void maintain_ally(struct GuiButton *gbtn)
 
 void maintain_prison_bar(struct GuiButton *gbtn)
 {
-    //_DK_maintain_prison_bar(gbtn);
     if (player_has_room(my_player_number, RoK_PRISON))
     {
         gbtn->field_29 = 350;
@@ -2069,10 +1967,8 @@ void maintain_prison_bar(struct GuiButton *gbtn)
 
 void maintain_room_and_creature_button(struct GuiButton *gbtn)
 {
-    //_DK_maintain_room_and_creature_button(gbtn);
     PlayerNumber plyr_idx;
     struct PlayerInfo *player;
-    //_DK_maintain_ally(gbtn);
     plyr_idx = (int)gbtn->content;
     player = get_player(plyr_idx);
     if (player_exists(player))
@@ -2090,7 +1986,6 @@ void maintain_room_and_creature_button(struct GuiButton *gbtn)
 void pick_up_next_wanderer(struct GuiButton *gbtn)
 {
     unsigned short pick_flags;
-    //_DK_pick_up_next_wanderer(gbtn);
     pick_flags = TPF_PickableCheck;
     if (lbKeyOn[KC_LCONTROL] || lbKeyOn[KC_RCONTROL])
         pick_flags |= TPF_OrderedPick;
@@ -2101,14 +1996,12 @@ void pick_up_next_wanderer(struct GuiButton *gbtn)
 
 void gui_go_to_next_wanderer(struct GuiButton *gbtn)
 {
-    //_DK_gui_go_to_next_wanderer(gbtn);
     go_to_next_creature_of_model_and_gui_job(-1, CrGUIJob_Wandering);
 }
 
 void pick_up_next_worker(struct GuiButton *gbtn)
 {
     unsigned short pick_flags;
-    //_DK_pick_up_next_worker(gbtn);
     pick_flags = TPF_PickableCheck;
     if (lbKeyOn[KC_LCONTROL] || lbKeyOn[KC_RCONTROL])
         pick_flags |= TPF_OrderedPick;
@@ -2119,14 +2012,12 @@ void pick_up_next_worker(struct GuiButton *gbtn)
 
 void gui_go_to_next_worker(struct GuiButton *gbtn)
 {
-    //_DK_gui_go_to_next_worker(gbtn);
     go_to_next_creature_of_model_and_gui_job(-1, CrGUIJob_Working);
 }
 
 void pick_up_next_fighter(struct GuiButton *gbtn)
 {
     unsigned short pick_flags;
-    //_DK_pick_up_next_fighter(gbtn);
     pick_flags = TPF_PickableCheck;
     if (lbKeyOn[KC_LCONTROL] || lbKeyOn[KC_RCONTROL])
         pick_flags |= TPF_OrderedPick;
@@ -2137,7 +2028,6 @@ void pick_up_next_fighter(struct GuiButton *gbtn)
 
 void gui_go_to_next_fighter(struct GuiButton *gbtn)
 {
-    //_DK_gui_go_to_next_fighter(gbtn);
     go_to_next_creature_of_model_and_gui_job(-1, CrGUIJob_Fighting);
 }
 
@@ -2272,7 +2162,6 @@ void gui_set_tend_to(struct GuiButton *gbtn)
 
 void gui_set_query(struct GuiButton *gbtn)
 {
-  //_DK_gui_set_query(gbtn);
     struct PlayerInfo *player;
     player = get_my_player();
     set_players_packet_action(player, PckA_SetPlyrState, PSt_Unknown12, 0, 0, 0);

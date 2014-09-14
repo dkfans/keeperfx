@@ -34,14 +34,9 @@ extern "C" {
 /******************************************************************************/
 DLLIMPORT void _DK_light_remove_light_from_list(struct Light *lgt, struct StructureList *list);
 DLLIMPORT void _DK_light_signal_stat_light_update_in_area(long x1, long y1, long x2, long y2);
-DLLIMPORT void _DK_light_delete_light(long idx);
 DLLIMPORT void _DK_light_initialise_lighting_tables(void);
 DLLIMPORT void _DK_light_set_light_minimum_size_to_cache(long a1, long a2, long a3);
-DLLIMPORT long _DK_light_is_light_allocated(long lgt_id);
 DLLIMPORT void _DK_light_set_light_position(long lgt_id, struct Coord3d *pos);
-DLLIMPORT void _DK_light_initialise(void);
-DLLIMPORT long _DK_light_create_light(struct InitLight *ilght);
-DLLIMPORT void _DK_light_set_light_never_cache(long idx);
 DLLIMPORT long _DK_light_get_light_intensity(long idx);
 DLLIMPORT long _DK_light_set_light_intensity(long a1, long a2);
 DLLIMPORT void _DK_light_render_area(int startx, int starty, int endx, int endy);
@@ -138,7 +133,6 @@ long light_create_light(struct InitLight *ilght)
     struct Light *lgt;
     struct ShadowCache *shdc;
     unsigned long k;
-    //return _DK_light_create_light(ilght);
     lgt = light_allocate_light();
     if (light_is_invalid(lgt)) {
         return 0;
@@ -351,7 +345,6 @@ TbBool lights_stats_debug_dump(void)
 void light_set_light_never_cache(long lgt_id)
 {
     struct Light *lgt;
-    //_DK_light_set_light_never_cache(lgt_id);
     if (lgt_id <= 0)
     {
         ERRORLOG("Attempt to set size of invalid light %d",(int)lgt_id);
@@ -369,7 +362,6 @@ void light_set_light_never_cache(long lgt_id)
 long light_is_light_allocated(long lgt_id)
 {
     struct Light *lgt;
-    //return _DK_light_is_light_allocated(lgt_id);
     if (lgt_id <= 0)
         return false;
     lgt = &game.lish.lights[lgt_id];
@@ -506,7 +498,6 @@ void light_delete_light(long idx)
 {
     struct Light *lgt;
     struct ShadowCache *shdc;
-    //_DK_light_delete_light(idx);
 
     if ((idx <= 0) || (idx >= LIGHTS_COUNT)) {
         ERRORLOG("Attempt to delete light %d",(int)idx);

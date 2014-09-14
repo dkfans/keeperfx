@@ -29,15 +29,6 @@
 #include "config_strings.h"
 #include "config_campaigns.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-/******************************************************************************/
-DLLIMPORT void _DK_frontcredits_draw(void);
-/******************************************************************************/
-#ifdef __cplusplus
-}
-#endif
 /******************************************************************************/
 void frontcredits_draw(void)
 {

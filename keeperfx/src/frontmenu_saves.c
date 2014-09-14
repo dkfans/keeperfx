@@ -35,28 +35,6 @@
 #include "kjm_input.h"
 #include "keeperfx.hpp"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-/******************************************************************************/
-DLLIMPORT void _DK_gui_load_game(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_load_game_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_draw_load_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_load_game(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_draw_load_game_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_load_game_up(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_load_game_down(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_load_game_up_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_load_game_down_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_load_game_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_draw_games_scroll_tab(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_save_game(struct GuiButton *gbtn);
-DLLIMPORT void _DK_init_load_menu(struct GuiMenu *gmnu);
-DLLIMPORT void _DK_init_save_menu(struct GuiMenu *gmnu);
-/******************************************************************************/
-#ifdef __cplusplus
-}
-#endif
 /******************************************************************************/
 int frontend_load_game_button_to_index(struct GuiButton *gbtn)
 {

@@ -48,19 +48,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_move_shot(struct Thing *shotng);
-DLLIMPORT long _DK_update_shot(struct Thing *shotng);
-
-DLLIMPORT struct Thing *_DK_get_thing_collided_with_at_satisfying_filter(struct Thing *shotng, struct Coord3d *pos, Thing_Collide_Func filter, long a4, long a5);
 DLLIMPORT struct Thing *_DK_get_shot_collided_with_same_type(struct Thing *shotng, struct Coord3d *nxpos);
-DLLIMPORT long _DK_shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos);
-DLLIMPORT long _DK_shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos);
-DLLIMPORT long _DK_shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *trgtng, struct Coord3d *pos);
-DLLIMPORT long _DK_shot_hit_object_at(struct Thing *shotng, struct Thing *trgtng, struct Coord3d *pos);
-DLLIMPORT void _DK_create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct Thing *trgtng);
-DLLIMPORT long _DK_check_hit_when_attacking_door(struct Thing *shotng);
-DLLIMPORT void _DK_process_dig_shot_hit_wall(struct Thing *shotng, long blocked_flags);
-DLLIMPORT struct Thing *_DK_create_shot(struct Coord3d *pos, unsigned short model, unsigned short owner);
 /******************************************************************************/
 TbBool thing_is_shot(const struct Thing *thing)
 {
@@ -179,7 +167,6 @@ void process_dig_shot_hit_wall(struct Thing *thing, unsigned long blocked_flags)
     MapSubtlCoord stl_x, stl_y;
     struct Thing *diggertng;
     unsigned long k;
-    //_DK_process_dig_shot_hit_wall(thing, a2); return;
     diggertng = INVALID_THING;
     if (thing->index != thing->parent_idx)
       diggertng = thing_get(thing->parent_idx);
@@ -307,7 +294,6 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     TbBool shot_explodes;
     long i;
     SYNCDBG(8,"Starting for %s index %d",thing_model_name(shotng),(int)shotng->index);
-    //return _DK_shot_hit_wall_at(thing, pos);
 
     efftng = INVALID_THING;
     shot_explodes = 0;
@@ -408,7 +394,6 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
     int i,n;
     TbBool shot_explodes;
     SYNCDBG(18,"Starting for %s index %d",thing_model_name(shotng),(int)shotng->index);
-    //return _DK_shot_hit_door_at(thing, pos);
     shot_explodes = false;
     shotst = get_shot_model_stats(shotng->model);
     efftng = INVALID_THING;
@@ -529,7 +514,6 @@ long shot_kill_object(struct Thing *shotng, struct Thing *target)
 
 long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord3d *pos)
 {
-    //return _DK_shot_hit_object_at(shotng, target, pos);
     struct ShotConfigStats *shotst;
     shotst = get_shot_model_stats(shotng->model);
     if (!thing_is_object(target)) {
@@ -642,7 +626,6 @@ long project_damage_of_melee_shot(long shot_dexterity, long shot_damage, const s
 void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct Thing *target)
 {
     struct Thing *efftng;
-    //_DK_create_relevant_effect_for_shot_hitting_thing(shotng, target); return;
     efftng = INVALID_THING;
     if (target->class_id == TCls_Creature)
     {
@@ -680,7 +663,6 @@ void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct 
 
 long check_hit_when_attacking_door(struct Thing *thing)
 {
-    //return _DK_check_hit_when_attacking_door(thing);
     if (!thing_is_creature(thing))
     {
         ERRORLOG("The %s in invalid for this check", thing_model_name(thing));
@@ -813,7 +795,6 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     struct ShotConfigStats *shotst;
     struct Coord3d pos2;
     long i,n,amp;
-    //return _DK_shot_hit_shootable_thing_at(shotng, target, pos);
     amp = shotng->field_20;
     shotst = get_shot_model_stats(shotng->model);
     shooter = INVALID_THING;
@@ -953,7 +934,6 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
 
 long shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *target, struct Coord3d *pos)
 {
-    //return _DK_shot_hit_shootable_thing_at(shotng, target, pos);
     if (!thing_exists(target))
         return 0;
     if (target->class_id == TCls_Object) {
@@ -1066,7 +1046,6 @@ struct Thing *get_thing_collided_with_at_satisfying_filter_for_subtile(struct Th
 
 struct Thing *get_thing_collided_with_at_satisfying_filter(struct Thing *shotng, struct Coord3d *pos, Thing_Collide_Func filter, long a4, long a5)
 {
-    //return _DK_get_thing_collided_with_at_satisfying_filter(thing, pos, filter, a4, a5);
     MapSubtlCoord stl_x_min, stl_y_min;
     MapSubtlCoord stl_x_max, stl_y_max;
     {
@@ -1188,7 +1167,6 @@ TngUpdateRet move_shot(struct Thing *shotng)
     TbBool move_allowed;
     SYNCDBG(18,"Starting for %s index %d",thing_model_name(shotng),(int)shotng->index);
     TRACE_THING(shotng);
-    //return _DK_move_shot(shotng);
 
     move_allowed = get_thing_next_position(&pos, shotng);
     shotst = get_shot_model_stats(shotng->model);
@@ -1231,7 +1209,6 @@ TngUpdateRet update_shot(struct Thing *thing)
     TbBool hit;
     SYNCDBG(18,"Starting for index %d, model %d",(int)thing->index,(int)thing->model);
     TRACE_THING(thing);
-    //return _DK_update_shot(thing);
     hit = false;
     shotst = get_shot_model_stats(thing->model);
     myplyr = get_my_player();
@@ -1371,7 +1348,6 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     struct ShotConfigStats *shotst;
     struct InitLight ilght;
     struct Thing *thing;
-    //return _DK_create_shot(pos, model, owner);
     if ( !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots) )
     {
         ERRORDBG(3,"Cannot create shot %d for player %d. There are too many things allocated.",(int)model,(int)owner);

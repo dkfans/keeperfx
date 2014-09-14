@@ -48,38 +48,15 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_imp_stack_update(struct Thing *creatng);
-DLLIMPORT long _DK_add_unclaimed_unconscious_bodies_to_imp_stack(struct Dungeon *dungeon, long slb_x);
-DLLIMPORT long _DK_add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, long slb_x);
-DLLIMPORT long _DK_add_unclaimed_spells_to_imp_stack(struct Dungeon *dungeon, long slb_x);
-DLLIMPORT void _DK_add_pretty_and_convert_to_imp_stack(struct Dungeon *dungeon);
 DLLIMPORT long _DK_add_unclaimed_gold_to_imp_stack(struct Dungeon *dungeon);
-DLLIMPORT long _DK_add_object_for_trap_to_imp_stack(struct Dungeon *dungeon, struct Thing *creatng);
-DLLIMPORT long _DK_check_out_imp_stack(struct Thing *creatng);
-DLLIMPORT struct Thing *_DK_check_for_empty_trap_for_imp_not_being_armed(struct Thing *creatng, long slb_x);
 DLLIMPORT long _DK_imp_will_soon_be_working_at_excluding(struct Thing *creatng, long slb_x, long slb_y);
-DLLIMPORT long _DK_check_out_imp_last_did(struct Thing *creatng);
-DLLIMPORT long _DK_check_place_to_convert_excluding(struct Thing *creatng, long slb_x, long slb_y);
-DLLIMPORT long _DK_check_out_unconverted_spiral(struct Thing *creatng, long slb_x);
-DLLIMPORT long _DK_check_place_to_pretty_excluding(struct Thing *creatng, long slb_x, long slb_y);
-DLLIMPORT long _DK_check_out_unprettied_spiral(struct Thing *creatng, long slb_x);
-DLLIMPORT long _DK_check_out_undug_place(struct Thing *creatng);
-DLLIMPORT long _DK_check_out_undug_area(struct Thing *creatng);
-DLLIMPORT long _DK_check_out_unprettied_or_unconverted_area(struct Thing *creatng);
 DLLIMPORT long _DK_check_out_unreinforced_place(struct Thing *creatng);
 DLLIMPORT long _DK_check_out_unreinforced_area(struct Thing *creatng);
-DLLIMPORT long _DK_check_out_uncrowded_reinforce_position(struct Thing *creatng, unsigned short slb_x, long *slb_y, long *retstl_y);
-DLLIMPORT long _DK_check_place_to_dig_and_get_position(struct Thing *creatng, unsigned short slb_x, long *slb_y, long *retstl_y);
-DLLIMPORT struct Thing *_DK_check_place_to_pickup_dead_body(struct Thing *creatng, long stl_x, long stl_y);
 DLLIMPORT struct Thing *_DK_check_place_to_pickup_gold(struct Thing *creatng, long stl_x, long stl_y);
 DLLIMPORT struct Thing *_DK_check_place_to_pickup_spell(struct Thing *creatng, long slb_x, long slb_y);
 DLLIMPORT struct Thing *_DK_check_place_to_pickup_unconscious_body(struct Thing *creatng, long slb_x, long slb_y);
-DLLIMPORT long _DK_check_place_to_reinforce(struct Thing *creatng, long slb_x, long slb_y);
-DLLIMPORT struct Thing *_DK_check_place_to_pickup_crate(struct Thing *creatng, long stl_x, long stl_y);
 DLLIMPORT long _DK_add_to_pretty_to_imp_stack_if_need_to(long creatng, long slb_x, struct Dungeon *dungeon);
 DLLIMPORT long _DK_imp_will_soon_be_converting_at_excluding(struct Thing *creatng, long slb_x, long slb_y);
-DLLIMPORT long _DK_imp_will_soon_be_getting_object(long plyr_idx, struct Thing *objtng);
-DLLIMPORT long _DK_imp_will_soon_be_arming_trap(struct Thing *spdigtng);
 DLLIMPORT long _DK_imp_already_reinforcing_at_excluding(struct Thing *creatng, long stl_x, long stl_y);
 /******************************************************************************/
 long const dig_pos[] = {0, -1, 1};
@@ -191,7 +168,6 @@ TbBool imp_will_soon_be_getting_object(PlayerNumber plyr_idx, const struct Thing
     unsigned long k;
     int i;
     SYNCDBG(8,"Starting");
-    //return _DK_imp_will_soon_be_getting_object(a2, objtng);
     dungeon = get_players_num_dungeon(plyr_idx);
     k = 0;
     i = dungeon->digger_list_start;
@@ -246,7 +222,6 @@ TbBool imp_will_soon_be_arming_trap(struct Thing *traptng)
     long crstate;
     long i;
     unsigned long k;
-    //return _DK_imp_will_soon_be_arming_trap(digger);
     dungeon = get_dungeon(traptng->owner);
     k = 0;
     i = dungeon->digger_list_start;
@@ -314,7 +289,6 @@ struct Thing *check_for_empty_trap_for_imp_not_being_armed(struct Thing *digger,
     struct Thing *thing;
     long i;
     unsigned long k;
-    //return _DK_check_for_empty_trap_for_imp_not_being_armed(thing, a2);
     const struct StructureList *slist;
     slist = get_list_for_thing_class(TCls_Trap);
     k = 0;
@@ -350,7 +324,6 @@ long check_out_unprettied_or_unconverted_area(struct Thing *thing)
     struct DiggerStack *dstack;
     struct Coord3d navpos;
     SYNCDBG(9,"Starting");
-    //return _DK_check_out_unprettied_or_unconverted_area(thing);
     dungeon = get_dungeon(thing->owner);
     int min_dist;
     int min_taskid;
@@ -482,7 +455,6 @@ long check_out_unconverted_spiral(struct Thing *thing, long nslabs)
     long i,imax,k;
     SYNCDBG(9,"Starting");
     TRACE_THING(thing);
-    //return _DK_check_out_unconverted_spiral(thing, nslabs);
 
     slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
     slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
@@ -553,7 +525,6 @@ long check_out_unprettied_spiral(struct Thing *thing, long nslabs)
     long i,imax,k;
     SYNCDBG(9,"Starting");
     TRACE_THING(thing);
-    //return _DK_check_out_unprettied_spiral(thing, nslabs);
 
     slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
     slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
@@ -607,7 +578,6 @@ long check_place_to_convert_excluding(struct Thing *creatng, MapSlabCoord slb_x,
         SYNCDBG(8,"The slab %d,%d is owned by ally, so cannot be converted",(int)slb_x, (int)slb_y);
         return 0;
     }
-    //return _DK_check_place_to_convert_excluding(creatng, slb_x, slb_y);
 
     struct Room *room;
     room = room_get(slb->room_index);
@@ -665,7 +635,6 @@ long check_place_to_pretty_excluding(struct Thing *creatng, long slb_x, long slb
     struct SlabMap *slb;
     SYNCDBG(19,"Starting");
     TRACE_THING(creatng);
-    //return _DK_check_place_to_pretty_excluding(creatng, slb_x, slb_y);
     slb = get_slabmap_block(slb_x, slb_y);
     if (slb->kind != SlbT_PATH) {
         SYNCDBG(8,"The slab %d,%d is not a valid type",(int)slb_x, (int)slb_y);
@@ -816,7 +785,6 @@ long check_out_undug_place(struct Thing *creatng)
     MapSubtlCoord base_stl_x,base_stl_y;
     long i,n;
     SYNCDBG(19,"Starting");
-    //return _DK_check_out_undug_place(thing);
     cctrl = creature_control_get_from_thing(creatng);
     base_stl_x = stl_num_decode_x(cctrl->word_8F);
     base_stl_y = stl_num_decode_y(cctrl->word_8F);
@@ -861,7 +829,6 @@ long check_out_undug_area(struct Thing *thing)
     SYNCDBG(19,"Starting");
     struct CreatureControl *cctrl;
     struct Dungeon *dungeon;
-    //return _DK_check_out_undug_area(thing);
     dungeon = get_dungeon(thing->owner);
     cctrl = creature_control_get_from_thing(thing);
     struct MapTask *task;
@@ -1148,7 +1115,6 @@ void add_pretty_and_convert_to_imp_stack(struct Dungeon *dungeon)
     }
     SYNCDBG(18,"Starting");
     //TODO SPDIGGER This restricts convert tasks to the area connected to heart, instead of connected to diggers.
-    //_DK_add_pretty_and_convert_to_imp_stack(dungeon); return;
     struct Thing *heartng;
     heartng = get_player_soul_container(dungeon->owner);
     TRACE_THING(heartng);
@@ -1183,7 +1149,6 @@ long add_unclaimed_unconscious_bodies_to_imp_stack(struct Dungeon *dungeon, long
     int remain_num;
     unsigned long k;
     int i;
-    //return _DK_add_unclaimed_unconscious_bodies_to_imp_stack(dungeon, max_tasks);
     if (!dungeon_has_room(dungeon, RoK_PRISON)) {
         SYNCDBG(8,"Dungeon %d has no %s",(int)dungeon->owner,room_code_name(RoK_PRISON));
         return 1;
@@ -1249,7 +1214,6 @@ TbBool add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, long max_
     int remain_num;
     unsigned long k;
     int i;
-    //return _DK_add_unclaimed_dead_bodies_to_imp_stack(dungeon, max_tasks);
     if (!dungeon_has_room(dungeon, RoK_GRAVEYARD)) {
         SYNCDBG(8,"Dungeon %d has no %s",(int)dungeon->owner,room_code_name(RoK_GRAVEYARD));
         return 1;
@@ -1305,7 +1269,6 @@ TbBool add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, long max_
 
 long add_unclaimed_spells_to_imp_stack(struct Dungeon *dungeon, long max_tasks)
 {
-    //return _DK_add_unclaimed_spells_to_imp_stack(dungeon, max_tasks);
     if (!dungeon_has_room(dungeon, RoK_LIBRARY)) {
         SYNCDBG(8,"Dungeon %d has no %s",(int)dungeon->owner,room_code_name(RoK_LIBRARY));
         return 1;
@@ -1374,7 +1337,6 @@ TbBool add_object_for_trap_to_imp_stack(struct Dungeon *dungeon, struct Thing *a
 {
     unsigned long k;
     int i;
-    //return _DK_add_object_for_trap_to_imp_stack(dungeon, thing);
     k = 0;
     i = game.thing_lists[TngList_Objects].index;
     while (i > 0)
@@ -1548,7 +1510,6 @@ long imp_already_reinforcing_at_excluding(struct Thing *creatng, MapSubtlCoord s
 long check_out_uncrowded_reinforce_position(struct Thing *thing, SubtlCodedCoords stl_num, long *retstl_x, long *retstl_y)
 {
     MapSubtlCoord basestl_x,basestl_y;
-    //return _DK_check_out_uncrowded_reinforce_position(thing, stl_num, a3, a4);
     basestl_x = stl_num_decode_x(stl_num);
     basestl_y = stl_num_decode_y(stl_num);
     int i,n;
@@ -1609,7 +1570,6 @@ long check_place_to_dig_and_get_position(struct Thing *thing, SubtlCodedCoords s
     long stl_x,stl_y;
     long i,k,n,nstart;
     SYNCDBG(18,"Starting");
-    //return _DK_check_place_to_dig_and_get_position(thing, stl_num, retstl_x, retstl_y);
     place_x = stl_num_decode_x(stl_num);
     place_y = stl_num_decode_y(stl_num);
     if (!block_has_diggable_side(thing->owner, subtile_slab_fast(place_x), subtile_slab_fast(place_y)))
@@ -1675,7 +1635,6 @@ long check_place_to_dig_and_get_position(struct Thing *thing, SubtlCodedCoords s
 
 struct Thing *check_place_to_pickup_dead_body(struct Thing *creatng, long stl_x, long stl_y)
 {
-    //return _DK_check_place_to_pickup_dead_body(thing, stl_x, stl_y);
     struct Thing *thing;
     long i;
     unsigned long k;
@@ -1729,7 +1688,6 @@ long check_place_to_reinforce(struct Thing *creatng, long slb_x, long slb_y)
     struct SlabMap *slb;
     TRACE_THING(creatng);
     slb = get_slabmap_block(slb_x, slb_y);
-    //return _DK_check_place_to_reinforce(thing, slb_x, slb_y);
     if ((slb->kind != SlbT_EARTH) && (slb->kind != SlbT_TORCHDIRT)) {
         SYNCDBG(8,"The slab %d,%d is not a valid type to be reinforced",(int)slb_x, (int)slb_y);
         return 0;
@@ -1756,7 +1714,6 @@ long check_place_to_reinforce(struct Thing *creatng, long slb_x, long slb_y)
 
 struct Thing *check_place_to_pickup_crate(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long n)
 {
-    //return _DK_check_place_to_pickup_crate(thing, stl_x, stl_y);
     struct Map *mapblk;
     long i;
     unsigned long k;
@@ -1870,7 +1827,6 @@ long check_out_imp_last_did(struct Thing *creatng)
   struct CreatureControl *cctrl;
   struct Dungeon *dungeon;
   struct Room *room;
-  //return _DK_check_out_imp_last_did(thing);
   cctrl = creature_control_get_from_thing(creatng);
   SYNCDBG(19,"Starting for %s index %d, last did %d",thing_model_name(creatng),(int)creatng->index,(int)cctrl->digger.last_did_job);
   TRACE_THING(creatng);
@@ -1990,7 +1946,6 @@ TbBool imp_stack_update(struct Thing *creatng)
 {
     struct Dungeon *dungeon;
     SYNCDBG(18,"Starting");
-    //return _DK_imp_stack_update(thing);
     dungeon = get_dungeon(creatng->owner);
     if ((game.play_gameturn - dungeon->digger_stack_update_turn) < 128)
         return 0;
@@ -2419,7 +2374,6 @@ long check_out_imp_stack(struct Thing *creatng)
     struct DiggerStack *dstack;
     long ret;
     SYNCDBG(18,"Starting");
-    //return _DK_check_out_imp_stack(thing);
     cctrl = creature_control_get_from_thing(creatng);
     dungeon = get_dungeon(creatng->owner);
     if (cctrl->digger.stack_update_turn != dungeon->digger_stack_update_turn)

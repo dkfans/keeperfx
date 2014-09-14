@@ -25,6 +25,7 @@
 
 #include "config_creature.h"
 #include "config_terrain.h"
+#include "game_legacy.h"
 #include "keeperfx.hpp"
 
 #include <assert.h>
@@ -114,8 +115,8 @@ struct Planner
 
     Planner(int plyr_idx, NodeCompareFunc open_compare,
             NodeCompareFunc leaf_compare) : my_idx(plyr_idx),
-        next_node_id(0), env(), root(NULL), open(open_compare), leaves(leaf_compare),
-        freelist_head(), freelist_tail(), livelist_head() {
+        next_node_id(0), plan_type(SAI_PLAN_LEAST_RISKY), env(), root(NULL), open(open_compare),
+        leaves(leaf_compare), freelist_head(), freelist_tail(), livelist_head(), livelist_tail() {
     }
 };
 

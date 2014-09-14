@@ -72,28 +72,9 @@ unsigned char destroy_effect[][9] = {
 };
 
 /******************************************************************************/
-DLLIMPORT void _DK_magic_use_power_chicken(unsigned char plyr_idx, struct Thing *thing, long pwkind, long stl_y, long pwlevel);
-DLLIMPORT void _DK_magic_use_power_disease(unsigned char plyr_idx, struct Thing *thing, long pwkind, long stl_y, long pwlevel);
-DLLIMPORT void _DK_magic_use_power_destroy_walls(unsigned char plyr_idx, long a2, long pwkind, long stl_y);
-DLLIMPORT short _DK_magic_use_power_imp(unsigned short plyr_idx, unsigned short a2, unsigned short pwkind);
-DLLIMPORT void _DK_magic_use_power_heal(unsigned char plyr_idx, struct Thing *thing, long pwkind, long stl_y, long pwlevel);
-DLLIMPORT void _DK_magic_use_power_conceal(unsigned char plyr_idx, struct Thing *thing, long pwkind, long stl_y, long pwlevel);
-DLLIMPORT void _DK_magic_use_power_armour(unsigned char plyr_idx, struct Thing *thing, long pwkind, long stl_y, long pwlevel);
-DLLIMPORT void _DK_magic_use_power_speed(unsigned char plyr_idx, struct Thing *thing, long pwkind, long stl_y, long pwlevel);
-DLLIMPORT void _DK_magic_use_power_lightning(unsigned char plyr_idx, long a2, long pwkind, long stl_y);
-DLLIMPORT long _DK_magic_use_power_sight(unsigned char plyr_idx, long a2, long pwkind, long stl_y);
-DLLIMPORT void _DK_magic_use_power_cave_in(unsigned char plyr_idx, long a2, long pwkind, long stl_y);
-DLLIMPORT long _DK_magic_use_power_call_to_arms(unsigned char plyr_idx, long a2, long pwkind, long stl_y, long pwlevel);
-DLLIMPORT short _DK_magic_use_power_hand(unsigned short plyr_idx, unsigned short a2, unsigned short pwkind, unsigned short stl_y);
-DLLIMPORT short _DK_magic_use_power_slap(unsigned short plyr_idx, unsigned short a2, unsigned short pwkind);
-DLLIMPORT short _DK_magic_use_power_obey(unsigned short plridx);
-DLLIMPORT long _DK_magic_use_power_armageddon(unsigned char val);
 DLLIMPORT void _DK_magic_use_power_hold_audience(unsigned char idx);
 
-DLLIMPORT long _DK_power_sight_explored(long stl_x, long stl_y, unsigned char plyr_idx);
 DLLIMPORT void _DK_update_power_sight_explored(struct PlayerInfo *player);
-DLLIMPORT unsigned char _DK_can_cast_spell_at_xy(unsigned char plyr_idx, unsigned char a2, unsigned char pwkind, unsigned char stl_y, long pwlevel);
-DLLIMPORT long _DK_can_cast_spell_on_creature(long plyr_idx, struct Thing *thing, long pwkind);
 /******************************************************************************/
 TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, const struct Thing *thing, unsigned long flags, const char *func_name)
 {
@@ -148,7 +129,6 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord s
 TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing, PowerKind pwkind)
 {
     SYNCDBG(18,"Starting for %s on %s",power_code_name(pwkind),thing_model_name(thing));
-    //return _DK_can_cast_spell_on_creature(plyr_idx, thing, pwkind);
     // Picked up things are immune to spells
     if (thing_is_picked_up(thing))
         return false;
@@ -293,7 +273,6 @@ TbBool power_sight_explored(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
 {
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
-    //return _DK_power_sight_explored(stl_x, stl_y, plyr_idx);
     if (dungeon->sight_casted_thing_idx <= 0) {
         return false;
     }
@@ -583,7 +562,6 @@ TbBool find_power_cast_place(PlayerNumber plyr_idx, PowerKind pwkind, struct Coo
 TbResult magic_use_power_armageddon(PlayerNumber plyr_idx)
 {
     SYNCDBG(6,"Starting");
-    //_DK_magic_use_power_armageddon(plyr_idx);
     unsigned long your_time_gap,enemy_time_gap;
     your_time_gap = game.armageddon.count_down + game.play_gameturn;
     enemy_time_gap = game.armageddon.count_down + game.play_gameturn;
@@ -659,7 +637,6 @@ TbResult magic_use_power_armageddon(PlayerNumber plyr_idx)
 TbResult magic_use_power_obey(PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
-    //return _DK_magic_use_power_obey(plyr_idx);
     dungeon = get_players_num_dungeon(plyr_idx);
     if (dungeon->must_obey_turn != 0) {
         dungeon->must_obey_turn = 0;
@@ -677,7 +654,6 @@ void turn_off_sight_of_evil(PlayerNumber plyr_idx)
     struct MagicStats *mgstat;
     long spl_lev,cit;
     long i,imax,k,n;
-    //_DK_turn_off_sight_of_evil(plyr_idx);
     dungeon = get_players_num_dungeon(plyr_idx);
     mgstat = &(game.keeper_power_stats[PwrK_SIGHT]);
     spl_lev = dungeon->sight_casted_splevel;
@@ -704,7 +680,6 @@ TbResult magic_use_power_hold_audience(PlayerNumber plyr_idx)
 
 TbResult magic_use_power_chicken(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)
 {
-    //_DK_magic_use_power_chicken(plyr_idx, thing, stl_x, stl_y, splevel);
     // If this spell is already casted at that creature, do nothing
     if (thing_affected_by_spell(thing, SplK_Chicken)) {
         return Lb_OK;
@@ -725,7 +700,6 @@ TbResult magic_use_power_chicken(PlayerNumber plyr_idx, struct Thing *thing, Map
 
 TbResult magic_use_power_disease(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)
 {
-    //_DK_magic_use_power_disease(a1, thing, a3, a4, a5); return Lb_OK;
     // If this spell is already casted at that creature, do nothing
     if ( thing_affected_by_spell(thing, SplK_Disease) ) {
         return Lb_OK;
@@ -746,7 +720,6 @@ TbResult magic_use_power_disease(PlayerNumber plyr_idx, struct Thing *thing, Map
 
 TbResult magic_use_power_destroy_walls(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)
 {
-    //_DK_magic_use_power_destroy_walls(plyr_idx, stl_x, stl_y, splevel);
     // If we can't afford the spell, fail
     SYNCDBG(16,"Starting");
     if (!pay_for_spell(plyr_idx, PwrK_DESTRWALLS, splevel)) {
@@ -841,7 +814,6 @@ TbResult magic_use_power_imp(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubt
     struct Thing *thing;
     struct Thing *heartng;
     struct Coord3d pos;
-    //return _DK_magic_use_power_imp(plyr_idx, x, y);
     if (!i_can_allocate_free_control_structure()
      || !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots)) {
         return Lb_FAIL;
@@ -871,7 +843,6 @@ TbResult magic_use_power_imp(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubt
 
 TbResult magic_use_power_heal(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)
 {
-    //_DK_magic_use_power_heal(plyr_idx, thing, stl_x, stl_y, splevel);return Lb_OK;
     // If the creature has full health, do nothing
     if (!thing_is_creature(thing)) {
         ERRORLOG("Tried to apply spell to invalid creature.");
@@ -894,7 +865,6 @@ TbResult magic_use_power_heal(PlayerNumber plyr_idx, struct Thing *thing, MapSub
 
 TbResult magic_use_power_conceal(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)
 {
-    //_DK_magic_use_power_conceal(plyr_idx, thing, stl_x, stl_y, a5);
     if (!thing_is_creature(thing)) {
         ERRORLOG("Tried to apply spell to invalid creature.");
         return Lb_FAIL;
@@ -914,7 +884,6 @@ TbResult magic_use_power_conceal(PlayerNumber plyr_idx, struct Thing *thing, Map
 
 TbResult magic_use_power_armour(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)
 {
-    //_DK_magic_use_power_armour(plyr_idx, thing, a3, stl_y, splevel);
     if (!thing_is_creature(thing)) {
         ERRORLOG("Tried to apply spell to invalid creature.");
         return Lb_FAIL;
@@ -956,7 +925,6 @@ long thing_affected_by_spell(const struct Thing *thing, long spkind)
 
 TbResult magic_use_power_speed(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)
 {
-    //_DK_magic_use_power_speed(plyr_idx, thing, a3, a4, splevel);
     if (!thing_is_creature(thing)) {
         ERRORLOG("Tried to apply spell to invalid creature.");
         return Lb_FAIL;
@@ -984,7 +952,6 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     struct Coord3d pos;
     long range,max_damage;
     long i;
-    //_DK_magic_use_power_lightning(plyr_idx, stl_x, stl_y, splevel);
     player = get_player(plyr_idx);
     dungeon = get_dungeon(player->id_number);
     pos.x.val = subtile_coord_center(stl_x);
@@ -1044,7 +1011,6 @@ TbResult magic_use_power_sight(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
     struct Coord3d pos;
     long cit,cdt,cgt,cdlimit;
     long i;
-    //return _DK_magic_use_power_sight(plyr_idx, stl_x, stl_y, splevel);
     dungeon = get_dungeon(plyr_idx);
     magstat = &game.keeper_power_stats[PwrK_SIGHT];
     if (player_uses_power_sight(plyr_idx))
@@ -1100,7 +1066,6 @@ TbResult magic_use_power_sight(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
 
 TbResult magic_use_power_cave_in(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)
 {
-    //_DK_magic_use_power_cave_in(plyr_idx, stl_x, stl_y, splevel);
     MapSlabCoord slb_x, slb_y;
     slb_y = subtile_slab_fast(stl_y);
     slb_x = subtile_slab_fast(stl_x);
@@ -1252,7 +1217,6 @@ TbResult magic_use_power_call_to_arms(PlayerNumber plyr_idx, MapSubtlCoord stl_x
     struct Dungeon *dungeon;
     struct PlayerInfo *player;
     SYNCDBG(8,"Starting");
-    //return _DK_magic_use_power_call_to_arms(plyr_idx, stl_x, stl_y, splevel, allow_flags);
     player = get_player(plyr_idx);
     dungeon = get_players_dungeon(player);
     struct Coord3d pos;
@@ -1317,7 +1281,6 @@ TbResult magic_use_power_slap_thing(PlayerNumber plyr_idx, struct Thing *thing)
 TbResult magic_use_power_slap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct Thing *thing;
-    //return _DK_magic_use_power_slap(plyr_idx, stl_x, stl_y);
     thing = get_nearest_thing_for_slap(plyr_idx, subtile_coord_center(stl_x), subtile_coord_center(stl_y));
     return magic_use_power_slap_thing(plyr_idx, thing);
 }
@@ -1553,7 +1516,6 @@ TbResult magic_use_available_power_on_level(PlayerNumber plyr_idx, PowerKind spl
 void directly_cast_spell_on_thing(PlayerNumber plyr_idx, PowerKind spl_idx, ThingIndex thing_idx, long splevel)
 {
     struct Thing *thing;
-    //_DK_directly_cast_spell_on_thing(plyr_idx, spl_idx, thing_idx, splevel);
     thing = thing_get(thing_idx);
     magic_use_available_power_on_thing(plyr_idx, spl_idx, splevel,
         thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing);

@@ -38,19 +38,6 @@
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-/******************************************************************************/
-DLLIMPORT short _DK_at_research_room(struct Thing *creatng);
-DLLIMPORT long _DK_process_research_function(struct Thing *creatng);
-DLLIMPORT short _DK_researching(struct Thing *creatng);
-DLLIMPORT void _DK_force_complete_current_research(long plyr_idx);
-DLLIMPORT long _DK_get_next_research_item(struct Dungeon *dungeon);
-/******************************************************************************/
-#ifdef __cplusplus
-}
-#endif
 /******************************************************************************/
 TbBool creature_can_do_research(const struct Thing *creatng)
 {
@@ -69,7 +56,6 @@ short at_research_room(struct Thing *thing)
     struct CreatureControl *cctrl;
     struct Dungeon *dungeon;
     struct Room *room;
-    //return _DK_at_research_room(thing);
     cctrl = creature_control_get_from_thing(thing);
     cctrl->target_room_id = 0;
     dungeon = get_dungeon(thing->owner);
@@ -150,7 +136,6 @@ int get_next_research_item(const struct Dungeon *dungeon)
 {
     const struct ResearchVal *rsrchval;
     long resnum;
-    //return _DK_get_next_research_item(dungeon);
     if (dungeon->research_num == 0)
         return -1;
     for (resnum = 0; resnum < dungeon->research_num; resnum++)
@@ -196,7 +181,6 @@ TbBool force_complete_current_research(PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
     struct ResearchVal *rsrchval;
-    //_DK_force_complete_current_research(plyr_idx);
     dungeon = get_dungeon(plyr_idx);
     rsrchval = get_players_current_research_val(plyr_idx);
     if (rsrchval != NULL)
@@ -472,7 +456,6 @@ CrCheckRet process_research_function(struct Thing *creatng)
 {
     struct Dungeon *dungeon;
     struct Room *room;
-    //return _DK_process_research_function(thing);
     dungeon = get_dungeon(creatng->owner);
     if (dungeon_invalid(dungeon)) {
         SYNCDBG(9,"The %s index %d cannot work as player %d has no dungeon",
@@ -511,7 +494,6 @@ short researching(struct Thing *thing)
     struct Dungeon *dungeon;
     long i;
     TRACE_THING(thing);
-    //return _DK_researching(thing);
     dungeon = get_dungeon(thing->owner);
     if (is_neutral_thing(thing))
     {

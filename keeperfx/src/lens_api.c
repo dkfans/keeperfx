@@ -37,12 +37,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_init_lens(unsigned long *lens_mem, int width, int height, int scanln, int nlens);
-DLLIMPORT void _DK_draw_lens(unsigned char *dstbuf, unsigned char *srcbuf, unsigned long *lens_mem, int width, int height, int scanln);
-DLLIMPORT void _DK_reset_eye_lenses(void);
-DLLIMPORT void _DK_initialise_eye_lenses(void);
-DLLIMPORT void _DK_setup_eye_lens(long nlens);
-/******************************************************************************/
 void init_lens(unsigned long *lens_mem, int width, int height, int pitch, int nlens, int mag, int period);
 void draw_displacement_lens(unsigned char *dstbuf, unsigned char *srcbuf, unsigned long *lens_mem, int width, int height, int scanln);
 /******************************************************************************/
@@ -57,7 +51,6 @@ void init_lens(unsigned long *lens_mem, int width, int height, int pitch, int nl
     double flpos_w,flpos_h;
     double flmag,flperiod;
     double fldist,fldivs;
-    //_DK_init_lens(lens_mem, width, height, scanln, nlens);
     switch (nlens)
     {
     case 0:
@@ -218,7 +211,6 @@ void initialise_eye_lenses(void)
 
 void setup_eye_lens(long nlens)
 {
-    //_DK_setup_eye_lens(nlens);return;
     struct LensConfig *lenscfg;
     char *fname;
     if ((game.flags_cd & MFlg_EyeLensReady) == 0)
@@ -291,7 +283,6 @@ void reinitialise_eye_lens(long nlens)
 
 void draw_displacement_lens(unsigned char *dstbuf, unsigned char *srcbuf, unsigned long *lens_mem, int width, int height, int dstpitch)
 {
-    //_DK_draw_lens(dstbuf, srcbuf, lens_mem, width, height, dstpitch); return;
     int w,h;
     long pos_map;
     unsigned char *dst;

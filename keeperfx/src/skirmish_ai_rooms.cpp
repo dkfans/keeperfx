@@ -76,7 +76,8 @@ struct Pathfinder
 
     //no choice but have C++ constructor for this context
     Pathfinder(PathNodeCompare open_cmp, PathNodeCompare closed_cmp) :
-        open(open_cmp), closed(closed_cmp), args(NULL) { }
+        open(open_cmp), closed(closed_cmp), args(NULL),
+        goal_func(NULL), cost_func(NULL), heuristic_func(NULL), should_dig_func(NULL) { }
 };
 
 struct RoomPathArgs

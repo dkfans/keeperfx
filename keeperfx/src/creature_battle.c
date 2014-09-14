@@ -34,20 +34,6 @@
 #include "player_instances.h"
 #include "game_legacy.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-/******************************************************************************/
-DLLIMPORT unsigned char _DK_find_first_battle_of_mine(unsigned char idx);
-DLLIMPORT unsigned char _DK_active_battle_exists(unsigned char plyr_idx);
-DLLIMPORT unsigned char _DK_step_battles_forward(unsigned char plyr_idx);
-DLLIMPORT long _DK_battle_move_player_towards_battle(struct PlayerInfo *player, long var);
-DLLIMPORT void _DK_maintain_my_battle_list(void);
-DLLIMPORT void _DK_battle_initialise(void);
-/******************************************************************************/
-#ifdef __cplusplus
-}
-#endif
 /******************************************************************************/
 /**
  * Returns CreatureBattle of given index.
@@ -124,7 +110,6 @@ BattleIndex find_first_battle_of_mine(PlayerNumber plyr_idx)
 {
     struct CreatureBattle *battle;
     long i;
-    //return _DK_find_first_battle_of_mine(plyr_idx);
     for (i = 1; i < BATTLES_COUNT; i++)
     {
         battle = creature_battle_get(i);
@@ -168,7 +153,6 @@ long get_flee_position(struct Thing *thing, struct Coord3d *pos)
     struct Thing *lairtng;
     struct Thing *heartng;
     struct Thing *gatetng;
-    //return _DK_get_flee_position(thing, pos);
 
     cctrl = creature_control_get_from_thing(thing);
     // Heroes should flee to their gate
@@ -341,7 +325,6 @@ long battle_move_player_towards_battle(struct PlayerInfo *player, BattleIndex ba
 {
     struct CreatureBattle *battle;
     struct Thing *thing;
-    //return _DK_battle_move_player_towards_battle(player, var);
     battle = creature_battle_get(battle_id);
     thing = thing_get(battle->first_creatr);
     TRACE_THING(thing);
@@ -361,7 +344,6 @@ long battle_move_player_towards_battle(struct PlayerInfo *player, BattleIndex ba
 void battle_initialise(void)
 {
     int battle_idx;
-    //_DK_battle_initialise();
     for (battle_idx = 0; battle_idx < BATTLES_COUNT; battle_idx++) {
         LbMemorySet(&game.battles[battle_idx], 0, sizeof(struct CreatureBattle));
     }
@@ -519,8 +501,6 @@ long setup_my_battlers(unsigned char battle_idx, unsigned short *friendly_battle
 
 void maintain_my_battle_list(void)
 {
-    //_DK_maintain_my_battle_list();
-
     struct PlayerInfo *player;
     struct Dungeon *dungeon;
     BattleIndex battle_idx;

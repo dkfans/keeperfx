@@ -48,16 +48,12 @@ const short door_names[] = {
 };
 */
 /******************************************************************************/
-DLLIMPORT void _DK_lock_door(struct Thing *doortng);
 DLLIMPORT struct Thing *_DK_create_door(struct Coord3d *pos, unsigned short a1, unsigned char a2, unsigned short a3, unsigned char a4);
-DLLIMPORT long _DK_destroy_door(struct Thing *doortng);
-DLLIMPORT long _DK_process_door(struct Thing *doortng);
-DLLIMPORT long _DK_check_door_should_open(struct Thing *doortng);
-DLLIMPORT unsigned char _DK_find_door_of_type(unsigned long a1, unsigned char a2);
 DLLIMPORT char _DK_find_door_angle(unsigned char stl_x, unsigned char stl_y, unsigned char plyr_idx);
 /******************************************************************************/
-
-
+#ifdef __cplusplus
+}
+#endif
 /******************************************************************************/
 char find_door_angle(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
@@ -107,7 +103,6 @@ void lock_door(struct Thing *doortng)
 {
     struct DoorStats *dostat;
     long stl_x,stl_y;
-    //_DK_lock_door(thing);
     dostat = &door_stats[doortng->model][doortng->door.orientation];
     stl_x = doortng->mappos.x.stl.num;
     stl_y = doortng->mappos.y.stl.num;
@@ -126,7 +121,6 @@ void lock_door(struct Thing *doortng)
 long destroy_door(struct Thing *doortng)
 {
     SYNCDBG(18,"Starting for %s index %d owned by player %d",thing_model_name(doortng),(int)doortng->index,(int)doortng->owner);
-    //return _DK_destroy_door(thing);
     MapSubtlCoord stl_x, stl_y;
     PlayerNumber plyr_idx;
     struct Coord3d pos;
@@ -232,7 +226,6 @@ TbBool door_can_stand(struct Thing *thing)
 TbBool check_door_should_open(struct Thing *thing)
 {
     struct Thing *openertng;
-    //return _DK_check_door_should_open(thing);
     // If doors are locked, never should open
     if (thing->door.is_locked != 0)
     {
@@ -331,7 +324,6 @@ TngUpdateRet process_door(struct Thing *thing)
 {
     SYNCDBG(18,"Starting");
     TRACE_THING(thing);
-    //return _DK_process_door(thing);
     if ( !door_can_stand(thing) || (thing->health < 0) )
     {
         thing->health = -1;
@@ -371,7 +363,6 @@ TbBool find_door_of_type(ThingModel model, PlayerNumber owner)
     struct Thing *thing;
     long i;
     unsigned long k;
-   //return _DK_find_door_of_type(a1, a2);
     k = 0;
     i = game.thing_lists[TngList_Doors].index;
     while (i > 0)
@@ -423,6 +414,3 @@ TbBool find_trap_of_type(ThingModel model, PlayerNumber owner)
     return false;
 }
 /******************************************************************************/
-#ifdef __cplusplus
-}
-#endif

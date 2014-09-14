@@ -43,20 +43,6 @@
 #include "vidmode.h"
 #include "vidfade.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-/******************************************************************************/
-DLLIMPORT void _DK_pannel_map_update(long x, long y, long w, long h);
-DLLIMPORT void _DK_gui_set_button_flashing(long relpos_x, long relpos_y);
-DLLIMPORT void _DK_do_map_rotate_stuff(long relpos_x, long relpos_y, long *stl_x, long *stl_y, long zoom);
-DLLIMPORT void _DK_pannel_map_draw(long x, long y, long zoom);
-DLLIMPORT void _DK_draw_overlay_things(long zoom);
-DLLIMPORT void _DK_draw_call_to_arms_circle(unsigned char owner, long x1, long y1, long x2, long y2, long zoom);
-/******************************************************************************/
-#ifdef __cplusplus
-}
-#endif
 /******************************************************************************/
 /**
  * Background behind the map area.
@@ -656,7 +642,6 @@ void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
 void pannel_map_update(long x, long y, long w, long h)
 {
     SYNCDBG(7,"Starting");
-    //_DK_pannel_map_update(x, y, w, h);
     struct PlayerInfo *player;
     player = get_my_player();
     MapSubtlCoord stl_x, stl_y;
@@ -678,7 +663,6 @@ void pannel_map_update(long x, long y, long w, long h)
 
 void do_map_rotate_stuff(long relpos_x, long relpos_y, long *stl_x, long *stl_y, long zoom)
 {
-    //_DK_do_map_rotate_stuff(a1, a2, a3, a4, a5);
     const struct PlayerInfo *player;
     player = get_my_player();
     const struct Camera *cam;
@@ -1047,7 +1031,6 @@ void pannel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
     PannelMapY = y * units_per_px / 16;
     auto_gen_tables(units_per_px);
     update_pannel_colours();
-    //_DK_pannel_map_draw(x, y, zoom);
     struct PlayerInfo *player;
     player = get_my_player();
     struct Camera *cam;

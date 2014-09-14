@@ -45,27 +45,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_gui_pretty_background(struct GuiMenu *gmnu);
-DLLIMPORT void _DK_gui_round_glass_background(struct GuiMenu *gmnu);
-
-DLLIMPORT void _DK_gui_area_new_normal_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_draw_tab(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_new_null_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_new_no_anim_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_no_anim_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_normal_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_over_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_draw_button(struct GuiButton *gbtn, long a2, const char *text, long a4);
-DLLIMPORT void _DK_frontend_draw_large_menu_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_draw_vlarge_menu_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_reset_scroll_window(struct GuiMenu *gmnu);
-DLLIMPORT void _DK_gui_area_null(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_set_menu_mode(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_flash_cycle_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_scroll_box_tab(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_scroll_box(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_slider_button(struct GuiButton *gbtn);
-/******************************************************************************/
 void gui_clear_buttons_not_over_mouse(int gmbtn_mouseover_idx)
 {
     struct GuiButton *gbtn;
@@ -647,7 +626,6 @@ void gui_area_normal_button(struct GuiButton *gbtn)
 
 void frontend_over_button(struct GuiButton *gbtn)
 {
-    //_DK_frontend_over_button(gbtn);
     int i;
 
     if (gbtn->gbtype == Lb_EDITBTN)
@@ -775,7 +753,6 @@ void frontend_draw_scroll_box(struct GuiButton *gbtn)
     long height_lines,draw_scrollbar;
     long spr_idx,secspr_idx;
     long i,delta;
-    //_DK_frontnet_draw_scroll_box(gbtn);
     pos_y = gbtn->scr_pos_y;
     switch ( (long)gbtn->content )
     {
@@ -891,7 +868,6 @@ void frontend_draw_scroll_box(struct GuiButton *gbtn)
 void frontend_draw_slider_button(struct GuiButton *gbtn)
 {
     long spr_idx,btn_id;
-    //_DK_frontnet_draw_slider_button(gbtn);
     if ((gbtn->flags & LbBtnF_Unknown08) != 0)
     {
         btn_id = (long)gbtn->content;
@@ -938,7 +914,6 @@ void gui_area_null(struct GuiButton *gbtn)
 
 void reset_scroll_window(struct GuiMenu *gmnu)
 {
-    //_DK_reset_scroll_window(gmnu);
     game.evntbox_scroll_window.start_y = 0;
     game.evntbox_scroll_window.action = 0;
     game.evntbox_scroll_window.text_height = 0;

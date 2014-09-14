@@ -30,17 +30,6 @@
 
 #include "keeperfx.hpp"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-/******************************************************************************/
-DLLIMPORT void _DK_turn_off_roaming_menus(void);
-DLLIMPORT void _DK_turn_off_menu(char mnu_idx);
-DLLIMPORT void _DK_turn_on_menu(int);
-DLLIMPORT void _DK_turn_off_event_box_if_necessary(long plyr_idx, char event_idx);
-DLLIMPORT unsigned long _DK_turn_off_all_window_menus(void);
-DLLIMPORT void _DK_turn_off_all_panel_menus(void);
-
 /******************************************************************************/
 struct GuiMenu *get_active_menu(MenuNumber num)
 {
@@ -144,7 +133,6 @@ void turn_off_menu(MenuID mnu_idx)
 
 void turn_off_roaming_menus(void)
 {
-    //_DK_turn_off_roaming_menus();
     turn_off_menu(GMnu_VIDEO);
     turn_off_menu(GMnu_SOUND);
     turn_off_menu(GMnu_QUIT);
@@ -473,7 +461,6 @@ long first_available_menu(void)
 
 void turn_off_event_box_if_necessary(PlayerNumber plyr_idx, unsigned char event_idx)
 {
-    //_DK_turn_off_event_box_if_necessary(plyr_idx, val);
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
     if (dungeon->visible_event_idx != event_idx) {
@@ -489,6 +476,3 @@ void turn_off_event_box_if_necessary(PlayerNumber plyr_idx, unsigned char event_
 }
 
 /******************************************************************************/
-#ifdef __cplusplus
-}
-#endif

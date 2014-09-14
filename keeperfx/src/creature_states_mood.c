@@ -36,20 +36,6 @@
 #include "room_jobs.h"
 #include "game_legacy.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-/******************************************************************************/
-DLLIMPORT short _DK_creature_moan(struct Thing *thing);
-DLLIMPORT short _DK_creature_roar(struct Thing *thing);
-DLLIMPORT short _DK_creature_be_happy(struct Thing *thing);
-DLLIMPORT short _DK_creature_piss(struct Thing *thing);
-DLLIMPORT short _DK_mad_killing_psycho(struct Thing *thing);
-DLLIMPORT void _DK_anger_set_creature_anger(struct Thing *creatng, long a1, long wandr_select);
-/******************************************************************************/
-#ifdef __cplusplus
-}
-#endif
 /******************************************************************************/
 TbBool creature_can_get_angry(const struct Thing *creatng)
 {
@@ -65,7 +51,6 @@ short creature_moan(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     long i;
-    //return _DK_creature_moan(thing);
     cctrl = creature_control_get_from_thing(thing);
     i = cctrl->field_282;
     if (i > 0) i--;
@@ -91,7 +76,6 @@ short creature_moan(struct Thing *thing)
 short creature_roar(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
-    //return _DK_creature_roar(thing);
     cctrl = creature_control_get_from_thing(thing);
 
     if (cctrl->field_282 > 0) {
@@ -115,7 +99,6 @@ short creature_be_happy(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     long i;
-    //return _DK_creature_be_happy(thing);
     cctrl = creature_control_get_from_thing(thing);
     i = cctrl->field_282;
     if (i > 0) i--;
@@ -142,7 +125,6 @@ short creature_piss(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     long i;
-    //return _DK_creature_piss(thing);
     cctrl = creature_control_get_from_thing(thing);
     if ( !S3DEmitterIsPlayingSample(thing->snd_emitter_id, 171, 0) ) {
         thing_play_sample(thing, 171, NORMAL_PITCH, 0, 3, 1, 6, FULL_LOUDNESS);
@@ -161,7 +143,6 @@ short creature_piss(struct Thing *thing)
 short mad_killing_psycho(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
-    //return _DK_mad_killing_psycho(creatng);
     cctrl = creature_control_get_from_thing(creatng);
     // Find a position for killing - use random dungeon
     struct Coord3d pos;
@@ -277,7 +258,6 @@ void anger_set_creature_anger_f(struct Thing *creatng, long annoy_lv, AnnoyMotiv
     SYNCDBG(8,"%s: Setting reason %d to %d for %s index %d",func_name,(int)reason,(int)annoy_lv,thing_model_name(creatng),(int)creatng->index);
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
-    //_DK_anger_set_creature_anger(creatng, annoy_lv, reason);
     if ((game.numfield_14 != 0) || !creature_can_get_angry(creatng)) {
         return;
     }

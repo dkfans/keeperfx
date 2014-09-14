@@ -45,10 +45,6 @@ extern "C" {
 #endif
 /******************************************************************************/
 /******************************************************************************/
-DLLIMPORT long _DK_save_game_save_catalogue(struct CatalogueEntry *game_catalg);
-DLLIMPORT void _DK_load_game_save_catalogue(struct CatalogueEntry *game_catalg);
-DLLIMPORT long _DK_load_game(long);
-/******************************************************************************/
 TbBool load_catalogue_entry(TbFileHandle fh,struct FileChunkHeader *hdr,struct CatalogueEntry *centry);
 /******************************************************************************/
 long const VersionMajor = 1;
@@ -331,7 +327,6 @@ TbBool is_save_game_loadable(long slot_num)
 
 TbBool load_game(long slot_num)
 {
-    //return _DK_load_game(slot_num);
     TbFileHandle fh;
     long file_len;
     struct PlayerInfo *player;

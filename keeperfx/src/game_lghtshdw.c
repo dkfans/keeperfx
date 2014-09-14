@@ -24,9 +24,6 @@
 
 #include "map_data.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 /******************************************************************************/
 long get_subtile_lightness(const struct LightsShadows * lish, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
@@ -74,6 +71,3 @@ void clear_light_system(struct LightsShadows * lish)
 }
 
 /******************************************************************************/
-#ifdef __cplusplus
-}
-#endif

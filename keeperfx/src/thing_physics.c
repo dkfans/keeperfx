@@ -38,11 +38,8 @@ extern "C" {
 /******************************************************************************/
 DLLIMPORT void _DK_slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long a3);
 DLLIMPORT void _DK_bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long a3);
-DLLIMPORT long _DK_creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos);
-DLLIMPORT long _DK_thing_in_wall_at(const struct Thing *thing, const struct Coord3d *pos);
 DLLIMPORT long _DK_get_thing_height_at(const struct Thing *thing, const struct Coord3d *pos);
 DLLIMPORT long _DK_get_thing_height_at_with_radius(const struct Thing *thing, const struct Coord3d *pos, unsigned long a3);
-DLLIMPORT long _DK_thing_in_wall_at_with_radius(const struct Thing *thing, const struct Coord3d *pos, unsigned long a3);
 /******************************************************************************/
 
 
@@ -200,7 +197,6 @@ TbBool position_over_floor_level(const struct Thing *thing, const struct Coord3d
 
 long creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos)
 {
-    //return _DK_creature_cannot_move_directly_to(thing, pos);
     struct Coord3d realpos;
     realpos.x.val = thing->mappos.x.val;
     realpos.y.val = thing->mappos.y.val;
@@ -446,7 +442,6 @@ long thing_in_wall_at(const struct Thing *thing, const struct Coord3d *pos)
 {
     int radius;
     long i;
-    //return _DK_thing_in_wall_at(thing, pos);
     if (thing_is_creature(thing)) {
         i = thing_nav_sizexy(thing);
     } else {
@@ -478,7 +473,6 @@ long thing_in_wall_at(const struct Thing *thing, const struct Coord3d *pos)
 
 long thing_in_wall_at_with_radius(const struct Thing *thing, const struct Coord3d *pos, unsigned long radius)
 {
-    //return _DK_thing_in_wall_at_with_radius(thing, pos, radius);
     MapCoord z_beg, z_end;
     z_beg = pos->z.val;
     z_end = z_beg + thing->field_58;
@@ -520,7 +514,6 @@ long get_floor_height_under_thing_at(const struct Thing *thing, const struct Coo
 {
     int radius;
     long i;
-    //return _DK_get_floor_height_under_thing_at(thing, pos);
     if (thing_is_creature(thing)) {
         i = thing_nav_sizexy(thing);
     } else {

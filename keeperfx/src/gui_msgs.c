@@ -26,16 +26,6 @@
 #include "frontend.h"
 #include "game_legacy.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-/******************************************************************************/
-DLLIMPORT void _DK_message_update(void);
-DLLIMPORT void _DK_message_draw(void);
-/******************************************************************************/
-#ifdef __cplusplus
-}
-#endif
 /******************************************************************************/
 void message_draw(void)
 {
@@ -67,7 +57,6 @@ void message_draw(void)
 void message_update(void)
 {
     SYNCDBG(6,"Starting");
-    //_DK_message_update();
     int i;
     i = game.active_messages_count - 1;
     // Set end turn for all messages

@@ -44,24 +44,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_computer_checks_hates(struct Computer2 *comp, struct ComputerCheck * check);
-DLLIMPORT long _DK_computer_check_move_creatures_to_best_room(struct Computer2 *comp, struct ComputerCheck * check);
-DLLIMPORT long _DK_computer_check_move_creatures_to_room(struct Computer2 *comp, struct ComputerCheck * check);
-DLLIMPORT long _DK_computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check);
-DLLIMPORT long _DK_computer_check_for_pretty(struct Computer2 *comp, struct ComputerCheck * check);
-DLLIMPORT long _DK_computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerCheck * check);
-DLLIMPORT long _DK_computer_check_for_accelerate(struct Computer2 *comp, struct ComputerCheck * check);
-DLLIMPORT long _DK_computer_check_slap_imps(struct Computer2 *comp, struct ComputerCheck * check);
-DLLIMPORT long _DK_computer_check_enemy_entrances(struct Computer2 *comp, struct ComputerCheck * check);
-DLLIMPORT long _DK_computer_check_for_place_door(struct Computer2 *comp, struct ComputerCheck * check);
-DLLIMPORT long _DK_computer_check_neutral_places(struct Computer2 *comp, struct ComputerCheck * check);
-DLLIMPORT long _DK_computer_check_for_place_trap(struct Computer2 *comp, struct ComputerCheck * check);
-DLLIMPORT long _DK_computer_check_for_expand_room(struct Computer2 *comp, struct ComputerCheck * check);
-DLLIMPORT long _DK_computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * check);
-DLLIMPORT struct Thing * _DK_find_imp_for_pickup(struct Computer2 *comp, long stl_x, long stl_y);
-
-/******************************************************************************/
-/******************************************************************************/
 long computer_checks_hates(struct Computer2 *comp, struct ComputerCheck * check);
 long computer_check_move_creatures_to_best_room(struct Computer2 *comp, struct ComputerCheck * check);
 long computer_check_move_creatures_to_room(struct Computer2 *comp, struct ComputerCheck * check);
@@ -142,7 +124,6 @@ long computer_checks_hates(struct Computer2 *comp, struct ComputerCheck * check)
 {
     struct Dungeon *compdngn;
     SYNCDBG(8,"Starting");
-    //return _DK_computer_checks_hates(comp, check);
     compdngn = comp->dungeon;
     // Reference values for checking hate
     int cdngn_creatrs, cdngn_spdiggrs, cdngn_enrancs;
@@ -212,7 +193,6 @@ long computer_check_move_creatures_to_best_room(struct Computer2 *comp, struct C
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
     SYNCDBG(8,"Starting");
-    //return _DK_computer_check_move_creatures_to_best_room(comp, check);
     //TODO check if should be changed to computer_able_to_use_magic()
     if (!is_power_available(dungeon->owner, PwrK_HAND)) {
         return 4;
@@ -239,7 +219,6 @@ long computer_check_move_creatures_to_room(struct Computer2 *comp, struct Comput
     struct Room *room;
     dungeon = comp->dungeon;
     SYNCDBG(8,"Checking player %d for move to %s", (int)dungeon->owner, room_code_name(check->param2));
-    //return _DK_computer_check_move_creatures_to_room(comp, check);
     //TODO check if should be changed to computer_able_to_use_magic()
     if (!is_power_available(dungeon->owner, PwrK_HAND)) {
         return 4;
@@ -289,7 +268,6 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
 {
     struct Dungeon *dungeon;
     SYNCDBG(8,"Starting");
-    //return _DK_computer_check_no_imps(comp, check);
     dungeon = comp->dungeon;
     if (dungeon->num_active_diggers >= check->param1) {
         return 4;
@@ -320,7 +298,6 @@ struct Thing * find_imp_for_pickup(struct Computer2 *comp, MapSubtlCoord stl_x, 
     struct Thing *pick1_tng;
     int pick2_dist;
     struct Thing *pick2_tng;
-    //return _DK_find_imp_for_pickup(comp, stl_x, stl_y);
     dungeon = comp->dungeon;
     pick1_dist = INT_MAX;
     pick2_dist = INT_MAX;
@@ -391,7 +368,6 @@ long computer_check_for_pretty(struct Computer2 *comp, struct ComputerCheck * ch
 {
     struct Dungeon *dungeon;
     SYNCDBG(8,"Starting");
-    //return _DK_computer_check_for_pretty(comp, check);
     dungeon = comp->dungeon;
     MapSubtlCoord stl_x, stl_y;
     if (computer_able_to_use_magic(comp, PwrK_HAND, 1, 1) != 1) {
@@ -482,7 +458,6 @@ long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerChec
 {
     struct Dungeon *dungeon;
     SYNCDBG(8,"Starting");
-    //return _DK_computer_check_for_quick_attack(comp, check);
     dungeon = comp->dungeon;
     int creatrs_num;
     creatrs_num = check->param1 * dungeon->num_active_creatrs / 100;
@@ -610,7 +585,6 @@ long computer_check_for_accelerate(struct Computer2 *comp, struct ComputerCheck 
     struct Thing *thing;
     long i,n;
     SYNCDBG(8,"Starting");
-    //return _DK_computer_check_for_accelerate(comp, check);
     if (computer_able_to_use_magic(comp, PwrK_SPEEDCRTR, 8, 3) != 1)
     {
         return 4;
@@ -635,7 +609,6 @@ long computer_check_slap_imps(struct Computer2 *comp, struct ComputerCheck * che
 {
     struct Dungeon *dungeon;
     SYNCDBG(8,"Starting");
-    //return _DK_computer_check_slap_imps(comp, check);
     dungeon = comp->dungeon;
     if (!is_power_available(dungeon->owner, PwrK_SLAP)) {
         return 4;
@@ -654,7 +627,6 @@ long computer_check_slap_imps(struct Computer2 *comp, struct ComputerCheck * che
 long computer_check_enemy_entrances(struct Computer2 *comp, struct ComputerCheck * check)
 {
     SYNCDBG(8,"Starting");
-    //return _DK_computer_check_enemy_entrances(comp, check);
     long result;
     result = 4;
     PlayerNumber plyr_idx;
@@ -786,7 +758,6 @@ TbBool find_place_to_put_door_around_room(const struct Room *room, struct Coord3
 long computer_check_for_place_door(struct Computer2 *comp, struct ComputerCheck * check)
 {
     SYNCDBG(8,"Starting");
-    //return _DK_computer_check_for_place_door(comp, check);
     ThingModel doorkind;
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
@@ -843,7 +814,6 @@ long computer_check_for_place_door(struct Computer2 *comp, struct ComputerCheck 
 long computer_check_neutral_places(struct Computer2 *comp, struct ComputerCheck * check)
 {
     SYNCDBG(8,"Starting");
-    //return _DK_computer_check_neutral_places(comp, check);
     struct Comp2_UnkStr1 *rel;
     rel = &comp->unkarr_A10[game.neutral_player_num];
     struct Room *near_room;
@@ -1046,7 +1016,6 @@ long computer_check_for_expand_room_kind(struct Computer2 *comp, struct Computer
 long computer_check_for_expand_room(struct Computer2 *comp, struct ComputerCheck * check)
 {
     SYNCDBG(8,"Starting");
-    //return _DK_computer_check_for_expand_room(comp, check);
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
     if (dungeon_invalid(dungeon))
