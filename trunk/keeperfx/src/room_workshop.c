@@ -41,11 +41,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_remove_workshop_item(long a1, long a2, long a3);
-DLLIMPORT long _DK_remove_workshop_object_from_player(long a1, long a2);
-DLLIMPORT long _DK_get_next_manufacture(struct Dungeon *dungeon);
-DLLIMPORT long _DK_process_player_manufacturing(int plr_idx);
-/******************************************************************************/
 /**
  * Stores manufacturable items.
  * Was originally named trap_data.
@@ -175,7 +170,6 @@ TbBool create_workshop_object_in_workshop_room(PlayerNumber plyr_idx, ThingClass
     struct Room *room;
     struct Dungeon *dungeon;
     SYNCDBG(7,"Making player %d new %s",(int)plyr_idx,thing_class_code_name(tngclass));
-    //return _DK_create_workshop_object_in_workshop_room(plyr_idx, tng_class, tng_kind);
     pos.x.val = 0;
     pos.y.val = 0;
     pos.z.val = 0;
@@ -432,7 +426,6 @@ TbBool readd_workshop_item_to_amount_placeable_f(PlayerNumber plyr_idx, ThingCla
 int remove_workshop_item_from_amount_stored_f(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel, unsigned short flags, const char *func_name)
 {
     SYNCDBG(18,"%s: Starting",func_name);
-    //return _DK_remove_workshop_item(plyr_idx, tngclass, tngmodel);
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon)) {
@@ -588,7 +581,6 @@ TbBool remove_workshop_object_from_player(PlayerNumber owner, ThingModel objmode
 {
     struct Thing *cratetng;
     struct Room *room;
-    //return _DK_remove_workshop_object_from_player(a1, a2);
     cratetng = get_workshop_box_thing(owner, objmodel);
     if (thing_is_invalid(cratetng)) {
         WARNLOG("Crate %s could not be found",object_code_name(objmodel));
@@ -670,7 +662,6 @@ long get_doable_manufacture_with_minimal_amount_available(const struct Dungeon *
 TbBool get_next_manufacture(struct Dungeon *dungeon)
 {
     int chosen_class,chosen_kind,chosen_amount;
-    //return _DK_get_next_manufacture(dungeon);
     set_manufacture_level(dungeon);
     chosen_class = TCls_Empty;
     chosen_kind = 0;
@@ -714,7 +705,6 @@ short process_player_manufacturing(PlayerNumber plyr_idx)
     struct Room *room;
     int k;
     SYNCDBG(7,"Starting for player %d",(int)plyr_idx);
-    //return _DK_process_player_manufacturing(plr_idx);
 
     dungeon = get_players_num_dungeon(plyr_idx);
     if (!player_has_room(plyr_idx, RoK_WORKSHOP))

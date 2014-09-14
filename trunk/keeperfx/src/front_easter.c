@@ -69,8 +69,6 @@ struct KeycodeString eastegg_skeksis_codes = {
 DLLIMPORT extern unsigned char _DK_eastegg_skeksis_cntr;
 #define eastegg_skeksis_cntr _DK_eastegg_skeksis_cntr
 /******************************************************************************/
-DLLIMPORT void _DK_input_eastegg(void);
-/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
@@ -200,7 +198,6 @@ void draw_eastegg(void)
       if (eastegg_skeksis_cntr >= 255)
         eastegg_skeksis_cntr = 0;
   }
-  //_DK_draw_sound_stuff();
 
   if (game.eastegg01_cntr >= eastegg_feckoff_codes.length)
   {

@@ -39,26 +39,6 @@
 #include "vidfade.h"
 #include "game_legacy.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-/******************************************************************************/
-DLLIMPORT void _DK_gui_open_event(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_kill_event(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_previous_battle(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_next_battle(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_get_creature_in_battle(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_go_to_person_in_battle(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_setup_friend_over(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_friendly_battlers(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_setup_enemy_over(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_enemy_battlers(struct GuiButton *gbtn);
-DLLIMPORT void _DK_draw_battle_head(struct Thing *thing, long scr_x, long scr_y);
-DLLIMPORT void _DK_draw_bonus_timer(void);
-/******************************************************************************/
-#ifdef __cplusplus
-}
-#endif
 /******************************************************************************/
 void gui_open_event(struct GuiButton *gbtn)
 {
@@ -85,7 +65,6 @@ void gui_open_event(struct GuiButton *gbtn)
 
 void gui_kill_event(struct GuiButton *gbtn)
 {
-    //_DK_gui_kill_event(gbtn);
     struct PlayerInfo *player;
     player = get_my_player();
     struct Dungeon *dungeon;
@@ -119,7 +98,6 @@ void activate_event_box(long evnt_idx)
 
 void gui_previous_battle(struct GuiButton *gbtn)
 {
-    //_DK_gui_previous_battle(gbtn); return;
     struct Dungeon *dungeon;
     dungeon = get_my_dungeon();
     BattleIndex battle_idx;
@@ -140,7 +118,6 @@ void gui_previous_battle(struct GuiButton *gbtn)
 
 void gui_next_battle(struct GuiButton *gbtn)
 {
-    //_DK_gui_next_battle(gbtn); return;
     struct Dungeon *dungeon;
     dungeon = get_my_dungeon();
     BattleIndex battle_idx;
@@ -166,7 +143,6 @@ void gui_get_creature_in_battle(struct GuiButton *gbtn)
     if (battle_creature_over <= 0) {
         return;
     }
-    //_DK_gui_get_creature_in_battle(gbtn); return;
     PowerKind pwkind;
     pwkind = 0;
     if (myplyr->work_state < PLAYER_STATES_COUNT)
@@ -200,7 +176,6 @@ void gui_get_creature_in_battle(struct GuiButton *gbtn)
 
 void gui_go_to_person_in_battle(struct GuiButton *gbtn)
 {
-    //_DK_gui_go_to_person_in_battle(gbtn);
     struct Thing *thing;
     thing = thing_get(battle_creature_over);
     if (thing_exists(thing))
@@ -213,7 +188,6 @@ void gui_go_to_person_in_battle(struct GuiButton *gbtn)
 
 void gui_setup_friend_over(struct GuiButton *gbtn)
 {
-    //_DK_gui_setup_friend_over(gbtn);
     int visbtl_id;
     visbtl_id = gbtn->field_1B;
     if (battle_creature_over == 0)
@@ -282,7 +256,6 @@ void draw_battle_head(struct Thing *thing, long scr_x, long scr_y, int units_per
 
 void gui_area_friendly_battlers(struct GuiButton *gbtn)
 {
-    //_DK_gui_area_friendly_battlers(gbtn);
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(my_player_number);
     BattleIndex battle_id;
@@ -332,7 +305,6 @@ void gui_area_friendly_battlers(struct GuiButton *gbtn)
 
 void gui_setup_enemy_over(struct GuiButton *gbtn)
 {
-    //_DK_gui_setup_enemy_over(gbtn); return;
     int visbtl_id;
     visbtl_id = gbtn->field_1B;
     if (battle_creature_over == 0)
@@ -358,7 +330,6 @@ void gui_setup_enemy_over(struct GuiButton *gbtn)
 
 void gui_area_enemy_battlers(struct GuiButton *gbtn)
 {
-    //_DK_gui_area_enemy_battlers(gbtn); return;
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(my_player_number);
     BattleIndex battle_id;

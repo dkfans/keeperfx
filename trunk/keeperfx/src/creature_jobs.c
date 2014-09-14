@@ -47,18 +47,6 @@
 #include "creature_states_lair.h"
 #include "creature_states_pray.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-/******************************************************************************/
-DLLIMPORT long _DK_creature_find_and_perform_anger_job(struct Thing *creatng);
-DLLIMPORT long _DK_attempt_job_preference(struct Thing *creatng, long jobpref);
-DLLIMPORT long _DK_attempt_anger_job_destroy_rooms(struct Thing *creatng);
-DLLIMPORT long _DK_attempt_anger_job_steal_gold(struct Thing *creatng);
-/******************************************************************************/
-#ifdef __cplusplus
-}
-#endif
 /******************************************************************************/
 TbBool creature_can_do_job_always_for_player(const struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job);
 TbBool creature_can_do_training_for_player(const struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job);
@@ -223,7 +211,6 @@ TbBool creature_free_for_anger_job(struct Thing *creatng)
 
 TbBool attempt_anger_job_destroy_rooms(struct Thing *creatng)
 {
-    //return _DK_attempt_anger_job_destroy_rooms(creatng);
     if (!can_change_from_state_to(creatng, creatng->active_state, CrSt_CreatureVandaliseRooms)) {
         return false;
     }
@@ -254,7 +241,6 @@ TbBool attempt_anger_job_destroy_rooms(struct Thing *creatng)
 
 TbBool attempt_anger_job_steal_gold(struct Thing *creatng)
 {
-    //return _DK_attempt_anger_job_steal_gold(creatng);
     if (!can_change_from_state_to(creatng, creatng->active_state, CrSt_CreatureStealGold)) {
         return false;
     }
@@ -457,7 +443,6 @@ long attempt_anger_job(struct Thing *creatng, long ajob_kind)
 
 TbBool creature_find_and_perform_anger_job(struct Thing *creatng)
 {
-    //return _DK_creature_find_and_perform_anger_job(creatng);
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(creatng);
     int i, k, n;
@@ -1088,7 +1073,6 @@ TbBool attempt_job_in_state_internal_near_pos(struct Thing *creatng, MapSubtlCoo
  */
 TbBool attempt_job_preference(struct Thing *creatng, long jobpref)
 {
-    //return _DK_attempt_job_preference(creatng, jobpref);
     long i,n;
     // Start checking at random job
     if (crtr_conf.jobs_count < 1) {

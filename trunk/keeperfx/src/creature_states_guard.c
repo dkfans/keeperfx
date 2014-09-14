@@ -36,22 +36,11 @@
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-/******************************************************************************/
-DLLIMPORT short _DK_at_guard_post_room(struct Thing *thing);
-DLLIMPORT short _DK_guarding(struct Thing *thing);
-/******************************************************************************/
-#ifdef __cplusplus
-}
-#endif
 /******************************************************************************/
 short at_guard_post_room(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     struct Room *room;
-    //return _DK_at_guard_post_room(thing);
     cctrl = creature_control_get_from_thing(thing);
     cctrl->target_room_id = 0;
     room = get_room_thing_is_on(thing);
@@ -79,7 +68,6 @@ short at_guard_post_room(struct Thing *thing)
 CrStateRet guarding(struct Thing *thing)
 {
     struct Room *room;
-    //return _DK_guarding(thing);
     TRACE_THING(thing);
     room = get_room_thing_is_on(thing);
     if (creature_work_in_room_no_longer_possible(room, RoK_GUARDPOST, thing))

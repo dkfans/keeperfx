@@ -29,9 +29,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_find_dig_from_task_list(long plyr_idx, long stack_pos);
-DLLIMPORT long _DK_remove_from_task_list(long plyr_idx, long stack_pos);
-
 struct MapTask bad_map_task;
 /******************************************************************************/
 struct MapTask *get_dungeon_task_list_entry(struct Dungeon *dungeon, long task_idx)
@@ -112,7 +109,6 @@ long find_from_task_list_by_subtile(PlayerNumber plyr_idx, MapSlabCoord stl_x, M
 
 long find_dig_from_task_list(PlayerNumber plyr_idx, SubtlCodedCoords srch_tsk)
 {
-    //return _DK_find_dig_from_task_list(a1, a2);
     struct Dungeon *dungeon;
     struct MapTask *task;
     long i,max;
@@ -154,7 +150,6 @@ TbBool task_list_entry_invalid(struct MapTask *task)
 
 long remove_from_task_list(long plyr_idx, long stack_pos)
 {
-    //return _DK_remove_from_task_list(a1, a2);
     struct Dungeon *dungeon;
     dungeon = get_dungeon(plyr_idx);
     if ((stack_pos < 0) || (dungeon->field_AF7 <= stack_pos)) {

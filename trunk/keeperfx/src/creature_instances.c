@@ -49,20 +49,9 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_process_creature_instance(struct Thing *thing);
-DLLIMPORT long _DK_instf_attack_room_slab(struct Thing *thing, long *param);
-DLLIMPORT long _DK_instf_creature_cast_spell(struct Thing *thing, long *param);
-DLLIMPORT long _DK_instf_creature_fire_shot(struct Thing *thing, long *param);
 DLLIMPORT long _DK_instf_damage_wall(struct Thing *thing, long *param);
-DLLIMPORT long _DK_instf_destroy(struct Thing *thing, long *param);
-DLLIMPORT long _DK_instf_dig(struct Thing *thing, long *param);
 DLLIMPORT long _DK_instf_eat(struct Thing *thing, long *param);
 DLLIMPORT long _DK_instf_fart(struct Thing *thing, long *param);
-DLLIMPORT long _DK_instf_first_person_do_imp_task(struct Thing *thing, long *param);
-DLLIMPORT long _DK_instf_pretty_path(struct Thing *thing, long *param);
-DLLIMPORT long _DK_instf_reinforce(struct Thing *thing, long *param);
-DLLIMPORT long _DK_instf_tortured(struct Thing *thing, long *param);
-DLLIMPORT long _DK_instf_tunnel(struct Thing *thing, long *param);
 
 DLLIMPORT struct InstanceInfo _DK_instance_info[48];
 #define instance_info _DK_instance_info
@@ -372,7 +361,6 @@ TbBool instance_is_ranged_weapon_vs_objects(CrInstance inum)
 TbBool creature_has_ranged_weapon(const struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    //return _DK_creature_has_ranged_weapon(creatng);
     const struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
     long inum;
@@ -517,7 +505,6 @@ long instf_dig(struct Thing *creatng, long *param)
     long dig_damage,gold;
     SYNCDBG(16,"Starting");
     TRACE_THING(creatng);
-    //return _DK_instf_dig(thing, param);
     cctrl = creature_control_get_from_thing(creatng);
     dungeon = get_dungeon(creatng->owner);
     task_idx = cctrl->word_91;
@@ -645,7 +632,6 @@ long instf_destroy(struct Thing *creatng, long *param)
 long instf_attack_room_slab(struct Thing *creatng, long *param)
 {
     TRACE_THING(creatng);
-    //return _DK_instf_attack_room_slab(creatng, param);
     struct Room *room;
     room = get_room_thing_is_on(creatng);
     if (room_is_invalid(room))
@@ -701,7 +687,6 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
     MapSlabCoord slb_x,slb_y;
     long locparam;
     TRACE_THING(creatng);
-    //return _DK_instf_first_person_do_imp_task(thing, param);
     slb_x = subtile_slab_fast(creatng->mappos.x.stl.num);
     slb_y = subtile_slab_fast(creatng->mappos.y.stl.num);
     if ( check_place_to_pretty_excluding(creatng, slb_x, slb_y) )
@@ -721,7 +706,6 @@ long instf_pretty_path(struct Thing *creatng, long *param)
     TRACE_THING(creatng);
     SYNCDBG(16,"Starting");
     dungeon = get_dungeon(creatng->owner);
-    //return _DK_instf_pretty_path(thing, param);
     MapSlabCoord slb_x,slb_y;
     slb_x = subtile_slab_fast(creatng->mappos.x.stl.num);
     slb_y = subtile_slab_fast(creatng->mappos.y.stl.num);
@@ -741,7 +725,6 @@ long instf_reinforce(struct Thing *creatng, long *param)
     struct CreatureControl *cctrl;
     SYNCDBG(16,"Starting");
     TRACE_THING(creatng);
-    //return _DK_instf_reinforce(creatng, param);
     cctrl = creature_control_get_from_thing(creatng);
     MapSubtlCoord stl_x,stl_y;
     MapSlabCoord slb_x,slb_y;
@@ -795,7 +778,6 @@ long instf_tunnel(struct Thing *creatng, long *param)
     struct SlabMap *slb;
     SYNCDBG(16,"Starting");
     TRACE_THING(creatng);
-    //return _DK_instf_tunnel(creatng, param);
     cctrl = creature_control_get_from_thing(creatng);
     MapSubtlCoord stl_x,stl_y;
     stl_x = stl_num_decode_x(cctrl->navi.field_15);

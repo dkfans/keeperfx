@@ -74,11 +74,6 @@ extern struct TbSetupSprite setup_torture_sprites[];
 
 long torture_doors_available = TORTURE_DOORS_COUNT;
 /******************************************************************************/
-DLLIMPORT void _DK_fronttorture_update(void);
-DLLIMPORT void _DK_fronttorture_draw(void);
-DLLIMPORT void _DK_fronttorture_unload(void);
-DLLIMPORT void _DK_fronttorture_load(void);
-/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
@@ -391,7 +386,6 @@ void fronttorture_input(void)
 
 void fronttorture_update(void)
 {
-    //_DK_fronttorture_update();
     if (torture_state.action != 0)
     {
       if ( torture_sprite_frame != torture_end_sprite )
