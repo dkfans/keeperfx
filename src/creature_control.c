@@ -37,8 +37,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT struct Thing *_DK_create_and_control_creature_as_controller(struct PlayerInfo *player, long snd_idx, struct Coord3d *pos);
-/******************************************************************************/
 struct CreatureSounds creature_sounds[] = {
 { {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, },
 { {   1, 4}, { 609, 3}, { 607, 1}, { 608, 1}, { 609, 3}, { 612, 2}, { 614, 1}, { 615, 1}, { 616, 3}, { 619, 1}, { 604, 3}, },
@@ -184,7 +182,6 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
     const struct Camera *cam;
     struct InitLight ilght;
     SYNCDBG(6,"Request for model %ld at (%d,%d,%d)",breed,(int)pos->x.val,(int)pos->y.val,(int)pos->z.val);
-    //return _DK_create_and_control_creature_as_controller(player, a2, pos);
     thing = create_creature(pos, breed, player->id_number);
     if (thing_is_invalid(thing))
       return INVALID_THING;

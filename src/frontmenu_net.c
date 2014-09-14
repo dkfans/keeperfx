@@ -38,92 +38,6 @@
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-/******************************************************************************/
-DLLIMPORT void _DK_frontnet_start_input(void);
-DLLIMPORT void _DK_frontnet_serial_reset(void);
-DLLIMPORT void _DK_frontnet_modem_reset(void);
-DLLIMPORT void _DK_frontnet_draw_services_scroll_tab(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_service_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_service_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_service_up_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_service_down_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_service_up(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_service_down(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_service_select(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_session_set_player_name(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_text_bar(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_session_up(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_session_up_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_session_down(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_session_down_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_session_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_sessions_scroll_tab(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_session_selected(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_session_select(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_session_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_players_up(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_players_up_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_players_down(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_players_down_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_players_scroll_tab(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_net_session_players(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_session_join(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_session_create(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_return_to_main_menu(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_join_game_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_alliance_box_tab(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_net_start_players(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_select_alliance(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_alliance_grid(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_alliance_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_maintain_alliance(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_messages_up(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_messages_up_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_messages_down(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_messages_down_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_bottom_scroll_box_tab(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_messages_scroll_tab(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_current_message(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_messages(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_start_game_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_return_to_session_menu(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_small_scroll_box_tab(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_small_scroll_box(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_comport_up(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_comport_up_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_comport_down(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_comport_down_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_comport_scroll_tab(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_comport_selected(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_comport_select(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_comport_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_comport_select_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_speed_up(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_speed_up_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_speed_down(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_speed_down_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_speed_scroll_tab(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_speed_selected(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_speed_select(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_speed_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_speed_select_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_draw_text_cont_bar(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_net_set_modem_init(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_net_set_modem_hangup(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_net_set_modem_dial(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_net_set_phone_number(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_net_modem_start(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_net_modem_start_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_net_set_modem_answer(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_net_serial_start(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontnet_net_serial_start_maintain(struct GuiButton *gbtn);
-/******************************************************************************/
-#ifdef __cplusplus
-}
-#endif
 /******************************************************************************/
 const char *get_net_speed_text(int id)
 {
@@ -179,37 +93,31 @@ long frontnet_number_of_players_in_session(void)
 
 void frontnet_session_up_maintain(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_session_up_maintain(gbtn);
     gbtn->flags ^= (gbtn->flags ^ 8 * (net_session_scroll_offset != 0)) & 8;
 }
 
 void frontnet_session_down_maintain(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_session_down_maintain(gbtn);
     gbtn->flags ^= (gbtn->flags ^ 8 * (net_number_of_sessions - 1 > net_session_scroll_offset)) & 8;
 }
 
 void frontnet_session_maintain(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_session_maintain(gbtn);
     gbtn->flags ^= (gbtn->flags ^ 8 * (net_session_scroll_offset + (long)gbtn->content - 45 < net_number_of_sessions)) & 8;
 }
 
 void frontnet_players_up_maintain(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_players_up_maintain(gbtn);
     gbtn->flags ^= (gbtn->flags ^ 8 * (net_player_scroll_offset != 0)) & 8;
 }
 
 void frontnet_players_down_maintain(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_players_down_maintain(gbtn);
     gbtn->flags ^= (gbtn->flags ^ 8 * (net_number_of_enum_players - 1 > net_player_scroll_offset)) & 8;
 }
 
 void frontnet_join_game_maintain(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_join_game_maintain(gbtn);
     if (net_service_index_selected == 1)
     {
       if ( net_session_index_active != -1 && net_config_info.str_join[0] )
@@ -225,7 +133,6 @@ void frontnet_join_game_maintain(struct GuiButton *gbtn)
 
 void frontnet_maintain_alliance(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_maintain_alliance(gbtn);
     long plyr_idx1, plyr_idx2;
     plyr_idx1 = gbtn->field_1B;
     plyr_idx2 = (long)gbtn->content - 74;
@@ -237,61 +144,51 @@ void frontnet_maintain_alliance(struct GuiButton *gbtn)
 
 void frontnet_messages_up_maintain(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_messages_up_maintain(gbtn);
     gbtn->flags ^= (gbtn->flags ^ 8 * (net_message_scroll_offset != 0)) & 8;
 }
 
 void frontnet_messages_down_maintain(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_messages_down_maintain(gbtn);
     gbtn->flags ^= (gbtn->flags ^ 8 * (net_number_of_messages - 1 > net_message_scroll_offset)) & 8;
 }
 
 void frontnet_start_game_maintain(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_start_game_maintain(gbtn);
     gbtn->flags ^= (gbtn->flags ^ 8 * (net_number_of_enum_players > 1)) & 8;
 }
 
 void frontnet_comport_up_maintain(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_comport_up_maintain(gbtn);
     gbtn->flags ^= (gbtn->flags ^ 8 * (net_comport_scroll_offset != 0)) & 8;
 }
 
 void frontnet_comport_down_maintain(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_comport_down_maintain(gbtn);
     gbtn->flags ^= (gbtn->flags ^ 8 * (number_of_comports - 1 > net_comport_scroll_offset)) & 8;
 }
 
 void frontnet_comport_select_maintain(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_comport_select_maintain(gbtn);
     gbtn->flags ^= (gbtn->flags ^ 8 * (net_comport_scroll_offset + (long)gbtn->content - 45 < number_of_comports)) & 8;
 }
 
 void frontnet_speed_up_maintain(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_speed_up_maintain(gbtn);
     gbtn->flags ^= (gbtn->flags ^ 8 * (net_speed_scroll_offset != 0)) & 8;
 }
 
 void frontnet_speed_down_maintain(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_speed_down_maintain(gbtn);
     gbtn->flags ^= (gbtn->flags ^ 8 * (number_of_speeds - 1 > net_speed_scroll_offset)) & 8;
 }
 
 void frontnet_speed_select_maintain(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_speed_select_maintain(gbtn);
     gbtn->flags ^= (gbtn->flags ^ 8 * (net_speed_scroll_offset + (long)gbtn->content - 47 < number_of_speeds)) & 8;
 }
 
 void frontnet_net_modem_start_maintain(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_net_modem_start_maintain(gbtn);
     if ((net_comport_index_active == -1) || (net_speed_index_active == -1))
       gbtn->flags &= ~0x08;
     else
@@ -308,19 +205,16 @@ void frontnet_net_serial_start_maintain(struct GuiButton *gbtn)
 
 void frontnet_serial_reset(void)
 {
-    //_DK_frontnet_serial_reset();
     net_write_config_file();
 }
 
 void frontnet_modem_reset(void)
 {
-    //_DK_frontnet_modem_reset();
     net_write_config_file();
 }
 
 void frontnet_start_input(void)
 {
-    //_DK_frontnet_start_input();
     if (lbInkey & 0x80)
     {
         lbInkey = 0;
@@ -358,7 +252,6 @@ void frontnet_draw_services_scroll_tab(struct GuiButton *gbtn)
 
 void frontnet_session_set_player_name(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_session_set_player_name(gbtn);
     strcpy(net_player_name, tmp_net_player_name);
     strcpy(net_config_info.str_u2, tmp_net_player_name);
     net_write_config_file();
@@ -366,7 +259,6 @@ void frontnet_session_set_player_name(struct GuiButton *gbtn)
 
 void frontnet_draw_text_bar(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_draw_text_bar(gbtn);
     struct TbSprite *spr;
     int i;
     long pos_x, pos_y;
@@ -389,14 +281,12 @@ void frontnet_draw_text_bar(struct GuiButton *gbtn)
 
 void frontnet_session_up(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_session_up(gbtn);
     if (net_session_scroll_offset > 0)
       net_session_scroll_offset--;
 }
 
 void frontnet_session_down(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_session_down(gbtn);
     if (net_session_scroll_offset < net_number_of_sessions - 1)
       net_session_scroll_offset++;
 }
@@ -408,14 +298,12 @@ void frontnet_draw_sessions_scroll_tab(struct GuiButton *gbtn)
 
 void frontnet_players_up(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_players_up(gbtn);
     if (net_player_scroll_offset > 0)
       net_player_scroll_offset--;
 }
 
 void frontnet_players_down(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_players_down(gbtn);
     if (net_player_scroll_offset < net_number_of_enum_players - 1)
       net_player_scroll_offset++;
 }
@@ -427,7 +315,6 @@ void frontnet_draw_players_scroll_tab(struct GuiButton *gbtn)
 
 void frontnet_draw_net_session_players(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_draw_net_session_players(gbtn);
     int i;
     i = frontend_button_caption_font(gbtn, 0);
     lbDisplay.DrawFlags = 0;
@@ -534,7 +421,6 @@ void frontnet_draw_alliance_box_tab(struct GuiButton *gbtn)
 
 void frontnet_draw_net_start_players(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_draw_net_start_players(gbtn);
     int i;
     i = frontend_button_caption_font(gbtn, 0);
     lbDisplay.DrawFlags = 0;
@@ -579,7 +465,6 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
 
 void frontnet_select_alliance(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_select_alliance(gbtn);
     struct PlayerInfo *myplyr;
     myplyr = get_my_player();
     int plyr1_idx, plyr2_idx;
@@ -600,7 +485,6 @@ void frontnet_select_alliance(struct GuiButton *gbtn)
 
 void frontnet_draw_alliance_grid(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_draw_alliance_grid(gbtn);
     int pos_x, pos_y;
     pos_y = gbtn->scr_pos_y;
     struct TbSprite *spr;
@@ -647,7 +531,6 @@ void frontnet_draw_alliance_grid(struct GuiButton *gbtn)
 
 void frontnet_draw_alliance_button(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_draw_alliance_button(gbtn);
     int plyr1_idx, plyr2_idx;
     struct TbSprite *spr;
     plyr2_idx = gbtn->field_1B;
@@ -663,14 +546,12 @@ void frontnet_draw_alliance_button(struct GuiButton *gbtn)
 
 void frontnet_messages_up(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_messages_up(gbtn);
     if (net_message_scroll_offset > 0)
       net_message_scroll_offset--;
 }
 
 void frontnet_messages_down(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_messages_down(gbtn);
     if (net_message_scroll_offset < net_number_of_messages - 1)
       net_message_scroll_offset++;
 }
@@ -742,8 +623,6 @@ void frontnet_draw_current_message(struct GuiButton *gbtn)
     struct PlayerInfo *player;
     int font_idx;
     char text[2048];
-    //_DK_frontnet_draw_current_message(gbtn);
-
     // Blink cursor - switch state every 100ms
     if (LbTimerClock() >= last_time + 100)
     {
@@ -824,7 +703,6 @@ void frontnet_return_to_session_menu(struct GuiButton *gbtn)
 
 void frontnet_draw_small_scroll_box_tab(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_draw_small_scroll_box_tab(gbtn);
     long pos_x, pos_y;
     struct TbSprite *spr;
     pos_x = gbtn->scr_pos_x;
@@ -898,7 +776,6 @@ int small_scroll_box_get_units_per_px(struct GuiButton *gbtn)
 
 void frontnet_draw_small_scroll_box(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_draw_small_scroll_box(gbtn); return;
     long pos_x, pos_y;
     struct TbSprite *spr;
     pos_x = gbtn->scr_pos_x;
@@ -991,14 +868,12 @@ void frontnet_draw_small_scroll_box(struct GuiButton *gbtn)
 
 void frontnet_comport_up(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_comport_up(gbtn);
     if (net_comport_scroll_offset > 0)
       net_comport_scroll_offset--;
 }
 
 void frontnet_comport_down(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_comport_down(gbtn);
     if (net_comport_scroll_offset < number_of_comports - 1)
       net_comport_scroll_offset++;
 }
@@ -1018,13 +893,11 @@ void frontnet_draw_comport_selected(struct GuiButton *gbtn)
 
 void frontnet_comport_select(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_comport_select(gbtn);
     gbtn->flags ^= (gbtn->flags ^ 8 * (net_comport_scroll_offset + (long)gbtn->content - 45 < number_of_comports)) & 8;
 }
 
 void frontnet_draw_comport_button(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_draw_comport_button(gbtn);
     int i;
     int febtn_idx;
     febtn_idx = (long)gbtn->content;
@@ -1048,14 +921,12 @@ void frontnet_draw_comport_button(struct GuiButton *gbtn)
 
 void frontnet_speed_up(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_speed_up(gbtn);
     if (net_speed_scroll_offset > 0)
       net_speed_scroll_offset--;
 }
 
 void frontnet_speed_down(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_speed_down(gbtn);
     if (net_speed_scroll_offset < number_of_speeds - 1)
       net_speed_scroll_offset++;
 }
@@ -1076,13 +947,11 @@ void frontnet_draw_speed_selected(struct GuiButton *gbtn)
 
 void frontnet_speed_select(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_speed_select(gbtn);
     gbtn->flags ^= (gbtn->flags ^ 8 * (net_speed_scroll_offset + (long)gbtn->content - 47 < number_of_speeds)) & 8;
 }
 
 void frontnet_draw_speed_button(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_draw_speed_button(gbtn);
     int i;
     int febtn_idx;
     febtn_idx = (long)gbtn->content;
@@ -1135,31 +1004,26 @@ void frontnet_draw_text_cont_bar(struct GuiButton *gbtn)
 
 void frontnet_net_set_modem_init(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_net_set_modem_init(gbtn);
     strcpy(net_config_info.str_atz, tmp_net_modem_init);
 }
 
 void frontnet_net_set_modem_hangup(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_net_set_modem_hangup(gbtn);
     strcpy(net_config_info.str_ath, tmp_net_modem_hangup);
 }
 
 void frontnet_net_set_modem_dial(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_net_set_modem_dial(gbtn);
     strcpy(net_config_info.str_atdt, tmp_net_modem_dial);
 }
 
 void frontnet_net_set_phone_number(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_net_set_phone_number(gbtn);
     strcpy(net_config_info.str_join, tmp_net_phone_number);
 }
 
 void frontnet_net_modem_start(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_net_modem_start(gbtn);
     if ((net_comport_index_active == -1) || (net_speed_index_active == -1))
         gbtn->flags &= ~0x08;
     else
@@ -1168,7 +1032,6 @@ void frontnet_net_modem_start(struct GuiButton *gbtn)
 
 void frontnet_net_set_modem_answer(struct GuiButton *gbtn)
 {
-    //_DK_frontnet_net_set_modem_answer(gbtn);
     strcpy(net_config_info.str_ats, tmp_net_modem_answer);
 }
 

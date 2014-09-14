@@ -52,15 +52,6 @@ extern "C" {
 // Global variables
 SmackDrawCallback smack_draw_callback = NULL;
 unsigned char smk_palette[768];
-
-DLLIMPORT long _DK_anim_stop(void);
-DLLIMPORT long _DK_anim_record(void);
-DLLIMPORT int _DK_anim_open(char *fname, int arg1, short arg2, int width, int height, int arg5, int arg6);
-DLLIMPORT long _DK_anim_make_next_frame(unsigned char *screenbuf, unsigned char *palette);
-DLLIMPORT long _DK_anim_make_FLI_COLOUR256(unsigned char *palette);
-DLLIMPORT long _DK_anim_make_FLI_BRUN(unsigned char *screenbuf);
-DLLIMPORT long _DK_anim_make_FLI_SS2(unsigned char *src, unsigned char *dst);
-DLLIMPORT long _DK_anim_make_FLI_LC(unsigned char *src, unsigned char *dst);
 /******************************************************************************/
 void copy_to_screen(unsigned char *srcbuf, unsigned long width, unsigned long height, unsigned int flags);
 /******************************************************************************/
@@ -267,7 +258,6 @@ void copy_to_screen(unsigned char *srcbuf, unsigned long width, unsigned long he
     unsigned char *dstbuf;
     long buf_center;
     long w,h;
-    //_DK_copy_to_screen(srcbuf, width, height, flags);
     if ( ((flags & SMK_PixelDoubleLine) != 0) || ((flags & SMK_InterlaceLine) != 0) )
     {
         buf_center = lbDisplay.GraphicsScreenWidth * ((LbScreenHeight() - 2 * height) >> 1);
@@ -349,7 +339,6 @@ void copy_to_screen(unsigned char *srcbuf, unsigned long width, unsigned long he
 short play_smk_via_buffer(char *fname, int smkflags, int plyflags)
 {
     SYNCDBG(7,"Starting");
-    //return _DK_play_smk_via_buffer(fname, smkflags, plyflags);
     void *snd_driver=GetSoundDriver();
     if ( snd_driver )
       SmackSoundUseMSS(snd_driver);
@@ -424,7 +413,6 @@ short play_smk_via_buffer(char *fname, int smkflags, int plyflags)
 short play_smk_direct(char *fname, int smkflags, int plyflags)
 {
     SYNCDBG(7,"Starting");
-    //return _DK_play_smk_direct(fname, smkflags, plyflags);
 
     void *snd_driver=GetSoundDriver();
     if ( snd_driver )
@@ -614,7 +602,6 @@ long anim_make_FLI_BLACK(unsigned char *screenbuf)
 
 long anim_make_FLI_COLOUR256(unsigned char *palette)
 {
-    //return _DK_anim_make_FLI_COLOUR256(palette);
     if (LbMemoryCompare(animation.palette, palette, 768) == 0) {
         return 0;
     }
@@ -670,7 +657,6 @@ long anim_make_FLI_COLOUR256(unsigned char *palette)
  */
 long anim_make_FLI_BRUN(unsigned char *screenbuf)
 {
-    //return _DK_anim_make_FLI_BRUN(screenbuf);
     unsigned char *blk_begin = animation.field_C;
     short w,h,k,count;
     unsigned char *sbuf = screenbuf;
@@ -741,7 +727,6 @@ long anim_make_FLI_BRUN(unsigned char *screenbuf)
  */
 long anim_make_FLI_SS2(unsigned char *curdat, unsigned char *prvdat)
 {
-    //return _DK_anim_make_FLI_SS2(curdat, prvdat);
     unsigned char *blk_begin;
     blk_begin=animation.field_C;
     unsigned char *cbuf;
@@ -899,7 +884,6 @@ long anim_make_FLI_SS2(unsigned char *curdat, unsigned char *prvdat)
  */
 long anim_make_FLI_LC(unsigned char *curdat, unsigned char *prvdat)
 {
-    //return _DK_anim_make_FLI_LC(curdat, prvdat);
     unsigned char *blk_begin;
     blk_begin=animation.field_C;
     unsigned char *cbuf;
@@ -1093,7 +1077,6 @@ short anim_format_matches(int width,int height,int bpp)
 short anim_stop(void)
 {
     SYNCLOG("Finishing movie recording.");
-    //return _DK_anim_stop();
     if ( ((animation.field_0 & 0x01)==0) || (animation.outfhndl==0))
     {
       ERRORLOG("Can't stop recording movie");
@@ -1116,8 +1099,6 @@ short anim_stop(void)
 
 short anim_open(char *fname, int arg1, short arg2, int width, int height, int bpp, unsigned int flags)
 {
-  //return _DK_anim_open(fname, arg1, arg2, width, height, bpp, flags);
-
   if ( flags & animation.field_0 )
   {
       ERRORLOG("Cannot record movie");
@@ -1222,7 +1203,6 @@ short anim_open(char *fname, int arg1, short arg2, int width, int height, int bp
 TbBool anim_make_next_frame(unsigned char *screenbuf, unsigned char *palette)
 {
     SYNCDBG(7,"Starting");
-    //return _DK_anim_make_next_frame(screenbuf, palette);
     unsigned long max_chunk_size;
     unsigned char *dataptr;
     long brun_size,lc_size,ss2_size;
@@ -1347,7 +1327,6 @@ TbBool anim_record_frame(unsigned char *screenbuf, unsigned char *palette)
 short anim_record(void)
 {
     SYNCDBG(7,"Starting");
-    //return _DK_anim_record();
     static char finalname[255];
     if (LbGraphicsScreenBPP() != 8)
     {

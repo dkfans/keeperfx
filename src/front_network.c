@@ -47,18 +47,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_process_network_error(long);
-DLLIMPORT void _DK_frontnet_service_update(void);
-DLLIMPORT void _DK_frontnet_session_update(void);
-DLLIMPORT void _DK_frontnet_start_update(void);
-DLLIMPORT void _DK_frontnet_modem_update(void);
-DLLIMPORT void _DK_frontnet_serial_update(void);
-DLLIMPORT void _DK_frontnet_service_setup(void);
-DLLIMPORT void _DK_frontnet_session_setup(void);
-DLLIMPORT void _DK_frontnet_start_setup(void);
-DLLIMPORT void _DK_frontnet_modem_setup(void);
-DLLIMPORT void _DK_frontnet_serial_setup(void);
-/******************************************************************************/
 const char *keeper_netconf_file = "fxconfig.net";
 
 const struct ConfigInfo default_net_config_info = {
@@ -208,7 +196,6 @@ void setup_alliances(void)
 
 void frontnet_service_update(void)
 {
-    //_DK_frontnet_service_update();
     if (net_number_of_services < 1)
     {
         net_service_scroll_offset = 0;
@@ -293,7 +280,6 @@ void __stdcall enum_services_callback(struct TbNetworkCallbackData *netcdat, voi
 
 void frontnet_session_update(void)
 {
-    //_DK_frontnet_session_update();
     static long last_enum_players = 0;
     static long last_enum_sessions = 0;
     long i;
@@ -373,7 +359,6 @@ void frontnet_session_update(void)
 
 void frontnet_modem_update(void)
 {
-    //_DK_frontnet_modem_update();
     if (net_comport_scroll_offset < 0)
     {
         net_comport_scroll_offset = 0;
@@ -400,7 +385,6 @@ void frontnet_modem_update(void)
 
 void frontnet_serial_update(void)
 {
-    //_DK_frontnet_serial_update();
     if (net_comport_scroll_offset < 0)
     {
         net_comport_scroll_offset = 0;
@@ -543,7 +527,6 @@ void frontnet_service_setup(void)
 
 void frontnet_session_setup(void)
 {
-    //_DK_frontnet_session_setup();
     if (net_player_name[0] == '\0')
     {
       strncpy(net_player_name, net_config_info.str_u2, sizeof(net_player_name));
@@ -557,7 +540,6 @@ void frontnet_session_setup(void)
 
 void frontnet_start_setup(void)
 {
-    //_DK_frontnet_start_setup();
     frontend_alliances = -1;
     net_current_message_index = 0;
     net_current_message[0] = 0;
@@ -577,7 +559,6 @@ void frontnet_start_setup(void)
 
 void frontnet_modem_setup(void)
 {
-    //_DK_frontnet_modem_setup();
     net_load_config_file();
     number_of_comports = 8;
     net_comport_index_active = net_config_info.numfield_0;
@@ -596,7 +577,6 @@ void frontnet_modem_setup(void)
 
 void frontnet_serial_setup(void)
 {
-    //_DK_frontnet_serial_setup();
     net_load_config_file();
     number_of_comports = 8;
     net_comport_index_active = net_config_info.numfield_0;

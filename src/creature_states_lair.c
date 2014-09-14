@@ -47,15 +47,8 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT short _DK_at_lair_to_sleep(struct Thing *creatng);
-DLLIMPORT short _DK_cleanup_sleep(struct Thing *creatng);
 DLLIMPORT short _DK_creature_going_home_to_sleep(struct Thing *creatng);
-DLLIMPORT short _DK_creature_sleep(struct Thing *creatng);
-DLLIMPORT short _DK_creature_at_changed_lair(struct Thing *creatng);
-DLLIMPORT short _DK_creature_at_new_lair(struct Thing *creatng);
 DLLIMPORT short _DK_creature_change_lair(struct Thing *creatng);
-DLLIMPORT short _DK_creature_choose_room_for_lair_site(struct Thing *creatng);
-DLLIMPORT long _DK_creature_add_lair_to_room(struct Thing *creatng, struct Room *room);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -184,7 +177,6 @@ long creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
     struct Thing *lairtng;
     if (!room_has_enough_free_capacity_for_creature(room, creatng))
         return 0;
-    //return _DK_creature_add_lair_to_room(thing, room);
     // Make sure we don't already have a lair on that position
     lairtng = find_creature_lair_at_subtile(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, 0);
     if (!thing_is_invalid(lairtng))
@@ -242,7 +234,6 @@ CrStateRet creature_at_changed_lair(struct Thing *creatng)
 {
     struct Room *room;
     TRACE_THING(creatng);
-    //return _DK_creature_at_changed_lair(thing);
     if (!thing_is_on_own_room_tile(creatng))
     {
         set_start_state(creatng);
@@ -268,7 +259,6 @@ CrStateRet creature_at_new_lair(struct Thing *creatng)
 {
     struct Room *room;
     TRACE_THING(creatng);
-    //return _DK_creature_at_new_lair(thing);
     room = get_room_thing_is_on(creatng);
     if ( !room_still_valid_as_type_for_thing(room, RoK_LAIR, creatng) )
     {
@@ -338,7 +328,6 @@ TbBool setup_head_for_random_unused_lair_slab(struct Thing *creatng, struct Room
 short creature_choose_room_for_lair_site(struct Thing *thing)
 {
     TRACE_THING(thing);
-    //return _DK_creature_choose_room_for_lair_site(thing);
     struct Room *room;
     room = get_best_new_lair_for_creature(thing);
     if (room_is_invalid(room))
@@ -363,7 +352,6 @@ short at_lair_to_sleep(struct Thing *thing)
     struct Thing *lairtng;
     struct Room *room;
     TRACE_THING(thing);
-    //return _DK_at_lair_to_sleep(thing);
     cctrl = creature_control_get_from_thing(thing);
     lairtng = thing_get(cctrl->lairtng_idx);
     TRACE_THING(lairtng);
@@ -402,7 +390,6 @@ short at_lair_to_sleep(struct Thing *thing)
 
 short cleanup_sleep(struct Thing *creatng)
 {
-    //return _DK_cleanup_sleep(creatng);
     restore_creature_flight_flag(creatng);
     return 1;
 }
@@ -449,7 +436,6 @@ long room_has_slab_adjacent(const struct Room *room, long slbkind)
 
 short creature_sleep(struct Thing *thing)
 {
-    //return _DK_creature_sleep(thing);
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
     if ((cctrl->slap_turns > 0) || !creature_will_sleep(thing)) {

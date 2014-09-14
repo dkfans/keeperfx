@@ -38,12 +38,6 @@ DLLIMPORT TbFileHandle _DK_LbFileOpen(const char *fname, int mode);
 DLLIMPORT int _DK_LbFileClose(TbFileHandle handle);
 DLLIMPORT int _DK_LbFileSeek(TbFileHandle handle, long offset, int origin);
 DLLIMPORT int _DK_LbFileRead(TbFileHandle handle, void *buffer, unsigned long len);
-
-DLLIMPORT void _DK_reset_heap_manager(void);
-DLLIMPORT void _DK_reset_heap_memory(void);
-DLLIMPORT void _DK_setup_heap_manager(void);
-DLLIMPORT int _DK_setup_heap_memory(void);
-DLLIMPORT int _DK_setup_heaps(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -74,7 +68,6 @@ TbBool setup_heap_manager(void)
     SYNCDBG(8,"Starting");
     const char *fname;
     long i;
-    //_DK_setup_heap_manager();
     if (heap == NULL)
     {
         ERRORLOG("Graphics Heap not allocated");
@@ -147,7 +140,6 @@ void reset_heap_manager(void)
 {
     long i;
     SYNCDBG(8,"Starting");
-    //_DK_reset_heap_manager();
     if (file_handle != -1)
     {
         //TODO CREATURE_SPRITE Use rewritten file handling when reading is rewritten

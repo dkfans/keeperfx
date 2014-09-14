@@ -123,10 +123,6 @@ DLLIMPORT NavRules _DK_nav_rulesA2B;
 DLLIMPORT struct WayPoints _DK_wayPoints;
 #define wayPoints _DK_wayPoints
 /******************************************************************************/
-#ifdef __cplusplus
-}
-#endif
-/******************************************************************************/
 unsigned char const actual_sizexy_to_nav_block_sizexy_table[] = {
     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
@@ -4580,3 +4576,6 @@ TbBool triangulate_area(unsigned char *imap, long start_x, long start_y, long en
     return r;
 }
 /******************************************************************************/
+#ifdef __cplusplus
+}
+#endif

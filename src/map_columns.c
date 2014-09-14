@@ -29,12 +29,9 @@ extern "C" {
 /******************************************************************************/
 /******************************************************************************/
 DLLIMPORT void _DK_init_columns(void);
-DLLIMPORT long _DK_get_top_cube_at_pos(long mpos);
-DLLIMPORT void _DK_clear_columns(void);
 DLLIMPORT long _DK_find_column(struct Column *col);
 DLLIMPORT long _DK_create_column(struct Column *col);
 DLLIMPORT void _DK_init_top_texture_to_cube_table(void);
-DLLIMPORT void _DK_init_whole_blocks(void);
 /******************************************************************************/
 struct Column *get_column(long idx)
 {
@@ -207,7 +204,6 @@ long get_top_cube_at_pos(long stl_num)
     struct Map *map;
     unsigned long top_pos;
     long tcube;
-    //return _DK_get_top_cube_at_pos(mpos);
     map = get_map_block_at_pos(stl_num);
     col = get_map_column(map);
     top_pos = get_column_floor_filled_subtiles(col);
@@ -322,7 +318,6 @@ long create_column(struct Column *colmn)
 
 void clear_columns(void)
 {
-  //  _DK_clear_columns();
   struct Column *colmn;
   int i;
   for (i=0; i < COLUMNS_COUNT; i++)
@@ -351,7 +346,6 @@ void init_whole_blocks(void)
     struct Column *colmn;
     struct Column lcolmn;
     long i;
-    //_DK_init_whole_blocks(); return;
     game.field_149E6E = -1;
     LbMemorySet(&lcolmn, 0, sizeof(struct Column));
     // Prepare the local column

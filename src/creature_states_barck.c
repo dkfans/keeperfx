@@ -36,22 +36,11 @@
 
 #include "keeperfx.hpp"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-/******************************************************************************/
-DLLIMPORT short _DK_at_barrack_room(struct Thing *creatng);
-DLLIMPORT short _DK_barracking(struct Thing *creatng);
-/******************************************************************************/
-#ifdef __cplusplus
-}
-#endif
 /******************************************************************************/
 short at_barrack_room(struct Thing *thing)
 {
     struct Room *room;
     struct CreatureControl *cctrl;
-    //return _DK_at_barrack_room(thing);
     cctrl = creature_control_get_from_thing(thing);
     cctrl->target_room_id = 0;
     room = get_room_thing_is_on(thing);
@@ -73,7 +62,6 @@ short at_barrack_room(struct Thing *thing)
 short barracking(struct Thing *creatng)
 {
     struct Room *room;
-    //return _DK_barracking(creatng);
     room = get_room_thing_is_on(creatng);
     if ( !room_still_valid_as_type_for_thing(room, RoK_BARRACKS, creatng) )
     {

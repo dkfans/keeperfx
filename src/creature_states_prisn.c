@@ -42,13 +42,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT short _DK_cleanup_prison(struct Thing *creatng);
-DLLIMPORT short _DK_creature_arrived_at_prison(struct Thing *creatng);
-DLLIMPORT short _DK_creature_drop_body_in_prison(struct Thing *creatng);
-DLLIMPORT short _DK_creature_freeze_prisonors(struct Thing *creatng);
-DLLIMPORT short _DK_creature_in_prison(struct Thing *creatng);
-DLLIMPORT long _DK_process_prison_function(struct Thing *creatng);
 DLLIMPORT long _DK_process_prison_food(struct Thing *creatng, struct Room *room);
-DLLIMPORT long _DK_setup_prison_move(struct Thing *creatng, struct Room *room);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -95,7 +89,6 @@ short creature_arrived_at_prison(struct Thing *creatng)
     struct CreatureControl *cctrl;
     struct Room *room;
     TRACE_THING(creatng);
-    //return _DK_creature_arrived_at_prison(thing);
     cctrl = creature_control_get_from_thing(creatng);
     cctrl->target_room_id = 0;
     room = get_room_thing_is_on(creatng);
@@ -133,7 +126,6 @@ short creature_arrived_at_prison(struct Thing *creatng)
 short creature_drop_body_in_prison(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
-    //return _DK_creature_drop_body_in_prison(thing);
     cctrl = creature_control_get_from_thing(thing);
     struct Thing *dragtng;
     dragtng = thing_get(cctrl->dragtng_idx);
@@ -233,7 +225,6 @@ struct Thing *find_prisoner_for_thing(struct Thing *creatng)
 short creature_freeze_prisonors(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
-    //return _DK_creature_freeze_prisonors(thing);
     cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->instance_id != CrInst_NULL) {
         return 1;
@@ -269,7 +260,6 @@ short creature_freeze_prisonors(struct Thing *creatng)
 
 TbBool setup_prison_move(struct Thing *thing, struct Room *room)
 {
-    //return _DK_setup_prison_move(thing, room);
     if (!person_move_somewhere_adjacent_in_room(thing, room)) {
         return false;
     }
@@ -307,7 +297,6 @@ CrStateRet process_prison_visuals(struct Thing *thing, struct Room *room)
 CrStateRet creature_in_prison(struct Thing *thing)
 {
     struct Room *room;
-    //return _DK_creature_in_prison(thing);
     TRACE_THING(thing);
     room = get_room_thing_is_on(thing);
     if (creature_work_in_room_no_longer_possible(room, RoK_PRISON, thing))
@@ -389,7 +378,6 @@ long process_prison_food(struct Thing *thing, struct Room *room)
 CrCheckRet process_prison_function(struct Thing *creatng)
 {
   struct Room *room;
-  //return _DK_process_prison_function(thing);
   room = get_room_creature_works_in(creatng);
   if (!room_still_valid_as_type_for_thing(room, RoK_PRISON, creatng))
   {

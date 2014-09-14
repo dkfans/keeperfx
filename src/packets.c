@@ -87,23 +87,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_process_pause_packet(long curr_pause, long new_pause);
-DLLIMPORT void _DK_process_map_packet_clicks(long plyr_idx);
-DLLIMPORT void _DK_process_quit_packet(struct PlayerInfo *, int);
-DLLIMPORT void _DK_process_dungeon_control_packet_clicks(long plyr_idx);
-DLLIMPORT void _DK_process_players_dungeon_control_packet_control(long plyr_idx);
-DLLIMPORT void _DK_process_packets(void);
-DLLIMPORT char _DK_process_players_global_packet_action(long plyr_idx);
-DLLIMPORT void _DK_process_players_dungeon_control_packet_action(long plyr_idx);
-DLLIMPORT void _DK_process_players_creature_control_packet_control(long plyr_idx);
-DLLIMPORT void _DK_process_players_creature_control_packet_action(long plyr_idx);
-DLLIMPORT unsigned long _DK_get_packet_save_checksum(void);
-DLLIMPORT void _DK_load_packets_for_turn(long gameturn);
-DLLIMPORT void _DK_open_new_packet_file_for_save(void);
-DLLIMPORT void _DK_open_packet_file_for_load(char *fname);
-DLLIMPORT void _DK_set_packet_action(struct Packet *pckt,unsigned char,short,short,short,short);
-
-/******************************************************************************/
 #define PACKET_TURN_SIZE (NET_PLAYERS_COUNT*sizeof(struct Packet) + sizeof(TbBigChecksum))
 struct Packet bad_packet;
 /******************************************************************************/
@@ -1324,7 +1307,6 @@ TbBigChecksum get_thing_simple_checksum(const struct Thing *tng)
       TbBigChecksum sum;
       struct Thing *tng;
       long tng_idx;
-      //return _DK_get_packet_save_checksum();
       sum = 0;
       for (tng_idx=0; tng_idx < THINGS_COUNT; tng_idx++)
       {
@@ -1475,7 +1457,6 @@ void process_pause_packet(long curr_pause, long new_pause)
   struct PlayerInfo *player;
   TbBool can;
   long i;
-  //_DK_process_pause_packet(a1, a2);
   can = true;
   for (i=0; i < PLAYERS_COUNT; i++)
   {
@@ -2120,7 +2101,6 @@ void process_players_map_packet_control(long plyr_idx)
 void process_map_packet_clicks(long plyr_idx)
 {
     SYNCDBG(7,"Starting");
-    //_DK_process_map_packet_clicks(plyr_idx); return;
     struct Packet *pckt;
     packet_left_button_double_clicked[plyr_idx] = 0;
     pckt = get_packet(plyr_idx);
@@ -2228,7 +2208,6 @@ void process_players_creature_control_packet_control(long idx)
     long i,k,n;
 
     SYNCDBG(6,"Starting");
-    //_DK_process_players_creature_control_packet_control(idx); return;
     player = get_player(idx);
     pckt = get_packet_direct(player->packet_num);
     cctng = thing_get(player->controlled_thing_idx);

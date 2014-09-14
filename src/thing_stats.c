@@ -77,9 +77,6 @@ const char *thing_classes[] = {
     "UNKNOWN14",
 };
 /******************************************************************************/
-DLLIMPORT void _DK_apply_damage_to_thing(struct Thing *thing, long a2, char dealing_plyr_idx);
-
-/******************************************************************************/
 const char *thing_class_code_name(int class_id)
 {
     if ((class_id < 0) || (class_id >= sizeof(thing_classes)/sizeof(thing_classes[0])))
@@ -780,7 +777,6 @@ HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const 
 
 void apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType damage_type, PlayerNumber dealing_plyr_idx)
 {
-    //_DK_apply_damage_to_thing(thing, dmg, a3);
     // We're here to damage, not to heal
     SYNCDBG(19,"Dealing %d damage to %s by player %d",(int)dmg,thing_model_name(thing),(int)dealing_plyr_idx);
     if (dmg <= 0)

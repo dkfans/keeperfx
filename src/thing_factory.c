@@ -39,16 +39,6 @@
 
 #include "keeperfx.hpp"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-/******************************************************************************/
-/******************************************************************************/
-DLLIMPORT struct Thing *_DK_create_thing(struct Coord3d *pos, unsigned short a1, unsigned short a2, unsigned short a3, long parent_idx);
-/******************************************************************************/
-#ifdef __cplusplus
-}
-#endif
 /******************************************************************************/
 struct Thing *create_cave_in(struct Coord3d *pos, unsigned short cimodel, unsigned short owner)
 {
@@ -92,7 +82,6 @@ struct Thing *create_cave_in(struct Coord3d *pos, unsigned short cimodel, unsign
 struct Thing *create_thing(struct Coord3d *pos, unsigned short tngclass, unsigned short model, unsigned short owner, long parent_idx)
 {
     struct Thing *thing;
-    //return _DK_create_thing(pos, tngclass, model, owner, a4);
     thing = INVALID_THING;
     switch (tngclass)
     {

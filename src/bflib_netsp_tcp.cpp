@@ -30,6 +30,9 @@
 #include "bflib_server_tcp.hpp"
 
 TCPServiceProvider::TCPServiceProvider() :
+        maxPlayers(1),
+		isServer(false),
+		joinable(false),
 		host(NULL),
 		listener(NULL),
 		base(NULL)

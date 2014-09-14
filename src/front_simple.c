@@ -60,9 +60,6 @@ struct RawBitmap bitmaps_320[] = {
 struct ActiveBitmap astd_bmp;
 struct ActiveBitmap nocd_bmp;
 /******************************************************************************/
-//DLLIMPORT void __cdecl _DK_display_loading_screen(void);
-//DLLIMPORT void __cdecl _DK_wait_for_cd_to_be_available(void);
-/******************************************************************************/
 unsigned char palette_buf[PALETTE_SIZE];
 /******************************************************************************/
 #ifdef __cplusplus
@@ -399,7 +396,6 @@ TbBool display_loading_screen(void)
 TbBool wait_for_cd_to_be_available(void)
 {
   char ffullpath[2048];
-//  _DK_wait_for_cd_to_be_available(); return;
   short was_locked = LbScreenIsLocked();
   prepare_file_path_buf(ffullpath,FGrp_LoData,"dkflag00.dat");
   if ( LbFileExists(ffullpath) )

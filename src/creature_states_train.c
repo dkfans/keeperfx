@@ -41,20 +41,6 @@
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-/******************************************************************************/
-DLLIMPORT short _DK_at_training_room(struct Thing *creatng);
-DLLIMPORT short _DK_training(struct Thing *creatng);
-DLLIMPORT long _DK_creature_can_be_trained(struct Thing *creatng);
-DLLIMPORT long _DK_player_can_afford_to_train_creature(struct Thing *creatng);
-DLLIMPORT void _DK_process_creature_in_training_room(struct Thing *creatng, struct Room *room);
-DLLIMPORT void _DK_setup_move_to_new_training_position(struct Thing *creatng, struct Room *room, unsigned long restart);
-/******************************************************************************/
-#ifdef __cplusplus
-}
-#endif
 /******************************************************************************/
 /** Returns if the creature meets conditions to be trained.
  *
@@ -64,7 +50,6 @@ DLLIMPORT void _DK_setup_move_to_new_training_position(struct Thing *creatng, st
 TbBool creature_can_be_trained(const struct Thing *thing)
 {
     struct CreatureStats *crstat;
-    //return _DK_creature_can_be_trained(thing);
     crstat = creature_stats_get_from_thing(thing);
     // Creatures without training value can't be trained
     if (crstat->training_value <= 0)
@@ -77,7 +62,6 @@ TbBool player_can_afford_to_train_creature(const struct Thing *thing)
 {
     struct Dungeon *dungeon;
     struct CreatureStats *crstat;
-    //return _DK_player_can_afford_to_train_creature(thing);
     dungeon = get_dungeon(thing->owner);
     crstat = creature_stats_get_from_thing(thing);
     return (dungeon->total_money_owned >= crstat->training_cost);
@@ -181,7 +165,6 @@ void setup_move_to_new_training_position(struct Thing *thing, struct Room *room,
     struct Coord3d pos;
     long i;
     SYNCDBG(8,"Starting for %s",thing_model_name(thing));
-    //_DK_setup_move_to_new_training_position(thing, room, a3);
     cctrl = creature_control_get_from_thing(thing);
     crstat = creature_stats_get_from_thing(thing);
     if ( restart )
@@ -328,7 +311,6 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
     long i;
     cctrl = creature_control_get_from_thing(thing);
     SYNCDBG(8,"Starting %s mode %d",thing_model_name(thing),(int)cctrl->training.mode);
-    //_DK_process_creature_in_training_room(thing, room); return;
     cctrl->field_4A = 0;
     switch (cctrl->training.mode)
     {
@@ -546,7 +528,6 @@ short at_training_room(struct Thing *thing)
     struct CreatureStats *crstat;
     struct Dungeon *dungeon;
     struct Room *room;
-    //return _DK_at_training_room(thing);
     cctrl = creature_control_get_from_thing(thing);
     cctrl->target_room_id = 0;
     if (!creature_can_be_trained(thing))
@@ -587,7 +568,6 @@ CrStateRet training(struct Thing *thing)
     struct CreatureControl *cctrl;
     TRACE_THING(thing);
     SYNCDBG(18,"Starting");
-    //return _DK_training(thing);
     cctrl = creature_control_get_from_thing(thing);
     // Check if we should finish training
     if (!creature_can_be_trained(thing))

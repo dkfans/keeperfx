@@ -142,8 +142,6 @@ struct CreaturePickedUpOffset creature_picked_up_offset[] = {
 DLLIMPORT unsigned short _DK_creature_list[CREATURE_FRAMELIST_LENGTH];
 #define creature_list _DK_creature_list
 /******************************************************************************/
-DLLIMPORT void _DK_set_creature_graphic(struct Thing *thing);
-/******************************************************************************/
 extern struct CreaturePickedUpOffset creature_picked_up_offset[];
 /******************************************************************************/
 struct CreaturePickedUpOffset *get_creature_picked_up_offset(struct Thing *thing)
@@ -529,7 +527,6 @@ void update_creature_graphic_tint(struct Thing *thing)
 
 void set_creature_graphic(struct Thing *thing)
 {
-    //_DK_set_creature_graphic(thing); return;
     update_creature_graphic_field_4F(thing);
     update_creature_graphic_anim(thing);
     // Update tint

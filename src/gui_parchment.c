@@ -55,16 +55,6 @@
 
 #include "keeperfx.hpp"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-/******************************************************************************/
-DLLIMPORT void _DK_draw_map_parchment(void);
-DLLIMPORT void _DK_draw_2d_map(void);
-DLLIMPORT void _DK_draw_overhead_room_icons(long x, long y);
-DLLIMPORT void _DK_draw_overhead_things(long x, long y);
-DLLIMPORT void _DK_draw_zoom_box(void);
-
 /******************************************************************************/
 void load_parchment_file(void)
 {
@@ -568,7 +558,6 @@ int draw_overhead_spells(const struct TbRect *map_area, long block_size, PlayerN
 
 void draw_overhead_things(const struct TbRect *map_area, long block_size, PlayerNumber plyr_idx)
 {
-    //_DK_draw_overhead_things(x,y);
     draw_overhead_creatures(map_area, block_size, plyr_idx);
     draw_overhead_call_to_arms(map_area, block_size, plyr_idx);
     if ((game.play_gameturn & 3) == 1) {
@@ -581,7 +570,6 @@ void draw_2d_map(void)
 {
   struct PlayerInfo *player;
   SYNCDBG(8,"Starting");
-  //_DK_draw_2d_map();
   player = get_my_player();
   // Size of the parchment map on which we're drawing
   long block_size;
@@ -919,6 +907,3 @@ void zoom_from_patchment_map(void)
     }
 }
 /******************************************************************************/
-#ifdef __cplusplus
-}
-#endif

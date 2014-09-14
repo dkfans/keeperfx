@@ -31,21 +31,6 @@
 #include "map_blocks.h"
 #include "game_legacy.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-/******************************************************************************/
-
-/******************************************************************************/
-DLLIMPORT long _DK_line_of_sight_3d_ignoring_specific_door(const struct Coord3d *frpos, const struct Coord3d *topos, const struct Thing *doortng);
-DLLIMPORT long _DK_jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(const struct Coord3d *frpos, const struct Coord3d *topos, const struct Thing *doortng);
-DLLIMPORT long _DK_jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(const struct Coord3d *frpos, const struct Coord3d *topos, long plyr_idx);
-DLLIMPORT unsigned char _DK_line_of_sight_3d(const struct Coord3d *pos1, const struct Coord3d *pos2);
-DLLIMPORT long _DK_jonty_creature_can_see_thing_including_lava_check(const struct Thing * creatng, const struct Thing * thing);
-/******************************************************************************/
-#ifdef __cplusplus
-}
-#endif
 /******************************************************************************/
 TbBool sibling_line_of_sight_ignoring_door(const struct Coord3d *prevpos,
     const struct Coord3d *nextpos, const struct Thing *doortng)
@@ -159,7 +144,6 @@ TbBool line_of_sight_3d_ignoring_specific_door(const struct Coord3d *frpos,
         (topos->y.stl.num == frpos->y.stl.num)) {
         return true;
     }
-    //return _DK_line_of_sight_3d_ignoring_specific_door(frpos, topos, doortng);
     MapCoord increase_x, increase_y, increase_z;
     MapSubtlCoord distance;
     if (dx >= 0) {
@@ -336,7 +320,6 @@ TbBool jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(const 
         (topos->y.stl.num == frpos->y.stl.num)) {
         return true;
     }
-    //return _DK_jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(frpos, topos, doortng);
     MapCoord increase_x, increase_y, increase_z;
     MapSubtlCoord distance;
     if (dx >= 0) {
@@ -512,7 +495,6 @@ TbBool jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(const struc
             (int)plyr_idx,(int)topos->x.stl.num,(int)topos->y.stl.num);
         return true;
     }
-    //return _DK_jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(frpos, topos, plyr_idx);
     // Initialize increases and do abs() of dx,dy and dz
     MapCoord increase_x, increase_y, increase_z;
     MapSubtlCoord distance;
@@ -600,7 +582,6 @@ TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *cre
     const struct Coord3d *srcpos;
     struct Coord3d pos1;
     struct Coord3d pos2;
-    //return _DK_jonty_creature_can_see_thing_including_lava_check(creatng, thing);
     crstat = creature_stats_get_from_thing(creatng);
     srcpos = &creatng->mappos;
     pos1.x.val = srcpos->x.val;
@@ -679,7 +660,6 @@ TbBool line_of_sight_3d(const struct Coord3d *frpos, const struct Coord3d *topos
         (topos->y.stl.num == frpos->y.stl.num)) {
         return true;
     }
-    //return _DK_line_of_sight_3d(frpos, topos);
 
     MapCoord increase_x, increase_y, increase_z;
     MapSubtlCoord distance;

@@ -112,8 +112,6 @@ short is_new_moon = 0;
 short is_near_new_moon = 0;
 
 /******************************************************************************/
-DLLIMPORT int __stdcall _DK_load_configuration(void);
-/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
@@ -434,7 +432,6 @@ const char *get_language_lwrstr(int lang_id)
 long get_id(const struct NamedCommand *desc, const char *itmname)
 {
   long i;
-  //return _DK_get_id(desc, itmname);
   if ((desc == NULL) || (itmname == NULL))
     return -1;
   for (i=0; desc[i].name != NULL; i++)
@@ -454,7 +451,6 @@ long get_id(const struct NamedCommand *desc, const char *itmname)
 long get_rid(const struct NamedCommand *desc, const char *itmname)
 {
   long i;
-  //return _DK_get_id(desc, itmname);
   if ((desc == NULL) || (itmname == NULL))
     return -1;
   for (i=0; desc[i].name != NULL; i++)
@@ -498,7 +494,6 @@ short load_configuration(void)
   char word_buf[32];
   int i,k;
   SYNCDBG(4,"Starting");
-  //return _DK_load_configuration();
   // Preparing config file name and checking the file
   strcpy(install_info.inst_path,"");
   install_info.field_9A = 0;

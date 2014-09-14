@@ -36,18 +36,10 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_delete_thing_structure(struct Thing *creatng, long a2);
-DLLIMPORT struct Thing *_DK_allocate_free_thing_structure(unsigned char a1);
-DLLIMPORT unsigned char _DK_i_can_allocate_free_thing_structure(unsigned char a1);
-DLLIMPORT unsigned char _DK_creature_remove_lair_from_room(struct Thing *creatng, struct Room *room);
-
-/******************************************************************************/
 struct Thing *allocate_free_thing_structure_f(unsigned char allocflags, const char *func_name)
 {
     struct Thing *thing;
     long i;
-    //return _DK_allocate_free_thing_structure(allocflags);
-
     // Get a thing from "free things list"
     i = game.free_things_start_index;
     // If there is no free thing, try to free an effect
@@ -98,7 +90,6 @@ struct Thing *allocate_free_thing_structure_f(unsigned char allocflags, const ch
 
 TbBool i_can_allocate_free_thing_structure(unsigned char allocflags)
 {
-    //return _DK_i_can_allocate_free_thing_structure(allocflags);
     // Check if there are free slots
     if (game.free_things_start_index < THINGS_COUNT-1)
         return true;
@@ -151,7 +142,6 @@ TbBool delete_lair_totem(struct Thing *lairtng)
 
 TbBool creature_remove_lair_from_room(struct Thing *creatng, struct Room *room)
 {
-    //return _DK_creature_remove_lair_from_room(creatng, room);
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->lair_room_id != room->index)
@@ -193,7 +183,6 @@ TbBool creature_remove_lair_from_room(struct Thing *creatng, struct Room *room)
 
 void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_name)
 {
-    //_DK_delete_thing_structure(thing, a2); return;
     TRACE_THING(thing);
     if ((thing->alloc_flags & TAlF_Unkn08) != 0) {
         remove_first_creature(thing);

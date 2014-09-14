@@ -46,20 +46,10 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT short _DK_at_temple(struct Thing *thing);
-DLLIMPORT short _DK_praying_in_temple(struct Thing *thing);
-DLLIMPORT long _DK_process_temple_function(struct Thing *thing);
 DLLIMPORT short _DK_state_cleanup_in_temple(struct Thing *thing);
-DLLIMPORT short _DK_cleanup_sacrifice(struct Thing *thing);
-DLLIMPORT short _DK_creature_being_sacrificed(struct Thing *thing);
 DLLIMPORT short _DK_creature_sacrifice(struct Thing *thing);
-DLLIMPORT long _DK_process_sacrifice_award(struct Coord3d *pos, long model, long plyr_idx);
-DLLIMPORT short _DK_creature_being_summoned(struct Thing *thing);
-DLLIMPORT long _DK_make_all_players_creatures_angry(long plyr_idx);
-DLLIMPORT long _DK_force_complete_current_manufacturing(long plyr_idx);
 DLLIMPORT void _DK_apply_spell_effect_to_players_creatures(long a1, long a2, long a3);
 DLLIMPORT void _DK_kill_all_players_chickens(long plyr_idx);
-DLLIMPORT long _DK_person_get_somewhere_adjacent_in_temple(struct Thing *thing, struct Room *room, struct Coord3d *pos);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -119,7 +109,6 @@ short at_temple(struct Thing *thing)
     struct CreatureControl *cctrl;
     struct Dungeon *dungeon;
     struct Room *room;
-    //return _DK_at_temple(thing);
     cctrl = creature_control_get_from_thing(thing);
     cctrl->target_room_id = 0;
     room = get_room_thing_is_on(thing);
@@ -147,7 +136,6 @@ short at_temple(struct Thing *thing)
 CrStateRet praying_in_temple(struct Thing *thing)
 {
     struct Room *room;
-    //return _DK_praying_in_temple(thing);
     TRACE_THING(thing);
     room = get_room_thing_is_on(thing);
     if (creature_work_in_room_no_longer_possible(room, RoK_TEMPLE, thing))
@@ -184,7 +172,6 @@ long process_temple_cure(struct Thing *creatng)
 CrCheckRet process_temple_function(struct Thing *thing)
 {
     struct Room *room;
-    //return _DK_process_temple_function(thing);
     room = get_room_thing_is_on(thing);
     if ( !room_still_valid_as_type_for_thing(room, RoK_TEMPLE, thing) )
     {
@@ -241,7 +228,6 @@ TbBool make_all_players_creatures_angry(long plyr_idx)
     unsigned long k;
     int i;
     SYNCDBG(8,"Starting");
-    //return _DK_make_all_players_creatures_angry(plyr_idx);
     dungeon = get_players_num_dungeon(plyr_idx);
     k = 0;
     i = dungeon->creatr_list_start;
@@ -275,7 +261,6 @@ long force_complete_current_manufacturing(long plyr_idx)
     struct Dungeon *dungeon;
     int manufct_required;
     long i;
-    //return _DK_force_complete_current_manufacturing(plyr_idx);
     dungeon = get_players_num_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon))
     {
@@ -315,7 +300,6 @@ short creature_being_summoned(struct Thing *thing)
     struct CreatureControl *cctrl;
     short orig_w, orig_h;
     short unsc_w, unsc_h;
-    //return _DK_creature_being_summoned(thing);
     cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl)) {
         return 0;
@@ -343,7 +327,6 @@ short creature_being_summoned(struct Thing *thing)
 
 short cleanup_sacrifice(struct Thing *creatng)
 {
-    //return _DK_cleanup_sacrifice(creatng);
     // If the creature has flight ability, return it to flying state
     restore_creature_flight_flag(creatng);
     creatng->movement_flags &= ~TMvF_Unknown04;
@@ -449,7 +432,6 @@ long process_sacrifice_award(struct Coord3d *pos, long model, PlayerNumber plyr_
   struct Dungeon *dungeon;
   long explevel;
   long ret;
-  //return _DK_process_sacrifice_award(pos, model, plyr_idx);
   dungeon = get_players_num_dungeon(plyr_idx);
   if (dungeon_invalid(dungeon))
   {
@@ -533,7 +515,6 @@ short creature_being_sacrificed(struct Thing *thing)
     struct Coord3d pos;
     long owner,model,award;
     SYNCDBG(6,"Starting");
-    //return _DK_creature_being_sacrificed(thing);
 
     cctrl = creature_control_get_from_thing(thing);
     cctrl->word_9A--;

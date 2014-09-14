@@ -62,13 +62,6 @@ short dbc_language = 0;
 TbBool dbc_initialized = false;
 TbBool dbc_enabled = true;
 /******************************************************************************/
-DLLIMPORT int _DK_LbTextDraw(int posx, int posy, const char *text);
-DLLIMPORT int _DK_LbTextSetWindow(int, int, int, int);
-DLLIMPORT int _DK_LbTextStringWidth(const char *str);
-DLLIMPORT int _DK_LbTextStringHeight(const char *str);
-DLLIMPORT void _DK_put_down_sprites(const char *a1, const char *a2, long a3, long a4, long a5);
-DLLIMPORT long _DK_text_string_height(const char *text);
-/******************************************************************************/
 
 /** Returns if the given char starts a wide charcode.
  * @param chr
@@ -1195,7 +1188,6 @@ void LbTextUseByteCoding(TbBool is_enabled)
 
 int LbTextSetWindow(int posx, int posy, int width, int height)
 {
-    //return _DK_LbTextSetWindow(posx, posy, width, height);
     lbTextJustifyWindow.x = posx;
     lbTextJustifyWindow.y = posy;
     lbTextJustifyWindow.width = width;
@@ -1396,13 +1388,11 @@ int LbTextStringPartWidth(const char *text, int part)
  */
 int LbTextStringWidth(const char *text)
 {
-    //return _DK_LbTextStringWidth(str);
     return LbTextStringPartWidth(text, LONG_MAX);
 }
 
 int LbTextStringHeight(const char *str)
 {
-    //return _DK_LbTextStringHeight(str);
     int i,h,lines;
     lines=1;
     if ((lbFontPtr == NULL) || (str == NULL))
