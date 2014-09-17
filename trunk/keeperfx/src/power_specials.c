@@ -225,6 +225,9 @@ TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
             break;
         }
         heronum--;
+        if (i == 0) {
+            i = herodngn->creatr_list_start;
+        }
         // Thing list loop body ends
         k++;
         if (k > CREATURES_COUNT)
