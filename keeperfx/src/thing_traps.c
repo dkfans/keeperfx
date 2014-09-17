@@ -701,7 +701,7 @@ void init_traps(void)
  * @param sell_value Value to be added to treasury if selling traps; if not selling but just removing, should be null.
  * @return Amount of traps removed.
  */
-long remove_traps_around_subtile(long stl_x, long stl_y, long *sell_value)
+long remove_traps_around_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *sell_value)
 {
     long i,k;
     long total;

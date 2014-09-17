@@ -142,7 +142,6 @@ DLLIMPORT void _DK_draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2,
 DLLIMPORT void _DK_draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long a3, long a4);
 DLLIMPORT void _DK_engine_init(void);
 DLLIMPORT void _DK_place_animating_slab_type_on_map(long a1, char a2, unsigned char a3, unsigned char a4, unsigned char a5);
-DLLIMPORT void _DK_draw_spell_cursor(unsigned char a1, unsigned short a2, unsigned char stl_x, unsigned char stl_y);
 DLLIMPORT void _DK_update_breed_activities(void);
 DLLIMPORT struct Thing *_DK_get_queryable_object_near(unsigned short a1, unsigned short a2, long a3);
 DLLIMPORT int _DK_can_thing_be_queried(struct Thing *thing, long a2);
@@ -2559,7 +2558,6 @@ void draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, unsigned 
     TbBool allow_cast;
     long pwkind;
     long i;
-    //_DK_draw_spell_cursor(wrkstate, tng_idx, stl_x, stl_y); return;
     pwkind = -1;
     if (wrkstate < PLAYER_STATES_COUNT)
       pwkind = player_state_to_power_kind[wrkstate];

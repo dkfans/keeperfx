@@ -42,27 +42,6 @@ DLLIMPORT int _DK_LbFileClose(TbFileHandle handle);
 DLLIMPORT int _DK_LbFileSeek(TbFileHandle handle, long offset, int origin);
 DLLIMPORT int _DK_LbFileRead(TbFileHandle handle, void *buffer, unsigned long len);
 DLLIMPORT int _DK_LbFilePosition(TbFileHandle handle);
-
-DLLIMPORT void _DK_stop_sample_using_heap(unsigned long fild8, short smptbl_id, unsigned char pan);
-DLLIMPORT long _DK_start_emitter_playing(struct SoundEmitter *emit, long smptbl_id, long pan, long volume, long pitch, long a6, long a7, long a8, long a9);
-DLLIMPORT long _DK_get_emitter_pan_volume_pitch(struct SoundReceiver *recv, struct SoundEmitter *emit, long *pan, long *volume, long *pitch);
-DLLIMPORT void _DK_close_sound_heap(void);
-DLLIMPORT void _DK_play_non_3d_sample(long sidx);
-DLLIMPORT struct SampleInfo *_DK_play_sample_using_heap(unsigned long fild8, short smptbl_id, unsigned long pan, unsigned long volume, unsigned long pitch, char a6, unsigned char a7, unsigned char a8);
-DLLIMPORT long _DK_S3DAddSampleToEmitterPri(long, long, long, long, long, long, char, long, long);
-DLLIMPORT long _DK_S3DCreateSoundEmitterPri(long, long, long, long, long, long, long, long, long, long);
-DLLIMPORT long _DK_S3DSetSoundReceiverPosition(int pos_x, int pos_y, int pos_z);
-DLLIMPORT long _DK_S3DSetSoundReceiverOrientation(int ori_a, int ori_b, int ori_c);
-DLLIMPORT long _DK_S3DDestroySoundEmitter(long eidx);
-DLLIMPORT long _DK_S3DEmitterHasFinishedPlaying(long eidx);
-DLLIMPORT long _DK_S3DMoveSoundEmitterTo(long eidx, long x, long y, long z);
-DLLIMPORT long _DK_get_best_sound_heap_size(long mem_size);
-DLLIMPORT long _DK_S3DInit(void);
-DLLIMPORT long _DK_S3DSetNumberOfSounds(long nMaxSounds);
-DLLIMPORT long _DK_S3DSetMaximumSoundDistance(long nDistance);
-DLLIMPORT long _DK_S3DDeleteAllSamplesFromEmitter(long eidx);
-DLLIMPORT long _DK_S3DDeleteSampleFromEmitter(long a1, long a2, long a3);
-
 // Global variables
 long NoSoundEmitters = SOUND_EMITTERS_MAX;
 /******************************************************************************/
@@ -82,7 +61,6 @@ TbBool remove_active_samples_from_emitter(struct SoundEmitter *emit);
 
 long get_best_sound_heap_size(long mem_size)
 {
-    //return _DK_get_best_sound_heap_size(mem_size);
     if (mem_size < 8)
     {
       ERRORLOG("Unhandled PhysicalMemory");
@@ -106,7 +84,6 @@ long dummy_line_of_sight_function(long a1, long a2, long a3, long a4, long a5, l
 
 long S3DInit(void)
 {
-    //return _DK_S3DInit();
     // Clear emitters memory
     delete_all_sound_emitters();
     // Reset sound receiver data
@@ -176,7 +153,6 @@ TbBool S3DDeleteSampleFromEmitter(SoundEmitterID eidx, long smpl_idx, long bank_
     struct SoundEmitter *emit;
     struct S3DSample *sample;
     long i;
-    //return _DK_S3DDeleteSampleFromEmitter(eidx, smpl_idx, bank_id);
     emit = S3DGetSoundEmitter(eidx);
     if (S3DSoundEmitterInvalid(emit))
         return false;
@@ -197,7 +173,6 @@ TbBool S3DDeleteSampleFromEmitter(SoundEmitterID eidx, long smpl_idx, long bank_
 
 TbBool S3DDeleteAllSamplesFromEmitter(SoundEmitterID eidx)
 {
-    //return _DK_S3DDeleteAllSamplesFromEmitter(eidx);
     struct SoundEmitter *emit;
     emit = S3DGetSoundEmitter(eidx);
     if (S3DSoundEmitterInvalid(emit)) {
@@ -209,7 +184,6 @@ TbBool S3DDeleteAllSamplesFromEmitter(SoundEmitterID eidx)
 
 long S3DSetMaximumSoundDistance(long nDistance)
 {
-    //return _DK_S3DSetMaximumSoundDistance(nDistance);
     if (nDistance > 65536)
         nDistance = 65536;
     if (nDistance < 1)
@@ -220,7 +194,6 @@ long S3DSetMaximumSoundDistance(long nDistance)
 
 long S3DSetSoundReceiverPosition(int pos_x, int pos_y, int pos_z)
 {
-    //return _DK_S3DSetSoundReceiverPosition(pos_x, pos_y, pos_z);
     Receiver.pos.val_x = pos_x;
     Receiver.pos.val_y = pos_y;
     Receiver.pos.val_z = pos_z;
@@ -229,7 +202,6 @@ long S3DSetSoundReceiverPosition(int pos_x, int pos_y, int pos_z)
 
 long S3DSetSoundReceiverOrientation(int ori_a, int ori_b, int ori_c)
 {
-    //return _DK_S3DSetSoundReceiverOrientation(ori_a, ori_b, ori_c);
     Receiver.orient_a = ori_a & 0x7FF;
     Receiver.orient_b = ori_b & 0x7FF;
     Receiver.orient_c = ori_c & 0x7FF;
@@ -254,7 +226,6 @@ void S3DSetSoundReceiverSensitivity(unsigned short nsensivity)
 long S3DDestroySoundEmitter(SoundEmitterID eidx)
 {
     struct SoundEmitter *emit;
-    //return _DK_S3DDestroySoundEmitter(eidx);
     emit = S3DGetSoundEmitter(eidx);
     if (S3DSoundEmitterInvalid(emit)) {
         ERRORLOG("Invalid emitter %ld",eidx);
@@ -305,7 +276,6 @@ TbBool S3DEmitterHasFinishedPlaying(SoundEmitterID eidx)
 TbBool S3DMoveSoundEmitterTo(SoundEmitterID eidx, long x, long y, long z)
 {
     struct SoundEmitter *emit;
-    //return _DK_S3DMoveSoundEmitterTo(eidx, x, y, z);
     if (!S3DEmitterIsAllocated(eidx))
         return false;
     emit = S3DGetSoundEmitter(eidx);
@@ -319,7 +289,6 @@ TbBool S3DMoveSoundEmitterTo(SoundEmitterID eidx, long x, long y, long z)
 TbBool S3DAddSampleToEmitterPri(SoundEmitterID eidx, SoundSmplTblID smptbl_id, SoundBankID bank_id, SoundPitch pitch, SoundVolume loudness, long a6, char a7, long a8, long a9)
 {
     struct SoundEmitter *emit;
-    //return _DK_S3DAddSampleToEmitterPri(emidx, smptbl_idx, bank_idx, a4, loudness, a6, a7, a8, a9);
     emit = S3DGetSoundEmitter(eidx);
     return start_emitter_playing(emit, smptbl_id, bank_id, pitch, loudness, a6, a7, a8, a9) != 0;
 }
@@ -328,7 +297,6 @@ long S3DCreateSoundEmitterPri(long x, long y, long z, SoundSmplTblID smptbl_id, 
 {
     struct SoundEmitter *emit;
     long eidx;
-    //return _DK_S3DCreateSoundEmitterPri(x, y, z, smptbl_idx, bank_idx, a6, loudness, a8, a9, a10);
     eidx = allocate_free_sound_emitter();
     emit = S3DGetSoundEmitter(eidx);
     if (S3DSoundEmitterInvalid(emit))
@@ -515,7 +483,6 @@ long get_emitter_pan_volume_pitch(struct SoundReceiver *recv, struct SoundEmitte
     TbBool on_sight;
     long dist;
     long i;
-    //return _DK_get_emitter_pan_volume_pitch(recv, emit, pan, volume, pitch);
     if ((emit->field_1 & 0x08) != 0)
     {
         *volume = 127;
@@ -673,7 +640,6 @@ void close_sound_bank(SoundBankID bank_id)
 
 void close_sound_heap(void)
 {
-    //_DK_close_sound_heap(); return;
     close_sound_bank(0);
     close_sound_bank(1);
     using_two_banks = 0;
@@ -943,7 +909,6 @@ struct SampleInfo *play_sample_using_heap(unsigned long a1, SoundSmplTblID smptb
         ERRORLOG("Trying to use two sound banks when only one has been set up");
         return NULL;
     }
-    //return _DK_play_sample_using_heap(a1, smpl_idx, a3, a4, a5, a6, a7, bank_id);
 
     smp_table = sample_table_get(smptbl_id, bank_id);
     if (smp_table == NULL) {
@@ -979,7 +944,6 @@ void stop_sample_using_heap(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, So
     struct SampleTable *satab;
     struct HeapMgrHandle *hmhndl;
     SYNCDBG(19,"Starting");
-    //_DK_stop_sample_using_heap(emit_id, smptbl_idx, bank_id);return;
     if ( !using_two_banks )
     {
         if (bank_id > 0) {
@@ -1128,7 +1092,6 @@ long start_emitter_playing(struct SoundEmitter *emit, SoundSmplTblID smptbl_id, 
     struct SampleInfo *smpinfo;
     long pan, volume, pitch;
     long smpl_idx;
-    //return _DK_start_emitter_playing(emit, smptbl_idx, bank_idx, fildB, loudness, fild1D, ctype, a8, fild0);
     get_emitter_pan_volume_pitch(&Receiver, emit, &pan, &volume, &pitch);
     smpl_idx = find_slot(smptbl_id, bank_id, emit, ctype, fild0);
     volume = (volume * loudness) / 256;

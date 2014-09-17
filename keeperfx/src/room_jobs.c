@@ -49,10 +49,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT unsigned char _DK_remove_creature_from_work_room(struct Thing *creatng);
-DLLIMPORT short _DK_send_creature_to_room(struct Thing *creatng, struct Room *room);
-
-/******************************************************************************/
 struct Room *get_room_creature_works_in(const struct Thing *thing)
 {
     struct CreatureControl *cctrl;
@@ -243,7 +239,6 @@ TbBool remove_creature_from_work_room(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
     struct Room *room;
-    //return _DK_remove_creature_from_work_room(thing);
     cctrl = creature_control_get_from_thing(creatng);
     if ((cctrl->flgfield_1 & CCFlg_IsInRoomList) == 0)
         return false;
@@ -385,7 +380,6 @@ TbBool room_is_correct_to_perform_job(const struct Thing *creatng, const struct 
 short send_creature_to_room(struct Thing *creatng, struct Room *room, CreatureJob jobpref)
 {
     SYNCDBG(16,"Starting for %s (owner %d) and room %s",thing_model_name(creatng),(int)creatng->owner,room_code_name(room->kind));
-    //return _DK_send_creature_to_room(creatng, room);
     // Job selection is based on subtile, not on room - so select a subtile within the room
     MapSubtlCoord stl_x,stl_y;
     stl_x = slab_subtile(slb_num_decode_x(room->slabs_list),0);

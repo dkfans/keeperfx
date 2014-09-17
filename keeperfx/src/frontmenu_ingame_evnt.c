@@ -45,21 +45,21 @@ void gui_open_event(struct GuiButton *gbtn)
     struct Dungeon *dungeon;
     dungeon = get_my_dungeon();
     unsigned int evbtn_idx;
-    unsigned int evnt_idx;
+    EventIndex evidx;
     SYNCDBG(5,"Starting");
     evbtn_idx = (unsigned long)gbtn->content;
     if (evbtn_idx <= EVENT_BUTTONS_COUNT) {
-        evnt_idx = dungeon->event_button_index[evbtn_idx];
+        evidx = dungeon->event_button_index[evbtn_idx];
     } else {
-        evnt_idx = 0;
+        evidx = 0;
     }
-    if (evnt_idx == dungeon->visible_event_idx)
+    if (evidx == dungeon->visible_event_idx)
     {
         gui_close_objective(gbtn);
     } else
-    if (evnt_idx != 0)
+    if (evidx != 0)
     {
-        activate_event_box(evnt_idx);
+        activate_event_box(evidx);
     }
 }
 
@@ -74,10 +74,10 @@ void gui_kill_event(struct GuiButton *gbtn)
     set_players_packet_action(player, PckA_Unknown092, dungeon->event_button_index[i], 0, 0, 0);
 }
 
-void turn_on_event_info_panel_if_necessary(unsigned short evnt_idx)
+void turn_on_event_info_panel_if_necessary(EventIndex evidx)
 {
     struct Event *event;
-    event = &game.event[evnt_idx];
+    event = &game.event[evidx];
     if ((event->kind == EvKind_FriendlyFight) || (event->kind == EvKind_EnemyFight))
     {
         if (!menu_is_active(GMnu_BATTLE))
@@ -89,29 +89,29 @@ void turn_on_event_info_panel_if_necessary(unsigned short evnt_idx)
     }
 }
 
-void activate_event_box(long evnt_idx)
+void activate_event_box(EventIndex evidx)
 {
     struct PlayerInfo *player;
     player = get_my_player();
-    set_players_packet_action(player, PckA_EventBoxActivate, evnt_idx, 0,0,0);
+    set_players_packet_action(player, PckA_EventBoxActivate, evidx, 0,0,0);
 }
 
 void gui_previous_battle(struct GuiButton *gbtn)
 {
     struct Dungeon *dungeon;
     dungeon = get_my_dungeon();
-    BattleIndex battle_idx;
-    battle_idx = dungeon->visible_battles[0];
-    if (battle_idx != 0)
+    BattleIndex battle_id;
+    battle_id = dungeon->visible_battles[0];
+    if (battle_id != 0)
     {
-        battle_idx = find_previous_battle_of_mine_excluding_current_list(dungeon->owner, battle_idx);
-        if (battle_idx > 0)
+        battle_id = find_previous_battle_of_mine_excluding_current_list(dungeon->owner, battle_id);
+        if (battle_id > 0)
         {
-            dungeon->visible_battles[0] = battle_idx;
-            battle_idx = find_next_battle_of_mine_excluding_current_list(dungeon->owner, battle_idx);
-            dungeon->visible_battles[1] = battle_idx;
-            battle_idx = find_next_battle_of_mine_excluding_current_list(dungeon->owner, battle_idx);
-            dungeon->visible_battles[2] = battle_idx;
+            dungeon->visible_battles[0] = battle_id;
+            battle_id = find_next_battle_of_mine_excluding_current_list(dungeon->owner, battle_id);
+            dungeon->visible_battles[1] = battle_id;
+            battle_id = find_next_battle_of_mine_excluding_current_list(dungeon->owner, battle_id);
+            dungeon->visible_battles[2] = battle_id;
         }
     }
 }
@@ -120,18 +120,18 @@ void gui_next_battle(struct GuiButton *gbtn)
 {
     struct Dungeon *dungeon;
     dungeon = get_my_dungeon();
-    BattleIndex battle_idx;
-    battle_idx = dungeon->visible_battles[2];
-    if (battle_idx != 0)
+    BattleIndex battle_id;
+    battle_id = dungeon->visible_battles[2];
+    if (battle_id != 0)
     {
-        battle_idx = find_next_battle_of_mine_excluding_current_list(dungeon->owner, battle_idx);
-        if (battle_idx > 0)
+        battle_id = find_next_battle_of_mine_excluding_current_list(dungeon->owner, battle_id);
+        if (battle_id > 0)
         {
-            dungeon->visible_battles[2] = battle_idx;
-            battle_idx = find_previous_battle_of_mine_excluding_current_list(dungeon->owner, battle_idx);
-            dungeon->visible_battles[1] = battle_idx;
-            battle_idx = find_previous_battle_of_mine_excluding_current_list(dungeon->owner, battle_idx);
-            dungeon->visible_battles[0] = battle_idx;
+            dungeon->visible_battles[2] = battle_id;
+            battle_id = find_previous_battle_of_mine_excluding_current_list(dungeon->owner, battle_id);
+            dungeon->visible_battles[1] = battle_id;
+            battle_id = find_previous_battle_of_mine_excluding_current_list(dungeon->owner, battle_id);
+            dungeon->visible_battles[0] = battle_id;
         }
     }
 }

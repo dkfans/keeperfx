@@ -115,13 +115,13 @@ void event_initialise_event(struct Event *event, MapCoord map_x, MapCoord map_y,
 void event_add_to_event_buttons_list(struct Event *event, struct Dungeon *dungeon);
 void event_add_to_event_buttons_list_or_replace_button(struct Event *event, struct Dungeon *dungeon);
 void event_update_on_battle_removal(void);
-void event_delete_event(long plridx, long num);
+void event_delete_event(long plridx, EventIndex evidx);
 void event_update_last_use(struct Event *event);
 void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx);
 int event_get_button_index(const struct Dungeon *dungeon, EventIndex evidx);
 void clear_events(void);
 void remove_events_thing_is_attached_to(struct Thing *thing);
-struct Thing *event_is_attached_to_thing(EventIndex ev_idx);
+struct Thing *event_is_attached_to_thing(EventIndex evidx);
 void maintain_my_event_list(struct Dungeon *dungeon);
 void kill_oldest_my_event(struct Dungeon *dungeon);
 void event_kill_all_players_events(long plyr_idx);

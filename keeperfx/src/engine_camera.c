@@ -36,17 +36,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_get_angle_xy_to(const struct Coord3d *pos1, const struct Coord3d *pos2);
-DLLIMPORT long _DK_get_angle_yz_to(const struct Coord3d *pos1, const struct Coord3d *pos2);
-DLLIMPORT long _DK_get_2d_distance(const struct Coord3d *pos1, const struct Coord3d *pos2);
-DLLIMPORT void _DK_project_point_to_wall_on_angle(struct Coord3d *pos1, struct Coord3d *pos2, long angle_xy, long angle_z, long distance, long num_steps);
-DLLIMPORT void _DK_angles_to_vector(short angle_xy, short angle_yz, long dist, struct ComponentVector *cvect);
-DLLIMPORT void _DK_view_zoom_camera_in(struct Camera *cam, long delta, long angle_xy);
-DLLIMPORT void _DK_set_camera_zoom(struct Camera *cam, long val);
-DLLIMPORT void _DK_view_zoom_camera_out(struct Camera *cam, long delta, long angle_xy);
-DLLIMPORT long _DK_get_camera_zoom(struct Camera *camera);
-DLLIMPORT void _DK_view_set_camera_y_inertia(struct Camera *cam, long delta, long ilimit);
-DLLIMPORT void _DK_view_set_camera_x_inertia(struct Camera *cam, long delta, long ilimit);
 DLLIMPORT void _DK_view_set_camera_rotation_inertia(struct Camera *cam, long delta, long ilimit);
 DLLIMPORT void _DK_init_player_cameras(struct PlayerInfo *player);
 /******************************************************************************/
@@ -93,7 +82,6 @@ MapCoordDelta get_2d_box_distance_xy(long pos1_x, long pos1_y, long pos2_x, long
 
 void angles_to_vector(short angle_xy, short angle_yz, long dist, struct ComponentVector *cvect)
 {
-    //_DK_angles_to_vector(angle_xy, angle_yz, dist, cvect); return;
     long long sin_yz,cos_yz,sin_xy,cos_xy;
     long long lldist,mag,factor;
     cos_yz = LbCosL(angle_yz) >> 2;
@@ -124,13 +112,11 @@ long get_angle_yz_to_vec(const struct CoordDelta3d *vec)
 
 long get_angle_xy_to(const struct Coord3d *pos1, const struct Coord3d *pos2)
 {
-    //return _DK_get_angle_xy_to(pos1, pos2);
     return LbArcTanAngle((long)pos2->x.val - (long)pos1->x.val, (long)pos2->y.val - (long)pos1->y.val) & LbFPMath_AngleMask;
 }
 
 long get_angle_yz_to(const struct Coord3d *pos1, const struct Coord3d *pos2)
 {
-    //return _DK_get_angle_yz_to(pos1, pos2);
     long dist;
     dist = get_2d_distance(pos1, pos2);
     return LbArcTanAngle(pos2->z.val - pos1->z.val, dist) & LbFPMath_AngleMask;
@@ -139,7 +125,6 @@ long get_angle_yz_to(const struct Coord3d *pos1, const struct Coord3d *pos2)
 MapCoordDelta get_2d_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
 {
     long dist_x,dist_y;
-    //return _DK_get_2d_distance(pos1, pos2);
     dist_x = (long)pos1->x.val - (long)pos2->x.val;
     dist_y = (long)pos1->y.val - (long)pos2->y.val;
     return LbDiagonalLength(abs(dist_x), abs(dist_y));
@@ -150,7 +135,6 @@ void project_point_to_wall_on_angle(const struct Coord3d *pos1, struct Coord3d *
     long dx,dy,dz;
     long n;
     struct Coord3d pos;
-    //_DK_project_point_to_wall_on_angle(pos1, pos2, a3, a4, a5, a6);
     dx = distance_with_angle_to_coord_x(distance,angle_xy);
     dy = distance_with_angle_to_coord_y(distance,angle_xy);
     dz = distance_with_angle_to_coord_z(distance,angle_z);
@@ -174,7 +158,6 @@ void project_point_to_wall_on_angle(const struct Coord3d *pos1, struct Coord3d *
 void view_zoom_camera_in(struct Camera *cam, long limit_max, long limit_min)
 {
     long new_zoom,old_zoom;
-    //_DK_view_zoom_camera_in(cam, a2, a3);
     old_zoom = get_camera_zoom(cam);
     switch (cam->field_6)
     {
@@ -221,7 +204,6 @@ void set_camera_zoom(struct Camera *cam, long new_zoom)
 {
     if (cam == NULL)
       return;
-    //_DK_set_camera_zoom(cam, val);
     switch (cam->field_6)
     {
     case 2:
@@ -237,7 +219,6 @@ void set_camera_zoom(struct Camera *cam, long new_zoom)
 void view_zoom_camera_out(struct Camera *cam, long limit_max, long limit_min)
 {
     long new_zoom,old_zoom;
-    //_DK_view_zoom_camera_out(cam, a2, a3);
     old_zoom = get_camera_zoom(cam);
     switch (cam->field_6)
     {
@@ -303,7 +284,6 @@ long get_camera_zoom(struct Camera *cam)
 {
     if (cam == NULL)
       return 0;
-    //return _DK_get_camera_zoom(cam);
     switch (cam->field_6)
     {
     case 2:
@@ -337,7 +317,6 @@ unsigned long scale_camera_zoom_to_screen(unsigned long zoom_lvl)
 
 void view_set_camera_y_inertia(struct Camera *cam, long delta, long ilimit)
 {
-    //_DK_view_set_camera_y_inertia(cam, delta, ilimit);
     long abslimit;
     abslimit = abs(ilimit);
     cam->field_25 += delta;
@@ -352,7 +331,6 @@ void view_set_camera_y_inertia(struct Camera *cam, long delta, long ilimit)
 
 void view_set_camera_x_inertia(struct Camera *cam, long delta, long ilimit)
 {
-    //_DK_view_set_camera_x_inertia(cam, delta, ilimit);
     long abslimit;
     abslimit = abs(ilimit);
     cam->field_20 += delta;

@@ -38,9 +38,6 @@ const short small_around_slab[] = {-85,   1,  85,  -1};
 struct SlabMap bad_slabmap_block;
 /******************************************************************************/
 DLLIMPORT long _DK_calculate_effeciency_score_for_room_slab(long a1, long plyr_idx);
-DLLIMPORT void _DK_update_blocks_in_area(long sx, long sy, long ex, long ey);
-DLLIMPORT void _DK_do_slab_efficiency_alteration(unsigned char a1, unsigned char a2);
-DLLIMPORT void _DK_do_unprettying(unsigned char a1, long plyr_idx, long a3);
 DLLIMPORT void _DK_unfill_reinforced_corners(unsigned char plyr_idx, unsigned char slb_x, unsigned char slb_y);
 /******************************************************************************/
 /**
@@ -156,7 +153,7 @@ void slabmap_set_owner(struct SlabMap *slb, PlayerNumber owner)
 void set_whole_slab_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber owner)
 {
     struct SlabMap *slb;
-    long stl_x,stl_y;
+    MapSubtlCoord stl_x,stl_y;
     long i,k;
     stl_x = 3 * slb_x;
     stl_y = 3 * slb_y;
@@ -291,7 +288,6 @@ void reveal_whole_map(struct PlayerInfo *player)
 
 void update_blocks_in_area(MapSubtlCoord sx, MapSubtlCoord sy, MapSubtlCoord ex, MapSubtlCoord ey)
 {
-    //_DK_update_blocks_in_area(sx, sy, ex, ey); return;
     update_navigation_triangulation(sx, sy, ex, ey);
     ceiling_partially_recompute_heights(sx, sy, ex, ey);
     light_signal_update_in_area(sx, sy, ex, ey);
@@ -322,7 +318,6 @@ void update_blocks_around_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
 
 void do_slab_efficiency_alteration(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    //_DK_do_slab_efficiency_alteration(slb_x, slb_y); return;
     long n;
     for (n=0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {
@@ -383,7 +378,6 @@ void unfill_reinforced_corners(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSla
 
 void do_unprettying(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    //_DK_do_unprettying(plyr_idx, slb_x, slb_y);
     long n;
     for (n=0; n < 4; n++)
     {

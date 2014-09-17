@@ -52,7 +52,7 @@ DLLIMPORT extern unsigned short _DK_enemy_battler_list[3*MESSAGE_BATTLERS_COUNT]
 #define enemy_battler_list _DK_enemy_battler_list
 /******************************************************************************/
 
-struct CreatureBattle *creature_battle_get(BattleIndex battle_idx);
+struct CreatureBattle *creature_battle_get(BattleIndex battle_id);
 struct CreatureBattle *creature_battle_get_from_thing(const struct Thing *thing);
 TbBool creature_battle_invalid(const struct CreatureBattle *battle);
 TbBool creature_battle_exists(BattleIndex battle_idx);

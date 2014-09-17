@@ -40,17 +40,6 @@
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-/******************************************************************************/
-DLLIMPORT short _DK_at_workshop_room(struct Thing *thing);
-DLLIMPORT short _DK_manufacturing(struct Thing *thing);
-DLLIMPORT long _DK_process_creature_in_workshop(struct Thing *creatng, struct Room *room);
-/******************************************************************************/
-#ifdef __cplusplus
-}
-#endif
 /******************************************************************************/
 TbBool creature_can_do_manufacturing(const struct Thing *creatng)
 {
@@ -228,7 +217,6 @@ short at_workshop_room(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     struct Room *room;
-    //return _DK_at_workshop_room(thing);
     cctrl = creature_control_get_from_thing(thing);
     cctrl->target_room_id = 0;
     room = get_room_thing_is_on(thing);
@@ -300,7 +288,6 @@ void setup_workshop_search_for_post(struct Thing *creatng)
 
 long process_creature_in_workshop(struct Thing *creatng, struct Room *room)
 {
-    //return _DK_process_creature_in_workshop(creatng, room);
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
     struct Dungeon *dungeon;
@@ -421,7 +408,6 @@ long process_creature_in_workshop(struct Thing *creatng, struct Room *room)
 short manufacturing(struct Thing *creatng)
 {
     struct Room *room;
-    //return _DK_manufacturing(creatng);
     TRACE_THING(creatng);
     room = get_room_thing_is_on(creatng);
     if (creature_work_in_room_no_longer_possible(room, RoK_WORKSHOP, creatng))
