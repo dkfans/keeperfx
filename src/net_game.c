@@ -170,14 +170,14 @@ void setup_count_players(void)
   int i;
   if (game.game_kind == GKind_NetworkGame)
   {
-    game.field_14E495 = 1;
+    game.active_players_count = 1;
   } else
   {
-    game.field_14E495 = 0;
+    game.active_players_count = 0;
     for (i=0; i<NET_PLAYERS_COUNT; i++)
     {
       if (net_player_info[i].active)
-        game.field_14E495++;
+        game.active_players_count++;
     }
   }
 }

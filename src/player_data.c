@@ -211,7 +211,7 @@ void clear_players(void)
     LbMemorySet(&bad_player, 0, sizeof(struct PlayerInfo));
     bad_player.id_number = PLAYERS_COUNT;
     game.hero_player_num = hero_player_number;
-    game.field_14E495 = 0;
+    game.active_players_count = 0;
     game.game_kind = GKind_NetworkGame;
 }
 

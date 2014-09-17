@@ -201,7 +201,7 @@ short field_14BB65[592];
     struct RoomStats room_stats[ROOM_TYPES_COUNT];
     struct MagicStats keeper_power_stats[POWER_TYPES_COUNT];
     struct ActionPoint action_points[ACTN_POINTS_COUNT];
-char field_14E495;
+char active_players_count;
     unsigned char hero_player_num;
     unsigned char neutral_player_num;
 int field_14E498;
