@@ -368,7 +368,7 @@ void triangulate_map(unsigned char *imap)
 
 void init_navigation_map(void)
 {
-    long stl_x,stl_y;
+    MapSubtlCoord stl_x,stl_y;
     LbMemorySet(game.navigation_map, 0, navigation_map_size_x*navigation_map_size_y);
     for (stl_y=0; stl_y < navigation_map_size_y; stl_y++)
     {

@@ -57,8 +57,6 @@ struct Boing {
   unsigned long manufactr_tooltip;
 };
 /******************************************************************************/
-DLLIMPORT void _DK_resync_game(void);
-/******************************************************************************/
 /** Structure used for storing 'localised parameters' when resyncing net game. */
 struct Boing boing;
 /******************************************************************************/
@@ -151,7 +149,6 @@ void resync_game(void)
     struct PlayerInfo *player;
     int i;
     SYNCDBG(2,"Starting");
-    //return _DK_resync_game();
     player = get_my_player();
     draw_out_of_sync_box(0, 32*units_per_pixel/16, player->engine_window_x);
     reset_eye_lenses();

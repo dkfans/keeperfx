@@ -38,11 +38,11 @@
 /**
  * Returns CreatureBattle of given index.
  */
-struct CreatureBattle *creature_battle_get(BattleIndex battle_idx)
+struct CreatureBattle *creature_battle_get(BattleIndex battle_id)
 {
-    if ((battle_idx < 1) || (battle_idx >= BATTLES_COUNT))
+    if ((battle_id < 1) || (battle_id >= BATTLES_COUNT))
         return INVALID_CRTR_BATTLE;
-    return &game.battles[battle_idx];
+    return &game.battles[battle_id];
 }
 
 /**
@@ -76,10 +76,10 @@ TbBool creature_battle_invalid(const struct CreatureBattle *battle)
 /**
  * Returns if CreatureBattle of given index is an existing (ongoing) battle.
  */
-TbBool creature_battle_exists(BattleIndex battle_idx)
+TbBool creature_battle_exists(BattleIndex battle_id)
 {
     struct CreatureBattle *battle;
-    battle = creature_battle_get(battle_idx);
+    battle = creature_battle_get(battle_id);
     if (creature_battle_invalid(battle))
         return false;
     return (battle->fighters_num > 0);
@@ -321,11 +321,11 @@ TbBool step_battles_forward(PlayerNumber plyr_idx)
     return active_battle_exists(plyr_idx);
 }
 
-long battle_move_player_towards_battle(struct PlayerInfo *player, BattleIndex battle_id)
+long battle_move_player_towards_battle(struct PlayerInfo *player, BattleIndex battle_idx)
 {
     struct CreatureBattle *battle;
     struct Thing *thing;
-    battle = creature_battle_get(battle_id);
+    battle = creature_battle_get(battle_idx);
     thing = thing_get(battle->first_creatr);
     TRACE_THING(thing);
     if (!thing_exists(thing))
@@ -373,16 +373,16 @@ BattleIndex find_previous_battle_of_mine(PlayerNumber plyr_idx, BattleIndex next
     return find_last_battle_of_mine(plyr_idx);
 }
 
-TbBool battle_in_list(PlayerNumber plyr_idx, BattleIndex battle_idx)
+TbBool battle_in_list(PlayerNumber plyr_idx, BattleIndex battle_id)
 {
     struct Dungeon *dungeon;
     long i;
     dungeon = get_players_num_dungeon(plyr_idx);
     for (i=0; i < 3; i++)
     {
-        if (battle_idx > 0)
+        if (battle_id > 0)
         {
-            if (dungeon->visible_battles[i] == battle_idx)
+            if (dungeon->visible_battles[i] == battle_id)
                 return true;
         }
     }
@@ -407,16 +407,16 @@ BattleIndex find_next_battle_of_mine_excluding_current_list(PlayerNumber plyr_id
 BattleIndex find_previous_battle_of_mine_excluding_current_list(PlayerNumber plyr_idx, BattleIndex next_idx)
 {
     BattleIndex last_idx;
-    BattleIndex battle_idx;
-    battle_idx = find_previous_battle_of_mine(plyr_idx, next_idx);
-    last_idx = battle_idx;
-    while (battle_in_list(plyr_idx, battle_idx))
+    BattleIndex battle_id;
+    battle_id = find_previous_battle_of_mine(plyr_idx, next_idx);
+    last_idx = battle_id;
+    while (battle_in_list(plyr_idx, battle_id))
     {
-        battle_idx = find_previous_battle_of_mine(plyr_idx, battle_idx);
-        if (battle_idx == last_idx)
+        battle_id = find_previous_battle_of_mine(plyr_idx, battle_id);
+        if (battle_id == last_idx)
             return 0;
     }
-    return battle_idx;
+    return battle_id;
 }
 
 TbBool clear_battlers(unsigned short *friendly_battlers, unsigned short *enemy_battlers)
@@ -503,18 +503,18 @@ void maintain_my_battle_list(void)
 {
     struct PlayerInfo *player;
     struct Dungeon *dungeon;
-    BattleIndex battle_idx;
+    BattleIndex battle_id;
     long i,n;
     // Find battle index
     player = get_my_player();
     dungeon = get_players_dungeon(player);
-    battle_idx = 0;
+    battle_id = 0;
     for (i=0; i < 3; i++)
     {
         struct CreatureBattle *battle;
         battle = creature_battle_get(dungeon->visible_battles[i]);
         if (battle->fighters_num > 0) {
-            battle_idx = dungeon->visible_battles[i];
+            battle_id = dungeon->visible_battles[i];
         } else {
             dungeon->visible_battles[i] = 0;
         }
@@ -541,16 +541,16 @@ void maintain_my_battle_list(void)
     {
       if (dungeon->visible_battles[i] <= 0)
       {
-          battle_idx = find_next_battle_of_mine_excluding_current_list(player->id_number, battle_idx);
-          if (battle_idx > 0) {
-              dungeon->visible_battles[i] = battle_idx;
+          battle_id = find_next_battle_of_mine_excluding_current_list(player->id_number, battle_id);
+          if (battle_id > 0) {
+              dungeon->visible_battles[i] = battle_id;
           }
       }
     }
     for (i=0; i < 3; i++)
     {
-        battle_idx = dungeon->visible_battles[i];
-        if (battle_idx > 0) {
+        battle_id = dungeon->visible_battles[i];
+        if (battle_id > 0) {
             setup_my_battlers(dungeon->visible_battles[i], &friendly_battler_list[MESSAGE_BATTLERS_COUNT*i], &enemy_battler_list[MESSAGE_BATTLERS_COUNT*i]);
         }
     }

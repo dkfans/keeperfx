@@ -22,7 +22,7 @@
 #include "bflib_basics.h"
 
 #include "bflib_network.h"
-#include "bflib_netsp.hpp"
+#include "bflib_netsession.h"
 #include "bflib_guibtns.h"
 #include "bflib_keybrd.h"
 #include "bflib_vidraw.h"
@@ -30,6 +30,7 @@
 #include "bflib_memory.h"
 #include "bflib_datetm.h"
 #include "bflib_fileio.h"
+
 #include "kjm_input.h"
 #include "gui_draw.h"
 #include "front_simple.h"

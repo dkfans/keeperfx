@@ -24,6 +24,7 @@
 
 #include "bflib_netconfig.hpp"
 #include "bflib_network.h"
+#include "bflib_netsession.h"
 #include "bflib_nethost_udp.hpp"
 #include "bflib_netlisten_udp.hpp"
 #include "bflib_client_tcp.hpp"

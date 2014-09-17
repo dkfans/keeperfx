@@ -41,16 +41,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_event_create_event_or_update_nearby_existing_event(long map_x, long map_y, unsigned char evkind, unsigned char plyr_idx, long target);
-DLLIMPORT void _DK_event_initialise_all(void);
 DLLIMPORT long _DK_event_move_player_towards_event(struct PlayerInfo *player, long var);
-DLLIMPORT struct Event *_DK_event_create_event(long map_x, long map_y, unsigned char evkind, unsigned char plyr_idx, long target);
-DLLIMPORT void _DK_go_on_then_activate_the_event_box(long plyr_idx, long val);
-DLLIMPORT long _DK_event_create_event_or_update_old_event(long a1, long a2, unsigned char combat_kind, unsigned char a4, long a5);
-DLLIMPORT void _DK_event_process_events(void);
-DLLIMPORT void _DK_update_all_events(void);
-DLLIMPORT void _DK_maintain_my_event_list(struct Dungeon *dungeon);
-DLLIMPORT void _DK_event_delete_event(long plyr_idx, long num);
 DLLIMPORT void _DK_remove_events_thing_is_attached_to(struct Thing *thing);
 DLLIMPORT void _DK_event_kill_all_players_events(long plyr_idx);
 
@@ -115,7 +106,6 @@ struct Event *get_event_of_type_for_player(EventKind evkind, PlayerNumber plyr_i
  */
 EventIndex event_create_event_or_update_nearby_existing_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long target)
 {
-    //return _DK_event_create_event_or_update_nearby_existing_event(map_x, map_y, evkind, dngn_id, msg_id);
     struct Event *event;
     event = get_event_nearby_of_type_for_player(map_x, map_y, subtile_coord(5,0), evkind, dngn_id);
     if (!event_is_invalid(event))
@@ -170,7 +160,6 @@ EventIndex event_create_event_or_update_same_target_existing_event(MapCoord map_
  */
 EventIndex event_create_event_or_update_old_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char plyr_idx, long target)
 {
-    //return _DK_event_create_event_or_update_old_event(map_x, map_y, evkind, dngn_id, target);
     struct Event *event;
     // Check if such event already exists
     event = get_event_of_type_for_player(evkind, plyr_idx);
@@ -191,7 +180,6 @@ EventIndex event_create_event_or_update_old_event(MapCoord map_x, MapCoord map_y
 
 void event_initialise_all(void)
 {
-    //_DK_event_initialise_all();
     int i,k;
     for (i=0; i < DUNGEONS_COUNT; i++)
     {
@@ -214,7 +202,6 @@ struct Event *event_create_event(MapCoord map_x, MapCoord map_y, EventKind evkin
     struct Dungeon *dungeon;
     struct Event *event;
     long i,k;
-    //return _DK_event_create_event(map_x, map_y, evkind, dngn_id, msg_id);
     if (dngn_id == game.neutral_player_num) {
         return INVALID_EVENT;
     }
@@ -321,26 +308,25 @@ void event_update_last_use(struct Event *event)
     }
 }
 
-void event_delete_event(long plyr_idx, long ev_idx)
+void event_delete_event(long plyr_idx, EventIndex evidx)
 {
     struct Event *event;
     long i,k;
-//  _DK_event_delete_event(plridx, num);
-    event = &game.event[ev_idx];
+    event = &game.event[evidx];
     event_update_last_use(event);
     struct Dungeon *dungeon;
     dungeon = get_dungeon(plyr_idx);
     for (i=0; i <= EVENT_BUTTONS_COUNT; i++)
     {
         k = dungeon->event_button_index[i];
-        if (k == ev_idx)
+        if (k == evidx)
         {
-            turn_off_event_box_if_necessary(plyr_idx, ev_idx);
+            turn_off_event_box_if_necessary(plyr_idx, evidx);
             dungeon->event_button_index[i] = 0;
             break;
         }
     }
-    event_delete_event_structure(ev_idx);
+    event_delete_event_structure(evidx);
 }
 
 void event_update_on_battle_removal(void)
@@ -384,14 +370,15 @@ void event_add_to_event_buttons_list_or_replace_button(struct Event *event, stru
     }
     EventKind replace_evkind;
     replace_evkind = event_button_info[event->kind].replace_event_kind_button;
-    long i,ev_idx;
+    long i;
+    EventIndex evidx;
     if (replace_evkind != EvKind_Nothing)
     {
         for (i=EVENT_BUTTONS_COUNT; i >= 0; i--)
         {
-            ev_idx = dungeon->event_button_index[i];
+            evidx = dungeon->event_button_index[i];
             struct Event *event_prev;
-            event_prev = &game.event[ev_idx];
+            event_prev = &game.event[evidx];
             if ((event_prev->kind == event->kind) || (event_prev->kind == replace_evkind)) {
                 SYNCDBG(1,"Replacing button at position %d",(int)i);
                 dungeon->event_button_index[i] = event->index;
@@ -405,8 +392,8 @@ void event_add_to_event_buttons_list_or_replace_button(struct Event *event, stru
     {
         for (i=EVENT_BUTTONS_COUNT; i >= 0; i--)
         {
-            ev_idx = dungeon->event_button_index[i];
-            if (ev_idx == 0) {
+            evidx = dungeon->event_button_index[i];
+            if (evidx == 0) {
                 SYNCDBG(1,"New button at position %d",(int)i);
                 dungeon->event_button_index[i] = event->index;
                 break;
@@ -690,7 +677,6 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
 
 void maintain_my_event_list(struct Dungeon *dungeon)
 {
-    //_DK_maintain_my_event_list(dungeon); return;
     int i;
     for (i=1; i <= EVENT_BUTTONS_COUNT; i++)
     {
@@ -762,11 +748,11 @@ void maintain_all_players_event_lists(void)
     }
 }
 
-struct Thing *event_is_attached_to_thing(EventIndex ev_idx)
+struct Thing *event_is_attached_to_thing(EventIndex evidx)
 {
     struct Event *event;
     long i;
-    event = &game.event[ev_idx];
+    event = &game.event[evidx];
     switch (event->kind)
     {
     case EvKind_Objective:
@@ -789,7 +775,6 @@ struct Thing *event_is_attached_to_thing(EventIndex ev_idx)
 
 void event_process_events(void)
 {
-    //_DK_event_process_events();
     struct Event *event;
     long i;
     for (i=0; i < EVENTS_COUNT; i++)
@@ -805,7 +790,7 @@ void event_process_events(void)
         {
             int ev_owner;
             ev_owner = event->owner;
-            int subev_idx;
+            EventIndex subev_idx;
             subev_idx = event->index;
             struct Dungeon *dungeon;
             dungeon = get_dungeon(ev_owner);
@@ -834,7 +819,6 @@ void update_all_events(void)
     struct Thing *thing;
     struct Event *event;
     long i;
-    //_DK_update_all_events(); return;
     for (i=EVENT_BUTTONS_COUNT; i > 0; i--)
     {
         thing = event_is_attached_to_thing(i);

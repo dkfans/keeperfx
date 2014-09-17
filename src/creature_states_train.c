@@ -88,7 +88,7 @@ void setup_training_move_near(struct Thing *creatng, SubtlCodedCoords stl_num)
 {
     SubtlCodedCoords near_stl_num;
     MapSubtlDelta dist_x,dist_y;
-    long stl_x,stl_y;
+    MapSubtlCoord stl_x,stl_y;
     stl_x = stl_num_decode_x(stl_num);
     stl_y = stl_num_decode_y(stl_num);
     // Select a subtile closer to current position

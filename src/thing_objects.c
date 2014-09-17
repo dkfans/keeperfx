@@ -388,28 +388,14 @@ struct CallToArmsGraphics call_to_arms_graphics[] = {
 };
 
 /******************************************************************************/
-DLLIMPORT long _DK_move_object(struct Thing *objtng);
-DLLIMPORT long _DK_update_object(struct Thing *objtng);
 DLLIMPORT long _DK_food_moves(struct Thing *objtng);
 DLLIMPORT long _DK_food_grows(struct Thing *objtng);
-DLLIMPORT long _DK_object_being_dropped(struct Thing *objtng);
-DLLIMPORT long _DK_object_update_dungeon_heart(struct Thing *heartng);
-DLLIMPORT long _DK_object_update_call_to_arms(struct Thing *objtng);
 DLLIMPORT long _DK_object_update_armour(struct Thing *objtng);
 DLLIMPORT long _DK_object_update_object_scale(struct Thing *objtng);
 DLLIMPORT long _DK_object_update_armour2(struct Thing *objtng);
 DLLIMPORT long _DK_object_update_power_sight(struct Thing *objtng);
-DLLIMPORT long _DK_object_update_power_lightning(struct Thing *objtng);
-DLLIMPORT long _DK_object_is_gold_pile(struct Thing *objtng);
-DLLIMPORT long _DK_object_is_gold(struct Thing *objtng);
 DLLIMPORT long _DK_remove_gold_from_hoarde(struct Thing *objtng, struct Room *room, long amount);
-DLLIMPORT struct Thing *_DK_create_object(struct Coord3d *pos, unsigned short model, unsigned short owner, long parent_idx);
-DLLIMPORT long _DK_thing_is_spellbook(struct Thing *objtng);
-DLLIMPORT struct Thing *_DK_get_crate_at_position(long x, long y);
-DLLIMPORT struct Thing *_DK_get_spellbook_at_position(long x, long y);
-DLLIMPORT struct Thing *_DK_get_special_at_position(long x, long y);
 DLLIMPORT long _DK_add_gold_to_hoarde(struct Thing *objtng, struct Room *room, long amount);
-DLLIMPORT void _DK_set_call_to_arms_as_birthing(struct Thing *objtng);
 DLLIMPORT void _DK_set_call_to_arms_as_rebirthing(struct Thing *objtng);
 DLLIMPORT void _DK_set_call_to_arms_as_dying(struct Thing *objtng);
 DLLIMPORT void _DK_process_object_sacrifice(struct Thing *thing, long a2);
@@ -421,7 +407,6 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     struct InitLight ilight;
     struct Thing *thing;
     long i,k;
-    //thing = _DK_create_object(pos, model, owner, a4);
 
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
     {
@@ -670,7 +655,6 @@ TbBool thing_is_mature_food(const struct Thing *thing)
 
 TbBool thing_is_spellbook(const struct Thing *thing)
 {
-    //return _DK_thing_is_spellbook(thing);
     return (book_thing_to_power_kind(thing) > 0);
 }
 
@@ -696,7 +680,6 @@ TbBool object_is_mature_food(const struct Thing *thing)
 
 TbBool object_is_gold(const struct Thing *thing)
 {
-    //return _DK_object_is_gold(thing);
     switch (thing->model)
     {
       case 3:
@@ -736,7 +719,6 @@ TbBool object_is_gold_hoard(const struct Thing *thing)
 
 TbBool object_is_gold_pile(const struct Thing *thing)
 {
-    //return _DK_object_is_gold_pile(thing);
     switch (thing->model)
     {
       case 3: // Chest of gold
@@ -804,7 +786,6 @@ TbBool object_is_unaffected_by_terrain_changes(const struct Thing *thing)
  */
 struct Thing *get_spellbook_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    //return _DK_get_spellbook_at_position(x, y);
     return get_object_around_owned_by_and_matching_bool_filter(
         subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, thing_is_spellbook);
 }
@@ -818,7 +799,6 @@ struct Thing *get_spellbook_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y
  */
 struct Thing *get_special_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    //return _DK_get_special_at_position(x, y);
     return get_object_around_owned_by_and_matching_bool_filter(
         subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, thing_is_special_box);
 }
@@ -832,7 +812,6 @@ struct Thing *get_special_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
  */
 struct Thing *get_crate_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    //return _DK_get_crate_at_position(x, y);
     return get_object_around_owned_by_and_matching_bool_filter(
         subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, thing_is_door_or_trap_crate);
 }
@@ -950,7 +929,6 @@ struct Thing *find_base_thing_on_mapwho_excluding_self(struct Thing *thing)
 
 long object_being_dropped(struct Thing *thing)
 {
-    //return _DK_object_being_dropped(thing);
     if (!thing_touching_floor(thing)) {
         return 1;
     }
@@ -1048,7 +1026,6 @@ TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
     long i;
     long long k;
     SYNCDBG(18,"Starting");
-    //return _DK_object_update_dungeon_heart(thing);
     if ((heartng->health > 0) && (game.dungeon_heart_heal_time != 0))
     {
         struct ObjectConfig *objconf;
@@ -1094,7 +1071,6 @@ TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
 
 void set_call_to_arms_as_birthing(struct Thing *objtng)
 {
-    //_DK_set_call_to_arms_as_birthing(objtng); return;
     int frame;
     switch (objtng->byte_13)
     {
@@ -1134,7 +1110,6 @@ void set_call_to_arms_as_rebirthing(struct Thing *objtng)
 
 TngUpdateRet object_update_call_to_arms(struct Thing *thing)
 {
-    //return _DK_object_update_call_to_arms(thing);
     struct PlayerInfo *player;
     player = get_player(thing->owner);
     if (thing->index != player->field_43C)
@@ -1213,7 +1188,6 @@ TngUpdateRet object_update_power_sight(struct Thing *objtng)
 TngUpdateRet object_update_power_lightning(struct Thing *objtng)
 {
     long i;
-    //return _DK_object_update_power_lightning(thing);
     unsigned long exist_turns;
     long variation;
     objtng->health = 2;
@@ -1253,7 +1227,6 @@ TngUpdateRet move_object(struct Thing *thing)
     TbBool move_allowed;
     SYNCDBG(18,"Starting");
     TRACE_THING(thing);
-    //return _DK_move_object(thing);
     move_allowed = get_thing_next_position(&pos, thing);
     if ( !positions_equivalent(&thing->mappos, &pos) )
     {
@@ -1279,7 +1252,6 @@ TngUpdateRet update_object(struct Thing *thing)
     struct Objects *objdat;
     SYNCDBG(18,"Starting for %s",thing_model_name(thing));
     TRACE_THING(thing);
-    //return _DK_update_object(thing);
 
     upcallback = NULL;
     if (thing->model < sizeof(object_update_functions)/sizeof(object_update_functions[0])) {

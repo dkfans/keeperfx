@@ -31,16 +31,6 @@
 #include "room_library.h"
 #include "game_legacy.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-/******************************************************************************/
-DLLIMPORT long _DK_load_stats_files(void);
-DLLIMPORT long _DK_update_dungeon_scores(void);
-/******************************************************************************/
-#ifdef __cplusplus
-}
-#endif
 /******************************************************************************/
 TbBool load_stats_files(void)
 {
@@ -313,7 +303,6 @@ TbBool update_dungeon_scores_for_player(struct PlayerInfo *player)
 long update_dungeons_scores(void)
 {
     int i,k;
-    //return _DK_update_dungeon_scores();
     k = 0;
     for (i=0; i < PLAYERS_COUNT; i++)
     {

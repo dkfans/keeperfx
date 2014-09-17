@@ -1544,8 +1544,8 @@ long check_out_uncrowded_reinforce_position(struct Thing *thing, SubtlCodedCoord
                 {
                     struct Coord3d pos;
                     pos.z.val = 0;
-                    pos.x.val = (stl_x << 8) + 128;
-                    pos.y.val = (stl_y << 8) + 128;
+                    pos.x.val = subtile_coord_center(stl_x);
+                    pos.y.val = subtile_coord_center(stl_y);
                     pos.z.val = get_thing_height_at(thing, &pos);
                     if ( creature_can_navigate_to_with_storage(thing, &pos, NavRtF_Default) != -1 ) {
                         *retstl_x = stl_x;

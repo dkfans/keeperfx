@@ -44,16 +44,11 @@ extern "C" {
 DLLIMPORT unsigned char _DK_backup_explored[26][26];
 #define backup_explored _DK_backup_explored
 /******************************************************************************/
-DLLIMPORT void _DK_process_armageddon(void);
 DLLIMPORT void _DK_process_disease(struct Thing *thing);
-DLLIMPORT void _DK_lightning_modify_palette(struct Thing *thing);
-DLLIMPORT void _DK_update_god_lightning_ball(struct Thing *thing);
 DLLIMPORT void _DK_god_lightning_choose_next_creature(struct Thing *thing);
 DLLIMPORT void _DK_draw_god_lightning(struct Thing *thing);
 DLLIMPORT void _DK_turn_off_call_to_arms(long a);
 DLLIMPORT void _DK_remove_explored_flags_for_power_sight(struct PlayerInfo *player);
-DLLIMPORT void _DK_update_explored_flags_for_power_sight(struct PlayerInfo *player);
-DLLIMPORT int _DK_can_thing_be_possessed(struct Thing *thing, long a2);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -109,7 +104,6 @@ unsigned char call_to_arms_expand_check(void)
 
 TbBool can_thing_be_possessed(const struct Thing *thing, PlayerNumber plyr_idx)
 {
-    //return _DK_can_thing_be_possessed(thing, plyr_idx);
     if (thing->owner != plyr_idx)
         return false;
     if (thing_is_creature(thing))
@@ -146,7 +140,6 @@ void process_armageddon(void)
     struct Thing *heartng;
     long i;
     SYNCDBG(6,"Starting");
-    //_DK_process_armageddon(); return;
     if (game.armageddon_cast_turn == 0)
         return;
     if (game.armageddon.count_down+game.armageddon_cast_turn > game.play_gameturn)
@@ -202,7 +195,6 @@ void process_disease(struct Thing *thing)
 void lightning_modify_palette(struct Thing *thing)
 {
     struct PlayerInfo *myplyr;
-    // _DK_lightning_modify_palette(thing);
     myplyr = get_my_player();
 
     if (thing->health == 0)
@@ -247,7 +239,6 @@ void update_god_lightning_ball(struct Thing *thing)
     struct Thing *target;
     struct ShotConfigStats *shotst;
     long i;
-//    _DK_update_god_lightning_ball(thing);
     if (thing->health <= 0)
     {
         lightning_modify_palette(thing);
@@ -307,7 +298,7 @@ void turn_off_call_to_arms(PlayerNumber plyr_idx)
 void store_backup_explored_flags_for_power_sight(struct PlayerInfo *player, struct Coord3d *soe_pos)
 {
     struct Dungeon *dungeon;
-    long stl_x,stl_y;
+    MapSubtlCoord stl_x,stl_y;
     long soe_x,soe_y;
     dungeon = get_players_dungeon(player);
     stl_y = (long)soe_pos->y.stl.num - MAX_SOE_RADIUS;
@@ -337,7 +328,7 @@ void store_backup_explored_flags_for_power_sight(struct PlayerInfo *player, stru
 void update_vertical_explored_flags_for_power_sight(struct PlayerInfo *player, struct Coord3d *soe_pos)
 {
     struct Dungeon *dungeon;
-    long stl_x,stl_y;
+    MapSubtlCoord stl_x,stl_y;
     long soe_x,soe_y;
     long slb_x,slb_y;
     long boundstl_x;
@@ -487,7 +478,6 @@ void update_explored_flags_for_power_sight(struct PlayerInfo *player)
     struct Dungeon *dungeon;
     struct Thing *thing;
     SYNCDBG(9,"Starting");
-    //_DK_update_explored_flags_for_power_sight(player);
     dungeon = get_players_dungeon(player);
     LbMemorySet(backup_explored, 0, sizeof(backup_explored));
     if (dungeon->sight_casted_thing_idx == 0) {

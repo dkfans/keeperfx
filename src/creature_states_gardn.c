@@ -42,12 +42,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT short _DK_creature_arrived_at_garden(struct Thing *creatng);
-DLLIMPORT short _DK_creature_eat(struct Thing *creatng);
 DLLIMPORT short _DK_creature_eating_at_garden(struct Thing *creatng);
-DLLIMPORT short _DK_creature_to_garden(struct Thing *creatng);
-DLLIMPORT void _DK_person_search_for_food_again(struct Thing *creatng, struct Room *room);
-DLLIMPORT void _DK_person_eat_food(struct Thing *creatng, struct Thing *foodtng, struct Room *room);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -78,7 +73,6 @@ TbBool hunger_is_creature_hungry(const struct Thing *creatng)
 
 void person_eat_food(struct Thing *creatng, struct Thing *foodtng, struct Room *room)
 {
-    //return _DK_person_eat_food(creatng, foodtng, room);
     thing_play_sample(creatng, 112+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     internal_set_thing_state(creatng, CrSt_CreatureEat);
     set_creature_instance(creatng, CrInst_EAT, 1, 0, 0);
@@ -113,7 +107,6 @@ void person_search_for_food_again(struct Thing *creatng, struct Room *room)
 {
     struct Thing *near_food_tng;
     long near_food_dist;
-    //_DK_person_search_for_food_again(thing, room);
     near_food_dist = LONG_MAX;
     near_food_tng = INVALID_THING;
     unsigned long i;
@@ -217,7 +210,6 @@ short creature_arrived_at_garden(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     struct Room *room;
-    //return _DK_creature_arrived_at_garden(thing);
     cctrl = creature_control_get_from_thing(thing);
     cctrl->target_room_id = 0;
     room = get_room_thing_is_on(thing);
@@ -235,7 +227,6 @@ short creature_arrived_at_garden(struct Thing *thing)
 short creature_eat(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
-    //return _DK_creature_eat(thing);
     cctrl = creature_control_get_from_thing(thing);
     if (cctrl->instance_id != CrInst_EAT)
         internal_set_thing_state(thing, thing->continue_state);
@@ -251,7 +242,6 @@ short creature_to_garden(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
     struct Room *nroom;
-    //return _DK_creature_to_garden(thing);
     cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->hunger_amount == 0) {
         set_start_state(creatng);

@@ -48,15 +48,6 @@ RotPers_Func rotpers_routines[] = {
 
 unsigned int eye_lens_width = 0;
 unsigned int eye_lens_height = 0;
-
-/******************************************************************************/
-DLLIMPORT void _DK_perspective_standard(struct XYZ *cor, struct PolyPoint *ppt);
-DLLIMPORT void _DK_perspective_fisheye(struct XYZ *cor, struct PolyPoint *ppt);
-DLLIMPORT void _DK_rotpers_parallel(struct EngineCoord *epos, struct M33 *matx);
-DLLIMPORT void _DK_rotpers_standard(struct EngineCoord *epos, struct M33 *matx);
-DLLIMPORT void _DK_rotpers_circular(struct EngineCoord *epos, struct M33 *matx);
-DLLIMPORT void _DK_rotpers_fisheye(struct EngineCoord *epos, struct M33 *matx);
-
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -128,7 +119,6 @@ void rotpers_parallel(struct EngineCoord *epos, const struct M33 *matx)
 {
     long tx,ty,tz;
     long zoom;
-    //_DK_rotpers_parallel(epos, matx);
     pers_set_transform_matrix(epos, matx);
     zoom = camera_zoom / pixel_size;
     tx = view_width_over_2 + ((epos->x * zoom) >> 16);
@@ -160,7 +150,6 @@ void rotpers_parallel(struct EngineCoord *epos, const struct M33 *matx)
 void rotpers_standard(struct EngineCoord *epos, const struct M33 *matx)
 {
     long tx,ty,tz;
-    //_DK_rotpers_standard(epos, matx);
     pers_set_transform_matrix(epos, matx);
     tx = epos->x;
     ty = epos->y;
@@ -196,7 +185,6 @@ void rotpers_standard(struct EngineCoord *epos, const struct M33 *matx)
 
 void rotpers_circular(struct EngineCoord *epos, const struct M33 *matx)
 {
-    //_DK_rotpers_circular(epos, matx);
     pers_set_transform_matrix(epos, matx);
     long tx, ty, tz;
     tx = epos->x;
@@ -235,7 +223,6 @@ void rotpers_circular(struct EngineCoord *epos, const struct M33 *matx)
 
 void rotpers_fisheye(struct EngineCoord *epos, const struct M33 *matx)
 {
-    //_DK_rotpers_fisheye(epos, matx);
     pers_set_transform_matrix(epos, matx);
     long tx, ty, tz;
     tx = epos->x;

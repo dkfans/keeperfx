@@ -46,11 +46,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player);
-DLLIMPORT void _DK_resurrect_creature(struct Thing *cratetng, unsigned char a2, unsigned char crmodel, unsigned char crlevel);
-DLLIMPORT void _DK_transfer_creature(struct Thing *cratetng, struct Thing *transftng, unsigned char crmodel);
 DLLIMPORT void _DK_make_safe(struct PlayerInfo *player);
-DLLIMPORT unsigned long _DK_steal_hero(struct PlayerInfo *player, struct Coord3d *pos);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -179,7 +175,6 @@ void increase_level(struct PlayerInfo *player)
 
 TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
 {
-    //return _DK_steal_hero(player, pos);
     //TODO put creature models in config files
     static ThingModel skip_steal_models[] = {6, 7};
     static ThingModel prefer_steal_models[] = {3, 12};
@@ -336,7 +331,6 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
 void resurrect_creature(struct Thing *boxtng, PlayerNumber owner, ThingModel crmodel, unsigned char crlevel)
 {
     struct Thing *creatng;
-    //_DK_resurrect_creature(thing, owner, crmodel, crlevel);
     if (!thing_exists(boxtng) || (box_thing_to_special(boxtng) != SpcKind_Resurrect) ) {
         ERRORMSG("Invalid resurrect box object!");
         return;

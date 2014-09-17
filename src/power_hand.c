@@ -59,27 +59,11 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT unsigned long _DK_object_is_pickable_by_hand(const struct Thing *thing, long value);
 DLLIMPORT void _DK_set_power_hand_offset(struct PlayerInfo *player, struct Thing *thing);
-DLLIMPORT struct Thing *_DK_process_object_being_picked_up(struct Thing *thing, long value);
-DLLIMPORT void _DK_set_power_hand_graphic(long a1, long value, long plyr_idx);
-DLLIMPORT long _DK_dump_thing_in_power_hand(struct Thing *thing, long value);
-DLLIMPORT void _DK_draw_power_hand(void);
-DLLIMPORT long _DK_prepare_thing_for_power_hand(unsigned short tng_idx, long plyr_idx);
-DLLIMPORT void _DK_draw_mini_things_in_hand(long x, long y);
-DLLIMPORT void _DK_create_power_hand(unsigned char a1);
-DLLIMPORT struct Thing *_DK_get_nearest_thing_for_hand_or_slap(unsigned char a1, long value, long a3);
-DLLIMPORT struct Thing *_DK_get_nearest_thing_for_slap(unsigned char plyr_idx, long x, long y);
 DLLIMPORT void _DK_process_things_in_dungeon_hand(void);
-DLLIMPORT long _DK_place_thing_in_power_hand(struct Thing *thing, long var);
-DLLIMPORT short _DK_dump_held_things_on_map(unsigned char a1, long value, long a3, short a4);
-DLLIMPORT long _DK_can_thing_be_picked_up_by_player(const struct Thing *thing, unsigned char plyr_idx);
 DLLIMPORT long _DK_can_thing_be_picked_up2_by_player(const struct Thing *thing, unsigned char plyr_idx);
 DLLIMPORT struct Thing *_DK_create_gold_for_hand_grab(struct Thing *thing, long value);
 DLLIMPORT void _DK_stop_creatures_around_hand(char a1, unsigned short value, unsigned short a3);
-DLLIMPORT void _DK_drop_gold_coins(struct Coord3d *pos, long value, long a3);
-DLLIMPORT long _DK_gold_being_dropped_on_creature(long a1, struct Thing *goldtng, struct Thing *creatng);
-DLLIMPORT unsigned long _DK_can_drop_thing_here(long x, long y, long a3, unsigned long a4);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -93,7 +77,6 @@ struct Thing *create_gold_for_hand_grab(struct Thing *thing, long a2)
 unsigned long object_is_pickable_by_hand(const struct Thing *thing, long plyr_idx)
 {
     struct SlabMap *slb;
-    //return _DK_object_is_pickable_by_hand(thing, plyr_idx);
     if (object_is_gold(thing))
     {
         if (object_is_gold_pile(thing)) {
@@ -207,7 +190,6 @@ TbBool creature_is_pickable_by_hand(const struct Thing *thing, PlayerNumber plyr
 
 long can_thing_be_picked_up_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
 {
-    //return _DK_can_thing_be_picked_up_by_player(thing, plyr_idx);
     // Some creatures can be picked
     if (thing_is_creature(thing))
     {
@@ -401,7 +383,6 @@ TbBool insert_thing_into_power_hand_list(struct Thing *thing, PlayerNumber plyr_
 {
     struct Dungeon *dungeon;
     long i;
-    //return _DK_dump_thing_in_power_hand(thing, plyr_idx);
     dungeon = get_dungeon(plyr_idx);
     if (dungeon->num_things_in_hand >= MAX_THINGS_IN_HAND)
       return false;
@@ -468,8 +449,7 @@ void draw_power_hand(void)
   struct Thing *picktng;
   struct Room *room;
   struct RoomData *rdata;
-  long stl_x,stl_y;
-  //_DK_draw_power_hand(); return;
+  MapSubtlCoord stl_x,stl_y;
   player = get_my_player();
   if ((player->field_6 & 0x01) != 0)
     return;
@@ -710,7 +690,6 @@ void drop_gold_coins(struct Coord3d *pos, long value, long plyr_idx)
 {
     struct Coord3d locpos;
     int i;
-    //_DK_drop_gold_coins(pos, a2, a3);
     locpos.z.val = get_ceiling_height_at(pos) - ACTION_RANDOM(128);
     for (i = 0; i < 8; i++)
     {
@@ -750,7 +729,6 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
 {
     struct CreatureControl *cctrl;
     struct Coord3d pos;
-    //return _DK_gold_being_dropped_on_creature(plyr_idx, tng1, tng2);
     TbBool taking_salary;
     taking_salary = false;
     pos.x.val = creatng->mappos.x.val;
@@ -823,7 +801,6 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, M
 
 short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool update_hand)
 {
-    //return _DK_dump_held_things_on_map(plyr_idx, stl_x, stl_y, update_hand);
     struct PlayerInfo *player;
     player = get_player(plyr_idx);
     struct Dungeon *dungeon;
@@ -990,7 +967,6 @@ void process_things_in_dungeon_hand(void)
 void draw_mini_things_in_hand(long x, long y)
 {
     SYNCDBG(7,"Starting");
-    //_DK_draw_mini_things_in_hand(x, y); return;
     struct Dungeon *dungeon;
     dungeon = get_my_dungeon();
     int i;
@@ -1079,7 +1055,6 @@ struct Thing *create_power_hand(PlayerNumber owner)
     struct Thing *thing;
     struct Thing *grabtng;
     struct Coord3d pos;
-    //_DK_create_power_hand(owner);
     pos.x.val = 0;
     pos.y.val = 0;
     pos.z.val = 0;
@@ -1123,7 +1098,6 @@ long prepare_thing_for_power_hand(unsigned short tng_idx, PlayerNumber plyr_idx)
 {
     struct PlayerInfo *player;
     struct Dungeon *dungeon;
-    //return _DK_prepare_thing_for_power_hand(tng_idx, plyr_idx);
     player = get_player(plyr_idx);
     dungeon = get_dungeon(player->id_number);
     if (player->hand_thing_idx == 0) {
@@ -1167,7 +1141,6 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
 {
     struct PlayerInfo *player;
     long i;
-    //return _DK_place_thing_in_power_hand(thing, plyr_idx);
     player = get_player(plyr_idx);
     if (!thing_is_pickable_by_hand(player, thing)) {
         ERRORLOG("The %s owned by player %d is not pickable by player %d",thing_model_name(thing),(int)thing->owner,(int)plyr_idx);
@@ -1194,12 +1167,11 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
     return true;
 }
 
-TbResult magic_use_power_hand(PlayerNumber plyr_idx, unsigned short stl_x, unsigned short stl_y, unsigned short tng_idx)
+TbResult magic_use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short tng_idx)
 {
     struct PlayerInfo *player;
     struct Dungeon *dungeon;
     struct Thing *thing;
-    //return _DK_magic_use_power_hand(plyr_idx, stl_x, stl_y, tng_idx);
     dungeon = get_dungeon(plyr_idx);
     player = get_player(plyr_idx);
     if (dungeon->num_things_in_hand >= MAX_THINGS_IN_HAND) {
@@ -1271,7 +1243,6 @@ TbBool is_dangerous_drop_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 
 unsigned long can_drop_thing_here(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx, unsigned long allow_unclaimed)
 {
-    //return _DK_can_drop_thing_here(stl_x, stl_y, plyr_idx, allow_unclaimed);
     struct Map *mapblk;
     mapblk = get_map_block_at(stl_x, stl_y);
     if (!map_block_revealed(mapblk, plyr_idx))

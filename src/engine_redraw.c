@@ -63,16 +63,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_process_pointer_graphic(void);
-DLLIMPORT void _DK_smooth_screen_area(unsigned char *a1, long a2, long a3, long a4, long a5, long a6);
-DLLIMPORT void _DK_redraw_creature_view(void);
-DLLIMPORT void _DK_redraw_isometric_view(void);
-DLLIMPORT void _DK_redraw_frontview(void);
-DLLIMPORT void _DK_draw_overlay_compass(long a1, long a2);
-DLLIMPORT void _DK_draw_sound_stuff(void);
-DLLIMPORT void _DK_set_engine_view(struct PlayerInfo *player, long a2);
-DLLIMPORT void _DK_set_sprite_view_3d(void);
-DLLIMPORT void _DK_set_sprite_view_isometric(void);
 DLLIMPORT void _DK_map_fade(unsigned char *a1, unsigned char *a2, unsigned char *a3, unsigned char *a4, unsigned char *a5, long a6, long const a7, long const a8, long a9);
 /******************************************************************************/
 #ifdef __cplusplus
@@ -267,7 +257,6 @@ long map_fade_out(long a)
 
 void set_sprite_view_3d(void)
 {
-    //_DK_set_sprite_view_3d();
     long i;
     for (i=1; i < THINGS_COUNT; i++)
     {
@@ -303,7 +292,6 @@ void set_sprite_view_3d(void)
 
 void set_sprite_view_isometric(void)
 {
-    //_DK_set_sprite_view_isometric();
     long i;
     for (i=1; i < THINGS_COUNT; i++)
     {
@@ -344,7 +332,6 @@ long dummy_sound_line_of_sight(long a1, long a2, long a3, long a4, long a5, long
 
 void set_engine_view(struct PlayerInfo *player, long val)
 {
-    //_DK_set_engine_view(player, val);
     switch ( val )
     {
     case PVM_EmptyView:
@@ -545,7 +532,6 @@ void redraw_isometric_view(void)
     TbGraphicsWindow ewnd;
     struct Coord3d pos;
     SYNCDBG(6,"Starting");
-    //_DK_redraw_isometric_view(); return;
 
     player = get_my_player();
     if (player->acamera == NULL)
@@ -593,7 +579,6 @@ void redraw_isometric_view(void)
 void redraw_frontview(void)
 {
     SYNCDBG(6,"Starting");
-    //_DK_redraw_frontview(); return;
     struct PlayerInfo *player;
     long w,h;
     player = get_my_player();
@@ -849,7 +834,6 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
 void process_pointer_graphic(void)
 {
     struct PlayerInfo *player;
-    //_DK_process_pointer_graphic(); return;
     player = get_my_player();
     SYNCDBG(6,"Starting for view %d, player state %d, instance %d",(int)player->view_type,(int)player->work_state,(int)player->instance_num);
     switch (player->view_type)

@@ -59,16 +59,6 @@ DLLIMPORT int _DK_LbFileClose(TbFileHandle handle);
 DLLIMPORT int _DK_LbFileSeek(TbFileHandle handle, long offset, int origin);
 DLLIMPORT int _DK_LbFileRead(TbFileHandle handle, void *buffer, unsigned long len);
 DLLIMPORT int _DK_LbFilePosition(TbFileHandle handle);
-
-DLLIMPORT long _DK_parse_sound_file(long a1, unsigned char *smptbl_idx, long *a3, long a4, long a5);
-DLLIMPORT int __stdcall _DK_init_sound(void);
-DLLIMPORT long _DK_init_sound_heap_two_banks(unsigned char *a1, long smptbl_idx, char *a3, char *a4, long a5);
-DLLIMPORT void _DK_set_room_playing_ambient_sound(struct Coord3d *pos, long sample_idx);
-DLLIMPORT void _DK_find_nearest_rooms_for_ambient_sound(void);
-DLLIMPORT int _DK_process_sound_heap(void);
-DLLIMPORT int _DK_process_3d_sounds(void);
-DLLIMPORT void _DK_sound_reinit_after_load(void);
-DLLIMPORT void _DK_play_thing_walking(struct Thing *thing);
 /******************************************************************************/
 void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short pitch, char a4, unsigned char a5, unsigned char a6, long a7, long loudness)
 {
@@ -100,7 +90,6 @@ void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short pit
 
 void play_thing_walking(struct Thing *thing)
 {
-    //_DK_play_thing_walking(thing); return;
     struct PlayerInfo *myplyr;
     myplyr = get_my_player();
     struct Camera *cam;
@@ -179,7 +168,6 @@ void set_room_playing_ambient_sound(struct Coord3d *pos, long sample_idx)
 {
     struct Thing *thing;
     long i;
-    //_DK_set_room_playing_ambient_sound(pos, sample_idx);return;
     if (game.ambient_sound_thing_idx == 0)
     {
         ERRORLOG("No room ambient sound object");
@@ -224,10 +212,9 @@ void find_nearest_rooms_for_ambient_sound(void)
     struct MapOffset *sstep;
     struct Coord3d pos;
     long slb_x,slb_y;
-    long stl_x,stl_y;
+    MapSubtlCoord stl_x,stl_y;
     long i,k;
     SYNCDBG(8,"Starting");
-    //_DK_find_nearest_rooms_for_ambient_sound();
     if ((SoundDisabled) || (GetCurrentSoundMasterVolume() <= 0))
         return;
     player = get_my_player();
@@ -329,7 +316,6 @@ void update_player_sounds(void)
 void process_3d_sounds(void)
 {
     SYNCDBG(9,"Starting");
-    //_DK_process_3d_sounds();return;
     increment_sample_times();
     process_sound_samples();
     process_sound_emitters();
@@ -343,7 +329,6 @@ void process_sound_heap(void)
     struct HeapMgrHandle *hmhndl;
     long i;
     SYNCDBG(9,"Starting");
-    //_DK_process_sound_heap();return;
     for (i = 0; i < samples_in_bank; i++)
     {
         satab = &sample_table[i];
@@ -411,7 +396,6 @@ long parse_sound_file(TbFileHandle fileh, unsigned char *buf, long *nsamples, lo
     long i,k;
 
     // TODO SOUND use rewritten version when sound routines are rewritten
-    //return _DK_parse_sound_file(fileh, buf, nsamples, buf_len, a5);
 
     switch ( a5 )
     {
@@ -530,9 +514,6 @@ TbBool init_sound_heap_two_banks(unsigned char *heap_mem, long heap_size, char *
     long buf_len;
     unsigned char *buf;
     SYNCDBG(8,"Starting");
-    //i = _DK_init_sound_heap_two_banks(heap_mem, heap_size, snd_fname, spc_fname, a5);
-    //SYNCMSG("Sound samples in banks: %d,%d",(int)samples_in_bank,(int)samples_in_bank2);
-    //return (i != 0);
     LbMemorySet(heap_mem, 0, heap_size);
     using_two_banks = 0;
     // Open first sound bank and prepare sample table
@@ -680,7 +661,6 @@ TbBool ambient_sound_stop(void)
 
 void sound_reinit_after_load(void)
 {
-    //_DK_sound_reinit_after_load();
     stop_all_things_playing_samples();
     if (SpeechEmitter != 0)
     {

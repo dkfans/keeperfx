@@ -41,23 +41,6 @@
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-/******************************************************************************/
-DLLIMPORT short _DK_at_kinky_torture_room(struct Thing *creatng);
-DLLIMPORT short _DK_at_torture_room(struct Thing *creatng);
-DLLIMPORT short _DK_cleanup_torturing(struct Thing *creatng);
-DLLIMPORT short _DK_kinky_torturing(struct Thing *creatng);
-DLLIMPORT long _DK_process_torture_function(struct Thing *creatng);
-DLLIMPORT short _DK_torturing(struct Thing *creatng);
-DLLIMPORT long _DK_process_torture_visuals(struct Thing *creatng, struct Room *room, long a3);
-DLLIMPORT long _DK_reveal_players_map_to_player(struct Thing *creatng, long benefit_plyr_idx);
-DLLIMPORT long _DK_process_kinky_function(struct Thing *creatng);
-/******************************************************************************/
-#ifdef __cplusplus
-}
-#endif
 /******************************************************************************/
 /** State triggered when creature reached torture chamber and is ready to start kinky torture action.
  *
@@ -68,7 +51,6 @@ short at_kinky_torture_room(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     struct Room *room;
-    //return _DK_at_kinky_torture_room(thing);
     cctrl = creature_control_get_from_thing(thing);
     cctrl->target_room_id = 0;
     room = get_room_thing_is_on(thing);
@@ -103,7 +85,6 @@ short at_torture_room(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     struct Room *room;
-    //return _DK_at_torture_room(thing);
     cctrl = creature_control_get_from_thing(thing);
     cctrl->target_room_id = 0;
     room = get_room_thing_is_on(thing);
@@ -134,7 +115,6 @@ short at_torture_room(struct Thing *thing)
 
 short cleanup_torturing(struct Thing *creatng)
 {
-    //return _DK_cleanup_torturing(creatng);
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->word_A6 > 0)
@@ -220,7 +200,6 @@ long process_torture_visuals(struct Thing *thing, struct Room *room, CrtrStateId
 {
     struct CreatureControl *cctrl;
     struct Thing *sectng;
-    //return _DK_process_torture_visuals(thing, room, nstat);
     cctrl = creature_control_get_from_thing(thing);
     GameTurnDelta dturn;
     switch (cctrl->field_A8)
@@ -277,7 +256,6 @@ long process_torture_visuals(struct Thing *thing, struct Room *room, CrtrStateId
 short kinky_torturing(struct Thing *thing)
 {
     struct Room *room;
-    //return _DK_kinky_torturing(thing);
     TRACE_THING(thing);
     room = get_room_thing_is_on(thing);
     if (creature_work_in_room_no_longer_possible(room, RoK_TORTURE, thing))
@@ -310,7 +288,6 @@ short kinky_torturing(struct Thing *thing)
 CrCheckRet process_kinky_function(struct Thing *thing)
 {
   struct CreatureStats *crstat;
-  //return _DK_process_kinky_function(thing);
   crstat = creature_stats_get_from_thing(thing);
   anger_apply_anger_to_creature(thing, crstat->annoy_in_torture, AngR_Other, 1);
   return CrCkRet_Available;
@@ -366,14 +343,13 @@ long reveal_players_map_to_player(struct Thing *thing, PlayerNumber benefit_plyr
     struct Thing *heartng;
     SlabCodedCoords slb_num;
     struct SlabMap *slb;
-    int revealstl_x,revealstl_y;
-    MapSubtlCoord slb_x, slb_y;
+    MapSubtlCoord revealstl_x,revealstl_y;
+    MapSlabCoord slb_x, slb_y;
     unsigned char *ownership_map;
     struct USPOINT_2D *revealed_pts;
     unsigned int pt_idx,pts_count,pts_to_reveal;
     TbBool reveal_success;
     TRACE_THING(thing);
-    //return _DK_reveal_players_map_to_player(thing, a2);
     heartng = get_player_soul_container(thing->owner);
     if (!thing_is_invalid(heartng))
     {
@@ -529,7 +505,6 @@ CrCheckRet process_torture_function(struct Thing *creatng)
 {
     struct Room *room;
     long i;
-    //return _DK_process_torture_function(thing);
     room = get_room_creature_works_in(creatng);
     if ( !room_still_valid_as_type_for_thing(room,RoK_TORTURE,creatng) )
     {
@@ -585,7 +560,6 @@ CrCheckRet process_torture_function(struct Thing *creatng)
 CrStateRet torturing(struct Thing *thing)
 {
     struct Room *room;
-    //return _DK_torturing(thing);
     TRACE_THING(thing);
     room = get_room_thing_is_on(thing);
     if (creature_work_in_room_no_longer_possible(room, RoK_TORTURE, thing))
