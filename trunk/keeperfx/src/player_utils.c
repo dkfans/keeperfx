@@ -298,29 +298,29 @@ long take_money_from_dungeon(PlayerNumber plyr_idx, GoldAmount amount_take, TbBo
 
 long update_dungeon_generation_speeds(void)
 {
-    int plr_idx;
-    int n;
+    int plyr_idx;
+    int max_manage_score;
     // Get value of generation
-    n = 0;
-    for (plr_idx=0; plr_idx<PLAYERS_COUNT; plr_idx++)
+    max_manage_score = 0;
+    for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         struct PlayerInfo *player;
-        player = get_player(plr_idx);
+        player = get_player(plyr_idx);
         if (player_exists(player) && (player->field_2C == 1))
         {
             struct Dungeon *dungeon;
             dungeon = get_players_dungeon(player);
-            if (dungeon->field_AE9[1] > n)
-                n = dungeon->field_AE9[0];
+            if (dungeon->total_score > max_manage_score)
+                max_manage_score = dungeon->manage_score;
         }
     }
     // Update the values
     if (game.generate_speed == -1)
     {
-        for (plr_idx=0; plr_idx<PLAYERS_COUNT; plr_idx++)
+        for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
         {
             struct PlayerInfo *player;
-            player = get_player(plr_idx);
+            player = get_player(plyr_idx);
             if (player_exists(player) && (player->field_2C == 1))
             {
                 struct Dungeon *dungeon;
@@ -330,15 +330,18 @@ long update_dungeon_generation_speeds(void)
         }
     } else
     {
-        for (plr_idx=0; plr_idx<PLAYERS_COUNT; plr_idx++)
+        for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
         {
             struct PlayerInfo *player;
-            player = get_player(plr_idx);
+            player = get_player(plyr_idx);
             if (player_exists(player) && (player->field_2C == 1))
             {
                 struct Dungeon *dungeon;
                 dungeon = get_players_dungeon(player);
-                dungeon->turns_between_entrance_generation = n * game.generate_speed / dungeon->field_AE9[0];
+                if (dungeon->manage_score > 0)
+                    dungeon->turns_between_entrance_generation = max_manage_score * game.generate_speed / dungeon->manage_score;
+                else
+                    dungeon->turns_between_entrance_generation = game.generate_speed;
             }
         }
     }
@@ -458,7 +461,7 @@ void init_players(void)
                 player->allocflags &= ~PlaF_CompCtrl;
             if ((player->allocflags & PlaF_CompCtrl) == 0)
             {
-              game.field_14E495++;
+              game.active_players_count++;
               player->field_2C = 1;
               game.game_kind = GKind_KeeperGame;
               init_player(player, 0);
