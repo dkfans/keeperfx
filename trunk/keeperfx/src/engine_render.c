@@ -58,18 +58,8 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT void _DK_draw_fastview_mapwho(struct Camera *cam, struct JontySpr *outbuf);
-DLLIMPORT void _DK_draw_clipped_line(long pos_x, long pos_z, long start_y, long end_y, unsigned char scale);
-DLLIMPORT void _DK_draw_engine_room_flagpole(struct RoomFlag *rflg);
-DLLIMPORT void _DK_draw_status_sprites(long pos_x, long pos_z, struct Thing *thing, long end_y);
-DLLIMPORT void _DK_draw_engine_room_flag_top(struct RoomFlag *rflg);
 DLLIMPORT void _DK_draw_stripey_line(long pos_x, long pos_z, long start_y, long end_y, unsigned char scale);
-DLLIMPORT void _DK_draw_jonty_mapwho(struct JontySpr *jspr);
-DLLIMPORT void _DK_draw_keepsprite_unscaled_in_buffer(unsigned short pos_x, short pos_z, unsigned char start_y, unsigned char *end_y);
 DLLIMPORT long _DK_convert_world_coord_to_front_view_screen_coord(struct Coord3d *pos, struct Camera *cam, long *x, long *y, long *z);
-DLLIMPORT void _DK_draw_frontview_engine(struct Camera *cam);
-DLLIMPORT void _DK_draw_view(struct Camera *cam, unsigned char pos_z);
-DLLIMPORT void _DK_do_a_plane_of_engine_columns_cluedo(long pos_x, long pos_z, long start_y, long end_y);
-DLLIMPORT void _DK_do_a_plane_of_engine_columns_isometric(long pos_x, long pos_z, long start_y, long end_y);
 DLLIMPORT void _DK_rotate_base_axis(struct M33 *matx, short pos_z, unsigned char start_y);
 DLLIMPORT void _DK_fill_in_points_perspective(long pos_x, long pos_z, struct MinMax *mm);
 DLLIMPORT void _DK_fill_in_points_cluedo(long pos_x, long pos_z, struct MinMax *mm);
@@ -77,14 +67,10 @@ DLLIMPORT void _DK_fill_in_points_isometric(long pos_x, long pos_z, struct MinMa
 DLLIMPORT void _DK_find_gamut(void);
 DLLIMPORT void _DK_frame_wibble_generate(void);
 DLLIMPORT void _DK_setup_rotate_stuff(long pos_x, long pos_z, long start_y, long end_y, long scale, long a6, long a7, long a8);
-DLLIMPORT void _DK_process_keeper_sprite(short x, short y, unsigned short start_y, short end_y, unsigned char scale, long a6);
 DLLIMPORT void _DK_do_a_trig_gourad_tr(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short plane_end, long scale);
 DLLIMPORT void _DK_do_a_trig_gourad_bl(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short plane_end, long scale);
 DLLIMPORT void _DK_do_map_who(short stl_x);
 DLLIMPORT void _DK_fiddle_half_gamut(long y, long pos_y, long floor_x, long floor_y);
-DLLIMPORT long _DK_heap_manage_keepersprite(unsigned short kspr_n);
-DLLIMPORT void _DK_draw_single_keepersprite_xflip(long kspos_x, long kspos_y, struct KeeperSprite *kspr, long kspr_n, long scale);
-DLLIMPORT long _DK_load_single_frame(unsigned short kspr_idx);
 DLLIMPORT long _DK_do_a_plane_of_engine_columns_sub5(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3);
 DLLIMPORT void _DK_do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short plane_end, int a5);
 DLLIMPORT void _DK_do_a_gpoly_unlit_tr(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short plane_end);
@@ -983,8 +969,6 @@ void do_a_gpoly_gourad_bl(struct EngineCoord *ec1, struct EngineCoord *ec2, stru
 
 void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_start, long plane_end)
 {
-    //_DK_do_a_plane_of_engine_columns_cluedo(stl_x, stl_y, plane_start, plane_end); return;
-
     if ((stl_y < 1) || (stl_y > 254)) {
         return;
     }
@@ -1173,7 +1157,6 @@ void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_star
 
 void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long plane_start, long plane_end)
 {
-    //_DK_do_a_plane_of_engine_columns_isometric(stl_x, stl_y, plane_start, plane_end); return;
     if ((stl_y < 1) || (stl_y > 254)) {
         return;
     }
@@ -1395,7 +1378,6 @@ void draw_engine_number(struct Number *num)
 void draw_engine_room_flagpole(struct RoomFlag *rflg)
 {
     struct Room *room;
-    //_DK_draw_engine_room_flagpole(rflg);
     lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
     room = room_get(rflg->lvl);
     if (!room_exists(room) || !room_can_have_ensign(room->kind)) {
@@ -1545,16 +1527,16 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
                   state_spridx = stati->sprite_idx;
                 switch ( anger_get_creature_anger_type(thing) )
                 {
-                case 1:
+                case AngR_NotPaid:
                     anger_spridx = 52;
                     break;
-                case 2:
+                case AngR_Hungry:
                     anger_spridx = 59;
                     break;
-                case 3:
+                case AngR_NoLair:
                     anger_spridx = 54;
                     break;
-                case 4:
+                case AngR_Other:
                     anger_spridx = 55;
                     break;
                 default:
@@ -1675,7 +1657,6 @@ void draw_room_flag_top(long x, long y, const struct Room *room)
 
 void draw_engine_room_flag_top(struct RoomFlag *rflg)
 {
-    //_DK_draw_engine_room_flag_top(rflg);
     lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
     struct Room *room;
     room = room_get(rflg->lvl);
@@ -3469,7 +3450,6 @@ long load_single_frame(unsigned short kspr_idx)
     long nlength;
     struct HeapMgrHandle *nitem;
     int i;
-    //return _DK_load_single_frame(kspr_idx);
     nlength = creature_table[kspr_idx+1].foffset - creature_table[kspr_idx].foffset;
     for (i=0; i < 100; i++)
     {
@@ -3540,7 +3520,6 @@ long load_keepersprite_if_needed(unsigned short kspr_idx)
 
 long heap_manage_keepersprite(unsigned short kspr_idx)
 {
-    //return _DK_heap_manage_keepersprite(kspr_idx);
     long result;
     lock_keepersprite(kspr_idx);
     result = load_keepersprite_if_needed(kspr_idx);
@@ -3667,7 +3646,6 @@ void draw_single_keepersprite_xflip(long kspos_x, long kspos_y, struct KeeperSpr
     long x,y;
     long src_dy,src_dx;
     SYNCDBG(18,"Starting");
-    //_DK_draw_single_keepersprite_xflip(kspos_x, kspos_y, kspr, kspr_idx, scale); return;
     src_dy = (long)kspr->field_5;
     src_dx = (long)kspr->field_4;
     x = (long)kspr->field_6 - (long)kspr->field_A - src_dx;
@@ -3752,7 +3730,6 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
     long long lltemp;
     long sprite_group,sprite_delta,cutoff;
     SYNCDBG(17,"At (%d,%d) opts %d %d %d %d",(int)x,(int)y,(int)kspr_base,(int)kspr_frame,(int)sprgroup,(int)scale);
-    //_DK_process_keeper_sprite(x, y, a3, a4, sprgroup, scale); return;
     player = get_my_player();
 
     if ( ((kspr_frame & 0x7FF) <= 1151) || ((kspr_frame & 0x7FF) >= 1919) )
@@ -3957,7 +3934,6 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
     struct PlayerInfo *player;
     struct Thing *thing;
     long angle,scale;
-    //_DK_draw_jonty_mapwho(jspr); return;
     flg_mem = lbDisplay.DrawFlags;
     alpha_mem = EngineSpriteDrawUsingAlpha;
     thing = jspr->thing;
@@ -4184,7 +4160,6 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsi
     TbBool flip_range;
     short quarter;
     int i;
-    //_DK_draw_keepsprite_unscaled_in_buffer(a1, a2, a3, a4);
     if ( ((angle & 0x7FF) <= 1151) || ((angle & 0x7FF) >= 1919) )
         flip_range = false;
     else
@@ -4483,7 +4458,7 @@ void draw_frontview_engine(struct Camera *cam)
     long px,py,qx,qy;
     long w,h;
     long pos_x,pos_y;
-    long stl_x,stl_y;
+    MapSubtlCoord stl_x,stl_y;
     long lim_x,lim_y;
     long cam_x,cam_y;
     long long zoom,lbbb;

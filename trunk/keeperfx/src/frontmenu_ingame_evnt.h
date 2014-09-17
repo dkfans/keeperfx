@@ -44,8 +44,8 @@ extern struct GuiMenu battle_menu;
 /******************************************************************************/
 void gui_open_event(struct GuiButton *gbtn);
 void gui_kill_event(struct GuiButton *gbtn);
-void turn_on_event_info_panel_if_necessary(unsigned short evnt_idx);
-void activate_event_box(long evnt_idx);
+void turn_on_event_info_panel_if_necessary(EventIndex evidx);
+void activate_event_box(EventIndex evidx);
 
 short zoom_to_fight(PlayerNumber plyr_idx);
 

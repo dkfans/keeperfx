@@ -46,16 +46,8 @@
 
 /******************************************************************************/
 /******************************************************************************/
-DLLIMPORT long _DK_take_money_from_dungeon(short a1, long a2, unsigned char a3);
-DLLIMPORT long _DK_update_dungeon_generation_speeds(void);
 DLLIMPORT void _DK_calculate_dungeon_area_scores(void);
-DLLIMPORT void _DK_post_init_players(void);
-DLLIMPORT void _DK_init_player(struct PlayerInfo *player, int a2);
 DLLIMPORT void _DK_init_keeper_map_exploration(struct PlayerInfo *player);
-DLLIMPORT long _DK_wander_point_initialise(struct Wander *wandr, long plyr_idx, long a3);
-DLLIMPORT long _DK_wp_check_map_pos_valid(struct Wander *wandr, long a1);
-DLLIMPORT long _DK_wander_point_update(struct Wander *wandr);
-DLLIMPORT void _DK_process_player_states(void);
 /******************************************************************************/
 TbBool player_has_won(PlayerNumber plyr_idx)
 {
@@ -226,7 +218,6 @@ long take_money_from_room(struct Room *room, GoldAmount amount_take)
 
 long take_money_from_dungeon(PlayerNumber plyr_idx, GoldAmount amount_take, TbBool only_whole_sum)
 {
-    //return _DK_take_money_from_dungeon(plyr_idx, amount_take, only_whole_sum);
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon)) {
@@ -309,7 +300,6 @@ long update_dungeon_generation_speeds(void)
 {
     int plr_idx;
     int n;
-    //return _DK_update_dungeon_generation_speeds();
     // Get value of generation
     n = 0;
     for (plr_idx=0; plr_idx<PLAYERS_COUNT; plr_idx++)
@@ -395,7 +385,6 @@ void init_player_as_single_keeper(struct PlayerInfo *player)
 void init_player(struct PlayerInfo *player, short no_explore)
 {
     SYNCDBG(5,"Starting");
-    //_DK_init_player(player, no_explore); return;
     player->minimap_pos_x = 10;
     player->minimap_pos_y = 12;
     player->minimap_zoom = 256;
@@ -481,7 +470,6 @@ void init_players(void)
 TbBool wp_check_map_pos_valid(struct Wander *wandr, SubtlCodedCoords stl_num)
 {
     SYNCDBG(16,"Starting");
-    //return _DK_wp_check_map_pos_valid(wandr, stl_num);
     MapSubtlCoord stl_x,stl_y;
     long plyr_bit;
     stl_x = stl_num_decode_x(stl_num);
@@ -575,7 +563,6 @@ TbBool store_wander_points_up_to(struct Wander *wandr, const SubtlCodedCoords st
 
 long wander_point_initialise(struct Wander *wandr, PlayerNumber plyr_idx, long store_revealed)
 {
-    //return _DK_wander_point_initialise(wandr, plyr_idx, store_revealed);
     wandr->store_revealed = store_revealed;
     wandr->plyr_idx = plyr_idx;
     wandr->point_insert_idx = 0;
@@ -626,7 +613,6 @@ long wander_point_update(struct Wander *wandr)
     SlabCodedCoords slb_num;
     long i;
     SYNCDBG(6,"Starting");
-    //return _DK_wander_point_update(wandr);
     // Find up to 20 numbers (starting where we ended last time) and store them in local array
     slb_num = wandr->last_checked_slb_num;
     stl_num_list_count = 0;
@@ -685,7 +671,6 @@ void post_init_player(struct PlayerInfo *player)
 void post_init_players(void)
 {
     PlayerNumber plyr_idx;
-    //_DK_post_init_players(); return;
     for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         struct PlayerInfo *player;
@@ -713,7 +698,6 @@ void init_players_local_game(void)
 void process_player_states(void)
 {
     SYNCDBG(6,"Starting");
-    //_DK_process_player_states();
     PlayerNumber plyr_idx;
     for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {

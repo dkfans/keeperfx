@@ -168,20 +168,12 @@ const struct MyLookup lookup[] = {
 /******************************************************************************/
 DLLIMPORT long _DK_task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask);
 DLLIMPORT long _DK_task_magic_call_to_arms(struct Computer2 *comp, struct ComputerTask *ctask);
-DLLIMPORT long _DK_task_pickup_for_attack(struct Computer2 *comp, struct ComputerTask *ctask);
-DLLIMPORT long _DK_task_dig_to_neutral(struct Computer2 *comp, struct ComputerTask *ctask);
 DLLIMPORT long _DK_task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask);
-DLLIMPORT long _DK_task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctask);
 DLLIMPORT struct ComputerTask *_DK_get_free_task(struct Computer2 *comp, long basestl_y);
-DLLIMPORT long _DK_add_to_trap_location(struct Computer2 *, struct Coord3d *);
 //DLLIMPORT long _DK_find_next_gold(struct Computer2 *, struct ComputerTask *);
 DLLIMPORT int _DK_search_spiral(struct Coord3d *pos, int owner, int i3, long (*cb)(long, long, long));
-DLLIMPORT struct ComputerTask * _DK_able_to_build_room(struct Computer2 *comp, struct Coord3d *pos, unsigned short width_slabs, unsigned short height_slabs, long a5, long a6, long perfect);
-DLLIMPORT struct Thing *_DK_find_creature_for_pickup(struct Computer2 *comp, struct Coord3d *pos, struct Room *room, long best_score);
-DLLIMPORT long _DK_get_ceiling_height_above_thing_at(struct Thing *thing, struct Coord3d *pos);
 DLLIMPORT long _DK_get_corridor(struct Coord3d *pos1, struct Coord3d * pos2, unsigned char a3, char a4, unsigned short a5);
 DLLIMPORT long _DK_other_build_here(struct Computer2 *comp, long a2, long a3, long a4, long a5);
-DLLIMPORT short _DK_get_hug_side(struct ComputerDig * cdig, unsigned short basestl_y, unsigned short plyr_idx, unsigned short a4, unsigned short a5, unsigned short a6, unsigned short perfect);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -2073,7 +2065,7 @@ long count_creatures_for_pickup(struct Computer2 *comp, struct Coord3d *pos, str
     unsigned long k;
     int i;
     SYNCDBG(8,"Starting");
-    int stl_x, stl_y;
+    MapSubtlCoord stl_x, stl_y;
     stl_x = 0;
     stl_y = 0;
     if (pos != NULL)

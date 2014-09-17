@@ -47,12 +47,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT short _DK_at_scavenger_room(struct Thing *calltng);
-DLLIMPORT short _DK_creature_being_scavenged(struct Thing *scavtng);
-DLLIMPORT short _DK_creature_scavenged_disappear(struct Thing *scavtng);
 DLLIMPORT short _DK_creature_scavenged_reappear(struct Thing *scavtng);
-DLLIMPORT long _DK_process_scavenge_function(struct Thing *calltng);
-DLLIMPORT short _DK_scavengering(struct Thing *calltng);
 DLLIMPORT long _DK_turn_creature_to_scavenger(struct Thing *scavtng, struct Thing *calltng);
 /******************************************************************************/
 #ifdef __cplusplus
@@ -75,7 +70,6 @@ short at_scavenger_room(struct Thing *thing)
     struct CreatureStats *crstat;
     struct Dungeon *dungeon;
     struct Room *room;
-    //return _DK_at_scavenger_room(thing);
     room = get_room_thing_is_on(thing);
     if (!room_initially_valid_as_type_for_thing(room, RoK_SCAVENGER, thing))
     {
@@ -105,11 +99,9 @@ short at_scavenger_room(struct Thing *thing)
 
 short creature_being_scavenged(struct Thing *creatng)
 {
-    //return _DK_creature_being_scavenged(creatng);
     struct Thing *fellowtng;
     struct Dungeon *dungeon;
     SYNCDBG(8,"Starting");
-    //return _DK_make_all_players_creatures_angry(plyr_idx);
     dungeon = get_players_num_dungeon(creatng->owner);
     fellowtng = INVALID_THING;
     if (dungeon->num_active_creatrs <= 1)
@@ -173,9 +165,8 @@ short creature_scavenged_disappear(struct Thing *thing)
     struct Dungeon *dungeon;
     struct Room *room;
     struct Coord3d pos;
-    long stl_x, stl_y;
+    MapSubtlCoord stl_x, stl_y;
     long i;
-    //return _DK_creature_scavenged_disappear(thing);
     cctrl = creature_control_get_from_thing(thing);
     cctrl->byte_9A--;
     if (cctrl->byte_9A > 0)
@@ -504,7 +495,6 @@ TbBool process_scavenge_creature_from_pool(struct Thing *calltng, long work_valu
 CrCheckRet process_scavenge_function(struct Thing *calltng)
 {
     SYNCDBG(18,"Starting for %s owner %d",thing_model_name(calltng),(int)calltng->owner);
-    //return _DK_process_scavenge_function(thing);
     struct CreatureControl *callctrl;
     callctrl = creature_control_get_from_thing(calltng);
     struct Dungeon *calldngn;
@@ -583,7 +573,6 @@ CrStateRet scavengering(struct Thing *thing)
         set_start_state(thing);
         return CrStRet_ResetFail;
     }
-    //return _DK_scavengering(thing);
     if (process_scavenge_function(thing))
     {
         return CrStRet_Modified;

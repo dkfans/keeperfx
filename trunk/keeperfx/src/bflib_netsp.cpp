@@ -21,6 +21,7 @@
 
 #include "bflib_basics.h"
 #include "bflib_memory.h"
+#include "bflib_netsession.h"
 
 /******************************************************************************/
 // Nil callbacks declaration
@@ -49,20 +50,6 @@ struct ReceiveCallbacks nilReceiveAspect = {
 /******************************************************************************/
 class ServiceProvider *spPtr;
 /******************************************************************************/
-void net_copy_name_string(char *dst,const char *src,long max_len)
-{
-  LbMemorySet(dst, 0, max_len);
-  if (dst != NULL)
-  {
-    if (src != NULL)
-    {
-      strncpy(dst, src, max_len-1);
-      dst[max_len-1] = '\0';
-    }
-  }
-}
-/******************************************************************************/
-
 // Nil callbacks content
 void NilAddMsgCallback(unsigned long a1, char *a2, void *a3)
 {

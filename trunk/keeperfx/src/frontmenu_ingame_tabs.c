@@ -54,16 +54,6 @@
 #include "keeperfx.hpp"
 #include "vidfade.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-/******************************************************************************/
-DLLIMPORT void _DK_gui_scroll_activity_up(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_scroll_activity_down(struct GuiButton *gbtn);
-/******************************************************************************/
-#ifdef __cplusplus
-}
-#endif
 /******************************************************************************/
 void gui_zoom_in(struct GuiButton *gbtn)
 {
@@ -1874,21 +1864,21 @@ void maintain_event_button(struct GuiButton *gbtn)
 {
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(my_player_number);
-    unsigned short evnt_idx;
+    EventIndex evidx;
     unsigned long evbtn_idx;
     evbtn_idx = (unsigned long)gbtn->content;
     if (evbtn_idx <= EVENT_BUTTONS_COUNT) {
-        evnt_idx = dungeon->event_button_index[evbtn_idx];
+        evidx = dungeon->event_button_index[evbtn_idx];
     } else {
-        evnt_idx = 0;
+        evidx = 0;
     }
 
-    if ((dungeon->visible_event_idx != 0) && (evnt_idx == dungeon->visible_event_idx))
+    if ((dungeon->visible_event_idx != 0) && (evidx == dungeon->visible_event_idx))
     {
         turn_on_event_info_panel_if_necessary(dungeon->visible_event_idx);
     }
 
-    if (evnt_idx == 0)
+    if (evidx == 0)
     {
       gbtn->field_1B |= 0x4000;
       gbtn->field_29 = 0;
@@ -1899,10 +1889,10 @@ void maintain_event_button(struct GuiButton *gbtn)
       return;
     }
     struct Event *event;
-    event = &game.event[evnt_idx];
+    event = &game.event[evidx];
     if ((event->kind == EvKind_Objective) && (new_objective))
     {
-        activate_event_box(evnt_idx);
+        activate_event_box(evidx);
     }
     gbtn->field_29 = event_button_info[event->kind].field_0;
     if (((event->kind == EvKind_FriendlyFight) || (event->kind == EvKind_EnemyFight))

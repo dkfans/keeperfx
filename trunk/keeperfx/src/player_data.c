@@ -43,10 +43,6 @@ long neutral_player_number = NEUTRAL_PLAYER;
 long hero_player_number = HERO_PLAYER;
 struct PlayerInfo bad_player;
 /******************************************************************************/
-DLLIMPORT void _DK_set_player_state(struct PlayerInfo *player, unsigned char a1, long a2);
-DLLIMPORT void _DK_set_player_mode(struct PlayerInfo *player, long val);
-DLLIMPORT void _DK_reset_player_mode(struct PlayerInfo *player, unsigned char a2);
-/******************************************************************************/
 struct PlayerInfo *get_player_f(long plyr_idx,const char *func_name)
 {
     if ((plyr_idx >= 0) && (plyr_idx < PLAYERS_COUNT))
@@ -247,7 +243,6 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
 {
   struct Thing *thing;
   struct Coord3d pos;
-  //_DK_set_player_state(player, nwrk_state, chosen_kind);
   // Selecting the same state again - update only 2nd parameter
   if (player->work_state == nwrk_state)
   {
@@ -363,7 +358,6 @@ void set_player_mode(struct PlayerInfo *player, long nview)
 
 void reset_player_mode(struct PlayerInfo *player, unsigned short nmode)
 {
-  //_DK_reset_player_mode(player, nmode);
   player->view_type = nmode;
   switch (nmode)
   {

@@ -40,18 +40,11 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT unsigned char _DK_creature_can_navigate_to(struct Thing *creatng, struct Coord3d *pos, unsigned char flags);
-DLLIMPORT long _DK_creature_move_to_using_gates(struct Thing *creatng, struct Coord3d *pos, short speed, long flags, long a5, unsigned char a6);
-DLLIMPORT long _DK_creature_turn_to_face(struct Thing *creatng, struct Coord3d *pos);
 DLLIMPORT long _DK_creature_turn_to_face_backwards(struct Thing *creatng, struct Coord3d *pos);
 DLLIMPORT long _DK_creature_turn_to_face_angle(struct Thing *creatng, long a2);
 DLLIMPORT unsigned char _DK_get_nearest_valid_position_for_creature_at(struct Thing *creatng, struct Coord3d *pos);
-DLLIMPORT short _DK_setup_person_move_to_position(struct Thing *creatng, long stl_x, long stl_y, unsigned char flags);
-DLLIMPORT short _DK_move_to_position(struct Thing *creatng);
 DLLIMPORT long _DK_get_next_gap_creature_can_fit_in_below_point(struct Thing *creatng, struct Coord3d *pos);
 DLLIMPORT long _DK_thing_covers_same_blocks_in_two_positions(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2);
-DLLIMPORT long _DK_get_thing_blocked_flags_at(struct Thing *creatng, struct Coord3d *pos);
-DLLIMPORT void _DK_move_thing_in_map(struct Thing *creatng, struct Coord3d *pos);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -99,7 +92,6 @@ TbBool setup_person_move_to_position(struct Thing *thing, MapSubtlCoord stl_x, M
     struct Coord3d locpos;
     SYNCDBG(18,"Moving %s index %d to (%d,%d)",thing_model_name(thing),(int)thing->index,(int)stl_x,(int)stl_y);
     TRACE_THING(thing);
-    //return _DK_setup_person_move_to_position(thing, stl_x, stl_y, flags);
     locpos.x.val = subtile_coord_center(stl_x);
     locpos.y.val = subtile_coord_center(stl_y);
     locpos.z.val = thing->mappos.z.val;
@@ -305,7 +297,6 @@ TbBool creature_can_travel_over_lava(const struct Thing *creatng)
  */
 TbBool creature_can_navigate_to_f(const struct Thing *thing, struct Coord3d *dstpos, NaviRouteFlags flags, const char *func_name)
 {
-    //return _DK_creature_can_navigate_to(thing, dstpos, flags);
     long waypoints_num;
     waypoints_num = ariadne_count_waypoints_on_creature_route_to_target_f(thing, &thing->mappos, dstpos, flags, func_name);
     return (waypoints_num > 0);
@@ -345,7 +336,6 @@ TbBool creature_can_get_to_dungeon(struct Thing *creatng, PlayerNumber plyr_idx)
 
 long creature_turn_to_face(struct Thing *thing, struct Coord3d *pos)
 {
-    //return _DK_creature_turn_to_face(thing, pos);
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(thing);
     long angle;
@@ -388,7 +378,6 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
     SYNCDBG(18,"Starting to move %s index %d from (%d,%d) to (%d,%d)",thing_model_name(thing),
         (int)thing->index,(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num,(int)pos->x.stl.num,(int)pos->y.stl.num);
     TRACE_THING(thing);
-    //return _DK_creature_move_to_using_gates(thing, pos, speed, a4, a5, backward);
     if ( backward )
     {
         // Rotate the creature 180 degrees to trace route with forward move
@@ -511,7 +500,6 @@ short move_to_position(struct Thing *creatng)
     long move_result;
     CrCheckRet state_check;
     long speed;
-    //return _DK_move_to_position(creatng);
     TRACE_THING(creatng);
     cctrl = creature_control_get_from_thing(creatng);
     speed = get_creature_speed(creatng);
@@ -576,7 +564,6 @@ long get_thing_blocked_flags_at(struct Thing *thing, struct Coord3d *pos)
 {
     struct Coord3d locpos;
     unsigned short flags;
-    //return _DK_get_thing_blocked_flags_at(thing, pos);
     flags = SlbBloF_None;
     locpos.x.val = pos->x.val;
     locpos.y.val = thing->mappos.y.val;

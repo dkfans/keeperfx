@@ -1413,7 +1413,7 @@ short cleanup_seek_the_enemy(struct Thing *creatng)
 short creature_being_dropped(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
-    long stl_x, stl_y;
+    MapSubtlCoord stl_x, stl_y;
     struct Thing *leadtng;
     TRACE_THING(creatng);
     SYNCDBG(17,"Starting for %s index %d",thing_model_name(creatng),(long)creatng->index);
@@ -3279,8 +3279,8 @@ CrCheckRet move_check_kill_creatures(struct Thing *creatng)
     struct Thing * enemytng;
     MapSlabCoord slb_x,slb_y;
     CrAttackType attack_type;
-    slb_x = creatng->mappos.x.stl.num/3;
-    slb_y = creatng->mappos.y.stl.num/3;
+    slb_x = coord_slab(creatng->mappos.x.val);
+    slb_y = coord_slab(creatng->mappos.y.val);
     attack_type = creature_can_have_combat_with_creature_on_slab(creatng, slb_x, slb_y, &enemytng);
     if (attack_type > 0) {
         set_creature_in_combat_to_the_death(creatng, enemytng, attack_type);

@@ -2166,7 +2166,7 @@ long compute_menu_position_y(long desired_pos,int menu_height, int units_per_px)
     return pos;
 }
 
-#define MNU_UNITS_PER_PX units_per_pixel
+#define MNU_UNITS_PER_PX min(units_per_pixel,units_per_pixel_min*16/10)
 MenuNumber create_menu(struct GuiMenu *gmnu)
 {
     MenuNumber mnu_num;
@@ -3332,10 +3332,10 @@ void display_objectives(PlayerNumber plyr_idx, long x, long y)
     {
         struct Dungeon *dungeon;
         dungeon = get_players_num_dungeon(plyr_idx);
-        EventIndex evnt_idx;
-        evnt_idx = dungeon->event_button_index[evbtn_idx];
+        EventIndex evidx;
+        evidx = dungeon->event_button_index[evbtn_idx];
         struct Event *event;
-        event = &game.event[evnt_idx];
+        event = &game.event[evidx];
         if (event->kind == EvKind_Objective)
         {
             event_create_event_or_update_old_event(cor_x, cor_y, EvKind_Objective, plyr_idx, 0);

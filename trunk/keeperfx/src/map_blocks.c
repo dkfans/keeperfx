@@ -39,19 +39,11 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_mine_out_block(long a1, long a2, long stl_height);
-DLLIMPORT unsigned char _DK_dig_has_revealed_area(long a1, long a2, unsigned char stl_height);
-DLLIMPORT void _DK_dig_out_block(long a1, long a2, long stl_height);
-DLLIMPORT void _DK_check_map_explored(struct Thing *creatng, long a2, long stl_height);
 DLLIMPORT void _DK_create_gold_rubble_for_dug_block(long x, long y, unsigned char stl_height, unsigned char a4);
-DLLIMPORT long _DK_untag_blocks_for_digging_in_area(long tgslb_x, long tgslb_y, signed char stl_height);
 DLLIMPORT void _DK_set_slab_explored_flags(unsigned char flag, long tgslb_x, long tgslb_y);
 DLLIMPORT long _DK_ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey);
 DLLIMPORT long _DK_element_top_face_texture(struct Map *map);
-DLLIMPORT void _DK_place_single_slab_type_on_map(long a1, unsigned char a2, unsigned char plyr_idx, unsigned char a4);
 DLLIMPORT void _DK_shuffle_unattached_things_on_slab(long a1, long a2);
-DLLIMPORT unsigned char _DK_alter_rock_style(unsigned char a1, signed char a2, signed char plyr_idx, unsigned char a4);
-DLLIMPORT void _DK_place_and_process_pretty_wall_slab(struct Thing *creatng, long slb_x, long slb_y);
 DLLIMPORT void _DK_fill_in_reinforced_corners(unsigned char plyr_idx, unsigned char slb_x, unsigned char slb_y);
 DLLIMPORT unsigned char _DK_choose_pretty_type(unsigned char plyr_idx, unsigned char slb_x, unsigned char slb_y);
 DLLIMPORT void _DK_delete_attached_things_on_slab(long slb_x, long slb_y);
@@ -123,7 +115,6 @@ long untag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
     long num_untagged;
     long task_idx;
     long i;
-    //return _DK_untag_blocks_for_digging_in_area(slb_x, slb_y, plyr_idx);
     x = STL_PER_SLB * (stl_x/STL_PER_SLB);
     y = STL_PER_SLB * (stl_y/STL_PER_SLB);
     if ( (x < 0) || (x >= map_subtiles_x) || (y < 0) || (y >= map_subtiles_y) ) {
@@ -387,7 +378,7 @@ void place_slab_objects(MapSlabCoord slb_x, MapSlabCoord slb_y, const short * sl
     MapSubtlDelta dx, dy;
     for (dy=0; dy < STL_PER_SLB; dy++)
     {
-        long sstl_x, sstl_y;
+        MapSubtlCoord sstl_x, sstl_y;
         sstl_y = slab_subtile(slb_y,dy);
         for (dx=0; dx < STL_PER_SLB; dx++)
         {
@@ -447,10 +438,10 @@ void delete_attached_lights_on_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     SlabCodedCoords place_slbnum;
     place_slbnum = get_slab_number(slb_x, slb_y);
-    int start_stl_x;
-    int start_stl_y;
-    int end_stl_x;
-    int end_stl_y;
+    MapSubtlCoord start_stl_x;
+    MapSubtlCoord start_stl_y;
+    MapSubtlCoord end_stl_x;
+    MapSubtlCoord end_stl_y;
     start_stl_x = 3 * slb_x - 1;
     if (start_stl_x <= 0)
       start_stl_x = 0;
@@ -703,7 +694,6 @@ void place_single_slab_modify_column_near_liquid(SlabKind slbkind, MapSlabCoord 
 
 void place_single_slab_type_on_map(SlabKind slbkind, MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx)
 {
-    //_DK_place_single_slab_type_on_map(slbkind, slb_x, slb_y, plyr_idx); return;
     int i;
     short style_set[STL_PER_SLB*STL_PER_SLB];
     short slab_number_list[STL_PER_SLB*STL_PER_SLB];
@@ -767,7 +757,6 @@ void shuffle_unattached_things_on_slab(long a1, long a2)
 SlabKind alter_rock_style(SlabKind slbkind, MapSlabCoord tgslb_x, MapSlabCoord tgslb_y, PlayerNumber owner)
 {
     SlabKind retkind;
-    //return _DK_alter_rock_style(slbkind, slb_x, slb_y, owner);
     retkind = slbkind;
     if (slbkind == SlbT_EARTH)
     {
@@ -1040,7 +1029,6 @@ TbBool point_in_map_is_solid(const struct Coord3d *pos)
 void mine_out_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
     MapSlabCoord slb_x,slb_y;
-    //_DK_mine_out_block(a1, a2, plyr_idx);
     if (!subtile_has_slab(stl_x, stl_y))
     {
         ERRORLOG("Attempt to mine on invalid coordinates.");
@@ -1061,7 +1049,6 @@ void mine_out_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_
 TbBool dig_has_revealed_area(MapSubtlCoord rev_stl_x, MapSubtlCoord rev_stl_y, PlayerNumber plyr_idx)
 {
     int i;
-    //return _DK_dig_has_revealed_area(rev_stl_x, rev_stl_y, plyr_idx);
     for (i=0; i < SMALL_AROUND_LENGTH; i++)
     {
         MapSubtlCoord stl_x, stl_y;
@@ -1108,7 +1095,6 @@ void create_dirt_rubble_for_dug_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
 void dig_out_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
     MapSlabCoord slb_x,slb_y;
-    //_DK_dig_out_block(stl_x, stl_y, plyr_idx);
     if (!subtile_has_slab(stl_x, stl_y))
     {
         ERRORLOG("Attempt to dig on invalid coordinates.");
@@ -1545,7 +1531,6 @@ void clear_dig_and_set_explored_can_see_y(MapSlabCoord slb_x, MapSlabCoord slb_y
 
 void check_map_explored(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    //_DK_check_map_explored(thing, a2, a3); return;
     if (is_neutral_thing(creatng) || is_hero_thing(creatng))
         return;
     struct Coord3d pos;
@@ -1683,7 +1668,6 @@ void place_and_process_pretty_wall_slab(struct Thing *creatng, MapSlabCoord slb_
 {
     struct CreatureControl *cctrl;
     SYNCDBG(16,"Starting");
-    //_DK_place_and_process_pretty_wall_slab(creatng, slb_x, slb_y); return;
     cctrl = creature_control_get_from_thing(creatng);
     unsigned char pretty_type;
     MapSubtlCoord wrkstl_x,wrkstl_y;

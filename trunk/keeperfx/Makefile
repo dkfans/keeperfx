@@ -88,6 +88,7 @@ obj/bflib_render_gtblock.o \
 obj/bflib_heapmgr.o \
 obj/bflib_nethost_udp.o \
 obj/bflib_netlisten_udp.o \
+obj/bflib_netsession.o \
 obj/bflib_netsp.o \
 obj/bflib_netsp_ipx.o \
 obj/bflib_netsp_tcp.o \
@@ -646,13 +647,6 @@ $(HVLOGBIN): $(GENSRC) $(HVLOGOBJS) $(LIBS)
 	-$(ECHO) 'Building target: $@'
 	$(CPP) -o "$@" $(HVLOGOBJS) $(LDFLAGS)
 	-$(ECHO) 'Finished building target: $@'
-	-$(ECHO) ' '
-
-# Some C files have to be compiled in c++ compiler, usually due to c++ initialization
-obj/std/front_network.o obj/hvlog/front_network.o: src/front_network.c
-	-$(ECHO) 'Building file: $<'
-	$(CPP) $(CXXFLAGS) -o"$@" "$<"
-	-$(ECHO) 'Finished building: $<'
 	-$(ECHO) ' '
 
 obj/std/%.o obj/hvlog/%.o: src/%.cpp

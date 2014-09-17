@@ -30,8 +30,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_process_messages(void);
-/******************************************************************************/
 DLLIMPORT struct MessageQueueEntry _DK_message_queue[MESSAGE_QUEUE_COUNT];
 #define message_queue _DK_message_queue
 DLLIMPORT unsigned long _DK_message_playing;
@@ -398,7 +396,6 @@ void process_messages(void)
     unsigned long msg_idx;
     long delay;
     SYNCDBG(17,"Starting");
-    //_DK_process_messages();
     // If already playing, just wait for next time
     if (!speech_sample_playing())
     {
