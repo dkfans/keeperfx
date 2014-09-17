@@ -256,7 +256,7 @@ TbBool update_dungeon_scores_for_player(struct PlayerInfo *player)
     { // Compute total score for this turn
         i = manage_efficiency + creatures_efficiency;
         k = max_manage_efficiency + max_creatures_efficiency;
-        dungeon->field_AE9[1] = 1000 * i / k;
+        dungeon->total_score = 1000 * i / k;
     }
     { // Compute managing efficiency score
         i = manage_efficiency - creatures_efficiency;
@@ -267,29 +267,29 @@ TbBool update_dungeon_scores_for_player(struct PlayerInfo *player)
         raw_score = 1000 * i / k;
         // Angry creatures may degrade the score by up to 50%
         raw_score = raw_score / 2 + raw_score * (max_creatures_mood - creatures_mood) / (2*max_creatures_mood);
-        dungeon->field_AE9[0] = raw_score;
+        dungeon->manage_score = raw_score;
     }
     {
         unsigned long gameplay_score;
-        gameplay_score = dungeon->field_AE9[1];
+        gameplay_score = dungeon->total_score;
         if (gameplay_score <= 1) {
             WARNLOG("Total score for turn is too low!");
             gameplay_score = 1;
         }
-        dungeon->field_AE9[1] = gameplay_score;
+        dungeon->total_score = gameplay_score;
     }
     {
         unsigned long gameplay_score;
-        gameplay_score = dungeon->field_AE9[0];
+        gameplay_score = dungeon->manage_score;
         if (gameplay_score <= 1) {
             WARNLOG("Managing score for turn is too low!");
             gameplay_score = 1;
         }
-        dungeon->field_AE9[0] = gameplay_score;
+        dungeon->manage_score = gameplay_score;
     }
     { // Check to update max score
         unsigned long gameplay_score;
-        gameplay_score = dungeon->field_AE9[1];
+        gameplay_score = dungeon->total_score;
         if (dungeon->max_gameplay_score < gameplay_score)
             dungeon->max_gameplay_score = gameplay_score;
     }

@@ -3330,7 +3330,7 @@ void startup_saved_packet_game(void)
     init_level();
     setup_zombie_players();//TODO GUI What about packet file from network game? No zombies there..
     init_players();
-    if (game.field_14E495 == 1)
+    if (game.active_players_count == 1)
       game.game_kind = GKind_NetworkGame;
     if (game.turns_stored < game.turns_fastforward)
       game.turns_fastforward = game.turns_stored;

@@ -171,7 +171,8 @@ struct Dungeon {
     int last_entrance_generation_gameturn;
     int turns_between_entrance_generation;
     int field_AE5;
-    int field_AE9[2];
+    int manage_score;
+    int total_score;
     unsigned long max_gameplay_score;
     short field_AF5;
     short field_AF7;
