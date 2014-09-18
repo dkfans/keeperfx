@@ -1885,7 +1885,7 @@ long check_out_imp_last_did(struct Thing *creatng)
       if (creature_task_needs_check_out_after_digger_stack_change(creatng))
       {
           // If there are other tasks besides reinforcing, do not continue reinforcing
-          //TODO DIGGER it would be smarter to include priorities for tasks, and use generic priority handling for all tasks
+          //TODO DIGGERS it would be smarter to include priorities for tasks, and use generic priority handling for all tasks
           if (find_in_imp_stack_task_other_than_starting_at(DigTsk_ReinforceWall, 0, dungeon) != -1)
               break;
       }

@@ -107,7 +107,7 @@ void increase_room_area(PlayerNumber plyr_idx, long value)
     if (plyr_idx == game.neutral_player_num)
         return;
     dungeon = get_dungeon(plyr_idx);
-    dungeon->field_949 += value;
+    dungeon->room_manage_area += value;
     dungeon->total_area += value;
 }
 
@@ -118,10 +118,10 @@ void decrease_room_area(PlayerNumber plyr_idx, long value)
         return;
     dungeon = get_dungeon(plyr_idx);
 
-    if (dungeon->field_949 < value)
-      dungeon->field_949 = 0;
+    if (dungeon->room_manage_area < value)
+      dungeon->room_manage_area = 0;
     else
-      dungeon->field_949 -= value;
+      dungeon->room_manage_area -= value;
 
     if (dungeon->total_area < value)
       dungeon->total_area = 0;
