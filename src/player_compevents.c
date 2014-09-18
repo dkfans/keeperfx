@@ -158,7 +158,7 @@ long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent,
         SYNCDBG(8,"Drop position is solid for %s",cevent->name);
         return 0;
     }
-    if (computer_able_to_use_magic(comp, PwrK_HAND, 1, 1) == 1)
+    if (computer_able_to_use_magic(comp, PwrK_HAND, 1, creatrs_num) == 1)
     {
         if (!is_task_in_progress(comp, CTT_MoveCreaturesToDefend) || ((cevent->param2 & 0x02) != 0))
         {
@@ -306,7 +306,7 @@ long computer_event_battle_test(struct Computer2 *comp, struct ComputerEvent *ce
     if (!computer_find_non_solid_block(comp, &pos)) {
         return 4;
     }
-    if (computer_able_to_use_magic(comp, PwrK_HAND, 1, 1) == 1)
+    if (computer_able_to_use_magic(comp, PwrK_HAND, 1, creatrs_num) == 1)
     {
         if (!is_task_in_progress(comp, CTT_MoveCreaturesToDefend))
         {

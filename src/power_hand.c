@@ -1196,24 +1196,16 @@ TbResult magic_use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSub
     }
     if (!can_thing_be_picked_up_by_player(thing, plyr_idx))
     {
+        ERRORLOG("The %s owned by player %d is not pickable by player %d",thing_model_name(thing),(int)thing->owner,(int)plyr_idx);
         return Lb_OK;
-    }
-    if (thing->class_id != TCls_Object)
-    {
-        prepare_thing_for_power_hand(thing->index, plyr_idx);
-        return Lb_SUCCESS;
     }
     if (is_dungeon_special(thing))
     {
         activate_dungeon_special(thing, player);
         return Lb_OK;
     }
-    if (object_is_pickable_by_hand(thing, plyr_idx))
-    {
-        prepare_thing_for_power_hand(thing->index, plyr_idx);
-        return Lb_SUCCESS;
-    }
-    return Lb_FAIL;
+    prepare_thing_for_power_hand(thing->index, plyr_idx);
+    return Lb_SUCCESS;
 }
 
 void stop_creatures_around_hand(char a1, unsigned short a2, unsigned short a3)

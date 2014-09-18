@@ -188,12 +188,14 @@ TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
     SYNCDBG(8,"Starting");
     herodngn = get_players_num_dungeon(game.hero_player_num);
     k = 0;
-    if (herodngn->num_active_creatrs <= 0) {
+    if (herodngn->num_active_creatrs > 0) {
         heronum = ACTION_RANDOM(herodngn->num_active_creatrs);
         i = herodngn->creatr_list_start;
+        SYNCDBG(4,"Selecting random creature %d out of %d heroes",(int)heronum,(int)herodngn->num_active_creatrs);
     } else {
         heronum = 0;
         i = 0;
+        SYNCDBG(4,"No heroes on map, skipping selection");
     }
     while (i != 0)
     {
@@ -240,7 +242,7 @@ TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
     {
         move_thing_in_map(herotng, pos);
         change_creature_owner(herotng, player->id_number);
-        SYNCDBG(9,"Converted %s to owner %d",thing_model_name(herotng),(int)player->id_number);
+        SYNCDBG(3,"Converted %s to owner %d",thing_model_name(herotng),(int)player->id_number);
     }
     else
     {
@@ -249,7 +251,7 @@ TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
         creatng = create_creature(pos, prefer_steal_models[i], player->id_number);
         if (thing_is_invalid(creatng))
             return false;
-        SYNCDBG(9,"Created %s owner %d",thing_model_name(creatng),(int)player->id_number);
+        SYNCDBG(3,"Created %s owner %d",thing_model_name(creatng),(int)player->id_number);
     }
     return true;
 }

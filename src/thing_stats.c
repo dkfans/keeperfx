@@ -351,7 +351,7 @@ long compute_creature_max_loyalty(long base_param,unsigned short crlevel)
 }
 
 /**
- * Computes loyalty of a creature on given level.
+ * Computes armour of a creature on given level.
  */
 long compute_creature_max_armour(long base_param, unsigned short crlevel, TbBool armour_spell)
 {
@@ -588,7 +588,7 @@ long calculate_correct_creature_scavenge_required(const struct Thing *thing, Pla
     cctrl = creature_control_get_from_thing(thing);
     crstat = creature_stats_get_from_thing(thing);
     long scavngpts;
-    scavngpts = (dungeon->field_94B[thing->model] + 1) *
+    scavngpts = (dungeon->creatures_scavenged[thing->model] + 1) *
       compute_creature_max_loyalty(crstat->scavenge_require, cctrl->explevel);
     return scavngpts;
 }

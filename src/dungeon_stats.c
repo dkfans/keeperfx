@@ -93,15 +93,15 @@ TbBool load_stats_files(void)
  * @param entrance_gen
  * @return
  */
-unsigned long compute_dungeon_rooms_attraction_score(long num_entrances, long rooms_area, long entrance_gen)
+unsigned long compute_dungeon_rooms_attraction_score(long num_entrance_slbs, long rooms_area, long entrance_gen)
 {
-    if (num_entrances > 27) // That would be approx. 3 entrances
-        num_entrances = 27;
+    if (num_entrance_slbs > 27) // That would be approx. 3 entrances
+        num_entrance_slbs = 27;
     if (rooms_area > 128) // more than 5 rooms of size 5x5
         rooms_area = 128;
     if (entrance_gen >= 10)
         entrance_gen = 10;
-    return 100 * entrance_gen + 100 * rooms_area + 400 * num_entrances;
+    return 100 * entrance_gen + 100 * rooms_area + 400 * num_entrance_slbs;
 }
 
 /**
@@ -220,7 +220,7 @@ TbBool update_dungeon_scores_for_player(struct PlayerInfo *player)
     max_manage_efficiency = 0;
     {
         manage_efficiency += 40 * compute_dungeon_rooms_attraction_score(dungeon->room_slabs_count[RoK_ENTRANCE],
-            dungeon->field_949, dungeon->field_1485);
+            dungeon->room_manage_area, dungeon->field_1485);
         max_manage_efficiency += 40 * compute_dungeon_rooms_attraction_score(LONG_MAX, LONG_MAX, LONG_MAX);
     }
     {

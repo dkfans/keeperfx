@@ -365,7 +365,42 @@ struct Thing *get_scavenger_target(const struct Thing *calltng)
 
 long turn_creature_to_scavenger(struct Thing *scavtng, struct Thing *calltng)
 {
-    return _DK_turn_creature_to_scavenger(scavtng, calltng);
+    //return _DK_turn_creature_to_scavenger(scavtng, calltng);
+    struct Room *room;
+    room = get_room_thing_is_on(calltng);
+    if (room_is_invalid(room) || (room->kind != RoK_SCAVENGER) || (room->owner != calltng->owner))
+    {
+      ERRORLOG("The %s is scavenging not on owned %s",thing_model_name(calltng),room_code_name(RoK_SCAVENGER));
+      return 0;
+    }
+    struct Coord3d pos;
+    if (!find_random_valid_position_for_thing_in_room(scavtng, room, &pos))
+    {
+        ERRORLOG("Could not find valid position for thing");
+        return 0;
+    }
+    {
+        struct Dungeon *calldngn;
+        calldngn = get_dungeon(calltng->owner);
+        calldngn->creatures_scavenge_gain++;
+        calldngn->creatures_scavenged[scavtng->model]++;
+    }
+    if (!is_neutral_thing(scavtng))
+    {
+        struct Dungeon *scavdngn;
+        scavdngn = get_dungeon(scavtng->owner);
+        scavdngn->creatures_scavenge_lost++;
+    }
+    {
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(scavtng);
+        cctrl->byte_9A = 8;
+        cctrl->byte_9B = calltng->owner;
+        cctrl->byte_9D = pos.x.stl.num;
+        cctrl->byte_9E = pos.y.stl.num;
+    }
+    external_set_thing_state(scavtng, CrSt_CreatureScavengedDisappear);
+    return 1;
 }
 
 TbBool process_scavenge_creature_from_level(struct Thing *scavtng, struct Thing *calltng, long work_value)
@@ -433,7 +468,7 @@ TbBool process_scavenge_creature_from_level(struct Thing *scavtng, struct Thing 
     {
         SYNCDBG(8,"The %s index %d owner %d accumulated enough points to turn to scavenger",thing_model_name(scavtng),(int)scavtng->index,(int)scavtng->owner);
         turn_creature_to_scavenger(scavtng, calltng);
-        calldngn->scavenge_turn_points[calltng->model] -= (scavpts << 8);
+        calldngn->scavenge_turn_points[calltng->model] = 0;
         return true;
     }
     return false;
@@ -486,7 +521,7 @@ TbBool process_scavenge_creature_from_pool(struct Thing *calltng, long work_valu
     if ((scavpts << 8) < calldngn->scavenge_turn_points[calltng->model])
     {
         creature_scavenge_from_creature_pool(calltng);
-        calldngn->scavenge_turn_points[calltng->model] -= scavpts;
+        calldngn->scavenge_turn_points[calltng->model] = 0;
         return true;
     }
     return false;

@@ -190,17 +190,16 @@ long computer_checks_hates(struct Computer2 *comp, struct ComputerCheck * check)
 
 long computer_check_move_creatures_to_best_room(struct Computer2 *comp, struct ComputerCheck * check)
 {
+    SYNCDBG(8,"Starting");
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
-    SYNCDBG(8,"Starting");
-    //TODO check if should be changed to computer_able_to_use_magic()
-    if (!is_power_available(dungeon->owner, PwrK_HAND)) {
-        return 4;
-    }
     int num_to_move;
     num_to_move = check->param1 * dungeon->num_active_creatrs / 100;
     if (num_to_move <= 0) {
         SYNCDBG(8,"No creatures to move, active %d percentage %d", (int)dungeon->num_active_creatrs, (int)check->param1);
+        return 4;
+    }
+    if (computer_able_to_use_magic(comp, PwrK_HAND, 1, num_to_move) != 1) {
         return 4;
     }
     if (is_task_in_progress(comp, CTT_MoveCreatureToRoom)) {
@@ -219,14 +218,13 @@ long computer_check_move_creatures_to_room(struct Computer2 *comp, struct Comput
     struct Room *room;
     dungeon = comp->dungeon;
     SYNCDBG(8,"Checking player %d for move to %s", (int)dungeon->owner, room_code_name(check->param2));
-    //TODO check if should be changed to computer_able_to_use_magic()
-    if (!is_power_available(dungeon->owner, PwrK_HAND)) {
-        return 4;
-    }
     int num_to_move;
     num_to_move = check->param1 * dungeon->num_active_creatrs / 100;
     if (num_to_move <= 0) {
         SYNCDBG(8,"No creatures to move, active %d percentage %d", (int)dungeon->num_active_creatrs, (int)check->param1);
+        return 4;
+    }
+    if (computer_able_to_use_magic(comp, PwrK_HAND, 1, num_to_move) != 1) {
         return 4;
     }
     if (is_task_in_progress(comp, CTT_MoveCreatureToRoom)) {
