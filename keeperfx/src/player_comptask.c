@@ -2468,7 +2468,7 @@ long task_slap_imps(struct Computer2 *comp, struct ComputerTask *ctask)
     {
         TbBool allow_slap_to_kill;
         // Make sure we can accept situation where the creature will die because of the slap
-        allow_slap_to_kill = computer_able_to_use_magic(comp, PwrK_MKDIGGER, 0, 10);
+        allow_slap_to_kill = (computer_able_to_use_magic(comp, PwrK_MKDIGGER, 0, 10) == 1);
         struct Thing *thing;
         struct CreatureControl *cctrl;
         long i;

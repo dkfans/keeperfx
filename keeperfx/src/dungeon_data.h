@@ -153,8 +153,8 @@ struct Dungeon {
     unsigned short total_creatures_left;
     int field_941;
     int doors_destroyed;
-    short field_949;
-    short field_94B[CREATURE_TYPES_COUNT];
+    short room_manage_area;
+    short creatures_scavenged[CREATURE_TYPES_COUNT];
     short creatures_scavenge_gain;
     short creatures_scavenge_lost;
     long scavenge_turn_points[CREATURE_TYPES_COUNT];
