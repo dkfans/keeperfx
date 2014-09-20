@@ -1450,6 +1450,8 @@ void nearest_search_f(long sizexy, long srcx, long srcy, long dstx, long dsty, l
     int selcor_id;
     long min_dist;
     signed int cor_id;
+    seltri_id = 0;
+    selcor_id = 0;
     min_dist = LONG_MAX;
     for (cor_id = 0; cor_id < 3; cor_id++)
     {
