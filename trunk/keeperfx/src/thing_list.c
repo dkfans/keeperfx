@@ -737,6 +737,29 @@ long anywhere_thing_filter_is_door_of_model_locked_and_owned_by(const struct Thi
     return -1;
 }
 
+/**
+ * Filter function.
+ * @param thing The thing being checked.
+ * @param param Parameters exchanged between filter calls.
+ * @param maximizer Previous value which made a thing pass the filter.
+ */
+long anywhere_thing_filter_is_gold_pickable_by(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
+{
+    if ((param->class_id == -1) || (thing->class_id == param->class_id))
+    {
+      if (((param->model_id == -1) && object_is_gold_pile(thing)) || (thing->model == param->model_id))
+      {
+          if ((param->plyr_idx == -1) || can_thing_be_picked_up_by_player(thing, param->plyr_idx))
+          {
+              // Return the largest value to stop sweeping
+              return LONG_MAX;
+          }
+      }
+    }
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
+}
+
 TbBool delete_if_dead_creature(struct Thing *thing)
 {
     if (thing->class_id == TCls_DeadCreature) {
@@ -1484,6 +1507,22 @@ struct Thing *get_random_door_of_model_owned_by_and_locked(ThingModel tngmodel, 
         return INVALID_THING;
     }
     return get_nth_thing_of_class_with_filter(filter, &param, ACTION_RANDOM(match_count));
+}
+
+struct Thing *find_gold_laying_in_dungeon(const struct Dungeon *dungeon)
+{
+    SYNCDBG(19,"Starting");
+    Thing_Maximizer_Filter filter;
+    struct CompoundTngFilterParam param;
+    SYNCDBG(19,"Starting");
+    filter = anywhere_thing_filter_is_gold_pickable_by;
+    param.class_id = TCls_Object;
+    param.model_id = -1;
+    param.plyr_idx = dungeon->owner;
+    param.num1 = -1;
+    param.num2 = -1;
+    param.num3 = -1;
+    return get_random_thing_of_class_with_filter(filter, &param);
 }
 
 long creature_of_model_find_first(ThingModel crmodel)
