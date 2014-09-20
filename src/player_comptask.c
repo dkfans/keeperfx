@@ -2397,12 +2397,6 @@ long task_move_creatures_to_defend(struct Computer2 *comp, struct ComputerTask *
     return CTaskRet_Unk2;
 }
 
-struct Thing *find_gold_laying_in_dungeon(struct Dungeon *dungeon)
-{
-    // TODO COMPUTER_PLAYER MOVE_GOLD implement finding gold
-    return INVALID_THING;
-}
-
 long task_move_gold_to_treasury(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     struct Dungeon *dungeon;
@@ -2421,7 +2415,7 @@ long task_move_gold_to_treasury(struct Computer2 *comp, struct ComputerTask *cta
     if (!thing_is_invalid(thing))
     {
         room = room_get(ctask->move_gold.room_idx);
-        if (object_is_gold_pile(thing) && find_random_valid_position_for_thing_in_room(thing, room, &pos))
+        if (object_is_gold(thing) && find_random_valid_position_for_thing_in_room(thing, room, &pos))
         {
             if (computer_dump_held_things_on_map(comp, thing, &pos) > 0) {
                 return CTaskRet_Unk2;

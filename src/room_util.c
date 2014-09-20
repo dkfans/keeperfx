@@ -396,6 +396,7 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
 EventIndex update_cannot_find_room_wth_spare_capacity_event(PlayerNumber plyr_idx, struct Thing *creatng, RoomKind rkind)
 {
     EventIndex evidx;
+    evidx = 0;
     const struct RoomConfigStats *roomst;
     roomst = get_room_kind_stats(rkind);
     if (player_has_room(plyr_idx, rkind))
