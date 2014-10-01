@@ -53,6 +53,7 @@ DLLIMPORT struct Room * _DK_find_random_room_for_thing(struct Thing *thing, sign
 DLLIMPORT struct Room * _DK_find_random_room_for_thing_with_spare_room_item_capacity(struct Thing *thing, signed char newowner, signed char rkind, unsigned char a4);
 DLLIMPORT void _DK_copy_block_with_cube_groups(short a1, unsigned char plyr_idx, unsigned char a3);
 DLLIMPORT unsigned short _DK_i_can_allocate_free_room_structure(void);
+DLLIMPORT struct Thing *_DK_treasure_room_eats_gold_piles(struct Room *room, long slb_x,  long slb_y, struct Thing *thing);
 /******************************************************************************/
 void count_slabs(struct Room *room);
 void count_gold_slabs_with_efficiency(struct Room *room);
@@ -64,7 +65,6 @@ void count_slabs_with_efficiency(struct Room *room);
 void count_crates_in_room(struct Room *room);
 void count_workers_in_room(struct Room *room);
 void count_bodies_in_room(struct Room *room);
-void count_capacity_in_garden(struct Room *room);
 void count_food_in_room(struct Room *room);
 void count_lair_occupants(struct Room *room);
 /******************************************************************************/
@@ -90,7 +90,7 @@ struct RoomData room_data[] = {
   {32, 73, count_slabs_div2,        NULL,                   NULL,                  1, 0, 0, 612, 628},
   {34, 71, count_slabs_div2,        count_bodies_in_room,   NULL,                  0, 0, 0, 606, 622},
   {40, 69, count_slabs_div2,        NULL,                   NULL,                  0, 0, 0, 607, 623},
-  {36, 59, count_capacity_in_garden, count_food_in_room,    NULL,                  1, 0, 0, 608, 624},
+  {36, 59, count_slabs_with_efficiency, count_food_in_room, NULL,                  1, 0, 0, 608, 624},
   {38, 79, count_slabs_with_efficiency, count_lair_occupants, NULL,                1, 0, 0, 609, 625},
   {51, 81, NULL,                    NULL,                   NULL,                  0, 0, 0, 610, 626},
   {53, 83, count_slabs,             NULL,                   NULL,                  0, 0, 0, 611, 627},
@@ -655,12 +655,12 @@ void count_workers_in_room(struct Room *room)
 
 void count_slabs_with_efficiency(struct Room *room)
 {
-  unsigned long count;
-  count = room->slabs_count * ((long)room->efficiency);
-  count = (count/256);
-  if (count <= 1)
-    count = 1;
-  room->total_capacity = count;
+    unsigned long count;
+    count = room->slabs_count * ((long)room->efficiency);
+    count = (count/256);
+    if (count <= 1)
+      count = 1;
+    room->total_capacity = count;
 }
 
 TbBool rectreate_repositioned_crate_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
@@ -875,16 +875,6 @@ void count_crates_in_room(struct Room *room)
 void count_bodies_in_room(struct Room *room)
 {
   _DK_count_bodies_in_room(room);
-}
-
-void count_capacity_in_garden(struct Room *room)
-{
-  unsigned long count;
-  count = room->slabs_count * ((long)room->efficiency);
-  count = (count/256);
-  if (count <= 1)
-    count = 1;
-  room->total_capacity = count;
 }
 
 void count_food_in_room(struct Room *room)
@@ -2587,13 +2577,13 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
             gldtng = find_gold_hoard_at(stl_x, stl_y);
             if (!thing_is_invalid(gldtng))
             {
-                room->capacity_used_for_storage -= gldtng->long_13;
+                room->capacity_used_for_storage -= gldtng->valuable.gold_stored;
                 struct Dungeon *dungeon;
                 dungeon = get_dungeon(plyr_idx);
                 if (!dungeon_invalid(dungeon)) {
-                    dungeon->total_money_owned -= gldtng->long_13;
+                    dungeon->total_money_owned -= gldtng->valuable.gold_stored;
                 }
-                drop_gold_pile(gldtng->long_13, &gldtng->mappos);
+                drop_gold_pile(gldtng->valuable.gold_stored, &gldtng->mappos);
                 delete_thing_structure(gldtng, 0);
             }
         }
@@ -2960,6 +2950,9 @@ TbBool remove_item_from_room_capacity(struct Room *room)
     return true;
 }
 
+/**
+ * Adds one item to room capacity. To be used for all rooms which store items, but not gold.
+ */
 TbBool add_item_to_room_capacity(struct Room *room, TbBool force)
 {
     if (!force)

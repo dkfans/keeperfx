@@ -1621,6 +1621,7 @@ void draw_iso_only_fastview_mapwho(struct Camera *cam, struct JontySpr *spr)
       draw_fastview_mapwho(cam, spr);
 }
 
+#define ROOM_FLAG_PROGRESS_BAR_WIDTH 10
 void draw_room_flag_top(long x, long y, const struct Room *room)
 {
     unsigned long flg_mem;
@@ -1635,25 +1636,26 @@ void draw_room_flag_top(long x, long y, const struct Room *room)
     bar_empty = 0;
     if (room->slabs_count > 0)
     {
-        bar_fill = 10 * room->field_C / room->slabs_count;
-        bar_empty = 10 - bar_fill;
+        bar_fill = ROOM_FLAG_PROGRESS_BAR_WIDTH * room->field_C / room->slabs_count;
+        bar_empty = ROOM_FLAG_PROGRESS_BAR_WIDTH - bar_fill;
     }
     LbDrawBox((x + 2 * (26 - bar_empty)) / pixel_size, (y + 8) / pixel_size, 2 * bar_empty / pixel_size, 4 / pixel_size, colours[0][0][0]);
     bar_empty = 0;
     if (room->total_capacity > 0)
     {
-        bar_fill = 10 * room->used_capacity / room->total_capacity;
-        bar_empty = 10 - bar_fill;
+        bar_fill = ROOM_FLAG_PROGRESS_BAR_WIDTH * room->used_capacity / room->total_capacity;
+        bar_empty = ROOM_FLAG_PROGRESS_BAR_WIDTH - bar_fill;
     }
     LbDrawBox((x + 2 * (26 - bar_empty)) / pixel_size, (y + 16) / pixel_size, 2 * bar_empty / pixel_size, 4 / pixel_size, colours[0][0][0]);
     bar_empty = 0;
     {
-        bar_fill = 10 * room->efficiency / 256;
-        bar_empty = 10 - bar_fill;
+        bar_fill = ROOM_FLAG_PROGRESS_BAR_WIDTH * room->efficiency / 256;
+        bar_empty = ROOM_FLAG_PROGRESS_BAR_WIDTH - bar_fill;
     }
     LbDrawBox((x + 2 * (26 - bar_empty)) / pixel_size, (y + 24) / pixel_size, 2 * bar_empty / pixel_size, 4 / pixel_size, colours[0][0][0]);
     lbDisplay.DrawFlags = flg_mem;
 }
+#undef ROOM_FLAG_PROGRESS_BAR_WIDTH
 
 void draw_engine_room_flag_top(struct RoomFlag *rflg)
 {

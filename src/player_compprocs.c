@@ -473,25 +473,25 @@ long computer_get_room_kind_total_capacity(struct Computer2 *comp, RoomKind room
 
 long computer_get_room_kind_free_capacity(struct Computer2 *comp, RoomKind room_kind)
 {
-  struct Dungeon *dungeon;
-  dungeon = comp->dungeon;
-  if (room_kind == RoK_GARDEN) {
-      return 9999;
-  }
-  if (room_kind == RoK_LAIR)
-  {
-      if (!dungeon_has_room(dungeon, room_kind)) {
-          return 9999;
-      }
-      return calculate_free_lair_space(comp->dungeon);
-  }
-  long used_capacity;
-  long total_capacity;
-  get_room_kind_total_and_used_capacity(dungeon, room_kind, &total_capacity, &used_capacity);
-  if (total_capacity <= 0) {
-      return 9999;
-  }
-  return total_capacity - used_capacity;
+    struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
+    if (room_kind == RoK_GARDEN) {
+        return 9999;
+    }
+    if (room_kind == RoK_LAIR)
+    {
+        if (!dungeon_has_room(dungeon, room_kind)) {
+            return 9999;
+        }
+        return calculate_free_lair_space(comp->dungeon);
+    }
+    long used_capacity;
+    long total_capacity;
+    get_room_kind_total_and_used_capacity(dungeon, room_kind, &total_capacity, &used_capacity);
+    if (total_capacity <= 0) {
+        return 9999;
+    }
+    return total_capacity - used_capacity;
 }
 
 long computer_check_any_room(struct Computer2 *comp, struct ComputerProcess *cproc)
