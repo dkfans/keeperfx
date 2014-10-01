@@ -37,15 +37,6 @@
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-/******************************************************************************/
-unsigned long gold_per_hoarde = 2000; //TODO CONFIG place into any config struct
-/******************************************************************************/
-#ifdef __cplusplus
-}
-#endif
 /******************************************************************************/
 struct Thing *create_room_surrounding_flame(struct Room *room, const struct Coord3d *pos,
     unsigned short eetype, PlayerNumber owner)
@@ -339,7 +330,7 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
             delete_thing_structure(thing, 0);
             return false;
         }
-        n = (gold_per_hoarde/5)*(((long)thing->model)-51);
+        n = (gold_per_hoarde/get_wealth_size_types_count())*(get_wealth_size_of_gold_hoard_object(thing)+1);
         thing->owner = room->owner;
         add_gold_to_hoarde(thing, room, n);
         return true;

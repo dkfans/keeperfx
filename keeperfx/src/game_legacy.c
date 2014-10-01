@@ -26,6 +26,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
+unsigned long gold_per_hoarde = 2000; //TODO CONFIG place into any config struct
 /******************************************************************************/
 #ifdef __cplusplus
 }

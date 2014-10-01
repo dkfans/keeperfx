@@ -1826,6 +1826,7 @@
  0001:000BA0A0       setup_prison_move
  0001:000BA1C0       count_gold_slabs_with_efficiency
  0001:000BA220       count_gold_hoardes_in_room
+ 0001:000BA3E0       treasure_room_eats_gold_piles
  0001:000BA570       count_food_in_room
  0001:000BA8B0       count_books_in_room
  0001:000BAC90       count_bodies_in_room

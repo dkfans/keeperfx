@@ -1344,37 +1344,82 @@ struct Thing *create_gold_pot_at(long pos_x, long pos_y, PlayerNumber plyr_idx)
 }
 
 /**
+ * For given gold hoard thing, returns the wealth size, scaled 0..max_size.
+ */
+int get_wealth_size_of_gold_hoard_object(const struct Thing *objtng)
+{
+    //This simplified algorithm requires that gold hoard types are ascending integers
+    return (((long)objtng->model)-gold_hoard_objects[0]);
+}
+
+/**
+ * For given gold amount, returns floor wealth size which would fit it, scaled 0..max_size.
+ */
+int get_wealth_size_of_gold_amount(GoldAmount value)
+{
+    long hoard_size_holds;
+    hoard_size_holds = gold_per_hoarde / get_wealth_size_types_count();
+    int wealth_size;
+    wealth_size = value / hoard_size_holds;
+    if (wealth_size > get_wealth_size_types_count()-1)
+        wealth_size = get_wealth_size_types_count()-1;
+    return wealth_size;
+}
+
+/**
+ * For given gold amount, returns ceiling wealth size which would fit it, scaled 0..max_size+1.
+ */
+int get_ceiling_wealth_size_of_gold_amount(GoldAmount value)
+{
+    long hoard_size_holds;
+    hoard_size_holds = gold_per_hoarde / get_wealth_size_types_count();
+    int wealth_size;
+    wealth_size = (value + hoard_size_holds - 1) / hoard_size_holds;
+    if (wealth_size > get_wealth_size_types_count())
+        wealth_size = get_wealth_size_types_count();
+    return wealth_size;
+}
+
+/**
+ * Gives amount of possible wealth sizes of gold hoard.
+ */
+int get_wealth_size_types_count(void)
+{
+    return sizeof(gold_hoard_objects)/sizeof(gold_hoard_objects[0]);
+}
+
+/**
  * Creates a gold hoard object.
  * Note that this function does not create a fully operable object - gold hoard requires room
  * association to be fully functional. This is just a utility sub-function.
  * @param pos Position where the hoard is to be created.
  * @param plyr_idx Player who will own the hoard.
- * @param value The amount of gold to be stored inside the hoard.
+ * @param value The max amount of gold to be stored inside the hoard.
  * @return Hoard object thing, which still require to be associated to room.
  */
-struct Thing *create_gold_hoard_object(const struct Coord3d *pos, PlayerNumber plyr_idx, long value)
+struct Thing *create_gold_hoard_object(const struct Coord3d *pos, PlayerNumber plyr_idx, GoldAmount value)
 {
     struct Thing *thing;
     long hoard_size_holds,hoard_size,hoard_store;
-    hoard_size_holds = 9 * game.pot_of_gold_holds / 5;
+    hoard_size_holds = gold_per_hoarde / get_wealth_size_types_count();
     hoard_size = value / hoard_size_holds;
     if (hoard_size >= sizeof(gold_hoard_objects)/sizeof(gold_hoard_objects[0]))
         hoard_size = sizeof(gold_hoard_objects)/sizeof(gold_hoard_objects[0])-1;
     thing = create_object(pos, gold_hoard_objects[hoard_size], plyr_idx, -1);
     if (thing_is_invalid(thing))
         return INVALID_THING;
-    hoard_store = 9 * game.pot_of_gold_holds;
-    if (hoard_store >= value)
-        hoard_store = value;
+    hoard_store = value;
+    if (hoard_store >= gold_per_hoarde)
+        hoard_store = gold_per_hoarde;
     thing->valuable.gold_stored = hoard_store;
     return thing;
 }
 
-struct Thing *create_gold_hoarde(struct Room *room, const struct Coord3d *pos, long value)
+struct Thing *create_gold_hoarde(struct Room *room, const struct Coord3d *pos, GoldAmount value)
 {
     struct Thing *thing;
-    long hoard_size_holds,hoard_size;
-    hoard_size_holds = 9 * game.pot_of_gold_holds / 5;
+    GoldAmount hoard_size_holds;
+    hoard_size_holds = gold_per_hoarde / get_wealth_size_types_count();
     if ((value <= 0) || (room->slabs_count < 1)) {
         ERRORLOG("Attempt to create a gold hoard with %ld gold", value);
         return INVALID_THING;
@@ -1389,6 +1434,7 @@ struct Thing *create_gold_hoarde(struct Room *room, const struct Coord3d *pos, l
         dungeon = get_dungeon(room->owner);
         if (!dungeon_invalid(dungeon))
             dungeon->total_money_owned += thing->valuable.gold_stored;
+        long hoard_size;
         hoard_size = thing->valuable.gold_stored / hoard_size_holds;
         if (hoard_size > 4)
             hoard_size = 4;
