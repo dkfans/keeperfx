@@ -89,7 +89,7 @@ struct Room {
      * Usually used for neutral rooms, set if a player is starting to dig to that room. */
     unsigned char player_interested[5];
     union {
-    /** For rooms which can store things, amount of storage space used by them.
+    /** For rooms which can store things, amount of storage space, or sum of gold, used by them.
      *  Rooms which can store things are workshops, libraries, treasure rooms etc. */
     struct {
       long capacity_used_for_storage;
