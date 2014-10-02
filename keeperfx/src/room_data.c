@@ -386,22 +386,129 @@ void count_slabs(struct Room *room)
 
 void count_gold_slabs_with_efficiency(struct Room *room)
 {
-  _DK_count_gold_slabs_with_efficiency(room);
+    //_DK_count_gold_slabs_with_efficiency(room); return;
+    long subefficiency;
+    // Compute max size of gold hoard stored on one slab
+    subefficiency = (get_wealth_size_types_count() * ((long)room->efficiency)) / 256;
+    // Every slab is always capable of storing at least smallest hoard
+    if (subefficiency <= 1)
+        subefficiency = 1;
+    unsigned long count;
+    count = room->slabs_count * subefficiency;
+    if (count <= 1)
+        count = 1;
+    room->total_capacity = count;
+}
+
+struct Thing *find_gold_hoarde_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct Thing *thing;
+    long i;
+    unsigned long k;
+    struct Map *mapblk;
+    mapblk = get_map_block_at(stl_x,stl_y);
+    k = 0;
+    i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_on_mapblk;
+        // Per thing code start
+        if (thing_is_object(thing) && object_is_gold_hoard(thing))
+        {
+            return thing;
+        }
+        // Per thing code end
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return INVALID_THING;
+}
+
+struct Thing *treasure_room_eats_gold_piles(struct Room *room, MapSlabCoord slb_x,  MapSlabCoord slb_y, struct Thing *thing)
+{
+    if (thing_is_invalid(thing)) thing = NULL;
+    return _DK_treasure_room_eats_gold_piles(room, slb_x, slb_y, thing);
 }
 
 void count_gold_hoardes_in_room(struct Room *room)
 {
-  _DK_count_gold_hoardes_in_room(room);
+    //_DK_count_gold_hoardes_in_room(room); return;
+    GoldAmount all_gold_amount;
+    int all_wealth_size;
+    all_gold_amount = 0;
+    all_wealth_size = 0;
+    int wealth_size_types_count;
+    wealth_size_types_count = get_wealth_size_types_count();
+    GoldAmount max_hoarde_size_in_room;
+    max_hoarde_size_in_room = (gold_per_hoarde / wealth_size_types_count) * room->total_capacity / room->slabs_count;
+    long i;
+    unsigned long k;
+    k = 0;
+    i = room->slabs_list;
+    while (i > 0)
+    {
+        MapSlabCoord slb_x, slb_y;
+        struct Coord3d pos;
+        slb_x = slb_num_decode_x(i);
+        slb_y = slb_num_decode_y(i);
+        GoldAmount gold_amount;
+        struct Thing *gldtng;
+        gldtng = find_gold_hoarde_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+        if (!thing_is_invalid(gldtng) && (gldtng->valuable.gold_stored > max_hoarde_size_in_room))
+        {
+            pos.x.val = gldtng->mappos.x.val;
+            pos.y.val = gldtng->mappos.y.val;
+            pos.z.val = gldtng->mappos.z.val;
+            long drop_amount;
+            drop_amount = remove_gold_from_hoarde(gldtng, room, gldtng->valuable.gold_stored - max_hoarde_size_in_room);
+            drop_gold_pile(drop_amount, &pos);
+            gold_amount = gldtng->valuable.gold_stored;
+        } else
+        {
+            gldtng = treasure_room_eats_gold_piles(room, slb_x, slb_y, gldtng);
+            if (!thing_is_invalid(gldtng))
+            {
+                gold_amount = gldtng->valuable.gold_stored;
+            } else {
+                gold_amount = 0;
+            }
+        }
+        if (gold_amount > 0) {
+            all_gold_amount += gold_amount;
+            all_wealth_size += get_ceiling_wealth_size_of_gold_amount(gold_amount);
+        }
+
+        i = get_next_slab_number_in_room(i);
+        k++;
+        if (k > map_tiles_x * map_tiles_y)
+        {
+            ERRORLOG("Infinite loop detected when sweeping room slabs");
+            break;
+        }
+    }
+    room->capacity_used_for_storage = all_gold_amount;
+    room->used_capacity = all_wealth_size;
 }
 
 void count_slabs_div2(struct Room *room)
 {
-  unsigned long count;
-  count = room->slabs_count * ((long)room->efficiency);
-  count = ((count/256) >> 1);
-  if (count <= 1)
-    count = 1;
-  room->total_capacity = count;
+    unsigned long count;
+    count = room->slabs_count * ((long)room->efficiency);
+    count = ((count/256) >> 1);
+    if (count <= 1)
+        count = 1;
+    room->total_capacity = count;
 }
 
 void init_reposition_struct(struct RoomReposition * rrepos)
@@ -2454,7 +2561,7 @@ struct Room *get_room_of_given_kind_for_thing(struct Thing *thing, struct Dungeo
         {
         case RoK_TREASURE:
             pay = calculate_correct_creature_pay(thing);
-            if (room->capacity_used_for_storage > pay) {
+            if (room->capacity_used_for_storage + dungeon->offmap_money_owned < pay) {
                 // This room isn't attractive at all - creature won't get salary there
                 attractiveness = 0;
             }
