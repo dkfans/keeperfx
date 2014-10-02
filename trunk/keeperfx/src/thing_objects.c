@@ -1361,8 +1361,10 @@ int get_wealth_size_of_gold_amount(GoldAmount value)
     hoard_size_holds = gold_per_hoarde / get_wealth_size_types_count();
     int wealth_size;
     wealth_size = value / hoard_size_holds;
-    if (wealth_size > get_wealth_size_types_count()-1)
+    if (wealth_size > get_wealth_size_types_count()-1) {
+        WARNLOG("Gold hoard with %d gold would be oversized",(int)value);
         wealth_size = get_wealth_size_types_count()-1;
+    }
     return wealth_size;
 }
 
@@ -1371,6 +1373,8 @@ int get_wealth_size_of_gold_amount(GoldAmount value)
  */
 int get_ceiling_wealth_size_of_gold_amount(GoldAmount value)
 {
+    return get_wealth_size_of_gold_amount(value);
+    //TODO GOLD_HOARD check what we want here
     long hoard_size_holds;
     hoard_size_holds = gold_per_hoarde / get_wealth_size_types_count();
     int wealth_size;
@@ -1434,11 +1438,9 @@ struct Thing *create_gold_hoarde(struct Room *room, const struct Coord3d *pos, G
         dungeon = get_dungeon(room->owner);
         if (!dungeon_invalid(dungeon))
             dungeon->total_money_owned += thing->valuable.gold_stored;
-        long hoard_size;
-        hoard_size = thing->valuable.gold_stored / hoard_size_holds;
-        if (hoard_size > 4)
-            hoard_size = 4;
-        room->used_capacity += hoard_size;
+        int wealth_size;
+        wealth_size = get_ceiling_wealth_size_of_gold_amount(thing->valuable.gold_stored);
+        room->used_capacity += wealth_size;
     }
     return thing;
 }

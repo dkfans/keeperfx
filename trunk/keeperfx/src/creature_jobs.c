@@ -768,8 +768,16 @@ TbBool creature_can_take_salary_near_pos(const struct Thing *creatng, MapSubtlCo
 {
     struct Room *room;
     room = subtile_room_get(stl_x, stl_y);
+    // If there is any gold in the room - give it a shot
+    // We're checking if the amount of gold is enough for the creature pay only if room seem empty
     if (room->used_capacity < 1) {
-        return false;
+        struct Dungeon *dungeon;
+        GoldAmount pay;
+        dungeon = get_dungeon(creatng->owner);
+        pay = calculate_correct_creature_pay(creatng);
+        if (room->capacity_used_for_storage + dungeon->offmap_money_owned < pay) {
+            return false;
+        }
     }
     return true;
 }

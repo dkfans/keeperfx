@@ -270,7 +270,7 @@ long take_money_from_dungeon(PlayerNumber plyr_idx, GoldAmount amount_take, TbBo
         }
         i = room->next_of_owner;
         // Per-room code
-        if (room->capacity_used_for_storage)
+        if (room->capacity_used_for_storage > 0)
         {
             take_remain -= take_money_from_room(room, take_remain);
             if (take_remain <= 0)
