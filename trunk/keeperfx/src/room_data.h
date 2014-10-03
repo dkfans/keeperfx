@@ -183,7 +183,7 @@ void reinitialise_map_rooms(void);
 
 // Finding position within room
 TbBool find_random_valid_position_for_thing_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos);
-TbBool find_first_valid_position_for_thing_in_room(const struct Thing *thing, struct Room *room, struct Coord3d *pos);
+TbBool find_first_valid_position_for_thing_anywhere_in_room(const struct Thing *thing, struct Room *room, struct Coord3d *pos);
 TbBool find_random_position_at_border_of_room(struct Coord3d *pos, const struct Room *room);
 
 // Finding a room for a thing

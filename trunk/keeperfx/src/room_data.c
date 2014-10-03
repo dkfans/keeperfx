@@ -2107,7 +2107,7 @@ struct Room *find_room_for_thing_with_used_capacity(const struct Thing *creatng,
         i = room->next_of_owner;
         // Per-room code
         struct Coord3d pos;
-        if ((room->used_capacity >= min_used_cap) && find_first_valid_position_for_thing_in_room(creatng, room, &pos))
+        if ((room->used_capacity >= min_used_cap) && find_first_valid_position_for_thing_anywhere_in_room(creatng, room, &pos))
         {
             if (thing_is_creature(creatng))
             {
@@ -2231,13 +2231,14 @@ struct Room *find_room_with_most_spare_capacity_starting_with(long room_idx,long
 /**
  * Retrieves a position in room which could be used as a place for thing to enter that room.
  * Returns first valid position found.
- * @todo For Temple and Entrance, this should return border slabs only.
  * @param thing
  * @param room
  * @param pos
  * @return
+ * @note originally find_first_valid_position_for_thing_in_room()
+ * @see creature_move_to_place_in_room() an alternative which can return only border or inner slabs when needed
  */
-TbBool find_first_valid_position_for_thing_in_room(const struct Thing *thing, struct Room *room, struct Coord3d *pos)
+TbBool find_first_valid_position_for_thing_anywhere_in_room(const struct Thing *thing, struct Room *room, struct Coord3d *pos)
 {
     long block_radius;
     if (!room_exists(room))
@@ -2328,7 +2329,7 @@ struct Room *find_nearest_room_for_thing_with_spare_capacity(struct Thing *thing
                  + abs(thing->mappos.y.stl.num - room->central_stl_y);
         if ((neardistance > distance) && (room->used_capacity + spare <= room->total_capacity))
         {
-            if (find_first_valid_position_for_thing_in_room(thing, room, &pos))
+            if (find_first_valid_position_for_thing_anywhere_in_room(thing, room, &pos))
             {
                 if ((thing->class_id != TCls_Creature)
                   || creature_can_navigate_to(thing, &pos, nav_flags))
@@ -2380,7 +2381,7 @@ long count_rooms_creature_can_navigate_to(struct Thing *thing, unsigned char own
         i = room->next_of_owner;
         // Per-room code
         struct Coord3d pos;
-        if (find_first_valid_position_for_thing_in_room(thing, room, &pos) && (room->used_capacity > 0))
+        if (find_first_valid_position_for_thing_anywhere_in_room(thing, room, &pos) && (room->used_capacity > 0))
         {
             if (creature_can_navigate_to(thing, &pos, nav_flags))
             {
@@ -2451,7 +2452,7 @@ struct Room *find_random_room_creature_can_navigate_to(struct Thing *thing, unsi
         i = room->next_of_owner;
         // Per-room code
         struct Coord3d pos;
-        if (find_first_valid_position_for_thing_in_room(thing, room, &pos) && (room->used_capacity > 0))
+        if (find_first_valid_position_for_thing_anywhere_in_room(thing, room, &pos) && (room->used_capacity > 0))
         {
             if (creature_can_navigate_to(thing, &pos, nav_flags))
             {
@@ -3020,7 +3021,7 @@ struct Room *find_nearest_room_for_thing_with_spare_item_capacity(struct Thing *
         if ((dist < retdist) && (room->total_capacity > room->capacity_used_for_storage))
         {
             struct Coord3d pos;
-            if (find_first_valid_position_for_thing_in_room(thing, room, &pos))
+            if (find_first_valid_position_for_thing_anywhere_in_room(thing, room, &pos))
             {
                 if (!thing_is_creature(thing) || creature_can_navigate_to(thing, &pos, nav_flags))
                 {
