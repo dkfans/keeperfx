@@ -584,15 +584,17 @@ void gui_area_big_spell_button(struct GuiButton *gbtn)
         }
         char *c;
         for (c=text; *c != 0; c++) {
-            *c = (*c) - 120;
+            *c -= 120;
         }
     } else
     {
         draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->field_29 + 1);
     }
+    LbTextUseByteCoding(false);
     int tx_units_per_px;
     tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
     draw_string64k(gbtn->scr_pos_x + 44*units_per_px/16, gbtn->scr_pos_y + (8 - 6)*units_per_px/16, tx_units_per_px, text);
+    LbTextUseByteCoding(true);
     lbDisplay.DrawFlags = flg_mem;
 }
 
