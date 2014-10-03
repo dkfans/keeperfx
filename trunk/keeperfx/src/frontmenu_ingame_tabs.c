@@ -425,13 +425,13 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
     int tx_units_per_px;
     tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
     draw_string64k(gbtn->scr_pos_x + 44*units_per_px/16, gbtn->scr_pos_y + (8 - 6)*units_per_px/16, tx_units_per_px, gui_textbuf);
-    LbTextUseByteCoding(true);
 
     long amount;
     amount = count_rooms_of_type(player->id_number, rkind);
     // Note that "@" is "x" in that font
     sprintf(gui_textbuf, "@%ld", amount);
     draw_string64k(gbtn->scr_pos_x + 40*units_per_px/16, gbtn->scr_pos_y - (14 + 6)*units_per_px/16, tx_units_per_px, gui_textbuf);
+    LbTextUseByteCoding(true);
     lbDisplay.DrawFlags = flg_mem;
 }
 

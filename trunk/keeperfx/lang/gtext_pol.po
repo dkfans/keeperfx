@@ -2619,7 +2619,7 @@ msgstr ""
 
 #: guitext:295
 msgctxt "In-game interface description"
-msgid "Gold Held : The amount of gold the creature is carrying."
+msgid "Gold Held: The amount of gold the creature is carrying."
 msgstr "Posiadane złoto: Ilość złota, jaką niesie ze sobą stwór."
 
 #: guitext:296
@@ -3373,7 +3373,7 @@ msgstr "Podwyższenie poziomu: Zwiększa umiejętności wszystkich Twoich stwor�
 
 #: guitext:426
 msgctxt "Dungeon special decription"
-msgid "Make Safe : Reinforces your entire dungeon."
+msgid "Make Safe: Reinforces your entire dungeon."
 msgstr "Zabezpieczenie: Fortyfikuje całe Twoje podziemie."
 
 #: guitext:427

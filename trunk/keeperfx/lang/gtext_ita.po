@@ -2583,7 +2583,7 @@ msgstr "Paga: Il salario, in oro, della creatura. [23.13]"
 #: guitext:295
 #, fuzzy
 msgctxt "In-game interface description"
-msgid "Gold Held : The amount of gold the creature is carrying."
+msgid "Gold Held: The amount of gold the creature is carrying."
 msgstr "Oro: La quantità d'oro che la creatura trasporta. [23.8]"
 
 #: guitext:296
@@ -3346,7 +3346,7 @@ msgstr "Aumenta Livello: Conferisce maggiore abilità a tutte le tue creature."
 
 #: guitext:426
 msgctxt "Dungeon special decription"
-msgid "Make Safe : Reinforces your entire dungeon."
+msgid "Make Safe: Reinforces your entire dungeon."
 msgstr "Rinforza: Rendi più sicura tutta la tua prigione."
 
 #: guitext:427
