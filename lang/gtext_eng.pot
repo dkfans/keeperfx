@@ -2083,7 +2083,7 @@ msgstr ""
 
 #: guitext:295
 msgctxt "In-game interface description"
-msgid "Gold Held : The amount of gold the creature is carrying."
+msgid "Gold Held: The amount of gold the creature is carrying."
 msgstr ""
 
 #: guitext:296
@@ -2770,7 +2770,7 @@ msgstr ""
 
 #: guitext:426
 msgctxt "Dungeon special decription"
-msgid "Make Safe : Reinforces your entire dungeon."
+msgid "Make Safe: Reinforces your entire dungeon."
 msgstr ""
 
 #: guitext:427

@@ -2698,7 +2698,7 @@ msgstr ""
 #: guitext:295
 #, fuzzy
 msgctxt "In-game interface description"
-msgid "Gold Held : The amount of gold the creature is carrying."
+msgid "Gold Held: The amount of gold the creature is carrying."
 msgstr "Oro en mano: La cantidad de oro que lleva encima la criatura."
 
 #: guitext:296
@@ -3494,7 +3494,7 @@ msgstr "Incrementar nivel: Otorga mayor habilidad a todas tus criaturas."
 
 #: guitext:426
 msgctxt "Dungeon special decription"
-msgid "Make Safe : Reinforces your entire dungeon."
+msgid "Make Safe: Reinforces your entire dungeon."
 msgstr "Hacer segura: Refuerza toda tu mazmorra."
 
 #: guitext:427

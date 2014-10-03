@@ -2560,7 +2560,7 @@ msgstr "Lön: Varelsens lön i guld. [23.13]"
 #: guitext:295
 #, fuzzy
 msgctxt "In-game interface description"
-msgid "Gold Held : The amount of gold the creature is carrying."
+msgid "Gold Held: The amount of gold the creature is carrying."
 msgstr "Innehavet guld: Den mängd guld varelsen bär. [23.8]"
 
 #: guitext:296
@@ -3314,7 +3314,7 @@ msgstr "Öka nivå: Skänker större förmågor åt alla dina varelser."
 
 #: guitext:426
 msgctxt "Dungeon special decription"
-msgid "Make Safe : Reinforces your entire dungeon."
+msgid "Make Safe: Reinforces your entire dungeon."
 msgstr "Gör säker: Förstärker hela din grotta."
 
 #: guitext:427

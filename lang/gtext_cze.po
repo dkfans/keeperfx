@@ -2515,8 +2515,8 @@ msgstr "Zold: Za kolik bude s vami obluda spolupracovat."
 
 #: guitext:295
 msgctxt "In-game interface description"
-msgid "Gold Held : The amount of gold the creature is carrying."
-msgstr "Zlato : Zobrazi kolik zlata ma obluda u sebe."
+msgid "Gold Held: The amount of gold the creature is carrying."
+msgstr "Zlato: Zobrazi kolik zlata ma obluda u sebe."
 
 #: guitext:296
 msgctxt "In-game interface description"
@@ -3253,7 +3253,7 @@ msgstr "Zvysit uroven: Zvysi uroven vsech tvych oblud na maximum."
 
 #: guitext:426
 msgctxt "Dungeon special decription"
-msgid "Make Safe : Reinforces your entire dungeon."
+msgid "Make Safe: Reinforces your entire dungeon."
 msgstr "Zabezpečit: Zpevni steny celeho tveho sklepeni."
 
 #: guitext:427

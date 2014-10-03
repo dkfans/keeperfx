@@ -2571,7 +2571,7 @@ msgstr "Gage: Salaire de la créature en or. [23.13]"
 #: guitext:295
 #, fuzzy
 msgctxt "In-game interface description"
-msgid "Gold Held : The amount of gold the creature is carrying."
+msgid "Gold Held: The amount of gold the creature is carrying."
 msgstr "Or: Quantité d'or transporté par la créature. [23.8]"
 
 #: guitext:296
@@ -3348,7 +3348,7 @@ msgstr ""
 
 #: guitext:426
 msgctxt "Dungeon special decription"
-msgid "Make Safe : Reinforces your entire dungeon."
+msgid "Make Safe: Reinforces your entire dungeon."
 msgstr "Sécurité: Renforce tout votre donjon."
 
 #: guitext:427
@@ -4014,7 +4014,7 @@ msgstr "Avatar"
 msgctxt "In-game interface description"
 msgid "Toggle Computer Assistant: Currently - Aggressive. LMB toggle."
 msgstr ""
-"Modifier l'assistant : Actuellement Agressif. Changement avec le bouton "
+"Modifier l'assistant: Actuellement Agressif. Changement avec le bouton "
 "gauche de la souris. [3.2.4]"
 
 #: guitext:549
