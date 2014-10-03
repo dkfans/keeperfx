@@ -2397,7 +2397,7 @@ msgstr "薪水: 怪物每次发薪时领取的金子。[23.12]"
 #: guitext:295
 #, fuzzy
 msgctxt "In-game interface description"
-msgid "Gold Held : The amount of gold the creature is carrying."
+msgid "Gold Held: The amount of gold the creature is carrying."
 msgstr "财产: 这个怪物所带有的金子。[23.8]"
 
 #: guitext:296
@@ -2598,7 +2598,7 @@ msgid ""
 "Impenetrable Rock: Your Imps cannot dig through this, the only solution is "
 "to go round. It is visible even if far from your territory."
 msgstr ""
-"无法挖掘的岩石:你的小鬼无法挖穿这样的岩石，唯一的办法就是绕过它。这类岩石永远"
+"无法挖掘的岩石: 你的小鬼无法挖穿这样的岩石，唯一的办法就是绕过它。这类岩石永远"
 "可见。"
 
 #: guitext:325
@@ -2607,7 +2607,7 @@ msgid ""
 "Earth: You can excavate this. To dig out some new caverns, choose a location "
 "and tag for digging with LMB. Press LMB again to untag."
 msgstr ""
-"土块：你可以将其凿开。想要挖开一些洞穴，用鼠标左键标记一个区域。再次按下鼠标"
+"土块: 你可以将其凿开。想要挖开一些洞穴，用鼠标左键标记一个区域。再次按下鼠标"
 "左键可解除标记。"
 
 #: guitext:326
@@ -2624,7 +2624,7 @@ msgctxt "Slab description"
 msgid ""
 "Lava: Burns any creature that step on it. Get over lava by casting Cave-In "
 "or building a Bridge."
-msgstr "岩浆:灼烧任何触碰到它的生物。施放一个塌方术或者建造一座桥来越过它。"
+msgstr "岩浆: 灼烧任何触碰到它的生物。施放一个塌方术或者建造一座桥来越过它。"
 
 #: guitext:328
 #, fuzzy
@@ -2652,7 +2652,7 @@ msgctxt "Slab description"
 msgid ""
 "Path: Unclaimed earth floor. You can claim it if it is connected to already "
 "claimed territory."
-msgstr "泥地:未占领的地面。如果这里与你的领地相邻，你就可以占有此地。"
+msgstr "泥地: 未占领的地面。如果这里与你的领地相邻，你就可以占有此地。"
 
 #: guitext:332
 msgctxt "Slab description"
@@ -3127,7 +3127,7 @@ msgstr "提高等级: 授予你全部的怪物更高的等级。"
 
 #: guitext:426
 msgctxt "Dungeon special decription"
-msgid "Make Safe : Reinforces your entire dungeon."
+msgid "Make Safe: Reinforces your entire dungeon."
 msgstr "安全: 强化你的整个地下城。"
 
 #: guitext:427

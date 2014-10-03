@@ -2537,7 +2537,7 @@ msgstr "Заработная плата: Зарплата создания в з
 #: guitext:295
 #, fuzzy
 msgctxt "In-game interface description"
-msgid "Gold Held : The amount of gold the creature is carrying."
+msgid "Gold Held: The amount of gold the creature is carrying."
 msgstr "Наличность: Количество золота, несомое созданием. [23.8]"
 
 #: guitext:296
@@ -3298,7 +3298,7 @@ msgstr "Увеличение Уровня: Мастерство всех ваш�
 
 #: guitext:426
 msgctxt "Dungeon special decription"
-msgid "Make Safe : Reinforces your entire dungeon."
+msgid "Make Safe: Reinforces your entire dungeon."
 msgstr "Безопасность: Укрепляет вашу крепость."
 
 #: guitext:427

@@ -2560,7 +2560,7 @@ msgstr "Beloning: Het loon van het wezen in goud. [23.13]"
 #: guitext:295
 #, fuzzy
 msgctxt "In-game interface description"
-msgid "Gold Held : The amount of gold the creature is carrying."
+msgid "Gold Held: The amount of gold the creature is carrying."
 msgstr "Goud op zak: De hoeveelheid goud die het wezen bij zich heeft. [23.8]"
 
 #: guitext:296
@@ -3315,7 +3315,7 @@ msgstr "Niveau verhogen: Verbetert de vaardigheden van al je slaafjes."
 
 #: guitext:426
 msgctxt "Dungeon special decription"
-msgid "Make Safe : Reinforces your entire dungeon."
+msgid "Make Safe: Reinforces your entire dungeon."
 msgstr "Verstevigen: Verstevigt je complete kerker."
 
 #: guitext:427

@@ -2486,7 +2486,7 @@ msgstr "給料: このクリーチャーが給料日に受け取る財宝の量�
 #: guitext:295
 #, fuzzy
 msgctxt "In-game interface description"
-msgid "Gold Held : The amount of gold the creature is carrying."
+msgid "Gold Held: The amount of gold the creature is carrying."
 msgstr "所持財宝: このクリーチャーが所有している財宝の量。 [23.8]"
 
 #: guitext:296
@@ -3232,7 +3232,7 @@ msgstr "レベルアップ: 手下の全クリーチャーの能力を高める�
 
 #: guitext:426
 msgctxt "Dungeon special decription"
-msgid "Make Safe : Reinforces your entire dungeon."
+msgid "Make Safe: Reinforces your entire dungeon."
 msgstr "安全化: ダンジョンの壁全体を強化する。"
 
 #: guitext:427
