@@ -952,7 +952,7 @@ TbBool attempt_to_destroy_enemy_room(struct Thing *thing, MapSubtlCoord stl_x, M
         return false;
     if (room_cannot_vandalise(room->kind))
         return false;
-    if (!find_first_valid_position_for_thing_in_room(thing, room, &pos))
+    if (!find_first_valid_position_for_thing_anywhere_in_room(thing, room, &pos))
         return false;
     if (!creature_can_navigate_to_with_storage(thing, &pos, NavRtF_NoOwner))
         return false;
@@ -3057,7 +3057,7 @@ struct Room * find_nearest_room_for_thing_with_capacity_and_closer_than(struct T
                  + abs(thing->mappos.y.stl.num - (int)room->central_stl_y);
         if ((*neardistance > distance) && (room->used_capacity >= used))
         {
-            if (find_first_valid_position_for_thing_in_room(thing, room, &pos))
+            if (find_first_valid_position_for_thing_anywhere_in_room(thing, room, &pos))
             {
                 if ((thing->class_id != TCls_Creature)
                   || creature_can_navigate_to(thing, &pos, nav_flags))
