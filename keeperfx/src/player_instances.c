@@ -149,25 +149,25 @@ long pinstfs_hand_grab(struct PlayerInfo *player, long *n)
 long pinstfm_hand_grab(struct PlayerInfo *player, long *n)
 {
     //TODO INSTANCES check why rewritten code is disabled
-  return _DK_pinstfm_hand_grab(player, n);
-  struct CreaturePickedUpOffset *pickoffs;
-  struct Thing *thing;
-  struct Dungeon *dungeon;
-  dungeon = get_players_dungeon(player);
-  thing = thing_get(player->influenced_thing_idx);
-  if (thing->class_id == TCls_Creature)
-  {
-      pickoffs = get_creature_picked_up_offset(thing);
-      dungeon->field_43 += (pickoffs->field_4 - 60) / 4;
-      dungeon->field_53 += (pickoffs->field_6 - 40) / 4;
-      return 0;
-  }
-  else
-  {
-    dungeon->field_43 = 60;
-    dungeon->field_53 = 40;
-    return 0;
-  }
+    return _DK_pinstfm_hand_grab(player, n);
+    struct CreaturePickedUpOffset *pickoffs;
+    struct Thing *thing;
+    struct Dungeon *dungeon;
+    dungeon = get_players_dungeon(player);
+    thing = thing_get(player->influenced_thing_idx);
+    if (thing->class_id == TCls_Creature)
+    {
+        pickoffs = get_creature_picked_up_offset(thing);
+        dungeon->field_43 += (pickoffs->field_4 - 60) / 4;
+        dungeon->field_53 += (pickoffs->field_6 - 40) / 4;
+        return 0;
+    }
+    else
+    {
+        dungeon->field_43 = 60;
+        dungeon->field_53 = 40;
+        return 0;
+    }
 }
 
 long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
