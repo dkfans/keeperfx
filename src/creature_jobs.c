@@ -976,11 +976,7 @@ TbBool attempt_job_work_in_room_and_cure_near_pos(struct Thing *creatng, MapSubt
         ERRORLOG("No arrive at state for job %s in %s room",creature_job_code_name(new_job),room_code_name(room->kind));
         return false;
     }
-    struct Coord3d pos;
-    if (!find_first_valid_position_for_thing_in_room(creatng, room, &pos)) {
-        return false;
-    }
-    if (!setup_person_move_to_position(creatng, pos.x.stl.num, pos.y.stl.num, NavRtF_Default)) {
+    if (!creature_move_to_place_in_room(creatng, room, new_job)) {
         return false;
     }
     creatng->continue_state = get_arrive_at_state_for_job(new_job);
@@ -1007,18 +1003,15 @@ TbBool attempt_job_sleep_in_lair_near_pos(struct Thing *creatng, MapSubtlCoord s
         if (creature_move_to_home_lair(creatng))
         {
             creatng->continue_state = CrSt_CreatureGoingHomeToSleep;
-            return 1;
+            return true;
         }
     }
-    struct Coord3d pos;
-    if (find_first_valid_position_for_thing_in_room(creatng, room, &pos)
-      && setup_person_move_to_coord(creatng, &pos, NavRtF_Default))
-    {
-        creatng->continue_state = CrSt_CreatureChangeLair;
-        cctrl->target_room_id = room->index;
-        return 1;
+    if (!creature_move_to_place_in_room(creatng, room, new_job)) {
+        return false;
     }
-    return 0;
+    creatng->continue_state = CrSt_CreatureChangeLair;
+    cctrl->target_room_id = room->index;
+    return true;
 }
 
 TbBool attempt_job_in_state_on_room_content_for_player(struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job)

@@ -1379,8 +1379,10 @@ int get_ceiling_wealth_size_of_gold_amount(GoldAmount value)
     hoard_size_holds = gold_per_hoarde / get_wealth_size_types_count();
     int wealth_size;
     wealth_size = (value + hoard_size_holds - 1) / hoard_size_holds;
-    if (wealth_size > get_wealth_size_types_count())
+    if (wealth_size > get_wealth_size_types_count()) {
+        WARNLOG("Gold hoard with %d gold would be oversized",(int)value);
         wealth_size = get_wealth_size_types_count();
+    }
     return wealth_size;
 }
 
