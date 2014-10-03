@@ -25,6 +25,7 @@
 #include "bflib_dernc.h"
 
 #include "config.h"
+#include "config_effects.h"
 #include "thing_doors.h"
 #include "thing_physics.h"
 #include "power_process.h"
@@ -375,6 +376,9 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           magicinf = get_magic_info(i);
           magicinf->caster_affected = 0;
           magicinf->caster_affect_sound = 0;
+          magicinf->cast_at_thing = 0;
+          magicinf->shot_model = 0;
+          magicinf->cast_effect_model = 0;
       }
   }
   // Load the file
@@ -484,8 +488,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
       case 6: // EFFECTMODEL
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-              //TODO CONFIG Enable when effects will have names.
-              k = -1;//get_id(effect_desc, word_buf);
+              k = get_id(effect_desc, word_buf);
               if (k >= 0) {
                   magicinf->cast_effect_model = k;
                   n++;

@@ -308,7 +308,7 @@ struct SpellInfo {
   unsigned char caster_affected;
   /** Effect model created while casting. */
   unsigned char cast_effect_model;
-  unsigned short field_4;
+  unsigned short cast_field_4;
   /** If caster is affected by the spell, indicates sound sample to be played. */
   unsigned short caster_affect_sound;
 };
