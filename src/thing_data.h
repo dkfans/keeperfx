@@ -118,6 +118,10 @@ struct Thing {
       unsigned char is_locked;
       } door;
       struct {
+        long room_idx;
+        short word_17r;
+      } roomflag;
+      struct {
       long long_13;
       short word_17a;
       };

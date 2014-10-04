@@ -1400,12 +1400,12 @@ void draw_engine_room_flagpole(struct RoomFlag *rflg)
             deltay = (scale << 7 >> 13);
             height = (2 * (71 * scale) >> 13);
             LbDrawBox(rflg->x,
-                      rflg->y - deltay * units_per_pixel / 16,
+                      rflg->y - deltay,
                       (4 * units_per_pixel + 8) / 16,
                       (height * units_per_pixel + 8) / 16,
                       colours[3][1][0]);
             LbDrawBox(rflg->x + 2 * units_per_pixel / 16,
-                      rflg->y - deltay * units_per_pixel / 16,
+                      rflg->y - deltay,
                       (2 * units_per_pixel + 8) / 16,
                       (height * units_per_pixel + 8) / 16,
                       colours[1][0][0]);
@@ -1685,15 +1685,17 @@ void draw_engine_room_flag_top(struct RoomFlag *rflg)
     const struct Camera *cam;
     cam = myplyr->acamera;
 
-    int zoom;
     if ((cam->field_6 == 2) || (cam->field_6 == 5))
     {
       if (settings.field_8)
       {
-        zoom = cam->zoom / pixel_size;
+        int scale;
+        int deltay;
+        scale = cam->zoom;
         if (cam->field_6 == 5)
-          zoom = 4094;
-        draw_room_flag_top(rflg->x, rflg->y - pixel_size * (zoom << 7 >> 13), units_per_pixel, room);
+          scale = 4094;
+        deltay = (scale << 7 >> 13);
+        draw_room_flag_top(rflg->x, rflg->y - deltay, units_per_pixel, room);
       }
     }
 }
@@ -3173,7 +3175,7 @@ void add_unkn16_to_polypool(long x, long y, long lvl, long bckt_idx)
     poly->lvl = lvl;
 }
 
-void add_unkn17_to_polypool(long x, long y, long lvl, long bckt_idx)
+void add_room_flag_pole_to_polypool(long x, long y, long room_idx, long bckt_idx)
 {
     struct RoomFlag *poly;
     if (bckt_idx >= BUCKETS_COUNT)
@@ -3191,10 +3193,10 @@ void add_unkn17_to_polypool(long x, long y, long lvl, long bckt_idx)
       poly->x = x / pixel_size;
       poly->y = y / pixel_size;
     }
-    poly->lvl = lvl;
+    poly->lvl = room_idx;
 }
 
-void add_unkn19_to_polypool(long x, long y, long lvl, long bckt_idx)
+void add_room_flag_top_to_polypool(long x, long y, long room_idx, long bckt_idx)
 {
     struct RoomFlag *poly;
     if (bckt_idx >= BUCKETS_COUNT)
@@ -3212,7 +3214,7 @@ void add_unkn19_to_polypool(long x, long y, long lvl, long bckt_idx)
       poly->x = x / pixel_size;
       poly->y = y / pixel_size;
     }
-    poly->lvl = lvl;
+    poly->lvl = room_idx;
 }
 
 void prepare_lightness_intensity_array(long stl_x, long stl_y, long *arrp, long base_lightness)
@@ -4408,19 +4410,19 @@ void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map, struc
         {
           if (game.play_gameturn - thing->long_15 != 1)
           {
-            thing->field_19 = 0;
+              thing->field_19 = 0;
           } else
           if (thing->field_19 < 40)
           {
-            thing->field_19++;
+              thing->field_19++;
           }
           thing->long_15 = game.play_gameturn;
           if (thing->field_19 == 40)
           {
-              add_unkn17_to_polypool(cx, cy, thing->creature.gold_carried, cz-3);
+              add_room_flag_pole_to_polypool(cx, cy, thing->roomflag.room_idx, cz-3);
               if (is_free_space_in_poly_pool(1))
               {
-                  add_unkn19_to_polypool(cx, cy, thing->creature.gold_carried, 1);
+                  add_room_flag_top_to_polypool(cx, cy, thing->roomflag.room_idx, 1);
               }
           }
         }
