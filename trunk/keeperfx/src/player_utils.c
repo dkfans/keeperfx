@@ -388,8 +388,8 @@ void init_player_as_single_keeper(struct PlayerInfo *player)
 void init_player(struct PlayerInfo *player, short no_explore)
 {
     SYNCDBG(5,"Starting");
-    player->minimap_pos_x = 10;
-    player->minimap_pos_y = 12;
+    player->minimap_pos_x = 11;
+    player->minimap_pos_y = 11;
     player->minimap_zoom = 256;
     player->field_4D1 = player->id_number;
     setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);

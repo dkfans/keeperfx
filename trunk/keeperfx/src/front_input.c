@@ -625,7 +625,7 @@ TbBool get_level_lost_inputs(void)
                   mnu_num = menu_id_to_number(GMnu_MAIN);
                   struct GuiMenu *gmnu;
                   gmnu = get_active_menu(mnu_num);
-                  mm_units_per_px = (gmnu->width * 16 + 136/2) / 136;
+                  mm_units_per_px = (gmnu->width * 16 + 140/2) / 140;
                   if (mm_units_per_px < 1)
                       mm_units_per_px = 1;
               }
@@ -718,7 +718,7 @@ long get_dungeon_control_action_inputs(void)
         mnu_num = menu_id_to_number(GMnu_MAIN);
         struct GuiMenu *gmnu;
         gmnu = get_active_menu(mnu_num);
-        mm_units_per_px = (gmnu->width * 16 + 136/2) / 136;
+        mm_units_per_px = (gmnu->width * 16 + 140/2) / 140;
         if (mm_units_per_px < 1)
             mm_units_per_px = 1;
     }
