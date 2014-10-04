@@ -1442,7 +1442,7 @@ unsigned short choose_health_sprite(struct Thing *thing)
     }
 }
 
-void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long a4)
+void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long zoom)
 {
     struct PlayerInfo *myplyr;
     const struct Camera *mycam;
@@ -1560,8 +1560,8 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
     if ( state_spridx || anger_spridx )
     {
         spr = &button_sprite[70];
-        w = (a4 * spr->SWidth * bs_units_per_px/16) >> 13;
-        h = (a4 * spr->SHeight * bs_units_per_px/16) >> 13;
+        w = (zoom * spr->SWidth * bs_units_per_px/16) >> 13;
+        h = (zoom * spr->SHeight * bs_units_per_px/16) >> 13;
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
     }
     lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR8;
@@ -1569,8 +1569,8 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
     if (((game.play_gameturn & 4) == 0) && (anger_spridx > 0))
     {
         spr = &button_sprite[anger_spridx];
-        w = spr->SWidth * bs_units_per_px/16;
-        h = spr->SHeight * bs_units_per_px/16;
+        w = (zoom * spr->SWidth * bs_units_per_px/16) >> 13;
+        h = (zoom * spr->SHeight * bs_units_per_px/16) >> 13;
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
         spr = &button_sprite[state_spridx];
         h_add += spr->SHeight * bs_units_per_px/16;
@@ -1578,8 +1578,8 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
     if ( state_spridx )
     {
         spr = &button_sprite[state_spridx];
-        w = spr->SWidth * bs_units_per_px/16;
-        h = spr->SHeight * bs_units_per_px/16;
+        w = (zoom * spr->SWidth * bs_units_per_px/16) >> 13;
+        h = (zoom * spr->SHeight * bs_units_per_px/16) >> 13;
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
         h_add += h;
     }
@@ -1592,8 +1592,8 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
             flash_owner = thing->owner;
         }
         spr = &button_sprite[health_spridx];
-        w = spr->SWidth * bs_units_per_px/16;
-        h = spr->SHeight * bs_units_per_px/16;
+        w = (zoom * spr->SWidth * bs_units_per_px/16) >> 13;
+        h = (zoom * spr->SHeight * bs_units_per_px/16) >> 13;
         LbSpriteDrawScaledOneColour(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h, player_flash_colours[flash_owner]);
     }
     else
@@ -1606,13 +1606,13 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
       {
           if (health_spridx > 0) {
               spr = &button_sprite[health_spridx];
-              w = spr->SWidth * bs_units_per_px/16;
-              h = spr->SHeight * bs_units_per_px/16;
+              w = (zoom * spr->SWidth * bs_units_per_px/16) >> 13;
+              h = (zoom * spr->SHeight * bs_units_per_px/16) >> 13;
               LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
           }
           spr = &button_sprite[184 + exp];
-          w = spr->SWidth * bs_units_per_px/16;
-          h = spr->SHeight * bs_units_per_px/16;
+          w = (zoom * spr->SWidth * bs_units_per_px/16) >> 13;
+          h = (zoom * spr->SHeight * bs_units_per_px/16) >> 13;
           LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
       }
     }
@@ -2665,7 +2665,7 @@ void display_drawlist(void)
           if (cam != NULL)
           {
               if ((cam->field_6 == 2) || (cam->field_6 == 5)) {
-                  draw_status_sprites(item.unk14->field_C, item.unk14->field_10, item.unk14->thing, camera_zoom/pixel_size);
+                  draw_status_sprites(item.unk14->field_C, item.unk14->field_10, item.unk14->thing, camera_zoom*16/units_per_pixel);
               }
           }
           break;
