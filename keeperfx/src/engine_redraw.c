@@ -63,7 +63,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_map_fade(unsigned char *a1, unsigned char *a2, unsigned char *a3, unsigned char *a4, unsigned char *a5, long a6, long const a7, long const a8, long a9);
+DLLIMPORT void _DK_map_fade(unsigned char *outbuf, unsigned char *srcbuf1, unsigned char *srcbuf2, unsigned char *fade_tbl, unsigned char *ghost_tbl, long a6, long const xmax, long const ymax, long a9);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -71,6 +71,9 @@ DLLIMPORT void _DK_map_fade(unsigned char *a1, unsigned char *a2, unsigned char 
 /******************************************************************************/
 void redraw_isometric_view(void);
 void redraw_frontview(void);
+/******************************************************************************/
+long xtab[640][2];
+long ytab[480][2];
 /******************************************************************************/
 void setup_engine_window(long x, long y, long width, long height)
 {
@@ -138,9 +141,96 @@ void load_engine_window(TbGraphicsWindow *ewnd)
     player->engine_window_height = ewnd->height;
 }
 
-void map_fade(unsigned char *a1, unsigned char *a2, unsigned char *a3, unsigned char *a4, unsigned char *a5, long a6, long const a7, long const a8, long a9)
+void map_fade(unsigned char *outbuf, unsigned char *srcbuf1, unsigned char *srcbuf2, unsigned char *fade_tbl, unsigned char *ghost_tbl, long a6, long const xmax, long const ymax, long a9)
 {
-    _DK_map_fade(a1, a2, a3, a4, a5, a6, a7, a8, a9); return;
+    //_DK_map_fade(outbuf, srcbuf1, srcbuf2, fade_tbl, ghost_tbl, a6, xmax, ymax, a9); return;
+    long ix, iy;
+    long x0base, x1base;
+    x1base = 4 * a6;
+    x0base = 4 * (32 - a6);
+    long * xt;
+    xt = xtab[0];
+    int vx0, vx1;
+    vx0 = 0;
+    vx1 = 0;
+    for (ix = xmax; ix > 0; ix--)
+    {
+        long m, val;
+        val = x1base + vx1 / xmax;
+        if (val >= 0) {
+            m = min(xmax,val);
+        } else {
+            m = 0;
+        }
+        xt[1] = m;
+        val = x0base + vx0 / xmax;
+        if (val >= 0) {
+            m = min(xmax,val);
+        } else {
+            m = 0;
+        }
+        xt[0] = m;
+        xt += 2;
+        vx0 += xmax - 8 * (32 - a6);
+        vx1 += xmax - 8 * a6;
+    }
+
+    long y0base, y1base;
+    y1base = 8 * ymax / xmax * x1base / 8;
+    y0base = 8 * ymax / xmax * x0base / 8;
+    long * yt;
+    yt = ytab[0];
+    int vy0, vy1;
+    vy1 = 0;
+    vy0 = 0;
+    for (iy = ymax; iy > 0; iy--)
+    {
+        long m, val;
+        val = y1base + vy1 / ymax;
+        if (val >= 0) {
+            m = min(ymax,val);
+        } else {
+            m = 0;
+        }
+        yt[1] = xmax * m;
+        val = y0base + vy0 / ymax;
+        if (val >= 0)
+        {
+            m = min(ymax,val);
+        } else {
+            m = 0;
+        }
+        yt[0] = xmax * m;
+        yt += 2;
+        vy0 += ymax - 2 * y0base;
+        vy1 += ymax - 2 * y1base;
+    }
+
+
+    unsigned char *out;
+    x0base = a6 << 8;
+    y0base = (32 - a6) << 8;
+    out = outbuf;
+    yt = ytab[0];
+    for (iy = ymax; iy > 0; iy--)
+    {
+        unsigned char *sbuf1;
+        unsigned char *sbuf2;
+        sbuf2 = &srcbuf2[yt[1]];
+        sbuf1 = &srcbuf1[yt[0]];
+        xt = xtab[0];
+        for (ix = xmax; ix > 0; ix--)
+        {
+            int px1, px2;
+            px1 = fade_tbl[x0base + sbuf1[xt[0]]];
+            px2 = fade_tbl[y0base + sbuf2[xt[1]]];
+            *out = ghost_tbl[256 * px2 + px1];
+            out++;
+            xt += 2;
+        }
+        out += a9 - xmax;
+        yt += 2;
+    }
 }
 
 void generate_map_fade_ghost_table(const char *fname, unsigned char *palette, unsigned char *ghost_table)
@@ -370,6 +460,10 @@ void set_engine_view(struct PlayerInfo *player, long val)
             break;
         S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
         S3DSetDeadzoneRadius(1280);
+        break;
+    case PVM_ParchFadeIn:
+    case PVM_ParchFadeOut:
+        // In fade states, keep the settings unchanged
         break;
     case PVM_FrontView:
         player->acamera = &player->cameras[3];
