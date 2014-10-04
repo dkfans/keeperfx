@@ -1394,17 +1394,21 @@ void draw_engine_room_flagpole(struct RoomFlag *rflg)
             int scale;
             int deltay;
             int height;
-            scale = cam->zoom/ pixel_size;
+            scale = cam->zoom;
             if (cam->field_6 == 5)
               scale = 4094;
-            deltay = pixel_size * (scale << 7 >> 13);
-            height = pixel_size * (2 * (71 * scale) >> 13);
-            LbDrawBox((pixel_size * rflg->x) / pixel_size,
-                      (pixel_size * rflg->y - deltay) / pixel_size,
-                      4 / pixel_size, height / pixel_size, colours[3][1][0]);
-            LbDrawBox((pixel_size * rflg->x + 2) / pixel_size,
-                      (pixel_size * rflg->y - deltay) / pixel_size,
-                      2 / pixel_size, height / pixel_size, colours[1][0][0]);
+            deltay = (scale << 7 >> 13);
+            height = (2 * (71 * scale) >> 13);
+            LbDrawBox(rflg->x,
+                      rflg->y - deltay * units_per_pixel / 16,
+                      (4 * units_per_pixel + 8) / 16,
+                      (height * units_per_pixel + 8) / 16,
+                      colours[3][1][0]);
+            LbDrawBox(rflg->x + 2 * units_per_pixel / 16,
+                      rflg->y - deltay * units_per_pixel / 16,
+                      (2 * units_per_pixel + 8) / 16,
+                      (height * units_per_pixel + 8) / 16,
+                      colours[1][0][0]);
         }
     }
 }
@@ -1622,37 +1626,48 @@ void draw_iso_only_fastview_mapwho(struct Camera *cam, struct JontySpr *spr)
 }
 
 #define ROOM_FLAG_PROGRESS_BAR_WIDTH 10
-void draw_room_flag_top(long x, long y, const struct Room *room)
+void draw_room_flag_top(long x, long y, int units_per_px, const struct Room *room)
 {
     unsigned long flg_mem;
     flg_mem = lbDisplay.DrawFlags;
     int bar_fill;
     int bar_empty;
     struct TbSprite *spr;
+    int ps_units_per_px;
     spr = &gui_panel_sprites[303];
-    LbSpriteDraw(x / pixel_size, y / pixel_size, spr);
+    ps_units_per_px = 36*units_per_px/spr->SHeight;
+    LbSpriteDrawScaled(x, y, spr, spr->SWidth * ps_units_per_px / 16, spr->SHeight * ps_units_per_px / 16);
+    int barpos_x;
+    barpos_x = x + spr->SWidth * ps_units_per_px / 16 - (8 * units_per_px - 8) / 16;
     spr = &gui_panel_sprites[room_info[room->kind].field_2];
-    bar_fill = LbSpriteDraw((x - 2) / pixel_size, (y - 4) / pixel_size, spr);
+    LbSpriteDrawResized(x - 2*units_per_px/16, y - 4*units_per_px/16, ps_units_per_px, spr);
+    bar_fill = ROOM_FLAG_PROGRESS_BAR_WIDTH;
     bar_empty = 0;
     if (room->slabs_count > 0)
     {
         bar_fill = ROOM_FLAG_PROGRESS_BAR_WIDTH * room->field_C / room->slabs_count;
         bar_empty = ROOM_FLAG_PROGRESS_BAR_WIDTH - bar_fill;
     }
-    LbDrawBox((x + 2 * (26 - bar_empty)) / pixel_size, (y + 8) / pixel_size, 2 * bar_empty / pixel_size, 4 / pixel_size, colours[0][0][0]);
+    int bar_width, bar_height;
+    bar_width = (2 * bar_empty * units_per_px + 8) / 16;
+    // Compute height in a way which will assure covering whole bar area
+    bar_height = (5 * units_per_px - 8) / 16;
+    LbDrawBox(barpos_x - bar_width, y +  (8 * units_per_px + 8) / 16, bar_width, bar_height, colours[0][0][0]);
     bar_empty = 0;
     if (room->total_capacity > 0)
     {
         bar_fill = ROOM_FLAG_PROGRESS_BAR_WIDTH * room->used_capacity / room->total_capacity;
         bar_empty = ROOM_FLAG_PROGRESS_BAR_WIDTH - bar_fill;
     }
-    LbDrawBox((x + 2 * (26 - bar_empty)) / pixel_size, (y + 16) / pixel_size, 2 * bar_empty / pixel_size, 4 / pixel_size, colours[0][0][0]);
+    bar_width = (2 * bar_empty * units_per_px + 8) / 16;
+    LbDrawBox(barpos_x - bar_width, y + (16 * units_per_px + 8) / 16, bar_width, bar_height, colours[0][0][0]);
     bar_empty = 0;
     {
         bar_fill = ROOM_FLAG_PROGRESS_BAR_WIDTH * room->efficiency / 256;
         bar_empty = ROOM_FLAG_PROGRESS_BAR_WIDTH - bar_fill;
     }
-    LbDrawBox((x + 2 * (26 - bar_empty)) / pixel_size, (y + 24) / pixel_size, 2 * bar_empty / pixel_size, 4 / pixel_size, colours[0][0][0]);
+    bar_width = (2 * bar_empty * units_per_px + 8) / 16;
+    LbDrawBox(barpos_x - bar_width, y + (24 * units_per_px + 8) / 16, bar_width, bar_height, colours[0][0][0]);
     lbDisplay.DrawFlags = flg_mem;
 }
 #undef ROOM_FLAG_PROGRESS_BAR_WIDTH
@@ -1678,7 +1693,7 @@ void draw_engine_room_flag_top(struct RoomFlag *rflg)
         zoom = cam->zoom / pixel_size;
         if (cam->field_6 == 5)
           zoom = 4094;
-        draw_room_flag_top(rflg->x, rflg->y - pixel_size * (zoom << 7 >> 13), room);
+        draw_room_flag_top(rflg->x, rflg->y - pixel_size * (zoom << 7 >> 13), units_per_pixel, room);
       }
     }
 }
