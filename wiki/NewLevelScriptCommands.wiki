@@ -103,13 +103,13 @@ Displays one of the text messages from language-specific strings banks in an Obj
 || *name* || *description* ||
 || MONEY || The amount of money the player has ||
 || GAME_TURN || The current game turn (player independent) ||
-|| TOTAL_IMPS || The number of Imps that player has got ||
+|| TOTAL_DIGGERS || The number of special diggers (Imps) that player has got ||
 || TOTAL_CREATURES || The number of creatures that player has got ||
 || TOTAL_RESEARCH || The amount of research points that player has got (see manipulating research section for more information) ||
 || TOTAL_DOORS || The amount of doors that player has got ||
 || TOTAL_AREA || The amount of tiles that player owns ||
-|| TOTAL_CREATURES_LEFT || The amount of creatures that have left that player’s dungeon because they were annoyed ||
-|| CREATURES_ANNOYED || The number of creatures annoyed in that player’s dungeon ||
+|| TOTAL_CREATURES_LEFT || The amount of creatures that have left that player's dungeon because they were annoyed ||
+|| CREATURES_ANNOYED || The number of creatures annoyed in that player's dungeon ||
 || BATTLES_WON || The number of battles won by that player ||
 || BATTLES_LOST || The number of battles lost by that player ||
 || ROOMS_DESTROYED || The number of rooms belonging to the player which were sold or destroyed ||
