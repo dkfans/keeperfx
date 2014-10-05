@@ -99,6 +99,8 @@ Displays one of the text messages from language-specific strings banks in an Obj
 
   `[name]` -  The name of a variable, timer, flag, creature, room, trap or door.
   * Checking variable returns its value at the moment. Variables are:
+
+|| *name* || *description* ||
 || MONEY || The amount of money the player has ||
 || GAME_TURN || The current game turn (player independent) ||
 || TOTAL_IMPS || The number of Imps that player has got ||
@@ -120,7 +122,8 @@ Displays one of the text messages from language-specific strings banks in an Obj
 || DOORS_DESTROYED || The number of doors belonging to the player which were sold or destroyed ||
 || TOTAL_GOLD_MINED || Total amount of gold mined by the player ||
 || GOLD_POTS_STOLEN || Number of gold pots that were stolen from the player ||
-|| BREAK_IN ||  ||
+|| BREAK_IN || Amount of break-ins ||
+
   * Checking creature returns how many creatures of that kind a player owns. It doesn't matter if the player can controls them, or they're in custody.
   * Checking room returns how many slabs of that room the player owns.
   * Checking trap or door availability returns amount of deployed traps and doors owned by that player.
