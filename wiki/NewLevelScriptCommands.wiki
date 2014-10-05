@@ -88,6 +88,20 @@ Displays one of the text messages from language-specific strings banks in an Obj
 
   `[place]` - Location where the view should be centered if the player clicks on the "zoom to" icon on the Message Panel. It can have the same values as in `DISPLAY_INFORMATION` command above.
 
+==`IF`==
+
+  This is used to test the differences between two values ([variable] and [a]). If those two values agree with the comparison, the script will continue. If the two values do not agree with the comparison, the script will find the next ENDIF and continue from there. New option values have been added to this command, and some original options were changed:
+
+{{{
+  IF_AVAILABLE(​[player],​[variable]​[comparison]​[a])
+}}}
+  where:
+
+  `[name]` -  The name of a variable, timer, flag, creature, room, trap or door.
+  * Checking creature returns how many creatures of that kind a player owns. I doesn't matter if the player can controls them, or they're in custody.
+  * Checking room returns how many slabs of that room the player owns.
+  * Checking trap or door availability returns amount of deployed traps and doors owned by that player.
+
 ==`IF_AVAILABLE`==
   Checks availability of an item for the player. New option values have been added to this command:
 {{{
