@@ -129,6 +129,8 @@ Displays one of the text messages from language-specific strings banks in an Obj
   * Checking trap or door availability returns amount of deployed traps and doors owned by that player.
   * Checking TIMERx or FLAGx returns its current value.
 
+  `[player]` - The player’s name, e.g. PLAYER1. if ALL_PLAYERS is used, then the condition has to be met for all of the players in order for the commands inside to be executed.
+
 ==`IF_AVAILABLE`==
   Checks availability of an item for the player. New option values have been added to this command:
 {{{
