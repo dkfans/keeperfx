@@ -2648,9 +2648,237 @@ void set_player_cameras_position(struct PlayerInfo *player, long pos_x, long pos
     player->cameras[0].mappos.y.val = pos_y;
 }
 
+void scale_tmap2(long a1, long flags, long a3, long a4x, long a4y, long a6x, long a6y)
+{
+    if ((a6x == 0) || (a6y == 0)) {
+        return;
+    }
+    long xstart, ystart, xend, yend;
+    char orient;
+    switch (flags)
+    {
+    case 0:
+        xstart = 0;
+        ystart = 0;
+        xend = 2097151 / a6x;
+        yend = 2097151 / a6y;
+        orient = 0;
+        break;
+    case 0x10:
+        xstart = 2097151;
+        ystart = 0;
+        xend = -2097151 / a6x;
+        yend = 2097151 / a6y;
+        orient = 0;
+        break;
+    case 0x20:
+        xstart = 0;
+        ystart = 2097151;
+        xend = 2097151 / a6x;
+        yend = -2097151 / a6y;
+        orient = 0;
+        break;
+    case 0x30:
+        xstart = 2097151;
+        ystart = 2097151;
+        xend = -2097151 / a6x;
+        yend = -2097151 / a6y;
+        orient = 0;
+        break;
+    case 0x40:
+        ystart = 0;
+        xstart = 0;
+        yend = 2097151 / a6y;
+        xend = 2097151 / a6x;
+        orient = 1;
+        break;
+    case 0x50:
+        ystart = 0;
+        xstart = 2097151;
+        yend = 2097151 / a6y;
+        xend = -2097151 / a6x;
+        orient = 1;
+        break;
+    case 0x60:
+        ystart = 2097151;
+        xstart = 0;
+        yend = -2097151 / a6y;
+        xend = 2097151 / a6x;
+        orient = 1;
+        break;
+    case 0x70:
+        xstart = 2097151;
+        ystart = 2097151;
+        yend = -2097151 / a6y;
+        xend = -2097151 / a6x;
+        orient = 1;
+        break;
+    default:
+          return;
+    }
+    long v10, v12;
+    v10 = a4x;
+    if (v10 < 0)
+    {
+        a6x += a4x;
+        if (a6x < 0) {
+            return;
+        }
+        xstart -= xend * a4x;
+        v10 = 0;
+    }
+    if (v10 + a6x > vec_window_width)
+    {
+        a6x = vec_window_width - v10;
+        if (a6x < 0) {
+            return;
+        }
+    }
+    v12 = a4y;
+    if (v12 < 0)
+    {
+        a6y += a4y;
+        if (a6y < 0) {
+            return;
+        }
+        ystart -= a4y * yend;
+        v12 = 0;
+    }
+    if (v12 + a6y > vec_window_height)
+    {
+        a6y = vec_window_height - v12;
+        if (a6y < 0) {
+            return;
+        }
+    }
+    int i;
+    long hlimits[480];
+    long wlimits[640];
+    long *xlim;
+    long *ylim;
+    unsigned char *dbuf;
+    unsigned char *block;
+    if (!orient)
+    {
+        xlim = wlimits;
+        for (i = a6x; i > 0; i--)
+        {
+            *xlim = xstart;
+            xlim++;
+            xstart += xend;
+        }
+        ylim = hlimits;
+        for (i = a6y; i > 0; i--)
+        {
+            *ylim = ystart;
+            ylim++;
+            ystart += yend;
+        }
+        dbuf = &vec_screen[v10 + v12 * vec_screen_width];
+        block = block_ptrs[a1];
+        ylim = hlimits;
+        long px, py;
+        int srcx, srcy;
+        unsigned char *d;
+        if ( a3 >= 0 )
+        {
+          for (py = a6y; py > 0; py--)
+          {
+              xlim = wlimits;
+              d = dbuf;
+              srcy = (((*ylim) & 0xFF0000u) >> 16);
+              for (px = a6x; px > 0; px--)
+              {
+                srcx = (((*xlim) & 0xFF0000u) >> 16);
+                xlim++;
+                *d = pixmap.fade_tables[256 * a3 + block[(srcy << 8) + srcx]];
+                ++d;
+              }
+              dbuf += vec_screen_width;
+              ylim++;
+          }
+        } else
+        {
+          for (py = a6y; py > 0; py--)
+          {
+            xlim = wlimits;
+            d = dbuf;
+            srcy = (((*ylim) & 0xFF0000u) >> 16);
+            for (px = a6x; px > 0; px--)
+            {
+              srcx = (((*xlim) & 0xFF0000u) >> 16);
+              xlim++;
+              *d = block[(srcy << 8) + srcx];
+              ++d;
+            }
+            dbuf += vec_screen_width;
+            ylim++;
+          }
+        }
+    } else
+    {
+        ylim = wlimits;
+        for (i = a6y; i > 0; i--)
+        {
+          *ylim = ystart;
+          ylim++;
+          ystart += yend;
+        }
+        xlim = hlimits;
+        for (i = a6x; i > 0; i--)
+        {
+          *xlim = xstart;
+          xlim++;
+          xstart += xend;
+        }
+        dbuf = &vec_screen[v10 + v12 * vec_screen_width];
+        block = block_ptrs[a1];
+        ylim = wlimits;
+        long px, py;
+        int srcx, srcy;
+        unsigned char *d;
+        if ( a3 >= 0 )
+        {
+          for (py = a6y; py > 0; py--)
+          {
+              xlim = hlimits;
+              d = dbuf;
+              srcy = (((*ylim) & 0xFF0000u) >> 16);
+              for (px = a6x; px > 0; px--)
+              {
+                srcx = (((*xlim) & 0xFF0000u) >> 16);
+                xlim++;
+                *d = pixmap.fade_tables[256 * a3 + block[(srcx << 8) + srcy]];
+                ++d;
+              }
+              dbuf += vec_screen_width;
+              ylim++;
+          }
+        } else
+        {
+          for (py = a6y; py > 0; py--)
+          {
+            xlim = hlimits;
+            d = dbuf;
+            srcy = (((*ylim) & 0xFF0000u) >> 16);
+            for (px = a6x; px > 0; px--)
+            {
+              srcx = (((*xlim) & 0xFF0000u) >> 16);
+              xlim++;
+              *d = block[(srcx << 8) + srcy];
+              ++d;
+            }
+            dbuf += vec_screen_width;
+            ylim++;
+          }
+        }
+    }
+}
+
 void draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7)
 {
-  _DK_draw_texture(a1, a2, a3, a4, a5, a6, a7);
+    //_DK_draw_texture(a1, a2, a3, a4, a5, a6, a7);
+    scale_tmap2(a5, a6, a7, a1 / pixel_size, a2 / pixel_size, a3 / pixel_size, a4 / pixel_size);
 }
 
 void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
