@@ -377,8 +377,6 @@ DLLIMPORT long _DK_fade_way_out;
 #define fade_way_out _DK_fade_way_out
 DLLIMPORT struct MapVolumeBox _DK_map_volume_box;
 #define map_volume_box _DK_map_volume_box
-DLLIMPORT long _DK_map_angle;
-#define map_angle _DK_map_angle
 DLLIMPORT long _DK_map_roll;
 #define map_roll _DK_map_roll
 DLLIMPORT long _DK_map_tilt;
@@ -486,6 +484,8 @@ DLLIMPORT struct HeapMgrHeader *_DK_graphics_heap;
 #define graphics_heap _DK_graphics_heap
 DLLIMPORT TbFileHandle _DK_file_handle;
 #define file_handle _DK_file_handle
+DLLIMPORT long _DK_cam_map_angle;
+#define cam_map_angle _DK_cam_map_angle
 /******************************************************************************/
 //extern unsigned char temp_cluedo_mode;
 /******************************************************************************/

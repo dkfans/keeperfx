@@ -210,6 +210,7 @@
  0003:00052DC8       emitter
  0003:000AB428       MyScreenWidth
  0003:000EBED4       MyScreenHeight
+ 0003:00030D08       cam_map_angle
  0003:00030D14       top_pointed_at_y
  0003:00030D18       top_pointed_at_x
  0003:00030D1C       top_pointed_at_frac_x
@@ -503,7 +504,6 @@
  0003:000317A8       normal_shade_left
  0003:00031C74       normal_shade_front
  0003:00030D3C       fade_way_out
- 0003:00030D08       map_angle
  0003:00031178       map_roll
  0003:00031588       map_tilt
  0003:00030D38       view_alt
