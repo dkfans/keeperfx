@@ -1724,7 +1724,7 @@
  0003:00030CF8       torture_door_selected
  0003:00030CFC       torture_background
  0003:00030D00       smooth_on
- 0003:00030D08       map_angle
+ 0003:00030D08       cam_map_angle
  0003:00030D0C       floor_pointed_at_y
  0003:00030D10       floor_pointed_at_x
  0003:00030D14       top_pointed_at_y

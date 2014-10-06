@@ -382,7 +382,150 @@ void do_perspective_rotation(long x, long y, long z)
 void find_gamut(void)
 {
     SYNCDBG(19,"Starting");
-    _DK_find_gamut();
+    //_DK_find_gamut();
+    {
+        long cell_cur, cell_lim;
+        struct MinMax *mml;
+        struct MinMax *mmr;
+        cell_lim = cells_away + 1;
+        mml = &minmaxs[31];
+        mmr = &minmaxs[31];
+        for (cell_cur = 0; cell_cur < cell_lim; cell_cur++)
+        {
+            long dist;
+            dist = LbSqrL(cell_lim * cell_lim - cell_cur * cell_cur);
+            mmr->max = dist;
+            mml->max = dist;
+            dist = -mmr->max;
+            mmr->min = dist;
+            mml->min = dist;
+            mmr++;
+            mml--;
+        }
+    }
+    if (lens_mode == 0) {
+        return;
+    }
+
+    int angle_sin, angle_cos;
+    angle_sin = LbSinL(cam_map_angle);
+    angle_cos = LbCosL(cam_map_angle);
+    int cells_w, cells_h;
+    cells_h = 6 * angle_cos >> 16;
+    cells_w = -6 * angle_sin >> 16;
+    int scr_w1, scr_h1, scr_w2, scr_h2;
+    long screen_dist;
+    screen_dist = (lbDisplay.PhysicalScreenWidth << 7) / lens;
+    scr_w1 = cells_w + ((screen_dist * angle_cos - (angle_sin << 8)) >> 16);
+    scr_h1 = cells_h + (((angle_cos << 8) + screen_dist * angle_sin) >> 16);
+    scr_w2 = cells_w + ((-screen_dist * angle_cos - (angle_sin << 8)) >> 16);
+    scr_h2 = cells_h + (((angle_cos << 8) - screen_dist * angle_sin) >> 16);
+    int mbase, delta;
+    struct MinMax *mm;
+    int cell_curr;
+    if (scr_h1 >= cells_h)
+    {
+        delta = ((scr_w1 - cells_w) << 8) / (scr_h1 - cells_h);
+        mm = &minmaxs[-cells_away + 31];
+        mbase = delta * (-cells_away - cells_h);
+        for (cell_curr = -cells_away; cell_curr <= cells_away; cell_curr++)
+        {
+            int nlimit;
+            nlimit = cells_w + (mbase >> 8);
+            if (mm->max > nlimit)
+                mm->max = nlimit;
+            mm++;
+            mbase += delta;
+        }
+    } else
+    if (scr_h1 > cells_h)
+    {
+        delta = ((scr_w1 - cells_w) << 8) / (scr_h1 - cells_h);
+        mm = &minmaxs[-cells_away + 31];
+        mbase = delta * (-cells_away - cells_h);
+        for (cell_curr = -cells_away; cell_curr <= cells_away; cell_curr++)
+        {
+            int nlimit;
+            nlimit = cells_w + (mbase >> 8);
+            if (mm->min < nlimit)
+                mm->min = nlimit;
+            mm++;
+            mbase += delta;
+        }
+    } else
+    {
+        if (scr_w1 <= cells_w)
+        {
+            mm = &minmaxs[cells_h + 31];
+            for (cell_curr = cells_h; cell_curr >= -cells_away; cell_curr--)
+            {
+                mm->max = 0;
+                mm->min = 0;
+                mm--;
+            }
+        } else
+        {
+            mm = &minmaxs[cells_h + 31];
+            for (cell_curr = cells_h; cell_curr <= cells_away; cell_curr++)
+            {
+                mm->max = 0;
+                mm->min = 0;
+                mm++;
+            }
+        }
+    }
+
+    if (scr_h2 < cells_h)
+    {
+        delta = ((scr_w2 - cells_w) << 8) / (scr_h2 - cells_h);
+        mm = &minmaxs[-cells_away + 31];
+        mbase = delta * (-cells_away - cells_h);
+        for (cell_curr = -cells_away; cell_curr <= cells_away; cell_curr++)
+        {
+            int nlimit;
+            nlimit = cells_w + (mbase >> 8);
+            if ( mm->min < nlimit )
+              mm->min = nlimit;
+            mm++;
+            mbase += delta;
+        }
+    } else
+    if (scr_h2 > cells_h)
+    {
+        delta = ((scr_w2 - cells_w) << 8) / (scr_h2 - cells_h);
+        mm = &minmaxs[-cells_away + 31];
+        mbase = delta * (-cells_away - cells_h);
+        for (cell_curr = -cells_away; cell_curr <= cells_away; cell_curr++)
+        {
+            int nlimit;
+            nlimit = cells_w + (mbase >> 8);
+            if (mm->max > nlimit)
+              mm->max = nlimit;
+            mm++;
+            mbase += delta;
+        }
+    } else
+    {
+        if (cells_w <= scr_w2)
+        {
+            mm = &minmaxs[cells_h + 31];
+            for ( ; cells_h >= -cells_away; cells_h--)
+            {
+                mm->max = 0;
+                mm->min = 0;
+                mm--;
+            }
+        } else
+        {
+            mm = &minmaxs[cells_h + 31];
+            for ( ; cells_away >= cells_h; cells_h++)
+            {
+                mm->max = 0;
+                mm->min = 0;
+                mm++;
+            }
+        }
+    }
 }
 
 void fiddle_half_gamut(long a1, long a2, long a3, long a4)
@@ -2819,7 +2962,7 @@ void draw_view(struct Camera *cam, unsigned char a2)
     update_normal_shade(&camera_matrix);
     rotate_base_axis(&camera_matrix, -cam->orient_b, 1);
     rotate_base_axis(&camera_matrix, -cam->orient_c, 3);
-    map_angle = cam->orient_a;
+    cam_map_angle = cam->orient_a;
     map_roll = cam->orient_c;
     map_tilt = -cam->orient_b;
     x = cam->mappos.x.val;
@@ -2832,11 +2975,11 @@ void draw_view(struct Camera *cam, unsigned char a2)
         cells_away = max_i_can_see;
         update_fade_limits(cells_away);
         fade_range = (fade_max - fade_min) >> 8;
-        setup_rotate_stuff(x, y, z, fade_max, fade_min, lens, map_angle, map_roll);
+        setup_rotate_stuff(x, y, z, fade_max, fade_min, lens, cam_map_angle, map_roll);
     } else
     {
         fade_min = 1000000;
-        setup_rotate_stuff(x, y, z, fade_max, fade_min, camera_zoom/pixel_size, map_angle, map_roll);
+        setup_rotate_stuff(x, y, z, fade_max, fade_min, camera_zoom/pixel_size, cam_map_angle, map_roll);
         do_perspective_rotation(x, y, z);
         cells_away = compute_cells_away();
     }
