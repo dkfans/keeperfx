@@ -27,6 +27,8 @@
 #include "dungeon_data.h"
 #include "player_utils.h"
 #include "thing_data.h"
+#include "thing_navigate.h"
+#include "creature_states.h"
 #include "config_creature.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
@@ -44,7 +46,57 @@ DLLIMPORT struct Thing *_DK_create_creature_at_entrance(struct Room * room, unsi
 /******************************************************************************/
 struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crtr_kind)
 {
-    return _DK_create_creature_at_entrance(room, crtr_kind);
+    //return _DK_create_creature_at_entrance(room, crtr_kind);
+    struct Thing *creatng;
+    struct Coord3d pos;
+    pos.x.val = room->central_stl_x;
+    pos.y.val = room->central_stl_y;
+    pos.z.val = subtile_coord(1,0);
+    creatng = create_creature(&pos, crtr_kind, room->owner);
+    if (thing_is_invalid(creatng)) {
+        ERRORLOG("Cannot create creature %s for player %d entrance",creature_code_name(crtr_kind),(int)room->owner);
+        return INVALID_THING;
+    }
+    if (room->owner != game.neutral_player_num)
+    {
+        struct Dungeon *dungeon;
+        dungeon = get_dungeon(room->owner);
+        if ((dungeon->owned_creatures_of_model[crtr_kind] <= 1) && (dungeon->creature_models_joined[crtr_kind] == 0))
+        {
+            event_create_event(creatng->mappos.x.val, creatng->mappos.y.val, EvKind_NewCreature, room->owner, creatng->index);
+            dungeon->creature_models_joined[crtr_kind]++;
+        }
+    }
+    if (!find_random_valid_position_for_thing_in_room(creatng, room, &pos)) {
+        ERRORLOG("Cannot find a valid place in player %d entrance to create creature %s",(int)room->owner,creature_code_name(crtr_kind));
+        delete_thing_structure(creatng, 0);
+        return INVALID_THING;
+    }
+    move_thing_in_map(creatng, &pos);
+    if (room->owner != game.neutral_player_num)
+    {
+        struct Dungeon *dungeon;
+        dungeon = get_dungeon(room->owner);
+        dungeon->lvstats.field_4++;
+        dungeon->lvstats.field_8++;
+        dungeon->lvstats.field_88 = crtr_kind;
+    }
+    struct Thing *heartng;
+    heartng = get_player_soul_container(room->owner);
+    TRACE_THING(heartng);
+    if (!thing_is_invalid(heartng))
+    {
+        if (setup_person_move_to_position(creatng, heartng->mappos.x.stl.num, heartng->mappos.y.stl.num, 0)) {
+            creatng->continue_state = CrSt_CreaturePresentToDungeonHeart;
+        } else {
+            heartng = INVALID_THING;
+        }
+    }
+    if (thing_is_invalid(heartng))
+    {
+        set_start_state(creatng);
+    }
+    return creatng;
 }
 
 /** Checks if an entrance shall now generate next creature.
@@ -191,7 +243,7 @@ TbBool creature_will_generate_for_dungeon(const struct Dungeon * dungeon, ThingM
 TbBool remove_creature_from_generate_pool(ThingModel crtr_kind)
 {
     if (game.pool.crtr_kind[crtr_kind] <= 0) {
-        ERRORLOG("Trying to remove an unavailable creature from the creature pool");
+        WARNLOG("Could not remove creature %s from the creature pool",creature_code_name(crtr_kind));
         return false;
     }
     game.pool.crtr_kind[crtr_kind]--;
@@ -275,9 +327,7 @@ TbBool generate_creature_at_random_entrance(struct Dungeon * dungeon, ThingModel
     if (thing_is_invalid(creatng)) {
         return false;
     }
-    if (game.pool.crtr_kind[crtr_kind] > 0) {
-        game.pool.crtr_kind[crtr_kind] -= 1;
-    }
+    remove_creature_from_generate_pool(crtr_kind);
     return true;
 }
 
