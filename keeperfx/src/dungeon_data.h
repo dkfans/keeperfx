@@ -139,7 +139,7 @@ struct Dungeon {
     /** Counter of creatures praying. */
     unsigned char creatures_praying[CREATURE_TYPES_COUNT];
     unsigned char chickens_sacrificed;
-    unsigned char field_8D5;
+    unsigned char gold_piles_sacrificed;
     unsigned char creature_sacrifice[CREATURE_TYPES_COUNT];
     unsigned char creature_sacrifice_exp[CREATURE_TYPES_COUNT];
     unsigned char field_916[2];

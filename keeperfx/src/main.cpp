@@ -1005,7 +1005,7 @@ void update_creatr_model_activities_list(void)
     for (crmodel=1; crmodel < CREATURE_TYPES_COUNT; crmodel++)
     {
         if ((dungeon->owned_creatures_of_model[crmodel] > 0)
-            && (crmodel != get_players_spectator_breed(my_player_number)))
+            && (crmodel != get_players_spectator_model(my_player_number)))
         {
             int i;
             for (i=0; i < num_breeds; i++)
@@ -1555,7 +1555,7 @@ void level_lost_go_first_person(PlayerNumber plyr_idx)
         ERRORLOG("Unable to get player %d dungeon",(int)plyr_idx);
         return;
     }
-    spectator_breed = get_players_spectator_breed(plyr_idx);
+    spectator_breed = get_players_spectator_model(plyr_idx);
     player->dungeon_camera_zoom = get_camera_zoom(player->acamera);
     thing = create_and_control_creature_as_controller(player, spectator_breed, &dungeon->mappos);
     if (thing_is_invalid(thing)) {
