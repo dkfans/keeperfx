@@ -199,6 +199,16 @@ long get_mapblk_filled_subtiles(const struct Map *mapblk)
 }
 
 /**
+ * Returns wibble value in map block.
+ * @param map Map block to be checked.
+ * @return Wibble value, used for rendering.
+ */
+long get_mapblk_wibble_value(const struct Map *mapblk)
+{
+    return ((mapblk->data & 0xC00000u) >> 22);
+}
+
+/**
  * Sets amount of filled subtiles (height of a column) in map block.
  * @param map Map block to be updated.
  * @param height The new height.

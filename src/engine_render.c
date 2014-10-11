@@ -111,6 +111,42 @@ long const orient_to_mapV1[] = { 0x00, 0x00, 0x1F0000, 0x1F0000 };
 long const orient_to_mapV2[] = { 0x00, 0x1F0000, 0x1F0000, 0x00 };
 long const orient_to_mapV3[] = { 0x1F0000, 0x1F0000, 0x00, 0x00 };
 long const orient_to_mapV4[] = { 0x1F0000, 0x00, 0x00, 0x1F0000 };
+
+unsigned char const height_masks[] = {
+  0, 1, 2, 2, 3, 3, 3, 3,
+  4, 4, 4, 4, 4, 4, 4, 4,
+  5, 5, 5, 5, 5, 5, 5, 5,
+  5, 5, 5, 5, 5, 5, 5, 5,
+  6, 6, 6, 6, 6, 6, 6, 6,
+  6, 6, 6, 6, 6, 6, 6, 6,
+  6, 6, 6, 6, 6, 6, 6, 6,
+  6, 6, 6, 6, 6, 6, 6, 6,
+  7, 7, 7, 7, 7, 7, 7, 7,
+  7, 7, 7, 7, 7, 7, 7, 7,
+  7, 7, 7, 7, 7, 7, 7, 7,
+  7, 7, 7, 7, 7, 7, 7, 7,
+  7, 7, 7, 7, 7, 7, 7, 7,
+  7, 7, 7, 7, 7, 7, 7, 7,
+  7, 7, 7, 7, 7, 7, 7, 7,
+  7, 7, 7, 7, 7, 7, 7, 7,
+  8, 8, 8, 8, 8, 8, 8, 8,
+  8, 8, 8, 8, 8, 8, 8, 8,
+  8, 8, 8, 8, 8, 8, 8, 8,
+  8, 8, 8, 8, 8, 8, 8, 8,
+  8, 8, 8, 8, 8, 8, 8, 8,
+  8, 8, 8, 8, 8, 8, 8, 8,
+  8, 8, 8, 8, 8, 8, 8, 8,
+  8, 8, 8, 8, 8, 8, 8, 8,
+  8, 8, 8, 8, 8, 8, 8, 8,
+  8, 8, 8, 8, 8, 8, 8, 8,
+  8, 8, 8, 8, 8, 8, 8, 8,
+  8, 8, 8, 8, 8, 8, 8, 8,
+  8, 8, 8, 8, 8, 8, 8, 8,
+  8, 8, 8, 8, 8, 8, 8, 8,
+  8, 8, 8, 8, 8, 8, 8, 8,
+  8, 8, 8, 8, 8, 8, 8, 8,
+};
+
 //unsigned char temp_cluedo_mode;
 unsigned long render_problems;
 long render_prob_kind;
@@ -305,9 +341,125 @@ void rotate_base_axis(struct M33 *matx, short a2, unsigned char a3)
   _DK_rotate_base_axis(matx, a2, a3);
 }
 
-void fill_in_points_perspective(long a1, long a2, struct MinMax *mm)
+void fill_in_points_perspective(long bstl_x, long bstl_y, struct MinMax *mm)
 {
-  _DK_fill_in_points_perspective(a1, a2, mm);
+    //_DK_fill_in_points_perspective(a1, a2, mm); return;
+    if ((bstl_y < 0) || (bstl_y > map_subtiles_y-1)) {
+        return;
+    }
+    long mmin, mmax;
+    mmin = min(mm[0].min,mm[1].min);
+    mmax = max(mm[0].max,mm[1].max);
+    if (mmin + bstl_x < 1)
+      mmin = 1 - bstl_x;
+    if (mmax + bstl_x > map_subtiles_y)
+      mmax = map_subtiles_y - bstl_x;
+
+    MapSubtlCoord stl_x, stl_y;
+    stl_y = bstl_y;
+    stl_x = mmin + bstl_x;
+    apos += mmin << 8;
+    struct EngineCol *ecol;
+    ecol = &front_ec[mmin + 31];
+    unsigned long mask_unrev;
+    {
+        struct Column *col;
+        col = get_column(game.unrevealed_column_idx);
+        mask_unrev = col->solidmask + 65536;
+    }
+    struct Map *mapblk;
+    struct Column *col;
+    unsigned long pfulmask_or, pfulmask_and;
+    {
+        unsigned long mask_cur, mask_yp;
+        mask_cur = mask_unrev;
+        mask_yp = mask_unrev;
+        mapblk = get_map_block_at(stl_x-1, stl_y+1);
+        if (map_block_revealed_bit(mapblk, player_bit)) {
+            col = get_map_column(mapblk);
+            mask_cur = col->solidmask;
+        }
+        mapblk = get_map_block_at(stl_x-1, stl_y);
+        if (map_block_revealed_bit(mapblk, player_bit)) {
+            col = get_map_column(mapblk);
+            mask_yp = col->solidmask;
+        }
+        pfulmask_or = mask_cur | mask_yp;
+        pfulmask_and = mask_cur & mask_yp;
+    }
+    int wib_x, wib_y, wib_v;
+    wib_y = (stl_y + 1) & 3;
+    int idxx;
+    for (idxx=mmax-mmin+1; idxx > 0; idxx--)
+    {
+        unsigned long mask_cur, mask_yp;
+        mask_cur = mask_unrev;
+        mask_yp = mask_unrev;
+        mapblk = get_map_block_at(stl_x, stl_y+1);
+        wib_v = get_mapblk_wibble_value(mapblk);
+        if (map_block_revealed_bit(mapblk, player_bit)) {
+            col = get_map_column(mapblk);
+            mask_cur = col->solidmask;
+        }
+        mapblk = get_map_block_at(stl_x, stl_y);
+        if (map_block_revealed_bit(mapblk, player_bit)) {
+            col = get_map_column(mapblk);
+            mask_yp = col->solidmask;
+        }
+        unsigned long nfulmask_or, nfulmask_and;
+        nfulmask_or = mask_cur | mask_yp;
+        nfulmask_and = mask_cur & mask_yp;
+        unsigned long fulmask_or, fulmask_and;
+        fulmask_or = nfulmask_or | pfulmask_or;
+        fulmask_and = nfulmask_and & pfulmask_and;
+        int lightness;
+        lightness = 0;
+        if ((fulmask_or & 0x10000) == 0)
+            lightness = game.lish.subtile_lightness[get_subtile_number(stl_x, stl_y+1)];
+        pfulmask_or = nfulmask_or;
+        pfulmask_and = nfulmask_and;
+        long hmin, hmax;
+        hmax = height_masks[fulmask_or & 0xff];
+        hmin = floor_height[fulmask_and];
+        struct EngineCoord *ecord;
+        ecord = &ecol->cors[hmin];
+        long hpos;
+        hpos = (hmin << 8) - view_alt;
+        wib_x = stl_x & 3;
+        struct WibbleTable *wibl;
+        wibl = &wibble_table[32 * wib_v + wib_x + (wib_y << 2)];
+        int idxh;
+        for (idxh = hmax-hmin+1; idxh > 0; idxh--)
+        {
+            ecord->x = apos + wibl->field_0;
+            ecord->y = hpos + wibl->field_4;
+            ecord->z = bpos + wibl->field_8;
+            ecord->field_8 = 0;
+            lightness += wibl->field_C;
+            if (lightness < 0)
+                lightness = 0;
+            if (lightness > 16128)
+                lightness = 16128;
+            ecord->field_A = lightness;
+            wibl += 2;
+            hpos += 256;
+            rotpers(ecord, &camera_matrix);
+            ecord++;
+        }
+        wibl -= 2;
+        hpos = (get_mapblk_filled_subtiles(mapblk) << 8) - view_alt;
+        if (wib_v == 2)
+          wibl = &wibble_table[wib_x + 2 * (hmax + 2 * wib_y - hmin) + 32];
+        ecol->cors[8].x = apos + wibl->field_0;
+        ecol->cors[8].y = hpos + wibl->field_4;
+        ecol->cors[8].z = bpos + wibl->field_8;
+        ecol->cors[8].field_8 = 0;
+        ecol->cors[8].field_A = lightness;
+        rotpers(&ecol->cors[8], &camera_matrix);
+        stl_x++;
+        ecol++;
+        apos += 256;
+    }
 }
 
 void fill_in_points_cluedo(long a1, long a2, struct MinMax *mm)
@@ -382,7 +534,7 @@ void do_perspective_rotation(long x, long y, long z)
 void find_gamut(void)
 {
     SYNCDBG(19,"Starting");
-    //_DK_find_gamut();
+    //_DK_find_gamut(); return;
     {
         long cell_cur, cell_lim;
         struct MinMax *mml;
@@ -423,7 +575,7 @@ void find_gamut(void)
     int mbase, delta;
     struct MinMax *mm;
     int cell_curr;
-    if (scr_h1 >= cells_h)
+    if (scr_h1 < cells_h)
     {
         delta = ((scr_w1 - cells_w) << 8) / (scr_h1 - cells_h);
         mm = &minmaxs[-cells_away + 31];
