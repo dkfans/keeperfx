@@ -105,6 +105,7 @@ long get_mapblk_column_index(const struct Map *map);
 void set_mapblk_column_index(struct Map *map, long column_idx);
 long get_mapblk_filled_subtiles(const struct Map *map);
 void set_mapblk_filled_subtiles(struct Map *map, long height);
+long get_mapblk_wibble_value(const struct Map *mapblk);
 
 unsigned long get_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 void set_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long navcolour);
