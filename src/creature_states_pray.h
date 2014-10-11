@@ -43,6 +43,8 @@ short cleanup_sacrifice(struct Thing *thing);
 short creature_being_sacrificed(struct Thing *thing);
 short creature_sacrifice(struct Thing *thing);
 short creature_being_summoned(struct Thing *thing);
+
+void kill_all_players_chickens(PlayerNumber plyr_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

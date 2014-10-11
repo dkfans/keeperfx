@@ -36,13 +36,13 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT void _DK_process_entrance_generation(void);
-DLLIMPORT int _DK_create_creature_at_entrance(struct Room * room, unsigned short crmodel);
+DLLIMPORT struct Thing *_DK_create_creature_at_entrance(struct Room * room, unsigned short crmodel);
 /******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
 /******************************************************************************/
-int create_creature_at_entrance(struct Room * room, unsigned short crtr_kind)
+struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crtr_kind)
 {
     return _DK_create_creature_at_entrance(room, crtr_kind);
 }
@@ -270,14 +270,15 @@ TbBool generate_creature_at_random_entrance(struct Dungeon * dungeon, ThingModel
         ERRORLOG("Could not get a random entrance for player %d",(int)dungeon->owner);
         return false;
     }
-    if (create_creature_at_entrance(room, crtr_kind))
-    {
-        if (game.pool.crtr_kind[crtr_kind] > 0) {
-            game.pool.crtr_kind[crtr_kind] -= 1;
-        }
-        return true;
+    struct Thing *creatng;
+    creatng = create_creature_at_entrance(room, crtr_kind);
+    if (thing_is_invalid(creatng)) {
+        return false;
     }
-    return false;
+    if (game.pool.crtr_kind[crtr_kind] > 0) {
+        game.pool.crtr_kind[crtr_kind] -= 1;
+    }
+    return true;
 }
 
 void generate_creature_for_dungeon(struct Dungeon * dungeon)

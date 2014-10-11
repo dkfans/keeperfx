@@ -26,15 +26,19 @@
 #include "config_strings.h"
 #include "config_objects.h"
 #include "config_terrain.h"
+#include "config_creature.h"
 #include "thing_stats.h"
 #include "thing_effects.h"
 #include "thing_navigate.h"
 #include "thing_physics.h"
 #include "map_data.h"
 #include "map_columns.h"
+#include "room_entrance.h"
 #include "gui_topmsg.h"
+#include "gui_soundmsgs.h"
 #include "engine_arrays.h"
 #include "sounds.h"
+#include "creature_states_pray.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 
@@ -398,7 +402,7 @@ DLLIMPORT long _DK_remove_gold_from_hoarde(struct Thing *objtng, struct Room *ro
 DLLIMPORT long _DK_add_gold_to_hoarde(struct Thing *objtng, struct Room *room, long amount);
 DLLIMPORT void _DK_set_call_to_arms_as_rebirthing(struct Thing *objtng);
 DLLIMPORT void _DK_set_call_to_arms_as_dying(struct Thing *objtng);
-DLLIMPORT void _DK_process_object_sacrifice(struct Thing *thing, long a2);
+DLLIMPORT void _DK_process_object_sacrifice(struct Thing *thing, long sacowner);
 DLLIMPORT struct Thing * _DK_find_base_thing_on_mapwho_excluding_self(struct Thing *thing);
 /******************************************************************************/
 struct Thing *create_object(const struct Coord3d *pos, unsigned short model, unsigned short owner, long parent_idx)
@@ -903,23 +907,99 @@ long gold_being_dropped_at_treasury(struct Thing *thing, struct Room *room)
     return 0;
 }
 
-long process_temple_special(struct Thing *thing)
+TbBool temple_check_for_arachnid_join_dungeon(struct Dungeon *dungeon)
+{
+    if ((dungeon->chickens_sacrificed % 16) == 0)
+    {
+        ThingModel crmodel, spdigmodel;
+        crmodel = get_creature_model_with_model_flags(MF_IsArachnid);
+        spdigmodel = get_players_special_digger_model(dungeon->owner);
+        if ((dungeon->gold_piles_sacrificed == 4) &&
+            (dungeon->creature_sacrifice[spdigmodel] == 4) &&
+            (dungeon->owned_creatures_of_model[crmodel] < 4))
+        {
+            SYNCLOG("Conditions to trigger arachnid met");
+            struct Room *room;
+            room = pick_random_room(dungeon->owner, RoK_ENTRANCE);
+            if (room_is_invalid(room))
+            {
+                ERRORLOG("Could not get a random entrance for player %d",(int)dungeon->owner);
+                return false;
+            }
+            struct Thing *ncreatng;
+            ncreatng = create_creature_at_entrance(room, crmodel);
+            set_creature_level(ncreatng, ACTION_RANDOM(CREATURE_MAX_LEVEL));
+            return true;
+        }
+    }
+    return false;
+}
+
+long process_temple_special(struct Thing *thing, long sacowner)
 {
     struct Dungeon *dungeon;
-    dungeon = get_dungeon(thing->owner);
+    dungeon = get_dungeon(sacowner);
     if (object_is_mature_food(thing))
     {
         dungeon->chickens_sacrificed++;
+        if (temple_check_for_arachnid_join_dungeon(dungeon))
+            return true;
     } else
     {
-        dungeon->field_8D5++;
+        dungeon->gold_piles_sacrificed++;
     }
-    return 0;
+    return false;
 }
 
-void process_object_sacrifice(struct Thing *thing, long a2)
+void process_object_sacrifice(struct Thing *thing, long sacowner)
 {
-    _DK_process_object_sacrifice(thing, a2);
+    //_DK_process_object_sacrifice(thing, sacowner); return;
+    PlayerNumber slbowner;
+    {
+        struct SlabMap *slb;
+        slb = get_slabmap_thing_is_on(thing);
+        slbowner = slabmap_owner(slb);
+    }
+    if (object_is_mature_food(thing))
+    {
+        process_temple_special(thing, sacowner);
+        kill_all_players_chickens(thing->owner);
+        if (is_my_player_number(sacowner))
+            output_message(SMsg_SacrificePunish, 0, true);
+    } else
+    if (object_is_gold_pile(thing))
+    {
+        if (thing->valuable.gold_stored > 0)
+        {
+            process_temple_special(thing, sacowner);
+            int num_allies;
+            num_allies = 0;
+            PlayerNumber plyr_idx;
+            for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+            {
+                if ((slbowner != plyr_idx) && players_are_mutual_allies(slbowner, plyr_idx))
+                {
+                    num_allies++;
+                }
+            }
+            if (num_allies > 0)
+            {
+                GoldAmount value;
+                value = thing->valuable.gold_stored / num_allies;
+                for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+                {
+                    if ((slbowner != plyr_idx) && players_are_mutual_allies(slbowner, plyr_idx))
+                    {
+                        player_add_offmap_gold(plyr_idx, value);
+                    }
+                }
+            } else
+            {
+                if (is_my_player_number(sacowner))
+                    output_message(SMsg_SacrificeWishing, 0, true);
+            }
+        }
+    }
 }
 
 struct Thing *find_base_thing_on_mapwho_excluding_self(struct Thing *thing)

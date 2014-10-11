@@ -609,7 +609,7 @@ long pinstfs_zoom_to_heart(struct PlayerInfo *player, long *n)
     LbPaletteDataFillWhite(zoom_to_heart_palette);
     light_turn_light_off(player->field_460);
     thing = get_player_soul_container(player->id_number);
-    spectator_breed = get_players_spectator_breed(player->id_number);
+    spectator_breed = get_players_spectator_model(player->id_number);
     mappos.x.val = thing->mappos.x.val;
     mappos.y.val = thing->mappos.y.val + subtile_coord(7,0);
     mappos.z.val = thing->mappos.z.val + subtile_coord(1,0);

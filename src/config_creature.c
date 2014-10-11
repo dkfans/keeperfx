@@ -1524,6 +1524,18 @@ unsigned short get_creature_model_flags(const struct Thing *thing)
   return crtr_conf.model[thing->model].model_flags;
 }
 
+ThingModel get_creature_model_with_model_flags(unsigned short needflags)
+{
+    ThingModel crmodel;
+    for (crmodel=0; crmodel < crtr_conf.model_count; crmodel++)
+    {
+        if ((crtr_conf.model[crmodel].model_flags & needflags) == needflags) {
+            return crmodel;
+        }
+    }
+    return 0;
+}
+
 /**
  * Sets creature availability state.
  */
@@ -1571,7 +1583,7 @@ ThingModel get_players_special_digger_model(PlayerNumber plyr_idx)
     return crmodel;
 }
 
-ThingModel get_players_spectator_breed(PlayerNumber plyr_idx)
+ThingModel get_players_spectator_model(PlayerNumber plyr_idx)
 {
     ThingModel breed;
     breed = crtr_conf.spectator_breed;
