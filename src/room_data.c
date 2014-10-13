@@ -2083,7 +2083,7 @@ struct Room *find_room_with_spare_room_item_capacity(PlayerNumber plyr_idx, Room
     dungeon = get_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon))
         return INVALID_ROOM;
-    return find_room_with_spare_capacity_starting_with(dungeon->room_kind[rkind], 1);
+    return find_nth_room_of_owner_with_spare_capacity_starting_with(dungeon->room_kind[rkind], 0, 1);
 }
 
 struct Room *find_room_for_thing_with_used_capacity(const struct Thing *creatng, PlayerNumber plyr_idx, RoomKind rkind, unsigned char nav_flags, long min_used_cap)
@@ -2138,7 +2138,7 @@ struct Room *find_room_for_thing_with_used_capacity(const struct Thing *creatng,
  * @return
  * @note Function find_room_with_spare_room_capacity() should also redirect to this one.
  */
-struct Room *find_room_with_spare_capacity(unsigned char owner, signed char rkind, long spare)
+struct Room *find_room_with_spare_capacity(PlayerNumber owner, signed char rkind, long spare)
 {
     struct Dungeon *dungeon;
     if ((rkind < 0) || (rkind >= ROOM_TYPES_COUNT))
@@ -2146,10 +2146,10 @@ struct Room *find_room_with_spare_capacity(unsigned char owner, signed char rkin
     dungeon = get_dungeon(owner);
     if (dungeon_invalid(dungeon))
         return INVALID_ROOM;
-    return find_room_with_spare_capacity_starting_with(dungeon->room_kind[rkind], spare);
+    return find_nth_room_of_owner_with_spare_capacity_starting_with(dungeon->room_kind[rkind], 0, spare);
 }
 
-struct Room *find_room_with_spare_capacity_starting_with(long room_idx, long spare)
+struct Room *find_nth_room_of_owner_with_spare_capacity_starting_with(long room_idx, long n, long spare)
 {
     struct Room *room;
     unsigned long k;
@@ -2169,7 +2169,11 @@ struct Room *find_room_with_spare_capacity_starting_with(long room_idx, long spa
         // Per-room code
         if (room->used_capacity + spare <= room->total_capacity)
         {
-            return room;
+            if (n > 0) {
+                n--;
+            } else {
+                return room;
+            }
         }
         // Per-room code ends
         k++;
@@ -2358,7 +2362,7 @@ struct Room *find_nearest_room_for_thing_with_spare_capacity(struct Thing *thing
  * @param nav_flags
  * @return
  */
-long count_rooms_creature_can_navigate_to(struct Thing *thing, unsigned char owner, RoomKind rkind, unsigned char nav_flags)
+long count_rooms_with_used_capacity_creature_can_navigate_to(struct Thing *thing, PlayerNumber owner, RoomKind rkind, unsigned char nav_flags)
 {
     struct Dungeon *dungeon;
     struct Room *room;
@@ -2400,45 +2404,21 @@ long count_rooms_creature_can_navigate_to(struct Thing *thing, unsigned char own
 }
 
 /**
- * Returns if a creature can navigate to any kind of players rooms.
- * Only rooms which have used capacity are taken into account.
- * @param thing
- * @param owner
- * @return
- */
-TbBool creature_can_get_to_any_of_players_rooms(struct Thing *thing, PlayerNumber owner)
-{
-    RoomKind rkind;
-    for (rkind=1; rkind < ROOM_TYPES_COUNT; rkind++)
-    {
-        if (count_rooms_creature_can_navigate_to(thing, owner, rkind, NavRtF_Default) > 0)
-            return true;
-    }
-    return false;
-}
-
-/**
- * Gives a room of given kind and owner where the creature can navigate to.
- * Counts all possible rooms, then selects one and returns it.
+ * Gives the n-th room of given kind and owner where the creature can navigate to.
  * @param thing
  * @param owner
  * @param kind
  * @param nav_flags
+ * @param n
  * @return
  */
-struct Room *find_random_room_creature_can_navigate_to(struct Thing *thing, unsigned char owner, RoomKind rkind, unsigned char nav_flags)
+struct Room *find_nth_room_with_used_capacity_creature_can_navigate_to(struct Thing *thing, PlayerNumber owner, RoomKind rkind, unsigned char nav_flags, long n)
 {
     struct Dungeon *dungeon;
     struct Room *room;
     unsigned long k;
     int i;
-    long count,selected;
-    SYNCDBG(18,"Starting");
-    count = count_rooms_creature_can_navigate_to(thing, owner, rkind, nav_flags);
-    if (count < 1)
-        return NULL;
     dungeon = get_dungeon(owner);
-    selected = ACTION_RANDOM(count);
     k = 0;
     i = dungeon->room_kind[rkind];
     while (i != 0)
@@ -2456,11 +2436,9 @@ struct Room *find_random_room_creature_can_navigate_to(struct Thing *thing, unsi
         {
             if (creature_can_navigate_to(thing, &pos, nav_flags))
             {
-                if (selected > 0)
-                {
-                    selected--;
-                } else
-                {
+                if (n > 0) {
+                    n--;
+                } else {
                     return room;
                 }
             }
@@ -2473,7 +2451,47 @@ struct Room *find_random_room_creature_can_navigate_to(struct Thing *thing, unsi
             break;
         }
     }
-    return NULL;
+    return INVALID_ROOM;
+}
+
+/**
+ * Returns if a creature can navigate to any kind of players rooms.
+ * Only rooms which have used capacity are taken into account.
+ * @param thing
+ * @param owner
+ * @return
+ */
+TbBool creature_can_get_to_any_of_players_rooms(struct Thing *thing, PlayerNumber owner)
+{
+    RoomKind rkind;
+    for (rkind=1; rkind < ROOM_TYPES_COUNT; rkind++)
+    {
+        struct Room *room;
+        room = find_nth_room_with_used_capacity_creature_can_navigate_to(thing, owner, rkind, NavRtF_Default, 0);
+        if (!room_is_invalid(room))
+            return true;
+    }
+    return false;
+}
+
+/**
+ * Gives a room of given kind and owner where the creature can navigate to.
+ * Counts all possible rooms, then selects one and returns it.
+ * @param thing
+ * @param owner
+ * @param kind
+ * @param nav_flags
+ * @return
+ */
+struct Room *find_random_room_with_used_capacity_creature_can_navigate_to(struct Thing *thing, PlayerNumber owner, RoomKind rkind, unsigned char nav_flags)
+{
+    long count,selected;
+    SYNCDBG(18,"Starting");
+    count = count_rooms_with_used_capacity_creature_can_navigate_to(thing, owner, rkind, nav_flags);
+    if (count < 1)
+        return INVALID_ROOM;
+    selected = ACTION_RANDOM(count);
+    return find_nth_room_with_used_capacity_creature_can_navigate_to(thing, owner, rkind, nav_flags, selected);
 }
 
 /**
@@ -2606,14 +2624,230 @@ struct Room *get_room_of_given_kind_for_thing(struct Thing *thing, struct Dungeo
     return retroom;
 }
 
-struct Room *find_random_room_for_thing(struct Thing *thing, signed char plyr_idx, signed char rkind, unsigned char a4)
+/**
+ * Counts all room of given kind and owner where the creature can navigate to.
+ * Works only for rooms which store items.
+ * @param thing
+ * @param owner
+ * @param kind
+ * @param nav_flags
+ * @return
+ */
+long count_rooms_for_thing(struct Thing *thing, PlayerNumber owner, RoomKind rkind, unsigned char nav_flags)
 {
-    return _DK_find_random_room_for_thing(thing, plyr_idx, rkind, a4);
+    struct Dungeon *dungeon;
+    struct Room *room;
+    unsigned long k;
+    int i;
+    long count;
+    SYNCDBG(18,"Starting");
+    dungeon = get_dungeon(owner);
+    count = 0;
+    k = 0;
+    i = dungeon->room_kind[rkind];
+    while (i != 0)
+    {
+        room = room_get(i);
+        if (room_is_invalid(room))
+        {
+            ERRORLOG("Jump to invalid room detected");
+            break;
+        }
+        i = room->next_of_owner;
+        // Per-room code
+        struct Coord3d pos;
+        if (find_first_valid_position_for_thing_anywhere_in_room(thing, room, &pos))
+        {
+            if (!thing_is_creature(thing) || creature_can_navigate_to(thing, &pos, nav_flags))
+            {
+                count++;
+            }
+        }
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping rooms list");
+            break;
+        }
+    }
+    return count;
 }
 
-struct Room * find_random_room_for_thing_with_spare_room_item_capacity(struct Thing *thing, signed char plyr_idx, signed char rkind, unsigned char a4)
+/**
+ * Gives the n-th room of given kind and owner where the creature can navigate to.
+ * @param thing
+ * @param owner
+ * @param kind
+ * @param nav_flags
+ * @param n
+ * @return
+ */
+struct Room *find_nth_room_for_thing(struct Thing *thing, PlayerNumber owner, RoomKind rkind, unsigned char nav_flags, long n)
 {
-    return _DK_find_random_room_for_thing_with_spare_room_item_capacity(thing, plyr_idx, rkind, a4);
+    struct Dungeon *dungeon;
+    struct Room *room;
+    unsigned long k;
+    int i;
+    dungeon = get_dungeon(owner);
+    k = 0;
+    i = dungeon->room_kind[rkind];
+    while (i != 0)
+    {
+        room = room_get(i);
+        if (room_is_invalid(room))
+        {
+            ERRORLOG("Jump to invalid room detected");
+            break;
+        }
+        i = room->next_of_owner;
+        // Per-room code
+        struct Coord3d pos;
+        if (find_first_valid_position_for_thing_anywhere_in_room(thing, room, &pos))
+        {
+            if (!thing_is_creature(thing) || creature_can_navigate_to(thing, &pos, nav_flags))
+            {
+                if (n > 0) {
+                    n--;
+                } else {
+                    return room;
+                }
+            }
+        }
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping rooms list");
+            break;
+        }
+    }
+    return INVALID_ROOM;
+}
+
+struct Room *find_random_room_for_thing(struct Thing *thing, PlayerNumber owner, RoomKind rkind, unsigned char nav_flags)
+{
+    //return _DK_find_random_room_for_thing(thing, plyr_idx, rkind, a4);
+    long count,selected;
+    SYNCDBG(18,"Starting");
+    count = count_rooms_for_thing(thing, owner, rkind, nav_flags);
+    if (count < 1)
+        return INVALID_ROOM;
+    selected = ACTION_RANDOM(count);
+    return find_nth_room_for_thing(thing, owner, rkind, nav_flags, selected);
+}
+
+/**
+ * Counts all room of given kind and owner where the creature can navigate to.
+ * Works only for rooms which store items.
+ * @param thing
+ * @param owner
+ * @param kind
+ * @param nav_flags
+ * @return
+ */
+long count_rooms_for_thing_with_spare_room_item_capacity(struct Thing *thing, PlayerNumber owner, RoomKind rkind, unsigned char nav_flags)
+{
+    struct Dungeon *dungeon;
+    struct Room *room;
+    unsigned long k;
+    int i;
+    long count;
+    SYNCDBG(18,"Starting");
+    dungeon = get_dungeon(owner);
+    count = 0;
+    k = 0;
+    i = dungeon->room_kind[rkind];
+    while (i != 0)
+    {
+        room = room_get(i);
+        if (room_is_invalid(room))
+        {
+            ERRORLOG("Jump to invalid room detected");
+            break;
+        }
+        i = room->next_of_owner;
+        // Per-room code
+        struct Coord3d pos;
+        if (find_first_valid_position_for_thing_anywhere_in_room(thing, room, &pos) && (room->total_capacity > room->capacity_used_for_storage))
+        {
+            if (!thing_is_creature(thing) || creature_can_navigate_to(thing, &pos, nav_flags))
+            {
+                count++;
+            }
+        }
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping rooms list");
+            break;
+        }
+    }
+    return count;
+}
+
+/**
+ * Gives the n-th room of given kind and owner where the creature can navigate to.
+ * @param thing
+ * @param owner
+ * @param kind
+ * @param nav_flags
+ * @param n
+ * @return
+ */
+struct Room *find_nth_room_for_thing_with_spare_room_item_capacity(struct Thing *thing, PlayerNumber owner, RoomKind rkind, unsigned char nav_flags, long n)
+{
+    struct Dungeon *dungeon;
+    struct Room *room;
+    unsigned long k;
+    int i;
+    dungeon = get_dungeon(owner);
+    k = 0;
+    i = dungeon->room_kind[rkind];
+    while (i != 0)
+    {
+        room = room_get(i);
+        if (room_is_invalid(room))
+        {
+            ERRORLOG("Jump to invalid room detected");
+            break;
+        }
+        i = room->next_of_owner;
+        // Per-room code
+        struct Coord3d pos;
+        if (find_first_valid_position_for_thing_anywhere_in_room(thing, room, &pos) && (room->total_capacity > room->capacity_used_for_storage))
+        {
+            if (!thing_is_creature(thing) || creature_can_navigate_to(thing, &pos, nav_flags))
+            {
+                if (n > 0) {
+                    n--;
+                } else {
+                    return room;
+                }
+            }
+        }
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping rooms list");
+            break;
+        }
+    }
+    return INVALID_ROOM;
+}
+
+struct Room * find_random_room_for_thing_with_spare_room_item_capacity(struct Thing *thing, PlayerNumber owner, RoomKind rkind, unsigned char nav_flags)
+{
+    //return _DK_find_random_room_for_thing_with_spare_room_item_capacity(thing, owner, rkind, nav_flags);
+    long count,selected;
+    SYNCDBG(18,"Starting");
+    count = count_rooms_for_thing_with_spare_room_item_capacity(thing, owner, rkind, nav_flags);
+    if (count < 1)
+        return INVALID_ROOM;
+    selected = ACTION_RANDOM(count);
+    return find_nth_room_for_thing_with_spare_room_item_capacity(thing, owner, rkind, nav_flags, selected);
 }
 
 short delete_room_slab_when_no_free_room_structures(long a1, long a2, unsigned char a3)

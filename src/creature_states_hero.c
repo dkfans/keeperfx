@@ -150,7 +150,7 @@ TbBool good_setup_loot_treasure_room(struct Thing *thing, long dngn_id)
 {
     struct CreatureControl *cctrl;
     struct Room *room;
-    room = find_random_room_creature_can_navigate_to(thing, dngn_id, RoK_TREASURE, NavRtF_Default);
+    room = find_random_room_with_used_capacity_creature_can_navigate_to(thing, dngn_id, RoK_TREASURE, NavRtF_Default);
     if (room_is_invalid(room))
     {
         SYNCDBG(6,"No accessible player %d treasure room found",(int)dngn_id);
@@ -178,7 +178,7 @@ TbBool good_setup_loot_research_room(struct Thing *thing, long dngn_id)
 {
     struct CreatureControl *cctrl;
     struct Room *room;
-    room = find_random_room_creature_can_navigate_to(thing, dngn_id, RoK_LIBRARY, NavRtF_Default);
+    room = find_random_room_with_used_capacity_creature_can_navigate_to(thing, dngn_id, RoK_LIBRARY, NavRtF_Default);
     if (room_is_invalid(room))
     {
         SYNCDBG(6,"No accessible player %d library found",(int)dngn_id);
