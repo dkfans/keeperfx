@@ -343,7 +343,8 @@ void rotate_base_axis(struct M33 *matx, short a2, unsigned char a3)
 
 void fill_in_points_perspective(long bstl_x, long bstl_y, struct MinMax *mm)
 {
-    //_DK_fill_in_points_perspective(a1, a2, mm); return;
+    //TODO rewritten code causes crashes - fix, then re-enable
+    _DK_fill_in_points_perspective(bstl_x, bstl_y, mm); return;
     if ((bstl_y < 0) || (bstl_y > map_subtiles_y-1)) {
         return;
     }

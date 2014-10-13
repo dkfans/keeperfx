@@ -35,6 +35,7 @@
 #include "creature_states.h"
 #include "magic.h"
 #include "thing_traps.h"
+#include "thing_navigate.h"
 #include "player_complookup.h"
 #include "power_hand.h"
 #include "room_data.h"
@@ -570,7 +571,46 @@ long computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d 
 
 long count_creatures_availiable_for_fight(struct Computer2 *comp, struct Coord3d *pos)
 {
-    return _DK_count_creatures_availiable_for_fight(comp, pos);
+    //return _DK_count_creatures_availiable_for_fight(comp, pos);
+    struct Dungeon *dungeon;
+    struct CreatureControl *cctrl;
+    struct Thing *thing;
+    unsigned long k;
+    int i;
+    SYNCDBG(8,"Starting");
+    dungeon = comp->dungeon;
+    unsigned long count;
+    count = 0;
+    k = 0;
+    i = dungeon->creatr_list_start;
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        if (cctrl->combat_flags == 0)
+        {
+            if ((pos == NULL) || creature_can_navigate_to(thing, pos, 1)) {
+                count++;
+            }
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    SYNCDBG(19,"Finished");
+    return count;
 }
 
 TbBool is_there_an_attack_task(struct Computer2 *comp)
