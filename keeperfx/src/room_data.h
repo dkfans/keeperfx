@@ -190,11 +190,11 @@ TbBool find_random_position_at_border_of_room(struct Coord3d *pos, const struct 
 TbBool creature_can_get_to_any_of_players_rooms(struct Thing *thing, PlayerNumber owner);
 struct Room *find_room_with_spare_room_item_capacity(PlayerNumber plyr_idx, RoomKind rkind);
 struct Room *find_room_for_thing_with_used_capacity(const struct Thing *creatng, PlayerNumber plyr_idx, RoomKind rkind, unsigned char nav_flags, long min_used_cap);
-struct Room *find_room_with_spare_capacity(unsigned char owner, signed char kind, long spare);
-struct Room *find_room_with_spare_capacity_starting_with(long room_idx, long spare);
+struct Room *find_room_with_spare_capacity(PlayerNumber owner, signed char rkind, long spare);
+struct Room *find_nth_room_of_owner_with_spare_capacity_starting_with(long room_idx, long n, long spare);
 struct Room *find_room_with_most_spare_capacity_starting_with(long room_idx,long *total_spare_cap);
 struct Room *find_nearest_room_for_thing_with_spare_capacity(struct Thing *thing, signed char owner, RoomKind rkind, unsigned char nav_flags, long spare);
-struct Room *find_random_room_creature_can_navigate_to(struct Thing *thing, unsigned char owner, RoomKind rkind, unsigned char nav_flags);
+struct Room *find_random_room_with_used_capacity_creature_can_navigate_to(struct Thing *thing, PlayerNumber owner, RoomKind rkind, unsigned char nav_flags);
 struct Room *find_room_nearest_to_position(PlayerNumber plyr_idx, RoomKind rkind, const struct Coord3d *pos, long *room_distance);
 
 void create_room_flag(struct Room *room);
@@ -238,8 +238,8 @@ void destroy_dungeon_heart_room(PlayerNumber plyr_idx, const struct Thing *heart
 
 /* MOVE TO room_list.c/h */
 struct Room *find_nearest_room_for_thing_with_spare_item_capacity(struct Thing *thing, PlayerNumber plyr_idx, RoomKind rkind, unsigned char nav_flags);
-struct Room *find_random_room_for_thing(struct Thing *thing, signed char plyr_idx, signed char rkind, unsigned char a4);
-struct Room * find_random_room_for_thing_with_spare_room_item_capacity(struct Thing *thing, signed char plyr_idx, signed char rkind, unsigned char a4);
+struct Room *find_random_room_for_thing(struct Thing *thing, PlayerNumber owner, RoomKind rkind, unsigned char nav_flags);
+struct Room * find_random_room_for_thing_with_spare_room_item_capacity(struct Thing *thing, PlayerNumber owner, RoomKind rkind, unsigned char nav_flags);
 struct Room * pick_random_room(PlayerNumber plyr_idx, RoomKind rkind);
 /******************************************************************************/
 #ifdef __cplusplus
