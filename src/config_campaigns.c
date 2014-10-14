@@ -50,6 +50,9 @@ const struct NamedCommand cmpgn_common_commands[] = {
   {"CREATURES_LOCATION", 12},
   {"CONFIGS_LOCATION",   13},
   {"CREDITS",            14},
+  {"MEDIA_LOCATION",     15},
+  {"INTRO",              16},
+  {"OUTRO",              17},
   {NULL,                  0},
   };
 
@@ -135,6 +138,7 @@ TbBool clear_campaign(struct GameCampaign *campgn)
   LbMemorySet(campgn->land_location,0,DISKPATH_SIZE);
   LbMemorySet(campgn->creatures_location,0,DISKPATH_SIZE);
   LbMemorySet(campgn->configs_location,0,DISKPATH_SIZE);
+  LbMemorySet(campgn->media_location,0,DISKPATH_SIZE);
   for (i=0; i<CAMPAIGN_LEVELS_COUNT; i++)
   {
     campgn->single_levels[i] = 0;
@@ -167,6 +171,8 @@ TbBool clear_campaign(struct GameCampaign *campgn)
   LbMemorySet(campgn->land_window_start,0,DISKPATH_SIZE);
   LbMemorySet(campgn->land_view_end,0,DISKPATH_SIZE);
   LbMemorySet(campgn->land_window_end,0,DISKPATH_SIZE);
+  LbMemorySet(campgn->movie_intro_fname,0,DISKPATH_SIZE);
+  LbMemorySet(campgn->movie_outro_fname,0,DISKPATH_SIZE);
   LbMemorySet(campgn->strings_fname,0,DISKPATH_SIZE);
   campgn->strings_data = NULL;
   reset_strings(campgn->strings);
@@ -570,6 +576,24 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
           break;
       case 14: // CREDITS
           i = get_conf_parameter_whole(buf,&pos,len,campgn->credits_fname,DISKPATH_SIZE);
+          if (i <= 0)
+              CONFWRNLOG("Couldn't read \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+          break;
+      case 15: // MEDIA_LOCATION
+          i = get_conf_parameter_whole(buf,&pos,len,campgn->media_location,DISKPATH_SIZE);
+          if (i <= 0)
+              CONFWRNLOG("Couldn't read \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+          break;
+      case 16: // INTRO
+          i = get_conf_parameter_whole(buf,&pos,len,campgn->movie_intro_fname,DISKPATH_SIZE);
+          if (i <= 0)
+              CONFWRNLOG("Couldn't read \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+          break;
+      case 17: // OUTRO
+          i = get_conf_parameter_whole(buf,&pos,len,campgn->movie_outro_fname,DISKPATH_SIZE);
           if (i <= 0)
               CONFWRNLOG("Couldn't read \"%s\" command parameter in %s file.",
                 COMMAND_TEXT(cmd_num),config_textname);

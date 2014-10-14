@@ -70,6 +70,7 @@ struct GameCampaign {
   char land_location[DISKPATH_SIZE];
   char creatures_location[DISKPATH_SIZE];
   char configs_location[DISKPATH_SIZE];
+  char media_location[DISKPATH_SIZE];
   LevelNumber single_levels[CAMPAIGN_LEVELS_COUNT];
   LevelNumber multi_levels[MULTI_LEVELS_COUNT];
   LevelNumber bonus_levels[CAMPAIGN_LEVELS_COUNT];
@@ -91,6 +92,8 @@ struct GameCampaign {
   char land_window_start[DISKPATH_SIZE];
   char land_view_end[DISKPATH_SIZE];
   char land_window_end[DISKPATH_SIZE];
+  char movie_intro_fname[DISKPATH_SIZE];
+  char movie_outro_fname[DISKPATH_SIZE];
   // Credits
   char credits_fname[DISKPATH_SIZE];
   char *credits_data;

@@ -265,8 +265,8 @@ void setup_workshop_search_for_post(struct Thing *creatng)
             n = room->slabs_list;
         }
         MapSlabCoord slb_x, slb_y;
-        slb_x = subtile_slab_fast(stl_num_decode_x(n));
-        slb_y = subtile_slab_fast(stl_num_decode_y(n));
+        slb_x = slb_num_decode_x(n);
+        slb_y = slb_num_decode_y(n);
         struct Thing *objtng;
         objtng = get_workshop_equipment_to_work_with_on_subtile(creatng->owner, slab_subtile_center(slb_x), slab_subtile_center(slb_y));
         if (!thing_is_invalid(objtng)) {
