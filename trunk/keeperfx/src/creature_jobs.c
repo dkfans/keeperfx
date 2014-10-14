@@ -955,6 +955,7 @@ TbBool attempt_job_work_in_room_near_pos(struct Thing *creatng, MapSubtlCoord st
         return false;
     }
     if (!creature_move_to_place_in_room(creatng, room, new_job)) {
+        WARNLOG("Could not move in room %s to perform job %s by %s owner %d",room_code_name(room->kind),creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->owner);
         return false;
     }
     creatng->continue_state = get_arrive_at_state_for_job(new_job);
@@ -977,6 +978,7 @@ TbBool attempt_job_work_in_room_and_cure_near_pos(struct Thing *creatng, MapSubt
         return false;
     }
     if (!creature_move_to_place_in_room(creatng, room, new_job)) {
+        WARNLOG("Could not move in room %s to perform job %s by %s owner %d",room_code_name(room->kind),creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->owner);
         return false;
     }
     creatng->continue_state = get_arrive_at_state_for_job(new_job);
@@ -1007,6 +1009,7 @@ TbBool attempt_job_sleep_in_lair_near_pos(struct Thing *creatng, MapSubtlCoord s
         }
     }
     if (!creature_move_to_place_in_room(creatng, room, new_job)) {
+        WARNLOG("Could not move in room %s to perform job %s by %s owner %d",room_code_name(room->kind),creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->owner);
         return false;
     }
     creatng->continue_state = CrSt_CreatureChangeLair;
@@ -1021,6 +1024,7 @@ TbBool attempt_job_in_state_on_room_content_for_player(struct Thing *creatng, Pl
     rkind = get_room_for_job(new_job);
     room = find_room_for_thing_with_used_capacity(creatng, creatng->owner, rkind, NavRtF_Default, 1);
     if (room_is_invalid(room)) {
+        WARNLOG("Could not find room %s to perform job %s by %s owner %d",room_code_name(rkind),creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->owner);
         return false;
     }
     internal_set_thing_state(creatng, get_initial_state_for_job(new_job));
@@ -1038,9 +1042,11 @@ TbBool attempt_job_move_to_event_for_player(struct Thing *creatng, PlayerNumber 
         event = get_event_of_type_for_player(EvKind_HeartAttacked, creatng->owner);
     }
     if (event_is_invalid(event)) {
+        WARNLOG("Could not find event to perform job %s by %s owner %d",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->owner);
         return false;
     }
     if (!setup_person_move_to_position(creatng, coord_subtile(event->mappos_x), coord_subtile(event->mappos_y), NavRtF_Default)) {
+        WARNLOG("Could not reach event to perform job %s by %s owner %d",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->owner);
         return false;
     }
     creatng->continue_state = get_initial_state_for_job(new_job);
