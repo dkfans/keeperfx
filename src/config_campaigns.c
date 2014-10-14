@@ -51,8 +51,8 @@ const struct NamedCommand cmpgn_common_commands[] = {
   {"CONFIGS_LOCATION",   13},
   {"CREDITS",            14},
   {"MEDIA_LOCATION",     15},
-  {"INTRO",              16},
-  {"OUTRO",              17},
+  {"INTRO_MOVIE",        16},
+  {"OUTRO_MOVIE",        17},
   {NULL,                  0},
   };
 
@@ -586,13 +586,13 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
               CONFWRNLOG("Couldn't read \"%s\" command parameter in %s file.",
                 COMMAND_TEXT(cmd_num),config_textname);
           break;
-      case 16: // INTRO
+      case 16: // INTRO_MOVIE
           i = get_conf_parameter_whole(buf,&pos,len,campgn->movie_intro_fname,DISKPATH_SIZE);
           if (i <= 0)
               CONFWRNLOG("Couldn't read \"%s\" command parameter in %s file.",
                 COMMAND_TEXT(cmd_num),config_textname);
           break;
-      case 17: // OUTRO
+      case 17: // OUTRO_MOVIE
           i = get_conf_parameter_whole(buf,&pos,len,campgn->movie_outro_fname,DISKPATH_SIZE);
           if (i <= 0)
               CONFWRNLOG("Couldn't read \"%s\" command parameter in %s file.",

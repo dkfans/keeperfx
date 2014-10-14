@@ -3169,7 +3169,7 @@ short frontend_draw(void)
         demo();
         return 0;
     case FeSt_OUTRO:
-        outro();
+        campaign_outro();
         return 0;
     }
 

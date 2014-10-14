@@ -130,10 +130,26 @@ TbBool intro_replay(void)
     return play_smacker_file(fname, -2);
 }
 
-TbBool outro(void)
+TbBool campaign_intro(void)
 {
+    if (campaign.movie_intro_fname[0] == '\0') {
+        SYNCDBG(0,"No intro movie defined");
+        return 0;
+    }
     char *fname;
-    fname = prepare_file_path(FGrp_LoData, "outromix.smk");
+    fname = prepare_file_path(FGrp_CmpgMedia, campaign.movie_intro_fname);
+    SYNCDBG(0,"Playing intro movie \"%s\"",fname);
+    return play_smacker_file(fname, -2);
+}
+
+TbBool campaign_outro(void)
+{
+    if (campaign.movie_outro_fname[0] == '\0') {
+        SYNCDBG(0,"No outro movie defined");
+        return 0;
+    }
+    char *fname;
+    fname = prepare_file_path(FGrp_CmpgMedia, campaign.movie_outro_fname);
     SYNCDBG(0,"Playing outro movie \"%s\"",fname);
     return play_smacker_file(fname, 17);
 }

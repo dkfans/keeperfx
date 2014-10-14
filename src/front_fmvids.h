@@ -30,7 +30,8 @@ extern "C" {
 /******************************************************************************/
 TbBool intro(void);
 TbBool intro_replay(void);
-TbBool outro(void);
+TbBool campaign_intro(void);
+TbBool campaign_outro(void);
 TbBool moon_video(void);
 void demo(void);
 /******************************************************************************/
