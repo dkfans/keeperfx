@@ -1999,7 +1999,6 @@ TbBool slab_is_area_outer_border(MapSlabCoord slb_x, MapSlabCoord slb_y)
         long aslb_x,aslb_y;
         aslb_x = slb_x + (long)small_around[n].delta_x;
         aslb_y = slb_y + (long)small_around[n].delta_y;
-        struct SlabMap *slb;
         slb = get_slabmap_block(aslb_x,aslb_y);
         if ((slb->kind != slbkind) || (slabmap_owner(slb) != plyr_idx)) {
             return true;
@@ -2060,8 +2059,8 @@ TbBool find_random_position_at_border_of_room(struct Coord3d *pos, const struct 
             n = room->slabs_list;
         }
         MapSlabCoord slb_x, slb_y;
-        slb_x = subtile_slab_fast(stl_num_decode_x(n));
-        slb_y = subtile_slab_fast(stl_num_decode_y(n));
+        slb_x = slb_num_decode_x(n);
+        slb_y = slb_num_decode_y(n);
         if (slab_is_area_outer_border(slb_x, slb_y))
         {
             pos->x.val = subtile_coord(slab_subtile(slb_x,0),ACTION_RANDOM(STL_PER_SLB*256));
