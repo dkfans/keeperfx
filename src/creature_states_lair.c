@@ -298,8 +298,7 @@ TbBool setup_head_for_random_unused_lair_slab(struct Thing *creatng, struct Room
         ERRORLOG("Taking random slab (%d/%d) in %s index %d failed - internal inconsistency.",(int)n,(int)room->slabs_count,room_code_name(room->kind),(int)room->index);
         slbnum = room->slabs_list;
     }
-    k = 0;
-    while (1)
+    for (k = 0; k < room->slabs_count; k++)
     {
         MapSlabCoord slb_x,slb_y;
         slb_x = slb_num_decode_x(slbnum);
@@ -317,11 +316,8 @@ TbBool setup_head_for_random_unused_lair_slab(struct Thing *creatng, struct Room
         if (slbnum == 0) {
             slbnum = room->slabs_list;
         }
-        k++;
-        if (k >= room->slabs_count) {
-            break;
-        }
     }
+    ERRORLOG("Could not find valid RANDOM point in room for creature");
     return false;
 }
 

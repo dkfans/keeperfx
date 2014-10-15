@@ -1974,7 +1974,67 @@ TbBool room_has_enough_free_capacity_for_creature(const struct Room *room, const
 
 TbBool find_random_valid_position_for_thing_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos)
 {
-    return _DK_find_random_valid_position_for_thing_in_room(thing, room, pos);
+    //return _DK_find_random_valid_position_for_thing_in_room(thing, room, pos);
+    if (!room_exists(room)) {
+        ERRORLOG("Received nonexisting room for creature");
+        return false;
+    }
+    if (room->slabs_count <= 1) {
+        ERRORLOG("Number of slabs for %s is not positive",room_code_name(room->kind));
+        return false;
+    }
+    int navi_tadius;
+    navi_tadius = abs(thing_nav_block_sizexy(thing) << 8) >> 1;
+    SlabCodedCoords slbnum;
+    long n;
+    unsigned long k;
+    n = ACTION_RANDOM(room->slabs_count);
+    slbnum = room->slabs_list;
+    for (k = n; k > 0; k--)
+    {
+        if (slbnum == 0)
+            break;
+        slbnum = get_next_slab_number_in_room(slbnum);
+    }
+    if (slbnum == 0) {
+        ERRORLOG("Taking random slab (%d/%d) in %s index %d failed - internal inconsistency.",(int)n,(int)room->slabs_count,room_code_name(room->kind),(int)room->index);
+        slbnum = room->slabs_list;
+    }
+    for (k = 0; k < room->slabs_count; k++)
+    {
+        MapSlabCoord slb_x,slb_y;
+        slb_x = slb_num_decode_x(slbnum);
+        slb_y = slb_num_decode_y(slbnum);
+        int snum, ssub;
+        ssub = ACTION_RANDOM(9);
+        for (snum = 0; snum < 9; snum++)
+        {
+            MapSubtlCoord stl_x, stl_y;
+            stl_x = slab_subtile(slb_x, ssub % 3);
+            stl_y = slab_subtile(slb_y, ssub / 3);
+            struct Map *mapblk;
+            mapblk = get_map_block_at(stl_x,stl_y);
+            if ((mapblk->flags & 0x10) == 0)
+            {
+              if (get_navigation_map_floor_height(stl_x,stl_y) < 4)
+              {
+                  pos->x.val = subtile_coord_center(stl_x);
+                  pos->y.val = subtile_coord_center(stl_y);
+                  pos->z.val = get_thing_height_at_with_radius(thing, pos, navi_tadius);
+                  if (!thing_in_wall_at_with_radius(thing, pos, navi_tadius)) {
+                      return true;
+                  }
+              }
+            }
+            ssub = (ssub + 1) % 9;
+        }
+        slbnum = get_next_slab_number_in_room(slbnum);
+        if (slbnum == 0) {
+            slbnum = room->slabs_list;
+        }
+    }
+    ERRORLOG("Could not find valid RANDOM point in %s for creature",room_code_name(room->kind));
+    return false;
 }
 
 /**
