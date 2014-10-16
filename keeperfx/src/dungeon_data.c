@@ -152,6 +152,10 @@ void player_add_offmap_gold(PlayerNumber plyr_idx, GoldAmount value)
         WARNLOG("Cannot give gold player %d with no dungeon",(int)plyr_idx);
         return;
     }
+    // If we're removing gold instead of adding, make sure we won't remove too much
+    if ((value < 0) && (dungeon->offmap_money_owned < -value)) {
+        value = dungeon->offmap_money_owned;
+    }
     dungeon->offmap_money_owned += value;
     dungeon->total_money_owned += value;
 }
