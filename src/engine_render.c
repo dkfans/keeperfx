@@ -343,8 +343,7 @@ void rotate_base_axis(struct M33 *matx, short a2, unsigned char a3)
 
 void fill_in_points_perspective(long bstl_x, long bstl_y, struct MinMax *mm)
 {
-    //TODO rewritten code causes crashes - fix, then re-enable
-    _DK_fill_in_points_perspective(bstl_x, bstl_y, mm); return;
+    //_DK_fill_in_points_perspective(bstl_x, bstl_y, mm); return;
     if ((bstl_y < 0) || (bstl_y > map_subtiles_y-1)) {
         return;
     }
@@ -355,7 +354,6 @@ void fill_in_points_perspective(long bstl_x, long bstl_y, struct MinMax *mm)
       mmin = 1 - bstl_x;
     if (mmax + bstl_x > map_subtiles_y)
       mmax = map_subtiles_y - bstl_x;
-
     MapSubtlCoord stl_x, stl_y;
     stl_y = bstl_y;
     stl_x = mmin + bstl_x;
@@ -388,6 +386,7 @@ void fill_in_points_perspective(long bstl_x, long bstl_y, struct MinMax *mm)
         pfulmask_or = mask_cur | mask_yp;
         pfulmask_and = mask_cur & mask_yp;
     }
+
     int wib_x, wib_y, wib_v;
     wib_y = (stl_y + 1) & 3;
     int idxx;
@@ -421,7 +420,7 @@ void fill_in_points_perspective(long bstl_x, long bstl_y, struct MinMax *mm)
         pfulmask_and = nfulmask_and;
         long hmin, hmax;
         hmax = height_masks[fulmask_or & 0xff];
-        hmin = floor_height[fulmask_and];
+        hmin = floor_height[fulmask_and & 0xff];
         struct EngineCoord *ecord;
         ecord = &ecol->cors[hmin];
         long hpos;

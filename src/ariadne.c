@@ -3615,7 +3615,7 @@ TbBool make_edge(long start_x, long start_y, long end_x, long end_y)
         pt_cor = pointed_at8(sx << 8, sy << 8, &tri_id1, &cor_id1);
         if (pt_cor == -1)
         {
-            ERRORLOG("border point");
+            ERRORLOG("border point not found, pointed at %ld,%ld",sx,sy);
             return false;
         }
         pt = get_triangle_point(tri_id1, pt_cor);
