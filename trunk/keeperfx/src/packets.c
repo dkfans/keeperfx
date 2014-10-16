@@ -789,8 +789,10 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
           && (dungeon->things_in_hand[0] != player->thing_under_hand)
           && can_thing_be_possessed(thing, plyr_idx) )
         {
-            set_player_state(player, PSt_CtrlDirect, 0);
-            magic_use_power_possess_thing(plyr_idx, thing);
+            if (is_power_available(plyr_idx, PwrK_POSSESS)) {
+                set_player_state(player, PSt_CtrlDirect, 0);
+                magic_use_available_power_on_thing(plyr_idx, PwrK_POSSESS, 0, stl_x, stl_y, thing);
+            }
             unset_packet_control(pckt, PCtr_LBtnRelease);
         } else
         if ((player->thing_under_hand != 0) && (player->field_5 != 0)
@@ -1007,8 +1009,8 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         {
           if (player->thing_under_hand > 0)
           {
-            magic_use_power_possess_thing(plyr_idx, thing);
-            unset_packet_control(pckt, PCtr_LBtnRelease);
+              magic_use_available_power_on_thing(plyr_idx, PwrK_POSSESS, 0, stl_x, stl_y, thing);
+              unset_packet_control(pckt, PCtr_LBtnRelease);
           }
         }
         if ((pckt->control_flags & PCtr_RBtnRelease) != 0)
