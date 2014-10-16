@@ -3291,6 +3291,7 @@ long tri_split3(long btri_id, long pt_x, long pt_y)
     }
     tri_id2 = tri_new();
     if (tri_id2 < 0) {
+        tri_dispose(tri_id1);
         return -1;
     }
     btri = &Triangles[btri_id];

@@ -49,7 +49,7 @@ long tri_new(void)
         i = ix_Triangles;
         if ((i < 0) || (i >= TRIANLGLES_COUNT))
         {
-            ERRORLOG("ix_Triangles overflow");
+            ERRORLOG("ix_Triangles overflow, got %ld",i);
             erstat_inc(ESE_NoFreeTriangls);
             return -1;
         }
@@ -59,7 +59,7 @@ long tri_new(void)
         i = free_Triangles;
         if ((i < 0) || (i >= TRIANLGLES_COUNT))
         {
-            ERRORLOG("free_Triangles overflow");
+            ERRORLOG("free_Triangles overflow, got %ld",i);
             erstat_inc(ESE_NoFreeTriangls);
             return -1;
         }
