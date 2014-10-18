@@ -154,7 +154,7 @@ void player_add_offmap_gold(PlayerNumber plyr_idx, GoldAmount value)
     }
     // If we're removing gold instead of adding, make sure we won't remove too much
     if ((value < 0) && (dungeon->offmap_money_owned < -value)) {
-        value = dungeon->offmap_money_owned;
+        value = -dungeon->offmap_money_owned;
     }
     dungeon->offmap_money_owned += value;
     dungeon->total_money_owned += value;
