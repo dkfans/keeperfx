@@ -464,7 +464,196 @@ void fill_in_points_perspective(long bstl_x, long bstl_y, struct MinMax *mm)
 
 void fill_in_points_cluedo(long bstl_x, long bstl_y, struct MinMax *mm)
 {
-  _DK_fill_in_points_cluedo(bstl_x, bstl_y, mm);
+    //_DK_fill_in_points_cluedo(bstl_x, bstl_y, mm);
+    if ((bstl_y < 0) || (bstl_y > map_subtiles_y-1)) {
+        return;
+    }
+    long mmin, mmax;
+    mmin = min(mm[0].min,mm[1].min);
+    mmax = max(mm[0].max,mm[1].max);
+    if (mmin + bstl_x < 1) {
+        mmin = 1 - bstl_x;
+    }
+    if (mmax + bstl_x > map_subtiles_y) {
+        mmax = map_subtiles_y - bstl_x;
+    }
+    if (mmax < mmin) {
+        return;
+    }
+    MapSubtlCoord stl_x, stl_y;
+    stl_y = bstl_y;
+    stl_x = mmin + bstl_x;
+    apos += (mmin << 8);
+    struct EngineCol *ecol;
+    ecol = &front_ec[mmin + 31];
+    unsigned long mask_unrev;
+    {
+        struct Column *col;
+        col = get_column(game.unrevealed_column_idx);
+        mask_unrev = (col->solidmask & 3) + 65536;
+    }
+    struct Map *mapblk;
+    struct Column *col;
+    unsigned long pfulmask_or, pfulmask_and;
+    {
+        unsigned long mask_cur, mask_yp;
+        mask_cur = mask_unrev;
+        mask_yp = mask_unrev;
+        mapblk = get_map_block_at(stl_x-1, stl_y+1);
+        if (map_block_revealed_bit(mapblk, player_bit)) {
+            col = get_map_column(mapblk);
+            mask_cur = col->solidmask;
+            if ((mask_cur >= 8) && ((mapblk->flags & (0x40|0x02)) == 0) && ((col->bitfields & 0xE) == 0)) {
+                mask_cur &= 3;
+            }
+        }
+        mapblk = get_map_block_at(stl_x-1, stl_y);
+        if (map_block_revealed_bit(mapblk, player_bit)) {
+            col = get_map_column(mapblk);
+            mask_yp = col->solidmask;
+            if ((mask_yp >= 8) && ((mapblk->flags & (0x40|0x02)) == 0) && ((col->bitfields & 0xE) == 0)) {
+                mask_yp &= 3;
+            }
+        }
+        pfulmask_or = mask_cur | mask_yp;
+        pfulmask_and = mask_cur & mask_yp;
+    }
+    struct PlayerInfo *myplyr;
+    myplyr = get_my_player();
+    const struct Camera *cam;
+    cam = myplyr->acamera;
+    long view_z;
+    int zoom;
+    long eview_w, eview_h, eview_z;
+    int hview_y, hview_z;
+    zoom = cam->zoom / pixel_size;
+    view_z = object_origin.z + (cells_away << 8)
+        + ((bpos * camera_matrix.r2[2]
+         + (apos + camera_matrix.r2[1]) * (camera_matrix.r2[0] - view_alt)
+          - camera_matrix.r2[3]
+          - apos * -view_alt) >> 14);
+    eview_w = (view_width_over_2 + (zoom
+          * (object_origin.x
+           + ((bpos * camera_matrix.r0[2]
+            + (apos + camera_matrix.r0[1]) * (camera_matrix.r0[0] - view_alt)
+             - camera_matrix.r0[3]
+             - apos * -view_alt) >> 14)) >> 16)) << 8;
+    hview_y = (view_height_over_2 - (zoom
+          * (object_origin.y
+           + ((bpos * camera_matrix.r1[2]
+            + (apos + camera_matrix.r1[1]) * (camera_matrix.r1[0] - view_alt)
+             - camera_matrix.r1[3]
+             - apos * -view_alt) >> 14)) >> 16)) << 8;
+    hview_z = (abs(view_z) >> 1);
+    if (hview_z < 32) {
+        hview_z = 0;
+    } else
+    if (hview_z >= 11232) {
+        hview_z = 11232;
+    }
+    int dview_w, dview_h, dview_z;
+    int dhview_y, dhview_z;
+
+    dview_w = zoom * camera_matrix.r0[0] >> 14;
+    dhview_y = -(zoom * camera_matrix.r1[0]) >> 14;
+    dhview_z = camera_matrix.r2[0] >> 7;
+    dview_h = -(zoom * camera_matrix.r1[1]) >> 14;
+    dview_z = camera_matrix.r2[1] >> 7;
+    int wib_x, wib_y, wib_v;
+    wib_y = (stl_y + 1) & 3;
+    int idxx;
+    for (idxx=mmax-mmin+1; idxx > 0; idxx--)
+    {
+        unsigned long mask_cur, mask_yp;
+        mask_cur = mask_unrev;
+        mask_yp = mask_unrev;
+        mapblk = get_map_block_at(stl_x, stl_y+1);
+        wib_v = get_mapblk_wibble_value(mapblk);
+        if (map_block_revealed_bit(mapblk, player_bit)) {
+            col = get_map_column(mapblk);
+            mask_cur = col->solidmask;
+            if ((mask_cur >= 8) && ((mapblk->flags & (0x40|0x02)) == 0) && ((col->bitfields & 0xE) == 0)) {
+                mask_cur &= 3;
+            }
+        }
+        mapblk = get_map_block_at(stl_x, stl_y);
+        if (map_block_revealed_bit(mapblk, player_bit)) {
+            col = get_map_column(mapblk);
+            mask_yp = col->solidmask;
+            if ((mask_yp >= 8) && ((mapblk->flags & (0x40|0x02)) == 0) && ((col->bitfields & 0xE) == 0)) {
+                mask_yp &= 3;
+            }
+        }
+        unsigned long nfulmask_or, nfulmask_and;
+        nfulmask_or = mask_cur | mask_yp;
+        nfulmask_and = mask_cur & mask_yp;
+        unsigned long fulmask_or, fulmask_and;
+        fulmask_or = nfulmask_or | pfulmask_or;
+        fulmask_and = nfulmask_and & pfulmask_and;
+        pfulmask_or = nfulmask_or;
+        pfulmask_and = nfulmask_and;
+        int lightness;
+        lightness = 0;
+        if ((fulmask_or & 0x10000) == 0)
+            lightness = game.lish.subtile_lightness[get_subtile_number(stl_x, stl_y+1)];
+
+        long hmin, hmax;
+        hmax = height_masks[fulmask_or & 0xff];
+        hmin = floor_height[fulmask_and & 0xff];
+        struct EngineCoord *ecord;
+        ecord = &ecol->cors[hmin];
+        wib_x = stl_x & 3;
+        struct WibbleTable *wibl;
+        wibl = &wibble_table[32 * wib_v + wib_x + (wib_y << 2)];
+        long *randmis;
+        randmis = &randomisors[(stl_x + 17 * (stl_y + 1)) & 0xff];
+        eview_h = dview_h * hmin + hview_y;
+        eview_z = dview_z * hmin + hview_z;
+        int idxh;
+        for (idxh = hmax-hmin+1; idxh > 0; idxh--)
+        {
+            ecord->view_width = (eview_w + wibl->field_10) >> 8;
+            ecord->view_height = (eview_h + wibl->field_14) >> 8;
+            ecord->z = eview_z;
+            ecord->field_8 = 0;
+            lightness += *randmis;
+            if (lightness < 0)
+                lightness = 0;
+            if (lightness > 16128)
+                lightness = 16128;
+            ecord->field_A = lightness;
+            if (ecord->z < 32) {
+                ecord->z = 0;
+            } else
+            if (ecord->z >= 11232) {
+                ecord->z = 11232;
+            }
+            if (ecord->view_width < 0) {
+                ecord->field_8 |= 0x08;
+            } else
+            if (ecord->view_width >= vec_window_width) {
+                ecord->field_8 |= 0x10;
+            }
+            if (ecord->view_height < 0) {
+                ecord->field_8 |= 0x20;
+            } else
+            if (ecord->view_height >= vec_window_height) {
+                ecord->field_8 |= 0x40;
+            }
+
+            wibl += 2;
+            ecord++;
+            randmis++;
+            eview_h += dview_h;
+            eview_z += dview_z;
+        }
+        stl_x++;
+        ecol++;
+        apos += 256;
+        eview_w += dview_w;
+        hview_y += dhview_y;
+        hview_z += dhview_z;
+    }
 }
 
 void fill_in_points_isometric(long bstl_x, long bstl_y, struct MinMax *mm)
@@ -542,7 +731,6 @@ void fill_in_points_isometric(long bstl_x, long bstl_y, struct MinMax *mm)
     long view_x, view_y, view_z;
     int zoom;
     int hview_z;
-
     zoom = cam->zoom / pixel_size;
     hpos = -view_alt * apos;
     view_x = view_width_over_2 + (zoom
@@ -568,7 +756,7 @@ void fill_in_points_isometric(long bstl_x, long bstl_y, struct MinMax *mm)
     }
     long eview_w, eview_h, eview_z;
     long hview_y;
-    __int32 *v28;
+    long *randmis;
     int dview_w, dview_h, dview_z;
     int dhview_y, dhview_z;
 
@@ -631,7 +819,7 @@ void fill_in_points_isometric(long bstl_x, long bstl_y, struct MinMax *mm)
         wibl = &wibble_table[32 * wib_v + wib_x + (wib_y << 2)];
         eview_h = dview_h * hmin + hview_y;
         eview_z = dview_z * hmin + hview_z;
-        v28 = &randomisors[(stl_x + 17 * (stl_y+1)) & 0xff] + hmin;
+        randmis = &randomisors[(stl_x + 17 * (stl_y+1)) & 0xff] + hmin;
         int idxh;
         for (idxh = hmax-hmin+1; idxh > 0; idxh--)
         {
@@ -639,7 +827,7 @@ void fill_in_points_isometric(long bstl_x, long bstl_y, struct MinMax *mm)
             ecord->view_height = (eview_h + wibl->field_14) >> 8;
             ecord->z = eview_z;
             ecord->field_8 = 0;
-            lightness += 4 * (*v28 & 0xff) - 512;
+            lightness += 4 * (*randmis & 0xff) - 512;
             if (lightness < 0)
                 lightness = 0;
             if (lightness > 15872)
@@ -664,8 +852,8 @@ void fill_in_points_isometric(long bstl_x, long bstl_y, struct MinMax *mm)
                 ecord->field_8 |= 0x40;
             }
             wibl += 2;
-            ++ecord;
-            ++v28;
+            ecord++;
+            randmis++;
             eview_h += dview_h;
             eview_z += dview_z;
         }
