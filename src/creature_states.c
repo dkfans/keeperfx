@@ -3314,9 +3314,39 @@ char new_slab_tunneller_check_for_breaches(struct Thing *creatng)
   return _DK_new_slab_tunneller_check_for_breaches(creatng);
 }
 
+TbBool go_to_random_area_near_xy(struct Thing *creatng, MapSubtlCoord bstl_x, MapSubtlCoord bstl_y)
+{
+    int i;
+    for (i=0; i < 5; i++)
+    {
+        MapSubtlCoord stl_x, stl_y;
+        stl_x = bstl_x + ACTION_RANDOM(5) - 2;
+        stl_y = bstl_y + ACTION_RANDOM(5) - 2;
+        if (setup_person_move_to_position(creatng, stl_x, stl_y, 0)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 short patrol_here(struct Thing *creatng)
 {
-  return _DK_patrol_here(creatng);
+    //return _DK_patrol_here(creatng);
+    MapSubtlCoord bstl_x, bstl_y;
+    bstl_y = creatng->mappos.y.stl.num;
+    bstl_x = creatng->mappos.x.stl.num;
+    if (!go_to_random_area_near_xy(creatng, bstl_x, bstl_y))
+    {
+        set_start_state(creatng);
+        return 0;
+    }
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    cctrl->patrol.word_89 = 10;
+    cctrl->patrol.word_8B = cctrl->moveto_pos.x.stl.num;
+    cctrl->patrol.word_8D = cctrl->moveto_pos.y.stl.num;
+    creatng->continue_state = CrSt_Patrolling;
+    return 1;
 }
 
 short patrolling(struct Thing *creatng)
@@ -3331,26 +3361,18 @@ short patrolling(struct Thing *creatng)
     cctrl->patrol.word_89--;
     MapSubtlCoord stl_x, stl_y;
     // Try random positions near the patrolling point
-    int i;
-    for (i=0; i < 5; i++)
+    stl_x = cctrl->patrol.word_8B;
+    stl_y = cctrl->patrol.word_8D;
+    if (go_to_random_area_near_xy(creatng, stl_x, stl_y))
     {
-        stl_x = cctrl->patrol.word_8B + ACTION_RANDOM(5) - 2;
-        stl_y = cctrl->patrol.word_8D + ACTION_RANDOM(5) - 2;
-        if (setup_person_move_to_position(creatng, stl_x, stl_y, 0))
-        {
-            creatng->continue_state = CrSt_Patrolling;
-            return 1;
-        }
+        creatng->continue_state = CrSt_Patrolling;
+        return 1;
     }
     // Try the exact patrolling point
+    if (setup_person_move_to_position(creatng, stl_x, stl_y, 0))
     {
-        stl_x = cctrl->patrol.word_8B;
-        stl_y = cctrl->patrol.word_8D;
-        if (setup_person_move_to_position(creatng, stl_x, stl_y, 0))
-        {
-            creatng->continue_state = CrSt_Patrolling;
-            return 1;
-        }
+        creatng->continue_state = CrSt_Patrolling;
+        return 1;
     }
     // Cannot patrol any longer - reset
     set_start_state(creatng);
