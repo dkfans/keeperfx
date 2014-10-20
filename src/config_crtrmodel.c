@@ -174,7 +174,7 @@ const struct NamedCommand creatmodel_experience_commands[] = {
   {"POWERSLEVELREQUIRED",  2},
   {"LEVELSTRAINVALUES",    3},
   {"GROWUP",               4},
-  {"SLEEPEXPERINCE",       5},
+  {"SLEEPEXPERIENCE",      5},
   {"EXPERIENCEFORHITTING", 6},
   {"REBIRTH",              7},
   {NULL,                   0},
@@ -1703,7 +1703,7 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 5: // SLEEPEXPERINCE
+        case 5: // SLEEPEXPERIENCE
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = get_id(slab_desc, word_buf);
