@@ -776,7 +776,12 @@ int get_place_door_pointer_graphics(ThingModel drmodel)
     return 0;
 }
 
-void draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+/**
+ * Draws a cursor for given spell.
+ *
+ * @return Gives true if cursor spell was drawn, false if the spell wasn't available and either no cursor or block cursor was drawn.
+ */
+TbBool draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct PlayerInfo *player;
     struct Thing *thing;
@@ -793,7 +798,7 @@ void draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, MapSubtlC
     if (pwkind <= 0)
     {
         set_pointer_graphic(0);
-        return;
+        return false;
     }
     player = get_my_player();
     thing = thing_get(tng_idx);
@@ -803,7 +808,7 @@ void draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, MapSubtlC
     if (!allow_cast)
     {
         set_pointer_graphic(15);
-        return;
+        return false;
     }
     chkfunc = pwrdata->overcharge_check;
     if (chkfunc != NULL)
@@ -814,11 +819,12 @@ void draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, MapSubtlC
             set_pointer_graphic(16+i);
             magstat = &game.keeper_power_stats[pwkind];
             draw_spell_cost = magstat->cost[i];
-            return;
+            return true;
         }
     }
     i = pwrdata->pointer_spridx;
     set_pointer_graphic_spell(i, game.play_gameturn);
+    return true;
 }
 
 void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
@@ -859,8 +865,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         TRACE_THING(thing);
         if (can_cast_spell(player->id_number, pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default))
         {
-            draw_spell_cursor(player->work_state, battle_creature_over,
-                thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+            draw_spell_cursor(player->work_state, battle_creature_over, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
         } else
         {
             set_pointer_graphic(1);
@@ -894,8 +899,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
             if ((!thing_is_invalid(thing)) && (player->field_4) && (dungeon->things_in_hand[0] != player->thing_under_hand)
                 && can_cast_spell(player->id_number, player_state_to_power_kind[PSt_CtrlDirect], thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default))
             {
-                draw_spell_cursor(PSt_CtrlDirect, 0,
-                    thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+                draw_spell_cursor(PSt_CtrlDirect, 0, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
                 player->field_6 |= 0x01;
             } else
             if ((!thing_is_invalid(thing)) && (player->field_5) && (dungeon->things_in_hand[0] != player->thing_under_hand)

@@ -57,8 +57,6 @@ void remove_explored_flags_for_power_sight(struct PlayerInfo *player);
 TbBool player_uses_call_to_arms(PlayerNumber plyr_idx);
 void turn_off_call_to_arms(PlayerNumber plyr_idx);
 
-TbBool can_thing_be_possessed(const struct Thing *thing, PlayerNumber plyr_idx);
-
 unsigned char general_expand_check(void);
 unsigned char sight_of_evil_expand_check(void);
 unsigned char call_to_arms_expand_check(void);
