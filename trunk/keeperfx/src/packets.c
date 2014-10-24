@@ -786,12 +786,11 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
       {
         thing = thing_get(player->thing_under_hand);
         if ((player->thing_under_hand != 0) && (player->field_4 != 0)
-          && (dungeon->things_in_hand[0] != player->thing_under_hand)
-          && can_thing_be_possessed(thing, plyr_idx) )
+          && (dungeon->things_in_hand[0] != player->thing_under_hand))
         {
-            if (is_power_available(plyr_idx, PwrK_POSSESS)) {
-                set_player_state(player, PSt_CtrlDirect, 0);
-                magic_use_available_power_on_thing(plyr_idx, PwrK_POSSESS, 0, stl_x, stl_y, thing);
+            set_player_state(player, PSt_CtrlDirect, 0);
+            if (magic_use_available_power_on_thing(plyr_idx, PwrK_POSSESS, 0, stl_x, stl_y, thing) == Lb_FAIL) {
+                set_player_state(player, player->continue_work_state, 0);
             }
             unset_packet_control(pckt, PCtr_LBtnRelease);
         } else

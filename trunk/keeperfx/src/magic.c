@@ -76,6 +76,17 @@ DLLIMPORT void _DK_magic_use_power_hold_audience(unsigned char idx);
 
 DLLIMPORT void _DK_update_power_sight_explored(struct PlayerInfo *player);
 /******************************************************************************/
+/**
+ * Returns if spell can be casted or given thing and/or coordinates.
+ * @param plyr_idx
+ * @param pwkind
+ * @param stl_x
+ * @param stl_y
+ * @param thing
+ * @param flags
+ * @param func_name Caller name for debug logging purposes.
+ * @note This replaced can_thing_be_possessed()
+ */
 TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, const struct Thing *thing, unsigned long flags, const char *func_name)
 {
     if (!is_power_available(plyr_idx, pwkind)) {
@@ -130,8 +141,9 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
 {
     SYNCDBG(18,"Starting for %s on %s",power_code_name(pwkind),thing_model_name(thing));
     // Picked up things are immune to spells
-    if (thing_is_picked_up(thing))
+    if (thing_is_picked_up(thing)) {
         return false;
+    }
     struct SpellData *pwrdata;
     pwrdata = get_power_data(pwkind);
     if (power_data_is_invalid(pwrdata))
@@ -1308,7 +1320,6 @@ TbResult magic_use_power_possess_thing(PlayerNumber plyr_idx, struct Thing *thin
  * @param thing The target thing.
  * @param stl_x The casting subtile, X coord.
  * @param stl_y The casting subtile, Y coord.
- * @return
  */
 TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind pwkind,
     unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing)
