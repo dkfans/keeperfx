@@ -2548,51 +2548,6 @@ void update(void)
     SYNCDBG(6,"Finished");
 }
 
-void draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, unsigned char stl_x, unsigned char stl_y)
-{
-    struct PlayerInfo *player;
-    struct Thing *thing;
-    struct SpellData *pwrdata;
-    struct MagicStats *magstat;
-    Expand_Check_Func chkfunc;
-    TbBool allow_cast;
-    long pwkind;
-    long i;
-    pwkind = -1;
-    if (wrkstate < PLAYER_STATES_COUNT)
-      pwkind = player_state_to_power_kind[wrkstate];
-    SYNCDBG(5,"Starting for spell %d",(int)pwkind);
-    if (pwkind <= 0)
-    {
-        set_pointer_graphic(0);
-        return;
-    }
-    player = get_my_player();
-    thing = thing_get(tng_idx);
-    allow_cast = false;
-    pwrdata = get_power_data(pwkind);
-    allow_cast = can_cast_spell(player->id_number, pwkind, stl_x, stl_y, thing, CastChk_SkipThing);
-    if (!allow_cast)
-    {
-        set_pointer_graphic(15);
-        return;
-    }
-    chkfunc = pwrdata->overcharge_check;
-    if (chkfunc != NULL)
-    {
-        if (chkfunc())
-        {
-            i = get_power_overcharge_level(player);
-            set_pointer_graphic(16+i);
-            magstat = &game.keeper_power_stats[pwkind];
-            draw_spell_cost = magstat->cost[i];
-            return;
-        }
-    }
-    i = pwrdata->pointer_spridx;
-    set_pointer_graphic_spell(i, game.play_gameturn);
-}
-
 long near_map_block_thing_filter_queryable_object(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
 /* Currently this only makes Dungeon Heart blinking; maybe I'll find a purpose for it later
