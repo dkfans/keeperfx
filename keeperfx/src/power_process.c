@@ -102,37 +102,6 @@ unsigned char call_to_arms_expand_check(void)
     return (myplyr->field_4D2 != 0) && (!player_uses_call_to_arms(myplyr->id_number));
 }
 
-TbBool can_thing_be_possessed(const struct Thing *thing, PlayerNumber plyr_idx)
-{
-    if (thing->owner != plyr_idx)
-        return false;
-    if (thing_is_creature(thing))
-    {
-        if (thing_is_picked_up(thing))  {
-            return false;
-        }
-        if ((thing->active_state == CrSt_CreatureUnconscious)
-          || creature_affected_by_spell(thing, SplK_Teleport))  {
-            return false;
-        }
-        if (creature_is_being_sacrificed(thing) || creature_is_being_summoned(thing))  {
-            return false;
-        }
-        if (creature_is_kept_in_custody_by_enemy(thing))  {
-            return false;
-        }
-        return true;
-    }
-    if (thing_is_object(thing))
-    {
-        if (object_is_mature_food(thing))  {
-            return true;
-        }
-        return false;
-    }
-    return false;
-}
-
 void process_armageddon(void)
 {
     struct PlayerInfo *player;
