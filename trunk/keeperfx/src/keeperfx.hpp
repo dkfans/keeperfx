@@ -299,7 +299,6 @@ void draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7)
 
 void tag_cursor_blocks_dig(unsigned char a1, long a2, long a3, long a4);
 void tag_cursor_blocks_thing_in_hand(unsigned char a1, long a2, long a3, int a4, long a5);
-void draw_spell_cursor(unsigned char a1, unsigned short a2, unsigned char stl_x, unsigned char stl_y);
 short zoom_to_next_annoyed_creature(void);
 void go_to_my_next_room_of_type(unsigned long rkind);
 
