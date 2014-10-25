@@ -470,6 +470,9 @@
  0003:00011508       max_i_can_see
  0003:00030B70       thing_pointed_at
  0003:00030A48       spr_map_angle
+ 0003:00030A5C       map_z_pos
+ 0003:00030A64       map_x_pos
+ 0003:00030C78       map_y_pos
  0003:00030A4C       lfade_max
  0003:00030A50       lfade_min
  0003:00030A54       thelens
@@ -1093,6 +1096,7 @@
  0001:00024520       message_add
  0001:00007370       light_signal_stat_light_update_in_area
  0001:00007400       light_stat_light_map_clear_area
+ 0001:00007630       find_closest_lights
  0001:00007850       light_remove_light_from_list
  0001:00037900       set_player_state
  0001:000467E0       set_engine_view
@@ -1277,6 +1281,8 @@
  0001:0005ECF0       element_top_face_texture
  0001:0005EF30       find_base_thing_on_mapwho_excluding_self
  0001:00023AA0       draw_swipe
+ 0001:00032F30       create_shadows
+ 0001:000333E0       create_status_box
  0001:00033590       draw_status_sprites
  0001:00033F90       wander_point_initialise
  0001:00076910       draw_texture
