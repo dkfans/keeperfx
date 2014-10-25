@@ -314,10 +314,12 @@ struct EngineCoord { // sizeof = 28
   long z;
 };
 
+struct M31 {
+    long v[4];
+};
+
 struct M33 { // sizeof = 48
-  long r0[4];
-  long r1[4];
-  long r2[4];
+    struct M31 r[3];
 };
 
 struct EngineCol {

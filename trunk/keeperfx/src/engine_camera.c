@@ -31,6 +31,7 @@
 #include "engine_render.h"
 #include "vidmode.h"
 #include "map_blocks.h"
+#include "dungeon_data.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -343,13 +344,69 @@ void view_set_camera_x_inertia(struct Camera *cam, long delta, long ilimit)
     cam->field_24 = 1;
 }
 
-void view_set_camera_rotation_inertia(struct Camera *cam, long a2, long a3)
+void view_set_camera_rotation_inertia(struct Camera *cam, long delta, long ilimit)
 {
-    _DK_view_set_camera_rotation_inertia(cam, a2, a3);
+    //_DK_view_set_camera_rotation_inertia(cam, delta, ilimit);
+    int limit_val, new_val;
+    limit_val = abs(ilimit);
+    new_val = delta + cam->field_1B;
+    cam->field_1B = new_val;
+    if (new_val < -limit_val)
+    {
+        cam->field_1B = -limit_val;
+        cam->field_1F = 1;
+    } else
+    if (new_val > limit_val)
+    {
+        cam->field_1B = limit_val;
+        cam->field_1F = 1;
+    } else
+    {
+        cam->field_1F = 1;
+    }
 }
 
 void init_player_cameras(struct PlayerInfo *player)
 {
-  _DK_init_player_cameras(player);
+    //_DK_init_player_cameras(player);
+    struct Thing *heartng;
+    heartng = get_player_soul_container(player->id_number);
+    struct Camera *cam;
+
+    cam = &player->cameras[1];
+    cam->mappos.x.val = 0;
+    cam->orient_b = 0;
+    cam->mappos.y.val = 0;
+    cam->orient_c = 0;
+    cam->field_13 = 188;
+    cam->orient_a = 512;
+    cam->field_6 = 1;
+    cam->mappos.z.val = 256;
+
+    cam = &player->cameras[0];
+    cam->mappos.x.val = heartng->mappos.x.val;
+    cam->mappos.y.val = heartng->mappos.y.val;
+    cam->orient_c = 0;
+    cam->mappos.z.val = 0;
+    cam->field_13 = 188;
+    cam->orient_b = -266;
+    cam->orient_a = 256;
+    cam->field_6 = 2;
+    cam->zoom = 10000;
+
+    cam = &player->cameras[2];
+    cam->mappos.x.val = 0;
+    cam->field_13 = 188;
+    cam->field_6 = 3;
+    cam->mappos.y.val = 0;
+    cam->mappos.z.val = 32;
+
+    cam = &player->cameras[3];
+    cam->mappos.x.val = heartng->mappos.x.val;
+    cam->mappos.y.val = heartng->mappos.y.val;
+    cam->field_13 = 188;
+    cam->mappos.z.val = 32;
+    cam->field_6 = 5;
+    cam->zoom = 65536;
 }
 /******************************************************************************/
