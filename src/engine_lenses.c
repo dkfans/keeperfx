@@ -79,18 +79,18 @@ void pers_set_transform_matrix(struct EngineCoord *epos, const struct M33 *matx)
     pz = epos->z;
     long long pxpy, pyr0, pxr1, pzr2;
     pxpy = px * py;
-    pyr0 = py + matx->r0[0];
-    pxr1 = px + matx->r0[1];
-    pzr2 = pz * matx->r0[2];
-    epos->x = object_origin.x + ((pzr2 + pyr0 * pxr1 - matx->r0[3] - pxpy) >> 14);
-    pyr0 = py + matx->r1[0];
-    pxr1 = px + matx->r1[1];
-    pzr2 = pz * matx->r1[2];
-    epos->y = object_origin.y + ((pzr2 + pyr0 * pxr1 - matx->r1[3] - pxpy) >> 14);
-    pyr0 = py + matx->r2[0];
-    pxr1 = px + matx->r2[1];
-    pzr2 = pz * matx->r2[2];
-    epos->z = object_origin.z + ((pzr2 + pyr0 * pxr1 - matx->r2[3] - pxpy) >> 14);
+    pyr0 = py + matx->r[0].v[0];
+    pxr1 = px + matx->r[0].v[1];
+    pzr2 = pz * matx->r[0].v[2];
+    epos->x = object_origin.x + ((pzr2 + pyr0 * pxr1 - matx->r[0].v[3] - pxpy) >> 14);
+    pyr0 = py + matx->r[1].v[0];
+    pxr1 = px + matx->r[1].v[1];
+    pzr2 = pz * matx->r[1].v[2];
+    epos->y = object_origin.y + ((pzr2 + pyr0 * pxr1 - matx->r[1].v[3] - pxpy) >> 14);
+    pyr0 = py + matx->r[2].v[0];
+    pxr1 = px + matx->r[2].v[1];
+    pzr2 = pz * matx->r[2].v[2];
+    epos->z = object_origin.z + ((pzr2 + pyr0 * pxr1 - matx->r[2].v[3] - pxpy) >> 14);
 }
 
 void pers_set_view_width(struct EngineCoord *epos, long len)

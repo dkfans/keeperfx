@@ -147,6 +147,7 @@ unsigned char const height_masks[] = {
   8, 8, 8, 8, 8, 8, 8, 8,
 };
 
+int water_wibble_angle = 0;
 //unsigned char temp_cluedo_mode;
 unsigned long render_problems;
 long render_prob_kind;
@@ -214,15 +215,15 @@ void init_coords_and_rotation(struct EngineCoord *origin,struct M33 *matx)
     origin->x = 0;
     origin->y = 0;
     origin->z = 0;
-    matx->r0[0] = 0x4000u;
-    matx->r0[1] = 0;
-    matx->r0[2] = 0;
-    matx->r1[0] = 0;
-    matx->r1[1] = 0x4000u;
-    matx->r1[2] = 0;
-    matx->r2[0] = 0;
-    matx->r2[1] = 0;
-    matx->r2[2] = 0x4000u;
+    matx->r[0].v[0] = 0x4000u;
+    matx->r[0].v[1] = 0;
+    matx->r[0].v[2] = 0;
+    matx->r[1].v[0] = 0;
+    matx->r[1].v[1] = 0x4000u;
+    matx->r[1].v[2] = 0;
+    matx->r[2].v[0] = 0;
+    matx->r[2].v[1] = 0;
+    matx->r[2].v[2] = 0x4000u;
 }
 
 void update_fade_limits(long ncells_a)
@@ -237,10 +238,10 @@ void update_fade_limits(long ncells_a)
 
 void update_normal_shade(struct M33 *matx)
 {
-    normal_shade_left = matx->r2[0];
-    normal_shade_right = -matx->r2[0];
-    normal_shade_back = -matx->r2[2];
-    normal_shade_front = matx->r2[2];
+    normal_shade_left = matx->r[2].v[0];
+    normal_shade_right = -matx->r[2].v[0];
+    normal_shade_back = -matx->r[2].v[2];
+    normal_shade_front = matx->r[2].v[2];
     if (normal_shade_front < 0)
       normal_shade_front = 0;
     if (normal_shade_back < 0)
@@ -308,11 +309,11 @@ void rotpers_parallel_3(struct EngineCoord *epos, struct M33 *matx, long zoom)
     inp_x = epos->x;
     inp_y = epos->y;
     inp_z = epos->z;
-    out_x = (inp_z * matx->r0[2] + (inp_y + matx->r0[0]) * (inp_x + matx->r0[1]) - matx->r0[3] - inp_x * inp_y) >> 14;
+    out_x = (inp_z * matx->r[0].v[2] + (inp_y + matx->r[0].v[0]) * (inp_x + matx->r[0].v[1]) - matx->r[0].v[3] - inp_x * inp_y) >> 14;
     epos->x = out_x;
-    out_y = (inp_z * matx->r1[2] + (inp_y + matx->r1[0]) * (inp_x + matx->r1[1]) - matx->r1[3] - inp_x * inp_y) >> 14;
+    out_y = (inp_z * matx->r[1].v[2] + (inp_y + matx->r[1].v[0]) * (inp_x + matx->r[1].v[1]) - matx->r[1].v[3] - inp_x * inp_y) >> 14;
     epos->y = out_y;
-    epos->z = (inp_z * matx->r2[2] + (inp_y + matx->r2[0]) * (inp_x + matx->r2[1]) - matx->r2[3] - inp_x * inp_y) >> 14;
+    epos->z = (inp_z * matx->r[2].v[2] + (inp_y + matx->r[2].v[0]) * (inp_x + matx->r[2].v[1]) - matx->r[2].v[3] - inp_x * inp_y) >> 14;
     factor_w = (long)view_width_over_2 + (zoom * out_x >> 16);
     epos->view_width = factor_w;
     factor_h = (long)view_height_over_2 - (zoom * out_y >> 16);
@@ -336,9 +337,120 @@ void rotpers_parallel_3(struct EngineCoord *epos, struct M33 *matx, long zoom)
     epos->field_8 |= 0x0400;
 }
 
-void rotate_base_axis(struct M33 *matx, short a2, unsigned char a3)
+void base_vec_normalisation(struct M33 *matx, unsigned char a2)
 {
-  _DK_rotate_base_axis(matx, a2, a3);
+    struct M31 *vec;
+    vec = &matx->r[a2];
+    long rv0, rv1, rv2, rvlen;
+    rv0 = vec->v[0];
+    rv1 = vec->v[1];
+    rv2 = vec->v[2];
+    rvlen = LbSqrL(rv0 * rv0 + rv1 * rv1 + rv2 * rv2);
+    vec->v[0] = (rv0 << 14) / rvlen;
+    vec->v[1] = (rv1 << 14) / rvlen;
+    vec->v[2] = (rv2 << 14) / rvlen;
+}
+
+void vec_cross_prod(struct M31 *outvec, const struct M31 *vec2, const struct M31 *vec3)
+{
+    outvec->v[0] = vec3->v[2] * vec2->v[1] - vec3->v[1] * vec2->v[2];
+    outvec->v[1] = vec3->v[0] * vec2->v[2] - vec3->v[2] * vec2->v[0];
+    outvec->v[2] = vec3->v[1] * vec2->v[0] - vec3->v[0] * vec2->v[1];
+}
+
+void matrix_transform(struct M31 *outvec, const struct M33 *matx, const struct M31 *vec2)
+{
+    outvec->v[0] = matx->r[0].v[2] * vec2->v[2] + matx->r[0].v[0] * vec2->v[0] + matx->r[0].v[1] * vec2->v[1];
+    outvec->v[1] = matx->r[1].v[2] * vec2->v[2] + matx->r[1].v[0] * vec2->v[0] + matx->r[1].v[1] * vec2->v[1];
+    outvec->v[2] = matx->r[2].v[2] * vec2->v[2] + matx->r[2].v[1] * vec2->v[1] + matx->r[2].v[0] * vec2->v[0];
+}
+
+void rotate_base_axis(struct M33 *matx, short angle, unsigned char axis)
+{
+    //_DK_rotate_base_axis(matx, a2, a3); return;
+
+    unsigned char scor0, scor1, scor2;
+    switch (axis)
+    {
+    case 1:
+        scor0 = 1;
+        scor1 = 2;
+        scor2 = 0;
+        break;
+    case 2:
+        scor0 = 0;
+        scor1 = 2;
+        scor2 = 1;
+        break;
+    case 3:
+        scor0 = 0;
+        scor1 = 1;
+        scor2 = 2;
+        break;
+    default:
+        ERRORLOG("Bad axis");
+        scor0 = 0;
+        scor1 = 1;
+        scor2 = 2;
+        break;
+    }
+
+    struct M33 matt;
+    {
+#define TRIG_LIMIT (1 << (LbFPMath_TrigmBits - 2))
+        int angle_sin, angle_cos;
+        angle_sin = LbSinL(angle) >> 2;
+        angle_cos = LbCosL(angle) >> 2;
+        long val0, val1, val2;
+        val0 = matx->r[scor2].v[0];
+        val2 = matx->r[scor2].v[2];
+        val1 = matx->r[scor2].v[1];
+        long shf0, shf1, shf2;
+        long mag0, mag1, mag2;
+        matt.r[0].v[0] = (val0 * val0 >> 14) + (angle_cos * (TRIG_LIMIT - (val0 * val0 >> 14)) >> 14);
+        matt.r[1].v[1] = (val1 * val1 >> 14) + (angle_cos * (TRIG_LIMIT - (val1 * val1 >> 14)) >> 14);
+        matt.r[2].v[2] = (val2 * val2 >> 14) + (angle_cos * (TRIG_LIMIT - (val2 * val2 >> 14)) >> 14);
+        mag2 = (TRIG_LIMIT - angle_cos) * (val1 * val0 >> 14) >> 14;
+        shf2 = angle_sin * val2 >> 14;
+        mag1 = (TRIG_LIMIT - angle_cos) * (val0 * val2 >> 14) >> 14;
+        shf1 = angle_sin * val1 >> 14;
+        mag0 = (TRIG_LIMIT - angle_cos) * (val1 * val2 >> 14) >> 14;
+        shf0 = angle_sin * val0 >> 14;
+        matt.r[0].v[1] = mag2 - shf2;
+        matt.r[0].v[2] = mag1 + shf1;
+        matt.r[1].v[2] = mag0 - shf0;
+        matt.r[1].v[0] = mag2 + shf2;
+        matt.r[2].v[0] = mag1 - shf1;
+        matt.r[2].v[1] = mag0 + shf0;
+#undef TRIG_LIMIT
+    }
+
+    struct M31 locvec;
+    matrix_transform(&locvec, &matt, &matx->r[scor0]);
+    matx->r[scor0].v[0] = locvec.v[0] >> 14;
+    matx->r[scor0].v[1] = locvec.v[1] >> 14;
+    matx->r[scor0].v[2] = locvec.v[2] >> 14;
+    matrix_transform(&locvec, &matt, &matx->r[scor1]);
+    matx->r[scor1].v[0] = locvec.v[0] >> 14;
+    matx->r[scor1].v[1] = locvec.v[1] >> 14;
+    matx->r[scor1].v[2] = locvec.v[2] >> 14;
+    base_vec_normalisation(matx, 2);
+
+    vec_cross_prod(&locvec, &matx->r[2], &matx->r[0]);
+    matx->r[1].v[0] = locvec.v[0] >> 14;
+    matx->r[1].v[1] = locvec.v[1] >> 14;
+    matx->r[1].v[2] = locvec.v[2] >> 14;
+    base_vec_normalisation(matx, 1);
+
+    vec_cross_prod(&locvec, &matx->r[1], &matx->r[2]);
+    matx->r[0].v[0] = locvec.v[0] >> 14;
+    matx->r[0].v[1] = locvec.v[1] >> 14;
+    matx->r[0].v[2] = locvec.v[2] >> 14;
+    base_vec_normalisation(matx, 0);
+
+    matx->r[0].v[3] = matx->r[0].v[0] * matx->r[0].v[1];
+    matx->r[1].v[3] = matx->r[1].v[0] * matx->r[1].v[1];
+    matx->r[2].v[3] = matx->r[2].v[0] * matx->r[2].v[1];
 }
 
 void fill_in_points_perspective(long bstl_x, long bstl_y, struct MinMax *mm)
@@ -528,21 +640,21 @@ void fill_in_points_cluedo(long bstl_x, long bstl_y, struct MinMax *mm)
     int hview_y, hview_z;
     zoom = cam->zoom / pixel_size;
     view_z = object_origin.z + (cells_away << 8)
-        + ((bpos * camera_matrix.r2[2]
-         + (apos + camera_matrix.r2[1]) * (camera_matrix.r2[0] - view_alt)
-          - camera_matrix.r2[3]
+        + ((bpos * camera_matrix.r[2].v[2]
+         + (apos + camera_matrix.r[2].v[1]) * (camera_matrix.r[2].v[0] - view_alt)
+          - camera_matrix.r[2].v[3]
           - apos * -view_alt) >> 14);
     eview_w = (view_width_over_2 + (zoom
           * (object_origin.x
-           + ((bpos * camera_matrix.r0[2]
-            + (apos + camera_matrix.r0[1]) * (camera_matrix.r0[0] - view_alt)
-             - camera_matrix.r0[3]
+           + ((bpos * camera_matrix.r[0].v[2]
+            + (apos + camera_matrix.r[0].v[1]) * (camera_matrix.r[0].v[0] - view_alt)
+             - camera_matrix.r[0].v[3]
              - apos * -view_alt) >> 14)) >> 16)) << 8;
     hview_y = (view_height_over_2 - (zoom
           * (object_origin.y
-           + ((bpos * camera_matrix.r1[2]
-            + (apos + camera_matrix.r1[1]) * (camera_matrix.r1[0] - view_alt)
-             - camera_matrix.r1[3]
+           + ((bpos * camera_matrix.r[1].v[2]
+            + (apos + camera_matrix.r[1].v[1]) * (camera_matrix.r[1].v[0] - view_alt)
+             - camera_matrix.r[1].v[3]
              - apos * -view_alt) >> 14)) >> 16)) << 8;
     hview_z = (abs(view_z) >> 1);
     if (hview_z < 32) {
@@ -554,11 +666,11 @@ void fill_in_points_cluedo(long bstl_x, long bstl_y, struct MinMax *mm)
     int dview_w, dview_h, dview_z;
     int dhview_y, dhview_z;
 
-    dview_w = zoom * camera_matrix.r0[0] >> 14;
-    dhview_y = -(zoom * camera_matrix.r1[0]) >> 14;
-    dhview_z = camera_matrix.r2[0] >> 7;
-    dview_h = -(zoom * camera_matrix.r1[1]) >> 14;
-    dview_z = camera_matrix.r2[1] >> 7;
+    dview_w = zoom * camera_matrix.r[0].v[0] >> 14;
+    dhview_y = -(zoom * camera_matrix.r[1].v[0]) >> 14;
+    dhview_z = camera_matrix.r[2].v[0] >> 7;
+    dview_h = -(zoom * camera_matrix.r[1].v[1]) >> 14;
+    dview_z = camera_matrix.r[2].v[1] >> 7;
     int wib_x, wib_y, wib_v;
     wib_y = (stl_y + 1) & 3;
     int idxx;
@@ -735,18 +847,18 @@ void fill_in_points_isometric(long bstl_x, long bstl_y, struct MinMax *mm)
     hpos = -view_alt * apos;
     view_x = view_width_over_2 + (zoom
          * (object_origin.x
-          + ((bpos * camera_matrix.r0[2]
-           + (apos + camera_matrix.r0[1]) * (camera_matrix.r0[0] - view_alt)
-            - hpos - camera_matrix.r0[3]) >> 14)) >> 16);
+          + ((bpos * camera_matrix.r[0].v[2]
+           + (apos + camera_matrix.r[0].v[1]) * (camera_matrix.r[0].v[0] - view_alt)
+            - hpos - camera_matrix.r[0].v[3]) >> 14)) >> 16);
     view_y = view_height_over_2 - (zoom
          * (object_origin.y
-          + ((bpos * camera_matrix.r1[2]
-           + (apos + camera_matrix.r1[1]) * (camera_matrix.r1[0] - view_alt)
-            - hpos - camera_matrix.r1[3]) >> 14)) >> 16);
+          + ((bpos * camera_matrix.r[1].v[2]
+           + (apos + camera_matrix.r[1].v[1]) * (camera_matrix.r[1].v[0] - view_alt)
+            - hpos - camera_matrix.r[1].v[3]) >> 14)) >> 16);
     view_z = object_origin.z + (cells_away << 8)
-        + ((bpos * camera_matrix.r2[2]
-         + (apos + camera_matrix.r2[1]) * (camera_matrix.r2[0] - view_alt)
-          - hpos - camera_matrix.r2[3]) >> 14);
+        + ((bpos * camera_matrix.r[2].v[2]
+         + (apos + camera_matrix.r[2].v[1]) * (camera_matrix.r[2].v[0] - view_alt)
+          - hpos - camera_matrix.r[2].v[3]) >> 14);
     hview_z = (abs(view_z) >> 1);
     if (hview_z < 32) {
         hview_z = 0;
@@ -762,11 +874,11 @@ void fill_in_points_isometric(long bstl_x, long bstl_y, struct MinMax *mm)
 
     eview_w = view_x << 8;
     hview_y = view_y << 8;
-    dview_w = zoom * camera_matrix.r0[0] >> 14;
-    dhview_y = -(zoom * camera_matrix.r1[0]) >> 14;
-    dhview_z = camera_matrix.r2[0] >> 7;
-    dview_h = -(zoom * camera_matrix.r1[1]) >> 14;
-    dview_z = camera_matrix.r2[1] >> 7;
+    dview_w = zoom * camera_matrix.r[0].v[0] >> 14;
+    dhview_y = -(zoom * camera_matrix.r[1].v[0]) >> 14;
+    dhview_z = camera_matrix.r[2].v[0] >> 7;
+    dview_h = -(zoom * camera_matrix.r[1].v[1]) >> 14;
+    dview_z = camera_matrix.r[2].v[1] >> 7;
     int wib_x, wib_y, wib_v;
     wib_y = (stl_y + 1) & 3;
     int idxx;
@@ -868,7 +980,48 @@ void fill_in_points_isometric(long bstl_x, long bstl_y, struct MinMax *mm)
 
 void frame_wibble_generate(void)
 {
-  _DK_frame_wibble_generate();
+    //_DK_frame_wibble_generate(); return;
+    int i;
+    struct WibbleTable *wibl;
+    wibl = &wibble_table[64];
+    for (i = 0; i < 16; i++)
+    {
+        unsigned short angle;
+        int osc;
+        angle = water_wibble_angle + ((i & 0xFFFC) * ((i & 3) + 1) << 7);
+        osc = LbSinL(angle);
+        wibl->field_4 = osc >> 11;
+        wibl->field_C = osc >> 6;
+        wibl++;
+    }
+    water_wibble_angle = (water_wibble_angle + 46) & 0x7FF;
+    int zoom;
+    {
+        struct PlayerInfo *myplyr;
+        myplyr = get_my_player();
+        const struct Camera *cam;
+        cam = myplyr->acamera;
+        zoom = cam->zoom / pixel_size;
+    }
+
+    int zm00, zm02;
+    int zm10, zm11, zm12;
+    zm00 = zoom * camera_matrix.r[0].v[0] >> 14;
+    zm02 = zoom * camera_matrix.r[0].v[2] >> 14;
+    zm10 = zoom * camera_matrix.r[1].v[0] >> 14;
+    zm12 = zoom * camera_matrix.r[1].v[2] >> 14;
+    zm11 = zoom * camera_matrix.r[1].v[1] >> 14;
+
+    wibl = &wibble_table[32];
+    for (i=64; i > 0; i--)
+    {
+        wibl->field_10 =   ((zm00 * wibl->field_0) >> 8)
+                         + ((zm02 * wibl->field_8) >> 8);
+        wibl->field_14 = -(((zm12 * wibl->field_8) >> 8)
+                         + ((zm10 * wibl->field_0) >> 8)
+                         + ((zm11 * wibl->field_4) >> 8));
+        wibl++;
+    }
 }
 
 void setup_rotate_stuff(long x, long y, long z, long fade_max, long fade_min, long zoom, long map_angle, long map_roll)
