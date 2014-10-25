@@ -272,6 +272,11 @@ struct BasicUnk14 { // sizeof = 24
     long field_14;
 };
 
+struct NearestLights {
+    struct Coord3d coord[8];//size is probably 4, keeping more only to be sure
+};
+
+
 struct TexturedQuad { // sizeof = 46
     struct BasicQ b;
     unsigned char field_5;
@@ -421,6 +426,12 @@ DLLIMPORT long _DK_view_height_over_2;
 #define view_height_over_2 _DK_view_height_over_2
 DLLIMPORT long _DK_view_width_over_2;
 #define view_width_over_2 _DK_view_width_over_2
+DLLIMPORT long _DK_map_x_pos;
+#define map_x_pos _DK_map_x_pos
+DLLIMPORT long _DK_map_y_pos;
+#define map_y_pos _DK_map_y_pos
+DLLIMPORT long _DK_map_z_pos;
+#define map_z_pos _DK_map_z_pos
 DLLIMPORT int _DK_normal_shade_front;
 #define normal_shade_front _DK_normal_shade_front
 DLLIMPORT int _DK_normal_shade_back;
