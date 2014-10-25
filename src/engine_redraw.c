@@ -896,13 +896,17 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         case 3:
             thing = thing_get(player->thing_under_hand);
             TRACE_THING(thing);
-            if ((!thing_is_invalid(thing)) && (player->field_4) && (dungeon->things_in_hand[0] != player->thing_under_hand)
-                && can_cast_spell(player->id_number, player_state_to_power_kind[PSt_CtrlDirect], thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default))
+            if ((player->field_4) && (!thing_is_invalid(thing)) && (dungeon->things_in_hand[0] != player->thing_under_hand))
             {
-                draw_spell_cursor(PSt_CtrlDirect, 0, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+                if (can_cast_spell(player->id_number, player_state_to_power_kind[PSt_CtrlDirect],
+                  thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default)) {
+                    draw_spell_cursor(PSt_CtrlDirect, 0, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+                } else {
+                    set_pointer_graphic(1);
+                }
                 player->field_6 |= 0x01;
             } else
-            if ((!thing_is_invalid(thing)) && (player->field_5) && (dungeon->things_in_hand[0] != player->thing_under_hand)
+            if (((player->field_5) && !thing_is_invalid(thing)) && (dungeon->things_in_hand[0] != player->thing_under_hand)
                 && can_thing_be_queried(thing, player->id_number))
             {
                 set_pointer_graphic(4);
