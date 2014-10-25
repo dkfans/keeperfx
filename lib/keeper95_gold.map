@@ -48,6 +48,7 @@
  0001:00005EF0       light_set_light_minimum_size_to_cache
  0001:00007370       light_signal_stat_light_update_in_area
  0001:00007400       light_stat_light_map_clear_area
+ 0001:00007630       find_closest_lights
  0001:00007850       light_remove_light_from_list
  0001:00007980       light_initialise_lighting_tables
  0001:000081D0       frontend_is_player_allied
@@ -315,6 +316,8 @@
  0001:00031BA0       fill_in_points_isometric
  0001:00032200       fill_in_points_cluedo
  0001:00032990       engine
+ 0001:00032F30       create_shadows
+ 0001:000333E0       create_status_box
  0001:00033590       draw_status_sprites
  0001:00033CF0       draw_engine_room_flagpole
  0001:00033E40       draw_engine_room_flag_top
@@ -1703,11 +1706,14 @@
  0003:00030A4C       lfade_max
  0003:00030A50       lfade_min
  0003:00030A54       thelens
+ 0003:00030A5C       map_z_pos
  0003:00030A60       thing_being_displayed_is_creature
+ 0003:00030A64       map_x_pos
  0003:00030A68       fade_mmm
  0003:00030A70       red_pal
  0003:00030B70       thing_pointed_at
  0003:00030B78       white_pal
+ 0003:00030C78       map_y_pos
  0003:00030C80       thing_being_displayed
  0003:00030C84       EngineSpriteDrawUsingAlpha
  0003:00030C88       door_sound_state

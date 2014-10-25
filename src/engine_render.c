@@ -76,6 +76,9 @@ DLLIMPORT void _DK_do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCo
 DLLIMPORT void _DK_do_a_gpoly_unlit_tr(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short plane_end);
 DLLIMPORT void _DK_do_a_gpoly_unlit_bl(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short plane_end);
 DLLIMPORT void _DK_do_a_gpoly_gourad_bl(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short plane_end, int a5);
+DLLIMPORT long _DK_find_closest_lights(struct Coord3d *pos, struct NearestLights *nlgt);
+DLLIMPORT void _DK_create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct Coord3d *pos);
+DLLIMPORT void _DK_create_status_box(struct Thing *thing, struct EngineCoord *ecor);
 /******************************************************************************/
 unsigned short shield_offset[] = {
  0x0,  0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x118, 0x80,
@@ -156,6 +159,8 @@ long sp_x,sp_y,sp_dx,sp_dy;
 #ifdef __cplusplus
 }
 #endif
+/******************************************************************************/
+void do_map_who(short tnglist_idx);
 /******************************************************************************/
 void get_floor_pointed_at(long x, long y, long *floor_x, long *floor_y)
 {
@@ -1026,7 +1031,17 @@ void frame_wibble_generate(void)
 
 void setup_rotate_stuff(long x, long y, long z, long fade_max, long fade_min, long zoom, long map_angle, long map_roll)
 {
-  _DK_setup_rotate_stuff(x, y, z, fade_max, fade_min, zoom, map_angle, map_roll);
+    //_DK_setup_rotate_stuff(x, y, z, fade_max, fade_min, zoom, map_angle, map_roll);
+    view_width_over_2 = vec_window_width / 2;
+    view_height_over_2 = vec_window_height / 2;
+    map_x_pos = x;
+    map_y_pos = y;
+    map_z_pos = z;
+    thelens = zoom;
+    spr_map_angle = map_angle;
+    lfade_min = fade_min;
+    lfade_max = fade_max;
+    fade_mmm = fade_max - fade_min;
 }
 
 void create_box_coords(struct EngineCoord *coord, long x, long z, long y)
@@ -1631,9 +1646,19 @@ void do_a_trig_gourad_bl(struct EngineCoord *ep1, struct EngineCoord *ep2, struc
     _DK_do_a_trig_gourad_bl(ep1, ep2, ep3, a4, a5);
 }
 
-void do_map_who(short a1)
+long find_closest_lights(struct Coord3d *pos, struct NearestLights *nlgt)
 {
-    _DK_do_map_who(a1);
+    return _DK_find_closest_lights(pos, nlgt);
+}
+
+void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct Coord3d *pos)
+{
+    _DK_create_shadows(thing, ecor, pos); return;
+}
+
+void create_status_box(struct Thing *thing, struct EngineCoord *ecor)
+{
+    _DK_create_status_box(thing, ecor); return;
 }
 
 void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane_start, long plane_end)
@@ -5218,6 +5243,133 @@ void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width
       delta[2] += stl_width;
       delta[3] += stl_width;
       delta[1] += stl_width;
+    }
+}
+
+void do_map_who_for_thing(struct Thing *thing)
+{
+    int bckt_idx;
+    struct EngineCoord ecor;
+    struct NearestLights nearlgt;
+    switch (thing->field_50 >> 2)
+    {
+    case 2:
+        ecor.x = ((long)thing->mappos.x.val - map_x_pos);
+        ecor.z = (map_y_pos - (long)thing->mappos.y.val);
+        ecor.field_8 = 0;
+        ecor.y = ((long)thing->field_60 - map_z_pos);
+        if (thing_is_creature(thing) && ((thing->movement_flags & 0x04) == 0))
+        {
+            int count, i;
+            count = find_closest_lights(&thing->mappos, &nearlgt);
+            for (i=0; i < count; i++) {
+                create_shadows(thing, &ecor, &nearlgt.coord[i]);
+            }
+        }
+        ecor.y = thing->mappos.z.val - map_z_pos;
+        if ( thing->class_id == 5 )
+            create_status_box(thing, &ecor);
+        rotpers(&ecor, &camera_matrix);
+        if (getpoly < poly_pool_end)
+        {
+          if ( lens_mode )
+            bckt_idx = (ecor.z - 64) / 16;
+          else
+            bckt_idx = (ecor.z - 64) / 16 - 6;
+          add_unkn11_to_polypool(thing, ecor.view_width, ecor.view_height, ecor.z, bckt_idx);
+        }
+        break;
+    case 3:
+        ecor.x = ((long)thing->mappos.x.val - map_x_pos);
+        ecor.z = (map_y_pos - (long)thing->mappos.y.val);
+        ecor.field_8 = 0;
+        ecor.y = ((long)thing->mappos.z.val - map_z_pos);
+        memcpy(&object_origin, &ecor, sizeof(struct EngineCoord));
+        object_origin.x = 0;
+        object_origin.y = 0;
+        object_origin.z = 0;
+        break;
+    case 4:
+        ecor.x = ((long)thing->mappos.x.val - map_x_pos);
+        ecor.z = (map_y_pos - (long)thing->mappos.y.val);
+        ecor.y = ((long)thing->mappos.z.val - map_z_pos);
+        rotpers(&ecor, &camera_matrix);
+        if (getpoly < poly_pool_end)
+        {
+            add_unkn16_to_polypool(ecor.view_width, ecor.view_height, thing->long_13, 1);
+        }
+        break;
+    case 5:
+        ecor.x = ((long)thing->mappos.x.val - map_x_pos);
+        ecor.z = (map_y_pos - (long)thing->mappos.y.val);
+        ecor.y = ((long)thing->mappos.z.val - map_z_pos);
+        rotpers(&ecor, &camera_matrix);
+        if ( getpoly < poly_pool_end )
+        {
+          if (game.play_gameturn - thing->long_15 == 1)
+          {
+            if (thing->field_19 < 40)
+              thing->field_19++;
+          } else
+          {
+              thing->field_19 = 0;
+          }
+          thing->long_15 = game.play_gameturn;
+          if (thing->field_19 == 40)
+          {
+              bckt_idx = (ecor.z - 64) / 16 - 6;
+              add_room_flag_pole_to_polypool(ecor.view_width, ecor.view_height, thing->roomflag.room_idx, bckt_idx);
+              if (getpoly < poly_pool_end)
+              {
+                  add_room_flag_top_to_polypool(ecor.view_width, ecor.view_height, thing->roomflag.room_idx, 1);
+              }
+          }
+        }
+        break;
+    case 6:
+        ecor.x = (thing->mappos.x.val - map_x_pos);
+        ecor.z = (map_y_pos - thing->mappos.y.val);
+        ecor.y = (thing->mappos.z.val - map_z_pos);
+        rotpers(&ecor, &camera_matrix);
+        if (getpoly < poly_pool_end) {
+            add_unkn18_to_polypool(thing, ecor.view_width, ecor.view_height, ecor.z, 1);
+        }
+        break;
+    default:
+        break;
+    }
+}
+
+void do_map_who(short tnglist_idx)
+{
+    //_DK_do_map_who(a1); return;
+    long i;
+    unsigned long k;
+    k = 0;
+    i = tnglist_idx;
+    while (i != 0)
+    {
+        struct Thing *thing;
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_on_mapblk;
+        // Per thing code start
+        if ((thing->field_4F & 0x01) == 0)
+        {
+            do_map_who_for_thing(thing);
+        }
+        // Per thing code end
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
     }
 }
 
