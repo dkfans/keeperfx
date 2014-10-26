@@ -900,6 +900,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
             {
                 if (can_cast_spell(player->id_number, player_state_to_power_kind[PSt_CtrlDirect],
                   thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default)) {
+                    // The condition above makes can_cast_spell() within draw_spell_cursor() to never fail; this is intentional
                     draw_spell_cursor(PSt_CtrlDirect, 0, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
                 } else {
                     set_pointer_graphic(1);

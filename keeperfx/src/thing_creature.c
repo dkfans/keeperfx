@@ -4409,15 +4409,22 @@ TbBool update_controlled_creature_movement(struct Thing *thing)
 TbBool update_flight_altitude_towards_typical(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
-    int floor_height,thing_height,i;
+    MapCoordDelta thing_curr_alt, i;
     cctrl = creature_control_get_from_thing(thing);
     struct Coord3d nxpos;
     nxpos.x.val = thing->mappos.x.val + cctrl->moveaccel.x.val;
     nxpos.y.val = thing->mappos.y.val + cctrl->moveaccel.y.val;
     nxpos.z.val = subtile_coord(1,0);
-    floor_height = get_floor_height_under_thing_at(thing, &nxpos);
-    thing_height = thing->mappos.z.val;
-    i = floor_height + NORMAL_FLYING_ALTITUDE - thing_height;
+    MapCoord floor_height, ceiling_height;
+    get_floor_and_ceiling_height_under_thing_at(thing, &nxpos, &floor_height, &ceiling_height);
+    thing_curr_alt = thing->mappos.z.val;
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(thing);
+    i = floor_height + NORMAL_FLYING_ALTITUDE;
+    MapCoordDelta max_pos_to_ceiling = ceiling_height - crstat->size_yz;
+    if ((floor_height < max_pos_to_ceiling) && (i > max_pos_to_ceiling))
+        i = max_pos_to_ceiling;
+    i -= thing_curr_alt;
     if (i > 0)
     {
         if (i >= 32)
