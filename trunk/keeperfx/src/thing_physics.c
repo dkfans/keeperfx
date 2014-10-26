@@ -51,13 +51,13 @@ TbBool thing_touching_floor(const struct Thing *thing)
 
 TbBool thing_touching_flight_altitude(const struct Thing *thing)
 {
-    int i;
+    int floor_height;
     if (thing->veloc_push_add.z.val != 0) {
         return false;
     }
-    i = get_floor_height_under_thing_at(thing, &thing->mappos);
-    return (thing->mappos.z.val >= i + 16*NORMAL_FLYING_ALTITUDE/17)
-        && (thing->mappos.z.val <= i + 19*NORMAL_FLYING_ALTITUDE/17);
+    floor_height = get_floor_height_under_thing_at(thing, &thing->mappos);
+    return (thing->mappos.z.val >= floor_height + 16*NORMAL_FLYING_ALTITUDE/17)
+        && (thing->mappos.z.val <= floor_height + 19*NORMAL_FLYING_ALTITUDE/17);
 }
 
 void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long a3)
@@ -540,6 +540,40 @@ long get_floor_height_under_thing_at(const struct Thing *thing, const struct Coo
     get_min_floor_and_ceiling_heights_for_rect(coord_subtile(pos_x_beg), coord_subtile(pos_y_beg),
         coord_subtile(pos_x_end), coord_subtile(pos_y_end), &floor_height, &ceiling_height);
     return floor_height << 8;
+}
+
+void get_floor_and_ceiling_height_under_thing_at(const struct Thing *thing,
+    const struct Coord3d *pos, MapCoord *floor_height_cor, MapCoord *ceiling_height_cor)
+{
+    int radius;
+    long i;
+    if (thing_is_creature(thing)) {
+        i = thing_nav_sizexy(thing);
+    } else {
+        i = thing->sizexy;
+    }
+    radius = i/2;
+    // Get range of coords under thing
+    MapCoord pos_x_beg, pos_x_end;
+    MapCoord pos_y_beg, pos_y_end;
+    pos_x_beg = (pos->x.val - radius);
+    if (pos_x_beg < 0)
+        pos_x_beg = 0;
+    pos_x_end = pos->x.val + radius;
+    pos_y_beg = (pos->y.val - radius);
+    if (pos_y_beg < 0)
+        pos_y_beg = 0;
+    if (pos_x_end >= 65535)
+        pos_x_end = 65535;
+    pos_y_end = pos->y.val + radius;
+    if (pos_y_end >= 65535)
+        pos_y_end = 65535;
+    // Find correct floor and ceiling plane for the area
+    MapSubtlCoord floor_height, ceiling_height;
+    get_min_floor_and_ceiling_heights_for_rect(coord_subtile(pos_x_beg), coord_subtile(pos_y_beg),
+        coord_subtile(pos_x_end), coord_subtile(pos_y_end), &floor_height, &ceiling_height);
+    *floor_height_cor = (floor_height << 8);
+    *ceiling_height_cor = (ceiling_height << 8);
 }
 /******************************************************************************/
 #ifdef __cplusplus

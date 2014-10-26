@@ -67,8 +67,9 @@ TbBool creature_is_doing_temple_pray_activity(const struct Thing *thing)
 TbBool setup_temple_move(struct Thing *thing, struct Room *room)
 {
     struct Coord3d pos;
-    if ( !person_get_somewhere_adjacent_in_room_around_borders(thing, room, &pos) )
+    if (!person_get_somewhere_adjacent_in_room_around_borders(thing, room, &pos))
     {
+        WARNLOG("No position to move %s in %s room", thing_model_name(thing),room_code_name(room->kind));
         return false;
     }
     if (!setup_person_move_to_coord(thing, &pos, NavRtF_Default)) {
