@@ -1429,9 +1429,9 @@ void reset_script_timers_and_flags(void)
     int plyr_idx,k;
     for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
-        add_spell_to_player(PwrK_HAND, plyr_idx);
-        add_spell_to_player(PwrK_SLAP, plyr_idx);
-        add_spell_to_player(PwrK_POSSESS, plyr_idx);
+        add_power_to_player(PwrK_HAND, plyr_idx);
+        add_power_to_player(PwrK_SLAP, plyr_idx);
+        add_power_to_player(PwrK_POSSESS, plyr_idx);
         dungeon = get_dungeon(plyr_idx);
         for (k=0; k<TURN_TIMERS_COUNT; k++)
         {

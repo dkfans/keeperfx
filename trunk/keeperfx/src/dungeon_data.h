@@ -39,7 +39,7 @@ extern "C" {
 #define DIGGER_TASK_MAX_COUNT  64
 #define DUNGEON_RESEARCH_COUNT 34
 #define MAX_THINGS_IN_HAND      8
-#define KEEPER_SPELLS_COUNT    20
+#define KEEPER_POWERS_COUNT    20
 #define TURN_TIMERS_COUNT       8
 #define SCRIPT_FLAGS_COUNT      8
 #define MAX_SOE_RADIUS         13
@@ -200,8 +200,8 @@ unsigned char field_F7D;
      * Allowed creatures can join a dungeon if whether attraction condition is met
      * or force-enabled amount isn't reached. */
     unsigned char creature_allowed[CREATURE_TYPES_COUNT];
-    unsigned char magic_level[KEEPER_SPELLS_COUNT];
-    unsigned char magic_resrchable[KEEPER_SPELLS_COUNT];
+    unsigned char magic_level[KEEPER_POWERS_COUNT];
+    unsigned char magic_resrchable[KEEPER_POWERS_COUNT];
     /** Amount of traps of every kind which are stored in workshops. Only on-map trap crates which exist in workshop are mentioned here.*/
     unsigned char trap_amount_stored[TRAP_TYPES_COUNT];
     /** Stores flag information about players manufacture of traps of specific kind. */

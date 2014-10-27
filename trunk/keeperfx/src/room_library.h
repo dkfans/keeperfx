@@ -31,6 +31,8 @@ extern "C" {
 
 struct Room;
 struct Thing;
+struct ResearchVal;
+struct Dungeon;
 
 #pragma pack()
 /******************************************************************************/
@@ -38,6 +40,7 @@ TbBool remove_spell_from_library(struct Room *room, struct Thing *spelltng, Play
 struct Thing *create_spell_in_library(struct Room *room, ThingModel spkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 void init_dungeons_research(void);
+TbBool research_needed(const struct ResearchVal *rsrchval, const struct Dungeon *dungeon);
 TbBool add_research_to_player(PlayerNumber plyr_idx, long rtyp, long rkind, long amount);
 TbBool add_research_to_all_players(long rtyp, long rkind, long amount);
 TbBool remove_all_research_from_player(PlayerNumber plyr_idx);

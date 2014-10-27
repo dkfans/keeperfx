@@ -577,7 +577,7 @@ void reposition_all_books_in_room_on_subtile(struct Room *room, MapSubtlCoord st
                     WARNLOG("Too many things to reposition in %s.",room_code_name(room->kind));
                 }
                 if (!is_neutral_thing(thing))
-                    remove_spell_from_player(spl_idx, room->owner);
+                    remove_power_from_player(spl_idx, room->owner);
                 delete_thing_structure(thing, 0);
             }
         }
@@ -3003,7 +3003,7 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
             }
             i = thing->next_on_mapblk;
             // Per thing code start
-            if (thing_is_spellbook(thing) && ((thing->alloc_flags & 0x80) == 0))
+            if (thing_is_spellbook(thing) && ((thing->alloc_flags & TAlF_IsDragged) == 0))
             {
                 struct Coord3d pos;
                 // Try to move spellbook within the room
@@ -3036,7 +3036,7 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
                 // Cannot store the spellbook anywhere - remove the spell
                 {
                     if (!is_neutral_thing(thing)) {
-                        remove_spell_from_player(book_thing_to_power_kind(thing), thing->owner);
+                        remove_power_from_player(book_thing_to_power_kind(thing), thing->owner);
                     }
                     delete_thing_structure(thing, 0);
                 }
@@ -3403,10 +3403,10 @@ void change_ownership_or_delete_object_thing_in_room(struct Room *room, struct T
             oldowner = thing->owner;
             thing->owner = newowner;
             if (oldowner != game.neutral_player_num) {
-                remove_spell_from_player(book_thing_to_power_kind(thing), oldowner);
+                remove_power_from_player(book_thing_to_power_kind(thing), oldowner);
             }
             if (newowner != game.neutral_player_num) {
-                add_spell_to_player(book_thing_to_power_kind(thing), newowner);
+                add_power_to_player(book_thing_to_power_kind(thing), newowner);
             }
             return;
         }
