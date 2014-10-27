@@ -30,6 +30,8 @@
 extern "C" {
 #endif
 /******************************************************************************/
+#define OBJECT_TYPES_MAX  256
+
 enum ObjectCategoryIndex {
     OCtg_Unknown = 0,
     OCtg_Decoration, //< Object has no strong function
@@ -66,13 +68,15 @@ struct ObjectConfigStats {
 
 struct ObjectsConfig {
     long object_types_count;
-    struct ObjectConfigStats object_cfgstats[OBJECT_TYPES_COUNT];
-    ThingModel object_to_door_or_trap[OBJECT_TYPES_COUNT];
-    ThingClass workshop_object_class[OBJECT_TYPES_COUNT];
+    struct ObjectConfigStats object_cfgstats[OBJECT_TYPES_MAX];
+    ThingModel object_to_door_or_trap[OBJECT_TYPES_MAX];
+    ThingModel object_to_power_artifact[OBJECT_TYPES_MAX];
+    ThingClass workshop_object_class[OBJECT_TYPES_MAX];
 };
 /******************************************************************************/
+extern struct ObjectsConfig object_conf;
 extern const char keeper_objects_file[];
-extern struct NamedCommand object_desc[OBJECT_TYPES_COUNT];
+extern struct NamedCommand object_desc[OBJECT_TYPES_MAX];
 /******************************************************************************/
 TbBool load_objects_config(const char *conf_fname,unsigned short flags);
 struct ObjectConfigStats *get_object_model_stats(ThingModel tngmodel);

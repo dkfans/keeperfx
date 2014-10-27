@@ -937,7 +937,7 @@ void maintain_big_spell(struct GuiButton *gbtn)
 {
     long spl_idx;
     spl_idx = game.chosen_spell_type;
-    if ((spl_idx < 0) || (spl_idx >= KEEPER_SPELLS_COUNT)) {
+    if ((spl_idx < 0) || (spl_idx >= KEEPER_POWERS_COUNT)) {
         return;
     }
     gbtn->content = (unsigned long *)spl_idx;

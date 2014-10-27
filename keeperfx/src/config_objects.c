@@ -63,7 +63,7 @@ const struct NamedCommand objects_genres_desc[] = {
 
 /******************************************************************************/
 struct ObjectsConfig object_conf;
-struct NamedCommand object_desc[OBJECT_TYPES_COUNT];
+struct NamedCommand object_desc[OBJECT_TYPES_MAX];
 /******************************************************************************/
 struct ObjectConfigStats *get_object_model_stats(ThingModel tngmodel)
 {
@@ -81,14 +81,14 @@ struct ObjectConfig *get_object_model_stats2(ThingModel tngmodel)
 
 ThingClass crate_to_workshop_item_class(ThingModel tngmodel)
 {
-    if ((tngmodel <= 0) || (tngmodel >= OBJECT_TYPES_COUNT))
+    if ((tngmodel <= 0) || (tngmodel >= object_conf.object_types_count))
         return object_conf.workshop_object_class[0];
     return object_conf.workshop_object_class[tngmodel];
 }
 
 ThingModel crate_to_workshop_item_model(ThingModel tngmodel)
 {
-    if ((tngmodel <= 0) || (tngmodel >= OBJECT_TYPES_COUNT))
+    if ((tngmodel <= 0) || (tngmodel >= object_conf.object_types_count))
         return object_conf.object_to_door_or_trap[0];
     return object_conf.object_to_door_or_trap[tngmodel];
 }
@@ -99,7 +99,7 @@ ThingClass crate_thing_to_workshop_item_class(const struct Thing *thing)
         return object_conf.workshop_object_class[0];
     ThingModel tngmodel;
     tngmodel = thing->model;
-    if ((tngmodel <= 0) || (tngmodel >= OBJECT_TYPES_COUNT))
+    if ((tngmodel <= 0) || (tngmodel >= object_conf.object_types_count))
         return object_conf.workshop_object_class[0];
     return object_conf.workshop_object_class[tngmodel];
 }
@@ -110,7 +110,7 @@ ThingModel crate_thing_to_workshop_item_model(const struct Thing *thing)
         return object_conf.object_to_door_or_trap[0];
     ThingModel tngmodel;
     tngmodel = thing->model;
-    if ((tngmodel <= 0) || (tngmodel >= OBJECT_TYPES_COUNT))
+    if ((tngmodel <= 0) || (tngmodel >= object_conf.object_types_count))
         return object_conf.object_to_door_or_trap[0];
     return object_conf.object_to_door_or_trap[tngmodel];
 }
@@ -152,7 +152,7 @@ TbBool parse_objects_common_blocks(char *buf, long len, const char *config_textn
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              if ((k > 0) && (k <= OBJECT_TYPES_COUNT))
+              if ((k > 0) && (k <= OBJECT_TYPES_MAX))
               {
                   object_conf.object_types_count = k;
                   n++;

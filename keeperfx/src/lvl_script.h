@@ -271,15 +271,6 @@ DLLIMPORT unsigned short _DK_condition_stack_pos;
 #define condition_stack_pos _DK_condition_stack_pos
 DLLIMPORT unsigned short _DK_condition_stack[48];
 #define condition_stack _DK_condition_stack
-//DLLIMPORT struct NamedCommand _DK_player_desc[8];
-//DLLIMPORT struct NamedCommand _DK_magic_desc[20];
-//DLLIMPORT struct NamedCommand _DK_creature_desc[32];
-//DLLIMPORT struct NamedCommand _DK_room_desc[16];
-//DLLIMPORT struct NamedCommand _DK_timer_desc[9];
-//DLLIMPORT struct NamedCommand _DK_flag_desc[9];
-//DLLIMPORT struct NamedCommand _DK_door_desc[5];
-//DLLIMPORT struct NamedCommand _DK_trap_desc[8];
-//DLLIMPORT struct NamedCommand _DK_hero_objective_desc[];
 /******************************************************************************/
 extern const struct CommandDesc command_desc[];
 /******************************************************************************/

@@ -70,8 +70,6 @@ struct TrapDoorConfig trapdoor_conf;
 struct NamedCommand trap_desc[TRAPDOOR_TYPES_MAX];
 struct NamedCommand door_desc[TRAPDOOR_TYPES_MAX];
 /******************************************************************************/
-extern struct ObjectsConfig object_conf;
-/******************************************************************************/
 struct TrapConfigStats *get_trap_model_stats(int tngmodel)
 {
     if ((tngmodel < 0) || (tngmodel >= trapdoor_conf.trap_types_count))
@@ -100,6 +98,11 @@ TbBool parse_trapdoor_common_blocks(char *buf, long len, const char *config_text
     {
         trapdoor_conf.trap_types_count = 1;
         trapdoor_conf.door_types_count = 1;
+        int arr_size, i;
+        arr_size = sizeof(object_conf.object_to_door_or_trap)/sizeof(object_conf.object_to_door_or_trap[0]);
+        for (i=0; i < arr_size; i++) {
+            object_conf.object_to_door_or_trap[i] = 0;
+        }
     }
     // Find the block
     sprintf(block_buf,"common");

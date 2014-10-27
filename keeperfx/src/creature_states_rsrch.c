@@ -35,6 +35,7 @@
 #include "thing_navigate.h"
 #include "room_data.h"
 #include "room_jobs.h"
+#include "room_library.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 
@@ -92,39 +93,6 @@ short at_research_room(struct Thing *thing)
     cctrl->field_82 = 0;
     cctrl->byte_9A = 3;
     return 1;
-}
-
-TbBool research_needed(const struct ResearchVal *rsrchval, const struct Dungeon *dungeon)
-{
-    if (dungeon->research_num == 0)
-        return false;
-    switch (rsrchval->rtyp)
-    {
-   case RsCat_Power:
-        if ( (dungeon->magic_resrchable[rsrchval->rkind]) && (dungeon->magic_level[rsrchval->rkind] == 0) )
-        {
-            return true;
-        }
-        break;
-    case RsCat_Room:
-        if ( (dungeon->room_resrchable[rsrchval->rkind]) && (dungeon->room_buildable[rsrchval->rkind] == 0) )
-        {
-            return true;
-        }
-        break;
-    case RsCat_Creature:
-        if ((dungeon->creature_allowed[rsrchval->rkind]) && (dungeon->creature_force_enabled[rsrchval->rkind] == 0))
-        {
-            return true;
-        }
-        break;
-    case RsCat_None:
-        break;
-    default:
-        ERRORLOG("Illegal research type %d while processing player research",(int)rsrchval->rtyp);
-        break;
-    }
-    return false;
 }
 
 /**

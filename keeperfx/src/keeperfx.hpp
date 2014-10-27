@@ -187,8 +187,6 @@ DLLIMPORT extern unsigned short _DK_tool_tip_time;
 #define tool_tip_time _DK_tool_tip_time
 DLLIMPORT extern unsigned short _DK_help_tip_time;
 #define help_tip_time _DK_help_tip_time
-DLLIMPORT extern unsigned char _DK_magic_to_object[24];
-#define magic_to_object _DK_magic_to_object
 DLLIMPORT extern long _DK_pointer_x;
 #define pointer_x _DK_pointer_x
 DLLIMPORT extern long _DK_pointer_y;
