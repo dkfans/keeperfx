@@ -26,6 +26,7 @@
 
 #include "config.h"
 #include "config_effects.h"
+#include "config_objects.h"
 #include "thing_doors.h"
 #include "thing_physics.h"
 #include "power_process.h"
@@ -75,6 +76,7 @@ const struct NamedCommand magic_power_commands[] = {
   {"TIME",            4},
   {"NAMETEXTID",      5},
   {"CASTABILITY",     6},
+  {"ARTIFACT",        7},
   {NULL,              0},
   };
 
@@ -752,6 +754,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
       {
           powerst = get_power_model_stats(i);
           LbMemorySet(powerst->code_name, 0, COMMAND_WORD_LEN);
+          powerst->artifact_model = 0;
           if (i < magic_conf.power_types_count)
           {
             power_desc[i].name = powerst->code_name;
@@ -762,6 +765,11 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
             power_desc[i].num = 0;
           }
       }
+      arr_size = sizeof(object_conf.object_to_power_artifact)/sizeof(object_conf.object_to_power_artifact[0]);
+      for (i=0; i < arr_size; i++) {
+          object_conf.object_to_power_artifact[i] = 0;
+      }
+
   }
   arr_size = magic_conf.power_types_count;
   // Load the file
@@ -896,6 +904,23 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           {
             CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 7: // ARTIFACT
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+              k = get_id(object_desc, word_buf);
+              if (k >= 0) {
+                  powerst->artifact_model = k;
+                  object_conf.object_to_power_artifact[k] = i;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect object model \"%s\" in [%s] block of %s file.",
+                  word_buf,block_buf,config_textname);
+              break;
           }
           break;
       case 0: // comment
@@ -1050,50 +1075,59 @@ int power_model_id(const char * code_name)
     return -1;
 }
 
-TbBool add_spell_to_player(PowerKind spl_idx, PlayerNumber plyr_idx)
+/**
+ * Adds given power to players available powers.
+ *
+ * @param pwkind
+ * @param plyr_idx
+ * @return
+ * @note originally add_spell_to_player()
+ */
+TbBool add_power_to_player(PowerKind pwkind, PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
     long i;
-    if ((spl_idx < 0) || (spl_idx >= KEEPER_SPELLS_COUNT))
+    if ((pwkind < 0) || (pwkind >= KEEPER_POWERS_COUNT))
     {
-        ERRORLOG("Can't add incorrect spell %d to player %d",(int)spl_idx, (int)plyr_idx);
+        ERRORLOG("Can't add incorrect power %d to player %d",(int)pwkind, (int)plyr_idx);
         return false;
     }
     dungeon = get_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon))
     {
-        ERRORLOG("Can't add spell %d to player %d which has no dungeon",(int)spl_idx, (int)plyr_idx);
+        ERRORLOG("Can't add %s to player %d which has no dungeon",power_code_name(pwkind), (int)plyr_idx);
         return false;
     }
-    i = dungeon->magic_level[spl_idx];
+    i = dungeon->magic_level[pwkind];
     if (i >= 255)
     {
-        ERRORLOG("Spell %d has bad magic_level=%d for player %d, reset", (int)spl_idx, (int)i, (int)plyr_idx);
+        ERRORLOG("Power %s has bad magic_level=%d for player %d, reset", power_code_name(pwkind), (int)i, (int)plyr_idx);
         i = 0;
     }
-    dungeon->magic_level[spl_idx] = i+1;
-    dungeon->magic_resrchable[spl_idx] = 1;
+    dungeon->magic_level[pwkind] = i+1;
+    dungeon->magic_resrchable[pwkind] = 1;
     return true;
 }
 
-void remove_spell_from_player(PowerKind spl_idx, PlayerNumber plyr_idx)
+void remove_power_from_player(PowerKind pwkind, PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
     long i;
     dungeon = get_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon))
     {
-        ERRORLOG("Cannot remove spell %d from invalid dungeon %d!",(int)spl_idx,(int)plyr_idx);
+        ERRORLOG("Cannot remove spell %s from invalid dungeon %d!",power_code_name(pwkind),(int)plyr_idx);
         return;
     }
-    i = dungeon->magic_level[spl_idx];
+    i = dungeon->magic_level[pwkind];
     if (i < 1)
     {
-        ERRORLOG("Cannot remove spell %d from player %d as he doesn't have it!",(int)spl_idx,(int)plyr_idx);
+        ERRORLOG("Cannot remove spell %s (%d) from player %d as he doesn't have it!",power_code_name(pwkind),(int)pwkind,(int)plyr_idx);
         return;
     }
-    dungeon->magic_level[spl_idx] = i-1;
-    switch (spl_idx)
+    SYNCDBG(4,"Decreasing spell %s of player %d to level %d",power_code_name(pwkind),(int)plyr_idx,(int)i-1);
+    dungeon->magic_level[pwkind] = i-1;
+    switch (pwkind)
     {
     case PwrK_OBEY:
         if (dungeon->must_obey_turn != 0)
@@ -1108,7 +1142,7 @@ void remove_spell_from_player(PowerKind spl_idx, PlayerNumber plyr_idx)
             turn_off_call_to_arms(plyr_idx);
         break;
     }
-    if (game.chosen_spell_type == spl_idx)
+    if (game.chosen_spell_type == pwkind)
     {
         set_chosen_power_none();
     }
@@ -1138,7 +1172,7 @@ TbBool make_all_powers_researchable(PlayerNumber plyr_idx)
     struct Dungeon *dungeon;
     long i;
     dungeon = get_players_num_dungeon(plyr_idx);
-    for (i=0; i < KEEPER_SPELLS_COUNT; i++)
+    for (i=0; i < KEEPER_POWERS_COUNT; i++)
     {
         dungeon->magic_resrchable[i] = 1;
     }
@@ -1148,10 +1182,10 @@ TbBool make_all_powers_researchable(PlayerNumber plyr_idx)
 /**
  * Sets power availability state.
  */
-TbBool set_power_available(PlayerNumber plyr_idx, PowerKind spl_idx, long resrch, long avail)
+TbBool set_power_available(PlayerNumber plyr_idx, PowerKind pwkind, long resrch, long avail)
 {
     struct Dungeon *dungeon;
-    SYNCDBG(8,"Starting for spell %ld, player %ld, state %ld,%ld",spl_idx,plyr_idx,resrch,avail);
+    SYNCDBG(8,"Starting for power %d, player %d, state %ld,%ld",(int)pwkind,(int)plyr_idx,resrch,avail);
     // note that we can't get_players_num_dungeon() because players
     // may be uninitialized yet when this is called.
     dungeon = get_dungeon(plyr_idx);
@@ -1159,14 +1193,14 @@ TbBool set_power_available(PlayerNumber plyr_idx, PowerKind spl_idx, long resrch
         ERRORDBG(11,"Can't set trap availability; player %d has no dungeon.",(int)plyr_idx);
         return false;
     }
-    dungeon->magic_resrchable[spl_idx] = resrch;
+    dungeon->magic_resrchable[pwkind] = resrch;
     if (avail <= 0)
     {
-        if (is_power_available(plyr_idx, spl_idx))
-            remove_spell_from_player(spl_idx, plyr_idx);
+        if (is_power_available(plyr_idx, pwkind))
+            remove_power_from_player(pwkind, plyr_idx);
         return true;
     }
-    return add_spell_to_player(spl_idx, plyr_idx);
+    return add_power_to_player(pwkind, plyr_idx);
 }
 
 /**
@@ -1174,7 +1208,7 @@ TbBool set_power_available(PlayerNumber plyr_idx, PowerKind spl_idx, long resrch
  * Checks only if it's available and if the player is 'alive'.
  * Doesn't check if the player has enough money or map position is on correct spot.
  */
-TbBool is_power_available(PlayerNumber plyr_idx, PowerKind spl_idx)
+TbBool is_power_available(PlayerNumber plyr_idx, PowerKind pwkind)
 {
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
@@ -1183,15 +1217,15 @@ TbBool is_power_available(PlayerNumber plyr_idx, PowerKind spl_idx)
         return false;
     }
     // Player must have dungeon heart to cast spells, with no heart only floating spirit spell works
-    if (!player_has_heart(plyr_idx) && (spl_idx != PwrK_POSSESS)) {
+    if (!player_has_heart(plyr_idx) && (pwkind != PwrK_POSSESS)) {
         return false;
     }
-    if ((spl_idx < 0) || (spl_idx >= KEEPER_SPELLS_COUNT)) {
-        ERRORLOG("Incorrect spell %ld (player %ld)",spl_idx, plyr_idx);
+    if ((pwkind < 0) || (pwkind >= KEEPER_POWERS_COUNT)) {
+        ERRORLOG("Incorrect power %ld (player %ld)",pwkind, plyr_idx);
         return false;
     }
     long i;
-    i = dungeon->magic_level[spl_idx];
+    i = dungeon->magic_level[pwkind];
     if (i >= 255) {
         //ERRORLOG("Spell %d has bad magic_level=%d for player %d", (int)spl_idx, (int)i, (int)plyr_idx);
         return false;
@@ -1215,11 +1249,11 @@ TbBool make_available_all_researchable_powers(PlayerNumber plyr_idx)
   dungeon = get_players_num_dungeon(plyr_idx);
   if (dungeon_invalid(dungeon))
       return false;
-  for (i=0; i < KEEPER_SPELLS_COUNT; i++)
+  for (i=0; i < KEEPER_POWERS_COUNT; i++)
   {
     if (dungeon->magic_resrchable[i])
     {
-      ret &= add_spell_to_player(i, plyr_idx);
+      ret &= add_power_to_player(i, plyr_idx);
     }
   }
   return ret;

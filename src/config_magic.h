@@ -204,6 +204,7 @@ struct ShotConfigStats {
 
 struct PowerConfigStats {
     char code_name[COMMAND_WORD_LEN];
+    ThingModel artifact_model;
 };
 
 struct MagicConfig {
@@ -362,8 +363,8 @@ TbBool make_all_powers_cost_free(void);
 TbBool make_all_powers_researchable(PlayerNumber plyr_idx);
 TbBool set_power_available(PlayerNumber plyr_idx, PowerKind spl_idx, long resrch, long avail);
 TbBool is_power_available(PlayerNumber plyr_idx, PowerKind spl_idx);
-TbBool add_spell_to_player(PowerKind spl_idx, PlayerNumber plyr_idx);
-void remove_spell_from_player(PowerKind spl_idx, PlayerNumber plyr_idx);
+TbBool add_power_to_player(PowerKind spl_idx, PlayerNumber plyr_idx);
+void remove_power_from_player(PowerKind spl_idx, PlayerNumber plyr_idx);
 TbBool make_available_all_researchable_powers(PlayerNumber plyr_idx);
 /******************************************************************************/
 #ifdef __cplusplus

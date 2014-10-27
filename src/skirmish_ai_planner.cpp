@@ -310,7 +310,7 @@ static void prepare_player_environment(struct PlayerEnvironment * state, int ply
     dungeon = get_players_dungeon(plyr);
 
     //look up spells
-    for (i = 0; i < KEEPER_SPELLS_COUNT; ++i) {
+    for (i = 0; i < KEEPER_POWERS_COUNT; ++i) {
         if (dungeon->magic_resrchable[i]) {
             state->spells_researchable |= (1 << i);
         }
@@ -349,7 +349,7 @@ static void prepare_player_state(struct NodePlayerState * state, int plyr_idx)
     }
 
     //look up spells
-    for (i = 0; i < KEEPER_SPELLS_COUNT; ++i) {
+    for (i = 0; i < KEEPER_POWERS_COUNT; ++i) {
         if (is_power_available(plyr_idx, i)) {
             state->spells_researched |= 1 << i;
         }

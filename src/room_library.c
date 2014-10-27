@@ -25,7 +25,10 @@
 #include "dungeon_data.h"
 #include "thing_data.h"
 #include "thing_objects.h"
+#include "thing_effects.h"
+#include "thing_physics.h"
 #include "thing_stats.h"
+#include "thing_navigate.h"
 #include "config_terrain.h"
 #include "creature_states.h"
 #include "creature_states_rsrch.h"
@@ -37,7 +40,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_process_player_research(int plr_idx);
+DLLIMPORT void _DK_process_player_research(int plyr_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -69,7 +72,7 @@ struct Thing *create_spell_in_library(struct Room *room, ThingModel spkind, MapS
         destroy_object(spelltng);
         return INVALID_THING;
     }
-    if (!add_spell_to_player(book_thing_to_power_kind(spelltng), room->owner))
+    if (!add_power_to_player(book_thing_to_power_kind(spelltng), room->owner))
     {
         remove_item_from_room_capacity(room);
         destroy_object(spelltng);
@@ -88,7 +91,7 @@ TbBool remove_spell_from_library(struct Room *room, struct Thing *spelltng, Play
         return false;
     if (thing_is_spellbook(spelltng))
     {
-        remove_spell_from_player(book_thing_to_power_kind(spelltng), room->owner);
+        remove_power_from_player(book_thing_to_power_kind(spelltng), room->owner);
     }
     return true;
 }
@@ -132,8 +135,8 @@ void init_dungeons_research(void)
     int i;
     for (i=0; i < DUNGEONS_COUNT; i++)
     {
-      dungeon = get_dungeon(i);
-      dungeon->current_research_idx = get_next_research_item(dungeon);
+        dungeon = get_dungeon(i);
+        dungeon->current_research_idx = get_next_research_item(dungeon);
     }
 }
 
@@ -164,6 +167,39 @@ TbBool clear_research_for_all_players(void)
       dungeon->research_override = 0;
     }
     return true;
+}
+
+TbBool research_needed(const struct ResearchVal *rsrchval, const struct Dungeon *dungeon)
+{
+    if (dungeon->research_num == 0)
+        return false;
+    switch (rsrchval->rtyp)
+    {
+   case RsCat_Power:
+        if ( (dungeon->magic_resrchable[rsrchval->rkind]) && (dungeon->magic_level[rsrchval->rkind] == 0) )
+        {
+            return true;
+        }
+        break;
+    case RsCat_Room:
+        if ( (dungeon->room_resrchable[rsrchval->rkind]) && (dungeon->room_buildable[rsrchval->rkind] == 0) )
+        {
+            return true;
+        }
+        break;
+    case RsCat_Creature:
+        if ((dungeon->creature_allowed[rsrchval->rkind]) && (dungeon->creature_force_enabled[rsrchval->rkind] == 0))
+        {
+            return true;
+        }
+        break;
+    case RsCat_None:
+        break;
+    default:
+        ERRORLOG("Illegal research type %d while processing player research",(int)rsrchval->rtyp);
+        break;
+    }
+    return false;
 }
 
 TbBool add_research_to_player(PlayerNumber plyr_idx, long rtyp, long rkind, long amount)
@@ -226,6 +262,123 @@ TbBool update_or_add_players_research_amount(PlayerNumber plyr_idx, long rtyp, l
 
 void process_player_research(PlayerNumber plyr_idx)
 {
-  _DK_process_player_research(plyr_idx);
+    //_DK_process_player_research(plyr_idx); return;
+    struct Dungeon *dungeon;
+    dungeon = get_dungeon(plyr_idx);
+    if (!player_has_room_of_type(plyr_idx, RoK_LIBRARY)) {
+        return;
+    }
+    struct ResearchVal *rsrchval;
+    rsrchval = get_players_current_research_val(plyr_idx);
+    if (rsrchval == NULL)
+    {
+        // If no current research - try to set one for next time the function is run
+        dungeon->current_research_idx = get_next_research_item(dungeon);
+        return;
+    }
+    if (!research_needed(rsrchval, dungeon))
+    {
+        dungeon->current_research_idx = get_next_research_item(dungeon);
+        rsrchval = get_players_current_research_val(plyr_idx);
+    }
+    if (rsrchval == NULL) {
+        // No new research
+        return;
+    }
+    if ((rsrchval->req_amount << 8) > dungeon->research_progress) {
+        // Research in progress - not completed
+        return;
+    }
+    struct Room *room;
+    struct Thing *spelltng;
+    struct Coord3d pos;
+    switch (rsrchval->rtyp)
+    {
+    case RsCat_Power:
+        if (dungeon->magic_resrchable[rsrchval->rkind])
+        {
+            PowerKind pwkind;
+            pwkind = rsrchval->rkind;
+            room = find_room_with_spare_room_item_capacity(plyr_idx, RoK_LIBRARY);
+            struct PowerConfigStats *powerst;
+            powerst = get_power_model_stats(pwkind);
+            if (powerst->artifact_model < 1) {
+                ERRORLOG("Tried to research power with no associated artifact");
+                break;
+            }
+            if (room_is_invalid(room)) {
+                WARNLOG("No %s with capacity for %s artifact",room_code_name(RoK_LIBRARY),power_code_name(pwkind));
+                return;
+            }
+            pos.x.val = 0;
+            pos.y.val = 0;
+            pos.z.val = 0;
+            spelltng = create_object(&pos, powerst->artifact_model, plyr_idx, -1);
+            if (thing_is_invalid(spelltng))
+            {
+                ERRORLOG("Could not create %s artifact",power_code_name(pwkind));
+                return;
+            }
+            room = find_random_room_for_thing_with_spare_room_item_capacity(spelltng, plyr_idx, RoK_LIBRARY, 0);
+            if (room_is_invalid(room))
+            {
+                ERRORLOG("There should be %s for %s artifact, but not found",room_code_name(RoK_LIBRARY),power_code_name(pwkind));
+                delete_thing_structure(spelltng, 0);
+                return;
+            }
+            if (!find_random_valid_position_for_thing_in_room_avoiding_object(spelltng, room, &pos))
+            {
+                ERRORLOG("Could not find position in %s for %s artifact",room_code_name(room->kind),power_code_name(pwkind));
+                delete_thing_structure(spelltng, 0);
+                return;
+            }
+            pos.z.val = get_thing_height_at(spelltng, &pos);
+            add_power_to_player(pwkind, plyr_idx);
+            move_thing_in_map(spelltng, &pos);
+            add_item_to_room_capacity(room, true);
+            event_create_event(spelltng->mappos.x.val, spelltng->mappos.y.val, EvKind_NewSpellResrch, spelltng->owner, pwkind);
+            create_effect(&pos, 0x35u, spelltng->owner);
+            if (is_my_player_number(plyr_idx))
+                output_message(SMsg_ResearchedSpell, 0, true);
+            dungeon->magic_level[pwkind]++;
+        }
+        break;
+    case RsCat_Room:
+        if (dungeon->room_resrchable[rsrchval->rkind])
+        {
+            RoomKind rkind;
+            rkind = rsrchval->rkind;
+            event_create_event(0, 0, EvKind_NewRoomResrch, plyr_idx, rkind);
+            dungeon->room_buildable[rkind] = 1;
+            if (is_my_player_number(plyr_idx))
+                output_message(SMsg_ResearchedRoom, 0, true);
+            room = find_room_with_spare_room_item_capacity(plyr_idx, RoK_LIBRARY);
+            if (!room_is_invalid(room))
+            {
+                pos.x.val = (room->central_stl_x << 8) + 128;
+                pos.y.val = (room->central_stl_y << 8) + 128;
+                pos.z.val = get_floor_height_at(&pos);
+                create_effect(&pos, 0x35u, room->owner);
+            }
+        }
+        break;
+    case RsCat_Creature:
+        if (dungeon->creature_allowed[rsrchval->rkind])
+        {
+            ThingModel crkind;
+            crkind = rsrchval->rkind;
+            dungeon->creature_force_enabled[crkind]++;
+        }
+        break;
+    default:
+        ERRORLOG("Illegal research type %d while processing player %d research",(int)rsrchval->rtyp,(int)plyr_idx);
+        break;
+    }
+    dungeon->research_progress -= (rsrchval->req_amount << 8);
+    dungeon->field_AE5 = game.play_gameturn;
+
+    dungeon->current_research_idx = get_next_research_item(dungeon);
+    dungeon->lvstats.things_researched++;
+    return;
 }
 /******************************************************************************/
