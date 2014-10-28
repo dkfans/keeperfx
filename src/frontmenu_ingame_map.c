@@ -584,21 +584,21 @@ void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
         owner_col -= 3;
     }
 
-    if (mapblk->flags & 0x04)
+    if (mapblk->flags & MapFlg_Unkn04)
     {
         col = 3;
     } else
-    if (mapblk->flags & 0x80)
+    if (mapblk->flags & MapFlg_Unkn80)
     {
         col = 4;
     } else
-    if (mapblk->flags & 0x01)
+    if (mapblk->flags & MapFlg_Unkn01)
     {
         col = 5;
     } else
     if (map_block_revealed(mapblk, plyr_idx))
     {
-        if (mapblk->flags & 0x02)
+        if (mapblk->flags & MapFlg_IsRoom)
         {
             struct Room *room;
             room = room_get(slb->room_index);
@@ -608,11 +608,11 @@ void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
         {
             col = 2;
         } else
-        if (mapblk->flags & 0x20)
+        if (mapblk->flags & MapFlg_Unkn20)
         {
             col = 1;
         } else
-        if (mapblk->flags & 0x40)
+        if (mapblk->flags & MapFlg_IsDoor)
         {
             struct Thing *doortng;
             doortng = get_door_for_position(stl_x, stl_y);
@@ -622,7 +622,7 @@ void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
                 ERRORLOG("No door for flagged position");
             }
         } else
-        if ((mapblk->flags & 0x10) == 0)
+        if ((mapblk->flags & MapFlg_IsTall) == 0)
         {
             if (slb->kind == SlbT_LAVA) {
                 col = 6;

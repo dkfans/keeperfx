@@ -421,6 +421,18 @@ enum GUIStrings {
     GUIStr_EventWorkRoomUnreachblDesc,
     GUIStr_EventStorgRoomUnreachbl,
     GUIStr_EventStorgRoomUnreachblDesc,
+    GUIStr_CreatureArmourDesc = 949,
+    GUIStr_CreatureSpeedDesc,
+    GUIStr_CreatureLoyaltyDesc,
+    GUIStr_CreatureResrchSkillDesc,
+    GUIStr_CreatureManfctrSkillDesc,
+    GUIStr_CreatureTraingSkillDesc,
+    GUIStr_CreatureScavngSkillDesc,
+    GUIStr_CreatureTraingCostDesc,
+    GUIStr_CreatureScavngCostDesc,
+    GUIStr_CreatureBestDmgDesc,
+    GUIStr_CreatureWeightDesc,
+    GUIStr_CreatureScoreDesc = 960,
 };
 
 enum CampaignStrings {

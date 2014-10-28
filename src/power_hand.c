@@ -1239,7 +1239,7 @@ unsigned long can_drop_thing_here(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long
     mapblk = get_map_block_at(stl_x, stl_y);
     if (!map_block_revealed(mapblk, plyr_idx))
         return false;
-    if (((mapblk->flags & 0x10) != 0) || ((mapblk->flags & 0x40) != 0))
+    if (((mapblk->flags & MapFlg_IsTall) != 0) || ((mapblk->flags & MapFlg_IsDoor) != 0))
         return false;
     struct SlabMap *slb;
     slb = get_slabmap_for_subtile(stl_x, stl_y);

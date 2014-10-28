@@ -2014,7 +2014,7 @@ TbBool find_random_valid_position_for_thing_in_room(struct Thing *thing, struct 
             stl_y = slab_subtile(slb_y, ssub / 3);
             struct Map *mapblk;
             mapblk = get_map_block_at(stl_x,stl_y);
-            if ((mapblk->flags & 0x10) == 0)
+            if ((mapblk->flags & MapFlg_IsTall) == 0)
             {
               if (get_navigation_map_floor_height(stl_x,stl_y) < 4)
               {
