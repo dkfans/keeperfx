@@ -1979,8 +1979,8 @@ TbBool find_random_valid_position_for_thing_in_room(struct Thing *thing, struct 
         ERRORLOG("Received nonexisting room for creature");
         return false;
     }
-    if (room->slabs_count <= 1) {
-        ERRORLOG("Number of slabs for %s is not positive",room_code_name(room->kind));
+    if (room->slabs_count < 1) {
+        ERRORLOG("Number of slabs %d for %s is not positive",(int)room->slabs_count,room_code_name(room->kind));
         return false;
     }
     int navi_tadius;
