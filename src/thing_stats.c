@@ -950,6 +950,32 @@ const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveSta
         snprintf(loc_text,sizeof(loc_text),"%ld", i/256);
         text = loc_text;
         break;
+    case CrLStat_TrainingCost:
+        i = crstat->training_cost;
+        snprintf(loc_text,sizeof(loc_text),"%ld", i);
+        text = loc_text;
+        break;
+    case CrLStat_ScavengeCost:
+        i = crstat->scavenger_cost;
+        snprintf(loc_text,sizeof(loc_text),"%ld", i);
+        text = loc_text;
+        break;
+    case CrLStat_Weight:
+        i = ((crstat->thing_size_xy * crstat->thing_size_yz >> 8) * crstat->thing_size_xy >> 10);
+        i += (crstat->hunger_fill + crstat->lair_size + 1) * cctrl->explevel;
+        if (!crstat->affected_by_wind)
+            i = i*3/2;
+        if ((get_creature_model_flags(creatng) & MF_TremblingFat) != 0)
+            i = i*3/2;
+        if ((get_creature_model_flags(creatng) & MF_IsDiptera) != 0)
+            i = i/2;
+        snprintf(loc_text,sizeof(loc_text),"%ld", i);
+        text = loc_text;
+        break;
+    case CrLStat_BestDamage:
+        //TODO compute damage of best attack
+        text = lbEmptyString;
+        break;
     default:
         ERRORLOG("Invalid statistic %d",(int)clstat_id);
         text = lbEmptyString;

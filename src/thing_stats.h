@@ -49,6 +49,10 @@ enum CreatureLiveStatistics {
     CrLStat_ManufactureSkill,
     CrLStat_TrainingSkill,
     CrLStat_ScavengeSkill,
+    CrLStat_TrainingCost,
+    CrLStat_ScavengeCost,
+    CrLStat_BestDamage,
+    CrLStat_Weight,
     CrLStat_Score,
 };
 

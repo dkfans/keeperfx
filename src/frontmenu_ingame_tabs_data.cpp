@@ -344,9 +344,9 @@ struct GuiButtonInit creature_query_buttons4[] = {
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  72, 256,  72, 256, 60, 24, gui_area_stat_button,            340, 297,  0,{CrLStat_ManufactureSkill}, 0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,   4, 286,   4, 286, 60, 24, gui_area_stat_button,            340, 297,  0,  {CrLStat_TrainingSkill}, 0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  72, 286,  72, 286, 60, 24, gui_area_stat_button,            340, 297,  0,  {CrLStat_ScavengeSkill}, 0, 0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,   4, 316,   4, 316, 60, 24, gui_area_stat_button,            340, 297,  0,          {CrLStat_Score}, 0, 0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  72, 316,  72, 316, 60, 24, gui_area_stat_button,            340, 297,  0,          {CrLStat_Score}, 0, 0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,   4, 346,   4, 346, 60, 24, gui_area_stat_button,            340, 297,  0,          {CrLStat_Score}, 0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,   4, 316,   4, 316, 60, 24, gui_area_stat_button,            340, 297,  0,   {CrLStat_TrainingCost}, 0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  72, 316,  72, 316, 60, 24, gui_area_stat_button,            340, 297,  0,   {CrLStat_ScavengeCost}, 0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,   4, 346,   4, 346, 60, 24, gui_area_stat_button,            340, 297,  0,         {CrLStat_Weight}, 0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  72, 346,  72, 346, 60, 24, gui_area_stat_button,            340, 297,  0,          {CrLStat_Score}, 0, 0, NULL },
   {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,                      {0}, 0, 0, NULL },
 };
