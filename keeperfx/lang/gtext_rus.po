@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-08-08 21:38+0100\n"
+"PO-Revision-Date: 2014-10-28 21:20+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: ru_RU\n"
@@ -1857,8 +1857,8 @@ msgstr ""
 #: guitext:168
 msgctxt "In-game message"
 msgid ""
-"The Avatar and his allys are defeated, yet his power over this land lingers. "
-"Prepare thyself..."
+"The Avatar and his allies are defeated, yet his power over this land "
+"lingers. Prepare thyself..."
 msgstr ""
 "Аватар и его союзники pазгpомлены, однако его власть над этой землей "
 "остается. Подготовьтесь..."
@@ -2567,8 +2567,8 @@ msgstr ""
 #, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"Dexterity: The chance a creature will avoid a trap or an enemy weapon. The "
-"higher the number, the greater the chance of avoidance."
+"Dexterity: The chance of a successful attack. Used to break enemy defence. "
+"The higher the number, the greater the chance of hitting."
 msgstr "Ловкость: Шанс что создание избежит ловушки или оружия врага. [23.15]"
 
 #: guitext:300
@@ -6445,6 +6445,104 @@ msgstr ""
 msgctxt "Game event description"
 msgid "Storage room unreachable: LMB toggle. RMB delete."
 msgstr "Помещение unreachable: Лев. Клик переключают. Пpав. Клик удаляют."
+
+#: guitext:949
+msgctxt "In-game interface description"
+msgid ""
+"Armour: Part of the damage which won't affect creature health. The higher "
+"the number, the larger part of damage is discarded."
+msgstr ""
+
+#: guitext:950
+msgctxt "In-game interface description"
+msgid "Speed: How fast the creature moves and perform its dungeon tasks."
+msgstr ""
+
+#: guitext:951
+msgctxt "In-game interface description"
+msgid "Loyalty: How resistant the creature is against scavenging by the enemy."
+msgstr ""
+
+#: guitext:952
+msgctxt "In-game interface description"
+msgid "Research Skill: unused."
+msgstr ""
+
+#: guitext:953
+#, fuzzy
+msgctxt "In-game interface description"
+msgid ""
+"Manufacture Skill: How fast the creature works in Workshop. The higher the "
+"Skill level, the better the creature's performance."
+msgstr "Мастерство: Способность создания выполнять задачи. [23.14]"
+
+#: guitext:954
+#, fuzzy
+msgctxt "In-game interface description"
+msgid ""
+"Training Skill: How fast the creature works on training. The higher the "
+"Skill level, the better the creature's performance."
+msgstr "Мастерство: Способность создания выполнять задачи. [23.14]"
+
+#: guitext:955
+#, fuzzy
+msgctxt "In-game interface description"
+msgid ""
+"Scavenge Skill: How fast the creature works on scavenging. The higher the "
+"Skill level, the better the creature's performance."
+msgstr "Мастерство: Способность создания выполнять задачи. [23.14]"
+
+#: guitext:956
+msgctxt "In-game interface description"
+msgid "Training Cost: Gold used for training the creature."
+msgstr ""
+
+#: guitext:957
+msgctxt "In-game interface description"
+msgid "Scavenge Cost: Gold used for scavenging by the creature."
+msgstr ""
+
+#: guitext:958
+msgctxt "In-game interface description"
+msgid ""
+"Best Damage: How much harm can be made by the strongest attack the creature "
+"has."
+msgstr ""
+
+#: guitext:959
+msgctxt "In-game interface description"
+msgid ""
+"Weight: Mass of the creature. Some people say overweight can lead to heart "
+"attack."
+msgstr ""
+
+#: guitext:960
+msgctxt "Keeper spell name"
+msgid "Hand Of Evil"
+msgstr ""
+
+#: guitext:961
+#, fuzzy
+msgctxt "Keeper spell name"
+msgid "Slap"
+msgstr "Пощечины"
+
+#: guitext:962
+msgctxt "Keeper spell description"
+msgid ""
+"Hand Of Evil: Ability to pick up your creatures and hold them in your hand. "
+"Just don't hold them forever or they may get irritated."
+msgstr ""
+
+#: guitext:963
+#, fuzzy
+msgctxt "Keeper spell description"
+msgid ""
+"Slap: Makes your creatures work harder, for some time. Your creatures take "
+"some damage from each slap they receive."
+msgstr ""
+"Если вы хотите заставить созданий работать более усердно, подстегните их "
+"правым щелчком мыши. Ваши создания повреждаются каждый раз, когда их бьют."
 
 #~ msgctxt "In-game message"
 #~ msgid "Your manufacturers have crafted the Lava Trap."

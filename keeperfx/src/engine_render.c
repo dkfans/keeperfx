@@ -620,7 +620,7 @@ void fill_in_points_cluedo(long bstl_x, long bstl_y, struct MinMax *mm)
         if (map_block_revealed_bit(mapblk, player_bit)) {
             col = get_map_column(mapblk);
             mask_cur = col->solidmask;
-            if ((mask_cur >= 8) && ((mapblk->flags & (0x40|0x02)) == 0) && ((col->bitfields & 0xE) == 0)) {
+            if ((mask_cur >= 8) && ((mapblk->flags & (MapFlg_IsDoor|MapFlg_IsRoom)) == 0) && ((col->bitfields & 0xE) == 0)) {
                 mask_cur &= 3;
             }
         }
@@ -628,7 +628,7 @@ void fill_in_points_cluedo(long bstl_x, long bstl_y, struct MinMax *mm)
         if (map_block_revealed_bit(mapblk, player_bit)) {
             col = get_map_column(mapblk);
             mask_yp = col->solidmask;
-            if ((mask_yp >= 8) && ((mapblk->flags & (0x40|0x02)) == 0) && ((col->bitfields & 0xE) == 0)) {
+            if ((mask_yp >= 8) && ((mapblk->flags & (MapFlg_IsDoor|MapFlg_IsRoom)) == 0) && ((col->bitfields & 0xE) == 0)) {
                 mask_yp &= 3;
             }
         }
@@ -689,7 +689,7 @@ void fill_in_points_cluedo(long bstl_x, long bstl_y, struct MinMax *mm)
         if (map_block_revealed_bit(mapblk, player_bit)) {
             col = get_map_column(mapblk);
             mask_cur = col->solidmask;
-            if ((mask_cur >= 8) && ((mapblk->flags & (0x40|0x02)) == 0) && ((col->bitfields & 0xE) == 0)) {
+            if ((mask_cur >= 8) && ((mapblk->flags & (MapFlg_IsDoor|MapFlg_IsRoom)) == 0) && ((col->bitfields & 0xE) == 0)) {
                 mask_cur &= 3;
             }
         }
@@ -697,7 +697,7 @@ void fill_in_points_cluedo(long bstl_x, long bstl_y, struct MinMax *mm)
         if (map_block_revealed_bit(mapblk, player_bit)) {
             col = get_map_column(mapblk);
             mask_yp = col->solidmask;
-            if ((mask_yp >= 8) && ((mapblk->flags & (0x40|0x02)) == 0) && ((col->bitfields & 0xE) == 0)) {
+            if ((mask_yp >= 8) && ((mapblk->flags & (MapFlg_IsDoor|MapFlg_IsRoom)) == 0) && ((col->bitfields & 0xE) == 0)) {
                 mask_yp &= 3;
             }
         }
@@ -1879,7 +1879,7 @@ void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_star
             solidmsk_cur = solidmsk_cur_raw;
             if (solidmsk_cur >= (1<<3))
             {
-                if (((cur_mapblk->flags & (0x40|0x02)) == 0) && ((cur_colmn->bitfields & 0xE) == 0)) {
+                if (((cur_mapblk->flags & (MapFlg_IsDoor|MapFlg_IsRoom)) == 0) && ((cur_colmn->bitfields & 0xE) == 0)) {
                     solidmsk_cur &= 3;
                 }
             }
@@ -1892,7 +1892,7 @@ void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_star
             solidmsk_back = colmn->solidmask;
             if (solidmsk_back >= (1<<3))
             {
-                if (((sib_mapblk->flags & (0x40|0x02)) == 0) && ((colmn->bitfields & 0xE) == 0)) {
+                if (((sib_mapblk->flags & (MapFlg_IsDoor|MapFlg_IsRoom)) == 0) && ((colmn->bitfields & 0xE) == 0)) {
                     solidmsk_back &= 3;
                 }
             }
@@ -1904,7 +1904,7 @@ void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_star
             solidmsk_front = colmn->solidmask;
             if (solidmsk_front >= (1<<3))
             {
-                if (((sib_mapblk->flags & (0x40|0x02)) == 0) && ((colmn->bitfields & 0xE) == 0)) {
+                if (((sib_mapblk->flags & (MapFlg_IsDoor|MapFlg_IsRoom)) == 0) && ((colmn->bitfields & 0xE) == 0)) {
                     solidmsk_front &= 3;
                 }
             }
@@ -1916,7 +1916,7 @@ void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_star
             solidmsk_left = colmn->solidmask;
             if (solidmsk_left >= (1<<3))
             {
-                if (((sib_mapblk->flags & (0x40|0x02)) == 0) && ((colmn->bitfields & 0xE) == 0)) {
+                if (((sib_mapblk->flags & (MapFlg_IsDoor|MapFlg_IsRoom)) == 0) && ((colmn->bitfields & 0xE) == 0)) {
                     solidmsk_left &= 3;
                 }
             }
@@ -1928,7 +1928,7 @@ void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_star
             solidmsk_right = colmn->solidmask;
             if (solidmsk_right >= (1<<3))
             {
-                if (((sib_mapblk->flags & (0x40|0x02)) == 0) && ((colmn->bitfields & 0xE) == 0)) {
+                if (((sib_mapblk->flags & (MapFlg_IsDoor|MapFlg_IsRoom)) == 0) && ((colmn->bitfields & 0xE) == 0)) {
                     solidmsk_right &= 3;
                 }
             }
@@ -1980,7 +1980,7 @@ void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_star
         {
             int ncor_raw;
             ncor_raw = floor_height[solidmsk_cur_raw];
-            if ((cur_mapblk->flags & (0x80|0x04)) == 0)
+            if ((cur_mapblk->flags & (MapFlg_Unkn80|MapFlg_Unkn04)) == 0)
             {
                 if ((ncor_raw > 0) && (ncor_raw <= COLUMN_STACK_HEIGHT))
                 {
@@ -1990,7 +1990,7 @@ void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_star
                     do_a_gpoly_gourad_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], cubed->texture_id[4], -1);
                 }
             } else
-            if ((cur_mapblk->flags & 0x01) != 0)
+            if ((cur_mapblk->flags & MapFlg_Unkn01) != 0)
             {
                 do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], 579);
                 do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], 579);
@@ -2001,7 +2001,7 @@ void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_star
             }
         } else
         {
-            if ((cur_mapblk->flags & 0x04) == 0)
+            if ((cur_mapblk->flags & MapFlg_Unkn04) == 0)
             {
                 do_a_gpoly_gourad_tr(&bec[0].cors[0], &bec[1].cors[0], &fec[1].cors[0], cur_colmn->baseblock, -1);
                 do_a_gpoly_gourad_bl(&fec[1].cors[0], &fec[0].cors[0], &bec[0].cors[0], cur_colmn->baseblock, -1);
@@ -2153,14 +2153,14 @@ void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long plane_s
         ncor = floor_height[solidmsk_cur];
         if (ncor > 0)
         {
-            if ((cur_mapblk->flags & (0x80|0x04)) == 0)
+            if ((cur_mapblk->flags & (MapFlg_Unkn80|MapFlg_Unkn04)) == 0)
             {
                 struct CubeAttribs * cubed;
                 cubed = &game.cubes_data[*(short *)((char *)&cur_colmn->baseblock + 2 * ncor + 1)];
                 do_a_gpoly_gourad_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], cubed->texture_id[4], -1);
                 do_a_gpoly_gourad_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], cubed->texture_id[4], -1);
             } else
-            if ((cur_mapblk->flags & 0x01) != 0)
+            if ((cur_mapblk->flags & MapFlg_Unkn01) != 0)
             {
                 do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], 579);
                 do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], 579);
@@ -2171,7 +2171,7 @@ void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long plane_s
             }
         } else
         {
-            if ((cur_mapblk->flags & 0x04) == 0)
+            if ((cur_mapblk->flags & MapFlg_Unkn04) == 0)
             {
                 do_a_gpoly_gourad_tr(&bec[0].cors[0], &bec[1].cors[0], &fec[1].cors[0], cur_colmn->baseblock, -1);
                 do_a_gpoly_gourad_bl(&fec[1].cors[0], &fec[0].cors[0], &bec[0].cors[0], cur_colmn->baseblock, -1);

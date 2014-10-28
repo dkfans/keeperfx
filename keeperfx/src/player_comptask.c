@@ -927,7 +927,7 @@ long task_dig_room(struct Computer2 *comp, struct ComputerTask *ctask)
                 mapblk = get_map_block_at(stl_x, stl_y);
                 if (slbattr->is_unknflg14 && (slb->kind != SlbT_GEMS))
                 {
-                    if (((mapblk->flags & 0x20) == 0) || (slabmap_owner(slb) == dungeon->owner))
+                    if (((mapblk->flags & MapFlg_Unkn20) == 0) || (slabmap_owner(slb) == dungeon->owner))
                     {
                         if (find_from_task_list(dungeon->owner, get_subtile_number(stl_x,stl_y)) < 0)
                         {
