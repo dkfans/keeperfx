@@ -756,7 +756,7 @@ TbResult magic_use_power_destroy_walls(PlayerNumber plyr_idx, MapSubtlCoord stl_
                 continue;
             struct Map *mapblk;
             mapblk = get_map_block_at(slab_subtile_center(slb_x),slab_subtile_center(slb_y));
-            if (!(mapblk->flags & 0x10) || (mapblk->flags & (0x40|0x02|0x01)) || (slb->kind == SlbT_ROCK) )
+            if (!(mapblk->flags & MapFlg_IsTall) || (mapblk->flags & (MapFlg_IsDoor|MapFlg_IsRoom|MapFlg_Unkn01)) || (slb->kind == SlbT_ROCK) )
               continue;
             TbBool is_revealed;
             is_revealed = subtile_revealed(stl_x, stl_y, plyr_idx);

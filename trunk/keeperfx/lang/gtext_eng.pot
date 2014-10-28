@@ -5612,3 +5612,73 @@ msgctxt "In-game interface description"
 msgid ""
 "Loyalty: How resistant the creature is against scavenging by the enemy."
 msgstr ""
+
+#: guitext:952
+msgctxt "In-game interface description"
+msgid "Research Skill: unused."
+msgstr ""
+
+#: guitext:953
+msgctxt "In-game interface description"
+msgid "Manufacture Skill: How fast the creature works in Workshop. The higher the Skill level, "
+"the better the creature's performance."
+msgstr ""
+
+#: guitext:954
+msgctxt "In-game interface description"
+msgid "Training Skill: How fast the creature works on training. The higher the Skill level, "
+"the better the creature's performance."
+msgstr ""
+
+#: guitext:955
+msgctxt "In-game interface description"
+msgid "Scavenge Skill: How fast the creature works on scavenging. The higher the Skill level, "
+"the better the creature's performance."
+msgstr ""
+
+#: guitext:956
+msgctxt "In-game interface description"
+msgid "Training Cost: Gold used for training the creature."
+msgstr ""
+
+#: guitext:957
+msgctxt "In-game interface description"
+msgid "Scavenge Cost: Gold used for scavenging by the creature."
+msgstr ""
+
+#: guitext:958
+msgctxt "In-game interface description"
+msgid "Best Damage: How much harm can be made by the strongest attack the creature has."
+msgstr ""
+
+#: guitext:959
+msgctxt "In-game interface description"
+msgid "Weight: Mass of the creature. Some people say overweight can lead to heart attack."
+msgstr ""
+
+#: guitext:960
+msgctxt "In-game interface description"
+msgid "Score: Estimate of an overall creature value. Added to player score when finishing the level."
+msgstr ""
+
+#: guitext:961
+msgctxt "Keeper spell name"
+msgid "Hand Of Evil"
+msgstr ""
+
+#: guitext:962
+msgctxt "Keeper spell name"
+msgid "Slap"
+msgstr ""
+
+#: guitext:963
+msgctxt "Keeper spell description"
+msgid "Hand Of Evil: Ability to pick up your creatures and hold them in your hand. "
+"Just don't hold them forever or they may get irritated."
+msgstr ""
+
+#: guitext:964
+msgctxt "Keeper spell description"
+msgid "Slap: Makes your creatures work harder, for some time. "
+"Your creatures take some damage from each slap they receive."
+msgstr ""

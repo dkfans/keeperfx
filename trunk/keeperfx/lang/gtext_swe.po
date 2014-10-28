@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-08-08 19:46+0100\n"
+"PO-Revision-Date: 2014-10-28 21:18+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: sv_SE\n"
@@ -1398,8 +1398,7 @@ msgid ""
 "Your manufacturers have crafted the Lava Trap. After enemy creature steps on "
 "it, the area around changes into molten lava, which most creatures won't "
 "even try to pass."
-msgstr ""
-"Dina tillverkare har tagit fram lavafällan."
+msgstr "Dina tillverkare har tagit fram lavafällan."
 
 #. Level Mirthshire objective
 #: guitext:122
@@ -1879,8 +1878,8 @@ msgstr ""
 #: guitext:168
 msgctxt "In-game message"
 msgid ""
-"The Avatar and his allys are defeated, yet his power over this land lingers. "
-"Prepare thyself..."
+"The Avatar and his allies are defeated, yet his power over this land "
+"lingers. Prepare thyself..."
 msgstr ""
 "Avataren och hans allierade är besegrade, men ändå fortlever hans makt över "
 "detta land. Var beredd."
@@ -2589,8 +2588,8 @@ msgstr "Tid i grottan: Den tid du har haft varelsen anställd. [23.10]"
 #, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"Dexterity: The chance a creature will avoid a trap or an enemy weapon. The "
-"higher the number, the greater the chance of avoidance."
+"Dexterity: The chance of a successful attack. Used to break enemy defence. "
+"The higher the number, the greater the chance of hitting."
 msgstr ""
 "Smidighet: Chansen att en varelse kommer undvika en fälla eller fiendevapen. "
 "[23.15]"
@@ -6431,6 +6430,105 @@ msgstr ""
 msgctxt "Game event description"
 msgid "Storage room unreachable: LMB toggle. RMB delete."
 msgstr "Storage room unreachable: VMK växlar. HMK raderar."
+
+#: guitext:949
+msgctxt "In-game interface description"
+msgid ""
+"Armour: Part of the damage which won't affect creature health. The higher "
+"the number, the larger part of damage is discarded."
+msgstr ""
+
+#: guitext:950
+msgctxt "In-game interface description"
+msgid "Speed: How fast the creature moves and perform its dungeon tasks."
+msgstr ""
+
+#: guitext:951
+msgctxt "In-game interface description"
+msgid "Loyalty: How resistant the creature is against scavenging by the enemy."
+msgstr ""
+
+#: guitext:952
+msgctxt "In-game interface description"
+msgid "Research Skill: unused."
+msgstr ""
+
+#: guitext:953
+#, fuzzy
+msgctxt "In-game interface description"
+msgid ""
+"Manufacture Skill: How fast the creature works in Workshop. The higher the "
+"Skill level, the better the creature's performance."
+msgstr "Skicklighet: Varelsens förmåga att utföra uppgifter [23.14]"
+
+#: guitext:954
+#, fuzzy
+msgctxt "In-game interface description"
+msgid ""
+"Training Skill: How fast the creature works on training. The higher the "
+"Skill level, the better the creature's performance."
+msgstr "Skicklighet: Varelsens förmåga att utföra uppgifter [23.14]"
+
+#: guitext:955
+#, fuzzy
+msgctxt "In-game interface description"
+msgid ""
+"Scavenge Skill: How fast the creature works on scavenging. The higher the "
+"Skill level, the better the creature's performance."
+msgstr "Skicklighet: Varelsens förmåga att utföra uppgifter [23.14]"
+
+#: guitext:956
+msgctxt "In-game interface description"
+msgid "Training Cost: Gold used for training the creature."
+msgstr ""
+
+#: guitext:957
+msgctxt "In-game interface description"
+msgid "Scavenge Cost: Gold used for scavenging by the creature."
+msgstr ""
+
+#: guitext:958
+msgctxt "In-game interface description"
+msgid ""
+"Best Damage: How much harm can be made by the strongest attack the creature "
+"has."
+msgstr ""
+
+#: guitext:959
+msgctxt "In-game interface description"
+msgid ""
+"Weight: Mass of the creature. Some people say overweight can lead to heart "
+"attack."
+msgstr ""
+
+#: guitext:960
+msgctxt "Keeper spell name"
+msgid "Hand Of Evil"
+msgstr ""
+
+#: guitext:961
+#, fuzzy
+msgctxt "Keeper spell name"
+msgid "Slap"
+msgstr "Slag du tilldelat dina varelser"
+
+#: guitext:962
+msgctxt "Keeper spell description"
+msgid ""
+"Hand Of Evil: Ability to pick up your creatures and hold them in your hand. "
+"Just don't hold them forever or they may get irritated."
+msgstr ""
+
+#: guitext:963
+#, fuzzy
+msgctxt "Keeper spell description"
+msgid ""
+"Slap: Makes your creatures work harder, for some time. Your creatures take "
+"some damage from each slap they receive."
+msgstr ""
+"Om du vill få dina varelser att arbeta hårdare, slå dem litet genom att "
+"högerklicka med handen på dem. Men tänk på att dina varelser skadas för "
+"varje slag."
 
 #~ msgctxt "In-game message"
 #~ msgid "Your manufacturers have crafted the Lava Trap."
