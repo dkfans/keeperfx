@@ -63,7 +63,7 @@ msgid ""
 "the view with the right ctrl key and cursor keys."
 msgstr ""
 "用方向键看地下世界的其它区域。按住右边的CRTL键，再按方向键可以旋转和缩放视"
-"角。 "
+"角。"
 
 #. Level Eversmile objective when built Treasure Room
 #: guitext:4
@@ -75,7 +75,7 @@ msgid ""
 "Treasure Room."
 msgstr ""
 "好，你熟练地完成了。按住鼠标右键，使鼠标箭头变回邪恶之手。用鼠标左键向东标记"
-"金矿。小鬼们将挖出金子并把它们运到储金室。 "
+"金矿。小鬼们将挖出金子并把它们运到储金室。"
 
 #. Level Eversmile information while digging gold
 #: guitext:5
