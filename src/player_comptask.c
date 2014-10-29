@@ -309,11 +309,7 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
         break;
     case GA_UsePwrHandPick:
         thing = thing_get(param1);
-        if (!is_power_available(plyr_idx, PwrK_HAND))
-            break;
-        if (!place_thing_in_power_hand(thing, plyr_idx))
-          return Lb_FAIL;
-        return Lb_SUCCESS;
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_HAND, 0,thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing);
     case GA_UsePwrHandDrop:
         // Note that we can drop things even if we have no hand power
         if (!dump_first_held_thing_on_map(plyr_idx, stl_x, stl_y, 0))
