@@ -1170,11 +1170,9 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
 TbResult magic_use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short tng_idx)
 {
     struct PlayerInfo *player;
-    struct Dungeon *dungeon;
     struct Thing *thing;
-    dungeon = get_dungeon(plyr_idx);
     player = get_player(plyr_idx);
-    if (dungeon->num_things_in_hand >= MAX_THINGS_IN_HAND) {
+    if (power_hand_is_full(player)) {
         return Lb_FAIL;
     }
     thing = thing_get(tng_idx);
@@ -1194,6 +1192,10 @@ TbResult magic_use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSub
     if (thing_is_invalid(thing)) {
         return Lb_FAIL;
     }
+    if (!is_power_available(plyr_idx, PwrK_HAND)) {
+        return Lb_FAIL;
+    }
+
     if (!can_thing_be_picked_up_by_player(thing, plyr_idx))
     {
         ERRORLOG("The %s owned by player %d is not pickable by player %d",thing_model_name(thing),(int)thing->owner,(int)plyr_idx);
