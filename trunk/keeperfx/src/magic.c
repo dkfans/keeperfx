@@ -1363,6 +1363,9 @@ TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind pwk
         {
         case PwrK_HAND:
             //TODO check if we should use magic_use_power_hand()
+            if (power_hand_is_full(get_player(plyr_idx)))
+                ret = Lb_FAIL;
+            else
             if (place_thing_in_power_hand(thing, plyr_idx))
                 ret = Lb_SUCCESS;
             else

@@ -1984,9 +1984,8 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       turn_off_call_to_arms(plyr_idx);
       return 0;
   case PckA_PickUpThing:
-        dungeon = get_players_num_dungeon(plyr_idx);
-      if (!power_hand_is_full(player))
-        place_thing_in_power_hand(thing_get(pckt->field_6), plyr_idx);
+      thing = thing_get(pckt->field_6);
+      magic_use_available_power_on_thing(plyr_idx, PwrK_HAND, 0,thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing);
       return 0;
   case PckA_DumpHeldThing:
       dump_first_held_thing_on_map(plyr_idx, pckt->field_6, pckt->field_8, 1);
