@@ -42,10 +42,38 @@ extern "C" {
 #endif
 /******************************************************************************/
 const long definable_key_string[] = {
-    471, 472, 473, 474, 475, 476, 477, 478,
-    479, 480, 552, 553, 554, 555, 556, 557,
-    558, 559, 560, 561, 562, 563, 564, 565,
-    566, 567, 568, 630, 857, 852, 853, 854,
+    GUIStr_CtrlUp,
+    GUIStr_CtrlDown,
+    GUIStr_CtrlLeft,
+    GUIStr_CtrlRight,
+    GUIStr_CtrlRotate,
+    GUIStr_CtrlSpeed,
+    GUIStr_CtrlRotateLeft,
+    GUIStr_CtrlRotateRight,
+    GUIStr_CtrlZoomIn,
+    GUIStr_CtrlZoomOut,
+    GUIStr_RoomKind1+0,//TODO not GUI strings
+    GUIStr_RoomKind1+1,
+    GUIStr_RoomKind1+2,
+    GUIStr_RoomKind1+3,
+    GUIStr_RoomKind1+4,
+    GUIStr_RoomKind1+5,
+    GUIStr_RoomKind1+6,
+    GUIStr_RoomKind1+7,
+    GUIStr_RoomKind1+8,
+    GUIStr_RoomKind1+9,
+    GUIStr_RoomKind1+10,
+    GUIStr_RoomKind1+11,
+    GUIStr_RoomKind1+12,
+    GUIStr_RoomKind1+13,
+    GUIStr_RoomKind1+14,
+    GUIStr_StateFight,
+    GUIStr_StateAnnoyed,
+    GUIStr_PowerKind1,//TODO not GUI string
+    GUIStr_Query,
+    GUIStr_UndoPickup,
+    GUIStr_Pause,
+    GUIStr_Map,
 };
 /******************************************************************************/
 #ifdef __cplusplus
@@ -146,34 +174,34 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
     text[0] = '\0';
     if (mods & KMod_CONTROL)
     {
-        strcat(text, gui_string(570));
+        strcat(text, gui_string(GUIStr_KeyControl));
         strcat(text, " ");
     }
     if (mods & KMod_ALT)
     {
-        strcat(text, gui_string(571));
+        strcat(text, gui_string(GUIStr_KeyAlt));
         strcat(text, " ");
     }
     if (mods & KMod_SHIFT)
     {
-        strcat(text, gui_string(569));
+        strcat(text, gui_string(GUIStr_KeyShift));
         strcat(text, " ");
     }
 
     const char *keytext;
     switch (code)
     {
-      case 42:
-      case 54:
-        keytext = gui_string(569);
+      case KC_LSHIFT:
+      case KC_RSHIFT:
+        keytext = gui_string(GUIStr_KeyShift);
         break;
-      case 29:
-      case 157:
-        keytext = gui_string(570);
+      case KC_LCONTROL:
+      case KC_RCONTROL:
+        keytext = gui_string(GUIStr_KeyControl);
         break;
-      case 56:
-      case 184:
-        keytext = gui_string(571);
+      case KC_LALT:
+      case KC_RALT:
+        keytext = gui_string(GUIStr_KeyAlt);
         break;
       default:
         keytext = keyname;
@@ -278,9 +306,9 @@ void frontend_draw_invert_mouse(struct GuiButton *gbtn)
     tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
     const char *text;
     if (settings.first_person_move_invert) {
-        text = gui_string(847);
+        text = gui_string(GUIStr_On);
     } else {
-        text = gui_string(848);
+        text = gui_string(GUIStr_Off);
     }
     LbTextDrawResized(0, 0, tx_units_per_px, text);
 }

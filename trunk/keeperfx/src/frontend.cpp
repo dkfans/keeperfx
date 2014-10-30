@@ -246,40 +246,40 @@ struct GuiMenu *menu_list[] = {
  */
 struct FrontEndButtonData frontend_button_info[] = {
     {0,   0}, // [0]
-    {343, 0},
-    {360, 1},
-    {345, 1},
-    {347, 1},
-    {359, 1},
-    {348, 1},
-    {345, 0},
-    {346, 1},
-    {349, 1},
-    {350, 0}, // [10]
-    {351, 0},
-    {402, 0}, // [12] "Game Menu"
-    {400, 1}, // [13] "Join Game"
-    {399, 1}, // [14] "Create Game"
-    {401, 1}, // [15] "Start Game"
-    {403, 1}, // [16] "Cancel"
-    {GUIStr_Empty, 1}, // [17] ""
-    {GUIStr_Empty, 1}, // [18] ""
-    {396, 1}, // [19] "Name"
-    {GUIStr_Empty, 1}, // [20] ""
-    {GUIStr_Empty, 1}, // [21] ""
-    {406, 1}, // [22] "Level"
-    {GUIStr_Empty, 1}, // [23] ""
-    {GUIStr_Empty, 1}, // [24] ""
-    {GUIStr_Empty, 1}, // [25] ""
-    {GUIStr_Empty, 1}, // [26] ""
-    {GUIStr_Empty, 1}, // [27] ""
-    {GUIStr_Empty, 1}, // [28] ""
-    {395, 2}, // [29] "Sessions"
-    {408, 2}, // [30]
-    {405, 2},
-    {407, 2},
-    {397, 2},
-    {398, 2},
+    {GUIStr_MnuMainMenu, 0},
+    {GUIStr_MnuStartNewGame, 1},
+    {GUIStr_MnuLoadGame, 1},
+    {GUIStr_MnuMultiplayer, 1},
+    {GUIStr_MnuQuit, 1},
+    {GUIStr_MnuReturnToMain, 1},
+    {GUIStr_MnuLoadGame, 0},
+    {GUIStr_MnuContinueGame, 1},
+    {GUIStr_MnuPlayIntro, 1},
+    {GUIStr_NetServiceMenu, 0}, // [10]
+    {GUIStr_NetSessionMenu, 0},
+    {GUIStr_MnuGameMenu, 0}, // [12]
+    {GUIStr_NetJoinGame, 1}, // [13]
+    {GUIStr_NetCreateGame, 1}, // [14]
+    {GUIStr_NetStartGame, 1}, // [15]
+    {GUIStr_MnuCancel}, // [16]
+    {GUIStr_Empty, 1}, // [17]
+    {GUIStr_Empty, 1}, // [18]
+    {GUIStr_NetName, 1}, // [19]
+    {GUIStr_Empty, 1}, // [20]
+    {GUIStr_Empty, 1}, // [21]
+    {GUIStr_MnuLevel, 1}, // [22]
+    {GUIStr_Empty, 1}, // [23]
+    {GUIStr_Empty, 1}, // [24]
+    {GUIStr_Empty, 1}, // [25]
+    {GUIStr_Empty, 1}, // [26]
+    {GUIStr_Empty, 1}, // [27]
+    {GUIStr_Empty, 1}, // [28]
+    {GUIStr_NetSessions, 2}, // [29]
+    {GUIStr_MnuGames, 2}, // [30]
+    {GUIStr_MnuPlayers, 2},
+    {GUIStr_MnuLevels, 2},
+    {GUIStr_NetServices, 2},
+    {GUIStr_NetMessages, 2},
     {GUIStr_Empty, 1},
     {GUIStr_Empty, 1},
     {GUIStr_Empty, 1},
@@ -298,27 +298,27 @@ struct FrontEndButtonData frontend_button_info[] = {
     {GUIStr_Empty, 1}, // [50]
     {GUIStr_Empty, 1},
     {GUIStr_Empty, 1},
-    {409, 0},
-    {410, 0},
-    {353, 2},
-    {352, 2},
+    {GUIStr_NetModemMenu, 0},
+    {GUIStr_NetSerialMenu, 0},
+    {GUIStr_NetComPort, 2},
+    {GUIStr_NetSpeed, 2},
     {GUIStr_Empty, 1},
     {GUIStr_Empty, 1},
     {GUIStr_Empty, 1},
     {GUIStr_Empty, 1}, // [60]
-    {355, 1},
+    {GUIStr_NetIrq, 1},
     {GUIStr_Empty, 1},
     {GUIStr_Empty, 1},
     {GUIStr_Empty, 1},
     {GUIStr_Empty, 1},
-    {411, 1},
-    {412, 1},
-    {533, 1},
-    {414, 1},
+    {GUIStr_NetInit, 1},
+    {GUIStr_NetHangup, 1},
+    {GUIStr_NetDial, 1},
+    {GUIStr_NetAnswer, 1},
     {GUIStr_Empty, 1}, // [70]
-    {354, 1},
-    {534, 1},
-    {534, 1},
+    {GUIStr_NetPhoneNumber, 1},
+    {GUIStr_NetContinue, 1},
+    {GUIStr_NetContinue, 1},
     {GUIStr_Empty, 1},
     {GUIStr_Empty, 1},
     {GUIStr_Empty, 1},
@@ -327,35 +327,35 @@ struct FrontEndButtonData frontend_button_info[] = {
     {GUIStr_Empty, 1},
     {GUIStr_Empty, 1}, // [80]
     {GUIStr_Empty, 1},
-    {418, 1},
-    {419, 1},
-    {356, 0},
-    {431, 0},
-    {457, 0},
-    {458, 2},
-    {415, 1},
+    {GUIStr_Credits, 1},
+    {GUIStr_MnuOk, 1},
+    {GUIStr_MnuStatistics, 0},
+    {GUIStr_MnuHighScoreTable, 0},
+    {GUIStr_TeamChooseGame, 0},
+    {GUIStr_TeamGameType, 2},
+    {GUIStr_NetStart, 1},
     {GUIStr_Empty, 1},
     {GUIStr_Empty, 1}, // [90]
     {GUIStr_Empty, 1},
-    {468, 0},
+    {GUIStr_DefineKeys, 0},
     {GUIStr_Empty, 1},
     {GUIStr_Empty, 1},
-    {468, 1},
-    {716, 0},
-    {716, 1},
-    {840, 1},
-    {718, 1},
-    {850, 1}, // [100]
-    {849, 1},
-    {843, 1},
-    {845, 1},
-    {431, 1},
+    {GUIStr_DefineKeys, 1},
+    {GUIStr_MnuOptions, 0},
+    {GUIStr_MnuOptions, 1},
+    {GUIStr_MnuRetToOptions, 1},
+    {GUIStr_MnuSoundOptions, 1},
+    {GUIStr_MouseOptions, 1}, // [100]
+    {GUIStr_Sensitivity, 1},
+    {GUIStr_MnuInvertMouse, 1},
+    {GUIStr_MnuComputer, 1},
+    {GUIStr_MnuHighScoreTable, 1},
     {GUIStr_Empty, 0},
-    {941, 1},
-    {941, 0},
-    {942, 0}, // [108] "Land selection"
-    {943, 2}, // [109] "Campaigns"
-    {944, 1}, // [110] "Add computer"
+    {GUIStr_MnuFreePlayLevels, 1},
+    {GUIStr_MnuFreePlayLevels, 0},
+    {GUIStr_MnuLandSelection, 0}, // [108]
+    {GUIStr_MnuCampaigns, 2}, // [109]
+    {GUIStr_MnuAddComputer, 1}, // [110]
 };
 
 struct EventTypeInfo event_button_info[] = {
@@ -660,7 +660,12 @@ void versions_different_error(void)
       frontend_set_state(FeSt_MAIN_MENU);
 }
 
-void create_error_box(unsigned short msg_idx)
+/**
+ * Makes error box with message from GUI strings collection.
+ *
+ * @param msg_idx
+ */
+void create_error_box(TextStringId msg_idx)
 {
     if (!game.packet_load_enable)
     {
@@ -1285,9 +1290,12 @@ void gui_area_text(struct GuiButton *gbtn)
         draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, gbtn->width);
         break;
     }
-    if (gbtn->tooltip_id != GUIStr_Empty)
+    if ((gbtn->tooltip_id != GUIStr_Empty) && (gbtn->tooltip_id != -GUIStr_Empty))
     {
-        snprintf(gui_textbuf,sizeof(gui_textbuf), "%s", gui_string(gbtn->tooltip_id));
+        if (gbtn->tooltip_id > 0)
+            snprintf(gui_textbuf,sizeof(gui_textbuf), "%s", gui_string(gbtn->tooltip_id));
+        else
+            snprintf(gui_textbuf,sizeof(gui_textbuf), "%s", cmpgn_string(-gbtn->tooltip_id));
         draw_button_string(gbtn, (gbtn->width*32 + 16)/gbtn->height, gui_textbuf);
     } else
     if (gbtn->content != NULL)
@@ -1425,9 +1433,9 @@ void frontend_draw_computer_players(struct GuiButton *gbtn)
     LbTextSetFont(frontend_font[font_idx]);
     const char *text;
     if (fe_computer_players) {
-        text = gui_string(847);
+        text = gui_string(GUIStr_On);
     } else {
-        text = gui_string(848);
+        text = gui_string(GUIStr_Off);
     }
     int tx_units_per_px;
     tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
@@ -2473,7 +2481,7 @@ void frontstory_load(void)
         LbSpriteSetupAll(frontstory_setup_sprites);
         LbPaletteSet(frontend_palette);
         srand(LbTimerClock());
-        frontstory_text_no = rand() % 26 + 803;
+        frontstory_text_no = GUIStr_EasterPoems + rand() % 26;
     }
 }
 void inline frontstory_unload(void)

@@ -56,6 +56,8 @@ const struct NamedCommand terrain_room_commands[] = {
   {"SLABASSIGN",      5},
   {"CREATURECREATION",6},
   {"MESSAGES",        7},
+  {"NAMETEXTID",      8},
+  {"TOOLTIPTEXTID",   9},
   {NULL,              0},
   };
 
@@ -471,6 +473,7 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
         {
             roomst = &slab_conf.room_cfgstats[i];
             LbMemorySet(roomst->code_name, 0, COMMAND_WORD_LEN);
+            roomst->name_stridx = GUIStr_Empty;
             roomst->tooltip_stridx = GUIStr_Empty;
             roomst->creature_creation_model = 0;
             roomst->msg_needed = 0;
@@ -643,6 +646,38 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
             {
                 CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 8: // NAMETEXTID
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              k = atoi(word_buf);
+              if (k > 0)
+              {
+                  roomst->name_stridx = k;
+                  n++;
+              }
+            }
+            if (n < 1)
+            {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 9: // TOOLTIPTEXTID
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              k = atoi(word_buf);
+              if (k > 0)
+              {
+                  roomst->tooltip_stridx = k;
+                  n++;
+              }
+            }
+            if (n < 1)
+            {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
         case 0: // comment

@@ -201,7 +201,7 @@ enum GUIStrings {
     GUIStr_KeySpace,
     GUIStr_KeyReturn,
     GUIStr_KeyTab,
-    GUIStr_KeyCapsLock,
+    GUIStr_KeyCapsLock = 490,
     GUIStr_KeyBackspace,
     GUIStr_KeyInsert,
     GUIStr_KeyDelete,
@@ -370,7 +370,8 @@ enum GUIStrings {
     GUIStr_OptionsMoreSensitive,
     GUIStr_OptionsLessSensitive = 740,
     GUIStr_StatisticsNames1 = 741, // range 741..802
-    GUIStr_EasterPoems = 803, // range 803..839
+    GUIStr_EasterPoems = 803, // range 803..828
+    GUIStr_GameHints = 829, // range 829..839
     GUIStr_MnuRetToOptions = 840,
     GUIStr_MnuExit = 841,
     GUIStr_MnuAudio,
