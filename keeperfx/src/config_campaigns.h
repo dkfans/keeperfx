@@ -121,7 +121,7 @@ struct LevelInformation {
   char land_view[DISKPATH_SIZE];
   char land_window[DISKPATH_SIZE];
   char name[LINEMSG_SIZE];
-  long name_id;
+  TextStringId name_stridx;
   long players;
   long ensign_x;
   long ensign_y;

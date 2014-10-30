@@ -207,6 +207,12 @@ struct PowerConfigStats {
     ThingModel artifact_model;
 };
 
+struct SpecialConfigStats {
+    char code_name[COMMAND_WORD_LEN];
+    ThingModel artifact_model;
+    TextStringId tooltip_stridx;
+};
+
 struct MagicConfig {
     long spell_types_count;
     struct SpellConfigStats spell_cfgstats[MAGIC_ITEMS_MAX];
@@ -214,6 +220,8 @@ struct MagicConfig {
     struct ShotConfigStats shot_cfgstats[MAGIC_ITEMS_MAX];
     long power_types_count;
     struct PowerConfigStats power_cfgstats[MAGIC_ITEMS_MAX];
+    long special_types_count;
+    struct SpecialConfigStats special_cfgstats[MAGIC_ITEMS_MAX];
 };
 
 #pragma pack(1)
@@ -353,6 +361,7 @@ long get_power_index_for_work_state(long work_state);
 struct SpellConfigStats *get_spell_model_stats(SpellKind spmodel);
 struct ShotConfigStats *get_shot_model_stats(ThingModel tngmodel);
 struct PowerConfigStats *get_power_model_stats(PowerKind pwmodel);
+struct SpecialConfigStats *get_special_model_stats(int spckind);
 const char *spell_code_name(SpellKind spmodel);
 const char *shot_code_name(ThingModel tngmodel);
 const char *power_code_name(PowerKind pwmodel);

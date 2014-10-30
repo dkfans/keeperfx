@@ -94,7 +94,7 @@ struct Thing *get_spellbook_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y
 struct Thing *get_special_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Thing *get_crate_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
-int box_thing_to_special(const struct Thing *thing);
+SpecialKind box_thing_to_special(const struct Thing *thing);
 PowerKind book_thing_to_power_kind(const struct Thing *thing);
 
 TbBool thing_is_special_box(const struct Thing *thing);

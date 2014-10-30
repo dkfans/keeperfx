@@ -296,7 +296,7 @@ int frontend_font_char_width(int fnt_idx,char c);
 int frontend_font_string_width(int fnt_idx, const char *str);
 TbBool frontend_font_string_draw(int scr_x, int scr_y, int dst_width, int dst_height, int fnt_idx, const char *str, unsigned short fdflags);
 
-void create_error_box(unsigned short msg_idx);
+void create_error_box(TextStringId msg_idx);
 void gui_area_text(struct GuiButton *gbtn);
 TbBool get_button_area_input(struct GuiButton *gbtn, int a2);
 const char *frontend_button_caption_text(const struct GuiButton *gbtn);
