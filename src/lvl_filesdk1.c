@@ -314,7 +314,7 @@ TbBool level_lof_file_parse(char *fname, char *buf, long len)
               k = atoi(word_buf);
               if (k > 0)
               {
-                lvinfo->name_id = k;
+                lvinfo->name_stridx = k;
                 n++;
               }
             }

@@ -85,13 +85,14 @@ struct SlabAttr {
 /******************************************************************************/
 struct SlabConfigStats {
     char code_name[COMMAND_WORD_LEN];
-    long tooltip_stridx;
+    TextStringId tooltip_stridx;
     RoomKind assigned_room;
 };
 
 struct RoomConfigStats {
     char code_name[COMMAND_WORD_LEN];
-    long tooltip_stridx;
+    TextStringId name_stridx;
+    TextStringId tooltip_stridx;
     long creature_creation_model;
     SlabKind assigned_slab;
     unsigned long flags;

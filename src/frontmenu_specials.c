@@ -160,7 +160,7 @@ void draw_resurrect_creature(struct GuiButton *gbtn)
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
         LbTextDrawResizedFmt(0, 0, tx_units_per_px, " %s", cmpgn_string(crdata->namestr_idx));
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
-        LbTextDrawResizedFmt(0, 0, tx_units_per_px, "%s %d ", gui_string(406), cstore->explevel + 1);
+        LbTextDrawResizedFmt(0, 0, tx_units_per_px, "%s %d ", gui_string(GUIStr_MnuLevel), (int)(cstore->explevel + 1));
     }
     lbDisplay.DrawFlags = flg_mem;
 }
@@ -246,7 +246,7 @@ void draw_transfer_creature(struct GuiButton *gbtn)
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
         LbTextDrawResizedFmt(0, 0, tx_units_per_px, " %s", cmpgn_string(crdata->namestr_idx));
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
-        LbTextDrawResizedFmt(0, 0, tx_units_per_px, "%s %d ", gui_string(406), (int)(cctrl->explevel+1));
+        LbTextDrawResizedFmt(0, 0, tx_units_per_px, "%s %d ", gui_string(GUIStr_MnuLevel), (int)(cctrl->explevel+1));
     }
     lbDisplay.DrawFlags = flgmem;
 }

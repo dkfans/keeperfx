@@ -592,8 +592,8 @@ void draw_map_level_name(void)
     lvinfo = get_level_info(lvnum);
     if (lvinfo != NULL)
     {
-      if (lvinfo->name_id > 0)
-        lv_name = cmpgn_string(lvinfo->name_id);
+      if (lvinfo->name_stridx > 0)
+        lv_name = cmpgn_string(lvinfo->name_stridx);
       else
         lv_name = lvinfo->name;
     } else

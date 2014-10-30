@@ -113,7 +113,7 @@ void clear_level_info(struct LevelInformation *lvinfo)
   LbMemorySet(lvinfo->speech_after, 0, DISKPATH_SIZE);
   LbMemorySet(lvinfo->land_view, 0, DISKPATH_SIZE);
   LbMemorySet(lvinfo->land_window, 0, DISKPATH_SIZE);
-  lvinfo->name_id = 0;
+  lvinfo->name_stridx = 0;
   lvinfo->players = 1;
   lvinfo->ensign_x = (LANDVIEW_MAP_WIDTH>>1);
   lvinfo->ensign_y = (LANDVIEW_MAP_HEIGHT>>1);
@@ -768,7 +768,7 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
               k = atoi(word_buf);
               if (k > 0)
               {
-                lvinfo->name_id = k;
+                lvinfo->name_stridx = k;
                 n++;
               }
             }

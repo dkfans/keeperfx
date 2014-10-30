@@ -217,7 +217,7 @@ TbBool frontend_high_score_table_input(void)
     {
         hscore = &campaign.hiscore_table[high_score_entry_input_active];
         if (lbInkey == KC_ESCAPE)
-            strncpy(hscore->name, gui_string(442), HISCORE_NAME_LENGTH);
+            strncpy(hscore->name, gui_string(GUIStr_TeamLeader), HISCORE_NAME_LENGTH);
         else
             strncpy(hscore->name, high_score_entry, HISCORE_NAME_LENGTH);
         high_score_entry_input_active = -1;

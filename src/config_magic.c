@@ -44,6 +44,7 @@ const struct NamedCommand magic_common_commands[] = {
   {"SPELLSCOUNT",     1},
   {"SHOTSCOUNT",      2},
   {"POWERCOUNT",      3},
+  {"SPECIALSCOUNT",   4},
   {NULL,              0},
   };
 
@@ -77,6 +78,13 @@ const struct NamedCommand magic_power_commands[] = {
   {"NAMETEXTID",      5},
   {"CASTABILITY",     6},
   {"ARTIFACT",        7},
+  {NULL,              0},
+  };
+
+const struct NamedCommand magic_special_commands[] = {
+  {"NAME",            1},
+  {"ARTIFACT",        2},
+  {"TOOLTIPTEXTID",   3},
   {NULL,              0},
   };
 
@@ -140,6 +148,7 @@ struct MagicConfig magic_conf;
 struct NamedCommand spell_desc[MAGIC_ITEMS_MAX];
 struct NamedCommand shot_desc[MAGIC_ITEMS_MAX];
 struct NamedCommand power_desc[MAGIC_ITEMS_MAX];
+struct NamedCommand special_desc[MAGIC_ITEMS_MAX];
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -180,6 +189,13 @@ long get_power_description_strindex(int pwr_idx)
   if ((pwr_idx < 0) || (pwr_idx >= POWER_TYPES_COUNT))
     return 0;
   return spell_data[pwr_idx].tooltip_stridx;
+}
+
+long get_special_description_strindex(int spec_idx)
+{
+  if ((spec_idx < 0) || (spec_idx >= POWER_TYPES_COUNT))
+    return 0;
+  return spell_data[spec_idx].tooltip_stridx;
 }
 
 TbBool power_data_is_invalid(const struct SpellData *pwrdata)
@@ -234,6 +250,13 @@ struct PowerConfigStats *get_power_model_stats(PowerKind pwkind)
     return &magic_conf.power_cfgstats[pwkind];
 }
 
+struct SpecialConfigStats *get_special_model_stats(int spckind)
+{
+    if ((spckind < 0) || (spckind >= magic_conf.special_types_count))
+        return &magic_conf.special_cfgstats[0];
+    return &magic_conf.special_cfgstats[spckind];
+}
+
 short write_magic_shot_to_log(const struct ShotConfigStats *shotst, int num)
 {
   JUSTMSG("[shot%d]",(int)num);
@@ -256,6 +279,7 @@ TbBool parse_magic_common_blocks(char *buf, long len, const char *config_textnam
         magic_conf.spell_types_count = 1;
         magic_conf.shot_types_count = 1;
         magic_conf.power_types_count = 1;
+        magic_conf.special_types_count = 1;
     }
     // Find the block
     sprintf(block_buf,"common");
@@ -316,6 +340,22 @@ TbBool parse_magic_common_blocks(char *buf, long len, const char *config_textnam
               if ((k > 0) && (k <= MAGIC_ITEMS_MAX))
               {
                 magic_conf.power_types_count = k;
+                n++;
+              }
+            }
+            if (n < 1)
+            {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 4: // SPECIALSCOUNT
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              k = atoi(word_buf);
+              if ((k > 0) && (k <= MAGIC_ITEMS_MAX))
+              {
+                magic_conf.special_types_count = k;
                 n++;
               }
             }
@@ -757,12 +797,12 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           powerst->artifact_model = 0;
           if (i < magic_conf.power_types_count)
           {
-            power_desc[i].name = powerst->code_name;
-            power_desc[i].num = i;
+              power_desc[i].name = powerst->code_name;
+              power_desc[i].num = i;
           } else
           {
-            power_desc[i].name = NULL;
-            power_desc[i].num = 0;
+              power_desc[i].name = NULL;
+              power_desc[i].num = 0;
           }
       }
       arr_size = sizeof(object_conf.object_to_power_artifact)/sizeof(object_conf.object_to_power_artifact[0]);
@@ -939,6 +979,130 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
   return true;
 }
 
+TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
+{
+  struct SpecialConfigStats *specst;
+  long pos;
+  int i,k,n;
+  int cmd_num;
+  // Block name and parameter word store variables
+  char block_buf[COMMAND_WORD_LEN];
+  char word_buf[COMMAND_WORD_LEN];
+  // Initialize the array
+  int arr_size;
+  if ((flags & CnfLd_AcceptPartial) == 0)
+  {
+      arr_size = sizeof(magic_conf.special_cfgstats)/sizeof(magic_conf.special_cfgstats[0]);
+      for (i=0; i < arr_size; i++)
+      {
+          specst = get_special_model_stats(i);
+          LbMemorySet(specst->code_name, 0, COMMAND_WORD_LEN);
+          specst->artifact_model = 0;
+          specst->tooltip_stridx = 0;
+          if (i < magic_conf.special_types_count)
+          {
+              special_desc[i].name = specst->code_name;
+              special_desc[i].num = i;
+          } else
+          {
+              special_desc[i].name = NULL;
+              special_desc[i].num = 0;
+          }
+      }
+      arr_size = sizeof(object_conf.object_to_special_artifact)/sizeof(object_conf.object_to_special_artifact[0]);
+      for (i=0; i < arr_size; i++) {
+          object_conf.object_to_special_artifact[i] = 0;
+      }
+  }
+  arr_size = magic_conf.special_types_count;
+  // Load the file
+  for (i=0; i < arr_size; i++)
+  {
+    sprintf(block_buf,"special%d",i);
+    pos = 0;
+    k = find_conf_block(buf,&pos,len,block_buf);
+    if (k < 0)
+    {
+        if ((flags & CnfLd_AcceptPartial) == 0) {
+            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+            return false;
+        }
+        continue;
+    }
+    specst = get_special_model_stats(i);
+#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(magic_special_commands,cmd_num)
+    while (pos<len)
+    {
+      // Finding command number in this line
+      cmd_num = recognize_conf_command(buf,&pos,len,magic_special_commands);
+      // Now store the config item in correct place
+      if (cmd_num == -3) break; // if next block starts
+      if ((flags & CnfLd_ListOnly) != 0) {
+          // In "List only" mode, accept only name command
+          if (cmd_num > 1) {
+              cmd_num = 0;
+          }
+      }
+      n = 0;
+      switch (cmd_num)
+      {
+      case 1: // NAME
+          if (get_conf_parameter_single(buf,&pos,len,specst->code_name,COMMAND_WORD_LEN) <= 0)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              break;
+          }
+          break;
+      case 2: // ARTIFACT
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+              k = get_id(object_desc, word_buf);
+              if (k >= 0) {
+                  specst->artifact_model = k;
+                  object_conf.object_to_special_artifact[k] = i;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect object model \"%s\" in [%s] block of %s file.",
+                  word_buf,block_buf,config_textname);
+              break;
+          }
+          break;
+      case 3: // TOOLTIPTEXTID
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            if (k > 0)
+            {
+                specst->tooltip_stridx = k;
+                n++;
+            }
+          }
+          if (n < 1)
+          {
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 0: // comment
+          break;
+      case -1: // end of buffer
+          break;
+      default:
+          CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
+              cmd_num,block_buf,config_textname);
+          break;
+      }
+      skip_conf_to_next_line(buf,&pos,len);
+    }
+#undef COMMAND_TEXT
+  }
+  return true;
+}
+
 TbBool load_magic_config_file(const char *textname, const char *fname, unsigned short flags)
 {
     char *buf;
@@ -996,6 +1160,14 @@ TbBool load_magic_config_file(const char *textname, const char *fname, unsigned 
           result = true;
       if (!result)
           WARNMSG("Parsing %s file \"%s\" power blocks failed.",textname,fname);
+    }
+    if (result)
+    {
+      result = parse_magic_special_blocks(buf, len, textname, flags);
+      if ((flags & CnfLd_AcceptPartial) != 0)
+          result = true;
+      if (!result)
+          WARNMSG("Parsing %s file \"%s\" special blocks failed.",textname,fname);
     }
     //Freeing and exiting
     LbMemoryFree(buf);

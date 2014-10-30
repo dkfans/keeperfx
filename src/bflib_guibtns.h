@@ -152,6 +152,7 @@ struct GuiButton {
        short width;
        short height;
        short field_29;
+       /** Tooltip string ID. Positive for GUI string, negative for campaign string. */
        short tooltip_id;
        unsigned short field_2D;
        struct GuiMenu *parent_menu;

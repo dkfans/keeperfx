@@ -71,6 +71,7 @@ struct ObjectsConfig {
     struct ObjectConfigStats object_cfgstats[OBJECT_TYPES_MAX];
     ThingModel object_to_door_or_trap[OBJECT_TYPES_MAX];
     ThingModel object_to_power_artifact[OBJECT_TYPES_MAX];
+    ThingModel object_to_special_artifact[OBJECT_TYPES_MAX];
     ThingClass workshop_object_class[OBJECT_TYPES_MAX];
 };
 /******************************************************************************/

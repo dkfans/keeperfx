@@ -1117,7 +1117,7 @@ void redraw_display(void)
         i = game.play_gameturn - game.armageddon_cast_turn - game.armageddon.count_down;
       }
       LbTextSetFont(winfont);
-      text = buf_sprintf(" %s %03d", gui_string(646), i/2); // Armageddon message
+      text = buf_sprintf(" %s %03d", cmpgn_string(get_power_name_strindex(PwrK_ARMAGEDDON)), i/2); // Armageddon message
       i = LbTextCharWidth(' ')*units_per_pixel/16;
       w = LbTextStringWidth(text)*units_per_pixel/16 + 6*i;
       pos_x = MyScreenWidth - w - 16*units_per_pixel/16;
