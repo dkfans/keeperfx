@@ -78,7 +78,7 @@ RoomKind look_through_rooms[] = {
 
 struct RoomData room_data[] = {
   { 0,  0, NULL,                    NULL,                   NULL,                  0, 0, 0, 201, 201},
-  {14,  0, count_slabs,             NULL,                   NULL,                  0, 0, 0, 598, 614},
+  {14,  0, count_slabs,             NULL,                   NULL,                  0, 0, 0, 598, 614},//TODO the tooltip string is invalid
   {16, 57, count_gold_slabs_with_efficiency, count_gold_hoardes_in_room, NULL,     1, 0, 0, 599, 615},
   {18, 61, count_slabs_div2,        count_books_in_room,    count_workers_in_room, 0, 0, 0, 600, 616},
   {20, 65, count_slabs_with_efficiency, NULL,               NULL,                  1, 0, 0, 601, 617},

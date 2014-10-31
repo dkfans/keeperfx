@@ -493,7 +493,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
         case EvKind_NewRoomResrch:
             other_off = 1;
             rdata = room_data_get_for_kind(event->target);
-            i = rdata->msg1str_idx;
+            i = rdata->name_stridx;
             text = buf_sprintf("%s:\n%s",game.evntbox_scroll_window.text, cmpgn_string(i));
             strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
             turn_on_menu(GMnu_TEXT_INFO);
@@ -575,7 +575,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
         case EvKind_StorageRoomUnreachable:
             other_off = 1;
             rdata = room_data_get_for_kind(event->target);
-            i = rdata->msg1str_idx;
+            i = rdata->name_stridx;
             text = buf_sprintf("%s:\n%s",game.evntbox_scroll_window.text,cmpgn_string(i));
             strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
             turn_on_menu(GMnu_TEXT_INFO);
@@ -607,8 +607,8 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
             i = (long)event->target;
             if (i < 0)
             {
-              i = -i;
-              event->target = i;
+                i = -i;
+                event->target = i;
             }
             strncpy(game.evntbox_text_buffer, cmpgn_string(i), MESSAGE_TEXT_LEN-1);
             strncpy(game.evntbox_scroll_window.text, game.evntbox_text_buffer, MESSAGE_TEXT_LEN-1);
@@ -642,7 +642,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
             thing = thing_get(event->target);
             if (thing_is_invalid(thing))
               break;
-            i = specials_text[box_thing_to_special(thing)];
+            i = get_special_description_strindex(box_thing_to_special(thing));
             text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, cmpgn_string(i));
             strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
             turn_on_menu(GMnu_TEXT_INFO);
