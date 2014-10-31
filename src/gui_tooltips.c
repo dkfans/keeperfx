@@ -304,13 +304,13 @@ void setup_gui_tooltip(struct GuiButton *gbtn)
   struct CreatureData *crdata;
   const char *text;
   long i,k;
-  if (gbtn->tooltip_id == GUIStr_Empty)
+  if (gbtn->tooltip_stridx == GUIStr_Empty)
     return;
   if (!settings.tooltips_on)
     return;
   dungeon = get_my_dungeon();
   set_flag_byte(&tool_tip_box.flags,TTip_Visible,true);
-  i = gbtn->tooltip_id;
+  i = gbtn->tooltip_stridx;
   text = gui_string(i);
   if ((i == GUIStr_NumberOfCreaturesDesc) || (i == GUIStr_NumberOfRoomsDesc))
   {
