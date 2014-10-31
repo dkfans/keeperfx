@@ -72,7 +72,6 @@ struct CallToArmsGraphics {
 /******************************************************************************/
 extern Thing_State_Func object_state_functions[];
 extern Thing_Class_Func object_update_functions[];
-extern unsigned short specials_text[];
 extern unsigned short player_guardflag_objects[];
 extern struct Objects objects[];
 /******************************************************************************/

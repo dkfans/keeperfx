@@ -127,8 +127,8 @@ struct RoomData {
       unsigned char field_F; //< Originally was long, but the only used values are 1 and 0
       unsigned char field_10; //< Unused, originally was part of field_F
       short field_11; //< Unused, originally was part of field_F
-      short msg1str_idx;
-      short msg2str_idx;
+      short name_stridx;
+      short tooltip_stridx;
 };
 
 #define INVALID_ROOM (&game.rooms[0])

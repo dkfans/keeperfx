@@ -180,22 +180,22 @@ struct SpellData *get_power_data(int pwr_idx)
 long get_power_name_strindex(int pwr_idx)
 {
   if ((pwr_idx < 0) || (pwr_idx >= POWER_TYPES_COUNT))
-    return 0;
+    return spell_data[0].name_stridx;
   return spell_data[pwr_idx].name_stridx;
 }
 
 long get_power_description_strindex(int pwr_idx)
 {
   if ((pwr_idx < 0) || (pwr_idx >= POWER_TYPES_COUNT))
-    return 0;
+    return spell_data[0].tooltip_stridx;
   return spell_data[pwr_idx].tooltip_stridx;
 }
 
-long get_special_description_strindex(int spec_idx)
+long get_special_description_strindex(int spckind)
 {
-  if ((spec_idx < 0) || (spec_idx >= POWER_TYPES_COUNT))
-    return 0;
-  return spell_data[spec_idx].tooltip_stridx;
+  if ((spckind < 0) || (spckind >= POWER_TYPES_COUNT))
+    return magic_conf.special_cfgstats[0].tooltip_stridx;
+  return magic_conf.special_cfgstats[spckind].tooltip_stridx;
 }
 
 TbBool power_data_is_invalid(const struct SpellData *pwrdata)
@@ -250,7 +250,7 @@ struct PowerConfigStats *get_power_model_stats(PowerKind pwkind)
     return &magic_conf.power_cfgstats[pwkind];
 }
 
-struct SpecialConfigStats *get_special_model_stats(int spckind)
+struct SpecialConfigStats *get_special_model_stats(SpecialKind spckind)
 {
     if ((spckind < 0) || (spckind >= magic_conf.special_types_count))
         return &magic_conf.special_cfgstats[0];
