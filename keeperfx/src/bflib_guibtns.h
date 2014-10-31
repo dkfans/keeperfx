@@ -124,7 +124,7 @@ struct GuiButtonInit {
     short height;
     Gf_Btn_Callback draw_call;
     short field_25;
-    short tooltip_id;
+    short tooltip_stridx;
     struct GuiMenu *parent_menu;
     union GuiVariant content;
     char field_31;
@@ -153,7 +153,7 @@ struct GuiButton {
        short height;
        short field_29;
        /** Tooltip string ID. Positive for GUI string, negative for campaign string. */
-       short tooltip_id;
+       short tooltip_stridx;
        unsigned short field_2D;
        struct GuiMenu *parent_menu;
        unsigned long *content; //TODO FRONTEND change it to GuiVariant
@@ -196,7 +196,7 @@ struct FrontEndButtonData {
 struct EventTypeInfo { //sizeof=0x10
     int field_0;
     unsigned short tooltip_stridx;
-    unsigned short msgstr_id;
+    unsigned short msg_stridx;
     int lifespan_turns;
     /** Indicates how many turns must pass before another event of the kind is created. */
     int turns_between_events;

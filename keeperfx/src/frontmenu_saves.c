@@ -65,7 +65,10 @@ void gui_load_game_maintain(struct GuiButton *gbtn)
   else
       slot_num = 0;
   centry = &save_game_catalogue[slot_num];
-  set_flag_byte(&gbtn->flags, LbBtnF_Unknown08, ((centry->flags & CEF_InUse) != 0));
+  if ((centry->flags & CEF_InUse) != 0)
+      gbtn->flags |= LbBtnF_Unknown08;
+  else
+      gbtn->flags &=  ~LbBtnF_Unknown08;
 }
 
 void gui_load_game(struct GuiButton *gbtn)
@@ -181,12 +184,18 @@ void frontend_draw_load_game_button(struct GuiButton *gbtn)
 
 void frontend_load_game_up_maintain(struct GuiButton *gbtn)
 {
-  set_flag_byte(&gbtn->flags, LbBtnF_Unknown08, (load_game_scroll_offset != 0));
+    if (load_game_scroll_offset != 0)
+        gbtn->flags |= LbBtnF_Unknown08;
+    else
+        gbtn->flags &=  ~LbBtnF_Unknown08;
 }
 
 void frontend_load_game_down_maintain(struct GuiButton *gbtn)
 {
-    set_flag_byte(&gbtn->flags, LbBtnF_Unknown08, (load_game_scroll_offset < number_of_saved_games-frontend_load_menu_items_visible+1));
+    if (load_game_scroll_offset < number_of_saved_games-frontend_load_menu_items_visible+1)
+        gbtn->flags |= LbBtnF_Unknown08;
+    else
+        gbtn->flags &=  ~LbBtnF_Unknown08;
 }
 
 void frontend_load_game_up(struct GuiButton *gbtn)
