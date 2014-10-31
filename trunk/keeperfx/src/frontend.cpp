@@ -724,7 +724,7 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
             gbtn->gbactn_1 = 0;
             (gbtn->click_event)(gbtn);
             input_button = 0;
-            if ((gbtn->flags & 0x02) != 0)
+            if ((gbtn->flags & LbBtnF_Unknown02) != 0)
             {
                 struct GuiMenu *gmnu;
                 gmnu = get_active_menu(gbtn->gmenu_idx);
@@ -790,7 +790,10 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
 
 void maintain_loadsave(struct GuiButton *gbtn)
 {
-  set_flag_byte(&gbtn->flags, LbBtnF_Unknown08, ((game.system_flags & GSF_NetworkActive) == 0));
+    if ((game.system_flags & GSF_NetworkActive) == 0)
+        gbtn->flags |= LbBtnF_Unknown08;
+    else
+        gbtn->flags &= ~LbBtnF_Unknown08;
 }
 
 void fake_button_click(long btn_idx)
@@ -803,12 +806,12 @@ void fake_button_click(long btn_idx)
         gbtn = &active_buttons[i];
         struct GuiMenu *gmnu;
         gmnu = &active_menus[(unsigned)gbtn->gmenu_idx];
-        if (((gbtn->flags & 0x01) != 0) && (gmnu->flgfield_1D != 0) && (gbtn->id_num == btn_idx))
+        if (((gbtn->flags & LbBtnF_Unknown01) != 0) && (gmnu->flgfield_1D != 0) && (gbtn->id_num == btn_idx))
         {
-            if ((gbtn->click_event != NULL) || ((gbtn->flags & 0x02) != 0) || (gbtn->parent_menu != NULL) || (gbtn->gbtype == Lb_RADIOBTN)) {
+            if ((gbtn->click_event != NULL) || ((gbtn->flags & LbBtnF_Unknown02) != 0) || (gbtn->parent_menu != NULL) || (gbtn->gbtype == Lb_RADIOBTN)) {
                 do_button_press_actions(gbtn, &gbtn->gbactn_1, gbtn->click_event);
             }
-            if ((gbtn->click_event != NULL) || ((gbtn->flags & 0x02) != 0) || (gbtn->parent_menu != NULL) || (gbtn->gbtype == Lb_RADIOBTN)) {
+            if ((gbtn->click_event != NULL) || ((gbtn->flags & LbBtnF_Unknown02) != 0) || (gbtn->parent_menu != NULL) || (gbtn->gbtype == Lb_RADIOBTN)) {
                 do_button_click_actions(gbtn, &gbtn->gbactn_1, gbtn->click_event);
             }
         }
@@ -851,12 +854,18 @@ void maintain_scroll_down(struct GuiButton *gbtn)
 
 void frontend_continue_game_maintain(struct GuiButton *gbtn)
 {
-    set_flag_byte(&gbtn->flags, LbBtnF_Unknown08, (continue_game_option_available != 0));
+    if (continue_game_option_available != 0)
+        gbtn->flags |= LbBtnF_Unknown08;
+    else
+        gbtn->flags &= ~LbBtnF_Unknown08;
 }
 
 void frontend_main_menu_load_game_maintain(struct GuiButton *gbtn)
 {
-    set_flag_byte(&gbtn->flags, LbBtnF_Unknown08, (number_of_saved_games > 0));
+    if (number_of_saved_games > 0)
+        gbtn->flags |= LbBtnF_Unknown08;
+    else
+        gbtn->flags &= ~LbBtnF_Unknown08;
 }
 
 void frontend_main_menu_netservice_maintain(struct GuiButton *gbtn)
@@ -1290,12 +1299,12 @@ void gui_area_text(struct GuiButton *gbtn)
         draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, gbtn->width);
         break;
     }
-    if ((gbtn->tooltip_id != GUIStr_Empty) && (gbtn->tooltip_id != -GUIStr_Empty))
+    if ((gbtn->tooltip_stridx != GUIStr_Empty) && (gbtn->tooltip_stridx != -GUIStr_Empty))
     {
-        if (gbtn->tooltip_id > 0)
-            snprintf(gui_textbuf,sizeof(gui_textbuf), "%s", gui_string(gbtn->tooltip_id));
+        if (gbtn->tooltip_stridx > 0)
+            snprintf(gui_textbuf,sizeof(gui_textbuf), "%s", gui_string(gbtn->tooltip_stridx));
         else
-            snprintf(gui_textbuf,sizeof(gui_textbuf), "%s", cmpgn_string(-gbtn->tooltip_id));
+            snprintf(gui_textbuf,sizeof(gui_textbuf), "%s", cmpgn_string(-gbtn->tooltip_stridx));
         draw_button_string(gbtn, (gbtn->width*32 + 16)/gbtn->height, gui_textbuf);
     } else
     if (gbtn->content != NULL)
@@ -1378,7 +1387,7 @@ void frontend_draw_enter_text(struct GuiButton *gbtn)
     if (gbtn == input_button) {
         font_idx = 2;
     } else
-    if ((gbtn->flags & 0x08) == 0) {
+    if ((gbtn->flags & LbBtnF_Unknown08) == 0) {
         font_idx = 3;
     } else
     if ((gbtn->content != NULL) && (gbtn->field_1B == frontend_mouse_over_button)) {
@@ -1736,7 +1745,10 @@ void frontend_load_continue_game(struct GuiButton *gbtn)
 void frontend_load_game_maintain(struct GuiButton *gbtn)
 {
     long game_index=load_game_scroll_offset+(long)(gbtn->content)-45;
-    set_flag_byte(&gbtn->flags, LbBtnF_Unknown08, (game_index < number_of_saved_games));
+    if (game_index < number_of_saved_games)
+        gbtn->flags |= LbBtnF_Unknown08;
+    else
+        gbtn->flags &= ~LbBtnF_Unknown08;
 }
 
 void clear_radio_buttons(struct GuiMenu *gmnu)
@@ -2031,7 +2043,7 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit, int units_
     gbtn->height = (gbinit->height * units_per_px + 8) / 16;
     gbtn->draw_call = gbinit->draw_call;
     gbtn->field_29 = gbinit->field_25;
-    gbtn->tooltip_id = gbinit->tooltip_id;
+    gbtn->tooltip_stridx = gbinit->tooltip_stridx;
     gbtn->parent_menu = gbinit->parent_menu;
     gbtn->content = (unsigned long *)gbinit->content.lptr;
     gbtn->field_2D = *(short *)&gbinit->field_31;
@@ -3085,7 +3097,7 @@ void draw_menu_spangle(struct GuiMenu *gmnu)
     for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
     {
         gbtn = &active_buttons[i];
-        if ((!gbtn->draw_call) || ((gbtn->flags & LbBtnF_Unknown04) == 0) || ((gbtn->flags & 0x01) == 0) || (game.flash_button_index == 0))
+        if ((!gbtn->draw_call) || ((gbtn->flags & LbBtnF_Unknown04) == 0) || ((gbtn->flags & LbBtnF_Unknown01) == 0) || (game.flash_button_index == 0))
           continue;
         in_range = 0;
         switch (gbtn->id_num)

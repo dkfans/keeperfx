@@ -36,6 +36,7 @@
 #include "creature_states.h"
 #include "creature_states_rsrch.h"
 #include "creature_instances.h"
+#include "config_strings.h"
 #include "config_creature.h"
 #include "config_magic.h"
 #include "config_trapdoor.h"
@@ -92,7 +93,10 @@ void menu_tab_maintain(struct GuiButton *gbtn)
 {
     struct PlayerInfo *player;
     player = get_my_player();
-    set_flag_byte(&gbtn->flags, LbBtnF_Unknown08, (player->victory_state != VicS_LostLevel));
+    if (player->victory_state != VicS_LostLevel)
+        gbtn->flags |= LbBtnF_Unknown08;
+    else
+        gbtn->flags &= ~LbBtnF_Unknown08;
 }
 
 void gui_area_autopilot_button(struct GuiButton *gbtn)
@@ -106,7 +110,7 @@ void gui_area_autopilot_button(struct GuiButton *gbtn)
     }
     int ps_units_per_px;
     ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, spr_idx, 100);
-    if ((gbtn->flags & 0x08) != 0)
+    if ((gbtn->flags & LbBtnF_Unknown08) != 0)
     {
         if ((dungeon->computer_enabled & 0x01) != 0)
         {
@@ -132,7 +136,7 @@ void maintain_turn_on_autopilot(struct GuiButton *gbtn)
     comp = get_computer_player(player->id_number);
     cplr_model = comp->model;
     if ((cplr_model >= 0) && (cplr_model < 10)) {
-        gbtn->tooltip_id = computer_types[cplr_model];
+        gbtn->tooltip_stridx = computer_types[cplr_model];
     } else {
         ERRORLOG("Illegal computer player");
     }
@@ -141,7 +145,7 @@ void maintain_turn_on_autopilot(struct GuiButton *gbtn)
 void gui_choose_room(struct GuiButton *gbtn)
 {
     // prepare to enter room build mode
-    activate_room_build_mode((long)gbtn->content, gbtn->tooltip_id);
+    activate_room_build_mode((long)gbtn->content, gbtn->tooltip_stridx);
 }
 
 void gui_area_event_button(struct GuiButton *gbtn)
@@ -442,7 +446,7 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
 void gui_choose_spell(struct GuiButton *gbtn)
 {
     //NOTE by Petter: factored out original gui_choose_spell code to choose_spell
-    choose_spell((int) gbtn->content, gbtn->tooltip_id);
+    choose_spell((int) gbtn->content, gbtn->tooltip_stridx);
 }
 
 void go_to_next_spell_of_type(PowerKind pwkind, PlayerNumber plyr_idx)
@@ -459,7 +463,7 @@ void gui_go_to_next_spell(struct GuiButton *gbtn)
     struct PlayerInfo * player;
     player = get_my_player();
     go_to_next_spell_of_type(pwkind, player->id_number);
-    set_chosen_power(pwkind, gbtn->tooltip_id);
+    set_chosen_power(pwkind, gbtn->tooltip_stridx);
 }
 
 void gui_area_spell_button(struct GuiButton *gbtn)
@@ -478,7 +482,7 @@ void gui_area_spell_button(struct GuiButton *gbtn)
     int spr_idx;
     if ((dungeon->magic_resrchable[pwkind]) || (dungeon->magic_level[pwkind] > 0))
     {
-        if ((gbtn->flags & 0x08) != 0)
+        if ((gbtn->flags & LbBtnF_Unknown08) != 0)
         {
             int i;
             i = spell_data[pwkind].work_state;
@@ -524,7 +528,7 @@ void gui_choose_special_spell(struct GuiButton *gbtn)
 {
     //NOTE by Petter: factored out original gui_choose_special_spell code to choose_special_spell
     //TODO: equivalent to gui_choose_spell now... try merge
-    choose_spell(((int) gbtn->content) % POWER_TYPES_COUNT, gbtn->tooltip_id);
+    choose_spell(((int) gbtn->content) % POWER_TYPES_COUNT, gbtn->tooltip_stridx);
 }
 
 void gui_area_big_spell_button(struct GuiButton *gbtn)
@@ -621,7 +625,7 @@ void choose_workshop_item(int manufctr_idx, TextStringId tooltip_id)
 void gui_choose_trap(struct GuiButton *gbtn)
 {
     //Note by Petter: factored out gui_choose_trap to choose_workshop_item (better name as well)
-    choose_workshop_item((int) gbtn->content, gbtn->tooltip_id);
+    choose_workshop_item((int) gbtn->content, gbtn->tooltip_stridx);
 }
 
 void go_to_next_trap_of_type(ThingModel tngmodel, PlayerNumber plyr_idx)
@@ -752,7 +756,7 @@ void gui_go_to_next_trap(struct GuiButton *gbtn)
     go_to_next_trap_of_type(manufctr->tngmodel, player->id_number);
     game.manufactr_element = manufctr_idx;
     game.numfield_15181D = manufctr->field_8;
-    game.manufactr_tooltip = gbtn->tooltip_id;
+    game.manufactr_tooltip = gbtn->tooltip_stridx;
 }
 
 void gui_over_trap_button(struct GuiButton *gbtn)
@@ -855,7 +859,7 @@ void gui_go_to_next_door(struct GuiButton *gbtn)
     go_to_next_door_of_type(manufctr->tngmodel, player->id_number);
     game.manufactr_element = manufctr_idx;
     game.numfield_15181D = manufctr->field_8;
-    game.manufactr_tooltip = gbtn->tooltip_id;
+    game.manufactr_tooltip = gbtn->tooltip_stridx;
 }
 
 void gui_over_door_button(struct GuiButton *gbtn)
@@ -942,7 +946,7 @@ void maintain_big_spell(struct GuiButton *gbtn)
     }
     gbtn->content = (unsigned long *)spl_idx;
     gbtn->field_29 = game.chosen_spell_look;
-    gbtn->tooltip_id = game.chosen_spell_tooltip;
+    gbtn->tooltip_stridx = game.chosen_spell_tooltip;
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(my_player_number);
     if (dungeon->magic_level[spl_idx] > 0) {
@@ -991,7 +995,7 @@ void maintain_big_room(struct GuiButton *gbtn)
     }
     gbtn->content = (unsigned long *)rkind;
     gbtn->field_29 = game.chosen_room_look;
-    gbtn->tooltip_id = game.chosen_room_tooltip;
+    gbtn->tooltip_stridx = game.chosen_room_tooltip;
     if (dungeon->room_buildable[rkind]) {
         gbtn->field_1B = 0;
         gbtn->flags |= LbBtnF_Unknown08;
@@ -1086,7 +1090,7 @@ void maintain_big_trap(struct GuiButton *gbtn)
     manufctr = get_manufacture_data(manufctr_idx);
     gbtn->content = (unsigned long *)manufctr_idx;
     gbtn->field_29 = game.numfield_15181D;
-    gbtn->tooltip_id = game.manufactr_tooltip;
+    gbtn->tooltip_stridx = game.manufactr_tooltip;
     if ( ((manufctr->tngclass == TCls_Trap) && is_trap_placeable(my_player_number, manufctr->tngmodel))
       || ((manufctr->tngclass == TCls_Door) && is_door_placeable(my_player_number, manufctr->tngmodel)) )
     {
@@ -1295,7 +1299,7 @@ void gui_go_to_next_room(struct GuiButton *gbtn)
     go_to_my_next_room_of_type_and_select(rkind);
     game.chosen_room_kind = rkind;
     game.chosen_room_look = room_info[rkind].field_0;
-    game.chosen_room_tooltip = gbtn->tooltip_id;
+    game.chosen_room_tooltip = gbtn->tooltip_stridx;
 }
 
 void gui_over_room_button(struct GuiButton *gbtn)
@@ -1319,7 +1323,7 @@ void gui_area_room_button(struct GuiButton *gbtn)
     int spr_idx;
     if (dungeon->room_resrchable[rkind] || dungeon->room_buildable[rkind])
     {
-        if ((gbtn->flags & 0x08) != 0)
+        if ((gbtn->flags & LbBtnF_Unknown08) != 0)
         {
             if (dungeon->room_kind[rkind] > 0)
                 draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 27);
@@ -1629,7 +1633,7 @@ void maintain_instance(struct GuiButton *gbtn)
     if (!thing_is_creature(ctrltng))
     {
         gbtn->field_1B |= 0x8000;
-        gbtn->flags &= ~0x0008;
+        gbtn->flags &= ~LbBtnF_Unknown08;
         return;
     }
     struct CreatureControl *cctrl;
@@ -1655,16 +1659,16 @@ void maintain_instance(struct GuiButton *gbtn)
     if ( i )
     {
         gbtn->field_29 = i;
-        gbtn->tooltip_id = instance_button_init[curbtn_inst_id].numfield_4;
+        gbtn->tooltip_stridx = instance_button_init[curbtn_inst_id].numfield_4;
     }
     if (creature_instance_is_available(ctrltng, curbtn_inst_id))
     {
         gbtn->field_1B = 0;
-        gbtn->flags |= 0x0008;
+        gbtn->flags |= LbBtnF_Unknown08;
         return;
     }
     gbtn->field_1B |= 0x8000;
-    gbtn->flags &= ~0x0008;
+    gbtn->flags &= ~LbBtnF_Unknown08;
 }
 
 void gui_activity_background(struct GuiMenu *gmnu)
@@ -1729,12 +1733,12 @@ void maintain_activity_up(struct GuiButton *gbtn)
 {
     if (no_of_breeds_owned <= 6)
     {
-        gbtn->flags &= ~0x04;
-        gbtn->flags &= ~0x08;
+        gbtn->flags &= ~LbBtnF_Unknown04;
+        gbtn->flags &= ~LbBtnF_Unknown08;
     } else
     {
-        gbtn->flags |= 0x04;
-        gbtn->flags ^= (gbtn->flags ^ 8 * (top_of_breed_list > 0)) & 8;
+        gbtn->flags |= LbBtnF_Unknown04;
+        gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown08 * (top_of_breed_list > 0)) & LbBtnF_Unknown08;
     }
 }
 
@@ -1742,13 +1746,13 @@ void maintain_activity_down(struct GuiButton *gbtn)
 {
     if (no_of_breeds_owned <= 6)
     {
-        gbtn->flags &= ~0x04;
-        gbtn->flags &= ~0x08;
+        gbtn->flags &= ~LbBtnF_Unknown04;
+        gbtn->flags &= ~LbBtnF_Unknown08;
     }
     else
     {
-        gbtn->flags |= 0x04;
-        gbtn->flags ^= (gbtn->flags ^ 8 * (no_of_breeds_owned - 6 > top_of_breed_list)) & 8;
+        gbtn->flags |= LbBtnF_Unknown04;
+        gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown08 * (no_of_breeds_owned - 6 > top_of_breed_list)) & LbBtnF_Unknown08;
     }
 }
 
@@ -1769,8 +1773,8 @@ void maintain_activity_pic(struct GuiButton *gbtn)
       amount = dungeon->num_active_diggers;
     else*/
     amount = dungeon->owned_creatures_of_model[crmodel];
-    gbtn->flags ^= (gbtn->flags ^ 8 * (amount > 0)) & 8;
-    gbtn->flags ^= (gbtn->flags ^ 4 * (no_of_breeds_owned > i)) & 4;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown08 * (amount > 0)) & LbBtnF_Unknown08;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown04 * (no_of_breeds_owned > i)) & LbBtnF_Unknown04;
     gbtn->field_29 = get_creature_model_graphics(crmodel, CGI_GUIPanelSymbol);
 }
 
@@ -1791,8 +1795,8 @@ void maintain_activity_row(struct GuiButton *gbtn)
       amount = dungeon->num_active_diggers;
     else*/
     amount = dungeon->owned_creatures_of_model[crmodel];
-    gbtn->flags ^= (gbtn->flags ^ 8 * (amount > 0)) & 8;
-    gbtn->flags ^= (gbtn->flags ^ 4 * (no_of_breeds_owned > i)) & 4;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown08 * (amount > 0)) & LbBtnF_Unknown08;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown04 * (no_of_breeds_owned > i)) & LbBtnF_Unknown04;
 }
 
 void gui_scroll_activity_up(struct GuiButton *gbtn)
@@ -1887,7 +1891,7 @@ void maintain_event_button(struct GuiButton *gbtn)
       gbtn->flags &= ~LbBtnF_Unknown08;
       gbtn->gbactn_1 = 0;
       gbtn->gbactn_2 = 0;
-      gbtn->tooltip_id = 201;
+      gbtn->tooltip_stridx = GUIStr_Empty;
       return;
     }
     struct Event *event;
@@ -1907,7 +1911,7 @@ void maintain_event_button(struct GuiButton *gbtn)
     {
       gbtn->field_29 += 2;
     }
-    gbtn->tooltip_id = event_button_info[event->kind].tooltip_stridx;
+    gbtn->tooltip_stridx = event_button_info[event->kind].tooltip_stridx;
     gbtn->flags |= LbBtnF_Unknown08;
     gbtn->field_1B = 0;
 }
@@ -1971,7 +1975,7 @@ void maintain_room_and_creature_button(struct GuiButton *gbtn)
     {
         gbtn->field_1B |= 0x4000;
         gbtn->flags &= ~LbBtnF_Unknown08;
-        gbtn->tooltip_id = 201;
+        gbtn->tooltip_stridx = 201;
     }
 }
 

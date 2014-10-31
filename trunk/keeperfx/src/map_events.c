@@ -431,10 +431,10 @@ void event_add_to_event_buttons_list(struct Event *event, struct Dungeon *dungeo
 
 void event_reset_scroll_window(void)
 {
-  game.evntbox_scroll_window.start_y = 0;
-  game.evntbox_scroll_window.action = 0;
-  game.evntbox_scroll_window.text_height = 0;
-  game.evntbox_scroll_window.window_height = 0;
+    game.evntbox_scroll_window.start_y = 0;
+    game.evntbox_scroll_window.action = 0;
+    game.evntbox_scroll_window.text_height = 0;
+    game.evntbox_scroll_window.window_height = 0;
 }
 
 void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
@@ -455,7 +455,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
     dungeon->visible_event_idx = evidx;
     if (is_my_player_number(plyr_idx))
     {
-        i = event_button_info[event->kind].msgstr_id;
+        i = event_button_info[event->kind].msg_stridx;
         strcpy(game.evntbox_scroll_window.text, gui_string(i));
     }
     if ((event->kind == EvKind_FriendlyFight) || (event->kind == EvKind_EnemyFight)) {
