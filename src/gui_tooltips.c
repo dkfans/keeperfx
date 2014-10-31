@@ -143,6 +143,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
   struct Thing *thing;
   struct Objects *objdat;
   struct CreatureData *crdata;
+  struct RoomData *rdata;
   struct PlayerInfo *player;
   long i;
   SYNCDBG(18,"Starting");
@@ -155,17 +156,18 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
   if (!thing_is_invalid(thing))
   {
       update_gui_tooltip_target(thing);
-      set_gui_tooltip_box_fmt(5,"%s",cmpgn_string(specials_text[box_thing_to_special(thing)]));
+      i = box_thing_to_special(thing);
+      set_gui_tooltip_box_fmt(5,"%s",cmpgn_string(get_special_description_strindex(i)));
       return true;
   }
   // Find a spellbook to show tooltip for
   thing = get_spellbook_at_position(pos->x.stl.num, pos->y.stl.num);
   if (!thing_is_invalid(thing))
   {
-    update_gui_tooltip_target(thing);
-    i = book_thing_to_power_kind(thing);
-    set_gui_tooltip_box_fmt(5,"%s",cmpgn_string(get_power_name_strindex(i)));
-    return true;
+      update_gui_tooltip_target(thing);
+      i = book_thing_to_power_kind(thing);
+      set_gui_tooltip_box_fmt(5,"%s",cmpgn_string(get_power_name_strindex(i)));
+      return true;
   }
   // Find a workshop crate to show tooltip for
   thing = get_crate_at_position(pos->x.stl.num, pos->y.stl.num);
@@ -192,12 +194,12 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
   thing = get_nearest_object_at_position(pos->x.stl.num, pos->y.stl.num);
   if (!thing_is_invalid(thing))
   {
-    if (thing->model == 49)
+    if (object_is_hero_gate(thing))
     {
       update_gui_tooltip_target(thing);
       if ( (help_tip_time > 20) || (player->work_state == PSt_Unknown12) )
       {
-          set_gui_tooltip_box_fmt(5,"%s",cmpgn_string(545)); // Hero Gate tooltip
+          set_gui_tooltip_box_fmt(5,"%s",cmpgn_string(CpgStr_TerrainHeroEntranceDesc)); // Hero Gate tooltip
       } else
       {
         help_tip_time++;
@@ -211,7 +213,8 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
       if ( (help_tip_time > 20) || (player->work_state == PSt_Unknown12) )
       {
         crdata = creature_data_get(objdat->related_creatr_model);
-        set_gui_tooltip_box_fmt(5,"%s %s", cmpgn_string(crdata->namestr_idx), cmpgn_string(609)); // (creature) Lair
+        rdata = room_data_get_for_kind(RoK_LAIR); //TODO use a separate string for creature lair object than for lair room
+        set_gui_tooltip_box_fmt(5,"%s %s", cmpgn_string(crdata->namestr_idx), cmpgn_string(rdata->name_stridx)); // (creature) Lair
       } else
       {
         help_tip_time++;
@@ -259,7 +262,7 @@ short setup_room_tooltips(struct Coord3d *pos)
   room = subtile_room_get(pos->x.stl.num, pos->y.stl.num);
   if (room_is_invalid(room))
     return false;
-  stridx = room_data[room->kind].msg1str_idx;
+  stridx = room_data[room->kind].name_stridx;
   if (stridx == GUIStr_Empty)
     return false;
   update_gui_tooltip_target(room);

@@ -459,7 +459,8 @@ enum CampaignStrings {
     CpgStr_SpecResurrectCreature,
     CpgStr_SpecTransferCreature,
     CpgStr_BonusLevel = 430,
-    CpgStr_TerrainVarDesc2 = 544, // range 544..545
+    CpgStr_TerrainGemsDesc = 544,
+    CpgStr_TerrainHeroEntranceDesc,
     CpgStr_CreatureKind2 = 546, // range 546..547
     CpgStr_RoomKind1 = 552, // range 552..566
     CpgStr_BoulderTrap = 578,

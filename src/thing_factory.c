@@ -142,7 +142,7 @@ short thing_create_thing(struct InitThing *itng)
         thing = create_thing(&itng->mappos, itng->oclass, itng->model, itng->owner, itng->index);
         if (!thing_is_invalid(thing))
         {
-            if (itng->model == 49) //HERO_GATE
+            if (object_is_hero_gate(itng))
                 thing->byte_13 = itng->params[1];
             check_and_asimilate_thing_by_room(thing);
             // make sure we don't have invalid pointer
