@@ -591,9 +591,9 @@ long instf_destroy(struct Thing *creatng, long *param)
 
     if ( !room_is_invalid(room) && (prev_owner != creatng->owner) )
     {
-        if (room->field_C > 1)
+        if (room->health > 1)
         {
-            room->field_C--;
+            room->health--;
             return 0;
         }
         clear_dig_on_room_slabs(room, creatng->owner);
