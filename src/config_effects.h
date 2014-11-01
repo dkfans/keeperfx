@@ -43,10 +43,10 @@ struct EffectsConfig {
 };
 /******************************************************************************/
 DLLIMPORT long _DK_imp_spangle_effects[];
-#define imp_spangle_effects _DK_imp_spangle_effects
 /******************************************************************************/
 extern const char keeper_effects_file[];
 extern struct NamedCommand effect_desc[EFFECTS_TYPES_MAX];
+extern long const imp_spangle_effects[];
 /******************************************************************************/
 TbBool load_effects_config(const char *conf_fname,unsigned short flags);
 struct EffectConfigStats *get_effect_model_stats(int tngmodel);

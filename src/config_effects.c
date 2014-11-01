@@ -51,6 +51,10 @@ const struct NamedCommand effects_effect_commands[] = {
   {NULL,                      0},
   };
 
+long const imp_spangle_effects[] = {
+    TngEff_ImpSpangleRed, TngEff_ImpSpangleBlue, TngEff_ImpSpangleGreen, TngEff_ImpSpangleYellow, TngEff_None, TngEff_None,
+};
+
 /******************************************************************************/
 struct EffectsConfig effects_conf;
 struct NamedCommand effect_desc[EFFECTS_TYPES_MAX];

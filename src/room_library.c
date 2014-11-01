@@ -337,7 +337,7 @@ void process_player_research(PlayerNumber plyr_idx)
             move_thing_in_map(spelltng, &pos);
             add_item_to_room_capacity(room, true);
             event_create_event(spelltng->mappos.x.val, spelltng->mappos.y.val, EvKind_NewSpellResrch, spelltng->owner, pwkind);
-            create_effect(&pos, 0x35u, spelltng->owner);
+            create_effect(&pos, TngEff_Unknown53, spelltng->owner);
             if (is_my_player_number(plyr_idx))
                 output_message(SMsg_ResearchedSpell, 0, true);
             dungeon->magic_level[pwkind]++;
@@ -358,7 +358,7 @@ void process_player_research(PlayerNumber plyr_idx)
                 pos.x.val = (room->central_stl_x << 8) + 128;
                 pos.y.val = (room->central_stl_y << 8) + 128;
                 pos.z.val = get_floor_height_at(&pos);
-                create_effect(&pos, 0x35u, room->owner);
+                create_effect(&pos, TngEff_Unknown53, room->owner);
             }
         }
         break;

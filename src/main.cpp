@@ -129,8 +129,6 @@ char *bf_argv[CMDLN_MAXLEN+1];
 short default_loc_player = 0;
 struct StartupParameters start_params;
 
-//long const imp_spangle_effects[] = {
-
 //static
 TbClockMSec last_loop_time=0;
 

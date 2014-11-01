@@ -659,7 +659,7 @@ long instf_attack_room_slab(struct Thing *creatng, long *param)
         ERRORLOG("Cannot delete %s room tile destroyed by %s",room_code_name(room->kind),thing_model_name(creatng));
         return 0;
     }
-    create_effect(&creatng->mappos, 3, creatng->owner);
+    create_effect(&creatng->mappos, TngEff_Unknown03, creatng->owner);
     thing_play_sample(creatng, 47, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     return 1;
 }
