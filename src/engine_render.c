@@ -2512,7 +2512,7 @@ void draw_room_flag_top(long x, long y, int units_per_px, const struct Room *roo
     bar_empty = 0;
     if (room->slabs_count > 0)
     {
-        bar_fill = ROOM_FLAG_PROGRESS_BAR_WIDTH * room->field_C / room->slabs_count;
+        bar_fill = ROOM_FLAG_PROGRESS_BAR_WIDTH * room->health / compute_room_max_health(room->slabs_count, room->efficiency);
         bar_empty = ROOM_FLAG_PROGRESS_BAR_WIDTH - bar_fill;
     }
     int bar_width, bar_height;

@@ -42,21 +42,21 @@ extern "C" {
  * @param room The graveyard room.
  * @return Gives true on success.
  */
-TbBool add_body_to_graveyard(struct Thing *corpse, struct Room *room)
+TbBool add_body_to_graveyard(struct Thing *deadtng, struct Room *room)
 {
     if (room->total_capacity <= room->used_capacity)
     {
         ERRORLOG("The %s has no space for another corpse",room_code_name(room->kind));
         return false;
     }
-    if (corpse->byte_14)
+    if (deadtng->byte_14)
     {
-        ERRORLOG("The %s is already decomposing in %s",thing_model_name(corpse),room_code_name(RoK_GRAVEYARD));
+        ERRORLOG("The %s is already decomposing in %s",thing_model_name(deadtng),room_code_name(RoK_GRAVEYARD));
         return false;
     }
     room->used_capacity++;
-    corpse->byte_14 = 1;
-    corpse->health = game.graveyard_convert_time;
+    deadtng->byte_14 = 1;
+    deadtng->health = game.graveyard_convert_time;
     return true;
 }
 
