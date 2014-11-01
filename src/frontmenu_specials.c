@@ -284,7 +284,7 @@ void maintain_resurrect_creature_scroll(struct GuiButton *gbtn)
     count = dungeon->dead_creatures_count;
     if (resurrect_creature_scroll_offset >= count-resurrect_creature_items_visible+1)
     {
-        if (count > resurrect_creature_items_visible) {
+        if (count+1 > resurrect_creature_items_visible) {
             resurrect_creature_scroll_offset = count-resurrect_creature_items_visible+1;
         } else {
             resurrect_creature_scroll_offset = 0;
