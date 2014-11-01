@@ -1812,12 +1812,26 @@ void update_room_efficiency(struct Room *room)
     room->efficiency = calculate_room_efficiency(room);
 }
 
+/**
+ * Computes max health of a room of given size.
+ */
+long compute_room_max_health(long slabs_count,unsigned short efficiency)
+{
+  long max_health;
+  if (slabs_count < 1)
+      slabs_count = 1;
+  if (slabs_count > 10000)
+      slabs_count = 10000;
+  max_health = game.hits_per_slab * slabs_count;
+  return saturate_set_signed(max_health, 16);
+}
+
 TbBool update_room_total_capacities(struct Room *room)
 {
     struct RoomData *rdata;
     Room_Update_Func cb;
     SYNCDBG(17,"Starting for %s index %d",room_code_name(room->kind),(int)room->index);
-    room->field_C = (long)game.hits_per_slab * (long)room->slabs_count;
+    room->health = compute_room_max_health(room->slabs_count, room->efficiency);
     rdata = room_data_get_for_room(room);
     cb = rdata->update_total_capacity;
     if (cb != NULL)
@@ -3729,7 +3743,7 @@ long claim_room(struct Room *room, struct Thing *claimtng)
         return 0;
     }
     room->owner = claimtng->owner;
-    room->field_C = room->slabs_count * game.hits_per_slab;
+    room->health = compute_room_max_health(room->slabs_count, room->efficiency);
     add_room_to_players_list(room, claimtng->owner);
     change_room_map_element_ownership(room, claimtng->owner);
     redraw_room_map_elements(room);
@@ -3760,7 +3774,7 @@ long claim_enemy_room(struct Room *room, struct Thing *claimtng)
     reset_state_of_creatures_working_in_room(room);
     remove_room_from_players_list(room,oldowner);
     room->owner = claimtng->owner;
-    room->field_C = (long)game.hits_per_slab * (long)room->slabs_count;
+    room->health = compute_room_max_health(room->slabs_count, room->efficiency);
     add_room_to_players_list(room, claimtng->owner);
     change_room_map_element_ownership(room, claimtng->owner);
     redraw_room_map_elements(room);
