@@ -41,6 +41,7 @@ extern "C" {
 #define COMBAT_RANGED_OPPONENTS_LIMIT      4
 /** Amount of instances. */
 #define CREATURE_INSTANCES_COUNT          48
+#define FOLLOWERS_COUNT 8
 
 #define INVALID_CRTR_CONTROL (game.persons.cctrl_lookup[0])
 /******************************************************************************/
@@ -396,7 +397,7 @@ unsigned char field_284[2];
     unsigned char blood_type;
     struct Coord3d flee_pos;
     long field_28E;
-    struct MemberPos followers_pos[8];
+    struct MemberPos followers_pos[FOLLOWERS_COUNT];
     unsigned short next_in_room;
     unsigned short prev_in_room;//field_2AC
 short field_2AE;

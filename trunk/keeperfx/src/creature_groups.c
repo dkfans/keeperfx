@@ -24,6 +24,7 @@
 #include "bflib_math.h"
 #include "thing_list.h"
 #include "thing_creature.h"
+#include "thing_physics.h"
 #include "creature_control.h"
 #include "creature_states.h"
 #include "config_creature.h"
@@ -34,8 +35,8 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_get_highest_experience_level_in_group(struct Thing *thing);
-DLLIMPORT void _DK_leader_find_positions_for_followers(struct Thing *thing);
+DLLIMPORT long _DK_get_highest_experience_level_in_group(struct Thing *creatng);
+DLLIMPORT void _DK_leader_find_positions_for_followers(struct Thing *creatng);
 
 /******************************************************************************/
 long get_highest_experience_level_in_group(struct Thing *thing)
@@ -277,9 +278,138 @@ long process_obey_leader(struct Thing *thing)
     return 1;
 }
 
+void creature_follower_pos_add(struct Thing *creatng, int ifollow, const struct Coord3d *pos)
+{
+    struct MemberPos *avail_pos;
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    avail_pos = &cctrl->followers_pos[ifollow];
+    avail_pos->stl_num = get_subtile_number(pos->x.stl.num, pos->y.stl.num);
+    avail_pos->flags |= 0x02;
+}
+
 void leader_find_positions_for_followers(struct Thing *thing)
 {
-  _DK_leader_find_positions_for_followers(thing);
+    //_DK_leader_find_positions_for_followers(thing);
+    int group_count;
+    group_count = get_no_creatures_in_group(thing);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    if (((cctrl->group_leader >> 12) == group_count) && (game.play_gameturn & 0x1F))
+    {
+        int i;
+        for (i= 0; i < FOLLOWERS_COUNT; i++)
+        {
+          cctrl->followers_pos[i].flags &= ~0x01;
+        }
+        return;
+    }
+    cctrl->group_leader = (group_count << 12) ^ ((cctrl->group_leader ^ (group_count << 12)) & TngGroup_LeaderIndex);
+    memset(cctrl->followers_pos, 0, sizeof(cctrl->followers_pos));
+
+    int len_xv, len_yv;
+    int len_xh, len_yh;
+    len_xv = LbSinL(thing->field_52 + LbFPMath_PI) << 8 >> 16;
+    len_yv = -((LbCosL(thing->field_52 + LbFPMath_PI) << 8) >> 8) >> 8;
+    len_xh = LbSinL(thing->field_52 - LbFPMath_PI/2) << 8 >> 16;
+    len_yh = -((LbCosL(thing->field_52 - LbFPMath_PI/2) << 8) >> 8) >> 8;
+
+    int ih, iv, ivmax;
+    ivmax = 2 * group_count;
+    int ifollow;
+    ifollow = 0;
+
+    int shift_xh, shift_yh;
+    int shift_xv, shift_yv;
+    int shift_xh_beg, shift_yh_beg;
+    int delta_xh, delta_yh;
+    int delta_xv, delta_yv;
+
+    delta_yh = 2 * len_yh;
+    delta_xh = 2 * len_xh;
+    shift_yv = 2 * len_yv;
+    delta_yv = 2 * len_yv;
+    shift_yh_beg = -2 * len_yh;
+    shift_xh_beg = -2 * len_xh;
+    shift_xv = 2 * len_xv;
+    delta_xv = 2 * len_xv;
+    for (iv = 2; iv <= ivmax; iv += 2)
+    {
+        shift_yh = shift_yh_beg;
+        shift_xh = shift_xh_beg;
+        for (ih = -2; ih <= 2; ih += 2)
+        {
+            int mcor_x, mcor_y;
+            mcor_x = thing->mappos.x.val + shift_xh + shift_xv;
+            mcor_y = thing->mappos.y.val + shift_yv + shift_yh;
+            if ((coord_slab(mcor_x) > 0) && (coord_slab(mcor_x) < map_tiles_x))
+            {
+                if ((coord_slab(mcor_y) > 0) && (coord_slab(mcor_y) < map_tiles_y))
+                {
+                    struct Coord3d pos;
+                    pos.x.val = mcor_x;
+                    pos.y.val = mcor_y;
+                    pos.z.val = get_floor_height_at(&pos);
+                    if (!thing_in_wall_at(thing, &pos))
+                    {
+                        creature_follower_pos_add(thing, ifollow, &pos);
+                        ifollow++;
+                        // If we're not able to store more coordinates, quit now
+                        if (ifollow >= group_count) {
+                          return;
+                        }
+                    }
+                }
+            }
+            shift_yh += delta_yh;
+            shift_xh += delta_xh;
+        }
+        shift_yv += delta_yv;
+        shift_xv += delta_xv;
+    }
+
+    shift_yv = len_yv;
+    delta_yh = 2 * len_yh;
+    delta_yv = 2 * len_yv;
+    delta_xh = 2 * len_xh;
+    shift_xv = len_xv;
+    delta_xv = 2 * len_xv;
+    shift_yh_beg = -len_yh;
+    shift_xh_beg = -len_xh;
+    for (iv = 1; iv <= ivmax; iv += 2)
+    {
+        shift_yh = shift_yh_beg;
+        shift_xh = shift_xh_beg;
+        for (ih = -1; ih <= 2; ih += 2)
+        {
+            int mcor_x, mcor_y;
+            mcor_x = thing->mappos.x.val + shift_xh + shift_xv;
+            mcor_y = thing->mappos.y.val + shift_yv + shift_yh;
+            if ((coord_slab(mcor_x) > 0) && (coord_slab(mcor_x) < map_tiles_x))
+            {
+                if ((coord_slab(mcor_y) > 0) && (coord_slab(mcor_y) < map_tiles_y))
+                {
+                    struct Coord3d pos;
+                    pos.x.val = mcor_x;
+                    pos.y.val = mcor_y;
+                    pos.z.val = get_floor_height_at(&pos);
+                    if (!thing_in_wall_at(thing, &pos))
+                    {
+                        creature_follower_pos_add(thing, ifollow, &pos);
+                        ifollow++;
+                        // If we're not able to store more coordinates, quit now
+                        if (ifollow >= group_count) {
+                          return;
+                        }
+                    }
+                }
+            }
+            shift_yh += delta_yh;
+            shift_xh += delta_xh;
+        }
+        shift_yv += delta_yv;
+        shift_xv += delta_xv;
+    }
 }
 /******************************************************************************/
 #ifdef __cplusplus
