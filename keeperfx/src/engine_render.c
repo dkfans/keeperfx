@@ -1242,9 +1242,278 @@ void find_gamut(void)
     }
 }
 
-void fiddle_half_gamut(long a1, long a2, long a3, long a4)
+void fiddle_half_gamut(long start_stl_x, long start_stl_y, long step, long a4)
 {
-    _DK_fiddle_half_gamut(a1, a2, a3, a4);
+    //_DK_fiddle_half_gamut(a1, a2, a3, a4);
+    long end_stl_x;
+    long stl_xc, stl_xp, stl_xn;
+
+    end_stl_x = start_stl_x + minmaxs[32].min;
+    for (stl_xc=start_stl_x; 1; stl_xc--)
+    {
+        if (stl_xc < end_stl_x) {
+            stl_xc = -4000;
+            break;
+        }
+        struct Map *mapblk;
+        mapblk = get_map_block_at(stl_xc, start_stl_y);
+        if  ((mapblk->flags & 0x10) != 0) {
+            break;
+        }
+    }
+    for (stl_xp=start_stl_x; 1; stl_xp--)
+    {
+        if (stl_xp < end_stl_x) {
+            stl_xp = -4000;
+            break;
+        }
+        struct Map *mapblk;
+        mapblk = get_map_block_at(stl_xp, start_stl_y-1);
+        if  ((mapblk->flags & 0x10) != 0) {
+            break;
+        }
+    }
+    for (stl_xn=start_stl_x; 1; stl_xn--)
+    {
+        if (stl_xn < end_stl_x) {
+            stl_xn = -4000;
+            break;
+        }
+        struct Map *mapblk;
+        mapblk = get_map_block_at(stl_xn, start_stl_y-1);
+        if  ((mapblk->flags & 0x10) != 0) {
+            break;
+        }
+    }
+    long stl_x_min;
+    stl_x_min = 0;
+    TbBool set_x_min;
+    set_x_min = false;
+    if ((stl_xc != -4000) && (stl_xp != -4000) && (stl_xn != -4000))
+    {
+        stl_x_min = min(min(stl_xn, stl_xp), stl_xc);
+        set_x_min = true;
+        minmaxs[32].min = stl_x_min - start_stl_x;
+    }
+
+    end_stl_x = start_stl_x + minmaxs[32].max;
+    for (stl_xc=start_stl_x; 1; stl_xc++)
+    {
+        if (stl_xc > end_stl_x) {
+            stl_xc = -4000;
+            break;
+        }
+        struct Map *mapblk;
+        mapblk = get_map_block_at(stl_xc, start_stl_y);
+        if  ((mapblk->flags & 0x10) != 0) {
+            break;
+        }
+    }
+    for (stl_xp=start_stl_x; 1; stl_xp++)
+    {
+        if (stl_xp > end_stl_x) {
+            stl_xp = -4000;
+            break;
+        }
+        struct Map *mapblk;
+        mapblk = get_map_block_at(stl_xp, start_stl_y-1);
+        if  ((mapblk->flags & 0x10) != 0) {
+            break;
+        }
+    }
+    for (stl_xn=start_stl_x; 1; stl_xn++)
+    {
+        if (stl_xn > end_stl_x) {
+            stl_xn = -4000;
+            break;
+        }
+        struct Map *mapblk;
+        mapblk = get_map_block_at(stl_xn, start_stl_y-1);
+        if  ((mapblk->flags & 0x10) != 0) {
+            break;
+        }
+    }
+    long stl_x_max;
+    stl_x_max = 0;
+    TbBool set_x_max;
+    set_x_max = false;
+    if ((stl_xc != -4000) && (stl_xp != -4000) && (stl_xn != -4000))
+    {
+        stl_x_max = max(max(stl_xn, stl_xp), stl_xc);
+        set_x_max = true;
+        minmaxs[32].max = stl_x_max - start_stl_x + 1;
+    }
+
+    struct MinMax *mm;
+    long stl_y;
+    stl_y = start_stl_y + step;
+    mm = &minmaxs[step + 32];
+    long n;
+    for (n=1; n < a4; n++)
+    {
+        if (mm->max <= mm->min)
+        {
+            long i;
+            for (i=a4-n; i > 0; i--)
+            {
+                mm->min = 0;
+                mm->max = 0;
+                mm += step;
+            }
+            break;
+        }
+        long stl_x_min_limit;
+        stl_x_min_limit = start_stl_x + mm->min;
+        if (!set_x_min || (stl_x_min < stl_x_min_limit)) {
+            stl_x_min = stl_x_min_limit;
+        }
+        long stl_x_max_limit;
+        stl_x_max_limit = start_stl_x + mm->max;
+        if (!set_x_max || (stl_x_max > stl_x_max_limit)) {
+            stl_x_max = stl_x_max_limit;
+        }
+
+        int v18;
+        int v19;
+        long v20;
+        int v21;
+        long v24;
+        long v25;
+        long v26;
+        long v27;
+        int v28;
+        int v29;
+        long v32;
+        long v33;
+        long v34;
+        long v35;
+        int v41;
+
+        v18 = abs(stl_y - start_stl_y);
+        v19 = v18;
+        if ( v18 == 1 || (v20 = (stl_x_min - start_stl_x) / (v18 - 1), v20 - 1 <= 0) )
+        {
+          v41 = 0;
+        } else
+        {
+          v41 = 1;
+          stl_x_min = v20 + stl_x_min - 1;
+        }
+
+        for (v21=stl_x_min-1; v21 < stl_x_max_limit; v21++)
+        {
+            struct Map *mapblk;
+            mapblk = get_map_block_at(v21+1, stl_y);
+            if ((mapblk->flags & 0x10) == 0)
+              break;
+        }
+
+        if ( v41
+          || v21 > stl_x_min
+          || (get_map_block_at(v21, stl_y)->flags & 0x10) )
+        {
+          v26 = stl_x_min - start_stl_x;
+          stl_x_min = v21;
+          set_x_min = 1;
+          mm->min = v26 - 1;
+        }
+        else
+        {
+          set_x_min = 0;
+          if ( v19 == 1 || (v25 = stl_x_min + (v21 - start_stl_x) / (v19 - 1) - 1, v25 < stl_x_min_limit) )
+          {
+            v25 = stl_x_min_limit;
+          }
+          else
+          {
+            stl_x_min = stl_x_min + (v21 - start_stl_x) / (v19 - 1) - 1;
+            set_x_min = 1;
+            mm->min = v25 - start_stl_x - 1;
+          }
+          for (v24=stl_x_min; v24 >= v25; v24--)
+          {
+              struct Map *mapblk;
+              mapblk = get_map_block_at(v24, stl_y);
+              if ((mapblk->flags & 0x10) != 0) {
+                  stl_x_min = v24;
+                  set_x_min = 1;
+                  mm->min = v24 - start_stl_x - 1;
+                  break;
+              }
+          }
+        }
+        if ( v19 == 1 || (v27 = (stl_x_max - start_stl_x) / (v19 - 1), v27 + 1 >= 0) )
+        {
+          v28 = 0;
+        }
+        else
+        {
+          v28 = 1;
+          stl_x_max += v27 + 1;
+        }
+
+        for (v29=stl_x_max+1; v29 > stl_x_min_limit; v29--)
+        {
+            struct Map *mapblk;
+            mapblk = get_map_block_at(v29-1, stl_y);
+            if ((mapblk->flags & 0x10) == 0)
+              break;
+        }
+        if ( v28
+          || v29 < stl_x_max
+          || (get_map_block_at(v29, stl_y)->flags & 0x10) )
+        {
+            v35 = stl_x_max - start_stl_x;
+            stl_x_max = v29;
+            mm->max = v35 + 2;
+            set_x_max = 1;
+        }
+        else
+        {
+          set_x_max = 0;
+          v32 = stl_x_max;
+          if ( v19 == 1 || (v33 = stl_x_max + (v29 - start_stl_x) / (v19 - 1) + 1, start_stl_x + mm->max < v33) )
+          {
+              v34 = start_stl_x + mm->max;
+          }
+          else
+          {
+              v34 = v33;
+              set_x_max = true;
+              stl_x_max = v33;
+              mm->max = v33 - start_stl_x + 2;
+          }
+          for (; v34 >= v32; v32++)
+          {
+              struct Map *mapblk;
+              mapblk = get_map_block_at(v32, stl_y);
+              if ((mapblk->flags & 0x10) != 0) {
+                  set_x_max = true;
+                  stl_x_max = v32;
+                  mm->max = v32 - start_stl_x + 2;
+                  break;
+              }
+          }
+        }
+
+        if (mm->min < -cells_away)
+            mm->min = -cells_away;
+        if (mm->max > cells_away)
+            mm->max = cells_away;
+        if (mm->min >= mm->max)
+        {
+            long i;
+            for (i=a4-n; i > 0; i--)
+            {
+                mm->min = 0;
+                mm->max = 0;
+                mm += step;
+            }
+            break;
+        }
+        mm += step;
+        stl_y += step;
+    }
 }
 
 void fiddle_gamut_find_limits(long *floor_x, long *floor_y, long ewwidth, long ewheight, long ewzoom)
