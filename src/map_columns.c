@@ -338,7 +338,61 @@ void clear_columns(void)
 
 void init_columns(void)
 {
-  _DK_init_columns();
+    //_DK_init_columns();
+    int i;
+    for (i=1; i < COLUMNS_COUNT; i++)
+    {
+        struct Column *col;
+        col = get_column(i);
+        if (col->use)
+        {
+            unsigned long mskbit;
+            mskbit = 1;
+            col->solidmask = 0;
+            int n;
+            for (n=0; n < COLUMN_STACK_HEIGHT; n++)
+            {
+                if (col->cubes[n] != 0) {
+                    col->solidmask |= mskbit;
+                }
+                mskbit *= 2;
+            }
+            if (col->solidmask)
+            {
+                for (n=0; n < COLUMN_STACK_HEIGHT; n++)
+                {
+                    if (col->cubes[n] == 0) {
+                        break;
+                    }
+                }
+            } else
+            {
+                n = 0;
+            }
+            set_column_floor_filled_subtiles(col, n);
+            n = get_column_floor_filled_subtiles(col);
+            for (;n < COLUMN_STACK_HEIGHT; n++)
+            {
+                if (col->cubes[n] != 0) {
+                  break;
+                }
+            }
+            if (n >= COLUMN_STACK_HEIGHT)
+            {
+                col->bitfields &= ~0x0E;
+            } else
+            {
+                mskbit = 0;
+                for (n=COLUMN_STACK_HEIGHT-1; n > 0; n--)
+                {
+                    if (col->cubes[n] != 0) {
+                        col->bitfields ^= (mskbit ^ col->bitfields) & 0xE;
+                    }
+                    mskbit += 2;
+                }
+            }
+        }
+    }
 }
 
 void init_whole_blocks(void)
