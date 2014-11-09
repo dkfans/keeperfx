@@ -111,7 +111,7 @@ void gui_save_game(struct GuiButton *gbtn)
   struct PlayerInfo *player;
   long slot_num;
   player = get_my_player();
-  if (strcasecmp((char *)gbtn->content, gui_string(GUIStr_SlotUnused)) != 0)
+  if (strcasecmp((char *)gbtn->content, get_string(GUIStr_SlotUnused)) != 0)
   {
       slot_num = gbtn->field_1B%TOTAL_SAVE_SLOTS_COUNT;
       fill_game_catalogue_slot(slot_num,(char *)gbtn->content);
@@ -139,7 +139,7 @@ void update_loadsave_input_strings(struct CatalogueEntry *game_catalg)
         if ((centry->flags & CEF_InUse) != 0)
           text = centry->textname;
         else
-          text = gui_string(GUIStr_SlotUnused);
+          text = get_string(GUIStr_SlotUnused);
         strncpy(input_string[slot_num], text, SAVE_TEXTNAME_LEN);
     }
 }

@@ -33,6 +33,11 @@
 extern "C" {
 #endif
 /******************************************************************************/
+DLLIMPORT extern char *_DK_strings_data;
+DLLIMPORT extern char *_DK_strings[DK_STRINGS_MAX+1];
+/******************************************************************************/
+char *gui_strings_data;
+char *gui_strings[STRINGS_MAX+1];
 /******************************************************************************/
 TbBool reset_strings(char **strings)
 {
@@ -179,6 +184,14 @@ const char * cmpgn_string(unsigned int index)
     if ((campaign.strings == NULL) || (index >= STRINGS_MAX))
         return lbEmptyString;
     return campaign.strings[index];
+}
+
+const char * get_string(TextStringId stridx)
+{
+    if (stridx <= STRINGS_MAX)
+        return cmpgn_string(stridx);
+    else
+        return gui_string(stridx-STRINGS_MAX);
 }
 /******************************************************************************/
 #ifdef __cplusplus

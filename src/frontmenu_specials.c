@@ -158,9 +158,9 @@ void draw_resurrect_creature(struct GuiButton *gbtn)
         struct CreatureData *crdata;
         crdata = creature_data_get(cstore->model);
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
-        LbTextDrawResizedFmt(0, 0, tx_units_per_px, " %s", cmpgn_string(crdata->namestr_idx));
+        LbTextDrawResizedFmt(0, 0, tx_units_per_px, " %s", get_string(crdata->namestr_idx));
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
-        LbTextDrawResizedFmt(0, 0, tx_units_per_px, "%s %d ", gui_string(GUIStr_MnuLevel), (int)(cstore->explevel + 1));
+        LbTextDrawResizedFmt(0, 0, tx_units_per_px, "%s %d ", get_string(GUIStr_MnuLevel), (int)(cstore->explevel + 1));
     }
     lbDisplay.DrawFlags = flg_mem;
 }
@@ -244,9 +244,9 @@ void draw_transfer_creature(struct GuiButton *gbtn)
         const struct CreatureData *crdata;
         crdata = creature_data_get_from_thing(thing);
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
-        LbTextDrawResizedFmt(0, 0, tx_units_per_px, " %s", cmpgn_string(crdata->namestr_idx));
+        LbTextDrawResizedFmt(0, 0, tx_units_per_px, " %s", get_string(crdata->namestr_idx));
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
-        LbTextDrawResizedFmt(0, 0, tx_units_per_px, "%s %d ", gui_string(GUIStr_MnuLevel), (int)(cctrl->explevel+1));
+        LbTextDrawResizedFmt(0, 0, tx_units_per_px, "%s %d ", get_string(GUIStr_MnuLevel), (int)(cctrl->explevel+1));
     }
     lbDisplay.DrawFlags = flgmem;
 }

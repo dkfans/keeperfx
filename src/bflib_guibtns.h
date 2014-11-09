@@ -36,8 +36,6 @@ struct GuiMenu;
 struct GuiBox;
 struct GuiBoxOption;
 
-#define STRINGS_MAX       1024
-#define DK_STRINGS_MAX     941
 #define INPUT_FIELD_LEN     40
 #define TOOLTIP_MAX_LEN   2048
 
@@ -211,13 +209,8 @@ DLLIMPORT extern struct GuiButton *_DK_input_button;
 DLLIMPORT char _DK_backup_input_field[INPUT_FIELD_LEN];
 #define backup_input_field _DK_backup_input_field
 
-DLLIMPORT extern char *_DK_strings_data;
-DLLIMPORT extern char *_DK_strings[DK_STRINGS_MAX+1];
-
 #pragma pack()
 /******************************************************************************/
-extern char *gui_strings[STRINGS_MAX+1];
-extern char *gui_strings_data;
 extern TbCharCount input_field_pos;
 /******************************************************************************/
 // Exported functions

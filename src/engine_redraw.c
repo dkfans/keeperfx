@@ -503,22 +503,22 @@ void draw_overlay_compass(long base_x, long base_y)
     shift_x = (-(MapDiagonalLength*7/16) * LbSinL(cam->orient_a)) >> LbFPMath_TrigmBits;
     shift_y = (-(MapDiagonalLength*7/16) * LbCosL(cam->orient_a)) >> LbFPMath_TrigmBits;
     if (LbScreenIsLocked()) {
-        LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, gui_strings[877]);
+        LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, get_string(GUIStr_MapN));
     }
     shift_x = ( (MapDiagonalLength*7/16) * LbSinL(cam->orient_a)) >> LbFPMath_TrigmBits;
     shift_y = ( (MapDiagonalLength*7/16) * LbCosL(cam->orient_a)) >> LbFPMath_TrigmBits;
     if (LbScreenIsLocked()) {
-        LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, gui_strings[879]);
+        LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, get_string(GUIStr_MapS));
     }
     shift_x = ( (MapDiagonalLength*7/16) * LbCosL(cam->orient_a)) >> LbFPMath_TrigmBits;
     shift_y = (-(MapDiagonalLength*7/16) * LbSinL(cam->orient_a)) >> LbFPMath_TrigmBits;
     if (LbScreenIsLocked()) {
-        LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, gui_strings[878]);
+        LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, get_string(GUIStr_MapE));
     }
     shift_x = (-(MapDiagonalLength*7/16) * LbCosL(cam->orient_a)) >> LbFPMath_TrigmBits;
     shift_y = ( (MapDiagonalLength*7/16) * LbSinL(cam->orient_a)) >> LbFPMath_TrigmBits;
     if (LbScreenIsLocked()) {
-        LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, gui_strings[880]);
+        LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, get_string(GUIStr_MapW));
     }
     lbDisplay.DrawFlags = flg_mem;
 }
@@ -1082,7 +1082,7 @@ void redraw_display(void)
     if (((game.numfield_C & 0x01) != 0) && ((game.numfield_C & 0x80) == 0))
     {
           LbTextSetFont(winfont);
-          text = gui_string(GUIStr_PausedMsg);
+          text = get_string(GUIStr_PausedMsg);
           long pos_x,pos_y;
           long w,h;
           int i;
@@ -1117,7 +1117,7 @@ void redraw_display(void)
         i = game.play_gameturn - game.armageddon_cast_turn - game.armageddon.count_down;
       }
       LbTextSetFont(winfont);
-      text = buf_sprintf(" %s %03d", cmpgn_string(get_power_name_strindex(PwrK_ARMAGEDDON)), i/2); // Armageddon message
+      text = buf_sprintf(" %s %03d", get_string(get_power_name_strindex(PwrK_ARMAGEDDON)), i/2); // Armageddon message
       i = LbTextCharWidth(' ')*units_per_pixel/16;
       w = LbTextStringWidth(text)*units_per_pixel/16 + 6*i;
       pos_x = MyScreenWidth - w - 16*units_per_pixel/16;

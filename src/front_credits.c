@@ -63,11 +63,8 @@ void frontcredits_draw(void)
         {
             switch (credit->kind)
             {
-            case CIK_GStringId:
-                text = gui_string(credit->num);
-                break;
-            case CIK_CStringId:
-                text = cmpgn_string(credit->num);
+            case CIK_StringId:
+                text = get_string(credit->num);
                 break;
             case CIK_DirectText:
                 text = credit->str;

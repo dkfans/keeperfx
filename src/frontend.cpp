@@ -80,6 +80,7 @@
 #include "gui_soundmsgs.h"
 #include "vidfade.h"
 #include "config_settings.h"
+#include "config_strings.h"
 #include "game_legacy.h"
 
 #include "keeperfx.hpp"
@@ -670,7 +671,7 @@ void create_error_box(TextStringId msg_idx)
     if (!game.packet_load_enable)
     {
         //change the length into  when gui_error_text will not be exported
-        strncpy(gui_error_text, gui_string(msg_idx), TEXT_BUFFER_LENGTH-1);
+        strncpy(gui_error_text, get_string(msg_idx), TEXT_BUFFER_LENGTH-1);
         turn_on_menu(GMnu_ERROR_BOX);
     }
 }
@@ -794,28 +795,6 @@ void maintain_loadsave(struct GuiButton *gbtn)
         gbtn->flags |= LbBtnF_Unknown08;
     else
         gbtn->flags &= ~LbBtnF_Unknown08;
-}
-
-void fake_button_click(long btn_idx)
-{
-    //_DK_fake_button_click(btn_idx);
-    int i;
-    for (i=0; i < ACTIVE_BUTTONS_COUNT; i++)
-    {
-        struct GuiButton *gbtn;
-        gbtn = &active_buttons[i];
-        struct GuiMenu *gmnu;
-        gmnu = &active_menus[(unsigned)gbtn->gmenu_idx];
-        if (((gbtn->flags & LbBtnF_Unknown01) != 0) && (gmnu->flgfield_1D != 0) && (gbtn->id_num == btn_idx))
-        {
-            if ((gbtn->click_event != NULL) || ((gbtn->flags & LbBtnF_Unknown02) != 0) || (gbtn->parent_menu != NULL) || (gbtn->gbtype == Lb_RADIOBTN)) {
-                do_button_press_actions(gbtn, &gbtn->gbactn_1, gbtn->click_event);
-            }
-            if ((gbtn->click_event != NULL) || ((gbtn->flags & LbBtnF_Unknown02) != 0) || (gbtn->parent_menu != NULL) || (gbtn->gbtype == Lb_RADIOBTN)) {
-                do_button_click_actions(gbtn, &gbtn->gbactn_1, gbtn->click_event);
-            }
-        }
-    }
 }
 
 void maintain_zoom_to_event(struct GuiButton *gbtn)
@@ -1302,9 +1281,9 @@ void gui_area_text(struct GuiButton *gbtn)
     if ((gbtn->tooltip_stridx != GUIStr_Empty) && (gbtn->tooltip_stridx != -GUIStr_Empty))
     {
         if (gbtn->tooltip_stridx > 0)
-            snprintf(gui_textbuf,sizeof(gui_textbuf), "%s", gui_string(gbtn->tooltip_stridx));
+            snprintf(gui_textbuf,sizeof(gui_textbuf), "%s", get_string(gbtn->tooltip_stridx));
         else
-            snprintf(gui_textbuf,sizeof(gui_textbuf), "%s", cmpgn_string(-gbtn->tooltip_stridx));
+            snprintf(gui_textbuf,sizeof(gui_textbuf), "%s", get_string(-gbtn->tooltip_stridx));
         draw_button_string(gbtn, (gbtn->width*32 + 16)/gbtn->height, gui_textbuf);
     } else
     if (gbtn->content != NULL)
@@ -1342,7 +1321,7 @@ const char *frontend_button_caption_text(const struct GuiButton *gbtn)
         text_idx = frontend_button_info[febtn_idx].capstr_idx;
     else
         text_idx = GUIStr_Empty;
-    return gui_string(text_idx);
+    return get_string(text_idx);
 }
 
 int frontend_button_caption_font(const struct GuiButton *gbtn, long mouse_over_btn_idx)
@@ -1442,9 +1421,9 @@ void frontend_draw_computer_players(struct GuiButton *gbtn)
     LbTextSetFont(frontend_font[font_idx]);
     const char *text;
     if (fe_computer_players) {
-        text = gui_string(GUIStr_On);
+        text = get_string(GUIStr_On);
     } else {
-        text = gui_string(GUIStr_Off);
+        text = get_string(GUIStr_Off);
     }
     int tx_units_per_px;
     tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
@@ -1751,43 +1730,6 @@ void frontend_load_game_maintain(struct GuiButton *gbtn)
         gbtn->flags &= ~LbBtnF_Unknown08;
 }
 
-void clear_radio_buttons(struct GuiMenu *gmnu)
-{
-    struct GuiButton *gbtn;
-    int i;
-    for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
-    {
-        gbtn = &active_buttons[i];
-        if (gbtn->gbtype == Lb_RADIOBTN)
-        {
-            if (gmnu->number == gbtn->gmenu_idx)
-                gbtn->gbactn_1 = 0;
-        }
-    }
-}
-
-void update_radio_button_data(struct GuiMenu *gmnu)
-{
-    struct GuiButton *gbtn;
-    unsigned char *rbstate;
-    int i;
-    for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
-    {
-        gbtn = &active_buttons[i];
-        rbstate = (unsigned char *)gbtn->content;
-        if ((rbstate != NULL) && (gbtn->gmenu_idx == gmnu->number))
-        {
-          if (gbtn->gbtype == Lb_RADIOBTN)
-          {
-              if (gbtn->gbactn_1)
-                *rbstate = 1;
-              else
-                *rbstate = 0;
-          }
-        }
-    }
-}
-
 void do_button_click_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Callback callback)
 {
     SYNCDBG(9,"Starting for button type %d",(int)gbtn->gbtype);
@@ -1899,7 +1841,7 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_
       break;
   case Lb_EDITBTN:
       input_button = gbtn;
-      setup_input_field(input_button, gui_string(GUIStr_MnuUnused));
+      setup_input_field(input_button, get_string(GUIStr_MnuUnused));
       break;
   default:
       break;
@@ -1976,44 +1918,6 @@ short is_toggleable_menu(short mnu_idx)
   default:
       return true;
   }
-}
-
-void init_slider_bars(struct GuiMenu *gmnu)
-{
-    struct GuiButton *gbtn;
-    long sldpos;
-    int i;
-    for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
-    {
-        gbtn = &active_buttons[i];
-        if ((gbtn->content) && (gbtn->gmenu_idx == gmnu->number))
-        {
-          if (gbtn->gbtype == Lb_SLIDERH)
-          {
-              sldpos = *(long *)gbtn->content;
-              if (sldpos < 0)
-                sldpos = 0;
-              else
-              if (sldpos > gbtn->field_2D)
-                sldpos = gbtn->field_2D;
-              gbtn->slide_val = (sldpos << 8) / (gbtn->field_2D + 1);
-          }
-        }
-    }
-}
-
-void init_menu_buttons(struct GuiMenu *gmnu)
-{
-    struct GuiButton *gbtn;
-    Gf_Btn_Callback callback;
-    int i;
-    for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
-    {
-      gbtn = &active_buttons[i];
-      callback = gbtn->maintain_call;
-      if ((callback != NULL) && (gbtn->gmenu_idx == gmnu->number))
-        callback(gbtn);
-    }
 }
 
 int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit, int units_per_px)
@@ -2939,12 +2843,12 @@ void frontstory_draw(void)
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
     int tx_units_per_px;
     tx_units_per_px = (26 * units_per_pixel) / LbTextLineHeight();
-    LbTextDrawResized(0, 0, tx_units_per_px, gui_string(frontstory_text_no));
+    LbTextDrawResized(0, 0, tx_units_per_px, get_string(frontstory_text_no));
 }
 
 void draw_defining_a_key_box(void)
 {
-    draw_text_box(gui_string(GUIStr_PressAKey));
+    draw_text_box(get_string(GUIStr_PressAKey));
 }
 
 char update_menu_fade_level(struct GuiMenu *gmnu)
@@ -3324,12 +3228,12 @@ void update_player_objectives(PlayerNumber plyr_idx)
       {
       case VicS_WonLevel:
           if (plyr_idx == my_player_number)
-            set_level_objective(cmpgn_string(CpgStr_SuccessLandIsYours));
+            set_level_objective(get_string(CpgStr_SuccessLandIsYours));
           display_objectives(player->id_number, 0, 0);
           break;
       case VicS_LostLevel:
           if (plyr_idx == my_player_number)
-            set_level_objective(cmpgn_string(CpgStr_LevelLost));
+            set_level_objective(get_string(CpgStr_LevelLost));
           display_objectives(player->id_number, 0, 0);
           break;
       }

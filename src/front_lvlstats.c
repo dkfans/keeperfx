@@ -260,7 +260,7 @@ void frontstats_draw_main_stats(struct GuiButton *gbtn)
         }
         LbTextSetWindow(pos_x + border, pos_y, gbtn->width - 2 * border, ln_height);
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
-        LbTextDrawResized(0, 0, tx_units_per_px, gui_string(stat->name_stridx));
+        LbTextDrawResized(0, 0, tx_units_per_px, get_string(stat->name_stridx));
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
         if (stat->get_value != NULL) {
             stat_val = stat->get_value(stat->get_arg);
@@ -297,7 +297,7 @@ void frontstats_draw_scrolling_stats(struct GuiButton *gbtn)
     for ( stat = &scrolling_stats_data[scrolling_index]; pos_y < gbtn->height; pos_y += ln_height + 4 * units_per_pixel / 16)
     {
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
-        LbTextDrawResized(pos_x, pos_y, tx_units_per_px, gui_string(stat->name_stridx));
+        LbTextDrawResized(pos_x, pos_y, tx_units_per_px, get_string(stat->name_stridx));
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
         if (stat->get_value != NULL) {
             stat_val = stat->get_value(stat->get_arg);

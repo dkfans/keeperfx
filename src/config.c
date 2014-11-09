@@ -1285,20 +1285,7 @@ TbBool parse_credits_block(struct CreditsItem *credits,char *buf,char *buf_end)
           k = 0;
         if (k > 0)
         {
-          credits[n].kind = CIK_GStringId;
-          credits[n].font = 1;
-          credits[n].num = k;
-        }
-        break;
-      case '+':
-        pos++;
-        if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          k = atoi(word_buf);
-        else
-          k = 0;
-        if (k > 0)
-        {
-          credits[n].kind = CIK_CStringId;
+          credits[n].kind = CIK_StringId;
           credits[n].font = 1;
           credits[n].num = k;
         }
@@ -1311,21 +1298,8 @@ TbBool parse_credits_block(struct CreditsItem *credits,char *buf,char *buf_end)
           k = 0;
         if (k > 0)
         {
-          credits[n].kind = CIK_CStringId;
+          credits[n].kind = CIK_StringId;
           credits[n].font = 2;
-          credits[n].num = k;
-        }
-        break;
-      case '!':
-        pos++;
-        if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          k = atoi(word_buf);
-        else
-          k = 0;
-        if (k > 0)
-        {
-          credits[n].kind = CIK_CStringId;
-          credits[n].font = 0;
           credits[n].num = k;
         }
         break;

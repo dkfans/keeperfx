@@ -63,6 +63,27 @@ void gui_clear_buttons_not_over_mouse(int gmbtn_mouseover_idx)
     }
 }
 
+void fake_button_click(int gmbtn_idx)
+{
+    int i;
+    for (i=0; i < ACTIVE_BUTTONS_COUNT; i++)
+    {
+        struct GuiButton *gbtn;
+        gbtn = &active_buttons[i];
+        struct GuiMenu *gmnu;
+        gmnu = &active_menus[(unsigned)gbtn->gmenu_idx];
+        if (((gbtn->flags & LbBtnF_Unknown01) != 0) && (gmnu->flgfield_1D != 0) && (gbtn->id_num == gmbtn_idx))
+        {
+            if ((gbtn->click_event != NULL) || ((gbtn->flags & LbBtnF_Unknown02) != 0) || (gbtn->parent_menu != NULL) || (gbtn->gbtype == Lb_RADIOBTN)) {
+                do_button_press_actions(gbtn, &gbtn->gbactn_1, gbtn->click_event);
+            }
+            if ((gbtn->click_event != NULL) || ((gbtn->flags & LbBtnF_Unknown02) != 0) || (gbtn->parent_menu != NULL) || (gbtn->gbtype == Lb_RADIOBTN)) {
+                do_button_click_actions(gbtn, &gbtn->gbactn_1, gbtn->click_event);
+            }
+        }
+    }
+}
+
 TbBool gui_button_release_inputs(int gmbtn_idx)
 {
     struct GuiButton *gbtn;
@@ -153,6 +174,43 @@ TbBool gui_slider_button_mouse_over_slider_tracker(int gbtn_idx)
         }
     }
     return false;
+}
+
+void clear_radio_buttons(struct GuiMenu *gmnu)
+{
+    struct GuiButton *gbtn;
+    int i;
+    for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
+    {
+        gbtn = &active_buttons[i];
+        if (gbtn->gbtype == Lb_RADIOBTN)
+        {
+            if (gmnu->number == gbtn->gmenu_idx)
+                gbtn->gbactn_1 = 0;
+        }
+    }
+}
+
+void update_radio_button_data(struct GuiMenu *gmnu)
+{
+    struct GuiButton *gbtn;
+    unsigned char *rbstate;
+    int i;
+    for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
+    {
+        gbtn = &active_buttons[i];
+        rbstate = (unsigned char *)gbtn->content;
+        if ((rbstate != NULL) && (gbtn->gmenu_idx == gmnu->number))
+        {
+          if (gbtn->gbtype == Lb_RADIOBTN)
+          {
+              if (gbtn->gbactn_1)
+                *rbstate = 1;
+              else
+                *rbstate = 0;
+          }
+        }
+    }
 }
 
 TbBool gui_button_click_inputs(int gmbtn_idx)
@@ -272,6 +330,44 @@ int guibutton_get_unused_slot(void)
         }
     }
     return -1;
+}
+
+void init_slider_bars(struct GuiMenu *gmnu)
+{
+    struct GuiButton *gbtn;
+    long sldpos;
+    int i;
+    for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
+    {
+        gbtn = &active_buttons[i];
+        if ((gbtn->content) && (gbtn->gmenu_idx == gmnu->number))
+        {
+          if (gbtn->gbtype == Lb_SLIDERH)
+          {
+              sldpos = *(long *)gbtn->content;
+              if (sldpos < 0)
+                sldpos = 0;
+              else
+              if (sldpos > gbtn->field_2D)
+                sldpos = gbtn->field_2D;
+              gbtn->slide_val = (sldpos << 8) / (gbtn->field_2D + 1);
+          }
+        }
+    }
+}
+
+void init_menu_buttons(struct GuiMenu *gmnu)
+{
+    struct GuiButton *gbtn;
+    Gf_Btn_Callback callback;
+    int i;
+    for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
+    {
+      gbtn = &active_buttons[i];
+      callback = gbtn->maintain_call;
+      if ((callback != NULL) && (gbtn->gmenu_idx == gmnu->number))
+        callback(gbtn);
+    }
 }
 
 void kill_button(struct GuiButton *gbtn)

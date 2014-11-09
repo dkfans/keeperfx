@@ -26,24 +26,27 @@
 extern "C" {
 #endif
 /******************************************************************************/
+#define STRINGS_MAX       1000
+#define DK_STRINGS_MAX     941
+
 struct GameCampaign;
 
 enum GUIStrings {
-    GUIStr_SuccessLandIsYours = 0, // per-campaign
-    GUIStr_LevelEventMessage = 1, // range 1..200, per-campaign
-    GUIStr_Empty = 201,
-    GUIStr_LevelName = 202, // range 202..221, per-campaign
-    GUIStr_NameAndHealthDesc = 222,
+    GUIStr_SuccessLandIsYours = STRINGS_MAX+0, // per-campaign
+    GUIStr_LevelEventMessage = STRINGS_MAX+1, // range 1..200, per-campaign
+    GUIStr_Empty = STRINGS_MAX+201,
+    GUIStr_LevelName = STRINGS_MAX+202, // range 202..221, per-campaign
+    GUIStr_NameAndHealthDesc = STRINGS_MAX+222,
     GUIStr_ExperienceDesc,
     GUIStr_HungerDesc,
     GUIStr_Cancel,
-    GUIStr_CreatureSpellDesc = 226, // range 226..257, per-campaign
-    GUIStr_CreatureKind1 = 258, // range 258..286, per-campaign
-    GUIStr_CreatureQueryDesc = 287,
+    GUIStr_CreatureSpellDesc = STRINGS_MAX+226, // range 226..257, per-campaign
+    GUIStr_CreatureKind1 = STRINGS_MAX+258, // range 258..286, per-campaign
+    GUIStr_CreatureQueryDesc = STRINGS_MAX+287,
     GUIStr_SelectGame,
     GUIStr_NetworkMenu,
     GUIStr_MainMenu,
-    GUIStr_CreatureAngerDesc = 291,
+    GUIStr_CreatureAngerDesc = STRINGS_MAX+291,
     GUIStr_CreatureKillsDesc,
     GUIStr_CreatureStrengthDesc,
     GUIStr_CreatureWageDesc,
@@ -61,77 +64,77 @@ enum GUIStrings {
     GUIStr_CreatureFleeDesc,
     GUIStr_CreatureImprisonDesc,
     GUIStr_CreatureDefendingDesc,
-    GUIStr_ConfirmYouSure = 309,
+    GUIStr_ConfirmYouSure = STRINGS_MAX+309,
     GUIStr_ConfirmYes,
     GUIStr_ConfirmNo,
     GUIStr_For,
-    GUIStr_OptionShadowsDesc = 313,
+    GUIStr_OptionShadowsDesc = STRINGS_MAX+313,
     GUIStr_OptionViewTypeDesc,
     GUIStr_OptionWallHeightDesc,
     GUIStr_OptionViewDistanceDesc,
     GUIStr_OptionGammaCorrectionDesc,
     GUIStr_Of,
-    GUIStr_TerrainEmptyLairDesc = 319, // per-campaign
-    GUIStr_PausedMsg = 320,
+    GUIStr_TerrainEmptyLairDesc = STRINGS_MAX+319, // per-campaign
+    GUIStr_PausedMsg = STRINGS_MAX+320,
     GUIStr_PaneZoomInDesc,
     GUIStr_PaneZoomOutDesc,
     GUIStr_PaneLargeMapDesc,
-    GUIStr_TerrainVarDesc1 = 324, // range 324..332, per-campaign
-    GUIStr_PaneMore = 333,
-    GUIStr_LevelWon = 334, // per-campaign
+    GUIStr_TerrainVarDesc1 = STRINGS_MAX+324, // range 324..332, per-campaign
+    GUIStr_PaneMore = STRINGS_MAX+333,
+    GUIStr_LevelWon = STRINGS_MAX+334, // per-campaign
     GUIStr_LevelLost, // per-campaign
-    GUIStr_RecMovie = 336,
+    GUIStr_RecMovie = STRINGS_MAX+336,
     GUIStr_RecMovieFail,
     GUIStr_RecMovieDone,
-    GUIStr_OptionSoundFx = 340,
+    GUIStr_OptionSoundFx = STRINGS_MAX+340,
     GUIStr_OptionMusic,
-    GUIStr_SlotUnused = 342,
-    GUIStr_MnuMainMenu = 343,
+    GUIStr_SlotUnused = STRINGS_MAX+342,
+    GUIStr_MnuMainMenu = STRINGS_MAX+343,
     GUIStr_MnuLoadMenu,
     GUIStr_MnuLoadGame,
     GUIStr_MnuContinueGame,
-    GUIStr_MnuMultiplayer = 347,
+    GUIStr_MnuMultiplayer = STRINGS_MAX+347,
     GUIStr_MnuReturnToMain,
     GUIStr_MnuPlayIntro,
     GUIStr_NetServiceMenu,
     GUIStr_NetSessionMenu,
-    GUIStr_NetSpeed = 352,
+    GUIStr_NetSpeed = STRINGS_MAX+352,
     GUIStr_NetComPort,
     GUIStr_NetPhoneNumber,
     GUIStr_NetIrq,
-    GUIStr_MnuStatistics = 356,
-    GUIStr_LevelCompleted = 357,
-    GUIStr_MnuUnused = 358,
-    GUIStr_MnuQuit = 359,
-    GUIStr_MnuStartNewGame = 360,
-    GUIStr_TastyHeroes = 361,
-    GUIStr_CreditsHead1 = 362, // range 362..394
-    GUIStr_NetSessions = 395,
+    GUIStr_MnuStatistics = STRINGS_MAX+356,
+    GUIStr_LevelCompleted = STRINGS_MAX+357,
+    GUIStr_MnuUnused = STRINGS_MAX+358,
+    GUIStr_MnuQuit = STRINGS_MAX+359,
+    GUIStr_MnuStartNewGame = STRINGS_MAX+360,
+    GUIStr_TastyHeroes = STRINGS_MAX+361,
+    GUIStr_CreditsHead1 = STRINGS_MAX+362, // range 362..394
+    GUIStr_NetSessions = STRINGS_MAX+395,
     GUIStr_NetName,
     GUIStr_NetServices,
     GUIStr_NetMessages,
     GUIStr_NetCreateGame,
     GUIStr_NetJoinGame,
     GUIStr_NetStartGame,
-    GUIStr_MnuGameMenu = 402,
+    GUIStr_MnuGameMenu = STRINGS_MAX+402,
     GUIStr_MnuCancel,
     GUIStr_MnuNoName,
     GUIStr_MnuPlayers,
     GUIStr_MnuLevel,
     GUIStr_MnuLevels,
-    GUIStr_MnuGames = 408,
-    GUIStr_NetModemMenu = 409,
+    GUIStr_MnuGames = STRINGS_MAX+408,
+    GUIStr_NetModemMenu = STRINGS_MAX+409,
     GUIStr_NetSerialMenu,
-    GUIStr_NetInit = 411,
+    GUIStr_NetInit = STRINGS_MAX+411,
     GUIStr_NetHangup,
     GUIStr_NetClear,
     GUIStr_NetAnswer,
     GUIStr_NetStart,
-    GUIStr_NetAlly = 416,
+    GUIStr_NetAlly = STRINGS_MAX+416,
     GUIStr_NetAlliance,
-    GUIStr_Credits = 418,
-    GUIStr_MnuOk = 419,
-    GUIStr_SpecRevealMapDesc = 420,
+    GUIStr_Credits = STRINGS_MAX+418,
+    GUIStr_MnuOk = STRINGS_MAX+419,
+    GUIStr_SpecRevealMapDesc = STRINGS_MAX+420,
     GUIStr_SpecResurrectCreatureDesc,
     GUIStr_SpecTransferCreatureDesc,
     GUIStr_SpecStealHeroDesc,
@@ -141,13 +144,13 @@ enum GUIStrings {
     GUIStr_SpecLocateHiddenWorldDesc,
     GUIStr_SpecResurrectCreature,
     GUIStr_SpecTransferCreature,
-    GUIStr_BonusLevel = 430,
-    GUIStr_MnuHighScoreTable = 431,
+    GUIStr_BonusLevel = STRINGS_MAX+430,
+    GUIStr_MnuHighScoreTable = STRINGS_MAX+431,
     GUIStr_GoToQueryMode,
-    GUIStr_MoreInformation = 433,
+    GUIStr_MoreInformation = STRINGS_MAX+433,
     GUIStr_BackToMainQueryScreen,
     GUIStr_SelectedAction,
-    GUIStr_TeamChooseParty = 436,
+    GUIStr_TeamChooseParty = STRINGS_MAX+436,
     GUIStr_TeamEnterDungeon,
     GUIStr_TeamPartyMembers,
     GUIStr_TeamAvailCreatures,
@@ -158,22 +161,22 @@ enum GUIStrings {
     GUIStr_TeamFire,
     GUIStr_TeamCost,
     GUIStr_TeamType,
-    GUIStr_InformationPanelDesc = 447,
-    GUIStr_RoomPanelDesc = 448,
-    GUIStr_ResearchPanelDesc = 449,
-    GUIStr_WorkshopPanelDesc = 450,
-    GUIStr_CreaturePanelDesc = 451,
-    GUIStr_ResearchTimeDesc = 452,
-    GUIStr_WorkshopTimeDesc = 453,
-    GUIStr_PayTimeDesc = 454,
-    GUIStr_NumberOfRoomsDesc = 455,
-    GUIStr_NumberOfCreaturesDesc = 456,
+    GUIStr_InformationPanelDesc = STRINGS_MAX+447,
+    GUIStr_RoomPanelDesc = STRINGS_MAX+448,
+    GUIStr_ResearchPanelDesc = STRINGS_MAX+449,
+    GUIStr_WorkshopPanelDesc = STRINGS_MAX+450,
+    GUIStr_CreaturePanelDesc = STRINGS_MAX+451,
+    GUIStr_ResearchTimeDesc = STRINGS_MAX+452,
+    GUIStr_WorkshopTimeDesc = STRINGS_MAX+453,
+    GUIStr_PayTimeDesc = STRINGS_MAX+454,
+    GUIStr_NumberOfRoomsDesc = STRINGS_MAX+455,
+    GUIStr_NumberOfCreaturesDesc = STRINGS_MAX+456,
     GUIStr_TeamChooseGame,
     GUIStr_TeamGameType,
     GUIStr_TeamKeeperVsKeeper,
     GUIStr_TeamKeeperVsHeroes,
     GUIStr_TeamDeathmatch,
-    GUIStr_SellRoomDesc = 462,
+    GUIStr_SellRoomDesc = STRINGS_MAX+462,
     GUIStr_SellItemDesc,
     GUIStr_NextBattleDesc,
     GUIStr_CloseWindow,
@@ -181,7 +184,7 @@ enum GUIStrings {
     GUIStr_NoMouseInstalled,
     GUIStr_DefineKeys,
     GUIStr_AllyWithPlayer,
-    GUIStr_PressAKey = 470,
+    GUIStr_PressAKey = STRINGS_MAX+470,
     GUIStr_CtrlUp,
     GUIStr_CtrlDown,
     GUIStr_CtrlLeft,
@@ -192,7 +195,7 @@ enum GUIStrings {
     GUIStr_CtrlRotateRight,
     GUIStr_CtrlZoomIn,
     GUIStr_CtrlZoomOut,
-    GUIStr_KeyLeftControl = 481,
+    GUIStr_KeyLeftControl = STRINGS_MAX+481,
     GUIStr_KeyRightControl,
     GUIStr_KeyLeftShift,
     GUIStr_KeyRightShift,
@@ -201,7 +204,7 @@ enum GUIStrings {
     GUIStr_KeySpace,
     GUIStr_KeyReturn,
     GUIStr_KeyTab,
-    GUIStr_KeyCapsLock = 490,
+    GUIStr_KeyCapsLock = STRINGS_MAX+490,
     GUIStr_KeyBackspace,
     GUIStr_KeyInsert,
     GUIStr_KeyDelete,
@@ -209,7 +212,7 @@ enum GUIStrings {
     GUIStr_KeyEnd,
     GUIStr_KeyPageUp,
     GUIStr_KeyPageDown,
-    GUIStr_KeyNumLock = 498,
+    GUIStr_KeyNumLock = STRINGS_MAX+498,
     GUIStr_KeyNumSlash,
     GUIStr_KeyNumMul,
     GUIStr_KeyNumSub,
@@ -226,7 +229,7 @@ enum GUIStrings {
     GUIStr_KeyNum8,
     GUIStr_KeyNum9,
     GUIStr_KeyNum0,
-    GUIStr_KeyF1 = 515,
+    GUIStr_KeyF1 = STRINGS_MAX+515,
     GUIStr_KeyF2,
     GUIStr_KeyF3,
     GUIStr_KeyF4,
@@ -242,7 +245,7 @@ enum GUIStrings {
     GUIStr_KeyDown,
     GUIStr_KeyLeft,
     GUIStr_KeyRight,
-    GUIStr_NetInitingModem = 531,
+    GUIStr_NetInitingModem = STRINGS_MAX+531,
     GUIStr_NetConnectnModem,
     GUIStr_NetDial,
     GUIStr_NetContinue,
@@ -252,63 +255,63 @@ enum GUIStrings {
     GUIStr_NetNoDialTone,
     GUIStr_NetNoResponse,
     GUIStr_NetNoServer,
-    GUIStr_NetUnableToInit = 541,
+    GUIStr_NetUnableToInit = STRINGS_MAX+541,
     GUIStr_NetUnableToCrGame,
     GUIStr_NetUnableToJoin,
-    GUIStr_TerrainVarDesc2 = 544, // range 544..545, per-campaign
-    GUIStr_CreatureKind2 = 546, // range 546..547, per-campaign
-    GUIStr_CompAssNowAggressive = 548,
+    GUIStr_TerrainVarDesc2 = STRINGS_MAX+544, // range 544..545, per-campaign
+    GUIStr_CreatureKind2 = STRINGS_MAX+546, // range 546..547, per-campaign
+    GUIStr_CompAssNowAggressive = STRINGS_MAX+548,
     GUIStr_CompAssNowDefensive,
     GUIStr_CompAssNowConstruction,
     GUIStr_CompAssNowMoveOnly,
-    GUIStr_RoomKind1 = 552, // range 552..566, per-campaign
-    GUIStr_StateFight = 567,
-    GUIStr_StateAnnoyed = 568,
-    GUIStr_KeyShift = 569,
+    GUIStr_RoomKind1 = STRINGS_MAX+552, // range 552..566, per-campaign
+    GUIStr_StateFight = STRINGS_MAX+567,
+    GUIStr_StateAnnoyed = STRINGS_MAX+568,
+    GUIStr_KeyShift = STRINGS_MAX+569,
     GUIStr_KeyControl,
     GUIStr_KeyAlt,
-    GUIStr_CreditsHead2 = 572, // range 572..577
-    GUIStr_BoulderTrap = 578, // per-campaign
+    GUIStr_CreditsHead2 = STRINGS_MAX+572, // range 572..577
+    GUIStr_BoulderTrap = STRINGS_MAX+578, // per-campaign
     GUIStr_TrapKindAlarm, // per-campaign
     GUIStr_TrapKindPoisonGas, // per-campaign
     GUIStr_TrapKindLightning, // per-campaign
     GUIStr_TrapKindWordOfPower, // per-campaign
     GUIStr_TrapKindLava, // per-campaign
-    GUIStr_TrapBoulderDesc = 584, // per-campaign
+    GUIStr_TrapBoulderDesc = STRINGS_MAX+584, // per-campaign
     GUIStr_AlarmTrapDesc, // per-campaign
     GUIStr_PoisonGasTrapDesc, // per-campaign
     GUIStr_LightningTrapDesc, // per-campaign
     GUIStr_WordOfPowerTrapDesc, // per-campaign
     GUIStr_LavaTrapDesc, // per-campaign
-    GUIStr_DoorKindWooden = 590, // per-campaign
+    GUIStr_DoorKindWooden = STRINGS_MAX+590, // per-campaign
     GUIStr_DoorKindBraced, // per-campaign
     GUIStr_DoorKindIron, // per-campaign
     GUIStr_DoorKindMagic, // per-campaign
-    GUIStr_WoodenDoorDesc = 594, // per-campaign
+    GUIStr_WoodenDoorDesc = STRINGS_MAX+594, // per-campaign
     GUIStr_BracedDoorDesc, // per-campaign
     GUIStr_IronDoorDesc, // per-campaign
     GUIStr_MagicDoorDesc, // per-campaign
-    GUIStr_RoomKind2 = 598, // range 598..614, per-campaign
-    GUIStr_RoomDesc1 = 615, // range 615..629, per-campaign
-    GUIStr_PowerKind1 = 630, // range 630..646, per-campaign
-    GUIStr_PowerDesc1 = 647, // range 647..663, per-campaign
-    GUIStr_EventTreasureRoomFull = 664,
+    GUIStr_RoomKind2 = STRINGS_MAX+598, // range 598..614, per-campaign
+    GUIStr_RoomDesc1 = STRINGS_MAX+615, // range 615..629, per-campaign
+    GUIStr_PowerKind1 = STRINGS_MAX+630, // range 630..646, per-campaign
+    GUIStr_PowerDesc1 = STRINGS_MAX+647, // range 647..663, per-campaign
+    GUIStr_EventTreasureRoomFull = STRINGS_MAX+664,
     GUIStr_EventScavengingDetected,
     GUIStr_EventCreaturePayday,
     GUIStr_EventNewSpellPickedUp,
     GUIStr_EventNewRoomTakenOver,
     GUIStr_EventAreaDiscovered,
-    GUIStr_EventInformation = 670,
+    GUIStr_EventInformation = STRINGS_MAX+670,
     GUIStr_EventRoomLost,
     GUIStr_EventHeartAttacked,
     GUIStr_EventFight,
     GUIStr_EventObjective,
     GUIStr_EventBreach,
     GUIStr_EventNewSpellResearched,
-    GUIStr_EventNewRoomResearched = 677,
+    GUIStr_EventNewRoomResearched = STRINGS_MAX+677,
     GUIStr_EventNewTrap,
     GUIStr_EventNewDoor,
-    GUIStr_EventNewCreature = 680,
+    GUIStr_EventNewCreature = STRINGS_MAX+680,
     GUIStr_EventCreatureAnnoyed,
     GUIStr_EventNoMoreLivingSpace,
     GUIStr_EventAlarmTriggered,
@@ -317,8 +320,8 @@ enum GUIStrings {
     GUIStr_EventCreaturesHungry,
     GUIStr_EventTrapCrateFound,
     GUIStr_EventDoorCrateFound,
-    GUIStr_EventDnSpecialFound = 689,
-    GUIStr_EventTreasrRoomFullDesc = 690,
+    GUIStr_EventDnSpecialFound = STRINGS_MAX+689,
+    GUIStr_EventTreasrRoomFullDesc = STRINGS_MAX+690,
     GUIStr_EventCreatrScavngDesc,
     GUIStr_EventCreaturePaydayDesc,
     GUIStr_EventSpellPickedUpDesc,
@@ -326,9 +329,9 @@ enum GUIStrings {
     GUIStr_EventAreaDiscoveredDesc,
     GUIStr_EventInformationDesc,
     GUIStr_EventRoomLostDesc,
-    GUIStr_EventDnHeartAttackedDesc = 698,
+    GUIStr_EventDnHeartAttackedDesc = STRINGS_MAX+698,
     GUIStr_EventFightDesc,
-    GUIStr_EventObjectiveDesc = 700,
+    GUIStr_EventObjectiveDesc = STRINGS_MAX+700,
     GUIStr_EventBreachDesc,
     GUIStr_EventNewSpellResrchDesc,
     GUIStr_EventNewRoomResrchDesc,
@@ -338,91 +341,91 @@ enum GUIStrings {
     GUIStr_EventCreatrAnnoyedDesc,
     GUIStr_EventNoMoreLivingSetDesc,
     GUIStr_EventAlarmTriggeredDesc,
-    GUIStr_EventRoomUnderAttackDesc = 710,
+    GUIStr_EventRoomUnderAttackDesc = STRINGS_MAX+710,
     GUIStr_EventNeedTreasrRoomDesc,
     GUIStr_EventCreaturesHungryDesc,
     GUIStr_EventTrapCrateFoundDesc,
     GUIStr_EventDoorCrateFoundDesc,
-    GUIStr_EventDnSpecialFoundDesc = 715,
-    GUIStr_MnuOptions = 716,
+    GUIStr_EventDnSpecialFoundDesc = STRINGS_MAX+715,
+    GUIStr_MnuOptions = STRINGS_MAX+716,
     GUIStr_MnuGraphicsOptions,
     GUIStr_MnuSoundOptions,
     GUIStr_MnuLoad,
     GUIStr_MnuSave,
     GUIStr_MnuComputerAssist,
-    GUIStr_MnuOptionsDesc = 722,
-    GUIStr_GraphicsMenuDesc = 723,
+    GUIStr_MnuOptionsDesc = STRINGS_MAX+722,
+    GUIStr_GraphicsMenuDesc = STRINGS_MAX+723,
     GUIStr_SoundMenuDesc,
     GUIStr_LoadGameDesc,
     GUIStr_SaveGameDesc,
-    GUIStr_QuitGameDesc = 727,
-    GUIStr_ComputerAssistDesc = 728,
+    GUIStr_QuitGameDesc = STRINGS_MAX+727,
+    GUIStr_ComputerAssistDesc = STRINGS_MAX+728,
     GUIStr_AggressiveAssistDesc,
     GUIStr_DefensiveAssistDesc,
     GUIStr_ConstructionAssistDesc,
     GUIStr_MoveOnlyAssistDesc,
-    GUIStr_PickCreatrMostExpDesc = 733,
+    GUIStr_PickCreatrMostExpDesc = STRINGS_MAX+733,
     GUIStr_PickCreatrIdleDesc,
     GUIStr_PickCreatrWorkingDesc,
     GUIStr_PickCreatrFightingDesc,
-    GUIStr_OptionsInvertMouse = 737,
+    GUIStr_OptionsInvertMouse = STRINGS_MAX+737,
     GUIStr_OptionsPossessMouseSensitivity,
     GUIStr_OptionsMoreSensitive,
-    GUIStr_OptionsLessSensitive = 740,
-    GUIStr_StatisticsNames1 = 741, // range 741..802
-    GUIStr_EasterPoems = 803, // range 803..828
-    GUIStr_GameHints = 829, // range 829..839
-    GUIStr_MnuRetToOptions = 840,
-    GUIStr_MnuExit = 841,
+    GUIStr_OptionsLessSensitive = STRINGS_MAX+740,
+    GUIStr_StatisticsNames1 = STRINGS_MAX+741, // range 741..802
+    GUIStr_EasterPoems = STRINGS_MAX+803, // range 803..828
+    GUIStr_GameHints = STRINGS_MAX+829, // range 829..839
+    GUIStr_MnuRetToOptions = STRINGS_MAX+840,
+    GUIStr_MnuExit = STRINGS_MAX+841,
     GUIStr_MnuAudio,
     GUIStr_MnuInvertMouse,
     GUIStr_MnuMouseSensitivity,
     GUIStr_MnuComputer,
     GUIStr_MnuComputerPlayers,
-    GUIStr_On = 847,
-    GUIStr_Off = 848,
+    GUIStr_On = STRINGS_MAX+847,
+    GUIStr_Off = STRINGS_MAX+848,
     GUIStr_Sensitivity,
     GUIStr_MouseOptions,
     GUIStr_Mouse,
     GUIStr_UndoPickup,
     GUIStr_Pause,
-    GUIStr_Map = 854,
+    GUIStr_Map = STRINGS_MAX+854,
     GUIStr_InsufficientMemory,
     GUIStr_UnableToChangeRes,
-    GUIStr_Query = 857,
-    GUIStr_CreditsHead3 = 858, // range 858..867
-    GUIStr_NetAttemptingToJoin = 868,
+    GUIStr_Query = STRINGS_MAX+857,
+    GUIStr_CreditsHead3 = STRINGS_MAX+858, // range 858..867
+    GUIStr_NetAttemptingToJoin = STRINGS_MAX+868,
     GUIStr_NetResyncing,
-    GUIStr_Net1Player = 870,
+    GUIStr_Net1Player = STRINGS_MAX+870,
     GUIStr_Net2Players,
     GUIStr_Net3Players,
     GUIStr_Net4Players,
-    GUIStr_NetSerial = 874,
+    GUIStr_NetSerial = STRINGS_MAX+874,
     GUIStr_NetModem,
     GUIStr_NetIpx,
-    GUIStr_MapN = 877,
+    GUIStr_MapN = STRINGS_MAX+877,
     GUIStr_MapE,
     GUIStr_MapS,
     GUIStr_MapW,
-    GUIStr_Vs = 881,
-    GUIStr_CreditsHead4 = 882, // range 882..884
-    GUIStr_HappyBirthday = 885,
+    GUIStr_Vs = STRINGS_MAX+881,
+    GUIStr_CreditsHead4 = STRINGS_MAX+882, // range 882..884
+    GUIStr_HappyBirthday = STRINGS_MAX+885,
     GUIStr_Error,
     GUIStr_ErrorSaving,
-    GUIStr_NewLevels = 888,
-    GUIStr_InsertDataCD = 889,
+    GUIStr_NewLevels = STRINGS_MAX+888,
+    GUIStr_InsertDataCD = STRINGS_MAX+889,
     GUIStr_InsertKeeperCD,
     GUIStr_InbsertDeeperCD,
-    GUIStr_LevelEventMessageDD = 892, // range 892..940, Deeper Dungeons
-    GUIStr_MnuFreePlayLevels = 941,
-    GUIStr_MnuLandSelection = 942,
-    GUIStr_MnuCampaigns = 943,
-    GUIStr_MnuAddComputer = 944,
+    GUIStr_LevelEventMessageDD = STRINGS_MAX+892, // range 892..940, Deeper Dungeons
+    GUIStr_MnuFreePlayLevels = STRINGS_MAX+941,
+    GUIStr_MnuLandSelection = STRINGS_MAX+942,
+    GUIStr_MnuCampaigns = STRINGS_MAX+943,
+    GUIStr_MnuAddComputer = STRINGS_MAX+944,
     GUIStr_EventWorkRoomUnreachbl,
     GUIStr_EventWorkRoomUnreachblDesc,
     GUIStr_EventStorgRoomUnreachbl,
     GUIStr_EventStorgRoomUnreachblDesc,
-    GUIStr_CreatureArmourDesc = 949,
+    GUIStr_CreatureArmourDesc = STRINGS_MAX+949,
     GUIStr_CreatureSpeedDesc,
     GUIStr_CreatureLoyaltyDesc,
     GUIStr_CreatureResrchSkillDesc,
@@ -433,7 +436,7 @@ enum GUIStrings {
     GUIStr_CreatureScavngCostDesc,
     GUIStr_CreatureBestDmgDesc,
     GUIStr_CreatureWeightDesc,
-    GUIStr_CreatureScoreDesc = 960,
+    GUIStr_CreatureScoreDesc = STRINGS_MAX+960,
 };
 
 enum CampaignStrings {
@@ -493,8 +496,7 @@ enum CampaignStrings {
 TbBool setup_gui_strings_data(void);
 TbBool free_gui_strings_data(void);
 TbBool reset_strings(char **strings);
-const char * gui_string(unsigned int index);
-const char * cmpgn_string(unsigned int index);
+const char * get_string(TextStringId stridx);
 TbBool setup_campaign_strings_data(struct GameCampaign *campgn);
 /******************************************************************************/
 #ifdef __cplusplus

@@ -39,6 +39,7 @@ TbBool gui_button_release_inputs(int gmbtn_idx);
 TbBool gui_slider_button_inputs(int gbtn_idx);
 TbBool gui_slider_button_mouse_over_slider_tracker(int gbtn_idx);
 TbBool gui_button_click_inputs(int gmbtn_idx);
+void fake_button_click(int gmbtn_idx);
 void gui_set_menu_mode(struct GuiButton *gbtn);
 
 void gui_pretty_background(struct GuiMenu *gmnu);
@@ -58,7 +59,7 @@ void gui_area_null(struct GuiButton *gbtn);
 void gui_area_flash_cycle_button(struct GuiButton *gbtn);
 
 void gui_draw_tab(struct GuiButton *gbtn);
-void frontend_over_button(struct GuiButton *gbtn);;
+void frontend_over_button(struct GuiButton *gbtn);
 void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const char *text, unsigned int drw_flags);
 void frontend_draw_large_menu_button(struct GuiButton *gbtn);
 void frontend_draw_vlarge_menu_button(struct GuiButton *gbtn);
@@ -66,10 +67,14 @@ void frontend_draw_scroll_box_tab(struct GuiButton *gbtn);
 void frontend_draw_scroll_box(struct GuiButton *gbtn);
 
 void reset_scroll_window(struct GuiMenu *gmnu);
+void clear_radio_buttons(struct GuiMenu *gmnu);
+void update_radio_button_data(struct GuiMenu *gmnu);
 void frontend_draw_slider(struct GuiButton *gbtn);
 void frontend_draw_small_slider(struct GuiButton *gbtn);
 void frontend_draw_slider_button(struct GuiButton *gbtn);
 
+void init_slider_bars(struct GuiMenu *gmnu);
+void init_menu_buttons(struct GuiMenu *gmnu);
 void kill_button_area_input(void);
 void kill_button(struct GuiButton *gbtn);
 void setup_radio_buttons(struct GuiMenu *gmnu);
