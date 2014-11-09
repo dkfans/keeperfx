@@ -146,7 +146,7 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
     i = key_to_string[code];
     if (i >= 0)
     {
-        keyname = gui_string(i);
+        keyname = get_string(i);
     } else
     {
         chbuf[0] = -(char)i;
@@ -165,7 +165,7 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
     int height;
     height = LbTextLineHeight() * tx_units_per_px / 16;
-    LbTextDrawResized(0, (gbtn->height - height) / 2, tx_units_per_px, gui_string(definable_key_string[key_id]));
+    LbTextDrawResized(0, (gbtn->height - height) / 2, tx_units_per_px, get_string(definable_key_string[key_id]));
     unsigned char mods;
     mods = settings.kbkeys[key_id].mods;
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
@@ -174,17 +174,17 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
     text[0] = '\0';
     if (mods & KMod_CONTROL)
     {
-        strcat(text, gui_string(GUIStr_KeyControl));
+        strcat(text, get_string(GUIStr_KeyControl));
         strcat(text, " ");
     }
     if (mods & KMod_ALT)
     {
-        strcat(text, gui_string(GUIStr_KeyAlt));
+        strcat(text, get_string(GUIStr_KeyAlt));
         strcat(text, " ");
     }
     if (mods & KMod_SHIFT)
     {
-        strcat(text, gui_string(GUIStr_KeyShift));
+        strcat(text, get_string(GUIStr_KeyShift));
         strcat(text, " ");
     }
 
@@ -193,15 +193,15 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
     {
       case KC_LSHIFT:
       case KC_RSHIFT:
-        keytext = gui_string(GUIStr_KeyShift);
+        keytext = get_string(GUIStr_KeyShift);
         break;
       case KC_LCONTROL:
       case KC_RCONTROL:
-        keytext = gui_string(GUIStr_KeyControl);
+        keytext = get_string(GUIStr_KeyControl);
         break;
       case KC_LALT:
       case KC_RALT:
-        keytext = gui_string(GUIStr_KeyAlt);
+        keytext = get_string(GUIStr_KeyAlt);
         break;
       default:
         keytext = keyname;
@@ -306,9 +306,9 @@ void frontend_draw_invert_mouse(struct GuiButton *gbtn)
     tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
     const char *text;
     if (settings.first_person_move_invert) {
-        text = gui_string(GUIStr_On);
+        text = get_string(GUIStr_On);
     } else {
-        text = gui_string(GUIStr_Off);
+        text = get_string(GUIStr_Off);
     }
     LbTextDrawResized(0, 0, tx_units_per_px, text);
 }

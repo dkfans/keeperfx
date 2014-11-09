@@ -1610,7 +1610,7 @@ const char *creature_own_name(const struct Thing *creatng)
     if ((get_creature_model_flags(creatng) & MF_OneOfKind) != 0) {
         struct CreatureData *crdata;
         crdata = creature_data_get_from_thing(creatng);
-        text = buf_sprintf("%s",cmpgn_string(crdata->namestr_idx));
+        text = buf_sprintf("%s",get_string(crdata->namestr_idx));
         return text;
     }
     const char ** starts;

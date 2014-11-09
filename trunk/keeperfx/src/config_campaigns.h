@@ -22,8 +22,8 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
-#include "bflib_guibtns.h"
 #include "config.h"
+#include "config_strings.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -45,8 +45,7 @@ enum CreditsItemKind {
     CIK_None,
     CIK_EmptyLine,
     CIK_DirectText,
-    CIK_GStringId,
-    CIK_CStringId,
+    CIK_StringId,
 };
 
 /******************************************************************************/

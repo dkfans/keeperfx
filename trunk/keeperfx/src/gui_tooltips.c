@@ -130,7 +130,7 @@ TbBool setup_trap_tooltips(struct Coord3d *pos)
     if ( (help_tip_time > 20) || (player->work_state == PSt_Unknown12) )
     {
         trapst = get_trap_model_stats(thing->model);
-        set_gui_tooltip_box_fmt(4,"%s",cmpgn_string(trapst->name_stridx));
+        set_gui_tooltip_box_fmt(4,"%s",get_string(trapst->name_stridx));
     } else
     {
         help_tip_time++;
@@ -157,7 +157,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
   {
       update_gui_tooltip_target(thing);
       i = box_thing_to_special(thing);
-      set_gui_tooltip_box_fmt(5,"%s",cmpgn_string(get_special_description_strindex(i)));
+      set_gui_tooltip_box_fmt(5,"%s",get_string(get_special_description_strindex(i)));
       return true;
   }
   // Find a spellbook to show tooltip for
@@ -166,7 +166,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
   {
       update_gui_tooltip_target(thing);
       i = book_thing_to_power_kind(thing);
-      set_gui_tooltip_box_fmt(5,"%s",cmpgn_string(get_power_name_strindex(i)));
+      set_gui_tooltip_box_fmt(5,"%s",get_string(get_power_name_strindex(i)));
       return true;
   }
   // Find a workshop crate to show tooltip for
@@ -185,7 +185,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
         doorst = get_door_model_stats(crate_thing_to_workshop_item_model(thing));
         i = doorst->name_stridx;
     }
-    set_gui_tooltip_box_fmt(5,"%s",cmpgn_string(i));
+    set_gui_tooltip_box_fmt(5,"%s",get_string(i));
     return true;
   }
   if (!settings.tooltips_on)
@@ -199,7 +199,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
       update_gui_tooltip_target(thing);
       if ( (help_tip_time > 20) || (player->work_state == PSt_Unknown12) )
       {
-          set_gui_tooltip_box_fmt(5,"%s",cmpgn_string(CpgStr_TerrainHeroEntranceDesc)); // Hero Gate tooltip
+          set_gui_tooltip_box_fmt(5,"%s",get_string(CpgStr_TerrainHeroEntranceDesc)); // Hero Gate tooltip
       } else
       {
         help_tip_time++;
@@ -214,7 +214,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
       {
         crdata = creature_data_get(objdat->related_creatr_model);
         rdata = room_data_get_for_kind(RoK_LAIR); //TODO use a separate string for creature lair object than for lair room
-        set_gui_tooltip_box_fmt(5,"%s %s", cmpgn_string(crdata->namestr_idx), cmpgn_string(rdata->name_stridx)); // (creature) Lair
+        set_gui_tooltip_box_fmt(5,"%s %s", get_string(crdata->namestr_idx), get_string(rdata->name_stridx)); // (creature) Lair
       } else
       {
         help_tip_time++;
@@ -243,7 +243,7 @@ short setup_land_tooltips(struct Coord3d *pos)
   player = get_my_player();
   if ( (help_tip_time > 20) || (player->work_state == PSt_Unknown12) )
   {
-      set_gui_tooltip_box_fmt(2,"%s",cmpgn_string(slbattr->tooltip_stridx));
+      set_gui_tooltip_box_fmt(2,"%s",get_string(slbattr->tooltip_stridx));
   } else
   {
     help_tip_time++;
@@ -269,7 +269,7 @@ short setup_room_tooltips(struct Coord3d *pos)
   player = get_my_player();
   if ( (help_tip_time > 20) || (player->work_state == PSt_Unknown12) )
   {
-    set_gui_tooltip_box_fmt(1,"%s",cmpgn_string(stridx));
+    set_gui_tooltip_box_fmt(1,"%s",get_string(stridx));
   } else
   {
     help_tip_time++;
@@ -311,7 +311,7 @@ void setup_gui_tooltip(struct GuiButton *gbtn)
   dungeon = get_my_dungeon();
   set_flag_byte(&tool_tip_box.flags,TTip_Visible,true);
   i = gbtn->tooltip_stridx;
-  text = gui_string(i);
+  text = get_string(i);
   if ((i == GUIStr_NumberOfCreaturesDesc) || (i == GUIStr_NumberOfRoomsDesc))
   {
       if (tool_tip_box.gbutton != NULL)
@@ -335,7 +335,7 @@ void setup_gui_tooltip(struct GuiButton *gbtn)
       else
         k = get_players_special_digger_model(my_player_number);
       crdata = creature_data_get(k);
-      set_gui_tooltip_box_fmt(0, "%-6s: %s", cmpgn_string(crdata->namestr_idx), text);
+      set_gui_tooltip_box_fmt(0, "%-6s: %s", get_string(crdata->namestr_idx), text);
   } else
   {
       set_gui_tooltip_box_fmt(0, "%s", text);
