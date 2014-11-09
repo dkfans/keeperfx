@@ -11,7 +11,9 @@ You will need [POEdit] (open-source translation tool) to do this.
 
 ==Getting the files and tools you need==
 
-Go to [http://code.google.com/p/keeperfx/source/browse/#svn%2Ftrunk%2Fkeeperfx%2Flang%253Fstate%253Dclosed Language folder in KeeperFX source code tree]  and you will see a list of the language files for the original campaign. Click on the file of the language you wish to use. Then right-click on ‘save target as’, and download the file `‘gtext_xxx.po’` (where `xxx` is the language you wish to translate into).
+Go to [http://code.google.com/p/keeperfx/source/browse/#svn%2Ftrunk%2Fkeeperfx%2Flang%253Fstate%253Dopen Language folder in KeeperFX source code tree]  and you will see a list of the language files for the original campaign. Click on the file of the language you wish to use - `‘gtext_xxx.po’` (where `xxx` is the language you wish to translate into). If there's no .po file for your language, then you'll have to create it from .pot file - click `‘gtext_eng.pot’`.
+
+After the file is clicked, you will see its content on the left, and a small toolbar on the right. Right-click on ‘View RAW file’ in that toolbar, and download the file.
 
 Similarly, download the `.pot` file for the campaign you wish to translate. If it is an official campaign within KeeperFX, go to [http://code.google.com/p/keeperfx/source/browse/#svn%2Ftrunk%2Fkeeperfx%2Flang Language folder in KeeperFX sources] again, expand the folder view on the left hand pane and download the right file. If it is a campaign which isn't shipped with KeeperFX, then you’ll need to have the English template (`.pot` file) from the author(s).
 
