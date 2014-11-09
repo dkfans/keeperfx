@@ -177,14 +177,14 @@ struct SpellData *get_power_data(int pwr_idx)
   return &spell_data[0];
 }
 
-long get_power_name_strindex(int pwr_idx)
+TextStringId get_power_name_strindex(int pwr_idx)
 {
   if ((pwr_idx < 0) || (pwr_idx >= POWER_TYPES_COUNT))
     return spell_data[0].name_stridx;
   return spell_data[pwr_idx].name_stridx;
 }
 
-long get_power_description_strindex(int pwr_idx)
+TextStringId get_power_description_strindex(int pwr_idx)
 {
   if ((pwr_idx < 0) || (pwr_idx >= POWER_TYPES_COUNT))
     return spell_data[0].tooltip_stridx;

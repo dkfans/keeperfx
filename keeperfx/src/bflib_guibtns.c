@@ -35,8 +35,6 @@ extern "C" {
 
 /******************************************************************************/
 // Global variables
-char *gui_strings_data;
-char *gui_strings[STRINGS_MAX+1];
 TbCharCount input_field_pos;
 /******************************************************************************/
 // Functions

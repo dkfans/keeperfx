@@ -389,7 +389,6 @@ void toggle_gui(void);
 void add_message(long plyr_idx, char *msg);
 TbBool validate_versions(void);
 void versions_different_error(void);
-void fake_button_click(long btn_idx);
 unsigned long toggle_status_menu(short visib);
 TbBool toggle_first_person_menu(TbBool visible);
 void toggle_gui_overlay_map(void);

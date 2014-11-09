@@ -1674,7 +1674,7 @@ void set_quick_information(long msg_id, long target, long x, long y)
 
 void set_general_objective(long msg_id, long target, long x, long y)
 {
-    process_objective(cmpgn_string(msg_id), target, x, y);
+    process_objective(get_string(msg_id), target, x, y);
 }
 
 void process_objective(const char *msg_text, long target, long x, long y)

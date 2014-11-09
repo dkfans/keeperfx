@@ -100,7 +100,7 @@ void frontbirthday_draw(void)
     {
         unsigned short line_pos;
         line_pos = LbTextLineHeight();
-        LbTextDraw(0, 170-line_pos, gui_string(GUIStr_HappyBirthday));
+        LbTextDraw(0, 170-line_pos, get_string(GUIStr_HappyBirthday));
         LbTextDraw(0, 170, name);
     } else
     {
