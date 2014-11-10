@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: Burdened Imp campaign for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-07-02 23:23+0100\n"
+"PO-Revision-Date: 2014-11-10 23:26+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: pl_PL\n"
@@ -53,6 +53,11 @@ msgid ""
 "the essence, Keeper, restore this old dungeon as fast as you can. I can "
 "already hear heroes readying themselves to meet you."
 msgstr ""
+"Strażnica Miesiącznycień. Dom dla wielu rycerzy i czarodziejów o "
+"nieskazitelnej moralności. Stanowią oni plamę na tym świecie i niewątpliwie "
+"zasługują na pewną śmierć. Prędkość ma tu zasadnicze znaczenie, Strażniku; "
+"odświerz te stare lochy tak szybko jak to możliwe. Słyszę już bohaterów "
+"szykujących się by cię poznać."
 
 #: guitext:11
 msgctxt "In-game message"
@@ -591,42 +596,42 @@ msgstr "Muuuu"
 #: guitext:202
 msgctxt "Level name"
 msgid "Moonshadow Keep"
-msgstr ""
+msgstr "Strażnica Miesiącznycień"
 
 #: guitext:203
 msgctxt "Level name"
 msgid "Winterfrost Run"
-msgstr ""
+msgstr "Przepust Mroźnaszadź"
 
 #: guitext:204
 msgctxt "Level name"
 msgid "Blistering Furnace"
-msgstr ""
+msgstr "Piecki Parzenne"
 
 #: guitext:205
 msgctxt "Level name"
 msgid "Raven's Claw"
-msgstr ""
+msgstr "Krucze Szponidły"
 
 #: guitext:206
 msgctxt "Level name"
 msgid "Silversong Fall"
-msgstr ""
+msgstr "Zapadlisko Srebrnapieśń"
 
 #: guitext:207
 msgctxt "Level name"
 msgid "Waterspring River"
-msgstr ""
+msgstr "Wodotrysk Podrzeczny"
 
 #: guitext:208
 msgctxt "Level name"
 msgid "Amberstone Hills"
-msgstr ""
+msgstr "Bursztynowe Wzgórza"
 
 #: guitext:209
 msgctxt "Level name"
 msgid "Dreamweave Caverns"
-msgstr ""
+msgstr "Jaskinie Nocnych Słaniań"
 
 #: guitext:210 guitext:211 guitext:212 guitext:213 guitext:214 guitext:215
 #: guitext:216 guitext:217 guitext:218 guitext:219 guitext:220 guitext:221
