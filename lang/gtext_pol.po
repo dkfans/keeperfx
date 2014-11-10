@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-10-28 21:20+0100\n"
+"PO-Revision-Date: 2014-11-10 23:37+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: pl_PL\n"
@@ -2648,14 +2648,13 @@ msgstr ""
 "chlebie."
 
 #: guitext:299
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Dexterity: The chance of a successful attack. Used to break enemy defence. "
 "The higher the number, the greater the chance of hitting."
 msgstr ""
-"Zręczność: Szansa, że stwór uniknie pułapki lub ciosu nieprzyjaciela. Wyższa "
-"wartość to większa szansa na unik."
+"Zręczność: Szansa na udany cios. Służy przełamywaniu obrony przeciwnika. "
+"Wyższa wartość to większa szansa, że cios dosięgnie celu."
 
 #: guitext:300
 msgctxt "In-game interface description"
@@ -6513,34 +6512,31 @@ msgid "Research Skill: unused."
 msgstr ""
 
 #: guitext:953
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Manufacture Skill: How fast the creature works in Workshop. The higher the "
 "Skill level, the better the creature's performance."
 msgstr ""
-"Umiejętności: Sprawność, z jaką stwór pracuje. Im wyższa, tym lepiej stwór "
-"radzi sobie z pracą."
+"Umiejętność produkcji: Sprawność, z jaką stwór pracuje w Warsztacie. Im "
+"wyższa, tym lepiej stwór radzi sobie z tą pracą."
 
 #: guitext:954
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Training Skill: How fast the creature works on training. The higher the "
 "Skill level, the better the creature's performance."
 msgstr ""
-"Umiejętności: Sprawność, z jaką stwór pracuje. Im wyższa, tym lepiej stwór "
-"radzi sobie z pracą."
+"Umiejętność treningu: Sprawność, z jaką stwór trenuje w Sal Treningowej. Im "
+"wyższa, tym lepiej stwór radzi sobie z tą pracą."
 
 #: guitext:955
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Scavenge Skill: How fast the creature works on scavenging. The higher the "
 "Skill level, the better the creature's performance."
 msgstr ""
-"Umiejętności: Sprawność, z jaką stwór pracuje. Im wyższa, tym lepiej stwór "
-"radzi sobie z pracą."
+"Umiejętność pozyskiwania: Sprawność, z jaką stwór pracuje w Oczyszczalni. Im "
+"wyższa, tym lepiej stwór radzi sobie z tą pracą."
 
 #: guitext:956
 msgctxt "In-game interface description"
@@ -6569,13 +6565,12 @@ msgstr ""
 #: guitext:960
 msgctxt "Keeper spell name"
 msgid "Hand Of Evil"
-msgstr ""
+msgstr "Ręka Zła"
 
 #: guitext:961
-#, fuzzy
 msgctxt "Keeper spell name"
 msgid "Slap"
-msgstr "Klapsy"
+msgstr "Klaps"
 
 #: guitext:962
 msgctxt "Keeper spell description"
@@ -6583,17 +6578,17 @@ msgid ""
 "Hand Of Evil: Ability to pick up your creatures and hold them in your hand. "
 "Just don't hold them forever or they may get irritated."
 msgstr ""
+"Ręka Zła: Umiejętność podnoszenia stworów i trzymania ich w dłoni. Stwory "
+"trzymane zbyt długo mogą się zirytować."
 
 #: guitext:963
-#, fuzzy
 msgctxt "Keeper spell description"
 msgid ""
 "Slap: Makes your creatures work harder, for some time. Your creatures take "
 "some damage from each slap they receive."
 msgstr ""
-"Jeśli chcesz zmusić swoje stwory do cięższej pracy, daj im klapsa Ręką Zła, "
-"klikając na nich PPM. Każdy klaps powoduje u stwora pewien uszczerbek na "
-"zdrowiu."
+"Klaps: Zmusza twoje stwory do cięższej pracy, przez pewien czas. Każdy klaps "
+"powoduje u stwora pewien uszczerbek na zdrowiu."
 
 #~ msgctxt "In-game message"
 #~ msgid "Your manufacturers have crafted the Lava Trap."
