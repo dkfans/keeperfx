@@ -535,7 +535,7 @@ struct ExpandRooms {
 
 #pragma pack()
 /******************************************************************************/
-extern unsigned short computer_types[];
+extern unsigned short computer_types_tooltip_stridx[];
 extern struct ValidRooms valid_rooms_to_build[];
 
 extern struct ComputerProcessMnemonic computer_process_config_list[];
