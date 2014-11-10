@@ -150,36 +150,36 @@ TbClockMSec gui_message_timeout = 0;
 char gui_message_text[TEXT_BUFFER_LENGTH];
 
 struct GuiButtonInit frontend_main_menu_buttons[] = {
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,  26, 999,  26, 371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,       {1},            0, 0, NULL },
-  { 0,  0, 0, 0, frontend_start_new_game,NULL,frontend_over_button,     3, 999,  92, 999,  92, 371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,       {2},            0, 0, NULL },
-  { 0,  0, 0, 0, frontend_load_continue_game,NULL,frontend_over_button, 0, 999, 138, 999, 138, 371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,       {8},            0, 0, frontend_continue_game_maintain },
-  { 0,  0, 0, 0, frontend_ldcampaign_change_state,NULL,frontend_over_button,30,999,184,999,184,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,     {106},            0, 0, NULL },
-  { 0,  0, 0, 0, frontend_change_state,NULL, frontend_over_button,    2, 999, 230,   999, 230, 371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,       {3},            0, 0, frontend_main_menu_load_game_maintain },
-  { 0,  0, 0, 0, frontend_netservice_change_state,NULL, frontend_over_button,4,999,276,999,276,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,       {4},            0, 0, frontend_main_menu_netservice_maintain },
-  { 0,  0, 0, 0, frontend_change_state,NULL, frontend_over_button,   27, 999, 322,   999, 322, 371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {97},            0, 0, NULL },
-  { 0,  0, 0, 0, frontend_ldcampaign_change_state,NULL, frontend_over_button,18,999,368,999,368,371,46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,     {104},            0, 0, frontend_main_menu_highscores_maintain },
-  { 0,  0, 0, 0, frontend_change_state,NULL, frontend_over_button,      9, 999, 414, 999, 414, 371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,       {5},            0, 0, NULL },
-  {-1,  0, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,   0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,  26, 999,  26, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {1},            0, 0, NULL },
+  { 0,  0, 0, 0, frontend_start_new_game,NULL,frontend_over_button,     3, 999,  92, 999,  92, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {2},            0, 0, NULL },
+  { 0,  0, 0, 0, frontend_load_continue_game,NULL,frontend_over_button, 0, 999, 138, 999, 138, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {8},            0, 0, frontend_continue_game_maintain },
+  { 0,  0, 0, 0, frontend_ldcampaign_change_state,NULL,frontend_over_button,30,999,184,999,184,371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,     {106},            0, 0, NULL },
+  { 0,  0, 0, 0, frontend_change_state,NULL, frontend_over_button,    2, 999, 230,   999, 230, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {3},            0, 0, frontend_main_menu_load_game_maintain },
+  { 0,  0, 0, 0, frontend_netservice_change_state,NULL, frontend_over_button,4,999,276,999,276,371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {4},            0, 0, frontend_main_menu_netservice_maintain },
+  { 0,  0, 0, 0, frontend_change_state,NULL, frontend_over_button,   27, 999, 322,   999, 322, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,      {97},            0, 0, NULL },
+  { 0,  0, 0, 0, frontend_ldcampaign_change_state,NULL, frontend_over_button,18,999,368,999,368,371,46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,     {104},            0, 0, frontend_main_menu_highscores_maintain },
+  { 0,  0, 0, 0, frontend_change_state,NULL, frontend_over_button,      9, 999, 414, 999, 414, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {5},            0, 0, NULL },
+  {-1,  0, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,   0,  0, NULL,                             0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
 };
 
 struct GuiButtonInit frontend_statistics_buttons[] = {
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,  30, 999,  30,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {84},            0, 0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,  90, 999,  90,450,162, frontstats_draw_main_stats,        0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999, 260, 999, 260,450,136, frontstats_draw_scrolling_stats,   0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
-  { 0,  0, 0, 0, frontstats_leave,NULL,frontend_over_button,         18, 999, 404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {83},            0, 0, NULL },
-  {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,  30, 999,  30,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {84},            0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,  90, 999,  90,450,162, frontstats_draw_main_stats,        0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999, 260, 999, 260,450,136, frontstats_draw_scrolling_stats,   0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
+  { 0,  0, 0, 0, frontstats_leave,NULL,frontend_over_button,           18, 999, 404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {83},            0, 0, NULL },
+  {-1,  0, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
 };
 
 struct GuiButtonInit frontend_high_score_score_buttons[] = {
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,  30, 999,  30,495, 46, frontend_draw_vlarge_menu_button,  0, GUIStr_Empty,  0,      {85},            0, 0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,  97, 999,  97,450,286, frontend_draw_high_score_table,    0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
-  { 0,  0, 0, 0, frontend_quit_high_score_table,NULL,frontend_over_button,3,999,404,999,404,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {83},            0, 0, frontend_maintain_high_score_ok_button },
-  {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,  30, 999,  30,495, 46, frontend_draw_vlarge_menu_button,  0, GUIStr_Empty,  0,      {85},            0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,  97, 999,  97,450,286, frontend_draw_high_score_table,    0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
+  { 0,  0, 0, 0, frontend_quit_high_score_table,NULL,frontend_over_button,3,999,404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {83},            0, 0, frontend_maintain_high_score_ok_button },
+  {-1,  0, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
 };
 
 struct GuiButtonInit frontend_error_box_buttons[] = {
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,   0, 999,   0,450, 92, frontend_draw_error_text_box,      0, GUIStr_Empty,  0,{(long)gui_message_text},0, 0, frontend_maintain_error_text_box},
-  {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,   0, 999,   0,450, 92, frontend_draw_error_text_box,      0, GUIStr_Empty,  0,{(long)gui_message_text},0, 0, frontend_maintain_error_text_box},
+  {-1,  0, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
 };
 
 
@@ -1187,9 +1187,9 @@ TbBool fronttestfont_input(void)
 void frontend_draw_icon(struct GuiButton *gbtn)
 {
     int units_per_px;
-    units_per_px = simple_frontend_sprite_width_units_per_px(gbtn, gbtn->field_29, 100);
+    units_per_px = simple_frontend_sprite_width_units_per_px(gbtn, gbtn->sprite_idx, 100);
     struct TbSprite *spr;
-    spr = &frontend_sprite[gbtn->field_29];
+    spr = &frontend_sprite[gbtn->sprite_idx];
     LbSpriteDrawResized(gbtn->scr_pos_x, gbtn->scr_pos_y, units_per_px, spr);
 }
 
@@ -1262,7 +1262,7 @@ void gui_area_text(struct GuiButton *gbtn)
     }
     int bs_units_per_px;
     bs_units_per_px = simple_button_sprite_height_units_per_px(gbtn, 2, 94);
-    switch (gbtn->field_29)
+    switch (gbtn->sprite_idx)
     {
     case 1:
         if ( gbtn->gbactn_1 || gbtn->gbactn_2 )
@@ -1946,7 +1946,7 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit, int units_
     gbtn->width = (gbinit->width * units_per_px + 8) / 16;
     gbtn->height = (gbinit->height * units_per_px + 8) / 16;
     gbtn->draw_call = gbinit->draw_call;
-    gbtn->field_29 = gbinit->field_25;
+    gbtn->sprite_idx = gbinit->sprite_idx;
     gbtn->tooltip_stridx = gbinit->tooltip_stridx;
     gbtn->parent_menu = gbinit->parent_menu;
     gbtn->content = (unsigned long *)gbinit->content.lptr;
