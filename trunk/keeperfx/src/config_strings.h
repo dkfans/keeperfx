@@ -35,13 +35,10 @@ enum GUIStrings {
     GUIStr_SuccessLandIsYours = STRINGS_MAX+0, // per-campaign
     GUIStr_LevelEventMessage = STRINGS_MAX+1, // range 1..200, per-campaign
     GUIStr_Empty = STRINGS_MAX+201,
-    GUIStr_LevelName = STRINGS_MAX+202, // range 202..221, per-campaign
     GUIStr_NameAndHealthDesc = STRINGS_MAX+222,
     GUIStr_ExperienceDesc,
     GUIStr_HungerDesc,
     GUIStr_Cancel,
-    GUIStr_CreatureSpellDesc = STRINGS_MAX+226, // range 226..257, per-campaign
-    GUIStr_CreatureKind1 = STRINGS_MAX+258, // range 258..286, per-campaign
     GUIStr_CreatureQueryDesc = STRINGS_MAX+287,
     GUIStr_SelectGame,
     GUIStr_NetworkMenu,
@@ -74,15 +71,11 @@ enum GUIStrings {
     GUIStr_OptionViewDistanceDesc,
     GUIStr_OptionGammaCorrectionDesc,
     GUIStr_Of,
-    GUIStr_TerrainEmptyLairDesc = STRINGS_MAX+319, // per-campaign
     GUIStr_PausedMsg = STRINGS_MAX+320,
     GUIStr_PaneZoomInDesc,
     GUIStr_PaneZoomOutDesc,
     GUIStr_PaneLargeMapDesc,
-    GUIStr_TerrainVarDesc1 = STRINGS_MAX+324, // range 324..332, per-campaign
     GUIStr_PaneMore = STRINGS_MAX+333,
-    GUIStr_LevelWon = STRINGS_MAX+334, // per-campaign
-    GUIStr_LevelLost, // per-campaign
     GUIStr_RecMovie = STRINGS_MAX+336,
     GUIStr_RecMovieFail,
     GUIStr_RecMovieDone,
@@ -144,7 +137,6 @@ enum GUIStrings {
     GUIStr_SpecLocateHiddenWorldDesc,
     GUIStr_SpecResurrectCreature,
     GUIStr_SpecTransferCreature,
-    GUIStr_BonusLevel = STRINGS_MAX+430,
     GUIStr_MnuHighScoreTable = STRINGS_MAX+431,
     GUIStr_GoToQueryMode,
     GUIStr_MoreInformation = STRINGS_MAX+433,
@@ -258,43 +250,16 @@ enum GUIStrings {
     GUIStr_NetUnableToInit = STRINGS_MAX+541,
     GUIStr_NetUnableToCrGame,
     GUIStr_NetUnableToJoin,
-    GUIStr_TerrainVarDesc2 = STRINGS_MAX+544, // range 544..545, per-campaign
-    GUIStr_CreatureKind2 = STRINGS_MAX+546, // range 546..547, per-campaign
     GUIStr_CompAssNowAggressive = STRINGS_MAX+548,
     GUIStr_CompAssNowDefensive,
     GUIStr_CompAssNowConstruction,
     GUIStr_CompAssNowMoveOnly,
-    GUIStr_RoomKind1 = STRINGS_MAX+552, // range 552..566, per-campaign
     GUIStr_StateFight = STRINGS_MAX+567,
     GUIStr_StateAnnoyed = STRINGS_MAX+568,
     GUIStr_KeyShift = STRINGS_MAX+569,
     GUIStr_KeyControl,
     GUIStr_KeyAlt,
     GUIStr_CreditsHead2 = STRINGS_MAX+572, // range 572..577
-    GUIStr_BoulderTrap = STRINGS_MAX+578, // per-campaign
-    GUIStr_TrapKindAlarm, // per-campaign
-    GUIStr_TrapKindPoisonGas, // per-campaign
-    GUIStr_TrapKindLightning, // per-campaign
-    GUIStr_TrapKindWordOfPower, // per-campaign
-    GUIStr_TrapKindLava, // per-campaign
-    GUIStr_TrapBoulderDesc = STRINGS_MAX+584, // per-campaign
-    GUIStr_AlarmTrapDesc, // per-campaign
-    GUIStr_PoisonGasTrapDesc, // per-campaign
-    GUIStr_LightningTrapDesc, // per-campaign
-    GUIStr_WordOfPowerTrapDesc, // per-campaign
-    GUIStr_LavaTrapDesc, // per-campaign
-    GUIStr_DoorKindWooden = STRINGS_MAX+590, // per-campaign
-    GUIStr_DoorKindBraced, // per-campaign
-    GUIStr_DoorKindIron, // per-campaign
-    GUIStr_DoorKindMagic, // per-campaign
-    GUIStr_WoodenDoorDesc = STRINGS_MAX+594, // per-campaign
-    GUIStr_BracedDoorDesc, // per-campaign
-    GUIStr_IronDoorDesc, // per-campaign
-    GUIStr_MagicDoorDesc, // per-campaign
-    GUIStr_RoomKind2 = STRINGS_MAX+598, // range 598..614, per-campaign
-    GUIStr_RoomDesc1 = STRINGS_MAX+615, // range 615..629, per-campaign
-    GUIStr_PowerKind1 = STRINGS_MAX+630, // range 630..646, per-campaign
-    GUIStr_PowerDesc1 = STRINGS_MAX+647, // range 647..663, per-campaign
     GUIStr_EventTreasureRoomFull = STRINGS_MAX+664,
     GUIStr_EventScavengingDetected,
     GUIStr_EventCreaturePayday,

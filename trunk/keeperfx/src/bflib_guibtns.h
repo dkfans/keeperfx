@@ -121,7 +121,7 @@ struct GuiButtonInit {
     short width;
     short height;
     Gf_Btn_Callback draw_call;
-    short field_25;
+    short sprite_idx;
     short tooltip_stridx;
     struct GuiMenu *parent_menu;
     union GuiVariant content;
@@ -149,7 +149,7 @@ struct GuiButton {
        short pos_y;
        short width;
        short height;
-       short field_29;
+       short sprite_idx;
        /** Tooltip string ID. Positive for GUI string, negative for campaign string. */
        short tooltip_stridx;
        unsigned short field_2D;
