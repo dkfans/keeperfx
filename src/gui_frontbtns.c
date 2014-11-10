@@ -517,16 +517,16 @@ void gui_area_new_normal_button(struct GuiButton *gbtn)
     SYNCDBG(10,"Starting");
     int i;
     int ps_units_per_px;
-    ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, gbtn->field_29+1, 100);
+    ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, gbtn->sprite_idx+1, 100);
     if ((gbtn->flags & LbBtnF_Unknown08) != 0)
     {
         i = 0;
         if ((!gbtn->gbactn_1) && (!gbtn->gbactn_2))
             i = 1;
-        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->field_29+i);
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx+i);
     } else
     {
-        draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->field_29+1, 12);
+        draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx+1, 12);
     }
     SYNCDBG(12,"Finished");
 }
@@ -536,16 +536,16 @@ void gui_area_new_vertical_button(struct GuiButton *gbtn)
     SYNCDBG(10,"Starting");
     int i;
     int ps_units_per_px;
-    ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, gbtn->field_29+1, 100);
+    ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, gbtn->sprite_idx+1, 100);
     if ((gbtn->flags & LbBtnF_Unknown08) != 0)
     {
         i = 0;
         if ((!gbtn->gbactn_1) && (!gbtn->gbactn_2))
             i = 1;
-        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->field_29+i);
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx+i);
     } else
     {
-        draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->field_29+1, 12);
+        draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx+1, 12);
     }
     SYNCDBG(12,"Finished");
 }
@@ -553,7 +553,7 @@ void gui_area_new_vertical_button(struct GuiButton *gbtn)
 void gui_draw_tab(struct GuiButton *gbtn)
 {
     int i;
-    i = gbtn->field_29;
+    i = gbtn->sprite_idx;
     if (gbtn->gbtype == Lb_CYCLEBTN) {
         ERRORLOG("Cycle button cannot use this draw function!");
     }
@@ -567,15 +567,15 @@ void gui_draw_tab(struct GuiButton *gbtn)
 void gui_area_new_null_button(struct GuiButton *gbtn)
 {
     int ps_units_per_px;
-    ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, gbtn->field_29, 128);
-    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->field_29);
+    ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, gbtn->sprite_idx, 128);
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx);
 }
 
 void gui_area_compsetting_button(struct GuiButton *gbtn)
 {
     SYNCDBG(10,"Starting");
     int spr_idx;
-    spr_idx = gbtn->field_29;
+    spr_idx = gbtn->sprite_idx;
     if (gbtn->gbtype == Lb_CYCLEBTN)
     {
         if (gbtn->content != NULL) {
@@ -607,7 +607,7 @@ void gui_area_creatrmodel_button(struct GuiButton *gbtn)
 {
     SYNCDBG(10,"Starting");
     int spr_idx;
-    spr_idx = gbtn->field_29;
+    spr_idx = gbtn->sprite_idx;
     if (gbtn->gbtype == Lb_CYCLEBTN)
     {
         if (gbtn->content != NULL) {
@@ -639,7 +639,7 @@ void gui_area_new_no_anim_button(struct GuiButton *gbtn)
 {
     SYNCDBG(10,"Starting");
     int spr_idx;
-    spr_idx = gbtn->field_29;
+    spr_idx = gbtn->sprite_idx;
     if (gbtn->gbtype == Lb_CYCLEBTN)
     {
         if (gbtn->content != NULL) {
@@ -670,7 +670,7 @@ void gui_area_new_no_anim_button(struct GuiButton *gbtn)
 void gui_area_no_anim_button(struct GuiButton *gbtn)
 {
     int spr_idx;
-    spr_idx = gbtn->field_29;
+    spr_idx = gbtn->sprite_idx;
     if (gbtn->gbtype == Lb_CYCLEBTN)
     {
         unsigned char *ctptr;
@@ -702,7 +702,7 @@ void gui_area_no_anim_button(struct GuiButton *gbtn)
 void gui_area_normal_button(struct GuiButton *gbtn)
 {
     int spr_idx;
-    spr_idx = gbtn->field_29;
+    spr_idx = gbtn->sprite_idx;
     if (gbtn->gbtype == Lb_CYCLEBTN)
     {
         ERRORLOG("Cycle button cannot have a normal button draw function!");
@@ -998,13 +998,13 @@ void frontend_draw_slider_button(struct GuiButton *gbtn)
 void gui_area_null(struct GuiButton *gbtn)
 {
     int bs_units_per_px;
-    bs_units_per_px = simple_button_sprite_height_units_per_px(gbtn, gbtn->field_29, 100);
+    bs_units_per_px = simple_button_sprite_height_units_per_px(gbtn, gbtn->sprite_idx, 100);
     if ((gbtn->flags & LbBtnF_Unknown08) != 0)
     {
-        draw_button_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, gbtn->field_29);
+        draw_button_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, gbtn->sprite_idx);
     } else
     {
-        draw_button_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, gbtn->field_29);
+        draw_button_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, gbtn->sprite_idx);
     }
 }
 
@@ -1025,7 +1025,7 @@ void gui_area_flash_cycle_button(struct GuiButton *gbtn)
 {
     SYNCDBG(10,"Starting");
     int spr_idx;
-    spr_idx = gbtn->field_29;
+    spr_idx = gbtn->sprite_idx;
     int ps_units_per_px;
     ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, spr_idx, 113);
     if ((gbtn->flags & LbBtnF_Unknown08) != 0)
