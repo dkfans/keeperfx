@@ -48,7 +48,14 @@ extern "C" {
 /******************************************************************************/
 
 ComputerType computer_assist_types[] = { 6, 7, 8, 9 };
-unsigned short computer_types[] = { 201, 201, 201, 201, 201, 201, 729, 730, 731, 732 };
+
+//TODO move to config file
+unsigned short computer_types_tooltip_stridx[] = {
+    GUIStr_Empty, GUIStr_Empty,
+    GUIStr_Empty, GUIStr_Empty,
+    GUIStr_Empty, GUIStr_Empty,
+    GUIStr_AggressiveAssistDesc, GUIStr_DefensiveAssistDesc,
+    GUIStr_ConstructionAssistDesc, GUIStr_MoveOnlyAssistDesc, };
 
 /******************************************************************************/
 DLLIMPORT long _DK_get_computer_money_less_cost(struct Computer2 *comp);

@@ -136,7 +136,7 @@ void maintain_turn_on_autopilot(struct GuiButton *gbtn)
     comp = get_computer_player(player->id_number);
     cplr_model = comp->model;
     if ((cplr_model >= 0) && (cplr_model < 10)) {
-        gbtn->tooltip_stridx = computer_types[cplr_model];
+        gbtn->tooltip_stridx = computer_types_tooltip_stridx[cplr_model];
     } else {
         ERRORLOG("Illegal computer player");
     }
