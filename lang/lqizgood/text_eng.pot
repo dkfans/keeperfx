@@ -808,34 +808,34 @@ msgstr ""
 
 #: guitext:324
 msgctxt "Slab description"
-msgid "Impenetrable Rock: Your Imps cannot dig through this. [12.4]"
+msgid "Impenetrable Rock: Your Imps cannot dig through this, the only solution is to go round. It is visible even if far from your territory."
 msgstr ""
 
 #: guitext:325
 msgctxt "Slab description"
-msgid "Earth: You can excavate this. [12.1]"
+msgid "Earth: You can excavate this. To dig out some new caverns, choose a location and tag for digging with LMB. Press LMB again to untag."
 msgstr ""
 
 #: guitext:326
 msgctxt "Slab description"
 msgid ""
 "Gold Seam: Your source of wealth. Dig this out and your Imps will take it to "
-"your Treasure Room. [12.2]"
+"your Treasure Room. You can also pick up the lumps of treasure left on the ground."
 msgstr ""
 
 #: guitext:327
 msgctxt "Slab description"
-msgid "Lava: Burns any creature that step on it. [14.2]"
+msgid "Lava: Burns any creature that step on it. Get over lava by building a Bridge."
 msgstr ""
 
 #: guitext:328
 msgctxt "Slab description"
-msgid "Water: Creatures move more slowly through water. [14.1]"
+msgid "Water: Creatures move more slowly through water. Build the Bridge to make new land on the water."
 msgstr ""
 
 #: guitext:329
 msgctxt "Slab description"
-msgid "Wall: A reinforced stone wall that enemies cannot break through. [12.1]"
+msgid "Wall: A reinforced stone wall that enemies cannot break through. At least without the Destroy Walls spell."
 msgstr ""
 
 #: guitext:330
@@ -845,12 +845,12 @@ msgstr ""
 
 #: guitext:331
 msgctxt "Slab description"
-msgid "Path: Unclaimed earth floor. [12.1]"
+msgid "Path: Unclaimed earth floor. You can claim it if it is connected to already claimed territory."
 msgstr ""
 
 #: guitext:332
 msgctxt "Slab description"
-msgid "Claimed area: Your dungeon territory. [12.1]"
+msgid "Claimed area: Your dungeon territory. You can build rooms and drop your creatures on it."
 msgstr ""
 
 #: guitext:334
@@ -916,7 +916,7 @@ msgstr ""
 
 #: guitext:426
 msgctxt "Dungeon special decription"
-msgid "Make Safe : Reinforces your entire dungeon."
+msgid "Make Safe: Reinforces your entire dungeon."
 msgstr ""
 
 #: guitext:427
@@ -966,12 +966,12 @@ msgstr ""
 
 #: guitext:544
 msgctxt "Slab description"
-msgid "Gems: Infinite wealth for your Imps to extract. [12.3]"
+msgid "Gems: Infinite wealth for your Imps to extract. Cannot be destroyed, but takes longer to mine than Gold."
 msgstr ""
 
 #: guitext:545
 msgctxt "Object description"
-msgid "Hero Gate: Heroes use this portal to invade your dungeon. [15.4]"
+msgid "Hero Gate: Heroes use this portal to invade your dungeon. It cannot be closed on your side."
 msgstr ""
 
 #: guitext:546
@@ -1103,41 +1103,41 @@ msgstr ""
 #: guitext:584
 msgctxt "Trap description"
 msgid ""
-"Boulder Trap: A rolling rock that crushes everything in its path. LMB "
-"select. RMB zoom. [20.1]"
+"Boulder Trap: A rolling rock that crushes everything in its path. Triggered when enemy creature "
+"is close and within line of sight, or when slapped by a Keeper. LMB select. RMB zoom."
 msgstr ""
 
 #: guitext:585
 msgctxt "Trap description"
-msgid "Alarm Trap: Triggers a Call To Arms spell. LMB select. RMB zoom. [20.2]"
+msgid "Alarm Trap: Triggers a Call To Arms spell, so that creatures in the area are summoned to it. LMB select. RMB zoom."
 msgstr ""
 
 #: guitext:586
 msgctxt "Trap description"
 msgid ""
-"Poison Gas Trap: A cloud of noxious vapours triggered by your enemies. LMB "
-"select. RMB zoom. [20.3]"
+"Poison Gas Trap: A cloud of noxious vapours triggered by your enemies. Can hurt owner creatures if they inhale it. LMB "
+"select. RMB zoom."
 msgstr ""
 
 #: guitext:587
 msgctxt "Trap description"
 msgid ""
-"Lightning Trap: Strikes nearby enemy creatures with bolts of lightning. LMB "
-"select. RMB zoom. [20.4]"
+"Lightning Trap: Strikes nearby enemy creatures with bolts of lightning when tripped. Does no harm to owner creatures. LMB "
+"select. RMB zoom."
 msgstr ""
 
 #: guitext:588
 msgctxt "Trap description"
 msgid ""
-"Word of Power Trap: Radiates devastating rings of demonic energy, damaging "
-"all creatures within range. LMB select. RMB zoom. [20.5]"
+"Word of Power Trap: Radiates devastating rings of demonic energy, pushing and "
+"damaging all enemy creatures within range. LMB select. RMB zoom."
 msgstr ""
 
 #: guitext:589
 msgctxt "Trap description"
 msgid ""
-"Lava Trap: The tile disintegrates revealing a pool of molten lava. LMB "
-"select. RMB zoom. [20.6]"
+"Lava Trap: The tile disintegrates revealing a pool of molten lava. Effects are irreversible, so Bridge is needed to be able to step on affected area again. LMB "
+"select. RMB zoom."
 msgstr ""
 
 #: guitext:590
@@ -1163,28 +1163,27 @@ msgstr ""
 #: guitext:594
 msgctxt "Door description"
 msgid ""
-"Wooden Door: The simplest means of restricting access. LMB select. RMB zoom. "
-"[21.1]"
+"Wooden Door: The simplest means of restricting access. Can be broken down easily. LMB select. RMB zoom."
 msgstr ""
 
 #: guitext:595
 msgctxt "Door description"
 msgid ""
-"Braced Door: A wooden door reinforced with iron. LMB select. RMB zoom. [21.2]"
+"Braced Door: A wooden door reinforced with iron to last longer. LMB select. RMB zoom."
 msgstr ""
 
 #: guitext:596
 msgctxt "Door description"
 msgid ""
 "Iron Door: Strong, heavy door capable of sustaining massive damage. LMB "
-"select. RMB zoom. [21.3]"
+"select. RMB zoom."
 msgstr ""
 
 #: guitext:597
 msgctxt "Door description"
 msgid ""
 "Magic Door: A special door, highly resistant to physical damage but "
-"susceptible to magical damage. LMB select. RMB zoom. [21.4]"
+"susceptible to magical damage. LMB select. RMB zoom."
 msgstr ""
 
 #: guitext:598
