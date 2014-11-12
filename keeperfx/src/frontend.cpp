@@ -1684,6 +1684,10 @@ short frontend_save_continue_game(short allow_lvnum_grow)
     SYNCDBG(6,"Starting");
     player = get_my_player();
     dungeon = get_players_dungeon(player);
+    // Do not allow current level to grow if it wasn't just beaten
+    if (get_loaded_level_number() != get_continue_level_number()) {
+        allow_lvnum_grow = false;
+    }
     // Save some of the data from clearing
     victory_state = player->victory_state;
     memcpy(scratch, &dungeon->lvstats, sizeof(struct LevelStats));
