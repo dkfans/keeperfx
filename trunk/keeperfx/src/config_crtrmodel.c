@@ -2207,14 +2207,18 @@ TbBool change_max_health_of_creature_kind(ThingModel crmodel, long new_max)
     SYNCDBG(3,"Changing all %s health from %d to %d.",creature_code_name(crmodel),(int)crstat->health,(int)new_max);
     crstat->health = saturate_set_signed(new_max, 16);
     creature_stats_updated(crmodel);
-    PlayerNumber plyr_idx;
-    for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
-    {
-        do_to_players_all_creatures_of_model(plyr_idx,crmodel,update_creature_health_to_max);
-    }
-    return true;
+    int n;
+    n = do_to_all_things_of_class_and_model(TCls_Creature, crmodel, update_creature_health_to_max);
+    return (n > 0);
 }
 
+TbBool heal_completely_all_players_creatures(PlayerNumber plyr_idx, ThingModel crmodel)
+{
+    SYNCDBG(3,"Healing all player %d creatures of model %s.",creature_code_name(crmodel));
+    int n;
+    n = do_to_players_all_creatures_of_model(plyr_idx,crmodel,update_creature_health_to_max);
+    return (n > 0);
+}
 
 /******************************************************************************/
 #ifdef __cplusplus

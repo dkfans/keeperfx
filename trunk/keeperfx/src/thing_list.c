@@ -1371,6 +1371,46 @@ struct Thing *get_random_thing_of_class_with_filter(Thing_Maximizer_Filter filte
     return get_nth_thing_of_class_with_filter(filter, param, ACTION_RANDOM(match_count));
 }
 
+long do_to_all_things_of_class_and_model(int tngclass, int tngmodel, Thing_Bool_Modifier do_cb)
+{
+    unsigned long k;
+    long i, n;
+    SYNCDBG(19,"Starting");
+    struct StructureList *slist;
+    slist = get_list_for_thing_class(tngclass);
+    if (slist == NULL) {
+        return 0;
+    }
+    n = 0;
+    i = slist->index;
+    k = 0;
+    while (i != 0)
+    {
+        struct Thing *thing;
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_of_class;
+        // Per-thing code
+        if ((thing->model == tngmodel) || (tngmodel < 0))
+        {
+            if (do_cb(thing))
+                n++;
+        }
+        // Per-thing code ends
+        k++;
+        if (k > slist->count)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return n;
+}
+
 /** Finds on whole map a thing owned by given player, which matches given bool filter.
  *
  * @param pos_x Position to search around X coord.
