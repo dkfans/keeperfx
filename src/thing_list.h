@@ -164,6 +164,7 @@ struct Thing *get_random_players_creature_of_model(PlayerNumber plyr_idx, ThingM
 struct Thing *find_players_highest_level_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, unsigned char pick_check);
 struct Thing *find_players_lowest_level_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, unsigned char pick_check);
 long do_to_players_all_creatures_of_model(PlayerNumber plyr_idx, int crmodel, Thing_Bool_Modifier do_cb);
+TbBool heal_completely_all_players_creatures(PlayerNumber plyr_idx, ThingModel crmodel);
 void setup_all_player_creatures_and_diggers_leave_or_die(PlayerNumber plyr_idx);
 
 // Filters to select thing on/near given map position
@@ -197,6 +198,7 @@ long count_creatures_near_and_owned_by_or_allied_with(MapCoord pos_x, MapCoord p
 struct Thing *get_random_thing_of_class_with_filter(Thing_Maximizer_Filter filter, MaxTngFilterParam param);
 struct Thing *get_nth_thing_of_class_with_filter(Thing_Maximizer_Filter filter, MaxTngFilterParam param, long tngindex);
 long count_things_of_class_with_filter(Thing_Maximizer_Filter filter, MaxTngFilterParam param);
+long do_to_all_things_of_class_and_model(int tngclass, int tngmodel, Thing_Bool_Modifier do_cb);
 // Final routines to select thing anywhere on map but only of one given class
 struct Thing *get_nearest_object_owned_by_and_matching_bool_filter(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx, Thing_Bool_Filter matcher_cb);
 struct Thing *get_random_trap_of_model_owned_by_and_armed(ThingModel tngmodel, PlayerNumber plyr_idx, TbBool armed);
