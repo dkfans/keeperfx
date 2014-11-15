@@ -49,16 +49,25 @@ struct MemberPos { // sizeof=3
 #pragma pack()
 /******************************************************************************/
 /******************************************************************************/
-int get_party_index_of_name(const char *prtname);
 CrtrExpLevel get_highest_experience_level_in_group(struct Thing *grptng);
 long get_no_creatures_in_group(const struct Thing *grptng);
 struct Thing *get_last_creature_in_group(const struct Thing *grptng);
+TbBool get_free_position_behind_leader(struct Thing *leadtng, struct Coord3d *pos);
+
 TbBool add_creature_to_group(struct Thing *crthing, struct Thing *grthing);
-TbBool create_party(char *prtname);
-TbBool add_member_to_party_name(const char *prtname, long crtr_model, long crtr_level, long carried_gold, long objctv_id, long countdown);
+long add_creature_to_group_as_leader(struct Thing *thing1, struct Thing *thing2);
+TbBool remove_creature_from_group(struct Thing *thing);
+
+TbBool creature_is_group_member(const struct Thing *thing);
+TbBool creature_is_group_leader(const struct Thing *thing);
+struct Thing *get_group_leader(const struct Thing *thing);
 TbBool make_group_member_leader(struct Thing *leadtng);
+
+TbBool create_party(char *prtname);
+int get_party_index_of_name(const char *prtname);
+TbBool add_member_to_party_name(const char *prtname, long crtr_model, long crtr_level, long carried_gold, long objctv_id, long countdown);
 long process_obey_leader(struct Thing *thing);
-void leader_find_positions_for_followers(struct Thing *thing);
+void leader_find_positions_for_followers(struct Thing *leadtng);
 /******************************************************************************/
 #ifdef __cplusplus
 }

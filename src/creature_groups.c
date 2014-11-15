@@ -37,6 +37,8 @@ extern "C" {
 /******************************************************************************/
 DLLIMPORT long _DK_get_highest_experience_level_in_group(struct Thing *creatng);
 DLLIMPORT void _DK_leader_find_positions_for_followers(struct Thing *creatng);
+DLLIMPORT long _DK_remove_creature_from_group(struct Thing *creatng);
+DLLIMPORT long _DK_add_creature_to_group_as_leader(struct Thing *thing1, struct Thing *thing2);
 
 /******************************************************************************/
 CrtrExpLevel get_highest_experience_level_in_group(struct Thing *grptng)
@@ -96,7 +98,7 @@ long get_no_creatures_in_group(const struct Thing *grptng)
             break;
         i = cctrl->next_in_group;
         k++;
-        if (k > CREATURES_COUNT)
+        if (k > GROUP_MEMBERS_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping creatures group");
             break;
@@ -115,7 +117,7 @@ struct Thing *get_last_creature_in_group(const struct Thing *grptng)
     i = cctrl->group_info & TngGroup_LeaderIndex;
     if (i == 0) {
         // No group - just one creature
-        return NULL;
+        return INVALID_THING;
     }
     k = 0;
     while (i > 0)
@@ -136,45 +138,126 @@ struct Thing *get_last_creature_in_group(const struct Thing *grptng)
     return ctng;
 }
 
-TbBool add_creature_to_group(struct Thing *crthing, struct Thing *grthing)
+struct Thing *get_group_leader(const struct Thing *thing)
+{
+  struct CreatureControl *cctrl;
+  struct Thing *leadtng;
+  cctrl = creature_control_get_from_thing(thing);
+  leadtng = thing_get(cctrl->group_info & TngGroup_LeaderIndex);
+  return leadtng;
+}
+
+TbBool creature_is_group_member(const struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    return ((cctrl->group_info & TngGroup_LeaderIndex) > 0);
+}
+
+TbBool creature_is_group_leader(const struct Thing *thing)
+{
+    struct Thing *leadtng;
+    //return _DK_creature_is_group_leader(thing);
+    leadtng = get_group_leader(thing);
+    if (thing_is_invalid(leadtng))
+        return false;
+    return (leadtng->index == thing->index);
+}
+
+TbBool remove_creature_from_group(struct Thing *thing)
+{
+    return _DK_remove_creature_from_group(thing);
+}
+
+TbBool add_creature_to_group(struct Thing *creatng, struct Thing *grptng)
 {
     struct Thing *pvthing;
-    pvthing = get_last_creature_in_group(grthing);
-    if ((grthing->index == crthing->index) || (grthing->owner != crthing->owner)) {
+    pvthing = get_last_creature_in_group(grptng);
+    if ((grptng->index == creatng->index) || (grptng->owner != creatng->owner)) {
         return false;
     }
     struct CreatureControl *crctrl;
-    long i;
-    crctrl = creature_control_get_from_thing(crthing);
-    i = crctrl->group_info & TngGroup_LeaderIndex;
-    if (i != 0) {
-        remove_creature_from_group(crthing);
+    crctrl = creature_control_get_from_thing(creatng);
+    if (creature_is_group_member(creatng)) {
+        remove_creature_from_group(creatng);
     }
     if (thing_exists(pvthing))
     {
         // If we already have a group, place the new creature at end
         struct CreatureControl *pvctrl;
-        crctrl = creature_control_get_from_thing(crthing);
+        crctrl = creature_control_get_from_thing(creatng);
         crctrl->prev_in_group = pvthing->index;
         pvctrl = creature_control_get_from_thing(pvthing);
-        pvctrl->next_in_group = crthing->index;
+        pvctrl->next_in_group = creatng->index;
         crctrl->group_info ^= (crctrl->group_info ^ pvctrl->group_info) & TngGroup_LeaderIndex;
         crctrl->next_in_group = 0;
     } else
     {
         // If there's no group, create new one made of both creatures
         struct CreatureControl *grctrl;
-        crctrl = creature_control_get_from_thing(crthing);
-        crctrl->prev_in_group = grthing->index;
-        grctrl = creature_control_get_from_thing(grthing);
-        grctrl->next_in_group = crthing->index;
-        crctrl->group_info ^= (crctrl->group_info ^ grthing->index) & TngGroup_LeaderIndex;
-        grctrl->group_info ^= (grctrl->group_info ^ grthing->index) & TngGroup_LeaderIndex;
+        crctrl = creature_control_get_from_thing(creatng);
+        crctrl->prev_in_group = grptng->index;
+        grctrl = creature_control_get_from_thing(grptng);
+        grctrl->next_in_group = creatng->index;
+        crctrl->group_info ^= (crctrl->group_info ^ grptng->index) & TngGroup_LeaderIndex;
+        grctrl->group_info ^= (grctrl->group_info ^ grptng->index) & TngGroup_LeaderIndex;
         crctrl->next_in_group = 0;
         crctrl->group_info &= TngGroup_LeaderIndex;
     }
-    crthing->alloc_flags |= TAlF_IsFollowingLeader;
+    creatng->alloc_flags |= TAlF_IsFollowingLeader;
     return true;
+}
+
+long add_creature_to_group_as_leader(struct Thing *creatng, struct Thing *grptng)
+{
+    //return _DK_add_creature_to_group_as_leader(creatng, grptng);
+    struct Thing *leadtng;
+    leadtng = get_group_leader(grptng);
+    if (thing_is_invalid(leadtng))
+        leadtng = grptng;
+    if ((grptng->index == creatng->index) || (grptng->owner != creatng->owner)) {
+        return 0;
+    }
+    if (creature_is_group_member(creatng)) {
+        remove_creature_from_group(creatng);
+    }
+    // Change old leader to normal group member, and add new one to chain as its head
+    struct CreatureControl *crctrl;
+    crctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl *ldctrl;
+    ldctrl = creature_control_get_from_thing(leadtng);
+    crctrl->next_in_group = leadtng->index;
+    ldctrl->prev_in_group = creatng->index;
+    leadtng->alloc_flags |= TAlF_IsFollowingLeader;
+    crctrl->group_info ^= (crctrl->group_info ^ creatng->index) & TngGroup_LeaderIndex;
+    // Remove member count from old leader; new leader will have it computed somewhere else
+    ldctrl->group_info &= ~TngGroup_MemberCount;
+    // Now go through all group members and set leader index
+    long i;
+    unsigned long k;
+    i = leadtng->index;
+    k = 0;
+    while (i > 0)
+    {
+        struct CreatureControl *cctrl;
+        struct Thing *ctng;
+        ctng = thing_get(i);
+        TRACE_THING(ctng);
+        cctrl = creature_control_get_from_thing(ctng);
+        if (creature_control_invalid(cctrl))
+            break;
+        i = cctrl->next_in_group;
+        // Per-thing code
+        cctrl->group_info ^= (creatng->index ^ cctrl->group_info) & TngGroup_LeaderIndex;
+        // Per-thing code ends
+        k++;
+        if (k > GROUP_MEMBERS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures group");
+            break;
+        }
+    }
+    return 1;
 }
 
 struct Party *get_party_of_name(const char *prtname)
@@ -261,6 +344,30 @@ TbBool make_group_member_leader(struct Thing *leadtng)
     return false;
 }
 
+TbBool get_free_position_behind_leader(struct Thing *leadtng, struct Coord3d *pos)
+{
+    struct CreatureControl *leadctrl;
+    leadctrl = creature_control_get_from_thing(leadtng);
+    int i, group_len;
+    group_len = (leadctrl->group_info >> 12);
+    for (i = 0; i < group_len; i++)
+    {
+        struct MemberPos *avail_pos;
+        avail_pos = &leadctrl->followers_pos[i];
+        if (((avail_pos->flags & 0x02) != 0) && ((avail_pos->flags & 0x01) == 0))
+        {
+            pos->x.val = subtile_coord_center(stl_num_decode_x(avail_pos->stl_num));
+            pos->y.val = subtile_coord_center(stl_num_decode_y(avail_pos->stl_num));
+            pos->z.val = 0;
+            avail_pos->flags |= 0x01;
+            return true;
+        }
+    }
+    WARNDBG(3,"Group led by %s index %d owned by player %d had all %d follower positions taken",
+        thing_model_name(leadtng),(int)leadtng->index,(int)leadtng->owner,group_len);
+    return false;
+}
+
 long process_obey_leader(struct Thing *thing)
 {
     struct Thing *leadtng;
@@ -318,34 +425,38 @@ void creature_follower_pos_add(struct Thing *creatng, int ifollow, const struct 
     avail_pos->flags |= 0x02;
 }
 
-void leader_find_positions_for_followers(struct Thing *thing)
+void leader_find_positions_for_followers(struct Thing *leadtng)
 {
     //_DK_leader_find_positions_for_followers(thing);
-    int group_count;
-    group_count = get_no_creatures_in_group(thing);
+    int group_len;
+    group_len = get_no_creatures_in_group(leadtng);
     struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
-    if (((cctrl->group_info >> 12) == group_count) && (game.play_gameturn & 0x1F))
+    cctrl = creature_control_get_from_thing(leadtng);
+    if (((cctrl->group_info >> 12) == group_len) && ((game.play_gameturn & 0x1F) != 0))
     {
+        SYNCDBG(7,"Reusing positions for %d followers of %s index %d owned by player %d",
+            group_len,thing_model_name(leadtng),(int)leadtng->index,(int)leadtng->owner);
         int i;
-        for (i= 0; i < GROUP_MEMBERS_COUNT; i++)
+        for (i=0; i < GROUP_MEMBERS_COUNT; i++)
         {
           cctrl->followers_pos[i].flags &= ~0x01;
         }
         return;
     }
-    cctrl->group_info = (group_count << 12) ^ ((cctrl->group_info ^ (group_count << 12)) & TngGroup_MemberCount);
+    SYNCDBG(7,"Finding positions for %d followers of %s index %d owned by player %d",
+        group_len,thing_model_name(leadtng),(int)leadtng->index,(int)leadtng->owner);
+    cctrl->group_info = (group_len << 12) | (cctrl->group_info & ~TngGroup_MemberCount);
     memset(cctrl->followers_pos, 0, sizeof(cctrl->followers_pos));
 
     int len_xv, len_yv;
     int len_xh, len_yh;
-    len_xv = LbSinL(thing->field_52 + LbFPMath_PI) << 8 >> 16;
-    len_yv = -((LbCosL(thing->field_52 + LbFPMath_PI) << 8) >> 8) >> 8;
-    len_xh = LbSinL(thing->field_52 - LbFPMath_PI/2) << 8 >> 16;
-    len_yh = -((LbCosL(thing->field_52 - LbFPMath_PI/2) << 8) >> 8) >> 8;
+    len_xv = LbSinL(leadtng->field_52 + LbFPMath_PI) << 8 >> 16;
+    len_yv = -((LbCosL(leadtng->field_52 + LbFPMath_PI) << 8) >> 8) >> 8;
+    len_xh = LbSinL(leadtng->field_52 - LbFPMath_PI/2) << 8 >> 16;
+    len_yh = -((LbCosL(leadtng->field_52 - LbFPMath_PI/2) << 8) >> 8) >> 8;
 
     int ih, iv, ivmax;
-    ivmax = 2 * group_count;
+    ivmax = 2 * group_len;
     int ifollow;
     ifollow = 0;
 
@@ -370,8 +481,8 @@ void leader_find_positions_for_followers(struct Thing *thing)
         for (ih = -2; ih <= 2; ih += 2)
         {
             int mcor_x, mcor_y;
-            mcor_x = thing->mappos.x.val + shift_xh + shift_xv;
-            mcor_y = thing->mappos.y.val + shift_yv + shift_yh;
+            mcor_x = leadtng->mappos.x.val + shift_xh + shift_xv;
+            mcor_y = leadtng->mappos.y.val + shift_yv + shift_yh;
             if ((coord_slab(mcor_x) > 0) && (coord_slab(mcor_x) < map_tiles_x))
             {
                 if ((coord_slab(mcor_y) > 0) && (coord_slab(mcor_y) < map_tiles_y))
@@ -380,12 +491,12 @@ void leader_find_positions_for_followers(struct Thing *thing)
                     pos.x.val = mcor_x;
                     pos.y.val = mcor_y;
                     pos.z.val = get_floor_height_at(&pos);
-                    if (!thing_in_wall_at(thing, &pos))
+                    if (!thing_in_wall_at(leadtng, &pos))
                     {
-                        creature_follower_pos_add(thing, ifollow, &pos);
+                        creature_follower_pos_add(leadtng, ifollow, &pos);
                         ifollow++;
                         // If we're not able to store more coordinates, quit now
-                        if (ifollow >= group_count) {
+                        if (ifollow >= group_len) {
                           return;
                         }
                     }
@@ -413,8 +524,8 @@ void leader_find_positions_for_followers(struct Thing *thing)
         for (ih = -1; ih <= 2; ih += 2)
         {
             int mcor_x, mcor_y;
-            mcor_x = thing->mappos.x.val + shift_xh + shift_xv;
-            mcor_y = thing->mappos.y.val + shift_yv + shift_yh;
+            mcor_x = leadtng->mappos.x.val + shift_xh + shift_xv;
+            mcor_y = leadtng->mappos.y.val + shift_yv + shift_yh;
             if ((coord_slab(mcor_x) > 0) && (coord_slab(mcor_x) < map_tiles_x))
             {
                 if ((coord_slab(mcor_y) > 0) && (coord_slab(mcor_y) < map_tiles_y))
@@ -423,12 +534,12 @@ void leader_find_positions_for_followers(struct Thing *thing)
                     pos.x.val = mcor_x;
                     pos.y.val = mcor_y;
                     pos.z.val = get_floor_height_at(&pos);
-                    if (!thing_in_wall_at(thing, &pos))
+                    if (!thing_in_wall_at(leadtng, &pos))
                     {
-                        creature_follower_pos_add(thing, ifollow, &pos);
+                        creature_follower_pos_add(leadtng, ifollow, &pos);
                         ifollow++;
                         // If we're not able to store more coordinates, quit now
-                        if (ifollow >= group_count) {
+                        if (ifollow >= group_len) {
                           return;
                         }
                     }

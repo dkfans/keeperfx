@@ -696,6 +696,8 @@ TbBool send_creature_to_job_for_player(struct Thing *creatng, PlayerNumber plyr_
             if ((get_flags_for_job(new_job) & JoKF_NoGroups) != 0)
             {
                 if (creature_is_group_member(creatng)) {
+                    SYNCDBG(3,"Removing %s index %d owned by player %d from group",
+                        thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
                     remove_creature_from_group(creatng);
                 }
             }
@@ -882,6 +884,8 @@ TbBool send_creature_to_job_near_position(struct Thing *creatng, MapSubtlCoord s
             if ((get_flags_for_job(new_job) & JoKF_NoGroups) != 0)
             {
                 if (creature_is_group_member(creatng)) {
+                    SYNCDBG(3,"Removing %s index %d owned by player %d from group",
+                        thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
                     remove_creature_from_group(creatng);
                 }
             }
