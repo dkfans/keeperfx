@@ -896,7 +896,32 @@ short creature_hero_entering(struct Thing *thing)
 
 long get_best_dungeon_to_tunnel_to(struct Thing *creatng)
 {
-    return _DK_get_best_dungeon_to_tunnel_to(creatng);
+    //return _DK_get_best_dungeon_to_tunnel_to(creatng);
+    long best_score;
+    PlayerNumber best_plyr_idx;
+    best_plyr_idx = -1;
+    best_score = LONG_MIN;
+    PlayerNumber plyr_idx;
+    for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    {
+        struct PlayerInfo *player;
+        player = get_player(plyr_idx);
+        struct Dungeon *dungeon;
+        dungeon = get_players_dungeon(player);
+        if (player_exists(player) && !dungeon_invalid(dungeon) && (creatng->owner != plyr_idx))
+        {
+            long score;
+            score = dungeon->total_score - 20 * dungeon->total_score * dungeon->field_F7D / 100;
+            if (score >= 0)
+                score = 0;
+            if (best_score < score)
+            {
+                best_score = score;
+                best_plyr_idx = plyr_idx;
+            }
+        }
+    }
+    return best_plyr_idx;
 }
 
 short setup_person_tunnel_to_position(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char a4)
