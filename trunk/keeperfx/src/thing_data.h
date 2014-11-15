@@ -29,14 +29,14 @@ extern "C" {
 /******************************************************************************/
 /** Enums for thing->field_0 bit fields. */
 enum ThingAllocFlags {
-    TAlF_Exists        = 0x01,
-    TAlF_IsInMapWho    = 0x02,
-    TAlF_IsInStrucList = 0x04,
-    TAlF_Unkn08        = 0x08,
-    TAlF_IsInLimbo     = 0x10,
-    TAlF_IsControlled  = 0x20,
-    TAlF_IsInGroup     = 0x40,
-    TAlF_IsDragged     = 0x80,
+    TAlF_Exists            = 0x01,
+    TAlF_IsInMapWho        = 0x02,
+    TAlF_IsInStrucList     = 0x04,
+    TAlF_Unkn08            = 0x08,
+    TAlF_IsInLimbo         = 0x10,
+    TAlF_IsControlled      = 0x20,
+    TAlF_IsFollowingLeader = 0x40,
+    TAlF_IsDragged         = 0x80,
 };
 
 /** Enums for thing->field_1 bit fields. */
