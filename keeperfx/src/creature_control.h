@@ -41,7 +41,6 @@ extern "C" {
 #define COMBAT_RANGED_OPPONENTS_LIMIT      4
 /** Amount of instances. */
 #define CREATURE_INSTANCES_COUNT          48
-#define FOLLOWERS_COUNT 8
 
 #define INVALID_CRTR_CONTROL (game.persons.cctrl_lookup[0])
 /******************************************************************************/
@@ -187,7 +186,7 @@ unsigned char field_67;
     unsigned short pickup_creature_id;
     unsigned short next_in_group;
     unsigned short prev_in_group;
-    unsigned short group_leader;// offset 7A
+    unsigned short group_info;// offset 7A
     short last_work_room_id;
     /** Work room index, used when creature is working in a room. */
     short work_room_id;
@@ -397,7 +396,7 @@ unsigned char field_284[2];
     unsigned char blood_type;
     struct Coord3d flee_pos;
     long field_28E;
-    struct MemberPos followers_pos[FOLLOWERS_COUNT];
+    struct MemberPos followers_pos[GROUP_MEMBERS_COUNT];
     unsigned short next_in_room;
     unsigned short prev_in_room;//field_2AC
 short field_2AE;
