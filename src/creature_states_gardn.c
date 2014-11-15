@@ -32,6 +32,7 @@
 #include "thing_effects.h"
 #include "thing_navigate.h"
 #include "player_instances.h"
+#include "power_hand.h"
 #include "room_data.h"
 #include "room_jobs.h"
 #include "gui_soundmsgs.h"
@@ -233,9 +234,40 @@ short creature_eat(struct Thing *thing)
     return 1;
 }
 
-short creature_eating_at_garden(struct Thing *thing)
+short creature_eating_at_garden(struct Thing *creatng)
 {
-  return _DK_creature_eating_at_garden(thing);
+    //return _DK_creature_eating_at_garden(creatng);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    struct Thing *foodtng;
+    foodtng = thing_get(cctrl->long_9A);
+    if (!thing_exists(foodtng)) {
+        set_start_state(creatng);
+        return 0;
+    }
+    struct Room *room;
+    room = INVALID_ROOM;
+    room = get_room_thing_is_on(foodtng);
+    if (room_is_invalid(room) || (room->kind != RoK_GARDEN)) {
+        set_start_state(creatng);
+        return 0;
+    }
+    if (is_thing_passenger_controlled(foodtng) || thing_is_picked_up(foodtng)) {
+        WARNLOG("The %s index %d is not within %s",
+            thing_model_name(foodtng),(int)foodtng->index,room_code_name(RoK_GARDEN));
+        set_start_state(creatng);
+        return 0;
+    }
+    if (!thing_is_mature_food(foodtng) || !(thing_is_creature(foodtng) && creature_affected_by_spell(foodtng, SplK_Chicken)))
+    {
+        WARNLOG("Tried to eat %s index %d which is not food but still in %s",
+            thing_model_name(foodtng),(int)foodtng->index,room_code_name(RoK_GARDEN));
+        set_start_state(creatng);
+        return 0;
+    }
+    person_eat_food(creatng, foodtng, room);
+    cctrl->long_9A = 0;
+    return 1;
 }
 
 short creature_to_garden(struct Thing *creatng)
