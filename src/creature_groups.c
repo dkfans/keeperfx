@@ -39,9 +39,39 @@ DLLIMPORT long _DK_get_highest_experience_level_in_group(struct Thing *creatng);
 DLLIMPORT void _DK_leader_find_positions_for_followers(struct Thing *creatng);
 
 /******************************************************************************/
-long get_highest_experience_level_in_group(struct Thing *thing)
+CrtrExpLevel get_highest_experience_level_in_group(struct Thing *grptng)
 {
-  return _DK_get_highest_experience_level_in_group(thing);
+    //return _DK_get_highest_experience_level_in_group(grptng);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(grptng);
+    CrtrExpLevel best_explevel;
+    struct Thing *ctng;
+    best_explevel = 0;
+    long i;
+    unsigned long k;
+    i = cctrl->group_info & TngGroup_LeaderIndex;
+    k = 0;
+    while (i > 0)
+    {
+        ctng = thing_get(i);
+        TRACE_THING(ctng);
+        cctrl = creature_control_get_from_thing(ctng);
+        if (creature_control_invalid(cctrl))
+            break;
+        // Per-thing code
+        if (best_explevel < cctrl->explevel) {
+            best_explevel = cctrl->explevel;
+        }
+        // Per-thing code ends
+        i = cctrl->next_in_group;
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures group");
+            break;
+        }
+    }
+    return best_explevel;
 }
 
 long get_no_creatures_in_group(const struct Thing *grptng)
@@ -51,7 +81,7 @@ long get_no_creatures_in_group(const struct Thing *grptng)
     long i;
     unsigned long k;
     cctrl = creature_control_get_from_thing(grptng);
-    i = cctrl->group_leader & TngGroup_LeaderIndex;
+    i = cctrl->group_info & TngGroup_LeaderIndex;
     if (i == 0) {
         // No group - just one creature
         return 1;
@@ -82,7 +112,7 @@ struct Thing *get_last_creature_in_group(const struct Thing *grptng)
     long i;
     unsigned long k;
     cctrl = creature_control_get_from_thing(grptng);
-    i = cctrl->group_leader & TngGroup_LeaderIndex;
+    i = cctrl->group_info & TngGroup_LeaderIndex;
     if (i == 0) {
         // No group - just one creature
         return NULL;
@@ -110,13 +140,13 @@ TbBool add_creature_to_group(struct Thing *crthing, struct Thing *grthing)
 {
     struct Thing *pvthing;
     pvthing = get_last_creature_in_group(grthing);
-    if ((grthing == crthing) || (grthing->owner != crthing->owner)) {
+    if ((grthing->index == crthing->index) || (grthing->owner != crthing->owner)) {
         return false;
     }
     struct CreatureControl *crctrl;
     long i;
     crctrl = creature_control_get_from_thing(crthing);
-    i = crctrl->group_leader & TngGroup_LeaderIndex;
+    i = crctrl->group_info & TngGroup_LeaderIndex;
     if (i != 0) {
         remove_creature_from_group(crthing);
     }
@@ -128,7 +158,7 @@ TbBool add_creature_to_group(struct Thing *crthing, struct Thing *grthing)
         crctrl->prev_in_group = pvthing->index;
         pvctrl = creature_control_get_from_thing(pvthing);
         pvctrl->next_in_group = crthing->index;
-        crctrl->group_leader ^= (crctrl->group_leader ^ pvctrl->group_leader) & TngGroup_LeaderIndex;
+        crctrl->group_info ^= (crctrl->group_info ^ pvctrl->group_info) & TngGroup_LeaderIndex;
         crctrl->next_in_group = 0;
     } else
     {
@@ -138,12 +168,12 @@ TbBool add_creature_to_group(struct Thing *crthing, struct Thing *grthing)
         crctrl->prev_in_group = grthing->index;
         grctrl = creature_control_get_from_thing(grthing);
         grctrl->next_in_group = crthing->index;
-        crctrl->group_leader ^= (crctrl->group_leader ^ grthing->index) & TngGroup_LeaderIndex;
-        grctrl->group_leader ^= (grctrl->group_leader ^ grthing->index) & TngGroup_LeaderIndex;
+        crctrl->group_info ^= (crctrl->group_info ^ grthing->index) & TngGroup_LeaderIndex;
+        grctrl->group_info ^= (grctrl->group_info ^ grthing->index) & TngGroup_LeaderIndex;
         crctrl->next_in_group = 0;
-        crctrl->group_leader &= TngGroup_LeaderIndex;
+        crctrl->group_info &= TngGroup_LeaderIndex;
     }
-    crthing->alloc_flags |= TAlF_IsInGroup;
+    crthing->alloc_flags |= TAlF_IsFollowingLeader;
     return true;
 }
 
@@ -198,10 +228,10 @@ TbBool add_member_to_party_name(const char *prtname, long crtr_model, long crtr_
       SCRPTERRLOG("Party of requested name, '%s', is not defined", prtname);
       return false;
     }
-    if (party->members_num >= PARTY_MEMBERS_COUNT)
+    if (party->members_num >= GROUP_MEMBERS_COUNT)
     {
       SCRPTERRLOG("Too many creatures in party '%s' (limit is %d members)",
-          prtname, PARTY_MEMBERS_COUNT);
+          prtname, GROUP_MEMBERS_COUNT);
       return false;
     }
     member = &(party->members[party->members_num]);
@@ -222,7 +252,7 @@ TbBool make_group_member_leader(struct Thing *leadtng)
     prvtng = get_group_leader(leadtng);
     if (thing_is_invalid(prvtng))
         return false;
-    if (prvtng != leadtng)
+    if (prvtng->index != leadtng->index)
     {
         remove_creature_from_group(leadtng);
         add_creature_to_group_as_leader(leadtng, prvtng);
@@ -239,7 +269,7 @@ long process_obey_leader(struct Thing *thing)
         set_start_state(thing);
         return 1;
     }
-    if ((leadtng->alloc_flags & 0x20) != 0)
+    if ((leadtng->alloc_flags & TAlF_IsControlled) != 0)
     {
         if (thing->active_state != CrSt_CreatureFollowLeader) {
             external_set_thing_state(thing, CrSt_CreatureFollowLeader);
@@ -295,16 +325,16 @@ void leader_find_positions_for_followers(struct Thing *thing)
     group_count = get_no_creatures_in_group(thing);
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
-    if (((cctrl->group_leader >> 12) == group_count) && (game.play_gameturn & 0x1F))
+    if (((cctrl->group_info >> 12) == group_count) && (game.play_gameturn & 0x1F))
     {
         int i;
-        for (i= 0; i < FOLLOWERS_COUNT; i++)
+        for (i= 0; i < GROUP_MEMBERS_COUNT; i++)
         {
           cctrl->followers_pos[i].flags &= ~0x01;
         }
         return;
     }
-    cctrl->group_leader = (group_count << 12) ^ ((cctrl->group_leader ^ (group_count << 12)) & TngGroup_LeaderIndex);
+    cctrl->group_info = (group_count << 12) ^ ((cctrl->group_info ^ (group_count << 12)) & TngGroup_MemberCount);
     memset(cctrl->followers_pos, 0, sizeof(cctrl->followers_pos));
 
     int len_xv, len_yv;

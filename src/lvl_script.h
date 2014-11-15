@@ -22,6 +22,8 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
+#include "creature_groups.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -31,7 +33,6 @@ extern "C" {
 
 #define PARTY_TRIGGERS_COUNT     48
 #define CREATURE_PARTYS_COUNT    16
-#define PARTY_MEMBERS_COUNT       8
 #define CONDITIONS_COUNT         48
 #define TUNNELLER_TRIGGERS_COUNT 16
 #define SCRIPT_VALUES_COUNT      64
@@ -239,7 +240,7 @@ struct PartyMember { // sizeof = 13
 
 struct Party { // sizeof = 208
   char prtname[100];
-  struct PartyMember members[PARTY_MEMBERS_COUNT];
+  struct PartyMember members[GROUP_MEMBERS_COUNT];
   unsigned long members_num;
 };
 

@@ -1534,9 +1534,9 @@ void command_add_tunneller_party_to_level(char *plrname, char *prtname, char *lo
         return;
     }
     party = &game.script.creature_partys[prty_id];
-    if (party->members_num >= PARTY_MEMBERS_COUNT-1)
+    if (party->members_num >= GROUP_MEMBERS_COUNT-1)
     {
-        SCRPTERRLOG("Party too big for ADD_TUNNELLER (Max %d members)", PARTY_MEMBERS_COUNT-1);
+        SCRPTERRLOG("Party too big for ADD_TUNNELLER (Max %d members)", GROUP_MEMBERS_COUNT-1);
         return;
     }
     // Either add the party or add item to conditional triggers list
@@ -2949,42 +2949,42 @@ struct Thing *script_process_new_party(struct Party *party, PlayerNumber plyr_id
 {
     struct CreatureControl *cctrl;
     struct PartyMember *member;
-    struct Thing *prthing;
+    struct Thing *grptng;
     struct Thing *ldthing;
     struct Thing *thing;
     long i,k;
     ldthing = NULL;
     for (i=0; i < copies_num; i++)
     {
-      prthing = NULL;
-      for (k=0; k < party->members_num; k++)
-      {
-        if (k >= PARTY_MEMBERS_COUNT)
+        grptng = INVALID_THING;
+        for (k=0; k < party->members_num; k++)
         {
-            ERRORLOG("Party too big");
-            break;
+          if (k >= GROUP_MEMBERS_COUNT)
+          {
+              ERRORLOG("Party too big, %d is the limit",GROUP_MEMBERS_COUNT);
+              break;
+          }
+          member = &(party->members[k]);
+          thing = script_create_new_creature(plyr_idx, member->crtr_kind, location, member->carried_gold, member->crtr_level);
+          if (!thing_is_invalid(thing))
+          {
+              cctrl = creature_control_get_from_thing(thing);
+              cctrl->party_objective = member->objectv;
+              cctrl->field_5 = game.play_gameturn + member->countdown;
+              if (!thing_is_invalid(grptng))
+              {
+                  if (cctrl->explevel <= get_highest_experience_level_in_group(grptng))
+                  {
+                      add_creature_to_group(thing, grptng);
+                  } else
+                  {
+                      add_creature_to_group_as_leader(thing, grptng);
+                      ldthing = thing;
+                  }
+              }
+              grptng = thing;
+          }
         }
-        member = &(party->members[k]);
-        thing = script_create_new_creature(plyr_idx, member->crtr_kind, location, member->carried_gold, member->crtr_level);
-        if (!thing_is_invalid(thing))
-        {
-            cctrl = creature_control_get_from_thing(thing);
-            cctrl->party_objective = member->objectv;
-            cctrl->field_5 = game.play_gameturn + member->countdown;
-            if (!thing_is_invalid(prthing))
-            {
-                if (cctrl->explevel <= get_highest_experience_level_in_group(prthing))
-                {
-                    add_creature_to_group(thing, prthing);
-                } else
-                {
-                    add_creature_to_group_as_leader(thing, prthing);
-                    ldthing = thing;
-                }
-            }
-            prthing = thing;
-        }
-      }
     }
     return ldthing;
 }

@@ -26,6 +26,8 @@
 extern "C" {
 #endif
 
+#define GROUP_MEMBERS_COUNT 8
+
 enum TriggerFlags {
     TrgF_NONE                          =  0x00,
     TrgF_REUSABLE                      =  0x01,
@@ -48,7 +50,7 @@ struct MemberPos { // sizeof=3
 /******************************************************************************/
 /******************************************************************************/
 int get_party_index_of_name(const char *prtname);
-long get_highest_experience_level_in_group(struct Thing *thing);
+CrtrExpLevel get_highest_experience_level_in_group(struct Thing *grptng);
 long get_no_creatures_in_group(const struct Thing *grptng);
 struct Thing *get_last_creature_in_group(const struct Thing *grptng);
 TbBool add_creature_to_group(struct Thing *crthing, struct Thing *grthing);

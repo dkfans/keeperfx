@@ -794,7 +794,7 @@ TbBigChecksum update_things_in_list(struct StructureList *list)
       }
       i = thing->next_of_class;
       // Per-thing code
-      if ((thing->alloc_flags & TAlF_IsInGroup) == 0)
+      if ((thing->alloc_flags & TAlF_IsFollowingLeader) == 0)
       {
           if ((thing->alloc_flags & TAlF_IsInLimbo) != 0) {
               update_thing_animation(thing);
@@ -905,7 +905,7 @@ unsigned long update_creatures_not_in_list(void)
       ERRORLOG("Some THING has been deleted during the processing of another thing");
       break;
     }
-    if ((thing->alloc_flags & TAlF_IsInGroup) != 0)
+    if ((thing->alloc_flags & TAlF_IsFollowingLeader) != 0)
     {
       if ((thing->alloc_flags & TAlF_IsInLimbo) != 0) {
         update_thing_animation(thing);
