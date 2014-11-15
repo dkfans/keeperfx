@@ -44,7 +44,7 @@ DLLIMPORT struct Thing *_DK_create_creature_at_entrance(struct Room * room, unsi
 }
 #endif
 /******************************************************************************/
-struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crtr_kind)
+struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crkind)
 {
     //return _DK_create_creature_at_entrance(room, crtr_kind);
     struct Thing *creatng;
@@ -52,23 +52,26 @@ struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crtr_ki
     pos.x.val = room->central_stl_x;
     pos.y.val = room->central_stl_y;
     pos.z.val = subtile_coord(1,0);
-    creatng = create_creature(&pos, crtr_kind, room->owner);
+    creatng = create_creature(&pos, crkind, room->owner);
     if (thing_is_invalid(creatng)) {
-        ERRORLOG("Cannot create creature %s for player %d entrance",creature_code_name(crtr_kind),(int)room->owner);
+        ERRORLOG("Cannot create creature %s for player %d entrance",creature_code_name(crkind),(int)room->owner);
         return INVALID_THING;
     }
     if (room->owner != game.neutral_player_num)
     {
         struct Dungeon *dungeon;
         dungeon = get_dungeon(room->owner);
-        if ((dungeon->owned_creatures_of_model[crtr_kind] <= 1) && (dungeon->creature_models_joined[crtr_kind] == 0))
+        if ((dungeon->owned_creatures_of_model[crkind] <= 1) && (dungeon->creature_models_joined[crkind] <= 0))
         {
             event_create_event(creatng->mappos.x.val, creatng->mappos.y.val, EvKind_NewCreature, room->owner, creatng->index);
-            dungeon->creature_models_joined[crtr_kind]++;
+        }
+        if (dungeon->creature_models_joined[crkind] < 255)
+        {
+            dungeon->creature_models_joined[crkind]++;
         }
     }
     if (!find_random_valid_position_for_thing_in_room(creatng, room, &pos)) {
-        ERRORLOG("Cannot find a valid place in player %d entrance to create creature %s",(int)room->owner,creature_code_name(crtr_kind));
+        ERRORLOG("Cannot find a valid place in player %d entrance to create creature %s",(int)room->owner,creature_code_name(crkind));
         delete_thing_structure(creatng, 0);
         return INVALID_THING;
     }
@@ -79,7 +82,7 @@ struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crtr_ki
         dungeon = get_dungeon(room->owner);
         dungeon->lvstats.field_4++;
         dungeon->lvstats.field_8++;
-        dungeon->lvstats.field_88 = crtr_kind;
+        dungeon->lvstats.field_88 = crkind;
     }
     struct Thing *heartng;
     heartng = get_player_soul_container(room->owner);
@@ -176,13 +179,13 @@ long calculate_attractive_room_quantity(RoomKind room_kind, PlayerNumber plyr_id
     }
 }
 
-long calculate_excess_attraction_for_creature(ThingModel crtr_kind, PlayerNumber plyr_idx)
+long calculate_excess_attraction_for_creature(ThingModel crkind, PlayerNumber plyr_idx)
 {
     struct CreatureStats * stats;
 
     SYNCDBG(11, "Starting");
 
-    stats = creature_stats_get(crtr_kind);
+    stats = creature_stats_get(crkind);
     long excess_attraction = 0;
     int i;
     for (i=0; i < 3; i++)
@@ -191,35 +194,35 @@ long calculate_excess_attraction_for_creature(ThingModel crtr_kind, PlayerNumber
         room_kind = stats->entrance_rooms[i];
         if ((room_kind != RoK_NONE) && (stats->entrance_slabs_req[i] > 0)) {
             // First room adds fully to attraction, second adds only 1/2, third adds 1/3
-            excess_attraction += calculate_attractive_room_quantity(room_kind, plyr_idx, crtr_kind) / (i+1);
+            excess_attraction += calculate_attractive_room_quantity(room_kind, plyr_idx, crkind) / (i+1);
         }
     }
     return excess_attraction;
 }
 
-TbBool creature_will_generate_for_dungeon(const struct Dungeon * dungeon, ThingModel crtr_kind)
+TbBool creature_will_generate_for_dungeon(const struct Dungeon * dungeon, ThingModel crkind)
 {
     struct CreatureStats * stats;
     int i;
 
-    SYNCDBG(11, "Starting for creature kind %s", creature_code_name(crtr_kind));
+    SYNCDBG(11, "Starting for creature kind %s", creature_code_name(crkind));
 
-    if (game.pool.crtr_kind[crtr_kind] <= 0) {
+    if (game.pool.crtr_kind[crkind] <= 0) {
         return false;
     }
 
     // Not allowed creatures can never be attracted
-    if (!dungeon->creature_allowed[crtr_kind]) {
+    if (!dungeon->creature_allowed[crkind]) {
         return false;
     }
 
     // Enabled creatures don't need additional conditions to be met
-    if (dungeon->creature_force_enabled[crtr_kind] > dungeon->creature_models_joined[crtr_kind]) {
+    if (dungeon->creature_force_enabled[crkind] > dungeon->creature_models_joined[crkind]) {
         return true;
     }
 
     // Typical way is to allow creatures which meet attraction conditions
-    stats = creature_stats_get(crtr_kind);
+    stats = creature_stats_get(crkind);
 
     // Check if we've got rooms of enough size for attraction
     for (i = 0; i < 3; ++i)
