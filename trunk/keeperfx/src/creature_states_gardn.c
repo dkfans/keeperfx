@@ -258,7 +258,7 @@ short creature_eating_at_garden(struct Thing *creatng)
         set_start_state(creatng);
         return 0;
     }
-    if (!thing_is_mature_food(foodtng) || !(thing_is_creature(foodtng) && creature_affected_by_spell(foodtng, SplK_Chicken)))
+    if (!thing_is_mature_food(foodtng) && !(thing_is_creature(foodtng) && creature_affected_by_spell(foodtng, SplK_Chicken)))
     {
         WARNLOG("Tried to eat %s index %d which is not food but still in %s",
             thing_model_name(foodtng),(int)foodtng->index,room_code_name(RoK_GARDEN));

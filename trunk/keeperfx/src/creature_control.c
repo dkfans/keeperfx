@@ -265,6 +265,8 @@ struct Thing *get_group_last_member(struct Thing *thing)
 TbBool disband_creatures_group(struct Thing *thing)
 {
     // Disband the group, removing creatures from end
+    SYNCDBG(3,"Removing %s index %d owned by player %d",
+        thing_model_name(thing),(int)thing->index,(int)thing->owner);
     return perform_action_on_all_creatures_in_group(thing, remove_creature_from_group);
 }
 

@@ -1471,8 +1471,11 @@ short creature_being_dropped(struct Thing *creatng)
             {
                 if (!thing_is_picked_up(leadtng))
                 {
-                    if (get_2d_box_distance(&creatng->mappos, &leadtng->mappos) > subtile_coord(6,0))
+                    if (get_2d_box_distance(&creatng->mappos, &leadtng->mappos) > subtile_coord(6,0)) {
+                        SYNCDBG(3,"Removing %s index %d owned by player %d from group",
+                            thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
                         remove_creature_from_group(creatng);
+                    }
                 }
             }
         }
@@ -1998,32 +2001,9 @@ short creature_follow_leader(struct Thing *creatng)
         return 1;
     }
     struct Coord3d follwr_pos;
-    TbBool found_pos;
-    long group_len;
-    found_pos = false;
-    group_len = get_no_creatures_in_group(leadtng);
-    if (group_len > 0)
+    if (!get_free_position_behind_leader(leadtng, &follwr_pos))
     {
-        struct CreatureControl *leadctrl;
-        leadctrl = creature_control_get_from_thing(leadtng);
-        for (i = 0; i < group_len; i++)
-        {
-            struct MemberPos *avail_pos;
-            avail_pos = &leadctrl->followers_pos[i];
-            if (((avail_pos->flags & 0x02) != 0) && ((avail_pos->flags & 0x01) == 0))
-            {
-                follwr_pos.x.val = subtile_coord_center(stl_num_decode_x(avail_pos->stl_num));
-                follwr_pos.y.val = subtile_coord_center(stl_num_decode_y(avail_pos->stl_num));
-                follwr_pos.z.val = 0;
-                avail_pos->flags |= 0x01;
-                found_pos = true;
-                break;
-            }
-        }
-    }
-    if (!found_pos)
-    {
-        SYNCLOG("The %s index %d owned by player %d can no longer follow %s - no place for follower",
+        SYNCLOG("The %s index %d owned by player %d can no longer follow %s - no place amongst followers",
             thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,thing_model_name(leadtng));
         set_start_state(creatng);
         return 1;
@@ -2032,6 +2012,8 @@ short creature_follow_leader(struct Thing *creatng)
     amount = cctrl->field_307;
     if (amount > 8)
     {
+        SYNCDBG(3,"Removing %s index %d owned by player %d from group",
+            thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         remove_creature_from_group(creatng);
         return 0;
     }

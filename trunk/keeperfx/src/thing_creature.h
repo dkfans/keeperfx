@@ -125,11 +125,6 @@ void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long a2, lo
 unsigned short find_next_annoyed_creature(unsigned char a1, unsigned short a2);
 void draw_creature_view(struct Thing *thing);
 
-TbBool remove_creature_from_group(struct Thing *thing);
-long add_creature_to_group_as_leader(struct Thing *thing1, struct Thing *thing2);
-TbBool creature_is_group_member(const struct Thing *thing);
-TbBool creature_is_group_leader(const struct Thing *thing);
-struct Thing *get_group_leader(const struct Thing *thing);
 void set_first_creature(struct Thing *thing);
 void remove_first_creature(struct Thing *thing);
 long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *thing, MaxTngFilterParam param, long maximizer);
