@@ -2945,15 +2945,23 @@ struct Thing *script_process_new_tunneler(unsigned char plyr_idx, TbMapLocation 
     return creatng;
 }
 
+/**
+ * Spawns new creature parties. Makes given amount of the parties.
+ * @param party The party to be spawned.
+ * @param plyr_idx Player to own the creatures within group.
+ * @param location Where the party will be spawned.
+ * @param copies_num Amount of copies to be spawned.
+ * @return Gives leader of last party spawned.
+ */
 struct Thing *script_process_new_party(struct Party *party, PlayerNumber plyr_idx, TbMapLocation location, long copies_num)
 {
     struct CreatureControl *cctrl;
     struct PartyMember *member;
     struct Thing *grptng;
-    struct Thing *ldthing;
+    struct Thing *leadtng;
     struct Thing *thing;
     long i,k;
-    ldthing = NULL;
+    leadtng = INVALID_THING;
     for (i=0; i < copies_num; i++)
     {
         grptng = INVALID_THING;
@@ -2971,22 +2979,25 @@ struct Thing *script_process_new_party(struct Party *party, PlayerNumber plyr_id
               cctrl = creature_control_get_from_thing(thing);
               cctrl->party_objective = member->objectv;
               cctrl->field_5 = game.play_gameturn + member->countdown;
-              if (!thing_is_invalid(grptng))
+              if (thing_is_invalid(grptng))
               {
-                  if (cctrl->explevel <= get_highest_experience_level_in_group(grptng))
-                  {
-                      add_creature_to_group(thing, grptng);
-                  } else
-                  {
-                      add_creature_to_group_as_leader(thing, grptng);
-                      ldthing = thing;
-                  }
+                  // If it is the first creature - set it as only group member and leader
+                  // Inside the thing, we don't need to mark it in any way (two creatures are needed to form a real group)
+                  leadtng = thing;
+                  grptng = thing;
+              } else
+              if (cctrl->explevel <= get_highest_experience_level_in_group(grptng))
+              {
+                  add_creature_to_group(thing, grptng);
+              } else
+              {
+                  add_creature_to_group_as_leader(thing, grptng);
+                  leadtng = thing;
               }
-              grptng = thing;
           }
         }
     }
-    return ldthing;
+    return leadtng;
 }
 
 struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, long carried_gold, long crtr_level)
@@ -3426,8 +3437,11 @@ void process_check_new_tunneller_partys(void)
              if (!thing_is_invalid(thing))
              {
                 grptng = script_process_new_party(&game.script.creature_partys[k-1], n, tn_trig->location, 1);
-                if (!thing_is_invalid(grptng))
-                  add_creature_to_group_as_leader(thing, grptng);
+                if (!thing_is_invalid(grptng)) {
+                    add_creature_to_group_as_leader(thing, grptng);
+                } else {
+                    WARNLOG("No party created, only lone %s",thing_model_name(thing));
+                }
              }
           } else
           {
