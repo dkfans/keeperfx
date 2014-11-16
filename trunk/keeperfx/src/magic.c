@@ -46,6 +46,7 @@
 #include "config_creature.h"
 #include "config_terrain.h"
 #include "config_magic.h"
+#include "config_effects.h"
 #include "gui_soundmsgs.h"
 #include "room_jobs.h"
 #include "map_blocks.h"
@@ -687,7 +688,55 @@ void turn_off_sight_of_evil(PlayerNumber plyr_idx)
 
 TbResult magic_use_power_hold_audience(PlayerNumber plyr_idx)
 {
-    _DK_magic_use_power_hold_audience(plyr_idx);
+    SYNCDBG(8,"Starting");
+    //_DK_magic_use_power_hold_audience(plyr_idx);
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    if (dungeon->hold_audience_field_88C != 0) {
+        return Lb_OK;
+    }
+    // If we can't afford the spell, fail
+    if (!pay_for_spell(plyr_idx, PwrK_HOLDAUDNC, 0)) {
+        return Lb_FAIL;
+    }
+    dungeon->hold_audience_field_88C = game.play_gameturn;
+    unsigned long k;
+    int i;
+    k = 0;
+    i = dungeon->creatr_list_start;
+    while (i != 0)
+    {
+        struct CreatureControl *cctrl;
+        struct Thing *thing;
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody(thing) && !creature_is_being_unconscious(thing))
+        {
+            create_effect(&thing->mappos, imp_spangle_effects[thing->owner], thing->owner);
+            const struct Coord3d *pos;
+            pos = dungeon_get_essential_pos(thing->owner);
+            move_thing_in_map(thing, pos);
+            initialise_thing_state(thing, CrSt_CreatureInHoldAudience);
+            cctrl->field_82 = -1;
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    play_non_3d_sample(58);
+    SYNCDBG(19,"Finished");
     return Lb_SUCCESS;
 }
 
