@@ -280,7 +280,128 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
 void update_power_sight_explored(struct PlayerInfo *player)
 {
     SYNCDBG(16,"Starting");
-    _DK_update_power_sight_explored(player);
+    //_DK_update_power_sight_explored(player);
+    struct Dungeon *dungeon;
+    dungeon = get_players_dungeon(player);
+    if (dungeon->sight_casted_thing_idx == 0) {
+        return;
+    }
+    struct Thing *thing;
+    thing = thing_get(dungeon->sight_casted_thing_idx);
+
+    int shift_x, shift_y;
+    int i;
+    int subshift_x, subshift_y;
+    int revealed;
+    int stl_x, stl_y;
+
+    for (shift_y=0; shift_y < 2*MAX_SOE_RADIUS; shift_y++)
+    {
+        stl_y = thing->mappos.y.stl.num - MAX_SOE_RADIUS + shift_y;
+        if ((stl_y < 0) || (stl_y > 256)) {
+            continue;
+        }
+
+        stl_x = thing->mappos.x.stl.num - MAX_SOE_RADIUS;
+        for (shift_x = 0; shift_x <= MAX_SOE_RADIUS; shift_x++)
+        {
+          if (dungeon->soe_explored_flags[shift_y][shift_x])
+          {
+            revealed = 0;
+            i = 1;
+            shift_x++;
+            for (; shift_x < 2*MAX_SOE_RADIUS; shift_x++)
+            {
+              if (dungeon->soe_explored_flags[shift_y][shift_x])
+                revealed = i;
+              ++i;
+            }
+
+            int stl_x_beg, stl_x_end;
+            stl_x_beg = stl_x;
+            stl_x_end = stl_x + revealed;
+            if (stl_x_beg < 0) {
+                stl_x_beg = 0;
+            } else
+            if (stl_x_beg > 254) {
+                stl_x_beg = 254;
+            }
+            if (stl_x_end < 0) {
+                stl_x_end = 0;
+            } else
+            if (stl_x_end > 254) {
+                stl_x_end = 254;
+            }
+            if (stl_x_end >= stl_x_beg)
+            {
+                revealed = stl_x_end - stl_x_beg + 1;
+                stl_x += revealed;
+                subshift_x = stl_x_beg - thing->mappos.x.stl.num + MAX_SOE_RADIUS;
+                for (;revealed > 0; revealed--)
+                {
+                    if (!dungeon->soe_explored_flags[shift_y][subshift_x])
+                        dungeon->soe_explored_flags[shift_y][subshift_x] = 1;
+                    subshift_x++;
+                }
+            }
+          }
+          stl_x++;
+        }
+    }
+
+    for (shift_x = 0; shift_x < 2*MAX_SOE_RADIUS; shift_x++)
+    {
+      stl_x = thing->mappos.x.stl.num - MAX_SOE_RADIUS + shift_x;
+      if ((stl_x < 0) || (stl_x > 255)) {
+          continue;
+      }
+      stl_y = thing->mappos.y.stl.num - MAX_SOE_RADIUS;
+      for (shift_y = 0; shift_y <= MAX_SOE_RADIUS; shift_y++)
+      {
+        if (dungeon->soe_explored_flags[shift_y][shift_x])
+        {
+            revealed = 0;
+            i = 1;
+            shift_y++;
+            for (; shift_y < 2*MAX_SOE_RADIUS; shift_y++)
+            {
+              if (dungeon->soe_explored_flags[shift_y][shift_x])
+                revealed = i;
+              ++i;
+            }
+
+            int stl_y_beg, stl_y_end;
+            stl_y_beg = stl_y;
+            stl_y_end = stl_y + revealed;
+            if (stl_y_end < 0) {
+                stl_y_end = 0;
+            } else
+            if (stl_y_end > 254) {
+                stl_y_end = 254;
+            }
+            if (stl_y_beg < 0) {
+                stl_y_beg = 0;
+            } else
+            if (stl_y_beg > 254) {
+                stl_y_beg = 254;
+            }
+            if (stl_y_beg <= stl_y_end)
+            {
+                revealed = stl_y_end - stl_y_beg + 1;
+                stl_y += revealed;
+                subshift_y = stl_y_beg - thing->mappos.y.stl.num + MAX_SOE_RADIUS;
+                for (; revealed > 0; revealed--)
+                {
+                    if (!dungeon->soe_explored_flags[subshift_y][shift_x])
+                        dungeon->soe_explored_flags[subshift_y][shift_x] = 1;
+                    subshift_y++;
+                }
+            }
+        }
+        stl_y++;
+      }
+    }
+
 }
 
 TbBool power_sight_explored(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
@@ -296,8 +417,8 @@ TbBool power_sight_explored(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
         return false;
     }
     long soe_x, soe_y;
-    soe_x = stl_x - thing->mappos.x.stl.num + 13;
-    soe_y = stl_y - thing->mappos.y.stl.num + 13;
+    soe_x = stl_x - thing->mappos.x.stl.num + MAX_SOE_RADIUS;
+    soe_y = stl_y - thing->mappos.y.stl.num + MAX_SOE_RADIUS;
     if ((soe_x < 0) || (soe_x >= 2*MAX_SOE_RADIUS) || (soe_y < 0)  || (soe_y >= 2*MAX_SOE_RADIUS))
       return false;
     return dungeon->soe_explored_flags[soe_y][soe_x];

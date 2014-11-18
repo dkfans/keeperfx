@@ -35,6 +35,7 @@
 #include "gui_soundmsgs.h"
 #include "gui_frontmenu.h"
 #include "config_settings.h"
+#include "config_terrain.h"
 #include "game_saves.h"
 #include "game_legacy.h"
 #include "frontend.h"
@@ -350,7 +351,60 @@ long update_dungeon_generation_speeds(void)
 
 void calculate_dungeon_area_scores(void)
 {
-  _DK_calculate_dungeon_area_scores();
+    //_DK_calculate_dungeon_area_scores();
+    PlayerNumber plyr_idx;
+    // Zero dungeon areas
+    for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    {
+        struct Dungeon *dungeon;
+        dungeon = get_players_num_dungeon(plyr_idx);
+        if (!dungeon_invalid(dungeon))
+        {
+            dungeon->total_area = 0;
+            dungeon->room_manage_area = 0;
+        }
+    }
+    // Compute new values for dungeon areas
+    MapSlabCoord slb_x, slb_y;
+    for (slb_y=0; slb_y < map_tiles_y; slb_y++)
+    {
+        for (slb_x=0; slb_x < map_tiles_x; slb_x++)
+        {
+            SlabCodedCoords slb_num;
+            slb_num = get_slab_number(slb_x, slb_y);
+            struct SlabMap *slb;
+            slb = get_slabmap_direct(slb_num);
+            const struct SlabAttr *slbattr;
+            slbattr = get_slab_attrs(slb);
+            if (slbattr->category == SlbAtCtg_RoomInterior)
+            {
+                struct Dungeon *dungeon;
+                if (slabmap_owner(slb) != game.neutral_player_num) {
+                    dungeon = get_players_num_dungeon(slabmap_owner(slb));
+                } else {
+                    dungeon = INVALID_DUNGEON;
+                }
+                if (!dungeon_invalid(dungeon))
+                {
+                    dungeon->total_area = 0;
+                    dungeon->room_manage_area = 0;
+                }
+            } else
+            if (slbattr->category == SlbAtCtg_FortifiedGround)
+            {
+                struct Dungeon *dungeon;
+                if (slabmap_owner(slb) != game.neutral_player_num) {
+                    dungeon = get_players_num_dungeon(slabmap_owner(slb));
+                } else {
+                    dungeon = INVALID_DUNGEON;
+                }
+                if (!dungeon_invalid(dungeon))
+                {
+                    dungeon->total_area = 0;
+                }
+            }
+        }
+    }
 }
 
 void init_player_music(struct PlayerInfo *player)
