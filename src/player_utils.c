@@ -386,8 +386,8 @@ void calculate_dungeon_area_scores(void)
                 }
                 if (!dungeon_invalid(dungeon))
                 {
-                    dungeon->total_area = 0;
-                    dungeon->room_manage_area = 0;
+                    dungeon->total_area++;
+                    dungeon->room_manage_area++;
                 }
             } else
             if (slbattr->category == SlbAtCtg_FortifiedGround)
@@ -400,7 +400,7 @@ void calculate_dungeon_area_scores(void)
                 }
                 if (!dungeon_invalid(dungeon))
                 {
-                    dungeon->total_area = 0;
+                    dungeon->total_area++;
                 }
             }
         }
