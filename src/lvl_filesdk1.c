@@ -564,7 +564,6 @@ long convert_old_column_file(LevelNumber lv_num)
 
 TbBool load_column_file(LevelNumber lv_num)
 {
-    struct Column *colmn;
     unsigned long i;
     long k;
     unsigned short n;
@@ -605,6 +604,7 @@ TbBool load_column_file(LevelNumber lv_num)
     // Fill the columns
     for (k=0; k < total; k++)
     {
+        struct Column *colmn;
         colmn = &game.columns_data[k];
         LbMemoryCopy(colmn, &buf[i], sizeof(struct Column));
         //Update top cube in the column
