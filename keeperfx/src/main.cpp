@@ -3231,13 +3231,69 @@ unsigned char tag_cursor_blocks_place_room(unsigned char a1, long a2, long a3, l
 void initialise_map_collides(void)
 {
     SYNCDBG(7,"Starting");
-    _DK_initialise_map_collides();
+    //_DK_initialise_map_collides();
+    MapSlabCoord slb_x, slb_y;
+    for (slb_y=0; slb_y < map_tiles_y; slb_y++)
+    {
+        for (slb_x=0; slb_x < map_tiles_x; slb_x++)
+        {
+            struct SlabMap *slb;
+            slb = get_slabmap_block(slb_x, slb_y);
+            int ssub_x, ssub_y;
+            for (ssub_y=STL_PER_SLB; ssub_y > 0; ssub_y--)
+            {
+                for (ssub_x=STL_PER_SLB; ssub_x > 0; ssub_x--)
+                {
+                    MapSubtlCoord stl_x, stl_y;
+                    stl_x = slab_subtile(slb_x,ssub_x);
+                    stl_y = slab_subtile(slb_y,ssub_y);
+                    struct Map *mapblk;
+                    mapblk = get_map_block_at(stl_x, stl_y);
+                    struct Column *colmn;
+                    colmn = get_map_column(mapblk);
+                    if (column_invalid(colmn)) {
+                        ERRORLOG("Invalid column at (%d,%d)",(int)stl_x,(int)stl_y);
+                    }
+                    unsigned long smask;
+                    smask = colmn->solidmask;
+                    MapSubtlCoord stl_z;
+                    for (stl_z=0; stl_z < map_subtiles_z; stl_z++)
+                    {
+                        if ((smask & 0x01) == 0)
+                            break;
+                        smask >>= 1;
+                    }
+                    struct SlabAttr *slbattr;
+                    slbattr = get_slab_attrs(slb);
+                    unsigned long nflags;
+                    if (slbattr->field_2 < stl_z) {
+                      nflags = slbattr->flags;
+                    } else {
+                      nflags = slbattr->field_A;
+                    }
+                    mapblk->flags = nflags;
+                }
+            }
+        }
+    }
 }
 
 void initialise_map_health(void)
 {
     SYNCDBG(7,"Starting");
-    _DK_initialise_map_health();
+    //_DK_initialise_map_health();
+    MapSlabCoord slb_x, slb_y;
+    for (slb_y=0; slb_y < map_tiles_y; slb_y++)
+    {
+        for (slb_x=0; slb_x < map_tiles_x; slb_x++)
+        {
+            struct SlabMap *slb;
+            slb = get_slabmap_block(slb_x, slb_y);
+            struct SlabAttr *slbattr;
+            slbattr = get_slab_attrs(slb);
+            slb->health = game.block_health[slbattr->field_4];
+        }
+    }
 }
 
 long ceiling_block_is_solid_including_corners_return_height(long a1, long a2, long a3)
