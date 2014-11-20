@@ -418,7 +418,7 @@ void place_single_slab_fill_arrays_std(MapSlabCoord slb_x, MapSlabCoord slb_y, s
                 pretty_val = 0;
                 if ((sibslb1->kind == slb->kind) && (sibslb2->kind == slb->kind))
                     pretty_val = 9;
-                if (slbattr->category == 4)
+                if (slbattr->category == SlbAtCtg_RoomInterior)
                 {
                     int n;
                     for (n = -1; n <= 1; n++)
@@ -599,7 +599,7 @@ void place_single_slab_prepare_column_index(SlabKind slbkind, MapSlabCoord slb_x
             }
         }
     } else
-    if (place_slbattr->category == 4)
+    if (place_slbattr->category == SlbAtCtg_RoomInterior)
     {
         int i;
         for (i=1; i < 8; i+=2)
@@ -662,21 +662,22 @@ void place_single_slab_modify_column_near_liquid(SlabKind slbkind, MapSlabCoord 
         slb = get_slabmap_block(sslb_x,sslb_y);
         struct SlabAttr *slbattr;
         slbattr = get_slab_attrs(slb);
-        if ( slbattr->category == 2 || slbattr->category == 4 || slbattr->category == 5 || slb->kind == SlbT_WATER || slb->kind == SlbT_LAVA )
+        if ((slbattr->category == SlbAtCtg_FortifiedGround) || (slbattr->category == SlbAtCtg_RoomInterior) ||
+            (slbattr->category == SlbAtCtg_Obstacle) || (slb->kind == SlbT_WATER) || (slb->kind == SlbT_LAVA))
         {
             sslb_x = slb_x + (MapSlabCoord)my_around_eight[(i-2)&7].delta_x;
             sslb_y = slb_y + (MapSlabCoord)my_around_eight[(i-2)&7].delta_y;
             slb = get_slabmap_block(sslb_x,sslb_y);
             struct SlabAttr *slbattr;
             slbattr = get_slab_attrs(slb);
-            if (slbattr->category == 3)
+            if (slbattr->category == SlbAtCtg_FortifiedWall)
             {
                 sslb_x = slb_x + (MapSlabCoord)my_around_eight[(i)&7].delta_x;
                 sslb_y = slb_y + (MapSlabCoord)my_around_eight[(i)&7].delta_y;
                 slb = get_slabmap_block(sslb_x,sslb_y);
                 struct SlabAttr *slbattr;
                 slbattr = get_slab_attrs(slb);
-                if (slbattr->category == 3)
+                if (slbattr->category == SlbAtCtg_FortifiedWall)
                 {
                   neigh = 4 + slab_element_around_eight[(i-1)&7];
                   slabct_base = 9 * style_set[neigh];
@@ -707,7 +708,7 @@ void place_single_slab_type_on_map(SlabKind slbkind, MapSlabCoord slb_x, MapSlab
     }
     struct SlabAttr *place_slbattr;
     place_slbattr = get_slab_kind_attrs(slbkind);
-    if (place_slbattr->category == 3) {
+    if (place_slbattr->category == SlbAtCtg_FortifiedWall) {
         place_single_slab_fill_arrays_std(slb_x, slb_y, slab_type_list, room_pretty_list);
     }
     delete_attached_things_on_slab(slb_x, slb_y);
@@ -727,7 +728,7 @@ void place_single_slab_type_on_map(SlabKind slbkind, MapSlabCoord slb_x, MapSlab
         place_single_slab_set_torch_places(slbkind, slb_x, slb_y, slab_type_list);
     }
     place_single_slab_prepare_column_index(slbkind, slb_x, slb_y, plyr_idx, slab_type_list, room_pretty_list, style_set, slab_number_list, col_idx);
-    if (place_slbattr->category == 3)
+    if (place_slbattr->category == SlbAtCtg_FortifiedWall)
     {
         place_single_slab_modify_column_near_liquid(slbkind, slb_x, slb_y, plyr_idx, slab_type_list, room_pretty_list, style_set, slab_number_list, col_idx);
     }

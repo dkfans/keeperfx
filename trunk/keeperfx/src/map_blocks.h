@@ -54,6 +54,7 @@ unsigned short get_point_in_map_solid_flags_ignoring_own_door(const struct Coord
 SlabKind alter_rock_style(SlabKind slbkind, MapSlabCoord tgslb_x, MapSlabCoord tgslb_y, PlayerNumber owner);
 void create_dirt_rubble_for_dug_slab(MapSlabCoord slb_x, MapSlabCoord slb_y);
 void place_and_process_pretty_wall_slab(struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y);
+unsigned char choose_pretty_type(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 
 long element_top_face_texture(struct Map *map);
 /******************************************************************************/

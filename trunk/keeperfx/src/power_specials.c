@@ -25,6 +25,7 @@
 #include "thing_creature.h"
 #include "thing_navigate.h"
 #include "thing_effects.h"
+#include "config_terrain.h"
 #include "player_data.h"
 #include "dungeon_data.h"
 #include "creature_control.h"
@@ -32,10 +33,13 @@
 #include "game_saves.h"
 #include "game_merge.h"
 #include "slab_data.h"
+#include "map_blocks.h"
 #include "spdigger_stack.h"
 #include "thing_corpses.h"
 #include "thing_objects.h"
+#include "front_simple.h"
 #include "frontend.h"
+#include "frontmenu_ingame_map.h"
 #include "gui_frontmenu.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
@@ -258,7 +262,150 @@ TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
 
 void make_safe(struct PlayerInfo *player)
 {
-  _DK_make_safe(player);
+    //_DK_make_safe(player);
+    unsigned char *areamap;
+    areamap = (unsigned char *)scratch;
+    MapSlabCoord slb_x, slb_y;
+    // Prepare the array to remember which slabs were already taken care of
+    for (slb_y=0; slb_y < map_tiles_y; slb_y++)
+    {
+        for (slb_x=0; slb_x < map_tiles_x; slb_x++)
+        {
+            SlabCodedCoords slb_num;
+            struct SlabMap *slb;
+            slb_num = get_slab_number(slb_x, slb_y);
+            slb = get_slabmap_direct(slb_num);
+            struct SlabAttr *slbattr;
+            slbattr = get_slab_attrs(slb);
+            if ((slbattr->flags & (0x20|0x08|0x01)) != 0)
+                areamap[slb_num] = 0x01;
+            else
+                areamap[slb_num] = 0x00;
+        }
+    }
+    {
+        const struct Coord3d *center_pos;
+        center_pos = dungeon_get_essential_pos(player->id_number);
+        slb_x = subtile_slab_fast(center_pos->x.stl.num);
+        slb_y = subtile_slab_fast(center_pos->y.stl.num);
+        SlabCodedCoords slb_num;
+        slb_num = get_slab_number(slb_x, slb_y);
+        areamap[slb_num] |= 0x02;
+    }
+
+    unsigned int list_cur, list_len;
+    PlayerNumber plyr_idx;
+    plyr_idx = player->id_number;
+    SlabCodedCoords *slblist;
+    slblist = (SlabCodedCoords *)(scratch + map_tiles_x*map_tiles_y);
+    list_len = 0;
+    list_cur = 0;
+    while (list_cur <= list_len)
+    {
+        SlabCodedCoords slb_num;
+
+        if (slb_x > 0)
+        {
+            slb_num = get_slab_number(slb_x-1, slb_y);
+            if ((areamap[slb_num] & 0x01) != 0)
+            {
+                areamap[slb_num] |= 0x02;
+                struct SlabMap *slb;
+                slb = get_slabmap_direct(slb_num);
+                struct SlabAttr *slbattr;
+                slbattr = get_slab_attrs(slb);
+                if ((slbattr->category == SlbAtCtg_FriableDirt) && slab_by_players_land(plyr_idx, slb_x-1, slb_y))
+                {
+                    unsigned char pretty_type;
+                    pretty_type = choose_pretty_type(plyr_idx, slb_x-1, slb_y);
+                    place_slab_type_on_map(pretty_type, slab_subtile(slb_x-1,0), slab_subtile(slb_y,0), plyr_idx, 1);
+                }
+            } else
+            if ((areamap[slb_num] & 0x02) == 0)
+            {
+                areamap[slb_num] |= 0x02;
+                slblist[list_len] = slb_num;
+                list_len++;
+            }
+        }
+        if (slb_x < map_tiles_x-1)
+        {
+            slb_num = get_slab_number(slb_x+1, slb_y);
+            if ((areamap[slb_num] & 0x01) != 0)
+            {
+                areamap[slb_num] |= 0x02;
+                struct SlabMap *slb;
+                slb = get_slabmap_direct(slb_num);
+                struct SlabAttr *slbattr;
+                slbattr = get_slab_attrs(slb);
+                if ((slbattr->category == SlbAtCtg_FriableDirt) &&  slab_by_players_land(plyr_idx, slb_x+1, slb_y))
+                {
+                    unsigned char pretty_type;
+                    pretty_type = choose_pretty_type(plyr_idx, slb_x+1, slb_y);
+                    place_slab_type_on_map(pretty_type, slab_subtile(slb_x+1,0), slab_subtile(slb_y,0), plyr_idx, 1u);
+                }
+            } else
+            if ((areamap[slb_num] & 0x02) == 0)
+            {
+                areamap[slb_num] |= 0x02;
+                slblist[list_len] = slb_num;
+                list_len++;
+            }
+        }
+        if (slb_y > 0)
+        {
+            slb_num = get_slab_number(slb_x, slb_y-1);
+            if ((areamap[slb_num] & 0x01) != 0)
+            {
+                areamap[slb_num] |= 0x02;
+                struct SlabMap *slb;
+                slb = get_slabmap_direct(slb_num);
+                struct SlabAttr *slbattr;
+                slbattr = get_slab_attrs(slb);
+                if ((slbattr->category == SlbAtCtg_FriableDirt) && slab_by_players_land(plyr_idx, slb_x, slb_y-1))
+                {
+                    unsigned char pretty_type;
+                    pretty_type = choose_pretty_type(plyr_idx, slb_x, slb_y - 1);
+                    place_slab_type_on_map(pretty_type, slab_subtile(slb_x,0), slab_subtile(slb_y-1,0), plyr_idx, 1u);
+                }
+            } else
+            if ((areamap[slb_num] & 0x02) == 0)
+            {
+                areamap[slb_num] |= 0x02;
+                slblist[list_len] = slb_num;
+                list_len++;
+            }
+        }
+        if (slb_y < map_tiles_y-1)
+        {
+            slb_num = get_slab_number(slb_x, slb_y+1);
+            if ((areamap[slb_num] & 0x01) != 0)
+            {
+                areamap[slb_num] |= 0x02;
+                struct SlabMap *slb;
+                slb = get_slabmap_direct(slb_num);
+                struct SlabAttr *slbattr;
+                slbattr = get_slab_attrs(slb);
+                if ((slbattr->category == SlbAtCtg_FriableDirt) && slab_by_players_land(plyr_idx, slb_x, slb_y+1))
+                {
+                    unsigned char pretty_type;
+                    pretty_type = choose_pretty_type(plyr_idx, slb_x, slb_y+1);
+                    place_slab_type_on_map(pretty_type, slab_subtile(slb_x,0), slab_subtile(slb_y+1,0), plyr_idx, 1u);
+                }
+            } else
+            if ((areamap[slb_num] & 0x02) == 0)
+            {
+                areamap[slb_num] |= 0x02;
+                slblist[list_len] = slb_num;
+                list_len++;
+            }
+        }
+
+        slb_x = slb_num_decode_x(slblist[list_cur]);
+        slb_y = slb_num_decode_y(slblist[list_cur]);
+        list_cur++;
+    }
+    pannel_map_update(0, 0, map_subtiles_x+1, map_subtiles_y+1);
 }
 
 void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
