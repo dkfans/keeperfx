@@ -202,6 +202,7 @@ struct Event;
 struct Thing;
 struct ComputerTask;
 struct GoldLookup;
+struct THate;
 
 typedef unsigned char ComputerType;
 typedef unsigned short ComputerTaskType;
@@ -212,6 +213,7 @@ typedef long (*Comp_Check_Func)(struct Computer2 *, struct ComputerCheck *);
 typedef long (*Comp_Event_Func)(struct Computer2 *, struct ComputerEvent *,struct Event *);
 typedef long (*Comp_EvntTest_Func)(struct Computer2 *, struct ComputerEvent *);
 typedef long (*Comp_Task_Func)(struct Computer2 *, struct ComputerTask *);
+typedef TbBool (*Comp_HateTest_Func)(const struct Computer2 *, const struct ComputerProcess *, const struct THate *);
 
 struct Comp_Check_Func_ListItem {
   const char *name;
