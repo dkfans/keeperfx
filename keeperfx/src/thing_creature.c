@@ -3803,6 +3803,7 @@ struct Thing *find_players_highest_level_creature_of_breed_and_gui_job(long crmo
     {
     default:
         WARNLOG("Invalid check selection, %d",(int)pick_check);
+        // no break
     case 0:
         filter = player_list_creature_filter_most_experienced;
         break;
@@ -3855,6 +3856,7 @@ struct Thing *find_players_lowest_level_creature_of_breed_and_gui_job(long crmod
     {
     default:
         WARNLOG("Invalid check selection, %d",(int)pick_check);
+        // no break
     case 0:
         filter = player_list_creature_filter_least_experienced;
         break;
@@ -3909,6 +3911,7 @@ struct Thing *find_players_first_creature_of_breed_and_gui_job(long crmodel, lon
     {
     default:
         WARNLOG("Invalid check selection, %d",(int)pick_check);
+        // no break
     case 0:
         filter = player_list_creature_filter_of_gui_job;
         break;

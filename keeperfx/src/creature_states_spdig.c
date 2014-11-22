@@ -1482,52 +1482,52 @@ short creature_picks_up_trap_object(struct Thing *thing)
     return 1;
 }
 
-short creature_drops_corpse_in_graveyard(struct Thing *thing)
+short creature_drops_corpse_in_graveyard(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
     struct Room *room;
     struct Thing *deadtng;
-    TRACE_THING(thing);
-    cctrl = creature_control_get_from_thing(thing);
+    TRACE_THING(creatng);
+    cctrl = creature_control_get_from_thing(creatng);
     deadtng = thing_get(cctrl->dragtng_idx);
     TRACE_THING(deadtng);
     // Check if corpse is ok
-    if ( !thing_exists(deadtng) )
+    if (!thing_exists(deadtng) || !thing_is_dead_creature(deadtng))
     {
-        ERRORLOG("The %s index %d tried to drop a corpse, but it's gone",thing_model_name(thing),(int)thing->index);
-        set_start_state(thing);
+        ERRORLOG("The %s index %d tried to drop a corpse, but it's gone",thing_model_name(creatng),(int)creatng->index);
+        set_start_state(creatng);
         return 0;
     }
     // Check if we're on correct room
-    room = get_room_thing_is_on(thing);
+    room = get_room_thing_is_on(creatng);
     if ( room_is_invalid(room) )
     {
         WARNLOG("Tried to drop %s index %d in %s, but room no longer exists",thing_model_name(deadtng),(int)deadtng->index,room_code_name(RoK_GRAVEYARD));
-        if (creature_drop_thing_to_another_room(thing, room, RoK_GRAVEYARD)) {
-            thing->continue_state = CrSt_CreatureDropsCorpseInGraveyard;
+        if (creature_drop_thing_to_another_room(creatng, room, RoK_GRAVEYARD)) {
+            creatng->continue_state = CrSt_CreatureDropsCorpseInGraveyard;
             return 1;
         }
-        set_start_state(thing);
+        set_start_state(creatng);
         return 0;
     }
 
-    if ( (room->kind != RoK_GRAVEYARD) || (room->owner != thing->owner)
+    if ( (room->kind != RoK_GRAVEYARD) || (room->owner != creatng->owner)
         || (room->used_capacity >= room->total_capacity) )
     {
         WARNLOG("Tried to drop %s index %d in %s, but room won't accept it",thing_model_name(deadtng),(int)deadtng->index,room_code_name(RoK_GRAVEYARD));
-        if (creature_drop_thing_to_another_room(thing, room, RoK_GRAVEYARD)) {
-            thing->continue_state = CrSt_CreatureDropsCorpseInGraveyard;
+        if (creature_drop_thing_to_another_room(creatng, room, RoK_GRAVEYARD)) {
+            creatng->continue_state = CrSt_CreatureDropsCorpseInGraveyard;
             return 1;
         }
-        set_start_state(thing);
+        set_start_state(creatng);
         return 0;
     }
     // Do the dropping
-    creature_drop_dragged_object(thing, deadtng);
-    deadtng->owner = thing->owner;
+    creature_drop_dragged_object(creatng, deadtng);
+    deadtng->owner = creatng->owner;
     add_body_to_graveyard(deadtng, room);
     // The action of moving object is now finished
-    set_start_state(thing);
+    set_start_state(creatng);
     return 1;
 }
 
