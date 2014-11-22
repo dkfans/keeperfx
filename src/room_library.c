@@ -307,7 +307,7 @@ void process_player_research(PlayerNumber plyr_idx)
                 break;
             }
             if (room_is_invalid(room)) {
-                WARNLOG("No %s with capacity for %s artifact",room_code_name(RoK_LIBRARY),power_code_name(pwkind));
+                WARNLOG("Player %d has no %s with capacity for %s artifact, delaying creation",(int)plyr_idx,room_code_name(RoK_LIBRARY),power_code_name(pwkind));
                 return;
             }
             pos.x.val = 0;

@@ -1062,54 +1062,25 @@ long computer_check_sight_of_evil(struct Computer2 *comp, struct ComputerProcess
     return 0;
 }
 
-long computer_check_attack1(struct Computer2 *comp, struct ComputerProcess *cproc)
+TbBool hate_filter_any_enemy_no_matter_how_strong(const struct Computer2 *comp, const struct ComputerProcess *cproc, const struct THate *hate)
 {
-    struct Dungeon *dungeon;
-    dungeon = comp->dungeon;
-    SYNCDBG(8,"Starting for player %d",(int)dungeon->owner);
-    int max_crtrs;
-    max_crtrs = dungeon->max_creatures_attracted;
-    if (max_crtrs <= 0) {
-        suspend_process(comp, cproc);
-        return 4;
-    }
-    if (100 * dungeon->num_active_creatrs / max_crtrs < cproc->confval_4) {
-        SYNCDBG(7,"Not enough active creatures to fight, suspending");
-        suspend_process(comp, cproc);
-        return 4;
-    }
-    if (is_there_an_attack_task(comp)) {
-        SYNCDBG(7,"Attack task already exists, suspending");
-        suspend_process(comp, cproc);
-        return 4;
-    }
-    if (cproc->confval_2 * count_creatures_availiable_for_fight(comp, 0) / 100 < cproc->confval_3) {
-        SYNCDBG(7,"Not enough available creatures to fight, suspending");
-        suspend_process(comp, cproc);
-        return 4;
-    }
-    struct THate hates[PLAYERS_COUNT];
-    get_opponent(comp, hates);
-    long i;
-    // note that 'i' is not player index, player index is inside THate struct
-    for (i=0; i < PLAYERS_COUNT; i++)
-    {
-        struct THate *hate;
-        hate = &hates[i];
-        if (hate->pos_near != NULL)
-        {
-            // If we can attack - do it, don't hesitate
-            if (setup_computer_attack(comp, cproc, hate->pos_near, hate->plyr_idx) == 1) {
-                hate->pos_near->x.val = 0;
-                return 1;
-            }
-        }
-    }
-    suspend_process(comp, cproc);
-    return 4;
+    if (!players_are_enemies(comp->dungeon->owner, hate->plyr_idx))
+        return false;
+    return true;
 }
 
-long computer_check_safe_attack(struct Computer2 *comp, struct ComputerProcess *cproc)
+TbBool hate_filter_enemy_with_not_many_creatures(const struct Computer2 *comp, const struct ComputerProcess *cproc, const struct THate *hate)
+{
+    struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
+    if (!players_are_enemies(dungeon->owner, hate->plyr_idx))
+        return false;
+    struct Dungeon *enmdngn;
+    enmdngn = get_players_num_dungeon(hate->plyr_idx);
+    return (enmdngn->num_active_creatrs * cproc->confval_2 / 100 + enmdngn->num_active_creatrs < dungeon->num_active_creatrs);
+}
+
+long computer_check_attack_with_filter(struct Computer2 *comp, struct ComputerProcess *cproc, Comp_HateTest_Func hate_filter)
 {
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
@@ -1145,11 +1116,10 @@ long computer_check_safe_attack(struct Computer2 *comp, struct ComputerProcess *
         hate = &hates[i];
         if (hate->pos_near != NULL)
         {
-            struct Dungeon *enmdngn;
-            enmdngn = get_players_num_dungeon(hate->plyr_idx);
-            if (enmdngn->num_active_creatrs * cproc->confval_2 / 100 + enmdngn->num_active_creatrs < dungeon->num_active_creatrs)
+            if (hate_filter(comp, cproc, hate))
             {
                 if (setup_computer_attack(comp, cproc, hate->pos_near, hate->plyr_idx) == 1) {
+                    SYNCLOG("Player %d decided to attack player %d",(int)dungeon->owner,(int)hate->plyr_idx);
                     hate->pos_near->x.val = 0;
                     return 1;
                 }
@@ -1158,6 +1128,16 @@ long computer_check_safe_attack(struct Computer2 *comp, struct ComputerProcess *
     }
     suspend_process(comp, cproc);
     return 4;
+}
+
+long computer_check_attack1(struct Computer2 *comp, struct ComputerProcess *cproc)
+{
+    return computer_check_attack_with_filter(comp, cproc, hate_filter_any_enemy_no_matter_how_strong);
+}
+
+long computer_check_safe_attack(struct Computer2 *comp, struct ComputerProcess *cproc)
+{
+    return computer_check_attack_with_filter(comp, cproc, hate_filter_enemy_with_not_many_creatures);
 }
 
 long computer_look_for_opponent(struct Computer2 *comp, long stl_x, long stl_y, long a4)

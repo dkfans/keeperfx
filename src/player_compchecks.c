@@ -484,6 +484,7 @@ long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerChec
     if (!create_task_magic_support_call_to_arms(comp, &pos, check->param2, 0, creatrs_num)) {
         return 4;
     }
+    SYNCLOG("Player %d decided to attack %s owned by player %d",(int)dungeon->owner,room_code_name(room->kind),(int)room->owner);
     output_message(SMsg_EnemyHarassments+ACTION_RANDOM(8), 500, 1);
     return 1;
 }
