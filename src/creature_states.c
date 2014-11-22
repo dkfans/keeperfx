@@ -948,7 +948,7 @@ TbBool attempt_to_destroy_enemy_room(struct Thing *thing, MapSubtlCoord stl_x, M
     room = subtile_room_get(stl_x, stl_y);
     if (room_is_invalid(room))
         return false;
-    if (thing->owner == room->owner)
+    if (players_creatures_tolerate_each_other(thing->owner, room->owner))
         return false;
     if (room_cannot_vandalise(room->kind))
         return false;
