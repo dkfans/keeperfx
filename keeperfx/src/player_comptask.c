@@ -2417,7 +2417,7 @@ long task_move_gold_to_treasury(struct Computer2 *comp, struct ComputerTask *cta
                 return CTaskRet_Unk2;
             }
         }
-        ERRORLOG("Could not find valid position for gold to be dropped");
+        ERRORLOG("Could not find valid position in player %d %s for %s to be dropped",(int)dungeon->owner,room_code_name(room->kind),thing_model_name(thing));
         computer_force_dump_held_things_on_map(comp, &comp->dungeon->essential_pos);
         remove_task(comp, ctask);
         return CTaskRet_Unk0;

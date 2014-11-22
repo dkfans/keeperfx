@@ -3231,7 +3231,7 @@ unsigned char tag_cursor_blocks_place_room(unsigned char a1, long a2, long a3, l
 void initialise_map_collides(void)
 {
     SYNCDBG(7,"Starting");
-    //_DK_initialise_map_collides();
+    //_DK_initialise_map_collides(); return;
     MapSlabCoord slb_x, slb_y;
     for (slb_y=0; slb_y < map_tiles_y; slb_y++)
     {
@@ -3240,9 +3240,9 @@ void initialise_map_collides(void)
             struct SlabMap *slb;
             slb = get_slabmap_block(slb_x, slb_y);
             int ssub_x, ssub_y;
-            for (ssub_y=STL_PER_SLB; ssub_y > 0; ssub_y--)
+            for (ssub_y=0; ssub_y < STL_PER_SLB; ssub_y++)
             {
-                for (ssub_x=STL_PER_SLB; ssub_x > 0; ssub_x--)
+                for (ssub_x=0; ssub_x < STL_PER_SLB; ssub_x++)
                 {
                     MapSubtlCoord stl_x, stl_y;
                     stl_x = slab_subtile(slb_x,ssub_x);
