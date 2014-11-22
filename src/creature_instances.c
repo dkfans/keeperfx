@@ -523,7 +523,7 @@ long instf_dig(struct Thing *creatng, long *param)
         return 0;
     }
     dig_damage = calculate_damage_did_to_slab_with_single_hit(creatng, slb);
-    if (slb->health > dig_damage)
+    if ((slb->health > dig_damage) || slab_kind_is_indestructible(slb->kind))
     {
         if (!slab_kind_is_indestructible(slb->kind))
             slb->health -= dig_damage;

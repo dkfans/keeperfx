@@ -54,6 +54,7 @@ DLLIMPORT struct Room * _DK_find_random_room_for_thing_with_spare_room_item_capa
 DLLIMPORT void _DK_copy_block_with_cube_groups(short a1, unsigned char plyr_idx, unsigned char a3);
 DLLIMPORT unsigned short _DK_i_can_allocate_free_room_structure(void);
 DLLIMPORT struct Thing *_DK_treasure_room_eats_gold_piles(struct Room *room, long slb_x,  long slb_y, struct Thing *thing);
+DLLIMPORT void _DK_delete_room_slabbed_objects(long a1);
 /******************************************************************************/
 void count_slabs_all_only(struct Room *room);
 void count_gold_slabs_wth_effcncy(struct Room *room);
@@ -3508,6 +3509,60 @@ void change_ownership_or_delete_object_thing_in_room(struct Room *room, struct T
       case 2:
         destroy_object(thing);
         break;
+    }
+}
+
+void delete_room_slabbed_objects(SlabCodedCoords slb_num)
+{
+    SYNCDBG(17,"Starting");
+    //_DK_delete_room_slabbed_objects(slb_num);
+    MapSubtlCoord slb_x,slb_y;
+    slb_x = slb_num_decode_x(slb_num);
+    slb_y = slb_num_decode_y(slb_num);
+    int ssub_x, ssub_y;
+    for (ssub_y=0; ssub_y < STL_PER_SLB; ssub_y++)
+    {
+        for (ssub_x=0; ssub_x < STL_PER_SLB; ssub_x++)
+        {
+            MapSubtlCoord stl_x, stl_y;
+            stl_x = slab_subtile(slb_x,ssub_x);
+            stl_y = slab_subtile(slb_y,ssub_y);
+            struct Map *mapblk;
+            mapblk = get_map_block_at(stl_x, stl_y);
+
+            long i;
+            unsigned long k;
+            k = 0;
+            i = get_mapwho_thing_index(mapblk);
+            while (i != 0)
+            {
+                struct Thing *thing;
+                thing = thing_get(i);
+                TRACE_THING(thing);
+                if (thing_is_invalid(thing))
+                {
+                    ERRORLOG("Jump to invalid thing detected");
+                    break;
+                }
+                i = thing->next_on_mapblk;
+                // Per-thing code start
+                if ((thing->parent_idx != slb_num) && (thing->class_id == TCls_Object))
+                {
+                    struct Objects *objdat;
+                    objdat = get_objects_data_for_thing(thing);
+                    if (objdat->field_14 == 3) {
+                        delete_thing_structure(thing, 0);
+                    }
+                }
+                // Per-thing code end
+                k++;
+                if (k > THINGS_COUNT)
+                {
+                    ERRORLOG("Infinite loop detected when sweeping things list");
+                    break;
+                }
+            }
+        }
     }
 }
 
