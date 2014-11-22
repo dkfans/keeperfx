@@ -207,6 +207,7 @@ void remove_slab_from_room_tiles_list(struct Room *room, MapSlabCoord slb_x, Map
 void add_slab_list_to_room_tiles_list(struct Room *room, SlabCodedCoords slb_num);
 void delete_all_room_structures(void);
 void delete_room_structure(struct Room *room);
+void delete_room_slabbed_objects(SlabCodedCoords slb_num);
 struct Room *link_adjacent_rooms_of_type(PlayerNumber owner, MapSubtlCoord x, MapSubtlCoord y, RoomKind rkind);
 struct Room *create_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 short room_grow_food(struct Room *room);

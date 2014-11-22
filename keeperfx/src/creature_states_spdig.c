@@ -885,22 +885,21 @@ short imp_digs_mines(struct Thing *spdigtng)
     delta_y = abs(spdigtng->mappos.y.stl.num - (MapSubtlDelta)cctrl->moveto_pos.y.stl.num);
     if ((mtask->coords != cctrl->word_8F) || (delta_x > 0) || (delta_y > 0))
     {
-      clear_creature_instance(spdigtng);
-      internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
-      return 1;
+        clear_creature_instance(spdigtng);
+        internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
+        return 1;
     }
     // If gems are marked for digging, but there is too much gold laying around, then don't dig
-    if (!slab_kind_is_indestructible(slb->kind) && too_much_gold_lies_around_thing(spdigtng))
+    if (slab_kind_is_indestructible(slb->kind) && too_much_gold_lies_around_thing(spdigtng))
     {
-      clear_creature_instance(spdigtng);
-      internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
-      return 1;
+        clear_creature_instance(spdigtng);
+        internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
+        return 1;
     }
     // Turn to the correct direction to do the task
-    pos.x.stl.num = stl_x;
-    pos.y.stl.num = stl_y;
-    pos.x.stl.pos = 128;
-    pos.y.stl.pos = 128;
+    pos.x.val = subtile_coord_center(stl_x);
+    pos.y.val = subtile_coord_center(stl_y);
+    pos.z.val = 0;
     if (creature_turn_to_face(spdigtng, &pos))
     {
       return 1;

@@ -147,7 +147,6 @@ DLLIMPORT long _DK_tag_blocks_for_digging_in_rectangle_around(long a1, long a2, 
 DLLIMPORT void _DK_untag_blocks_for_digging_in_rectangle_around(long a1, long a2, char a3);
 DLLIMPORT void _DK_tag_cursor_blocks_sell_area(unsigned char a1, long a2, long a3, long a4);
 DLLIMPORT long _DK_packet_place_door(long a1, long a2, long a3, long a4, unsigned char a5);
-DLLIMPORT void _DK_delete_room_slabbed_objects(long a1);
 DLLIMPORT unsigned char _DK_tag_cursor_blocks_place_door(unsigned char a1, long a2, long a3);
 DLLIMPORT unsigned char _DK_tag_cursor_blocks_place_room(unsigned char a1, long a2, long a3, long a4);
 DLLIMPORT void _DK_tag_cursor_blocks_dig(unsigned char a1, long a2, long a3, long a4);
@@ -1852,7 +1851,46 @@ void check_players_lost(void)
 
 void magic_power_hold_audience_update(PlayerNumber plyr_idx)
 {
-    _DK_magic_power_hold_audience_update(plyr_idx);
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    SYNCDBG(8,"Starting");
+    //_DK_magic_power_hold_audience_update(plyr_idx); return;
+    if ( game.play_gameturn - dungeon->hold_audience_field_88C <= game.hold_audience_time) {
+        return;
+    }
+    // Dispose hold audience effect
+    dungeon->hold_audience_field_88C = 0;
+    struct CreatureControl *cctrl;
+    struct Thing *thing;
+    unsigned long k;
+    int i;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    k = 0;
+    i = dungeon->creatr_list_start;
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        if (get_creature_state_besides_interruptions(thing) == CrSt_CreatureInHoldAudience) {
+            set_start_state(thing);
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    SYNCDBG(19,"Finished");
 }
 
 void process_magic_power_call_to_arms(PlayerNumber plyr_idx)
@@ -3208,12 +3246,6 @@ long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber pl
     }
     remove_dead_creatures_from_slab(subtile_slab(stl_x), subtile_slab(stl_y));
     return 1;
-}
-
-void delete_room_slabbed_objects(long a1)
-{
-    SYNCDBG(17,"Starting");
-    _DK_delete_room_slabbed_objects(a1);
 }
 
 unsigned char tag_cursor_blocks_place_door(unsigned char a1, long a2, long a3)
