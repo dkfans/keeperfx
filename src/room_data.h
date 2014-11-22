@@ -122,8 +122,8 @@ struct RoomData {
       unsigned char assigned_slab;
       short numfield_1;
       Room_Update_Func update_total_capacity;
-      Room_Update_Func update_used_capacity;
-      Room_Update_Func offfield_B;
+      Room_Update_Func update_storage_in_room;
+      Room_Update_Func update_workers_in_room;
       unsigned char field_F; //< Originally was long, but the only used values are 1 and 0
       unsigned char field_10; //< Unused, originally was part of field_F
       short field_11; //< Unused, originally was part of field_F

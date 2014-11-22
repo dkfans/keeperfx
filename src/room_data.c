@@ -55,13 +55,13 @@ DLLIMPORT void _DK_copy_block_with_cube_groups(short a1, unsigned char plyr_idx,
 DLLIMPORT unsigned short _DK_i_can_allocate_free_room_structure(void);
 DLLIMPORT struct Thing *_DK_treasure_room_eats_gold_piles(struct Room *room, long slb_x,  long slb_y, struct Thing *thing);
 /******************************************************************************/
-void count_slabs(struct Room *room);
-void count_gold_slabs_with_efficiency(struct Room *room);
+void count_slabs_all_only(struct Room *room);
+void count_gold_slabs_wth_effcncy(struct Room *room);
 void count_gold_hoardes_in_room(struct Room *room);
-void count_slabs_div2(struct Room *room);
+void count_slabs_div2_wth_effcncy(struct Room *room);
 void count_books_in_room(struct Room *room);
 void count_workers_in_room(struct Room *room);
-void count_slabs_with_efficiency(struct Room *room);
+void count_slabs_all_wth_effcncy(struct Room *room);
 void count_crates_in_room(struct Room *room);
 void count_workers_in_room(struct Room *room);
 void count_bodies_in_room(struct Room *room);
@@ -77,24 +77,24 @@ RoomKind look_through_rooms[] = {
     RoK_DUNGHEART, RoK_UNKN17,};
 
 struct RoomData room_data[] = {
-  { 0,  0, NULL,                    NULL,                   NULL,                  0, 0, 0, 201, 201},
-  {14,  0, count_slabs,             NULL,                   NULL,                  0, 0, 0, 598, 614},//TODO the tooltip string is invalid
-  {16, 57, count_gold_slabs_with_efficiency, count_gold_hoardes_in_room, NULL,     1, 0, 0, 599, 615},
-  {18, 61, count_slabs_div2,        count_books_in_room,    count_workers_in_room, 0, 0, 0, 600, 616},
-  {20, 65, count_slabs_with_efficiency, NULL,               NULL,                  1, 0, 0, 601, 617},
-  {22, 63, count_slabs_div2,        NULL,                   NULL,                  0, 0, 0, 602, 619},
-  {24, 67, count_slabs_div2,        NULL,                   NULL,                  0, 0, 0, 603, 618},
-  {26,  0, NULL,                    NULL,                   NULL,                  0, 0, 0, 604, 620},
-  {28, 75, count_slabs_div2,        count_crates_in_room,   count_workers_in_room, 0, 0, 0, 605, 621},
-  {30, 77, count_slabs_div2,        NULL,                   NULL,                  0, 0, 0, 613, 629},
-  {32, 73, count_slabs_div2,        NULL,                   NULL,                  1, 0, 0, 612, 628},
-  {34, 71, count_slabs_div2,        count_bodies_in_room,   NULL,                  0, 0, 0, 606, 622},
-  {40, 69, count_slabs_div2,        NULL,                   NULL,                  0, 0, 0, 607, 623},
-  {36, 59, count_slabs_with_efficiency, count_food_in_room, NULL,                  1, 0, 0, 608, 624},
-  {38, 79, count_slabs_with_efficiency, count_lair_occupants, NULL,                1, 0, 0, 609, 625},
-  {51, 81, NULL,                    NULL,                   NULL,                  0, 0, 0, 610, 626},
-  {53, 83, count_slabs,             NULL,                   NULL,                  0, 0, 0, 611, 627},
-  {50,  0, count_slabs_div2,        NULL,                   NULL,                  0, 0, 0, 201, 201},
+  { 0,  0, NULL,                         NULL,                   NULL,                  0, 0, 0, 201, 201},
+  {14,  0, count_slabs_all_only,         NULL,                   NULL,                  0, 0, 0, 598, 614},//TODO the tooltip string is invalid
+  {16, 57, count_gold_slabs_wth_effcncy, count_gold_hoardes_in_room,NULL,               1, 0, 0, 599, 615},
+  {18, 61, count_slabs_div2_wth_effcncy, count_books_in_room,    count_workers_in_room, 0, 0, 0, 600, 616},
+  {20, 65, count_slabs_all_wth_effcncy,  NULL,                   NULL,                  1, 0, 0, 601, 617},
+  {22, 63, count_slabs_div2_wth_effcncy, NULL,                   NULL,                  0, 0, 0, 602, 619},
+  {24, 67, count_slabs_div2_wth_effcncy, NULL,                   NULL,                  0, 0, 0, 603, 618},
+  {26,  0, NULL,                         NULL,                   NULL,                  0, 0, 0, 604, 620},
+  {28, 75, count_slabs_div2_wth_effcncy, count_crates_in_room,   count_workers_in_room, 0, 0, 0, 605, 621},
+  {30, 77, count_slabs_div2_wth_effcncy, NULL,                   NULL,                  0, 0, 0, 613, 629},
+  {32, 73, count_slabs_div2_wth_effcncy, NULL,                   NULL,                  1, 0, 0, 612, 628},
+  {34, 71, count_slabs_div2_wth_effcncy, count_bodies_in_room,   NULL,                  0, 0, 0, 606, 622},
+  {40, 69, count_slabs_div2_wth_effcncy, NULL,                   NULL,                  0, 0, 0, 607, 623},
+  {36, 59, count_slabs_all_wth_effcncy,  count_food_in_room,     NULL,                  1, 0, 0, 608, 624},
+  {38, 79, count_slabs_all_wth_effcncy,  count_lair_occupants,   NULL,                  1, 0, 0, 609, 625},
+  {51, 81, NULL,                         NULL,                   NULL,                  0, 0, 0, 610, 626},
+  {53, 83, count_slabs_all_only,         NULL,                   NULL,                  0, 0, 0, 611, 627},
+  {50,  0, count_slabs_div2_wth_effcncy, NULL,                   NULL,                  0, 0, 0, 201, 201},
 };
 
 struct RoomInfo room_info[] = {
@@ -379,12 +379,7 @@ void set_room_efficiency(struct Room *room)
     room->efficiency = calculate_room_efficiency(room);
 }
 
-void count_slabs(struct Room *room)
-{
-  room->total_capacity = room->slabs_count;
-}
-
-void count_gold_slabs_with_efficiency(struct Room *room)
+void count_gold_slabs_wth_effcncy(struct Room *room)
 {
     //_DK_count_gold_slabs_with_efficiency(room); return;
     long subefficiency;
@@ -499,16 +494,6 @@ void count_gold_hoardes_in_room(struct Room *room)
     }
     room->capacity_used_for_storage = all_gold_amount;
     room->used_capacity = all_wealth_size;
-}
-
-void count_slabs_div2(struct Room *room)
-{
-    unsigned long count;
-    count = room->slabs_count * ((long)room->efficiency);
-    count = ((count/256) >> 1);
-    if (count <= 1)
-        count = 1;
-    room->total_capacity = count;
 }
 
 void init_reposition_struct(struct RoomReposition * rrepos)
@@ -760,13 +745,28 @@ void count_workers_in_room(struct Room *room)
   _DK_count_workers_in_room(room);
 }
 
-void count_slabs_with_efficiency(struct Room *room)
+void count_slabs_all_only(struct Room *room)
+{
+    room->total_capacity = room->slabs_count;
+}
+
+void count_slabs_all_wth_effcncy(struct Room *room)
 {
     unsigned long count;
     count = room->slabs_count * ((long)room->efficiency);
-    count = (count/256);
+    count = (count/ROOM_EFFICIENCY_MAX);
     if (count <= 1)
       count = 1;
+    room->total_capacity = count;
+}
+
+void count_slabs_div2_wth_effcncy(struct Room *room)
+{
+    unsigned long count;
+    count = room->slabs_count * ((long)room->efficiency);
+    count = ((count/ROOM_EFFICIENCY_MAX) >> 1);
+    if (count <= 1)
+        count = 1;
     room->total_capacity = count;
 }
 
@@ -1735,6 +1735,11 @@ short room_grow_food(struct Room *room)
   return _DK_room_grow_food(room);
 }
 
+/** Calculates shape-based efficiency score from all slabs in room.
+ *
+ * @param room Source room.
+ * @return The efficiency score summary.
+ */
 long calculate_room_widespread_factor(const struct Room *room)
 {
     long nslabs,npieces;
@@ -1747,7 +1752,7 @@ long calculate_room_widespread_factor(const struct Room *room)
     return 2 * (npieces + 4 * nslabs);
 }
 
-/** Calculates summary of efficiency score from all slabs in room.
+/** Calculates summary of surrounding-based efficiency score from all slabs in room.
  *
  * @param room Source room.
  * @return The efficiency score summary.
@@ -1845,10 +1850,10 @@ TbBool update_room_contents(struct Room *room)
     Room_Update_Func cb;
     rdata = room_data_get_for_room(room);
     SYNCDBG(17,"Starting for %s index %d",room_code_name(room->kind),(int)room->index);
-    cb = rdata->update_used_capacity;
+    cb = rdata->update_storage_in_room;
     if (cb != NULL)
         cb(room);
-    cb = rdata->offfield_B;
+    cb = rdata->update_workers_in_room;
     if (cb != NULL)
         cb(room);
     return true;
@@ -3038,11 +3043,11 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
                     struct RoomData *rdata;
                     rdata = room_data_get_for_room(nxroom);
                     Room_Update_Func cb;
-                    cb = rdata->update_used_capacity;
+                    cb = rdata->update_storage_in_room;
                     if (cb != NULL) {
                         cb(nxroom);
                     }
-                    cb = rdata->offfield_B;
+                    cb = rdata->update_workers_in_room;
                     if (cb != NULL) {
                         cb(nxroom);
                     }
@@ -3099,11 +3104,11 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
                     struct RoomData *rdata;
                     rdata = room_data_get_for_room(nxroom);
                     Room_Update_Func cb;
-                    cb = rdata->update_used_capacity;
+                    cb = rdata->update_storage_in_room;
                     if (cb != NULL) {
                         cb(nxroom);
                     }
-                    cb = rdata->offfield_B;
+                    cb = rdata->update_workers_in_room;
                     if (cb != NULL) {
                         cb(nxroom);
                     }

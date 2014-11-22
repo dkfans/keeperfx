@@ -1980,7 +1980,6 @@ short creature_exempt(struct Thing *creatng)
 short creature_follow_leader(struct Thing *creatng)
 {
     struct Thing *leadtng;
-    long i;
     TRACE_THING(creatng);
     leadtng = get_group_leader(creatng);
     if (thing_is_invalid(leadtng) || (leadtng->index == creatng->index))
