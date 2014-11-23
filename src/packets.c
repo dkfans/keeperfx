@@ -457,7 +457,7 @@ TbBool process_dungeon_control_packet_sell_operation(long plyr_idx)
         // Nothing to do here - trap already sold
     } else
     {
-        WARNLOG("Nothing to do");
+        WARNLOG("Nothing to do for player %d request",(int)plyr_idx);
     }
     unset_packet_control(pckt, PCtr_LBtnClick);
     return true;

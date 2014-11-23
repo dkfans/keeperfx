@@ -217,12 +217,12 @@ long take_money_from_room(struct Room *room, GoldAmount amount_take)
     return amount_take-amount;
 }
 
-long take_money_from_dungeon(PlayerNumber plyr_idx, GoldAmount amount_take, TbBool only_whole_sum)
+long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, TbBool only_whole_sum, const char *func_name)
 {
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon)) {
-        WARNLOG("Cannot take gold from player %d with no dungeon",(int)plyr_idx);
+        WARNLOG("%s: Cannot take gold from player %d with no dungeon",func_name,(int)plyr_idx);
         return -1;
     }
     GoldAmount take_remain;
@@ -230,12 +230,12 @@ long take_money_from_dungeon(PlayerNumber plyr_idx, GoldAmount amount_take, TbBo
     GoldAmount total_money;
     total_money = dungeon->total_money_owned;
     if (take_remain <= 0) {
-        WARNLOG("No gold needed to be taken from player %d",(int)plyr_idx);
+        WARNLOG("%s: No gold needed to be taken from player %d",func_name,(int)plyr_idx);
         return 0;
     }
     if (take_remain > total_money)
     {
-        SYNCDBG(7,"Player %d has only %d gold, cannot get %d from him",(int)plyr_idx,(int)take_remain,(int)total_money);
+        SYNCDBG(7,"%s: Player %d has only %d gold, cannot get %d from him",func_name,(int)plyr_idx,(int)total_money,(int)take_remain);
         if (only_whole_sum) {
             return -1;
         }
@@ -293,7 +293,7 @@ long take_money_from_dungeon(PlayerNumber plyr_idx, GoldAmount amount_take, TbBo
           break;
         }
     }
-    WARNLOG("Player %d could not give %d gold, %d was missing; his total gold was %d",(int)plyr_idx,(int)amount_take,(int)take_remain,(int)total_money);
+    WARNLOG("%s: Player %d could not give %d gold, %d was missing; his total gold was %d",func_name,(int)plyr_idx,(int)amount_take,(int)take_remain,(int)total_money);
     return -1;
 }
 

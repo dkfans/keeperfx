@@ -72,6 +72,70 @@ const struct NamedCommand  terrain_room_properties_commands[] = {
   {NULL,                0},
   };
 
+/* Room capacity computation, using functions from room_data.c */
+
+extern void count_slabs_all_only(struct Room *room);
+extern void count_slabs_all_wth_effcncy(struct Room *room);
+extern void count_slabs_div2_wth_effcncy(struct Room *room);
+extern void count_gold_slabs_wth_effcncy(struct Room *room);
+
+const struct NamedCommand terrain_room_total_capacity_func_type[] = {
+  {"slabs_all_only",          1,},
+  {"slabs_all_wth_effcncy",   2,},
+  {"slabs_div2_wth_effcncy",  3,},
+  {"gold_slabs_wth_effcncy",  4,},
+  {"none",                    5,},
+  {NULL,                      0,},
+};
+
+Room_Update_Func terrain_room_total_capacity_func_list[] = {
+  NULL,
+  count_slabs_all_only,
+  count_slabs_all_wth_effcncy,
+  count_slabs_div2_wth_effcncy,
+  count_gold_slabs_wth_effcncy,
+  NULL,
+  NULL,
+};
+
+/* Room usage computation, using functions from room_data.c */
+
+extern void count_gold_hoardes_in_room(struct Room *room);
+extern void count_books_in_room(struct Room *room);
+extern void count_workers_in_room(struct Room *room);
+extern void count_crates_in_room(struct Room *room);
+extern void count_workers_in_room(struct Room *room);
+extern void count_bodies_in_room(struct Room *room);
+extern void count_food_in_room(struct Room *room);
+extern void count_lair_occupants(struct Room *room);
+
+const struct NamedCommand terrain_room_used_capacity_func_type[] = {
+  {"gold_hoardes_in_room", 1,},
+  {"books_in_room",        2,},
+  {"workers_in_room",      3,},
+  {"crates_in_room",       4,},
+  {"workers_in_room",      5,},
+  {"bodies_in_room",       6,},
+  {"food_in_room",         7,},
+  {"lair_occupants",       8,},
+  {"none",                 9,},
+  {NULL,                   0,},
+};
+
+Room_Update_Func terrain_room_used_capacity_func_list[] = {
+  NULL,
+  count_gold_hoardes_in_room,
+  count_books_in_room,
+  count_workers_in_room,
+  count_crates_in_room,
+  count_workers_in_room,
+  count_bodies_in_room,
+  count_food_in_room,
+  count_lair_occupants,
+  NULL,
+  NULL,
+};
+
 const struct NamedCommand terrain_health_commands[] = {
   {"DIRT",            1},
   {"GOLD",            2},
@@ -694,7 +758,7 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                if (k > 0)
+                if (k >= 0)
                 {
                     roomst->bigsym_sprite_idx = k;
                     n++;
@@ -703,7 +767,7 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                if (k > 0)
+                if (k >= 0)
                 {
                     roomst->medsym_sprite_idx = k;
                     rdata->medsym_sprite_idx = k;
@@ -733,10 +797,36 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
             }
             break;
         case 12: // TOTALCAPACITY
-            //TODO make reading
+            k = recognize_conf_parameter(buf,&pos,len,terrain_room_total_capacity_func_type);
+            if (k > 0)
+            {
+                rdata->update_total_capacity = terrain_room_total_capacity_func_list[k];
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
             break;
         case 13: // USEDCAPACITY
-            //TODO make reading
+            k = recognize_conf_parameter(buf,&pos,len,terrain_room_used_capacity_func_type);
+            if (k > 0)
+            {
+                rdata->update_storage_in_room = terrain_room_used_capacity_func_list[k];
+                n++;
+            }
+            k = recognize_conf_parameter(buf,&pos,len,terrain_room_used_capacity_func_type);
+            if (k > 0)
+            {
+                rdata->update_workers_in_room = terrain_room_used_capacity_func_list[k];
+                n++;
+            }
+            if (n < 2)
+            {
+                CONFWRNLOG("Couldn't recognize all of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
             break;
         case 14: // AMBIENTSNDSAMPLE
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)

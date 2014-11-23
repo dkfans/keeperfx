@@ -2516,6 +2516,15 @@ TbBool creature_look_for_enemy_heart_combat(struct Thing *thing)
         return false;
     }
     struct Thing *heartng;
+    // If already fighting dungeon heart, skip the rest
+    if (get_creature_state_besides_interruptions(thing) == CrSt_CreatureObjectCombat) {
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(thing);
+        heartng = thing_get(cctrl->battle_enemy_idx);
+        if (thing_is_dungeon_heart(heartng)) {
+            return false;
+        }
+    }
     heartng = get_enemy_soul_container_creature_can_see(thing);
     if (thing_is_invalid(heartng)) {
         return false;

@@ -43,7 +43,8 @@ void set_player_as_lost_level(struct PlayerInfo *player);
 
 long compute_player_final_score(struct PlayerInfo *player, long gameplay_score);
 
-long take_money_from_dungeon(PlayerNumber plyr_idx, GoldAmount amount_take, TbBool only_whole_sum);
+#define take_money_from_dungeon(plyr_idx, amount_take, only_whole_sum) take_money_from_dungeon_f(plyr_idx, amount_take, only_whole_sum, __func__)
+long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, TbBool only_whole_sum, const char *func_name);
 long update_dungeon_generation_speeds(void);
 void calculate_dungeon_area_scores(void);
 
