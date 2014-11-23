@@ -77,6 +77,8 @@ extern struct TiledSprite status_panel;
 /******************************************************************************/
 void draw_whole_status_panel(void);
 void gui_set_button_flashing(long btn_idx, long gameturns);
+
+void update_room_tab_to_config(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

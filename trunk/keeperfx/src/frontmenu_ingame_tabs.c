@@ -40,6 +40,7 @@
 #include "config_creature.h"
 #include "config_magic.h"
 #include "config_trapdoor.h"
+#include "config_terrain.h"
 #include "room_workshop.h"
 #include "gui_frontbtns.h"
 #include "gui_parchment.h"
@@ -1298,7 +1299,9 @@ void gui_go_to_next_room(struct GuiButton *gbtn)
     rkind = (long)gbtn->content;
     go_to_my_next_room_of_type_and_select(rkind);
     game.chosen_room_kind = rkind;
-    game.chosen_room_look = room_info[rkind].field_0;
+    struct RoomConfigStats *roomst;
+    roomst = &slab_conf.room_cfgstats[rkind];
+    game.chosen_room_look = roomst->bigsym_sprite_idx;
     game.chosen_room_tooltip = gbtn->tooltip_stridx;
 }
 
@@ -2236,5 +2239,39 @@ void gui_set_button_flashing(long btn_idx, long gameturns)
 {
     game.flash_button_index = btn_idx;
     game.flash_button_gameturns = gameturns;
+}
+
+void update_room_tab_to_config(void)
+{
+    int i;
+    // Clear 4x4 area of buttons, but skip "sell" button at end
+    for (i=0; i < 4*4-1; i++)
+    {
+        struct GuiButtonInit * ibtn;
+        ibtn = &room_menu.buttons[i];
+        ibtn->sprite_idx = 24;
+        ibtn->tooltip_stridx = GUIStr_Empty;
+        ibtn->content.lval = 0;
+        ibtn->click_event = NULL;
+        ibtn->rclick_event = NULL;
+        ibtn->ptover_event = NULL;
+        ibtn->draw_call = gui_area_new_null_button;
+    }
+    for (i=0; i < slab_conf.room_types_count; i++)
+    {
+        struct RoomConfigStats *roomst;
+        roomst = &slab_conf.room_cfgstats[i];
+        if (roomst->panel_tab_idx < 1)
+            continue;
+        struct GuiButtonInit * ibtn;
+        ibtn = &room_menu.buttons[roomst->panel_tab_idx-1];
+        ibtn->sprite_idx = roomst->medsym_sprite_idx;
+        ibtn->tooltip_stridx = roomst->tooltip_stridx;
+        ibtn->content.lval = i;
+        ibtn->click_event = gui_choose_room;
+        ibtn->rclick_event = gui_go_to_next_room;
+        ibtn->ptover_event = gui_over_room_button;
+        ibtn->draw_call = gui_area_room_button;
+    }
 }
 /******************************************************************************/

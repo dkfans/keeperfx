@@ -58,6 +58,11 @@ const struct NamedCommand terrain_room_commands[] = {
   {"MESSAGES",        7},
   {"NAMETEXTID",      8},
   {"TOOLTIPTEXTID",   9},
+  {"SYMBOLSPRITES",  10},
+  {"PANELTABINDEX",  11},
+  {"TOTALCAPACITY",  12},
+  {"USEDCAPACITY",   13},
+  {"AMBIENTSNDSAMPLE",14},
   {NULL,              0},
   };
 
@@ -476,6 +481,9 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
             roomst->name_stridx = GUIStr_Empty;
             roomst->tooltip_stridx = GUIStr_Empty;
             roomst->creature_creation_model = 0;
+            roomst->bigsym_sprite_idx = 0;
+            roomst->medsym_sprite_idx = 0;
+            roomst->panel_tab_idx = 0;
             roomst->msg_needed = 0;
             roomst->msg_too_small = 0;
             roomst->msg_no_route = 0;
@@ -655,6 +663,7 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
               if (k > 0)
               {
                   roomst->name_stridx = k;
+                  rdata->name_stridx = k;
                   n++;
               }
             }
@@ -671,6 +680,71 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
               if (k > 0)
               {
                   roomst->tooltip_stridx = k;
+                  rdata->tooltip_stridx = k;
+                  n++;
+              }
+            }
+            if (n < 1)
+            {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 10: // SYMBOLSPRITES
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k > 0)
+                {
+                    roomst->bigsym_sprite_idx = k;
+                    n++;
+                }
+            }
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k > 0)
+                {
+                    roomst->medsym_sprite_idx = k;
+                    rdata->medsym_sprite_idx = k;
+                    n++;
+                }
+            }
+            if (n < 2)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 11: // PANELTABINDEX
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  roomst->panel_tab_idx = k;
+                  n++;
+              }
+            }
+            if (n < 1)
+            {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 12: // TOTALCAPACITY
+            //TODO make reading
+            break;
+        case 13: // USEDCAPACITY
+            //TODO make reading
+            break;
+        case 14: // AMBIENTSNDSAMPLE
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  roomst->ambient_snd_smp_id = k;
                   n++;
               }
             }
@@ -774,10 +848,10 @@ TbBool load_terrain_config(const char *conf_fname, unsigned short flags)
 TbBool make_all_rooms_free(void)
 {
     struct RoomStats *rstat;
-    long i;
-    for (i=0; i < slab_conf.room_types_count; i++)
+    long rkind;
+    for (rkind=0; rkind < slab_conf.room_types_count; rkind++)
     {
-        rstat = &game.room_stats[i];
+        rstat = &game.room_stats[rkind];
         rstat->cost = 0;
     }
     return true;
@@ -789,13 +863,13 @@ TbBool make_all_rooms_free(void)
 TbBool make_all_rooms_researchable(PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
-    long i;
+    long rkind;
     dungeon = get_players_num_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon))
         return false;
-    for (i=0; i < slab_conf.room_types_count; i++)
+    for (rkind=0; rkind < slab_conf.room_types_count; rkind++)
     {
-        dungeon->room_resrchable[i] = 1;
+        dungeon->room_resrchable[rkind] = 1;
     }
     return true;
 }

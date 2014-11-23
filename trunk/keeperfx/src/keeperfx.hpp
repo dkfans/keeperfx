@@ -132,7 +132,6 @@ extern short default_loc_player;
 extern struct GuiBox *gui_box;
 extern struct GuiBox *gui_cheat_box;
 extern int test_variable;
-extern struct RoomInfo room_info[];
 extern struct StartupParameters start_params;
 
 //Functions - exported by the DLL

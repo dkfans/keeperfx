@@ -479,7 +479,7 @@ void draw_power_hand(void)
     if ((!room_is_invalid(room)) && (subtile_revealed(stl_x, stl_y, player->id_number)))
     {
       rdata = room_data_get_for_room(room);
-      draw_gui_panel_sprite_centered(GetMouseX()+24*units_per_pixel/16, GetMouseY()+32*units_per_pixel/16, ps_units_per_px, rdata->numfield_1);
+      draw_gui_panel_sprite_centered(GetMouseX()+24*units_per_pixel/16, GetMouseY()+32*units_per_pixel/16, ps_units_per_px, rdata->medsym_sprite_idx);
     }
     if ((!power_hand_is_empty(player)) && (game.small_map_state == 1))
     {
