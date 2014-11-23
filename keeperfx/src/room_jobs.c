@@ -156,8 +156,10 @@ TbBool add_creature_to_work_room(struct Thing *crtng, struct Room *room)
     cctrl = creature_control_get_from_thing(crtng);
     if (cctrl->work_room_id != 0)
     {
-        WARNLOG("Attempt to add creature to room kind %d when he is a member of kind %d",
-            (int)room->kind, (int)room_get(cctrl->work_room_id)->kind);
+        const struct Room *wrkroom;
+        wrkroom = room_get(cctrl->work_room_id);
+        WARNLOG("Attempt to add creature to %s index %d when he is a member of %s index %d",
+            room_code_name(room->kind), (int)room->index, room_code_name(wrkroom->kind), (int)wrkroom->index);
         remove_creature_from_work_room(crtng);
     }
     if ((cctrl->flgfield_1 & 0x20) != 0)

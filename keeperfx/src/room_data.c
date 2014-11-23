@@ -57,12 +57,13 @@ DLLIMPORT struct Thing *_DK_treasure_room_eats_gold_piles(struct Room *room, lon
 DLLIMPORT void _DK_delete_room_slabbed_objects(long a1);
 /******************************************************************************/
 void count_slabs_all_only(struct Room *room);
-void count_gold_slabs_wth_effcncy(struct Room *room);
-void count_gold_hoardes_in_room(struct Room *room);
+void count_slabs_all_wth_effcncy(struct Room *room);
 void count_slabs_div2_wth_effcncy(struct Room *room);
+void count_gold_slabs_wth_effcncy(struct Room *room);
+
+void count_gold_hoardes_in_room(struct Room *room);
 void count_books_in_room(struct Room *room);
 void count_workers_in_room(struct Room *room);
-void count_slabs_all_wth_effcncy(struct Room *room);
 void count_crates_in_room(struct Room *room);
 void count_workers_in_room(struct Room *room);
 void count_bodies_in_room(struct Room *room);
@@ -78,24 +79,24 @@ RoomKind look_through_rooms[] = {
     RoK_DUNGHEART, RoK_UNKN17,};
 
 struct RoomData room_data[] = {
-  { 0,  0, NULL,                         NULL,                   NULL,                  0, 0, 0, 201, 201},
-  {14,  0, count_slabs_all_only,         NULL,                   NULL,                  0, 0, 0, 598, 614},//TODO the tooltip string is invalid
-  {16, 57, count_gold_slabs_wth_effcncy, count_gold_hoardes_in_room,NULL,               1, 0, 0, 599, 615},
-  {18, 61, count_slabs_div2_wth_effcncy, count_books_in_room,    count_workers_in_room, 0, 0, 0, 600, 616},
-  {20, 65, count_slabs_all_wth_effcncy,  NULL,                   NULL,                  1, 0, 0, 601, 617},
-  {22, 63, count_slabs_div2_wth_effcncy, NULL,                   NULL,                  0, 0, 0, 602, 619},
-  {24, 67, count_slabs_div2_wth_effcncy, NULL,                   NULL,                  0, 0, 0, 603, 618},
-  {26,  0, NULL,                         NULL,                   NULL,                  0, 0, 0, 604, 620},
-  {28, 75, count_slabs_div2_wth_effcncy, count_crates_in_room,   count_workers_in_room, 0, 0, 0, 605, 621},
-  {30, 77, count_slabs_div2_wth_effcncy, NULL,                   NULL,                  0, 0, 0, 613, 629},
-  {32, 73, count_slabs_div2_wth_effcncy, NULL,                   NULL,                  1, 0, 0, 612, 628},
-  {34, 71, count_slabs_div2_wth_effcncy, count_bodies_in_room,   NULL,                  0, 0, 0, 606, 622},
-  {40, 69, count_slabs_div2_wth_effcncy, NULL,                   NULL,                  0, 0, 0, 607, 623},
-  {36, 59, count_slabs_all_wth_effcncy,  count_food_in_room,     NULL,                  1, 0, 0, 608, 624},
-  {38, 79, count_slabs_all_wth_effcncy,  count_lair_occupants,   NULL,                  1, 0, 0, 609, 625},
-  {51, 81, NULL,                         NULL,                   NULL,                  0, 0, 0, 610, 626},
-  {53, 83, count_slabs_all_only,         NULL,                   NULL,                  0, 0, 0, 611, 627},
-  {50,  0, count_slabs_div2_wth_effcncy, NULL,                   NULL,                  0, 0, 0, 201, 201},
+  { 0,  0, NULL, NULL, NULL, 0, 0, 0, 0, 0},
+  { 0,  0, NULL, NULL, NULL, 0, 0, 0, 0, 0},//TODO the tooltip string is invalid
+  { 0,  0, NULL, NULL, NULL, 1, 0, 0, 0, 0},
+  { 0,  0, NULL, NULL, NULL, 0, 0, 0, 0, 0},
+  { 0,  0, NULL, NULL, NULL, 1, 0, 0, 0, 0},
+  { 0,  0, NULL, NULL, NULL, 0, 0, 0, 0, 0},
+  { 0,  0, NULL, NULL, NULL, 0, 0, 0, 0, 0},
+  { 0,  0, NULL, NULL, NULL, 0, 0, 0, 0, 0},
+  { 0,  0, NULL, NULL, NULL, 0, 0, 0, 0, 0},
+  { 0,  0, NULL, NULL, NULL, 0, 0, 0, 0, 0},
+  { 0,  0, NULL, NULL, NULL, 1, 0, 0, 0, 0},
+  { 0,  0, NULL, NULL, NULL, 0, 0, 0, 0, 0},
+  { 0,  0, NULL, NULL, NULL, 0, 0, 0, 0, 0},
+  { 0,  0, NULL, NULL, NULL, 1, 0, 0, 0, 0},
+  { 0,  0, NULL, NULL, NULL, 1, 0, 0, 0, 0},
+  { 0,  0, NULL, NULL, NULL, 0, 0, 0, 0, 0},
+  { 0,  0, NULL, NULL, NULL, 0, 0, 0, 0, 0},
+  { 0,  0, NULL, NULL, NULL, 0, 0, 0, 0, 0},
 };
 
 struct AroundLByte const room_spark_offset[] = {
@@ -701,7 +702,7 @@ void count_books_in_room(struct Room *room)
             {
                 for (dx=0; dx < STL_PER_SLB; dx++)
                 {
-                    count_and_reposition_books_in_room_on_subtile(room, 3*slb_x+dx, 3*slb_y+dy, &rrepos);
+                    count_and_reposition_books_in_room_on_subtile(room, slab_subtile(slb_x,dx), slab_subtile(slb_y,dy), &rrepos);
                 }
             }
             // Per-slab code ends
@@ -2134,6 +2135,14 @@ TbBool find_random_position_at_border_of_room(struct Coord3d *pos, const struct 
     return false;
 }
 
+/**
+ * Finds a room with space item slot for storage.
+ * Note that this function may return a room filled to its full by workers. Only item storage
+ * is used to determine whether the room is full.
+ * @param plyr_idx
+ * @param rkind
+ * @return
+ */
 struct Room *find_room_with_spare_room_item_capacity(PlayerNumber plyr_idx, RoomKind rkind)
 {
     struct Dungeon *dungeon;
@@ -2142,7 +2151,7 @@ struct Room *find_room_with_spare_room_item_capacity(PlayerNumber plyr_idx, Room
     dungeon = get_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon))
         return INVALID_ROOM;
-    return find_nth_room_of_owner_with_spare_capacity_starting_with(dungeon->room_kind[rkind], 0, 1);
+    return find_nth_room_of_owner_with_spare_item_capacity_starting_with(dungeon->room_kind[rkind], 0, 1);
 }
 
 struct Room *find_room_for_thing_with_used_capacity(const struct Thing *creatng, PlayerNumber plyr_idx, RoomKind rkind, unsigned char nav_flags, long min_used_cap)
@@ -2227,6 +2236,43 @@ struct Room *find_nth_room_of_owner_with_spare_capacity_starting_with(long room_
         i = room->next_of_owner;
         // Per-room code
         if (room->used_capacity + spare <= room->total_capacity)
+        {
+            if (n > 0) {
+                n--;
+            } else {
+                return room;
+            }
+        }
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping rooms list");
+          break;
+        }
+    }
+    return INVALID_ROOM;
+}
+
+struct Room *find_nth_room_of_owner_with_spare_item_capacity_starting_with(long room_idx, long n, long spare)
+{
+    struct Room *room;
+    unsigned long k;
+    int i;
+    SYNCDBG(18,"Starting");
+    k = 0;
+    i = room_idx;
+    while (i != 0)
+    {
+        room = room_get(i);
+        if (room_is_invalid(room))
+        {
+            ERRORLOG("Jump to invalid room detected");
+            break;
+        }
+        i = room->next_of_owner;
+        // Per-room code
+        if (room->capacity_used_for_storage + spare <= room->total_capacity)
         {
             if (n > 0) {
                 n--;
