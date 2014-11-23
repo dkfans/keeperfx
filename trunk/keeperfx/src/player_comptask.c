@@ -2411,13 +2411,19 @@ long task_move_gold_to_treasury(struct Computer2 *comp, struct ComputerTask *cta
     if (!thing_is_invalid(thing))
     {
         room = room_get(ctask->move_gold.room_idx);
-        if (object_is_gold(thing) && find_random_valid_position_for_thing_in_room(thing, room, &pos))
+        if (object_is_gold(thing) && room_exists(room))
         {
-            if (computer_dump_held_things_on_map(comp, thing, &pos) > 0) {
-                return CTaskRet_Unk2;
+            if (find_random_valid_position_for_thing_in_room(thing, room, &pos))
+            {
+                if (computer_dump_held_things_on_map(comp, thing, &pos) > 0) {
+                    return CTaskRet_Unk2;
+                }
             }
+            ERRORLOG("Could not find valid position in player %d %s for %s to be dropped",(int)dungeon->owner,room_code_name(room->kind),thing_model_name(thing));
+        } else
+        {
+            WARNLOG("Could not move player %d gold by dropping %s into %s",(int)dungeon->owner,thing_model_name(thing),room_code_name(room->kind));
         }
-        ERRORLOG("Could not find valid position in player %d %s for %s to be dropped",(int)dungeon->owner,room_code_name(room->kind),thing_model_name(thing));
         computer_force_dump_held_things_on_map(comp, &comp->dungeon->essential_pos);
         remove_task(comp, ctask);
         return CTaskRet_Unk0;

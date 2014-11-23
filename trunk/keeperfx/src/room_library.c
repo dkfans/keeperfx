@@ -355,8 +355,8 @@ void process_player_research(PlayerNumber plyr_idx)
             room = find_room_with_spare_room_item_capacity(plyr_idx, RoK_LIBRARY);
             if (!room_is_invalid(room))
             {
-                pos.x.val = (room->central_stl_x << 8) + 128;
-                pos.y.val = (room->central_stl_y << 8) + 128;
+                pos.x.val = subtile_coord_center(room->central_stl_x);
+                pos.y.val = subtile_coord_center(room->central_stl_y);
                 pos.z.val = get_floor_height_at(&pos);
                 create_effect(&pos, TngEff_Unknown53, room->owner);
             }

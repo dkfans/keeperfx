@@ -190,6 +190,7 @@ TbBool find_random_position_at_border_of_room(struct Coord3d *pos, const struct 
 // Finding a room for a thing
 TbBool creature_can_get_to_any_of_players_rooms(struct Thing *thing, PlayerNumber owner);
 struct Room *find_room_with_spare_room_item_capacity(PlayerNumber plyr_idx, RoomKind rkind);
+struct Room *find_nth_room_of_owner_with_spare_item_capacity_starting_with(long room_idx, long n, long spare);
 struct Room *find_room_for_thing_with_used_capacity(const struct Thing *creatng, PlayerNumber plyr_idx, RoomKind rkind, unsigned char nav_flags, long min_used_cap);
 struct Room *find_room_with_spare_capacity(PlayerNumber owner, signed char rkind, long spare);
 struct Room *find_nth_room_of_owner_with_spare_capacity_starting_with(long room_idx, long n, long spare);
