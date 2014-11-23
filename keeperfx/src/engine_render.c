@@ -2786,9 +2786,11 @@ void draw_room_flag_top(long x, long y, int units_per_px, const struct Room *roo
     spr = &gui_panel_sprites[303];
     ps_units_per_px = 36*units_per_px/spr->SHeight;
     LbSpriteDrawScaled(x, y, spr, spr->SWidth * ps_units_per_px / 16, spr->SHeight * ps_units_per_px / 16);
+    struct RoomConfigStats *roomst;
+    roomst = &slab_conf.room_cfgstats[room->kind];
     int barpos_x;
     barpos_x = x + spr->SWidth * ps_units_per_px / 16 - (8 * units_per_px - 8) / 16;
-    spr = &gui_panel_sprites[room_info[room->kind].field_2];
+    spr = &gui_panel_sprites[roomst->medsym_sprite_idx];
     LbSpriteDrawResized(x - 2*units_per_px/16, y - 4*units_per_px/16, ps_units_per_px, spr);
     bar_fill = ROOM_FLAG_PROGRESS_BAR_WIDTH;
     bar_empty = 0;

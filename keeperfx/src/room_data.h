@@ -120,7 +120,7 @@ struct Room {
 
 struct RoomData {
       unsigned char assigned_slab;
-      short numfield_1;
+      short medsym_sprite_idx;
       Room_Update_Func update_total_capacity;
       Room_Update_Func update_storage_in_room;
       Room_Update_Func update_workers_in_room;
