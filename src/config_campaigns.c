@@ -28,6 +28,7 @@
 #include "config.h"
 #include "config_strings.h"
 #include "lvl_filesdk1.h"
+#include "frontmenu_ingame_tabs.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -1037,6 +1038,8 @@ TbBool change_campaign(const char *cmpgn_fname)
     find_and_load_lif_files();
     find_and_load_lof_files();
     load_or_create_high_score_table();
+    // Update GUI arrays to new config
+    update_room_tab_to_config();
     return result;
 }
 

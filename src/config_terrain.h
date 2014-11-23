@@ -96,6 +96,10 @@ struct RoomConfigStats {
     long creature_creation_model;
     SlabKind assigned_slab;
     unsigned long flags;
+    long panel_tab_idx;
+    long bigsym_sprite_idx;
+    long medsym_sprite_idx;
+    unsigned int ambient_snd_smp_id;
     long msg_needed;
     long msg_too_small;
     long msg_no_route;

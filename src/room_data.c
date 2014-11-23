@@ -98,26 +98,6 @@ struct RoomData room_data[] = {
   {50,  0, count_slabs_div2_wth_effcncy, NULL,                   NULL,                  0, 0, 0, 201, 201},
 };
 
-struct RoomInfo room_info[] = {
-  { 0,  0,  0},
-  { 0,  0,  0},
-  {29, 57,  0},
-  {33, 61,  0},
-  {37, 65,  0},
-  {35, 63,  0},
-  {39, 67, 85},
-  { 0,  0,  0},
-  {47, 75, 86},
-  {49, 77,156},
-  {45, 73,155},
-  {43, 71, 45},
-  {41, 69,  0},
-  {31, 59,  0},
-  {51, 79,  0},
-  {53, 81,  0},
-  {55, 83,  0},
-};
-
 struct AroundLByte const room_spark_offset[] = {
   {-256,  256},
   {-256,    0},
@@ -3041,17 +3021,7 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
                     create_effect(&pos, TngEff_Unknown56, thing->owner);
                     struct Room *nxroom;
                     nxroom = get_room_thing_is_on(thing);
-                    struct RoomData *rdata;
-                    rdata = room_data_get_for_room(nxroom);
-                    Room_Update_Func cb;
-                    cb = rdata->update_storage_in_room;
-                    if (cb != NULL) {
-                        cb(nxroom);
-                    }
-                    cb = rdata->update_workers_in_room;
-                    if (cb != NULL) {
-                        cb(nxroom);
-                    }
+                    update_room_contents(nxroom);
                 } else
                 // Cannot store the spellbook anywhere - remove the spell
                 {
@@ -3102,17 +3072,7 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
                     create_effect(&pos, TngEff_Unknown56, thing->owner);
                     struct Room *nxroom;
                     nxroom = get_room_thing_is_on(thing);
-                    struct RoomData *rdata;
-                    rdata = room_data_get_for_room(nxroom);
-                    Room_Update_Func cb;
-                    cb = rdata->update_storage_in_room;
-                    if (cb != NULL) {
-                        cb(nxroom);
-                    }
-                    cb = rdata->update_workers_in_room;
-                    if (cb != NULL) {
-                        cb(nxroom);
-                    }
+                    update_room_contents(nxroom);
                 } else
                 // Cannot store the crate anywhere - remove it
                 {

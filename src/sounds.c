@@ -238,7 +238,9 @@ void find_nearest_rooms_for_ambient_sound(void)
             room = subtile_room_get(stl_x, stl_y);
             if (room_is_invalid(room))
                 continue;
-            k = room_info[room->kind].ambient_snd_smp_id;
+            struct RoomConfigStats *roomst;
+            roomst = &slab_conf.room_cfgstats[room->kind];
+            k = roomst->ambient_snd_smp_id;
             if (k > 0)
             {
                 SYNCDBG(8,"Playing ambient for %s at (%d,%d)",room_code_name(room->kind),(int)stl_x,(int)stl_y);
