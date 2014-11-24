@@ -170,6 +170,15 @@ enum TbSpeechMessages {
 
 typedef unsigned long Phrase;
 
+enum OutputMessageKinds {
+    OMsg_None = 0,
+    OMsg_RoomNeeded,
+    OMsg_RoomTooSmall,
+    OMsg_RoomNoRoute,
+};
+
+typedef unsigned int OutputMessageKind;
+
 struct SMessage {
       long start_idx;
       long count;
@@ -195,7 +204,7 @@ void clear_messages(void);
 void init_messages_turns(long delay);
 void init_messages(void);
 void process_messages(void);
-TbBool output_message_room_related_from_computer_or_player_action(long msg_idx);
+TbBool output_message_room_related_from_computer_or_player_action(PlayerNumber plyr_idx, RoomKind rkind, OutputMessageKind msg_kind);
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -98,10 +98,9 @@ short creature_arrived_at_prison(struct Thing *creatng)
         set_start_state(creatng);
         return 0;
     }
-    if ( !add_creature_to_work_room(creatng, room) )
+    if (!add_creature_to_work_room(creatng, room))
     {
-        if (is_my_player_number(room->owner))
-            output_message(SMsg_PrisonTooSmall, 0, true);
+        output_message_room_related_from_computer_or_player_action(room->owner, room->kind, OMsg_RoomTooSmall);
         cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
         set_start_state(creatng);
         return 0;
@@ -305,10 +304,9 @@ CrStateRet creature_in_prison(struct Thing *thing)
         set_start_state(thing);
         return CrStRet_ResetFail;
     }
-    if (room->total_capacity < room->used_capacity)
+    if (room->used_capacity > room->total_capacity)
     {
-        if (is_my_player_number(room->owner))
-            output_message(SMsg_PrisonTooSmall, 0, true);
+        output_message_room_related_from_computer_or_player_action(room->owner, room->kind, OMsg_RoomTooSmall);
         set_start_state(thing);
         return CrStRet_ResetOk;
     }

@@ -493,8 +493,7 @@ short researching(struct Thing *thing)
 
     if (room->used_capacity > room->total_capacity)
     {
-        if (is_my_player_number(room->owner))
-            output_message(SMsg_LibraryTooSmall, 0, true);
+        output_message_room_related_from_computer_or_player_action(room->owner, room->kind, OMsg_RoomTooSmall);
         remove_creature_from_work_room(thing);
         set_start_state(thing);
         return CrStRet_ResetOk;

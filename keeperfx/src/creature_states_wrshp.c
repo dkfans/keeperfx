@@ -226,12 +226,12 @@ short at_workshop_room(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    if (room->total_capacity <= room->used_capacity)
+    if (room->used_capacity >= room->total_capacity)
     {
         set_start_state(thing);
         return 0;
     }
-    if ( !add_creature_to_work_room(thing, room) )
+    if (!add_creature_to_work_room(thing, room))
     {
         set_start_state(thing);
         return 0;
@@ -418,8 +418,7 @@ short manufacturing(struct Thing *creatng)
     }
     if (room->used_capacity > room->total_capacity)
     {
-        if (is_my_player_number(creatng->owner))
-            output_message(SMsg_WorkshopTooSmall, 500, true);
+        output_message_room_related_from_computer_or_player_action(room->owner, room->kind, OMsg_RoomTooSmall);
         remove_creature_from_work_room(creatng);
         set_start_state(creatng);
         return CrStRet_ResetOk;

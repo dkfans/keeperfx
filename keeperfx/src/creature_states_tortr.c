@@ -96,8 +96,7 @@ short at_torture_room(struct Thing *thing)
     }
     if (!add_creature_to_work_room(thing, room))
     {
-        if (is_my_player_number(room->owner))
-            output_message(SMsg_TortureTooSmall, 0, true);
+        output_message_room_related_from_computer_or_player_action(room->owner, room->kind, OMsg_RoomTooSmall);
         set_start_state(thing);
         return 0;
     }
