@@ -236,7 +236,7 @@ long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, Tb
     if (take_remain > total_money)
     {
         SYNCDBG(7,"%s: Player %d has only %d gold, cannot get %d from him",func_name,(int)plyr_idx,(int)total_money,(int)take_remain);
-        if (only_whole_sum) {
+        if ((only_whole_sum) || (total_money == 0)) {
             return -1;
         }
         take_remain = dungeon->total_money_owned;

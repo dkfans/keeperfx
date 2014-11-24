@@ -1649,8 +1649,8 @@ void set_general_information(long msg_id, long target, long x, long y)
   pos_y = 0;
   if ((x != 0) || (y != 0))
   {
-    pos_y = (y << 8) + 128;
-    pos_x = (x << 8) + 128;
+    pos_y = subtile_coord_center(y);
+    pos_x = subtile_coord_center(x);
   }
   event_create_event(pos_x, pos_y, EvKind_Information, player->id_number, -msg_id);
 }
@@ -1665,8 +1665,8 @@ void set_quick_information(long msg_id, long target, long x, long y)
     pos_y = 0;
     if ((x != 0) || (y != 0))
     {
-      pos_y = (y << 8) + 128;
-      pos_x = (x << 8) + 128;
+      pos_y = subtile_coord_center(y);
+      pos_x = subtile_coord_center(x);
     }
     event_create_event(pos_x, pos_y, EvKind_QuickInformation, player->id_number, -msg_id);
 }

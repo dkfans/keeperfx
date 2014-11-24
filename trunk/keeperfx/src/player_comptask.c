@@ -1029,7 +1029,7 @@ long task_check_room_dug(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
     if (game.play_gameturn - ctask->created_turn > COMPUTER_DIG_ROOM_TIMEOUT) {
-        WARNLOG("Task %s couldn't be completed in reasonable time, reset.",computer_task_code_name(ctask->ttype));
+        WARNLOG("Task %s couldn't be completed in reasonable time, reset",computer_task_code_name(ctask->ttype));
         restart_task_process(comp, ctask);
         return 0;
     }
@@ -1038,7 +1038,7 @@ long task_check_room_dug(struct Computer2 *comp, struct ComputerTask *ctask)
     count_slabs_where_room_cannot_be_built(comp->dungeon->owner, ctask->pos_64.x.stl.num, ctask->pos_64.y.stl.num,
         ctask->create_room.long_80, ctask->create_room.area, &waiting_slabs, &wrong_slabs);
     if (wrong_slabs > 0) {
-        WARNLOG("Task %s couldn't be completed as %d wrong slabs are in destination area, reset.",computer_task_code_name(ctask->ttype),(int)wrong_slabs);
+        WARNLOG("Task %s couldn't be completed as %d wrong slabs are in destination area, reset",computer_task_code_name(ctask->ttype),(int)wrong_slabs);
         restart_task_process(comp, ctask);
         return 0;
     }
@@ -2193,23 +2193,32 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
     struct Room *room;
     struct Coord3d pos;
     long i;
+    struct Dungeon *dungeon;
     SYNCDBG(19,"Starting");
+    dungeon = comp->dungeon;
     room = INVALID_ROOM;
     thing = thing_get(comp->held_thing_idx);
     if (!thing_is_invalid(thing))
     {
         room = room_get(ctask->move_to_room.room_idx2);
-        struct CreatureStats *crstat;
-        crstat = creature_stats_get_from_thing(thing);
-        CreatureJob jobpref;
-        jobpref = get_job_for_room(room->kind, JoKF_AssignComputerDropInRoom, crstat->job_primary|crstat->job_secondary);
-        if (get_drop_position_for_creature_job_in_room(&pos, room, jobpref))
+        if (thing_is_creature(thing) && room_exists(room))
         {
-            if (computer_dump_held_things_on_map(comp, thing, &pos) > 0) {
-                return CTaskRet_Unk2;
+            struct CreatureStats *crstat;
+            crstat = creature_stats_get_from_thing(thing);
+            CreatureJob jobpref;
+            jobpref = get_job_for_room(room->kind, JoKF_AssignComputerDropInRoom, crstat->job_primary|crstat->job_secondary);
+            if (get_drop_position_for_creature_job_in_room(&pos, room, jobpref))
+            {
+                if (computer_dump_held_things_on_map(comp, thing, &pos) > 0) {
+                    return CTaskRet_Unk2;
+                }
             }
+            ERRORLOG("Could not find valid position in player %d %s for %s to be dropped",(int)dungeon->owner,room_code_name(room->kind),thing_model_name(thing));
+        } else
+        {
+            WARNLOG("Could not move player %d creature by dropping %s into %s",(int)dungeon->owner,thing_model_name(thing),room_code_name(room->kind));
         }
-        computer_force_dump_held_things_on_map(comp, &comp->dungeon->essential_pos);
+        computer_force_dump_held_things_on_map(comp, &dungeon->essential_pos);
         remove_task(comp, ctask);
         return CTaskRet_Unk0;
     }
@@ -2235,8 +2244,8 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
         if (get_drop_position_for_creature_job_in_room(&pos, room, jobpref))
         {
             if (computer_place_thing_in_power_hand(comp, thing, &pos)) {
-                SYNCDBG(9,"Player %d picked %s index %d to place in %s index %d",(int)comp->dungeon->owner,thing_model_name(thing),(int)thing->index,
-                    room_code_name(room->kind),(int)room->index);
+                SYNCDBG(9,"Player %d picked %s index %d to place in %s index %d",(int)dungeon->owner,
+                    thing_model_name(thing),(int)thing->index,room_code_name(room->kind),(int)room->index);
                 return CTaskRet_Unk2;
             }
         }
@@ -2256,18 +2265,28 @@ long task_move_creature_to_pos(struct Computer2 *comp, struct ComputerTask *ctas
     thing = thing_get(comp->held_thing_idx);
     if (!thing_is_invalid(thing))
     {
-        if (ctask->move_to_pos.word_76 == comp->held_thing_idx)
+        if (ctask->move_to_pos.target_thing_idx == comp->held_thing_idx)
         {
-            if (computer_dump_held_things_on_map(comp, thing, &ctask->move_to_pos.pos_86)) {
-                remove_task(comp, ctask);
-                return CTaskRet_Unk2;
+            if (thing_is_creature(thing))
+            {
+                if (computer_dump_held_things_on_map(comp, thing, &ctask->move_to_pos.pos_86)) {
+                    remove_task(comp, ctask);
+                    return CTaskRet_Unk2;
+                }
+                ERRORLOG("Could not dump player %d %s into (%d,%d)",(int)dungeon->owner,
+                    thing_model_name(thing),(int)ctask->move_to_pos.pos_86.x.stl.num,(int)ctask->move_to_pos.pos_86.y.stl.num);
+            } else
+            {
+                WARNLOG("Player %d computer hand holds %s instead of creature",(int)dungeon->owner, thing_model_name(thing));
             }
             computer_force_dump_held_things_on_map(comp, &comp->dungeon->essential_pos);
             remove_task(comp, ctask);
             return CTaskRet_Unk0;
         }
+        // Being here means we have a thing for different task picked up, so wait until it's dropped
+        return CTaskRet_Unk0;
     }
-    thing = thing_get(ctask->move_to_pos.word_76);
+    thing = thing_get(ctask->move_to_pos.target_thing_idx);
     if (can_thing_be_picked_up_by_player(thing, dungeon->owner))
     {
         if (computer_place_thing_in_power_hand(comp, thing, &ctask->move_to_pos.pos_86)) {
@@ -2345,26 +2364,35 @@ struct Thing *find_creature_for_defend_pickup(struct Computer2 *comp)
 long task_move_creatures_to_defend(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(19,"Starting");
+    struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
     struct Thing *thing;
     thing = thing_get(comp->held_thing_idx);
     // If the heart is just being destroyed - dump held thing and finish task
-    if (player_cannot_win(comp->dungeon->owner))
+    if (player_cannot_win(dungeon->owner))
     {
         if (!thing_is_invalid(thing)) {
             computer_force_dump_held_things_on_map(comp, &ctask->move_to_defend.target_pos);
         }
-        SYNCDBG(8,"No reason to bother, player %d can no longer win",(int)comp->dungeon->owner);
+        SYNCDBG(8,"No reason to bother, player %d can no longer win",(int)dungeon->owner);
         remove_task(comp, ctask);
         return CTaskRet_Unk0;
     }
     // If everything is fine and we're keeping the thing to move in "fake hand"
     if (!thing_is_invalid(thing))
     {
-        if (computer_dump_held_things_on_map(comp, thing, &ctask->move_to_defend.target_pos))
+        if (thing_is_creature(thing))
         {
-            return CTaskRet_Unk2;
+            if (computer_dump_held_things_on_map(comp, thing, &ctask->move_to_defend.target_pos)) {
+                return CTaskRet_Unk2;
+            }
+            ERRORLOG("Could not dump player %d %s into (%d,%d)",(int)dungeon->owner,
+                thing_model_name(thing),(int)ctask->move_to_defend.target_pos.x.stl.num,(int)ctask->move_to_defend.target_pos.y.stl.num);
+        } else
+        {
+            WARNLOG("Player %d computer hand holds %s instead of creature",(int)dungeon->owner, thing_model_name(thing));
         }
-        computer_force_dump_held_things_on_map(comp, &comp->dungeon->essential_pos);
+        computer_force_dump_held_things_on_map(comp, &dungeon->essential_pos);
         remove_task(comp, ctask);
         return CTaskRet_Unk0;
     }
@@ -2386,7 +2414,7 @@ long task_move_creatures_to_defend(struct Computer2 *comp, struct ComputerTask *
             remove_task(comp, ctask);
             return CTaskRet_Unk0;
         }
-        SYNCDBG(9,"Player %d picked %s index %d to defend position (%d,%d)",(int)comp->dungeon->owner,thing_model_name(thing),(int)thing->index,
+        SYNCDBG(9,"Player %d picked %s index %d to defend position (%d,%d)",(int)dungeon->owner,thing_model_name(thing),(int)thing->index,
             (int)ctask->move_to_defend.target_pos.x.stl.num, (int)ctask->move_to_defend.target_pos.y.stl.num);
         return CTaskRet_Unk2;
     }
@@ -2836,7 +2864,7 @@ TbBool create_task_move_creature_to_subtile(struct Computer2 *comp, const struct
     ctask->move_to_pos.pos_86.x.val = subtile_coord(stl_x,ACTION_RANDOM(256));
     ctask->move_to_pos.pos_86.y.val = subtile_coord(stl_y,ACTION_RANDOM(256));
     ctask->move_to_pos.pos_86.z.val = subtile_coord(1,0);
-    ctask->move_to_pos.word_76 = thing->index;
+    ctask->move_to_pos.target_thing_idx = thing->index;
     ctask->move_to_pos.word_80 = 0;
     ctask->created_turn = game.play_gameturn;
     return true;
@@ -2854,7 +2882,7 @@ TbBool create_task_move_creature_to_pos(struct Computer2 *comp, const struct Thi
     ctask->move_to_pos.pos_86.x.val = pos.x.val;
     ctask->move_to_pos.pos_86.y.val = pos.y.val;
     ctask->move_to_pos.pos_86.z.val = pos.z.val;
-    ctask->move_to_pos.word_76 = thing->index;
+    ctask->move_to_pos.target_thing_idx = thing->index;
     ctask->move_to_pos.word_80 = 0;
     ctask->created_turn = game.play_gameturn;
     return true;

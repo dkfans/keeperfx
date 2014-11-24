@@ -40,13 +40,13 @@ const struct NamedCommand terrain_common_commands[] = {
   {"SLABSCOUNT",      1},
   {"ROOMSCOUNT",      2},
   {NULL,              0},
-  };
+};
 
 const struct NamedCommand terrain_slab_commands[] = {
   {"NAME",            1},
   {"TOOLTIPTEXTID",   2},
   {NULL,              0},
-  };
+};
 
 const struct NamedCommand terrain_room_commands[] = {
   {"NAME",            1},
@@ -64,13 +64,13 @@ const struct NamedCommand terrain_room_commands[] = {
   {"USEDCAPACITY",   13},
   {"AMBIENTSNDSAMPLE",14},
   {NULL,              0},
-  };
+};
 
 const struct NamedCommand  terrain_room_properties_commands[] = {
   {"HAS_NO_ENSIGN",     1},
   {"CANNOT_VANDALIZE",  2},
   {NULL,                0},
-  };
+};
 
 /* Room capacity computation, using functions from room_data.c */
 
@@ -80,12 +80,12 @@ extern void count_slabs_div2_wth_effcncy(struct Room *room);
 extern void count_gold_slabs_wth_effcncy(struct Room *room);
 
 const struct NamedCommand terrain_room_total_capacity_func_type[] = {
-  {"slabs_all_only",          1,},
-  {"slabs_all_wth_effcncy",   2,},
-  {"slabs_div2_wth_effcncy",  3,},
-  {"gold_slabs_wth_effcncy",  4,},
-  {"none",                    5,},
-  {NULL,                      0,},
+  {"slabs_all_only",          1},
+  {"slabs_all_wth_effcncy",   2},
+  {"slabs_div2_wth_effcncy",  3},
+  {"gold_slabs_wth_effcncy",  4},
+  {"none",                    5},
+  {NULL,                      0},
 };
 
 Room_Update_Func terrain_room_total_capacity_func_list[] = {
@@ -110,16 +110,16 @@ extern void count_food_in_room(struct Room *room);
 extern void count_lair_occupants(struct Room *room);
 
 const struct NamedCommand terrain_room_used_capacity_func_type[] = {
-  {"gold_hoardes_in_room", 1,},
-  {"books_in_room",        2,},
-  {"workers_in_room",      3,},
-  {"crates_in_room",       4,},
-  {"workers_in_room",      5,},
-  {"bodies_in_room",       6,},
-  {"food_in_room",         7,},
-  {"lair_occupants",       8,},
-  {"none",                 9,},
-  {NULL,                   0,},
+  {"gold_hoardes_in_room", 1},
+  {"books_in_room",        2},
+  {"workers_in_room",      3},
+  {"crates_in_room",       4},
+  {"workers_in_room",      5},
+  {"bodies_in_room",       6},
+  {"food_in_room",         7},
+  {"lair_occupants",       8},
+  {"none",                 9},
+  {NULL,                   0},
 };
 
 Room_Update_Func terrain_room_used_capacity_func_list[] = {
@@ -147,7 +147,7 @@ const struct NamedCommand terrain_health_commands[] = {
   {"DOOR_STEEL",      8},
   {"DOOR_MAGIC",      9},
   {NULL,              0},
-  };
+};
 
 /******************************************************************************/
 struct SlabsConfig slab_conf;

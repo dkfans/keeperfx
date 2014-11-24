@@ -84,14 +84,14 @@ std::string file_name_change_extension(const std::string &fname_inp, const std::
  * Returns length of opened file.
  * Value -1 means error.
  */
-inline long file_length_opened (FILE *fp)
+inline long file_length_opened(FILE *fp)
 {
     long length;
     long lastpos;
 
-    if (fp==NULL)
+    if (fp == NULL)
       return -1;
-    lastpos = ftell (fp);
+    lastpos = ftell(fp);
     if (fseek(fp, 0, SEEK_END) != 0)
       return -1;
     length = ftell(fp);
@@ -102,7 +102,7 @@ inline long file_length_opened (FILE *fp)
 /**
  * Reads 4-byte little-endian number from given buffer.
  */
-inline long read_int32_le_buf (const unsigned char *buff)
+inline long read_int32_le_buf(const unsigned char *buff)
 {
     long l;
     l = buff[0];
