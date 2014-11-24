@@ -365,14 +365,10 @@ void generate_creature_for_dungeon(struct Dungeon * dungeon)
             {
                 event_create_event_or_update_nearby_existing_event(0, 0,
                     EvKind_NoMoreLivingSet, dungeon->owner, 0);
-                if (is_my_player_number(dungeon->owner)) {
-                    output_message(SMsg_LairTooSmall, MESSAGE_DELAY_ROOM_SMALL, true);
-                }
+                output_message_room_related_from_computer_or_player_action(dungeon->owner, RoK_LAIR, OMsg_RoomTooSmall);
             } else
             {
-                if (is_my_player_number(dungeon->owner)) {
-                    output_message(SMsg_RoomLairNeeded, MESSAGE_DELAY_ROOM_NEED, true);
-                }
+                output_message_room_related_from_computer_or_player_action(dungeon->owner, RoK_LAIR, OMsg_RoomNeeded);
             }
         }
     }

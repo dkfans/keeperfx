@@ -646,11 +646,7 @@ TbBool creature_can_do_job_for_player(const struct Thing *creatng, PlayerNumber 
         {
             SYNCDBG(3,"Cannot assign %s in player %d room for %s index %d owner %d; no required room built",creature_job_code_name(new_job),(int)plyr_idx,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
             if ((flags & JobChk_PlayMsgOnFail) != 0) {
-                const struct RoomConfigStats *roomst;
-                roomst = get_room_kind_stats(get_room_for_job(new_job));
-                if (is_my_player_number(plyr_idx) && (roomst->msg_needed > 0)) {
-                    output_message_room_related_from_computer_or_player_action(roomst->msg_needed);
-                }
+                output_message_room_related_from_computer_or_player_action(plyr_idx, get_room_for_job(new_job), OMsg_RoomNeeded);
             }
             return false;
         }
@@ -662,11 +658,7 @@ TbBool creature_can_do_job_for_player(const struct Thing *creatng, PlayerNumber 
             {
                 SYNCDBG(3,"Cannot assign %s in player %d room for %s index %d owner %d; not enough room capacity",creature_job_code_name(new_job),(int)plyr_idx,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
                 if ((flags & JobChk_PlayMsgOnFail) != 0) {
-                    const struct RoomConfigStats *roomst;
-                    roomst = get_room_kind_stats(get_room_for_job(new_job));
-                    if (is_my_player_number(plyr_idx) && (roomst->msg_too_small > 0)) {
-                        output_message_room_related_from_computer_or_player_action(roomst->msg_too_small);
-                    }
+                    output_message_room_related_from_computer_or_player_action(plyr_idx, get_room_for_job(new_job), OMsg_RoomTooSmall);
                 }
                 return false;
             }
@@ -851,11 +843,7 @@ TbBool creature_can_do_job_near_position(struct Thing *creatng, MapSubtlCoord st
         {
             SYNCDBG(3,"Cannot assign %s at (%d,%d) for %s index %d owner %d; not enough room capacity",creature_job_code_name(new_job),(int)stl_x,(int)stl_y,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
             if ((flags & JobChk_PlayMsgOnFail) != 0) {
-                const struct RoomConfigStats *roomst;
-                roomst = get_room_kind_stats(room->kind);
-                if (is_my_player_number(room->owner) && (roomst->msg_too_small > 0)) {
-                    output_message_room_related_from_computer_or_player_action(roomst->msg_too_small);
-                }
+                output_message_room_related_from_computer_or_player_action(room->owner, room->kind, OMsg_RoomTooSmall);
             }
             return false;
         }

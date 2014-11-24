@@ -23,6 +23,8 @@
 #include "bflib_memory.h"
 #include "bflib_sound.h"
 #include "bflib_math.h"
+
+#include "config_terrain.h"
 #include "game_merge.h"
 #include "game_legacy.h"
 
@@ -411,7 +413,7 @@ void process_messages(void)
         msg_idx = message_queue[0].msg_idx;
         delay = message_queue[0].delay;
         remove_message_from_queue(0);
-        output_message(msg_idx, delay, 1);
+        output_message(msg_idx, delay, true);
     }
     SYNCDBG(19,"Finished");
 }
@@ -514,12 +516,36 @@ void init_messages_turns(long delay)
     }
 }
 
-TbBool output_message_room_related_from_computer_or_player_action(long msg_idx)
+TbBool output_message_room_related_from_computer_or_player_action(PlayerNumber plyr_idx, RoomKind rkind, OutputMessageKind msg_kind)
 {
-    long delay;
-    struct Dungeon *dungeon;
-    dungeon = get_my_dungeon();
-    delay = 500;
+    if (!is_my_player_number(plyr_idx)) {
+        return false;
+    }
+    const struct RoomConfigStats *roomst;
+    roomst = get_room_kind_stats(rkind);
+    long delay, msg_idx;
+    switch (msg_kind)
+    {
+    case OMsg_RoomNeeded:
+        msg_idx = roomst->msg_needed;
+        delay = MESSAGE_DELAY_ROOM_NEED;
+        break;
+    case OMsg_RoomTooSmall:
+        msg_idx = roomst->msg_too_small;
+        delay = MESSAGE_DELAY_ROOM_SMALL;
+        break;
+    case OMsg_RoomNoRoute:
+        msg_idx = roomst->msg_no_route;
+        delay = MESSAGE_DELAY_ROOM_NEED;
+        break;
+    default:
+        msg_idx = 0;
+        delay = 0;
+        break;
+    }
+    if (msg_idx < 1) {
+        return false;
+    }
     return output_message(msg_idx, delay, true);
 }
 

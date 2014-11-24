@@ -388,8 +388,6 @@ EventIndex update_cannot_find_room_wth_spare_capacity_event(PlayerNumber plyr_id
 {
     EventIndex evidx;
     evidx = 0;
-    const struct RoomConfigStats *roomst;
-    roomst = get_room_kind_stats(rkind);
     if (player_has_room(plyr_idx, rkind))
     {
         // Could not find room to send thing - either no capacity or not navigable
@@ -430,16 +428,16 @@ EventIndex update_cannot_find_room_wth_spare_capacity_event(PlayerNumber plyr_id
                 evidx = 1;
                 break;
             }
-            if ((evidx > 0) && is_my_player_number(plyr_idx) && (roomst->msg_too_small > 0)) {
-                output_message(roomst->msg_too_small, MESSAGE_DELAY_ROOM_SMALL, true);
+            if (evidx > 0) {
+                output_message_room_related_from_computer_or_player_action(plyr_idx, rkind, OMsg_RoomTooSmall);
             }
         } else
         {
             SYNCDBG(5,"Player %d has %s which cannot reach %s",(int)plyr_idx,thing_model_name(creatng),room_code_name(rkind));
             evidx = event_create_event_or_update_nearby_existing_event(
                 creatng->mappos.x.val, creatng->mappos.y.val, EvKind_WorkRoomUnreachable, plyr_idx, rkind);
-            if ((evidx > 0) && is_my_player_number(plyr_idx) && (roomst->msg_no_route > 0)) {
-                output_message(roomst->msg_no_route, MESSAGE_DELAY_ROOM_NEED, true);
+            if (evidx > 0) {
+                output_message_room_related_from_computer_or_player_action(plyr_idx, rkind, OMsg_RoomNoRoute);
             }
         }
     } else
@@ -461,8 +459,8 @@ EventIndex update_cannot_find_room_wth_spare_capacity_event(PlayerNumber plyr_id
                 evidx = 1;
                 break;
             }
-            if ((evidx > 0) && is_my_player_number(plyr_idx) && (roomst->msg_needed > 0)) {
-                output_message_room_related_from_computer_or_player_action(roomst->msg_needed);
+            if (evidx > 0) {
+                output_message_room_related_from_computer_or_player_action(plyr_idx, rkind, OMsg_RoomNeeded);
             }
         }
     }

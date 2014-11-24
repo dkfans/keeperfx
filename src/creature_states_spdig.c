@@ -1010,15 +1010,14 @@ short imp_drops_gold(struct Thing *spdigtng)
             spdigtng->creature.gold_carried -= gldtng->valuable.gold_stored;
     }
     thing_play_sample(spdigtng, UNSYNC_RANDOM(3) + 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-    if ( (spdigtng->creature.gold_carried == 0) || (room->used_capacity >= room->total_capacity) ) {
-        internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
-        return 1;
+    if ((spdigtng->creature.gold_carried != 0) && (room->used_capacity < room->total_capacity))
+    {
+        if (setup_head_for_empty_treasure_space(spdigtng, room)) {
+            spdigtng->continue_state = CrSt_ImpDropsGold;
+            return 1;
+        }
     }
-    if (!setup_head_for_empty_treasure_space(spdigtng, room)) {
-        internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
-        return 1;
-    }
-    spdigtng->continue_state = CrSt_ImpDropsGold;
+    internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
     return 1;
 }
 

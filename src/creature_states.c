@@ -4409,8 +4409,7 @@ long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureS
 
     if (!player_has_room(creatng->owner, RoK_GARDEN))
     {
-        if (is_my_player_number(creatng->owner))
-            output_message(SMsg_RoomGardenNeeded, MESSAGE_DELAY_ROOM_NEED, 1);
+        output_message_room_related_from_computer_or_player_action(creatng->owner, RoK_GARDEN, OMsg_RoomNeeded);
         anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, AngR_Hungry, 1);
         return 0;
     }
@@ -4428,13 +4427,11 @@ long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureS
         if (room_is_invalid(nroom))
         {
             // There seem to be a correct room, but we can't reach it
-            if (is_my_player_number(creatng->owner))
-                output_message(SMsg_NoRouteToGarden, MESSAGE_DELAY_ROOM_NEED, 1);
+            output_message_room_related_from_computer_or_player_action(creatng->owner, RoK_GARDEN, OMsg_RoomNoRoute);
         } else
         {
             // The room is reachable, so it probably has just no food
-            if (is_my_player_number(creatng->owner))
-                output_message(SMsg_GardenTooSmall, MESSAGE_DELAY_ROOM_SMALL, 1);
+            output_message_room_related_from_computer_or_player_action(creatng->owner, RoK_GARDEN, OMsg_RoomTooSmall);
         }
     }
     if (room_is_invalid(nroom)) {

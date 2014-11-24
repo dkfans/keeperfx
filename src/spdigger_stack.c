@@ -1901,7 +1901,7 @@ long check_out_imp_last_did(struct Thing *creatng)
       }
       break;
   case SDLstJob_UseTraining4:
-      if ( !creature_can_be_trained(creatng) || !player_can_afford_to_train_creature(creatng) )
+      if (!creature_can_be_trained(creatng) || !player_can_afford_to_train_creature(creatng))
         break;
       room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_TRAINING, NavRtF_Default, 1);
       if (!room_is_invalid(room))
@@ -1918,7 +1918,7 @@ long check_out_imp_last_did(struct Thing *creatng)
           struct Room *room;
           room = find_room_with_spare_capacity(creatng->owner, RoK_TRAINING, 1);
           if (room_is_invalid(room)) {
-              output_message(SMsg_TrainingTooSmall, 0, true);
+              output_message_room_related_from_computer_or_player_action(creatng->owner, RoK_TRAINING, OMsg_RoomTooSmall);
           }
       }
       break;

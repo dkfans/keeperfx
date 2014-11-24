@@ -153,9 +153,8 @@ void person_search_for_food_again(struct Thing *creatng, struct Room *room)
     if ( thing_is_invalid(near_food_tng) || is_thing_passenger_controlled(near_food_tng) )
     {
         // Warn about no food in this room
-        if (is_my_player_number(creatng->owner))
-            output_message(SMsg_GardenTooSmall, MESSAGE_DELAY_ROOM_SMALL, 1);
         event_create_event_or_update_nearby_existing_event(0, 0, EvKind_CreatrHungry, creatng->owner, 0);
+        output_message_room_related_from_computer_or_player_action(creatng->owner, RoK_GARDEN, OMsg_RoomTooSmall);
         // Check whether there's a room which does have food
         struct Room *nroom;
         // Try to find one which has plenty of food
@@ -284,9 +283,8 @@ short creature_to_garden(struct Thing *creatng)
     if (!player_has_room(creatng->owner, RoK_GARDEN))
     {
         // No room for feeding creatures
-        if (is_my_player_number(creatng->owner))
-            output_message(SMsg_RoomGardenNeeded, MESSAGE_DELAY_ROOM_NEED, 1);
         event_create_event_or_update_nearby_existing_event(0, 0, EvKind_CreatrHungry, creatng->owner, 0);
+        output_message_room_related_from_computer_or_player_action(creatng->owner, RoK_GARDEN, OMsg_RoomNeeded);
         nroom = INVALID_ROOM;
     } else
     {
@@ -301,14 +299,12 @@ short creature_to_garden(struct Thing *creatng)
             nroom = find_nearest_room_for_thing(creatng, creatng->owner, RoK_GARDEN, NavRtF_Default);
             if (room_is_invalid(nroom)) {
                 // There seem to be a correct room, but we can't reach it
-                if (is_my_player_number(creatng->owner))
-                    output_message(SMsg_NoRouteToGarden, MESSAGE_DELAY_ROOM_NEED, 1);
+                output_message_room_related_from_computer_or_player_action(creatng->owner, RoK_GARDEN, OMsg_RoomNoRoute);
             } else
             {
                 // The room is reachable, so it probably has just no food
-                if (is_my_player_number(creatng->owner))
-                    output_message(SMsg_GardenTooSmall, MESSAGE_DELAY_ROOM_SMALL, 1);
                 event_create_event_or_update_nearby_existing_event(0, 0, EvKind_CreatrHungry, creatng->owner, 0);
+                output_message_room_related_from_computer_or_player_action(creatng->owner, RoK_GARDEN, OMsg_RoomTooSmall);
             }
         }
     }
