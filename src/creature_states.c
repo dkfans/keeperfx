@@ -581,7 +581,7 @@ long get_creature_state_type_f(const struct Thing *thing, const char *func_name)
   } else
   {
       state_type = states[0].state_type;
-      WARNLOG("%s: Creature active state %d is out of range.",func_name,(int)state);
+      WARNLOG("%s: Creature active state %d is out of range",func_name,(int)state);
   }
   if (state_type == CrStTyp_Move)
   {
@@ -592,7 +592,7 @@ long get_creature_state_type_f(const struct Thing *thing, const char *func_name)
       } else
       {
           state_type = states[0].state_type;
-          WARNLOG("%s: The %s owner %d continue state %d is out of range.",func_name,thing_model_name(thing),(int)thing->owner,(int)state);
+          WARNLOG("%s: The %s owner %d continue state %d is out of range",func_name,thing_model_name(thing),(int)thing->owner,(int)state);
       }
   }
   return state_type;
@@ -2784,9 +2784,15 @@ short creature_take_salary(struct Thing *creatng)
         internal_set_thing_state(creatng, CrSt_CreatureWantsSalary);
         return 1;
     }
-    long salary;
+    GoldAmount salary, received;
     salary = calculate_correct_creature_pay(creatng);
-    take_money_from_dungeon(creatng->owner, salary, 0);
+    received = take_money_from_dungeon(creatng->owner, salary, 0);
+    if (received < 1) {
+        ERRORLOG("The %s index %d has used capacity %d but no gold for %s salary",room_code_name(room->kind),
+            (int)room->index,(int)room->used_capacity,thing_model_name(creatng));
+        internal_set_thing_state(creatng, CrSt_CreatureWantsSalary);
+        return 1;
+    }
     {
         struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(creatng);
