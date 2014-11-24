@@ -120,10 +120,9 @@ short at_temple(struct Thing *thing)
         return 0;
     }
     dungeon = get_dungeon(thing->owner);
-    if ( !add_creature_to_work_room(thing, room) )
+    if (!add_creature_to_work_room(thing, room))
     {
-        if (is_my_player_number(thing->owner))
-            output_message(SMsg_TempleTooSmall, 0, true);
+        output_message_room_related_from_computer_or_player_action(room->owner, room->kind, OMsg_RoomTooSmall);
         remove_creature_from_work_room(thing);
         set_start_state(thing);
         return 0;
