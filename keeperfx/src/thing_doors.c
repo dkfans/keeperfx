@@ -81,8 +81,8 @@ TbBool add_key_on_door(struct Thing *thing)
     keytng = create_object(&thing->mappos, 44, thing->owner, 0);
     if (thing_is_invalid(keytng))
       return false;
-    keytng->mappos.x.stl.pos = 128;
-    keytng->mappos.y.stl.pos = 128;
+    keytng->mappos.x.stl.pos = COORD_PER_STL/2;
+    keytng->mappos.y.stl.pos = COORD_PER_STL/2;
     keytng->mappos.z.stl.num = 4;
     return true;
 }

@@ -407,7 +407,7 @@ struct ComputerTask { // sizeof = 148
     struct {
         long field_70;
         short field_74;
-        short word_76;
+        short target_thing_idx;
         short word_78;
         short field_7Ac;
         long repeat_num;

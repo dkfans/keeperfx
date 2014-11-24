@@ -336,9 +336,9 @@ TbBool set_coords_to_subtile_center(struct Coord3d *pos, MapSubtlCoord stl_x, Ma
     if (stl_x < 0)  stl_x = 0;
     if (stl_y < 0) stl_y = 0;
     if (stl_z < 0) stl_z = 0;
-    pos->x.val = (stl_x<<8) + 128;
-    pos->y.val = (stl_y<<8) + 128;
-    pos->z.val = (stl_z<<8) + 128;
+    pos->x.val = subtile_coord_center(stl_x);
+    pos->y.val = subtile_coord_center(stl_y);
+    pos->z.val = subtile_coord_center(stl_z);
     return true;
 }
 

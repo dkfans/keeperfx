@@ -446,6 +446,7 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
         if (computer_get_room_kind_free_capacity(comp, bldroom->rkind) > 0) {
             continue;
         }
+        SYNCDBG(8,"Player %d needs %s",(int)comp->dungeon->owner,room_code_name(bldroom->rkind));
         // Find the corresponding build process and mark it as needed
         long i;
         for (i=0; i <= COMPUTER_PROCESSES_COUNT; i++)
@@ -456,7 +457,7 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
                 break;
             if (cproc->parent == bldroom->process)
             {
-                SYNCDBG(8,"Need \"%s\"",room_code_name(bldroom->rkind));
+                SYNCDBG(8,"Player %d will allow process \"%s\"",(int)comp->dungeon->owner,cproc->name);
                 ret = 1;
                 cproc->flags &= ~ComProc_Unkn0008;
                 cproc->flags &= ~ComProc_Unkn0001;

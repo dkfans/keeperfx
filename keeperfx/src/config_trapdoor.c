@@ -39,7 +39,7 @@ const struct NamedCommand trapdoor_common_commands[] = {
   {"TRAPSCOUNT",      1},
   {"DOORSCOUNT",      2},
   {NULL,              0},
-  };
+};
 
 const struct NamedCommand trapdoor_door_commands[] = {
   {"NAME",            1},
@@ -51,7 +51,7 @@ const struct NamedCommand trapdoor_door_commands[] = {
   {"TOOLTIPTEXTID",   7},
   {"CRATE",           8},
   {NULL,              0},
-  };
+};
 
 const struct NamedCommand trapdoor_trap_commands[] = {
   {"NAME",            1},
@@ -64,7 +64,7 @@ const struct NamedCommand trapdoor_trap_commands[] = {
   {"TOOLTIPTEXTID",   8},
   {"CRATE",           9},
   {NULL,              0},
-  };
+};
 /******************************************************************************/
 struct TrapDoorConfig trapdoor_conf;
 struct NamedCommand trap_desc[TRAPDOOR_TYPES_MAX];
