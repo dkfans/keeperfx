@@ -214,7 +214,7 @@ TbBool anger_free_for_anger_increase(struct Thing *creatng)
     if (cctrl->combat_flags != 0) {
         return false;
     }
-    return (cctrl->spell_flags & CSAfF_Unkn0800) == 0;
+    return (cctrl->spell_flags & CSAfF_CalledToArms) == 0;
 }
 
 TbBool anger_free_for_anger_decrease(struct Thing *creatng)

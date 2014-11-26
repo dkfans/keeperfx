@@ -203,7 +203,7 @@ TbBool creature_free_for_anger_job(struct Thing *creatng)
     struct Dungeon *dungeon;
     cctrl = creature_control_get_from_thing(creatng);
     dungeon = get_dungeon(creatng->owner);
-    return ((cctrl->spell_flags & CSAfF_Unkn0800) == 0)
+    return ((cctrl->spell_flags & CSAfF_CalledToArms) == 0)
         && (dungeon->must_obey_turn == 0)
         && ((cctrl->spell_flags & CSAfF_Chicken) == 0)
         && !thing_is_picked_up(creatng) && !is_thing_passenger_controlled(creatng);
