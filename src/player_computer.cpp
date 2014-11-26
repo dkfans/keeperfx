@@ -1080,9 +1080,13 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
     // Move any gold laying around to treasure room
     if ((2*dungeon->creatures_total_pay > dungeon->total_money_owned) && dungeon_has_room(dungeon, RoK_TREASURE))
     {
-        if (!is_task_in_progress(comp, CTT_MoveGoldToTreasury))
+        int num_to_move;
+        num_to_move = 10;
+        // If there's already task in progress which uses hand, then don't add more
+        // content of the hand could be used by wrong task by mistake
+        if (!is_task_in_progress_using_hand(comp) && (computer_able_to_use_magic(comp, PwrK_HAND, 1, num_to_move) == 1))
         {
-            if (create_task_move_gold_to_treasury(comp, 10, 2*dungeon->creatures_total_pay)) {
+            if (create_task_move_gold_to_treasury(comp, num_to_move, 2*dungeon->creatures_total_pay)) {
                 ret = 1;
             }
         }

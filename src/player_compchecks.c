@@ -202,7 +202,9 @@ long computer_check_move_creatures_to_best_room(struct Computer2 *comp, struct C
     if (computer_able_to_use_magic(comp, PwrK_HAND, 1, num_to_move) != 1) {
         return 4;
     }
-    if (is_task_in_progress(comp, CTT_MoveCreatureToRoom)) {
+    // If there's already task in progress which uses hand, then don't add more
+    // content of the hand could be used by wrong task by mistake
+    if (is_task_in_progress_using_hand(comp)) {
         return 4;
     }
     if (!create_task_move_creatures_to_room(comp, 0, num_to_move)) {
@@ -227,7 +229,9 @@ long computer_check_move_creatures_to_room(struct Computer2 *comp, struct Comput
     if (computer_able_to_use_magic(comp, PwrK_HAND, 1, num_to_move) != 1) {
         return 4;
     }
-    if (is_task_in_progress(comp, CTT_MoveCreatureToRoom)) {
+    // If there's already task in progress which uses hand, then don't add more
+    // content of the hand could be used by wrong task by mistake
+    if (is_task_in_progress_using_hand(comp)) {
         return 4;
     }
     unsigned long k;
