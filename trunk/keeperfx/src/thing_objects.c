@@ -1538,8 +1538,8 @@ long add_gold_to_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amou
     int wealth_size;
     wealth_size = get_ceiling_wealth_size_of_gold_amount(gldtng->valuable.gold_stored);
     if (wealth_size > room->used_capacity) {
-        ERRORLOG("Room %s has used capacity %d but stores gold hoard of wealth size %s (%ld gold)",
-            room_code_name(room->kind),(int)room->used_capacity,wealth_size,(long)gldtng->valuable.gold_stored);
+        ERRORLOG("Room %s index %d has used capacity %d but stores gold hoard of wealth size %d (%ld gold)",
+            room_code_name(room->kind),(int)room->index,(int)room->used_capacity,(int)wealth_size,(long)gldtng->valuable.gold_stored);
         wealth_size = room->used_capacity;
     }
     room->used_capacity -= wealth_size;
@@ -1590,8 +1590,8 @@ long remove_gold_from_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount
     int wealth_size;
     wealth_size = get_ceiling_wealth_size_of_gold_amount(gldtng->valuable.gold_stored);
     if (wealth_size > room->used_capacity) {
-        ERRORLOG("Room %s has used capacity %d but stores gold hoard of wealth size %s (%ld gold)",
-            room_code_name(room->kind),(int)room->used_capacity,wealth_size,(long)gldtng->valuable.gold_stored);
+        ERRORLOG("Room %s index %d has used capacity %d but stores gold hoard of wealth size %d (%ld gold)",
+            room_code_name(room->kind),(int)room->index,(int)room->used_capacity,(int)wealth_size,(long)gldtng->valuable.gold_stored);
         wealth_size = room->used_capacity;
     }
     room->used_capacity -= wealth_size;

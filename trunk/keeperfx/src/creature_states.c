@@ -4328,7 +4328,7 @@ TbBool creature_free_for_sleep(const struct Thing *thing,  CrtrStateId state)
 {
     const struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
-    if ((cctrl->slap_turns != 0) || ((cctrl->spell_flags & CSAfF_Unkn0800) != 0))
+    if ((cctrl->slap_turns != 0) || ((cctrl->spell_flags & CSAfF_CalledToArms) != 0))
         return false;
     return can_change_from_state_to(thing, thing->active_state, state);
 }
@@ -4466,7 +4466,7 @@ char creature_free_for_lunchtime(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
-    return (!cctrl->slap_turns) && ((cctrl->spell_flags & (CSAfF_Unkn0800|CSAfF_Chicken)) == 0)
+    return (!cctrl->slap_turns) && ((cctrl->spell_flags & (CSAfF_CalledToArms|CSAfF_Chicken)) == 0)
         && can_change_from_state_to(creatng, creatng->active_state, CrSt_CreatureToGarden);
 }
 
