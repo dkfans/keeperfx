@@ -592,7 +592,7 @@ long get_creature_state_type_f(const struct Thing *thing, const char *func_name)
       } else
       {
           state_type = states[0].state_type;
-          WARNLOG("%s: The %s owner %d continue state %d is out of range",func_name,thing_model_name(thing),(int)thing->owner,(int)state);
+          WARNLOG("%s: The %s index %d owner %d continue state %d is out of range",func_name,thing_model_name(thing),(int)thing->index,(int)thing->owner,(int)state);
       }
   }
   return state_type;
