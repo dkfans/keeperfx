@@ -347,7 +347,7 @@ int numfield_15181D;
 DLLIMPORT extern struct Game _DK_game;
 #define game _DK_game
 /******************************************************************************/
-extern unsigned long gold_per_hoarde;
+extern unsigned long gold_per_hoard;
 /******************************************************************************/
 #ifdef __cplusplus
 }

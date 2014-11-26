@@ -61,7 +61,7 @@ extern struct StatsData scrolling_stats_data[];
 /******************************************************************************/
 /** Calculates average efficiency of player's rooms.
  * @param plyr_idx Player for whom statistic is to be calculated.
- * @return Statistic value.
+ * @return Statistic value, scaled 0..100.
  */
 long calculate_efficiency(PlayerNumber plyr_idx)
 {
@@ -100,7 +100,7 @@ long calculate_efficiency(PlayerNumber plyr_idx)
     }
     if (count < 1)
         return 0;
-    return 100 * efficiency / (count << 8);
+    return 100 * efficiency / (count * ROOM_EFFICIENCY_MAX);
 }
 
 long calculate_style(long plyr_idx)

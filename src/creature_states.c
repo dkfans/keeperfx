@@ -2914,9 +2914,92 @@ short creature_vandalise_rooms(struct Thing *creatng)
     return 1;
 }
 
+TbBool is_creature_other_than_given_waiting_at_closed_door_on_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, const struct Thing *besidetng)
+{
+    struct Thing *thing;
+    struct Map *mapblk;
+    long i;
+    unsigned long k;
+    mapblk = get_map_block_at(stl_x,stl_y);
+    k = 0;
+    i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_on_mapblk;
+        // Per-thing code start
+        if ((thing->index != besidetng->index) && thing_is_creature(thing))
+        {
+            CrtrStateId crstate;
+            crstate = get_creature_state_besides_interruptions(thing);
+            if (crstate == CrSt_CreatureWaitAtTreasureRoomDoor) {
+                return true;
+            }
+        }
+        // Per-thing code end
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return false;
+}
+
 short creature_wait_at_treasure_room_door(struct Thing *creatng)
 {
-  return _DK_creature_wait_at_treasure_room_door(creatng);
+    //return _DK_creature_wait_at_treasure_room_door(creatng);
+    MapSubtlCoord base_stl_x, base_stl_y;
+    base_stl_x = creatng->mappos.x.stl.num;
+    base_stl_y = creatng->mappos.y.stl.num;
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(creatng);
+    anger_apply_anger_to_creature(creatng, crstat->annoy_queue, AngR_NotPaid, 1);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    struct Thing *doortng;
+    if (cctrl->field_86 > 0) {
+        doortng = thing_get(cctrl->field_86);
+    } else {
+        doortng = INVALID_THING;
+    }
+    if (!thing_is_deployed_door(doortng) || ((game.play_gameturn - doortng->creation_turn) <= 3) || !doortng->door.is_locked)
+    {
+        internal_set_thing_state(creatng, CrSt_CreatureWantsSalary);
+        return 1;
+    }
+    if (is_creature_other_than_given_waiting_at_closed_door_on_subtile(base_stl_x, base_stl_y, creatng))
+    {
+        int i,n;
+        i = 0;
+        n = ACTION_RANDOM(SMALL_AROUND_SLAB_LENGTH);
+        for (i = 0; i < SMALL_AROUND_SLAB_LENGTH; i++)
+        {
+            MapSubtlCoord stl_x, stl_y;
+            stl_x = base_stl_x + small_around[n].delta_x;
+            stl_y = base_stl_y + small_around[n].delta_y;
+            struct Map *mapblk;
+            mapblk = get_map_block_at(stl_x,stl_y);
+            if (((mapblk->flags & MapFlg_IsTall) == 0) && !terrain_toxic_for_creature_at_position(creatng, stl_x, stl_y))
+            {
+                if (setup_person_move_to_position(creatng, stl_x, stl_y, 0) ) {
+                    creatng->continue_state = CrSt_CreatureWaitAtTreasureRoomDoor;
+                    return 1;
+                }
+            }
+            n = (n+1) % SMALL_AROUND_SLAB_LENGTH;
+        }
+        ERRORLOG("Could not find position to wait");
+    }
+    creature_turn_to_face(creatng, &doortng->mappos);
+    return 0;
 }
 
 short creature_wants_a_home(struct Thing *creatng)

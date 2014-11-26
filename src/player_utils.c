@@ -21,6 +21,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_memory.h"
+#include "bflib_math.h"
 #include "bflib_sound.h"
 
 #include "player_data.h"
@@ -178,35 +179,83 @@ long compute_player_final_score(struct PlayerInfo *player, long gameplay_score)
     return i;
 }
 
-long take_money_from_room(struct Room *room, GoldAmount amount_take)
+/**
+ * Takes money from hoards stored in given room.
+ * @param room The room which contains gold hoards.
+ * @param amount_take Amount of gold to be taken.
+ * @return Gives amount of gold taken from room.
+ */
+GoldAmount take_money_from_room(struct Room *room, GoldAmount amount_take)
 {
     GoldAmount amount;
     amount = amount_take;
-    unsigned long i;
+    unsigned long slbnum;
     unsigned long k;
+    // Remove gold from room border slabs
     k = 0;
-    i = room->slabs_list;
-    while (i > 0)
+    slbnum = room->slabs_list;
+    while (slbnum > 0)
     {
         struct SlabMap *slb;
-        slb = get_slabmap_direct(i);
+        slb = get_slabmap_direct(slbnum);
+        if (slabmap_block_invalid(slb)) {
+            ERRORLOG("Jump to invalid room slab detected");
+            break;
+        }
+        // Per-slab code starts
+        MapSlabCoord slb_x, slb_y;
+        slb_x = slb_num_decode_x(slbnum);
+        slb_y = slb_num_decode_y(slbnum);
+        MapSubtlCoord stl_x,stl_y;
+        stl_x = slab_subtile_center(slb_x);
+        stl_y = slab_subtile_center(slb_y);
+        if (slab_is_area_outer_border(slb_x, slb_y))
+        {
+            struct Thing *hrdtng;
+            hrdtng = find_gold_hoard_at(stl_x, stl_y);
+            if (!thing_is_invalid(hrdtng)) {
+                amount -= remove_gold_from_hoarde(hrdtng, room, amount);
+            }
+        }
+        if (amount <= 0)
+          break;
+        // Per-slab code ends
+        slbnum = get_next_slab_number_in_room(slbnum);
+        k++;
+        if (k > map_tiles_x * map_tiles_y)
+        {
+            ERRORLOG("Infinite loop detected when sweeping room slabs");
+            break;
+        }
+    }
+    if (amount <= 0)
+        return amount_take-amount;
+    // Remove gold from room center only if borders are clear
+    k = 0;
+    slbnum = room->slabs_list;
+    while (slbnum > 0)
+    {
+        struct SlabMap *slb;
+        slb = get_slabmap_direct(slbnum);
         if (slabmap_block_invalid(slb)) {
             ERRORLOG("Jump to invalid room slab detected");
             break;
         }
         // Per-slab code starts
         MapSubtlCoord stl_x,stl_y;
-        stl_x = slab_subtile_center(slb_num_decode_x(i));
-        stl_y = slab_subtile_center(slb_num_decode_y(i));
-        struct Thing *hrdtng;
-        hrdtng = find_gold_hoard_at(stl_x, stl_y);
-        if (!thing_is_invalid(hrdtng)) {
-            amount -= remove_gold_from_hoarde(hrdtng, room, amount);
+        stl_x = slab_subtile_center(slb_num_decode_x(slbnum));
+        stl_y = slab_subtile_center(slb_num_decode_y(slbnum));
+        {
+            struct Thing *hrdtng;
+            hrdtng = find_gold_hoard_at(stl_x, stl_y);
+            if (!thing_is_invalid(hrdtng)) {
+                amount -= remove_gold_from_hoarde(hrdtng, room, amount);
+            }
         }
         if (amount <= 0)
           break;
         // Per-slab code ends
-        i = get_next_slab_number_in_room(i);
+        slbnum = get_next_slab_number_in_room(slbnum);
         k++;
         if (k > map_tiles_x * map_tiles_y)
         {
@@ -279,7 +328,7 @@ long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, Tb
                 if (is_my_player_number(plyr_idx))
                 {
                   if ((total_money >= 1000) && (total_money - amount_take < 1000)) {
-                      output_message(SMsg_GoldLow, MESSAGE_DELAY_TREASURY, 1);
+                      output_message(SMsg_GoldLow, MESSAGE_DELAY_TREASURY, true);
                   }
                 }
                 return amount_take;

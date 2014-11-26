@@ -711,10 +711,10 @@ void drop_gold_coins(struct Coord3d *pos, long value, long plyr_idx)
         if (i > 0)
         {
             thing->field_20 += ACTION_RANDOM(thing->field_20) - thing->field_20 / 2;
-            thing->long_13 = 0;
+            thing->valuable.gold_stored = 0;
         } else
         {
-            thing->long_13 = value;
+            thing->valuable.gold_stored = value;
         }
     }
     struct PlayerInfo *player;
