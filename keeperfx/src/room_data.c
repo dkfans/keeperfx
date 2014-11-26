@@ -427,8 +427,8 @@ void count_gold_hoardes_in_room(struct Room *room)
     all_wealth_size = 0;
     long wealth_size_holds;
     wealth_size_holds = gold_per_hoard / get_wealth_size_types_count();
-    GoldAmount max_hoarde_size_in_room;
-    max_hoarde_size_in_room = wealth_size_holds * room->total_capacity / room->slabs_count;
+    GoldAmount max_hoard_size_in_room;
+    max_hoard_size_in_room = wealth_size_holds * room->total_capacity / room->slabs_count;
     long i;
     unsigned long k;
     k = 0;
@@ -442,13 +442,13 @@ void count_gold_hoardes_in_room(struct Room *room)
         GoldAmount gold_amount;
         struct Thing *gldtng;
         gldtng = find_gold_hoarde_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
-        if (!thing_is_invalid(gldtng) && (gldtng->valuable.gold_stored > max_hoarde_size_in_room))
+        if (!thing_is_invalid(gldtng) && (gldtng->valuable.gold_stored > max_hoard_size_in_room))
         {
             pos.x.val = gldtng->mappos.x.val;
             pos.y.val = gldtng->mappos.y.val;
             pos.z.val = gldtng->mappos.z.val;
             long drop_amount;
-            drop_amount = remove_gold_from_hoarde(gldtng, room, gldtng->valuable.gold_stored - max_hoarde_size_in_room);
+            drop_amount = remove_gold_from_hoarde(gldtng, room, gldtng->valuable.gold_stored - max_hoard_size_in_room);
             drop_gold_pile(drop_amount, &pos);
             gold_amount = gldtng->valuable.gold_stored;
         } else

@@ -1493,8 +1493,10 @@ struct Thing *create_gold_hoarde(struct Room *room, const struct Coord3d *pos, G
         ERRORLOG("Attempt to create a gold hoard with %ld gold", (long)value);
         return INVALID_THING;
     }
-    if (value > wealth_size_holds * room->total_capacity / room->slabs_count)
-        value = wealth_size_holds * room->total_capacity / room->slabs_count;
+    GoldAmount max_hoard_size_in_room;
+    max_hoard_size_in_room = wealth_size_holds * room->total_capacity / room->slabs_count;
+    if (value > max_hoard_size_in_room)
+        value = max_hoard_size_in_room;
     thing = create_gold_hoard_object(pos, room->owner, value);
     if (!thing_is_invalid(thing))
     {
@@ -1524,9 +1526,11 @@ long add_gold_to_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amou
     //return _DK_add_gold_to_hoarde(gldtng, room, amount);
     GoldAmount wealth_size_holds;
     wealth_size_holds = gold_per_hoard / get_wealth_size_types_count();
+    GoldAmount max_hoard_size_in_room;
+    max_hoard_size_in_room = wealth_size_holds * room->total_capacity / room->slabs_count;
     // Fix amount
-    if (gldtng->valuable.gold_stored + amount > wealth_size_holds * room->total_capacity / room->slabs_count)
-        amount = wealth_size_holds * room->total_capacity / room->slabs_count - gldtng->valuable.gold_stored;
+    if (gldtng->valuable.gold_stored + amount > max_hoard_size_in_room)
+        amount = max_hoard_size_in_room - gldtng->valuable.gold_stored;
     if (amount <= 0) {
         return 0;
     }
