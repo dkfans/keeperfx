@@ -520,6 +520,15 @@ struct ComputerTask *get_free_task(struct Computer2 *comp, long a2)
     return _DK_get_free_task(comp, a2);
 }
 
+TbBool is_task_in_progress_using_hand(struct Computer2 *comp)
+{
+    return is_task_in_progress(comp, CTT_PickupForAttack) ||
+        is_task_in_progress(comp, CTT_MoveCreatureToRoom) ||
+        is_task_in_progress(comp, CTT_MoveCreatureToPos) ||
+        is_task_in_progress(comp, CTT_MoveCreaturesToDefend) ||
+        is_task_in_progress(comp, CTT_MoveGoldToTreasury);
+}
+
 long get_ceiling_height_above_thing_at(struct Thing *thing, struct Coord3d *pos)
 {
     int nav_sizexy;

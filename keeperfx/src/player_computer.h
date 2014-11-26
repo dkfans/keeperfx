@@ -585,6 +585,7 @@ struct ComputerTask *get_computer_task(long idx);
 struct ComputerTask *get_task_in_progress(struct Computer2 *comp, ComputerTaskType ttype);
 struct ComputerTask *get_task_in_progress_in_list(struct Computer2 *comp, const ComputerTaskType *ttypes);
 TbBool is_task_in_progress(struct Computer2 *comp, ComputerTaskType ttype);
+TbBool is_task_in_progress_using_hand(struct Computer2 *comp);
 struct ComputerTask *get_free_task(struct Computer2 *comp, long a2);
 TbBool computer_task_invalid(const struct ComputerTask *ctask);
 TbBool remove_task(struct Computer2 *comp, struct ComputerTask *ctask);
