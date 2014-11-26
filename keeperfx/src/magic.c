@@ -1333,7 +1333,7 @@ long update_creatures_influenced_by_call_to_arms(PlayerNumber plyr_idx)
         // Thing list loop body
         if (!thing_is_picked_up(thing))
         {
-            if (!creature_is_being_unconscious(thing) && ((cctrl->spell_flags & CSAfF_Unkn0800) != 0))
+            if (!creature_is_being_unconscious(thing) && ((cctrl->spell_flags & CSAfF_CalledToArms) != 0))
             {
                 struct StateInfo *stati;
                 stati = get_thing_state_info_num(get_creature_state_besides_interruptions(thing));
@@ -1367,7 +1367,7 @@ long update_creatures_influenced_by_call_to_arms(PlayerNumber plyr_idx)
                     } else
                     {
                         set_start_state(thing);
-                        cctrl->spell_flags &= ~CSAfF_Unkn0800;
+                        cctrl->spell_flags &= ~CSAfF_CalledToArms;
                     }
                 }
             }

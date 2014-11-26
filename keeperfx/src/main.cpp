@@ -80,6 +80,7 @@
 #include "thing_doors.h"
 #include "thing_traps.h"
 #include "thing_shots.h"
+#include "thing_navigate.h"
 #include "slab_data.h"
 #include "room_data.h"
 #include "room_entrance.h"
@@ -95,6 +96,7 @@
 #include "creature_instances.h"
 #include "creature_graphics.h"
 #include "creature_states_rsrch.h"
+#include "creature_states_lair.h"
 #include "lens_api.h"
 #include "light_data.h"
 #include "magic.h"
@@ -128,6 +130,8 @@ char *bf_argv[CMDLN_MAXLEN+1];
 
 short default_loc_player = 0;
 struct StartupParameters start_params;
+
+struct Room *droom = &_DK_game.rooms[25];
 
 //static
 TbClockMSec last_loop_time=0;
@@ -1893,9 +1897,105 @@ void magic_power_hold_audience_update(PlayerNumber plyr_idx)
     SYNCDBG(19,"Finished");
 }
 
+int affect_nearby_creatures_by_power_call_to_arms(PlayerNumber plyr_idx, long range, struct Coord3d * pos)
+{
+    struct Dungeon *dungeon;
+    unsigned long k;
+    int i, n;
+    SYNCDBG(8,"Starting");
+    dungeon = get_players_num_dungeon(plyr_idx);
+    n = 0;
+    k = 0;
+    i = dungeon->creatr_list_start;
+    while (i != 0)
+    {
+        struct Thing *thing;
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody(thing) &&
+            !creature_is_being_unconscious(thing) && !creature_is_dying(thing))
+        {
+            int nstat;
+            nstat = get_creature_state_besides_interruptions(thing);
+            struct StateInfo *stati;
+            stati = get_thing_state_info_num(nstat);
+            if (((cctrl->spell_flags & CSAfF_CalledToArms) == 0) || (stati->field_28))
+            {
+                if (stati->field_28
+                  && (((cctrl->spell_flags & CSAfF_CalledToArms) != 0) || get_2d_box_distance(&thing->mappos, pos) < range))
+                {
+                    if (creature_is_sleeping(thing)) {
+                        struct CreatureStats *crstat;
+                        crstat = creature_stats_get_from_thing(thing);
+                        anger_apply_anger_to_creature(thing, crstat->annoy_woken_up, AngR_Other, 1);
+                    }
+                    if (creature_can_navigate_to_with_storage(thing, pos, NavRtF_Default))
+                    {
+                        if (external_set_thing_state(thing, CrSt_ArriveAtCallToArms))
+                        {
+                            setup_person_move_to_position(thing, pos->x.stl.num, pos->y.stl.num, 0);
+                            thing->continue_state = CrSt_ArriveAtCallToArms;
+                            cctrl->spell_flags |= CSAfF_CalledToArms;
+                            n++;
+                        }
+                    }
+                }
+            }
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    SYNCDBG(19,"Finished");
+    return n;
+}
+
 void process_magic_power_call_to_arms(PlayerNumber plyr_idx)
 {
-    _DK_process_magic_power_call_to_arms(plyr_idx);
+    //_DK_process_magic_power_call_to_arms(plyr_idx);
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    long duration;
+    duration = game.play_gameturn - dungeon->cta_start_turn;
+    struct MagicStats *magstat;
+    magstat = &game.keeper_power_stats[PwrK_CALL2ARMS];
+
+    struct SlabMap *slb;
+    slb = get_slabmap_for_subtile(dungeon->cta_stl_x, dungeon->cta_stl_y);
+    if (((duration % magstat->time) == 0) && (slabmap_owner(slb) != plyr_idx))
+    {
+        if (take_money_from_dungeon(plyr_idx, magstat->cost[dungeon->cta_splevel], 1) < 0)
+        {
+            if (is_my_player_number(plyr_idx)) {
+                output_message(SMsg_GoldNotEnough, 0, true);
+            }
+            turn_off_call_to_arms(plyr_idx);
+            return;
+        }
+    }
+    if ((duration % 16) == 0)
+    {
+        long range;
+        range = subtile_coord(magstat->strength[dungeon->cta_splevel],0);
+        struct Coord3d pos2;
+        pos2.x.val = subtile_coord_center(dungeon->cta_stl_x);
+        pos2.y.val = subtile_coord_center(dungeon->cta_stl_y);
+        pos2.z.val = subtile_coord(1,0);
+        affect_nearby_creatures_by_power_call_to_arms(plyr_idx, range, &pos2);
+    }
 }
 
 void process_dungeon_power_magic(void)

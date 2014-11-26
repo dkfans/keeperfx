@@ -492,7 +492,6 @@ long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerChec
 struct Thing *computer_check_creatures_in_room_for_accelerate(struct Computer2 *comp, struct Room *room)
 {
     struct Dungeon *dungeon;
-    struct StateInfo *stati;
     struct CreatureControl *cctrl;
     struct Thing *thing;
     unsigned long k;
@@ -514,6 +513,7 @@ struct Thing *computer_check_creatures_in_room_for_accelerate(struct Computer2 *
       if (!thing_affected_by_spell(thing, SplK_Speed))
       {
           n = get_creature_state_besides_move(thing);
+          struct StateInfo *stati;
           stati = get_thing_state_info_num(n);
           if (stati->state_type == 1)
           {
