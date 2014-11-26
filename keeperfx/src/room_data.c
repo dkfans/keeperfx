@@ -366,13 +366,13 @@ void count_gold_slabs_wth_effcncy(struct Room *room)
     //_DK_count_gold_slabs_with_efficiency(room); return;
     long subefficiency;
     // Compute max size of gold hoard stored on one slab
-    subefficiency = (get_wealth_size_types_count() * ((long)room->efficiency)) / 256;
+    subefficiency = (get_wealth_size_types_count() * ((long)room->efficiency)) / ROOM_EFFICIENCY_MAX;
     // Every slab is always capable of storing at least smallest hoard
-    if (subefficiency <= 1)
+    if (subefficiency < 1)
         subefficiency = 1;
     unsigned long count;
     count = room->slabs_count * subefficiency;
-    if (count <= 1)
+    if (count < 1)
         count = 1;
     room->total_capacity = count;
 }
@@ -425,10 +425,10 @@ void count_gold_hoardes_in_room(struct Room *room)
     int all_wealth_size;
     all_gold_amount = 0;
     all_wealth_size = 0;
-    int wealth_size_types_count;
-    wealth_size_types_count = get_wealth_size_types_count();
+    long wealth_size_holds;
+    wealth_size_holds = gold_per_hoard / get_wealth_size_types_count();
     GoldAmount max_hoarde_size_in_room;
-    max_hoarde_size_in_room = (gold_per_hoarde / wealth_size_types_count) * room->total_capacity / room->slabs_count;
+    max_hoarde_size_in_room = wealth_size_holds * room->total_capacity / room->slabs_count;
     long i;
     unsigned long k;
     k = 0;

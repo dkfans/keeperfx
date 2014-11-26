@@ -389,8 +389,8 @@ DLLIMPORT long _DK_remove_gold_from_hoarde(struct Thing *objtng, struct Room *ro
 DLLIMPORT long _DK_add_gold_to_hoarde(struct Thing *objtng, struct Room *room, long amount);
 DLLIMPORT void _DK_set_call_to_arms_as_rebirthing(struct Thing *objtng);
 DLLIMPORT void _DK_set_call_to_arms_as_dying(struct Thing *objtng);
-DLLIMPORT void _DK_process_object_sacrifice(struct Thing *thing, long sacowner);
-DLLIMPORT struct Thing * _DK_find_base_thing_on_mapwho_excluding_self(struct Thing *thing);
+DLLIMPORT void _DK_process_object_sacrifice(struct Thing *gldtng, long sacowner);
+DLLIMPORT struct Thing * _DK_find_base_thing_on_mapwho_excluding_self(struct Thing *gldtng);
 /******************************************************************************/
 struct Thing *create_object(const struct Coord3d *pos, unsigned short model, unsigned short owner, long parent_idx)
 {
@@ -1424,10 +1424,10 @@ int get_wealth_size_of_gold_hoard_object(const struct Thing *objtng)
  */
 int get_wealth_size_of_gold_amount(GoldAmount value)
 {
-    long hoard_size_holds;
-    hoard_size_holds = gold_per_hoarde / get_wealth_size_types_count();
+    long wealth_size_holds;
+    wealth_size_holds = gold_per_hoard / get_wealth_size_types_count();
     int wealth_size;
-    wealth_size = value / hoard_size_holds;
+    wealth_size = value / wealth_size_holds;
     if (wealth_size > get_wealth_size_types_count()-1) {
         WARNLOG("Gold hoard with %d gold would be oversized",(int)value);
         wealth_size = get_wealth_size_types_count()-1;
@@ -1442,10 +1442,10 @@ int get_ceiling_wealth_size_of_gold_amount(GoldAmount value)
 {
     return get_wealth_size_of_gold_amount(value);
     //TODO GOLD_HOARD check what we want here
-    long hoard_size_holds;
-    hoard_size_holds = gold_per_hoarde / get_wealth_size_types_count();
+    long wealth_size_holds;
+    wealth_size_holds = gold_per_hoard / get_wealth_size_types_count();
     int wealth_size;
-    wealth_size = (value + hoard_size_holds - 1) / hoard_size_holds;
+    wealth_size = (value + wealth_size_holds - 1) / wealth_size_holds;
     if (wealth_size > get_wealth_size_types_count()) {
         WARNLOG("Gold hoard with %d gold would be oversized",(int)value);
         wealth_size = get_wealth_size_types_count();
@@ -1472,33 +1472,29 @@ int get_wealth_size_types_count(void)
  */
 struct Thing *create_gold_hoard_object(const struct Coord3d *pos, PlayerNumber plyr_idx, GoldAmount value)
 {
+    if (value >= gold_per_hoard)
+        value = gold_per_hoard;
+    int wealth_size;
+    wealth_size = get_wealth_size_of_gold_amount(value);
     struct Thing *thing;
-    long hoard_size_holds,hoard_size,hoard_store;
-    hoard_size_holds = gold_per_hoarde / get_wealth_size_types_count();
-    hoard_size = value / hoard_size_holds;
-    if (hoard_size >= sizeof(gold_hoard_objects)/sizeof(gold_hoard_objects[0]))
-        hoard_size = sizeof(gold_hoard_objects)/sizeof(gold_hoard_objects[0])-1;
-    thing = create_object(pos, gold_hoard_objects[hoard_size], plyr_idx, -1);
+    thing = create_object(pos, gold_hoard_objects[wealth_size], plyr_idx, -1);
     if (thing_is_invalid(thing))
         return INVALID_THING;
-    hoard_store = value;
-    if (hoard_store >= gold_per_hoarde)
-        hoard_store = gold_per_hoarde;
-    thing->valuable.gold_stored = hoard_store;
+    thing->valuable.gold_stored = value;
     return thing;
 }
 
 struct Thing *create_gold_hoarde(struct Room *room, const struct Coord3d *pos, GoldAmount value)
 {
     struct Thing *thing;
-    GoldAmount hoard_size_holds;
-    hoard_size_holds = gold_per_hoarde / get_wealth_size_types_count();
+    GoldAmount wealth_size_holds;
+    wealth_size_holds = gold_per_hoard / get_wealth_size_types_count();
     if ((value <= 0) || (room->slabs_count < 1)) {
-        ERRORLOG("Attempt to create a gold hoard with %ld gold", value);
+        ERRORLOG("Attempt to create a gold hoard with %ld gold", (long)value);
         return INVALID_THING;
     }
-    if (value > hoard_size_holds * room->total_capacity / room->slabs_count)
-        value = hoard_size_holds * room->total_capacity / room->slabs_count;
+    if (value > wealth_size_holds * room->total_capacity / room->slabs_count)
+        value = wealth_size_holds * room->total_capacity / room->slabs_count;
     thing = create_gold_hoard_object(pos, room->owner, value);
     if (!thing_is_invalid(thing))
     {
@@ -1515,98 +1511,116 @@ struct Thing *create_gold_hoarde(struct Room *room, const struct Coord3d *pos, G
     return thing;
 }
 
-long add_gold_to_hoarde(struct Thing *thing, struct Room *room, GoldAmount amount)
+/**
+ * Adds gold to hoard stored in room.
+ *
+ * @param gldtng The gold hoard thing.
+ * @param room The room which stores this hoard.
+ * @param amount Amount of gold to be added.
+ * @return Gives amount really added to the hoard.
+ */
+long add_gold_to_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amount)
 {
-    //return _DK_add_gold_to_hoarde(thing, room, amount);
-    GoldAmount hoard_size_holds;
-    hoard_size_holds = gold_per_hoarde / get_wealth_size_types_count();
+    //return _DK_add_gold_to_hoarde(gldtng, room, amount);
+    GoldAmount wealth_size_holds;
+    wealth_size_holds = gold_per_hoard / get_wealth_size_types_count();
     // Fix amount
-    if (thing->valuable.gold_stored + amount > hoard_size_holds * room->total_capacity / room->slabs_count)
-        amount = hoard_size_holds * room->total_capacity / room->slabs_count - thing->valuable.gold_stored;
+    if (gldtng->valuable.gold_stored + amount > wealth_size_holds * room->total_capacity / room->slabs_count)
+        amount = wealth_size_holds * room->total_capacity / room->slabs_count - gldtng->valuable.gold_stored;
     if (amount <= 0) {
         return 0;
     }
     // Remove prev wealth size
     int wealth_size;
-    wealth_size = get_ceiling_wealth_size_of_gold_amount(thing->valuable.gold_stored);
+    wealth_size = get_ceiling_wealth_size_of_gold_amount(gldtng->valuable.gold_stored);
+    if (wealth_size > room->used_capacity) {
+        ERRORLOG("Room %s has used capacity %d but stores gold hoard of wealth size %s (%ld gold)",
+            room_code_name(room->kind),(int)room->used_capacity,wealth_size,(long)gldtng->valuable.gold_stored);
+        wealth_size = room->used_capacity;
+    }
     room->used_capacity -= wealth_size;
     // Add amount of gold
-    thing->valuable.gold_stored += amount;
+    gldtng->valuable.gold_stored += amount;
     room->capacity_used_for_storage += amount;
     struct Dungeon *dungeon;
-    dungeon = get_dungeon(thing->owner);
+    dungeon = get_dungeon(gldtng->owner);
     if (!dungeon_invalid(dungeon)) {
         dungeon->total_money_owned += amount;
     }
     // Add new wealth size
-    wealth_size = get_ceiling_wealth_size_of_gold_amount(thing->valuable.gold_stored);
+    wealth_size = get_ceiling_wealth_size_of_gold_amount(gldtng->valuable.gold_stored);
     room->used_capacity += wealth_size;
     // witch hoard object model
-    long hoard_size;
-    hoard_size = thing->valuable.gold_stored / hoard_size_holds;
-    if (hoard_size >= sizeof(gold_hoard_objects)/sizeof(gold_hoard_objects[0]))
-        hoard_size = sizeof(gold_hoard_objects)/sizeof(gold_hoard_objects[0])-1;
-    thing->model = gold_hoard_objects[hoard_size];
+    wealth_size = get_wealth_size_of_gold_amount(gldtng->valuable.gold_stored);
+    gldtng->model = gold_hoard_objects[wealth_size];
     // Set visual appearance
     struct Objects *objdat;
-    objdat = get_objects_data_for_thing(thing);
+    objdat = get_objects_data_for_thing(gldtng);
     unsigned short i, n;
     i = objdat->field_5;
     n = convert_td_iso(i);
     if ((n & 0x8000u) == 0) {
       i = n;
     }
-    set_thing_draw(thing, i, objdat->field_7, objdat->field_D, 0, 0, objdat->field_11);
+    set_thing_draw(gldtng, i, objdat->field_7, objdat->field_D, 0, 0, objdat->field_11);
     return amount;
 }
 
-long remove_gold_from_hoarde(struct Thing *thing, struct Room *room, GoldAmount amount)
+/**
+ * Removes gold from hoard stored in room.
+ *
+ * @param gldtng The gold hoard thing.
+ * @param room The room which stores this hoard.
+ * @param amount Amount of gold to be taken.
+ * @return Gives amount really taken from the hoard.
+ */
+long remove_gold_from_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amount)
 {
-    //return _DK_remove_gold_from_hoarde(thing, room, amount);
-    GoldAmount hoard_size_holds;
-    hoard_size_holds = gold_per_hoarde / get_wealth_size_types_count();
+    //return _DK_remove_gold_from_hoarde(gldtng, room, amount);
     if (amount <= 0) {
         return 0;
     }
-    if (amount > thing->valuable.gold_stored)
-        amount = thing->valuable.gold_stored;
+    if (amount > gldtng->valuable.gold_stored)
+        amount = gldtng->valuable.gold_stored;
     // Remove prev wealth size
     int wealth_size;
-    wealth_size = get_ceiling_wealth_size_of_gold_amount(thing->valuable.gold_stored);
+    wealth_size = get_ceiling_wealth_size_of_gold_amount(gldtng->valuable.gold_stored);
+    if (wealth_size > room->used_capacity) {
+        ERRORLOG("Room %s has used capacity %d but stores gold hoard of wealth size %s (%ld gold)",
+            room_code_name(room->kind),(int)room->used_capacity,wealth_size,(long)gldtng->valuable.gold_stored);
+        wealth_size = room->used_capacity;
+    }
     room->used_capacity -= wealth_size;
     // Add amount of gold
-    thing->valuable.gold_stored -= amount;
+    gldtng->valuable.gold_stored -= amount;
     room->capacity_used_for_storage -= amount;
     struct Dungeon *dungeon;
-    dungeon = get_dungeon(thing->owner);
+    dungeon = get_dungeon(gldtng->owner);
     if (!dungeon_invalid(dungeon)) {
         dungeon->total_money_owned -= amount;
     }
 
-    if (thing->valuable.gold_stored <= 0)
+    if (gldtng->valuable.gold_stored <= 0)
     {
-        delete_thing_structure(thing, 0);
+        delete_thing_structure(gldtng, 0);
         return amount;
     }
     // Add new wealth size
-    wealth_size = get_ceiling_wealth_size_of_gold_amount(thing->valuable.gold_stored);
+    wealth_size = get_ceiling_wealth_size_of_gold_amount(gldtng->valuable.gold_stored);
     room->used_capacity += wealth_size;
     // witch hoard object model
-    long hoard_size;
-    hoard_size = thing->valuable.gold_stored / hoard_size_holds;
-    if (hoard_size >= sizeof(gold_hoard_objects)/sizeof(gold_hoard_objects[0]))
-        hoard_size = sizeof(gold_hoard_objects)/sizeof(gold_hoard_objects[0])-1;
-    thing->model = gold_hoard_objects[hoard_size];
+    wealth_size = get_wealth_size_of_gold_amount(gldtng->valuable.gold_stored);
+    gldtng->model = gold_hoard_objects[wealth_size];
     // Set visual appearance
     struct Objects *objdat;
-    objdat = get_objects_data_for_thing(thing);
+    objdat = get_objects_data_for_thing(gldtng);
     unsigned short i, n;
     i = objdat->field_5;
     n = convert_td_iso(i);
     if ((n & 0x8000u) == 0) {
       i = n;
     }
-    set_thing_draw(thing, i, objdat->field_7, objdat->field_D, 0, 0, objdat->field_11);
+    set_thing_draw(gldtng, i, objdat->field_7, objdat->field_D, 0, 0, objdat->field_11);
     return amount;
 }
 
