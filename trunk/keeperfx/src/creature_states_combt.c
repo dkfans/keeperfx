@@ -2176,7 +2176,7 @@ long check_for_better_combat(struct Thing *figtng)
     return 1;
 }
 
-long waiting_combat_move(struct Thing *figtng, struct Thing *enmtng, long enmdist, long a4)
+long waiting_combat_move(struct Thing *figtng, struct Thing *enmtng, long enmdist, CrtrStateId retreat_crstate)
 {
     struct CreatureControl *figctrl;
     figctrl = creature_control_get_from_thing(figtng);
@@ -2187,12 +2187,12 @@ long waiting_combat_move(struct Thing *figtng, struct Thing *enmtng, long enmdis
     }
     if (figctrl->job_assigned == Job_GUARD)
     {
-        if (guard_post_combat_move(figtng, a4)) {
+        if (guard_post_combat_move(figtng, retreat_crstate)) {
             return 0;
         }
     }
     if (enmdist < 768) {
-        creature_retreat_from_combat(figtng, enmtng, a4, 1);
+        creature_retreat_from_combat(figtng, enmtng, retreat_crstate, 1);
         return 0;
     }
     if (enmdist > 2048) {

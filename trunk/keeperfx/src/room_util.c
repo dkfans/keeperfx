@@ -326,11 +326,13 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
         if (room_is_invalid(room) || (room->kind != RoK_TREASURE))
         {
             // No room - delete it, hoard cannot exist outside treasure room
-            ERRORLOG("Found %s outside of Treasure Room; removing",thing_model_name(thing));
+            ERRORLOG("Found %s outside of %d room; removing",thing_model_name(thing),room_code_name(RoK_TREASURE));
             delete_thing_structure(thing, 0);
             return false;
         }
-        n = (gold_per_hoarde/get_wealth_size_types_count())*(get_wealth_size_of_gold_hoard_object(thing)+1);
+        long wealth_size_holds;
+        wealth_size_holds = gold_per_hoard / get_wealth_size_types_count();
+        n = wealth_size_holds * (get_wealth_size_of_gold_hoard_object(thing)+1);
         thing->owner = room->owner;
         add_gold_to_hoarde(thing, room, n);
         return true;

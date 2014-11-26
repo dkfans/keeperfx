@@ -193,7 +193,7 @@ unsigned char field_67;
     /** Target room index, used when creature is moving to a room or is attacking a room. */
     short target_room_id;
     long field_82;
-unsigned char field_86[2];
+    short field_86;
     unsigned char move_flags;
 // Hard to tell where exactly, but somewhere here a kind-specific, job-specific or owner-specific data starts
   union {

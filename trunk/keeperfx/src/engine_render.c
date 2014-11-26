@@ -2814,7 +2814,7 @@ void draw_room_flag_top(long x, long y, int units_per_px, const struct Room *roo
     LbDrawBox(barpos_x - bar_width, y + (16 * units_per_px + 8) / 16, bar_width, bar_height, colours[0][0][0]);
     bar_empty = 0;
     {
-        bar_fill = ROOM_FLAG_PROGRESS_BAR_WIDTH * room->efficiency / 256;
+        bar_fill = ROOM_FLAG_PROGRESS_BAR_WIDTH * room->efficiency / ROOM_EFFICIENCY_MAX;
         bar_empty = ROOM_FLAG_PROGRESS_BAR_WIDTH - bar_fill;
     }
     bar_width = (2 * bar_empty * units_per_px + 8) / 16;

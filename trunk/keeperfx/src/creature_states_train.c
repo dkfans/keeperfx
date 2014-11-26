@@ -488,7 +488,7 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
             }
         } else
         {
-            creature_retreat_from_combat(thing, crtng, 33, 0);
+            creature_retreat_from_combat(thing, crtng, CrSt_Training, 0);
         }
         break;
     case CrTrMd_DoTrainWithTrainPost:
