@@ -168,9 +168,11 @@ const struct MyLookup lookup[] = {
 /******************************************************************************/
 DLLIMPORT long _DK_task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask);
 DLLIMPORT long _DK_task_magic_call_to_arms(struct Computer2 *comp, struct ComputerTask *ctask);
+DLLIMPORT long _DK_count_creatures_at_call_to_arms(struct Computer2 *comp);
+DLLIMPORT struct Thing *_DK_find_creature_for_call_to_arms(struct Computer2 *comp, long a2);
+DLLIMPORT long _DK_count_creatures_in_call_to_arms(struct Computer2 *comp);
 DLLIMPORT long _DK_task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask);
 DLLIMPORT struct ComputerTask *_DK_get_free_task(struct Computer2 *comp, long basestl_y);
-//DLLIMPORT long _DK_find_next_gold(struct Computer2 *, struct ComputerTask *);
 DLLIMPORT int _DK_search_spiral(struct Coord3d *pos, int owner, int i3, long (*cb)(long, long, long));
 DLLIMPORT long _DK_get_corridor(struct Coord3d *pos1, struct Coord3d * pos2, unsigned char a3, char a4, unsigned short a5);
 DLLIMPORT long _DK_other_build_here(struct Computer2 *comp, long a2, long a3, long a4, long a5);
@@ -341,7 +343,7 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
         {
             place_slab_type_on_map(SlbT_PATH, stl_x, stl_y, plyr_idx, 0);
             do_slab_efficiency_alteration(slb_x, slb_y);
-            i = 1;
+            i = Lb_SUCCESS;
         } else
         {
             i = tag_blocks_for_digging_in_rectangle_around(slab_subtile(slb_x,0), slab_subtile(slb_y,0), plyr_idx) > 0;
@@ -352,14 +354,14 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
         room = player_build_room_at(stl_x, stl_y, plyr_idx, param2);
         if (room_is_invalid(room))
             break;
-        return room->index;
+        return Lb_SUCCESS;
     case GA_SetTendencies:
         dungeon->creature_tendencies = param1;
-        return 1;
+        return Lb_SUCCESS;
     case GA_PlaceTrap:
         if (!player_place_trap_at(stl_x, stl_y, plyr_idx, param1))
             break;
-        return 1;
+        return Lb_SUCCESS;
     case GA_PlaceDoor:
         k = tag_cursor_blocks_place_door(plyr_idx, stl_x, stl_y);
         i = packet_place_door(stl_x, stl_y, plyr_idx, param1, k);
@@ -395,7 +397,7 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
         ERRORLOG("Unknown game action %d", (int)gaction);
         break;
     }
-    return 0;
+    return Lb_OK;
 }
 
 TbResult try_game_action(struct Computer2 *comp, PlayerNumber plyr_idx, unsigned short gaction, unsigned short alevel,
@@ -403,7 +405,7 @@ TbResult try_game_action(struct Computer2 *comp, PlayerNumber plyr_idx, unsigned
 {
     TbResult result;
     result = game_action(plyr_idx, gaction, alevel, stl_x, stl_y, param1, param2);
-    if (result > 0) {
+    if (result > Lb_OK) {
         comp->tasks_did--;
     }
     SYNCDBG(19,"Returning %d",(int)result);
@@ -936,7 +938,7 @@ long task_dig_room(struct Computer2 *comp, struct ComputerTask *ctask)
                     {
                         if (find_from_task_list(dungeon->owner, get_subtile_number(stl_x,stl_y)) < 0)
                         {
-                            if (try_game_action(comp, dungeon->owner, GA_MarkDig, 0, stl_x, stl_y, 1, 1) <= 0)
+                            if (try_game_action(comp, dungeon->owner, GA_MarkDig, 0, stl_x, stl_y, 1, 1) <= Lb_OK)
                             {
                                 struct ComputerProcess *cproc;
                                 cproc =  get_computer_process(comp, ctask->field_8C);
@@ -1944,13 +1946,93 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
 long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
+    if ((game.play_gameturn - ctask->created_turn) > 7500) {
+      comp->task_state = 2;
+      remove_task(comp, ctask);
+      return 0;
+    }
     return _DK_task_dig_to_attack(comp,ctask);
+}
+
+long count_creatures_at_call_to_arms(struct Computer2 *comp)
+{
+    return _DK_count_creatures_at_call_to_arms(comp);
+}
+
+struct Thing *find_creature_for_call_to_arms(struct Computer2 *comp, long a2)
+{
+    return _DK_find_creature_for_call_to_arms(comp, a2);
+}
+
+long count_creatures_in_call_to_arms(struct Computer2 *comp)
+{
+    return _DK_count_creatures_in_call_to_arms(comp);
 }
 
 long task_magic_call_to_arms(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
-    return _DK_task_magic_call_to_arms(comp,ctask);
+    struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
+    //return _DK_task_magic_call_to_arms(comp,ctask);
+    switch (ctask->field_1)
+    {
+    case 0:
+        if ((game.play_gameturn - ctask->lastrun_turn) < ctask->field_60) {
+            return CTaskRet_Unk4;
+        }
+        ctask->field_60 = 18;
+        ctask->lastrun_turn = game.play_gameturn;
+        if (count_creatures_in_call_to_arms(comp) >= ctask->magic_cta.repeat_num) {
+            ctask->field_1 = 1;
+            return CTaskRet_Unk2;
+        }
+        struct Thing *creatng;
+        creatng = find_creature_for_call_to_arms(comp, 1);
+        if (!thing_is_invalid(creatng))
+        {
+          if (try_game_action(comp, dungeon->owner, GA_UsePwrCall2Arms, 8, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, 1, 1) > Lb_OK) {
+              return CTaskRet_Unk2;
+          }
+          ctask->field_1 = 2;
+          return CTaskRet_Unk4;
+        }
+        if (count_creatures_in_call_to_arms(comp) > ctask->magic_cta.repeat_num - ctask->magic_cta.repeat_num / 2) {
+            ctask->field_1 = 1;
+            return CTaskRet_Unk4;
+        }
+        if (dungeon->cta_start_turn > 0) {
+            try_game_action(comp, dungeon->owner, GA_StopPwrCall2Arms, 5, 0, 0, 0, 0);
+        }
+        remove_task(comp, ctask);
+        return CTaskRet_Unk0;
+    case 1:
+        if ((game.play_gameturn - ctask->lastrun_turn) < ctask->field_60) {
+            return CTaskRet_Unk2;
+        }
+        if (try_game_action(comp, dungeon->owner, GA_UsePwrCall2Arms, 5, ctask->magic_cta.target_pos.x.stl.num, ctask->magic_cta.target_pos.y.stl.num, 1, 1) >= Lb_OK) {
+            ctask->field_1 = 2;
+            ctask->field_60 = ctask->field_8E;
+            return CTaskRet_Unk2;
+        }
+        remove_task(comp, ctask);
+        return CTaskRet_Unk0;
+    case 2:
+        if ((game.play_gameturn - ctask->lastrun_turn) < ctask->field_60) {
+            return CTaskRet_Unk1;
+        }
+        if (count_creatures_at_call_to_arms(comp) < ctask->magic_cta.repeat_num - ctask->magic_cta.repeat_num / 4) {
+            return CTaskRet_Unk1;
+        }
+        if (dungeon->cta_start_turn > 0) {
+            try_game_action(comp, dungeon->owner, GA_StopPwrCall2Arms, 5, 0, 0, 0, 0);
+        }
+        remove_task(comp, ctask);
+        return CTaskRet_Unk1;
+    default:
+        break;
+    }
+    return CTaskRet_Unk4;
 }
 
 struct Thing *find_creature_for_pickup(struct Computer2 *comp, struct Coord3d *pos, struct Room *room, CreatureJob new_job, long best_score)
@@ -2579,8 +2661,40 @@ long task_dig_to_neutral(struct Computer2 *comp, struct ComputerTask *ctask)
 
 long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask)
 {
+    struct Dungeon *dungeon;
+    struct Thing *creatng;
     SYNCDBG(9,"Starting");
-    return _DK_task_magic_speed_up(comp,ctask);
+    dungeon = comp->dungeon;
+    //return _DK_task_magic_speed_up(comp,ctask);
+    creatng = thing_get(ctask->attack_magic.target_thing_idx);
+    if (thing_is_invalid(creatng)) {
+        remove_task(comp, ctask);
+        return CTaskRet_Unk4;
+    }
+    if (creature_is_dying(creatng) || creature_is_being_unconscious(creatng)
+     || creature_is_kept_in_custody(creatng))
+    {
+        remove_task(comp, ctask);
+        return CTaskRet_Unk4;
+    }
+    // Note that can_cast_spell() shouldn't be needed here - should
+    // be checked in the function which adds the task
+    if (computer_able_to_use_magic(comp, PwrK_SPEEDCRTR, ctask->attack_magic.splevel, 2) != 1) {
+        remove_task(comp, ctask);
+        return CTaskRet_Unk4;
+    }
+    if (thing_affected_by_spell(creatng, PwrK_SPEEDCRTR)) {
+        remove_task(comp, ctask);
+        return CTaskRet_Unk4;
+    }
+    TbResult ret;
+    ret = try_game_action(comp, dungeon->owner, GA_UsePwrSpeedUp, ctask->attack_magic.splevel,
+        0, 0, creatng->index, 0);
+    if (ret <= Lb_OK) {
+        remove_task(comp, ctask);
+        return CTaskRet_Unk4;
+    }
+    return CTaskRet_Unk1;
 }
 
 long task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask)
@@ -2615,7 +2729,7 @@ long task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask)
         slb = get_slabmap_block(slb_x, slb_y);
         if (slabmap_owner(slb) == plyr_idx)
         {
-            if (try_game_action(comp, plyr_idx, GA_PlaceRoom, 0, basestl_x, basestl_y, 1, RoK_BRIDGE) > 0)
+            if (try_game_action(comp, plyr_idx, GA_PlaceRoom, 0, basestl_x, basestl_y, 1, RoK_BRIDGE) > Lb_OK)
             {
                 long i;
                 i = ctask->ottype;
@@ -2654,9 +2768,10 @@ long task_attack_magic(struct Computer2 *comp, struct ComputerTask *ctask)
     if (computer_able_to_use_magic(comp, ctask->attack_magic.pwkind, ctask->attack_magic.splevel, 1) != 1) {
         return CTaskRet_Unk4;
     }
-    i = try_game_action(comp, dungeon->owner, ctask->attack_magic.gaction, ctask->attack_magic.splevel,
+    TbResult ret;
+    ret = try_game_action(comp, dungeon->owner, ctask->attack_magic.gaction, ctask->attack_magic.splevel,
         thing->mappos.x.stl.num, thing->mappos.y.stl.num, ctask->attack_magic.pwkind, 0);
-    if (i <= Lb_OK)
+    if (ret <= Lb_OK)
         return CTaskRet_Unk4;
     return CTaskRet_Unk2;
 }

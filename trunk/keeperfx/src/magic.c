@@ -73,8 +73,6 @@ unsigned char destroy_effect[][9] = {
 };
 
 /******************************************************************************/
-DLLIMPORT void _DK_magic_use_power_hold_audience(unsigned char idx);
-
 DLLIMPORT void _DK_update_power_sight_explored(struct PlayerInfo *player);
 /******************************************************************************/
 /**
@@ -810,7 +808,6 @@ void turn_off_sight_of_evil(PlayerNumber plyr_idx)
 TbResult magic_use_power_hold_audience(PlayerNumber plyr_idx)
 {
     SYNCDBG(8,"Starting");
-    //_DK_magic_use_power_hold_audience(plyr_idx);
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
     if (dungeon->hold_audience_field_88C != 0) {
@@ -1479,6 +1476,195 @@ TbResult magic_use_power_possess_thing(PlayerNumber plyr_idx, struct Thing *thin
     // Note that setting Direct Control player instance requires player->influenced_thing_idx to be set correctly
     set_player_instance(player, PI_DirctCtrl, 0);
     return Lb_SUCCESS;
+}
+
+void magic_power_hold_audience_update(PlayerNumber plyr_idx)
+{
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    SYNCDBG(8,"Starting");
+    if ( game.play_gameturn - dungeon->hold_audience_field_88C <= game.hold_audience_time) {
+        return;
+    }
+    // Dispose hold audience effect
+    dungeon->hold_audience_field_88C = 0;
+    struct CreatureControl *cctrl;
+    struct Thing *thing;
+    unsigned long k;
+    int i;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    k = 0;
+    i = dungeon->creatr_list_start;
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        if (get_creature_state_besides_interruptions(thing) == CrSt_CreatureInHoldAudience) {
+            set_start_state(thing);
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    SYNCDBG(19,"Finished");
+}
+
+int affect_nearby_creatures_by_power_call_to_arms(PlayerNumber plyr_idx, long range, struct Coord3d * pos)
+{
+    struct Dungeon *dungeon;
+    unsigned long k;
+    int i, n;
+    SYNCDBG(8,"Starting");
+    dungeon = get_players_num_dungeon(plyr_idx);
+    n = 0;
+    k = 0;
+    i = dungeon->creatr_list_start;
+    while (i != 0)
+    {
+        struct Thing *thing;
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody(thing) &&
+            !creature_is_being_unconscious(thing) && !creature_is_dying(thing))
+        {
+            int nstat;
+            nstat = get_creature_state_besides_interruptions(thing);
+            struct StateInfo *stati;
+            stati = get_thing_state_info_num(nstat);
+            if (((cctrl->spell_flags & CSAfF_CalledToArms) == 0) || (stati->field_28))
+            {
+                if (stati->field_28
+                  && (((cctrl->spell_flags & CSAfF_CalledToArms) != 0) || get_2d_box_distance(&thing->mappos, pos) < range))
+                {
+                    if (creature_is_sleeping(thing)) {
+                        struct CreatureStats *crstat;
+                        crstat = creature_stats_get_from_thing(thing);
+                        anger_apply_anger_to_creature(thing, crstat->annoy_woken_up, AngR_Other, 1);
+                    }
+                    if (creature_can_navigate_to_with_storage(thing, pos, NavRtF_Default))
+                    {
+                        if (external_set_thing_state(thing, CrSt_ArriveAtCallToArms))
+                        {
+                            setup_person_move_to_position(thing, pos->x.stl.num, pos->y.stl.num, 0);
+                            thing->continue_state = CrSt_ArriveAtCallToArms;
+                            cctrl->spell_flags |= CSAfF_CalledToArms;
+                            n++;
+                        }
+                    }
+                }
+            }
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    SYNCDBG(19,"Finished");
+    return n;
+}
+
+void process_magic_power_call_to_arms(PlayerNumber plyr_idx)
+{
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    long duration;
+    duration = game.play_gameturn - dungeon->cta_start_turn;
+    struct MagicStats *magstat;
+    magstat = &game.keeper_power_stats[PwrK_CALL2ARMS];
+
+    struct SlabMap *slb;
+    slb = get_slabmap_for_subtile(dungeon->cta_stl_x, dungeon->cta_stl_y);
+    if (((duration % magstat->time) == 0) && (slabmap_owner(slb) != plyr_idx))
+    {
+        if (take_money_from_dungeon(plyr_idx, magstat->cost[dungeon->cta_splevel], 1) < 0)
+        {
+            if (is_my_player_number(plyr_idx)) {
+                output_message(SMsg_GoldNotEnough, 0, true);
+            }
+            turn_off_call_to_arms(plyr_idx);
+            return;
+        }
+    }
+    if ((duration % 16) == 0)
+    {
+        long range;
+        range = subtile_coord(magstat->strength[dungeon->cta_splevel],0);
+        struct Coord3d pos2;
+        pos2.x.val = subtile_coord_center(dungeon->cta_stl_x);
+        pos2.y.val = subtile_coord_center(dungeon->cta_stl_y);
+        pos2.z.val = subtile_coord(1,0);
+        affect_nearby_creatures_by_power_call_to_arms(plyr_idx, range, &pos2);
+    }
+}
+
+void process_dungeon_power_magic(void)
+{
+    SYNCDBG(8,"Starting");
+    //_DK_process_dungeon_power_magic();
+    long i;
+    for (i = 0; i < PLAYERS_COUNT; i++)
+    {
+        struct Dungeon *dungeon;
+        struct PlayerInfo *player;
+        player = get_player(i);
+        if (player_exists(player))
+        {
+            dungeon = get_players_dungeon(player);
+            if (dungeon->cta_start_turn > 0)
+            {
+                process_magic_power_call_to_arms(i);
+            }
+            if ( dungeon->hold_audience_field_88C )
+            {
+                magic_power_hold_audience_update(i);
+            }
+            if (dungeon->must_obey_turn > 0)
+            {
+                long delta;
+                delta = game.play_gameturn - dungeon->must_obey_turn;
+                struct MagicStats *magstat;
+                magstat = &game.keeper_power_stats[PwrK_OBEY];
+                if ((delta % magstat->time) == 0)
+                {
+                    if (take_money_from_dungeon(i, magstat->cost[0], 1) < 0) {
+                        magic_use_power_obey(i);
+                    }
+                }
+            }
+            if (game.armageddon_cast_turn > 0)
+            {
+                if (game.play_gameturn > game.field_15035A)
+                {
+                  game.armageddon_cast_turn = 0;
+                  game.field_15035A = 0;
+                }
+            }
+        }
+    }
 }
 
 /**

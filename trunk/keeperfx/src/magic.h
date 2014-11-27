@@ -84,6 +84,7 @@ void directly_cast_spell_on_thing(PlayerNumber plyr_idx, PowerKind spl_idx, Thin
 
 int get_power_overcharge_level(struct PlayerInfo *player);
 TbBool update_power_overcharge(struct PlayerInfo *player, int spl_idx);
+void process_dungeon_power_magic(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }
