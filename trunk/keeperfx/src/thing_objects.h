@@ -121,7 +121,6 @@ struct Thing *create_guard_flag_object(const struct Coord3d *pos, PlayerNumber p
 
 int get_wealth_size_of_gold_hoard_object(const struct Thing *objtng);
 int get_wealth_size_of_gold_amount(GoldAmount value);
-int get_ceiling_wealth_size_of_gold_amount(GoldAmount value);
 int get_wealth_size_types_count(void);
 struct Thing *create_gold_hoard_object(const struct Coord3d *pos, PlayerNumber plyr_idx, GoldAmount value);
 struct Thing *find_gold_hoard_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
