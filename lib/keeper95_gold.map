@@ -464,6 +464,9 @@
  0001:0004EF10       move_imp_to_dig_here
  0001:0004F0E0       add_to_trap_location
  0001:0004F120       is_there_an_attack_task
+ 0001:0004F1D0       count_creatures_in_call_to_arms
+ 0001:0004F250       count_creatures_at_call_to_arms
+ 0001:0004F2C0       find_creature_for_call_to_arms
  0001:0004F4A0       find_creature_to_be_placed_in_room
  0001:0004FEA0       get_thing_blocked_flags_at
  0001:00050060       slide_thing_against_wall_at

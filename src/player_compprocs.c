@@ -1192,7 +1192,7 @@ long computer_process_sight_of_evil(struct Computer2 *comp, struct ComputerProce
         stl_y = slab_subtile_center(slb_y);
 #undef GRID
     }
-    if (try_game_action(comp, dungeon->owner, GA_UsePwrSight, cproc->confval_2, stl_x, stl_y, 0, 0) > 0)
+    if (try_game_action(comp, dungeon->owner, GA_UsePwrSight, cproc->confval_2, stl_x, stl_y, 0, 0) > Lb_OK)
     {
         computer_look_for_opponent(comp, stl_x, stl_y, range);
     }
