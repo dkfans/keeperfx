@@ -49,11 +49,11 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT struct Room * _DK_find_random_room_for_thing(struct Thing *thing, signed char plyr_idx, signed char rkind, unsigned char a4);
-DLLIMPORT struct Room * _DK_find_random_room_for_thing_with_spare_room_item_capacity(struct Thing *thing, signed char newowner, signed char rkind, unsigned char a4);
+DLLIMPORT struct Room * _DK_find_random_room_for_thing(struct Thing *hoardtng, signed char plyr_idx, signed char rkind, unsigned char a4);
+DLLIMPORT struct Room * _DK_find_random_room_for_thing_with_spare_room_item_capacity(struct Thing *hoardtng, signed char newowner, signed char rkind, unsigned char a4);
 DLLIMPORT void _DK_copy_block_with_cube_groups(short a1, unsigned char plyr_idx, unsigned char a3);
 DLLIMPORT unsigned short _DK_i_can_allocate_free_room_structure(void);
-DLLIMPORT struct Thing *_DK_treasure_room_eats_gold_piles(struct Room *room, long slb_x,  long slb_y, struct Thing *thing);
+DLLIMPORT struct Thing *_DK_treasure_room_eats_gold_piles(struct Room *room, long slb_x,  long slb_y, struct Thing *hoardtng);
 DLLIMPORT void _DK_delete_room_slabbed_objects(long a1);
 /******************************************************************************/
 void count_slabs_all_only(struct Room *room);
@@ -126,9 +126,9 @@ unsigned char const slabs_to_centre_peices[] = {
 unsigned short const room_effect_elements[] = { 55, 56, 57, 58, 0, 0 };
 const short slab_around[] = { -85, 1, 85, -1 };
 /******************************************************************************/
-DLLIMPORT unsigned char _DK_find_random_valid_position_for_thing_in_room_avoiding_object_excluding_room_slab(struct Thing *thing, struct Room *room, struct Coord3d *pos, long a4);
-DLLIMPORT long _DK_find_random_valid_position_for_item_in_different_room_avoiding_object(struct Thing *thing, struct Room *room, struct Coord3d *pos);
-DLLIMPORT unsigned char _DK_find_random_valid_position_for_thing_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos);
+DLLIMPORT unsigned char _DK_find_random_valid_position_for_thing_in_room_avoiding_object_excluding_room_slab(struct Thing *hoardtng, struct Room *room, struct Coord3d *pos, long a4);
+DLLIMPORT long _DK_find_random_valid_position_for_item_in_different_room_avoiding_object(struct Thing *hoardtng, struct Room *room, struct Coord3d *pos);
+DLLIMPORT unsigned char _DK_find_random_valid_position_for_thing_in_room(struct Thing *hoardtng, struct Room *room, struct Coord3d *pos);
 DLLIMPORT void _DK_count_gold_slabs_with_efficiency(struct Room *room);
 DLLIMPORT void _DK_count_gold_hoardes_in_room(struct Room *room);
 DLLIMPORT void _DK_count_workers_in_room(struct Room *room);
@@ -361,22 +361,6 @@ void set_room_efficiency(struct Room *room)
     room->efficiency = calculate_room_efficiency(room);
 }
 
-void count_gold_slabs_wth_effcncy(struct Room *room)
-{
-    //_DK_count_gold_slabs_with_efficiency(room); return;
-    long subefficiency;
-    // Compute max size of gold hoard stored on one slab
-    subefficiency = (get_wealth_size_types_count() * ((long)room->efficiency)) / ROOM_EFFICIENCY_MAX;
-    // Every slab is always capable of storing at least smallest hoard
-    if (subefficiency < 1)
-        subefficiency = 1;
-    unsigned long count;
-    count = room->slabs_count * subefficiency;
-    if (count < 1)
-        count = 1;
-    room->total_capacity = count;
-}
-
 struct Thing *find_gold_hoarde_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct Thing *thing;
@@ -412,10 +396,62 @@ struct Thing *find_gold_hoarde_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     return INVALID_THING;
 }
 
-struct Thing *treasure_room_eats_gold_piles(struct Room *room, MapSlabCoord slb_x,  MapSlabCoord slb_y, struct Thing *thing)
+struct Thing *treasure_room_eats_gold_piles(struct Room *room, MapSlabCoord slb_x,  MapSlabCoord slb_y, struct Thing *hoardtng)
 {
-    if (thing_is_invalid(thing)) thing = NULL;
-    return _DK_treasure_room_eats_gold_piles(room, slb_x, slb_y, thing);
+    if (room->owner == game.neutral_player_num) {
+        return hoardtng;
+    }
+    //return _DK_treasure_room_eats_gold_piles(room, slb_x, slb_y, thing);
+    GoldAmount gold_gathered;
+    gold_gathered = 0;
+    // Find gold objects around, delete them and gather sum of the gold they had
+    long k;
+    for (k=0; k < AROUND_TILES_COUNT; k++)
+    {
+        MapSubtlCoord stl_x, stl_y;
+        stl_x = slab_subtile(slb_x, around[k].delta_x + 1);
+        stl_y = slab_subtile(slb_y, around[k].delta_y + 1);
+        struct Thing *gldtng;
+        gldtng = find_base_thing_on_mapwho(TCls_Object, 43, stl_x, stl_y);
+        if (!thing_is_invalid(gldtng)) {
+            gold_gathered += gldtng->valuable.gold_stored;
+            delete_thing_structure(gldtng, 0);
+        }
+        gldtng = find_base_thing_on_mapwho(TCls_Object, 6, stl_x, stl_y);
+        if (!thing_is_invalid(gldtng)) {
+            gold_gathered += gldtng->valuable.gold_stored;
+            delete_thing_structure(gldtng, 0);
+        }
+        gldtng = find_base_thing_on_mapwho(TCls_Object, 3, stl_x, stl_y);
+        if (!thing_is_invalid(gldtng)) {
+            gold_gathered += gldtng->valuable.gold_stored;
+            delete_thing_structure(gldtng, 0);
+        }
+    }
+    if (gold_gathered <= 0) {
+        return hoardtng;
+    }
+    struct Coord3d pos;
+    pos.x.val = subtile_coord_center(slab_subtile_center(slb_x));
+    pos.y.val = subtile_coord_center(slab_subtile_center(slb_y));
+    pos.z.val = get_floor_height_at(&pos);
+    // Either create a hoard or add gold to existing one
+    if (!thing_is_invalid(hoardtng))
+    {
+        gold_gathered -= add_gold_to_hoarde(hoardtng, room, gold_gathered);
+    } else
+    {
+        hoardtng = create_gold_hoarde(room, &pos, gold_gathered);
+        if (!thing_is_invalid(hoardtng)) {
+            gold_gathered -= hoardtng->valuable.gold_stored;
+        }
+    }
+    // If there's still gold left, just drop it as pile
+    if (gold_gathered > 0)
+    {
+        drop_gold_pile(gold_gathered, &pos);
+    }
+    return hoardtng;
 }
 
 void count_gold_hoardes_in_room(struct Room *room)
@@ -463,7 +499,7 @@ void count_gold_hoardes_in_room(struct Room *room)
         }
         if (gold_amount > 0) {
             all_gold_amount += gold_amount;
-            all_wealth_size += get_ceiling_wealth_size_of_gold_amount(gold_amount);
+            all_wealth_size += get_wealth_size_of_gold_amount(gold_amount);
         }
 
         i = get_next_slab_number_in_room(i);
@@ -748,6 +784,22 @@ void count_slabs_div2_wth_effcncy(struct Room *room)
     count = room->slabs_count * ((long)room->efficiency);
     count = ((count/ROOM_EFFICIENCY_MAX) >> 1);
     if (count <= 1)
+        count = 1;
+    room->total_capacity = count;
+}
+
+void count_gold_slabs_wth_effcncy(struct Room *room)
+{
+    //_DK_count_gold_slabs_with_efficiency(room); return;
+    long subefficiency;
+    // Compute max size of gold hoard stored on one slab
+    subefficiency = (get_wealth_size_types_count() * (long)room->efficiency) / ROOM_EFFICIENCY_MAX;
+    // Every slab is always capable of storing at least smallest hoard
+    if (subefficiency < 1)
+        subefficiency = 1;
+    unsigned long count;
+    count = room->slabs_count * subefficiency;
+    if (count < 1)
         count = 1;
     room->total_capacity = count;
 }

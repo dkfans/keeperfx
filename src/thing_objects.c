@@ -368,7 +368,7 @@ unsigned short player_guardflag_objects[] = {115, 116, 117, 118,  0, 119};
  */
 unsigned short dungeon_flame_objects[] =    {111, 120, 121, 122,  0,   0};
 unsigned short lightning_spangles[] = {83, 90, 91, 92, 0, 0};
-unsigned short gold_hoard_objects[] = {52, 53, 54, 55, 56};
+unsigned short gold_hoard_objects[] = {52, 52, 53, 54, 55, 56};
 
 struct CallToArmsGraphics call_to_arms_graphics[] = {
     {867, 868, 869},
@@ -1415,33 +1415,21 @@ struct Thing *create_gold_pot_at(long pos_x, long pos_y, PlayerNumber plyr_idx)
  */
 int get_wealth_size_of_gold_hoard_object(const struct Thing *objtng)
 {
-    //This simplified algorithm requires that gold hoard types are ascending integers
-    return (((long)objtng->model)-gold_hoard_objects[0]);
-}
-
-/**
- * For given gold amount, returns floor wealth size which would fit it, scaled 0..max_size.
- */
-int get_wealth_size_of_gold_amount(GoldAmount value)
-{
-    long wealth_size_holds;
-    wealth_size_holds = gold_per_hoard / get_wealth_size_types_count();
-    int wealth_size;
-    wealth_size = value / wealth_size_holds;
-    if (wealth_size > get_wealth_size_types_count()-1) {
-        WARNLOG("Gold hoard with %d gold would be oversized",(int)value);
-        wealth_size = get_wealth_size_types_count()-1;
+    // Find position of the hoard size
+    int i;
+    for (i = get_wealth_size_types_count(); i > 0; i--)
+    {
+        if (gold_hoard_objects[i] == objtng->model)
+            return i;
     }
-    return wealth_size;
+    return 0;
 }
 
 /**
  * For given gold amount, returns ceiling wealth size which would fit it, scaled 0..max_size+1.
  */
-int get_ceiling_wealth_size_of_gold_amount(GoldAmount value)
+int get_wealth_size_of_gold_amount(GoldAmount value)
 {
-    return get_wealth_size_of_gold_amount(value);
-    //TODO GOLD_HOARD check what we want here
     long wealth_size_holds;
     wealth_size_holds = gold_per_hoard / get_wealth_size_types_count();
     int wealth_size;
@@ -1458,7 +1446,7 @@ int get_ceiling_wealth_size_of_gold_amount(GoldAmount value)
  */
 int get_wealth_size_types_count(void)
 {
-    return sizeof(gold_hoard_objects)/sizeof(gold_hoard_objects[0]);
+    return sizeof(gold_hoard_objects)/sizeof(gold_hoard_objects[0])-1;
 }
 
 /**
@@ -1507,7 +1495,7 @@ struct Thing *create_gold_hoarde(struct Room *room, const struct Coord3d *pos, G
             dungeon->total_money_owned += thing->valuable.gold_stored;
         }
         int wealth_size;
-        wealth_size = get_ceiling_wealth_size_of_gold_amount(thing->valuable.gold_stored);
+        wealth_size = get_wealth_size_of_gold_amount(thing->valuable.gold_stored);
         room->used_capacity += wealth_size;
     }
     return thing;
@@ -1536,7 +1524,7 @@ long add_gold_to_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amou
     }
     // Remove prev wealth size
     int wealth_size;
-    wealth_size = get_ceiling_wealth_size_of_gold_amount(gldtng->valuable.gold_stored);
+    wealth_size = get_wealth_size_of_gold_amount(gldtng->valuable.gold_stored);
     if (wealth_size > room->used_capacity) {
         ERRORLOG("Room %s index %d has used capacity %d but stores gold hoard of wealth size %d (%ld gold)",
             room_code_name(room->kind),(int)room->index,(int)room->used_capacity,(int)wealth_size,(long)gldtng->valuable.gold_stored);
@@ -1552,10 +1540,9 @@ long add_gold_to_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amou
         dungeon->total_money_owned += amount;
     }
     // Add new wealth size
-    wealth_size = get_ceiling_wealth_size_of_gold_amount(gldtng->valuable.gold_stored);
-    room->used_capacity += wealth_size;
-    // witch hoard object model
     wealth_size = get_wealth_size_of_gold_amount(gldtng->valuable.gold_stored);
+    room->used_capacity += wealth_size;
+    // switch hoard object model
     gldtng->model = gold_hoard_objects[wealth_size];
     // Set visual appearance
     struct Objects *objdat;
@@ -1588,7 +1575,7 @@ long remove_gold_from_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount
         amount = gldtng->valuable.gold_stored;
     // Remove prev wealth size
     int wealth_size;
-    wealth_size = get_ceiling_wealth_size_of_gold_amount(gldtng->valuable.gold_stored);
+    wealth_size = get_wealth_size_of_gold_amount(gldtng->valuable.gold_stored);
     if (wealth_size > room->used_capacity) {
         ERRORLOG("Room %s index %d has used capacity %d but stores gold hoard of wealth size %d (%ld gold)",
             room_code_name(room->kind),(int)room->index,(int)room->used_capacity,(int)wealth_size,(long)gldtng->valuable.gold_stored);
@@ -1610,10 +1597,9 @@ long remove_gold_from_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount
         return amount;
     }
     // Add new wealth size
-    wealth_size = get_ceiling_wealth_size_of_gold_amount(gldtng->valuable.gold_stored);
-    room->used_capacity += wealth_size;
-    // witch hoard object model
     wealth_size = get_wealth_size_of_gold_amount(gldtng->valuable.gold_stored);
+    room->used_capacity += wealth_size;
+    // switch hoard object model
     gldtng->model = gold_hoard_objects[wealth_size];
     // Set visual appearance
     struct Objects *objdat;
