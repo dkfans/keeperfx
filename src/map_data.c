@@ -56,10 +56,10 @@ MapSubtlCoord map_subtiles_x = 255;
 /** Map subtiles, Y dimension.
  *  @note The subtile indexed [map_subtiles_y] should exist
  *      in the map, so there really is map_subtiles_y+1 subtiles. */
-MapSubtlCoord map_subtiles_z = 8;
+MapSubtlCoord map_subtiles_y = 255;
 /** Map subtiles, Z dimension.
  */
-MapSubtlCoord map_subtiles_y = 255;
+MapSubtlCoord map_subtiles_z = 8;
 /** Map tiles, X dimension.
  *  Equals to tiles (slabs) count; The last slab has index map_tiles_x-1. */
 MapSlabCoord map_tiles_x = 85;
