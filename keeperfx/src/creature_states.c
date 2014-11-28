@@ -592,7 +592,8 @@ long get_creature_state_type_f(const struct Thing *thing, const char *func_name)
       } else
       {
           state_type = states[0].state_type;
-          WARNLOG("%s: The %s index %d owner %d continue state %d is out of range",func_name,thing_model_name(thing),(int)thing->index,(int)thing->owner,(int)state);
+          WARNLOG("%s: The %s index %d owner %d continue state %d is out of range; active state %d",func_name,
+              thing_model_name(thing),(int)thing->index,(int)thing->owner,(int)state,(int)thing->active_state);
       }
   }
   return state_type;
@@ -3643,7 +3644,47 @@ TbBool creature_work_in_room_no_longer_possible_f(const struct Room *room, RoomK
 
 void create_effect_around_thing(struct Thing *thing, long eff_kind)
 {
-  _DK_create_effect_around_thing(thing, eff_kind);
+    //_DK_create_effect_around_thing(thing, eff_kind);
+    int tng_radius;
+    tng_radius = (thing->sizexy >> 1);
+    MapCoord coord_x_beg, coord_x_end;
+    coord_x_beg = (MapCoord)thing->mappos.x.val - tng_radius;
+    if (coord_x_beg < 0)
+        coord_x_beg = 0;
+    coord_x_end = (MapCoord)thing->mappos.x.val + tng_radius;
+    if (coord_x_end >= subtile_coord(map_subtiles_x+1, 0) - 1)
+        coord_x_end = subtile_coord(map_subtiles_x+1, 0) - 1;
+    MapCoord coord_y_beg, coord_y_end;
+    coord_y_beg = (MapCoord)thing->mappos.y.val - tng_radius;
+    if (coord_y_beg < 0)
+        coord_y_beg = 0;
+    coord_y_end = (MapCoord)thing->mappos.y.val + tng_radius;
+    if (coord_y_end >= subtile_coord(map_subtiles_y+1, 0) - 1)
+        coord_y_end = subtile_coord(map_subtiles_y+1, 0) - 1;
+    MapCoord coord_z_beg, coord_z_end;
+    coord_z_beg = (MapCoord)thing->mappos.z.val;
+    if (coord_z_beg < 0)
+        coord_z_beg = 0;
+    coord_z_end = (MapCoord)thing->mappos.z.val + thing->field_58;
+    if (coord_z_end >= subtile_coord(map_subtiles_z, 0) - 1)
+        coord_z_end = subtile_coord(map_subtiles_z, 0) - 1;
+    struct Coord3d pos;
+    pos.x.val = coord_x_beg;
+    while (pos.x.val <= coord_x_end)
+    {
+        pos.y.val = coord_y_beg;
+        while (pos.y.val <= coord_y_end)
+        {
+            pos.z.val = coord_z_beg;
+            while (pos.z.val <= coord_z_end)
+            {
+                create_effect(&pos, eff_kind, thing->owner);
+                pos.z.val += COORD_PER_STL;
+            }
+            pos.y.val += COORD_PER_STL;
+        }
+        pos.x.val += COORD_PER_STL;
+    }
 }
 
 void remove_health_from_thing_and_display_health(struct Thing *thing, long delta)
