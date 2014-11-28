@@ -158,6 +158,14 @@ const struct MoveToRoom move_to_room[] = {
     {RoK_NONE,       0},
 };
 
+const struct Around small_around_mid[] = {
+    { 0, -1},
+    { 1,  0},
+    { 0,  1},
+    {-1,  0},
+    { 0,  0},
+};
+
 const struct MyLookup lookup[] = {
     { 0, -3},
     { 3,  0},
@@ -1949,9 +1957,66 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
     if ((game.play_gameturn - ctask->created_turn) > 7500) {
       comp->task_state = 2;
       remove_task(comp, ctask);
-      return 0;
+      return CTaskRet_Unk0;
     }
-    return _DK_task_dig_to_attack(comp,ctask);
+    //return _DK_task_dig_to_attack(comp,ctask);
+    if (ctask->dig.pos_next.x.val > 0)
+    {
+        struct SlabMap *slb;
+        slb = get_slabmap_for_subtile(ctask->dig.pos_next.x.stl.num, ctask->dig.pos_next.y.stl.num);
+        if (slabmap_owner(slb) != comp->dungeon->owner) {
+            return CTaskRet_Unk4;
+        }
+        if ((ctask->flags & 0x04) != 0)
+        {
+          ctask->lastrun_turn++;
+          if (ctask->lastrun_turn > 5)
+              ctask->flags &= ~0x04;
+          add_to_trap_location(comp, &ctask->dig.pos_next);
+        }
+    }
+    long dig_ret;
+    dig_ret = tool_dig_to_pos2(comp, &ctask->dig, 0, 0);
+    int i;
+    switch (dig_ret)
+    {
+    case -5:
+        ctask->ottype = ctask->ttype;
+        ctask->ttype = CTT_WaitForBridge;
+        dig_ret = CTaskRet_Unk4;
+        break;
+    case -3:
+    case -2:
+        comp->task_state = 2;
+        suspend_task_process(comp, ctask);
+        break;
+      case 0:
+        for (i = 0; i < 5; i++)
+        {
+            MapSubtlCoord stl_x, stl_y;
+            stl_x = ctask->dig.pos_next.x.stl.num + (long)slab_subtile(small_around_mid[i].delta_x,0);
+            stl_y = ctask->dig.pos_next.y.stl.num + (long)slab_subtile(small_around_mid[i].delta_y,0);
+            if (xy_walkable(stl_x, stl_y, ctask->dig_somewhere.target_plyr_idx)) {
+              remove_task(comp, ctask);
+              break;
+          }
+        }
+        if (i == 5)
+            break;
+        // no break
+    case -1:
+        {
+            struct ComputerProcess *cproc;
+            cproc = get_computer_process(comp, ctask->field_8C);
+            cproc->param_5 = computer_task_index(ctask);
+            cproc->func_complete(comp, cproc);
+        }
+        suspend_task_process(comp, ctask);
+        break;
+    default:
+        break;
+    }
+    return dig_ret;
 }
 
 long count_creatures_at_call_to_arms(struct Computer2 *comp)
