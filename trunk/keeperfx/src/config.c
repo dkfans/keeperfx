@@ -782,6 +782,14 @@ char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname)
       mdir=install_info.inst_path;
       sdir=campaign.configs_location;
       break;
+  case FGrp_CmpgMedia:
+      if (campaign.media_location[0] == '\0') {
+          mdir=NULL; sdir=NULL;
+          break;
+      }
+      mdir=install_info.inst_path;
+      sdir=campaign.media_location;
+      break;
   case FGrp_LandView:
       if (campaign.land_location[0] == '\0') {
           mdir=NULL; sdir=NULL;
