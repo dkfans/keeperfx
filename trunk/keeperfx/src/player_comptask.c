@@ -341,7 +341,7 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
     case GA_StopPwrCall2Arms:
         turn_off_call_to_arms(plyr_idx);
         return Lb_SUCCESS;
-    case GA_Unk12:
+    case GA_StopPwrHoldAudnc:
         dungeon->hold_audience_field_88C = 0;
         return Lb_SUCCESS;
     case GA_Unk13:
@@ -349,6 +349,8 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
         slb = get_slabmap_block(slb_x, slb_y);
         if ((slb->kind == SlbT_LAVA) || (slb->kind == SlbT_WATER))
         {
+            // Computer player can turn water/lava into path; but only in very special circumstances
+            // Normally liquid tiles are not marked for digging by the tool function
             place_slab_type_on_map(SlbT_PATH, stl_x, stl_y, plyr_idx, 0);
             do_slab_efficiency_alteration(slb_x, slb_y);
             i = Lb_SUCCESS;
