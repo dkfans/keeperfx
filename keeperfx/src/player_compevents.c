@@ -54,10 +54,10 @@ long computer_event_breach(struct Computer2 *comp, struct ComputerEvent *cevent,
 /******************************************************************************/
 struct ComputerSpells {
     PowerKind pwkind;
-    char field_1;
+    char gaction;
     char require_owned_ground;
-    int field_3;
-    int field_7;
+    int repeat_num;
+    int splevel;
     int field_B;
 };
 /******************************************************************************/
@@ -100,11 +100,11 @@ Comp_Event_Func computer_event_func_list[] = {
 };
 
 struct ComputerSpells computer_attack_spells[] = {
-  {PwrK_DISEASE,   25, 1,  1, 2, 4},
-  {PwrK_LIGHTNING, 20, 0,  1, 8, 2},
-  {PwrK_CHICKEN,   26, 1,  1, 2, 1},
-  {PwrK_LIGHTNING, 20, 0, -1, 1, 1},
-  {PwrK_None,       0, 0,  0, 0, 0},
+  {PwrK_DISEASE,   GA_UsePwrDisease,   1,  1, 2, 4},
+  {PwrK_LIGHTNING, GA_UsePwrLightning, 0,  1, 8, 2},
+  {PwrK_CHICKEN,   GA_UsePwrChicken,   1,  1, 2, 1},
+  {PwrK_LIGHTNING, GA_UsePwrLightning, 0, -1, 1, 1},
+  {PwrK_None,      GA_None,            0,  0, 0, 0},
 };
 
 /******************************************************************************/
@@ -418,18 +418,18 @@ long computer_event_attack_magic_foe(struct Computer2 *comp, struct ComputerEven
     }
     struct ComputerSpells *caspl;
     caspl = &computer_attack_spells[cevent->param3];
-    int valA;
-    int valB;
-    int valC;
-    valA = caspl->field_3;
-    if (valA < 0)
-      valA = cevent->param2;
-    valB = caspl->field_7;
-    if (valB < 0)
-      valA = cevent->param1;
-    valC = caspl->field_1;
+    int repeat_num;
+    int splevel;
+    int gaction;
+    repeat_num = caspl->repeat_num;
+    if (repeat_num < 0)
+      repeat_num = cevent->param2;
+    splevel = caspl->splevel;
+    if (splevel < 0)
+      repeat_num = cevent->param1;
+    gaction = caspl->gaction;
     // Create the new task
-    if (!create_task_attack_magic(comp, creatng, pwkind, valA, valB, valC)) {
+    if (!create_task_attack_magic(comp, creatng, pwkind, repeat_num, splevel, gaction)) {
         return 4;
     }
     return 1;

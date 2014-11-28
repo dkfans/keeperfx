@@ -350,7 +350,7 @@ unsigned char field_67;
     short force_visible;
     unsigned char field_B1;
     long field_B2;
-    unsigned char field_B6;
+    unsigned char disease_caster_plyridx;
     unsigned char teleport_x;
     unsigned char teleport_y;
     unsigned short field_B9;

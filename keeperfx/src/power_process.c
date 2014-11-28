@@ -23,13 +23,17 @@
 
 #include "bflib_math.h"
 #include "bflib_memory.h"
+
 #include "player_data.h"
 #include "dungeon_data.h"
 #include "player_utils.h"
 #include "thing_shots.h"
 #include "thing_objects.h"
+#include "thing_physics.h"
 #include "creature_states.h"
+#include "ariadne_wallhug.h"
 #include "config_terrain.h"
+#include "config_creature.h"
 #include "front_simple.h"
 #include "slab_data.h"
 #include "game_legacy.h"
@@ -44,9 +48,9 @@ extern "C" {
 DLLIMPORT unsigned char _DK_backup_explored[26][26];
 #define backup_explored _DK_backup_explored
 /******************************************************************************/
-DLLIMPORT void _DK_process_disease(struct Thing *thing);
-DLLIMPORT void _DK_god_lightning_choose_next_creature(struct Thing *thing);
-DLLIMPORT void _DK_draw_god_lightning(struct Thing *thing);
+DLLIMPORT void _DK_process_disease(struct Thing *creatng);
+DLLIMPORT void _DK_god_lightning_choose_next_creature(struct Thing *creatng);
+DLLIMPORT void _DK_draw_god_lightning(struct Thing *creatng);
 DLLIMPORT void _DK_turn_off_call_to_arms(long a);
 DLLIMPORT void _DK_remove_explored_flags_for_power_sight(struct PlayerInfo *player);
 /******************************************************************************/
@@ -155,10 +159,61 @@ void process_armageddon(void)
     }
 }
 
-void process_disease(struct Thing *thing)
+void process_disease(struct Thing *creatng)
 {
     SYNCDBG(18,"Starting");
-    _DK_process_disease(thing);
+    //_DK_process_disease(thing);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    if (!creature_affected_by_spell(creatng, SplK_Disease)) {
+        return;
+    }
+    if (ACTION_RANDOM(100) < game.disease_transfer_percentage)
+    {
+        SubtlCodedCoords stl_num;
+        long n;
+        stl_num = get_subtile_number(creatng->mappos.x.stl.num,creatng->mappos.y.stl.num);
+        for (n=0; n < AROUND_MAP_LENGTH; n++)
+        {
+            struct Thing *thing;
+            struct Map *mapblk;
+            unsigned long k;
+            long i;
+            mapblk = get_map_block_at_pos(stl_num+around_map[n]);
+            k = 0;
+            i = get_mapwho_thing_index(mapblk);
+            while (i != 0)
+            {
+              thing = thing_get(i);
+              if (thing_is_invalid(thing))
+              {
+                WARNLOG("Jump out of things array");
+                break;
+              }
+              i = thing->next_on_mapblk;
+              // Per thing code
+              if (thing_is_creature(thing) && ((get_creature_model_flags(thing) & MF_IsSpecDigger) == 0)
+                && (thing->owner != cctrl->disease_caster_plyridx) && !creature_affected_by_spell(thing, SplK_Disease))
+              {
+                  struct CreatureControl *tngcctrl;
+                  tngcctrl = creature_control_get_from_thing(thing);
+                  apply_spell_effect_to_thing(thing, SplK_Disease, cctrl->explevel);
+                  tngcctrl->disease_caster_plyridx = cctrl->disease_caster_plyridx;
+              }
+              // Per thing code ends
+              k++;
+              if (k > THINGS_COUNT)
+              {
+                  ERRORLOG("Infinite loop detected when sweeping things list");
+                  break;
+              }
+            }
+        }
+    }
+    if (((game.play_gameturn - cctrl->disease_start_turn) % game.disease_lose_health_time) == 0)
+    {
+        apply_damage_to_thing_and_display_health(creatng, game.disease_lose_percentage_health * cctrl->max_health / 100, DmgT_Biological, cctrl->disease_caster_plyridx);
+    }
 }
 
 void lightning_modify_palette(struct Thing *thing)
@@ -204,7 +259,6 @@ void lightning_modify_palette(struct Thing *thing)
 
 void update_god_lightning_ball(struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
     struct Thing *target;
     struct ShotConfigStats *shotst;
     long i;
@@ -233,6 +287,7 @@ void update_god_lightning_ball(struct Thing *thing)
         apply_damage_to_thing_and_display_health(target, shotst->old->damage, shotst->damage_type, thing->owner);
         if (target->health < 0)
         {
+            struct CreatureControl *cctrl;
             cctrl = creature_control_get_from_thing(target);
             cctrl->shot_model = ShM_GodLightBall;
             kill_creature(target, INVALID_THING, thing->owner, CrDed_DiedInBattle);
