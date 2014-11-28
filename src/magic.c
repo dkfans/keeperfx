@@ -892,7 +892,7 @@ TbResult magic_use_power_disease(PlayerNumber plyr_idx, struct Thing *thing, Map
     {
         struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(thing);
-        cctrl->field_B6 = plyr_idx;
+        cctrl->disease_caster_plyridx = plyr_idx;
     }
     thing_play_sample(thing, 59, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
     return Lb_SUCCESS;
