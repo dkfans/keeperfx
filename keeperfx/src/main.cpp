@@ -3445,11 +3445,11 @@ void init_level(void)
     game.creatures_tend_2 = 0;
     game.field_15033A = 0;
     game.chosen_room_kind = 0;
-    game.chosen_room_look = 0;
+    game.chosen_room_spridx = 0;
     game.chosen_room_tooltip = 0;
     set_chosen_power_none();
     game.manufactr_element = 0;
-    game.numfield_15181D = 0;
+    game.manufactr_spridx = 0;
     game.manufactr_tooltip = 0;
 }
 

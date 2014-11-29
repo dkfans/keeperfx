@@ -59,10 +59,11 @@ const struct NamedCommand terrain_room_commands[] = {
   {"NAMETEXTID",      8},
   {"TOOLTIPTEXTID",   9},
   {"SYMBOLSPRITES",  10},
-  {"PANELTABINDEX",  11},
-  {"TOTALCAPACITY",  12},
-  {"USEDCAPACITY",   13},
-  {"AMBIENTSNDSAMPLE",14},
+  {"POINTERSPRITES", 11},
+  {"PANELTABINDEX",  12},
+  {"TOTALCAPACITY",  13},
+  {"USEDCAPACITY",   14},
+  {"AMBIENTSNDSAMPLE",15},
   {NULL,              0},
 };
 
@@ -547,7 +548,9 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
             roomst->creature_creation_model = 0;
             roomst->bigsym_sprite_idx = 0;
             roomst->medsym_sprite_idx = 0;
+            roomst->pointer_sprite_idx = 0;
             roomst->panel_tab_idx = 0;
+            roomst->ambient_snd_smp_id = 0;
             roomst->msg_needed = 0;
             roomst->msg_too_small = 0;
             roomst->msg_no_route = 0;
@@ -780,7 +783,23 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 11: // PANELTABINDEX
+        case 11: // POINTERSPRITES
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k >= 0)
+                {
+                    roomst->pointer_sprite_idx = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 12: // PANELTABINDEX
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
@@ -796,7 +815,7 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 12: // TOTALCAPACITY
+        case 13: // TOTALCAPACITY
             k = recognize_conf_parameter(buf,&pos,len,terrain_room_total_capacity_func_type);
             if (k > 0)
             {
@@ -809,7 +828,7 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 13: // USEDCAPACITY
+        case 14: // USEDCAPACITY
             k = recognize_conf_parameter(buf,&pos,len,terrain_room_used_capacity_func_type);
             if (k > 0)
             {
@@ -828,7 +847,7 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 14: // AMBIENTSNDSAMPLE
+        case 15: // AMBIENTSNDSAMPLE
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);

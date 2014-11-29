@@ -48,12 +48,34 @@ struct DoorConfigStats {
     char code_name[COMMAND_WORD_LEN];
     TextStringId name_stridx;
     TextStringId tooltip_stridx;
+    long panel_tab_idx;
+    long bigsym_sprite_idx;
+    long medsym_sprite_idx;
+    long pointer_sprite_idx;
 };
 
 struct TrapConfigStats {
     char code_name[COMMAND_WORD_LEN];
     TextStringId name_stridx;
     TextStringId tooltip_stridx;
+    long panel_tab_idx;
+    long bigsym_sprite_idx;
+    long medsym_sprite_idx;
+    long pointer_sprite_idx;
+};
+
+/**
+ * Manufacture types data.
+ * Originally was named TrapData, but stores both traps and doors; now no longer matches original.
+ */
+struct ManufactureData {
+      ThingClass tngclass; //< Thing class created when manufactured design is placed
+      ThingModel tngmodel; //< Thing model created when manufactured design is placed
+      long work_state; //< Work state used to place the manufactured item on map
+      TextStringId tooltip_stridx;
+      long panel_tab_idx;
+      long bigsym_sprite_idx;
+      long medsym_sprite_idx;
 };
 
 struct TrapDoorConfig {
@@ -63,21 +85,30 @@ struct TrapDoorConfig {
     struct DoorConfigStats door_cfgstats[TRAPDOOR_TYPES_MAX];
     ThingModel trap_to_object[TRAPDOOR_TYPES_MAX];
     ThingModel door_to_object[TRAPDOOR_TYPES_MAX];
+    long manufacture_types_count;
+    /** Stores manufacturable items. Was originally named trap_data. */
+    struct ManufactureData manufacture_data[2*TRAPDOOR_TYPES_MAX];
 };
 /******************************************************************************/
 extern const char keeper_trapdoor_file[];
+extern struct TrapDoorConfig trapdoor_conf;
 extern struct NamedCommand trap_desc[TRAPDOOR_TYPES_MAX];
 extern struct NamedCommand door_desc[TRAPDOOR_TYPES_MAX];
 /******************************************************************************/
 TbBool load_trapdoor_config(const char *conf_fname,unsigned short flags);
+
 struct TrapConfigStats *get_trap_model_stats(int tngmodel);
 struct DoorConfigStats *get_door_model_stats(int tngmodel);
+struct ManufactureData *get_manufacture_data(int manufctr_idx);
+int get_manufacture_data_index_for_thing(ThingClass tngclass, ThingModel tngmodel);
+
 ThingModel door_crate_object_model(ThingModel tngmodel);
 ThingModel trap_crate_object_model(ThingModel tngmodel);
 const char *door_code_name(int tngmodel);
 const char *trap_code_name(int tngmodel);
 int door_model_id(const char * code_name);
 int trap_model_id(const char * code_name);
+
 TbBool is_trap_placeable(PlayerNumber plyr_idx, long trap_idx);
 TbBool is_trap_buildable(PlayerNumber plyr_idx, long trap_idx);
 TbBool is_trap_built(PlayerNumber plyr_idx, long tngmodel);

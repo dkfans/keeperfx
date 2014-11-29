@@ -99,6 +99,7 @@ struct RoomConfigStats {
     long panel_tab_idx;
     long bigsym_sprite_idx;
     long medsym_sprite_idx;
+    long pointer_sprite_idx;
     unsigned int ambient_snd_smp_id;
     long msg_needed;
     long msg_too_small;
