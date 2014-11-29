@@ -676,8 +676,8 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
             case TCls_Trap:
                 if ((!thing->byte_18) && (player->id_number != thing->owner))
                     break;
-                manufctr = get_manufacture_data_for_thing(thing->class_id, thing->model);
-                spridx = manufctr->parchment_spridx;
+                manufctr = get_manufacture_data(get_manufacture_data_index_for_thing(thing->class_id, thing->model));
+                spridx = manufctr->medsym_sprite_idx;
                 draw_gui_panel_sprite_centered(scr_x + spos_x, scr_y + spos_y - 13*units_per_pixel/16, ps_units_per_px, spridx);
                 break;
             case TCls_Object:

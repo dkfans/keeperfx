@@ -332,13 +332,13 @@ char field_1517F6;
     short hand_over_subtile_x;
     short hand_over_subtile_y;
     int chosen_room_kind;
-    int chosen_room_look;
+    int chosen_room_spridx;
     int chosen_room_tooltip;
     int chosen_spell_type;
-    int chosen_spell_look;
+    int chosen_spell_spridx;
     int chosen_spell_tooltip;
     int manufactr_element;
-int numfield_15181D;
+    int manufactr_spridx;
     int manufactr_tooltip;
 };
 

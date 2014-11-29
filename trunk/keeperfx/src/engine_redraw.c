@@ -706,74 +706,23 @@ void redraw_frontview(void)
 
 int get_place_room_pointer_graphics(RoomKind rkind)
 {
-    switch (rkind)
-    {
-    case 2:
-        return 25;
-    case 3:
-        return 27;
-    case 4:
-        return 29;
-    case 5:
-        return 28;
-    case 6:
-        return 30;
-    case 8:
-        return 34;
-    case 9:
-        return 35;
-    case 10:
-        return 33;
-    case 11:
-        return 32;
-    case 12:
-        return 31;
-    case 13:
-        return 26;
-    case 14:
-        return 36;
-    case 15:
-        return 37;
-    case 16:
-        return 38;
-    }
-    return 0;
+    struct RoomConfigStats *roomst;
+    roomst = get_room_kind_stats(rkind);
+    return roomst->pointer_sprite_idx;
 }
 
 int get_place_trap_pointer_graphics(ThingModel trmodel)
 {
-    switch (trmodel)
-    {
-    case 1:
-        return 5;
-    case 2:
-        return 9;
-    case 3:
-        return 7;
-    case 4:
-        return 8;
-    case 5:
-        return 6;
-    case 6:
-        return 10;
-    }
-    return 0;
+    struct TrapConfigStats *trapst;
+    trapst = get_trap_model_stats(trmodel);
+    return trapst->pointer_sprite_idx;
 }
 
 int get_place_door_pointer_graphics(ThingModel drmodel)
 {
-    switch (drmodel)
-    {
-    case 1:
-        return 11;
-    case 2:
-        return 12;
-    case 3:
-        return 13;
-    case 4:
-        return 14;
-    }
-    return 0;
+    struct DoorConfigStats *doorst;
+    doorst = get_door_model_stats(drmodel);
+    return doorst->pointer_sprite_idx;
 }
 
 /**

@@ -52,23 +52,7 @@ struct Dungeon;
 
 #pragma pack()
 
-/**
- * Manufacture types data.
- * Originally was named TrapData, but stores both traps and doors; now no longer matches original.
- */
-struct ManufactureData {
-      long work_state; //< Work state used to place the manufactured item on map
-      ThingClass tngclass; //< Thing class created when manufactured design is placed
-      ThingModel tngmodel; //< Thing model created when manufactured design is placed
-      short field_8;
-      short parchment_spridx;
-};
 /******************************************************************************/
-//DLLIMPORT extern struct TrapData _DK_trap_data[MANUFCTR_TYPES_COUNT];
-/******************************************************************************/
-struct ManufactureData *get_manufacture_data(int manufctr_idx);
-int get_manufacture_data_index_for_thing(ThingClass tngclass, ThingModel tngmodel);
-struct ManufactureData *get_manufacture_data_for_thing(ThingClass tngclass, ThingModel tngmodel);
 #define manufacture_points_required(mfcr_type, mfcr_kind) manufacture_points_required_f(mfcr_type, mfcr_kind, __func__)
 long manufacture_points_required_f(long mfcr_type, unsigned long mfcr_kind, const char *func_name);
 

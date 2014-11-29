@@ -73,7 +73,7 @@ void set_chosen_power(PowerKind pwkind, TextStringId sptooltip)
       pwkind = 0;
     SYNCDBG(6,"Setting to %ld",pwkind);
     game.chosen_spell_type = pwkind;
-    game.chosen_spell_look = pwrdata->bigsym_sprite_idx;
+    game.chosen_spell_spridx = pwrdata->bigsym_sprite_idx;
     game.chosen_spell_tooltip = sptooltip;
 }
 
@@ -81,7 +81,7 @@ void set_chosen_power_none(void)
 {
     SYNCDBG(6,"Setting to %d",0);
     game.chosen_spell_type = 0;
-    game.chosen_spell_look = 0;
+    game.chosen_spell_spridx = 0;
     game.chosen_spell_tooltip = 0;
 }
 
