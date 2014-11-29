@@ -748,11 +748,9 @@ void maintain_all_players_event_lists(void)
     }
 }
 
-struct Thing *event_is_attached_to_thing(EventIndex evidx)
+ThingIndex get_thing_index_event_is_attached_to(const struct Event *event)
 {
-    struct Event *event;
     long i;
-    event = &game.event[evidx];
     switch (event->kind)
     {
     case EvKind_Objective:
@@ -770,6 +768,15 @@ struct Thing *event_is_attached_to_thing(EventIndex evidx)
         i = 0;
         break;
     }
+    return i;
+}
+
+struct Thing *event_is_attached_to_thing(EventIndex evidx)
+{
+    struct Event *event;
+    long i;
+    event = &game.event[evidx];
+    i = get_thing_index_event_is_attached_to(event);
     return thing_get(i);
 }
 
@@ -816,14 +823,14 @@ void event_process_events(void)
 
 void update_all_events(void)
 {
-    struct Thing *thing;
-    struct Event *event;
     long i;
     for (i=EVENT_BUTTONS_COUNT; i > 0; i--)
     {
+        struct Thing *thing;
         thing = event_is_attached_to_thing(i);
         if (!thing_is_invalid(thing))
         {
+            struct Event *event;
             event = &game.event[i];
             if ((thing->class_id == TCls_Creature) && thing_is_picked_up(thing))
             {
@@ -842,12 +849,39 @@ void update_all_events(void)
 void event_kill_all_players_events(long plyr_idx)
 {
     SYNCDBG(8,"Starting");
-    _DK_event_kill_all_players_events(plyr_idx);
+    //_DK_event_kill_all_players_events(plyr_idx);
+    int i;
+    for (i=1; i < EVENTS_COUNT; i++)
+    {
+        struct Event *event;
+        event = &game.event[i];
+        if (((event->flags & EvF_Exists) != 0) && (event->owner == plyr_idx)) {
+            event_delete_event(plyr_idx, event->index);
+        }
+    }
 }
 
 void remove_events_thing_is_attached_to(struct Thing *thing)
 {
-    _DK_remove_events_thing_is_attached_to(thing);
+    SYNCDBG(8,"Starting");
+    //_DK_remove_events_thing_is_attached_to(thing);
+    int i;
+    for (i=1; i < EVENTS_COUNT; i++)
+    {
+        struct Event *event;
+        event = &game.event[i];
+        if (((event->flags & EvF_Exists) != 0) && (event->kind != EvKind_Objective))
+        {
+            struct Thing *atchtng;
+            atchtng = event_is_attached_to_thing(i);
+            if (!thing_is_invalid(atchtng))
+            {
+                if (atchtng->index == thing->index) {
+                    event_delete_event(event->owner, event->index);
+                }
+            }
+        }
+    }
 }
 
 void clear_events(void)
