@@ -5,3 +5,10 @@
 /pkg
 /gfx
 /sfx
+/tools/peresec
+/tools/png2bestpal
+/tools/png2ico
+/tools/pngpal2raw
+/tools/po2ngdat
+/tools/rnctools
+/tools/sndbanker
