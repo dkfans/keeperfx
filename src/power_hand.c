@@ -915,7 +915,9 @@ void dump_things_lost_in_limbo_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x
     struct Thing *thing;
     unsigned long k;
     long i;
-    i = game.thing_lists[TngList_Creatures].index;
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_Creature);
+    i = slist->index;
     k = 0;
     while (i != 0)
     {

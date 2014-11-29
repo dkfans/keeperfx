@@ -183,7 +183,7 @@ int draw_overlay_call_to_arms(struct PlayerInfo *player, long units_per_px, long
         }
         i = thing->next_of_class;
         // Per-thing code
-        if (((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->state_flags & TF1_InCtrldLimbo) == 0))
+        if (!thing_is_picked_up(thing))
         {
             if (thing->model == 24)
             {
@@ -228,7 +228,9 @@ int draw_overlay_traps(struct PlayerInfo *player, long units_per_px, long zoom)
     cam = player->acamera;
     n = 0;
     k = 0;
-    i = game.thing_lists[TngList_Traps].index;
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_Trap);
+    i = slist->index;
     while (i != 0)
     {
         struct Thing *thing;
@@ -272,7 +274,7 @@ int draw_overlay_traps(struct PlayerInfo *player, long units_per_px, long zoom)
         }
         // Per-thing code ends
         k++;
-        if (k > THINGS_COUNT)
+        if (k > slist->count)
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
             break;
@@ -312,7 +314,7 @@ int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, 
         }
         i = thing->next_of_class;
         // Per-thing code
-        if (((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->state_flags & TF1_InCtrldLimbo) == 0))
+        if (!thing_is_picked_up(thing))
         {
             if (thing_revealed(thing, player->id_number))
             {
@@ -359,7 +361,9 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
     cam = player->acamera;
     n = 0;
     k = 0;
-    i = game.thing_lists[TngList_Creatures].index;
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_Creature);
+    i = slist->index;
     while (i != 0)
     {
         struct Thing *thing;
@@ -374,7 +378,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
         TbPixel col1, col2, col;
         col1 = 31;
         col2 = 1;
-        if (((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->state_flags & TF1_InCtrldLimbo) == 0))
+        if (!thing_is_picked_up(thing))
         {
             if (thing_revealed(thing, player->id_number))
             {

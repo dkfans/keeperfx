@@ -666,7 +666,9 @@ void init_traps(void)
     struct Thing *thing;
     int i, k;
     k = 0;
-    i = game.thing_lists[TngList_Traps].index;
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_Trap);
+    i = slist->index;
     while (i != 0)
     {
         thing = thing_get(i);
@@ -683,7 +685,7 @@ void init_traps(void)
         }
         // Per thing code ends
         k++;
-        if (k > THINGS_COUNT)
+        if (k > slist->index)
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
             break;

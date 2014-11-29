@@ -392,7 +392,9 @@ TbBool find_trap_of_type(ThingModel model, PlayerNumber owner)
     long i;
     unsigned long k;
     k = 0;
-    i = game.thing_lists[TngList_Traps].index;
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_Trap);
+    i = slist->index;
     while (i > 0)
     {
         thing = thing_get(i);
@@ -405,7 +407,7 @@ TbBool find_trap_of_type(ThingModel model, PlayerNumber owner)
             return true;
         // Per-thing code ends
         k++;
-        if (k > THINGS_COUNT)
+        if (k > slist->count)
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
             break;

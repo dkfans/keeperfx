@@ -395,7 +395,9 @@ int draw_overhead_creatures(const struct TbRect *map_area, long block_size, Play
     int i,k,n;
     n = 0;
     k = 0;
-    i = game.thing_lists[TngList_Creatures].index;
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_Creature);
+    i = slist->index;
     while (i != 0)
     {
         struct Thing *thing;
@@ -472,7 +474,9 @@ int draw_overhead_traps(const struct TbRect *map_area, long block_size, PlayerNu
     int i,k,n;
     n = 0;
     k = 0;
-    i = game.thing_lists[TngList_Traps].index;
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_Trap);
+    i = slist->index;
     while (i != 0)
     {
         thing = thing_get(i);
@@ -503,7 +507,7 @@ int draw_overhead_traps(const struct TbRect *map_area, long block_size, PlayerNu
         }
         // Per-thing code ends
         k++;
-        if (k > THINGS_COUNT)
+        if (k > slist->count)
         {
           ERRORLOG("Infinite loop detected when sweeping things list");
           break;
