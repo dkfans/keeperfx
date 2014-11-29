@@ -73,7 +73,9 @@ struct Thing *check_for_empty_trap_for_imp(struct Thing *spdigtng, long tngmodel
     unsigned long k;
     TRACE_THING(spdigtng);
     k = 0;
-    i = game.thing_lists[TngList_Traps].index;
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_Trap);
+    i = slist->index;
     while (i > 0)
     {
         thing = thing_get(i);
@@ -90,7 +92,7 @@ struct Thing *check_for_empty_trap_for_imp(struct Thing *spdigtng, long tngmodel
         }
         // Per-thing code ends
         k++;
-        if (k > THINGS_COUNT)
+        if (k > slist->count)
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
             break;
@@ -514,7 +516,9 @@ long check_out_empty_traps(struct Thing *spdigtng, long range)
     long i;
     unsigned long k;
     k = 0;
-    i = game.thing_lists[TngList_Traps].index;
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_Trap);
+    i = slist->index;
     while (i > 0)
     {
         thing = thing_get(i);
@@ -535,7 +539,7 @@ long check_out_empty_traps(struct Thing *spdigtng, long range)
         }
         // Per-thing code ends
         k++;
-        if (k > THINGS_COUNT)
+        if (k > slist->count)
         {
           ERRORLOG("Infinite loop detected when sweeping things list");
           break;

@@ -825,7 +825,9 @@ unsigned long update_cave_in_things(void)
   unsigned long k;
   int i;
   k = 0;
-  i = game.thing_lists[TngList_CaveIns].index;
+  const struct StructureList *slist;
+  slist = get_list_for_thing_class(TCls_CaveIn);
+  i = slist->index;
   while (i != 0)
   {
     thing = thing_get(i);
@@ -1066,7 +1068,9 @@ void init_all_creature_states(void)
     struct Thing *thing;
     int i,k;
     k = 0;
-    i = game.thing_lists[TngList_Creatures].index;
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_Creature);
+    i = slist->index;
     while (i != 0)
     {
         thing = thing_get(i);
@@ -1569,7 +1573,9 @@ long creature_of_model_find_first(ThingModel crmodel)
 {
     struct Thing *thing;
     long i,k;
-    i = game.thing_lists[TngList_Creatures].index;
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_Creature);
+    i = slist->index;
     k = 0;
     while (i != 0)
     {
@@ -1600,7 +1606,9 @@ long creature_of_model_in_prison_or_tortured(ThingModel crmodel)
 {
     struct Thing *thing;
     long i,k;
-    i = game.thing_lists[TngList_Creatures].index;
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_Creature);
+    i = slist->index;
     k = 0;
     while (i != 0)
     {
@@ -1756,7 +1764,9 @@ long electricity_affecting_area(const struct Coord3d *pos, PlayerNumber immune_p
     long i;
     long naffected;
     naffected = 0;
-    i = game.thing_lists[TngList_Creatures].index;
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_Creature);
+    i = slist->index;
     k = 0;
     while (i != 0)
     {

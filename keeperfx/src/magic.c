@@ -720,7 +720,9 @@ TbResult magic_use_power_armageddon(PlayerNumber plyr_idx)
     struct Thing *thing;
     int i,k;
     k = 0;
-    i = game.thing_lists[TngList_Creatures].index;
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_Creature);
+    i = slist->index;
     while (i != 0)
     {
         thing = thing_get(i);
