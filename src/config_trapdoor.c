@@ -27,6 +27,7 @@
 #include "config.h"
 #include "config_strings.h"
 #include "thing_doors.h"
+#include "player_instances.h"
 #include "game_legacy.h"
 
 #ifdef __cplusplus
@@ -45,11 +46,15 @@ const struct NamedCommand trapdoor_door_commands[] = {
   {"NAME",            1},
   {"MANUFACTURELEVEL",2},
   {"MANUFACTUREREQUIRED",3},
-  {"SELLINGVALUE",    4},
+  {"UNUSEDUNUSED",    4},// replace by any command later; this is just to keep same indexing below
   {"HEALTH",          5},
-  {"NAMETEXTID",      6},
-  {"TOOLTIPTEXTID",   7},
-  {"CRATE",           8},
+  {"SELLINGVALUE",    6},
+  {"NAMETEXTID",      7},
+  {"TOOLTIPTEXTID",   8},
+  {"CRATE",           9},
+  {"SYMBOLSPRITES",  10},
+  {"POINTERSPRITES", 11},
+  {"PANELTABINDEX",  12},
   {NULL,              0},
 };
 
@@ -63,6 +68,9 @@ const struct NamedCommand trapdoor_trap_commands[] = {
   {"NAMETEXTID",      7},
   {"TOOLTIPTEXTID",   8},
   {"CRATE",           9},
+  {"SYMBOLSPRITES",  10},
+  {"POINTERSPRITES", 11},
+  {"PANELTABINDEX",  12},
   {NULL,              0},
 };
 /******************************************************************************/
@@ -82,6 +90,39 @@ struct DoorConfigStats *get_door_model_stats(int tngmodel)
     if ((tngmodel < 0) || (tngmodel >= trapdoor_conf.door_types_count))
         return &trapdoor_conf.door_cfgstats[0];
     return &trapdoor_conf.door_cfgstats[tngmodel];
+}
+
+/**
+ * Returns manufacture data for a given manufacture index.
+ * @param manufctr_idx Manufacture array index.
+ * @return Dummy entry pinter if not found, manufacture data pointer otherwise.
+ */
+struct ManufactureData *get_manufacture_data(int manufctr_idx)
+{
+    if ((manufctr_idx < 0) || (manufctr_idx >= trapdoor_conf.manufacture_types_count)) {
+        return &trapdoor_conf.manufacture_data[0];
+    }
+    return &trapdoor_conf.manufacture_data[manufctr_idx];
+}
+
+/**
+ * Finds index into manufactures data array for a given trap/door class and model.
+ * @param tngclass Manufacturable thing class.
+ * @param tngmodel Manufacturable thing model.
+ * @return 0 if not found, otherwise index where 1 <= index < manufacture_types_count
+ */
+int get_manufacture_data_index_for_thing(ThingClass tngclass, ThingModel tngmodel)
+{
+    int i;
+    for (i=1; i < trapdoor_conf.manufacture_types_count; i++)
+    {
+        struct ManufactureData *manufctr;
+        manufctr = &trapdoor_conf.manufacture_data[i];
+        if ((manufctr->tngclass == tngclass) && (manufctr->tngmodel == tngmodel)) {
+            return i;
+        }
+    }
+    return 0;
 }
 
 TbBool parse_trapdoor_common_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
@@ -193,6 +234,10 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           LbMemorySet(trapst->code_name, 0, COMMAND_WORD_LEN);
           trapst->name_stridx = GUIStr_Empty;
           trapst->tooltip_stridx = GUIStr_Empty;
+          trapst->bigsym_sprite_idx = 0;
+          trapst->medsym_sprite_idx = 0;
+          trapst->pointer_sprite_idx = 0;
+          trapst->panel_tab_idx = 0;
           if (i < trapdoor_conf.trap_types_count)
           {
               trap_desc[i].name = trapst->code_name;
@@ -369,6 +414,63 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           object_conf.workshop_object_class[n] = TCls_Trap;
           trapdoor_conf.trap_to_object[i] = n;
           break;
+      case 10: // SYMBOLSPRITES
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  trapst->bigsym_sprite_idx = k;
+                  n++;
+              }
+          }
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  trapst->medsym_sprite_idx = k;
+                  n++;
+              }
+          }
+          if (n < 2)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 11: // POINTERSPRITES
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  trapst->pointer_sprite_idx = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 12: // PANELTABINDEX
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            if (k >= 0)
+            {
+                trapst->panel_tab_idx = k;
+                n++;
+            }
+          }
+          if (n < 1)
+          {
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
       case 0: // comment
           break;
       case -1: // end of buffer
@@ -407,6 +509,10 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
           LbMemorySet(doorst->code_name, 0, COMMAND_WORD_LEN);
           doorst->name_stridx = GUIStr_Empty;
           doorst->tooltip_stridx = GUIStr_Empty;
+          doorst->bigsym_sprite_idx = 0;
+          doorst->medsym_sprite_idx = 0;
+          doorst->pointer_sprite_idx = 0;
+          doorst->panel_tab_idx = 0;
           if (i < trapdoor_conf.door_types_count)
           {
               door_desc[i].name = doorst->code_name;
@@ -486,19 +592,6 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 4: // SELLINGVALUE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            mconf->selling_value = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
       case 5: // HEALTH
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
@@ -513,7 +606,20 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 6: // NAMETEXTID
+      case 6: // SELLINGVALUE
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            mconf->selling_value = k;
+            n++;
+          }
+          if (n < 1)
+          {
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 7: // NAMETEXTID
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -529,7 +635,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 7: // TOOLTIPTEXTID
+      case 8: // TOOLTIPTEXTID
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -545,7 +651,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 8: // CRATE
+      case 9: // CRATE
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               n = get_id(object_desc, word_buf);
@@ -559,6 +665,63 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
           object_conf.object_to_door_or_trap[n] = i;
           object_conf.workshop_object_class[n] = TCls_Door;
           trapdoor_conf.door_to_object[i] = n;
+          break;
+      case 10: // SYMBOLSPRITES
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  doorst->bigsym_sprite_idx = k;
+                  n++;
+              }
+          }
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  doorst->medsym_sprite_idx = k;
+                  n++;
+              }
+          }
+          if (n < 2)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 11: // POINTERSPRITES
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  doorst->pointer_sprite_idx = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 12: // PANELTABINDEX
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            if (k >= 0)
+            {
+                doorst->panel_tab_idx = k;
+                n++;
+            }
+          }
+          if (n < 1)
+          {
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
           break;
       case 0: // comment
           break;
@@ -632,6 +795,59 @@ TbBool load_trapdoor_config_file(const char *textname, const char *fname, unsign
     return result;
 }
 
+TbBool create_manufacture_array_from_trapdoor_data(void)
+{
+    int i;
+    struct ManufactureData *manufctr;
+    // Initialize the manufacture array
+    trapdoor_conf.manufacture_types_count = 0;
+    int arr_size;
+    arr_size = sizeof(trapdoor_conf.manufacture_data)/sizeof(trapdoor_conf.manufacture_data[0]);
+    for (i=0; i < arr_size; i++)
+    {
+        manufctr = &trapdoor_conf.manufacture_data[i];
+        manufctr->tngclass = TCls_Empty;
+        manufctr->tngmodel = 0;
+        manufctr->work_state = PSt_None;
+        manufctr->tooltip_stridx = GUIStr_Empty;
+        manufctr->bigsym_sprite_idx = 0;
+        manufctr->medsym_sprite_idx = 0;
+        manufctr->panel_tab_idx = 0;
+    }
+    // Let manufacture 0 be empty
+    trapdoor_conf.manufacture_types_count++;
+    // Fill manufacture entries
+    for (i=1; i < trapdoor_conf.trap_types_count; i++)
+    {
+        struct TrapConfigStats *trapst;
+        trapst = get_trap_model_stats(i);
+        manufctr = &trapdoor_conf.manufacture_data[trapdoor_conf.manufacture_types_count];
+        manufctr->tngclass = TCls_Trap;
+        manufctr->tngmodel = i;
+        manufctr->work_state = PSt_PlaceTrap;
+        manufctr->tooltip_stridx = trapst->tooltip_stridx;
+        manufctr->bigsym_sprite_idx = trapst->bigsym_sprite_idx;
+        manufctr->medsym_sprite_idx = trapst->medsym_sprite_idx;
+        manufctr->panel_tab_idx = trapst->panel_tab_idx;
+        trapdoor_conf.manufacture_types_count++;
+    }
+    for (i=1; i < trapdoor_conf.door_types_count; i++)
+    {
+        struct DoorConfigStats *doorst;
+        doorst = get_door_model_stats(i);
+        manufctr = &trapdoor_conf.manufacture_data[trapdoor_conf.manufacture_types_count];
+        manufctr->tngclass = TCls_Door;
+        manufctr->tngmodel = i;
+        manufctr->work_state = PSt_PlaceDoor;
+        manufctr->tooltip_stridx = doorst->tooltip_stridx;
+        manufctr->bigsym_sprite_idx = doorst->bigsym_sprite_idx;
+        manufctr->medsym_sprite_idx = doorst->medsym_sprite_idx;
+        manufctr->panel_tab_idx = doorst->panel_tab_idx;
+        trapdoor_conf.manufacture_types_count++;
+    }
+    return true;
+}
+
 TbBool load_trapdoor_config(const char *conf_fname, unsigned short flags)
 {
     static const char config_global_textname[] = "global traps and doors config";
@@ -645,6 +861,8 @@ TbBool load_trapdoor_config(const char *conf_fname, unsigned short flags)
     {
         load_trapdoor_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
     }
+    // Creating arrays derived from the original config
+    create_manufacture_array_from_trapdoor_data();
     //Freeing and exiting
     return result;
 }

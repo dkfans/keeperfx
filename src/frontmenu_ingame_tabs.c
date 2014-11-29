@@ -296,7 +296,7 @@ void gui_area_progress_bar_wide(struct GuiButton *gbtn, int units_per_px, int pr
 void gui_remove_area_for_rooms(struct GuiButton *gbtn)
 {
     game.chosen_room_kind = 0;
-    game.chosen_room_look = 0;
+    game.chosen_room_spridx = 0;
     game.chosen_room_tooltip = 0;
     struct Packet *pckt;
     pckt = get_packet(my_player_number);
@@ -619,7 +619,7 @@ void choose_workshop_item(int manufctr_idx, TextStringId tooltip_id)
         manufctr->tngmodel, 0, 0);
 
     game.manufactr_element = manufctr_idx;
-    game.numfield_15181D = manufctr->field_8;
+    game.manufactr_spridx = manufctr->bigsym_sprite_idx;
     game.manufactr_tooltip = tooltip_id;
 }
 
@@ -756,8 +756,8 @@ void gui_go_to_next_trap(struct GuiButton *gbtn)
     manufctr = get_manufacture_data(manufctr_idx);
     go_to_next_trap_of_type(manufctr->tngmodel, player->id_number);
     game.manufactr_element = manufctr_idx;
-    game.numfield_15181D = manufctr->field_8;
-    game.manufactr_tooltip = gbtn->tooltip_stridx;
+    game.manufactr_spridx = manufctr->bigsym_sprite_idx;
+    game.manufactr_tooltip = manufctr->tooltip_stridx;
 }
 
 void gui_over_trap_button(struct GuiButton *gbtn)
@@ -859,8 +859,8 @@ void gui_go_to_next_door(struct GuiButton *gbtn)
     manufctr = get_manufacture_data(manufctr_idx);
     go_to_next_door_of_type(manufctr->tngmodel, player->id_number);
     game.manufactr_element = manufctr_idx;
-    game.numfield_15181D = manufctr->field_8;
-    game.manufactr_tooltip = gbtn->tooltip_stridx;
+    game.manufactr_spridx = manufctr->bigsym_sprite_idx;
+    game.manufactr_tooltip = manufctr->tooltip_stridx;
 }
 
 void gui_over_door_button(struct GuiButton *gbtn)
@@ -877,7 +877,7 @@ void gui_remove_area_for_traps(struct GuiButton *gbtn)
     struct PlayerInfo *player;
     player = get_my_player();
     game.manufactr_element = 0;
-    game.numfield_15181D = 0;
+    game.manufactr_spridx = 0;
     game.manufactr_tooltip = 0;
     set_players_packet_action(player, PckA_SetPlyrState, PSt_Sell, 0, 0, 0);
 }
@@ -946,7 +946,7 @@ void maintain_big_spell(struct GuiButton *gbtn)
         return;
     }
     gbtn->content = (unsigned long *)spl_idx;
-    gbtn->sprite_idx = game.chosen_spell_look;
+    gbtn->sprite_idx = game.chosen_spell_spridx;
     gbtn->tooltip_stridx = game.chosen_spell_tooltip;
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(my_player_number);
@@ -995,7 +995,7 @@ void maintain_big_room(struct GuiButton *gbtn)
         return;
     }
     gbtn->content = (unsigned long *)rkind;
-    gbtn->sprite_idx = game.chosen_room_look;
+    gbtn->sprite_idx = game.chosen_room_spridx;
     gbtn->tooltip_stridx = game.chosen_room_tooltip;
     if (dungeon->room_buildable[rkind]) {
         gbtn->field_1B = 0;
@@ -1090,7 +1090,7 @@ void maintain_big_trap(struct GuiButton *gbtn)
     struct ManufactureData *manufctr;
     manufctr = get_manufacture_data(manufctr_idx);
     gbtn->content = (unsigned long *)manufctr_idx;
-    gbtn->sprite_idx = game.numfield_15181D;
+    gbtn->sprite_idx = game.manufactr_spridx;
     gbtn->tooltip_stridx = game.manufactr_tooltip;
     if ( ((manufctr->tngclass == TCls_Trap) && is_trap_placeable(my_player_number, manufctr->tngmodel))
       || ((manufctr->tngclass == TCls_Door) && is_door_placeable(my_player_number, manufctr->tngmodel)) )
@@ -1301,7 +1301,7 @@ void gui_go_to_next_room(struct GuiButton *gbtn)
     game.chosen_room_kind = rkind;
     struct RoomConfigStats *roomst;
     roomst = &slab_conf.room_cfgstats[rkind];
-    game.chosen_room_look = roomst->bigsym_sprite_idx;
+    game.chosen_room_spridx = roomst->bigsym_sprite_idx;
     game.chosen_room_tooltip = gbtn->tooltip_stridx;
 }
 
@@ -2272,6 +2272,56 @@ void update_room_tab_to_config(void)
         ibtn->rclick_event = gui_go_to_next_room;
         ibtn->ptover_event = gui_over_room_button;
         ibtn->draw_call = gui_area_room_button;
+    }
+}
+
+void update_trap_tab_to_config(void)
+{
+    int i;
+    // Clear 4x4 area of buttons, but skip "sell" button at end
+    for (i=0; i < 4*4-1; i++)
+    {
+        struct GuiButtonInit * ibtn;
+        ibtn = &trap_menu.buttons[i];
+        ibtn->sprite_idx = 24;
+        ibtn->tooltip_stridx = GUIStr_Empty;
+        ibtn->content.lval = 0;
+        ibtn->click_event = NULL;
+        ibtn->rclick_event = NULL;
+        ibtn->ptover_event = NULL;
+        ibtn->draw_call = gui_area_new_null_button;
+        ibtn->maintain_call = NULL;
+    }
+    for (i=0; i < trapdoor_conf.manufacture_types_count; i++)
+    {
+        struct ManufactureData *manufctr;
+        manufctr = get_manufacture_data(i);
+        if (manufctr->panel_tab_idx < 1)
+            continue;
+        struct GuiButtonInit * ibtn;
+        ibtn = &trap_menu.buttons[manufctr->panel_tab_idx-1];
+        ibtn->sprite_idx = manufctr->medsym_sprite_idx;
+        ibtn->tooltip_stridx = manufctr->tooltip_stridx;
+        ibtn->content.lval = i;
+        switch (manufctr->tngclass)
+        {
+        case TCls_Trap:
+            ibtn->click_event = gui_choose_trap;
+            ibtn->rclick_event = gui_go_to_next_trap;
+            ibtn->ptover_event = gui_over_trap_button;
+            ibtn->draw_call = gui_area_trap_button;
+            ibtn->maintain_call = maintain_trap;
+            break;
+        case TCls_Door:
+            ibtn->click_event = gui_choose_trap;
+            ibtn->rclick_event = gui_go_to_next_door;
+            ibtn->ptover_event = gui_over_door_button;
+            ibtn->draw_call = gui_area_trap_button;
+            ibtn->maintain_call = maintain_door;
+            break;
+        default:
+            break;
+        }
     }
 }
 /******************************************************************************/

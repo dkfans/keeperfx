@@ -932,7 +932,7 @@ void activate_room_build_mode(RoomKind rkind, TextStringId tooltip_id)
     struct RoomConfigStats *roomst;
     roomst = &slab_conf.room_cfgstats[rkind];
     game.chosen_room_kind = rkind;
-    game.chosen_room_look = roomst->bigsym_sprite_idx;
+    game.chosen_room_spridx = roomst->bigsym_sprite_idx;
     game.chosen_room_tooltip = tooltip_id;
 }
 

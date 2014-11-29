@@ -1040,6 +1040,7 @@ TbBool change_campaign(const char *cmpgn_fname)
     load_or_create_high_score_table();
     // Update GUI arrays to new config
     update_room_tab_to_config();
+    update_trap_tab_to_config();
     return result;
 }
 

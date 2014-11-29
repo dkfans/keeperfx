@@ -46,14 +46,14 @@ struct Boing {
   unsigned char field_6;
   unsigned short hand_over_subtile_x;
   unsigned short hand_over_subtile_y;
-  unsigned long field_B;
-  unsigned long field_F;
-  unsigned long field_13;
+  unsigned long chosen_room_kind;
+  unsigned long chosen_room_spridx;
+  unsigned long chosen_room_tooltip;
   unsigned long chosen_spell_type;
-  unsigned long chosen_spell_look;
+  unsigned long chosen_spell_spridx;
   unsigned long chosen_spell_tooltip;
   unsigned long manufactr_element;
-  unsigned long field_27;
+  unsigned long manufactr_spridx;
   unsigned long manufactr_tooltip;
 };
 /******************************************************************************/
@@ -111,14 +111,14 @@ void store_localised_game_structure(void)
     boing.field_6 = game.creatures_tend_2;
     boing.hand_over_subtile_x = game.hand_over_subtile_x;
     boing.hand_over_subtile_y = game.hand_over_subtile_y;
-    boing.field_B = game.chosen_room_kind;
-    boing.field_F = game.chosen_room_look;
-    boing.field_13 = game.chosen_room_tooltip;
+    boing.chosen_room_kind = game.chosen_room_kind;
+    boing.chosen_room_spridx = game.chosen_room_spridx;
+    boing.chosen_room_tooltip = game.chosen_room_tooltip;
     boing.chosen_spell_type = game.chosen_spell_type;
-    boing.chosen_spell_look = game.chosen_spell_look;
+    boing.chosen_spell_spridx = game.chosen_spell_spridx;
     boing.chosen_spell_tooltip = game.chosen_spell_tooltip;
     boing.manufactr_element = game.manufactr_element;
-    boing.field_27 = game.numfield_15181D;
+    boing.manufactr_spridx = game.manufactr_spridx;
     boing.manufactr_tooltip = game.manufactr_tooltip;
 }
 
@@ -133,14 +133,14 @@ void recall_localised_game_structure(void)
     game.creatures_tend_2 = boing.field_6;
     game.hand_over_subtile_x = boing.hand_over_subtile_x;
     game.hand_over_subtile_y = boing.hand_over_subtile_y;
-    game.chosen_room_kind = boing.field_B;
-    game.chosen_room_look = boing.field_F;
-    game.chosen_room_tooltip = boing.field_13;
+    game.chosen_room_kind = boing.chosen_room_kind;
+    game.chosen_room_spridx = boing.chosen_room_spridx;
+    game.chosen_room_tooltip = boing.chosen_room_tooltip;
     game.chosen_spell_type = boing.chosen_spell_type;
-    game.chosen_spell_look = boing.chosen_spell_look;
+    game.chosen_spell_spridx = boing.chosen_spell_spridx;
     game.chosen_spell_tooltip = boing.chosen_spell_tooltip;
     game.manufactr_element = boing.manufactr_element;
-    game.numfield_15181D = boing.field_27;
+    game.manufactr_spridx = boing.manufactr_spridx;
     game.manufactr_tooltip = boing.manufactr_tooltip;
 }
 
