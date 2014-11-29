@@ -1956,7 +1956,9 @@ void count_players_creatures_being_paid(int *creatures_count)
 {
     unsigned long k;
     long i;
-    i = game.thing_lists[TngList_Creatures].index;
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_Creature);
+    i = slist->index;
     k = 0;
     while (i != 0)
     {
@@ -2261,7 +2263,9 @@ void update_near_creatures_for_footsteps(long *near_creatures, const struct Coor
     struct Thing *thing;
     unsigned long k;
     long i;
-    i = game.thing_lists[TngList_Creatures].index;
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_Creature);
+    i = slist->index;
     k = 0;
     while (i != 0)
     {
@@ -2274,7 +2278,7 @@ void update_near_creatures_for_footsteps(long *near_creatures, const struct Coor
         i = thing->next_of_class;
         // Per-thing code
         thing->state_flags &= ~TF1_Unkn20;
-        if (((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->state_flags & TF1_InCtrldLimbo) == 0))
+        if (!thing_is_picked_up(thing))
         {
             struct CreatureSound *crsound;
             crsound = get_creature_sound(thing, CrSnd_Foot);
@@ -2319,7 +2323,9 @@ long stop_playing_flight_sample_in_all_flying_creatures(void)
     long i;
     long naffected;
     naffected = 0;
-    i = game.thing_lists[TngList_Creatures].index;
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_Creature);
+    i = slist->index;
     k = 0;
     while (i != 0)
     {

@@ -287,12 +287,86 @@ long force_complete_current_manufacturing(long plyr_idx)
 
 void apply_spell_effect_to_players_creatures(PlayerNumber plyr_idx, long spl_idx, long overchrg)
 {
-    _DK_apply_spell_effect_to_players_creatures(plyr_idx, spl_idx, overchrg);
+    //_DK_apply_spell_effect_to_players_creatures(plyr_idx, spl_idx, overchrg);
+    struct Dungeon *dungeon;
+    struct CreatureControl *cctrl;
+    struct Thing *thing;
+    unsigned long k;
+    int i;
+    SYNCDBG(8,"Starting");
+    dungeon = get_players_num_dungeon(plyr_idx);
+    k = 0;
+    i = dungeon->creatr_list_start;
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        apply_spell_effect_to_thing(thing, spl_idx, overchrg);
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    SYNCDBG(19,"Finished");
+}
+
+TbBool kill_creature_if_under_chicken_spell(struct Thing *thing)
+{
+    if (creature_affected_by_spell(thing, SplK_Chicken) && !thing_is_picked_up(thing))
+    {
+        thing->health = -1;
+        return true;
+    }
+    SYNCDBG(19,"Skipped %s index %d",thing_model_name(thing),(int)thing->index);
+    return false;
 }
 
 void kill_all_players_chickens(PlayerNumber plyr_idx)
 {
-  _DK_kill_all_players_chickens(plyr_idx);
+    //_DK_kill_all_players_chickens(plyr_idx);
+    unsigned long k;
+    int i;
+    SYNCDBG(18,"Starting");
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_Object);
+    k = 0;
+    i = slist->index;
+    while (i != 0)
+    {
+        struct Thing *thing;
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_of_class;
+        // Per-thing code
+        if (thing_exists(thing) && thing_is_mature_food(thing) && (thing->owner == plyr_idx)
+          && !thing_is_picked_up(thing)) {
+            thing->byte_17 = 1;
+        }
+        // Per-thing code ends
+        k++;
+        if (k > slist->count)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    // Force leave or kill normal creatures and special diggers
+    do_to_players_all_creatures_of_model(plyr_idx, -1, kill_creature_if_under_chicken_spell);
 }
 
 short creature_being_summoned(struct Thing *thing)
