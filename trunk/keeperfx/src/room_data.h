@@ -148,6 +148,7 @@ struct RoomStats {
 struct RoomReposition {
     int used;
     ThingModel models[ROOM_REPOSITION_COUNT];
+    CrtrExpLevel explevels[ROOM_REPOSITION_COUNT];
 };
 
 #pragma pack()
