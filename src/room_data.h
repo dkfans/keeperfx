@@ -145,6 +145,7 @@ struct RoomStats {
 struct RoomReposition {
     int used;
     ThingModel models[ROOM_REPOSITION_COUNT];
+    CrtrExpLevel explevels[ROOM_REPOSITION_COUNT];
 };
 
 #define INVALID_ROOM (&game.rooms[0])

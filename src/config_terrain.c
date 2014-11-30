@@ -105,7 +105,6 @@ extern void count_gold_hoardes_in_room(struct Room *room);
 extern void count_books_in_room(struct Room *room);
 extern void count_workers_in_room(struct Room *room);
 extern void count_crates_in_room(struct Room *room);
-extern void count_workers_in_room(struct Room *room);
 extern void count_bodies_in_room(struct Room *room);
 extern void count_food_in_room(struct Room *room);
 extern void count_lair_occupants(struct Room *room);
@@ -115,11 +114,10 @@ const struct NamedCommand terrain_room_used_capacity_func_type[] = {
   {"books_in_room",        2},
   {"workers_in_room",      3},
   {"crates_in_room",       4},
-  {"workers_in_room",      5},
-  {"bodies_in_room",       6},
-  {"food_in_room",         7},
-  {"lair_occupants",       8},
-  {"none",                 9},
+  {"bodies_in_room",       5},
+  {"food_in_room",         6},
+  {"lair_occupants",       7},
+  {"none",                 8},
   {NULL,                   0},
 };
 
@@ -129,7 +127,6 @@ Room_Update_Func terrain_room_used_capacity_func_list[] = {
   count_books_in_room,
   count_workers_in_room,
   count_crates_in_room,
-  count_workers_in_room,
   count_bodies_in_room,
   count_food_in_room,
   count_lair_occupants,
