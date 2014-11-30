@@ -1,10 +1,11 @@
-REM ****************************************************************************
+﻿REM ****************************************************************************
 REM  Campaigns Consolidation Project for KeeperFX strategy game.
 REM ****************************************************************************
 REM  Script for Level Tub vulnerabilities (桶狭間)
 REM  Campaign: Twin Keepers
 REM  Authors:  Original author unknown
 REM            KeeperFX CCP Team
+REM            Switched to translatable objectives by dayokay Nov 2014
 REM  Date:     17 Aug 2005 - 20 Jan 2011
 REM  Copying and copyrights:
 REM    This program is free software; you can redistribute it and/or modify
@@ -163,6 +164,8 @@ CREATE_PARTY(PARTY8)
     ADD_TO_PARTY(PARTY8,DWARFA,10,500,ATTACK_DUNGEON_HEART,0)
     ADD_TO_PARTY(PARTY8,DWARFA,10,500,ATTACK_DUNGEON_HEART,0)
 
+DISPLAY_OBJECTIVE(27,PLAYER0)
+
 IF(PLAYER0,GAME_TURN > 49500)
     SET_TIMER(PLAYER0,TIMER0)
     SET_FLAG(PLAYER0,FLAG0,1)
@@ -181,6 +184,7 @@ ENDIF
 IF(PLAYER0,FLAG0 == 1)
     IF(PLAYER0,TIMER0 > 500)
         ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY6,-1,1)
+        DISPLAY_OBJECTIVE(30,PLAYER0)
     ENDIF
     IF(PLAYER0,TIMER0 > 600)
         ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PARTY5,-1,2)
@@ -204,6 +208,7 @@ ENDIF
 
 IF(PLAYER0,FLAG0 == 2)
     IF(PLAYER_GOOD,KNIGHT == 0)
+        DISPLAY_OBJECTIVE(29,PLAYER0)
         SET_CREATURE_FEAR(ARCHER,255)
         SET_CREATURE_FEAR(BARBARIAN,255)
         SET_CREATURE_FEAR(DWARFA,255)
@@ -216,6 +221,7 @@ IF(PLAYER0,FLAG0 == 2)
         SET_CREATURE_FEAR(WIZARD,255)
     ENDIF
     IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
+        DISPLAY_OBJECTIVE(28,PLAYER0)
         WIN_GAME
     ENDIF
 ENDIF
