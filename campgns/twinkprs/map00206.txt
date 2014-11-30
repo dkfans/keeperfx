@@ -1,10 +1,11 @@
-REM ****************************************************************************
+﻿REM ****************************************************************************
 REM  Campaigns Consolidation Project for KeeperFX strategy game.
 REM ****************************************************************************
 REM  Script for Level Embattled formation (四面楚歌)
 REM  Campaign: Twin Keepers
 REM  Authors:  Original author unknown
 REM            KeeperFX CCP Team
+REM            Switched to translatable objectives by dayokay Nov 2014
 REM  Date:     31 Jul 2005 - 20 Jan 2011
 REM  Copying and copyrights:
 REM    This program is free software; you can redistribute it and/or modify
@@ -86,6 +87,8 @@ TRAP_AVAILABLE(ALL_PLAYERS,WORD_OF_POWER,1,0)
 TRAP_AVAILABLE(ALL_PLAYERS,BOULDER,1,0)
 TRAP_AVAILABLE(ALL_PLAYERS,LAVA,1,0)
 
+DISPLAY_OBJECTIVE(31,PLAYER0)
+
 REM Cannot transfer creature from previous realm
 IF(PLAYER0,TOTAL_CREATURES > 0)
     IF(PLAYER0,GAME_TURN <= 100)
@@ -114,6 +117,7 @@ REM Killing a player strengthens the other players
 
 IF(PLAYER1,DUNGEON_DESTROYED == 1)
     SET_TIMER(PLAYER0,TIMER1)
+    DISPLAY_INFORMATION(36)
 ENDIF
 
 IF(PLAYER0,TIMER1 > 1000)
@@ -141,6 +145,7 @@ REM Triggered by PLAYER2 being destroyed
 REM Killing a player strengthens the other players
 
 IF(PLAYER2,DUNGEON_DESTROYED == 1)
+    DISPLAY_INFORMATION(36)
     SET_TIMER(PLAYER0,TIMER2)
 ENDIF
 
@@ -169,6 +174,7 @@ REM Triggered by PLAYER3 being destroyed
 REM Killing a player strengthens the other players
 
 IF(PLAYER3,DUNGEON_DESTROYED == 1)
+    DISPLAY_INFORMATION(36)
     SET_TIMER(PLAYER0,TIMER3)
 ENDIF
 
@@ -199,6 +205,7 @@ REM When PLAYER1 and PLAYER2 are gone
 IF(PLAYER0,TIMER1 > 1000)
     IF(PLAYER0,TIMER2 > 1000)
         ADD_CREATURE_TO_LEVEL(PLAYER3,HORNY,3,5,9,500)
+    DISPLAY_INFORMATION(32)
     ENDIF
 ENDIF
 
@@ -206,6 +213,7 @@ REM When PLAYER2 and PLAYER3 are gone
 IF(PLAYER0,TIMER2 > 1000)
     IF(PLAYER0,TIMER3 > 1000)
         ADD_CREATURE_TO_LEVEL(PLAYER1,HORNY,1,5,9,500)
+    DISPLAY_INFORMATION(32)
     ENDIF
 ENDIF
 
@@ -213,9 +221,11 @@ REM When PLAYER1 and PLAYER3 are gone
 IF(PLAYER0,TIMER1 > 1000)
     IF(PLAYER0,TIMER3 > 1000)
         ADD_CREATURE_TO_LEVEL(PLAYER2,HORNY,2,5,9,500)
+    DISPLAY_INFORMATION(32)
     ENDIF
 ENDIF
 
 IF(PLAYER0,ALL_DUNGEONS_DESTROYED == 1)
+    DISPLAY_OBJECTIVE(33,PLAYER0)
     WIN_GAME
 ENDIF
