@@ -25,6 +25,7 @@
 #include "thing_list.h"
 #include "creature_control.h"
 #include "creature_instances.h"
+#include "creature_states_lair.h"
 #include "config_creature.h"
 #include "config_rules.h"
 #include "config_terrain.h"
@@ -373,5 +374,17 @@ TbBool anger_make_creature_angry(struct Thing *creatng, AnnoyMotive reason)
         return false;
     anger_set_creature_anger(creatng, crstat->annoy_level, reason);
     return true;
+}
+
+TbBool creature_mark_if_woken_up(struct Thing *creatng)
+{
+    if (creature_is_sleeping(creatng))
+    {
+        struct CreatureStats *crstat;
+        crstat = creature_stats_get_from_thing(creatng);
+        anger_apply_anger_to_creature(creatng, crstat->annoy_woken_up, AngR_Other, 1);
+        return true;
+    }
+    return false;
 }
 /******************************************************************************/

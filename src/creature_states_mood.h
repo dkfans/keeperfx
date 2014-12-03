@@ -48,6 +48,7 @@ void anger_set_creature_anger_f(struct Thing *creatng, long annoy_lv, AnnoyMotiv
 void anger_apply_anger_to_creature_all_types_f(struct Thing *thing, long anger, const char *func_name);
 #define anger_apply_anger_to_creature_all_types(thing, anger) anger_apply_anger_to_creature_all_types_f(thing, anger, __func__)
 TbBool anger_make_creature_angry(struct Thing *thing, AnnoyMotive reason);
+TbBool creature_mark_if_woken_up(struct Thing *creatng);
 
 short creature_moan(struct Thing *thing);
 short creature_roar(struct Thing *thing);
