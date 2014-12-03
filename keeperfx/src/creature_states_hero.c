@@ -205,8 +205,6 @@ TbBool good_setup_loot_research_room(struct Thing *thing, long dngn_id)
 
 long get_wanderer_possible_targets_count_in_list(long first_thing_idx, struct Thing *wanderer)
 {
-    struct CreatureControl *cctrl;
-    struct Thing *thing;
     long victims_count;
     unsigned long k;
     long i;
@@ -216,6 +214,8 @@ long get_wanderer_possible_targets_count_in_list(long first_thing_idx, struct Th
     i = first_thing_idx;
     while (i != 0)
     {
+        struct CreatureControl *cctrl;
+        struct Thing *thing;
         thing = thing_get(i);
         TRACE_THING(thing);
         cctrl = creature_control_get_from_thing(thing);

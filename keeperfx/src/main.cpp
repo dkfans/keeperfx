@@ -97,6 +97,7 @@
 #include "creature_graphics.h"
 #include "creature_states_rsrch.h"
 #include "creature_states_lair.h"
+#include "creature_states_mood.h"
 #include "lens_api.h"
 #include "light_data.h"
 #include "magic.h"
@@ -468,9 +469,62 @@ void affect_nearby_stuff_with_vortex(struct Thing *thing)
   _DK_affect_nearby_stuff_with_vortex(thing);
 }
 
-void affect_nearby_friends_with_alarm(struct Thing *thing)
+void affect_nearby_friends_with_alarm(struct Thing *traptng)
 {
-    _DK_affect_nearby_friends_with_alarm(thing);
+    //_DK_affect_nearby_friends_with_alarm(thing);
+    SYNCDBG(8,"Starting");
+    if (is_neutral_thing(traptng)) {
+        return;
+    }
+    struct Dungeon *dungeon;
+    unsigned long k;
+    int i;
+    dungeon = get_players_num_dungeon(traptng->owner);
+    k = 0;
+    i = dungeon->creatr_list_start;
+    while (i != 0)
+    {
+        struct CreatureControl *cctrl;
+        struct Thing *thing;
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        cctrl = creature_control_get_from_thing(thing);
+        if (creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        if (!thing_is_picked_up(thing) && !creature_is_manually_controlled_by_owner(thing) &&
+            !creature_is_being_unconscious(thing) && !creature_is_kept_in_custody(thing) &&
+            (cctrl->combat_flags == 0) && !creature_is_dragging_something(thing) && !creature_is_dying(thing))
+        {
+            struct StateInfo *stati;
+            stati = get_thing_state_info_num(get_creature_state_besides_interruptions(thing));
+            if (stati->field_28 && (get_2d_box_distance(&traptng->mappos, &thing->mappos) < 4096))
+            {
+                creature_mark_if_woken_up(thing);
+                if (external_set_thing_state(thing, CrSt_ArriveAtAlarm))
+                {
+                    if (setup_person_move_to_position(thing, traptng->mappos.x.stl.num, traptng->mappos.y.stl.num, 0))
+                    {
+                        thing->continue_state = CrSt_ArriveAtAlarm;
+                        cctrl->field_2FA = game.play_gameturn + 800;
+                        cctrl->alarm_stl_x = traptng->mappos.x.stl.num;
+                        cctrl->alarm_stl_y = traptng->mappos.y.stl.num;
+                    }
+                }
+            }
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
 }
 
 long apply_wallhug_force_to_boulder(struct Thing *thing)
