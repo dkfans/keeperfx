@@ -43,6 +43,7 @@
 #include "creature_control.h"
 #include "creature_states.h"
 #include "creature_states_lair.h"
+#include "creature_states_mood.h"
 #include "config_creature.h"
 #include "config_terrain.h"
 #include "config_magic.h"
@@ -447,8 +448,7 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
         clear_creature_instance(thing);
         cctrl->active_state_bkp = thing->active_state;
         cctrl->continue_state_bkp = thing->continue_state;
-        if (creature_is_sleeping(thing))
-            anger_apply_anger_to_creature(thing, crstat->annoy_woken_up, AngR_Other, 1);
+        creature_mark_if_woken_up(thing);
         external_set_thing_state(thing, CrSt_CreatureSlapCowers);
     }
     cctrl->field_B1 = 6;
@@ -1336,7 +1336,7 @@ long update_creatures_influenced_by_call_to_arms(PlayerNumber plyr_idx)
             {
                 struct StateInfo *stati;
                 stati = get_thing_state_info_num(get_creature_state_besides_interruptions(thing));
-                if ( stati->field_28 || creature_is_called_to_arms(thing) )
+                if (stati->field_28 || creature_is_called_to_arms(thing))
                 {
                     if (creature_can_navigate_to_with_storage(thing, &pos, NavRtF_Default))
                     {
@@ -1554,16 +1554,12 @@ int affect_nearby_creatures_by_power_call_to_arms(PlayerNumber plyr_idx, long ra
             nstat = get_creature_state_besides_interruptions(thing);
             struct StateInfo *stati;
             stati = get_thing_state_info_num(nstat);
-            if (((cctrl->spell_flags & CSAfF_CalledToArms) == 0) || (stati->field_28))
+            if (!creature_is_called_to_arms(thing) || stati->field_28)
             {
                 if (stati->field_28
-                  && (((cctrl->spell_flags & CSAfF_CalledToArms) != 0) || get_2d_box_distance(&thing->mappos, pos) < range))
+                  && (creature_is_called_to_arms(thing) || get_2d_box_distance(&thing->mappos, pos) < range))
                 {
-                    if (creature_is_sleeping(thing)) {
-                        struct CreatureStats *crstat;
-                        crstat = creature_stats_get_from_thing(thing);
-                        anger_apply_anger_to_creature(thing, crstat->annoy_woken_up, AngR_Other, 1);
-                    }
+                    creature_mark_if_woken_up(thing);
                     if (creature_can_navigate_to_with_storage(thing, pos, NavRtF_Default))
                     {
                         if (external_set_thing_state(thing, CrSt_ArriveAtCallToArms))
