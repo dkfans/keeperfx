@@ -3688,8 +3688,13 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
       set_flag_byte(&game.flags_cd, MFlg_DeadBackToPool, val2);
       break;
   case Cmd_BONUS_LEVEL_TIME:
-      game.bonus_time = val2;
-      set_flag_byte(&game.flags_gui,GGUI_CountdownTimer,(val2 > 0));
+      if (val2 > 0) {
+          game.bonus_time = game.play_gameturn + val2;
+          game.flags_gui |= GGUI_CountdownTimer;
+      } else {
+          game.bonus_time = 0;
+          game.flags_gui &= ~GGUI_CountdownTimer;
+      }
       break;
   case Cmd_QUICK_OBJECTIVE:
       if ((my_player_number >= plr_start) && (my_player_number < plr_end))
