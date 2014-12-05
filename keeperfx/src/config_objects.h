@@ -38,8 +38,9 @@ enum ObjectCategoryIndex {
     OCtg_Furniture,  //< Object is crucial part of a room
     OCtg_Valuable,   //< Object is gold in some form
     OCtg_Spellbook,  //< Object is a spellbook
-    OCtg_DnSpecial,  //< Object is a dungeon special box
+    OCtg_SpecialBox, //< Object is a dungeon special box
     OCtg_WrkshpBox,  //< Object is a manufactured box for workshop
+    OCtg_GoldHoard,  //< Object is a hoard of treasure stored in room
     OCtg_Food,       //< Object is food for creatures
     OCtg_Power,      //< Object is a keeper power effect, ie. hand of evil or keeper spell
     OCtg_Lair,       //< Object is a creature lair

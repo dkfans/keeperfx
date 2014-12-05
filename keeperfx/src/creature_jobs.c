@@ -400,13 +400,13 @@ long attempt_anger_job(struct Thing *creatng, long ajob_kind)
         if (!attempt_anger_job_destroy_rooms(creatng))
             break;
         if (is_my_player_number(creatng->owner))
-            output_message(SMsg_CreatrDestroyRooms, 500, 1);
+            output_message(SMsg_CreatrDestroyRooms, MESSAGE_DELAY_CRTR_MOOD, 1);
         return true;
     case 4:
         if (!attempt_anger_job_leave_dungeon(creatng))
             break;
         if (is_my_player_number(creatng->owner))
-            output_message(SMsg_CreatureLeaving, 500, 1);
+            output_message(SMsg_CreatureLeaving, MESSAGE_DELAY_CRTR_MOOD, 1);
         return true;
     case 8:
         if (!attempt_anger_job_steal_gold(creatng))
@@ -416,7 +416,7 @@ long attempt_anger_job(struct Thing *creatng, long ajob_kind)
         if (!attempt_anger_job_damage_walls(creatng))
             break;
         if (is_my_player_number(creatng->owner))
-            output_message(SMsg_CreatrDestroyRooms, 500, 1);
+            output_message(SMsg_CreatrDestroyRooms, MESSAGE_DELAY_CRTR_MOOD, 1);
         return true;
     case 32:
         if (!attempt_anger_job_mad_psycho(creatng))
@@ -428,7 +428,7 @@ long attempt_anger_job(struct Thing *creatng, long ajob_kind)
             if (!attempt_anger_job_leave_dungeon(creatng))
                 break;
             if (is_my_player_number(creatng->owner))
-                output_message(SMsg_CreatureLeaving, 500, 1);
+                output_message(SMsg_CreatureLeaving, MESSAGE_DELAY_CRTR_MOOD, 1);
         }
         return true;
     case 128:

@@ -907,7 +907,7 @@ int check_crates_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCo
         // Per thing code
         if (thing->class_id == TCls_Object)
         {
-            if (thing_is_door_or_trap_crate(thing) && ((thing->state_flags & TF1_IsDragged1) == 0))
+            if (thing_is_workshop_crate(thing) && ((thing->state_flags & TF1_IsDragged1) == 0))
             {
                 // If exceeded capacity of the library
                 if (room->used_capacity >= room->total_capacity)
@@ -957,7 +957,7 @@ void reposition_all_crates_in_room_on_subtile(struct Room *room, MapSubtlCoord s
         }
         i = thing->next_on_mapblk;
         // Per thing code
-        if (thing_is_door_or_trap_crate(thing) && ((thing->state_flags & TF1_IsDragged1) == 0))
+        if (thing_is_workshop_crate(thing) && ((thing->state_flags & TF1_IsDragged1) == 0))
         {
             ThingModel objkind;
             objkind = thing->model;
@@ -3412,7 +3412,7 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
             }
             i = thing->next_on_mapblk;
             // Per thing code start
-            if (thing_is_door_or_trap_crate(thing) && ((thing->state_flags & TF1_IsDragged1) == 0))
+            if (thing_is_workshop_crate(thing) && ((thing->state_flags & TF1_IsDragged1) == 0))
             {
                 struct Coord3d pos;
                 // Try to move crate within the room
@@ -3601,13 +3601,12 @@ struct Room *place_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x,
     // Update slab type on map
     rdata = room_data_get_for_room(room);
     i = get_slab_number(slb_x, slb_y);
+    delete_room_slabbed_objects(i);
     if ((rkind == RoK_GUARDPOST) || (rkind == RoK_BRIDGE))
     {
-        delete_room_slabbed_objects(i);
         place_animating_slab_type_on_map(rdata->assigned_slab, 0, stl_x, stl_y, owner);
     } else
     {
-        delete_room_slabbed_objects(i);
         place_slab_type_on_map(rdata->assigned_slab, stl_x, stl_y, owner, 0);
     }
     SYNCDBG(7,"Updating efficiency");
@@ -3757,7 +3756,7 @@ void change_ownership_or_delete_object_thing_in_room(struct Room *room, struct T
         break;
     case RoK_WORKSHOP:
         // Workshop owns trap boxes, machines and anvils; special code for boxes only
-        if (thing_is_door_or_trap_crate(thing))
+        if (thing_is_workshop_crate(thing))
         {
             ThingClass tngclass;
             ThingModel tngmodel;
@@ -3833,7 +3832,7 @@ void change_ownership_or_delete_object_thing_in_room(struct Room *room, struct T
         return;
     }
     // For some object types we've already executed code before; being here means they're on wrong room kind
-    if (thing_is_door_or_trap_crate(thing) || thing_is_gold_hoard(thing) || thing_is_spellbook(thing)) {
+    if (thing_is_workshop_crate(thing) || thing_is_gold_hoard(thing) || thing_is_spellbook(thing)) {
         return;
     }
     // Otherwise, changing owner depends on object properties
@@ -3880,10 +3879,10 @@ void delete_room_slabbed_objects(SlabCodedCoords slb_num)
                 // Per-thing code start
                 if ((thing->parent_idx != slb_num) && (thing->class_id == TCls_Object))
                 {
-                    struct Objects *objdat;
-                    objdat = get_objects_data_for_thing(thing);
-                    if (objdat->own_category == ObOC_Unknown3) {
-                        delete_thing_structure(thing, 0);
+                    struct ObjectConfigStats *objst;
+                    objst = get_object_model_stats(thing->model);
+                    if ((objst->model_flags & OMF_DestroyedOnRoomClaim) != 0) {
+                        destroy_object(thing);
                     }
                 }
                 // Per-thing code end

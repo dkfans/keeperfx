@@ -105,7 +105,7 @@ PowerKind book_thing_to_power_kind(const struct Thing *thing);
 
 TbBool thing_is_special_box(const struct Thing *thing);
 #define is_dungeon_special thing_is_special_box
-TbBool thing_is_door_or_trap_crate(const struct Thing *thing);
+TbBool thing_is_workshop_crate(const struct Thing *thing);
 TbBool thing_is_trap_crate(const struct Thing *thing);
 TbBool thing_is_door_crate(const struct Thing *thing);
 TbBool thing_is_dungeon_heart(const struct Thing *thing);
@@ -121,7 +121,9 @@ TbBool object_is_gold_laying_on_ground(const struct Thing *thing);
 TbBool object_is_guard_flag(const struct Thing *thing);
 TbBool thing_is_gold_hoard(const struct Thing *thing);
 TbBool thing_is_spellbook(const struct Thing *thing);
-TbBool object_is_workshop_equipment(const struct Thing *thing);
+TbBool thing_is_creature_lair(const struct Thing *thing);
+TbBool object_is_room_equipment(const struct Thing *thing, RoomKind rkind);
+TbBool object_is_room_inventory(const struct Thing *thing, RoomKind rkind);
 TbBool object_is_unaffected_by_terrain_changes(const struct Thing *thing);
 
 struct Thing *create_guard_flag_object(const struct Coord3d *pos, PlayerNumber plyr_idx, long parent_idx);
