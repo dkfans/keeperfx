@@ -2214,7 +2214,7 @@ short creature_leaving_dungeon(struct Thing *creatng)
         return 0;
     }
     if (is_my_player_number(creatng->owner))
-        output_message(SMsg_CreatureLeaving, 500, 1);
+        output_message(SMsg_CreatureLeaving, MESSAGE_DELAY_CRTR_MOOD, 1);
     creatng->continue_state = CrSt_CreatureLeaves;
     return 1;
 }
@@ -2274,7 +2274,7 @@ TbBool make_creature_leave_dungeon(struct Thing *creatng)
         return false;
     }
     if (is_my_player_number(creatng->owner))
-        output_message(SMsg_CreatureLeaving, 500, 1);
+        output_message(SMsg_CreatureLeaving, MESSAGE_DELAY_CRTR_MOOD, 1);
     creatng->continue_state = CrSt_CreatureLeaves;
     return true;
 }

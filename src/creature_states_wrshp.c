@@ -89,7 +89,7 @@ struct Thing *get_workshop_equipment_to_work_with_on_subtile(PlayerNumber plyr_i
         }
         i = thing->next_on_mapblk;
         // Per thing code start
-        if (thing_is_object(thing) && object_is_workshop_equipment(thing))
+        if (thing_is_object(thing) && object_is_room_equipment(thing, RoK_WORKSHOP))
         {
             if (thing->owner == plyr_idx) {
               return thing;

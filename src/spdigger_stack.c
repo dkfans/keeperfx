@@ -1443,7 +1443,7 @@ TbBool add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon)
     // Thing list loop body
     if (dungeon->digger_stack_length >= DIGGER_TASK_MAX_COUNT)
       break;
-    if ( thing_is_door_or_trap_crate(thing) )
+    if ( thing_is_workshop_crate(thing) )
     {
         if ((thing->state_flags & TF1_IsDragged1) == 0)
         {
@@ -1732,7 +1732,7 @@ struct Thing *check_place_to_pickup_crate(const struct Thing *creatng, MapSubtlC
         }
         i = thing->next_on_mapblk;
         // Per thing code start
-        if (thing_is_door_or_trap_crate(thing))
+        if (thing_is_workshop_crate(thing))
         {
           if ((thing->owner == creatng->owner) || is_neutral_thing(thing))
           {
