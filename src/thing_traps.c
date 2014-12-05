@@ -150,7 +150,7 @@ TbBool update_trap_trigger_line_of_sight_90_on_subtile(struct Thing *traptng, Ma
             if (players_are_enemies(traptng->owner,thing->owner) || is_neutral_thing(traptng))
             {
                 if (!creature_is_being_unconscious(thing) && !thing_is_dragged_or_pulled(thing)
-                 && ((get_creature_model_flags(thing) & MF_IsSpectator) == 0)) {
+                 && ((get_creature_model_flags(thing) & CMF_IsSpectator) == 0)) {
                     activate_trap(traptng, thing);
                     return true;
                 }
@@ -461,7 +461,7 @@ TbBool find_pressure_trigger_trap_target_passing_by_subtile(const struct Thing *
             if ((thing->state_flags & TF1_IsDragged1) == 0)
             {
                 if (!creature_is_dying(thing) && !creature_is_being_unconscious(thing)
-                    && ((get_creature_model_flags(thing) & MF_IsSpectator) == 0))
+                    && ((get_creature_model_flags(thing) & CMF_IsSpectator) == 0))
                 {
                     if (!is_neutral_thing(thing) && !players_are_mutual_allies(traptng->owner,thing->owner))
                     {

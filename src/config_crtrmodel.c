@@ -654,59 +654,59 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
               n++;
               break;
             case 10: // SPECIAL_DIGGER
-              crconf->model_flags |= MF_IsSpecDigger;
+              crconf->model_flags |= CMF_IsSpecDigger;
               n++;
               break;
             case 11: // ARACHNID
-              crconf->model_flags |= MF_IsArachnid;
+              crconf->model_flags |= CMF_IsArachnid;
               n++;
               break;
             case 12: // DIPTERA
-              crconf->model_flags |= MF_IsDiptera;
+              crconf->model_flags |= CMF_IsDiptera;
               n++;
               break;
             case 13: // LORD
-              crconf->model_flags |= MF_IsLordOTLand;
+              crconf->model_flags |= CMF_IsLordOTLand;
               n++;
               break;
             case 14: // SPECTATOR
-              crconf->model_flags |= MF_IsSpectator;
+              crconf->model_flags |= CMF_IsSpectator;
               n++;
               break;
             case 15: // EVIL
-              crconf->model_flags |= MF_IsEvil;
+              crconf->model_flags |= CMF_IsEvil;
               n++;
               break;
             case 16: // NEVER_CHICKENS
-              crconf->model_flags |= MF_NeverChickens;
+              crconf->model_flags |= CMF_NeverChickens;
               n++;
               break;
             case 17: // IMMUNE_TO_BOULDER
-                crconf->model_flags |= MF_ImmuneToBoulder;
+                crconf->model_flags |= CMF_ImmuneToBoulder;
                 n++;
                 break;
             case 18: // NO_CORPSE_ROTTING
-                crconf->model_flags |= MF_NoCorpseRotting;
+                crconf->model_flags |= CMF_NoCorpseRotting;
                 n++;
                 break;
             case 19: // NO_ENMHEART_ATTCK
-                crconf->model_flags |= MF_NoEnmHeartAttack;
+                crconf->model_flags |= CMF_NoEnmHeartAttack;
                 n++;
                 break;
             case 20: // TREMBLING_FAT
-                crconf->model_flags |= MF_TremblingFat;
+                crconf->model_flags |= CMF_TremblingFat;
                 n++;
                 break;
             case 21: // FEMALE
-                crconf->model_flags |= MF_Female;
+                crconf->model_flags |= CMF_Female;
                 n++;
                 break;
             case 22: // INSECT
-                crconf->model_flags |= MF_Insect;
+                crconf->model_flags |= CMF_Insect;
                 n++;
                 break;
             case 23: // ONE_OF_KIND
-                crconf->model_flags |= MF_OneOfKind;
+                crconf->model_flags |= CMF_OneOfKind;
                 n++;
                 break;
             default:
@@ -771,20 +771,20 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
   }
 #undef COMMAND_TEXT
   // If the creature is a special breed, then update an attribute in CreatureConfig struct
-  if ((crconf->model_flags & MF_IsSpecDigger) != 0)
+  if ((crconf->model_flags & CMF_IsSpecDigger) != 0)
   {
-      if ((crconf->model_flags & MF_IsEvil) != 0) {
+      if ((crconf->model_flags & CMF_IsEvil) != 0) {
           crtr_conf.special_digger_evil = crtr_model;
       } else {
           crtr_conf.special_digger_good = crtr_model;
       }
   }
-  if ((crconf->model_flags & MF_IsSpectator) != 0)
+  if ((crconf->model_flags & CMF_IsSpectator) != 0)
   {
       crtr_conf.spectator_breed = crtr_model;
   }
   // Set creature start states based on the flags
-  if ((crconf->model_flags & MF_IsSpecDigger) != 0)
+  if ((crconf->model_flags & CMF_IsSpecDigger) != 0)
   {
       creatures[crtr_model].evil_start_state = CrSt_ImpDoingNothing;
       creatures[crtr_model].good_start_state = CrSt_TunnellerDoingNothing;

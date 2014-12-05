@@ -44,7 +44,15 @@ const struct NamedCommand objects_object_commands[] = {
   {"NAME",            1},
   {"GENRE",           2},
   {"RELATEDCREATURE", 3},
+  {"PROPERTIES",      4},
   {NULL,              0},
+  };
+
+const struct NamedCommand objects_properties_commands[] = {
+  {"EXISTS_ONLY_IN_ROOM",     1},
+  {"DESTROYED_ON_ROOM_CLAIM", 2},
+  {"CHOWNED_ON_ROOM_CLAIM",   3},
+  {NULL,                      0},
   };
 
 const struct NamedCommand objects_genres_desc[] = {
@@ -53,6 +61,7 @@ const struct NamedCommand objects_genres_desc[] = {
   {"FURNITURE",       OCtg_Furniture},
   {"VALUABLE",        OCtg_Valuable},
   {"SPELLBOOK",       OCtg_Spellbook},
+  {"SPECIALBOX",      OCtg_DnSpecial},
   {"WORKSHOPBOX",     OCtg_WrkshpBox},
   {"FOOD",            OCtg_Food},
   {"POWER",           OCtg_Power},
@@ -259,8 +268,8 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 }
                 if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect object genre \"%s\" in [%s] block of %s file.",
-                        word_buf,block_buf,config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num),block_buf,config_textname);
                     break;
                 }
                 objst->genre = n;
@@ -272,11 +281,36 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 }
                 if (n < 0)
                 {
-                    CONFWRNLOG("Incorrect related creature \"%s\" in [%s] block of %s file.",
-                        word_buf,block_buf,config_textname);
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num),block_buf,config_textname);
                     break;
                 }
                 objdat->related_creatr_model = n;
+                break;
+            case 4: // PROPERTIES
+                while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+                {
+                  k = get_id(objects_properties_commands, word_buf);
+                  switch (k)
+                  {
+                  case 1: // EXISTS_ONLY_IN_ROOM
+                      objst->model_flags |= OMF_ExistsOnlyInRoom;
+                      n++;
+                      break;
+                  case 2: // DESTROYED_ON_ROOM_CLAIM
+                      objst->model_flags |= OMF_DestroyedOnRoomClaim;
+                      n++;
+                      break;
+                  case 3: // CHOWNED_ON_ROOM_CLAIM
+                      objst->model_flags |= OMF_ChOwnedOnRoomClaim;
+                      n++;
+                      break;
+                  default:
+                      CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
+                          COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+                      break;
+                  }
+                }
                 break;
             case 0: // comment
                 break;

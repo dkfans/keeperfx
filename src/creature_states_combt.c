@@ -2512,7 +2512,7 @@ TbBool creature_look_for_enemy_heart_combat(struct Thing *thing)
 {
     SYNCDBG(19,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
     TRACE_THING(thing);
-    if ((get_creature_model_flags(thing) & MF_NoEnmHeartAttack) != 0) {
+    if ((get_creature_model_flags(thing) & CMF_NoEnmHeartAttack) != 0) {
         return false;
     }
     struct Thing *heartng;

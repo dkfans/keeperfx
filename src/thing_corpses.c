@@ -56,7 +56,7 @@ TbBool corpse_is_rottable(const struct Thing *thing)
         return false;
     if (thing->class_id != TCls_DeadCreature)
         return false;
-    if ((get_creature_model_flags(thing) & MF_NoCorpseRotting) != 0)
+    if ((get_creature_model_flags(thing) & CMF_NoCorpseRotting) != 0)
         return false;
     player = get_player_thing_is_controlled_by(thing);
     if (player_invalid(player))
