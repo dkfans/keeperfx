@@ -848,7 +848,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     // Immunity to boulders
     if (shot_is_boulder(shotng))
     {
-        if ((get_creature_model_flags(trgtng) & MF_ImmuneToBoulder) != 0)
+        if ((get_creature_model_flags(trgtng) & CMF_ImmuneToBoulder) != 0)
         {
             efftng = create_effect(&trgtng->mappos, TngEff_Unknown14, trgtng->owner);
             if ( !thing_is_invalid(efftng) ) {

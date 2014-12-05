@@ -871,7 +871,7 @@ TbResult magic_use_power_chicken(PlayerNumber plyr_idx, struct Thing *thing, Map
         return Lb_FAIL;
     }
     // Check if the creature kind isn't affected by that spell
-    if ((get_creature_model_flags(thing) & MF_NeverChickens) != 0)
+    if ((get_creature_model_flags(thing) & CMF_NeverChickens) != 0)
     {
         return Lb_SUCCESS;
     }

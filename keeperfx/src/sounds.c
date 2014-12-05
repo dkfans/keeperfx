@@ -104,14 +104,14 @@ void play_thing_walking(struct Thing *thing)
             return;
         }
     }
-    if ((get_creature_model_flags(thing) & MF_IsSpectator) != 0) {
+    if ((get_creature_model_flags(thing) & CMF_IsSpectator) != 0) {
         // Spectators don't do sounds
         return;
     }
     long loudness;
     loudness = ((myplyr->view_mode - 1) < 1u) ? (FULL_LOUDNESS) : (FULL_LOUDNESS/5);
     // Flying diptera has a buzzing noise sound
-    if ((get_creature_model_flags(thing) & MF_IsDiptera) && ((thing->movement_flags & TMvF_Flying) != 0) && (thing->field_60 < (int)thing->mappos.z.val))
+    if ((get_creature_model_flags(thing) & CMF_IsDiptera) && ((thing->movement_flags & TMvF_Flying) != 0) && (thing->field_60 < (int)thing->mappos.z.val))
     {
         if ( !S3DEmitterIsPlayingSample(thing->snd_emitter_id, 25, 0) ) {
             thing_play_sample(thing, 25, 100, -1, 2, 0, 2, loudness);

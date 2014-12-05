@@ -965,9 +965,9 @@ const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveSta
         i += (crstat->hunger_fill + crstat->lair_size + 1) * cctrl->explevel;
         if (!crstat->affected_by_wind)
             i = i*3/2;
-        if ((get_creature_model_flags(creatng) & MF_TremblingFat) != 0)
+        if ((get_creature_model_flags(creatng) & CMF_TremblingFat) != 0)
             i = i*3/2;
-        if ((get_creature_model_flags(creatng) & MF_IsDiptera) != 0)
+        if ((get_creature_model_flags(creatng) & CMF_IsDiptera) != 0)
             i = i/2;
         snprintf(loc_text,sizeof(loc_text),"%ld", i);
         text = loc_text;

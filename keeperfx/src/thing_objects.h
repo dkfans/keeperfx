@@ -38,6 +38,13 @@ enum ObjectStates {
     ObSt_BeingDropped,
     ObSt_State5,
 };
+
+enum ObjectOwningCategory {
+    ObOC_Unknown0 = 0,
+    ObOC_Unknown1,
+    ObOC_Unknown2,
+    ObOC_Unknown3,
+};
 /******************************************************************************/
 #pragma pack(1)
 
@@ -58,7 +65,7 @@ struct Objects {
     unsigned char field_12;
     /** Creature model related to the object, ie for lairs - which creature lair it is. */
     unsigned char related_creatr_model;
-    unsigned char field_14;
+    unsigned char own_category;
     unsigned char field_15;
 };
 

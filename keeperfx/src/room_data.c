@@ -3720,13 +3720,19 @@ TbBool add_item_to_room_capacity(struct Room *room, TbBool force)
 void change_ownership_or_delete_object_thing_in_room(struct Room *room, struct Thing *thing, long parent_idx, PlayerNumber newowner)
 {
     PlayerNumber oldowner;
+    struct ObjectConfigStats *objst;
+    objst = get_object_model_stats(thing->model);
     struct Objects *objdat;
     objdat = get_objects_data_for_thing(thing);
+    // If thing is only dragged through the room, do not interrupt
+    if (thing_is_dragged_or_pulled(thing)) {
+        return;
+    }
     // Handle specific things in rooms for which we have a special re-creation code
     switch (room->kind)
     {
     case RoK_GUARDPOST:
-        // Guard post owns only flag
+        // Guard post owns only flag, and it must be re-created
         if (object_is_guard_flag(thing))
         {
             create_guard_flag_object(&thing->mappos, newowner, parent_idx);
@@ -3735,8 +3741,8 @@ void change_ownership_or_delete_object_thing_in_room(struct Room *room, struct T
         }
         break;
     case RoK_LIBRARY:
-        // Library owns books and candles
-        if (thing_is_spellbook(thing) && ((thing->alloc_flags & TAlF_IsDragged) == 0))
+        // Library owns books, specials and candles; only spellbooks require additional code
+        if (thing_is_spellbook(thing))
         {
             oldowner = thing->owner;
             thing->owner = newowner;
@@ -3750,8 +3756,8 @@ void change_ownership_or_delete_object_thing_in_room(struct Room *room, struct T
         }
         break;
     case RoK_WORKSHOP:
-        // Workshop owns trap boxes, machines and anvils
-        if (thing_is_door_or_trap_crate(thing) && !thing_is_dragged_or_pulled(thing))
+        // Workshop owns trap boxes, machines and anvils; special code for boxes only
+        if (thing_is_door_or_trap_crate(thing))
         {
             ThingClass tngclass;
             ThingModel tngmodel;
@@ -3816,18 +3822,26 @@ void change_ownership_or_delete_object_thing_in_room(struct Room *room, struct T
         }
         return;
     }
-    // Otherwise, changing owner depends on what the object represents
-    switch ( objdat->field_14 )
-    {
-      case 0:
-      case 1:
-      case 3:
-        thing->owner = newowner;
-        break;
-      case 2:
+    // If the object is marked to be destroyed, do it
+    if ((objst->model_flags & OMF_DestroyedOnRoomClaim) != 0) {
         destroy_object(thing);
-        break;
+        return;
     }
+    if ((gameadd.classic_bugs_flags & ClscBug_ClaimRoomAllThings) != 0) {
+        // Preserve classic bug - object is claimed with the room
+        thing->owner = newowner;
+        return;
+    }
+    // For some object types we've already executed code before; being here means they're on wrong room kind
+    if (thing_is_door_or_trap_crate(thing) || thing_is_gold_hoard(thing) || thing_is_spellbook(thing)) {
+        return;
+    }
+    // Otherwise, changing owner depends on object properties
+    if ((objst->model_flags & OMF_ChOwnedOnRoomClaim) != 0) {
+        thing->owner = newowner;
+        return;
+    }
+    // No need to change owner - leave the object intact
 }
 
 void delete_room_slabbed_objects(SlabCodedCoords slb_num)
@@ -3868,7 +3882,7 @@ void delete_room_slabbed_objects(SlabCodedCoords slb_num)
                 {
                     struct Objects *objdat;
                     objdat = get_objects_data_for_thing(thing);
-                    if (objdat->field_14 == 3) {
+                    if (objdat->own_category == ObOC_Unknown3) {
                         delete_thing_structure(thing, 0);
                     }
                 }

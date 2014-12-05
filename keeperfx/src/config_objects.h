@@ -38,11 +38,18 @@ enum ObjectCategoryIndex {
     OCtg_Furniture,  //< Object is crucial part of a room
     OCtg_Valuable,   //< Object is gold in some form
     OCtg_Spellbook,  //< Object is a spellbook
+    OCtg_DnSpecial,  //< Object is a dungeon special box
     OCtg_WrkshpBox,  //< Object is a manufactured box for workshop
     OCtg_Food,       //< Object is food for creatures
     OCtg_Power,      //< Object is a keeper power effect, ie. hand of evil or keeper spell
     OCtg_Lair,       //< Object is a creature lair
     OCtg_Effect,     //< Object is some kind of effect which has influence on things or on terrain
+};
+
+enum ObjectModelFlags {
+    OMF_ExistsOnlyInRoom     = 0x0001, // Some objects, ie. gold hoards, are strictly bound to room
+    OMF_DestroyedOnRoomClaim = 0x0002, // Some objects should be destroyed if they're in a room which is changing owner
+    OMF_ChOwnedOnRoomClaim   = 0x0004, // Most objects should change their owner with the room
 };
 
 /******************************************************************************/
@@ -62,6 +69,7 @@ char field_8;
 /******************************************************************************/
 struct ObjectConfigStats {
     char code_name[COMMAND_WORD_LEN];
+    unsigned short model_flags;
     long genre;
     long name_stridx;
 };

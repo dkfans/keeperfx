@@ -1607,7 +1607,7 @@ const char *creature_own_name(const struct Thing *creatng)
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
     char *text;
-    if ((get_creature_model_flags(creatng) & MF_OneOfKind) != 0) {
+    if ((get_creature_model_flags(creatng) & CMF_OneOfKind) != 0) {
         struct CreatureData *crdata;
         crdata = creature_data_get_from_thing(creatng);
         text = buf_sprintf("%s",get_string(crdata->namestr_idx));
