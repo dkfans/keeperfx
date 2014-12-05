@@ -608,12 +608,20 @@ PowerKind book_thing_to_power_kind(const struct Thing *thing)
 
 TbBool thing_is_special_box(const struct Thing *thing)
 {
-    return (box_thing_to_special(thing) > 0);
+    if (!thing_is_object(thing))
+        return false;
+    struct ObjectConfigStats *objst;
+    objst = get_object_model_stats(thing->model);
+    return (objst->genre == OCtg_SpecialBox);
 }
 
-TbBool thing_is_door_or_trap_crate(const struct Thing *thing)
+TbBool thing_is_workshop_crate(const struct Thing *thing)
 {
-    return (crate_thing_to_workshop_item_model(thing) > 0);
+    if (!thing_is_object(thing))
+        return false;
+    struct ObjectConfigStats *objst;
+    objst = get_object_model_stats(thing->model);
+    return (objst->genre == OCtg_WrkshpBox);
 }
 
 TbBool thing_is_trap_crate(const struct Thing *thing)
@@ -646,7 +654,20 @@ TbBool thing_is_mature_food(const struct Thing *thing)
 
 TbBool thing_is_spellbook(const struct Thing *thing)
 {
-    return (book_thing_to_power_kind(thing) > 0);
+    if (!thing_is_object(thing))
+        return false;
+    struct ObjectConfigStats *objst;
+    objst = get_object_model_stats(thing->model);
+    return (objst->genre == OCtg_Spellbook);
+}
+
+TbBool thing_is_creature_lair(const struct Thing *thing)
+{
+    if (!thing_is_object(thing))
+        return false;
+    struct ObjectConfigStats *objst;
+    objst = get_object_model_stats(thing->model);
+    return (objst->genre == OCtg_Lair);
 }
 
 TbBool object_is_hero_gate(const struct Thing *thing)
@@ -671,20 +692,7 @@ TbBool object_is_mature_food(const struct Thing *thing)
 
 TbBool object_is_gold(const struct Thing *thing)
 {
-    switch (thing->model)
-    {
-      case 3:
-      case 6:
-      case 43:
-      case 52:
-      case 53:
-      case 54:
-      case 55:
-      case 56:
-          return true;
-      default:
-          return false;
-    }
+    return object_is_gold_pile(thing) || object_is_gold_hoard(thing);
 }
 
 /**
@@ -695,17 +703,9 @@ TbBool object_is_gold(const struct Thing *thing)
  */
 TbBool object_is_gold_hoard(const struct Thing *thing)
 {
-    switch (thing->model)
-    {
-      case 52:
-      case 53:
-      case 54:
-      case 55:
-      case 56:
-          return true;
-      default:
-          return false;
-    }
+    struct ObjectConfigStats *objst;
+    objst = get_object_model_stats(thing->model);
+    return (objst->genre == OCtg_GoldHoard);
 }
 
 TbBool object_is_gold_pile(const struct Thing *thing)
@@ -748,13 +748,92 @@ TbBool object_is_guard_flag(const struct Thing *thing)
 }
 
 /**
- * Returns if given object thing is a workshop equipment.
+ * Returns if given object thing is a room equipment.
+ * Equipment are the objects which room always has, put there for the lifetime of a room.
  * @param thing
  * @return
  */
-TbBool object_is_workshop_equipment(const struct Thing *thing)
+TbBool object_is_room_equipment(const struct Thing *thing, RoomKind rkind)
 {
-  return ((thing->model == 114) || (thing->model == 26));
+    switch (rkind)
+    {
+    case RoK_ENTRANCE:
+        // No objects
+        return false;
+    case RoK_TREASURE:
+        // Candlestick
+        return (thing->model == 28);
+    case RoK_LIBRARY:
+        // No objects
+        return false;
+    case RoK_PRISON:
+        // Prison bar
+        return (thing->model == 27);
+    case RoK_TORTURE:
+        // Spike and torturer
+        return (thing->model == 32) || (thing->model == 125);
+    case RoK_TRAINING:
+        // Training post and torch
+        return (thing->model == 31) || (thing->model == 2);
+    case RoK_DUNGHEART:
+        // Heart flames
+        return (thing->model == 111) || (thing->model == 120) || (thing->model == 121) || (thing->model == 122);
+    case RoK_WORKSHOP:
+        // Workshop machine and anvil
+        return (thing->model == 114) || (thing->model == 26);
+    case RoK_SCAVENGER:
+        // Scavenge eye and torch
+        return (thing->model == 113) || (thing->model == 2);
+    case RoK_TEMPLE:
+        // Temple statue
+        return (thing->model == 4);
+    case RoK_GRAVEYARD:
+        // Gravestone and torch
+        return (thing->model == 29) || (thing->model == 2);
+    case RoK_BARRACKS:
+        // No break
+    case RoK_GARDEN:
+        // Torch
+        return (thing->model == 2);
+    case RoK_LAIR:
+        // No objects
+        return false;
+    case RoK_BRIDGE:
+        // No objects
+        return false;
+    case RoK_GUARDPOST:
+        // Guard flags
+        return object_is_guard_flag(thing);
+    default:
+        return false;
+    }
+}
+
+/**
+ * Returns if given object thing is a room inventory.
+ * Inventory are the objects which can be stored in a room, but are movable and optional.
+ * @param thing
+ * @return
+ */
+TbBool object_is_room_inventory(const struct Thing *thing, RoomKind rkind)
+{
+    switch (rkind)
+    {
+    case RoK_TREASURE:
+        return object_is_gold_hoard(thing);
+    case RoK_LIBRARY:
+        return thing_is_spellbook(thing) || thing_is_special_box(thing);
+    case RoK_DUNGHEART:
+        return thing_is_dungeon_heart(thing);
+    case RoK_WORKSHOP:
+        return thing_is_workshop_crate(thing);
+    case RoK_GARDEN:
+        return object_is_infant_food(thing) || object_is_growing_food(thing) || object_is_mature_food(thing);
+    case RoK_LAIR:
+        return thing_is_creature_lair(thing);
+    default:
+        return false;
+    }
 }
 
 TbBool object_is_unaffected_by_terrain_changes(const struct Thing *thing)
@@ -804,7 +883,7 @@ struct Thing *get_special_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 struct Thing *get_crate_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     return get_object_around_owned_by_and_matching_bool_filter(
-        subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, thing_is_door_or_trap_crate);
+        subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, thing_is_workshop_crate);
 }
 
 long food_moves(struct Thing *objtng)

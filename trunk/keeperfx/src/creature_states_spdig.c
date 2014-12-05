@@ -309,7 +309,7 @@ long check_out_unclaimed_traps(struct Thing *spdigtng, long range)
           break;
         i = thing->next_of_class;
         // Per-thing code
-        if (thing_is_door_or_trap_crate(thing) && ((thing->state_flags & TF1_IsDragged1) == 0))
+        if (thing_is_workshop_crate(thing) && ((thing->state_flags & TF1_IsDragged1) == 0))
         {
             struct SlabMap *slb;
             slb = get_slabmap_thing_is_on(thing);
@@ -1574,7 +1574,7 @@ short creature_drops_crate_in_workshop(struct Thing *thing)
     }
     creature_drop_dragged_object(thing, cratetng);
     cratetng->owner = game.neutral_player_num;
-    if (thing_is_door_or_trap_crate(cratetng))
+    if (thing_is_workshop_crate(cratetng))
     {
         if (!add_workshop_object_to_workshop(room, cratetng))
         {
