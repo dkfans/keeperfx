@@ -1154,7 +1154,7 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
         break;
     case SplK_Fly:
         //TODO SPELLS Strange condition regarding the fly - verify why it's here
-        if ((get_creature_model_flags(thing) & MF_IsDiptera) == 0)
+        if ((get_creature_model_flags(thing) & CMF_IsDiptera) == 0)
             thing->movement_flags &= ~TMvF_Flying;
         cctrl->spell_flags &= ~CSAfF_Flying;
         break;
@@ -1580,7 +1580,7 @@ TngUpdateRet process_creature_state(struct Thing *thing)
     }
 
     // Creatures that are not special diggers will pick up any nearby gold or food
-    if (((thing->movement_flags & TMvF_Flying) == 0) && ((model_flags & MF_IsSpecDigger) == 0))
+    if (((thing->movement_flags & TMvF_Flying) == 0) && ((model_flags & CMF_IsSpecDigger) == 0))
     {
         if (!creature_is_being_unconscious(thing) && !creature_is_dying(thing) &&
             !thing_is_picked_up(thing) && !creature_is_being_dropped(thing))
@@ -1824,7 +1824,7 @@ long move_creature(struct Thing *thing)
         }
         cctrl->flgfield_1 |= CCFlg_Unknown08;
     }
-    if ((get_creature_model_flags(thing) & MF_TremblingFat) != 0)
+    if ((get_creature_model_flags(thing) & CMF_TremblingFat) != 0)
     {
       if (creature_is_ambulating(thing))
         {
@@ -2413,7 +2413,7 @@ TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
     // Now we are sure that killertng and dungeon pointers are correct
     if (creatng->owner == killertng->owner)
     {
-        if ((get_creature_model_flags(creatng) & MF_IsDiptera) && (get_creature_model_flags(killertng) & MF_IsArachnid)) {
+        if ((get_creature_model_flags(creatng) & CMF_IsDiptera) && (get_creature_model_flags(killertng) & CMF_IsArachnid)) {
             dungeon->lvstats.flies_killed_by_spiders++;
         }
     }
@@ -3049,7 +3049,7 @@ TbBool thing_is_creature_special_digger(const struct Thing *thing)
     return false;
   if (thing->class_id != TCls_Creature)
     return false;
-  return ((get_creature_model_flags(thing) & MF_IsSpecDigger) != 0);
+  return ((get_creature_model_flags(thing) & CMF_IsSpecDigger) != 0);
 }
 
 void anger_set_creature_anger_all_types(struct Thing *thing, long a2)
@@ -3263,10 +3263,10 @@ TbBool create_random_evil_creature(MapCoord x, MapCoord y, PlayerNumber owner, C
         // Accept only evil creatures
         struct CreatureModelConfig *crconf;
         crconf = &crtr_conf.model[crmodel];
-        if ((crconf->model_flags & MF_IsSpectator) != 0) {
+        if ((crconf->model_flags & CMF_IsSpectator) != 0) {
             continue;
         }
-        if ((crconf->model_flags & MF_IsEvil) != 0) {
+        if ((crconf->model_flags & CMF_IsEvil) != 0) {
             break;
         }
     }
@@ -3316,10 +3316,10 @@ TbBool create_random_hero_creature(MapCoord x, MapCoord y, PlayerNumber owner, C
       // Accept only evil creatures
       struct CreatureModelConfig *crconf;
       crconf = &crtr_conf.model[crmodel];
-      if ((crconf->model_flags & MF_IsSpectator) != 0) {
+      if ((crconf->model_flags & CMF_IsSpectator) != 0) {
           continue;
       }
-      if ((crconf->model_flags & MF_IsEvil) == 0) {
+      if ((crconf->model_flags & CMF_IsEvil) == 0) {
           break;
       }
   }

@@ -2674,7 +2674,7 @@ long script_support_create_thing_at_hero_door(long gate_num, ThingClass tngclass
     }
     thing->state_flags |= TF1_PushAdd;
 
-    if ((get_creature_model_flags(thing) & MF_IsLordOTLand) != 0)
+    if ((get_creature_model_flags(thing) & CMF_IsLordOTLand) != 0)
     {
         output_message(SMsg_LordOfLandComming, 0, 1);
         output_message(SMsg_EnemyLordQuote + ACTION_RANDOM(8), 0, 1);
@@ -2726,7 +2726,7 @@ long script_support_create_thing_at_action_point(long apt_idx, ThingClass tngcla
         cctrl->field_AE |= 0x01;
     }
 
-    if ((get_creature_model_flags(thing) & MF_IsLordOTLand) != 0)
+    if ((get_creature_model_flags(thing) & CMF_IsLordOTLand) != 0)
     {
         output_message(SMsg_LordOfLandComming, 0, 1);
         output_message(SMsg_EnemyLordQuote + ACTION_RANDOM(8), 0, 1);
@@ -2766,7 +2766,7 @@ long script_support_create_thing_at_dungeon_heart(ThingClass tngclass, ThingMode
     }
     if (thing_is_creature(thing))
     {
-        if ((get_creature_model_flags(thing) & MF_IsLordOTLand) != 0)
+        if ((get_creature_model_flags(thing) & CMF_IsLordOTLand) != 0)
         {
             output_message(SMsg_LordOfLandComming, 0, 1);
             output_message(SMsg_EnemyLordQuote + ACTION_RANDOM(8), 0, 1);

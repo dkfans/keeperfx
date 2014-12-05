@@ -1554,7 +1554,7 @@ void check_map_explored(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoor
 
     int can_see_slabs;
     can_see_slabs = get_explore_sight_distance_in_slabs(creatng);
-    if (!player_cannot_win(creatng->owner) && ((get_creature_model_flags(creatng) & MF_IsSpectator) == 0)) {
+    if (!player_cannot_win(creatng->owner) && ((get_creature_model_flags(creatng) & CMF_IsSpectator) == 0)) {
         claim_neutral_creatures_in_sight(creatng, &pos, can_see_slabs);
     }
     clear_slab_dig(slb_x, slb_y, creatng->owner);

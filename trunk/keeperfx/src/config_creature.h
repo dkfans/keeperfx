@@ -40,20 +40,20 @@ extern "C" {
 struct Thing;
 
 enum CreatureModelFlags {
-    MF_IsSpecDigger     = 0x0001, // Imp and Tunneler
-    MF_IsArachnid       = 0x0002, // simply, Spider
-    MF_IsDiptera        = 0x0004, // simply, Fly
-    MF_IsLordOTLand     = 0x0008, // simply, Knight
-    MF_IsSpectator      = 0x0010, // simply, Floating spirit
-    MF_IsEvil           = 0x0020, // All evil creatures
-    MF_NeverChickens    = 0x0040, // Cannot be affected by Chicken (for Avatar)
-    MF_ImmuneToBoulder  = 0x0080, // Boulder traps are destroyed at the moment they touch the creature
-    MF_NoCorpseRotting  = 0x0100, // Corpse cannot rot in graveyard
-    MF_NoEnmHeartAttack = 0x0200, // Creature will not attack enemy heart on sight
-    MF_TremblingFat     = 0x0400, // Creature causes ground to tremble when dropped
-    MF_Female           = 0x0800, // Creature is female
-    MF_Insect           = 0x1000, // Creature is kind of insect
-    MF_OneOfKind        = 0x2000, // Only one creature of that kind may exist on one level
+    CMF_IsSpecDigger     = 0x0001, // Imp and Tunneler
+    CMF_IsArachnid       = 0x0002, // simply, Spider
+    CMF_IsDiptera        = 0x0004, // simply, Fly
+    CMF_IsLordOTLand     = 0x0008, // simply, Knight
+    CMF_IsSpectator      = 0x0010, // simply, Floating spirit
+    CMF_IsEvil           = 0x0020, // All evil creatures
+    CMF_NeverChickens    = 0x0040, // Cannot be affected by Chicken (for Avatar)
+    CMF_ImmuneToBoulder  = 0x0080, // Boulder traps are destroyed at the moment they touch the creature
+    CMF_NoCorpseRotting  = 0x0100, // Corpse cannot rot in graveyard
+    CMF_NoEnmHeartAttack = 0x0200, // Creature will not attack enemy heart on sight
+    CMF_TremblingFat     = 0x0400, // Creature causes ground to tremble when dropped
+    CMF_Female           = 0x0800, // Creature is female
+    CMF_Insect           = 0x1000, // Creature is kind of insect
+    CMF_OneOfKind        = 0x2000, // Only one creature of that kind may exist on one level
 };
 
 enum CreatureJobFlags {

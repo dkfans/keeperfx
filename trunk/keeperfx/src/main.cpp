@@ -2391,7 +2391,7 @@ long stop_playing_flight_sample_in_all_flying_creatures(void)
         }
         i = thing->next_of_class;
         // Per-thing code
-        if ((get_creature_model_flags(thing) & MF_IsDiptera) && ((thing->state_flags & TF1_Unkn20) == 0))
+        if ((get_creature_model_flags(thing) & CMF_IsDiptera) && ((thing->state_flags & TF1_Unkn20) == 0))
         {
             if ( S3DEmitterIsPlayingSample(thing->snd_emitter_id, 25, 0) ) {
                 S3DDeleteSampleFromEmitter(thing->snd_emitter_id, 25, 0);

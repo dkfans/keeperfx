@@ -231,7 +231,7 @@ long near_map_block_thing_filter_not_specdigger(const struct Thing *thing, MaxTn
 {
     if (thing->class_id == TCls_Creature)
     {
-        if ((get_creature_model_flags(thing) & MF_IsSpecDigger) == 0)
+        if ((get_creature_model_flags(thing) & CMF_IsSpecDigger) == 0)
         {
             // Prepare reference Coord3d struct for distance computation
             struct Coord3d refpos;
@@ -360,7 +360,7 @@ long near_map_block_thing_filter_is_enemy_of_able_to_attack_and_not_specdigger(c
     {
         if (!creature_is_being_unconscious(thing) && !thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing))
         {
-            if ((get_creature_model_flags(thing) & MF_IsSpecDigger) == 0)
+            if ((get_creature_model_flags(thing) & CMF_IsSpecDigger) == 0)
             {
                 // Prepare reference Coord3d struct for distance computation
                 struct Coord3d refpos;
@@ -434,7 +434,7 @@ long creature_near_filter_is_enemy_of_and_not_specdigger(const struct Thing *thi
 {
     if (thing->owner == plyr_idx)
       return false;
-    return ((get_creature_model_flags(thing) & MF_IsSpecDigger) == 0);
+    return ((get_creature_model_flags(thing) & CMF_IsSpecDigger) == 0);
 }
 
 long creature_near_filter_is_owned_by(const struct Thing *thing, FilterParam plyr_idx)
@@ -1643,7 +1643,7 @@ TbBool lord_of_the_land_in_prison_or_tortured(void)
     for (crtr_model=0; crtr_model < crtr_conf.model_count; crtr_model++)
     {
         crconf = &crtr_conf.model[crtr_model];
-        if ((crconf->model_flags & MF_IsLordOTLand) != 0)
+        if ((crconf->model_flags & CMF_IsLordOTLand) != 0)
         {
             if (creature_of_model_in_prison_or_tortured(crtr_model) > 0)
                 return true;
@@ -1659,7 +1659,7 @@ struct Thing *lord_of_the_land_find(void)
     for (crtr_model=0; crtr_model < crtr_conf.model_count; crtr_model++)
     {
         crconf = &crtr_conf.model[crtr_model];
-        if ((crconf->model_flags & MF_IsLordOTLand) != 0)
+        if ((crconf->model_flags & CMF_IsLordOTLand) != 0)
         {
             int i;
             i = creature_of_model_find_first(crtr_model);
@@ -2632,7 +2632,7 @@ TbBool thing_is_shootable_by_any_player_including_objects(const struct Thing *th
     if (thing_is_creature(thing))
     {
         // spectators are not shootable
-        if ((get_creature_model_flags(thing) & MF_IsSpectator) != 0)
+        if ((get_creature_model_flags(thing) & CMF_IsSpectator) != 0)
             return false;
         /* This would disallow killing unconscious creatures, so we can't
         struct CreatureControl *cctrl;
@@ -2666,7 +2666,7 @@ TbBool thing_is_shootable_by_any_player_except_own_including_objects(const struc
     {
         struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(thing);
-        if ((get_creature_model_flags(thing) & MF_IsSpectator) != 0)
+        if ((get_creature_model_flags(thing) & CMF_IsSpectator) != 0)
             return false;
         if (((cctrl->flgfield_1 & CCFlg_Immortal) != 0) || (thing->owner == shot_owner))
             return false;
@@ -2699,7 +2699,7 @@ TbBool thing_is_shootable_by_any_player_except_own_excluding_objects(const struc
     {
         struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(thing);
-        if ((get_creature_model_flags(thing) & MF_IsSpectator) != 0)
+        if ((get_creature_model_flags(thing) & CMF_IsSpectator) != 0)
             return false;
         if (((cctrl->flgfield_1 & CCFlg_Immortal) != 0) || (thing->owner == shot_owner))
             return false;
@@ -2714,7 +2714,7 @@ TbBool thing_is_shootable_by_any_player_except_own_excluding_objects_and_not_und
     {
         struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(thing);
-        if ((get_creature_model_flags(thing) & MF_IsSpectator) != 0)
+        if ((get_creature_model_flags(thing) & CMF_IsSpectator) != 0)
             return false;
         if (((cctrl->flgfield_1 & CCFlg_Immortal) != 0) || (thing->owner == shot_owner))
             return false;
@@ -2732,7 +2732,7 @@ TbBool thing_is_shootable_by_any_player_excluding_objects(const struct Thing *th
         struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(thing);
         // spectators are not shootable
-        if ((get_creature_model_flags(thing) & MF_IsSpectator) != 0)
+        if ((get_creature_model_flags(thing) & CMF_IsSpectator) != 0)
             return false;
         if ((cctrl->flgfield_1 & CCFlg_Immortal) != 0)
             return false;

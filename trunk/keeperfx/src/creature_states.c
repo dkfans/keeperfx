@@ -560,7 +560,7 @@ TbBool creature_model_bleeds(unsigned long crmodel)
       if (!crstat->bleeds)
           return false;
       crconf = &crtr_conf.model[crmodel];
-      return ((crconf->model_flags & MF_IsEvil) != 0);
+      return ((crconf->model_flags & CMF_IsEvil) != 0);
   }
   return crstat->bleeds;
 }
@@ -1443,7 +1443,7 @@ short creature_being_dropped(struct Thing *creatng)
     if (!creature_affected_by_spell(creatng, SplK_Chicken))
     {
         // For creatures with trembling fat and not changed to chickens, tremble the camera
-        if ((get_creature_model_flags(creatng) & MF_TremblingFat) != 0)
+        if ((get_creature_model_flags(creatng) & CMF_TremblingFat) != 0)
         {
             struct Dungeon *dungeon;
             dungeon = get_dungeon(creatng->owner);
@@ -1487,7 +1487,7 @@ short creature_being_dropped(struct Thing *creatng)
         struct SlabMap *slb;
         slb = get_slabmap_for_subtile(stl_x,stl_y);
         // Special tasks for diggers
-        if ((get_creature_model_flags(creatng) & MF_IsSpecDigger) != 0)
+        if ((get_creature_model_flags(creatng) & CMF_IsSpecDigger) != 0)
         {
             if ((slabmap_owner(slb) == creatng->owner) || (slabmap_owner(slb) == game.neutral_player_num))
             {
@@ -3319,7 +3319,7 @@ CrAttackType creature_can_have_combat_with_creature_on_slab(struct Thing *creatn
                 // Per thing code start
                 if ( thing_is_creature(thing) && (thing != creatng) )
                 {
-                    if ((get_creature_model_flags(thing) & MF_IsSpecDigger) == 0)
+                    if ((get_creature_model_flags(thing) & CMF_IsSpecDigger) == 0)
                     {
                         long dist;
                         CrAttackType attack_type;
