@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-10-28 21:20+0100\n"
+"PO-Revision-Date: 2014-12-07 04:39+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: es_ES\n"
@@ -29,7 +29,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-SourceCharset: utf-8\n"
-"X-Generator: Poedit 1.5.7\n"
+"X-Generator: Poedit 1.6.5\n"
 
 #. Generic victory message
 #: guitext:0
@@ -6691,9 +6691,10 @@ msgid "Loyalty: How resistant the creature is against scavenging by the enemy."
 msgstr "Lealtad: La resistencia de la criatura a ser depredada por el enemigo."
 
 #: guitext:952
+#, fuzzy
 msgctxt "In-game interface description"
 msgid "Research Skill: unused."
-msgstr ""
+msgstr "Habilidad Investigada: Sin usar."
 
 #: guitext:953
 #, fuzzy
@@ -6702,9 +6703,9 @@ msgid ""
 "Manufacture Skill: How fast the creature works in Workshop. The higher the "
 "Skill level, the better the creature's performance."
 msgstr ""
-"Habilidad: El talento de una criatura a la hora de llevar a cabo tareas. "
-"Cuanto más alto es el nivel de la habilidad, mejor es el rendimiento de la "
-"criatura."
+"Habilidad de Fabricación: El talento de una a la hora de trabajar en el "
+"taller. Cuanto más alto es el nivel de la habilidad, mejor es el rendimiento "
+"de la criatura."
 
 #: guitext:954
 #, fuzzy
@@ -6713,9 +6714,8 @@ msgid ""
 "Training Skill: How fast the creature works on training. The higher the "
 "Skill level, the better the creature's performance."
 msgstr ""
-"Habilidad: El talento de una criatura a la hora de llevar a cabo tareas. "
-"Cuanto más alto es el nivel de la habilidad, mejor es el rendimiento de la "
-"criatura."
+"Habilidad de Entrenamiento: El talento de una criatura para entrenar. Cuanto "
+"más alto es el nivel de la habilidad, mejor es el rendimiento de la criatura."
 
 #: guitext:955
 #, fuzzy
@@ -6724,51 +6724,62 @@ msgid ""
 "Scavenge Skill: How fast the creature works on scavenging. The higher the "
 "Skill level, the better the creature's performance."
 msgstr ""
-"Habilidad: El talento de una criatura a la hora de llevar a cabo tareas. "
-"Cuanto más alto es el nivel de la habilidad, mejor es el rendimiento de la "
-"criatura."
+"Habilidad de Depredación: El talento con el que la criatura trabaja "
+"depredando. Cuanto más alto es el nivel de la habilidad, mejor es el "
+"rendimiento de la criatura."
 
 #: guitext:956
+#, fuzzy
 msgctxt "In-game interface description"
 msgid "Training Cost: Gold used for training the creature."
-msgstr ""
+msgstr "Coste de Entrenamiento: El oro usado para entrenar la criatura."
 
 #: guitext:957
+#, fuzzy
 msgctxt "In-game interface description"
 msgid "Scavenge Cost: Gold used for scavenging by the creature."
-msgstr ""
+msgstr "Coste de Depredación: El oro usado para la depredación de la criatura."
 
 #: guitext:958
+#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Best Damage: How much harm can be made by the strongest attack the creature "
 "has."
 msgstr ""
+"Mejor daño: Cuánto daño puede realizar el ataque más fuerte que posee la "
+"criatura."
 
 #: guitext:959
+#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Weight: Mass of the creature. Some people say overweight can lead to heart "
 "attack."
 msgstr ""
+"Peso: Masa de la criatura. Algunas personas dicen que el sobrepeso puede "
+"conducir a un ataque al corazón."
 
 #: guitext:960
 msgctxt "Keeper spell name"
 msgid "Hand Of Evil"
-msgstr ""
+msgstr "Mano Del Mal"
 
 #: guitext:961
 #, fuzzy
 msgctxt "Keeper spell name"
 msgid "Slap"
-msgstr "Azotes"
+msgstr "Azote"
 
 #: guitext:962
+#, fuzzy
 msgctxt "Keeper spell description"
 msgid ""
 "Hand Of Evil: Ability to pick up your creatures and hold them in your hand. "
 "Just don't hold them forever or they may get irritated."
 msgstr ""
+"Mano del Mal: Habilidad para recoger tus criaturas y mantenerlas en tu mano. "
+"Eso sí, no mantenerlos por siempre o pueden irritarse."
 
 #: guitext:963
 #, fuzzy
@@ -6777,9 +6788,8 @@ msgid ""
 "Slap: Makes your creatures work harder, for some time. Your creatures take "
 "some damage from each slap they receive."
 msgstr ""
-"Si quieres que tus criaturas trabajen más duro, azótalas pulsando con el "
-"botón derecho sobre ellas con la mano del mal. Tus criaturas sufren daño por "
-"cada azote que reciben."
+"Azotar: Hace que tus criaturas trabajen más duro durante algún tiempo. Tus "
+"criaturas recibirán algo de daño por cada bofetada que reciban."
 
 #~ msgctxt "In-game message"
 #~ msgid "Your manufacturers have crafted the Lava Trap."
