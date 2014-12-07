@@ -614,7 +614,7 @@ TbBool get_level_lost_inputs(void)
         inp_done = get_gui_inputs(GMnu_MAIN);
         if ( !inp_done )
         {
-          if (player->work_state == PSt_Unknown15)
+          if (player->work_state == PSt_CreatrInfo)
           {
               set_player_instance(player, PI_UnqueryCrtr, 0);
           } else
@@ -801,7 +801,7 @@ short get_creature_passenger_action_inputs(void)
     return 1;
   if ( ((game.numfield_C & 0x01) == 0) || ((game.numfield_C & 0x80) != 0))
       get_gui_inputs(1);
-  if ( !player->controlled_thing_idx )
+  if (player->controlled_thing_idx == 0)
     return false;
   if (right_button_released)
   {
@@ -811,7 +811,7 @@ short get_creature_passenger_action_inputs(void)
   struct Thing *thing;
   thing = thing_get(player->controlled_thing_idx);
   TRACE_THING(thing);
-  if (!thing_exists(thing) || (player->field_31 != thing->creation_turn))
+  if (!thing_exists(thing) || (player->controlled_thing_creatrn != thing->creation_turn))
   {
     set_players_packet_action(player, PckA_PasngrCtrlExit, player->controlled_thing_idx,0,0,0);
     return true;
@@ -845,7 +845,7 @@ short get_creature_control_action_inputs(void)
         clear_key_pressed(KC_F12);
   }
 
-  if ( player->controlled_thing_idx )
+  if (player->controlled_thing_idx != 0)
   {
     short make_packet = right_button_released;
     if (!make_packet)
@@ -853,7 +853,7 @@ short get_creature_control_action_inputs(void)
       struct Thing *thing;
       thing = thing_get(player->controlled_thing_idx);
       TRACE_THING(thing);
-      if ( (player->field_31 != thing->creation_turn) || ((thing->alloc_flags & TAlF_Exists) == 0)
+      if ( (player->controlled_thing_creatrn != thing->creation_turn) || ((thing->alloc_flags & TAlF_Exists) == 0)
          || (thing->active_state == CrSt_CreatureUnconscious) )
         make_packet = true;
     }

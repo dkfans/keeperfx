@@ -245,16 +245,15 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
       toggle_status_menu(0);
       turn_off_roaming_menus();
     }
+    set_selected_creature(player, thing);
     cam = player->acamera;
-    player->controlled_thing_idx = thing->index;
-    player->field_31 = thing->creation_turn;
     if (cam != NULL)
       player->field_4B5 = cam->field_6;
     thing->alloc_flags |= TAlF_IsControlled;
     thing->field_4F |= 0x01;
     set_start_state(thing);
     set_player_mode(player, PVT_CreatureContrl);
-    if (thing->class_id == TCls_Creature)
+    if (thing_is_creature(thing))
     {
         cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
         check_for_first_person_barrack_party(thing);
@@ -307,9 +306,8 @@ TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *th
       toggle_status_menu(0);
       turn_off_roaming_menus();
     }
+    set_selected_creature(player, thing);
     cam = player->acamera;
-    player->controlled_thing_idx = thing->index;
-    player->field_31 = thing->creation_turn;
     if (cam != NULL)
       player->field_4B5 = cam->field_6;
     set_player_mode(player, PVT_CreaturePasngr);
@@ -1519,7 +1517,7 @@ TbBool creature_pick_up_interesting_object_laying_nearby(struct Thing *creatng)
     }
     if (object_is_mature_food(tgthing))
     {
-        if (!is_thing_passenger_controlled(tgthing)) {
+        if (!is_thing_directly_controlled(tgthing) && !is_thing_passenger_controlled(tgthing)) {
           food_eaten_by_creature(tgthing, creatng);
         }
         return true;
@@ -4719,15 +4717,20 @@ long update_creature_levels(struct Thing *thing)
     external_set_thing_state(newtng, CrSt_CreatureBeHappy);
     player = get_player(thing->owner);
     // Switch control if this creature is possessed
-    if (is_thing_passenger_controlled(thing))
+    if (is_thing_directly_controlled(thing))
     {
         leave_creature_as_controller(player, thing);
         control_creature_as_controller(player, newtng);
     }
+    if (is_thing_passenger_controlled(thing))
+    {
+        leave_creature_as_passenger(player, thing);
+        control_creature_as_passenger(player, newtng);
+    }
+    // If not directly nor passenger controlled, but still player is doing something with it
     if (thing->index == player->controlled_thing_idx)
     {
-        player->controlled_thing_idx = newtng->index;
-        player->field_31 = newtng->creation_turn;
+        set_selected_creature(player, newtng);
     }
     remove_creature_score_from_owner(thing); // kill_creature() doesn't call this
     kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects|CrDed_NoUnconscious|CrDed_NotReallyDying);

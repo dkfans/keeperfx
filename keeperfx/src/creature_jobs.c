@@ -206,7 +206,7 @@ TbBool creature_free_for_anger_job(struct Thing *creatng)
     return ((cctrl->spell_flags & CSAfF_CalledToArms) == 0)
         && (dungeon->must_obey_turn == 0)
         && ((cctrl->spell_flags & CSAfF_Chicken) == 0)
-        && !thing_is_picked_up(creatng) && !is_thing_passenger_controlled(creatng);
+        && !thing_is_picked_up(creatng) && !is_thing_directly_controlled(creatng);
 }
 
 TbBool attempt_anger_job_destroy_rooms(struct Thing *creatng)

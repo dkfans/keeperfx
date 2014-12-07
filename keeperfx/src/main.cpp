@@ -496,7 +496,7 @@ void affect_nearby_friends_with_alarm(struct Thing *traptng)
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        if (!thing_is_picked_up(thing) && !creature_is_manually_controlled_by_owner(thing) &&
+        if (!thing_is_picked_up(thing) && !is_thing_directly_controlled(thing) &&
             !creature_is_being_unconscious(thing) && !creature_is_kept_in_custody(thing) &&
             (cctrl->combat_flags == 0) && !creature_is_dragging_something(thing) && !creature_is_dying(thing))
         {

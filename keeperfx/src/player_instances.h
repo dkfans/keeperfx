@@ -71,7 +71,7 @@ enum PlayerStates {
     PSt_Unknown12,
     PSt_OrderCreatr,
     PSt_MkBadCreatr,
-    PSt_Unknown15, // 15
+    PSt_CreatrInfo, // 15
     PSt_PlaceTrap,
     PSt_Lightning,
     PSt_PlaceDoor,
@@ -123,7 +123,10 @@ void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
 void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
 TbBool set_selected_creature(struct PlayerInfo *player, struct Thing *thing);
 TbBool clear_selected_creature(struct PlayerInfo *player);
+TbBool is_thing_directly_controlled(const struct Thing *thing);
 TbBool is_thing_passenger_controlled(const struct Thing *thing);
+TbBool is_thing_query_controlled(const struct Thing *thing);
+TbBool is_thing_some_way_controlled(const struct Thing *thing);
 
 struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, RoomKind rkind);
 TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel);
