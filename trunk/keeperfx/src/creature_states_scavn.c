@@ -107,8 +107,6 @@ struct Thing *get_random_fellow_not_hated_creature(struct Thing *creatng)
         SYNCDBG(19,"No other creatures");
         return INVALID_THING;
     }
-    struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(creatng);
     int n;
     n = ACTION_RANDOM(dungeon->num_active_creatrs-1);
     unsigned long k;
@@ -129,8 +127,13 @@ struct Thing *get_random_fellow_not_hated_creature(struct Thing *creatng)
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        if ((n <= 0) && (thing->index != creatng->index) && (thing->model != crstat->lair_enemy)) {
-            return thing;
+        if ((n <= 0) && (thing->index != creatng->index))
+        {
+            struct CreatureStats *crstat;
+            crstat = creature_stats_get_from_thing(thing);
+            if (crstat->lair_enemy != creatng->model) {
+                return thing;
+            }
         }
         n--;
         // Thing list loop body ends
