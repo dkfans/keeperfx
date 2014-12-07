@@ -97,18 +97,18 @@ short at_scavenger_room(struct Thing *thing)
     return 1;
 }
 
-short creature_being_scavenged(struct Thing *creatng)
+struct Thing *get_random_fellow_not_hated_creature(struct Thing *creatng)
 {
-    struct Thing *fellowtng;
     struct Dungeon *dungeon;
     SYNCDBG(8,"Starting");
     dungeon = get_players_num_dungeon(creatng->owner);
-    fellowtng = INVALID_THING;
     if (dungeon->num_active_creatrs <= 1)
     {
         SYNCDBG(19,"No other creatures");
-        return 0;
+        return INVALID_THING;
     }
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(creatng);
     int n;
     n = ACTION_RANDOM(dungeon->num_active_creatrs-1);
     unsigned long k;
@@ -129,9 +129,8 @@ short creature_being_scavenged(struct Thing *creatng)
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        if ((n <= 0) && (thing->index != creatng->index)) {
-            fellowtng = thing;
-            break;
+        if ((n <= 0) && (thing->index != creatng->index) && (thing->model != crstat->lair_enemy)) {
+            return thing;
         }
         n--;
         // Thing list loop body ends
@@ -142,14 +141,34 @@ short creature_being_scavenged(struct Thing *creatng)
             break;
         }
     }
-    if (thing_is_invalid(fellowtng))
-    {
-        SYNCDBG(19,"Cannot get creature");
+    return INVALID_THING;
+}
+
+short creature_being_scavenged(struct Thing *creatng)
+{
+    struct Thing *fellowtng;
+    SYNCDBG(8,"Starting");
+    fellowtng = get_random_fellow_not_hated_creature(creatng);
+    struct Coord3d locpos;
+    if (thing_is_invalid(fellowtng)) {
+        fellowtng = get_player_soul_container(creatng->owner);
+    }
+    if (thing_is_invalid(fellowtng)) {
+        SYNCDBG(19,"Cannot get thing to follow");
         return 0;
     }
-    if (setup_person_move_to_coord(creatng, &fellowtng->mappos, NavRtF_Default) <= 0)
+    locpos.x.val = fellowtng->mappos.x.val;
+    locpos.y.val = fellowtng->mappos.y.val;
+    locpos.z.val = fellowtng->mappos.z.val;
     {
-        SYNCDBG(19,"Cannot move to coord");
+        int angle;
+        angle = (((game.play_gameturn - creatng->creation_turn) >> 6) & 7)*LbFPMath_PI/4;
+        locpos.x.val += -LbSinL(angle)/128;
+        locpos.y.val += LbCosL(angle)/128;
+    }
+    if (setup_person_move_to_coord(creatng, &locpos, NavRtF_Default) <= 0)
+    {
+        SYNCDBG(19,"Cannot move %s index %d to pos near %s",thing_model_name(creatng),(int)creatng->index,thing_model_name(fellowtng));
         return 0;
     }
     creatng->continue_state = CrSt_CreatureBeingScavenged;
