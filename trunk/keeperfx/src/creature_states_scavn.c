@@ -249,9 +249,11 @@ TbBool can_scavenge_creature_from_pool(const struct Dungeon * dungeon, ThingMode
 
 TbBool thing_is_valid_scavenge_target(const struct Thing *calltng, const struct Thing *scavtng)
 {
+    // Only creatures of same model can be scavenged
     if (!thing_is_creature(scavtng) || (scavtng->model != calltng->model)) {
         return false;
     }
+    // Only neutral and enemy creatures can be scavenged
     if (!is_neutral_thing(scavtng))
     {
         if (!players_are_enemies(calltng->owner, scavtng->owner)) {
@@ -261,7 +263,7 @@ TbBool thing_is_valid_scavenge_target(const struct Thing *calltng, const struct 
     if (thing_is_picked_up(scavtng)) {
         return false;
     }
-    if (is_thing_passenger_controlled(scavtng) || creature_is_kept_in_custody(scavtng)) {
+    if (is_thing_directly_controlled(scavtng) || creature_is_kept_in_custody(scavtng)) {
         return false;
     }
     if (is_hero_thing(scavtng) && (!gameadd.scavenge_good_allowed)) {
@@ -270,19 +272,11 @@ TbBool thing_is_valid_scavenge_target(const struct Thing *calltng, const struct 
     if (is_neutral_thing(scavtng) && (!gameadd.scavenge_neutral_allowed)) {
         return false;
     }
-    struct PlayerInfo *scavplyr;
-    scavplyr = INVALID_PLAYER;
-    if (!is_neutral_thing(scavtng)) {
-        scavplyr = get_player(scavtng->owner);
-    }
-    if (scavplyr->controlled_thing_idx != scavtng->index)
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(scavtng);
+    if (game.play_gameturn - cctrl->temple_cure_gameturn > game.temple_scavenge_protection_turns)
     {
-        struct CreatureControl *cctrl;
-        cctrl = creature_control_get_from_thing(scavtng);
-        if (game.play_gameturn - cctrl->temple_cure_gameturn > game.temple_scavenge_protection_turns)
-        {
-            return true;
-        }
+        return true;
     }
     return false;
 }
@@ -337,7 +331,7 @@ struct Thing *select_scavenger_target(const struct Thing *calltng)
             break;
         }
     }
-    SYNCDBG(18,"The weakest valid target for %s index %d owner %d is %s index %d owner %d",
+    SYNCDBG(8,"The weakest valid target for %s index %d owner %d is %s index %d owner %d",
         thing_model_name(calltng),(int)calltng->index,(int)calltng->owner,
         thing_model_name(weaktng),(int)weaktng->index,(int)weaktng->owner);
     return weaktng;

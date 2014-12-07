@@ -128,7 +128,7 @@ unsigned char field_14;
     unsigned char field_2C;
     unsigned char field_2D[2];
     short controlled_thing_idx;
-    long field_31;
+    long controlled_thing_creatrn;
     short thing_under_hand;
     unsigned char view_mode;
     /** Pointer to the currently active camera. */

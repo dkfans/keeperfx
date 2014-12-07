@@ -1022,7 +1022,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         }
         break;
     case PSt_Unknown12:
-    case PSt_Unknown15:
+    case PSt_CreatrInfo:
         val172 = 1;
         thing = get_creature_near_and_owned_by(x, y, plyr_idx);
         if (thing_is_invalid(thing))
@@ -1047,7 +1047,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             unset_packet_control(pckt, PCtr_LBtnRelease);
           }
         }
-        if (player->work_state == PSt_Unknown15)
+        if (player->work_state == PSt_CreatrInfo)
         {
           thing = thing_get(player->controlled_thing_idx);
           if ((pckt->control_flags & PCtr_RBtnRelease) != 0)
@@ -1094,11 +1094,11 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             thing = get_creature_near(x, y);
             if (!thing_is_invalid(thing))
             {
-              player->controlled_thing_idx = thing->index;
-              initialise_thing_state(thing, CrSt_ManualControl);
-              if (creature_is_group_member(thing)) {
-                  make_group_member_leader(thing);
-              }
+                set_selected_creature(player, thing);
+                initialise_thing_state(thing, CrSt_ManualControl);
+                if (creature_is_group_member(thing)) {
+                    make_group_member_leader(thing);
+                }
             }
           }
           unset_packet_control(pckt, PCtr_LBtnRelease);
@@ -1109,7 +1109,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
           {
             thing = thing_get(player->controlled_thing_idx);
             set_start_state(thing);
-            player->controlled_thing_idx = 0;
+            clear_selected_creature(player);
           }
           unset_packet_control(pckt, PCtr_RBtnRelease);
         }
@@ -1933,12 +1933,12 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       process_pause_packet(pckt->field_6, pckt->field_8);
       return 1;
   case PckA_Unknown083:
-      if (player->work_state == PSt_Unknown15)
+      if (player->work_state == PSt_CreatrInfo)
         turn_off_query(plyr_idx);
       event_move_player_towards_event(player, pckt->field_6);
       return 0;
   case PckA_ZoomToRoom:
-      if (player->work_state == PSt_Unknown15)
+      if (player->work_state == PSt_CreatrInfo)
         turn_off_query(plyr_idx);
       room = room_get(pckt->field_6);
       player->zoom_to_pos_x = subtile_coord_center(room->central_stl_x);
@@ -1949,7 +1949,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       }
       return 0;
   case PckA_ZoomToTrap:
-      if (player->work_state == PSt_Unknown15)
+      if (player->work_state == PSt_CreatrInfo)
         turn_off_query(plyr_idx);
       thing = thing_get(pckt->field_6);
       player->zoom_to_pos_x = thing->mappos.x.val;
@@ -1960,7 +1960,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       }
       return 0;
   case PckA_ZoomToDoor:
-      if (player->work_state == PSt_Unknown15)
+      if (player->work_state == PSt_CreatrInfo)
         turn_off_query(plyr_idx);
       thing = thing_get(pckt->field_6);
       player->zoom_to_pos_x = thing->mappos.x.val;
@@ -1971,7 +1971,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       }
       return 0;
   case PckA_Unknown087:
-      if (player->work_state == PSt_Unknown15)
+      if (player->work_state == PSt_CreatrInfo)
         turn_off_query(plyr_idx);
       player->zoom_to_pos_x = pckt->field_6;
       player->zoom_to_pos_y = pckt->field_8;
@@ -2009,12 +2009,12 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       turn_off_query(plyr_idx);
       return 0;
   case PckA_Unknown104:
-      if (player->work_state == PSt_Unknown15)
+      if (player->work_state == PSt_CreatrInfo)
         turn_off_query(plyr_idx);
       battle_move_player_towards_battle(player, pckt->field_6);
       return 0;
   case PckA_ZoomToSpell:
-      if (player->work_state == PSt_Unknown15)
+      if (player->work_state == PSt_CreatrInfo)
         turn_off_query(plyr_idx);
       {
           struct Coord3d locpos;
@@ -2151,17 +2151,17 @@ void process_players_packet(long idx)
 
 void process_players_creature_passenger_packet_action(long idx)
 {
-  struct PlayerInfo *player;
-  struct Packet *pckt;
-  SYNCDBG(6,"Starting");
-  player = get_player(idx);
-  pckt = get_packet_direct(player->packet_num);
-  if (pckt->action == PckA_PasngrCtrlExit)
-  {
-      player->influenced_thing_idx = pckt->field_6;
-      set_player_instance(player, PI_PsngrCtLeave, 0);
-  }
-  SYNCDBG(8,"Finished");
+    struct PlayerInfo *player;
+    struct Packet *pckt;
+    SYNCDBG(6,"Starting");
+    player = get_player(idx);
+    pckt = get_packet_direct(player->packet_num);
+    if (pckt->action == PckA_PasngrCtrlExit)
+    {
+        player->influenced_thing_idx = pckt->field_6;
+        set_player_instance(player, PI_PsngrCtLeave, 0);
+    }
+    SYNCDBG(8,"Finished");
 }
 
 TbBool process_players_dungeon_control_packet_action(long plyr_idx)

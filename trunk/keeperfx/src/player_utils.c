@@ -811,7 +811,7 @@ void process_player_states(void)
         player = get_player(plyr_idx);
         if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
         {
-            if (player->work_state == PSt_Unknown15)
+            if (player->work_state == PSt_CreatrInfo)
             {
                 struct Thing *thing;
                 thing = thing_get(player->controlled_thing_idx);
