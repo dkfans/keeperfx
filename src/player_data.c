@@ -264,10 +264,10 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
   player->work_state = nwrk_state;
   if (is_my_player(player))
     game.field_14E92E = 0;
-  if ((player->work_state != PSt_Unknown12) && (player->work_state != PSt_Unknown15)
+  if ((player->work_state != PSt_Unknown12) && (player->work_state != PSt_CreatrInfo)
      && (player->work_state != PSt_CtrlDirect) && (player->work_state != PSt_CtrlPassngr))
   {
-    player->controlled_thing_idx = 0;
+      clear_selected_creature(player);
   }
   switch (player->work_state)
   {

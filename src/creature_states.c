@@ -798,15 +798,6 @@ TbBool creature_is_arming_trap(const struct Thing *thing)
     return false;
 }
 
-TbBool creature_is_manually_controlled_by_owner(const struct Thing *thing)
-{
-    struct PlayerInfo *player;
-    if (!thing_exists(thing))
-        return false;
-    player = get_player(thing->owner);
-    return (player->controlled_thing_idx == thing->index);
-}
-
 TbBool creature_is_kept_in_custody(const struct Thing *thing)
 {
     return (creature_is_kept_in_prison(thing) ||

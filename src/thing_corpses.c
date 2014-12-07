@@ -427,8 +427,9 @@ struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long a1)
         player = get_player(owner);
         if (player->controlled_thing_idx == prev_idx)
         {
+            // we can't use set_selected_creature() as we're setting the target to dead body
             player->controlled_thing_idx = deadtng->index;
-            player->field_31 = deadtng->creation_turn;
+            player->controlled_thing_creatrn = deadtng->creation_turn;
         }
     }
     return deadtng;

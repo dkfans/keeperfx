@@ -2647,7 +2647,7 @@ TbBool thing_is_shootable_by_any_player_including_objects(const struct Thing *th
             return true;
         if (object_is_growing_food(thing))
             return true;
-        if (object_is_mature_food(thing) && !is_thing_passenger_controlled(thing))
+        if (object_is_mature_food(thing) && !is_thing_directly_controlled(thing) && !is_thing_passenger_controlled(thing))
             return true;
         if (object_is_gold_pile(thing))
             return true;
@@ -2680,7 +2680,7 @@ TbBool thing_is_shootable_by_any_player_except_own_including_objects(const struc
             return true;
         if (object_is_growing_food(thing))
             return true;
-        if (object_is_mature_food(thing) && !is_thing_passenger_controlled(thing))
+        if (object_is_mature_food(thing) && !is_thing_directly_controlled(thing) && !is_thing_passenger_controlled(thing))
             return true;
         if (object_is_gold_pile(thing))
             return true;
@@ -3329,7 +3329,7 @@ void remove_dead_creatures_from_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
 
 TbBool setup_creature_leave_or_die_if_possible(struct Thing *thing)
 {
-    if (!creature_is_manually_controlled_by_owner(thing) && !creature_is_dying(thing))
+    if (!is_thing_some_way_controlled(thing) && !creature_is_dying(thing))
     {
         if (!creature_is_kept_in_custody_by_enemy(thing) && !creature_is_being_unconscious(thing))
         {

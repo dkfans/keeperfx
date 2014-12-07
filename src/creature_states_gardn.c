@@ -150,7 +150,7 @@ void person_search_for_food_again(struct Thing *creatng, struct Room *room)
     }
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(creatng);
-    if ( thing_is_invalid(near_food_tng) || is_thing_passenger_controlled(near_food_tng) )
+    if (thing_is_invalid(near_food_tng) || is_thing_directly_controlled(near_food_tng) || is_thing_passenger_controlled(near_food_tng))
     {
         // Warn about no food in this room
         event_create_event_or_update_nearby_existing_event(0, 0, EvKind_CreatrHungry, creatng->owner, 0);
@@ -251,9 +251,8 @@ short creature_eating_at_garden(struct Thing *creatng)
         set_start_state(creatng);
         return 0;
     }
-    if (is_thing_passenger_controlled(foodtng) || thing_is_picked_up(foodtng)) {
-        WARNLOG("The %s index %d is not within %s",
-            thing_model_name(foodtng),(int)foodtng->index,room_code_name(RoK_GARDEN));
+    if (is_thing_directly_controlled(foodtng) || is_thing_passenger_controlled(foodtng) || thing_is_picked_up(foodtng)) {
+        WARNLOG("The %s index %d is reserved to player",thing_model_name(foodtng),(int)foodtng->index);
         set_start_state(creatng);
         return 0;
     }

@@ -27,6 +27,7 @@
 #include "creature_instances.h"
 #include "thing_stats.h"
 #include "thing_effects.h"
+#include "player_instances.h"
 #include "frontend.h"
 #include "lens_api.h"
 #include "light_data.h"
@@ -194,8 +195,7 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
         turn_off_roaming_menus();
     }
     cam = player->acamera;
-    player->controlled_thing_idx = thing->index;
-    player->field_31 = thing->creation_turn;
+    set_selected_creature(player, thing);
     player->field_4B5 = cam->field_6;
     thing->alloc_flags |= TAlF_IsControlled;
     thing->field_4F |= 0x01;

@@ -33,6 +33,7 @@
 #include "config_effects.h"
 #include "creature_states.h"
 #include "player_data.h"
+#include "player_instances.h"
 #include "config_magic.h"
 #include "vidfade.h"
 #include "game_legacy.h"
@@ -696,7 +697,6 @@ void apply_health_to_thing_and_display_health(struct Thing *thing, long amount)
  */
 static void apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
 {
-    struct PlayerInfo *player;
     struct CreatureControl *cctrl;
     struct CreatureStats *crstat;
     long carmor;
@@ -716,26 +716,24 @@ static void apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
         thing->health -= cdamage;
         thing->field_4F |= 0x80;
         // Red palette if the possessed creature is hit very strong
-        if (thing->owner != game.neutral_player_num)
+        if (is_thing_some_way_controlled(thing))
         {
+            struct PlayerInfo *player;
             player = get_player(thing->owner);
-            if (player->controlled_thing_idx == thing->index)
+            HitPoints max_health;
+            max_health = cctrl->max_health;
+            if (max_health < 1)
+                max_health = 1;
+            i = (10 * cdamage) / max_health;
+            if (i > 10)
             {
-                HitPoints max_health;
-                max_health = cctrl->max_health;
-                if (max_health < 1)
-                    max_health = 1;
-                i = (10 * cdamage) / max_health;
-                if (i > 10)
-                {
-                    i = 10;
-                } else
-                if (i <= 0)
-                {
-                    i = 1;
-                }
-                PaletteApplyPainToPlayer(player, i);
+                i = 10;
+            } else
+            if (i <= 0)
+            {
+                i = 1;
             }
+            PaletteApplyPainToPlayer(player, i);
         }
     }
 }

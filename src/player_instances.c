@@ -583,20 +583,19 @@ long pinstfe_leave_creature(struct PlayerInfo *player, long *n)
 
 long pinstfs_query_creature(struct PlayerInfo *player, long *n)
 {
-  struct Thing *thing;
-  thing = thing_get(player->influenced_thing_idx);
-  player->dungeon_camera_zoom = get_camera_zoom(player->acamera);
-  set_selected_creature(player, thing);
-  set_player_state(player, PSt_Unknown15, 0);
-  return 0;
+    struct Thing *thing;
+    thing = thing_get(player->influenced_thing_idx);
+    player->dungeon_camera_zoom = get_camera_zoom(player->acamera);
+    set_selected_creature(player, thing);
+    set_player_state(player, PSt_CreatrInfo, 0);
+    return 0;
 }
 
 long pinstfs_unquery_creature(struct PlayerInfo *player, long *n)
 {
-  set_player_state(player, PSt_CtrlDungeon, 0);
-  player->field_31 = 0;
-  clear_selected_creature(player);
-  return 0;
+    set_player_state(player, PSt_CtrlDungeon, 0);
+    clear_selected_creature(player);
+    return 0;
 }
 
 long pinstfs_zoom_to_heart(struct PlayerInfo *player, long *n)
@@ -916,7 +915,6 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
     {
         set_player_instance(player, PI_Unset, 1);
         clear_selected_creature(player);
-        player->field_31 = 0;
         set_player_mode(player, PVT_DungeonTop);
         player->allocflags &= ~PlaF_Unknown8;
         set_engine_view(player, player->field_4B5);
@@ -927,7 +925,6 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
         return;
     }
     clear_selected_creature(player);
-    player->field_31 = 0;
     set_player_mode(player, PVT_DungeonTop);
     thing->alloc_flags &= ~TAlF_IsControlled;
     thing->field_4F &= ~0x01;
@@ -966,7 +963,6 @@ void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
   {
     set_player_instance(player, PI_Unset, 1);
     clear_selected_creature(player);
-    player->field_31 = 0;
     set_player_mode(player, PVT_DungeonTop);
     player->allocflags &= ~PlaF_Unknown8;
     set_engine_view(player, player->field_4B5);
@@ -988,12 +984,40 @@ void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
   player->cameras[3].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
   player->cameras[3].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
   clear_selected_creature(player);
-  player->field_31 = 0;
 }
 
 TbBool is_thing_passenger_controlled(const struct Thing *thing)
 {
     struct PlayerInfo *player;
+    if (!thing_exists(thing))
+        return false;
+    if (is_neutral_thing(thing))
+        return false;
+    player = get_player(thing->owner);
+    if (player->work_state != PSt_CtrlPassngr)
+        return false;
+    switch (player->instance_num)
+    {
+    case PI_PsngrCtrl:
+        return (thing->index == player->influenced_thing_idx);
+    case PI_CrCtrlFade:
+        return (thing->index == player->controlled_thing_idx);
+    case PI_PsngrCtLeave:
+        return (thing->index == player->influenced_thing_idx);
+    case PI_Unset:
+        return (thing->index == player->controlled_thing_idx);
+    default:
+        ERRORLOG("Bad player instance %d",(int)player->instance_num);
+        break;
+    }
+    return false;
+}
+
+TbBool is_thing_directly_controlled(const struct Thing *thing)
+{
+    struct PlayerInfo *player;
+    if (!thing_exists(thing))
+        return false;
     if (is_neutral_thing(thing))
         return false;
     player = get_player(thing->owner);
@@ -1005,31 +1029,70 @@ TbBool is_thing_passenger_controlled(const struct Thing *thing)
         return (thing->index == player->influenced_thing_idx);
     case PI_CrCtrlFade:
         return (thing->index == player->controlled_thing_idx);
-    case PI_PsngrCtLeave:
+    case PI_DirctCtLeave:
         return (thing->index == player->influenced_thing_idx);
     case PI_Unset:
         return (thing->index == player->controlled_thing_idx);
     default:
+        ERRORLOG("Bad player instance %d",(int)player->instance_num);
         break;
     }
     return false;
 }
 
+TbBool is_thing_query_controlled(const struct Thing *thing)
+{
+    struct PlayerInfo *player;
+    if (!thing_exists(thing))
+        return false;
+    if (is_neutral_thing(thing))
+        return false;
+    player = get_player(thing->owner);
+    if (player->work_state != PSt_CreatrInfo)
+        return false;
+    switch (player->instance_num)
+    {
+    case PI_QueryCrtr:
+        return (thing->index == player->controlled_thing_idx);
+    case PI_UnqueryCrtr:
+        return (thing->index == player->influenced_thing_idx);
+    case PI_Unset:
+        return (thing->index == player->controlled_thing_idx);
+    default:
+        ERRORLOG("Bad player instance %d",(int)player->instance_num);
+        break;
+    }
+    return false;
+}
+
+TbBool is_thing_some_way_controlled(const struct Thing *thing)
+{
+    struct PlayerInfo *player;
+    if (!thing_exists(thing))
+        return false;
+    if (is_neutral_thing(thing))
+        return false;
+    player = get_player(thing->owner);
+    return (player->controlled_thing_idx == thing->index);
+}
+
 TbBool set_selected_creature(struct PlayerInfo *player, struct Thing *thing)
 {
-  if (thing->class_id == TCls_Creature)
-  {
-    player->controlled_thing_idx = thing->index;
-    return true;
-  }
-  ERRORLOG("Cannot select thing for information");
-  return false;
+    if (thing_is_creature(thing))
+    {
+        player->controlled_thing_idx = thing->index;
+        player->controlled_thing_creatrn = thing->creation_turn;
+        return true;
+    }
+    ERRORLOG("Cannot select %s index %d",thing_model_name(thing),(int)thing->index);
+    return false;
 }
 
 TbBool clear_selected_creature(struct PlayerInfo *player)
 {
-  player->controlled_thing_idx = 0;
-  return true;
+    player->controlled_thing_idx = 0;
+    player->controlled_thing_creatrn = 0;
+    return true;
 }
 
 /** Builds room for the given player at given coords.
