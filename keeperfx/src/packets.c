@@ -521,16 +521,16 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
         {
           set_power_hand_graphic(plyr_idx, 782, 256);
           if (!thing_is_invalid(thing))
-            thing->field_4F |= 0x01;
+            thing->field_4F |= TF4F_Unknown01;
         } else
         if ((thing->class_id == TCls_Object) && object_is_gold_pile(thing))
         {
           set_power_hand_graphic(plyr_idx, 781, 256);
-          thing->field_4F &= ~0x01;
+          thing->field_4F &= ~TF4F_Unknown01;
         } else
         {
           set_power_hand_graphic(plyr_idx, 784, 256);
-          thing->field_4F &= ~0x01;
+          thing->field_4F &= ~TF4F_Unknown01;
         }
       }
     }

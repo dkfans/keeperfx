@@ -49,6 +49,17 @@ enum ThingFlags1 {
     TF1_Unkn20         = 0x20,
 };
 
+enum ThingFlags4F {
+    TF4F_Unknown01     = 0x01,
+    TF4F_Unknown02     = 0x02,
+    TF4F_Unknown04     = 0x04,
+    TF4F_Unknown08     = 0x08,
+    TF4F_Unknown10     = 0x10,
+    TF4F_Unknown20     = 0x20,
+    TF4F_Unknown40     = 0x40,
+    TF4F_Unknown80     = 0x80,
+};
+
 enum FreeThingAllocFlags {
     FTAF_Default             = 0x00,
     FTAF_FreeEffectIfNoSlots = 0x01,

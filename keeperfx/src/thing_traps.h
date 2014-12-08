@@ -55,7 +55,7 @@ unsigned long field_D;
 unsigned char field_11;
   unsigned char field_12;
 unsigned char field_13;
-short field_14;
+  short size_xy;
 short field_16;
 unsigned char trigger_type;
 unsigned char activation_type;

@@ -325,7 +325,7 @@ long delete_unwanted_things_from_liquid_slab(MapSlabCoord slb_x, MapSlabCoord sl
             if (thing->class_id == TCls_Object)
             {
                 objdat = get_objects_data_for_thing(thing);
-                if (objdat->field_15)
+                if (objdat->destroy_on_liquid)
                 {
                     if (rmeffect > 0)
                     {

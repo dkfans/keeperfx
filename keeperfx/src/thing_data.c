@@ -286,12 +286,12 @@ struct PlayerInfo *get_player_thing_is_controlled_by(const struct Thing *thing)
     return get_player(thing->owner);
 }
 
-void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char a5, char start_frame, unsigned char a7)
+void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char a5, char start_frame, unsigned char draw_class)
 {
     unsigned long i;
     thing->field_44 = convert_td_iso(anim);
     thing->field_50 &= 0x03;
-    thing->field_50 |= (a7 << 2);
+    thing->field_50 |= (draw_class << 2);
     thing->field_49 = keepersprite_frames(thing->field_44);
     if (speed != -1) {
         thing->field_3E = speed;
@@ -300,7 +300,7 @@ void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char
         thing->sprite_size = scale;
     }
     if (a5 != -1) {
-        set_flag_byte(&thing->field_4F, 0x40, a5);
+        set_flag_byte(&thing->field_4F, TF4F_Unknown40, a5);
     }
     if (start_frame == -2)
     {

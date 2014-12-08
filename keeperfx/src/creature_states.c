@@ -1566,7 +1566,7 @@ short creature_change_from_chicken(struct Thing *creatng)
         cctrl->field_282--;
     if (cctrl->field_282 > 0)
     { // Changing under way - gradually modify size of the creature
-        creatng->field_4F |= 0x01;
+        creatng->field_4F |= TF4F_Unknown01;
         creatng->field_50 |= 0x01;
         struct Thing *efftng;
         efftng = create_effect_element(&creatng->mappos, 0x3Bu, creatng->owner);
@@ -1577,13 +1577,13 @@ short creature_change_from_chicken(struct Thing *creatng)
             n = (10 - cctrl->field_282) * (300 * cctrl->explevel / 20 + 300) / 10;
             k = get_creature_anim(creatng, 0);
             set_thing_draw(efftng, k, 256, n, -1, 0, 2);
-            efftng->field_4F &= ~0x20;
-            efftng->field_4F |= 0x10;
+            efftng->field_4F &= ~TF4F_Unknown20;
+            efftng->field_4F |= TF4F_Unknown10;
         }
         return 0;
     } else
     {
-        creatng->field_4F &= ~0x01;
+        creatng->field_4F &= ~TF4F_Unknown01;
         cctrl->stateblock_flags &= ~CCSpl_ChickenRel;
         cctrl->spell_flags &= ~CSAfF_Chicken;
         set_creature_size_stuff(creatng);

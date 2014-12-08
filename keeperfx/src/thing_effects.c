@@ -526,12 +526,12 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
         i = ACTION_RANDOM(eestat->sprite_size_max  - (int)eestat->sprite_size_min  + 1);
         n = ACTION_RANDOM(eestat->sprite_speed_max - (int)eestat->sprite_speed_min + 1);
         set_thing_draw(thing, eestat->sprite_idx, eestat->sprite_speed_min + n, eestat->sprite_size_min + i, 0, 0, eestat->field_0);
-        set_flag_byte(&thing->field_4F,0x02,eestat->field_13);
+        set_flag_byte(&thing->field_4F,TF4F_Unknown02,eestat->field_13);
         thing->field_4F ^= (thing->field_4F ^ (0x10 * eestat->field_14)) & 0x30;
-        set_flag_byte(&thing->field_4F,0x40,eestat->field_D);
+        set_flag_byte(&thing->field_4F,TF4F_Unknown40,eestat->field_D);
     } else
     {
-        set_flag_byte(&thing->field_4F,0x01,true);
+        set_flag_byte(&thing->field_4F,TF4F_Unknown01,true);
     }
 
     thing->field_20 = eestat->field_18;
