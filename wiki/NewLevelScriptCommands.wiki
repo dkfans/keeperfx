@@ -166,6 +166,18 @@ Displays one of the text messages from language-specific strings banks in an Obj
   `[creature]` - Creature model to be searched.
 
   `[criteria]` - Creature selection criteria.
+|| *criterium* || *description* ||
+|| MOST_EXPERIENCED || Highest level creature ||
+|| MOST_EXP_WANDERING || Highest level idle creature ||
+|| MOST_EXP_WORKING || Highest level working creature ||
+|| MOST_EXP_FIGHTING || Highest level creature in combat ||
+|| LEAST_EXPERIENCED || Lowest level creature||
+|| LEAST_EXP_WANDERING || Lowest level idle creature ||
+|| LEAST_EXP_WORKING || Lowest level working creature ||
+|| LEAST_EXP_FIGHTING ||Lowest level creature in combat ||
+|| NEAR_OWN_HEART || Creature close to friendly dungeon heart ||
+|| NEAR_ENEMY_HEART || Creature close to enemy dungeon heart ||
+|| ON_ENEMY_GROUND || Creature on enemy tile ||
 
   `[count]` - Amount of creatures affected.
 
