@@ -49,24 +49,24 @@ enum ObjectOwningCategory {
 #pragma pack(1)
 
 struct Objects {
-    unsigned char field_0;
+    unsigned char initial_state;
     unsigned char field_1;
     unsigned char field_2;
     unsigned char field_3;
     unsigned char field_4;
     short field_5;
-    short field_7;
-    short field_9;
+    short anim_speed;
+    short size_xy;
     short field_B;
-    short field_D;
+    short sprite_size_max;
     unsigned char field_F;
     unsigned char field_10;
     unsigned char field_11;
-    unsigned char field_12;
+    unsigned char destroy_on_lava;
     /** Creature model related to the object, ie for lairs - which creature lair it is. */
     unsigned char related_creatr_model;
     unsigned char own_category;
-    unsigned char field_15;
+    unsigned char destroy_on_liquid;
 };
 
 struct CallToArmsGraphics {

@@ -318,7 +318,7 @@ unsigned long get_creature_anim(struct Thing *thing, unsigned short seq_idx)
 void untint_thing(struct Thing *thing)
 {
     thing->field_51 = 0;
-    thing->field_4F &= 0xF3;
+    thing->field_4F &= ~0x0C;
 }
 
 void tint_thing(struct Thing *thing, TbPixel colour, unsigned char nframe)
@@ -354,29 +354,29 @@ TbBool update_creature_anim_td(struct Thing *thing, long speed, long td_idx)
 void update_creature_graphic_field_4F(struct Thing *thing)
 {
     // Clear related flags
-    thing->field_4F &= ~0x01;
-    thing->field_4F &= ~0x10;
-    thing->field_4F &= ~0x20;
+    thing->field_4F &= ~TF4F_Unknown01;
+    thing->field_4F &= ~TF4F_Unknown10;
+    thing->field_4F &= ~TF4F_Unknown20;
     thing->field_4F &= ~0x40;
     // Now set only those that should be
     if (((thing->alloc_flags & TAlF_IsControlled) != 0) && is_my_player_number(thing->owner))
     {
-        thing->field_4F |= 0x01;
+        thing->field_4F |= TF4F_Unknown01;
     } else
     if (creatures[thing->model].field_7)
     {
-        thing->field_4F |= 0x10;
-        thing->field_4F |= 0x20;
+        thing->field_4F |= TF4F_Unknown10;
+        thing->field_4F |= TF4F_Unknown20;
     } else
     if (creature_is_invisible(thing))
     {
       if (is_my_player_number(thing->owner))
       {
-          thing->field_4F &= ~0x10;
-          thing->field_4F |= 0x20;
+          thing->field_4F &= ~TF4F_Unknown10;
+          thing->field_4F |= TF4F_Unknown20;
       } else
       {
-          thing->field_4F |= 0x01;
+          thing->field_4F |= TF4F_Unknown01;
       }
     }
 }
@@ -397,7 +397,7 @@ void update_creature_graphic_anim(struct Thing *thing)
     } else
     if ((thing->active_state == CrSt_CreatureHeroEntering) && (cctrl->field_282 >= 0))
     {
-      thing->field_4F |= 0x01;
+      thing->field_4F |= TF4F_Unknown01;
     } else
     if (!creature_affected_by_spell(thing, SplK_Chicken))
     {
@@ -405,7 +405,7 @@ void update_creature_graphic_anim(struct Thing *thing)
         {
           if (cctrl->instance_id == CrInst_TORTURED)
           {
-              thing->field_4F &= ~0x30;
+              thing->field_4F &= ~(TF4F_Unknown20|TF4F_Unknown10);
           }
           struct InstanceInfo *inst_inf;
           inst_inf = creature_instance_info_get(cctrl->instance_id);
@@ -430,11 +430,11 @@ void update_creature_graphic_anim(struct Thing *thing)
         if (thing->active_state == CrSt_CreatureUnconscious)
         {
             update_creature_anim(thing, 64, 16);
-            thing->field_4F |= 0x40;
+            thing->field_4F |= TF4F_Unknown40;
         } else
         if (thing->active_state == CrSt_CreatureSleep)
         {
-            thing->field_4F &= ~0x30;
+            thing->field_4F &= ~(TF4F_Unknown20|TF4F_Unknown10);
             update_creature_anim(thing, 128, 12);
         } else
         if (cctrl->field_9 == 0)

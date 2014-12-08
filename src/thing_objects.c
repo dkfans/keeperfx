@@ -421,9 +421,9 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     struct ObjectConfig *objconf;
     objconf = get_object_model_stats2(model);
     objdat = get_objects_data_for_thing(thing);
-    thing->sizexy = objdat->field_9;
+    thing->sizexy = objdat->size_xy;
     thing->field_58 = objdat->field_B;
-    thing->field_5A = objdat->field_9;
+    thing->field_5A = objdat->size_xy;
     thing->field_5C = objdat->field_B;
     thing->health = saturate_set_signed(objconf->health,16);
     thing->field_20 = objconf->field_4;
@@ -445,12 +445,12 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
       i = convert_td_iso(objdat->field_5);
       k = -1;
     }
-    set_thing_draw(thing, i, objdat->field_7, objdat->field_D, 0, k, objdat->field_11);
+    set_thing_draw(thing, i, objdat->anim_speed, objdat->sprite_size_max, 0, k, objdat->field_11);
     set_flag_byte(&thing->field_4F, 0x02, objconf->field_5);
     set_flag_byte(&thing->field_4F, 0x01, objdat->field_3 & 0x01);
     set_flag_byte(&thing->field_4F, 0x10, objdat->field_F & 0x01);
     set_flag_byte(&thing->field_4F, 0x20, objdat->field_F & 0x02);
-    thing->active_state = objdat->field_0;
+    thing->active_state = objdat->initial_state;
     if (objconf->ilght.field_0 != 0)
     {
         LbMemorySet(&ilight, 0, sizeof(struct InitLight));
@@ -1190,8 +1190,10 @@ TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
         }
         k = ((heartng->health << 8) / objconf->health) << 7;
         i = (saturate_set_signed(k,32) >> 8) + 128;
-        heartng->sprite_size = i * (long)objects_data[5].field_D >> 8;
-        heartng->sizexy = i * (long)objects_data[5].field_9 >> 8;
+        struct Objects *objdat;
+        objdat = get_objects_data_for_thing(heartng);
+        heartng->sprite_size = i * (long)objdat->sprite_size_max >> 8;
+        heartng->sizexy = i * (long)objdat->size_xy >> 8;
     } else
     if (heartng->owner != game.neutral_player_num)
     {
@@ -1238,7 +1240,7 @@ void set_call_to_arms_as_birthing(struct Thing *objtng)
     ctagfx = &call_to_arms_graphics[objtng->owner];
     struct Objects *objdat;
     objdat = get_objects_data_for_thing(objtng);
-    set_thing_draw(objtng, ctagfx->field_0, 256, objdat->field_D, 0, frame, 2);
+    set_thing_draw(objtng, ctagfx->field_0, 256, objdat->sprite_size_max, 0, frame, 2);
     objtng->byte_13 = 1;
     stop_thing_playing_sample(objtng, 83);
     thing_play_sample(objtng, 83, NORMAL_PITCH, 0, 3, 0, 6, FULL_LOUDNESS);
@@ -1277,7 +1279,7 @@ TngUpdateRet object_update_call_to_arms(struct Thing *thing)
         if (thing->field_49 - 1 <= thing->field_48)
         {
             thing->byte_13 = 2;
-            set_thing_draw(thing, ctagfx->field_4, 256, objdat->field_D, 0, 0, 2u);
+            set_thing_draw(thing, ctagfx->field_4, 256, objdat->sprite_size_max, 0, 0, 2);
             return 1;
         }
         break;
@@ -1298,7 +1300,7 @@ TngUpdateRet object_update_call_to_arms(struct Thing *thing)
             pos.y.val = subtile_coord_center(dungeon->cta_stl_y);
             pos.z.val = get_thing_height_at(thing, &pos);
             move_thing_in_map(thing, &pos);
-            set_thing_draw(thing, ctagfx->field_0, 256, objdat->field_D, 0, 0, 2);
+            set_thing_draw(thing, ctagfx->field_0, 256, objdat->sprite_size_max, 0, 0, 2);
             thing->byte_13 = 1;
             stop_thing_playing_sample(thing, 83);
             thing_play_sample(thing, 83, NORMAL_PITCH, 0, 3, 0, 6, FULL_LOUDNESS);
@@ -1433,7 +1435,7 @@ TngUpdateRet update_object(struct Thing *thing)
       {
         thing->movement_flags |= TMvF_IsOnLava;
         objdat = get_objects_data_for_thing(thing);
-        if ( (objdat->field_12) && !thing_is_dragged_or_pulled(thing) )
+        if ( (objdat->destroy_on_lava) && !thing_is_dragged_or_pulled(thing) )
         {
             destroy_object(thing);
             return TUFRet_Deleted;
@@ -1632,7 +1634,7 @@ long add_gold_to_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amou
     if ((n & 0x8000u) == 0) {
       i = n;
     }
-    set_thing_draw(gldtng, i, objdat->field_7, objdat->field_D, 0, 0, objdat->field_11);
+    set_thing_draw(gldtng, i, objdat->anim_speed, objdat->sprite_size_max, 0, 0, objdat->field_11);
     return amount;
 }
 
@@ -1689,7 +1691,7 @@ long remove_gold_from_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount
     if ((n & 0x8000u) == 0) {
       i = n;
     }
-    set_thing_draw(gldtng, i, objdat->field_7, objdat->field_D, 0, 0, objdat->field_11);
+    set_thing_draw(gldtng, i, objdat->anim_speed, objdat->sprite_size_max, 0, 0, objdat->field_11);
     return amount;
 }
 
