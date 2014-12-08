@@ -198,7 +198,7 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
     set_selected_creature(player, thing);
     player->field_4B5 = cam->field_6;
     thing->alloc_flags |= TAlF_IsControlled;
-    thing->field_4F |= 0x01;
+    thing->field_4F |= TF4F_Unknown01;
     cctrl = creature_control_get_from_thing(thing);
     cctrl->flgfield_2 |= 0x02;
     cctrl->max_speed = calculate_correct_creature_maxspeed(thing);

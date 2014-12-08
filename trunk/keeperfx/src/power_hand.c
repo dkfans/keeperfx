@@ -780,7 +780,7 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, M
     }
     droptng->mappos.z.val = fall_dist + get_floor_height_at(&droptng->mappos);
     droptng->alloc_flags &= ~0x10;
-    droptng->field_4F &= ~0x01;
+    droptng->field_4F &= ~TF4F_Unknown01;
     place_thing_in_mapwho(droptng);
     if (thing_is_creature(droptng))
     {

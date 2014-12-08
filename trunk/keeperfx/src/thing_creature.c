@@ -250,7 +250,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     if (cam != NULL)
       player->field_4B5 = cam->field_6;
     thing->alloc_flags |= TAlF_IsControlled;
-    thing->field_4F |= 0x01;
+    thing->field_4F |= TF4F_Unknown01;
     set_start_state(thing);
     set_player_mode(player, PVT_CreatureContrl);
     if (thing_is_creature(thing))
@@ -311,7 +311,7 @@ TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *th
     if (cam != NULL)
       player->field_4B5 = cam->field_6;
     set_player_mode(player, PVT_CreaturePasngr);
-    thing->field_4F |= 0x01;
+    thing->field_4F |= TF4F_Unknown01;
     return true;
 }
 

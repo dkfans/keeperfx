@@ -632,9 +632,9 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
     } else {
         thing->field_4F &= ~0x40;
     }
-    thing->sizexy = trapstat->field_14;
+    thing->sizexy = trapstat->size_xy;
     thing->field_58 = trapstat->field_16;
-    thing->field_5A = trapstat->field_14;
+    thing->field_5A = trapstat->size_xy;
     thing->field_5C = trapstat->field_16;
     thing->creation_turn = game.play_gameturn;
     thing->health = trapstat->field_0;
