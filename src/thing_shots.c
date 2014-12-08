@@ -1297,7 +1297,7 @@ TngUpdateRet update_shot(struct Thing *thing)
             break;
         case ShM_Boulder:
         case ShM_SolidBoulder:
-            if ( apply_wallhug_force_to_boulder(thing) )
+            if (apply_wallhug_force_to_boulder(thing))
               hit = true;
             break;
         case ShM_GodLightning:
