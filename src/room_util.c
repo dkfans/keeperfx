@@ -340,7 +340,7 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
     if (thing_is_spellbook(thing))
     {
         room = get_room_thing_is_on(thing);
-        if (room_is_invalid(room) || (room->kind != RoK_LIBRARY))
+        if (room_is_invalid(room) || (room->kind != RoK_LIBRARY) || !player_exists(get_player(room->owner)))
         {
             // No room - oh well, leave it as free spell
             if (((gameadd.classic_bugs_flags & ClscBug_ClaimRoomAllThings) != 0) && !room_is_invalid(room)) {
@@ -363,7 +363,7 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
     if (thing_is_workshop_crate(thing))
     {
         room = get_room_thing_is_on(thing);
-        if (room_is_invalid(room) || (room->kind != RoK_WORKSHOP))
+        if (room_is_invalid(room) || (room->kind != RoK_WORKSHOP) || !player_exists(get_player(room->owner)))
         {
             // No room - oh well, leave it as free box
             if (((gameadd.classic_bugs_flags & ClscBug_ClaimRoomAllThings) != 0) && !room_is_invalid(room)) {
