@@ -966,10 +966,13 @@ void reposition_all_crates_in_room_on_subtile(struct Room *room, MapSubtlCoord s
             tngclass = crate_thing_to_workshop_item_class(thing);
             tngmodel = crate_thing_to_workshop_item_model(thing);
             if (!store_reposition_entry(rrepos, objkind)) {
-                WARNLOG("Too many things to reposition in %s.",room_code_name(room->kind));
+                WARNLOG("Too many things to reposition in %s index %d",room_code_name(room->kind),(int)room->index);
             }
-            if (remove_workshop_item_from_amount_stored(thing->owner, tngclass, tngmodel, WrkCrtF_NoOffmap) > WrkCrtS_None) {
-                remove_workshop_item_from_amount_placeable(thing->owner, tngclass, tngmodel);
+            if (!is_neutral_thing(thing) && player_exists(get_player(thing->owner)))
+            {
+                if (remove_workshop_item_from_amount_stored(thing->owner, tngclass, tngmodel, WrkCrtF_NoOffmap) > WrkCrtS_None) {
+                    remove_workshop_item_from_amount_placeable(thing->owner, tngclass, tngmodel);
+                }
             }
             delete_thing_structure(thing, 0);
         }

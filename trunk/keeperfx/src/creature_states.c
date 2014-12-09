@@ -4240,51 +4240,51 @@ TbBool can_change_from_state_to(const struct Thing *thing, CrtrStateId curr_stat
     switch (curr_stati->state_type)
     {
     case CrStTyp_OwnNeeds:
-        if ( next_stati->allow_fromval2 )
+        if (next_stati->override_own_needs)
             return true;
         break;
     case CrStTyp_Sleep:
-        if ( next_stati->allow_fromval3 )
+        if (next_stati->override_sleep)
             return true;
         break;
     case CrStTyp_Feed:
-        if ( next_stati->allow_fromval4 )
+        if (next_stati->override_feed)
             return true;
         break;
     case CrStTyp_FightCrtr:
-        if ( next_stati->allow_fromval5 )
+        if (next_stati->override_fight_crtr)
             return true;
         break;
     case CrStTyp_GetsSalary:
-        if ( next_stati->allow_fromval7 )
+        if (next_stati->override_gets_salary)
             return true;
         break;
     case CrStTyp_Escape:
-        if ( next_stati->allow_fromval8 )
+        if (next_stati->override_escape)
             return true;
         break;
     case CrStTyp_Unconscious:
-        if ( next_stati->allow_fromval9 )
+        if (next_stati->override_unconscious)
             return true;
         break;
     case CrStTyp_AngerJob:
-        if ( next_stati->allow_fromval10 )
+        if (next_stati->override_anger_job)
             return true;
         break;
     case CrStTyp_FightDoor:
-        if ( next_stati->allow_fromval11 )
+        if (next_stati->override_fight_door)
             return true;
         break;
     case CrStTyp_FightObj:
-        if ( next_stati->allow_fromval12 )
+        if (next_stati->override_fight_object)
             return true;
         break;
     case CrStTyp_Called2Arms:
-        if ( next_stati->allow_fromval13 )
+        if (next_stati->override_call2arms)
             return true;
         break;
     case CrStTyp_Follow:
-        if ( next_stati->allow_fromval14 )
+        if (next_stati->override_follow)
             return true;
         break;
     default:
@@ -4346,7 +4346,7 @@ short set_start_state_f(struct Thing *thing,const char *func_name)
 
 TbBool external_set_thing_state_f(struct Thing *thing, CrtrStateId state, const char *func_name)
 {
-    if ( !can_change_from_state_to(thing, thing->active_state, state) )
+    if (!can_change_from_state_to(thing, thing->active_state, state))
     {
         WARNDBG(4,"%s: State change %s to %s for %s not allowed",func_name,creature_state_code_name(thing->active_state),
             creature_state_code_name(state), thing_model_name(thing));
