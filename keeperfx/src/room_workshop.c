@@ -64,8 +64,7 @@ struct Thing *create_crate_in_workshop(struct Room *room, ThingModel cratngmodel
         return INVALID_THING;
     }
     // Neutral thing do not need any more processing
-    if (is_neutral_thing(cratetng))
-    {
+    if (is_neutral_thing(cratetng) || !player_exists(get_player(room->owner))) {
         return cratetng;
     }
     if (!add_workshop_object_to_workshop(room, cratetng)) {
@@ -241,7 +240,7 @@ struct Thing *get_workshop_box_thing(PlayerNumber owner, ThingModel objmodel)
 TbBool add_workshop_item_to_amounts_f(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel, const char *func_name)
 {
     struct Dungeon *dungeon;
-    dungeon = get_players_num_dungeon(plyr_idx);
+    dungeon = get_players_num_dungeon_f(plyr_idx,func_name);
     if (dungeon_invalid(dungeon)) {
         ERRORLOG("%s: Can't add item; player %d has no dungeon.",func_name,(int)plyr_idx);
         return false;
@@ -296,7 +295,7 @@ TbBool add_workshop_item_to_amounts_f(PlayerNumber plyr_idx, ThingClass tngclass
 TbBool readd_workshop_item_to_amount_placeable_f(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel, const char *func_name)
 {
     struct Dungeon *dungeon;
-    dungeon = get_players_num_dungeon(plyr_idx);
+    dungeon = get_players_num_dungeon_f(plyr_idx,func_name);
     if (dungeon_invalid(dungeon)) {
         ERRORLOG("%s: Can't add item; player %d has no dungeon.",func_name,(int)plyr_idx);
         return false;
@@ -340,14 +339,14 @@ TbBool readd_workshop_item_to_amount_placeable_f(PlayerNumber plyr_idx, ThingCla
  * @param owner
  * @param tngclass
  * @param tngmodel
- * @return Gives 0 if no crate was found, 1 if offmap crate was used, 2 if crate from workshop was used.
+ * @return Gives WrkCrtS_None if no crate was found, WrkCrtS_Offmap if offmap crate was used, WrkCrtS_Stored if crate from workshop was used.
  * @note was named remove_workshop_item()
  */
 int remove_workshop_item_from_amount_stored_f(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel, unsigned short flags, const char *func_name)
 {
     SYNCDBG(18,"%s: Starting",func_name);
     struct Dungeon *dungeon;
-    dungeon = get_players_num_dungeon(plyr_idx);
+    dungeon = get_players_num_dungeon_f(plyr_idx,func_name);
     if (dungeon_invalid(dungeon)) {
         ERRORLOG("%s: Can't remove item; player %d has no dungeon.",func_name,(int)plyr_idx);
         return WrkCrtS_None;
@@ -412,7 +411,7 @@ TbBool remove_workshop_item_from_amount_placeable_f(PlayerNumber plyr_idx, Thing
 {
     SYNCDBG(18,"%s: Starting",func_name);
     struct Dungeon *dungeon;
-    dungeon = get_players_num_dungeon(plyr_idx);
+    dungeon = get_players_num_dungeon_f(plyr_idx,func_name);
     if (dungeon_invalid(dungeon)) {
         ERRORLOG("%s: Can't remove item; player %d has no dungeon.",func_name,(int)plyr_idx);
         return false;

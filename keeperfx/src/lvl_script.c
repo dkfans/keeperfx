@@ -497,7 +497,12 @@ const struct CommandDesc *get_next_word(char **line, char *param, unsigned char 
       param[pos] = '\0';
       rnd_max = atol(param);
       // Prepare the value
-      itoa((rand() % (rnd_max-rnd_min+1)) + rnd_min, param, 10);
+      if (rnd_max > rnd_min) {
+          itoa((rand() % (rnd_max-rnd_min+1)) + rnd_min, param, 10);
+      } else {
+          SCRPTERRLOG("Second argument of RANDOM command should be greater than first");
+          itoa(rnd_min, param, 10);
+      }
       pos = 16; // we won't have numbers greater than 16 chars
     }
   } else
