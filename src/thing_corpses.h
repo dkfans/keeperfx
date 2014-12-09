@@ -43,6 +43,7 @@ enum DeadCreatureStates {
 /******************************************************************************/
 TbBool corpse_is_rottable(const struct Thing *thing);
 TbBool update_dead_creatures_list(struct Dungeon *dungeon, const struct Thing *thing);
+TbBool update_dead_creatures_list_for_owner(const struct Thing *thing);
 TbBool add_item_to_dead_creature_list(struct Dungeon *dungeon, ThingModel crmodel, long crlevel);
 TbBool remove_item_from_dead_creature_list(struct Dungeon *dungeon, ThingModel crmodel, long crlevel);
 TngUpdateRet update_dead_creature(struct Thing *thing);

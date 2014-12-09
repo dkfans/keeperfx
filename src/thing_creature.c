@@ -1625,24 +1625,24 @@ TbBool inc_player_kills_counter(long killer_idx, struct Thing *victim)
 TbBool update_kills_counters(struct Thing *victim, struct Thing *killer,
     PlayerNumber def_plyr_idx, CrDeathFlags flags)
 {
-  struct CreatureControl *cctrl;
-  cctrl = creature_control_get_from_thing(victim);
-  if ((flags & CrDed_DiedInBattle) != 0)
-  {
-    if (!thing_is_invalid(killer))
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(victim);
+    if ((flags & CrDed_DiedInBattle) != 0)
     {
-      return inc_player_kills_counter(killer->owner, victim);
+        if (!thing_is_invalid(killer))
+        {
+            return inc_player_kills_counter(killer->owner, victim);
+        }
+        if ((def_plyr_idx != -1) && (game.neutral_player_num != def_plyr_idx))
+        {
+            return inc_player_kills_counter(def_plyr_idx, victim);
+        }
     }
-    if ((def_plyr_idx != -1) && (game.neutral_player_num != def_plyr_idx))
+    if ((cctrl->fighting_player_idx != -1) && (game.neutral_player_num != cctrl->fighting_player_idx))
     {
-      return inc_player_kills_counter(def_plyr_idx, victim);
+        return inc_player_kills_counter(cctrl->fighting_player_idx, victim);
     }
-  }
-  if ((cctrl->fighting_player_idx != -1) && (game.neutral_player_num != cctrl->fighting_player_idx))
-  {
-    return inc_player_kills_counter(cctrl->fighting_player_idx, victim);
-  }
-  return false;
+    return false;
 }
 
 long creature_is_ambulating(struct Thing *thing)
@@ -2253,19 +2253,27 @@ void cause_creature_death(struct Thing *thing, CrDeathFlags flags)
 
     crmodel = thing->model;
     crstat = creature_stats_get_from_thing(thing);
-    if (((flags & CrDed_NoEffects) != 0) || (!thing_exists(thing)))
-    {
-        if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
-            add_creature_to_pool(crmodel, 1, 1);
-        delete_thing_structure(thing, 0);
-        return;
+    if (!thing_exists(thing)) {
+        flags |= CrDed_NoEffects;
     }
-    if ((crstat->rebirth != 0) && (cctrl->lairtng_idx > 0)
-     && (crstat->rebirth-1 <= cctrl->explevel) )
+    if (((flags & CrDed_NoEffects) == 0) && (crstat->rebirth != 0)
+     && (cctrl->lairtng_idx > 0) && (crstat->rebirth-1 <= cctrl->explevel))
     {
         creature_rebirth_at_lair(thing);
         return;
     }
+    // Beyond this point, the creature thing is bound to be deleted
+    if (((flags & CrDed_NotReallyDying) == 0) || ((gameadd.classic_bugs_flags & ClscBug_ResurrectRemoved) != 0))
+    {
+        // If the creature is leaving dungeon, or being transformed, then CrDed_NotReallyDying should be set
+        update_dead_creatures_list_for_owner(thing);
+    }
+    if ((flags & CrDed_NoEffects) != 0)
+    {
+        if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
+            add_creature_to_pool(crmodel, 1, 1);
+        delete_thing_structure(thing, 0);
+    } else
     if (!creature_model_bleeds(thing->model))
     {
         // Non-bleeding creatures have no flesh explosion effects
@@ -2360,8 +2368,6 @@ TbBool kill_creature_compat(struct Thing *creatng, struct Thing *killertng, Play
 TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
     PlayerNumber killer_plyr_idx, CrDeathFlags flags)
 {
-    struct CreatureControl *cctrlgrp;
-    struct CreatureStats *crstat;
     struct Dungeon *dungeon;
     SYNCDBG(18,"Starting");
     TRACE_THING(creatng);
@@ -2390,12 +2396,8 @@ TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
     }
     if (!dungeon_invalid(dungeon))
     {
-        if (((flags & CrDed_NotReallyDying) == 0) || ((gameadd.classic_bugs_flags & ClscBug_ResurrectRemoved) != 0))
-        {
-            update_dead_creatures_list(dungeon, creatng);
-            if ((flags & CrDed_DiedInBattle) != 0) {
-                dungeon->battles_lost++;
-            }
+        if ((flags & CrDed_DiedInBattle) != 0) {
+            dungeon->battles_lost++;
         }
     }
     update_kills_counters(creatng, killertng, killer_plyr_idx, flags);
@@ -2415,6 +2417,7 @@ TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
             dungeon->lvstats.flies_killed_by_spiders++;
         }
     }
+    struct CreatureControl *cctrlgrp;
     cctrlgrp = creature_control_get_from_thing(killertng);
     if (!creature_control_invalid(cctrlgrp)) {
         cctrlgrp->kills_num++;
@@ -2431,10 +2434,14 @@ TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
             ERRORLOG("Hero have tend to imprison");
         }
     }
-    crstat = creature_stats_get_from_thing(killertng);
-    anger_apply_anger_to_creature(killertng, crstat->annoy_win_battle, AngR_Other, 1);
-    if (!creature_control_invalid(cctrlgrp) && ((flags & CrDed_DiedInBattle) != 0))
-      cctrlgrp->byte_9A++;
+    {
+        struct CreatureStats *crstat;
+        crstat = creature_stats_get_from_thing(killertng);
+        anger_apply_anger_to_creature(killertng, crstat->annoy_win_battle, AngR_Other, 1);
+    }
+    if (!creature_control_invalid(cctrlgrp) && ((flags & CrDed_DiedInBattle) != 0)) {
+        cctrlgrp->byte_9A++;
+    }
     if (!dungeon_invalid(dungeon)) {
         dungeon->hates_player[killertng->owner] += game.fight_hate_kill_value;
     }

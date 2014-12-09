@@ -324,27 +324,27 @@ CrStateRet creature_in_prison(struct Thing *thing)
 
 TbBool prison_convert_creature_to_skeleton(struct Room *room, struct Thing *thing)
 {
-  struct Dungeon *dungeon;
-  struct CreatureControl *cctrl;
-  struct Thing *crthing;
-  long crmodel;
-  cctrl = creature_control_get_from_thing(thing);
-  crmodel = get_room_create_creature_model(room->kind); // That normally returns skeleton breed
-  crthing = create_creature(&thing->mappos, crmodel, room->owner);
-  if (thing_is_invalid(crthing))
-  {
-      ERRORLOG("Couldn't create creature %s in prison", creature_code_name(crmodel));
-      return false;
-  }
-  init_creature_level(crthing, cctrl->explevel);
-  set_start_state(crthing);
-  if (creature_model_bleeds(thing->model))
-    create_effect_around_thing(thing, TngEff_Unknown10);
-  kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects);
-  dungeon = get_dungeon(room->owner);
-  if (!dungeon_invalid(dungeon))
-      dungeon->lvstats.skeletons_raised++;
-  return true;
+    struct Dungeon *dungeon;
+    struct CreatureControl *cctrl;
+    struct Thing *crthing;
+    long crmodel;
+    cctrl = creature_control_get_from_thing(thing);
+    crmodel = get_room_create_creature_model(room->kind); // That normally returns skeleton breed
+    crthing = create_creature(&thing->mappos, crmodel, room->owner);
+    if (thing_is_invalid(crthing))
+    {
+        ERRORLOG("Couldn't create creature %s in prison", creature_code_name(crmodel));
+        return false;
+    }
+    init_creature_level(crthing, cctrl->explevel);
+    set_start_state(crthing);
+    if (creature_model_bleeds(thing->model))
+      create_effect_around_thing(thing, TngEff_Unknown10);
+    kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects);
+    dungeon = get_dungeon(room->owner);
+    if (!dungeon_invalid(dungeon))
+        dungeon->lvstats.skeletons_raised++;
+    return true;
 }
 
 TbBool process_prisoner_skelification(struct Thing *thing, struct Room *room)

@@ -326,6 +326,20 @@ TbBool update_dead_creatures_list(struct Dungeon *dungeon, const struct Thing *t
     return add_item_to_dead_creature_list(dungeon, thing->model, cctrl->explevel);
 }
 
+TbBool update_dead_creatures_list_for_owner(const struct Thing *thing)
+{
+    struct Dungeon *dungeon;
+    SYNCDBG(18,"Starting");
+    dungeon = INVALID_DUNGEON;
+    if (!is_neutral_thing(thing)) {
+        dungeon = get_players_num_dungeon(thing->owner);
+    }
+    if (dungeon_invalid(dungeon)) {
+        return false;
+    }
+    return update_dead_creatures_list(dungeon, thing);
+}
+
 struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, unsigned short a1, unsigned short owner, long explevel)
 {
     struct Thing *thing;
