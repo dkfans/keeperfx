@@ -53,9 +53,9 @@ short creature_moan(struct Thing *thing)
     struct CreatureControl *cctrl;
     long i;
     cctrl = creature_control_get_from_thing(thing);
-    i = cctrl->field_282;
+    i = cctrl->countdown_282;
     if (i > 0) i--;
-    cctrl->field_282 = i;
+    cctrl->countdown_282 = i;
     if (i <= 0)
     {
         if (cctrl->instance_id == CrInst_NULL) {
@@ -79,10 +79,10 @@ short creature_roar(struct Thing *thing)
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
 
-    if (cctrl->field_282 > 0) {
-        cctrl->field_282--;
+    if (cctrl->countdown_282 > 0) {
+        cctrl->countdown_282--;
     }
-    if (cctrl->field_282 <= 0)
+    if (cctrl->countdown_282 <= 0)
     {
         cctrl->last_roar_turn = game.play_gameturn;
         set_start_state(thing);
@@ -101,9 +101,9 @@ short creature_be_happy(struct Thing *thing)
     struct CreatureControl *cctrl;
     long i;
     cctrl = creature_control_get_from_thing(thing);
-    i = cctrl->field_282;
+    i = cctrl->countdown_282;
     if (i > 0) i--;
-    cctrl->field_282 = i;
+    cctrl->countdown_282 = i;
     if (i <= 0)
     {
       if (cctrl->instance_id == CrInst_NULL) {
@@ -130,9 +130,9 @@ short creature_piss(struct Thing *thing)
     if ( !S3DEmitterIsPlayingSample(thing->snd_emitter_id, 171, 0) ) {
         thing_play_sample(thing, 171, NORMAL_PITCH, 0, 3, 1, 6, FULL_LOUDNESS);
     }
-    i = cctrl->field_282;
+    i = cctrl->countdown_282;
     if (i > 0) i--;
-    cctrl->field_282 = i;
+    cctrl->countdown_282 = i;
     if (i > 0) {
         return 1;
     }
@@ -171,14 +171,14 @@ short mad_killing_psycho(struct Thing *creatng)
             creatng->continue_state = CrSt_MadKillingPsycho;
         } else
         {
-            cctrl->field_282 = 50;
+            cctrl->countdown_282 = 50;
             creatng->continue_state = CrSt_CreatureRoar;
         }
     } else
     {
         if (game.play_gameturn - cctrl->last_roar_turn > 200)
         {
-            cctrl->field_282 = 50;
+            cctrl->countdown_282 = 50;
             internal_set_thing_state(creatng, CrSt_CreatureRoar);
         }
     }

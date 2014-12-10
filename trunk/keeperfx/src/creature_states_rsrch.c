@@ -505,7 +505,7 @@ short researching(struct Thing *thing)
       && ((game.play_gameturn + thing->index) & 0x03) == 0)
     {
         external_set_thing_state(thing, CrSt_CreatureBeHappy);
-        cctrl->field_282 = 50;
+        cctrl->countdown_282 = 50;
         cctrl->long_9A = 0;
         return CrStRet_Modified;
     }

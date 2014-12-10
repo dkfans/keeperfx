@@ -390,12 +390,12 @@ unsigned char field_211[6];
     unsigned char continue_state_bkp;
 unsigned char field_27F;
     short conscious_back_turns;
-    short field_282; // signed
+    short countdown_282; // signed
 unsigned char field_284[2];
     unsigned char joining_age;
     unsigned char blood_type;
     struct Coord3d flee_pos;
-    long field_28E;
+    long start_turn_28E;
     struct MemberPos followers_pos[GROUP_MEMBERS_COUNT];
     unsigned short next_in_room;
     unsigned short prev_in_room;//field_2AC
