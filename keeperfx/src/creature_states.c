@@ -1562,9 +1562,9 @@ short creature_change_from_chicken(struct Thing *creatng)
     TRACE_THING(creatng);
     cctrl = creature_control_get_from_thing(creatng);
     creature_set_speed(creatng, 0);
-    if (cctrl->field_282 > 0)
-        cctrl->field_282--;
-    if (cctrl->field_282 > 0)
+    if (cctrl->countdown_282 > 0)
+        cctrl->countdown_282--;
+    if (cctrl->countdown_282 > 0)
     { // Changing under way - gradually modify size of the creature
         creatng->field_4F |= TF4F_Unknown01;
         creatng->field_50 |= 0x01;
@@ -1574,7 +1574,7 @@ short creature_change_from_chicken(struct Thing *creatng)
         {
             unsigned long k;
             long n;
-            n = (10 - cctrl->field_282) * (300 * cctrl->explevel / 20 + 300) / 10;
+            n = (10 - cctrl->countdown_282) * (300 * cctrl->explevel / 20 + 300) / 10;
             k = get_creature_anim(creatng, 0);
             set_thing_draw(efftng, k, 256, n, -1, 0, 2);
             efftng->field_4F &= ~TF4F_Unknown20;
@@ -1598,9 +1598,9 @@ short creature_change_to_chicken(struct Thing *creatng)
     TRACE_THING(creatng);
     cctrl = creature_control_get_from_thing(creatng);
     creature_set_speed(creatng, 0);
-    if (cctrl->field_282 > 0)
-        cctrl->field_282--;
-    if (cctrl->field_282 > 0)
+    if (cctrl->countdown_282 > 0)
+        cctrl->countdown_282--;
+    if (cctrl->countdown_282 > 0)
     {
       creatng->field_50 |= 0x01;
       creatng->field_4F |= 0x01;
@@ -1610,7 +1610,7 @@ short creature_change_to_chicken(struct Thing *creatng)
       {
           unsigned long k;
           k = convert_td_iso(819);
-          set_thing_draw(efftng, k, 0, 1200 * cctrl->field_282 / 10 + 300, -1, 0, 2);
+          set_thing_draw(efftng, k, 0, 1200 * cctrl->countdown_282 / 10 + 300, -1, 0, 2);
           efftng->field_4F &= ~0x20;
           efftng->field_4F |= 0x10;
       }
@@ -1765,7 +1765,7 @@ short creature_doing_nothing(struct Thing *creatng)
         }
     }
     internal_set_thing_state(creatng, CrSt_CreatureCannotFindAnythingToDo);
-    cctrl->field_282 = game.play_gameturn;
+    cctrl->countdown_282 = game.play_gameturn;
     return 0;
 }
 
@@ -4009,7 +4009,7 @@ short seek_the_enemy(struct Thing *creatng)
         {
             if (cctrl->instance_id == CrInst_NULL)
             {
-              if ((dist < 2304) && (game.play_gameturn-cctrl->field_282 < 20))
+              if ((dist < 2304) && (game.play_gameturn-cctrl->countdown_282 < 20))
               {
                 set_creature_instance(creatng, CrInst_CELEBRATE_SHORT, 1, 0, 0);
                 thing_play_sample(creatng, 168+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
@@ -4020,14 +4020,14 @@ short seek_the_enemy(struct Thing *creatng)
                   if (setup_person_move_close_to_position(creatng, enemytng->mappos.x.stl.num, enemytng->mappos.y.stl.num, NavRtF_Default))
                   {
                     creatng->continue_state = CrSt_SeekTheEnemy;
-                    cctrl->field_282 = game.play_gameturn;
+                    cctrl->countdown_282 = game.play_gameturn;
                     return 1;
                   }
               }
               if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
               {
                   creatng->continue_state = CrSt_SeekTheEnemy;
-                  cctrl->field_282 = game.play_gameturn;
+                  cctrl->countdown_282 = game.play_gameturn;
               }
             }
             return 1;
@@ -4233,9 +4233,9 @@ TbBool can_change_from_state_to(const struct Thing *thing, CrtrStateId curr_stat
     if (curr_stati->state_type == CrStTyp_Move)
       curr_stati = get_thing_state_info_num(thing->continue_state);
     next_stati = get_thing_state_info_num(next_state);
-    if ((curr_stati->field_20) && (!next_stati->field_16))
+    if ((curr_stati->field_20) && (!next_stati->override_prev_fld20))
         return false;
-    if ((curr_stati->field_1F) && (!next_stati->field_15))
+    if ((curr_stati->field_1F) && (!next_stati->override_prev_fld1F))
         return false;
     switch (curr_stati->state_type)
     {
@@ -4393,7 +4393,7 @@ long process_creature_needs_to_heal_critical(struct Thing *creatng, const struct
         }
         if (external_set_thing_state(creatng, CrSt_ImpToking)) {
             creatng->continue_state = CrSt_ImpDoingNothing;
-            cctrl->field_282 = 200;
+            cctrl->countdown_282 = 200;
             return 1;
         }
     }
@@ -4732,7 +4732,7 @@ long process_piss_need(struct Thing *thing, const struct CreatureStats *crstat)
     {
         return 0;
     }
-    cctrl->field_282 = 50;
+    cctrl->countdown_282 = 50;
     cctrl->field_B2 = game.play_gameturn;
     return 1;
 }

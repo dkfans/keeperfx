@@ -812,7 +812,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     {
         return melee_shot_hit_creature_at(shotng, trgtng, pos);
     }
-    if ( (shotst->old->field_28 != 0) || (trgtng->health < 0) )
+    if ((shotst->old->field_28 != 0) || (trgtng->health < 0))
         return 0;
     if ( (creature_affected_by_spell(trgtng, SplK_Rebound)) && (shotst->old->field_29 == 0) )
     {

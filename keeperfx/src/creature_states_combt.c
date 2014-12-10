@@ -1249,13 +1249,13 @@ long set_creature_in_combat_to_the_death(struct Thing *fighter, struct Thing *en
     return true;
 }
 
-long find_fellow_creature_to_fight_in_room(struct Thing *fighter, struct Room *room,long crmodel, struct Thing **enemytng)
+long find_fellow_creature_to_fight_in_room(struct Thing *fightng, struct Room *room,long crmodel, struct Thing **enemytng)
 {
     struct Dungeon *dungeon;
     unsigned long k;
     int i;
     SYNCDBG(8,"Starting");
-    dungeon = get_players_num_dungeon(fighter->owner);
+    dungeon = get_players_num_dungeon(fightng->owner);
     k = 0;
     i = dungeon->creatr_list_start;
     while (i != 0)
@@ -1272,16 +1272,17 @@ long find_fellow_creature_to_fight_in_room(struct Thing *fighter, struct Room *r
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        if ( (thing->model == crmodel) && (cctrl->combat_flags == 0) )
+        if (thing_is_creature(thing) && (thing->model == crmodel) && (cctrl->combat_flags == 0))
         {
-            if (!thing_is_picked_up(thing))
+            if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody(thing)
+             && !creature_is_being_unconscious(thing) && !creature_is_dying(thing))
             {
-                if ((thing != fighter) && (get_room_thing_is_on(thing) == room))
+                if ((thing->index != fightng->index) && (get_room_thing_is_on(thing)->index == room->index))
                 {
                     long dist;
                     CrAttackType attack_type;
-                    dist = get_combat_distance(fighter, thing);
-                    attack_type = creature_can_have_combat_with_creature(fighter, thing, dist, 0, 0);
+                    dist = get_combat_distance(fightng, thing);
+                    attack_type = creature_can_have_combat_with_creature(fightng, thing, dist, 0, 0);
                     if (attack_type > AttckT_Unset)
                     {
                         *enemytng = thing;
@@ -1353,7 +1354,7 @@ short creature_combat_flee(struct Thing *creatng)
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
     GameTurnDelta turns_in_flee;
-    turns_in_flee = game.play_gameturn - (GameTurnDelta)cctrl->field_28E;
+    turns_in_flee = game.play_gameturn - (GameTurnDelta)cctrl->start_turn_28E;
     if (get_2d_box_distance(&creatng->mappos, &cctrl->flee_pos) >= 1536)
     {
         SYNCDBG(8,"Starting distant flee for %s",thing_model_name(creatng),(int)creatng->index);
@@ -1366,7 +1367,7 @@ short creature_combat_flee(struct Thing *creatng)
                 cctrl->flee_pos.y.val = creatng->mappos.y.val;
                 cctrl->flee_pos.z.val = creatng->mappos.z.val;
             }
-            cctrl->field_28E = game.play_gameturn;
+            cctrl->start_turn_28E = game.play_gameturn;
         } else
         if (turns_in_flee <= game.game_turns_in_flee)
         {
@@ -2374,7 +2375,7 @@ short creature_in_combat(struct Thing *creatng)
             ERRORLOG("Cannot get %s index %d into flee",thing_model_name(creatng),(int)creatng->index);
             return 0;
         }
-        cctrl->field_28E = game.play_gameturn;
+        cctrl->start_turn_28E = game.play_gameturn;
         return 0;
     }
     CombatState combat_func;
@@ -2462,7 +2463,7 @@ TbBool creature_look_for_combat(struct Thing *creatng)
             return false;
         }
         setup_combat_flee_position(creatng);
-        cctrl->field_28E = game.play_gameturn;
+        cctrl->start_turn_28E = game.play_gameturn;
         return 1;
     }
 
@@ -2504,7 +2505,7 @@ TbBool creature_look_for_combat(struct Thing *creatng)
         return false;
     }
     setup_combat_flee_position(creatng);
-    cctrl->field_28E = game.play_gameturn;
+    cctrl->start_turn_28E = game.play_gameturn;
     return true;
 }
 

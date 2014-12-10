@@ -1141,9 +1141,9 @@ short imp_toking(struct Thing *creatng)
     struct CreatureControl *cctrl;
     TRACE_THING(creatng);
     cctrl = creature_control_get_from_thing(creatng);
-    if (cctrl->field_282 > 0)
+    if (cctrl->countdown_282 > 0)
     {
-        cctrl->field_282--;
+        cctrl->countdown_282--;
     } else
     {
         if (cctrl->instance_id == CrInst_NULL) {
@@ -1151,7 +1151,7 @@ short imp_toking(struct Thing *creatng)
           return 1;
         }
     }
-    if (cctrl->field_282 > 0)
+    if (cctrl->countdown_282 > 0)
     {
         if (cctrl->instance_id == CrInst_NULL)
         {

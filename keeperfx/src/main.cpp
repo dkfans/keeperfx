@@ -502,7 +502,7 @@ void affect_nearby_friends_with_alarm(struct Thing *traptng)
         {
             struct StateInfo *stati;
             stati = get_thing_state_info_num(get_creature_state_besides_interruptions(thing));
-            if (stati->field_28 && (get_2d_box_distance(&traptng->mappos, &thing->mappos) < 4096))
+            if (stati->react_to_cta && (get_2d_box_distance(&traptng->mappos, &thing->mappos) < 4096))
             {
                 creature_mark_if_woken_up(thing);
                 if (external_set_thing_state(thing, CrSt_ArriveAtAlarm))
