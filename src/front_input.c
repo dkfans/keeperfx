@@ -1516,7 +1516,7 @@ static void speech_pickup_of_gui_job(int job_idx)
         pick_flags |= TPF_OrderedPick;
     if (lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT])
         pick_flags |= TPF_ReverseOrder;
-    pick_up_creature_of_breed_and_gui_job(kind, job_idx, my_player_number, pick_flags);
+    pick_up_creature_of_model_and_gui_job(kind, job_idx, my_player_number, pick_flags);
 }
 
 /**

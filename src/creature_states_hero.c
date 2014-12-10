@@ -793,7 +793,7 @@ short good_leave_through_exit_door(struct Thing *thing)
     }
     cctrl = creature_control_get_from_thing(thing);
     thing->creature.gold_carried = 0;
-    cctrl->field_282 = game.hero_door_wait_time;
+    cctrl->countdown_282 = game.hero_door_wait_time;
     cctrl->byte_8A = tmptng->creation_turn;
     place_thing_in_creature_controlled_limbo(thing);
     internal_set_thing_state(thing, CrSt_GoodWaitInExitDoor);
@@ -837,10 +837,10 @@ short good_wait_in_exit_door(struct Thing *thing)
         return 0;
     }
     cctrl = creature_control_get_from_thing(thing);
-    if (cctrl->field_282 <= 0)
+    if (cctrl->countdown_282 <= 0)
         return 0;
-    cctrl->field_282--;
-    if (cctrl->field_282 == 0)
+    cctrl->countdown_282--;
+    if (cctrl->countdown_282 == 0)
     {
         tmptng = find_base_thing_on_mapwho(TCls_Object, 49, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
         if (!thing_is_invalid(tmptng))
@@ -869,15 +869,15 @@ short creature_hero_entering(struct Thing *thing)
     struct CreatureControl *cctrl;
     TRACE_THING(thing);
     cctrl = creature_control_get_from_thing(thing);
-    if (cctrl->field_282 > 0)
+    if (cctrl->countdown_282 > 0)
     {
-        cctrl->field_282--;
+        cctrl->countdown_282--;
         return CrStRet_Unchanged;
     }
-    if (cctrl->field_282 == 0)
+    if (cctrl->countdown_282 == 0)
     {
         thing->mappos.z.val = get_ceiling_height(&thing->mappos) - (long)thing->field_58 - 1;
-        cctrl->field_282--;
+        cctrl->countdown_282--;
         return CrStRet_Modified;
     }
     if ( thing_touching_floor(thing) || (((thing->movement_flags & TMvF_Flying) != 0) && thing_touching_flight_altitude(thing)))
@@ -885,12 +885,12 @@ short creature_hero_entering(struct Thing *thing)
         set_start_state(thing);
         return CrStRet_ResetOk;
     }
-    if (cctrl->field_282 < -500)
+    if (cctrl->countdown_282 < -500)
     {
         set_start_state(thing);
         return CrStRet_ResetFail;
     }
-    cctrl->field_282--;
+    cctrl->countdown_282--;
     return CrStRet_Modified;
 }
 

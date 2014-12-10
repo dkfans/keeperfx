@@ -985,7 +985,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
             magstat = &game.keeper_power_stats[PwrK_CHICKEN];
             fill_spell_slot(thing, i, spell_idx, magstat->strength[spell_lev]);
             external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
-            cctrl->field_282 = 10;
+            cctrl->countdown_282 = 10;
             cctrl->spell_flags |= CSAfF_Chicken;
         }
         break;
@@ -1063,7 +1063,7 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         break;
     case SplK_Chicken:
         external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
-        cctrl->field_282 = 10;
+        cctrl->countdown_282 = 10;
         magstat = &game.keeper_power_stats[PwrK_CHICKEN];
         cspell->duration = magstat->strength[spell_lev];
         break;
@@ -1175,7 +1175,7 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
     case SplK_Chicken:
         cctrl->spell_flags &= ~CSAfF_Chicken;
         external_set_thing_state(thing, CrSt_CreatureChangeFromChicken);
-        cctrl->field_282 = 10;
+        cctrl->countdown_282 = 10;
         break;
     }
     if (slot_idx >= 0) {
@@ -4064,7 +4064,7 @@ struct Thing *find_players_next_creature_of_breed_and_gui_job(long crmodel, long
     return thing;
 }
 
-struct Thing *pick_up_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, unsigned char pick_flags)
+struct Thing *pick_up_creature_of_model_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, unsigned char pick_flags)
 {
     struct Dungeon *dungeon;
     struct Thing *thing;
@@ -4720,7 +4720,7 @@ long update_creature_levels(struct Thing *thing)
     set_creature_level(newtng, crstat->grow_up_level-1);
     update_creature_health_to_max(newtng);
     cctrl = creature_control_get_from_thing(thing);
-    cctrl->field_282 = 50;
+    cctrl->countdown_282 = 50;
     external_set_thing_state(newtng, CrSt_CreatureBeHappy);
     player = get_player(thing->owner);
     // Switch control if this creature is possessed

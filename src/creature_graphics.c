@@ -395,7 +395,7 @@ void update_creature_graphic_anim(struct Thing *thing)
     {
       thing->field_50 &= ~0x01;
     } else
-    if ((thing->active_state == CrSt_CreatureHeroEntering) && (cctrl->field_282 >= 0))
+    if ((thing->active_state == CrSt_CreatureHeroEntering) && (cctrl->countdown_282 >= 0))
     {
       thing->field_4F |= TF4F_Unknown01;
     } else

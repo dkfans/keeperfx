@@ -1818,7 +1818,7 @@ long check_out_imp_tokes(struct Thing *thing)
       return 0;
     internal_set_thing_state(thing, CrSt_ImpToking);
     thing->continue_state = CrSt_ImpDoingNothing;
-    cctrl->field_282 = 200;
+    cctrl->countdown_282 = 200;
     return 1;
 }
 

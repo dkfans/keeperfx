@@ -1336,7 +1336,7 @@ long update_creatures_influenced_by_call_to_arms(PlayerNumber plyr_idx)
             {
                 struct StateInfo *stati;
                 stati = get_thing_state_info_num(get_creature_state_besides_interruptions(thing));
-                if (stati->field_28 || creature_is_called_to_arms(thing))
+                if (stati->react_to_cta || creature_is_called_to_arms(thing))
                 {
                     if (creature_can_navigate_to_with_storage(thing, &pos, NavRtF_Default))
                     {
@@ -1554,9 +1554,9 @@ int affect_nearby_creatures_by_power_call_to_arms(PlayerNumber plyr_idx, long ra
             nstat = get_creature_state_besides_interruptions(thing);
             struct StateInfo *stati;
             stati = get_thing_state_info_num(nstat);
-            if (!creature_is_called_to_arms(thing) || stati->field_28)
+            if (!creature_is_called_to_arms(thing) || stati->react_to_cta)
             {
-                if (stati->field_28
+                if (stati->react_to_cta
                   && (creature_is_called_to_arms(thing) || get_2d_box_distance(&thing->mappos, pos) < range))
                 {
                     creature_mark_if_woken_up(thing);

@@ -610,43 +610,43 @@ void move_effect_blocked(struct Thing *thing, struct Coord3d *prev_pos, struct C
         cube_id = get_top_cube_at(next_pos->x.stl.num, next_pos->y.stl.num, NULL);
         if (cube_is_water(cube_id))
         {
-          effmodel = effstat->field_2A;
+          effmodel = effstat->water_effmodel;
           if (effmodel > 0) {
               efftng = create_effect(prev_pos, effmodel, thing->owner);
               TRACE_THING(efftng);
           }
-          sample_id = effstat->field_2C;
+          sample_id = effstat->water_snd_smpid;
           if (sample_id > 0) {
-              thing_play_sample(efftng, sample_id, NORMAL_PITCH, 0, 3, 0, 2, effstat->field_2E);
+              thing_play_sample(efftng, sample_id, NORMAL_PITCH, 0, 3, 0, 2, effstat->water_loudness);
           }
-          if ( effstat->field_30 )
+          if ( effstat->water_destroy_on_impact )
               thing->health = 0;
         } else
         if (cube_is_lava(cube_id))
         {
-            effmodel = effstat->field_31;
+            effmodel = effstat->lava_effmodel;
             if (effmodel > 0) {
                 efftng = create_effect(prev_pos, effmodel, thing->owner);
                 TRACE_THING(efftng);
             }
-            sample_id = effstat->field_33;
+            sample_id = effstat->lava_snd_smpid;
             if (sample_id > 0) {
-                thing_play_sample(efftng, sample_id, NORMAL_PITCH, 0, 3, 0, 2, effstat->field_35);
+                thing_play_sample(efftng, sample_id, NORMAL_PITCH, 0, 3, 0, 2, effstat->lava_loudness);
             }
-            if ( effstat->field_37 )
+            if ( effstat->lava_destroy_on_impact )
                 thing->health = 0;
         } else
         {
-            effmodel = effstat->field_23;
+            effmodel = effstat->effmodel_23;
             if (effmodel > 0) {
                 efftng = create_effect(prev_pos, effmodel, thing->owner);
                 TRACE_THING(efftng);
             }
-            sample_id = effstat->field_25;
+            sample_id = effstat->solidgnd_snd_smpid;
             if (sample_id > 0) {
-                thing_play_sample(efftng, sample_id, NORMAL_PITCH, 0, 3, 0, 2, effstat->field_27);
+                thing_play_sample(efftng, sample_id, NORMAL_PITCH, 0, 3, 0, 2, effstat->solidgnd_loudness);
             }
-            if ( effstat->field_29 )
+            if ( effstat->solidgnd_destroy_on_impact )
                 thing->health = 0;
         }
     }

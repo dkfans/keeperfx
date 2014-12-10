@@ -759,7 +759,7 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
     {
         if (external_set_thing_state(creatng, CrSt_CreatureBeHappy)) {
             cctrl = creature_control_get_from_thing(creatng);
-            cctrl->field_282 = 50;
+            cctrl->countdown_282 = 50;
         }
     }
     return 1;
