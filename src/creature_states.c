@@ -1159,14 +1159,14 @@ TbBool set_position_at_slab_for_thing(struct Coord3d *pos, const struct Thing *t
  * @return True if a position was found, false if cannot move.
  * @see find_position_around_in_room()
  */
-TbBool person_get_somewhere_adjacent_in_room(const struct Thing *thing, const struct Room *room, struct Coord3d *pos)
+TbBool person_get_somewhere_adjacent_in_room_f(const struct Thing *thing, const struct Room *room, struct Coord3d *pos, const char *func_name)
 {
     struct Room *aroom;
     MapSlabCoord slb_x,slb_y;
     long slab_num,slab_base;
     int start_stl;
     long m,n;
-    SYNCDBG(17,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
+    SYNCDBG(17,"%s: Starting for %s index %d",func_name,thing_model_name(thing),(int)thing->index);
     slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
     slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
     slab_base = get_slab_number(slb_x, slb_y);
@@ -1184,7 +1184,7 @@ TbBool person_get_somewhere_adjacent_in_room(const struct Thing *thing, const st
         {
             if (set_position_at_slab_for_thing(pos, thing, slb_x, slb_y, start_stl))
             {
-                SYNCDBG(8,"Possible to move %s index %d from (%d,%d) to (%d,%d)", thing_model_name(thing),
+                SYNCDBG(8,"%s: Possible to move %s index %d from (%d,%d) to (%d,%d)", func_name, thing_model_name(thing),
                     (int)thing->index, (int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num,
                     (int)pos->x.stl.num, (int)pos->y.stl.num);
                 return true;
@@ -1200,7 +1200,7 @@ TbBool person_get_somewhere_adjacent_in_room(const struct Thing *thing, const st
         {
             if (set_position_at_slab_for_thing(pos, thing, slb_x, slb_y, start_stl))
             {
-                SYNCDBG(8,"Short move %s index %d from (%d,%d) to (%d,%d)", thing_model_name(thing),
+                SYNCDBG(8,"%s: Short move %s index %d from (%d,%d) to (%d,%d)", func_name, thing_model_name(thing),
                     (int)thing->index, (int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num,
                     (int)pos->x.stl.num, (int)pos->y.stl.num);
                 return true;
@@ -1633,7 +1633,11 @@ TbBool creature_try_going_to_lazy_sleep(struct Thing *creatng)
     cctrl = creature_control_get_from_thing(creatng);
     struct Room *room;
     room = get_creature_lair_room(creatng);
-    if (room_is_invalid(room) || (room->kind != RoK_LAIR)) {
+    if (room_is_invalid(room)) {
+        return false;
+    }
+    if ((room->kind != RoK_LAIR) || (room->owner != creatng->owner)) {
+        ERRORLOG("The %s index %d has lair in invalid room",thing_model_name(creatng),(int)creatng->index);
         return false;
     }
     if (game.play_gameturn - cctrl->tasks_check_turn <= 128) {
@@ -1681,9 +1685,9 @@ short creature_doing_nothing(struct Thing *creatng)
         return 1;
     }
     if ((cctrl->spell_flags & CSAfF_MadKilling) != 0) {
-      internal_set_thing_state(creatng, CrSt_MadKillingPsycho);
-      SYNCDBG(8,"The %s index %d goes mad killing",thing_model_name(creatng),creatng->index);
-      return 1;
+        SYNCDBG(8,"The %s index %d goes mad killing",thing_model_name(creatng),creatng->index);
+        internal_set_thing_state(creatng, CrSt_MadKillingPsycho);
+        return 1;
     }
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(creatng);
@@ -1755,7 +1759,7 @@ short creature_doing_nothing(struct Thing *creatng)
     {
         struct Coord3d pos;
         cctrl->wander_around_check_turn = game.play_gameturn;
-        if (get_random_position_in_dungeon_for_creature(creatng->owner, 1, creatng, &pos))
+        if (get_random_position_in_dungeon_for_creature(creatng->owner, CrWaS_WithinDungeon, creatng, &pos))
         {
             if (setup_person_move_to_coord(creatng, &pos, NavRtF_Default))
             {
@@ -1927,13 +1931,13 @@ short creature_explore_dungeon(struct Thing *creatng)
     pos.y.val = subtile_coord_center(map_subtiles_y/2);
     pos.z.val = subtile_coord(1,0);
     {
-        ret = get_random_position_in_dungeon_for_creature(creatng->owner, 0, creatng, &pos);
+        ret = get_random_position_in_dungeon_for_creature(creatng->owner, CrWaS_OutsideDungeon, creatng, &pos);
         if (ret) {
             ret = setup_person_move_to_coord(creatng, &pos, NavRtF_Default);
         }
     }
     if (!ret) {
-        ret = get_random_position_in_dungeon_for_creature(creatng->owner, 1, creatng, &pos);
+        ret = get_random_position_in_dungeon_for_creature(creatng->owner, CrWaS_WithinDungeon, creatng, &pos);
         if (ret) {
             ret = setup_person_move_to_coord(creatng, &pos, NavRtF_Default);
         }
@@ -3959,15 +3963,15 @@ TbBool get_random_position_in_dungeon_for_creature(PlayerNumber plyr_idx, unsign
         ERRORLOG("Attempt to get random position in invalid dungeon %d",(int)plyr_idx);
         return false;
     }
-    if (wandr_slot == 1)
+    if (wandr_slot == CrWaS_WithinDungeon)
     {
-        if (!wander_point_get_random_pos(&player->wandr1, &thing->mappos, pos)) {
+        if (!wander_point_get_random_pos(&player->wandr_within, &thing->mappos, pos)) {
             SYNCDBG(12,"Cannot get position from wander slot %d",(int)wandr_slot);
             return false;
         }
     } else
-    { // means (wandr_slot == 0)
-        if (!wander_point_get_random_pos(&player->wandr2, &thing->mappos, pos)) {
+    { // means (wandr_slot == CrWaS_OutsideDungeon)
+        if (!wander_point_get_random_pos(&player->wandr_outside, &thing->mappos, pos)) {
             SYNCDBG(12,"Cannot get position from wander slot %d",(int)wandr_slot);
             return false;
         }
@@ -4049,7 +4053,7 @@ short seek_the_enemy(struct Thing *creatng)
             return 1;
         }
     } else
-    if (get_random_position_in_dungeon_for_creature(creatng->owner, 1, creatng, &pos))
+    if (get_random_position_in_dungeon_for_creature(creatng->owner, CrWaS_WithinDungeon, creatng, &pos))
     {
         if (setup_person_move_to_coord(creatng, &pos, NavRtF_Default))
         {

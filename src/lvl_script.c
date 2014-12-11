@@ -2821,7 +2821,7 @@ TbBool script_support_send_tunneller_to_dungeon(struct Thing *creatng, PlayerNum
         return false;
     }
     struct Coord3d pos;
-    if (!get_random_position_in_dungeon_for_creature(plyr_idx, 1, creatng, &pos)) {
+    if (!get_random_position_in_dungeon_for_creature(plyr_idx, CrWaS_WithinDungeon, creatng, &pos)) {
         WARNLOG("Tried to send %s to player %d but can't find position", thing_model_name(creatng), (int)plyr_idx);
         return false;
     }

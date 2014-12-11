@@ -223,26 +223,26 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
         if ((pwrdata->can_cast_flags & PwCast_NConscCrtrs) == 0)
         {
             if (creature_is_being_unconscious(thing) || creature_is_dying(thing)) {
-                SYNCDBG(8,"Cannot cast %s on unconscious %s",power_code_name(pwkind),thing_model_name(thing));
+                SYNCDBG(8,"Player %d cannot cast %s on unconscious %s",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing));
                 return false;
             }
         }
         if ((pwrdata->can_cast_flags & PwCast_BoundCrtrs) == 0)
         {
             if (armageddon_blocks_creature_pickup(thing, plyr_idx)) {
-                SYNCDBG(8,"Cannot cast %s while armageddon blocks %s",power_code_name(pwkind),thing_model_name(thing));
+                SYNCDBG(8,"Player %d cannot cast %s while armageddon blocks %s",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing));
                 return false;
             }
             if (creature_is_dragging_something(thing)) {
-                SYNCDBG(8,"Cannot cast %s while %s is dragging something",power_code_name(pwkind),thing_model_name(thing));
+                SYNCDBG(8,"Player %d cannot cast %s while %s is dragging something",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing));
                 return false;
             }
             if (creature_is_being_sacrificed(thing) || creature_is_being_summoned(thing)) {
-                SYNCDBG(8,"Cannot cast %s on %s while entering/leaving",power_code_name(pwkind),thing_model_name(thing));
+                SYNCDBG(8,"Player %d cannot cast %s on %s while entering/leaving",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing));
                 return false;
             }
             if (creature_affected_by_spell(thing, SplK_Teleport)) {
-                SYNCDBG(8,"Cannot cast %s on %s while teleporting",power_code_name(pwkind),thing_model_name(thing));
+                SYNCDBG(8,"Player %d cannot cast %s on %s while teleporting",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing));
                 return false;
             }
         }
@@ -272,7 +272,7 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
             }
         }
     }
-    SYNCDBG(8,"Cannot cast %s on %s, no condition met",power_code_name(pwkind),thing_model_name(thing));
+    SYNCDBG(8,"Player %d cannot cast %s on %s, no condition met",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing));
     return false;
 }
 

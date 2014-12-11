@@ -34,6 +34,7 @@
 #include "power_hand.h"
 #include "spdigger_stack.h"
 #include "player_instances.h"
+#include "player_utils.h"
 #include "game_legacy.h"
 #include "gui_soundmsgs.h"
 
@@ -313,7 +314,7 @@ TbBool attempt_anger_job_damage_walls(struct Thing *creatng)
         return false;
     }
     struct Coord3d pos;
-    if (!get_random_position_in_dungeon_for_creature(creatng->owner, 1, creatng, &pos)) {
+    if (!get_random_position_in_dungeon_for_creature(creatng->owner, CrWaS_WithinDungeon, creatng, &pos)) {
         return false;
     }
     if (!external_set_thing_state(creatng, CrSt_CreatureAttemptToDamageWalls)) {
@@ -610,7 +611,7 @@ TbBool creature_can_do_barracking_for_player(const struct Thing *creatng, Player
  */
 TbBool creature_can_do_job_for_player(const struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job, unsigned long flags)
 {
-    SYNCDBG(16,"Starting for %s (owner %d) and job %s",thing_model_name(creatng),(int)creatng->owner,creature_job_code_name(new_job));
+    SYNCDBG(16,"Starting for %s index %d owner %d and job %s",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,creature_job_code_name(new_job));
     if (creature_will_reject_job(creatng, new_job))
     {
         SYNCDBG(13,"Cannot assign %s for %s index %d owner %d; in not do jobs list",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
@@ -669,7 +670,7 @@ TbBool creature_can_do_job_for_player(const struct Thing *creatng, PlayerNumber 
 
 TbBool send_creature_to_job_for_player(struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job)
 {
-    SYNCDBG(6,"Starting for %s (owner %d) and job %s",thing_model_name(creatng),(int)creatng->owner,creature_job_code_name(new_job));
+    SYNCDBG(6,"Starting for %s index %d owner %d and job %s",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,creature_job_code_name(new_job));
     struct CreatureJobConfig *jobcfg;
     jobcfg = get_config_for_job(new_job);
     if (jobcfg->func_plyr_assign != NULL)
@@ -697,7 +698,7 @@ TbBool send_creature_to_job_for_player(struct Thing *creatng, PlayerNumber plyr_
         }
     } else
     {
-        ERRORLOG("Cannot start %s for %s (owner %d); job has no player-based assign",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->owner);
+        ERRORLOG("Cannot start %s for %s index %d owner %d; job has no player-based assign",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
     }
     return false;
 }
@@ -797,7 +798,7 @@ TbBool creature_can_do_job_near_position(struct Thing *creatng, MapSubtlCoord st
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
-    SYNCDBG(6,"Starting for %s (owner %d) and job %s",thing_model_name(creatng),(int)creatng->owner,creature_job_code_name(new_job));
+    SYNCDBG(6,"Starting for %s index %d owner %d and job %s",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,creature_job_code_name(new_job));
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(creatng);
     if (creature_will_reject_job(creatng, new_job))
@@ -853,7 +854,7 @@ TbBool creature_can_do_job_near_position(struct Thing *creatng, MapSubtlCoord st
 
 TbBool send_creature_to_job_near_position(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job)
 {
-    SYNCDBG(6,"Starting for %s (owner %d) and job %s",thing_model_name(creatng),(int)creatng->owner,creature_job_code_name(new_job));
+    SYNCDBG(6,"Starting for %s index %d owner %d and job %s",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,creature_job_code_name(new_job));
     struct CreatureJobConfig *jobcfg;
     jobcfg = get_config_for_job(new_job);
     if (jobcfg->func_cord_assign != NULL)
@@ -881,7 +882,7 @@ TbBool send_creature_to_job_near_position(struct Thing *creatng, MapSubtlCoord s
         }
     } else
     {
-        ERRORLOG("Cannot start %s for %s (owner %d); job has no coord-based assign",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->owner);
+        ERRORLOG("Cannot start %s for %s index %d owner %d; job has no coord-based assign",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
     }
     return false;
 }
@@ -909,7 +910,7 @@ TbBool attempt_job_work_in_room_for_player(struct Thing *creatng, PlayerNumber p
     struct Room *room;
     RoomKind rkind;
     rkind = get_room_for_job(new_job);
-    SYNCDBG(6,"Starting for %s (owner %d) and job %s in %s room",thing_model_name(creatng),(int)creatng->owner,creature_job_code_name(new_job),room_code_name(rkind));
+    SYNCDBG(6,"Starting for %s index %d owner %d and job %s in %s room",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,creature_job_code_name(new_job),room_code_name(rkind));
     if ((get_flags_for_job(new_job) & JoKF_NeedsCapacity) != 0) {
         room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, rkind, NavRtF_Default, 1);
     } else {
@@ -939,7 +940,7 @@ TbBool attempt_job_work_in_room_near_pos(struct Thing *creatng, MapSubtlCoord st
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
-    SYNCDBG(16,"Starting for %s (owner %d) and job %s",thing_model_name(creatng),(int)creatng->owner,creature_job_code_name(new_job));
+    SYNCDBG(16,"Starting for %s index %d owner %d and job %s",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,creature_job_code_name(new_job));
     struct Room *room;
     room = subtile_room_get(stl_x, stl_y);
     if (get_arrive_at_state_for_job(new_job) == CrSt_Unused) {
@@ -947,7 +948,7 @@ TbBool attempt_job_work_in_room_near_pos(struct Thing *creatng, MapSubtlCoord st
         return false;
     }
     if (!creature_move_to_place_in_room(creatng, room, new_job)) {
-        WARNLOG("Could not move in room %s to perform job %s by %s owner %d",room_code_name(room->kind),creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->owner);
+        WARNLOG("Could not move in room %s to perform job %s by %s index %d owner %d",room_code_name(room->kind),creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         return false;
     }
     creatng->continue_state = get_arrive_at_state_for_job(new_job);
@@ -962,7 +963,7 @@ TbBool attempt_job_work_in_room_and_cure_near_pos(struct Thing *creatng, MapSubt
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
-    SYNCDBG(16,"Starting for %s (owner %d) and job %s",thing_model_name(creatng),(int)creatng->owner,creature_job_code_name(new_job));
+    SYNCDBG(16,"Starting for %s index %d owner %d and job %s",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,creature_job_code_name(new_job));
     struct Room *room;
     room = subtile_room_get(stl_x, stl_y);
     if (get_arrive_at_state_for_job(new_job) == CrSt_Unused) {
@@ -970,7 +971,7 @@ TbBool attempt_job_work_in_room_and_cure_near_pos(struct Thing *creatng, MapSubt
         return false;
     }
     if (!creature_move_to_place_in_room(creatng, room, new_job)) {
-        WARNLOG("Could not move in room %s to perform job %s by %s owner %d",room_code_name(room->kind),creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->owner);
+        WARNLOG("Could not move in room %s to perform job %s by %s index %d owner %d",room_code_name(room->kind),creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         return false;
     }
     creatng->continue_state = get_arrive_at_state_for_job(new_job);
@@ -983,7 +984,7 @@ TbBool attempt_job_sleep_in_lair_near_pos(struct Thing *creatng, MapSubtlCoord s
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
-    SYNCDBG(16,"Starting for %s (owner %d) and job %s",thing_model_name(creatng),(int)creatng->owner,creature_job_code_name(new_job));
+    SYNCDBG(16,"Starting for %s index %d owner %d and job %s",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,creature_job_code_name(new_job));
     struct Room *room;
     room = subtile_room_get(stl_x, stl_y);
     if (get_arrive_at_state_for_job(new_job) == CrSt_Unused) {
@@ -1001,7 +1002,7 @@ TbBool attempt_job_sleep_in_lair_near_pos(struct Thing *creatng, MapSubtlCoord s
         }
     }
     if (!creature_move_to_place_in_room(creatng, room, new_job)) {
-        WARNLOG("Could not move in room %s to perform job %s by %s owner %d",room_code_name(room->kind),creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->owner);
+        WARNLOG("Could not move in room %s to perform job %s by %s index %d owner %d",room_code_name(room->kind),creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         return false;
     }
     creatng->continue_state = CrSt_CreatureChangeLair;
@@ -1016,7 +1017,7 @@ TbBool attempt_job_in_state_on_room_content_for_player(struct Thing *creatng, Pl
     rkind = get_room_for_job(new_job);
     room = find_room_for_thing_with_used_capacity(creatng, creatng->owner, rkind, NavRtF_Default, 1);
     if (room_is_invalid(room)) {
-        WARNLOG("Could not find room %s to perform job %s by %s owner %d",room_code_name(rkind),creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->owner);
+        WARNLOG("Could not find room %s to perform job %s by %s index %d owner %d",room_code_name(rkind),creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         return false;
     }
     internal_set_thing_state(creatng, get_initial_state_for_job(new_job));
@@ -1034,11 +1035,11 @@ TbBool attempt_job_move_to_event_for_player(struct Thing *creatng, PlayerNumber 
         event = get_event_of_type_for_player(EvKind_HeartAttacked, creatng->owner);
     }
     if (event_is_invalid(event)) {
-        WARNLOG("Could not find event to perform job %s by %s owner %d",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->owner);
+        WARNLOG("Could not find event to perform job %s by %s index %d owner %d",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         return false;
     }
     if (!setup_person_move_to_position(creatng, coord_subtile(event->mappos_x), coord_subtile(event->mappos_y), NavRtF_Default)) {
-        WARNLOG("Could not reach event to perform job %s by %s owner %d",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->owner);
+        WARNLOG("Could not reach event to perform job %s by %s index %d owner %d",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         return false;
     }
     creatng->continue_state = get_initial_state_for_job(new_job);

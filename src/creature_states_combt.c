@@ -300,7 +300,7 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
     enmaxhealth = enmctrl->max_health;
     if (creatng->health <= (fear * (long long)crmaxhealth) / 100)
     {
-        SYNCDBG(8,"The %s is scared due to low health (%ld/%ld)",thing_model_name(creatng),(long)creatng->health,crmaxhealth);
+        SYNCDBG(8,"The %s index %d is scared due to low health (%ld/%ld)",thing_model_name(creatng),(int)creatng->index,(long)creatng->health,crmaxhealth);
         return true;
     }
     // If the enemy is way stronger, a creature may be scared anyway
@@ -320,7 +320,7 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
         ownstrength *= support_count;
         if (enmstrength >= (fear * ownstrength) / 100)
         {
-            SYNCDBG(8,"The %s is scared due to enemy %s strength (%d vs. %d)",thing_model_name(creatng),thing_model_name(enmtng),(int)ownstrength,(int)enmstrength);
+            SYNCDBG(8,"The %s index %d is scared due to enemy %s strength (%d vs. %d)",thing_model_name(creatng),(int)creatng->index,thing_model_name(enmtng),(int)ownstrength,(int)enmstrength);
             return true;
         }
     }

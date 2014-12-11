@@ -145,7 +145,7 @@ TbBool can_add_ranged_combat_attacker(const struct Thing *victim)
     return (vicctrl->opponents_ranged_count < COMBAT_RANGED_OPPONENTS_LIMIT);
 }
 
-long get_flee_position(struct Thing *thing, struct Coord3d *pos)
+long get_flee_position(struct Thing *creatng, struct Coord3d *pos)
 {
     struct Dungeon *dungeon;
     struct PlayerInfo *player;
@@ -154,11 +154,11 @@ long get_flee_position(struct Thing *thing, struct Coord3d *pos)
     struct Thing *heartng;
     struct Thing *gatetng;
 
-    cctrl = creature_control_get_from_thing(thing);
+    cctrl = creature_control_get_from_thing(creatng);
     // Heroes should flee to their gate
-    if (is_hero_thing(thing))
+    if (is_hero_thing(creatng))
     {
-        gatetng = find_hero_door_hero_can_navigate_to(thing);
+        gatetng = find_hero_door_hero_can_navigate_to(creatng);
         if ( !thing_is_invalid(gatetng) )
         {
             pos->x.val = gatetng->mappos.x.val;
@@ -168,7 +168,7 @@ long get_flee_position(struct Thing *thing, struct Coord3d *pos)
         }
     } else
     // Neutral creatures don't have flee place
-    if (is_neutral_thing(thing))
+    if (is_neutral_thing(creatng))
     {
         if ( (pos->x.val != 0) || (pos->y.val != 0) )
         {
@@ -177,7 +177,7 @@ long get_flee_position(struct Thing *thing, struct Coord3d *pos)
         return 0;
     }
     // Same with creatures without dungeon - try using last place
-    dungeon = get_dungeon(thing->owner);
+    dungeon = get_dungeon(creatng->owner);
     if ( dungeon_invalid(dungeon) )
     {
         if ( (pos->x.val != 0) || (pos->y.val != 0) )
@@ -204,15 +204,15 @@ long get_flee_position(struct Thing *thing, struct Coord3d *pos)
         pos->z.val = heartng->mappos.z.val;
     } else
     {
-        player = get_player(thing->owner);
+        player = get_player(creatng->owner);
         if ( ((player->allocflags & PlaF_Allocated) != 0) && (player->field_2C == 1) && (player->victory_state != VicS_LostLevel) )
         {
-            ERRORLOG("The %s has no dungeon heart or lair to flee to",thing_model_name(thing));
+            ERRORLOG("The %s index %d has no dungeon heart or lair to flee to",thing_model_name(creatng),(int)creatng->index);
             return 0;
         }
-        pos->x.val = thing->mappos.x.val;
-        pos->y.val = thing->mappos.y.val;
-        pos->z.val = thing->mappos.z.val;
+        pos->x.val = creatng->mappos.x.val;
+        pos->y.val = creatng->mappos.y.val;
+        pos->z.val = creatng->mappos.z.val;
     }
     return 1;
 }
@@ -266,7 +266,7 @@ long get_combat_state_for_combat(struct Thing *fighter, struct Thing *enemy, lon
 void set_creature_in_combat(struct Thing *fightng, struct Thing *enmtng, long combat_kind)
 {
     struct CreatureControl *cctrl;
-    SYNCDBG(8,"Starting for %s and %s",thing_model_name(fightng),thing_model_name(enmtng));
+    SYNCDBG(8,"Starting for %s index %d and %s index %d",thing_model_name(fightng),(int)fightng->index,thing_model_name(enmtng),(int)enmtng->index);
     cctrl = creature_control_get_from_thing(fightng);
     if (creature_control_invalid(cctrl)) {
         ERRORLOG("Invalid creature control");
@@ -285,7 +285,7 @@ void set_creature_in_combat(struct Thing *fightng, struct Thing *enmtng, long co
     cctrl->field_AA = 0;
     cctrl->fight_til_death = 0;
     if ( !set_creature_combat_state(fightng, enmtng, combat_kind) ) {
-        WARNLOG("Couldn't setup combat state for %s and %s",thing_model_name(fightng),thing_model_name(enmtng));
+        WARNLOG("Couldn't setup combat state for %s index %d and %s index %d",thing_model_name(fightng),(int)fightng->index,thing_model_name(enmtng),(int)enmtng->index);
         set_start_state(fightng);
         return;
     }
