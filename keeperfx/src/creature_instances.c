@@ -656,7 +656,7 @@ long instf_attack_room_slab(struct Thing *creatng, long *param)
     }
     if (!delete_room_slab(coord_slab(creatng->mappos.x.val), coord_slab(creatng->mappos.y.val), 1))
     {
-        ERRORLOG("Cannot delete %s room tile destroyed by %s",room_code_name(room->kind),thing_model_name(creatng));
+        ERRORLOG("Cannot delete %s room tile destroyed by %s index %d",room_code_name(room->kind),thing_model_name(creatng),(int)creatng->index);
         return 0;
     }
     create_effect(&creatng->mappos, TngEff_Unknown03, creatng->owner);

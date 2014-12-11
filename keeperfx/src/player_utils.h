@@ -26,7 +26,10 @@
 extern "C" {
 #endif
 /******************************************************************************/
-
+enum CreatureWanderingSlots {
+    CrWaS_OutsideDungeon = 0,
+    CrWaS_WithinDungeon,
+};
 /******************************************************************************/
 #pragma pack(1)
 

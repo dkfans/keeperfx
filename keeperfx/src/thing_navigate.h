@@ -56,12 +56,16 @@ DLLIMPORT long _DK_owner_player_navigating;
 DLLIMPORT long _DK_nav_thing_can_travel_over_lava;
 #define nav_thing_can_travel_over_lava _DK_nav_thing_can_travel_over_lava
 /******************************************************************************/
-TbBool setup_person_move_to_position(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, NaviRouteFlags flags);
+TbBool setup_person_move_to_position_f(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, NaviRouteFlags flags, const char *func_name);
+#define setup_person_move_to_position(thing, stl_x, stl_y, flags) setup_person_move_to_position_f(thing, stl_x, stl_y, flags,__func__)
 TbBool setup_person_move_close_to_position(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, NaviRouteFlags flags);
-TbBool setup_person_move_backwards_to_position(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, NaviRouteFlags flags);
-TbBool setup_person_move_to_coord(struct Thing *thing, const struct Coord3d *pos, NaviRouteFlags flags);
+TbBool setup_person_move_backwards_to_position_f(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, NaviRouteFlags flags, const char *func_name);
+#define setup_person_move_backwards_to_position(thing, stl_x, stl_y, flags) setup_person_move_backwards_to_position_f(thing, stl_x, stl_y, flags,__func__)
+TbBool setup_person_move_to_coord_f(struct Thing *thing, const struct Coord3d *pos, NaviRouteFlags flags, const char *func_name);
+#define setup_person_move_to_coord(thing, pos, flags) setup_person_move_to_coord_f(thing, pos, flags,__func__)
 TbBool setup_person_move_backwards_to_coord(struct Thing *thing, const struct Coord3d *pos, NaviRouteFlags flags);
-TbBool person_move_somewhere_adjacent_in_room(struct Thing *thing, const struct Room *room);
+TbBool person_move_somewhere_adjacent_in_room_f(struct Thing *thing, const struct Room *room, const char *func_name);
+#define person_move_somewhere_adjacent_in_room(thing, room) person_move_somewhere_adjacent_in_room_f(thing, room,__func__)
 
 TbBool creature_can_travel_over_lava(const struct Thing *creatng);
 TbBool creature_can_navigate_to_f(const struct Thing *thing, struct Coord3d *pos, NaviRouteFlags flags, const char *func_name);
