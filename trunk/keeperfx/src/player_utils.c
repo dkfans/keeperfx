@@ -577,18 +577,19 @@ TbBool wp_check_map_pos_valid(struct Wander *wandr, SubtlCodedCoords stl_num)
 {
     SYNCDBG(16,"Starting");
     MapSubtlCoord stl_x,stl_y;
-    long plyr_bit;
     stl_x = stl_num_decode_x(stl_num);
     stl_y = stl_num_decode_y(stl_num);
-    plyr_bit = wandr->plyr_bit;
-    if (wandr->store_revealed)
+    if (wandr->wandr_slot == CrWaS_WithinDungeon)
     {
         struct Map *mapblk;
         mapblk = get_map_block_at_pos(stl_num);
         // Add only tiles which are revealed to the wandering player, unless it's heroes - for them, add all
-        if ((((1 << game.hero_player_num) & plyr_bit) != 0) || map_block_revealed_bit(mapblk, plyr_bit))
+        if ((wandr->plyr_idx == game.hero_player_num) || map_block_revealed(mapblk, wandr->plyr_idx))
         {
-            if (((mapblk->flags & MapFlg_IsTall) == 0) && ((get_navigation_map(stl_x, stl_y) & NAVMAP_UNSAFE_SURFACE) == 0))
+            struct SlabMap *slb;
+            slb = get_slabmap_for_subtile(stl_x, stl_y);
+            if (((mapblk->flags & MapFlg_IsTall) == 0) && ((get_navigation_map(stl_x, stl_y) & NAVMAP_UNSAFE_SURFACE) == 0)
+             && players_creatures_tolerate_each_other(wandr->plyr_idx,slabmap_owner(slb)))
             {
                 return true;
             }
@@ -598,7 +599,7 @@ TbBool wp_check_map_pos_valid(struct Wander *wandr, SubtlCodedCoords stl_num)
         struct Map *mapblk;
         mapblk = get_map_block_at_pos(stl_num);
         // Add only tiles which are not revealed to the wandering player, unless it's heroes - for them, do nothing
-        if ((((1 << game.hero_player_num) & plyr_bit) == 0) && !map_block_revealed_bit(mapblk, plyr_bit))
+        if ((wandr->plyr_idx != game.hero_player_num) && !map_block_revealed(mapblk, wandr->plyr_idx))
         {
             if (((mapblk->flags & MapFlg_IsTall) == 0) && ((get_navigation_map(stl_x, stl_y) & NAVMAP_UNSAFE_SURFACE) == 0))
             {
@@ -667,9 +668,9 @@ TbBool store_wander_points_up_to(struct Wander *wandr, const SubtlCodedCoords st
     return true;
 }
 
-long wander_point_initialise(struct Wander *wandr, PlayerNumber plyr_idx, long store_revealed)
+long wander_point_initialise(struct Wander *wandr, PlayerNumber plyr_idx, unsigned char wandr_slot)
 {
-    wandr->store_revealed = store_revealed;
+    wandr->wandr_slot = wandr_slot;
     wandr->plyr_idx = plyr_idx;
     wandr->point_insert_idx = 0;
     wandr->last_checked_slb_num = 0;
@@ -760,16 +761,17 @@ void post_init_player(struct PlayerInfo *player)
 {
     switch (game.game_kind)
     {
-    case 3:
+    case GKind_Unknown3:
         break;
-    case 2:
-    case 5:
-        wander_point_initialise(&player->wandr1, player->id_number, 1);
-        wander_point_initialise(&player->wandr2, player->id_number, 0);
+    case GKind_NetworkGame:
+    case GKind_KeeperGame:
+        wander_point_initialise(&player->wandr_within, player->id_number, CrWaS_WithinDungeon);
+        wander_point_initialise(&player->wandr_outside, player->id_number, CrWaS_OutsideDungeon);
         break;
     default:
-        if ((player->allocflags & PlaF_CompCtrl) == 0)
-          ERRORLOG("Invalid GameMode");
+        if ((player->allocflags & PlaF_CompCtrl) == 0) {
+            ERRORLOG("Invalid GameMode");
+        }
         break;
     }
 }
@@ -839,8 +841,8 @@ void process_players(void)
         if (player_exists(player) && (player->field_2C == 1))
         {
             SYNCDBG(6,"Doing updates for player %d",i);
-            wander_point_update(&player->wandr1);
-            wander_point_update(&player->wandr2);
+            wander_point_update(&player->wandr_within);
+            wander_point_update(&player->wandr_outside);
             update_power_sight_explored(player);
             update_player_objectives(i);
         }

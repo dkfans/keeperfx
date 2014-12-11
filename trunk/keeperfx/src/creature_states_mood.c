@@ -35,6 +35,7 @@
 #include "thing_navigate.h"
 #include "room_data.h"
 #include "room_jobs.h"
+#include "player_utils.h"
 #include "game_legacy.h"
 
 /******************************************************************************/
@@ -154,7 +155,7 @@ short mad_killing_psycho(struct Thing *creatng)
         struct PlayerInfo *player;
         player = get_player(n);
         if (player_exists(player)) {
-            if (get_random_position_in_dungeon_for_creature(n, 1, creatng, &pos)) {
+            if (get_random_position_in_dungeon_for_creature(n, CrWaS_WithinDungeon, creatng, &pos)) {
                 if (creature_can_navigate_to_with_storage(creatng, &pos, NavRtF_Default)) {
                     break;
                 }

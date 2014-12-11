@@ -988,7 +988,7 @@ short tunneller_doing_nothing(struct Thing *creatng)
     if ( dungeon->num_active_creatrs || dungeon->num_active_diggers )
     {
         struct Coord3d pos;
-        get_random_position_in_dungeon_for_creature(plyr_idx, 1, creatng, &pos);
+        get_random_position_in_dungeon_for_creature(plyr_idx, CrWaS_WithinDungeon, creatng, &pos);
         send_tunneller_to_point_in_dungeon(creatng, plyr_idx, &pos);
     } else
     {

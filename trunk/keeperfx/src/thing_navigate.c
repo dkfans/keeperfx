@@ -86,11 +86,11 @@ void get_nearest_navigable_point_for_thing(struct Thing *thing, struct Coord3d *
     nav_thing_can_travel_over_lava = 0;
 }
 
-TbBool setup_person_move_to_position(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, NaviRouteFlags flags)
+TbBool setup_person_move_to_position_f(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, NaviRouteFlags flags, const char *func_name)
 {
     struct CreatureControl *cctrl;
     struct Coord3d locpos;
-    SYNCDBG(18,"Moving %s index %d to (%d,%d)",thing_model_name(thing),(int)thing->index,(int)stl_x,(int)stl_y);
+    SYNCDBG(18,"%s: Moving %s index %d to (%d,%d)",func_name,thing_model_name(thing),(int)thing->index,(int)stl_x,(int)stl_y);
     TRACE_THING(thing);
     locpos.x.val = subtile_coord_center(stl_x);
     locpos.y.val = subtile_coord_center(stl_y);
@@ -99,17 +99,17 @@ TbBool setup_person_move_to_position(struct Thing *thing, MapSubtlCoord stl_x, M
     cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
-        WARNLOG("Tried to move invalid creature to (%d,%d)",(int)stl_x,(int)stl_y);
+        WARNLOG("%s: Tried to move invalid creature to (%d,%d)",func_name,(int)stl_x,(int)stl_y);
         return false;
     }
     if (thing_in_wall_at(thing, &locpos))
     {
-        SYNCDBG(16,"The %s would be trapped in wall at (%d,%d)",thing_model_name(thing),(int)stl_x,(int)stl_y);
+        SYNCDBG(16,"%s: The %s would be trapped in wall at (%d,%d)",func_name,thing_model_name(thing),(int)stl_x,(int)stl_y);
         return false;
     }
-    if (!creature_can_navigate_to_with_storage(thing, &locpos, flags))
+    if (!creature_can_navigate_to_with_storage_f(thing, &locpos, flags, func_name))
     {
-        SYNCDBG(19,"The %s cannot reach subtile (%d,%d)",thing_model_name(thing),(int)stl_x,(int)stl_y);
+        SYNCDBG(19,"%s: The %s cannot reach subtile (%d,%d)",func_name,thing_model_name(thing),(int)stl_x,(int)stl_y);
         return false;
     }
     cctrl->move_flags = flags;
@@ -117,7 +117,7 @@ TbBool setup_person_move_to_position(struct Thing *thing, MapSubtlCoord stl_x, M
     cctrl->moveto_pos.x.val = locpos.x.val;
     cctrl->moveto_pos.y.val = locpos.y.val;
     cctrl->moveto_pos.z.val = locpos.z.val;
-    SYNCDBG(19,"Done");
+    SYNCDBG(19,"%s: Done",func_name);
     return true;
 }
 
@@ -150,11 +150,11 @@ TbBool setup_person_move_close_to_position(struct Thing *thing, MapSubtlCoord st
     return true;
 }
 
-TbBool setup_person_move_backwards_to_position(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, NaviRouteFlags flags)
+TbBool setup_person_move_backwards_to_position_f(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, NaviRouteFlags flags, const char *func_name)
 {
     struct CreatureControl *cctrl;
     struct Coord3d locpos;
-    SYNCDBG(18,"Moving %s index %d to (%d,%d)",thing_model_name(thing),(int)thing->index,(int)stl_x,(int)stl_y);
+    SYNCDBG(18,"%s: Moving %s index %d to (%d,%d)",func_name,thing_model_name(thing),(int)thing->index,(int)stl_x,(int)stl_y);
     cctrl = creature_control_get_from_thing(thing);
     locpos.x.val = subtile_coord_center(stl_x);
     locpos.y.val = subtile_coord_center(stl_y);
@@ -162,12 +162,12 @@ TbBool setup_person_move_backwards_to_position(struct Thing *thing, MapSubtlCoor
     locpos.z.val = get_thing_height_at(thing, &locpos);
     if (thing_in_wall_at(thing, &locpos))
     {
-        SYNCDBG(16,"The %s would be trapped in wall at (%d,%d)",thing_model_name(thing),(int)stl_x,(int)stl_y);
+        SYNCDBG(16,"%s: The %s would be trapped in wall at (%d,%d)",func_name,thing_model_name(thing),(int)stl_x,(int)stl_y);
         return false;
     }
     if (!creature_can_navigate_to_with_storage(thing, &locpos, flags))
     {
-        SYNCDBG(19,"The %s cannot reach subtile (%d,%d)",thing_model_name(thing),(int)stl_x,(int)stl_y);
+        SYNCDBG(19,"%s: The %s cannot reach subtile (%d,%d)",func_name,thing_model_name(thing),(int)stl_x,(int)stl_y);
         return false;
     }
     cctrl->move_flags = flags;
@@ -178,9 +178,9 @@ TbBool setup_person_move_backwards_to_position(struct Thing *thing, MapSubtlCoor
     return true;
 }
 
-TbBool setup_person_move_to_coord(struct Thing *thing, const struct Coord3d *pos, NaviRouteFlags flags)
+TbBool setup_person_move_to_coord_f(struct Thing *thing, const struct Coord3d *pos, NaviRouteFlags flags, const char *func_name)
 {
-    return setup_person_move_to_position(thing, pos->x.stl.num, pos->y.stl.num, flags);
+    return setup_person_move_to_position_f(thing, pos->x.stl.num, pos->y.stl.num, flags, func_name);
 }
 
 TbBool setup_person_move_backwards_to_coord(struct Thing *thing, const struct Coord3d *pos, NaviRouteFlags flags)
@@ -188,13 +188,13 @@ TbBool setup_person_move_backwards_to_coord(struct Thing *thing, const struct Co
     return setup_person_move_backwards_to_position(thing, pos->x.stl.num, pos->y.stl.num, flags);
 }
 
-TbBool person_move_somewhere_adjacent_in_room(struct Thing *thing, const struct Room *room)
+TbBool person_move_somewhere_adjacent_in_room_f(struct Thing *thing, const struct Room *room, const char *func_name)
 {
     struct Coord3d pos;
-    if (!person_get_somewhere_adjacent_in_room(thing, room, &pos)) {
+    if (!person_get_somewhere_adjacent_in_room_f(thing, room, &pos, func_name)) {
         return false;
     }
-    return setup_person_move_to_position(thing, pos.x.stl.num, pos.y.stl.num, NavRtF_Default);
+    return setup_person_move_to_position_f(thing, pos.x.stl.num, pos.y.stl.num, NavRtF_Default, func_name);
 }
 
 /**
@@ -476,7 +476,7 @@ TbBool creature_move_to_using_teleport(struct Thing *thing, struct Coord3d *pos,
     {
         // Creature can only be teleported to a revealed location
         destination_valid = true;
-        if (!is_hero_thing(thing) && (thing->owner != game.neutral_player_num)) {
+        if (!is_hero_thing(thing) && !is_neutral_thing(thing)) {
             destination_valid = subtile_revealed(pos->x.stl.num, pos->y.stl.num, thing->owner);
         }
         if (destination_valid)
@@ -506,7 +506,8 @@ short move_to_position(struct Thing *creatng)
     SYNCDBG(18,"Starting to move %s index %d into (%d,%d)",thing_model_name(creatng),(int)creatng->index,(int)cctrl->moveto_pos.x.stl.num,(int)cctrl->moveto_pos.y.stl.num);
     // Try teleporting the creature
     if (creature_move_to_using_teleport(creatng, &cctrl->moveto_pos, speed)) {
-        SYNCDBG(8,"Teleporting %s index %d into (%d,%d)",thing_model_name(creatng),(int)creatng->index,(int)cctrl->moveto_pos.x.stl.num,(int)cctrl->moveto_pos.y.stl.num);
+        SYNCDBG(8,"Teleporting %s index %d owner %d into (%d,%d) for %s",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,
+            (int)cctrl->moveto_pos.x.stl.num,(int)cctrl->moveto_pos.y.stl.num,creature_state_code_name(creatng->continue_state));
         return 1;
     }
     move_result = creature_move_to_using_gates(creatng, &cctrl->moveto_pos, speed, -2, cctrl->move_flags, 0);
