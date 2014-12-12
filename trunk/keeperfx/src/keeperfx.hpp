@@ -268,7 +268,7 @@ void untag_blocks_for_digging_in_rectangle_around(long a1, long a2, char a3);
 void tag_cursor_blocks_sell_area(unsigned char a1, long a2, long a3, long a4);
 long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel dormodel, unsigned char a5);
 unsigned char tag_cursor_blocks_place_door(unsigned char a1, long a2, long a3);
-unsigned char tag_cursor_blocks_place_room(unsigned char a1, long a2, long a3, long a4);
+TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long a4);
 TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player);
 void reset_gui_based_on_player_mode(void);
 void reinit_tagged_blocks_for_player(unsigned char idx);
