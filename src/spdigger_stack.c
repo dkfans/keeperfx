@@ -1125,6 +1125,67 @@ void add_pretty_and_convert_to_imp_stack(struct Dungeon *dungeon)
     add_pretty_and_convert_to_imp_stack_starting_from_pos(dungeon, &heartng->mappos);
 }
 
+/**
+ * Returns if thing can be picked by special digger.
+ *
+ * Things considered "for us" are neutral or own things on neutral ground, and
+ * things owned by enemy players on our ground.
+ * If either thing owner or ground owner doesn't match, we can't pick that thing.
+ * Additionally, we have a special condition in case our thing + our ground, because
+ * in that case the thing may already be on a correct position.
+ *
+ * @param thing
+ * @param dungeon
+ * @param rkind
+ * @return
+ */
+TbBool thing_can_be_picked_to_place_in_dungeons_room(const struct Thing* thing, const struct Dungeon *dungeon, RoomKind rkind)
+{
+    if (!thing_revealed(thing, dungeon->owner)) {
+        return false;
+    }
+    if (thing_is_dragged_or_pulled(thing)) {
+        return false;
+    }
+    struct SlabMap *slb;
+    slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+    // Neutral things on either neutral or owned ground should be always pickable
+    if ((thing->owner == game.neutral_player_num) && ((slabmap_owner(slb) == game.neutral_player_num) || (slabmap_owner(slb) == dungeon->owner)))
+    {
+        return true;
+    } else
+    // Same goes for owned things on neutral ground
+    if ((thing->owner == dungeon->owner) && (slabmap_owner(slb) == game.neutral_player_num))
+    {
+        if (thing_is_object(thing)) {
+            WARNLOG("The %s owner %d found on neutral ground instead of owners %s",thing_model_name(thing),(int)thing->owner,room_code_name(rkind));
+        }
+        return true;
+    } else
+    // Things belonging to enemy but laying on our ground can be taken
+    if (!players_are_mutual_allies(dungeon->owner, thing->owner) && (slabmap_owner(slb) == dungeon->owner))
+    {
+        if (thing_is_object(thing)) {
+            WARNLOG("The %s owner %d found on own ground instead of owners %s",thing_model_name(thing),(int)thing->owner,room_code_name(rkind));
+        }
+        return true;
+    } else
+    // Owned things on owned ground are only pickable if not already in storage room
+    if ((thing->owner == dungeon->owner) && (slabmap_owner(slb) == dungeon->owner))
+    {
+        struct Room* room;
+        room = get_room_thing_is_on(thing);
+        if (room_is_invalid(room) || (room->kind != rkind))
+        {
+            if (thing_is_object(thing)) {
+                WARNLOG("The %s owner %d found on his ground but outside %s",thing_model_name(thing),(int)thing->owner,room_code_name(rkind));
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
 long add_unclaimed_gold_to_imp_stack(struct Dungeon *dungeon)
 {
   return _DK_add_unclaimed_gold_to_imp_stack(dungeon);
@@ -1288,8 +1349,10 @@ long add_unclaimed_spells_to_imp_stack(struct Dungeon *dungeon, long max_tasks)
         struct Thing *thing;
         thing = thing_get(i);
         TRACE_THING(thing);
-        if (thing_is_invalid(thing))
+        if (thing_is_invalid(thing)) {
+            ERRORLOG("Jump to invalid thing detected");
             break;
+        }
         i = thing->next_of_class;
         // Per-thing code
         if ( (dungeon->digger_stack_length >= DIGGER_TASK_MAX_COUNT) || (remain_num <= 0) ) {
@@ -1297,28 +1360,22 @@ long add_unclaimed_spells_to_imp_stack(struct Dungeon *dungeon, long max_tasks)
         }
         if (thing_is_spellbook(thing) || thing_is_special_box(thing))
         {
-            if ((thing->owner != dungeon->owner) && ((thing->alloc_flags & TAlF_IsDragged) == 0))
+            if (thing_can_be_picked_to_place_in_dungeons_room(thing, dungeon, RoK_LIBRARY))
             {
-                // We don't have to do subtile_revealed() call, as owned ground is always revealed
-                struct SlabMap *slb;
-                slb = get_slabmap_thing_is_on(thing);
-                if (slabmap_owner(slb) == dungeon->owner)
+                if (room_is_invalid(room))
                 {
-                    if (room_is_invalid(room))
-                    {
-                        // Check why the room search failed and inform the player
-                        update_cannot_find_room_wth_spare_capacity_event(dungeon->owner, thing, RoK_LIBRARY);
-                        break;
-                    }
-                    SubtlCodedCoords stl_num;
-                    stl_num = get_subtile_number(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-                    SYNCDBG(8,"Pickup task for dungeon %d at (%d,%d)",
-                        (int)dungeon->owner,(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num);
-                    if (!add_to_imp_stack_using_pos(stl_num, DigTsk_PicksUpSpellBook, dungeon)) {
-                        break;
-                    }
-                    remain_num--;
+                    // Check why the room search failed and inform the player
+                    update_cannot_find_room_wth_spare_capacity_event(dungeon->owner, thing, RoK_LIBRARY);
+                    break;
                 }
+                SubtlCodedCoords stl_num;
+                stl_num = get_subtile_number(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+                SYNCDBG(8,"Pickup task for dungeon %d at (%d,%d)",
+                    (int)dungeon->owner,(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num);
+                if (!add_to_imp_stack_using_pos(stl_num, DigTsk_PicksUpSpellBook, dungeon)) {
+                    break;
+                }
+                remain_num--;
             }
         }
         // Per-thing code ends
@@ -1418,60 +1475,59 @@ TbBool add_empty_traps_to_imp_stack(struct Dungeon *dungeon, long max_tasks)
 
 TbBool add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon)
 {
-  struct SlabMap* slb;
-  struct Room* room;
-  unsigned long stl_num;
-  struct Thing* thing;
-  unsigned long k;
-  int i;
-  SYNCDBG(18,"Starting");
-  // Checking if the workshop exists
-  room = find_room_with_spare_room_item_capacity(dungeon->owner, RoK_WORKSHOP);
-  if ( !dungeon_has_room(dungeon, RoK_WORKSHOP) || room_is_invalid(room) )
-    return false;
-  k = 0;
-  i = game.thing_lists[TngList_Objects].index;
-  while (i != 0)
-  {
-    thing = thing_get(i);
-    if (thing_is_invalid(thing))
+    struct Thing* thing;
+    SYNCDBG(18,"Starting");
+    // Checking if the workshop exists
+    struct Room *room;
+    room = find_room_with_spare_room_item_capacity(dungeon->owner, RoK_WORKSHOP);
+    long i;
+    unsigned long k;
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_Object);
+    k = 0;
+    i = slist->index;
+    while (i != 0)
     {
-      ERRORLOG("Jump to invalid thing detected");
-      break;
-    }
-    i = thing->next_of_class;
-    // Thing list loop body
-    if (dungeon->digger_stack_length >= DIGGER_TASK_MAX_COUNT)
-      break;
-    if ( thing_is_workshop_crate(thing) )
-    {
-        if ((thing->state_flags & TF1_IsDragged1) == 0)
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        if (thing_is_invalid(thing)) {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_of_class;
+        // Thing list loop body
+        if (dungeon->digger_stack_length >= DIGGER_TASK_MAX_COUNT) {
+            break;
+        }
+        if (thing_is_workshop_crate(thing))
         {
-            if ((thing->owner == dungeon->owner) || (thing->owner == game.neutral_player_num))
+            if (thing_can_be_picked_to_place_in_dungeons_room(thing, dungeon, RoK_WORKSHOP))
             {
-                slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-                if (slabmap_owner(slb) == dungeon->owner)
+                if (room_is_invalid(room))
                 {
-                    room = get_room_thing_is_on(thing);
-                    if (room_is_invalid(room) || (room->kind != RoK_WORKSHOP))
-                    {
-                      stl_num = get_subtile_number(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
-                      add_to_imp_stack_using_pos(stl_num, DigTsk_PicksUpCrateForWorkshop, dungeon);
-                    }
+                    // Check why the room search failed and inform the player
+                    update_cannot_find_room_wth_spare_capacity_event(dungeon->owner, thing, RoK_WORKSHOP);
+                    break;
+                }
+                SubtlCodedCoords stl_num;
+                stl_num = get_subtile_number(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+                SYNCDBG(8,"Pickup task for dungeon %d at (%d,%d)",
+                    (int)dungeon->owner,(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num);
+                if (!add_to_imp_stack_using_pos(stl_num, DigTsk_PicksUpCrateForWorkshop, dungeon)) {
+                    break;
                 }
             }
         }
+        // Thing list loop body ends
+        k++;
+        if (k > slist->count)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
     }
-    // Thing list loop body ends
-    k++;
-    if (k > THINGS_COUNT)
-    {
-      ERRORLOG("Infinite loop detected when sweeping things list");
-      break;
-    }
-  }
-  SYNCDBG(19,"Finished");
-  return true;
+    SYNCDBG(19,"Finished");
+    return true;
 }
 
 void add_reinforce_to_imp_stack(struct Dungeon *dungeon)

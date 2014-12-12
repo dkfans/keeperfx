@@ -905,24 +905,21 @@ int check_crates_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCo
         }
         i = thing->next_on_mapblk;
         // Per thing code
-        if (thing->class_id == TCls_Object)
+        if (thing_is_workshop_crate(thing) && !thing_is_dragged_or_pulled(thing) && (thing->owner == room->owner))
         {
-            if (thing_is_workshop_crate(thing) && ((thing->state_flags & TF1_IsDragged1) == 0))
+            // If exceeded capacity of the library
+            if (room->used_capacity >= room->total_capacity)
             {
-                // If exceeded capacity of the library
-                if (room->used_capacity >= room->total_capacity)
-                {
-                    WARNLOG("The %s capacity %d exceeded; space used is %d",room_code_name(room->kind),(int)room->total_capacity,(int)room->used_capacity);
-                    return -1; // re-create all (this could save the object if there are duplicates)
-                } else
-                // If the thing is in wall, remove it but store to re-create later
-                if (thing_in_wall_at(thing, &thing->mappos))
-                {
-                    return -1; // re-create all
-                } else
-                {
-                    matching_things_at_subtile++;
-                }
+                WARNLOG("The %s capacity %d exceeded; space used is %d",room_code_name(room->kind),(int)room->total_capacity,(int)room->used_capacity);
+                return -1; // re-create all (this could save the object if there are duplicates)
+            } else
+            // If the thing is in wall, remove it but store to re-create later
+            if (thing_in_wall_at(thing, &thing->mappos))
+            {
+                return -1; // re-create all
+            } else
+            {
+                matching_things_at_subtile++;
             }
         }
         // Per thing code ends
@@ -957,7 +954,7 @@ void reposition_all_crates_in_room_on_subtile(struct Room *room, MapSubtlCoord s
         }
         i = thing->next_on_mapblk;
         // Per thing code
-        if (thing_is_workshop_crate(thing) && ((thing->state_flags & TF1_IsDragged1) == 0))
+        if (thing_is_workshop_crate(thing) && !thing_is_dragged_or_pulled(thing) && (thing->owner == room->owner))
         {
             ThingModel objkind;
             objkind = thing->model;
