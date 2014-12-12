@@ -3244,14 +3244,24 @@ TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     if (slab_kind_is_liquid(slb->kind))
     {
         par1 = 0;
-        if ((player->work_state == PSt_BuildRoom) && (player->chosen_room_kind == RoK_BRIDGE) && slab_by_players_land(plyr_idx, slb_x, slb_y))
-          allowed = true;
+        if ((player->work_state == PSt_BuildRoom) && (player->chosen_room_kind == RoK_BRIDGE) && slab_by_players_land(plyr_idx, slb_x, slb_y)) {
+            allowed = true;
+        }
     } else
     {
-      if ((slabmap_owner(slb) == plyr_idx) && (slb->kind == SlbT_CLAIMED) && (player->chosen_room_kind != RoK_BRIDGE)
-       && !get_trap_for_slab_position(slb_x, slb_y) && !get_door_for_position(stl_x, stl_y))
-        allowed = true;
-      par1 = 1;
+        par1 = 1;
+        if ((slabmap_owner(slb) == plyr_idx) && (slb->kind == SlbT_CLAIMED) && (player->chosen_room_kind != RoK_BRIDGE))
+        {
+            struct Thing *thing;
+            thing = get_trap_for_slab_position(slb_x, slb_y);
+            if (thing_is_invalid(thing)) {
+                thing = get_door_for_position(slb_x, slb_y);
+            }
+            if (thing_is_invalid(thing)) {
+                allowed = true;
+            }
+
+        }
     }
     if (is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && (game.small_map_state != 2))
     {
