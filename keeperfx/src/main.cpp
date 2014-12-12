@@ -3220,10 +3220,50 @@ unsigned char tag_cursor_blocks_place_door(unsigned char a1, long a2, long a3)
     return _DK_tag_cursor_blocks_place_door(a1, a2, a3);
 }
 
-unsigned char tag_cursor_blocks_place_room(unsigned char a1, long a2, long a3, long a4)
+TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long a4)
 {
     SYNCDBG(7,"Starting");
-    return _DK_tag_cursor_blocks_place_room(a1, a2, a3, a4);
+    //return _DK_tag_cursor_blocks_place_room(plyr_idx, a2, a3, a4);
+    MapSlabCoord slb_x, slb_y;
+    slb_x = subtile_slab_fast(stl_x);
+    slb_y = subtile_slab_fast(stl_y);
+    struct SlabMap *slb;
+    slb = get_slabmap_block(slb_x, slb_y);
+    struct SlabAttr *slbattr;
+    slbattr = get_slab_attrs(slb);
+    struct PlayerInfo *player;
+    player = get_player(plyr_idx);
+    TbBool allowed;
+    allowed = false;
+    int par1;
+    if (!subtile_revealed(stl_x, stl_y, plyr_idx) ||
+       ((slbattr->flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0))
+    {
+        par1 = temp_cluedo_mode < 1u ? 5 : 2;
+    } else
+    if (slab_kind_is_liquid(slb->kind))
+    {
+        par1 = 0;
+        if ((player->work_state == PSt_BuildRoom) && (player->chosen_room_kind == RoK_BRIDGE) && slab_by_players_land(plyr_idx, slb_x, slb_y))
+          allowed = true;
+    } else
+    {
+      if ((slabmap_owner(slb) == plyr_idx) && (slb->kind == SlbT_CLAIMED) && (player->chosen_room_kind != RoK_BRIDGE)
+       && !get_trap_for_slab_position(slb_x, slb_y) && !get_door_for_position(stl_x, stl_y))
+        allowed = true;
+      par1 = 1;
+    }
+    if (is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && (game.small_map_state != 2))
+    {
+        map_volume_box.visible = 1;
+        map_volume_box.field_3 = subtile_coord(slab_subtile(slb_x, 0), 0);
+        map_volume_box.field_7 = subtile_coord(slab_subtile(slb_y, 0), 0);
+        map_volume_box.field_13 = par1;
+        map_volume_box.field_B = subtile_coord(slab_subtile(slb_x, 2*a4+1), 0);
+        map_volume_box.color = allowed;
+        map_volume_box.field_F = subtile_coord(slab_subtile(slb_y, 2*a4+1), 0);
+    }
+    return allowed;
 }
 
 void initialise_map_collides(void)
