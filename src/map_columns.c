@@ -423,7 +423,22 @@ void init_whole_blocks(void)
 
 void init_top_texture_to_cube_table(void)
 {
-  _DK_init_top_texture_to_cube_table();
+    //_DK_init_top_texture_to_cube_table();
+    LbMemorySet(game.field_14BB65, 0, sizeof(game.field_14BB65));
+    int n;
+    for (n=1; n < 592; n++)
+    {
+        int i;
+        for (i=1; i < CUBE_ITEMS_MAX; i++)
+        {
+            struct CubeAttribs * cubed;
+            cubed = &game.cubes_data[i];
+            if (cubed->texture_id[4] == n) {
+                game.field_14BB65[n] = i;
+                break;
+            }
+        }
+    }
 }
 
 TbBool cube_is_water(long cube_id)
