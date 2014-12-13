@@ -461,6 +461,8 @@ struct StateInfo states[] = {
     0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, 55, 1, 0, 1},
   {good_arrived_at_attack_room, NULL, NULL, move_check_attack_any_door,
     0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, 55, 1, 0, 1},
+  {creature_going_to_safety_for_toking, NULL, NULL, NULL,
+    0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Sleep, 0, 0, 1, 0, 54, 1, 0, 1},
   // Some redundant NULLs
   {NULL, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 0},
@@ -4389,13 +4391,13 @@ long process_creature_needs_to_heal_critical(struct Thing *creatng, const struct
         if (slabmap_owner(slb) != creatng->owner) {
             return 0;
         }
-        if (!creature_free_for_sleep(creatng, CrSt_ImpToking)) {
+        if (!creature_free_for_sleep(creatng, CrSt_CreatureGoingToSafetyForToking)) {
             return 0;
         }
-        if (get_creature_state_besides_interruptions(creatng) == CrSt_ImpToking) {
+        if (creature_is_doing_toking(creatng)) {
             return 0;
         }
-        if (external_set_thing_state(creatng, CrSt_ImpToking)) {
+        if (external_set_thing_state(creatng, CrSt_CreatureGoingToSafetyForToking)) {
             creatng->continue_state = CrSt_ImpDoingNothing;
             cctrl->countdown_282 = 200;
             return 1;

@@ -80,6 +80,15 @@ TbBool creature_is_sleeping(const struct Thing *thing)
     return false;
 }
 
+TbBool creature_is_doing_toking(const struct Thing *thing)
+{
+    CrtrStateId i;
+    i = get_creature_state_besides_interruptions(thing);
+    if ((i == CrSt_CreatureGoingToSafetyForToking) || (i == CrSt_ImpToking))
+        return true;
+    return false;
+}
+
 TbBool creature_is_doing_lair_activity(const struct Thing *thing)
 {
     CrtrStateId i;
@@ -392,7 +401,14 @@ short cleanup_sleep(struct Thing *creatng)
 
 short creature_going_home_to_sleep(struct Thing *thing)
 {
-  return _DK_creature_going_home_to_sleep(thing);
+    //return _DK_creature_going_home_to_sleep(thing);
+    if (creature_move_to_home_lair(thing))
+    {
+        thing->continue_state = CrSt_AtLairToSleep;
+        return 1;
+    }
+    internal_set_thing_state(thing, CrSt_CreatureWantsAHome);
+    return 1;
 }
 
 long room_has_slab_adjacent(const struct Room *room, long slbkind)

@@ -70,6 +70,7 @@ TbBool has_ranged_combat_attackers(const struct Thing *victim);
 TbBool can_add_ranged_combat_attacker(const struct Thing *victim);
 
 void setup_combat_flee_position(struct Thing *thing);
+long get_flee_position(struct Thing *creatng, struct Coord3d *pos);
 void set_creature_in_combat(struct Thing *fighter, struct Thing *enemy, long possible_combat);
 long get_combat_state_for_combat(struct Thing *fighter, struct Thing *enemy, long possible_combat);
 

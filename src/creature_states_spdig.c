@@ -1136,6 +1136,24 @@ short imp_reinforces(struct Thing *thing)
     return _DK_imp_reinforces(thing);
 }
 
+short creature_going_to_safety_for_toking(struct Thing *thing)
+{
+    struct Coord3d locpos;
+    if (!get_flee_position(thing, &locpos))
+    {
+        ERRORLOG("Couldn't get a flee position for %s index %d",thing_model_name(thing),(int)thing->index);
+        internal_set_thing_state(thing, CrSt_ImpToking);
+        return 1;
+    }
+    if (setup_person_move_close_to_position(thing, locpos.x.stl.num, locpos.y.stl.num, NavRtF_Default))
+    {
+        thing->continue_state = CrSt_ImpToking;
+        return 1;
+    }
+    internal_set_thing_state(thing, CrSt_ImpToking);
+    return 1;
+}
+
 short imp_toking(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;

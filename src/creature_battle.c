@@ -225,7 +225,7 @@ void setup_combat_flee_position(struct Thing *thing)
         ERRORLOG("Invalid creature control");
         return;
     }
-    if ( !get_flee_position(thing, &cctrl->flee_pos) )
+    if (!get_flee_position(thing, &cctrl->flee_pos))
     {
         ERRORLOG("Couldn't get a flee position for %s index %d",thing_model_name(thing),(int)thing->index);
         cctrl->flee_pos.x.val = thing->mappos.x.val;

@@ -2459,7 +2459,7 @@ TbBool creature_look_for_combat(struct Thing *creatng)
         if ( (cctrl->opponents_melee_count == 0) && (cctrl->opponents_ranged_count == 0) ) {
             return false;
         }
-        if ( !external_set_thing_state(creatng, CrSt_CreatureCombatFlee) ) {
+        if (!external_set_thing_state(creatng, CrSt_CreatureCombatFlee)) {
             return false;
         }
         setup_combat_flee_position(creatng);
