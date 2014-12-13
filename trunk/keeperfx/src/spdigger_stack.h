@@ -95,7 +95,7 @@ TbBool add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, long max_
 long add_unclaimed_spells_to_imp_stack(struct Dungeon *dungeon, long a2);
 TbBool add_object_for_trap_to_imp_stack(struct Dungeon *dungeon, struct Thing *thing);
 TbBool add_empty_traps_to_imp_stack(struct Dungeon *dungeon, long num);
-TbBool add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon);
+TbBool add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon, long max_tasks);
 void add_reinforce_to_imp_stack(struct Dungeon *dungeon);
 
 TbBool imp_will_soon_be_arming_trap(struct Thing *traptng);
