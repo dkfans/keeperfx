@@ -31,7 +31,7 @@ extern "C" {
 
 #define CREATURE_TYPES_MAX 64
 #define INSTANCE_TYPES_MAX 64
-#define CREATURE_STATES_MAX 147
+#define CREATURE_STATES_MAX 256
 /** Percentage of creature parameter increase for every experience level.
  *  Used as default value, should be replaced in config file. */
 #define CREATURE_PROPERTY_INCREASE_ON_EXP  35

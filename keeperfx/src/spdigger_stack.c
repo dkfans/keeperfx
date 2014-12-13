@@ -1298,8 +1298,8 @@ TbBool add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, long max_
         if ( (dungeon->digger_stack_length >= DIGGER_TASK_MAX_COUNT) || (remain_num <= 0) ) {
             break;
         }
-        if ( ((thing->state_flags & TF1_IsDragged1) == 0) && (thing->active_state == DCrSt_Unknown02)
-           && (thing->byte_14 == 0) && corpse_is_rottable(thing) )
+        if (!thing_is_dragged_or_pulled(thing) && (thing->active_state == DCrSt_Unknown02)
+           && (thing->byte_14 == 0) && corpse_is_rottable(thing))
         {
             if (thing_revealed(thing, dungeon->owner))
             {
@@ -1355,7 +1355,7 @@ long add_unclaimed_spells_to_imp_stack(struct Dungeon *dungeon, long max_tasks)
         }
         i = thing->next_of_class;
         // Per-thing code
-        if ( (dungeon->digger_stack_length >= DIGGER_TASK_MAX_COUNT) || (remain_num <= 0) ) {
+        if ((dungeon->digger_stack_length >= DIGGER_TASK_MAX_COUNT) || (remain_num <= 0)) {
             break;
         }
         if (thing_is_spellbook(thing) || thing_is_special_box(thing))
@@ -1473,13 +1473,15 @@ TbBool add_empty_traps_to_imp_stack(struct Dungeon *dungeon, long max_tasks)
     return (max_tasks-remain_num);
 }
 
-TbBool add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon)
+TbBool add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon, long max_tasks)
 {
     struct Thing* thing;
     SYNCDBG(18,"Starting");
     // Checking if the workshop exists
     struct Room *room;
     room = find_room_with_spare_room_item_capacity(dungeon->owner, RoK_WORKSHOP);
+    int remain_num;
+    remain_num = max_tasks;
     long i;
     unsigned long k;
     const struct StructureList *slist;
@@ -1495,8 +1497,8 @@ TbBool add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon)
             break;
         }
         i = thing->next_of_class;
-        // Thing list loop body
-        if (dungeon->digger_stack_length >= DIGGER_TASK_MAX_COUNT) {
+        // Per-thing code
+        if ((dungeon->digger_stack_length >= DIGGER_TASK_MAX_COUNT) || (remain_num <= 0)) {
             break;
         }
         if (thing_is_workshop_crate(thing))
@@ -1516,9 +1518,10 @@ TbBool add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon)
                 if (!add_to_imp_stack_using_pos(stl_num, DigTsk_PicksUpCrateForWorkshop, dungeon)) {
                     break;
                 }
+                remain_num--;
             }
         }
-        // Thing list loop body ends
+        // Per-thing code ends
         k++;
         if (k > slist->count)
         {
@@ -2018,7 +2021,7 @@ TbBool imp_stack_update(struct Thing *creatng)
     add_undug_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT*5/8);
     add_pretty_and_convert_to_imp_stack(dungeon);
     add_unclaimed_gold_to_imp_stack(dungeon);
-    add_unclaimed_traps_to_imp_stack(dungeon);
+    add_unclaimed_traps_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/4);
     add_reinforce_to_imp_stack(dungeon);
     return true;
 }
