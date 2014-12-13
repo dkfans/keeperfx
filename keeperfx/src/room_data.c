@@ -3533,7 +3533,79 @@ void free_room_structure(struct Room *room)
 
 void reset_creatures_rooms(struct Room *room)
 {
-  _DK_reset_creatures_rooms(room);
+    SYNCDBG(18,"Starting");
+    //_DK_reset_creatures_rooms(room);
+    if (room->owner == game.neutral_player_num) {
+        return;
+    }
+    // Clear work room id for all creatures, so that they won't be stored as last_work_room_id
+    unsigned long k;
+    long i;
+    i = room->creatures_list;
+    k = 0;
+    while (i != 0)
+    {
+        struct Thing *thing;
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(thing);
+        if (!creature_control_exists(cctrl)) {
+            ERRORLOG("Jump to invalid creature %d detected",(int)i);
+            break;
+        }
+        i = cctrl->next_in_room;
+        // Per creature code
+        cctrl->work_room_id = -1;
+        // Per creature code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping creatures list");
+          break;
+        }
+    }
+    // Switch the room for all creatures
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_Creature);
+    k = 0;
+    i = slist->index;
+    while (i != 0)
+    {
+        struct Thing *thing;
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_of_class;
+        // Per-thing code
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(thing);
+        if (cctrl->work_room_id == -1)
+        {
+            struct Room *nroom;
+            nroom = get_room_thing_is_on(thing);
+            if (room_is_invalid(nroom))
+            {
+                cctrl->flgfield_1 &= ~0x20;
+                cctrl->work_room_id = 0;
+                set_start_state(thing);
+            } else
+            {
+                remove_creature_from_specific_room(thing, room);
+                add_creature_to_work_room(thing, nroom);
+            }
+        }
+        // Per-thing code ends
+        k++;
+        if (k > slist->count)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
 }
 
 void replace_room_slab(struct Room *room, MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned char owner, unsigned char is_destroyed)
