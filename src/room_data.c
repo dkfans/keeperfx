@@ -3412,7 +3412,7 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
             }
             i = thing->next_on_mapblk;
             // Per thing code start
-            if (thing_is_workshop_crate(thing) && ((thing->state_flags & TF1_IsDragged1) == 0))
+            if (thing_is_workshop_crate(thing) && !thing_is_dragged_or_pulled(thing) && (thing->owner == room->owner))
             {
                 struct Coord3d pos;
                 // Try to move crate within the room
