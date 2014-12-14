@@ -309,7 +309,7 @@ long check_out_unclaimed_traps(struct Thing *spdigtng, long range)
           break;
         i = thing->next_of_class;
         // Per-thing code
-        if (thing_is_workshop_crate(thing) && ((thing->state_flags & TF1_IsDragged1) == 0))
+        if (thing_is_workshop_crate(thing) && !thing_is_dragged_or_pulled(thing))
         {
             struct SlabMap *slb;
             slb = get_slabmap_thing_is_on(thing);
@@ -1402,40 +1402,42 @@ short creature_picks_up_spell_object(struct Thing *creatng)
     return 1;
 }
 
-short creature_picks_up_crate_for_workshop(struct Thing *thing)
+short creature_picks_up_crate_for_workshop(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
     struct Thing *cratetng;
     struct Room *dstroom;
     struct Coord3d pos;
-    TRACE_THING(thing);
+    TRACE_THING(creatng);
     // Get the crate thing
-    cctrl = creature_control_get_from_thing(thing);
+    cctrl = creature_control_get_from_thing(creatng);
     cratetng = thing_get(cctrl->pickup_object_id);
     TRACE_THING(cratetng);
+    struct Dungeon *dungeon;
+    dungeon = get_dungeon(creatng->owner);
     // Check if everything is right
-    if ( thing_is_invalid(cratetng) || ((cratetng->state_flags & TF1_IsDragged1) != 0)
-      || (get_2d_box_distance(&thing->mappos, &cratetng->mappos) >= 512) )
+    if (!thing_is_workshop_crate(cratetng) || !thing_can_be_picked_to_place_in_dungeons_room(cratetng, dungeon, RoK_WORKSHOP)
+     || (get_2d_box_distance(&creatng->mappos, &cratetng->mappos) >= subtile_coord(2,0)))
     {
-        set_start_state(thing);
+        set_start_state(creatng);
         return 0;
     }
     // Find room to drag the crate to
-    dstroom = find_nearest_room_for_thing_with_spare_item_capacity(thing, thing->owner, RoK_WORKSHOP, NavRtF_Default);
-    if ( room_is_invalid(dstroom) || !find_random_valid_position_for_thing_in_room_avoiding_object(thing, dstroom, &pos) )
+    dstroom = find_nearest_room_for_thing_with_spare_item_capacity(creatng, creatng->owner, RoK_WORKSHOP, NavRtF_Default);
+    if ( room_is_invalid(dstroom) || !find_random_valid_position_for_thing_in_room_avoiding_object(creatng, dstroom, &pos) )
     {
-        WARNLOG("Player %d can't pick %s - doesn't have proper %s to store it",(int)thing->owner,thing_model_name(cratetng),room_code_name(RoK_WORKSHOP));
-        set_start_state(thing);
+        WARNLOG("Player %d can't pick %s - doesn't have proper %s to store it",(int)creatng->owner,thing_model_name(cratetng),room_code_name(RoK_WORKSHOP));
+        set_start_state(creatng);
         return 0;
     }
     // Initialize dragging
-    if ( !setup_person_move_backwards_to_coord(thing, &pos, NavRtF_Default) )
+    if (!setup_person_move_backwards_to_coord(creatng, &pos, NavRtF_Default))
     {
-        set_start_state(thing);
+        set_start_state(creatng);
         return 0;
     }
-    creature_drag_object(thing, cratetng);
-    thing->continue_state = CrSt_CreatureDropsCrateInWorkshop;
+    creature_drag_object(creatng, cratetng);
+    creatng->continue_state = CrSt_CreatureDropsCrateInWorkshop;
     return 1;
 }
 
@@ -1457,7 +1459,7 @@ short creature_picks_up_trap_object(struct Thing *thing)
     room = get_room_thing_is_on(cratetng);
     traptng = thing_get(cctrl->arming_thing_id);
     TRACE_THING(traptng);
-    if ( !thing_exists(cratetng) || !thing_exists(traptng) )
+    if (!thing_exists(cratetng) || !thing_exists(traptng))
     {
         WARNLOG("The %s index %d or %s index %d no longer exists",thing_model_name(cratetng),(int)cratetng->index,thing_model_name(traptng),(int)traptng->index);
         cctrl->arming_thing_id = 0;

@@ -1141,6 +1141,9 @@ void add_pretty_and_convert_to_imp_stack(struct Dungeon *dungeon)
  */
 TbBool thing_can_be_picked_to_place_in_dungeons_room(const struct Thing* thing, const struct Dungeon *dungeon, RoomKind rkind)
 {
+    if (dungeon_invalid(dungeon)) {
+        return false;
+    }
     if (!thing_revealed(thing, dungeon->owner)) {
         return false;
     }
