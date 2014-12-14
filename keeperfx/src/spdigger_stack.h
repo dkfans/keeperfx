@@ -60,6 +60,11 @@ enum SpecialDiggerDigTaskKinds {
     SDDigTask_Unknown3,
 };
 
+enum ThingForRoomPickabilityFlags {
+    TngFRPickF_Default = 0,
+    TngFRPickF_AllowStoredInOwnedRoom = 0x0001, //*< Allow picking up things which already are in their designated rooms
+};
+
 /******************************************************************************/
 #pragma pack(1)
 
@@ -102,7 +107,7 @@ TbBool imp_will_soon_be_arming_trap(struct Thing *traptng);
 long imp_will_soon_be_working_at_excluding(struct Thing *thing, long a2, long a3);
 TbBool imp_will_soon_be_getting_object(PlayerNumber plyr_idx, const struct Thing *objtng);
 
-TbBool thing_can_be_picked_to_place_in_dungeons_room(const struct Thing* thing, const struct Dungeon *dungeon, RoomKind rkind);
+TbBool thing_can_be_picked_to_place_in_player_room(const struct Thing* thing, PlayerNumber plyr_idx, RoomKind rkind, unsigned short flags);
 
 TbBool imp_stack_update(struct Thing *thing);
 long check_out_imp_stack(struct Thing *thing);
