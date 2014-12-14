@@ -2005,16 +2005,16 @@ short creature_follow_leader(struct Thing *creatng)
         set_start_state(creatng);
         return 1;
     }
-    int amount;
-    amount = cctrl->field_307;
-    if (amount > 8)
+    int fails_amount;
+    fails_amount = cctrl->field_307;
+    if (fails_amount > 8)
     {
         SYNCDBG(3,"Removing %s index %d owned by player %d from group",
             thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         remove_creature_from_group(creatng);
         return 0;
     }
-    if ((amount > 0) && (cctrl->field_303 + 16 > game.play_gameturn))
+    if ((fails_amount > 0) && (cctrl->field_303 + 16 > game.play_gameturn))
     {
         return 0;
     }
@@ -2024,19 +2024,35 @@ short creature_follow_leader(struct Thing *creatng)
     dist = get_2d_box_distance(&creatng->mappos, &follwr_pos);
     speed = get_creature_speed(leadtng);
     // If we're too far from the designated position, do a speed run
-    if (dist > 1536)
+    if (dist > subtile_coord(12,0))
     {
-        speed = 3 * speed;
+        speed = 2 * speed;
         if (speed >= MAX_VELOCITY)
             speed = MAX_VELOCITY;
-        if ( creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1 )
+        if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
+        {
+          cctrl->field_307++;
+          return 0;
+        }
+    } else
+    // If we're far from the designated position, move considerably faster
+    if (dist > subtile_coord(6,0))
+    {
+        if (speed > 4) {
+            speed = 5 * speed / 4;
+        } else {
+            speed = speed + 1;
+        }
+        if (speed >= MAX_VELOCITY)
+            speed = MAX_VELOCITY;
+        if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
         {
           cctrl->field_307++;
           return 0;
         }
     } else
     // If we're close, continue moving at normal speed
-    if (dist <= 256)
+    if (dist <= subtile_coord(2,0))
     {
         if (dist <= 0)
         {
@@ -2050,7 +2066,11 @@ short creature_follow_leader(struct Thing *creatng)
     } else
     // If we're in between, move just a bit faster than leader
     {
-        speed = 5 * speed / 4;
+        if (speed > 8) {
+            speed = 9 * speed / 8;
+        } else {
+            speed = speed + 1;
+        }
         if (speed >= MAX_VELOCITY)
             speed = MAX_VELOCITY;
         if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
