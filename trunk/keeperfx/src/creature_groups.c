@@ -432,7 +432,15 @@ void leader_find_positions_for_followers(struct Thing *leadtng)
     group_len = get_no_creatures_in_group(leadtng);
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(leadtng);
-    if (((cctrl->group_info >> 12) == group_len) && ((game.play_gameturn & 0x1F) != 0))
+    // Base the position update frequency on leader move speed; speed of 48 requires refresh per 32 turns
+    int recompute_interval;
+    recompute_interval = 32*48 / (get_creature_speed(leadtng)+1);
+    if (recompute_interval > 256) {
+        recompute_interval = 256;
+    } else if (recompute_interval < 4) {
+        recompute_interval = 4;
+    }
+    if (((cctrl->group_info >> 12) == group_len) && (((game.play_gameturn + leadtng->index) % recompute_interval) != 0))
     {
         SYNCDBG(7,"Reusing positions for %d followers of %s index %d owned by player %d",
             group_len,thing_model_name(leadtng),(int)leadtng->index,(int)leadtng->owner);
