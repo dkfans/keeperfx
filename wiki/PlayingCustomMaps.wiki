@@ -1,6 +1,6 @@
-=HOW TO PLAY CUSTOM MAPS FROM lubie.org IN KEEPERFX=
+=HOW TO PLAY CUSTOM MAPS FROM lubiki.pl IN KEEPERFX=
 
-  # Download the map from [http://keeper.lubie.org/html/dk1_maps.php keeper.lubie.org]
+  # Download the map from [http://keeper.lubiki.pl/html/dk1_maps.php keeper.lubiki.pl]
   # Extract the map to "levels" folder inside KeeperFX.
   # Open KeeperFX, click "Free play levels" (this option may be called "Deeper Dungeons" in some languages.
   # Select your map from the list, and play.
@@ -64,7 +64,7 @@ ENSIGN_ZOOM = <x> <y>
 PLAYERS = <number of keepers>
 OPTIONS =
 AUTHOR = Anonymous
-DESCRIPTION = Map downloaded from keeoer.lubie.org
+DESCRIPTION = Map downloaded from keeper.lubiki.pl
 DATE = 2010-01-01
 }}}
 The coordinates `<`x`>` `<`y`>` are position on the multiplayer land; `<`x`>` is ranged 160..1120, while `<`y`>` is 120..840. Both ENSIGN`_` commands should have identical coordinates. The `<`number of keepers`>` option should include human player, so for example if there's one enemy, value should be "2".
