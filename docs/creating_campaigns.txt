@@ -64,6 +64,8 @@ b) Land view picture to be shown before every level (the place where ensign
  will be placed may be marked somehow, ie. be brighter)
 c) Land view picture at end of the campaign (whole red; shown when the whole
  campaign is beaten)
+c) Frame window picture with transparent center, which will show the tower from which
+ whole Land View is observed (this picture can be taken from any existing campaign)
 
 The a) picture can be identical to the first picture of b) series, but you may
  also make it a bit different - ie. a bit lighter.
@@ -74,9 +76,17 @@ It is up to you what will be on these pictures. Usually, the pictures are showin
  your campaign - you can use any theme you want.
 
 While selecting photos or drawing your pictures, make notice of their resolution
- - the images in KeeperFX need to have size 1280x960 pixels. Also, make sure
- the important part of the picture isn't very close to its border - otherwise,
- the area you wanted to be visible may prove to be covered by a frame tower picture.
+ - the Land View images in KeeperFX need to have size 1280x960 pixels, and Frame
+ Window image needs to be 960x720 pixels. Also, make sure the important part of
+ the picture isn't very close to its border - otherwise, the area you wanted
+ to be visible may prove to be covered by a frame window picture.
+
+If you'd like to have an example, download "KeeperFX GFX sources" here:
+http://keeper.lubiki.pl/html/dk_keeperfx_devel.php
+Indide the archive, you will find "keeporig_lnd" folder - files which are used
+ to make Original Campaign land view are there. You may copy "viframe.png" from
+ this folder, if you don't want to create your own frame window picture.
+
 
 3.2. Preparing pictures for KeeperFX
 
@@ -84,15 +94,15 @@ After the pictures look OK, you have to write them in a format which will be acc
  by tools we will use. The format is 24-bit PNG. All modern graphics programs can
  support that format. To be precise, you need:
 - Color depth: 24-bit
-- Resolution: 1280x960 pixels
+- Resolution: 1280x960 pixels (land view images) or 960x720 pixels (frame window image)
 - Format: PNG
 
 3.3. Converting pictures to a format understood by KeeperFX engine
 
 Currently, KeeperFX supports only 8-bit color (256 colors) in land view pictures.
- But it won't be enough to just convert your image into 8-bit color space. This
- is because KeeperFX also needs the resulting colors to match colors used in tower
- frame, ensign pictures and even mouse cursor.
+ But it won't be enough to just convert your image into 8-bit color space in any
+ graphics program. This is because KeeperFX also needs the resulting colors to match
+ colors used in frame window, ensign pictures and even mouse cursor.
 
 Luckily, KeeperFX contains tools which would allow you to convert a PNG file into
  the 8-bit format automatically.
@@ -103,7 +113,13 @@ b) pngpal2raw - converter between PNG and RAW/HSPR file which can use colors fro
 
 These tools are part of KeeperFX and everyone who compiles KeeperFX (ie. creates nightly builds)
  can also build them. You should be able to find a compiled version somewhere, and if not,
- you can recompile them by yourself.
+ you can recompile them by yourself. One of the places to download these is "KeeperFX tools" here:
+http://keeper.lubiki.pl/html/dk_keeperfx_devel.php
+You will find both mentioned tools in the package.
+
+Note that these are console tools, and they should be invoked from command line with correct
+ parameters. If you don't know how to use console tools, try searching the Internet for a guide.
+For simplicity, it's best to put the tools and all images into the same folder.
 
 If your first land view image file is "rgmap00.png", and the frame is "viframe.png", then
  you can use the commands below to generate files for KeeperFX:
@@ -116,6 +132,9 @@ It requires additional file, which defines colors used by ensigns and mouse poin
 The file is named "color_tbl_landview.txt" and you can find it in KeeperFX source.
 Second line generates RAW file from "rgmap00.png", and third line generates DAT file
  from "viframe.png".
+
+The above commands needs to be repeated for all the PNG files you've made. This will generate
+ 3 files for each land view picture: rgmapXX.pal, rgmapXX.raw and viframeXX.dat.
 
 3.4. Placing files into correct folders
 
@@ -132,6 +151,7 @@ Every of the resulting PAL files should have 768 bytes.
 The DAT files can have various sizes, as they use RLE compression for alpha channel.
 
 If you wish, you can compress the DAT and RAW files with RNC (Rob Northon Compression).
+We won't get into details here, as this step is optional.
 
 4. Creating mentor description
 
