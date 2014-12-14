@@ -1139,8 +1139,25 @@ void add_pretty_and_convert_to_imp_stack(struct Dungeon *dungeon)
  * @param rkind
  * @return
  */
-TbBool thing_can_be_picked_to_place_in_dungeons_room(const struct Thing* thing, const struct Dungeon *dungeon, RoomKind rkind)
+TbBool thing_can_be_picked_to_place_in_player_room(const struct Thing* thing, PlayerNumber plyr_idx, RoomKind rkind, unsigned short flags)
 {
+    if (thing_is_object(thing))
+    {
+        if (!object_is_room_inventory(thing, rkind)) {
+            return false;
+        }
+    } else
+    if (thing_is_dead_creature(thing))
+    {
+        if (!dead_creature_is_room_inventory(thing, rkind)) {
+            return false;
+        }
+    } else
+    {
+        return false;
+    }
+    const struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon)) {
         return false;
     }
@@ -1176,6 +1193,10 @@ TbBool thing_can_be_picked_to_place_in_dungeons_room(const struct Thing* thing, 
     // Owned things on owned ground are only pickable if not already in storage room
     if ((thing->owner == dungeon->owner) && (slabmap_owner(slb) == dungeon->owner))
     {
+        if ((flags & TngFRPickF_AllowStoredInOwnedRoom) != 0) {
+            // Allow things stored in own room if flags say so
+            return true;
+        }
         struct Room* room;
         room = get_room_thing_is_on(thing);
         if (room_is_invalid(room) || (room->kind != rkind))
@@ -1361,25 +1382,22 @@ long add_unclaimed_spells_to_imp_stack(struct Dungeon *dungeon, long max_tasks)
         if ((dungeon->digger_stack_length >= DIGGER_TASK_MAX_COUNT) || (remain_num <= 0)) {
             break;
         }
-        if (thing_is_spellbook(thing) || thing_is_special_box(thing))
+        if (thing_can_be_picked_to_place_in_player_room(thing, dungeon->owner, RoK_LIBRARY, TngFRPickF_Default))
         {
-            if (thing_can_be_picked_to_place_in_dungeons_room(thing, dungeon, RoK_LIBRARY))
+            if (room_is_invalid(room))
             {
-                if (room_is_invalid(room))
-                {
-                    // Check why the room search failed and inform the player
-                    update_cannot_find_room_wth_spare_capacity_event(dungeon->owner, thing, RoK_LIBRARY);
-                    break;
-                }
-                SubtlCodedCoords stl_num;
-                stl_num = get_subtile_number(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-                SYNCDBG(8,"Pickup task for dungeon %d at (%d,%d)",
-                    (int)dungeon->owner,(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num);
-                if (!add_to_imp_stack_using_pos(stl_num, DigTsk_PicksUpSpellBook, dungeon)) {
-                    break;
-                }
-                remain_num--;
+                // Check why the room search failed and inform the player
+                update_cannot_find_room_wth_spare_capacity_event(dungeon->owner, thing, RoK_LIBRARY);
+                break;
             }
+            SubtlCodedCoords stl_num;
+            stl_num = get_subtile_number(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+            SYNCDBG(8,"Pickup task for dungeon %d at (%d,%d)",
+                (int)dungeon->owner,(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num);
+            if (!add_to_imp_stack_using_pos(stl_num, DigTsk_PicksUpSpellBook, dungeon)) {
+                break;
+            }
+            remain_num--;
         }
         // Per-thing code ends
         k++;
@@ -1504,25 +1522,22 @@ TbBool add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon, long max_tasks)
         if ((dungeon->digger_stack_length >= DIGGER_TASK_MAX_COUNT) || (remain_num <= 0)) {
             break;
         }
-        if (thing_is_workshop_crate(thing))
+        if (thing_can_be_picked_to_place_in_player_room(thing, dungeon->owner, RoK_WORKSHOP, TngFRPickF_Default))
         {
-            if (thing_can_be_picked_to_place_in_dungeons_room(thing, dungeon, RoK_WORKSHOP))
+            if (room_is_invalid(room))
             {
-                if (room_is_invalid(room))
-                {
-                    // Check why the room search failed and inform the player
-                    update_cannot_find_room_wth_spare_capacity_event(dungeon->owner, thing, RoK_WORKSHOP);
-                    break;
-                }
-                SubtlCodedCoords stl_num;
-                stl_num = get_subtile_number(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-                SYNCDBG(8,"Pickup task for dungeon %d at (%d,%d)",
-                    (int)dungeon->owner,(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num);
-                if (!add_to_imp_stack_using_pos(stl_num, DigTsk_PicksUpCrateForWorkshop, dungeon)) {
-                    break;
-                }
-                remain_num--;
+                // Check why the room search failed and inform the player
+                update_cannot_find_room_wth_spare_capacity_event(dungeon->owner, thing, RoK_WORKSHOP);
+                break;
             }
+            SubtlCodedCoords stl_num;
+            stl_num = get_subtile_number(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+            SYNCDBG(8,"Pickup task for dungeon %d at (%d,%d)",
+                (int)dungeon->owner,(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num);
+            if (!add_to_imp_stack_using_pos(stl_num, DigTsk_PicksUpCrateForWorkshop, dungeon)) {
+                break;
+            }
+            remain_num--;
         }
         // Per-thing code ends
         k++;
@@ -1774,7 +1789,7 @@ long check_place_to_reinforce(struct Thing *creatng, long slb_x, long slb_y)
     return 1;
 }
 
-struct Thing *check_place_to_pickup_crate(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long n)
+struct Thing *check_place_to_pickup_crate(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short flags, long n)
 {
     struct Map *mapblk;
     long i;
@@ -1794,18 +1809,13 @@ struct Thing *check_place_to_pickup_crate(const struct Thing *creatng, MapSubtlC
         }
         i = thing->next_on_mapblk;
         // Per thing code start
-        if (thing_is_workshop_crate(thing))
+        if (thing_can_be_picked_to_place_in_player_room(thing, creatng->owner, RoK_WORKSHOP, flags))
         {
-          if ((thing->owner == creatng->owner) || is_neutral_thing(thing))
-          {
-            if ((thing->state_flags & TF1_IsDragged1) == 0) {
-                if (n > 0) {
-                    n--;
-                } else {
-                    return thing;
-                }
+            if (n > 0) {
+                n--;
+            } else {
+                return thing;
             }
-          }
         }
         // Per thing code end
         k++;
@@ -2254,7 +2264,7 @@ long check_out_worker_pickup_spellbook(struct Thing *thing, struct DiggerStack *
     return 1;
 }
 
-long check_out_worker_pickup_trapbox(struct Thing *creatng, struct DiggerStack *dstack)
+long check_out_worker_pickup_crate_to_arm(struct Thing *creatng, struct DiggerStack *dstack)
 {
     MapSubtlCoord stl_x,stl_y;
     stl_x = stl_num_decode_x(dstack->stl_num);
@@ -2264,7 +2274,7 @@ long check_out_worker_pickup_trapbox(struct Thing *creatng, struct DiggerStack *
     long n;
     for (n=0; true; n++)
     {
-        cratng = check_place_to_pickup_crate(creatng, stl_x, stl_y, n);
+        cratng = check_place_to_pickup_crate(creatng, stl_x, stl_y, TngFRPickF_AllowStoredInOwnedRoom, n);
         if (thing_is_invalid(cratng)) {
             armtng = INVALID_THING;
             break;
@@ -2312,7 +2322,7 @@ long check_out_worker_pickup_trap_for_workshop(struct Thing *thing, struct Digge
         return 0;
     }
     struct Thing *sectng;
-    sectng = check_place_to_pickup_crate(thing, stl_x, stl_y, 0);
+    sectng = check_place_to_pickup_crate(thing, stl_x, stl_y, TngFRPickF_Default, 0);
     if (thing_is_invalid(sectng))
     {
         dstack->task_type = DigTsk_None;
@@ -2474,7 +2484,7 @@ long check_out_imp_stack(struct Thing *creatng)
             ret = check_out_worker_pickup_spellbook(creatng, dstack);
             break;
         case DigTsk_PicksUpCrateToArm:
-            ret = check_out_worker_pickup_trapbox(creatng, dstack);
+            ret = check_out_worker_pickup_crate_to_arm(creatng, dstack);
             break;
         case DigTsk_PicksUpCrateForWorkshop:
             ret = check_out_worker_pickup_trap_for_workshop(creatng, dstack);

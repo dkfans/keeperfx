@@ -64,6 +64,23 @@ TbBool corpse_is_rottable(const struct Thing *thing)
     return false;
 }
 
+/**
+ * Returns if given dead creature thing is a room inventory.
+ * Inventory are the things which can be stored in a room, but are movable and optional.
+ * @param thing
+ * @return
+ */
+TbBool dead_creature_is_room_inventory(const struct Thing *thing, RoomKind rkind)
+{
+    switch (rkind)
+    {
+    case RoK_GRAVEYARD:
+        return corpse_is_rottable(thing);
+    default:
+        return false;
+    }
+}
+
 TbBool create_vampire_in_room(struct Room *room)
 {
     struct Dungeon *dungeon;

@@ -309,61 +309,54 @@ long check_out_unclaimed_traps(struct Thing *spdigtng, long range)
           break;
         i = thing->next_of_class;
         // Per-thing code
-        if (thing_is_workshop_crate(thing) && !thing_is_dragged_or_pulled(thing))
+        if (thing_can_be_picked_to_place_in_player_room(thing, spdigtng->owner, RoK_WORKSHOP, TngFRPickF_AllowStoredInOwnedRoom))
         {
-            struct SlabMap *slb;
-            slb = get_slabmap_thing_is_on(thing);
-            if ((slabmap_owner(slb) == spdigtng->owner) && thing_revealed(thing, spdigtng->owner))
+            if ((range < 0) || get_2d_box_distance(&thing->mappos, &spdigtng->mappos) < range)
             {
-                if ((range < 0) || get_2d_box_distance(&thing->mappos, &spdigtng->mappos) < range)
+                if (!imp_will_soon_be_getting_object(spdigtng->owner, thing))
                 {
-                    if (!imp_will_soon_be_getting_object(spdigtng->owner, thing))
+                    // If there is a trap to arm, go arming
+                    struct Thing *traptng;
+                    if (thing_is_trap_crate(thing)) {
+                        traptng = check_for_empty_trap_for_imp(spdigtng, crate_to_workshop_item_model(thing->model));
+                    } else {
+                        traptng = INVALID_THING;
+                    }
+                    if (!thing_is_invalid(traptng))
                     {
-                        // If there is a trap to arm, go arming
-                        struct Thing *traptng;
-                        if (thing_is_trap_crate(thing)) {
-                            traptng = check_for_empty_trap_for_imp(spdigtng, crate_to_workshop_item_model(thing->model));
-                        } else {
-                            traptng = INVALID_THING;
-                        }
-                        if (!thing_is_invalid(traptng))
+                        if (setup_person_move_to_coord(spdigtng, &thing->mappos, NavRtF_Default))
                         {
-                            if (setup_person_move_to_coord(spdigtng, &thing->mappos, NavRtF_Default))
-                            {
-                                spdigtng->continue_state = CrSt_CreaturePicksUpTrapObject;
-                                cctrl->pickup_object_id = thing->index;
-                                cctrl->arming_thing_id = traptng->index;
-                                return 1;
-                            }
+                            spdigtng->continue_state = CrSt_CreaturePicksUpTrapObject;
+                            cctrl->pickup_object_id = thing->index;
+                            cctrl->arming_thing_id = traptng->index;
+                            return 1;
                         }
-                        // No trap to arm - get the crate in workshop, if it's not already on it
-                        struct Room * onroom;
-                        onroom = get_room_thing_is_on(thing);
-                        if (room_is_invalid(onroom) || (onroom->kind != RoK_WORKSHOP))
+                    }
+                    // No trap to arm - get the crate into workshop, if it's not already on it
+                    if (thing_can_be_picked_to_place_in_player_room(thing, spdigtng->owner, RoK_WORKSHOP, TngFRPickF_Default))
+                    {
+                        // We have a thing which we should pick - now check if the room we found is correct
+                        if (room_is_invalid(room)) {
+                            update_cannot_find_room_wth_spare_capacity_event(spdigtng->owner, spdigtng, RoK_WORKSHOP);
+                            return 0;
+                        }
+                        if (setup_person_move_to_coord(spdigtng, &thing->mappos, NavRtF_Default))
                         {
-                            // We have a thing which we should pick - now check if the room we found is correct
-                            if (room_is_invalid(room)) {
-                                update_cannot_find_room_wth_spare_capacity_event(spdigtng->owner, spdigtng, RoK_WORKSHOP);
-                                return 0;
-                            }
-                            if (setup_person_move_to_coord(spdigtng, &thing->mappos, NavRtF_Default))
+                            SYNCDBG(8,"Assigned %s with %s pickup at subtile (%d,%d)",thing_model_name(spdigtng),
+                                thing_model_name(thing),(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num);
+                            if (thing_is_trap_crate(thing))
                             {
-                                SYNCDBG(8,"Assigned %s with %s pickup at subtile (%d,%d)",thing_model_name(spdigtng),
-                                    thing_model_name(thing),(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num);
-                                if (thing_is_trap_crate(thing))
-                                {
-                                    event_create_event_or_update_nearby_existing_event(thing->mappos.x.val, thing->mappos.y.val,
-                                        EvKind_TrapCrateFound, spdigtng->owner, thing->index);
-                                } else
-                                if (thing_is_door_crate(thing))
-                                {
-                                    event_create_event_or_update_nearby_existing_event(thing->mappos.x.val, thing->mappos.y.val,
-                                        EvKind_DoorCrateFound, spdigtng->owner, thing->index);
-                                }
-                                spdigtng->continue_state = CrSt_CreaturePicksUpCrateForWorkshop;
-                                cctrl->pickup_object_id = thing->index;
-                                return 1;
+                                event_create_event_or_update_nearby_existing_event(thing->mappos.x.val, thing->mappos.y.val,
+                                    EvKind_TrapCrateFound, spdigtng->owner, thing->index);
+                            } else
+                            if (thing_is_door_crate(thing))
+                            {
+                                event_create_event_or_update_nearby_existing_event(thing->mappos.x.val, thing->mappos.y.val,
+                                    EvKind_DoorCrateFound, spdigtng->owner, thing->index);
                             }
+                            spdigtng->continue_state = CrSt_CreaturePicksUpCrateForWorkshop;
+                            cctrl->pickup_object_id = thing->index;
+                            return 1;
                         }
                     }
                 }
@@ -1315,44 +1308,46 @@ short creature_pick_up_unconscious_body(struct Thing *thing)
     return 1;
 }
 
-short creature_picks_up_corpse(struct Thing *thing)
+short creature_picks_up_corpse(struct Thing *creatng)
 {
     struct Room *dstroom;
     struct CreatureControl *cctrl;
     struct Thing *picktng;
     struct Coord3d pos;
-    TRACE_THING(thing);
-    cctrl = creature_control_get_from_thing(thing);
+    TRACE_THING(creatng);
+    cctrl = creature_control_get_from_thing(creatng);
     picktng = thing_get(cctrl->pickup_object_id);
     TRACE_THING(picktng);
+    if (!thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_LIBRARY, TngFRPickF_Default)
+     || (get_2d_box_distance(&creatng->mappos, &picktng->mappos) >= subtile_coord(2,0)))
     if ( thing_is_invalid(picktng) || ((picktng->alloc_flags & TAlF_IsDragged) != 0)
-      || (get_2d_box_distance(&thing->mappos, &picktng->mappos) >= 512))
+      || (get_2d_box_distance(&creatng->mappos, &picktng->mappos) >= 512))
     {
-        set_start_state(thing);
+        set_start_state(creatng);
         return 0;
     }
-    dstroom = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_GRAVEYARD, NavRtF_Default, 1);
+    dstroom = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_GRAVEYARD, NavRtF_Default, 1);
     if (room_is_invalid(dstroom))
     {
         // Check why the treasure room search failed and inform the player
-        update_cannot_find_room_wth_spare_capacity_event(thing->owner, thing, RoK_PRISON);
-        set_start_state(thing);
+        update_cannot_find_room_wth_spare_capacity_event(creatng->owner, creatng, RoK_PRISON);
+        set_start_state(creatng);
         return 0;
     }
-    if (!find_random_valid_position_for_thing_in_room_avoiding_object(thing, dstroom, &pos) )
+    if (!find_random_valid_position_for_thing_in_room_avoiding_object(creatng, dstroom, &pos) )
     {
-        WARNLOG("Player %d can't pick %s - no position within %s to store it",(int)thing->owner,thing_model_name(picktng),room_code_name(RoK_GRAVEYARD));
-        set_start_state(thing);
+        WARNLOG("Player %d can't pick %s - no position within %s to store it",(int)creatng->owner,thing_model_name(picktng),room_code_name(RoK_GRAVEYARD));
+        set_start_state(creatng);
         return 0;
     }
-    creature_drag_object(thing, picktng);
-    if (!setup_person_move_backwards_to_coord(thing, &pos, NavRtF_Default))
+    creature_drag_object(creatng, picktng);
+    if (!setup_person_move_backwards_to_coord(creatng, &pos, NavRtF_Default))
     {
         SYNCDBG(8,"Cannot move to (%d,%d)",(int)pos.x.stl.num, (int)pos.y.stl.num);
-        set_start_state(thing);
+        set_start_state(creatng);
         return 0;
     }
-    thing->continue_state = CrSt_CreatureDropsCorpseInGraveyard;
+    creatng->continue_state = CrSt_CreatureDropsCorpseInGraveyard;
     return 1;
 }
 
@@ -1370,8 +1365,8 @@ short creature_picks_up_spell_object(struct Thing *creatng)
     cctrl = creature_control_get_from_thing(creatng);
     picktng = thing_get(cctrl->pickup_object_id);
     TRACE_THING(picktng);
-    if ( thing_is_invalid(picktng) || ((picktng->state_flags & TF1_IsDragged1) != 0)
-      || (get_2d_box_distance(&creatng->mappos, &picktng->mappos) >= 512))
+    if (!thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_LIBRARY, TngFRPickF_Default)
+     || (get_2d_box_distance(&creatng->mappos, &picktng->mappos) >= subtile_coord(2,0)))
     {
         set_start_state(creatng);
         return 0;
@@ -1413,10 +1408,8 @@ short creature_picks_up_crate_for_workshop(struct Thing *creatng)
     cctrl = creature_control_get_from_thing(creatng);
     cratetng = thing_get(cctrl->pickup_object_id);
     TRACE_THING(cratetng);
-    struct Dungeon *dungeon;
-    dungeon = get_dungeon(creatng->owner);
     // Check if everything is right
-    if (!thing_is_workshop_crate(cratetng) || !thing_can_be_picked_to_place_in_dungeons_room(cratetng, dungeon, RoK_WORKSHOP)
+    if (!thing_can_be_picked_to_place_in_player_room(cratetng, creatng->owner, RoK_WORKSHOP, TngFRPickF_Default)
      || (get_2d_box_distance(&creatng->mappos, &cratetng->mappos) >= subtile_coord(2,0)))
     {
         set_start_state(creatng);
