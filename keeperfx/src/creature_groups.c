@@ -52,6 +52,10 @@ CrtrExpLevel get_highest_experience_level_in_group(struct Thing *grptng)
     long i;
     unsigned long k;
     i = cctrl->group_info & TngGroup_LeaderIndex;
+    if (i == 0) {
+        // One creature is not a group, but we may still get its experience
+        i = grptng->index;
+    }
     k = 0;
     while (i > 0)
     {
@@ -74,6 +78,55 @@ CrtrExpLevel get_highest_experience_level_in_group(struct Thing *grptng)
         }
     }
     return best_explevel;
+}
+
+struct Thing *get_highest_experience_and_score_creature_in_group(struct Thing *grptng)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(grptng);
+    CrtrExpLevel best_explevel;
+    long best_score;
+    struct Thing *best_creatng;
+    best_explevel = 0;
+    best_score = 0;
+    best_creatng = INVALID_THING;
+    long i;
+    unsigned long k;
+    i = cctrl->group_info & TngGroup_LeaderIndex;
+    if (i == 0) {
+        // One creature is not a group, but we may still get its experience
+        i = grptng->index;
+    }
+    k = 0;
+    while (i > 0)
+    {
+        struct Thing *ctng;
+        ctng = thing_get(i);
+        TRACE_THING(ctng);
+        cctrl = creature_control_get_from_thing(ctng);
+        if (creature_control_invalid(cctrl))
+            break;
+        // Per-thing code
+        if (best_explevel <= cctrl->explevel) {
+            long score;
+            score = get_creature_thing_score(ctng);
+            // If got a new best score, or best level changed - update best values
+            if ((best_score < score) || (best_explevel < cctrl->explevel)) {
+                best_explevel = cctrl->explevel;
+                best_score = score;
+                best_creatng = ctng;
+            }
+        }
+        // Per-thing code ends
+        i = cctrl->next_in_group;
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures group");
+            break;
+        }
+    }
+    return best_creatng;
 }
 
 long get_no_creatures_in_group(const struct Thing *grptng)
@@ -171,6 +224,7 @@ TbBool remove_creature_from_group(struct Thing *thing)
 
 TbBool add_creature_to_group(struct Thing *creatng, struct Thing *grptng)
 {
+    SYNCDBG(5,"Adding %s index %d",thing_model_name(creatng),(int)creatng->index);
     struct Thing *pvthing;
     pvthing = get_last_creature_in_group(grptng);
     if ((grptng->index == creatng->index) || (grptng->owner != creatng->owner)) {
@@ -191,18 +245,21 @@ TbBool add_creature_to_group(struct Thing *creatng, struct Thing *grptng)
         pvctrl->next_in_group = creatng->index;
         crctrl->group_info ^= (crctrl->group_info ^ pvctrl->group_info) & TngGroup_LeaderIndex;
         crctrl->next_in_group = 0;
+        crctrl->group_info &= ~TngGroup_MemberCount;
     } else
     {
         // If there's no group, create new one made of both creatures
         struct CreatureControl *grctrl;
         crctrl = creature_control_get_from_thing(creatng);
-        crctrl->prev_in_group = grptng->index;
         grctrl = creature_control_get_from_thing(grptng);
+        crctrl->prev_in_group = grptng->index;
         grctrl->next_in_group = creatng->index;
         crctrl->group_info ^= (crctrl->group_info ^ grptng->index) & TngGroup_LeaderIndex;
         grctrl->group_info ^= (grctrl->group_info ^ grptng->index) & TngGroup_LeaderIndex;
         crctrl->next_in_group = 0;
-        crctrl->group_info &= TngGroup_LeaderIndex;
+        grctrl->prev_in_group = 0;
+        // Remove member count from non-leader creature; the leader will have it computed somewhere else
+        crctrl->group_info &= ~TngGroup_MemberCount;
     }
     creatng->alloc_flags |= TAlF_IsFollowingLeader;
     return true;
@@ -211,6 +268,7 @@ TbBool add_creature_to_group(struct Thing *creatng, struct Thing *grptng)
 long add_creature_to_group_as_leader(struct Thing *creatng, struct Thing *grptng)
 {
     //return _DK_add_creature_to_group_as_leader(creatng, grptng);
+    SYNCDBG(5,"Adding %s index %d",thing_model_name(creatng),(int)creatng->index);
     struct Thing *leadtng;
     leadtng = get_group_leader(grptng);
     if (thing_is_invalid(leadtng))
