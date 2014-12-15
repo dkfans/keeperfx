@@ -583,9 +583,35 @@ TbBool set_creature_door_combat(struct Thing *creatng, struct Thing *obthing)
     return true;
 }
 
-void food_eaten_by_creature(struct Thing *creatng, struct Thing *obthing)
+void food_eaten_by_creature(struct Thing *creatng, struct Thing *foodtng)
 {
-    _DK_food_eaten_by_creature(creatng, obthing);
+    //_DK_food_eaten_by_creature(creatng, foodtng);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    if (cctrl->instance_id == CrInst_NULL)
+    {
+        set_creature_instance(creatng, CrInst_EAT, 1, 0, 0);
+    } else
+    {
+        if (cctrl->hunger_amount > 0) {
+            cctrl->hunger_amount--;
+        } else
+        if (cctrl->hunger_loss < 255) {
+              cctrl->hunger_loss++;
+        }
+        apply_health_to_thing_and_display_health(creatng, game.food_health_gain);
+        cctrl->hunger_level = 0;
+    }
+    thing_play_sample(creatng, 112 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(creatng);
+    anger_apply_anger_to_creature(creatng, crstat->annoy_eat_food, 2, 1);
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(creatng->owner);
+    if (!dungeon_invalid(dungeon)) {
+        dungeon->lvstats.chickens_eaten++;
+    }
+    delete_thing_structure(foodtng, 0);
 }
 
 void anger_apply_anger_to_creature_f(struct Thing *creatng, long anger, AnnoyMotive reason, long a3, const char *func_name)
