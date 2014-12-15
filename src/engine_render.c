@@ -2546,7 +2546,7 @@ void draw_engine_room_flagpole(struct RoomFlag *rflg)
             scale = cam->zoom;
             if (cam->field_6 == 5)
               scale = 4094;
-            deltay = (scale << 7 >> 13);
+            deltay = (scale << 7 >> 13)*units_per_pixel/16;
             height = (2 * (71 * scale) >> 13);
             LbDrawBox(rflg->x,
                       rflg->y - deltay,
@@ -2838,16 +2838,16 @@ void draw_engine_room_flag_top(struct RoomFlag *rflg)
 
     if ((cam->field_6 == 2) || (cam->field_6 == 5))
     {
-      if (settings.field_8)
-      {
-        int scale;
-        int deltay;
-        scale = cam->zoom;
-        if (cam->field_6 == 5)
-          scale = 4094;
-        deltay = (scale << 7 >> 13);
-        draw_room_flag_top(rflg->x, rflg->y - deltay, units_per_pixel, room);
-      }
+        if (settings.field_8)
+        {
+            int scale;
+            int deltay;
+            scale = cam->zoom;
+            if (cam->field_6 == 5)
+                scale = 4094;
+            deltay = (scale << 7 >> 13)*units_per_pixel/16;
+            draw_room_flag_top(rflg->x, rflg->y - deltay, units_per_pixel, room);
+        }
     }
 }
 
@@ -5588,26 +5588,26 @@ void do_map_who_for_thing(struct Thing *thing)
         ecor.z = (map_y_pos - (long)thing->mappos.y.val);
         ecor.y = ((long)thing->mappos.z.val - map_z_pos);
         rotpers(&ecor, &camera_matrix);
-        if ( getpoly < poly_pool_end )
+        if (getpoly < poly_pool_end)
         {
-          if (game.play_gameturn - thing->long_15 == 1)
-          {
-            if (thing->field_19 < 40)
-              thing->field_19++;
-          } else
-          {
-              thing->field_19 = 0;
-          }
-          thing->long_15 = game.play_gameturn;
-          if (thing->field_19 == 40)
-          {
-              bckt_idx = (ecor.z - 64) / 16 - 6;
-              add_room_flag_pole_to_polypool(ecor.view_width, ecor.view_height, thing->roomflag.room_idx, bckt_idx);
-              if (getpoly < poly_pool_end)
-              {
-                  add_room_flag_top_to_polypool(ecor.view_width, ecor.view_height, thing->roomflag.room_idx, 1);
-              }
-          }
+            if (game.play_gameturn - thing->long_15 == 1)
+            {
+              if (thing->field_19 < 40)
+                thing->field_19++;
+            } else
+            {
+                thing->field_19 = 0;
+            }
+            thing->long_15 = game.play_gameturn;
+            if (thing->field_19 == 40)
+            {
+                bckt_idx = (ecor.z - 64) / 16 - 6;
+                add_room_flag_pole_to_polypool(ecor.view_width, ecor.view_height, thing->roomflag.room_idx, bckt_idx);
+                if (getpoly < poly_pool_end)
+                {
+                    add_room_flag_top_to_polypool(ecor.view_width, ecor.view_height, thing->roomflag.room_idx, 1);
+                }
+            }
         }
         break;
     case 6:
