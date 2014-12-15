@@ -2988,16 +2988,23 @@ struct Thing *script_process_new_party(struct Party *party, PlayerNumber plyr_id
               {
                   // If it is the first creature - set it as only group member and leader
                   // Inside the thing, we don't need to mark it in any way (two creatures are needed to form a real group)
+                  SYNCDBG(5,"First member %s index %d",thing_model_name(thing),(int)thing->index);
                   leadtng = thing;
                   grptng = thing;
               } else
-              if (cctrl->explevel <= get_highest_experience_level_in_group(grptng))
               {
-                  add_creature_to_group(thing, grptng);
-              } else
-              {
-                  add_creature_to_group_as_leader(thing, grptng);
-                  leadtng = thing;
+                  struct Thing *bestng;
+                  bestng = get_highest_experience_and_score_creature_in_group(grptng);
+                  struct CreatureControl *bestctrl;
+                  bestctrl = creature_control_get_from_thing(bestng);
+                  if ((cctrl->explevel >= bestctrl->explevel) && (get_creature_thing_score(thing) > get_creature_thing_score(bestng)))
+                  {
+                      add_creature_to_group_as_leader(thing, grptng);
+                      leadtng = thing;
+                  } else
+                  {
+                      add_creature_to_group(thing, grptng);
+                  }
               }
           }
         }
