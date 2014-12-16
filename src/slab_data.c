@@ -316,6 +316,36 @@ void update_blocks_around_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
     update_blocks_in_area(sx, sy, ex, ey);
 }
 
+void update_map_collide(SlabKind slbkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct Map *mapblk;
+    mapblk = get_map_block_at(stl_x, stl_y);
+    struct Column *colmn;
+    colmn = get_map_column(mapblk);
+    if (column_invalid(colmn)) {
+        ERRORLOG("Invalid column at (%d,%d)",(int)stl_x,(int)stl_y);
+    }
+    unsigned long smask;
+    smask = colmn->solidmask;
+    MapSubtlCoord stl_z;
+    for (stl_z=0; stl_z < map_subtiles_z; stl_z++)
+    {
+        if ((smask & 0x01) == 0)
+            break;
+        smask >>= 1;
+    }
+    struct SlabAttr *slbattr;
+    slbattr = get_slab_kind_attrs(slbkind);
+    unsigned long nflags;
+    if (slbattr->field_2 < stl_z) {
+      nflags = slbattr->flags;
+    } else {
+      nflags = slbattr->field_A;
+    }
+    mapblk->flags &= (0x80|0x04);
+    mapblk->flags |= nflags;
+}
+
 void do_slab_efficiency_alteration(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     long n;

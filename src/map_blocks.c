@@ -39,17 +39,18 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_create_gold_rubble_for_dug_block(long x, long y, unsigned char stl_height, unsigned char a4);
+DLLIMPORT void _DK_create_gold_rubble_for_dug_block(long x, long y, unsigned char stl_height, unsigned char col_idx);
 DLLIMPORT void _DK_set_slab_explored_flags(unsigned char flag, long tgslb_x, long tgslb_y);
 DLLIMPORT long _DK_ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey);
 DLLIMPORT long _DK_element_top_face_texture(struct Map *map);
-DLLIMPORT void _DK_shuffle_unattached_things_on_slab(long a1, long a2);
+DLLIMPORT void _DK_shuffle_unattached_things_on_slab(long a1, long stl_x);
 DLLIMPORT void _DK_fill_in_reinforced_corners(unsigned char plyr_idx, unsigned char slb_x, unsigned char slb_y);
 DLLIMPORT unsigned char _DK_choose_pretty_type(unsigned char plyr_idx, unsigned char slb_x, unsigned char slb_y);
 DLLIMPORT void _DK_delete_attached_things_on_slab(long slb_x, long slb_y);
-DLLIMPORT unsigned char _DK_get_against(unsigned char a1, long a2, long a3, long a4);
-DLLIMPORT void _DK_place_slab_columns(long a1, unsigned char a2, unsigned char a3, short *a4);
-DLLIMPORT void _DK_place_slab_object(unsigned short a1, long a2, long a3, unsigned short a4, unsigned short a5, unsigned char a6);
+DLLIMPORT unsigned char _DK_get_against(unsigned char a1, long stl_x, long stl_y, long col_idx);
+DLLIMPORT void _DK_place_slab_columns(long a1, unsigned char stl_x, unsigned char stl_y, short *col_idx);
+DLLIMPORT void _DK_place_slab_object(unsigned short a1, long stl_x, long stl_y, unsigned short col_idx, unsigned short a5, unsigned char a6);
+DLLIMPORT void _DK_copy_block_with_cube_groups(short a1, unsigned char plyr_idx, unsigned char a3);
 
 const signed short slab_element_around_eight[] = {
     -3, -2, 1, 4, 3, 2, -1, -4
@@ -359,9 +360,92 @@ unsigned char get_against(unsigned char a1, long a2, long a3, long a4)
     return _DK_get_against(a1, a2, a3, a4);
 }
 
-void place_slab_columns(long a1, unsigned char a2, unsigned char a3, short *a4)
+void copy_block_with_cube_groups(short a1, unsigned char a2, unsigned char a3)
 {
-    _DK_place_slab_columns(a1, a2, a3, a4); return;
+    _DK_copy_block_with_cube_groups(a1, a2, a3);
+}
+
+void set_alt_bit_based_on_slab(SlabKind slbkind, unsigned char stl_x, unsigned char stl_y)
+{
+    struct SlabAttr *slbattr;
+    slbattr = get_slab_kind_attrs(slbkind);
+
+    unsigned short sibling_flags;
+    unsigned short edge_flags;
+    unsigned long wibble;
+
+    sibling_flags = 0;
+    edge_flags = 0;
+    wibble = slbattr->is_unknflg11;
+    if (slab_kind_is_liquid(slbkind))
+    {
+        if ((stl_x % 3) == 0)
+            edge_flags = 0x01;
+        if ((stl_y % 3) == 0)
+            edge_flags |= 0x02;
+        MapSlabCoord slb_x, slb_y;
+        slb_x = subtile_slab(stl_x);
+        slb_y = subtile_slab(stl_y);
+        struct SlabMap *slb;
+        slb = get_slabmap_block(slb_x-1, slb_y);
+        if (slab_kind_is_liquid(slb->kind))
+            sibling_flags |= 0x01;
+        slb = get_slabmap_block(slb_x, slb_y-1);
+        if (slab_kind_is_liquid(slb->kind))
+            sibling_flags |= 0x02;
+        slb = get_slabmap_block(slb_x-1, slb_y-1);
+        if (slab_kind_is_liquid(slb->kind))
+            sibling_flags |= 0x04;
+
+        if (edge_flags == 3)
+        {
+          if (sibling_flags == (0x01|0x02|0x04))
+              wibble = 2;
+        } else
+        if (edge_flags == 1)
+        {
+          if (sibling_flags & 0x01)
+              wibble = 2;
+        } else
+        if ((edge_flags != 2) || (sibling_flags & 0x02))
+        {
+            wibble = 2;
+        }
+    }
+    struct Map *mapblk;
+    mapblk = get_map_block_at(stl_x, stl_y);
+    mapblk->data ^= (mapblk->data ^ (wibble << 22)) & 0xC00000;
+}
+
+void place_slab_columns(long slbkind, unsigned char stl_x, unsigned char stl_y, const short *col_idx)
+{
+    //_DK_place_slab_columns(slbkind, a2, a3, a4); return;
+    struct SlabAttr *slbattr;
+    slbattr = get_slab_kind_attrs(slbkind);
+    if (slbattr->is_unknflg15 != 3)
+    {
+        struct SlabMap *slb;
+        slb = get_slabmap_for_subtile(stl_x, stl_y);
+        slb->field_5 ^= (slb->field_5 ^ 8 * slbattr->is_unknflg15) & 0x18;
+    }
+    int dx, dy;
+
+    const short *colid;
+    colid = col_idx;
+    for (dy=0; dy < STL_PER_SLB; dy++)
+    {
+        for (dx=0; dx  < STL_PER_SLB; dx++)
+        {
+            copy_block_with_cube_groups(*colid, stl_x+dx, stl_y+dy);
+            int v10;
+            v10 = -*colid;
+            if ( v10 < 0 )
+              ERRORLOG("BBlocks");
+            update_map_collide(slbkind, stl_x+dx, stl_y+dy);
+            set_alt_bit_based_on_slab(slbkind, stl_x+dx, stl_y+dy);
+            colid++;
+        }
+    }
 }
 
 void place_slab_object(unsigned short a1, long a2, long a3, unsigned short a4, unsigned short a5, unsigned char a6)

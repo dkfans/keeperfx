@@ -52,7 +52,6 @@ extern "C" {
 /******************************************************************************/
 DLLIMPORT struct Room * _DK_find_random_room_for_thing(struct Thing *hoardtng, signed char plyr_idx, signed char rkind, unsigned char a4);
 DLLIMPORT struct Room * _DK_find_random_room_for_thing_with_spare_room_item_capacity(struct Thing *hoardtng, signed char newowner, signed char rkind, unsigned char a4);
-DLLIMPORT void _DK_copy_block_with_cube_groups(short a1, unsigned char plyr_idx, unsigned char a3);
 DLLIMPORT unsigned short _DK_i_can_allocate_free_room_structure(void);
 DLLIMPORT struct Thing *_DK_treasure_room_eats_gold_piles(struct Room *room, long slb_x,  long slb_y, struct Thing *hoardtng);
 DLLIMPORT void _DK_delete_room_slabbed_objects(long a1);
@@ -4079,11 +4078,6 @@ void change_room_map_element_ownership(struct Room *room, PlayerNumber plyr_idx)
             break;
         }
     }
-}
-
-void copy_block_with_cube_groups(short a1, unsigned char a2, unsigned char a3)
-{
-    _DK_copy_block_with_cube_groups(a1, a2, a3);
 }
 
 void redraw_slab_map_elements(MapSlabCoord slb_x, MapSlabCoord slb_y)
