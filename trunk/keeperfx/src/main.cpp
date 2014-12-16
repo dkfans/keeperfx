@@ -2843,7 +2843,7 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
     struct Map *mapblk;
     struct Column *colmn;
     short visible;
-    unsigned int mask;
+    unsigned int smask;
     long k;
 
     if (i > 0)
@@ -2857,8 +2857,8 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
         else
           k = game.unrevealed_column_idx;
         colmn = get_column(k);
-        mask = colmn->solidmask;
-        if ((temp_cluedo_mode) && (mask != 0))
+        smask = colmn->solidmask;
+        if ((temp_cluedo_mode) && (smask != 0))
         {
           if (visible)
             k = mapblk->data & 0x7FF;
@@ -2868,10 +2868,10 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
           if (colmn->solidmask >= 8)
           {
             if ( (!visible) || (((get_navigation_map(x,y) & 0x80) == 0) && ((mapblk->flags & MapFlg_IsRoom) == 0)) )
-              mask &= 3;
+              smask &= 3;
           }
         }
-        if (mask & (1 << (i-1)))
+        if (smask & (1 << (i-1)))
         {
           pointed_at_frac_x = x_frac;
           pointed_at_frac_y = y_frac;
@@ -3297,29 +3297,8 @@ void initialise_map_collides(void)
                     stl_y = slab_subtile(slb_y,ssub_y);
                     struct Map *mapblk;
                     mapblk = get_map_block_at(stl_x, stl_y);
-                    struct Column *colmn;
-                    colmn = get_map_column(mapblk);
-                    if (column_invalid(colmn)) {
-                        ERRORLOG("Invalid column at (%d,%d)",(int)stl_x,(int)stl_y);
-                    }
-                    unsigned long smask;
-                    smask = colmn->solidmask;
-                    MapSubtlCoord stl_z;
-                    for (stl_z=0; stl_z < map_subtiles_z; stl_z++)
-                    {
-                        if ((smask & 0x01) == 0)
-                            break;
-                        smask >>= 1;
-                    }
-                    struct SlabAttr *slbattr;
-                    slbattr = get_slab_attrs(slb);
-                    unsigned long nflags;
-                    if (slbattr->field_2 < stl_z) {
-                      nflags = slbattr->flags;
-                    } else {
-                      nflags = slbattr->field_A;
-                    }
-                    mapblk->flags = nflags;
+                    mapblk->flags = 0;
+                    update_map_collide(slb->kind, stl_x, stl_y);
                 }
             }
         }
