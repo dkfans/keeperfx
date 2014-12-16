@@ -131,6 +131,8 @@ void clear_slabs(void);
 void reveal_whole_map(struct PlayerInfo *player);
 void update_blocks_in_area(MapSubtlCoord sx, MapSubtlCoord sy, MapSubtlCoord ex, MapSubtlCoord ey);
 void update_blocks_around_slab(MapSlabCoord slb_x, MapSlabCoord slb_y);
+void update_map_collide(SlabKind slbkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+void copy_block_with_cube_groups(short a1, unsigned char a2, unsigned char a3);
 void do_slab_efficiency_alteration(MapSlabCoord slb_x, MapSlabCoord slb_y);
 void do_unprettying(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 
