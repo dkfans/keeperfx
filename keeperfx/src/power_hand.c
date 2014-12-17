@@ -36,6 +36,7 @@
 #include "thing_traps.h"
 #include "thing_physics.h"
 #include "thing_stats.h"
+#include "thing_navigate.h"
 #include "creature_graphics.h"
 #include "creature_states.h"
 #include "creature_states_mood.h"
@@ -43,6 +44,7 @@
 #include "creature_states_tresr.h"
 #include "creature_states_gardn.h"
 #include "config_creature.h"
+#include "config_effects.h"
 #include "player_instances.h"
 #include "kjm_input.h"
 #include "front_input.h"
@@ -961,9 +963,66 @@ void clear_things_in_hand(struct PlayerInfo *player)
     dungeon->things_in_hand[i] = 0;
 }
 
+/**
+ * Processes a thing in players power hand.
+ * @param dungeon The dungeon owned by target player.
+ * @param thing Thing to be processed.
+ * @return True if thing was processed, false if it was removed from hand.
+ */
+TbBool process_creature_in_dungeon_hand(struct Dungeon *dungeon, struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    //TODO CLEANUP would be nice to integrate this with process_armageddon_influencing_creature()
+    if (game.armageddon_cast_turn != 0)
+    {
+        // If Armageddon is on, teleport creature to its position
+        if ((cctrl->armageddon_teleport_turn != 0) && (cctrl->armageddon_teleport_turn <= game.play_gameturn))
+        {
+            cctrl->armageddon_teleport_turn = 0;
+            if (remove_creature_from_power_hand(thing, dungeon->owner))
+            {
+                create_effect(&thing->mappos, imp_spangle_effects[thing->owner], thing->owner);
+                move_thing_in_map(thing, &game.armageddon.mappos);
+                //originally move was to get_player_soul_container(game.armageddon_caster_idx) mappos
+                return false;
+            }
+        }
+    }
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(thing);
+    anger_apply_anger_to_creature(thing, crstat->annoy_in_hand, 4, 1);
+    process_thing_spell_effects_while_blocked(thing);
+    return true;
+}
+
 void process_things_in_dungeon_hand(void)
 {
-  _DK_process_things_in_dungeon_hand();
+    //_DK_process_things_in_dungeon_hand();
+    PlayerNumber plyr_idx;
+    for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    {
+        struct PlayerInfo *player;
+        player = get_player(plyr_idx);
+        struct Dungeon *dungeon;
+        dungeon = get_players_dungeon(player);
+        if (player_exists(player) && (player->field_2C == 1) && !dungeon_invalid(dungeon))
+        {
+            int i;
+            for (i = 0; i < dungeon->num_things_in_hand; i++)
+            {
+                struct Thing *thing;
+                thing = thing_get(dungeon->things_in_hand[i]);
+                if (thing_is_creature(thing))
+                {
+                    if (!process_creature_in_dungeon_hand(dungeon, thing)) {
+                        // If thing was removed from hand, process the index in hand again
+                        i--;
+                    }
+                }
+            }
+        }
+    }
 }
 
 void draw_mini_things_in_hand(long x, long y)
@@ -1163,10 +1222,28 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
         set_thing_draw(thing, i, 256, -1, -1, 0, 2);
     }
     insert_thing_into_power_hand_list(thing, plyr_idx);
-    remove_thing_from_mapwho(thing);
-    thing->alloc_flags |= 0x10;
-    thing->field_4F |= 0x01;
+    place_thing_in_limbo(thing);
     return true;
+}
+
+TbBool remove_creature_from_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
+{
+    struct PlayerInfo *player;
+    player = get_player(plyr_idx);
+    struct Dungeon *dungeon;
+    dungeon = get_players_dungeon(player);
+    if (!thing_is_in_power_hand_list(thing, plyr_idx)) {
+        return false;
+    }
+    if (thing_is_creature(thing))
+    {
+        remove_thing_from_limbo(thing);
+        set_start_state(thing);
+        remove_thing_from_power_hand_list(thing, plyr_idx);
+        set_power_hand_offset(player, thing_get(dungeon->things_in_hand[0]));
+        return true;
+    }
+    return false;
 }
 
 TbResult magic_use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short tng_idx)
