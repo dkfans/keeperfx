@@ -35,51 +35,11 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_get_highest_experience_level_in_group(struct Thing *creatng);
 DLLIMPORT void _DK_leader_find_positions_for_followers(struct Thing *creatng);
 DLLIMPORT long _DK_remove_creature_from_group(struct Thing *creatng);
 DLLIMPORT long _DK_add_creature_to_group_as_leader(struct Thing *thing1, struct Thing *thing2);
 
 /******************************************************************************/
-CrtrExpLevel get_highest_experience_level_in_group(struct Thing *grptng)
-{
-    //return _DK_get_highest_experience_level_in_group(grptng);
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(grptng);
-    CrtrExpLevel best_explevel;
-    struct Thing *ctng;
-    best_explevel = 0;
-    long i;
-    unsigned long k;
-    i = cctrl->group_info & TngGroup_LeaderIndex;
-    if (i == 0) {
-        // One creature is not a group, but we may still get its experience
-        i = grptng->index;
-    }
-    k = 0;
-    while (i > 0)
-    {
-        ctng = thing_get(i);
-        TRACE_THING(ctng);
-        cctrl = creature_control_get_from_thing(ctng);
-        if (creature_control_invalid(cctrl))
-            break;
-        // Per-thing code
-        if (best_explevel < cctrl->explevel) {
-            best_explevel = cctrl->explevel;
-        }
-        // Per-thing code ends
-        i = cctrl->next_in_group;
-        k++;
-        if (k > CREATURES_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping creatures group");
-            break;
-        }
-    }
-    return best_explevel;
-}
-
 struct Thing *get_highest_experience_and_score_creature_in_group(struct Thing *grptng)
 {
     struct CreatureControl *cctrl;
@@ -160,7 +120,7 @@ long get_no_creatures_in_group(const struct Thing *grptng)
     return k;
 }
 
-struct Thing *get_last_creature_in_group(const struct Thing *grptng)
+struct Thing *get_last_follower_creature_in_group(const struct Thing *grptng)
 {
     struct CreatureControl *cctrl;
     struct Thing *ctng;
@@ -191,6 +151,25 @@ struct Thing *get_last_creature_in_group(const struct Thing *grptng)
     return ctng;
 }
 
+struct Thing *get_first_follower_creature_in_group(const struct Thing *grptng)
+{
+    struct CreatureControl *cctrl;
+    struct Thing *ctng;
+    long i;
+    cctrl = creature_control_get_from_thing(grptng);
+    i = cctrl->group_info & TngGroup_LeaderIndex;
+    if (i == 0) {
+        // No group - just one creature
+        return INVALID_THING;
+    }
+    {
+        ctng = thing_get(i);
+        cctrl = creature_control_get_from_thing(ctng);
+        i = cctrl->next_in_group;
+    }
+    return thing_get(i);
+}
+
 struct Thing *get_group_leader(const struct Thing *thing)
 {
   struct CreatureControl *cctrl;
@@ -217,16 +196,178 @@ TbBool creature_is_group_leader(const struct Thing *thing)
     return (leadtng->index == thing->index);
 }
 
-TbBool remove_creature_from_group(struct Thing *thing)
+void internal_update_leader_index_in_group(struct Thing *leadtng)
 {
-    return _DK_remove_creature_from_group(thing);
+    long i;
+    unsigned long k;
+    i = leadtng->index;
+    k = 0;
+    while (i > 0)
+    {
+        struct CreatureControl *cctrl;
+        struct Thing *ctng;
+        ctng = thing_get(i);
+        TRACE_THING(ctng);
+        cctrl = creature_control_get_from_thing(ctng);
+        if (creature_control_invalid(cctrl))
+            break;
+        i = cctrl->next_in_group;
+        // Per-thing code
+        cctrl->group_info ^= (leadtng->index ^ cctrl->group_info) & TngGroup_LeaderIndex;
+        // Per-thing code ends
+        k++;
+        if (k > GROUP_MEMBERS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures group");
+            break;
+        }
+    }
+    SYNCDBG(7,"Group led by %s index %d has %d members",thing_model_name(leadtng),(int)leadtng->index,(int)k);
+}
+
+void internal_remove_member_from_group_chain(struct Thing *creatng)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    struct Thing *prevtng;
+    struct CreatureControl *prevctrl;
+    if (cctrl->prev_in_group > 0) {
+        prevtng = thing_get(cctrl->prev_in_group);
+        prevctrl = creature_control_get_from_thing(prevtng);
+    } else {
+        prevtng = INVALID_THING;
+        prevctrl = INVALID_CRTR_CONTROL;
+    }
+    struct Thing *nexttng;
+    struct CreatureControl *nextctrl;
+    if (cctrl->next_in_group > 0) {
+        nexttng = thing_get(cctrl->next_in_group);
+        nextctrl = creature_control_get_from_thing(nexttng);
+    } else {
+        nexttng = INVALID_THING;
+        nextctrl = INVALID_CRTR_CONTROL;
+    }
+    // Remove current thing from group chain
+    if (!creature_control_invalid(prevctrl))
+    {
+        if (!thing_is_invalid(nexttng)) {
+            prevctrl->next_in_group = nexttng->index;
+        } else {
+            prevctrl->next_in_group = 0;
+        }
+    }
+    if (!creature_control_invalid(nextctrl))
+    {
+        if (!thing_is_invalid(prevtng)) {
+            nextctrl->prev_in_group = prevtng->index;
+        } else {
+            nextctrl->prev_in_group = 0;
+        }
+    }
+    cctrl->next_in_group = 0;
+    cctrl->prev_in_group = 0;
+}
+
+/**
+ * Adds member to a group chain at its head.
+ * @param creatng New group chain head.
+ * @param leadtng Previous group chain head.
+ */
+void internal_add_member_to_group_chain_head(struct Thing *creatng, struct Thing *leadtng)
+{
+    // Change old leader to normal group member, and add new one to chain as its head
+    struct CreatureControl *crctrl;
+    crctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl *ldctrl;
+    ldctrl = creature_control_get_from_thing(leadtng);
+    crctrl->next_in_group = leadtng->index;
+    ldctrl->prev_in_group = creatng->index;
+    // Remove member count from old leader; new leader will have it computed somewhere else
+    ldctrl->group_info &= ~TngGroup_MemberCount;
+}
+
+/**
+ * Removes a creature from group. If the group had size of 2, it is disbanded; otherwise, next
+ *   creature becomes a leader without checking whether it's best for it.
+ * @param creatng The creatuire to be removed.
+ * @return True if the group still exists after removal, false otherwise.
+ */
+TbBool remove_creature_from_group_without_leader_consideration(struct Thing *creatng)
+{
+    //return _DK_remove_creature_from_group(creatng);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    // Remember any other group member, and whether we're removing a leader
+    TbBool was_leader;
+    struct Thing *grptng;
+    if (creature_is_group_leader(creatng)) {
+        was_leader = true;
+        // If we're removing leader, then all members are next
+        grptng = thing_get(cctrl->next_in_group);
+    } else {
+        was_leader = false;
+        // If we're removing follower, then at least a leader has to be previous
+        grptng = thing_get(cctrl->prev_in_group);
+    }
+    // Set new next and previous things
+    internal_remove_member_from_group_chain(creatng);
+    // Finish removing the thing from group
+    cctrl->group_info &= ~TngGroup_LeaderIndex;
+    cctrl->group_info &= ~TngGroup_MemberCount;
+    creatng->alloc_flags &= ~TAlF_IsFollowingLeader;
+    // Find leader of the party
+    struct Thing *leadtng;
+    if (was_leader) {
+        // Leader was at start of the chain, and we've removed him
+        leadtng = grptng;
+    } else {
+        // Leader hasn't changed, we can use group_info to get him
+        leadtng = get_group_leader(grptng);
+    }
+    // If there are no creatures besides leader, disband the group
+    cctrl = creature_control_get_from_thing(leadtng);
+    if (creature_control_invalid(cctrl) || (cctrl->next_in_group <= 0))
+    {
+        cctrl->next_in_group = 0;
+        cctrl->prev_in_group = 0;
+        cctrl->group_info &= ~TngGroup_LeaderIndex;
+        cctrl->group_info &= ~TngGroup_MemberCount;
+        if (creature_control_invalid(cctrl)) {
+            WARNLOG("Group had only one member, %s index %d",thing_model_name(creatng),(int)creatng->index);
+        }
+        leadtng->alloc_flags &= ~TAlF_IsFollowingLeader;
+        return false;
+    }
+    // If there is still more than one creature
+    if (was_leader) {
+        internal_update_leader_index_in_group(leadtng);
+        leadtng->alloc_flags &= ~TAlF_IsFollowingLeader;
+        leader_find_positions_for_followers(leadtng);
+    }
+    return true;
+}
+
+TbBool remove_creature_from_group(struct Thing *creatng)
+{
+    struct Thing *grptng;
+    grptng = get_first_follower_creature_in_group(creatng);
+    if (!remove_creature_from_group_without_leader_consideration(creatng)) {
+        SYNCDBG(5,"Removing %s index %d and disbanding the party",thing_model_name(creatng),(int)creatng->index);
+        // Last creature removed - party disbanded
+        return false;
+    }
+    SYNCDBG(5,"Removing %s index %d",thing_model_name(creatng),(int)creatng->index);
+    struct Thing *leadtng;
+    leadtng = get_highest_experience_and_score_creature_in_group(grptng);
+    make_group_member_leader(leadtng);
+    return true;
 }
 
 TbBool add_creature_to_group(struct Thing *creatng, struct Thing *grptng)
 {
     SYNCDBG(5,"Adding %s index %d",thing_model_name(creatng),(int)creatng->index);
     struct Thing *pvthing;
-    pvthing = get_last_creature_in_group(grptng);
+    pvthing = get_last_follower_creature_in_group(grptng);
     if ((grptng->index == creatng->index) || (grptng->owner != creatng->owner)) {
         return false;
     }
@@ -269,52 +410,21 @@ long add_creature_to_group_as_leader(struct Thing *creatng, struct Thing *grptng
 {
     //return _DK_add_creature_to_group_as_leader(creatng, grptng);
     SYNCDBG(5,"Adding %s index %d",thing_model_name(creatng),(int)creatng->index);
-    struct Thing *leadtng;
-    leadtng = get_group_leader(grptng);
-    if (thing_is_invalid(leadtng))
-        leadtng = grptng;
     if ((grptng->index == creatng->index) || (grptng->owner != creatng->owner)) {
         return 0;
     }
     if (creature_is_group_member(creatng)) {
         remove_creature_from_group(creatng);
     }
+    struct Thing *leadtng;
+    leadtng = get_group_leader(grptng);
+    if (thing_is_invalid(leadtng))
+        leadtng = grptng;
     // Change old leader to normal group member, and add new one to chain as its head
-    struct CreatureControl *crctrl;
-    crctrl = creature_control_get_from_thing(creatng);
-    struct CreatureControl *ldctrl;
-    ldctrl = creature_control_get_from_thing(leadtng);
-    crctrl->next_in_group = leadtng->index;
-    ldctrl->prev_in_group = creatng->index;
+    internal_add_member_to_group_chain_head(creatng, leadtng);
     leadtng->alloc_flags |= TAlF_IsFollowingLeader;
-    crctrl->group_info ^= (crctrl->group_info ^ creatng->index) & TngGroup_LeaderIndex;
-    // Remove member count from old leader; new leader will have it computed somewhere else
-    ldctrl->group_info &= ~TngGroup_MemberCount;
     // Now go through all group members and set leader index
-    long i;
-    unsigned long k;
-    i = leadtng->index;
-    k = 0;
-    while (i > 0)
-    {
-        struct CreatureControl *cctrl;
-        struct Thing *ctng;
-        ctng = thing_get(i);
-        TRACE_THING(ctng);
-        cctrl = creature_control_get_from_thing(ctng);
-        if (creature_control_invalid(cctrl))
-            break;
-        i = cctrl->next_in_group;
-        // Per-thing code
-        cctrl->group_info ^= (creatng->index ^ cctrl->group_info) & TngGroup_LeaderIndex;
-        // Per-thing code ends
-        k++;
-        if (k > GROUP_MEMBERS_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping creatures group");
-            break;
-        }
-    }
+    internal_update_leader_index_in_group(creatng);
     return 1;
 }
 
@@ -393,9 +503,11 @@ TbBool make_group_member_leader(struct Thing *leadtng)
     prvtng = get_group_leader(leadtng);
     if (thing_is_invalid(prvtng))
         return false;
+    SYNCDBG(3,"Group owned by player %d leader change to %s index %d",
+        (int)leadtng->owner,thing_model_name(leadtng),(int)leadtng->index);
     if (prvtng->index != leadtng->index)
     {
-        remove_creature_from_group(leadtng);
+        remove_creature_from_group_without_leader_consideration(leadtng);
         add_creature_to_group_as_leader(leadtng, prvtng);
         return true;
     }
@@ -431,11 +543,14 @@ long process_obey_leader(struct Thing *thing)
     struct Thing *leadtng;
     leadtng = get_group_leader(thing);
     if (thing_is_invalid(leadtng)) {
+        WARNDBG(3,"Leader invalid, resetting %s index %d owned by player %d",
+            thing_model_name(thing),(int)thing->index,(int)thing->owner);
         set_start_state(thing);
         return 1;
     }
     if ((leadtng->alloc_flags & TAlF_IsControlled) != 0)
     {
+        // If leader is controlled, always force followers to stay
         if (thing->active_state != CrSt_CreatureFollowLeader) {
             external_set_thing_state(thing, CrSt_CreatureFollowLeader);
         }
