@@ -1465,7 +1465,7 @@ short creature_being_dropped(struct Thing *creatng)
             {
                 if (!thing_is_picked_up(leadtng))
                 {
-                    if (get_2d_box_distance(&creatng->mappos, &leadtng->mappos) > subtile_coord(6,0)) {
+                    if (get_2d_box_distance(&creatng->mappos, &leadtng->mappos) > subtile_coord(9,0)) {
                         SYNCDBG(3,"Removing %s index %d owned by player %d from group",
                             thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
                         remove_creature_from_group(creatng);
@@ -4238,16 +4238,16 @@ TbBool cleanup_current_thing_state(struct Thing *creatng)
     return true;
 }
 
-TbBool cleanup_creature_state_and_interactions(struct Thing *thing)
+TbBool cleanup_creature_state_and_interactions(struct Thing *creatng)
 {
-    cleanup_current_thing_state(thing);
-    set_creature_assigned_job(thing, Job_NULL);
-    remove_all_traces_of_combat(thing);
-    if (creature_is_group_member(thing)) {
-        remove_creature_from_group(thing);
+    cleanup_current_thing_state(creatng);
+    set_creature_assigned_job(creatng, Job_NULL);
+    remove_all_traces_of_combat(creatng);
+    if (creature_is_group_member(creatng)) {
+        remove_creature_from_group(creatng);
     }
-    remove_events_thing_is_attached_to(thing);
-    delete_effects_attached_to_creature(thing);
+    remove_events_thing_is_attached_to(creatng);
+    delete_effects_attached_to_creature(creatng);
     return true;
 }
 
