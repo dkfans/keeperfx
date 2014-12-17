@@ -1289,6 +1289,27 @@ void process_thing_spell_effects(struct Thing *thing)
     }
 }
 
+void process_thing_spell_effects_while_blocked(struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    int i;
+    for (i=0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
+    {
+        struct CastedSpellData * cspell;
+        cspell = &cctrl->casted_spells[i];
+        if (cspell->spkind == SplK_None)
+            continue;
+        if (cspell->duration > 0) {
+            cspell->duration--;
+        }
+    }
+    // Slap is not in spell array, it is so common that has its own dedicated duration
+    if (cctrl->slap_turns > 0) {
+        cctrl->slap_turns--;
+    }
+}
+
 short creature_take_wage_from_gold_pile(struct Thing *creatng,struct Thing *goldtng)
 {
     struct CreatureStats *crstat;
@@ -4795,16 +4816,7 @@ TngUpdateRet update_creature(struct Thing *thing)
         kill_creature(thing, INVALID_THING, -1, CrDed_Default);
         return TUFRet_Deleted;
     }
-    if (game.armageddon_cast_turn != 0)
-    {
-        // If Armageddon is on, teleport creature to its position
-        if ((cctrl->armageddon_teleport_turn != 0) && (cctrl->armageddon_teleport_turn <= game.play_gameturn))
-        {
-            cctrl->armageddon_teleport_turn = 0;
-            create_effect(&thing->mappos, imp_spangle_effects[thing->owner], thing->owner);
-            move_thing_in_map(thing, &game.armageddon.mappos);
-        }
-    }
+    process_armageddon_influencing_creature(thing);
 
     if (cctrl->field_B1 > 0)
         cctrl->field_B1--;

@@ -525,15 +525,15 @@ void transfer_creature(struct Thing *boxtng, struct Thing *transftng, unsigned c
     // Remove the creature from power hand
     for (i = 0; i < dungeon->num_things_in_hand; i++)
     {
-      if (dungeon->things_in_hand[i] == transftng->index)
-      {
-        for ( ; i < dungeon->num_things_in_hand-1; i++)
+        if (dungeon->things_in_hand[i] == transftng->index)
         {
-          dungeon->things_in_hand[i] = dungeon->things_in_hand[i+1];
+            for ( ; i < dungeon->num_things_in_hand-1; i++)
+            {
+                dungeon->things_in_hand[i] = dungeon->things_in_hand[i+1];
+            }
+            dungeon->num_things_in_hand--;
+            dungeon->things_in_hand[dungeon->num_things_in_hand] = 0;
         }
-        dungeon->num_things_in_hand--;
-        dungeon->things_in_hand[dungeon->num_things_in_hand] = 0;
-      }
     }
     kill_creature(transftng, INVALID_THING, -1, CrDed_NoEffects|CrDed_NotReallyDying);
     create_special_used_effect(&boxtng->mappos, plyr_idx);

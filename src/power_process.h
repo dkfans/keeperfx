@@ -45,6 +45,7 @@ void set_chosen_power_none(void);
 
 void process_disease(struct Thing *thing);
 void process_armageddon(void);
+void process_armageddon_influencing_creature(struct Thing *creatng);
 
 void update_god_lightning_ball(struct Thing *thing);
 void god_lightning_choose_next_creature(struct Thing *thing);
