@@ -1980,9 +1980,16 @@ short creature_follow_leader(struct Thing *creatng)
     struct Thing *leadtng;
     TRACE_THING(creatng);
     leadtng = get_group_leader(creatng);
-    if (thing_is_invalid(leadtng) || (leadtng->index == creatng->index))
+    if (!thing_is_creature(leadtng))
     {
         SYNCLOG("The %s index %d owned by player %d can no longer follow leader - it's invalid",
+            thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        set_start_state(creatng);
+        return 1;
+    }
+    if (leadtng->index == creatng->index)
+    {
+        SYNCLOG("The %s index %d owned by player %d became party leader",
             thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         set_start_state(creatng);
         return 1;
@@ -2009,7 +2016,7 @@ short creature_follow_leader(struct Thing *creatng)
     fails_amount = cctrl->field_307;
     if (fails_amount > 8)
     {
-        SYNCDBG(3,"Removing %s index %d owned by player %d from group",
+        SYNCDBG(3,"Removing %s index %d owned by player %d from group due to fails to follow",
             thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         remove_creature_from_group(creatng);
         return 0;

@@ -29,6 +29,7 @@
 #include "creature_states.h"
 #include "config_creature.h"
 #include "room_jobs.h"
+#include "ariadne_wallhug.h"
 #include "game_legacy.h"
 
 #ifdef __cplusplus
@@ -672,7 +673,8 @@ void leader_find_positions_for_followers(struct Thing *leadtng)
                     pos.x.val = mcor_x;
                     pos.y.val = mcor_y;
                     pos.z.val = get_floor_height_at(&pos);
-                    if (!thing_in_wall_at(leadtng, &pos))
+                    // if position is ok for leader instead of for followers - close enough
+                    if (!thing_in_wall_at(leadtng, &pos) && !terrain_toxic_for_creature_at_position(leadtng, pos.x.stl.num, pos.y.stl.num))
                     {
                         creature_follower_pos_add(leadtng, ifollow, &pos);
                         ifollow++;
