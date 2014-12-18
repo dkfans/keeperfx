@@ -112,7 +112,8 @@ void creature_cast_spell(struct Thing *caster, long trg_x, long trg_y, long a4, 
 unsigned int get_creature_blocked_flags_at(struct Thing *thing, struct Coord3d *newpos);
 
 struct Thing *get_enemy_soul_container_creature_can_see(struct Thing *thing);
-void food_eaten_by_creature(struct Thing *crthing, struct Thing *obthing);
+TbBool thing_can_be_eaten(struct Thing *thing);
+void food_eaten_by_creature(struct Thing *foodtng, struct Thing *creatng);
 short creature_take_wage_from_gold_pile(struct Thing *crthing,struct Thing *obthing);
 struct Thing *get_creature_near(unsigned short pos_x, unsigned short pos_y);
 struct Thing *get_creature_near_with_filter(unsigned short pos_x, unsigned short pos_y, Thing_Filter filter, FilterParam param);
