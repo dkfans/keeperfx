@@ -969,7 +969,7 @@ void maintain_room(struct GuiButton *gbtn)
         return;
     }
     if (dungeon_invalid(dungeon)) {
-        ERRORLOG("Invalid dungeon");
+        ERRORDBG(8,"Cannot do; player %d has no dungeon",(int)my_player_number);
         return;
     }
     if (dungeon->room_buildable[rkind]) {
@@ -991,7 +991,7 @@ void maintain_big_room(struct GuiButton *gbtn)
         return;
     }
     if (dungeon_invalid(dungeon)) {
-        ERRORLOG("Invalid dungeon");
+        ERRORDBG(8,"Cannot do; player %d has no dungeon",(int)my_player_number);
         return;
     }
     gbtn->content = (unsigned long *)rkind;

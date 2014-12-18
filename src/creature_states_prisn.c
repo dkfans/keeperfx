@@ -342,8 +342,9 @@ TbBool prison_convert_creature_to_skeleton(struct Room *room, struct Thing *thin
       create_effect_around_thing(thing, TngEff_Unknown10);
     kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects);
     dungeon = get_dungeon(room->owner);
-    if (!dungeon_invalid(dungeon))
+    if (!dungeon_invalid(dungeon)) {
         dungeon->lvstats.skeletons_raised++;
+    }
     return true;
 }
 

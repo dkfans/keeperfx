@@ -454,7 +454,7 @@ TbBool placing_offmap_workshop_item(PlayerNumber plyr_idx, ThingClass tngclass, 
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon)) {
-        // Player with no dungeon has only off-map items
+        // Player with no dungeon has only on-map items
         // But this shouldn't really happen
         return true;
     }

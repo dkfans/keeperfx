@@ -151,7 +151,7 @@ TbBool give_gold_to_creature_or_drop_on_map_when_digging(struct Thing *creatng, 
     slb = get_slabmap_for_subtile(stl_x, stl_y);
     gold = calculate_gold_digged_out_of_slab_with_single_hit(damage, creatng->owner, cctrl->explevel, slb);
     creatng->creature.gold_carried += gold;
-    if (dungeon_invalid(dungeon)) {
+    if (!dungeon_invalid(dungeon)) {
         dungeon->lvstats.gold_mined += gold;
     }
     if (crstat->gold_hold <= creatng->creature.gold_carried)

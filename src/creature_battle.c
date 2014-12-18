@@ -178,7 +178,7 @@ long get_flee_position(struct Thing *creatng, struct Coord3d *pos)
     }
     // Same with creatures without dungeon - try using last place
     dungeon = get_dungeon(creatng->owner);
-    if ( dungeon_invalid(dungeon) )
+    if (dungeon_invalid(dungeon))
     {
         if ( (pos->x.val != 0) || (pos->y.val != 0) )
         {
@@ -304,6 +304,7 @@ TbBool step_battles_forward(PlayerNumber plyr_idx)
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon)) {
+        ERRORDBG(8,"Cannot do; player %d has no dungeon",(int)plyr_idx);
         return false;
     }
     BattleIndex i;

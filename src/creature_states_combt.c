@@ -950,7 +950,7 @@ TbBool remove_ranged_attacker(struct Thing *fightng, struct Thing *enmtng)
     {
         struct Dungeon *dungeon;
         dungeon = get_players_num_dungeon(fightng->owner);
-        if ( !dungeon_invalid(dungeon) && (dungeon->fights_num > 0) ) {
+        if (!dungeon_invalid(dungeon) && (dungeon->fights_num > 0)) {
             dungeon->fights_num--;
         } else {
             WARNLOG("Fight count incorrect while removing attacker %s index %d",thing_model_name(fightng),(int)fightng->index);
