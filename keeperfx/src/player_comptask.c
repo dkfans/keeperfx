@@ -1219,7 +1219,7 @@ ItemAvailability computer_check_room_available(struct Computer2 * comp, long rki
         return IAvail_Never;
     }
     if (dungeon_invalid(dungeon)) {
-        ERRORLOG("Invalid dungeon");
+        ERRORLOG("Invalid dungeon in computer player.");
         return IAvail_Never;
     }
     if (!dungeon->room_resrchable[rkind])
@@ -2851,8 +2851,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
     long value,model;
     long i;
     dungeon = comp->dungeon;
-    if (dungeon_invalid(dungeon))
-    {
+    if (dungeon_invalid(dungeon)) {
         ERRORLOG("Invalid dungeon in computer player.");
         return 0;
     }

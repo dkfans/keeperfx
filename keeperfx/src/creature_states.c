@@ -1440,8 +1440,9 @@ short creature_being_dropped(struct Thing *creatng)
         {
             struct Dungeon *dungeon;
             dungeon = get_dungeon(creatng->owner);
-            if (!dungeon_invalid(dungeon))
+            if (!dungeon_invalid(dungeon)) {
                 dungeon->camera_deviate_jump = 96;
+            }
         }
         // Make sure computer control flag is set accordingly to job, so that we won't start a fight when in captivity
         if (new_job != Job_NULL)
