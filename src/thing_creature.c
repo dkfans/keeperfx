@@ -139,7 +139,7 @@ DLLIMPORT long _DK_creature_available_for_combat_this_turn(struct Thing *creatng
 DLLIMPORT struct Thing *_DK_get_enemy_dungeon_heart_creature_can_see(struct Thing *creatng);
 DLLIMPORT long _DK_set_creature_object_combat(struct Thing *creatng, struct Thing *goldtng);
 DLLIMPORT void _DK_set_creature_door_combat(struct Thing *creatng, struct Thing *goldtng);
-DLLIMPORT void _DK_food_eaten_by_creature(struct Thing *creatng, struct Thing *goldtng);
+DLLIMPORT void _DK_food_eaten_by_creature(struct Thing *foodtng, struct Thing *creatng);
 DLLIMPORT void _DK_creature_fire_shot(struct Thing *firing,struct  Thing *targetng, unsigned short a1, char reason, unsigned char targtng_idx);
 DLLIMPORT unsigned long _DK_control_creature_as_controller(struct PlayerInfo *player, struct Thing *creatng);
 DLLIMPORT unsigned long _DK_control_creature_as_passenger(struct PlayerInfo *player, struct Thing *creatng);
@@ -583,9 +583,9 @@ TbBool set_creature_door_combat(struct Thing *creatng, struct Thing *obthing)
     return true;
 }
 
-void food_eaten_by_creature(struct Thing *creatng, struct Thing *foodtng)
+void food_eaten_by_creature(struct Thing *foodtng, struct Thing *creatng)
 {
-    //_DK_food_eaten_by_creature(creatng, foodtng);
+    //_DK_food_eaten_by_creature(foodtng, creatng);
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->instance_id == CrInst_NULL)
@@ -602,16 +602,22 @@ void food_eaten_by_creature(struct Thing *creatng, struct Thing *foodtng)
         apply_health_to_thing_and_display_health(creatng, game.food_health_gain);
         cctrl->hunger_level = 0;
     }
-    thing_play_sample(creatng, 112 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    thing_play_sample(foodtng, 112 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(creatng);
-    anger_apply_anger_to_creature(creatng, crstat->annoy_eat_food, 2, 1);
+    anger_apply_anger_to_creature(creatng, crstat->annoy_eat_food, AngR_Hungry, 1);
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(creatng->owner);
     if (!dungeon_invalid(dungeon)) {
         dungeon->lvstats.chickens_eaten++;
     }
-    delete_thing_structure(foodtng, 0);
+    if (thing_is_creature(foodtng))
+    {
+        foodtng->health = -1;
+    } else
+    {
+        delete_thing_structure(foodtng, 0);
+    }
 }
 
 void anger_apply_anger_to_creature_f(struct Thing *creatng, long anger, AnnoyMotive reason, long a3, const char *func_name)
@@ -1527,6 +1533,18 @@ struct Thing *find_interesting_object_laying_around_thing(struct Thing *creatng)
     return INVALID_THING;
 }
 
+TbBool thing_can_be_eaten(struct Thing *thing)
+{
+    if (thing_is_mature_food(thing) || (thing_is_creature(thing) && creature_affected_by_spell(thing, SplK_Chicken)))
+    {
+        if (is_thing_directly_controlled(thing) || is_thing_passenger_controlled(thing) || thing_is_picked_up(thing)) {
+            return false;
+        }
+        return true;
+    }
+    return false;
+}
+
 TbBool creature_pick_up_interesting_object_laying_nearby(struct Thing *creatng)
 {
     struct Thing *tgthing;
@@ -1562,11 +1580,9 @@ TbBool creature_pick_up_interesting_object_laying_nearby(struct Thing *creatng)
         anger_apply_anger_to_creature(creatng, crstat->annoy_got_wage, AngR_NotPaid, 1);
         return true;
     }
-    if (object_is_mature_food(tgthing))
+    if (thing_can_be_eaten(tgthing))
     {
-        if (!is_thing_directly_controlled(tgthing) && !is_thing_passenger_controlled(tgthing)) {
-          food_eaten_by_creature(tgthing, creatng);
-        }
+        food_eaten_by_creature(tgthing, creatng);
         return true;
     }
     return false;

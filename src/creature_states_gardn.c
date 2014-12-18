@@ -251,14 +251,9 @@ short creature_eating_at_garden(struct Thing *creatng)
         set_start_state(creatng);
         return 0;
     }
-    if (is_thing_directly_controlled(foodtng) || is_thing_passenger_controlled(foodtng) || thing_is_picked_up(foodtng)) {
-        WARNLOG("The %s index %d is reserved to player",thing_model_name(foodtng),(int)foodtng->index);
-        set_start_state(creatng);
-        return 0;
-    }
-    if (!thing_is_mature_food(foodtng) && !(thing_is_creature(foodtng) && creature_affected_by_spell(foodtng, SplK_Chicken)))
+    if (!thing_can_be_eaten(foodtng))
     {
-        WARNLOG("Tried to eat %s index %d which is not food but still in %s",
+        WARNLOG("Tried to eat %s index %d which cannot be eaten now but is in %s",
             thing_model_name(foodtng),(int)foodtng->index,room_code_name(RoK_GARDEN));
         set_start_state(creatng);
         return 0;
