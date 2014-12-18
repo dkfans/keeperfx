@@ -1362,7 +1362,7 @@ TbBool set_power_available(PlayerNumber plyr_idx, PowerKind pwkind, long resrch,
     // may be uninitialized yet when this is called.
     dungeon = get_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon)) {
-        ERRORDBG(11,"Can't set trap availability; player %d has no dungeon.",(int)plyr_idx);
+        ERRORDBG(11,"Cannot set trap availability; player %d has no dungeon",(int)plyr_idx);
         return false;
     }
     dungeon->magic_resrchable[pwkind] = resrch;
@@ -1419,8 +1419,10 @@ TbBool make_available_all_researchable_powers(PlayerNumber plyr_idx)
   SYNCDBG(0,"Starting");
   ret = true;
   dungeon = get_players_num_dungeon(plyr_idx);
-  if (dungeon_invalid(dungeon))
+  if (dungeon_invalid(dungeon)) {
+      ERRORDBG(11,"Cannot do; player %d has no dungeon",(int)plyr_idx);
       return false;
+  }
   for (i=0; i < KEEPER_POWERS_COUNT; i++)
   {
     if (dungeon->magic_resrchable[i])

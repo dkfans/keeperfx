@@ -312,8 +312,9 @@ void convert_creature_to_ghost(struct Room *room, struct Thing *thing)
     set_start_state(newthing);
     kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects|CrDed_DiedInBattle);
     dungeon = get_dungeon(room->owner);
-    if (!dungeon_invalid(dungeon))
+    if (!dungeon_invalid(dungeon)) {
         dungeon->lvstats.ghosts_raised++;
+    }
     if (is_my_player_number(room->owner))
         output_message(SMsg_TortureMadeGhost, 0, true);
 }
@@ -332,8 +333,9 @@ void convert_tortured_creature_owner(struct Thing *creatng, PlayerNumber new_own
     change_creature_owner(creatng, new_owner);
     anger_set_creature_anger_all_types(creatng, 0);
     dungeon = get_dungeon(new_owner);
-    if (!dungeon_invalid(dungeon))
+    if (!dungeon_invalid(dungeon)) {
         dungeon->lvstats.creatures_converted++;
+    }
 }
 
 long reveal_players_map_to_player(struct Thing *thing, PlayerNumber benefit_plyr_idx)

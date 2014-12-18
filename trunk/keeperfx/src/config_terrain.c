@@ -971,8 +971,10 @@ TbBool make_all_rooms_researchable(PlayerNumber plyr_idx)
     struct Dungeon *dungeon;
     long rkind;
     dungeon = get_players_num_dungeon(plyr_idx);
-    if (dungeon_invalid(dungeon))
+    if (dungeon_invalid(dungeon)) {
+        ERRORDBG(11,"Cannot do; player %d has no dungeon",(int)plyr_idx);
         return false;
+    }
     for (rkind=0; rkind < slab_conf.room_types_count; rkind++)
     {
         dungeon->room_resrchable[rkind] = 1;
@@ -989,8 +991,10 @@ TbBool set_room_available(PlayerNumber plyr_idx, RoomKind room_idx, long resrch,
     // note that we can't get_players_num_dungeon() because players
     // may be uninitialized yet when this is called.
     dungeon = get_dungeon(plyr_idx);
-    if (dungeon_invalid(dungeon))
+    if (dungeon_invalid(dungeon)) {
+        ERRORDBG(11,"Cannot do; player %d has no dungeon",(int)plyr_idx);
         return false;
+    }
     if ((room_idx < 0) || (room_idx >= ROOM_TYPES_COUNT))
     {
         ERRORLOG("Can't add incorrect room %d to player %d",(int)room_idx, (int)plyr_idx);
@@ -1041,8 +1045,10 @@ TbBool make_available_all_researchable_rooms(PlayerNumber plyr_idx)
     long i;
     SYNCDBG(0,"Starting");
     dungeon = get_players_num_dungeon(plyr_idx);
-    if (dungeon_invalid(dungeon))
+    if (dungeon_invalid(dungeon)) {
+        ERRORDBG(11,"Cannot do; player %d has no dungeon",(int)plyr_idx);
         return false;
+    }
     for (i=0; i < ROOM_TYPES_COUNT; i++)
     {
         if (dungeon->room_resrchable[i])
