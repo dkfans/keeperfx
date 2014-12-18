@@ -991,7 +991,7 @@ TbBool process_creature_in_dungeon_hand(struct Dungeon *dungeon, struct Thing *t
     }
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(thing);
-    anger_apply_anger_to_creature(thing, crstat->annoy_in_hand, 4, 1);
+    anger_apply_anger_to_creature(thing, crstat->annoy_in_hand, AngR_Other, 1);
     process_thing_spell_effects_while_blocked(thing);
     return true;
 }
