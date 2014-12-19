@@ -1042,8 +1042,8 @@ void draw_mini_things_in_hand(long x, long y)
     int bs_units_per_px;
     {
         struct TbSprite *spr;
-        spr = &button_sprite[184];
-        bs_units_per_px = (16 * units_per_pixel) / spr->SHeight;
+        spr = &button_sprite[184]; // Use creature flower level number as reference
+        bs_units_per_px = (17 * units_per_pixel) / spr->SHeight;
     }
     unsigned long spr_idx;
     spr_idx = get_creature_model_graphics(23, CGI_GUIPanelSymbol);

@@ -522,19 +522,7 @@ void transfer_creature(struct Thing *boxtng, struct Thing *transftng, unsigned c
 
     cctrl = creature_control_get_from_thing(transftng);
     set_transfered_creature(plyr_idx, transftng->model, cctrl->explevel);
-    // Remove the creature from power hand
-    for (i = 0; i < dungeon->num_things_in_hand; i++)
-    {
-        if (dungeon->things_in_hand[i] == transftng->index)
-        {
-            for ( ; i < dungeon->num_things_in_hand-1; i++)
-            {
-                dungeon->things_in_hand[i] = dungeon->things_in_hand[i+1];
-            }
-            dungeon->num_things_in_hand--;
-            dungeon->things_in_hand[dungeon->num_things_in_hand] = 0;
-        }
-    }
+    remove_thing_from_power_hand_list(transftng, plyr_idx);
     kill_creature(transftng, INVALID_THING, -1, CrDed_NoEffects|CrDed_NotReallyDying);
     create_special_used_effect(&boxtng->mappos, plyr_idx);
     remove_events_thing_is_attached_to(boxtng);
