@@ -674,8 +674,8 @@ void init_keeper(void)
     game.comp_player_defensive = 1;
     game.comp_player_construct = 0;
     game.comp_player_creatrsonly = 0;
-    game.creatures_tend_1 = 0;
-    game.creatures_tend_2 = 0;
+    game.creatures_tend_imprison = 0;
+    game.creatures_tend_flee = 0;
     game.numfield_C |= 0x40;
     game.numfield_D |= (0x20 | 0x40);
     init_censorship();
@@ -1101,8 +1101,8 @@ void update_creatr_model_activities_list(void)
 void toggle_hero_health_flowers(void)
 {
     const char *statstr;
-    toggle_flag_byte(&game.flags_cd,MFlg_unk80);
-    if (game.flags_cd & MFlg_unk80)
+    toggle_flag_byte(&game.flags_cd,MFlg_NoHeroHealthFlower);
+    if (game.flags_cd & MFlg_NoHeroHealthFlower)
     {
       statstr = "off";
     } else
@@ -3524,8 +3524,8 @@ void init_level(void)
     game.armageddon_cast_turn = 0;
     game.field_15035A = 0;
     init_messages();
-    game.creatures_tend_1 = 0;
-    game.creatures_tend_2 = 0;
+    game.creatures_tend_imprison = 0;
+    game.creatures_tend_flee = 0;
     game.field_15033A = 0;
     game.chosen_room_kind = 0;
     game.chosen_room_spridx = 0;

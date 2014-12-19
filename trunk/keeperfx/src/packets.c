@@ -1871,6 +1871,11 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       return 0;
   case PckA_ToggleTendency:
       toggle_creature_tendencies(player, pckt->field_6);
+      if (is_my_player(player)) {
+          dungeon = get_players_dungeon(player);
+          game.creatures_tend_imprison = ((dungeon->creature_tendencies & 0x01) != 0);
+          game.creatures_tend_flee = ((dungeon->creature_tendencies & 0x02) != 0);
+      }
       return 0;
   case PckA_CheatEnter:
 //      game.???[my_player_number].cheat_mode = 1;
