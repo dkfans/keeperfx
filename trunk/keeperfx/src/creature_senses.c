@@ -33,6 +33,8 @@
 #include "game_legacy.h"
 
 /******************************************************************************/
+DLLIMPORT unsigned char _DK_line_of_sight_2d(const struct Coord3d *pos1, const struct Coord3d *pos2);
+/******************************************************************************/
 TbBool sibling_line_of_sight_ignoring_door(const struct Coord3d *prevpos,
     const struct Coord3d *nextpos, const struct Thing *doortng)
 {
@@ -649,6 +651,11 @@ TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *cre
             return false;
         }
     }
+}
+
+TbBool line_of_sight_2d(const struct Coord3d *pos1, const struct Coord3d *pos2)
+{
+    return _DK_line_of_sight_2d(pos1, pos2);
 }
 
 TbBool line_of_sight_3d(const struct Coord3d *frpos, const struct Coord3d *topos)

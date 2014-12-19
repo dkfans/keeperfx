@@ -1848,6 +1848,7 @@
  0001:0009F6B0       text_string_height
  0001:00079340       get_2d_distance
  0001:0005D1F0       get_angle_xy_to
+ 0001:00079490       line_of_sight_2d
  0001:00079560       line_of_sight_3d
  0001:000799C0       line_of_sight_3d_ignoring_specific_door
  0001:0007A580       jonty_line_of_sight_3d_including_lava_check_ignoring_own_door

@@ -309,7 +309,6 @@ struct Thing *select_scavenger_target(const struct Thing *calltng)
     struct Thing *weaktng;
     weaktng = INVALID_THING;
     weakpts = LONG_MAX;
-    struct Thing *thing;
     unsigned long k;
     int i;
     SYNCDBG(18,"Starting");
@@ -319,6 +318,7 @@ struct Thing *select_scavenger_target(const struct Thing *calltng)
     i = slist->index;
     while (i != 0)
     {
+        struct Thing *thing;
         thing = thing_get(i);
         if (thing_is_invalid(thing))
         {
