@@ -3741,6 +3741,11 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
       {
           player = get_player(i);
           set_creature_tendencies(player, val2, val3);
+          if (is_my_player(player)) {
+              dungeon = get_players_dungeon(player);
+              game.creatures_tend_imprison = ((dungeon->creature_tendencies & 0x01) != 0);
+              game.creatures_tend_flee = ((dungeon->creature_tendencies & 0x02) != 0);
+          }
       }
       break;
   case Cmd_REVEAL_MAP_RECT:

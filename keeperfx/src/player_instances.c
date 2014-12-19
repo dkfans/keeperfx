@@ -135,7 +135,7 @@ long pinstfs_hand_grab(struct PlayerInfo *player, long *n)
   struct Dungeon *dungeon;
   dungeon = get_players_dungeon(player);
   thing = thing_get(player->hand_thing_idx);
-  if (dungeon->num_things_in_hand)
+  if (dungeon->num_things_in_hand > 0)
   {
     dungeon->field_43 = 60;
     dungeon->field_53 = 40;

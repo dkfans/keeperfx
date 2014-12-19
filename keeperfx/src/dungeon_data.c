@@ -237,42 +237,42 @@ TbBool player_creature_tends_to(PlayerNumber plyr_idx, unsigned short tend_type)
 
 TbBool toggle_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type)
 {
-  struct Dungeon *dungeon;
-  dungeon = get_dungeon(player->id_number);
-  switch (tend_type)
-  {
-  case CrTend_Imprison:
-      dungeon->creature_tendencies ^= 0x01;
-      return true;
-  case CrTend_Flee:
-      dungeon->creature_tendencies ^= 0x02;
-      return true;
-  default:
-      ERRORLOG("Can't toggle tendency; bad tendency type %d",(int)tend_type);
-      return false;
-  }
+    struct Dungeon *dungeon;
+    dungeon = get_dungeon(player->id_number);
+    switch (tend_type)
+    {
+    case CrTend_Imprison:
+        dungeon->creature_tendencies ^= 0x01;
+        return true;
+    case CrTend_Flee:
+        dungeon->creature_tendencies ^= 0x02;
+        return true;
+    default:
+        ERRORLOG("Can't toggle tendency; bad tendency type %d",(int)tend_type);
+        return false;
+    }
 }
 
 TbBool set_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type, TbBool val)
 {
-  struct Dungeon *dungeon;
-  dungeon = get_dungeon(player->id_number);
-  if (dungeon_invalid(dungeon)) {
-      ERRORLOG("Can't set tendency; player %d has no dungeon.",(int)player->id_number);
-      return false;
-  }
-  switch (tend_type)
-  {
-  case CrTend_Imprison:
-      set_flag_byte(&dungeon->creature_tendencies, 0x01, val);
-      return true;
-  case CrTend_Flee:
-      set_flag_byte(&dungeon->creature_tendencies, 0x02, val);
-      return true;
-  default:
-      ERRORLOG("Can't set tendency; bad tendency type %d",(int)tend_type);
-      return false;
-  }
+    struct Dungeon *dungeon;
+    dungeon = get_dungeon(player->id_number);
+    if (dungeon_invalid(dungeon)) {
+        ERRORLOG("Can't set tendency; player %d has no dungeon.",(int)player->id_number);
+        return false;
+    }
+    switch (tend_type)
+    {
+    case CrTend_Imprison:
+        set_flag_byte(&dungeon->creature_tendencies, 0x01, val);
+        return true;
+    case CrTend_Flee:
+        set_flag_byte(&dungeon->creature_tendencies, 0x02, val);
+        return true;
+    default:
+        ERRORLOG("Can't set tendency; bad tendency type %d",(int)tend_type);
+        return false;
+    }
 }
 
 TbBool set_trap_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel tngmodel, long buildable, long amount)
