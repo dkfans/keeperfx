@@ -71,7 +71,7 @@ enum ModeFlags {
     MFlg_NoCdMusic          =  0x10,
     MFlg_unk20              =  0x20,
     MFlg_unk40              =  0x40,
-    MFlg_unk80              =  0x80,
+    MFlg_NoHeroHealthFlower              =  0x80,
 };
 
 enum FFlags {

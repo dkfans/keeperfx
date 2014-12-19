@@ -2603,7 +2603,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
 
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
-    if ((game.flags_cd & MFlg_unk80) != 0)
+    if ((game.flags_cd & MFlg_NoHeroHealthFlower) != 0)
     {
       if ( myplyr->thing_under_hand != thing->index )
       {
@@ -3816,7 +3816,10 @@ void display_drawlist(void)
           if (cam != NULL)
           {
               if ((cam->field_6 == 2) || (cam->field_6 == 5)) {
-                  draw_status_sprites(item.unk14->field_C, item.unk14->field_10, item.unk14->thing, camera_zoom*16/units_per_pixel);
+                  // Status sprites grow smaller slower than zoom
+                  int status_zoom;
+                  status_zoom = (camera_zoom+CAMERA_ZOOM_MAX)/2;
+                  draw_status_sprites(item.unk14->field_C, item.unk14->field_10, item.unk14->thing, status_zoom*16/units_per_pixel);
               }
           }
           break;

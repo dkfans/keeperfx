@@ -42,8 +42,8 @@ struct Boing {
   unsigned char comp_player_defensive;
   unsigned char comp_player_construct;
   unsigned char comp_player_creatrsonly;
-  unsigned char field_5;
-  unsigned char field_6;
+  unsigned char creatures_tend_imprison;
+  unsigned char creatures_tend_flee;
   unsigned short hand_over_subtile_x;
   unsigned short hand_over_subtile_y;
   unsigned long chosen_room_kind;
@@ -107,8 +107,8 @@ void store_localised_game_structure(void)
     boing.comp_player_defensive = game.comp_player_defensive;
     boing.comp_player_construct = game.comp_player_construct;
     boing.comp_player_creatrsonly = game.comp_player_creatrsonly;
-    boing.field_5 = game.creatures_tend_1;
-    boing.field_6 = game.creatures_tend_2;
+    boing.creatures_tend_imprison = game.creatures_tend_imprison;
+    boing.creatures_tend_flee = game.creatures_tend_flee;
     boing.hand_over_subtile_x = game.hand_over_subtile_x;
     boing.hand_over_subtile_y = game.hand_over_subtile_y;
     boing.chosen_room_kind = game.chosen_room_kind;
@@ -129,8 +129,8 @@ void recall_localised_game_structure(void)
     game.comp_player_defensive = boing.comp_player_defensive;
     game.comp_player_construct = boing.comp_player_construct;
     game.comp_player_creatrsonly = boing.comp_player_creatrsonly;
-    game.creatures_tend_1 = boing.field_5;
-    game.creatures_tend_2 = boing.field_6;
+    game.creatures_tend_imprison = boing.creatures_tend_imprison;
+    game.creatures_tend_flee = boing.creatures_tend_flee;
     game.hand_over_subtile_x = boing.hand_over_subtile_x;
     game.hand_over_subtile_y = boing.hand_over_subtile_y;
     game.chosen_room_kind = boing.chosen_room_kind;

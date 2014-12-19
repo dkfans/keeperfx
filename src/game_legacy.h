@@ -327,8 +327,10 @@ char field_1517F6;
     char comp_player_defensive;
     char comp_player_construct;
     char comp_player_creatrsonly;
-    char creatures_tend_1;
-    char creatures_tend_2;
+    /** Imprisonment tendency variable. Used for GUI only; the real tendency is a flag inside Dungeon. */
+    char creatures_tend_imprison;
+    /** Flee tendency variable. Used for GUI only; the real tendency is a flag inside Dungeon. */
+    char creatures_tend_flee;
     short hand_over_subtile_x;
     short hand_over_subtile_y;
     int chosen_room_kind;
