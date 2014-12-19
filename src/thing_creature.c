@@ -602,7 +602,8 @@ void food_eaten_by_creature(struct Thing *foodtng, struct Thing *creatng)
         apply_health_to_thing_and_display_health(creatng, game.food_health_gain);
         cctrl->hunger_level = 0;
     }
-    thing_play_sample(foodtng, 112 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    // Food is destroyed just below, so the sound must be made by creature
+    thing_play_sample(creatng, 112+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(creatng);
     anger_apply_anger_to_creature(creatng, crstat->annoy_eat_food, AngR_Hungry, 1);

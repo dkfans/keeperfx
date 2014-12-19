@@ -33,6 +33,7 @@
 #include "thing_effects.h"
 #include "thing_navigate.h"
 #include "creature_states.h"
+#include "creature_senses.h"
 #include "ariadne_wallhug.h"
 #include "config_terrain.h"
 #include "config_creature.h"
@@ -316,14 +317,76 @@ void update_god_lightning_ball(struct Thing *thing)
     }
 }
 
-void god_lightning_choose_next_creature(struct Thing *thing)
+void god_lightning_choose_next_creature(struct Thing *shotng)
 {
-    _DK_god_lightning_choose_next_creature(thing);
+    SYNCDBG(16,"Starting for %s index %d owner %d",thing_model_name(shotng),(int)shotng->index,(int)shotng->owner);
+    //_DK_god_lightning_choose_next_creature(shotng); return;
+    long best_dist;
+    struct Thing *best_thing;
+    best_dist = LONG_MAX;
+    best_thing = INVALID_THING;
+
+    unsigned long k;
+    int i;
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_Creature);
+    k = 0;
+    i = slist->index;
+    while (i != 0)
+    {
+        struct Thing *thing;
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_of_class;
+        // Per-thing code
+        //TODO use hit_type instead of hard coded conditions
+        if ((shotng->owner != thing->owner) && !thing_is_picked_up(thing)
+            && !creature_is_being_unconscious(thing) && !creature_is_dying(thing))
+        {
+            long dist;
+            dist = get_2d_distance(&shotng->mappos, &thing->mappos);
+            if (dist < best_dist)
+            {
+                struct MagicStats *magstat;
+                magstat = &game.keeper_power_stats[PwrK_LIGHTNING];
+                int spell_lev;
+                spell_lev = shotng->field_19;
+                if (spell_lev > SPELL_MAX_LEVEL)
+                    spell_lev = SPELL_MAX_LEVEL;
+                if (subtile_coord(magstat->strength[spell_lev],0) > dist)
+                {
+                    if (line_of_sight_2d(&shotng->mappos, &thing->mappos)) {
+                        best_dist = dist;
+                        best_thing = thing;
+                    }
+                }
+            }
+        }
+        // Per-thing code ends
+        k++;
+        if (k > slist->count)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    SYNCDBG(8,"The best target for %s index %d owner %d is %s index %d owner %d",
+        thing_model_name(shotng),(int)shotng->index,(int)shotng->owner,
+        thing_model_name(best_thing),(int)best_thing->index,(int)best_thing->owner);
+    if (!thing_is_invalid(best_thing)) {
+        shotng->shot.target_idx = best_thing->index;
+    } else {
+        shotng->shot.target_idx = 0;
+    }
 }
 
-void draw_god_lightning(struct Thing *thing)
+void draw_god_lightning(struct Thing *shotng)
 {
-    _DK_draw_god_lightning(thing);
+    _DK_draw_god_lightning(shotng);
 }
 
 TbBool player_uses_call_to_arms(PlayerNumber plyr_idx)

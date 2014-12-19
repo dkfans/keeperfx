@@ -759,6 +759,7 @@
  0001:00079140       GetMouseY
  0001:000791A0       can_drop_thing_here
  0001:00079340       get_2d_distance
+ 0001:00079490       line_of_sight_2d
  0001:00079560       line_of_sight_3d
  0001:000799C0       line_of_sight_3d_ignoring_specific_door
  0001:00079F30       project_point_to_wall_on_angle

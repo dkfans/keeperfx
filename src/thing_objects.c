@@ -510,7 +510,6 @@ void destroy_food(struct Thing *thing)
     struct Thing *efftng;
     struct Coord3d pos;
     PlayerNumber plyr_idx;
-    long i;
     SYNCDBG(8,"Starting");
     plyr_idx = thing->owner;
     if (game.neutral_player_num != plyr_idx) {
@@ -520,8 +519,7 @@ void destroy_food(struct Thing *thing)
     }
     efftng = create_effect(&thing->mappos, TngEff_Unknown49, plyr_idx);
     if (!thing_is_invalid(efftng)) {
-        i = UNSYNC_RANDOM(3);
-        thing_play_sample(efftng, 112+i, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        thing_play_sample(efftng, 112+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     }
     pos.x.val = thing->mappos.x.val;
     pos.y.val = thing->mappos.y.val;
