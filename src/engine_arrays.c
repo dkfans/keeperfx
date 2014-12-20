@@ -1030,14 +1030,25 @@ void fill_floor_heights_table(void)
     }
 }
 
+/**
+ * Modification of LB_RANDOM() which allows generating Wibble values same to original game.
+ */
+unsigned short wibble_random(unsigned short range, unsigned short *seed)
+{
+    if (range == 0)
+        return 0;
+    unsigned short i;
+    *seed = 9377 * (*seed) + 9439;
+    i = (*seed) % range;
+    return i;
+}
+
 void generate_wibble_table(void)
 {
     struct WibbleTable *wibl;
     struct WibbleTable *qwibl;
-    unsigned long seed;
+    unsigned short seed;
     int i,n;
-
-
     // Clear the whole wibble table
     for (n=0; n < 4; n++)
     {
@@ -1048,24 +1059,24 @@ void generate_wibble_table(void)
             wibl++;
         }
     }
-
+    // Set wibble values using special random algorithm
     seed = 0;
     for (i=0; i < 32; i++)
     {
         wibl = &wibble_table[i+32];
-        n = (LB_RANDOM(65447,&seed) % 127);
-        wibl->field_0 = n - 63;
-        n = (LB_RANDOM(65447,&seed) % 127);
-        wibl->field_4 = (n - 63) / 3;
-        n = (LB_RANDOM(65447,&seed) % 127);
-        wibl->field_8 = n - 63;
+        n = wibble_random(65447,&seed);
+        wibl->field_0 = (n % 127) - 63;
+        n = wibble_random(65447,&seed);
+        wibl->field_4 = ((n % 127) - 63) / 3;
+        n = wibble_random(65447,&seed);
+        wibl->field_8 = (n % 127) - 63;
         qwibl = &wibble_table[i+64];
-        n = (LB_RANDOM(65447,&seed) % 2047);
-        wibl->field_C = n - 1023;
-        n = (LB_RANDOM(65447,&seed) % 127);
-        qwibl->field_0 = n - 63;
-        n = (LB_RANDOM(65447,&seed) % 127);
-        qwibl->field_8 = n - 63;
+        n = wibble_random(65447,&seed);
+        wibl->field_C = (n % 2047) - 1023;
+        n = wibble_random(65447,&seed);
+        qwibl->field_0 = (n % 127) - 63;
+        n = wibble_random(65447,&seed);
+        qwibl->field_8 = (n % 127) - 63;
     }
 }
 

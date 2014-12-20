@@ -4169,9 +4169,7 @@ short state_cleanup_unconscious(struct Thing *creatng)
 long process_work_speed_on_work_value(const struct Thing *thing, long base_val)
 {
     struct Dungeon *dungeon;
-    struct CreatureControl *cctrl;
     long val;
-    cctrl = creature_control_get_from_thing(thing);
     val = base_val;
     if (creature_affected_by_spell(thing, SplK_Speed))
         val = 2 * val;
@@ -4411,8 +4409,6 @@ TbBool external_set_thing_state_f(struct Thing *thing, CrtrStateId state, const 
 
 TbBool creature_free_for_sleep(const struct Thing *thing,  CrtrStateId state)
 {
-    const struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
     if (creature_affected_by_slap(thing) || creature_affected_by_call_to_arms(thing))
         return false;
     return can_change_from_state_to(thing, thing->active_state, state);
@@ -4549,8 +4545,6 @@ long process_creature_needs_a_wage(struct Thing *thing, const struct CreatureSta
 
 char creature_free_for_lunchtime(struct Thing *creatng)
 {
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(creatng);
     return !creature_affected_by_slap(creatng)
         && !creature_affected_by_call_to_arms(creatng)
         && !creature_affected_by_spell(creatng, SplK_Chicken)
