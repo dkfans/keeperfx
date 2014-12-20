@@ -1251,6 +1251,7 @@ void word_of_power_affecting_area(struct Thing *efftng, struct Thing *owntng, st
         ERRORLOG("Word of power shot configuration does not include area influence.");
         return;
     }
+    SYNCDBG(8,"Starting for %s index %d owner %d",thing_model_name(efftng),(int)efftng->index,(int)efftng->owner);
     MapCoordDelta max_dist;
     max_dist = shotst->area_range*COORD_PER_STL;
     {
