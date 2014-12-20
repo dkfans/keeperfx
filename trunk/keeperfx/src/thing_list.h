@@ -86,6 +86,41 @@ enum CreatureSelectCriteria {
     CSelCrit_OnEnemyGround     = 11,
 };
 
+enum HitTargetFlags {
+    HitTF_None                = 0x00000000,
+    HitTF_EnemyCreatures      = 0x00000001,
+    HitTF_AlliedCreatures     = 0x00000002,
+    HitTF_OwnedCreatures      = 0x00000004,
+    HitTF_ArmourAffctdCreatrs = 0x00000008,
+    HitTF_EnemySoulContainer  = 0x00000020,
+    HitTF_AlliedSoulContainer = 0x00000040,
+    HitTF_OwnedSoulContainer  = 0x00000080,
+    HitTF_EnemyWorkshopBoxes  = 0x00000100,
+    HitTF_AlliedWorkshopBoxes = 0x00000200,
+    HitTF_OwnedWorkshopBoxes  = 0x00000400,
+    HitTF_EnemySpellbooks     = 0x00000800,
+    HitTF_AlliedSpellbooks    = 0x00001000,
+    HitTF_OwnedSpellbooks     = 0x00002000,
+    HitTF_EnemyDnSpecialBoxes = 0x00004000,
+    HitTF_AlliedDnSpecialBoxes= 0x00008000,
+    HitTF_OwnedDnSpecialBoxes = 0x00010000,
+    HitTF_EnemyGoldHoards     = 0x00020000,
+    HitTF_AlliedGoldHoards    = 0x00040000,
+    HitTF_OwnedGoldHoards     = 0x00080000,
+    HitTF_EnemyFoodObjects    = 0x00100000,
+    HitTF_AlliedFoodObjects   = 0x00200000,
+    HitTF_OwnedFoodObjects    = 0x00400000,
+    HitTF_AnyGoldPiles        = 0x00800000, /**< Gold laying on ground before storing in treasury, pots and piles. */
+    HitTF_AnyDecorations      = 0x01000000, /**< Things which are not used for anything, ie potions and barrels. */
+    HitTF_EnemyDeployedDoors  = 0x02000000,
+    HitTF_AlliedDeployedDoors = 0x04000000,
+    HitTF_OwnedDeployedDoors  = 0x08000000,
+    HitTF_EnemyDeployedTraps  = 0x10000000,
+    HitTF_AlliedDeployedTraps = 0x20000000,
+    HitTF_OwnedDeployedTraps  = 0x40000000,
+    HitTF_CreatureDeadBodies  = 0x80000000,
+};
+
 /******************************************************************************/
 #pragma pack(1)
 
