@@ -374,6 +374,7 @@ TbBool creature_is_at_alarm(const struct Thing *thing);
 TbBool creature_is_escaping_death(const struct Thing *thing);
 TbBool creature_is_fleeing_combat(const struct Thing *thing);
 TbBool creature_is_called_to_arms(const struct Thing *thing);
+TbBool creature_affected_by_call_to_arms(const struct Thing *thing);
 TbBool creature_is_kept_in_custody(const struct Thing *thing);
 TbBool creature_is_kept_in_custody_by_enemy(const struct Thing *thing);
 TbBool creature_is_kept_in_custody_by_player(const struct Thing *thing, PlayerNumber plyr_idx);

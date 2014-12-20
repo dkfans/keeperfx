@@ -480,7 +480,7 @@ long compute_torture_convert_time(const struct Thing *thing, const struct Room *
     i = ((long)game.play_gameturn - cctrl->tortured.start_gameturn) * room->efficiency / ROOM_EFFICIENCY_MAX;
     if (creature_affected_by_spell(thing, SplK_Speed))
       i = (4 * i) / 3;
-    if (cctrl->slap_turns != 0)
+    if (creature_affected_by_slap(thing))
       i = (5 * i) / 4;
     return i;
 }

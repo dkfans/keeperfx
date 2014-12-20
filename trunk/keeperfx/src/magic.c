@@ -1306,10 +1306,10 @@ long update_creatures_influenced_by_call_to_arms(PlayerNumber plyr_idx)
     struct Dungeon *dungeon;
     SYNCDBG(8,"Starting");
     dungeon = get_players_num_dungeon(plyr_idx);
-    struct Coord3d pos;
-    pos.x.val = subtile_coord_center(dungeon->cta_stl_x);
-    pos.y.val = subtile_coord_center(dungeon->cta_stl_y);
-    pos.z.val = get_floor_height_at(&pos);
+    struct Coord3d cta_pos;
+    cta_pos.x.val = subtile_coord_center(dungeon->cta_stl_x);
+    cta_pos.y.val = subtile_coord_center(dungeon->cta_stl_y);
+    cta_pos.z.val = get_floor_height_at(&cta_pos);
     long count;
     count = 0;
     unsigned long k;
@@ -1332,17 +1332,17 @@ long update_creatures_influenced_by_call_to_arms(PlayerNumber plyr_idx)
         // Thing list loop body
         if (!thing_is_picked_up(thing))
         {
-            if (!creature_is_being_unconscious(thing) && ((cctrl->spell_flags & CSAfF_CalledToArms) != 0))
+            if (!creature_is_being_unconscious(thing) && creature_affected_by_call_to_arms(thing))
             {
                 struct StateInfo *stati;
                 stati = get_thing_state_info_num(get_creature_state_besides_interruptions(thing));
                 if (stati->react_to_cta || creature_is_called_to_arms(thing))
                 {
-                    if (creature_can_navigate_to_with_storage(thing, &pos, NavRtF_Default))
+                    if (creature_can_navigate_to_with_storage(thing, &cta_pos, NavRtF_Default))
                     {
                         if (creature_is_called_to_arms(thing))
                         {
-                            setup_person_move_to_coord(thing, &pos, NavRtF_Default);
+                            setup_person_move_to_coord(thing, &cta_pos, NavRtF_Default);
                             thing->continue_state = CrSt_ArriveAtCallToArms;
                             if ((cctrl->flgfield_1 & CCFlg_NoCompControl) != 0) {
                                 WARNLOG("The %s index %d is re-called to arms with no comp control, fixing",thing_model_name(thing),(int)thing->index);
@@ -1352,7 +1352,7 @@ long update_creatures_influenced_by_call_to_arms(PlayerNumber plyr_idx)
                         } else
                         if (external_set_thing_state(thing, CrSt_ArriveAtCallToArms))
                         {
-                            setup_person_move_to_coord(thing, &pos, NavRtF_Default);
+                            setup_person_move_to_coord(thing, &cta_pos, NavRtF_Default);
                             thing->continue_state = CrSt_ArriveAtCallToArms;
                             if ((cctrl->flgfield_1 & CCFlg_NoCompControl) != 0) {
                                 WARNLOG("The %s index %d is first called to arms with no comp control, fixing",thing_model_name(thing),(int)thing->index);
@@ -1554,10 +1554,10 @@ int affect_nearby_creatures_by_power_call_to_arms(PlayerNumber plyr_idx, long ra
             nstat = get_creature_state_besides_interruptions(thing);
             struct StateInfo *stati;
             stati = get_thing_state_info_num(nstat);
-            if (!creature_is_called_to_arms(thing) || stati->react_to_cta)
+            if (!creature_affected_by_call_to_arms(thing) || stati->react_to_cta)
             {
                 if (stati->react_to_cta
-                  && (creature_is_called_to_arms(thing) || get_2d_box_distance(&thing->mappos, pos) < range))
+                  && (((cctrl->spell_flags & CSAfF_CalledToArms) != 0) || get_2d_box_distance(&thing->mappos, pos) < range))
                 {
                     creature_mark_if_woken_up(thing);
                     if (creature_can_navigate_to_with_storage(thing, pos, NavRtF_Default))
