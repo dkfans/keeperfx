@@ -722,6 +722,13 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
 
 }
 
+TbBool creature_affected_by_slap(const struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    return (cctrl->slap_turns != 0);
+}
+
 /**
  * Returns remaining duration of a spell casted on a thing.
  * @param thing The thing which can have spells casted on.
@@ -2858,10 +2865,8 @@ long creature_instance_has_reset(const struct Thing *thing, long inst_idx)
 void get_creature_instance_times(const struct Thing *thing, long inst_idx, long *ritime, long *raitime)
 {
     struct InstanceInfo *inst_inf;
-    struct CreatureControl *cctrl;
     struct Dungeon *dungeon;
     long itime,aitime;
-    cctrl = creature_control_get_from_thing(thing);
     inst_inf = creature_instance_info_get(inst_idx);
     if ((thing->alloc_flags & TAlF_IsControlled) != 0)
     {
@@ -2882,7 +2887,7 @@ void get_creature_instance_times(const struct Thing *thing, long inst_idx, long 
         aitime /= 2;
         itime /= 2;
     } else
-    if (cctrl->slap_turns)
+    if (creature_affected_by_slap(thing))
     {
         aitime = 3 * aitime / 4;
         itime = 3 * itime / 4;

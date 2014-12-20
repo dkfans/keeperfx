@@ -768,6 +768,25 @@ TbBool creature_is_fleeing_combat(const struct Thing *thing)
     return false;
 }
 
+/**
+ * Returns if creature is in general in CTA following state.
+ * Following CTA may be interrupted by fights and other events; if this returns true,
+ *  the creature should get back to following CTA when other activity (like battle) is finished.
+ * @param thing
+ * @return
+ */
+TbBool creature_affected_by_call_to_arms(const struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    return ((cctrl->spell_flags & CSAfF_CalledToArms) != 0);
+}
+
+/**
+ * Returns if creature is currently directly in CTA following state.
+ * @param thing
+ * @return
+ */
 TbBool creature_is_called_to_arms(const struct Thing *thing)
 {
     CrtrStateId i;
@@ -3484,7 +3503,7 @@ short person_sulk_at_lair(struct Thing *creatng)
     cctrl = creature_control_get_from_thing(creatng);
     dungeon = get_players_num_dungeon(creatng->owner);
     lairtng = thing_get(cctrl->lairtng_idx);
-    if ((cctrl->slap_turns != 0) || (dungeon->must_obey_turn != 0) || !thing_exists(lairtng)) {
+    if (creature_affected_by_slap(creatng) || (dungeon->must_obey_turn != 0) || !thing_exists(lairtng)) {
         set_start_state(creatng);
         return 0;
     }
@@ -3540,7 +3559,7 @@ short person_sulk_head_for_lair(struct Thing *creatng)
     struct Dungeon *dungeon;
     crstat = creature_stats_get_from_thing(creatng);
     dungeon = get_players_num_dungeon(creatng->owner);
-    if ((crstat->lair_size <= 0) || (cctrl->slap_turns != 0) || (dungeon->must_obey_turn != 0)) {
+    if ((crstat->lair_size <= 0) || creature_affected_by_slap(creatng) || (dungeon->must_obey_turn != 0)) {
         set_start_state(creatng);
         return 0;
     }
@@ -3557,7 +3576,7 @@ short person_sulking(struct Thing *creatng)
     cctrl = creature_control_get_from_thing(creatng);
     dungeon = get_players_num_dungeon(creatng->owner);
     lairtng = thing_get(cctrl->lairtng_idx);
-    if ((cctrl->slap_turns != 0) || (dungeon->must_obey_turn != 0) || !thing_exists(lairtng)) {
+    if (creature_affected_by_slap(creatng) || (dungeon->must_obey_turn != 0) || !thing_exists(lairtng)) {
         set_start_state(creatng);
         return 0;
     }
@@ -4156,7 +4175,7 @@ long process_work_speed_on_work_value(const struct Thing *thing, long base_val)
     val = base_val;
     if (creature_affected_by_spell(thing, SplK_Speed))
         val = 2 * val;
-    if (cctrl->slap_turns)
+    if (creature_affected_by_slap(thing))
         val = 4 * val / 3;
     if (!is_neutral_thing(thing))
     {
@@ -4394,7 +4413,7 @@ TbBool creature_free_for_sleep(const struct Thing *thing,  CrtrStateId state)
 {
     const struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
-    if ((cctrl->slap_turns != 0) || ((cctrl->spell_flags & CSAfF_CalledToArms) != 0))
+    if (creature_affected_by_slap(thing) || creature_affected_by_call_to_arms(thing))
         return false;
     return can_change_from_state_to(thing, thing->active_state, state);
 }
@@ -4532,7 +4551,9 @@ char creature_free_for_lunchtime(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
-    return (!cctrl->slap_turns) && ((cctrl->spell_flags & (CSAfF_CalledToArms|CSAfF_Chicken)) == 0)
+    return !creature_affected_by_slap(creatng)
+        && !creature_affected_by_call_to_arms(creatng)
+        && !creature_affected_by_spell(creatng, SplK_Chicken)
         && can_change_from_state_to(creatng, creatng->active_state, CrSt_CreatureToGarden);
 }
 

@@ -2488,7 +2488,7 @@ struct Thing *find_creature_for_defend_pickup(struct Computer2 *comp)
             {
                 if (!creature_is_fleeing_combat(thing) && !creature_is_at_alarm(thing))
                 {
-                    if (!creature_affected_by_spell(thing,SplK_Chicken))
+                    if (!creature_is_being_unconscious(thing) && !creature_affected_by_spell(thing, SplK_Chicken))
                     {
                         if (!creature_is_doing_lair_activity(thing) && !creature_is_being_dropped(thing))
                         {
@@ -2666,7 +2666,7 @@ long task_slap_imps(struct Computer2 *comp, struct ComputerTask *ctask)
             i = cctrl->players_next_creature_idx;
             // Per-thing code
             // Don't slap if picked up or affected by speed or already slapped
-            if (!thing_is_picked_up(thing) && !thing_affected_by_spell(thing, SplK_Speed) && (cctrl->slap_turns == 0))
+            if (!thing_is_picked_up(thing) && !thing_affected_by_spell(thing, SplK_Speed) && !creature_affected_by_slap(thing))
             {
                 // Check if we really can use the spell on that creature, considering its position and state
                 if (can_cast_spell(dungeon->owner, PwrK_SLAP, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default))
