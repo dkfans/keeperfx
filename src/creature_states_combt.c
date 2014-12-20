@@ -1004,7 +1004,7 @@ long remove_all_melee_combat_attackers(struct Thing *victmtng)
         ERRORLOG("Removed all opponents, but count is still %d",(int)vicctrl->opponents_melee_count);
         vicctrl->opponents_melee_count = 0;
     }
-    SYNCDBG(8,"Removed %d attackers of %s %d",(int)num,thing_model_name(victmtng),(int)victmtng->index);
+    SYNCDBG(8,"Removed %d attackers of %s index %d owner %d",(int)num,thing_model_name(victmtng),(int)victmtng->index,(int)victmtng->owner);
     return num;
 }
 
@@ -1032,7 +1032,7 @@ long remove_all_ranged_combat_attackers(struct Thing *victmtng)
         ERRORLOG("Removed all opponents, but count is still %d",(int)vicctrl->opponents_ranged_count);
         vicctrl->opponents_ranged_count = 0;
     }
-    SYNCDBG(8,"Removed %d attackers of %s %d",(int)num,thing_model_name(victmtng),(int)victmtng->index);
+    SYNCDBG(8,"Removed %d attackers of %s index %d owner %d",(int)num,thing_model_name(victmtng),(int)victmtng->index,(int)victmtng->owner);
     return num;
 }
 

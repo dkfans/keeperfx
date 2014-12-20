@@ -90,7 +90,7 @@ TbBool detonate_shot(struct Thing *shotng)
     struct Thing *castng;
     struct ShotConfigStats *shotst;
     shotst = get_shot_model_stats(shotng->model);
-    SYNCDBG(18,"Starting for model %d",(int)shotng->model);
+    SYNCDBG(8,"Starting for %s index %d owner %d",thing_model_name(shotng),(int)shotng->index,(int)shotng->owner);
     castng = INVALID_THING;
     myplyr = get_my_player();
     // Identify the creator if the shot
