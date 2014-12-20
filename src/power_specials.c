@@ -30,6 +30,7 @@
 #include "dungeon_data.h"
 #include "creature_control.h"
 #include "creature_states.h"
+#include "power_hand.h"
 #include "game_saves.h"
 #include "game_merge.h"
 #include "slab_data.h"
@@ -506,14 +507,11 @@ void resurrect_creature(struct Thing *boxtng, PlayerNumber owner, ThingModel crm
 void transfer_creature(struct Thing *boxtng, struct Thing *transftng, unsigned char plyr_idx)
 {
     SYNCDBG(7,"Starting");
-    struct Dungeon *dungeon;
     struct CreatureControl *cctrl;
-    long i;
     if (!thing_exists(boxtng) || (box_thing_to_special(boxtng) != SpcKind_TrnsfrCrtr) ) {
         ERRORMSG("Invalid transfer box object!");
         return;
     }
-    dungeon = get_players_num_dungeon(plyr_idx);
     // Check if 'things' are correct
     if (!thing_exists(transftng) || !thing_is_creature(transftng) || (transftng->owner != plyr_idx)) {
         ERRORMSG("Invalid transfer creature thing!");

@@ -361,7 +361,7 @@ short at_lair_to_sleep(struct Thing *thing)
     lairtng = thing_get(cctrl->lairtng_idx);
     TRACE_THING(lairtng);
     cctrl->target_room_id = 0;
-    if (thing_is_invalid(lairtng) || (cctrl->slap_turns != 0))
+    if (thing_is_invalid(lairtng) || creature_affected_by_slap(thing))
     {
         set_start_state(thing);
         return 0;
@@ -450,7 +450,7 @@ short creature_sleep(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
-    if ((cctrl->slap_turns > 0) || !creature_will_sleep(thing)) {
+    if (creature_affected_by_slap(thing) || !creature_will_sleep(thing)) {
         set_start_state(thing);
         return 0;
     }
