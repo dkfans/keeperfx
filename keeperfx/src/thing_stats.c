@@ -541,9 +541,7 @@ long compute_controlled_speed_decrease(long prev_speed, long speed_limit)
 long calculate_correct_creature_maxspeed(const struct Thing *thing)
 {
     struct CreatureStats *crstat;
-    struct CreatureControl *cctrl;
     long speed;
-    cctrl = creature_control_get_from_thing(thing);
     crstat = creature_stats_get_from_thing(thing);
     speed = crstat->base_speed;
     if (creature_affected_by_slap(thing))
