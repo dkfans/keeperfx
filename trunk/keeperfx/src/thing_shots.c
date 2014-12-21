@@ -942,6 +942,13 @@ long shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *target, str
     if (target->class_id == TCls_Creature) {
         return shot_hit_creature_at(shotng, target, pos);
     }
+    if (target->class_id == TCls_Shot) {
+        // On a shot for collision, both shots are destroyed
+        //TODO maybe make both shots explode instead?
+        shotng->health = -1;
+        target->health = -1;
+        return true;
+    }
     return 0;
 }
 
@@ -1064,22 +1071,12 @@ TbBool shot_hit_something_while_moving(struct Thing *shotng, struct Coord3d *nxp
     HitTargetFlags hit_targets;
     hit_targets = hit_type_to_hit_targets(shotng->shot.hit_type);
     target = get_thing_collided_with_at_satisfying_filter(shotng, nxpos, collide_filter_thing_is_shootable, hit_targets, 0);
-    if (thing_is_invalid(target))
-    {
-        // If no target found and cannot collide with shots - finish
-        if ((hit_targets & (HitTF_EnemyShotsCollide|HitTF_AlliedShotsCollide|HitTF_OwnedShotsCollide)) == 0) {
-            return false;
-        }
-        // Try to find a shot for collision
-        //TODO check if the collide_filter_thing_is_shootable() function can replace this
-        target = get_shot_collided_with_same_type(shotng, nxpos);
-        if (!thing_is_invalid(target)) {
-            shotng->health = -1;
-            return true;
-        }
+    if (thing_is_invalid(target)) {
+        return false;
     }
-    if (shot_hit_shootable_thing_at(shotng, target, nxpos))
+    if (shot_hit_shootable_thing_at(shotng, target, nxpos)) {
         return true;
+    }
     return false;
 }
 
