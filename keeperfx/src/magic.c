@@ -1154,7 +1154,7 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     if (!thing_is_invalid(shtng))
     {
         shtng->mappos.z.val = get_thing_height_at(shtng, &shtng->mappos) + COORD_PER_STL/2;
-        shtng->shot.hit_type = 2;
+        shtng->shot.hit_type = THit_CrtrsOnly;
         shtng->field_19 = splevel;
     }
     magstat = &game.keeper_power_stats[PwrK_LIGHTNING];

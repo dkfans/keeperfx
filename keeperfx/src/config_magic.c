@@ -1433,4 +1433,8 @@ TbBool make_available_all_researchable_powers(PlayerNumber plyr_idx)
   return ret;
 }
 
+TbBool shot_can_collide_other_shots(ThingModel shotkind)
+{
+    return (shotkind == 2) || (shotkind == 11) || (shotkind == 15);
+}
 /******************************************************************************/

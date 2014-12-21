@@ -41,6 +41,7 @@
 #include "ariadne_wallhug.h"
 #include "config_objects.h"
 #include "config_creature.h"
+#include "config_magic.h"
 #include "creature_states.h"
 #include "creature_states_combt.h"
 #include "player_instances.h"
@@ -2627,116 +2628,153 @@ short update_thing_sound(struct Thing *thing)
   return true;
 }
 
-TbBool thing_is_shootable_by_any_player_including_objects(const struct Thing *thing, PlayerNumber shot_owner)
+unsigned long hit_type_to_hit_targets(long hit_type)
+{
+    switch (hit_type)
+    {
+    case THit_All:
+    case THit_CrtrsNObjctsNShot:
+        return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_OwnedCreatures|HitTF_ArmourAffctdCreatrs|HitTF_PreventDmgCreatrs|
+            HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer|HitTF_OwnedSoulContainer|
+            HitTF_AnyWorkshopBoxes|HitTF_AnySpellbooks|HitTF_AnyDnSpecialBoxes|
+            HitTF_EnemyShotsCollide|HitTF_AlliedShotsCollide|HitTF_OwnedShotsCollide|
+            HitTF_AnyFoodObjects|HitTF_AnyGoldPiles;
+    case THit_CrtrsNObjcts:
+        return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_OwnedCreatures|HitTF_ArmourAffctdCreatrs|HitTF_PreventDmgCreatrs|
+            HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer|HitTF_OwnedSoulContainer|
+            HitTF_AnyWorkshopBoxes|HitTF_AnySpellbooks|HitTF_AnyDnSpecialBoxes|
+            HitTF_AnyFoodObjects|HitTF_AnyGoldPiles;
+    case THit_CrtrsOnly:
+        return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_OwnedCreatures|HitTF_ArmourAffctdCreatrs;
+    case THit_CrtrsNObjctsNotOwn:
+        return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_ArmourAffctdCreatrs|
+        HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer|
+        HitTF_AnyWorkshopBoxes|HitTF_AnySpellbooks|HitTF_AnyDnSpecialBoxes|
+        HitTF_AnyFoodObjects|HitTF_AnyGoldPiles;
+    case THit_CrtrsOnlyNotOwn:
+        return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_ArmourAffctdCreatrs;
+    case THit_CrtrsNotArmourNotOwn:
+        return HitTF_EnemyCreatures|HitTF_AlliedCreatures;
+    case THit_HeartOnly:
+        return HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer|HitTF_OwnedSoulContainer;
+    case THit_HeartOnlyNotOwn:
+        return HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer;
+    case THit_None:
+        return HitTF_None;
+    default:
+        WARNLOG("Illegal hit thing type %d",(int)hit_type);
+        return HitTF_None;
+    }
+}
+
+TbBool thing_is_shootable(const struct Thing *thing, PlayerNumber shot_owner, HitTargetFlags hit_targets)
 {
     if (thing_is_creature(thing))
     {
         // spectators are not shootable
         if ((get_creature_model_flags(thing) & CMF_IsSpectator) != 0)
             return false;
-        /* This would disallow killing unconscious creatures, so we can't
-        struct CreatureControl *cctrl;
-        cctrl = creature_control_get_from_thing(thing);
-        if ((cctrl->flgfield_1 & CCFlg_Immortal) != 0)
-            return false;*/
-        return true;
+        // Armour spell may prevent from hitting
+        if ((hit_targets & HitTF_ArmourAffctdCreatrs) == 0) {
+            if (creature_affected_by_spell(thing, SplK_Armour))
+                return false;
+        }
+        // Prevent Damage flag may be either respected or ignored
+        if ((hit_targets & HitTF_PreventDmgCreatrs) == 0) {
+            struct CreatureControl *cctrl;
+            cctrl = creature_control_get_from_thing(thing);
+            if ((cctrl->flgfield_1 & CCFlg_PreventDamage) != 0)
+                return false;
+        }
+        if (shot_owner == thing->owner) {
+            return ((hit_targets & HitTF_OwnedCreatures) != 0);
+        }
+        if (players_are_enemies(shot_owner, thing->owner)) {
+            return ((hit_targets & HitTF_EnemyCreatures) != 0);
+        }
+        return ((hit_targets & HitTF_AlliedCreatures) != 0);
+    }
+    if (thing_is_shot(thing))
+    {
+        if (shot_can_collide_other_shots(thing->model))
+        {
+            if (shot_owner == thing->owner) {
+                return ((hit_targets & HitTF_OwnedShotsCollide) != 0);
+            }
+            if (players_are_enemies(shot_owner, thing->owner)) {
+                return ((hit_targets & HitTF_EnemyShotsCollide) != 0);
+            }
+            return ((hit_targets & HitTF_AlliedShotsCollide) != 0);
+        }
+        return false;
     }
     if (thing_is_object(thing))
     {
         if (thing_is_dungeon_heart(thing))
-            return true;
-        if (object_is_growing_food(thing))
-            return true;
-        if (object_is_mature_food(thing) && !is_thing_directly_controlled(thing) && !is_thing_passenger_controlled(thing))
-            return true;
-        if (object_is_gold_pile(thing))
-            return true;
+        {
+            if (shot_owner == thing->owner) {
+                return ((hit_targets & HitTF_OwnedSoulContainer) != 0);
+            }
+            if (players_are_enemies(shot_owner, thing->owner)) {
+                return ((hit_targets & HitTF_EnemySoulContainer) != 0);
+            }
+            return ((hit_targets & HitTF_AlliedSoulContainer) != 0);
+        }
+        if (object_is_growing_food(thing) ||
+           (object_is_mature_food(thing) && !is_thing_directly_controlled(thing) && !is_thing_passenger_controlled(thing)))
+        {
+            return ((hit_targets & HitTF_AnyFoodObjects) != 0);
+        }
         if (thing_is_workshop_crate(thing))
-            return true;
-        if (thing_is_spellbook(thing) || thing_is_special_box(thing))
-            return true;
+        {
+            return ((hit_targets & HitTF_AnyWorkshopBoxes) != 0);
+        }
+        if (thing_is_spellbook(thing))
+        {
+            return ((hit_targets & HitTF_AnySpellbooks) != 0);
+        }
+        if (thing_is_special_box(thing))
+        {
+            return ((hit_targets & HitTF_AnyDnSpecialBoxes) != 0);
+        }
+        if (thing_is_gold_hoard(thing))
+        {
+            return ((hit_targets & HitTF_AnyGoldHoards) != 0);
+        }
+        if (object_is_gold_pile(thing))
+        {
+            return ((hit_targets & HitTF_AnyGoldPiles) != 0);
+        }
+        //TODO implement hitting decorations flag
+        /*if (object_is_decoration(thing))
+        {
+            return ((hit_targets & HitTF_AnyDecorations) != 0);
+        }*/
         return false;
     }
-    return false;
-}
-
-TbBool thing_is_shootable_by_any_player_except_own_including_objects(const struct Thing *thing, PlayerNumber shot_owner)
-{
-    if (thing_is_creature(thing))
+    if (thing_is_deployed_door(thing))
     {
-        struct CreatureControl *cctrl;
-        cctrl = creature_control_get_from_thing(thing);
-        if ((get_creature_model_flags(thing) & CMF_IsSpectator) != 0)
-            return false;
-        if (((cctrl->flgfield_1 & CCFlg_Immortal) != 0) || (thing->owner == shot_owner))
-            return false;
-        return true;
+        if (shot_owner == thing->owner) {
+            return ((hit_targets & HitTF_OwnedDeployedDoors) != 0);
+        }
+        if (players_are_enemies(shot_owner, thing->owner)) {
+            return ((hit_targets & HitTF_EnemyDeployedDoors) != 0);
+        }
+        return ((hit_targets & HitTF_AlliedDeployedDoors) != 0);
     }
-    if (thing_is_object(thing))
+    if (thing_is_deployed_trap(thing))
     {
-        if (thing->owner == shot_owner)
-            return false;
-        if (thing_is_dungeon_heart(thing))
-            return true;
-        if (object_is_growing_food(thing))
-            return true;
-        if (object_is_mature_food(thing) && !is_thing_directly_controlled(thing) && !is_thing_passenger_controlled(thing))
-            return true;
-        if (object_is_gold_pile(thing))
-            return true;
-        if (thing_is_workshop_crate(thing))
-            return true;
-        if (thing_is_spellbook(thing) || thing_is_special_box(thing))
-            return true;
-        return false;
+        if (shot_owner == thing->owner) {
+            return ((hit_targets & HitTF_OwnedDeployedTraps) != 0);
+        }
+        if (players_are_enemies(shot_owner, thing->owner)) {
+            return ((hit_targets & HitTF_EnemyDeployedTraps) != 0);
+        }
+        return ((hit_targets & HitTF_AlliedDeployedTraps) != 0);
     }
-    return false;
-}
-
-TbBool thing_is_shootable_by_any_player_except_own_excluding_objects(const struct Thing *thing, PlayerNumber shot_owner)
-{
-    if (thing_is_creature(thing))
+    if (thing_is_dead_creature(thing))
     {
-        struct CreatureControl *cctrl;
-        cctrl = creature_control_get_from_thing(thing);
-        if ((get_creature_model_flags(thing) & CMF_IsSpectator) != 0)
-            return false;
-        if (((cctrl->flgfield_1 & CCFlg_Immortal) != 0) || (thing->owner == shot_owner))
-            return false;
-        return true;
-    }
-    return false;
-}
-
-TbBool thing_is_shootable_by_any_player_except_own_excluding_objects_and_not_under_spell(const struct Thing *thing, PlayerNumber shot_owner, SpellKind spkind)
-{
-    if (thing_is_creature(thing))
-    {
-        struct CreatureControl *cctrl;
-        cctrl = creature_control_get_from_thing(thing);
-        if ((get_creature_model_flags(thing) & CMF_IsSpectator) != 0)
-            return false;
-        if (((cctrl->flgfield_1 & CCFlg_Immortal) != 0) || (thing->owner == shot_owner))
-            return false;
-        if (creature_affected_by_spell(thing, spkind))
-            return false;
-        return true;
-    }
-    return false;
-}
-
-TbBool thing_is_shootable_by_any_player_excluding_objects(const struct Thing *thing, PlayerNumber shot_owner)
-{
-    if (thing_is_creature(thing))
-    {
-        struct CreatureControl *cctrl;
-        cctrl = creature_control_get_from_thing(thing);
-        // spectators are not shootable
-        if ((get_creature_model_flags(thing) & CMF_IsSpectator) != 0)
-            return false;
-        if ((cctrl->flgfield_1 & CCFlg_Immortal) != 0)
-            return false;
-        return true;
+        return ((hit_targets & HitTF_CreatureDeadBodies) != 0);
     }
     return false;
 }
