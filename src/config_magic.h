@@ -376,6 +376,7 @@ TbBool is_power_available(PlayerNumber plyr_idx, PowerKind spl_idx);
 TbBool add_power_to_player(PowerKind spl_idx, PlayerNumber plyr_idx);
 void remove_power_from_player(PowerKind spl_idx, PlayerNumber plyr_idx);
 TbBool make_available_all_researchable_powers(PlayerNumber plyr_idx);
+TbBool shot_can_collide_other_shots(ThingModel shotkind);
 /******************************************************************************/
 #ifdef __cplusplus
 }

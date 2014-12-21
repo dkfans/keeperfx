@@ -2889,7 +2889,7 @@ void make_creature_unconscious(struct Thing *creatng)
     clear_creature_instance(creatng);
     cctrl = creature_control_get_from_thing(creatng);
     creatng->active_state = CrSt_CreatureUnconscious;
-    cctrl->flgfield_1 |= CCFlg_Immortal;
+    cctrl->flgfield_1 |= CCFlg_PreventDamage;
     cctrl->flgfield_1 |= CCFlg_NoCompControl;
     cctrl->conscious_back_turns = gameadd.game_turns_unconscious;
 }
@@ -2900,7 +2900,7 @@ void make_creature_conscious_without_changing_state(struct Thing *creatng)
     TRACE_THING(creatng);
     SYNCDBG(18,"Starting");
     cctrl = creature_control_get_from_thing(creatng);
-    cctrl->flgfield_1 &= ~CCFlg_Immortal;
+    cctrl->flgfield_1 &= ~CCFlg_PreventDamage;
     cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
     cctrl->conscious_back_turns = 0;
     if ((creatng->state_flags & TF1_IsDragged1) != 0)

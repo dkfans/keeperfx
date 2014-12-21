@@ -945,44 +945,12 @@ long shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *target, str
     return 0;
 }
 
-long collide_filter_thing_is_shootable_by_any_player_including_objects(struct Thing *thing, struct Thing *parntng, long a3, long a4)
+long collide_filter_thing_is_shootable(struct Thing *thing, struct Thing *parntng, long hit_targets, long a4)
 {
     PlayerNumber shot_owner = -1;
     if (thing_exists(parntng))
         shot_owner = parntng->owner;
-    return thing_is_shootable_by_any_player_including_objects(thing, shot_owner);
-}
-
-long collide_filter_thing_is_shootable_by_any_player_excluding_objects(struct Thing *thing, struct Thing *parntng, long a3, long a4)
-{
-    PlayerNumber shot_owner = -1;
-    if (thing_exists(parntng))
-        shot_owner = parntng->owner;
-    return thing_is_shootable_by_any_player_excluding_objects(thing, shot_owner);
-}
-
-long collide_filter_thing_is_shootable_by_any_player_except_own_including_objects(struct Thing *thing, struct Thing *parntng, long a3, long a4)
-{
-    PlayerNumber shot_owner = -1;
-    if (thing_exists(parntng))
-        shot_owner = parntng->owner;
-    return thing_is_shootable_by_any_player_except_own_including_objects(thing, shot_owner);
-}
-
-long collide_filter_thing_is_shootable_by_any_player_except_own_excluding_objects(struct Thing *thing, struct Thing *parntng, long a3, long a4)
-{
-    PlayerNumber shot_owner = -1;
-    if (thing_exists(parntng))
-        shot_owner = parntng->owner;
-    return thing_is_shootable_by_any_player_except_own_excluding_objects(thing, shot_owner);
-}
-
-long collide_filter_thing_is_shootable_dungeon_heart_only(struct Thing *thing, struct Thing *parntng, long a3, long a4)
-{
-    PlayerNumber shot_owner = -1;
-    if (thing_exists(parntng))
-        shot_owner = parntng->owner;
-    return (thing_is_dungeon_heart(thing) && (shot_owner != thing->owner));
+    return thing_is_shootable(thing, shot_owner, hit_targets);
 }
 
 TbBool thing_on_thing_at(struct Thing *shotng, struct Coord3d *pos, struct Thing *ontng)
@@ -1093,70 +1061,25 @@ TbBool shot_hit_something_while_moving(struct Thing *shotng, struct Coord3d *nxp
     struct Thing *target;
     SYNCDBG(18,"Starting for %s index %d, hit type %d",thing_model_name(shotng),(int)shotng->index, (int)shotng->shot.hit_type);
     target = INVALID_THING;
-    switch ( shotng->shot.hit_type )
+    HitTargetFlags hit_targets;
+    hit_targets = hit_type_to_hit_targets(shotng->shot.hit_type);
+    target = get_thing_collided_with_at_satisfying_filter(shotng, nxpos, collide_filter_thing_is_shootable, hit_targets, 0);
+    if (thing_is_invalid(target))
     {
-    case 8:
-        if ( shot_hit_shootable_thing_at(shotng, target, nxpos) )
-            return true;
-        break;
-    case 1:
-        target = get_thing_collided_with_at_satisfying_filter(shotng, nxpos, collide_filter_thing_is_shootable_by_any_player_including_objects, 0, 0);
-        if ( thing_is_invalid(target) )
-            break;
-        if ( shot_hit_shootable_thing_at(shotng, target, nxpos) )
-            return true;
-        break;
-    case 2:
-        target = get_thing_collided_with_at_satisfying_filter(shotng, nxpos, collide_filter_thing_is_shootable_by_any_player_excluding_objects, 0, 0);
-        if ( thing_is_invalid(target) )
-            break;
-        if ( shot_hit_shootable_thing_at(shotng, target, nxpos) )
-            return true;
-        break;
-    case 3:
-        target = get_thing_collided_with_at_satisfying_filter(shotng, nxpos, collide_filter_thing_is_shootable_by_any_player_except_own_including_objects, 0, 0);
-        if ( thing_is_invalid(target) )
-            break;
-        if ( shot_hit_shootable_thing_at(shotng, target, nxpos) )
-            return true;
-        break;
-    case 4:
-        target = get_thing_collided_with_at_satisfying_filter(shotng, nxpos, collide_filter_thing_is_shootable_by_any_player_except_own_excluding_objects, 0, 0);
-        if ( thing_is_invalid(target) )
-            break;
-        if ( shot_hit_shootable_thing_at(shotng, target, nxpos) )
-            return true;
-        break;
-    case 7:
-        target = get_thing_collided_with_at_satisfying_filter(shotng, nxpos, collide_filter_thing_is_shootable_dungeon_heart_only, 0, 0);
-        if ( thing_is_invalid(target) )
-            break;
-        if ( shot_hit_shootable_thing_at(shotng, target, nxpos) )
-            return true;
-        break;
-    case 9:
-        target = get_thing_collided_with_at_satisfying_filter(shotng, nxpos, collide_filter_thing_is_shootable_by_any_player_including_objects, 0, 0);
-        if ( !thing_is_invalid(target) )
-        {
-            if ( shot_hit_shootable_thing_at(shotng, target, nxpos) )
-              return true;
-            break;
+        // If no target found and cannot collide with shots - finish
+        if ((hit_targets & (HitTF_EnemyShotsCollide|HitTF_AlliedShotsCollide|HitTF_OwnedShotsCollide)) == 0) {
+            return false;
         }
+        // Try to find a shot for collision
+        //TODO check if the collide_filter_thing_is_shootable() function can replace this
         target = get_shot_collided_with_same_type(shotng, nxpos);
-        if ( !thing_is_invalid(target) )
-        {
+        if (!thing_is_invalid(target)) {
             shotng->health = -1;
             return true;
         }
-        if ( shot_hit_shootable_thing_at(shotng, target, nxpos) )
-            return true;
-        break;
-    default:
-        ERRORLOG("Shot has no hit thing type");
-        if ( shot_hit_shootable_thing_at(shotng, target, nxpos) )
-            return true;
-        break;
     }
+    if (shot_hit_shootable_thing_at(shotng, target, nxpos))
+        return true;
     return false;
 }
 

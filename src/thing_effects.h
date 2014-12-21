@@ -39,6 +39,7 @@ enum ThingHitTypes {
     THit_All, // Affect all things
     THit_HeartOnly, // Affect only dungeon hearts
     THit_HeartOnlyNotOwn, // Affect only not own dungeon hearts
+    THit_CrtrsNObjctsNShot, // Affect all creatures and all objects, also allow colliding with other shots
     THit_TypesCount, // Last item in enumeration, allows checking amount of valid types
 };
 

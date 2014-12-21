@@ -86,39 +86,37 @@ enum CreatureSelectCriteria {
     CSelCrit_OnEnemyGround     = 11,
 };
 
-enum HitTargetFlags {
-    HitTF_None                = 0x00000000,
-    HitTF_EnemyCreatures      = 0x00000001,
-    HitTF_AlliedCreatures     = 0x00000002,
-    HitTF_OwnedCreatures      = 0x00000004,
-    HitTF_ArmourAffctdCreatrs = 0x00000008,
-    HitTF_EnemySoulContainer  = 0x00000020,
-    HitTF_AlliedSoulContainer = 0x00000040,
-    HitTF_OwnedSoulContainer  = 0x00000080,
-    HitTF_EnemyWorkshopBoxes  = 0x00000100,
-    HitTF_AlliedWorkshopBoxes = 0x00000200,
-    HitTF_OwnedWorkshopBoxes  = 0x00000400,
-    HitTF_EnemySpellbooks     = 0x00000800,
-    HitTF_AlliedSpellbooks    = 0x00001000,
-    HitTF_OwnedSpellbooks     = 0x00002000,
-    HitTF_EnemyDnSpecialBoxes = 0x00004000,
-    HitTF_AlliedDnSpecialBoxes= 0x00008000,
-    HitTF_OwnedDnSpecialBoxes = 0x00010000,
-    HitTF_EnemyGoldHoards     = 0x00020000,
-    HitTF_AlliedGoldHoards    = 0x00040000,
-    HitTF_OwnedGoldHoards     = 0x00080000,
-    HitTF_EnemyFoodObjects    = 0x00100000,
-    HitTF_AlliedFoodObjects   = 0x00200000,
-    HitTF_OwnedFoodObjects    = 0x00400000,
-    HitTF_AnyGoldPiles        = 0x00800000, /**< Gold laying on ground before storing in treasury, pots and piles. */
-    HitTF_AnyDecorations      = 0x01000000, /**< Things which are not used for anything, ie potions and barrels. */
-    HitTF_EnemyDeployedDoors  = 0x02000000,
-    HitTF_AlliedDeployedDoors = 0x04000000,
-    HitTF_OwnedDeployedDoors  = 0x08000000,
-    HitTF_EnemyDeployedTraps  = 0x10000000,
-    HitTF_AlliedDeployedTraps = 0x20000000,
-    HitTF_OwnedDeployedTraps  = 0x40000000,
-    HitTF_CreatureDeadBodies  = 0x80000000,
+//TODO replace HitType with these
+/**
+ * Flags which determine which target things can be hit by something.
+ */
+enum HitTargetFlagsList {
+    HitTF_None                = 0x00000000,//!< Zero flag
+    HitTF_EnemyCreatures      = 0x00000001,//!< Allow targeting enemy creatures.
+    HitTF_AlliedCreatures     = 0x00000002,//!< Allow targeting allied and neutral creatures.
+    HitTF_OwnedCreatures      = 0x00000004,//!< Allow targeting owned creatures.
+    HitTF_ArmourAffctdCreatrs = 0x00000008,//!< Allow targeting creatures affected by Armour spell.
+    HitTF_PreventDmgCreatrs   = 0x00000010,//!< Allow targeting creatures with damage prevention flag, ie unconscious.
+    HitTF_EnemyShotsCollide   = 0x00000400,//!< Allow colliding with enemy shots which can be collided with.
+    HitTF_AlliedShotsCollide  = 0x00000800,//!< Allow colliding with allied and neutral shots which can be collided with.
+    HitTF_OwnedShotsCollide   = 0x00001000,//!< Allow colliding with own shots which can be collided with.
+    HitTF_EnemySoulContainer  = 0x00002000,//!< Allow targeting enemy soul containers.
+    HitTF_AlliedSoulContainer = 0x00004000,//!< Allow targeting allied and neutral containers.
+    HitTF_OwnedSoulContainer  = 0x00008000,//!< Allow targeting own soul container.
+    HitTF_AnyWorkshopBoxes    = 0x00040000,//!< Allow targeting Workshop boxes owned by anyone.
+    HitTF_AnySpellbooks       = 0x00080000,//!< Allow targeting spellbook objects owned by anyone.
+    HitTF_AnyDnSpecialBoxes   = 0x00100000,//!< Allow targeting Dnungeon Special boxes owned by anyone.
+    HitTF_AnyGoldHoards       = 0x00200000,//!< Allow targeting Gold Hoards owned by anyone.
+    HitTF_AnyFoodObjects      = 0x00400000,//!< Allow targeting Food Objects owned by anyone.
+    HitTF_AnyGoldPiles        = 0x00800000,//!< Allow targeting gold laying on ground before storing in treasury, pots and piles.
+    HitTF_AnyDecorations      = 0x01000000,//!< Allow targeting things which are not used for anything, ie potions and barrels.
+    HitTF_EnemyDeployedDoors  = 0x02000000,//!< Allow targeting Enemy Deployed Doors.
+    HitTF_AlliedDeployedDoors = 0x04000000,//!< Allow targeting Allied and neutral Deployed Doors.
+    HitTF_OwnedDeployedDoors  = 0x08000000,//!< Allow targeting Owned Deployed Doors.
+    HitTF_EnemyDeployedTraps  = 0x10000000,//!< Allow targeting enemy Deployed Traps.
+    HitTF_AlliedDeployedTraps = 0x20000000,//!< Allow targeting allied and neutral deployed Traps.
+    HitTF_OwnedDeployedTraps  = 0x40000000,//!< Allow targeting Owned Deployed Traps.
+    HitTF_CreatureDeadBodies  = 0x80000000,//!< Allow targeting Creature Dead Bodies.
 };
 
 /******************************************************************************/
@@ -277,11 +275,8 @@ long get_free_hero_gate_number(void);
 
 struct Thing *find_creature_lair_at_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, ThingModel crmodel);
 
-TbBool thing_is_shootable_by_any_player_including_objects(const struct Thing *thing, PlayerNumber shot_owner);
-TbBool thing_is_shootable_by_any_player_except_own_including_objects(const struct Thing *thing, PlayerNumber shot_owner);
-TbBool thing_is_shootable_by_any_player_except_own_excluding_objects(const struct Thing *thing, PlayerNumber shot_owner);
-TbBool thing_is_shootable_by_any_player_except_own_excluding_objects_and_not_under_spell(const struct Thing *thing, PlayerNumber shot_owner, SpellKind spkind);
-TbBool thing_is_shootable_by_any_player_excluding_objects(const struct Thing *thing, PlayerNumber shot_owner);
+TbBool thing_is_shootable(const struct Thing *thing, PlayerNumber shot_owner, HitTargetFlags hit_targets);
+unsigned long hit_type_to_hit_targets(long hit_type);
 TbBool imp_already_digging_at_excluding(struct Thing *excltng, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool gold_pile_with_maximum_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Thing *smallest_gold_pile_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y);

@@ -702,7 +702,7 @@ static void apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
     long i;
     cctrl = creature_control_get_from_thing(thing);
     crstat = creature_stats_get_from_thing(thing);
-    if ((cctrl->flgfield_1 & CCFlg_Immortal) == 0)
+    if ((cctrl->flgfield_1 & CCFlg_PreventDamage) == 0)
     {
         // Compute armor value
         carmor = compute_creature_max_armour(crstat->armour,cctrl->explevel,creature_affected_by_spell(thing, SplK_Armour));

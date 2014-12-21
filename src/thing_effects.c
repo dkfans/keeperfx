@@ -1312,34 +1312,9 @@ TbBool area_effect_can_affect_thing(const struct Thing *thing, long hit_type, Pl
         WARNLOG("Invalid thing tries to interact with explosion");
         return false;
     }
-    switch (hit_type)
-    {
-    case THit_CrtrsNObjcts:
-        return thing_is_shootable_by_any_player_including_objects(thing, shot_owner);
-    case THit_CrtrsOnly:
-        return thing_is_shootable_by_any_player_excluding_objects(thing, shot_owner);
-    case THit_CrtrsNObjctsNotOwn:
-        return thing_is_shootable_by_any_player_except_own_including_objects(thing, shot_owner);
-    case THit_CrtrsOnlyNotOwn:
-        return thing_is_shootable_by_any_player_except_own_excluding_objects(thing, shot_owner);
-    case THit_CrtrsNotArmourNotOwn:
-        return thing_is_shootable_by_any_player_except_own_excluding_objects_and_not_under_spell(thing, shot_owner, SplK_Armour);
-    case THit_HeartOnly:
-        if (thing_is_dungeon_heart(thing))
-            return true;
-        return false;
-    case THit_HeartOnlyNotOwn:
-        if (thing_is_dungeon_heart(thing) && (thing->owner != shot_owner))
-          return true;
-        return false;
-    case THit_All:
-        return true;
-    case THit_None:
-        return false;
-    default:
-        WARNLOG("Illegal hit thing type %d for shot owned by played %d",(int)hit_type,(int)shot_owner);
-        return true;
-    }
+    HitTargetFlags hit_targets;
+    hit_targets = hit_type_to_hit_targets(hit_type);
+    return thing_is_shootable(thing, shot_owner, hit_targets);
 }
 
 /**
