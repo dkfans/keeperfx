@@ -238,6 +238,8 @@ typedef char ItemAvailability;
 typedef unsigned char DamageType;
 /** Type which stores hit filters for things as THit_* values. */
 typedef unsigned char ThingHitType;
+/** Type which stores hit filters for things as HitTF_* flags. */
+typedef unsigned long HitTargetFlags;
 /** Index within active_buttons[] array. */
 typedef char ActiveButtonID;
 /** Type which stores digger task type as DigTsk_* values. */
