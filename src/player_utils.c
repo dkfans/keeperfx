@@ -37,6 +37,8 @@
 #include "gui_frontmenu.h"
 #include "config_settings.h"
 #include "config_terrain.h"
+#include "map_blocks.h"
+#include "ariadne_wallhug.h"
 #include "game_saves.h"
 #include "game_legacy.h"
 #include "frontend.h"
@@ -50,6 +52,7 @@
 /******************************************************************************/
 DLLIMPORT void _DK_calculate_dungeon_area_scores(void);
 DLLIMPORT void _DK_init_keeper_map_exploration(struct PlayerInfo *player);
+DLLIMPORT void _DK_fill_in_explored_area(unsigned char plyr_idx, short stl_x, short stl_y);
 /******************************************************************************/
 TbBool player_has_won(PlayerNumber plyr_idx)
 {
@@ -305,13 +308,13 @@ long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, Tb
         dungeon->total_money_owned -= offmap_money;
         dungeon->offmap_money_owned = 0;
     }
-    struct Room *room;
     long i;
     unsigned long k;
     i = dungeon->room_kind[RoK_TREASURE];
     k = 0;
     while (i != 0)
     {
+        struct Room *room;
         room = room_get(i);
         if (room_is_invalid(room))
         {
@@ -464,9 +467,77 @@ void init_player_music(struct PlayerInfo *player)
     randomize_sound_font();
 }
 
+TbBool map_position_has_sibling_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, SlabKind slbkind, PlayerNumber plyr_idx)
+{
+    int n;
+    for (n = 0; n < SMALL_AROUND_LENGTH; n++)
+    {
+        int dx,dy;
+        dx = small_around[n].delta_x;
+        dy = small_around[n].delta_y;
+        struct SlabMap *slb;
+        slb = get_slabmap_block(slb_x+dx, slb_y+dy);
+        if ((slb->kind == slbkind) && (slabmap_owner(slb) == plyr_idx)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+TbBool map_position_initially_explored_for_player(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    struct SlabMap *slb;
+    slb = get_slabmap_block(slb_x, slb_y);
+    struct Map *mapblk;
+    mapblk = get_map_block_at(slab_subtile_center(slb_x),slab_subtile_center(slb_y));
+    // All owned ground is visible
+    if (slabmap_owner(slb) == plyr_idx) {
+        return true;
+    }
+    // All Rocks are visible
+    if (slb->kind == SlbT_ROCK) {
+        return true;
+    }
+    // Neutral entrances are visible
+    struct Room *room;
+    room = room_get(slb->room_index);
+    if (((mapblk->flags & MapFlg_IsRoom) != 0) && (room->kind == RoK_ENTRANCE) && (slabmap_owner(slb) == game.neutral_player_num)) {
+        return true;
+    }
+    // Slabs with specific flag are visible
+    if ((mapblk->flags & MapFlg_Unkn01) != 0) {
+        return true;
+    }
+    // Area around entrances is visible
+    if (map_position_has_sibling_slab(slb_x, slb_y, SlbT_ENTRANCE, game.neutral_player_num)) {
+        return true;
+    }
+    return false;
+}
+
+void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    _DK_fill_in_explored_area(plyr_idx, stl_x, stl_y); return;
+}
+
 void init_keeper_map_exploration(struct PlayerInfo *player)
 {
-  _DK_init_keeper_map_exploration(player);
+    //_DK_init_keeper_map_exploration(player); return;
+    struct Thing *heartng;
+    heartng = get_player_soul_container(player->id_number);
+    if (thing_exists(heartng)) {
+        fill_in_explored_area(player->id_number, heartng->mappos.x.stl.num, heartng->mappos.y.stl.num);
+    }
+    MapSlabCoord slb_x, slb_y;
+    for (slb_y=0; slb_y < map_tiles_y; slb_y++)
+    {
+        for (slb_x=0; slb_x < map_tiles_x; slb_x++)
+        {
+            if (map_position_initially_explored_for_player(player->id_number, slb_x, slb_y)) {
+                set_slab_explored(player->id_number, slb_x, slb_y);
+            }
+        }
+    }
 }
 
 void init_player_as_single_keeper(struct PlayerInfo *player)

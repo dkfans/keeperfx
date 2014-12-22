@@ -932,15 +932,18 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     return 1;
 }
 
-long shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *target, struct Coord3d *pos)
+TbBool shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *target, struct Coord3d *pos)
 {
     if (!thing_exists(target))
-        return 0;
+        return false;
     if (target->class_id == TCls_Object) {
         return shot_hit_object_at(shotng, target, pos);
     }
     if (target->class_id == TCls_Creature) {
         return shot_hit_creature_at(shotng, target, pos);
+    }
+    if (target->class_id == TCls_DeadCreature) {
+        //TODO implement shooting dead bodies
     }
     if (target->class_id == TCls_Shot) {
         // On a shot for collision, both shots are destroyed
@@ -949,7 +952,7 @@ long shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *target, str
         target->health = -1;
         return true;
     }
-    return 0;
+    return false;
 }
 
 long collide_filter_thing_is_shootable(struct Thing *thing, struct Thing *parntng, long hit_targets, long a4)
