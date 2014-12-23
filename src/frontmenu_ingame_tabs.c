@@ -1662,7 +1662,7 @@ void maintain_instance(struct GuiButton *gbtn)
     if ( i )
     {
         gbtn->sprite_idx = i;
-        gbtn->tooltip_stridx = instance_button_init[curbtn_inst_id].numfield_4;
+        gbtn->tooltip_stridx = instance_button_init[curbtn_inst_id].tooltip_stridx;
     }
     if (creature_instance_is_available(ctrltng, curbtn_inst_id))
     {
@@ -2322,6 +2322,50 @@ void update_trap_tab_to_config(void)
         default:
             break;
         }
+    }
+}
+
+void update_powers_tab_to_config(void)
+{
+    int i;
+    // Clear 4x4 area of buttons, but skip "sell" button at end
+    for (i=0; i < 4*4; i++)
+    {
+        struct GuiButtonInit * ibtn;
+        ibtn = &spell_menu.buttons[i];
+        ibtn->sprite_idx = 24;
+        ibtn->tooltip_stridx = GUIStr_Empty;
+        ibtn->content.lval = 0;
+        ibtn->click_event = NULL;
+        ibtn->rclick_event = NULL;
+        ibtn->ptover_event = NULL;
+        ibtn->draw_call = gui_area_new_null_button;
+        ibtn->maintain_call = NULL;
+    }
+    for (i=0; i < magic_conf.power_types_count; i++)
+    {
+        struct PowerConfigStats *powerst;
+        powerst = get_power_model_stats(i);
+        struct SpellData *pwrdata;
+        pwrdata = get_power_data(i);
+        if (powerst->panel_tab_idx < 1)
+            continue;
+        struct GuiButtonInit * ibtn;
+        ibtn = &spell_menu.buttons[powerst->panel_tab_idx-1];
+        ibtn->sprite_idx = pwrdata->medsym_sprite_idx;
+        ibtn->tooltip_stridx = pwrdata->tooltip_stridx;
+        ibtn->content.lval = i;
+        if ((i == PwrK_HOLDAUDNC) || (i == PwrK_ARMAGEDDON)) {
+            ibtn->click_event = gui_choose_special_spell;
+            ibtn->rclick_event = NULL;
+            ibtn->ptover_event = NULL;
+        } else {
+            ibtn->click_event = gui_choose_spell;
+            ibtn->rclick_event = gui_go_to_next_spell;
+            ibtn->ptover_event = NULL;
+        }
+        ibtn->draw_call = gui_area_spell_button;
+        ibtn->maintain_call = maintain_spell;
     }
 }
 /******************************************************************************/

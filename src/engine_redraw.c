@@ -743,7 +743,7 @@ TbBool draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, MapSubt
     pwkind = -1;
     if (wrkstate < PLAYER_STATES_COUNT)
       pwkind = player_state_to_power_kind[wrkstate];
-    SYNCDBG(5,"Starting for spell %d",(int)pwkind);
+    SYNCDBG(5,"Starting for power %d",(int)pwkind);
     if (pwkind <= 0)
     {
         set_pointer_graphic(0);
@@ -771,7 +771,7 @@ TbBool draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, MapSubt
             return true;
         }
     }
-    i = pwrdata->pointer_spridx;
+    i = pwrdata->pointer_sprite_idx;
     set_pointer_graphic_spell(i, game.play_gameturn);
     return true;
 }

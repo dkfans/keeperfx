@@ -40,7 +40,7 @@ struct GuiButton;
 
 struct InstanceButtonInit {  // sizeof=0x6
     long numfield_0;
-    short numfield_4;
+    short tooltip_stridx;
 };
 
 /******************************************************************************/
@@ -81,6 +81,7 @@ void gui_set_button_flashing(long btn_idx, long gameturns);
 
 void update_room_tab_to_config(void);
 void update_trap_tab_to_config(void);
+void update_powers_tab_to_config(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

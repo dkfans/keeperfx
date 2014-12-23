@@ -75,9 +75,13 @@ const struct NamedCommand magic_power_commands[] = {
   {"POWER",           2},
   {"COST",            3},
   {"TIME",            4},
-  {"NAMETEXTID",      5},
-  {"CASTABILITY",     6},
-  {"ARTIFACT",        7},
+  {"CASTABILITY",     5},
+  {"ARTIFACT",        6},
+  {"NAMETEXTID",      7},
+  {"TOOLTIPTEXTID",   8},
+  {"SYMBOLSPRITES",  10},
+  {"POINTERSPRITES", 11},
+  {"PANELTABINDEX",  12},
   {NULL,              0},
   };
 
@@ -795,6 +799,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           powerst = get_power_model_stats(i);
           LbMemorySet(powerst->code_name, 0, COMMAND_WORD_LEN);
           powerst->artifact_model = 0;
+          powerst->panel_tab_idx = 0;
           if (i < magic_conf.power_types_count)
           {
               power_desc[i].name = powerst->code_name;
@@ -904,20 +909,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 5: // NAMETEXTID
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              pwrdata->name_stridx = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 6: // CASTABILITY
+      case 5: // CASTABILITY
           pwrdata->can_cast_flags = 0;
           while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
@@ -933,20 +925,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
               }
           }
           break;
-
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            pwrdata->name_stridx = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 7: // ARTIFACT
+      case 6: // ARTIFACT
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               k = get_id(object_desc, word_buf);
@@ -961,6 +940,89 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
               CONFWRNLOG("Incorrect object model \"%s\" in [%s] block of %s file.",
                   word_buf,block_buf,config_textname);
               break;
+          }
+          break;
+      case 7: // NAMETEXTID
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              pwrdata->name_stridx = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 8: // TOOLTIPTEXTID
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              pwrdata->tooltip_stridx = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 10: // SYMBOLSPRITES
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  pwrdata->bigsym_sprite_idx = k;
+                  n++;
+              }
+          }
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  pwrdata->medsym_sprite_idx = k;
+                  n++;
+              }
+          }
+          if (n < 2)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 11: // POINTERSPRITES
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  pwrdata->pointer_sprite_idx = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 12: // PANELTABINDEX
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            if (k >= 0)
+            {
+                powerst->panel_tab_idx = k;
+                n++;
+            }
+          }
+          if (n < 1)
+          {
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
       case 0: // comment

@@ -1041,6 +1041,7 @@ TbBool change_campaign(const char *cmpgn_fname)
     // Update GUI arrays to new config
     update_room_tab_to_config();
     update_trap_tab_to_config();
+    update_powers_tab_to_config();
     return result;
 }
 
