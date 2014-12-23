@@ -474,7 +474,7 @@ void fill_in_points_perspective(long bstl_x, long bstl_y, struct MinMax *mm)
     MapSubtlCoord stl_x, stl_y;
     stl_y = bstl_y;
     stl_x = mmin + bstl_x;
-    apos += (mmin << 8);
+    apos += subtile_coord(mmin,0);
     struct EngineCol *ecol;
     ecol = &front_ec[mmin + 31];
     unsigned long mask_unrev;
@@ -541,7 +541,7 @@ void fill_in_points_perspective(long bstl_x, long bstl_y, struct MinMax *mm)
         struct EngineCoord *ecord;
         ecord = &ecol->cors[hmin];
         long hpos;
-        hpos = (hmin << 8) - view_alt;
+        hpos = subtile_coord(hmin,0) - view_alt;
         wib_x = stl_x & 3;
         struct WibbleTable *wibl;
         wibl = &wibble_table[32 * wib_v + wib_x + (wib_y << 2)];
@@ -559,23 +559,30 @@ void fill_in_points_perspective(long bstl_x, long bstl_y, struct MinMax *mm)
                 lightness = 16128;
             ecord->field_A = lightness;
             wibl += 2;
-            hpos += 256;
+            hpos += COORD_PER_STL;
             rotpers(ecord, &camera_matrix);
             ecord++;
         }
         wibl -= 2;
-        hpos = (get_mapblk_filled_subtiles(mapblk) << 8) - view_alt;
+        // Set ceiling
+        mapblk = get_map_block_at(stl_x, stl_y+1);
+        wib_v = get_mapblk_wibble_value(mapblk);
+        hpos = subtile_coord(get_mapblk_filled_subtiles(mapblk),0) - view_alt;
         if (wib_v == 2)
           wibl = &wibble_table[wib_x + 2 * (hmax + 2 * wib_y - hmin) + 32];
-        ecol->cors[8].x = apos + wibl->field_0;
-        ecol->cors[8].y = hpos + wibl->field_4;
-        ecol->cors[8].z = bpos + wibl->field_8;
-        ecol->cors[8].field_8 = 0;
-        ecol->cors[8].field_A = lightness;
-        rotpers(&ecol->cors[8], &camera_matrix);
+        ecord = &ecol->cors[8];
+        {
+            ecord->x = apos + wibl->field_0;
+            ecord->y = hpos + wibl->field_4;
+            ecord->z = bpos + wibl->field_8;
+            ecord->field_8 = 0;
+            // Use lightness from last cube
+            ecord->field_A = lightness;
+            rotpers(ecord, &camera_matrix);
+        }
         stl_x++;
         ecol++;
-        apos += 256;
+        apos += COORD_PER_STL;
     }
 }
 
