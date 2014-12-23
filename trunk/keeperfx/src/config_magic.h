@@ -205,6 +205,7 @@ struct ShotConfigStats {
 struct PowerConfigStats {
     char code_name[COMMAND_WORD_LEN];
     ThingModel artifact_model;
+    long panel_tab_idx;
 };
 
 struct SpecialConfigStats {
@@ -305,7 +306,7 @@ struct MagicStats {  // sizeof=0x4C
 
 /**
  * Spell information structure.
- * Stores configuration of spells.
+ * Stores configuration of powers; to be replaced with PowerConfigStats.
  * It no longer matches the similar struct from DK - fields were added at end.
  */
 struct SpellInfo {
@@ -322,6 +323,10 @@ struct SpellInfo {
   unsigned short caster_affect_sound;
 };
 
+/**
+ * Powers config structure.
+ * Stores configuration of powers; to be replaced with PowerConfigStats.
+ */
 struct SpellData {
       long pcktype;
       long work_state;
@@ -331,7 +336,7 @@ struct SpellData {
       unsigned short name_stridx;
       unsigned short tooltip_stridx;
       short select_sample_idx;
-      short pointer_spridx;
+      short pointer_sprite_idx;
       Expand_Check_Func overcharge_check;
       unsigned long can_cast_flags;
 };
@@ -343,6 +348,7 @@ DLLIMPORT struct ShotStats _DK_shot_stats[30];
 DLLIMPORT struct SpellInfo _DK_spell_info[];
 //DLLIMPORT struct SpellData _DK_spell_data[POWER_TYPES_COUNT+1];
 /******************************************************************************/
+extern struct MagicConfig magic_conf;
 extern const char keeper_magic_file[];
 extern struct NamedCommand spell_desc[];
 extern struct NamedCommand shot_desc[];
