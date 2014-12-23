@@ -50,18 +50,18 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT short _DK_creature_attempt_to_damage_walls(struct Thing *thing);
-DLLIMPORT short _DK_creature_damage_walls(struct Thing *thing);
-DLLIMPORT long _DK_combat_type_is_choice_of_creature(struct Thing *thing, long cmbtyp);
+DLLIMPORT short _DK_creature_attempt_to_damage_walls(struct Thing *creatng);
+DLLIMPORT short _DK_creature_damage_walls(struct Thing *creatng);
+DLLIMPORT long _DK_combat_type_is_choice_of_creature(struct Thing *creatng, long cmbtyp);
 DLLIMPORT long _DK_creature_has_spare_slot_for_combat(struct Thing *fightng, struct Thing *enmtng, long combat_kind);
 DLLIMPORT long _DK_change_creature_with_existing_attacker(struct Thing *fightng, struct Thing *enmtng, long combat_kind);
 DLLIMPORT long _DK_get_combat_score(const struct Thing *fightng, const struct Thing *outenmtng, long outscore, long move_on_ground);
-DLLIMPORT long _DK_old_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, long move_on_ground);
-DLLIMPORT long _DK_guard_post_combat_move(struct Thing *thing, long a2);
-DLLIMPORT void _DK_combat_object_state_melee_combat(struct Thing *thing);
-DLLIMPORT void _DK_combat_object_state_ranged_combat(struct Thing *thing);
-DLLIMPORT void _DK_combat_door_state_melee_combat(struct Thing *thing);
-DLLIMPORT void _DK_combat_door_state_ranged_combat(struct Thing *thing);
+DLLIMPORT long _DK_old_combat_move(struct Thing *creatng, struct Thing *enmtng, long enmdist, long move_on_ground);
+DLLIMPORT long _DK_guard_post_combat_move(struct Thing *creatng, long a2);
+DLLIMPORT void _DK_combat_object_state_melee_combat(struct Thing *creatng);
+DLLIMPORT void _DK_combat_object_state_ranged_combat(struct Thing *creatng);
+DLLIMPORT void _DK_combat_door_state_melee_combat(struct Thing *creatng);
+DLLIMPORT void _DK_combat_door_state_ranged_combat(struct Thing *creatng);
 /******************************************************************************/
 CrAttackType combat_has_line_of_sight(const struct Thing *creatng, const struct Thing *enmtng, MapCoordDelta enmdist);
 /******************************************************************************/
@@ -110,6 +110,30 @@ const struct CombatWeapon melee_offensive_weapon[] = {
     {CrInst_SLOW,              156, LONG_MAX},
     {CrInst_WORD_OF_POWER,       0, 284},
     {CrInst_FART,                0, 284},
+    {CrInst_FLAME_BREATH,      156, 284},
+    {CrInst_SWING_WEAPON_SWORD,  0, 284},
+    {CrInst_SWING_WEAPON_FIST,   0, 284},
+    {CrInst_NULL,                0,   0},
+};
+
+const struct CombatWeapon melee_object_offensive_weapon[] = {
+    {CrInst_HAILSTORM,         156, LONG_MAX},
+    {CrInst_WORD_OF_POWER,       0, 284},
+    {CrInst_FLAME_BREATH,      156, 284},
+    {CrInst_SWING_WEAPON_SWORD,  0, 284},
+    {CrInst_SWING_WEAPON_FIST,   0, 284},
+    {CrInst_NULL,                0,   0},
+};
+
+const struct CombatWeapon ranged_object_offensive_weapon[] = {
+    {CrInst_LIGHTNING,         768, LONG_MAX},
+    {CrInst_HAILSTORM,         156, LONG_MAX},
+    {CrInst_DRAIN,             156, LONG_MAX},
+    {CrInst_NAVIGATING_MISSILE,156, LONG_MAX},
+    {CrInst_MISSILE,           156, LONG_MAX},
+    {CrInst_FIREBALL,          156, LONG_MAX},
+    {CrInst_FIRE_ARROW,        156, LONG_MAX},
+    {CrInst_WORD_OF_POWER,       0, 284},
     {CrInst_FLAME_BREATH,      156, 284},
     {CrInst_SWING_WEAPON_SWORD,  0, 284},
     {CrInst_SWING_WEAPON_FIST,   0, 284},
@@ -1862,6 +1886,20 @@ CrInstance get_best_melee_offensive_weapon(const struct Thing *thing, long dist)
     return inst_id;
 }
 
+long get_best_melee_object_offensive_weapon(const struct Thing *thing, long dist)
+{
+    CrInstance inst_id;
+    inst_id = get_best_combat_weapon_instance_to_use(thing, melee_object_offensive_weapon, dist);
+    return inst_id;
+}
+
+long get_best_ranged_object_offensive_weapon(const struct Thing *thing, long dist)
+{
+    CrInstance inst_id;
+    inst_id = get_best_combat_weapon_instance_to_use(thing, ranged_object_offensive_weapon, dist);
+    return inst_id;
+}
+
 CrAttackType combat_has_line_of_sight(const struct Thing *creatng, const struct Thing *enmtng, MapCoordDelta enmdist)
 {
     struct CreatureControl *cctrl;
@@ -2393,24 +2431,98 @@ short creature_in_combat(struct Thing *creatng)
     return 0;
 }
 
-void combat_object_state_melee_combat(struct Thing *thing)
+void combat_object_state_melee_combat(struct Thing *creatng)
 {
-    _DK_combat_object_state_melee_combat(thing); return;
+    //_DK_combat_object_state_melee_combat(creatng); return;
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    struct Thing *objtng;
+    long dist;
+    objtng = thing_get(cctrl->battle_enemy_idx);
+    dist = get_combat_distance(creatng, objtng);
+    CrInstance inst_id;
+    inst_id = get_best_melee_object_offensive_weapon(creatng, dist);
+    if (inst_id == CrInst_NULL)
+    {
+        ERRORLOG("The %s index %d has no melee instance in fight", thing_model_name(creatng), (int)creatng->index);
+        set_start_state(creatng);
+    }
+    if (melee_combat_move(creatng, objtng, dist, CrSt_CreatureObjectCombat))
+    {
+        if (inst_id > CrInst_NULL) {
+            set_creature_instance(creatng, inst_id, 1, objtng->index, 0);
+        }
+    }
 }
 
-void combat_object_state_ranged_combat(struct Thing *thing)
+void combat_object_state_ranged_combat(struct Thing *creatng)
 {
-    _DK_combat_object_state_ranged_combat(thing); return;
+    //_DK_combat_object_state_ranged_combat(thing); return;
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    struct Thing *objtng;
+    long dist;
+    objtng = thing_get(cctrl->battle_enemy_idx);
+    dist = get_combat_distance(creatng, objtng);
+    CrInstance inst_id;
+    inst_id = get_best_ranged_object_offensive_weapon(creatng, dist);
+    if (inst_id == CrInst_NULL)
+    {
+        WARNLOG("The %s index %d has no ranged instance in fight", thing_model_name(creatng), (int)creatng->index);
+    }
+    if (ranged_combat_move(creatng, objtng, dist, CrSt_CreatureObjectCombat))
+    {
+        if (inst_id > CrInst_NULL) {
+            set_creature_instance(creatng, inst_id, 0, objtng->index, 0);
+        }
+    }
 }
 
-void combat_door_state_melee_combat(struct Thing *thing)
+void combat_door_state_melee_combat(struct Thing *creatng)
 {
-    _DK_combat_door_state_melee_combat(thing); return;
+    //_DK_combat_door_state_melee_combat(creatng); return;
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    struct Thing *objtng;
+    long dist;
+    objtng = thing_get(cctrl->battle_enemy_idx);
+    dist = get_combat_distance(creatng, objtng);
+    CrInstance inst_id;
+    inst_id = get_best_melee_object_offensive_weapon(creatng, dist);
+    if (inst_id == CrInst_NULL)
+    {
+        ERRORLOG("The %s index %d has no melee instance in fight", thing_model_name(creatng), (int)creatng->index);
+        set_start_state(creatng);
+    }
+    if (melee_combat_move(creatng, objtng, dist, CrSt_CreatureDoorCombat))
+    {
+        if (inst_id > CrInst_NULL) {
+            set_creature_instance(creatng, inst_id, 1, objtng->index, 0);
+        }
+    }
 }
 
-void combat_door_state_ranged_combat(struct Thing *thing)
+void combat_door_state_ranged_combat(struct Thing *creatng)
 {
-    _DK_combat_door_state_ranged_combat(thing); return;
+    //_DK_combat_door_state_ranged_combat(creatng); return;
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    struct Thing *objtng;
+    long dist;
+    objtng = thing_get(cctrl->battle_enemy_idx);
+    dist = get_combat_distance(creatng, objtng);
+    CrInstance inst_id;
+    inst_id = get_best_ranged_object_offensive_weapon(creatng, dist);
+    if (inst_id == CrInst_NULL)
+    {
+        WARNLOG("The %s index %d has no ranged instance in fight", thing_model_name(creatng), (int)creatng->index);
+    }
+    if (ranged_combat_move(creatng, objtng, dist, CrSt_CreatureObjectCombat))
+    {
+        if (inst_id > CrInst_NULL) {
+            set_creature_instance(creatng, inst_id, 0, objtng->index, 0);
+        }
+    }
 }
 
 short creature_object_combat(struct Thing *creatng)
@@ -2440,7 +2552,7 @@ short creature_object_combat(struct Thing *creatng)
         combat_func(creatng);
         return 1;
     }
-    ERRORLOG("Invalid fight object state");
+    ERRORLOG("The %s index %d has invalid fight object state", thing_model_name(creatng), (int)creatng->index);
     set_start_state(creatng);
     return 0;
 }
