@@ -2324,6 +2324,40 @@ long do_to_things_on_map_block(long thing_idx, Thing_Bool_Modifier do_cb)
     return n;
 }
 
+long do_to_things_with_distance_on_map_block(long thing_idx, struct Coord3d *center_pos, Thing_Modifier_OneParam do_cb)
+{
+    struct Thing *thing;
+    unsigned long k;
+    long i,n;
+    SYNCDBG(19,"Starting");
+    n = 0;
+    k = 0;
+    i = thing_idx;
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_on_mapblk;
+        // Begin per-loop code
+        MapCoordDelta dist;
+        dist = get_2d_box_distance(center_pos, &thing->mappos);
+        if (do_cb(thing, dist) != TUFRet_Unchanged)
+            n++;
+        // End of per-loop code
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return n;
+}
+
 /**
  * Returns filtered creature from slabs around given coordinates.
  * Skips slabs which are not revealed to player provided in MaxFilterParam.
@@ -2476,6 +2510,37 @@ long do_to_things_spiral_near_map_block(MapCoord x, MapCoord y, long spiral_len,
       {
           i = get_mapwho_thing_index(mapblk);
           count += do_to_things_on_map_block(i, do_cb);
+      }
+    }
+    return count;
+}
+
+long do_to_things_with_distance_spiral_near_map_block(struct Coord3d *center_pos, MapCoordDelta max_dist, Thing_Modifier_OneParam do_cb)
+{
+    struct MapOffset *sstep;
+    long count;
+    struct Map *mapblk;
+    MapSubtlCoord sx,sy;
+    int around;
+    long spiral_range;
+    spiral_range = coord_subtile(max_dist + COORD_PER_STL - 1);
+    if (spiral_range > SPIRAL_STEPS_RANGE) {
+        WARNLOG("Spiral range %d trimmed to max %d",(int)spiral_range,SPIRAL_STEPS_RANGE);
+        spiral_range = SPIRAL_STEPS_RANGE;
+    }
+    long i;
+    SYNCDBG(19,"Starting");
+    count = 0;
+    for (around=0; around < spiral_range*spiral_range; around++)
+    {
+      sstep = &spiral_step[around];
+      sx = coord_subtile(center_pos->x.val) + (MapSubtlCoord)sstep->h;
+      sy = coord_subtile(center_pos->y.val) + (MapSubtlCoord)sstep->v;
+      mapblk = get_map_block_at(sx, sy);
+      if (!map_block_invalid(mapblk))
+      {
+          i = get_mapwho_thing_index(mapblk);
+          count += do_to_things_with_distance_on_map_block(i, center_pos, do_cb);
       }
     }
     return count;
