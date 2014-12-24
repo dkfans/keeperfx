@@ -489,6 +489,13 @@ struct InitEffect *get_effect_info_for_thing(const struct Thing *thing)
     return &effect_info[thing->model];
 }
 
+struct EffectElementStats *get_effect_element_model_stats(ThingModel tngmodel)
+{
+    if ((tngmodel < 0) || (tngmodel >= sizeof(effect_element_stats)/sizeof(effect_element_stats[0])))
+        return &effect_element_stats[0];
+    return &effect_element_stats[tngmodel];
+}
+
 struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short eelmodel, unsigned short owner)
 {
     struct InitLight ilght;
@@ -501,7 +508,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
     if (!any_player_close_enough_to_see(pos)) {
         return INVALID_THING;
     }
-    eestat = &effect_element_stats[eelmodel];
+    eestat = get_effect_element_model_stats(eelmodel);
     LbMemorySet(&ilght, 0, sizeof(struct InitLight));
     thing = allocate_free_thing_structure(FTAF_Default);
     if (thing->index == 0) {
@@ -596,57 +603,57 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
 
 void move_effect_blocked(struct Thing *thing, struct Coord3d *prev_pos, struct Coord3d *next_pos)
 {
-    struct EffectElementStats *effstat;
+    struct EffectElementStats *eestat;
     long cube_id,sample_id;
     unsigned short effmodel;
     unsigned long blocked_flags;
-    effstat = &effect_element_stats[thing->model];
+    eestat = get_effect_element_model_stats(thing->model);
     blocked_flags = get_thing_blocked_flags_at(thing, next_pos);
     slide_thing_against_wall_at(thing, next_pos, blocked_flags);
-    if ( ((blocked_flags & SlbBloF_WalledZ) != 0) && effstat->field_15 && effstat->field_22 )
+    if ( ((blocked_flags & SlbBloF_WalledZ) != 0) && eestat->field_15 && eestat->field_22 )
     {
         struct Thing *efftng;
         efftng = thing;
         cube_id = get_top_cube_at(next_pos->x.stl.num, next_pos->y.stl.num, NULL);
         if (cube_is_water(cube_id))
         {
-          effmodel = effstat->water_effmodel;
+          effmodel = eestat->water_effmodel;
           if (effmodel > 0) {
               efftng = create_effect(prev_pos, effmodel, thing->owner);
               TRACE_THING(efftng);
           }
-          sample_id = effstat->water_snd_smpid;
+          sample_id = eestat->water_snd_smpid;
           if (sample_id > 0) {
-              thing_play_sample(efftng, sample_id, NORMAL_PITCH, 0, 3, 0, 2, effstat->water_loudness);
+              thing_play_sample(efftng, sample_id, NORMAL_PITCH, 0, 3, 0, 2, eestat->water_loudness);
           }
-          if ( effstat->water_destroy_on_impact )
+          if ( eestat->water_destroy_on_impact )
               thing->health = 0;
         } else
         if (cube_is_lava(cube_id))
         {
-            effmodel = effstat->lava_effmodel;
+            effmodel = eestat->lava_effmodel;
             if (effmodel > 0) {
                 efftng = create_effect(prev_pos, effmodel, thing->owner);
                 TRACE_THING(efftng);
             }
-            sample_id = effstat->lava_snd_smpid;
+            sample_id = eestat->lava_snd_smpid;
             if (sample_id > 0) {
-                thing_play_sample(efftng, sample_id, NORMAL_PITCH, 0, 3, 0, 2, effstat->lava_loudness);
+                thing_play_sample(efftng, sample_id, NORMAL_PITCH, 0, 3, 0, 2, eestat->lava_loudness);
             }
-            if ( effstat->lava_destroy_on_impact )
+            if ( eestat->lava_destroy_on_impact )
                 thing->health = 0;
         } else
         {
-            effmodel = effstat->effmodel_23;
+            effmodel = eestat->effmodel_23;
             if (effmodel > 0) {
                 efftng = create_effect(prev_pos, effmodel, thing->owner);
                 TRACE_THING(efftng);
             }
-            sample_id = effstat->solidgnd_snd_smpid;
+            sample_id = eestat->solidgnd_snd_smpid;
             if (sample_id > 0) {
-                thing_play_sample(efftng, sample_id, NORMAL_PITCH, 0, 3, 0, 2, effstat->solidgnd_loudness);
+                thing_play_sample(efftng, sample_id, NORMAL_PITCH, 0, 3, 0, 2, eestat->solidgnd_loudness);
             }
-            if ( effstat->solidgnd_destroy_on_impact )
+            if ( eestat->solidgnd_destroy_on_impact )
                 thing->health = 0;
         }
     }
@@ -695,12 +702,7 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
     long i;
     SYNCDBG(18,"Starting");
     TRACE_THING(elemtng);
-    if (elemtng->model < sizeof(effect_element_stats)/sizeof(effect_element_stats[0])) {
-        eestats = &effect_element_stats[elemtng->model];
-    } else {
-        ERRORLOG("Outranged model %d",(int)elemtng->model);
-        eestats = &effect_element_stats[0];
-    }
+    eestats = get_effect_element_model_stats(elemtng->model);
     // Check if effect health dropped to zero; delete it, or decrease health for the next check
     health = elemtng->health;
     if (health <= 0)

@@ -53,6 +53,7 @@
 #include "config_crtrstates.h"
 #include "config_crtrmodel.h"
 #include "config_compp.h"
+#include "config_effects.h"
 #include "lvl_script.h"
 #include "lvl_filesdk1.h"
 #include "thing_list.h"
@@ -459,14 +460,104 @@ unsigned long lightning_is_close_to_player(struct PlayerInfo *player, struct Coo
     return _DK_lightning_is_close_to_player(player, pos);
 }
 
-TngUpdateRet affect_thing_by_wind(struct Thing *thing, FilterParam dist)
+TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam param)
 {
+    SYNCDBG(18,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
+    if (thing->index == param->num2) {
+        return TUFRet_Unchanged;
+    }
+    struct Thing *shotng;
+    shotng = (struct Thing *)param->ptr3;
+    if ((thing->index == shotng->index) || (thing->index == shotng->parent_idx)) {
+        return TUFRet_Unchanged;
+    }
+    MapCoordDelta dist;
+    dist = LONG_MAX;
+    TbBool apply_velocity;
+    apply_velocity = false;
+    if (thing->class_id == TCls_Creature)
+    {
+        if (!thing_is_picked_up(thing) && !creature_is_being_unconscious(thing))
+        {
+            struct CreatureStats *crstat;
+            crstat = creature_stats_get_from_thing(thing);
+            dist = get_2d_box_distance(&shotng->mappos, &thing->mappos) + 1;
+            if ((dist < param->num1) && crstat->affected_by_wind)
+            {
+                set_start_state(thing);
+                struct CreatureControl *cctrl;
+                cctrl = creature_control_get_from_thing(thing);
+                cctrl->idle.start_gameturn = game.play_gameturn;
+                apply_velocity = true;
+            }
+        }
+    } else
+    if (thing->class_id == TngList_EffectElems)
+    {
+        if (!thing_is_picked_up(thing))
+        {
+            struct EffectElementStats *eestat;
+            eestat = get_effect_element_model_stats(thing->model);
+            dist = get_2d_box_distance(&shotng->mappos, &thing->mappos) + 1;
+            if ((dist < param->num1) && eestat->affected_by_wind)
+            {
+                apply_velocity = true;
+            }
+        }
+    } else
+    if (thing->class_id == TngList_Shots)
+    {
+        if (!thing_is_picked_up(thing))
+        {
+            struct ShotConfigStats *shotst;
+            shotst = get_shot_model_stats(thing->model);
+            dist = get_2d_box_distance(&shotng->mappos, &thing->mappos) + 1;
+            if ((dist < param->num1) && shotst->old->affected_by_wind)
+            {
+                apply_velocity = true;
+            }
+        }
+    } else
+    if (thing->class_id == TngList_Effects)
+    {
+        if (!thing_is_picked_up(thing))
+        {
+
+            struct EffectConfigStats *effcst;
+            effcst = get_effect_model_stats(thing->model);
+            dist = get_2d_box_distance(&shotng->mappos, &thing->mappos) + 1;
+            if ((dist < param->num1) && effcst->old->affected_by_wind)
+            {
+                apply_velocity = true;
+            }
+        }
+    }
+    if (apply_velocity)
+    {
+        struct ComponentVector wind_push;
+        wind_push.x = (shotng->veloc_base.x.val * param->num1) / dist;
+        wind_push.y = (shotng->veloc_base.y.val * param->num1) / dist;
+        wind_push.z = (shotng->veloc_base.z.val * param->num1) / dist;
+        SYNCDBG(8,"Applying (%d,%d,%d) to %s index %d",(int)wind_push.x,(int)wind_push.y,(int)wind_push.z,thing_model_name(thing),(int)thing->index);
+        apply_transitive_velocity_to_thing(thing, &wind_push);
+        return TUFRet_Modified;
+    }
     return TUFRet_Unchanged;
 }
 
 void affect_nearby_enemy_creatures_with_wind(struct Thing *shotng)
 {
-    _DK_affect_nearby_enemy_creatures_with_wind(shotng); return;
+    //_DK_affect_nearby_enemy_creatures_with_wind(shotng); return;
+    Thing_Modifier_Func do_cb;
+    struct CompoundTngFilterParam param;
+    param.plyr_idx = -1;
+    param.class_id = 0;
+    param.model_id = 0;
+    param.num1 = 2048;
+    param.num2 = shotng->parent_idx;
+    param.ptr3 = shotng;
+    do_cb = affect_thing_by_wind;
+    do_to_things_with_param_spiral_near_map_block(&shotng->mappos, param.num1-COORD_PER_STL, do_cb, &param);
 }
 
 void affect_nearby_stuff_with_vortex(struct Thing *thing)
