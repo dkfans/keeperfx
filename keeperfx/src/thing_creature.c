@@ -4169,7 +4169,15 @@ struct Thing *pick_up_creature_of_model_and_gui_job(long crmodel, long job_idx, 
  */
 void go_to_next_creature_of_model_and_gui_job(long crmodel, long job_idx)
 {
-    _DK_go_to_next_creature_of_breed_and_job(crmodel, job_idx); return;
+    //_DK_go_to_next_creature_of_breed_and_job(crmodel, job_idx); return;
+    struct Thing *creatng;
+    creatng = find_players_next_creature_of_breed_and_gui_job(crmodel, job_idx, my_player_number, 0);
+    if (!thing_is_invalid(creatng))
+    {
+        struct Packet *pckt;
+        pckt = get_packet_direct(my_player_number);
+        set_packet_action(pckt, PckA_Unknown087, creatng->mappos.x.val, creatng->mappos.y.val, 0, 0);
+    }
 }
 
 TbBool creature_is_doing_job_in_room_of_kind(const struct Thing *creatng, RoomKind rkind)

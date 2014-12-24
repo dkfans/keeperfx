@@ -82,6 +82,7 @@
 #include "thing_traps.h"
 #include "thing_shots.h"
 #include "thing_navigate.h"
+#include "thing_factory.h"
 #include "slab_data.h"
 #include "room_data.h"
 #include "room_entrance.h"
@@ -457,7 +458,8 @@ void process_keeper_spell_effect(struct Thing *thing)
 
 unsigned long lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos)
 {
-    return _DK_lightning_is_close_to_player(player, pos);
+    //return _DK_lightning_is_close_to_player(player, pos);
+    return get_2d_box_distance(&player->acamera->mappos, pos) < subtile_coord(45,0);
 }
 
 TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam param)
@@ -562,7 +564,7 @@ void affect_nearby_enemy_creatures_with_wind(struct Thing *shotng)
 
 void affect_nearby_stuff_with_vortex(struct Thing *thing)
 {
-  _DK_affect_nearby_stuff_with_vortex(thing);
+    //TODO implement vortex; it's not implemented in original DK
 }
 
 void affect_nearby_friends_with_alarm(struct Thing *traptng)
@@ -630,7 +632,92 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
 
 void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4)
 {
-  _DK_draw_flame_breath(pos1, pos2, a3, a4);
+  //_DK_draw_flame_breath(pos1, pos2, a3, a4);
+    MapCoordDelta dist_x, dist_y, dist_z;
+    dist_x = pos2->x.val - (MapCoordDelta)pos1->x.val;
+    dist_y = pos2->y.val - (MapCoordDelta)pos1->y.val;
+    dist_z = pos2->z.val - (MapCoordDelta)pos1->z.val;
+    int delta_x, delta_y, delta_z;
+    long delta_step;
+    if (dist_x >= 0) {
+        delta_step = a3;
+        delta_x = a3;
+    } else {
+        dist_x = -dist_x;
+        delta_step = a3;
+        delta_x = -a3;
+    }
+    if (dist_y >= 0) {
+        delta_y = delta_step;
+    } else {
+        dist_y = -dist_y;
+        delta_y = -delta_step;
+    }
+    if (dist_z >= 0) {
+        delta_z = delta_step;
+    } else {
+        dist_z = -dist_z;
+        delta_z = -delta_step;
+    }
+    if ((dist_x != 0) || (dist_y != 0) || (dist_z != 0))
+    {
+        int nsteps;
+        if ((dist_z > dist_x) && (dist_z > dist_y))
+        {
+            nsteps = dist_z / delta_step;
+            delta_y = dist_y * delta_y / dist_z;
+            delta_x = dist_x * delta_x / dist_z;
+        } else
+        if ((dist_x > dist_y) && (dist_x > dist_z))
+        {
+            nsteps = dist_x / delta_step;
+            delta_y = dist_y * delta_y / dist_x;
+            delta_z = dist_z * delta_z / dist_x;
+        } else
+        {
+            nsteps = dist_y / delta_step;
+            delta_x = dist_x * delta_x / dist_y;
+            delta_z = dist_z * delta_z / dist_y;
+        }
+        struct EffectElementStats *eestat;
+        eestat = get_effect_element_model_stats(9);
+        int sprsize, delta_size;
+        delta_size = ((eestat->sprite_size_max - eestat->sprite_size_min) << 8) / (nsteps+1);
+        sprsize = (eestat->sprite_size_min << 8);
+        int deviat;
+        deviat = 1;
+        struct Coord3d curpos;
+        curpos.x.val = pos1->x.val;
+        curpos.y.val = pos1->y.val;
+        curpos.z.val = pos1->z.val;
+        int i;
+        for (i=nsteps+1; i > 0; i--)
+        {
+            int devrange;
+            devrange = 2 * deviat;
+            int k;
+            for (k = a4; k > 0; k--)
+            {
+                struct Coord3d tngpos;
+                tngpos.x.val = curpos.x.val + deviat - ACTION_RANDOM(devrange);
+                tngpos.y.val = curpos.y.val + deviat - ACTION_RANDOM(devrange);
+                tngpos.z.val = curpos.z.val + deviat - ACTION_RANDOM(devrange);
+                if ((tngpos.x.val < subtile_coord(map_subtiles_x,0)) && (tngpos.y.val < subtile_coord(map_subtiles_y,0)))
+                {
+                    struct Thing *eelemtng;
+                    eelemtng = create_thing(&tngpos, TCls_EffectElem, 9, game.neutral_player_num, -1);
+                    if (!thing_is_invalid(eelemtng)) {
+                        eelemtng->sprite_size = sprsize >> 8;
+                    }
+                }
+            }
+            curpos.x.val += delta_x;
+            curpos.y.val += delta_y;
+            curpos.z.val += delta_z;
+            deviat += 16;
+            sprsize += delta_size;
+        }
+    }
 }
 
 void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long a3, long a4)
