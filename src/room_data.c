@@ -1593,17 +1593,17 @@ void get_room_mass_centre_coords(long *mass_x, long *mass_y, const struct Room *
 
 void update_room_central_tile_position(struct Room *room)
 {
-    struct MapOffset *sstep;
-    struct SlabMap *slb;
     long mass_x,mass_y;
-    long cx,cy;
     long i;
     get_room_mass_centre_coords(&mass_x, &mass_y, room);
-    for (i=0; i < 256; i++)
+    for (i=0; i < 16*16; i++)
     {
+        struct MapOffset *sstep;
+        MapSubtlCoord cx,cy;
         sstep = &spiral_step[i];
         cx = slab_subtile_center(mass_x + sstep->h);
         cy = slab_subtile_center(mass_y + sstep->v);
+        struct SlabMap *slb;
         slb = get_slabmap_for_subtile(cx,cy);
         if (slabmap_block_invalid(slb))
             continue;

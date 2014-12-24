@@ -133,6 +133,9 @@ typedef struct CompoundTngFilterParam * MaxTngFilterParam;
 typedef long (*Thing_State_Func)(struct Thing *);
 /** Definition of a callback type used for updating thing of specific class or model. */
 typedef TngUpdateRet (*Thing_Class_Func)(struct Thing *);
+/** Definition of a callback type which can modify the thing and receives additional parameter. */
+typedef TngUpdateRet (*Thing_Modifier_OneParam)(struct Thing *, FilterParam);
+/** Basic thing filtering type. */
 typedef long (*Thing_Filter)(const struct Thing *, FilterParam);
 /** Definition of a simple callback type which can only return true/false and has no memory of previous checks. */
 typedef TbBool (*Thing_Bool_Filter)(const struct Thing *);
@@ -206,7 +209,9 @@ struct Thing *get_thing_near_revealed_map_block_with_filter(MapCoord x, MapCoord
 struct Thing *get_thing_spiral_near_map_block_with_filter(MapCoord x, MapCoord y, long spiral_len, Thing_Maximizer_Filter filter, MaxTngFilterParam param);
 long count_things_spiral_near_map_block_with_filter(MapCoord x, MapCoord y, long spiral_len, Thing_Maximizer_Filter filter, MaxTngFilterParam param);
 long do_to_things_on_map_block(long thing_idx, Thing_Bool_Modifier do_cb);
+long do_to_things_with_distance_on_map_block(long thing_idx, struct Coord3d *center_pos, Thing_Modifier_OneParam do_cb);
 long do_to_things_spiral_near_map_block(MapCoord x, MapCoord y, long spiral_len, Thing_Bool_Modifier do_cb);
+long do_to_things_with_distance_spiral_near_map_block(struct Coord3d *center_pos, MapCoordDelta max_dist, Thing_Modifier_OneParam do_cb);
 // Final routines to select thing on/near given map position
 struct Thing *get_creature_near_but_not_specdigger(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx);
 struct Thing *get_creature_near_who_is_enemy_of_and_not_specdigger(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx);

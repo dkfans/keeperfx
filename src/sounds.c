@@ -228,7 +228,7 @@ void find_nearest_rooms_for_ambient_sound(void)
     }
     slb_x = subtile_slab(cam->mappos.x.stl.num);
     slb_y = subtile_slab(cam->mappos.y.stl.num);
-    for (i = 0; i < 120; i++)
+    for (i = 0; i < 11*11; i++)
     {
         sstep = &spiral_step[i];
         stl_x = slab_subtile_center(slb_x + sstep->h);
