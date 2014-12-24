@@ -195,7 +195,7 @@ struct EffectElementStats { // sizeof = 79
   long field_45;
   long field_49;
   unsigned char field_4D;
-  unsigned char field_4E;
+  unsigned char affected_by_wind;
 };
 
 struct InitEffect { // sizeof = 39
@@ -213,13 +213,14 @@ struct InitEffect { // sizeof = 39
   unsigned char area_affect_type;
   unsigned char field_11;
   struct InitLight ilght;
-  unsigned char field_26;
+  unsigned char affected_by_wind;
 };
 
 #pragma pack()
 /******************************************************************************/
 struct InitEffect *get_effect_info(ThingModel effmodel);
 struct InitEffect *get_effect_info_for_thing(const struct Thing *thing);
+struct EffectElementStats *get_effect_element_model_stats(ThingModel tngmodel);
 
 TbBool thing_is_effect(const struct Thing *thing);
 struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, PlayerNumber owner);

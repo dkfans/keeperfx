@@ -2324,7 +2324,7 @@ long do_to_things_on_map_block(long thing_idx, Thing_Bool_Modifier do_cb)
     return n;
 }
 
-long do_to_things_with_distance_on_map_block(long thing_idx, struct Coord3d *center_pos, Thing_Modifier_OneParam do_cb)
+long do_to_things_with_param_on_map_block(ThingIndex thing_idx, Thing_Modifier_Func do_cb, ModTngFilterParam param)
 {
     struct Thing *thing;
     unsigned long k;
@@ -2343,9 +2343,7 @@ long do_to_things_with_distance_on_map_block(long thing_idx, struct Coord3d *cen
         }
         i = thing->next_on_mapblk;
         // Begin per-loop code
-        MapCoordDelta dist;
-        dist = get_2d_box_distance(center_pos, &thing->mappos);
-        if (do_cb(thing, dist) != TUFRet_Unchanged)
+        if (do_cb(thing, param) != TUFRet_Unchanged)
             n++;
         // End of per-loop code
         k++;
@@ -2515,7 +2513,7 @@ long do_to_things_spiral_near_map_block(MapCoord x, MapCoord y, long spiral_len,
     return count;
 }
 
-long do_to_things_with_distance_spiral_near_map_block(struct Coord3d *center_pos, MapCoordDelta max_dist, Thing_Modifier_OneParam do_cb)
+long do_to_things_with_param_spiral_near_map_block(const struct Coord3d *center_pos, MapCoordDelta max_dist, Thing_Modifier_Func do_cb, ModTngFilterParam param)
 {
     struct MapOffset *sstep;
     long count;
@@ -2534,13 +2532,14 @@ long do_to_things_with_distance_spiral_near_map_block(struct Coord3d *center_pos
     for (around=0; around < spiral_range*spiral_range; around++)
     {
       sstep = &spiral_step[around];
-      sx = coord_subtile(center_pos->x.val) + (MapSubtlCoord)sstep->h;
-      sy = coord_subtile(center_pos->y.val) + (MapSubtlCoord)sstep->v;
+      sx = coord_subtile(center_pos->x.val) + sstep->h;
+      sy = coord_subtile(center_pos->y.val) + sstep->v;
+      SYNCDBG(18,"Doing on (%d,%d)",(int)sx,(int)sy);
       mapblk = get_map_block_at(sx, sy);
       if (!map_block_invalid(mapblk))
       {
           i = get_mapwho_thing_index(mapblk);
-          count += do_to_things_with_distance_on_map_block(i, center_pos, do_cb);
+          count += do_to_things_with_param_on_map_block(i, do_cb, param);
       }
     }
     return count;

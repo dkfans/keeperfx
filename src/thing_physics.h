@@ -46,6 +46,7 @@ enum DamageTypes {
 
 struct Thing;
 struct Dungeon;
+struct ComponentVector;
 
 #pragma pack()
 /******************************************************************************/
@@ -56,6 +57,7 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
 void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long a3);
 TbBool get_thing_next_position(struct Coord3d *pos, const struct Thing *thing);
 void remove_relevant_forces_from_thing_after_slide(struct Thing *thing, struct Coord3d *pos, long a3);
+void apply_transitive_velocity_to_thing(struct Thing *thing, struct ComponentVector *veloc);
 TbBool positions_equivalent(const struct Coord3d *pos_a, const struct Coord3d *pos_b);
 long creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos);
 void creature_set_speed(struct Thing *thing, long speed);

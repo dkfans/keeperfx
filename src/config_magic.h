@@ -295,7 +295,7 @@ struct ShotStats // sizeof = 101
   unsigned char field_54[4];
   unsigned char field_58[8];
   unsigned char field_60[4];
-  unsigned char field_64;
+  unsigned char affected_by_wind;
 };
 
 struct MagicStats {  // sizeof=0x4C
