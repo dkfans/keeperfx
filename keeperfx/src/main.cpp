@@ -459,9 +459,14 @@ unsigned long lightning_is_close_to_player(struct PlayerInfo *player, struct Coo
     return _DK_lightning_is_close_to_player(player, pos);
 }
 
-void affect_nearby_enemy_creatures_with_wind(struct Thing *thing)
+TngUpdateRet affect_thing_by_wind(struct Thing *thing, FilterParam dist)
 {
-    _DK_affect_nearby_enemy_creatures_with_wind(thing);
+    return TUFRet_Unchanged;
+}
+
+void affect_nearby_enemy_creatures_with_wind(struct Thing *shotng)
+{
+    _DK_affect_nearby_enemy_creatures_with_wind(shotng); return;
 }
 
 void affect_nearby_stuff_with_vortex(struct Thing *thing)
@@ -3394,16 +3399,16 @@ long ceiling_init(unsigned long a1, unsigned long a2)
                 i = 0;
                 while ( 1 )
                 {
-                    struct MapOffset *mpoffs;
-                    mpoffs = &spiral_step[i];
+                    struct MapOffset *sstep;
+                    sstep = &spiral_step[i];
                     MapSubtlCoord cstl_x, cstl_y;
-                    cstl_x = mpoffs->h + stl_x;
-                    cstl_y = mpoffs->v + stl_y;
+                    cstl_x = stl_x + sstep->h;
+                    cstl_y = stl_y + sstep->v;
                     if ((cstl_x >= 0) && (cstl_x <= map_subtiles_x))
                     {
                         if ((cstl_y >= 0) && (cstl_y <= map_subtiles_y))
                         {
-                            filled_h = ceiling_block_is_solid_including_corners_return_height(mpoffs->both + get_subtile_number(stl_x,stl_y), cstl_x, cstl_y);
+                            filled_h = ceiling_block_is_solid_including_corners_return_height(sstep->both + get_subtile_number(stl_x,stl_y), cstl_x, cstl_y);
                             if (filled_h > -1)
                             {
                                 int delta_tmp, delta_max;

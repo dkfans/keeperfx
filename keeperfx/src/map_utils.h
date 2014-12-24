@@ -22,7 +22,8 @@
 #include "bflib_basics.h"
 #include "globals.h"
 
-#define SPIRAL_STEPS_COUNT   2500
+#define SPIRAL_STEPS_RANGE     50
+#define SPIRAL_STEPS_COUNT   (SPIRAL_STEPS_RANGE*SPIRAL_STEPS_RANGE)
 #define AROUND_TILES_COUNT      9
 
 #ifdef __cplusplus
