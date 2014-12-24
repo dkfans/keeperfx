@@ -28,6 +28,7 @@
 #include "thing_list.h"
 #include "creature_control.h"
 #include "config_creature.h"
+#include "engine_camera.h"
 #include "map_data.h"
 #include "map_columns.h"
 #include "map_utils.h"
@@ -574,6 +575,14 @@ void get_floor_and_ceiling_height_under_thing_at(const struct Thing *thing,
         coord_subtile(pos_x_end), coord_subtile(pos_y_end), &floor_height, &ceiling_height);
     *floor_height_cor = (floor_height << 8);
     *ceiling_height_cor = (ceiling_height << 8);
+}
+
+void apply_transitive_velocity_to_thing(struct Thing *thing, struct ComponentVector *veloc)
+{
+    thing->veloc_push_once.x.val += veloc->x;
+    thing->veloc_push_once.y.val += veloc->y;
+    thing->veloc_push_once.z.val += veloc->z;
+    thing->state_flags |= TF1_PushOnce;
 }
 /******************************************************************************/
 #ifdef __cplusplus
