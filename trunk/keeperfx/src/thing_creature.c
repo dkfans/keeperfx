@@ -529,7 +529,7 @@ void set_creature_combat_object_state(struct Thing *creatng, struct Thing *obthi
     cctrl->battle_enemy_idx = obthing->index;
     cctrl->long_9E = obthing->creation_turn;
     cctrl->field_AA = 0;
-    cctrl->combat_flags |= CmbtF_Unknown08;
+    cctrl->combat_flags |= CmbtF_ObjctFight;
     const struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(creatng);
     if ((crstat->attack_preference == AttckT_Ranged)
@@ -559,7 +559,7 @@ void set_creature_combat_door_state(struct Thing *creatng, struct Thing *obthing
     cctrl->battle_enemy_idx = obthing->index;
     cctrl->long_9E = obthing->creation_turn;
     cctrl->field_AA = 0;
-    cctrl->combat_flags |= CmbtF_Unknown10;
+    cctrl->combat_flags |= CmbtF_DoorFight;
     const struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(creatng);
     if ((crstat->attack_preference == AttckT_Ranged)
@@ -1616,7 +1616,7 @@ TngUpdateRet process_creature_state(struct Thing *thing)
             fighting = creature_look_for_enemy_heart_combat(thing);
         }
     }
-    if ((cctrl->combat_flags & CmbtF_Unknown10) == 0)
+    if ((cctrl->combat_flags & CmbtF_DoorFight) == 0)
     {
         if ((cctrl->collided_door_subtile > 0) && ((cctrl->flgfield_1 & CCFlg_NoCompControl) == 0))
         {
