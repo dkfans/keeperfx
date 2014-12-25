@@ -3952,7 +3952,7 @@ void delete_room_slabbed_objects(SlabCodedCoords slb_num)
                 {
                     struct ObjectConfigStats *objst;
                     objst = get_object_model_stats(thing->model);
-                    if ((objst->model_flags & OMF_DestroyedOnRoomClaim) != 0) {
+                    if ((objst->model_flags & OMF_DestroyedOnRoomPlace) != 0) {
                         destroy_object(thing);
                     }
                 }
