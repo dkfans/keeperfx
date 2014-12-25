@@ -693,7 +693,7 @@ TbBool battle_any_of_things_in_specific_battle(const struct CreatureBattle *batt
         }
         i = cctrl->battle_prev_creatr;
         // Per battle creature code
-        if (cctrl->combat_flags)
+        if (cctrl->combat_flags != 0)
         {
             attcktng = thing_get(cctrl->battle_enemy_idx);
             TRACE_THING(attcktng);
@@ -1067,7 +1067,7 @@ long add_ranged_attacker(struct Thing *fighter, struct Thing *enemy)
     TRACE_THING(fighter);
     TRACE_THING(enemy);
     figctrl = creature_control_get_from_thing(fighter);
-    if (figctrl->combat_flags)
+    if (figctrl->combat_flags != 0)
     {
         if ((figctrl->combat_flags & CmbtF_Ranged) != 0) {
             SYNCDBG(8,"The %s in ranged combat already - no action",thing_model_name(fighter));
@@ -1109,7 +1109,7 @@ long add_melee_attacker(struct Thing *fighter, struct Thing *enemy)
     TRACE_THING(fighter);
     TRACE_THING(enemy);
     figctrl = creature_control_get_from_thing(fighter);
-    if (figctrl->combat_flags)
+    if (figctrl->combat_flags != 0)
     {
         if ((figctrl->combat_flags & CmbtF_Melee) != 0) {
             SYNCDBG(8,"The %s in melee combat already - no action",thing_model_name(fighter));
@@ -1339,7 +1339,7 @@ short cleanup_door_combat(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
-    cctrl->combat_flags &= ~CmbtF_Unknown10;
+    cctrl->combat_flags &= ~CmbtF_DoorFight;
     cctrl->battle_enemy_idx = 0;
     return 1;
 
@@ -1349,7 +1349,7 @@ short cleanup_object_combat(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
-    cctrl->combat_flags &= ~CmbtF_Unknown08;
+    cctrl->combat_flags &= ~CmbtF_ObjctFight;
     cctrl->battle_enemy_idx = 0;
     return 1;
 }
@@ -1470,9 +1470,9 @@ short creature_door_combat(struct Thing *creatng)
     cctrl = creature_control_get_from_thing(creatng);
     struct Thing *doortng;
     doortng = thing_get(cctrl->battle_enemy_idx);
-    if ((cctrl->combat_flags & 0x10) == 0)
+    if ((cctrl->combat_flags & CmbtF_DoorFight) == 0)
     {
-        ERRORLOG("Not in door combat but should be");
+        ERRORLOG("The %s index %d is not in door combat but should be", thing_model_name(creatng), (int)creatng->index);
         set_start_state(creatng);
         return 0;
     }
@@ -1950,7 +1950,7 @@ long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, 
     if (thing_in_field_of_view(thing, enmtng)
       && creature_has_ranged_weapon(thing))
     {
-        if ((cctrl->combat_flags & (0x10|0x08)) == 0)
+        if ((cctrl->combat_flags & (CmbtF_DoorFight|CmbtF_ObjctFight)) == 0)
         {
             if (combat_has_line_of_sight(thing, enmtng, enmdist) != AttckT_Unset)
             {
@@ -2517,7 +2517,7 @@ void combat_door_state_ranged_combat(struct Thing *creatng)
     {
         WARNLOG("The %s index %d has no ranged instance in fight", thing_model_name(creatng), (int)creatng->index);
     }
-    if (ranged_combat_move(creatng, objtng, dist, CrSt_CreatureObjectCombat))
+    if (ranged_combat_move(creatng, objtng, dist, CrSt_CreatureDoorCombat))
     {
         if (inst_id > CrInst_NULL) {
             set_creature_instance(creatng, inst_id, 0, objtng->index, 0);
@@ -2531,9 +2531,9 @@ short creature_object_combat(struct Thing *creatng)
     cctrl = creature_control_get_from_thing(creatng);
     struct Thing *objctng;
     objctng = thing_get(cctrl->battle_enemy_idx);
-    if ((cctrl->combat_flags & 0x08) == 0)
+    if ((cctrl->combat_flags & CmbtF_ObjctFight) == 0)
     {
-        ERRORLOG("Not in object combat but should be");
+        ERRORLOG("The %s index %d is not in object combat but should be", thing_model_name(creatng), (int)creatng->index);
         set_start_state(creatng);
         return 0;
     }
@@ -2698,7 +2698,7 @@ long creature_retreat_from_combat(struct Thing *figtng, struct Thing *enmtng, Cr
     dist_x = enmtng->mappos.x.val - (MapCoordDelta)figtng->mappos.x.val;
     dist_y = enmtng->mappos.y.val - (MapCoordDelta)figtng->mappos.y.val;
 
-    if (a4 && ((figctrl->combat_flags & (CmbtF_Unknown08|CmbtF_Unknown10)) == 0))
+    if (a4 && ((figctrl->combat_flags & (CmbtF_ObjctFight|CmbtF_DoorFight)) == 0))
     {
         pos.x.val = figtng->mappos.x.val - dist_x;
         pos.y.val = figtng->mappos.y.val - dist_y;

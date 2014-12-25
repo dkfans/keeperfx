@@ -670,7 +670,7 @@ long check_hit_when_attacking_door(struct Thing *thing)
     }
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
-    if ((cctrl->combat_flags & CmbtF_Unknown10) != 0)
+    if ((cctrl->combat_flags & CmbtF_DoorFight) != 0)
     {
         CrtrStateId crstate;
         crstate = get_creature_state_besides_move(thing);
