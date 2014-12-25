@@ -272,7 +272,7 @@ void set_creature_in_combat(struct Thing *fightng, struct Thing *enmtng, long co
         ERRORLOG("Invalid creature control");
         return;
     }
-    if ( (cctrl->combat_flags != 0) && ((cctrl->combat_flags & (CmbtF_Unknown08|CmbtF_Unknown10)) == 0) )
+    if ( (cctrl->combat_flags != 0) && ((cctrl->combat_flags & (CmbtF_ObjctFight|CmbtF_DoorFight)) == 0) )
     {
         CrtrStateId crstate = get_creature_state_besides_move(fightng);
         ERRORLOG("Creature in combat already - state %s", creature_state_code_name(crstate));
