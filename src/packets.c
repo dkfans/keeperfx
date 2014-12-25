@@ -298,8 +298,8 @@ struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind)
     player = get_player(plyr_idx);
     dungeon = get_players_dungeon(player);
     rstat = room_stats_get_for_kind(rkind);
-    x = ((player->field_4A4+1) / 2) + 3*subtile_slab_fast(stl_x);
-    y = ((player->field_4A4+1) / 2) + 3*subtile_slab_fast(stl_y);
+    x = ((player->field_4A4+1) / 2) + slab_subtile(subtile_slab_fast(stl_x),0);
+    y = ((player->field_4A4+1) / 2) + slab_subtile(subtile_slab_fast(stl_y),0);
     room = player_build_room_at(x, y, plyr_idx, rkind);
     if (!room_is_invalid(room))
     {

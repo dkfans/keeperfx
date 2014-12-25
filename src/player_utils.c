@@ -964,11 +964,11 @@ TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
 {
     struct Dungeon *dungeon;
     struct Thing *thing;
-    MapSubtlCoord x,y;
+    MapSubtlCoord cstl_x,cstl_y;
     long i;
-    x = stl_slab_center_subtile(stl_x);
-    y = stl_slab_center_subtile(stl_y);
-    thing = get_door_for_position(x, y);
+    cstl_x = stl_slab_center_subtile(stl_x);
+    cstl_y = stl_slab_center_subtile(stl_y);
+    thing = get_door_for_position(cstl_x, cstl_y);
     if (thing_is_invalid(thing))
     {
         return false;
