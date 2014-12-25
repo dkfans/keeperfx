@@ -1126,7 +1126,45 @@ short imp_picks_up_gold_pile(struct Thing *spdigtng)
 short imp_reinforces(struct Thing *thing)
 {
     TRACE_THING(thing);
-    return _DK_imp_reinforces(thing);
+    //return _DK_imp_reinforces(thing);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    MapSubtlCoord stl_x,stl_y;
+    stl_x = stl_num_decode_x(cctrl->digger.working_stl);
+    stl_y = stl_num_decode_y(cctrl->digger.working_stl);
+    struct Coord3d pos;
+    pos.x.val = subtile_coord_center(stl_x);
+    pos.y.val = subtile_coord_center(stl_y);
+    pos.z.val = subtile_coord(1,0);
+    MapSubtlDelta dist_x, dist_y;
+    dist_x = abs(thing->mappos.x.stl.num - (MapSubtlDelta)cctrl->moveto_pos.x.stl.num);
+    dist_y = abs(thing->mappos.y.stl.num - (MapSubtlDelta)cctrl->moveto_pos.y.stl.num);
+    if (dist_x + dist_y >= 1)
+    {
+        clear_creature_instance(thing);
+        internal_set_thing_state(thing, CrSt_ImpLastDidJob);
+        return 0;
+    }
+    long check_ret;
+    check_ret = check_place_to_reinforce(thing, subtile_slab(stl_x), subtile_slab(stl_y));
+    if (check_ret <= 0)
+    {
+        if (check_ret < 0)
+        {
+            cctrl->digger.last_did_job = 1;
+            cctrl->digger.word_8F = get_subtile_number_at_slab_center(subtile_slab(stl_x), subtile_slab(stl_y));
+        }
+        clear_creature_instance(thing);
+        internal_set_thing_state(thing, CrSt_ImpLastDidJob);
+        return 0;
+    }
+    if (creature_turn_to_face(thing, &pos)) {
+        return 1;
+    }
+    if (cctrl->instance_id == CrInst_NULL) {
+        set_creature_instance(thing, CrInst_REINFORCE, 0, 0, 0);
+    }
+    return 1;
 }
 
 short creature_going_to_safety_for_toking(struct Thing *thing)
