@@ -52,6 +52,7 @@ const struct NamedCommand objects_properties_commands[] = {
   {"EXISTS_ONLY_IN_ROOM",     1},
   {"DESTROYED_ON_ROOM_CLAIM", 2},
   {"CHOWNED_ON_ROOM_CLAIM",   3},
+  {"DESTROYED_ON_ROOM_PLACE", 4},
   {NULL,                      0},
   };
 
@@ -304,6 +305,10 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                       break;
                   case 3: // CHOWNED_ON_ROOM_CLAIM
                       objst->model_flags |= OMF_ChOwnedOnRoomClaim;
+                      n++;
+                      break;
+                  case 4: // DESTROYED_ON_ROOM_PLACE
+                      objst->model_flags |= OMF_DestroyedOnRoomPlace;
                       n++;
                       break;
                   default:

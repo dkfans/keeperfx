@@ -51,6 +51,7 @@ enum ObjectModelFlags {
     OMF_ExistsOnlyInRoom     = 0x0001, // Some objects, ie. gold hoards, are strictly bound to room
     OMF_DestroyedOnRoomClaim = 0x0002, // Some objects should be destroyed if they're in a room which is changing owner
     OMF_ChOwnedOnRoomClaim   = 0x0004, // Most objects should change their owner with the room
+    OMF_DestroyedOnRoomPlace = 0x0008, // Some objects should be destroyed when a new room/trap/door is placed on a slab
 };
 
 /******************************************************************************/
