@@ -236,16 +236,22 @@ TbBool slab_kind_is_animated(SlabKind slbkind)
 TbBool can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind,
     MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
+    if (!subtile_revealed(slab_subtile_center(slb_x), slab_subtile_center(slb_y), plyr_idx)) {
+        SYNCDBG(7,"Cannot place %s owner %d as slab (%d,%d) is not revealed",room_code_name(rkind),(int)plyr_idx,(int)slb_x,(int)slb_y);
+        return false;
+    }
     struct SlabMap *slb;
     slb = get_slabmap_block(slb_x, slb_y);
     if (slb->room_index > 0) {
+        SYNCDBG(7,"Cannot place %s owner %d as slab (%d,%d) has room index %d",room_code_name(rkind),(int)plyr_idx,(int)slb_x,(int)slb_y,(int)slb->room_index);
         return false;
     }
-    if (slab_has_trap_on(slb_x, slb_y)) {
+    if (slab_has_trap_on(slb_x, slb_y) || slab_has_door_thing_on(slb_x, slb_y)) {
+        SYNCDBG(7,"Cannot place %s owner %d as slab (%d,%d) has blocking thing on it",room_code_name(rkind),(int)plyr_idx,(int)slb_x,(int)slb_y);
         return false;
     }
     if (rkind == RoK_BRIDGE) {
-        return slab_kind_is_liquid(slb->kind);
+        return slab_kind_is_liquid(slb->kind) && slab_by_players_land(plyr_idx, slb_x, slb_y);
     }
     if (slabmap_owner(slb) != plyr_idx) {
         return false;

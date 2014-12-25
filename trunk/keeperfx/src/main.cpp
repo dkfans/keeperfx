@@ -3416,8 +3416,6 @@ TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     slbattr = get_slab_attrs(slb);
     struct PlayerInfo *player;
     player = get_player(plyr_idx);
-    TbBool allowed;
-    allowed = false;
     int par1;
     if (!subtile_revealed(stl_x, stl_y, plyr_idx) ||
        ((slbattr->flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0))
@@ -3427,24 +3425,16 @@ TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     if (slab_kind_is_liquid(slb->kind))
     {
         par1 = 0;
-        if ((player->work_state == PSt_BuildRoom) && (player->chosen_room_kind == RoK_BRIDGE) && slab_by_players_land(plyr_idx, slb_x, slb_y)) {
-            allowed = true;
-        }
     } else
     {
         par1 = 1;
-        if ((slabmap_owner(slb) == plyr_idx) && (slb->kind == SlbT_CLAIMED) && (player->chosen_room_kind != RoK_BRIDGE))
-        {
-            struct Thing *thing;
-            thing = get_trap_for_slab_position(slb_x, slb_y);
-            if (thing_is_invalid(thing)) {
-                thing = get_door_for_position(slb_x, slb_y);
-            }
-            if (thing_is_invalid(thing)) {
-                allowed = true;
-            }
-
-        }
+    }
+    TbBool allowed;
+    allowed = false;
+    if (can_build_room_at_slab(plyr_idx, player->chosen_room_kind, slb_x, slb_y)) {
+        allowed = true;
+    } else {
+        SYNCDBG(7,"Cannot build %s on slab (%d,%d)",slab_code_name(slb->kind),room_code_name(player->chosen_room_kind),(int)slb_x,(int)slb_y);
     }
     if (is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && (game.small_map_state != 2))
     {
