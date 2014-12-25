@@ -3394,6 +3394,13 @@ struct Thing *get_door_for_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     return get_thing_on_map_block_with_filter(i, filter, &param, &n);
 }
 
+TbBool slab_has_door_thing_on(MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    struct Thing *doortng;
+    doortng = get_door_for_position(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+    return !thing_is_invalid(doortng);
+}
+
 struct Thing *get_creature_of_model_training_at_subtile_and_owned_by(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long model_id, PlayerNumber plyr_idx, long skip_thing_id)
 {
     Thing_Maximizer_Filter filter;
