@@ -2538,9 +2538,56 @@ TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
     return false;
 }
 
-void process_creature_standing_on_corpses_at(struct Thing *thing, struct Coord3d *pos)
+void process_creature_standing_on_corpses_at(struct Thing *creatng, struct Coord3d *pos)
 {
-  _DK_process_creature_standing_on_corpses_at(thing, pos);
+    //_DK_process_creature_standing_on_corpses_at(thing, pos);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    struct Map *mapblk;
+    mapblk = get_map_block_at(pos->x.stl.num,pos->y.stl.num);
+    long i;
+    unsigned long k;
+    k = 0;
+    i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
+    {
+        struct Thing *thing;
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_on_mapblk;
+        // Per thing code start
+        if (thing->class_id == TCls_DeadCreature)
+        {
+            if (!is_hero_thing(creatng))
+            {
+                int annoy_val;
+                struct CreatureStats *crstat;
+                crstat = creature_stats_get_from_thing(creatng);
+                if (thing->owner == creatng->owner) {
+                    annoy_val = crstat->annoy_on_dead_friend;
+                } else {
+                    annoy_val = crstat->annoy_on_dead_enemy;
+                }
+                anger_apply_anger_to_creature(creatng, annoy_val, AngR_Other, 1);
+            }
+            cctrl->bloody_footsteps_turns = 20;
+            cctrl->field_B9 = thing->index;
+            // Stop after one body was found
+            break;
+        }
+        // Per thing code end
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
 }
 
 /**
