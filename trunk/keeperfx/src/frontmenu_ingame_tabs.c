@@ -58,6 +58,8 @@
 #include "vidfade.h"
 
 /******************************************************************************/
+DLLIMPORT void _DK_go_to_my_next_room_of_type(unsigned long rkind);
+/******************************************************************************/
 void gui_zoom_in(struct GuiButton *gbtn)
 {
     struct PlayerInfo *player;
@@ -1283,7 +1285,7 @@ RoomIndex find_my_next_room_of_type(RoomKind rkind)
     return next_room[rkind];
 }
 
-void go_to_my_next_room_of_type_and_select(unsigned long rkind)
+void go_to_my_next_room_of_type_and_select(RoomKind rkind)
 {
     RoomIndex room_idx;
     room_idx = find_my_next_room_of_type(rkind);
@@ -1291,6 +1293,20 @@ void go_to_my_next_room_of_type_and_select(unsigned long rkind)
     player = get_my_player();
     if (room_idx > 0) {
         set_players_packet_action(player, PckA_ZoomToRoom, room_idx, 0, 0, 0);
+    }
+}
+
+void go_to_my_next_room_of_type(RoomKind rkind)
+{
+    //_DK_go_to_my_next_room_of_type(rkind); return;
+    RoomIndex room_idx;
+    room_idx = find_my_next_room_of_type(rkind);
+    struct PlayerInfo *player;
+    player = get_my_player();
+    if (room_idx > 0) {
+        struct Room *room;
+        room = room_get(room_idx);
+        set_players_packet_action(player, PckA_Unknown087, subtile_coord_center(room->central_stl_x), subtile_coord_center(room->central_stl_y), 0, 0);
     }
 }
 
