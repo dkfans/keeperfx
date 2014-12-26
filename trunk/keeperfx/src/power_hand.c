@@ -46,6 +46,7 @@
 #include "config_creature.h"
 #include "config_effects.h"
 #include "player_instances.h"
+#include "player_states.h"
 #include "kjm_input.h"
 #include "front_input.h"
 #include "frontend.h"

@@ -22,6 +22,7 @@
 #include "bflib_basics.h"
 #include "bflib_memory.h"
 #include "player_instances.h"
+#include "player_states.h"
 #include "game_legacy.h"
 #include "engine_redraw.h"
 #include "frontend.h"
