@@ -1364,7 +1364,7 @@ void remove_power_from_player(PowerKind pwkind, PlayerNumber plyr_idx)
     switch (pwkind)
     {
     case PwrK_OBEY:
-        if (dungeon->must_obey_turn != 0)
+        if (player_uses_must_obey(plyr_idx))
             dungeon->must_obey_turn = 0;
         break;
     case PwrK_SIGHT:
