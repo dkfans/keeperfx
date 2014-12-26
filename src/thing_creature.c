@@ -1848,7 +1848,16 @@ unsigned int get_creature_blocked_flags_at(struct Thing *thing, struct Coord3d *
 
 void update_tunneller_trail(struct Thing *thing)
 {
-    _DK_update_tunneller_trail(thing); return;
+    //_DK_update_tunneller_trail(thing); return;
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    // Shift all elements freeing first item
+    int i;
+    for (i = 4; i > 0; i--) {
+        cctrl->party.member_pos_stl[i] = cctrl->party.member_pos_stl[i-1];
+    }
+    // Fill the first item
+    cctrl->party.member_pos_stl[0] = get_subtile_number(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
 }
 
 long move_creature(struct Thing *thing)
