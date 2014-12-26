@@ -770,17 +770,17 @@ TbResult magic_use_power_armageddon(PlayerNumber plyr_idx, unsigned long mod_fla
     return Lb_SUCCESS;
 }
 
+/**
+ * Starts and stops the use of Must bey.
+ * What differs this power from others is that it is a toggle - pressing once
+ * starts the power, and second press disables it.
+ * The spell is paid for somewhere else - it takes money every few turns when active.
+ * @param plyr_idx
+ * @param mod_flags
+ * @return
+ */
 TbResult magic_use_power_obey(PlayerNumber plyr_idx, unsigned long mod_flags)
 {
-    if ((mod_flags & PwMod_CastForFree) == 0)
-    {
-        // If we can't afford the spell, fail
-        if (!pay_for_spell(plyr_idx, PwrK_OBEY, 0)) {
-            if (is_my_player_number(plyr_idx))
-                output_message(SMsg_GoldNotEnough, 0, true);
-            return Lb_OK;
-        }
-    }
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
     if (dungeon->must_obey_turn != 0) {
@@ -1698,7 +1698,9 @@ void process_dungeon_power_magic(void)
                 magstat = &game.keeper_power_stats[PwrK_OBEY];
                 if ((delta % magstat->time) == 0)
                 {
-                    magic_use_power_obey(i, PwMod_Default);
+                    if (!pay_for_spell(i, PwrK_OBEY, 0)) {
+                        magic_use_power_obey(i, PwMod_Default);
+                    }
                 }
             }
             if (game.armageddon_cast_turn > 0)
