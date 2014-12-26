@@ -509,6 +509,13 @@ TbBool player_uses_power_sight(PlayerNumber plyr_idx)
     return (dungeon->sight_casted_thing_idx > 0);
 }
 
+TbBool player_uses_must_obey(PlayerNumber plyr_idx)
+{
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    return (dungeon->must_obey_turn != 0);
+}
+
 void update_horizonal_explored_flags_for_power_sight(struct PlayerInfo *player, struct Coord3d *soe_pos)
 {
     struct Dungeon *dungeon;

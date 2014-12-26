@@ -556,7 +556,7 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing)
         dungeon = get_dungeon(thing->owner);
         if (dungeon->tortured_creatures[thing->model] > 0)
             speed = 5 * speed / 4;
-        if (dungeon->must_obey_turn != 0)
+        if (player_uses_must_obey(thing->owner))
             speed = 5 * speed / 4;
     }
     return speed;

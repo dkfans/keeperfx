@@ -2865,7 +2865,6 @@ long creature_instance_has_reset(const struct Thing *thing, long inst_idx)
 void get_creature_instance_times(const struct Thing *thing, long inst_idx, long *ritime, long *raitime)
 {
     struct InstanceInfo *inst_inf;
-    struct Dungeon *dungeon;
     long itime,aitime;
     inst_inf = creature_instance_info_get(inst_idx);
     if ((thing->alloc_flags & TAlF_IsControlled) != 0)
@@ -2894,8 +2893,7 @@ void get_creature_instance_times(const struct Thing *thing, long inst_idx, long 
     } else
     if (!is_neutral_thing(thing))
     {
-        dungeon = get_dungeon(thing->owner);
-        if (dungeon->must_obey_turn != 0)
+        if (player_uses_must_obey(thing->owner))
         {
             aitime -= aitime / 4;
             itime -= itime / 4;

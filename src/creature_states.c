@@ -3497,13 +3497,11 @@ short patrolling(struct Thing *creatng)
 short person_sulk_at_lair(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
-    struct Dungeon *dungeon;
     struct Thing *lairtng;
     TRACE_THING(creatng);
     cctrl = creature_control_get_from_thing(creatng);
-    dungeon = get_players_num_dungeon(creatng->owner);
     lairtng = thing_get(cctrl->lairtng_idx);
-    if (creature_affected_by_slap(creatng) || (dungeon->must_obey_turn != 0) || !thing_exists(lairtng)) {
+    if (creature_affected_by_slap(creatng) || player_uses_must_obey(creatng->owner) || !thing_exists(lairtng)) {
         set_start_state(creatng);
         return 0;
     }
@@ -3556,10 +3554,8 @@ short person_sulk_head_for_lair(struct Thing *creatng)
     }
     // For some reason we can't go to lair; either leave dungeon o reset.
     struct CreatureStats *crstat;
-    struct Dungeon *dungeon;
     crstat = creature_stats_get_from_thing(creatng);
-    dungeon = get_players_num_dungeon(creatng->owner);
-    if ((crstat->lair_size <= 0) || creature_affected_by_slap(creatng) || (dungeon->must_obey_turn != 0)) {
+    if ((crstat->lair_size <= 0) || creature_affected_by_slap(creatng) || player_uses_must_obey(creatng->owner)) {
         set_start_state(creatng);
         return 0;
     }
@@ -3570,13 +3566,11 @@ short person_sulk_head_for_lair(struct Thing *creatng)
 short person_sulking(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
-    struct Dungeon *dungeon;
     struct Thing *lairtng;
     TRACE_THING(creatng);
     cctrl = creature_control_get_from_thing(creatng);
-    dungeon = get_players_num_dungeon(creatng->owner);
     lairtng = thing_get(cctrl->lairtng_idx);
-    if (creature_affected_by_slap(creatng) || (dungeon->must_obey_turn != 0) || !thing_exists(lairtng)) {
+    if (creature_affected_by_slap(creatng) || player_uses_must_obey(creatng->owner) || !thing_exists(lairtng)) {
         set_start_state(creatng);
         return 0;
     }
