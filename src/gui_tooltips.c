@@ -37,6 +37,7 @@
 #include "config_trapdoor.h"
 #include "room_workshop.h"
 #include "player_instances.h"
+#include "player_states.h"
 #include "config_settings.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
@@ -124,10 +125,10 @@ TbBool setup_trap_tooltips(struct Coord3d *pos)
     //thing = get_trap_for_slab_position(subtile_slab_fast(pos->x.stl.num),subtile_slab_fast(pos->y.stl.num));
     if (thing_is_invalid(thing)) return false;
     player = get_my_player();
-    if ( (thing->byte_18 == 0) && (player->id_number != thing->owner) )
+    if ((thing->byte_18 == 0) && (player->id_number != thing->owner))
         return false;
     update_gui_tooltip_target(thing);
-    if ( (help_tip_time > 20) || (player->work_state == PSt_Unknown12) )
+    if ((help_tip_time > 20) || (player->work_state == PSt_Unknown12))
     {
         trapst = get_trap_model_stats(thing->model);
         set_gui_tooltip_box_fmt(4,"%s",get_string(trapst->name_stridx));

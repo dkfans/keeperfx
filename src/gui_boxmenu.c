@@ -30,6 +30,7 @@
 #include "creature_instances.h"
 #include "player_data.h"
 #include "player_instances.h"
+#include "player_states.h"
 #include "player_utils.h"
 #include "kjm_input.h"
 #include "packets.h"
@@ -64,20 +65,20 @@ long gfa_controlled_creature_has_instance(struct GuiBox *gbox, struct GuiBoxOpti
 long gf_decide_victory(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
 
 struct GuiBoxOption gui_main_cheat_list[] = { //gui_main_option_list in beta
-  {"Null mode",                1,           NULL,      gf_change_player_state, 0, 0, 0,        PSt_None, 0, 0, 0, 0},
-  {"Place tunneler mode",      1,           NULL,      gf_change_player_state, 0, 0, 0,PSt_MkGoodWorker, 0, 0, 0, 0},
-  {"Place creature mode",      1,           NULL,      gf_change_player_state, 0, 0, 0, PSt_MkBadCreatr, 0, 0, 0, 0},
-  {"Place hero mode",          1,           NULL,      gf_change_player_state, 0, 0, 0,PSt_MkGoodCreatr, 0, 0, 0, 0},
-  {"Destroy walls mode",       1,           NULL,      gf_change_player_state, 0, 0, 0,PSt_DestroyWalls, 0, 0, 0, 0},
-  {"Disease mode",             1,           NULL,      gf_change_player_state, 0, 0, 0, PSt_CastDisease, 0, 0, 0, 0},
-  {"Peter mode",               1,           NULL,      gf_change_player_state, 0, 0, 0, PSt_TurnChicken, 0, 0, 0, 0},
-  {"Create gold mode",         1,           NULL,      gf_change_player_state, 0, 0, 0,   PSt_MkGoldPot, 0, 0, 0, 0},
-  {"",                         2,           NULL,                        NULL, 0, 0, 0,        PSt_None, 0, 0, 0, 0},
-  {"Passenger control mode",   1,           NULL,      gf_change_player_state, 0, 0, 0, PSt_CtrlPassngr, 0, 0, 0, 0},
-  {"Direct control mode",      1,           NULL,      gf_change_player_state, 0, 0, 0,  PSt_CtrlDirect, 0, 0, 0, 0},
-  {"Order creature mode",      1,           NULL,      gf_change_player_state, 0, 0, 0, PSt_OrderCreatr, 0, 0, 0, 0},
-  {"",                         2,           NULL,                        NULL, 0, 0, 0,        PSt_None, 0, 0, 0, 0},
-  {"!",                        0,           NULL,                        NULL, 0, 0, 0,        PSt_None, 0, 0, 0, 0},
+  {"Null mode",                1,           NULL,      gf_change_player_state, 0, 0, 0,            PSt_None, 0, 0, 0, 0},
+  {"Place tunneler mode",      1,           NULL,      gf_change_player_state, 0, 0, 0,    PSt_MkGoodWorker, 0, 0, 0, 0},
+  {"Place creature mode",      1,           NULL,      gf_change_player_state, 0, 0, 0,     PSt_MkBadCreatr, 0, 0, 0, 0},
+  {"Place hero mode",          1,           NULL,      gf_change_player_state, 0, 0, 0,    PSt_MkGoodCreatr, 0, 0, 0, 0},
+  {"Destroy walls mode",       1,           NULL,      gf_change_player_state, 0, 0, 0,PSt_FreeDestroyWalls, 0, 0, 0, 0},
+  {"Disease mode",             1,           NULL,      gf_change_player_state, 0, 0, 0, PSt_FreeCastDisease, 0, 0, 0, 0},
+  {"Peter mode",               1,           NULL,      gf_change_player_state, 0, 0, 0, PSt_FreeTurnChicken, 0, 0, 0, 0},
+  {"Create gold mode",         1,           NULL,      gf_change_player_state, 0, 0, 0,       PSt_MkGoldPot, 0, 0, 0, 0},
+  {"",                         2,           NULL,                        NULL, 0, 0, 0,            PSt_None, 0, 0, 0, 0},
+  {"Passenger control mode",   1,           NULL,      gf_change_player_state, 0, 0, 0,     PSt_CtrlPassngr, 0, 0, 0, 0},
+  {"Direct control mode",      1,           NULL,      gf_change_player_state, 0, 0, 0,      PSt_CtrlDirect, 0, 0, 0, 0},
+  {"Order creature mode",      1,           NULL,      gf_change_player_state, 0, 0, 0,     PSt_OrderCreatr, 0, 0, 0, 0},
+  {"",                         2,           NULL,                        NULL, 0, 0, 0,            PSt_None, 0, 0, 0, 0},
+  {"!",                        0,           NULL,                        NULL, 0, 0, 0,            PSt_None, 0, 0, 0, 0},
 };
 
 struct GuiBoxOption gui_creature_cheat_option_list[] = {

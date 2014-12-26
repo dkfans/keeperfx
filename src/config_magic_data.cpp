@@ -22,6 +22,7 @@
 #include "bflib_basics.h"
 #include "power_process.h"
 #include "player_instances.h"
+#include "player_states.h"
 #include "packets.h"
 
 #ifdef __cplusplus
