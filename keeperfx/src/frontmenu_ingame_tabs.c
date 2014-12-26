@@ -48,6 +48,7 @@
 #include "packets.h"
 #include "magic.h"
 #include "player_instances.h"
+#include "player_states.h"
 #include "frontmenu_ingame_evnt.h"
 #include "frontmenu_ingame_opts.h"
 #include "frontmenu_ingame_map.h"

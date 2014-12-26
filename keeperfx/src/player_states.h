@@ -26,11 +26,48 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define PLAYER_STATES_COUNT    32
+#define PLAYER_STATES_COUNT    PSt_ListEnd
 /******************************************************************************/
 #pragma pack(1)
 
 struct PlayerInfo;
+
+enum PlayerStates {
+    PSt_None = 0,
+    PSt_CtrlDungeon,
+    PSt_BuildRoom,
+    PSt_MkGoodWorker,
+    PSt_MkGoodCreatr,
+    PSt_Unknown5, // 5
+    PSt_CallToArms,
+    PSt_CaveIn,
+    PSt_SightOfEvil,
+    PSt_Slap,
+    PSt_CtrlPassngr, // 10
+    PSt_CtrlDirect,
+    PSt_Unknown12,
+    PSt_OrderCreatr,
+    PSt_MkBadCreatr,
+    PSt_CreatrInfo, // 15
+    PSt_PlaceTrap,
+    PSt_Lightning,
+    PSt_PlaceDoor,
+    PSt_SpeedUp,
+    PSt_Armour, // 20
+    PSt_Conceal,
+    PSt_Heal,
+    PSt_Sell,
+    PSt_CreateDigger,
+    PSt_DestroyWalls,
+    PSt_CastDisease,
+    PSt_TurnChicken,
+    PSt_MkGoldPot, // 28
+    PSt_TimeBomb,
+    PSt_FreeDestroyWalls,
+    PSt_FreeCastDisease,
+    PSt_FreeTurnChicken,
+    PSt_ListEnd
+};
 
 #pragma pack()
 /******************************************************************************/

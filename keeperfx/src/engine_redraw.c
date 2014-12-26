@@ -900,6 +900,9 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
     case PSt_DestroyWalls:
     case PSt_CastDisease:
     case PSt_TurnChicken:
+    case PSt_FreeDestroyWalls:
+    case PSt_FreeCastDisease:
+    case PSt_FreeTurnChicken:
         draw_spell_cursor(player->work_state, 0, game.pos_14C006.x.stl.num, game.pos_14C006.y.stl.num);
         break;
     case PSt_Unknown12:

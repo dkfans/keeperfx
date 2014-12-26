@@ -28,6 +28,7 @@
 #include "config_strings.h"
 #include "thing_doors.h"
 #include "player_instances.h"
+#include "player_states.h"
 #include "game_legacy.h"
 
 #ifdef __cplusplus
