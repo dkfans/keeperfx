@@ -164,7 +164,6 @@ DLLIMPORT void _DK_setup_3d(void);
 DLLIMPORT void _DK_setup_stuff(void);
 DLLIMPORT void _DK_init_keeper(void);
 DLLIMPORT void _DK_check_map_for_gold(void);
-DLLIMPORT void _DK_go_to_my_next_room_of_type(unsigned long rkind);
 DLLIMPORT void _DK_instant_instance_selected(long a1);
 DLLIMPORT void _DK_initialise_map_collides(void);
 DLLIMPORT void _DK_initialise_map_health(void);
@@ -720,9 +719,116 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long
     }
 }
 
-void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long a3, long a4)
+void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long eeinterspace, long eemodel)
 {
-  _DK_draw_lightning(pos1, pos2, a3, a4);
+    //_DK_draw_lightning(pos1, pos2, a3, a4);
+    MapCoordDelta dist_x, dist_y, dist_z;
+    dist_x = pos2->x.val - (MapCoordDelta)pos1->x.val;
+    dist_y = pos2->y.val - (MapCoordDelta)pos1->y.val;
+    dist_z = pos2->z.val - (MapCoordDelta)pos1->z.val;
+    int delta_x, delta_y, delta_z;
+    if (dist_x >= 0) {
+        delta_x = eeinterspace;
+    } else {
+        dist_x = -dist_x;
+        delta_x = -eeinterspace;
+    }
+    if (dist_y >= 0) {
+        delta_y = eeinterspace;
+    } else {
+        dist_y = -dist_y;
+        delta_y = -eeinterspace;
+    }
+    if (dist_z >= 0) {
+        delta_z = eeinterspace;
+    } else {
+        dist_z = -dist_z;
+        delta_z = -eeinterspace;
+    }
+    if ((dist_x != 0) || (dist_y != 0) || (dist_z != 0))
+    {
+        int nsteps;
+        if ((dist_z >= dist_x) && (dist_z >= dist_y))
+        {
+            nsteps = dist_z / eeinterspace;
+            delta_y = delta_y * dist_y / dist_z;
+            delta_x = dist_x * delta_x / dist_z;
+        } else
+        if ((dist_x >= dist_y) && (dist_x >= dist_z))
+        {
+            nsteps = dist_x / eeinterspace;
+            delta_y = delta_y * dist_y / dist_x;
+            delta_z = delta_z * dist_z / dist_x;
+        } else
+        {
+            nsteps = dist_y / eeinterspace;
+            delta_x = dist_x * delta_x / dist_y;
+            delta_z = delta_z * dist_z / dist_y;
+        }
+        int deviat_x, deviat_y, deviat_z;
+        deviat_x = 0;
+        deviat_y = 0;
+        deviat_z = 0;
+        struct Coord3d curpos;
+        curpos.x.val = pos1->x.val + ACTION_RANDOM(eeinterspace/4);
+        curpos.y.val = pos1->y.val + ACTION_RANDOM(eeinterspace/4);
+        curpos.z.val = pos1->z.val + ACTION_RANDOM(eeinterspace/4);
+        int i;
+        for (i=nsteps+1; i > 0; i--)
+        {
+            struct Coord3d tngpos;
+            tngpos.x.val = curpos.x.val + deviat_x;
+            tngpos.y.val = curpos.y.val + deviat_y;
+            tngpos.z.val = curpos.z.val + deviat_z;
+            if ((tngpos.x.val < subtile_coord(map_subtiles_x,0)) && (tngpos.y.val < subtile_coord(map_subtiles_y,0)))
+            {
+                create_thing(&tngpos, TCls_EffectElem, eemodel, game.neutral_player_num, -1);
+            }
+            if (UNSYNC_RANDOM(6) >= 3) {
+                deviat_x -= 32;
+            } else {
+                deviat_x += 32;
+            }
+            if (UNSYNC_RANDOM(6) >= 3) {
+                deviat_y -= 32;
+            } else {
+                deviat_y += 32;
+            }
+            if (UNSYNC_RANDOM(6) >= 3) {
+                deviat_z -= 32;
+            } else {
+                deviat_z += 32;
+            }
+            int deviat_limit;
+            long dist;
+            dist = get_3d_box_distance(&curpos, pos2);
+            deviat_limit = 128;
+            if (dist < 1024)
+              deviat_limit = (dist << 7) / 1024;
+            // Limit deviations
+            if (deviat_x >= -deviat_limit) {
+                deviat_x = -deviat_limit;
+            } else
+            if (deviat_x > deviat_limit) {
+                deviat_x = deviat_limit;
+            }
+            if (deviat_y < -deviat_limit) {
+                deviat_y = -deviat_limit;
+            } else
+            if (deviat_y > deviat_limit) {
+                deviat_y = deviat_limit;
+            }
+            if (deviat_z < -deviat_limit) {
+                deviat_z = -deviat_limit;
+            } else
+            if (deviat_z > deviat_limit) {
+                deviat_z = deviat_limit;
+            }
+            curpos.x.val += delta_x;
+            curpos.y.val += delta_y;
+            curpos.z.val += delta_z;
+        }
+    }
 }
 
 unsigned long setup_move_off_lava(struct Thing *thing)
@@ -1351,11 +1457,6 @@ short zoom_to_next_annoyed_creature(void)
     }
     set_players_packet_action(player, PckA_Unknown087, thing->mappos.x.val, thing->mappos.y.val, 0, 0);
     return true;
-}
-
-void go_to_my_next_room_of_type(unsigned long rkind)
-{
-    _DK_go_to_my_next_room_of_type(rkind); return;
 }
 
 TbBool toggle_computer_player(PlayerNumber plyr_idx)
