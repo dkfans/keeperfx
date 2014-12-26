@@ -1489,9 +1489,32 @@ void reinit_tagged_blocks_for_player(PlayerNumber plyr_idx)
     }
 }
 
-void instant_instance_selected(long a1)
+void instant_instance_selected(CrInstance check_inst_id)
 {
-    _DK_instant_instance_selected(a1);
+    //_DK_instant_instance_selected(check_inst_id);
+    struct PlayerInfo *player;
+    player = get_player(my_player_number);
+    struct Thing *ctrltng;
+    ctrltng = thing_get(player->controlled_thing_idx);
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(ctrltng);
+    long i,k;
+    int avail_pos, match_avail_pos;
+    avail_pos = 0;
+    match_avail_pos = 0;
+    for (i=0; i < CREATURE_MAX_LEVEL; i++)
+    {
+        k = crstat->instance_spell[i];
+        if (creature_instance_is_available(ctrltng, k))
+        {
+            if (k == check_inst_id) {
+                match_avail_pos = avail_pos;
+                break;
+            }
+            avail_pos++;
+        }
+    }
+    first_person_instance_top_half_selected = match_avail_pos < 6 && (first_person_instance_top_half_selected || match_avail_pos < 4);
 }
 
 short zoom_to_next_annoyed_creature(void)

@@ -2345,8 +2345,9 @@ void process_players_creature_control_packet_action(long plyr_idx)
           inst_inf = creature_instance_info_get(i);
           k = get_human_controlled_creature_target(thing, inst_inf->field_1D);
           set_creature_instance(thing, i, 1, k, 0);
-          if (plyr_idx == my_player_number)
-            instant_instance_selected(i);
+          if (plyr_idx == my_player_number) {
+              instant_instance_selected(i);
+          }
         }
       }
       break;
