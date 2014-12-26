@@ -804,7 +804,7 @@ void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long
             dist = get_3d_box_distance(&curpos, pos2);
             deviat_limit = 128;
             if (dist < 1024)
-              deviat_limit = (dist << 7) / 1024;
+              deviat_limit = (dist * 128) / 1024;
             // Limit deviations
             if (deviat_x >= -deviat_limit) {
                 deviat_x = -deviat_limit;
@@ -1432,9 +1432,61 @@ void reset_gui_based_on_player_mode(void)
     set_gui_visible(true);
 }
 
-void reinit_tagged_blocks_for_player(unsigned char idx)
+void reinit_tagged_blocks_for_player(PlayerNumber plyr_idx)
 {
-  _DK_reinit_tagged_blocks_for_player(idx);
+    //_DK_reinit_tagged_blocks_for_player(idx);
+    // Clear tagged blocks
+    MapSubtlCoord stl_x, stl_y;
+    for (stl_y=0; stl_y < map_subtiles_y; stl_y++)
+    {
+        for (stl_x=0; stl_x < map_subtiles_x; stl_x++)
+        {
+            struct Map *mapblk;
+            mapblk = get_map_block_at(stl_x, stl_y);
+            mapblk->flags &= ~0x04;
+            mapblk->flags &= ~0x80;
+        }
+    }
+    // Reinit with data from current players dungeon
+    struct Dungeon *dungeon;
+    dungeon = get_dungeon(plyr_idx);
+    int task_idx;
+    for (task_idx = 0; task_idx < dungeon->field_AF7; task_idx++)
+    {
+        struct MapTask  *mtask;
+        mtask = &dungeon->task_list[task_idx];
+        MapSubtlCoord taskstl_x, taskstl_y;
+        taskstl_x = stl_num_decode_x(mtask->coords);
+        taskstl_y = stl_num_decode_y(mtask->coords);
+        switch (mtask->kind)
+        {
+        case 2:
+            for (stl_y = taskstl_y - 1; stl_y < taskstl_y + 1; stl_y++)
+            {
+                for (stl_x = taskstl_x - 1; stl_x < taskstl_x + 1; stl_x++)
+                {
+                    struct Map *mapblk;
+                    mapblk = get_map_block_at(stl_x, stl_y);
+                    mapblk->flags |= 0x80;
+                }
+            }
+            break;
+        case 1:
+        case 3:
+            for (stl_y = taskstl_y - 1; stl_y < taskstl_y + 1; stl_y++)
+            {
+                for (stl_x = taskstl_x - 1; stl_x < taskstl_x + 1; stl_x++)
+                {
+                    struct Map *mapblk;
+                    mapblk = get_map_block_at(stl_x, stl_y);
+                    mapblk->flags |= 0x04;
+                }
+            }
+            break;
+        default:
+            break;
+        }
+    }
 }
 
 void instant_instance_selected(long a1)
