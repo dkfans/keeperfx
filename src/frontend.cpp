@@ -2787,6 +2787,8 @@ short get_frontend_global_inputs(void)
 void frontend_input(void)
 {
     SYNCDBG(7,"Starting");
+    TbBool input_consumed;
+    input_consumed = false;
     switch (frontend_menu_state)
     {
     case FeSt_MAIN_MENU:
@@ -2814,7 +2816,7 @@ void frontend_input(void)
         break;
     case FeSt_HIGH_SCORES:
         get_gui_inputs(0);
-         frontend_high_score_table_input();
+        input_consumed = frontend_high_score_table_input();
         break;
     case FeSt_TORTURE:
         fronttorture_input();
@@ -2823,10 +2825,12 @@ void frontend_input(void)
         frontnetmap_input();
         break;
     case FeSt_FEDEFINE_KEYS:
-        if ( !defining_a_key )
-          get_gui_inputs(0);
-        else
-          define_key_input();
+        if (!defining_a_key) {
+            get_gui_inputs(0);
+        } else {
+            define_key_input();
+            input_consumed = true;
+        }
         break;
 #if (BFDEBUG_LEVEL > 0)
     case FeSt_FONT_TEST:
@@ -2838,7 +2842,9 @@ void frontend_input(void)
         break;
     } // end switch
     get_frontend_global_inputs();
-    get_screen_capture_inputs();
+    if (!input_consumed) {
+        get_screen_capture_inputs();
+    }
     SYNCDBG(19,"Finished");
 }
 
