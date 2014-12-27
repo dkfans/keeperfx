@@ -523,9 +523,9 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
     thing->next_on_mapblk = 0;
     thing->parent_idx = thing->index;
     thing->owner = owner;
-    thing->sizexy = 1;
+    thing->clipbox_size_xy = 1;
     thing->field_58 = 1;
-    thing->field_5A = 1;
+    thing->solid_size_xy = 1;
     thing->field_5C = 1;
 
     if (eestat->sprite_idx != -1)
@@ -994,7 +994,7 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
         TRACE_THING(elemtng);
         if (thing_is_invalid(elemtng))
             break;
-        elemtng->sizexy = 20;
+        elemtng->clipbox_size_xy = 20;
         elemtng->field_58 = 20;
         if (egenstat->field_10)
         {

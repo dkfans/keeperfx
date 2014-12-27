@@ -203,7 +203,7 @@ TbBool creature_free_for_anger_job(struct Thing *creatng)
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
     return !creature_affected_by_call_to_arms(creatng)
-        && (!player_uses_must_obey(creatng->owner))
+        && (!player_uses_power_obey(creatng->owner))
         && ((cctrl->spell_flags & CSAfF_Chicken) == 0)
         && !thing_is_picked_up(creatng) && !is_thing_directly_controlled(creatng);
 }

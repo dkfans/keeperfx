@@ -324,7 +324,7 @@ TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
       switch (player->work_state)
       {
       case PSt_CallToArms:
-          if (player_uses_call_to_arms(plyr_idx))
+          if (player_uses_power_call_to_arms(plyr_idx))
             player->field_4D2 = (dungeon->cta_splevel << 2);
           else
             update_power_overcharge(player, PwrK_CALL2ARMS);
@@ -1961,7 +1961,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       game.numfield_D ^= (game.numfield_D ^ (0x04 * ((game.numfield_D & 0x04) == 0))) & 0x04;
       return 0;
   case PckA_PwrCTADis:
-      turn_off_call_to_arms(plyr_idx);
+      turn_off_power_call_to_arms(plyr_idx);
       return 0;
   case PckA_PickUpThing:
       thing = thing_get(pckt->field_6);
@@ -2032,7 +2032,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       }
       return false;
   case PckA_PwrSOEDis:
-      turn_off_sight_of_evil(plyr_idx);
+      turn_off_power_sight_of_evil(plyr_idx);
       return false;
   case PckA_EventBoxActivate:
       go_on_then_activate_the_event_box(plyr_idx, pckt->field_6);

@@ -382,9 +382,9 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
     thing->mappos.y.val = pos->y.val;
     thing->mappos.z.val = 0;
     thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
-    thing->sizexy = 0;
+    thing->clipbox_size_xy = 0;
     thing->field_58 = 0;
-    thing->field_5A = 0;
+    thing->solid_size_xy = 0;
     thing->field_5C = 0;
     thing->field_20 = 16;
     thing->field_23 = 204;

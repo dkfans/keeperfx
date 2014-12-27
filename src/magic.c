@@ -680,7 +680,7 @@ TbBool find_power_cast_place(PlayerNumber plyr_idx, PowerKind pwkind, struct Coo
         }
         break;
     case PwrK_CALL2ARMS:
-        if (player_uses_call_to_arms(plyr_idx))
+        if (player_uses_power_call_to_arms(plyr_idx))
         {
             pos->x.val = subtile_coord_center(dungeon->cta_stl_x);
             pos->y.val = subtile_coord_center(dungeon->cta_stl_y);
@@ -793,7 +793,14 @@ TbResult magic_use_power_obey(PlayerNumber plyr_idx, unsigned long mod_flags)
     return Lb_SUCCESS;
 }
 
-void turn_off_sight_of_evil(PlayerNumber plyr_idx)
+void turn_off_power_obey(PlayerNumber plyr_idx)
+{
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    dungeon->must_obey_turn = 0;
+}
+
+void turn_off_power_sight_of_evil(PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
     struct MagicStats *mgstat;
@@ -1653,7 +1660,7 @@ void process_magic_power_call_to_arms(PlayerNumber plyr_idx)
         if (!pay_for_spell(plyr_idx, PwrK_CALL2ARMS, dungeon->cta_splevel)) {
             if (is_my_player_number(plyr_idx))
                 output_message(SMsg_GoldNotEnough, 0, true);
-            turn_off_call_to_arms(plyr_idx);
+            turn_off_power_call_to_arms(plyr_idx);
             return;
         }
     }

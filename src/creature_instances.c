@@ -407,7 +407,7 @@ void process_creature_instance(struct Thing *thing)
             inst_inf = creature_instance_info_get(cctrl->instance_id);
             if (inst_inf->func_cb != NULL)
             {
-                SYNCDBG(18,"Executing instance %d for %s index %d.",(int)cctrl->instance_id,thing_model_name(thing),(int)thing->index);
+                SYNCDBG(18,"Executing %s for %s index %d.",creature_instance_code_name(cctrl->instance_id),thing_model_name(thing),(int)thing->index);
                 inst_inf->func_cb(thing, inst_inf->func_params);
             }
         }
@@ -463,10 +463,12 @@ long instf_creature_fire_shot(struct Thing *creatng, long *param)
     if (cctrl->targtng_idx > 0)
     {
         target = thing_get(cctrl->targtng_idx);
+        SYNCDBG(8,"The %s index %d fires %s at %s index %d",thing_model_name(creatng),(int)creatng->index,shot_code_name(*param),thing_model_name(target),(int)target->index);
         TRACE_THING(target);
     } else
     {
         target = NULL;
+        SYNCDBG(8,"The %s index %d fires %s",thing_model_name(creatng),(int)creatng->index,shot_code_name(*param));
     }
     creature_fire_shot(creatng, target, *param, 1, i);
     return 0;
@@ -482,6 +484,7 @@ long instf_creature_cast_spell(struct Thing *creatng, long *param)
     cctrl = creature_control_get_from_thing(creatng);
     spl_idx = *param;
     spinfo = get_magic_info(spl_idx);
+    SYNCDBG(8,"The %s index %d casts %s",thing_model_name(creatng),(int)creatng->index,spell_code_name(spl_idx));
     if (spinfo->cast_at_thing)
     {
         trthing = thing_get(cctrl->targtng_idx);
@@ -639,6 +642,7 @@ long instf_attack_room_slab(struct Thing *creatng, long *param)
         ERRORLOG("The %s is not on room",thing_model_name(creatng));
         return 0;
     }
+    SYNCDBG(8,"Executing for %s index %d",thing_model_name(creatng),(int)creatng->index);
     struct SlabMap *slb;
     slb = get_slabmap_thing_is_on(creatng);
     if (slb->health > 2)

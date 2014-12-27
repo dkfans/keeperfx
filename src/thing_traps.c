@@ -176,7 +176,7 @@ TbBool update_trap_trigger_line_of_sight_90(struct Thing *traptng)
     {
         MapCoord coord_x, coord_y;
         MapCoordDelta trap_radius;
-        trap_radius = traptng->sizexy / 2;
+        trap_radius = traptng->clipbox_size_xy / 2;
         coord_x = traptng->mappos.x.val;
         stl_x_beg = coord_subtile(coord_x - trap_radius);
         if (stl_x_beg <= 0)
@@ -631,9 +631,9 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
     } else {
         thing->field_4F &= ~0x40;
     }
-    thing->sizexy = trapstat->size_xy;
+    thing->clipbox_size_xy = trapstat->size_xy;
     thing->field_58 = trapstat->field_16;
-    thing->field_5A = trapstat->size_xy;
+    thing->solid_size_xy = trapstat->size_xy;
     thing->field_5C = trapstat->field_16;
     thing->creation_turn = game.play_gameturn;
     thing->health = trapstat->field_0;

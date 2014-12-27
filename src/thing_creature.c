@@ -2682,37 +2682,37 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
     pos1.x.val = firing->mappos.x.val;
     pos1.y.val = firing->mappos.y.val;
     pos1.z.val = firing->mappos.z.val;
-    pos1.x.val += distance_with_angle_to_coord_x(cctrl->field_2C1, firing->field_52+512);
-    pos1.y.val += distance_with_angle_to_coord_y(cctrl->field_2C1, firing->field_52+512);
+    pos1.x.val += distance_with_angle_to_coord_x(cctrl->field_2C1, firing->field_52+LbFPMath_PI/2);
+    pos1.y.val += distance_with_angle_to_coord_y(cctrl->field_2C1, firing->field_52+LbFPMath_PI/2);
     pos1.x.val += distance_with_angle_to_coord_x(cctrl->field_2C3, firing->field_52);
     pos1.y.val += distance_with_angle_to_coord_y(cctrl->field_2C3, firing->field_52);
     pos1.z.val += (cctrl->field_2C5);
     // Compute launch angles
     if (thing_is_invalid(target))
     {
-      angle_xy = firing->field_52;
-      angle_yz = firing->field_54;
+        angle_xy = firing->field_52;
+        angle_yz = firing->field_54;
     } else
     {
-      pos2.x.val = target->mappos.x.val;
-      pos2.y.val = target->mappos.y.val;
-      pos2.z.val = target->mappos.z.val;
-      pos2.z.val += (target->field_58 >> 1);
-      if (( shotst->old->is_melee ) && (target->class_id != TCls_Door))
-      {
-        flag1 = true;
-        pos1.z.val = pos2.z.val;
-      }
-      angle_xy = get_angle_xy_to(&pos1, &pos2);
-      angle_yz = get_angle_yz_to(&pos1, &pos2);
+        pos2.x.val = target->mappos.x.val;
+        pos2.y.val = target->mappos.y.val;
+        pos2.z.val = target->mappos.z.val;
+        pos2.z.val += (target->field_58 >> 1);
+        if ((shotst->old->is_melee) && (target->class_id != TCls_Door))
+        {
+          flag1 = true;
+          pos1.z.val = pos2.z.val;
+        }
+        angle_xy = get_angle_xy_to(&pos1, &pos2);
+        angle_yz = get_angle_yz_to(&pos1, &pos2);
     }
     // Compute shot damage
-    if ( shotst->old->is_melee )
+    if (shotst->old->is_melee)
     {
-      damage = calculate_melee_damage(firing);
+        damage = calculate_melee_damage(firing);
     } else
     {
-      damage = calculate_shot_damage(firing,shot_model);
+        damage = calculate_shot_damage(firing,shot_model);
     }
     shotng = NULL;
     target_idx = 0;
@@ -2775,7 +2775,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
     default:
         shotng = create_thing(&pos1, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shotng))
-          return;
+            return;
         shotng->field_52 = angle_xy;
         shotng->field_54 = angle_yz;
         angles_to_vector(shotng->field_52, shotng->field_54, shotst->old->speed, &cvect);
@@ -2949,7 +2949,7 @@ void get_creature_instance_times(const struct Thing *thing, long inst_idx, long 
     } else
     if (!is_neutral_thing(thing))
     {
-        if (player_uses_must_obey(thing->owner))
+        if (player_uses_power_obey(thing->owner))
         {
             aitime -= aitime / 4;
             itime -= itime / 4;
@@ -2976,7 +2976,7 @@ void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long a2, lo
     inst_inf = creature_instance_info_get(inst_idx);
     if (creature_instance_info_invalid(inst_inf) || (inst_inf->time == -1))
     {
-        ERRORLOG("Negative instance");
+        ERRORLOG("Cannot set negative instance %d to %s index %d",(int)inst_idx,thing_model_name(thing),(int)thing->index);
         return;
     }
     if (inst_inf->force_visibility > 0)
@@ -3001,7 +3001,7 @@ void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long a2, lo
     cctrl->inst_total_turns = itime;
     cctrl->inst_action_turns = aitime;
     i = get_creature_model_graphics(thing->model,inst_inf->graphics_idx);
-    cctrl->field_1CE = get_lifespan_of_animation(i, 1) / itime;
+    cctrl->instance_anim_step_turns = get_lifespan_of_animation(i, 1) / itime;
     if (pos != NULL)
     {
         cctrl->targtstl_x = coord_subtile(pos->x.val);
@@ -3294,9 +3294,9 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->mappos.x.val = pos->x.val;
     crtng->mappos.y.val = pos->y.val;
     crtng->mappos.z.val = pos->z.val;
-    crtng->sizexy = crstat->size_xy;
+    crtng->clipbox_size_xy = crstat->size_xy;
     crtng->field_58 = crstat->size_yz;
-    crtng->field_5A = crstat->thing_size_xy;
+    crtng->solid_size_xy = crstat->thing_size_xy;
     crtng->field_5C = crstat->thing_size_yz;
     crtng->field_20 = 32;
     crtng->field_22 = 0;

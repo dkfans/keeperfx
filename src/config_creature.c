@@ -1689,6 +1689,28 @@ const char *creature_own_name(const struct Thing *creatng)
     return text;
 }
 
+struct CreatureInstanceConfig *get_config_for_instance(CrInstance inst_id)
+{
+    if ((inst_id < 0) || (inst_id >= crtr_conf.instances_count)) {
+        return &crtr_conf.instances[0];
+    }
+    return &crtr_conf.instances[inst_id];
+}
+
+/**
+ * Returns Code Name (name to use in script file) of given creature instance.
+ */
+const char *creature_instance_code_name(CrInstance inst_id)
+{
+    struct CreatureInstanceConfig *crinstcfg;
+    crinstcfg = get_config_for_instance(inst_id);
+    const char *name;
+    name = crinstcfg->name;
+    if (name[0] != '\0')
+        return name;
+    return "INVALID";
+}
+
 struct CreatureJobConfig *get_config_for_job(CreatureJob job_flags)
 {
     long i;

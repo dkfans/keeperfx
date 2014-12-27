@@ -245,7 +245,7 @@ long get_combat_distance(const struct Thing *thing, const struct Thing *enmtng)
 {
     long dist,avgc;
     dist = get_2d_box_distance(&thing->mappos, &enmtng->mappos);
-    avgc = ((long)enmtng->sizexy + (long)thing->sizexy) / 2;
+    avgc = ((long)enmtng->clipbox_size_xy + (long)thing->clipbox_size_xy) / 2;
     if (dist < avgc)
         return 0;
     return dist - avgc;
@@ -2376,7 +2376,7 @@ void creature_in_melee_combat(struct Thing *creatng)
     }
     dist = get_combat_distance(creatng, enmtng);
     weapon = get_best_melee_offensive_weapon(creatng, dist);
-    if (weapon == 0)
+    if (weapon == CrInst_NULL)
     {
         SYNCDBG(9,"The %s index %d cannot choose melee offensive weapon",thing_model_name(creatng),(int)creatng->index);
         set_start_state(creatng);
@@ -2387,7 +2387,7 @@ void creature_in_melee_combat(struct Thing *creatng)
         SYNCDBG(9,"The %s index %d is moving and cannot attack in this turn",thing_model_name(creatng),(int)creatng->index);
         return;
     }
-    if (weapon > 0)
+    if (weapon > CrInst_NULL)
     {
         set_creature_instance(creatng, weapon, 1, enmtng->index, 0);
     }

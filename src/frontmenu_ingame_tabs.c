@@ -490,9 +490,9 @@ void gui_area_spell_button(struct GuiButton *gbtn)
         {
             int i;
             i = spell_data[pwkind].work_state;
-            if (((i == 6) && (dungeon->cta_start_turn != 0))
-             || ((i == 8) && (dungeon->sight_casted_thing_idx != 0))
-             || ((pwkind == PwrK_OBEY) && (dungeon->must_obey_turn != 0))) {
+            if (((i == PSt_CallToArms) && player_uses_power_call_to_arms(my_player_number))
+             || ((i == PSt_SightOfEvil) && player_uses_power_sight(my_player_number))
+             || ((pwkind == PwrK_OBEY) && player_uses_power_obey(my_player_number))) {
                 draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 27);
             }
             spr_idx = gbtn->sprite_idx;
@@ -502,8 +502,8 @@ void gui_area_spell_button(struct GuiButton *gbtn)
             drawn = false;
             if ((gbtn->gbactn_1 == 0) && (gbtn->gbactn_2 == 0))
             {
-                if ((((i != 6) || (dungeon->cta_start_turn == 0))
-                  && ((i != 8) || (dungeon->sight_casted_thing_idx == 0)))
+                if ((((i != PSt_CallToArms) || !player_uses_power_call_to_arms(my_player_number))
+                  && ((i != PSt_SightOfEvil) || !player_uses_power_sight(my_player_number)))
                  || ((game.play_gameturn & 1) == 0))
                 {
                     draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx);
