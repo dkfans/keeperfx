@@ -373,7 +373,7 @@ unsigned char field_67;
     unsigned char targtstl_y;
     unsigned long instance_use_turn[CREATURE_INSTANCES_COUNT];
     char instance_available[CREATURE_INSTANCES_COUNT];
-    unsigned short field_1CE;
+    unsigned short instance_anim_step_turns;
     unsigned short collided_door_subtile;
     char fighting_player_idx;
     unsigned char shot_model;

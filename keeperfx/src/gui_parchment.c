@@ -370,7 +370,7 @@ int draw_overhead_call_to_arms(const struct TbRect *map_area, long block_size, P
     n = 0;
     for (i=0; i < DUNGEONS_COUNT; i++)
     {
-        if (player_uses_call_to_arms(i))
+        if (player_uses_power_call_to_arms(i))
         {
             struct Dungeon *dungeon;
             dungeon = get_dungeon(i);

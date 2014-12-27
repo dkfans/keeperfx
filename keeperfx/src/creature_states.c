@@ -994,7 +994,7 @@ short arrive_at_call_to_arms(struct Thing *creatng)
     SYNCDBG(18,"Starting");
     TRACE_THING(creatng);
     dungeon = get_dungeon(creatng->owner);
-    if (!player_uses_call_to_arms(creatng->owner))
+    if (!player_uses_power_call_to_arms(creatng->owner))
     {
         set_start_state(creatng);
         return 1;
@@ -3501,7 +3501,7 @@ short person_sulk_at_lair(struct Thing *creatng)
     TRACE_THING(creatng);
     cctrl = creature_control_get_from_thing(creatng);
     lairtng = thing_get(cctrl->lairtng_idx);
-    if (creature_affected_by_slap(creatng) || player_uses_must_obey(creatng->owner) || !thing_exists(lairtng)) {
+    if (creature_affected_by_slap(creatng) || player_uses_power_obey(creatng->owner) || !thing_exists(lairtng)) {
         set_start_state(creatng);
         return 0;
     }
@@ -3555,7 +3555,7 @@ short person_sulk_head_for_lair(struct Thing *creatng)
     // For some reason we can't go to lair; either leave dungeon o reset.
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(creatng);
-    if ((crstat->lair_size <= 0) || creature_affected_by_slap(creatng) || player_uses_must_obey(creatng->owner)) {
+    if ((crstat->lair_size <= 0) || creature_affected_by_slap(creatng) || player_uses_power_obey(creatng->owner)) {
         set_start_state(creatng);
         return 0;
     }
@@ -3570,7 +3570,7 @@ short person_sulking(struct Thing *creatng)
     TRACE_THING(creatng);
     cctrl = creature_control_get_from_thing(creatng);
     lairtng = thing_get(cctrl->lairtng_idx);
-    if (creature_affected_by_slap(creatng) || player_uses_must_obey(creatng->owner) || !thing_exists(lairtng)) {
+    if (creature_affected_by_slap(creatng) || player_uses_power_obey(creatng->owner) || !thing_exists(lairtng)) {
         set_start_state(creatng);
         return 0;
     }
@@ -3684,7 +3684,7 @@ void create_effect_around_thing(struct Thing *thing, long eff_kind)
 {
     //_DK_create_effect_around_thing(thing, eff_kind);
     int tng_radius;
-    tng_radius = (thing->sizexy >> 1);
+    tng_radius = (thing->clipbox_size_xy >> 1);
     MapCoord coord_x_beg, coord_x_end;
     coord_x_beg = (MapCoord)thing->mappos.x.val - tng_radius;
     if (coord_x_beg < 0)
@@ -4174,7 +4174,7 @@ long process_work_speed_on_work_value(const struct Thing *thing, long base_val)
         dungeon = get_dungeon(thing->owner);
         if (dungeon->tortured_creatures[thing->model] > 0)
             val = 4 * val / 3;
-        if (dungeon->must_obey_turn != 0)
+        if (player_uses_power_obey(thing->owner))
             val = 6 * val / 5;
     }
     SYNCDBG(19,"Work value %d changed to %d for %s index %d",(int)base_val, (int)val, thing_model_name(thing), (int)thing->index);

@@ -444,7 +444,7 @@ void process_keeper_spell_effect(struct Thing *thing)
         struct Coord3d pos;
         long amp,direction;
         long delta_x,delta_y;
-        amp = 5 * thing->sizexy / 8;
+        amp = 5 * thing->clipbox_size_xy / 8;
         direction = ACTION_RANDOM(2*LbFPMath_PI);
         delta_x = (amp * LbSinL(direction) >> 8);
         delta_y = (amp * LbCosL(direction) >> 8);

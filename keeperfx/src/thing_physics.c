@@ -406,7 +406,7 @@ TbBool creature_can_pass_throgh_wall_at(const struct Thing *creatng, const struc
         if (thing_is_creature(creatng)) {
             i = thing_nav_sizexy(creatng);
         } else {
-            i = creatng->sizexy;
+            i = creatng->clipbox_size_xy;
         }
         radius = i/2;
         // Base on the radius, determine bounds of the object
@@ -446,7 +446,7 @@ long thing_in_wall_at(const struct Thing *thing, const struct Coord3d *pos)
     if (thing_is_creature(thing)) {
         i = thing_nav_sizexy(thing);
     } else {
-        i = thing->sizexy;
+        i = thing->clipbox_size_xy;
     }
     radius = i/2;
     // Base on the radius, determine bounds of the object
@@ -518,7 +518,7 @@ long get_floor_height_under_thing_at(const struct Thing *thing, const struct Coo
     if (thing_is_creature(thing)) {
         i = thing_nav_sizexy(thing);
     } else {
-        i = thing->sizexy;
+        i = thing->clipbox_size_xy;
     }
     radius = i/2;
     // Get range of coords under thing
@@ -551,7 +551,7 @@ void get_floor_and_ceiling_height_under_thing_at(const struct Thing *thing,
     if (thing_is_creature(thing)) {
         i = thing_nav_sizexy(thing);
     } else {
-        i = thing->sizexy;
+        i = thing->clipbox_size_xy;
     }
     radius = i/2;
     // Get range of coords under thing

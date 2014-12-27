@@ -107,7 +107,7 @@ unsigned char call_to_arms_expand_check(void)
 {
     struct PlayerInfo *myplyr;
     myplyr = get_my_player();
-    return (myplyr->field_4D2 != 0) && (!player_uses_call_to_arms(myplyr->id_number));
+    return (myplyr->field_4D2 != 0) && (!player_uses_power_call_to_arms(myplyr->id_number));
 }
 
 void process_armageddon(void)
@@ -408,14 +408,14 @@ void draw_god_lightning(struct Thing *shotng)
     }
 }
 
-TbBool player_uses_call_to_arms(PlayerNumber plyr_idx)
+TbBool player_uses_power_call_to_arms(PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
     return (dungeon->cta_start_turn != 0);
 }
 
-void turn_off_call_to_arms(PlayerNumber plyr_idx)
+void turn_off_power_call_to_arms(PlayerNumber plyr_idx)
 {
   _DK_turn_off_call_to_arms(plyr_idx);
 }
@@ -528,7 +528,7 @@ TbBool player_uses_power_sight(PlayerNumber plyr_idx)
     return (dungeon->sight_casted_thing_idx > 0);
 }
 
-TbBool player_uses_must_obey(PlayerNumber plyr_idx)
+TbBool player_uses_power_obey(PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
@@ -618,7 +618,7 @@ void update_explored_flags_for_power_sight(struct PlayerInfo *player)
     thing = thing_get(dungeon->sight_casted_thing_idx);
     if (!thing_is_object(thing)) {
         ERRORLOG("Sight thing index %d invalid", (int)dungeon->sight_casted_thing_idx);
-        turn_off_sight_of_evil(player->id_number);
+        turn_off_power_sight_of_evil(player->id_number);
         dungeon->sight_casted_thing_idx = 0;
         return;
     }

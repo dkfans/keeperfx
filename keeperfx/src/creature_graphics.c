@@ -409,7 +409,7 @@ void update_creature_graphic_anim(struct Thing *thing)
           }
           struct InstanceInfo *inst_inf;
           inst_inf = creature_instance_info_get(cctrl->instance_id);
-          update_creature_anim(thing, cctrl->field_1CE, inst_inf->graphics_idx);
+          update_creature_anim(thing, cctrl->instance_anim_step_turns, inst_inf->graphics_idx);
         } else
         if ((cctrl->field_B1 != 0) || creature_is_dying(thing) || creature_affected_by_spell(thing, SplK_Freeze))
         {
