@@ -198,9 +198,9 @@ unsigned short field_4D;
 unsigned char field_51;
     short field_52;
     short field_54;
-    unsigned short sizexy;
+    unsigned short clipbox_size_xy;
 unsigned short field_58;
-    unsigned short field_5A;
+    unsigned short solid_size_xy;
     unsigned short field_5C;
     short health; //signed
 unsigned short field_60;

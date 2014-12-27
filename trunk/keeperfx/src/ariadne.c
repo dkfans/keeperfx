@@ -210,7 +210,7 @@ struct Path best_path;
 long thing_nav_block_sizexy(const struct Thing *thing)
 {
     long i;
-    i = thing->sizexy;
+    i = thing->clipbox_size_xy;
     if (i >= (long)(sizeof(actual_sizexy_to_nav_block_sizexy_table)/sizeof(actual_sizexy_to_nav_block_sizexy_table[0])))
         i = (long)(sizeof(actual_sizexy_to_nav_block_sizexy_table)/sizeof(actual_sizexy_to_nav_block_sizexy_table[0]))-1;
     if (i < 0)
@@ -221,7 +221,7 @@ long thing_nav_block_sizexy(const struct Thing *thing)
 long thing_nav_sizexy(const struct Thing *thing)
 {
     long i;
-    i = thing->sizexy;
+    i = thing->clipbox_size_xy;
     if (i >= (long)(sizeof(actual_sizexy_to_nav_sizexy_table)/sizeof(actual_sizexy_to_nav_sizexy_table[0])))
         i = (long)(sizeof(actual_sizexy_to_nav_sizexy_table)/sizeof(actual_sizexy_to_nav_sizexy_table[0]))-1;
     if (i < 0)

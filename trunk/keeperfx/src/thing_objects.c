@@ -421,9 +421,9 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     struct ObjectConfig *objconf;
     objconf = get_object_model_stats2(model);
     objdat = get_objects_data_for_thing(thing);
-    thing->sizexy = objdat->size_xy;
+    thing->clipbox_size_xy = objdat->size_xy;
     thing->field_58 = objdat->field_B;
-    thing->field_5A = objdat->size_xy;
+    thing->solid_size_xy = objdat->size_xy;
     thing->field_5C = objdat->field_B;
     thing->health = saturate_set_signed(objconf->health,16);
     thing->field_20 = objconf->field_4;
@@ -1191,7 +1191,7 @@ TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
         struct Objects *objdat;
         objdat = get_objects_data_for_thing(heartng);
         heartng->sprite_size = i * (long)objdat->sprite_size_max >> 8;
-        heartng->sizexy = i * (long)objdat->size_xy >> 8;
+        heartng->clipbox_size_xy = i * (long)objdat->size_xy >> 8;
     } else
     if (heartng->owner != game.neutral_player_num)
     {

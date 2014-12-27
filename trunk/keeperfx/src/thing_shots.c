@@ -48,7 +48,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT struct Thing *_DK_get_shot_collided_with_same_type(struct Thing *shotng, struct Coord3d *nxpos);
+DLLIMPORT struct Thing *_DK_get_shot_collided_with_same_type(struct Thing *firstng, struct Coord3d *nxpos);
 /******************************************************************************/
 TbBool thing_is_shot(const struct Thing *thing)
 {
@@ -963,21 +963,66 @@ long collide_filter_thing_is_shootable(struct Thing *thing, struct Thing *parntn
     return thing_is_shootable(thing, shot_owner, hit_targets);
 }
 
-TbBool thing_on_thing_at(struct Thing *shotng, struct Coord3d *pos, struct Thing *ontng)
+/**
+ * Returns if things will collide if first moves to given position.
+ * @param firstng
+ * @param pos
+ * @param sectng
+ * @return
+ */
+TbBool thing_on_thing_at(const struct Thing *firstng, const struct Coord3d *pos, const struct Thing *sectng)
 {
-    if (ontng->parent_idx == shotng->parent_idx)
+    MapCoordDelta dist_collide;
+    dist_collide = (sectng->solid_size_xy + firstng->solid_size_xy) / 2;
+    MapCoordDelta dist_x, dist_y;
+    dist_x = pos->x.val - (MapCoordDelta)sectng->mappos.x.val;
+    dist_y = pos->y.val - (MapCoordDelta)sectng->mappos.y.val;
+    if ((abs(dist_x) >= dist_collide) || (abs(dist_y) >= dist_collide)) {
         return false;
-    int i;
-    i = (ontng->field_5A + shotng->field_5A) / 2;
-    if ((abs(pos->x.val - (long)ontng->mappos.x.val) >= i) || (abs(pos->y.val - (long)ontng->mappos.y.val) >= i))
+    }
+    dist_collide = (sectng->field_5C + firstng->field_5C) / 2;
+    MapCoordDelta dist_z;
+    dist_z = pos->z.val - (MapCoordDelta)sectng->mappos.z.val - (sectng->field_5C >> 1) + (firstng->field_5C >> 1);
+    if (abs(dist_z) >= dist_collide) {
         return false;
-    i = (ontng->field_5C + shotng->field_5C) / 2;
-    if (abs(pos->z.val - (long)ontng->mappos.z.val - (ontng->field_5C >> 1) + (shotng->field_5C >> 1)) >= i)
-        return false;
+    }
     return true;
 }
 
-struct Thing *get_thing_collided_with_at_satisfying_filter_for_subtile(struct Thing *shotng, struct Coord3d *pos, Thing_Collide_Func filter, long a4, long a5, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+TbBool things_collide_while_first_moves_to(const struct Thing *firstng, const struct Coord3d *dstpos, const struct Thing *sectng)
+{
+    SYNCDBG(8,"The %s index %d, check with %s index %d",thing_model_name(firstng),(int)firstng->index,thing_model_name(sectng),(int)sectng->index);
+    if ((firstng->parent_idx != 0) && (sectng->parent_idx == firstng->parent_idx)) {
+        return false;
+    }
+    // Compute shift in thing position
+    struct CoordDelta3d dt;
+    dt.x.val = dstpos->x.val - (MapCoordDelta)firstng->mappos.x.val;
+    dt.y.val = dstpos->y.val - (MapCoordDelta)firstng->mappos.y.val;
+    dt.z.val = dstpos->y.val - (MapCoordDelta)firstng->mappos.y.val;
+    // Compute amount of interpoints for collision check
+    int i, interpoints;
+    {
+        MapCoordDelta dt_max, dt_limit;
+        dt_max = max(max(dt.x.val,dt.y.val),dt.z.val);
+        // Require checking at 1/4 of max collision distance
+        dt_limit = (sectng->solid_size_xy + firstng->solid_size_xy) / 4 + 1;
+        interpoints = dt_max / dt_limit;
+    }
+    for (i=1; i < interpoints; i++)
+    {
+        struct Coord3d pos;
+        pos.x.val = firstng->mappos.x.val + dt.x.val * i / interpoints;
+        pos.y.val = firstng->mappos.y.val + dt.y.val * i / interpoints;
+        pos.z.val = firstng->mappos.z.val + dt.z.val * i / interpoints;
+        if (thing_on_thing_at(firstng, &pos, sectng)) {
+            return true;
+        }
+    }
+    return thing_on_thing_at(firstng, dstpos, sectng);
+}
+
+struct Thing *get_thing_collided_with_at_satisfying_filter_for_subtile(struct Thing *shotng, struct Coord3d *pos, Thing_Collide_Func filter, long param1, long param2, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct Thing *parntng;
     parntng = INVALID_THING;
@@ -1004,9 +1049,9 @@ struct Thing *get_thing_collided_with_at_satisfying_filter_for_subtile(struct Th
         // Per thing code start
         if (thing->index != shotng->index)
         {
-            if (filter(thing, parntng, a4, a5))
+            if (filter(thing, parntng, param1, param2))
             {
-                if (thing_on_thing_at(shotng, pos, thing)) {
+                if (things_collide_while_first_moves_to(shotng, pos, thing)) {
                     return thing;
                 }
             }
@@ -1043,9 +1088,9 @@ struct Thing *get_thing_collided_with_at_satisfying_filter(struct Thing *shotng,
             stl_y_max = map_subtiles_y;
     }
     MapSubtlCoord stl_x, stl_y;
-    for (stl_y = stl_y_min; stl_y < stl_y_max; stl_y++)
+    for (stl_y = stl_y_min; stl_y <= stl_y_max; stl_y++)
     {
-        for (stl_x = stl_x_min; stl_x < stl_x_max; stl_x++)
+        for (stl_x = stl_x_min; stl_x <= stl_x_max; stl_x++)
         {
             struct Thing *coltng;
             coltng = get_thing_collided_with_at_satisfying_filter_for_subtile(shotng, pos, filter, a4, a5, stl_x, stl_y);
@@ -1068,16 +1113,17 @@ struct Thing *get_thing_collided_with_at_satisfying_filter(struct Thing *shotng,
  */
 TbBool shot_hit_something_while_moving(struct Thing *shotng, struct Coord3d *nxpos)
 {
-    struct Thing *target;
+    struct Thing *targetng;
     SYNCDBG(18,"Starting for %s index %d, hit type %d",thing_model_name(shotng),(int)shotng->index, (int)shotng->shot.hit_type);
-    target = INVALID_THING;
+    targetng = INVALID_THING;
     HitTargetFlags hit_targets;
     hit_targets = hit_type_to_hit_targets(shotng->shot.hit_type);
-    target = get_thing_collided_with_at_satisfying_filter(shotng, nxpos, collide_filter_thing_is_shootable, hit_targets, 0);
-    if (thing_is_invalid(target)) {
+    targetng = get_thing_collided_with_at_satisfying_filter(shotng, nxpos, collide_filter_thing_is_shootable, hit_targets, 0);
+    if (thing_is_invalid(targetng)) {
         return false;
     }
-    if (shot_hit_shootable_thing_at(shotng, target, nxpos)) {
+    SYNCDBG(18,"The %s index %d, collided with %s index %d",thing_model_name(shotng),(int)shotng->index,thing_model_name(targetng),(int)targetng->index);
+    if (shot_hit_shootable_thing_at(shotng, targetng, nxpos)) {
         return true;
     }
     return false;
@@ -1093,16 +1139,16 @@ TngUpdateRet move_shot(struct Thing *shotng)
 
     move_allowed = get_thing_next_position(&pos, shotng);
     shotst = get_shot_model_stats(shotng->model);
-    if ( !shotst->old->field_28 )
+    if (!shotst->old->field_28)
     {
-        if ( shot_hit_something_while_moving(shotng, &pos) ) {
+        if (shot_hit_something_while_moving(shotng, &pos)) {
             return TUFRet_Deleted;
         }
     }
     if ((shotng->movement_flags & TMvF_Unknown10) != 0)
     {
-      if ( (shotst->old->is_melee) && thing_in_wall_at(shotng, &pos) ) {
-          if ( shot_hit_door_at(shotng, &pos) ) {
+      if ((shotst->old->is_melee) && thing_in_wall_at(shotng, &pos)) {
+          if (shot_hit_door_at(shotng, &pos)) {
               return TUFRet_Deleted;
           }
       }
@@ -1300,9 +1346,9 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     thing->field_4F ^= (thing->field_4F ^ 0x02 * shotst->old->field_6) & TF4F_Unknown02;
     thing->field_4F ^= thing->field_4F ^ ((thing->field_4F ^ TF4F_Unknown10 * shotst->old->field_8) & 0x30);
     thing->field_4F ^= (thing->field_4F ^ shotst->old->field_7) & TF4F_Unknown01;
-    thing->sizexy = shotst->old->size_xy;
+    thing->clipbox_size_xy = shotst->old->size_xy;
     thing->field_58 = shotst->old->field_B;
-    thing->field_5A = shotst->old->size_xy;
+    thing->solid_size_xy = shotst->old->size_xy;
     thing->field_5C = shotst->old->field_B;
     thing->shot.damage = shotst->old->damage;
     thing->shot.dexterity = 255;

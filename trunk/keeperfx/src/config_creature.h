@@ -255,6 +255,9 @@ ThingModel get_players_special_digger_model(PlayerNumber plyr_idx);
 ThingModel get_players_spectator_model(PlayerNumber plyr_idx);
 ThingModel get_creature_model_with_model_flags(unsigned short needflags);
 /******************************************************************************/
+struct CreatureInstanceConfig *get_config_for_instance(CrInstance inst_id);
+const char *creature_instance_code_name(CrInstance inst_id);
+/******************************************************************************/
 struct CreatureJobConfig *get_config_for_job(CreatureJob job_flags);
 RoomKind get_room_for_job(CreatureJob job_flags);
 EventKind get_event_for_job(CreatureJob job_flags);

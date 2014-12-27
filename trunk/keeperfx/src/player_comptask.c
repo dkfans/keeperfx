@@ -339,7 +339,7 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
     case GA_UsePwrCaveIn:
         return magic_use_available_power_on_subtile(plyr_idx, PwrK_CAVEIN, alevel, stl_x, stl_y, PwCast_Unrevealed);
     case GA_StopPwrCall2Arms:
-        turn_off_call_to_arms(plyr_idx);
+        turn_off_power_call_to_arms(plyr_idx);
         return Lb_SUCCESS;
     case GA_StopPwrHoldAudnc:
         dungeon->hold_audience_field_88C = 0;
@@ -547,7 +547,7 @@ long get_ceiling_height_above_thing_at(struct Thing *thing, struct Coord3d *pos)
     if (thing_is_creature(thing))
         nav_sizexy = thing_nav_sizexy(thing);
     else
-        nav_sizexy = thing->sizexy;
+        nav_sizexy = thing->clipbox_size_xy;
 
     int nav_radius;
     nav_radius = (nav_sizexy / 2);
