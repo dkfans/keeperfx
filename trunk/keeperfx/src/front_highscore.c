@@ -189,7 +189,7 @@ TbBool frontend_high_score_table_input(void)
     struct HighScore *hscore;
     char chr;
     long i;
-    if (high_score_entry_input_active >= campaign.hiscore_count)
+    if ((high_score_entry_input_active < 0) || (high_score_entry_input_active >= campaign.hiscore_count))
       return false;
     if (lbInkey == KC_BACK)
     {
