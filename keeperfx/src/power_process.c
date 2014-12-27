@@ -386,7 +386,26 @@ void god_lightning_choose_next_creature(struct Thing *shotng)
 
 void draw_god_lightning(struct Thing *shotng)
 {
-    _DK_draw_god_lightning(shotng);
+    //_DK_draw_god_lightning(shotng); return;
+    struct PlayerInfo *player;
+    player = get_player(shotng->owner);
+    const struct Camera *cam;
+    cam = player->acamera;
+    if (cam == NULL) {
+        return;
+    }
+    int i;
+    for (i = 256; i < 2048; i += 512)
+    {
+        struct Coord3d locpos;
+        locpos.x.val = shotng->mappos.x.val;
+        locpos.y.val = shotng->mappos.y.val;
+        locpos.z.val = shotng->mappos.z.val;
+        locpos.x.val +=  (LbSinL(i + cam->orient_a) >> (LbFPMath_TrigmBits - 10));
+        locpos.y.val += -(LbCosL(i + cam->orient_a) >> (LbFPMath_TrigmBits - 10));
+        locpos.z.val = subtile_coord(12,0);
+        draw_lightning(&locpos, &shotng->mappos, 256, 60);
+    }
 }
 
 TbBool player_uses_call_to_arms(PlayerNumber plyr_idx)

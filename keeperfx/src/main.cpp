@@ -1434,7 +1434,7 @@ void reset_gui_based_on_player_mode(void)
 
 void reinit_tagged_blocks_for_player(PlayerNumber plyr_idx)
 {
-    //_DK_reinit_tagged_blocks_for_player(idx);
+    //_DK_reinit_tagged_blocks_for_player(plyr_idx); return;
     // Clear tagged blocks
     MapSubtlCoord stl_x, stl_y;
     for (stl_y=0; stl_y < map_subtiles_y; stl_y++)
@@ -1461,9 +1461,9 @@ void reinit_tagged_blocks_for_player(PlayerNumber plyr_idx)
         switch (mtask->kind)
         {
         case 2:
-            for (stl_y = taskstl_y - 1; stl_y < taskstl_y + 1; stl_y++)
+            for (stl_y = taskstl_y - 1; stl_y <= taskstl_y + 1; stl_y++)
             {
-                for (stl_x = taskstl_x - 1; stl_x < taskstl_x + 1; stl_x++)
+                for (stl_x = taskstl_x - 1; stl_x <= taskstl_x + 1; stl_x++)
                 {
                     struct Map *mapblk;
                     mapblk = get_map_block_at(stl_x, stl_y);
@@ -1473,9 +1473,9 @@ void reinit_tagged_blocks_for_player(PlayerNumber plyr_idx)
             break;
         case 1:
         case 3:
-            for (stl_y = taskstl_y - 1; stl_y < taskstl_y + 1; stl_y++)
+            for (stl_y = taskstl_y - 1; stl_y <= taskstl_y + 1; stl_y++)
             {
-                for (stl_x = taskstl_x - 1; stl_x < taskstl_x + 1; stl_x++)
+                for (stl_x = taskstl_x - 1; stl_x <= taskstl_x + 1; stl_x++)
                 {
                     struct Map *mapblk;
                     mapblk = get_map_block_at(stl_x, stl_y);
