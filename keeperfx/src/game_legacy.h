@@ -286,7 +286,7 @@ unsigned long field_15033A;
     unsigned char disease_lose_percentage_health;
     unsigned char disease_lose_health_time;
     unsigned long armageddon_cast_turn;
-unsigned long field_15035A;
+unsigned long armageddon_field_15035A;
     unsigned char armageddon_caster_idx;
     unsigned long hold_audience_time;
     unsigned long armagedon_teleport_your_time_gap;

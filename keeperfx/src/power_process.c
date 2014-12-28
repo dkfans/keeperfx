@@ -110,6 +110,11 @@ unsigned char call_to_arms_expand_check(void)
     return (myplyr->field_4D2 != 0) && (!player_uses_power_call_to_arms(myplyr->id_number));
 }
 
+TbBool player_uses_power_armageddon(PlayerNumber plyr_idx)
+{
+    return (game.armageddon_cast_turn != 0) && (game.armageddon_caster_idx == plyr_idx);
+}
+
 void process_armageddon(void)
 {
     struct PlayerInfo *player;
@@ -533,6 +538,13 @@ TbBool player_uses_power_obey(PlayerNumber plyr_idx)
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
     return (dungeon->must_obey_turn != 0);
+}
+
+TbBool player_uses_power_hold_audience(PlayerNumber plyr_idx)
+{
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    return (dungeon->hold_audience_cast_turn != 0);
 }
 
 void update_horizonal_explored_flags_for_power_sight(struct PlayerInfo *player, struct Coord3d *soe_pos)

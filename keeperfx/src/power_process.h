@@ -44,6 +44,8 @@ void set_chosen_power(PowerKind pwkind, TextStringId sptooltip);
 void set_chosen_power_none(void);
 
 void process_disease(struct Thing *thing);
+
+TbBool player_uses_power_armageddon(PlayerNumber plyr_idx);
 void process_armageddon(void);
 void process_armageddon_influencing_creature(struct Thing *creatng);
 
@@ -59,6 +61,8 @@ TbBool player_uses_power_call_to_arms(PlayerNumber plyr_idx);
 void turn_off_power_call_to_arms(PlayerNumber plyr_idx);
 
 TbBool player_uses_power_obey(PlayerNumber plyr_idx);
+
+TbBool player_uses_power_hold_audience(PlayerNumber plyr_idx);
 
 unsigned char general_expand_check(void);
 unsigned char sight_of_evil_expand_check(void);
