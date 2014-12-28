@@ -45,8 +45,8 @@ struct MapLevelInfo { // sizeof = 56
   long state_trigger;
   long scrshift_x; /**< Shift X coordinate for top left corner of the visible land picture area. */
   long scrshift_y; /**< Shift Y coordinate for top left corner of the visible land picture area. */
-  long field_1E;
-  long field_22;
+  long hotspot_shift_on_zoom_x;
+  long hotspot_shift_on_zoom_y;
   long velocity_x;
   long velocity_y;
   long hotspot_x;

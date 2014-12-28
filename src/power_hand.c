@@ -1078,12 +1078,14 @@ void draw_mini_things_in_hand(long x, long y)
                 int expspr_idx;
                 expspr_idx = 184 + cctrl->explevel;
                 if (irow > 0)
-                    shift_y = (unsigned short)(pixel_size - 2) < 1u ? 38 : 42;
+                    shift_y = 40;
                 else
-                    shift_y = (unsigned short)(pixel_size - 2) < 1u ? -8 : 8;
+                    shift_y = 6;
                 scrpos_x = scrbase_x + (16*units_per_pixel/16) * icol;
                 scrpos_y = scrbase_y + (18*units_per_pixel/16) * irow;
+                // Draw exp level
                 draw_button_sprite_left(scrpos_x + expshift_x, scrpos_y + shift_y*units_per_pixel/16, bs_units_per_px, expspr_idx);
+                // Draw creature symbol
                 draw_gui_panel_sprite_left(scrpos_x, scrpos_y, ps_units_per_px, spr_idx);
             }
         } else

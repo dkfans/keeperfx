@@ -423,25 +423,6 @@ void set_map_info_visible_hotspot(long map_x,long map_y)
         map_info.hotspot_y = 0;
 }
 
-/** Sets visible land picture area to be centered over given coordinates.
- *
- * @param map_x Shift X coordinate for center of the visible land picture area.
- * @param map_y Shift Y coordinate for center of the visible land picture area.
- */
-void set_map_info_draw_hotspot(long map_x,long map_y)
-{
-    map_info.scrshift_x = map_x - (lbDisplay.PhysicalScreenWidth*16/units_per_pixel)/2;
-    map_info.scrshift_y = map_y - (lbDisplay.PhysicalScreenHeight*16/units_per_pixel)/2;
-    if (map_info.scrshift_x > LANDVIEW_MAP_WIDTH - lbDisplay.PhysicalScreenWidth*16/units_per_pixel)
-        map_info.scrshift_x = LANDVIEW_MAP_WIDTH - lbDisplay.PhysicalScreenWidth*16/units_per_pixel;
-    if (map_info.scrshift_x < 0)
-        map_info.scrshift_x = 0;
-    if (map_info.scrshift_y > LANDVIEW_MAP_HEIGHT - lbDisplay.PhysicalScreenHeight*16/units_per_pixel)
-        map_info.scrshift_y = LANDVIEW_MAP_HEIGHT - lbDisplay.PhysicalScreenHeight*16/units_per_pixel;
-    if (map_info.scrshift_y < 0)
-        map_info.scrshift_y = 0;
-}
-
 /** Sets visible land picture area to have top left corner on given coordinates.
  *
  * @param map_x Shift X coordinate for top left of the visible land picture area.
@@ -451,14 +432,36 @@ void set_map_info_draw_hotspot_raw(long map_x,long map_y)
 {
     map_info.scrshift_x = map_x;
     map_info.scrshift_y = map_y;
-    if (map_info.scrshift_x > LANDVIEW_MAP_WIDTH - lbDisplay.PhysicalScreenWidth*16/units_per_pixel)
-        map_info.scrshift_x = LANDVIEW_MAP_WIDTH - lbDisplay.PhysicalScreenWidth*16/units_per_pixel;
+    // Make sure the hotspot will not be too close to border to not be drawn correctly at full zoom
+    long delta_x, delta_y;
+    if (map_info.fading) {
+        delta_x = (lbDisplay.PhysicalScreenWidth*(256 - map_info.fade_pos)*16/units_per_pixel) / 256;
+        delta_y = (lbDisplay.PhysicalScreenHeight*(256 - map_info.fade_pos)*16/units_per_pixel) / 256;
+    } else {
+        delta_x = (lbDisplay.PhysicalScreenWidth*16/units_per_pixel);
+        delta_y = (lbDisplay.PhysicalScreenHeight*16/units_per_pixel);
+    }
+    if (map_info.scrshift_x > LANDVIEW_MAP_WIDTH - delta_x)
+        map_info.scrshift_x = LANDVIEW_MAP_WIDTH - delta_x;
     if (map_info.scrshift_x < 0)
         map_info.scrshift_x = 0;
-    if (map_info.scrshift_y > LANDVIEW_MAP_HEIGHT - lbDisplay.PhysicalScreenHeight*16/units_per_pixel)
-        map_info.scrshift_y = LANDVIEW_MAP_HEIGHT - lbDisplay.PhysicalScreenHeight*16/units_per_pixel;
+    if (map_info.scrshift_y > LANDVIEW_MAP_HEIGHT - delta_y)
+        map_info.scrshift_y = LANDVIEW_MAP_HEIGHT - delta_y;
     if (map_info.scrshift_y < 0)
         map_info.scrshift_y = 0;
+}
+
+/** Sets visible land picture area to be centered over given coordinates.
+ *
+ * @param map_x Shift X coordinate for center of the visible land picture area.
+ * @param map_y Shift Y coordinate for center of the visible land picture area.
+ */
+void set_map_info_draw_hotspot(long map_x,long map_y)
+{
+    long delta_x, delta_y;
+    delta_x = (lbDisplay.PhysicalScreenWidth*16/units_per_pixel) / 2;
+    delta_y = (lbDisplay.PhysicalScreenHeight*16/units_per_pixel) / 2;
+    set_map_info_draw_hotspot_raw(map_x - delta_x, map_y - delta_y);
 }
 
 void update_frontmap_info_draw_hotspot(void)
@@ -481,9 +484,9 @@ void update_frontmap_info_draw_hotspot(void)
         set_map_info_draw_hotspot_raw(map_info.hotspot_x,map_info.hotspot_y);
       } else
       {
-        map_info.field_1E += (scr_x << 8) / step;
-        map_info.field_22 += (scr_y << 8) / step;
-        set_map_info_draw_hotspot_raw(map_info.field_1E >> 8, map_info.field_22 >> 8);
+        map_info.hotspot_shift_on_zoom_x += (scr_x << 8) / step;
+        map_info.hotspot_shift_on_zoom_y += (scr_y << 8) / step;
+        set_map_info_draw_hotspot_raw(map_info.hotspot_shift_on_zoom_x >> 8, map_info.hotspot_shift_on_zoom_y >> 8);
       }
   }
 }
@@ -515,14 +518,14 @@ short clicked_map_level_ensign(void)
       set_selected_level_number(lvinfo->lvnum);
       map_info.field_0 = 1;
       map_info.fading = true;
-      map_info.fade_pos = 1;
+      map_info.fade_pos = 4;
       map_info.zoomspot_x = lvinfo->ensign_zoom_x;
       map_info.zoomspot_y = lvinfo->ensign_zoom_y;
       map_info.fade_step = 4;
       map_info.state_trigger = 7;
       set_map_info_visible_hotspot(map_info.zoomspot_x, map_info.zoomspot_y);
-      map_info.field_1E = map_info.scrshift_x << 8;
-      map_info.field_22 = map_info.scrshift_y << 8;
+      map_info.hotspot_shift_on_zoom_x = map_info.scrshift_x << 8;
+      map_info.hotspot_shift_on_zoom_y = map_info.scrshift_y << 8;
       SYNCDBG(8,"Level %ld hotspot (%d,%d) zoom (%d,%d)",(long)lvinfo->lvnum,(int)map_info.hotspot_x,(int)map_info.hotspot_y,(int)map_info.zoomspot_x,(int)map_info.zoomspot_y);
       return true;
     }
@@ -616,18 +619,6 @@ void frontzoom_to_point(long map_x, long map_y, long zoom)
     long smap_x, smap_y;
     smap_x = map_x*units_per_pixel/16;
     smap_y = map_y*units_per_pixel/16;
-    // Restricting coordinates - to make sure we won't go outside of the buffer
-    // Let's use scr_x,scr_y as temp values
-    scr_x = ((lbDisplay.GraphicsScreenWidth*src_delta)>>9);
-    scr_y = ((lbDisplay.GraphicsScreenHeight*src_delta)>>9);
-    if (smap_x >= (LANDVIEW_MAP_WIDTH*units_per_pixel/16-scr_x))
-        smap_x = (LANDVIEW_MAP_WIDTH*units_per_pixel/16-scr_x-1);
-    if (smap_x < scr_x)
-        smap_x = scr_x;
-    if (smap_y >= (LANDVIEW_MAP_HEIGHT*units_per_pixel/16-scr_y))
-        smap_y = (LANDVIEW_MAP_HEIGHT*units_per_pixel/16-scr_y-1);
-    if (smap_y < scr_y)
-        smap_y = scr_y;
     // Initializing variables used for all quadres of screen
     scr_x = smap_x - map_info.scrshift_x*units_per_pixel/16;
     if (scr_x > lbDisplay.PhysicalScreenWidth) scr_x = lbDisplay.PhysicalScreenWidth;
@@ -1064,9 +1055,9 @@ TbBool frontmap_load(void)
     SYNCDBG(9,"Zoom hotspot set to (%d,%d) %s fade",(int)map_info.zoomspot_x,(int)map_info.zoomspot_y,(map_info.fading)?"with":"without");
     map_sound_fade = 256;
     map_info.velocity_x = 0;
-    map_info.field_1E = map_info.scrshift_x << 8;
+    map_info.hotspot_shift_on_zoom_x = map_info.scrshift_x << 8;
     map_info.velocity_y = 0;
-    map_info.field_22 = map_info.scrshift_y << 8;
+    map_info.hotspot_shift_on_zoom_y = map_info.scrshift_y << 8;
     set_pointer_graphic_spland(0);
     LbMouseSetPosition(lbDisplay.PhysicalScreenWidth/2, lbDisplay.PhysicalScreenHeight/2);
     if ((features_enabled & Ft_AdvAmbSonud) != 0)
@@ -1700,8 +1691,8 @@ TbBool frontnetmap_update(void)
         }
         map_info.state_trigger = 8 - ((unsigned int)fe_network_active < 1);
         set_map_info_visible_hotspot(map_info.zoomspot_x, map_info.zoomspot_y);
-        map_info.field_1E = map_info.scrshift_x << 8;
-        map_info.field_22 = map_info.scrshift_y << 8;
+        map_info.hotspot_shift_on_zoom_x = map_info.scrshift_x << 8;
+        map_info.hotspot_shift_on_zoom_y = map_info.scrshift_y << 8;
         SYNCDBG(8,"Level %ld hotspot (%d,%d) zoom (%d,%d)",(long)nmps.lvnum,(int)map_info.hotspot_x,(int)map_info.hotspot_y,(int)map_info.zoomspot_x,(int)map_info.zoomspot_y);
         if (!fe_network_active)
             fe_computer_players = 1;
