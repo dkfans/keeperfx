@@ -342,7 +342,7 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
         turn_off_power_call_to_arms(plyr_idx);
         return Lb_SUCCESS;
     case GA_StopPwrHoldAudnc:
-        dungeon->hold_audience_field_88C = 0;
+        dungeon->hold_audience_cast_turn = 0;
         return Lb_SUCCESS;
     case GA_Unk13:
     case GA_MarkDig:
