@@ -698,7 +698,7 @@ TbResult magic_use_power_armageddon(PlayerNumber plyr_idx, unsigned long mod_fla
     unsigned long your_time_gap,enemy_time_gap;
     your_time_gap = game.armageddon.count_down + game.play_gameturn;
     enemy_time_gap = game.armageddon.count_down + game.play_gameturn;
-    if (game.armageddon_cast_turn) {
+    if (game.armageddon_cast_turn != 0) {
         return Lb_OK;
     }
     if ((mod_flags & PwMod_CastForFree) == 0)
@@ -765,7 +765,7 @@ TbResult magic_use_power_armageddon(PlayerNumber plyr_idx, unsigned long mod_fla
     }
     if (enemy_time_gap <= your_time_gap)
         enemy_time_gap = your_time_gap;
-    game.field_15035A = game.armageddon.duration + enemy_time_gap;
+    game.armageddon_field_15035A = game.armageddon.duration + enemy_time_gap;
     play_non_3d_sample(180);
     return Lb_SUCCESS;
 }
@@ -783,6 +783,7 @@ TbResult magic_use_power_obey(PlayerNumber plyr_idx, unsigned long mod_flags)
 {
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
+    // Toggle the spell
     if (dungeon->must_obey_turn != 0) {
         dungeon->must_obey_turn = 0;
     } else {
@@ -798,6 +799,7 @@ void turn_off_power_obey(PlayerNumber plyr_idx)
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
     dungeon->must_obey_turn = 0;
+    update_speed_of_player_creatures_of_model(plyr_idx, 0);
 }
 
 void turn_off_power_sight_of_evil(PlayerNumber plyr_idx)
@@ -829,7 +831,7 @@ TbResult magic_use_power_hold_audience(PlayerNumber plyr_idx, unsigned long mod_
     SYNCDBG(8,"Starting");
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
-    if (dungeon->hold_audience_field_88C != 0) {
+    if (dungeon->hold_audience_cast_turn != 0) {
         return Lb_OK;
     }
     if ((mod_flags & PwMod_CastForFree) == 0)
@@ -839,7 +841,7 @@ TbResult magic_use_power_hold_audience(PlayerNumber plyr_idx, unsigned long mod_
             return Lb_FAIL;
         }
     }
-    dungeon->hold_audience_field_88C = game.play_gameturn;
+    dungeon->hold_audience_cast_turn = game.play_gameturn;
     unsigned long k;
     int i;
     k = 0;
@@ -1544,11 +1546,11 @@ void magic_power_hold_audience_update(PlayerNumber plyr_idx)
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
     SYNCDBG(8,"Starting");
-    if ( game.play_gameturn - dungeon->hold_audience_field_88C <= game.hold_audience_time) {
+    if ( game.play_gameturn - dungeon->hold_audience_cast_turn <= game.hold_audience_time) {
         return;
     }
     // Dispose hold audience effect
-    dungeon->hold_audience_field_88C = 0;
+    dungeon->hold_audience_cast_turn = 0;
     struct CreatureControl *cctrl;
     struct Thing *thing;
     unsigned long k;
@@ -1676,6 +1678,22 @@ void process_magic_power_call_to_arms(PlayerNumber plyr_idx)
     }
 }
 
+void process_magic_power_must_obey(PlayerNumber plyr_idx)
+{
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    long delta;
+    delta = game.play_gameturn - dungeon->must_obey_turn;
+    struct MagicStats *magstat;
+    magstat = &game.keeper_power_stats[PwrK_OBEY];
+    if ((delta % magstat->time) == 0)
+    {
+        if (!pay_for_spell(plyr_idx, PwrK_OBEY, 0)) {
+            magic_use_power_obey(plyr_idx, PwMod_Default);
+        }
+    }
+}
+
 void process_dungeon_power_magic(void)
 {
     SYNCDBG(8,"Starting");
@@ -1683,39 +1701,28 @@ void process_dungeon_power_magic(void)
     long i;
     for (i = 0; i < PLAYERS_COUNT; i++)
     {
-        struct Dungeon *dungeon;
         struct PlayerInfo *player;
         player = get_player(i);
         if (player_exists(player))
         {
-            dungeon = get_players_dungeon(player);
-            if (dungeon->cta_start_turn > 0)
+            if (player_uses_power_call_to_arms(i))
             {
                 process_magic_power_call_to_arms(i);
             }
-            if ( dungeon->hold_audience_field_88C )
+            if (player_uses_power_hold_audience(i))
             {
                 magic_power_hold_audience_update(i);
             }
-            if (dungeon->must_obey_turn > 0)
+            if (player_uses_power_obey(i))
             {
-                long delta;
-                delta = game.play_gameturn - dungeon->must_obey_turn;
-                struct MagicStats *magstat;
-                magstat = &game.keeper_power_stats[PwrK_OBEY];
-                if ((delta % magstat->time) == 0)
-                {
-                    if (!pay_for_spell(i, PwrK_OBEY, 0)) {
-                        magic_use_power_obey(i, PwMod_Default);
-                    }
-                }
+                process_magic_power_must_obey(i);
             }
             if (game.armageddon_cast_turn > 0)
             {
-                if (game.play_gameturn > game.field_15035A)
+                if (game.play_gameturn > game.armageddon_field_15035A)
                 {
                   game.armageddon_cast_turn = 0;
-                  game.field_15035A = 0;
+                  game.armageddon_field_15035A = 0;
                 }
             }
         }

@@ -1062,8 +1062,8 @@ void redraw_display(void)
       if (game.armageddon.count_down+game.armageddon_cast_turn <= game.play_gameturn)
       {
         i = 0;
-        if ( game.field_15035A - game.armageddon.duration <= game.play_gameturn )
-          i = game.field_15035A - game.play_gameturn;
+        if ( game.armageddon_field_15035A - game.armageddon.duration <= game.play_gameturn )
+          i = game.armageddon_field_15035A - game.play_gameturn;
       } else
       {
         i = game.play_gameturn - game.armageddon_cast_turn - game.armageddon.count_down;
