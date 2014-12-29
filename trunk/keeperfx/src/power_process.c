@@ -528,22 +528,37 @@ void update_vertical_explored_flags_for_power_sight(struct PlayerInfo *player, s
 
 TbBool player_uses_power_sight(PlayerNumber plyr_idx)
 {
+    struct PlayerInfo *player;
+    player = get_player(plyr_idx);
+    if (!player_exists(player)) {
+        return false;
+    }
     struct Dungeon *dungeon;
-    dungeon = get_players_num_dungeon(plyr_idx);
+    dungeon = get_players_dungeon(player);
     return (dungeon->sight_casted_thing_idx > 0);
 }
 
 TbBool player_uses_power_obey(PlayerNumber plyr_idx)
 {
+    struct PlayerInfo *player;
+    player = get_player(plyr_idx);
+    if (!player_exists(player)) {
+        return false;
+    }
     struct Dungeon *dungeon;
-    dungeon = get_players_num_dungeon(plyr_idx);
+    dungeon = get_players_dungeon(player);
     return (dungeon->must_obey_turn != 0);
 }
 
 TbBool player_uses_power_hold_audience(PlayerNumber plyr_idx)
 {
+    struct PlayerInfo *player;
+    player = get_player(plyr_idx);
+    if (!player_exists(player)) {
+        return false;
+    }
     struct Dungeon *dungeon;
-    dungeon = get_players_num_dungeon(plyr_idx);
+    dungeon = get_players_dungeon(player);
     return (dungeon->hold_audience_cast_turn != 0);
 }
 
