@@ -2737,6 +2737,13 @@ unsigned long hit_type_to_hit_targets(long hit_type)
     }
 }
 
+/**
+ * Returns  whether a thing can be shot by given players shot.
+ * @param thing The thing to be checked.
+ * @param shot_owner Shot owner to be checked, or -1 if any enemy player should be considered.
+ * @param hit_targets Target hit configuration flags.
+ * @return
+ */
 TbBool thing_is_shootable(const struct Thing *thing, PlayerNumber shot_owner, HitTargetFlags hit_targets)
 {
     if (thing_is_creature(thing))
@@ -2759,7 +2766,7 @@ TbBool thing_is_shootable(const struct Thing *thing, PlayerNumber shot_owner, Hi
         if (shot_owner == thing->owner) {
             return ((hit_targets & HitTF_OwnedCreatures) != 0);
         }
-        if (players_are_enemies(shot_owner, thing->owner)) {
+        if ((shot_owner < 0) || players_are_enemies(shot_owner, thing->owner)) {
             return ((hit_targets & HitTF_EnemyCreatures) != 0);
         }
         return ((hit_targets & HitTF_AlliedCreatures) != 0);
@@ -2771,7 +2778,7 @@ TbBool thing_is_shootable(const struct Thing *thing, PlayerNumber shot_owner, Hi
             if (shot_owner == thing->owner) {
                 return ((hit_targets & HitTF_OwnedShotsCollide) != 0);
             }
-            if (players_are_enemies(shot_owner, thing->owner)) {
+            if ((shot_owner < 0) || players_are_enemies(shot_owner, thing->owner)) {
                 return ((hit_targets & HitTF_EnemyShotsCollide) != 0);
             }
             return ((hit_targets & HitTF_AlliedShotsCollide) != 0);
@@ -2785,7 +2792,7 @@ TbBool thing_is_shootable(const struct Thing *thing, PlayerNumber shot_owner, Hi
             if (shot_owner == thing->owner) {
                 return ((hit_targets & HitTF_OwnedSoulContainer) != 0);
             }
-            if (players_are_enemies(shot_owner, thing->owner)) {
+            if ((shot_owner < 0) || players_are_enemies(shot_owner, thing->owner)) {
                 return ((hit_targets & HitTF_EnemySoulContainer) != 0);
             }
             return ((hit_targets & HitTF_AlliedSoulContainer) != 0);
@@ -2827,7 +2834,7 @@ TbBool thing_is_shootable(const struct Thing *thing, PlayerNumber shot_owner, Hi
         if (shot_owner == thing->owner) {
             return ((hit_targets & HitTF_OwnedDeployedDoors) != 0);
         }
-        if (players_are_enemies(shot_owner, thing->owner)) {
+        if ((shot_owner < 0) || players_are_enemies(shot_owner, thing->owner)) {
             return ((hit_targets & HitTF_EnemyDeployedDoors) != 0);
         }
         return ((hit_targets & HitTF_AlliedDeployedDoors) != 0);
@@ -2837,7 +2844,7 @@ TbBool thing_is_shootable(const struct Thing *thing, PlayerNumber shot_owner, Hi
         if (shot_owner == thing->owner) {
             return ((hit_targets & HitTF_OwnedDeployedTraps) != 0);
         }
-        if (players_are_enemies(shot_owner, thing->owner)) {
+        if ((shot_owner < 0) || players_are_enemies(shot_owner, thing->owner)) {
             return ((hit_targets & HitTF_EnemyDeployedTraps) != 0);
         }
         return ((hit_targets & HitTF_AlliedDeployedTraps) != 0);
