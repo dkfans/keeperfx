@@ -81,6 +81,7 @@ unsigned long thing_create_errors = 0;
 /******************************************************************************/
 DLLIMPORT struct Thing *_DK_get_nearest_object_at_position(long stl_x, long stl_y);
 DLLIMPORT void _DK_place_thing_in_mapwho(struct Thing *thing);
+DLLIMPORT long _DK_collide_filter_thing_is_of_type(const struct Thing *creatng, const struct Thing *sectng, long blocked_flags, long shot_lvl);
 /******************************************************************************/
 /**
  * Adds thing at beginning of a StructureList.
@@ -2690,6 +2691,11 @@ short update_thing_sound(struct Thing *thing)
     }
   }
   return true;
+}
+
+long collide_filter_thing_is_of_type(const struct Thing *thing, const struct Thing *sectng, long a3, long a4)
+{
+    return _DK_collide_filter_thing_is_of_type(thing, sectng, a3, a4);
 }
 
 unsigned long hit_type_to_hit_targets(long hit_type)

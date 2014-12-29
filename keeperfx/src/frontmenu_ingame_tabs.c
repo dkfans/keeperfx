@@ -1012,10 +1012,8 @@ void maintain_big_room(struct GuiButton *gbtn)
 void maintain_spell(struct GuiButton *gbtn)
 {
   struct PlayerInfo *player;
-  struct Dungeon *dungeon;
   long i;
   player = get_my_player();
-  dungeon = get_players_dungeon(player);
   i = (unsigned long)(gbtn->content) & 0xff;
   if (!is_power_available(player->id_number,i))
   {
