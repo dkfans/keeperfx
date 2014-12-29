@@ -584,6 +584,65 @@ void apply_transitive_velocity_to_thing(struct Thing *thing, struct ComponentVec
     thing->veloc_push_once.z.val += veloc->z;
     thing->state_flags |= TF1_PushOnce;
 }
+
+/**
+ * Returns if things will collide if first moves to given position.
+ * @param firstng
+ * @param pos
+ * @param sectng
+ * @return
+ */
+TbBool thing_on_thing_at(const struct Thing *firstng, const struct Coord3d *pos, const struct Thing *sectng)
+{
+    MapCoordDelta dist_collide;
+    dist_collide = (sectng->solid_size_xy + firstng->solid_size_xy) / 2;
+    MapCoordDelta dist_x, dist_y;
+    dist_x = pos->x.val - (MapCoordDelta)sectng->mappos.x.val;
+    dist_y = pos->y.val - (MapCoordDelta)sectng->mappos.y.val;
+    if ((abs(dist_x) >= dist_collide) || (abs(dist_y) >= dist_collide)) {
+        return false;
+    }
+    dist_collide = (sectng->field_5C + firstng->field_5C) / 2;
+    MapCoordDelta dist_z;
+    dist_z = pos->z.val - (MapCoordDelta)sectng->mappos.z.val - (sectng->field_5C >> 1) + (firstng->field_5C >> 1);
+    if (abs(dist_z) >= dist_collide) {
+        return false;
+    }
+    return true;
+}
+
+TbBool things_collide_while_first_moves_to(const struct Thing *firstng, const struct Coord3d *dstpos, const struct Thing *sectng)
+{
+    SYNCDBG(8,"The %s index %d, check with %s index %d",thing_model_name(firstng),(int)firstng->index,thing_model_name(sectng),(int)sectng->index);
+    if ((firstng->parent_idx != 0) && (sectng->parent_idx == firstng->parent_idx)) {
+        return false;
+    }
+    // Compute shift in thing position
+    struct CoordDelta3d dt;
+    dt.x.val = dstpos->x.val - (MapCoordDelta)firstng->mappos.x.val;
+    dt.y.val = dstpos->y.val - (MapCoordDelta)firstng->mappos.y.val;
+    dt.z.val = dstpos->y.val - (MapCoordDelta)firstng->mappos.y.val;
+    // Compute amount of interpoints for collision check
+    int i, interpoints;
+    {
+        MapCoordDelta dt_max, dt_limit;
+        dt_max = max(max(dt.x.val,dt.y.val),dt.z.val);
+        // Require checking at 1/4 of max collision distance
+        dt_limit = (sectng->solid_size_xy + firstng->solid_size_xy) / 4 + 1;
+        interpoints = dt_max / dt_limit;
+    }
+    for (i=1; i < interpoints; i++)
+    {
+        struct Coord3d pos;
+        pos.x.val = firstng->mappos.x.val + dt.x.val * i / interpoints;
+        pos.y.val = firstng->mappos.y.val + dt.y.val * i / interpoints;
+        pos.z.val = firstng->mappos.z.val + dt.z.val * i / interpoints;
+        if (thing_on_thing_at(firstng, &pos, sectng)) {
+            return true;
+        }
+    }
+    return thing_on_thing_at(firstng, dstpos, sectng);
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

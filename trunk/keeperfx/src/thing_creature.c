@@ -168,7 +168,6 @@ DLLIMPORT long _DK_update_creature(struct Thing *creatng);
 DLLIMPORT void _DK_process_thing_spell_effects(struct Thing *creatng);
 DLLIMPORT void _DK_apply_damage_to_thing_and_display_health(struct Thing *creatng, long a1, char reason);
 DLLIMPORT long _DK_creature_is_ambulating(struct Thing *creatng);
-DLLIMPORT long _DK_collide_filter_thing_is_of_type(struct Thing *creatng, struct Thing *sectng, long blocked_flags, long shot_lvl);
 DLLIMPORT void _DK_check_for_door_collision_at(struct Thing *creatng, struct Coord3d *pos, long blocked_flags);
 DLLIMPORT void _DK_update_tunneller_trail(struct Thing *creatng);
 DLLIMPORT void _DK_draw_swipe(void);
@@ -1725,11 +1724,6 @@ long creature_is_ambulating(struct Thing *thing)
     if (i != thing->field_44)
         return 0;
     return 1;
-}
-
-long collide_filter_thing_is_of_type(struct Thing *thing, struct Thing *sectng, long a3, long a4)
-{
-    return _DK_collide_filter_thing_is_of_type(thing, sectng, a3, a4);
 }
 
 TbBool check_for_door_collision_at(struct Thing *thing, struct Coord3d *pos, unsigned long blocked_flags)
@@ -4666,22 +4660,29 @@ void process_creature_leave_footsteps(struct Thing *thing)
 }
 
 /**
- * Applies given damage points to a creature and shows health flower.
+ * Applies given damage points to a creature, considering its defensive abilities, and shows health flower.
  * Uses the creature defense value to compute the actual damage.
  * Can be used only to make damage - never to heal creature.
  *
  * @param thing
  * @param dmg
- * @param a3
+ * @param damage_type
+ * @param inflicting_plyr_idx
  */
-void apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoints dmg, DamageType damage_type, PlayerNumber inflicting_plyr_idx)
+HitPoints apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoints dmg, DamageType damage_type, PlayerNumber inflicting_plyr_idx)
 {
     //_DK_apply_damage_to_thing_and_display_health(thing, a1, inflicting_plyr_idx);
+    HitPoints cdamage;
     if (dmg > 0)
     {
-        apply_damage_to_thing(thing, dmg, damage_type, inflicting_plyr_idx);
+        cdamage = apply_damage_to_thing(thing, dmg, damage_type, inflicting_plyr_idx);
+    } else {
+        cdamage = 0;
+    }
+    if (cdamage > 0) {
         thing->creature.health_bar_turns = 8;
     }
+    return cdamage;
 }
 
 void process_landscape_affecting_creature(struct Thing *thing)

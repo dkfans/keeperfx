@@ -261,9 +261,9 @@ struct ShotStats // sizeof = 101
   unsigned char field_24;
   short cast_spell_kind;
   unsigned char health_drain;
-  unsigned char field_28;
+  unsigned char cannot_hit_thing;
   unsigned char field_29;
-  unsigned char field_2A;
+  unsigned char push_on_hit;
   short field_2B;
   short field_2D;
   unsigned char field_2F;
@@ -280,12 +280,12 @@ struct ShotStats // sizeof = 101
   unsigned char field_40;
   short area_range_UNUSED;
   short area_damage_UNUSED;
-  short field_45;
+  short is_boulder;
   unsigned char field_47;
   unsigned char is_melee;
   unsigned char field_49;
   unsigned char area_hit_type_UNUSED;
-  unsigned char field_4B;
+  unsigned char group_with_shooter;
   unsigned char deals_magic_damage;
   unsigned char cannot_make_target_unconscious;
   short experience_given_to_shooter;
