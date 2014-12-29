@@ -114,16 +114,16 @@ TbBool detonate_shot(struct Thing *shotng)
     }
     switch (shotng->model)
     {
-    case 4://SHOT_LIGHTNING
-    case 16://SHOT_GOD_LIGHTNING
-    case 24://SHOT_LIGHTNING_BALL
+    case ShM_Lightning:
+    case ShM_GodLightning:
+    case ShM_GodLightBall:
         PaletteSetPlayerPalette(myplyr, engine_palette);
         break;
-    case 11://SHOT_GRENADE
+    case ShM_Grenade:
         create_effect(&shotng->mappos, TngEff_Unknown50, shotng->owner);
         create_effect(&shotng->mappos,  TngEff_Unknown09, shotng->owner);
         break;
-    case 15://SHOT_BOULDER
+    case ShM_Boulder:
         create_effect_around_thing(shotng, TngEff_DirtRubble);
         break;
     default:
@@ -133,9 +133,80 @@ TbBool detonate_shot(struct Thing *shotng)
     return true;
 }
 
-struct Thing *get_shot_collided_with_same_type(struct Thing *thing, struct Coord3d *nxpos)
+struct Thing *get_shot_collided_with_same_type_on_subtile(struct Thing *shotng, struct Coord3d *nxpos, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    return _DK_get_shot_collided_with_same_type(thing, nxpos);
+    long i;
+    unsigned long k;
+    const struct Thing *parentng;
+    if (shotng->parent_idx > 0) {
+        parentng = thing_get(shotng->parent_idx);
+    } else {
+        parentng = INVALID_THING;
+    }
+    struct Map *mapblk;
+    mapblk = get_map_block_at(stl_x, stl_y);
+    if (map_block_invalid(mapblk))
+        return INVALID_THING;
+    k = 0;
+    i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
+    {
+        struct Thing *thing;
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            WARNLOG("Jump out of things array");
+            break;
+        }
+        i = thing->next_on_mapblk;
+        // Per thing code
+        if ((thing->index != shotng->index) && collide_filter_thing_is_of_type(thing, parentng, shotng->class_id, shotng->model))
+        {
+            if (things_collide_while_first_moves_to(shotng, nxpos, thing)) {
+                return thing;
+            }
+        }
+        // Per thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return INVALID_THING;
+}
+
+struct Thing *get_shot_collided_with_same_type(struct Thing *shotng, struct Coord3d *nxpos)
+{
+    //return _DK_get_shot_collided_with_same_type(thing, nxpos);
+    MapSubtlCoord stl_x_beg, stl_y_beg;
+    stl_x_beg = coord_subtile(nxpos->x.val - 384);
+    if (stl_x_beg < 0)
+        stl_x_beg = 0;
+    stl_y_beg = coord_subtile(nxpos->y.val - 384);
+    if (stl_y_beg < 0)
+        stl_y_beg = 0;
+    MapSubtlCoord stl_x_end, stl_y_end;
+    stl_x_end = coord_subtile(nxpos->x.val + 384);
+    if (stl_x_end >= map_subtiles_x)
+      stl_x_end = map_subtiles_x;
+    stl_y_end = coord_subtile(nxpos->y.val + 384);
+    if (stl_y_end >= map_subtiles_y)
+      stl_y_end = map_subtiles_y;
+    MapSubtlCoord stl_x, stl_y;
+    for (stl_y = stl_y_beg; stl_y <= stl_y_end; stl_y++)
+    {
+        for (stl_x = stl_x_beg; stl_x <= stl_x_end; stl_x++)
+        {
+            struct Thing *thing;
+            thing = get_shot_collided_with_same_type_on_subtile(shotng, nxpos, stl_x, stl_y);
+            if (!thing_is_invalid(thing)) {
+                return thing;
+            }
+        }
+    }
+    return INVALID_THING;
 }
 
 TbBool give_gold_to_creature_or_drop_on_map_when_digging(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long damage)
@@ -519,7 +590,7 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
     if (!thing_is_object(target)) {
         return 0;
     }
-    if (shotst->old->field_28) {
+    if (shotst->old->cannot_hit_thing) {
         return 0;
     }
     if (target->health < 0) {
@@ -740,7 +811,7 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
       if (shotst->old->field_24 != 0) {
           tgcctrl->field_B1 = shotst->old->field_24;
       }
-      if ( shotst->old->field_2A )
+      if ( shotst->old->push_on_hit )
       {
           trgtng->veloc_push_add.x.val += (throw_strength * (long)shotng->velocity.x.val) / 16;
           trgtng->veloc_push_add.y.val += (throw_strength * (long)shotng->velocity.y.val) / 16;
@@ -801,27 +872,26 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     if (shotng->parent_idx != shotng->index) {
         shooter = thing_get(shotng->parent_idx);
     }
-    if (thing_is_creature(shooter))
+    // Two fighting creatures gives experience
+    if (thing_is_creature(shooter) && thing_is_creature(trgtng))
     {
-        if (thing_is_creature(trgtng))
-        {
-            apply_shot_experience_from_hitting_creature(shooter, trgtng, shotng->model);
-        }
+        apply_shot_experience_from_hitting_creature(shooter, trgtng, shotng->model);
     }
     if (shotst->old->is_melee != 0)
     {
         return melee_shot_hit_creature_at(shotng, trgtng, pos);
     }
-    if ((shotst->old->field_28 != 0) || (trgtng->health < 0))
+    if ((shotst->old->cannot_hit_thing != 0) || (trgtng->health < 0)) {
         return 0;
-    if ( (creature_affected_by_spell(trgtng, SplK_Rebound)) && (shotst->old->field_29 == 0) )
+    }
+    if (creature_affected_by_spell(trgtng, SplK_Rebound) && (shotst->old->field_29 == 0))
     {
         struct Thing *killertng;
         killertng = INVALID_THING;
         if (shotng->index != shotng->parent_idx) {
             killertng = thing_get(shotng->parent_idx);
         }
-        if ( !thing_is_invalid(killertng) )
+        if (!thing_is_invalid(killertng))
         {
             struct CreatureStats *crstat;
             crstat = creature_stats_get_from_thing(killertng);
@@ -835,8 +905,8 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         } else
         {
             clear_thing_acceleration(shotng);
-            i = (shotng->field_52 + 1024) & 0x7FF;
-            n = (shotng->field_54 + 1024) & 0x7FF;
+            i = (shotng->field_52 + LbFPMath_PI) & LbFPMath_AngleMask;
+            n = (shotng->field_54 + LbFPMath_PI) & LbFPMath_AngleMask;
             set_thing_acceleration_angles(shotng, i, n);
             if (trgtng->class_id == TCls_Creature)
             {
@@ -851,7 +921,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         if ((get_creature_model_flags(trgtng) & CMF_ImmuneToBoulder) != 0)
         {
             efftng = create_effect(&trgtng->mappos, TngEff_Unknown14, trgtng->owner);
-            if ( !thing_is_invalid(efftng) ) {
+            if (!thing_is_invalid(efftng)) {
                 efftng->byte_16 = 8;
             }
             shotng->health = -1;
@@ -863,12 +933,12 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         play_creature_sound(trgtng, CrSnd_Hurt, 1, 0);
         thing_play_sample(trgtng, shotst->old->hit_sound, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     }
-    if (shotng->word_14 != 0)
+    if (shotng->shot.damage != 0)
     {
         if (shotst->old->health_drain) {
-            give_shooter_drained_health(shooter, shotng->word_14 / 2);
+            give_shooter_drained_health(shooter, shotng->shot.damage / 2);
         }
-        if ( !thing_is_invalid(shooter) ) {
+        if (!thing_is_invalid(shooter)) {
             apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, shooter->owner);
         } else {
             apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, -1);
@@ -893,16 +963,19 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         }
         apply_spell_effect_to_thing(trgtng, shotst->old->cast_spell_kind, n);
     }
-    if (shotst->old->field_4B != 0)
+    if (shotst->old->group_with_shooter)
     {
-        if ( !thing_is_invalid(shooter) )
+        if (thing_is_creature(shooter))
         {
-            if (get_no_creatures_in_group(shooter) < 8) {
+            if (get_no_creatures_in_group(shooter) < GROUP_MEMBERS_COUNT) {
                 add_creature_to_group(trgtng, shooter);
             }
+        } else
+        {
+            WARNDBG(8,"The %s index %d owner %d cannot group; invalid parent",thing_model_name(shotng),(int)shotng->index,(int)shotng->owner);
         }
     }
-    if (shotst->old->field_2A != 0)
+    if (shotst->old->push_on_hit != 0)
     {
         i = amp * (long)shotng->velocity.x.val;
         trgtng->veloc_push_add.x.val += i / 16;
@@ -911,7 +984,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         trgtng->state_flags |= TF1_PushAdd;
     }
     create_relevant_effect_for_shot_hitting_thing(shotng, trgtng);
-    if (shotst->old->field_45 != 0)
+    if (shotst->old->is_boulder != 0)
     {
         struct CreatureStats *crstat;
         crstat = creature_stats_get_from_thing(trgtng);
@@ -955,71 +1028,12 @@ TbBool shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *target, s
     return false;
 }
 
-long collide_filter_thing_is_shootable(struct Thing *thing, struct Thing *parntng, long hit_targets, long a4)
+long collide_filter_thing_is_shootable(const struct Thing *thing, const struct Thing *parntng, long hit_targets, long a4)
 {
     PlayerNumber shot_owner = -1;
     if (thing_exists(parntng))
         shot_owner = parntng->owner;
     return thing_is_shootable(thing, shot_owner, hit_targets);
-}
-
-/**
- * Returns if things will collide if first moves to given position.
- * @param firstng
- * @param pos
- * @param sectng
- * @return
- */
-TbBool thing_on_thing_at(const struct Thing *firstng, const struct Coord3d *pos, const struct Thing *sectng)
-{
-    MapCoordDelta dist_collide;
-    dist_collide = (sectng->solid_size_xy + firstng->solid_size_xy) / 2;
-    MapCoordDelta dist_x, dist_y;
-    dist_x = pos->x.val - (MapCoordDelta)sectng->mappos.x.val;
-    dist_y = pos->y.val - (MapCoordDelta)sectng->mappos.y.val;
-    if ((abs(dist_x) >= dist_collide) || (abs(dist_y) >= dist_collide)) {
-        return false;
-    }
-    dist_collide = (sectng->field_5C + firstng->field_5C) / 2;
-    MapCoordDelta dist_z;
-    dist_z = pos->z.val - (MapCoordDelta)sectng->mappos.z.val - (sectng->field_5C >> 1) + (firstng->field_5C >> 1);
-    if (abs(dist_z) >= dist_collide) {
-        return false;
-    }
-    return true;
-}
-
-TbBool things_collide_while_first_moves_to(const struct Thing *firstng, const struct Coord3d *dstpos, const struct Thing *sectng)
-{
-    SYNCDBG(8,"The %s index %d, check with %s index %d",thing_model_name(firstng),(int)firstng->index,thing_model_name(sectng),(int)sectng->index);
-    if ((firstng->parent_idx != 0) && (sectng->parent_idx == firstng->parent_idx)) {
-        return false;
-    }
-    // Compute shift in thing position
-    struct CoordDelta3d dt;
-    dt.x.val = dstpos->x.val - (MapCoordDelta)firstng->mappos.x.val;
-    dt.y.val = dstpos->y.val - (MapCoordDelta)firstng->mappos.y.val;
-    dt.z.val = dstpos->y.val - (MapCoordDelta)firstng->mappos.y.val;
-    // Compute amount of interpoints for collision check
-    int i, interpoints;
-    {
-        MapCoordDelta dt_max, dt_limit;
-        dt_max = max(max(dt.x.val,dt.y.val),dt.z.val);
-        // Require checking at 1/4 of max collision distance
-        dt_limit = (sectng->solid_size_xy + firstng->solid_size_xy) / 4 + 1;
-        interpoints = dt_max / dt_limit;
-    }
-    for (i=1; i < interpoints; i++)
-    {
-        struct Coord3d pos;
-        pos.x.val = firstng->mappos.x.val + dt.x.val * i / interpoints;
-        pos.y.val = firstng->mappos.y.val + dt.y.val * i / interpoints;
-        pos.z.val = firstng->mappos.z.val + dt.z.val * i / interpoints;
-        if (thing_on_thing_at(firstng, &pos, sectng)) {
-            return true;
-        }
-    }
-    return thing_on_thing_at(firstng, dstpos, sectng);
 }
 
 struct Thing *get_thing_collided_with_at_satisfying_filter_for_subtile(struct Thing *shotng, struct Coord3d *pos, Thing_Collide_Func filter, long param1, long param2, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
@@ -1139,7 +1153,7 @@ TngUpdateRet move_shot(struct Thing *shotng)
 
     move_allowed = get_thing_next_position(&pos, shotng);
     shotst = get_shot_model_stats(shotng->model);
-    if (!shotst->old->field_28)
+    if (!shotst->old->cannot_hit_thing)
     {
         if (shot_hit_something_while_moving(shotng, &pos)) {
             return TUFRet_Deleted;
@@ -1155,7 +1169,7 @@ TngUpdateRet move_shot(struct Thing *shotng)
     } else
     {
       if ((!move_allowed) || thing_in_wall_at(shotng, &pos)) {
-          if ( shot_hit_wall_at(shotng, &pos) ) {
+          if (shot_hit_wall_at(shotng, &pos)) {
               return TUFRet_Deleted;
           }
       }
@@ -1262,7 +1276,7 @@ TngUpdateRet update_shot(struct Thing *thing)
             affect_nearby_enemy_creatures_with_wind(thing);
             break;
         case ShM_Grenade:
-            thing->field_52 = (thing->field_52 + 113) & 0x7FF;
+            thing->field_52 = (thing->field_52 + 113) & LbFPMath_AngleMask;
             break;
         case ShM_Boulder:
         case ShM_SolidBoulder:

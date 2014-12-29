@@ -688,12 +688,13 @@ void apply_health_to_thing_and_display_health(struct Thing *thing, long amount)
 }
 
 /**
- * Applies given amount of damage to a creature.
+ * Applies given amount of damage to a creature, with armour based modifier.
  * @param thing The thing which is going to be modified.
  * @param dmg Amount of damage.
+ * @return Amount of damage really inflicted.
  * @see apply_damage_to_thing() should be called instead of this function.
  */
-static void apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
+static HitPoints apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
 {
     struct CreatureControl *cctrl;
     struct CreatureStats *crstat;
@@ -702,53 +703,54 @@ static void apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
     long i;
     cctrl = creature_control_get_from_thing(thing);
     crstat = creature_stats_get_from_thing(thing);
-    if ((cctrl->flgfield_1 & CCFlg_PreventDamage) == 0)
-    {
-        // Compute armor value
-        carmor = compute_creature_max_armour(crstat->armour,cctrl->explevel,creature_affected_by_spell(thing, SplK_Armour));
-        // Now compute damage
-        cdamage = (dmg * (256 - carmor)) / 256;
-        if (cdamage <= 0)
-          cdamage = 1;
-        // Apply damage to the thing
-        thing->health -= cdamage;
-        thing->field_4F |= TF4F_Unknown80;
-        // Red palette if the possessed creature is hit very strong
-        if (is_thing_some_way_controlled(thing))
-        {
-            struct PlayerInfo *player;
-            player = get_player(thing->owner);
-            HitPoints max_health;
-            max_health = cctrl->max_health;
-            if (max_health < 1)
-                max_health = 1;
-            i = (10 * cdamage) / max_health;
-            if (i > 10)
-            {
-                i = 10;
-            } else
-            if (i <= 0)
-            {
-                i = 1;
-            }
-            PaletteApplyPainToPlayer(player, i);
-        }
+    if ((cctrl->flgfield_1 & CCFlg_PreventDamage) != 0) {
+        return 0;
     }
+    // Compute armor value
+    carmor = compute_creature_max_armour(crstat->armour,cctrl->explevel,creature_affected_by_spell(thing, SplK_Armour));
+    // Now compute damage
+    cdamage = (dmg * (256 - carmor)) / 256;
+    if (cdamage <= 0)
+      cdamage = 1;
+    // Apply damage to the thing
+    thing->health -= cdamage;
+    thing->field_4F |= TF4F_Unknown80;
+    // Red palette if the possessed creature is hit very strong
+    if (is_thing_some_way_controlled(thing))
+    {
+        struct PlayerInfo *player;
+        player = get_player(thing->owner);
+        HitPoints max_health;
+        max_health = cctrl->max_health;
+        if (max_health < 1)
+            max_health = 1;
+        i = (10 * cdamage) / max_health;
+        if (i > 10) {
+            i = 10;
+        } else
+        if (i <= 0) {
+            i = 1;
+        }
+        PaletteApplyPainToPlayer(player, i);
+    }
+    return cdamage;
 }
 
-static void apply_damage_to_object(struct Thing *thing, HitPoints dmg)
+static HitPoints apply_damage_to_object(struct Thing *thing, HitPoints dmg)
 {
     HitPoints cdamage;
     cdamage = dmg;
     thing->health -= cdamage;
     thing->field_4F |= TF4F_Unknown80;
+    return cdamage;
 }
 
-static void apply_damage_to_door(struct Thing *thing, HitPoints dmg)
+static HitPoints apply_damage_to_door(struct Thing *thing, HitPoints dmg)
 {
     HitPoints cdamage;
     cdamage = dmg;
     thing->health -= cdamage;
+    return cdamage;
 }
 
 HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const struct Thing *shotng)
@@ -771,26 +773,37 @@ HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const 
     return dmg;
 }
 
-void apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType damage_type, PlayerNumber dealing_plyr_idx)
+/**
+ * Applies given damage points to a thing.
+ * In case of targeting creature, uses its defense values to compute the actual damage.
+ * Can be used only to make damage - never to heal creature.
+ *
+ * @param thing
+ * @param dmg
+ * @param damage_type
+ * @param inflicting_plyr_idx
+ * @return Amount of damage really inflicted.
+ */
+HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType damage_type, PlayerNumber dealing_plyr_idx)
 {
     // We're here to damage, not to heal
     SYNCDBG(19,"Dealing %d damage to %s by player %d",(int)dmg,thing_model_name(thing),(int)dealing_plyr_idx);
     if (dmg <= 0)
-        return;
+        return 0;
     // If it's already dead, then don't interfere
     if (thing->health < 0)
-        return;
-
+        return 0;
+    HitPoints cdamage;
     switch (thing->class_id)
     {
     case TCls_Creature:
-        apply_damage_to_creature(thing, dmg);
+        cdamage = apply_damage_to_creature(thing, dmg);
         break;
     case TCls_Object:
-        apply_damage_to_object(thing, dmg);
+        cdamage = apply_damage_to_object(thing, dmg);
         break;
     case TCls_Door:
-        apply_damage_to_door(thing, dmg);
+        cdamage = apply_damage_to_door(thing, dmg);
         break;
     default:
         break;
@@ -804,6 +817,7 @@ void apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType damage
             cctrl->fighting_player_idx = dealing_plyr_idx;
         }
     }
+    return cdamage;
 }
 
 long calculate_damage_did_to_slab_with_single_hit(const struct Thing *diggertng, const struct SlabMap *slb)
