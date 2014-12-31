@@ -320,32 +320,34 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
 
 long pinstfm_hand_drop(struct PlayerInfo *player, long *n)
 {
-  struct Dungeon *dungeon;
-  long i;
-  dungeon = get_players_dungeon(player);
-  i = player->field_4B1+1;
-  if (i < 1) i = 1;
-  dungeon->field_43 += (60 - dungeon->field_43) / i;
-  dungeon->field_53 += (40 - dungeon->field_53) / i;
-  return 0;
+    struct Dungeon *dungeon;
+    long i;
+    dungeon = get_players_dungeon(player);
+    i = player->instance_remain_rurns+1;
+    if (i < 1) i = 1;
+    dungeon->field_43 += (60 - dungeon->field_43) / i;
+    dungeon->field_53 += (40 - dungeon->field_53) / i;
+    return 0;
 }
 
 long pinstfs_hand_whip_end(struct PlayerInfo *player, long *n)
 {
-  struct Thing *thing;
-  thing = thing_get(player->hand_thing_idx);
-  if (!thing_is_invalid(thing))
-    set_power_hand_graphic(player->id_number, 787, 256);
-  return 0;
+    struct Thing *thing;
+    thing = thing_get(player->hand_thing_idx);
+    if (!thing_is_invalid(thing)) {
+        set_power_hand_graphic(player->id_number, 787, 256);
+    }
+    return 0;
 }
 
 long pinstfe_hand_whip_end(struct PlayerInfo *player, long *n)
 {
-  struct Thing *thing;
-  thing = thing_get(player->hand_thing_idx);
-  if (!thing_is_invalid(thing))
-    set_power_hand_graphic(player->id_number, 785, 256);
-  return 0;
+    struct Thing *thing;
+    thing = thing_get(player->hand_thing_idx);
+    if (!thing_is_invalid(thing)) {
+        set_power_hand_graphic(player->id_number, 785, 256);
+    }
+    return 0;
 }
 
 long pinstfs_passenger_control_creature(struct PlayerInfo *player, long *n)
@@ -637,7 +639,7 @@ long pinstfm_zoom_to_heart(struct PlayerInfo *player, long *n)
     pos.z.val = thing->mappos.z.val;
     move_thing_in_map(thing, &pos);
   }
-  if (player->field_4B1 <= 8)
+  if (player->instance_remain_rurns <= 8)
     LbPaletteFade(zoom_to_heart_palette, 8, Lb_PALETTE_FADE_OPEN);
   return 0;
 }
@@ -714,7 +716,7 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, long *n)
         dstcam->mappos.x.val = thing->mappos.x.val + deltax;
         dstcam->mappos.y.val = thing->mappos.y.val + deltay;
     }
-    if (player->field_4B1 >= 8)
+    if (player->instance_remain_rurns >= 8)
       LbPaletteFade(engine_palette, 8, Lb_PALETTE_FADE_OPEN);
     return 0;
 }
@@ -835,7 +837,7 @@ long pinstfm_zoom_to_position(struct PlayerInfo *player, long *n)
     else
       y = player->zoom_to_pos_y;
     if ((player->zoom_to_pos_x == x) && (player->zoom_to_pos_y == y))
-        player->field_4B1 = 0;
+        player->instance_remain_rurns = 0;
     cam->mappos.x.val = x;
     cam->mappos.y.val = y;
     return 0;
@@ -850,47 +852,50 @@ long pinstfe_zoom_to_position(struct PlayerInfo *player, long *n)
 
 void set_player_instance(struct PlayerInfo *player, long ninum, TbBool force)
 {
-  struct PlayerInstanceInfo *inst_info;
-  InstncInfo_Func callback;
-  long inum;
-  inum = player->instance_num;
-  if (inum >= PLAYER_INSTANCES_COUNT)
-    inum = 0;
-  if ((inum == 0) || (player_instance_info[inum].field_4 != 1) || (force))
-  {
-    player->instance_num = ninum%PLAYER_INSTANCES_COUNT;
-    inst_info = &player_instance_info[player->instance_num];
-    player->field_4B1 = inst_info->field_0;
-    callback = inst_info->start_cb;
-    if (callback != NULL)
-      callback(player, &inst_info->field_14[0]);
-  }
+    struct PlayerInstanceInfo *inst_info;
+    InstncInfo_Func callback;
+    long inum;
+    inum = player->instance_num;
+    if (inum >= PLAYER_INSTANCES_COUNT)
+        inum = 0;
+    if ((inum == 0) || (player_instance_info[inum].field_4 != 1) || (force))
+    {
+        player->instance_num = ninum%PLAYER_INSTANCES_COUNT;
+        inst_info = &player_instance_info[player->instance_num];
+        player->instance_remain_rurns = inst_info->length_turns;
+        callback = inst_info->start_cb;
+        if (callback != NULL) {
+            callback(player, &inst_info->field_14[0]);
+        }
+    }
 }
 
 void process_player_instance(struct PlayerInfo *player)
 {
-  struct PlayerInstanceInfo *inst_info;
-  InstncInfo_Func callback;
-  SYNCDBG(16,"Starting for instance %d",player->instance_num);
-  if (player->instance_num > 0)
-  {
-    if (player->field_4B1 > 0)
-    {
-      player->field_4B1--;
-      inst_info = &player_instance_info[player->instance_num%PLAYER_INSTANCES_COUNT];
-      callback = inst_info->maintain_cb;
-      if (callback != NULL)
-        callback(player, &inst_info->field_24);
+    struct PlayerInstanceInfo *inst_info;
+    InstncInfo_Func callback;
+    SYNCDBG(16,"Starting for instance %d",(int)player->instance_num);
+    if (player->instance_num <= 0) {
+        return;
     }
-    if (player->field_4B1 == 0)
+    if (player->instance_remain_rurns > 0)
     {
-      inst_info = &player_instance_info[player->instance_num%PLAYER_INSTANCES_COUNT];
-      player->instance_num = 0;
-      callback = inst_info->end_cb;
-      if (callback != NULL)
-        callback(player, &inst_info->field_24);
+        player->instance_remain_rurns--;
+        inst_info = &player_instance_info[player->instance_num%PLAYER_INSTANCES_COUNT];
+        callback = inst_info->maintain_cb;
+        if (callback != NULL) {
+            callback(player, &inst_info->field_24);
+        }
     }
-  }
+    if (player->instance_remain_rurns == 0)
+    {
+        inst_info = &player_instance_info[player->instance_num%PLAYER_INSTANCES_COUNT];
+        player->instance_num = 0;
+        callback = inst_info->end_cb;
+        if (callback != NULL) {
+            callback(player, &inst_info->field_24);
+        }
+    }
 }
 
 void process_player_instances(void)
@@ -1035,7 +1040,7 @@ TbBool is_thing_directly_controlled(const struct Thing *thing)
     case PI_Unset:
         return (thing->index == player->controlled_thing_idx);
     default:
-        ERRORLOG("Bad player instance %d",(int)player->instance_num);
+        ERRORLOG("Bad player %d instance %d",(int)thing->owner,(int)player->instance_num);
         break;
     }
     return false;
@@ -1060,7 +1065,7 @@ TbBool is_thing_query_controlled(const struct Thing *thing)
     case PI_Unset:
         return (thing->index == player->controlled_thing_idx);
     default:
-        ERRORLOG("Bad player instance %d",(int)player->instance_num);
+        ERRORLOG("Bad player %d instance %d",(int)thing->owner,(int)player->instance_num);
         break;
     }
     return false;
