@@ -153,11 +153,60 @@ long find_in_imp_stack_starting_at(SpDiggerTaskType task_type, long start_pos, c
     return -1;
 }
 
-long imp_will_soon_be_working_at_excluding(struct Thing *thing, long a2, long a3)
+TbBool imp_will_soon_be_working_at_excluding(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     SYNCDBG(19,"Starting");
     TRACE_THING(thing);
-    return _DK_imp_will_soon_be_working_at_excluding(thing, a2, a3);
+    //return _DK_imp_will_soon_be_working_at_excluding(creatng, stl_x, stl_y);
+    struct Coord3d pos2;
+    pos2.x.val = subtile_coord_center(stl_x);
+    pos2.y.val = subtile_coord_center(stl_y);
+    pos2.z.val = subtile_coord(1,0);
+    struct Dungeon *dungeon;
+    unsigned long k;
+    int i;
+    dungeon = get_players_num_dungeon(creatng->owner);
+    k = 0;
+    i = dungeon->digger_list_start;
+    while (i != 0)
+    {
+        struct CreatureControl *cctrl;
+        struct Thing *thing;
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        cctrl = creature_control_get_from_thing(thing);
+        if (creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        if (!thing_is_picked_up(thing) && !creature_is_being_unconscious(thing) && !creature_is_dying(thing))
+        {
+            if (thing->index != creatng->index)
+            {
+              if ((cctrl->moveto_pos.x.stl.num == stl_x) && (cctrl->moveto_pos.y.stl.num == stl_y))
+              {
+                  MapCoordDelta dist_other, dist_creatng;
+                  dist_other = get_2d_box_distance(&thing->mappos, &pos2);
+                  dist_creatng = get_2d_box_distance(&creatng->mappos, &pos2);
+                  if (dist_other <= dist_creatng)
+                      return true;
+                  if (dist_other - dist_creatng <= subtile_coord(6,0))
+                      return true;
+              }
+            }
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    return false;
 }
 
 TbBool imp_will_soon_be_getting_object(PlayerNumber plyr_idx, const struct Thing *objtng)

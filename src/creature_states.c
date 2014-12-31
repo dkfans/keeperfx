@@ -583,7 +583,7 @@ long get_creature_state_type_f(const struct Thing *thing, const char *func_name)
   } else
   {
       state_type = states[0].state_type;
-      WARNLOG("%s: Creature active state %d is out of range",func_name,(int)state);
+      WARNLOG("%s: The %s index %d active state %d is out of range",func_name,thing_model_name(thing),(int)thing->index,(int)state);
   }
   if (state_type == CrStTyp_Move)
   {
@@ -617,7 +617,7 @@ long get_creature_gui_job(const struct Thing *thing)
         return state_type_to_gui_state[state_type];
     } else
     {
-        WARNLOG("The %s has invalid state type(%d)!",thing_model_name(thing),(int)state_type);
+        WARNLOG("The %s index %d has invalid state type(%d)!",thing_model_name(thing),(int)thing->index,(int)state_type);
         erstat_inc(ESE_BadCreatrState);
         return state_type_to_gui_state[0];
     }
@@ -1263,21 +1263,21 @@ TbBool person_get_somewhere_adjacent_in_room_around_borders(const struct Thing *
         // Use the array to get first index
         long n;
         int arnd;
-        if (avail[0])
+        if (avail[0]) // can go to sibling slab (0,-1)
         {
-            if (avail[2]) {
+            if (avail[2]) { // can go to sibling slab (0,1)
                 long long tmp;
-                tmp = thing->field_52 + 512;
+                tmp = thing->field_52 + LbFPMath_PI/2;
                 tmp = ((((tmp>>32) ^ (((tmp>>32) ^ tmp) - (tmp>>32))) & 0x7FF) - (tmp>>32));
-                arnd = 2 * ((((tmp>>16) & 0x3FF) + tmp) >> 10);
+                arnd = 2 * ((((tmp>>16) & 0x3FF) + tmp) / LbFPMath_PI);
             } else {
                 arnd = avail[1] ? 0 : 3;
             }
         } else
-        if (avail[1])
+        if (avail[1]) // can go to sibling slab (1,0)
         {
             if (avail[3]) {
-                arnd = 2 * ((thing->field_52 & 0x400) >> 10) + 1;
+                arnd = 2 * ((thing->field_52 & 0x400) / LbFPMath_PI) + 1;
             } else {
                 arnd = 1;
             }
