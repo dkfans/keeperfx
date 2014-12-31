@@ -208,7 +208,7 @@ TbBigChecksum compute_player_checksum(struct PlayerInfo *player)
     if (((player->allocflags & PlaF_CompCtrl) == 0) && (player->acamera != NULL))
     {
         mappos = &(player->acamera->mappos);
-        sum += (TbBigChecksum)player->field_4B1 + (TbBigChecksum)player->instance_num;
+        sum += (TbBigChecksum)player->instance_remain_rurns + (TbBigChecksum)player->instance_num;
         sum += (TbBigChecksum)mappos->x.val + (TbBigChecksum)mappos->z.val + (TbBigChecksum)mappos->y.val;
     }
     return sum;

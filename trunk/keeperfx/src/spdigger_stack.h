@@ -104,7 +104,7 @@ TbBool add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon, long max_tasks)
 void add_reinforce_to_imp_stack(struct Dungeon *dungeon);
 
 TbBool imp_will_soon_be_arming_trap(struct Thing *traptng);
-long imp_will_soon_be_working_at_excluding(struct Thing *thing, long a2, long a3);
+TbBool imp_will_soon_be_working_at_excluding(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool imp_will_soon_be_getting_object(PlayerNumber plyr_idx, const struct Thing *objtng);
 
 TbBool thing_can_be_picked_to_place_in_player_room(const struct Thing* thing, PlayerNumber plyr_idx, RoomKind rkind, unsigned short flags);

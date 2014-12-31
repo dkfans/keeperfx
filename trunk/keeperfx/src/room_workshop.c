@@ -538,7 +538,7 @@ long get_doable_manufacture_with_minimal_amount_available(const struct Dungeon *
     for (tngmodel = 1; tngmodel < DOOR_TYPES_COUNT; tngmodel++)
     {
         mconf = &game.doors_config[tngmodel];
-        if (((dungeon->door_build_flags[tngmodel] & MnfBldF_Manufacturable) != 0) && (dungeon->manufacture_level >= mconf->manufct_level) )
+        if (((dungeon->door_build_flags[tngmodel] & MnfBldF_Manufacturable) != 0) && (dungeon->manufacture_level >= mconf->manufct_level))
         {
             amount = dungeon->door_amount_stored[tngmodel];
             if ( (chosen_amount > amount) ||
@@ -587,7 +587,11 @@ TbBool get_next_manufacture(struct Dungeon *dungeon)
     chosen_amount = get_doable_manufacture_with_minimal_amount_available(dungeon, &chosen_class, &chosen_kind);
     if (chosen_amount >= MANUFACTURED_ITEMS_LIMIT)
     {
-        WARNDBG(6,"Player %d reached manufacture limit for all items",(int)dungeon->owner);
+        if (chosen_amount == LONG_MAX) {
+            WARNDBG(7,"Player %d has %s but no doable manufacture",(int)dungeon->owner,room_code_name(RoK_WORKSHOP));
+        } else {
+            WARNDBG(6,"Player %d reached manufacture limit for all items",(int)dungeon->owner);
+        }
         return false;
     }
     if (chosen_class != TCls_Empty)

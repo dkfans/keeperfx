@@ -63,7 +63,7 @@ struct PlayerInfo;
 typedef long (*InstncInfo_Func)(struct PlayerInfo *player, long *n);
 
 struct PlayerInstanceInfo { // sizeof = 44
-  long field_0;
+  long length_turns;
   long field_4;
   InstncInfo_Func start_cb;
   InstncInfo_Func maintain_cb;
