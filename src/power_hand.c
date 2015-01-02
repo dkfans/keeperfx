@@ -216,7 +216,41 @@ long can_thing_be_picked_up2_by_player(const struct Thing *thing, PlayerNumber p
 
 void set_power_hand_offset(struct PlayerInfo *player, struct Thing *thing)
 {
-  _DK_set_power_hand_offset(player, thing);
+    //_DK_set_power_hand_offset(player, thing);
+    struct Dungeon *dungeon;
+    dungeon = get_players_dungeon(player);
+
+    if (thing->class_id == TCls_Creature)
+    {
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(thing);
+      if ((cctrl->spell_flags & 0x0200) != 0) {
+          dungeon->field_43 = 11;
+          dungeon->field_53 = 56;
+      } else
+      {
+          struct CreaturePickedUpOffset *pickoffs;
+          pickoffs = get_creature_picked_up_offset(thing);
+          dungeon->field_43 = pickoffs->field_4;
+          dungeon->field_53 = pickoffs->field_6;
+      }
+    } else
+    if (thing->class_id == TCls_Object)
+    {
+      if (thing->model == 10)
+      {
+          dungeon->field_43 = 11;
+          dungeon->field_53 = 56;
+      } else
+      {
+          dungeon->field_43 = 60;
+          dungeon->field_53 = 40;
+      }
+    } else
+    {
+        dungeon->field_43 = 60;
+        dungeon->field_53 = 40;
+    }
 }
 
 struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
@@ -445,154 +479,155 @@ void remove_thing_from_limbo(struct Thing *thing)
 
 void draw_power_hand(void)
 {
-  SYNCDBG(7,"Starting");
-  struct PlayerInfo *player;
-  struct CreaturePickedUpOffset *pickoffs;
-  struct Thing *thing;
-  struct Thing *picktng;
-  struct Room *room;
-  struct RoomData *rdata;
-  MapSubtlCoord stl_x,stl_y;
-  player = get_my_player();
-  if ((player->field_6 & 0x01) != 0)
-    return;
-  if (game.small_map_state == 2)
-    return;
-  lbDisplay.DrawFlags = 0x00;
-  if (player->view_type != PVT_DungeonTop)
-    return;
-  // Color rendering array pointers used by draw_keepersprite()
-  render_fade_tables = pixmap.fade_tables;
-  render_ghost = pixmap.ghost;
-  render_alpha = (unsigned char *)&alpha_sprite_table;
-  // Scale factor
-  int ps_units_per_px;
-  {
-      struct TbSprite *spr;
-      spr = &gui_panel_sprites[164]; // Use dungeon special box as reference
-      ps_units_per_px = (46 * units_per_pixel) / spr->SHeight;
-  }
-  // Now draw
-  if (((game.numfield_C & 0x20) != 0) && (game.small_map_state != 2)
-    && mouse_is_over_pannel_map(player->minimap_pos_x, player->minimap_pos_y) )
-  {
-    stl_x = game.hand_over_subtile_x;
-    stl_y = game.hand_over_subtile_y;
-    room = subtile_room_get(stl_x,stl_y);
-    if ((!room_is_invalid(room)) && (subtile_revealed(stl_x, stl_y, player->id_number)))
+    SYNCDBG(7,"Starting");
+    struct PlayerInfo *player;
+    struct CreaturePickedUpOffset *pickoffs;
+    struct Thing *thing;
+    struct Thing *picktng;
+    struct Room *room;
+    struct RoomData *rdata;
+    player = get_my_player();
+    if ((player->field_6 & 0x01) != 0)
+        return;
+    if (game.small_map_state == 2)
+        return;
+    lbDisplay.DrawFlags = 0x00;
+    if (player->view_type != PVT_DungeonTop)
+        return;
+    // Color rendering array pointers used by draw_keepersprite()
+    render_fade_tables = pixmap.fade_tables;
+    render_ghost = pixmap.ghost;
+    render_alpha = (unsigned char *)&alpha_sprite_table;
+    // Scale factor
+    int ps_units_per_px;
     {
-      rdata = room_data_get_for_room(room);
-      draw_gui_panel_sprite_centered(GetMouseX()+24*units_per_pixel/16, GetMouseY()+32*units_per_pixel/16, ps_units_per_px, rdata->medsym_sprite_idx);
+        struct TbSprite *spr;
+        spr = &gui_panel_sprites[164]; // Use dungeon special box as reference
+        ps_units_per_px = (46 * units_per_pixel) / spr->SHeight;
     }
-    if ((!power_hand_is_empty(player)) && (game.small_map_state == 1))
+    // Now draw
+    if (((game.numfield_C & 0x20) != 0) && (game.small_map_state != 2)
+      && mouse_is_over_pannel_map(player->minimap_pos_x, player->minimap_pos_y))
     {
-      draw_mini_things_in_hand(GetMouseX()+10*units_per_pixel/16, GetMouseY()+10*units_per_pixel/16);
-    }
-    return;
-  }
-  if (game_is_busy_doing_gui())
-  {
-    draw_mini_things_in_hand(GetMouseX()+10*units_per_pixel/16, GetMouseY()+10*units_per_pixel/16);
-    return;
-  }
-  thing = thing_get(player->hand_thing_idx);
-  if (thing_is_invalid(thing))
-    return;
-  if (player->field_10 > game.play_gameturn)
-  {
-    process_keeper_sprite(GetMouseX()+60*units_per_pixel/16, GetMouseY()+40*units_per_pixel/16,
-      thing->field_44, 0, thing->field_48, 64*units_per_pixel/16);
-    draw_mini_things_in_hand(GetMouseX()+60*units_per_pixel/16, GetMouseY());
-    return;
-  }
-  if ((player->field_3 & 0x02) != 0)
-  {
-    draw_mini_things_in_hand(GetMouseX()+18*units_per_pixel/16, GetMouseY());
-    return;
-  }
-  if (player->work_state != PSt_Unknown5)
-  {
-    if ( (player->work_state != PSt_CtrlDungeon)
-      || ((player->field_455 != 3) && ((player->work_state != PSt_CtrlDungeon) || (player->field_455) || (player->field_454 != 3))) )
-    {
-      if ((player->instance_num != PI_Grab) && (player->instance_num != PI_Drop))
-      {
-        if (player->work_state == PSt_Slap)
+        MapSubtlCoord stl_x,stl_y;
+        stl_x = game.hand_over_subtile_x;
+        stl_y = game.hand_over_subtile_y;
+        room = subtile_room_get(stl_x,stl_y);
+        if ((!room_is_invalid(room)) && (subtile_revealed(stl_x, stl_y, player->id_number)))
         {
-          process_keeper_sprite(GetMouseX() + 70*units_per_pixel/16, GetMouseY() + 46*units_per_pixel/16,
-              thing->field_44, 0, thing->field_48, 64*units_per_pixel/16);
-        } else
-        if (player->work_state == PSt_CtrlDungeon)
+            rdata = room_data_get_for_room(room);
+            draw_gui_panel_sprite_centered(GetMouseX()+24*units_per_pixel/16, GetMouseY()+32*units_per_pixel/16, ps_units_per_px, rdata->medsym_sprite_idx);
+        }
+        if ((!power_hand_is_empty(player)) && (game.small_map_state == 1))
         {
-          if ((player->field_455 == 2) || (player->field_454 == 2))
-          {
-            draw_mini_things_in_hand(GetMouseX()+18*units_per_pixel/16, GetMouseY());
-          }
+            draw_mini_things_in_hand(GetMouseX()+10*units_per_pixel/16, GetMouseY()+10*units_per_pixel/16);
         }
         return;
+    }
+    if (game_is_busy_doing_gui())
+    {
+        draw_mini_things_in_hand(GetMouseX()+10*units_per_pixel/16, GetMouseY()+10*units_per_pixel/16);
+        return;
+    }
+    thing = thing_get(player->hand_thing_idx);
+    if (thing_is_invalid(thing))
+        return;
+    if (player->field_10 > game.play_gameturn)
+    {
+        process_keeper_sprite(GetMouseX()+60*units_per_pixel/16, GetMouseY()+40*units_per_pixel/16,
+          thing->field_44, 0, thing->field_48, 64*units_per_pixel/16);
+        draw_mini_things_in_hand(GetMouseX()+60*units_per_pixel/16, GetMouseY());
+        return;
+    }
+    if ((player->field_3 & 0x02) != 0)
+    {
+        draw_mini_things_in_hand(GetMouseX()+18*units_per_pixel/16, GetMouseY());
+        return;
+    }
+    if (player->work_state != PSt_Unknown5)
+    {
+      if ( (player->work_state != PSt_CtrlDungeon)
+        || ((player->field_455 != 3) && ((player->work_state != PSt_CtrlDungeon) || (player->field_455) || (player->field_454 != 3))) )
+      {
+        if ((player->instance_num != PI_Grab) && (player->instance_num != PI_Drop))
+        {
+          if (player->work_state == PSt_Slap)
+          {
+            process_keeper_sprite(GetMouseX() + 70*units_per_pixel/16, GetMouseY() + 46*units_per_pixel/16,
+                thing->field_44, 0, thing->field_48, 64*units_per_pixel/16);
+          } else
+          if (player->work_state == PSt_CtrlDungeon)
+          {
+            if ((player->field_455 == 2) || (player->field_454 == 2))
+            {
+              draw_mini_things_in_hand(GetMouseX()+18*units_per_pixel/16, GetMouseY());
+            }
+          }
+          return;
+        }
       }
     }
-  }
-  picktng = get_first_thing_in_power_hand(player);
-  if ((!thing_is_invalid(picktng)) && ((picktng->field_4F & 0x01) == 0))
-  {
-      SYNCDBG(7,"Holding %s",thing_model_name(picktng));
-      switch (picktng->class_id)
-      {
-      case TCls_Creature:
-          if (!creature_affected_by_spell(picktng, SplK_Chicken))
-          {
-              pickoffs = get_creature_picked_up_offset(picktng);
-              stl_x = GetMouseX() + pickoffs->delta_x;
-              stl_y = GetMouseY() + pickoffs->delta_y;
-              if (creatures[picktng->model].field_7 )
-                EngineSpriteDrawUsingAlpha = 1;
-              process_keeper_sprite(stl_x / pixel_size, stl_y / pixel_size,
-                  picktng->field_44, 0, picktng->field_48, 64*units_per_pixel/16);
-              EngineSpriteDrawUsingAlpha = 0;
-          } else
-          {
-              stl_x = GetMouseX() + 11*units_per_pixel/16;
-              stl_y = GetMouseY() + 56*units_per_pixel/16;
-              process_keeper_sprite(stl_x / pixel_size, stl_y / pixel_size,
-                  picktng->field_44, 0, picktng->field_48, 64*units_per_pixel/16);
-          }
-          break;
-      case TCls_Object:
-          if (object_is_mature_food(picktng))
-          {
-            stl_x = GetMouseX() + 11*units_per_pixel/16;
-            stl_y = GetMouseY() + 56*units_per_pixel/16;
-            process_keeper_sprite(stl_x / pixel_size, stl_y / pixel_size,
-                picktng->field_44, 0, picktng->field_48, 64*units_per_pixel/16);
+    long inputpos_x,inputpos_y;
+    picktng = get_first_thing_in_power_hand(player);
+    if ((!thing_is_invalid(picktng)) && ((picktng->field_4F & 0x01) == 0))
+    {
+        SYNCDBG(7,"Holding %s",thing_model_name(picktng));
+        switch (picktng->class_id)
+        {
+        case TCls_Creature:
+            if (!creature_affected_by_spell(picktng, SplK_Chicken))
+            {
+                pickoffs = get_creature_picked_up_offset(picktng);
+                inputpos_x = GetMouseX() + pickoffs->delta_x*units_per_pixel/16;
+                inputpos_y = GetMouseY() + pickoffs->delta_y*units_per_pixel/16;
+                if (creatures[picktng->model].field_7)
+                  EngineSpriteDrawUsingAlpha = 1;
+                process_keeper_sprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
+                    picktng->field_44, 0, picktng->field_48, 64*units_per_pixel/16);
+                EngineSpriteDrawUsingAlpha = 0;
+            } else
+            {
+                inputpos_x = GetMouseX() + 11*units_per_pixel/16;
+                inputpos_y = GetMouseY() + 56*units_per_pixel/16;
+                process_keeper_sprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
+                    picktng->field_44, 0, picktng->field_48, 64*units_per_pixel/16);
+            }
             break;
-          } else
-          if ((picktng->class_id == TCls_Object) && object_is_gold_pile(picktng))
+        case TCls_Object:
+            if (object_is_mature_food(picktng))
+            {
+              inputpos_x = GetMouseX() + 11*units_per_pixel/16;
+              inputpos_y = GetMouseY() + 56*units_per_pixel/16;
+              process_keeper_sprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
+                  picktng->field_44, 0, picktng->field_48, 64*units_per_pixel/16);
+              break;
+            } else
+            if ((picktng->class_id == TCls_Object) && object_is_gold_pile(picktng))
+              break;
+            // no break
+        default:
+            inputpos_x = GetMouseX();
+            inputpos_y = GetMouseY();
+            process_keeper_sprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
+                  picktng->field_44, 0, picktng->field_48, 64*units_per_pixel/16);
             break;
-          // no break
-      default:
-          stl_x = GetMouseX();
-          stl_y = GetMouseY();
-          process_keeper_sprite(stl_x / pixel_size, stl_y / pixel_size,
-                picktng->field_44, 0, picktng->field_48, 64*units_per_pixel/16);
-          break;
-      }
-  }
-  if (player->field_C == 784)
-  {
-    stl_x = GetMouseX() + 58*units_per_pixel/16;
-    stl_y = GetMouseY() +  6*units_per_pixel/16;
-    process_keeper_sprite(stl_x / pixel_size, stl_y / pixel_size,
-        thing->field_44, 0, thing->field_48, 64*units_per_pixel/16);
-    draw_mini_things_in_hand(GetMouseX()+60*units_per_pixel/16, GetMouseY());
-  } else
-  {
-    stl_x = GetMouseX() + 60*units_per_pixel/16;
-    stl_y = GetMouseY() + 40*units_per_pixel/16;
-    process_keeper_sprite(stl_x / pixel_size, stl_y / pixel_size,
-        thing->field_44, 0, thing->field_48, 64*units_per_pixel/16);
-    draw_mini_things_in_hand(GetMouseX()+60*units_per_pixel/16, GetMouseY());
-  }
+        }
+    }
+    if (player->field_C == 784)
+    {
+        inputpos_x = GetMouseX() + 58*units_per_pixel/16;
+        inputpos_y = GetMouseY() +  6*units_per_pixel/16;
+        process_keeper_sprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
+            thing->field_44, 0, thing->field_48, 64*units_per_pixel/16);
+        draw_mini_things_in_hand(GetMouseX()+60*units_per_pixel/16, GetMouseY());
+    } else
+    {
+        inputpos_x = GetMouseX() + 60*units_per_pixel/16;
+        inputpos_y = GetMouseY() + 40*units_per_pixel/16;
+        process_keeper_sprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
+            thing->field_44, 0, thing->field_48, 64*units_per_pixel/16);
+        draw_mini_things_in_hand(GetMouseX()+60*units_per_pixel/16, GetMouseY());
+    }
 }
 
 TbBool object_is_slappable(const struct Thing *thing, long plyr_idx)
@@ -860,7 +895,7 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     }
     remove_first_thing_from_power_hand_list(plyr_idx);
     if ( update_hand ) {
-      set_power_hand_offset(player, thing_get(dungeon->things_in_hand[0]));
+      set_power_hand_offset(player, get_first_thing_in_power_hand(player));
     }
     return 1;
 }
@@ -1243,8 +1278,6 @@ TbBool remove_creature_from_power_hand(struct Thing *thing, PlayerNumber plyr_id
 {
     struct PlayerInfo *player;
     player = get_player(plyr_idx);
-    struct Dungeon *dungeon;
-    dungeon = get_players_dungeon(player);
     if (!thing_is_in_power_hand_list(thing, plyr_idx)) {
         return false;
     }
@@ -1253,7 +1286,7 @@ TbBool remove_creature_from_power_hand(struct Thing *thing, PlayerNumber plyr_id
         remove_thing_from_limbo(thing);
         set_start_state(thing);
         remove_thing_from_power_hand_list(thing, plyr_idx);
-        set_power_hand_offset(player, thing_get(dungeon->things_in_hand[0]));
+        set_power_hand_offset(player, get_first_thing_in_power_hand(player));
         return true;
     }
     return false;
