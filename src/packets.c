@@ -231,11 +231,12 @@ TbBigChecksum compute_players_checksum(void)
     return sum;
 }
 
-void set_player_packet_checksum(PlayerNumber plyr_idx, TbBigChecksum sum)
+void player_packet_checksum_add(PlayerNumber plyr_idx, TbBigChecksum sum)
 {
     struct Packet *pckt;
     pckt = get_packet(plyr_idx);
-    pckt->chksum = sum;
+    pckt->chksum += sum;
+    SYNCDBG(9,"Checksum increase %06lX",(unsigned long)sum);
 }
 
 /**
@@ -915,7 +916,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     case PSt_BuildRoom:
         process_dungeon_control_packet_dungeon_build_room(plyr_idx);
         break;
-    case PSt_MkGoodWorker:
+    case PSt_MkGoodDigger:
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             create_owned_special_digger(x, y, game.hero_player_num);
@@ -1963,11 +1964,11 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_PwrCTADis:
       turn_off_power_call_to_arms(plyr_idx);
       return 0;
-  case PckA_PickUpThing:
+  case PckA_UsePwrHandPick:
       thing = thing_get(pckt->field_6);
       magic_use_available_power_on_thing(plyr_idx, PwrK_HAND, 0,thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing);
       return 0;
-  case PckA_DumpHeldThing:
+  case PckA_UsePwrHandDrop:
       dump_first_held_thing_on_map(plyr_idx, pckt->field_6, pckt->field_8, 1);
       return 0;
   case PckA_Unknown092:
@@ -1979,10 +1980,10 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         event_delete_event(plyr_idx, pckt->field_6);
       }
       return 0;
-  case PckA_PwrObeyUse:
+  case PckA_UsePwrObey:
       magic_use_available_power_on_level(plyr_idx, PwrK_OBEY, 0);
       return 0;
-  case PckA_PwrArmagUse:
+  case PckA_UsePwrArmageddon:
       magic_use_available_power_on_level(plyr_idx, PwrK_ARMAGEDDON, 0);
       return 0;
   case PckA_Unknown099:
@@ -2042,7 +2043,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       turn_off_event_box_if_necessary(plyr_idx, dungeon->visible_event_idx);
       dungeon->visible_event_idx = 0;
       return false;
-  case PckA_PwrUseOnThing:
+  case PckA_UsePwrOnThing:
       i = get_power_overcharge_level(player);
       directly_cast_spell_on_thing(plyr_idx, pckt->field_6, pckt->field_8, i);
       return 0;

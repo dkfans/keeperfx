@@ -1221,8 +1221,18 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
             return false;
         }
         //Removing combat is called in insert_thing_into_power_hand_list(), so we don't have to do it here
-        i = get_creature_anim(thing, 9);
+        if (creature_affected_by_spell(thing, SplK_Chicken))
+            i = convert_td_iso(122);
+        else
+            i = get_creature_anim(thing, 9);
         set_thing_draw(thing, i, 256, -1, -1, 0, 2);
+    } else
+    if (thing_is_object(thing))
+    {
+        thing = process_object_being_picked_up(thing, plyr_idx);
+        if (thing_is_invalid(thing)) {
+            return false;
+        }
     }
     insert_thing_into_power_hand_list(thing, plyr_idx);
     place_thing_in_limbo(thing);
@@ -1274,10 +1284,6 @@ TbResult magic_use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSub
     if (thing_is_invalid(thing)) {
         return Lb_FAIL;
     }
-    if (!is_power_available(plyr_idx, PwrK_HAND)) {
-        return Lb_FAIL;
-    }
-
     if (!can_thing_be_picked_up_by_player(thing, plyr_idx))
     {
         ERRORLOG("The %s owned by player %d is not pickable by player %d",thing_model_name(thing),(int)thing->owner,(int)plyr_idx);
@@ -1287,6 +1293,9 @@ TbResult magic_use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSub
     {
         activate_dungeon_special(thing, player);
         return Lb_OK;
+    }
+    if (!is_power_available(plyr_idx, PwrK_HAND)) {
+        return Lb_FAIL;
     }
     prepare_thing_for_power_hand(thing->index, plyr_idx);
     return Lb_SUCCESS;

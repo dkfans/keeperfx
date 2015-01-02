@@ -173,48 +173,31 @@ long pinstfm_hand_grab(struct PlayerInfo *player, long *n)
 
 long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
 {
-  struct Thing *dsttng;
-  struct Thing *grabtng;
-  long i;
-  SYNCDBG(8,"Starting");
-  dsttng = thing_get(player->influenced_thing_idx);
-  grabtng = thing_get(player->hand_thing_idx);
-  if (!thing_is_pickable_by_hand(player,dsttng)
-   || (dsttng->creation_turn != player->influenced_thing_creation))
-  {
-      player->influenced_thing_creation = 0;
-      player->influenced_thing_idx = 0;
-      return 0;
-  }
-  set_power_hand_offset(player, dsttng);
-  switch (dsttng->class_id)
-  {
-  case TCls_Creature:
-      if (!external_set_thing_state(dsttng, CrSt_InPowerHand))
-          return 0;
-      if (creature_affected_by_spell(dsttng, SplK_Chicken))
-          i = convert_td_iso(122);
-      else
-          i = get_creature_anim(dsttng, 9);
-      set_thing_draw(dsttng, i, 256, -1, -1, 0, 2);
-      break;
-  case TCls_Object:
-      dsttng = process_object_being_picked_up(dsttng, grabtng->owner);
-      if (thing_is_invalid(dsttng))
-      {
-          player->influenced_thing_creation = 0;
-          player->influenced_thing_idx = 0;
-          return 0;
-      }
-      break;
-  }
-  if (!thing_is_invalid(grabtng))
-    set_power_hand_graphic(player->id_number, 784, 256);
-  insert_thing_into_power_hand_list(dsttng, player->id_number);
-  player->influenced_thing_creation = 0;
-  player->influenced_thing_idx = 0;
-  place_thing_in_limbo(dsttng);
-  return 0;
+    struct Thing *dsttng;
+    struct Thing *grabtng;
+    SYNCDBG(8,"Starting");
+    dsttng = thing_get(player->influenced_thing_idx);
+    grabtng = thing_get(player->hand_thing_idx);
+    if (dsttng->creation_turn != player->influenced_thing_creation) {
+        WARNLOG("The thing index %d is no longer the same",(int)player->influenced_thing_idx);
+        player->influenced_thing_creation = 0;
+        player->influenced_thing_idx = 0;
+        return 0;
+    }
+    player->influenced_thing_creation = 0;
+    player->influenced_thing_idx = 0;
+    if (!magic_use_available_power_on_thing(player->id_number, PwrK_HAND, 0,dsttng->mappos.x.stl.num, dsttng->mappos.y.stl.num, dsttng)) {
+        WARNLOG("Cannot pick up %s index %d",thing_model_name(dsttng),(int)dsttng->index);
+        return 0;
+    }
+    // Update sprites for the creature in hand, and power hand itself
+    struct Dungeon *dungeon;
+    dungeon = get_players_dungeon(player);
+    set_power_hand_offset(player, thing_get(dungeon->things_in_hand[0]));
+    if (!thing_is_invalid(grabtng)) {
+        set_power_hand_graphic(player->id_number, 784, 256);
+    }
+    return 0;
 }
 
 long pinstfs_hand_drop(struct PlayerInfo *player, long *n)
@@ -890,7 +873,7 @@ void process_player_instance(struct PlayerInfo *player)
     if (player->instance_remain_rurns == 0)
     {
         inst_info = &player_instance_info[player->instance_num%PLAYER_INSTANCES_COUNT];
-        player->instance_num = 0;
+        player->instance_num = PI_Unset;
         callback = inst_info->end_cb;
         if (callback != NULL) {
             callback(player, &inst_info->field_24);
@@ -1011,9 +994,11 @@ TbBool is_thing_passenger_controlled(const struct Thing *thing)
     case PI_PsngrCtLeave:
         return (thing->index == player->influenced_thing_idx);
     case PI_Unset:
+    case PI_Whip: // Whip can be used at any time by comp. assistant
+    case PI_WhipEnd:
         return (thing->index == player->controlled_thing_idx);
     default:
-        ERRORLOG("Bad player instance %d",(int)player->instance_num);
+        ERRORLOG("Bad player %d instance %d",(int)thing->owner,(int)player->instance_num);
         break;
     }
     return false;
@@ -1038,6 +1023,8 @@ TbBool is_thing_directly_controlled(const struct Thing *thing)
     case PI_DirctCtLeave:
         return (thing->index == player->influenced_thing_idx);
     case PI_Unset:
+    case PI_Whip: // Whip can be used at any time by comp. assistant
+    case PI_WhipEnd:
         return (thing->index == player->controlled_thing_idx);
     default:
         ERRORLOG("Bad player %d instance %d",(int)thing->owner,(int)player->instance_num);
@@ -1063,6 +1050,8 @@ TbBool is_thing_query_controlled(const struct Thing *thing)
     case PI_UnqueryCrtr:
         return (thing->index == player->influenced_thing_idx);
     case PI_Unset:
+    case PI_Whip: // Whip can be used at any time by comp. assistant
+    case PI_WhipEnd:
         return (thing->index == player->controlled_thing_idx);
     default:
         ERRORLOG("Bad player %d instance %d",(int)thing->owner,(int)player->instance_num);

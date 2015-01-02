@@ -4196,12 +4196,12 @@ struct Thing *pick_up_creature_of_model_and_gui_job(long crmodel, long job_idx, 
     {
         if ((job_idx == -1) || (dungeon->guijob_all_creatrs_count[crmodel][job_idx & 0x03]))
         {
-            set_players_packet_action(get_player(plyr_idx), PckA_PickUpThing, thing->index, 0, 0, 0);
+            set_players_packet_action(get_player(plyr_idx), PckA_UsePwrHandPick, thing->index, 0, 0, 0);
         }
     } else
     if ((crmodel == -1))
     {
-        set_players_packet_action(get_player(plyr_idx), PckA_PickUpThing, thing->index, 0, 0, 0);
+        set_players_packet_action(get_player(plyr_idx), PckA_UsePwrHandPick, thing->index, 0, 0, 0);
     } else
     {
         ERRORLOG("Creature model %d out of range.",(int)crmodel);
@@ -4251,7 +4251,7 @@ TbBool creature_is_doing_job_in_room_of_kind(const struct Thing *creatng, RoomKi
     return false;
 }
 
-long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
+long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
     struct Computer2 *comp;
     struct Dungeon *dungeon;
@@ -4276,21 +4276,21 @@ long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *
             creature_is_being_sacrificed(thing))
             return -1;
         // Try torturing it
-        if (dungeon_has_room(dungeon, RoK_TORTURE))
+        if (dungeon_has_room(dungeon, get_room_for_job(Job_PAINFUL_TORTURE)))
         {
-            param->num2 = RoK_TORTURE;
+            param->num2 = Job_PAINFUL_TORTURE;
             return LONG_MAX;
         }
         // Or putting in prison
-        if (dungeon_has_room(dungeon, RoK_PRISON))
+        if (dungeon_has_room(dungeon, get_room_for_job(Job_CAPTIVITY)))
         {
-            param->num2 = RoK_PRISON;
+            param->num2 = Job_CAPTIVITY;
             return LONG_MAX;
         }
         // If we can't, then just let it leave the dungeon
-        if (dungeon_has_room(dungeon, RoK_ENTRANCE))
+        if (dungeon_has_room(dungeon, get_room_for_job(Job_EXEMPT)))
         {
-            param->num2 = RoK_ENTRANCE;
+            param->num2 = Job_EXEMPT;
             return LONG_MAX;
         }
     }
@@ -4306,9 +4306,9 @@ long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *
         // If already at temple, then don't do anything
         if (creature_is_doing_temple_pray_activity(thing))
             return -1;
-        if (dungeon_has_room(dungeon, RoK_TEMPLE))
+        if (dungeon_has_room(dungeon, get_room_for_job(Job_TEMPLE_PRAY)))
         {
-            param->num2 = RoK_TEMPLE;
+            param->num2 = Job_TEMPLE_PRAY;
             return LONG_MAX;
         }
     }
@@ -4325,9 +4325,9 @@ long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *
                 if (creature_is_doing_lair_activity(thing))
                     return -1;
                 // otherwise, put it into room we want
-                if (dungeon_has_room(dungeon, RoK_LAIR))
+                if (dungeon_has_room(dungeon, get_room_for_job(Job_TAKE_SLEEP)))
                 {
-                    param->num2 = RoK_LAIR;
+                    param->num2 = Job_TAKE_SLEEP;
                     return LONG_MAX;
                 }
             }
@@ -4344,9 +4344,9 @@ long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *
                 if (creature_is_doing_garden_activity(thing) || creature_is_taking_salary_activity(thing))
                     return -1;
                 // otherwise, put it into room we want
-                if (dungeon_has_room(dungeon, RoK_LAIR))
+                if (dungeon_has_room(dungeon, get_room_for_job(Job_TAKE_SLEEP)))
                 {
-                    param->num2 = RoK_LAIR;
+                    param->num2 = Job_TAKE_SLEEP;
                     return LONG_MAX;
                 }
             }
@@ -4363,9 +4363,9 @@ long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *
         if (creature_is_taking_salary_activity(thing))
             return -1;
         // otherwise, put it into room we want
-        if (dungeon_has_room(dungeon, RoK_GARDEN))
+        if (dungeon_has_room(dungeon, get_room_for_job(Job_TAKE_FEED)))
         {
-            param->num2 = RoK_GARDEN;
+            param->num2 = Job_TAKE_FEED;
             return LONG_MAX;
         }
     }
@@ -4376,9 +4376,9 @@ long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *
         // If already taking salary, then don't do anything
         if (creature_is_taking_salary_activity(thing))
             return -1;
-        if (dungeon_has_room(dungeon, RoK_TREASURE))
+        if (dungeon_has_room(dungeon, get_room_for_job(Job_TAKE_SALARY)))
         {
-            param->num2 = RoK_TREASURE;
+            param->num2 = Job_TAKE_SALARY;
             return LONG_MAX;
         }
     }
@@ -4395,12 +4395,12 @@ long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *
     // Get other rooms the creature may work in
     if (creature_state_is_unset(thing) || force_state_reset)
     {
-        struct Room *room;
-        room = get_room_to_place_creature(comp, thing);
+        CreatureJob new_job;
+        new_job = get_job_to_place_creature_in_room(comp, thing);
         // Make sure the place we've selected is not the same as the one creature works in now
-        if (!creature_is_doing_job_in_room_of_kind(thing, room->kind))
+        if (!creature_is_doing_job_in_room_of_kind(thing, get_room_for_job(new_job)))
         {
-            param->num2 = room->kind;
+            param->num2 = new_job;
             return LONG_MAX;
         }
     }

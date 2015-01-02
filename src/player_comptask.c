@@ -64,8 +64,8 @@ struct TrapDoorSelling {
     long model;
 };
 
-struct MoveToRoom {
-    char kind;
+struct MoveToBestJob {
+    CreatureJob job_kind;
     long priority;
 };
 
@@ -148,14 +148,14 @@ const struct TrapDoorSelling trapdoor_sell[] = {
     {TDSC_EndList,    0},
 };
 
-const struct MoveToRoom move_to_room[] = {
-    {RoK_TRAINING,  40},
-    {RoK_LIBRARY,   35},
-    {RoK_WORKSHOP,  32},
-    {RoK_SCAVENGER, 20},
-    {RoK_GUARDPOST,  2},
-    {RoK_BARRACKS,   1},
-    {RoK_NONE,       0},
+const struct MoveToBestJob move_to_best_job[] = {
+    {Job_TRAIN,       40},
+    {Job_RESEARCH,    35},
+    {Job_MANUFACTURE, 32},
+    {Job_SCAVENGE,    20},
+    {Job_GUARD,        2},
+    {Job_BARRACK,      1},
+    {RoK_NONE,         0},
 };
 
 const struct Around small_around_mid[] = {
@@ -769,11 +769,12 @@ TbBool creature_could_be_placed_in_better_room(const struct Computer2 *comp, con
         return true;
     }
     better_job_allowed = false;
-    for (k=0; move_to_room[k].kind != RoK_NONE; k++)
+    for (k=0; move_to_best_job[k].job_kind != Job_NULL; k++)
     {
-        rkind = move_to_room[k].kind;
+        rkind = get_room_for_job(move_to_best_job[k].job_kind);
         if (rkind == chosen_room->kind)
         {
+            // Jobs below have smaller priority, so we can return here
             return better_job_allowed;
         }
         if (dungeon_has_room(dungeon, rkind)
@@ -782,43 +783,48 @@ TbBool creature_could_be_placed_in_better_room(const struct Computer2 *comp, con
             better_job_allowed = true;
         }
     }
+    // If current job wasn't matched, don't try to find better one
     return false;
 }
 
-struct Room *get_room_to_place_creature(const struct Computer2 *comp, const struct Thing *thing)
+CreatureJob get_job_to_place_creature_in_room(const struct Computer2 *comp, const struct Thing *thing)
 {
     const struct Dungeon *dungeon;
     long chosen_priority;
-    struct Room *chosen_room;
+    CreatureJob chosen_job;
     struct Room *room;
     long total_spare_cap;
-    long i,k,rkind;
+    long i,k;
 
     dungeon = comp->dungeon;
 
-    chosen_room = INVALID_ROOM;
+    chosen_job = Job_NULL;
     chosen_priority = LONG_MIN;
-    for (k=0; move_to_room[k].kind != RoK_NONE; k++)
+    for (k=0; move_to_best_job[k].job_kind != Job_NULL; k++)
     {
-        rkind = move_to_room[k].kind;
-        if (!creature_can_do_job_for_computer_player_in_room(thing, dungeon->owner, rkind)) {
+        const struct MoveToBestJob * mvto;
+        mvto = &move_to_best_job[k];
+        if (!creature_can_do_job_for_player(thing, dungeon->owner, mvto->job_kind, JobChk_None)) {
             continue;
         }
+        RoomKind rkind;
+        rkind = get_room_for_job(mvto->job_kind);
         if (!worker_needed_in_dungeons_room_kind(dungeon, rkind)) {
             continue;
         }
         // Find specific room which meets capacity demands
         i = dungeon->room_kind[rkind];
         room = find_room_with_most_spare_capacity_starting_with(i,&total_spare_cap);
-        if (room_is_invalid(room))
+        if (room_is_invalid(room)) {
             continue;
-        if (chosen_priority < total_spare_cap * move_to_room[k].priority)
+        }
+        if (chosen_priority < total_spare_cap * mvto->priority)
         {
-            chosen_priority = total_spare_cap * move_to_room[k].priority;
-            chosen_room = room;
+            chosen_priority = total_spare_cap * mvto->priority;
+            chosen_job = mvto->job_kind;
         }
     }
-    return chosen_room;
+    return chosen_job;
 }
 
 struct Thing *find_creature_to_be_placed_in_room(struct Computer2 *comp, struct Room **roomp)
@@ -836,7 +842,7 @@ struct Thing *find_creature_to_be_placed_in_room(struct Computer2 *comp, struct 
     }
     param.ptr1 = (void *)comp;
     param.num2 = RoK_NONE; // Our filter function will update that
-    filter = player_list_creature_filter_needs_to_be_placed_in_room;
+    filter = player_list_creature_filter_needs_to_be_placed_in_room_for_job;
     thing = get_player_list_random_creature_with_filter(dungeon->creatr_list_start, filter, &param);
     if (thing_is_invalid(thing)) {
         return INVALID_THING;
@@ -846,7 +852,7 @@ struct Thing *find_creature_to_be_placed_in_room(struct Computer2 *comp, struct 
     // won't be able or will not want to work in that room, and will be picked up and dropped over and over.
     // This will prevent such situation, at least to the moment when the creature leaves the room.
     room = get_room_thing_is_on(thing);
-    if (!room_is_invalid(room) && (room->kind == param.num2) && (room->owner == thing->owner)) {
+    if (!room_is_invalid(room) && (room->kind == get_room_for_job(param.num2)) && (room->owner == thing->owner)) {
         // Do not spam with warnings which we know to be expected
         if (!creature_is_called_to_arms(thing) && !creature_is_celebrating(thing)) {
             WARNDBG(4,"The %s owned by player %d already is in %s, but goes for %s instead of work there",
@@ -854,7 +860,7 @@ struct Thing *find_creature_to_be_placed_in_room(struct Computer2 *comp, struct 
         }
         return INVALID_THING;
     }
-    room = get_room_of_given_kind_for_thing(thing,dungeon,param.num2);
+    room = get_room_of_given_kind_for_thing(thing,dungeon, get_room_for_job(param.num2));
     if (room_is_invalid(room))
         return INVALID_THING;
     *roomp = room;

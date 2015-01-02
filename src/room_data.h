@@ -74,7 +74,7 @@ struct RoomInfo { // sizeof = 6
 };
 
 struct Room {
-    unsigned char field_0;
+    unsigned char alloc_flags;
     unsigned short index; // index in the rooms array
     unsigned char owner;
     short prev_of_owner;

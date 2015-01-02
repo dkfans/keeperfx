@@ -1779,7 +1779,7 @@ struct Thing *check_place_to_pickup_dead_body(struct Thing *creatng, long stl_x,
         }
         i = thing->next_on_mapblk;
         // Per thing code start
-        if ((thing->class_id == TCls_DeadCreature) && ((thing->state_flags & TF1_IsDragged1) == 0)
+        if ((thing->class_id == TCls_DeadCreature) && !thing_is_dragged_or_pulled(thing)
             && (thing->active_state == DCrSt_Unknown02) && (thing->byte_14 == 0) && corpse_is_rottable(thing)) {
             return thing;
         }

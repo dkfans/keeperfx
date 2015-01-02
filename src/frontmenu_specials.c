@@ -338,6 +338,6 @@ void choose_armageddon(struct GuiButton *gbtn)
 {
     struct PlayerInfo *player;
     player = get_my_player();
-    set_players_packet_action(player, PckA_PwrArmagUse, 0, 0, 0, 0);
+    set_players_packet_action(player, PckA_UsePwrArmageddon, 0, 0, 0, 0);
 }
 /******************************************************************************/
