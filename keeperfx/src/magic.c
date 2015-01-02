@@ -93,7 +93,7 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord s
         return false;
     }
     TbBool cast_at_xy,cast_on_tng;
-    cast_at_xy = can_cast_spell_at_xy(plyr_idx, pwkind, stl_x, stl_y, 0);
+    cast_at_xy = can_cast_power_at_xy(plyr_idx, pwkind, stl_x, stl_y, 0);
     struct SpellData *pwrdata;
     pwrdata = get_power_data(pwkind);
     cast_on_tng = true;
@@ -456,7 +456,7 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
     play_creature_sound(thing, CrSnd_Hurt, 3, 0);
 }
 
-TbBool can_cast_spell_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
+TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags)
 {
     struct Map *mapblk;
@@ -1857,7 +1857,7 @@ TbResult magic_use_available_power_on_subtile(PlayerNumber plyr_idx, PowerKind p
     if (ret == Lb_OK)
     {
         TbBool cast_at_xy;
-        cast_at_xy = can_cast_spell_at_xy(plyr_idx, pwkind, stl_x, stl_y, allow_flags);
+        cast_at_xy = can_cast_power_at_xy(plyr_idx, pwkind, stl_x, stl_y, allow_flags);
         // Fail if the function has failed
         if (!cast_at_xy) {
             WARNLOG("Player %d tried to cast %s on %s which can't be targeted",

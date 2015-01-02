@@ -32,6 +32,7 @@
 #include "creature_control.h"
 #include "creature_states.h"
 #include "creature_graphics.h"
+#include "player_instances.h"
 #include "dungeon_data.h"
 #include "config_creature.h"
 #include "gui_topmsg.h"
@@ -459,8 +460,7 @@ struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long a1)
         if (player->controlled_thing_idx == prev_idx)
         {
             // we can't use set_selected_creature() as we're setting the target to dead body
-            player->controlled_thing_idx = deadtng->index;
-            player->controlled_thing_creatrn = deadtng->creation_turn;
+            set_selected_thing(player, deadtng);
         }
     }
     return deadtng;

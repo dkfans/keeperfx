@@ -185,7 +185,7 @@ long computer_checks_hates(struct Computer2 *comp, struct ComputerCheck * check)
             }
         }
     }
-    return 4;
+    return CTaskRet_Unk4;
 }
 
 long computer_check_move_creatures_to_best_room(struct Computer2 *comp, struct ComputerCheck * check)
@@ -197,21 +197,21 @@ long computer_check_move_creatures_to_best_room(struct Computer2 *comp, struct C
     num_to_move = check->param1 * dungeon->num_active_creatrs / 100;
     if (num_to_move <= 0) {
         SYNCDBG(8,"No creatures to move, active %d percentage %d", (int)dungeon->num_active_creatrs, (int)check->param1);
-        return 4;
+        return CTaskRet_Unk4;
     }
     if (computer_able_to_use_magic(comp, PwrK_HAND, 1, num_to_move) != 1) {
-        return 4;
+        return CTaskRet_Unk4;
     }
     // If there's already task in progress which uses hand, then don't add more
     // content of the hand could be used by wrong task by mistake
     if (is_task_in_progress_using_hand(comp)) {
-        return 4;
+        return CTaskRet_Unk4;
     }
     if (!create_task_move_creatures_to_room(comp, 0, num_to_move)) {
-        return 4;
+        return CTaskRet_Unk4;
     }
     SYNCDBG(8,"Added task to move %d creatures to best room", (int)num_to_move);
-    return 1;
+    return CTaskRet_Unk1;
 }
 
 long computer_check_move_creatures_to_room(struct Computer2 *comp, struct ComputerCheck * check)
@@ -224,15 +224,15 @@ long computer_check_move_creatures_to_room(struct Computer2 *comp, struct Comput
     num_to_move = check->param1 * dungeon->num_active_creatrs / 100;
     if (num_to_move <= 0) {
         SYNCDBG(8,"No creatures to move, active %d percentage %d", (int)dungeon->num_active_creatrs, (int)check->param1);
-        return 4;
+        return CTaskRet_Unk4;
     }
     if (computer_able_to_use_magic(comp, PwrK_HAND, 1, num_to_move) != 1) {
-        return 4;
+        return CTaskRet_Unk4;
     }
     // If there's already task in progress which uses hand, then don't add more
     // content of the hand could be used by wrong task by mistake
     if (is_task_in_progress_using_hand(comp)) {
-        return 4;
+        return CTaskRet_Unk4;
     }
     unsigned long k;
     long i;
@@ -252,7 +252,7 @@ long computer_check_move_creatures_to_room(struct Computer2 *comp, struct Comput
         {
             if (create_task_move_creatures_to_room(comp, room->index, num_to_move)) {
                 SYNCDBG(8,"Added task to move %d creatures to %s index %d", (int)num_to_move,room_code_name(room->kind),(int)room->index);
-                return 1;
+                return CTaskRet_Unk1;
             }
         }
         // Per-room code ends
@@ -263,7 +263,7 @@ long computer_check_move_creatures_to_room(struct Computer2 *comp, struct Comput
             break;
         }
     }
-    return 4;
+    return CTaskRet_Unk4;
 }
 
 long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check)
@@ -271,8 +271,10 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
     struct Dungeon *dungeon;
     SYNCDBG(8,"Starting");
     dungeon = comp->dungeon;
-    if (dungeon->num_active_diggers >= check->param1) {
-        return 4;
+    long controlled_diggers;
+    controlled_diggers = dungeon->num_active_diggers - count_player_diggers_not_counting_to_total(dungeon->owner);
+    if (controlled_diggers >= check->param1) {
+        return CTaskRet_Unk4;
     }
     long able;
     able = computer_able_to_use_magic(comp, PwrK_MKDIGGER, 0, 1);
@@ -286,11 +288,12 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
         if (xy_walkable(stl_x, stl_y, dungeon->owner))
         {
             if (try_game_action(comp, dungeon->owner, GA_UseMkDigger, 0, stl_x, stl_y, 1, 1) > Lb_OK) {
-                able = 1;
+                return CTaskRet_Unk1;
             }
         }
+        return CTaskRet_Unk1;
     }
-    return able;
+    return CTaskRet_Unk0;
 }
 
 struct Thing * find_imp_for_pickup(struct Computer2 *comp, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
@@ -379,12 +382,12 @@ long computer_check_for_pretty(struct Computer2 *comp, struct ComputerCheck * ch
         long stack_len;
         stack_len = dungeon->digger_stack_length;
         if (stack_len <= check->param1 * dungeon->total_area / 100) {
-            return 4;
+            return CTaskRet_Unk4;
         }
         long n;
         n = find_in_imp_stack_starting_at(DigTsk_ImproveDungeon, ACTION_RANDOM(stack_len), dungeon);
         if (n < 0) {
-            return 4;
+            return CTaskRet_Unk4;
         }
         const struct DiggerStack *dstack;
         dstack = &dungeon->digger_stack[n];
@@ -394,12 +397,12 @@ long computer_check_for_pretty(struct Computer2 *comp, struct ComputerCheck * ch
     struct Thing * creatng;
     creatng = find_imp_for_pickup(comp, stl_x, stl_y);
     if (thing_is_invalid(creatng)) {
-        return 4;
+        return CTaskRet_Unk4;
     }
     if (!create_task_move_creature_to_subtile(comp, creatng, stl_x, stl_y)) {
-        return 4;
+        return CTaskRet_Unk4;
     }
-    return 1;
+    return CTaskRet_Unk1;
 }
 
 struct Room *get_opponent_room(struct Computer2 *comp, PlayerNumber plyr_idx)
@@ -464,18 +467,18 @@ long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerChec
     int creatrs_num;
     creatrs_num = check->param1 * dungeon->num_active_creatrs / 100;
     if (check->param3 >= creatrs_num) {
-        return 4;
+        return CTaskRet_Unk4;
     }
     if (computer_able_to_use_magic(comp, PwrK_CALL2ARMS, 1, 3) != 1) {
-        return 4;
+        return CTaskRet_Unk4;
     }
     if ((check_call_to_arms(comp) != 1) || is_there_an_attack_task(comp)) {
-        return 4;
+        return CTaskRet_Unk4;
     }
     struct Room *room;
     room = get_hated_room_for_quick_attack(comp, check->param3);
     if (room_is_invalid(room)) {
-        return 4;
+        return CTaskRet_Unk4;
     }
     struct Coord3d pos;
     // TODO COMPUTER_PLAYER We should make sure the place of cast is accessible for creatures
@@ -483,14 +486,14 @@ long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerChec
     pos.y.val = subtile_coord_center(room->central_stl_y);
     pos.z.val = subtile_coord(1,0);
     if (check->param3 >= count_creatures_availiable_for_fight(comp, &pos)) {
-        return 4;
+        return CTaskRet_Unk4;
     }
     if (!create_task_magic_support_call_to_arms(comp, &pos, check->param2, 0, creatrs_num)) {
-        return 4;
+        return CTaskRet_Unk4;
     }
     SYNCLOG("Player %d decided to attack %s owned by player %d",(int)dungeon->owner,room_code_name(room->kind),(int)room->owner);
     output_message(SMsg_EnemyHarassments+ACTION_RANDOM(8), 500, 1);
-    return 1;
+    return CTaskRet_Unk1;
 }
 
 struct Thing *computer_check_creatures_in_room_for_accelerate(struct Computer2 *comp, struct Room *room)
@@ -590,7 +593,7 @@ long computer_check_for_accelerate(struct Computer2 *comp, struct ComputerCheck 
     SYNCDBG(8,"Starting");
     if (computer_able_to_use_magic(comp, PwrK_SPEEDCRTR, 8, 3) != 1)
     {
-        return 4;
+        return CTaskRet_Unk4;
     }
     n = check->param1 % (sizeof(workers_in_rooms)/sizeof(workers_in_rooms[0]));
     if (n <= 0)
@@ -601,11 +604,11 @@ long computer_check_for_accelerate(struct Computer2 *comp, struct ComputerCheck 
         if (!thing_is_invalid(thing))
         {
             SYNCDBG(8,"Cast on thing %d",(int)thing->index);
-            return 1;
+            return CTaskRet_Unk1;
         }
         n = (n+1) % (sizeof(workers_in_rooms)/sizeof(workers_in_rooms[0]));
     }
-    return 4;
+    return CTaskRet_Unk4;
 }
 
 long computer_check_slap_imps(struct Computer2 *comp, struct ComputerCheck * check)
@@ -614,24 +617,24 @@ long computer_check_slap_imps(struct Computer2 *comp, struct ComputerCheck * che
     SYNCDBG(8,"Starting");
     dungeon = comp->dungeon;
     if (!is_power_available(dungeon->owner, PwrK_SLAP)) {
-        return 4;
+        return CTaskRet_Unk4;
     }
     long creatrs_num;
     creatrs_num = check->param1 * dungeon->num_active_diggers / 100;
     if (!is_task_in_progress(comp, CTT_SlapImps))
     {
         if (create_task_slap_imps(comp, creatrs_num)) {
-            return 1;
+            return CTaskRet_Unk1;
         }
     }
-    return 4;
+    return CTaskRet_Unk4;
 }
 
 long computer_check_enemy_entrances(struct Computer2 *comp, struct ComputerCheck * check)
 {
     SYNCDBG(8,"Starting");
     long result;
-    result = 4;
+    result = CTaskRet_Unk4;
     PlayerNumber plyr_idx;
     for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
@@ -681,7 +684,7 @@ long computer_check_enemy_entrances(struct Computer2 *comp, struct ComputerCheck
                 pos->x.val = subtile_coord(room->central_stl_x,0);
                 pos->y.val = subtile_coord(room->central_stl_y,0);
                 pos->z.val = subtile_coord(1,0);
-                result = 2;
+                result = CTaskRet_Unk2;
             }
             // Per-room code ends
             k++;
@@ -799,7 +802,7 @@ long computer_check_for_place_door(struct Computer2 *comp, struct ComputerCheck 
             if (find_place_to_put_door_around_room(room, &pos))
             {
                 if (try_game_action(comp, dungeon->owner, GA_PlaceDoor, 0, pos.x.stl.num, pos.y.stl.num, doorkind, 0) > Lb_OK) {
-                  return 1;
+                    return CTaskRet_Unk1;
                 }
             }
             // Per-room code ends
@@ -811,7 +814,7 @@ long computer_check_for_place_door(struct Computer2 *comp, struct ComputerCheck 
             }
         }
     }
-    return 4;
+    return CTaskRet_Unk4;
 }
 
 long computer_check_neutral_places(struct Computer2 *comp, struct ComputerCheck * check)
@@ -849,7 +852,7 @@ long computer_check_neutral_places(struct Computer2 *comp, struct ComputerCheck 
         }
     }
     if (room_is_invalid(near_room)) {
-        return 4;
+        return CTaskRet_Unk4;
     }
     struct Coord3d endpos;
     struct Coord3d startpos;
@@ -860,12 +863,12 @@ long computer_check_neutral_places(struct Computer2 *comp, struct ComputerCheck 
     startpos.y.val = subtile_coord_center(stl_slab_center_subtile(near_room->central_stl_y));
     startpos.z.val = subtile_coord(1,0);
     if (!create_task_dig_to_neutral(comp, startpos, endpos)) {
-        return 4;
+        return CTaskRet_Unk4;
     }
     near_pos->x.val = 0;
     near_pos->y.val = 0;
     near_pos->z.val = 0;
-    return 1;
+    return CTaskRet_Unk1;
 }
 
 /**
@@ -968,7 +971,7 @@ TbBool computer_check_for_expand_specific_room(struct Computer2 *comp, struct Co
     return false;
 }
 
-long computer_check_for_expand_room_kind(struct Computer2 *comp, struct ComputerCheck * check, RoomKind rkind, long max_slabs, long around_start)
+TbBool computer_check_for_expand_room_kind(struct Computer2 *comp, struct ComputerCheck * check, RoomKind rkind, long max_slabs, long around_start)
 {
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
@@ -978,7 +981,7 @@ long computer_check_for_expand_room_kind(struct Computer2 *comp, struct Computer
         // If we don't have money for the room - don't even try
         // Check price for two slabs - after all, we don't want to end up having nothing
         if (2*rstat->cost >= dungeon->total_money_owned) {
-            return 0;
+            return false;
         }
     }
     MapSubtlCoord max_radius;
@@ -1002,7 +1005,7 @@ long computer_check_for_expand_room_kind(struct Computer2 *comp, struct Computer
         if ((room->slabs_count > 0) && (room->slabs_count < max_slabs)) {
             if (computer_check_for_expand_specific_room(comp, check, room, max_radius, around_start)) {
                 SYNCDBG(6,"The %s index %d will be expanded",room_code_name(room->kind),(int)room->index);
-                return 1;
+                return true;
             }
         }
         // Per-room code ends
@@ -1013,7 +1016,7 @@ long computer_check_for_expand_room_kind(struct Computer2 *comp, struct Computer
           break;
         }
     }
-    return 0;
+    return false;
 }
 
 long computer_check_for_expand_room(struct Computer2 *comp, struct ComputerCheck * check)
@@ -1024,27 +1027,27 @@ long computer_check_for_expand_room(struct Computer2 *comp, struct ComputerCheck
     if (dungeon_invalid(dungeon))
     {
         ERRORLOG("Invalid computer players dungeon");
-        return 0;
+        return CTaskRet_Unk0;
     }
     long around_start;
     around_start = ACTION_RANDOM(119);
     // Don't work when placing rooms; we could place in an area for room by mistake
     if (is_task_in_progress(comp, CTT_PlaceRoom) || is_task_in_progress(comp, CTT_CheckRoomDug)) {
         SYNCDBG(8,"No rooms expansion - colliding task already in progress");
-        return 0;
+        return CTaskRet_Unk0;
     }
     if (4 * dungeon->creatures_total_pay / 3 >= dungeon->total_money_owned) {
         SYNCDBG(8,"No rooms expansion - we don't even have money for payday");
-        return 0;
+        return CTaskRet_Unk0;
     }
     const struct ExpandRooms *expndroom;
     for (expndroom = &expand_rooms[0]; expndroom->rkind != RoK_NONE; expndroom++)
     {
         if (computer_check_for_expand_room_kind(comp, check, expndroom->rkind, expndroom->max_slabs, around_start)) {
-            return 1;
+            return CTaskRet_Unk1;
         }
     }
     SYNCDBG(8,"No rooms found for expansion");
-    return 0;
+    return CTaskRet_Unk0;
 }
 /******************************************************************************/

@@ -696,16 +696,19 @@ long computer_place_thing_in_power_hand(struct Computer2 *comp, struct Thing *th
 {
     SYNCDBG(9,"Starting");
     if (!can_thing_be_picked_up_by_player(thing, comp->dungeon->owner)) {
-        ERRORLOG("Computer tries to pick up %s which is not pickable", thing_model_name(thing));
+        ERRORLOG("Computer tries to pick up %s index %d which is not pickable", thing_model_name(thing),(int)thing->index);
         return 0;
     }
     if ((thing->alloc_flags & TAlF_IsControlled) != 0) {
+        SYNCDBG(7,"Computer tries to pick up %s index %d which is being controlled", thing_model_name(thing),(int)thing->index);
         return 0;
     }
     if (!computer_find_non_solid_block(comp, pos)) {
+        SYNCDBG(7,"Computer tries to pick up %s index %d which is to be dropped on solid block", thing_model_name(thing),(int)thing->index);
         return 0;
     }
     if (!can_place_thing_here(thing, pos->x.stl.num, pos->y.stl.num, comp->dungeon->owner)) {
+        SYNCDBG(7,"Computer tries to pick up %s index %d which cannot be dropped at given place", thing_model_name(thing),(int)thing->index);
         return 0;
     }
     computer_pick_thing_by_hand(comp, thing);
@@ -2591,7 +2594,7 @@ long task_move_gold_to_treasury(struct Computer2 *comp, struct ComputerTask *cta
     dungeon = comp->dungeon;
     if (dungeon_invalid(dungeon)) {
         ERRORLOG("Invalid dungeon in computer player.");
-        return 0;
+        return CTaskRet_Unk0;
     }
     SYNCDBG(9,"Starting for player %d",(int)dungeon->owner);
     struct Thing *thing;
@@ -2635,14 +2638,28 @@ long task_move_gold_to_treasury(struct Computer2 *comp, struct ComputerTask *cta
         if (!room_is_invalid(room))
         {
             ctask->move_gold.room_idx = room->index;
+            // Get a position somewhere in that room for the check below; we will use random one when dropping anyway
+            pos.x.val = subtile_coord_center(slab_subtile_center(slb_num_decode_x(room->slabs_list)));
+            pos.y.val = subtile_coord_center(slab_subtile_center(slb_num_decode_y(room->slabs_list)));
+            pos.z.val = subtile_coord(1,0);
             if (computer_place_thing_in_power_hand(comp, thing, &pos)) {
-                SYNCDBG(9,"Player %d picked %s index %d to place in %s index %d",(int)comp->dungeon->owner,thing_model_name(thing),(int)thing->index,
-                    room_code_name(room->kind),(int)room->index);
+                SYNCDBG(9,"Player %d picked %s index %d to place in %s index %d",(int)comp->dungeon->owner,
+                    thing_model_name(thing),(int)thing->index,room_code_name(room->kind),(int)room->index);
                 return CTaskRet_Unk2;
+            } else {
+                SYNCDBG(9,"Player %d cannot place %s index %d into power hand",(int)comp->dungeon->owner,
+                    thing_model_name(thing),(int)thing->index);
             }
+        } else
+        {
+            SYNCDBG(9,"Player %d has no room to place the gold into",(int)comp->dungeon->owner);
+            remove_task(comp, ctask);
         }
+    } else
+    {
+        SYNCDBG(9,"Player %d has no more gold laying around",(int)comp->dungeon->owner);
+        remove_task(comp, ctask);
     }
-    remove_task(comp, ctask);
     return CTaskRet_Unk0;
 }
 
@@ -2710,14 +2727,12 @@ long task_slap_imps(struct Computer2 *comp, struct ComputerTask *ctask)
 long task_dig_to_neutral(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
-    int i;
     short digret;
     digret = tool_dig_to_pos2(comp, &ctask->dig, 0, 0);
     if (digret == -5)
     {
-        i = ctask->ttype;
+        ctask->ottype = ctask->ttype;
         ctask->ttype = CTT_WaitForBridge;
-        ctask->ottype = i;
         return 4;
     }
     if ((digret >= -3) && (digret <= -1))

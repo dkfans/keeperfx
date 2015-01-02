@@ -37,7 +37,7 @@ struct PlayerInfo;
 void add_creature_to_sacrifice_list(PlayerNumber owner, long model, long explevel);
 void place_thing_in_limbo(struct Thing *thing);
 void remove_thing_from_limbo(struct Thing *thing);
-unsigned long object_is_pickable_by_hand(const struct Thing *thing, long a2);
+unsigned long object_is_pickable_by_hand_for_use(const struct Thing *thing, long a2);
 TbBool thing_is_pickable_by_hand(struct PlayerInfo *player, const struct Thing *thing);
 void set_power_hand_offset(struct PlayerInfo *player, struct Thing *thing);
 struct Thing *process_object_being_picked_up(struct Thing *thing, long a2);
