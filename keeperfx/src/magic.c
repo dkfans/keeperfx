@@ -1780,7 +1780,7 @@ TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind pwk
         switch (pwkind)
         {
         case PwrK_HAND:
-            //TODO check if we should use magic_use_power_hand()
+            //Note that we shouldn't use magic_use_power_hand(), that function is for interpreting input
             if (power_hand_is_full(get_player(plyr_idx)))
                 ret = Lb_FAIL;
             else

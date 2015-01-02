@@ -66,7 +66,7 @@ struct SpellData spell_data[] = {
   {PckA_SetPlyrState,  PSt_CtrlDirect, 0,   0,   0,   0,   0,   0,  0, NULL,                 PwCast_None},      //[0] None
   {        PckA_None,        PSt_None, 0,   0,   0,   0,   0,   0,  0, NULL,                 PwCast_Anywhere}, //[1] Power Hand
   {PckA_SetPlyrState,PSt_CreateDigger, 0,  95, 118, 631, 648, 831,  5, NULL,                 PwCast_Anywhere}, //[2] Make Digger
-  {  PckA_PwrObeyUse,        PSt_None, 0, 394, 452, 636, 653, 834,  0, NULL,                 PwCast_Anywhere}, //[3] Must Obey
+  {  PckA_UsePwrObey,        PSt_None, 0, 394, 452, 636, 653, 834,  0, NULL,                 PwCast_Anywhere}, //[3] Must Obey
   {        PckA_None,        PSt_None, 0,   0,   0,   0,   0,   0,  0, NULL,                 PwCast_Anywhere}, //[4] Slap
   {PckA_SetPlyrState, PSt_SightOfEvil, 1,  85, 108, 632, 649, 828, 12, sight_of_evil_expand_check, PwCast_Anywhere}, //[5] Sight of Evil
   {PckA_SetPlyrState,  PSt_CallToArms, 1,  93, 116, 633, 650, 826,  0, call_to_arms_expand_check,  PwCast_Anywhere}, //[6] Call To Arms
@@ -82,7 +82,7 @@ struct SpellData spell_data[] = {
   {PckA_SetPlyrState,PSt_DestroyWalls, 0, 308, 317, 643, 660, 839,  4, general_expand_check, PwCast_Anywhere}, //[16] Destroy Walls
   {PckA_SetPlyrState,    PSt_TimeBomb, 0, 105, 128, 645, 662,   0,  0, NULL,                 PwCast_Anywhere}, //[17] Time Bomb
   {PckA_SetPlyrState,  PSt_CtrlDirect, 0,  91, 114, 630, 647, 836,  7, NULL,                 PwCast_Anywhere}, //[18] Possession
-  { PckA_PwrArmagUse,        PSt_None, 0, 312, 321, 646, 663, 824,  0, NULL,                 PwCast_Anywhere}, //[19] Armageddon
+  { PckA_UsePwrArmageddon,        PSt_None, 0, 312, 321, 646, 663, 824,  0, NULL,                 PwCast_Anywhere}, //[19] Armageddon
   {        PckA_None,        PSt_None, 0,   0,   0,   0,   0,   0,  0, NULL,                 PwCast_None},      //[20]
 };
 

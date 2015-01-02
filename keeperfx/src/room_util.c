@@ -134,21 +134,21 @@ void process_rooms(void)
 {
   SYNCDBG(7,"Starting");
   struct Room *room;
-  struct Packet *pckt;
+  TbBigChecksum sum;
+  sum = 0;
   for (room = start_rooms; room < end_rooms; room++)
   {
-    if ((room->field_0 & 0x01) == 0)
-      continue;
-    if (room->kind == RoK_GARDEN) {
-        room_grow_food(room);
-    }
-    pckt = get_packet(my_player_number);
-    pckt->chksum += (room->slabs_count & 0xFF) + room->central_stl_x + room->central_stl_y;
-    if (((game.numfield_D & 0x40) == 0) || (room->kind == RoK_DUNGHEART)) {
-        continue;
-    }
-    process_room_surrounding_flames(room);
+      if (!room_exists(room))
+          continue;
+      if (room_grows_food(room->kind)) {
+          room_grow_food(room);
+      }
+      sum += (room->slabs_count & 0xFF) + room->central_stl_x + room->central_stl_y;
+      if (room_has_surrounding_flames(room->kind) && ((game.numfield_D & 0x40) != 0)) {
+          process_room_surrounding_flames(room);
+      }
   }
+  player_packet_checksum_add(my_player_number, sum);
   recompute_rooms_count_in_dungeons();
   SYNCDBG(9,"Finished");
 }
@@ -314,7 +314,7 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
 {
     struct Room *room;
     unsigned long n;
-    if ((thing->state_flags & TF1_IsDragged1) != 0)
+    if (thing_is_dragged_or_pulled(thing))
     {
         ERRORLOG("It shouldn't be possible to drag %s during initial asimilation",thing_model_name(thing));
         thing->owner = game.neutral_player_num;

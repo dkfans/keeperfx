@@ -200,6 +200,7 @@ struct ComputerCheck;
 struct ComputerEvent;
 struct Event;
 struct Thing;
+struct Room;
 struct ComputerTask;
 struct GoldLookup;
 struct THate;
@@ -578,7 +579,7 @@ void computer_check_events(struct Computer2 *comp);
 TbBool process_checks(struct Computer2 *comp);
 GoldAmount get_computer_money_less_cost(const struct Computer2 *comp);
 TbBool creature_could_be_placed_in_better_room(const struct Computer2 *comp, const struct Thing *thing);
-struct Room *get_room_to_place_creature(const struct Computer2 *comp, const struct Thing *thing);
+CreatureJob get_job_to_place_creature_in_room(const struct Computer2 *comp, const struct Thing *thing);
 long xy_walkable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx);
 /******************************************************************************/
 struct ComputerTask *get_computer_task(long idx);

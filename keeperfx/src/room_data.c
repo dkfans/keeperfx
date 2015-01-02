@@ -184,7 +184,7 @@ TbBool room_exists(const struct Room *room)
 {
   if (room_is_invalid(room))
     return false;
-  return ((room->field_0 & 0x01) != 0);
+  return ((room->alloc_flags & 0x01) != 0);
 }
 
 struct RoomData *room_data_get_for_kind(RoomKind rkind)
@@ -1295,7 +1295,7 @@ void delete_room_structure(struct Room *room)
         WARNLOG("Attempt to delete invalid room");
         return;
     }
-    if ((room->field_0 & 0x01) != 0)
+    if ((room->alloc_flags & 0x01) != 0)
     {
       // This is almost remove_room_from_players_list(room, room->owner);
       // but it doesn't change room_slabs_count and is less careful - better not use too much
@@ -1918,10 +1918,10 @@ struct Room *allocate_free_room_structure(void)
     for (i = 1; i < ROOMS_COUNT; i++)
     {
         room = &game.rooms[i];
-        if ((room->field_0 & 0x01) == 0)
+        if ((room->alloc_flags & 0x01) == 0)
         {
             LbMemorySet(room, 0, sizeof(struct Room));
-            room->field_0 |= 0x01;
+            room->alloc_flags |= 0x01;
             room->index = i;
             return room;
         }

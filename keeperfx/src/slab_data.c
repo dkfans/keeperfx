@@ -115,6 +115,15 @@ struct SlabMap *get_slabmap_thing_is_on(const struct Thing *thing)
     return get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
 }
 
+PlayerNumber get_slab_owner_thing_is_on(const struct Thing *thing)
+{
+    if (thing_is_invalid(thing))
+        return game.neutral_player_num;
+    struct SlabMap *slb;
+    slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+    return slabmap_owner(slb);
+}
+
 /**
  * Returns if given SlabMap is not a part of the map.
  */
