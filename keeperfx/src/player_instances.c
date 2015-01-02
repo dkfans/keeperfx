@@ -191,9 +191,7 @@ long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
         return 0;
     }
     // Update sprites for the creature in hand, and power hand itself
-    struct Dungeon *dungeon;
-    dungeon = get_players_dungeon(player);
-    set_power_hand_offset(player, thing_get(dungeon->things_in_hand[0]));
+    set_power_hand_offset(player, get_first_thing_in_power_hand(player));
     if (!thing_is_invalid(grabtng)) {
         set_power_hand_graphic(player->id_number, 784, 256);
     }
