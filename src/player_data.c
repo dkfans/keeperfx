@@ -268,7 +268,7 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
   if ((player->work_state != PSt_Unknown12) && (player->work_state != PSt_CreatrInfo)
      && (player->work_state != PSt_CtrlDirect) && (player->work_state != PSt_CtrlPassngr))
   {
-      clear_selected_creature(player);
+      clear_selected_thing(player);
   }
   switch (player->work_state)
   {

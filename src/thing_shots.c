@@ -778,6 +778,10 @@ TbBool shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
         killertng = thing_get(shotng->parent_idx);
         dieflags = CrDed_DiedInBattle | (shotst->old->cannot_make_target_unconscious?CrDed_NoUnconscious:0);
     }
+    // Friendly fire should kill the creature, not knock out
+    if (shotng->owner == creatng->owner) {
+        dieflags |= CrDed_NoUnconscious;
+    }
     return kill_creature(creatng, killertng, shotng->owner, dieflags);
 }
 

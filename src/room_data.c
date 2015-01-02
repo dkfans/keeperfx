@@ -2971,7 +2971,7 @@ struct Room *get_room_of_given_kind_for_thing(struct Thing *thing, struct Dungeo
 {
     struct Room *room;
     struct Room *retroom;
-    long retdist,pay;
+    long retdist,salary;
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
     unsigned long k;
@@ -2995,8 +2995,8 @@ struct Room *get_room_of_given_kind_for_thing(struct Thing *thing, struct Dungeo
         switch (room->kind)
         {
         case RoK_TREASURE:
-            pay = calculate_correct_creature_pay(thing);
-            if (room->capacity_used_for_storage + dungeon->offmap_money_owned < pay) {
+            salary = calculate_correct_creature_pay(thing);
+            if (room->capacity_used_for_storage + dungeon->offmap_money_owned < salary) {
                 // This room isn't attractive at all - creature won't get salary there
                 attractiveness = 0;
             }

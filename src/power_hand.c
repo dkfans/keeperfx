@@ -77,33 +77,18 @@ struct Thing *create_gold_for_hand_grab(struct Thing *thing, long a2)
     return _DK_create_gold_for_hand_grab(thing, a2);
 }
 
-unsigned long object_is_pickable_by_hand(const struct Thing *thing, long plyr_idx)
+/**
+ *
+ * @param thing
+ * @param plyr_idx
+ */
+unsigned long object_is_pickable_by_hand_for_use(const struct Thing *thing, long plyr_idx)
 {
     struct SlabMap *slb;
-    if (object_is_gold(thing))
-    {
-        if (object_is_gold_pile(thing)) {
-            slb = get_slabmap_thing_is_on(thing);
-            if ((slabmap_owner(slb) == plyr_idx) || (slabmap_owner(slb) == game.neutral_player_num))
-                return true;
-        }
-        slb = get_slabmap_thing_is_on(thing);
-        if ((slabmap_owner(slb) == plyr_idx) && (thing->owner == plyr_idx)) {
-            struct Room *room;
-            room = get_room_thing_is_on(thing);
-            if (room_exists(room) && (room->kind == RoK_TREASURE))
-                return true;
-        }
-        return false;
-    }
-    if (object_is_mature_food(thing))
-    {
-        return (thing->owner == plyr_idx);
-    }
     if (thing_is_special_box(thing))
     {
         slb = get_slabmap_thing_is_on(thing);
-        if ((slabmap_owner(slb) != plyr_idx) || ((thing->state_flags & TF1_IsDragged1)) || ((thing->alloc_flags & TAlF_IsDragged)))
+        if ((slabmap_owner(slb) != plyr_idx) || thing_is_dragged_or_pulled(thing))
             return false;
         return true;
     }
@@ -158,54 +143,16 @@ TbBool armageddon_blocks_creature_pickup(const struct Thing *thing, PlayerNumber
     return false;
 }
 
-/**
- * Returns whether creature can be picked by Power Hand.
- * @deprecated use can_cast_spell_on_thing() instead
- * @param thing
- * @param plyr_idx
- * @return
- */
-TbBool creature_is_pickable_by_hand(const struct Thing *thing, PlayerNumber plyr_idx)
-{
-    if (armageddon_blocks_creature_pickup(thing, plyr_idx))
-        return false;
-    if (creature_is_being_unconscious(thing) || creature_is_dying(thing))
-        return false;
-    if (thing_is_picked_up(thing) || creature_is_dragging_something(thing))
-        return false;
-    if (creature_is_being_sacrificed(thing) || creature_is_being_summoned(thing))
-        return false;
-    if (creature_affected_by_spell(thing, SplK_Teleport))
-        return false;
-    if (thing->owner == plyr_idx)
-    {
-        // Allow own creatures if they're not in enemy custody
-        if (creature_is_kept_in_custody_by_enemy(thing))
-            return false;
-    } else
-    {
-        // Allow enemy creatures if they are in our custody
-        if (!creature_is_kept_in_custody_by_player(thing, plyr_idx))
-            return false;
-    }
-    return true;
-}
-
 long can_thing_be_picked_up_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
 {
-    // Some creatures can be picked
-    if (thing_is_creature(thing))
-    {
-        //return creature_is_pickable_by_hand(thing, plyr_idx);
-        return can_cast_power_on_thing(plyr_idx, thing, PwrK_HAND);
-    }
-    // Some objects can be picked
+    // Some things can be picked not to be placed in hand, but for direct use
     if (thing_is_object(thing))
     {
-        return object_is_pickable_by_hand(thing, plyr_idx);
+        if (object_is_pickable_by_hand_for_use(thing, plyr_idx))
+            return true;
     }
-    // Other things are not pickable
-    return false;
+    // Other things are pickable only for placing in hand
+    return can_cast_spell(my_player_number, PwrK_HAND, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default);
 }
 
 long can_thing_be_picked_up2_by_player(const struct Thing *thing, PlayerNumber plyr_idx)

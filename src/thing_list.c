@@ -745,16 +745,19 @@ long anywhere_thing_filter_is_door_of_model_locked_and_owned_by(const struct Thi
  * @param param Parameters exchanged between filter calls.
  * @param maximizer Previous value which made a thing pass the filter.
  */
-long anywhere_thing_filter_is_gold_pickable_by(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
+long anywhere_thing_filter_is_gold_on_owned_ground_pickable_by(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
     if ((param->class_id == -1) || (thing->class_id == param->class_id))
     {
       if (((param->model_id == -1) && object_is_gold_pile(thing)) || (thing->model == param->model_id))
       {
-          if ((param->plyr_idx == -1) || can_thing_be_picked_up_by_player(thing, param->plyr_idx))
+          if (!thing_is_dragged_or_pulled(thing))
           {
-              // Return the largest value to stop sweeping
-              return LONG_MAX;
+              if ((param->plyr_idx == -1) || ((get_slab_owner_thing_is_on(thing) == param->plyr_idx) && can_thing_be_picked_up_by_player(thing, param->plyr_idx)))
+              {
+                  // Return the largest value to stop sweeping
+                  return LONG_MAX;
+              }
           }
       }
     }
@@ -1559,7 +1562,7 @@ struct Thing *find_gold_laying_in_dungeon(const struct Dungeon *dungeon)
     Thing_Maximizer_Filter filter;
     struct CompoundTngFilterParam param;
     SYNCDBG(19,"Starting");
-    filter = anywhere_thing_filter_is_gold_pickable_by;
+    filter = anywhere_thing_filter_is_gold_on_owned_ground_pickable_by;
     param.class_id = TCls_Object;
     param.model_id = -1;
     param.plyr_idx = dungeon->owner;
@@ -2041,6 +2044,42 @@ long count_player_diggers_not_counting_to_total(PlayerNumber plyr_idx)
         }
     }
     return count;
+}
+
+GoldAmount compute_player_payday_total(const struct Dungeon *dungeon)
+{
+    unsigned long k;
+    int i;
+    SYNCDBG(18,"Starting");
+    GoldAmount total_pay;
+    total_pay = 0;
+    k = 0;
+    i = dungeon->creatr_list_start;
+    while (i != 0)
+    {
+        struct Thing *thing;
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        total_pay += calculate_correct_creature_pay(thing);
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    SYNCDBG(19,"Finished");
+    return total_pay;
 }
 
 struct Thing *get_random_players_creature_of_model(PlayerNumber plyr_idx, ThingModel crmodel)
