@@ -1151,6 +1151,18 @@ TbBool enemies_may_work_in_room(RoomKind rkind)
     return (rkind == RoK_PRISON) || (rkind == RoK_TORTURE);
 }
 
+TbBool room_grows_food(RoomKind rkind)
+{
+    //TODO CONFIG Place this in room config data
+    return (rkind == RoK_GARDEN);
+}
+
+TbBool room_has_surrounding_flames(RoomKind rkind)
+{
+    //TODO CONFIG Place this in room config data
+    return (rkind != RoK_DUNGHEART);
+}
+
 /**
  * Returns if given room kind cannot be vandalized (it's either indestructible or crucial for the game).
  * @param rkind The room kind to be checked.

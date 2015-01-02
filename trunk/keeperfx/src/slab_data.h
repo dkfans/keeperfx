@@ -116,6 +116,7 @@ TbBool slabmap_block_invalid(const struct SlabMap *slb);
 long slabmap_owner(const struct SlabMap *slb);
 void slabmap_set_owner(struct SlabMap *slb, PlayerNumber owner);
 void set_whole_slab_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber owner);
+PlayerNumber get_slab_owner_thing_is_on(const struct Thing *thing);
 unsigned long slabmap_wlb(struct SlabMap *slb);
 void slabmap_set_wlb(struct SlabMap *slb, unsigned long wlbflag);
 long get_next_slab_number_in_room(SlabCodedCoords slab_num);

@@ -39,7 +39,7 @@ enum TbPacketAction {
         PckA_Unknown009,
         PckA_InitPlayerNum,//10
         PckA_Unknown011,
-        PckA_Unknown012,
+        PckA_LevelExactCheck,
         PckA_PlyrMsgBegin,
         PckA_PlyrMsgEnd,
         PckA_Unknown015,//15
@@ -117,15 +117,15 @@ enum TbPacketAction {
         PckA_Unknown087,
         PckA_Unknown088,
         PckA_PwrCTADis,
-        PckA_PickUpThing,//90
-        PckA_DumpHeldThing,
+        PckA_UsePwrHandPick,//90
+        PckA_UsePwrHandDrop,
         PckA_Unknown092,
         PckA_UseSpecialBox,
         PckA_Unknown094,
         PckA_ResurrectCrtr,//95
         PckA_TransferCreatr,
-        PckA_PwrObeyUse,
-        PckA_PwrArmagUse,
+        PckA_UsePwrObey,
+        PckA_UsePwrArmageddon,
         PckA_Unknown099,
         PckA_Unknown100,//100
         PckA_Unknown101,
@@ -144,7 +144,7 @@ enum TbPacketAction {
         PckA_PwrSOEDis,
         PckA_EventBoxActivate,//115
         PckA_EventBoxClose,
-        PckA_PwrUseOnThing,
+        PckA_UsePwrOnThing,
         PckA_PlyrToggleAlly,
         PckA_Unknown119,
         PckA_Unknown120,//120
@@ -230,7 +230,7 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit);
 void process_packets(void);
 void clear_packets(void);
 TbBigChecksum compute_players_checksum(void);
-void set_player_packet_checksum(PlayerNumber plyr_idx,TbBigChecksum sum);
+void player_packet_checksum_add(PlayerNumber plyr_idx,TbBigChecksum sum);
 short checksums_different(void);
 void post_init_packets(void);
 
