@@ -74,6 +74,18 @@ const unsigned short small_around_pos[] = {
   0xFF00, 0x0001, 0x0100, 0xFFFF,
 };
 
+struct Around const start_at_around[] = {
+    { 0,  0},
+    {-1, -1},
+    {-1,  0},
+    {-1,  1},
+    { 0, -1},
+    { 0,  1},
+    { 1, -1},
+    { 1,  0},
+    { 1,  1},
+};
+
 struct Around const mid_around[] = {
   { 0,  0},
   { 0, -1},

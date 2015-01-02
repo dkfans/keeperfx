@@ -2329,42 +2329,6 @@ void process_dungeon_devastation_effects(void)
     }
 }
 
-void compute_player_payday_total(PlayerNumber plyr_idx)
-{
-    struct Dungeon *dungeon;
-    unsigned long k;
-    int i;
-    SYNCDBG(18,"Starting");
-    dungeon = get_players_num_dungeon(plyr_idx);
-    dungeon->creatures_total_pay = 0;
-    k = 0;
-    i = dungeon->creatr_list_start;
-    while (i != 0)
-    {
-        struct Thing *thing;
-        thing = thing_get(i);
-        TRACE_THING(thing);
-        struct CreatureControl *cctrl;
-        cctrl = creature_control_get_from_thing(thing);
-        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
-        {
-            ERRORLOG("Jump to invalid creature detected");
-            break;
-        }
-        i = cctrl->players_next_creature_idx;
-        // Thing list loop body
-        dungeon->creatures_total_pay += calculate_correct_creature_pay(thing);
-        // Thing list loop body ends
-        k++;
-        if (k > CREATURES_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping creatures list");
-            break;
-        }
-    }
-    SYNCDBG(19,"Finished");
-}
-
 void count_players_creatures_being_paid(int *creatures_count)
 {
     unsigned long k;
@@ -2426,7 +2390,7 @@ void process_payday(void)
         player = get_player(plyr_idx);
         if (player_exists(player) && (player->field_2C == 1))
         {
-            compute_player_payday_total(plyr_idx);
+            compute_and_update_player_payday_total(plyr_idx);
         }
     }
     if (game.pay_day_gap <= game.field_15033A)

@@ -33,6 +33,7 @@
 #include "config_terrain.h"
 #include "config_creature.h"
 #include "creature_states.h"
+#include "ariadne_wallhug.h"
 #include "magic.h"
 #include "thing_traps.h"
 #include "thing_navigate.h"
@@ -219,40 +220,7 @@ GoldAmount get_computer_money_less_cost(const struct Computer2 *comp)
 {
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
-    long money;
-    money = dungeon->total_money_owned;
-    unsigned long k;
-    int i;
-    SYNCDBG(8,"Starting");
-    k = 0;
-    i = dungeon->creatr_list_start;
-    while (i != 0)
-    {
-        struct Thing *thing;
-        struct CreatureControl *cctrl;
-        thing = thing_get(i);
-        TRACE_THING(thing);
-        cctrl = creature_control_get_from_thing(thing);
-        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
-        {
-            ERRORLOG("Jump to invalid creature detected");
-            break;
-        }
-        i = cctrl->players_next_creature_idx;
-        // Thing list loop body
-        struct CreatureStats *crstat;
-        crstat = creature_stats_get_from_thing(thing);
-        money -= crstat->pay;
-        // Thing list loop body ends
-        k++;
-        if (k > CREATURES_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping creatures list");
-            break;
-        }
-    }
-    SYNCDBG(19,"Finished");
-    return money;
+    return dungeon->total_money_owned - compute_player_payday_total(dungeon);
 }
 
 struct ComputerTask * able_to_build_room_at_task(struct Computer2 *comp, RoomKind rkind, long width_slabs, long height_slabs, long area, long a6)
@@ -1032,53 +1000,76 @@ long computer_pick_expensive_job_creatures_and_place_on_lair(struct Computer2 *c
 
 long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * check)
 {
-    GoldAmount money;
+    GoldAmount money_left, money_payday;
     struct ComputerProcess *cproc;
     struct Dungeon *dungeon;
     long ret;
     long i;
-    SYNCDBG(8,"Starting");
+    SYNCDBG(18,"Starting");
     ret = 4;
+    dungeon = comp->dungeon;
+    // As payday need, take larger of amounts from last payday and planned from next
+    money_payday = compute_player_payday_total(dungeon);
+    if (money_payday < dungeon->creatures_total_pay)
+        money_payday = dungeon->creatures_total_pay;
+    // Check how much money we will have left after payday
+    money_left = dungeon->total_money_owned - money_payday;
     // Try creating digging for gold process
-    money = get_computer_money_less_cost(comp);
-    if ((check->param2 > money) || (check->param1 > money))
+    if ((check->param2 > money_left) || (check->param1 > money_left))
     {
-      for (i=0; i <= COMPUTER_PROCESSES_COUNT; i++)
-      {
-          cproc = &comp->processes[i];
-          if ((cproc->flags & ComProc_Unkn0002) != 0)
-              break;
-          //TODO COMPUTER_PLAYER comparing function pointers is a bad practice
-          if (cproc->func_check == computer_check_dig_to_gold)
-          {
-              cproc->priority++;
-              if (game.play_gameturn - cproc->param_4 > 20) {
-                  cproc->param_4 = 0;
-              }
-          }
-      }
+        SYNCDBG(8,"Increasing player %d gold dig process priority",(int)dungeon->owner);
+        for (i=0; i <= COMPUTER_PROCESSES_COUNT; i++)
+        {
+            cproc = &comp->processes[i];
+            if ((cproc->flags & ComProc_Unkn0002) != 0)
+                break;
+            //TODO COMPUTER_PLAYER comparing function pointers is a bad practice
+            if (cproc->func_check == computer_check_dig_to_gold)
+            {
+                cproc->priority++;
+                if (game.play_gameturn - cproc->param_4 > 20) {
+                    cproc->param_4 = 0;
+                }
+            }
+        }
     }
 
-    dungeon = comp->dungeon;
+    // Check  minimum money we need
+    GoldAmount money_needed;
+    // We need enough to make one digger
+    money_needed = compute_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
+    // We need enough to pay all creatures
+    if (money_needed < money_payday)
+        money_needed = money_payday;
     // Try selling traps and doors
-    if ((dungeon->creatures_total_pay > dungeon->total_money_owned) && dungeon_has_room(dungeon, RoK_WORKSHOP))
+    if ((money_needed > dungeon->total_money_owned) && dungeon_has_room(dungeon, RoK_WORKSHOP))
     {
         if (!is_task_in_progress(comp, CTT_SellTrapsAndDoors))
         {
-            if (create_task_sell_traps_and_doors(comp, 5, 3*dungeon->creatures_total_pay/2)) {
+            SYNCDBG(8,"Creating task to sell player %d traps and doors",(int)dungeon->owner);
+            if (create_task_sell_traps_and_doors(comp, 5, 3*money_needed/2)) {
                 ret = 1;
             }
         }
     }
+    // Power hand tasks are exclusive, so select randomly
+    int pwhand_task_choose;
+    pwhand_task_choose = ACTION_RANDOM(101);
     // Move creatures away from rooms which cost a lot to use
-    if (3*dungeon->creatures_total_pay/2 > dungeon->total_money_owned)
+    if ((3*money_needed/2 > dungeon->total_money_owned) && (pwhand_task_choose < 33))
     {
-        if (computer_pick_expensive_job_creatures_and_place_on_lair(comp, 3) > 0) {
-            ret = 1;
+        int num_to_move;
+        num_to_move = 3;
+        if (!is_task_in_progress_using_hand(comp) && (computer_able_to_use_magic(comp, PwrK_HAND, 1, num_to_move) == 1))
+        {
+            SYNCDBG(8,"Creating task to pick player %d creatures from expensive jobs",(int)dungeon->owner);
+            if (computer_pick_expensive_job_creatures_and_place_on_lair(comp, num_to_move) > 0) {
+                ret = 1;
+            }
         }
     }
     // Move any gold laying around to treasure room
-    if ((2*dungeon->creatures_total_pay > dungeon->total_money_owned) && dungeon_has_room(dungeon, RoK_TREASURE))
+    if ((2*money_needed > dungeon->total_money_owned) && dungeon_has_room(dungeon, RoK_TREASURE))
     {
         int num_to_move;
         num_to_move = 10;
@@ -1086,7 +1077,8 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
         // content of the hand could be used by wrong task by mistake
         if (!is_task_in_progress_using_hand(comp) && (computer_able_to_use_magic(comp, PwrK_HAND, 1, num_to_move) == 1))
         {
-            if (create_task_move_gold_to_treasury(comp, num_to_move, 2*dungeon->creatures_total_pay)) {
+            SYNCDBG(8,"Creating task to move neutral gold to treasury");
+            if (create_task_move_gold_to_treasury(comp, num_to_move, 2*money_needed)) {
                 ret = 1;
             }
         }
@@ -1099,9 +1091,34 @@ long count_creatures_for_defend_pickup(struct Computer2 *comp)
     return _DK_count_creatures_for_defend_pickup(comp);
 }
 
-long computer_find_non_solid_block(struct Computer2 *comp, struct Coord3d *pos)
+/**
+ * Modifies given position into nearest one where thing can be dropped.
+ * @param comp
+ * @param pos
+ */
+TbBool computer_find_non_solid_block(const struct Computer2 *comp, struct Coord3d *pos)
 {
-    return _DK_computer_find_non_solid_block(comp, pos);
+    //return _DK_computer_find_non_solid_block(comp, pos);
+    unsigned long n,k;
+    for (n = 0; n < MID_AROUND_LENGTH; n++)
+    {
+        MapSubtlCoord arstl_x, arstl_y;
+        arstl_x = pos->x.stl.num + STL_PER_SLB*start_at_around[n].delta_x;
+        arstl_y = pos->y.stl.num + STL_PER_SLB*start_at_around[n].delta_y;
+        for (k = 0; k < MID_AROUND_LENGTH; k++)
+        {
+            MapSubtlCoord sstl_x, sstl_y;
+            sstl_x = arstl_x + start_at_around[k].delta_x;
+            sstl_y = arstl_y + start_at_around[k].delta_y;
+            if (can_drop_thing_here(sstl_x, sstl_y, comp->dungeon->owner, 0) == 1)
+            {
+              pos->x.val = subtile_coord_center(sstl_x);
+              pos->y.val = subtile_coord_center(sstl_y);
+              return true;
+            }
+        }
+    }
+    return false;
 }
 
 long computer_able_to_use_magic(struct Computer2 *comp, PowerKind pwkind, long pwlevel, long amount)
@@ -1109,7 +1126,7 @@ long computer_able_to_use_magic(struct Computer2 *comp, PowerKind pwkind, long p
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
     if (!is_power_available(dungeon->owner, pwkind)) {
-        return 4;
+        return CTaskRet_Unk4;
     }
     if (pwlevel >= MAGIC_OVERCHARGE_LEVELS)
         pwlevel = MAGIC_OVERCHARGE_LEVELS;
@@ -1118,10 +1135,10 @@ long computer_able_to_use_magic(struct Computer2 *comp, PowerKind pwkind, long p
     GoldAmount money, price;
     money = get_computer_money_less_cost(comp);
     price = compute_power_price(dungeon->owner, pwkind, pwlevel);
-    if (amount * price >= money) {
-        return 0;
+    if (amount * price > money) {
+        return CTaskRet_Unk0;
     }
-    return 1;
+    return CTaskRet_Unk1;
 }
 
 long check_call_to_arms(struct Computer2 *comp)

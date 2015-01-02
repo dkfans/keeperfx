@@ -48,7 +48,7 @@ enum PowerModFlags {
 /******************************************************************************/
 TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, const struct Thing *thing, unsigned long flags, const char *func_name);
 #define can_cast_spell(plyr_idx, pwmodel, stl_x, stl_y, thing, flags) can_cast_spell_f(plyr_idx, pwmodel, stl_x, stl_y, thing, flags, __func__)
-TbBool can_cast_spell_at_xy(PlayerNumber plyr_idx, PowerKind pwmodel,
+TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwmodel,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags);
 TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing, PowerKind pwkind);
 

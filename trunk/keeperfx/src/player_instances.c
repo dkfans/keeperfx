@@ -578,7 +578,7 @@ long pinstfs_query_creature(struct PlayerInfo *player, long *n)
 long pinstfs_unquery_creature(struct PlayerInfo *player, long *n)
 {
     set_player_state(player, PSt_CtrlDungeon, 0);
-    clear_selected_creature(player);
+    clear_selected_thing(player);
     return 0;
 }
 
@@ -901,7 +901,7 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
     if ((thing->owner != player->id_number) || (thing->index != player->controlled_thing_idx))
     {
         set_player_instance(player, PI_Unset, 1);
-        clear_selected_creature(player);
+        clear_selected_thing(player);
         set_player_mode(player, PVT_DungeonTop);
         player->allocflags &= ~PlaF_Unknown8;
         set_engine_view(player, player->field_4B5);
@@ -911,7 +911,7 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
         player->cameras[3].mappos.y.val = 0;
         return;
     }
-    clear_selected_creature(player);
+    clear_selected_thing(player);
     set_player_mode(player, PVT_DungeonTop);
     thing->alloc_flags &= ~TAlF_IsControlled;
     thing->field_4F &= ~0x01;
@@ -949,7 +949,7 @@ void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
   if ((thing->owner != player->id_number) || (thing->index != player->controlled_thing_idx))
   {
     set_player_instance(player, PI_Unset, 1);
-    clear_selected_creature(player);
+    clear_selected_thing(player);
     set_player_mode(player, PVT_DungeonTop);
     player->allocflags &= ~PlaF_Unknown8;
     set_engine_view(player, player->field_4B5);
@@ -970,7 +970,7 @@ void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
   player->cameras[0].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
   player->cameras[3].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
   player->cameras[3].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
-  clear_selected_creature(player);
+  clear_selected_thing(player);
 }
 
 TbBool is_thing_passenger_controlled(const struct Thing *thing)
@@ -1069,7 +1069,19 @@ TbBool is_thing_some_way_controlled(const struct Thing *thing)
     return (player->controlled_thing_idx == thing->index);
 }
 
-TbBool set_selected_creature(struct PlayerInfo *player, struct Thing *thing)
+TbBool set_selected_thing_f(struct PlayerInfo *player, struct Thing *thing, const char *func_name)
+{
+    if (thing_exists(thing))
+    {
+        player->controlled_thing_idx = thing->index;
+        player->controlled_thing_creatrn = thing->creation_turn;
+        return true;
+    }
+    ERRORLOG("%s: Cannot select %s index %d",func_name,thing_model_name(thing),(int)thing->index);
+    return false;
+}
+
+TbBool set_selected_creature_f(struct PlayerInfo *player, struct Thing *thing, const char *func_name)
 {
     if (thing_is_creature(thing))
     {
@@ -1077,11 +1089,11 @@ TbBool set_selected_creature(struct PlayerInfo *player, struct Thing *thing)
         player->controlled_thing_creatrn = thing->creation_turn;
         return true;
     }
-    ERRORLOG("Cannot select %s index %d",thing_model_name(thing),(int)thing->index);
+    ERRORLOG("%s: Cannot select %s index %d",func_name,thing_model_name(thing),(int)thing->index);
     return false;
 }
 
-TbBool clear_selected_creature(struct PlayerInfo *player)
+TbBool clear_selected_thing(struct PlayerInfo *player)
 {
     player->controlled_thing_idx = 0;
     player->controlled_thing_creatrn = 0;

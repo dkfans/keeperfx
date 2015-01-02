@@ -624,7 +624,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
 int search_spiral_f(struct Coord3d *pos, PlayerNumber owner, int i3, long (*cb)(MapSubtlCoord, MapSubtlCoord, long), const char *func_name);
 /******************************************************************************/
 ItemAvailability computer_check_room_available(struct Computer2 * comp, long rkind);
-long computer_find_non_solid_block(struct Computer2 *comp, struct Coord3d *pos);
+TbBool computer_find_non_solid_block(const struct Computer2 *comp, struct Coord3d *pos);
 
 long count_creatures_in_dungeon(const struct Dungeon *dungeon);
 long count_entrances(const struct Computer2 *comp, PlayerNumber plyr_idx);

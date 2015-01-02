@@ -305,7 +305,7 @@ TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *th
       toggle_status_menu(0);
       turn_off_roaming_menus();
     }
-    set_selected_creature(player, thing);
+    set_selected_thing(player, thing);
     cam = player->acamera;
     if (cam != NULL)
       player->field_4B5 = cam->field_6;
@@ -2432,6 +2432,7 @@ void delete_effects_attached_to_creature(struct Thing *creatng)
     }
 }
 
+// Old code compatibility function - to be removed when no references remain unrewritten
 TbBool kill_creature_compat(struct Thing *creatng, struct Thing *killertng, PlayerNumber killer_plyr_idx,
       TbBool no_effects, TbBool died_in_battle, TbBool disallow_unconscious)
 {

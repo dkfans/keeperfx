@@ -1099,7 +1099,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
           {
             thing = thing_get(player->controlled_thing_idx);
             set_start_state(thing);
-            clear_selected_creature(player);
+            clear_selected_thing(player);
           }
           unset_packet_control(pckt, PCtr_RBtnRelease);
         }
