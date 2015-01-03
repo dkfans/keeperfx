@@ -3267,14 +3267,14 @@ struct Room * find_nearest_room_for_thing_with_used_capacity(struct Thing *thing
 void place_thing_in_creature_controlled_limbo(struct Thing *thing)
 {
     remove_thing_from_mapwho(thing);
-    thing->field_4F |= 0x01;
+    thing->field_4F |= TF4F_Unknown01;
     thing->state_flags |= TF1_InCtrldLimbo;
 }
 
 void remove_thing_from_creature_controlled_limbo(struct Thing *thing)
 {
     thing->state_flags &= ~TF1_InCtrldLimbo;
-    thing->field_4F &= ~0x01;
+    thing->field_4F &= ~TF4F_Unknown01;
     place_thing_in_mapwho(thing);
 }
 

@@ -483,8 +483,7 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
     player->field_3 &= ~0x02;
     if ((player->field_455 != 0) && (player->field_455 != 3))
     {
-      if (player->instance_num != PI_Grab)
-      {
+      if (player->instance_num != PI_Grab) {
           delete_power_hand(player->id_number);
       }
       return false;
@@ -500,8 +499,9 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
     thing = get_first_thing_in_power_hand(player);
     if (!thing_is_invalid(thing))
     {
-      if (player->hand_thing_idx == 0)
+      if (player->hand_thing_idx == 0) {
         create_power_hand(player->id_number);
+      }
       i = thing_is_creature_special_digger(thing);
       if (can_drop_thing_here(stl_x, stl_y, player->id_number, i)
         || !can_dig_here(stl_x, stl_y, player->id_number))

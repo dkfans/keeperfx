@@ -1876,23 +1876,8 @@ long move_creature(struct Thing *thing)
         nxpos.x.val = tngpos->x.val;
         nxpos.y.val = tngpos->y.val;
         nxpos.z.val = tngpos->z.val;
-        if (get_nearest_valid_position_for_creature_at(thing, &nxpos))
-        {
-            if ((tngpos->x.stl.num != nxpos.x.stl.num) || (tngpos->y.stl.num != nxpos.y.stl.num))
-            {
-                remove_thing_from_mapwho(thing);
-                tngpos->x.val = nxpos.x.val;
-                tngpos->y.val = nxpos.y.val;
-                tngpos->z.val = nxpos.z.val;
-                place_thing_in_mapwho(thing);
-            }
-            else
-            {
-                tngpos->x.val = nxpos.x.val;
-                tngpos->y.val = nxpos.y.val;
-                tngpos->z.val = nxpos.z.val;
-            }
-            thing->field_60 = get_thing_height_at(thing, tngpos);
+        if (get_nearest_valid_position_for_creature_at(thing, &nxpos)) {
+            move_thing_in_map(thing, &nxpos);
         }
         cctrl->flgfield_1 |= CCFlg_Unknown08;
     }
@@ -1986,25 +1971,7 @@ long move_creature(struct Thing *thing)
                 }
             }
         }
-        if ((tngpos->x.stl.num != nxpos.x.stl.num) || (tngpos->y.stl.num != nxpos.y.stl.num))
-        {
-            SYNCDBG(19,"Moving %s index %d from (%d,%d) to (%d,%d), subtile changed",thing_model_name(thing),
-                (int)thing->index,(int)tngpos->x.val,(int)tngpos->y.val,(int)nxpos.x.val,(int)nxpos.y.val);
-            remove_thing_from_mapwho(thing);
-            tngpos->x.val = nxpos.x.val;
-            tngpos->y.val = nxpos.y.val;
-            tngpos->z.val = nxpos.z.val;
-            place_thing_in_mapwho(thing);
-        }
-        else
-        {
-            SYNCDBG(19,"Moving %s index %d from (%d,%d) to (%d,%d)",thing_model_name(thing),
-                (int)thing->index,(int)tngpos->x.val,(int)tngpos->y.val,(int)nxpos.x.val,(int)nxpos.y.val);
-            tngpos->x.val = nxpos.x.val;
-            tngpos->y.val = nxpos.y.val;
-            tngpos->z.val = nxpos.z.val;
-        }
-        thing->field_60 = get_thing_height_at(thing, tngpos);
+        move_thing_in_map(thing, &nxpos);
     }
     {
         long angle;
@@ -3283,7 +3250,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     }
     cctrl = allocate_free_control_structure();
     crtng->ccontrol_idx = cctrl->index;
-    crtng->class_id = 5;
+    crtng->class_id = TCls_Creature;
     crtng->model = model;
     crtng->parent_idx = crtng->index;
     crtng->mappos.x.val = pos->x.val;

@@ -277,8 +277,13 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
         return CTaskRet_Unk4;
     }
     long able;
-    able = computer_able_to_use_magic(comp, PwrK_MKDIGGER, 0, 1);
-    if (able == 1)
+    if (controlled_diggers >= check->param2) {
+        // We have less than preferred amount, but higher than minimal; allow building if we've got spare money
+        able = computer_able_to_use_magic(comp, PwrK_MKDIGGER, 0, 6);
+    } else {
+        able = computer_able_to_use_magic(comp, PwrK_MKDIGGER, 0, 1);
+    }
+    if (able == CTaskRet_Unk1)
     {
         struct Thing *heartng;
         MapSubtlCoord stl_x, stl_y;
