@@ -603,23 +603,6 @@ long get_ceiling_height_above_thing_at(struct Thing *thing, struct Coord3d *pos)
 }
 
 /**
- * Low level function which unconditionally drops creature held in hand by computer player.
- * @param comp
- * @param thing
- * @param pos
- */
-void computer_drop_held_thing_at(struct Computer2 *comp, struct Thing *thing, struct Coord3d *pos)
-{
-    thing->mappos.x.val = pos->x.val;
-    thing->mappos.y.val = pos->y.val;
-    thing->mappos.z.val = pos->z.val;
-    remove_thing_from_limbo(thing);
-    if (thing_is_creature(thing)) {
-        initialise_thing_state(thing, CrSt_CreatureBeingDropped);
-    }
-}
-
-/**
  * Low level function which unconditionally picks creature by computer player to hand.
  * @param comp
  * @param thing
@@ -686,7 +669,7 @@ short computer_dump_held_things_on_map(struct Computer2 *comp, struct Thing *thi
         i = subtile_coord(3,0);
     }
     locpos.z.val += i;
-    computer_drop_held_thing_at(comp, thing, &locpos);
+    drop_held_thing_on_ground(comp->dungeon, thing, &locpos);
     comp->held_thing_idx = 0;
     comp->tasks_did--;
     return 1;
@@ -694,7 +677,7 @@ short computer_dump_held_things_on_map(struct Computer2 *comp, struct Thing *thi
 
 long computer_place_thing_in_power_hand(struct Computer2 *comp, struct Thing *thing, struct Coord3d *pos)
 {
-    SYNCDBG(9,"Starting");
+    SYNCDBG(9,"Player %d picks %s index %d",(int)comp->dungeon->owner,thing_model_name(thing),(int)thing->index);
     if (!can_thing_be_picked_up_by_player(thing, comp->dungeon->owner)) {
         ERRORLOG("Computer tries to pick up %s index %d which is not pickable", thing_model_name(thing),(int)thing->index);
         return 0;
@@ -738,7 +721,7 @@ TbBool computer_force_dump_held_things_on_map(struct Computer2 *comp, const stru
     locpos.x.val = subtile_coord_center(pos->x.stl.num);
     locpos.y.val = subtile_coord_center(pos->y.stl.num);
     locpos.z.val = get_thing_height_at(thing, &locpos);
-    computer_drop_held_thing_at(comp, thing, &locpos);
+    drop_held_thing_on_ground(comp->dungeon, thing, &locpos);
     comp->held_thing_idx = 0;
     return true;
 }
@@ -753,7 +736,7 @@ TbBool computer_force_dump_specific_held_thing(struct Computer2 *comp, struct Th
     locpos.x.val = subtile_coord_center(pos->x.stl.num);
     locpos.y.val = subtile_coord_center(pos->y.stl.num);
     locpos.z.val = get_thing_height_at(thing, &locpos);
-    computer_drop_held_thing_at(comp, thing, &locpos);
+    drop_held_thing_on_ground(comp->dungeon, thing, &locpos);
     comp->held_thing_idx = 0;
     return true;
 }
@@ -2361,12 +2344,12 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
     struct Coord3d pos;
     long i;
     struct Dungeon *dungeon;
-    SYNCDBG(19,"Starting");
     dungeon = comp->dungeon;
     room = INVALID_ROOM;
     thing = thing_get(comp->held_thing_idx);
     if (!thing_is_invalid(thing))
     {
+        SYNCDBG(19,"Starting drop");
         room = room_get(ctask->move_to_room.room_idx2);
         if (thing_is_creature(thing) && room_exists(room))
         {
@@ -2389,6 +2372,7 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
         remove_task(comp, ctask);
         return CTaskRet_Unk0;
     }
+    SYNCDBG(19,"Starting pickup");
     i = ctask->move_to_room.repeat_num;
     ctask->move_to_room.repeat_num--;
     if (i <= 0)
