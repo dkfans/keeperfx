@@ -750,10 +750,17 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
     return 1;
 }
 
-void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+/**
+ * Low level function which unconditionally drops creature held in hand.
+ *
+ * @param dungeon
+ * @param droptng
+ * @param dstpos
+ */
+void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, const struct Coord3d *dstpos)
 {
-    droptng->mappos.x.val = subtile_coord_center(stl_x);
-    droptng->mappos.y.val = subtile_coord_center(stl_y);
+    droptng->mappos.x.val = dstpos->x.val;
+    droptng->mappos.y.val = dstpos->y.val;
     droptng->mappos.z.val = subtile_coord(8,0);
     long fall_dist;
     fall_dist = get_ceiling_height_at(&droptng->mappos) - get_floor_height_at(&droptng->mappos);
@@ -769,7 +776,9 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, M
     {
         initialise_thing_state(droptng, CrSt_CreatureBeingDropped);
         stop_creature_sound(droptng, 5);
-        play_creature_sound(droptng, 6, 3, 0);
+        if (is_my_player_number(dungeon->owner)) {
+            play_creature_sound(droptng, 6, 3, 0);
+        }
         dungeon->field_14AE = game.play_gameturn;
     } else
     if (thing_is_object(droptng))
@@ -829,11 +838,11 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
             food_eaten_by_creature(droptng, thing_get(player->thing_under_hand));
         } else
         {
-            drop_held_thing_on_ground(dungeon, droptng, stl_x, stl_y);
+            drop_held_thing_on_ground(dungeon, droptng, &pos);
         }
     } else
     {
-        drop_held_thing_on_ground(dungeon, droptng, stl_x, stl_y);
+        drop_held_thing_on_ground(dungeon, droptng, &pos);
     }
     if (dungeon->num_things_in_hand == 1) {
         set_player_instance(player, PI_Drop, 0);
@@ -862,7 +871,7 @@ void dump_thing_held_by_any_player(struct Thing *thing)
             const struct Coord3d *pos;
             pos = &dungeon->essential_pos;
             // Remove from human player hand
-            drop_held_thing_on_ground(dungeon, thing, coord_subtile(pos->x.val), coord_subtile(pos->y.val));
+            drop_held_thing_on_ground(dungeon, thing, pos);
             remove_thing_from_power_hand_list(thing, dungeon->owner);
             // Remove from computer player hand
             struct Computer2 *comp;
@@ -922,7 +931,7 @@ void dump_things_lost_in_limbo_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x
                 locpos.x.val = subtile_coord_center(stl_x);
                 locpos.y.val = subtile_coord_center(stl_y);
                 locpos.z.val = get_thing_height_at(thing, &locpos);
-                drop_held_thing_on_ground(dungeon, thing, stl_x, stl_y);
+                drop_held_thing_on_ground(dungeon, thing, &locpos);
             }
         }
         // Per-thing code ends
