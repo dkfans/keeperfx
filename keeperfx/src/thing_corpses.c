@@ -374,7 +374,7 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
-    thing->class_id = 4;
+    thing->class_id = TCls_DeadCreature;
     thing->model = model;
     thing->parent_idx = thing->index;
     thing->owner = owner;
