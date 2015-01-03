@@ -413,14 +413,14 @@ TbBool thing_is_in_power_hand_list(const struct Thing *thing, PlayerNumber plyr_
 void place_thing_in_limbo(struct Thing *thing)
 {
     remove_thing_from_mapwho(thing);
-    thing->field_4F |= 0x01;
+    thing->field_4F |= TF4F_Unknown01;
     thing->alloc_flags |= TAlF_IsInLimbo;
 }
 
 void remove_thing_from_limbo(struct Thing *thing)
 {
     thing->alloc_flags &= ~TAlF_IsInLimbo;
-    thing->field_4F &= ~0x01;
+    thing->field_4F &= ~TF4F_Unknown01;
     place_thing_in_mapwho(thing);
 }
 
@@ -764,9 +764,7 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, M
         fall_dist = subtile_coord(3,0);
     }
     droptng->mappos.z.val = fall_dist + get_floor_height_at(&droptng->mappos);
-    droptng->alloc_flags &= ~0x10;
-    droptng->field_4F &= ~TF4F_Unknown01;
-    place_thing_in_mapwho(droptng);
+    remove_thing_from_limbo(droptng);
     if (thing_is_creature(droptng))
     {
         initialise_thing_state(droptng, CrSt_CreatureBeingDropped);

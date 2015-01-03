@@ -591,7 +591,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
             SYNCDBG(8,"Cannot allocate dynamic light to %s.",thing_model_name(thing));
         }
     }
-    add_thing_to_list(thing, &game.thing_lists[TngList_EffectElems]);
+    add_thing_to_its_class_list(thing);
     place_thing_in_mapwho(thing);
     return thing;
 }

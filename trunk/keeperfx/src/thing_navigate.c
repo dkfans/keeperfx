@@ -244,11 +244,15 @@ void move_thing_in_map_f(struct Thing *thing, const struct Coord3d *pos, const c
     TRACE_THING(thing);
     if ((thing->mappos.x.stl.num == pos->x.stl.num) && (thing->mappos.y.stl.num == pos->y.stl.num))
     {
+        SYNCDBG(19,"Moving %s index %d from (%d,%d) to (%d,%d)",thing_model_name(thing),
+            (int)thing->index,(int)thing->mappos.x.val,(int)thing->mappos.y.val,(int)pos->x.val,(int)pos->y.val);
         thing->mappos.x.val = pos->x.val;
         thing->mappos.y.val = pos->y.val;
         thing->mappos.z.val = pos->z.val;
     } else
     {
+        SYNCDBG(19,"Moving %s index %d from (%d,%d) to (%d,%d), subtile changed",thing_model_name(thing),
+            (int)thing->index,(int)thing->mappos.x.val,(int)thing->mappos.y.val,(int)pos->x.val,(int)pos->y.val);
         remove_thing_from_mapwho(thing);
         thing->mappos.x.val = pos->x.val;
         thing->mappos.y.val = pos->y.val;
