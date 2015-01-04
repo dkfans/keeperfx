@@ -823,16 +823,17 @@ struct Thing *find_creature_to_be_placed_in_room(struct Computer2 *comp, struct 
     SYNCDBG(9,"Starting");
     dungeon = comp->dungeon;
     if (dungeon_invalid(dungeon)) {
-        ERRORLOG("Invalid dungeon in computer player.");
+        ERRORLOG("Invalid dungeon in computer player");
         return INVALID_THING;
     }
     param.ptr1 = (void *)comp;
-    param.num2 = RoK_NONE; // Our filter function will update that
+    param.num2 = Job_NULL; // Our filter function will update that
     filter = player_list_creature_filter_needs_to_be_placed_in_room_for_job;
     thing = get_player_list_random_creature_with_filter(dungeon->creatr_list_start, filter, &param);
     if (thing_is_invalid(thing)) {
         return INVALID_THING;
     }
+    SYNCDBG(9,"Player %d wants to move %s index %d",(int)dungeon->owner,thing_model_name(thing),(int)thing->owner);
     // We won't allow the creature to be picked if we want it to be placed in the same room it is now.
     // The filter function took care of most such situations, but it is still possible that the creature
     // won't be able or will not want to work in that room, and will be picked up and dropped over and over.
@@ -2349,7 +2350,7 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
     thing = thing_get(comp->held_thing_idx);
     if (!thing_is_invalid(thing))
     {
-        SYNCDBG(19,"Starting drop");
+        SYNCDBG(9,"Starting player %d drop",(int)dungeon->owner);
         room = room_get(ctask->move_to_room.room_idx2);
         if (thing_is_creature(thing) && room_exists(room))
         {
@@ -2372,7 +2373,7 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
         remove_task(comp, ctask);
         return CTaskRet_Unk0;
     }
-    SYNCDBG(19,"Starting pickup");
+    SYNCDBG(9,"Starting player %d pickup",(int)dungeon->owner);
     i = ctask->move_to_room.repeat_num;
     ctask->move_to_room.repeat_num--;
     if (i <= 0)
@@ -2403,6 +2404,7 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
         remove_task(comp, ctask);
         return CTaskRet_Unk0;
       }
+      SYNCDBG(9,"No thing for player %d pickup",(int)dungeon->owner);
       remove_task(comp, ctask);
       return CTaskRet_Unk0;
 }

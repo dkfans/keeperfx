@@ -1381,7 +1381,7 @@ short creature_combat_flee(struct Thing *creatng)
     turns_in_flee = game.play_gameturn - (GameTurnDelta)cctrl->start_turn_28E;
     if (get_2d_box_distance(&creatng->mappos, &cctrl->flee_pos) >= 1536)
     {
-        SYNCDBG(8,"Starting distant flee for %s",thing_model_name(creatng),(int)creatng->index);
+        SYNCDBG(8,"Starting distant flee for %s index %d",thing_model_name(creatng),(int)creatng->index);
         if (has_melee_combat_attackers(creatng) || has_ranged_combat_attackers(creatng)
           || creature_requires_healing(creatng))
         {
@@ -1418,7 +1418,7 @@ short creature_combat_flee(struct Thing *creatng)
         }
     } else
     {
-        SYNCDBG(8,"Starting near flee for %s",thing_model_name(creatng),(int)creatng->index);
+        SYNCDBG(8,"Starting near flee for %s index %d",thing_model_name(creatng),(int)creatng->index);
         if (turns_in_flee > 8)
         {
             long combat_kind;
