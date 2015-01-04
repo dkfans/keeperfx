@@ -1367,13 +1367,13 @@ TbBool setup_campaign_credits_data(struct GameCampaign *campgn)
   filelen = LbFileLengthRnc(fname);
   if (filelen <= 0)
   {
-    ERRORLOG("Campaign Credits file does not exist or can't be opened");
+    ERRORLOG("Campaign Credits file \"%s\" does not exist or can't be opened",campgn->credits_fname);
     return false;
   }
   campgn->credits_data = (char *)LbMemoryAlloc(filelen + 256);
   if (campgn->credits_data == NULL)
   {
-    ERRORLOG("Can't allocate memory for Campaign Credits data");
+    ERRORLOG("Can't allocate memory for Campaign Credits file \"%s\"",campgn->credits_fname);
     return false;
   }
   credits_data_end = campgn->credits_data+filelen+255;
@@ -1381,7 +1381,7 @@ TbBool setup_campaign_credits_data(struct GameCampaign *campgn)
   loaded_size = LbFileLoadAt(fname, campgn->credits_data);
   if (loaded_size < 4)
   {
-    ERRORLOG("Campaign Credits file couldn't be loaded or is too small");
+    ERRORLOG("Campaign Credits file \"%s\" couldn't be loaded or is too small",campgn->credits_fname);
     result = false;
   }
   // Resetting all values to unused
@@ -1391,7 +1391,7 @@ TbBool setup_campaign_credits_data(struct GameCampaign *campgn)
   {
     result = parse_credits_block(campgn->credits, campgn->credits_data, credits_data_end);
     if (!result)
-      WARNMSG("Parsing credits file \"%s\" credits block failed.",campgn->credits_fname);
+      WARNMSG("Parsing credits file \"%s\" credits block failed",campgn->credits_fname);
   }
   SYNCDBG(19,"Finished");
   return result;
