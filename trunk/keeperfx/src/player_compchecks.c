@@ -190,13 +190,14 @@ long computer_checks_hates(struct Computer2 *comp, struct ComputerCheck * check)
 
 long computer_check_move_creatures_to_best_room(struct Computer2 *comp, struct ComputerCheck * check)
 {
-    SYNCDBG(8,"Starting");
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
+    SYNCDBG(8,"Starting for player %d",(int)dungeon->owner);
     int num_to_move;
     num_to_move = check->param1 * dungeon->num_active_creatrs / 100;
     if (num_to_move <= 0) {
-        SYNCDBG(8,"No creatures to move, active %d percentage %d", (int)dungeon->num_active_creatrs, (int)check->param1);
+        SYNCDBG(8,"No player %d creatures to move, active %d percentage %d",
+            (int)dungeon->owner,(int)dungeon->num_active_creatrs,(int)check->param1);
         return CTaskRet_Unk4;
     }
     if (computer_able_to_use_magic(comp, PwrK_HAND, 1, num_to_move) != 1) {
@@ -210,7 +211,7 @@ long computer_check_move_creatures_to_best_room(struct Computer2 *comp, struct C
     if (!create_task_move_creatures_to_room(comp, 0, num_to_move)) {
         return CTaskRet_Unk4;
     }
-    SYNCDBG(8,"Added task to move %d creatures to best room", (int)num_to_move);
+    SYNCDBG(8,"Added player %d task to move %d creatures to best room",(int)dungeon->owner,(int)num_to_move);
     return CTaskRet_Unk1;
 }
 
