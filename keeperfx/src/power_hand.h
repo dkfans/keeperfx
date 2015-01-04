@@ -31,6 +31,7 @@ extern "C" {
 
 struct Thing;
 struct PlayerInfo;
+struct Dungeon;
 
 #pragma pack()
 /******************************************************************************/
