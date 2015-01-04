@@ -139,7 +139,7 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord s
  */
 TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing, PowerKind pwkind)
 {
-    SYNCDBG(18,"Starting for %s on %s",power_code_name(pwkind),thing_model_name(thing));
+    SYNCDBG(18,"Starting for %s on %s index %d",power_code_name(pwkind),thing_model_name(thing),(int)thing->index);
     // Picked up things are immune to spells
     if (thing_is_picked_up(thing)) {
         return false;
@@ -272,7 +272,7 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
             }
         }
     }
-    SYNCDBG(8,"Player %d cannot cast %s on %s, no condition met",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing));
+    SYNCDBG(18,"Player %d cannot cast %s on %s index %d, no condition met",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing),(int)thing->index);
     return false;
 }
 

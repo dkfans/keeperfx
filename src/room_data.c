@@ -2295,8 +2295,8 @@ TbBool find_random_valid_position_for_thing_in_room(struct Thing *thing, struct 
         ERRORLOG("Number of slabs %d for %s is not positive",(int)room->slabs_count,room_code_name(room->kind));
         return false;
     }
-    int navi_tadius;
-    navi_tadius = abs(thing_nav_block_sizexy(thing) << 8) >> 1;
+    int navi_radius;
+    navi_radius = abs(thing_nav_block_sizexy(thing) << 8) >> 1;
     SlabCodedCoords slbnum;
     long n;
     unsigned long k;
@@ -2326,17 +2326,17 @@ TbBool find_random_valid_position_for_thing_in_room(struct Thing *thing, struct 
             stl_y = slab_subtile(slb_y, ssub / 3);
             struct Map *mapblk;
             mapblk = get_map_block_at(stl_x,stl_y);
-            if ((mapblk->flags & MapFlg_IsTall) == 0)
+            if (((mapblk->flags & MapFlg_IsTall) == 0) && (get_navigation_map_floor_height(stl_x,stl_y) < 4))
             {
-              if (get_navigation_map_floor_height(stl_x,stl_y) < 4)
-              {
-                  pos->x.val = subtile_coord_center(stl_x);
-                  pos->y.val = subtile_coord_center(stl_y);
-                  pos->z.val = get_thing_height_at_with_radius(thing, pos, navi_tadius);
-                  if (!thing_in_wall_at_with_radius(thing, pos, navi_tadius)) {
-                      return true;
-                  }
-              }
+                if (!terrain_toxic_for_creature_at_position(thing, stl_x, stl_y) && !subtile_has_sacrificial_on_top(stl_x, stl_y))
+                {
+                    pos->x.val = subtile_coord_center(stl_x);
+                    pos->y.val = subtile_coord_center(stl_y);
+                    pos->z.val = get_thing_height_at_with_radius(thing, pos, navi_radius);
+                    if (!thing_in_wall_at_with_radius(thing, pos, navi_radius)) {
+                        return true;
+                    }
+                }
             }
             ssub = (ssub + 1) % 9;
         }
@@ -2435,8 +2435,8 @@ TbBool find_random_position_at_border_of_room(struct Coord3d *pos, const struct 
         slb_y = slb_num_decode_y(n);
         if (slab_is_area_outer_border(slb_x, slb_y))
         {
-            pos->x.val = subtile_coord(slab_subtile(slb_x,0),ACTION_RANDOM(STL_PER_SLB*256));
-            pos->y.val = subtile_coord(slab_subtile(slb_y,0),ACTION_RANDOM(STL_PER_SLB*256));
+            pos->x.val = subtile_coord(slab_subtile(slb_x,0),ACTION_RANDOM(STL_PER_SLB*COORD_PER_STL));
+            pos->y.val = subtile_coord(slab_subtile(slb_y,0),ACTION_RANDOM(STL_PER_SLB*COORD_PER_STL));
             pos->z.val = subtile_coord(1,0);
             return true;
         }
@@ -2602,7 +2602,7 @@ struct Room *find_nth_room_of_owner_with_spare_item_capacity_starting_with(long 
     return INVALID_ROOM;
 }
 
-struct Room *find_room_with_most_spare_capacity_starting_with(long room_idx,long *total_spare_cap)
+struct Room *find_room_with_most_spare_capacity_starting_with(long room_idx, long *total_spare_cap)
 {
     long max_spare_cap,loc_total_spare_cap,delta;
     struct Room *max_spare_room;
@@ -2691,13 +2691,17 @@ TbBool find_first_valid_position_for_thing_anywhere_in_room(const struct Thing *
                 stl_x = 3*slb_x+dx;
                 stl_y = 3*slb_y+dy;
                 mapblk = get_map_block_at(stl_x,stl_y);
+                // Check if the position isn't filled with solid block
                 if (((mapblk->flags & MapFlg_IsTall) == 0) && (get_navigation_map_floor_height(stl_x,stl_y) < 4))
                 {
-                    pos->x.val = subtile_coord_center(stl_x);
-                    pos->y.val = subtile_coord_center(stl_y);
-                    pos->z.val = get_thing_height_at_with_radius(thing, pos, block_radius);
-                    if ( !thing_in_wall_at_with_radius(thing, pos, block_radius) ) {
-                      return true;
+                    if (!terrain_toxic_for_creature_at_position(thing, stl_x, stl_y) && !subtile_has_sacrificial_on_top(stl_x, stl_y))
+                    {
+                        pos->x.val = subtile_coord_center(stl_x);
+                        pos->y.val = subtile_coord_center(stl_y);
+                        pos->z.val = get_thing_height_at_with_radius(thing, pos, block_radius);
+                        if ( !thing_in_wall_at_with_radius(thing, pos, block_radius) ) {
+                          return true;
+                        }
                     }
                 }
             }
