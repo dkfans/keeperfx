@@ -74,7 +74,7 @@ int InitializeMusicPlayer(void)
     {
         SYNCLOG("Missing music types. %s", Mix_GetError());
     }
-    SYNCLOG("Music player using folder initialized.");
+    SYNCLOG("Music player using folder initialized");
     return true;
 }
 
@@ -157,7 +157,7 @@ void SetMusicPlayerVolume(int volume)
         float volume_f = (float) volume;
         int normalized_volume = (int)((volume_f / MIX_MAX_VOLUME) * MIX_MAX_VOLUME);
         Mix_VolumeMusic(normalized_volume);
-        SYNCLOG("Music volume set: %d.", normalized_volume);
+        SYNCLOG("Music volume set: %d", normalized_volume);
     }
 }
 
