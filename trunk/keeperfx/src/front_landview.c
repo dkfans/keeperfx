@@ -963,10 +963,71 @@ TbBool frontmap_update_zoom(void)
     return false;
 }
 
+void frontmap_zoom_skip_init(LevelNumber lvnum)
+{
+    struct LevelInformation *lvinfo;
+    lvinfo = get_level_info(lvnum);
+    if (lvinfo != NULL)
+    {
+        map_info.zoomspot_x = lvinfo->ensign_zoom_x;
+        map_info.zoomspot_y = lvinfo->ensign_zoom_y;
+    } else
+    {
+        map_info.zoomspot_x = (LANDVIEW_MAP_WIDTH>>1);
+        map_info.zoomspot_y = (LANDVIEW_MAP_HEIGHT>>1);
+    }
+    set_map_info_draw_hotspot(map_info.zoomspot_x,map_info.zoomspot_y);
+    set_map_info_visible_hotspot(map_info.zoomspot_x, map_info.zoomspot_y);
+    map_info.fade_pos = 1;
+    map_info.fade_step = 0;
+    map_info.field_0 = 0;
+    map_info.fading = false;
+    // Fading will be controlled by main frontend loop
+    fade_palette_in = 1;
+}
+
+void frontmap_zoom_out_init(LevelNumber prev_lvnum, LevelNumber next_lvnum)
+{
+    struct LevelInformation *prev_lvinfo;
+    prev_lvinfo = get_level_info(prev_lvnum);
+    struct LevelInformation *next_lvinfo;
+    next_lvinfo = get_level_info(next_lvnum);
+    if (prev_lvinfo != NULL)
+    {
+        map_info.zoomspot_x = prev_lvinfo->ensign_zoom_x;
+        map_info.zoomspot_y = prev_lvinfo->ensign_zoom_y;
+    } else
+    {
+        map_info.zoomspot_x = (LANDVIEW_MAP_WIDTH>>1);
+        map_info.zoomspot_y = (LANDVIEW_MAP_HEIGHT>>1);
+    }
+    if (next_lvinfo != NULL)
+    {
+        int dt_x, dt_y;
+        dt_x = (next_lvinfo->ensign_zoom_x - map_info.zoomspot_x)/2;
+        if (dt_x > FRONTMAP_ZOOM_LENGTH)
+            dt_x = FRONTMAP_ZOOM_LENGTH;
+        if (dt_x < -FRONTMAP_ZOOM_LENGTH)
+            dt_x = -FRONTMAP_ZOOM_LENGTH;
+        dt_y = (next_lvinfo->ensign_zoom_y - map_info.zoomspot_y)/2;
+        if (dt_y > FRONTMAP_ZOOM_LENGTH)
+            dt_y = FRONTMAP_ZOOM_LENGTH;
+        if (dt_y < -FRONTMAP_ZOOM_LENGTH)
+            dt_y = -FRONTMAP_ZOOM_LENGTH;
+        set_map_info_draw_hotspot(map_info.zoomspot_x+dt_x, map_info.zoomspot_y+dt_y);
+    } else
+    {
+        set_map_info_draw_hotspot(map_info.zoomspot_x,map_info.zoomspot_y);
+    }
+    map_info.fade_pos = FRONTMAP_ZOOM_LENGTH;
+    map_info.fade_step = -4;
+    map_info.field_0 = 1;
+    map_info.fading = true;
+}
+
 TbBool frontmap_load(void)
 {
     struct PlayerInfo *player;
-    struct LevelInformation *lvinfo;
     LevelNumber lvnum;
     SYNCDBG(4,"Starting");
     LbMemorySet(scratch, 0, PALETTE_SIZE);
@@ -995,62 +1056,15 @@ TbBool frontmap_load(void)
     if ((player->field_6 & 0x02) != 0)
     {
         lvnum = get_loaded_level_number();
-        lvinfo = get_level_info(lvnum);
-        if (lvinfo != NULL)
-        {
-          map_info.zoomspot_x = lvinfo->ensign_zoom_x;
-          map_info.zoomspot_y = lvinfo->ensign_zoom_y;
-        } else
-        {
-          map_info.zoomspot_x = (LANDVIEW_MAP_WIDTH>>1);
-          map_info.zoomspot_y = (LANDVIEW_MAP_HEIGHT>>1);
-        }
-        set_map_info_draw_hotspot(map_info.zoomspot_x,map_info.zoomspot_y);
-        map_info.fade_pos = FRONTMAP_ZOOM_LENGTH;
-        map_info.fade_step = -4;
-        map_info.field_0 = 1;
-        map_info.fading = true;
+        frontmap_zoom_out_init(lvnum, lvnum);
     } else
     if ((lvnum == first_singleplayer_level()) || (player->victory_state == VicS_LostLevel) || (player->victory_state == VicS_State3))
     {
-        lvinfo = get_level_info(lvnum);
-        if (lvinfo != NULL)
-        {
-            map_info.zoomspot_x = lvinfo->ensign_zoom_x;
-            map_info.zoomspot_y = lvinfo->ensign_zoom_y;
-        } else
-        {
-            map_info.zoomspot_x = (LANDVIEW_MAP_WIDTH>>1);
-            map_info.zoomspot_y = (LANDVIEW_MAP_HEIGHT>>1);
-        }
-        set_map_info_draw_hotspot(map_info.zoomspot_x,map_info.zoomspot_y);
-        set_map_info_visible_hotspot(map_info.zoomspot_x, map_info.zoomspot_y);
-        map_info.field_0 = 0;
-        map_info.fade_pos = 1;
-        map_info.fade_step = 0;
-        map_info.fading = false;
-        // Fading will be controlled by main frontend loop
-        fade_palette_in = 1;
+        frontmap_zoom_skip_init(lvnum);
         play_desc_speech_time = LbTimerClock() + 1000;
     } else
     {
-        lvnum = prev_singleplayer_level(lvnum);
-        lvinfo = get_level_info(lvnum);
-        if (lvinfo != NULL)
-        {
-            map_info.zoomspot_x = lvinfo->ensign_zoom_x;
-            map_info.zoomspot_y = lvinfo->ensign_zoom_y;
-            set_map_info_draw_hotspot(map_info.zoomspot_x,map_info.zoomspot_y);
-        } else
-        {
-            map_info.zoomspot_x = (LANDVIEW_MAP_WIDTH>>1);
-            map_info.zoomspot_y = (LANDVIEW_MAP_HEIGHT>>1);
-            set_map_info_draw_hotspot(map_info.zoomspot_x,map_info.zoomspot_y);
-        }
-        map_info.fade_pos = FRONTMAP_ZOOM_LENGTH;
-        map_info.fade_step = -4;
-        map_info.field_0 = 1;
-        map_info.fading = true;
+        frontmap_zoom_out_init(prev_singleplayer_level(lvnum), lvnum);
     }
     SYNCDBG(9,"Zoom hotspot set to (%d,%d) %s fade",(int)map_info.zoomspot_x,(int)map_info.zoomspot_y,(map_info.fading)?"with":"without");
     map_sound_fade = 256;
