@@ -112,19 +112,19 @@ struct TbSprite *get_map_ensign(long idx)
  * @param scr_y The screen point being checked, Y coordinate.
  * @return True if the coords are over given ensign, false otherwise.
  */
-short is_over_ensign(struct LevelInformation *lvinfo, long scr_x, long scr_y)
+short is_over_ensign(const struct LevelInformation *lvinfo, long scr_x, long scr_y)
 {
-  struct TbSprite *spr;
-  long map_x,map_y,spr_w,spr_h;
-  map_x = map_info.scrshift_x + scr_x*16/units_per_pixel;
-  map_y = map_info.scrshift_y + scr_y*16/units_per_pixel;
-  spr = get_map_ensign(10);
-  spr_w = spr->SWidth;
-  spr_h = spr->SHeight;
-  if ((map_x >= lvinfo->ensign_x-(spr_w>>1)) && (map_x < lvinfo->ensign_x+(spr_w>>1))
-   && (map_y > lvinfo->ensign_y-spr_h) && (map_y < lvinfo->ensign_y-(spr_h/3)))
-      return true;
-  return false;
+    const struct TbSprite *spr;
+    long map_x,map_y,spr_w,spr_h;
+    map_x = map_info.scrshift_x + scr_x*16/units_per_pixel;
+    map_y = map_info.scrshift_y + scr_y*16/units_per_pixel;
+    spr = get_map_ensign(10);
+    spr_w = spr->SWidth;
+    spr_h = spr->SHeight;
+    if ((map_x >= lvinfo->ensign_x-(spr_w>>1)) && (map_x < lvinfo->ensign_x+(spr_w>>1))
+     && (map_y > lvinfo->ensign_y-spr_h) && (map_y < lvinfo->ensign_y-(spr_h/3)))
+        return true;
+    return false;
 }
 
 /**
@@ -132,12 +132,12 @@ short is_over_ensign(struct LevelInformation *lvinfo, long scr_x, long scr_y)
  * @param lvinfo Level info struct with ensign definition.
  * @return True if the ensign is visible, false otherwise.
  */
-short is_ensign_in_screen_rect(struct LevelInformation *lvinfo)
+short is_ensign_in_screen_rect(const struct LevelInformation *lvinfo)
 {
-  if ((lvinfo->ensign_zoom_x >= map_info.scrshift_x) && (lvinfo->ensign_zoom_x < map_info.scrshift_x+lbDisplay.PhysicalScreenWidth*16/units_per_pixel))
-    if ((lvinfo->ensign_zoom_y >= map_info.scrshift_y) && (lvinfo->ensign_zoom_y < map_info.scrshift_y+lbDisplay.PhysicalScreenHeight*16/units_per_pixel))
-      return true;
-  return false;
+    if ((lvinfo->ensign_zoom_x >= map_info.scrshift_x) && (lvinfo->ensign_zoom_x < map_info.scrshift_x+lbDisplay.PhysicalScreenWidth*16/units_per_pixel))
+      if ((lvinfo->ensign_zoom_y >= map_info.scrshift_y) && (lvinfo->ensign_zoom_y < map_info.scrshift_y+lbDisplay.PhysicalScreenHeight*16/units_per_pixel))
+        return true;
+    return false;
 }
 
 /**
@@ -207,49 +207,52 @@ void update_ensigns_visibility(void)
 
 void update_net_ensigns_visibility(void)
 {
-  struct LevelInformation *lvinfo;
-  long lvnum;
-  SYNCDBG(18,"Starting");
-  set_all_ensigns_state(LvSt_Hidden);
-  lvnum = first_multiplayer_level();
-  while (lvnum > 0)
-  {
-    lvinfo = get_level_info(lvnum);
-    if (lvinfo != NULL)
-      lvinfo->state = LvSt_Visible;
-    lvnum = next_multiplayer_level(lvnum);
-  }
+    long lvnum;
+    SYNCDBG(18,"Starting");
+    set_all_ensigns_state(LvSt_Hidden);
+    lvnum = first_multiplayer_level();
+    while (lvnum > 0)
+    {
+        struct LevelInformation *lvinfo;
+        lvinfo = get_level_info(lvnum);
+        if (lvinfo != NULL)
+          lvinfo->state = LvSt_Visible;
+        lvnum = next_multiplayer_level(lvnum);
+    }
 }
 
 int compute_sound_good_to_bad_factor(void)
 {
-  struct LevelInformation *lvinfo;
-  unsigned int onscr_bad,onscr_good;
-  LevelNumber sp_lvnum,continue_lvnum;
-  short lv_beaten;
-  SYNCDBG(18,"Starting");
-  onscr_bad = 0;
-  onscr_good = 0;
-  continue_lvnum = get_continue_level_number();
-  lv_beaten = (continue_lvnum != SINGLEPLAYER_NOTSTARTED);
-  sp_lvnum = first_singleplayer_level();
-  while (sp_lvnum > 0)
-  {
-    if (sp_lvnum == continue_lvnum)
-      lv_beaten = false;
-    lvinfo = get_level_info(sp_lvnum);
-    if (is_ensign_in_screen_rect(lvinfo))
+    unsigned int onscr_bad,onscr_good;
+    LevelNumber sp_lvnum,continue_lvnum;
+    short lv_beaten;
+    SYNCDBG(18,"Starting");
+    onscr_bad = 0;
+    onscr_good = 0;
+    continue_lvnum = get_continue_level_number();
+    lv_beaten = (continue_lvnum != SINGLEPLAYER_NOTSTARTED);
+    sp_lvnum = first_singleplayer_level();
+    while (sp_lvnum > 0)
     {
-      if (lv_beaten)
-        onscr_bad++;
-      else
-        onscr_good++;
+        if (sp_lvnum == continue_lvnum)
+          lv_beaten = false;
+        struct LevelInformation *lvinfo;
+        lvinfo = get_level_info(sp_lvnum);
+        if (lvinfo != NULL)
+        {
+            if (is_ensign_in_screen_rect(lvinfo))
+            {
+              if (lv_beaten)
+                onscr_bad++;
+              else
+                onscr_good++;
+            }
+        }
+        sp_lvnum = next_singleplayer_level(sp_lvnum);
     }
-    sp_lvnum = next_singleplayer_level(sp_lvnum);
-  }
-  if ((onscr_bad+onscr_good) == 0)
-    onscr_good++;
-  return (127*onscr_good)/(onscr_bad+onscr_good);
+    if ((onscr_bad+onscr_good) == 0)
+        onscr_good++;
+    return (127*onscr_good)/(onscr_bad+onscr_good);
 }
 
 void update_frontmap_ambient_sound(void)
@@ -428,7 +431,7 @@ void set_map_info_visible_hotspot(long map_x,long map_y)
  * @param map_x Shift X coordinate for top left of the visible land picture area.
  * @param map_y Shift Y coordinate for top left of the visible land picture area.
  */
-void set_map_info_draw_hotspot_raw(long map_x,long map_y)
+void set_map_info_draw_hotspot_raw(long map_x, long map_y)
 {
     map_info.scrshift_x = map_x;
     map_info.scrshift_y = map_y;
@@ -456,7 +459,7 @@ void set_map_info_draw_hotspot_raw(long map_x,long map_y)
  * @param map_x Shift X coordinate for center of the visible land picture area.
  * @param map_y Shift Y coordinate for center of the visible land picture area.
  */
-void set_map_info_draw_hotspot(long map_x,long map_y)
+void set_map_info_draw_hotspot(long map_x, long map_y)
 {
     long delta_x, delta_y;
     delta_x = (lbDisplay.PhysicalScreenWidth*16/units_per_pixel) / 2;
@@ -489,6 +492,68 @@ void update_frontmap_info_draw_hotspot(void)
         set_map_info_draw_hotspot_raw(map_info.hotspot_shift_on_zoom_x >> 8, map_info.hotspot_shift_on_zoom_y >> 8);
       }
   }
+}
+
+void frontmap_zoom_skip_init(LevelNumber lvnum)
+{
+    struct LevelInformation *lvinfo;
+    lvinfo = get_level_info(lvnum);
+    if (lvinfo != NULL)
+    {
+        map_info.zoomspot_x = lvinfo->ensign_zoom_x;
+        map_info.zoomspot_y = lvinfo->ensign_zoom_y;
+    } else
+    {
+        map_info.zoomspot_x = (LANDVIEW_MAP_WIDTH>>1);
+        map_info.zoomspot_y = (LANDVIEW_MAP_HEIGHT>>1);
+    }
+    set_map_info_draw_hotspot(map_info.zoomspot_x,map_info.zoomspot_y);
+    set_map_info_visible_hotspot(map_info.zoomspot_x, map_info.zoomspot_y);
+    map_info.fade_pos = 1;
+    map_info.fade_step = 0;
+    map_info.field_0 = 0;
+    map_info.fading = false;
+    // Fading will be controlled by main frontend loop
+    fade_palette_in = 1;
+}
+
+void frontmap_zoom_out_init(LevelNumber prev_lvnum, LevelNumber next_lvnum)
+{
+    struct LevelInformation *prev_lvinfo;
+    prev_lvinfo = get_level_info(prev_lvnum);
+    struct LevelInformation *next_lvinfo;
+    next_lvinfo = get_level_info(next_lvnum);
+    if (prev_lvinfo != NULL)
+    {
+        map_info.zoomspot_x = prev_lvinfo->ensign_zoom_x;
+        map_info.zoomspot_y = prev_lvinfo->ensign_zoom_y;
+    } else
+    {
+        map_info.zoomspot_x = (LANDVIEW_MAP_WIDTH>>1);
+        map_info.zoomspot_y = (LANDVIEW_MAP_HEIGHT>>1);
+    }
+    if (next_lvinfo != NULL)
+    {
+        int dt_x, dt_y;
+        dt_x = (next_lvinfo->ensign_zoom_x - map_info.zoomspot_x)/2;
+        if (dt_x > FRONTMAP_ZOOM_LENGTH)
+            dt_x = FRONTMAP_ZOOM_LENGTH;
+        if (dt_x < -FRONTMAP_ZOOM_LENGTH)
+            dt_x = -FRONTMAP_ZOOM_LENGTH;
+        dt_y = (next_lvinfo->ensign_zoom_y - map_info.zoomspot_y)/2;
+        if (dt_y > FRONTMAP_ZOOM_LENGTH)
+            dt_y = FRONTMAP_ZOOM_LENGTH;
+        if (dt_y < -FRONTMAP_ZOOM_LENGTH)
+            dt_y = -FRONTMAP_ZOOM_LENGTH;
+        set_map_info_draw_hotspot(map_info.zoomspot_x+dt_x, map_info.zoomspot_y+dt_y);
+    } else
+    {
+        set_map_info_draw_hotspot(map_info.zoomspot_x,map_info.zoomspot_y);
+    }
+    map_info.fade_pos = FRONTMAP_ZOOM_LENGTH;
+    map_info.fade_step = -4;
+    map_info.field_0 = 1;
+    map_info.fading = true;
 }
 
 TbBool frontmap_input_active_ensign(long curr_mx, long curr_my)
@@ -621,10 +686,10 @@ void frontzoom_to_point(long map_x, long map_y, long zoom)
     smap_y = map_y*units_per_pixel/16;
     // Initializing variables used for all quadres of screen
     scr_x = smap_x - map_info.scrshift_x*units_per_pixel/16;
-    if (scr_x > lbDisplay.PhysicalScreenWidth) scr_x = lbDisplay.PhysicalScreenWidth;
+    if (scr_x > lbDisplay.PhysicalScreenWidth/2) scr_x = lbDisplay.PhysicalScreenWidth/2;
     if (scr_x < 0) scr_x = 0;
     scr_y = smap_y - map_info.scrshift_y*units_per_pixel/16;
-    if (scr_y > lbDisplay.PhysicalScreenHeight) scr_y = lbDisplay.PhysicalScreenHeight;
+    if (scr_y > lbDisplay.PhysicalScreenHeight/2) scr_y = lbDisplay.PhysicalScreenHeight/2;
     if (scr_y < 0) scr_y = 0;
     src_buf = &map_screen[LANDVIEW_MAP_WIDTH * map_y + map_x];
     dst_scanln = lbDisplay.GraphicsScreenWidth;
@@ -766,17 +831,17 @@ TbBool load_map_and_window(LevelNumber lvnum)
     flen = LbFileLengthRnc(fname);
     if (flen < 1024)
     {
-        ERRORLOG("Land Map file doesn't exist or is too small");
+        ERRORLOG("Land Map background \"%s.raw\" doesn't exist or is too small",land_view);
         return false;
     }
     if (flen > 1228997)
     {
-        ERRORLOG("Not enough memory in game structure for Land Map");
+        ERRORLOG("Not enough memory in game structure for Land Map background \"%s.raw\"",land_view);
         return false;
     }
     if (LbFileLoadAt(fname, &game.land_map_start) != flen)
     {
-        ERRORLOG("Unable to load Land Map background");
+        ERRORLOG("Unable to load Land Map background \"%s.raw\"",land_view);
         return false;
     }
     map_screen = &game.land_map_start;
@@ -808,7 +873,7 @@ TbBool load_map_and_window(LevelNumber lvnum)
     wait_for_cd_to_be_available();
     if (LbFileLoadAt(fname, frontend_palette) != PALETTE_SIZE)
     {
-        ERRORLOG("Unable to load Land Map screen palette");
+        ERRORLOG("Unable to load Land Map palette \"%s.pal\"",land_view);
         unload_map_and_window();
         return false;
     }
@@ -961,68 +1026,6 @@ TbBool frontmap_update_zoom(void)
     }
     process_zoom_palette();
     return false;
-}
-
-void frontmap_zoom_skip_init(LevelNumber lvnum)
-{
-    struct LevelInformation *lvinfo;
-    lvinfo = get_level_info(lvnum);
-    if (lvinfo != NULL)
-    {
-        map_info.zoomspot_x = lvinfo->ensign_zoom_x;
-        map_info.zoomspot_y = lvinfo->ensign_zoom_y;
-    } else
-    {
-        map_info.zoomspot_x = (LANDVIEW_MAP_WIDTH>>1);
-        map_info.zoomspot_y = (LANDVIEW_MAP_HEIGHT>>1);
-    }
-    set_map_info_draw_hotspot(map_info.zoomspot_x,map_info.zoomspot_y);
-    set_map_info_visible_hotspot(map_info.zoomspot_x, map_info.zoomspot_y);
-    map_info.fade_pos = 1;
-    map_info.fade_step = 0;
-    map_info.field_0 = 0;
-    map_info.fading = false;
-    // Fading will be controlled by main frontend loop
-    fade_palette_in = 1;
-}
-
-void frontmap_zoom_out_init(LevelNumber prev_lvnum, LevelNumber next_lvnum)
-{
-    struct LevelInformation *prev_lvinfo;
-    prev_lvinfo = get_level_info(prev_lvnum);
-    struct LevelInformation *next_lvinfo;
-    next_lvinfo = get_level_info(next_lvnum);
-    if (prev_lvinfo != NULL)
-    {
-        map_info.zoomspot_x = prev_lvinfo->ensign_zoom_x;
-        map_info.zoomspot_y = prev_lvinfo->ensign_zoom_y;
-    } else
-    {
-        map_info.zoomspot_x = (LANDVIEW_MAP_WIDTH>>1);
-        map_info.zoomspot_y = (LANDVIEW_MAP_HEIGHT>>1);
-    }
-    if (next_lvinfo != NULL)
-    {
-        int dt_x, dt_y;
-        dt_x = (next_lvinfo->ensign_zoom_x - map_info.zoomspot_x)/2;
-        if (dt_x > FRONTMAP_ZOOM_LENGTH)
-            dt_x = FRONTMAP_ZOOM_LENGTH;
-        if (dt_x < -FRONTMAP_ZOOM_LENGTH)
-            dt_x = -FRONTMAP_ZOOM_LENGTH;
-        dt_y = (next_lvinfo->ensign_zoom_y - map_info.zoomspot_y)/2;
-        if (dt_y > FRONTMAP_ZOOM_LENGTH)
-            dt_y = FRONTMAP_ZOOM_LENGTH;
-        if (dt_y < -FRONTMAP_ZOOM_LENGTH)
-            dt_y = -FRONTMAP_ZOOM_LENGTH;
-        set_map_info_draw_hotspot(map_info.zoomspot_x+dt_x, map_info.zoomspot_y+dt_y);
-    } else
-    {
-        set_map_info_draw_hotspot(map_info.zoomspot_x,map_info.zoomspot_y);
-    }
-    map_info.fade_pos = FRONTMAP_ZOOM_LENGTH;
-    map_info.fade_step = -4;
-    map_info.field_0 = 1;
-    map_info.fading = true;
 }
 
 TbBool frontmap_load(void)
