@@ -504,7 +504,7 @@ TbBool creature_scavenge_from_creature_pool(struct Thing *calltng)
         return false;
     }
     if ( !find_random_valid_position_for_thing_in_room(calltng, room, &pos) ) {
-        ERRORLOG("Could not find valid position for thing to be generated");
+        ERRORLOG("Could not find valid position in %s for %s to be generated",room_code_name(room->kind),creature_code_name(calltng->model));
         return false;
     }
     struct Thing *scavtng;

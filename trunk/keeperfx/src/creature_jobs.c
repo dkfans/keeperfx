@@ -907,7 +907,6 @@ TbBool creature_can_do_job_for_computer_player_in_room(const struct Thing *creat
 
 TbBool attempt_job_work_in_room_for_player(struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job)
 {
-    struct Coord3d pos;
     struct Room *room;
     RoomKind rkind;
     rkind = get_room_for_job(new_job);
@@ -920,14 +919,11 @@ TbBool attempt_job_work_in_room_for_player(struct Thing *creatng, PlayerNumber p
     if (room_is_invalid(room)) {
         return false;
     }
-    if (!find_random_valid_position_for_thing_in_room(creatng, room, &pos)) {
-        return false;
-    }
     if (get_arrive_at_state_for_job(new_job) == CrSt_Unused) {
         ERRORLOG("No arrive at state for job %s in %s room",creature_job_code_name(new_job),room_code_name(room->kind));
         return false;
     }
-    if (!setup_person_move_to_coord(creatng, &pos, NavRtF_Default)) {
+    if (!creature_move_to_place_in_room(creatng, room, new_job)) {
         return false;
     }
     struct CreatureControl *cctrl;
