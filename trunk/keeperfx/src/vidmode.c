@@ -81,6 +81,7 @@ TbSpriteData map_font_data;
 TbSpriteData end_map_font_data;
 TbSpriteData map_hand_data;
 TbSpriteData end_map_hand_data;
+struct MapLevelInfo map_info;
 /******************************************************************************/
 
 extern struct TbSetupSprite setup_sprites_minimal[];

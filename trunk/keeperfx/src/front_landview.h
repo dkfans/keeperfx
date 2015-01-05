@@ -30,29 +30,30 @@ extern "C" {
 
 /******************************************************************************/
 #define FRONTMAP_ZOOM_LENGTH 240
+#define FRONTMAP_ZOOM_STEP 4
 /******************************************************************************/
 #pragma pack(1)
 
 struct TbSprite;
 
 struct MapLevelInfo { // sizeof = 56
-  unsigned char field_0;
+  unsigned char mifield_0;
   unsigned char fading;
   long fade_step;
   long fade_pos;
-  long zoomspot_x;
-  long zoomspot_y;
+  long hotspot_imgpos_x; /**< Position of the chosen level ensign zoom area, which is either being zoomed in to or zoomed out from. Stored as land view background bitmap coordinate. */
+  long hotspot_imgpos_y;
   long state_trigger;
-  long scrshift_x; /**< Shift X coordinate for top left corner of the visible land picture area. */
-  long scrshift_y; /**< Shift Y coordinate for top left corner of the visible land picture area. */
-  long hotspot_shift_on_zoom_x;
-  long hotspot_shift_on_zoom_y;
-  long velocity_x;
-  long velocity_y;
-  long hotspot_x;
-  long hotspot_y;
-  unsigned char field_36;
-  unsigned char field_37;
+  long screen_shift_x; /**< Shift X coordinate for top left corner of the visible land picture area. Acts as the final shift in both zoom and non-zoom modes. */
+  long screen_shift_y; /**< Shift Y coordinate for top left corner of the visible land picture area. */
+  long precise_scrshift_x; /**< Precise shift X for top left corner of the visible land picture area. Extended precision version, used as source for scrshift_x while zooming. */
+  long precise_scrshift_y; /**< Precise shift Y for top left corner of the visible land picture area. */
+  long velocity_x; /**< Velocity at which screen_shift_x is being changed. */
+  long velocity_y; /**< Velocity at which screen_shift_y is being changed. */
+  long hotspot_shift_x; /**< Position of the chosen level ensign zoom area, which is either being zoomed in to or zoomed out from. Set to top left corner of an area which would have the ensign in center. */
+  long hotspot_shift_y;
+  long screen_shift_aimed_x; /**< Shift X coordinate at which the screen_shift is aiming towards zooming. */
+  long screen_shift_aimed_y;
 };
 
 struct ScreenPacket { // sizeof = 12
@@ -93,7 +94,6 @@ DLLIMPORT extern struct TbSprite *_DK_map_hand;
 #define map_hand _DK_map_hand
 DLLIMPORT extern struct TbSprite *_DK_end_map_hand;
 DLLIMPORT extern struct MapLevelInfo _DK_map_info;
-#define map_info _DK_map_info
 DLLIMPORT extern long _DK_map_sound_fade;
 #define map_sound_fade _DK_map_sound_fade
 DLLIMPORT extern unsigned char *_DK_map_screen;
@@ -117,6 +117,7 @@ extern TbSpriteData map_font_data;
 extern TbSpriteData end_map_font_data;
 extern TbSpriteData map_hand_data;
 extern TbSpriteData end_map_hand_data;
+extern struct MapLevelInfo map_info;
 
 extern long map_window_len;
 /******************************************************************************/
