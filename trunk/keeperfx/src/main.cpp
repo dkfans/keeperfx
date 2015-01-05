@@ -4392,8 +4392,8 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     LbErrorLogSetup("/", log_file_name, 5);
     LbScreenHardwareConfig("directx",8);
 
-    retval=process_command_line(argc,argv);
-    if ( retval < 1 )
+    retval = process_command_line(argc,argv);
+    if (retval < 1)
     {
         static const char *msg_text="Command line parameters analysis failed.\n";
         error_dialog_fatal(__func__, 1, msg_text);
@@ -4401,12 +4401,20 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
         return 0;
     }
 
-    LbTimerInit();
-    LbScreenInitialize();
+    retval = true;
+    retval &= (LbTimerInit() != Lb_FAIL);
+    retval &= (LbScreenInitialize() != Lb_FAIL);
     LbSetTitle(PROGRAM_NAME);
     LbSetIcon(1);
     LbScreenSetDoubleBuffering(true);
     srand(LbTimerClock());
+    if (!retval)
+    {
+        static const char *msg_text="Basic engine initialization failed.\n";
+        error_dialog_fatal(__func__, 1, msg_text);
+        LbErrorLogClose();
+        return 0;
+    }
 
     retval = setup_game();
     if (retval)

@@ -4,7 +4,7 @@
 /** @file front_landview.c
  *     Land view, where the user can select map for campaign or multiplayer.
  * @par Purpose:
- *     Functions for displaying and maintaininfg the land view.
+ *     Functions for displaying and maintaining the land view.
  * @par Comment:
  *     None.
  * @author   Tomasz Lis
@@ -425,7 +425,7 @@ void set_map_info_screen_shift_raw(long map_x, long map_y)
     map_info.screen_shift_y = map_y;
     // Make sure the hotspot will not be too close to border to not be drawn correctly at full zoom
     long delta_x, delta_y;
-    if (map_info.fading) {
+    if ((map_info.fadeflags & MLInfoFlg_Zooming) != 0) {
         delta_x = (lbDisplay.PhysicalScreenWidth*(256 - map_info.fade_pos)*16/units_per_pixel) / 256;
         delta_y = (lbDisplay.PhysicalScreenHeight*(256 - map_info.fade_pos)*16/units_per_pixel) / 256;
     } else {
@@ -513,7 +513,7 @@ void frontmap_zoom_skip_init(LevelNumber lvnum)
     }
     set_map_info_visible_hotspot(map_info.hotspot_imgpos_x, map_info.hotspot_imgpos_y);
     // Disable fade so that screen shift function fixes coords correctly
-    map_info.fading = false;
+    map_info.fadeflags &= ~MLInfoFlg_Zooming;
     set_map_info_screen_shift(map_info.hotspot_imgpos_x,map_info.hotspot_imgpos_y);
     // Set aimed screen shift, shouldn't be used anyway
     map_info.screen_shift_aimed_x = map_info.hotspot_shift_x;
@@ -521,8 +521,8 @@ void frontmap_zoom_skip_init(LevelNumber lvnum)
     // Set working parameters for zooming
     map_info.fade_pos = 1;
     map_info.fade_step = 0;
-    map_info.mifield_0 = 0;
-    map_info.fading = false;
+    map_info.fadeflags &= ~MLInfoFlg_SpeechAfterZoom;
+    map_info.fadeflags &= ~MLInfoFlg_Zooming;
 }
 
 void frontmap_zoom_out_init(LevelNumber prev_lvnum, LevelNumber next_lvnum)
@@ -543,7 +543,7 @@ void frontmap_zoom_out_init(LevelNumber prev_lvnum, LevelNumber next_lvnum)
     }
     set_map_info_visible_hotspot(map_info.hotspot_imgpos_x, map_info.hotspot_imgpos_y);
     // Disable fade so that screen shift function fixes coords correctly
-    map_info.fading = false;
+    map_info.fadeflags &= ~MLInfoFlg_Zooming;
     if (next_lvinfo != NULL)
     {
         // Shift towards next flag, but not too much - old flag pos must be on screen all the time
@@ -573,8 +573,8 @@ void frontmap_zoom_out_init(LevelNumber prev_lvnum, LevelNumber next_lvnum)
     // Set working parameters for zooming
     map_info.fade_pos = FRONTMAP_ZOOM_LENGTH;
     map_info.fade_step = -FRONTMAP_ZOOM_STEP;
-    map_info.mifield_0 = 1;
-    map_info.fading = true;
+    map_info.fadeflags |= MLInfoFlg_SpeechAfterZoom;
+    map_info.fadeflags |= MLInfoFlg_Zooming;
 }
 
 void frontmap_zoom_in_init(LevelNumber lvnum)
@@ -582,7 +582,7 @@ void frontmap_zoom_in_init(LevelNumber lvnum)
     struct LevelInformation *lvinfo;
     lvinfo = get_level_info(lvnum);
     // Disable fade so that hostspot function fixes coords correctly
-    map_info.fading = false;
+    map_info.fadeflags &= ~MLInfoFlg_Zooming;
     if (lvinfo != NULL)
     {
         map_info.hotspot_imgpos_x = lvinfo->ensign_zoom_x;
@@ -601,8 +601,8 @@ void frontmap_zoom_in_init(LevelNumber lvnum)
     // Set working parameters for zooming
     map_info.fade_step = FRONTMAP_ZOOM_STEP;
     map_info.fade_pos = 1;
-    map_info.mifield_0 = 1;
-    map_info.fading = true;
+    map_info.fadeflags |= MLInfoFlg_SpeechAfterZoom;
+    map_info.fadeflags |= MLInfoFlg_Zooming;
 }
 
 TbBool frontmap_input_active_ensign(long curr_mx, long curr_my)
@@ -755,12 +755,12 @@ void frontzoom_to_point(long map_x, long map_y, long zoom)
     }
     // Drawing 2nd quadre
     bpos_y = 0;
-    dst = dst_buf;
-    dst_width = -scr_x + lbDisplay.PhysicalScreenWidth - 1;
+    dst = dst_buf + 1;
+    dst_width = -scr_x + lbDisplay.PhysicalScreenWidth - 1; // one pixel less in destination
     dst_height = scr_y;
     for (y=0; y <= dst_height; y++)
     {
-        bpos_x = 0;
+        bpos_x = (1 << 8); // one pixel less in source
         src = &src_buf[-5*(bpos_y & 0xFFFFFF00)];
         for (x=0; x < dst_width; x++)
         {
@@ -771,10 +771,10 @@ void frontzoom_to_point(long map_x, long map_y, long zoom)
         bpos_y += src_delta;
     }
     // Drawing 3rd quadre
-    bpos_y = 0;
+    bpos_y = (1 << 8); // one pixel less in source
     dst = dst_buf + dst_scanln;
     dst_width = scr_x;
-    dst_height = -scr_y + lbDisplay.PhysicalScreenHeight - 1;
+    dst_height = -scr_y + lbDisplay.PhysicalScreenHeight - 1; // one pixel less in destination
     for (y=0; y < dst_height; y++)
     {
         bpos_x = 0;
@@ -788,13 +788,13 @@ void frontzoom_to_point(long map_x, long map_y, long zoom)
         bpos_y += src_delta;
     }
     // Drawing 4th quadre
-    bpos_y = 0;
-    dst = dst_buf + dst_scanln;
+    bpos_y = (1 << 8);
+    dst = dst_buf + dst_scanln + 1;
     dst_width = -scr_x + lbDisplay.PhysicalScreenWidth - 1;
     dst_height = -scr_y + lbDisplay.PhysicalScreenHeight - 1;
     for (y=0; y < dst_height; y++)
     {
-        bpos_x = 0;
+        bpos_x = (1 << 8);
         src = &src_buf[5*(bpos_y & 0xFFFFFF00)];
         for (x=0; x < dst_width; x++)
         {
@@ -1063,7 +1063,7 @@ TbBool frontmap_update_zoom(void)
     {
         SYNCDBG(8,"Stopping fade");
         LbPaletteStopOpenFade();
-        map_info.fading = false;
+        map_info.fadeflags &= ~MLInfoFlg_Zooming;
         if (map_info.state_trigger != FeSt_INITIAL)
         {
             frontend_set_state(map_info.state_trigger);
@@ -1120,7 +1120,7 @@ TbBool frontmap_load(void)
     {
         frontmap_zoom_out_init(prev_singleplayer_level(lvnum), lvnum);
     }
-    SYNCDBG(9,"Zoom hotspot set to (%d,%d) %s fade",(int)map_info.hotspot_imgpos_x,(int)map_info.hotspot_imgpos_y,(map_info.fading)?"with":"without");
+    SYNCDBG(9,"Zoom hotspot set to (%d,%d) %s fade",(int)map_info.hotspot_imgpos_x,(int)map_info.hotspot_imgpos_y,(map_info.fadeflags & MLInfoFlg_Zooming)?"with":"without");
     map_sound_fade = 256;
     map_info.velocity_x = 0;
     map_info.velocity_y = 0;
@@ -1203,7 +1203,7 @@ TbBool test_hand_slap_collides(PlayerNumber plyr_idx)
 void frontmap_draw(void)
 {
     SYNCDBG(8,"Starting");
-    if (map_info.fading)
+    if ((map_info.fadeflags & MLInfoFlg_Zooming) != 0)
     {
         frontzoom_to_point(map_info.hotspot_imgpos_x, map_info.hotspot_imgpos_y, map_info.fade_pos);
         compressed_window_draw();
@@ -1388,7 +1388,7 @@ void draw_map_level_descriptions(void)
 void frontnetmap_draw(void)
 {
     SYNCDBG(8,"Starting");
-    if (map_info.fading)
+    if ((map_info.fadeflags & MLInfoFlg_Zooming) != 0)
     {
         frontzoom_to_point(map_info.hotspot_imgpos_x, map_info.hotspot_imgpos_y, map_info.fade_pos);
         compressed_window_draw();
@@ -1407,12 +1407,12 @@ void frontmap_input(void)
     SYNCDBG(8,"Starting");
     short zoom_done;
     long mouse_x,mouse_y;
-    if (map_info.mifield_0)
+    if ((map_info.fadeflags & MLInfoFlg_SpeechAfterZoom) != 0)
     {
-        if (!map_info.fading)
+        if ((map_info.fadeflags & MLInfoFlg_Zooming) == 0)
         {
-          map_info.mifield_0 = 0;
-          play_desc_speech_time = LbTimerClock() + 1000;
+            map_info.fadeflags &= ~MLInfoFlg_SpeechAfterZoom;
+            play_desc_speech_time = LbTimerClock() + 1000;
         }
         zoom_done = false;
     } else
@@ -1566,7 +1566,7 @@ long frontmap_update(void)
   }
   update_frontmap_ambient_sound();
 
-  if (map_info.fading)
+  if ((map_info.fadeflags & MLInfoFlg_Zooming) != 0)
   {
       if (frontmap_update_zoom())
       {
@@ -1728,7 +1728,7 @@ TbBool frontnetmap_update(void)
     nmps.tmp1 = 0;
     nmps.lvnum = SINGLEPLAYER_NOTSTARTED;
     nmps.is_selected = false;
-    if (map_info.fading)
+    if ((map_info.fadeflags & MLInfoFlg_Zooming) != 0)
     {
         if (frontmap_update_zoom())
         {

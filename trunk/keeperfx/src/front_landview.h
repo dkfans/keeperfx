@@ -36,9 +36,14 @@ extern "C" {
 
 struct TbSprite;
 
+enum MapLevelInfoFlags {
+    MLInfoFlg_None            =  0x00,
+    MLInfoFlg_Zooming         =  0x01,
+    MLInfoFlg_SpeechAfterZoom =  0x02,
+};
+
 struct MapLevelInfo { // sizeof = 56
-  unsigned char mifield_0;
-  unsigned char fading;
+  unsigned char fadeflags;
   long fade_step;
   long fade_pos;
   long hotspot_imgpos_x; /**< Position of the chosen level ensign zoom area, which is either being zoomed in to or zoomed out from. Stored as land view background bitmap coordinate. */

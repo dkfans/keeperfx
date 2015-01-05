@@ -374,6 +374,10 @@ TbResult LbScreenInitialize(void)
     lbDoubleBufferingRequested = false;
     lbAppActive = true;
     LbMouseChangeMoveRatio(256, 256);
+    // Register default video modes
+    if (lbScreenModeInfoNum == 0) {
+        LbRegisterStandardVideoModes();
+    }
     // SDL environment variables
     if (lbVideoDriver[0] != '\0') {
         sprintf(buf,"SDL_VIDEODRIVER=%s",lbVideoDriver);
@@ -381,16 +385,11 @@ TbResult LbScreenInitialize(void)
     }
     // Initialize SDL library
     if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE|SDL_INIT_AUDIO) < 0) {
-       ERRORLOG("SDL init: %s",SDL_GetError());
-       return Lb_FAIL;
+        ERRORLOG("SDL init: %s",SDL_GetError());
+        return Lb_FAIL;
     }
     // Setup the atexit() call to un-initialize
     atexit(SDL_Quit);
-    // Register default video modes
-    if (lbScreenModeInfoNum == 0)
-    {
-        LbRegisterStandardVideoModes();
-    }
     return Lb_SUCCESS;
 }
 
