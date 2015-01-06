@@ -623,9 +623,9 @@ void get_opponent(struct Computer2 *comp, struct THate hates[])
     {
         struct THate *hate;
         hate = &hates[i];
-        struct Comp2_UnkStr1 *unkarrp;
-        unkarrp = &comp->unkarr_A10[i];
-        hate->amount = unkarrp->hate_amount;
+        struct OpponentRelation *oprel;
+        oprel = &comp->opponent_relations[i];
+        hate->amount = oprel->hate_amount;
         hate->plyr_idx = i;
         hate->pos_near = NULL;
         hate->distance_near = LONG_MAX;
@@ -660,17 +660,17 @@ void get_opponent(struct Computer2 *comp, struct THate hates[])
     {
         struct THate *hate;
         hate = &hates[i];
-        struct Comp2_UnkStr1 *unkarrp;
-        unkarrp = &comp->unkarr_A10[hate->plyr_idx];
+        struct OpponentRelation *oprel;
+        oprel = &comp->opponent_relations[hate->plyr_idx];
         int ptidx;
-        ptidx = unkarrp->field_4;
+        ptidx = oprel->field_4;
         if (ptidx > 0)
           ptidx--;
         long n;
         for (n=0; n < COMPUTER_SPARK_POSITIONS_COUNT; n++)
         {
             struct Coord3d *pos;
-            pos = &unkarrp->pos_A[ptidx];
+            pos = &oprel->pos_A[ptidx];
             if ((pos->x.val > 0) && (pos->y.val > 0))
             {
                 if (search_spiral(pos, hate->plyr_idx, 25, xy_walkable) == 25)
@@ -1199,7 +1199,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
     struct ComputerCheck *newchk;
     struct ComputerEvent *event;
     struct ComputerEvent *newevnt;
-    struct Comp2_UnkStr1 *unkptr;
+    struct OpponentRelation *oprel;
     struct Computer2 *comp;
     long i;
     if ((plyr_idx >= PLAYERS_COUNT) || (plyr_idx == game.hero_player_num)
@@ -1232,13 +1232,13 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
 
     for (i=0; i < PLAYERS_COUNT; i++)
     {
-        unkptr = &comp->unkarr_A10[i];
-        unkptr->field_0 = 0;
-        unkptr->field_4 = 0;
+        oprel = &comp->opponent_relations[i];
+        oprel->field_0 = 0;
+        oprel->field_4 = 0;
         if (i == plyr_idx) {
-            unkptr->hate_amount = LONG_MIN;
+            oprel->hate_amount = LONG_MIN;
         } else {
-            unkptr->hate_amount = 0;
+            oprel->hate_amount = 0;
         }
     }
     comp->field_1C = cpt->field_4;

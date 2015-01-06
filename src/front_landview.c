@@ -744,7 +744,7 @@ void frontzoom_to_point(long map_x, long map_y, long zoom)
     for (y=0; y <= dst_height; y++)
     {
         bpos_x = 0;
-        src = &src_buf[-5*(bpos_y & 0xFFFFFF00)];
+        src = &src_buf[-LANDVIEW_MAP_WIDTH*(bpos_y >> 8)];
         for (x=0; x <= dst_width; x++)
         {
           bpos_x += src_delta;
@@ -761,7 +761,7 @@ void frontzoom_to_point(long map_x, long map_y, long zoom)
     for (y=0; y <= dst_height; y++)
     {
         bpos_x = (1 << 8); // one pixel less in source
-        src = &src_buf[-5*(bpos_y & 0xFFFFFF00)];
+        src = &src_buf[-LANDVIEW_MAP_WIDTH*(bpos_y >> 8)];
         for (x=0; x < dst_width; x++)
         {
           bpos_x += src_delta;
@@ -778,7 +778,7 @@ void frontzoom_to_point(long map_x, long map_y, long zoom)
     for (y=0; y < dst_height; y++)
     {
         bpos_x = 0;
-        src = &src_buf[5*(bpos_y & 0xFFFFFF00)];
+        src = &src_buf[LANDVIEW_MAP_WIDTH*(bpos_y >> 8)];
         for (x=0; x <= dst_width; x++)
         {
             bpos_x += src_delta;
@@ -795,7 +795,7 @@ void frontzoom_to_point(long map_x, long map_y, long zoom)
     for (y=0; y < dst_height; y++)
     {
         bpos_x = (1 << 8);
-        src = &src_buf[5*(bpos_y & 0xFFFFFF00)];
+        src = &src_buf[LANDVIEW_MAP_WIDTH*(bpos_y >> 8)];
         for (x=0; x < dst_width; x++)
         {
             dst[x] = src[(bpos_x >> 8)];

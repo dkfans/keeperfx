@@ -671,7 +671,7 @@ struct Thing *get_nearest_thing_for_hand_or_slap(PlayerNumber plyr_idx, MapCoord
     return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
 }
 
-void drop_gold_coins(struct Coord3d *pos, long value, long plyr_idx)
+void drop_gold_coins(const struct Coord3d *pos, long value, long plyr_idx)
 {
     struct Coord3d locpos;
     int i;

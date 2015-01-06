@@ -66,7 +66,7 @@ enum ComputerTaskTypes {
     CTT_MoveCreatureToRoom, // 10
     CTT_MoveCreatureToPos,
     CTT_MoveCreaturesToDefend,
-    CTT_SlapImps,
+    CTT_SlapDiggers,
     CTT_DigToNeutral,
     CTT_MagicSpeedUp,
     CTT_WaitForBridge,
@@ -477,7 +477,7 @@ struct ComputerTask { // sizeof = 148
     unsigned short next_task;
 };
 
-struct Comp2_UnkStr1 { // sizeof = 394
+struct OpponentRelation { // sizeof = 394
     unsigned long field_0;
     short field_4;
     long hate_amount;
@@ -502,8 +502,7 @@ struct Computer2 { // sizeof = 5322
   struct ComputerProcess processes[COMPUTER_PROCESSES_COUNT+1];
   struct ComputerCheck checks[COMPUTER_CHECKS_COUNT];
   struct ComputerEvent events[COMPUTER_EVENTS_COUNT];
-  struct Comp2_UnkStr1 unkarr_A10[PLAYERS_COUNT];
-  unsigned char field_11C2[394];
+  struct OpponentRelation opponent_relations[PLAYERS_EXT_COUNT];
   struct Coord3d trap_locations[COMPUTER_TRAP_LOC_COUNT];
   /** Stores Sight Of Evil target points data. */
   unsigned long soe_targets[COMPUTER_SOE_GRID_SIZE];
