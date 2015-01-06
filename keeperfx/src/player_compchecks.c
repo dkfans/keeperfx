@@ -136,10 +136,10 @@ long computer_checks_hates(struct Computer2 *comp, struct ComputerCheck * check)
     {
         struct PlayerInfo *player;
         struct Dungeon *dungeon;
-        struct Comp2_UnkStr1 *rel;
+        struct OpponentRelation *oprel;
         player = get_player(i);
         dungeon = get_players_dungeon(player);
-        rel = &comp->unkarr_A10[i];
+        oprel = &comp->opponent_relations[i];
         if (!player_exists(player) || (player->id_number == compdngn->owner)
          || (player->id_number == game.neutral_player_num))
             continue;
@@ -156,32 +156,32 @@ long computer_checks_hates(struct Computer2 *comp, struct ComputerCheck * check)
         if (hdngn_creatrs >= cdngn_creatrs)
         {
             hate_reasons++;
-            rel->hate_amount++;
+            oprel->hate_amount++;
         }
         // Computers hate players who have more special diggers than them
         if (cdngn_spdiggrs / 6 + cdngn_spdiggrs < hdngn_spdiggrs)
         {
             hate_reasons++;
-            rel->hate_amount++;
+            oprel->hate_amount++;
         }
         // Computers hate players who can build more rooms than them
         if (((int)compdngn->total_rooms + (int)compdngn->total_rooms / 6) < (int)dungeon->total_rooms)
         {
             hate_reasons++;
-            rel->hate_amount++;
+            oprel->hate_amount++;
         }
         // Computers highly hate players who claimed more entrances than them
         hdngn_enrancs = count_entrances(comp, i);
         if (hdngn_enrancs > cdngn_enrancs)
         {
             hate_reasons++;
-            rel->hate_amount += 5;
+            oprel->hate_amount += 5;
         }
         // If no reason to hate the player - hate him randomly for just surviving that long
         if ((hate_reasons <= 0) && (check->param1 < game.play_gameturn))
         {
             if (ACTION_RANDOM(100) < 20) {
-                rel->hate_amount++;
+                oprel->hate_amount++;
             }
         }
     }
@@ -627,7 +627,7 @@ long computer_check_slap_imps(struct Computer2 *comp, struct ComputerCheck * che
     }
     long creatrs_num;
     creatrs_num = check->param1 * dungeon->num_active_diggers / 100;
-    if (!is_task_in_progress(comp, CTT_SlapImps))
+    if (!is_task_in_progress(comp, CTT_SlapDiggers))
     {
         if (create_task_slap_imps(comp, creatrs_num)) {
             return CTaskRet_Unk1;
@@ -669,13 +669,13 @@ long computer_check_enemy_entrances(struct Computer2 *comp, struct ComputerCheck
             }
             i = room->next_of_owner;
             // Per-room code
-            struct Comp2_UnkStr1 *unkptr;
-            unkptr = &comp->unkarr_A10[(int)plyr_idx];
+            struct OpponentRelation *oprel;
+            oprel = &comp->opponent_relations[(int)plyr_idx];
             long n;
             for (n = 0; n < 64; n++)
             {
                 struct Coord3d *pos;
-                pos = &unkptr->pos_A[n];
+                pos = &oprel->pos_A[n];
                 if ((pos->x.val == subtile_coord(room->central_stl_x,0)) && (pos->y.val == subtile_coord(room->central_stl_y,0))) {
                     break;
                 }
@@ -683,10 +683,10 @@ long computer_check_enemy_entrances(struct Computer2 *comp, struct ComputerCheck
             if (n == 64)
             {
                 struct Coord3d *pos;
-                n = unkptr->field_4;
-                unkptr->field_4 = (n + 1) % 64;
-                unkptr->field_0 = game.play_gameturn;
-                pos = &unkptr->pos_A[n];
+                n = oprel->field_4;
+                oprel->field_4 = (n + 1) % 64;
+                oprel->field_0 = game.play_gameturn;
+                pos = &oprel->pos_A[n];
                 pos->x.val = subtile_coord(room->central_stl_x,0);
                 pos->y.val = subtile_coord(room->central_stl_y,0);
                 pos->z.val = subtile_coord(1,0);
@@ -826,19 +826,19 @@ long computer_check_for_place_door(struct Computer2 *comp, struct ComputerCheck 
 long computer_check_neutral_places(struct Computer2 *comp, struct ComputerCheck * check)
 {
     SYNCDBG(8,"Starting");
-    struct Comp2_UnkStr1 *rel;
-    rel = &comp->unkarr_A10[game.neutral_player_num];
+    struct OpponentRelation *oprel;
+    oprel = &comp->opponent_relations[game.neutral_player_num];
     struct Room *near_room;
     struct Coord3d *near_pos;
     int near_dist;
     near_room = INVALID_ROOM;
-    near_dist = 2147483647;
-    near_pos = &rel->pos_A[0];
+    near_dist = LONG_MAX;
+    near_pos = &oprel->pos_A[0];
     int i;
-    for (i=0; i < 64; i++)
+    for (i=0; i < COMPUTER_SPARK_POSITIONS_COUNT; i++)
     {
         struct Coord3d *place;
-        place = &rel->pos_A[i];
+        place = &oprel->pos_A[i];
         if ((place->x.val == 0) || (place->y.val == 0)) {
             continue;
         }

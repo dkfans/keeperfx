@@ -637,27 +637,27 @@ TbBool thing_is_in_computer_power_hand_list(const struct Thing *thing, PlayerNum
  * @param pos
  * @note originally named fake_dump_held_creatures_on_map()
  */
-short computer_dump_held_things_on_map(struct Computer2 *comp, struct Thing *thing, struct Coord3d *pos)
+short computer_dump_held_things_on_map(struct Computer2 *comp, struct Thing *droptng, struct Coord3d *pos)
 {
-    if (thing_is_creature(thing) && (thing->active_state == CrSt_CreatureUnconscious)) {
-        WARNLOG("The %s Held By computer is unconscious",creature_code_name(thing->model));
+    if (thing_is_creature(droptng) && (droptng->active_state == CrSt_CreatureUnconscious)) {
+        WARNLOG("The %s Held By computer is unconscious",creature_code_name(droptng->model));
     }
     if (!computer_find_non_solid_block(comp, pos)) {
         return 0;
     }
-    if (!can_place_thing_here(thing, pos->x.stl.num, pos->y.stl.num, comp->dungeon->owner)) {
+    if (!can_place_thing_here(droptng, pos->x.stl.num, pos->y.stl.num, comp->dungeon->owner)) {
         return 0;
     }
     struct Coord3d locpos;
     locpos.z.val = 0;
     locpos.x.val = subtile_coord_center(pos->x.stl.num);
     locpos.y.val = subtile_coord_center(pos->y.stl.num);
-    locpos.z.val = get_thing_height_at(thing, &locpos);
+    locpos.z.val = get_thing_height_at(droptng, &locpos);
     int height,max_height;
-    max_height = get_ceiling_height_above_thing_at(thing, &locpos);
-    height = locpos.z.val + thing->field_58;
+    max_height = get_ceiling_height_above_thing_at(droptng, &locpos);
+    height = locpos.z.val + droptng->field_58;
     if (max_height <= height) {
-        ERRORLOG("Ceiling is too low to drop %s at (%d,%d)", thing_model_name(thing),(int)locpos.x.stl.num,(int)locpos.y.stl.num);
+        ERRORLOG("Ceiling is too low to drop %s at (%d,%d)", thing_model_name(droptng),(int)locpos.x.stl.num,(int)locpos.y.stl.num);
         return 0;
     }
     int i;
@@ -669,7 +669,17 @@ short computer_dump_held_things_on_map(struct Computer2 *comp, struct Thing *thi
         i = subtile_coord(3,0);
     }
     locpos.z.val += i;
-    drop_held_thing_on_ground(comp->dungeon, thing, &locpos);
+    if (thing_is_object(droptng) && object_is_gold_pile(droptng))
+    {
+        drop_gold_coins(&pos, droptng->valuable.gold_stored, comp->dungeon->owner);
+        if (is_my_player_number(comp->dungeon->owner)) {
+            play_non_3d_sample(88);
+        }
+        delete_thing_structure(droptng, 0);
+    } else
+    {
+        drop_held_thing_on_ground(comp->dungeon, droptng, &locpos);
+    }
     comp->held_thing_idx = 0;
     comp->tasks_did--;
     return 1;
@@ -3336,7 +3346,7 @@ TbBool create_task_slap_imps(struct Computer2 *comp, long creatrs_num)
     if (computer_task_invalid(ctask)) {
         return false;
     }
-    ctask->ttype = CTT_SlapImps;
+    ctask->ttype = CTT_SlapDiggers;
     ctask->attack_magic.repeat_num = creatrs_num;
     ctask->created_turn = game.play_gameturn;
     return true;
