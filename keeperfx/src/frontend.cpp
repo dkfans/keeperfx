@@ -1635,7 +1635,7 @@ TbBool frontend_start_new_campaign(const char *cmpgn_fname)
     for (i=0; i < PLAYERS_COUNT; i++)
     {
         player = get_player(i);
-        player->field_6 &= ~0x02;
+        player->flgfield_6 &= ~PlaF6_PlyrHasQuit;
     }
     player = get_my_player();
     clear_transfered_creature();
@@ -3419,11 +3419,11 @@ int get_startup_menu_state(void)
           player->field_3 &= ~0x10;
           return FeSt_TORTURE;
         } else
-        if ((player->field_6 & 0x02) == 0)
+        if ((player->flgfield_6 & PlaF6_PlyrHasQuit) == 0)
         {
           return FeSt_LEVEL_STATS;
         } else
-        if ( setup_old_network_service() )
+        if (setup_old_network_service())
         {
           return FeSt_NET_SESSION;
         } else
@@ -3431,7 +3431,7 @@ int get_startup_menu_state(void)
           return FeSt_MAIN_MENU;
         }
     } else
-    if ((player->field_6 & 0x02) || (player->victory_state == VicS_Undecided))
+    if (((player->flgfield_6 & PlaF6_PlyrHasQuit) != 0) || (player->victory_state == VicS_Undecided))
     {
         SYNCLOG("Undecided victory state selected");
         return get_menu_state_based_on_last_level(lvnum);

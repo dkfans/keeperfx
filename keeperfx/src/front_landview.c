@@ -1105,7 +1105,7 @@ TbBool frontmap_load(void)
     PlayMusicPlayer(2);
     player = get_my_player();
     lvnum = get_continue_level_number();
-    if ((player->field_6 & 0x02) != 0)
+    if ((player->flgfield_6 & PlaF6_PlyrHasQuit) != 0)
     {
         lvnum = get_loaded_level_number();
         frontmap_zoom_out_init(lvnum, lvnum);
@@ -1421,10 +1421,10 @@ void frontmap_input(void)
     }
     if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
     {
-      clear_key_pressed(KC_ESCAPE);
-      frontend_set_state(FeSt_MAIN_MENU);
-      LbPaletteStopOpenFade();
-      return;
+        clear_key_pressed(KC_ESCAPE);
+        frontend_set_state(FeSt_MAIN_MENU);
+        LbPaletteStopOpenFade();
+        return;
     }
     if (zoom_done)
     {
@@ -1519,7 +1519,7 @@ void frontnetmap_input(void)
       {
         if ((net_map_slap_frame == 0) && (net_map_limp_time == 0))
         {
-          if ( left_button_clicked )
+          if (left_button_clicked)
           {
               fe_net_level_selected = net_level_hilighted;
               left_button_clicked = 0;

@@ -2256,7 +2256,7 @@ long count_creatures_for_pickup(struct Computer2 *comp, struct Coord3d *pos, str
                     int n;
                     n = get_creature_state_besides_move(thing);
                     stati = get_thing_state_info_num(n);
-                    if ((stati->state_type != 1) || a4 )
+                    if ((stati->state_type != CrStTyp_Work) || a4 )
                     {
                         if (room_is_invalid(room))
                         {
