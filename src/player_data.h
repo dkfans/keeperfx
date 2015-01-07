@@ -48,8 +48,20 @@ enum PlayerInitFlags {
     PlaF_Unknown8           = 0x08,
     PlaF_Unknown10          = 0x10,
     PlaF_Unknown20          = 0x20,
-    PlaF_CompCtrl          = 0x40,
+    PlaF_CompCtrl           = 0x40,
     PlaF_Unknown80          = 0x80,
+};
+
+enum PlayerField6Flags {
+    PlaF6_Unknown01         = 0x01,
+    PlaF6_PlyrHasQuit       = 0x02,
+    // The below are unused
+    PlaF6_Unknown04         = 0x04,
+    PlaF6_Unknown08         = 0x08,
+    PlaF6_Unknown10         = 0x10,
+    PlaF6_Unknown20         = 0x20,
+    PlaF6_Unknown40         = 0x40,
+    PlaF6_Unknown80         = 0x80,
 };
 
 enum PlayerViewModes {
@@ -115,7 +127,7 @@ struct PlayerInfo {
     unsigned char field_3;
     unsigned char field_4;
     unsigned char field_5;
-    unsigned char field_6;
+    unsigned char flgfield_6;
     unsigned char *field_7;
     unsigned char packet_num; // index of packet slot associated with this player
     long field_C;

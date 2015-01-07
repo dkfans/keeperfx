@@ -434,7 +434,7 @@ void draw_power_hand(void)
     struct Room *room;
     struct RoomData *rdata;
     player = get_my_player();
-    if ((player->field_6 & 0x01) != 0)
+    if ((player->flgfield_6 & PlaF6_Unknown01) != 0)
         return;
     if (game.small_map_state == 2)
         return;

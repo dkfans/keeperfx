@@ -184,6 +184,10 @@ void frontend_quit_high_score_table(struct GuiButton *gbtn)
     }
 }
 
+/**
+ * Does high score table new entry input.
+ * @return True if the entry input is active, false otherwise.
+ */
 TbBool frontend_high_score_table_input(void)
 {
     struct HighScore *hscore;
@@ -227,23 +231,24 @@ TbBool frontend_high_score_table_input(void)
     }
     if (high_score_entry_index < HISCORE_NAME_LENGTH)
     {
-      chr = key_to_ascii(lbInkey, key_modifiers);
-      if (chr != 0)
-      {
-        LbTextSetFont(frontend_font[1]);
-        i = LbTextCharWidth(chr);
-        if ((i > 0) && (i+LbTextStringWidth(high_score_entry) < 308))
+        chr = key_to_ascii(lbInkey, key_modifiers);
+        if (chr != 0)
         {
-          high_score_entry[high_score_entry_index] = chr;
-          i = high_score_entry_index+1;
-          high_score_entry[i] = 0;
-          high_score_entry_index = i;
-          lbInkey = KC_UNASSIGNED;
-          return true;
+            LbTextSetFont(frontend_font[1]);
+            i = LbTextCharWidth(chr);
+            if ((i > 0) && (i+LbTextStringWidth(high_score_entry) < 308))
+            {
+              high_score_entry[high_score_entry_index] = chr;
+              i = high_score_entry_index+1;
+              high_score_entry[i] = 0;
+              high_score_entry_index = i;
+              lbInkey = KC_UNASSIGNED;
+              return true;
+            }
         }
-      }
     }
-    return false;
+    // No input, but return true to make sure other input functions are skipped
+    return true;
 }
 
 void frontend_maintain_high_score_ok_button(struct GuiButton *gbtn)

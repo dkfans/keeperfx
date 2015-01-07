@@ -1698,7 +1698,7 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit)
           if (player_exists(swplyr))
           {
             swplyr->allocflags &= ~PlaF_Allocated;
-            swplyr->field_6 |= 0x02;
+            swplyr->flgfield_6 |= PlaF6_PlyrHasQuit;
           }
         }
       } else
@@ -1739,7 +1739,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         frontend_save_continue_game(true);
         free_swipe_graphic();
       }
-      player->field_6 |= 0x02;
+      player->flgfield_6 |= PlaF6_PlyrHasQuit;
       process_quit_packet(player, 0);
       return 1;
   case PckA_Unknown003:
@@ -1748,7 +1748,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         turn_off_all_menus();
         frontend_save_continue_game(true);
       }
-      player->field_6 |= 0x02;
+      player->flgfield_6 |= PlaF6_PlyrHasQuit;
       process_quit_packet(player, 1);
       return 1;
   case PckA_Unknown004:

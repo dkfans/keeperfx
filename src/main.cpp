@@ -3914,11 +3914,13 @@ void startup_saved_packet_game(void)
 
 void faststartup_saved_packet_game(void)
 {
-    struct PlayerInfo *player;
     reenter_video_mode();
     startup_saved_packet_game();
-    player = get_my_player();
-    player->field_6 &= ~0x02;
+    {
+        struct PlayerInfo *player;
+        player = get_my_player();
+        player->flgfield_6 &= ~PlaF6_PlyrHasQuit;
+    }
     set_gui_visible(false);
     set_flag_byte(&game.numfield_C,0x40,false);
 }
@@ -3977,7 +3979,7 @@ void faststartup_network_game(void)
     player->field_2C = 1;
     startup_network_game(true);
     player = get_my_player();
-    player->field_6 &= ~0x02;
+    player->flgfield_6 &= ~PlaF6_PlyrHasQuit;
 }
 
 void wait_at_frontend(void)
@@ -4101,7 +4103,7 @@ void wait_at_frontend(void)
     if (exit_keeper)
     {
       player = get_my_player();
-      player->field_6 &= ~0x02;
+      player->flgfield_6 &= ~PlaF6_PlyrHasQuit;
       return;
     }
     reenter_video_mode();
@@ -4145,7 +4147,7 @@ void wait_at_frontend(void)
           break;
     }
     player = get_my_player();
-    player->field_6 &= ~0x02;
+    player->flgfield_6 &= ~PlaF6_PlyrHasQuit;
 }
 
 void game_loop(void)
