@@ -491,7 +491,7 @@ long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerChec
     pos.x.val = subtile_coord_center(room->central_stl_x);
     pos.y.val = subtile_coord_center(room->central_stl_y);
     pos.z.val = subtile_coord(1,0);
-    if (check->param3 >= count_creatures_availiable_for_fight(comp, &pos)) {
+    if (count_creatures_availiable_for_fight(comp, &pos) <= check->param3) {
         return CTaskRet_Unk4;
     }
     if (!create_task_magic_support_call_to_arms(comp, &pos, check->param2, 0, creatrs_num)) {
@@ -514,35 +514,35 @@ struct Thing *computer_check_creatures_in_room_for_accelerate(struct Computer2 *
     k = 0;
     while (i != 0)
     {
-      thing = thing_get(i);
-      cctrl = creature_control_get_from_thing(thing);
-      if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
-      {
-        ERRORLOG("Jump to invalid creature %ld detected",i);
-        break;
-      }
-      i = cctrl->next_in_room;
-      // Per creature code
-      if (!thing_affected_by_spell(thing, SplK_Speed))
-      {
-          n = get_creature_state_besides_move(thing);
-          struct StateInfo *stati;
-          stati = get_thing_state_info_num(n);
-          if (stati->state_type == 1)
-          {
-              if (try_game_action(comp, dungeon->owner, GA_UsePwrSpeedUp, SPELL_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
-              {
-                  return thing;
-              }
-          }
-      }
-      // Per creature code ends
-      k++;
-      if (k > THINGS_COUNT)
-      {
-        ERRORLOG("Infinite loop detected when sweeping things list");
-        break;
-      }
+        thing = thing_get(i);
+        cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature %ld detected",i);
+            break;
+        }
+        i = cctrl->next_in_room;
+        // Per creature code
+        if (!thing_affected_by_spell(thing, SplK_Speed))
+        {
+            n = get_creature_state_besides_move(thing);
+            struct StateInfo *stati;
+            stati = get_thing_state_info_num(n);
+            if (stati->state_type == CrStTyp_Work)
+            {
+                if (try_game_action(comp, dungeon->owner, GA_UsePwrSpeedUp, SPELL_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
+                {
+                    return thing;
+                }
+            }
+        }
+        // Per creature code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
     }
     return INVALID_THING;
 }

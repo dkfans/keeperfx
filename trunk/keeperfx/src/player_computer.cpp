@@ -1171,7 +1171,7 @@ long check_call_to_arms(struct Computer2 *comp)
                         SYNCDBG(8,"Found existing CTA task");
                         ret = 0;
                     }
-                    if (ctask->field_60 + ctask->lastrun_turn - game.play_gameturn < ctask->field_60 - ctask->field_60/10) {
+                    if (ctask->field_60 + ctask->lastrun_turn - (long)game.play_gameturn < ctask->field_60 - ctask->field_60/10) {
                         SYNCDBG(8,"Less than 90% turns");
                         ret = -1;
                         break;

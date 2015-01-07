@@ -854,13 +854,13 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
                 } else {
                     set_pointer_graphic(1);
                 }
-                player->field_6 |= 0x01;
+                player->flgfield_6 |= PlaF6_Unknown01;
             } else
             if (((player->field_5) && !thing_is_invalid(thing)) && (dungeon->things_in_hand[0] != player->thing_under_hand)
                 && can_thing_be_queried(thing, player->id_number))
             {
                 set_pointer_graphic(4);
-                player->field_6 |= 0x01;
+                player->flgfield_6 |= PlaF6_Unknown01;
             } else
             {
                 if ((player->field_3 & 0x02) != 0) {
@@ -965,7 +965,7 @@ void redraw_display(void)
     struct PlayerInfo *player;
     SYNCDBG(5,"Starting");
     player = get_my_player();
-    set_flag_byte(&player->field_6,0x01,false);
+    player->flgfield_6 &= ~PlaF6_Unknown01;
     if (game.game_kind == GKind_Unknown1)
       return;
     if (game.small_map_state == 2)

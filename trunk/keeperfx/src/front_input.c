@@ -1772,15 +1772,15 @@ short get_gui_inputs(short gameplay_on)
   }
   if (!lbDisplay.MLeftButton)
   {
-    drag_menu_x = -999;
-    drag_menu_y = -999;
-    int idx;
-    for (idx=0; idx < ACTIVE_BUTTONS_COUNT; idx++)
-    {
-      struct GuiButton *gbtn = &active_buttons[idx];
-      if ((gbtn->flags & LbBtnF_Unknown01) && (gbtn->gbtype == Lb_UNKNBTN6))
-          gbtn->gbactn_1 = 0;
-    }
+      drag_menu_x = -999;
+      drag_menu_y = -999;
+      int idx;
+      for (idx=0; idx < ACTIVE_BUTTONS_COUNT; idx++)
+      {
+        struct GuiButton *gbtn = &active_buttons[idx];
+        if ((gbtn->flags & LbBtnF_Unknown01) && (gbtn->gbtype == Lb_UNKNBTN6))
+            gbtn->gbactn_1 = 0;
+      }
   }
   update_busy_doing_gui_on_menu();
 
