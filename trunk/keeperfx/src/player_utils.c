@@ -582,14 +582,14 @@ void init_player(struct PlayerInfo *player, short no_explore)
     }
     switch (game.game_kind)
     {
-    case GKind_NetworkGame:
+    case GKind_LocalGame:
         init_player_as_single_keeper(player);
         init_player_start(player, false);
         reset_player_mode(player, PVT_DungeonTop);
         if ( !no_explore )
           init_keeper_map_exploration(player);
         break;
-    case GKind_KeeperGame:
+    case GKind_MultiGame:
         if (player->field_2C != 1)
         {
           ERRORLOG("Non Keeper in Keeper game");
@@ -638,7 +638,7 @@ void init_players(void)
             {
               game.active_players_count++;
               player->field_2C = 1;
-              game.game_kind = GKind_KeeperGame;
+              game.game_kind = GKind_MultiGame;
               init_player(player, 0);
             }
         }
@@ -835,8 +835,8 @@ void post_init_player(struct PlayerInfo *player)
     {
     case GKind_Unknown3:
         break;
-    case GKind_NetworkGame:
-    case GKind_KeeperGame:
+    case GKind_LocalGame:
+    case GKind_MultiGame:
         wander_point_initialise(&player->wandr_within, player->id_number, CrWaS_WithinDungeon);
         wander_point_initialise(&player->wandr_outside, player->id_number, CrWaS_OutsideDungeon);
         break;

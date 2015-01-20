@@ -1442,6 +1442,10 @@ void process_computer_player2(PlayerNumber plyr_idx)
         ERRORLOG("Player %d has no computer capability",(int)plyr_idx);
         return;
     }
+    if (dungeon_invalid(comp->dungeon)) {
+        ERRORLOG("Computer player %d has invalid dungeon",(int)plyr_idx);
+        return;
+    }
     if ((comp->field_14 != 0) && (comp->field_2C <= game.play_gameturn))
       comp->tasks_did = 1;
     else
@@ -1517,9 +1521,9 @@ void process_computer_players2(void)
     for (i=0; i < PLAYERS_COUNT; i++)
     {
         player = get_player(i);
-        if (!player_exists(player))
-          continue;
         dungeon = get_players_dungeon(player);
+        if (!player_exists(player) || dungeon_invalid(dungeon))
+            continue;
         if (((player->allocflags & PlaF_CompCtrl) != 0) || ((dungeon->computer_enabled & 0x01) != 0))
         {
           if (player->field_2C == 1)

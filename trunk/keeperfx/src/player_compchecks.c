@@ -919,6 +919,9 @@ TbBool computer_check_for_expand_specific_room(struct Computer2 *comp, struct Co
 {
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
+    if (!is_room_available(dungeon->owner, room->kind)) {
+        return false;
+    }
     unsigned long i;
     unsigned long k;
     k = 0;
