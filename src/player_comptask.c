@@ -891,13 +891,7 @@ long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
         return 4;
     case -3:
     case -2:
-        cproc =  get_computer_process(comp, ctask->field_8C);
-        if ((cproc->flags & ComProc_Unkn0020) != 0) {
-            shut_down_process(comp, cproc);
-        }
-        if (!computer_task_invalid(ctask)) {
-            remove_task(comp, ctask);
-        }
+        shut_down_task_process(comp, ctask);
         return 0;
     case -1:
         move_imp_to_dig_here(comp, &ctask->pos_6A, 1);
@@ -953,14 +947,7 @@ long task_dig_room(struct Computer2 *comp, struct ComputerTask *ctask)
                         {
                             if (try_game_action(comp, dungeon->owner, GA_MarkDig, 0, stl_x, stl_y, 1, 1) <= Lb_OK)
                             {
-                                struct ComputerProcess *cproc;
-                                cproc =  get_computer_process(comp, ctask->field_8C);
-                                if ((cproc->flags & ComProc_Unkn0020) != 0) {
-                                    shut_down_process(comp, cproc);
-                                }
-                                if (!computer_task_invalid(ctask)) {
-                                    remove_task(comp, ctask);
-                                }
+                                shut_down_task_process(comp, ctask);
                                 return 0;
                             }
                         }
@@ -1109,6 +1096,11 @@ long task_place_room(struct Computer2 *comp, struct ComputerTask *ctask)
     // If we don't have money for the room - don't even try
     if (rstat->cost >= dungeon->total_money_owned) {
         return 0;
+    }
+    // If we've lost the ability to build that room - kill the process and remove task (should we really remove task?)
+    if (!is_room_available(dungeon->owner, rkind)) {
+        shut_down_task_process(comp, ctask);
+        return 1;
     }
     stl_x = ctask->dig.pos_begin.x.stl.num;
     stl_y = ctask->dig.pos_begin.y.stl.num;
@@ -2869,7 +2861,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
     long i;
     dungeon = comp->dungeon;
     if (dungeon_invalid(dungeon)) {
-        ERRORLOG("Invalid dungeon in computer player.");
+        ERRORLOG("Invalid dungeon in computer player");
         return 0;
     }
     SYNCDBG(19,"Starting for player %d",(int)dungeon->owner);
@@ -2885,7 +2877,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
             {
             case TDSC_DoorCrate:
                 model = tdsell->model;
-                if ((model < 0) || (model >= DOOR_TYPES_COUNT)) {
+                if ((model <= 0) || (model >= DOOR_TYPES_COUNT)) {
                     ERRORLOG("Internal error - invalid door model %d in slot %d",(int)model,(int)i);
                     break;
                 }
@@ -2917,7 +2909,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                 break;
             case TDSC_TrapCrate:
                 model = tdsell->model;
-                if ((model < 0) || (model >= TRAP_TYPES_COUNT)) {
+                if ((model <= 0) || (model >= TRAP_TYPES_COUNT)) {
                     ERRORLOG("Internal error - invalid trap model %d in slot %d",(int)model,(int)i);
                     break;
                 }
@@ -2949,7 +2941,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                 break;
             case TDSC_DoorPlaced:
                 model = tdsell->model;
-                if ((model < 0) || (model >= DOOR_TYPES_COUNT)) {
+                if ((model <= 0) || (model >= DOOR_TYPES_COUNT)) {
                     ERRORLOG("Internal error - invalid door model %d in slot %d",(int)model,(int)i);
                     break;
                 }
@@ -2972,6 +2964,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                             set_coords_to_subtile_center(&pos,stl_x,stl_y,1);
                             create_price_effect(&pos, dungeon->owner, value);
                             add_to_trap_location(comp, &pos);
+                            SYNCDBG(4,"Placed door at (%d,%d) sold for %d gold by player %d",(int)stl_x,(int)stl_y,(int)value,(int)dungeon->owner);
                         } else
                         {
                             WARNLOG("Sold door at (%d,%d) which didn't cost anything",(int)stl_x,(int)stl_y);
@@ -2981,7 +2974,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                 break;
             case TDSC_TrapPlaced:
                 model = tdsell->model;
-                if ((model < 0) || (model >= TRAP_TYPES_COUNT)) {
+                if ((model <= 0) || (model >= TRAP_TYPES_COUNT)) {
                     ERRORLOG("Internal error - invalid trap model %d in slot %d",(int)model,(int)i);
                     break;
                 }
@@ -2989,6 +2982,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                     struct Thing *traptng;
                     traptng = get_random_trap_of_model_owned_by_and_armed(model, dungeon->owner, true);
                     if (!thing_is_invalid(traptng)) {
+                        SYNCDBG(6,"Got %s index %d owner %d",thing_model_name(traptng),(int)traptng->index,(int)traptng->owner);
                         MapSubtlCoord stl_x, stl_y;
                         item_sold = true;
                         stl_x = stl_slab_center_subtile(traptng->mappos.x.stl.num);
@@ -3003,6 +2997,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                             set_coords_to_subtile_center(&pos,stl_x,stl_y,1);
                             create_price_effect(&pos, dungeon->owner, value);
                             add_to_trap_location(comp, &pos);
+                            SYNCDBG(4,"Placed traps at (%d,%d) sold for %d gold by player %d",(int)stl_x,(int)stl_y,(int)value,(int)dungeon->owner);
                         } else
                         {
                             WARNLOG("Sold traps at (%d,%d) which didn't cost anything",(int)stl_x,(int)stl_y);

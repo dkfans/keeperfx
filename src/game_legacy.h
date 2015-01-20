@@ -70,10 +70,10 @@ extern "C" {
 enum GameKinds {
     GKind_Unknown0 = 0,
     GKind_Unknown1,
-    GKind_NetworkGame,
+    GKind_LocalGame,
     GKind_Unknown3,
     GKind_Unknown4,
-    GKind_KeeperGame,
+    GKind_MultiGame,
 };
 /******************************************************************************/
 #pragma pack(1)

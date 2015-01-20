@@ -168,7 +168,7 @@ short setup_select_player_number(void)
 void setup_count_players(void)
 {
   int i;
-  if (game.game_kind == GKind_NetworkGame)
+  if (game.game_kind == GKind_LocalGame)
   {
     game.active_players_count = 1;
   } else

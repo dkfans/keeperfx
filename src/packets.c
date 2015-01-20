@@ -2477,7 +2477,7 @@ void process_packets(void)
   // Do the network data exchange
   lbDisplay.DrawColour = colours[15][15][15];
   // Exchange packets with the network
-  if (game.game_kind != GKind_NetworkGame)
+  if (game.game_kind != GKind_LocalGame)
   {
     player = get_my_player();
     j=0;
