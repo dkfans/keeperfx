@@ -671,7 +671,7 @@ short computer_dump_held_things_on_map(struct Computer2 *comp, struct Thing *dro
     locpos.z.val += i;
     if (thing_is_object(droptng) && object_is_gold_pile(droptng))
     {
-        drop_gold_coins(&pos, droptng->valuable.gold_stored, comp->dungeon->owner);
+        drop_gold_coins(pos, droptng->valuable.gold_stored, comp->dungeon->owner);
         if (is_my_player_number(comp->dungeon->owner)) {
             play_non_3d_sample(88);
         }
