@@ -1771,6 +1771,10 @@ void delete_all_structures(void)
     SYNCDBG(16,"Done");
 }
 
+/**
+ * Clears game structures at end of level.
+ * Also used as part of clearing before new level is loaded.
+ */
 void clear_game_for_summary(void)
 {
     SYNCDBG(6,"Starting");
@@ -3898,7 +3902,7 @@ void startup_saved_packet_game(void)
         SYNCMSG("Logging things, game turns %d -> %d", game.log_things_start_turn, game.log_things_end_turn);
     }
 #endif
-    game.game_kind = GKind_NetworkGame;
+    game.game_kind = GKind_LocalGame;
     if (!(game.packet_save_head.field_C & (1 << game.numfield_149F46))
       || (game.packet_save_head.field_D & (1 << game.numfield_149F46)))
       my_player_number = 0;
@@ -3908,7 +3912,7 @@ void startup_saved_packet_game(void)
     setup_zombie_players();//TODO GUI What about packet file from network game? No zombies there..
     init_players();
     if (game.active_players_count == 1)
-      game.game_kind = GKind_NetworkGame;
+      game.game_kind = GKind_LocalGame;
     if (game.turns_stored < game.turns_fastforward)
       game.turns_fastforward = game.turns_stored;
     post_init_level();
@@ -3944,11 +3948,11 @@ void startup_network_game(TbBool local)
     //if (game.flagfield_14EA4A == 2) //was wrong because init_level sets this to 2. global variables are evil (though perhaps that's why they were chosen for DK? ;-))
     if (local)
     {
-        game.game_kind = GKind_NetworkGame;
+        game.game_kind = GKind_LocalGame;
         init_players_local_game();
     } else
     {
-        game.game_kind = GKind_KeeperGame;
+        game.game_kind = GKind_MultiGame;
         init_players_network_game();
     }
     if (fe_computer_players)
@@ -3973,7 +3977,7 @@ void faststartup_network_game(void)
     SYNCDBG(3,"Starting");
     reenter_video_mode();
     my_player_number = default_loc_player;
-    game.game_kind = GKind_NetworkGame;
+    game.game_kind = GKind_LocalGame;
     if (!is_campaign_loaded())
     {
       if (!change_campaign(""))
@@ -4118,7 +4122,7 @@ void wait_at_frontend(void)
     {
     case FeSt_START_KPRLEVEL:
           my_player_number = default_loc_player;
-          game.game_kind = GKind_NetworkGame;
+          game.game_kind = GKind_LocalGame;
           set_flag_byte(&game.system_flags,GSF_NetworkActive,false);
           player = get_my_player();
           player->field_2C = 1;
@@ -4126,7 +4130,7 @@ void wait_at_frontend(void)
           break;
     case FeSt_START_MPLEVEL:
           set_flag_byte(&game.system_flags,GSF_NetworkActive,true);
-          game.game_kind = GKind_KeeperGame;
+          game.game_kind = GKind_MultiGame;
           player = get_my_player();
           player->field_2C = 1;
           startup_network_game(false);
@@ -4171,7 +4175,7 @@ void game_loop(void)
         break;
       struct PlayerInfo *player;
       player = get_my_player();
-      if (game.game_kind == GKind_NetworkGame)
+      if (game.game_kind == GKind_LocalGame)
       {
         if (game.numfield_15 == -1)
         {

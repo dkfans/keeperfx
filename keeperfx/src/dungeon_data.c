@@ -82,8 +82,10 @@ void clear_dungeons(void)
   for (i=0; i < DUNGEONS_COUNT; i++)
   {
       LbMemorySet(&game.dungeon[i], 0, sizeof(struct Dungeon));
+      game.dungeon[i].owner = PLAYERS_COUNT;
   }
   LbMemorySet(&bad_dungeon, 0, sizeof(struct Dungeon));
+  bad_dungeon.owner = PLAYERS_COUNT;
   game.field_14E4A4 = 0;
   game.field_14E4A0 = 0;
   game.field_14E49E = 0;
