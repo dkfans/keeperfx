@@ -33,6 +33,7 @@
 #include "engine_arrays.h"
 #include "config_creature.h"
 #include "config_effects.h"
+#include "config_terrain.h"
 #include "creature_states.h"
 #include "creature_states_combt.h"
 #include "creature_states_lair.h"
@@ -214,9 +215,63 @@ TbBool thing_can_be_controlled_as_passenger(struct Thing *thing)
   return false;
 }
 
-long check_for_first_person_barrack_party(struct Thing *thing)
+/**
+ * Creates a barracks party, when creature being possessed is barracking.
+ * @param grthing
+ * @return Amount of creatures in the party, including the leader.
+ */
+long check_for_first_person_barrack_party(struct Thing *grthing)
 {
-  return _DK_check_for_first_person_barrack_party(thing);
+    //return _DK_check_for_first_person_barrack_party(grthing);
+    if (!thing_is_creature(grthing))
+    {
+        ERRORLOG("The %s cannot lead a barracks party", thing_model_name(grthing));
+        return 0;
+    }
+    struct Room *room;
+    room = get_room_thing_is_on(grthing);
+    if (!room_still_valid_as_type_for_thing(room, RoK_BARRACKS, grthing))
+    {
+        WARNLOG("Room %s owned by player %d is bad work place for %s index %d owner %d",room_code_name(room->kind),(int)room->owner,thing_model_name(grthing),(int)grthing->index,(int)grthing->owner);
+        return 0;
+    }
+    struct CreatureControl *cctrl;
+    struct Thing *thing;
+    unsigned long k;
+    long i, n;
+    n = 0;
+    i = room->creatures_list;
+    k = 0;
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        cctrl = creature_control_get_from_thing(thing);
+        if (!creature_control_exists(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature %d detected",(int)i);
+            break;
+        }
+        i = cctrl->next_in_room;
+        // Per creature code
+        if (thing->index != grthing->index) {
+            if (n == 0) {
+                add_creature_to_group_as_leader(grthing, thing);
+                n++;
+            } else {
+                add_creature_to_group(thing, grthing);
+            }
+            n++;
+        }
+        // Per creature code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping creatures list");
+          break;
+        }
+    }
+    return n;
 }
 
 TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *thing)
