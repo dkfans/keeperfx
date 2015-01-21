@@ -882,7 +882,6 @@ long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
     struct Coord3d pos;
-    struct ComputerProcess *cproc;
     switch (tool_dig_to_pos2(comp, &ctask->dig, 0, 0))
     {
     case -5:
@@ -1093,9 +1092,15 @@ long task_place_room(struct Computer2 *comp, struct ComputerTask *ctask)
     dungeon = comp->dungeon;
     rkind = ctask->create_room.long_80;
     rstat = room_stats_get_for_kind(rkind);
+    struct RoomConfigStats *roomst;
+    roomst = &slab_conf.room_cfgstats[rkind];
     // If we don't have money for the room - don't even try
-    if (rstat->cost >= dungeon->total_money_owned) {
-        return 0;
+    if (rstat->cost + 1000 >= dungeon->total_money_owned)
+    {
+        // Prefer leaving some gold, unless a flag is forcing us to build
+        if (((roomst->flags & RoCFlg_BuildToBroke) == 0) || (rstat->cost >= dungeon->total_money_owned)) {
+            return 0;
+        }
     }
     // If we've lost the ability to build that room - kill the process and remove task (should we really remove task?)
     if (!is_room_available(dungeon->owner, rkind)) {

@@ -1541,7 +1541,7 @@ TbBool toggle_computer_player(PlayerNumber plyr_idx)
     struct Dungeon *dungeon;
     dungeon = get_players_dungeon(player);
     if (dungeon_invalid(dungeon)) {
-        ERRORLOG("Player %d has no dungeon.",(int)plyr_idx);
+        ERRORLOG("Player %d has no dungeon",(int)plyr_idx);
         return false;
     }
     if ((dungeon->computer_enabled & 0x01) == 0)

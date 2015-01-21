@@ -589,6 +589,7 @@ TbBool is_task_in_progress_using_hand(struct Computer2 *comp);
 struct ComputerTask *get_free_task(struct Computer2 *comp, long a2);
 TbBool computer_task_invalid(const struct ComputerTask *ctask);
 TbBool remove_task(struct Computer2 *comp, struct ComputerTask *ctask);
+void shut_down_task_process(struct Computer2 *comp, struct ComputerTask *ctask);
 const char *computer_task_code_name(int ctask_type);
 
 TbBool create_task_move_creatures_to_defend(struct Computer2 *comp, struct Coord3d *pos, long creatrs_num, unsigned long evflags);
