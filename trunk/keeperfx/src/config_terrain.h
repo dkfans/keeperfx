@@ -61,6 +61,7 @@ enum RoomCfgFlags {
     RoCFlg_None          = 0x00,
     RoCFlg_NoEnsign      = 0x01,
     RoCFlg_CantVandalize = 0x02,
+    RoCFlg_BuildToBroke  = 0x04,
 };
 
 struct SlabMap;
