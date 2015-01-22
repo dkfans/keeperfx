@@ -413,6 +413,7 @@ void activate_trap(struct Thing *traptng, struct Thing *creatng)
     const struct TrapStats *trapstat;
     traptng->trap.byte_18t = 1;
     trapstat = &trap_stats[traptng->model];
+    //TODO CONFIG trap model dependency, make config option instead
     if (traptng->model == 2) {
         event_create_event(traptng->mappos.x.val, traptng->mappos.y.val, EvKind_AlarmTriggered, traptng->owner, 0);
     }

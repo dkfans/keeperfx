@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 #include "globals.h"
 
+#include "config_creature.h"
 #include "config_crtrmodel.h"
 #include "config_rules.h"
 #include "thing_creature.h"
@@ -89,7 +90,7 @@ struct IntralevelData {
  * Defines additional elements, which are not stored in main 'Game' struct.
  */
 struct GameAdd {
-    struct CreatureStats creature_stats[CREATURE_TYPES_COUNT];
+    struct CreatureStats creature_stats[CREATURE_TYPES_MAX];
     unsigned long turn_last_checked_for_gold;
     unsigned long flee_zone_radius;
     unsigned long time_between_prison_break;

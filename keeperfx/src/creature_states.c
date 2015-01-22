@@ -1494,7 +1494,7 @@ short creature_being_dropped(struct Thing *creatng)
             }
         }
     }
-    // TODO it would be great if these jobs were also returned by get_job_for_subtile()
+    // TODO CREATURE_JOBS it would be great if these jobs were also returned by get_job_for_subtile()
     if (!creature_affected_by_spell(creatng, SplK_Chicken))
     {
         struct SlabMap *slb;

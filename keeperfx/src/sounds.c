@@ -146,7 +146,7 @@ void play_thing_walking(struct Thing *thing)
 
             int v15;
             unsigned short smpl_delay;
-            //TODO CREATURES Remove conditions on specific creature model, add config file option for this
+            //TODO CONFIG creature model dependency; remove, add config file option for this
             v15 = thing->model;
             if ( v15 == 19 || v15 == 24 ) {//FLY or BUG
                 smpl_delay = 400;

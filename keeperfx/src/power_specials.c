@@ -180,7 +180,7 @@ void increase_level(struct PlayerInfo *player)
 
 TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
 {
-    //TODO put creature models in config files
+    //TODO CONFIG creature models dependency; put them in config files
     static ThingModel skip_steal_models[] = {6, 7};
     static ThingModel prefer_steal_models[] = {3, 12};
     struct Thing *herotng;

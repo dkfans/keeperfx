@@ -564,6 +564,7 @@ void affect_nearby_enemy_creatures_with_wind(struct Thing *shotng)
 void affect_nearby_stuff_with_vortex(struct Thing *thing)
 {
     //TODO implement vortex; it's not implemented in original DK
+    WARNLOG("Not implemented");
 }
 
 void affect_nearby_friends_with_alarm(struct Thing *traptng)
@@ -916,7 +917,7 @@ void init_censorship(void)
   if ( censorship_enabled() )
   {
     // Modification for Dark Mistress
-      set_creature_breed_graphics(20, 14, 48);
+      set_creature_model_graphics(20, 14, 48);
   }
 }
 

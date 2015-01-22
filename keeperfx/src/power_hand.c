@@ -1036,7 +1036,7 @@ void draw_mini_things_in_hand(long x, long y)
         bs_units_per_px = (17 * units_per_pixel) / spr->SHeight;
     }
     unsigned long spr_idx;
-    spr_idx = get_creature_model_graphics(23, CGI_GUIPanelSymbol);
+    spr_idx = get_creature_model_graphics(get_players_special_digger_model(dungeon->owner), CGI_HandSymbol);
     if ((spr_idx > 0) && (spr_idx < GUI_PANEL_SPRITES_COUNT))
         i = gui_panel_sprites[spr_idx].SWidth - button_sprite[184].SWidth;
     else
@@ -1059,7 +1059,7 @@ void draw_mini_things_in_hand(long x, long y)
         int shift_y;
         if (thing->class_id == TCls_Creature)
         {
-            spr_idx = get_creature_model_graphics(thing->model, CGI_GUIPanelSymbol);
+            spr_idx = get_creature_model_graphics(thing->model, CGI_HandSymbol);
             if (spr_idx > 0)
             {
                 struct CreatureControl *cctrl;

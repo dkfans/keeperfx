@@ -698,6 +698,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
         instf_pretty_path(creatng, NULL);
     } else
     {
+        //TODO CONFIG shot model dependency
         locparam = 23;
         instf_creature_fire_shot(creatng, &locparam);
     }

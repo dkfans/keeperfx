@@ -185,7 +185,7 @@ int draw_overlay_call_to_arms(struct PlayerInfo *player, long units_per_px, long
         // Per-thing code
         if (!thing_is_picked_up(thing))
         {
-            if (thing->model == 24)
+            if (thing->model == 24)//TODO CONFIG object model dependency, move to config
             {
                 // Position of the thing on unrotated map
                 // for camera, coordinates within subtile are skipped; the thing uses full resolution coordinates
