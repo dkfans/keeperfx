@@ -1,3 +1,5 @@
+#summary How to play user-created levels
+
 =HOW TO PLAY CUSTOM MAPS FROM lubiki.pl IN KEEPERFX=
 
   # Download the map from [http://keeper.lubiki.pl/html/dk1_maps.php keeper.lubiki.pl]
