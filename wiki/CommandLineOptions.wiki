@@ -12,7 +12,7 @@ Note that the [LauncherApplication Launcher App] can be used to choose command l
   The intro sequence won't play at startup.
 
 `-nocd`
-  The CD Sound tracks won't play.
+  The game music will play from OGG files in the '/music' subfolder instead of the CD Sound tracks. Download these files from <a href="http://www.mediafire.com/download/hx85477xbmdwqw7/DKGold+Music+%5BOGG%5D.zip">here</a>.
 
 `-1player`
   Allows playing multiplayer maps in skirmish mode.
