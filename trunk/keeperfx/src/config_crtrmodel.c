@@ -1997,7 +1997,7 @@ TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,con
   {
       for (n = 0; n < CREATURE_GRAPHICS_INSTANCES; n++)
       {
-          set_creature_breed_graphics(crtr_model, n, 0);
+          set_creature_model_graphics(crtr_model, n, 0);
       }
   }
   // Find the block
@@ -2023,7 +2023,7 @@ TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,con
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            set_creature_breed_graphics(crtr_model, cmd_num-1, k);
+            set_creature_model_graphics(crtr_model, cmd_num-1, k);
             n++;
           }
           if (n < 1)

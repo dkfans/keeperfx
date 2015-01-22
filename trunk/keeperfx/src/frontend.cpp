@@ -2438,14 +2438,14 @@ void init_gui(void)
   LbMemorySet(menu_stack, 0, ACTIVE_MENUS_COUNT*sizeof(unsigned char));
   LbMemorySet(active_menus, 0, ACTIVE_MENUS_COUNT*sizeof(struct GuiMenu));
   LbMemorySet(active_buttons, 0, ACTIVE_BUTTONS_COUNT*sizeof(struct GuiButton));
-  breed_activities[0] = 23;
+  breed_activities[0] = get_players_special_digger_model(my_player_number);
   no_of_breeds_owned = 1;
   top_of_breed_list = 0;
   old_menu_mouse_x = -999;
   old_menu_mouse_y = -999;
   drag_menu_x = -999;
   drag_menu_y = -999;
-  initialise_tab_tags(2);
+  initialise_tab_tags(GMnu_ROOM);
   new_objective = 0;
   input_button = 0;
   busy_doing_gui = 0;

@@ -1183,7 +1183,7 @@ void gui_creature_query_background1(struct GuiMenu *gmnu)
     if (thing_is_creature(ctrltng) && (ctrltng->ccontrol_idx > 0))
     {
         long spr_idx;
-        spr_idx = get_creature_model_graphics(ctrltng->model, CGI_ButtonPortrait);
+        spr_idx = get_creature_model_graphics(ctrltng->model, CGI_QuerySymbol);
         int bs_units_per_px;
         struct TbSprite *spr;
         spr = &button_sprite[spr_idx];
@@ -1215,7 +1215,7 @@ void gui_creature_query_background2(struct GuiMenu *gmnu)
     if (thing_is_creature(ctrltng) && (ctrltng->ccontrol_idx > 0))
     {
         long spr_idx;
-        spr_idx = get_creature_model_graphics(ctrltng->model, CGI_GUIPanelSymbol);
+        spr_idx = get_creature_model_graphics(ctrltng->model, CGI_HandSymbol);
         int ps_units_per_px;
         struct TbSprite *spr;
         spr = &gui_panel_sprites[spr_idx];
@@ -1793,7 +1793,7 @@ void maintain_activity_pic(struct GuiButton *gbtn)
     amount = dungeon->owned_creatures_of_model[crmodel];
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown08 * (amount > 0)) & LbBtnF_Unknown08;
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown04 * (no_of_breeds_owned > i)) & LbBtnF_Unknown04;
-    gbtn->sprite_idx = get_creature_model_graphics(crmodel, CGI_GUIPanelSymbol);
+    gbtn->sprite_idx = get_creature_model_graphics(crmodel, CGI_HandSymbol);
 }
 
 void maintain_activity_row(struct GuiButton *gbtn)

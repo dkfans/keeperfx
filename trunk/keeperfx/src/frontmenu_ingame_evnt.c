@@ -217,7 +217,7 @@ void draw_battle_head(struct Thing *thing, long scr_x, long scr_y, int units_per
         return;
     }
     unsigned long spr_idx;
-    spr_idx = get_creature_model_graphics(thing->model, CGI_GUIPanelSymbol);
+    spr_idx = get_creature_model_graphics(thing->model, CGI_HandSymbol);
     struct TbSprite *spr;
     spr = &gui_panel_sprites[spr_idx];
     int ps_units_per_px;

@@ -271,18 +271,18 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
       }
       break;
   case TCls_Shot:
-      if (thing->model == 15)
+      if (thing->model == 15) //TODO CONFIG shot model dependency, make config option instead
       {
           thing->field_52 = player->acamera->orient_a;
           thing->health -= game.boulder_reduce_health_slap;
       } else
-      if (thing->model == 20)
+      if (thing->model == 20) //TODO CONFIG shot model dependency, make config option instead
       {
           thing->field_52 = player->acamera->orient_a;
       }
       break;
   case TCls_Trap:
-      if (thing->model == 1)
+      if (thing->model == 1) //TODO CONFIG trap model dependency, make config option instead
         external_activate_trap_shot_at_angle(thing, player->acamera->orient_a);
       break;
   case TCls_Object:
