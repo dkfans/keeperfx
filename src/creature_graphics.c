@@ -295,17 +295,17 @@ unsigned long get_creature_model_graphics(long crmodel, unsigned short seq_idx)
   return creature_graphics[crmodel][seq_idx];
 }
 
-void set_creature_breed_graphics(long breed, unsigned short seq_idx, unsigned long val)
+void set_creature_model_graphics(long crmodel, unsigned short seq_idx, unsigned long val)
 {
     if (seq_idx >= CREATURE_GRAPHICS_INSTANCES) {
-        ERRORLOG("Invalid breed %d graphics sequence %d",breed,seq_idx);
+        ERRORLOG("Invalid breed %d graphics sequence %d",crmodel,seq_idx);
         return;
     }
-    if ((breed < 0) || (breed >= CREATURE_TYPES_COUNT)) {
-        ERRORLOG("Invalid breed %d graphics sequence %d",breed,seq_idx);
+    if ((crmodel < 0) || (crmodel >= CREATURE_TYPES_COUNT)) {
+        ERRORLOG("Invalid breed %d graphics sequence %d",crmodel,seq_idx);
         return;
     }
-    creature_graphics[breed][seq_idx] = val;
+    creature_graphics[crmodel][seq_idx] = val;
 }
 
 unsigned long get_creature_anim(struct Thing *thing, unsigned short seq_idx)

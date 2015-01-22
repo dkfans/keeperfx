@@ -81,7 +81,7 @@ TbBool shot_model_is_navigable(long tngmodel)
 
 TbBool shot_is_boulder(const struct Thing *thing)
 {
-    return (thing->model == 15);
+    return (thing->model == ShM_Boulder); //TODO CONFIG shot model dependency, make config option instead
 }
 
 TbBool detonate_shot(struct Thing *shotng)
@@ -112,6 +112,7 @@ TbBool detonate_shot(struct Thing *shotng)
         damage = compute_creature_attack_spell_damage(shotst->area_damage, crstat->luck, cctrl->explevel);
         explosion_affecting_area(castng, &shotng->mappos, dist, damage, shotst->area_blow, shotst->area_hit_type, shotst->damage_type);
     }
+    //TODO CONFIG shot model dependency, make config option instead
     switch (shotng->model)
     {
     case ShM_Lightning:
@@ -608,11 +609,11 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
     }
     if (thing_is_dungeon_heart(target))
     {
-        if (shotng->model == 21) //TODO CONFIG Make config option instead of model dependency
+        if (shotng->model == 21) //TODO CONFIG shot model dependency, make config option instead
         {
             thing_play_sample(target, 134+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
         } else
-        if (shotng->model == 22) //TODO CONFIG Make config option instead of model dependency
+        if (shotng->model == 22) //TODO CONFIG shot model dependency, make config option instead
         {
             thing_play_sample(target, 144+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
         }

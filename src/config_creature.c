@@ -33,6 +33,7 @@
 #include "thing_doors.h"
 #include "thing_creature.h"
 #include "creature_instances.h"
+#include "creature_graphics.h"
 #include "creature_states.h"
 #include "creature_jobs.h"
 #include "engine_arrays.h"
@@ -131,29 +132,29 @@ const struct NamedCommand creaturetype_attackpref_commands[] = {
   };
 
 const struct NamedCommand creature_graphics_desc[] = {
-  {"STAND",              0+1},
-  {"AMBULATE",           1+1},
-  {"DRAG",               2+1},
-  {"ATTACK",             3+1},
-  {"DIG",                4+1},
-  {"SMOKE",              5+1},
-  {"RELAX",              6+1},
-  {"PRETTYDANCE",        7+1},
-  {"GOTHIT",             8+1},
-  {"POWERGRAB",          9+1},
-  {"GOTSLAPPED",        10+1},
-  {"CELEBRATE",         11+1},
-  {"SLEEP",             12+1},
-  {"EATCHICKEN",        13+1},
-  {"TORTURE",           14+1},
-  {"SCREAM",            15+1},
-  {"DROPDEAD",          16+1},
-  {"DEADSPLAT",         17+1},
+  {"STAND",             1+CGI_Stand},
+  {"AMBULATE",          1+CGI_Ambulate},
+  {"DRAG",              1+CGI_Drag},
+  {"ATTACK",            1+CGI_Attack},
+  {"DIG",               1+CGI_Dig},
+  {"SMOKE",             1+CGI_Smoke},
+  {"RELAX",             1+CGI_Relax},
+  {"PRETTYDANCE",       1+CGI_PrettyDance},
+  {"GOTHIT",            1+CGI_GotHit},
+  {"POWERGRAB",         1+CGI_PowerGrab},
+  {"GOTSLAPPED",        1+CGI_GotSlapped},
+  {"CELEBRATE",         1+CGI_Celebrate},
+  {"SLEEP",             1+CGI_Sleep},
+  {"EATCHICKEN",        1+CGI_EatChicken},
+  {"TORTURE",           1+CGI_Torture},
+  {"SCREAM",            1+CGI_Scream},
+  {"DROPDEAD",          1+CGI_DropDead},
+  {"DEADSPLAT",         1+CGI_DeadSplat},
 // These below seems to be not from CREATURE.JTY
-  {"GFX18",             18+1},
-  {"QUERYSYMBOL",       19+1},
-  {"HANDSYMBOL",        20+1},
-  {"GFX21",             21+1},
+  {"GFX18",             1+CGI_GFX18},
+  {"QUERYSYMBOL",       1+CGI_QuerySymbol},
+  {"HANDSYMBOL",        1+CGI_HandSymbol},
+  {"GFX21",             1+CGI_GFX21},
   {NULL,                 0},
   };
 
@@ -272,7 +273,7 @@ const char *name_consonants[] = {
  */
 struct CreatureStats *creature_stats_get(ThingModel crstat_idx)
 {
-  if ((crstat_idx < 1) || (crstat_idx >= CREATURE_TYPES_COUNT))
+  if ((crstat_idx < 1) || (crstat_idx >= CREATURE_TYPES_MAX))
     return &gameadd.creature_stats[0];
   return &gameadd.creature_stats[crstat_idx];
 }
@@ -283,7 +284,7 @@ struct CreatureStats *creature_stats_get(ThingModel crstat_idx)
  */
 struct CreatureStats *creature_stats_get_from_thing(const struct Thing *thing)
 {
-  if ((thing->model < 1) || (thing->model >= CREATURE_TYPES_COUNT))
+  if ((thing->model < 1) || (thing->model >= crtr_conf.model_count))
     return &gameadd.creature_stats[0];
   return &gameadd.creature_stats[thing->model];
 }
@@ -314,9 +315,9 @@ void check_and_auto_fix_stats(void)
     struct CreatureStats *crstat;
     long model;
     long i,n;
-    SYNCDBG(8,"Starting");
+    SYNCDBG(8,"Starting for %d models",(int)crtr_conf.model_count);
     //_DK_check_and_auto_fix_stats();
-    for (model=0; model < CREATURE_TYPES_COUNT; model++)
+    for (model=0; model < crtr_conf.model_count; model++)
     {
         crstat = creature_stats_get(model);
         if ( (crstat->lair_size <= 0) && (crstat->heal_requirement != 0) )
@@ -1519,7 +1520,7 @@ TbBool load_creaturetypes_config(const char *conf_fname, unsigned short flags)
 
 unsigned short get_creature_model_flags(const struct Thing *thing)
 {
-    if ((thing->model < 1) || (thing->model >= CREATURE_TYPES_COUNT))
+    if ((thing->model < 1) || (thing->model >= crtr_conf.model_count))
       return 0;
   return crtr_conf.model[thing->model].model_flags;
 }

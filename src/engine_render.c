@@ -5173,6 +5173,7 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
         switch (thing->class_id)
         {
         case TCls_Object:
+            //TODO CONFIG object model dependency, move to config
             if ((thing->model == 2) || (thing->model == 4) || (thing->model == 28))
             {
                 process_keeper_speedup_sprite(jspr, angle, scale);
@@ -5181,6 +5182,7 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
             process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->field_44, angle, thing->field_48, scale);
             break;
         case TCls_Trap:
+            //TODO CONFIG trap model dependency, make config option instead
             if ((thing->model != 1) && (player->id_number != thing->owner) && (thing->byte_18 == 0))
             {
                 break;

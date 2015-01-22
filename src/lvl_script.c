@@ -2100,26 +2100,28 @@ void command_swap_creature(char *ncrt_name, char *crtr_name)
   ncrt_id = get_rid(newcrtr_desc, ncrt_name);
   if (ncrt_id == -1)
   {
-    SCRPTERRLOG("Unknown new creature, '%s'", ncrt_name);
-    return;
+      SCRPTERRLOG("Unknown new creature, '%s'", ncrt_name);
+      return;
   }
   crtr_id = get_rid(creature_desc, crtr_name);
   if (crtr_id == -1)
   {
-    SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
-    return;
+      SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
+      return;
   }
-  if ((crtr_id == 23) || (crtr_id == 8))
+  struct CreatureModelConfig *crconf;
+  crconf = &crtr_conf.model[crtr_id];
+  if ((crconf->model_flags & CMF_IsSpecDigger) != 0)
   {
-    SCRPTERRLOG("Unable to swap IMPs or TUNNELLERs");
+      SCRPTERRLOG("Unable to swap special diggers");
   }
   if (script_current_condition != -1)
   {
-    SCRPTWRNLOG("Creature swapping placed inside conditional statement");
+      SCRPTWRNLOG("Creature swapping placed inside conditional statement");
   }
   if (!swap_creature(ncrt_id, crtr_id))
   {
-    SCRPTERRLOG("Error swapping creatures '%s'<->'%s'", ncrt_name, crtr_name);
+      SCRPTERRLOG("Error swapping creatures '%s'<->'%s'", ncrt_name, crtr_name);
   }
 }
 
