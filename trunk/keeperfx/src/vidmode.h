@@ -56,10 +56,6 @@ struct TbAlphaTables {
 DLLIMPORT int _DK_MinimalResolutionSetup;
 #define MinimalResolutionSetup _DK_MinimalResolutionSetup
 
-//DLLIMPORT unsigned char _DK_ghost[256*16];
-//#define ghost _DK_ghost
-//DLLIMPORT unsigned char _DK_fade_tables[256*64];
-//#define fade_tables _DK_fade_tables
 DLLIMPORT struct TbColorTables _DK_pixmap;
 #define pixmap _DK_pixmap
 DLLIMPORT struct TbAlphaTables _DK_alpha_sprite_table;

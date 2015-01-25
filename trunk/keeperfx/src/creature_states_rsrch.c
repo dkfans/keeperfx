@@ -168,38 +168,6 @@ TbBool force_complete_current_research(PlayerNumber plyr_idx)
     return false;
 }
 
-#define INSTANCE_RET_IF_AVAIL_AND_RESET(thing, inst_id) \
-    if (creature_instance_is_available(thing, inst_id) \
-      && creature_instance_has_reset(thing, inst_id)) { \
-        return inst_id; \
-    }
-#define INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, inst_id) \
-    if (creature_instance_is_available(thing, inst_id)) { \
-        return -inst_id; \
-    }
-long get_best_quick_range_instance_to_use(struct Thing *thing)
-{
-    INSTANCE_RET_IF_AVAIL_AND_RESET(thing, CrInst_FIREBALL);
-    INSTANCE_RET_IF_AVAIL_AND_RESET(thing, CrInst_FIRE_ARROW);
-    INSTANCE_RET_IF_AVAIL_AND_RESET(thing, CrInst_MISSILE);
-    INSTANCE_RET_IF_AVAIL_AND_RESET(thing, CrInst_NAVIGATING_MISSILE);
-    INSTANCE_RET_IF_AVAIL_AND_RESET(thing, CrInst_LIGHTNING);
-    INSTANCE_RET_IF_AVAIL_AND_RESET(thing, CrInst_HAILSTORM);
-    INSTANCE_RET_IF_AVAIL_AND_RESET(thing, CrInst_GRENADE);
-    INSTANCE_RET_IF_AVAIL_AND_RESET(thing, CrInst_POISON_CLOUD);
-    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_FIREBALL);
-    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_FIRE_ARROW);
-    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_MISSILE);
-    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_NAVIGATING_MISSILE);
-    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_LIGHTNING);
-    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_HAILSTORM);
-    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_GRENADE);
-    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_POISON_CLOUD);
-    return CrInst_NULL;
-}
-#undef INSTANCE_RET_IF_AVAIL_AND_RESET
-#undef INSTANCE_RET_NEG_IF_AVAIL_ONLY
-
 TbBool find_combat_target_passing_by_subtile_but_having_unrelated_job(const struct Thing *creatng, CreatureJob job_kind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long *found_dist, struct Thing **found_thing)
 {
     struct Thing *thing;
@@ -329,7 +297,7 @@ TbBool process_job_causes_going_postal(struct Thing *creatng, struct Room *room,
     struct CreatureStats *crstat;
     cctrl = creature_control_get_from_thing(creatng);
     crstat = creature_stats_get_from_thing(creatng);
-    long inst_use;
+    CrInstance inst_use;
     inst_use = get_best_quick_range_instance_to_use(creatng);
     if (inst_use <= 0) {
         return false;
