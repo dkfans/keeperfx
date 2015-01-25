@@ -670,20 +670,53 @@ long instf_attack_room_slab(struct Thing *creatng, long *param)
 
 long instf_damage_wall(struct Thing *creatng, long *param)
 {
+    SYNCDBG(16,"Starting");
     TRACE_THING(creatng);
-    return _DK_instf_damage_wall(creatng, param);
+    //return _DK_instf_damage_wall(creatng, param);
+    MapSubtlCoord stl_x, stl_y;
+    {
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(creatng);
+        stl_x = stl_num_decode_x(cctrl->field_284);
+        stl_y = stl_num_decode_y(cctrl->field_284);
+    }
+    struct SlabMap *slb;
+    slb = get_slabmap_for_subtile(stl_x, stl_y);
+    if (slb->health > 2)
+    {
+        slb->health -= 2;
+    } else
+    {
+        place_slab_type_on_map(2, stl_x, stl_y, creatng->owner, 0);
+        do_slab_efficiency_alteration(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
+    }
+    thing_play_sample(creatng, 63+UNSYNC_RANDOM(6), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    return 1;
 }
 
 long instf_eat(struct Thing *creatng, long *param)
 {
     TRACE_THING(creatng);
-    return _DK_instf_eat(creatng, param);
+    //return _DK_instf_eat(creatng, param);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    if (cctrl->hunger_amount > 0)
+        cctrl->hunger_amount--;
+    apply_health_to_thing_and_display_health(creatng, game.food_health_gain);
+    cctrl->hunger_level = 0;
+    return 1;
 }
 
 long instf_fart(struct Thing *creatng, long *param)
 {
     TRACE_THING(creatng);
-    return _DK_instf_fart(creatng, param);
+    //return _DK_instf_fart(creatng, param);
+    struct Thing *efftng;
+    efftng = create_effect(&creatng->mappos, 13, creatng->owner);
+    if (!thing_is_invalid(efftng))
+        efftng->byte_16 = 4;
+    thing_play_sample(creatng,94+UNSYNC_RANDOM(6), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+    return 1;
 }
 
 long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
@@ -693,7 +726,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
     TRACE_THING(creatng);
     slb_x = subtile_slab_fast(creatng->mappos.x.stl.num);
     slb_y = subtile_slab_fast(creatng->mappos.y.stl.num);
-    if ( check_place_to_pretty_excluding(creatng, slb_x, slb_y) )
+    if (check_place_to_pretty_excluding(creatng, slb_x, slb_y))
     {
         instf_pretty_path(creatng, NULL);
     } else

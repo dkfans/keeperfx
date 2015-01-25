@@ -1460,7 +1460,7 @@ TbBool poison_cloud_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, 
         {
             struct CreatureControl *cctrl;
             cctrl = creature_control_get_from_thing(tngdst);
-            cctrl->spell_flags |= CSAfF_Unkn0400;
+            cctrl->spell_flags |= CSAfF_PoisonCloud;
             switch (area_affect_type)
             {
             case AAffT_GasDamage:

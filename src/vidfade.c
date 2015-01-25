@@ -37,8 +37,6 @@ extern "C" {
 TbBool lbAdvancedFade = true;
 int lbFadeDelay = 25;
 /******************************************************************************/
-DLLIMPORT long _DK_PaletteFadePlayer(struct PlayerInfo *player);
-/******************************************************************************/
 void fade_in(void)
 {
     ProperFadePalette(frontend_palette, 8, Lb_PALETTE_FADE_OPEN);
@@ -271,7 +269,6 @@ long PaletteFadePlayer(struct PlayerInfo *player)
   unsigned char *dst;
   unsigned char *src;
   unsigned long pix;
-  //return _DK_PaletteFadePlayer(player);
   // Find the fade step
   if ((player->field_4C1 != 0) && (player->field_4C5 != 0))
   {
