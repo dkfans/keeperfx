@@ -1760,6 +1760,11 @@ long ranged_combat_move(struct Thing *thing, struct Thing *enmtng, MapCoordDelta
       && creature_instance_has_reset(thing, inst_id)) { \
         return inst_id; \
     }
+#define INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, inst_id) \
+    if (creature_instance_is_available(thing, inst_id)) { \
+        return -inst_id; \
+    }
+
 /**
  * Gives attack type optimized for self preservation.
  * @param thing The creature for which the instance is selected.
@@ -1768,7 +1773,7 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
-    if ((cctrl->spell_flags & CSAfF_Unkn0400) != 0)
+    if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
     {
         INSTANCE_RET_IF_AVAIL(thing, CrInst_WIND);
     }
@@ -1813,8 +1818,8 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
     }
     if (!creature_is_kept_in_custody(thing))
     {
-        // Is it casting wind when under influence of gas?
-        if ((cctrl->spell_flags & CSAfF_Unkn0400) != 0)
+        // casting wind when under influence of gas
+        if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
         {
             INSTANCE_RET_IF_AVAIL(thing, CrInst_WIND);
         }
@@ -1834,7 +1839,29 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
     return CrInst_NULL;
 }
 
+CrInstance get_best_quick_range_instance_to_use(const struct Thing *thing)
+{
+    INSTANCE_RET_IF_AVAIL(thing, CrInst_FIREBALL);
+    INSTANCE_RET_IF_AVAIL(thing, CrInst_FIRE_ARROW);
+    INSTANCE_RET_IF_AVAIL(thing, CrInst_MISSILE);
+    INSTANCE_RET_IF_AVAIL(thing, CrInst_NAVIGATING_MISSILE);
+    INSTANCE_RET_IF_AVAIL(thing, CrInst_LIGHTNING);
+    INSTANCE_RET_IF_AVAIL(thing, CrInst_HAILSTORM);
+    INSTANCE_RET_IF_AVAIL(thing, CrInst_GRENADE);
+    INSTANCE_RET_IF_AVAIL(thing, CrInst_POISON_CLOUD);
+    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_FIREBALL);
+    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_FIRE_ARROW);
+    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_MISSILE);
+    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_NAVIGATING_MISSILE);
+    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_LIGHTNING);
+    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_HAILSTORM);
+    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_GRENADE);
+    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_POISON_CLOUD);
+    return CrInst_NULL;
+}
+
 #undef INSTANCE_RET_IF_AVAIL
+#undef INSTANCE_RET_NEG_IF_AVAIL_ONLY
 
 /**
  * Gives combat weapon instance from given array which matches given distance.

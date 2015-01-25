@@ -758,7 +758,7 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
     case SplK_FlameBreath:
     case SplK_Drain:
     case SplK_PoisonCloud:
-        return false;
+        return ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0);
     case SplK_Fear:
         return false;//TODO CREATURE_SPELL find out how to check this
     case SplK_Wind:
@@ -5031,7 +5031,7 @@ TngUpdateRet update_creature(struct Thing *thing)
     cctrl->moveaccel.z.val = 0;
     cctrl->flgfield_1 &= ~CCFlg_Unknown40;
     cctrl->flgfield_1 &= ~CCFlg_Unknown80;
-    cctrl->spell_flags &= ~CSAfF_Unkn0400;
+    cctrl->spell_flags &= ~CSAfF_PoisonCloud;
     process_thing_spell_effects(thing);
     SYNCDBG(19,"Finished");
     return TUFRet_Modified;

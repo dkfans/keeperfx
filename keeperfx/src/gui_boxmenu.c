@@ -452,26 +452,26 @@ short toggle_main_cheat_menu(void)
  */
 short toggle_instance_cheat_menu(void)
 {
-  // Toggle cheat menu
-  if ((gui_box==NULL) || (gui_box_is_not_valid(gui_box)))
-  {
-    if ((game.flags_font & FFlg_AlexCheat) == 0)
-      return false;
-    gui_box = gui_create_box(200,20,gui_instance_option_list);
+    // Toggle cheat menu
+    if ((gui_box==NULL) || (gui_box_is_not_valid(gui_box)))
+    {
+        if ((game.flags_font & FFlg_AlexCheat) == 0)
+            return false;
+        gui_box = gui_create_box(200,20,gui_instance_option_list);
 /*
-        player->unknownbyte  |= 0x08;
-        game.unknownbyte |= 0x08;
+          player->unknownbyte  |= 0x08;
+          game.unknownbyte |= 0x08;
 */
-  } else
-  {
-    gui_delete_box(gui_box);
-    gui_box=NULL;
+    } else
+    {
+        gui_delete_box(gui_box);
+        gui_box=NULL;
 /*
-        player->unknownbyte &= 0xF7;
-        game.unknownbyte &= 0xF7;
+          player->unknownbyte &= 0xF7;
+          game.unknownbyte &= 0xF7;
 */
-  }
-  return true;
+    }
+    return true;
 }
 
 /**

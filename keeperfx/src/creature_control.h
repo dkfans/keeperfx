@@ -391,7 +391,7 @@ unsigned char field_211[6];
 unsigned char field_27F;
     short conscious_back_turns;
     short countdown_282; // signed
-unsigned char field_284[2];
+    unsigned short field_284;
     unsigned char joining_age;
     unsigned char blood_type;
     struct Coord3d flee_pos;
