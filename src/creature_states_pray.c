@@ -637,7 +637,38 @@ short creature_being_sacrificed(struct Thing *thing)
 
 short creature_sacrifice(struct Thing *thing)
 {
-  return _DK_creature_sacrifice(thing);
+    //return _DK_creature_sacrifice(thing);
+    if ((thing->movement_flags & 0x20) != 0) {
+        thing->movement_flags &= ~0x20;
+    }
+    struct Coord3d pos;
+    pos.x.val = subtile_coord_center(stl_slab_center_subtile(thing->mappos.x.stl.num));
+    pos.y.val = subtile_coord_center(stl_slab_center_subtile(thing->mappos.y.stl.num));
+    pos.z.val = thing->mappos.z.val;
+    if (!subtile_has_sacrificial_on_top(pos.x.stl.num, pos.y.stl.num)) {
+        set_start_state(thing);
+        return 1;
+    }
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    if (!creature_move_to(thing, &pos, cctrl->max_speed, 0, 0)) {
+        return 0;
+    }
+    if (get_thing_height_at(thing, &pos) != pos.z.val) {
+        return 0;
+    }
+    if (thing_touching_floor(thing))
+    {
+        cctrl->word_9A = 48;
+        cctrl->word_9C = 48;
+        thing->movement_flags |= 0x04;
+        internal_set_thing_state(thing, CrSt_CreatureBeingSacrificed);
+        thing->long_13 = 0;
+        struct SlabMap *slb;
+        slb = get_slabmap_thing_is_on(thing);
+        create_effect(&thing->mappos, 35, slabmap_owner(slb));
+    }
+    return 1;
 }
 
 /******************************************************************************/

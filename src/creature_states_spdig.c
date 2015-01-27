@@ -372,9 +372,66 @@ long check_out_unclaimed_traps(struct Thing *spdigtng, long range)
     return 0;
 }
 
+long slab_is_my_door(long plyr_idx, long slb_x, long slb_y)
+{
+    struct SlabMap *slb;
+    slb = get_slabmap_block(slb_x, slb_y);
+    struct SlabAttr *slbattr;
+    slbattr = get_slab_attrs(slb);
+    return (slabmap_owner(slb) == plyr_idx) && ((slbattr->flags & SlbAtFlg_IsDoor) != 0);
+}
+
+long check_out_place_for_convert_behind_door(struct Thing *thing, MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    int n;
+    for (n=0; n < SMALL_AROUND_LENGTH; n++)
+    {
+        MapSlabCoord sslb_x, sslb_y;
+        sslb_x = slb_x + small_around[n].delta_x;
+        sslb_y = slb_y + small_around[n].delta_y;
+        if (slab_is_my_door(thing->owner, sslb_x, sslb_y))
+        {
+            // Go one slab more in that direction
+            sslb_x = slb_x + 2 * small_around[n].delta_x;
+            sslb_y = slb_y + 2 * small_around[n].delta_y;
+            if (check_place_to_convert_excluding(thing, sslb_x, sslb_y) &&
+               !imp_will_soon_be_working_at_excluding(thing, sslb_x, sslb_y))
+            {
+                if (setup_person_move_to_position(thing, slab_subtile_center(sslb_x), slab_subtile_center(sslb_y), 0))
+                {
+                    thing->continue_state = CrSt_ImpArrivesAtConvertDungeon;
+                    return 1;
+                }
+            }
+        }
+    }
+    return 0;
+}
+
 long check_out_unconverted_drop_place(struct Thing *thing)
 {
-    return _DK_check_out_unconverted_drop_place(thing);
+    //return _DK_check_out_unconverted_drop_place(thing);
+    MapSlabCoord slb_x,slb_y;
+    slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
+    slb_y = subtile_slab_fast(thing->mappos.x.stl.num);
+    if (check_place_to_convert_excluding(thing, slb_x, slb_y))
+    {
+        if (imp_will_soon_be_working_at_excluding(thing, slab_subtile_center(slb_x), slab_subtile_center(slb_y)))
+        {
+            if (setup_person_move_to_position(thing, slab_subtile_center(slb_x), slab_subtile_center(slb_y), 0))
+            {
+                thing->continue_state = CrSt_ImpArrivesAtConvertDungeon;
+                return 1;
+            }
+        }
+    }
+    if (check_out_unconverted_spiral(thing, 1)) {
+        return 1;
+    }
+    if (check_out_place_for_convert_behind_door(thing, slb_x, slb_y) >= 1) {
+        return 1;
+    }
+    return 0;
 }
 
 long check_out_undug_drop_place(struct Thing *thing)
