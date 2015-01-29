@@ -1,14 +1,14 @@
 /******************************************************************************/
-// Sound Banker - WAV to DAT sound bank creator for KeeperFX
+// .dkill conv - Dungeon Keeper Independent Level Layout converter for KeeperFX
 /******************************************************************************/
-/** @file sndbanker_version.h
+/** @file dkillconv_version.h
  *     Project name, version, copyrights and global definitions.
  * @par Purpose:
  *     Header file for global names and defines used by resource compiler.
  * @par Comment:
  *     Can only contain commands which resource compiler can understand.
  * @author   Tomasz Lis
- * @date     21 Sep 2013 - 22 Sep 2013
+ * @date     15 Jan 2015 - 28 Jan 2015
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,21 +16,21 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef SNDBANKER_VERSION_H
-#define SNDBANKER_VERSION_H
+#ifndef DKILLCONV_VERSION_H
+#define DKILLCONV_VERSION_H
 
 /* Version definitions */
 #define VER_MAJOR         1
 #define VER_MINOR         0
 #define VER_RELEASE       0
-#define VER_BUILD         2
-#define VER_STRING        "1.0.0.2"
+#define VER_BUILD         0
+#define VER_STRING        "1.0.0.0"
 /* Program name, copyrights and file names */
-#define PROGRAM_NAME      "sndbanker"
-#define PROGRAM_FULL_NAME "Sound Banker - WAV to DAT sound bank creator"
+#define PROGRAM_NAME      "dkillconv"
+#define PROGRAM_FULL_NAME ".dkill conv - Dungeon Keeper Independent Level Layout  converter"
 #define PROGRAM_AUTHORS   "Tomasz Lis"
 #define COMPANY_NAME      "Community based"
-#define INTERNAL_NAME     "sndbanker"
+#define INTERNAL_NAME     "dkillconv"
 #define LEGAL_COPYRIGHT   "GNU General Public License"
 #define LEGAL_TRADEMARKS  ""
 #define FILE_VERSION VER_STRING
@@ -40,5 +40,5 @@
 #define PRODUCT_VERSION    VER_STRING
 #define DEFAULT_LOG_FILENAME INTERNAL_NAME".log"
 
-#endif /*SNDBANKER_VERSION_H*/
+#endif /*DKILLCONV_VERSION_H*/
 /******************************************************************************/
