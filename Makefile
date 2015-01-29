@@ -40,6 +40,7 @@ POTONGDAT = tools/po2ngdat/bin/po2ngdat$(CROSS_EXEEXT)
 WAVTODAT = tools/sndbanker/bin/sndbanker$(CROSS_EXEEXT)
 RNC      = tools/rnctools/bin/rnc$(CROSS_EXEEXT)
 DERNC    = tools/rnctools/bin/dernc$(CROSS_EXEEXT)
+DKILLTOLVL = tools/dkillconv/bin/dkillcmpl$(CROSS_EXEEXT)
 RM       = rm -f
 MV       = mv -f
 CP       = cp -f
@@ -447,6 +448,7 @@ include tool_png2bestpal.mk
 include tool_po2ngdat.mk
 include tool_sndbanker.mk
 include tool_rnctools.mk
+#include tool_dkillconv.mk
 
 include package.mk
 include pkg_lang.mk

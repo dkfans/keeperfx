@@ -7,6 +7,7 @@ ifneq (,$(findstring Windows,$(OS)))
   POTONGDAT_DOWNLOAD=https://github.com/dkfans/po2ngdat/releases/download/v1.0.2.30/po2ngdat-1_0_2_30-devel-win.zip
   SNDBANKER_DOWNLOAD=https://github.com/dkfans/sndbanker/releases/download/v1.0.1/sndbanker-1_0_1_13-devel-win.zip
   RNCTOOLS_DOWNLOAD=https://github.com/dkfans/rnctools/releases/download/v1.0.2/rnctools-1_0_2_5-devel-win.zip
+  DKILLCONV_DOWNLOAD=no_prebuild_available_for_your_os
 else
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
@@ -17,6 +18,7 @@ ifeq ($(UNAME_S),Linux)
   POTONGDAT_DOWNLOAD=https://github.com/dkfans/po2ngdat/releases/download/v1.0.2.30/po2ngdat-1_0_2_30-devel-lin.tar.gz
   SNDBANKER_DOWNLOAD=https://github.com/dkfans/sndbanker/releases/download/v1.0.1/sndbanker-1_0_1_13-devel-lin.tar.gz
   RNCTOOLS_DOWNLOAD=https://github.com/dkfans/rnctools/releases/download/v1.0.2/rnctools-1_0_2_5-devel-lin.tar.gz
+  DKILLCONV_DOWNLOAD=no_prebuild_available_for_your_os
 else
   PERESEC_DOWNLOAD=no_prebuild_available_for_your_os
   PNGTOICO_DOWNLOAD=no_prebuild_available_for_your_os
@@ -25,6 +27,7 @@ else
   POTONGDAT_DOWNLOAD=no_prebuild_available_for_your_os
   SNDBANKER_DOWNLOAD=no_prebuild_available_for_your_os
   RNCTOOLS_DOWNLOAD=no_prebuild_available_for_your_os
+  DKILLCONV_DOWNLOAD=no_prebuild_available_for_your_os
 endif
 endif
 PERESEC_PACKAGE=$(notdir $(PERESEC_DOWNLOAD))
@@ -34,6 +37,7 @@ PNGTOBSPAL_PACKAGE=$(notdir $(PNGTOBSPAL_DOWNLOAD))
 POTONGDAT_PACKAGE=$(notdir $(POTONGDAT_DOWNLOAD))
 SNDBANKER_PACKAGE=$(notdir $(SNDBANKER_DOWNLOAD))
 RNCTOOLS_PACKAGE=$(notdir $(RNCTOOLS_DOWNLOAD))
+DKILLCONV_PACKAGE=$(notdir $(DKILLCONV_DOWNLOAD))
 
 # Tools and libraries to be used for the target system
 # Currently, the target is always windows-mingw32

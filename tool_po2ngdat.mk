@@ -105,7 +105,7 @@ deep-clean-po2ngdat:
 
 else
 
-$(error Cannot find po2ngdat tool source nor prebuild. Use git submodules to get source.)
+$(error Cannot find po2ngdat tool source nor prebuild. Get package or source manually.)
 
 endif
 

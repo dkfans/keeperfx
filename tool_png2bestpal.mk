@@ -105,7 +105,7 @@ deep-clean-png2bestpal:
 
 else
 
-$(error Cannot find png2bestpal tool source nor prebuild. Use git submodules to get source.)
+$(error Cannot find png2bestpal tool source nor prebuild. Get package or source manually.)
 
 endif
 

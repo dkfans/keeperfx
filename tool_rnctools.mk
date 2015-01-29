@@ -89,7 +89,7 @@ deep-clean-rnctools:
 
 else
 
-$(error Cannot find rnctools tool source nor prebuild. Use git submodules to get source.)
+$(error Cannot find rnctools tool source nor prebuild. Get package or source manually.)
 
 endif
 

@@ -89,7 +89,7 @@ deep-clean-pngpal2raw:
 
 else
 
-$(error Cannot find pngpal2raw tool source nor prebuild. Use git submodules to get source.)
+$(error Cannot find pngpal2raw tool source nor prebuild. Get package or source manually.)
 
 endif
 

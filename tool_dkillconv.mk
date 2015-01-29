@@ -1,7 +1,7 @@
 #******************************************************************************
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
 #******************************************************************************
-#   @file tool_peresec.mk
+#   @file tool_dkillconv.mk
 #      A script used by GNU Make to recompile the project.
 #  @par Purpose:
 #      Defines make rules for tools needed to build KeeperFX.
@@ -18,27 +18,27 @@
 #
 #******************************************************************************
 
-.PHONY: clean-peresec deep-clean-peresec
+.PHONY: clean-dkillconv deep-clean-dkillconv
 
-tools: $(EXETODLL)
+tools: $(DKILLTOLVL)
 
-clean-tools: clean-peresec
+clean-tools: clean-dkillconv
 
-deep-clean-tools: deep-clean-peresec
+deep-clean-tools: deep-clean-dkillconv
 
-ifneq (,$(wildcard tools/peresec/src/peresec.c)) 
+ifneq (,$(wildcard tools/dkillconv/src/dkillconv.cpp)) 
 
 # If we have source code of this tool, compile it
-$(EXETODLL): tools/peresec/src/peresec.c
-	make -C tools/peresec
+$(DKILLTOLVL): tools/dkillconv/src/dkillconv.cpp
+	make -C tools/dkillconv
 
-clean-peresec:
-	make -C tools/peresec clean
+clean-dkillconv:
+	make -C tools/dkillconv clean
 
-else ifneq (,$(findstring .tar.gz,$(PERESEC_PACKAGE)))
+else ifneq (,$(findstring .tar.gz,$(DKILLCONV_PACKAGE)))
 
 # If we have tar gzip prebuild, download and extract it
-$(EXETODLL): tools/peresec/pkg/$(PERESEC_PACKAGE)
+$(DKILLTOLVL): tools/dkillconv/pkg/$(DKILLCONV_PACKAGE)
 	-$(ECHO) 'Extracting package: $<'
 	$(MKDIR) "$(@D)"
 	cd "$(@D)"; \
@@ -46,25 +46,25 @@ $(EXETODLL): tools/peresec/pkg/$(PERESEC_PACKAGE)
 	-$(ECHO) 'Finished extracting: $<'
 	-$(ECHO) ' '
 
-tools/peresec/pkg/$(PERESEC_PACKAGE):
+tools/dkillconv/pkg/$(DKILLCONV_PACKAGE):
 	-$(ECHO) 'Downloading package: $@'
 	$(MKDIR) "$(@D)"
-	curl -L -o "$@.dl" "$(PERESEC_DOWNLOAD)"
+	curl -L -o "$@.dl" "$(DKILLCONV_DOWNLOAD)"
 	tar -tzf "$@.dl" >/dev/null
 	$(MV) "$@.dl" "$@"
 	-$(ECHO) 'Finished downloading: $@'
 	-$(ECHO) ' '
 
-clean-peresec:
-	-$(RM) tools/peresec/bin/*
+clean-dkillconv:
+	-$(RM) tools/dkillconv/bin/*
 
-deep-clean-peresec:
-	-$(RM) tools/peresec/pkg/$(PERESEC_PACKAGE)
+deep-clean-dkillconv:
+	-$(RM) tools/dkillconv/pkg/$(DKILLCONV_PACKAGE)
 
-else ifneq (,$(findstring .zip,$(PERESEC_PACKAGE)))
+else ifneq (,$(findstring .zip,$(DKILLCONV_PACKAGE)))
 
 # If we have zip prebuild, download and extract it
-$(EXETODLL): tools/peresec/pkg/$(PERESEC_PACKAGE)
+$(DKILLTOLVL): tools/dkillconv/pkg/$(DKILLCONV_PACKAGE)
 	-$(ECHO) 'Extracting package: $<'
 	$(MKDIR) "$(@D)"
 	cd "$(@D)"; \
@@ -72,24 +72,24 @@ $(EXETODLL): tools/peresec/pkg/$(PERESEC_PACKAGE)
 	-$(ECHO) 'Finished extracting: $<'
 	-$(ECHO) ' '
 
-tools/peresec/pkg/$(PERESEC_PACKAGE):
+tools/dkillconv/pkg/$(DKILLCONV_PACKAGE):
 	-$(ECHO) 'Downloading package: $@'
 	$(MKDIR) "$(@D)"
-	curl -L -o "$@.dl" "$(PERESEC_DOWNLOAD)"
+	curl -L -o "$@.dl" "$(DKILLCONV_DOWNLOAD)"
 	unzip -qt "$@.dl"
 	$(MV) "$@.dl" "$@"
 	-$(ECHO) 'Finished downloading: $@'
 	-$(ECHO) ' '
 
-clean-peresec:
-	-$(RM) tools/peresec/bin/*
+clean-dkillconv:
+	-$(RM) tools/dkillconv/bin/*
 
-deep-clean-peresec:
-	-$(RM) tools/peresec/pkg/$(PERESEC_PACKAGE)
+deep-clean-dkillconv:
+	-$(RM) tools/dkillconv/pkg/$(DKILLCONV_PACKAGE)
 
 else
 
-$(error Cannot find peresec tool source nor prebuild. Get package or source manually.)
+$(error Cannot find dkillconv tool source nor prebuild. Get package or source manually.)
 
 endif
 
