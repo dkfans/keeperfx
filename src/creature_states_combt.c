@@ -1706,12 +1706,62 @@ CrAttackType check_for_valid_combat(struct Thing *fightng, struct Thing *enmtng)
 long combat_type_is_choice_of_creature(struct Thing *thing, long cmbtyp)
 {
     SYNCDBG(19,"Starting for %s",thing_model_name(thing));
-    return _DK_combat_type_is_choice_of_creature(thing, cmbtyp);
+    //return _DK_combat_type_is_choice_of_creature(thing, cmbtyp);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    if (cmbtyp <= AttckT_Unset) {
+        return false;
+    }
+    if (cmbtyp == AttckT_Ranged)
+    {
+        if (cctrl->byte_A7 == AttckT_Ranged)
+            return true;
+        return 0;
+    }
+    // so (cmbtyp == AttckT_Melee)
+    if (cctrl->byte_A7 != AttckT_Ranged) {
+        return true;
+    }
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(thing);
+    if (crstat->attack_preference != AttckT_Ranged)
+        return false;
+    return creature_has_ranged_weapon(thing);
 }
 
 long guard_post_combat_move(struct Thing *thing, long a2)
 {
-    return _DK_guard_post_combat_move(thing, a2);
+    //return _DK_guard_post_combat_move(thing, a2);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    struct Room *room;
+    room = get_room_thing_is_on(thing);
+    if (!room_is_invalid(room) && (room->kind == RoK_GUARDPOST) && (cctrl->last_work_room_id == room->index)) {
+        return 0;
+    }
+    if (cctrl->last_work_room_id <= 0)
+    {
+        ERRORLOG("Cannot get to %s",room_code_name(RoK_GUARDPOST));
+        cctrl->job_assigned = 0;
+        return 0;
+    }
+    room = room_get(cctrl->last_work_room_id);
+    if (!room_exists(room) || (thing->owner != room->owner) || (room->kind != RoK_GUARDPOST))
+    {
+        cctrl->job_assigned = 0;
+        return 0;
+    }
+    if (get_distance_to_room(&thing->mappos, room) <= subtile_coord(27,0))
+    {
+        return 0;
+    }
+    if (!setup_random_head_for_room(thing, room, 0))
+    {
+        cctrl->job_assigned = 0;
+        return 0;
+    }
+    thing->continue_state = a2;
+    return 1;
 }
 
 TbBool thing_in_field_of_view(struct Thing *thing, struct Thing *checktng)

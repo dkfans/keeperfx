@@ -2028,6 +2028,14 @@ short room_grow_food(struct Room *room)
   return _DK_room_grow_food(room);
 }
 
+MapCoordDelta get_distance_to_room(const struct Coord3d *pos, const struct Room *room)
+{
+    MapCoordDelta dist_x, dist_y;
+    dist_x = abs(pos->x.val - subtile_coord_center(room->central_stl_x));
+    dist_y = abs(pos->y.val - subtile_coord_center(room->central_stl_y));
+    return max(dist_x,dist_y);
+}
+
 /** Calculates shape-based efficiency score from all slabs in room.
  *
  * @param room Source room.
