@@ -219,6 +219,7 @@ struct Room *get_room_of_given_kind_for_thing(struct Thing *thing, struct Dungeo
 struct Room *place_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool slab_is_area_outer_border(MapSlabCoord slb_x, MapSlabCoord slb_y);
 TbBool slab_is_area_inner_fill(MapSlabCoord slb_x, MapSlabCoord slb_y);
+MapCoordDelta get_distance_to_room(const struct Coord3d *pos, const struct Room *room);
 
 TbBool initialise_map_rooms(void);
 void init_room_sparks(struct Room *room);
