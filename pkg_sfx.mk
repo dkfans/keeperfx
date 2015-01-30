@@ -37,9 +37,33 @@ NGSOUNDDATS = $(patsubst %,pkg/sound/%.dat,$(NGSPEECHBANKS) sound)
 
 NGSOUNDLISTS = $(patsubst %,sfx/%/filelist.txt,$(NGSPEECHBANKS) sound)
 
+LANDVIEWSPEECH = \
+$(foreach lng,eng,ancntkpr_$(lng)) \
+$(foreach lng,eng,burdnimp_$(lng)) \
+$(foreach lng,eng,cqarctic_$(lng)) \
+$(foreach lng,eng,dstninja_$(lng)) \
+$(foreach lng,eng dut,dzjr06lv_$(lng)) \
+$(foreach lng,eng,dzjr10lv_$(lng)) \
+$(foreach lng,eng,dzjr25lv_$(lng)) \
+$(foreach lng,eng fre ger,evilkeep_$(lng)) \
+$(foreach lng,eng,grkreign_$(lng)) \
+$(foreach lng,eng,jdkmaps8_$(lng)) \
+$(foreach lng,eng,kdklvpck_$(lng)) \
+$(foreach lng,eng chi cht dut fre ger ita jpn pol rus spa swe,keeporig_$(lng)) \
+$(foreach lng,eng dut,lqizgood_$(lng)) \
+$(foreach lng,eng,lrdvexer_$(lng)) \
+$(foreach lng,eng,ncastles_$(lng)) \
+$(foreach lng,eng,postanck_$(lng)) \
+$(foreach lng,eng,pstunded_$(lng)) \
+$(foreach lng,eng,questfth_$(lng)) \
+$(foreach lng,eng dut,twinkprs_$(lng)) \
+$(foreach lng,eng,undedkpr_$(lng))
+
+LANDVIEWSPEECHDIRS = $(patsubst %,pkg/campgns/%,$(LANDVIEWSPEECH))
+
 .PHONY: pkg-sfx convert-sfx
 
-pkg-sfx: $(NGSOUNDDATS)
+pkg-sfx: $(NGSOUNDDATS) $(LANDVIEWSPEECHDIRS)
 
 pkg/sound/sound.dat: sfx/sound/filelist.txt $(WAVTODAT)
 pkg/sound/speech_chi.dat: sfx/speech_chi/filelist.txt $(WAVTODAT)
@@ -58,21 +82,41 @@ pkg/sound/speech_swe.dat: sfx/speech_swe/filelist.txt $(WAVTODAT)
 
 pkg/sound/%.dat:
 	-$(ECHO) 'Building sound bank: $@'
-	@$(MKDIR) $(@D)
+	@$(MKDIR) "$(@D)"
 	$(WAVTODAT) -o "$@" "$<"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
-convert-sfx: $(patsubst %,convert-sfx-%,$(NGSPEECHBANKS))
+# Creation of land view speeches for campaigns
+define define_campaign_speeches_rule
+pkg/campgns/$(1)_$(2): sfx/campgns/$(1)_$(2)/filelist.txt
+	-$(ECHO) 'Copying campaign SFX: $$@'
+	@$(MKDIR) "$$@"
+	tail -n +2 "$$<" | cut -f1 | xargs -d '\n' -I {} $(CP) "$$(<D)/{}" "$$@/"
+	-$(ECHO) 'Finished copying: $$@'
+	-$(ECHO) ' '
 
-convert-sfx-%: sfx/%/filelist.txt
-	-$(ECHO) 'Converting sound samples in list: $<'
-	tail -n +2 "$<" | cut -f1 | xargs -d '\n' -I {} sox "$(<D)/design/{}" -c 1 -b 8 -r 22050 -e unsigned-integer "$(<D)/{}"
-	# compand 0.02,0.20 5:-60,-40,-10 -6 -90 0.1
+endef
+
+$(foreach campaign,$(sort $(CAMPAIGNS)),$(foreach lng,$(sort $(LANGS)),$(eval $(call define_campaign_speeches_rule,$(campaign),$(lng)))))
+
+convert-sfx: $(patsubst %,convert-speech-sfx-%,$(NGSPEECHBANKS)) $(patsubst %,convert-campaign-sfx-%,$(LANDVIEWSPEECH))
+
+convert-speech-sfx-%: sfx/%/filelist.txt
+	-$(ECHO) 'Converting speech samples in list: $<'
+	tail -n +2 "$<" | cut -f1 | xargs -d '\n' -I {} sox "$(<D)/design/{}" -c 1 -b 8 -r 22050 -e unsigned-integer "$(<D)/{}" compand 0.02,0.20 5:-40,-40,-35,-20,-10 -6 -90 0.1 gain -n -0.1
+#	best would be "compand 0.02,0.20 5:-60,-40,-10 -6 -90 0.1", modification is to skip noise
 	-$(ECHO) 'Finished converting list: $<'
 	-$(ECHO) ' '
 
-sfx/%/filelist.txt: | sfx/$(SFXSRC_PACKAGE)
+convert-campaign-sfx-%: sfx/campgns/%/filelist.txt
+	-$(ECHO) 'Converting campaign speeches in list: $<'
+	tail -n +2 "$<" | cut -f1 | xargs -d '\n' -I {} sox "$(<D)/design/{}" -c 1 -r 22050 -e ms-adpcm "$(<D)/{}" compand 0.02,0.20 5:-40,-40,-35,-20,-10 -6 -90 0.1 gain -n -0.1
+#	best would be "compand 0.02,0.20 5:-60,-40,-10 -6 -90 0.1", modification is to skip noise
+	-$(ECHO) 'Finished converting list: $<'
+	-$(ECHO) ' '
+
+sfx/%/filelist.txt sfx/campgns/%/filelist.txt: | sfx/$(SFXSRC_PACKAGE)
 	-$(ECHO) 'Extracting package: $<'
 	7z x -aoa -y -osfx "$|"
 	-$(ECHO) 'Finished extracting: $<'

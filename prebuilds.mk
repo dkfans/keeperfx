@@ -51,5 +51,5 @@ SDL_MIXER_PACKAGE=$(notdir $(SDL_MIXER_DOWNLOAD))
 # Assets which are sources of data files are platform-independent
 GFXSRC_DOWNLOAD=http://keeper.lubiki.pl/releases_big/gfx_sources_v7.7z
 GFXSRC_PACKAGE=$(notdir $(GFXSRC_DOWNLOAD))
-SFXSRC_DOWNLOAD=http://keeper.lubiki.pl/releases_big/sfx_sources_v1.7z
+SFXSRC_DOWNLOAD=http://keeper.lubiki.pl/releases_big/sfx_sources_v2.7z
 SFXSRC_PACKAGE=$(notdir $(SFXSRC_DOWNLOAD))
