@@ -188,9 +188,9 @@ short show_usage(const std::string &fname)
     std::string xname = file_name_strip_path(fname.c_str());
     printf("usage:\n");
     printf("    %s [options] <filename>\n", xname.c_str());
-    printf("where <filename> should be the input level file, and [options] are:\n");
+    printf("where <filename> should be the input level name without extension, and [options] are:\n");
     printf("    -v,--verbose             Verbose console output mode\n");
-    printf("    -o<file>,--output<file>  Output sound bank file name\n");
+    printf("    -o<file>,--output<file>  Output .dkill file\n");
     return ERR_OK;
 }
 
