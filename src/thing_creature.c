@@ -1573,12 +1573,11 @@ struct Thing *find_gold_pile_or_chicken_laying_on_mapblk(struct Map *mapblk)
 
 struct Thing *find_interesting_object_laying_around_thing(struct Thing *creatng)
 {
-    struct Thing *thing;
-    struct Map *mapblk;
-    long stl_x,stl_y;
     long k;
     for (k=0; k < AROUND_TILES_COUNT; k++)
     {
+        struct Map *mapblk;
+        long stl_x,stl_y;
         stl_x = creatng->mappos.x.stl.num + around[k].delta_x;
         stl_y = creatng->mappos.y.stl.num + around[k].delta_y;
         mapblk = get_map_block_at(stl_x,stl_y);
@@ -1586,6 +1585,7 @@ struct Thing *find_interesting_object_laying_around_thing(struct Thing *creatng)
         {
             if ((mapblk->flags & MapFlg_IsTall) == 0)
             {
+                struct Thing *thing;
                 thing = find_gold_pile_or_chicken_laying_on_mapblk(mapblk);
                 if (!thing_is_invalid(thing))
                     return thing;

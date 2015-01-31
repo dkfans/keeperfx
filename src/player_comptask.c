@@ -182,8 +182,8 @@ DLLIMPORT long _DK_count_creatures_in_call_to_arms(struct Computer2 *comp);
 DLLIMPORT long _DK_task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask);
 DLLIMPORT struct ComputerTask *_DK_get_free_task(struct Computer2 *comp, long basestl_y);
 DLLIMPORT int _DK_search_spiral(struct Coord3d *pos, int owner, int i3, long (*cb)(long, long, long));
-DLLIMPORT long _DK_get_corridor(struct Coord3d *pos1, struct Coord3d * pos2, unsigned char a3, char a4, unsigned short a5);
-DLLIMPORT long _DK_other_build_here(struct Computer2 *comp, long a2, long a3, long a4, long a5);
+DLLIMPORT long _DK_get_corridor(struct Coord3d *pos1, struct Coord3d * pos2, unsigned char round_directn, char plyr_idx, unsigned short slabs_dist);
+DLLIMPORT long _DK_other_build_here(struct Computer2 *comp, long a2, long round_directn, long plyr_idx, long slabs_dist);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -1318,9 +1318,80 @@ long check_for_buildable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx
     return ((mapblk->flags & MapFlg_Unkn20) != 0) && (slabmap_owner(slb) != plyr_idx);
 }
 
-long get_corridor(struct Coord3d *pos1, struct Coord3d * pos2, unsigned char a3, char a4, unsigned short a5)
+long get_corridor(struct Coord3d *pos1, struct Coord3d * pos2, unsigned char round_directn, PlayerNumber plyr_idx, unsigned short slabs_dist)
 {
-    return _DK_get_corridor(pos1, pos2, a3, a4, a5);
+    //return _DK_get_corridor(pos1, pos2, a3, a4, a5);
+    MapSubtlCoord stl_x, stl_y;
+    stl_x = pos1->x.stl.num;
+    stl_y = pos1->y.stl.num;
+    struct SlabAttr *slbattr;
+    struct SlabMap *slb;
+    int i;
+    slb = get_slabmap_for_subtile(stl_x, stl_y);
+    slbattr = get_slab_attrs(slb);
+    // If we're on room, move to non-room tile
+    for (i = 0; i < slabs_dist; i++)
+    {
+        if ((slbattr->flags & SlbAtFlg_IsRoom) == 0)
+          break;
+        stl_x += STL_PER_SLB * small_around[round_directn].delta_x;
+        stl_y += STL_PER_SLB * small_around[round_directn].delta_y;
+        if (!subtile_has_slab(stl_x, stl_y))
+            return 0;
+        slb = get_slabmap_for_subtile(stl_x, stl_y);
+        slbattr = get_slab_attrs(slb);
+    }
+    // Update original position
+    pos1->x.stl.num = stl_x;
+    pos1->y.stl.num = stl_y;
+    // Move to a blocking tile which is not a room
+    for (i = 0; i < slabs_dist; i++)
+    {
+        if (((slbattr->flags & SlbAtFlg_Blocking) != 0) || map_pos_is_lava(stl_x, stl_y))
+        {
+            if ((slbattr->flags & SlbAtFlg_IsRoom) == 0)
+                break;
+        }
+        stl_x += STL_PER_SLB * small_around[round_directn].delta_x;
+        stl_y += STL_PER_SLB * small_around[round_directn].delta_y;
+        if (!subtile_has_slab(stl_x, stl_y))
+            return 0;
+        slb = get_slabmap_for_subtile(stl_x, stl_y);
+        slbattr = get_slab_attrs(slb);
+    }
+
+    if (i == slabs_dist) {
+      pos2->x.stl.num = stl_x;
+      pos2->y.stl.num = stl_y;
+      return 1;
+    }
+    // Update original position
+    pos1->x.stl.num = stl_x;
+    pos1->y.stl.num = stl_y;
+
+    for (i = 0; i < slabs_dist; i++)
+    {
+        struct Map *mapblk;
+        mapblk = get_map_block_at(stl_x, stl_y);
+        if ((!slbattr->is_unknflg14) || (slb->kind == SlbT_GEMS) || (((mapblk->flags & MapFlg_Unkn20) != 0) && (slabmap_owner(slb) != plyr_idx)) || (slb->kind == SlbT_WATER))
+        {
+          if (((slb->kind != SlbT_CLAIMED) || (slabmap_owner(slb) != plyr_idx)) && (slb->kind != SlbT_PATH))
+            break;
+        }
+        stl_x += STL_PER_SLB * small_around[round_directn].delta_x;
+        stl_y += STL_PER_SLB * small_around[round_directn].delta_y;
+        if (!subtile_has_slab(stl_x, stl_y))
+            return 0;
+        slb = get_slabmap_for_subtile(stl_x, stl_y);
+        slbattr = get_slab_attrs(slb);
+    }
+
+    if (i == slabs_dist) {
+        pos2->x.stl.num = stl_x;
+        pos2->y.stl.num = stl_y;
+        return 1;
+    }
+    return 0;
 }
 
 long other_build_here(struct Computer2 *comp, long a2, long a3, long a4, long a5)

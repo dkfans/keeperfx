@@ -223,6 +223,12 @@ GoldAmount get_computer_money_less_cost(const struct Computer2 *comp)
     return dungeon->total_money_owned - compute_player_payday_total(dungeon);
 }
 
+long set_autopilot_type(PlayerNumber plyr_idx, long aptype)
+{
+    setup_a_computer_player(plyr_idx, computer_assist_types[aptype-1]);
+    return 1;
+}
+
 struct ComputerTask * able_to_build_room_at_task(struct Computer2 *comp, RoomKind rkind, long width_slabs, long height_slabs, long area, long a6)
 {
     struct ComputerTask *ctask;
