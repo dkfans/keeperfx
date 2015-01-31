@@ -68,6 +68,7 @@ DLLIMPORT extern unsigned char * _DK_fronttor_end_data;
 /******************************************************************************/
 void fronttorture_unload(void);
 void fronttorture_load(void);
+void fronttorture_clear_state(void);
 void fronttorture_input(void);
 TbBool fronttorture_draw(void);
 void fronttorture_update(void);
