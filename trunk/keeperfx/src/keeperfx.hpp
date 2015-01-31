@@ -344,7 +344,6 @@ int dump_all_held_things_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapS
 void dump_thing_held_by_any_player(struct Thing *thing);
 void dump_things_lost_in_limbo_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
-long set_autopilot_type(PlayerNumber plridx, long aptype);
 void instant_instance_selected(CrInstance check_inst_id);
 void centre_engine_window(void);
 void change_engine_window_relative_size(long w_delta, long h_delta);
@@ -360,7 +359,7 @@ void process_dungeon_destroy(struct Thing *thing);
 void give_shooter_drained_health(struct Thing *shooter, long health_delta);
 long get_foot_creature_has_down(struct Thing *thing);
 void process_keeper_spell_effect(struct Thing *thing);
-unsigned long setup_move_off_lava(struct Thing *thing);
+TbBool setup_move_off_lava(struct Thing *thing);
 
 TbPixel get_player_path_colour(unsigned short owner);
 

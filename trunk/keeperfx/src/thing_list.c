@@ -2730,9 +2730,20 @@ short update_thing_sound(struct Thing *thing)
   return true;
 }
 
-long collide_filter_thing_is_of_type(const struct Thing *thing, const struct Thing *sectng, long a3, long a4)
+long collide_filter_thing_is_of_type(const struct Thing *thing, const struct Thing *sectng, long tngclass, long tngmodel)
 {
-    return _DK_collide_filter_thing_is_of_type(thing, sectng, a3, a4);
+    //return _DK_collide_filter_thing_is_of_type(thing, sectng, a3, a4);
+    if (tngmodel >= 0)
+    {
+        if (thing->model != tngmodel)
+          return false;
+    }
+    if (tngclass >= 0)
+    {
+        if (thing->class_id != tngclass)
+          return false;
+    }
+    return true;
 }
 
 unsigned long hit_type_to_hit_targets(long hit_type)
