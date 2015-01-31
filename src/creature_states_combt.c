@@ -140,6 +140,13 @@ const struct CombatWeapon ranged_object_offensive_weapon[] = {
     {CrInst_NULL,                0,   0},
 };
 
+const signed char pos_calcs[][2] = {
+    {1, 0}, {1, 1}, {1, 1}, {0, 1},
+    {0, 1},{-1, 1},{-1, 1},{-1, 0},
+   {-1, 0},{-1,-1},{-1,-1}, {0,-1},
+    {0,-1}, {1,-1}, {1,-1}, {1, 0},
+};
+
 #ifdef __cplusplus
 }
 #endif
@@ -1746,7 +1753,7 @@ long guard_post_combat_move(struct Thing *thing, long a2)
         return 0;
     }
     room = room_get(cctrl->last_work_room_id);
-    if (!room_exists(room) || (thing->owner != room->owner) || (room->kind != RoK_GUARDPOST))
+    if (!room_still_valid_as_type_for_thing(room, RoK_GUARDPOST, thing))
     {
         cctrl->job_assigned = 0;
         return 0;
@@ -1990,9 +1997,162 @@ CrAttackType combat_has_line_of_sight(const struct Thing *creatng, const struct 
     return cctrl->field_A8;
 }
 
+long collide_filter_thing_is_in_my_fight(const struct Thing *firstng, const struct Thing *coldtng, long a3, long a4)
+{
+    if (!thing_is_creature(firstng)) {
+        return false;
+    }
+    struct CreatureControl *firsctrl;
+    firsctrl = creature_control_get_from_thing(firstng);
+    struct CreatureControl *coldctrl;
+    coldctrl = creature_control_get_from_thing(coldtng);
+    return (firsctrl->combat_flags != 0) && (firsctrl->field_AA) && (coldctrl->combat_flags == firsctrl->combat_flags) && (firstng->index != coldtng->index);
+}
+
+struct Thing *get_thing_collided_with_at_satisfying_filter_in_square_of_for_subtile(struct Thing *shotng, struct Coord3d *pos,
+    long square_size, Thing_Collide_Func filter, long filter_par1, long filter_par2, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct Thing *creatng;
+    creatng = INVALID_THING;
+    if (shotng->parent_idx > 0) {
+        creatng = thing_get(shotng->parent_idx);
+    }
+    struct Thing *thing;
+    long i;
+    unsigned long k;
+    struct Map *mapblk;
+    mapblk = get_map_block_at(stl_x,stl_y);
+    k = 0;
+    i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_on_mapblk;
+        // Per thing code start
+        if ((thing->index != shotng->index) && filter(thing, creatng, filter_par1, filter_par2) && thing_on_thing_at(shotng, pos, thing)) {
+            return thing;
+        }
+        // Per thing code end
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return INVALID_THING;
+}
+
+struct Thing *get_thing_collided_with_at_satisfying_filter_in_square_of(struct Thing *shotng, struct Coord3d *pos, long square_size, Thing_Collide_Func filter, long filter_par1, long filter_par2)
+{
+    MapSubtlCoord stl_y_beg, stl_x_beg, stl_x_end, stl_y_end;
+    stl_x_beg = coord_subtile(pos->x.val - square_size / 2);
+    if (stl_x_beg <= 0)
+        stl_x_beg = 0;
+    stl_x_end = coord_subtile(pos->x.val + square_size / 2);
+    if (stl_x_end >= map_subtiles_x)
+        stl_x_end = map_subtiles_x;
+    stl_y_end = coord_subtile(pos->y.val + square_size / 2);
+    if (stl_y_end >= map_subtiles_y)
+        stl_y_end = map_subtiles_y;
+    stl_y_beg = coord_subtile(pos->y.val - square_size / 2);
+    if (stl_y_beg <= 0)
+        stl_y_beg = 0;
+    MapSubtlCoord stl_y, stl_x;
+    for (stl_y = stl_y_beg; stl_y <= stl_y_end; stl_y++)
+    {
+        for (stl_x = stl_x_beg; stl_x <= stl_x_end; stl_x++)
+        {
+            struct Thing *thing;
+            thing = get_thing_collided_with_at_satisfying_filter_in_square_of_for_subtile(shotng, pos, square_size, filter, filter_par1, filter_par2, stl_x, stl_y);
+            if (!thing_is_invalid(thing))
+                return thing;
+        }
+    }
+    return 0;
+}
+
+TbBool creature_fighting_is_occupying_my_position(struct Thing *thing, struct Coord3d *pos)
+{
+    struct Thing *coldtng;
+    coldtng = get_thing_collided_with_at_satisfying_filter_in_square_of(thing, pos, 768, collide_filter_thing_is_in_my_fight, 0, 0);
+    return thing_is_invalid(coldtng);
+}
+
+long creature_move_to_a_space_around_enemy(struct Thing *thing, struct Thing *enmtng, long a3, long a4)
+{
+    long enmradius;
+    enmradius = a3 + (thing->clipbox_size_xy + enmtng->clipbox_size_xy) / 2;
+    struct Coord3d pos;
+    pos.x.val = thing->mappos.x.val;
+    pos.y.val = thing->mappos.y.val;
+    pos.z.val = thing->mappos.z.val;
+    int i;
+    for (i = 0; i < 18; i++)
+    {
+        long angle_final, angle_dt;
+        angle_final = get_angle_xy_to(&enmtng->mappos, &pos);
+        angle_dt = angle_final;
+        do
+        {
+            pos.x.val += (pos_calcs[angle_dt / 128][0] << 7);
+            pos.y.val += (pos_calcs[angle_dt / 128][1] << 7);
+            pos.z.val = get_thing_height_at(thing, &pos);
+            if (enmtng->mappos.x.val - enmradius > pos.x.val) {
+                pos.x.val -= enmradius;
+            } else
+            if (enmtng->mappos.x.val + enmradius < pos.x.val) {
+                pos.x.val += enmradius;
+            }
+            if (enmtng->mappos.y.val - enmradius > pos.y.val) {
+                pos.y.val -= enmradius;
+            } else
+            if (enmtng->mappos.y.val + enmradius < pos.y.val) {
+                pos.y.val += enmradius;
+            }
+            angle_dt = get_angle_xy_to(&enmtng->mappos, &pos);
+        }
+        while (get_angle_difference(angle_final, angle_dt) < LbFPMath_PI/8);
+        // Check if we can accept that position
+        if (!thing_in_wall_at(thing, &pos) && !terrain_toxic_for_creature_at_position(thing, pos.x.stl.num, pos.y.stl.num))
+          break;
+    }
+    if (i == 18)
+    {
+      ERRORLOG("Thing stuck finding a melee pos - count =%d", 18);
+      return 0;
+    }
+    if (!setup_person_move_to_coord(thing, &pos, 0)) {
+        return 0;
+    }
+    thing->continue_state = a4;
+    return 1;
+}
+
 long old_combat_move(struct Thing *thing, struct Thing *enmtng, long a3, long a4)
 {
-    return _DK_old_combat_move(thing, enmtng, a3, a4);
+    //return _DK_old_combat_move(thing, enmtng, a3, a4);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    if ((cctrl->combat_flags & 0x10) != 0)
+    {
+        creature_turn_to_face(thing, &enmtng->mappos);
+        return 0;
+    }
+    if (creature_fighting_is_occupying_my_position(thing, &thing->mappos))
+    {
+        cctrl->field_AA = 1;
+        creature_turn_to_face(thing, &enmtng->mappos);
+        return 0;
+    }
+    cctrl->field_AA = 0;
+    return creature_move_to_a_space_around_enemy(thing, enmtng, a3, a4);
 }
 
 long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, CrtrStateId nstat)

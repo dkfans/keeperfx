@@ -284,12 +284,6 @@ CrStateRet creature_at_new_lair(struct Thing *creatng)
     return CrStRet_ResetOk;
 }
 
-short creature_change_lair(struct Thing *thing)
-{
-    TRACE_THING(thing);
-    return _DK_creature_change_lair(thing);
-}
-
 TbBool setup_head_for_random_unused_lair_slab(struct Thing *creatng, struct Room *room)
 {
     SlabCodedCoords slbnum;
@@ -328,6 +322,38 @@ TbBool setup_head_for_random_unused_lair_slab(struct Thing *creatng, struct Room
     }
     ERRORLOG("Could not find valid RANDOM point in room for creature");
     return false;
+}
+
+short creature_change_lair(struct Thing *thing)
+{
+    TRACE_THING(thing);
+    //return _DK_creature_change_lair(thing);
+    struct Room *room;
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->target_room_id = 0;
+    room = get_room_thing_is_on(thing);
+    if (!room_initially_valid_as_type_for_thing(room, RoK_LAIR, thing))
+    {
+        set_start_state(thing);
+        return 0;
+    }
+    if (!room_has_enough_free_capacity_for_creature(room, thing))
+    {
+        set_start_state(thing);
+        return 0;
+    }
+    if (!setup_head_for_random_unused_lair_slab(thing, room))
+    {
+        set_start_state(thing);
+        return 0;
+    }
+    if (cctrl->lair_room_id != 0) {
+        thing->continue_state = CrSt_CreatureAtChangedLair;
+    } else {
+        thing->continue_state = CrSt_CreatureAtNewLair;
+    }
+    return 1;
 }
 
 short creature_choose_room_for_lair_site(struct Thing *thing)
