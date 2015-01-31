@@ -248,6 +248,12 @@ TbBool fronttorture_draw(void)
   return true;
 }
 
+void fronttorture_clear_state(void)
+{
+    torture_state.action = 0;
+    torture_door_selected = -1;
+}
+
 void fronttorture_input(void)
 {
     struct PlayerInfo *player;
