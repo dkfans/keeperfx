@@ -2509,6 +2509,8 @@ void frontend_shutdown_state(long pstate)
         turn_off_menu(GMnu_FEHIGH_SCORE_TABLE);
         break;
     case FeSt_TORTURE:
+        set_pointer_graphic_none();
+        fronttorture_clear_state();
         fronttorture_unload();
         frontend_load_data();
         break;
