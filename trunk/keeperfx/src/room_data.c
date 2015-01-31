@@ -3289,14 +3289,119 @@ unsigned char find_random_valid_position_for_thing_in_room_avoiding_object_exclu
     return _DK_find_random_valid_position_for_thing_in_room_avoiding_object_excluding_room_slab(thing, room, pos, a4);
 }
 
-long find_random_valid_position_for_item_in_different_room_avoiding_object(struct Thing *thing, struct Room *room, struct Coord3d *pos)
+long find_random_valid_position_for_item_in_different_room_avoiding_object(struct Thing *thing, struct Room *skip_room, struct Coord3d *pos)
 {
-    return _DK_find_random_valid_position_for_item_in_different_room_avoiding_object(thing, room, pos);
+    //return _DK_find_random_valid_position_for_item_in_different_room_avoiding_object(thing, room, pos);
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(skip_room->owner);
+    unsigned int matching_rooms;
+    matching_rooms = 0;
+    long i;
+    unsigned long k;
+    i = dungeon->room_kind[skip_room->kind];
+    k = 0;
+    while (i != 0)
+    {
+        struct Room *room;
+        room = room_get(i);
+        if (room_is_invalid(room))
+        {
+          ERRORLOG("Jump to invalid room detected");
+          break;
+        }
+        i = room->next_of_owner;
+        // Per-room code
+        if ((room->index != skip_room->index) && (room->total_capacity > room->capacity_used_for_storage))
+            matching_rooms++;
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping rooms list");
+          break;
+        }
+    }
+    if (matching_rooms <= 0)
+        return 0;
+    int chosen_match_idx, curr_match_idx;
+    chosen_match_idx = ACTION_RANDOM(matching_rooms);
+    curr_match_idx = 0;
+    i = dungeon->room_kind[skip_room->kind];
+    k = 0;
+    while (i != 0)
+    {
+        struct Room *room;
+        room = room_get(i);
+        if (room_is_invalid(room))
+        {
+          ERRORLOG("Jump to invalid room detected");
+          break;
+        }
+        i = room->next_of_owner;
+        if (i <= 0) {
+            // In case we've reached end of rooms, loop the list to select previous matches
+            i = dungeon->room_kind[skip_room->kind];
+        }
+        // Per-room code
+        if ((room->index != skip_room->index) && (room->total_capacity > room->capacity_used_for_storage))
+        {
+            if (curr_match_idx >= chosen_match_idx)
+            {
+                if (find_random_valid_position_for_thing_in_room_avoiding_object(thing, room, pos)) {
+                    return 1;
+                }
+            }
+            curr_match_idx++;
+            if (curr_match_idx >= matching_rooms) {
+                // All rooms which were matched are checked
+                break;
+            }
+        }
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping rooms list");
+          break;
+        }
+    }
+    ERRORLOG("Found %d matching rooms but couldn't find position within any",(int)matching_rooms);
+    return 0;
 }
 
-struct Thing *find_lair_at(unsigned short stl_x, unsigned short stl_y)
+struct Thing *find_lair_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    return _DK_find_lair_at(stl_x, stl_y);
+    //return _DK_find_lair_at(stl_x, stl_y);
+    struct Map *mapblk;
+    mapblk = get_map_block_at(stl_x,stl_y);
+    long i;
+    unsigned long k;
+    k = 0;
+    i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
+    {
+        struct Thing *thing;
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_on_mapblk;
+        // Per thing code start
+        if (thing_is_creature_lair(thing)) {
+            return thing;
+        }
+        // Per thing code end
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return INVALID_THING;
 }
 
 void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, SlabCodedCoords slbnum)
