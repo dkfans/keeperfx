@@ -3765,7 +3765,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
   case Cmd_KILL_CREATURE:
       for (i=plr_start; i < plr_end; i++)
       {
-          script_kill_creatures(i, val2, val3, val3);
+          script_kill_creatures(i, val2, val3, val4);
       }
       break;
   default:
