@@ -556,6 +556,7 @@ extern Comp_Check_Func computer_check_func_list[];
 struct Computer2 *get_computer_player_f(long plyr_idx,const char *func_name);
 #define get_computer_player(plyr_idx) get_computer_player_f(plyr_idx,__func__)
 TbBool computer_player_invalid(const struct Computer2 *comp);
+long set_autopilot_type(PlayerNumber plridx, long aptype);
 /******************************************************************************/
 void shut_down_process(struct Computer2 *comp, struct ComputerProcess *cproc);
 void reset_process(struct Computer2 *comp, struct ComputerProcess *cproc);

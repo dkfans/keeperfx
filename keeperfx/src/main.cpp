@@ -60,6 +60,7 @@
 #include "player_instances.h"
 #include "player_utils.h"
 #include "player_states.h"
+#include "player_computer.h"
 #include "game_heap.h"
 #include "game_saves.h"
 #include "engine_render.h"
@@ -192,7 +193,6 @@ DLLIMPORT void _DK_clear_game_for_save(void);
 DLLIMPORT long _DK_update_cave_in(struct Thing *thing);
 DLLIMPORT void _DK_update_thing_animation(struct Thing *thing);
 DLLIMPORT void _DK_toggle_creature_tendencies(struct PlayerInfo *player, char val);
-DLLIMPORT long _DK_set_autopilot_type(long plridx, long aptype);
 DLLIMPORT void _DK_turn_off_sight_of_evil(long plridx);
 DLLIMPORT void _DK_lose_level(struct PlayerInfo *player);
 DLLIMPORT void _DK_level_lost_go_first_person(long plridx);
@@ -832,9 +832,50 @@ void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long
     }
 }
 
-unsigned long setup_move_off_lava(struct Thing *thing)
+TbBool setup_move_off_lava(struct Thing *thing)
 {
-  return _DK_setup_move_off_lava(thing);
+    //return _DK_setup_move_off_lava(thing);
+    MapSlabCoord slb_x, slb_y;
+    slb_x = subtile_slab(thing->mappos.x.stl.num);
+    slb_y = subtile_slab(thing->mappos.y.stl.num);
+    long i;
+    for (i=0; i < 32; i++)
+    {
+        struct MapOffset *sstep;
+        MapSubtlCoord cx,cy;
+        sstep = &spiral_step[i];
+        cx = slab_subtile_center(slb_x + sstep->h);
+        cy = slab_subtile_center(slb_y + sstep->v);
+        struct SlabMap *slb;
+        slb = get_slabmap_for_subtile(cx,cy);
+        if (slabmap_block_invalid(slb))
+            continue;
+        const struct SlabAttr *slbattr;
+        slbattr = get_slab_attrs(slb);
+        if (!slbattr->is_safe_land)
+            continue;
+        // Check all subtiles of the slab in random order
+        long k, n;
+        n = ACTION_RANDOM(AROUND_TILES_COUNT);
+        for (k=0; k < AROUND_TILES_COUNT; k++, n=(n + 1) % AROUND_TILES_COUNT)
+        {
+            struct Map *mapblk;
+            long stl_x,stl_y;
+            stl_x = cx + around[k].delta_x;
+            stl_y = cy + around[k].delta_y;
+            mapblk = get_map_block_at(stl_x,stl_y);
+            if (!map_block_invalid(mapblk))
+            {
+                if ((mapblk->flags & MapFlg_IsTall) == 0)
+                {
+                    if (setup_person_move_to_position(thing, stl_x, stl_y, 0)) {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+    return false;
 }
 
 TbBool any_player_close_enough_to_see(const struct Coord3d *pos)
@@ -1949,11 +1990,6 @@ void centre_engine_window(void)
 void turn_off_query(short a)
 {
   _DK_turn_off_query(a);
-}
-
-long set_autopilot_type(PlayerNumber plyr_idx, long aptype)
-{
-  return _DK_set_autopilot_type(plyr_idx, aptype);
 }
 
 void level_lost_go_first_person(PlayerNumber plyr_idx)
