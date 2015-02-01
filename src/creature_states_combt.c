@@ -2351,12 +2351,127 @@ TbBool change_current_combat(struct Thing *fighter, struct Thing *enemy, long co
 
 long creature_has_spare_slot_for_combat(struct Thing *fighter, struct Thing *enemy, long combat_kind)
 {
-    return _DK_creature_has_spare_slot_for_combat(fighter, enemy, combat_kind);
+    //return _DK_creature_has_spare_slot_for_combat(fighter, enemy, combat_kind);
+    struct CreatureControl *enmctrl;
+    enmctrl = creature_control_get_from_thing(enemy);
+    if (combat_kind == AttckT_Ranged)
+    {
+        if (enmctrl->opponents_ranged_count < COMBAT_RANGED_OPPONENTS_LIMIT)
+            return true;
+        return false;
+    }
+    // Melee combat was requested; but we may still check for ranged attacker, if creature prefers it
+    struct CreatureStats *figstat;
+    figstat = creature_stats_get_from_thing(fighter);
+    if (figstat->attack_preference == AttckT_Ranged)
+    {
+        if (creature_has_ranged_weapon(fighter))
+        {
+            if (enmctrl->opponents_ranged_count < COMBAT_RANGED_OPPONENTS_LIMIT)
+                return true;
+        }
+    }
+    if (enmctrl->opponents_melee_count < COMBAT_MELEE_OPPONENTS_LIMIT)
+        return true;
+    return false;
 }
 
 long change_creature_with_existing_attacker(struct Thing *fighter, struct Thing *enemy, long combat_kind)
 {
-    return _DK_change_creature_with_existing_attacker(fighter, enemy, combat_kind);
+    //return _DK_change_creature_with_existing_attacker(fighter, enemy, combat_kind);
+    int i;
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(enemy);
+    MapCoordDelta dist;
+    dist = get_2d_box_distance(&fighter->mappos, &enemy->mappos) - (enemy->clipbox_size_xy + fighter->clipbox_size_xy) / 2;
+    struct Thing *best_fightng;
+    long best_score;
+    best_fightng = fighter;
+    best_score = get_combat_score(fighter, enemy, combat_kind, dist);
+    long prev_score;
+    prev_score = best_score;
+    struct Thing *creatng;
+    long score;
+    if (combat_kind == AttckT_Ranged)
+    {
+      if (cctrl->opponents_ranged_count <= 0) {
+          ERRORLOG("No ranged attackers - serious");
+      }
+      for (i = 0; i < COMBAT_RANGED_OPPONENTS_LIMIT; i++)
+      {
+          if (cctrl->opponents_ranged[i] > 0)
+          {
+              creatng = thing_get(cctrl->opponents_ranged[i]);
+              struct CreatureControl *cctrl;
+              cctrl = creature_control_get_from_thing(creatng);
+              dist = get_2d_box_distance(&creatng->mappos, &enemy->mappos) - (enemy->clipbox_size_xy + creatng->clipbox_size_xy) / 2;
+              score = get_combat_score(creatng, enemy, cctrl->byte_A7, dist);
+              if (creature_is_actually_scared(creatng, enemy)) {
+                  score -= 512;
+              }
+              if (score < best_score) {
+                  best_score = score;
+                  best_fightng = creatng;
+              }
+          }
+      }
+    } else
+    {
+        if (cctrl->opponents_melee_count <= 0) {
+            ERRORLOG("No melee attackers - serious");
+        }
+        for (i = 0; i < COMBAT_MELEE_OPPONENTS_LIMIT; i++)
+        {
+            if (cctrl->opponents_melee[i] > 0)
+            {
+                creatng = thing_get(cctrl->opponents_melee[i]);
+                struct CreatureControl *cctrl;
+                cctrl = creature_control_get_from_thing(creatng);
+                dist = get_2d_box_distance(&creatng->mappos, &enemy->mappos) - (enemy->clipbox_size_xy + creatng->clipbox_size_xy) / 2;
+                score = get_combat_score(creatng, enemy, cctrl->byte_A7, dist);
+                if (creature_is_actually_scared(creatng, enemy)) {
+                    score -= 512;
+                }
+                if (score < best_score) {
+                    best_score = score;
+                    best_fightng = creatng;
+                }
+            }
+        }
+    }
+    if (best_score != prev_score)
+    {
+        set_start_state(best_fightng);
+        struct CreatureControl *figctrl;
+        figctrl = creature_control_get_from_thing(fighter);
+        struct Thing *prevenmy;
+        prevenmy = thing_get(figctrl->battle_enemy_idx);
+        if ((figctrl->combat_flags & CmbtF_Melee) != 0)
+        {
+          remove_melee_attacker(fighter, prevenmy);
+        } else
+        if (( figctrl->combat_flags & CmbtF_Ranged) != 0)
+        {
+          remove_ranged_attacker(fighter, prevenmy);
+        } else
+        if ((figctrl->combat_flags & CmbtF_Waiting) != 0)
+        {
+            struct Dungeon *dungeon;
+            dungeon = get_players_num_dungeon(fighter->owner);
+            if (!dungeon_invalid(dungeon) && (dungeon->fights_num > 0)) {
+                dungeon->fights_num--;
+            } else {
+                ERRORLOG("Fight count incorrect");
+            }
+            figctrl->combat_flags &= ~0x04;
+            figctrl->battle_enemy_idx = 0;
+            figctrl->fight_til_death = 0;
+            figctrl->long_9E = 0;
+            battle_remove(fighter);
+        }
+        set_creature_combat_state(fighter, enemy, combat_kind);
+    }
+    return 0;
 }
 
 long check_for_possible_combat(struct Thing *creatng, struct Thing **fightng)
