@@ -796,12 +796,51 @@ long pinstfm_fade_from_map(struct PlayerInfo *player, long *n)
 
 long pinstfe_fade_from_map(struct PlayerInfo *player, long *n)
 {
-  return _DK_pinstfe_fade_from_map(player, n);
+    //return _DK_pinstfe_fade_from_map(player, n);
+    struct PlayerInfo *myplyr;
+    myplyr = get_player(my_player_number);
+    set_engine_view(player, player->field_4B5);
+    if (player->id_number == myplyr->id_number) {
+        settings.tooltips_on = ((player->field_1 & 2) != 0);
+        toggle_status_menu(player->field_1 & 1);
+    }
+    player->allocflags &= ~0x80;
+    return 0;
 }
 
 long pinstfs_zoom_to_position(struct PlayerInfo *player, long *n)
 {
-  return _DK_pinstfs_zoom_to_position(player, n);
+    //return _DK_pinstfs_zoom_to_position(player, n);
+    player->controlled_thing_idx = 0;
+    player->controlled_thing_creatrn = 0;
+    player->allocflags |= 0x80;
+    player->allocflags |= 0x10;
+    struct Camera *cam;
+    cam = player->acamera;
+    int dt_x, dt_y;
+    dt_x = (player->zoom_to_pos_x - (int)cam->mappos.x.val) / 8;
+    dt_y = (player->zoom_to_pos_y - (int)cam->mappos.y.val) / 8;
+    if (dt_x < 0)
+    {
+      if (dt_x >= -256)
+        dt_x = -256;
+    } else
+    {
+      if (dt_x <= 256)
+        dt_x = 256;
+    }
+    player->field_4DB = dt_x;
+    if (dt_y < 0)
+    {
+        if (dt_y >= -256)
+          dt_y = -256;
+    } else
+    {
+        if (dt_y <= 256)
+          dt_y = 256;
+    }
+    player->field_4DF = dt_y;
+    return 0;
 }
 
 long pinstfm_zoom_to_position(struct PlayerInfo *player, long *n)
