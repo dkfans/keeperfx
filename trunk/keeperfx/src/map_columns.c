@@ -201,11 +201,11 @@ TbBool map_pos_solid_at_ceiling(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 long get_top_cube_at_pos(long stl_num)
 {
     struct Column *col;
-    struct Map *map;
+    struct Map *mapblk;
     unsigned long top_pos;
     long tcube;
-    map = get_map_block_at_pos(stl_num);
-    col = get_map_column(map);
+    mapblk = get_map_block_at_pos(stl_num);
+    col = get_map_column(mapblk);
     top_pos = get_column_floor_filled_subtiles(col);
     if (top_pos > 0)
         tcube = col->cubes[top_pos-1];

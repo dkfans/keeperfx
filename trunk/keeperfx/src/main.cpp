@@ -1987,9 +1987,12 @@ void centre_engine_window(void)
     setup_engine_window(x1, y1, player->engine_window_width, player->engine_window_height);
 }
 
-void turn_off_query(short a)
+void turn_off_query(PlayerNumber plyr_idx)
 {
-  _DK_turn_off_query(a);
+    //_DK_turn_off_query(a);
+    struct PlayerInfo *player;
+    player = get_player(plyr_idx);
+    set_player_instance(player, PI_UnqueryCrtr, 0);
 }
 
 void level_lost_go_first_person(PlayerNumber plyr_idx)

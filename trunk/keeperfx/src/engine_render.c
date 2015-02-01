@@ -5421,7 +5421,7 @@ void update_frontview_pointed_block(unsigned long laaa, unsigned char qdrant, lo
     TbGraphicsWindow ewnd;
     struct Column *colmn;
     unsigned long mask;
-    struct Map *map;
+    struct Map *mapblk;
     long pos_x,pos_y;
     long slb_x,slb_y;
     long point_a,point_b,delta;
@@ -5437,8 +5437,8 @@ void update_frontview_pointed_block(unsigned long laaa, unsigned char qdrant, lo
         pos_y = (point_a / laaa) * y_step2[qdrant] + (point_b / laaa) * y_step1[qdrant] + (h << 8);
         slb_x = (pos_x >> 8) + x_offs[qdrant];
         slb_y = (pos_y >> 8) + y_offs[qdrant];
-        map = get_map_block_at(slb_x, slb_y);
-        if (!map_block_invalid(map))
+        mapblk = get_map_block_at(slb_x, slb_y);
+        if (!map_block_invalid(mapblk))
         {
           if (i == 0)
           {
@@ -5448,10 +5448,10 @@ void update_frontview_pointed_block(unsigned long laaa, unsigned char qdrant, lo
             block_pointed_at_y = slb_y;
             pointed_at_frac_x = pos_x & 0xFF;
             pointed_at_frac_y = pos_y & 0xFF;
-            me_pointed_at = map;
+            me_pointed_at = mapblk;
           } else
           {
-            colmn = get_map_column(map);
+            colmn = get_map_column(mapblk);
             mask = colmn->solidmask;
             if ( (1 << (i-1)) & mask )
             {
@@ -5459,7 +5459,7 @@ void update_frontview_pointed_block(unsigned long laaa, unsigned char qdrant, lo
               pointed_at_frac_y = pos_y & 0xFF;
               block_pointed_at_x = slb_x;
               block_pointed_at_y = slb_y;
-              me_pointed_at = map;
+              me_pointed_at = mapblk;
             }
             if (((temp_cluedo_mode)  && (i == 2))
              || ((!temp_cluedo_mode) && (i == 5)))
@@ -5763,7 +5763,6 @@ void draw_frontview_engine(struct Camera *cam)
     TbGraphicsWindow grwnd;
     TbGraphicsWindow ewnd;
     unsigned char qdrant;
-    struct Map *map;
     long px,py,qx,qy;
     long w,h;
     long pos_x,pos_y;
@@ -5865,16 +5864,17 @@ void draw_frontview_engine(struct Camera *cam)
           stl_y = py;
         for (pos_y=qy; pos_y > lim_y; pos_y -= zoom)
         {
-            map = get_map_block_at(stl_x, stl_y);
-            if (!map_block_invalid(map))
+            struct Map *mapblk;
+            mapblk = get_map_block_at(stl_x, stl_y);
+            if (!map_block_invalid(mapblk))
             {
-                if (get_mapblk_column_index(map) > 0)
+                if (get_mapblk_column_index(mapblk) > 0)
                 {
-                    draw_element(map, game.lish.subtile_lightness[get_subtile_number(stl_x,stl_y)], stl_x, stl_y, pos_x, pos_y, zoom, qdrant, &i);
+                    draw_element(mapblk, game.lish.subtile_lightness[get_subtile_number(stl_x,stl_y)], stl_x, stl_y, pos_x, pos_y, zoom, qdrant, &i);
                 }
                 if ( subtile_revealed(stl_x, stl_y, player->id_number) )
                 {
-                    draw_frontview_things_on_element(map, cam);
+                    draw_frontview_things_on_element(mapblk, cam);
                 }
             }
             stl_x -= x_step1[qdrant];
