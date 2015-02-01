@@ -325,7 +325,7 @@ unsigned long seed_check_random(unsigned long range, unsigned long *seed, const 
 void init_lookups(void);
 void place_single_slab_type_on_map(SlabKind slbkind, MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx);
 void shuffle_unattached_things_on_slab(long a1, long a2);
-void turn_off_query(short a);
+void turn_off_query(PlayerNumber plyr_idx);
 TbBool set_gamma(char corrlvl, TbBool do_set);
 void level_lost_go_first_person(PlayerNumber plyr_idx);
 short winning_player_quitting(struct PlayerInfo *player, long *plyr_count);

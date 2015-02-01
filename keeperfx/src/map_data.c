@@ -495,17 +495,17 @@ void clear_mapmap_soft(void)
 
 void clear_mapmap(void)
 {
-    struct Map *map;
+    struct Map *mapblk;
     unsigned long x,y;
     unsigned char *flg;
     for (y=0; y < (map_subtiles_y+1); y++)
     {
         for (x=0; x < (map_subtiles_x+1); x++)
         {
-          map = get_map_block_at(x,y);
-          flg = &game.navigation_map[get_subtile_number(x,y)];
-          LbMemorySet(map, 0, sizeof(struct Map));
-          *flg = 0;
+            mapblk = get_map_block_at(x,y);
+            flg = &game.navigation_map[get_subtile_number(x,y)];
+            LbMemorySet(mapblk, 0, sizeof(struct Map));
+            *flg = 0;
         }
     }
     clear_subtiles_lightness(&game.lish);
