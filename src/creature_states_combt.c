@@ -2017,7 +2017,6 @@ struct Thing *get_thing_collided_with_at_satisfying_filter_in_square_of_for_subt
     if (shotng->parent_idx > 0) {
         creatng = thing_get(shotng->parent_idx);
     }
-    struct Thing *thing;
     long i;
     unsigned long k;
     struct Map *mapblk;
@@ -2026,6 +2025,7 @@ struct Thing *get_thing_collided_with_at_satisfying_filter_in_square_of_for_subt
     i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
+        struct Thing *thing;
         thing = thing_get(i);
         TRACE_THING(thing);
         if (thing_is_invalid(thing))

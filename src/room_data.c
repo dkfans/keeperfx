@@ -37,6 +37,7 @@
 #include "map_utils.h"
 #include "ariadne_wallhug.h"
 #include "config_terrain.h"
+#include "config_effects.h"
 #include "creature_states.h"
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
@@ -1277,14 +1278,261 @@ void count_bodies_in_room(struct Room *room)
     }
 }
 
+TbBool rectreate_repositioned_food_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
+{
+    if ((rrepos->used < 0) || (room->used_capacity >= room->total_capacity)) {
+        return false;
+    }
+    int ri;
+    for (ri = 0; ri < ROOM_REPOSITION_COUNT; ri++)
+    {
+        if (rrepos->models[ri] != 0)
+        {
+            struct Coord3d pos;
+            pos.x.val = subtile_coord_center(stl_x);
+            pos.y.val = subtile_coord_center(stl_y);
+            pos.z.val = 0;
+            struct Thing *foodtng;
+            foodtng = create_object(&pos, rrepos->models[ri], room->owner, -1);
+            if (!thing_is_invalid(foodtng))
+            {
+                rrepos->used--;
+                rrepos->models[ri] = 0;
+                rrepos->explevels[ri] = 0;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+void reposition_all_food_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
+{
+    long i;
+    unsigned long k;
+    struct Map *mapblk;
+    mapblk = get_map_block_at(stl_x, stl_y);
+    if (map_block_invalid(mapblk))
+        return;
+    k = 0;
+    i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
+    {
+        struct Thing *thing;
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            WARNLOG("Jump out of things array");
+            break;
+        }
+        i = thing->next_on_mapblk;
+        // Per thing code
+        if (thing_is_object(thing))
+        {
+            ThingModel objkind;
+            objkind = thing->model;
+            if (object_is_infant_food(thing) || object_is_growing_food(thing) || object_is_mature_food(thing))
+            {
+                if (!store_reposition_entry(rrepos, objkind)) {
+                    WARNLOG("Too many things to reposition in %s.",room_code_name(room->kind));
+                }
+                delete_thing_structure(thing, 0);
+            }
+        }
+        // Per thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+}
+
+int check_food_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct Map *mapblk;
+    mapblk = get_map_block_at(stl_x, stl_y);
+    if (map_block_invalid(mapblk))
+        return -2; // do nothing
+    if (get_map_floor_filled_subtiles(mapblk) != 0) { // Floor level for hatchery is 0
+        return -1; // re-create all
+    }
+    long i;
+    unsigned long k;
+    int matching_things_at_subtile;
+    matching_things_at_subtile = 0;
+    k = 0;
+    i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
+    {
+        struct Thing *thing;
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            WARNLOG("Jump out of things array");
+            break;
+        }
+        i = thing->next_on_mapblk;
+        // Per thing code
+        if (thing_is_object(thing))
+        {
+            if (object_is_infant_food(thing) || object_is_growing_food(thing) || object_is_mature_food(thing))
+            {
+                // If exceeded capacity of the room
+                if (room->used_capacity >= room->total_capacity)
+                {
+                    WARNLOG("The %s capacity %d exceeded; space used is %d",room_code_name(room->kind),(int)room->total_capacity,(int)room->used_capacity);
+                    return -1; // re-create all (this could save the object if there are duplicates)
+                } else
+                // If the thing is in wall, remove it but store to re-create later
+                if (thing_in_wall_at(thing, &thing->mappos))
+                {
+                    return -1; // re-create all
+                } else
+                {
+                    matching_things_at_subtile++;
+                }
+            }
+        }
+        // Per thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return matching_things_at_subtile; // Increase used capacity
+}
+
+void count_and_reposition_food_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
+{
+    int matching_things_at_subtile;
+    matching_things_at_subtile = check_food_on_subtile_for_reposition_in_room(room, stl_x, stl_y);
+    if (matching_things_at_subtile > 0) {
+        // This subtile contains bodies
+        SYNCDBG(19,"Got %d matching things at (%d,%d)",(int)matching_things_at_subtile,(int)stl_x,(int)stl_y);
+        room->used_capacity += matching_things_at_subtile;
+    } else
+    {
+        switch (matching_things_at_subtile)
+        {
+        case -2:
+            // No matching things, but also cannot recreate anything on this subtile
+            break;
+        case -1:
+            // All matching things are to be removed from the subtile and stored for re-creation
+            reposition_all_food_in_room_on_subtile(room, stl_x, stl_y, rrepos);
+            break;
+        case 0:
+            // There are no matching things there, something can be re-created
+            rectreate_repositioned_food_in_room_on_subtile(room, stl_x, stl_y, rrepos);
+            break;
+        default:
+            WARNLOG("Invalid value returned by reposition check");
+            break;
+        }
+    }
+}
+
 void count_food_in_room(struct Room *room)
 {
-  _DK_count_food_in_room(room);
+    //_DK_count_food_in_room(room);
+    long n;
+    SYNCDBG(17,"Starting for %s",room_code_name(room->kind));
+    struct RoomReposition rrepos;
+    init_reposition_struct(&rrepos);
+    // Making two loops guarantees that no rrepos things will be lost
+    for (n=0; n < 2; n++)
+    {
+        // The correct count should be taken from last sweep
+        room->used_capacity = 0;
+        room->capacity_used_for_storage = 0;
+        unsigned long i;
+        unsigned long k;
+        k = 0;
+        i = room->slabs_list;
+        while (i > 0)
+        {
+            MapSubtlCoord slb_x,slb_y;
+            slb_x = slb_num_decode_x(i);
+            slb_y = slb_num_decode_y(i);
+            // Per-slab code
+            long dx,dy;
+            for (dy=0; dy < STL_PER_SLB; dy++)
+            {
+                for (dx=0; dx < STL_PER_SLB; dx++)
+                {
+                    count_and_reposition_food_in_room_on_subtile(room, slab_subtile(slb_x,dx), slab_subtile(slb_y,dy), &rrepos);
+                }
+            }
+            // Per-slab code ends
+            i = get_next_slab_number_in_room(i);
+            k++;
+            if (k > room->slabs_count)
+            {
+                ERRORLOG("Infinite loop detected when sweeping room slabs");
+                break;
+            }
+        }
+    }
+    if (rrepos.used > 0) {
+        ERRORLOG("The %s index %d capacity %d wasn't enough; %d items belonging to player %d dropped",
+          room_code_name(room->kind),(int)room->index,(int)room->total_capacity,(int)rrepos.used,(int)room->owner);
+    }
+    room->capacity_used_for_storage = room->used_capacity;
 }
 
 void count_lair_occupants(struct Room *room)
 {
-  _DK_count_lair_occupants(room);
+    //_DK_count_lair_occupants(room);
+    room->used_capacity = 0;
+    memset(room->content_per_model, 0, sizeof(room->content_per_model));
+    unsigned long i;
+    unsigned long k;
+    k = 0;
+    i = room->slabs_list;
+    while (i > 0)
+    {
+        struct SlabMap *slb;
+        slb = get_slabmap_direct(i);
+        if (slabmap_block_invalid(slb))
+        {
+            ERRORLOG("Jump to invalid room slab detected");
+            break;
+        }
+        i = get_next_slab_number_in_room(i);
+        // Per slab code
+        struct Thing *lairtng;
+        struct Thing *creatng;
+        lairtng = find_lair_at(slab_subtile_center(slb_num_decode_x(i)), slab_subtile_center(slb_num_decode_y(i)));
+        if (!thing_is_invalid(lairtng))
+        {
+            creatng = thing_get(lairtng->word_13);
+            struct CreatureStats *crstat;
+            crstat = creature_stats_get_from_thing(creatng);
+            if (room->used_capacity + crstat->lair_size > room->total_capacity)
+            {
+                create_effect(&lairtng->mappos, imp_spangle_effects[lairtng->owner], lairtng->owner);
+                delete_lair_totem(lairtng);
+            } else
+            {
+                struct CreatureControl *cctrl;
+                cctrl = creature_control_get_from_thing(creatng);
+                cctrl->lair_room_id = room->index;
+                room->content_per_model[creatng->model]++;
+                room->used_capacity += crstat->lair_size;
+            }
+        }
+        // Per slab code ends
+        k++;
+        if (k > map_tiles_x * map_tiles_y)
+        {
+            ERRORLOG("Infinite loop detected when sweeping room slabs");
+            break;
+        }
+    }
 }
 
 

@@ -27,6 +27,7 @@
 #include "config_objects.h"
 #include "config_terrain.h"
 #include "config_creature.h"
+#include "config_effects.h"
 #include "thing_stats.h"
 #include "thing_effects.h"
 #include "thing_navigate.h"
@@ -882,6 +883,63 @@ struct Thing *get_crate_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     return get_object_around_owned_by_and_matching_bool_filter(
         subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, thing_is_workshop_crate);
+}
+
+TbBool creature_remove_lair_from_room(struct Thing *creatng, struct Room *room)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    if (cctrl->lair_room_id != room->index)
+    {
+        ERRORLOG("Attempt to remove a lair which belongs to %s index %d from room index %d he didn't think he was in",thing_model_name(creatng),(int)creatng->index,(int)room->index);
+        return false;
+    }
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(creatng);
+    TbBool result;
+    result = true;
+    // Remove lair from room capacity
+    if (room->content_per_model[creatng->model] <= 0)
+    {
+        ERRORLOG("Attempt to remove a lair which belongs to %s index %d from room index %d not containing this creature model",thing_model_name(creatng),(int)creatng->index,(int)room->index);
+        result = false;
+    } else
+    if ( room->used_capacity < crstat->lair_size)
+    {
+        ERRORLOG("Attempt to remove creature lair from room with too little used space");
+        result = false;
+    } else
+    {
+        room->used_capacity -= crstat->lair_size;
+        room->content_per_model[creatng->model]--;
+    }
+    cctrl->lair_room_id = 0;
+    //Remove the totem thing
+    if (cctrl->lairtng_idx > 0)
+    {
+        struct Thing *lairtng;
+        lairtng = thing_get(cctrl->lairtng_idx);
+        TRACE_THING(lairtng);
+        create_effect(&lairtng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
+        delete_lair_totem(lairtng);
+    }
+    return result;
+}
+
+TbBool delete_lair_totem(struct Thing *lairtng)
+{
+    struct Thing *creatng;
+    creatng = thing_get(lairtng->word_13);
+    if (thing_is_creature(creatng)) {
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(creatng);
+        cctrl->lair_room_id = 0;
+        cctrl->lairtng_idx = 0;
+    } else {
+        ERRORLOG("No totem owner");
+    }
+    delete_thing_structure(lairtng, 0);
+    return true;
 }
 
 long food_moves(struct Thing *objtng)

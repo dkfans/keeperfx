@@ -4403,7 +4403,6 @@ void draw_element(struct Map *map, long lightness, long stl_x, long stl_y, long 
 {
     struct PlayerInfo *myplyr;
     TbBool sibrevealed[3][3];
-    struct Column *col;
     struct CubeAttribs *unkstrcp;
     struct Map *mapblk;
     long lightness_arr[4][9];
@@ -4450,6 +4449,7 @@ void draw_element(struct Map *map, long lightness, long stl_x, long stl_y, long 
 
     // Get column to be drawn on the current subtile
 
+    struct Column *col;
     if (map_block_revealed_bit(map, player_bit))
       i = get_mapblk_column_index(map);
     else
