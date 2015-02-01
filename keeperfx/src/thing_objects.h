@@ -125,6 +125,9 @@ TbBool object_is_room_equipment(const struct Thing *thing, RoomKind rkind);
 TbBool object_is_room_inventory(const struct Thing *thing, RoomKind rkind);
 TbBool object_is_unaffected_by_terrain_changes(const struct Thing *thing);
 
+TbBool creature_remove_lair_from_room(struct Thing *creatng, struct Room *room);
+TbBool delete_lair_totem(struct Thing *lairtng);
+
 struct Thing *create_guard_flag_object(const struct Coord3d *pos, PlayerNumber plyr_idx, long parent_idx);
 
 int get_wealth_size_of_gold_hoard_object(const struct Thing *objtng);
