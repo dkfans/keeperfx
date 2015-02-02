@@ -2332,9 +2332,15 @@ short room_grow_food(struct Room *room)
             MapSubtlCoord stl_x, stl_y;
             stl_x = slab_subtile(slb_x, m % STL_PER_SLB);
             stl_y = slab_subtile(slb_y, m / STL_PER_SLB);
-            if (!find_base_thing_on_mapwho(TCls_Object, 9, stl_x, stl_y) && !find_base_thing_on_mapwho(TCls_Object, 4, stl_x, stl_y))
+            // Check if there is a food object already
+            struct Thing *thing;
+            thing = find_base_thing_on_mapwho(TCls_Object, 9, stl_x, stl_y);
+            if (thing_is_invalid(thing)) {
+                thing = find_base_thing_on_mapwho(TCls_Object, 4, stl_x, stl_y);
+            }
+            if (thing_is_invalid(thing))
             {
-                if (get_floor_filled_subtiles_at(stl_x, stl_y) <= 0)
+                if (get_floor_filled_subtiles_at(stl_x, stl_y) == 0)
                 {
                     return room_create_new_food_at(room, stl_x, stl_y);
                 }
@@ -2347,7 +2353,7 @@ short room_grow_food(struct Room *room)
             slbnum = room->slabs_list;
         }
     }
-    ERRORLOG("Could not find valid RANDOM point in room to create thing");
+    ERRORLOG("Could not find valid RANDOM point in room %s index %d",room_code_name(room->kind),(int)room->index);
     return false;
 }
 
