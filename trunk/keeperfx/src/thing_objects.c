@@ -32,6 +32,7 @@
 #include "thing_effects.h"
 #include "thing_navigate.h"
 #include "thing_physics.h"
+#include "power_hand.h"
 #include "map_data.h"
 #include "map_columns.h"
 #include "room_entrance.h"
@@ -1370,7 +1371,57 @@ TngUpdateRet object_update_call_to_arms(struct Thing *thing)
 
 TngUpdateRet object_update_armour(struct Thing *objtng)
 {
-    return _DK_object_update_armour(objtng);
+    //return _DK_object_update_armour(objtng);
+    struct Thing *thing;
+    thing = thing_get(objtng->word_13);
+    if (thing_is_picked_up(thing))
+    {
+        objtng->field_4F |= 0x01;
+        return 1;
+    }
+    long cvect_len;
+    short shspeed;
+    struct Coord3d pos;
+    struct ComponentVector cvect;
+    pos.x.val = thing->mappos.x.val;
+    pos.y.val = thing->mappos.y.val;
+    pos.z.val = thing->mappos.z.val;
+    if ((abs(objtng->mappos.x.val - pos.x.val) > 512)
+     || (abs(objtng->mappos.y.val - pos.y.val) > 512)
+     || (abs(objtng->mappos.z.val - pos.z.val) > 512))
+    {
+        shspeed = objtng->byte_15;
+        pos.x.val += 32 * LbSinL(682 * shspeed) >> 16;
+        pos.y.val += -(32 * LbCosL(682 * shspeed) >> 8) >> 8;
+        pos.z.val += shspeed * (thing->field_58 >> 1);
+        move_thing_in_map(objtng, &pos);
+        objtng->field_52 = thing->field_52;
+        objtng->field_54 = thing->field_54;
+        angles_to_vector(thing->field_52, thing->field_54, 32, &cvect);
+    }
+    else
+    {
+        pos.z.val += (thing->field_58 >> 1);
+        objtng->field_52 = get_angle_xy_to(&objtng->mappos, &pos);
+        objtng->field_54 = get_angle_yz_to(&objtng->mappos, &pos);
+        angles_to_vector(objtng->field_52, objtng->field_54, 32, &cvect);
+        cvect_len = LbSqrL(cvect.x * cvect.x + cvect.z * cvect.z + cvect.y * cvect.y);
+        if (cvect_len > 128)
+        {
+          pos.x.val = (cvect.x << 7) / cvect_len;
+          pos.y.val = (cvect.y << 7) / cvect_len;
+          pos.z.val = (cvect.z << 7) / cvect_len;
+          cvect.x = pos.x.val;
+          cvect.y = pos.y.val;
+          cvect.z = pos.z.val;
+        }
+    }
+    objtng->state_flags |= 0x04;
+    objtng->veloc_push_add.x.val += cvect.x;
+    objtng->veloc_push_add.y.val += cvect.y;
+    objtng->veloc_push_add.z.val += cvect.z;
+    objtng->field_4F &= ~0x01;
+    return 1;
 }
 
 TngUpdateRet object_update_object_scale(struct Thing *objtng)
