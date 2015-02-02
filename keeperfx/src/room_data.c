@@ -2271,9 +2271,84 @@ TbBool initialise_map_rooms(void)
     return true;
 }
 
+TbBool room_create_new_food_at(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct Coord3d pos;
+    pos.x.val = subtile_coord_center(stl_x);
+    pos.y.val = subtile_coord_center(stl_y);
+    pos.z.val = 0;
+    struct Thing *foodtng;
+    foodtng = create_object(&pos, 9, room->owner, -1);
+    if (thing_is_invalid(foodtng))
+    {
+        ERRORLOG("Cannot Create Food!");
+        return false;
+    }
+    foodtng->mappos.z.val = get_thing_height_at(foodtng, &foodtng->mappos);
+    if (thing_in_wall_at(foodtng, &foodtng->mappos)) {
+        ERRORLOG("Created chicken in a wall");
+    }
+    room->used_capacity++;
+    foodtng->word_13 = (foodtng->field_49 << 8) / foodtng->field_3E - 1;
+    return true;
+}
+
 short room_grow_food(struct Room *room)
 {
-  return _DK_room_grow_food(room);
+    //return _DK_room_grow_food(room);
+    if (room->slabs_count < 1) {
+        ERRORLOG("Room %s index %d has no slabs",room_code_name(room->kind),(int)room->index);
+        return 0;
+    }
+    if ((room->used_capacity >= room->total_capacity)
+      || game.play_gameturn % ((game.food_generation_speed / room->total_capacity) + 1)) {
+        return 0;
+    }
+    SlabCodedCoords slbnum;
+    long n;
+    unsigned long k;
+    n = ACTION_RANDOM(room->slabs_count);
+    slbnum = room->slabs_list;
+    for (k = n; k > 0; k--)
+    {
+        if (slbnum == 0)
+            break;
+        slbnum = get_next_slab_number_in_room(slbnum);
+    }
+    if (slbnum == 0) {
+        ERRORLOG("Taking random slab (%d/%d) in %s index %d failed - internal inconsistency.",(int)n,(int)room->slabs_count,room_code_name(room->kind),(int)room->index);
+        slbnum = room->slabs_list;
+    }
+    for (k = 0; k < room->slabs_count; k++)
+    {
+        MapSlabCoord slb_x,slb_y;
+        slb_x = slb_num_decode_x(slbnum);
+        slb_y = slb_num_decode_y(slbnum);
+
+        int i, m;
+        m = ACTION_RANDOM(STL_PER_SLB*STL_PER_SLB);
+        for (i = 0; i < STL_PER_SLB*STL_PER_SLB; i++)
+        {
+            MapSubtlCoord stl_x, stl_y;
+            stl_x = slab_subtile(slb_x, m % STL_PER_SLB);
+            stl_y = slab_subtile(slb_y, m / STL_PER_SLB);
+            if (!find_base_thing_on_mapwho(TCls_Object, 9, stl_x, stl_y) && !find_base_thing_on_mapwho(TCls_Object, 4, stl_x, stl_y))
+            {
+                if (get_floor_filled_subtiles_at(stl_x, stl_y) <= 0)
+                {
+                    return room_create_new_food_at(room, stl_x, stl_y);
+                }
+            }
+            m = (m + 1) % (STL_PER_SLB*STL_PER_SLB);
+        }
+
+        slbnum = get_next_slab_number_in_room(slbnum);
+        if (slbnum == 0) {
+            slbnum = room->slabs_list;
+        }
+    }
+    ERRORLOG("Could not find valid RANDOM point in room to create thing");
+    return false;
 }
 
 MapCoordDelta get_distance_to_room(const struct Coord3d *pos, const struct Room *room)
