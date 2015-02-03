@@ -3232,7 +3232,7 @@ TbBool remove_creature_lair(struct Thing *thing)
     }
     room = room_get(cctrl->lair_room_id);
     if (!room_is_invalid(room)) {
-        creature_remove_lair_from_room(thing, room);
+        creature_remove_lair_totem_from_room(thing, room);
         return true;
     } else {
         ERRORDBG(8,"The %s index %d has lair %d in non-existing room.",thing_model_name(thing),(int)thing->index,(int)cctrl->lairtng_idx);
