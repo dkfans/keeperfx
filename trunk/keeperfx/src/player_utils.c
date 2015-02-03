@@ -613,7 +613,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
     }
     // By default, player is his own ally
     player->allied_players = (1 << player->id_number);
-    player->field_10 = 0;
+    player->hand_busy_until_turn = 0;
 }
 
 void init_players(void)

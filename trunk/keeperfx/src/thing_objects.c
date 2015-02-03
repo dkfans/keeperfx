@@ -567,6 +567,13 @@ TbBool thing_is_object(const struct Thing *thing)
     return true;
 }
 
+void change_object_owner(struct Thing *objtng, PlayerNumber nowner)
+{
+    //TODO make this function more advanced - switch object types and update dungeon and rooms for spellbook/workshop box/lair
+    SYNCDBG(6,"Starting for %s, owner %d to %d",thing_model_name(objtng),(int)objtng->owner,(int)nowner);
+    objtng->owner = nowner;
+}
+
 struct Objects *get_objects_data_for_thing(struct Thing *thing)
 {
     unsigned int tmodel;
@@ -886,7 +893,7 @@ struct Thing *get_crate_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
         subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, thing_is_workshop_crate);
 }
 
-TbBool creature_remove_lair_from_room(struct Thing *creatng, struct Room *room)
+TbBool creature_remove_lair_totem_from_room(struct Thing *creatng, struct Room *room)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);

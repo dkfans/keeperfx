@@ -92,6 +92,7 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
 void destroy_object(struct Thing *thing);
 TngUpdateRet update_object(struct Thing *thing);
 TbBool thing_is_object(const struct Thing *thing);
+void change_object_owner(struct Thing *objtng, PlayerNumber nowner);
 
 struct Objects *get_objects_data_for_thing(struct Thing *thing);
 struct Objects *get_objects_data(unsigned int tmodel);
@@ -125,7 +126,7 @@ TbBool object_is_room_equipment(const struct Thing *thing, RoomKind rkind);
 TbBool object_is_room_inventory(const struct Thing *thing, RoomKind rkind);
 TbBool object_is_unaffected_by_terrain_changes(const struct Thing *thing);
 
-TbBool creature_remove_lair_from_room(struct Thing *creatng, struct Room *room);
+TbBool creature_remove_lair_totem_from_room(struct Thing *creatng, struct Room *room);
 TbBool delete_lair_totem(struct Thing *lairtng);
 
 struct Thing *create_guard_flag_object(const struct Coord3d *pos, PlayerNumber plyr_idx, long parent_idx);

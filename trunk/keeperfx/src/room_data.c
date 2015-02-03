@@ -2316,7 +2316,7 @@ short room_grow_food(struct Room *room)
         slbnum = get_next_slab_number_in_room(slbnum);
     }
     if (slbnum == 0) {
-        ERRORLOG("Taking random slab (%d/%d) in %s index %d failed - internal inconsistency.",(int)n,(int)room->slabs_count,room_code_name(room->kind),(int)room->index);
+        ERRORLOG("Taking random slab (%d/%d) in %s index %d failed - internal inconsistency",(int)n,(int)room->slabs_count,room_code_name(room->kind),(int)room->index);
         slbnum = room->slabs_list;
     }
     for (k = 0; k < room->slabs_count; k++)
@@ -3938,7 +3938,7 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
                 tmptng = thing_get(thing->word_13);
                 cctrl = creature_control_get_from_thing(tmptng);
                 if (cctrl->lairtng_idx == thing->index) {
-                    creature_remove_lair_from_room(tmptng, room);
+                    creature_remove_lair_totem_from_room(tmptng, room);
                 } else {
                     ERRORLOG("Lair thing thinks it belongs to a creature, but the creature disagrees.");
                 }
@@ -4316,7 +4316,7 @@ void change_ownership_or_delete_object_thing_in_room(struct Room *room, struct T
                 tmptng = thing_get(thing->word_13);
                 cctrl = creature_control_get_from_thing(tmptng);
                 if (cctrl->lairtng_idx == thing->index) {
-                    creature_remove_lair_from_room(tmptng, room);
+                    creature_remove_lair_totem_from_room(tmptng, room);
                 } else {
                     ERRORLOG("Lair thing thinks it belongs to a creature, but the creature disagrees.");
                 }
