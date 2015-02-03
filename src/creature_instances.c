@@ -628,6 +628,7 @@ long instf_destroy(struct Thing *creatng, long *param)
     decrease_dungeon_area(prev_owner, 1);
     neutralise_enemy_block(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng->owner);
     remove_traps_around_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), NULL);
+    switch_owned_objects_on_destoyed_slab_to_neutral(slb_x, slb_y, prev_owner);
     dungeon->lvstats.territory_destroyed++;
     return 1;
 }
@@ -639,7 +640,7 @@ long instf_attack_room_slab(struct Thing *creatng, long *param)
     room = get_room_thing_is_on(creatng);
     if (room_is_invalid(room))
     {
-        ERRORLOG("The %s is not on room",thing_model_name(creatng));
+        ERRORLOG("The %s index %d is not on room",thing_model_name(creatng),(int)creatng->index);
         return 0;
     }
     SYNCDBG(8,"Executing for %s index %d",thing_model_name(creatng),(int)creatng->index);

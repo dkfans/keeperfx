@@ -261,12 +261,12 @@ void set_power_hand_graphic(long plyr_idx, long a2, long a3)
   struct PlayerInfo *player;
   struct Thing *thing;
   player = get_player(plyr_idx);
-  if (player->field_10 >= game.play_gameturn)
+  if (player->hand_busy_until_turn >= game.play_gameturn)
   {
     if ((a2 == 786) || (a2 == 787))
-      player->field_10 = 0;
+      player->hand_busy_until_turn = 0;
   }
-  if (player->field_10 < game.play_gameturn)
+  if (player->hand_busy_until_turn < game.play_gameturn)
   {
     if (player->field_C != a2)
     {
@@ -426,7 +426,7 @@ void remove_thing_from_limbo(struct Thing *thing)
 
 void draw_power_hand(void)
 {
-    SYNCDBG(7,"Starting");
+    SYNCDBG(17,"Starting");
     struct PlayerInfo *player;
     struct CreaturePickedUpOffset *pickoffs;
     struct Thing *thing;
@@ -459,6 +459,7 @@ void draw_power_hand(void)
         MapSubtlCoord stl_x,stl_y;
         stl_x = game.hand_over_subtile_x;
         stl_y = game.hand_over_subtile_y;
+        SYNCDBG(7,"Drawing over pannel map");
         room = subtile_room_get(stl_x,stl_y);
         if ((!room_is_invalid(room)) && (subtile_revealed(stl_x, stl_y, player->id_number)))
         {
@@ -473,19 +474,22 @@ void draw_power_hand(void)
     }
     if (game_is_busy_doing_gui())
     {
+        SYNCDBG(7,"Drawing while GUI busy");
         draw_mini_things_in_hand(GetMouseX()+10*units_per_pixel/16, GetMouseY()+10*units_per_pixel/16);
         return;
     }
     thing = thing_get(player->hand_thing_idx);
     if (thing_is_invalid(thing))
         return;
-    if (player->field_10 > game.play_gameturn)
+    if (player->hand_busy_until_turn > game.play_gameturn)
     {
+        SYNCDBG(7,"Drawing hand %s index %d, busy state", thing_model_name(thing), (int)thing->index);
         process_keeper_sprite(GetMouseX()+60*units_per_pixel/16, GetMouseY()+40*units_per_pixel/16,
           thing->field_44, 0, thing->field_48, 64*units_per_pixel/16);
         draw_mini_things_in_hand(GetMouseX()+60*units_per_pixel/16, GetMouseY());
         return;
     }
+    SYNCDBG(7,"Drawing hand %s index %d", thing_model_name(thing), (int)thing->index);
     if ((player->field_3 & 0x02) != 0)
     {
         draw_mini_things_in_hand(GetMouseX()+18*units_per_pixel/16, GetMouseY());
@@ -706,7 +710,7 @@ void drop_gold_coins(const struct Coord3d *pos, long value, long plyr_idx)
     player = get_player(plyr_idx);
     if (player_exists(player)) {
         set_power_hand_graphic(plyr_idx, 782, 256);
-        player->field_10 = game.play_gameturn + 16;
+        player->hand_busy_until_turn = game.play_gameturn + 16;
     }
 }
 
@@ -1112,8 +1116,10 @@ struct Thing *create_power_hand(PlayerNumber owner)
     pos.y.val = 0;
     pos.z.val = 0;
     thing = create_object(&pos, 37, owner, -1);
-    if (thing_is_invalid(thing))
-        return NULL;
+    if (thing_is_invalid(thing)) {
+        player->hand_thing_idx = 0;
+        return INVALID_THING;
+    }
     player = get_player(owner);
     player->hand_thing_idx = thing->index;
     player->field_C = 0;

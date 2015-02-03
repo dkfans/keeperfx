@@ -200,7 +200,7 @@ long creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
     {
         struct Room *room;
         room = room_get(cctrl->lair_room_id);
-        creature_remove_lair_from_room(creatng, room);
+        creature_remove_lair_totem_from_room(creatng, room);
     }
     cctrl->lair_room_id = room->index;
     // Create the lair thing

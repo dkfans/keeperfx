@@ -871,7 +871,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
             }
             break;
         default:
-            if (player->field_10 <= game.play_gameturn)
+            if (player->hand_busy_until_turn <= game.play_gameturn)
               set_pointer_graphic(1);
             else
               set_pointer_graphic(0);

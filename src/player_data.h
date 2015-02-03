@@ -131,7 +131,7 @@ struct PlayerInfo {
     unsigned char *field_7;
     unsigned char packet_num; // index of packet slot associated with this player
     long field_C;
-unsigned int field_10;
+unsigned int hand_busy_until_turn;
 unsigned char field_14;
     char field_15[20]; //size may be shorter
     unsigned char victory_state;

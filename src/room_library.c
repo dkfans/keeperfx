@@ -46,7 +46,7 @@ DLLIMPORT void _DK_process_player_research(int plyr_idx);
 }
 #endif
 /******************************************************************************/
-struct Thing *create_spell_in_library(struct Room *room, ThingModel spkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+struct Thing *create_spell_in_library(struct Room *room, ThingModel tngmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct Coord3d pos;
     struct Thing *spelltng;
@@ -57,7 +57,7 @@ struct Thing *create_spell_in_library(struct Room *room, ThingModel spkind, MapS
     pos.x.val = subtile_coord_center(stl_x);
     pos.y.val = subtile_coord_center(stl_y);
     pos.z.val = 0;
-    spelltng = create_object(&pos, spkind, room->owner, -1);
+    spelltng = create_object(&pos, tngmodel, room->owner, -1);
     if (thing_is_invalid(spelltng))
     {
         return INVALID_THING;

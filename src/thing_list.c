@@ -774,6 +774,24 @@ TbBool delete_if_dead_creature(struct Thing *thing)
     return false;
 }
 
+TngUpdateRet switch_object_on_destoyed_slab_to_new_owner(struct Thing *thing, ModTngFilterParam param)
+{
+    SYNCDBG(18,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
+    if (thing_is_picked_up(thing) || thing_is_dragged_or_pulled(thing))
+    {
+        return TUFRet_Unchanged;
+    }
+    if (thing_is_object(thing))
+    {
+        if (object_is_gold_pile(thing) && (thing->owner != param->num1))
+        {
+            change_object_owner(thing, param->num1);
+            return TUFRet_Modified;
+        }
+    }
+    return TUFRet_Unchanged;
+}
+
 /**
  * Makes per game turn update of all things in given StructureList.
  * @param list List of things to process.
@@ -2395,8 +2413,8 @@ long do_to_things_with_param_on_map_block(ThingIndex thing_idx, Thing_Modifier_F
 }
 
 /**
- * Returns filtered creature from slabs around given coordinates.
- * Skips slabs which are not revealed to player provided in MaxFilterParam.
+ * Returns filtered creature from slab around given coordinates.
+ * Skips subtiles which are not revealed to player provided in MaxFilterParam.
  * The thing which will return highest nonnegative value from given filter function
  * will be returned.
  * If the filter function will return LONG_MAX, the current creature will be returned
@@ -2526,6 +2544,10 @@ long count_things_spiral_near_map_block_with_filter(MapCoord x, MapCoord y, long
     return count;
 }
 
+/**
+ * Executes callback for all things on subtiles around given position up to given spiral length.
+ * @return Gives amount of things for which callback returned true.
+ */
 long do_to_things_spiral_near_map_block(MapCoord x, MapCoord y, long spiral_len, Thing_Bool_Modifier do_cb)
 {
     struct MapOffset *sstep;
@@ -2551,12 +2573,39 @@ long do_to_things_spiral_near_map_block(MapCoord x, MapCoord y, long spiral_len,
     return count;
 }
 
+/**
+ * Executes callback for all things on slab around given position.
+ * @return Gives amount of things for which callback returned true.
+ */
+long do_to_things_with_param_around_map_block(const struct Coord3d *center_pos, Thing_Modifier_Func do_cb, ModTngFilterParam param)
+{
+    long count;
+    int around;
+    long i;
+    SYNCDBG(19,"Starting");
+    count = 0;
+    for (around=0; around < sizeof(mid_around)/sizeof(mid_around[0]); around++)
+    {
+        const struct Around *caround;
+        caround = &mid_around[around];
+        MapSubtlCoord sx,sy;
+        sx = coord_subtile(center_pos->x.val) + caround->delta_x;
+        sy = coord_subtile(center_pos->y.val) + caround->delta_y;
+        SYNCDBG(18,"Doing on (%d,%d)",(int)sx,(int)sy);
+        struct Map *mapblk;
+        mapblk = get_map_block_at(sx, sy);
+        if (!map_block_invalid(mapblk))
+        {
+            i = get_mapwho_thing_index(mapblk);
+            count += do_to_things_with_param_on_map_block(i, do_cb, param);
+        }
+    }
+    return count;
+}
+
 long do_to_things_with_param_spiral_near_map_block(const struct Coord3d *center_pos, MapCoordDelta max_dist, Thing_Modifier_Func do_cb, ModTngFilterParam param)
 {
-    struct MapOffset *sstep;
     long count;
-    struct Map *mapblk;
-    MapSubtlCoord sx,sy;
     int around;
     long spiral_range;
     spiral_range = coord_subtile(max_dist + COORD_PER_STL - 1);
@@ -2569,16 +2618,19 @@ long do_to_things_with_param_spiral_near_map_block(const struct Coord3d *center_
     count = 0;
     for (around=0; around < spiral_range*spiral_range; around++)
     {
-      sstep = &spiral_step[around];
-      sx = coord_subtile(center_pos->x.val) + sstep->h;
-      sy = coord_subtile(center_pos->y.val) + sstep->v;
-      SYNCDBG(18,"Doing on (%d,%d)",(int)sx,(int)sy);
-      mapblk = get_map_block_at(sx, sy);
-      if (!map_block_invalid(mapblk))
-      {
-          i = get_mapwho_thing_index(mapblk);
-          count += do_to_things_with_param_on_map_block(i, do_cb, param);
-      }
+        struct MapOffset *sstep;
+        sstep = &spiral_step[around];
+        MapSubtlCoord sx,sy;
+        sx = coord_subtile(center_pos->x.val) + sstep->h;
+        sy = coord_subtile(center_pos->y.val) + sstep->v;
+        SYNCDBG(18,"Doing on (%d,%d)",(int)sx,(int)sy);
+        struct Map *mapblk;
+        mapblk = get_map_block_at(sx, sy);
+        if (!map_block_invalid(mapblk))
+        {
+            i = get_mapwho_thing_index(mapblk);
+            count += do_to_things_with_param_on_map_block(i, do_cb, param);
+        }
     }
     return count;
 }
@@ -3495,6 +3547,24 @@ void remove_dead_creatures_from_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
     stl_x = slab_subtile_center(slb_x);
     stl_y = slab_subtile_center(slb_y);
     do_to_things_spiral_near_map_block(subtile_coord_center(stl_x), subtile_coord_center(stl_y), 9, delete_if_dead_creature);
+}
+
+long switch_owned_objects_on_destoyed_slab_to_neutral(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber prev_owner)
+{
+    Thing_Modifier_Func do_cb;
+    struct Coord3d pos;
+    pos.x.val = subtile_coord_center(slab_subtile_center(slb_x));
+    pos.y.val = subtile_coord_center(slab_subtile_center(slb_y));
+    pos.z.val = 0;
+    struct CompoundTngFilterParam param;
+    param.plyr_idx = prev_owner;
+    param.class_id = 0;
+    param.model_id = 0;
+    param.num1 = game.neutral_player_num;
+    param.num2 = 0;
+    param.ptr3 = 0;
+    do_cb = switch_object_on_destoyed_slab_to_new_owner;
+    return do_to_things_with_param_around_map_block(&pos, do_cb, &param);
 }
 
 TbBool setup_creature_leave_or_die_if_possible(struct Thing *thing)
