@@ -347,6 +347,10 @@ include prebuilds.mk
 .PHONY: tools clean-tools deep-clean-tools
 .PHONY: libexterns clean-libexterns deep-clean-libexterns
 
+# dependencies tracking
+-include $(filter %.d,$(STDOBJS:%.o=%.d))
+-include $(filter %.d,$(HVLOGOBJS:%.o=%.d))
+
 all: standard
 
 standard: CXXFLAGS += $(STLOGFLAGS)
@@ -373,8 +377,8 @@ deep-clean: deep-clean-tools deep-clean-libexterns deep-clean-package
 clean: clean-build clean-tools clean-libexterns clean-package
 
 clean-build:
-	-$(RM) $(STDOBJS) $(STDOBJS:%.o=%.d)
-	-$(RM) $(HVLOGOBJS) $(HVLOGOBJS:%.o=%.d)
+	-$(RM) $(STDOBJS) $(filter %.d,$(STDOBJS:%.o=%.d))
+	-$(RM) $(HVLOGOBJS) $(filter %.d,$(HVLOGOBJS:%.o=%.d))
 	-$(RM) $(BIN) $(BIN:%.exe=%.map)
 	-$(RM) $(HVLOGBIN) $(HVLOGBIN:%.exe=%.map)
 	-$(RM) bin/keeperfx.dll
