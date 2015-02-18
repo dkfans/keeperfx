@@ -3573,7 +3573,7 @@ TbBool setup_creature_leave_or_die_if_possible(struct Thing *thing)
     {
         if (!creature_is_kept_in_custody_by_enemy(thing) && !creature_is_being_unconscious(thing))
         {
-            SYNCDBG(19,"Forcing on %s index %d",thing_model_name(thing),(int)thing->index);
+            SYNCDBG(9,"Forcing on %s index %d",thing_model_name(thing),(int)thing->index);
             // Drop creature if it's being dragged
             force_any_creature_dragging_thing_to_drop_it(thing);
             // Drop creature if it's in hand
