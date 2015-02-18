@@ -936,6 +936,11 @@ void dump_things_lost_in_limbo_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x
                 locpos.y.val = subtile_coord_center(stl_y);
                 locpos.z.val = get_thing_height_at(thing, &locpos);
                 drop_held_thing_on_ground(dungeon, thing, &locpos);
+                dump_thing_held_by_any_player(thing);
+                int n;
+                for (n=0; n<PLAYERS_COUNT; n++) {
+                    remove_thing_from_power_hand_list(thing, n);
+                }
             }
         }
         // Per-thing code ends
@@ -1116,11 +1121,11 @@ struct Thing *create_power_hand(PlayerNumber owner)
     pos.y.val = 0;
     pos.z.val = 0;
     thing = create_object(&pos, 37, owner, -1);
+    player = get_player(owner);
     if (thing_is_invalid(thing)) {
         player->hand_thing_idx = 0;
         return INVALID_THING;
     }
-    player = get_player(owner);
     player->hand_thing_idx = thing->index;
     player->field_C = 0;
     grabtng = get_first_thing_in_power_hand(player);

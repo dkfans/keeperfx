@@ -2232,6 +2232,7 @@ short creature_leaves_or_dies(struct Thing *creatng)
 {
     struct Room *room;
     TRACE_THING(creatng);
+    SYNCDBG(9,"Starting for %s index %d",thing_model_name(creatng),(int)creatng->index);
     // If we're on an entrance, then just leave the dungeon
     room = get_room_thing_is_on(creatng);
     if (!room_is_invalid(room) && (room->kind == RoK_ENTRANCE))
