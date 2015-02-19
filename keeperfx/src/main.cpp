@@ -2100,18 +2100,18 @@ void find_map_location_coords(long location, long *x, long *y, const char *func_
 
 void set_general_information(long msg_id, long target, long x, long y)
 {
-  struct PlayerInfo *player;
-  long pos_x,pos_y;
-  player = get_my_player();
-  find_map_location_coords(target, &x, &y, __func__);
-  pos_x = 0;
-  pos_y = 0;
-  if ((x != 0) || (y != 0))
-  {
-    pos_y = subtile_coord_center(y);
-    pos_x = subtile_coord_center(x);
-  }
-  event_create_event(pos_x, pos_y, EvKind_Information, player->id_number, -msg_id);
+    struct PlayerInfo *player;
+    long pos_x,pos_y;
+    player = get_my_player();
+    find_map_location_coords(target, &x, &y, __func__);
+    pos_x = 0;
+    pos_y = 0;
+    if ((x != 0) || (y != 0))
+    {
+        pos_y = subtile_coord_center(y);
+        pos_x = subtile_coord_center(x);
+    }
+    event_create_event(pos_x, pos_y, EvKind_Information, player->id_number, -msg_id);
 }
 
 void set_quick_information(long msg_id, long target, long x, long y)
@@ -2124,8 +2124,8 @@ void set_quick_information(long msg_id, long target, long x, long y)
     pos_y = 0;
     if ((x != 0) || (y != 0))
     {
-      pos_y = subtile_coord_center(y);
-      pos_x = subtile_coord_center(x);
+        pos_y = subtile_coord_center(y);
+        pos_x = subtile_coord_center(x);
     }
     event_create_event(pos_x, pos_y, EvKind_QuickInformation, player->id_number, -msg_id);
 }

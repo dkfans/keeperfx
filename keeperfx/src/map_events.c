@@ -605,8 +605,8 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
             break;
         case EvKind_Information:
             i = (long)event->target;
-            if (i < 0)
-            {
+            // Negative target means the information was not displayed yet
+            if (i < 0) {
                 i = -i;
                 event->target = i;
             }
@@ -649,8 +649,8 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
             break;
         case EvKind_QuickInformation:
             i = (long)event->target;
-            if (i < 0)
-            {
+            // Negative target means the information was not displayed yet
+            if (i < 0) {
               i = -i;
               event->target = i;
             }
