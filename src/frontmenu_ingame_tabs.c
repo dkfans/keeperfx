@@ -1922,12 +1922,14 @@ void maintain_event_button(struct GuiButton *gbtn)
     if (((event->kind == EvKind_FriendlyFight) || (event->kind == EvKind_EnemyFight))
         && ((event->mappos_x != 0) || (event->mappos_y != 0)) && ((game.play_gameturn & 0x01) != 0))
     {
+        // Fight icon flashes when there are fights to show
         gbtn->sprite_idx += 2;
     } else
-    if ((event->kind == EvKind_Information) && (event->target < 0)
-       && ((game.play_gameturn & 0x01) != 0))
+    if (((event->kind == EvKind_Information) || (event->kind == EvKind_QuickInformation))
+      && (event->target < 0) && ((game.play_gameturn & 0x01) != 0))
     {
-      gbtn->sprite_idx += 2;
+        // Unread information flashes
+        gbtn->sprite_idx += 2;
     }
     gbtn->tooltip_stridx = event_button_info[event->kind].tooltip_stridx;
     gbtn->flags |= LbBtnF_Unknown08;
