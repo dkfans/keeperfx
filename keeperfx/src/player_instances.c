@@ -258,7 +258,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
           slap_creature(player, thing);
           pos.x.val = thing->mappos.x.val;
           pos.y.val = thing->mappos.y.val;
-          pos.z.val = thing->mappos.z.val + (thing->field_58 >> 1);
+          pos.z.val = thing->mappos.z.val + (thing->clipbox_size_yz >> 1);
           if ( creature_model_bleeds(thing->model) )
               create_effect(&pos, TngEff_Unknown06, thing->owner);
           thing_play_sample(thing, 75, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
@@ -659,7 +659,7 @@ long pinstfs_zoom_out_of_heart(struct PlayerInfo *player, long *n)
     cam->zoom = 65536;
   } else
   {
-    cam->mappos.y.val = thing->mappos.y.val - (thing->field_58 >> 1) -  thing->mappos.z.val;
+    cam->mappos.y.val = thing->mappos.y.val - (thing->clipbox_size_yz >> 1) -  thing->mappos.z.val;
     cam->zoom = 24000;
   }
   cam->orient_a = 0;
@@ -681,12 +681,12 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, long *n)
         {
           cam->zoom -= 988;
           cam->orient_a += 16;
-          addval = (thing->field_58 >> 1);
+          addval = (thing->clipbox_size_yz >> 1);
           deltax = distance_with_angle_to_coord_x((long)thing->mappos.z.val+addval, cam->orient_a);
           deltay = distance_with_angle_to_coord_y((long)thing->mappos.z.val+addval, cam->orient_a);
         } else
         {
-          addval = (thing->field_58 >> 1);
+          addval = (thing->clipbox_size_yz >> 1);
           deltax = addval;
           deltay = -addval;
         }

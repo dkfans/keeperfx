@@ -192,7 +192,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
             pos.x.val = thing->mappos.x.val;
             pos.y.val = thing->mappos.y.val;
             pos.z.val = thing->mappos.z.val;
-            pos.z.val += 3 * (int)thing->field_58 / 4;
+            pos.z.val += 3 * (int)thing->clipbox_size_yz / 4;
             if (creature_model_bleeds(thing->model)) {
                 create_effect(&pos, TngEff_Unknown65, thing->owner);
             }
@@ -384,7 +384,7 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
     thing->mappos.z.val = 0;
     thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
     thing->clipbox_size_xy = 0;
-    thing->field_58 = 0;
+    thing->clipbox_size_yz = 0;
     thing->solid_size_xy = 0;
     thing->field_5C = 0;
     thing->field_20 = 16;

@@ -57,7 +57,7 @@ DLLIMPORT long _DK_creature_has_spare_slot_for_combat(struct Thing *fightng, str
 DLLIMPORT long _DK_change_creature_with_existing_attacker(struct Thing *fightng, struct Thing *enmtng, long combat_kind);
 DLLIMPORT long _DK_get_combat_score(const struct Thing *fightng, const struct Thing *outenmtng, long outscore, long move_on_ground);
 DLLIMPORT long _DK_old_combat_move(struct Thing *creatng, struct Thing *enmtng, long enmdist, long move_on_ground);
-DLLIMPORT long _DK_guard_post_combat_move(struct Thing *creatng, long a2);
+DLLIMPORT long _DK_guard_post_combat_move(struct Thing *creatng, long cntn_crstate);
 DLLIMPORT void _DK_combat_object_state_melee_combat(struct Thing *creatng);
 DLLIMPORT void _DK_combat_object_state_ranged_combat(struct Thing *creatng);
 DLLIMPORT void _DK_combat_door_state_melee_combat(struct Thing *creatng);
@@ -1736,7 +1736,7 @@ long combat_type_is_choice_of_creature(struct Thing *thing, long cmbtyp)
     return creature_has_ranged_weapon(thing);
 }
 
-long guard_post_combat_move(struct Thing *thing, long a2)
+long guard_post_combat_move(struct Thing *thing, long cntn_crstate)
 {
     //return _DK_guard_post_combat_move(thing, a2);
     struct CreatureControl *cctrl;
@@ -1767,7 +1767,7 @@ long guard_post_combat_move(struct Thing *thing, long a2)
         cctrl->job_assigned = 0;
         return 0;
     }
-    thing->continue_state = a2;
+    thing->continue_state = cntn_crstate;
     return 1;
 }
 
@@ -2085,10 +2085,10 @@ TbBool creature_fighting_is_occupying_my_position(struct Thing *thing, struct Co
     return thing_is_invalid(coldtng);
 }
 
-long creature_move_to_a_space_around_enemy(struct Thing *thing, struct Thing *enmtng, long a3, long a4)
+long creature_move_to_a_space_around_enemy(struct Thing *thing, struct Thing *enmtng, long enm_distance, CrtrStateId ncrstate)
 {
     long enmradius;
-    enmradius = a3 + (thing->clipbox_size_xy + enmtng->clipbox_size_xy) / 2;
+    enmradius = enm_distance + (thing->clipbox_size_xy + enmtng->clipbox_size_xy) / 2;
     struct Coord3d pos;
     pos.x.val = thing->mappos.x.val;
     pos.y.val = thing->mappos.y.val;
@@ -2131,11 +2131,11 @@ long creature_move_to_a_space_around_enemy(struct Thing *thing, struct Thing *en
     if (!setup_person_move_to_coord(thing, &pos, 0)) {
         return 0;
     }
-    thing->continue_state = a4;
+    thing->continue_state = ncrstate;
     return 1;
 }
 
-long old_combat_move(struct Thing *thing, struct Thing *enmtng, long a3, long a4)
+long old_combat_move(struct Thing *thing, struct Thing *enmtng, long enm_distance, CrtrStateId ncrstate)
 {
     //return _DK_old_combat_move(thing, enmtng, a3, a4);
     struct CreatureControl *cctrl;
@@ -2152,7 +2152,7 @@ long old_combat_move(struct Thing *thing, struct Thing *enmtng, long a3, long a4
         return 0;
     }
     cctrl->field_AA = 0;
-    return creature_move_to_a_space_around_enemy(thing, enmtng, a3, a4);
+    return creature_move_to_a_space_around_enemy(thing, enmtng, enm_distance, ncrstate);
 }
 
 long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, CrtrStateId nstat)

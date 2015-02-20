@@ -199,7 +199,7 @@ unsigned char field_51;
     short field_52;
     short field_54;
     unsigned short clipbox_size_xy;
-unsigned short field_58;
+    unsigned short clipbox_size_yz;
     unsigned short solid_size_xy;
     unsigned short field_5C;
     short health; //signed
