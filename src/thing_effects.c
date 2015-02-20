@@ -524,7 +524,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
     thing->parent_idx = thing->index;
     thing->owner = owner;
     thing->clipbox_size_xy = 1;
-    thing->field_58 = 1;
+    thing->clipbox_size_yz = 1;
     thing->solid_size_xy = 1;
     thing->field_5C = 1;
 
@@ -995,7 +995,7 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
         if (thing_is_invalid(elemtng))
             break;
         elemtng->clipbox_size_xy = 20;
-        elemtng->field_58 = 20;
+        elemtng->clipbox_size_yz = 20;
         if (egenstat->field_10)
         {
             k = egenstat->field_11;

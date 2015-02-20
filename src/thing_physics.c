@@ -414,7 +414,7 @@ TbBool creature_can_pass_throgh_wall_at(const struct Thing *creatng, const struc
         MapSubtlCoord stl_y_beg, stl_y_end;
         MapCoord height_beg, height_end;
         height_beg = pos->z.val;
-        height_end = height_beg + creatng->field_58;
+        height_end = height_beg + creatng->clipbox_size_yz;
         stl_x_beg = coord_subtile(pos->x.val - radius);
         stl_x_end = coord_subtile(pos->x.val + radius);
         stl_y_beg = coord_subtile(pos->y.val - radius);
@@ -454,7 +454,7 @@ long thing_in_wall_at(const struct Thing *thing, const struct Coord3d *pos)
     MapSubtlCoord stl_y_beg, stl_y_end;
     MapCoord height_beg, height_end;
     height_beg = pos->z.val;
-    height_end = height_beg + thing->field_58;
+    height_end = height_beg + thing->clipbox_size_yz;
     stl_x_beg = coord_subtile(pos->x.val - radius);
     stl_x_end = coord_subtile(pos->x.val + radius);
     stl_y_beg = coord_subtile(pos->y.val - radius);
@@ -476,7 +476,7 @@ long thing_in_wall_at_with_radius(const struct Thing *thing, const struct Coord3
 {
     MapCoord z_beg, z_end;
     z_beg = pos->z.val;
-    z_end = z_beg + thing->field_58;
+    z_end = z_beg + thing->clipbox_size_yz;
     MapSubtlCoord stl_x_beg, stl_x_end;
     stl_x_beg = coord_subtile(pos->x.val - radius);
     stl_x_end = coord_subtile(pos->x.val + radius);
@@ -573,8 +573,8 @@ void get_floor_and_ceiling_height_under_thing_at(const struct Thing *thing,
     MapSubtlCoord floor_height, ceiling_height;
     get_min_floor_and_ceiling_heights_for_rect(coord_subtile(pos_x_beg), coord_subtile(pos_y_beg),
         coord_subtile(pos_x_end), coord_subtile(pos_y_end), &floor_height, &ceiling_height);
-    *floor_height_cor = (floor_height << 8);
-    *ceiling_height_cor = (ceiling_height << 8);
+    *floor_height_cor = subtile_coord(floor_height,0);
+    *ceiling_height_cor = subtile_coord(ceiling_height,0);
 }
 
 void apply_transitive_velocity_to_thing(struct Thing *thing, struct ComponentVector *veloc)

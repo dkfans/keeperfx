@@ -4258,7 +4258,7 @@ void create_status_box_element(struct Thing *thing, long a2, long a3, long a4, l
 
 void create_fast_view_status_box(struct Thing *thing, long x, long y)
 {
-    create_status_box_element(thing, x, y - (shield_offset[thing->model]+thing->field_58) / 12, y, 1);
+    create_status_box_element(thing, x, y - (shield_offset[thing->model]+thing->clipbox_size_yz) / 12, y, 1);
 }
 
 void add_textruredquad_to_polypool(long x, long y, long texture_idx, long a7, long a8, long lightness, long a9, long bckt_idx)
@@ -5554,7 +5554,7 @@ void do_map_who_for_thing(struct Thing *thing)
         ecor.z = (map_y_pos - (long)thing->mappos.y.val);
         ecor.field_8 = 0;
         ecor.y = ((long)thing->field_60 - map_z_pos);
-        if (thing_is_creature(thing) && ((thing->movement_flags & 0x04) == 0))
+        if (thing_is_creature(thing) && ((thing->movement_flags & TMvF_Unknown04) == 0))
         {
             int count, i;
             count = find_closest_lights(&thing->mappos, &nearlgt);

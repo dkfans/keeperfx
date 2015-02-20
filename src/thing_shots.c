@@ -1244,7 +1244,7 @@ TngUpdateRet update_shot(struct Thing *thing)
                 pos2.x.val = target->mappos.x.val;
                 pos2.y.val = target->mappos.y.val;
                 pos2.z.val = target->mappos.z.val;
-                pos2.z.val += (target->field_58 >> 1);
+                pos2.z.val += (target->clipbox_size_yz >> 1);
                 thing->field_52 = get_angle_xy_to(&thing->mappos, &pos2);
                 thing->field_54 = get_angle_yz_to(&thing->mappos, &pos2);
                 angles_to_vector(thing->field_52, thing->field_54, shotst->old->speed, &cvect);
@@ -1366,7 +1366,7 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     thing->field_4F ^= thing->field_4F ^ ((thing->field_4F ^ TF4F_Unknown10 * shotst->old->field_8) & 0x30);
     thing->field_4F ^= (thing->field_4F ^ shotst->old->field_7) & TF4F_Unknown01;
     thing->clipbox_size_xy = shotst->old->size_xy;
-    thing->field_58 = shotst->old->field_B;
+    thing->clipbox_size_yz = shotst->old->field_B;
     thing->solid_size_xy = shotst->old->size_xy;
     thing->field_5C = shotst->old->field_B;
     thing->shot.damage = shotst->old->damage;

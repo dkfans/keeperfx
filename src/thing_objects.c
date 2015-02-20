@@ -424,7 +424,7 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     objconf = get_object_model_stats2(model);
     objdat = get_objects_data_for_thing(thing);
     thing->clipbox_size_xy = objdat->size_xy;
-    thing->field_58 = objdat->field_B;
+    thing->clipbox_size_yz = objdat->field_B;
     thing->solid_size_xy = objdat->size_xy;
     thing->field_5C = objdat->field_B;
     thing->health = saturate_set_signed(objconf->health,16);
@@ -1400,7 +1400,7 @@ TngUpdateRet object_update_armour(struct Thing *objtng)
         shspeed = objtng->byte_15;
         pos.x.val += 32 * LbSinL(682 * shspeed) >> 16;
         pos.y.val += -(32 * LbCosL(682 * shspeed) >> 8) >> 8;
-        pos.z.val += shspeed * (thing->field_58 >> 1);
+        pos.z.val += shspeed * (thing->clipbox_size_yz >> 1);
         move_thing_in_map(objtng, &pos);
         objtng->field_52 = thing->field_52;
         objtng->field_54 = thing->field_54;
@@ -1408,7 +1408,7 @@ TngUpdateRet object_update_armour(struct Thing *objtng)
     }
     else
     {
-        pos.z.val += (thing->field_58 >> 1);
+        pos.z.val += (thing->clipbox_size_yz >> 1);
         objtng->field_52 = get_angle_xy_to(&objtng->mappos, &pos);
         objtng->field_54 = get_angle_yz_to(&objtng->mappos, &pos);
         angles_to_vector(objtng->field_52, objtng->field_54, 32, &cvect);

@@ -638,8 +638,8 @@ short creature_being_sacrificed(struct Thing *thing)
 short creature_sacrifice(struct Thing *thing)
 {
     //return _DK_creature_sacrifice(thing);
-    if ((thing->movement_flags & 0x20) != 0) {
-        thing->movement_flags &= ~0x20;
+    if ((thing->movement_flags & TMvF_Flying) != 0) {
+        thing->movement_flags &= ~TMvF_Flying;
     }
     struct Coord3d pos;
     pos.x.val = subtile_coord_center(stl_slab_center_subtile(thing->mappos.x.stl.num));
@@ -661,7 +661,7 @@ short creature_sacrifice(struct Thing *thing)
     {
         cctrl->word_9A = 48;
         cctrl->word_9C = 48;
-        thing->movement_flags |= 0x04;
+        thing->movement_flags |= TMvF_Unknown04;
         internal_set_thing_state(thing, CrSt_CreatureBeingSacrificed);
         thing->long_13 = 0;
         struct SlabMap *slb;

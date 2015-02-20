@@ -2702,13 +2702,18 @@ TbBool update_thing(struct Thing *thing)
         if (thing->mappos.z.val > thing->field_60)
         {
             if (thing->veloc_base.x.val != 0)
-              thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - (int)thing->field_24) / 256;
+                thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - (int)thing->field_24) / 256;
             if (thing->veloc_base.y.val != 0)
-              thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - (int)thing->field_24) / 256;
+                thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - (int)thing->field_24) / 256;
             if ((thing->movement_flags & TMvF_Flying) == 0)
             {
                 thing->veloc_push_add.z.val -= thing->field_20;
                 thing->state_flags |= TF1_PushAdd;
+            } else
+            {
+                // For flying creatures, the Z velocity should also decrease over time
+                if (thing->veloc_base.z.val != 0)
+                    thing->veloc_base.z.val = thing->veloc_base.z.val * (256 - (int)thing->field_24) / 256;
             }
         } else
         {
@@ -2731,7 +2736,7 @@ TbBool update_thing(struct Thing *thing)
         {
             pos.x.val = thing->mappos.x.val;
             pos.y.val = thing->mappos.y.val;
-            pos.z.val = thing->mappos.z.val + thing->field_58;
+            pos.z.val = thing->mappos.z.val + thing->clipbox_size_yz;
             light_set_light_position(thing->light_id, &pos);
         } else
         {
