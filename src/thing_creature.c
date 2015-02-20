@@ -4537,6 +4537,10 @@ TbBool update_flight_altitude_towards_typical(struct Thing *thing)
     get_floor_and_ceiling_height_under_thing_at(thing, &nxpos, &floor_height, &ceiling_height);
     thing_curr_alt = thing->mappos.z.val;
     SYNCDBG(16,"The height for %s index %d owner %d must fit between %d and %d, now is %d",thing_model_name(thing),(int)thing->index,(int)thing->owner,(int)floor_height,(int)ceiling_height,(int)thing_curr_alt);
+    MoveSpeed max_speed;
+    max_speed = cctrl->max_speed / 8;
+    if (max_speed < 1)
+        max_speed = 1;
     i = floor_height + NORMAL_FLYING_ALTITUDE;
     MapCoordDelta max_pos_to_ceiling = ceiling_height - thing->clipbox_size_yz;
     if ((floor_height < max_pos_to_ceiling) && (i > max_pos_to_ceiling))
@@ -4544,16 +4548,16 @@ TbBool update_flight_altitude_towards_typical(struct Thing *thing)
     i -= thing_curr_alt;
     if (i > 0)
     {
-        if (i >= 32)
-            i = 32;
+        if (i >= max_speed)
+            i = max_speed;
         cctrl->moveaccel.z.val += i;
         return true;
     }
     else if (i < 0)
     {
         i = -i;
-        if (i >= 32)
-            i = 32;
+        if (i >= max_speed)
+            i = max_speed;
         cctrl->moveaccel.z.val -= i;
         return true;
     }
