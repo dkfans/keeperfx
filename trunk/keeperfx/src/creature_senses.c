@@ -605,7 +605,7 @@ TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *cre
             if (line_of_sight_3d_ignoring_specific_door(&pos1, &pos2, thing))
                 return true;
             // Check top of the thing
-            pos2.z.val += thing->field_58;
+            pos2.z.val += thing->clipbox_size_yz;
             if (line_of_sight_3d_ignoring_specific_door(&pos1, &pos2, thing))
                 return true;
             return false;
@@ -617,7 +617,7 @@ TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *cre
             if (jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(&pos1, &pos2, thing))
                 return true;
             // Check top of the thing
-            pos2.z.val += thing->field_58;
+            pos2.z.val += thing->clipbox_size_yz;
             if (jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(&pos1, &pos2, thing))
                 return true;
             return false;
@@ -633,7 +633,7 @@ TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *cre
             if (line_of_sight_3d(&pos1, &pos2))
                 return true;
             // Check top of the thing
-            pos2.z.val += thing->field_58;
+            pos2.z.val += thing->clipbox_size_yz;
             if (line_of_sight_3d(&pos1, &pos2))
                 return true;
             return false;
@@ -645,7 +645,7 @@ TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *cre
             if (jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&pos1, &pos2, creatng->owner))
                 return true;
             // Check top of the thing
-            pos2.z.val += thing->field_58;
+            pos2.z.val += thing->clipbox_size_yz;
             if (jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&pos1, &pos2, creatng->owner))
                 return true;
             return false;

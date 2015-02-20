@@ -3705,7 +3705,7 @@ void create_effect_around_thing(struct Thing *thing, long eff_kind)
     coord_z_beg = (MapCoord)thing->mappos.z.val;
     if (coord_z_beg < 0)
         coord_z_beg = 0;
-    coord_z_end = (MapCoord)thing->mappos.z.val + thing->field_58;
+    coord_z_end = (MapCoord)thing->mappos.z.val + thing->clipbox_size_yz;
     if (coord_z_end >= subtile_coord(map_subtiles_z, 0) - 1)
         coord_z_end = subtile_coord(map_subtiles_z, 0) - 1;
     struct Coord3d pos;
