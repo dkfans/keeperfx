@@ -420,9 +420,34 @@ TbBool player_uses_power_call_to_arms(PlayerNumber plyr_idx)
     return (dungeon->cta_start_turn != 0);
 }
 
+void creature_stop_affected_by_call_to_arms(struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->spell_flags &= ~CSAfF_CalledToArms;
+    if (!thing_is_picked_up(thing) && !creature_is_being_unconscious(thing))
+    {
+        if (creature_is_called_to_arms(thing)) {
+            set_start_state(thing);
+        }
+    }
+}
+
 void turn_off_power_call_to_arms(PlayerNumber plyr_idx)
 {
-  _DK_turn_off_call_to_arms(plyr_idx);
+    //_DK_turn_off_call_to_arms(plyr_idx);
+    if (!player_uses_power_call_to_arms(plyr_idx)) {
+        return;
+    }
+    struct PlayerInfo *player;
+    player = get_player(plyr_idx);
+    struct Thing *objtng;
+    objtng = thing_get(player->field_43C);
+    set_call_to_arms_as_dying(objtng);
+    struct Dungeon *dungeon;
+    dungeon = get_players_dungeon(player);
+    dungeon->cta_start_turn = 0;
+    player_list_creatures_stop_cta(dungeon->creatr_list_start);
 }
 
 void store_backup_explored_flags_for_power_sight(struct PlayerInfo *player, struct Coord3d *soe_pos)
