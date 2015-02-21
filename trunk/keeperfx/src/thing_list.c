@@ -3632,6 +3632,25 @@ void setup_all_player_creatures_and_diggers_leave_or_die(PlayerNumber plyr_idx)
     // Kill all special diggers
     do_to_players_all_creatures_of_model(plyr_idx, -3, setup_creature_die_if_not_in_custody);
 }
+
+long count_creatures_in_dungeon_of_model_flags(const struct Dungeon *dungeon, unsigned long need_mdflags, unsigned long excl_mdflags)
+{
+    long count;
+    count = 0;
+    ThingModel crmodel;
+    for (crmodel=1; crmodel < CREATURE_TYPES_COUNT; crmodel++)
+    {
+        struct CreatureModelConfig *crconf;
+        crconf = &crtr_conf.model[crmodel];
+        if (((crconf->model_flags & need_mdflags) == need_mdflags) &&
+           ((crconf->model_flags & excl_mdflags) == 0))
+        {
+            count += dungeon->owned_creatures_of_model[crmodel];
+        }
+    }
+    return count;
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

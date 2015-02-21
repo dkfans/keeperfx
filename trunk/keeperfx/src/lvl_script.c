@@ -231,6 +231,8 @@ const struct NamedCommand variable_desc[] = {
     {"CREATURES_SCAVENGED_GAINED",  SVar_CREATURES_SCAVENGED_GAINED},
     {"ALL_DUNGEONS_DESTROYED",      SVar_ALL_DUNGEONS_DESTROYED},
     //{"DOOR",                      SVar_DOOR_NUM},
+    {"GOOD_CREATURES",              SVar_GOOD_CREATURES},
+    {"EVIL_CREATURES",              SVar_EVIL_CREATURES},
     {NULL,                           0},
 };
 
@@ -3289,6 +3291,12 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
         return all_dungeons_destroyed(player);
     case SVar_DOOR_NUM:
         return find_door_of_type(validx, plyr_idx);
+    case SVar_GOOD_CREATURES:
+        dungeon = get_dungeon(plyr_idx);
+        return count_creatures_in_dungeon_of_model_flags(dungeon, 0, CMF_IsEvil|CMF_IsSpectator);
+    case SVar_EVIL_CREATURES:
+        dungeon = get_dungeon(plyr_idx);
+        return count_creatures_in_dungeon_of_model_flags(dungeon, CMF_IsEvil, CMF_IsSpectator);
     default:
         break;
     };
