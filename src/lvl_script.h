@@ -147,6 +147,8 @@ enum ScriptVatiables {
   SVar_CONTROLS_TOTAL_DIGGERS          = 37,
   SVar_ALL_DUNGEONS_DESTROYED          = 38,
   SVar_DOOR_NUM                        = 39,
+  SVar_GOOD_CREATURES                  = 40,
+  SVar_EVIL_CREATURES                  = 41,
 };
 
 enum MapLocationTypes {

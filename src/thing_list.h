@@ -252,6 +252,9 @@ struct Thing *get_highest_score_enemy_creature_within_distance_possible_to_attac
 struct Thing *get_nth_creature_owned_by_and_matching_bool_filter(PlayerNumber plyr_idx, Thing_Bool_Filter matcher_cb, long n);
 struct Thing *get_nth_creature_owned_by_and_failing_bool_filter(PlayerNumber plyr_idx, Thing_Bool_Filter matcher_cb, long n);
 
+// Routines to select all players creatures of model matching the criteria
+long count_creatures_in_dungeon_of_model_flags(const struct Dungeon *dungeon, unsigned long need_mdflags, unsigned long excl_mdflags);
+
 unsigned long update_things_sounds_in_list(struct StructureList *list);
 void stop_all_things_playing_samples(void);
 unsigned long update_cave_in_things(void);
