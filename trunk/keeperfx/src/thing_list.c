@@ -1917,8 +1917,6 @@ long count_player_creatures_of_model(PlayerNumber plyr_idx, ThingModel crmodel)
 
 long count_player_list_creatures_of_model(long thing_idx, ThingModel crmodel)
 {
-    struct CreatureControl *cctrl;
-    struct Thing *thing;
     unsigned long k;
     long i;
     int count;
@@ -1927,26 +1925,61 @@ long count_player_list_creatures_of_model(long thing_idx, ThingModel crmodel)
     k = 0;
     while (i != 0)
     {
-      thing = thing_get(i);
-      if (thing_is_invalid(thing))
-      {
-        ERRORLOG("Jump to invalid thing detected");
-        break;
-      }
-      cctrl = creature_control_get_from_thing(thing);
-      i = cctrl->players_next_creature_idx;
-      // Per creature code
-      if ((crmodel <= 0) || (thing->model == crmodel))
-        count++;
-      // Per creature code ends
-      k++;
-      if (k > THINGS_COUNT)
-      {
-        ERRORLOG("Infinite loop detected when sweeping things list");
-        break;
-      }
+        struct CreatureControl *cctrl;
+        struct Thing *thing;
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+          ERRORLOG("Jump to invalid thing detected");
+          break;
+        }
+        cctrl = creature_control_get_from_thing(thing);
+        i = cctrl->players_next_creature_idx;
+        // Per creature code
+        if ((crmodel <= 0) || (thing->model == crmodel))
+            count++;
+        // Per creature code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
     }
     return count;
+}
+
+void player_list_creatures_stop_cta(long thing_idx)
+{
+    unsigned long k;
+    long i;
+    i = thing_idx;
+    k = 0;
+    while (i != 0)
+    {
+        struct CreatureControl *cctrl;
+        struct Thing *thing;
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+          ERRORLOG("Jump to invalid thing detected");
+          break;
+        }
+        cctrl = creature_control_get_from_thing(thing);
+        i = cctrl->players_next_creature_idx;
+        // Per creature code
+        if (creature_affected_by_call_to_arms(thing))
+        {
+            creature_stop_affected_by_call_to_arms(thing);
+        }
+        // Per creature code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
 }
 
 struct Thing *get_player_list_nth_creature_of_model(long thing_idx, ThingModel crmodel, long crtr_idx)

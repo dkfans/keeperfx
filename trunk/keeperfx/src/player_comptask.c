@@ -610,6 +610,9 @@ long get_ceiling_height_above_thing_at(struct Thing *thing, struct Coord3d *pos)
 void computer_pick_thing_by_hand(struct Computer2 *comp, struct Thing *thing)
 {
     if (thing_is_creature(thing)) {
+        if (creature_affected_by_call_to_arms(thing)) {
+            creature_stop_affected_by_call_to_arms(thing);
+        }
         clear_creature_instance(thing);
         external_set_thing_state(thing, CrSt_InPowerHand);
         remove_all_traces_of_combat(thing);
