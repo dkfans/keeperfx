@@ -203,6 +203,7 @@ struct Thing *find_players_lowest_level_creature_of_breed_and_gui_job(long crmod
 long do_to_players_all_creatures_of_model(PlayerNumber plyr_idx, int crmodel, Thing_Bool_Modifier do_cb);
 TbBool heal_completely_all_players_creatures(PlayerNumber plyr_idx, ThingModel crmodel);
 void setup_all_player_creatures_and_diggers_leave_or_die(PlayerNumber plyr_idx);
+void player_list_creatures_stop_cta(long thing_idx);
 
 // Filters to select thing on/near given map position
 struct Thing *get_thing_on_map_block_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxTngFilterParam param, long *maximizer);

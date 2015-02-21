@@ -59,6 +59,7 @@ void remove_explored_flags_for_power_sight(struct PlayerInfo *player);
 
 TbBool player_uses_power_call_to_arms(PlayerNumber plyr_idx);
 void turn_off_power_call_to_arms(PlayerNumber plyr_idx);
+void creature_stop_affected_by_call_to_arms(struct Thing *thing);
 
 TbBool player_uses_power_obey(PlayerNumber plyr_idx);
 
