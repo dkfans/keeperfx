@@ -105,6 +105,8 @@ Displays one of the text messages from language-specific strings banks in an Obj
 || GAME_TURN || The current game turn (player independent) ||
 || TOTAL_DIGGERS || The number of special diggers (Imps) that player has got ||
 || TOTAL_CREATURES || The number of creatures that player has got ||
+|| EVIL_CREATURES || The number of evil creatures that player has got ||
+|| GOOD_CREATURES || The number of heroes that player has got ||
 || TOTAL_RESEARCH || The amount of research points that player has got (see manipulating research section for more information) ||
 || TOTAL_DOORS || The amount of doors that player has got ||
 || TOTAL_AREA || The amount of tiles that player owns ||
