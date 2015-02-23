@@ -317,7 +317,7 @@ struct ComputerDig { // sizeof = 78
 
 struct ComputerTask { // sizeof = 148
     unsigned char flags;
-    unsigned char field_1;
+    unsigned char task_state;
     unsigned char ttype;
     unsigned char ottype;
     unsigned char rkind;
