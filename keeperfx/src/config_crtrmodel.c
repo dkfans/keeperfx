@@ -2214,7 +2214,7 @@ TbBool change_max_health_of_creature_kind(ThingModel crmodel, long new_max)
 
 TbBool heal_completely_all_players_creatures(PlayerNumber plyr_idx, ThingModel crmodel)
 {
-    SYNCDBG(3,"Healing all player %d creatures of model %s.",creature_code_name(crmodel));
+    SYNCDBG(3,"Healing all player %d creatures of model %s",(int)plyr_idx,creature_code_name(crmodel));
     int n;
     n = do_to_players_all_creatures_of_model(plyr_idx,crmodel,update_creature_health_to_max);
     return (n > 0);

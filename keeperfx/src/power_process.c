@@ -441,13 +441,15 @@ void turn_off_power_call_to_arms(PlayerNumber plyr_idx)
     }
     struct PlayerInfo *player;
     player = get_player(plyr_idx);
-    struct Thing *objtng;
-    objtng = thing_get(player->field_43C);
-    set_call_to_arms_as_dying(objtng);
-    struct Dungeon *dungeon;
-    dungeon = get_players_dungeon(player);
-    dungeon->cta_start_turn = 0;
-    player_list_creatures_stop_cta(dungeon->creatr_list_start);
+    {
+        struct Thing *objtng;
+        objtng = thing_get(player->field_43C);
+        set_call_to_arms_as_dying(objtng);
+        struct Dungeon *dungeon;
+        dungeon = get_players_dungeon(player);
+        dungeon->cta_start_turn = 0;
+    }
+    reset_all_players_creatures_affected_by_cta(plyr_idx);
 }
 
 void store_backup_explored_flags_for_power_sight(struct PlayerInfo *player, struct Coord3d *soe_pos)
