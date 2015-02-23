@@ -1949,37 +1949,22 @@ long count_player_list_creatures_of_model(long thing_idx, ThingModel crmodel)
     return count;
 }
 
-void player_list_creatures_stop_cta(long thing_idx)
+TbBool reset_creature_if_affected_by_cta(struct Thing *thing)
 {
-    unsigned long k;
-    long i;
-    i = thing_idx;
-    k = 0;
-    while (i != 0)
+    if (creature_affected_by_call_to_arms(thing))
     {
-        struct CreatureControl *cctrl;
-        struct Thing *thing;
-        thing = thing_get(i);
-        if (thing_is_invalid(thing))
-        {
-          ERRORLOG("Jump to invalid thing detected");
-          break;
-        }
-        cctrl = creature_control_get_from_thing(thing);
-        i = cctrl->players_next_creature_idx;
-        // Per creature code
-        if (creature_affected_by_call_to_arms(thing))
-        {
-            creature_stop_affected_by_call_to_arms(thing);
-        }
-        // Per creature code ends
-        k++;
-        if (k > THINGS_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping things list");
-            break;
-        }
+        creature_stop_affected_by_call_to_arms(thing);
+        return true;
     }
+    return false;
+}
+
+TbBool reset_all_players_creatures_affected_by_cta(PlayerNumber plyr_idx)
+{
+    SYNCDBG(3,"Processing all player %d creatures",plyr_idx);
+    int n;
+    n = do_to_players_all_creatures_of_model(plyr_idx,-1,reset_creature_if_affected_by_cta);
+    return (n > 0);
 }
 
 struct Thing *get_player_list_nth_creature_of_model(long thing_idx, ThingModel crmodel, long crtr_idx)
@@ -2195,9 +2180,11 @@ long count_player_list_creatures_with_filter(long thing_idx, Thing_Maximizer_Fil
 /** Counts on whole map creatures owned by given player, which match given bool filter.
  *
  * @param plyr_idx Player whose things will be searched. Allies are not included, use -1 to select all.
+ * @param crmodel Creature model, or -1 for all, or -2 for all except special diggers, -3 for special diggers only.
+ * @param matcher_cb The test callback function to be executed.
  * @return Amount of matching things.
  */
-long count_player_list_creatures_of_model_matching_bool_filter(PlayerNumber plyr_idx, ThingModel tngmodel, Thing_Bool_Filter matcher_cb)
+long count_player_list_creatures_of_model_matching_bool_filter(PlayerNumber plyr_idx, int crmodel, Thing_Bool_Filter matcher_cb)
 {
     struct Dungeon *dungeon;
     Thing_Maximizer_Filter filter;
@@ -2206,16 +2193,22 @@ long count_player_list_creatures_of_model_matching_bool_filter(PlayerNumber plyr
     dungeon = get_players_num_dungeon(plyr_idx);
     filter = anywhere_thing_filter_call_bool_filter;
     param.class_id = TCls_Creature;
-    param.model_id = tngmodel;
+    param.model_id = (crmodel<0) ? -1 : crmodel;
     param.plyr_idx = plyr_idx;
     param.num1 = -1;
     param.num2 = -1;
     param.ptr3 = (void *)matcher_cb;
-    if (tngmodel == get_players_special_digger_model(plyr_idx)) {
-        return count_player_list_creatures_with_filter(dungeon->digger_list_start, filter, &param);
-    } else {
-        return count_player_list_creatures_with_filter(dungeon->creatr_list_start, filter, &param);
+    ThingModel spdig_model;
+    spdig_model = get_players_special_digger_model(plyr_idx);
+    long count;
+    count = 0;
+    if (((crmodel > 0) && (crmodel != spdig_model)) || (crmodel == -1) || (crmodel == -2)) {
+        count += count_player_list_creatures_with_filter(dungeon->creatr_list_start, filter, &param);
     }
+    if (((crmodel > 0) && (crmodel == spdig_model)) || (crmodel == -1) || (crmodel == -3)) {
+        count += count_player_list_creatures_with_filter(dungeon->digger_list_start, filter, &param);
+    }
+    return count;
 }
 
 /**
@@ -3087,67 +3080,21 @@ struct Thing *smallest_gold_pile_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
   return chosen_thing;
 }
 
-TbBool update_speed_of_player_creatures_of_model(PlayerNumber plyr_idx, ThingModel crmodel)
+TbBool update_creature_speed(struct Thing *thing)
 {
-  struct Dungeon *dungeon;
-  struct CreatureControl *cctrl;
-  struct Thing *thing;
-  unsigned long k;
-  int i;
-  SYNCDBG(8,"Starting");
-  dungeon = get_players_num_dungeon(plyr_idx);
-  k = 0;
-  i = dungeon->creatr_list_start;
-  while (i != 0)
-  {
-      thing = thing_get(i);
-      cctrl = creature_control_get_from_thing(thing);
-      if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
-      {
-        ERRORLOG("Jump to invalid creature detected");
-        break;
-      }
-      i = cctrl->players_next_creature_idx;
-      // Thing list loop body
-      if ((crmodel <= 0) || (thing->model == crmodel))
-      {
-          cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
-      }
-      // Thing list loop body ends
-      k++;
-      if (k > CREATURES_COUNT)
-      {
-        ERRORLOG("Infinite loop detected when sweeping creatures list");
-        break;
-      }
-  }
-  k = 0;
-  i = dungeon->digger_list_start;
-  while (i != 0)
-  {
-      thing = thing_get(i);
-      cctrl = creature_control_get_from_thing(thing);
-      if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
-      {
-        ERRORLOG("Jump to invalid creature detected");
-        break;
-      }
-      i = cctrl->players_next_creature_idx;
-      // Thing list loop body
-      if ((crmodel <= 0) || (thing->model == crmodel))
-      {
-          cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
-      }
-      // Thing list loop body ends
-      k++;
-      if (k > CREATURES_COUNT)
-      {
-        ERRORLOG("Infinite loop detected when sweeping creatures list");
-        break;
-      }
-  }
-  SYNCDBG(19,"Finished");
-  return true;
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+    return true;
+}
+
+
+TbBool update_speed_of_player_creatures_of_model(PlayerNumber plyr_idx, int crmodel)
+{
+    SYNCDBG(3,"Processing player %d creatures of model %d",plyr_idx,(int)crmodel);
+    int n;
+    n = do_to_players_all_creatures_of_model(plyr_idx,-1,update_creature_speed);
+    return (n > 0);
 }
 
 TbBool apply_anger_to_all_players_creatures_excluding(PlayerNumber plyr_idx, long anger, long reason, const struct Thing *excltng)

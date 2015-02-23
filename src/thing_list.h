@@ -194,7 +194,7 @@ long creature_near_filter_is_owned_by(const struct Thing *thing, FilterParam val
 struct Thing *get_player_list_creature_with_filter(ThingIndex thing_idx, Thing_Maximizer_Filter filter, MaxTngFilterParam param);
 struct Thing *get_player_list_random_creature_with_filter(ThingIndex thing_idx, Thing_Maximizer_Filter filter, MaxTngFilterParam param);
 long count_player_list_creatures_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxTngFilterParam param);
-long count_player_list_creatures_of_model_matching_bool_filter(PlayerNumber plyr_idx, ThingModel tngmodel, Thing_Bool_Filter matcher_cb);
+long count_player_list_creatures_of_model_matching_bool_filter(PlayerNumber plyr_idx, int tngmodel, Thing_Bool_Filter matcher_cb);
 // Final routines to select creature anywhere on map but belonging to given player
 struct Thing *get_player_list_nth_creature_of_model(long thing_idx, ThingModel crmodel, long crtr_idx);
 struct Thing *get_random_players_creature_of_model(PlayerNumber plyr_idx, ThingModel crmodel);
@@ -203,7 +203,7 @@ struct Thing *find_players_lowest_level_creature_of_breed_and_gui_job(long crmod
 long do_to_players_all_creatures_of_model(PlayerNumber plyr_idx, int crmodel, Thing_Bool_Modifier do_cb);
 TbBool heal_completely_all_players_creatures(PlayerNumber plyr_idx, ThingModel crmodel);
 void setup_all_player_creatures_and_diggers_leave_or_die(PlayerNumber plyr_idx);
-void player_list_creatures_stop_cta(long thing_idx);
+TbBool reset_all_players_creatures_affected_by_cta(PlayerNumber plyr_idx);
 
 // Filters to select thing on/near given map position
 struct Thing *get_thing_on_map_block_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxTngFilterParam param, long *maximizer);
@@ -296,7 +296,7 @@ long collide_filter_thing_is_of_type(const struct Thing *thing, const struct Thi
 TbBool imp_already_digging_at_excluding(struct Thing *excltng, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool gold_pile_with_maximum_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Thing *smallest_gold_pile_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
-TbBool update_speed_of_player_creatures_of_model(PlayerNumber plyr_idx, ThingModel crmodel);
+TbBool update_speed_of_player_creatures_of_model(PlayerNumber plyr_idx, int crmodel);
 TbBool apply_anger_to_all_players_creatures_excluding(PlayerNumber plyr_idx, long anger,
     long reason, const struct Thing *excltng);
 

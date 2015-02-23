@@ -1006,17 +1006,17 @@ short arrive_at_call_to_arms(struct Thing *creatng)
         set_creature_door_combat(creatng, doortng);
         return 2;
     }
-    if ( !attempt_to_destroy_enemy_room(creatng, dungeon->cta_stl_x, dungeon->cta_stl_y) )
+    if (!attempt_to_destroy_enemy_room(creatng, dungeon->cta_stl_x, dungeon->cta_stl_y))
     {
       if (ACTION_RANDOM(7) == 0)
       {
-          if ( setup_person_move_close_to_position(creatng, dungeon->cta_stl_x, dungeon->cta_stl_y, NavRtF_Default) )
+          if (setup_person_move_close_to_position(creatng, dungeon->cta_stl_x, dungeon->cta_stl_y, NavRtF_Default))
           {
               creatng->continue_state = CrSt_AlreadyAtCallToArms;
               return 1;
           }
       }
-      if ( creature_choose_random_destination_on_valid_adjacent_slab(creatng) )
+      if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
       {
           creatng->continue_state = CrSt_AlreadyAtCallToArms;
           return 1;
