@@ -2116,7 +2116,7 @@ long task_magic_call_to_arms(struct Computer2 *comp, struct ComputerTask *ctask)
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
     //return _DK_task_magic_call_to_arms(comp,ctask);
-    switch (ctask->field_1)
+    switch (ctask->task_state)
     {
     case 0:
         if ((game.play_gameturn - ctask->lastrun_turn) < ctask->field_60) {
@@ -2124,10 +2124,12 @@ long task_magic_call_to_arms(struct Computer2 *comp, struct ComputerTask *ctask)
         }
         ctask->field_60 = 18;
         ctask->lastrun_turn = game.play_gameturn;
+        // If gathered enough creatures, go to next task state
         if (count_creatures_in_call_to_arms(comp) >= ctask->magic_cta.repeat_num) {
-            ctask->field_1 = 1;
+            ctask->task_state = 1;
             return CTaskRet_Unk2;
         }
+        // If not, cast CTA on position of next creature
         struct Thing *creatng;
         creatng = find_creature_for_call_to_arms(comp, 1);
         if (!thing_is_invalid(creatng))
@@ -2135,13 +2137,16 @@ long task_magic_call_to_arms(struct Computer2 *comp, struct ComputerTask *ctask)
           if (try_game_action(comp, dungeon->owner, GA_UsePwrCall2Arms, 8, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, 1, 1) > Lb_OK) {
               return CTaskRet_Unk2;
           }
-          ctask->field_1 = 2;
+          // If cannot cast CTA on next creature, skip to state 2
+          ctask->task_state = 2;
           return CTaskRet_Unk4;
         }
+        // If there is no next creature, but we've gathered at least half of the amount, go to next state with what we have
         if (count_creatures_in_call_to_arms(comp) > ctask->magic_cta.repeat_num - ctask->magic_cta.repeat_num / 2) {
-            ctask->field_1 = 1;
+            ctask->task_state = 1;
             return CTaskRet_Unk4;
         }
+        // We haven't gathered enough creatures - cancel the task
         if (dungeon->cta_start_turn > 0) {
             try_game_action(comp, dungeon->owner, GA_StopPwrCall2Arms, 5, 0, 0, 0, 0);
         }
@@ -2152,7 +2157,7 @@ long task_magic_call_to_arms(struct Computer2 *comp, struct ComputerTask *ctask)
             return CTaskRet_Unk2;
         }
         if (try_game_action(comp, dungeon->owner, GA_UsePwrCall2Arms, 5, ctask->magic_cta.target_pos.x.stl.num, ctask->magic_cta.target_pos.y.stl.num, 1, 1) >= Lb_OK) {
-            ctask->field_1 = 2;
+            ctask->task_state = 2;
             ctask->field_60 = ctask->field_8E;
             return CTaskRet_Unk2;
         }
@@ -2165,6 +2170,7 @@ long task_magic_call_to_arms(struct Computer2 *comp, struct ComputerTask *ctask)
         if (count_creatures_at_call_to_arms(comp) < ctask->magic_cta.repeat_num - ctask->magic_cta.repeat_num / 4) {
             return CTaskRet_Unk1;
         }
+        // Finish the CTA casting task
         if (dungeon->cta_start_turn > 0) {
             try_game_action(comp, dungeon->owner, GA_StopPwrCall2Arms, 5, 0, 0, 0, 0);
         }
@@ -3232,7 +3238,7 @@ TbBool create_task_magic_battle_call_to_arms(struct Computer2 *comp, struct Coor
         return false;
     }
     ctask->ttype = CTT_MagicCallToArms;
-    ctask->field_1 = 0;
+    ctask->task_state = 0;
     ctask->created_turn = game.play_gameturn;
     ctask->field_60 = 25;
     ctask->lastrun_turn = game.play_gameturn - 25;
@@ -3253,7 +3259,7 @@ TbBool create_task_magic_support_call_to_arms(struct Computer2 *comp, struct Coo
         return false;
     }
     ctask->ttype = CTT_MagicCallToArms;
-    ctask->field_1 = 0;
+    ctask->task_state = 0;
     ctask->created_turn = game.play_gameturn;
     ctask->field_60 = 25;
     ctask->lastrun_turn = game.play_gameturn - 25;
