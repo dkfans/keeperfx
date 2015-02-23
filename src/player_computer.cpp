@@ -1171,7 +1171,7 @@ long check_call_to_arms(struct Computer2 *comp)
             // Per-task code
             if ((ctask->flags & ComTsk_Unkn0001) != 0)
             {
-                if ((ctask->ttype == CTT_MagicCallToArms) && (ctask->field_1 == 2))
+                if ((ctask->ttype == CTT_MagicCallToArms) && (ctask->task_state == 2))
                 {
                     if (ret == 1) {
                         SYNCDBG(8,"Found existing CTA task");
