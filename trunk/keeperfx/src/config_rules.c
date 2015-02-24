@@ -40,32 +40,33 @@ extern "C" {
 const char keeper_rules_file[]="rules.cfg";
 
 const struct NamedCommand rules_game_commands[] = {
-  {"GOLDPERGOLDBLOCK",           1},
-  {"POTOFGOLDHOLDS",             2},
-  {"GOLDPILEVALUE",              3},
-  {"GOLDPILEMAXIMUM",            4},
-  {"FOODLIFEOUTOFHATCHERY",      5},
-  {"DEATHMATCHSTATUEREAPPERTIME",6},
-  {"DEATHMATCHOBJECTREAPPERTIME",7},
-  {"DOUBLECLICKSPEED",           8},
-  {"DOOROPENFOR",                9},
-  {"BOULDERREDUCEHEALTHSLAP",   10},
-  {"BOULDERREDUCEHEALTHWALL",   11},
-  {"BOULDERREDUCEHEALTHROOM",   12},
-  {"TILESTRENGTH",              13},
-  {"GOLDTILESTRENGTH",          14},
-  {"MINIMUMGOLD",               15},
-  {"MAXGOLDLOOKUP",             16},
-  {"MINGOLDTORECORD",           17},
-  {"PAYDAYGAP",                 18},
-  {"CHESTGOLDHOLD",             19},
-  {"SLABCOLLAPSETIME",          20},
-  {"DUNGEONHEARTHEALTH",        21},
-  {"DUNGEONHEARTHEALTIME",      22},
-  {"DUNGEONHEARTHEALHEALTH",    23},
-  {"HERODOORWAITTIME",          24},
-  {"PRESERVECLASSICBUGS",       25},
-  {NULL,                         0},
+  {"GOLDPERGOLDBLOCK",            1},
+  {"POTOFGOLDHOLDS",              2},
+  {"CHESTGOLDHOLD",               3},
+  {"GOLDPILEVALUE",               4},
+  {"GOLDPILEMAXIMUM",             5},
+  {"GOLDPERHOARD",                6},
+  {"FOODLIFEOUTOFHATCHERY",       7},
+  {"DOUBLECLICKSPEED",            8},
+  {"DOOROPENFOR",                 9},
+  {"BOULDERREDUCEHEALTHSLAP",    10},
+  {"BOULDERREDUCEHEALTHWALL",    11},
+  {"BOULDERREDUCEHEALTHROOM",    12},
+  {"TILESTRENGTH",               13},
+  {"GOLDTILESTRENGTH",           14},
+  {"MINIMUMGOLD",                15},
+  {"MAXGOLDLOOKUP",              16},
+  {"MINGOLDTORECORD",            17},
+  {"PAYDAYGAP",                  18},
+  {"SLABCOLLAPSETIME",           20},
+  {"DUNGEONHEARTHEALTH",         21},
+  {"DUNGEONHEARTHEALTIME",       22},
+  {"DUNGEONHEARTHEALHEALTH",     23},
+  {"HERODOORWAITTIME",           24},
+  {"PRESERVECLASSICBUGS",        25},
+  {"DEATHMATCHSTATUEREAPPERTIME",26},
+  {"DEATHMATCHOBJECTREAPPERTIME",27},
+  {NULL,                          0},
   };
 
 const struct NamedCommand rules_game_classicbugs_commands[] = {
@@ -336,7 +337,20 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 3: // GOLDPILEVALUE
+        case 3: // CHESTGOLDHOLD
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              k = atoi(word_buf);
+              game.chest_gold_hold = k;
+              n++;
+            }
+            if (n < 1)
+            {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 4: // GOLDPILEVALUE
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
@@ -349,7 +363,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 4: // GOLDPILEMAXIMUM
+        case 5: // GOLDPILEMAXIMUM
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
@@ -362,7 +376,20 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 5: // FOODLIFEOUTOFHATCHERY
+        case 6: // GOLDPERHOARD
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              k = atoi(word_buf);
+              gold_per_hoard = k;
+              n++;
+            }
+            if (n < 1)
+            {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 7: // FOODLIFEOUTOFHATCHERY
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
@@ -374,12 +401,6 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
-            break;
-        case 6: // DEATHMATCHSTATUEREAPPERTIME
-            //Unused
-            break;
-        case 7: // DEATHMATCHOBJECTREAPPERTIME
-            //Unused
             break;
         case 8: // DOUBLECLICKSPEED
             //Unused
@@ -504,19 +525,6 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 19: // CHESTGOLDHOLD
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              game.chest_gold_hold = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
         case 20: // SLABCOLLAPSETIME
             //Unused
             break;
@@ -610,6 +618,12 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
                 break;
               }
             }
+            break;
+        case 26: // DEATHMATCHSTATUEREAPPERTIME
+            //Unused
+            break;
+        case 27: // DEATHMATCHOBJECTREAPPERTIME
+            //Unused
             break;
         case 0: // comment
             break;
