@@ -470,22 +470,18 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     }
     switch (thing->model)
     {
-      case 3:
-        thing->creature.gold_carried = game.chest_gold_hold;
-        break;
       case 5:
         thing->byte_14 = 1;
         light_set_light_minimum_size_to_cache(thing->light_id, 0, 56);
-        break;
-      case 6:
-        thing->creature.gold_carried = game.pot_of_gold_holds;
         break;
       case 33:
         set_flag_byte(&thing->field_4F, 0x10, false);
         set_flag_byte(&thing->field_4F, 0x20, true);
         break;
+      case 3:
+      case 6:
       case 43:
-        thing->creature.gold_carried = game.gold_pile_value;
+        thing->valuable.gold_stored = gold_object_typical_value(thing->model);
         break;
       case 49:
         i = get_free_hero_gate_number();
@@ -1599,7 +1595,7 @@ struct Thing *create_gold_pot_at(long pos_x, long pos_y, PlayerNumber plyr_idx)
     thing = create_object(&pos, 6, plyr_idx, -1);
     if (thing_is_invalid(thing))
         return INVALID_THING;
-    thing->valuable.gold_stored = game.pot_of_gold_holds;
+    thing->valuable.gold_stored = gold_object_typical_value(6);
     // Update size of the gold object
     add_gold_to_pile(thing, 0);
     return thing;
@@ -1893,13 +1889,13 @@ TbBool add_gold_to_pile(struct Thing *thing, long value)
     if (typical_value <= 0) {
         return false;
     }
-    thing->creature.gold_carried += value;
-    if (thing->creature.gold_carried < 0)
-        thing->creature.gold_carried = LONG_MAX;
-    if (thing->creature.gold_carried < typical_value)
-        scaled_val = 196 * thing->creature.gold_carried / typical_value + 128;
+    thing->valuable.gold_stored += value;
+    if (thing->valuable.gold_stored < 0)
+        thing->valuable.gold_stored = LONG_MAX;
+    if (thing->valuable.gold_stored < typical_value)
+        scaled_val = 196 * thing->valuable.gold_stored / typical_value + 128;
     else
-        scaled_val = 196 + (24 * (thing->creature.gold_carried-typical_value) / typical_value) + 128;
+        scaled_val = 196 + (24 * (thing->valuable.gold_stored-typical_value) / typical_value) + 128;
     if (scaled_val > 640)
       scaled_val = 640;
     thing->sprite_size = scaled_val;
@@ -1913,7 +1909,7 @@ struct Thing *create_gold_pile(struct Coord3d *pos, PlayerNumber plyr_idx, long 
     if (thing_is_invalid(gldtng)) {
         return INVALID_THING;
     }
-    gldtng->creature.gold_carried = 0;
+    gldtng->valuable.gold_stored = 0;
     add_gold_to_pile(gldtng, value);
     return gldtng;
 }

@@ -3158,7 +3158,7 @@ TbBool gold_pile_with_maximum_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     // Per thing processing block
     if ((thing->class_id == TCls_Object) && (thing->model == 43))
     {
-        if (thing->creature.gold_carried >= game.gold_pile_maximum)
+        if (thing->valuable.gold_stored >= game.gold_pile_maximum)
         {
             return true;
         }
