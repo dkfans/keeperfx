@@ -143,6 +143,7 @@ long remove_gold_from_hoarde(struct Thing *thing, struct Room *room, GoldAmount 
 struct Thing *drop_gold_pile(long value, struct Coord3d *pos);
 struct Thing *create_gold_pot_at(long pos_x, long pos_y, PlayerNumber plyr_idx);
 TbBool add_gold_to_pile(struct Thing *thing, long value);
+GoldAmount gold_object_typical_value(ThingModel tngmodel);
 
 void set_call_to_arms_as_birthing(struct Thing *objtng);
 void set_call_to_arms_as_dying(struct Thing *objtng);
