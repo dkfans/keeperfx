@@ -174,7 +174,7 @@ void delete_all_control_structures(void)
     }
 }
 
-struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *player, long breed, struct Coord3d *pos)
+struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *player, long crmodel, struct Coord3d *pos)
 {
     struct CreatureStats *crstat;
     struct CreatureControl *cctrl;
@@ -182,10 +182,11 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
     struct Thing *thing;
     const struct Camera *cam;
     struct InitLight ilght;
-    SYNCDBG(6,"Request for model %ld at (%d,%d,%d)",breed,(int)pos->x.val,(int)pos->y.val,(int)pos->z.val);
-    thing = create_creature(pos, breed, player->id_number);
+    SYNCDBG(6,"Request for model %ld at (%d,%d,%d)",crmodel,(int)pos->x.val,(int)pos->y.val,(int)pos->z.val);
+    thing = create_creature(pos, crmodel, player->id_number);
     if (thing_is_invalid(thing))
       return INVALID_THING;
+    // Do not count the spectator creature as real creature
     dungeon = get_dungeon(thing->owner);
     dungeon->num_active_creatrs--;
     dungeon->owned_creatures_of_model[thing->model]--;
@@ -200,7 +201,7 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
     thing->alloc_flags |= TAlF_IsControlled;
     thing->field_4F |= TF4F_Unknown01;
     cctrl = creature_control_get_from_thing(thing);
-    cctrl->flgfield_2 |= 0x02;
+    cctrl->flgfield_2 |= TF2_Spectator;
     cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
     set_player_mode(player, PVT_CreatureContrl);
     set_start_state(thing);

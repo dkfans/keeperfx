@@ -215,6 +215,13 @@ TbBool thing_can_be_controlled_as_passenger(struct Thing *thing)
   return false;
 }
 
+TbBool creatre_is_for_dungeon_diggers_list(const struct Thing *creatng)
+{
+    if (is_hero_thing(creatng))
+        return false;
+    return  (creatng->model == get_players_special_digger_model(creatng->owner));
+}
+
 /**
  * Creates a barracks party, when creature being possessed is barracking.
  * @param grthing
@@ -3094,20 +3101,20 @@ void set_first_creature(struct Thing *thing)
     _DK_set_first_creature(thing);
 }
 
-void remove_first_creature(struct Thing *thing)
+void remove_first_creature(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
     struct Dungeon *dungeon;
     struct CreatureControl *secctrl;
     struct Thing *sectng;
-    //_DK_remove_first_creature(thing);
-    cctrl = creature_control_get_from_thing(thing);
-    if ((thing->alloc_flags & TAlF_Unkn08) == 0)
+    //_DK_remove_first_creature(creatng);
+    cctrl = creature_control_get_from_thing(creatng);
+    if ((creatng->alloc_flags & TAlF_InDungeonList) == 0)
     {
-        ERRORLOG("Thing %d is not in Peter list",(int)thing->index);
+        ERRORLOG("The %s index %d is not in Peter list",thing_model_name(creatng),(int)creatng->index);
         return;
     }
-    if (is_neutral_thing(thing))
+    if (is_neutral_thing(creatng))
     {
       sectng = thing_get(cctrl->players_prev_creature_idx);
       if (!thing_is_invalid(sectng)) {
@@ -3122,30 +3129,9 @@ void remove_first_creature(struct Thing *thing)
           secctrl->players_prev_creature_idx = cctrl->players_prev_creature_idx;
       }
     } else
-    if ((thing->model != get_players_special_digger_model(thing->owner))
-        || is_hero_thing(thing))
+    if (creatre_is_for_dungeon_diggers_list(creatng))
     {
-        dungeon = get_dungeon(thing->owner);
-        sectng = thing_get(cctrl->players_prev_creature_idx);
-        if (!thing_is_invalid(sectng)) {
-            secctrl = creature_control_get_from_thing(sectng);
-            secctrl->players_next_creature_idx = cctrl->players_next_creature_idx;
-        } else {
-            dungeon->creatr_list_start = cctrl->players_next_creature_idx;
-        }
-        sectng = thing_get(cctrl->players_next_creature_idx);
-        if (!thing_is_invalid(sectng)) {
-            secctrl = creature_control_get_from_thing(sectng);
-            secctrl->players_prev_creature_idx = cctrl->players_prev_creature_idx;
-        }
-        if ((cctrl->flgfield_2 & 0x02) == 0)
-        {
-            dungeon->num_active_creatrs--;
-            dungeon->owned_creatures_of_model[thing->model]--;
-        }
-    } else
-    {
-        dungeon = get_dungeon(thing->owner);
+        dungeon = get_dungeon(creatng->owner);
         sectng = thing_get(cctrl->players_prev_creature_idx);
         if (!thing_is_invalid(sectng)) {
             secctrl = creature_control_get_from_thing(sectng);
@@ -3158,11 +3144,35 @@ void remove_first_creature(struct Thing *thing)
             secctrl = creature_control_get_from_thing(sectng);
             secctrl->players_prev_creature_idx = cctrl->players_prev_creature_idx;
         }
-        dungeon->num_active_diggers--;
+        if ((cctrl->flgfield_2 & TF2_Spectator) == 0)
+        {
+            dungeon->num_active_diggers--;
+            dungeon->owned_creatures_of_model[creatng->model]--;
+        }
+    } else
+    {
+        dungeon = get_dungeon(creatng->owner);
+        sectng = thing_get(cctrl->players_prev_creature_idx);
+        if (!thing_is_invalid(sectng)) {
+            secctrl = creature_control_get_from_thing(sectng);
+            secctrl->players_next_creature_idx = cctrl->players_next_creature_idx;
+        } else {
+            dungeon->creatr_list_start = cctrl->players_next_creature_idx;
+        }
+        sectng = thing_get(cctrl->players_next_creature_idx);
+        if (!thing_is_invalid(sectng)) {
+            secctrl = creature_control_get_from_thing(sectng);
+            secctrl->players_prev_creature_idx = cctrl->players_prev_creature_idx;
+        }
+        if ((cctrl->flgfield_2 & TF2_Spectator) == 0)
+        {
+            dungeon->num_active_creatrs--;
+            dungeon->owned_creatures_of_model[creatng->model]--;
+        }
     }
     cctrl->players_prev_creature_idx = 0;
     cctrl->players_next_creature_idx = 0;
-    thing->alloc_flags &= ~TAlF_Unkn08;
+    creatng->alloc_flags &= ~TAlF_InDungeonList;
 }
 
 TbBool thing_is_creature(const struct Thing *thing)
@@ -3253,7 +3263,7 @@ void change_creature_owner(struct Thing *creatng, PlayerNumber nowner)
     }
     cleanup_creature_state_and_interactions(creatng);
     remove_creature_lair(creatng);
-    if ((creatng->alloc_flags & TAlF_Unkn08) != 0) {
+    if ((creatng->alloc_flags & TAlF_InDungeonList) != 0) {
         remove_first_creature(creatng);
     }
     if (!is_neutral_thing(creatng))
@@ -4583,7 +4593,7 @@ short update_creature_movements(struct Thing *thing)
         cctrl->moveaccel.y.val = 0;
         cctrl->moveaccel.z.val = 0;
         cctrl->move_speed = 0;
-        cctrl->flgfield_2 &= ~0x01;
+        cctrl->flgfield_2 &= ~TF2_Unkn01;
     } else
     {
       if ((thing->alloc_flags & TAlF_IsControlled) != 0)
@@ -4592,10 +4602,10 @@ short update_creature_movements(struct Thing *thing)
               upd_done = 1;
           }
       } else
-      if ((cctrl->flgfield_2 & 0x01) != 0)
+      if ((cctrl->flgfield_2 & TF2_Unkn01) != 0)
       {
           upd_done = 1;
-          cctrl->flgfield_2 &= ~0x01;
+          cctrl->flgfield_2 &= ~TF2_Unkn01;
       } else
       if (cctrl->move_speed != 0)
       {
