@@ -985,7 +985,7 @@ short tunneller_doing_nothing(struct Thing *creatng)
     }
     struct Dungeon *dungeon;
     dungeon = get_dungeon(plyr_idx);
-    if ( dungeon->num_active_creatrs || dungeon->num_active_diggers )
+    if ((dungeon->num_active_creatrs > 0) || (dungeon->num_active_diggers > 0))
     {
         struct Coord3d pos;
         get_random_position_in_dungeon_for_creature(plyr_idx, CrWaS_WithinDungeon, creatng, &pos);
@@ -1059,7 +1059,7 @@ long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short speed)
     cctrl->moveaccel.x.val = cctrl->navi.pos_next.x.val - (MapCoordDelta)creatng->mappos.x.val;
     cctrl->moveaccel.y.val = cctrl->navi.pos_next.y.val - (MapCoordDelta)creatng->mappos.y.val;
     cctrl->moveaccel.z.val = 0;
-    cctrl->flgfield_2 |= 0x01;
+    cctrl->flgfield_2 |= TF2_Unkn01;
     creature_set_speed(creatng, min(speed,dist));
     return 0;
 }

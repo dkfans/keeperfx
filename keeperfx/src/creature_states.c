@@ -861,6 +861,11 @@ TbBool creature_is_kept_in_custody_by_enemy(const struct Thing *thing)
     return false;
 }
 
+TbBool creature_is_kept_in_custody_by_enemy_or_dying(const struct Thing *thing)
+{
+    return creature_is_kept_in_custody_by_enemy(thing) || creature_is_dying(thing);
+}
+
 TbBool creature_is_kept_in_custody_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
 {
     if (thing_is_picked_up_by_player(thing, plyr_idx)) {

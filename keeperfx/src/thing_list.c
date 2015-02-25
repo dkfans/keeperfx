@@ -2008,38 +2008,7 @@ struct Thing *get_player_list_nth_creature_of_model(long thing_idx, ThingModel c
  */
 long count_player_creatures_not_counting_to_total(PlayerNumber plyr_idx)
 {
-    struct Dungeon *dungeon;
-    struct CreatureControl *cctrl;
-    struct Thing *thing;
-    unsigned long k;
-    long i;
-    int count;
-    dungeon = get_players_num_dungeon(plyr_idx);
-    count = 0;
-    k = 0;
-    i = dungeon->creatr_list_start;
-    while (i != 0)
-    {
-        thing = thing_get(i);
-        if (thing_is_invalid(thing))
-        {
-            ERRORLOG("Jump to invalid thing detected");
-            break;
-        }
-        cctrl = creature_control_get_from_thing(thing);
-        i = cctrl->players_next_creature_idx;
-        // Per creature code
-        if (creature_is_kept_in_custody_by_enemy(thing))
-          count++;
-        // Per creature code ends
-        k++;
-        if (k > THINGS_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping things list");
-            break;
-        }
-    }
-    return count;
+    return count_player_list_creatures_of_model_matching_bool_filter(plyr_idx, -2, creature_is_kept_in_custody_by_enemy_or_dying);
 }
 
 /**
@@ -2048,38 +2017,7 @@ long count_player_creatures_not_counting_to_total(PlayerNumber plyr_idx)
  */
 long count_player_diggers_not_counting_to_total(PlayerNumber plyr_idx)
 {
-    struct Dungeon *dungeon;
-    struct CreatureControl *cctrl;
-    struct Thing *thing;
-    unsigned long k;
-    long i;
-    int count;
-    dungeon = get_players_num_dungeon(plyr_idx);
-    count = 0;
-    k = 0;
-    i = dungeon->digger_list_start;
-    while (i != 0)
-    {
-        thing = thing_get(i);
-        if (thing_is_invalid(thing))
-        {
-            ERRORLOG("Jump to invalid thing detected");
-            break;
-        }
-        cctrl = creature_control_get_from_thing(thing);
-        i = cctrl->players_next_creature_idx;
-        // Per creature code
-        if (creature_is_kept_in_custody_by_enemy(thing))
-          count++;
-        // Per creature code ends
-        k++;
-        if (k > THINGS_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping things list");
-            break;
-        }
-    }
-    return count;
+    return count_player_list_creatures_of_model_matching_bool_filter(plyr_idx, -3, creature_is_kept_in_custody_by_enemy_or_dying);
 }
 
 GoldAmount compute_player_payday_total(const struct Dungeon *dungeon)
