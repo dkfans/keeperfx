@@ -204,6 +204,8 @@ long do_to_players_all_creatures_of_model(PlayerNumber plyr_idx, int crmodel, Th
 TbBool heal_completely_all_players_creatures(PlayerNumber plyr_idx, ThingModel crmodel);
 void setup_all_player_creatures_and_diggers_leave_or_die(PlayerNumber plyr_idx);
 TbBool reset_all_players_creatures_affected_by_cta(PlayerNumber plyr_idx);
+long count_player_creatures_not_counting_to_total(PlayerNumber plyr_idx);
+long count_player_diggers_not_counting_to_total(PlayerNumber plyr_idx);
 
 // Filters to select thing on/near given map position
 struct Thing *get_thing_on_map_block_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxTngFilterParam param, long *maximizer);
@@ -271,8 +273,6 @@ TbBool perform_action_on_all_creatures_in_group(struct Thing *thing, Thing_Bool_
 long creature_of_model_in_prison_or_tortured(ThingModel crmodel);
 long count_player_creatures_of_model(PlayerNumber plyr_idx, ThingModel crmodel);
 long count_player_list_creatures_of_model(long thing_idx, ThingModel crmodel);
-long count_player_creatures_not_counting_to_total(PlayerNumber plyr_idx);
-long count_player_diggers_not_counting_to_total(PlayerNumber plyr_idx);
 GoldAmount compute_player_payday_total(const struct Dungeon *dungeon);
 TbBool lord_of_the_land_in_prison_or_tortured(void);
 struct Thing *lord_of_the_land_find(void);

@@ -32,7 +32,7 @@ enum ThingAllocFlags {
     TAlF_Exists            = 0x01,
     TAlF_IsInMapWho        = 0x02,
     TAlF_IsInStrucList     = 0x04,
-    TAlF_Unkn08            = 0x08,
+    TAlF_InDungeonList            = 0x08,
     TAlF_IsInLimbo         = 0x10,
     TAlF_IsControlled      = 0x20,
     TAlF_IsFollowingLeader = 0x40,
@@ -47,6 +47,11 @@ enum ThingFlags1 {
     TF1_PushOnce       = 0x08,
     TF1_Unkn10         = 0x10,
     TF1_Unkn20         = 0x20,
+};
+
+enum ThingFlags2 {
+    TF2_Unkn01         = 0x01,
+    TF2_Spectator      = 0x02,
 };
 
 enum ThingFlags4F {

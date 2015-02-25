@@ -3279,7 +3279,7 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     case SVar_CONTROLS_CREATURE: // IF_CONTROLS(CREATURE)
         dungeon = get_dungeon(plyr_idx);
         return dungeon->owned_creatures_of_model[validx%CREATURE_TYPES_COUNT]
-          - count_player_list_creatures_of_model_matching_bool_filter(plyr_idx, validx, creature_is_kept_in_custody_by_enemy);
+          - count_player_list_creatures_of_model_matching_bool_filter(plyr_idx, validx, creature_is_kept_in_custody_by_enemy_or_dying);
     case SVar_CONTROLS_TOTAL_CREATURES:// IF_CONTROLS(TOTAL_CREATURES)
         dungeon = get_dungeon(plyr_idx);
         return dungeon->num_active_creatrs - count_player_creatures_not_counting_to_total(plyr_idx);

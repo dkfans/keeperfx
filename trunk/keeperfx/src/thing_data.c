@@ -127,7 +127,7 @@ TbBool is_in_free_things_list(long tng_idx)
 void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_name)
 {
     TRACE_THING(thing);
-    if ((thing->alloc_flags & TAlF_Unkn08) != 0) {
+    if ((thing->alloc_flags & TAlF_InDungeonList) != 0) {
         remove_first_creature(thing);
     }
     if (!a2)

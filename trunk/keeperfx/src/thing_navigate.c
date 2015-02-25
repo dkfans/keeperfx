@@ -416,7 +416,7 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
         } else
         {
             creature_set_speed(thing, -speed);
-            cctrl->flgfield_2 |= 0x01;
+            cctrl->flgfield_2 |= TF2_Unkn01;
             if (get_2d_box_distance(&thing->mappos, &nextpos) > -2*cctrl->move_speed)
             {
                 ERRORDBG(3,"The %s index %d tried to reach (%d,%d) from (%d,%d) with excessive backward speed",
@@ -442,7 +442,7 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
         } else
         {
             creature_set_speed(thing, speed);
-            cctrl->flgfield_2 |= 0x01;
+            cctrl->flgfield_2 |= TF2_Unkn01;
             if (get_2d_box_distance(&thing->mappos, &nextpos) > 2*cctrl->move_speed)
             {
                 ERRORDBG(3,"The %s index %d tried to reach (%d,%d) from (%d,%d) with excessive forward speed",

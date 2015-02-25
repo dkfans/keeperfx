@@ -176,7 +176,6 @@ const struct MyLookup lookup[] = {
 /******************************************************************************/
 DLLIMPORT long _DK_task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask);
 DLLIMPORT long _DK_task_magic_call_to_arms(struct Computer2 *comp, struct ComputerTask *ctask);
-DLLIMPORT long _DK_count_creatures_at_call_to_arms(struct Computer2 *comp);
 DLLIMPORT struct Thing *_DK_find_creature_for_call_to_arms(struct Computer2 *comp, long a2);
 DLLIMPORT long _DK_count_creatures_in_call_to_arms(struct Computer2 *comp);
 DLLIMPORT long _DK_task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask);
@@ -2100,7 +2099,6 @@ long count_creatures_at_call_to_arms(struct Computer2 *comp)
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
     return count_player_list_creatures_of_model_matching_bool_filter(dungeon->owner, -1, creature_is_called_to_arms);
-    //return _DK_count_creatures_at_call_to_arms(comp);
 }
 
 struct Thing *find_creature_for_call_to_arms(struct Computer2 *comp, long a2)
