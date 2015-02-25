@@ -3569,6 +3569,25 @@ long count_creatures_in_dungeon_of_model_flags(const struct Dungeon *dungeon, un
     return count;
 }
 
+long count_creatures_in_dungeon_controlled_and_of_model_flags(const struct Dungeon *dungeon, unsigned long need_mdflags, unsigned long excl_mdflags)
+{
+    long count;
+    count = 0;
+    ThingModel crmodel;
+    for (crmodel=1; crmodel < CREATURE_TYPES_COUNT; crmodel++)
+    {
+        struct CreatureModelConfig *crconf;
+        crconf = &crtr_conf.model[crmodel];
+        if (((crconf->model_flags & need_mdflags) == need_mdflags) &&
+           ((crconf->model_flags & excl_mdflags) == 0))
+        {
+            count += dungeon->owned_creatures_of_model[crmodel]
+              - count_player_list_creatures_of_model_matching_bool_filter(dungeon->owner, crmodel, creature_is_kept_in_custody_by_enemy_or_dying);
+        }
+    }
+    return count;
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

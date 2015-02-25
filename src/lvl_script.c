@@ -272,6 +272,8 @@ const struct NamedCommand controls_variable_desc[] = {
     {"TOTAL_CREATURES",             SVar_CONTROLS_TOTAL_CREATURES},
     {"TOTAL_DOORS",                 SVar_TOTAL_DOORS},
     {"TOTAL_AREA",                  SVar_TOTAL_AREA},
+    {"GOOD_CREATURES",              SVar_CONTROLS_GOOD_CREATURES},
+    {"EVIL_CREATURES",              SVar_CONTROLS_EVIL_CREATURES},
     {NULL,                           0},
 };
 
@@ -3297,6 +3299,12 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     case SVar_EVIL_CREATURES:
         dungeon = get_dungeon(plyr_idx);
         return count_creatures_in_dungeon_of_model_flags(dungeon, CMF_IsEvil, CMF_IsSpectator);
+    case SVar_CONTROLS_GOOD_CREATURES:
+        dungeon = get_dungeon(plyr_idx);
+        return count_creatures_in_dungeon_controlled_and_of_model_flags(dungeon, 0, CMF_IsEvil|CMF_IsSpectator);
+    case SVar_CONTROLS_EVIL_CREATURES:
+        dungeon = get_dungeon(plyr_idx);
+        return count_creatures_in_dungeon_controlled_and_of_model_flags(dungeon, CMF_IsEvil, CMF_IsSpectator);
     default:
         break;
     };

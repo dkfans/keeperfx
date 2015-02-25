@@ -149,6 +149,8 @@ enum ScriptVatiables {
   SVar_DOOR_NUM                        = 39,
   SVar_GOOD_CREATURES                  = 40,
   SVar_EVIL_CREATURES                  = 41,
+  SVar_CONTROLS_GOOD_CREATURES         = 42,
+  SVar_CONTROLS_EVIL_CREATURES         = 43,
 };
 
 enum MapLocationTypes {
