@@ -153,7 +153,7 @@ Displays one of the text messages from language-specific strings banks in an Obj
 }}}
   where:
 
-  `[name]` -  The name of a creature. Returns how many creatures of given kind the player owns, excluding these under enemy control (in custody).
+  `[name]` -  The name of a creature. Returns how many creatures of given kind the player owns, excluding these under enemy control (in custody). Also accepts TOTAL_CREATURES, TOTAL_DIGGERS, EVIL_CREATURES and GOOD_CREATURES.
 
 ==`KILL_CREATURE`==
   Kills given amount of creatures based on given criteria.
