@@ -191,7 +191,7 @@ Displays one of the text messages from language-specific strings banks in an Obj
   behavior of commands which were modified.
 
 ==`PLAY_MESSAGE`==
-  Allows to play any `SOUND` or `SPEECH` from the game.
+  Allows to play any `SOUND` or `SPEECH` from the game. Messages can be found <a href="https://code.google.com/p/keeperfx/source/browse/trunk/keeperfx/lang/speech_eng.pot">here</a>.
   Example:
 {{{
 PLAY_MESSAGE(PLAYER0,SPEECH,107)
