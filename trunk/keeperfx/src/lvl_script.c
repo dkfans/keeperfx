@@ -364,243 +364,243 @@ DLLIMPORT long _DK_script_support_send_tunneller_to_appropriate_dungeon(struct T
  */
 const struct CommandDesc *get_next_word(char **line, char *param, unsigned char *line_end)
 {
-  const struct CommandDesc *cmnd_desc;
-  long rnd_min,rnd_max;
-  unsigned int pos;
-  char chr;
-  int i;
-  SCRIPTDBG(12,"Starting");
-  cmnd_desc = NULL;
-  // Find start of an item to read
-  pos = 0;
-  param[pos] = '\0';
-  while (1)
-  {
-    chr = **line;
-    // number
-    if ((isalnum(chr)) || (chr == '-'))
-        break;
-    // operator
-    if ((chr == '\"') || (chr == '=') || (chr == '!') || (chr == '<') || (chr == '>'))
-        break;
-    // end of line
-    if ((chr == '\r') || (chr == '\n') || (chr == '\0'))
-    {
-        (*line_end) = true;
-        return NULL;
-    }
-    (*line)++;
-  }
-
-  chr = **line;
-  // Text string
-  if (isalpha(chr))
-  {
-    // Read the parameter
-    while (isalnum(chr) || (chr == '_'))
-    {
-      param[pos] = chr;
-      pos++;
-      (*line)++;
-      chr = **line;
-      if (pos+1 >= MAX_TEXT_LENGTH) break;
-    }
-    param[pos] = '\0';
-    strupr(param);
-    // Check if it's a command
-    i = 0;
+    const struct CommandDesc *cmnd_desc;
+    long rnd_min,rnd_max;
+    unsigned int pos;
+    char chr;
+    int i;
+    SCRIPTDBG(12,"Starting");
     cmnd_desc = NULL;
-    if (level_file_version > 0)
+    // Find start of an item to read
+    pos = 0;
+    param[pos] = '\0';
+    while (1)
     {
-        while (command_desc[i].textptr != NULL)
-        {
-          if (strcmp(param, command_desc[i].textptr) == 0)
-          {
-            cmnd_desc = &command_desc[i];
+        chr = **line;
+        // number
+        if ((isalnum(chr)) || (chr == '-'))
             break;
-          }
-          i++;
+        // operator
+        if ((chr == '\"') || (chr == '=') || (chr == '!') || (chr == '<') || (chr == '>'))
+            break;
+        // end of line
+        if ((chr == '\r') || (chr == '\n') || (chr == '\0'))
+        {
+            (*line_end) = true;
+            return NULL;
+        }
+        (*line)++;
+    }
+
+    chr = **line;
+    // Text string
+    if (isalpha(chr))
+    {
+        // Read the parameter
+        while (isalnum(chr) || (chr == '_'))
+        {
+          param[pos] = chr;
+          pos++;
+          (*line)++;
+          chr = **line;
+          if (pos+1 >= MAX_TEXT_LENGTH) break;
+        }
+        param[pos] = '\0';
+        strupr(param);
+        // Check if it's a command
+        i = 0;
+        cmnd_desc = NULL;
+        if (level_file_version > 0)
+        {
+            while (command_desc[i].textptr != NULL)
+            {
+              if (strcmp(param, command_desc[i].textptr) == 0)
+              {
+                cmnd_desc = &command_desc[i];
+                break;
+              }
+              i++;
+            }
+        } else
+        {
+            while (dk1_command_desc[i].textptr != NULL)
+            {
+              if (strcmp(param, dk1_command_desc[i].textptr) == 0)
+              {
+                cmnd_desc = &dk1_command_desc[i];
+                break;
+              }
+              i++;
+            }
+        }
+        // Support of the RANDOM function
+        if (strcmp(param, "RANDOM") == 0)
+        {
+            // Get the minimum random number
+            // skip some chars at start
+            pos = 0;
+            chr = **line;
+            while ((!isdigit(chr)) && (chr != '-'))
+            {
+              if ((chr == '\r') || (chr == '\n') || (chr == '\0'))
+              {
+                SCRPTERRLOG("Invalid first argument for RANDOM command");
+                (*line_end) = true;
+                return NULL;
+              }
+              (*line)++;
+              chr = **line;
+            }
+            // copy the number as string
+            if (chr == '-')
+            {
+              param[pos] = chr;
+              pos++;
+              (*line)++;
+            }
+            chr = **line;
+            while ( isdigit(chr) )
+            {
+              param[pos] = chr;
+              pos++;
+              (*line)++;
+              chr = **line;
+            }
+            param[pos] = '\0';
+            rnd_min = atol(param);
+            // Get the maximum random number
+            // skip some chars at start
+            pos = 0;
+            chr = **line;
+            while ((!isdigit(chr)) && (chr != '-'))
+            {
+              if ((chr == '\r') || (chr == '\n') || (chr == '\0'))
+              {
+                SCRPTERRLOG("Invalid second argument for RANDOM command");
+                (*line_end) = true;
+                return NULL;
+              }
+              (*line)++;
+              chr = **line;
+            }
+            // copy the number as string
+            if (chr == '-')
+            {
+              param[pos] = chr;
+              pos++;
+              (*line)++;
+            }
+            chr = **line;
+            while ( isdigit(chr) )
+            {
+              param[pos] = chr;
+              pos++;
+              (*line)++;
+              chr = **line;
+            }
+            param[pos] = '\0';
+            rnd_max = atol(param);
+            // Prepare the value
+            if (rnd_max > rnd_min) {
+                itoa((rand() % (rnd_max-rnd_min+1)) + rnd_min, param, 10);
+            } else {
+                SCRPTERRLOG("Second argument of RANDOM command should be greater than first");
+                itoa(rnd_min, param, 10);
+            }
+            pos = 16; // we won't have numbers greater than 16 chars
         }
     } else
+    // Number string
+    if (isdigit(chr) || (chr == '-'))
     {
-        while (dk1_command_desc[i].textptr != NULL)
+        if (chr == '-')
         {
-          if (strcmp(param, dk1_command_desc[i].textptr) == 0)
-          {
-            cmnd_desc = &dk1_command_desc[i];
-            break;
-          }
-          i++;
-        }
-    }
-    // Support of the RANDOM function
-    if (strcmp(param, "RANDOM") == 0)
-    {
-      // Get the minimum random number
-      // skip some chars at start
-      pos = 0;
-      chr = **line;
-      while ((!isdigit(chr)) && (chr != '-'))
-      {
-        if ((chr == '\r') || (chr == '\n') || (chr == '\0'))
-        {
-          SCRPTERRLOG("Invalid first argument for RANDOM command");
-          (*line_end) = true;
-          return NULL;
-        }
-        (*line)++;
-        chr = **line;
-      }
-      // copy the number as string
-      if (chr == '-')
-      {
-        param[pos] = chr;
-        pos++;
-        (*line)++;
-      }
-      chr = **line;
-      while ( isdigit(chr) )
-      {
-        param[pos] = chr;
-        pos++;
-        (*line)++;
-        chr = **line;
-      }
-      param[pos] = '\0';
-      rnd_min = atol(param);
-      // Get the maximum random number
-      // skip some chars at start
-      pos = 0;
-      chr = **line;
-      while ((!isdigit(chr)) && (chr != '-'))
-      {
-        if ((chr == '\r') || (chr == '\n') || (chr == '\0'))
-        {
-          SCRPTERRLOG("Invalid second argument for RANDOM command");
-          (*line_end) = true;
-          return NULL;
-        }
-        (*line)++;
-        chr = **line;
-      }
-      // copy the number as string
-      if (chr == '-')
-      {
-        param[pos] = chr;
-        pos++;
-        (*line)++;
-      }
-      chr = **line;
-      while ( isdigit(chr) )
-      {
-        param[pos] = chr;
-        pos++;
-        (*line)++;
-        chr = **line;
-      }
-      param[pos] = '\0';
-      rnd_max = atol(param);
-      // Prepare the value
-      if (rnd_max > rnd_min) {
-          itoa((rand() % (rnd_max-rnd_min+1)) + rnd_min, param, 10);
-      } else {
-          SCRPTERRLOG("Second argument of RANDOM command should be greater than first");
-          itoa(rnd_min, param, 10);
-      }
-      pos = 16; // we won't have numbers greater than 16 chars
-    }
-  } else
-  // Number string
-  if (isdigit(chr) || (chr == '-'))
-  {
-      if (chr == '-')
-      {
-        param[pos] = chr;
-        pos++;
-        (*line)++;
-      }
-      chr = **line;
-      if (!isdigit(chr))
-      {
-        SCRPTERRLOG("Unexpected '-' not followed by a number");
-        return NULL;
-      }
-      while ( isdigit(chr) )
-      {
-        param[pos] = chr;
-        pos++;
-        (*line)++;
-        chr = **line;
-        if (pos+1 >= MAX_TEXT_LENGTH) break;
-      }
-  } else
-  // Multiword string taken into quotes
-  if (chr == '\"')
-  {
-      (*line)++;
-      chr = **line;
-      while ((chr != '\0') && (chr != '\n') && (chr != '\r'))
-      {
-        if (chr == '\"')
-        {
+          param[pos] = chr;
+          pos++;
           (*line)++;
-          break;
         }
-        param[pos] = chr;
-        pos++;
+        chr = **line;
+        if (!isdigit(chr))
+        {
+          SCRPTERRLOG("Unexpected '-' not followed by a number");
+          return NULL;
+        }
+        while ( isdigit(chr) )
+        {
+          param[pos] = chr;
+          pos++;
+          (*line)++;
+          chr = **line;
+          if (pos+1 >= MAX_TEXT_LENGTH) break;
+        }
+    } else
+    // Multiword string taken into quotes
+    if (chr == '\"')
+    {
         (*line)++;
         chr = **line;
-        if (pos+1 >= MAX_TEXT_LENGTH) break;
-    }
-  } else
-  // Other cases - only operators are left
-  {
-      param[pos] = chr;
-      pos++;
-      (*line)++;
-      switch (chr)
-      {
-      case '!':
-          chr = **line;
-          if (chr != '=')
+        while ((chr != '\0') && (chr != '\n') && (chr != '\r'))
+        {
+          if (chr == '\"')
           {
-            SCRPTERRLOG("Expected '=' after '!'");
-            return NULL;
+            (*line)++;
+            break;
           }
           param[pos] = chr;
           pos++;
           (*line)++;
-          break;
-      case '>':
-      case '<':
           chr = **line;
-          if (chr == '=')
-          {
+          if (pos+1 >= MAX_TEXT_LENGTH) break;
+      }
+    } else
+    // Other cases - only operators are left
+    {
+        param[pos] = chr;
+        pos++;
+        (*line)++;
+        switch (chr)
+        {
+        case '!':
+            chr = **line;
+            if (chr != '=')
+            {
+              SCRPTERRLOG("Expected '=' after '!'");
+              return NULL;
+            }
             param[pos] = chr;
             pos++;
             (*line)++;
-          }
-          break;
-      case '=':
-          chr = **line;
-          if (chr != '=')
-          {
-            SCRPTERRLOG("Expected '=' after '='");
-            return 0;
-          }
-          param[pos] = chr;
-          pos++;
-          (*line)++;
-          break;
-      default:
-          break;
-      }
-  }
-  chr = **line;
-  if ((chr == '\0') || (chr == '\r')  || (chr == '\n'))
-    *line_end = true;
-  param[pos] = '\0';
-  return cmnd_desc;
+            break;
+        case '>':
+        case '<':
+            chr = **line;
+            if (chr == '=')
+            {
+              param[pos] = chr;
+              pos++;
+              (*line)++;
+            }
+            break;
+        case '=':
+            chr = **line;
+            if (chr != '=')
+            {
+              SCRPTERRLOG("Expected '=' after '='");
+              return 0;
+            }
+            param[pos] = chr;
+            pos++;
+            (*line)++;
+            break;
+        default:
+            break;
+        }
+    }
+    chr = **line;
+    if ((chr == '\0') || (chr == '\r')  || (chr == '\n'))
+        *line_end = true;
+    param[pos] = '\0';
+    return cmnd_desc;
 }
 
 const char *script_get_command_name(long cmnd_index)
@@ -3295,16 +3295,16 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
         return find_door_of_type(validx, plyr_idx);
     case SVar_GOOD_CREATURES:
         dungeon = get_dungeon(plyr_idx);
-        return count_creatures_in_dungeon_of_model_flags(dungeon, 0, CMF_IsEvil|CMF_IsSpectator);
+        return count_creatures_in_dungeon_of_model_flags(dungeon, 0, CMF_IsEvil|CMF_IsSpectator|CMF_IsSpecDigger);
     case SVar_EVIL_CREATURES:
         dungeon = get_dungeon(plyr_idx);
-        return count_creatures_in_dungeon_of_model_flags(dungeon, CMF_IsEvil, CMF_IsSpectator);
+        return count_creatures_in_dungeon_of_model_flags(dungeon, CMF_IsEvil, CMF_IsSpectator|CMF_IsSpecDigger);
     case SVar_CONTROLS_GOOD_CREATURES:
         dungeon = get_dungeon(plyr_idx);
-        return count_creatures_in_dungeon_controlled_and_of_model_flags(dungeon, 0, CMF_IsEvil|CMF_IsSpectator);
+        return count_creatures_in_dungeon_controlled_and_of_model_flags(dungeon, 0, CMF_IsEvil|CMF_IsSpectator|CMF_IsSpecDigger);
     case SVar_CONTROLS_EVIL_CREATURES:
         dungeon = get_dungeon(plyr_idx);
-        return count_creatures_in_dungeon_controlled_and_of_model_flags(dungeon, CMF_IsEvil, CMF_IsSpectator);
+        return count_creatures_in_dungeon_controlled_and_of_model_flags(dungeon, CMF_IsEvil, CMF_IsSpectator|CMF_IsSpecDigger);
     default:
         break;
     };
