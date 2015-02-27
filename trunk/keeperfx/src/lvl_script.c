@@ -62,125 +62,129 @@ extern "C" {
 #endif
 
 /******************************************************************************/
+/**
+ * Descriptions of script commands for parser.
+ * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator
+ */
 const struct CommandDesc command_desc[] = {
   {"CREATE_PARTY",                 "A       ", Cmd_CREATE_PARTY},
-  {"ADD_TO_PARTY",                 "AANNAN  ", Cmd_ADD_TO_PARTY},
-  {"ADD_PARTY_TO_LEVEL",           "AAAN    ", Cmd_ADD_PARTY_TO_LEVEL},
-  {"ADD_CREATURE_TO_LEVEL",        "AAANNN  ", Cmd_ADD_CREATURE_TO_LEVEL},
-  {"IF",                           "AAAN    ", Cmd_IF},
-  {"IF_ACTION_POINT",              "NA      ", Cmd_IF_ACTION_POINT},
+  {"ADD_TO_PARTY",                 "ACNNAN  ", Cmd_ADD_TO_PARTY},
+  {"ADD_PARTY_TO_LEVEL",           "PAAN    ", Cmd_ADD_PARTY_TO_LEVEL},
+  {"ADD_CREATURE_TO_LEVEL",        "PCANNN  ", Cmd_ADD_CREATURE_TO_LEVEL},
+  {"IF",                           "PAON    ", Cmd_IF},
+  {"IF_ACTION_POINT",              "NP      ", Cmd_IF_ACTION_POINT},
   {"ENDIF",                        "        ", Cmd_ENDIF},
-  {"SET_HATE",                     "NNN     ", Cmd_SET_HATE},
+  {"SET_HATE",                     "PPN     ", Cmd_SET_HATE},
   {"SET_GENERATE_SPEED",           "N       ", Cmd_SET_GENERATE_SPEED},
   {"REM",                          "        ", Cmd_REM},
-  {"START_MONEY",                  "AN      ", Cmd_START_MONEY},
-  {"ROOM_AVAILABLE",               "AANN    ", Cmd_ROOM_AVAILABLE},
-  {"CREATURE_AVAILABLE",           "AANN    ", Cmd_CREATURE_AVAILABLE},
-  {"MAGIC_AVAILABLE",              "AANN    ", Cmd_MAGIC_AVAILABLE},
-  {"TRAP_AVAILABLE",               "AANN    ", Cmd_TRAP_AVAILABLE},
-  {"RESEARCH",                     "AAAN    ", Cmd_RESEARCH},
-  {"RESEARCH_ORDER",               "AAAN    ", Cmd_RESEARCH_ORDER},
-  {"COMPUTER_PLAYER",              "AN      ", Cmd_COMPUTER_PLAYER},
-  {"SET_TIMER",                    "AA      ", Cmd_SET_TIMER},
-  {"ADD_TUNNELLER_TO_LEVEL",       "AAANNN  ", Cmd_ADD_TUNNELLER_TO_LEVEL},
+  {"START_MONEY",                  "PN      ", Cmd_START_MONEY},
+  {"ROOM_AVAILABLE",               "PRNN    ", Cmd_ROOM_AVAILABLE},
+  {"CREATURE_AVAILABLE",           "PCNN    ", Cmd_CREATURE_AVAILABLE},
+  {"MAGIC_AVAILABLE",              "PANN    ", Cmd_MAGIC_AVAILABLE},
+  {"TRAP_AVAILABLE",               "PANN    ", Cmd_TRAP_AVAILABLE},
+  {"RESEARCH",                     "PAAN    ", Cmd_RESEARCH},
+  {"RESEARCH_ORDER",               "PAAN    ", Cmd_RESEARCH_ORDER},
+  {"COMPUTER_PLAYER",              "PN      ", Cmd_COMPUTER_PLAYER},
+  {"SET_TIMER",                    "PA      ", Cmd_SET_TIMER},
+  {"ADD_TUNNELLER_TO_LEVEL",       "PAANNN  ", Cmd_ADD_TUNNELLER_TO_LEVEL},
   {"WIN_GAME",                     "        ", Cmd_WIN_GAME},
   {"LOSE_GAME",                    "        ", Cmd_LOSE_GAME},
-  {"SET_FLAG",                     "AAN     ", Cmd_SET_FLAG},
-  {"MAX_CREATURES",                "AN      ", Cmd_MAX_CREATURES},
+  {"SET_FLAG",                     "PAN     ", Cmd_SET_FLAG},
+  {"MAX_CREATURES",                "PN      ", Cmd_MAX_CREATURES},
   {"NEXT_COMMAND_REUSABLE",        "        ", Cmd_NEXT_COMMAND_REUSABLE},
-  {"DOOR_AVAILABLE",               "AANN    ", Cmd_DOOR_AVAILABLE},
-  {"DISPLAY_OBJECTIVE",            "NA      ", Cmd_DISPLAY_OBJECTIVE},
+  {"DOOR_AVAILABLE",               "PANN    ", Cmd_DOOR_AVAILABLE},
+  {"DISPLAY_OBJECTIVE",            "NL      ", Cmd_DISPLAY_OBJECTIVE},
   {"DISPLAY_OBJECTIVE_WITH_POS",   "NNN     ", Cmd_DISPLAY_OBJECTIVE_WITH_POS},
-  {"DISPLAY_INFORMATION",          "NA      ", Cmd_DISPLAY_INFORMATION},
+  {"DISPLAY_INFORMATION",          "NL      ", Cmd_DISPLAY_INFORMATION},
   {"DISPLAY_INFORMATION_WITH_POS", "NNN     ", Cmd_DISPLAY_INFORMATION_WITH_POS},
-  {"ADD_TUNNELLER_PARTY_TO_LEVEL", "AAAANNN ", Cmd_ADD_TUNNELLER_PARTY_TO_LEVEL},
-  {"ADD_CREATURE_TO_POOL",         "AN      ", Cmd_ADD_CREATURE_TO_POOL},
+  {"ADD_TUNNELLER_PARTY_TO_LEVEL", "PAAANNN ", Cmd_ADD_TUNNELLER_PARTY_TO_LEVEL},
+  {"ADD_CREATURE_TO_POOL",         "CN      ", Cmd_ADD_CREATURE_TO_POOL},
   {"RESET_ACTION_POINT",           "N       ", Cmd_RESET_ACTION_POINT},
-  {"SET_CREATURE_MAX_LEVEL",       "AAN     ", Cmd_SET_CREATURE_MAX_LEVEL},
+  {"SET_CREATURE_MAX_LEVEL",       "PCN     ", Cmd_SET_CREATURE_MAX_LEVEL},
   {"SET_MUSIC",                    "N       ", Cmd_SET_MUSIC},
   {"TUTORIAL_FLASH_BUTTON",        "NN      ", Cmd_TUTORIAL_FLASH_BUTTON},
-  {"SET_CREATURE_STRENGTH",        "AN      ", Cmd_SET_CREATURE_STRENGTH},
-  {"SET_CREATURE_HEALTH",          "AN      ", Cmd_SET_CREATURE_HEALTH},
-  {"SET_CREATURE_ARMOUR",          "AN      ", Cmd_SET_CREATURE_ARMOUR},
-  {"SET_CREATURE_FEAR_WOUNDED",    "AN      ", Cmd_SET_CREATURE_FEAR_WOUNDED},
-  {"SET_CREATURE_FEAR_STRONGER",   "AN      ", Cmd_SET_CREATURE_FEAR_STRONGER},
-  {"IF_AVAILABLE",                 "AAAN    ", Cmd_IF_AVAILABLE},
-  {"IF_CONTROLS",                  "AAAN    ", Cmd_IF_CONTROLS},
-  {"SET_COMPUTER_GLOBALS",         "ANNNNNN ", Cmd_SET_COMPUTER_GLOBALS},
-  {"SET_COMPUTER_CHECKS",          "AANNNNN ", Cmd_SET_COMPUTER_CHECKS},
-  {"SET_COMPUTER_EVENT",           "AANN    ", Cmd_SET_COMPUTER_EVENT},
-  {"SET_COMPUTER_PROCESS",         "AANNNNN ", Cmd_SET_COMPUTER_PROCESS},
-  {"ALLY_PLAYERS",                 "AAN     ", Cmd_ALLY_PLAYERS},
+  {"SET_CREATURE_STRENGTH",        "CN      ", Cmd_SET_CREATURE_STRENGTH},
+  {"SET_CREATURE_HEALTH",          "CN      ", Cmd_SET_CREATURE_HEALTH},
+  {"SET_CREATURE_ARMOUR",          "CN      ", Cmd_SET_CREATURE_ARMOUR},
+  {"SET_CREATURE_FEAR_WOUNDED",    "CN      ", Cmd_SET_CREATURE_FEAR_WOUNDED},
+  {"SET_CREATURE_FEAR_STRONGER",   "CN      ", Cmd_SET_CREATURE_FEAR_STRONGER},
+  {"IF_AVAILABLE",                 "PAON    ", Cmd_IF_AVAILABLE},
+  {"IF_CONTROLS",                  "PAON    ", Cmd_IF_CONTROLS},
+  {"SET_COMPUTER_GLOBALS",         "PNNNNNN ", Cmd_SET_COMPUTER_GLOBALS},
+  {"SET_COMPUTER_CHECKS",          "PANNNNN ", Cmd_SET_COMPUTER_CHECKS},
+  {"SET_COMPUTER_EVENT",           "PANN    ", Cmd_SET_COMPUTER_EVENT},
+  {"SET_COMPUTER_PROCESS",         "PANNNNN ", Cmd_SET_COMPUTER_PROCESS},
+  {"ALLY_PLAYERS",                 "PPN     ", Cmd_ALLY_PLAYERS},
   {"DEAD_CREATURES_RETURN_TO_POOL","N       ", Cmd_DEAD_CREATURES_RETURN_TO_POOL},
   {"BONUS_LEVEL_TIME",             "N       ", Cmd_BONUS_LEVEL_TIME},
-  {"QUICK_OBJECTIVE",              "NAA     ", Cmd_QUICK_OBJECTIVE},
-  {"QUICK_INFORMATION",            "NAA     ", Cmd_QUICK_INFORMATION},
+  {"QUICK_OBJECTIVE",              "NAL     ", Cmd_QUICK_OBJECTIVE},
+  {"QUICK_INFORMATION",            "NAL     ", Cmd_QUICK_INFORMATION},
   {"QUICK_OBJECTIVE_WITH_POS",     "NANN    ", Cmd_QUICK_OBJECTIVE_WITH_POS},
   {"QUICK_INFORMATION_WITH_POS",   "NANN    ", Cmd_QUICK_INFORMATION_WITH_POS},
-  {"SWAP_CREATURE",                "AA      ", Cmd_SWAP_CREATURE},
+  {"SWAP_CREATURE",                "AC      ", Cmd_SWAP_CREATURE},
   {"PRINT",                        "A       ", Cmd_PRINT},
   {"MESSAGE",                      "A       ", Cmd_MESSAGE},
-  {"PLAY_MESSAGE",                 "AAN     ", Cmd_PLAY_MESSAGE},
-  {"ADD_GOLD_TO_PLAYER",           "AN      ", Cmd_ADD_GOLD_TO_PLAYER},
-  {"SET_CREATURE_TENDENCIES",      "AAN     ", Cmd_SET_CREATURE_TENDENCIES},
-  {"REVEAL_MAP_RECT",              "ANNNN   ", Cmd_REVEAL_MAP_RECT},
-  {"REVEAL_MAP_LOCATION",          "ANN     ", Cmd_REVEAL_MAP_LOCATION},
+  {"PLAY_MESSAGE",                 "PAN     ", Cmd_PLAY_MESSAGE},
+  {"ADD_GOLD_TO_PLAYER",           "PN      ", Cmd_ADD_GOLD_TO_PLAYER},
+  {"SET_CREATURE_TENDENCIES",      "PAN     ", Cmd_SET_CREATURE_TENDENCIES},
+  {"REVEAL_MAP_RECT",              "PNNNN   ", Cmd_REVEAL_MAP_RECT},
+  {"REVEAL_MAP_LOCATION",          "PNN     ", Cmd_REVEAL_MAP_LOCATION},
   {"LEVEL_VERSION",                "N       ", Cmd_LEVEL_VERSION},
-  {"KILL_CREATURE",                "AAAN    ", Cmd_KILL_CREATURE},
+  {"KILL_CREATURE",                "PCAN    ", Cmd_KILL_CREATURE},
   {NULL,                           "        ", Cmd_NONE},
 };
 
 const struct CommandDesc dk1_command_desc[] = {
   {"CREATE_PARTY",                 "A       ", Cmd_CREATE_PARTY},
-  {"ADD_TO_PARTY",                 "AANNAN  ", Cmd_ADD_TO_PARTY},
-  {"ADD_PARTY_TO_LEVEL",           "AAAN    ", Cmd_ADD_PARTY_TO_LEVEL},
-  {"ADD_CREATURE_TO_LEVEL",        "AAANNN  ", Cmd_ADD_CREATURE_TO_LEVEL},
-  {"IF",                           "AAAN    ", Cmd_IF},
-  {"IF_ACTION_POINT",              "NA      ", Cmd_IF_ACTION_POINT},
+  {"ADD_TO_PARTY",                 "ACNNAN  ", Cmd_ADD_TO_PARTY},
+  {"ADD_PARTY_TO_LEVEL",           "PAAN    ", Cmd_ADD_PARTY_TO_LEVEL},
+  {"ADD_CREATURE_TO_LEVEL",        "PCANNN  ", Cmd_ADD_CREATURE_TO_LEVEL},
+  {"IF",                           "PAON    ", Cmd_IF},
+  {"IF_ACTION_POINT",              "NP      ", Cmd_IF_ACTION_POINT},
   {"ENDIF",                        "        ", Cmd_ENDIF},
-  {"SET_HATE",                     "NNN     ", Cmd_SET_HATE},
+  {"SET_HATE",                     "PPN     ", Cmd_SET_HATE},
   {"SET_GENERATE_SPEED",           "N       ", Cmd_SET_GENERATE_SPEED},
   {"REM",                          "        ", Cmd_REM},
-  {"START_MONEY",                  "AN      ", Cmd_START_MONEY},
-  {"ROOM_AVAILABLE",               "AANN    ", Cmd_ROOM_AVAILABLE},
-  {"CREATURE_AVAILABLE",           "AANN    ", Cmd_CREATURE_AVAILABLE},
-  {"MAGIC_AVAILABLE",              "AANN    ", Cmd_MAGIC_AVAILABLE},
-  {"TRAP_AVAILABLE",               "AANN    ", Cmd_TRAP_AVAILABLE},
-  {"RESEARCH",                     "AAAN    ", Cmd_RESEARCH_ORDER},
-  {"COMPUTER_PLAYER",              "AN      ", Cmd_COMPUTER_PLAYER},
-  {"SET_TIMER",                    "AA      ", Cmd_SET_TIMER},
-  {"ADD_TUNNELLER_TO_LEVEL",       "AAANNN  ", Cmd_ADD_TUNNELLER_TO_LEVEL},
+  {"START_MONEY",                  "PN      ", Cmd_START_MONEY},
+  {"ROOM_AVAILABLE",               "PRNN    ", Cmd_ROOM_AVAILABLE},
+  {"CREATURE_AVAILABLE",           "PCNN    ", Cmd_CREATURE_AVAILABLE},
+  {"MAGIC_AVAILABLE",              "PANN    ", Cmd_MAGIC_AVAILABLE},
+  {"TRAP_AVAILABLE",               "PANN    ", Cmd_TRAP_AVAILABLE},
+  {"RESEARCH",                     "PAAN    ", Cmd_RESEARCH_ORDER},
+  {"COMPUTER_PLAYER",              "PN      ", Cmd_COMPUTER_PLAYER},
+  {"SET_TIMER",                    "PA      ", Cmd_SET_TIMER},
+  {"ADD_TUNNELLER_TO_LEVEL",       "PAANNN  ", Cmd_ADD_TUNNELLER_TO_LEVEL},
   {"WIN_GAME",                     "        ", Cmd_WIN_GAME},
   {"LOSE_GAME",                    "        ", Cmd_LOSE_GAME},
-  {"SET_FLAG",                     "AAN     ", Cmd_SET_FLAG},
-  {"MAX_CREATURES",                "AN      ", Cmd_MAX_CREATURES},
+  {"SET_FLAG",                     "PAN     ", Cmd_SET_FLAG},
+  {"MAX_CREATURES",                "PN      ", Cmd_MAX_CREATURES},
   {"NEXT_COMMAND_REUSABLE",        "        ", Cmd_NEXT_COMMAND_REUSABLE},
-  {"DOOR_AVAILABLE",               "AANN    ", Cmd_DOOR_AVAILABLE},
+  {"DOOR_AVAILABLE",               "PANN    ", Cmd_DOOR_AVAILABLE},
   {"DISPLAY_OBJECTIVE",            "NA      ", Cmd_DISPLAY_OBJECTIVE},
   {"DISPLAY_OBJECTIVE_WITH_POS",   "NNN     ", Cmd_DISPLAY_OBJECTIVE_WITH_POS},
   {"DISPLAY_INFORMATION",          "N       ", Cmd_DISPLAY_INFORMATION},
   {"DISPLAY_INFORMATION_WITH_POS", "NNN     ", Cmd_DISPLAY_INFORMATION_WITH_POS},
-  {"ADD_TUNNELLER_PARTY_TO_LEVEL", "AAAANNN ", Cmd_ADD_TUNNELLER_PARTY_TO_LEVEL},
-  {"ADD_CREATURE_TO_POOL",         "AN      ", Cmd_ADD_CREATURE_TO_POOL},
+  {"ADD_TUNNELLER_PARTY_TO_LEVEL", "PAAANNN ", Cmd_ADD_TUNNELLER_PARTY_TO_LEVEL},
+  {"ADD_CREATURE_TO_POOL",         "CN      ", Cmd_ADD_CREATURE_TO_POOL},
   {"RESET_ACTION_POINT",           "N       ", Cmd_RESET_ACTION_POINT},
-  {"SET_CREATURE_MAX_LEVEL",       "AAN     ", Cmd_SET_CREATURE_MAX_LEVEL},
+  {"SET_CREATURE_MAX_LEVEL",       "PCN     ", Cmd_SET_CREATURE_MAX_LEVEL},
   {"SET_MUSIC",                    "N       ", Cmd_SET_MUSIC},
   {"TUTORIAL_FLASH_BUTTON",        "NN      ", Cmd_TUTORIAL_FLASH_BUTTON},
-  {"SET_CREATURE_STRENGTH",        "AN      ", Cmd_SET_CREATURE_STRENGTH},
-  {"SET_CREATURE_HEALTH",          "AN      ", Cmd_SET_CREATURE_HEALTH},
-  {"SET_CREATURE_ARMOUR",          "AN      ", Cmd_SET_CREATURE_ARMOUR},
-  {"SET_CREATURE_FEAR",            "AN      ", Cmd_SET_CREATURE_FEAR_WOUNDED},
-  {"IF_AVAILABLE",                 "AAAN    ", Cmd_IF_AVAILABLE},
-  {"SET_COMPUTER_GLOBALS",         "ANNNNNN ", Cmd_SET_COMPUTER_GLOBALS},
-  {"SET_COMPUTER_CHECKS",          "AANNNNN ", Cmd_SET_COMPUTER_CHECKS},
-  {"SET_COMPUTER_EVENT",           "AANN    ", Cmd_SET_COMPUTER_EVENT},
-  {"SET_COMPUTER_PROCESS",         "AANNNNN ", Cmd_SET_COMPUTER_PROCESS},
-  {"ALLY_PLAYERS",                 "AA      ", Cmd_ALLY_PLAYERS},
+  {"SET_CREATURE_STRENGTH",        "CN      ", Cmd_SET_CREATURE_STRENGTH},
+  {"SET_CREATURE_HEALTH",          "CN      ", Cmd_SET_CREATURE_HEALTH},
+  {"SET_CREATURE_ARMOUR",          "CN      ", Cmd_SET_CREATURE_ARMOUR},
+  {"SET_CREATURE_FEAR",            "CN      ", Cmd_SET_CREATURE_FEAR_WOUNDED},
+  {"IF_AVAILABLE",                 "PAON    ", Cmd_IF_AVAILABLE},
+  {"SET_COMPUTER_GLOBALS",         "PNNNNNN ", Cmd_SET_COMPUTER_GLOBALS},
+  {"SET_COMPUTER_CHECKS",          "PANNNNN ", Cmd_SET_COMPUTER_CHECKS},
+  {"SET_COMPUTER_EVENT",           "PANN    ", Cmd_SET_COMPUTER_EVENT},
+  {"SET_COMPUTER_PROCESS",         "PANNNNN ", Cmd_SET_COMPUTER_PROCESS},
+  {"ALLY_PLAYERS",                 "PP      ", Cmd_ALLY_PLAYERS},
   {"DEAD_CREATURES_RETURN_TO_POOL","N       ", Cmd_DEAD_CREATURES_RETURN_TO_POOL},
   {"BONUS_LEVEL_TIME",             "N       ", Cmd_BONUS_LEVEL_TIME},
   {"QUICK_OBJECTIVE",              "NAA     ", Cmd_QUICK_OBJECTIVE},
   {"QUICK_INFORMATION",            "NA      ", Cmd_QUICK_INFORMATION},
-  {"SWAP_CREATURE",                "AA      ", Cmd_SWAP_CREATURE},
+  {"SWAP_CREATURE",                "AC      ", Cmd_SWAP_CREATURE},
   {"PRINT",                        "A       ", Cmd_PRINT},
   {"MESSAGE",                      "A       ", Cmd_MESSAGE},
   {"LEVEL_VERSION",                "N       ", Cmd_LEVEL_VERSION},
@@ -361,8 +365,11 @@ DLLIMPORT long _DK_script_support_send_tunneller_to_appropriate_dungeon(struct T
 /******************************************************************************/
 /**
  * Reads word from 'line' into 'param'. Sets if 'line_end' was reached.
+ * @param line The input line position pointer.
+ * @param param Output parameter acquired from the line.
+ * @param parth_level Paraenesis level within the line, set to -1 on EOLN.
  */
-const struct CommandDesc *get_next_word(char **line, char *param, unsigned char *line_end)
+const struct CommandDesc *get_next_word(char **line, char *param, int *para_level)
 {
     const struct CommandDesc *cmnd_desc;
     long rnd_min,rnd_max;
@@ -377,7 +384,7 @@ const struct CommandDesc *get_next_word(char **line, char *param, unsigned char 
     while (1)
     {
         chr = **line;
-        // number
+        // letter or number
         if ((isalnum(chr)) || (chr == '-'))
             break;
         // operator
@@ -386,8 +393,16 @@ const struct CommandDesc *get_next_word(char **line, char *param, unsigned char 
         // end of line
         if ((chr == '\r') || (chr == '\n') || (chr == '\0'))
         {
-            (*line_end) = true;
+            (*para_level) = -1;
             return NULL;
+        }
+        // paraenesis open
+        if (chr == '(') {
+            (*para_level)++;
+        } else
+        // paraenesis close
+        if (chr == ')') {
+            (*para_level)--;
         }
         (*line)++;
     }
@@ -399,11 +414,11 @@ const struct CommandDesc *get_next_word(char **line, char *param, unsigned char 
         // Read the parameter
         while (isalnum(chr) || (chr == '_'))
         {
-          param[pos] = chr;
-          pos++;
-          (*line)++;
-          chr = **line;
-          if (pos+1 >= MAX_TEXT_LENGTH) break;
+            param[pos] = chr;
+            pos++;
+            (*line)++;
+            chr = **line;
+            if (pos+1 >= MAX_TEXT_LENGTH) break;
         }
         param[pos] = '\0';
         strupr(param);
@@ -445,7 +460,7 @@ const struct CommandDesc *get_next_word(char **line, char *param, unsigned char 
               if ((chr == '\r') || (chr == '\n') || (chr == '\0'))
               {
                 SCRPTERRLOG("Invalid first argument for RANDOM command");
-                (*line_end) = true;
+                (*para_level) = -1;
                 return NULL;
               }
               (*line)++;
@@ -477,7 +492,7 @@ const struct CommandDesc *get_next_word(char **line, char *param, unsigned char 
               if ((chr == '\r') || (chr == '\n') || (chr == '\0'))
               {
                 SCRPTERRLOG("Invalid second argument for RANDOM command");
-                (*line_end) = true;
+                (*para_level) = -1;
                 return NULL;
               }
               (*line)++;
@@ -598,7 +613,7 @@ const struct CommandDesc *get_next_word(char **line, char *param, unsigned char 
     }
     chr = **line;
     if ((chr == '\0') || (chr == '\r')  || (chr == '\n'))
-        *line_end = true;
+        *para_level = -1;
     param[pos] = '\0';
     return cmnd_desc;
 }
@@ -633,7 +648,7 @@ TbBool script_is_preloaded_command(long cmnd_index)
 }
 
 #define get_players_range(plrname, plr_start, plr_end) get_players_range_f(plrname, plr_start, plr_end, __func__, text_line_number)
-long get_players_range_f(char *plrname, int *plr_start, int *plr_end, const char *func_name, long ln_num)
+long get_players_range_f(const char *plrname, int *plr_start, int *plr_end, const char *func_name, long ln_num)
 {
   long plr_id;
   plr_id = get_rid(player_desc, plrname);
@@ -663,7 +678,7 @@ long get_players_range_f(char *plrname, int *plr_start, int *plr_end, const char
 }
 
 #define get_player_id(plrname, plr_id) get_player_id_f(plrname, plr_id, __func__, text_line_number)
-TbBool get_player_id_f(char *plrname, long *plr_id, const char *func_name, long ln_num)
+TbBool get_player_id_f(const char *plrname, long *plr_id, const char *func_name, long ln_num)
 {
   *plr_id = get_rid(player_desc, plrname);
   if (*plr_id == -1)
@@ -1626,12 +1641,19 @@ void command_set_music(long val)
   game.music_track_index = val;
 }
 
-void command_set_hate(long a1, long a2, long a3)
+void command_set_hate(const char *trgt_plrname, const char *enmy_plrname, long hate_val)
 {
-  command_add_value(Cmd_SET_HATE, a1, a2, a3, 0);
+    long trgt_plr_id, enmy_plr_id;
+    // Recognize target player
+    if (!get_player_id(trgt_plrname, &trgt_plr_id))
+      return;
+    // Recognize enemy player
+    if (!get_player_id(enmy_plrname, &enmy_plr_id))
+      return;
+    command_add_value(Cmd_SET_HATE, trgt_plr_id, enmy_plr_id, hate_val, 0);
 }
 
-void command_if_available(char *plrname, char *varib_name, char *operatr, long value)
+void command_if_available(const char *plrname, const char *varib_name, const char *operatr, long value)
 {
     long plr_id,opertr_id;
     long varib_type,varib_id;
@@ -1686,7 +1708,7 @@ void command_if_available(char *plrname, char *varib_name, char *operatr, long v
     command_add_condition(plr_id, opertr_id, varib_type, varib_id, value);
 }
 
-void command_if_controls(char *plrname, char *varib_name, char *operatr, long value)
+void command_if_controls(const char *plrname, const char *varib_name, const char *operatr, long value)
 {
     long plr_id,opertr_id;
     long varib_type,varib_id;
@@ -1725,7 +1747,7 @@ void command_if_controls(char *plrname, char *varib_name, char *operatr, long va
     command_add_condition(plr_id, opertr_id, varib_type, varib_id, value);
 }
 
-void command_set_computer_globals(char *plrname, long val1, long val2, long val3, long val4, long val5, long val6)
+void command_set_computer_globals(const char *plrname, long val1, long val2, long val3, long val4, long val5, long val6)
 {
   struct Computer2 *comp;
   int plr_start, plr_end;
@@ -1751,7 +1773,7 @@ void command_set_computer_globals(char *plrname, long val1, long val2, long val3
   }
 }
 
-void command_set_computer_checks(char *plrname, char *chkname, long val1, long val2, long val3, long val4, long val5)
+void command_set_computer_checks(const char *plrname, const char *chkname, long val1, long val2, long val3, long val4, long val5)
 {
   struct ComputerCheck *check;
   int plr_start, plr_end;
@@ -1796,7 +1818,7 @@ void command_set_computer_checks(char *plrname, char *chkname, long val1, long v
   SCRIPTDBG(6,"Altered %d checks",n);
 }
 
-void command_set_computer_events(char *plrname, char *evntname, long val1, long val2)
+void command_set_computer_events(const char *plrname, const char *evntname, long val1, long val2)
 {
   struct ComputerEvent *event;
   int plr_start, plr_end;
@@ -1836,7 +1858,7 @@ void command_set_computer_events(char *plrname, char *evntname, long val1, long 
   SCRIPTDBG(6,"Altered %d events",n);
 }
 
-void command_set_computer_process(char *plrname, char *procname, long val1, long val2, long val3, long val4, long val5)
+void command_set_computer_process(const char *plrname, const char *procname, long val1, long val2, long val3, long val4, long val5)
 {
   struct ComputerProcess *cproc;
   int plr_start, plr_end;
@@ -1881,7 +1903,7 @@ void command_set_computer_process(char *plrname, char *procname, long val1, long
   SCRIPTDBG(6,"Altered %d processes",n);
 }
 
-void command_set_creature_health(char *crtr_name, long val)
+void command_set_creature_health(const char *crtr_name, long val)
 {
   long crtr_id;
   crtr_id = get_rid(creature_desc, crtr_name);
@@ -2155,283 +2177,292 @@ void command_kill_creature(char *plrname, char *crtr_name, char *criteria, int c
 
 long script_scan_line(char *line,TbBool preloaded)
 {
-  const struct CommandDesc *cmd_desc;
-  struct ScriptLine *scline;
-  unsigned char line_end;
-  char *text;
-  char chr;
-  int i;
-  SCRIPTDBG(12,"Starting");
-  scline = (struct ScriptLine *)LbMemoryAlloc(sizeof(struct ScriptLine));
-  if (scline == NULL)
-  {
-    SCRPTERRLOG("Can't allocate buffer to recognize line");
-    return 0;
-  }
-  line_end = false;
-  LbMemorySet(scline, 0, sizeof(struct ScriptLine));
-  if (next_command_reusable > 0)
-    next_command_reusable--;
-  cmd_desc = get_next_word(&line, scline->tcmnd, &line_end);
-  if (cmd_desc == NULL)
-  {
-    if ( isalnum(scline->tcmnd[0]) )
+    const struct CommandDesc *cmd_desc;
+    struct ScriptLine *scline;
+    int para_level;
+    char *text;
+    char chr;
+    int i;
+    SCRIPTDBG(12,"Starting");
+    scline = (struct ScriptLine *)LbMemoryAlloc(sizeof(struct ScriptLine));
+    if (scline == NULL)
     {
-      SCRPTERRLOG("Invalid command, '%s' (lev ver %d)", scline->tcmnd,level_file_version);
+      SCRPTERRLOG("Can't allocate buffer to recognize line");
+      return 0;
+    }
+    para_level = 0;
+    LbMemorySet(scline, 0, sizeof(struct ScriptLine));
+    if (next_command_reusable > 0)
+      next_command_reusable--;
+    cmd_desc = get_next_word(&line, scline->tcmnd, &para_level);
+    if (cmd_desc == NULL)
+    {
+        if (isalnum(scline->tcmnd[0])) {
+          SCRPTERRLOG("Invalid command, '%s' (lev ver %d)", scline->tcmnd,level_file_version);
+        }
+        LbMemoryFree(scline);
+        return 0;
+    }
+    SCRIPTDBG(12,"Executing command %lu",cmd_desc->index);
+    // Handling comments
+    if (cmd_desc->index == Cmd_REM)
+    {
+        LbMemoryFree(scline);
+        return 0;
+    }
+    // selecting only preloaded/not preloaded commands
+    if (script_is_preloaded_command(cmd_desc->index) != preloaded)
+    {
+        LbMemoryFree(scline);
+        return 0;
+    }
+    // Recognizing parameters
+    for (i=0; i < COMMANDDESC_ARGS_COUNT; i++)
+    {
+        chr = cmd_desc->args[i];
+        if (!isupper(chr))
+            break;
+        if (para_level < 0)
+            break;
+        const struct CommandDesc *subcmd_desc;
+        subcmd_desc = get_next_word(&line, scline->tp[i], &para_level);
+        if (subcmd_desc != NULL)
+        {
+            SCRPTWRNLOG("Parameter value '%s' is a command; unsupported yet", scline->tp[i]);
+        }
+        if (scline->tp[i][0] == '\0')
+          break;
+        if (para_level > 1) {
+            SCRPTWRNLOG("Parameter value '%s' at too high paraenesis level %d; skipping", scline->tp[i], (int)para_level);
+            i--;
+            continue;
+        }
+        chr = cmd_desc->args[i];
+        if (chr == 'N')
+        {
+            scline->np[i] = strtol(scline->tp[i],&text,0);
+            if (text != &scline->tp[i][strlen(scline->tp[i])])
+              SCRPTWRNLOG("Numerical value '%s' interpreted as %ld", scline->tp[i], scline->np[i]);
+        }
+    }
+    if (i < COMMANDDESC_ARGS_COUNT)
+    {
+        chr = cmd_desc->args[i];
+        if (isupper(chr))
+        {
+          SCRPTERRLOG("Not enough parameters for \"%s\"", cmd_desc->textptr);
+          LbMemoryFree(scline);
+          return -1;
+        }
+    }
+    switch (cmd_desc->index)
+    {
+    case Cmd_CREATE_PARTY:
+        command_create_party(scline->tp[0]);
+        break;
+    case Cmd_ADD_TO_PARTY:
+        command_add_to_party(scline->tp[0], scline->tp[1], scline->np[2], scline->np[3], scline->tp[4], scline->np[5]);
+        break;
+    case Cmd_ADD_PARTY_TO_LEVEL:
+        command_add_party_to_level(scline->tp[0], scline->tp[1], scline->tp[2], scline->np[3]);
+        break;
+    case Cmd_ADD_CREATURE_TO_LEVEL:
+        command_add_creature_to_level(scline->tp[0], scline->tp[1], scline->tp[2], scline->np[3], scline->np[4], scline->np[5]);
+        break;
+    case Cmd_IF:
+        command_if(scline->tp[0], scline->tp[1], scline->tp[2], scline->np[3]);
+        break;
+    case Cmd_ENDIF:
+        pop_condition();
+        break;
+    case Cmd_SET_HATE:
+        command_set_hate(scline->tp[0], scline->tp[1], scline->np[2]);
+        break;
+    case Cmd_SET_GENERATE_SPEED:
+        command_set_generate_speed(scline->np[0]);
+        break;
+    case Cmd_START_MONEY:
+        command_set_start_money(scline->tp[0], scline->np[1]);
+        break;
+    case Cmd_ROOM_AVAILABLE:
+        command_room_available(scline->tp[0], scline->tp[1], scline->np[2], scline->np[3]);
+        break;
+    case Cmd_CREATURE_AVAILABLE:
+        command_creature_available(scline->tp[0], scline->tp[1], scline->np[2], scline->np[3]);
+        break;
+    case Cmd_MAGIC_AVAILABLE:
+        command_magic_available(scline->tp[0], scline->tp[1], scline->np[2], scline->np[3]);
+        break;
+    case Cmd_TRAP_AVAILABLE:
+        command_trap_available(scline->tp[0], scline->tp[1], scline->np[2], scline->np[3]);
+        break;
+    case Cmd_RESEARCH:
+        command_research(scline->tp[0], scline->tp[1], scline->tp[2], scline->np[3]);
+        break;
+    case Cmd_RESEARCH_ORDER:
+        command_research_order(scline->tp[0], scline->tp[1], scline->tp[2], scline->np[3]);
+        break;
+    case Cmd_COMPUTER_PLAYER:
+        command_computer_player(scline->tp[0], scline->np[1]);
+        break;
+    case Cmd_SET_TIMER:
+        command_set_timer(scline->tp[0], scline->tp[1]);
+        break;
+    case Cmd_IF_ACTION_POINT:
+        command_if_action_point(scline->np[0], scline->tp[1]);
+        break;
+    case Cmd_ADD_TUNNELLER_TO_LEVEL:
+        command_add_tunneller_to_level(scline->tp[0], scline->tp[1], scline->tp[2], scline->np[3], scline->np[4], scline->np[5]);
+        break;
+    case Cmd_WIN_GAME:
+        command_win_game();
+        break;
+    case Cmd_LOSE_GAME:
+        command_lose_game();
+        break;
+    case Cmd_SET_FLAG:
+        command_set_flag(scline->tp[0], scline->tp[1], scline->np[2]);
+        break;
+    case Cmd_MAX_CREATURES:
+        command_max_creatures(scline->tp[0], scline->np[1]);
+        break;
+    case Cmd_NEXT_COMMAND_REUSABLE:
+        next_command_reusable = 2;
+        break;
+    case Cmd_DOOR_AVAILABLE:
+        command_door_available(scline->tp[0], scline->tp[1], scline->np[2], scline->np[3]);
+        break;
+    case Cmd_DISPLAY_OBJECTIVE:
+        command_display_objective(scline->np[0], scline->tp[1], 0, 0);
+        break;
+    case Cmd_DISPLAY_INFORMATION:
+        if (level_file_version > 0)
+          command_display_information(scline->np[0], scline->tp[1], 0, 0);
+        else
+          command_display_information(scline->np[0], "ALL_PLAYERS", 0, 0);
+        break;
+    case Cmd_ADD_TUNNELLER_PARTY_TO_LEVEL:
+        command_add_tunneller_party_to_level(scline->tp[0], scline->tp[1], scline->tp[2], scline->tp[3], scline->np[4], scline->np[5], scline->np[6]);
+        break;
+    case Cmd_ADD_CREATURE_TO_POOL:
+        command_add_creature_to_pool(scline->tp[0], scline->np[1]);
+        break;
+    case Cmd_RESET_ACTION_POINT:
+        command_reset_action_point(scline->np[0]);
+        break;
+    case Cmd_TUTORIAL_FLASH_BUTTON:
+        command_tutorial_flash_button(scline->np[0], scline->np[1]);
+        break;
+    case Cmd_SET_CREATURE_MAX_LEVEL:
+        command_set_creature_max_level(scline->tp[0], scline->tp[1], scline->np[2]);
+        break;
+    case Cmd_SET_MUSIC:
+        command_set_music(scline->np[0]);
+        break;
+    case Cmd_SET_CREATURE_HEALTH:
+        command_set_creature_health(scline->tp[0], scline->np[1]);
+        break;
+    case Cmd_SET_CREATURE_STRENGTH:
+        command_set_creature_strength(scline->tp[0], scline->np[1]);
+        break;
+    case Cmd_SET_CREATURE_ARMOUR:
+        command_set_creature_armour(scline->tp[0], scline->np[1]);
+        break;
+    case Cmd_SET_CREATURE_FEAR_WOUNDED:
+        command_set_creature_fear_wounded(scline->tp[0], scline->np[1]);
+        break;
+    case Cmd_SET_CREATURE_FEAR_STRONGER:
+        command_set_creature_fear_stronger(scline->tp[0], scline->np[1]);
+        break;
+    case Cmd_DISPLAY_OBJECTIVE_WITH_POS:
+        command_display_objective(scline->np[0], NULL, scline->np[1], scline->np[2]);
+        break;
+    case Cmd_IF_AVAILABLE:
+        command_if_available(scline->tp[0], scline->tp[1], scline->tp[2], scline->np[3]);
+        break;
+    case Cmd_IF_CONTROLS:
+        command_if_controls(scline->tp[0], scline->tp[1], scline->tp[2], scline->np[3]);
+        break;
+    case Cmd_SET_COMPUTER_GLOBALS:
+        command_set_computer_globals(scline->tp[0], scline->np[1], scline->np[2], scline->np[3], scline->np[4], scline->np[5], scline->np[6]);
+        break;
+    case Cmd_SET_COMPUTER_CHECKS:
+        command_set_computer_checks(scline->tp[0], scline->tp[1], scline->np[2], scline->np[3], scline->np[4], scline->np[5], scline->np[6]);
+        break;
+    case Cmd_SET_COMPUTER_EVENT:
+        command_set_computer_events(scline->tp[0], scline->tp[1], scline->np[2], scline->np[3]);
+        break;
+    case Cmd_SET_COMPUTER_PROCESS:
+        command_set_computer_process(scline->tp[0], scline->tp[1], scline->np[2], scline->np[3], scline->np[4], scline->np[5], scline->np[6]);
+        break;
+    case Cmd_ALLY_PLAYERS:
+        if (level_file_version > 0)
+            command_ally_players(scline->tp[0], scline->tp[1], scline->np[2]);
+        else
+            command_ally_players(scline->tp[0], scline->tp[1], true);
+        break;
+    case Cmd_DEAD_CREATURES_RETURN_TO_POOL:
+        command_dead_creatures_return_to_pool(scline->np[0]);
+        break;
+    case Cmd_DISPLAY_INFORMATION_WITH_POS:
+        command_display_information(scline->np[0], NULL, scline->np[1], scline->np[2]);
+        break;
+    case Cmd_BONUS_LEVEL_TIME:
+        command_bonus_level_time(scline->np[0]);
+        break;
+    case Cmd_QUICK_OBJECTIVE:
+        command_quick_objective(scline->np[0], scline->tp[1], scline->tp[2], 0, 0);
+        break;
+    case Cmd_QUICK_INFORMATION:
+        if (level_file_version > 0)
+          command_quick_information(scline->np[0], scline->tp[1], scline->tp[2], 0, 0);
+        else
+          command_quick_information(scline->np[0], scline->tp[1], "ALL_PLAYERS", 0, 0);
+        break;
+    case Cmd_QUICK_OBJECTIVE_WITH_POS:
+        command_quick_objective(scline->np[0], scline->tp[1], NULL, scline->np[2], scline->np[3]);
+        break;
+    case Cmd_QUICK_INFORMATION_WITH_POS:
+        command_quick_information(scline->np[0], scline->tp[1], NULL, scline->np[2], scline->np[3]);
+        break;
+    case Cmd_SWAP_CREATURE:
+        command_swap_creature(scline->tp[0], scline->tp[1]);
+        break;
+    case Cmd_PRINT:
+        command_message(scline->tp[0],80);
+        break;
+    case Cmd_MESSAGE:
+        command_message(scline->tp[0],68);
+        break;
+    case Cmd_PLAY_MESSAGE:
+        command_play_message(scline->tp[0], scline->tp[1], scline->np[2]);
+        break;
+    case Cmd_ADD_GOLD_TO_PLAYER:
+        command_add_gold_to_player(scline->tp[0], scline->np[1]);
+        break;
+    case Cmd_SET_CREATURE_TENDENCIES:
+        command_set_creature_tendencies(scline->tp[0], scline->tp[1], scline->np[2]);
+        break;
+    case Cmd_REVEAL_MAP_RECT:
+        command_reveal_map_rect(scline->tp[0], scline->np[1], scline->np[2], scline->np[3], scline->np[4]);
+        break;
+    case Cmd_REVEAL_MAP_LOCATION:
+        command_reveal_map_location(scline->tp[0], scline->tp[1], scline->np[2]);
+        break;
+    case Cmd_KILL_CREATURE:
+        command_kill_creature(scline->tp[0], scline->tp[1], scline->tp[2], scline->np[3]);
+        break;
+    case Cmd_LEVEL_VERSION:
+        level_file_version = scline->np[0];
+        SCRPTLOG("Level files version %d.",level_file_version);
+        break;
+    default:
+        SCRPTERRLOG("Unhandled SCRIPT command '%s'", scline->tcmnd);
+        break;
     }
     LbMemoryFree(scline);
+    SCRIPTDBG(13,"Finished");
     return 0;
-  }
-  SCRIPTDBG(12,"Executing command %lu",cmd_desc->index);
-  // Handling comments
-  if (cmd_desc->index == Cmd_REM)
-  {
-    LbMemoryFree(scline);
-    return 0;
-  }
-  // selecting only preloaded/not preloaded commands
-  if (script_is_preloaded_command(cmd_desc->index) != preloaded)
-  {
-    LbMemoryFree(scline);
-    return 0;
-  }
-  // Recognizing parameters
-  for (i=0; i < COMMANDDESC_ARGS_COUNT; i++)
-  {
-    chr = cmd_desc->args[i];
-    if ((chr == ' ') || (chr == '\0'))
-      break;
-    if (line_end)
-      break;
-    get_next_word(&line, scline->tp[i], &line_end);
-    if (scline->tp[i][0] == '\0')
-      break;
-    chr = cmd_desc->args[i];
-    if ((chr == 'N') || (chr == 'n'))
-    {
-      scline->np[i] = strtol(scline->tp[i],&text,0);
-      if (text != &scline->tp[i][strlen(scline->tp[i])])
-        SCRPTWRNLOG("Numerical value '%s' interpreted as %ld", scline->tp[i], scline->np[i]);
-    }
-  }
-  if (i < COMMANDDESC_ARGS_COUNT)
-  {
-    chr = cmd_desc->args[i];
-    if ((chr == 'A') || (chr == 'N'))
-    {
-      SCRPTERRLOG("Not enough parameters for \"%s\"", cmd_desc->textptr);
-      LbMemoryFree(scline);
-      return -1;
-    }
-  }
-  switch (cmd_desc->index)
-  {
-  case Cmd_CREATE_PARTY:
-      command_create_party(scline->tp[0]);
-      break;
-  case Cmd_ADD_TO_PARTY:
-      command_add_to_party(scline->tp[0], scline->tp[1], scline->np[2], scline->np[3], scline->tp[4], scline->np[5]);
-      break;
-  case Cmd_ADD_PARTY_TO_LEVEL:
-      command_add_party_to_level(scline->tp[0], scline->tp[1], scline->tp[2], scline->np[3]);
-      break;
-  case Cmd_ADD_CREATURE_TO_LEVEL:
-      command_add_creature_to_level(scline->tp[0], scline->tp[1], scline->tp[2], scline->np[3], scline->np[4], scline->np[5]);
-      break;
-  case Cmd_IF:
-      command_if(scline->tp[0], scline->tp[1], scline->tp[2], scline->np[3]);
-      break;
-  case Cmd_ENDIF:
-      pop_condition();
-      break;
-  case Cmd_SET_HATE:
-      command_set_hate(scline->np[0], scline->np[1], scline->np[2]);
-      break;
-  case Cmd_SET_GENERATE_SPEED:
-      command_set_generate_speed(scline->np[0]);
-      break;
-  case Cmd_START_MONEY:
-      command_set_start_money(scline->tp[0], scline->np[1]);
-      break;
-  case Cmd_ROOM_AVAILABLE:
-      command_room_available(scline->tp[0], scline->tp[1], scline->np[2], scline->np[3]);
-      break;
-  case Cmd_CREATURE_AVAILABLE:
-      command_creature_available(scline->tp[0], scline->tp[1], scline->np[2], scline->np[3]);
-      break;
-  case Cmd_MAGIC_AVAILABLE:
-      command_magic_available(scline->tp[0], scline->tp[1], scline->np[2], scline->np[3]);
-      break;
-  case Cmd_TRAP_AVAILABLE:
-      command_trap_available(scline->tp[0], scline->tp[1], scline->np[2], scline->np[3]);
-      break;
-  case Cmd_RESEARCH:
-      command_research(scline->tp[0], scline->tp[1], scline->tp[2], scline->np[3]);
-      break;
-  case Cmd_RESEARCH_ORDER:
-      command_research_order(scline->tp[0], scline->tp[1], scline->tp[2], scline->np[3]);
-      break;
-  case Cmd_COMPUTER_PLAYER:
-      command_computer_player(scline->tp[0], scline->np[1]);
-      break;
-  case Cmd_SET_TIMER:
-      command_set_timer(scline->tp[0], scline->tp[1]);
-      break;
-  case Cmd_IF_ACTION_POINT:
-      command_if_action_point(scline->np[0], scline->tp[1]);
-      break;
-  case Cmd_ADD_TUNNELLER_TO_LEVEL:
-      command_add_tunneller_to_level(scline->tp[0], scline->tp[1], scline->tp[2], scline->np[3], scline->np[4], scline->np[5]);
-      break;
-  case Cmd_WIN_GAME:
-      command_win_game();
-      break;
-  case Cmd_LOSE_GAME:
-      command_lose_game();
-      break;
-  case Cmd_SET_FLAG:
-      command_set_flag(scline->tp[0], scline->tp[1], scline->np[2]);
-      break;
-  case Cmd_MAX_CREATURES:
-      command_max_creatures(scline->tp[0], scline->np[1]);
-      break;
-  case Cmd_NEXT_COMMAND_REUSABLE:
-      next_command_reusable = 2;
-      break;
-  case Cmd_DOOR_AVAILABLE:
-      command_door_available(scline->tp[0], scline->tp[1], scline->np[2], scline->np[3]);
-      break;
-  case Cmd_DISPLAY_OBJECTIVE:
-      command_display_objective(scline->np[0], scline->tp[1], 0, 0);
-      break;
-  case Cmd_DISPLAY_INFORMATION:
-      if (level_file_version > 0)
-        command_display_information(scline->np[0], scline->tp[1], 0, 0);
-      else
-        command_display_information(scline->np[0], "ALL_PLAYERS", 0, 0);
-      break;
-  case Cmd_ADD_TUNNELLER_PARTY_TO_LEVEL:
-      command_add_tunneller_party_to_level(scline->tp[0], scline->tp[1], scline->tp[2], scline->tp[3], scline->np[4], scline->np[5], scline->np[6]);
-      break;
-  case Cmd_ADD_CREATURE_TO_POOL:
-      command_add_creature_to_pool(scline->tp[0], scline->np[1]);
-      break;
-  case Cmd_RESET_ACTION_POINT:
-      command_reset_action_point(scline->np[0]);
-      break;
-  case Cmd_TUTORIAL_FLASH_BUTTON:
-      command_tutorial_flash_button(scline->np[0], scline->np[1]);
-      break;
-  case Cmd_SET_CREATURE_MAX_LEVEL:
-      command_set_creature_max_level(scline->tp[0], scline->tp[1], scline->np[2]);
-      break;
-  case Cmd_SET_MUSIC:
-      command_set_music(scline->np[0]);
-      break;
-  case Cmd_SET_CREATURE_HEALTH:
-      command_set_creature_health(scline->tp[0], scline->np[1]);
-      break;
-  case Cmd_SET_CREATURE_STRENGTH:
-      command_set_creature_strength(scline->tp[0], scline->np[1]);
-      break;
-  case Cmd_SET_CREATURE_ARMOUR:
-      command_set_creature_armour(scline->tp[0], scline->np[1]);
-      break;
-  case Cmd_SET_CREATURE_FEAR_WOUNDED:
-      command_set_creature_fear_wounded(scline->tp[0], scline->np[1]);
-      break;
-  case Cmd_SET_CREATURE_FEAR_STRONGER:
-      command_set_creature_fear_stronger(scline->tp[0], scline->np[1]);
-      break;
-  case Cmd_DISPLAY_OBJECTIVE_WITH_POS:
-      command_display_objective(scline->np[0], NULL, scline->np[1], scline->np[2]);
-      break;
-  case Cmd_IF_AVAILABLE:
-      command_if_available(scline->tp[0], scline->tp[1], scline->tp[2], scline->np[3]);
-      break;
-  case Cmd_IF_CONTROLS:
-      command_if_controls(scline->tp[0], scline->tp[1], scline->tp[2], scline->np[3]);
-      break;
-  case Cmd_SET_COMPUTER_GLOBALS:
-      command_set_computer_globals(scline->tp[0], scline->np[1], scline->np[2], scline->np[3], scline->np[4], scline->np[5], scline->np[6]);
-      break;
-  case Cmd_SET_COMPUTER_CHECKS:
-      command_set_computer_checks(scline->tp[0], scline->tp[1], scline->np[2], scline->np[3], scline->np[4], scline->np[5], scline->np[6]);
-      break;
-  case Cmd_SET_COMPUTER_EVENT:
-      command_set_computer_events(scline->tp[0], scline->tp[1], scline->np[2], scline->np[3]);
-      break;
-  case Cmd_SET_COMPUTER_PROCESS:
-      command_set_computer_process(scline->tp[0], scline->tp[1], scline->np[2], scline->np[3], scline->np[4], scline->np[5], scline->np[6]);
-      break;
-  case Cmd_ALLY_PLAYERS:
-      if (level_file_version > 0)
-          command_ally_players(scline->tp[0], scline->tp[1], scline->np[2]);
-      else
-          command_ally_players(scline->tp[0], scline->tp[1], true);
-      break;
-  case Cmd_DEAD_CREATURES_RETURN_TO_POOL:
-      command_dead_creatures_return_to_pool(scline->np[0]);
-      break;
-  case Cmd_DISPLAY_INFORMATION_WITH_POS:
-      command_display_information(scline->np[0], NULL, scline->np[1], scline->np[2]);
-      break;
-  case Cmd_BONUS_LEVEL_TIME:
-      command_bonus_level_time(scline->np[0]);
-      break;
-  case Cmd_QUICK_OBJECTIVE:
-      command_quick_objective(scline->np[0], scline->tp[1], scline->tp[2], 0, 0);
-      break;
-  case Cmd_QUICK_INFORMATION:
-      if (level_file_version > 0)
-        command_quick_information(scline->np[0], scline->tp[1], scline->tp[2], 0, 0);
-      else
-        command_quick_information(scline->np[0], scline->tp[1], "ALL_PLAYERS", 0, 0);
-      break;
-  case Cmd_QUICK_OBJECTIVE_WITH_POS:
-      command_quick_objective(scline->np[0], scline->tp[1], NULL, scline->np[2], scline->np[3]);
-      break;
-  case Cmd_QUICK_INFORMATION_WITH_POS:
-      command_quick_information(scline->np[0], scline->tp[1], NULL, scline->np[2], scline->np[3]);
-      break;
-  case Cmd_SWAP_CREATURE:
-      command_swap_creature(scline->tp[0], scline->tp[1]);
-      break;
-  case Cmd_PRINT:
-      command_message(scline->tp[0],80);
-      break;
-  case Cmd_MESSAGE:
-      command_message(scline->tp[0],68);
-      break;
-  case Cmd_PLAY_MESSAGE:
-      command_play_message(scline->tp[0], scline->tp[1], scline->np[2]);
-      break;
-  case Cmd_ADD_GOLD_TO_PLAYER:
-      command_add_gold_to_player(scline->tp[0], scline->np[1]);
-      break;
-  case Cmd_SET_CREATURE_TENDENCIES:
-      command_set_creature_tendencies(scline->tp[0], scline->tp[1], scline->np[2]);
-      break;
-  case Cmd_REVEAL_MAP_RECT:
-      command_reveal_map_rect(scline->tp[0], scline->np[1], scline->np[2], scline->np[3], scline->np[4]);
-      break;
-  case Cmd_REVEAL_MAP_LOCATION:
-      command_reveal_map_location(scline->tp[0], scline->tp[1], scline->np[2]);
-      break;
-  case Cmd_KILL_CREATURE:
-      command_kill_creature(scline->tp[0], scline->tp[1], scline->tp[2], scline->np[3]);
-      break;
-  case Cmd_LEVEL_VERSION:
-      level_file_version = scline->np[0];
-      SCRPTLOG("Level files version %d.",level_file_version);
-      break;
-  default:
-      SCRPTERRLOG("Unhandled SCRIPT command '%s'", scline->tcmnd);
-      break;
-  }
-  LbMemoryFree(scline);
-  SCRIPTDBG(13,"Finished");
-  return 0;
 }
 
 short clear_script(void)
