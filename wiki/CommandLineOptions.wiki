@@ -12,7 +12,7 @@ Note that the [LauncherApplication Launcher App] can be used to choose command l
   The intro sequence won't play at startup.
 
 `-nocd`
-  The game music will play from OGG files in the '/music' subfolder instead of the CD Sound tracks. You can get the required OGG files form <a href="http://www.gog.com/game/dungeon_keeper">GOG release of DK</a>, or just download them from <a href="https://keeperklan.com/downloads.php?do=file&id=112">here</a>.
+  The game music will play from OGG files in the '/music' subfolder instead of the CD Sound tracks. You can get the required OGG files from <a href="http://www.gog.com/game/dungeon_keeper">GOG release of DK</a>, or just download them from <a href="https://keeperklan.com/downloads.php?do=file&id=112">here</a>.
 
 `-1player`
   Allows playing multiplayer maps in skirmish mode.
