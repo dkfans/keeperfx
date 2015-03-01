@@ -1692,7 +1692,7 @@ TbBool parse_rules_health_blocks(char *buf, long len, const char *config_textnam
   return true;
 }
 
-long get_research_id(long item_type, char *trg_name, const char *func_name)
+long get_research_id(long item_type, const char *trg_name, const char *func_name)
 {
   long item_id;
   switch (item_type)

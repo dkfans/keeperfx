@@ -67,7 +67,7 @@ struct SacrificeRecipe {
 extern const char keeper_rules_file[];
 extern const struct NamedCommand research_desc[];
 /******************************************************************************/
-long get_research_id(long item_type, char *trg_name, const char *func_name);
+long get_research_id(long item_type, const char *trg_name, const char *func_name);
 TbBool load_rules_config(const char *conf_fname, unsigned short flags);
 /******************************************************************************/
 #ifdef __cplusplus
