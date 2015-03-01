@@ -2363,22 +2363,61 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
             {
             case Cmd_RANDOM:
                 { // Support of the RANDOM() function
-                //TODO make correct RANDOM implementation
-                long rnd_min,rnd_max;
-                // Get the minimum random number
-                rnd_min = atol(funscline->tp[0]);
-                // Get the maximum random number
-                rnd_max = atol(funscline->tp[1]);
-                // Prepare the value
-                if (rnd_max > rnd_min) {
-                    itoa((rand() % (rnd_max-rnd_min+1)) + rnd_min, scline->tp[i], 10);
-                } else {
-                    SCRPTERRLOG("Second argument of RANDOM command should be greater than first");
-                    itoa(rnd_min, scline->tp[i], 10);
+                // Create array of value ranges
+                struct MinMax ranges[COMMANDDESC_ARGS_COUNT];
+                long range_total, range_index;
+                range_total = 0;
+                int fi;
+                /*if (level_file_version > 0)
+                {
+                    for (fi=0; fi < COMMANDDESC_ARGS_COUNT; fi++)
+                    {
+                        if (funscline->tp[fi][0] == '\0') {
+                            break;
+                        }
+                        //TODO make correct RANDOM ranges implementation - support text values and ranges "a~b"
+                        ranges[fi].min = atol(funscline->tp[fi]);
+                        ranges[fi].max = ranges[fi].min;
+                        if (ranges[fi].max < ranges[fi].min) {
+                            SCRPTWRNLOG("Range definition in argument of RANDOM command should have lower value first");
+                            ranges[fi].max = ranges[fi].min;
+                        }
+                        range_total += ranges[fi].max - ranges[fi].min + 1;
+                    }
+                } else*/
+                {
+                    // Old RANDOM command accepts only one range, and gives only numbers
+                    fi = 0;
+                    {
+                        ranges[fi].min = atol(funscline->tp[0]);
+                        ranges[fi].max = atol(funscline->tp[1]);
+                    }
+                    if (ranges[fi].max < ranges[fi].min) {
+                        SCRPTWRNLOG("Range definition in argument of RANDOM command should have lower value first");
+                        ranges[fi].max = ranges[fi].min;
+                    }
+                    range_total += ranges[fi].max - ranges[fi].min + 1;
+                    fi++;
                 }
-                } break;
+                if (range_total <= 0) {
+                    SCRPTERRLOG("Arguments of RANDOM command define no range");
+                    break;
+                }
+                // Select random index
+                range_index = rand() % range_total;
+                // Get value from ranges array
+                range_total = 0;
+                for (fi=0; fi < COMMANDDESC_ARGS_COUNT; fi++)
+                {
+                    if ((range_index >= range_total) && (range_index <= range_total + ranges[fi].max - ranges[fi].min)) {
+                        itoa(ranges[fi].min + range_index - range_total, scline->tp[i], 10);
+                        break;
+                    }
+                    range_total += ranges[fi].max - ranges[fi].min + 1;
+                }
+                };break;
             default:
-                SCRPTWRNLOG("Parameter value '%s' is a command which isn't supported as function", scline->tp[i]);
+                SCRPTWRNLOG("Parameter value \"%s\" is a command which isn't supported as function", scline->tp[i]);
                 break;
             }
             LbMemoryFree(funscline);
@@ -2387,25 +2426,63 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
           break;
         }
         if (*para_level > expect_level+2) {
-            SCRPTWRNLOG("Parameter value '%s' at too high paraenesis level %d; skipping", scline->tp[i], (int)*para_level);
+            SCRPTWRNLOG("Parameter value \"%s\" at too high paraenesis level %d; skipping", scline->tp[i], (int)*para_level);
             i--;
             continue;
         }
+        TbBool bad_param;
+        bad_param = false;
         chr = cmd_desc->args[i];
         switch (toupper(chr))
         {
         case 'N':
             scline->np[i] = strtol(scline->tp[i],&text,0);
             if (text != &scline->tp[i][strlen(scline->tp[i])]) {
-                SCRPTWRNLOG("Numerical value '%s' interpreted as %ld", scline->tp[i], scline->np[i]);
+                SCRPTWRNLOG("Numerical value \"%s\" interpreted as %ld", scline->tp[i], scline->np[i]);
             }
             break;
-        case 'P':
-        case 'C':
-        case 'R':
-        case 'L':
-            // TODO implement interpreting these
-            break;
+        case 'P':{
+            long plr_id;
+            if (get_player_id(scline->tp[i], &plr_id)) {
+                scline->np[i] = plr_id;
+            } else {
+                bad_param = true;
+            }
+            };break;
+        case 'C':{
+            long crtr_id;
+            crtr_id = get_rid(creature_desc, scline->tp[i]);
+            if (crtr_id != -1) {
+                scline->np[i] = crtr_id;
+            } else {
+                SCRPTERRLOG("Unknown creature, \"%s\"", scline->tp[i]);
+                bad_param = true;
+            }
+            };break;
+        case 'R':{
+            long room_id;
+            room_id = get_rid(room_desc, scline->tp[i]);
+            if (room_id != -1)
+            {
+                scline->np[i] = room_id;
+            } else {
+                SCRPTERRLOG("Unknown room kind, \"%s\"", scline->tp[i]);
+                bad_param = true;
+            }
+            };break;
+        case 'L':{
+            TbMapLocation loc;
+            if (get_map_location_id(scline->tp[i], &loc)) {
+                scline->np[i] = loc;
+            } else {
+                bad_param = true;
+            }
+            };break;
+        }
+        if (bad_param) {
+            SCRPTERRLOG("Parameter %d of command \"%s\" is invalid; discarding command", i+1, scline->tcmnd);
+            LbMemoryFree(scline);
+            return -1;
         }
     }
     return i;
