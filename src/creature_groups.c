@@ -455,7 +455,7 @@ int get_party_index_of_name(const char *prtname)
     return -1;
 }
 
-TbBool create_party(char *prtname)
+TbBool create_party(const char *prtname)
 {
     struct Party *party;
     if (game.script.creature_partys_num >= CREATURE_PARTYS_COUNT)
