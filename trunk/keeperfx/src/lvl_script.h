@@ -22,6 +22,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
+#include "config.h"
 #include "creature_groups.h"
 
 #ifdef __cplusplus
@@ -279,6 +280,7 @@ DLLIMPORT unsigned short _DK_condition_stack[48];
 #define condition_stack _DK_condition_stack
 /******************************************************************************/
 extern const struct CommandDesc command_desc[];
+extern const struct NamedCommand player_desc[];
 /******************************************************************************/
 TbBool script_support_setup_player_as_computer_keeper(PlayerNumber plyridx, long comp_model);
 TbBool script_support_setup_player_as_zombie_keeper(unsigned short plyridx);
@@ -308,6 +310,7 @@ unsigned short get_map_location_type(TbMapLocation location);
 unsigned long get_map_location_longval(TbMapLocation location);
 unsigned long get_map_location_plyrval(TbMapLocation location);
 unsigned short get_map_location_plyridx(TbMapLocation location);
+TbBool get_map_location_code_name(TbMapLocation location, char *name);
 
 short clear_script(void);
 short load_script(long lvl_num);

@@ -69,6 +69,8 @@ extern const struct NamedCommand research_desc[];
 /******************************************************************************/
 long get_research_id(long item_type, const char *trg_name, const char *func_name);
 TbBool load_rules_config(const char *conf_fname, unsigned short flags);
+
+const char *player_code_name(PlayerNumber plyr_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

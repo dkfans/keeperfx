@@ -1729,6 +1729,18 @@ long get_research_id(long item_type, const char *trg_name, const char *func_name
   return item_id;
 }
 
+/**
+ * Returns Code Name (name to use in script file) of given player.
+ */
+const char *player_code_name(PlayerNumber plyr_idx)
+{
+    const char *name;
+    name = get_conf_parameter_text(player_desc,plyr_idx);
+    if (name[0] != '\0')
+        return name;
+    return "INVALID";
+}
+
 TbBool parse_rules_research_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
   long pos;
