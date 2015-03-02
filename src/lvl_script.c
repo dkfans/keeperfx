@@ -201,11 +201,11 @@ const struct NamedCommand newcrtr_desc[] = {
 };
 
 const struct NamedCommand player_desc[] = {
-  {"PLAYER0",          0},
-  {"PLAYER1",          1},
-  {"PLAYER2",          2},
-  {"PLAYER3",          3},
-  {"PLAYER_GOOD",      4},
+  {"PLAYER0",          PLAYER0},
+  {"PLAYER1",          PLAYER1},
+  {"PLAYER2",          PLAYER2},
+  {"PLAYER3",          PLAYER3},
+  {"PLAYER_GOOD",      PLAYER_GOOD},
   {"ALL_PLAYERS",      ALL_PLAYERS},
   {NULL,               0},
 };
@@ -390,7 +390,7 @@ const struct CommandDesc *get_next_word(char **line, char *param, int *para_leve
         if ((isalnum(chr)) || (chr == '-'))
             break;
         // operator
-        if ((chr == '\"') || (chr == '=') || (chr == '!') || (chr == '<') || (chr == '>'))
+        if ((chr == '\"') || (chr == '=') || (chr == '!') || (chr == '<') || (chr == '>') || (chr == '~'))
             break;
         // end of line
         if ((chr == '\r') || (chr == '\n') || (chr == '\0'))
@@ -505,8 +505,8 @@ const struct CommandDesc *get_next_word(char **line, char *param, int *para_leve
             chr = **line;
             if (chr != '=')
             {
-              SCRPTERRLOG("Expected '=' after '!'");
-              return NULL;
+                SCRPTERRLOG("Expected '=' after '!'");
+                return NULL;
             }
             param[pos] = chr;
             pos++;
@@ -671,14 +671,14 @@ TbBool get_map_location_id_f(const char *locname, TbMapLocation *location, const
     i = get_rid(creature_desc, locname);
     if (i != -1)
     {
-        *location = ((unsigned long)i << 12) | MLoc_CREATUREKIND;
+        *location = ((unsigned long)i << 12) | ((unsigned long)my_player_number << 4) | MLoc_CREATUREKIND;
         return true;
     }
     // Room name means location of such room belonging to player0
     i = get_rid(room_desc, locname);
     if (i != -1)
     {
-        *location = ((unsigned long)i << 12) | MLoc_ROOMKIND;
+        *location = ((unsigned long)i << 12) | ((unsigned long)my_player_number << 4) | MLoc_ROOMKIND;
         return true;
     }
     i = atol(locname);
@@ -716,6 +716,72 @@ TbBool get_map_location_id_f(const char *locname, TbMapLocation *location, const
       *location = MLoc_NONE;
     }
     return true;
+}
+
+/**
+ * Writes Code Name (name to use in script file) of given map location to buffer.
+ * @ name Output buffer. It should be COMMAND_WORD_LEN long.
+ */
+TbBool get_map_location_code_name(TbMapLocation location, char *name)
+{
+    long i;
+    switch (get_map_location_type(location))
+    {
+    case MLoc_ACTIONPOINT:{
+        i = get_map_location_longval(location);
+        struct ActionPoint *apt;
+        apt = action_point_get(i);
+        if (apt->num <= 0) {
+            break;
+        }
+        itoa(apt->num, name, 10);
+        };return true;
+    case MLoc_HEROGATE:{
+        i = get_map_location_longval(location);
+        if (i <= 0) {
+            break;
+        }
+        itoa(-i, name, 10);
+        };return true;
+    case MLoc_PLAYERSHEART:{
+        i = get_map_location_longval(location);
+        const char *cnstname;
+        cnstname = get_conf_parameter_text(player_desc,i);
+        if (cnstname[0] == '\0') {
+            break;
+        }
+        strcpy(name, cnstname);
+        };return true;
+    case MLoc_CREATUREKIND:{
+        i = get_map_location_plyrval(location);
+        const char *cnstname;
+        cnstname = get_conf_parameter_text(creature_desc,i);
+        if (cnstname[0] == '\0') {
+            break;
+        }
+        strcpy(name, cnstname);
+        };return true;
+    case MLoc_ROOMKIND:{
+        i = get_map_location_plyrval(location);
+        const char *cnstname;
+        cnstname = get_conf_parameter_text(room_desc,i);
+        if (cnstname[0] == '\0') {
+            break;
+        }
+        strcpy(name, cnstname);
+        };return true;
+    case MLoc_OBJECTKIND:
+    case MLoc_THING:
+    case MLoc_PLAYERSDUNGEON:
+    case MLoc_APPROPRTDUNGEON:
+    case MLoc_DOORKIND:
+    case MLoc_TRAPKIND:
+    case MLoc_NONE:
+    default:
+        break;
+    }
+    strcpy(name, "INVALID");
+    return false;
 }
 
 /**
@@ -2310,9 +2376,96 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
     }
 }
 
-int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, struct ScriptLine *scline, int *para_level, int expect_level)
+TbBool script_command_param_to_number(char type_chr, struct ScriptLine *scline, int idx)
 {
     char *text;
+    switch (toupper(type_chr))
+    {
+    case 'N':
+        scline->np[idx] = strtol(scline->tp[idx],&text,0);
+        if (text != &scline->tp[idx][strlen(scline->tp[idx])]) {
+            SCRPTWRNLOG("Numerical value \"%s\" interpreted as %ld", scline->tp[idx], scline->np[idx]);
+        }
+        break;
+    case 'P':{
+        long plr_id;
+        if (!get_player_id(scline->tp[idx], &plr_id)) {
+            return false;
+        }
+        scline->np[idx] = plr_id;
+        };break;
+    case 'C':{
+        long crtr_id;
+        crtr_id = get_rid(creature_desc, scline->tp[idx]);
+        if (crtr_id == -1) {
+            SCRPTERRLOG("Unknown creature, \"%s\"", scline->tp[idx]);
+            return false;
+        }
+        scline->np[idx] = crtr_id;
+        };break;
+    case 'R':{
+        long room_id;
+        room_id = get_rid(room_desc, scline->tp[idx]);
+        if (room_id == -1)
+        {
+            SCRPTERRLOG("Unknown room kind, \"%s\"", scline->tp[idx]);
+            return false;
+        }
+        scline->np[idx] = room_id;
+        };break;
+    case 'L':{
+        TbMapLocation loc;
+        if (!get_map_location_id(scline->tp[idx], &loc)) {
+            return false;
+        }
+        scline->np[idx] = loc;
+        };break;
+    case 'O':{
+        long opertr_id;
+        opertr_id = get_rid(comparison_desc, scline->tp[idx]);
+        if (opertr_id == -1) {
+            SCRPTERRLOG("Unknown operator, \"%s\"", scline->tp[idx]);
+            return false;
+        }
+        scline->np[idx] = opertr_id;
+        };break;
+    case 'A':
+        break;
+    default:
+        return false;
+    }
+    return true;
+}
+
+TbBool script_command_param_to_text(char type_chr, struct ScriptLine *scline, int idx)
+{
+    switch (toupper(type_chr))
+    {
+    case 'N':
+        itoa(scline->np[idx], scline->tp[idx], 10);
+        break;
+    case 'P':
+        strcpy(scline->tp[idx], player_code_name(scline->np[idx]));
+        break;
+    case 'C':
+        strcpy(scline->tp[idx], creature_code_name(scline->np[idx]));
+        break;
+    case 'R':
+        strcpy(scline->tp[idx], room_code_name(scline->np[idx]));
+        break;
+    case 'L':
+        get_map_location_code_name(scline->np[idx], scline->tp[idx]);
+        break;
+    case 'A':
+        break;
+    default:
+        return false;
+    }
+    return true;
+}
+
+int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, struct ScriptLine *scline, int *para_level, int expect_level)
+{
     char chr;
     int i;
     for (i=0; i < COMMANDDESC_ARGS_COUNT; i++)
@@ -2355,7 +2508,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                 if (isupper(chr)) // Required arguments have upper-case type letters
                 {
                   SCRPTERRLOG("Not enough parameters for \"%s\", got only %d", funcmd_desc->textptr,(int)args_count);
-                  LbMemoryFree(scline);
+                  LbMemoryFree(funscline);
                   return -1;
                 }
             }
@@ -2367,24 +2520,58 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                 struct MinMax ranges[COMMANDDESC_ARGS_COUNT];
                 long range_total, range_index;
                 range_total = 0;
-                int fi;
-                /*if (level_file_version > 0)
+                int fi, ri;
+                if (level_file_version > 0)
                 {
-                    for (fi=0; fi < COMMANDDESC_ARGS_COUNT; fi++)
+                    chr = cmd_desc->args[i];
+                    for (fi=0,ri=0; fi < COMMANDDESC_ARGS_COUNT; fi++,ri++)
                     {
                         if (funscline->tp[fi][0] == '\0') {
                             break;
                         }
-                        //TODO make correct RANDOM ranges implementation - support text values and ranges "a~b"
-                        ranges[fi].min = atol(funscline->tp[fi]);
-                        ranges[fi].max = ranges[fi].min;
-                        if (ranges[fi].max < ranges[fi].min) {
-                            SCRPTWRNLOG("Range definition in argument of RANDOM command should have lower value first");
-                            ranges[fi].max = ranges[fi].min;
+                        if (toupper(chr) == 'A')
+                        {
+                            // Values which do not support range
+                            if (strcmp(funscline->tp[fi],"~") == 0) {
+                                SCRPTERRLOG("Parameter %d of function \"%s\" within command \"%s\" does not support range", fi+1, funscline->tcmnd, scline->tcmnd);
+                                LbMemoryFree(funscline);
+                                return -1;
+                            }
+                            // Values of that type cannot define ranges, as we cannot interpret them
+                            ranges[ri].min = fi;
+                            ranges[ri].max = fi;
+                            range_total += 1;
+                        } else
+                        if ((ri > 0) && (strcmp(funscline->tp[fi],"~") == 0))
+                        {
+                            // Second step of defining range
+                            ri--;
+                            fi++;
+                            if (!script_command_param_to_number(chr, funscline, fi)) {
+                                SCRPTERRLOG("Parameter %d of function \"%s\" within command \"%s\" has unexpected range end value; discarding command", fi+1, funscline->tcmnd, scline->tcmnd);
+                                LbMemoryFree(funscline);
+                                return -1;
+                            }
+                            ranges[ri].max = funscline->np[fi];
+                            if (ranges[ri].max < ranges[ri].min) {
+                                SCRPTWRNLOG("Range definition in argument of RANDOM command should have lower value first");
+                                ranges[ri].max = ranges[ri].min;
+                            }
+                            range_total += ranges[ri].max - ranges[ri].min; // +1 was already added
+                        } else
+                        {
+                            // Single value or first step of defining range
+                            if (!script_command_param_to_number(chr, funscline, fi)) {
+                                SCRPTERRLOG("Parameter %d of function \"%s\" within command \"%s\" has unexpected value; discarding command", fi+1, funscline->tcmnd, scline->tcmnd);
+                                LbMemoryFree(funscline);
+                                return -1;
+                            }
+                            ranges[ri].min = funscline->np[fi];
+                            ranges[ri].max = funscline->np[fi];
+                            range_total += 1;
                         }
-                        range_total += ranges[fi].max - ranges[fi].min + 1;
                     }
-                } else*/
+                } else
                 {
                     // Old RANDOM command accepts only one range, and gives only numbers
                     fi = 0;
@@ -2410,7 +2597,14 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                 for (fi=0; fi < COMMANDDESC_ARGS_COUNT; fi++)
                 {
                     if ((range_index >= range_total) && (range_index <= range_total + ranges[fi].max - ranges[fi].min)) {
-                        itoa(ranges[fi].min + range_index - range_total, scline->tp[i], 10);
+                        chr = cmd_desc->args[i];
+                        if (toupper(chr) == 'A') {
+                            strcpy(scline->tp[i], funscline->tp[ranges[fi].min]);
+                        } else {
+                            scline->np[i] = ranges[fi].min + range_index - range_total;
+                            // Set text value for that number
+                            script_command_param_to_text(chr, scline, i);
+                        }
                         break;
                     }
                     range_total += ranges[fi].max - ranges[fi].min + 1;
@@ -2430,58 +2624,9 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
             i--;
             continue;
         }
-        TbBool bad_param;
-        bad_param = false;
         chr = cmd_desc->args[i];
-        switch (toupper(chr))
-        {
-        case 'N':
-            scline->np[i] = strtol(scline->tp[i],&text,0);
-            if (text != &scline->tp[i][strlen(scline->tp[i])]) {
-                SCRPTWRNLOG("Numerical value \"%s\" interpreted as %ld", scline->tp[i], scline->np[i]);
-            }
-            break;
-        case 'P':{
-            long plr_id;
-            if (get_player_id(scline->tp[i], &plr_id)) {
-                scline->np[i] = plr_id;
-            } else {
-                bad_param = true;
-            }
-            };break;
-        case 'C':{
-            long crtr_id;
-            crtr_id = get_rid(creature_desc, scline->tp[i]);
-            if (crtr_id != -1) {
-                scline->np[i] = crtr_id;
-            } else {
-                SCRPTERRLOG("Unknown creature, \"%s\"", scline->tp[i]);
-                bad_param = true;
-            }
-            };break;
-        case 'R':{
-            long room_id;
-            room_id = get_rid(room_desc, scline->tp[i]);
-            if (room_id != -1)
-            {
-                scline->np[i] = room_id;
-            } else {
-                SCRPTERRLOG("Unknown room kind, \"%s\"", scline->tp[i]);
-                bad_param = true;
-            }
-            };break;
-        case 'L':{
-            TbMapLocation loc;
-            if (get_map_location_id(scline->tp[i], &loc)) {
-                scline->np[i] = loc;
-            } else {
-                bad_param = true;
-            }
-            };break;
-        }
-        if (bad_param) {
-            SCRPTERRLOG("Parameter %d of command \"%s\" is invalid; discarding command", i+1, scline->tcmnd);
-            LbMemoryFree(scline);
+        if (!script_command_param_to_number(chr, scline, i)) {
+            SCRPTERRLOG("Parameter %d of command \"%s\", type %c, has unexpected value; discarding command", i+1, scline->tcmnd, chr);
             return -1;
         }
     }
@@ -2530,6 +2675,11 @@ long script_scan_line(char *line,TbBool preloaded)
     // Recognizing parameters
     int args_count;
     args_count = script_recognize_params(&line, cmd_desc, scline, &para_level, 0);
+    if (args_count < 0)
+    {
+        LbMemoryFree(scline);
+        return -1;
+    }
     if (args_count < COMMANDDESC_ARGS_COUNT)
     {
         chr = cmd_desc->args[args_count];
