@@ -3121,7 +3121,7 @@ void remove_first_creature(struct Thing *creatng)
           secctrl = creature_control_get_from_thing(sectng);
           secctrl->players_next_creature_idx = cctrl->players_next_creature_idx;
       } else {
-          game.field_14EA46 = cctrl->players_next_creature_idx;
+          game.nodungeon_creatr_list_start = cctrl->players_next_creature_idx;
       }
       sectng = thing_get(cctrl->players_next_creature_idx);
       if (!thing_is_invalid(sectng)) {

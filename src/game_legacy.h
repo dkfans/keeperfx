@@ -254,7 +254,7 @@ unsigned char field_14EA3A[8];
     unsigned char min_distance_for_teleport;
     unsigned char recovery_frequency;
 unsigned short field_14EA44;
-unsigned short field_14EA46;
+    unsigned short nodungeon_creatr_list_start; /**< Linked list of creatures which have no dungeon (neutral and owned by nonexisting players) */
     unsigned short food_generation_speed;
     char game_kind;
 char field_14EA4B;

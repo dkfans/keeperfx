@@ -2704,7 +2704,7 @@ TbBool update_thing(struct Thing *thing)
             light_set_light_position(thing->light_id, &pos);
         } else
         {
-            WARNLOG("The %s tries to use non-existing light %d",thing_model_name(thing),(int)thing->light_id);
+            WARNLOG("The %s index %d tries to use non-existing light %d",thing_model_name(thing),(int)thing->index,(int)thing->light_id);
             thing->light_id = 0;
         }
     }

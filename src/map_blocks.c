@@ -1257,7 +1257,7 @@ int claim_neutral_creatures_in_sight(struct Thing *creatng, struct Coord3d *pos,
     slb_x = subtile_slab_fast(pos->x.stl.num);
     slb_y = subtile_slab_fast(pos->y.stl.num);
     n = 0;
-    i = game.field_14EA46;
+    i = game.nodungeon_creatr_list_start;
     k = 0;
     while (i != 0)
     {
@@ -1301,7 +1301,6 @@ int claim_neutral_creatures_in_sight(struct Thing *creatng, struct Coord3d *pos,
     }
     return n;
 }
-
 
 void clear_dig_and_set_explored_can_see_x(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx, int can_see_slabs)
 {
