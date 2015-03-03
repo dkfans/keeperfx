@@ -299,7 +299,7 @@ void command_if_action_point(long apt_idx, const char *plrname);
 void command_add_tunneller_to_level(const char *plrname, const char *dst_place, const char *objectv, long target, unsigned char crtr_level, unsigned long carried_gold);
 void command_display_objective(long msg_num, const char *plrname, long a3, long a4);
 void command_add_tunneller_party_to_level(const char *plrname, const char *prtname, const char *apt_num, const char *objectv, long target, char crtr_level, unsigned long carried_gold);
-void command_if_available(const char *plrname, const const char *varib_name, const char *operatr, long value);
+void command_if_available(const char *plrname, const char *varib_name, const char *operatr, long value);
 void command_if_controls(const char *plrname, const char *varib_name, const char *operatr, long value);
 void command_set_computer_globals(const char *plrname, long a1, long a2, long a3, long a4, long a5, long a6);
 void command_set_computer_checks(const char *plrname, const char *chkname, long a1, long a2, long a3, long a4, long a5);
