@@ -93,7 +93,6 @@ const struct CommandDesc command_desc[] = {
   {"SET_FLAG",                     "PAN     ", Cmd_SET_FLAG},
   {"MAX_CREATURES",                "PN      ", Cmd_MAX_CREATURES},
   {"NEXT_COMMAND_REUSABLE",        "        ", Cmd_NEXT_COMMAND_REUSABLE},
-  {"RANDOM",                       "Aaaaaaaa", Cmd_RANDOM},
   {"DOOR_AVAILABLE",               "PANN    ", Cmd_DOOR_AVAILABLE},
   {"DISPLAY_OBJECTIVE",            "NL      ", Cmd_DISPLAY_OBJECTIVE},
   {"DISPLAY_OBJECTIVE_WITH_POS",   "NNN     ", Cmd_DISPLAY_OBJECTIVE_WITH_POS},
@@ -161,7 +160,6 @@ const struct CommandDesc dk1_command_desc[] = {
   {"SET_FLAG",                     "PAN     ", Cmd_SET_FLAG},
   {"MAX_CREATURES",                "PN      ", Cmd_MAX_CREATURES},
   {"NEXT_COMMAND_REUSABLE",        "        ", Cmd_NEXT_COMMAND_REUSABLE},
-  {"RANDOM",                       "Aaaaaaaa", Cmd_RANDOM},
   {"DOOR_AVAILABLE",               "PANN    ", Cmd_DOOR_AVAILABLE},
   {"DISPLAY_OBJECTIVE",            "NA      ", Cmd_DISPLAY_OBJECTIVE},
   {"DISPLAY_OBJECTIVE_WITH_POS",   "NNN     ", Cmd_DISPLAY_OBJECTIVE_WITH_POS},
@@ -193,6 +191,12 @@ const struct CommandDesc dk1_command_desc[] = {
   {"LEVEL_VERSION",                "N       ", Cmd_LEVEL_VERSION},
   {NULL,                           "        ", Cmd_NONE},
 };
+
+const struct CommandDesc subfunction_desc[] = {
+    {"RANDOM",                       "Aaaaaaaa", Cmd_RANDOM},
+    {"DRAWFROM",                     "Aaaaaaaa", Cmd_DRAWFROM},
+    {NULL,                           "        ", Cmd_NONE},
+  };
 
 const struct NamedCommand newcrtr_desc[] = {
   {"NEW_CREATURE_A",   1},
@@ -372,7 +376,7 @@ DLLIMPORT long _DK_script_support_send_tunneller_to_appropriate_dungeon(struct T
  * @param param Output parameter acquired from the line.
  * @param parth_level Paraenesis level within the line, set to -1 on EOLN.
  */
-const struct CommandDesc *get_next_word(char **line, char *param, int *para_level)
+const struct CommandDesc *get_next_word(char **line, char *param, int *para_level, const struct CommandDesc *cmdlist_desc)
 {
     const struct CommandDesc *cmnd_desc;
     unsigned int pos;
@@ -427,28 +431,14 @@ const struct CommandDesc *get_next_word(char **line, char *param, int *para_leve
         // Check if it's a command
         i = 0;
         cmnd_desc = NULL;
-        if (level_file_version > 0)
+        while (cmdlist_desc[i].textptr != NULL)
         {
-            while (command_desc[i].textptr != NULL)
+            if (strcmp(param, cmdlist_desc[i].textptr) == 0)
             {
-              if (strcmp(param, command_desc[i].textptr) == 0)
-              {
-                cmnd_desc = &command_desc[i];
+                cmnd_desc = &cmdlist_desc[i];
                 break;
-              }
-              i++;
             }
-        } else
-        {
-            while (dk1_command_desc[i].textptr != NULL)
-            {
-              if (strcmp(param, dk1_command_desc[i].textptr) == 0)
-              {
-                cmnd_desc = &dk1_command_desc[i];
-                break;
-              }
-              i++;
-            }
+            i++;
         }
     } else
     // Number string
@@ -1579,19 +1569,19 @@ void command_add_tunneller_party_to_level(const char *plrname, const char *prtna
 
 void command_add_creature_to_pool(const char *crtr_name, long amount)
 {
-  long crtr_id;
-  crtr_id = get_rid(creature_desc, crtr_name);
-  if (crtr_id == -1)
-  {
-    SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
-    return;
-  }
-  if ((amount < 0) || (amount >= CREATURES_COUNT))
-  {
-    SCRPTERRLOG("Invalid number of '%s' creatures for pool, %d", crtr_name, amount);
-    return;
-  }
-  command_add_value(Cmd_ADD_CREATURE_TO_POOL, 0, crtr_id, amount, 0);
+    long crtr_id;
+    crtr_id = get_rid(creature_desc, crtr_name);
+    if (crtr_id == -1)
+    {
+        SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
+        return;
+    }
+    if ((amount < 0) || (amount >= CREATURES_COUNT))
+    {
+        SCRPTERRLOG("Invalid number of '%s' creatures for pool, %d", crtr_name, amount);
+        return;
+    }
+    command_add_value(Cmd_ADD_CREATURE_TO_POOL, 0, crtr_id, amount, 0);
 }
 
 void command_reset_action_point(long apt_num)
@@ -2481,7 +2471,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
             int funpara_level;
             funline = *line;
             funpara_level = *para_level;
-            funcmd_desc = get_next_word(&funline, scline->tp[i], &funpara_level);
+            funcmd_desc = get_next_word(&funline, scline->tp[i], &funpara_level, subfunction_desc);
             if (funpara_level < expect_level+1) {
                 // Break the loop keeping variables as if the parameter wasn't read
                 scline->tp[i][0] = '\0';
@@ -2649,8 +2639,14 @@ long script_scan_line(char *line,TbBool preloaded)
     para_level = 0;
     LbMemorySet(scline, 0, sizeof(struct ScriptLine));
     if (next_command_reusable > 0)
-      next_command_reusable--;
-    cmd_desc = get_next_word(&line, scline->tcmnd, &para_level);
+        next_command_reusable--;
+    if (level_file_version > 0)
+    {
+        cmd_desc = get_next_word(&line, scline->tcmnd, &para_level, command_desc);
+    } else
+    {
+        cmd_desc = get_next_word(&line, scline->tcmnd, &para_level, dk1_command_desc);
+    }
     if (cmd_desc == NULL)
     {
         if (isalnum(scline->tcmnd[0])) {
