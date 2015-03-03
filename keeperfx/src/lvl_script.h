@@ -67,6 +67,7 @@ enum TbScriptCommands {
     Cmd_MAX_CREATURES                  = 26,
     Cmd_NEXT_COMMAND_REUSABLE          = 27,
     Cmd_RANDOM                         = 28,
+    Cmd_DRAWFROM                       = 29,
     Cmd_DOOR_AVAILABLE                 = 30,
     Cmd_DISPLAY_OBJECTIVE              = 37,
     Cmd_DISPLAY_INFORMATION            = 38,
@@ -285,7 +286,7 @@ extern const struct NamedCommand player_desc[];
 TbBool script_support_setup_player_as_computer_keeper(PlayerNumber plyridx, long comp_model);
 TbBool script_support_setup_player_as_zombie_keeper(unsigned short plyridx);
 long script_scan_line(char *line,TbBool preloaded);
-const struct CommandDesc *get_next_word(char **line, char *param, int *para_level);
+const struct CommandDesc *get_next_word(char **line, char *param, int *para_level, const struct CommandDesc *cmdlist_desc);
 const char *script_get_command_name(long cmnd_index);
 
 void command_add_to_party(const char *prtname, const char *crtr_name, long crtr_level, long carried_gold, const char *objectv, long countdown);
