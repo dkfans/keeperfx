@@ -359,7 +359,7 @@ TbBool thing_can_continue_direct_line_to(struct Thing *creatng, struct Coord3d *
     posa.y.val = pos1->y.val;
     posa.z.val = pos1->z.val;
     posa.x.val += distance_with_angle_to_coord_x(a5, angle);
-    posa.y.val += distance_with_angle_to_coord_y(a5, angle);;
+    posa.y.val += distance_with_angle_to_coord_y(a5, angle);
     posa.z.val = get_thing_height_at(creatng, &posa);
     coord = pos1->x.val;
     if (coord < posa.x.val) {
@@ -637,7 +637,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
               }
           }
         }
-        if (((angle + 512) & 0x7FF) == navi->field_D)
+        if (((angle + LbFPMath_PI/2) & LbFPMath_AngleMask) == navi->field_D)
         {
             if (navi->field_1[2] == 1)
             {
@@ -648,7 +648,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
                 navi->field_1[1] = 1;
             }
         } else
-        if (((angle - 512) & 0x7FF) == navi->field_D)
+        if (((angle - LbFPMath_PI/2) & LbFPMath_AngleMask) == navi->field_D)
         {
           if (navi->field_1[2] == 2)
           {
