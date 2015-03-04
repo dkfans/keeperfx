@@ -193,9 +193,9 @@ const struct CommandDesc dk1_command_desc[] = {
 };
 
 const struct CommandDesc subfunction_desc[] = {
-    {"RANDOM",                       "Aaaaaaaa", Cmd_RANDOM},
-    {"DRAWFROM",                     "Aaaaaaaa", Cmd_DRAWFROM},
-    {NULL,                           "        ", Cmd_NONE},
+    {"RANDOM",                     "Aaaaaaaa", Cmd_RANDOM},
+    {"DRAWFROM",                   "Aaaaaaaa", Cmd_DRAWFROM},
+    {NULL,                         "        ", Cmd_NONE},
   };
 
 const struct NamedCommand newcrtr_desc[] = {
@@ -2463,8 +2463,9 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
         chr = cmd_desc->args[i];
         if (!isalpha(chr))
             break;
-        if (*para_level < 0)
+        if (*para_level < expect_level)
             break;
+        // Read the next parameter
         const struct CommandDesc *funcmd_desc;
         {
             char *funline;
@@ -2477,6 +2478,9 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                 scline->tp[i][0] = '\0';
                 break;
             }
+            if (funpara_level > (*para_level)+(i > 0 ? 0 : 1)) {
+                SCRPTWRNLOG("Unexpected paraenesis in parameter %d of command \"%s\"", i+1, scline->tcmnd);
+            }
             *line = funline;
             *para_level = funpara_level;
         }
@@ -2485,13 +2489,18 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
             struct ScriptLine *funscline;
             funscline = (struct ScriptLine *)LbMemoryAlloc(sizeof(struct ScriptLine));
             if (funscline == NULL) {
-              SCRPTERRLOG("Can't allocate buffer to recognize line");
-              break;
+                SCRPTERRLOG("Can't allocate buffer to recognize line");
+                return -1;
             }
             LbMemorySet(funscline, 0, sizeof(struct ScriptLine));
             memcpy(funscline->tcmnd,  scline->tp[i], MAX_TEXT_LENGTH);
             int args_count;
-            args_count = script_recognize_params(line, funcmd_desc, funscline, para_level, expect_level+1);
+            args_count = script_recognize_params(line, funcmd_desc, funscline, para_level, *para_level);
+            if (args_count < 0)
+            {
+                LbMemoryFree(funscline);
+                return -1;
+            }
             if (args_count < COMMANDDESC_ARGS_COUNT)
             {
                 chr = funcmd_desc->args[args_count];
@@ -2523,7 +2532,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                         {
                             // Values which do not support range
                             if (strcmp(funscline->tp[fi],"~") == 0) {
-                                SCRPTERRLOG("Parameter %d of function \"%s\" within command \"%s\" does not support range", fi+1, funscline->tcmnd, scline->tcmnd);
+                                SCRPTERRLOG("Parameter %d of function \"%s\" within command \"%s\" does not support range", fi+1, funcmd_desc->textptr, scline->tcmnd);
                                 LbMemoryFree(funscline);
                                 return -1;
                             }
@@ -2538,13 +2547,13 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                             ri--;
                             fi++;
                             if (!script_command_param_to_number(chr, funscline, fi)) {
-                                SCRPTERRLOG("Parameter %d of function \"%s\" within command \"%s\" has unexpected range end value; discarding command", fi+1, funscline->tcmnd, scline->tcmnd);
+                                SCRPTERRLOG("Parameter %d of function \"%s\" within command \"%s\" has unexpected range end value; discarding command", fi+1, funcmd_desc->textptr, scline->tcmnd);
                                 LbMemoryFree(funscline);
                                 return -1;
                             }
                             ranges[ri].max = funscline->np[fi];
                             if (ranges[ri].max < ranges[ri].min) {
-                                SCRPTWRNLOG("Range definition in argument of RANDOM command should have lower value first");
+                                SCRPTWRNLOG("Range definition in argument of function \"%s\" within command \"%s\" should have lower value first", funcmd_desc->textptr, scline->tcmnd);
                                 ranges[ri].max = ranges[ri].min;
                             }
                             range_total += ranges[ri].max - ranges[ri].min; // +1 was already added
@@ -2552,7 +2561,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                         {
                             // Single value or first step of defining range
                             if (!script_command_param_to_number(chr, funscline, fi)) {
-                                SCRPTERRLOG("Parameter %d of function \"%s\" within command \"%s\" has unexpected value; discarding command", fi+1, funscline->tcmnd, scline->tcmnd);
+                                SCRPTERRLOG("Parameter %d of function \"%s\" within command \"%s\" has unexpected value; discarding command", fi+1, funcmd_desc->textptr, scline->tcmnd);
                                 LbMemoryFree(funscline);
                                 return -1;
                             }
@@ -2570,14 +2579,14 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                         ranges[fi].max = atol(funscline->tp[1]);
                     }
                     if (ranges[fi].max < ranges[fi].min) {
-                        SCRPTWRNLOG("Range definition in argument of RANDOM command should have lower value first");
+                        SCRPTWRNLOG("Range definition in argument of function \"%s\" within command \"%s\" should have lower value first", funcmd_desc->textptr, scline->tcmnd);
                         ranges[fi].max = ranges[fi].min;
                     }
                     range_total += ranges[fi].max - ranges[fi].min + 1;
                     fi++;
                 }
                 if (range_total <= 0) {
-                    SCRPTERRLOG("Arguments of RANDOM command define no range");
+                    SCRPTERRLOG("Arguments of function \"%s\" within command \"%s\" define no values to select from", funcmd_desc->textptr, scline->tcmnd);
                     break;
                 }
                 // Select random index
@@ -2599,6 +2608,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                     }
                     range_total += ranges[fi].max - ranges[fi].min + 1;
                 }
+                SCRPTLOG("Chosen function \"%s\" value \"%s\"", funcmd_desc->textptr, scline->tp[i]);
                 };break;
             default:
                 SCRPTWRNLOG("Parameter value \"%s\" is a command which isn't supported as function", scline->tp[i]);
@@ -2610,9 +2620,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
           break;
         }
         if (*para_level > expect_level+2) {
-            SCRPTWRNLOG("Parameter value \"%s\" at too high paraenesis level %d; skipping", scline->tp[i], (int)*para_level);
-            i--;
-            continue;
+            SCRPTWRNLOG("Parameter %d of command \"%s\", value \"%s\", is at too high paraenesis level %d", i+1, scline->tcmnd, scline->tp[i], (int)*para_level);
         }
         chr = cmd_desc->args[i];
         if (!script_command_param_to_number(chr, scline, i)) {
@@ -2681,9 +2689,9 @@ long script_scan_line(char *line,TbBool preloaded)
         chr = cmd_desc->args[args_count];
         if (isupper(chr)) // Required arguments have upper-case type letters
         {
-          SCRPTERRLOG("Not enough parameters for \"%s\"", cmd_desc->textptr);
-          LbMemoryFree(scline);
-          return -1;
+            SCRPTERRLOG("Not enough parameters for \"%s\", got only %d", cmd_desc->textptr,(int)args_count);
+            LbMemoryFree(scline);
+            return -1;
         }
     }
     script_add_command(cmd_desc, scline);
