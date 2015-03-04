@@ -1249,59 +1249,6 @@ void clear_dig_and_set_explored_around(MapSlabCoord slb_x, MapSlabCoord slb_y, P
     }
 }
 
-int claim_neutral_creatures_in_sight(struct Thing *creatng, struct Coord3d *pos, int can_see_slabs)
-{
-    long i,n;
-    unsigned long k;
-    MapSlabCoord slb_x, slb_y;
-    slb_x = subtile_slab_fast(pos->x.stl.num);
-    slb_y = subtile_slab_fast(pos->y.stl.num);
-    n = 0;
-    i = game.nodungeon_creatr_list_start;
-    k = 0;
-    while (i != 0)
-    {
-        struct Thing *thing;
-        struct CreatureControl *cctrl;
-        thing = thing_get(i);
-        cctrl = creature_control_get_from_thing(thing);
-        i = cctrl->players_next_creature_idx;
-        // Per thing code starts
-        int dx, dy;
-        dx = abs(slb_x - subtile_slab_fast(thing->mappos.x.stl.num));
-        dy = abs(slb_y - subtile_slab_fast(thing->mappos.y.stl.num));
-        if ((dx <= can_see_slabs) && (dy <= can_see_slabs))
-        {
-            if (line_of_sight_3d(&thing->mappos, pos))
-            {
-                change_creature_owner(thing, creatng->owner);
-                n++;
-                if (creatng->owner != game.neutral_player_num)
-                {
-                    struct Dungeon *dungeon;
-                    dungeon = get_dungeon(creatng->owner);
-                    if ((dungeon->owned_creatures_of_model[thing->model] <= 1) && (dungeon->creature_models_joined[thing->model] <= 0))
-                    {
-                        event_create_event(thing->mappos.x.val, thing->mappos.y.val, EvKind_NewCreature, creatng->owner, thing->index);
-                    }
-                    if (dungeon->creature_models_joined[thing->model] < 255)
-                    {
-                        dungeon->creature_models_joined[thing->model]++;
-                    }
-                }
-            }
-        }
-        // Per thing code ends
-        k++;
-        if (k > THINGS_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping things list");
-            break;
-        }
-    }
-    return n;
-}
-
 void clear_dig_and_set_explored_can_see_x(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx, int can_see_slabs)
 {
     int delta_see;
