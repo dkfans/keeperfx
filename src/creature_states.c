@@ -3414,34 +3414,10 @@ CrCheckRet move_check_kill_creatures(struct Thing *creatng)
 CrCheckRet move_check_near_dungeon_heart(struct Thing *creatng)
 {
     //return _DK_move_check_near_dungeon_heart(creatng);
-    PlayerNumber plyr_idx;
-    for (plyr_idx=0; plyr_idx < game.neutral_player_num; plyr_idx++)
+    if (is_neutral_thing(creatng))
     {
-        struct PlayerInfo *player;
-        player = get_player(plyr_idx);
-        if ( ((player->allocflags & PlaF_Allocated) != 0) && (player->field_2C == 1) && (player->victory_state != VicS_LostLevel) )
-        {
-            struct Thing *heartng;
-            heartng = get_player_soul_container(plyr_idx);
-            if (thing_exists(heartng) && (get_2d_box_distance(&creatng->mappos, &heartng->mappos) < subtile_coord(6,0)))
-            {
-                change_creature_owner(creatng, plyr_idx);
-                if (creatng->owner != game.neutral_player_num)
-                {
-                    struct Dungeon *dungeon;
-                    dungeon = get_dungeon(plyr_idx);
-                    if ((dungeon->owned_creatures_of_model[creatng->model] <= 1) && (dungeon->creature_models_joined[creatng->model] <= 0))
-                    {
-                        event_create_event(creatng->mappos.x.val, creatng->mappos.y.val, EvKind_NewCreature, plyr_idx, creatng->index);
-                    }
-                    if (dungeon->creature_models_joined[creatng->model] < 255)
-                    {
-                        dungeon->creature_models_joined[creatng->model]++;
-                    }
-                }
-                set_start_state(creatng);
-                return 1;
-            }
+        if (change_creature_owner_if_near_dungeon_heart(creatng)) {
+            return 1;
         }
     }
     return 0;

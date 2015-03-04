@@ -57,19 +57,7 @@ struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crkind)
         ERRORLOG("Cannot create creature %s for player %d entrance",creature_code_name(crkind),(int)room->owner);
         return INVALID_THING;
     }
-    if (room->owner != game.neutral_player_num)
-    {
-        struct Dungeon *dungeon;
-        dungeon = get_dungeon(room->owner);
-        if ((dungeon->owned_creatures_of_model[crkind] <= 1) && (dungeon->creature_models_joined[crkind] <= 0))
-        {
-            event_create_event(creatng->mappos.x.val, creatng->mappos.y.val, EvKind_NewCreature, room->owner, creatng->index);
-        }
-        if (dungeon->creature_models_joined[crkind] < 255)
-        {
-            dungeon->creature_models_joined[crkind]++;
-        }
-    }
+    mark_creature_joined_dungeon(creatng);
     if (!find_random_valid_position_for_thing_in_room(creatng, room, &pos)) {
         ERRORLOG("Cannot find a valid place in player %d entrance to create creature %s",(int)room->owner,creature_code_name(crkind));
         delete_thing_structure(creatng, 0);

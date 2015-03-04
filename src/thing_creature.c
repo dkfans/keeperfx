@@ -46,6 +46,7 @@
 #include "creature_battle.h"
 #include "creature_groups.h"
 #include "creature_jobs.h"
+#include "creature_senses.h"
 #include "config_lenses.h"
 #include "config_crtrstates.h"
 #include "thing_stats.h"
@@ -5090,6 +5091,69 @@ TbBool creature_can_see_invisible(const struct Thing *thing)
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(thing);
     return (crstat->can_see_invisible) || creature_affected_by_spell(thing, SplK_Sight);
+}
+
+int claim_neutral_creatures_in_sight(struct Thing *creatng, struct Coord3d *pos, int can_see_slabs)
+{
+    long i,n;
+    unsigned long k;
+    MapSlabCoord slb_x, slb_y;
+    slb_x = subtile_slab_fast(pos->x.stl.num);
+    slb_y = subtile_slab_fast(pos->y.stl.num);
+    n = 0;
+    i = game.nodungeon_creatr_list_start;
+    k = 0;
+    while (i != 0)
+    {
+        struct Thing *thing;
+        struct CreatureControl *cctrl;
+        thing = thing_get(i);
+        cctrl = creature_control_get_from_thing(thing);
+        i = cctrl->players_next_creature_idx;
+        // Per thing code starts
+        int dx, dy;
+        dx = abs(slb_x - subtile_slab_fast(thing->mappos.x.stl.num));
+        dy = abs(slb_y - subtile_slab_fast(thing->mappos.y.stl.num));
+        if ((dx <= can_see_slabs) && (dy <= can_see_slabs))
+        {
+            if (is_neutral_thing(thing) && line_of_sight_3d(&thing->mappos, pos))
+            {
+                change_creature_owner(thing, creatng->owner);
+                mark_creature_joined_dungeon(thing);
+                n++;
+            }
+        }
+        // Per thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return n;
+}
+
+TbBool change_creature_owner_if_near_dungeon_heart(struct Thing *creatng)
+{
+    PlayerNumber plyr_idx;
+    for (plyr_idx=0; plyr_idx < game.neutral_player_num; plyr_idx++)
+    {
+        struct PlayerInfo *player;
+        player = get_player(plyr_idx);
+        if ( ((player->allocflags & PlaF_Allocated) != 0) && (player->field_2C == 1) && (player->victory_state != VicS_LostLevel) )
+        {
+            struct Thing *heartng;
+            heartng = get_player_soul_container(plyr_idx);
+            if (thing_exists(heartng) && (get_2d_box_distance(&creatng->mappos, &heartng->mappos) < subtile_coord(6,0)))
+            {
+                change_creature_owner(creatng, plyr_idx);
+                mark_creature_joined_dungeon(creatng);
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 TbBool creature_stats_debug_dump(void)

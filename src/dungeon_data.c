@@ -345,10 +345,33 @@ TbBool set_script_flag(PlayerNumber plyr_idx, long flag_id, long value)
     }
     dungeon = get_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon)) {
-        ERRORLOG("Can't set flag; player %d has no dungeon.",(int)plyr_idx);
+        ERRORLOG("Can't set flag; player %d has no dungeon",(int)plyr_idx);
         return false;
     }
     dungeon->script_flags[flag_id] = value;
+    return true;
+}
+
+TbBool mark_creature_joined_dungeon(struct Thing *creatng)
+{
+    if (creatng->owner == game.neutral_player_num) {
+        // Neutral player has no dungeon
+        return false;
+    }
+    struct Dungeon *dungeon;
+    dungeon = get_dungeon(creatng->owner);
+    if (dungeon_invalid(dungeon)) {
+        ERRORLOG("Can't mark; player %d has no dungeon",(int)creatng->owner);
+        return false;
+    }
+    if ((dungeon->owned_creatures_of_model[creatng->model] <= 1) && (dungeon->creature_models_joined[creatng->model] <= 0))
+    {
+        event_create_event(creatng->mappos.x.val, creatng->mappos.y.val, EvKind_NewCreature, creatng->owner, creatng->index);
+    }
+    if (dungeon->creature_models_joined[creatng->model] < 255)
+    {
+        dungeon->creature_models_joined[creatng->model]++;
+    }
     return true;
 }
 
