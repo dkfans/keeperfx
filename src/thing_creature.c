@@ -540,16 +540,23 @@ struct Thing *get_players_soul_container_creature_can_see(struct Thing *creatng,
         return INVALID_THING;
     }
     dist = get_combat_distance(creatng, heartng);
-    if (creature_can_see_combat_path(creatng, heartng, dist) <= AttckT_Unset) {
-        SYNCDBG(17,"The %s index %d owned by player %d can't see player %d %s index %d at distance %d",
+    if (creature_can_see_combat_path(creatng, heartng, dist) > AttckT_Unset) {
+        SYNCDBG(7,"The %s index %d owned by player %d can see player %d %s index %d at distance %d",
             thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,
             (int)heartng->owner,thing_model_name(heartng),(int)heartng->index,(int)dist);
-        return INVALID_THING;
+        return heartng;
     }
-    SYNCDBG(7,"The %s index %d owned by player %d sees player %d %s index %d at distance %d",
+    if (creature_can_hear_within_distance(creatng, dist))
+    {
+        SYNCDBG(7,"The %s index %d owned by player %d can hear player %d %s index %d at distance %d",
+            thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,
+            (int)heartng->owner,thing_model_name(heartng),(int)heartng->index,(int)dist);
+        return heartng;
+    }
+    SYNCDBG(17,"The %s index %d owned by player %d can't see player %d %s index %d at distance %d",
         thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,
         (int)heartng->owner,thing_model_name(heartng),(int)heartng->index,(int)dist);
-    return heartng;
+    return INVALID_THING;
 }
 
 /**
