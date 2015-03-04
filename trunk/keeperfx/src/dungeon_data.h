@@ -284,6 +284,7 @@ void decrease_dungeon_area(PlayerNumber plyr_idx, long value);
 void increase_room_area(PlayerNumber plyr_idx, long value);
 void decrease_room_area(PlayerNumber plyr_idx, long value);
 void increase_dungeon_area(PlayerNumber plyr_idx, long value);
+TbBool mark_creature_joined_dungeon(struct Thing *creatng);
 
 void player_add_offmap_gold(PlayerNumber plyr_idx, GoldAmount value);
 

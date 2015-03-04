@@ -2483,6 +2483,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
             *line = funline;
             *para_level = funpara_level;
             if (!isalpha(chr)) {
+                // Don't show parameter index - it may be bad, as we're decreasing i to not overflow cmd_desc->args
                 SCRPTWRNLOG("Excessive parameter of command \"%s\", value \"%s\"; ignoring", scline->tcmnd, funcmd_buf);
                 i--;
                 continue;
@@ -2520,7 +2521,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
             switch (funcmd_desc->index)
             {
             case Cmd_RANDOM:
-                { // Support of the RANDOM() function
+            case Cmd_DRAWFROM:{
                 // Create array of value ranges
                 struct MinMax ranges[COMMANDDESC_ARGS_COUNT];
                 long range_total, range_index;
@@ -2595,7 +2596,18 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                     SCRPTERRLOG("Arguments of function \"%s\" within command \"%s\" define no values to select from", funcmd_desc->textptr, scline->tcmnd);
                     break;
                 }
-                // Select random index
+                if ((funcmd_desc->index != Cmd_RANDOM) && (level_file_version == 0)) {
+                    SCRPTERRLOG("The function \"%s\" used within command \"%s\" is not supported in old level format", funcmd_desc->textptr, scline->tcmnd);
+                    break;
+                }
+                // The new RANDOM command stores values to allow selecting different one every turn during gameplay
+                if ((funcmd_desc->index == Cmd_RANDOM) && (level_file_version > 0))
+                {
+                    //TODO RANDOM make implementation - store ranges as variable to be used for selecting random value during gameplay
+                    SCRPTERRLOG("The function \"%s\" used within command \"%s\" is not supported yet", funcmd_desc->textptr, scline->tcmnd);
+                    break;
+                }
+                // DRAWFROM support - select random index now
                 range_index = rand() % range_total;
                 // Get value from ranges array
                 range_total = 0;
@@ -2614,7 +2626,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                     }
                     range_total += ranges[fi].max - ranges[fi].min + 1;
                 }
-                SCRPTLOG("Chosen function \"%s\" value \"%s\"", funcmd_desc->textptr, scline->tp[i]);
+                SCRPTLOG("Function \"%s\" returned value \"%s\"", funcmd_desc->textptr, scline->tp[i]);
                 };break;
             default:
                 SCRPTWRNLOG("Parameter value \"%s\" is a command which isn't supported as function", scline->tp[i]);
