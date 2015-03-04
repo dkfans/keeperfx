@@ -2458,24 +2458,23 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
 {
     char chr;
     int i;
-    for (i=0; i < COMMANDDESC_ARGS_COUNT; i++)
+    for (i=0; i <= COMMANDDESC_ARGS_COUNT; i++)
     {
         chr = cmd_desc->args[i];
-        if (!isalpha(chr))
-            break;
         if (*para_level < expect_level)
             break;
         // Read the next parameter
         const struct CommandDesc *funcmd_desc;
         {
             char *funline;
+            char funcmd_buf[MAX_TEXT_LENGTH];
             int funpara_level;
             funline = *line;
             funpara_level = *para_level;
-            funcmd_desc = get_next_word(&funline, scline->tp[i], &funpara_level, subfunction_desc);
+            LbMemorySet(funcmd_buf, 0, MAX_TEXT_LENGTH);
+            funcmd_desc = get_next_word(&funline, funcmd_buf, &funpara_level, subfunction_desc);
             if (funpara_level < expect_level+1) {
                 // Break the loop keeping variables as if the parameter wasn't read
-                scline->tp[i][0] = '\0';
                 break;
             }
             if (funpara_level > (*para_level)+(i > 0 ? 0 : 1)) {
@@ -2483,6 +2482,13 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
             }
             *line = funline;
             *para_level = funpara_level;
+            if (!isalpha(chr)) {
+                SCRPTWRNLOG("Excessive parameter of command \"%s\", value \"%s\"; ignoring", scline->tcmnd, funcmd_buf);
+                i--;
+                continue;
+            }
+            // Access tp[i] only if we're sure i < COMMANDDESC_ARGS_COUNT
+            LbMemoryCopy(scline->tp[i],  funcmd_buf, MAX_TEXT_LENGTH);
         }
         if (funcmd_desc != NULL)
         {
@@ -2493,7 +2499,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                 return -1;
             }
             LbMemorySet(funscline, 0, sizeof(struct ScriptLine));
-            memcpy(funscline->tcmnd,  scline->tp[i], MAX_TEXT_LENGTH);
+            LbMemoryCopy(funscline->tcmnd,  scline->tp[i], MAX_TEXT_LENGTH);
             int args_count;
             args_count = script_recognize_params(line, funcmd_desc, funscline, para_level, *para_level);
             if (args_count < 0)
