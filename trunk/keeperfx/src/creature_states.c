@@ -4040,7 +4040,7 @@ TbBool creature_can_hear_within_distance(const struct Thing *thing, long dist)
 {
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(thing);
-    return (crstat->hearing) >= (dist/256);
+    return subtile_coord(crstat->hearing,0) >= dist;
 }
 
 long get_thing_navigation_distance(struct Thing *creatng, struct Coord3d *pos, unsigned char a3)
