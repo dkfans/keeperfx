@@ -88,6 +88,41 @@ Displays one of the text messages from language-specific strings banks in an Obj
 
   `[place]` - Location where the view should be centered if the player clicks on the "zoom to" icon on the Message Panel. It can have the same values as in `DISPLAY_INFORMATION` command above.
 
+==`DRAWFROM`==
+  Is not a command itself but may replace a parameter of most other commands.
+  Replaces the old RANDOM() command.
+{{{
+   DRAWFROM(a,b,c,d,e,f,g,h)
+}}}
+  It draws at random one value or number from up to eight parameters. Examples:
+{{{
+    REM Human player will have random start gold between 10000 and 15000
+    START_MONEY(PLAYER0,DRAWFROM(10000,11000,12000,13000,14000,15000))
+	
+    REM One bug type creature will be added to pool
+    ADD_CREATURE_TO_POOL(DRAWFROM(FLY,BUG,SPIDER),5)
+	
+    REM Add one of three predefined Hero parties to Hero gate 6 or 9
+    ADD_PARTY_TO_LEVEL(PLAYER0,DRAWFROM(thugs,fiends,dudes),DRAWFROM(-6,-9),1)
+}}}
+  It is also possible to draw a value from a range of numbers using a tilde(~). Example:
+{{{
+    REM Spawn a BUG at a random time at the start or near the end of the level
+    IF(PLAYER0,TIMER1 >= DRAWFROM(0~12000,72000~108000))
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,BUG,-1,1,1,500)
+    ENDIF
+}}}
+  Ranges can be combined with values. The '~' is a separate parameter. Example:
+{{{
+   DRAWFROM(1~4,6,8~11,13)
+}}}
+  A range cannot be used for hero gates, action points or any non-consecutive values.
+
+  The command shouldn't be used in multiplayer
+  maps, as it will lead to synchronization problems.
+  Value represented by `DRAWFROM` is selected at start of a map,
+  and never changes during the gameplay.
+
 ==`IF`==
 
   This is used to test the differences between two values (`[name]` and `[a]`). If those two values agree with the comparison, the script will continue. If the two values do not agree with the comparison, the script will find the next `ENDIF` and continue from there. New option values have been added to this command, and some original options were changed:
@@ -290,52 +325,8 @@ SET_CREATURE_TENDENCIES(PLAYER2,FLEE,1)
 }}}
 
 ==`RANDOM`==
-  It's not a command, but may be used instead of most parameters.
-  If used instead of a number, then should look like:
-{{{
-   RANDOM(min,max)
-}}}
-  but may also be used instead of any other value. Examples:
-{{{
-    REM Human player will have random creature limit between 12 and 19
-    MAX_CREATURES(PLAYER0,RANDOM(12,19))
-    REM Random creature will be added to pool
-    ADD_CREATURE_TO_POOL(RANDOM,20)
-}}}
-  Note that when used instead of player name, RANDOM may return
-  ALL_PLAYERS. Also, the command shouldn't be used in multiplayer
-  maps, as it will lead to synchronization problems.
-  Value represented by RANDOM is selected at start of a map,
-  and never changes during the gameplay.
+  The RANDOM() function of original DK has been replaced by `DRAWFROM`.
+  This command is currently unimplemented - use DRAWFROM instead.
 
-==`DRAWFROM`==
-  Is not a command itself but may replace a parameter of most other commands.
-  Replaces the old RANDOM() command.
-{{{
-   DRAWFROM(a,b,c,d,e,f,g,h)
-}}}
-  It draws at random one value or number from up to eight parameters. Examples:
-{{{
-    REM Human player will have random start gold between 10000 and 15000
-    START_MONEY(PLAYER0,DRAWFROM(10000,11000,12000,13000,14000,15000))
-	
-    REM One bug type creature will be added to pool
-    ADD_CREATURE_TO_POOL(DRAWFROM(FLY,BUG,SPIDER),5)
-	
-    REM Add one of three predefined Hero parties to Hero gate 6 or 9
-    ADD_PARTY_TO_LEVEL(PLAYER0,DRAWFROM(thugs,fiends,dudes),DRAWFROM(-6,-9),1)
-}}}
-  It is also possible to draw a value from a range of numbers using a tilde(~). Example:
-{{{
-    REM Spawn a BUG at a random time at the start or near the end of the level
-    IF(PLAYER0,TIMER1 >= (DRAWFROM(0~12000,72000~108000))
-        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,BUG,-1,1,1,500)
-    ENDIF
-}}}
-  Ranges can be combined with values. The '~' is a separate parameter. Example:
-{{{
-   DRAWFROM((1~4,6,8~11,13)
-}}}
-  A range cannot be used for hero gates, action points or any non-consecutive values.
-
-  Note that like the old RANDOM command the value represented by DRAWFROM is selected at start of a map and never changes during gameplay.
+  It is ment to be a function used in same way as DRAWFROM, but selecting
+  value each time during gameplay instead of doing it once at start of the level.
