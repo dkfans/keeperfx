@@ -488,8 +488,10 @@ void gui_area_spell_button(struct GuiButton *gbtn)
     {
         if ((gbtn->flags & LbBtnF_Unknown08) != 0)
         {
+            const struct PowerConfigStats *powerst;
+            powerst = get_power_model_stats(pwkind);
             int i;
-            i = spell_data[pwkind].work_state;
+            i = powerst->work_state;
             if (((i == PSt_CallToArms) && player_uses_power_call_to_arms(my_player_number))
              || ((i == PSt_SightOfEvil) && player_uses_power_sight(my_player_number))
              || ((pwkind == PwrK_OBEY) && player_uses_power_obey(my_player_number))) {
@@ -549,10 +551,7 @@ void gui_area_big_spell_button(struct GuiButton *gbtn)
     pwkind = (long)gbtn->content;
     struct PowerConfigStats *powerst;
     powerst = get_power_model_stats(pwkind);
-
-    struct SpellData *pwrdata;
-    pwrdata = get_power_data(pwkind);
-    if (power_data_is_invalid(pwrdata))
+    if (power_model_stats_invalid(powerst))
     {
         draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 26);
         lbDisplay.DrawFlags = flg_mem;
@@ -588,7 +587,7 @@ void gui_area_big_spell_button(struct GuiButton *gbtn)
     text = buf_sprintf("%ld", (long)price);
     if (dungeon->total_money_owned >= price)
     {
-        if ((player->work_state == pwrdata->work_state) && ((game.play_gameturn & 1) != 0)) {
+        if ((player->work_state == powerst->work_state) && ((game.play_gameturn & 1) != 0)) {
             draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx, 44);
         } else {
             draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx);

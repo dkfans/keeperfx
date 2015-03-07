@@ -1723,7 +1723,6 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   struct PlayerInfo *myplyr;
   struct Packet *pckt;
   struct Dungeon *dungeon;
-  struct SpellData *pwrdata;
   struct Thing *thing;
   struct Room *room;
   int i;
@@ -2006,12 +2005,13 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
               set_player_instance(player, PI_ZoomToPos, 0);
           }
       }
-      if (!power_is_stupid(pckt->field_6))
+      if (!power_is_instinctive(pckt->field_6))
       {
-          pwrdata = get_power_data(pckt->field_6);
+          const struct PowerConfigStats *powerst;
+          powerst = get_power_model_stats(pckt->field_6);
           i = get_power_index_for_work_state(player->work_state);
           if (i > 0)
-            set_player_state(player, pwrdata->work_state, 0);
+            set_player_state(player, powerst->work_state, 0);
       }
       return 0;
   case PckA_PlyrFastMsg:
