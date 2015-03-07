@@ -128,7 +128,7 @@ TbBool setup_trap_tooltips(struct Coord3d *pos)
     if ((thing->byte_18 == 0) && (player->id_number != thing->owner))
         return false;
     update_gui_tooltip_target(thing);
-    if ((help_tip_time > 20) || (player->work_state == PSt_Unknown12))
+    if ((help_tip_time > 20) || (player->work_state == PSt_CreatrQuery))
     {
         trapst = get_trap_model_stats(thing->model);
         set_gui_tooltip_box_fmt(4,"%s",get_string(trapst->name_stridx));
@@ -198,7 +198,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
     if (object_is_hero_gate(thing))
     {
       update_gui_tooltip_target(thing);
-      if ( (help_tip_time > 20) || (player->work_state == PSt_Unknown12) )
+      if ( (help_tip_time > 20) || (player->work_state == PSt_CreatrQuery) )
       {
           set_gui_tooltip_box_fmt(5,"%s",get_string(CpgStr_TerrainHeroEntranceDesc)); // Hero Gate tooltip
       } else
@@ -211,7 +211,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
     if (objdat->related_creatr_model)
     {
       update_gui_tooltip_target(thing);
-      if ( (help_tip_time > 20) || (player->work_state == PSt_Unknown12) )
+      if ( (help_tip_time > 20) || (player->work_state == PSt_CreatrQuery) )
       {
         crdata = creature_data_get(objdat->related_creatr_model);
         rdata = room_data_get_for_kind(RoK_LAIR); //TODO use a separate string for creature lair object than for lair room
@@ -242,7 +242,7 @@ short setup_land_tooltips(struct Coord3d *pos)
     return false;
   update_gui_tooltip_target((void *)skind);
   player = get_my_player();
-  if ( (help_tip_time > 20) || (player->work_state == PSt_Unknown12) )
+  if ( (help_tip_time > 20) || (player->work_state == PSt_CreatrQuery) )
   {
       set_gui_tooltip_box_fmt(2,"%s",get_string(slbattr->tooltip_stridx));
   } else
@@ -268,7 +268,7 @@ short setup_room_tooltips(struct Coord3d *pos)
     return false;
   update_gui_tooltip_target(room);
   player = get_my_player();
-  if ( (help_tip_time > 20) || (player->work_state == PSt_Unknown12) )
+  if ( (help_tip_time > 20) || (player->work_state == PSt_CreatrQuery) )
   {
     set_gui_tooltip_box_fmt(1,"%s",get_string(stridx));
   } else
@@ -359,7 +359,7 @@ TbBool gui_button_tooltip_update(int gbtn_idx)
   {
     if (tool_tip_box.gbutton == gbtn)
     {
-        if ( (tool_tip_time > 10) || (player->work_state == PSt_Unknown12) )
+        if ( (tool_tip_time > 10) || (player->work_state == PSt_CreatrQuery) )
         {
           busy_doing_gui = 1;
           if (gbtn->draw_call != gui_area_text)

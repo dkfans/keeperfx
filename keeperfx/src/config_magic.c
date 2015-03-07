@@ -82,6 +82,8 @@ const struct NamedCommand magic_power_commands[] = {
   {"SYMBOLSPRITES",  10},
   {"POINTERSPRITES", 11},
   {"PANELTABINDEX",  12},
+  {"SOUNDSAMPLES",   13},
+  {"PROPERTIES",     14},
   {NULL,              0},
   };
 
@@ -130,6 +132,11 @@ const struct NamedCommand powermodel_castability_commands[] = {
   {"ALL_GROUND",       PwCast_AllGround},
   {"NOT_ENEMY_GROUND", PwCast_NotEnemyGround},
   {"ALL_TALL",         PwCast_AllTall},
+  {NULL,                0},
+  };
+
+const struct NamedCommand powermodel_properties_commands[] = {
+  {"HAS_PROGRESS",      PwMF_HasProgress},
   {NULL,                0},
   };
 
@@ -252,6 +259,13 @@ struct PowerConfigStats *get_power_model_stats(PowerKind pwkind)
     if ((pwkind < 0) || (pwkind >= magic_conf.power_types_count))
         return &magic_conf.power_cfgstats[0];
     return &magic_conf.power_cfgstats[pwkind];
+}
+
+TbBool power_model_stats_invalid(const struct PowerConfigStats *powerst)
+{
+  if (powerst <= &magic_conf.power_cfgstats[0])
+    return true;
+  return false;
 }
 
 struct SpecialConfigStats *get_special_model_stats(SpecialKind spckind)
@@ -782,7 +796,6 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
 {
   struct PowerConfigStats *powerst;
   struct MagicStats *magstat;
-  struct SpellData *pwrdata;
   long pos;
   int i,k,n;
   int cmd_num;
@@ -799,6 +812,16 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           powerst = get_power_model_stats(i);
           LbMemorySet(powerst->code_name, 0, COMMAND_WORD_LEN);
           powerst->artifact_model = 0;
+          powerst->can_cast_flags = 0;
+          powerst->config_flags = 0;
+          powerst->overcharge_check_NEW = NULL;
+          powerst->work_state_NEW = 0;
+          powerst->bigsym_sprite_idx = 0;
+          powerst->medsym_sprite_idx = 0;
+          powerst->name_stridx = 0;
+          powerst->tooltip_stridx = 0;
+          powerst->select_sample_idx = 0;
+          powerst->pointer_sprite_idx = 0;
           powerst->panel_tab_idx = 0;
           if (i < magic_conf.power_types_count)
           {
@@ -833,7 +856,12 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
     }
     magstat = &game.keeper_power_stats[i];
     powerst = get_power_model_stats(i);
-    pwrdata = get_power_data(i);
+/*
+ * TODO POWERS Add options to set these all
+    pwrdata->pcktype;
+    pwrdata->work_state;
+    pwrdata->overcharge_check;
+*/
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(magic_power_commands,cmd_num)
     while (pos<len)
     {
@@ -910,13 +938,13 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           break;
       case 5: // CASTABILITY
-          pwrdata->can_cast_flags = 0;
+          powerst->can_cast_flags = 0;
           while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               k = get_id(powermodel_castability_commands, word_buf);
               if ((k != 0) && (k != -1))
               {
-                  pwrdata->can_cast_flags |= k;
+                  powerst->can_cast_flags |= k;
                   n++;
               } else
               {
@@ -946,7 +974,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              pwrdata->name_stridx = k;
+              powerst->name_stridx = k;
               n++;
           }
           if (n < 1)
@@ -959,7 +987,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              pwrdata->tooltip_stridx = k;
+              powerst->tooltip_stridx = k;
               n++;
           }
           if (n < 1)
@@ -974,7 +1002,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  pwrdata->bigsym_sprite_idx = k;
+                  powerst->bigsym_sprite_idx = k;
                   n++;
               }
           }
@@ -983,7 +1011,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  pwrdata->medsym_sprite_idx = k;
+                  powerst->medsym_sprite_idx = k;
                   n++;
               }
           }
@@ -999,7 +1027,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  pwrdata->pointer_sprite_idx = k;
+                  powerst->pointer_sprite_idx = k;
                   n++;
               }
           }
@@ -1023,6 +1051,36 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           {
             CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 13: // SOUNDSAMPLES
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            if (k >= 0)
+            {
+                powerst->select_sample_idx = k;
+                n++;
+            }
+          }
+          if (n < 1)
+          {
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 14: // PROPERTIES
+          powerst->config_flags = 0;
+          while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+              k = get_id(powermodel_properties_commands, word_buf);
+              if (k > 0) {
+                  powerst->config_flags |= k;
+                  n++;
+              } else {
+                  CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
+                      COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+              }
           }
           break;
       case 0: // comment

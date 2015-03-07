@@ -529,11 +529,11 @@ void get_player_gui_clicks(void)
   default:
       if (right_button_released)
       {
-        if ((player->work_state != PSt_Unknown5) || power_hand_is_empty(player))
+        if ((player->work_state != PSt_HoldInHand) || power_hand_is_empty(player))
         {
           if ( !turn_off_all_window_menus() )
           {
-            if (player->work_state == PSt_Unknown12)
+            if (player->work_state == PSt_CreatrQuery)
             {
               turn_off_query_menus();
               set_players_packet_action(player, PckA_SetPlyrState, PSt_CtrlDungeon, 0, 0, 0);
@@ -938,10 +938,12 @@ void activate_room_build_mode(RoomKind rkind, TextStringId tooltip_id)
 
 TbBool set_players_packet_change_spell(struct PlayerInfo *player,PowerKind pwkind)
 {
-    struct SpellData *pwrdata;
     long k;
     if (power_is_stupid(game.chosen_spell_type))
         return false;
+    const struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(pwkind);
+    struct SpellData *pwrdata;
     pwrdata = get_power_data(pwkind);
     k = pwrdata->work_state;
     if ((k == PSt_CallToArms) && (player->work_state == PSt_CallToArms))
@@ -954,7 +956,7 @@ TbBool set_players_packet_change_spell(struct PlayerInfo *player,PowerKind pwkin
     } else
     {
         set_players_packet_action(player, pwrdata->pcktype, k, 0, 0, 0);
-        play_non_3d_sample(pwrdata->select_sample_idx);
+        play_non_3d_sample(powerst->select_sample_idx);
     }
     return true;
 }
@@ -970,7 +972,6 @@ TbBool is_special_spell(PowerKind pwkind)
 void choose_special_spell(PowerKind pwkind, TextStringId tooltip_id)
 {
     struct Dungeon *dungeon;
-    struct SpellData *pwrdata;
     struct MagicStats *magstat;
 
     if (!is_special_spell(pwkind)) {
@@ -983,8 +984,9 @@ void choose_special_spell(PowerKind pwkind, TextStringId tooltip_id)
     magstat = &game.keeper_power_stats[pwkind];
 
     if (dungeon->total_money_owned >= magstat->cost[0]) {
-        pwrdata = get_power_data(pwkind);
-        play_non_3d_sample_no_overlap(pwrdata->select_sample_idx); // Play the spell speech
+        struct PowerConfigStats *powerst;
+        powerst = get_power_model_stats(pwkind);
+        play_non_3d_sample_no_overlap(powerst->select_sample_idx); // Play the spell speech
         switch (pwkind)
         {
         case PwrK_ARMAGEDDON:
