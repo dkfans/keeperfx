@@ -182,7 +182,8 @@ enum PowerCanCastFlags {
 
 enum PowerModelFlags {
     /** Set if the power has a run progress bar. */
-    PwMF_HasProgress  = 0x0001,
+    PwMF_Instinctive  = 0x0001,
+    PwMF_HasProgress  = 0x0002,
 };
 
 struct SpellConfigStats {
@@ -214,8 +215,8 @@ struct PowerConfigStats {
     ThingModel artifact_model;
     unsigned long can_cast_flags;
     unsigned long config_flags;
-    Expand_Check_Func overcharge_check_NEW;
-    long work_state_NEW;
+    Expand_Check_Func overcharge_check;
+    long work_state;
     short bigsym_sprite_idx;
     short medsym_sprite_idx;
     unsigned short name_stridx;
@@ -361,7 +362,6 @@ struct SpellData {
 DLLIMPORT struct ShotStats _DK_shot_stats[30];
 #define shot_stats _DK_shot_stats
 DLLIMPORT struct SpellInfo _DK_spell_info[];
-//DLLIMPORT struct SpellData _DK_spell_data[POWER_TYPES_COUNT+1];
 /******************************************************************************/
 extern struct MagicConfig magic_conf;
 extern const char keeper_magic_file[];
@@ -373,11 +373,10 @@ extern struct SpellInfo spell_info[];
 /******************************************************************************/
 struct SpellInfo *get_magic_info(int mgc_idx);
 TbBool magic_info_is_invalid(const struct SpellInfo *mgcinfo);
-struct SpellData *get_power_data(int pwr_idx);
-TextStringId get_power_description_strindex(int pwr_idx);
-TextStringId get_power_name_strindex(int pwr_idx);
-TbBool power_data_is_invalid(const struct SpellData *pwrdata);
-TbBool power_is_stupid(int sptype);
+struct SpellData *get_power_data(int pwkind);
+TextStringId get_power_description_strindex(int pwkind);
+TextStringId get_power_name_strindex(int pwkind);
+TbBool power_is_instinctive(int pwkind);
 long get_power_index_for_work_state(long work_state);
 long get_special_description_strindex(int spckind);
 struct SpellConfigStats *get_spell_model_stats(SpellKind spmodel);
@@ -387,7 +386,7 @@ TbBool power_model_stats_invalid(const struct PowerConfigStats *powerst);
 struct SpecialConfigStats *get_special_model_stats(SpecialKind spckind);
 const char *spell_code_name(SpellKind spmodel);
 const char *shot_code_name(ThingModel tngmodel);
-const char *power_code_name(PowerKind pwmodel);
+const char *power_code_name(PowerKind pwkind);
 int power_model_id(const char * code_name);
 /******************************************************************************/
 TbBool load_magic_config(const char *conf_fname,unsigned short flags);

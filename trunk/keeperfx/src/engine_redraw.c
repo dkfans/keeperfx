@@ -734,7 +734,6 @@ TbBool draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, MapSubt
 {
     struct PlayerInfo *player;
     struct Thing *thing;
-    struct SpellData *pwrdata;
     struct MagicStats *magstat;
     Expand_Check_Func chkfunc;
     TbBool allow_cast;
@@ -752,7 +751,6 @@ TbBool draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, MapSubt
     player = get_my_player();
     thing = thing_get(tng_idx);
     allow_cast = false;
-    pwrdata = get_power_data(pwkind);
     const struct PowerConfigStats *powerst;
     powerst = get_power_model_stats(pwkind);
     allow_cast = can_cast_spell(player->id_number, pwkind, stl_x, stl_y, thing, CastChk_SkipThing);
@@ -761,7 +759,7 @@ TbBool draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, MapSubt
         set_pointer_graphic(15);
         return false;
     }
-    chkfunc = pwrdata->overcharge_check;
+    chkfunc = powerst->overcharge_check;
     if (chkfunc != NULL)
     {
         if (chkfunc())

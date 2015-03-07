@@ -27,6 +27,7 @@
 #include "config.h"
 #include "config_effects.h"
 #include "config_objects.h"
+#include "config_players.h"
 #include "thing_doors.h"
 #include "thing_physics.h"
 #include "power_process.h"
@@ -84,6 +85,8 @@ const struct NamedCommand magic_power_commands[] = {
   {"PANELTABINDEX",  12},
   {"SOUNDSAMPLES",   13},
   {"PROPERTIES",     14},
+  {"FUNCTIONS",      15},
+  {"PLAYERSTATE",    16},
   {NULL,              0},
   };
 
@@ -136,9 +139,10 @@ const struct NamedCommand powermodel_castability_commands[] = {
   };
 
 const struct NamedCommand powermodel_properties_commands[] = {
-  {"HAS_PROGRESS",      PwMF_HasProgress},
-  {NULL,                0},
-  };
+    {"INSTINCTIVE",       PwMF_Instinctive},
+    {"HAS_PROGRESS",      PwMF_HasProgress},
+    {NULL,                0},
+};
 
 const struct NamedCommand shotmodel_damagetype_commands[] = {
   {"NONE",        DmgT_None},
@@ -153,6 +157,23 @@ const struct NamedCommand shotmodel_damagetype_commands[] = {
   {"RESTORATION", DmgT_Restoration},
   {NULL,          DmgT_None},
   };
+
+const struct NamedCommand powermodel_expand_check_func_type[] = {
+  {"general_expand",           1},
+  {"sight_of_evil_expand",     2},
+  {"call_to_arms_expand",      3},
+  {"do_not_expand",            4},
+  {NULL,                       0},
+};
+
+const Expand_Check_Func powermodel_expand_check_func_list[] = {
+  NULL,
+  general_expand_check,
+  sight_of_evil_expand_check,
+  call_to_arms_expand_check,
+  NULL,
+  NULL,
+};
 
 /******************************************************************************/
 struct MagicConfig magic_conf;
@@ -179,65 +200,46 @@ TbBool magic_info_is_invalid(const struct SpellInfo *mgcinfo)
   return false;
 }
 
-struct SpellData *get_power_data(int pwr_idx)
+struct SpellData *get_power_data(int pwkind)
 {
-  if ((pwr_idx > 0) && (pwr_idx < POWER_TYPES_COUNT))
-    return &spell_data[pwr_idx];
-  if ((pwr_idx < -1) || (pwr_idx >= POWER_TYPES_COUNT))
-    ERRORLOG("Request of invalid power (no %d) intercepted",pwr_idx);
+  if ((pwkind > 0) && (pwkind < POWER_TYPES_COUNT))
+    return &spell_data[pwkind];
+  if ((pwkind < -1) || (pwkind >= POWER_TYPES_COUNT))
+    ERRORLOG("Request of invalid power (no %d) intercepted",pwkind);
   return &spell_data[0];
 }
 
-TextStringId get_power_name_strindex(int pwr_idx)
+TextStringId get_power_name_strindex(int pwkind)
 {
-  if ((pwr_idx < 0) || (pwr_idx >= POWER_TYPES_COUNT))
-    return spell_data[0].name_stridx;
-  return spell_data[pwr_idx].name_stridx;
+  if ((pwkind < 0) || (pwkind >= magic_conf.power_types_count))
+    return magic_conf.power_cfgstats[0].name_stridx;
+  return magic_conf.power_cfgstats[pwkind].name_stridx;
 }
 
-TextStringId get_power_description_strindex(int pwr_idx)
+TextStringId get_power_description_strindex(int pwkind)
 {
-  if ((pwr_idx < 0) || (pwr_idx >= POWER_TYPES_COUNT))
-    return spell_data[0].tooltip_stridx;
-  return spell_data[pwr_idx].tooltip_stridx;
+  if ((pwkind < 0) || (pwkind >= magic_conf.power_types_count))
+    return magic_conf.power_cfgstats[0].tooltip_stridx;
+  return magic_conf.power_cfgstats[pwkind].tooltip_stridx;
 }
 
 long get_special_description_strindex(int spckind)
 {
-  if ((spckind < 0) || (spckind >= POWER_TYPES_COUNT))
+  if ((spckind < 0) || (spckind >= magic_conf.power_types_count))
     return magic_conf.special_cfgstats[0].tooltip_stridx;
   return magic_conf.special_cfgstats[spckind].tooltip_stridx;
 }
 
-TbBool power_data_is_invalid(const struct SpellData *pwrdata)
-{
-  if (pwrdata <= &spell_data[0])
-    return true;
-  return false;
-}
-
 long get_power_index_for_work_state(long work_state)
 {
-  long i;
-  for (i=0; i<POWER_TYPES_COUNT; i++)
-  {
-    if (spell_data[i].work_state == work_state)
+    long i;
+    for (i=0; i < magic_conf.power_types_count; i++)
     {
-      return i;
+        if (magic_conf.power_cfgstats[i].work_state == work_state) {
+            return i;
+        }
     }
-  }
-  return 0;
-}
-
-TbBool power_is_stupid(int pwkind)
-{
-  struct SpellData *pwrdata;
-  pwrdata = get_power_data(pwkind);
-  // now a test similar to the one in power_data_is_invalid()
-  // but we accept the NULL power (power 0)
-  if (pwrdata < &spell_data[0])
-    return true;
-  return (pwrdata->pcktype <= 0);
+    return 0;
 }
 
 struct SpellConfigStats *get_spell_model_stats(SpellKind spmodel)
@@ -266,6 +268,16 @@ TbBool power_model_stats_invalid(const struct PowerConfigStats *powerst)
   if (powerst <= &magic_conf.power_cfgstats[0])
     return true;
   return false;
+}
+
+TbBool power_is_instinctive(int pwkind)
+{
+    const struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(pwkind);
+    // Invalid powers are instinctive (as this usually means skipping an action)
+    if (power_model_stats_invalid(powerst))
+        return true;
+    return ((powerst->config_flags & PwMF_Instinctive) != 0);
 }
 
 struct SpecialConfigStats *get_special_model_stats(SpecialKind spckind)
@@ -814,8 +826,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           powerst->artifact_model = 0;
           powerst->can_cast_flags = 0;
           powerst->config_flags = 0;
-          powerst->overcharge_check_NEW = NULL;
-          powerst->work_state_NEW = 0;
+          powerst->overcharge_check = NULL;
+          powerst->work_state = 0;
           powerst->bigsym_sprite_idx = 0;
           powerst->medsym_sprite_idx = 0;
           powerst->name_stridx = 0;
@@ -856,12 +868,6 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
     }
     magstat = &game.keeper_power_stats[i];
     powerst = get_power_model_stats(i);
-/*
- * TODO POWERS Add options to set these all
-    pwrdata->pcktype;
-    pwrdata->work_state;
-    pwrdata->overcharge_check;
-*/
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(magic_power_commands,cmd_num)
     while (pos<len)
     {
@@ -1081,6 +1087,36 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
                   CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
                       COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
               }
+          }
+          break;
+      case 15: // FUNCTIONS
+          powerst->overcharge_check = NULL;
+          k = recognize_conf_parameter(buf,&pos,len,powermodel_expand_check_func_type);
+          if (k > 0)
+          {
+              powerst->overcharge_check = powermodel_expand_check_func_list[k];
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 16: // PLAYERSTATE
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+              k = get_id(player_state_commands, word_buf);
+              if (k >= 0) {
+                  powerst->work_state = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect object model \"%s\" in [%s] block of %s file.",
+                  word_buf,block_buf,config_textname);
+              break;
           }
           break;
       case 0: // comment
@@ -1336,12 +1372,12 @@ const char *shot_code_name(ThingModel tngmodel)
 }
 
 /**
- * Returns Code Name (name to use in script file) of given keepers power model.
+ * Returns Code Name (name to use in script file) of given keepers power kind.
  */
-const char *power_code_name(PowerKind pwmodel)
+const char *power_code_name(PowerKind pwkind)
 {
     const char *name;
-    name = get_conf_parameter_text(power_desc,pwmodel);
+    name = get_conf_parameter_text(power_desc,pwkind);
     if (name[0] != '\0')
         return name;
     return "INVALID";

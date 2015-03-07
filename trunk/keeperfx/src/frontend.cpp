@@ -936,27 +936,67 @@ void activate_room_build_mode(RoomKind rkind, TextStringId tooltip_id)
     game.chosen_room_tooltip = tooltip_id;
 }
 
+long player_state_to_packet(long work_state, PowerKind pwkind, TbBool already_in)
+{
+    switch (work_state)
+    {
+    case PSt_CallToArms:
+        if (already_in)
+            return PckA_PwrCTADis;
+        else
+            return PckA_SetPlyrState;
+    case PSt_SightOfEvil:
+        if (already_in)
+            return PckA_PwrSOEDis;
+        else
+            return PckA_SetPlyrState;
+    case PSt_CtrlDirect:
+    case PSt_CreateDigger:
+    case PSt_CaveIn:
+    case PSt_Heal:
+    case PSt_Lightning:
+    case PSt_SpeedUp:
+    case PSt_Armour:
+    case PSt_Conceal:
+    case PSt_CastDisease:
+    case PSt_TurnChicken:
+    case PSt_DestroyWalls:
+    case PSt_TimeBomb:
+        return PckA_SetPlyrState;
+    case PSt_None:
+        switch (pwkind)
+        {
+        case PwrK_OBEY:
+            return PckA_UsePwrObey;
+        case PwrK_HOLDAUDNC:
+            return PckA_HoldAudience;
+        case PwrK_ARMAGEDDON:
+            return PckA_UsePwrArmageddon;
+        default:
+            break;
+        }
+        return PckA_None;
+    default:
+        return PckA_None;
+    }
+}
+
 TbBool set_players_packet_change_spell(struct PlayerInfo *player,PowerKind pwkind)
 {
-    long k;
-    if (power_is_stupid(game.chosen_spell_type))
+    if (power_is_instinctive(game.chosen_spell_type))
         return false;
     const struct PowerConfigStats *powerst;
     powerst = get_power_model_stats(pwkind);
-    struct SpellData *pwrdata;
-    pwrdata = get_power_data(pwkind);
-    k = pwrdata->work_state;
-    if ((k == PSt_CallToArms) && (player->work_state == PSt_CallToArms))
+    TbBool already_in;
+    already_in = (powerst->work_state != PSt_None) && (player->work_state == powerst->work_state);
+    int pcktype;
+    pcktype = player_state_to_packet(powerst->work_state, pwkind, already_in);
+    if (pcktype != PckA_None)
     {
-        set_players_packet_action(player, PckA_PwrCTADis, 0, 0, 0, 0);
-    } else
-    if ((k == PSt_SightOfEvil) && (player->work_state == PSt_SightOfEvil))
-    {
-        set_players_packet_action(player, PckA_PwrSOEDis, 0, 0, 0, 0);
-    } else
-    {
-        set_players_packet_action(player, pwrdata->pcktype, k, 0, 0, 0);
-        play_non_3d_sample(powerst->select_sample_idx);
+        set_players_packet_action(player, pcktype, powerst->work_state, 0, 0, 0);
+        if (!already_in) {
+            play_non_3d_sample(powerst->select_sample_idx);
+        }
     }
     return true;
 }
