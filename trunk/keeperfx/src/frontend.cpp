@@ -983,7 +983,7 @@ long player_state_to_packet(long work_state, PowerKind pwkind, TbBool already_in
 
 TbBool set_players_packet_change_spell(struct PlayerInfo *player,PowerKind pwkind)
 {
-    if (power_is_instinctive(game.chosen_spell_type))
+    if (power_is_instinctive(game.chosen_spell_type) && (game.chosen_spell_type != 0))
         return false;
     const struct PowerConfigStats *powerst;
     powerst = get_power_model_stats(pwkind);
@@ -1012,7 +1012,7 @@ TbBool is_special_spell(PowerKind pwkind)
 void choose_special_spell(PowerKind pwkind, TextStringId tooltip_id)
 {
     struct Dungeon *dungeon;
-    struct MagicStats *magstat;
+    const struct MagicStats *pwrdynst;
 
     if (!is_special_spell(pwkind)) {
         WARNLOG("Bad power kind");
@@ -1021,9 +1021,9 @@ void choose_special_spell(PowerKind pwkind, TextStringId tooltip_id)
 
     dungeon = get_players_num_dungeon(my_player_number);
     set_chosen_power(pwkind, tooltip_id);
-    magstat = &game.keeper_power_stats[pwkind];
+    pwrdynst = get_power_dynamic_stats(pwkind);
 
-    if (dungeon->total_money_owned >= magstat->cost[0]) {
+    if (dungeon->total_money_owned >= pwrdynst->cost[0]) {
         struct PowerConfigStats *powerst;
         powerst = get_power_model_stats(pwkind);
         play_non_3d_sample_no_overlap(powerst->select_sample_idx); // Play the spell speech
@@ -1059,7 +1059,7 @@ void choose_spell(PowerKind pwkind, TextStringId tooltip_id)
     // Disable previous spell
     if (!set_players_packet_change_spell(player, pwkind)) {
         WARNLOG("Inconsistency when switching spell %d to %d",
-            (int) game.chosen_spell_type, pwkind);
+            (int)game.chosen_spell_type, (int)pwkind);
     }
 
     set_chosen_power(pwkind, tooltip_id);

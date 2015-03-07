@@ -427,7 +427,7 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
 {
     struct CreatureStats *crstat;
     struct CreatureControl *cctrl;
-    struct MagicStats *magstat;
+    const struct MagicStats *pwrdynst;
     long i;
     crstat = creature_stats_get_from_thing(thing);
     cctrl = creature_control_get_from_thing(thing);
@@ -438,9 +438,9 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
       i = compute_creature_max_health(crstat->health,cctrl->explevel) / crstat->slaps_to_kill;
       apply_damage_to_thing_and_display_health(thing, i, DmgT_Physical, player->id_number);
     }
-    magstat = &game.keeper_power_stats[PwrK_SLAP];
+    pwrdynst = get_power_dynamic_stats(PwrK_SLAP);
     i = cctrl->slap_turns;
-    cctrl->slap_turns = magstat->time;
+    cctrl->slap_turns = pwrdynst->time;
     if (i == 0)
       cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
     if (thing->active_state != CrSt_CreatureSlapCowers)
@@ -581,11 +581,11 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
 long compute_power_price(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel)
 {
     struct Dungeon *dungeon;
-    struct MagicStats *magstat;
+    const struct MagicStats *pwrdynst;
     long price;
     long i;
     unsigned long k;
-    magstat = &game.keeper_power_stats[pwkind];
+    pwrdynst = get_power_dynamic_stats(pwkind);
     switch (pwkind)
     {
     case PwrK_MKDIGGER: // Special price algorithm for "create imp" spell
@@ -595,10 +595,10 @@ long compute_power_price(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel)
         i = dungeon->num_active_diggers - dungeon->creature_sacrifice[k] + 1;
         if (i < 1)
           i = 1;
-        price = magstat->cost[pwlevel]*i/2;
+        price = pwrdynst->cost[pwlevel]*i/2;
         break;
     default:
-        price = magstat->cost[pwlevel];
+        price = pwrdynst->cost[pwlevel];
         break;
     }
     return price;
@@ -607,8 +607,8 @@ long compute_power_price(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel)
 long find_spell_age_percentage(PlayerNumber plyr_idx, PowerKind pwkind)
 {
     struct Dungeon *dungeon;
-    struct MagicStats *magstat;
-    magstat = &game.keeper_power_stats[pwkind];
+    const struct MagicStats *pwrdynst;
+    pwrdynst = get_power_dynamic_stats(pwkind);
     struct Thing * thing;
     thing = INVALID_THING;
     unsigned long curr, total;
@@ -622,7 +622,7 @@ long find_spell_age_percentage(PlayerNumber plyr_idx, PowerKind pwkind)
             thing = thing_get(dungeon->sight_casted_thing_idx);
         if (thing_exists(thing)) {
             curr = game.play_gameturn - thing->creation_turn;
-            total = magstat->strength[dungeon->sight_casted_splevel] + 8;
+            total = pwrdynst->strength[dungeon->sight_casted_splevel] + 8;
         }
         break;
     case PwrK_CALL2ARMS:
@@ -630,7 +630,7 @@ long find_spell_age_percentage(PlayerNumber plyr_idx, PowerKind pwkind)
         if (dungeon->cta_start_turn != 0)
         {
             curr = game.play_gameturn - dungeon->cta_start_turn;
-            total = magstat->time;
+            total = pwrdynst->time;
         }
         break;
     default:
@@ -805,21 +805,21 @@ void turn_off_power_obey(PlayerNumber plyr_idx)
 void turn_off_power_sight_of_evil(PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
-    struct MagicStats *mgstat;
     long spl_lev,cit;
     long i,imax,k,n;
     dungeon = get_players_num_dungeon(plyr_idx);
-    mgstat = &(game.keeper_power_stats[PwrK_SIGHT]);
+    const struct MagicStats *pwrdynst;
+    pwrdynst = get_power_dynamic_stats(PwrK_SIGHT);
     spl_lev = dungeon->sight_casted_splevel;
     if (spl_lev > SPELL_MAX_LEVEL)
         spl_lev = SPELL_MAX_LEVEL;
     i = game.play_gameturn - dungeon->sight_casted_gameturn;
-    imax = abs(mgstat->strength[spl_lev]/4) >> 2;
+    imax = abs(pwrdynst->strength[spl_lev]/4) >> 2;
     if (i > imax)
         i = imax;
     if (i < 0)
         i = 0;
-    n = game.play_gameturn - mgstat->strength[spl_lev];
+    n = game.play_gameturn - pwrdynst->strength[spl_lev];
     cit = power_sight_close_instance_time[spl_lev];
     k = imax / cit;
     if (k < 1) k = 1;
@@ -1179,7 +1179,7 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
 {
     struct PlayerInfo *player;
     struct Dungeon *dungeon;
-    struct MagicStats *magstat;
+    const struct MagicStats *pwrdynst;
     struct ShotConfigStats *shotst;
     struct Thing *shtng;
     struct Thing *obtng;
@@ -1212,10 +1212,10 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
         shtng->shot.hit_type = THit_CrtrsOnly;
         shtng->field_19 = splevel;
     }
-    magstat = &game.keeper_power_stats[PwrK_LIGHTNING];
+    pwrdynst = get_power_dynamic_stats(PwrK_LIGHTNING);
     shotst = get_shot_model_stats(16);
     dungeon->camera_deviate_jump = 256;
-    i = magstat->strength[splevel];
+    i = pwrdynst->strength[splevel];
     max_damage = i * shotst->old->damage;
     range = (i << 8) / 2;
     if (power_sight_explored(stl_x, stl_y, plyr_idx))
@@ -1242,18 +1242,18 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
 
 TbResult magic_use_power_sight(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
-    struct MagicStats *magstat;
+    const struct MagicStats *pwrdynst;
     struct Dungeon *dungeon;
     struct Thing *thing;
     struct Coord3d pos;
     long cit,cdt,cgt,cdlimit;
     long i;
     dungeon = get_dungeon(plyr_idx);
-    magstat = &game.keeper_power_stats[PwrK_SIGHT];
+    pwrdynst = get_power_dynamic_stats(PwrK_SIGHT);
     if (player_uses_power_sight(plyr_idx))
     {
         cdt = game.play_gameturn - dungeon->sight_casted_gameturn;
-        cdlimit = magstat->strength[dungeon->sight_casted_splevel] >> 4;
+        cdlimit = pwrdynst->strength[dungeon->sight_casted_splevel] >> 4;
         if (cdt < 0) {
             cdt = 0;
         } else
@@ -1261,7 +1261,7 @@ TbResult magic_use_power_sight(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
             cdt = cdlimit;
         }
         cit = power_sight_close_instance_time[dungeon->sight_casted_splevel];
-        cgt = game.play_gameturn - magstat->strength[dungeon->sight_casted_splevel];
+        cgt = game.play_gameturn - pwrdynst->strength[dungeon->sight_casted_splevel];
         i = cdlimit / cit;
         if (i > 0) {
             dungeon->sight_casted_gameturn = cgt + cdt/i - cit;
@@ -1652,12 +1652,12 @@ void process_magic_power_call_to_arms(PlayerNumber plyr_idx)
     dungeon = get_players_num_dungeon(plyr_idx);
     long duration;
     duration = game.play_gameturn - dungeon->cta_start_turn;
-    struct MagicStats *magstat;
-    magstat = &game.keeper_power_stats[PwrK_CALL2ARMS];
+    const struct MagicStats *pwrdynst;
+    pwrdynst = get_power_dynamic_stats(PwrK_CALL2ARMS);
 
     struct SlabMap *slb;
     slb = get_slabmap_for_subtile(dungeon->cta_stl_x, dungeon->cta_stl_y);
-    if (((duration % magstat->time) == 0) && (slabmap_owner(slb) != plyr_idx))
+    if (((duration % pwrdynst->time) == 0) && (slabmap_owner(slb) != plyr_idx))
     {
         if (!pay_for_spell(plyr_idx, PwrK_CALL2ARMS, dungeon->cta_splevel)) {
             if (is_my_player_number(plyr_idx))
@@ -1669,7 +1669,7 @@ void process_magic_power_call_to_arms(PlayerNumber plyr_idx)
     if ((duration % 16) == 0)
     {
         long range;
-        range = subtile_coord(magstat->strength[dungeon->cta_splevel],0);
+        range = subtile_coord(pwrdynst->strength[dungeon->cta_splevel],0);
         struct Coord3d pos2;
         pos2.x.val = subtile_coord_center(dungeon->cta_stl_x);
         pos2.y.val = subtile_coord_center(dungeon->cta_stl_y);
@@ -1684,9 +1684,9 @@ void process_magic_power_must_obey(PlayerNumber plyr_idx)
     dungeon = get_players_num_dungeon(plyr_idx);
     long delta;
     delta = game.play_gameturn - dungeon->must_obey_turn;
-    struct MagicStats *magstat;
-    magstat = &game.keeper_power_stats[PwrK_OBEY];
-    if ((delta % magstat->time) == 0)
+    const struct MagicStats *pwrdynst;
+    pwrdynst = get_power_dynamic_stats(PwrK_OBEY);
+    if ((delta % pwrdynst->time) == 0)
     {
         if (!pay_for_spell(plyr_idx, PwrK_OBEY, 0)) {
             magic_use_power_obey(plyr_idx, PwMod_Default);
@@ -1966,23 +1966,23 @@ int get_power_overcharge_level(struct PlayerInfo *player)
 TbBool update_power_overcharge(struct PlayerInfo *player, int pwkind)
 {
   struct Dungeon *dungeon;
-  struct MagicStats *mgstat;
   int i;
   if ((pwkind < 0) || (pwkind >= POWER_TYPES_COUNT))
       return false;
   dungeon = get_dungeon(player->id_number);
-  mgstat = &(game.keeper_power_stats[pwkind]);
+  const struct MagicStats *pwrdynst;
+  pwrdynst = get_power_dynamic_stats(pwkind);
   i = (player->field_4D2+1) >> 2;
   if (i > SPELL_MAX_LEVEL)
     i = SPELL_MAX_LEVEL;
-  if (mgstat->cost[i] <= dungeon->total_money_owned)
+  if (pwrdynst->cost[i] <= dungeon->total_money_owned)
   {
     // If we have more money, increase overcharge
     player->field_4D2++;
   } else
   {
     // If we don't have money, decrease the charge
-    while (mgstat->cost[i] > dungeon->total_money_owned)
+    while (pwrdynst->cost[i] > dungeon->total_money_owned)
     {
       i--;
       if (i < 0) break;
