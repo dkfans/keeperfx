@@ -495,7 +495,7 @@ void draw_power_hand(void)
         draw_mini_things_in_hand(GetMouseX()+18*units_per_pixel/16, GetMouseY());
         return;
     }
-    if (player->work_state != PSt_Unknown5)
+    if (player->work_state != PSt_HoldInHand)
     {
       if ( (player->work_state != PSt_CtrlDungeon)
         || ((player->field_455 != 3) && ((player->work_state != PSt_CtrlDungeon) || (player->field_455) || (player->field_454 != 3))) )

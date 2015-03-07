@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file player_states.h
- *     Header file for player_states.c.
+/** @file config_players.h
+ *     Header file for config_players.c.
  * @par Purpose:
- *     Player states definitions and functions.
+ *     Players configuration loading functions.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
- * @author   Tomasz Lis
- * @date     19 Nov 2012 - 02 Feb 2013
+ * @author   KeeperFX Team
+ * @date     17 Sep 2012 - 06 Mar 2015
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,62 +16,23 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_PLYR_STATES_H
-#define DK_PLYR_STATES_H
+#ifndef DK_CFGPLAYERS_H
+#define DK_CFGPLAYERS_H
 
-#include "bflib_basics.h"
 #include "globals.h"
+#include "bflib_basics.h"
+
+#include "config.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-#define PLAYER_STATES_COUNT    PSt_ListEnd
-/******************************************************************************/
 #pragma pack(1)
 
-struct PlayerInfo;
-
-enum PlayerStates {
-    PSt_None = 0,
-    PSt_CtrlDungeon,
-    PSt_BuildRoom,
-    PSt_MkGoodDigger,
-    PSt_MkGoodCreatr,
-    PSt_HoldInHand, // 5
-    PSt_CallToArms,
-    PSt_CaveIn,
-    PSt_SightOfEvil,
-    PSt_Slap,
-    PSt_CtrlPassngr, // 10
-    PSt_CtrlDirect,
-    PSt_CreatrQuery,
-    PSt_OrderCreatr,
-    PSt_MkBadCreatr,
-    PSt_CreatrInfo, // 15
-    PSt_PlaceTrap,
-    PSt_Lightning,
-    PSt_PlaceDoor,
-    PSt_SpeedUp,
-    PSt_Armour, // 20
-    PSt_Conceal,
-    PSt_Heal,
-    PSt_Sell,
-    PSt_CreateDigger,
-    PSt_DestroyWalls,
-    PSt_CastDisease,
-    PSt_TurnChicken,
-    PSt_MkGoldPot, // 28
-    PSt_TimeBomb,
-    PSt_FreeDestroyWalls,
-    PSt_FreeCastDisease,
-    PSt_FreeTurnChicken,
-    PSt_ListEnd
-};
 
 #pragma pack()
 /******************************************************************************/
-extern unsigned short const player_state_to_power_kind[];
 /******************************************************************************/
 
 /******************************************************************************/

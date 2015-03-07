@@ -265,7 +265,7 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
   player->work_state = nwrk_state;
   if (is_my_player(player))
     game.field_14E92E = 0;
-  if ((player->work_state != PSt_Unknown12) && (player->work_state != PSt_CreatrInfo)
+  if ((player->work_state != PSt_CreatrQuery) && (player->work_state != PSt_CreatrInfo)
      && (player->work_state != PSt_CtrlDirect) && (player->work_state != PSt_CtrlPassngr))
   {
       clear_selected_thing(player);
@@ -278,7 +278,7 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
   case PSt_BuildRoom:
       player->chosen_room_kind = chosen_kind;
       break;
-  case PSt_Unknown5:
+  case PSt_HoldInHand:
       create_power_hand(player->id_number);
       break;
   case PSt_Slap:

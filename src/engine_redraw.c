@@ -753,6 +753,8 @@ TbBool draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, MapSubt
     thing = thing_get(tng_idx);
     allow_cast = false;
     pwrdata = get_power_data(pwkind);
+    const struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(pwkind);
     allow_cast = can_cast_spell(player->id_number, pwkind, stl_x, stl_y, thing, CastChk_SkipThing);
     if (!allow_cast)
     {
@@ -771,7 +773,7 @@ TbBool draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, MapSubt
             return true;
         }
     }
-    i = pwrdata->pointer_sprite_idx;
+    i = powerst->pointer_sprite_idx;
     set_pointer_graphic_spell(i, game.play_gameturn);
     return true;
 }
@@ -882,7 +884,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         i = get_place_room_pointer_graphics(player->chosen_room_kind);
         set_pointer_graphic(i);
         break;
-    case PSt_Unknown5:
+    case PSt_HoldInHand:
     case PSt_Slap:
         set_pointer_graphic(0);
         break;
@@ -905,7 +907,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
     case PSt_FreeTurnChicken:
         draw_spell_cursor(player->work_state, 0, game.pos_14C006.x.stl.num, game.pos_14C006.y.stl.num);
         break;
-    case PSt_Unknown12:
+    case PSt_CreatrQuery:
     case PSt_CreatrInfo:
         set_pointer_graphic(4);
         break;

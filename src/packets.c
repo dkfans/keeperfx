@@ -808,7 +808,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
               turn_on_menu(GMnu_CREATURE_QUERY1);
             }
             player->influenced_thing_idx = player->thing_under_hand;
-            set_player_state(player, PSt_Unknown12, 0);
+            set_player_state(player, PSt_CreatrQuery, 0);
             set_player_instance(player, PI_QueryCrtr, 0);
           }
           unset_packet_control(pckt, PCtr_LBtnRelease);
@@ -1011,7 +1011,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
           }
         }
         break;
-    case PSt_Unknown12:
+    case PSt_CreatrQuery:
     case PSt_CreatrInfo:
         influence_own_creatures = 1;
         thing = get_creature_near_and_owned_by(x, y, plyr_idx);
@@ -2006,12 +2006,12 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
               set_player_instance(player, PI_ZoomToPos, 0);
           }
       }
-      pwrdata = get_power_data(pckt->field_6);
-      if (pwrdata->pcktype)
+      if (!power_is_stupid(pckt->field_6))
       {
-        i = get_power_index_for_work_state(player->work_state);
-        if (i > 0)
-          set_player_state(player, pwrdata->work_state, 0);
+          pwrdata = get_power_data(pckt->field_6);
+          i = get_power_index_for_work_state(player->work_state);
+          if (i > 0)
+            set_player_state(player, pwrdata->work_state, 0);
       }
       return 0;
   case PckA_PlyrFastMsg:

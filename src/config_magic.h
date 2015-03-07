@@ -180,6 +180,11 @@ enum PowerCanCastFlags {
 #define PwCast_NotEnemyGround (PwCast_NeutrlGround|PwCast_OwnedGround|PwCast_AlliedGround)
 #define PwCast_AllTall (PwCast_NeutrlTall|PwCast_OwnedTall|PwCast_AlliedTall|PwCast_EnemyTall)
 
+enum PowerModelFlags {
+    /** Set if the power has a run progress bar. */
+    PwMF_HasProgress  = 0x0001,
+};
+
 struct SpellConfigStats {
     char code_name[COMMAND_WORD_LEN];
 };
@@ -202,9 +207,21 @@ struct ShotConfigStats {
     struct ShotStats *old;
 };
 
+typedef unsigned char (*Expand_Check_Func)(void);
+
 struct PowerConfigStats {
     char code_name[COMMAND_WORD_LEN];
     ThingModel artifact_model;
+    unsigned long can_cast_flags;
+    unsigned long config_flags;
+    Expand_Check_Func overcharge_check_NEW;
+    long work_state_NEW;
+    short bigsym_sprite_idx;
+    short medsym_sprite_idx;
+    unsigned short name_stridx;
+    unsigned short tooltip_stridx;
+    short select_sample_idx;
+    short pointer_sprite_idx;
     long panel_tab_idx;
 };
 
@@ -226,8 +243,6 @@ struct MagicConfig {
 };
 
 #pragma pack(1)
-
-typedef unsigned char (*Expand_Check_Func)(void);
 
 struct SpellConfig { // sizeof=4
   int duration;
@@ -368,6 +383,7 @@ long get_special_description_strindex(int spckind);
 struct SpellConfigStats *get_spell_model_stats(SpellKind spmodel);
 struct ShotConfigStats *get_shot_model_stats(ThingModel tngmodel);
 struct PowerConfigStats *get_power_model_stats(PowerKind pwmodel);
+TbBool power_model_stats_invalid(const struct PowerConfigStats *powerst);
 struct SpecialConfigStats *get_special_model_stats(SpecialKind spckind);
 const char *spell_code_name(SpellKind spmodel);
 const char *shot_code_name(ThingModel tngmodel);

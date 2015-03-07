@@ -71,13 +71,13 @@ DLLIMPORT void _DK_remove_explored_flags_for_power_sight(struct PlayerInfo *play
  */
 void set_chosen_power(PowerKind pwkind, TextStringId sptooltip)
 {
-    struct SpellData *pwrdata;
-    pwrdata = get_power_data(pwkind);
-    if (power_data_is_invalid(pwrdata))
+    const struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(pwkind);
+    if (power_model_stats_invalid(powerst))
       pwkind = 0;
     SYNCDBG(6,"Setting to %ld",pwkind);
     game.chosen_spell_type = pwkind;
-    game.chosen_spell_spridx = pwrdata->bigsym_sprite_idx;
+    game.chosen_spell_spridx = powerst->bigsym_sprite_idx;
     game.chosen_spell_tooltip = sptooltip;
 }
 
