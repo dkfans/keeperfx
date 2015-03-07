@@ -217,6 +217,7 @@ struct PowerConfigStats {
     unsigned long config_flags;
     Expand_Check_Func overcharge_check;
     long work_state;
+    PowerKind parent_power;
     short bigsym_sprite_idx;
     short medsym_sprite_idx;
     unsigned short name_stridx;
@@ -383,6 +384,7 @@ struct SpellConfigStats *get_spell_model_stats(SpellKind spmodel);
 struct ShotConfigStats *get_shot_model_stats(ThingModel tngmodel);
 struct PowerConfigStats *get_power_model_stats(PowerKind pwmodel);
 TbBool power_model_stats_invalid(const struct PowerConfigStats *powerst);
+struct MagicStats *get_power_dynamic_stats(PowerKind pwkind);
 struct SpecialConfigStats *get_special_model_stats(SpecialKind spckind);
 const char *spell_code_name(SpellKind spmodel);
 const char *shot_code_name(ThingModel tngmodel);

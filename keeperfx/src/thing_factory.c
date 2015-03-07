@@ -42,7 +42,7 @@
 /******************************************************************************/
 struct Thing *create_cave_in(struct Coord3d *pos, unsigned short cimodel, unsigned short owner)
 {
-    struct MagicStats *magstat;
+    struct MagicStats *pwrdynst;
     struct Dungeon *dungeon;
     struct Thing *thing;
     if ( !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots) )
@@ -63,12 +63,12 @@ struct Thing *create_cave_in(struct Coord3d *pos, unsigned short cimodel, unsign
     memcpy(&thing->mappos,pos,sizeof(struct Coord3d));
     thing->owner = owner;
     thing->creation_turn = game.play_gameturn;
-    magstat = &game.keeper_power_stats[PwrK_CAVEIN];
-    thing->word_15 = magstat->time;
+    pwrdynst = get_power_dynamic_stats(PwrK_CAVEIN);
+    thing->word_15 = pwrdynst->time;
     thing->byte_13 = pos->x.stl.num;
     thing->byte_14 = pos->y.stl.num;
     thing->byte_17 = cimodel;
-    thing->health = magstat->time;
+    thing->health = pwrdynst->time;
     if (owner != game.neutral_player_num)
     {
         dungeon = get_dungeon(owner);
