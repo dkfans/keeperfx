@@ -356,13 +356,13 @@ void god_lightning_choose_next_creature(struct Thing *shotng)
             dist = get_2d_distance(&shotng->mappos, &thing->mappos);
             if (dist < best_dist)
             {
-                struct MagicStats *magstat;
-                magstat = &game.keeper_power_stats[PwrK_LIGHTNING];
+                const struct MagicStats *pwrdynst;
+                pwrdynst = get_power_dynamic_stats(PwrK_LIGHTNING);
                 int spell_lev;
                 spell_lev = shotng->field_19;
                 if (spell_lev > SPELL_MAX_LEVEL)
                     spell_lev = SPELL_MAX_LEVEL;
-                if (subtile_coord(magstat->strength[spell_lev],0) > dist)
+                if (subtile_coord(pwrdynst->strength[spell_lev],0) > dist)
                 {
                     if (line_of_sight_2d(&shotng->mappos, &thing->mappos)) {
                         best_dist = dist;

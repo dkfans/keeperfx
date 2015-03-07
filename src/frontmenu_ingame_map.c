@@ -75,8 +75,8 @@ void pannel_map_draw_pixel(RealScreenCoord x, RealScreenCoord y, TbPixel col)
  */
 void draw_call_to_arms_circle(unsigned char owner, long x1, long y1, long x2, long y2, long zoom)
 {
-    struct MagicStats *magstat;
-    magstat = &game.keeper_power_stats[PwrK_CALL2ARMS];
+    const struct MagicStats *pwrdynst;
+    pwrdynst = get_power_dynamic_stats(PwrK_CALL2ARMS);
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(owner);
     int units_per_px;
@@ -89,7 +89,7 @@ void draw_call_to_arms_circle(unsigned char owner, long x1, long y1, long x2, lo
     center_x = i + x2;
     center_y = i + y2;
     long long cscale;
-    cscale = ((game.play_gameturn + owner) & 7) * magstat->strength[dungeon->cta_splevel];
+    cscale = ((game.play_gameturn + owner) & 7) * pwrdynst->strength[dungeon->cta_splevel];
     int dxq1, dyq1;
     int dxq2, dyq2;
     int dxq3, dyq3;

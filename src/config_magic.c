@@ -87,6 +87,7 @@ const struct NamedCommand magic_power_commands[] = {
   {"PROPERTIES",     14},
   {"FUNCTIONS",      15},
   {"PLAYERSTATE",    16},
+  {"PARENTPOWER",    17},
   {NULL,              0},
   };
 
@@ -268,6 +269,13 @@ TbBool power_model_stats_invalid(const struct PowerConfigStats *powerst)
   if (powerst <= &magic_conf.power_cfgstats[0])
     return true;
   return false;
+}
+
+struct MagicStats *get_power_dynamic_stats(PowerKind pwkind)
+{
+    if ((pwkind < 0) || (pwkind >= POWER_TYPES_COUNT))
+        return &game.keeper_power_stats[0];
+    return &game.keeper_power_stats[pwkind];
 }
 
 TbBool power_is_instinctive(int pwkind)
@@ -807,7 +815,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
 TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
   struct PowerConfigStats *powerst;
-  struct MagicStats *magstat;
+  struct MagicStats *pwrdynst;
   long pos;
   int i,k,n;
   int cmd_num;
@@ -849,7 +857,6 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
       for (i=0; i < arr_size; i++) {
           object_conf.object_to_power_artifact[i] = 0;
       }
-
   }
   arr_size = magic_conf.power_types_count;
   // Load the file
@@ -866,7 +873,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
         }
         continue;
     }
-    magstat = &game.keeper_power_stats[i];
+    pwrdynst = get_power_dynamic_stats(i);
     powerst = get_power_model_stats(i);
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(magic_power_commands,cmd_num)
     while (pos<len)
@@ -902,7 +909,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
                 break;
               }
-              magstat->strength[n] = k;
+              pwrdynst->strength[n] = k;
               n++;
           }
           if (n <= SPELL_MAX_LEVEL)
@@ -921,7 +928,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
                 break;
               }
-              magstat->cost[n] = k;
+              pwrdynst->cost[n] = k;
               n++;
           }
           if (n <= SPELL_MAX_LEVEL)
@@ -934,7 +941,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              magstat->time = k;
+              pwrdynst->time = k;
               n++;
           }
           if (n < 1)
@@ -1109,6 +1116,22 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
               k = get_id(player_state_commands, word_buf);
               if (k >= 0) {
                   powerst->work_state = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect object model \"%s\" in [%s] block of %s file.",
+                  word_buf,block_buf,config_textname);
+              break;
+          }
+          break;
+      case 17: // PARENTPOWER
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+              k = get_id(power_desc, word_buf);
+              if (k >= 0) {
+                  powerst->parent_power = k;
                   n++;
               }
           }
@@ -1481,13 +1504,13 @@ void remove_power_from_player(PowerKind pwkind, PlayerNumber plyr_idx)
  */
 TbBool make_all_powers_cost_free(void)
 {
-  struct MagicStats *magstat;
+  struct MagicStats *pwrdynst;
   long i,n;
   for (i=0; i < magic_conf.power_types_count; i++)
   {
-    magstat = &game.keeper_power_stats[i];
-    for (n=0; n <= SPELL_MAX_LEVEL; n++)
-      magstat->cost[n] = 0;
+      pwrdynst = get_power_dynamic_stats(i);
+    for (n=0; n <= MAGIC_OVERCHARGE_LEVELS; n++)
+        pwrdynst->cost[n] = 0;
   }
   return true;
 }

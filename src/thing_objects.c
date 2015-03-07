@@ -1468,9 +1468,9 @@ TngUpdateRet object_update_power_lightning(struct Thing *objtng)
         }
         variation++;
     }
-    struct MagicStats *magstat;
-    magstat = &game.keeper_power_stats[PwrK_LIGHTNING];
-    if (exist_turns > abs(magstat->strength[objtng->byte_13]))
+    const struct MagicStats *pwrdynst;
+    pwrdynst = get_power_dynamic_stats(PwrK_LIGHTNING);
+    if (exist_turns > abs(pwrdynst->strength[objtng->byte_13]))
     {
         delete_thing_structure(objtng, 0);
         return TUFRet_Deleted;

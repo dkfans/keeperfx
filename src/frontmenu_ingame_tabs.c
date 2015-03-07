@@ -490,6 +490,8 @@ void gui_area_spell_button(struct GuiButton *gbtn)
         {
             const struct PowerConfigStats *powerst;
             powerst = get_power_model_stats(pwkind);
+            const struct MagicStats *pwrdynst;
+            pwrdynst = get_power_dynamic_stats(pwkind);
             int i;
             i = powerst->work_state;
             if (((i == PSt_CallToArms) && player_uses_power_call_to_arms(my_player_number))
@@ -498,7 +500,7 @@ void gui_area_spell_button(struct GuiButton *gbtn)
                 draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 27);
             }
             spr_idx = gbtn->sprite_idx;
-            if (game.keeper_power_stats[pwkind].cost[0] > dungeon->total_money_owned)
+            if (pwrdynst->cost[0] > dungeon->total_money_owned)
                 spr_idx++;
             TbBool drawn;
             drawn = false;
