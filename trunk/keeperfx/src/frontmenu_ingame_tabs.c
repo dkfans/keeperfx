@@ -547,6 +547,9 @@ void gui_area_big_spell_button(struct GuiButton *gbtn)
 
     PowerKind pwkind;
     pwkind = (long)gbtn->content;
+    struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(pwkind);
+
     struct SpellData *pwrdata;
     pwrdata = get_power_data(pwkind);
     if (power_data_is_invalid(pwrdata))
@@ -564,7 +567,7 @@ void gui_area_big_spell_button(struct GuiButton *gbtn)
     lbDisplay.DrawFlags &= ~Lb_SPRITE_OUTLINE;
     int pwage;
     pwage = find_spell_age_percentage(player->id_number, pwkind);
-    if ((pwrdata->has_progress != 0) && (pwage >= 0))
+    if (((powerst->config_flags & PwMF_HasProgress) != 0) && (pwage >= 0))
     {
         draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 23);
         int fill_bar;
@@ -2180,7 +2183,7 @@ void gui_set_query(struct GuiButton *gbtn)
 {
     struct PlayerInfo *player;
     player = get_my_player();
-    set_players_packet_action(player, PckA_SetPlyrState, PSt_Unknown12, 0, 0, 0);
+    set_players_packet_action(player, PckA_SetPlyrState, PSt_CreatrQuery, 0, 0, 0);
 }
 
 void draw_gold_total(PlayerNumber plyr_idx, long scr_x, long scr_y, long units_per_px, long long value)
@@ -2363,14 +2366,12 @@ void update_powers_tab_to_config(void)
     {
         struct PowerConfigStats *powerst;
         powerst = get_power_model_stats(i);
-        struct SpellData *pwrdata;
-        pwrdata = get_power_data(i);
         if (powerst->panel_tab_idx < 1)
             continue;
         struct GuiButtonInit * ibtn;
         ibtn = &spell_menu.buttons[powerst->panel_tab_idx-1];
-        ibtn->sprite_idx = pwrdata->medsym_sprite_idx;
-        ibtn->tooltip_stridx = pwrdata->tooltip_stridx;
+        ibtn->sprite_idx = powerst->medsym_sprite_idx;
+        ibtn->tooltip_stridx = powerst->tooltip_stridx;
         ibtn->content.lval = i;
         if ((i == PwrK_HOLDAUDNC) || (i == PwrK_ARMAGEDDON)) {
             ibtn->click_event = gui_choose_special_spell;

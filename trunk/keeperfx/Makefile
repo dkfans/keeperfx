@@ -210,6 +210,7 @@ obj/config_trapdoor.o \
 obj/config_objects.o \
 obj/config_effects.o \
 obj/config_rules.o \
+obj/config_players.o \
 obj/config_lenses.o \
 obj/config_creature.o \
 obj/config_crtrmodel.o \

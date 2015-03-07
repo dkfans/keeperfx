@@ -38,14 +38,14 @@ enum PlayerStates {
     PSt_BuildRoom,
     PSt_MkGoodDigger,
     PSt_MkGoodCreatr,
-    PSt_Unknown5, // 5
+    PSt_HoldInHand, // 5
     PSt_CallToArms,
     PSt_CaveIn,
     PSt_SightOfEvil,
     PSt_Slap,
     PSt_CtrlPassngr, // 10
     PSt_CtrlDirect,
-    PSt_Unknown12,
+    PSt_CreatrQuery,
     PSt_OrderCreatr,
     PSt_MkBadCreatr,
     PSt_CreatrInfo, // 15

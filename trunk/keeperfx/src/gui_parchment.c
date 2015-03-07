@@ -629,7 +629,6 @@ void draw_map_level_name(void)
 void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_size,int scr_x,int scr_y)
 {
     struct PlayerInfo *player;
-    struct SpellData *pwrdata;
     struct Thing *thing;
     int spos_x,spos_y;
     TbPixel color;
@@ -698,8 +697,9 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
                 } else
                 if (thing_is_spellbook(thing))
                 {
-                    pwrdata = get_power_data(book_thing_to_power_kind(thing));
-                    spridx = pwrdata->medsym_sprite_idx;
+                    struct PowerConfigStats *powerst;
+                    powerst = get_power_model_stats(book_thing_to_power_kind(thing));
+                    spridx = powerst->medsym_sprite_idx;
                     draw_gui_panel_sprite_centered(scr_x + spos_x, scr_y + spos_y - 13*units_per_pixel/16, ps_units_per_px, spridx);
                 }
                 break;

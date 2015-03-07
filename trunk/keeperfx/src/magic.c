@@ -94,10 +94,10 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord s
     }
     TbBool cast_at_xy,cast_on_tng;
     cast_at_xy = can_cast_power_at_xy(plyr_idx, pwkind, stl_x, stl_y, 0);
-    struct SpellData *pwrdata;
-    pwrdata = get_power_data(pwkind);
+    const struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(pwkind);
     cast_on_tng = true;
-    if (((pwrdata->can_cast_flags & PwCast_AllThings) != 0) && ((flags & CastChk_SkipThing) == 0))
+    if (((powerst->can_cast_flags & PwCast_AllThings) != 0) && ((flags & CastChk_SkipThing) == 0))
     {
         if (thing_exists(thing)) {
             cast_on_tng = can_cast_power_on_thing(plyr_idx, thing, pwkind);
@@ -105,7 +105,7 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord s
             cast_on_tng = false;
         }
     }
-    if ((pwrdata->can_cast_flags & PwCast_ThingOrMap) != 0)
+    if ((powerst->can_cast_flags & PwCast_ThingOrMap) != 0)
     {
         // Fail only if both functions have failed - one is enough
         if (!cast_at_xy && !cast_on_tng) {
@@ -144,13 +144,13 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
     if (thing_is_picked_up(thing)) {
         return false;
     }
-    struct SpellData *pwrdata;
-    pwrdata = get_power_data(pwkind);
-    if (power_data_is_invalid(pwrdata))
+    struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(pwkind);
+    if (power_model_stats_invalid(powerst))
         return false;
     if (thing_is_object(thing))
     {
-        if ((pwrdata->can_cast_flags & PwCast_OwnedFood) != 0)
+        if ((powerst->can_cast_flags & PwCast_OwnedFood) != 0)
         {
             if (thing->owner == plyr_idx) {
                 if (object_is_mature_food(thing))  {
@@ -158,7 +158,7 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
                 }
             }
         }
-        if ((pwrdata->can_cast_flags & PwCast_OwnedGold) != 0)
+        if ((powerst->can_cast_flags & PwCast_OwnedGold) != 0)
         {
             if (thing->owner == plyr_idx) {
                 if (object_is_gold_pile(thing) || object_is_gold_hoard(thing)) {
@@ -166,7 +166,7 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
                 }
             }
         }
-        if ((pwrdata->can_cast_flags & PwCast_NeutrlGold) != 0)
+        if ((powerst->can_cast_flags & PwCast_NeutrlGold) != 0)
         {
             if (is_neutral_thing(thing)) {
                 if (object_is_gold_pile(thing) || object_is_gold_hoard(thing)) {
@@ -174,7 +174,7 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
                 }
             }
         }
-        if ((pwrdata->can_cast_flags & PwCast_OwnedSpell) != 0)
+        if ((powerst->can_cast_flags & PwCast_OwnedSpell) != 0)
         {
             if (thing->owner == plyr_idx) {
                 if (thing_is_spellbook(thing))  {
@@ -185,7 +185,7 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
     }
     if (thing_is_shot(thing))
     {
-        if ((pwrdata->can_cast_flags & PwCast_OwnedBoulders) != 0)
+        if ((powerst->can_cast_flags & PwCast_OwnedBoulders) != 0)
         {
             if (thing->owner == plyr_idx) {
                 if (shot_is_slappable(thing, plyr_idx))  {
@@ -197,7 +197,7 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
     if (thing_is_deployed_trap(thing))
     {
         // Allow the boulder trap
-        if ((pwrdata->can_cast_flags & PwCast_OwnedBoulders) != 0)
+        if ((powerst->can_cast_flags & PwCast_OwnedBoulders) != 0)
         {
             if (thing->owner == plyr_idx) {
                 //TODO TRAPS Remove hardcoded trap model
@@ -216,18 +216,18 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
                 return false;
             }
         }
-        if ((pwrdata->can_cast_flags & PwCast_AllCrtrs) == PwCast_AllCrtrs)
+        if ((powerst->can_cast_flags & PwCast_AllCrtrs) == PwCast_AllCrtrs)
         {
             return true;
         }
-        if ((pwrdata->can_cast_flags & PwCast_NConscCrtrs) == 0)
+        if ((powerst->can_cast_flags & PwCast_NConscCrtrs) == 0)
         {
             if (creature_is_being_unconscious(thing) || creature_is_dying(thing)) {
                 SYNCDBG(8,"Player %d cannot cast %s on unconscious %s",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing));
                 return false;
             }
         }
-        if ((pwrdata->can_cast_flags & PwCast_BoundCrtrs) == 0)
+        if ((powerst->can_cast_flags & PwCast_BoundCrtrs) == 0)
         {
             if (armageddon_blocks_creature_pickup(thing, plyr_idx)) {
                 SYNCDBG(8,"Player %d cannot cast %s while armageddon blocks %s",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing));
@@ -247,25 +247,25 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
             }
         }
         // If allowed custody creatures - allow some enemies
-        if ((pwrdata->can_cast_flags & PwCast_CustodyCrtrs) != 0)
+        if ((powerst->can_cast_flags & PwCast_CustodyCrtrs) != 0)
         {
             if (creature_is_kept_in_custody_by_player(thing, plyr_idx)) {
                 return true;
             }
         }
-        if ((pwrdata->can_cast_flags & PwCast_OwnedCrtrs) != 0)
+        if ((powerst->can_cast_flags & PwCast_OwnedCrtrs) != 0)
         {
             if (thing->owner == plyr_idx) {
                 return true;
             }
         }
-        if ((pwrdata->can_cast_flags & PwCast_AlliedCrtrs) != 0)
+        if ((powerst->can_cast_flags & PwCast_AlliedCrtrs) != 0)
         {
             if (players_are_mutual_allies(plyr_idx, thing->owner)) {
                 return true;
             }
         }
-        if ((pwrdata->can_cast_flags & PwCast_EnemyCrtrs) != 0)
+        if ((powerst->can_cast_flags & PwCast_EnemyCrtrs) != 0)
         {
             if (players_are_enemies(plyr_idx, thing->owner)) {
                 return true;
@@ -464,11 +464,11 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
     unsigned long can_cast;
     mapblk = get_map_block_at(stl_x, stl_y);
     slb = get_slabmap_for_subtile(stl_x, stl_y);
-    struct SpellData *pwrdata;
-    pwrdata = get_power_data(pwkind);
-    if (power_data_is_invalid(pwrdata))
+    const struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(pwkind);
+    if (power_model_stats_invalid(powerst))
         return false;
-    can_cast = pwrdata->can_cast_flags | allow_flags;
+    can_cast = powerst->can_cast_flags | allow_flags;
     // Allow casting only on revealed tiles (unless the spell overrides this)
     if ((can_cast & PwCast_Unrevealed) == 0)
     {
@@ -1755,9 +1755,9 @@ TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind pwk
     }
     if (ret == Lb_OK)
     {// Zero coords mean we should take real ones from the thing. But even if they're not zero, we might want to fix them sometimes
-        struct SpellData *pwrdata;
-        pwrdata = get_power_data(pwkind);
-        if (((stl_x == 0) && (stl_y == 0)) || ((pwrdata->can_cast_flags & PwCast_AllThings) != 0)) {
+        const struct PowerConfigStats *powerst;
+        powerst = get_power_model_stats(pwkind);
+        if (((stl_x == 0) && (stl_y == 0)) || ((powerst->can_cast_flags & PwCast_AllThings) != 0)) {
             stl_x = thing->mappos.x.stl.num;
             stl_y = thing->mappos.y.stl.num;
         }
