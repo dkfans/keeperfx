@@ -2085,6 +2085,7 @@ TbBool creature_fighting_is_occupying_my_position(struct Thing *thing, struct Co
     return thing_is_invalid(coldtng);
 }
 
+#define POSITION_FIND_TRIES 18
 long creature_move_to_a_space_around_enemy(struct Thing *thing, struct Thing *enmtng, long enm_distance, CrtrStateId ncrstate)
 {
     long enmradius;
@@ -2094,7 +2095,7 @@ long creature_move_to_a_space_around_enemy(struct Thing *thing, struct Thing *en
     pos.y.val = thing->mappos.y.val;
     pos.z.val = thing->mappos.z.val;
     int i;
-    for (i = 0; i < 18; i++)
+    for (i = 0; i < POSITION_FIND_TRIES; i++)
     {
         long angle_final, angle_dt;
         angle_final = get_angle_xy_to(&enmtng->mappos, &pos);
@@ -2123,10 +2124,10 @@ long creature_move_to_a_space_around_enemy(struct Thing *thing, struct Thing *en
         if (!thing_in_wall_at(thing, &pos) && !terrain_toxic_for_creature_at_position(thing, pos.x.stl.num, pos.y.stl.num))
           break;
     }
-    if (i == 18)
+    if (i == POSITION_FIND_TRIES)
     {
-      ERRORLOG("Thing stuck finding a melee pos - count =%d", 18);
-      return 0;
+        ERRORLOG("Thing stuck finding a melee pos - tries count %d", POSITION_FIND_TRIES);
+        return 0;
     }
     if (!setup_person_move_to_coord(thing, &pos, 0)) {
         return 0;
@@ -2134,6 +2135,7 @@ long creature_move_to_a_space_around_enemy(struct Thing *thing, struct Thing *en
     thing->continue_state = ncrstate;
     return 1;
 }
+#undef POSITION_FIND_TRIES
 
 long old_combat_move(struct Thing *thing, struct Thing *enmtng, long enm_distance, CrtrStateId ncrstate)
 {

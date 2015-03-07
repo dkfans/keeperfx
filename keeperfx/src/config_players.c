@@ -31,6 +31,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 const struct NamedCommand player_state_commands[] = {
+    {"PLAYER_STATE_NONE",             PSt_None},
     {"PLAYER_STATE_CTRLDUNGEON",      PSt_CtrlDungeon},
     {"PLAYER_STATE_BUILDROOM",        PSt_BuildRoom},
     {"PLAYER_STATE_MKGOODDIGGER",     PSt_MkGoodDigger},
@@ -65,12 +66,6 @@ const struct NamedCommand player_state_commands[] = {
     {"PLAYER_STATE_FREETURNCHICKEN",  PSt_FreeTurnChicken},
     {NULL,                            0},
 };
-
-const struct NamedCommand player_packet_commands[] = {
-  {"NAME",            1},
-  {NULL,              0},
-  };
-
 /******************************************************************************/
 /******************************************************************************/
 
