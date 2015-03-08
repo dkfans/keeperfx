@@ -568,7 +568,7 @@ void gui_area_big_spell_button(struct GuiButton *gbtn)
     lbDisplay.DrawFlags &= ~Lb_SPRITE_OUTLINE;
     int pwage;
     pwage = find_spell_age_percentage(player->id_number, pwkind);
-    if (((powerst->config_flags & PwMF_HasProgress) != 0) && (pwage >= 0))
+    if (((powerst->config_flags & PwCF_HasProgress) != 0) && (pwage >= 0))
     {
         draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 23);
         int fill_bar;

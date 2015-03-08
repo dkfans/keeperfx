@@ -140,8 +140,8 @@ const struct NamedCommand powermodel_castability_commands[] = {
   };
 
 const struct NamedCommand powermodel_properties_commands[] = {
-    {"INSTINCTIVE",       PwMF_Instinctive},
-    {"HAS_PROGRESS",      PwMF_HasProgress},
+    {"INSTINCTIVE",       PwCF_Instinctive},
+    {"HAS_PROGRESS",      PwCF_HasProgress},
     {NULL,                0},
 };
 
@@ -285,7 +285,7 @@ TbBool power_is_instinctive(int pwkind)
     // Invalid powers are instinctive (as this usually means skipping an action)
     if (power_model_stats_invalid(powerst))
         return true;
-    return ((powerst->config_flags & PwMF_Instinctive) != 0);
+    return ((powerst->config_flags & PwCF_Instinctive) != 0);
 }
 
 struct SpecialConfigStats *get_special_model_stats(SpecialKind spckind)
@@ -1155,6 +1155,19 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
     }
 #undef COMMAND_TEXT
   }
+  if ((flags & CnfLd_ListOnly) == 0)
+  {
+    // Mark powers which have children
+    for (i = 0; i < magic_conf.power_types_count; i++)
+    {
+        powerst = get_power_model_stats(i);
+        struct PowerConfigStats *parent_powerst;
+        parent_powerst = get_power_model_stats(powerst->parent_power);
+        if (!power_model_stats_invalid(parent_powerst)) {
+            parent_powerst->config_flags |= PwCF_IsParent;
+        }
+    }
+  }
   return true;
 }
 
@@ -1415,8 +1428,8 @@ const char *power_code_name(PowerKind pwkind)
 int power_model_id(const char * code_name)
 {
     int i;
-
-    for (i = 0; i < magic_conf.power_types_count; ++i) {
+    for (i = 0; i < magic_conf.power_types_count; ++i)
+    {
         if (strncmp(magic_conf.power_cfgstats[i].code_name, code_name,
                 COMMAND_WORD_LEN) == 0) {
             return i;
@@ -1566,6 +1579,13 @@ TbBool is_power_available(PlayerNumber plyr_idx, PowerKind pwkind)
     // Check if the player even have a dungeon
     if (dungeon_invalid(dungeon)) {
         return false;
+    }
+    //TODO POWERS Mapping child powers to their parent - remove that when magic_level array is enlarged
+    {
+        const struct PowerConfigStats *powerst;
+        powerst = get_power_model_stats(pwkind);
+        if (powerst->parent_power != 0)
+            pwkind = powerst->parent_power;
     }
     // Player must have dungeon heart to cast spells, with no heart only floating spirit spell works
     if (!player_has_heart(plyr_idx) && (pwkind != PwrK_POSSESS)) {
