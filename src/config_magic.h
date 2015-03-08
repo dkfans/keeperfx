@@ -152,13 +152,19 @@ enum PowerCanCastFlags {
     PwCast_EnemyTall     = 0x00008000,
 
     /** Allow casting the spell on owned food things (chickens). */
-    PwCast_OwnedFood     = 0x00010000,
+    PwCast_OwnedFood     = 0x00020000,
+    /** Allow casting the spell on neutral food things. */
+    PwCast_NeutrlFood    = 0x00040000,
+    /** Allow casting the spell on enemy food things. */
+    PwCast_EnemyFood     = 0x00080000,
     /** Allow casting the spell on owned gold things (piles,pots etc.). */
-    PwCast_OwnedGold     = 0x00020000,
+    PwCast_OwnedGold     = 0x00100000,
     /** Allow casting the spell on neutral gold things. */
-    PwCast_NeutrlGold    = 0x00040000,
+    PwCast_NeutrlGold    = 0x00200000,
+    /** Allow casting the spell on enemy gold things. */
+    PwCast_EnemyGold     = 0x00400000,
     /** Allow casting the spell on owned spell books. */
-    PwCast_OwnedSpell    = 0x00080000,
+    PwCast_OwnedSpell    = 0x00800000,
     /** Allow casting the spell on owned deployed trap things. */
     PwCast_OwnedBoulders = 0x01000000,
     /** Allow casting the spell only after a small delay from previous cast. */
@@ -175,7 +181,9 @@ enum PowerCanCastFlags {
     PwCast_Anywhere      = 0x80000000,
 };
 #define PwCast_AllCrtrs (PwCast_CustodyCrtrs|PwCast_OwnedCrtrs|PwCast_AlliedCrtrs|PwCast_EnemyCrtrs|PwCast_NConscCrtrs|PwCast_BoundCrtrs)
-#define PwCast_AllThings (PwCast_CustodyCrtrs|PwCast_OwnedCrtrs|PwCast_AlliedCrtrs|PwCast_EnemyCrtrs|PwCast_OwnedFood|PwCast_OwnedGold|PwCast_OwnedSpell|PwCast_OwnedBoulders)
+#define PwCast_AllFood (PwCast_OwnedFood|PwCast_NeutrlFood|PwCast_EnemyFood)
+#define PwCast_AllGold (PwCast_OwnedGold|PwCast_NeutrlGold|PwCast_EnemyGold)
+#define PwCast_AllThings (PwCast_CustodyCrtrs|PwCast_OwnedCrtrs|PwCast_AlliedCrtrs|PwCast_EnemyCrtrs|PwCast_AllFood|PwCast_AllGold|PwCast_OwnedSpell|PwCast_OwnedBoulders)
 #define PwCast_AllGround (PwCast_NeutrlGround|PwCast_OwnedGround|PwCast_AlliedGround|PwCast_EnemyGround)
 #define PwCast_NotEnemyGround (PwCast_NeutrlGround|PwCast_OwnedGround|PwCast_AlliedGround)
 #define PwCast_AllTall (PwCast_NeutrlTall|PwCast_OwnedTall|PwCast_AlliedTall|PwCast_EnemyTall)
