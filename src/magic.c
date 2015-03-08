@@ -126,6 +126,36 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord s
             return false;
         }
     }
+    if ((powerst->config_flags & PwCF_IsParent) != 0)
+    {
+        // If the power is a parent, then at least one child must allow casting it in given conditions
+        TbBool can_cast_child;
+        can_cast_child = false;
+        int i;
+        for (i = 0; i < magic_conf.power_types_count; i++)
+        {
+            const struct PowerConfigStats *child_powerst;
+            child_powerst = get_power_model_stats(i);
+            if (child_powerst->parent_power == pwkind)
+            {
+                if (can_cast_spell_f(plyr_idx, i, stl_x, stl_y, thing, flags&(~CastChk_Final), func_name)) {
+                    if ((flags & CastChk_Final) != 0) {
+                        SYNCDBG(7,"%s: Player %d can cast %s; child power %s allows that",func_name,(int)plyr_idx,
+                            power_code_name(pwkind),power_code_name(i));
+                    }
+                    can_cast_child = true;
+                    break;
+                }
+            }
+        }
+        if (!can_cast_child) {
+            if ((flags & CastChk_Final) != 0) {
+                WARNLOG("%s: Player %d tried to cast %s; child powers do not allow that",func_name,(int)plyr_idx,
+                    power_code_name(pwkind));
+            }
+            return false;
+        }
+    }
     return true;
 }
 

@@ -180,10 +180,10 @@ enum PowerCanCastFlags {
 #define PwCast_NotEnemyGround (PwCast_NeutrlGround|PwCast_OwnedGround|PwCast_AlliedGround)
 #define PwCast_AllTall (PwCast_NeutrlTall|PwCast_OwnedTall|PwCast_AlliedTall|PwCast_EnemyTall)
 
-enum PowerModelFlags {
-    /** Set if the power has a run progress bar. */
-    PwMF_Instinctive  = 0x0001,
-    PwMF_HasProgress  = 0x0002,
+enum PowerConfigFlags {
+    PwCF_Instinctive  = 0x0001, /**< Set if the power doesn't need to be selected from menu to be activated. */
+    PwCF_HasProgress  = 0x0002, /**< Set if the power has a progress bar when active. */
+    PwCF_IsParent     = 0x0004, /**< Set if the power has children and is just an aggregate. */
 };
 
 struct SpellConfigStats {
