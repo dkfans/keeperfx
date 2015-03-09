@@ -41,6 +41,7 @@
 #include "config_strings.h"
 #include "config_campaigns.h"
 #include "config_creature.h"
+#include "config_terrain.h"
 #include "thing_data.h"
 #include "thing_objects.h"
 #include "thing_traps.h"
@@ -206,12 +207,12 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
     mapblk = get_map_block_at(stl_x, stl_y);
     slb = get_slabmap_for_subtile(stl_x,stl_y);
     owner = slabmap_owner(slb);
-    if ((((mapblk->flags & MapFlg_Unkn04) != 0) || ((mapblk->flags & MapFlg_Unkn80) != 0))
+    if ((((mapblk->flags & SlbAtFlg_Unk04) != 0) || ((mapblk->flags & SlbAtFlg_Unk80) != 0))
         && ((game.play_gameturn & 4) != 0))
     {
         pixval = pixmap.ghost[background + 0x1A00];
     } else
-    if ((mapblk->flags & MapFlg_Unkn01) != 0)
+    if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
     {
         pixval = pixmap.ghost[background + 0x8C00];
     } else
@@ -219,7 +220,7 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
     {
         pixval = background;
     } else
-    if ((mapblk->flags & MapFlg_IsRoom) != 0) // Room slab
+    if ((mapblk->flags & SlbAtFlg_IsRoom) != 0) // Room slab
     {
       room = subtile_room_get(stl_x, stl_y);
       if (((game.play_gameturn & 1) != 0) && (room->kind == gui_room_type_highlighted))
@@ -239,11 +240,11 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
       {
           pixval = 0;
       } else
-      if ((mapblk->flags & MapFlg_Unkn20) != 0)
+      if ((mapblk->flags & SlbAtFlg_Filled) != 0)
       {
           pixval = pixmap.ghost[background + 0x1000];
       } else
-      if ((mapblk->flags & MapFlg_IsDoor) != 0) // Door slab
+      if ((mapblk->flags & SlbAtFlg_IsDoor) != 0) // Door slab
       {
           thing = get_door_for_position(stl_x, stl_y);
           if (thing_is_invalid(thing))
@@ -262,7 +263,7 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
             pixval = 60;
           }
       } else
-      if ((mapblk->flags & MapFlg_IsTall) == 0)
+      if ((mapblk->flags & SlbAtFlg_Blocking) == 0)
       {
           if (slb->kind == SlbT_LAVA)
           {

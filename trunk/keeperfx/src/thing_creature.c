@@ -1598,7 +1598,7 @@ struct Thing *find_interesting_object_laying_around_thing(struct Thing *creatng)
         mapblk = get_map_block_at(stl_x,stl_y);
         if (!map_block_invalid(mapblk))
         {
-            if ((mapblk->flags & MapFlg_IsTall) == 0)
+            if ((mapblk->flags & SlbAtFlg_Blocking) == 0)
             {
                 struct Thing *thing;
                 thing = find_gold_pile_or_chicken_laying_on_mapblk(mapblk);
@@ -1817,7 +1817,7 @@ TbBool check_for_door_collision_at(struct Thing *thing, struct Coord3d *pos, uns
         {
             struct Map *mapblk;
             mapblk = get_map_block_at(stl_x, stl_y);
-            if ((mapblk->flags & MapFlg_IsDoor) != 0) {
+            if ((mapblk->flags & SlbAtFlg_IsDoor) != 0) {
                 SYNCDBG(18,"Door collision at X with %s",thing_model_name(thing));
                 struct CreatureControl *cctrl;
                 cctrl = creature_control_get_from_thing(thing);
@@ -1835,7 +1835,7 @@ TbBool check_for_door_collision_at(struct Thing *thing, struct Coord3d *pos, uns
         {
             struct Map *mapblk;
             mapblk = get_map_block_at(stl_x, stl_y);
-            if ((mapblk->flags & MapFlg_IsDoor) != 0) {
+            if ((mapblk->flags & SlbAtFlg_IsDoor) != 0) {
                 SYNCDBG(18,"Door collision at Y with %s",thing_model_name(thing));
                 struct CreatureControl *cctrl;
                 cctrl = creature_control_get_from_thing(thing);

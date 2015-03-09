@@ -278,7 +278,7 @@ TbBool valid_dig_position(PlayerNumber plyr_idx, long stl_x, long stl_y)
 {
     const struct Map *mapblk;
     mapblk = get_map_block_at(stl_x, stl_y);
-    if ((mapblk->flags & MapFlg_IsTall) == 0)
+    if ((mapblk->flags & SlbAtFlg_Blocking) == 0)
     {
         if (map_block_revealed(mapblk, plyr_idx) && !map_pos_is_lava(stl_x, stl_y))
             return true;
@@ -605,7 +605,7 @@ TbBool subtile_is_room(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct Map *mapblk;
     mapblk = get_map_block_at(stl_x,stl_y);
-    if (map_block_invalid(mapblk) || ((mapblk->flags & MapFlg_IsRoom) == 0))
+    if (map_block_invalid(mapblk) || ((mapblk->flags & SlbAtFlg_IsRoom) == 0))
         return false;
     return true;
 }
@@ -622,7 +622,7 @@ TbBool subtile_is_player_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSub
     struct Map *mapblk;
     struct SlabMap *slb;
     mapblk = get_map_block_at(stl_x,stl_y);
-    if (map_block_invalid(mapblk) || ((mapblk->flags & MapFlg_IsRoom) == 0))
+    if (map_block_invalid(mapblk) || ((mapblk->flags & SlbAtFlg_IsRoom) == 0))
         return false;
     slb = get_slabmap_for_subtile(stl_x, stl_y);
     if (slabmap_owner(slb) != plyr_idx)
@@ -635,7 +635,7 @@ TbBool subtile_is_sellable_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapS
     struct Map *mapblk;
     struct SlabMap *slb;
     mapblk = get_map_block_at(stl_x,stl_y);
-    if (map_block_invalid(mapblk) || ((mapblk->flags & MapFlg_IsRoom) == 0))
+    if (map_block_invalid(mapblk) || ((mapblk->flags & SlbAtFlg_IsRoom) == 0))
         return false;
     slb = get_slabmap_for_subtile(stl_x, stl_y);
     if (slabmap_owner(slb) != plyr_idx)
@@ -655,7 +655,7 @@ TbBool subtile_is_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct Map *mapblk;
     mapblk = get_map_block_at(stl_x, stl_y);
-    if (map_block_invalid(mapblk) || ((mapblk->flags & MapFlg_IsDoor) == 0))
+    if (map_block_invalid(mapblk) || ((mapblk->flags & SlbAtFlg_IsDoor) == 0))
         return false;
     return true;
 }
