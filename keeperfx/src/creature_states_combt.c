@@ -2102,9 +2102,11 @@ long creature_move_to_a_space_around_enemy(struct Thing *thing, struct Thing *en
         angle_dt = angle_final;
         do
         {
-            pos.x.val += (pos_calcs[angle_dt / 128][0] << 7);
-            pos.y.val += (pos_calcs[angle_dt / 128][1] << 7);
-            pos.z.val = get_thing_height_at(thing, &pos);
+            int calc_idx;
+            calc_idx = angle_dt / (LbFPMath_PI/8);
+            pos.x.val += (pos_calcs[calc_idx][0] << 7);
+            pos.y.val += (pos_calcs[calc_idx][1] << 7);
+            pos.z.val = 0;
             if (enmtng->mappos.x.val - enmradius > pos.x.val) {
                 pos.x.val -= enmradius;
             } else
@@ -2120,13 +2122,15 @@ long creature_move_to_a_space_around_enemy(struct Thing *thing, struct Thing *en
             angle_dt = get_angle_xy_to(&enmtng->mappos, &pos);
         }
         while (get_angle_difference(angle_final, angle_dt) < LbFPMath_PI/8);
+        // Update Z coord
+        pos.z.val = get_thing_height_at(thing, &pos);
         // Check if we can accept that position
         if (!thing_in_wall_at(thing, &pos) && !terrain_toxic_for_creature_at_position(thing, pos.x.stl.num, pos.y.stl.num))
           break;
     }
     if (i == POSITION_FIND_TRIES)
     {
-        ERRORLOG("Thing stuck finding a melee pos - tries count %d", POSITION_FIND_TRIES);
+        ERRORLOG("The %s has stuck finding a melee pos vs %s - tries count %d", thing_model_name(thing), thing_model_name(enmtng), POSITION_FIND_TRIES);
         return 0;
     }
     if (!setup_person_move_to_coord(thing, &pos, 0)) {

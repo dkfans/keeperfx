@@ -70,8 +70,8 @@ struct SlabAttr {
     unsigned short tooltip_stridx;
     short field_2;
     short field_4;
-    unsigned long flags;
-    long field_A;
+    unsigned long block_flags;
+    unsigned long noblck_flags;
     unsigned char field_E;
     unsigned char category;
     unsigned char field_10;

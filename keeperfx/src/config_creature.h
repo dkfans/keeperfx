@@ -162,7 +162,7 @@ struct CreatureAngerJobConfig {
 
 struct CreatureData {
       unsigned char flags;
-      short field_1;
+      short lair_tngmodel;
       short namestr_idx;
 };
 
