@@ -1264,7 +1264,7 @@ void fiddle_half_gamut(long start_stl_x, long start_stl_y, long step, long a4)
         }
         struct Map *mapblk;
         mapblk = get_map_block_at(stl_xc, start_stl_y);
-        if  ((mapblk->flags & 0x10) != 0) {
+        if  ((mapblk->flags & MapFlg_IsTall) != 0) {
             break;
         }
     }
@@ -1276,7 +1276,7 @@ void fiddle_half_gamut(long start_stl_x, long start_stl_y, long step, long a4)
         }
         struct Map *mapblk;
         mapblk = get_map_block_at(stl_xp, start_stl_y-1);
-        if  ((mapblk->flags & 0x10) != 0) {
+        if  ((mapblk->flags & MapFlg_IsTall) != 0) {
             break;
         }
     }
@@ -1288,7 +1288,7 @@ void fiddle_half_gamut(long start_stl_x, long start_stl_y, long step, long a4)
         }
         struct Map *mapblk;
         mapblk = get_map_block_at(stl_xn, start_stl_y-1);
-        if  ((mapblk->flags & 0x10) != 0) {
+        if  ((mapblk->flags & MapFlg_IsTall) != 0) {
             break;
         }
     }
@@ -1312,7 +1312,7 @@ void fiddle_half_gamut(long start_stl_x, long start_stl_y, long step, long a4)
         }
         struct Map *mapblk;
         mapblk = get_map_block_at(stl_xc, start_stl_y);
-        if  ((mapblk->flags & 0x10) != 0) {
+        if  ((mapblk->flags & MapFlg_IsTall) != 0) {
             break;
         }
     }
@@ -1324,7 +1324,7 @@ void fiddle_half_gamut(long start_stl_x, long start_stl_y, long step, long a4)
         }
         struct Map *mapblk;
         mapblk = get_map_block_at(stl_xp, start_stl_y-1);
-        if  ((mapblk->flags & 0x10) != 0) {
+        if  ((mapblk->flags & MapFlg_IsTall) != 0) {
             break;
         }
     }
@@ -1336,7 +1336,7 @@ void fiddle_half_gamut(long start_stl_x, long start_stl_y, long step, long a4)
         }
         struct Map *mapblk;
         mapblk = get_map_block_at(stl_xn, start_stl_y-1);
-        if  ((mapblk->flags & 0x10) != 0) {
+        if  ((mapblk->flags & MapFlg_IsTall) != 0) {
             break;
         }
     }
@@ -1404,14 +1404,14 @@ void fiddle_half_gamut(long start_stl_x, long start_stl_y, long step, long a4)
         {
             struct Map *mapblk;
             mapblk = get_map_block_at(stl_x+1, stl_y);
-            if ((mapblk->flags & 0x10) == 0)
+            if ((mapblk->flags & MapFlg_IsTall) == 0)
               break;
         }
         stl_x_lc_min = stl_x;
 
         if ( set_x_min_rect
           || stl_x_lc_min > stl_x_min
-          || (get_map_block_at(stl_x_lc_min, stl_y)->flags & 0x10) )
+          || (get_map_block_at(stl_x_lc_min, stl_y)->flags & MapFlg_IsTall) )
         {
             long stl_tmp;
             stl_tmp = stl_x_min - start_stl_x;
@@ -1442,7 +1442,7 @@ void fiddle_half_gamut(long start_stl_x, long start_stl_y, long step, long a4)
           {
               struct Map *mapblk;
               mapblk = get_map_block_at(stl_x, stl_y);
-              if ((mapblk->flags & 0x10) != 0) {
+              if ((mapblk->flags & MapFlg_IsTall) != 0) {
                   stl_x_min = stl_x;
                   set_x_min = true;
                   mm->min = stl_x - start_stl_x - 1;
@@ -1468,7 +1468,7 @@ void fiddle_half_gamut(long start_stl_x, long start_stl_y, long step, long a4)
         {
             struct Map *mapblk;
             mapblk = get_map_block_at(stl_x-1, stl_y);
-            if ((mapblk->flags & 0x10) == 0)
+            if ((mapblk->flags & MapFlg_IsTall) == 0)
               break;
         }
         stl_x_lc_min = stl_x;
@@ -1507,7 +1507,7 @@ void fiddle_half_gamut(long start_stl_x, long start_stl_y, long step, long a4)
           {
               struct Map *mapblk;
               mapblk = get_map_block_at(stl_x, stl_y);
-              if ((mapblk->flags & 0x10) != 0) {
+              if ((mapblk->flags & MapFlg_IsTall) != 0) {
                   set_x_max = true;
                   stl_x_max = stl_x;
                   mm->max = stl_x - start_stl_x + 2;

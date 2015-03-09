@@ -602,7 +602,7 @@ void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
     } else
     if (map_block_revealed(mapblk, plyr_idx))
     {
-        if (mapblk->flags & MapFlg_IsRoom)
+        if ((mapblk->flags & MapFlg_IsRoom) != 0)
         {
             struct Room *room;
             room = room_get(slb->room_index);
@@ -612,11 +612,11 @@ void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
         {
             col = 2;
         } else
-        if (mapblk->flags & MapFlg_Unkn20)
+        if ((mapblk->flags & MapFlg_Unkn20) != 0)
         {
             col = 1;
         } else
-        if (mapblk->flags & MapFlg_IsDoor)
+        if ((mapblk->flags & MapFlg_IsDoor) != 0)
         {
             struct Thing *doortng;
             doortng = get_door_for_position(stl_x, stl_y);

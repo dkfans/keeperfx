@@ -424,9 +424,9 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     objconf = get_object_model_stats2(model);
     objdat = get_objects_data_for_thing(thing);
     thing->clipbox_size_xy = objdat->size_xy;
-    thing->clipbox_size_yz = objdat->field_B;
+    thing->clipbox_size_yz = objdat->size_yz;
     thing->solid_size_xy = objdat->size_xy;
-    thing->field_5C = objdat->field_B;
+    thing->field_5C = objdat->size_yz;
     thing->health = saturate_set_signed(objconf->health,16);
     thing->field_20 = objconf->field_4;
     thing->field_23 = 204;
@@ -1587,18 +1587,18 @@ struct Thing *create_guard_flag_object(const struct Coord3d *pos, PlayerNumber p
 
 struct Thing *create_gold_pot_at(long pos_x, long pos_y, PlayerNumber plyr_idx)
 {
-    struct Thing *thing;
+    struct Thing *gldtng;
     struct Coord3d pos;
     pos.x.val = pos_x;
     pos.y.val = pos_y;
     pos.z.val = subtile_coord(3,0);
-    thing = create_object(&pos, 6, plyr_idx, -1);
-    if (thing_is_invalid(thing))
+    gldtng = create_object(&pos, 6, plyr_idx, -1);
+    if (thing_is_invalid(gldtng))
         return INVALID_THING;
-    thing->valuable.gold_stored = gold_object_typical_value(6);
+    gldtng->valuable.gold_stored = gold_object_typical_value(6);
     // Update size of the gold object
-    add_gold_to_pile(thing, 0);
-    return thing;
+    add_gold_to_pile(gldtng, 0);
+    return gldtng;
 }
 
 /**
@@ -1655,12 +1655,12 @@ struct Thing *create_gold_hoard_object(const struct Coord3d *pos, PlayerNumber p
         value = gold_per_hoard;
     int wealth_size;
     wealth_size = get_wealth_size_of_gold_amount(value);
-    struct Thing *thing;
-    thing = create_object(pos, gold_hoard_objects[wealth_size], plyr_idx, -1);
-    if (thing_is_invalid(thing))
+    struct Thing *gldtng;
+    gldtng = create_object(pos, gold_hoard_objects[wealth_size], plyr_idx, -1);
+    if (thing_is_invalid(gldtng))
         return INVALID_THING;
-    thing->valuable.gold_stored = value;
-    return thing;
+    gldtng->valuable.gold_stored = value;
+    return gldtng;
 }
 
 struct Thing *create_gold_hoarde(struct Room *room, const struct Coord3d *pos, GoldAmount value)

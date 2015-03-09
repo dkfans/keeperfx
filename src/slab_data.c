@@ -353,11 +353,11 @@ void update_map_collide(SlabKind slbkind, MapSubtlCoord stl_x, MapSubtlCoord stl
     slbattr = get_slab_kind_attrs(slbkind);
     unsigned long nflags;
     if (slbattr->field_2 < stl_z) {
-      nflags = slbattr->flags;
+      nflags = slbattr->block_flags;
     } else {
-      nflags = slbattr->field_A;
+      nflags = slbattr->noblck_flags;
     }
-    mapblk->flags &= (0x80|0x04);
+    mapblk->flags &= (MapFlg_Unkn80|MapFlg_Unkn04);
     mapblk->flags |= nflags;
 }
 

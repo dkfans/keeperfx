@@ -213,7 +213,7 @@ void check_map_for_gold(void)
             const struct SlabAttr *slbattr;
             slbattr = get_slab_attrs(slb);
             // Mark areas which are not valuable
-            if ((slbattr->flags & (SlbAtFlg_Valuable)) == 0) {
+            if ((slbattr->block_flags & (SlbAtFlg_Valuable)) == 0) {
                 treasure_map[slb_num] |= 0x01;
             }
         }

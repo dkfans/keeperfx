@@ -1816,14 +1816,14 @@ TbBool slab_is_valid_for_creature_choose_move(const struct Thing *thing, MapSlab
     struct Thing *doortng;
     slb = get_slabmap_block(slb_x, slb_y);
     slbattr = get_slab_attrs(slb);
-    if ( ((slbattr->flags & SlbAtFlg_IsRoom) != 0) || ((slbattr->flags & SlbAtFlg_Blocking) == 0) )
+    if ( ((slbattr->block_flags & SlbAtFlg_IsRoom) != 0) || ((slbattr->block_flags & SlbAtFlg_Blocking) == 0) )
         return true;
     stl_x = slab_subtile_center(slb_x);
     stl_y = slab_subtile_center(slb_y);
     doortng = get_door_for_position(stl_x, stl_y);
     if (!thing_is_invalid(doortng))
     {
-      if ((doortng->owner == thing->owner) && (!doortng->byte_18))
+      if ((doortng->owner == thing->owner) && (!doortng->door.is_locked))
           return true;
     }
     return false;

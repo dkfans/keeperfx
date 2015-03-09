@@ -278,7 +278,7 @@ void make_safe(struct PlayerInfo *player)
             slb = get_slabmap_direct(slb_num);
             struct SlabAttr *slbattr;
             slbattr = get_slab_attrs(slb);
-            if ((slbattr->flags & (0x20|0x08|0x01)) != 0)
+            if ((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0)
                 areamap[slb_num] = 0x01;
             else
                 areamap[slb_num] = 0x00;

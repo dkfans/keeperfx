@@ -1482,8 +1482,8 @@ void reinit_tagged_blocks_for_player(PlayerNumber plyr_idx)
         {
             struct Map *mapblk;
             mapblk = get_map_block_at(stl_x, stl_y);
-            mapblk->flags &= ~0x04;
-            mapblk->flags &= ~0x80;
+            mapblk->flags &= ~MapFlg_Unkn04;
+            mapblk->flags &= ~MapFlg_Unkn80;
         }
     }
     // Reinit with data from current players dungeon
@@ -1506,7 +1506,7 @@ void reinit_tagged_blocks_for_player(PlayerNumber plyr_idx)
                 {
                     struct Map *mapblk;
                     mapblk = get_map_block_at(stl_x, stl_y);
-                    mapblk->flags |= 0x80;
+                    mapblk->flags |= MapFlg_Unkn80;
                 }
             }
             break;
@@ -1518,7 +1518,7 @@ void reinit_tagged_blocks_for_player(PlayerNumber plyr_idx)
                 {
                     struct Map *mapblk;
                     mapblk = get_map_block_at(stl_x, stl_y);
-                    mapblk->flags |= 0x04;
+                    mapblk->flags |= MapFlg_Unkn04;
                 }
             }
             break;
@@ -3599,7 +3599,7 @@ TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     player = get_player(plyr_idx);
     int par1;
     if (!subtile_revealed(stl_x, stl_y, plyr_idx) ||
-       ((slbattr->flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0))
+       ((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0))
     {
         par1 = temp_cluedo_mode < 1u ? 5 : 2;
     } else

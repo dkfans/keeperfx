@@ -148,7 +148,7 @@ TbBool hug_can_move_on(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord
         return false;
     struct SlabAttr *slbattr;
     slbattr = get_slab_attrs(slb);
-    if ((slbattr->flags & SlbAtFlg_IsDoor) != 0)
+    if ((slbattr->block_flags & SlbAtFlg_IsDoor) != 0)
     {
         struct Thing *doortng;
         doortng = get_door_for_position(stl_x, stl_y);
@@ -843,7 +843,7 @@ TbBool slab_good_for_computer_dig_path(const struct SlabMap *slb)
 {
     const struct SlabAttr *slbattr;
     slbattr = get_slab_attrs(slb);
-    if ( ((slbattr->flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0) || (slb->kind == SlbT_LAVA) )
+    if ( ((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0) || (slb->kind == SlbT_LAVA) )
         return true;
     return false;
 }

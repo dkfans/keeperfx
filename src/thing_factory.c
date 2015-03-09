@@ -79,38 +79,38 @@ struct Thing *create_cave_in(struct Coord3d *pos, unsigned short cimodel, unsign
     return thing;
 }
 
-struct Thing *create_thing(struct Coord3d *pos, unsigned short tngclass, unsigned short model, unsigned short owner, long parent_idx)
+struct Thing *create_thing(struct Coord3d *pos, unsigned short tngclass, unsigned short tngmodel, unsigned short owner, long parent_idx)
 {
     struct Thing *thing;
     thing = INVALID_THING;
     switch (tngclass)
     {
     case TCls_Object:
-        thing = create_object(pos, model, owner, parent_idx);
+        thing = create_object(pos, tngmodel, owner, parent_idx);
         break;
     case TCls_Shot:
-        thing = create_shot(pos, model, owner);
+        thing = create_shot(pos, tngmodel, owner);
         break;
     case TCls_EffectElem:
-        thing = create_effect_element(pos, model, owner);
+        thing = create_effect_element(pos, tngmodel, owner);
         break;
     case TCls_DeadCreature:
-        thing = create_dead_creature(pos, model, 1, owner, 0);
+        thing = create_dead_creature(pos, tngmodel, 1, owner, 0);
         break;
     case TCls_Creature:
-        thing = create_creature(pos, model, owner);
+        thing = create_creature(pos, tngmodel, owner);
         break;
     case TCls_Effect:
-        thing = create_effect(pos, model, owner);
+        thing = create_effect(pos, tngmodel, owner);
         break;
     case TCls_Trap:
-        thing = create_trap(pos, model, owner);
+        thing = create_trap(pos, tngmodel, owner);
         break;
     case TCls_AmbientSnd:
-        thing = create_ambient_sound(pos, model, owner);
+        thing = create_ambient_sound(pos, tngmodel, owner);
         break;
     case TCls_CaveIn:
-        thing = create_cave_in(pos, model, owner);
+        thing = create_cave_in(pos, tngmodel, owner);
         break;
     default:
         break;
@@ -186,8 +186,8 @@ short thing_create_thing(struct InitThing *itng)
             return false;
         }
         break;
-    case 10:
-    case 11:
+    case TCls_Unkn10:
+    case TCls_Unkn11:
         thing = create_thing(&itng->mappos, itng->oclass, itng->model, itng->owner, itng->index);
         if (thing_is_invalid(thing))
         {
