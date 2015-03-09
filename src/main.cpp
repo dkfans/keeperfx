@@ -863,7 +863,7 @@ TbBool setup_move_off_lava(struct Thing *thing)
             mapblk = get_map_block_at(stl_x,stl_y);
             if (!map_block_invalid(mapblk))
             {
-                if ((mapblk->flags & MapFlg_IsTall) == 0)
+                if ((mapblk->flags & SlbAtFlg_Blocking) == 0)
                 {
                     if (setup_person_move_to_position(thing, stl_x, stl_y, 0)) {
                         return true;
@@ -1482,8 +1482,8 @@ void reinit_tagged_blocks_for_player(PlayerNumber plyr_idx)
         {
             struct Map *mapblk;
             mapblk = get_map_block_at(stl_x, stl_y);
-            mapblk->flags &= ~MapFlg_Unkn04;
-            mapblk->flags &= ~MapFlg_Unkn80;
+            mapblk->flags &= ~SlbAtFlg_Unk04;
+            mapblk->flags &= ~SlbAtFlg_Unk80;
         }
     }
     // Reinit with data from current players dungeon
@@ -1506,7 +1506,7 @@ void reinit_tagged_blocks_for_player(PlayerNumber plyr_idx)
                 {
                     struct Map *mapblk;
                     mapblk = get_map_block_at(stl_x, stl_y);
-                    mapblk->flags |= MapFlg_Unkn80;
+                    mapblk->flags |= SlbAtFlg_Unk80;
                 }
             }
             break;
@@ -1518,7 +1518,7 @@ void reinit_tagged_blocks_for_player(PlayerNumber plyr_idx)
                 {
                     struct Map *mapblk;
                     mapblk = get_map_block_at(stl_x, stl_y);
-                    mapblk->flags |= MapFlg_Unkn04;
+                    mapblk->flags |= SlbAtFlg_Unk04;
                 }
             }
             break;
@@ -3231,7 +3231,7 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
           colmn = get_column(k);
           if (colmn->solidmask >= 8)
           {
-            if ( (!visible) || (((get_navigation_map(x,y) & 0x80) == 0) && ((mapblk->flags & MapFlg_IsRoom) == 0)) )
+            if ( (!visible) || (((get_navigation_map(x,y) & 0x80) == 0) && ((mapblk->flags & SlbAtFlg_IsRoom) == 0)) )
               smask &= 3;
           }
         }

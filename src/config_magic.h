@@ -133,7 +133,9 @@ enum PowerCanCastFlags {
     /** Allow casting the spell on creatures which are bound by state (dragged, being sacrificed, teleported etc.). */
     PwCast_BoundCrtrs    = 0x00000020,
 
-    /** Allow casting the spell on neutral walkable tiles - path, water, lava, rooms owned by neutrals. */
+    /** Allow casting the spell on neutral walkable tiles - path, water, lava. */
+    PwCast_UnclmdGround  = 0x00000080,
+    /** Allow casting the spell on neutral ground - rooms floor and neutral claimed ground. */
     PwCast_NeutrlGround  = 0x00000100,
     /** Allow casting the spell on owned ground - rooms floor and claimed ground. */
     PwCast_OwnedGround   = 0x00000200,
@@ -184,8 +186,8 @@ enum PowerCanCastFlags {
 #define PwCast_AllFood (PwCast_OwnedFood|PwCast_NeutrlFood|PwCast_EnemyFood)
 #define PwCast_AllGold (PwCast_OwnedGold|PwCast_NeutrlGold|PwCast_EnemyGold)
 #define PwCast_AllThings (PwCast_CustodyCrtrs|PwCast_OwnedCrtrs|PwCast_AlliedCrtrs|PwCast_EnemyCrtrs|PwCast_AllFood|PwCast_AllGold|PwCast_OwnedSpell|PwCast_OwnedBoulders)
-#define PwCast_AllGround (PwCast_NeutrlGround|PwCast_OwnedGround|PwCast_AlliedGround|PwCast_EnemyGround)
-#define PwCast_NotEnemyGround (PwCast_NeutrlGround|PwCast_OwnedGround|PwCast_AlliedGround)
+#define PwCast_AllGround (PwCast_UnclmdGround|PwCast_NeutrlGround|PwCast_OwnedGround|PwCast_AlliedGround|PwCast_EnemyGround)
+#define PwCast_NotEnemyGround (PwCast_UnclmdGround|PwCast_NeutrlGround|PwCast_OwnedGround|PwCast_AlliedGround)
 #define PwCast_AllTall (PwCast_NeutrlTall|PwCast_OwnedTall|PwCast_AlliedTall|PwCast_EnemyTall)
 
 enum PowerConfigFlags {

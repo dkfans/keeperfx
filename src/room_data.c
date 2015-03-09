@@ -2663,7 +2663,7 @@ TbBool find_random_valid_position_for_thing_in_room(struct Thing *thing, struct 
             stl_y = slab_subtile(slb_y, ssub / 3);
             struct Map *mapblk;
             mapblk = get_map_block_at(stl_x,stl_y);
-            if (((mapblk->flags & MapFlg_IsTall) == 0) && (get_navigation_map_floor_height(stl_x,stl_y) < 4))
+            if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && (get_navigation_map_floor_height(stl_x,stl_y) < 4))
             {
                 if (!terrain_toxic_for_creature_at_position(thing, stl_x, stl_y) && !subtile_has_sacrificial_on_top(stl_x, stl_y))
                 {
@@ -3029,7 +3029,7 @@ TbBool find_first_valid_position_for_thing_anywhere_in_room(const struct Thing *
                 stl_y = 3*slb_y+dy;
                 mapblk = get_map_block_at(stl_x,stl_y);
                 // Check if the position isn't filled with solid block
-                if (((mapblk->flags & MapFlg_IsTall) == 0) && (get_navigation_map_floor_height(stl_x,stl_y) < 4))
+                if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && (get_navigation_map_floor_height(stl_x,stl_y) < 4))
                 {
                     if (!terrain_toxic_for_creature_at_position(thing, stl_x, stl_y) && !subtile_has_sacrificial_on_top(stl_x, stl_y))
                     {

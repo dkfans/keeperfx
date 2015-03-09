@@ -518,6 +518,8 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
     unsigned long can_cast;
     mapblk = get_map_block_at(stl_x, stl_y);
     slb = get_slabmap_for_subtile(stl_x, stl_y);
+    struct SlabAttr *slbattr;
+    slbattr = get_slab_attrs(slb);
     const struct PowerConfigStats *powerst;
     powerst = get_power_model_stats(pwkind);
     if (power_model_stats_invalid(powerst))
@@ -552,11 +554,11 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
     }
     PlayerNumber slb_owner;
     slb_owner = slabmap_owner(slb);
-    if ((mapblk->flags & MapFlg_IsTall) != 0)
+    if ((mapblk->flags & SlbAtFlg_Blocking) != 0)
     {
         if ((can_cast & PwCast_Claimable) != 0)
         {
-            if (((mapblk->flags & (MapFlg_IsDoor|MapFlg_IsRoom|MapFlg_Unkn01)) != 0) || (slb->kind == SlbT_ROCK))
+            if (((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom|SlbAtFlg_Valuable)) != 0) || (slb->kind == SlbT_ROCK))
             {
                   return false;
             }
@@ -604,27 +606,33 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
             // If allowed all ground slab, we're good
             return true;
         }
+        if ((can_cast & PwCast_UnclmdGround) != 0)
+        {
+            if (slbattr->category == SlbAtCtg_Unclaimed) {
+                return true;
+            }
+        }
         if ((can_cast & PwCast_NeutrlGround) != 0)
         {
-            if (slb_owner == game.neutral_player_num) {
+            if ((slbattr->category != SlbAtCtg_Unclaimed) && (slb_owner == game.neutral_player_num)) {
                 return true;
             }
         }
         if ((can_cast & PwCast_OwnedGround) != 0)
         {
-            if (slb_owner == plyr_idx) {
+            if ((slbattr->category != SlbAtCtg_Unclaimed) && (slb_owner == plyr_idx)) {
                 return true;
             }
         }
         if ((can_cast & PwCast_AlliedGround) != 0)
         {
-            if ((slb_owner != plyr_idx) && players_are_mutual_allies(plyr_idx,slb_owner)) {
+            if ((slbattr->category != SlbAtCtg_Unclaimed) && (slb_owner != plyr_idx) && players_are_mutual_allies(plyr_idx,slb_owner)) {
                 return true;
             }
         }
         if ((can_cast & PwCast_EnemyGround) != 0)
         {
-            if (players_are_enemies(plyr_idx,slb_owner)) {
+            if ((slbattr->category != SlbAtCtg_Unclaimed) && players_are_enemies(plyr_idx,slb_owner)) {
                 return true;
             }
         }
@@ -1011,7 +1019,7 @@ TbResult magic_use_power_destroy_walls(PlayerNumber plyr_idx, MapSubtlCoord stl_
                 continue;
             struct Map *mapblk;
             mapblk = get_map_block_at(slab_subtile_center(slb_x),slab_subtile_center(slb_y));
-            if (!(mapblk->flags & MapFlg_IsTall) || (mapblk->flags & (MapFlg_IsDoor|MapFlg_IsRoom|MapFlg_Unkn01)) || (slb->kind == SlbT_ROCK) )
+            if (!(mapblk->flags & SlbAtFlg_Blocking) || (mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom|SlbAtFlg_Valuable)) || (slb->kind == SlbT_ROCK) )
               continue;
             TbBool is_revealed;
             is_revealed = subtile_revealed(stl_x, stl_y, plyr_idx);

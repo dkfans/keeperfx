@@ -37,6 +37,7 @@
 #include "creature_states.h"
 #include "creature_battle.h"
 #include "config_creature.h"
+#include "config_terrain.h"
 #include "power_hand.h"
 #include "kjm_input.h"
 #include "frontmenu_ingame_tabs.h"
@@ -588,21 +589,21 @@ void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
         owner_col -= 3;
     }
 
-    if (mapblk->flags & MapFlg_Unkn04)
+    if ((mapblk->flags & SlbAtFlg_Unk04) != 0)
     {
         col = 3;
     } else
-    if (mapblk->flags & MapFlg_Unkn80)
+    if ((mapblk->flags & SlbAtFlg_Unk80) != 0)
     {
         col = 4;
     } else
-    if (mapblk->flags & MapFlg_Unkn01)
+    if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
     {
         col = 5;
     } else
     if (map_block_revealed(mapblk, plyr_idx))
     {
-        if ((mapblk->flags & MapFlg_IsRoom) != 0)
+        if ((mapblk->flags & SlbAtFlg_IsRoom) != 0)
         {
             struct Room *room;
             room = room_get(slb->room_index);
@@ -612,11 +613,11 @@ void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
         {
             col = 2;
         } else
-        if ((mapblk->flags & MapFlg_Unkn20) != 0)
+        if ((mapblk->flags & SlbAtFlg_Filled) != 0)
         {
             col = 1;
         } else
-        if ((mapblk->flags & MapFlg_IsDoor) != 0)
+        if ((mapblk->flags & SlbAtFlg_IsDoor) != 0)
         {
             struct Thing *doortng;
             doortng = get_door_for_position(stl_x, stl_y);
@@ -626,7 +627,7 @@ void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
                 ERRORLOG("No door for flagged position");
             }
         } else
-        if ((mapblk->flags & MapFlg_IsTall) == 0)
+        if ((mapblk->flags & SlbAtFlg_Blocking) == 0)
         {
             if (slb->kind == SlbT_LAVA) {
                 col = 6;

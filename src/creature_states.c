@@ -1059,7 +1059,7 @@ TbBool creature_find_safe_position_to_move_within_slab(struct Coord3d *pos, cons
         {
             struct Map *mapblk;
             mapblk = get_map_block_at(x,y);
-            if ((mapblk->flags & MapFlg_IsTall) == 0)
+            if ((mapblk->flags & SlbAtFlg_Blocking) == 0)
             {
                 if (!terrain_toxic_for_creature_at_position(thing, x, y))
                 {
@@ -1364,7 +1364,7 @@ SubtlCodedCoords find_position_around_in_room(const struct Coord3d *pos, PlayerN
             MapSubtlCoord stl_x,stl_y;
             stl_num += around_map[m];
             mapblk = get_map_block_at_pos(stl_num);
-            if ( ((mapblk->flags & MapFlg_IsRoom) != 0) && ((mapblk->flags & MapFlg_IsTall) != 0) )
+            if ( ((mapblk->flags & SlbAtFlg_IsRoom) != 0) && ((mapblk->flags & SlbAtFlg_Blocking) != 0) )
                 break;
             stl_x = stl_num_decode_x(stl_num);
             stl_y = stl_num_decode_y(stl_num);
@@ -1394,7 +1394,7 @@ SubtlCodedCoords find_position_around_in_room(const struct Coord3d *pos, PlayerN
         MapSubtlCoord stl_x,stl_y;
         stl_num = get_subtile_number(pos->x.stl.num,pos->y.stl.num);
         mapblk = get_map_block_at_pos(stl_num);
-        if ( ((mapblk->flags & MapFlg_IsRoom) != 0) && ((mapblk->flags & MapFlg_IsTall) != 0) )
+        if ( ((mapblk->flags & SlbAtFlg_IsRoom) != 0) && ((mapblk->flags & SlbAtFlg_Blocking) != 0) )
             break;
         stl_x = stl_num_decode_x(stl_num);
         stl_y = stl_num_decode_y(stl_num);
@@ -3039,7 +3039,7 @@ short creature_wait_at_treasure_room_door(struct Thing *creatng)
             stl_y = base_stl_y + small_around[n].delta_y;
             struct Map *mapblk;
             mapblk = get_map_block_at(stl_x,stl_y);
-            if (((mapblk->flags & MapFlg_IsTall) == 0) && !terrain_toxic_for_creature_at_position(creatng, stl_x, stl_y))
+            if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && !terrain_toxic_for_creature_at_position(creatng, stl_x, stl_y))
             {
                 if (setup_person_move_to_position(creatng, stl_x, stl_y, 0) ) {
                     creatng->continue_state = CrSt_CreatureWaitAtTreasureRoomDoor;

@@ -1460,7 +1460,7 @@ TngUpdateRet object_update_power_lightning(struct Thing *objtng)
         {
             struct Map *mapblk;
             mapblk = get_map_block_at(pos.x.stl.num, pos.y.stl.num);
-            if ((mapblk->flags & MapFlg_IsTall) == 0)
+            if ((mapblk->flags & SlbAtFlg_Blocking) == 0)
             {
                 pos.z.val = get_floor_height_at(&pos) + 128;
                 create_effect_element(&pos, lightning_spangles[objtng->owner], objtng->owner);

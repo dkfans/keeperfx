@@ -795,7 +795,7 @@ long instf_reinforce(struct Thing *creatng, long *param)
         pos.y.stl.num = stl_y + 2 * small_around[n].delta_y;
         struct Map *mapblk;
         mapblk = get_map_block_at(pos.x.stl.num, pos.y.stl.num);
-        if (map_block_revealed(mapblk, creatng->owner) && ((mapblk->flags & MapFlg_IsTall) == 0))
+        if (map_block_revealed(mapblk, creatng->owner) && ((mapblk->flags & SlbAtFlg_Blocking) == 0))
         {
             pos.z.val = get_floor_height_at(&pos);
             create_effect(&pos, imp_spangle_effects[creatng->owner], creatng->owner);

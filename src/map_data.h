@@ -29,17 +29,6 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-enum MapFlags {
-    MapFlg_Unkn01     = 0x01,
-    MapFlg_IsRoom     = 0x02,
-    MapFlg_Unkn04     = 0x04,
-    MapFlg_Unkn08     = 0x08,
-    MapFlg_IsTall     = 0x10,
-    MapFlg_Unkn20     = 0x20,
-    MapFlg_IsDoor     = 0x40,
-    MapFlg_Unkn80     = 0x80,
-};
-
 enum MapCoordClipFlags {
     MapCoord_None     = 0x00,
     MapCoord_ClipX    = 0x01,

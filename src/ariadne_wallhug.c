@@ -411,7 +411,7 @@ TbBool find_approach_position_to_subtile(const struct Coord3d *srcpos, MapSubtlC
         tmpos.z.val = 0;
         struct Map *mapblk;
         mapblk = get_map_block_at(tmpos.x.stl.num, tmpos.y.stl.num);
-        if ((!map_block_invalid(mapblk)) && ((mapblk->flags & MapFlg_IsTall) == 0))
+        if ((!map_block_invalid(mapblk)) && ((mapblk->flags & SlbAtFlg_Blocking) == 0))
         {
             long dist;
             dist = get_2d_box_distance(srcpos, &tmpos);
@@ -792,7 +792,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
         navi->field_15 = stl_num;
         navi->field_17 = stl_num;
         mapblk = get_map_block_at_pos(navi->field_15);
-        if ((mapblk->flags & MapFlg_IsTall) != 0) {
+        if ((mapblk->flags & SlbAtFlg_Blocking) != 0) {
           return 2;
         }
         nav_radius = thing_nav_sizexy(creatng) / 2;
@@ -816,7 +816,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
         navi->field_15 = stl_num;
         navi->field_17 = stl_num;
         mapblk = get_map_block_at_pos(navi->field_15);
-        if ((mapblk->flags & MapFlg_IsTall) != 0) {
+        if ((mapblk->flags & SlbAtFlg_Blocking) != 0) {
             return 2;
         }
         navi->navstate = 1;
@@ -858,7 +858,7 @@ TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     {
         struct Map *mapblk;
         mapblk = get_map_block_at(stl_x, stl_y);
-        if (((mapblk->flags & MapFlg_Unkn20) == 0) || (slabmap_owner(slb) == plyr_idx)) {
+        if (((mapblk->flags & SlbAtFlg_Filled) == 0) || (slabmap_owner(slb) == plyr_idx)) {
             SYNCDBG(17,"Subtile (%d,%d) rejected based on attrs",(int)stl_x,(int)stl_y);
             return false;
         }
