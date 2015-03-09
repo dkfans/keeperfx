@@ -57,7 +57,7 @@ struct Objects {
     short field_5;
     short anim_speed;
     short size_xy;
-    short field_B;
+    short size_yz;
     short sprite_size_max;
     unsigned char field_F;
     unsigned char field_10;

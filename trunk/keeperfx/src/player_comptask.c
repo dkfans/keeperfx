@@ -1239,10 +1239,10 @@ long xy_walkable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx)
     slbattr = get_slab_attrs(slb);
     if ((slabmap_owner(slb) == plyr_idx) || (plyr_idx == -1))
     {
-        if (((slbattr->flags & SlbAtFlg_Blocking) == 0) && (slb->kind != SlbT_LAVA)) {
+        if (((slbattr->block_flags & SlbAtFlg_Blocking) == 0) && (slb->kind != SlbT_LAVA)) {
             return true;
         }
-        if ((slbattr->flags & SlbAtFlg_IsRoom) != 0) {
+        if ((slbattr->block_flags & SlbAtFlg_IsRoom) != 0) {
             return true;
         }
     }
@@ -1263,7 +1263,7 @@ long check_for_perfect_buildable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long 
     if (slbattr->category == SlbAtCtg_RoomInterior) {
         return -1;
     }
-    if ((slbattr->flags & SlbAtFlg_IsRoom) != 0) {
+    if ((slbattr->block_flags & SlbAtFlg_IsRoom) != 0) {
         return -1;
     }
     if (!slab_good_for_computer_dig_path(slb) || (slb->kind == SlbT_WATER)) {
@@ -1273,7 +1273,7 @@ long check_for_perfect_buildable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long 
     if (find_from_task_list(plyr_idx, stl_num) >= 0) {
         return -1;
     }
-    if ((slbattr->flags & SlbAtFlg_Valuable) != 0) {
+    if ((slbattr->block_flags & SlbAtFlg_Valuable) != 0) {
         return -1;
     }
     if (slab_kind_is_liquid(slb->kind)) {
@@ -1297,7 +1297,7 @@ long check_for_buildable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx
     if (slbattr->category == SlbAtCtg_RoomInterior) {
         return -1;
     }
-    if ((slbattr->flags & SlbAtFlg_IsRoom) != 0) {
+    if ((slbattr->block_flags & SlbAtFlg_IsRoom) != 0) {
         return -1;
     }
     if (slb->kind == SlbT_GEMS) {
@@ -1334,7 +1334,7 @@ long get_corridor(struct Coord3d *pos1, struct Coord3d * pos2, unsigned char rou
     // If we're on room, move to non-room tile
     for (i = 0; i < slabs_dist; i++)
     {
-        if ((slbattr->flags & SlbAtFlg_IsRoom) == 0)
+        if ((slbattr->block_flags & SlbAtFlg_IsRoom) == 0)
           break;
         stl_x += STL_PER_SLB * small_around[round_directn].delta_x;
         stl_y += STL_PER_SLB * small_around[round_directn].delta_y;
@@ -1349,9 +1349,9 @@ long get_corridor(struct Coord3d *pos1, struct Coord3d * pos2, unsigned char rou
     // Move to a blocking tile which is not a room
     for (i = 0; i < slabs_dist; i++)
     {
-        if (((slbattr->flags & SlbAtFlg_Blocking) != 0) || map_pos_is_lava(stl_x, stl_y))
+        if (((slbattr->block_flags & SlbAtFlg_Blocking) != 0) || map_pos_is_lava(stl_x, stl_y))
         {
-            if ((slbattr->flags & SlbAtFlg_IsRoom) == 0)
+            if ((slbattr->block_flags & SlbAtFlg_IsRoom) == 0)
                 break;
         }
         stl_x += STL_PER_SLB * small_around[round_directn].delta_x;
@@ -1629,7 +1629,7 @@ short tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Computer2 * com
         if ( (slbattr->is_unknflg14 == 0) || (slb->kind == SlbT_GEMS)
           || (((mapblk->flags & MapFlg_Unkn20) != 0) && (slabmap_owner(slb) != dungeon->owner)) )
         {
-            if ( ((slbattr->flags & SlbAtFlg_Valuable) == 0) || (digflags == 0) ) {
+            if ( ((slbattr->block_flags & SlbAtFlg_Valuable) == 0) || (digflags == 0) ) {
                 break;
             }
         }
@@ -1641,7 +1641,7 @@ short tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Computer2 * com
             }
             if (digflags != 0)
             {
-                if ((slbattr->flags & SlbAtFlg_Valuable) != 0) {
+                if ((slbattr->block_flags & SlbAtFlg_Valuable) != 0) {
                     cdig->valuable_slabs_tagged++;
                 }
             }
@@ -1874,7 +1874,7 @@ long check_for_gold(MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, long plyr_
     stl_num = get_subtile_number(basestl_x,basestl_y);
     slb = get_slabmap_for_subtile(basestl_x,basestl_y);
     slbattr = get_slab_attrs(slb);
-    if ((slbattr->flags & SlbAtFlg_Valuable) != 0) {
+    if ((slbattr->block_flags & SlbAtFlg_Valuable) != 0) {
         return (find_from_task_list(plyr_idx, stl_num) < 0);
     }
     return 0;
@@ -1941,7 +1941,7 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
     {
         struct SlabMap* slb = get_slabmap_for_subtile(ctask->dig.pos_next.x.stl.num, ctask->dig.pos_next.y.stl.num);
 
-        if ((get_slab_attrs(slb)->flags & SlbAtFlg_Valuable) != 0)
+        if ((get_slab_attrs(slb)->block_flags & SlbAtFlg_Valuable) != 0)
         {
             ctask->field_60--;
             if (ctask->field_60 > 0) {

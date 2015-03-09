@@ -378,7 +378,7 @@ long slab_is_my_door(long plyr_idx, long slb_x, long slb_y)
     slb = get_slabmap_block(slb_x, slb_y);
     struct SlabAttr *slbattr;
     slbattr = get_slab_attrs(slb);
-    return (slabmap_owner(slb) == plyr_idx) && ((slbattr->flags & SlbAtFlg_IsDoor) != 0);
+    return (slabmap_owner(slb) == plyr_idx) && ((slbattr->block_flags & SlbAtFlg_IsDoor) != 0);
 }
 
 long check_out_place_for_convert_behind_door(struct Thing *thing, MapSlabCoord slb_x, MapSlabCoord slb_y)
