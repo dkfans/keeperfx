@@ -216,7 +216,7 @@ TbBool update_trap_trigger_line_of_sight_90(struct Thing *traptng)
         {
             struct Map *mapblk;
             mapblk = get_map_block_at(stl_x, stl_y);
-            if ((mapblk->flags & MapFlg_IsTall) != 0) {
+            if ((mapblk->flags & SlbAtFlg_Blocking) != 0) {
                 stl_y_pre = stl_y + 1;
                 break;
             }
@@ -239,7 +239,7 @@ TbBool update_trap_trigger_line_of_sight_90(struct Thing *traptng)
         {
             struct Map *mapblk;
             mapblk = get_map_block_at(stl_x, stl_y);
-            if ((mapblk->flags & MapFlg_IsTall) != 0) {
+            if ((mapblk->flags & SlbAtFlg_Blocking) != 0) {
                 stl_y_aft = stl_y - 1;
                 break;
             }
@@ -262,7 +262,7 @@ TbBool update_trap_trigger_line_of_sight_90(struct Thing *traptng)
         {
             struct Map *mapblk;
             mapblk = get_map_block_at(stl_x, stl_y);
-            if ((mapblk->flags & MapFlg_IsTall) != 0) {
+            if ((mapblk->flags & SlbAtFlg_Blocking) != 0) {
                 stl_x_aft = stl_x - 1;
                 break;
             }
@@ -285,7 +285,7 @@ TbBool update_trap_trigger_line_of_sight_90(struct Thing *traptng)
         {
             struct Map *mapblk;
             mapblk = get_map_block_at(stl_x, stl_y);
-            if ((mapblk->flags & MapFlg_IsTall) != 0) {
+            if ((mapblk->flags & SlbAtFlg_Blocking) != 0) {
                 stl_x_pre = stl_x + 1;
                 break;
             }

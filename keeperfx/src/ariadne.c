@@ -24,6 +24,7 @@
 #include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_planar.h"
+#include "config_terrain.h"
 #include "ariadne_navitree.h"
 #include "ariadne_regions.h"
 #include "ariadne_tringls.h"
@@ -4387,11 +4388,11 @@ long get_navigation_colour(long stl_x, long stl_y)
     struct Map *mapblk;
     //return _DK_get_navigation_colour(stl_x, stl_y);
     mapblk = get_map_block_at(stl_x, stl_y);
-    if ((mapblk->flags & MapFlg_IsDoor) != 0)
+    if ((mapblk->flags & SlbAtFlg_IsDoor) != 0)
     {
         return get_navigation_colour_for_door(stl_x, stl_y);
     }
-    if ((mapblk->flags & MapFlg_IsTall) != 0)
+    if ((mapblk->flags & SlbAtFlg_Blocking) != 0)
     {
         return (NAVMAP_FLOORHEIGHT_MAX << NAVMAP_FLOORHEIGHT_BIT);
     }

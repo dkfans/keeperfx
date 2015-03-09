@@ -138,10 +138,10 @@ long untag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
                 mapblk = get_map_block_at(x+dx, y+dy);
                 if (map_block_invalid(mapblk))
                     continue;
-                if ( mapblk->flags & (MapFlg_Unkn80|MapFlg_Unkn04) )
+                if ( mapblk->flags & (SlbAtFlg_Unk80|SlbAtFlg_Unk04) )
                   num_untagged++;
-                mapblk->flags &= ~MapFlg_Unkn80;
-                mapblk->flags &= ~MapFlg_Unkn04;
+                mapblk->flags &= ~SlbAtFlg_Unk80;
+                mapblk->flags &= ~SlbAtFlg_Unk04;
             }
         }
     }
@@ -1687,8 +1687,8 @@ void pretty_map_remove_flags_and_update(MapSlabCoord slb_x, MapSlabCoord slb_y)
         y = stl_y + (m/STL_PER_SLB);
         struct Map *mapblk;
         mapblk = get_map_block_at(x,y);
-        mapblk->flags &= ~MapFlg_Unkn80;
-        mapblk->flags &= ~MapFlg_Unkn04;
+        mapblk->flags &= ~SlbAtFlg_Unk80;
+        mapblk->flags &= ~SlbAtFlg_Unk04;
     }
     pannel_map_update(stl_x, stl_y, STL_PER_SLB, STL_PER_SLB);
 }

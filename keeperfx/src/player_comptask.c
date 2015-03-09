@@ -942,7 +942,7 @@ long task_dig_room(struct Computer2 *comp, struct ComputerTask *ctask)
                 mapblk = get_map_block_at(stl_x, stl_y);
                 if (slbattr->is_unknflg14 && (slb->kind != SlbT_GEMS))
                 {
-                    if (((mapblk->flags & MapFlg_Unkn20) == 0) || (slabmap_owner(slb) == dungeon->owner))
+                    if (((mapblk->flags & SlbAtFlg_Filled) == 0) || (slabmap_owner(slb) == dungeon->owner))
                     {
                         if (find_from_task_list(dungeon->owner, get_subtile_number(stl_x,stl_y)) < 0)
                         {
@@ -1283,7 +1283,7 @@ long check_for_perfect_buildable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long 
         return 1;
     }
     mapblk = get_map_block_at_pos(stl_num);
-    return ((mapblk->flags & MapFlg_Unkn20) != 0) && (slabmap_owner(slb) != plyr_idx);
+    return ((mapblk->flags & SlbAtFlg_Filled) != 0) && (slabmap_owner(slb) != plyr_idx);
 }
 
 long check_for_buildable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx)
@@ -1317,7 +1317,7 @@ long check_for_buildable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx
         return 1;
     }
     mapblk = get_map_block_at_pos(stl_num);
-    return ((mapblk->flags & MapFlg_Unkn20) != 0) && (slabmap_owner(slb) != plyr_idx);
+    return ((mapblk->flags & SlbAtFlg_Filled) != 0) && (slabmap_owner(slb) != plyr_idx);
 }
 
 long get_corridor(struct Coord3d *pos1, struct Coord3d * pos2, unsigned char round_directn, PlayerNumber plyr_idx, unsigned short slabs_dist)
@@ -1375,7 +1375,7 @@ long get_corridor(struct Coord3d *pos1, struct Coord3d * pos2, unsigned char rou
     {
         struct Map *mapblk;
         mapblk = get_map_block_at(stl_x, stl_y);
-        if ((!slbattr->is_unknflg14) || (slb->kind == SlbT_GEMS) || (((mapblk->flags & MapFlg_Unkn20) != 0) && (slabmap_owner(slb) != plyr_idx)) || (slb->kind == SlbT_WATER))
+        if ((!slbattr->is_unknflg14) || (slb->kind == SlbT_GEMS) || (((mapblk->flags & SlbAtFlg_Filled) != 0) && (slabmap_owner(slb) != plyr_idx)) || (slb->kind == SlbT_WATER))
         {
           if (((slb->kind != SlbT_CLAIMED) || (slabmap_owner(slb) != plyr_idx)) && (slb->kind != SlbT_PATH))
             break;
@@ -1627,7 +1627,7 @@ short tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Computer2 * com
         mapblk = get_map_block_at(*nextstl_x, *nextstl_y);
         slbattr = get_slab_attrs(slb);
         if ( (slbattr->is_unknflg14 == 0) || (slb->kind == SlbT_GEMS)
-          || (((mapblk->flags & MapFlg_Unkn20) != 0) && (slabmap_owner(slb) != dungeon->owner)) )
+          || (((mapblk->flags & SlbAtFlg_Filled) != 0) && (slabmap_owner(slb) != dungeon->owner)) )
         {
             if ( ((slbattr->block_flags & SlbAtFlg_Valuable) == 0) || (digflags == 0) ) {
                 break;
@@ -1806,7 +1806,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
     if ((slbattr->is_unknflg14) && (slb->kind != SlbT_GEMS))
     {
         mapblk = get_map_block_at(digstl_x, digstl_y);
-        if (((mapblk->flags & MapFlg_Unkn20) == 0) || (slabmap_owner(slb) == dungeon->owner))
+        if (((mapblk->flags & SlbAtFlg_Filled) == 0) || (slabmap_owner(slb) == dungeon->owner))
         {
             i = get_subtile_number_at_slab_center(digslb_x,digslb_y);
             if ((find_from_task_list(dungeon->owner, i) < 0) && (!simulation))

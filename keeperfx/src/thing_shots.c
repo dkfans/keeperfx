@@ -289,11 +289,11 @@ void process_dig_shot_hit_wall(struct Thing *thing, unsigned long blocked_flags)
     struct Map *mapblk;
     mapblk = get_map_block_at(stl_x, stl_y);
     // Doors cannot be digged
-    if ((mapblk->flags & MapFlg_IsDoor) != 0)
+    if ((mapblk->flags & SlbAtFlg_IsDoor) != 0)
     {
         return;
     }
-    if ((mapblk->flags & MapFlg_IsTall) == 0)
+    if ((mapblk->flags & SlbAtFlg_Blocking) == 0)
     {
         return;
     }
@@ -301,13 +301,13 @@ void process_dig_shot_hit_wall(struct Thing *thing, unsigned long blocked_flags)
     damage = thing->word_14;
     if ((damage >= slb->health) && !slab_kind_is_indestructible(slb->kind))
     {
-        if ((mapblk->flags & MapFlg_Unkn01) != 0)
+        if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
         { // Valuables require counting gold
             give_gold_to_creature_or_drop_on_map_when_digging(diggertng, stl_x, stl_y, damage);
             mine_out_block(stl_x, stl_y, diggertng->owner);
             thing_play_sample(diggertng, 72+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         } else
-        if ((mapblk->flags & MapFlg_IsDoor) == 0)
+        if ((mapblk->flags & SlbAtFlg_IsDoor) == 0)
         { // All non-gold and non-door slabs are just destroyed
             dig_out_block(stl_x, stl_y, diggertng->owner);
             thing_play_sample(diggertng, 72+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
@@ -319,7 +319,7 @@ void process_dig_shot_hit_wall(struct Thing *thing, unsigned long blocked_flags)
         {
             slb->health -= damage;
         }
-        if ((mapblk->flags & MapFlg_Unkn01) != 0)
+        if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
         {
             give_gold_to_creature_or_drop_on_map_when_digging(diggertng, stl_x, stl_y, damage);
         }

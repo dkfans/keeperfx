@@ -20,6 +20,7 @@
 #include "globals.h"
 
 #include "bflib_memory.h"
+#include "config_terrain.h"
 #include "slab_data.h"
 #include "game_legacy.h"
 
@@ -193,7 +194,7 @@ TbBool map_pos_solid_at_ceiling(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     const struct Map *mapblk;
     mapblk = get_map_block_at(stl_x, stl_y);
-    if ((mapblk->flags & MapFlg_IsTall) != 0)
+    if ((mapblk->flags & SlbAtFlg_Blocking) != 0)
         return true;
     return get_map_ceiling_filled_subtiles(mapblk) > 0;
 }

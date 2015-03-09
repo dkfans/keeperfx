@@ -28,6 +28,7 @@
 #include "thing_list.h"
 #include "creature_control.h"
 #include "config_creature.h"
+#include "config_terrain.h"
 #include "engine_camera.h"
 #include "map_data.h"
 #include "map_columns.h"
@@ -380,7 +381,7 @@ TbBool map_is_solid_at_height(MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapCoord
 {
     struct Map *mapblk;
     mapblk = get_map_block_at(stl_x, stl_y);
-    if ((mapblk->flags & MapFlg_IsTall) != 0)
+    if ((mapblk->flags & SlbAtFlg_Blocking) != 0)
     {
         return true;
     }
@@ -490,7 +491,7 @@ long thing_in_wall_at_with_radius(const struct Thing *thing, const struct Coord3
         {
             struct Map *mapblk;
             mapblk = get_map_block_at(stl_x, stl_y);
-            if ((mapblk->flags & MapFlg_IsTall) != 0) {
+            if ((mapblk->flags & SlbAtFlg_Blocking) != 0) {
                 return true;
             }
             int floor_stl;

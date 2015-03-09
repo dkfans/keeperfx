@@ -44,6 +44,7 @@
 #include "creature_states_tresr.h"
 #include "creature_states_gardn.h"
 #include "config_creature.h"
+#include "config_terrain.h"
 #include "config_effects.h"
 #include "player_instances.h"
 #include "player_states.h"
@@ -1333,7 +1334,7 @@ unsigned long can_drop_thing_here(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long
     mapblk = get_map_block_at(stl_x, stl_y);
     if (!map_block_revealed(mapblk, plyr_idx))
         return false;
-    if (((mapblk->flags & MapFlg_IsTall) != 0) || ((mapblk->flags & MapFlg_IsDoor) != 0))
+    if (((mapblk->flags & SlbAtFlg_Blocking) != 0) || ((mapblk->flags & SlbAtFlg_IsDoor) != 0))
         return false;
     struct SlabMap *slb;
     slb = get_slabmap_for_subtile(stl_x, stl_y);

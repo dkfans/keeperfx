@@ -465,7 +465,7 @@ short good_back_at_start(struct Thing *thing)
         struct Map *mapblk;
         mapblk = get_map_block_at_pos(stl_num+around_map[m]);
         // Per-block code
-        if ((mapblk->flags & MapFlg_IsTall) == 0)
+        if ((mapblk->flags & SlbAtFlg_Blocking) == 0)
         {
             MapSubtlCoord stl_x, stl_y;
             stl_x = stl_num_decode_x(stl_num+around_map[m]);

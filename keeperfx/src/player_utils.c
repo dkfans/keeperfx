@@ -502,11 +502,11 @@ TbBool map_position_initially_explored_for_player(PlayerNumber plyr_idx, MapSlab
     // Neutral entrances are visible
     struct Room *room;
     room = room_get(slb->room_index);
-    if (((mapblk->flags & MapFlg_IsRoom) != 0) && (room->kind == RoK_ENTRANCE) && (slabmap_owner(slb) == game.neutral_player_num)) {
+    if (((mapblk->flags & SlbAtFlg_IsRoom) != 0) && (room->kind == RoK_ENTRANCE) && (slabmap_owner(slb) == game.neutral_player_num)) {
         return true;
     }
     // Slabs with specific flag are visible
-    if ((mapblk->flags & MapFlg_Unkn01) != 0) {
+    if ((mapblk->flags & SlbAtFlg_Valuable) != 0) {
         return true;
     }
     // Area around entrances is visible
@@ -660,7 +660,7 @@ TbBool wp_check_map_pos_valid(struct Wander *wandr, SubtlCodedCoords stl_num)
         {
             struct SlabMap *slb;
             slb = get_slabmap_for_subtile(stl_x, stl_y);
-            if (((mapblk->flags & MapFlg_IsTall) == 0) && ((get_navigation_map(stl_x, stl_y) & NAVMAP_UNSAFE_SURFACE) == 0)
+            if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && ((get_navigation_map(stl_x, stl_y) & NAVMAP_UNSAFE_SURFACE) == 0)
              && players_creatures_tolerate_each_other(wandr->plyr_idx,slabmap_owner(slb)))
             {
                 return true;
@@ -673,7 +673,7 @@ TbBool wp_check_map_pos_valid(struct Wander *wandr, SubtlCodedCoords stl_num)
         // Add only tiles which are not revealed to the wandering player, unless it's heroes - for them, do nothing
         if ((wandr->plyr_idx != game.hero_player_num) && !map_block_revealed(mapblk, wandr->plyr_idx))
         {
-            if (((mapblk->flags & MapFlg_IsTall) == 0) && ((get_navigation_map(stl_x, stl_y) & NAVMAP_UNSAFE_SURFACE) == 0))
+            if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && ((get_navigation_map(stl_x, stl_y) & NAVMAP_UNSAFE_SURFACE) == 0))
             {
                 struct Thing *heartng;
                 heartng = get_player_soul_container(wandr->plyr_idx);
