@@ -1398,16 +1398,16 @@ TngUpdateRet object_update_armour(struct Thing *objtng)
         pos.y.val += -(32 * LbCosL(682 * shspeed) >> 8) >> 8;
         pos.z.val += shspeed * (thing->clipbox_size_yz >> 1);
         move_thing_in_map(objtng, &pos);
-        objtng->field_52 = thing->field_52;
-        objtng->field_54 = thing->field_54;
-        angles_to_vector(thing->field_52, thing->field_54, 32, &cvect);
+        objtng->move_angle_xy = thing->move_angle_xy;
+        objtng->move_angle_z = thing->move_angle_z;
+        angles_to_vector(thing->move_angle_xy, thing->move_angle_z, 32, &cvect);
     }
     else
     {
         pos.z.val += (thing->clipbox_size_yz >> 1);
-        objtng->field_52 = get_angle_xy_to(&objtng->mappos, &pos);
-        objtng->field_54 = get_angle_yz_to(&objtng->mappos, &pos);
-        angles_to_vector(objtng->field_52, objtng->field_54, 32, &cvect);
+        objtng->move_angle_xy = get_angle_xy_to(&objtng->mappos, &pos);
+        objtng->move_angle_z = get_angle_yz_to(&objtng->mappos, &pos);
+        angles_to_vector(objtng->move_angle_xy, objtng->move_angle_z, 32, &cvect);
         cvect_len = LbSqrL(cvect.x * cvect.x + cvect.z * cvect.z + cvect.y * cvect.y);
         if (cvect_len > 128)
         {

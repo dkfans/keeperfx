@@ -964,9 +964,9 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
                     ntng->health = pwrdynst->strength[spell_lev] + 1;
                     ntng->word_13 = thing->index;
                     ntng->byte_15 = k;
-                    ntng->field_52 = thing->field_52;
-                    ntng->field_54 = thing->field_54;
-                    angles_to_vector(ntng->field_52, ntng->field_54, 32, &cvect);
+                    ntng->move_angle_xy = thing->move_angle_xy;
+                    ntng->move_angle_z = thing->move_angle_z;
+                    angles_to_vector(ntng->move_angle_xy, ntng->move_angle_z, 32, &cvect);
                     ntng->veloc_push_add.x.val += cvect.x;
                     ntng->veloc_push_add.y.val += cvect.y;
                     ntng->veloc_push_add.z.val += cvect.z;
@@ -1075,9 +1075,9 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
                 ntng->health = pwrdynst->strength[spell_lev] + 1;
                 ntng->word_13 = thing->index;
                 ntng->byte_15 = k;
-                ntng->field_52 = thing->field_52;
-                ntng->field_54 = thing->field_54;
-                angles_to_vector(ntng->field_52, ntng->field_54, 32, &cvect);
+                ntng->move_angle_xy = thing->move_angle_xy;
+                ntng->move_angle_z = thing->move_angle_z;
+                angles_to_vector(ntng->move_angle_xy, ntng->move_angle_z, 32, &cvect);
                 ntng->veloc_push_add.x.val += cvect.x;
                 ntng->veloc_push_add.y.val += cvect.y;
                 ntng->veloc_push_add.z.val += cvect.z;
@@ -1791,7 +1791,7 @@ long creature_is_ambulating(struct Thing *thing)
     int n, i;
     n = get_creature_model_graphics(thing->model, CGI_Ambulate);
     i = convert_td_iso(n);
-    if (i != thing->field_44)
+    if (i != thing->anim_sprite)
         return 0;
     return 1;
 }
@@ -2047,7 +2047,7 @@ long move_creature(struct Thing *thing)
         long angle;
         long dist;
         angle = LbArcTanAngle(cctrl->moveaccel.x.val, cctrl->moveaccel.y.val);
-        if (abs(get_angle_difference(angle, thing->field_52)) <= LbFPMath_PI/2) {
+        if (abs(get_angle_difference(angle, thing->move_angle_xy)) <= LbFPMath_PI/2) {
             dist = get_2d_distance(&pvpos, tngpos);
         } else {
             dist = -get_2d_distance(&pvpos, tngpos);
@@ -2128,7 +2128,7 @@ void thing_death_normal(struct Thing *thing)
     struct Thing *deadtng;
     struct Coord3d memaccl;
     long memp1;
-    memp1 = thing->field_52;
+    memp1 = thing->move_angle_xy;
     memaccl.x.val = thing->veloc_base.x.val;
     memaccl.y.val = thing->veloc_base.y.val;
     memaccl.z.val = thing->veloc_base.z.val;
@@ -2138,7 +2138,7 @@ void thing_death_normal(struct Thing *thing)
         ERRORLOG("Cannot create dead thing");
         return;
     }
-    deadtng->field_52 = memp1;
+    deadtng->move_angle_xy = memp1;
     deadtng->veloc_base.x.val = memaccl.x.val;
     deadtng->veloc_base.y.val = memaccl.y.val;
     deadtng->veloc_base.z.val = memaccl.z.val;
@@ -2156,7 +2156,7 @@ void thing_death_flesh_explosion(struct Thing *thing)
     long memp1;
     long i;
     //_DK_thing_death_flesh_explosion(thing);return;
-    memp1 = thing->field_52;
+    memp1 = thing->move_angle_xy;
     memaccl.x.val = thing->veloc_base.x.val;
     memaccl.y.val = thing->veloc_base.y.val;
     memaccl.z.val = thing->veloc_base.z.val;
@@ -2173,7 +2173,7 @@ void thing_death_flesh_explosion(struct Thing *thing)
         ERRORLOG("Cannot create dead thing");
         return;
     }
-    deadtng->field_52 = memp1;
+    deadtng->move_angle_xy = memp1;
     deadtng->veloc_base.x.val = memaccl.x.val;
     deadtng->veloc_base.y.val = memaccl.y.val;
     deadtng->veloc_base.z.val = memaccl.z.val;
@@ -2188,7 +2188,7 @@ void thing_death_gas_and_flesh_explosion(struct Thing *thing)
     long memp1;
     long i;
     //_DK_thing_death_gas_and_flesh_explosion(thing);return;
-    memp1 = thing->field_52;
+    memp1 = thing->move_angle_xy;
     memaccl.x.val = thing->veloc_base.x.val;
     memaccl.y.val = thing->veloc_base.y.val;
     memaccl.z.val = thing->veloc_base.z.val;
@@ -2210,7 +2210,7 @@ void thing_death_gas_and_flesh_explosion(struct Thing *thing)
         ERRORLOG("Cannot create dead thing");
         return;
     }
-    deadtng->field_52 = memp1;
+    deadtng->move_angle_xy = memp1;
     deadtng->veloc_base.x.val = memaccl.x.val;
     deadtng->veloc_base.y.val = memaccl.y.val;
     deadtng->veloc_base.z.val = memaccl.z.val;
@@ -2225,7 +2225,7 @@ void thing_death_smoke_explosion(struct Thing *thing)
     long memp1;
     long i;
     //_DK_thing_death_smoke_explosion(thing);return;
-    memp1 = thing->field_52;
+    memp1 = thing->move_angle_xy;
     memaccl.x.val = thing->veloc_base.x.val;
     memaccl.y.val = thing->veloc_base.y.val;
     memaccl.z.val = thing->veloc_base.z.val;
@@ -2240,7 +2240,7 @@ void thing_death_smoke_explosion(struct Thing *thing)
         ERRORLOG("Cannot create dead thing");
         return;
     }
-    deadtng->field_52 = memp1;
+    deadtng->move_angle_xy = memp1;
     deadtng->veloc_base.x.val = memaccl.x.val;
     deadtng->veloc_base.y.val = memaccl.y.val;
     deadtng->veloc_base.z.val = memaccl.z.val;
@@ -2260,7 +2260,7 @@ void thing_death_ice_explosion(struct Thing *thing)
     long memp1;
     long i;
     //_DK_thing_death_ice_explosion(thing);return;
-    memp1 = thing->field_52;
+    memp1 = thing->move_angle_xy;
     memaccl.x.val = thing->veloc_base.x.val;
     memaccl.y.val = thing->veloc_base.y.val;
     memaccl.z.val = thing->veloc_base.z.val;
@@ -2277,7 +2277,7 @@ void thing_death_ice_explosion(struct Thing *thing)
         ERRORLOG("Cannot create dead thing");
         return;
     }
-    deadtng->field_52 = memp1;
+    deadtng->move_angle_xy = memp1;
     deadtng->veloc_base.x.val = memaccl.x.val;
     deadtng->veloc_base.y.val = memaccl.y.val;
     deadtng->veloc_base.z.val = memaccl.z.val;
@@ -2714,16 +2714,16 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
     pos1.x.val = firing->mappos.x.val;
     pos1.y.val = firing->mappos.y.val;
     pos1.z.val = firing->mappos.z.val;
-    pos1.x.val += distance_with_angle_to_coord_x(cctrl->field_2C1, firing->field_52+LbFPMath_PI/2);
-    pos1.y.val += distance_with_angle_to_coord_y(cctrl->field_2C1, firing->field_52+LbFPMath_PI/2);
-    pos1.x.val += distance_with_angle_to_coord_x(cctrl->field_2C3, firing->field_52);
-    pos1.y.val += distance_with_angle_to_coord_y(cctrl->field_2C3, firing->field_52);
+    pos1.x.val += distance_with_angle_to_coord_x(cctrl->field_2C1, firing->move_angle_xy+LbFPMath_PI/2);
+    pos1.y.val += distance_with_angle_to_coord_y(cctrl->field_2C1, firing->move_angle_xy+LbFPMath_PI/2);
+    pos1.x.val += distance_with_angle_to_coord_x(cctrl->field_2C3, firing->move_angle_xy);
+    pos1.y.val += distance_with_angle_to_coord_y(cctrl->field_2C3, firing->move_angle_xy);
     pos1.z.val += (cctrl->field_2C5);
     // Compute launch angles
     if (thing_is_invalid(target))
     {
-        angle_xy = firing->field_52;
-        angle_yz = firing->field_54;
+        angle_xy = firing->move_angle_xy;
+        angle_yz = firing->move_angle_z;
     } else
     {
         pos2.x.val = target->mappos.x.val;
@@ -2760,7 +2760,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
     case ShM_Drain:
         if ((thing_is_invalid(target)) || (get_2d_distance(&firing->mappos, &pos2) > 5120))
         {
-            project_point_to_wall_on_angle(&pos1, &pos2, firing->field_52, firing->field_54, 256, 20);
+            project_point_to_wall_on_angle(&pos1, &pos2, firing->move_angle_xy, firing->move_angle_z, 256, 20);
         }
         shotng = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shotng))
@@ -2775,7 +2775,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         break;
     case ShM_FlameBreathe:
         if ((thing_is_invalid(target)) || (get_2d_distance(&firing->mappos, &pos2) > 768))
-          project_point_to_wall_on_angle(&pos1, &pos2, firing->field_52, firing->field_54, 256, 4);
+          project_point_to_wall_on_angle(&pos1, &pos2, firing->move_angle_xy, firing->move_angle_z, 256, 4);
         shotng = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shotng))
           return;
@@ -2792,9 +2792,9 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
               break;
             shotng = tmptng;
             shotng->shot.hit_type = hit_type;
-            shotng->field_52 = (angle_xy + ACTION_RANDOM(101) - 50) & 0x7FF;
-            shotng->field_54 = (angle_yz + ACTION_RANDOM(101) - 50) & 0x7FF;
-            angles_to_vector(shotng->field_52, shotng->field_54, shotst->old->speed, &cvect);
+            shotng->move_angle_xy = (angle_xy + ACTION_RANDOM(101) - 50) & 0x7FF;
+            shotng->move_angle_z = (angle_yz + ACTION_RANDOM(101) - 50) & 0x7FF;
+            angles_to_vector(shotng->move_angle_xy, shotng->move_angle_z, shotst->old->speed, &cvect);
             shotng->veloc_push_add.x.val += cvect.x;
             shotng->veloc_push_add.y.val += cvect.y;
             shotng->veloc_push_add.z.val += cvect.z;
@@ -2808,9 +2808,9 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         shotng = create_thing(&pos1, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shotng))
             return;
-        shotng->field_52 = angle_xy;
-        shotng->field_54 = angle_yz;
-        angles_to_vector(shotng->field_52, shotng->field_54, shotst->old->speed, &cvect);
+        shotng->move_angle_xy = angle_xy;
+        shotng->move_angle_z = angle_yz;
+        angles_to_vector(shotng->move_angle_xy, shotng->move_angle_z, shotst->old->speed, &cvect);
         shotng->veloc_push_add.x.val += cvect.x;
         shotng->veloc_push_add.y.val += cvect.y;
         shotng->veloc_push_add.z.val += cvect.z;
@@ -3339,8 +3339,8 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->field_24 = 8;
     crtng->movement_flags |= TMvF_Unknown08;
     crtng->owner = owner;
-    crtng->field_52 = 0;
-    crtng->field_54 = 0;
+    crtng->move_angle_xy = 0;
+    crtng->move_angle_z = 0;
     cctrl->max_speed = calculate_correct_creature_maxspeed(crtng);
     cctrl->field_2C1 = creatures[model].field_9;
     cctrl->field_2C3 = creatures[model].field_B;
@@ -4498,7 +4498,7 @@ void place_bloody_footprint(struct Thing *thing)
         }
         break;
     default:
-        footng = create_footprint_sine(&thing->mappos, thing->field_52, nfoot, 23, thing->owner);
+        footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, 23, thing->owner);
         if (!thing_is_invalid(footng)) {
             cctrl->bloody_footsteps_turns--;
         }
@@ -4515,27 +4515,27 @@ TbBool update_controlled_creature_movement(struct Thing *thing)
     {
         if (cctrl->move_speed != 0)
         {
-            cctrl->moveaccel.x.val = distance3d_with_angles_to_coord_x(cctrl->move_speed, thing->field_52, thing->field_54);
-            cctrl->moveaccel.y.val = distance3d_with_angles_to_coord_y(cctrl->move_speed, thing->field_52, thing->field_54);
-            cctrl->moveaccel.z.val = distance_with_angle_to_coord_z(cctrl->move_speed, thing->field_54);
+            cctrl->moveaccel.x.val = distance3d_with_angles_to_coord_x(cctrl->move_speed, thing->move_angle_xy, thing->move_angle_z);
+            cctrl->moveaccel.y.val = distance3d_with_angles_to_coord_y(cctrl->move_speed, thing->move_angle_xy, thing->move_angle_z);
+            cctrl->moveaccel.z.val = distance_with_angle_to_coord_z(cctrl->move_speed, thing->move_angle_z);
         }
-        if (cctrl->field_CA != 0)
+        if (cctrl->orthogn_speed != 0)
         {
-            cctrl->moveaccel.x.val += distance_with_angle_to_coord_x(cctrl->field_CA, thing->field_52 - 512);
-            cctrl->moveaccel.y.val += distance_with_angle_to_coord_y(cctrl->field_CA, thing->field_52 - 512);
+            cctrl->moveaccel.x.val += distance_with_angle_to_coord_x(cctrl->orthogn_speed, thing->move_angle_xy - LbFPMath_PI/2);
+            cctrl->moveaccel.y.val += distance_with_angle_to_coord_y(cctrl->orthogn_speed, thing->move_angle_xy - LbFPMath_PI/2);
         }
     } else
     {
         if (cctrl->move_speed != 0)
         {
-            cctrl->moveaccel.x.val = distance_with_angle_to_coord_x(cctrl->move_speed, thing->field_52);
-            cctrl->moveaccel.y.val = distance_with_angle_to_coord_y(cctrl->move_speed, thing->field_52);
+            cctrl->moveaccel.x.val = distance_with_angle_to_coord_x(cctrl->move_speed, thing->move_angle_xy);
+            cctrl->moveaccel.y.val = distance_with_angle_to_coord_y(cctrl->move_speed, thing->move_angle_xy);
             upd_done = true;
         }
-        if (cctrl->field_CA != 0)
+        if (cctrl->orthogn_speed != 0)
         {
-            cctrl->moveaccel.x.val += distance_with_angle_to_coord_x(cctrl->field_CA, thing->field_52 - 512);
-            cctrl->moveaccel.y.val += distance_with_angle_to_coord_y(cctrl->field_CA, thing->field_52 - 512);
+            cctrl->moveaccel.x.val += distance_with_angle_to_coord_x(cctrl->orthogn_speed, thing->move_angle_xy - LbFPMath_PI/2);
+            cctrl->moveaccel.y.val += distance_with_angle_to_coord_y(cctrl->orthogn_speed, thing->move_angle_xy - LbFPMath_PI/2);
             upd_done = true;
         }
     }
@@ -4618,8 +4618,8 @@ short update_creature_movements(struct Thing *thing)
       if (cctrl->move_speed != 0)
       {
           upd_done = 1;
-          cctrl->moveaccel.x.val = distance_with_angle_to_coord_x(cctrl->move_speed, thing->field_52);
-          cctrl->moveaccel.y.val = distance_with_angle_to_coord_y(cctrl->move_speed, thing->field_52);
+          cctrl->moveaccel.x.val = distance_with_angle_to_coord_x(cctrl->move_speed, thing->move_angle_xy);
+          cctrl->moveaccel.y.val = distance_with_angle_to_coord_y(cctrl->move_speed, thing->move_angle_xy);
           cctrl->moveaccel.z.val = 0;
       }
       if (((thing->movement_flags & TMvF_Flying) != 0) && ((thing->alloc_flags & TAlF_IsControlled) == 0))
@@ -4685,7 +4685,7 @@ void process_creature_leave_footsteps(struct Thing *thing)
     {
         place_bloody_footprint(thing);
         nfoot = get_foot_creature_has_down(thing);
-        footng = create_footprint_sine(&thing->mappos, thing->field_52, nfoot, 23, thing->owner);
+        footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, 23, thing->owner);
         if (!thing_is_invalid(footng)) {
             cctrl->bloody_footsteps_turns--;
         }
@@ -4698,7 +4698,7 @@ void process_creature_leave_footsteps(struct Thing *thing)
         {
           thing->movement_flags |= TMvF_Unknown80;
           nfoot = get_foot_creature_has_down(thing);
-          footng = create_footprint_sine(&thing->mappos, thing->field_52, nfoot, 94, thing->owner);
+          footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, 94, thing->owner);
         }
     }
 }
@@ -5011,7 +5011,7 @@ TngUpdateRet update_creature(struct Thing *thing)
         if ((cctrl->flgfield_1 & CCFlg_Unknown40) == 0)
           cctrl->move_speed /= 2;
         if ((cctrl->flgfield_1 & CCFlg_Unknown80) == 0)
-          cctrl->field_CA /= 2;
+          cctrl->orthogn_speed /= 2;
     } else
     {
         cctrl->move_speed = 0;

@@ -419,7 +419,7 @@ long get_foot_creature_has_down(struct Thing *thing)
         return 0;
     n = get_creature_model_graphics(thing->model, CGI_Ambulate);
     i = convert_td_iso(n);
-    if (i != thing->field_44)
+    if (i != thing->anim_sprite)
         return 0;
     if (val == 1)
         return 1;
@@ -2675,9 +2675,9 @@ void update_near_creatures_for_footsteps(long *near_creatures, const struct Coor
 {
     long near_distance[3];
     // Don't allow creatures which are far by over 20 subtiles
-    near_distance[0] = 20<<8;
-    near_distance[1] = 20<<8;
-    near_distance[2] = 20<<8;
+    near_distance[0] = subtile_coord(20,0);
+    near_distance[1] = subtile_coord(20,0);
+    near_distance[2] = subtile_coord(20,0);
     near_creatures[0] = 0;
     near_creatures[1] = 0;
     near_creatures[2] = 0;
@@ -2699,7 +2699,7 @@ void update_near_creatures_for_footsteps(long *near_creatures, const struct Coor
         }
         i = thing->next_of_class;
         // Per-thing code
-        thing->state_flags &= ~TF1_Unkn20;
+        thing->state_flags &= ~TF1_DoFootsteps;
         if (!thing_is_picked_up(thing))
         {
             struct CreatureSound *crsound;
@@ -2759,7 +2759,7 @@ long stop_playing_flight_sample_in_all_flying_creatures(void)
         }
         i = thing->next_of_class;
         // Per-thing code
-        if ((get_creature_model_flags(thing) & CMF_IsDiptera) && ((thing->state_flags & TF1_Unkn20) == 0))
+        if ((get_creature_model_flags(thing) & CMF_IsDiptera) && ((thing->state_flags & TF1_DoFootsteps) == 0))
         {
             if ( S3DEmitterIsPlayingSample(thing->snd_emitter_id, 25, 0) ) {
                 S3DDeleteSampleFromEmitter(thing->snd_emitter_id, 25, 0);
@@ -2776,18 +2776,18 @@ long stop_playing_flight_sample_in_all_flying_creatures(void)
     return naffected;
 }
 
-void update_footsteps_nearest_camera(struct Camera *camera)
+void update_footsteps_nearest_camera(struct Camera *cam)
 {
     static long timeslice = 0;
     static long near_creatures[3];
     struct Coord3d srcpos;
     SYNCDBG(6,"Starting");
-    if (camera == NULL)
+    if (cam == NULL)
         return;
     //_DK_update_footsteps_nearest_camera(camera);
-    srcpos.x.val = camera->mappos.x.val;
-    srcpos.y.val = camera->mappos.y.val;
-    srcpos.z.val = camera->mappos.z.val;
+    srcpos.x.val = cam->mappos.x.val;
+    srcpos.y.val = cam->mappos.y.val;
+    srcpos.z.val = cam->mappos.z.val;
     if (timeslice == 0) {
         update_near_creatures_for_footsteps(near_creatures, &srcpos);
     }
@@ -2799,7 +2799,7 @@ void update_footsteps_nearest_camera(struct Camera *camera)
             break;
         thing = thing_get(near_creatures[i]);
         if (thing_is_creature(thing)) {
-            thing->state_flags |= TF1_Unkn20;
+            thing->state_flags |= TF1_DoFootsteps;
             play_thing_walking(thing);
         }
     }

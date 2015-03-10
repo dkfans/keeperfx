@@ -4943,7 +4943,7 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
         cutoff = 6;
         if ( (thing_being_displayed->movement_flags & TMvF_Unknown04) != 0 )
         {
-            get_keepsprite_unscaled_dimensions(thing_being_displayed->field_44, thing_being_displayed->field_52, thing_being_displayed->field_48, &dim_ow, &dim_oh, &dim_tw, &dim_th);
+            get_keepsprite_unscaled_dimensions(thing_being_displayed->anim_sprite, thing_being_displayed->move_angle_xy, thing_being_displayed->field_48, &dim_ow, &dim_oh, &dim_tw, &dim_th);
             cctrl = creature_control_get_from_thing(thing_being_displayed);
             lltemp = dim_oh * (48 - (long)cctrl->word_9A);
             cutoff = ((((lltemp >> 24) & 0x1F) + (long)lltemp) >> 5) / 2;
@@ -5047,7 +5047,7 @@ void process_keeper_speedup_sprite(struct JontySpr *jspr, long angle, long scale
     }
     EngineSpriteDrawUsingAlpha = 0;
     nframe2 = (thing->index + game.play_gameturn) % keepersprite_frames(graph_id2);
-    process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->field_44, angle, thing->field_48, scale);
+    process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->field_48, scale);
     EngineSpriteDrawUsingAlpha = 1;
     process_keeper_sprite(jspr->scr_x+add_x, jspr->scr_y+add_y, graph_id2, angle, nframe2, transp2);
 }
@@ -5118,10 +5118,10 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
     alpha_mem = EngineSpriteDrawUsingAlpha;
     thing = jspr->thing;
     player = get_my_player();
-    if (keepersprite_rotable(thing->field_44))
-      angle = thing->field_52 - spr_map_angle;
+    if (keepersprite_rotable(thing->anim_sprite))
+      angle = thing->move_angle_xy - spr_map_angle;
     else
-      angle = thing->field_52;
+      angle = thing->move_angle_xy;
     prepare_jonty_remap_and_scale(&scale, jspr);
     EngineSpriteDrawUsingAlpha = 0;
     switch (thing->field_4F & (0x10|0x20))
@@ -5165,9 +5165,9 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
         thing_being_displayed = NULL;
     }
 
-    if (thing->field_44 >= CREATURE_FRAMELIST_LENGTH)
+    if (thing->anim_sprite >= CREATURE_FRAMELIST_LENGTH)
     {
-        ERRORLOG("Invalid graphic Id %d from model %d, class %d", (int)thing->field_44, (int)thing->model, (int)thing->class_id);
+        ERRORLOG("Invalid graphic Id %d from model %d, class %d", (int)thing->anim_sprite, (int)thing->model, (int)thing->class_id);
     } else
     {
         switch (thing->class_id)
@@ -5179,7 +5179,7 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
                 process_keeper_speedup_sprite(jspr, angle, scale);
                 break;
             }
-            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->field_44, angle, thing->field_48, scale);
+            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->field_48, scale);
             break;
         case TCls_Trap:
             //TODO CONFIG trap model dependency, make config option instead
@@ -5187,10 +5187,10 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
             {
                 break;
             }
-            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->field_44, angle, thing->field_48, scale);
+            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->field_48, scale);
             break;
         default:
-            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->field_44, angle, thing->field_48, scale);
+            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->field_48, scale);
             break;
         }
     }
