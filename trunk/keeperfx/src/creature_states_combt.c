@@ -319,9 +319,14 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
     HitPoints crmaxhealth,enmaxhealth;
     long fear;
     if (player_creature_tends_to(creatng->owner,CrTend_Flee) || (crstat->fear_noflee_factor <= 0)) {
-        fear = crstat->fear_wounded;
+        // In flee mode, use full fear value
+        fear = crstat->fear_wounded * 10;
+    } else if (is_hero_thing(creatng)) {
+        // For heroes, if not in flee mode - set feat to 0
+        fear = 0;
     } else {
-        fear = (long)crstat->fear_wounded / crstat->fear_noflee_factor;
+        // For other players, no flee mode means fear is smaller
+        fear = (long)crstat->fear_wounded * 10 / crstat->fear_noflee_factor;
     }
     struct CreatureControl *cctrl;
     struct CreatureControl *enmctrl;
@@ -329,7 +334,7 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
     enmctrl = creature_control_get_from_thing(enmtng);
     crmaxhealth = cctrl->max_health;
     enmaxhealth = enmctrl->max_health;
-    if (creatng->health <= (fear * (long long)crmaxhealth) / 100)
+    if (creatng->health < (fear * (long long)crmaxhealth) / 1000)
     {
         SYNCDBG(8,"The %s index %d is scared due to low health (%ld/%ld)",thing_model_name(creatng),(int)creatng->index,(long)creatng->health,crmaxhealth);
         return true;
@@ -341,8 +346,8 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
     } else {
         fear = (long)crstat->fear_stronger * crstat->fear_noflee_factor;
     }
-    enmstrength = calculate_melee_damage(enmtng) * ((long long)enmaxhealth + (long long)enmtng->health)/2;
-    ownstrength = calculate_melee_damage(creatng) * ((long long)crmaxhealth + (long long)creatng->health)/2;
+    enmstrength = LbSqrL(calculate_melee_damage(enmtng)) * ((long long)enmaxhealth + (long long)enmtng->health)/2;
+    ownstrength = LbSqrL(calculate_melee_damage(creatng)) * ((long long)crmaxhealth + (long long)creatng->health)/2;
     if (enmstrength >= (fear * ownstrength) / 100)
     {
         // check if there are allied creatures nearby; assume that such creatures are multiplying strength of the creature we're checking
