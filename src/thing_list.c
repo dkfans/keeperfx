@@ -2723,7 +2723,7 @@ TbBigChecksum get_thing_checksum(const struct Thing *thing)
         (ulong)thing->mappos.x.val +
         (ulong)thing->mappos.y.val +
         (ulong)thing->health + (ulong)thing->model + (ulong)thing->owner;
-    if (thing->class_id == 5)
+    if (thing->class_id == TCls_Creature)
     {
         struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(thing);

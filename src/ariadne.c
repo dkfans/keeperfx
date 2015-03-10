@@ -2756,7 +2756,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
             }
         }
     } else
-    if (thing->field_52 == arid->field_60)
+    if (thing->move_angle_xy == arid->field_60)
     {
         if ((thing->mappos.x.val != arid->pos_12.x.val) || (arid->pos_12.y.val != thing->mappos.y.val))
         {
@@ -2783,7 +2783,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
         arid->pos_12.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(arid->move_speed, hug_angle);
         arid->pos_12.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(arid->move_speed, hug_angle);
         arid->pos_12.z.val = get_thing_height_at(thing, &arid->pos_12);
-        if ((thing->field_52 == hug_angle) && ariadne_check_forward_for_wallhug_gap(thing, arid, &arid->pos_12, hug_angle))
+        if ((thing->move_angle_xy == hug_angle) && ariadne_check_forward_for_wallhug_gap(thing, arid, &arid->pos_12, hug_angle))
         {
             arid->field_21 = 3;
             arid->manoeuvre_state = 2;

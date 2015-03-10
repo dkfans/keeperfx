@@ -115,7 +115,7 @@ struct Room {
     unsigned short efficiency;
     unsigned short field_41;
     unsigned char field_43;
-    unsigned char field_44;
+    unsigned char flame_stl;
 };
 
 struct RoomData {

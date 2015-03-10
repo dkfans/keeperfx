@@ -46,7 +46,7 @@ enum ThingFlags1 {
     TF1_PushAdd        = 0x04,
     TF1_PushOnce       = 0x08,
     TF1_Unkn10         = 0x10,
-    TF1_Unkn20         = 0x20,
+    TF1_DoFootsteps    = 0x20,
 };
 
 enum ThingFlags2 {
@@ -189,9 +189,10 @@ unsigned char field_22;
     struct CoordDelta3d veloc_base;
     struct CoordDelta3d veloc_push_add;
     struct CoordDelta3d velocity;
-unsigned short field_3E;
+    // Push when moving; needs to be signed
+    short field_3E;
     long field_40;
-unsigned short field_44;
+unsigned short anim_sprite;
     unsigned short sprite_size;
 unsigned char field_48;
 unsigned char field_49;
@@ -201,8 +202,8 @@ unsigned short field_4D;
     unsigned char field_4F;
     unsigned char field_50;
 unsigned char field_51;
-    short field_52;
-    short field_54;
+    short move_angle_xy;
+    short move_angle_z;
     unsigned short clipbox_size_xy;
     unsigned short clipbox_size_yz;
     unsigned short solid_size_xy;

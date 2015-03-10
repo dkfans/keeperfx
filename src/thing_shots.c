@@ -249,7 +249,7 @@ void process_dig_shot_hit_wall(struct Thing *thing, unsigned long blocked_flags)
     }
     if (blocked_flags & SlbBloF_WalledX)
     {
-        k = thing->field_52 & 0xFC00;
+        k = thing->move_angle_xy & 0xFC00;
         if (k != 0)
         {
           stl_x = slab_subtile_center(coord_slab(thing->mappos.x.val) - 1);
@@ -263,7 +263,7 @@ void process_dig_shot_hit_wall(struct Thing *thing, unsigned long blocked_flags)
     } else
     if (blocked_flags & SlbBloF_WalledY)
     {
-        k = thing->field_52 & 0xFE00;
+        k = thing->move_angle_xy & 0xFE00;
         if ((k != 0) && (k != 0x0600))
         {
           stl_x = slab_subtile_center(coord_slab(thing->mappos.x.val));
@@ -849,9 +849,9 @@ void clear_thing_acceleration(struct Thing *thing)
 void set_thing_acceleration_angles(struct Thing *thing, long angle_xy, long angle_yz)
 {
     struct ComponentVector cvect;
-    thing->field_52 = angle_xy;
-    thing->field_54 = angle_yz;
-    angles_to_vector(thing->field_52, thing->field_54, 256, &cvect);
+    thing->move_angle_xy = angle_xy;
+    thing->move_angle_z = angle_yz;
+    angles_to_vector(thing->move_angle_xy, thing->move_angle_z, 256, &cvect);
     thing->veloc_base.x.val = cvect.x;
     thing->veloc_base.y.val = cvect.y;
     thing->veloc_base.z.val = cvect.z;
@@ -910,8 +910,8 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         } else
         {
             clear_thing_acceleration(shotng);
-            i = (shotng->field_52 + LbFPMath_PI) & LbFPMath_AngleMask;
-            n = (shotng->field_54 + LbFPMath_PI) & LbFPMath_AngleMask;
+            i = (shotng->move_angle_xy + LbFPMath_PI) & LbFPMath_AngleMask;
+            n = (shotng->move_angle_z + LbFPMath_PI) & LbFPMath_AngleMask;
             set_thing_acceleration_angles(shotng, i, n);
             if (trgtng->class_id == TCls_Creature)
             {
@@ -1245,9 +1245,9 @@ TngUpdateRet update_shot(struct Thing *thing)
                 pos2.y.val = target->mappos.y.val;
                 pos2.z.val = target->mappos.z.val;
                 pos2.z.val += (target->clipbox_size_yz >> 1);
-                thing->field_52 = get_angle_xy_to(&thing->mappos, &pos2);
-                thing->field_54 = get_angle_yz_to(&thing->mappos, &pos2);
-                angles_to_vector(thing->field_52, thing->field_54, shotst->old->speed, &cvect);
+                thing->move_angle_xy = get_angle_xy_to(&thing->mappos, &pos2);
+                thing->move_angle_z = get_angle_yz_to(&thing->mappos, &pos2);
+                angles_to_vector(thing->move_angle_xy, thing->move_angle_z, shotst->old->speed, &cvect);
                 dtpos.x.val = cvect.x - thing->veloc_base.x.val;
                 dtpos.y.val = cvect.y - thing->veloc_base.y.val;
                 dtpos.z.val = cvect.z - thing->veloc_base.z.val;
@@ -1281,7 +1281,7 @@ TngUpdateRet update_shot(struct Thing *thing)
             affect_nearby_enemy_creatures_with_wind(thing);
             break;
         case ShM_Grenade:
-            thing->field_52 = (thing->field_52 + 113) & LbFPMath_AngleMask;
+            thing->move_angle_xy = (thing->move_angle_xy + 113) & LbFPMath_AngleMask;
             break;
         case ShM_Boulder:
         case ShM_SolidBoulder:

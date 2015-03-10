@@ -346,8 +346,8 @@ long creature_turn_to_face(struct Thing *thing, struct Coord3d *pos)
     angle = LbArcTanAngle(pos->x.val - (MapCoordDelta)thing->mappos.x.val,
                           pos->y.val - (MapCoordDelta)thing->mappos.y.val) & LbFPMath_AngleMask;
     long angle_diff, angle_sign, angle_delta;
-    angle_diff = get_angle_difference(thing->field_52, angle);
-    angle_sign = get_angle_sign(thing->field_52, angle);
+    angle_diff = get_angle_difference(thing->move_angle_xy, angle);
+    angle_sign = get_angle_sign(thing->move_angle_xy, angle);
     angle_delta = crstat->max_angle_change;
     if (angle_delta < 0) {
         angle_delta = 0;
@@ -359,9 +359,9 @@ long creature_turn_to_face(struct Thing *thing, struct Coord3d *pos)
         angle_delta = -angle_delta;
     }
     long i;
-    i = (thing->field_52 + angle_delta);
-    thing->field_52 = i & LbFPMath_AngleMask;
-    return get_angle_difference(thing->field_52, angle);
+    i = (thing->move_angle_xy + angle_delta);
+    thing->move_angle_xy = i & LbFPMath_AngleMask;
+    return get_angle_difference(thing->move_angle_xy, angle);
 }
 
 long creature_turn_to_face_backwards(struct Thing *thing, struct Coord3d *pos)
@@ -385,16 +385,16 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
     if ( backward )
     {
         // Rotate the creature 180 degrees to trace route with forward move
-        i = (thing->field_52 + LbFPMath_PI);
-        thing->field_52 = i & LbFPMath_AngleMask;
+        i = (thing->move_angle_xy + LbFPMath_PI);
+        thing->move_angle_xy = i & LbFPMath_AngleMask;
     }
     follow_result = creature_follow_route_to_using_gates(thing, pos, &nextpos, speed, flags);
     SYNCDBG(18,"The %s index %d route result: %d, next pos (%d,%d)",thing_model_name(thing),(int)thing->index,(int)follow_result,(int)nextpos.x.stl.num,(int)nextpos.y.stl.num);
     if ( backward )
     {
         // Rotate the creature back
-        i = (thing->field_52 + LbFPMath_PI);
-        thing->field_52 = i & LbFPMath_AngleMask;
+        i = (thing->move_angle_xy + LbFPMath_PI);
+        thing->move_angle_xy = i & LbFPMath_AngleMask;
     }
     if ((follow_result == AridRet_PartOK) || (follow_result == AridRet_Val2))
     {
@@ -422,8 +422,8 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
                 ERRORDBG(3,"The %s index %d tried to reach (%d,%d) from (%d,%d) with excessive backward speed",
                     thing_model_name(thing),(int)thing->index,(int)nextpos.x.stl.num,(int)nextpos.y.stl.num,
                     (int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num);
-                cctrl->moveaccel.x.val = distance_with_angle_to_coord_x(cctrl->move_speed, thing->field_52);
-                cctrl->moveaccel.y.val = distance_with_angle_to_coord_y(cctrl->move_speed, thing->field_52);
+                cctrl->moveaccel.x.val = distance_with_angle_to_coord_x(cctrl->move_speed, thing->move_angle_xy);
+                cctrl->moveaccel.y.val = distance_with_angle_to_coord_y(cctrl->move_speed, thing->move_angle_xy);
                 cctrl->moveaccel.z.val = 0;
             } else
             {
@@ -448,8 +448,8 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
                 ERRORDBG(3,"The %s index %d tried to reach (%d,%d) from (%d,%d) with excessive forward speed",
                     thing_model_name(thing),(int)thing->index,(int)nextpos.x.stl.num,(int)nextpos.y.stl.num,
                     (int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num);
-                cctrl->moveaccel.x.val = distance_with_angle_to_coord_x(cctrl->move_speed, thing->field_52);
-                cctrl->moveaccel.y.val = distance_with_angle_to_coord_y(cctrl->move_speed, thing->field_52);
+                cctrl->moveaccel.x.val = distance_with_angle_to_coord_x(cctrl->move_speed, thing->move_angle_xy);
+                cctrl->moveaccel.y.val = distance_with_angle_to_coord_y(cctrl->move_speed, thing->move_angle_xy);
                 cctrl->moveaccel.z.val = 0;
             } else
             {

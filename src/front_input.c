@@ -827,87 +827,85 @@ short get_creature_passenger_action_inputs(void)
 
 short get_creature_control_action_inputs(void)
 {
-  struct PlayerInfo *player;
-  long keycode;
-  SYNCDBG(6,"Starting");
-  player = get_my_player();
-  if (get_players_packet_action(player) != PckA_None)
-    return 1;
-  if ( ((game.numfield_C & 0x01)==0) || (game.numfield_C & 0x80) )
-    get_gui_inputs(1);
-  if (is_key_pressed(KC_NUMPADENTER,KMod_DONTCARE))
-  {
-      if (toggle_instance_cheat_menu())
-        clear_key_pressed(KC_NUMPADENTER);
-  }
-  if (is_key_pressed(KC_F12,KMod_DONTCARE))
-  {
-      if (toggle_creature_cheat_menu())
-        clear_key_pressed(KC_F12);
-  }
+    struct PlayerInfo *player;
+    long keycode;
+    SYNCDBG(6,"Starting");
+    player = get_my_player();
+    if (get_players_packet_action(player) != PckA_None)
+        return 1;
+    if ( ((game.numfield_C & 0x01) == 0) || ((game.numfield_C & 0x80) != 0))
+        get_gui_inputs(1);
+    if (is_key_pressed(KC_NUMPADENTER,KMod_DONTCARE))
+    {
+        if (toggle_instance_cheat_menu())
+            clear_key_pressed(KC_NUMPADENTER);
+    }
+    if (is_key_pressed(KC_F12,KMod_DONTCARE))
+    {
+        if (toggle_creature_cheat_menu())
+            clear_key_pressed(KC_F12);
+    }
 
-  if (player->controlled_thing_idx != 0)
-  {
-    short make_packet = right_button_released;
-    if (!make_packet)
+    if (player->controlled_thing_idx != 0)
     {
-      struct Thing *thing;
-      thing = thing_get(player->controlled_thing_idx);
-      TRACE_THING(thing);
-      if ( (player->controlled_thing_creatrn != thing->creation_turn) || ((thing->alloc_flags & TAlF_Exists) == 0)
-         || (thing->active_state == CrSt_CreatureUnconscious) )
-        make_packet = true;
-    }
-    if (make_packet)
-    {
-      right_button_released = 0;
-      set_players_packet_action(player, PckA_Unknown033, player->controlled_thing_idx,0,0,0);
-    }
-  }
-  if ( is_key_pressed(KC_TAB,KMod_NONE) )
-  {
-    clear_key_pressed(KC_TAB);
-    toggle_gui();
-  }
-  int numkey;
-  numkey = -1;
-  {
-    for (keycode=KC_1;keycode<=KC_0;keycode++)
-    {
-      if ( is_key_pressed(keycode,KMod_NONE) )
-      {
-        clear_key_pressed(keycode);
-        numkey = keycode-2;
-        break;
-      }
-    }
-  }
-  if (numkey != -1)
-  {
-    int idx;
-    int instnce;
-    int num_avail;
-    num_avail = 0;
-    for (idx=0; idx < 10; idx++)
-    {
-      struct CreatureStats *crstat;
-      struct Thing *thing;
-      thing = thing_get(player->controlled_thing_idx);
-      TRACE_THING(thing);
-      crstat = creature_stats_get_from_thing(thing);
-      instnce = crstat->instance_spell[idx];
-      if ( creature_instance_is_available(thing,instnce) )
-      {
-        if ( numkey == num_avail )
+        short make_packet = right_button_released;
+        if (!make_packet)
         {
-          set_players_packet_action(player, PckA_CtrlCrtrSetInstnc, instnce,0,0,0);
-          break;
+          struct Thing *thing;
+          thing = thing_get(player->controlled_thing_idx);
+          TRACE_THING(thing);
+          if ( (player->controlled_thing_creatrn != thing->creation_turn) || ((thing->alloc_flags & TAlF_Exists) == 0)
+             || (thing->active_state == CrSt_CreatureUnconscious) )
+            make_packet = true;
         }
-        num_avail++;
+        if (make_packet)
+        {
+            right_button_released = 0;
+            set_players_packet_action(player, PckA_Unknown033, player->controlled_thing_idx,0,0,0);
+        }
+    }
+    if (is_key_pressed(KC_TAB, KMod_NONE))
+    {
+        clear_key_pressed(KC_TAB);
+        toggle_gui();
+    }
+    int numkey;
+    numkey = -1;
+    for (keycode=KC_1; keycode <= KC_0; keycode++)
+    {
+        if (is_key_pressed(keycode,KMod_NONE))
+        {
+            clear_key_pressed(keycode);
+            numkey = keycode-KC_1;
+            break;
+        }
+    }
+    if (numkey != -1)
+    {
+      int idx;
+      int instnce;
+      int num_avail;
+      num_avail = 0;
+      for (idx=0; idx < 10; idx++)
+      {
+          struct CreatureStats *crstat;
+          struct Thing *thing;
+          thing = thing_get(player->controlled_thing_idx);
+          TRACE_THING(thing);
+          crstat = creature_stats_get_from_thing(thing);
+          instnce = crstat->instance_spell[idx];
+          if ( creature_instance_is_available(thing,instnce) )
+          {
+            if ( numkey == num_avail )
+            {
+              set_players_packet_action(player, PckA_CtrlCrtrSetInstnc, instnce,0,0,0);
+              break;
+            }
+            num_avail++;
+          }
       }
     }
-  }
-  return false;
+    return false;
 }
 
 void get_packet_control_mouse_clicks(void)

@@ -486,7 +486,7 @@ void draw_power_hand(void)
     {
         SYNCDBG(7,"Drawing hand %s index %d, busy state", thing_model_name(thing), (int)thing->index);
         process_keeper_sprite(GetMouseX()+60*units_per_pixel/16, GetMouseY()+40*units_per_pixel/16,
-          thing->field_44, 0, thing->field_48, 64*units_per_pixel/16);
+          thing->anim_sprite, 0, thing->field_48, 64*units_per_pixel/16);
         draw_mini_things_in_hand(GetMouseX()+60*units_per_pixel/16, GetMouseY());
         return;
     }
@@ -506,7 +506,7 @@ void draw_power_hand(void)
           if (player->work_state == PSt_Slap)
           {
             process_keeper_sprite(GetMouseX() + 70*units_per_pixel/16, GetMouseY() + 46*units_per_pixel/16,
-                thing->field_44, 0, thing->field_48, 64*units_per_pixel/16);
+                thing->anim_sprite, 0, thing->field_48, 64*units_per_pixel/16);
           } else
           if (player->work_state == PSt_CtrlDungeon)
           {
@@ -535,14 +535,14 @@ void draw_power_hand(void)
                 if (creatures[picktng->model].field_7)
                   EngineSpriteDrawUsingAlpha = 1;
                 process_keeper_sprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
-                    picktng->field_44, 0, picktng->field_48, 64*units_per_pixel/16);
+                    picktng->anim_sprite, 0, picktng->field_48, 64*units_per_pixel/16);
                 EngineSpriteDrawUsingAlpha = 0;
             } else
             {
                 inputpos_x = GetMouseX() + 11*units_per_pixel/16;
                 inputpos_y = GetMouseY() + 56*units_per_pixel/16;
                 process_keeper_sprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
-                    picktng->field_44, 0, picktng->field_48, 64*units_per_pixel/16);
+                    picktng->anim_sprite, 0, picktng->field_48, 64*units_per_pixel/16);
             }
             break;
         case TCls_Object:
@@ -551,7 +551,7 @@ void draw_power_hand(void)
               inputpos_x = GetMouseX() + 11*units_per_pixel/16;
               inputpos_y = GetMouseY() + 56*units_per_pixel/16;
               process_keeper_sprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
-                  picktng->field_44, 0, picktng->field_48, 64*units_per_pixel/16);
+                  picktng->anim_sprite, 0, picktng->field_48, 64*units_per_pixel/16);
               break;
             } else
             if ((picktng->class_id == TCls_Object) && object_is_gold_pile(picktng))
@@ -561,7 +561,7 @@ void draw_power_hand(void)
             inputpos_x = GetMouseX();
             inputpos_y = GetMouseY();
             process_keeper_sprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
-                  picktng->field_44, 0, picktng->field_48, 64*units_per_pixel/16);
+                  picktng->anim_sprite, 0, picktng->field_48, 64*units_per_pixel/16);
             break;
         }
     }
@@ -570,14 +570,14 @@ void draw_power_hand(void)
         inputpos_x = GetMouseX() + 58*units_per_pixel/16;
         inputpos_y = GetMouseY() +  6*units_per_pixel/16;
         process_keeper_sprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
-            thing->field_44, 0, thing->field_48, 64*units_per_pixel/16);
+            thing->anim_sprite, 0, thing->field_48, 64*units_per_pixel/16);
         draw_mini_things_in_hand(GetMouseX()+60*units_per_pixel/16, GetMouseY());
     } else
     {
         inputpos_x = GetMouseX() + 60*units_per_pixel/16;
         inputpos_y = GetMouseY() + 40*units_per_pixel/16;
         process_keeper_sprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
-            thing->field_44, 0, thing->field_48, 64*units_per_pixel/16);
+            thing->anim_sprite, 0, thing->field_48, 64*units_per_pixel/16);
         draw_mini_things_in_hand(GetMouseX()+60*units_per_pixel/16, GetMouseY());
     }
 }

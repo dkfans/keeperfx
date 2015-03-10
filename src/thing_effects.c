@@ -554,7 +554,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
         thing->health = eestat->numfield_3 + i;
     } else
     {
-        thing->health = get_lifespan_of_animation(thing->field_44, thing->field_3E);
+        thing->health = get_lifespan_of_animation(thing->anim_sprite, thing->field_3E);
     }
 
     if (eestat->field_17 != 0)
@@ -806,7 +806,7 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
     if (i > LbFPMath_PI)
       i -= LbFPMath_PI;
     prop_val = i / (LbFPMath_PI/8);
-    elemtng->field_52 = get_angle_xy_to_vec(&elemtng->veloc_base);
+    elemtng->move_angle_xy = get_angle_xy_to_vec(&elemtng->veloc_base);
     elemtng->field_48 = prop_val;
     elemtng->field_3E = 0;
     elemtng->field_40 = (prop_val & 0xff) << 8;

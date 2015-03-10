@@ -489,7 +489,7 @@ short researching(struct Thing *thing)
           if ((cctrl->field_82 % 16) == 0)
           {
               i = ACTION_RANDOM(1024) - 512;
-              cctrl->long_9B = ((long)thing->field_52 + i) & 0x7FF;
+              cctrl->long_9B = ((long)thing->move_angle_xy + i) & 0x7FF;
               cctrl->byte_9A = 4;
           }
       } else

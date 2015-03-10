@@ -1273,7 +1273,7 @@ TbBool person_get_somewhere_adjacent_in_room_around_borders(const struct Thing *
         {
             if (avail[2]) { // can go to sibling slab (0,1)
                 long long tmp;
-                tmp = thing->field_52 + LbFPMath_PI/2;
+                tmp = thing->move_angle_xy + LbFPMath_PI/2;
                 tmp = ((((tmp>>32) ^ (((tmp>>32) ^ tmp) - (tmp>>32))) & 0x7FF) - (tmp>>32));
                 arnd = 2 * ((((tmp>>16) & 0x3FF) + tmp) / LbFPMath_PI);
             } else {
@@ -1283,7 +1283,7 @@ TbBool person_get_somewhere_adjacent_in_room_around_borders(const struct Thing *
         if (avail[1]) // can go to sibling slab (1,0)
         {
             if (avail[3]) {
-                arnd = 2 * ((thing->field_52 & 0x400) / LbFPMath_PI) + 1;
+                arnd = 2 * ((thing->move_angle_xy & 0x400) / LbFPMath_PI) + 1;
             } else {
                 arnd = 1;
             }

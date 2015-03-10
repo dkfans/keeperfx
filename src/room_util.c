@@ -89,9 +89,9 @@ void process_room_surrounding_flames(struct Room *room)
     SYNCDBG(19,"Starting");
     x = 3 * slb_num_decode_x(room->field_41);
     y = 3 * slb_num_decode_y(room->field_41);
-    i = 3 * room->field_43 + room->field_44;
-    pos.x.val = 256 * (x+1) + room_spark_offset[i].delta_x + 128;
-    pos.y.val = 256 * (y+1) + room_spark_offset[i].delta_y + 128;
+    i = 3 * room->field_43 + room->flame_stl;
+    pos.x.val = subtile_coord_center((x+1) + room_spark_offset[i].delta_x);
+    pos.y.val = subtile_coord_center((y+1) + room_spark_offset[i].delta_y);
     pos.z.val = 0;
     // Create new element
     if (room->owner == game.neutral_player_num)
@@ -103,11 +103,11 @@ void process_room_surrounding_flames(struct Room *room)
       create_room_surrounding_flame(room,&pos,room->owner,room->owner);
     }
     // Update coords for next element
-    if (room->field_44 == 2)
+    if (room->flame_stl == 2)
     {
       room_update_surrounding_flames(room,&pos);
     }
-    room->field_44 = (room->field_44 + 1) % 3;
+    room->flame_stl = (room->flame_stl + 1) % 3;
 }
 
 void recompute_rooms_count_in_dungeons(void)

@@ -2526,7 +2526,7 @@ void init_room_sparks(struct Room *room)
         if (sibslb->room_index != slb->room_index)
         {
             room->field_43 = 1;
-            room->field_44 = 0;
+            room->flame_stl = 0;
             room->field_41 = i;
             break;
         }

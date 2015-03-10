@@ -357,12 +357,12 @@ void set_sprite_view_3d(void)
             if (thing_is_creature(thing) || ((thing->field_4F & 0x01) == 0))
             {
                 int n;
-                n = straight_iso_td(thing->field_44);
+                n = straight_iso_td(thing->anim_sprite);
                 if (n >= 0)
                 {
-                    thing->field_44 = n;
+                    thing->anim_sprite = n;
                     long nframes;
-                    nframes = keepersprite_frames(thing->field_44);
+                    nframes = keepersprite_frames(thing->anim_sprite);
                     if (nframes != thing->field_49)
                     {
                         ERRORLOG("No frames different between views C%d, M%d, A%d, B%d",thing->class_id,thing->model,thing->field_49,nframes);
@@ -392,12 +392,12 @@ void set_sprite_view_isometric(void)
             if (thing_is_creature(thing) || ((thing->field_4F & 0x01) == 0))
             {
                 int n;
-                n = straight_td_iso(thing->field_44);
+                n = straight_td_iso(thing->anim_sprite);
                 if (n >= 0)
                 {
-                    thing->field_44 = n;
+                    thing->anim_sprite = n;
                     long nframes;
-                    nframes = keepersprite_frames(thing->field_44);
+                    nframes = keepersprite_frames(thing->anim_sprite);
                     if (nframes != thing->field_49)
                     {
                         ERRORLOG("No frames different between views C%d, M%d, A%d, B%d",thing->class_id,thing->model,thing->field_49,nframes);

@@ -360,7 +360,7 @@ unsigned char field_67;
     short max_speed;
     short max_health;
     short move_speed;
-    short field_CA;
+    short orthogn_speed;
     short field_CC;
     unsigned long field_CE;
     unsigned char instance_id;
