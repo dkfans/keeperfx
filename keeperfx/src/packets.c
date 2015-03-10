@@ -1276,7 +1276,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
 TbBigChecksum get_thing_simple_checksum(const struct Thing *tng)
 {
     return (ulong)tng->mappos.x.val + (ulong)tng->mappos.y.val + (ulong)tng->mappos.z.val
-         + (ulong)tng->field_52 + (ulong)tng->owner;
+         + (ulong)tng->move_angle_xy + (ulong)tng->owner;
 }
 
   TbBigChecksum get_packet_save_checksum(void)
@@ -1515,15 +1515,15 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
     if (pckt->field_10 & 0x01)
       inter_val *= 3;
 
-    if (pckt->control_flags & PCtr_MoveUp)
+    if ((pckt->control_flags & PCtr_MoveUp) != 0)
         view_set_camera_y_inertia(cam, -inter_val/4, -inter_val);
-    if (pckt->control_flags & PCtr_MoveDown)
+    if ((pckt->control_flags & PCtr_MoveDown) != 0)
         view_set_camera_y_inertia(cam, inter_val/4, inter_val);
-    if (pckt->control_flags & PCtr_MoveLeft)
+    if ((pckt->control_flags & PCtr_MoveLeft) != 0)
         view_set_camera_x_inertia(cam, -inter_val/4, -inter_val);
-    if (pckt->control_flags & PCtr_MoveRight)
+    if ((pckt->control_flags & PCtr_MoveRight) != 0)
         view_set_camera_x_inertia(cam, inter_val/4, inter_val);
-    if (pckt->control_flags & PCtr_ViewRotateCCW)
+    if ((pckt->control_flags & PCtr_ViewRotateCCW) != 0)
     {
         switch (cam->field_6)
         {
@@ -1535,7 +1535,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
             break;
         }
     }
-    if (pckt->control_flags & PCtr_ViewRotateCW)
+    if ((pckt->control_flags & PCtr_ViewRotateCW) != 0)
     {
         switch (cam->field_6)
         {
@@ -2226,7 +2226,7 @@ void process_players_creature_control_packet_control(long idx)
     {
         if (!creature_control_invalid(ccctrl))
         {
-            ccctrl->field_CA = compute_controlled_speed_increase(ccctrl->field_CA, speed_limit);
+            ccctrl->orthogn_speed = compute_controlled_speed_increase(ccctrl->orthogn_speed, speed_limit);
             ccctrl->flgfield_1 |= CCFlg_Unknown80;
         } else
         {
@@ -2237,7 +2237,7 @@ void process_players_creature_control_packet_control(long idx)
     {
         if (!creature_control_invalid(ccctrl))
         {
-            ccctrl->field_CA = compute_controlled_speed_decrease(ccctrl->field_CA, speed_limit);
+            ccctrl->orthogn_speed = compute_controlled_speed_decrease(ccctrl->orthogn_speed, speed_limit);
             ccctrl->flgfield_1 |= CCFlg_Unknown80;
         } else
         {
@@ -2302,8 +2302,8 @@ void process_players_creature_control_packet_control(long idx)
     else
     if (angle > angle_limit)
         angle = angle_limit;
-    cctng->field_52 = (cctng->field_52 + angle) & LbFPMath_AngleMask;
-    cctng->field_54 = (227 * k / 127) & LbFPMath_AngleMask;
+    cctng->move_angle_xy = (cctng->move_angle_xy + angle) & LbFPMath_AngleMask;
+    cctng->move_angle_z = (227 * k / 127) & LbFPMath_AngleMask;
     ccctrl->field_CC = 170 * angle / angle_limit;
     ccctrl->field_6C = 4 * angle / 8;
 }

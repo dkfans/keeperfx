@@ -327,22 +327,22 @@ void activate_trap_shot_head_for_target90(struct Thing *traptng, struct Thing *c
             if (abs(trpos_x - crpos_x) <= abs(trpos_y - crpos_y))
             {
                 if (crpos_y >= trpos_y)
-                    shotng->field_52 = LbFPMath_PI;
+                    shotng->move_angle_xy = LbFPMath_PI;
                 else
-                    shotng->field_52 = 0;
+                    shotng->move_angle_xy = 0;
             } else
             {
                 if (crpos_x >= trpos_x)
-                    shotng->field_52 = LbFPMath_PI/2;
+                    shotng->move_angle_xy = LbFPMath_PI/2;
                 else
-                    shotng->field_52 = 3*LbFPMath_PI/2;
+                    shotng->move_angle_xy = 3*LbFPMath_PI/2;
             }
         }
-        shotng->field_54 = 0;
+        shotng->move_angle_z = 0;
         struct ShotConfigStats *shotst;
         shotst = get_shot_model_stats(trapstat->field_1A);
         struct ComponentVector cvect;
-        angles_to_vector(shotng->field_52, 0, shotst->old->speed, &cvect);
+        angles_to_vector(shotng->move_angle_xy, 0, shotst->old->speed, &cvect);
         shotng->veloc_push_add.x.val += cvect.x;
         shotng->veloc_push_add.y.val += cvect.y;
         shotng->veloc_push_add.z.val += cvect.z;
@@ -757,9 +757,9 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, long a2)
     struct ShotConfigStats *shotst;
     shotst = get_shot_model_stats(shotng->model);
     struct ComponentVector cvect;
-    shotng->field_52 = a2;
-    shotng->field_54 = 0;
-    angles_to_vector(shotng->field_52, 0, shotst->old->speed, &cvect);
+    shotng->move_angle_xy = a2;
+    shotng->move_angle_z = 0;
+    angles_to_vector(shotng->move_angle_xy, 0, shotst->old->speed, &cvect);
     shotng->veloc_push_add.x.val += cvect.x;
     shotng->veloc_push_add.y.val += cvect.y;
     shotng->veloc_push_add.z.val += cvect.z;

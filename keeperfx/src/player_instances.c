@@ -273,12 +273,12 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
   case TCls_Shot:
       if (thing->model == 15) //TODO CONFIG shot model dependency, make config option instead
       {
-          thing->field_52 = player->acamera->orient_a;
+          thing->move_angle_xy = player->acamera->orient_a;
           thing->health -= game.boulder_reduce_health_slap;
       } else
       if (thing->model == 20) //TODO CONFIG shot model dependency, make config option instead
       {
-          thing->field_52 = player->acamera->orient_a;
+          thing->move_angle_xy = player->acamera->orient_a;
       }
       break;
   case TCls_Trap:
@@ -390,7 +390,7 @@ long pinstfm_control_creature(struct PlayerInfo *player, long *n)
     {
         view_zoom_camera_in(cam, 30000, 6000);
         // Compute new camera angle
-        mv_a = (thing->field_52 - cam->orient_a) & LbFPMath_AngleMask;
+        mv_a = (thing->move_angle_xy - cam->orient_a) & LbFPMath_AngleMask;
         if (mv_a > LbFPMath_PI)
           mv_a -= 2*LbFPMath_PI;
         if (mv_a < -170)

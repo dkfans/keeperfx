@@ -225,7 +225,7 @@ long creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
     lairtng->word_15 = 1;
     // Lair size depends on creature level
     lairtng->word_17 = 300 * cctrl->explevel / 20 + 300;
-    lairtng->field_52 = ACTION_RANDOM(0x800);
+    lairtng->move_angle_xy = ACTION_RANDOM(0x800);
     struct Objects *objdat;
     unsigned long i;
     objdat = get_objects_data_for_thing(lairtng);
@@ -409,7 +409,7 @@ short at_lair_to_sleep(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    if ( !creature_turn_to_face_angle(thing, lairtng->field_52) )
+    if ( !creature_turn_to_face_angle(thing, lairtng->move_angle_xy) )
     {
         internal_set_thing_state(thing, CrSt_CreatureSleep);
         cctrl->field_82 = 200;

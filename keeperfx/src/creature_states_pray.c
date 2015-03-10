@@ -380,7 +380,7 @@ short creature_being_summoned(struct Thing *thing)
     }
     if (cctrl->word_9A <= 0)
     {
-        get_keepsprite_unscaled_dimensions(thing->field_44, thing->field_52, thing->field_48, &orig_w, &orig_h, &unsc_w, &unsc_h);
+        get_keepsprite_unscaled_dimensions(thing->anim_sprite, thing->move_angle_xy, thing->field_48, &orig_w, &orig_h, &unsc_w, &unsc_h);
         create_effect(&thing->mappos, TngEff_Unknown04, thing->owner);
         thing->movement_flags |= TMvF_Unknown04;
         cctrl->word_9A = 1;
@@ -395,7 +395,7 @@ short creature_being_summoned(struct Thing *thing)
         return 0;
     }
     // Rotate the creature as it appears from temple
-    creature_turn_to_face_angle(thing, thing->field_52 + 256);
+    creature_turn_to_face_angle(thing, thing->move_angle_xy + 256);
     return 0;
 }
 
@@ -595,7 +595,7 @@ short creature_being_sacrificed(struct Thing *thing)
     if (cctrl->word_9A > 0)
     {
         // No flying while being sacrificed
-        award = creature_turn_to_face_angle(thing, thing->field_52 + 256);
+        award = creature_turn_to_face_angle(thing, thing->move_angle_xy + 256);
         thing->movement_flags &= ~TMvF_Flying;
         return 0;
     }

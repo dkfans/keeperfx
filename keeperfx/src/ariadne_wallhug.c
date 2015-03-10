@@ -614,7 +614,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
             navi->field_4 = 0;
             return 1;
         }
-        if (creatng->field_52 != navi->field_D) {
+        if (creatng->move_angle_xy != navi->field_D) {
             return 1;
         }
         angle = get_angle_of_wall_hug(creatng, 33, speed, a3);
@@ -754,7 +754,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
         navi->field_1[1] = 0;
         navi->field_1[2] = 0;
         navi->field_9 = 0;
-        if (get_angle_difference(creatng->field_52, navi->field_D) != 0) {
+        if (get_angle_difference(creatng->move_angle_xy, navi->field_D) != 0) {
             navi->navstate = 4;
             return 1;
         }
@@ -776,7 +776,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
         tmpos.x.val = subtile_coord_center(stl_x);
         tmpos.y.val = subtile_coord_center(stl_y);
         navi->field_D = get_angle_xy_to(&creatng->mappos, &tmpos);
-        if (get_angle_difference(creatng->field_52, navi->field_D) != 0) {
+        if (get_angle_difference(creatng->move_angle_xy, navi->field_D) != 0) {
             navi->navstate = 3;
             return 1;
         }
@@ -797,15 +797,15 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
         }
         nav_radius = thing_nav_sizexy(creatng) / 2;
         if (navi->field_1[0] == 1) {
-            i = (creatng->field_52 + LbFPMath_PI/4) / (LbFPMath_PI/2) - 1;
+            i = (creatng->move_angle_xy + LbFPMath_PI/4) / (LbFPMath_PI/2) - 1;
         } else {
-            i = (creatng->field_52 + LbFPMath_PI/4) / (LbFPMath_PI/2) + 1;
+            i = (creatng->move_angle_xy + LbFPMath_PI/4) / (LbFPMath_PI/2) + 1;
         }
         navi->pos_next.x.val += (384 - nav_radius) * small_around[i&3].delta_x;
         navi->pos_next.y.val += (384 - nav_radius) * small_around[i&3].delta_y;
-        i = (creatng->field_52 + LbFPMath_PI/4) / (LbFPMath_PI/2);
+        i = (creatng->move_angle_xy + LbFPMath_PI/4) / (LbFPMath_PI/2);
         navi->pos_next.x.val += (128) * small_around[i&3].delta_x;
-        i = (creatng->field_52) / (LbFPMath_PI/2);
+        i = (creatng->move_angle_xy) / (LbFPMath_PI/2);
         navi->pos_next.y.val += (128) * small_around[i&3].delta_y;
         navi->navstate = 7;
         return 1;
@@ -827,9 +827,9 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
             return 1;
         }
         if (navi->field_1[0] == 1)
-            angle = creatng->field_52 + LbFPMath_PI/2;
+            angle = creatng->move_angle_xy + LbFPMath_PI/2;
         else
-            angle = creatng->field_52 - LbFPMath_PI/2;
+            angle = creatng->move_angle_xy - LbFPMath_PI/2;
         navi->field_D = angle & LbFPMath_AngleMask;
         navi->navstate = 2;
         return 1;

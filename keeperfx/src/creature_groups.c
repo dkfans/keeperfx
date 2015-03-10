@@ -632,10 +632,10 @@ void leader_find_positions_for_followers(struct Thing *leadtng)
 
     int len_xv, len_yv;
     int len_xh, len_yh;
-    len_xv = LbSinL(leadtng->field_52 + LbFPMath_PI) << 8 >> 16;
-    len_yv = -((LbCosL(leadtng->field_52 + LbFPMath_PI) << 8) >> 8) >> 8;
-    len_xh = LbSinL(leadtng->field_52 - LbFPMath_PI/2) << 8 >> 16;
-    len_yh = -((LbCosL(leadtng->field_52 - LbFPMath_PI/2) << 8) >> 8) >> 8;
+    len_xv = LbSinL(leadtng->move_angle_xy + LbFPMath_PI) << 8 >> 16;
+    len_yv = -((LbCosL(leadtng->move_angle_xy + LbFPMath_PI) << 8) >> 8) >> 8;
+    len_xh = LbSinL(leadtng->move_angle_xy - LbFPMath_PI/2) << 8 >> 16;
+    len_yh = -((LbCosL(leadtng->move_angle_xy - LbFPMath_PI/2) << 8) >> 8) >> 8;
 
     int ih, iv, ivmax;
     ivmax = 2 * group_len;

@@ -367,7 +367,7 @@ long creature_can_move_to_combat(struct Thing *fightng, struct Thing *enmtng)
 {
   long result;
   result = get_thing_navigation_distance(fightng, &enmtng->mappos, 0);
-  if ( result == -1 || result == 2147483647 || result >= 5376 ) {
+  if ( result == -1 || result == LONG_MAX || result >= 5376 ) {
       return -1;
   }
   return result;
@@ -1782,7 +1782,7 @@ TbBool thing_in_field_of_view(struct Thing *thing, struct Thing *checktng)
     long angle, angdiff;
     crstat = creature_stats_get_from_thing(thing);
     angle = get_angle_xy_to(&thing->mappos, &checktng->mappos);
-    angdiff = get_angle_difference(thing->field_52, angle);
+    angdiff = get_angle_difference(thing->move_angle_xy, angle);
     return (abs(angdiff) < crstat->field_of_view);
 }
 

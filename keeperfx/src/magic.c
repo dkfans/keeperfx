@@ -1119,7 +1119,7 @@ TbResult magic_use_power_imp(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubt
     thing->veloc_push_add.y.val += ACTION_RANDOM(161) - 80;
     thing->veloc_push_add.z.val += 160;
     thing->state_flags |= TF1_PushAdd;
-    thing->field_52 = 0;
+    thing->move_angle_xy = 0;
     initialise_thing_state(thing, CrSt_ImpBirth);
     play_creature_sound(thing, 3, 2, 0);
     return Lb_SUCCESS;
