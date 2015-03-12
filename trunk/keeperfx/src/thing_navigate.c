@@ -50,7 +50,7 @@ DLLIMPORT long _DK_thing_covers_same_blocks_in_two_positions(struct Thing *creat
 }
 #endif
 /******************************************************************************/
-TbBool creature_can_navigate_to_with_storage_f(const struct Thing *creatng, struct Coord3d *pos, NaviRouteFlags flags, const char *func_name)
+TbBool creature_can_navigate_to_with_storage_f(const struct Thing *creatng, const struct Coord3d *pos, NaviRouteFlags flags, const char *func_name)
 {
     AriadneReturn aret;
     NAVIDBG(8,"%s: Route for %s index %d from %3d,%3d to %3d,%3d", func_name, thing_model_name(creatng),(int)creatng->index,
