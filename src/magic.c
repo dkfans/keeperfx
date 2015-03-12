@@ -1646,7 +1646,36 @@ void magic_power_hold_audience_update(PlayerNumber plyr_idx)
     SYNCDBG(19,"Finished");
 }
 
-int affect_nearby_creatures_by_power_call_to_arms(PlayerNumber plyr_idx, long range, struct Coord3d * pos)
+TbBool affect_creature_by_power_call_to_arms(struct Thing *creatng, long range, const struct Coord3d * pos)
+{
+    int nstat;
+    nstat = get_creature_state_besides_interruptions(creatng);
+    struct StateInfo *stati;
+    stati = get_thing_state_info_num(nstat);
+    if (!creature_affected_by_call_to_arms(creatng) || stati->react_to_cta)
+    {
+        if (stati->react_to_cta
+          && (creature_affected_by_call_to_arms(creatng) || get_2d_box_distance(&creatng->mappos, pos) < range))
+        {
+            creature_mark_if_woken_up(creatng);
+            if (creature_can_navigate_to_with_storage(creatng, pos, NavRtF_Default))
+            {
+                if (external_set_thing_state(creatng, CrSt_ArriveAtCallToArms))
+                {
+                    setup_person_move_to_position(creatng, pos->x.stl.num, pos->y.stl.num, 0);
+                    creatng->continue_state = CrSt_ArriveAtCallToArms;
+                    struct CreatureControl *cctrl;
+                    cctrl = creature_control_get_from_thing(creatng);
+                    cctrl->spell_flags |= CSAfF_CalledToArms;
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+int affect_nearby_creatures_by_power_call_to_arms(PlayerNumber plyr_idx, long range, const struct Coord3d * pos)
 {
     struct Dungeon *dungeon;
     unsigned long k;
@@ -1673,27 +1702,8 @@ int affect_nearby_creatures_by_power_call_to_arms(PlayerNumber plyr_idx, long ra
         if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody(thing) &&
             !creature_is_being_unconscious(thing) && !creature_is_dying(thing))
         {
-            int nstat;
-            nstat = get_creature_state_besides_interruptions(thing);
-            struct StateInfo *stati;
-            stati = get_thing_state_info_num(nstat);
-            if (!creature_affected_by_call_to_arms(thing) || stati->react_to_cta)
-            {
-                if (stati->react_to_cta
-                  && (((cctrl->spell_flags & CSAfF_CalledToArms) != 0) || get_2d_box_distance(&thing->mappos, pos) < range))
-                {
-                    creature_mark_if_woken_up(thing);
-                    if (creature_can_navigate_to_with_storage(thing, pos, NavRtF_Default))
-                    {
-                        if (external_set_thing_state(thing, CrSt_ArriveAtCallToArms))
-                        {
-                            setup_person_move_to_position(thing, pos->x.stl.num, pos->y.stl.num, 0);
-                            thing->continue_state = CrSt_ArriveAtCallToArms;
-                            cctrl->spell_flags |= CSAfF_CalledToArms;
-                            n++;
-                        }
-                    }
-                }
+            if (affect_creature_by_power_call_to_arms(thing, range, pos)) {
+                n++;
             }
         }
         // Thing list loop body ends

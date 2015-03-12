@@ -1217,9 +1217,7 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
     }
     if (thing_is_creature(thing))
     {
-        if (creature_affected_by_call_to_arms(thing)) {
-            creature_stop_affected_by_call_to_arms(thing);
-        }
+        reset_creature_if_affected_by_cta(thing);
         clear_creature_instance(thing);
         if (!external_set_thing_state(thing, CrSt_InPowerHand)) {
             return false;
