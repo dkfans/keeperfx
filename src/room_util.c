@@ -84,14 +84,14 @@ void room_update_surrounding_flames(struct Room *room, const struct Coord3d *pos
 void process_room_surrounding_flames(struct Room *room)
 {
     struct Coord3d pos;
-    long x,y;
+    MapSlabCoord x,y;
     long i;
     SYNCDBG(19,"Starting");
-    x = 3 * slb_num_decode_x(room->field_41);
-    y = 3 * slb_num_decode_y(room->field_41);
+    x = slb_num_decode_x(room->field_41);
+    y = slb_num_decode_y(room->field_41);
     i = 3 * room->field_43 + room->flame_stl;
-    pos.x.val = subtile_coord_center((x+1) + room_spark_offset[i].delta_x);
-    pos.y.val = subtile_coord_center((y+1) + room_spark_offset[i].delta_y);
+    pos.x.val = subtile_coord_center(slab_subtile_center(x)) + room_spark_offset[i].delta_x;
+    pos.y.val = subtile_coord_center(slab_subtile_center(y)) + room_spark_offset[i].delta_y;
     pos.z.val = 0;
     // Create new element
     if (room->owner == game.neutral_player_num)
