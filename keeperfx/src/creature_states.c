@@ -1719,9 +1719,9 @@ short creature_doing_nothing(struct Thing *creatng)
     }
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(creatng);
-    if (!creature_has_lair_room(creatng) && creature_can_do_healing_sleep(creatng))
+    if (!creature_has_lair_room(creatng) && creature_can_do_healing_sleep(creatng) && creature_free_for_sleep(creatng, CrSt_CreatureWantsAHome))
     {
-        if (game.play_gameturn - cctrl->tasks_check_turn > 128)
+        if ((game.play_gameturn - cctrl->tasks_check_turn > 128))
         {
             cctrl->tasks_check_turn = game.play_gameturn;
             struct Room *room;

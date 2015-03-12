@@ -70,7 +70,7 @@ TbBool person_move_somewhere_adjacent_in_room_f(struct Thing *thing, const struc
 TbBool creature_can_travel_over_lava(const struct Thing *creatng);
 TbBool creature_can_navigate_to_f(const struct Thing *thing, struct Coord3d *pos, NaviRouteFlags flags, const char *func_name);
 #define creature_can_navigate_to(thing,pos,flags) creature_can_navigate_to_f(thing,pos,flags,__func__)
-TbBool creature_can_navigate_to_with_storage_f(const struct Thing *crtng, struct Coord3d *pos, NaviRouteFlags flags, const char *func_name);
+TbBool creature_can_navigate_to_with_storage_f(const struct Thing *crtng, const struct Coord3d *pos, NaviRouteFlags flags, const char *func_name);
 #define creature_can_navigate_to_with_storage(crtng,pos,flags) creature_can_navigate_to_with_storage_f(crtng,pos,flags,__func__)
 TbBool creature_can_get_to_dungeon(struct Thing *thing, PlayerNumber plyr_idx);
 struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng);
