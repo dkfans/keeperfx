@@ -2854,12 +2854,8 @@ short creature_take_salary(struct Thing *creatng)
     set_start_state(creatng);
     {
         struct Thing *efftng;
-        efftng = create_effect_element(&creatng->mappos, 0x29, creatng->owner);
-        if (!thing_is_invalid(efftng))
-        {
-            efftng->effect.number = salary;
-            thing_play_sample(efftng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-        }
+        efftng = create_price_effect(&creatng->mappos, creatng->owner, salary);
+        thing_play_sample(efftng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     }
     dungeon->lvstats.salary_cost += salary;
     return 1;
