@@ -120,7 +120,7 @@ struct Thing {
       struct {
         long number;
         short word_17e;
-      } effect;
+      } price;
       struct {
         unsigned char dexterity;
         short damage;

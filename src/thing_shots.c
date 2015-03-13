@@ -110,7 +110,9 @@ TbBool detonate_shot(struct Thing *shotng)
         long dist, damage;
         dist = compute_creature_attack_range(shotst->area_range*COORD_PER_STL, crstat->luck, cctrl->explevel);
         damage = compute_creature_attack_spell_damage(shotst->area_damage, crstat->luck, cctrl->explevel);
-        explosion_affecting_area(castng, &shotng->mappos, dist, damage, shotst->area_blow, shotst->area_hit_type, shotst->damage_type);
+        HitTargetFlags hit_targets;
+        hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
+        explosion_affecting_area(castng, &shotng->mappos, dist, damage, shotst->area_blow, hit_targets, shotst->damage_type);
     }
     //TODO CONFIG shot model dependency, make config option instead
     switch (shotng->model)
@@ -1124,8 +1126,8 @@ struct Thing *get_thing_collided_with_at_satisfying_filter(struct Thing *shotng,
 /**
  * Processes hitting another thing.
  *
- * @param thing The thing to be moved.
- * @param pos Next position of the thing.
+ * @param shotng The thing to be moved.
+ * @param nxpos Next position of the thing.
  * @return Gives true if the shot hit something and was destroyed.
  *     If the shot wasn't detonated, then the function returns false.
  * @note This function may delete the thing given in parameter.

@@ -234,9 +234,9 @@ TbBool destroy_effect_thing(struct Thing *thing);
 struct Thing *create_special_used_effect(const struct Coord3d *pos, long plyr_idx);
 struct Thing *create_price_effect(const struct Coord3d *pos, long plyr_idx, long price);
 
-TbBool area_effect_can_affect_thing(const struct Thing *thing, long hit_type, PlayerNumber shot_owner);
-long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos, MapSubtlCoord range,
-    HitPoints max_damage, long blow_strength, ThingHitType hit_type, DamageType damage_type);
+TbBool area_effect_can_affect_thing(const struct Thing *thing, HitTargetFlags hit_targets, PlayerNumber shot_owner);
+long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos, MapCoord max_dist,
+    HitPoints max_damage, long blow_strength, HitTargetFlags hit_targets, DamageType damage_type);
 
 /******************************************************************************/
 #ifdef __cplusplus
