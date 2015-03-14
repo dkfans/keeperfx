@@ -52,13 +52,14 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwmodel,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags);
 TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing, PowerKind pwkind);
 
-void slap_creature(struct PlayerInfo *player, struct Thing *thing);
-void update_power_sight_explored(struct PlayerInfo *player);
 long compute_power_price(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel);
 long find_spell_age_percentage(PlayerNumber plyr_idx, PowerKind pwkind);
 TbBool find_power_cast_place(PlayerNumber plyr_idx, PowerKind pwkind, struct Coord3d *pos);
 TbBool pay_for_spell(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel);
 long thing_affected_by_spell(const struct Thing *thing, long spkind);
+int get_power_overcharge_level(struct PlayerInfo *player);
+TbBool update_power_overcharge(struct PlayerInfo *player, int spl_idx);
+void process_dungeon_power_magic(void);
 
 TbResult magic_use_power_chicken(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags);
 TbResult magic_use_power_disease(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags);
@@ -87,9 +88,9 @@ TbResult magic_use_available_power_on_subtile(PlayerNumber plyr_idx, PowerKind s
 TbResult magic_use_available_power_on_level(PlayerNumber plyr_idx, PowerKind spl_idx, unsigned short splevel);
 void directly_cast_spell_on_thing(PlayerNumber plyr_idx, PowerKind spl_idx, ThingIndex thing_idx, long splevel);
 
-int get_power_overcharge_level(struct PlayerInfo *player);
-TbBool update_power_overcharge(struct PlayerInfo *player, int spl_idx);
-void process_dungeon_power_magic(void);
+void slap_creature(struct PlayerInfo *player, struct Thing *thing);
+void update_power_sight_explored(struct PlayerInfo *player);
+TbBool update_creature_influenced_by_call_to_arms_at_pos(struct Thing *creatng, const struct Coord3d *cta_pos);
 /******************************************************************************/
 #ifdef __cplusplus
 }
