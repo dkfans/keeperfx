@@ -200,11 +200,9 @@ TbBool creature_has_job(const struct Thing *thing, CreatureJob job_kind)
 
 TbBool creature_free_for_anger_job(struct Thing *creatng)
 {
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(creatng);
     return !creature_affected_by_call_to_arms(creatng)
-        && (!player_uses_power_obey(creatng->owner))
-        && ((cctrl->spell_flags & CSAfF_Chicken) == 0)
+        && !player_uses_power_obey(creatng->owner)
+        && !creature_affected_by_spell(creatng, SplK_Chicken)
         && !thing_is_picked_up(creatng) && !is_thing_directly_controlled(creatng);
 }
 

@@ -54,6 +54,7 @@
 #include "player_computer.h"
 #include "lvl_script.h"
 #include "thing_traps.h"
+#include "magic.h"
 #include "sounds.h"
 #include "game_legacy.h"
 
@@ -1733,6 +1734,20 @@ short creature_doing_nothing(struct Thing *creatng)
                 return 1;
             }
             update_cannot_find_room_wth_spare_capacity_event(creatng->owner, creatng, RoK_LAIR);
+        }
+    }
+    if (creature_affected_by_call_to_arms(creatng))
+    {
+        struct Dungeon *dungeon;
+        dungeon = get_players_num_dungeon(creatng->owner);
+        struct Coord3d cta_pos;
+        cta_pos.x.val = subtile_coord_center(dungeon->cta_stl_x);
+        cta_pos.y.val = subtile_coord_center(dungeon->cta_stl_y);
+        cta_pos.z.val = get_floor_height_at(&cta_pos);
+        if (update_creature_influenced_by_call_to_arms_at_pos(creatng, &cta_pos))
+        {
+            SYNCDBG(8,"The %s index %d is called to arms",thing_model_name(creatng),creatng->index);
+            return 1;
         }
     }
     if ((cctrl->job_assigned != Job_NULL) && (game.play_gameturn - cctrl->job_assigned_check_turn > 128))

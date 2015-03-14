@@ -1424,6 +1424,39 @@ TbResult magic_use_power_cave_in(PlayerNumber plyr_idx, MapSubtlCoord stl_x, Map
     return Lb_SUCCESS;
 }
 
+/**
+ * Changes creature state and marks it as being affected by CTA spell.
+ *
+ * @param cta_pos Position where the CTA spell is casted.
+ * @param creatng The target creature thing.
+ * @return
+ */
+TbBool update_creature_influenced_by_call_to_arms_at_pos(struct Thing *creatng, const struct Coord3d *cta_pos)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    if (!creature_can_navigate_to_with_storage(creatng, cta_pos, NavRtF_Default))
+    {
+        cctrl->spell_flags &= ~CSAfF_CalledToArms;
+        return false;
+    }
+    if (!creature_is_called_to_arms(creatng))
+    {
+        if (!external_set_thing_state(creatng, CrSt_ArriveAtCallToArms))
+        {
+            return false;
+        }
+    }
+    setup_person_move_to_coord(creatng, cta_pos, NavRtF_Default);
+    creatng->continue_state = CrSt_ArriveAtCallToArms;
+    cctrl->spell_flags |= CSAfF_CalledToArms;
+    if ((cctrl->flgfield_1 & CCFlg_NoCompControl) != 0) {
+        WARNLOG("The %s index %d is called to arms with no comp control, fixing",thing_model_name(creatng),(int)creatng->index);
+        cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
+    }
+    return true;
+}
+
 long update_creatures_influenced_by_call_to_arms(PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
@@ -1453,43 +1486,18 @@ long update_creatures_influenced_by_call_to_arms(PlayerNumber plyr_idx)
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        if (!thing_is_picked_up(thing))
+        if (!thing_is_picked_up(thing) && !creature_is_being_unconscious(thing))
         {
-            if (!creature_is_being_unconscious(thing) && creature_affected_by_call_to_arms(thing))
+            if (creature_affected_by_call_to_arms(thing))
             {
                 struct StateInfo *stati;
                 stati = get_thing_state_info_num(get_creature_state_besides_interruptions(thing));
                 if (stati->react_to_cta || creature_is_called_to_arms(thing))
                 {
-                    if (creature_can_navigate_to_with_storage(thing, &cta_pos, NavRtF_Default))
-                    {
-                        if (creature_is_called_to_arms(thing))
-                        {
-                            setup_person_move_to_coord(thing, &cta_pos, NavRtF_Default);
-                            thing->continue_state = CrSt_ArriveAtCallToArms;
-                            if ((cctrl->flgfield_1 & CCFlg_NoCompControl) != 0) {
-                                WARNLOG("The %s index %d is re-called to arms with no comp control, fixing",thing_model_name(thing),(int)thing->index);
-                                cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
-                            }
-                            count++;
-                        } else
-                        if (external_set_thing_state(thing, CrSt_ArriveAtCallToArms))
-                        {
-                            setup_person_move_to_coord(thing, &cta_pos, NavRtF_Default);
-                            thing->continue_state = CrSt_ArriveAtCallToArms;
-                            if ((cctrl->flgfield_1 & CCFlg_NoCompControl) != 0) {
-                                WARNLOG("The %s index %d is first called to arms with no comp control, fixing",thing_model_name(thing),(int)thing->index);
-                                cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
-                            }
-                            count++;
-                        } else
-                        {
-                            set_start_state(thing);
-                        }
-                    } else
-                    {
+                    if (update_creature_influenced_by_call_to_arms_at_pos(thing, &cta_pos)) {
+                        count++;
+                    } else {
                         set_start_state(thing);
-                        cctrl->spell_flags &= ~CSAfF_CalledToArms;
                     }
                 }
             }
@@ -1646,7 +1654,7 @@ void magic_power_hold_audience_update(PlayerNumber plyr_idx)
     SYNCDBG(19,"Finished");
 }
 
-TbBool affect_creature_by_power_call_to_arms(struct Thing *creatng, long range, const struct Coord3d * pos)
+TbBool affect_creature_by_power_call_to_arms(struct Thing *creatng, long range, const struct Coord3d *cta_pos)
 {
     int nstat;
     nstat = get_creature_state_besides_interruptions(creatng);
@@ -1655,20 +1663,11 @@ TbBool affect_creature_by_power_call_to_arms(struct Thing *creatng, long range, 
     if (!creature_affected_by_call_to_arms(creatng) || stati->react_to_cta)
     {
         if (stati->react_to_cta
-          && (creature_affected_by_call_to_arms(creatng) || get_2d_box_distance(&creatng->mappos, pos) < range))
+          && (creature_affected_by_call_to_arms(creatng) || get_2d_box_distance(&creatng->mappos, cta_pos) < range))
         {
             creature_mark_if_woken_up(creatng);
-            if (creature_can_navigate_to_with_storage(creatng, pos, NavRtF_Default))
-            {
-                if (external_set_thing_state(creatng, CrSt_ArriveAtCallToArms))
-                {
-                    setup_person_move_to_position(creatng, pos->x.stl.num, pos->y.stl.num, 0);
-                    creatng->continue_state = CrSt_ArriveAtCallToArms;
-                    struct CreatureControl *cctrl;
-                    cctrl = creature_control_get_from_thing(creatng);
-                    cctrl->spell_flags |= CSAfF_CalledToArms;
-                    return true;
-                }
+            if (update_creature_influenced_by_call_to_arms_at_pos(creatng, cta_pos)) {
+                return true;
             }
         }
     }
@@ -1742,11 +1741,11 @@ void process_magic_power_call_to_arms(PlayerNumber plyr_idx)
     {
         long range;
         range = subtile_coord(pwrdynst->strength[dungeon->cta_splevel],0);
-        struct Coord3d pos2;
-        pos2.x.val = subtile_coord_center(dungeon->cta_stl_x);
-        pos2.y.val = subtile_coord_center(dungeon->cta_stl_y);
-        pos2.z.val = subtile_coord(1,0);
-        affect_nearby_creatures_by_power_call_to_arms(plyr_idx, range, &pos2);
+        struct Coord3d cta_pos;
+        cta_pos.x.val = subtile_coord_center(dungeon->cta_stl_x);
+        cta_pos.y.val = subtile_coord_center(dungeon->cta_stl_y);
+        cta_pos.z.val = subtile_coord(1,0);
+        affect_nearby_creatures_by_power_call_to_arms(plyr_idx, range, &cta_pos);
     }
 }
 
