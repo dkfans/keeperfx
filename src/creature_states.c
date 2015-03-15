@@ -4822,6 +4822,9 @@ void process_person_moods_and_needs(struct Thing *thing)
     if (process_creature_needs_to_heal_critical(thing, crstat)) {
         SYNCDBG(17,"The %s index %d has a critical need to heal",thing_model_name(thing),(long)thing->index);
     } else
+    if (creature_affected_by_call_to_arms(thing)) {
+        SYNCDBG(17,"The %s index %d is called to arms, most needs suspended",thing_model_name(thing),(long)thing->index);
+    } else
     if (process_creature_needs_a_wage(thing, crstat)) {
         SYNCDBG(17,"The %s index %d has a need to get its wage",thing_model_name(thing),(long)thing->index);
     } else
