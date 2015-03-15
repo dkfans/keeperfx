@@ -1437,7 +1437,7 @@ TbBool update_creature_influenced_by_call_to_arms_at_pos(struct Thing *creatng, 
     cctrl = creature_control_get_from_thing(creatng);
     if (!creature_can_navigate_to_with_storage(creatng, cta_pos, NavRtF_Default))
     {
-        cctrl->spell_flags &= ~CSAfF_CalledToArms;
+        creature_stop_affected_by_call_to_arms(creatng);
         return false;
     }
     if (!creature_is_called_to_arms(creatng))
