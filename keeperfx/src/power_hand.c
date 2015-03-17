@@ -27,6 +27,7 @@
 
 #include "magic.h"
 #include "power_specials.h"
+#include "power_process.h"
 #include "player_data.h"
 #include "dungeon_data.h"
 #include "room_garden.h"

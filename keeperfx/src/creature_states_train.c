@@ -311,7 +311,7 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
     long i;
     cctrl = creature_control_get_from_thing(thing);
     SYNCDBG(8,"Starting %s mode %d",thing_model_name(thing),(int)cctrl->training.mode);
-    cctrl->field_4A = 0;
+    cctrl->annoy_untrained_turn = 0;
     switch (cctrl->training.mode)
     {
     case CrTrMd_SearchForTrainPost:

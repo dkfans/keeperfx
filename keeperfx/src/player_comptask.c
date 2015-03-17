@@ -51,6 +51,7 @@
 #include "ariadne_wallhug.h"
 #include "slab_data.h"
 #include "power_hand.h"
+#include "power_process.h"
 #include "game_legacy.h"
 
 #include "keeperfx.hpp"

@@ -4720,7 +4720,7 @@ long anger_process_creature_anger(struct Thing *creatng, const struct CreatureSt
       if (game.play_gameturn - cctrl->sulking_sleep_check_turn > 128)
       {
           cctrl->sulking_sleep_check_turn = game.play_gameturn;
-          // If creature has lair, try to go go to it
+          // If creature has lair, try to go to it
           if (anger_get_creature_anger_type(creatng) == AngR_NoLair)
           {
               if (external_set_thing_state(creatng, CrSt_CreatureGoingHomeToSleep))
@@ -4772,11 +4772,11 @@ long process_training_need(struct Thing *thing, const struct CreatureStats *crst
     if (creature_is_training(thing)) {
         return 0;
     }
-    cctrl->field_4A++;
-    if (cctrl->field_4A >= crstat->annoy_untrained_time)
+    cctrl->annoy_untrained_turn++;
+    if (cctrl->annoy_untrained_turn >= crstat->annoy_untrained_time)
     {
       anger_apply_anger_to_creature(thing, crstat->annoy_untrained, AngR_Other, 1);
-      cctrl->field_4A = 0;
+      cctrl->annoy_untrained_turn = 0;
     }
     return 0;
 }
