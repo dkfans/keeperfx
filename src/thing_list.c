@@ -1949,16 +1949,6 @@ long count_player_list_creatures_of_model(long thing_idx, ThingModel crmodel)
     return count;
 }
 
-TbBool reset_creature_if_affected_by_cta(struct Thing *thing)
-{
-    if (creature_affected_by_call_to_arms(thing))
-    {
-        creature_stop_affected_by_call_to_arms(thing);
-        return true;
-    }
-    return false;
-}
-
 TbBool reset_all_players_creatures_affected_by_cta(PlayerNumber plyr_idx)
 {
     SYNCDBG(3,"Processing all player %d creatures",plyr_idx);

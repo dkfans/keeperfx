@@ -433,6 +433,16 @@ void creature_stop_affected_by_call_to_arms(struct Thing *thing)
     }
 }
 
+TbBool reset_creature_if_affected_by_cta(struct Thing *thing)
+{
+    if (creature_affected_by_call_to_arms(thing))
+    {
+        creature_stop_affected_by_call_to_arms(thing);
+        return true;
+    }
+    return false;
+}
+
 void turn_off_power_call_to_arms(PlayerNumber plyr_idx)
 {
     //_DK_turn_off_call_to_arms(plyr_idx);
