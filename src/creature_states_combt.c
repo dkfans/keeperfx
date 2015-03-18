@@ -375,7 +375,7 @@ long creature_can_move_to_combat(struct Thing *fightng, struct Thing *enmtng)
 
 CrAttackType creature_can_have_combat_with_creature(struct Thing *fightng, struct Thing *enmtng, long dist, long move_on_ground, long set_combat)
 {
-    SYNCDBG(19,"Starting for %s vs %s",thing_model_name(fightng),thing_model_name(enmtng));
+    SYNCDBG(19,"Starting for %s index %d vs %s index %d",thing_model_name(fightng),(int)fightng->index,thing_model_name(enmtng),(int)enmtng->index);
     TRACE_THING(fightng);
     TRACE_THING(enmtng);
     long can_see;
@@ -430,7 +430,7 @@ void remove_thing_from_battle_list(struct Thing *thing)
     struct CreatureControl *cctrl;
     unsigned short partner_id;
     struct CreatureBattle *battle;
-    SYNCDBG(9,"Starting for %s",thing_model_name(thing));
+    SYNCDBG(9,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
     cctrl = creature_control_get_from_thing(thing);
     if (!thing_is_creature(thing) || creature_control_invalid(cctrl)) {
       ERRORLOG("Creature should have been already removed due to death");
@@ -489,7 +489,7 @@ void remove_thing_from_battle_list(struct Thing *thing)
     if (battle->fighters_num > 0) {
         battle->fighters_num--;
     } else {
-        ERRORLOG("Removing %s from battle, but counter is 0",thing_model_name(thing));
+        ERRORLOG("Removing %s index %d from battle, but counter is 0",thing_model_name(thing),(int)thing->index);
     }
     SYNCDBG(19,"Finished");
 }
@@ -1075,14 +1075,14 @@ long remove_all_ranged_combat_attackers(struct Thing *victmtng)
 long add_ranged_attacker(struct Thing *fighter, struct Thing *enemy)
 {
     struct CreatureControl *figctrl;
-    SYNCDBG(18,"Starting for %s and %s",thing_model_name(fighter),thing_model_name(enemy));
+    SYNCDBG(18,"Starting for %s index %d and %s index %d",thing_model_name(fighter),(int)fighter->index,thing_model_name(enemy),(int)enemy->index);
     TRACE_THING(fighter);
     TRACE_THING(enemy);
     figctrl = creature_control_get_from_thing(fighter);
     if (figctrl->combat_flags != 0)
     {
         if ((figctrl->combat_flags & CmbtF_Ranged) != 0) {
-            SYNCDBG(8,"The %s in ranged combat already - no action",thing_model_name(fighter));
+            SYNCDBG(8,"The %s index %d in ranged combat already - no action",thing_model_name(fighter),(int)fighter->index);
             return false;
         }
         SYNCDBG(8,"The %s index %d in combat already - adding ranged",thing_model_name(fighter),(int)fighter->index);
@@ -1117,14 +1117,14 @@ long add_ranged_attacker(struct Thing *fighter, struct Thing *enemy)
 long add_melee_attacker(struct Thing *fighter, struct Thing *enemy)
 {
     struct CreatureControl *figctrl;
-    SYNCDBG(18,"Starting for %s and %s",thing_model_name(fighter),thing_model_name(enemy));
+    SYNCDBG(18,"Starting for %s index %d and %s index %d",thing_model_name(fighter),(int)fighter->index,thing_model_name(enemy),(int)enemy->index);
     TRACE_THING(fighter);
     TRACE_THING(enemy);
     figctrl = creature_control_get_from_thing(fighter);
     if (figctrl->combat_flags != 0)
     {
         if ((figctrl->combat_flags & CmbtF_Melee) != 0) {
-            SYNCDBG(8,"The %s in melee combat already - no action",thing_model_name(fighter));
+            SYNCDBG(8,"The %s index %d in melee combat already - no action",thing_model_name(fighter),(int)fighter->index);
             return false;
         }
         SYNCDBG(8,"The %s index %d in combat already - adding melee",thing_model_name(fighter),(int)fighter->index);
@@ -1159,7 +1159,7 @@ long add_melee_attacker(struct Thing *fighter, struct Thing *enemy)
 TbBool add_waiting_attacker(struct Thing *fighter, struct Thing *enemy)
 {
     struct CreatureControl *figctrl;
-    SYNCDBG(18,"Starting for %s and %s",thing_model_name(fighter),thing_model_name(enemy));
+    SYNCDBG(18,"Starting for %s index %d and %s index %d",thing_model_name(fighter),(int)fighter->index,thing_model_name(enemy),(int)enemy->index);
     figctrl = creature_control_get_from_thing(fighter);
     if (figctrl->combat_flags) {
         SYNCDBG(7,"The %s index %d in combat already - waiting",thing_model_name(fighter),(int)fighter->index);
@@ -1184,7 +1184,7 @@ TbBool set_creature_combat_state(struct Thing *fighter, struct Thing *enemy, lon
     struct CreatureControl *figctrl;
     struct CreatureControl *enmctrl;
     struct CreatureStats *crstat;
-    SYNCDBG(18,"Starting for %s and %s",thing_model_name(fighter),thing_model_name(enemy));
+    SYNCDBG(18,"Starting for %s index %d and %s index %d",thing_model_name(fighter),(int)fighter->index,thing_model_name(enemy),(int)enemy->index);
     figctrl = creature_control_get_from_thing(fighter);
     enmctrl = creature_control_get_from_thing(enemy);
     {
@@ -1261,7 +1261,7 @@ TbBool set_creature_combat_state(struct Thing *fighter, struct Thing *enemy, lon
 long set_creature_in_combat_to_the_death(struct Thing *fighter, struct Thing *enemy, long combat_kind)
 {
     struct CreatureControl *cctrl;
-    SYNCDBG(8,"Starting for %s and %s",thing_model_name(fighter),thing_model_name(enemy));
+    SYNCDBG(8,"Starting for %s index %d and %s index %d",thing_model_name(fighter),(int)fighter->index,thing_model_name(enemy),(int)enemy->index);
     cctrl = creature_control_get_from_thing(fighter);
     if (creature_control_invalid(cctrl)) {
         ERRORLOG("Invalid creature control");
@@ -1276,7 +1276,7 @@ long set_creature_in_combat_to_the_death(struct Thing *fighter, struct Thing *en
     }
     if (!set_creature_combat_state(fighter, enemy, combat_kind))
     {
-        WARNLOG("Couldn't setup combat state for %s and %s",thing_model_name(fighter),thing_model_name(enemy));
+        WARNLOG("Couldn't setup combat state for %s index %d and %s index %d",thing_model_name(fighter),(int)fighter->index,thing_model_name(enemy),(int)enemy->index);
         set_start_state(fighter);
         return false;
     }
@@ -1700,7 +1700,7 @@ long creature_is_most_suitable_for_combat(struct Thing *thing, struct Thing *enm
 CrAttackType check_for_valid_combat(struct Thing *fightng, struct Thing *enmtng)
 {
     struct CreatureControl *cctrl;
-    SYNCDBG(19,"Starting for %s vs %s",thing_model_name(fightng),thing_model_name(enmtng));
+    SYNCDBG(19,"Starting for %s index %d vs %s index %d",thing_model_name(fightng),(int)fightng->index,thing_model_name(enmtng),(int)enmtng->index);
     cctrl = creature_control_get_from_thing(fightng);
     CrAttackType attack_type;
     attack_type = cctrl->byte_A7;
@@ -1717,7 +1717,7 @@ CrAttackType check_for_valid_combat(struct Thing *fightng, struct Thing *enmtng)
 
 long combat_type_is_choice_of_creature(struct Thing *thing, long cmbtyp)
 {
-    SYNCDBG(19,"Starting for %s",thing_model_name(thing));
+    SYNCDBG(19,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
     //return _DK_combat_type_is_choice_of_creature(thing, cmbtyp);
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
@@ -2091,14 +2091,15 @@ TbBool creature_fighting_is_occupying_my_position(struct Thing *thing, struct Co
 }
 
 #define POSITION_FIND_TRIES 18
-long creature_move_to_a_space_around_enemy(struct Thing *thing, struct Thing *enmtng, long enm_distance, CrtrStateId ncrstate)
+long creature_move_to_a_space_around_enemy(struct Thing *creatng, struct Thing *enmtng, long enm_distance, CrtrStateId ncrstate)
 {
-    long enmradius;
-    enmradius = enm_distance + (thing->clipbox_size_xy + enmtng->clipbox_size_xy) / 2;
+    long req_distance;
+    req_distance = enm_distance + (creatng->clipbox_size_xy + enmtng->clipbox_size_xy) / 2;
+    // This will be out new position
     struct Coord3d pos;
-    pos.x.val = thing->mappos.x.val;
-    pos.y.val = thing->mappos.y.val;
-    pos.z.val = thing->mappos.z.val;
+    pos.x.val = creatng->mappos.x.val;
+    pos.y.val = creatng->mappos.y.val;
+    pos.z.val = creatng->mappos.z.val;
     int i;
     for (i = 0; i < POSITION_FIND_TRIES; i++)
     {
@@ -2109,49 +2110,56 @@ long creature_move_to_a_space_around_enemy(struct Thing *thing, struct Thing *en
         {
             int calc_idx;
             calc_idx = angle_dt / (LbFPMath_PI/8);
-            pos.x.val += (pos_calcs[calc_idx][0] << 7);
-            pos.y.val += (pos_calcs[calc_idx][1] << 7);
+            pos.x.val += 128 * pos_calcs[calc_idx][0];
+            pos.y.val += 128 * pos_calcs[calc_idx][1];
             pos.z.val = 0;
-            if (enmtng->mappos.x.val - enmradius > pos.x.val) {
-                pos.x.val -= enmradius;
+
+            if (pos.x.val < enmtng->mappos.x.val - req_distance)
+            {
+                pos.x.val = enmtng->mappos.x.val - req_distance;
             } else
-            if (enmtng->mappos.x.val + enmradius < pos.x.val) {
-                pos.x.val += enmradius;
+            if (pos.x.val > enmtng->mappos.x.val + req_distance)
+            {
+                pos.x.val = req_distance + enmtng->mappos.x.val;
             }
-            if (enmtng->mappos.y.val - enmradius > pos.y.val) {
-                pos.y.val -= enmradius;
+
+            if (pos.y.val < enmtng->mappos.y.val - req_distance)
+            {
+                pos.y.val = enmtng->mappos.y.val - req_distance;
             } else
-            if (enmtng->mappos.y.val + enmradius < pos.y.val) {
-                pos.y.val += enmradius;
+            if (pos.y.val > enmtng->mappos.y.val + req_distance)
+            {
+                pos.y.val = req_distance + enmtng->mappos.y.val;
             }
+
             angle_dt = get_angle_xy_to(&enmtng->mappos, &pos);
         }
         while (get_angle_difference(angle_final, angle_dt) < LbFPMath_PI/8);
         // Update Z coord
-        pos.z.val = get_thing_height_at(thing, &pos);
+        pos.z.val = get_thing_height_at(creatng, &pos);
         // Check if we can accept that position
-        if (!thing_in_wall_at(thing, &pos) && !terrain_toxic_for_creature_at_position(thing, pos.x.stl.num, pos.y.stl.num))
+        if (!thing_in_wall_at(creatng, &pos) && !terrain_toxic_for_creature_at_position(creatng, pos.x.stl.num, pos.y.stl.num))
           break;
     }
     if (i == POSITION_FIND_TRIES)
     {
-        ERRORLOG("The %s has stuck finding a melee pos vs %s - tries count %d", thing_model_name(thing), thing_model_name(enmtng), POSITION_FIND_TRIES);
+        ERRORLOG("The %s index %d has stuck finding a melee pos vs %s index %d - tries count %d", thing_model_name(creatng),(int)creatng->index,thing_model_name(enmtng),(int)enmtng->index,POSITION_FIND_TRIES);
         return 0;
     }
-    if (!setup_person_move_to_coord(thing, &pos, 0)) {
+    if (!setup_person_move_to_coord(creatng, &pos, 0)) {
         return 0;
     }
-    thing->continue_state = ncrstate;
+    creatng->continue_state = ncrstate;
     return 1;
 }
 #undef POSITION_FIND_TRIES
 
 long old_combat_move(struct Thing *thing, struct Thing *enmtng, long enm_distance, CrtrStateId ncrstate)
 {
-    //return _DK_old_combat_move(thing, enmtng, a3, a4);
+    //return _DK_old_combat_move(thing, enmtng, enm_distance, ncrstate);
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
-    if ((cctrl->combat_flags & 0x10) != 0)
+    if ((cctrl->combat_flags & CmbtF_DoorFight) != 0)
     {
         creature_turn_to_face(thing, &enmtng->mappos);
         return 0;
@@ -2341,7 +2349,7 @@ TbBool change_current_combat(struct Thing *fighter, struct Thing *enemy, long co
 {
     struct CreatureControl *figctrl;
     struct Thing *oldenemy;
-    SYNCDBG(18,"Starting for %s and %s",thing_model_name(fighter),thing_model_name(enemy));
+    SYNCDBG(18,"Starting for %s index %d and %s index %d",thing_model_name(fighter),(int)fighter->index,thing_model_name(enemy),(int)enemy->index);
     TRACE_THING(fighter);
     TRACE_THING(enemy);
     figctrl = creature_control_get_from_thing(fighter);
@@ -2353,7 +2361,7 @@ TbBool change_current_combat(struct Thing *fighter, struct Thing *enemy, long co
     TRACE_THING(oldenemy);
     remove_attacker(fighter, oldenemy);
     if ( !set_creature_combat_state(fighter, enemy, combat_kind) ) {
-        WARNLOG("Couldn't setup combat state for %s and %s",thing_model_name(fighter),thing_model_name(enemy));
+        WARNLOG("Couldn't setup combat state for %s index %d and %s index %d",thing_model_name(fighter),(int)fighter->index,thing_model_name(enemy),(int)enemy->index);
         set_start_state(fighter);
         return false;
     }
@@ -2637,7 +2645,7 @@ void creature_in_combat_wait(struct Thing *creatng)
     struct Thing *enmtng;
     struct CreatureControl *cctrl;
     long dist;
-    SYNCDBG(19,"Starting for %s",thing_model_name(creatng));
+    SYNCDBG(19,"Starting for %s index %d",thing_model_name(creatng),(int)creatng->index);
     if (check_for_better_combat(creatng)) {
         SYNCDBG(19,"Switching to better combat");
         return;
@@ -2675,7 +2683,7 @@ void creature_in_combat_wait(struct Thing *creatng)
 
 void creature_in_ranged_combat(struct Thing *creatng)
 {
-    SYNCDBG(19,"Starting for %s",thing_model_name(creatng));
+    SYNCDBG(19,"Starting for %s index %d",thing_model_name(creatng),(int)creatng->index);
     struct CreatureControl *cctrl;
     struct Thing *enmtng;
     long dist, cmbtyp;

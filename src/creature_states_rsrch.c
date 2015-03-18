@@ -73,7 +73,7 @@ short at_research_room(struct Thing *thing)
     room = get_room_thing_is_on(thing);
     if (!room_initially_valid_as_type_for_thing(room, RoK_LIBRARY, thing))
     {
-        WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(thing));
+        WARNLOG("Room %s owned by player %d is invalid for %s index %d",room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->index);
         set_start_state(thing);
         return 0;
     }
@@ -84,7 +84,7 @@ short at_research_room(struct Thing *thing)
     }
     if (!setup_random_head_for_room(thing, room, NavRtF_Default))
     {
-        ERRORLOG("The %s can not move in research room", thing_model_name(thing));
+        ERRORLOG("The %s index %d can not move in research room", thing_model_name(thing),(int)thing->index);
         remove_creature_from_work_room(thing);
         set_start_state(thing);
         return 0;
@@ -405,8 +405,8 @@ CrCheckRet process_research_function(struct Thing *creatng)
     }
     room = get_room_creature_works_in(creatng);
     if ( !room_still_valid_as_type_for_thing(room, RoK_LIBRARY, creatng) ) {
-        WARNLOG("Room %s owned by player %d is bad work place for %s owned by played %d",
-            room_code_name(room->kind), (int)room->owner, thing_model_name(creatng), (int)creatng->owner);
+        WARNLOG("Room %s owned by player %d is bad work place for %s index %d owner %d",
+            room_code_name(room->kind), (int)room->owner, thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         set_start_state(creatng);
         return CrCkRet_Continue;
     }
@@ -433,7 +433,7 @@ short researching(struct Thing *thing)
     dungeon = get_dungeon(thing->owner);
     if (is_neutral_thing(thing))
     {
-        ERRORLOG("Neutral %s can't do research",thing_model_name(thing));
+        ERRORLOG("Neutral %s index %d cannot do research",thing_model_name(thing),(int)thing->index);
         remove_creature_from_work_room(thing);
         set_start_state(thing);
         return CrStRet_Unchanged;
@@ -505,7 +505,7 @@ short researching(struct Thing *thing)
     // Finished "Standing and thinking" - make "new idea" effect and go to next position
     if (!setup_random_head_for_room(thing, room, NavRtF_Default))
     {
-        ERRORLOG("Cannot move %s in %s room", thing_model_name(thing),room_code_name(room->kind));
+        ERRORLOG("Cannot move %s index %d in %s room", thing_model_name(thing),(int)thing->index,room_code_name(room->kind));
         set_start_state(thing);
         return 1;
     }

@@ -69,11 +69,11 @@ TbBool setup_temple_move(struct Thing *thing, struct Room *room)
     struct Coord3d pos;
     if (!person_get_somewhere_adjacent_in_room_around_borders(thing, room, &pos))
     {
-        WARNLOG("No position to move %s in %s room", thing_model_name(thing),room_code_name(room->kind));
+        WARNLOG("No position to move %s index %d in %s room", thing_model_name(thing),(int)thing->index,room_code_name(room->kind));
         return false;
     }
     if (!setup_person_move_to_coord(thing, &pos, NavRtF_Default)) {
-        ERRORLOG("Cannot move %s in %s room", thing_model_name(thing),room_code_name(room->kind));
+        ERRORLOG("Cannot move %s index %d in %s room", thing_model_name(thing),(int)thing->index,room_code_name(room->kind));
         return false;
     }
     thing->continue_state = CrSt_PrayingInTemple;
@@ -115,7 +115,7 @@ short at_temple(struct Thing *thing)
     room = get_room_thing_is_on(thing);
     if (!room_initially_valid_as_type_for_thing(room, RoK_TEMPLE, thing))
     {
-        WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(thing));
+        WARNLOG("Room %s owned by player %d is invalid for %s index %d",room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->index);
         set_start_state(thing);
         return 0;
     }
