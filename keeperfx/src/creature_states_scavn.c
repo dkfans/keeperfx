@@ -171,7 +171,7 @@ short creature_being_scavenged(struct Thing *creatng)
     }
     if (setup_person_move_to_coord(creatng, &locpos, NavRtF_Default) <= 0)
     {
-        SYNCDBG(19,"Cannot move %s index %d to pos near %s",thing_model_name(creatng),(int)creatng->index,thing_model_name(fellowtng));
+        SYNCDBG(19,"Cannot move %s index %d to pos near %s index %d",thing_model_name(creatng),(int)creatng->index,thing_model_name(fellowtng),(int)fellowtng->index);
         return 0;
     }
     creatng->continue_state = CrSt_CreatureBeingScavenged;
@@ -224,7 +224,7 @@ short creature_scavenged_disappear(struct Thing *thing)
         return 0;
     } else
     {
-        ERRORLOG("No valid position inside %s room for %s.",room_code_name(room->kind),thing_model_name(thing));
+        ERRORLOG("No valid position inside %s room for %s index %d",room_code_name(room->kind),thing_model_name(thing),(int)thing->index);
         kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects);
         return -1;
     }
@@ -386,7 +386,7 @@ long turn_creature_to_scavenger(struct Thing *scavtng, struct Thing *calltng)
     room = get_room_thing_is_on(calltng);
     if (room_is_invalid(room) || (room->kind != RoK_SCAVENGER) || (room->owner != calltng->owner))
     {
-      ERRORLOG("The %s is scavenging not on owned %s",thing_model_name(calltng),room_code_name(RoK_SCAVENGER));
+      ERRORLOG("The %s index %d is scavenging not on owned %s",thing_model_name(calltng),(int)calltng->index,room_code_name(RoK_SCAVENGER));
       return 0;
     }
     struct Coord3d pos;
@@ -425,7 +425,7 @@ TbBool process_scavenge_creature_from_level(struct Thing *scavtng, struct Thing 
     long num_prayers;
     calldngn = get_dungeon(calltng->owner);
     if (dungeon_invalid(calldngn)) {
-        ERRORLOG("The %s owner %d can't do scavenging - has no dungeon",thing_model_name(calltng),(int)calltng->owner);
+        ERRORLOG("The %s index %d owner %d can't do scavenging - has no dungeon",thing_model_name(calltng),(int)calltng->index,(int)calltng->owner);
         return false;
     }
     // Compute amount of creatures praying against the scavenge
@@ -440,8 +440,8 @@ TbBool process_scavenge_creature_from_level(struct Thing *scavtng, struct Thing 
     calldngn->creatures_scavenging[scavtng->model]++;
     // If scavenge is blocked by prayers, return
     if (calldngn->creatures_scavenging[calltng->model] < 2 * num_prayers) {
-        SYNCDBG(8, "Player %d prayers (%d) are blocking player %d scavenging (%d) of %s", (int)scavtng->owner,
-            (int)num_prayers, (int)calltng->owner, (int)calldngn->creatures_scavenging[calltng->model], thing_model_name(calltng));
+        SYNCDBG(8, "Player %d prayers (%d) are blocking player %d scavenging (%d) of %s index %d", (int)scavtng->owner,
+            (int)num_prayers, (int)calltng->owner, (int)calldngn->creatures_scavenging[calltng->model], thing_model_name(calltng),(int)calltng->index);
         return false;
     }
     SYNCDBG(18,"The %s index %d scavenges %s index %d",thing_model_name(calltng),(int)calltng->index,thing_model_name(scavtng),(int)scavtng->index);
@@ -496,7 +496,7 @@ TbBool creature_scavenge_from_creature_pool(struct Thing *calltng)
     struct Coord3d pos;
     room = get_room_thing_is_on(calltng);
     if (!room_initially_valid_as_type_for_thing(room, RoK_SCAVENGER, calltng)) {
-        WARNLOG("Room %s owned by player %d is bad work place for %s owned by played %d",room_code_name(room->kind),(int)room->owner,thing_model_name(calltng),(int)calltng->owner);
+        WARNLOG("Room %s owned by player %d is bad work place for %s index %d owner %d",room_code_name(room->kind),(int)room->owner,thing_model_name(calltng),(int)calltng->index,(int)calltng->owner);
         return false;
     }
     if (game.pool.crtr_kind[calltng->model] <= 0) {

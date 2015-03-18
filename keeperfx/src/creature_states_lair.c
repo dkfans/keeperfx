@@ -251,7 +251,7 @@ CrStateRet creature_at_changed_lair(struct Thing *creatng)
     room = get_room_thing_is_on(creatng);
     if (!room_initially_valid_as_type_for_thing(room, RoK_LAIR, creatng))
     {
-        WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(creatng));
+        WARNLOG("Room %s owned by player %d is invalid for %s index %d",room_code_name(room->kind),(int)room->owner,thing_model_name(creatng),(int)creatng->index);
         set_start_state(creatng);
         return CrStRet_ResetFail;
     }
@@ -271,7 +271,7 @@ CrStateRet creature_at_new_lair(struct Thing *creatng)
     room = get_room_thing_is_on(creatng);
     if ( !room_still_valid_as_type_for_thing(room, RoK_LAIR, creatng) )
     {
-        WARNLOG("Room %s owned by player %d is bad work place for %s owned by played %d",room_code_name(room->kind),(int)room->owner,thing_model_name(creatng),(int)creatng->owner);
+        WARNLOG("Room %s owned by player %d is bad work place for %s index %d owner %d",room_code_name(room->kind),(int)room->owner,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         set_start_state(creatng);
         return CrStRet_ResetFail;
     }
@@ -400,7 +400,7 @@ short at_lair_to_sleep(struct Thing *thing)
     room = get_room_thing_is_on(thing);
     if (!room_initially_valid_as_type_for_thing(room, RoK_LAIR, thing))
     {
-        WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(thing));
+        WARNLOG("Room %s owned by player %d is invalid for %s index %d owner %d",room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->index,(int)thing->owner);
         set_start_state(thing);
         return 0;
     }
