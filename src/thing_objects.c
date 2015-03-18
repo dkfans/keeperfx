@@ -1258,10 +1258,10 @@ TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
     if (heartng->owner != game.neutral_player_num)
     {
         dungeon = get_players_num_dungeon(heartng->owner);
-        if (dungeon->field_1060 == 0)
+        if (dungeon->heart_destroy_state == 0)
         {
-            dungeon->field_1061 = 0;
-            dungeon->field_1060 = 1;
+            dungeon->heart_destroy_turn = 0;
+            dungeon->heart_destroy_state = 1;
             dungeon->essential_pos.x.val = heartng->mappos.x.val;
             dungeon->essential_pos.y.val = heartng->mappos.y.val;
             dungeon->essential_pos.z.val = heartng->mappos.z.val;
