@@ -268,18 +268,18 @@ void initialise_devastate_dungeon_from_heart(PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
     dungeon = get_dungeon(plyr_idx);
-    if (dungeon->field_14B4 == 0)
+    if (dungeon->devastation_turn == 0)
     {
         struct Thing *heartng;
         heartng = get_player_soul_container(plyr_idx);
         if (thing_exists(heartng)) {
-            dungeon->field_14B4 = 1;
-            dungeon->field_14B2[0] = heartng->mappos.x.stl.num;
-            dungeon->field_14B2[1] = heartng->mappos.y.stl.num;
+            dungeon->devastation_turn = 1;
+            dungeon->devastation_centr_x = heartng->mappos.x.stl.num;
+            dungeon->devastation_centr_y = heartng->mappos.y.stl.num;
         } else {
-            dungeon->field_14B4 = 1;
-            dungeon->field_14B2[0] = map_subtiles_x/2;
-            dungeon->field_14B2[1] = map_subtiles_y/2;
+            dungeon->devastation_turn = 1;
+            dungeon->devastation_centr_x = map_subtiles_x/2;
+            dungeon->devastation_centr_y = map_subtiles_y/2;
         }
     }
 }
@@ -291,37 +291,37 @@ void process_dungeon_destroy(struct Thing *heartng)
     plyr_idx = heartng->owner;
     //_DK_process_dungeon_destroy(heartng); return;
     dungeon = get_dungeon(plyr_idx);
-    if (!dungeon->field_1060) {
+    if (dungeon->heart_destroy_state == 0) {
         return;
     }
     powerful_magic_breaking_sparks(heartng);
     const struct Coord3d *central_pos;
     central_pos = &heartng->mappos;
-    switch ( dungeon->field_1060 )
+    switch ( dungeon->heart_destroy_state )
     {
     case 1:
         initialise_devastate_dungeon_from_heart(plyr_idx);
-        dungeon->field_1061++;
-        if (dungeon->field_1061 < 32)
+        dungeon->heart_destroy_turn++;
+        if (dungeon->heart_destroy_turn < 32)
         {
-            if ( ACTION_RANDOM(96) < (dungeon->field_1061 << 6) / 32 + 32 ) {
+            if ( ACTION_RANDOM(96) < (dungeon->heart_destroy_turn << 6) / 32 + 32 ) {
                 create_effect(central_pos, TngEff_Unknown44, plyr_idx);
             }
         } else
         { // Got to next phase
-            dungeon->field_1060 = 2;
-            dungeon->field_1061 = 0;
+            dungeon->heart_destroy_state = 2;
+            dungeon->heart_destroy_turn = 0;
         }
         break;
     case 2:
-        dungeon->field_1061++;
-        if (dungeon->field_1061 < 32)
+        dungeon->heart_destroy_turn++;
+        if (dungeon->heart_destroy_turn < 32)
         {
             create_effect(central_pos, TngEff_Unknown44, plyr_idx);
         } else
         { // Got to next phase
-            dungeon->field_1060 = 3;
-            dungeon->field_1061 = 0;
+            dungeon->heart_destroy_state = 3;
+            dungeon->heart_destroy_turn = 0;
         }
         break;
     case 3:
@@ -340,12 +340,11 @@ void process_dungeon_destroy(struct Thing *heartng)
             dump_things_lost_in_limbo_on_map(plyr_idx, central_pos->x.stl.num, central_pos->y.stl.num);
         }
         // Got to next phase
-        dungeon->field_1060 = 4;
-        dungeon->field_1061 = 0;
+        dungeon->heart_destroy_state = 4;
+        dungeon->heart_destroy_turn = 0;
         break;
     case 4:
         // Final phase - destroy the heart, both pedestal room and container thing
-        setup_all_player_creatures_and_diggers_leave_or_die(plyr_idx);
         {
             struct Thing *efftng;
             efftng = create_effect(central_pos, TngEff_Unknown04, plyr_idx);
@@ -356,14 +355,24 @@ void process_dungeon_destroy(struct Thing *heartng)
                 efftng->byte_16 = 8;
             destroy_dungeon_heart_room(plyr_idx, heartng);
             delete_thing_structure(heartng, 0);
-            { // If there is another heart owned by this player, set it to "working" heart
-                struct PlayerInfo *player;
-                player = get_player(plyr_idx);
-                init_player_start(player, true);
+        }
+        { // If there is another heart owned by this player, set it to "working" heart
+            struct PlayerInfo *player;
+            player = get_player(plyr_idx);
+            init_player_start(player, true);
+            if (player_has_heart(plyr_idx))
+            {
+                // If another heart was found, stop the process
+                dungeon->devastation_turn = 0;
+            } else
+            {
+                // If this is the last heart the player had, finish him
+                setup_all_player_creatures_and_diggers_leave_or_die(plyr_idx);
+                player->allied_players = (1 << player->id_number);
             }
         }
-        dungeon->field_1060 = 0;
-        dungeon->field_1061 = 0;
+        dungeon->heart_destroy_state = 0;
+        dungeon->heart_destroy_turn = 0;
         break;
     }
 }
@@ -2349,18 +2358,18 @@ void process_dungeon_devastation_effects(void)
     {
         struct Dungeon *dungeon;
         dungeon = get_players_num_dungeon(plyr_idx);
-        if (dungeon->field_14B4 == 0)
+        if (dungeon->devastation_turn == 0)
             continue;
         if ((game.play_gameturn & 1) != 0)
             continue;
-        dungeon->field_14B4++;
-        if (dungeon->field_14B4 >= max(map_tiles_x,map_tiles_y))
+        dungeon->devastation_turn++;
+        if (dungeon->devastation_turn >= max(map_tiles_x,map_tiles_y))
             continue;
         MapSlabCoord slb_x, slb_y;
         int i,range;
-        slb_x = subtile_slab(dungeon->field_14B2[0]) - dungeon->field_14B4;
-        slb_y = subtile_slab(dungeon->field_14B2[1]) - dungeon->field_14B4;
-        range = 2*dungeon->field_14B4;
+        slb_x = subtile_slab(dungeon->devastation_centr_x) - dungeon->devastation_turn;
+        slb_y = subtile_slab(dungeon->devastation_centr_y) - dungeon->devastation_turn;
+        range = 2*dungeon->devastation_turn;
         for (i = 0; i <= range; i++)
         {
             blast_slab(slb_x + i, slb_y,         dungeon->owner);

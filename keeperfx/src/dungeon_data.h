@@ -217,8 +217,8 @@ unsigned char field_F7D;
     struct TurnTimer turn_timers[TURN_TIMERS_COUNT];
     unsigned char script_flags[SCRIPT_FLAGS_COUNT];
     long max_creatures_attracted;
-    unsigned char field_1060;
-    long field_1061;
+    unsigned char heart_destroy_state;
+    long heart_destroy_turn;
     struct Coord3d essential_pos;
     struct DiggerStack digger_stack[DIGGER_TASK_MAX_COUNT];
     unsigned long digger_stack_update_turn;
@@ -253,8 +253,9 @@ unsigned char field_1461[36];
     unsigned long fights_num;
     unsigned char research_override; // could be easily changed into flags..
 int field_14AE;
-unsigned char field_14B2[2];
-int field_14B4;
+    unsigned char devastation_centr_x;
+    unsigned char devastation_centr_y;
+    unsigned long devastation_turn;
     long creatures_total_pay;
 unsigned char field_14BC[6];
     /** Index of last creature picked up of given model. */
