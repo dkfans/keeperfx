@@ -94,7 +94,7 @@ short creature_arrived_at_prison(struct Thing *creatng)
     room = get_room_thing_is_on(creatng);
     if (!room_initially_valid_as_type_for_thing(room, RoK_PRISON, creatng))
     {
-        WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(creatng));
+        WARNLOG("Room %s owned by player %d is invalid for %s index %d",room_code_name(room->kind),(int)room->owner,thing_model_name(creatng),(int)creatng->index);
         set_start_state(creatng);
         return 0;
     }
@@ -380,7 +380,7 @@ CrCheckRet process_prison_function(struct Thing *creatng)
   room = get_room_creature_works_in(creatng);
   if (!room_still_valid_as_type_for_thing(room, RoK_PRISON, creatng))
   {
-      WARNLOG("Room %s owned by player %d is bad work place for %s owned by played %d",room_code_name(room->kind),(int)room->owner,thing_model_name(creatng),(int)creatng->owner);
+      WARNLOG("Room %s owned by player %d is bad work place for %s index %d owner %d",room_code_name(room->kind),(int)room->owner,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
       set_start_state(creatng);
       return CrCkRet_Continue;
   }
