@@ -48,6 +48,7 @@
 
 #include "dungeon_data.h"
 #include "map_blocks.h"
+#include "map_utils.h"
 #include "ariadne_wallhug.h"
 #include "slab_data.h"
 #include "power_hand.h"
@@ -182,7 +183,7 @@ DLLIMPORT long _DK_count_creatures_in_call_to_arms(struct Computer2 *comp);
 DLLIMPORT long _DK_task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask);
 DLLIMPORT struct ComputerTask *_DK_get_free_task(struct Computer2 *comp, long basestl_y);
 DLLIMPORT int _DK_search_spiral(struct Coord3d *pos, int owner, int i3, long (*cb)(long, long, long));
-DLLIMPORT long _DK_get_corridor(struct Coord3d *pos1, struct Coord3d * pos2, unsigned char round_directn, char plyr_idx, unsigned short slabs_dist);
+DLLIMPORT long _DK_get_corridor(struct Coord3d *mvpos, struct Coord3d * pos2, unsigned char round_directn, char plyr_idx, unsigned short slabs_dist);
 DLLIMPORT long _DK_other_build_here(struct Computer2 *comp, long a2, long round_directn, long plyr_idx, long slabs_dist);
 /******************************************************************************/
 #ifdef __cplusplus
@@ -894,7 +895,16 @@ long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
         shut_down_task_process(comp, ctask);
         return 0;
     case -1:
-        move_imp_to_dig_here(comp, &ctask->pos_6A, 1);
+        pos.x.val = ctask->pos_6A.x.val;
+        pos.y.val = ctask->pos_6A.y.val;
+        pos.z.val = ctask->pos_6A.z.val;
+        {
+            long round_directn;
+            round_directn = small_around_index_towards_destination(ctask->pos_6A.x.stl.num,ctask->pos_6A.y.stl.num,
+                ctask->pos_64.x.stl.num,ctask->pos_64.y.stl.num);
+            pos_move_in_direction_to_last_allowing_drop(&pos, round_directn, comp->dungeon->owner, ctask->create_room.width+ctask->create_room.height);
+        }
+        move_imp_to_dig_here(comp, &pos, 1);
         pos.x.val = ctask->pos_64.x.val;
         pos.y.val = ctask->pos_64.y.val;
         pos.z.val = ctask->pos_64.z.val;
@@ -1322,74 +1332,40 @@ long check_for_buildable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx
 long get_corridor(struct Coord3d *pos1, struct Coord3d * pos2, unsigned char round_directn, PlayerNumber plyr_idx, unsigned short slabs_dist)
 {
     //return _DK_get_corridor(pos1, pos2, a3, a4, a5);
-    MapSubtlCoord stl_x, stl_y;
-    stl_x = pos1->x.stl.num;
-    stl_y = pos1->y.stl.num;
-    struct SlabAttr *slbattr;
-    struct SlabMap *slb;
+    struct Coord3d mvpos;
+    mvpos.x.val = pos1->x.val;
+    mvpos.y.val = pos1->y.val;
+    mvpos.z.val = pos1->z.val;
     int i;
-    slb = get_slabmap_for_subtile(stl_x, stl_y);
-    slbattr = get_slab_attrs(slb);
     // If we're on room, move to non-room tile
-    for (i = 0; i < slabs_dist; i++)
-    {
-        if ((slbattr->block_flags & SlbAtFlg_IsRoom) == 0)
-          break;
-        stl_x += STL_PER_SLB * small_around[round_directn].delta_x;
-        stl_y += STL_PER_SLB * small_around[round_directn].delta_y;
-        if (!subtile_has_slab(stl_x, stl_y))
-            return 0;
-        slb = get_slabmap_for_subtile(stl_x, stl_y);
-        slbattr = get_slab_attrs(slb);
+    i = pos_move_in_direction_to_outside_player_room(&mvpos, round_directn, plyr_idx, slabs_dist);
+    if (i < 0) {
+        return 0;
     }
-    // Update original position
-    pos1->x.stl.num = stl_x;
-    pos1->y.stl.num = stl_y;
+    // Update original position with non-room tile
+    pos1->x.val = mvpos.x.val;
+    pos1->y.val = mvpos.y.val;
     // Move to a blocking tile which is not a room
-    for (i = 0; i < slabs_dist; i++)
-    {
-        if (((slbattr->block_flags & SlbAtFlg_Blocking) != 0) || map_pos_is_lava(stl_x, stl_y))
-        {
-            if ((slbattr->block_flags & SlbAtFlg_IsRoom) == 0)
-                break;
-        }
-        stl_x += STL_PER_SLB * small_around[round_directn].delta_x;
-        stl_y += STL_PER_SLB * small_around[round_directn].delta_y;
-        if (!subtile_has_slab(stl_x, stl_y))
-            return 0;
-        slb = get_slabmap_for_subtile(stl_x, stl_y);
-        slbattr = get_slab_attrs(slb);
+    i = pos_move_in_direction_to_blocking_wall_or_lava(&mvpos, round_directn, plyr_idx, slabs_dist);
+    if (i < 0) {
+        return 0;
     }
-
     if (i == slabs_dist) {
-      pos2->x.stl.num = stl_x;
-      pos2->y.stl.num = stl_y;
-      return 1;
+        pos2->x.val = mvpos.x.val;
+        pos2->y.val = mvpos.y.val;
+        return 1;
     }
-    // Update original position
-    pos1->x.stl.num = stl_x;
-    pos1->y.stl.num = stl_y;
-
-    for (i = 0; i < slabs_dist; i++)
-    {
-        struct Map *mapblk;
-        mapblk = get_map_block_at(stl_x, stl_y);
-        if ((!slbattr->is_unknflg14) || (slb->kind == SlbT_GEMS) || (((mapblk->flags & SlbAtFlg_Filled) != 0) && (slabmap_owner(slb) != plyr_idx)) || (slb->kind == SlbT_WATER))
-        {
-          if (((slb->kind != SlbT_CLAIMED) || (slabmap_owner(slb) != plyr_idx)) && (slb->kind != SlbT_PATH))
-            break;
-        }
-        stl_x += STL_PER_SLB * small_around[round_directn].delta_x;
-        stl_y += STL_PER_SLB * small_around[round_directn].delta_y;
-        if (!subtile_has_slab(stl_x, stl_y))
-            return 0;
-        slb = get_slabmap_for_subtile(stl_x, stl_y);
-        slbattr = get_slab_attrs(slb);
+    // Update original position with first slab to dig out
+    pos1->x.val = mvpos.x.val;
+    pos1->y.val = mvpos.y.val;
+    // Move to unowned filled or water
+    i = pos_move_in_direction_to_unowned_filled_or_water(&mvpos, round_directn, plyr_idx, slabs_dist);
+    if (i < 0) {
+        return 0;
     }
-
     if (i == slabs_dist) {
-        pos2->x.stl.num = stl_x;
-        pos2->y.stl.num = stl_y;
+        pos2->x.val = mvpos.x.val;
+        pos2->y.val = mvpos.y.val;
         return 1;
     }
     return 0;
@@ -1400,7 +1376,7 @@ long other_build_here(struct Computer2 *comp, long a2, long a3, long a4, long a5
     return _DK_other_build_here(comp, a2, a3, a4, a5);
 }
 
-struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d *pos, RoomKind rkind, long width_slabs, long height_slabs, long a6, long perfect)
+struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d *pos, RoomKind rkind, long width_slabs, long height_slabs, long max_slabs_dist, long perfect)
 {
     MapSubtlCoord stl_x, stl_y;
     struct Coord3d dstpos;
@@ -1418,7 +1394,7 @@ struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d 
         area_total = width_slabs * height_slabs;
     }
     i = 0;
-    dstpos.z.val = 0;
+    dstpos.x.val = 0;
     dstpos.y.val = 0;
     dstpos.z.val = 0;
     while ( 1 )
@@ -1426,7 +1402,7 @@ struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d 
         startpos.x.val = pos->x.val;
         startpos.y.val = pos->y.val;
         startpos.z.val = pos->z.val;
-        if (get_corridor(&startpos, &corpos, n, dungeon->owner, a6))
+        if (get_corridor(&startpos, &corpos, n, dungeon->owner, max_slabs_dist))
         {
             stl_x = corpos.x.stl.num;
             stl_y = corpos.y.stl.num;
@@ -1479,36 +1455,6 @@ struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d 
       setup_dig_to(&ctask->dig, ctask->create_room.startpos, ctask->pos_64);
     }
     return ctask;
-}
-
-/** Retrieves index for small_around[] array which leads to the area closer to given destination.
- *  It uses a bit of randomness when angles are too straight, so it may happen that result for same points will vary.
- *
- * @param curr_x Current position x coord.
- * @param curr_y Current position y coord.
- * @param dest_x Destination position x coord.
- * @param dest_y Destination position y coord.
- * @return Index closer to destination.
- */
-unsigned int small_around_index_towards_destination(long curr_x,long curr_y,long dest_x,long dest_y)
-{
-    long i,n;
-    i = LbArcTanAngle(dest_x - curr_x, dest_y - curr_y);
-    // Check the angle - we're a bit afraid of angles which are pi/4 multiplications
-    if ((i & 0xFF) != 0)
-    {
-        // Just compute the index
-        n = (i + LbFPMath_PI/4) >> 9;
-    } else
-    {
-        //Special case - the angle is exact multiplication of pi/4
-        // Add some variant factor to make it little off this value.
-        // this should give better results because tangens values are rounded up or down.
-        //TODO: maybe it would be even better to get previous around_index as parameter - this way we could avoid taking same path without random factors.
-        n = (i + LbFPMath_PI/4 + ACTION_RANDOM(3) - 1) >> 9;
-    }
-    SYNCDBG(18,"Vector (%ld,%ld) returned ArcTan=%ld, around (%d,%d)",dest_x - curr_x, dest_y - curr_y,i,(int)small_around[n].delta_x,(int)small_around[n].delta_y);
-    return n & 3;
 }
 
 short get_hug_side(struct ComputerDig * cdig, MapSubtlCoord stl1_x, MapSubtlCoord stl1_y, MapSubtlCoord stl2_x, MapSubtlCoord stl2_y, unsigned short a6, PlayerNumber plyr_idx)

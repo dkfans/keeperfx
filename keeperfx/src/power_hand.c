@@ -1186,15 +1186,15 @@ long prepare_thing_for_power_hand(unsigned short tng_idx, PlayerNumber plyr_idx)
 void add_creature_to_sacrifice_list(PlayerNumber plyr_idx, long model, long explevel)
 {
   struct Dungeon *dungeon;
-  SYNCDBG(6,"Player %ld sacrificed creture model %ld exp level %d",plyr_idx,model,explevel);
+  SYNCLOG("Player %d sacrificed %s exp level %d",(int)plyr_idx,thing_class_and_model_name(TCls_Creature, model),explevel);
   if ((plyr_idx < 0) || (plyr_idx >= DUNGEONS_COUNT))
   {
-    ERRORLOG("How can this player sacrifice a creature?");
+    ERRORLOG("Player %d cannot sacrifice %s",(int)plyr_idx,thing_class_and_model_name(TCls_Creature, model));
     return;
   }
   if ((model < 0) || (model >= CREATURE_TYPES_COUNT))
   {
-    ERRORLOG("Tried to sacrifice invalid creature model.");
+    ERRORLOG("Tried to sacrifice invalid creature model %d",(int)model);
     return;
   }
   dungeon = get_dungeon(plyr_idx);
