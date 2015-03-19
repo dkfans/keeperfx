@@ -663,7 +663,7 @@ short creature_sacrifice(struct Thing *thing)
         cctrl->word_9C = 48;
         thing->movement_flags |= TMvF_Unknown04;
         internal_set_thing_state(thing, CrSt_CreatureBeingSacrificed);
-        thing->long_13 = 0;
+        thing->creature.gold_carried = 0;
         struct SlabMap *slb;
         slb = get_slabmap_thing_is_on(thing);
         create_effect(&thing->mappos, 35, slabmap_owner(slb));

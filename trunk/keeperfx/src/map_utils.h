@@ -69,13 +69,21 @@ struct CompoundCoordFilterParam {
 DLLIMPORT struct MapOffset _DK_spiral_step[SPIRAL_STEPS_COUNT];
 #define spiral_step _DK_spiral_step
 /******************************************************************************/
-extern const struct Around around[];
+extern struct Around const around[];
+extern struct Around const small_around[];
 /******************************************************************************/
 void init_spiral_steps(void);
 
 void get_min_floor_and_ceiling_heights_for_rect(MapSubtlCoord stl_x_beg, MapSubtlCoord stl_y_beg,
     MapSubtlCoord stl_x_end, MapSubtlCoord stl_y_end,
     MapSubtlCoord *floor_height, MapSubtlCoord *ceiling_height);
+
+unsigned int small_around_index_towards_destination(long curr_x,long curr_y,long dest_x,long dest_y);
+
+long pos_move_in_direction_to_last_allowing_drop(struct Coord3d *mvpos, unsigned char round_directn, PlayerNumber plyr_idx, unsigned short slabs_dist);
+long pos_move_in_direction_to_outside_player_room(struct Coord3d *mvpos, unsigned char round_directn, PlayerNumber plyr_idx, unsigned short slabs_dist);
+long pos_move_in_direction_to_blocking_wall_or_lava(struct Coord3d *mvpos, unsigned char round_directn, PlayerNumber plyr_idx, unsigned short slabs_dist);
+long pos_move_in_direction_to_unowned_filled_or_water(struct Coord3d *mvpos, unsigned char round_directn, PlayerNumber plyr_idx, unsigned short slabs_dist);
 
 long near_coord_filter_battle_drop_point(const struct Coord3d *pos, MaxCoordFilterParam param, long maximizer);
 
