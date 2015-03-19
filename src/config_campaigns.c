@@ -482,13 +482,13 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
             k = atoi(word_buf);
             if (k >= 0)
             {
-              campgn->hiscore_count = k;
-              n++;
+                campgn->hiscore_count = k;
+                n++;
             }
           }
           if (get_conf_parameter_whole(buf,&pos,len,campgn->hiscore_fname,DISKPATH_SIZE) > 0)
           {
-            n++;
+              n++;
           }
           if (n < 2)
           {

@@ -276,7 +276,7 @@ long computer_setup_any_room(struct Computer2 *comp, struct ComputerProcess *cpr
         i = (long)((char *)cproc - (char *)&comp->processes[0]) / sizeof(struct ComputerProcess);
         if ((i < 0) || (i > COMPUTER_PROCESSES_COUNT))
         {
-          ERRORLOG("Process \"%s\" is outside of Computer Player.",cproc->name);
+          ERRORLOG("Process \"%s\" is outside of Computer Player",cproc->name);
           i = COMPUTER_PROCESSES_COUNT;
         }
         ctask->field_8C = i;
@@ -312,7 +312,7 @@ long computer_setup_any_room_continue(struct Computer2 *comp, struct ComputerPro
         i = (long)((char *)cproc - (char *)&comp->processes[0]) / sizeof(struct ComputerProcess);
         if ((i < 0) || (i > COMPUTER_PROCESSES_COUNT))
         {
-          ERRORLOG("Process \"%s\" is outside of Computer Player.",cproc->name);
+          ERRORLOG("Process \"%s\" is outside of Computer Player",cproc->name);
           i = COMPUTER_PROCESSES_COUNT;
         }
         ctask->field_8C = i;
@@ -771,8 +771,7 @@ long move_imp_to_dig_here(struct Computer2 *comp, struct Coord3d *pos, long max_
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
 
-    long amount_tried, amount_did;
-    amount_tried = 0;
+    long amount_did;
     amount_did = 0;
 
     unsigned long k;
@@ -793,7 +792,7 @@ long move_imp_to_dig_here(struct Computer2 *comp, struct Coord3d *pos, long max_
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        if (amount_tried >= max_amount)
+        if (amount_did >= max_amount)
             break;
         if (can_thing_be_picked_up_by_player(creatng, dungeon->owner) && imp_can_be_moved_to_dig(creatng))
         {

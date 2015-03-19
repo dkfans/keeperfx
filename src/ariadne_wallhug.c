@@ -48,13 +48,6 @@ DLLIMPORT long _DK_get_map_index_of_first_block_thing_colliding_with_travelling_
 DLLIMPORT long _DK_get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *creatng, struct Coord3d *pos, unsigned char a3);
 DLLIMPORT long _DK_dig_to_position(signed char basestl_x, unsigned short basestl_y, unsigned short plyr_idx, unsigned char a4, unsigned char a5);
 /******************************************************************************/
-struct Around const small_around[] = {
-  { 0,-1},
-  { 1, 0},
-  { 0, 1},
-  {-1, 0},
-};
-
 struct Around const my_around_eight[] = {
   { 0,-1},
   { 1,-1},
