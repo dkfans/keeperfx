@@ -666,7 +666,17 @@ short good_doing_nothing(struct Thing *creatng)
         }
         return 1;
     }
-    // Done wandering - find a target player
+    // Done wandering - if we had job assigned, get back to it
+    if ((cctrl->job_assigned != Job_NULL) && (game.play_gameturn - cctrl->job_assigned_check_turn > 128))
+    {
+        if (attempt_job_preference(creatng, cctrl->job_assigned)) {
+            SYNCDBG(8,"The %s index %d will do assigned job with state %s",thing_model_name(creatng),
+                (int)creatng->index,creature_state_code_name(get_creature_state_besides_interruptions(creatng)));
+            return 1;
+        }
+        cctrl->job_assigned_check_turn = game.play_gameturn;
+    }
+    // Now go the standard hero path - find a target player
     target_plyr_idx = cctrl->party.target_plyr_idx;
     if (target_plyr_idx != -1)
     {
