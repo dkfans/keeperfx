@@ -207,12 +207,13 @@ unsigned char field_67;
   struct {
     long stack_update_turn;
     short working_stl;
-    unsigned short word_8F;
-    unsigned short word_91;
+    unsigned short task_stl;
+    unsigned short task_idx;
     unsigned char byte_93;
     unsigned char last_did_job;
     unsigned char task_stack_pos;
-    unsigned char field_96[4];
+    unsigned short task_repeats;
+    unsigned char field_98[2];
   } digger;
   struct {
     short word_89;

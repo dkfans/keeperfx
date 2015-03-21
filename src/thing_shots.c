@@ -559,7 +559,7 @@ long shot_kill_object(struct Thing *shotng, struct Thing *target)
             player = get_player(target->owner);
             if (player_exists(player) && (player->field_2C == 1))
             {
-                output_message(SMsg_DefeatedKeeper, 0, 1);
+                output_message(SMsg_DefeatedKeeper, 0, true);
             }
         }
         struct Dungeon *dungeon;
@@ -623,7 +623,7 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
           target->mappos.x.val, target->mappos.y.val,
           EvKind_HeartAttacked, target->owner, 0);
         if (is_my_player_number(target->owner)) {
-            output_message(SMsg_HeartUnderAttack, 400, 1);
+            output_message(SMsg_HeartUnderAttack, 400, true);
         }
     } else
     {

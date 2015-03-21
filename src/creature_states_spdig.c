@@ -708,52 +708,64 @@ long check_out_available_spdigger_drop_tasks(struct Thing *spdigtng)
 
     if ( check_out_unclaimed_unconscious_bodies(spdigtng, 768) )
     {
+        cctrl->digger.task_repeats = 0;
         return 1;
     }
     if ( check_out_unclaimed_dead_bodies(spdigtng, 768) )
     {
+        cctrl->digger.task_repeats = 0;
         return 1;
     }
     if ( check_out_unclaimed_spells(spdigtng, 768) )
     {
+        cctrl->digger.task_repeats = 0;
         return 1;
     }
     if ( check_out_unclaimed_traps(spdigtng, 768) )
     {
+        cctrl->digger.task_repeats = 0;
         return 1;
     }
     if ( check_out_empty_traps(spdigtng, 768) )
     {
+        cctrl->digger.task_repeats = 0;
         return 1;
     }
     if ( check_out_undug_drop_place(spdigtng) )
     {
+        cctrl->digger.task_repeats = 0;
         cctrl->digger.last_did_job = SDLstJob_DigOrMine;
         return 1;
     }
     if ( check_out_unconverted_drop_place(spdigtng) )
     {
+        cctrl->digger.task_repeats = 0;
         cctrl->digger.last_did_job = SDLstJob_ConvImprDungeon;
         return 1;
     }
     if ( check_out_unprettied_drop_place(spdigtng) )
     {
+        cctrl->digger.task_repeats = 0;
         cctrl->digger.last_did_job = SDLstJob_ConvImprDungeon;
         return 1;
     }
     if ( check_out_unclaimed_gold(spdigtng, 768) )
     {
+        cctrl->digger.task_repeats = 0;
         return 1;
     }
     if ( check_out_unreinforced_drop_place(spdigtng) )
     {
+        cctrl->digger.task_repeats = 0;
         cctrl->digger.last_did_job = SDLstJob_ReinforceWall9;
         return 1;
     }
     if ( check_out_crates_to_arm_trap_in_room(spdigtng) )
     {
+        cctrl->digger.task_repeats = 0;
         return 1;
     }
+    cctrl->digger.task_repeats = 0;
     cctrl->digger.last_did_job = SDLstJob_None;
     return 0;
 }
@@ -790,11 +802,11 @@ short imp_arrives_at_dig_or_mine(struct Thing *spdigtng)
     struct CreatureControl *cctrl;
     SYNCDBG(19,"Starting");
     TRACE_THING(spdigtng);
-    if ( imp_already_digging_at_excluding(spdigtng, spdigtng->mappos.x.stl.num, spdigtng->mappos.y.stl.num) )
+    if (imp_already_digging_at_excluding(spdigtng, spdigtng->mappos.x.stl.num, spdigtng->mappos.y.stl.num))
     {
         cctrl = creature_control_get_from_thing(spdigtng);
 
-        if ( !move_imp_to_uncrowded_dig_mine_access_point(spdigtng, cctrl->word_8F) )
+        if (!move_imp_to_uncrowded_dig_mine_access_point(spdigtng, cctrl->digger.task_stl))
         {
             internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
             return 1;
@@ -928,15 +940,15 @@ short imp_digs_mines(struct Thing *spdigtng)
     SYNCDBG(19,"Starting");
     TRACE_THING(spdigtng);
     cctrl = creature_control_get_from_thing(spdigtng);
-    mtask = get_task_list_entry(spdigtng->owner, cctrl->word_91);
-    stl_x = stl_num_decode_x(cctrl->word_8F);
-    stl_y = stl_num_decode_y(cctrl->word_8F);
+    mtask = get_task_list_entry(spdigtng->owner, cctrl->digger.task_idx);
+    stl_x = stl_num_decode_x(cctrl->digger.task_stl);
+    stl_y = stl_num_decode_y(cctrl->digger.task_stl);
     slb = get_slabmap_for_subtile(stl_x, stl_y);
 
     // Check if we've arrived at the destination
     delta_x = abs(spdigtng->mappos.x.stl.num - (MapSubtlDelta)cctrl->moveto_pos.x.stl.num);
     delta_y = abs(spdigtng->mappos.y.stl.num - (MapSubtlDelta)cctrl->moveto_pos.y.stl.num);
-    if ((mtask->coords != cctrl->word_8F) || (delta_x > 0) || (delta_y > 0))
+    if ((mtask->coords != cctrl->digger.task_stl) || (delta_x > 0) || (delta_y > 0))
     {
         clear_creature_instance(spdigtng);
         internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
@@ -976,14 +988,16 @@ short imp_digs_mines(struct Thing *spdigtng)
         // If the creature holds more gold than its able
         if (spdigtng->creature.gold_carried > crstat->gold_hold)
         {
-          if (game.play_gameturn - cctrl->tasks_check_turn > 128)
-          {
-            if (check_out_imp_has_money_for_treasure_room(spdigtng))
-              return 1;
-            cctrl->tasks_check_turn = game.play_gameturn;
-          }
-          drop_gold_pile(spdigtng->creature.gold_carried - crstat->gold_hold, &spdigtng->mappos);
-          spdigtng->creature.gold_carried = crstat->gold_hold;
+            if (game.play_gameturn - cctrl->tasks_check_turn > 128)
+            {
+                if (check_out_imp_has_money_for_treasure_room(spdigtng)) {
+                    cctrl->digger.task_repeats++;
+                    return 1;
+                }
+                cctrl->tasks_check_turn = game.play_gameturn;
+            }
+            drop_gold_pile(spdigtng->creature.gold_carried - crstat->gold_hold, &spdigtng->mappos);
+            spdigtng->creature.gold_carried = crstat->gold_hold;
         }
     }
     return 1;
@@ -1105,11 +1119,11 @@ short imp_improves_dungeon(struct Thing *spdigtng)
     return 1;
 }
 
-short imp_last_did_job(struct Thing *thing)
+short imp_last_did_job(struct Thing *creatng)
 {
-    if (!check_out_imp_last_did(thing))
+    if (!check_out_imp_last_did(creatng))
     {
-        set_start_state(thing);
+        set_start_state(creatng);
         return 0;
     }
     return 1;
@@ -1207,8 +1221,9 @@ short imp_reinforces(struct Thing *thing)
     {
         if (check_ret < 0)
         {
-            cctrl->digger.last_did_job = 1;
-            cctrl->digger.word_8F = get_subtile_number_at_slab_center(subtile_slab(stl_x), subtile_slab(stl_y));
+            cctrl->digger.task_repeats = 0;
+            cctrl->digger.last_did_job = SDLstJob_DigOrMine;
+            cctrl->digger.task_stl = get_subtile_number_at_slab_center(subtile_slab(stl_x), subtile_slab(stl_y));
         }
         clear_creature_instance(thing);
         internal_set_thing_state(thing, CrSt_ImpLastDidJob);

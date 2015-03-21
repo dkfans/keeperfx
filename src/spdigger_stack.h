@@ -109,9 +109,9 @@ TbBool imp_will_soon_be_getting_object(PlayerNumber plyr_idx, const struct Thing
 
 TbBool thing_can_be_picked_to_place_in_player_room(const struct Thing* thing, PlayerNumber plyr_idx, RoomKind rkind, unsigned short flags);
 
-TbBool imp_stack_update(struct Thing *thing);
-long check_out_imp_stack(struct Thing *thing);
-long check_out_imp_last_did(struct Thing *thing);
+TbBool imp_stack_update(struct Thing *creatng);
+long check_out_imp_stack(struct Thing *creatng);
+long check_out_imp_last_did(struct Thing *creatng);
 long check_place_to_convert_excluding(struct Thing *thing, MapSlabCoord slb_x, MapSlabCoord slb_y);
 long check_place_to_pretty_excluding(struct Thing *thing, long a2, long a3);
 long check_out_imp_has_money_for_treasure_room(struct Thing *thing);
