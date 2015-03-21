@@ -28,6 +28,7 @@
 #include "config_terrain.h"
 #include "config_magic.h"
 #include "creature_control.h"
+#include "creature_jobs.h"
 #include "creature_states.h"
 #include "creature_instances.h"
 #include "room_jobs.h"
