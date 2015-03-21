@@ -510,7 +510,7 @@ long instf_dig(struct Thing *creatng, long *param)
     TRACE_THING(creatng);
     cctrl = creature_control_get_from_thing(creatng);
     dungeon = get_dungeon(creatng->owner);
-    task_idx = cctrl->word_91;
+    task_idx = cctrl->digger.task_idx;
     {
       struct MapTask *task;
       task = get_dungeon_task_list_entry(dungeon,task_idx);
