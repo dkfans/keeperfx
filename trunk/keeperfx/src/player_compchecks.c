@@ -267,6 +267,11 @@ long computer_check_move_creatures_to_room(struct Computer2 *comp, struct Comput
     return CTaskRet_Unk4;
 }
 
+/**
+ * Checks if a computer player has not enough imps.
+ * @param comp
+ * @param check The check structure; param1 is preferred amount of imps, param2 is minimal amount.
+ */
 long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check)
 {
     struct Dungeon *dungeon;
@@ -280,7 +285,7 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
     long able;
     if (controlled_diggers >= check->param2) {
         // We have less than preferred amount, but higher than minimal; allow building if we've got spare money
-        able = computer_able_to_use_magic(comp, PwrK_MKDIGGER, 0, 6);
+        able = computer_able_to_use_magic(comp, PwrK_MKDIGGER, 0, 3 + (controlled_diggers - check->param2)/4);
     } else {
         able = computer_able_to_use_magic(comp, PwrK_MKDIGGER, 0, 1);
     }

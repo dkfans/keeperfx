@@ -1757,7 +1757,7 @@ void command_set_computer_globals(const char *plrname, long val1, long val2, lon
 
 void command_set_computer_checks(const char *plrname, const char *chkname, long val1, long val2, long val3, long val4, long val5)
 {
-  struct ComputerCheck *check;
+  struct ComputerCheck *ccheck;
   int plr_start, plr_end;
   long i,k,n;
   if (get_players_range(plrname, &plr_start, &plr_end) < 0)
@@ -1776,18 +1776,18 @@ void command_set_computer_checks(const char *plrname, const char *chkname, long 
       }
       for (k=0; k < COMPUTER_CHECKS_COUNT; k++)
       {
-          check = &comp->checks[k];
-          if ((check->flags & 0x02) != 0)
+          ccheck = &comp->checks[k];
+          if ((ccheck->flags & 0x02) != 0)
             break;
-          if (check->name == NULL)
+          if (ccheck->name == NULL)
             break;
-          if (strcasecmp(chkname, check->name) == 0)
+          if (strcasecmp(chkname, ccheck->name) == 0)
           {
-            check->turns_interval = val1;
-            check->param1 = val2;
-            check->param2 = val3;
-            check->param3 = val4;
-            check->param4 = val5;
+            ccheck->turns_interval = val1;
+            ccheck->param1 = val2;
+            ccheck->param2 = val3;
+            ccheck->param3 = val4;
+            ccheck->last_run_turn = val5;
             n++;
           }
       }
