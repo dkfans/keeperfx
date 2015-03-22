@@ -202,7 +202,7 @@ long computer_event_find_link(struct Computer2 *comp, struct ComputerEvent *ceve
         {
             cproc->flags &= ~ComProc_Unkn0008;
             cproc->flags &= ~ComProc_Unkn0001;
-            cproc->param_4 = 0;
+            cproc->last_run_turn = 0;
             cproc_idx = 1;
         }
     }
@@ -461,7 +461,7 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
                 ret = 1;
                 cproc->flags &= ~ComProc_Unkn0008;
                 cproc->flags &= ~ComProc_Unkn0001;
-                cproc->param_4 = 0;
+                cproc->last_run_turn = 0;
                 cproc->param_3 = 0;
             }
         }

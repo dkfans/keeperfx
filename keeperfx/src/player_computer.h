@@ -73,6 +73,7 @@ enum ComputerTaskTypes {
     CTT_AttackMagic,
     CTT_SellTrapsAndDoors,
     CTT_MoveGoldToTreasury,
+    CTT_MoveDiggersToGold,//TODO COMPUTER to be implemented
 };
 
 enum TrapDoorSellingCategory {
@@ -242,7 +243,7 @@ struct ComputerProcess { // sizeof = 72
   unsigned long param_1;
   unsigned long param_2;
   unsigned long param_3;
-  unsigned long param_4;
+  unsigned long last_run_turn;
   unsigned long param_5;
   unsigned long flags; /**< Values from ComProc_* enumeration. */
 };
@@ -255,7 +256,7 @@ struct ComputerCheck { // sizeof = 32
   long param1;
   long param2;
   long param3;
-  long param4;
+  long last_run_turn;
 };
 
 struct ComputerEvent { // sizeof = 44
