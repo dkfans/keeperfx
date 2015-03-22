@@ -1078,6 +1078,23 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
         }
     }
     // Move any gold laying around to treasure room
+    if ((money_left < check->param1) && (pwhand_task_choose < 66) && dungeon_has_room(dungeon, RoK_TREASURE))
+    {
+        int num_to_move;
+        num_to_move = 3;
+        // If there's already task in progress which uses hand, then don't add more
+        // content of the hand could be used by wrong task by mistake
+        if (!is_task_in_progress_using_hand(comp) && (computer_able_to_use_magic(comp, PwrK_HAND, 1, num_to_move) == CTaskRet_Unk1))
+        {
+            SYNCDBG(8,"Creating task to move diggers near gold to mine [not implemented, skipped]");
+            //TODO COMPUTER Make the function which returns gold or gems marked for digging
+            /*struct Coord3d pos;
+            if (move_imp_to_dig_here(comp, &pos, num_to_move) > 0) {
+                ret = 1;
+            }*/
+        }
+    }
+    // Move any gold laying around to treasure room
     if ((money_left < check->param1) && dungeon_has_room(dungeon, RoK_TREASURE))
     {
         int num_to_move;

@@ -477,7 +477,7 @@ long computer_event_check_imps_in_danger(struct Computer2 *comp, struct Computer
         return 4;
     }
     // If we don't have the power to pick up creatures, fail now
-    if (computer_able_to_use_magic(comp, PwrK_HAND, 1, 1) != 1) {
+    if (computer_able_to_use_magic(comp, PwrK_HAND, 1, 1) != CTaskRet_Unk1) {
         return 4;
     }
     struct CreatureControl *cctrl;
@@ -567,6 +567,7 @@ long computer_event_breach(struct Computer2 *comp, struct ComputerEvent *cevent,
     //TODO COMPUTER_EVENT_BREACH check why mappos_x and mappos_y isn't used normally
     pos.x.val = event->mappos_x;
     pos.y.val = event->mappos_y;
+    pos.z.val = 0;
     if ((pos.x.val <= 0) || (pos.y.val <= 0)) {
         return 0;
     }
