@@ -73,7 +73,6 @@ enum ComputerTaskTypes {
     CTT_AttackMagic,
     CTT_SellTrapsAndDoors,
     CTT_MoveGoldToTreasury,
-    CTT_MoveDiggersToGold,//TODO COMPUTER to be implemented
 };
 
 enum TrapDoorSellingCategory {
