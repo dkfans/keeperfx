@@ -1004,9 +1004,16 @@ long computer_pick_expensive_job_creatures_and_place_on_lair(struct Computer2 *c
     return new_tasks;
 }
 
+/**
+ * Checks how much money the player lacks for next payday.
+ * @param comp Computer player who controls the target dungeon.
+ * @param check The check being executed; param1 is low gold value, param2 is critical gold value.
+ */
+
 long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * check)
 {
     GoldAmount money_left, money_payday;
+    GoldAmount money_mkdigger;
     struct ComputerProcess *cproc;
     struct Dungeon *dungeon;
     long ret;
@@ -1014,14 +1021,18 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
     SYNCDBG(18,"Starting");
     ret = 4;
     dungeon = comp->dungeon;
-    // As payday need, take larger of amounts from last payday and planned from next
+    // As payday need, take larger of amounts from last payday and planned for next
     money_payday = compute_player_payday_total(dungeon);
     if (money_payday < dungeon->creatures_total_pay)
         money_payday = dungeon->creatures_total_pay;
-    // Check how much money we will have left after payday
+    // In case payday expenses are low, require enough money to make special digger
+    money_mkdigger = compute_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
+    if (money_payday < money_mkdigger)
+        money_payday = money_mkdigger;
+    // Check how much money we will have left after payday (or other expenses)
     money_left = dungeon->total_money_owned - money_payday;
-    // Try creating digging for gold process
-    if ((check->param2 > money_left) || (check->param1 > money_left))
+    // Try increasing priority of digging for gold process
+    if ((money_left < check->param2) || (money_left < check->param1))
     {
         SYNCDBG(8,"Increasing player %d gold dig process priority",(int)dungeon->owner);
         for (i=0; i <= COMPUTER_PROCESSES_COUNT; i++)
@@ -1033,27 +1044,19 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
             if (cproc->func_check == computer_check_dig_to_gold)
             {
                 cproc->priority++;
-                if (game.play_gameturn - cproc->param_4 > 20) {
-                    cproc->param_4 = 0;
+                if (game.play_gameturn - cproc->last_run_turn > 20) {
+                    cproc->last_run_turn = 0;
                 }
             }
         }
     }
-
-    // Check  minimum money we need
-    GoldAmount money_needed;
-    // We need enough to make one digger
-    money_needed = compute_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
-    // We need enough to pay all creatures
-    if (money_needed < money_payday)
-        money_needed = money_payday;
     // Try selling traps and doors
-    if ((money_needed > dungeon->total_money_owned) && dungeon_has_room(dungeon, RoK_WORKSHOP))
+    if ((money_left < check->param2) && dungeon_has_room(dungeon, RoK_WORKSHOP))
     {
         if (!is_task_in_progress(comp, CTT_SellTrapsAndDoors))
         {
             SYNCDBG(8,"Creating task to sell player %d traps and doors",(int)dungeon->owner);
-            if (create_task_sell_traps_and_doors(comp, 5, 3*money_needed/2)) {
+            if (create_task_sell_traps_and_doors(comp, 5, 4*money_payday/3)) {
                 ret = 1;
             }
         }
@@ -1062,11 +1065,11 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
     int pwhand_task_choose;
     pwhand_task_choose = ACTION_RANDOM(101);
     // Move creatures away from rooms which cost a lot to use
-    if ((3*money_needed/2 > dungeon->total_money_owned) && (pwhand_task_choose < 33))
+    if ((money_left < check->param1) && (pwhand_task_choose < 33))
     {
         int num_to_move;
         num_to_move = 3;
-        if (!is_task_in_progress_using_hand(comp) && (computer_able_to_use_magic(comp, PwrK_HAND, 1, num_to_move) == 1))
+        if (!is_task_in_progress_using_hand(comp) && (computer_able_to_use_magic(comp, PwrK_HAND, 1, num_to_move) == CTaskRet_Unk1))
         {
             SYNCDBG(8,"Creating task to pick player %d creatures from expensive jobs",(int)dungeon->owner);
             if (computer_pick_expensive_job_creatures_and_place_on_lair(comp, num_to_move) > 0) {
@@ -1075,16 +1078,16 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
         }
     }
     // Move any gold laying around to treasure room
-    if ((2*money_needed > dungeon->total_money_owned) && dungeon_has_room(dungeon, RoK_TREASURE))
+    if ((money_left < check->param1) && dungeon_has_room(dungeon, RoK_TREASURE))
     {
         int num_to_move;
         num_to_move = 10;
         // If there's already task in progress which uses hand, then don't add more
         // content of the hand could be used by wrong task by mistake
-        if (!is_task_in_progress_using_hand(comp) && (computer_able_to_use_magic(comp, PwrK_HAND, 1, num_to_move) == 1))
+        if (!is_task_in_progress_using_hand(comp) && (computer_able_to_use_magic(comp, PwrK_HAND, 1, num_to_move) == CTaskRet_Unk1))
         {
             SYNCDBG(8,"Creating task to move neutral gold to treasury");
-            if (create_task_move_gold_to_treasury(comp, num_to_move, 2*money_needed)) {
+            if (create_task_move_gold_to_treasury(comp, num_to_move, 2*money_payday)) {
                 ret = 1;
             }
         }
@@ -1201,7 +1204,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
     struct ComputerProcessTypes *cpt;
     struct ComputerProcess *cproc;
     struct ComputerProcess *newproc;
-    struct ComputerCheck *check;
+    struct ComputerCheck *ccheck;
     struct ComputerCheck *newchk;
     struct ComputerEvent *event;
     struct ComputerEvent *newevnt;
@@ -1273,14 +1276,14 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
 
     for (i=0; i < COMPUTER_CHECKS_COUNT; i++)
     {
-      check = &cpt->checks[i];
-      newchk = &comp->checks[i];
-      if ((check == NULL) || (check->name == NULL))
-      {
-        newchk->name = NULL;
-        break;
-      }
-      LbMemoryCopy(newchk, check, sizeof(struct ComputerCheck));
+        ccheck = &cpt->checks[i];
+        newchk = &comp->checks[i];
+        if ((ccheck == NULL) || (ccheck->name == NULL))
+        {
+            newchk->name = NULL;
+            break;
+        }
+        LbMemoryCopy(newchk, ccheck, sizeof(struct ComputerCheck));
     }
     // Note that we don't have special, empty check at end of array
     // The check with 0x02 flag identifies end of active checks
@@ -1294,8 +1297,8 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
         newevnt = &comp->events[i];
         if ((event == NULL) || (event->name == NULL))
         {
-          newevnt->name = NULL;
-          break;
+            newevnt->name = NULL;
+            break;
         }
         LbMemoryCopy(newevnt, event, sizeof(struct ComputerEvent));
     }
@@ -1372,12 +1375,12 @@ TbBool process_checks(struct Computer2 *comp)
             break;
         if ((ccheck->flags & 0x01) == 0)
         {
-            delta = (game.play_gameturn - ccheck->param4);
+            delta = (game.play_gameturn - ccheck->last_run_turn);
             if ((delta > ccheck->turns_interval) && (ccheck->func != NULL))
             {
                 SYNCDBG(8,"Executing check %ld, \"%s\"",i,ccheck->name);
                 ccheck->func(comp, ccheck);
-                ccheck->param4 = game.play_gameturn;
+                ccheck->last_run_turn = game.play_gameturn;
             }
         }
     }

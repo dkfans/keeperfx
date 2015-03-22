@@ -1299,7 +1299,7 @@ void suspend_process(struct Computer2 *comp, struct ComputerProcess *cproc)
     {
         cproc->flags &= ~ComProc_Unkn0020;
         cproc->param_3 = 0;
-        cproc->param_4 = game.play_gameturn;
+        cproc->last_run_turn = game.play_gameturn;
         cproc->param_2 = game.play_gameturn;
     } else {
         WARNLOG("Invalid computer process referenced");
@@ -1310,7 +1310,7 @@ void reset_process(struct Computer2 *comp, struct ComputerProcess *cproc)
 {
   if (cproc != NULL)
   {
-    cproc->param_4 = 0;
+    cproc->last_run_turn = 0;
     cproc->param_3 = 0;
     cproc->flags &= ~ComProc_Unkn0020;
     cproc->param_2 = game.play_gameturn;
@@ -1343,10 +1343,10 @@ struct ComputerProcess * find_best_process(struct Computer2 *comp)
             break;
         if ((cproc->flags & (ComProc_Unkn0020|ComProc_Unkn0010|ComProc_Unkn0008|ComProc_Unkn0004|ComProc_Unkn0001)) != 0)
             continue;
-        if (cproc->param_4 > 0)
+        if (cproc->last_run_turn > 0)
         {
             GameTurnDelta prior;
-            prior = (GameTurnDelta)game.play_gameturn - (GameTurnDelta)cproc->param_4;
+            prior = (GameTurnDelta)game.play_gameturn - (GameTurnDelta)cproc->last_run_turn;
             if (g1max_prior < prior) {
                 g1max_prior = prior;
                 g1max_cproc = cproc;
@@ -1417,12 +1417,12 @@ long set_next_process(struct Computer2 *comp)
         }
         if (chkres == 4)
         {
-            cproc->param_4 = game.play_gameturn;
+            cproc->last_run_turn = game.play_gameturn;
             cproc->param_3 = 0;
         }
         if (chkres == 0)
         {
-            cproc->param_4 = 0;
+            cproc->last_run_turn = 0;
             cproc->param_3 = game.play_gameturn;
         }
     }

@@ -25,6 +25,7 @@
 #include "thing_list.h"
 #include "creature_control.h"
 #include "creature_instances.h"
+#include "creature_jobs.h"
 #include "config_creature.h"
 #include "config_rules.h"
 #include "config_terrain.h"

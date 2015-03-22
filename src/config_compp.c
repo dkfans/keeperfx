@@ -407,8 +407,9 @@ short parse_computer_player_process_blocks(char *buf, long len, const char *conf
         case 2: // MNEMONIC
             if (get_conf_parameter_whole(buf,&pos,len,computer_process_config_list[i].name,sizeof(computer_process_config_list[i].name)) <= 0)
             {
-              WARNMSG("Couldn't read \"%s\" parameter in [%s] block of Computer file.","MNEMONIC",block_buf);
-              break;
+                CONFWRNLOG("Could not read \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                break;
             }
             break;
         case 3: // VALUES
@@ -444,7 +445,8 @@ short parse_computer_player_process_blocks(char *buf, long len, const char *conf
             }
             if (n < 5)
             {
-              WARNMSG("Couldn't recognize all \"%s\" parameters in [%s] block of Computer file.","VALUES",block_buf);
+                CONFWRNLOG("Could not recognize all of \"%s\" parameters in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
         case 4: // FUNCTIONS
@@ -480,7 +482,8 @@ short parse_computer_player_process_blocks(char *buf, long len, const char *conf
             }
             if (n < 5)
             {
-              WARNMSG("Couldn't recognize all \"%s\" parameters in [%s] block of Computer file.","FUNCTIONS",block_buf);
+                CONFWRNLOG("Could not recognize all of \"%s\" parameters in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
         case 5: // PARAMS
@@ -505,7 +508,7 @@ short parse_computer_player_process_blocks(char *buf, long len, const char *conf
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              cproc->param_4 = k;
+              cproc->last_run_turn = k;
               n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
@@ -522,7 +525,8 @@ short parse_computer_player_process_blocks(char *buf, long len, const char *conf
             }
             if (n < 6)
             {
-              WARNMSG("Couldn't recognize all \"%s\" parameters in [%s] block of Computer file.","PARAMS",block_buf);
+                CONFWRNLOG("Could not recognize all of \"%s\" parameters in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
         case 0: // comment
@@ -530,7 +534,8 @@ short parse_computer_player_process_blocks(char *buf, long len, const char *conf
         case -1: // end of buffer
             break;
         default:
-            WARNMSG("Unrecognized command in Computer Player file, starting on byte %d.",pos);
+            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
+                cmd_num,block_buf,config_textname);
             break;
         }
         skip_conf_to_next_line(buf,&pos,len);
@@ -542,7 +547,7 @@ short parse_computer_player_process_blocks(char *buf, long len, const char *conf
 
 short parse_computer_player_check_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-    struct ComputerCheck *check;
+    struct ComputerCheck *ccheck;
     long pos;
     int i,k,n;
     int cmd_num;
@@ -553,10 +558,10 @@ short parse_computer_player_check_blocks(char *buf, long len, const char *config
     const int arr_size = sizeof(computer_check_config_list)/sizeof(computer_check_config_list[0]);
     for (i=0; i < arr_size; i++)
     {
-      check = &computer_checks[i];
+      ccheck = &computer_checks[i];
       computer_check_config_list[i].name[0] = '\0';
-      computer_check_config_list[i].check = check;
-      check->name = computer_check_names[i];
+      computer_check_config_list[i].check = ccheck;
+      ccheck->name = computer_check_names[i];
       LbMemorySet(computer_check_names[i], 0, LINEMSG_SIZE);
     }
     strcpy(computer_check_names[0],"INCORRECT CHECK");
@@ -571,7 +576,7 @@ short parse_computer_player_check_blocks(char *buf, long len, const char *config
           WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
           continue;
       }
-      check = computer_check_config_list[i].check;
+      ccheck = computer_check_config_list[i].check;
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(compp_check_commands,cmd_num)
       while (pos<len)
       {
@@ -589,77 +594,82 @@ short parse_computer_player_check_blocks(char *buf, long len, const char *config
         switch (cmd_num)
         {
         case 1: // NAME
-            if (get_conf_parameter_whole(buf,&pos,len,check->name,LINEMSG_SIZE) <= 0)
+            if (get_conf_parameter_whole(buf,&pos,len,ccheck->name,LINEMSG_SIZE) <= 0)
             {
-              WARNMSG("Couldn't read \"%s\" parameter in [%s] block of Computer file.","NAME",block_buf);
-              break;
+                CONFWRNLOG("Could not read \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                break;
             }
             break;
         case 2: // MNEMONIC
             if (get_conf_parameter_whole(buf,&pos,len,computer_check_config_list[i].name,sizeof(computer_check_config_list[i].name)) <= 0)
             {
-              WARNMSG("Couldn't read \"%s\" parameter in [%s] block of Computer file.","MNEMONIC",block_buf);
-              break;
+                CONFWRNLOG("Could not read \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                break;
             }
             break;
         case 3: // VALUES
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              check->flags = k;
+              ccheck->flags = k;
               n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              check->turns_interval = k;
+              ccheck->turns_interval = k;
               n++;
             }
             if (n < 2)
             {
-              WARNMSG("Couldn't recognize all \"%s\" parameters in [%s] block of Computer file.","VALUES",block_buf);
+                CONFWRNLOG("Could not recognize all of \"%s\" parameters in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
         case 4: // FUNCTIONS
             k = recognize_conf_parameter(buf,&pos,len,computer_check_func_type);
             if (k > 0)
             {
-                check->func = computer_check_func_list[k];
+                ccheck->func = computer_check_func_list[k];
                 n++;
             }
             if (n < 1)
             {
-              WARNMSG("Couldn't recognize all \"%s\" parameters in [%s] block of Computer file.","FUNCTIONS",block_buf);
+                CONFWRNLOG("Could not recognize all of \"%s\" parameters in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
         case 5: // PARAMS
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              check->param1 = k;
+              ccheck->param1 = k;
               n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              check->param2 = k;
+              ccheck->param2 = k;
               n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              check->param3 = k;
+              ccheck->param3 = k;
               n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              check->param4 = k;
+              ccheck->last_run_turn = k;
               n++;
             }
             if (n < 4)
             {
-              WARNMSG("Couldn't recognize all \"%s\" parameters in [%s] block of Computer file.","PARAMS",block_buf);
+                CONFWRNLOG("Could not recognize all of \"%s\" parameters in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
         case 0: // comment
@@ -667,7 +677,8 @@ short parse_computer_player_check_blocks(char *buf, long len, const char *config
         case -1: // end of buffer
             break;
         default:
-            WARNMSG("Unrecognized command in Computer Player file, starting on byte %d.",pos);
+            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
+                cmd_num,block_buf,config_textname);
             break;
         }
         skip_conf_to_next_line(buf,&pos,len);
@@ -728,15 +739,17 @@ short parse_computer_player_event_blocks(char *buf, long len, const char *config
         case 1: // NAME
             if (get_conf_parameter_whole(buf,&pos,len,cevent->name,LINEMSG_SIZE) <= 0)
             {
-              WARNMSG("Couldn't read \"%s\" parameter in [%s] block of Computer file.","NAME",block_buf);
-              break;
+                CONFWRNLOG("Could not read \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                break;
             }
             break;
         case 2: // MNEMONIC
             if (get_conf_parameter_whole(buf,&pos,len,computer_event_config_list[i].name,sizeof(computer_event_config_list[i].name)) <= 0)
             {
-              WARNMSG("Couldn't read \"%s\" parameter in [%s] block of Computer file.","MNEMONIC",block_buf);
-              break;
+                CONFWRNLOG("Could not read \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                break;
             }
             break;
         case 3: // VALUES
@@ -760,7 +773,8 @@ short parse_computer_player_event_blocks(char *buf, long len, const char *config
             }
             if (n < 3)
             {
-              WARNMSG("Couldn't recognize all \"%s\" parameters in [%s] block of Computer file.","VALUES",block_buf);
+                CONFWRNLOG("Could not recognize all of \"%s\" parameters in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
         case 4: // FUNCTIONS
@@ -778,7 +792,8 @@ short parse_computer_player_event_blocks(char *buf, long len, const char *config
             }
             if (n < 2)
             {
-              WARNMSG("Couldn't recognize all \"%s\" parameters in [%s] block of Computer file.","FUNCTIONS",block_buf);
+                CONFWRNLOG("Could not recognize all of \"%s\" parameters in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
         case 5: // PROCESS
@@ -790,7 +805,8 @@ short parse_computer_player_event_blocks(char *buf, long len, const char *config
                 cevent->process = computer_process_config_list[k].process;
               } else
               {
-                WARNMSG("Couldn't recognize \"%s\" parameter \"%s\" in Computer file.","PROCESS",word_buf);
+                  CONFWRNLOG("Could not recognize \"%s\" parameter in [%s] block of %s file.",
+                      COMMAND_TEXT(cmd_num),block_buf,config_textname);
               }
             }
             break;
@@ -821,7 +837,8 @@ short parse_computer_player_event_blocks(char *buf, long len, const char *config
             }
             if (n < 4)
             {
-              WARNMSG("Couldn't recognize all \"%s\" parameters in [%s] block of Computer file.","PARAMS",block_buf);
+                CONFWRNLOG("Could not recognize all of \"%s\" parameters in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
         case 0: // comment
@@ -829,7 +846,8 @@ short parse_computer_player_event_blocks(char *buf, long len, const char *config
         case -1: // end of buffer
             break;
         default:
-            WARNMSG("Unrecognized command in Computer Player file, starting on byte %d.",pos);
+            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
+                cmd_num,block_buf,config_textname);
             break;
         }
         skip_conf_to_next_line(buf,&pos,len);
@@ -839,14 +857,14 @@ short parse_computer_player_event_blocks(char *buf, long len, const char *config
     return 1;
 }
 
-short write_computer_player_check_to_log(struct ComputerCheck *check)
+short write_computer_player_check_to_log(struct ComputerCheck *ccheck)
 {
   JUSTMSG("[checkXX]");
-  JUSTMSG("Name = %s",check->name);
+  JUSTMSG("Name = %s",ccheck->name);
   JUSTMSG("Mnemonic = %s","XX");
-  JUSTMSG("Values = %d %d",check->flags,check->turns_interval);
-  JUSTMSG("Functions = %x",check->func);
-  JUSTMSG("Params = %d %d %d %d",check->param1,check->param2,check->param3,check->param4);
+  JUSTMSG("Values = %d %d",ccheck->flags,ccheck->turns_interval);
+  JUSTMSG("Functions = %x",ccheck->func);
+  JUSTMSG("Params = %d %d %d %d",ccheck->param1,ccheck->param2,ccheck->param3,ccheck->last_run_turn);
   return true;
 }
 
@@ -951,7 +969,7 @@ short parse_computer_player_computer_blocks(char *buf, long len, const char *con
             }
             if (n < 7)
             {
-                CONFWRNLOG("Couldn't recognize all \"%s\" parameters in [%s] block of %s file.",
+                CONFWRNLOG("Could not recognize all of \"%s\" parameters in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
@@ -968,7 +986,7 @@ short parse_computer_player_computer_blocks(char *buf, long len, const char *con
               }
               n = computer_type_add_process(cpt, computer_process_config_list[k].process);
               if (n < 0) {
-                  CONFWRNLOG("Couldn't add \"%s\" list element \"%s\" in [%s] block of %s file.",
+                  CONFWRNLOG("Could not add \"%s\" list element \"%s\" in [%s] block of %s file.",
                       COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
               }
             }
@@ -985,8 +1003,9 @@ short parse_computer_player_computer_blocks(char *buf, long len, const char *con
                   continue;
               }
               n = computer_type_add_check(cpt, computer_check_config_list[k].check);
-              if (n < 0) {
-                  CONFWRNLOG("Couldn't add \"%s\" list element \"%s\" in [%s] block of %s file.",
+              if (n < 0)
+              {
+                  CONFWRNLOG("Could not add \"%s\" list element \"%s\" in [%s] block of %s file.",
                       COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
               }
             }
@@ -1003,8 +1022,9 @@ short parse_computer_player_computer_blocks(char *buf, long len, const char *con
                   continue;
               }
               n = computer_type_add_event(cpt, computer_event_config_list[k].event);
-              if (n < 0) {
-                  CONFWRNLOG("Couldn't add \"%s\" list element \"%s\" in [%s] block of %s file.",
+              if (n < 0)
+              {
+                  CONFWRNLOG("Could not add \"%s\" list element \"%s\" in [%s] block of %s file.",
                       COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
               }
             }
@@ -1048,7 +1068,8 @@ short parse_computer_player_computer_blocks(char *buf, long len, const char *con
         case -1: // end of buffer
             break;
         default:
-            WARNMSG("Unrecognized command in Computer Player file, starting on byte %d.",pos);
+            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
+                cmd_num,block_buf,config_textname);
             break;
         }
         skip_conf_to_next_line(buf,&pos,len);
