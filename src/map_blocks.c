@@ -20,6 +20,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_sound.h"
 
 #include "slab_data.h"
 #include "room_data.h"
@@ -32,6 +33,7 @@
 #include "creature_senses.h"
 #include "player_utils.h"
 #include "ariadne_wallhug.h"
+#include "spdigger_stack.h"
 #include "frontmenu_ingame_map.h"
 #include "game_legacy.h"
 
@@ -51,6 +53,7 @@ DLLIMPORT unsigned char _DK_get_against(unsigned char a1, long stl_x, long stl_y
 DLLIMPORT void _DK_place_slab_columns(long a1, unsigned char stl_x, unsigned char stl_y, short *col_idx);
 DLLIMPORT void _DK_place_slab_object(unsigned short a1, long stl_x, long stl_y, unsigned short col_idx, unsigned short a5, unsigned char a6);
 DLLIMPORT void _DK_copy_block_with_cube_groups(short a1, unsigned char plyr_idx, unsigned char a3);
+DLLIMPORT long _DK_tag_blocks_for_digging_in_area(long stl_x, long stl_y, signed char plyr_idx);
 
 const signed short slab_element_around_eight[] = {
     -3, -2, 1, 4, 3, 2, -1, -4
@@ -109,9 +112,78 @@ void create_dirt_rubble_for_dug_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
     }
 }
 
+TbBool tag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
+{
+    MapSubtlCoord x, y;
+    x = STL_PER_SLB * (stl_x/STL_PER_SLB);
+    y = STL_PER_SLB * (stl_y/STL_PER_SLB);
+    if ( (x < 0) || (x >= map_subtiles_x) || (y < 0) || (y >= map_subtiles_y) ) {
+        ERRORLOG("Attempt to tag area outside of map");
+        return 0;
+    }
+    //return _DK_tag_blocks_for_digging_in_area(stl_x, stl_y, plyr_idx);
+    TbBool task_added;
+    task_added = false;
+    struct Map *mapblk;
+    mapblk = get_map_block_at(x+1, y+1);
+    struct SlabMap *slb;
+    slb = get_slabmap_for_subtile(x+1, y+1);
+    struct SlabAttr *slbattr;
+    slbattr = get_slab_attrs(slb);
+    long i;
+    i = get_subtile_number(x+1,y+1);
+    if ((find_from_task_list(plyr_idx, i) == -1)
+      && (slbattr->is_unknflg14 || !map_block_revealed(mapblk, plyr_idx))
+      && (((mapblk->flags & 0x02) == 0) || slabmap_owner(slb) != plyr_idx)
+      && (((mapblk->flags & 0x20) == 0) || slabmap_owner(slb) == plyr_idx || !map_block_revealed(mapblk, plyr_idx)) )
+    {
+      if ((mapblk->flags & 0x01) != 0)
+      {
+          add_task_list_entry(plyr_idx, SDDigTask_MineGold, i);
+          task_added = true;
+      } else
+      if (((mapblk->flags & 0x08) == 0) && (((mapblk->flags & 0x20) == 0) || (slabmap_owner(slb) != plyr_idx)))
+      {
+          add_task_list_entry(plyr_idx, SDDigTask_Unknown3, i);
+          task_added = true;
+      } else
+      {
+          add_task_list_entry(plyr_idx, SDDigTask_DigEarth, i);
+          task_added = true;
+      }
+      if (is_my_player_number(plyr_idx))
+      {
+          long dx,dy;
+          for (dy=0; dy < STL_PER_SLB; dy++)
+          {
+              for (dx=0; dx < STL_PER_SLB; dx++)
+              {
+                  mapblk = get_map_block_at(x+dx, y+dy);
+                  slb = get_slabmap_for_subtile(x+dx, y+dy);
+                  if ((mapblk->flags & (0x80|0x04)) != 0)
+                      continue;
+                  if (((mapblk->flags & 0x02) != 0) && (slabmap_owner(slb) == plyr_idx))
+                      continue;
+                  if (((mapblk->flags & 0x20) != 0) && (slabmap_owner(slb) != plyr_idx) && map_block_revealed(mapblk, plyr_idx))
+                      continue;
+                  if ((mapblk->flags & 0x01) != 0)
+                  {
+                      mapblk->flags |= 0x80;
+                  } else
+                  if (((mapblk->flags & (0x20|0x08)) != 0) || !map_block_revealed(mapblk, plyr_idx))
+                  {
+                      mapblk->flags |= 0x04;
+                  }
+              }
+          }
+      }
+      pannel_map_update(x, y, STL_PER_SLB, STL_PER_SLB);
+    }
+    return task_added;
+}
+
 long untag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
-    struct Map *mapblk;
     MapSubtlCoord x, y;
     long num_untagged;
     long task_idx;
@@ -135,6 +207,7 @@ long untag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
         {
             for (dx=0; dx < STL_PER_SLB; dx++)
             {
+                struct Map *mapblk;
                 mapblk = get_map_block_at(x+dx, y+dy);
                 if (map_block_invalid(mapblk))
                     continue;
@@ -147,6 +220,23 @@ long untag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
     }
     pannel_map_update(x, y, STL_PER_SLB, STL_PER_SLB);
     return num_untagged;
+}
+
+long tag_blocks_for_digging_in_rectangle_around(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
+{
+    long ret;
+    ret = tag_blocks_for_digging_in_area(stl_x & ((stl_x < 0) - 1), stl_y & ((stl_y < 0) - 1), plyr_idx);
+    if ((ret != 0) && is_my_player_number(plyr_idx))
+        play_non_3d_sample(118);
+    return ret;
+}
+
+void untag_blocks_for_digging_in_rectangle_around(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
+{
+    long ret;
+    ret = untag_blocks_for_digging_in_area(stl_x & ((stl_x < 0) - 1), stl_y & ((stl_y < 0) - 1), plyr_idx);
+    if ((ret != 0) && is_my_player_number(plyr_idx))
+        play_non_3d_sample(118);
 }
 
 void all_players_untag_blocks_for_digging_in_area(MapSlabCoord slb_x, MapSlabCoord slb_y)
