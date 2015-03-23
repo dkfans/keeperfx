@@ -3560,16 +3560,6 @@ int can_thing_be_queried(struct Thing *thing, long a2)
   return _DK_can_thing_be_queried(thing, a2);
 }
 
-long tag_blocks_for_digging_in_rectangle_around(long a1, long a2, char a3)
-{
-  return _DK_tag_blocks_for_digging_in_rectangle_around(a1, a2, a3);
-}
-
-void untag_blocks_for_digging_in_rectangle_around(long a1, long a2, char a3)
-{
-  _DK_untag_blocks_for_digging_in_rectangle_around(a1, a2, a3);
-}
-
 void tag_cursor_blocks_sell_area(unsigned char a1, long a2, long a3, long a4)
 {
     SYNCDBG(7,"Starting");
