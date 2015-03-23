@@ -883,7 +883,7 @@ long check_out_undug_area(struct Thing *thing)
     struct Dungeon *dungeon;
     dungeon = get_dungeon(thing->owner);
     cctrl = creature_control_get_from_thing(thing);
-    struct MapTask *task;
+    struct MapTask *mtask;
     long i,max;
     max = dungeon->field_AF7;
     if (max > MAPTASKS_COUNT)
@@ -900,14 +900,14 @@ long check_out_undug_area(struct Thing *thing)
     best_stl_y = -1;
     for (i=0; i < max; i++)
     {
-        task = &dungeon->task_list[i];
-        if (task->kind == SDDigTask_None)
+        mtask = &dungeon->task_list[i];
+        if (mtask->kind == SDDigTask_None)
             continue;
-        if (task->kind != SDDigTask_Unknown3)
+        if (mtask->kind != SDDigTask_Unknown3)
         {
             SubtlCodedCoords tsk_stl_num;
             MapSubtlCoord tsk_dist;
-            tsk_stl_num = task->coords;
+            tsk_stl_num = mtask->coords;
             tsk_dist = get_2d_box_distance_xy(digstl_x, digstl_y, stl_num_decode_x(tsk_stl_num), stl_num_decode_y(tsk_stl_num));
             if (tsk_dist < best_dist)
             {
@@ -931,8 +931,8 @@ long check_out_undug_area(struct Thing *thing)
     }
     cctrl->digger.task_idx = best_tsk_id;
     cctrl->digger.task_stl = best_tsk_stl;
-    task = &dungeon->task_list[best_tsk_id];
-    if (task->kind == SDDigTask_MineGold) {
+    mtask = &dungeon->task_list[best_tsk_id];
+    if (mtask->kind == SDDigTask_MineGold) {
         thing->continue_state = CrSt_ImpArrivesAtMineGold;
     } else {
         thing->continue_state = CrSt_ImpArrivesAtDigDirt;

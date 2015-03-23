@@ -1512,6 +1512,7 @@
  0001:000C6670       can_thing_be_possessed
  0001:000C67C0       can_thing_be_queried
  0001:000B11C0       tag_blocks_for_digging_in_rectangle_around
+ 0001:000B12A0       tag_blocks_for_digging_in_area
  0001:000B1230       untag_blocks_for_digging_in_rectangle_around
  0001:000B1AC0       place_and_process_pretty_wall_slab
  0001:00077200       destroy_door

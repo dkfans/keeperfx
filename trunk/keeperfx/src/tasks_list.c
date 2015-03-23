@@ -49,10 +49,42 @@ struct MapTask *get_task_list_entry(long plyr_idx, long task_idx)
     return &dungeon->task_list[task_idx];
 }
 
+void add_task_list_entry(PlayerNumber plyr_idx, unsigned char kind, SubtlCodedCoords stl_num)
+{
+    struct Dungeon *dungeon;
+    dungeon = get_dungeon(plyr_idx);
+    if (dungeon_invalid(dungeon)) {
+        return;
+    }
+    // Find free task index
+    int task_idx;
+    struct MapTask  *mtask;
+    for (task_idx=0; task_idx < dungeon->field_AF7; task_idx++)
+    {
+        mtask = &dungeon->task_list[task_idx];
+        if (mtask->kind == 0)
+          break;
+    }
+    if (task_idx == dungeon->field_AF7)
+    {
+        if (task_idx >= MAPTASKS_COUNT)
+            return;
+        dungeon->field_AF7++;
+    }
+    // Fill the task
+    MapSubtlCoord taskstl_x, taskstl_y;
+    taskstl_x = stl_slab_center_subtile(stl_num_decode_x(stl_num));
+    taskstl_y = stl_slab_center_subtile(stl_num_decode_y(stl_num));
+    mtask = &dungeon->task_list[task_idx];
+    mtask->kind = kind;
+    mtask->coords = get_subtile_number(taskstl_x, taskstl_y);
+    dungeon->field_E8F++;
+}
+
 long find_from_task_list(PlayerNumber plyr_idx, SubtlCodedCoords srch_tsk)
 {
   struct Dungeon *dungeon;
-  struct MapTask *task;
+  struct MapTask *mtask;
   long i,imax;
   dungeon = get_dungeon(plyr_idx);
   imax = dungeon->field_AF7;
@@ -60,8 +92,8 @@ long find_from_task_list(PlayerNumber plyr_idx, SubtlCodedCoords srch_tsk)
       imax = MAPTASKS_COUNT;
   for (i=0; i < imax; i++)
   {
-      task = &dungeon->task_list[i];
-      if (task->coords == srch_tsk)
+      mtask = &dungeon->task_list[i];
+      if (mtask->coords == srch_tsk)
           return i;
   }
   return -1;
@@ -70,7 +102,7 @@ long find_from_task_list(PlayerNumber plyr_idx, SubtlCodedCoords srch_tsk)
 long find_from_task_list_by_slab(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
   struct Dungeon *dungeon;
-  struct MapTask *task;
+  struct MapTask *mtask;
   long i,imax;
   SubtlCodedCoords srch_tsk;
   srch_tsk = get_subtile_number_at_slab_center(slb_x, slb_y);
@@ -80,8 +112,8 @@ long find_from_task_list_by_slab(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapS
       imax = MAPTASKS_COUNT;
   for (i=0; i < imax; i++)
   {
-      task = &dungeon->task_list[i];
-      if (task->coords == srch_tsk)
+      mtask = &dungeon->task_list[i];
+      if (mtask->coords == srch_tsk)
           return i;
   }
   return -1;
@@ -90,7 +122,7 @@ long find_from_task_list_by_slab(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapS
 long find_from_task_list_by_subtile(PlayerNumber plyr_idx, MapSlabCoord stl_x, MapSlabCoord stl_y)
 {
   struct Dungeon *dungeon;
-  struct MapTask *task;
+  struct MapTask *mtask;
   long i,imax;
   SubtlCodedCoords srch_tsk;
   srch_tsk = get_subtile_number(stl_slab_center_subtile(stl_x), stl_slab_center_subtile(stl_y));
@@ -100,8 +132,8 @@ long find_from_task_list_by_subtile(PlayerNumber plyr_idx, MapSlabCoord stl_x, M
       imax = MAPTASKS_COUNT;
   for (i=0; i < imax; i++)
   {
-      task = &dungeon->task_list[i];
-      if (task->coords == srch_tsk)
+      mtask = &dungeon->task_list[i];
+      if (mtask->coords == srch_tsk)
           return i;
   }
   return -1;
@@ -110,7 +142,7 @@ long find_from_task_list_by_subtile(PlayerNumber plyr_idx, MapSlabCoord stl_x, M
 long find_dig_from_task_list(PlayerNumber plyr_idx, SubtlCodedCoords srch_tsk)
 {
     struct Dungeon *dungeon;
-    struct MapTask *task;
+    struct MapTask *mtask;
     long i,max;
     dungeon = get_dungeon(plyr_idx);
     max = dungeon->field_AF7;
@@ -118,8 +150,8 @@ long find_dig_from_task_list(PlayerNumber plyr_idx, SubtlCodedCoords srch_tsk)
         max = MAPTASKS_COUNT;
     for (i=0; i < max; i++)
     {
-      task = &dungeon->task_list[i];
-      if ((task->coords == srch_tsk) && (task->kind != SDDigTask_Unknown3))
+      mtask = &dungeon->task_list[i];
+      if ((mtask->coords == srch_tsk) && (mtask->kind != SDDigTask_Unknown3))
         return i;
     }
     return -1;
@@ -127,15 +159,15 @@ long find_dig_from_task_list(PlayerNumber plyr_idx, SubtlCodedCoords srch_tsk)
 
 long find_next_dig_in_dungeon_task_list(struct Dungeon *dungeon, long last_dig)
 {
-    struct MapTask *task;
+    struct MapTask *mtask;
     long i,max;
     max = dungeon->field_AF7;
     if (max > MAPTASKS_COUNT)
         max = MAPTASKS_COUNT;
     for (i=last_dig+1; i < max; i++)
     {
-      task = &dungeon->task_list[i];
-      if ((task->kind != SDDigTask_None) && (task->kind != SDDigTask_Unknown3))
+      mtask = &dungeon->task_list[i];
+      if ((mtask->kind != SDDigTask_None) && (mtask->kind != SDDigTask_Unknown3))
         return i;
     }
     return -1;
