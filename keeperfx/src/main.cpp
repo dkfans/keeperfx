@@ -334,11 +334,7 @@ void process_dungeon_destroy(struct Thing *heartng)
         struct Computer2 *comp;
         comp = get_computer_player(plyr_idx);
         computer_force_dump_held_things_on_map(comp, central_pos);
-        // Drop things still in limbo due to some error
-        if ((gameadd.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) == 0)
-        {
-            dump_things_lost_in_limbo_on_map(plyr_idx, central_pos->x.stl.num, central_pos->y.stl.num);
-        }
+        // Now if players things are still in hand - they must be kept by enemies
         // Got to next phase
         dungeon->heart_destroy_state = 4;
         dungeon->heart_destroy_turn = 0;
