@@ -340,7 +340,6 @@ void turn_off_power_obey(PlayerNumber plyr_idx);
 short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool update_hand);
 int dump_all_held_things_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 void dump_thing_held_by_any_player(struct Thing *thing);
-void dump_things_lost_in_limbo_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 void instant_instance_selected(CrInstance check_inst_id);
 void centre_engine_window(void);
