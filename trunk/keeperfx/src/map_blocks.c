@@ -134,15 +134,15 @@ TbBool tag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
     i = get_subtile_number(x+1,y+1);
     if ((find_from_task_list(plyr_idx, i) == -1)
       && (slbattr->is_unknflg14 || !map_block_revealed(mapblk, plyr_idx))
-      && (((mapblk->flags & 0x02) == 0) || slabmap_owner(slb) != plyr_idx)
-      && (((mapblk->flags & 0x20) == 0) || slabmap_owner(slb) == plyr_idx || !map_block_revealed(mapblk, plyr_idx)) )
+      && (((mapblk->flags & SlbAtFlg_IsRoom) == 0) || slabmap_owner(slb) != plyr_idx)
+      && (((mapblk->flags & SlbAtFlg_Filled) == 0) || slabmap_owner(slb) == plyr_idx || !map_block_revealed(mapblk, plyr_idx)) )
     {
-      if ((mapblk->flags & 0x01) != 0)
+      if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
       {
           add_task_list_entry(plyr_idx, SDDigTask_MineGold, i);
           task_added = true;
       } else
-      if (((mapblk->flags & 0x08) == 0) && (((mapblk->flags & 0x20) == 0) || (slabmap_owner(slb) != plyr_idx)))
+      if (((mapblk->flags & SlbAtFlg_Digable) == 0) && (((mapblk->flags & SlbAtFlg_Filled) == 0) || (slabmap_owner(slb) != plyr_idx)))
       {
           add_task_list_entry(plyr_idx, SDDigTask_Unknown3, i);
           task_added = true;
@@ -160,19 +160,19 @@ TbBool tag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
               {
                   mapblk = get_map_block_at(x+dx, y+dy);
                   slb = get_slabmap_for_subtile(x+dx, y+dy);
-                  if ((mapblk->flags & (0x80|0x04)) != 0)
+                  if ((mapblk->flags & (SlbAtFlg_Unk80|SlbAtFlg_Unk04)) != 0)
                       continue;
-                  if (((mapblk->flags & 0x02) != 0) && (slabmap_owner(slb) == plyr_idx))
+                  if (((mapblk->flags & SlbAtFlg_IsRoom) != 0) && (slabmap_owner(slb) == plyr_idx))
                       continue;
-                  if (((mapblk->flags & 0x20) != 0) && (slabmap_owner(slb) != plyr_idx) && map_block_revealed(mapblk, plyr_idx))
+                  if (((mapblk->flags & SlbAtFlg_Filled) != 0) && (slabmap_owner(slb) != plyr_idx) && map_block_revealed(mapblk, plyr_idx))
                       continue;
-                  if ((mapblk->flags & 0x01) != 0)
+                  if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
                   {
-                      mapblk->flags |= 0x80;
+                      mapblk->flags |= SlbAtFlg_Unk80;
                   } else
-                  if (((mapblk->flags & (0x20|0x08)) != 0) || !map_block_revealed(mapblk, plyr_idx))
+                  if (((mapblk->flags & (SlbAtFlg_Filled|SlbAtFlg_Digable)) != 0) || !map_block_revealed(mapblk, plyr_idx))
                   {
-                      mapblk->flags |= 0x04;
+                      mapblk->flags |= SlbAtFlg_Unk04;
                   }
               }
           }
