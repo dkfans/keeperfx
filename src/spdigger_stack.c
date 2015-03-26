@@ -876,9 +876,9 @@ long check_out_undug_place(struct Thing *creatng)
     return 0;
 }
 
-long check_out_undug_area(struct Thing *thing)
+#define UNDUG_MAX_DIST 24
+long get_nearest_undug_area_position_for_digger(struct Thing *thing, MapSubtlCoord *retstl_x, MapSubtlCoord *retstl_y)
 {
-    SYNCDBG(19,"Starting");
     struct CreatureControl *cctrl;
     struct Dungeon *dungeon;
     dungeon = get_dungeon(thing->owner);
@@ -893,9 +893,9 @@ long check_out_undug_area(struct Thing *thing)
     digstl_y = stl_num_decode_y(cctrl->digger.task_stl);
     MapSubtlCoord best_dist;
     MapSubtlCoord best_stl_x, best_stl_y;
-    SubtlCodedCoords best_tsk_stl;
     int best_tsk_id;
-    best_dist = 24;
+    best_dist = UNDUG_MAX_DIST;
+    best_tsk_id = -1;
     best_stl_x = -1;
     best_stl_y = -1;
     for (i=0; i < max; i++)
@@ -916,22 +916,43 @@ long check_out_undug_area(struct Thing *thing)
                 {
                     best_dist = tsk_dist;
                     best_tsk_id = i;
-                    best_tsk_stl = tsk_stl_num;
                     best_stl_x = tsk_stl_x;
                     best_stl_y = tsk_stl_y;
                 }
             }
         }
     }
-    if (best_dist >= 24) {
+    if (best_dist >= UNDUG_MAX_DIST) {
+        return -1;
+    }
+    *retstl_x = best_stl_x;
+    *retstl_y = best_stl_y;
+    return best_tsk_id;
+}
+#undef UNDUG_MAX_DIST
+
+long check_out_undug_area(struct Thing *thing)
+{
+    SYNCDBG(19,"Starting");
+    MapSubtlCoord stl_x, stl_y;
+    int tsk_id;
+    stl_x = -1;
+    stl_y = -1;
+    tsk_id = get_nearest_undug_area_position_for_digger(thing, &stl_x, &stl_y);
+    if (tsk_id < 0) {
         return 0;
     }
-    if (!setup_person_move_to_position(thing, best_stl_x, best_stl_y, NavRtF_Default)) {
+    if (!setup_person_move_to_position(thing, stl_x, stl_y, NavRtF_Default)) {
         return 0;
     }
-    cctrl->digger.task_idx = best_tsk_id;
-    cctrl->digger.task_stl = best_tsk_stl;
-    mtask = &dungeon->task_list[best_tsk_id];
+    struct Dungeon *dungeon;
+    dungeon = get_dungeon(thing->owner);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    struct MapTask *mtask;
+    mtask = &dungeon->task_list[tsk_id];
+    cctrl->digger.task_idx = tsk_id;
+    cctrl->digger.task_stl = mtask->coords;
     if (mtask->kind == SDDigTask_MineGold) {
         thing->continue_state = CrSt_ImpArrivesAtMineGold;
     } else {
