@@ -187,6 +187,12 @@ enum ItemAvailabilityRet {
     IAvail_NeedResearch  = 4,
 };
 
+enum CompChatFlags {
+    CChat_None          = 0x00,
+    CChat_TasksScarce   = 0x01,
+    CChat_TasksFrequent = 0x02,
+};
+
 //TODO COMPUTER This returns NULL, which is unsafe
 #define INVALID_COMPUTER_PLAYER NULL
 #define INVALID_COMPUTER_PROCESS NULL
