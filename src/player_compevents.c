@@ -128,7 +128,6 @@ TbBool get_computer_drop_position_near_subtile(struct Coord3d *pos, struct Dunge
         81, near_coord_filter_battle_drop_point, &param);
 }
 
-
 long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent, struct Event *event)
 {
     SYNCDBG(18,"Starting for %s",cevent->name);

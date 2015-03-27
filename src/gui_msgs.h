@@ -42,7 +42,8 @@ unsigned long creation_turn;
 void message_update(void);
 void message_draw(void);
 void zero_messages(void);
-void message_add(PlayerNumber plyr_idx);
+void message_add(PlayerNumber plyr_idx, const char *text);
+void message_add_fmt(PlayerNumber plyr_idx, const char *fmt_str, ...);
 /******************************************************************************/
 #ifdef __cplusplus
 }

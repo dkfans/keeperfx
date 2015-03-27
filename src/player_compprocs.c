@@ -271,7 +271,7 @@ long computer_setup_any_room(struct Computer2 *comp, struct ComputerProcess *cpr
     ctask = computer_setup_build_room(comp, cproc->confval_4, cproc->confval_2, cproc->confval_3, cproc->confval_5);
     if (!computer_task_invalid(ctask))
     {
-        SYNCDBG(8,"Task for \"%s\" has been created",cproc->name);
+        SYNCDBG(8,"Computer %d created task for \"%s\"",(int)comp->dungeon->owner,cproc->name);
         cproc->flags |= ComProc_Unkn0020;
         i = (long)((char *)cproc - (char *)&comp->processes[0]) / sizeof(struct ComputerProcess);
         if ((i < 0) || (i > COMPUTER_PROCESSES_COUNT))
@@ -307,7 +307,7 @@ long computer_setup_any_room_continue(struct Computer2 *comp, struct ComputerPro
     ctask = computer_setup_build_room(comp, cproc->confval_4, cproc->confval_2, cproc->confval_3, cproc->confval_5);
     if (!computer_task_invalid(ctask))
     {
-        SYNCDBG(8,"Task for \"%s\" has been created",cproc->name);
+        SYNCDBG(8,"Computer %d created task for \"%s\"",(int)comp->dungeon->owner,cproc->name);
         cproc->flags |= ComProc_Unkn0020;
         i = (long)((char *)cproc - (char *)&comp->processes[0]) / sizeof(struct ComputerProcess);
         if ((i < 0) || (i > COMPUTER_PROCESSES_COUNT))

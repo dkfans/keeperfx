@@ -1782,12 +1782,12 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       }
       return 0;
   case PckA_PlyrMsgBegin:
-      player->allocflags |= PlaF_Unknown4;
+      player->allocflags |= PlaF_NewMPMessage;
       return 0;
   case PckA_PlyrMsgEnd:
-      player->allocflags &= ~PlaF_Unknown4;
+      player->allocflags &= ~PlaF_NewMPMessage;
       if (player->mp_message_text[0] != '\0')
-        message_add(player->id_number);
+        message_add(player->id_number, player->mp_message_text);
       LbMemorySet(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
       return 0;
   case PckA_ToggleLights:
@@ -2101,7 +2101,7 @@ void process_players_packet(long idx)
   SYNCDBG(6,"Processing player %d packet of type %d.",idx,(int)pckt->action);
   player->field_4 = ((pckt->field_10 & 0x20) != 0);
   player->field_5 = ((pckt->field_10 & 0x40) != 0);
-  if (((player->allocflags & PlaF_Unknown4) != 0) && (pckt->action == PckA_PlyrMsgChar))
+  if (((player->allocflags & PlaF_NewMPMessage) != 0) && (pckt->action == PckA_PlyrMsgChar))
   {
      process_players_message_character(player);
   } else

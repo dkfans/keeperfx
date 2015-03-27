@@ -67,15 +67,15 @@ long erstat_inc(int stat_num)
 
 TbBool show_onscreen_msg_va(int nturns, const char *fmt_str, va_list arg)
 {
-  vsprintf(onscreen_msg_text, fmt_str, arg);
-  SYNCMSG("Onscreen message: %s",onscreen_msg_text);
-  onscreen_msg_turns = nturns;
-  return true;
+    vsprintf(onscreen_msg_text, fmt_str, arg);
+    SYNCMSG("Onscreen message: %s",onscreen_msg_text);
+    onscreen_msg_turns = nturns;
+    return true;
 }
 
 TbBool is_onscreen_msg_visible(void)
 {
-  return (onscreen_msg_turns > 0);
+    return (onscreen_msg_turns > 0);
 }
 
 TbBool show_onscreen_msg(int nturns, const char *fmt_str, ...)

@@ -421,7 +421,7 @@ short get_global_inputs(void)
     return false;
   player = get_my_player();
   long keycode;
-  if ((player->allocflags & PlaF_Unknown4) != 0)
+  if ((player->allocflags & PlaF_NewMPMessage) != 0)
   {
     get_players_message_inputs();
     return true;
@@ -499,7 +499,7 @@ TbBool get_level_lost_inputs(void)
     long keycode;
     SYNCDBG(6,"Starting");
     player = get_my_player();
-    if ((player->allocflags & PlaF_Unknown4) != 0)
+    if ((player->allocflags & PlaF_NewMPMessage) != 0)
     {
       get_players_message_inputs();
       return true;
