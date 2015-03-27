@@ -876,6 +876,54 @@ long check_out_undug_place(struct Thing *creatng)
     return 0;
 }
 
+long get_mining_undug_area_position_for_digger(struct Thing *thing, MapSubtlCoord *retstl_x, MapSubtlCoord *retstl_y)
+{
+    //TODO finish
+    struct CreatureControl *cctrl;
+    struct Dungeon *dungeon;
+    dungeon = get_dungeon(thing->owner);
+    cctrl = creature_control_get_from_thing(thing);
+    struct MapTask *mtask;
+    long i,max;
+    max = dungeon->field_AF7;
+    if (max > MAPTASKS_COUNT)
+        max = MAPTASKS_COUNT;
+    MapSubtlCoord best_dist;
+    MapSubtlCoord best_stl_x, best_stl_y;
+    int best_tsk_id;
+    best_tsk_id = -1;
+    best_stl_x = -1;
+    best_stl_y = -1;
+    for (i=0; i < max; i++)
+    {
+        mtask = &dungeon->task_list[i];
+        if (mtask->kind == SDDigTask_None)
+            continue;
+        if (mtask->kind == SDDigTask_MineGold)
+        {
+            SubtlCodedCoords tsk_stl_num;
+            MapSubtlCoord tsk_dist;
+            tsk_stl_num = mtask->coords;
+            {
+                MapSubtlCoord tsk_stl_x,tsk_stl_y;
+                if (check_place_to_dig_and_get_position(thing, tsk_stl_num, &tsk_stl_x, &tsk_stl_y))
+                {
+                    best_dist = tsk_dist;
+                    best_tsk_id = i;
+                    best_stl_x = tsk_stl_x;
+                    best_stl_y = tsk_stl_y;
+                }
+            }
+        }
+    }
+    if (best_tsk_id < 0) {
+        return -1;
+    }
+    *retstl_x = best_stl_x;
+    *retstl_y = best_stl_y;
+    return best_tsk_id;
+}
+
 #define UNDUG_MAX_DIST 24
 long get_nearest_undug_area_position_for_digger(struct Thing *thing, MapSubtlCoord *retstl_x, MapSubtlCoord *retstl_y)
 {

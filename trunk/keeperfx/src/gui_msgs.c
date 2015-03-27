@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "gui_msgs.h"
+#include <stdarg.h>
 
 #include "globals.h"
 #include "bflib_basics.h"
@@ -83,19 +84,33 @@ void zero_messages(void)
     }
 }
 
-void message_add(PlayerNumber plyr_idx)
+void message_add(PlayerNumber plyr_idx, const char *text)
 {
+    SYNCDBG(2,"Player %d: %s",(int)plyr_idx,text);
     int i;
     for (i=GUI_MESSAGES_COUNT-1; i > 0; i--) {
         memcpy(&game.messages[i], &game.messages[i-1], sizeof(struct GuiMessage));
     }
-    struct PlayerInfo *player;
-    player = get_player(plyr_idx);
-    strcpy(game.messages[0].text, player->mp_message_text);
+    strncpy(game.messages[0].text, text,sizeof(game.messages[0].text));
     game.messages[0].plyr_idx = plyr_idx;
     game.messages[0].creation_turn = game.play_gameturn;
     if (game.active_messages_count < GUI_MESSAGES_COUNT) {
         game.active_messages_count++;
     }
+}
+
+void message_add_va(PlayerNumber plyr_idx, const char *fmt_str, va_list arg)
+{
+    static char full_msg_text[2048];
+    vsprintf(full_msg_text, fmt_str, arg);
+    message_add(plyr_idx, full_msg_text);
+}
+
+void message_add_fmt(PlayerNumber plyr_idx, const char *fmt_str, ...)
+{
+    va_list val;
+    va_start(val, fmt_str);
+    message_add_va(plyr_idx, fmt_str, val);
+    va_end(val);
 }
 /******************************************************************************/
