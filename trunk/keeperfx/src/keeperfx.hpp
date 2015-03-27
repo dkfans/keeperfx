@@ -113,6 +113,7 @@ struct StartupParameters {
     unsigned char flags_font;
     unsigned char flags_cd;
     unsigned char debug_flags;
+    unsigned short computer_chat_flags;
     long num_fps;
     unsigned char packet_save_enable;
     unsigned char packet_load_enable;

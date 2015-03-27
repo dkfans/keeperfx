@@ -67,6 +67,7 @@
 #include "thing_stats.h"
 #include "thing_traps.h"
 #include "magic.h"
+#include "map_blocks.h"
 #include "light_data.h"
 #include "gui_draw.h"
 #include "gui_topmsg.h"

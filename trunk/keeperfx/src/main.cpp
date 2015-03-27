@@ -1651,6 +1651,7 @@ TbBool set_default_startup_parameters(void)
     start_params.selected_level_number = 0;
     start_params.num_fps = 20;
     start_params.one_player = 1;
+    start_params.computer_chat_flags = CChat_None;
     set_flag_byte(&start_params.flags_cd,MFlg_IsDemoMode,false);
     set_flag_byte(&start_params.flags_cd,MFlg_unk40,true);
     start_params.force_ppro_poly = 0;
@@ -1681,7 +1682,7 @@ void clear_complete_game(void)
     game.flags_cd = start_params.flags_cd;
     game.no_intro = start_params.no_intro;
     set_flag_byte(&game.system_flags,GSF_AllowOnePlayer,start_params.one_player);
-  //  game.one_player = start_params.one_player;
+    gameadd.computer_chat_flags = start_params.computer_chat_flags;
     game.numfield_C = start_params.numfield_C;
     strncpy(game.packet_fname,start_params.packet_fname,150);
     game.packet_save_enable = start_params.packet_save_enable;
@@ -4403,7 +4404,19 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if (strcasecmp(parstr, "dbgshots") == 0)
       {
-          set_flag_byte(&start_params.debug_flags,DFlg_ShotsDamage,true);
+          start_params.debug_flags |= DFlg_ShotsDamage;
+      } else
+      if (strcasecmp(parstr, "compuchat") == 0)
+      {
+          if (strcasecmp(pr2str,"scarce") == 0) {
+              start_params.computer_chat_flags = CChat_TasksScarce;
+          } else
+          if (strcasecmp(pr2str,"frequent") == 0) {
+              start_params.computer_chat_flags = CChat_TasksScarce|CChat_TasksFrequent;
+          } else {
+              start_params.computer_chat_flags = CChat_None;
+          }
+          narg++;
       } else
       if (strcasecmp(parstr, "sessions") == 0) {
           narg++;
