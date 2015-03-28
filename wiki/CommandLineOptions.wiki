@@ -99,3 +99,6 @@ Note that the [LauncherApplication Launcher App] can be used to choose command l
   Adds sessions to the TCP/IP session list. _hostname_
   is either a DNS name or an IPv4 address (the latter ought
   to be far more common).
+
+`-compuchat <mode>`
+  Makes the Computer Player announce all his actions. Useful for testers and mapmakers. Valid options are 'scarce' for announcing only the major decisions and 'frequent' which will announce every task the computer player takes.
