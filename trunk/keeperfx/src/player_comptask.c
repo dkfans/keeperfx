@@ -1443,7 +1443,7 @@ struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d 
         if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
             struct RoomConfigStats *roomst;
             roomst = &slab_conf.room_cfgstats[rkind];
-            message_add_fmt(comp->dungeon->owner, "It it time to build %s.",get_string(roomst->name_stridx));
+            message_add_fmt(comp->dungeon->owner, "It is time to build %s.",get_string(roomst->name_stridx));
         }
         ctask->ttype = CTT_DigRoomPassage;
         ctask->rkind = rkind;

@@ -108,6 +108,7 @@ TbBool imp_will_soon_be_working_at_excluding(const struct Thing *creatng, MapSub
 TbBool imp_will_soon_be_getting_object(PlayerNumber plyr_idx, const struct Thing *objtng);
 
 TbBool thing_can_be_picked_to_place_in_player_room(const struct Thing* thing, PlayerNumber plyr_idx, RoomKind rkind, unsigned short flags);
+long get_random_mining_undug_area_position_for_digger_drop(PlayerNumber plyr_idx, MapSubtlCoord *retstl_x, MapSubtlCoord *retstl_y);
 
 TbBool imp_stack_update(struct Thing *creatng);
 long check_out_imp_stack(struct Thing *creatng);
@@ -118,6 +119,7 @@ long check_out_imp_has_money_for_treasure_room(struct Thing *thing);
 long check_out_available_imp_tasks(struct Thing *thing);
 long check_out_imp_tokes(struct Thing *thing);
 long check_place_to_dig_and_get_position(struct Thing *thing, SubtlCodedCoords stl_num, MapSubtlCoord *retstl_x, MapSubtlCoord *retstl_y);
+long check_place_to_dig_and_get_drop_position(PlayerNumber plyr_idx, SubtlCodedCoords stl_num, MapSubtlCoord *retstl_x, MapSubtlCoord *retstl_y);
 long check_place_to_reinforce(struct Thing *thing, long a2, long a3);
 long check_out_uncrowded_reinforce_position(struct Thing *thing, SubtlCodedCoords stl_num, long *retslb_x, long *retslb_y);
 long check_out_unconverted_spiral(struct Thing *thing, long nslabs);
