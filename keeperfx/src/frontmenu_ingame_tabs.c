@@ -828,14 +828,14 @@ void gui_area_trap_button(struct GuiButton *gbtn)
     {
     case TCls_Trap:
         // If there are traps of that type placed on map
-        if (find_trap_of_type(manufctr->tngmodel, my_player_number)) {
+        if (player_has_deployed_trap_of_model(my_player_number, manufctr->tngmodel)) {
             draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 27);
         }
         amount = dungeon->trap_amount_placeable[manufctr->tngmodel];
         break;
     case TCls_Door:
         // If there are doors of that type placed on map
-        if (find_door_of_type(manufctr->tngmodel, my_player_number)) {
+        if (player_has_deployed_door_of_model(my_player_number, manufctr->tngmodel)) {
             draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 27);
         }
         amount = dungeon->door_amount_placeable[manufctr->tngmodel];

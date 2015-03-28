@@ -304,6 +304,8 @@ TbBool player_creature_tends_to(PlayerNumber plyr_idx, unsigned short tend_type)
 
 TbBool set_trap_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel trap_kind, long buildable, long amount);
 TbBool set_door_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel door_kind, long buildable, long amount);
+TbBool dungeon_has_any_buildable_traps(struct Dungeon *dungeon);
+TbBool dungeon_has_any_buildable_doors(struct Dungeon *dungeon);
 
 TbBool restart_script_timer(PlayerNumber plyr_idx, long timer_id);
 TbBool set_script_flag(PlayerNumber plyr_idx, long flag_id, long value);

@@ -319,6 +319,38 @@ TbBool set_door_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel tn
     return true;
 }
 
+/**
+ * Returns if there are any traps in the dungeon which can be put on map.
+ * @param dungeon
+ */
+TbBool dungeon_has_any_buildable_traps(struct Dungeon *dungeon)
+{
+    ThingModel tngmodel;
+    for (tngmodel = 1; tngmodel < trapdoor_conf.trap_types_count; tngmodel++)
+    {
+        if ((dungeon->trap_amount_stored[tngmodel] + dungeon->trap_amount_offmap[tngmodel]) > 0)
+            return true;
+
+    }
+    return false;
+}
+
+/**
+ * Returns if there are any doors in the dungeon which can be put on map.
+ * @param dungeon
+ */
+TbBool dungeon_has_any_buildable_doors(struct Dungeon *dungeon)
+{
+    ThingModel tngmodel;
+    for (tngmodel = 1; tngmodel < trapdoor_conf.door_types_count; tngmodel++)
+    {
+        if ((dungeon->door_amount_stored[tngmodel] + dungeon->door_amount_offmap[tngmodel]) > 0)
+            return true;
+
+    }
+    return false;
+}
+
 TbBool restart_script_timer(PlayerNumber plyr_idx, long timer_id)
 {
     struct Dungeon *dungeon;
