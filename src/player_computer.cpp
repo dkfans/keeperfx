@@ -34,6 +34,7 @@
 #include "config_creature.h"
 #include "creature_states.h"
 #include "ariadne_wallhug.h"
+#include "spdigger_stack.h"
 #include "magic.h"
 #include "thing_traps.h"
 #include "thing_navigate.h"
@@ -1053,11 +1054,15 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
     // Try selling traps and doors
     if ((money_left < check->param2) && dungeon_has_room(dungeon, RoK_WORKSHOP))
     {
-        if (!is_task_in_progress(comp, CTT_SellTrapsAndDoors))
+        if (dungeon_has_any_buildable_traps(dungeon) || dungeon_has_any_buildable_doors(dungeon) ||
+            player_has_deployed_trap_of_model(dungeon->owner, -1) || player_has_deployed_door_of_model(dungeon->owner, -1))
         {
-            SYNCDBG(8,"Creating task to sell player %d traps and doors",(int)dungeon->owner);
-            if (create_task_sell_traps_and_doors(comp, 5, 4*money_payday/3)) {
-                ret = 1;
+            if (!is_task_in_progress(comp, CTT_SellTrapsAndDoors))
+            {
+                SYNCDBG(8,"Creating task to sell player %d traps and doors",(int)dungeon->owner);
+                if (create_task_sell_traps_and_doors(comp, 5, 4*money_payday/3)) {
+                    ret = 1;
+                }
             }
         }
     }
@@ -1086,12 +1091,23 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
         // content of the hand could be used by wrong task by mistake
         if (!is_task_in_progress_using_hand(comp) && (computer_able_to_use_magic(comp, PwrK_HAND, 1, num_to_move) == CTaskRet_Unk1))
         {
-            SYNCDBG(8,"Creating task to move diggers near gold to mine [not implemented, skipped]");
-            //TODO COMPUTER Make the function which returns gold or gems marked for digging
-            /*struct Coord3d pos;
-            if (move_imp_to_dig_here(comp, &pos, num_to_move) > 0) {
-                ret = 1;
-            }*/
+            MapSubtlCoord stl_x, stl_y;
+            int tsk_id;
+            stl_x = -1;
+            stl_y = -1;
+            // Find a gold digging site which could use a worker
+            tsk_id = get_random_mining_undug_area_position_for_digger_drop(dungeon->owner, &stl_x, &stl_y);
+            if (tsk_id >= 0)
+            {
+                struct Coord3d pos;
+                pos.x.val = subtile_coord_center(stl_x);
+                pos.y.val = subtile_coord_center(stl_y);
+                pos.z.val = subtile_coord(1,0);
+                SYNCDBG(8,"Creating task to move player %d diggers near gold to mine",(int)dungeon->owner);
+                if (move_imp_to_dig_here(comp, &pos, num_to_move) > 0) {
+                    ret = 1;
+                }
+            }
         }
     }
     // Move any gold laying around to treasure room

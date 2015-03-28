@@ -358,13 +358,15 @@ TngUpdateRet process_door(struct Thing *thing)
     return TUFRet_Modified;
 }
 
-TbBool find_door_of_type(ThingModel model, PlayerNumber owner)
+TbBool player_has_deployed_door_of_model(PlayerNumber owner, int model)
 {
     struct Thing *thing;
     long i;
     unsigned long k;
     k = 0;
-    i = game.thing_lists[TngList_Doors].index;
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_Door);
+    i = slist->index;
     while (i > 0)
     {
         thing = thing_get(i);
@@ -373,11 +375,11 @@ TbBool find_door_of_type(ThingModel model, PlayerNumber owner)
             break;
         i = thing->next_of_class;
         // Per-thing code
-        if ((thing->owner == owner) && (thing->model == model))
+        if ((thing->owner == owner) && ((thing->model == model) || (model == -1)))
             return true;
         // Per-thing code ends
         k++;
-        if (k > THINGS_COUNT)
+        if (k > slist->count)
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
             break;
@@ -386,7 +388,7 @@ TbBool find_door_of_type(ThingModel model, PlayerNumber owner)
     return false;
 }
 
-TbBool find_trap_of_type(ThingModel model, PlayerNumber owner)
+TbBool player_has_deployed_trap_of_model(PlayerNumber owner, int model)
 {
     struct Thing *thing;
     long i;
@@ -403,7 +405,7 @@ TbBool find_trap_of_type(ThingModel model, PlayerNumber owner)
             break;
         i = thing->next_of_class;
         // Per-thing code
-        if ((thing->owner == owner) && (thing->model == model))
+        if ((thing->owner == owner) && ((thing->model == model) || (model == -1)))
             return true;
         // Per-thing code ends
         k++;

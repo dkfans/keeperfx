@@ -876,52 +876,39 @@ long check_out_undug_place(struct Thing *creatng)
     return 0;
 }
 
-long get_mining_undug_area_position_for_digger(struct Thing *thing, MapSubtlCoord *retstl_x, MapSubtlCoord *retstl_y)
+long get_random_mining_undug_area_position_for_digger_drop(PlayerNumber plyr_idx, MapSubtlCoord *retstl_x, MapSubtlCoord *retstl_y)
 {
-    //TODO finish
-    struct CreatureControl *cctrl;
     struct Dungeon *dungeon;
-    dungeon = get_dungeon(thing->owner);
-    cctrl = creature_control_get_from_thing(thing);
-    struct MapTask *mtask;
-    long i,max;
-    max = dungeon->field_AF7;
-    if (max > MAPTASKS_COUNT)
-        max = MAPTASKS_COUNT;
-    MapSubtlCoord best_dist;
-    MapSubtlCoord best_stl_x, best_stl_y;
-    int best_tsk_id;
-    best_tsk_id = -1;
-    best_stl_x = -1;
-    best_stl_y = -1;
-    for (i=0; i < max; i++)
+    dungeon = get_dungeon(plyr_idx);
+    long i,n,tsk_max;
+    tsk_max = dungeon->field_AF7;
+    if (tsk_max > MAPTASKS_COUNT)
+        tsk_max = MAPTASKS_COUNT;
+    if (tsk_max > 1)
+        n = ACTION_RANDOM(tsk_max);
+    else
+        n = 0;
+    for (i=0; i < tsk_max; i++,n=(n+1)%tsk_max)
     {
-        mtask = &dungeon->task_list[i];
+        struct MapTask *mtask;
+        mtask = &dungeon->task_list[n];
         if (mtask->kind == SDDigTask_None)
             continue;
         if (mtask->kind == SDDigTask_MineGold)
         {
-            SubtlCodedCoords tsk_stl_num;
-            MapSubtlCoord tsk_dist;
-            tsk_stl_num = mtask->coords;
+            MapSubtlCoord tsk_stl_x,tsk_stl_y;
+            if (check_place_to_dig_and_get_drop_position(plyr_idx, mtask->coords, &tsk_stl_x, &tsk_stl_y))
             {
-                MapSubtlCoord tsk_stl_x,tsk_stl_y;
-                if (check_place_to_dig_and_get_position(thing, tsk_stl_num, &tsk_stl_x, &tsk_stl_y))
+                if (can_drop_thing_here(tsk_stl_x, tsk_stl_y, plyr_idx, 1))
                 {
-                    best_dist = tsk_dist;
-                    best_tsk_id = i;
-                    best_stl_x = tsk_stl_x;
-                    best_stl_y = tsk_stl_y;
+                    *retstl_x = tsk_stl_x;
+                    *retstl_y = tsk_stl_y;
+                    return n;
                 }
             }
         }
     }
-    if (best_tsk_id < 0) {
-        return -1;
-    }
-    *retstl_x = best_stl_x;
-    *retstl_y = best_stl_y;
-    return best_tsk_id;
+    return -1;
 }
 
 #define UNDUG_MAX_DIST 24
@@ -932,10 +919,10 @@ long get_nearest_undug_area_position_for_digger(struct Thing *thing, MapSubtlCoo
     dungeon = get_dungeon(thing->owner);
     cctrl = creature_control_get_from_thing(thing);
     struct MapTask *mtask;
-    long i,max;
-    max = dungeon->field_AF7;
-    if (max > MAPTASKS_COUNT)
-        max = MAPTASKS_COUNT;
+    long i,tsk_max;
+    tsk_max = dungeon->field_AF7;
+    if (tsk_max > MAPTASKS_COUNT)
+        tsk_max = MAPTASKS_COUNT;
     MapSubtlCoord digstl_y, digstl_x;
     digstl_x = stl_num_decode_x(cctrl->digger.task_stl);
     digstl_y = stl_num_decode_y(cctrl->digger.task_stl);
@@ -946,7 +933,7 @@ long get_nearest_undug_area_position_for_digger(struct Thing *thing, MapSubtlCoo
     best_tsk_id = -1;
     best_stl_x = -1;
     best_stl_y = -1;
-    for (i=0; i < max; i++)
+    for (i=0; i < tsk_max; i++)
     {
         mtask = &dungeon->task_list[i];
         if (mtask->kind == SDDigTask_None)
@@ -1754,6 +1741,58 @@ long check_out_uncrowded_reinforce_position(struct Thing *thing, SubtlCodedCoord
             }
         }
         n = (n + 1) % SMALL_AROUND_LENGTH;
+    }
+    return 0;
+}
+
+long check_place_to_dig_and_get_drop_position(PlayerNumber plyr_idx, SubtlCodedCoords stl_num, MapSubtlCoord *retstl_x, MapSubtlCoord *retstl_y)
+{
+    struct SlabMap *place_slb;
+    struct Coord3d pos;
+    MapSubtlCoord place_x,place_y;
+    MapSubtlDelta distance_x,distance_y;
+    long base_x,base_y;
+    long stl_x,stl_y;
+    long i,k,n,nstart;
+    SYNCDBG(18,"Starting");
+    place_x = stl_num_decode_x(stl_num);
+    place_y = stl_num_decode_y(stl_num);
+    if (!block_has_diggable_side(plyr_idx, subtile_slab_fast(place_x), subtile_slab_fast(place_y)))
+        return 0;
+    place_slb = get_slabmap_for_subtile(place_x,place_y);
+    n = ACTION_RANDOM(SMALL_AROUND_SLAB_LENGTH);
+
+    for (i = 0; i < SMALL_AROUND_SLAB_LENGTH; i++)
+    {
+      base_x = place_x + 2 * (long)small_around[n].delta_x;
+      base_y = place_y + 2 * (long)small_around[n].delta_y;
+      if (valid_dig_position(plyr_idx, base_x, base_y))
+      {
+          for (k = 0; k < sizeof(dig_pos)/sizeof(dig_pos[0]); k++)
+          {
+              if ( k )
+              {
+                nstart = ((n + dig_pos[k]) & 3);
+                stl_x = base_x + small_around[nstart].delta_x;
+                stl_y = base_y + small_around[nstart].delta_y;
+              } else
+              {
+                stl_x = base_x;
+                stl_y = base_y;
+              }
+              if (valid_dig_position(plyr_idx, stl_x, stl_y))
+              {
+                    if ((place_slb->kind != SlbT_GEMS) || !gold_pile_with_maximum_at_xy(stl_x, stl_y))
+                      if (!imp_already_digging_at_excluding(INVALID_THING, stl_x, stl_y))
+                      {
+                          *retstl_x = stl_x;
+                          *retstl_y = stl_y;
+                          return 1;
+                      }
+              }
+          }
+      }
+      n = (n+1) % 4;
     }
     return 0;
 }
