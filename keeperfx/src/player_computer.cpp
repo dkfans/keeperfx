@@ -1055,7 +1055,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
     if ((money_left < check->param2) && dungeon_has_room(dungeon, RoK_WORKSHOP))
     {
         if (dungeon_has_any_buildable_traps(dungeon) || dungeon_has_any_buildable_doors(dungeon) ||
-            player_has_deployed_trap_of_model(dungeon->owner, -1) || player_has_deployed_door_of_model(dungeon->owner, -1))
+            player_has_deployed_trap_of_model(dungeon->owner, -1) || player_has_deployed_door_of_model(dungeon->owner, -1, 0))
         {
             if (!is_task_in_progress(comp, CTT_SellTrapsAndDoors))
             {
@@ -1082,7 +1082,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
             }
         }
     }
-    // Move any gold laying around to treasure room
+    // Drop imps on gold/gems mining sites
     if ((money_left < check->param1) && (pwhand_task_choose < 66) && dungeon_has_room(dungeon, RoK_TREASURE))
     {
         int num_to_move;
@@ -1177,7 +1177,7 @@ long computer_able_to_use_magic(struct Computer2 *comp, PowerKind pwkind, long p
     GoldAmount money, price;
     money = get_computer_money_less_cost(comp);
     price = compute_power_price(dungeon->owner, pwkind, pwlevel);
-    if (amount * price > money) {
+    if ((price > 0) && (amount * price > money)) {
         return CTaskRet_Unk0;
     }
     return CTaskRet_Unk1;

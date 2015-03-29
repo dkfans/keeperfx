@@ -64,8 +64,10 @@ TngUpdateRet process_door(struct Thing *thing);
 
 char find_door_angle(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
 
-TbBool player_has_deployed_door_of_model(PlayerNumber owner, int model);
+TbBool player_has_deployed_door_of_model(PlayerNumber owner, int model, short locked);
+long count_player_deployed_doors_of_model(PlayerNumber owner, int model);
 TbBool player_has_deployed_trap_of_model(PlayerNumber owner, int model);
+long count_player_deployed_traps_of_model(PlayerNumber owner, int model);
 /******************************************************************************/
 #ifdef __cplusplus
 }
