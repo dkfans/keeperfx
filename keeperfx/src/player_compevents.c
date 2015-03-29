@@ -521,7 +521,7 @@ long computer_event_check_imps_in_danger(struct Computer2 *comp, struct Computer
                         if (get_2d_distance(&creatng->mappos, &heartng->mappos) > subtile_coord(16,0))
                         {
                             if (!create_task_move_creature_to_subtile(comp, creatng,
-                                heartng->mappos.x.stl.num, heartng->mappos.y.stl.num)) {
+                                heartng->mappos.x.stl.num, heartng->mappos.y.stl.num, CrSt_ImpDoingNothing)) {
                                 break;
                             }
                             result = 1;

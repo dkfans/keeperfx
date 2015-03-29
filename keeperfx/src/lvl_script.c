@@ -1777,7 +1777,7 @@ void command_set_computer_checks(const char *plrname, const char *chkname, long 
       for (k=0; k < COMPUTER_CHECKS_COUNT; k++)
       {
           ccheck = &comp->checks[k];
-          if ((ccheck->flags & 0x02) != 0)
+          if ((ccheck->flags & ComChk_Unkn0002) != 0)
             break;
           if (ccheck->name == NULL)
             break;

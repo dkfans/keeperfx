@@ -873,10 +873,14 @@ long computer_check_for_place_trap(struct Computer2 *comp, struct ComputerCheck 
     long i;
     SYNCDBG(8,"Starting");
     dungeon = comp->dungeon;
+    if (dungeon_invalid(dungeon) || !player_has_heart(dungeon->owner)) {
+        SYNCDBG(7,"Computer players %d dungeon in invalid or has no heart",(int)dungeon->owner);
+        return CTaskRet_Unk4;
+    }
     long kind_chosen;
     kind_chosen = computer_choose_best_trap_kind_to_place(dungeon, check->param1, check->param2);
     if (kind_chosen <= 0)
-        return 4;
+        return CTaskRet_Unk4;
     //TODO COMPUTER_PLAYER Maybe we should prefer corridors when placing traps?
     for (i=0; i < COMPUTER_TRAP_LOC_COUNT; i++)
     {
@@ -926,7 +930,7 @@ long computer_check_for_place_trap(struct Computer2 *comp, struct ComputerCheck 
 }
 
 /**
- * Picks creatures whihg are currently training or scavenging and places them into lair.
+ * Picks creatures which are currently training or scavenging and places them into lair.
  * @param comp
  * @param room
  * @param thing_idx
@@ -957,7 +961,7 @@ long computer_pick_training_or_scavenging_creatures_and_place_on_room(struct Com
       // Per creature code
       if (creature_is_training(thing) || creature_is_scavengering(thing)) // originally, only CrSt_Training and CrSt_Scavengering were accepted
       {
-        if (!create_task_move_creature_to_subtile(comp, thing, room->central_stl_x, room->central_stl_y))
+        if (!create_task_move_creature_to_subtile(comp, thing, room->central_stl_x, room->central_stl_y, CrSt_CreatureDoingNothing))
           break;
         new_tasks++;
         if (new_tasks >= tasks_limit)
@@ -1020,8 +1024,12 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
     long ret;
     long i;
     SYNCDBG(18,"Starting");
-    ret = 4;
+    ret = CTaskRet_Unk4;
     dungeon = comp->dungeon;
+    if (dungeon_invalid(dungeon) || !player_has_heart(dungeon->owner)) {
+        SYNCDBG(7,"Computer players %d dungeon in invalid or has no heart",(int)dungeon->owner);
+        return CTaskRet_Unk4;
+    }
     // As payday need, take larger of amounts from last payday and planned for next
     money_payday = compute_player_payday_total(dungeon);
     if (money_payday < dungeon->creatures_total_pay)
@@ -1061,7 +1069,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
             {
                 SYNCDBG(8,"Creating task to sell player %d traps and doors",(int)dungeon->owner);
                 if (create_task_sell_traps_and_doors(comp, 5, 4*money_payday/3)) {
-                    ret = 1;
+                    ret = CTaskRet_Unk1;
                 }
             }
         }
@@ -1078,7 +1086,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
         {
             SYNCDBG(8,"Creating task to pick player %d creatures from expensive jobs",(int)dungeon->owner);
             if (computer_pick_expensive_job_creatures_and_place_on_lair(comp, num_to_move) > 0) {
-                ret = 1;
+                ret = CTaskRet_Unk1;
             }
         }
     }
@@ -1105,7 +1113,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
                 pos.z.val = subtile_coord(1,0);
                 SYNCDBG(8,"Creating task to move player %d diggers near gold to mine",(int)dungeon->owner);
                 if (move_imp_to_dig_here(comp, &pos, num_to_move) > 0) {
-                    ret = 1;
+                    ret = CTaskRet_Unk1;
                 }
             }
         }
@@ -1121,7 +1129,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
         {
             SYNCDBG(8,"Creating task to move neutral gold to treasury");
             if (create_task_move_gold_to_treasury(comp, num_to_move, 2*money_payday)) {
-                ret = 1;
+                ret = CTaskRet_Unk1;
             }
         }
     }
@@ -1322,7 +1330,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
     // The check with 0x02 flag identifies end of active checks
     // (the check with 0x02 flag is invalid - only previous checks are in use)
     //newchk = &comp->checks[i];
-    newchk->flags |= 0x02;
+    newchk->flags |= ComTsk_Unkn0002;
 
     for (i=0; i < COMPUTER_EVENTS_COUNT; i++)
     {
@@ -1404,9 +1412,9 @@ TbBool process_checks(struct Computer2 *comp)
         ccheck = &comp->checks[i];
         if (comp->tasks_did <= 0)
             break;
-        if ((ccheck->flags & 0x02) != 0)
+        if ((ccheck->flags & ComChk_Unkn0002) != 0)
             break;
-        if ((ccheck->flags & 0x01) == 0)
+        if ((ccheck->flags & ComChk_Unkn0001) == 0)
         {
             delta = (game.play_gameturn - ccheck->last_run_turn);
             if ((delta > ccheck->turns_interval) && (ccheck->func != NULL))

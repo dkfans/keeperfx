@@ -277,6 +277,10 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
     struct Dungeon *dungeon;
     SYNCDBG(8,"Starting");
     dungeon = comp->dungeon;
+    if (dungeon_invalid(dungeon) || !player_has_heart(dungeon->owner)) {
+        SYNCDBG(7,"Computer players %d dungeon in invalid or has no heart",(int)dungeon->owner);
+        return CTaskRet_Unk4;
+    }
     long controlled_diggers;
     controlled_diggers = dungeon->num_active_diggers - count_player_diggers_not_counting_to_total(dungeon->owner);
     if (controlled_diggers >= check->param1) {
@@ -386,7 +390,7 @@ long computer_check_for_pretty(struct Computer2 *comp, struct ComputerCheck * ch
     SYNCDBG(8,"Starting");
     dungeon = comp->dungeon;
     MapSubtlCoord stl_x, stl_y;
-    if (computer_able_to_use_magic(comp, PwrK_HAND, 1, 1) != 1) {
+    if (computer_able_to_use_magic(comp, PwrK_HAND, 1, 1) != CTaskRet_Unk1) {
         return CTaskRet_Unk4;
     }
     {
@@ -410,7 +414,7 @@ long computer_check_for_pretty(struct Computer2 *comp, struct ComputerCheck * ch
     if (thing_is_invalid(creatng)) {
         return CTaskRet_Unk4;
     }
-    if (!create_task_move_creature_to_subtile(comp, creatng, stl_x, stl_y)) {
+    if (!create_task_move_creature_to_subtile(comp, creatng, stl_x, stl_y, CrSt_ImpImprovesDungeon)) {
         return CTaskRet_Unk4;
     }
     return CTaskRet_Unk1;
@@ -1038,10 +1042,9 @@ long computer_check_for_expand_room(struct Computer2 *comp, struct ComputerCheck
     SYNCDBG(8,"Starting");
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
-    if (dungeon_invalid(dungeon))
-    {
-        ERRORLOG("Invalid computer players dungeon");
-        return CTaskRet_Unk0;
+    if (dungeon_invalid(dungeon) || !player_has_heart(dungeon->owner)) {
+        SYNCDBG(7,"Computer players %d dungeon in invalid or has no heart",(int)dungeon->owner);
+        return CTaskRet_Unk4;
     }
     long around_start;
     around_start = ACTION_RANDOM(119);
