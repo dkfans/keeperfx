@@ -487,7 +487,7 @@ TbBool add_member_to_party_name(const char *prtname, long crtr_model, long crtr_
       return false;
     }
     member = &(party->members[party->members_num]);
-    set_flag_byte(&(member->flags), TrgF_DISABLED, false);
+    member->flags &= ~TrgF_DISABLED;
     member->crtr_kind = crtr_model;
     member->carried_gold = carried_gold;
     member->crtr_level = crtr_level-1;

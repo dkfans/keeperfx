@@ -796,7 +796,7 @@ long move_imp_to_dig_here(struct Computer2 *comp, struct Coord3d *pos, long max_
             break;
         if (can_thing_be_picked_up_by_player(creatng, dungeon->owner) && imp_can_be_moved_to_dig(creatng))
         {
-            if (!create_task_move_creature_to_pos(comp, creatng, *pos)) {
+            if (!create_task_move_creature_to_pos(comp, creatng, *pos, CrSt_ImpDigsDirt)) {
                 break;
             }
             amount_did++;
@@ -1323,7 +1323,11 @@ struct ComputerProcess * find_best_process(struct Computer2 *comp)
     struct ComputerProcess *best_cproc;
     best_cproc = INVALID_COMPUTER_PROCESS;
     best_prior = LONG_MIN;
-
+    // Computer players without heart can't start any process
+    if (dungeon_invalid(comp->dungeon) || !player_has_heart(comp->dungeon->owner)) {
+        SYNCDBG(7,"Computer players %d dungeon in invalid or has no heart",(int)comp->dungeon->owner);
+        return best_cproc;
+    }
     GameTurnDelta g2max_prior;
     struct ComputerProcess *g2max_cproc;
     g2max_cproc = INVALID_COMPUTER_PROCESS;

@@ -445,7 +445,7 @@ struct ComputerTask *get_task_in_progress(struct Computer2 *comp, ComputerTaskTy
         }
         ctask = &game.computer_task[i];
         i = ctask->next_task;
-        if ((ctask->flags & 0x01) != 0)
+        if ((ctask->flags & ComTsk_Unkn0001) != 0)
         {
             long n;
             n = ctask->ttype;
@@ -489,7 +489,7 @@ struct ComputerTask *get_task_in_progress_in_list(struct Computer2 *comp, const 
         }
         ctask = &game.computer_task[i];
         i = ctask->next_task;
-        if ((ctask->flags & 0x01) != 0)
+        if ((ctask->flags & ComTsk_Unkn0001) != 0)
         {
             long n;
             n = ctask->ttype;
@@ -912,9 +912,9 @@ long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
         ctask->ttype = CTT_DigRoom;
         return 1;
     default:
-        if ((ctask->flags & 0x04) != 0)
+        if ((ctask->flags & ComTsk_Unkn0004) != 0)
         {
-            ctask->flags &= ~0x04;
+            ctask->flags &= ~ComTsk_Unkn0004;
             add_to_trap_location(comp, &ctask->dig.pos_next);
         }
         return 2;
@@ -1190,8 +1190,8 @@ long task_dig_to_entrance(struct Computer2 *comp, struct ComputerTask *ctask)
     if (dig_ret == 0)
     {
         dig_ret = tool_dig_to_pos2(comp, &ctask->dig, 0, 0);
-        if ((ctask->flags & 0x04) != 0) {
-            ctask->flags &= ~0x04;
+        if ((ctask->flags & ComTsk_Unkn0004) != 0) {
+            ctask->flags &= ~ComTsk_Unkn0004;
             add_to_trap_location(comp, &ctask->dig.pos_next);
         }
     }
@@ -1460,8 +1460,8 @@ struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d 
         ctask->create_room.height = height_slabs;
         ctask->create_room.area = area_buildable;
         ctask->create_room.long_80 = rkind;
-        ctask->flags |= 0x02;
-        ctask->flags |= 0x04;
+        ctask->flags |= ComTsk_Unkn0002;
+        ctask->flags |= ComTsk_Unkn0004;
         setup_dig_to(&ctask->dig, ctask->create_room.startpos, ctask->pos_64);
     }
     return ctask;
@@ -1911,7 +1911,7 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
 
     if ((ctask->flags & ComTsk_Unkn0004) != 0)
     {
-        set_flag_byte(&ctask->flags, ComTsk_Unkn0004, false);
+        ctask->flags &= ~ComTsk_Unkn0004;
         add_to_trap_location(comp, &ctask->dig.pos_next);
     }
 
@@ -1997,11 +1997,11 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
         if (slabmap_owner(slb) != comp->dungeon->owner) {
             return CTaskRet_Unk4;
         }
-        if ((ctask->flags & 0x04) != 0)
+        if ((ctask->flags & ComTsk_Unkn0004) != 0)
         {
           ctask->lastrun_turn++;
           if (ctask->lastrun_turn > 5)
-              ctask->flags &= ~0x04;
+              ctask->flags &= ~ComTsk_Unkn0004;
           add_to_trap_location(comp, &ctask->dig.pos_next);
         }
     }
@@ -2781,8 +2781,8 @@ long task_dig_to_neutral(struct Computer2 *comp, struct ComputerTask *ctask)
         suspend_task_process(comp,ctask);
         return digret;
     }
-    if ((ctask->flags & 0x04) != 0) {
-        ctask->flags &= ~0x04;
+    if ((ctask->flags & ComTsk_Unkn0004) != 0) {
+        ctask->flags &= ~ComTsk_Unkn0004;
         add_to_trap_location(comp, &ctask->dig.pos_next);
     }
     return digret;
@@ -3107,30 +3107,16 @@ void setup_dig_to(struct ComputerDig *cdig, const struct Coord3d startpos, const
     cdig->calls_count = 0;
 }
 
-TbBool create_task_move_creature_to_subtile(struct Computer2 *comp, const struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+TbBool create_task_move_creature_to_subtile(struct Computer2 *comp, const struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CrtrStateId dst_state)
 {
-    struct ComputerTask *ctask;
-    SYNCDBG(7,"Starting");
-    ctask = get_free_task(comp, 0);
-    if (computer_task_invalid(ctask)) {
-        return false;
-    }
-    if ((gameadd.computer_chat_flags & CChat_TasksFrequent) != 0) {
-        struct CreatureData *crdata;
-        crdata = creature_data_get(thing->model);
-        message_add_fmt(comp->dungeon->owner, "This %s should go there.",get_string(crdata->namestr_idx));
-    }
-    ctask->ttype = CTT_MoveCreatureToPos;
-    ctask->move_to_pos.pos_86.x.val = subtile_coord(stl_x,ACTION_RANDOM(256));
-    ctask->move_to_pos.pos_86.y.val = subtile_coord(stl_y,ACTION_RANDOM(256));
-    ctask->move_to_pos.pos_86.z.val = subtile_coord(1,0);
-    ctask->move_to_pos.target_thing_idx = thing->index;
-    ctask->move_to_pos.word_80 = 0;
-    ctask->created_turn = game.play_gameturn;
-    return true;
+    struct Coord3d pos;
+    pos.x.val = subtile_coord(stl_x,ACTION_RANDOM(256));
+    pos.y.val = subtile_coord(stl_y,ACTION_RANDOM(256));
+    pos.z.val = subtile_coord(1,0);
+    return create_task_move_creature_to_pos(comp, thing, pos, dst_state);
 }
 
-TbBool create_task_move_creature_to_pos(struct Computer2 *comp, const struct Thing *thing, const struct Coord3d pos)
+TbBool create_task_move_creature_to_pos(struct Computer2 *comp, const struct Thing *thing, const struct Coord3d pos, CrtrStateId dst_state)
 {
     struct ComputerTask *ctask;
     SYNCDBG(7,"Starting");
@@ -3141,7 +3127,22 @@ TbBool create_task_move_creature_to_pos(struct Computer2 *comp, const struct Thi
     if ((gameadd.computer_chat_flags & CChat_TasksFrequent) != 0) {
         struct CreatureData *crdata;
         crdata = creature_data_get(thing->model);
-        message_add_fmt(comp->dungeon->owner, "This %s should go there.",get_string(crdata->namestr_idx));
+        switch (dst_state)
+        {
+        case CrSt_ImpImprovesDungeon:
+            message_add_fmt(comp->dungeon->owner, "This %s should go claiming.",get_string(crdata->namestr_idx));
+            break;
+        case CrSt_ImpDigsDirt:
+            message_add_fmt(comp->dungeon->owner, "This %s should go digging.",get_string(crdata->namestr_idx));
+            break;
+        case CrSt_CreatureDoingNothing:
+        case CrSt_ImpDoingNothing:
+            message_add_fmt(comp->dungeon->owner, "This %s should stop doing that.",get_string(crdata->namestr_idx));
+            break;
+        default:
+            message_add_fmt(comp->dungeon->owner, "This %s should go there.",get_string(crdata->namestr_idx));
+            break;
+        }
     }
     ctask->ttype = CTT_MoveCreatureToPos;
     ctask->move_to_pos.pos_86.x.val = pos.x.val;
@@ -3522,7 +3523,7 @@ long process_tasks(struct Computer2 *comp)
             break;
         ctask = &game.computer_task[i];
         i = ctask->next_task;
-        if ((ctask->flags & 0x01) != 0)
+        if ((ctask->flags & ComTsk_Unkn0001) != 0)
         {
             n = ctask->ttype;
             if ((n > 0) && (n < sizeof(task_function)/sizeof(task_function[0])))

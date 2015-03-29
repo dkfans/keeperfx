@@ -155,8 +155,8 @@ long light_create_light(struct InitLight *ilght)
         light_add_light_to_list(lgt, &game.thing_lists[TngList_StaticLights]);
         stat_light_needs_updating = 1;
     }
-    lgt->flags |= 0x02;
-    lgt->flags |= 0x08;
+    lgt->flags |= LgtF_Unkn02;
+    lgt->flags |= LgtF_Unkn08;
     lgt->mappos.x.val = ilght->mappos.x.val;
     lgt->mappos.y.val = ilght->mappos.y.val;
     lgt->mappos.z.val = ilght->mappos.z.val;
@@ -356,7 +356,7 @@ void light_set_light_never_cache(long lgt_id)
         ERRORLOG("Attempt to set size of unallocated light structure %d",(int)lgt_id);
         return;
     }
-    lgt->flags |= 0x40;
+    lgt->flags |= LgtF_Dynamic;
 }
 
 long light_is_light_allocated(long lgt_id)
@@ -426,10 +426,10 @@ void light_turn_light_off(long idx)
         ERRORLOG("Attempt to turn off unallocated light structure");
         return;
     }
-    if ((lgt->flags & 0x02) == 0) {
+    if ((lgt->flags & LgtF_Unkn02) == 0) {
         return;
     }
-    lgt->flags &= ~0x02;
+    lgt->flags &= ~LgtF_Unkn02;
     if ((lgt->flags & LgtF_Dynamic) != 0) {
         light_remove_light_from_list(lgt, &game.thing_lists[TngList_DynamLights]);
     } else {
@@ -452,19 +452,19 @@ void light_turn_light_on(long idx)
         ERRORLOG("Attempt to turn on unallocated light structure %d",(int)idx);
         return;
     }
-    if ((lgt->flags & 0x02) != 0) {
+    if ((lgt->flags & LgtF_Unkn02) != 0) {
         return;
     }
-    lgt->flags |= 0x02;
+    lgt->flags |= LgtF_Unkn02;
     if ((lgt->flags & LgtF_Dynamic) != 0)
     {
         light_add_light_to_list(lgt, &game.thing_lists[TngList_DynamLights]);
-        lgt->flags |= 0x08;
+        lgt->flags |= LgtF_Unkn08;
     } else
     {
         light_add_light_to_list(lgt, &game.thing_lists[TngList_StaticLights]);
         stat_light_needs_updating = 1;
-        lgt->flags |= 0x08;
+        lgt->flags |= LgtF_Unkn08;
     }
 }
 
