@@ -2964,13 +2964,13 @@ struct Room *find_room_with_most_spare_capacity_starting_with(long room_idx, lon
         // Per-room code
         if (room->total_capacity > room->used_capacity)
         {
-          delta = room->total_capacity - room->used_capacity;
-          loc_total_spare_cap += delta;
-          if (max_spare_cap < delta)
-          {
-            max_spare_cap = delta;
-            max_spare_room = room;
-          }
+            delta = room->total_capacity - room->used_capacity;
+            loc_total_spare_cap += delta;
+            if (max_spare_cap < delta)
+            {
+                max_spare_cap = delta;
+                max_spare_room = room;
+            }
         }
         // Per-room code ends
         k++;

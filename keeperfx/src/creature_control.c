@@ -276,7 +276,7 @@ struct CreatureSound *get_creature_sound(struct Thing *thing, long snd_idx)
     cmodel = thing->model;
     if ((cmodel < 1) || (cmodel >= CREATURE_TYPES_COUNT))
     {
-        ERRORLOG("Trying to get sound for undefined creature type");
+        ERRORLOG("Trying to get sound for undefined creature type %d",(int)cmodel);
         // Return dummy element
         return &creature_sounds[0].foot;
     }
