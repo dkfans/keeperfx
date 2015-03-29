@@ -3576,7 +3576,9 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
         player = get_player(plyr_idx);
         return all_dungeons_destroyed(player);
     case SVar_DOOR_NUM:
-        return player_has_deployed_door_of_model(plyr_idx, validx);
+        return count_player_deployed_doors_of_model(plyr_idx, validx);
+    case SVar_TRAP_NUM:
+        return count_player_deployed_traps_of_model(plyr_idx, validx);
     case SVar_GOOD_CREATURES:
         dungeon = get_dungeon(plyr_idx);
         return count_creatures_in_dungeon_of_model_flags(dungeon, 0, CMF_IsEvil|CMF_IsSpectator|CMF_IsSpecDigger);

@@ -1748,9 +1748,7 @@ long check_out_uncrowded_reinforce_position(struct Thing *thing, SubtlCodedCoord
 long check_place_to_dig_and_get_drop_position(PlayerNumber plyr_idx, SubtlCodedCoords stl_num, MapSubtlCoord *retstl_x, MapSubtlCoord *retstl_y)
 {
     struct SlabMap *place_slb;
-    struct Coord3d pos;
     MapSubtlCoord place_x,place_y;
-    MapSubtlDelta distance_x,distance_y;
     long base_x,base_y;
     long stl_x,stl_y;
     long i,k,n,nstart;

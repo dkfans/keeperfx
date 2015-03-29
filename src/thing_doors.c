@@ -358,7 +358,44 @@ TngUpdateRet process_door(struct Thing *thing)
     return TUFRet_Modified;
 }
 
-TbBool player_has_deployed_door_of_model(PlayerNumber owner, int model)
+long count_player_deployed_doors_of_model(PlayerNumber owner, int model)
+{
+    struct Thing *thing;
+    long i, n;
+    n = 0;
+    unsigned long k;
+    k = 0;
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_Door);
+    i = slist->index;
+    while (i > 0)
+    {
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        if (thing_is_invalid(thing))
+            break;
+        i = thing->next_of_class;
+        // Per-thing code
+        if ((thing->owner == owner) && ((thing->model == model) || (model == -1)))
+            n++;
+        // Per-thing code ends
+        k++;
+        if (k > slist->count)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return n;
+}
+/**
+ * Returns whether the player has any door deployed which matches given properties.
+ * @param owner The owning player to be checked.
+ * @param model Door model selection, or -1 for any.
+ * @param locked Door locked state selection, or -1 for any.
+ * @return
+ */
+TbBool player_has_deployed_door_of_model(PlayerNumber owner, int model, short locked)
 {
     struct Thing *thing;
     long i;
@@ -375,7 +412,9 @@ TbBool player_has_deployed_door_of_model(PlayerNumber owner, int model)
             break;
         i = thing->next_of_class;
         // Per-thing code
-        if ((thing->owner == owner) && ((thing->model == model) || (model == -1)))
+        if ((thing->owner == owner) &&
+            ((thing->model == model) || (model == -1)) &&
+            ((thing->door.is_locked == locked) || (locked == -1)))
             return true;
         // Per-thing code ends
         k++;
@@ -386,6 +425,37 @@ TbBool player_has_deployed_door_of_model(PlayerNumber owner, int model)
         }
     }
     return false;
+}
+
+long count_player_deployed_traps_of_model(PlayerNumber owner, int model)
+{
+    struct Thing *thing;
+    long i, n;
+    n = 0;
+    unsigned long k;
+    k = 0;
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_Trap);
+    i = slist->index;
+    while (i > 0)
+    {
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        if (thing_is_invalid(thing))
+            break;
+        i = thing->next_of_class;
+        // Per-thing code
+        if ((thing->owner == owner) && ((thing->model == model) || (model == -1)))
+            n++;
+        // Per-thing code ends
+        k++;
+        if (k > slist->count)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return n;
 }
 
 TbBool player_has_deployed_trap_of_model(PlayerNumber owner, int model)
