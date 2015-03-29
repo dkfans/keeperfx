@@ -1068,9 +1068,30 @@ TbBool add_to_reinforce_stack(long slb_x, long slb_y, SpDiggerTaskType task_type
     return true;
 }
 
-long add_to_pretty_to_imp_stack_if_need_to(long a1, long a2, struct Dungeon *dungeon)
+long add_to_pretty_to_imp_stack_if_need_to(long slb_x, long slb_y, struct Dungeon *dungeon)
 {
-    return _DK_add_to_pretty_to_imp_stack_if_need_to(a1, a2, dungeon);
+    //return _DK_add_to_pretty_to_imp_stack_if_need_to(slb_x, slb_y, dungeon);
+    MapSubtlCoord stl_x, stl_y;
+    stl_x = slab_subtile_center(slb_x);
+    stl_y = slab_subtile_center(slb_y);
+    const struct SlabMap *slb;
+    slb = get_slabmap_block(slb_x, slb_y);
+    if (slb->kind == SlbT_PATH)
+    {
+        if (subtile_revealed(stl_x, stl_y, dungeon->owner) && slab_by_players_land(dungeon->owner, slb_x, slb_y)) {
+            return add_to_imp_stack_using_pos(get_subtile_number_at_slab_center(slb_x, slb_y), DigTsk_ImproveDungeon, dungeon);
+        }
+    } else
+    if ((slb->kind == SlbT_CLAIMED) || slab_kind_is_room(slb->kind))
+    {
+        if (!players_are_mutual_allies(dungeon->owner, slabmap_owner(slb)))
+        {
+            if (subtile_revealed(stl_x, stl_y, dungeon->owner) && slab_by_players_land(dungeon->owner, slb_x, slb_y)) {
+                return add_to_imp_stack_using_pos(get_subtile_number_at_slab_center(slb_x, slb_y), DigTsk_ConvertDungeon, dungeon);
+            }
+        }
+    }
+    return (dungeon->digger_stack_length < DIGGER_TASK_MAX_COUNT);
 }
 
 struct ExtraSquares spdigger_extra_squares[] = {
@@ -1172,7 +1193,7 @@ long add_pretty_and_convert_to_imp_stack_starting_from_pos(struct Dungeon *dunge
                 slblist[slblicount].y = slb_y;
                 slblicount++;
                 if ( !add_to_pretty_to_imp_stack_if_need_to(slb_x, slb_y, dungeon) ) {
-                    SYNCDBG(6,"Can't add any more pretty tasks");
+                    SYNCDBG(6,"Cannot add any more pretty tasks");
                     return slblipos;
                 }
             }

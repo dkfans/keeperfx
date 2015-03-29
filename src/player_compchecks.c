@@ -387,7 +387,7 @@ long computer_check_for_pretty(struct Computer2 *comp, struct ComputerCheck * ch
     dungeon = comp->dungeon;
     MapSubtlCoord stl_x, stl_y;
     if (computer_able_to_use_magic(comp, PwrK_HAND, 1, 1) != 1) {
-        return 4;
+        return CTaskRet_Unk4;
     }
     {
         long stack_len;
