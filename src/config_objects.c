@@ -67,7 +67,7 @@ const struct NamedCommand objects_genres_desc[] = {
   {"TREASURE_HOARD",  OCtg_GoldHoard},
   {"FOOD",            OCtg_Food},
   {"POWER",           OCtg_Power},
-  {"LAIR",            OCtg_Lair},
+  {"LAIR_TOTEM",      OCtg_LairTotem},
   {"EFFECT",          OCtg_Effect},
   {NULL,              0},
   };

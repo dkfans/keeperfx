@@ -664,13 +664,13 @@ TbBool thing_is_spellbook(const struct Thing *thing)
     return (objst->genre == OCtg_Spellbook);
 }
 
-TbBool thing_is_creature_lair(const struct Thing *thing)
+TbBool thing_is_lair_totem(const struct Thing *thing)
 {
     if (!thing_is_object(thing))
         return false;
     struct ObjectConfigStats *objst;
     objst = get_object_model_stats(thing->model);
-    return (objst->genre == OCtg_Lair);
+    return (objst->genre == OCtg_LairTotem);
 }
 
 TbBool object_is_hero_gate(const struct Thing *thing)
@@ -833,7 +833,7 @@ TbBool object_is_room_inventory(const struct Thing *thing, RoomKind rkind)
     case RoK_GARDEN:
         return object_is_infant_food(thing) || object_is_growing_food(thing) || object_is_mature_food(thing);
     case RoK_LAIR:
-        return thing_is_creature_lair(thing);
+        return thing_is_lair_totem(thing);
     default:
         return false;
     }

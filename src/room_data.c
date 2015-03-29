@@ -1506,7 +1506,7 @@ void count_lair_occupants(struct Room *room)
         // Per slab code
         struct Thing *lairtng;
         struct Thing *creatng;
-        lairtng = find_lair_at(slab_subtile_center(slb_num_decode_x(i)), slab_subtile_center(slb_num_decode_y(i)));
+        lairtng = find_lair_totem_at(slab_subtile_center(slb_num_decode_x(i)), slab_subtile_center(slb_num_decode_y(i)));
         if (!thing_is_invalid(lairtng))
         {
             creatng = thing_get(lairtng->word_13);
@@ -3698,7 +3698,7 @@ long find_random_valid_position_for_item_in_different_room_avoiding_object(struc
     return 0;
 }
 
-struct Thing *find_lair_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+struct Thing *find_lair_totem_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     //return _DK_find_lair_at(stl_x, stl_y);
     struct Map *mapblk;
@@ -3719,7 +3719,7 @@ struct Thing *find_lair_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
         }
         i = thing->next_on_mapblk;
         // Per thing code start
-        if (thing_is_creature_lair(thing)) {
+        if (thing_is_lair_totem(thing)) {
             return thing;
         }
         // Per thing code end
@@ -3928,7 +3928,7 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
         }
         break;
     case RoK_LAIR:
-        thing = find_lair_at(stl_x, stl_y);
+        thing = find_lair_totem_at(stl_x, stl_y);
         if (!thing_is_invalid(thing))
         {
             if (thing->word_13)
@@ -4318,11 +4318,11 @@ void change_ownership_or_delete_object_thing_in_room(struct Room *room, struct T
                 if (cctrl->lairtng_idx == thing->index) {
                     creature_remove_lair_totem_from_room(tmptng, room);
                 } else {
-                    ERRORLOG("Lair thing thinks it belongs to a creature, but the creature disagrees.");
+                    ERRORLOG("Lair totem thinks it belongs to a creature, but the creature disagrees.");
                 }
             } else
             {
-                ERRORLOG("Lair thing %d has no owner!",(int)thing->index);
+                ERRORLOG("Lair totem %d has no owner!",(int)thing->index);
             }
             return;
         }

@@ -1221,7 +1221,7 @@ struct Thing *find_hero_gate_of_number(long num)
 /**
  * Returns a creature lair from given subtile.
  */
-struct Thing *find_creature_lair_at_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, ThingModel crmodel)
+struct Thing *find_creature_lair_totem_at_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, ThingModel crmodel)
 {
     struct Map *mapblk;
     struct Thing *thing;

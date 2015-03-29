@@ -43,7 +43,7 @@ enum ObjectCategoryIndex {
     OCtg_GoldHoard,  //< Object is a hoard of treasure stored in room
     OCtg_Food,       //< Object is food for creatures
     OCtg_Power,      //< Object is a keeper power effect, ie. hand of evil or keeper spell
-    OCtg_Lair,       //< Object is a creature lair
+    OCtg_LairTotem,       //< Object is a creature lair
     OCtg_Effect,     //< Object is some kind of effect which has influence on things or on terrain
 };
 
