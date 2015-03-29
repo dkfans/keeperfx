@@ -288,7 +288,7 @@ void place_thing_in_mapwho(struct Thing *thing);
 struct Thing *find_hero_gate_of_number(long num);
 long get_free_hero_gate_number(void);
 
-struct Thing *find_creature_lair_at_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, ThingModel crmodel);
+struct Thing *find_creature_lair_totem_at_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, ThingModel crmodel);
 
 TbBool thing_is_shootable(const struct Thing *thing, PlayerNumber shot_owner, HitTargetFlags hit_targets);
 unsigned long hit_type_to_hit_targets(long hit_type);
