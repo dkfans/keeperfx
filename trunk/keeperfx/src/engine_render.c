@@ -1475,7 +1475,7 @@ void fiddle_half_gamut(long start_stl_x, long start_stl_y, long step, long a4)
 
         if ( set_x_max_rect
           || stl_x_lc_min < stl_x_max
-          || (get_map_block_at(stl_x_lc_min, stl_y)->flags & 0x10) )
+          || (get_map_block_at(stl_x_lc_min, stl_y)->flags & SlbAtFlg_Blocking) )
         {
             long stl_tmp;
             stl_tmp = stl_x_max - start_stl_x;
