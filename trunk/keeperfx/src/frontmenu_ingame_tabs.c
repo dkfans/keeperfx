@@ -835,7 +835,7 @@ void gui_area_trap_button(struct GuiButton *gbtn)
         break;
     case TCls_Door:
         // If there are doors of that type placed on map
-        if (player_has_deployed_door_of_model(my_player_number, manufctr->tngmodel)) {
+        if (player_has_deployed_door_of_model(my_player_number, manufctr->tngmodel, -1)) {
             draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 27);
         }
         amount = dungeon->door_amount_placeable[manufctr->tngmodel];
