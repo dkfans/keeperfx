@@ -808,6 +808,7 @@ CreatureJob get_job_to_place_creature_in_room(const struct Computer2 *comp, cons
         RoomKind rkind;
         rkind = get_room_for_job(mvto->job_kind);
         if (!worker_needed_in_dungeons_room_kind(dungeon, rkind)) {
+            SYNCDBG(19,"Cannot assign %s for %s index %d; no worker needed",creature_job_code_name(mvto->job_kind),thing_model_name(thing),(int)thing->index);
             continue;
         }
         // Find specific room which meets capacity demands
@@ -816,12 +817,14 @@ CreatureJob get_job_to_place_creature_in_room(const struct Computer2 *comp, cons
         if (room_is_invalid(room)) {
             continue;
         }
+        SYNCDBG(19,"Checking job %s for %s index %d, cap %ld priority %ld",creature_job_code_name(mvto->job_kind),thing_model_name(thing),(int)thing->index,(long)total_spare_cap,(long)mvto->priority);
         if (chosen_priority < total_spare_cap * mvto->priority)
         {
             chosen_priority = total_spare_cap * mvto->priority;
             chosen_job = mvto->job_kind;
         }
     }
+    SYNCDBG(9,"Chosen %s as best job for %s index %d, with priority %ld",creature_job_code_name(chosen_job),thing_model_name(thing),(int)thing->index,(long)chosen_priority);
     return chosen_job;
 }
 
