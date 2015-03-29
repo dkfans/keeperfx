@@ -187,7 +187,7 @@ long creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
     if (!room_has_enough_free_capacity_for_creature(room, creatng))
         return 0;
     // Make sure we don't already have a lair on that position
-    lairtng = find_creature_lair_at_subtile(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, 0);
+    lairtng = find_creature_lair_totem_at_subtile(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, 0);
     if (!thing_is_invalid(lairtng))
         return 0;
     struct CreatureStats *crstat;
@@ -307,7 +307,7 @@ TbBool setup_head_for_random_unused_lair_slab(struct Thing *creatng, struct Room
         slb_x = slb_num_decode_x(slbnum);
         slb_y = slb_num_decode_y(slbnum);
         struct Thing *lairtng;
-        lairtng = find_creature_lair_at_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), 0);
+        lairtng = find_creature_lair_totem_at_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), 0);
         if (thing_is_invalid(lairtng))
         {
             if (setup_person_move_to_position(creatng, slab_subtile_center(slb_x), slab_subtile_center(slb_y), NavRtF_Default)) {

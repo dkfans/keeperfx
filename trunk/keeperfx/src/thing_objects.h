@@ -121,7 +121,7 @@ TbBool object_is_gold_laying_on_ground(const struct Thing *thing);
 TbBool object_is_guard_flag(const struct Thing *thing);
 TbBool thing_is_gold_hoard(const struct Thing *thing);
 TbBool thing_is_spellbook(const struct Thing *thing);
-TbBool thing_is_creature_lair(const struct Thing *thing);
+TbBool thing_is_lair_totem(const struct Thing *thing);
 TbBool object_is_room_equipment(const struct Thing *thing, RoomKind rkind);
 TbBool object_is_room_inventory(const struct Thing *thing, RoomKind rkind);
 TbBool object_is_unaffected_by_terrain_changes(const struct Thing *thing);
