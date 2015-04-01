@@ -233,14 +233,14 @@ long check_for_first_person_barrack_party(struct Thing *grthing)
     //return _DK_check_for_first_person_barrack_party(grthing);
     if (!thing_is_creature(grthing))
     {
-        ERRORLOG("The %s cannot lead a barracks party", thing_model_name(grthing));
+        SYNCDBG(2,"The %s cannot lead a barracks party", thing_model_name(grthing));
         return 0;
     }
     struct Room *room;
     room = get_room_thing_is_on(grthing);
     if (!room_still_valid_as_type_for_thing(room, RoK_BARRACKS, grthing))
     {
-        WARNLOG("Room %s owned by player %d is bad work place for %s index %d owner %d",room_code_name(room->kind),(int)room->owner,thing_model_name(grthing),(int)grthing->index,(int)grthing->owner);
+        SYNCDBG(2,"Room %s owned by player %d does not allow the %s index %d owner %d to lead a party",room_code_name(room->kind),(int)room->owner,thing_model_name(grthing),(int)grthing->index,(int)grthing->owner);
         return 0;
     }
     struct CreatureControl *cctrl;

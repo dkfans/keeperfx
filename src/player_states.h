@@ -66,6 +66,8 @@ enum PlayerStates {
     PSt_FreeDestroyWalls,
     PSt_FreeCastDisease,
     PSt_FreeTurnChicken,
+    PSt_FreeCtrlPassngr,
+    PSt_FreeCtrlDirect,
     PSt_ListEnd
 };
 

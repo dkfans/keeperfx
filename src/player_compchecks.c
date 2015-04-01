@@ -835,6 +835,12 @@ long computer_check_for_place_door(struct Computer2 *comp, struct ComputerCheck 
 long computer_check_neutral_places(struct Computer2 *comp, struct ComputerCheck * check)
 {
     SYNCDBG(8,"Starting");
+    struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
+    if (dungeon_invalid(dungeon) || !player_has_heart(dungeon->owner)) {
+        SYNCDBG(7,"Computer players %d dungeon in invalid or has no heart",(int)dungeon->owner);
+        return CTaskRet_Unk4;
+    }
     struct OpponentRelation *oprel;
     oprel = &comp->opponent_relations[game.neutral_player_num];
     struct Room *near_room;
