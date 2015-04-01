@@ -415,6 +415,37 @@ long near_map_block_thing_filter_is_creature_of_model_owned_and_controlled_by(co
  * @param param Parameters exchanged between filter calls.
  * @param maximizer Previous value which made a thing pass the filter.
  */
+long near_map_block_thing_filter_is_thing_of_class_and_model_owned_by(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
+{
+    if ((param->class_id == -1) || (thing->class_id == param->class_id))
+    {
+        if ((param->model_id == -1) || (thing->model == param->model_id))
+        {
+            if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
+            {
+                if (!thing_is_picked_up(thing))
+                {
+                    // Prepare reference Coord3d struct for distance computation
+                    struct Coord3d refpos;
+                    refpos.x.val = param->num1;
+                    refpos.y.val = param->num2;
+                    refpos.z.val = 0;
+                    // This function should return max value when the distance is minimal, so:
+                    return LONG_MAX-get_2d_distance(&thing->mappos, &refpos);
+                }
+            }
+        }
+    }
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
+}
+
+/**
+ * Filter function.
+ * @param thing The thing being checked.
+ * @param param Parameters exchanged between filter calls.
+ * @param maximizer Previous value which made a thing pass the filter.
+ */
 long near_map_block_thing_filter_can_be_keeper_power_target(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
     if (can_cast_power_on_thing(param->plyr_idx, thing, param->num3))
@@ -1455,6 +1486,28 @@ struct Thing *get_nearest_object_owned_by_and_matching_bool_filter(MapCoord pos_
     param.num1 = pos_x;
     param.num2 = pos_y;
     param.ptr3 = (void *)matcher_cb;
+    return get_nth_thing_of_class_with_filter(filter, &param, 0);
+}
+
+/** Finds on whole map a thing owned by given player, which matches given bool filter.
+ *
+ * @param pos_x Position to search around X coord.
+ * @param pos_y Position to search around Y coord.
+ * @param plyr_idx Player whose things will be searched. Allies are not included, use -1 to select all.
+ * @return The target thing pointer, or invalid thing pointer if not found.
+ */
+struct Thing *get_nearest_thing_of_class_and_model_owned_by(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx, int tngclass, int tngmodel)
+{
+    Thing_Maximizer_Filter filter;
+    struct CompoundTngFilterParam param;
+    SYNCDBG(19,"Starting");
+    filter = near_map_block_thing_filter_is_thing_of_class_and_model_owned_by;
+    param.class_id = tngclass;
+    param.model_id = tngmodel;
+    param.plyr_idx = plyr_idx;
+    param.num1 = pos_x;
+    param.num2 = pos_y;
+    param.num3 = 0;
     return get_nth_thing_of_class_with_filter(filter, &param, 0);
 }
 
