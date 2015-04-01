@@ -524,7 +524,7 @@ long near_map_block_thing_filter_is_owned_by(const struct Thing *thing, MaxTngFi
         switch(param->class_id)
         {
         case TCls_Creature:
-            if (creature_near_filter_is_owned_by(thing, param->plyr_idx))
+            if ((param->plyr_idx == -1) || creature_near_filter_is_owned_by(thing, param->plyr_idx))
             {
                 // Prepare reference Coord3d struct for distance computation
                 struct Coord3d refpos;
@@ -536,7 +536,7 @@ long near_map_block_thing_filter_is_owned_by(const struct Thing *thing, MaxTngFi
             }
             break;
         default:
-            if ((thing->owner == param->plyr_idx) || (param->plyr_idx == -1))
+            if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
                 // Prepare reference Coord3d struct for distance computation
                 struct Coord3d refpos;
@@ -2447,7 +2447,7 @@ struct Thing *get_thing_near_revealed_map_block_with_filter(MapCoord x, MapCoord
       mapblk = get_map_block_at(sx, sy);
       if (!map_block_invalid(mapblk))
       {
-        if (map_block_revealed(mapblk, param->plyr_idx))
+        if ((param->plyr_idx == -1) || map_block_revealed(mapblk, param->plyr_idx))
         {
             i = get_mapwho_thing_index(mapblk);
             n = maximizer;

@@ -482,7 +482,7 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
     stl_y = coord_subtile(y);
 
     player->field_3 &= ~0x02;
-    if ((player->field_455 != 0) && (player->field_455 != 3))
+    if ((player->field_455 != P454_Unkn0) && (player->field_455 != P454_Unkn3))
     {
       if (player->instance_num != PI_Grab) {
           delete_power_hand(player->id_number);
@@ -661,7 +661,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
     cx = stl_slab_starting_subtile(stl_x);
     cy = stl_slab_starting_subtile(stl_y);
     if ((pckt->control_flags & PCtr_LBtnAnyAction) == 0)
-      player->field_455 = 0;
+      player->field_455 = P454_Unkn0;
     player->field_454 = (unsigned short)(pckt->field_10 & 0x1E) >> 1;
 
     process_dungeon_power_hand_state(plyr_idx);
@@ -670,7 +670,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
     {
       if (is_my_player(player) && !game_is_busy_doing_gui())
       {
-        if (player->field_454 == 1)
+        if (player->field_454 == P454_Unkn1)
           tag_cursor_blocks_dig(player->id_number, stl_x, stl_y, player->field_4A4);
       }
       if ((pckt->control_flags & PCtr_LBtnClick) != 0)
@@ -681,14 +681,14 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         player->field_455 = player->field_454;
         switch (player->field_454)
         {
-        case 1:
+        case P454_Unkn1:
           i = get_subtile_number(stl_slab_center_subtile(player->field_4AB),stl_slab_center_subtile(player->field_4AD));
           if (find_from_task_list(plyr_idx,i) != -1)
               player->allocflags |= PlaF_Unknown20;
           else
               player->allocflags &= ~PlaF_Unknown20;
           break;
-        case 2:
+        case P454_Unkn2:
           thing = get_door_for_position(player->field_4AB, player->field_4AD);
           if (thing_is_invalid(thing))
           {
@@ -700,7 +700,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
           else
             lock_door(thing);
           break;
-        case 3:
+        case P454_Unkn3:
           if (player->thing_under_hand == 0)
           {
             i = get_subtile_number(stl_slab_center_subtile(player->field_4AB),stl_slab_center_subtile(player->field_4AD));
@@ -725,10 +725,10 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
 
     if ((pckt->control_flags & PCtr_LBtnHeld) != 0)
     {
-        if (player->field_455 == 0)
+        if (player->field_455 == P454_Unkn0)
         {
           player->field_455 = player->field_454;
-          if (player->field_454 == 1)
+          if (player->field_454 == P454_Unkn1)
           {
             i = get_subtile_number(stl_slab_center_subtile(stl_x),stl_slab_center_subtile(stl_y));
             if (find_from_task_list(plyr_idx,i) != -1)
@@ -741,7 +741,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         {
           if (player->field_454 == player->field_455)
           {
-            if (player->field_455 == 1)
+            if (player->field_455 == P454_Unkn1)
             {
               if ((player->allocflags & PlaF_Unknown20) != 0)
               {
@@ -756,7 +756,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
                 output_message(SMsg_WorkerJobsLimit, 500, true);
               }
             } else
-            if ((player->field_455 == 3) && ((player->field_3 & 0x01) != 0))
+            if ((player->field_455 == P454_Unkn3) && ((player->field_3 & 0x01) != 0))
             {
               if ((player->allocflags & PlaF_Unknown20) != 0)
               {
@@ -783,7 +783,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
     }
     if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
     {
-      if (player->field_455 == 0)
+      if (player->field_455 == P454_Unkn0)
         player->field_455 = player->field_454;
       if (player->field_4AF != 0)
       {
@@ -816,7 +816,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         } else
         if (player->field_455 == player->field_454)
         {
-          if (player->field_454 == 1)
+          if (player->field_454 == P454_Unkn1)
           {
             if ((player->allocflags & PlaF_Unknown20) != 0)
             {
@@ -831,7 +831,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
               output_message(SMsg_WorkerJobsLimit, 500, true);
             }
           } else
-          if (player->field_454 == 3)
+          if (player->field_454 == P454_Unkn3)
           {
             if (player->thing_under_hand != 0) {
                 // TODO SPELLS it's not a good idea to use this directly; change to magic_use_available_power_on_*()
@@ -841,7 +841,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         }
         player->field_4AF = 0;
         unset_packet_control(pckt, PCtr_LBtnRelease);
-        player->field_455 = 0;
+        player->field_455 = P454_Unkn0;
         player->field_3 &= ~0x01;
       }
     }
@@ -858,7 +858,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
           }
         } else
         {
-          if (player->field_454 == 3) {
+          if (player->field_454 == P454_Unkn3) {
               thing = get_nearest_thing_for_slap(plyr_idx, subtile_coord_center(stl_x), subtile_coord_center(stl_y));
               magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, thing);
           }
@@ -964,8 +964,12 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         }
         break;
     case PSt_CtrlPassngr:
+    case PSt_FreeCtrlPassngr:
         influence_own_creatures = 1;
-        thing = get_creature_near_and_owned_by(x, y, plyr_idx);
+        if (player->work_state == PSt_CtrlPassngr)
+            thing = get_creature_near_and_owned_by(x, y, plyr_idx);
+        else
+            thing = get_creature_near_and_owned_by(x, y, -1);
         if (thing_is_invalid(thing))
             player->thing_under_hand = 0;
         else
@@ -989,8 +993,12 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         }
         break;
     case PSt_CtrlDirect:
+    case PSt_FreeCtrlDirect:
         influence_own_creatures = 1;
-        thing = get_creature_near_for_controlling(plyr_idx, x, y);
+        if (player->work_state == PSt_CtrlDirect)
+            thing = get_creature_near_for_controlling(plyr_idx, x, y);
+        else
+            thing = get_creature_near_for_controlling(plyr_idx, x, y); // TODO Change to allow controlling any owner
         if (thing_is_invalid(thing))
           player->thing_under_hand = 0;
         else
@@ -1268,7 +1276,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     }
     if (((pckt->control_flags & PCtr_HeldAnyButton) != 0) && (influence_own_creatures))
     {
-      if ((player->field_455 == 0) || (player->field_455 == 3))
+      if ((player->field_455 == P454_Unkn0) || (player->field_455 == P454_Unkn3))
         stop_creatures_around_hand(plyr_idx, stl_x, stl_y);
     }
     return ret;
