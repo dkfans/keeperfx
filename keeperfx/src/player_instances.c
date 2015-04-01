@@ -1020,7 +1020,7 @@ TbBool is_thing_passenger_controlled(const struct Thing *thing)
     if (is_neutral_thing(thing))
         return false;
     player = get_player(thing->owner);
-    if (player->work_state != PSt_CtrlPassngr)
+    if ((player->work_state != PSt_CtrlPassngr) && (player->work_state != PSt_FreeCtrlPassngr))
         return false;
     switch (player->instance_num)
     {
@@ -1049,7 +1049,7 @@ TbBool is_thing_directly_controlled(const struct Thing *thing)
     if (is_neutral_thing(thing))
         return false;
     player = get_player(thing->owner);
-    if (player->work_state != PSt_CtrlDirect)
+    if ((player->work_state != PSt_CtrlDirect) && (player->work_state != PSt_FreeCtrlDirect))
         return false;
     switch (player->instance_num)
     {

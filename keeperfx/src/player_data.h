@@ -92,6 +92,13 @@ enum PlayerVictoryState {
     VicS_State3,
 };
 
+enum PlayerField454Val {
+    P454_Unkn0 = 0,
+    P454_Unkn1,
+    P454_Unkn2,
+    P454_Unkn3,
+};
+
 /******************************************************************************/
 #pragma pack(1)
 
