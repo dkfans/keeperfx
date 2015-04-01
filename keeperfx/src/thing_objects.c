@@ -1102,7 +1102,72 @@ long food_moves(struct Thing *objtng)
 
 long food_grows(struct Thing *objtng)
 {
-  return _DK_food_grows(objtng);
+    //return _DK_food_grows(objtng);
+    if (objtng->food.word_13 > 0)
+    {
+        objtng->food.word_13--;
+        return 1;
+    }
+    struct Coord3d pos;
+    pos.x.val = objtng->mappos.x.val;
+    pos.y.val = objtng->mappos.y.val;
+    pos.z.val = objtng->mappos.z.val;
+    struct Thing *nobjtng;
+    long ret;
+    ret = 0;
+    PlayerNumber tngowner;
+    tngowner = objtng->owner;
+    switch (objtng->anim_sprite)
+    {
+      case 893:
+      case 897:
+        delete_thing_structure(objtng, 0);
+        nobjtng = create_object(&pos, 0x28u, tngowner, -1);
+        if (!thing_is_invalid(nobjtng)) {
+            nobjtng->food.word_13 = (nobjtng->field_49 << 8) / nobjtng->field_3E - 1;
+        }
+        ret = -1;
+        break;
+      case 894:
+      case 898:
+        delete_thing_structure(objtng, 0);
+        nobjtng = create_object(&pos, 0x29u, tngowner, -1);
+        if (!thing_is_invalid(nobjtng)) {
+            nobjtng->food.word_13 = 3 * ((nobjtng->field_49 << 8) / nobjtng->field_3E - 1);
+        }
+        ret = -1;
+        break;
+      case 895:
+      case 899:
+        delete_thing_structure(objtng, 0);
+        nobjtng = create_object(&pos, 0x2Au, tngowner, -1);
+        if (!thing_is_invalid(nobjtng)) {
+            nobjtng->food.word_13 = (nobjtng->field_49 << 8) / nobjtng->field_3E - 1;
+        }
+        ret = -1;
+        break;
+      case 896:
+      case 900:
+        delete_thing_structure(objtng, 0);
+        nobjtng = create_object(&pos, 0xAu, tngowner, -1);
+        if (!thing_is_invalid(nobjtng)) {
+            nobjtng->move_angle_xy = ACTION_RANDOM(0x800);
+            nobjtng->food.byte_15 = ACTION_RANDOM(0x6FF);
+            nobjtng->food.byte_16 = 0;
+          thing_play_sample(nobjtng, 80 + UNSYNC_RANDOM(3), 100, 0, 3u, 0, 1, 256);
+          if (!is_neutral_thing(nobjtng)) {
+              struct Dungeon *dungeon;
+              dungeon = get_dungeon(nobjtng->owner);
+              dungeon->lvstats.chickens_hatched++;
+          }
+          nobjtng->food.word_13 = -1;
+        }
+        ret = -1;
+        break;
+      default:
+        break;
+    }
+    return ret;
 }
 
 GoldAmount add_gold_to_treasure_room_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, GoldAmount gold_store)

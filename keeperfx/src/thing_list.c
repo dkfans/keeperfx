@@ -1489,7 +1489,7 @@ struct Thing *get_nearest_object_owned_by_and_matching_bool_filter(MapCoord pos_
     return get_nth_thing_of_class_with_filter(filter, &param, 0);
 }
 
-/** Finds on whole map a thing owned by given player, which matches given bool filter.
+/** Finds on whole map a thing owned by given player, which matches given criteria.
  *
  * @param pos_x Position to search around X coord.
  * @param pos_y Position to search around Y coord.
