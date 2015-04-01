@@ -495,7 +495,7 @@ TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam param)
             }
         }
     } else
-    if (thing->class_id == TngList_EffectElems)
+    if (thing->class_id == TCls_EffectElem)
     {
         if (!thing_is_picked_up(thing))
         {
@@ -508,7 +508,7 @@ TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam param)
             }
         }
     } else
-    if (thing->class_id == TngList_Shots)
+    if (thing->class_id == TCls_Shot)
     {
         if (!thing_is_picked_up(thing))
         {
@@ -521,7 +521,7 @@ TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam param)
             }
         }
     } else
-    if (thing->class_id == TngList_Effects)
+    if (thing->class_id == TCls_Effect)
     {
         if (!thing_is_picked_up(thing))
         {

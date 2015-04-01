@@ -1272,7 +1272,7 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     {
         shtng->mappos.z.val = get_thing_height_at(shtng, &shtng->mappos) + COORD_PER_STL/2;
         shtng->shot.hit_type = THit_CrtrsOnly;
-        shtng->field_19 = splevel;
+        shtng->shot.byte_19 = splevel;
     }
     pwrdynst = get_power_dynamic_stats(PwrK_LIGHTNING);
     shotst = get_shot_model_stats(16);

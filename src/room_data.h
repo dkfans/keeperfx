@@ -93,7 +93,8 @@ struct Room {
      *  Rooms which can store things are workshops, libraries, treasure rooms etc. */
     struct {
       long capacity_used_for_storage;
-      unsigned char field_1B[28];
+      short hatchfield_1B;
+      unsigned char field_1D[26];
     };
     /** For rooms which are often browsed for various reasons, list of all rooms of given kind.
      *  Rooms which have such list are entrances (only?). */
@@ -106,6 +107,11 @@ struct Room {
       /** For rooms which store creatures, amount of each model.
        * Rooms which have such lists are lairs. */
       unsigned char content_per_model[32];
+    };
+    /* For hatchery; integrate with something else, if possible */
+    struct {
+      long hatch_gameturn;
+      unsigned char field_1Bh[28];
     };
     };
     unsigned short slabs_list;

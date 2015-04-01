@@ -23,6 +23,8 @@
 #include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_sound.h"
+#include "bflib_planar.h"
+
 #include "config_strings.h"
 #include "config_objects.h"
 #include "config_terrain.h"
@@ -33,6 +35,7 @@
 #include "thing_navigate.h"
 #include "thing_physics.h"
 #include "power_hand.h"
+#include "player_instances.h"
 #include "map_data.h"
 #include "map_columns.h"
 #include "room_entrance.h"
@@ -948,7 +951,153 @@ TbBool delete_lair_totem(struct Thing *lairtng)
 
 long food_moves(struct Thing *objtng)
 {
-  return _DK_food_moves(objtng);
+    //return _DK_food_moves(objtng);
+    struct Thing *near_creatng;
+    struct Coord3d pos;
+    pos.x.val = objtng->mappos.x.val;
+    pos.y.val = objtng->mappos.y.val;
+    pos.z.val = objtng->mappos.z.val;
+    unsigned int snd_smplidx;
+    snd_smplidx = 0;
+    if (objtng->food.byte_17)
+    {
+        destroy_food(objtng);
+        return -1;
+    }
+    TbBool dirct_ctrl;
+    dirct_ctrl = is_thing_directly_controlled(objtng);
+    if (dirct_ctrl)
+    {
+        if (objtng->food.byte_16 > 0)
+        {
+            objtng->food.byte_16--;
+            return 1;
+        }
+    }
+    struct Room *room;
+    room = get_room_thing_is_on(objtng);
+    if (!dirct_ctrl)
+    {
+      if (objtng->food.word_13 >= 0)
+      {
+        if (!room_is_invalid(room) && !is_neutral_thing(objtng) && (objtng->food.word_13 != -1))
+        {
+            if ((room->kind == RoK_GARDEN) && (room->owner == objtng->owner) && (room->total_capacity > room->used_capacity))
+            {
+                room->used_capacity++;
+                objtng->food.word_13 = -1;
+            }
+        }
+      }
+      if (objtng->food.word_13 >= 0)
+      {
+        objtng->food.word_13--;
+        if (objtng->food.word_13 <= 0)
+        {
+            struct Dungeon *dungeon;
+            dungeon = get_dungeon(objtng->owner);
+            dungeon->lvstats.chickens_wasted++;
+            create_effect(&objtng->mappos, 0x33u, objtng->owner);
+            create_effect(&objtng->mappos, 7u, objtng->owner);
+            delete_thing_structure(objtng, 0);
+            return -1;
+        }
+      }
+    }
+    TbBool has_near_creature;
+    has_near_creature = false;
+    if (!room_is_invalid(room) && (room->kind == 13) && (objtng->food.word_13 < 0))
+    {
+        if (room->hatch_gameturn == game.play_gameturn)
+        {
+            near_creatng = thing_get(room->hatchfield_1B);
+        } else
+        {
+            room->hatch_gameturn = game.play_gameturn;
+            near_creatng = get_nearest_thing_of_class_and_model_owned_by(pos.x.val, pos.y.val, -1, TCls_Creature, -1);
+            if (!thing_is_invalid(near_creatng))
+                room->hatchfield_1B = near_creatng->index;
+        }
+        has_near_creature = (thing_exists(near_creatng) && (get_2d_box_distance(&objtng->mappos, &near_creatng->mappos) < 768));
+        if (has_near_creature)
+        {
+            objtng->food.word_18 = get_angle_xy_to(&near_creatng->mappos, &pos);
+            if (objtng->snd_emitter_id == 0)
+            {
+                if (UNSYNC_RANDOM(16) == 0) {
+                  snd_smplidx = 109 + UNSYNC_RANDOM(3);
+                }
+            }
+        }
+    }
+    if (objtng->food.byte_15 <= 0)
+    {
+        if (objtng->food.byte_15 == 0)
+        {
+            objtng->food.byte_15 = -1;
+            set_thing_draw(objtng, 820, -1, -1, -1, 0, 2u);
+            if (dirct_ctrl) {
+                objtng->food.byte_16 = 6;
+            } else {
+                objtng->food.byte_16 = ACTION_RANDOM(4) + 1;
+            }
+        }
+        if ((has_near_creature && (objtng->food.byte_16 < 5)) || (objtng->food.byte_16 == 0))
+        {
+            set_thing_draw(objtng, 819, -1, -1, -1, 0, 2u);
+            objtng->food.byte_15 = ACTION_RANDOM(0x39);
+            objtng->food.word_18 = ACTION_RANDOM(0x7FF);
+            objtng->food.byte_16 = 0;
+        } else
+        if ((objtng->field_3E * objtng->field_49 <= objtng->field_3E + objtng->field_40) && (objtng->food.byte_16 < 5))
+        {
+            objtng->food.byte_16--;
+        }
+    }
+    else
+    {
+        int vel_x, vel_y;
+        vel_x = 32 * LbSinL(objtng->food.word_18) >> 16;
+        pos.x.val += vel_x;
+        vel_y = -(32 * LbCosL(objtng->food.word_18) >> 8) >> 8;
+        pos.y.val += vel_y;
+        if (thing_in_wall_at(objtng, &pos))
+        {
+            objtng->food.word_18 = ACTION_RANDOM(0x7FF);
+        }
+        int sangle;
+        long dangle;
+        dangle = get_angle_difference(objtng->move_angle_xy, objtng->food.word_18);
+        sangle = get_angle_sign(objtng->move_angle_xy, objtng->food.word_18);
+        if (dangle > 62)
+            dangle = 62;
+        objtng->move_angle_xy = (dangle * sangle + objtng->move_angle_xy) & 0x7FF;
+        if (get_angle_difference(objtng->move_angle_xy, objtng->food.word_18) < 284)
+        {
+            struct ComponentVector cvec;
+            cvec.x = vel_x;
+            cvec.y = vel_y;
+            cvec.z = 0;
+            objtng->food.byte_15--;
+            apply_transitive_velocity_to_thing(objtng, &cvec);
+        }
+        if (objtng->snd_emitter_id == 0)
+        {
+            if (snd_smplidx > 0) {
+              thing_play_sample(objtng, snd_smplidx, 100, 0, 3u, 0, 1, 256);
+              return 1;
+            }
+            if (UNSYNC_RANDOM(0x50) == 0)
+            {
+              snd_smplidx = 100 + UNSYNC_RANDOM(9);
+            }
+        }
+    }
+    if (snd_smplidx > 0) {
+        thing_play_sample(objtng, snd_smplidx, 100, 0, 3u, 0, 1, 256);
+        return 1;
+    }
+    return 1;
 }
 
 long food_grows(struct Thing *objtng)

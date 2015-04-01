@@ -5604,14 +5604,14 @@ void do_map_who_for_thing(struct Thing *thing)
         {
             if (game.play_gameturn - thing->long_15 == 1)
             {
-              if (thing->field_19 < 40)
-                thing->field_19++;
+              if (thing->byte_19 < 40)
+                thing->byte_19++;
             } else
             {
-                thing->field_19 = 0;
+                thing->byte_19 = 0;
             }
             thing->long_15 = game.play_gameturn;
-            if (thing->field_19 == 40)
+            if (thing->byte_19 == 40)
             {
                 bckt_idx = (ecor.z - 64) / 16 - 6;
                 add_room_flag_pole_to_polypool(ecor.view_width, ecor.view_height, thing->roomflag.room_idx, bckt_idx);
@@ -5700,14 +5700,14 @@ void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map, struc
         {
           if (game.play_gameturn - thing->long_15 != 1)
           {
-              thing->field_19 = 0;
+              thing->byte_19 = 0;
           } else
-          if (thing->field_19 < 40)
+          if (thing->byte_19 < 40)
           {
-              thing->field_19++;
+              thing->byte_19++;
           }
           thing->long_15 = game.play_gameturn;
-          if (thing->field_19 == 40)
+          if (thing->byte_19 == 40)
           {
               add_room_flag_pole_to_polypool(cx, cy, thing->roomflag.room_idx, cz-3);
               if (is_free_space_in_poly_pool(1))
