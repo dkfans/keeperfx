@@ -32,7 +32,7 @@ enum ThingAllocFlags {
     TAlF_Exists            = 0x01,
     TAlF_IsInMapWho        = 0x02,
     TAlF_IsInStrucList     = 0x04,
-    TAlF_InDungeonList            = 0x08,
+    TAlF_InDungeonList     = 0x08,
     TAlF_IsInLimbo         = 0x10,
     TAlF_IsControlled      = 0x20,
     TAlF_IsFollowingLeader = 0x40,
@@ -108,9 +108,11 @@ struct Thing {
         short word_17v;
       } valuable;
       struct {
-        short word_13f;
-        short word_15f;
-        short word_17f;
+        short word_13;
+        char byte_15;
+        unsigned char byte_16;
+        unsigned char byte_17;
+        unsigned short word_18;
       } food;
       struct {
         unsigned char num_shots;
@@ -120,6 +122,7 @@ struct Thing {
       struct {
         long number;
         short word_17e;
+        unsigned char byte_19e;
       } price;
       struct {
         unsigned char dexterity;
@@ -132,10 +135,12 @@ struct Thing {
       unsigned char byte_15d;
       short word_16d;
       unsigned char is_locked;
+      unsigned char byte_19d;
       } door;
       struct {
         long room_idx;
         short word_17r;
+        unsigned char byte_19r;
       } roomflag;
       struct {
       long long_13;
@@ -155,11 +160,13 @@ struct Thing {
       short word_14;
       short word_16;
       unsigned char byte_18b;
+      unsigned char byte_19b;
       };
       struct {
       unsigned char byte_13a;
       long long_14;
       unsigned char byte_18a;
+      unsigned char byte_19a;
       };
       struct {
         unsigned char byte_13;
@@ -168,9 +175,9 @@ struct Thing {
         unsigned char byte_16;
         unsigned char byte_17;
         unsigned char byte_18;
+        unsigned char byte_19;
       };
     };
-    unsigned char field_19;
     unsigned char model;
     unsigned short index;
     /** Parent index. The parent may either be a thing, or a slab index.
