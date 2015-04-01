@@ -118,6 +118,7 @@ struct Thing {
         unsigned char num_shots;
         long long_14t;
         unsigned char byte_18t;
+        unsigned char byte_19t;
       } trap;
       struct {
         long number;
@@ -129,6 +130,7 @@ struct Thing {
         short damage;
         unsigned char hit_type;
         short target_idx;
+        unsigned char byte_19;
       } shot;
       struct {
       short orientation;

@@ -359,7 +359,7 @@ void god_lightning_choose_next_creature(struct Thing *shotng)
                 const struct MagicStats *pwrdynst;
                 pwrdynst = get_power_dynamic_stats(PwrK_LIGHTNING);
                 int spell_lev;
-                spell_lev = shotng->field_19;
+                spell_lev = shotng->shot.byte_19;
                 if (spell_lev > SPELL_MAX_LEVEL)
                     spell_lev = SPELL_MAX_LEVEL;
                 if (subtile_coord(pwrdynst->strength[spell_lev],0) > dist)
