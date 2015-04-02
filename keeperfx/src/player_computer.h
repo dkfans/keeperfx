@@ -577,6 +577,7 @@ struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d 
 long computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d *pos, struct GoldLookup **gldlookref);
 void setup_dig_to(struct ComputerDig *cdig, const struct Coord3d startpos, const struct Coord3d endpos);
 long move_imp_to_dig_here(struct Computer2 *comp, struct Coord3d *pos, long max_amount);
+long move_imp_to_mine_here(struct Computer2 *comp, struct Coord3d *pos, long max_amount);
 void get_opponent(struct Computer2 *comp, struct THate hate[]);
 long add_to_trap_location(struct Computer2 *, struct Coord3d *);
 /******************************************************************************/

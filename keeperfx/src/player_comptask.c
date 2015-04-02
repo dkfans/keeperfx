@@ -3138,6 +3138,9 @@ TbBool create_task_move_creature_to_pos(struct Computer2 *comp, const struct Thi
         case CrSt_ImpDigsDirt:
             message_add_fmt(comp->dungeon->owner, "This %s should go digging.",get_string(crdata->namestr_idx));
             break;
+        case CrSt_ImpMinesGold:
+            message_add_fmt(comp->dungeon->owner, "This %s should go mining.",get_string(crdata->namestr_idx));
+            break;
         case CrSt_CreatureDoingNothing:
         case CrSt_ImpDoingNothing:
             message_add_fmt(comp->dungeon->owner, "This %s should stop doing that.",get_string(crdata->namestr_idx));

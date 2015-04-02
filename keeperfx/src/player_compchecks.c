@@ -251,8 +251,10 @@ long computer_check_move_creatures_to_room(struct Computer2 *comp, struct Comput
         // Per-room code
         if (room->total_capacity > room->used_capacity)
         {
-            if (create_task_move_creatures_to_room(comp, room->index, num_to_move)) {
-                SYNCDBG(8,"Added task to move %d creatures to %s index %d", (int)num_to_move,room_code_name(room->kind),(int)room->index);
+            int num_to_move_fit;
+            num_to_move_fit = min(num_to_move, room->total_capacity - room->used_capacity);
+            if (create_task_move_creatures_to_room(comp, room->index, num_to_move_fit)) {
+                SYNCDBG(8,"Added task to move %d creatures to %s index %d", (int)num_to_move_fit,room_code_name(room->kind),(int)room->index);
                 return CTaskRet_Unk1;
             }
         }
