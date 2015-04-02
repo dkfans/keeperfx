@@ -1112,7 +1112,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
                 pos.y.val = subtile_coord_center(stl_y);
                 pos.z.val = subtile_coord(1,0);
                 SYNCDBG(8,"Creating task to move player %d diggers near gold to mine",(int)dungeon->owner);
-                if (move_imp_to_dig_here(comp, &pos, num_to_move) > 0) {
+                if (move_imp_to_mine_here(comp, &pos, num_to_move) > 0) {
                     ret = CTaskRet_Unk1;
                 }
             }

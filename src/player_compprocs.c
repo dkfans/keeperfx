@@ -742,8 +742,8 @@ TbBool imp_can_be_moved_to_dig(const struct Thing *creatng)
     curr_stati = get_thing_state_info_num(curr_state);
     switch (curr_stati->state_type)
     {
-      case 1:
-      case 8:
+      case CrStTyp_Work:
+      case CrStTyp_Escape:
         switch (curr_state)
         {
           case CrSt_ImpArrivesAtMineGold:
@@ -756,11 +756,39 @@ TbBool imp_can_be_moved_to_dig(const struct Thing *creatng)
               return true;
         }
         break;
-      case 0:
-      case 2:
-      case 3:
-      case 4:
-      case 6:
+      case CrStTyp_Idle:
+      case CrStTyp_OwnNeeds:
+      case CrStTyp_Sleep:
+      case CrStTyp_Feed:
+      case CrStTyp_Move:
+          return true;
+    }
+    return false;
+}
+
+TbBool imp_can_be_moved_to_mine(const struct Thing *creatng)
+{
+    CrtrStateId curr_state;
+    curr_state = get_creature_state_besides_move(creatng);
+    struct StateInfo *curr_stati;
+    curr_stati = get_thing_state_info_num(curr_state);
+    switch (curr_stati->state_type)
+    {
+      case CrStTyp_Work:
+      case CrStTyp_Escape:
+        switch (curr_state)
+        {
+          case CrSt_ImpDigsDirt:
+          case CrSt_ImpArrivesAtReinforce:
+          case CrSt_ImpReinforces:
+              return true;
+        }
+        break;
+      case CrStTyp_Idle:
+      case CrStTyp_OwnNeeds:
+      case CrStTyp_Sleep:
+      case CrStTyp_Feed:
+      case CrStTyp_Move:
           return true;
     }
     return false;
@@ -797,6 +825,52 @@ long move_imp_to_dig_here(struct Computer2 *comp, struct Coord3d *pos, long max_
         if (can_thing_be_picked_up_by_player(creatng, dungeon->owner) && imp_can_be_moved_to_dig(creatng))
         {
             if (!create_task_move_creature_to_pos(comp, creatng, *pos, CrSt_ImpDigsDirt)) {
+                break;
+            }
+            amount_did++;
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return amount_did;
+}
+
+long move_imp_to_mine_here(struct Computer2 *comp, struct Coord3d *pos, long max_amount)
+{
+    struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
+
+    long amount_did;
+    amount_did = 0;
+
+    unsigned long k;
+    int i;
+    k = 0;
+    i = dungeon->digger_list_start;
+    while (i != 0)
+    {
+        const struct Thing *creatng;
+        const struct CreatureControl *cctrl;
+        creatng = thing_get(i);
+        TRACE_THING(creatng);
+        cctrl = creature_control_get_from_thing(creatng);
+        if (thing_is_invalid(creatng) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        if (amount_did >= max_amount)
+            break;
+        if (can_thing_be_picked_up_by_player(creatng, dungeon->owner) && imp_can_be_moved_to_mine(creatng))
+        {
+            if (!create_task_move_creature_to_pos(comp, creatng, *pos, CrSt_ImpMinesGold)) {
                 break;
             }
             amount_did++;
