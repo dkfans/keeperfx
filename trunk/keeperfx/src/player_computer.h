@@ -509,6 +509,7 @@ struct Computer2 { // sizeof = 5322
   struct ComputerCheck checks[COMPUTER_CHECKS_COUNT];
   struct ComputerEvent events[COMPUTER_EVENTS_COUNT];
   struct OpponentRelation opponent_relations[PLAYERS_EXT_COUNT];
+  // TODO we could use coord2d for trap locations
   struct Coord3d trap_locations[COMPUTER_TRAP_LOC_COUNT];
   /** Stores Sight Of Evil target points data. */
   unsigned long soe_targets[COMPUTER_SOE_GRID_SIZE];
@@ -592,7 +593,7 @@ long xy_walkable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx);
 /******************************************************************************/
 struct ComputerTask *get_computer_task(long idx);
 struct ComputerTask *get_task_in_progress(struct Computer2 *comp, ComputerTaskType ttype);
-struct ComputerTask *get_task_in_progress_in_list(struct Computer2 *comp, const ComputerTaskType *ttypes);
+struct ComputerTask *get_task_in_progress_in_list(const struct Computer2 *comp, const ComputerTaskType *ttypes);
 TbBool is_task_in_progress(struct Computer2 *comp, ComputerTaskType ttype);
 TbBool is_task_in_progress_using_hand(struct Computer2 *comp);
 struct ComputerTask *get_free_task(struct Computer2 *comp, long a2);
