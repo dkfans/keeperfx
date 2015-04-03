@@ -130,6 +130,7 @@ obj/player_compevents.o \
 obj/player_compchecks.o \
 obj/player_complookup.o \
 obj/player_computer.o \
+obj/player_computer_data.o \
 obj/tasks_list.o \
 obj/spdigger_stack.o \
 obj/lvl_filesdk1.o \

@@ -1061,8 +1061,12 @@ long computer_check_for_expand_room(struct Computer2 *comp, struct ComputerCheck
         SYNCDBG(8,"No rooms expansion - colliding task already in progress");
         return CTaskRet_Unk0;
     }
-    if (4 * dungeon->creatures_total_pay / 3 >= dungeon->total_money_owned) {
-        SYNCDBG(8,"No rooms expansion - we don't even have money for payday");
+    if (computer_player_in_emergency_state(comp)) {
+        SYNCDBG(8,"No rooms expansion - emergency state");
+        return CTaskRet_Unk0;
+    }
+    if (get_computer_money_less_cost(comp) < dungeon->creatures_total_pay / 3) {
+        SYNCDBG(8,"No rooms expansion - not enough money buffer");
         return CTaskRet_Unk0;
     }
     const struct ExpandRooms *expndroom;

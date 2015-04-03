@@ -440,9 +440,16 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
     SYNCDBG(18,"Starting");
     ret = 4;
     struct ValidRooms *bldroom;
+    TbBool emergency_state;
+    emergency_state = computer_player_in_emergency_state(comp);
     for (bldroom = valid_rooms_to_build; bldroom->rkind > 0; bldroom++)
     {
         if (computer_get_room_kind_free_capacity(comp, bldroom->rkind) > 0) {
+            continue;
+        }
+        struct RoomConfigStats *roomst;
+        roomst = &slab_conf.room_cfgstats[bldroom->rkind];
+        if (emergency_state && ((roomst->flags & RoCFlg_BuildToBroke) == 0)) {
             continue;
         }
         SYNCDBG(8,"Player %d needs %s",(int)comp->dungeon->owner,room_code_name(bldroom->rkind));
@@ -546,15 +553,34 @@ long computer_event_check_payday(struct Computer2 *comp, struct ComputerEvent *c
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
     if (dungeon->total_money_owned > dungeon->creatures_total_pay) {
-        return 4;
+        return CTaskRet_Unk4;
     }
-    if (!is_task_in_progress(comp, CTT_SellTrapsAndDoors))
+    if (dungeon_has_any_buildable_traps(dungeon) || dungeon_has_any_buildable_doors(dungeon) ||
+        player_has_deployed_trap_of_model(dungeon->owner, -1) || player_has_deployed_door_of_model(dungeon->owner, -1, 0))
     {
-        if (create_task_sell_traps_and_doors(comp, cevent->param2, 3*dungeon->creatures_total_pay/2)) {
-            return 1;
+        if (!is_task_in_progress(comp, CTT_SellTrapsAndDoors))
+        {
+            SYNCDBG(8,"Creating task to sell player %d traps and doors",(int)dungeon->owner);
+            if (create_task_sell_traps_and_doors(comp, cevent->param2, 3*dungeon->creatures_total_pay/2)) {
+                return CTaskRet_Unk1;
+            }
         }
     }
-    return 4;
+    // Move any gold laying around to treasure room
+    if (dungeon_has_room(dungeon, RoK_TREASURE))
+    {
+        // If there's already task in progress which uses hand, then don't add more
+        // content; the hand could be used by wrong task by mistake
+        if (!is_task_in_progress_using_hand(comp) && (computer_able_to_use_magic(comp, PwrK_HAND, 1, cevent->param2) == CTaskRet_Unk1))
+        {
+            SYNCDBG(8,"Creating task to move neutral gold to treasury");
+            if (create_task_move_gold_to_treasury(comp, cevent->param2, 3*dungeon->creatures_total_pay/2)) {
+                return CTaskRet_Unk1;
+            }
+        }
+    }
+
+    return CTaskRet_Unk4;
 }
 
 long computer_event_breach(struct Computer2 *comp, struct ComputerEvent *cevent, struct Event *event)

@@ -1004,6 +1004,7 @@ TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
 
 void compute_and_update_player_payday_total(PlayerNumber plyr_idx)
 {
+    SYNCDBG(15,"Starting for player %d",(int)plyr_idx);
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
     dungeon->creatures_total_pay = compute_player_payday_total(dungeon);
