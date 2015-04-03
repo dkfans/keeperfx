@@ -439,6 +439,11 @@ struct ComputerTask *get_room_build_task_nearest_to(const struct Computer2 *comp
     return nearest_ctask;
 }
 
+/**
+ * Checks for rooms which the player doesn't have, and triggers building them.
+ * @param comp
+ * @param cproc
+ */
 long computer_check_build_all_rooms(struct Computer2 *comp, struct ComputerProcess *cproc)
 {
     struct Dungeon *dungeon;

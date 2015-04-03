@@ -570,8 +570,9 @@ void suspend_process(struct Computer2 *comp, struct ComputerProcess *cproc);
 long computer_process_index(const struct Computer2 *comp, const struct ComputerProcess *cproc);
 struct ComputerProcess *get_computer_process(struct Computer2 *comp, int cproc_idx);
 /******************************************************************************/
+TbBool computer_player_in_emergency_state(const struct Computer2 *comp);
+TbBool is_there_an_attack_task(const struct Computer2 *comp);
 struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind rkind, long width_slabs, long height_slabs, long a5);
-TbBool is_there_an_attack_task(struct Computer2 *comp);
 struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d *pos, RoomKind rkind,
     long width_slabs, long height_slabs, long a6, long a7);
 long computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d *pos, struct GoldLookup **gldlookref);

@@ -45,6 +45,11 @@
 
 #include "version.h"
 
+#ifndef BFDEBUG_LEVEL
+#error "BFDEBUG_LEVEL should be defined in version.h"
+#define BFDEBUG_LEVEL 0
+#endif
+
 #if defined(BUILD_DLL)
 # define DLLIMPORT __declspec (dllexport)
 #else // Not defined BUILD_DLL
