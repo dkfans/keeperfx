@@ -151,9 +151,9 @@ const struct TrapDoorSelling trapdoor_sell[] = {
 };
 
 const struct MoveToBestJob move_to_best_job[] = {
-    {Job_TRAIN,       40},
-    {Job_RESEARCH,    35},
-    {Job_MANUFACTURE, 32},
+    {Job_TRAIN,       60},
+    {Job_RESEARCH,    45},
+    {Job_MANUFACTURE, 28},
     {Job_SCAVENGE,    20},
     {Job_GUARD,        2},
     {Job_BARRACK,      1},
