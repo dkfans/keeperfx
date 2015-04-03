@@ -231,6 +231,7 @@ obj/config_compp.o \
 obj/player_compprocs.o \
 obj/player_comptask.o \
 obj/player_computer.o \
+obj/player_computer_data.o \
 obj/player_data.o \
 obj/player_instances.o \
 obj/player_states.o \

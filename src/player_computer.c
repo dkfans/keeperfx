@@ -48,130 +48,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-
 ComputerType computer_assist_types[] = { 6, 7, 8, 9 };
-
-//TODO move to config file
-unsigned short computer_types_tooltip_stridx[] = {
-    GUIStr_Empty, GUIStr_Empty,
-    GUIStr_Empty, GUIStr_Empty,
-    GUIStr_Empty, GUIStr_Empty,
-    GUIStr_AggressiveAssistDesc, GUIStr_DefensiveAssistDesc,
-    GUIStr_ConstructionAssistDesc, GUIStr_MoveOnlyAssistDesc, };
-
-/******************************************************************************/
-DLLIMPORT long _DK_get_computer_money_less_cost(struct Computer2 *comp);
-DLLIMPORT long _DK_count_creatures_availiable_for_fight(struct Computer2 *comp, struct Coord3d *pos);
-DLLIMPORT struct ComputerTask *_DK_is_there_an_attack_task(struct Computer2 *comp);
-DLLIMPORT long _DK_count_creatures_for_defend_pickup(struct Computer2 *comp);
-DLLIMPORT long _DK_computer_find_non_solid_block(struct Computer2 *comp, struct Coord3d *pos);
-DLLIMPORT long _DK_check_call_to_arms(struct Computer2 *comp);
-DLLIMPORT long _DK_computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d *pos, struct GoldLookup **gldlook);
-DLLIMPORT long _DK_computer_finds_nearest_room_to_pos(struct Computer2 *comp, struct Room **retroom, struct Coord3d *nearpos);
-
-/******************************************************************************/
-// Function definition needed to compare pointers - remove pending
-long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *cproc);
-long computer_check_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *cproc);
-long computer_setup_any_room(struct Computer2 *comp, struct ComputerProcess *cproc);
-
-/******************************************************************************/
-DLLIMPORT extern struct ComputerProcess _DK_BuildAllRooms3x3;
-#define BuildAllRooms3x3 _DK_BuildAllRooms3x3
-DLLIMPORT extern struct ComputerProcess _DK_BuildAllRooms4x4;
-#define BuildAllRooms4x4 _DK_BuildAllRooms4x4
-DLLIMPORT extern struct ComputerProcess _DK_BuildPrisonRoom;
-#define BuildPrisonRoom _DK_BuildPrisonRoom
-DLLIMPORT extern struct ComputerProcess _DK_BuildTortureRoom;
-#define BuildTortureRoom _DK_BuildTortureRoom
-DLLIMPORT extern struct ComputerProcess _DK_BuildScavengerRoom;
-#define BuildScavengerRoom _DK_BuildScavengerRoom
-DLLIMPORT extern struct ComputerProcess _DK_BuildTempleRoom;
-#define BuildTempleRoom _DK_BuildTempleRoom
-DLLIMPORT extern struct ComputerProcess _DK_BuildGraveyardRoom;
-#define BuildGraveyardRoom _DK_BuildGraveyardRoom
-DLLIMPORT extern struct ComputerProcess _DK_BuildBarrackRoom;
-#define BuildBarrackRoom _DK_BuildBarrackRoom
-DLLIMPORT extern struct ComputerProcess _DK_BuildTreasureRoom;
-#define BuildTreasureRoom _DK_BuildTreasureRoom
-DLLIMPORT extern struct ComputerProcess _DK_BuildResearchRoom;
-#define BuildResearchRoom _DK_BuildResearchRoom
-DLLIMPORT extern struct ComputerProcess _DK_BuildHatcheryRoom;
-#define BuildHatcheryRoom _DK_BuildHatcheryRoom
-DLLIMPORT extern struct ComputerProcess _DK_BuildLairRoom;
-#define BuildLairRoom _DK_BuildLairRoom
-DLLIMPORT extern struct ComputerProcess _DK_BuildTrainingRoom;
-#define BuildTrainingRoom _DK_BuildTrainingRoom
-DLLIMPORT extern struct ComputerProcess _DK_BuildWorkshopRoom;
-#define BuildWorkshopRoom _DK_BuildWorkshopRoom
-DLLIMPORT extern struct ComputerProcess _DK_DigToEntrance;
-#define DigToEntrance _DK_DigToEntrance
-DLLIMPORT extern struct ComputerProcess _DK_DigToGoldForMoney;
-#define DigToGoldForMoney _DK_DigToGoldForMoney
-DLLIMPORT extern struct ComputerProcess _DK_BuildTreasureRoom4x4;
-#define BuildTreasureRoom4x4 _DK_BuildTreasureRoom4x4
-DLLIMPORT extern struct ComputerProcess _DK_BuildLairRoom4x4;
-#define BuildLairRoom4x4 _DK_BuildLairRoom4x4
-DLLIMPORT extern struct ComputerProcess _DK_DigToCloseGoldForMoney;
-#define DigToCloseGoldForMoney _DK_DigToCloseGoldForMoney
-DLLIMPORT extern struct ComputerProcess _DK_DigToGoldGreedy;
-#define DigToGoldGreedy _DK_DigToGoldGreedy
-DLLIMPORT extern struct ComputerProcess _DK_DigToGoldGreedy2;
-#define DigToGoldGreedy2 _DK_DigToGoldGreedy2
-DLLIMPORT extern struct ComputerProcess _DK_ComputerSightOfEvil;
-#define ComputerSightOfEvil _DK_ComputerSightOfEvil
-DLLIMPORT extern struct ComputerProcess _DK_ComputerSightOfEvilScare;
-#define ComputerSightOfEvilScare _DK_ComputerSightOfEvilScare
-DLLIMPORT extern struct ComputerProcess _DK_ComputerAttack1;
-#define ComputerAttack1 _DK_ComputerAttack1
-DLLIMPORT extern struct ComputerProcess _DK_ComputerSafeAttack;
-#define ComputerSafeAttack _DK_ComputerSafeAttack
-/******************************************************************************/
-
-struct ValidRooms valid_rooms_to_build[] = {
-  {RoK_TREASURE,  &BuildTreasureRoom},
-  {RoK_LAIR,      &BuildLairRoom},
-  {RoK_GARDEN,    &BuildHatcheryRoom},
-  {RoK_LIBRARY,   &BuildResearchRoom},
-  {RoK_TRAINING,  &BuildTrainingRoom},
-  {RoK_WORKSHOP,  &BuildWorkshopRoom},
-  {RoK_SCAVENGER, &BuildScavengerRoom},
-  {RoK_PRISON,    &BuildPrisonRoom},
-  {RoK_TEMPLE,    &BuildTempleRoom},
-  {RoK_TORTURE,   &BuildTortureRoom},
-  {RoK_GRAVEYARD, &BuildGraveyardRoom},
-  {RoK_BARRACKS,  &BuildBarrackRoom},
-  {-1,            NULL},
-};
-
-struct ComputerProcessMnemonic computer_process_config_list[] = {
-  {"Unused", NULL,},
-  {"", &BuildAllRooms3x3,},
-  {"", &BuildAllRooms4x4,},
-  {"", &BuildPrisonRoom,},
-  {"", &BuildTortureRoom,},
-  {"", &BuildScavengerRoom,},
-  {"", &BuildTempleRoom,},
-  {"", &BuildGraveyardRoom,},
-  {"", &BuildBarrackRoom,},
-  {"", &BuildTreasureRoom,},
-  {"", &BuildResearchRoom,},
-  {"", &BuildHatcheryRoom,},
-  {"", &BuildLairRoom,},
-  {"", &BuildTrainingRoom,},
-  {"", &BuildWorkshopRoom,},
-  {"", &DigToEntrance,},
-  {"", &DigToGoldForMoney,},
-  {"", &BuildTreasureRoom4x4,},
-  {"", &BuildLairRoom4x4,},
-  {"", &DigToCloseGoldForMoney,},
-  {"", &DigToGoldGreedy,},
-  {"", &DigToGoldGreedy2,},
-  {"", &ComputerSightOfEvil,},
-  {"", &ComputerSightOfEvilScare,},
-  {"", &ComputerAttack1,},
-  {"", &ComputerSafeAttack,},
-};
 
 char const event_pay_day_text[] = "EVENT PAY DAY";
 char const event_save_imps_text[] = "EVENT SAVE IMPS";
@@ -202,6 +79,22 @@ char const move_creature_to_best_text[] = "MOVE CREATURE TO BEST ROOM";
 char const computer_check_hates_text[] = "COMPUTER CHECK HATES";
 
 /******************************************************************************/
+DLLIMPORT long _DK_get_computer_money_less_cost(struct Computer2 *comp);
+DLLIMPORT long _DK_count_creatures_availiable_for_fight(struct Computer2 *comp, struct Coord3d *pos);
+DLLIMPORT struct ComputerTask *_DK_is_there_an_attack_task(struct Computer2 *comp);
+DLLIMPORT long _DK_count_creatures_for_defend_pickup(struct Computer2 *comp);
+DLLIMPORT long _DK_computer_find_non_solid_block(struct Computer2 *comp, struct Coord3d *pos);
+DLLIMPORT long _DK_check_call_to_arms(struct Computer2 *comp);
+DLLIMPORT long _DK_computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d *pos, struct GoldLookup **gldlook);
+DLLIMPORT long _DK_computer_finds_nearest_room_to_pos(struct Computer2 *comp, struct Room **retroom, struct Coord3d *nearpos);
+
+/******************************************************************************/
+// Function definition needed to compare pointers - remove pending
+long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *cproc);
+long computer_check_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *cproc);
+long computer_setup_any_room(struct Computer2 *comp, struct ComputerProcess *cproc);
+
+/******************************************************************************/
 struct Computer2 *get_computer_player_f(long plyr_idx,const char *func_name)
 {
     if ((plyr_idx >= 0) && (plyr_idx < PLAYERS_COUNT))
@@ -217,11 +110,29 @@ TbBool computer_player_invalid(const struct Computer2 *comp)
     return (comp < &game.computer[0]);
 }
 
+TbBool computer_player_in_emergency_state(const struct Computer2 *comp)
+{
+    struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
+    if (get_computer_money_less_cost(comp) < -1000)
+        return true;
+    if (dungeon->num_active_diggers < 3)
+        return true;
+    return false;
+}
+
 GoldAmount get_computer_money_less_cost(const struct Computer2 *comp)
 {
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
-    return dungeon->total_money_owned - compute_player_payday_total(dungeon);
+    GoldAmount money_payday, money_mkdigger;
+    // As payday need, take amount planned for next payday
+    money_payday = dungeon->creatures_total_pay;
+    // In case payday expenses are low, require enough money to make special digger
+    money_mkdigger = compute_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
+    if (money_payday < money_mkdigger)
+        money_payday = money_mkdigger;
+    return dungeon->total_money_owned - money_payday;
 }
 
 long set_autopilot_type(PlayerNumber plyr_idx, long aptype)
@@ -595,7 +506,7 @@ long count_creatures_availiable_for_fight(struct Computer2 *comp, struct Coord3d
     return count;
 }
 
-TbBool is_there_an_attack_task(struct Computer2 *comp)
+TbBool is_there_an_attack_task(const struct Computer2 *comp)
 {
     static const ComputerTaskType attack_tasks[] = {
         CTT_DigToAttack,
@@ -1017,8 +928,7 @@ long computer_pick_expensive_job_creatures_and_place_on_lair(struct Computer2 *c
 
 long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * check)
 {
-    GoldAmount money_left, money_payday;
-    GoldAmount money_mkdigger;
+    GoldAmount money_left;
     struct ComputerProcess *cproc;
     struct Dungeon *dungeon;
     long ret;
@@ -1030,16 +940,8 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
         SYNCDBG(7,"Computer players %d dungeon in invalid or has no heart",(int)dungeon->owner);
         return CTaskRet_Unk4;
     }
-    // As payday need, take larger of amounts from last payday and planned for next
-    money_payday = compute_player_payday_total(dungeon);
-    if (money_payday < dungeon->creatures_total_pay)
-        money_payday = dungeon->creatures_total_pay;
-    // In case payday expenses are low, require enough money to make special digger
-    money_mkdigger = compute_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
-    if (money_payday < money_mkdigger)
-        money_payday = money_mkdigger;
     // Check how much money we will have left after payday (or other expenses)
-    money_left = dungeon->total_money_owned - money_payday;
+    money_left = get_computer_money_less_cost(comp);
     // Try increasing priority of digging for gold process
     if ((money_left < check->param2) || (money_left < check->param1))
     {
@@ -1068,7 +970,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
             if (!is_task_in_progress(comp, CTT_SellTrapsAndDoors))
             {
                 SYNCDBG(8,"Creating task to sell player %d traps and doors",(int)dungeon->owner);
-                if (create_task_sell_traps_and_doors(comp, 5, 4*money_payday/3)) {
+                if (create_task_sell_traps_and_doors(comp, 5, check->param2 - money_left)) {
                     ret = CTaskRet_Unk1;
                 }
             }
@@ -1128,7 +1030,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
         if (!is_task_in_progress_using_hand(comp) && (computer_able_to_use_magic(comp, PwrK_HAND, 1, num_to_move) == CTaskRet_Unk1))
         {
             SYNCDBG(8,"Creating task to move neutral gold to treasury");
-            if (create_task_move_gold_to_treasury(comp, num_to_move, 2*money_payday)) {
+            if (create_task_move_gold_to_treasury(comp, num_to_move, 2*dungeon->creatures_total_pay)) {
                 ret = CTaskRet_Unk1;
             }
         }
