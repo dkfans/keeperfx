@@ -778,21 +778,11 @@ long computer_choose_best_trap_kind_to_place(struct Dungeon *dungeon, long allow
     return 0;
 }
 
-long computer_check_for_place_trap(struct Computer2 *comp, struct ComputerCheck * check)
+TbBool computer_get_trap_place_location_and_update_locations(struct Computer2 *comp, ThingModel trapmodel, struct Coord3d *retloc)
 {
     struct Dungeon *dungeon;
-    long i;
-    SYNCDBG(8,"Starting");
     dungeon = comp->dungeon;
-    if (dungeon_invalid(dungeon) || !player_has_heart(dungeon->owner)) {
-        SYNCDBG(7,"Computer players %d dungeon in invalid or has no heart",(int)dungeon->owner);
-        return CTaskRet_Unk4;
-    }
-    long kind_chosen;
-    kind_chosen = computer_choose_best_trap_kind_to_place(dungeon, check->param1, check->param2);
-    if (kind_chosen <= 0)
-        return CTaskRet_Unk4;
-    //TODO COMPUTER_PLAYER Maybe we should prefer corridors when placing traps?
+    long i;
     for (i=0; i < COMPUTER_TRAP_LOC_COUNT; i++)
     {
         struct Coord3d *location;
@@ -811,20 +801,14 @@ long computer_check_for_place_trap(struct Computer2 *comp, struct ComputerCheck 
             location->y.val = 0;
             continue;
         }
-        if ((slabmap_owner(slb) == dungeon->owner) && (slb->kind == SlbT_CLAIMED))
+        if (can_place_trap_on(dungeon->owner, location->x.stl.num, location->y.stl.num))
         { // If it's our owned claimed ground, give it a try
-            TbResult ret;
-            // Only allow to place trap at position where there's no traps already
-            if (!slab_has_trap_on(slb_x, slb_y)) {
-                SYNCDBG(8,"Trying to place %s trap at (%d,%d)",trap_code_name(kind_chosen),(int)location->x.stl.num,(int)location->y.stl.num);
-                ret = try_game_action(comp, dungeon->owner, GA_PlaceTrap, 0, location->x.stl.num, location->y.stl.num, kind_chosen, 0);
-            } else {
-                ret = Lb_FAIL;
-            }
+            retloc->x.val = location->x.val;
+            retloc->y.val = location->y.val;
+            retloc->z.val = 0;
             location->x.val = 0;
             location->y.val = 0;
-            if (ret > Lb_OK)
-              return 1;
+            return true;
         } else
         if (slb->kind != SlbT_PATH)
         { // If it would be a path, we could wait for someone to claim it; but if it's not..
@@ -837,6 +821,34 @@ long computer_check_for_place_trap(struct Computer2 *comp, struct ComputerCheck 
             }
         }
     }
+    return false;
+}
+
+long computer_check_for_place_trap(struct Computer2 *comp, struct ComputerCheck * check)
+{
+    struct Dungeon *dungeon;
+    SYNCDBG(8,"Starting");
+    dungeon = comp->dungeon;
+    if (dungeon_invalid(dungeon) || !player_has_heart(dungeon->owner)) {
+        SYNCDBG(7,"Computer players %d dungeon in invalid or has no heart",(int)dungeon->owner);
+        return CTaskRet_Unk4;
+    }
+    long kind_chosen;
+    kind_chosen = computer_choose_best_trap_kind_to_place(dungeon, check->param1, check->param2);
+    if (kind_chosen <= 0)
+        return CTaskRet_Unk4;
+    struct Coord3d pos;
+    if (!computer_get_trap_place_location_and_update_locations(comp, kind_chosen, &pos))
+    {
+        //TODO update list of locations and try to get location again
+        return 4;
+    }
+    TbResult ret;
+    // Only allow to place trap at position where there's no traps already
+    SYNCDBG(8,"Trying to place %s trap at (%d,%d)",trap_code_name(kind_chosen),(int)pos.x.stl.num,(int)pos.y.stl.num);
+    ret = try_game_action(comp, dungeon->owner, GA_PlaceTrap, 0, pos.x.stl.num, pos.y.stl.num, kind_chosen, 0);
+    if (ret > Lb_OK)
+      return 1;
     return 4;
 }
 

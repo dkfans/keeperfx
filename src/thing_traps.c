@@ -779,12 +779,8 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, long a2)
     }
 }
 
-TbBool tag_cursor_blocks_place_trap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    SYNCDBG(7,"Starting");
-    int par1;
-    TbBool can_place;
-    can_place = 0;
     MapSlabCoord slb_x, slb_y;
     slb_x = subtile_slab_fast(stl_x);
     slb_y = subtile_slab_fast(stl_y);
@@ -792,24 +788,52 @@ TbBool tag_cursor_blocks_place_trap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     slb = get_slabmap_block(slb_x, slb_y);
     struct SlabAttr *slbattr;
     slbattr = get_slab_attrs(slb);
-    if (!subtile_revealed(stl_x, stl_y, plyr_idx) || ((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0))
+    if (!subtile_revealed(stl_x, stl_y, plyr_idx)) {
+        return false;
+    }
+    if (((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0)) {
+        return false;
+    }
+    if (slab_kind_is_liquid(slb->kind)) {
+        return false;
+    }
+    if ((slabmap_owner(slb) == plyr_idx) && (slb->kind == SlbT_CLAIMED))
     {
-        par1 = temp_cluedo_mode < 1u ? 5 : 2;
-    } else
+        if (!slab_has_trap_on(slb_x, slb_y) && !subtile_has_door_thing_on(stl_x, stl_y))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+int floor_height_for_volume_box(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    struct SlabMap *slb;
+    slb = get_slabmap_block(slb_x, slb_y);
+    struct SlabAttr *slbattr;
+    slbattr = get_slab_attrs(slb);
+    if (!subtile_revealed(slab_subtile_center(slb_x), slab_subtile_center(slb_y), plyr_idx) || ((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0))
+    {
+        return temp_cluedo_mode < 1u ? 5 : 2;
+    }
     if (slab_kind_is_liquid(slb->kind))
     {
-        par1 = 0;
-    } else
-    {
-        if ((slabmap_owner(slb) == plyr_idx) && (slb->kind == SlbT_CLAIMED))
-        {
-            if (!slab_has_trap_on(slb_x, slb_y) && !subtile_has_door_thing_on(stl_x, stl_y))
-            {
-                can_place = 1;
-            }
-        }
-        par1 = 1;
+        return 0;
     }
+    return 1;
+}
+
+TbBool tag_cursor_blocks_place_trap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    SYNCDBG(7,"Starting");
+    int floor_height;
+    TbBool can_place;
+    MapSlabCoord slb_x, slb_y;
+    slb_x = subtile_slab_fast(stl_x);
+    slb_y = subtile_slab_fast(stl_y);
+    can_place = can_place_trap_on(plyr_idx, stl_x, stl_y);
+    floor_height = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
     if (is_my_player_number(plyr_idx))
     {
         if (!game_is_busy_doing_gui() && (game.small_map_state != 2)) {
@@ -817,7 +841,7 @@ TbBool tag_cursor_blocks_place_trap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
             stl_x = slab_subtile(slb_x,0);
             stl_y = slab_subtile(slb_y,0);
             draw_map_volume_box(subtile_coord(stl_x,0), subtile_coord(stl_y,0),
-                subtile_coord(stl_x+STL_PER_SLB,0), subtile_coord(stl_y+STL_PER_SLB,0), par1, can_place);
+                subtile_coord(stl_x+STL_PER_SLB,0), subtile_coord(stl_y+STL_PER_SLB,0), floor_height, can_place);
         }
     }
     return can_place;
