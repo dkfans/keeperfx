@@ -36,6 +36,14 @@
 #include "packets.h"
 #include "front_landview.h"
 
+// TODO: HeM why is this needed here?
+#ifndef max
+#define max(a,b) ((a)>(b)?(a):(b))
+#endif
+#ifndef min
+#define min(a,b) ((a)<(b)?(a):(b))
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -4445,7 +4445,7 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     short retval;
     retval=0;
     LbErrorLogSetup("/", log_file_name, 5);
-    LbScreenHardwareConfig("directx",8);
+    LbScreenHardwareConfig("windows",8);
 
     retval = process_command_line(argc,argv);
     if (retval < 1)
