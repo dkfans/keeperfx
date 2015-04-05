@@ -269,8 +269,7 @@ TbResult LbScreenHardwareConfig(const char *driver, short engine_bpp);
 TbResult LbScreenInitialize(void);
 TbResult LbScreenSetDoubleBuffering(TbBool state);
 TbBool LbScreenIsDoubleBufferred(void);
-TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord height,
-    unsigned char *palette, short buffers_count, TbBool wscreen_vid);
+TbResult LbScreenSetup(TbScreenMode mode, unsigned char *palette, short buffers_count, TbBool wscreen_vid);
 TbResult LbScreenReset(void);
 
 TbResult LbScreenFindVideoModes(void);
@@ -292,7 +291,7 @@ TbResult LbScreenLock(void);
 TbResult LbScreenUnlock(void);
 TbBool LbScreenIsLocked(void);
 
-TbResult LbScreenSwap(void);
+TbResult LbScreenRender(void);
 TbResult LbScreenClear(TbPixel colour);
 TbResult LbScreenWaitVbi(void);
 

@@ -175,7 +175,7 @@ TbBool copy_raw8_image_to_screen_center(const unsigned char *buf,const int img_w
         img_width*units_per_px/16,img_height*units_per_px/16,spx,spy,buf,img_width,img_height);
     perform_any_screen_capturing();
     LbScreenUnlock();
-    LbScreenSwap();
+    LbScreenRender();
     return true;
 }
 
@@ -329,7 +329,7 @@ TbBool draw_clear_screen(void)
     LbPaletteDataFillBlack(palette_buf);
     LbPaletteSet(palette_buf);
     LbScreenClear(0);
-    LbScreenSwap();
+    LbScreenRender();
     return true;
 }
 
@@ -481,7 +481,7 @@ TbBool display_centered_message(long showTime, char *text)
         draw_text_box(text);
         LbScreenUnlock();
       }
-      LbScreenSwap();
+      LbScreenRender();
       // Check if the window is active
       do
       {

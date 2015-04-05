@@ -72,7 +72,7 @@ short play_smacker_file(char *filename, int nstate)
     {
       LbMouseChangeSprite(NULL);
       LbScreenClear(0);
-      LbScreenSwap();
+      LbScreenRender();
     } else
     {
       ERRORLOG("Can't enter movies video mode to play a Smacker file");
@@ -102,7 +102,7 @@ short play_smacker_file(char *filename, int nstate)
     memset(frontend_palette, 0, PALETTE_SIZE);
   }
   LbScreenClear(0);
-  LbScreenSwap();
+  LbScreenRender();
   LbPaletteSet(frontend_palette);
   if (nstate >= 0)
     frontend_set_state(nstate);
