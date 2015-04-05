@@ -530,6 +530,7 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
     lbDisplay.PhysicalScreenWidth = mdinfo->Width;
     lbDisplay.PhysicalScreenHeight = mdinfo->Height;
     lbDisplay.ScreenMode = modeIndex;
+    lbDisplay.PhysicalScreen = NULL;
 
     // The graphics screen size should be really taken after screen is locked, but it seem just getting in now will work too
     lbDisplay.GraphicsScreenWidth = lbPalettedSurface->pitch;
