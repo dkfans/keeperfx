@@ -38,6 +38,7 @@
 #include "power_hand.h"
 #include "room_data.h"
 #include "room_jobs.h"
+#include "room_list.h"
 #include "ariadne_wallhug.h"
 #include "player_utils.h"
 #include "gui_soundmsgs.h"
@@ -126,7 +127,7 @@ TbBool good_setup_attack_rooms(struct Thing *creatng, long dngn_id)
     struct Room *room;
     struct CreatureControl *cctrl;
     struct Coord3d pos;
-    room = find_nearest_room_for_thing_excluding_two_types(creatng, dngn_id, 7, 1, 1);
+    room = find_nearest_room_for_thing_excluding_two_types(creatng, dngn_id, RoK_DUNGHEART, RoK_ENTRANCE, 1);
     if (room_is_invalid(room))
     {
         return false;

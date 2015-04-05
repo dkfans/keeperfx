@@ -35,6 +35,7 @@
 #include "power_hand.h"
 #include "room_data.h"
 #include "room_jobs.h"
+#include "room_list.h"
 #include "gui_soundmsgs.h"
 #include "creature_states_prisn.h"
 #include "game_legacy.h"

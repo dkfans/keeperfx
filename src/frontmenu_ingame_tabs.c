@@ -42,6 +42,7 @@
 #include "config_trapdoor.h"
 #include "config_terrain.h"
 #include "room_workshop.h"
+#include "room_list.h"
 #include "gui_frontbtns.h"
 #include "gui_parchment.h"
 #include "gui_draw.h"
@@ -343,35 +344,6 @@ long find_room_type_capacity_total_percentage(PlayerNumber plyr_idx, RoomKind rk
     return (used_cap << 8) / total_cap;
 }
 
-long count_rooms_of_type(PlayerNumber plyr_idx, RoomKind rkind)
-{
-    struct Dungeon *dungeon;
-    long i;
-    unsigned long k;
-    dungeon = get_dungeon(plyr_idx);
-    i = dungeon->room_kind[rkind];
-    k = 0;
-    while (i != 0)
-    {
-        struct Room *room;
-        room = room_get(i);
-        if (room_is_invalid(room))
-        {
-            ERRORLOG("Jump to invalid room detected");
-            break;
-        }
-        i = room->next_of_owner;
-        // Per-room code
-        // Per-room code ends
-        k++;
-        if (k > ROOMS_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping rooms list");
-            break;
-        }
-    }
-    return k;
-}
 void gui_area_big_room_button(struct GuiButton *gbtn)
 {
     struct PlayerInfo * player;
@@ -435,7 +407,7 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
     draw_string64k(gbtn->scr_pos_x + 44*units_per_px/16, gbtn->scr_pos_y + (8 - 6)*units_per_px/16, tx_units_per_px, gui_textbuf);
 
     long amount;
-    amount = count_rooms_of_type(player->id_number, rkind);
+    amount = count_player_rooms_of_type(player->id_number, rkind);
     // Note that "@" is "x" in that font
     sprintf(gui_textbuf, "@%ld", amount);
     draw_string64k(gbtn->scr_pos_x + 40*units_per_px/16, gbtn->scr_pos_y - (14 + 6)*units_per_px/16, tx_units_per_px, gui_textbuf);

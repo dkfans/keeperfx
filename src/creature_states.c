@@ -41,6 +41,7 @@
 #include "room_library.h"
 #include "room_lair.h"
 #include "room_util.h"
+#include "room_list.h"
 #include "tasks_list.h"
 #include "map_events.h"
 #include "map_blocks.h"
@@ -3158,128 +3159,6 @@ TbBool setup_random_head_for_room(struct Thing *thing, struct Room *room, unsign
         }
     }
     return setup_person_move_to_coord(thing, &pos, flags);
-}
-
-struct Room * find_nearest_room_for_thing_with_capacity_and_closer_than(struct Thing *thing, PlayerNumber owner, RoomKind rkind, unsigned char nav_flags, long used, long *neardistance)
-{
-    struct Dungeon *dungeon;
-    struct Room *nearoom;
-    long distance;
-    struct Coord3d pos;
-
-    struct Room *room;
-    unsigned long k;
-    int i;
-    SYNCDBG(18,"Searching for %s navigable by %s index %d",room_code_name(rkind),thing_model_name(thing),(int)thing->index);
-    dungeon = get_dungeon(owner);
-    nearoom = INVALID_ROOM;
-    k = 0;
-    i = dungeon->room_kind[rkind];
-    while (i != 0)
-    {
-        room = room_get(i);
-        if (room_is_invalid(room))
-        {
-            ERRORLOG("Jump to invalid room detected");
-            break;
-        }
-        i = room->next_of_owner;
-        // Per-room code
-        // Compute simplified distance - without use of mul or div
-        distance = abs(thing->mappos.x.stl.num - (int)room->central_stl_x)
-                 + abs(thing->mappos.y.stl.num - (int)room->central_stl_y);
-        if ((*neardistance > distance) && (room->used_capacity >= used))
-        {
-            if (find_first_valid_position_for_thing_anywhere_in_room(thing, room, &pos))
-            {
-                if ((thing->class_id != TCls_Creature)
-                  || creature_can_navigate_to(thing, &pos, nav_flags))
-                {
-                    *neardistance = distance;
-                    nearoom = room;
-                }
-            }
-        }
-        // Per-room code ends
-        k++;
-        if (k > ROOMS_COUNT)
-        {
-          ERRORLOG("Infinite loop detected when sweeping rooms list");
-          break;
-        }
-    }
-    return nearoom;
-}
-
-/**
- * Returns nearest room of given kind and owner to which the thing can navigate.
- *
- * @param thing The thing to navigate into room.
- * @param owner Owner of the rooms to be checked.
- * @param rkind Room kind to be returned.
- * @param nav_flags Navigation flags, for checking if creature can reach the room.
- * @return Nearest room of given kind and owner, or invalid room if none found.
- */
-struct Room * find_nearest_room_for_thing(struct Thing *thing, PlayerNumber owner, RoomKind rkind, unsigned char nav_flags)
-{
-    long neardistance;
-    struct Room *nearoom;
-    neardistance = LONG_MAX;
-    nearoom = find_nearest_room_for_thing_with_capacity_and_closer_than(thing, owner, rkind, nav_flags, 0, &neardistance);
-    return nearoom;
-}
-
-/**
- * Returns nearest room of given owner to which the thing can navigate, and wich is not of given two kinds.
- *
- * @param thing The thing to navigate into room.
- * @param owner Owner of the rooms to be checked.
- * @param rkind Room kind to be returned.
- * @param nav_flags Navigation flags, for checking if creature can reach the room.
- * @return Nearest room of given kind and owner, or invalid room if none found.
- */
-struct Room *find_nearest_room_for_thing_excluding_two_types(struct Thing *thing, PlayerNumber owner, RoomKind skip_rkind1, RoomKind skip_rkind2, unsigned char nav_flags)
-{
-    long neardistance;
-    struct Room *nearoom;
-    neardistance = LONG_MAX;
-    nearoom = INVALID_ROOM;
-    RoomKind rkind;
-    for (rkind = 1; rkind < ROOM_TYPES_COUNT; rkind++)
-    {
-        if ((rkind == skip_rkind1) || (rkind == skip_rkind2)) {
-            continue;
-        }
-        long distance;
-        struct Room *room;
-        distance = neardistance;
-        room = find_nearest_room_for_thing_with_capacity_and_closer_than(thing, owner, rkind, nav_flags, 0, &distance);
-        if (neardistance > distance)
-        {
-            neardistance = distance;
-            nearoom = room;
-        }
-    }
-    return nearoom;
-}
-
-/**
- * Returns nearest room of given kind and owner to which the thing can navigate, which has used capacity not lower than given amount.
- *
- * @param thing The thing to navigate into room.
- * @param owner Owner of the rooms to be checked.
- * @param rkind Room kind to be returned.
- * @param nav_flags Navigation flags, for checking if creature can reach the room.
- * @param used Used capacity required in the room to be returned.
- * @return Nearest room of given kind and owner, or invalid room if none found.
- */
-struct Room * find_nearest_room_for_thing_with_used_capacity(struct Thing *thing, PlayerNumber owner, RoomKind rkind, unsigned char nav_flags, long used)
-{
-    long neardistance;
-    struct Room *nearoom;
-    neardistance = LONG_MAX;
-    nearoom = find_nearest_room_for_thing_with_capacity_and_closer_than(thing, owner, rkind, nav_flags, used, &neardistance);
-    return nearoom;
 }
 
 void place_thing_in_creature_controlled_limbo(struct Thing *thing)
