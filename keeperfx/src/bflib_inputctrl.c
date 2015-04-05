@@ -19,13 +19,16 @@
  */
 /******************************************************************************/
 #include "bflib_inputctrl.h"
-
+#include "packets.h"
 #include "bflib_basics.h"
 #include "bflib_keybrd.h"
 #include "bflib_mouse.h"
 #include "bflib_video.h"
 #include "bflib_vidsurface.h"
 #include "bflib_planar.h"
+
+#include "packets.h"
+#include "player_data.h"
 #include <SDL2/SDL.h>
 
 #ifdef __cplusplus
@@ -270,26 +273,38 @@ static void process_event(const SDL_Event *ev)
         break;
 
     case SDL_MOUSEWHEEL:
-        // TODO HeM
+        if (ev->wheel.y > 0)
+        {
+            struct Packet *pckt;
+            pckt = get_packet(my_player_number);
+            if (pckt != NULL)
+            {
+                // Zooms in when wheel up.
+                set_packet_control(pckt, PCtr_ViewZoomIn);
+            }
+        }
+        else if (ev->wheel.y < 0)
+        {
+            struct Packet *pckt;
+            pckt = get_packet(my_player_number);
+            if (pckt != NULL)
+            {
+                // Zooms out when wheel down.
+                set_packet_control(pckt, PCtr_ViewZoomOut);
+            }
+        }
         break;
 
     case SDL_WINDOWEVENT:
-        if (ev->window.event == SDL_WINDOWEVENT_MINIMIZED) 
+        if (ev->window.event == SDL_WINDOWEVENT_FOCUS_LOST)
         {
             lbAppActive = false;
-            //SYNCDBG(10, "Active = %d",(int)lbAppActive);
             LbInputRestate();
         }
-        else if (ev->window.event == SDL_WINDOWEVENT_RESTORED) 
+        else if (ev->window.event == SDL_WINDOWEVENT_FOCUS_GAINED)
         {
             lbAppActive = true;
-            //SYNCDBG(10, "Active = %d",(int)lbAppActive);
             LbInputRestate();
-        }
-        else if ((ev->window.event == SDL_WINDOWEVENT_RESIZED) ||
-            (ev->window.event & SDL_WINDOWEVENT_EXPOSED))
-        {
-            // TODO HeM add handling of other events
         }
 
         if ((lbAppActive) && (lbDisplay.Palette != NULL)) {
@@ -347,6 +362,8 @@ TbBool LbIsActive(void)
   // On error, let's assume the window is active.
     if (!lbScreenInitialized)
         return true;
+
+    // TODO HeM maybe it is better to always return true and draw the window?
     return lbAppActive;
 }
 /******************************************************************************/
