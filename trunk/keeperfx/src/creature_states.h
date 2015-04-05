@@ -348,9 +348,6 @@ TbBool person_get_somewhere_adjacent_in_room_f(const struct Thing *thing, const 
 #define person_get_somewhere_adjacent_in_room(thing, room, pos) person_get_somewhere_adjacent_in_room_f(thing, room, pos, __func__)
 TbBool person_get_somewhere_adjacent_in_room_around_borders(const struct Thing *thing, const struct Room *room, struct Coord3d *pos);
 
-struct Room * find_nearest_room_for_thing(struct Thing *thing, PlayerNumber plyr_idx, RoomKind rkind, unsigned char nav_flags);
-struct Room *find_nearest_room_for_thing_excluding_two_types(struct Thing *thing, PlayerNumber owner, RoomKind skip_rkind1, RoomKind skip_rkind2, unsigned char nav_flags);
-struct Room * find_nearest_room_for_thing_with_used_capacity(struct Thing *thing, PlayerNumber plyr_idx, RoomKind rkind, unsigned char a4, long a5);
 void place_thing_in_creature_controlled_limbo(struct Thing *thing);
 void remove_thing_from_creature_controlled_limbo(struct Thing *thing);
 TbBool get_random_position_in_dungeon_for_creature(PlayerNumber plyr_idx, unsigned char wandr_select, struct Thing *thing, struct Coord3d *pos);
