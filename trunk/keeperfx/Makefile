@@ -507,7 +507,7 @@ ifeq ($(DEBUG), 1)
   DBGFLAGS = -g -DDEBUG
 else
   # frame pointer is required for ASM code to work
-  OPTFLAGS = -march=i686 -fno-omit-frame-pointer -O0
+  OPTFLAGS = -march=i686 -fno-omit-frame-pointer -O3
   DBGFLAGS = 
 endif
 # linker flags
