@@ -312,9 +312,9 @@ static void process_event(const SDL_Event *ev)
             // Below is the faster version of LbPaletteSet(lbDisplay.Palette);
             // SDL_SetColors(lbPalettedSurface,lbPaletteColors, 0, PALETTE_COLORS);
 
-            SDL_Palette *lbPalette = SDL_AllocPalette(PALETTE_COLORS);
-            SDL_SetPaletteColors(lbPalette, lbPaletteColors, 0, PALETTE_COLORS);
-            SDL_SetSurfacePalette(lbPalettedSurface, lbPalette);
+            SDL_Palette *sdl_palette = SDL_AllocPalette(PALETTE_COLORS);
+            SDL_SetPaletteColors(sdl_palette, lbPaletteColors, 0, PALETTE_COLORS);
+            SDL_SetSurfacePalette(lbPalettedSurface, sdl_palette);
         }
         break;
 
@@ -357,13 +357,12 @@ TbResult LbInputRestate(void)
     return Lb_SUCCESS;
 }
 
-TbBool LbIsActive(void)
+TbBool LbIsFocused(void)
 {
   // On error, let's assume the window is active.
     if (!lbScreenInitialized)
         return true;
 
-    // TODO HeM maybe it is better to always return true and draw the window?
     return lbAppActive;
 }
 /******************************************************************************/

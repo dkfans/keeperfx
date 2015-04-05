@@ -425,7 +425,7 @@ TbBool wait_for_cd_to_be_available(void)
                 exit_keeper = 1;
             if ((exit_keeper) || (quit_game))
               break;
-        } while (!LbIsActive());
+        } while (!LbIsFocused());
         if (is_key_pressed(KC_Q,KMod_DONTCARE) || is_key_pressed(KC_X,KMod_DONTCARE))
         {
           ERRORLOG("User requested quit, giving up");
@@ -492,7 +492,7 @@ TbBool display_centered_message(long showTime, char *text)
               finish = true;
               break;
           }
-      } while (!LbIsActive());
+      } while (!LbIsFocused());
       // Process inputs
       update_mouse();
       update_key_modifiers();

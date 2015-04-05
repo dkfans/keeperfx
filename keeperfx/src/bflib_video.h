@@ -128,6 +128,7 @@ struct ScreenModeInfo {
 };
 typedef struct ScreenModeInfo TbScreenModeInfo;
 
+// Do NOT modify imported structures
 struct DisplayStruct {
         /** Pointer to physical screen buffer, if locked. */
         uchar *PhysicalScreen;

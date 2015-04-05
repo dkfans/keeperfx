@@ -137,6 +137,8 @@ struct StartupParameters start_params;
 
 struct Room *droom = &_DK_game.rooms[25];
 
+#define INTRO_TIMEDELAY 3000
+
 //static
 TbClockMSec last_loop_time=0;
 
@@ -1150,7 +1152,7 @@ short setup_game(void)
   result = init_actv_bitmap_screen(RBmp_SplashLegal);
   if ( result )
   {
-      result = show_actv_bitmap_screen(3000);
+      result = show_actv_bitmap_screen(INTRO_TIMEDELAY);
       free_actv_bitmap_screen();
   } else
       SYNCLOG("Legal image skipped");
@@ -1172,7 +1174,7 @@ short setup_game(void)
   result = init_actv_bitmap_screen(RBmp_SplashFx);
   if ( result )
   {
-      result = show_actv_bitmap_screen(4000);
+      result = show_actv_bitmap_screen(INTRO_TIMEDELAY);
       free_actv_bitmap_screen();
   } else
       SYNCLOG("startup_fx image skipped");
@@ -3473,7 +3475,7 @@ TbBool keeper_wait_for_screen_focus(void)
           }
           SYNCLOG("Alex's point reached");
         }
-        if (LbIsActive())
+        if (LbIsFocused())
           return true;
         if ((game.system_flags & GSF_NetworkActive) != 0)
           return true;
@@ -3506,7 +3508,7 @@ void keeper_gameplay_loop(void)
         }
 
         // Check if we should redraw screen in this turn
-        do_draw = display_should_be_updated_this_turn() || (!LbIsActive());
+        do_draw = display_should_be_updated_this_turn();
 
         LbWindowsControl();
         update_mouse();
@@ -4115,7 +4117,7 @@ void wait_at_frontend(void)
         break; // end while
       }
 
-      if ((!finish_menu) && (LbIsActive()))
+      if ((!finish_menu))
       {
         frontend_draw();
         LbScreenRender();

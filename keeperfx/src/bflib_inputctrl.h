@@ -32,7 +32,7 @@ extern volatile int lbUserQuit;
 /******************************************************************************/
 TbBool LbWindowsControl(void);
 TbResult LbInputRestate(void);
-TbBool LbIsActive(void);
+TbBool LbIsFocused(void);
 
 /******************************************************************************/
 #ifdef __cplusplus
