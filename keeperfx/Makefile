@@ -558,7 +558,12 @@ clean-build:
 	-$(RM) $(STDOBJS) $(BIN)
 	-$(RM) $(HVLOGOBJS) $(HVLOGBIN)
 	-$(RM) $(LIBS) $(GENSRC)
-	-$(RM) bin/keeperfx*
+	-$(RM) bin/keeperfx.exe
+	-$(RM) bin/keeperfx.dll
+	-$(RM) bin/keeperfx.map
+	-$(RM) bin/keeperfx_hvlog.exe
+	-$(RM) bin/keeperfx_hvlog.dll
+	-$(RM) bin/keeperfx_hvlog.map
 	-$(ECHO) ' '
 
 clean-tools:
