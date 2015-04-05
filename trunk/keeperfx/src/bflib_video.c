@@ -617,17 +617,16 @@ TbResult LbPaletteSet(unsigned char *palette)
         srcColors += 3;
         bufColors += 3;
     }
-    //if (SDL_SetPalette(lbPalettedSurface, SDL_LOGPAL | SDL_PHYSPAL,
 
     // TODO: HeM Not sure this works:
-    SDL_Palette *lbPalette = SDL_AllocPalette(PALETTE_COLORS);
-    SDL_SetPaletteColors(lbPalette, lbPaletteColors, 0, PALETTE_COLORS);
-    if (SDL_SetSurfacePalette(lbPalettedSurface, lbPalette) != 0) {
+    SDL_Palette *sdl_palette = SDL_AllocPalette(PALETTE_COLORS);
+    SDL_SetPaletteColors(sdl_palette, lbPaletteColors, 0, PALETTE_COLORS);
+    if (SDL_SetSurfacePalette(lbPalettedSurface, sdl_palette) != 0) {
         SYNCDBG(8, "SDL SetPalette failed.");
         ret = Lb_FAIL;
     }
     //free(destColors);
-    lbDisplay.Palette = (uchar *)lbPalette;
+    lbDisplay.Palette = lbPalette;
     return ret;
 }
 
