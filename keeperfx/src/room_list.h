@@ -31,6 +31,35 @@ extern "C" {
 
 struct Room;
 struct Thing;
+struct CompoundRoomFilterParam;
+
+typedef struct CompoundRoomFilterParam * MaxRoomFilterParam;
+
+/** Definition of a simple callback type which can only return true/false and has no memory of previous checks. */
+typedef TbBool (*Room_Bool_Filter)(const struct Room *);
+/** Definition of a callback type used for selecting best match through all the rooms by maximizing a value. */
+typedef long (*Room_Maximizer_Filter)(const struct Room *, MaxRoomFilterParam, long);
+/** Definition of a simple callback type which can only return true/false and can modify the room. */
+typedef TbBool (*Room_Bool_Modifier)(struct Room *);
+
+struct CompoundRoomFilterParam {
+     long plyr_idx;
+     long kind_id;
+     union {
+     long num1;
+     void *ptr1;
+     };
+     union {
+     long num2;
+     void *ptr2;
+     };
+     union {
+     long num3;
+     void *ptr3;
+     };
+};
+
+/******************************************************************************/
 
 DLLIMPORT struct Room *_DK_start_rooms;
 #define start_rooms _DK_start_rooms
@@ -42,6 +71,7 @@ DLLIMPORT struct Room *_DK_end_rooms;
 void clear_rooms(void);
 
 long count_player_rooms_of_type(PlayerNumber plyr_idx, RoomKind rkind);
+
 long count_player_rooms_entrances(PlayerNumber plyr_idx);
 long calculate_player_num_rooms_built(PlayerNumber plyr_idx);
 
@@ -49,6 +79,10 @@ struct Room *get_player_room_of_kind_nearest_to(PlayerNumber plyr_idx, RoomKind 
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *retdist);
 struct Room *get_player_room_any_kind_nearest_to(PlayerNumber plyr_idx,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *retdist);
+
+struct Room *find_nearest_room_for_thing(struct Thing *thing, PlayerNumber plyr_idx, RoomKind rkind, unsigned char nav_flags);
+struct Room *find_nearest_room_for_thing_excluding_two_types(struct Thing *thing, PlayerNumber owner, RoomKind skip_rkind1, RoomKind skip_rkind2, unsigned char nav_flags);
+struct Room *find_nearest_room_for_thing_with_used_capacity(struct Thing *thing, PlayerNumber plyr_idx, RoomKind rkind, unsigned char a4, long a5);
 
 /******************************************************************************/
 #ifdef __cplusplus

@@ -778,6 +778,56 @@ long computer_choose_best_trap_kind_to_place(struct Dungeon *dungeon, long allow
     return 0;
 }
 
+int computer_find_more_trap_place_locations_around_room(struct Computer2 *comp, const struct Room *room)
+{
+    //TODO implement finding trap locations
+    return 0;
+}
+
+int computer_find_more_trap_place_locations(struct Computer2 *comp)
+{
+    struct Dungeon *dungeon;
+    SYNCDBG(8,"Starting");
+    dungeon = comp->dungeon;
+    int num_added;
+    num_added = 0;
+    RoomKind rkind;
+    rkind = ACTION_RANDOM(ROOM_TYPES_COUNT);
+    int m;
+    for (m = 0; m < ROOM_TYPES_COUNT; m++, rkind=(rkind+1)%ROOM_TYPES_COUNT)
+    {
+        int i;
+        unsigned long k;
+        k = 0;
+        i = dungeon->room_kind[rkind];
+        while (i != 0)
+        {
+            struct Room *room;
+            room = room_get(i);
+            if (room_is_invalid(room))
+            {
+                ERRORLOG("Jump to invalid room detected");
+                break;
+            }
+            i = room->next_of_owner;
+            // Per-room code
+            int nadded;
+            nadded = computer_find_more_trap_place_locations_around_room(comp, room);
+            if (nadded < 0)
+                break;
+            num_added += nadded;
+            // Per-room code ends
+            k++;
+            if (k > ROOMS_COUNT)
+            {
+              ERRORLOG("Infinite loop detected when sweeping rooms list");
+              break;
+            }
+        }
+    }
+    return num_added;
+}
+
 TbBool computer_get_trap_place_location_and_update_locations(struct Computer2 *comp, ThingModel trapmodel, struct Coord3d *retloc)
 {
     struct Dungeon *dungeon;
@@ -840,16 +890,23 @@ long computer_check_for_place_trap(struct Computer2 *comp, struct ComputerCheck 
     struct Coord3d pos;
     if (!computer_get_trap_place_location_and_update_locations(comp, kind_chosen, &pos))
     {
-        //TODO update list of locations and try to get location again
-        return 4;
+        // update list of locations and try to get location again
+        if (computer_find_more_trap_place_locations(comp) <= 0) {
+            SYNCDBG(7,"Computer players %d could not find any new locations for traps",(int)dungeon->owner);
+            return CTaskRet_Unk4;
+        }
+        if (!computer_get_trap_place_location_and_update_locations(comp, kind_chosen, &pos)) {
+            SYNCDBG(7,"Computer players %d could not find place for trap",(int)dungeon->owner);
+            return CTaskRet_Unk4;
+        }
     }
     TbResult ret;
     // Only allow to place trap at position where there's no traps already
     SYNCDBG(8,"Trying to place %s trap at (%d,%d)",trap_code_name(kind_chosen),(int)pos.x.stl.num,(int)pos.y.stl.num);
     ret = try_game_action(comp, dungeon->owner, GA_PlaceTrap, 0, pos.x.stl.num, pos.y.stl.num, kind_chosen, 0);
     if (ret > Lb_OK)
-      return 1;
-    return 4;
+      return CTaskRet_Unk1;
+    return CTaskRet_Unk4;
 }
 
 /**

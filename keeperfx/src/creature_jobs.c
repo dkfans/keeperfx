@@ -32,6 +32,7 @@
 #include "creature_states.h"
 #include "creature_instances.h"
 #include "room_jobs.h"
+#include "room_list.h"
 #include "power_hand.h"
 #include "spdigger_stack.h"
 #include "player_instances.h"
