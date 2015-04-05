@@ -22,7 +22,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <stdlib.h>
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 #include "globals.h"
 #include "bflib_mouse.h"
 
@@ -96,7 +96,11 @@ short LbIKeyboardClose(void)
 short LbIKeyboardOpen(void)
 {
     prepare_keys_mapping();
-    SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,SDL_DEFAULT_REPEAT_INTERVAL);
+
+    // Delete this for there is no more SDL_EnableKeyRepeat in SDL 2.0
+    // TODO Check http://stackoverflow.com/questions/22156815/how-to-disable-key-repeat-in-sdl2 and see if anything needs to be done.
+    // SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,SDL_DEFAULT_REPEAT_INTERVAL);
+
     return 1;
 }
 

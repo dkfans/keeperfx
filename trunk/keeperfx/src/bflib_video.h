@@ -129,8 +129,6 @@ struct ScreenModeInfo {
 typedef struct ScreenModeInfo TbScreenModeInfo;
 
 struct DisplayStruct {
-        /** Pointer to physical screen buffer, if locked. */
-        uchar *PhysicalScreen;
         /** Pointer to graphics screen buffer, if locked. */
         uchar *WScreen;
         /** Pointer to glass map, used for 8-bit video transparency. */
@@ -261,7 +259,7 @@ extern char redraw_screen_flag;
 extern bool lbScreenDirectAccessActive;
 extern unsigned short lbVesaPage;
 */
-extern volatile TbBool lbScreenInitialised;
+extern volatile TbBool lbScreenInitialized;
 extern volatile TbBool lbUseSdk;
 extern volatile TbBool lbInteruptMouse;
 extern volatile TbDisplayStructEx lbDisplayEx;

@@ -35,8 +35,10 @@ struct SSurface {
     long pitch;
 };
 /******************************************************************************/
-extern struct SDL_Surface * lbScreenSurface;
-extern struct SDL_Surface * lbDrawSurface;
+extern struct SDL_Window * lbScreenWindow;
+extern struct SDL_Renderer  * lbGameRenderer;
+extern struct  SDL_Texture * lbDrawTexture;
+extern struct SDL_Surface * lbPalettedSurface;
 /******************************************************************************/
 void LbScreenSurfaceInit(struct SSurface *surf);
 TbResult LbScreenSurfaceCreate(struct SSurface *surf, unsigned long w, unsigned long h);

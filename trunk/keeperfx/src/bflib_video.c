@@ -24,8 +24,8 @@
 #include "bflib_vidsurface.h"
 #include "bflib_sprfnt.h"
 #include "bflib_inputctrl.h"
-#include <SDL/SDL.h>
-#include <SDL/SDL_syswm.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_syswm.h>
 
 #define SCREEN_MODES_COUNT 40
 
@@ -36,25 +36,32 @@ extern "C" {
 // Global variables
 /** List of registered video modes. */
 TbScreenModeInfo lbScreenModeInfo[SCREEN_MODES_COUNT];
+
 /** Count of used entries in registered video modes list. */
 long lbScreenModeInfoNum = 0;
 
 /** Informs if Video Screen subsystem initialization was done. */
-volatile TbBool lbScreenInitialised = false;
-/** Bytes per pixel expected by the engine.
- * On any try of entering different video BPP, this mode will be emulated. */
-volatile unsigned short lbEngineBPP = 8;
+volatile TbBool lbScreenInitialized = false;
+
+/** The depth of the surface in bits, or bytes per pixel expected by the engine.
+ * can be 8 or 4
+ * On any try of entering different video BPP, this mode will be emulated. 
+ * see https://wiki.libsdl.org/SDL_CreateRGBSurface#Remarks */
+volatile unsigned short lbSurfaceDepth = 8;
+
 /** Informs if the application window is active (focused on screen). */
 extern volatile TbBool lbAppActive;
-/** True if we have two surfaces. */
-volatile TbBool lbHasSecondSurface;
+
 /** True if we request the double buffering to be on in next mode switch. */
 TbBool lbDoubleBufferingRequested;
+
 /** Name of the video driver to be used. Must be set before LbScreenInitialize().
  * Under Win32 and with SDL, choises are windib or directx. */
 char lbVideoDriver[16];
+
 /** Colour palette buffer, to be used inside lbDisplay. */
 unsigned char lbPalette[PALETTE_SIZE];
+
 /** Driver-specific colour palette buffer. */
 SDL_Color lbPaletteColors[PALETTE_COLORS];
 
@@ -79,57 +86,63 @@ void *LbExeReferenceNumber(void)
  */
 TbResult LbScreenLock(void)
 {
-    SYNCDBG(12,"Starting");
-    if (!lbScreenInitialised)
+    SYNCDBG(12, "Starting");
+    if (!lbScreenInitialized)
         return Lb_FAIL;
 
-    if (SDL_LockSurface(lbDrawSurface) < 0) {
-        lbDisplay.GraphicsWindowPtr = NULL;
-        lbDisplay.WScreen = NULL;
-        return Lb_FAIL;
+    if (SDL_MUSTLOCK(lbPalettedSurface))
+    {
+        if (SDL_LockSurface(lbPalettedSurface) < 0) {
+            lbDisplay.GraphicsWindowPtr = NULL;
+            lbDisplay.WScreen = NULL;
+            return Lb_FAIL;
+        }
     }
 
-    lbDisplay.WScreen = (unsigned char *) lbDrawSurface->pixels;
-    lbDisplay.GraphicsScreenWidth = lbDrawSurface->pitch;
+    lbDisplay.WScreen = (unsigned char *)lbPalettedSurface->pixels;
+    lbDisplay.GraphicsScreenWidth = lbPalettedSurface->pitch;
     lbDisplay.GraphicsWindowPtr = &lbDisplay.WScreen[lbDisplay.GraphicsWindowX +
         lbDisplay.GraphicsScreenWidth * lbDisplay.GraphicsWindowY];
+
     return Lb_SUCCESS;
 }
 
 TbResult LbScreenUnlock(void)
 {
-    SYNCDBG(12,"Starting");
-    if (!lbScreenInitialised)
+    SYNCDBG(12, "Starting");
+    if (!lbScreenInitialized)
         return Lb_FAIL;
     lbDisplay.WScreen = NULL;
     lbDisplay.GraphicsWindowPtr = NULL;
-    SDL_UnlockSurface(lbDrawSurface);
+
+    if (SDL_MUSTLOCK(lbPalettedSurface))
+    {
+        SDL_UnlockSurface(lbPalettedSurface);
+    }
+
     return Lb_SUCCESS;
 }
 
 TbResult LbScreenSwap(void)
 {
     TbResult ret;
-    int blresult;
-    SYNCDBG(12,"Starting");
+    SYNCDBG(12, "Starting");
+
     ret = LbMouseOnBeginSwap();
-    // Put the data from Draw Surface onto Screen Surface
-    if ((ret == Lb_SUCCESS) && (lbHasSecondSurface)) {
-        blresult = SDL_BlitSurface(lbDrawSurface, NULL, lbScreenSurface, NULL);
-        if (blresult < 0) {
-            ERRORLOG("Blit failed: %s",SDL_GetError());
-            ret = Lb_FAIL;
-        }
-    }
     // Flip the image displayed on Screen Surface
-    if (ret == Lb_SUCCESS) {
-        // calls SDL_UpdateRect for entire screen if not double buffered
-        blresult = SDL_Flip(lbScreenSurface);
-        if (blresult < 0) {
-            // In some cases this situation seems to be quite common
-            ERRORDBG(11,"Flip failed: %s",SDL_GetError());
-            ret = Lb_FAIL;
+    if (ret == Lb_SUCCESS) 
+    {
+        // Converting 256 color to True color
+        lbDrawTexture = SDL_CreateTextureFromSurface(lbGameRenderer, lbPalettedSurface);
+        if (lbDrawTexture == NULL)
+        {
+            ERRORLOG("Failed Converting surface to texture");
         }
+
+        SDL_RenderCopy(lbGameRenderer, lbDrawTexture, NULL, NULL);
+        SDL_RenderPresent(lbGameRenderer);
+
+        SDL_DestroyTexture(lbDrawTexture);
     }
     LbMouseOnEndSwap();
     return ret;
@@ -138,9 +151,9 @@ TbResult LbScreenSwap(void)
 TbResult LbScreenClear(TbPixel colour)
 {
     SYNCDBG(12,"Starting");
-    if ((!lbScreenInitialised) || (lbDrawSurface == NULL))
+    if ((!lbScreenInitialized) || (lbPalettedSurface == NULL))
       return Lb_FAIL;
-    if (SDL_FillRect(lbDrawSurface, NULL, colour) < 0) {
+    if (SDL_FillRect(lbPalettedSurface, NULL, colour) < 0) {
         ERRORLOG("Error while clearing screen.");
         return Lb_FAIL;
     }
@@ -164,8 +177,8 @@ TbScreenMode LbScreenActiveMode(void)
  */
 unsigned short LbGraphicsScreenBPP(void)
 {
-    if (lbDrawSurface != NULL) {
-        return lbDrawSurface->format->BitsPerPixel;
+    if (lbPalettedSurface != NULL) {
+        return lbPalettedSurface->format->BitsPerPixel;
     }
     // On error, return 0
     return 0;
@@ -222,8 +235,7 @@ TbResult LbPaletteFadeStep(unsigned char *from_pal,unsigned char *to_pal,long fa
     TbResult ret;
     LbScreenWaitVbi();
     ret = LbPaletteSet(palette);
-    if (lbHasSecondSurface)
-        LbScreenSwap();
+    LbScreenSwap();
     return ret;
 }
 
@@ -295,20 +307,8 @@ TbResult LbScreenWaitVbi(void)
 
 static TbBool LbHwCheckIsModeAvailable(TbScreenMode mode)
 {
-  TbScreenModeInfo *mdinfo;
-  unsigned long sdlFlags;
-  int closestBPP;
-  mdinfo = LbScreenGetModeInfo(mode);
-  sdlFlags = 0;
-  if (mdinfo->BitsPerPixel == lbEngineBPP) {
-      sdlFlags |= SDL_HWPALETTE | SDL_DOUBLEBUF;
-  }
-  if ((mdinfo->VideoFlags & Lb_VF_WINDOWED) == 0) {
-      sdlFlags |= SDL_FULLSCREEN;
-  }
-
-  closestBPP = SDL_VideoModeOK(mdinfo->Width, mdinfo->Height, mdinfo->BitsPerPixel, sdlFlags);
-  return (closestBPP == mdinfo->BitsPerPixel);
+  // TODO: HeM No longer needed in SDL 2.0, clean this up
+  return true;
 }
 
 TbResult LbScreenFindVideoModes(void)
@@ -367,10 +367,8 @@ TbResult LbScreenInitialize(void)
 {
     char buf[32];
     // Clear global variables
-    lbScreenInitialised = false;
-    lbScreenSurface = NULL;
-    lbDrawSurface = NULL;
-    lbHasSecondSurface = false;
+    lbScreenInitialized = false;
+    lbScreenWindow = NULL;
     lbDoubleBufferingRequested = false;
     lbAppActive = true;
     LbMouseChangeMoveRatio(256, 256);
@@ -392,25 +390,25 @@ TbResult LbScreenInitialize(void)
     atexit(SDL_Quit);
     return Lb_SUCCESS;
 }
-
-static LPCTSTR MsResourceMapping(int index)
-{
-  switch (index)
-  {
-  case 1:
-      return "A";
-      //return MAKEINTRESOURCE(110); -- may work for other resource compilers
-  default:
-      return NULL;
-  }
-}
+//
+//static LPCTSTR MsResourceMapping(int index)
+//{
+//  switch (index)
+//  {
+//  case 1:
+//      return "A";
+//      //return MAKEINTRESOURCE(110); -- may work for other resource compilers
+//  default:
+//      return NULL;
+//  }
+//}
 
 static TbResult LbScreenActivationUpdate(void)
 {
     SDL_Event ev;
-    ev.type = SDL_ACTIVEEVENT;
-    ev.active.state = SDL_APPACTIVE;
-    ev.active.gain = ((SDL_GetAppState() & ev.active.state) != 0);
+    ev.type = SDL_WINDOWEVENT;
+    ev.window.event = SDL_WINDOWEVENT_RESTORED;
+    //ev.active.gain = ((SDL_GetAppState() & ev.active.state) != 0);
     SDL_PushEvent(&ev);
     return Lb_SUCCESS;
 }
@@ -424,36 +422,37 @@ static TbResult LbScreenActivationUpdate(void)
 TbResult LbScreenUpdateIcon(void)
 {
     //TODO BFLIB replace with portable version
-/*
+    /*
     Uint32          colorkey;
     SDL_Surface     *image;
     image = SDL_LoadBMP("keeperfx_icon.bmp");
     colorkey = SDL_MapRGB(image->format, 255, 0, 255);
     SDL_SetColorKey(image, SDL_SRCCOLORKEY, colorkey);
     SDL_WM_SetIcon(image,NULL);
- */
-    HICON hIcon;
-    HINSTANCE lbhInstance;
-    SDL_SysWMinfo wmInfo;
+    */
 
-    SDL_VERSION(&wmInfo.version);
-    if (SDL_GetWMInfo(&wmInfo) < 0) {
-        WARNLOG("Couldn't get SDL window info, therefore cannot set icon");
-        return Lb_FAIL;
-    }
+    // TODO: HeM Redo this
+    //HICON hIcon;
+    //HINSTANCE lbhInstance;
+    //SDL_SysWMinfo wmInfo;
 
-    lbhInstance = GetModuleHandle(NULL);
-    hIcon = LoadIcon(lbhInstance, MsResourceMapping(lbIconIndex));
-    SendMessage(wmInfo.window, WM_SETICON, ICON_BIG,  (LPARAM)hIcon);
-    SendMessage(wmInfo.window, WM_SETICON, ICON_SMALL,(LPARAM)hIcon);
+    //SDL_VERSION(&wmInfo.version);
+    //if (SDL_GetWMInfo(&wmInfo) < 0) {
+    //    WARNLOG("Couldn't get SDL window info, therefore cannot set icon");
+    //    return Lb_FAIL;
+    //}
+
+    //lbhInstance = GetModuleHandle(NULL);
+    //hIcon = LoadIcon(lbhInstance, MsResourceMapping(lbIconIndex));
+    //SendMessage(wmInfo.window, WM_SETICON, ICON_BIG,  (LPARAM)hIcon);
+    //SendMessage(wmInfo.window, WM_SETICON, ICON_SMALL,(LPARAM)hIcon);
     return Lb_SUCCESS;
 }
 
-TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord height,
+TbResult LbScreenSetup(TbScreenMode modeIndex, TbScreenCoord width, TbScreenCoord height,
     unsigned char *palette, short buffers_count, TbBool wscreen_vid)
 {
-    SDL_Surface * prevScreenSurf;
-    long hot_x,hot_y;
+    long hot_x, hot_y;
     struct TbSprite *msspr;
     TbScreenModeInfo *mdinfo;
     unsigned long sdlFlags;
@@ -463,78 +462,83 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     if (lbDisplay.MouseSprite != NULL)
     {
         msspr = lbDisplay.MouseSprite;
-        GetPointerHotspot(&hot_x,&hot_y);
-    }
-    prevScreenSurf = lbScreenSurface;
-    LbMouseChangeSprite(NULL);
-    if (lbHasSecondSurface) {
-        SDL_FreeSurface(lbDrawSurface);
-    }
-    lbDrawSurface = NULL;
-    lbScreenInitialised = false;
-
-    if (prevScreenSurf != NULL) {
+        GetPointerHotspot(&hot_x, &hot_y);
     }
 
-    mdinfo = LbScreenGetModeInfo(mode);
-    if ( !LbScreenIsModeAvailable(mode) )
+    LbScreenReset();
+
+    mdinfo = LbScreenGetModeInfo(modeIndex);
+    if ( !LbScreenIsModeAvailable(modeIndex) )
     {
-        ERRORLOG("%s resolution %dx%d (mode %d) not available",
+        ERRORLOG("%s resolution %dx%d (modeIndex %d) not available",
             (mdinfo->VideoFlags&Lb_VF_WINDOWED)?"Windowed":"Full screen",
-            (int)mdinfo->Width,(int)mdinfo->Height,(int)mode);
+            (int)mdinfo->Width,(int)mdinfo->Height,(int)modeIndex);
         return Lb_FAIL;
     }
 
-    // SDL video mode flags
+    // SDL video modeIndex flags
+    // TODO: SDL_WINDOW_ALLOW_HIGHDPI
     sdlFlags = 0;
-    sdlFlags |= SDL_SWSURFACE;
-    if (mdinfo->BitsPerPixel == lbEngineBPP) {
-        sdlFlags |= SDL_HWPALETTE;
-    }
-    if (lbDoubleBufferingRequested) {
-        sdlFlags |= SDL_DOUBLEBUF;
-    }
-    if ((mdinfo->VideoFlags & Lb_VF_WINDOWED) == 0) {
-        sdlFlags |= SDL_FULLSCREEN;
+    if ((mdinfo->VideoFlags & Lb_VF_WINDOWED) == 0) 
+    {
+        sdlFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
     }
 
+    // TODO HeM break following into smaller methods.
     // Set SDL video mode (also creates window).
-    lbScreenSurface = lbDrawSurface = SDL_SetVideoMode(mdinfo->Width, mdinfo->Height, mdinfo->BitsPerPixel, sdlFlags);
-
-    if (lbScreenSurface == NULL) {
-        ERRORLOG("Failed to initialize mode %d: %s",(int)mode,SDL_GetError());
+    if (lbScreenWindow == NULL)
+    {
+        lbScreenWindow = SDL_CreateWindow("Dungeon Keeper FX",
+            SDL_WINDOWPOS_UNDEFINED,
+            SDL_WINDOWPOS_UNDEFINED,
+            mdinfo->Width,
+            mdinfo->Height,
+            sdlFlags);
+    }
+    if (lbScreenWindow == NULL) {
+        ERRORLOG("Failed to initialize mode %d: %s", (int)modeIndex, SDL_GetError());
         return Lb_FAIL;
     }
 
-    SDL_WM_SetCaption(lbDrawAreaTitle, lbDrawAreaTitle);
-    LbScreenUpdateIcon();
-
-    // Create secondary surface if necessary, that is if BPP != lbEngineBPP.
-    if (mdinfo->BitsPerPixel != lbEngineBPP)
+    lbGameRenderer = SDL_CreateRenderer(lbScreenWindow, -1, 0);
+    if (lbGameRenderer == NULL)
     {
-        lbDrawSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, mdinfo->Width, mdinfo->Height, lbEngineBPP, 0, 0, 0, 0);
-        if (lbDrawSurface == NULL) {
-            ERRORLOG("Can't create secondary surface: %s",SDL_GetError());
-            LbScreenReset();
-            return Lb_FAIL;
-        }
-        lbHasSecondSurface = true;
+        ERRORLOG("Error creating lbGameRenderer");
+        return Lb_FAIL;
     }
+
+    // We now leaves the scaling work to renderer and it will be taken cared automatically.
+    // 'linear' make the scaled rendering look smoother.
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+
+    // Set the logical screen size as video mode specified.
+    SDL_RenderSetLogicalSize(lbGameRenderer, mdinfo->Width, mdinfo->Height);
+
+    lbPalettedSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, mdinfo->Width, mdinfo->Height, lbSurfaceDepth, 0, 0, 0, 0);
+    if (lbPalettedSurface == NULL)
+    {
+        ERRORLOG("Can't create secondary surface: %s", SDL_GetError());
+        LbScreenReset();
+        return Lb_FAIL;
+    }
+
+    LbScreenUpdateIcon();
 
     lbDisplay.DrawFlags = 0;
     lbDisplay.DrawColour = 0;
     lbDisplayEx.ShadowColour = 0;
     lbDisplay.PhysicalScreenWidth = mdinfo->Width;
     lbDisplay.PhysicalScreenHeight = mdinfo->Height;
-    lbDisplay.ScreenMode = mode;
-    lbDisplay.PhysicalScreen = NULL;
+    lbDisplay.ScreenMode = modeIndex;
+
     // The graphics screen size should be really taken after screen is locked, but it seem just getting in now will work too
-    lbDisplay.GraphicsScreenWidth = lbDrawSurface->pitch;
+    lbDisplay.GraphicsScreenWidth = lbPalettedSurface->pitch;
     lbDisplay.GraphicsScreenHeight = mdinfo->Height;
     lbDisplay.WScreen = NULL;
     lbDisplay.GraphicsWindowPtr = NULL;
 
-    SYNCLOG("Mode %dx%dx%d setup succeeded",(int)lbScreenSurface->w,(int)lbScreenSurface->h,(int)lbScreenSurface->format->BitsPerPixel);
+    SYNCLOG("Mode %dx%dx%d setup succeeded", (int)mdinfo->Width, (int)mdinfo->Height, (int)lbSurfaceDepth);
+
     if (palette != NULL)
     {
         LbPaletteSet(palette);
@@ -550,7 +554,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
           LbMouseChangeSpriteAndHotspot(msspr, hot_x, hot_y);
     }
     LbInputRestate();
-    lbScreenInitialised = true;
+    lbScreenInitialized = true;
     LbScreenActivationUpdate();
     SYNCDBG(8,"Finished");
     return Lb_SUCCESS;
@@ -591,15 +595,15 @@ TbResult LbPaletteSet(unsigned char *palette)
     const unsigned char * srcColors;
     unsigned long i;
     TbResult ret;
-    SYNCDBG(12,"Starting");
-    if ((!lbScreenInitialised) || (lbDrawSurface == NULL))
-      return Lb_FAIL;
+    SYNCDBG(12, "Starting");
+    if ((!lbScreenInitialized) || (lbPalettedSurface == NULL))
+        return Lb_FAIL;
     //destColors = (SDL_Color *) malloc(sizeof(SDL_Color) * PALETTE_COLORS);
     destColors = lbPaletteColors;
     srcColors = palette;
     bufColors = lbPalette;
     if ((destColors == NULL) || (srcColors == NULL))
-      return Lb_FAIL;
+        return Lb_FAIL;
     ret = Lb_SUCCESS;
     for (i = 0; i < PALETTE_COLORS; i++) {
         // note that bufColors and srcColors could be the same pointer
@@ -612,14 +616,17 @@ TbResult LbPaletteSet(unsigned char *palette)
         srcColors += 3;
         bufColors += 3;
     }
-    //if (SDL_SetPalette(lbDrawSurface, SDL_LOGPAL | SDL_PHYSPAL,
-    if (SDL_SetColors(lbDrawSurface,
-        lbPaletteColors, 0, PALETTE_COLORS) != 1) {
-        SYNCDBG(8,"SDL SetPalette failed.");
+    //if (SDL_SetPalette(lbPalettedSurface, SDL_LOGPAL | SDL_PHYSPAL,
+
+    // TODO: HeM Not sure this works:
+    SDL_Palette *lbPalette = SDL_AllocPalette(PALETTE_COLORS);
+    SDL_SetPaletteColors(lbPalette, lbPaletteColors, 0, PALETTE_COLORS);
+    if (SDL_SetSurfacePalette(lbPalettedSurface, lbPalette) != 0) {
+        SYNCDBG(8, "SDL SetPalette failed.");
         ret = Lb_FAIL;
     }
     //free(destColors);
-    lbDisplay.Palette = lbPalette;
+    lbDisplay.Palette = (uchar *)lbPalette;
     return ret;
 }
 
@@ -631,7 +638,7 @@ TbResult LbPaletteSet(unsigned char *palette)
 TbResult LbPaletteGet(unsigned char *palette)
 {
     SYNCDBG(12,"Starting");
-    if ((!lbScreenInitialised) || (lbDrawSurface == NULL))
+    if ((!lbScreenInitialized) || (lbPalettedSurface == NULL))
       return Lb_FAIL;
     if (lbDisplay.Palette == NULL)
         return Lb_FAIL;
@@ -643,14 +650,14 @@ TbResult LbPaletteGet(unsigned char *palette)
     unsigned char * destColors;
     unsigned long i;
     unsigned long colours_num;
-    colours_num = lbDrawSurface->format->palette->ncolors;
+    colours_num = lbPalettedSurface->format->palette->ncolors;
     if (colours_num > PALETTE_COLORS) {
         colours_num = PALETTE_COLORS;
     } else
     if (colours_num < PALETTE_COLORS) {
         memset(palette,0,PALETTE_SIZE);
     }
-    srcColors = lbDrawSurface->format->palette->colors;
+    srcColors = lbPalettedSurface->format->palette->colors;
     destColors = palette;
     for (i = 0; i < colours_num; i++) {
         destColors[0] = (srcColors[i].r >> 2);
@@ -682,7 +689,7 @@ TbResult LbScreenHardwareConfig(const char *driver, short engine_bpp)
         strcpy(lbVideoDriver,driver);
     }
     if (engine_bpp != 0)
-        lbEngineBPP = engine_bpp;
+        lbSurfaceDepth = engine_bpp;
     return Lb_SUCCESS;
 }
 
@@ -700,18 +707,26 @@ TbBool LbScreenIsLocked(void)
 
 TbResult LbScreenReset(void)
 {
-    if (!lbScreenInitialised)
-      return Lb_FAIL;
-    LbMouseChangeSprite(NULL);
-    if (lbHasSecondSurface) {
-        SDL_FreeSurface(lbDrawSurface);
+    if (!lbScreenInitialized)
+    {
+        return Lb_FAIL;
     }
-    //do not free screen surface, it is freed automatically on SDL_Quit or next call to set video mode
-    lbHasSecondSurface = false;
-    lbDrawSurface = NULL;
-    lbScreenSurface = NULL;
+    LbMouseChangeSprite(NULL);
+
+    SDL_FreeSurface(lbPalettedSurface);
+    lbPalettedSurface = NULL;    
+
+    SDL_DestroyTexture(lbDrawTexture);
+    lbDrawTexture = NULL;
+
+    SDL_DestroyRenderer(lbGameRenderer);
+    lbGameRenderer = NULL;
+
+    // do not free main window,
+    // TODO HeM may need to free main window to handle alt+r event 
+
     // Mark as not initialized
-    lbScreenInitialised = false;
+    lbScreenInitialized = false;
     return Lb_SUCCESS;
 }
 
@@ -840,7 +855,7 @@ TbResult LbScreenSetDoubleBuffering(TbBool state)
  */
 TbBool LbScreenIsDoubleBufferred(void)
 {
-    return ((lbScreenSurface->flags & SDL_DOUBLEBUF) != 0);
+    return false;//TODO HeM((lbScreenWindow->flags & SDL_DOUBLEBUF) != 0);
 }
 
 TbScreenMode LbRecogniseVideoModeString(const char *desc)

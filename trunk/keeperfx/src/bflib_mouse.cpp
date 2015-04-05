@@ -22,7 +22,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <stdlib.h>
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 
 #include "bflib_basics.h"
 #include "globals.h"
@@ -186,8 +186,10 @@ void MouseToScreen(struct TbPoint *pos)
        || (my < clip.top + 50) || (my > clip.bottom - 50))
       {
           mx = (clip.right-clip.left)/2 + clip.left;
-          my = (clip.bottom-clip.top)/2 + clip.top;
-          SDL_WarpMouse(mx, my);
+          my = (clip.bottom - clip.top) / 2 + clip.top;
+
+          // TODO: HeM Add window param and remove the redundant steps
+          SDL_WarpMouseInWindow(NULL, mx, my);
       }
   } else
   {
@@ -279,39 +281,6 @@ void mouseControl(unsigned int action, struct TbPoint *pos)
             lbDisplay.RMouseY = lbDisplay.MMouseY;
             lbDisplay.RRightButton = 1;
         }
-        break;
-    case MActn_MBUTTONDOWN:
-        lbDisplay.MMiddleButton = 1;
-        if ( !lbDisplay.MiddleButton )
-        {
-            MouseToScreen(&dstPos);
-            LbMouseOnMove(dstPos);
-            lbDisplay.MouseX = lbDisplay.MMouseX;
-            lbDisplay.MouseY = lbDisplay.MMouseY;
-            lbDisplay.MiddleButton = 1;
-            lbDisplay.RMiddleButton = 0;
-        }
-        break;
-    case MActn_MBUTTONUP:
-        lbDisplay.MMiddleButton = 0;
-        if ( !lbDisplay.RMiddleButton )
-        {
-            MouseToScreen(&dstPos);
-            LbMouseOnMove(dstPos);
-            lbDisplay.RMouseX = lbDisplay.MMouseX;
-            lbDisplay.RMouseY = lbDisplay.MMouseY;
-            lbDisplay.RMiddleButton = 1;
-        }
-        break;
-    case MActn_WHEELMOVEUP:
-        lbDisplayEx.WhellPosition--;
-        lbDisplayEx.WhellMoveUp++;
-        lbDisplayEx.WhellMoveDown = 0;
-        break;
-    case MActn_WHEELMOVEDOWN:
-        lbDisplayEx.WhellPosition++;
-        lbDisplayEx.WhellMoveUp = 0;
-        lbDisplayEx.WhellMoveDown++;
         break;
     default:
         break;

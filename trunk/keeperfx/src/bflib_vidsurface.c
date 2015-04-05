@@ -22,18 +22,30 @@
 #include "bflib_basics.h"
 #include "globals.h"
 #include "bflib_planar.h"
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
 
-/** Internal screen surface structure. */
-SDL_Surface * lbScreenSurface;
-/** Internal drawing surface structure.
- *  Sometimes may be same as screen surface. */
-SDL_Surface * lbDrawSurface;
+
+    // Render Process: lbPalettedSurface(256 color) --> lbDrawTexture(true color) -> lbGameRenderer --> lbScreenWindow
+
+    /** Internal screen or window structure. */
+    SDL_Window * lbScreenWindow;
+
+    /** Internal game renderer structure. */
+    SDL_Renderer  * lbGameRenderer;
+
+    /** Internal drawing texutre structure. */
+    SDL_Texture * lbDrawTexture;
+
+    /** Internal palette surface structure.
+    SDL does not support palette for SDL_Texture,
+    so we need this layer to cache paletted image
+    and convert to true color before rendering*/
+    SDL_Surface * lbPalettedSurface;
 
 /******************************************************************************/
 void LbScreenSurfaceInit(struct SSurface *surf)
@@ -47,11 +59,11 @@ TbResult LbScreenSurfaceCreate(struct SSurface *surf,unsigned long w,unsigned lo
 {
     const SDL_PixelFormat * format = NULL;
 
-    if (lbDrawSurface != NULL) {
-        format = lbDrawSurface->format;
+    if (lbPalettedSurface != NULL) {
+        format = lbPalettedSurface->format;
     }
     //SDL_HWSURFACE
-    surf->surf_data = SDL_CreateRGBSurface(SDL_SRCCOLORKEY , w, h, format->BitsPerPixel,
+    surf->surf_data = SDL_CreateRGBSurface(0 /* obsolete flag (SDL2.0)*/, w, h, format->BitsPerPixel,
         format->Rmask, format->Gmask, format->Bmask, format->Amask);
 
     if (surf->surf_data == NULL) {
@@ -106,7 +118,7 @@ TbResult LbScreenSurfaceBlit(struct SSurface *surf, unsigned long x, unsigned lo
 
     if ((blflags & 0x04) != 0) {
         //enable color key
-        SDL_SetColorKey(surf->surf_data, SDL_SRCCOLORKEY, 255);
+        SDL_SetColorKey(surf->surf_data, SDL_TRUE, 255);
     }
     else {
         //disable color key
@@ -125,18 +137,18 @@ TbResult LbScreenSurfaceBlit(struct SSurface *surf, unsigned long x, unsigned lo
     SDL_Palette * paletteBackup = NULL;
     if (surf->surf_data->format->BitsPerPixel == 8) {
         paletteBackup = surf->surf_data->format->palette;
-        surf->surf_data->format->palette = lbDrawSurface->format->palette;
+        surf->surf_data->format->palette = lbPalettedSurface->format->palette;
     }
 
     int blresult;
     //the blit
     if ((blflags & 0x08) != 0) {
         //surface to screen
-        blresult = SDL_BlitSurface(surf->surf_data, &srcRect, lbDrawSurface, &destRect);
+        blresult = SDL_BlitSurface(surf->surf_data, &srcRect, lbPalettedSurface, &destRect);
     }
     else {
         //screen to surface
-        blresult = SDL_BlitSurface(lbDrawSurface, &destRect, surf->surf_data, &srcRect);
+        blresult = SDL_BlitSurface(lbPalettedSurface, &destRect, surf->surf_data, &srcRect);
     }
 
     //restore palette

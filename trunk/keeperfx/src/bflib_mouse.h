@@ -39,10 +39,6 @@ enum TbMouseAction {
     MActn_LBUTTONUP,
     MActn_RBUTTONDOWN,
     MActn_RBUTTONUP,
-    MActn_MBUTTONDOWN,
-    MActn_MBUTTONUP,
-    MActn_WHEELMOVEUP,
-    MActn_WHEELMOVEDOWN,
 };
 
 struct mouse_buffer {
