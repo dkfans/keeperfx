@@ -1194,7 +1194,7 @@ short setup_game(void)
   if ( result && (!game.no_intro) )
   {
       LbPaletteDataFillBlack(engine_palette);
-      int mode_ok = LbScreenSetup(get_movies_vidmode(), 320, 200, engine_palette, 2, 0);
+      int mode_ok = LbScreenSetup(get_movies_vidmode(), engine_palette, 2, 0);
       if (mode_ok != 1)
       {
         ERRORLOG("Can't enter movies screen mode to play intro");
@@ -3432,7 +3432,7 @@ TbBool keeper_screen_swap(void)
       memset(lbDisplay.WScreen, 0, scanline_len*scrmove_y);
       LbScreenUnlock();
     }*/
-  LbScreenSwap();
+  LbScreenRender();
   return true;
 }
 
@@ -4070,7 +4070,7 @@ void wait_at_frontend(void)
       return;
     }
     LbScreenClear(0);
-    LbScreenSwap();
+    LbScreenRender();
     if (frontend_load_data() != Lb_SUCCESS)
     {
       ERRORLOG("Unable to load frontend data");
@@ -4118,7 +4118,7 @@ void wait_at_frontend(void)
       if ((!finish_menu) && (LbIsActive()))
       {
         frontend_draw();
-        LbScreenSwap();
+        LbScreenRender();
       }
 
       if (!SoundDisabled)
@@ -4141,7 +4141,7 @@ void wait_at_frontend(void)
 
     LbPaletteFade(0, 8, Lb_PALETTE_FADE_CLOSED);
     LbScreenClear(0);
-    LbScreenSwap();
+    LbScreenRender();
     short prev_state;
     prev_state = frontend_menu_state;
     frontend_set_state(0);
@@ -4176,7 +4176,7 @@ void wait_at_frontend(void)
           flgmem = game.numfield_15;
           set_flag_byte(&game.system_flags,GSF_NetworkActive,false);
           LbScreenClear(0);
-          LbScreenSwap();
+          LbScreenRender();
           if (!load_game(game.numfield_15))
           {
               ERRORLOG("Loading game %d failed; quitting.",(int)game.numfield_15);
@@ -4232,11 +4232,11 @@ void game_loop(void)
       dungeon->lvstats.start_time = starttime;
       dungeon->lvstats.end_time = starttime;
       LbScreenClear(0);
-      LbScreenSwap();
+      LbScreenRender();
       keeper_gameplay_loop();
       set_pointer_graphic_none();
       LbScreenClear(0);
-      LbScreenSwap();
+      LbScreenRender();
       StopMusic();
       StopMusicPlayer();
       turn_off_all_menus();

@@ -123,7 +123,7 @@ TbResult LbScreenUnlock(void)
     return Lb_SUCCESS;
 }
 
-TbResult LbScreenSwap(void)
+TbResult LbScreenRender(void)
 {
     TbResult ret;
     SYNCDBG(12, "Starting");
@@ -143,6 +143,7 @@ TbResult LbScreenSwap(void)
         SDL_RenderPresent(lbGameRenderer);
 
         SDL_DestroyTexture(lbDrawTexture);
+        lbDrawTexture = NULL;
     }
     LbMouseOnEndSwap();
     return ret;
@@ -235,7 +236,7 @@ TbResult LbPaletteFadeStep(unsigned char *from_pal,unsigned char *to_pal,long fa
     TbResult ret;
     LbScreenWaitVbi();
     ret = LbPaletteSet(palette);
-    LbScreenSwap();
+    LbScreenRender();
     return ret;
 }
 
@@ -449,8 +450,7 @@ TbResult LbScreenUpdateIcon(void)
     return Lb_SUCCESS;
 }
 
-TbResult LbScreenSetup(TbScreenMode modeIndex, TbScreenCoord width, TbScreenCoord height,
-    unsigned char *palette, short buffers_count, TbBool wscreen_vid)
+TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buffers_count, TbBool wscreen_vid)
 {
     long hot_x, hot_y;
     struct TbSprite *msspr;
@@ -822,6 +822,7 @@ TbBool LbScreenIsModeAvailable(TbScreenMode mode)
   static TbBool setup = false;
   if (!setup)
   {
+    // TODO: HeM this is checking 'if nothing is supported at all', not needed either, clean up.
     if (LbScreenFindVideoModes() != Lb_SUCCESS)
       return false;
     setup = true;

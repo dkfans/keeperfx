@@ -653,7 +653,7 @@ void versions_different_error(void)
         draw_text_box(text);
         LbScreenUnlock();
       }
-      LbScreenSwap();
+      LbScreenRender();
     }
     // Checking where to go back
     if (setup_old_network_service())

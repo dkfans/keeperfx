@@ -76,7 +76,7 @@ long modem_initialise_callback(void)
       draw_text_box(get_string(GUIStr_NetInitingModem));
       LbScreenUnlock();
     }
-    LbScreenSwap();
+    LbScreenRender();
     return 0;
 }
 
@@ -92,7 +92,7 @@ long modem_connect_callback(void)
     draw_text_box(get_string(GUIStr_NetConnectnModem));
     LbScreenUnlock();
   }
-  LbScreenSwap();
+  LbScreenRender();
   return 0;
 }
 
@@ -173,7 +173,7 @@ void draw_out_of_sync_box(long a1, long a2, long box_width)
         LbDrawBox(text_x, text_y, 2*max_width, 16*units_per_px/16, 0);
         LbDrawBox(text_x, text_y, 2*min_width, 16*units_per_px/16, 133);
         LbScreenUnlock();
-        LbScreenSwap();
+        LbScreenRender();
     }
 }
 
@@ -467,7 +467,7 @@ void display_attempting_to_join_message(void)
     draw_text_box(get_string(GUIStr_NetAttemptingToJoin));
     LbScreenUnlock();
   }
-  LbScreenSwap();
+  LbScreenRender();
 }
 
 void net_load_config_file(void)

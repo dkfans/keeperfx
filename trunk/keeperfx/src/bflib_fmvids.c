@@ -381,7 +381,7 @@ short play_smk_via_buffer(char *fname, int smkflags, int plyflags)
             LbScreenWaitVbi();
             LbPaletteSet(smk_palette);
           }
-          LbScreenSwap();
+          LbScreenRender();
         }
         SmackNextFrame(smktag);
 
@@ -456,7 +456,7 @@ short play_smk_direct(char *fname, int smkflags, int plyflags)
             LbScreenWaitVbi();
             LbPaletteSet(smk_palette);
           }
-          LbScreenSwap();
+          LbScreenRender();
         }
         SmackNextFrame(smktag);
 

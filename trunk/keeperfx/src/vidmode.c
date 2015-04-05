@@ -635,7 +635,7 @@ TbBool setup_screen_mode(unsigned short nmode)
         }
         if ((lbDisplay.ScreenMode != nmode) || (was_minimal_res))
         {
-            if (LbScreenSetup((TbScreenMode)nmode, mdinfo->Width, mdinfo->Height, engine_palette, 2, 0) != 1)
+            if (LbScreenSetup((TbScreenMode)nmode, engine_palette, 2, 0) != 1)
             {
               ERRORLOG("Unable to setup screen resolution %s (mode %d)",
                   mdinfo->Desc,(int)nmode);
@@ -656,7 +656,7 @@ TbBool setup_screen_mode(unsigned short nmode)
         }
         if ((lbDisplay.ScreenMode != nmode) || (was_minimal_res))
         {
-            if (LbScreenSetup((TbScreenMode)nmode, mdinfo->Width, mdinfo->Height, engine_palette, 1, 0) != 1)
+            if (LbScreenSetup((TbScreenMode)nmode, engine_palette, 1, 0) != 1)
             {
               ERRORLOG("Unable to setup screen resolution %s (mode %d)",
                   mdinfo->Desc,(int)nmode);
@@ -667,7 +667,7 @@ TbBool setup_screen_mode(unsigned short nmode)
         load_pointer_file(1);
     }
     LbScreenClear(0);
-    LbScreenSwap();
+    LbScreenRender();
     update_screen_mode_data(mdinfo->Width, mdinfo->Height);
     if (parchment_loaded)
       reload_parchment_file(mdinfo->Width >= 640);
@@ -784,7 +784,7 @@ short setup_screen_mode_minimal(unsigned short nmode)
       }
       if ((nmode != lbDisplay.ScreenMode) || (force_video_mode_reset))
       {
-          if (LbScreenSetup((TbScreenMode)nmode, mdinfo->Width, mdinfo->Height, engine_palette, 2, 0) != 1)
+          if (LbScreenSetup((TbScreenMode)nmode, engine_palette, 2, 0) != 1)
           {
             ERRORLOG("Unable to setup screen resolution %s (mode %d)",
                 mdinfo->Desc,(int)nmode);
@@ -806,7 +806,7 @@ short setup_screen_mode_minimal(unsigned short nmode)
       frontend_load_data_reset();
       if ((nmode != lbDisplay.ScreenMode) || (force_video_mode_reset))
       {
-          if (LbScreenSetup((TbScreenMode)nmode, mdinfo->Width, mdinfo->Height, engine_palette, 1, 0) != 1)
+          if (LbScreenSetup((TbScreenMode)nmode, engine_palette, 1, 0) != 1)
           {
              ERRORLOG("Unable to setup screen resolution %s (mode %d)",
                  mdinfo->Desc,(int)nmode);
@@ -816,7 +816,7 @@ short setup_screen_mode_minimal(unsigned short nmode)
       }
   }
   LbScreenClear(0);
-  LbScreenSwap();
+  LbScreenRender();
   update_screen_mode_data(mdinfo->Width, mdinfo->Height);
   lbDisplay.DrawFlags = flg_mem;
   force_video_mode_reset = false;
@@ -829,7 +829,7 @@ TbBool setup_screen_mode_zero(unsigned short nmode)
   SYNCDBG(4,"Setting up mode %d",(int)nmode);
   mdinfo = LbScreenGetModeInfo(nmode);
   LbPaletteDataFillBlack(engine_palette);
-  if (LbScreenSetup((TbScreenMode)nmode, mdinfo->Width, mdinfo->Height, engine_palette, 2, 0) != 1)
+  if (LbScreenSetup((TbScreenMode)nmode, engine_palette, 2, 0) != 1)
   {
       ERRORLOG("Unable to setup screen resolution %s (mode %d)",
           mdinfo->Desc,(int)nmode);
