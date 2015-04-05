@@ -31,7 +31,10 @@
 #include "bflib_sprite.h"
 #include "bflib_vidraw.h"
 #include "bflib_mshandler.hpp"
+#include "bflib_keybrd.h"
 
+#include "packets.h"
+#include "player_data.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -227,14 +230,38 @@ TbResult LbMouseOnEndSwap(void)
 
 void mouseControl(unsigned int action, struct TbPoint *pos)
 {
+    struct Packet *pckt;
+    pckt = get_packet(my_player_number);
+    // Can only get package while in a game.
+    bool isInGame = pckt;
+    int deltaPosX = 0;
+
     struct TbPoint dstPos;
     dstPos.x = pos->x;
     dstPos.y = pos->y;
+
     switch ( action )
     {
     case MActn_MOUSEMOVE:
-        MouseToScreen(&dstPos);
-        LbMouseOnMove(dstPos);
+        if (!isInGame ||
+            !lbDisplay.MRightButton)
+        {
+            MouseToScreen(&dstPos);
+            LbMouseOnMove(dstPos);
+        }
+        else
+        {
+            // Ctrl + right drag to rotate camera
+            SDL_GetRelativeMouseState(&deltaPosX, NULL);
+            if (deltaPosX > 0)
+            {
+                set_packet_control(pckt, PCtr_ViewRotateCCW);
+            }
+            else if (deltaPosX < 0)
+            {
+                set_packet_control(pckt, PCtr_ViewRotateCW);
+            }
+        }
         break;
     case MActn_LBUTTONDOWN:
         lbDisplay.MLeftButton = 1;
@@ -280,6 +307,20 @@ void mouseControl(unsigned int action, struct TbPoint *pos)
             lbDisplay.RMouseX = lbDisplay.MMouseX;
             lbDisplay.RMouseY = lbDisplay.MMouseY;
             lbDisplay.RRightButton = 1;
+        }
+        break;
+    case MActn_WHEELUP:
+        if (isInGame)
+        {
+            // Zooms in when wheel up.
+            set_packet_control(pckt, PCtr_ViewZoomIn);
+        }
+        break;
+    case MActn_WHEELDOWN:
+        if (isInGame)
+        {
+            // Zooms out when wheel down.
+            set_packet_control(pckt, PCtr_ViewZoomOut);
         }
         break;
     default:

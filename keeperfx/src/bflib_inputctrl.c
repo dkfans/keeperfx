@@ -66,6 +66,7 @@ static unsigned int mouse_button_actions_mapping(int eventType, const SDL_MouseB
         case SDL_BUTTON_RIGHT: return MActn_RBUTTONUP;
         }
     }
+
     WARNMSG("Unidentified event, type %d button %d",(int)eventType,(int)button->button);
     return MActn_NONE;
 }
@@ -275,23 +276,11 @@ static void process_event(const SDL_Event *ev)
     case SDL_MOUSEWHEEL:
         if (ev->wheel.y > 0)
         {
-            struct Packet *pckt;
-            pckt = get_packet(my_player_number);
-            if (pckt != NULL)
-            {
-                // Zooms in when wheel up.
-                set_packet_control(pckt, PCtr_ViewZoomIn);
-            }
+            mouseControl(MActn_WHEELUP, &mousePos);
         }
         else if (ev->wheel.y < 0)
         {
-            struct Packet *pckt;
-            pckt = get_packet(my_player_number);
-            if (pckt != NULL)
-            {
-                // Zooms out when wheel down.
-                set_packet_control(pckt, PCtr_ViewZoomOut);
-            }
+            mouseControl(MActn_WHEELDOWN, &mousePos);
         }
         break;
 
