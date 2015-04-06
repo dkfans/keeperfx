@@ -514,10 +514,10 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
     // Set the logical screen size as video mode specified.
     SDL_RenderSetLogicalSize(lbGameRenderer, mdinfo->Width, mdinfo->Height);
 
-    lbPalettedSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, mdinfo->Width, mdinfo->Height, lbSurfaceDepth, 0, 0, 0, 0);
+    lbPalettedSurface = SDL_CreateRGBSurface(0/*obselete flag*/, mdinfo->Width, mdinfo->Height, lbSurfaceDepth, 0, 0, 0, 0);
     if (lbPalettedSurface == NULL)
     {
-        ERRORLOG("Can't create secondary surface: %s", SDL_GetError());
+        ERRORLOG("Can't create paletted surface: %s", SDL_GetError());
         LbScreenReset();
         return Lb_FAIL;
     }
