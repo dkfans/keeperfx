@@ -235,6 +235,8 @@ void mouseControl(unsigned int action, struct TbPoint *pos)
     // Can only get package while in a game.
     bool isInGame = pckt;
     int deltaPosX = 0;
+    int deltaPosY = 0;
+    bool isCtrlDown = lbInkeyFlags & KMod_CONTROL;
 
     struct TbPoint dstPos;
     dstPos.x = pos->x;
@@ -243,13 +245,43 @@ void mouseControl(unsigned int action, struct TbPoint *pos)
     switch ( action )
     {
     case MActn_MOUSEMOVE:
-        if (!isInGame ||
-            !lbDisplay.MRightButton)
+        // in game flag is not working as expected, need upgrade.
+        // if (!isInGame)
+        // {
+        //  MouseToScreen(&dstPos);
+        //  LbMouseOnMove(dstPos);
+        //}
+
+        // TODO: HeM: Draging function is primitive and should be improved in future.
+        // At least align the mouse location.
+        // (left + right) or (ctrl + left) drag to move camera.
+        // Keeping both combine for now to test which is better, will remove one of them later.
+        if ((lbDisplay.MLeftButton && lbDisplay.MRightButton) ||
+            (lbDisplay.MLeftButton && isCtrlDown))
         {
+            SDL_GetRelativeMouseState(&deltaPosX, &deltaPosY);
+            if (deltaPosX > 0)
+            {
+                set_packet_control(pckt, PCtr_MoveLeft);
+            }
+            else if (deltaPosX < 0)
+            {
+                set_packet_control(pckt, PCtr_MoveRight);
+            }
+
+            if (deltaPosY > 0)
+            {
+                set_packet_control(pckt, PCtr_MoveUp);
+            }
+            else if (deltaPosY < 0)
+            {
+                set_packet_control(pckt, PCtr_MoveDown);
+            }
+
             MouseToScreen(&dstPos);
             LbMouseOnMove(dstPos);
         }
-        else
+        else if (lbDisplay.MRightButton)
         {
             // Ctrl + right drag to rotate camera
             SDL_GetRelativeMouseState(&deltaPosX, NULL);
@@ -261,6 +293,12 @@ void mouseControl(unsigned int action, struct TbPoint *pos)
             {
                 set_packet_control(pckt, PCtr_ViewRotateCW);
             }
+        }
+        else
+        {
+            // Normal mouse move
+            MouseToScreen(&dstPos);
+            LbMouseOnMove(dstPos);
         }
         break;
     case MActn_LBUTTONDOWN:
