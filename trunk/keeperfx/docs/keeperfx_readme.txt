@@ -319,6 +319,289 @@ New and modified level script commands:
 
 Changelog:
 
+Version: 0.4.6
+  Prepared trap placing algorithm for future improvements.
+  Increased computer player priority of training and research and decreased one for manufacture.
+  Modified picking up imps for mining to not use imps which are already mining or returning gold.
+  Fixed compile errors caused by inconsistence in recent commits.
+  Rewritten chicken growing cycle and movement function.
+  Modified computer player to not create processes for dungeons without heart.
+  Fixed computer player moving creatures to continue when player has no gold.
+  Introduced command line parameter to enable the computer player chat.
+  Fixed clearing creatures kept in custody in enemy POWER_HAND when owners heart is destroyed.
+  Rewritten tagging a block for digging.
+  Started work computer player on moving imps to mine when low on gold.
+  Some unifications in computer player gold management code.
+  Modifed doing nothing state for heroes to allow getting back to assigned job.
+  Modified imps so that they count amount of jobs of given kind they did in a row.
+  Divided digging a corridor to sub-fubctions. Made a function which finds a place to drop imp for room digging.
+  Modified destroying dungeon heart if the player has two hearts on map.
+  Changed lightning trap to not hit allies.
+  Made CTA so suppress basic needs other than heal_critical.
+  Unified the way creatures are affected by CTA. Modified doing nothing state to recognize CTA.
+  Switched the use of hit_type into hit_targets in some places.
+  Modified creature idle state to not go for lair during CTA.
+  Modified fear calculations. Heroes are no longer scared when low of health, but will still fear much stronger enemies.
+  Introdiced power castability option for casting on natural terrain. Merged two flag enumerations.
+  Allowed picking up gold from neutral ground. Also did some renaming.
+  Modified POWER_HAND castability to allow picking gold only on own territory.
+  Added checking child powers availability when casting parent power.
+  Introduced config parameter to mark that a power is part of another power.
+  Added some new config options to keeper powers. Modified code related to powers to mostly use new config struct and ignore old one.
+  Added possibility to hear dungeon heart beat by enemy creatures.
+  Modified line of sight function to check whether left part or right part is visible.
+  Modified creatures with owner who lost to no longer join another player when near dungeon heart. Renamed RANDOM to DRAWFROM in new script commands.
+  Made warnings about excessive parameters in script commands.
+  Improved error reporting during script lines parsing.
+  Rewritten changing owner of creatures whewn unowned and near to dungeon heart.
+  Finished the completely new, much more complex implementation of RANDOM command.
+  Work in progress on more complex RANDOM script command.
+  Modified way of processing lines of config files. Moved RANDOM support to higher level.
+  Prepared for changing implementation of RANDOM command.
+  Made Special Diggers to not be counted to GOOD_CREATURES and EVIL_CREATURES amounts.
+  Implemented GOOD_CREATURES and EVIL_CREATURES variables in IF_CONTROLS command.
+  Improved counting active diggers.
+  Added GoldPerHoard to config files.
+  Some unifications in processing lists of player creatures.
+  Commented CTA casting routine by comp. player.
+  Rewritten disabling CTA. Also made picked up creatures to be released from CTA.
+  Added two new script variables - EVIL_CREATURES and GOOD_CREATURES.
+  Decreased flight altitude recovering speed to 1/8 of creature movement speed.
+  Modified flying creatures height to slowly decrease any acceleration.
+  Made QUICK_INFORMATION message flash when unread.
+  Fixed classic bug of keeping creatures in hand while heart is destroyed.
+  Modified destroying enemy ground to influence ownership of gold on that ground.
+  Rewritten growing food in hatchery.
+  Rewritten some of player zooming.
+  Rewritten some combat-related code.
+  Rewritten some code related to lairs.
+  Fixed invalid memory access when exiting torture screen while a door is opened.
+  Fixed killing multiple creatures by KILL_CREATURE() script command.
+  Rewritten function used to move spells and traps when a room is being sold.
+  Rewritten computer player digging passage for new room.
+  Rewritten some of creature movement during combat.
+  Rewritten 2 combat-related functions.
+  Started work on Dungeon Keeper Independent Level Layout converter.
+  Rewritten checking unconverted drop place, and some of sacrificing.
+  Rewritten eat, fart and destroy wall instances.
+  Removed some of dependencies on specific reature model. Also resized array which breaks saved game compatibility.
+  Modified computer room building to stop if gold amount falls below 1000. Added property which disables this limit for specific rooms.
+  Fixed computer player to be able to stop build tasks when the room is no longer available. Also improved data structures initialization.
+  Fixed grouping creatures while possessing during barracking.
+  A few style changes. Also disabled screen capture keys on high score input.
+  Modified computer player dropping gold to treasury so that the gold is correctly added to wealth.
+  Modified drawing land view zoom to not draw central pixel twice. Also made exit on SDL initialization failure.
+  Completely replaced the view panning in land view screen.
+  Removed possible invalid write in land view screen.
+  Fixed a mistake in computer player pickup code.
+  Modified land view screen to zoom out from an ensign little towards the next ensign.
+  Updated attempting job in room to correctly support special temple terrain.
+  Unified hand dropping functions for human and computer player.
+  Made a few code unifications which shouldn't affect gameplay.
+  Fixed picking up gold by computer player. Also made unifications in power hand code.
+  Rewritten and updated drawing creatures in power hand.
+  Made important unifications in power hand pickup code. Made imps ignore dead bodies on enemy territory.
+  Rewritten checking if an imp will soon be working at given coordinates.
+  Rewritten shot collision code.
+  Modified Must Obey to allow assigning not-do jobs. Added classic bug to allow original behaviour. Also some unificatons in powers.
+  Modified bounding coordinates in land view screen to be more accurate. Also shifted exp level sprite for creatures in hand.
+  Extended collision detection between things to disallow passing through things which have very high velocities.
+  Rewritten drawing lightning power. Also fixed initiating tagged blocks and high score input.
+  Rewritten updating tunneller trail positions.
+  Rewritten GUI update function on creature instance selection.
+  Rewritten re-initiating tagged block flags.
+  Rewritten drawing lightning spell.
+  Rewritten creature standing on corpses code.
+  Fixed recently introduced issue with must obey spell.
+  Unified some of keeper powers code. Modified powers in cheat list to be free.
+  Fixed fighting with doors to not stop after one shot.
+  Updated room building to check possibility to build in unified way.
+  Rewritten some of imp reinforcing code.
+  Added flag DESTROYED_ON_ROOM_PLACE to objects.
+  Rewritten creation of flame breath effects, and a few smaller functions.
+  Rewritten affecting things by wind spell.
+  Added utility functions to help with updating things near given map location.
+  Fixed shifted ceiling issue.
+  Rewritten selecting instance for door and object fight.
+  Placed more of keeper power properties inside config files.
+  Rewritten some of initial map exploration for players.
+  Modified shot collision to destroy both shots.
+  Started replacing hit target selection algorithm, to be based on flags instead of integer type.
+  Increased Dragon armour. Defined HitTargetFlags which are supposed to replace HitType.
+  Modified wibble generation algorithm to produce same values as original game.
+  Replaced some checks by unified functions. Fixed CTA code bug introduced in r1494.
+  Increased size of creature health flower by one pixel.
+  Rewritten choosing lightning trap target.
+  Modified health flowers to scale with half the zoom rate. Also fixed creature tendency buttons to be always refreshed on tendency switch.
+  Fixed digging gold in possession to update counters; also did some updates in logging.
+  Nefred Horny, as he became too powerfull after last dexterity change. Also fixed typo in all creature config files.
+  Fixed chickens to no longer eat creatures.
+  Rewritten processing creatures in power hand. Made slap effect to wear off while in hand.
+  Modified followers positions selection to skip toxic tiles which leader can't step on.
+  Rewritten removing creature from group. Modified functionality to always keep highest level creature as leader.
+  Rewritten placing columns on changed slab.
+  Modified scaling of room ensigns to take similar height in high resolutions.
+  Modified party leader selection to be based not only on experience but also on score.
+  Rewritten creature eating code.
+  Updated campaign creation doc.
+  Modified fast speed parties to update followers positions more often, and slow speed parties to update them less frequently.
+  Unifications in the area of chosing thing to pick.
+  A few fixes which may affect a bug in trap crates handling.
+  Rewritten resetting creatures in room.
+  Modified imps to go to owners territory before toking.
+  Unified checking spell, trap and special pickability by diggers.
+  Modified room building to not auto-claim things not owned by the player - diggers have to move them.
+  Rewritten tagging place for room.
+  Modified wandering points selection to chose wander destinations more carefully. Also improved logging.
+  Modified lair fight to skip unconscious creatures. Also gave better names to some flags and variables.
+  Updated killing creature to not add target to resurrect list if it is being reborn.
+  Improved RANDOM() implementation to not crash on wrong parameters. Also removed few tries of accessing dungeon struct by non-existing players.
+  Updated trap triggers to not react on creatures kept in custody.
+  Removed excessive logging. Also minor update to scavenging.
+  Improved the creature being scavenged behavior so victim won't follow creatures he hates.
+  Made querying creature to not break its scavenging. Unified creature controlled checks.
+  Prepared functions to be later used for objects in room.
+  Updated BONUS_LEVEL_TIME() command to set timer from the game turn of trigger.
+  Moved some object properties to config files. Spellbooks put on rooms are no longer claimed with them.
+  Rewritten affecting creatures by alarm trap.
+  Updated Twin Keepers objectives to use strings from PO/POT files. Patch by Dayokay.
+  Rewritten counting and repositioning bodies in graveyard.
+  Moved a lot of traps and doors data into config files.
+  Rewritten affecting all players creatures by spells and killing all players chickens.
+  Rewritten creating effects around thing.
+  Rewritten disease function when creature is sick.
+  Rewritten computer player dig for attack task.
+  Rewritten some of computer players call to arms handling.
+  Rewritten treasure room integrating gold piles into gold hoards.
+  Modified computer player to not create two tasks which require power hand at the same time.
+  Rewritten waiting for wage behind closed doors. Also updated treasury handling and gold storing code.
+  Rewritten adding gold to hoard in treasury.
+  Improved room-related messages to use one, unified function.
+  Added more room config parameters. Modified placing items in rooms to check storage capacity instead of all used capacity.
+  Moved some of room parameters to terrain config file.
+  Fixed diggers to stop digging gems if there's a large enough gold pile near it.
+  Unified two of computer attack routines. Also fixed mistake in map collides code.
+  Modified room destroying code to disallow doing it on allies.
+  Rewritten the use of Make Safe special.
+  Fixed a mistake in dungeon area recalculation pointed out by Jelle Raaijmakers.
+  Rewritten revealing area by sight of evil.
+  Updated messages template for Twin Keepers campaign.
+  Rewritten hold audience spell use.
+  Rewritten decreasing creature health.
+  Fixed counting creatures which are joining the dungeon.
+  Rewritten creature grouping code. Fixed parties following tunnellers.
+  Rewritten adding leader to a party.
+  Rewritten eating code, and selecting best dungeon for tunnelling.
+  Modified changing health of all creatures to not use player-based listing.
+  Modified separation between GUI strings and Campaign strings to use the same function for string retrieval.
+  Unified health computation for rooms. Fixed health shown in room info ensign to show full health.
+  Fixed resurrect creature menu scroll when amount of creatures exactly fills the screen.
+  Moved dungeon special tooltips to config file. Also did some renaming.
+  Modified POWER_HAND so that player can pick up creatures only when has that power.
+  Modified font drawing code to allow line breaking anywhere if there's no space in a long string.
+  Modified some places to use constant names instead of hardcoded values.
+  Implemented a few more creature statistics.
+  Moved relation between a spellbook and keeper power to config files.
+  Added spellbook to be used for possess spell.
+  Improved flight height code to take ceiling into account.
+  Modified posessing with shift to use standard arrow cursor when cannot possess the target.
+  Modified spell drawing for possession and casting over battle message to only use spell cursor when spell is available.
+  Config files update - reverted dexterity to original values and decreased change on the value with creature level.
+  Config files update - scaled down amount of damage to boulder, and reverted research values and manyfacture levels to original DK.
+  Rewritten some of patrolling code.
+  Rewritten filling points in various view modes.
+  Modified possession to be only available when player has the spell.
+  Fixed and re-enabled rewritten version of filling points in possession mode.
+  Fixed a triangle leak possibility on overflow.
+  Implemented per-campaign outro movie; also started work on intro movie.
+  Rewritten finding random rooms. Also disabled rewritten version of filling points in possession mode, as it has errors.
+  Rewritten generating creature from entrance.
+  Rewritten object sacrificing code.
+  Rewritten finding render gamut in isometric view and possession.
+  Rewritten drawing scaled textures in map zoom box.
+  Rewritten and fixed map fading.
+  Improved scaling of creature status clouds.
+  Updated reading magic config file to use effect names.
+  Modified moving to lair and temple to use random destination position.
+  Fixed multibyte font support in spell price.
+  Rewritten gold hoards management.
+  Implemented more of moving laying gold to treasury by computer player. Fixed cases of uninitialized variables.
+  Updates in scavenging and picking up. Also did some renaming.
+  Modified hero stealing code to be sure creatures from level are taken first.
+  Made instant re-computing of generation times after each SET_GENERATE_SPEED() script command.
+  Modified GUI scale factor to be right for 16:9 aspect ratio. Also removed some more references to original functions.
+  Improved checking whether creature can take gold or eat by dropping things on it.
+  Rewritten food eating code.
+  Fixed flying creatures to be able to adjust altitude. Updated default flight altitude.
+  Some unifications in Special Diggers tasks code.
+  Orig. campaign - allowed computer player to imprison enemies.
+  Orig. campaign - modified lv20 script to kill the first AVATAR if it's imprisoned.
+  Updated scripts to 2 original campaign levels. Also made ForceVisibility larger for some instances.
+  Fixed implementation of SET_CREATURE_FEAR_STRONGER() script command.
+  Modified IF_CONTROLS() script command to accept total amounts.
+  Fixed updating creature health during gameplay.
+  Fixed problem with minimap area being unclickable when minimap is not visible.
+  Updated creature health computation to better handle invalid values in config files.
+  Added more creature selection criteria to script commands.
+  Updated searching creature by job; implemented more of KILL_CREATURE() command.
+  Level scripts - modified IF_AVAILABLE() to accept creature, and added new IF_CONTROLS() command.
+  Modified creature health computation to use pre-computed values more often.
+  Modified imp behavior to keep better balance between job and toking when low on health.
+  Added basic scroll bar clicking ability to all 4 lists in front end menus.
+  Rewritten leader obeying creature state.
+  Fixed parchment map zoom box to not move in parts when at bottom of the map.
+  Rewritten hero stealing code.
+  Rewritten finding nearest room with spare capacity.
+  Added infinite loop detection in some pathfinding functions.
+  Fixed creature statistics panel to show correct information and tooltips. Added new tooltips to english translation.
+  Decoupled spell damage from melee damage. Also improved armour computation.
+  Added the ability to normalize RMS while converting SFX files. Land descriptions are converted too.
+  Rewritten calculating intersection in pathfinding.
+  Pathfinding - rewritten retrieving waypoints from regions.
+  CqArctic campaign - modified script based on  darkkingkongman's patch.
+  Modified high score writing to keep information about beaten levels, overwriting duplicate entries if neccessary.
+  Fixed problem with invalid memory reads due to inprecise scaling of mouse pointer.
+  Fixed centering numbers in creature panel.
+  Modified dumping things from hand to violently drop them all only when heart is being destroyed.
+  Progressed the implementation of moving gold to treasury.
+  Fixed the network game problem with screen coords being transmitted instead of map coordinates.
+  Fixed centering on traps and doors when icon is right-clicked.
+  Rewritten drawing room ensign.
+  Fixed transfer creature and resurrect creature screens scaling.
+  Modified computer player code to drop picked up creatures on heart when intended drop fails.
+  Fixed drawing zoom box on minimap to show creature levels, and correctly centered sprites.
+  Fixed HitType of Grenade to allow it to affect objects, ie. move gold pots.
+  Updated context for some translations, and updated all languages to new english template.
+  Implemented mouse pointer scaling capabilities.
+  Added scaling to drawing ornated GUI window background.
+  Rewritten scaling in-game messages and compass on minimap.
+  Made rescaling of zoom window in full screen map.
+  Made rescaling network game screen.
+  Made scaling of swipes used is possession.
+  Implemented scaling of text in level list and services list.
+  Implemented rescaling of window frame in land view screen.
+  Fixed slider buttons support to deal with other buttons behind.
+  Added reset if wallhug navigation is damaged during tunneling.
+  Fixed problem with special crates being continuously rearranged in library.
+  Fixed possible problem with creature state being blocked at changing to/from chicken.
+  Rewritten drawing timer in bonus levels.
+  Rewritten almost all of GUI and minimap related functions.
+  Improved dropping trap and door crates, and spells, into appropriate rooms.
+  Created config parameter for toking health gain.
+  Rewritten drawing room info when room to place is selected.
+  Rewritten casting cave-in spell.
+  Rewritten updating creature models list for activities GUI list.
+  Updated manufacturing - if the workshop is missing place for crate, workers will take a break from manufacturing.
+  Rewritten picking up crates when digger is dropped at them.
+  Updated all translations from english template.
+  Updated room related messages to be more unified and match the situation.
+  Rewritten finding spellbook at drop site.
+  Added "room unreachable" messages in more cases - when treasury, prison or graveyard cannot be navigated to.
+  Updates and fixes to translations.
+  Finished integrating  OGG music support made by Lukas Niemeier.
+  Fixed color ghost offsets in pannel minimap (reinforced walls and gold color).
+
+
 Version: 0.4.5
   Rewritten drawing the pannel minimap.
   Rewritten a lot of network GUI routines.
