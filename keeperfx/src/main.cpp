@@ -1196,7 +1196,7 @@ short setup_game(void)
   if ( result && (!game.no_intro) )
   {
       LbPaletteDataFillBlack(engine_palette);
-      int mode_ok = LbScreenSetup(get_movies_vidmode(), engine_palette, 2, 0);
+      int mode_ok = LbScreenSetup(get_frontend_vidmode(), engine_palette, 2, 0);
       if (mode_ok != 1)
       {
         ERRORLOG("Can't enter movies screen mode to play intro");
@@ -3422,7 +3422,7 @@ short display_should_be_updated_this_turn(void)
 TbBool keeper_screen_swap(void)
 {
 /*  // For resolution 640x480, move the graphics data 40 lines lower
-  if ( lbDisplay.ScreenMode == Lb_SCREEN_MODE_640_480_8 )
+  if ( lbDisplay.ScreenMode == Lb_SCREEN_MODE_640_480 )
     if (LbScreenLock() == Lb_SUCCESS)
     {
       int i;
@@ -4274,7 +4274,7 @@ short reset_game(void)
 
     LbMouseSuspend();
     LbIKeyboardClose();
-    LbScreenReset();
+    LbScreenReset(false);
     LbDataFreeAll(game_load_files);
     free_gui_strings_data();
     FreeAudio();
@@ -4503,7 +4503,7 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
         game_loop();
     }
     reset_game();
-    LbScreenReset();
+    LbScreenReset(false);
     if ( !retval )
     {
         static const char *msg_text="Setting up game failed.\n";

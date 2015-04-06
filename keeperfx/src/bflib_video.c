@@ -56,7 +56,7 @@ extern volatile TbBool lbAppActive;
 TbBool lbDoubleBufferingRequested;
 
 /** Name of the video driver to be used. Must be set before LbScreenInitialize().
- * Under Win32 and with SDL, choises are windib or directx. */
+ * Under Win32 and with SDL2.0, the only choice is 'windows'. */
 char lbVideoDriver[16];
 
 /** Colour palette buffer, to be used inside lbDisplay. */
@@ -90,15 +90,6 @@ TbResult LbScreenLock(void)
     if (!lbScreenInitialized)
         return Lb_FAIL;
 
-    if (SDL_MUSTLOCK(lbPalettedSurface))
-    {
-        if (SDL_LockSurface(lbPalettedSurface) < 0) {
-            lbDisplay.GraphicsWindowPtr = NULL;
-            lbDisplay.WScreen = NULL;
-            return Lb_FAIL;
-        }
-    }
-
     lbDisplay.WScreen = (unsigned char *)lbPalettedSurface->pixels;
     lbDisplay.GraphicsScreenWidth = lbPalettedSurface->pitch;
     lbDisplay.GraphicsWindowPtr = &lbDisplay.WScreen[lbDisplay.GraphicsWindowX +
@@ -115,11 +106,6 @@ TbResult LbScreenUnlock(void)
     lbDisplay.WScreen = NULL;
     lbDisplay.GraphicsWindowPtr = NULL;
 
-    if (SDL_MUSTLOCK(lbPalettedSurface))
-    {
-        SDL_UnlockSurface(lbPalettedSurface);
-    }
-
     return Lb_SUCCESS;
 }
 
@@ -130,7 +116,7 @@ TbResult LbScreenRender(void)
 
     ret = LbMouseOnBeginSwap();
     // Flip the image displayed on Screen Surface
-    if (ret == Lb_SUCCESS) 
+    if (ret == Lb_SUCCESS && lbScreenInitialized && (lbScreenWindow != NULL))
     {
         // Converting 256 color to True color
         lbDrawTexture = SDL_CreateTextureFromSurface(lbGameRenderer, lbPalettedSurface);
@@ -465,13 +451,13 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
         GetPointerHotspot(&hot_x, &hot_y);
     }
 
-    LbScreenReset();
+    LbScreenReset(false);
 
     mdinfo = LbScreenGetModeInfo(modeIndex);
     if ( !LbScreenIsModeAvailable(modeIndex) )
     {
         ERRORLOG("%s resolution %dx%d (modeIndex %d) not available",
-            (mdinfo->VideoFlags&Lb_VF_WINDOWED)?"Windowed":"Full screen",
+            (mdinfo->VideoFlags & Lb_VF_WINDOWED)?"Windowed":"Full screen",
             (int)mdinfo->Width,(int)mdinfo->Height,(int)modeIndex);
         return Lb_FAIL;
     }
@@ -495,7 +481,8 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
             mdinfo->Height,
             sdlFlags);
     }
-    if (lbScreenWindow == NULL) {
+    if (lbScreenWindow == NULL) 
+    {
         ERRORLOG("Failed to initialize mode %d: %s", (int)modeIndex, SDL_GetError());
         return Lb_FAIL;
     }
@@ -503,7 +490,7 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
     lbGameRenderer = SDL_CreateRenderer(lbScreenWindow, -1, 0);
     if (lbGameRenderer == NULL)
     {
-        ERRORLOG("Error creating lbGameRenderer");
+        ERRORLOG("Error creating lbGameRenderer %d: %s", (int)modeIndex, SDL_GetError());
         return Lb_FAIL;
     }
 
@@ -518,7 +505,7 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
     if (lbPalettedSurface == NULL)
     {
         ERRORLOG("Can't create paletted surface: %s", SDL_GetError());
-        LbScreenReset();
+        LbScreenReset(false);
         return Lb_FAIL;
     }
 
@@ -705,7 +692,7 @@ TbBool LbScreenIsLocked(void)
     return (lbDisplay.WScreen != NULL);
 }
 
-TbResult LbScreenReset(void)
+TbResult LbScreenReset(TbBool resetMainWindow)
 {
     if (!lbScreenInitialized)
     {
@@ -722,8 +709,12 @@ TbResult LbScreenReset(void)
     SDL_DestroyRenderer(lbGameRenderer);
     lbGameRenderer = NULL;
 
-    // do not free main window,
-    // TODO HeM may need to free main window to handle alt+r event 
+    // Only reset main windows at 'alt + r' event
+    if (resetMainWindow)
+    {
+        SDL_DestroyWindow(lbScreenWindow);
+        lbScreenWindow = NULL;
+    }
 
     // Mark as not initialized
     lbScreenInitialized = false;

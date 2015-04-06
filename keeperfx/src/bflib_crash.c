@@ -89,7 +89,7 @@ void ctrl_handler(int sig_id)
 {
     signal(sig_id, SIG_DFL);
     LbErrorLog("Failure signal: %s.\n",sigstr(sig_id));
-    LbScreenReset();
+    LbScreenReset(false);
     LbErrorLogClose();
     raise(sig_id);
 }
@@ -168,7 +168,7 @@ static LONG CALLBACK ctrl_handler_w32(LPEXCEPTION_POINTERS info)
             _backtrace(16 , info->ContextRecord);
             SymCleanup(GetCurrentProcess());
     }
-    LbScreenReset();
+    LbScreenReset(false);
     LbErrorLogClose();
     return EXCEPTION_EXECUTE_HANDLER;
 }

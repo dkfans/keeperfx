@@ -50,17 +50,16 @@ extern "C" {
 #endif
 /******************************************************************************/
 TbScreenMode switching_vidmodes[] = {
-  Lb_SCREEN_MODE_320_200_8,
-  Lb_SCREEN_MODE_640_400_8,
+  Lb_SCREEN_MODE_320_200,
+  Lb_SCREEN_MODE_640_400,
   Lb_SCREEN_MODE_INVALID,
   Lb_SCREEN_MODE_INVALID,
   Lb_SCREEN_MODE_INVALID,
   Lb_SCREEN_MODE_INVALID,
   };
 
-TbScreenMode failsafe_vidmode = Lb_SCREEN_MODE_320_200_8;
-TbScreenMode movies_vidmode   = Lb_SCREEN_MODE_320_200_8;
-TbScreenMode frontend_vidmode = Lb_SCREEN_MODE_640_480_8;
+TbScreenMode failsafe_vidmode = Lb_SCREEN_MODE_640_480;
+TbScreenMode frontend_vidmode = Lb_SCREEN_MODE_640_480;
 
 //struct IPOINT_2D units_per_pixel;
 unsigned short units_per_pixel_min;
@@ -216,32 +215,22 @@ TbScreenMode validate_vidmode(unsigned short mode)
   int maxmodes=sizeof(switching_vidmodes)/sizeof(TbScreenMode);
   // Do not allow to enter higher modes on low memory systems
   if ((features_enabled & Ft_HiResVideo) == 0)
-    return failsafe_vidmode;
+      return failsafe_vidmode;
   for (i=0;i<maxmodes;i++)
   {
     if (switching_vidmodes[i] == mode) return switching_vidmodes[i];
   }
-  return failsafe_vidmode;
+  return frontend_vidmode;
 }
 
 TbScreenMode get_failsafe_vidmode(void)
 {
-  return failsafe_vidmode;
-}
-
-void set_failsafe_vidmode(unsigned short nmode)
-{
-  failsafe_vidmode=(TbScreenMode)nmode;
+    return failsafe_vidmode;
 }
 
 TbScreenMode get_movies_vidmode(void)
 {
-  return movies_vidmode;
-}
-
-void set_movies_vidmode(unsigned short nmode)
-{
-  movies_vidmode=(TbScreenMode)nmode;
+    return frontend_vidmode;
 }
 
 TbScreenMode get_frontend_vidmode(void)
@@ -580,7 +569,7 @@ TbBool setup_screen_mode(unsigned short nmode)
         if (MinimalResolutionSetup)
         {
           if (lbDisplay.ScreenMode != nmode)
-            LbScreenReset();
+            LbScreenReset(false);
           LbDataFreeAll(mcga_load_files_minimal);
           ERRORLOG("MCGA Minimal not allowed (Reset)");
           MinimalResolutionSetup = 0;
@@ -592,7 +581,7 @@ TbBool setup_screen_mode(unsigned short nmode)
           set_pointer_graphic_none();
           unload_pointer_file(0);
           if (lbDisplay.ScreenMode != nmode)
-            LbScreenReset();
+            LbScreenReset(false);
           LbDataFreeAll(mcga_load_files);
         }
     } else
@@ -601,7 +590,7 @@ TbBool setup_screen_mode(unsigned short nmode)
         if (MinimalResolutionSetup)
         {
           if ((lbDisplay.ScreenMode != nmode) || (MinimalResolutionSetup))
-            LbScreenReset();
+            LbScreenReset(false);
           LbDataFreeAll(vres256_load_files_minimal);
           MinimalResolutionSetup = 0;
         } else
@@ -612,7 +601,7 @@ TbBool setup_screen_mode(unsigned short nmode)
           set_pointer_graphic_none();
           unload_pointer_file(1);
           if ((lbDisplay.ScreenMode != nmode) || (MinimalResolutionSetup))
-            LbScreenReset();
+            LbScreenReset(false);
           LbDataFreeAll(vres256_load_files);
         }
     }
@@ -732,7 +721,7 @@ short setup_screen_mode_minimal(unsigned short nmode)
       if (MinimalResolutionSetup)
       {
         if ((nmode != lbDisplay.ScreenMode) || (force_video_mode_reset))
-          LbScreenReset();
+          LbScreenReset(false);
         LbDataFreeAll(mcga_load_files_minimal);
         MinimalResolutionSetup = 0;
       } else
@@ -743,7 +732,7 @@ short setup_screen_mode_minimal(unsigned short nmode)
         set_pointer_graphic_none();
         unload_pointer_file(0);
         if ((nmode != lbDisplay.ScreenMode) || (force_video_mode_reset))
-          LbScreenReset();
+          LbScreenReset(false);
         LbDataFreeAll(mcga_load_files);
       }
   } else
@@ -753,7 +742,7 @@ short setup_screen_mode_minimal(unsigned short nmode)
         set_pointer_graphic_none();
         unload_pointer_file(1);
         if ((nmode != lbDisplay.ScreenMode) || (force_video_mode_reset))
-          LbScreenReset();
+          LbScreenReset(false);
         LbDataFreeAll(vres256_load_files_minimal);
         MinimalResolutionSetup = 0;
       } else
@@ -762,7 +751,7 @@ short setup_screen_mode_minimal(unsigned short nmode)
         reset_heap_manager();
         reset_heap_memory();
         if ((nmode != lbDisplay.ScreenMode) || (force_video_mode_reset))
-          LbScreenReset();
+          LbScreenReset(false);
         LbDataFreeAll(vres256_load_files);
       }
   }
@@ -843,6 +832,7 @@ TbScreenMode reenter_video_mode(void)
 {
  TbScreenMode scrmode;
  scrmode=validate_vidmode(settings.video_scrnmode);
+
  if ( setup_screen_mode(scrmode) )
   {
       settings.video_scrnmode = scrmode;
@@ -860,6 +850,7 @@ TbScreenMode reenter_video_mode(void)
       settings.video_scrnmode = scrmode;
       save_settings();
   }
+
   SYNCLOG("Switched video to %s (mode %d)", get_vidmode_name(scrmode),(int)scrmode);
   return scrmode;
 }
@@ -868,6 +859,10 @@ TbScreenMode switch_to_next_video_mode(void)
 {
     TbScreenMode scrmode;
     scrmode = get_next_vidmode(lbDisplay.ScreenMode);
+
+    // Destory current window.
+    LbScreenReset(true);
+
     if ( setup_screen_mode(scrmode) )
     {
         settings.video_scrnmode = scrmode;

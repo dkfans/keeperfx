@@ -584,10 +584,12 @@ short load_configuration(void)
             switch (i)
             {
             case 0:
-                set_failsafe_vidmode(k);
+                // No more customizable failsafe video mode, use 640*480*8
+                // set_failsafe_vidmode(k);
                 break;
             case 1:
-                set_movies_vidmode(k);
+                // No more movie video mode, use unified video mode
+                // set_movies_vidmode(k);
                 break;
             case 2:
                 set_frontend_vidmode(k);
