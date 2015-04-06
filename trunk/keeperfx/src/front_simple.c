@@ -51,7 +51,7 @@ struct RawBitmap bitmaps_640[] = {
 
 struct RawBitmap bitmaps_320[] = {
   {"Empty Image",     320, 200, 8, FGrp_Main,     NULL,               NULL},
-  {"Loading Image",   320, 200, 8, FGrp_StdData,  "loading32.raw"     "loading32.pal",},
+  {"Loading Image",   320, 200, 8, FGrp_StdData,  "loading32.raw",    "loading32.pal",},
   {"NoCD Image",      320, 200, 8, FGrp_StdData,  "nocd.raw",         "nocd.pal",},
   {"DK Legal Splash", 320, 200, 8, FGrp_StdData,  "legal32.raw",      "legal32.pal",},
   {"KeeperFX Splash", 320, 200, 8, FGrp_StdData,  "startfx32.raw",    "startfx32.pal",},
