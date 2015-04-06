@@ -43,33 +43,15 @@ typedef unsigned char TbPixel;
 /** Standard video modes, registered by LbScreenInitialize(). */
 enum ScreenMode {
     Lb_SCREEN_MODE_INVALID      = 0x00,
-    Lb_SCREEN_MODE_320_200_8    = 0x01,
-    Lb_SCREEN_MODE_320_200_16   = 0x02,
-    Lb_SCREEN_MODE_320_200_24   = 0x03,
-    Lb_SCREEN_MODE_512_384_16   = 0x08,
-    Lb_SCREEN_MODE_512_384_24   = 0x09,
-    Lb_SCREEN_MODE_640_400_8    = 0x0A,
-    Lb_SCREEN_MODE_640_400_16   = 0x0B,
-    Lb_SCREEN_MODE_320_240_8    = 0x04,
-    Lb_SCREEN_MODE_320_240_16   = 0x05,
-    Lb_SCREEN_MODE_320_240_24   = 0x06,
-    Lb_SCREEN_MODE_512_384_8    = 0x07,
-    Lb_SCREEN_MODE_640_400_24   = 0x0C,
-    Lb_SCREEN_MODE_640_480_8    = 0x0D,
-    Lb_SCREEN_MODE_640_480_16   = 0x0E,
-    Lb_SCREEN_MODE_640_480_24   = 0x0F,
-    Lb_SCREEN_MODE_800_600_8    = 0x10,
-    Lb_SCREEN_MODE_800_600_16   = 0x11,
-    Lb_SCREEN_MODE_800_600_24   = 0x12,
-    Lb_SCREEN_MODE_1024_768_8   = 0x13,
-    Lb_SCREEN_MODE_1024_768_16  = 0x14,
-    Lb_SCREEN_MODE_1024_768_24  = 0x15,
-    Lb_SCREEN_MODE_1200_1024_8  = 0x16,
-    Lb_SCREEN_MODE_1200_1024_16 = 0x17,
-    Lb_SCREEN_MODE_1200_1024_24 = 0x18,
-    Lb_SCREEN_MODE_1600_1200_8  = 0x19,
-    Lb_SCREEN_MODE_1600_1200_16 = 0x1A,
-    Lb_SCREEN_MODE_1600_1200_24 = 0x1B,
+    Lb_SCREEN_MODE_320_200      = 0x03,
+    Lb_SCREEN_MODE_512_384      = 0x08,
+    Lb_SCREEN_MODE_640_400      = 0x0A,
+    Lb_SCREEN_MODE_320_240      = 0x04,
+    Lb_SCREEN_MODE_640_480      = 0x0F,
+    Lb_SCREEN_MODE_800_600      = 0x10,
+    Lb_SCREEN_MODE_1024_768     = 0x13,
+    Lb_SCREEN_MODE_1200_1024    = 0x16,
+    Lb_SCREEN_MODE_1600_1200    = 0x1B,
 };
 
 typedef unsigned short TbScreenMode;
@@ -273,7 +255,7 @@ TbResult LbScreenInitialize(void);
 TbResult LbScreenSetDoubleBuffering(TbBool state);
 TbBool LbScreenIsDoubleBufferred(void);
 TbResult LbScreenSetup(TbScreenMode mode, unsigned char *palette, short buffers_count, TbBool wscreen_vid);
-TbResult LbScreenReset(void);
+TbResult LbScreenReset(TbBool resetMainWindow);
 
 TbResult LbScreenFindVideoModes(void);
 TbBool LbScreenIsModeAvailable(TbScreenMode mode);
