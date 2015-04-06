@@ -2,7 +2,7 @@
 # for compatibility with other images.
 # The engine always assumes color 0 is black (ie. for fading)
 0x00	0x000000
-# These below are for sprites from dkflag00.dat and netflag.dat:
+# These below are for sprites making ensigns on land view:
 0x01	0xfcfcac
 0x0b	0xf4f468
 0x3a	0x389cdc
