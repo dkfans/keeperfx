@@ -397,7 +397,7 @@ TbBool wait_for_cd_to_be_available(void)
 {
   char ffullpath[2048];
   short was_locked = LbScreenIsLocked();
-  prepare_file_path_buf(ffullpath,FGrp_LoData,"dkflag00.dat");
+  prepare_file_path_buf(ffullpath,FGrp_LoData,"lndflag_ens.dat");
   if ( LbFileExists(ffullpath) )
     return true;
   if ( was_locked )
