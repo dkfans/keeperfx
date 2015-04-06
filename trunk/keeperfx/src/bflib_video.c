@@ -464,7 +464,7 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
 
     // SDL video modeIndex flags
     // TODO: SDL_WINDOW_ALLOW_HIGHDPI
-    sdlFlags = 0;
+    sdlFlags = SDL_WINDOW_RESIZABLE;
     if ((mdinfo->VideoFlags & Lb_VF_WINDOWED) == 0) 
     {
         sdlFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
