@@ -1196,7 +1196,7 @@ short setup_game(void)
   if ( result && (!game.no_intro) )
   {
       LbPaletteDataFillBlack(engine_palette);
-      int mode_ok = LbScreenSetup(get_frontend_vidmode(), engine_palette, 2, 0);
+      int mode_ok = LbScreenSetup(get_movies_vidmode(), engine_palette, 2, 0);
       if (mode_ok != 1)
       {
         ERRORLOG("Can't enter movies screen mode to play intro");

@@ -59,6 +59,7 @@ TbScreenMode switching_vidmodes[] = {
   };
 
 TbScreenMode failsafe_vidmode = Lb_SCREEN_MODE_640_480;
+TbScreenMode movies_vidmode = Lb_SCREEN_MODE_320_200;
 TbScreenMode frontend_vidmode = Lb_SCREEN_MODE_640_480;
 
 //struct IPOINT_2D units_per_pixel;
@@ -215,12 +216,12 @@ TbScreenMode validate_vidmode(unsigned short mode)
   int maxmodes=sizeof(switching_vidmodes)/sizeof(TbScreenMode);
   // Do not allow to enter higher modes on low memory systems
   if ((features_enabled & Ft_HiResVideo) == 0)
-      return failsafe_vidmode;
+    return failsafe_vidmode;
   for (i=0;i<maxmodes;i++)
   {
     if (switching_vidmodes[i] == mode) return switching_vidmodes[i];
   }
-  return frontend_vidmode;
+  return failsafe_vidmode;
 }
 
 TbScreenMode get_failsafe_vidmode(void)
@@ -230,7 +231,7 @@ TbScreenMode get_failsafe_vidmode(void)
 
 TbScreenMode get_movies_vidmode(void)
 {
-    return frontend_vidmode;
+    return movies_vidmode;
 }
 
 TbScreenMode get_frontend_vidmode(void)
