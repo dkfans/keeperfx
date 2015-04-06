@@ -284,6 +284,9 @@ CXXINCS =  -I"sdl/include"
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
 HVLOGOBJS = $(subst obj/,obj/hvlog/,$(OBJS))
 
+# allow extracting files from archives, replacing pre-existing ones
+ENABLE_EXTRACT ?= 1
+
 # flags to generate dependency files
 DEPFLAGS = -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
 # other flags to include while compiling

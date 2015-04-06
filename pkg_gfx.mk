@@ -300,6 +300,8 @@ pkg/creatrs/%.jty pkg/data/%.jty:
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
+ifeq ($(ENABLE_EXTRACT), 1)
+
 # The package is extracted only if targets does not exits; the "|" causes file dates to be ignored
 # Note that ignoring timestamp means it is possible to have outadated files after a new
 # package release, if no targets were modified with the update.
@@ -321,6 +323,8 @@ gfx/torturescr/%.png gfx/torturescr/%.txt gfx/guimap/%.txt gfx/parchmentbug/%.tx
 	7z x -aoa -y -ogfx "$|"
 	-$(ECHO) 'Finished extracting: $<'
 	-$(ECHO) ' '
+
+endif
 
 # Downloading the gfx sources pack
 gfx/$(GFXSRC_PACKAGE):

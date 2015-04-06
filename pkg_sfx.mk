@@ -116,11 +116,15 @@ convert-campaign-sfx-%: sfx/campgns/%/filelist.txt
 	-$(ECHO) 'Finished converting list: $<'
 	-$(ECHO) ' '
 
+ifeq ($(ENABLE_EXTRACT), 1)
+
 sfx/%/filelist.txt sfx/campgns/%/filelist.txt: | sfx/$(SFXSRC_PACKAGE)
 	-$(ECHO) 'Extracting package: $<'
 	7z x -aoa -y -osfx "$|"
 	-$(ECHO) 'Finished extracting: $<'
 	-$(ECHO) ' '
+
+endif
 
 # Downloading the sfx sources pack
 sfx/$(SFXSRC_PACKAGE):
