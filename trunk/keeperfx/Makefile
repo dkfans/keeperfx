@@ -389,8 +389,10 @@ $(foreach num,00 01 02 03 04 05 06 07,pkg/campgns/twinkprs_lnd/rgmap$(num).raw p
 $(foreach num,00 01 02 03 04 05 06 07,pkg/campgns/undedkpr_lnd/rgmap$(num).raw pkg/campgns/undedkpr_lnd/viframe$(num).dat)
 
 LANDVIEWDATTABS = \
-pkg/ldata/dkflag00.dat \
-pkg/ldata/netflag.dat \
+pkg/ldata/lndflag_ens.dat \
+pkg/ldata/netflag_ens.dat \
+pkg/ldata/lndflag_pin.dat \
+pkg/ldata/netflag_pin.dat \
 pkg/ldata/maphand.dat \
 pkg/ldata/netfont.dat
 
@@ -859,9 +861,11 @@ pkg/ldata/front.pal pkg/data/palette.dat:
 # mark palette files precious to make sure they're not auto-removed after dependencies are built
 .PRECIOUS: pkg/ldata/torture.pal pkg/ldata/front.pal pkg/data/palette.dat
 
-pkg/ldata/dkflag00.dat: gfx/landview/filelist_dkflag00.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW) $(RNC)
-pkg/ldata/netflag.dat: gfx/landview/filelist_netflag.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW) $(RNC)
-pkg/ldata/maphand.dat: gfx/landview/filelist_maphand.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW) $(RNC)
+pkg/ldata/lndflag_ens.dat: gfx/landview_ensign/filelist_lndflag.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW) $(RNC)
+pkg/ldata/netflag_ens.dat: gfx/landview_ensign/filelist_netflag.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW) $(RNC)
+pkg/ldata/lndflag_pin.dat: gfx/landview_pinpnt/filelist_lndflag.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW) $(RNC)
+pkg/ldata/netflag_pin.dat: gfx/landview_pinpnt/filelist_netflag.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW) $(RNC)
+pkg/ldata/maphand.dat: gfx/landview_hand/filelist_maphand.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW) $(RNC)
 pkg/ldata/netfont.dat: gfx/font_net/filelist_netfont.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW) $(RNC)
 
 pkg/ldata/fronttor.dat: gfx/torturescr/filelist_fronttor.txt pkg/ldata/torture.pal $(PNGTORAW) $(RNC)
