@@ -806,6 +806,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
         cdamage = apply_damage_to_door(thing, dmg);
         break;
     default:
+        cdamage = 0;
         break;
     }
     if ((thing->class_id == TCls_Creature) && (thing->health < 0))
