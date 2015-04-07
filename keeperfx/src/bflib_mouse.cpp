@@ -254,10 +254,21 @@ void mouseControl(unsigned int action, struct TbPoint *pos)
 
         // TODO: HeM: Draging function is primitive and should be improved in future.
         // At least align the mouse location.
-        // (left + right) or (ctrl + left) drag to move camera.
-        // Keeping both combine for now to test which is better, will remove one of them later.
-        if ((lbDisplay.MLeftButton && lbDisplay.MRightButton) ||
-            (lbDisplay.MLeftButton && isCtrlDown))
+        if ((lbDisplay.MRightButton && isCtrlDown))
+        {           
+            // Ctrl + right drag to rotate camera
+            SDL_GetRelativeMouseState(&deltaPosX, NULL);
+            if (deltaPosX > 0)
+            {
+                set_packet_control(pckt, PCtr_ViewRotateCCW);
+            }
+            else if (deltaPosX < 0)
+            {
+                set_packet_control(pckt, PCtr_ViewRotateCW);
+            }
+           
+        }
+        else if (lbDisplay.MRightButton)
         {
             SDL_GetRelativeMouseState(&deltaPosX, &deltaPosY);
             if (deltaPosX > 0)
@@ -280,19 +291,6 @@ void mouseControl(unsigned int action, struct TbPoint *pos)
 
             MouseToScreen(&dstPos);
             LbMouseOnMove(dstPos);
-        }
-        else if (lbDisplay.MRightButton)
-        {
-            // Ctrl + right drag to rotate camera
-            SDL_GetRelativeMouseState(&deltaPosX, NULL);
-            if (deltaPosX > 0)
-            {
-                set_packet_control(pckt, PCtr_ViewRotateCCW);
-            }
-            else if (deltaPosX < 0)
-            {
-                set_packet_control(pckt, PCtr_ViewRotateCW);
-            }
         }
         else
         {
