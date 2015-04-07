@@ -111,7 +111,8 @@ Version: 0.4.6
   * Rewritten some of initial map exploration for players.
   * Modified shot collision to destroy both shots.
   * Started replacing hit target selection algorithm, to be based on flags instead of integer type.
-  * Increased Dragon armour. Defined HitTargetFlags which are supposed to replace HitType.
+  * Increased Dragon armour.
+  * Defined HitTargetFlags which are supposed to replace HitType.
   * Modified wibble generation algorithm to produce same values as original game.
   * Replaced some checks by unified functions.
   * Increased size of creature health flower by one pixel.
