@@ -317,16 +317,20 @@ struct Thing *get_first_thing_in_power_hand(struct PlayerInfo *player)
 TbBool remove_first_thing_from_power_hand_list(PlayerNumber plyr_idx)
 {
   struct Dungeon *dungeon;
-  long i;
+  long i, num_in_hand;
   dungeon = get_dungeon(plyr_idx);
-  if (dungeon->num_things_in_hand > 0)
+  num_in_hand = dungeon->num_things_in_hand;
+  if (num_in_hand > MAX_THINGS_IN_HAND)
+      num_in_hand = MAX_THINGS_IN_HAND;
+  if (num_in_hand > 0)
   {
-      for (i = 0; i < dungeon->num_things_in_hand-1; i++)
+      for (i = 0; i < num_in_hand-1; i++)
       {
         dungeon->things_in_hand[i] = dungeon->things_in_hand[i+1];
       }
-      dungeon->num_things_in_hand--;
-      dungeon->things_in_hand[dungeon->num_things_in_hand] = 0;
+      num_in_hand--;
+      dungeon->num_things_in_hand = num_in_hand;
+      dungeon->things_in_hand[num_in_hand] = 0;
       return true;
   }
   return false;
@@ -340,23 +344,27 @@ TbBool remove_first_thing_from_power_hand_list(PlayerNumber plyr_idx)
  */
 TbBool remove_thing_from_power_hand_list(struct Thing *thing, PlayerNumber plyr_idx)
 {
-  struct Dungeon *dungeon;
-  long i;
-  dungeon = get_dungeon(plyr_idx);
-  for (i = 0; i < dungeon->num_things_in_hand; i++)
-  {
-    if (dungeon->things_in_hand[i] == thing->index)
+    struct Dungeon *dungeon;
+    long i, num_in_hand;
+    dungeon = get_dungeon(plyr_idx);
+    num_in_hand = dungeon->num_things_in_hand;
+    if (num_in_hand > MAX_THINGS_IN_HAND)
+        num_in_hand = MAX_THINGS_IN_HAND;
+    for (i = 0; i < num_in_hand; i++)
     {
-      for ( ; i < dungeon->num_things_in_hand-1; i++)
-      {
-        dungeon->things_in_hand[i] = dungeon->things_in_hand[i+1];
-      }
-      dungeon->num_things_in_hand--;
-      dungeon->things_in_hand[dungeon->num_things_in_hand] = 0;
-      return true;
+        if (dungeon->things_in_hand[i] == thing->index)
+        {
+            for ( ; i < num_in_hand-1; i++)
+            {
+                dungeon->things_in_hand[i] = dungeon->things_in_hand[i+1];
+            }
+            num_in_hand--;
+            dungeon->num_things_in_hand = num_in_hand;
+            dungeon->things_in_hand[num_in_hand] = 0;
+            return true;
+        }
     }
-  }
-  return false;
+    return false;
 }
 
 /** Puts a thing into player's power hand list without any further processing.

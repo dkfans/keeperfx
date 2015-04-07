@@ -1380,7 +1380,10 @@ void fiddle_half_gamut(long start_stl_x, long start_stl_y, long step, long a4)
             stl_x_max = stl_x_max_limit;
         }
 
-        long delta_y;
+        /* The variable needs to be volatile to disallow changing it to float during optimisations.
+         * Changing it to float would lead to conditions like "if (delta_y != 1)" not working.
+         */
+        volatile long delta_y;
         delta_y = abs(stl_y - start_stl_y);
         long rect_factor;
 

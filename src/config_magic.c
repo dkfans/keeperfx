@@ -1529,8 +1529,8 @@ TbBool make_all_powers_cost_free(void)
   for (i=0; i < magic_conf.power_types_count; i++)
   {
       pwrdynst = get_power_dynamic_stats(i);
-    for (n=0; n <= MAGIC_OVERCHARGE_LEVELS; n++)
-        pwrdynst->cost[n] = 0;
+      for (n=0; n < MAGIC_OVERCHARGE_LEVELS; n++)
+          pwrdynst->cost[n] = 0;
   }
   return true;
 }
