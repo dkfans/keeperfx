@@ -60,10 +60,6 @@ DLLIMPORT struct TbColorTables _DK_pixmap;
 #define pixmap _DK_pixmap
 DLLIMPORT struct TbAlphaTables _DK_alpha_sprite_table;
 #define alpha_sprite_table _DK_alpha_sprite_table
-DLLIMPORT struct TbLoadFiles _DK_map_flag_load_files[];
-//#define map_flag_load_files _DK_map_flag_load_files
-DLLIMPORT struct TbLoadFiles _DK_game_load_files[];
-//#define game_load_files _DK_game_load_files
 DLLIMPORT unsigned char _DK_white_pal[256];
 #define white_pal _DK_white_pal
 DLLIMPORT unsigned char _DK_red_pal[256];
