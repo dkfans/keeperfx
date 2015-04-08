@@ -485,178 +485,213 @@ TbBool prepare_diskpath(char *buf,long buflen)
 
 short load_configuration(void)
 {
-  static const char config_textname[] = "Config";
-  const char *fname;
-  char *buf;
-  long len,pos;
-  int cmd_num;
-  // Variables to use when recognizing parameters
-  char word_buf[32];
-  int i,k;
-  SYNCDBG(4,"Starting");
-  // Preparing config file name and checking the file
-  strcpy(install_info.inst_path,"");
-  install_info.field_9A = 0;
-  // Set default runtime directory and load the config file
-  strcpy(keeper_runtime_directory,".");
-  fname = prepare_file_path(FGrp_Main,keeper_config_file);
-  len = LbFileLengthRnc(fname);
-  if (len < 2)
-  {
-    WARNMSG("%s file \"%s\" doesn't exist or is too small.",config_textname,keeper_config_file);
-    return false;
-  }
-  if (len > 65536)
-  {
-    WARNMSG("%s file \"%s\" is too large.",config_textname,keeper_config_file);
-    return false;
-  }
-  buf = (char *)LbMemoryAlloc(len+256);
-  if (buf == NULL)
-    return false;
-  // Loading file data
-  len = LbFileLoadAt(fname, buf);
-  if (len>0)
-  {
-    SYNCDBG(7,"Processing %s file, %d bytes",config_textname,len);
-    buf[len] = '\0';
-    // Set text line number - we don't have blocks so we need to initialize it manually
-    text_line_number = 1;
-    pos = 0;
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(conf_commands,cmd_num)
-    while (pos<len)
+    static const char config_textname[] = "Config";
+    const char *fname;
+    char *buf;
+    long len, pos;
+    int cmd_num;
+
+    // Variables to use when recognizing parameters
+    char word_buf[32];
+    int i, videoModeIndex;
+
+    SYNCDBG(4, "Starting");
+
+    // Preparing config file name and checking the file
+    strcpy(install_info.inst_path, "");
+    install_info.field_9A = 0;
+
+    // Set default runtime directory and load the config file
+    strcpy(keeper_runtime_directory, ".");
+    fname = prepare_file_path(FGrp_Main, keeper_config_file);
+    len = LbFileLengthRnc(fname);
+
+    if (len < 2)
     {
-      // Finding command number in this line
-      i = 0;
-      cmd_num = recognize_conf_command(buf,&pos,len,conf_commands);
-      // Now store the config item in correct place
-      switch (cmd_num)
-      {
-      case 1: // INSTALL_PATH
-          i = get_conf_parameter_whole(buf,&pos,len,install_info.inst_path,sizeof(install_info.inst_path));
-          if (i <= 0)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" command parameter in %s file.",
-                COMMAND_TEXT(cmd_num),config_textname);
-            break;
-          }
-          prepare_diskpath(install_info.inst_path,sizeof(install_info.inst_path));
-          break;
-      case 2: // INSTALL_TYPE
-          // This command is just skipped...
-          break;
-      case 3: // LANGUAGE
-          i = recognize_conf_parameter(buf,&pos,len,lang_type);
-          if (i <= 0)
-          {
-              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
-                COMMAND_TEXT(cmd_num),config_textname);
-            break;
-          }
-          install_info.lang_id = i;
-          break;
-      case 4: // KEYBOARD
-          // Works only in DK Premium
-          break;
-      case 5: // SCREENSHOT
-          i = recognize_conf_parameter(buf,&pos,len,scrshot_type);
-          if (i <= 0)
-          {
-              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
-                COMMAND_TEXT(cmd_num),config_textname);
-            break;
-          }
-          screenshot_format = i;
-          break;
-      case 6: // FRONTEND_RES
-          for (i=0; i<3; i++)
-          {
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-              k = LbRegisterVideoModeString(word_buf);
-            else
-              k = -1;
-            if (k<=0)
-            {
-                CONFWRNLOG("Couldn't recognize video mode %d in \"%s\" command of %s file.",
-                   i+1,COMMAND_TEXT(cmd_num),config_textname);
-               continue;
-            }
-            switch (i)
-            {
-            case 0:
-                // No more customizable failsafe video mode, use 640*480*8
-                // set_failsafe_vidmode(k);
-                break;
-            case 1:
-                // No more movie video mode, use unified video mode
-                // set_movies_vidmode(k);
-                break;
-            case 2:
-                set_frontend_vidmode(k);
-                break;
-            }
-          }
-          break;
-      case 7: // INGAME_RES
-          for (i=0; i<7; i++)
-          {
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = LbRegisterVideoModeString(word_buf);
-              if (k > 0)
-                set_game_vidmode(i,k);
-              else
-                  CONFWRNLOG("Couldn't recognize video mode %d in \"%s\" command of %s file.",
-                    i+1,COMMAND_TEXT(cmd_num),config_textname);
-            } else
-            {
-              if (i > 0)
-                set_game_vidmode(i,Lb_SCREEN_MODE_INVALID);
-              else
-                  CONFWRNLOG("Video modes list empty in \"%s\" command of %s file.",
-                    COMMAND_TEXT(cmd_num),config_textname);
-              break;
-            }
-          }
-          break;
-      case 8: // CENSORSHIP
-          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
-          if (i <= 0)
-          {
-              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
-                COMMAND_TEXT(cmd_num),config_textname);
-            break;
-          }
-          if (i == 1)
-              features_enabled |= Ft_Censorship;
-          else
-              features_enabled &= ~Ft_Censorship;
-          break;
-      case 9: // POINTER_SENSITIVITY
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            i = atoi(word_buf);
-          }
-          if ((i > 0) && (i <= 1000)) {
-              base_mouse_sensitivity = i*256/100;
-          } else {
-              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
-                COMMAND_TEXT(cmd_num),config_textname);
-          }
-          break;
-      case 0: // comment
-          break;
-      case -1: // end of buffer
-          break;
-      default:
-          CONFWRNLOG("Unrecognized command in %s file.",
-              config_textname);
-          break;
-      }
-      skip_conf_to_next_line(buf,&pos,len);
+        // TODO HeM create default config file automatically.
+        WARNMSG("%s file \"%s\" doesn't exist or is too small.", config_textname, keeper_config_file);
+        return false;
     }
+    if (len > 65536)
+    {
+        // TODO HeM create default config file automatically.
+        WARNMSG("%s file \"%s\" is too large.", config_textname, keeper_config_file);
+        return false;
+    }
+
+    buf = (char *)LbMemoryAlloc(len + 256);
+    if (buf == NULL)
+    {
+        return false;
+    }
+
+    // Loading file data
+    len = LbFileLoadAt(fname, buf);
+    if (len > 0)
+    {
+        SYNCDBG(7, "Processing %s file, %d bytes", config_textname, len);
+        buf[len] = '\0';
+        // Set text line number - we don't have blocks so we need to initialize it manually
+        text_line_number = 1;
+        pos = 0;
+#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(conf_commands,cmd_num)
+        while (pos < len)
+        {
+            // Finding command number in this line
+            i = 0;
+            cmd_num = recognize_conf_command(buf, &pos, len, conf_commands);
+            // Now store the config item in correct place
+            switch (cmd_num)
+            {
+            case 1: // INSTALL_PATH
+                i = get_conf_parameter_whole(buf, &pos, len, install_info.inst_path, sizeof(install_info.inst_path));
+                if (i <= 0)
+                {
+                    CONFWRNLOG("Couldn't read \"%s\" command parameter in %s file.",
+                        COMMAND_TEXT(cmd_num), config_textname);
+                    break;
+                }
+                prepare_diskpath(install_info.inst_path, sizeof(install_info.inst_path));
+                break;
+            case 2: // INSTALL_TYPE
+                // This command is just skipped...
+                break;
+            case 3: // LANGUAGE
+                i = recognize_conf_parameter(buf, &pos, len, lang_type);
+                if (i <= 0)
+                {
+                    CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                        COMMAND_TEXT(cmd_num), config_textname);
+                    break;
+                }
+                install_info.lang_id = i;
+                break;
+            case 4: // KEYBOARD
+                // Works only in DK Premium
+                break;
+            case 5: // SCREENSHOT
+                i = recognize_conf_parameter(buf, &pos, len, scrshot_type);
+                if (i <= 0)
+                {
+                    CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                        COMMAND_TEXT(cmd_num), config_textname);
+                    break;
+                }
+                screenshot_format = i;
+                break;
+                //TODO HeM remove case 6
+            case 6: // FRONTEND_RES
+                for (i = 0; i < 3; i++)
+                {
+                    if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                    {
+                        videoModeIndex = LbRegisterVideoModeString(word_buf);
+                    }
+                    else
+                    {
+                        videoModeIndex = -1;
+                    }
+
+                    if (videoModeIndex <= Lb_SCREEN_MODE_INVALID)
+                    {
+                        CONFWRNLOG("Couldn't recognize video mode %d in \"%s\" command of %s file.",
+                            i + 1, COMMAND_TEXT(cmd_num), config_textname);
+                        continue;
+                    }
+
+                    switch (i)
+                    {
+                    case 0:
+                        // No more customizable failsafe video mode, use 640*480*8
+                        // set_failsafe_vidmode(videoModeIndex);
+                        break;
+                    case 1:
+                        // No more movie video mode, use unified video mode
+                        // set_movies_vidmode(videoModeIndex);
+                        break;
+                    case 2:
+                        set_frontend_vidmode(videoModeIndex);
+                        break;
+                    }
+
+                }
+                break;
+            case 7: // INGAME_RES
+                for (i = 0; i < 6; i++)
+                {
+                    if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                    {
+                        videoModeIndex = LbRegisterVideoModeString(word_buf);
+
+                        // Register video mode for switching with alt + r .
+                        if (videoModeIndex != Lb_SCREEN_MODE_INVALID)
+                        {
+                            register_vidmode_index_for_switching(i, videoModeIndex);
+                        }
+                        else
+                        {
+                            CONFWRNLOG("Couldn't recognize video mode %d in \"%s\" command of %s file.",
+                                i + 1, COMMAND_TEXT(cmd_num), config_textname);
+                        }
+                    }
+                    else
+                    {
+                        // Register invalid mode when failed to read valid one from config.
+                        if (i > 0)
+                            register_vidmode_index_for_switching(i, Lb_SCREEN_MODE_INVALID);
+                        else
+                            CONFWRNLOG("Video modes list empty in \"%s\" command of %s file.",
+                            COMMAND_TEXT(cmd_num), config_textname);
+                        break;
+                    }
+                }
+                break;
+            case 8: // CENSORSHIP
+                i = recognize_conf_parameter(buf, &pos, len, logicval_type);
+                if (i <= 0)
+                {
+                    CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                        COMMAND_TEXT(cmd_num), config_textname);
+                    break;
+                }
+                if (i == 1)
+                {
+                    features_enabled |= Ft_Censorship;
+                }
+                else
+                {
+                    features_enabled &= ~Ft_Censorship;
+                }
+                break;
+            case 9: // POINTER_SENSITIVITY
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    i = atoi(word_buf);
+                }
+
+                if ((i > 0) && (i <= 1000)) 
+                {
+                    base_mouse_sensitivity = i * 256 / 100;
+                }
+                else 
+                {
+                    CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                        COMMAND_TEXT(cmd_num), config_textname);
+                }
+                break;
+            case 0: // comment
+                break;
+            case -1: // end of buffer
+                break;
+            default:
+                CONFWRNLOG("Unrecognized command in %s file.",
+                    config_textname);
+                break;
+            }
+            skip_conf_to_next_line(buf, &pos, len);
+        }
 #undef COMMAND_TEXT
-  }
+    }
   SYNCDBG(7,"Config loaded");
   // Freeing
   LbMemoryFree(buf);
@@ -869,7 +904,7 @@ short get_level_fgroup(LevelNumber lvnum)
 /**
  * Loads data file into allocated buffer.
  * @return Returns NULL if the file doesn't exist or is smaller than ldsize;
- * on success, returns a buffer which should be freed after use,
+ * on videoModeIndex, returns a buffer which should be freed after use,
  * and sets ldsize into its size.
  */
 unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *fmt_str, ...)

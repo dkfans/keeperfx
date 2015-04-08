@@ -40,18 +40,20 @@ extern "C" {
 /** Pixel definition - represents value of one point on the graphics screen. */
 typedef unsigned char TbPixel;
 
-/** Standard video modes, registered by LbScreenInitialize(). */
+/** Standard video mode indexes, registered by LbScreenInitialize(). */
+// TODO (related number 01) do we need all these wired reolution? What about chaning them to 
+// useful value like 1920 1080?
 enum ScreenMode {
     Lb_SCREEN_MODE_INVALID      = 0x00,
-    Lb_SCREEN_MODE_320_200      = 0x03,
-    Lb_SCREEN_MODE_512_384      = 0x08,
-    Lb_SCREEN_MODE_640_400      = 0x0A,
-    Lb_SCREEN_MODE_320_240      = 0x04,
-    Lb_SCREEN_MODE_640_480      = 0x0F,
-    Lb_SCREEN_MODE_800_600      = 0x10,
-    Lb_SCREEN_MODE_1024_768     = 0x13,
-    Lb_SCREEN_MODE_1200_1024    = 0x16,
-    Lb_SCREEN_MODE_1600_1200    = 0x1B,
+    Lb_SCREEN_MODE_320_200      = 0x01, // Used to play movies
+    Lb_SCREEN_MODE_320_240      = 0x02,
+    Lb_SCREEN_MODE_512_384      = 0x03,
+    Lb_SCREEN_MODE_640_400      = 0x04,
+    Lb_SCREEN_MODE_640_480      = 0x05,
+    Lb_SCREEN_MODE_800_600      = 0x06,
+    Lb_SCREEN_MODE_1024_768     = 0x07,
+    Lb_SCREEN_MODE_1200_1024    = 0x08,
+    Lb_SCREEN_MODE_1600_1200    = 0x09,
 };
 
 typedef unsigned short TbScreenMode;
@@ -80,8 +82,6 @@ enum TbDrawFlags {
 enum TbVideoModeFlags {
     Lb_VF_DEFAULT     = 0x0000, // dummy flag
     Lb_VF_RGBCOLOR    = 0x0001,
-    Lb_VF_TRUCOLOR    = 0x0002,
-    Lb_VF_PALETTE     = 0x0004,
     Lb_VF_WINDOWED    = 0x0010,
 };
 
@@ -97,14 +97,20 @@ typedef struct GraphicsWindow TbGraphicsWindow;
 struct ScreenModeInfo {
     /** Hardware driver screen width. */
     TbScreenCoord Width;
+
     /** Hardware driver screen height. */
     TbScreenCoord Height;
-    /** Hardware driver color depth. */
+
+    /** Hardware driver color depth. Not in use since we fixed this to 32, remove when possible.*/
     unsigned short BitsPerPixel;
+
     /** Is the mode currently available for use. */
     int Available;
-    /** Video mode flags. */
+
+    /** Video mode flags. Can be Lb_VF_DEFAULT, Lb_VF_PALETTE, Lb_VF_TRUCOLOR, Lb_VF_RGBCOLOR.
+    Not in use anymore since we fixed video mode to 32bit RGB color, remove when possible.;*/
     unsigned long VideoFlags;
+
     /** Text description of the mode. */
     char Desc[23];
 };
@@ -112,65 +118,89 @@ typedef struct ScreenModeInfo TbScreenModeInfo;
 
 // Do NOT modify imported structures
 struct DisplayStruct {
-        /** Pointer to physical screen buffer, if locked. */
+        /** Pointer to physical screen buffer, not used. */
         uchar *PhysicalScreen;
+
         /** Pointer to graphics screen buffer, if locked. */
         uchar *WScreen;
+
         /** Pointer to glass map, used for 8-bit video transparency. */
         uchar *GlassMap;
+
         /** Pointer to fade table, used for 8-bit video fading. */
         uchar *FadeTable;
+
         /** Pointer to graphics window buffer, if locked. */
         uchar *GraphicsWindowPtr;
+
         /** Sprite used as mouse cursor. */
         struct TbSprite *MouseSprite;
+
         /** Resolution in width of the current video mode.
          *  Note that it's not always "physical" size.
          *  It is the part of screen buffer which is being drawn
-         *  on physical screen (WScreen X drawing size). */
+         *  on physical screen (WScreen X pixel number). */
         long PhysicalScreenWidth;
+
         /** Resolution in height of the current video mode.
          *  Note that it's not always "physical" size.
          *  It is the part of screen buffer which is being drawn
-         *  on physical screen (WScreen Y drawing size). */
+         *  on physical screen (WScreen Y pixel number). */
         long PhysicalScreenHeight;
+
         /** Width of the screen buffer (WScreen X pitch).
          *  Note that only part of this width may be drawn on real screen. */
         long GraphicsScreenWidth;
+
         /** Height of the screen buffer (WScreen Y pitch).
         *  Note that only part of this height may be drawn on real screen. */
         long GraphicsScreenHeight;
-        /** Current graphics window beginning X coordinate. */
+
+        /** Current drawing area beginning X coordinate. */
         long GraphicsWindowX;
-        /** Current graphics window beginning Y coordinate. */
+
+        /** Current drawing area beginning Y coordinate. */
         long GraphicsWindowY;
-        /** Current graphics window width (size in X axis). */
+
+        /** Current drawing area width (size in X axis). */
         long GraphicsWindowWidth;
-        /** Current graphics window height (size in Y axis). */
+
+        /** Current drawing area height (size in Y axis). */
         long GraphicsWindowHeight;
+
         /** Current mouse clipping window start X coordinate. */
         long MouseWindowX;
+
         /** Current mouse clipping window start Y coordinate. */
         long MouseWindowY;
+
         /** Current mouse clipping window width (in pixels). */
         long MouseWindowWidth;
+
         /** Current mouse clipping window height (in pixels). */
         long MouseWindowHeight;
+
         /** Mouse position during button "down" event, X coordinate. */
         long MouseX;
+
         /** Mouse position during button "down" event, Y coordinate. */
         long MouseY;
+
         /** Mouse position during move, X coordinate. */
         long MMouseX;
+
         /** Mouse position during move, Y coordinate. */
         long MMouseY;
+
         /** Mouse position during button release, X coordinate. */
         long RMouseX;
+
         /** Mouse position during button release, Y coordinate. */
         long RMouseY;
         ushort DrawFlags;
         short MouseMoveRatio; // was ushort OldVideoMode; but wasn't needed
         ushort ScreenMode;
+
         /** VESA set-up flag, used only with VBE video modes. */
         uchar VesaIsSetUp;
         uchar LeftButton;
@@ -234,16 +264,7 @@ DLLIMPORT TbGraphicsWindow _DK_lbTextJustifyWindow;
 #define lbTextJustifyWindow _DK_lbTextJustifyWindow
 DLLIMPORT TbGraphicsWindow _DK_lbTextClipWindow;
 #define lbTextClipWindow _DK_lbTextClipWindow
-/*
-extern unsigned char *palette;
-extern struct TbDisplayStruct lbDisplay;
-extern unsigned char *lbVesaData;
-extern bool screen_initialised;
-extern void *back_buffer;
-extern char redraw_screen_flag;
-extern bool lbScreenDirectAccessActive;
-extern unsigned short lbVesaPage;
-*/
+
 extern volatile TbBool lbScreenInitialized;
 extern volatile TbBool lbUseSdk;
 extern volatile TbBool lbInteruptMouse;
@@ -260,8 +281,7 @@ TbResult LbScreenReset(TbBool resetMainWindow);
 TbResult LbScreenFindVideoModes(void);
 TbBool LbScreenIsModeAvailable(TbScreenMode mode);
 TbScreenMode LbRecogniseVideoModeString(const char *desc);
-TbScreenMode LbRegisterVideoMode(const char *desc, TbScreenCoord width, TbScreenCoord height,
-    unsigned short bpp, unsigned long flags);
+TbScreenMode LbRegisterVideoMode(const char *desc, TbScreenCoord width, TbScreenCoord height, unsigned long flags);
 TbScreenMode LbRegisterVideoModeString(const char *desc);
 TbScreenModeInfo *LbScreenGetModeInfo(TbScreenMode mode);
 

@@ -1191,8 +1191,8 @@ short setup_game(void)
     }
 
   result = 1;
-  // The 320x200 mode is required only for the intro;
-  // loading and no CD screens can run in both 320x2?0 and 640x4?0.
+  // The 320x200 mode is required only for the movies;
+  // loading and no CD screens can run in both 320x200 and 640x480.
   if ( result && (!game.no_intro) )
   {
       LbPaletteDataFillBlack(engine_palette);

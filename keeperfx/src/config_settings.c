@@ -67,11 +67,12 @@ void setup_default_settings(void)
      }, 1, 0, 6};
     LbMemoryCopy(&settings, &default_settings, sizeof(struct GameSettings));
     cpu_detect(&cpu_info);
-    settings.video_scrnmode = get_next_vidmode(Lb_SCREEN_MODE_INVALID);
+    settings.video_scrnmode = get_next_vidmode_for_switching(Lb_SCREEN_MODE_INVALID);
     if ((cpu_get_family(&cpu_info) > CPUID_FAMILY_PENTIUM) && (is_feature_on(Ft_HiResVideo)))
     {
+        // TODO HeM suspicious: why do we skip first result?
         SYNCDBG(6,"Updating to hires video mode");
-        settings.video_scrnmode = get_next_vidmode(settings.video_scrnmode);
+        settings.video_scrnmode = get_next_vidmode_for_switching(settings.video_scrnmode);
     }
 }
 
