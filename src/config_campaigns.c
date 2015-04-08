@@ -54,6 +54,7 @@ const struct NamedCommand cmpgn_common_commands[] = {
   {"MEDIA_LOCATION",     15},
   {"INTRO_MOVIE",        16},
   {"OUTRO_MOVIE",        17},
+  {"LAND_MARKERS",       18},
   {NULL,                  0},
   };
 
@@ -75,6 +76,12 @@ const struct NamedCommand cmpgn_map_commands[] = {
 
 const struct NamedCommand cmpgn_map_cmnds_options[] = {
   {"TUTORIAL",        LvOp_Tutorial},
+  {NULL,              0},
+  };
+
+const struct NamedCommand cmpgn_level_markers_options[] = {
+  {"ENSIGNS",        LndMk_ENSIGNS},
+  {"PINPOINTS",      LndMk_PINPOINTS},
   {NULL,              0},
   };
 
@@ -172,6 +179,7 @@ TbBool clear_campaign(struct GameCampaign *campgn)
   LbMemorySet(campgn->land_window_start,0,DISKPATH_SIZE);
   LbMemorySet(campgn->land_view_end,0,DISKPATH_SIZE);
   LbMemorySet(campgn->land_window_end,0,DISKPATH_SIZE);
+  campgn->land_markers = LndMk_ENSIGNS;
   LbMemorySet(campgn->movie_intro_fname,0,DISKPATH_SIZE);
   LbMemorySet(campgn->movie_outro_fname,0,DISKPATH_SIZE);
   LbMemorySet(campgn->strings_fname,0,DISKPATH_SIZE);
@@ -596,6 +604,16 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
       case 17: // OUTRO_MOVIE
           i = get_conf_parameter_whole(buf,&pos,len,campgn->movie_outro_fname,DISKPATH_SIZE);
           if (i <= 0)
+              CONFWRNLOG("Couldn't read \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+          break;
+      case 18: // LAND_MARKERS
+          i = recognize_conf_parameter(buf,&pos,len,cmpgn_level_markers_options);
+          if (i >= 0) {
+              campgn->land_markers = i;
+              n++;
+          }
+          if (n < 1)
               CONFWRNLOG("Couldn't read \"%s\" command parameter in %s file.",
                 COMMAND_TEXT(cmd_num),config_textname);
           break;

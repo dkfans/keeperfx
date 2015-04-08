@@ -965,9 +965,10 @@ TbBool frontnetmap_load(void)
     game.selected_level_number = 0;
     if (!load_map_and_window(0))
     {
-      frontend_load_data_reset();
-      return false;
+        frontend_load_data_reset();
+        return false;
     }
+    // TODO load different files depending on campaign campgn->land_markers setting
     if (LbDataLoadAll(netmap_flag_load_files))
     {
       ERRORLOG("Unable to load MAP SCREEN sprites");
@@ -1094,6 +1095,7 @@ TbBool frontmap_load(void)
         frontend_load_data_reset();
         return false;
     }
+    // TODO load different files depending on campaign campgn->land_markers setting
     if (LbDataLoadAll(map_flag_load_files))
     {
         ERRORLOG("Unable to load Land View Screen sprites");
