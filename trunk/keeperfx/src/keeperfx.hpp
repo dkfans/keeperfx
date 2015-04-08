@@ -172,7 +172,6 @@ DLLIMPORT extern int _DK_FatalError;
 #define FatalError _DK_FatalError
 DLLIMPORT extern struct TbLoadFiles _DK_frontstory_load_files[4];
 #define frontstory_load_files _DK_frontstory_load_files
-DLLIMPORT extern struct TbLoadFiles _DK_netmap_flag_load_files[7];
 DLLIMPORT extern long _DK_define_key_scroll_offset;
 #define define_key_scroll_offset _DK_define_key_scroll_offset
 DLLIMPORT extern struct TbSetupSprite _DK_frontstory_setup_sprites[2];

@@ -48,6 +48,12 @@ enum CreditsItemKind {
     CIK_StringId,
 };
 
+enum LandMarkings {
+    LndMk_ENSIGNS,
+    LndMk_PINPOINTS,
+};
+
+
 /******************************************************************************/
 struct CreditsItem {
   unsigned short kind;
@@ -91,6 +97,7 @@ struct GameCampaign {
   char land_window_start[DISKPATH_SIZE];
   char land_view_end[DISKPATH_SIZE];
   char land_window_end[DISKPATH_SIZE];
+  unsigned char land_markers;
   char movie_intro_fname[DISKPATH_SIZE];
   char movie_outro_fname[DISKPATH_SIZE];
   // Credits
