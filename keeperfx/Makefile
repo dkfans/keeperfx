@@ -557,15 +557,12 @@ docsdox: docs/doxygen.conf
 clean: clean-build clean-tools clean-package
 
 clean-build:
-	-$(RM) $(STDOBJS) $(BIN)
-	-$(RM) $(HVLOGOBJS) $(HVLOGBIN)
-	-$(RM) $(LIBS) $(GENSRC)
-	-$(RM) bin/keeperfx.exe
+	-$(RM) $(STDOBJS)
+	-$(RM) $(HVLOGOBJS)
+	-$(RM) $(BIN) $(BIN:%.exe=%.map)
+	-$(RM) $(HVLOGBIN) $(HVLOGBIN:%.exe=%.map)
 	-$(RM) bin/keeperfx.dll
-	-$(RM) bin/keeperfx.map
-	-$(RM) bin/keeperfx_hvlog.exe
-	-$(RM) bin/keeperfx_hvlog.dll
-	-$(RM) bin/keeperfx_hvlog.map
+	-$(RM) $(LIBS) $(GENSRC)
 	-$(ECHO) ' '
 
 clean-tools:
