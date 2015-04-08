@@ -237,6 +237,7 @@ void mouseControl(unsigned int action, struct TbPoint *pos)
     int deltaPosX = 0;
     int deltaPosY = 0;
     bool isCtrlDown = lbInkeyFlags & KMod_CONTROL;
+    bool isAltDown = lbInkeyFlags & KMod_ALT;
 
     struct TbPoint dstPos;
     dstPos.x = pos->x;
@@ -254,7 +255,7 @@ void mouseControl(unsigned int action, struct TbPoint *pos)
 
         // TODO: HeM: Draging function is primitive and should be improved in future.
         // At least align the mouse location.
-        if ((lbDisplay.MRightButton && isCtrlDown))
+        if ((lbDisplay.MRightButton && isAltDown))
         {           
             // Ctrl + right drag to rotate camera
             SDL_GetRelativeMouseState(&deltaPosX, NULL);
@@ -268,7 +269,7 @@ void mouseControl(unsigned int action, struct TbPoint *pos)
             }
            
         }
-        else if (lbDisplay.MRightButton)
+        else if (lbDisplay.MRightButton && isCtrlDown)
         {
             SDL_GetRelativeMouseState(&deltaPosX, &deltaPosY);
             if (deltaPosX > 0)
