@@ -27,7 +27,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
 
-#define SCREEN_MODES_COUNT 40
+#define SCREEN_MODES_COUNT 20
 
 #ifdef __cplusplus
 extern "C" {
@@ -317,62 +317,50 @@ TbResult LbScreenFindVideoModes(void)
   return Lb_FAIL;
 }
 
+// TODO (related number 01) do we need all these wired reolution?
 static void LbRegisterStandardVideoModes(void)
 {
     lbScreenModeInfoNum = 0;
-    LbRegisterVideoMode("INVALID",       0,    0,  0, Lb_VF_DEFAULT);
-    LbRegisterVideoMode("320x200x8",   320,  200,  8, Lb_VF_PALETTE);
-    LbRegisterVideoMode("320x200x16",  320,  200, 16, Lb_VF_TRUCOLOR);
-    LbRegisterVideoMode("320x200x24",  320,  200, 24, Lb_VF_RGBCOLOR);
-    LbRegisterVideoMode("320x240x8",   320,  240,  8, Lb_VF_PALETTE);
-    LbRegisterVideoMode("320x240x16",  320,  240, 16, Lb_VF_TRUCOLOR);
-    LbRegisterVideoMode("320x240x24",  320,  240, 24, Lb_VF_RGBCOLOR);
-    LbRegisterVideoMode("512x384x8",   512,  384,  8, Lb_VF_PALETTE);
-    LbRegisterVideoMode("512x384x16",  512,  384, 16, Lb_VF_TRUCOLOR);
-    LbRegisterVideoMode("512x384x24",  512,  384, 24, Lb_VF_RGBCOLOR);
-    LbRegisterVideoMode("640x400x8",   640,  400,  8, Lb_VF_PALETTE);
-    LbRegisterVideoMode("640x400x16",  640,  400, 16, Lb_VF_TRUCOLOR);
-    LbRegisterVideoMode("640x400x24",  640,  400, 24, Lb_VF_RGBCOLOR);
-    LbRegisterVideoMode("640x480x8",   640,  480,  8, Lb_VF_PALETTE);
-    LbRegisterVideoMode("640x480x16",  640,  480, 16, Lb_VF_TRUCOLOR);
-    LbRegisterVideoMode("640x480x24",  640,  480, 24, Lb_VF_RGBCOLOR);
-    LbRegisterVideoMode("800x600x8",   800,  600,  8, Lb_VF_PALETTE);
-    LbRegisterVideoMode("800x600x16",  800,  600, 16, Lb_VF_TRUCOLOR);
-    LbRegisterVideoMode("800x600x24",  800,  600, 24, Lb_VF_RGBCOLOR);
-    LbRegisterVideoMode("1024x768x8", 1024,  768,  8, Lb_VF_PALETTE);
-    LbRegisterVideoMode("1024x768x16",1024,  768, 16, Lb_VF_TRUCOLOR);
-    LbRegisterVideoMode("1024x768x24",1024,  768, 24, Lb_VF_RGBCOLOR);
-    LbRegisterVideoMode("1280x1024x8", 1280,1024,  8, Lb_VF_PALETTE);
-    LbRegisterVideoMode("1280x1024x16",1280,1024, 16, Lb_VF_TRUCOLOR);
-    LbRegisterVideoMode("1280x1024x24",1280,1024, 24, Lb_VF_RGBCOLOR);
-    LbRegisterVideoMode("1600x1200x8", 1600,1200,  8, Lb_VF_PALETTE);
-    LbRegisterVideoMode("1600x1200x16",1600,1200, 16, Lb_VF_TRUCOLOR);
-    LbRegisterVideoMode("1600x1200x24",1600,1200, 24, Lb_VF_RGBCOLOR);
+    LbRegisterVideoMode("INVALID",    0,    0,  Lb_VF_DEFAULT);
+    LbRegisterVideoMode("320x200",  320,  200, Lb_VF_RGBCOLOR);
+    LbRegisterVideoMode("320x240",  320,  240, Lb_VF_RGBCOLOR);
+    LbRegisterVideoMode("512x384",  512,  384, Lb_VF_RGBCOLOR);
+    LbRegisterVideoMode("640x400",  640,  400, Lb_VF_RGBCOLOR);
+    LbRegisterVideoMode("640x480",  640,  480, Lb_VF_RGBCOLOR);
+    LbRegisterVideoMode("800x600",  800,  600, Lb_VF_RGBCOLOR);
+    LbRegisterVideoMode("1024x768",1024,  768, Lb_VF_RGBCOLOR);
+    LbRegisterVideoMode("1280x1024",1280,1024, Lb_VF_RGBCOLOR);
+    LbRegisterVideoMode("1600x1200",1600,1200, Lb_VF_RGBCOLOR);
 }
 
 TbResult LbScreenInitialize(void)
 {
     char buf[32];
+
     // Clear global variables
     lbScreenInitialized = false;
     lbScreenWindow = NULL;
     lbDoubleBufferingRequested = false;
     lbAppActive = true;
     LbMouseChangeMoveRatio(256, 256);
+
     // Register default video modes
     if (lbScreenModeInfoNum == 0) {
         LbRegisterStandardVideoModes();
     }
+
     // SDL environment variables
     if (lbVideoDriver[0] != '\0') {
         sprintf(buf,"SDL_VIDEODRIVER=%s",lbVideoDriver);
         putenv(buf);
     }
+
     // Initialize SDL library
     if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE|SDL_INIT_AUDIO) < 0) {
         ERRORLOG("SDL init: %s",SDL_GetError());
         return Lb_FAIL;
     }
+
     // Setup the atexit() call to un-initialize
     atexit(SDL_Quit);
     return Lb_SUCCESS;
@@ -457,7 +445,7 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
     if ( !LbScreenIsModeAvailable(modeIndex) )
     {
         ERRORLOG("%s resolution %dx%d (modeIndex %d) not available",
-            (mdinfo->VideoFlags & Lb_VF_WINDOWED)?"Windowed":"Full screen",
+            (mdinfo->VideoFlags & Lb_VF_WINDOWED) ? "Windowed" : "Full screen",
             (int)mdinfo->Width,(int)mdinfo->Height,(int)modeIndex);
         return Lb_FAIL;
     }
@@ -861,63 +849,79 @@ TbScreenMode LbRecogniseVideoModeString(const char *desc)
     return Lb_SCREEN_MODE_INVALID;
 }
 
-TbScreenMode LbRegisterVideoMode(const char *desc, TbScreenCoord width, TbScreenCoord height,
-    unsigned short bpp, unsigned long flags)
+TbScreenMode LbRegisterVideoMode(const char *describe, TbScreenCoord width, TbScreenCoord height, unsigned long flags)
 {
     TbScreenModeInfo *mdinfo;
-    TbScreenMode mode;
-    mode = LbRecogniseVideoModeString(desc);
-    if (mode != Lb_SCREEN_MODE_INVALID)
+    TbScreenMode modeIndex;
+    modeIndex = LbRecogniseVideoModeString(describe);
+
+    // Found mode with same description already registered.
+    if (modeIndex != Lb_SCREEN_MODE_INVALID)
     {
-        mdinfo = &lbScreenModeInfo[mode];
-        if ((mdinfo->Width == width) && (mdinfo->Height == height) && (mdinfo->BitsPerPixel == bpp))
+        mdinfo = &lbScreenModeInfo[modeIndex];
+
+        // Check if parameters really match.
+        if ((mdinfo->Width == width) && (mdinfo->Height == height))
         {
-            // Mode is already registered
-            return mode;
+            // modeIndex is already registered
+            return modeIndex;
         }
-        // Mode with same name but different params is registered
+        else
+        {
+            // modeIndex with same name but different params is registered
 #ifdef __DEBUG
-        LbWarnLog("%s: Mode with same name but different params is registered, cannot register %dx%dx%d\n",__func__, (int)width, (int)height, (int)bpp);
+            LbWarnLog("%s: modeIndex with same name but different params is registered, cannot register %dx%dx%d\n", __func__, (int)width, (int)height, (int)bpp);
 #endif
-        return Lb_SCREEN_MODE_INVALID;
+            return Lb_SCREEN_MODE_INVALID;
+        }
     }
-    if (lbScreenModeInfoNum >= sizeof(lbScreenModeInfo)/sizeof(lbScreenModeInfo[0]))
+
+    if (lbScreenModeInfoNum >= SCREEN_MODES_COUNT)
     {
-        // No free mode slots
+        // No free modeIndex slots
         return Lb_SCREEN_MODE_INVALID;
     }
-    // Insert new mode to array
-    mode = lbScreenModeInfoNum;
+
+    // Insert new modeIndex to array
+    modeIndex = lbScreenModeInfoNum;
     lbScreenModeInfoNum++;
-    mdinfo = &lbScreenModeInfo[mode];
-    // Fill the mode content
+    mdinfo = &lbScreenModeInfo[modeIndex];
+
+    // Fill the modeIndex content
     memset(mdinfo, 0, sizeof(TbScreenModeInfo));
     mdinfo->Width = width;
     mdinfo->Height = height;
-    mdinfo->BitsPerPixel = bpp;
+    mdinfo->BitsPerPixel = 32;
     mdinfo->Available = false;
     mdinfo->VideoFlags = flags;
-    strncpy(mdinfo->Desc,desc,sizeof(mdinfo->Desc));
-    return mode;
+    strncpy(mdinfo->Desc, describe, sizeof(mdinfo->Desc));
+
+    return modeIndex;
 }
 
 TbScreenMode LbRegisterVideoModeString(const char *desc)
 {
-    int width, height;
-    int bpp;
+    // TODO HeM remove the last %d(bpp) in pattern when config window is updated.
+    // TODO mefistotelis remove the 'x' or 'w' part for each resolution, instead make a unified setting.
+
+    int width, height, bpp;
     unsigned long flags;
     int ret;
     {
-        width = 0; height = 0; bpp = 0; flags = Lb_VF_DEFAULT;
-        ret = sscanf(desc," %d x %d x %d", &width, &height, &bpp);
+        width = 0; height = 0; flags = Lb_VF_DEFAULT;
+        ret = sscanf(desc, " %d x %d x %d", &width, &height, &bpp);
     }
+
+    // if matches pattern  %d x %d x %d
     if (ret != 3)
     {
         // pattern not matched - maybe it's windowed mode
-        width = 0; height = 0; bpp = 0; flags = Lb_VF_DEFAULT;
-        ret = sscanf(desc," %d x %d w %d", &width, &height, &bpp);
+        width = 0; height = 0; flags = Lb_VF_DEFAULT;
+        ret = sscanf(desc, " %d x %d w %d", &width, &height, &bpp);
         flags |= Lb_VF_WINDOWED;
     }
+
+    // if matches pattern  %d x %d w %d
     if (ret != 3)
     {
         // Cannot recognize parameters in mode
@@ -926,16 +930,10 @@ TbScreenMode LbRegisterVideoModeString(const char *desc)
 #endif
         return Lb_SCREEN_MODE_INVALID;
     }
-    if (bpp < 9) {
-        flags |= Lb_VF_PALETTE;
-    } else
-    if ((bpp == 24) || (bpp = 32)) {
-        flags |= Lb_VF_RGBCOLOR;
-    } else
-    {
-        flags |= Lb_VF_TRUCOLOR;
-    }
-    return LbRegisterVideoMode(desc, width, height, bpp, flags);
+
+    flags |= Lb_VF_RGBCOLOR;
+
+    return LbRegisterVideoMode(desc, width, height, flags);
 }
 
 TbPixel LbPaletteFindColour(const unsigned char *pal, unsigned char r, unsigned char g, unsigned char b)
