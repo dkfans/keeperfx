@@ -226,33 +226,33 @@ void frontend_campaign_select_maintain(struct GuiButton *gbtn)
 
 void frontend_draw_campaign_select_button(struct GuiButton *gbtn)
 {
-  struct GameCampaign *campgn;
-  long btn_idx;
-  long i;
-  if (gbtn == NULL)
-    return;
-  btn_idx = (long)gbtn->content;
-  i = select_campaign_scroll_offset + btn_idx-45;
-  campgn = NULL;
-  if ((i >= 0) && (i < campaigns_list.items_num))
-    campgn = &campaigns_list.items[i];
-  if (campgn == NULL)
-    return;
-  if ((btn_idx > 0) && (frontend_mouse_over_button == btn_idx))
-    i = 2;
-  else
-/*  if (campaign has been passed)
-    i = 3;
-  else*/
-    i = 1;
-  lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
-  LbTextSetFont(frontend_font[i]);
-  int tx_units_per_px;
-  // This text is a bit condensed - button size is smaller than text height
-  tx_units_per_px = (gbtn->height*13/11) * 16 / LbTextLineHeight();
-  i = LbTextLineHeight() * tx_units_per_px / 16;
-  LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, i);
-  LbTextDrawResized(0, 0, tx_units_per_px, campgn->name);
+    struct GameCampaign *campgn;
+    long btn_idx;
+    long i;
+    if (gbtn == NULL)
+      return;
+    btn_idx = (long)gbtn->content;
+    i = select_campaign_scroll_offset + btn_idx-45;
+    campgn = NULL;
+    if ((i >= 0) && (i < campaigns_list.items_num))
+      campgn = &campaigns_list.items[i];
+    if (campgn == NULL)
+      return;
+    if ((btn_idx > 0) && (frontend_mouse_over_button == btn_idx))
+      i = 2;
+    else
+/*    if (campaign has been passed)
+      i = 3;
+    else*/
+      i = 1;
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+    LbTextSetFont(frontend_font[i]);
+    int tx_units_per_px;
+    // This text is a bit condensed - button size is smaller than text height
+    tx_units_per_px = (gbtn->height*13/11) * 16 / LbTextLineHeight();
+    i = LbTextLineHeight() * tx_units_per_px / 16;
+    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, i);
+    LbTextDrawResized(0, 0, tx_units_per_px, campgn->name);
 }
 
 void frontend_campaign_select(struct GuiButton *gbtn)
