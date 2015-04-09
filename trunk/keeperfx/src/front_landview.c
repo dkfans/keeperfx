@@ -963,12 +963,25 @@ TbBool frontnetmap_load(void)
     wait_for_cd_to_be_available();
     frontend_load_data_from_cd();
     game.selected_level_number = 0;
+    switch (campaign.land_markers)
+    {
+    case LndMk_PINPOINTS:
+        strcpy(netmap_flag_load_files[0].FName, "ldata/netflag_pin.dat");
+        strcpy(netmap_flag_load_files[1].FName, "ldata/netflag_pin.tab");
+        break;
+    default:
+        ERRORLOG("Unsupported land markers type %d",(int)campaign.land_markers);
+        // No break
+    case LndMk_ENSIGNS:
+        strcpy(netmap_flag_load_files[0].FName, "ldata/netflag_ens.dat");
+        strcpy(netmap_flag_load_files[1].FName, "ldata/netflag_ens.tab");
+        break;
+    }
     if (!load_map_and_window(0))
     {
         frontend_load_data_reset();
         return false;
     }
-    // TODO load different files depending on campaign campgn->land_markers setting
     if (LbDataLoadAll(netmap_flag_load_files))
     {
       ERRORLOG("Unable to load MAP SCREEN sprites");
@@ -1080,8 +1093,6 @@ TbBool frontmap_update_zoom(void)
 
 TbBool frontmap_load(void)
 {
-    struct PlayerInfo *player;
-    LevelNumber lvnum;
     SYNCDBG(4,"Starting");
     LbMemorySet(scratch, 0, PALETTE_SIZE);
     LbPaletteSet(scratch);
@@ -1089,13 +1100,27 @@ TbBool frontmap_load(void)
     mouse_over_lvnum = SINGLEPLAYER_NOTSTARTED;
     wait_for_cd_to_be_available();
     frontend_load_data_from_cd();
+    switch (campaign.land_markers)
+    {
+    case LndMk_PINPOINTS:
+        strcpy(map_flag_load_files[0].FName, "ldata/lndflag_pin.dat");
+        strcpy(map_flag_load_files[1].FName, "ldata/lndflag_pin.tab");
+        break;
+    default:
+        ERRORLOG("Unsupported land markers type %d",(int)campaign.land_markers);
+        // No break
+    case LndMk_ENSIGNS:
+        strcpy(map_flag_load_files[0].FName, "ldata/lndflag_ens.dat");
+        strcpy(map_flag_load_files[1].FName, "ldata/lndflag_ens.tab");
+        break;
+    }
+    LevelNumber lvnum;
     lvnum = get_continue_level_number();
     if (!load_map_and_window(lvnum))
     {
         frontend_load_data_reset();
         return false;
     }
-    // TODO load different files depending on campaign campgn->land_markers setting
     if (LbDataLoadAll(map_flag_load_files))
     {
         ERRORLOG("Unable to load Land View Screen sprites");
@@ -1105,6 +1130,7 @@ TbBool frontmap_load(void)
     LbSpriteSetupAll(map_flag_setup_sprites);
     frontend_load_data_reset();
     PlayMusicPlayer(2);
+    struct PlayerInfo *player;
     player = get_my_player();
     lvnum = get_continue_level_number();
     if ((player->flgfield_6 & PlaF6_PlyrHasQuit) != 0)
