@@ -27,8 +27,6 @@
 #include "bflib_vidraw.h"
 
 /******************************************************************************/
-DLLIMPORT void _DK_trig(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c);
-/******************************************************************************/
 #pragma pack(1)
 
 enum RenderingStartType {
