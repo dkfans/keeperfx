@@ -199,6 +199,8 @@ struct DisplayStruct {
         long RMouseY;
         ushort DrawFlags;
         short MouseMoveRatio; // was ushort OldVideoMode; but wasn't needed
+
+        // Actual Screen Mode of the lbDrawTexture, can be same as mode in setting, or 320*200 for playing movie.
         ushort ScreenMode;
 
         /** VESA set-up flag, used only with VBE video modes. */
@@ -273,8 +275,7 @@ extern unsigned char lbPalette[PALETTE_SIZE];
 /******************************************************************************/
 TbResult LbScreenHardwareConfig(const char *driver, short engine_bpp);
 TbResult LbScreenInitialize(void);
-TbResult LbScreenSetDoubleBuffering(TbBool state);
-TbBool LbScreenIsDoubleBufferred(void);
+
 TbResult LbScreenSetup(TbScreenMode mode, unsigned char *palette, short buffers_count, TbBool wscreen_vid);
 TbResult LbScreenReset(TbBool resetMainWindow);
 

@@ -47,13 +47,10 @@ volatile TbBool lbScreenInitialized = false;
  * can be 8 or 4
  * On any try of entering different video BPP, this mode will be emulated. 
  * see https://wiki.libsdl.org/SDL_CreateRGBSurface#Remarks */
-volatile unsigned short lbSurfaceDepth = 8;
+volatile unsigned short lbPalettedSurfaceColorDepth = 8;
 
 /** Informs if the application window is active (focused on screen). */
 extern volatile TbBool lbAppActive;
-
-/** True if we request the double buffering to be on in next mode switch. */
-TbBool lbDoubleBufferingRequested;
 
 /** Name of the video driver to be used. Must be set before LbScreenInitialize().
  * Under Win32 and with SDL2.0, the only choice is 'windows'. */
@@ -340,7 +337,6 @@ TbResult LbScreenInitialize(void)
     // Clear global variables
     lbScreenInitialized = false;
     lbScreenWindow = NULL;
-    lbDoubleBufferingRequested = false;
     lbAppActive = true;
     LbMouseChangeMoveRatio(256, 256);
 
@@ -489,7 +485,7 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
     // Set the logical screen size as video mode specified.
     SDL_RenderSetLogicalSize(lbGameRenderer, mdinfo->Width, mdinfo->Height);
 
-    lbPalettedSurface = SDL_CreateRGBSurface(0/*obselete flag*/, mdinfo->Width, mdinfo->Height, lbSurfaceDepth, 0, 0, 0, 0);
+    lbPalettedSurface = SDL_CreateRGBSurface(0/*obselete flag*/, mdinfo->Width, mdinfo->Height, lbPalettedSurfaceColorDepth, 0, 0, 0, 0);
     if (lbPalettedSurface == NULL)
     {
         ERRORLOG("Can't create paletted surface: %s", SDL_GetError());
@@ -513,7 +509,7 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
     lbDisplay.WScreen = NULL;
     lbDisplay.GraphicsWindowPtr = NULL;
 
-    SYNCLOG("Mode %dx%dx%d setup succeeded", (int)mdinfo->Width, (int)mdinfo->Height, (int)lbSurfaceDepth);
+    SYNCLOG("Mode %d x %d setup succeeded", (int)mdinfo->Width, (int)mdinfo->Height);
 
     if (palette != NULL)
     {
@@ -664,14 +660,17 @@ TbResult LbScreenHardwareConfig(const char *driver, short engine_bpp)
         strcpy(lbVideoDriver,driver);
     }
     if (engine_bpp != 0)
-        lbSurfaceDepth = engine_bpp;
+        lbPalettedSurfaceColorDepth = engine_bpp;
     return Lb_SUCCESS;
 }
 
 TbScreenModeInfo *LbScreenGetModeInfo(TbScreenMode mode)
 {
     if (mode < lbScreenModeInfoNum)
-      return &lbScreenModeInfo[mode];
+    {
+        return &lbScreenModeInfo[mode];
+    }
+
     return &lbScreenModeInfo[0];
 }
 
@@ -808,34 +807,6 @@ TbBool LbScreenIsModeAvailable(TbScreenMode mode)
   }
   mdinfo = LbScreenGetModeInfo(mode);
   return mdinfo->Available;
-}
-
-/** Allows to change recommended state of double buffering function.
- *  Double buffering is a technique where two graphics surfaces are used,
- *  and every screen redraw (flip) switches the primary and secondary surface.
- *  This may produce smoother motion on some platforms, but it forces
- *  the screen to be redrawn completely after each switch - if only
- *  changed areas were to be updated, they would have to be updated on both
- *  surfaces.
- *
- * @param state Recommended state of Double Buffering in next video mode switch.
- * @return Lb_SUCCESS if the request has been noted and stored.
- */
-TbResult LbScreenSetDoubleBuffering(TbBool state)
-{
-    lbDoubleBufferingRequested = state;
-    return Lb_SUCCESS;
-}
-
-/** Retrieves actual state of the Double Buffering function.
- *  Note that if the function was requested, it still doesn't necessarily
- *  mean it was activated.
- *
- * @return True if the function is currently active, false otherwise.
- */
-TbBool LbScreenIsDoubleBufferred(void)
-{
-    return false;//TODO HeM((lbScreenWindow->flags & SDL_DOUBLEBUF) != 0);
 }
 
 TbScreenMode LbRecogniseVideoModeString(const char *desc)

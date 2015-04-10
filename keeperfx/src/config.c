@@ -617,7 +617,7 @@ short load_configuration(void)
                 }
                 break;
             case 7: // INGAME_RES
-                for (i = 0; i < 6; i++)
+                for (i = 0; i < 5; i++)
                 {
                     if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                     {
@@ -636,15 +636,21 @@ short load_configuration(void)
                     }
                     else
                     {
-                        // Register invalid mode when failed to read valid one from config.
+                        // Register invalid mode as 'end of list' flag when failed to read valid one from config.
                         if (i > 0)
+                        {
                             register_vidmode_index_for_switching(i, Lb_SCREEN_MODE_INVALID);
+                        }
                         else
+                        {
                             CONFWRNLOG("Video modes list empty in \"%s\" command of %s file.",
-                            COMMAND_TEXT(cmd_num), config_textname);
+                                COMMAND_TEXT(cmd_num), config_textname);
+                        }
+
                         break;
                     }
                 }
+
                 break;
             case 8: // CENSORSHIP
                 i = recognize_conf_parameter(buf, &pos, len, logicval_type);

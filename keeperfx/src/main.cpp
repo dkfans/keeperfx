@@ -4014,6 +4014,7 @@ void faststartup_network_game(void)
 {
     struct PlayerInfo *player;
     SYNCDBG(3,"Starting");
+
     reenter_video_mode();
     my_player_number = default_loc_player;
     game.game_kind = GKind_LocalGame;
@@ -4463,7 +4464,6 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     retval &= (LbScreenInitialize() != Lb_FAIL);
     LbSetTitle(PROGRAM_NAME);
     LbSetIcon(1);
-    LbScreenSetDoubleBuffering(true);
     srand(LbTimerClock());
     if (!retval)
     {

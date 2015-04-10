@@ -50,17 +50,16 @@ extern "C" {
 #endif
 /******************************************************************************/
 TbScreenMode switching_vidmodes[] = {
-  Lb_SCREEN_MODE_320_200,
-  Lb_SCREEN_MODE_640_480,
-  Lb_SCREEN_MODE_INVALID,
-  Lb_SCREEN_MODE_INVALID,
-  Lb_SCREEN_MODE_INVALID,
-  Lb_SCREEN_MODE_INVALID,
-  };
+    Lb_SCREEN_MODE_640_400,
+    Lb_SCREEN_MODE_INVALID,
+    Lb_SCREEN_MODE_INVALID,
+    Lb_SCREEN_MODE_INVALID,
+    Lb_SCREEN_MODE_INVALID,
+    };
 
-TbScreenMode failsafe_vidmode = Lb_SCREEN_MODE_640_480;
+TbScreenMode failsafe_vidmode = Lb_SCREEN_MODE_640_400;
 TbScreenMode movies_vidmode = Lb_SCREEN_MODE_320_200;
-TbScreenMode frontend_vidmode = Lb_SCREEN_MODE_640_480;
+TbScreenMode frontend_vidmode = Lb_SCREEN_MODE_640_400;
 
 //struct IPOINT_2D units_per_pixel;
 unsigned short units_per_pixel_min;
@@ -218,10 +217,12 @@ void register_vidmode_index_for_switching(unsigned short i,unsigned short nmode)
     switching_vidmodes[i] = (TbScreenMode)nmode;
 }
 
-TbScreenMode validate_vidmode(unsigned short mode)
+// Search for given mode in switching mode list,
+// In case it is not in the list or is not supported, return failsafe mode. 
+TbScreenMode validate_vidmode_in_switching_list(unsigned short mode)
 {
     int i;
-    int maxmodes = sizeof(switching_vidmodes) / sizeof(TbScreenMode);
+    int modeCount = sizeof(switching_vidmodes) / sizeof(TbScreenMode);
 
     // Do not allow to enter higher modes on low memory systems
     if ((features_enabled & Ft_HiResVideo) == 0)
@@ -229,14 +230,16 @@ TbScreenMode validate_vidmode(unsigned short mode)
         return failsafe_vidmode;
     }
 
-    for (i=0; i < maxmodes; i++)
+    for (i = 0; i < modeCount; i++)
     {
         if (switching_vidmodes[i] == mode)
         {
             return switching_vidmodes[i];
         }
     }
-    return failsafe_vidmode;
+
+    // try return first mode in list, not failsafe.
+    return switching_vidmodes[0];
 }
 
 TbScreenMode get_failsafe_vidmode(void)
@@ -550,7 +553,7 @@ void init_colours(void)
     init_whitepal_table();
 }
 
-char *get_vidmode_name(unsigned short mode)
+char *get_vidmode_description(unsigned short mode)
 {
   TbScreenModeInfo *mdinfo;
   mdinfo = LbScreenGetModeInfo(mode);
@@ -846,35 +849,38 @@ TbBool setup_screen_mode_zero(unsigned short nmode)
 
 TbScreenMode reenter_video_mode(void)
 {
- TbScreenMode scrmode;
- scrmode=validate_vidmode(settings.video_scrnmode);
+    TbScreenMode scrmode;
+    scrmode = validate_vidmode_in_switching_list(settings.video_scrnmode);
+    SYNCDBG(8, "reentering video %d -> %d .", settings.video_scrnmode, (int)scrmode);
 
- if ( setup_screen_mode(scrmode) )
-  {
-      settings.video_scrnmode = scrmode;
-  } else
-  {
-      SYNCLOG("Can't enter %s (mode %d), falling to failsafe mode",
-          get_vidmode_name(scrmode),(int)scrmode);
-      scrmode=get_failsafe_vidmode();
-      if ( !setup_screen_mode(scrmode) )
-      {
-        FatalError = 1;
-        exit_keeper = 1;
-        return Lb_SCREEN_MODE_INVALID;
-      }
-      settings.video_scrnmode = scrmode;
-      save_settings();
-  }
+    if (setup_screen_mode(scrmode))
+    {
+        settings.video_scrnmode = scrmode;
+    }
+    else
+    {
+        SYNCLOG("Can't enter %s (mode %d), falling to failsafe mode.", get_vidmode_description(scrmode), (int)scrmode);
+        scrmode = get_failsafe_vidmode();
+        if (!setup_screen_mode(scrmode))
+        {
+            SYNCLOG("Can't enter failsafe mode, exiting game.");
+            FatalError = 1;
+            exit_keeper = 1;
+            return Lb_SCREEN_MODE_INVALID;
+        }
+        settings.video_scrnmode = scrmode;
+        save_settings();
+    }
 
-  SYNCLOG("Switched video to %s (mode %d)", get_vidmode_name(scrmode),(int)scrmode);
-  return scrmode;
+    SYNCLOG("reentered video to %s (mode %d).", get_vidmode_description(scrmode), (int)scrmode);
+    return scrmode;
 }
 
 TbScreenMode switch_to_next_video_mode(void)
 {
     TbScreenMode scrmode;
     scrmode = get_next_vidmode_for_switching(lbDisplay.ScreenMode);
+    SYNCDBG(8, "get_next_vidmode_for_switching %d -> %d", lbDisplay.ScreenMode, scrmode);
 
     // Don't do anything if there is only one screen mode registered, or failed to get any valid mode.
     if ((scrmode != lbDisplay.ScreenMode) &&
@@ -890,17 +896,18 @@ TbScreenMode switch_to_next_video_mode(void)
         else
         {
             SYNCLOG("Can't enter %s (mode %d), falling to failsafe mode",
-                get_vidmode_name(scrmode), (int)scrmode);
+                get_vidmode_description(scrmode), (int)scrmode);
             scrmode = get_failsafe_vidmode();
             if (!setup_screen_mode(scrmode))
             {
+                SYNCLOG("Can't enter failsafe mode, exiting game.");
                 FatalError = 1;
                 exit_keeper = 1;
                 return Lb_SCREEN_MODE_INVALID;
             }
             settings.video_scrnmode = scrmode;
         }
-        SYNCLOG("Switched video to %s (mode %d)", get_vidmode_name(scrmode), (int)scrmode);
+        SYNCLOG("Switched video to %s (mode %d)", get_vidmode_description(scrmode), (int)scrmode);
         save_settings();
         reinit_all_menus();
     }

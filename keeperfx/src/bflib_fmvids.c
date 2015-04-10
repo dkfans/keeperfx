@@ -537,8 +537,7 @@ short play_smk_(char *fname, int smkflags, int plyflags)
     short result;
     lbDisplay.LeftButton = 0;
     if ( (smack_draw_callback != NULL) || ((plyflags & SMK_PixelDoubleWidth) != 0)
-        || ((plyflags & SMK_InterlaceLine) != 0) || ((plyflags & SMK_PixelDoubleLine) != 0)
-        || (LbScreenIsDoubleBufferred()) )
+        || ((plyflags & SMK_InterlaceLine) != 0) || ((plyflags & SMK_PixelDoubleLine) != 0))
       result = play_smk_via_buffer(fname, smkflags, plyflags);
     else
       result = play_smk_direct(fname, smkflags, plyflags);
