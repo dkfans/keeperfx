@@ -745,7 +745,7 @@ TbBool draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, MapSubt
     SYNCDBG(5,"Starting for power %d",(int)pwkind);
     if (pwkind <= 0)
     {
-        set_pointer_graphic(0);
+        set_pointer_graphic(MousePG_Unkn00);
         return false;
     }
     player = get_my_player();
@@ -756,7 +756,7 @@ TbBool draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, MapSubt
     allow_cast = can_cast_spell(player->id_number, pwkind, stl_x, stl_y, thing, CastChk_SkipThing);
     if (!allow_cast)
     {
-        set_pointer_graphic(15);
+        set_pointer_graphic(MousePG_Unkn15);
         return false;
     }
     chkfunc = powerst->overcharge_check;
@@ -765,7 +765,7 @@ TbBool draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, MapSubt
         if (chkfunc())
         {
             i = get_power_overcharge_level(player);
-            set_pointer_graphic(16+i);
+            set_pointer_graphic(MousePG_Unkn16+i);
             pwrdynst = get_power_dynamic_stats(pwkind);
             draw_spell_cost = pwrdynst->cost[i];
             return true;
@@ -784,22 +784,22 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
     dungeon = get_dungeon(player->id_number);
     if (dungeon_invalid(dungeon))
     {
-        set_pointer_graphic(0);
+        set_pointer_graphic(MousePG_Unkn00);
         return;
     }
     // During fade
     if (player->instance_num == PI_MapFadeFrom)
     {
-        set_pointer_graphic(0);
+        set_pointer_graphic(MousePG_Unkn00);
         return;
     }
     // Mouse over panel map
     if (((game.numfield_C & 0x20) != 0) && mouse_is_over_pannel_map(player->minimap_pos_x, player->minimap_pos_y))
     {
         if (game.small_map_state == 2) {
-            set_pointer_graphic(0);
+            set_pointer_graphic(MousePG_Unkn00);
         } else {
-            set_pointer_graphic(1);
+            set_pointer_graphic(MousePG_Unkn01);
         }
         return;
     }
@@ -817,14 +817,14 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
             draw_spell_cursor(player->work_state, battle_creature_over, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
         } else
         {
-            set_pointer_graphic(1);
+            set_pointer_graphic(MousePG_Unkn01);
         }
         return;
     }
     // GUI action being processed
     if (game_is_busy_doing_gui())
     {
-        set_pointer_graphic(1);
+        set_pointer_graphic(MousePG_Unkn01);
         return;
     }
     switch (player->work_state)
@@ -837,10 +837,10 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         switch (i)
         {
         case P454_Unkn1:
-            set_pointer_graphic(2);
+            set_pointer_graphic(MousePG_Unkn02);
             break;
         case P454_Unkn2:
-            set_pointer_graphic(39);
+            set_pointer_graphic(MousePG_Unkn39);
             break;
         case P454_Unkn3:
             thing = thing_get(player->thing_under_hand);
@@ -852,29 +852,29 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
                     // The condition above makes can_cast_spell() within draw_spell_cursor() to never fail; this is intentional
                     draw_spell_cursor(PSt_CtrlDirect, 0, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
                 } else {
-                    set_pointer_graphic(1);
+                    set_pointer_graphic(MousePG_Unkn01);
                 }
                 player->flgfield_6 |= PlaF6_Unknown01;
             } else
             if (((player->field_5) && !thing_is_invalid(thing)) && (dungeon->things_in_hand[0] != player->thing_under_hand)
                 && can_thing_be_queried(thing, player->id_number))
             {
-                set_pointer_graphic(4);
+                set_pointer_graphic(MousePG_Unkn04);
                 player->flgfield_6 |= PlaF6_Unknown01;
             } else
             {
                 if ((player->field_3 & 0x02) != 0) {
-                  set_pointer_graphic(2);
+                  set_pointer_graphic(MousePG_Unkn02);
                 } else {
-                  set_pointer_graphic(0);
+                  set_pointer_graphic(MousePG_Unkn00);
                 }
             }
             break;
         default:
             if (player->hand_busy_until_turn <= game.play_gameturn)
-              set_pointer_graphic(1);
+              set_pointer_graphic(MousePG_Unkn01);
             else
-              set_pointer_graphic(0);
+              set_pointer_graphic(MousePG_Unkn00);
             break;
         }
         break;
@@ -884,7 +884,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         break;
     case PSt_HoldInHand:
     case PSt_Slap:
-        set_pointer_graphic(0);
+        set_pointer_graphic(MousePG_Unkn00);
         break;
     case PSt_CallToArms:
     case PSt_CaveIn:
@@ -909,7 +909,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         break;
     case PSt_CreatrQuery:
     case PSt_CreatrInfo:
-        set_pointer_graphic(4);
+        set_pointer_graphic(MousePG_Unkn04);
         break;
     case PSt_PlaceTrap:
         i = get_place_trap_pointer_graphics(player->chosen_trap_kind);
@@ -920,10 +920,10 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         set_pointer_graphic(i);
         break;
     case PSt_Sell:
-        set_pointer_graphic(3);
+        set_pointer_graphic(MousePG_Unkn03);
         break;
     default:
-        set_pointer_graphic(1);
+        set_pointer_graphic(MousePG_Unkn01);
         break;
     }
 }
@@ -942,14 +942,14 @@ void process_pointer_graphic(void)
     case PVT_CreatureContrl:
     case PVT_CreaturePasngr:
         if ((game.numfield_D & 0x08) != 0)
-          set_pointer_graphic(1);
+          set_pointer_graphic(MousePG_Unkn01);
         else
-          set_pointer_graphic(0);
+          set_pointer_graphic(MousePG_Unkn00);
         break;
     case PVT_MapScreen:
     case PVT_MapFadeIn:
     case PVT_MapFadeOut:
-        set_pointer_graphic(1);
+        set_pointer_graphic(MousePG_Unkn01);
         break;
     case PVT_None:
         set_pointer_graphic_none();
