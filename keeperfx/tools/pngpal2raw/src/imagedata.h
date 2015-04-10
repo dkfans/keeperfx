@@ -14,7 +14,8 @@ using namespace __gnu_cxx;
 
 #include <png.h>
 
-#define ADDITIONAL_DATA_LEN 16
+// Needs to be greater than max(sizeof(struct JontySpriteV1),sizeof(struct JontySpriteV2))
+#define ADDITIONAL_DATA_LEN 32
 
 class ProgramOptions;
 
