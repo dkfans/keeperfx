@@ -26,6 +26,8 @@ enum {
     OutFmt_HSPR,
     OutFmt_SSPR,
     OutFmt_JSPR,
+    OutFmt_SSPR2,
+    OutFmt_JSPR2,
 };
 
 enum {
