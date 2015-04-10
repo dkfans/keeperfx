@@ -77,12 +77,12 @@ TbScreenMode switch_to_next_video_mode(void);
 void register_vidmode_index_for_switching(unsigned short i,unsigned short nmode);
 TbScreenMode reenter_video_mode(void);
 TbScreenMode get_next_vidmode_for_switching(unsigned short mode);
-TbScreenMode validate_vidmode(unsigned short mode);
+TbScreenMode validate_vidmode_in_switching_list(unsigned short mode);
 TbScreenMode get_failsafe_vidmode(void);
 TbScreenMode get_movies_vidmode(void);
 TbScreenMode get_frontend_vidmode(void);
 void set_frontend_vidmode(unsigned short nmode);
-char *get_vidmode_name(unsigned short mode);
+char *get_vidmode_description(unsigned short mode);
 
 TbBool setup_screen_mode(unsigned short nmode);
 short setup_screen_mode_minimal(unsigned short nmode);
