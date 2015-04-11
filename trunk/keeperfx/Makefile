@@ -449,16 +449,9 @@ pkg/ldata/frontft4.dat \
 pkg/ldata/frontbit.dat
 
 ENGINEGFX = \
-pkg/data/creature.jty \
-pkg/data/frac00.raw \
-pkg/data/frac01.raw \
-pkg/data/frac02.raw \
-pkg/data/frac03.raw \
-pkg/data/frac04.raw \
-pkg/data/frac05.raw \
-pkg/data/frac06.raw \
-pkg/data/frac07.raw \
-pkg/data/frac08.raw \
+pkg/data/thingspr-32.jty \
+pkg/data/thingspr-128.jty \
+$(foreach miplv,32 128,$(foreach num,00 01 02 03 04 05 06 07 08,pkg/data/frac$(num)-$(miplv).raw)) \
 pkg/data/gui2-64.dat \
 pkg/data/gui2-32.dat \
 pkg/data/gui1-64.dat \
@@ -471,20 +464,8 @@ pkg/data/font1-64.dat \
 pkg/data/font1-32.dat \
 pkg/data/font2-32.dat \
 pkg/data/font2-64.dat \
-pkg/data/tmapa000.dat \
-pkg/data/tmapa001.dat \
-pkg/data/tmapa002.dat \
-pkg/data/tmapa003.dat \
-pkg/data/tmapa004.dat \
-pkg/data/tmapa005.dat \
-pkg/data/tmapa006.dat \
-pkg/data/tmapa007.dat \
-pkg/data/swipe01.dat \
-pkg/data/swipe02.dat \
-pkg/data/swipe03.dat \
-pkg/data/swipe04.dat \
-pkg/data/swipe05.dat \
-pkg/data/swipe06.dat \
+$(foreach miplv,32 128,$(foreach num,000 001 002 003 004 005 006 007,pkg/data/tmapa$(num)-$(miplv).dat)) \
+$(foreach miplv,32 128,$(foreach num,01 02 03 04 05 06,pkg/data/swipe$(num)-$(miplv).dat)) \
 pkg/data/gmap64.raw \
 pkg/data/gmap32.raw \
 pkg/data/gmapbug.dat
@@ -884,24 +865,28 @@ pkg/ldata/frontft2.dat: gfx/font_front_std_red-64/filelist_frontft2.txt pkg/ldat
 pkg/ldata/frontft3.dat: gfx/font_front_std_ylw-64/filelist_frontft3.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)
 pkg/ldata/frontft4.dat: gfx/font_front_std_dkr-64/filelist_frontft4.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)
 
-pkg/data/frac00.raw: gfx/textures-32/frac00.png gfx/textures-32/fract_bw.pal $(PNGTORAW) $(RNC)
-pkg/data/frac01.raw: gfx/textures-32/frac01.png gfx/textures-32/fract_bw.pal $(PNGTORAW) $(RNC)
-pkg/data/frac02.raw: gfx/textures-32/frac02.png gfx/textures-32/fract_bw.pal $(PNGTORAW) $(RNC)
-pkg/data/frac03.raw: gfx/textures-32/frac03.png gfx/textures-32/fract_bw.pal $(PNGTORAW) $(RNC)
-pkg/data/frac04.raw: gfx/textures-32/frac04.png gfx/textures-32/fract_bw.pal $(PNGTORAW) $(RNC)
-pkg/data/frac05.raw: gfx/textures-32/frac05.png gfx/textures-32/fract_bw.pal $(PNGTORAW) $(RNC)
-pkg/data/frac06.raw: gfx/textures-32/frac06.png gfx/textures-32/fract_bw.pal $(PNGTORAW) $(RNC)
-pkg/data/frac07.raw: gfx/textures-32/frac07.png gfx/textures-32/fract_bw.pal $(PNGTORAW) $(RNC)
-pkg/data/frac08.raw: gfx/textures-32/frac08.png gfx/textures-32/fract_bw.pal $(PNGTORAW) $(RNC)
+define define_gfx_texture_map_rule
+pkg/data/frac00-$(1).raw: gfx/textures-$(1)/frac00.png gfx/textures-$(1)/fract_bw.pal $(PNGTORAW) $(RNC)
+pkg/data/frac01-$(1).raw: gfx/textures-$(1)/frac01.png gfx/textures-$(1)/fract_bw.pal $(PNGTORAW) $(RNC)
+pkg/data/frac02-$(1).raw: gfx/textures-$(1)/frac02.png gfx/textures-$(1)/fract_bw.pal $(PNGTORAW) $(RNC)
+pkg/data/frac03-$(1).raw: gfx/textures-$(1)/frac03.png gfx/textures-$(1)/fract_bw.pal $(PNGTORAW) $(RNC)
+pkg/data/frac04-$(1).raw: gfx/textures-$(1)/frac04.png gfx/textures-$(1)/fract_bw.pal $(PNGTORAW) $(RNC)
+pkg/data/frac05-$(1).raw: gfx/textures-$(1)/frac05.png gfx/textures-$(1)/fract_bw.pal $(PNGTORAW) $(RNC)
+pkg/data/frac06-$(1).raw: gfx/textures-$(1)/frac06.png gfx/textures-$(1)/fract_bw.pal $(PNGTORAW) $(RNC)
+pkg/data/frac07-$(1).raw: gfx/textures-$(1)/frac07.png gfx/textures-$(1)/fract_bw.pal $(PNGTORAW) $(RNC)
+pkg/data/frac08-$(1).raw: gfx/textures-$(1)/frac08.png gfx/textures-$(1)/fract_bw.pal $(PNGTORAW) $(RNC)
 
-pkg/data/tmapa000.dat: gfx/textures-32/filelist_tmapa000.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/tmapa001.dat: gfx/textures-32/filelist_tmapa001.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/tmapa002.dat: gfx/textures-32/filelist_tmapa002.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/tmapa003.dat: gfx/textures-32/filelist_tmapa003.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/tmapa004.dat: gfx/textures-32/filelist_tmapa004.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/tmapa005.dat: gfx/textures-32/filelist_tmapa005.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/tmapa006.dat: gfx/textures-32/filelist_tmapa006.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/tmapa007.dat: gfx/textures-32/filelist_tmapa007.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/tmapa000-$(1).dat: gfx/textures-$(1)/filelist_tmapa000.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/tmapa001-$(1).dat: gfx/textures-$(1)/filelist_tmapa001.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/tmapa002-$(1).dat: gfx/textures-$(1)/filelist_tmapa002.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/tmapa003-$(1).dat: gfx/textures-$(1)/filelist_tmapa003.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/tmapa004-$(1).dat: gfx/textures-$(1)/filelist_tmapa004.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/tmapa005-$(1).dat: gfx/textures-$(1)/filelist_tmapa005.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/tmapa006-$(1).dat: gfx/textures-$(1)/filelist_tmapa006.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/tmapa007-$(1).dat: gfx/textures-$(1)/filelist_tmapa007.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+endef
+
+$(foreach miplv,32 128,$(eval $(call define_gfx_texture_map_rule,$(miplv))))
 
 pkg/data/gmap32.raw: gfx/guimap/gmap32.png pkg/data/palette.dat $(PNGTORAW) $(RNC)
 pkg/data/gmap64.raw: gfx/guimap/gmap64.png pkg/data/palette.dat $(PNGTORAW) $(RNC)
@@ -913,26 +898,33 @@ pkg/data/startfx64.raw: gfx/loading/startupfx64.png pkg/data/startfx64.pal $(PNG
 pkg/data/loading32.raw: gfx/loading/loading32.png pkg/data/loading32.pal $(PNGTORAW) $(RNC)
 pkg/data/loading64.raw: gfx/loading/loading64.png pkg/data/loading64.pal $(PNGTORAW) $(RNC)
 pkg/data/nocd.raw: gfx/loading/nocd32.png pkg/data/nocd.pal $(PNGTORAW) $(RNC)
-pkg/data/gui2-64.dat: gfx/gui2-64/filelist_gui2-64.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/gui2-32.dat: gfx/gui2-32/filelist_gui2-32.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/gui1-64.dat: gfx/gui1-64/filelist_gui1-64.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/gui1-32.dat: gfx/gui1-32/filelist_gui1-32.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
 pkg/data/pointer64.dat: gfx/pointer-64/filelist_pointer.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
 pkg/data/pointer32.dat: gfx/pointer-64/filelist_lpointer.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
 pkg/data/points64.dat: gfx/pointer-64/filelist_points.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
 pkg/data/points32.dat: gfx/pointer-64/filelist_lpoints.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/font1-64.dat: gfx/font_simp-64/filelist_font1.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/font1-32.dat: gfx/font_simp-32/filelist_font1.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/font2-32.dat: gfx/font2-32/filelist_font2.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/font2-64.dat: gfx/font2-64/filelist_font2.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/creature.jty: gfx/sprites-32/animlist.txt pkg/data/palette.dat $(PNGTORAW)
 
-pkg/data/swipe01-32.dat: gfx/swipes-32/filelist_bhandrl.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/swipe02-32.dat: gfx/swipes-32/filelist_swordrl.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/swipe03-32.dat: gfx/swipes-32/filelist_scythlr.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/swipe04-32.dat: gfx/swipes-32/filelist_sticklr.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/swipe05-32.dat: gfx/swipes-32/filelist_stickrl.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/swipe06-32.dat: gfx/swipes-32/filelist_clawsrl.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/thingspr-32.jty: gfx/sprites-32/animlist.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/thingspr-128.jty: gfx/sprites-128/animlist.txt pkg/data/palette.dat $(PNGTORAW)
+
+define define_gfx_font_n_pointers_rule
+pkg/data/gui2-$(1).dat: gfx/gui2-$(1)/filelist_gui2.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/gui1-$(1).dat: gfx/gui1-$(1)/filelist_gui1.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/font1-$(1).dat: gfx/font_simp-$(1)/filelist_font1.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/font2-$(1).dat: gfx/font2-$(1)/filelist_font2.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+endef
+
+$(foreach miplv,32 64,$(eval $(call define_gfx_font_n_pointers_rule,$(miplv))))
+
+define define_gfx_swipe_rule
+pkg/data/swipe01-$(1).dat: gfx/swipes-$(1)/filelist_bhandrl.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/swipe02-$(1).dat: gfx/swipes-$(1)/filelist_swordrl.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/swipe03-$(1).dat: gfx/swipes-$(1)/filelist_scythlr.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/swipe04-$(1).dat: gfx/swipes-$(1)/filelist_sticklr.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/swipe05-$(1).dat: gfx/swipes-$(1)/filelist_stickrl.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/swipe06-$(1).dat: gfx/swipes-$(1)/filelist_clawsrl.txt pkg/data/palette.dat $(PNGTORAW)
+endef
+
+$(foreach miplv,32 128,$(eval $(call define_gfx_swipe_rule,$(miplv))))
 
 pkg/sound/sound.dat: sfx/sound/filelist.txt $(WAVTODAT)
 pkg/sound/speech_chi.dat: sfx/speech_chi/filelist.txt $(WAVTODAT)
@@ -973,7 +965,7 @@ pkg/ldata/%.raw pkg/data/%.raw:
 pkg/ldata/%.dat pkg/data/%.dat:
 	-$(ECHO) 'Building tabulated sprites: $@'
 	@$(MKDIR) "$(@D)"
-	$(PNGTORAW) -b -o "$@" -p "$(word 2,$^)" -f sspr -l 0 "$<"
+	$(PNGTORAW) -b -o "$@" -p "$(word 2,$^)" -f sspr2 -l 0 "$<"
 	-$(RNC) "$@"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
@@ -981,7 +973,7 @@ pkg/ldata/%.dat pkg/data/%.dat:
 pkg/creatrs/%.jty pkg/data/%.jty:
 	-$(ECHO) 'Building jonty sprites: $@'
 	@$(MKDIR) "$(@D)"
-	$(PNGTORAW) -m -o "$@" -p "$(word 2,$^)" -f jspr -l 0 "$<"
+	$(PNGTORAW) -m -o "$@" -p "$(word 2,$^)" -f jspr2 -l 0 "$<"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 

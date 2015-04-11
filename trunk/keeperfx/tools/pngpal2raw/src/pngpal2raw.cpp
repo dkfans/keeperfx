@@ -1619,25 +1619,25 @@ int main(int argc, char* argv[])
         }
         break;
     case OutFmt_SSPR:
-        LogMsg("Saving SSPR file \"%s\".",opts.fname_out.c_str());
+        LogMsg("Saving SSPR1 file \"%s\".",opts.fname_out.c_str());
         if (save_smallspr_v1_file(ws, imgs, opts.fname_out, opts.fname_tab, opts) != ERR_OK) {
             return 8;
         }
         break;
     case OutFmt_SSPR2:
-        LogMsg("Saving SSPR file \"%s\".",opts.fname_out.c_str());
+        LogMsg("Saving SSPR2 file \"%s\".",opts.fname_out.c_str());
         if (save_smallspr_v2_file(ws, imgs, opts.fname_out, opts.fname_tab, opts) != ERR_OK) {
             return 8;
         }
         break;
     case OutFmt_JSPR:
-        LogMsg("Saving JSPR file \"%s\".",opts.fname_out.c_str());
+        LogMsg("Saving JSPR1 file \"%s\".",opts.fname_out.c_str());
         if (save_jontyspr_v1_file(ws, imgs, opts.fname_out, opts.fname_tab, opts) != ERR_OK) {
             return 8;
         }
         break;
     case OutFmt_JSPR2:
-        LogMsg("Saving JSPR file \"%s\".",opts.fname_out.c_str());
+        LogMsg("Saving JSPR2 file \"%s\".",opts.fname_out.c_str());
         if (save_jontyspr_v2_file(ws, imgs, opts.fname_out, opts.fname_tab, opts) != ERR_OK) {
             return 8;
         }
