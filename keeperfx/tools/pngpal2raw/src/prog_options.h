@@ -20,14 +20,17 @@ enum {
     ERR_LIMIT_EXCEED= -6, // static limit exceeded
 };
 
+/**
+ * Stores possible output formats selected by command line parameters.
+ */
 enum {
-    OutFmt_BMP = 0,
-    OutFmt_RAW,
-    OutFmt_HSPR,
-    OutFmt_SSPR,
-    OutFmt_JSPR,
-    OutFmt_SSPR2,
-    OutFmt_JSPR2,
+    OutFmt_BMP = 0,//!< Microsoft Bitmap BMP file
+    OutFmt_RAW,    //!< Simple RAW data with no header
+    OutFmt_HSPR,   //!< Bullfrog Huge Sprite format, single sprite with RLE-encoded transparency
+    OutFmt_SSPR,   //!< Bullfrog Small Sprite format, sprite catalogue of size up to 255x255 with RLE-encoded transparency
+    OutFmt_JSPR,   //!< Bullfrog Jonty Sprite format, sprite catalogue like SSPR but with additional properties for each sprite
+    OutFmt_SSPR2,  //!< KeeperFX variation (version 2) of Small Sprite format, with 16-bit sprite dimensions
+    OutFmt_JSPR2,  //!< KeeperFX variation (version 2) of Jonty Sprite format, with 16-bit sprite dimensions
 };
 
 enum {
