@@ -32,36 +32,43 @@ class MouseStateHandler {
  public:
     MouseStateHandler(void);
     virtual ~MouseStateHandler(void);
+
     bool Install(void);
     bool IsInstalled(void);
     bool Release(void);
-    struct TbPoint *GetPosition(void);
+
+    bool SetMouseWindow(long x, long y, long width, long height);
     bool SetMousePosition(long x, long y);
-    bool SetPosition(long x, long y);
-    struct TbSprite *GetPointer(void);
-    bool SetMousePointerAndOffset(struct TbSprite *mouseSprite, long x, long y);
-    bool SetMousePointer(struct TbSprite *mouseSprite);
-    bool SetPointerOffset(long x, long y);
-    struct TbPoint *GetPointerOffset(void);
-    bool SetMouseWindow(long x, long y,long width, long height);
-    bool GetMouseWindow(struct TbRect *windowRect);
+
+    bool SetMouseSpriteAndOffset(struct TbSprite *mouseSprite, long x, long y);
+    bool SetMouseSprite(struct TbSprite *mouseSprite);
+    bool SetMouseSpriteOffset(long x, long y);
+
+    struct TbPoint *GetMouseSpriteOffset(void);
+
     bool PointerBeginSwap(void);
     bool PointerEndSwap(void);
+
  protected:
-    bool SetPointer(struct TbSprite *spr, struct TbPoint *pt);
-    // Properties
-    LbSemaphore semaphore;
-    bool installed;
-    struct TbSprite *mssprite;
-    struct TbPoint mspos;
-    struct TbPoint hotspot;
-    class LbI_PointerHandler pointer;
-    bool swap;
+    LbSemaphore _semaphore;
+    bool _mouseSpriteInstalled;
+    struct TbSprite *_mouseSprite;
+    struct TbPoint _mouseSpritePos;
+
+    // hot spot is the point in mouse sprite which acts 
+    // as the accurate point of cursor.
+    struct TbPoint _hotspot;
+    class LbI_PointerHandler _pointer;
+    bool _swap;
+
+private:
+    bool _setPointer(struct TbSprite *sprite, struct TbPoint *pt);
+    bool _setSpritePosition(long x, long y);
     };
 
 /******************************************************************************/
 extern class MouseStateHandler pointerHandler;
-extern int volatile lbMouseInstalled;
+extern int volatile lbMouseSpriteInstalled;
 extern int volatile lbMouseOffline;
 /******************************************************************************/
 

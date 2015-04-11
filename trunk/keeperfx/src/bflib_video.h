@@ -197,6 +197,7 @@ struct DisplayStruct {
 
         /** Mouse position during button release, Y coordinate. */
         long RMouseY;
+
         ushort DrawFlags;
         short MouseMoveRatio; // was ushort OldVideoMode; but wasn't needed
 

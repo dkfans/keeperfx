@@ -338,7 +338,7 @@ TbResult LbScreenInitialize(void)
     lbScreenInitialized = false;
     lbScreenWindow = NULL;
     lbAppActive = true;
-    LbMouseChangeMoveRatio(256, 256);
+    LbMouseChangeMoveRatio(DEFAULT_MOUSE_MOVE_RATIO, DEFAULT_MOUSE_MOVE_RATIO);
 
     // Register default video modes
     if (lbScreenModeInfoNum == 0) {
@@ -378,7 +378,7 @@ static TbResult LbScreenActivationUpdate(void)
 {
     SDL_Event ev;
     ev.type = SDL_WINDOWEVENT;
-    ev.window.event = SDL_WINDOWEVENT_RESTORED;
+    ev.window.event = SDL_WINDOWEVENT_FOCUS_GAINED;
     //ev.active.gain = ((SDL_GetAppState() & ev.active.state) != 0);
     SDL_PushEvent(&ev);
     return Lb_SUCCESS;
@@ -478,7 +478,7 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
         return Lb_FAIL;
     }
 
-    // We now leaves the scaling work to renderer and it will be taken cared automatically.
+    // We now leaves the scaling work to renderer and it will be taken care automatically.
     // 'linear' make the scaled rendering look smoother.
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
 
@@ -523,7 +523,9 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
         LbMouseSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
         LbMouseSetPosition(lbDisplay.PhysicalScreenWidth / 2, lbDisplay.PhysicalScreenHeight / 2);
         if (msspr != NULL)
-          LbMouseChangeSpriteAndHotspot(msspr, hot_x, hot_y);
+        {
+            LbMouseChangeSpriteAndHotspot(msspr, hot_x, hot_y);
+        }
     }
     LbInputRestate();
     lbScreenInitialized = true;
