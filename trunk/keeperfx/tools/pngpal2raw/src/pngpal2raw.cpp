@@ -412,6 +412,9 @@ int hspr_pack(png_bytep out_row, const png_bytep inp_row, const ColorTranparency
 
 #pragma pack(1)
 
+/**
+ * Structure defining TAB file entry for Small Sprite format DAT/TAB files.
+ */
 struct SmallSpriteV1 {
     /** Offset of the sprite data in DAT file. */
     size_t Data;
@@ -421,6 +424,9 @@ struct SmallSpriteV1 {
     unsigned char SHeight;
 };
 
+/**
+ * Structure defining TAB file entry for Jonty Sprite format JTY/TAB files.
+ */
 struct JontySpriteV1 {
     /** Offset of the sprite data in DAT file. */
     size_t Data;
@@ -446,6 +452,9 @@ struct JontySpriteV1 {
     signed short unkn8;
 };
 
+/**
+ * Structure defining TAB file entry for Small Sprite format Ver2 DAT/TAB files.
+ */
 struct SmallSpriteV2 {
     /** Offset of the sprite data in DAT file. */
     size_t Data;
@@ -455,6 +464,9 @@ struct SmallSpriteV2 {
     unsigned short SHeight;
 };
 
+/**
+ * Structure defining TAB file entry for Jonty Sprite format Ver2 JTY/TAB files.
+ */
 struct JontySpriteV2 {
     /** Offset of the sprite data in DAT file. */
     size_t Data;
@@ -1019,7 +1031,7 @@ short show_usage(const std::string &fname)
     printf("    -v,--verbose             Verbose console output mode\n");
     printf("    -d<alg>,--diffuse<alg>   Diffusion algorithm used for bpp conversion\n");
     printf("    -l<num>,--dflevel<num>   Diffusion level, 1..100\n");
-    printf("    -f<fmt>,--format<fmt>    Output file format; RAW, HSPR, SSPR, JSPR\n");
+    printf("    -f<fmt>,--format<fmt>    Output file format; RAW, HSPR, SSPR, JSPR, SSPR2, JSPR2\n");
     printf("    -p<file>,--palette<file> Input PAL file name\n");
     printf("    -r<num>,--range<num>     Color values range in input PAL file, 1..255\n");
     printf("    -o<file>,--output<file>  Output image file name\n");
