@@ -23,8 +23,8 @@
 #define VER_MAJOR         1
 #define VER_MINOR         0
 #define VER_RELEASE       2
-#define VER_BUILD         1
-#define VER_STRING        "1.0.2.1"
+#define VER_BUILD         2
+#define VER_STRING        "1.0.2.2"
 /* Program name, copyrights and file names */
 #define PROGRAM_NAME      "PngPal2raw"
 #define PROGRAM_FULL_NAME "PNG and PAL to RAW files converter"
