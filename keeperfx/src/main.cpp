@@ -4368,7 +4368,7 @@ short process_command_line(unsigned short argc, char *argv[])
       if ( strcasecmp(parstr,"altinput") == 0 )
       {
           SYNCLOG("Mouse auto reset disabled");
-          lbMouseAutoReset = false;
+          lbUseRelativeMouseMode = false;
       } else
       if ( strcasecmp(parstr,"vidriver") == 0 )
       {

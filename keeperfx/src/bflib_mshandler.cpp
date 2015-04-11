@@ -29,20 +29,10 @@
 #include "keeperfx.hpp"
 /******************************************************************************/
 // Global variables
-int volatile lbMouseInstalled = false;
+int volatile lbMouseSpriteInstalled = false;
 int volatile lbMouseOffline = false;
-class MouseStateHandler pointerHandler;
 
-/******************************************************************************/
-/**
- * Adjusts point coordinates.
-  @param x,y Coorditates to adjust.
- * @return Returns true if the coordinates have changed.
- */
-int adjust_point(long *x, long *y)
-{
-    return false;
-}
+class MouseStateHandler pointerHandler;
 
 MouseStateHandler::MouseStateHandler(void)
 {
@@ -55,250 +45,257 @@ MouseStateHandler::~MouseStateHandler(void)
 
 bool MouseStateHandler::Install(void)
 {
-    this->installed = true;
+    this->_mouseSpriteInstalled = true;
     return true;
 }
 
 bool MouseStateHandler::IsInstalled(void)
 {
-    LbSemaLock semlock(&semaphore,0);
+    LbSemaLock semlock(&_semaphore, 0);
     if (!semlock.Lock(true))
-      return false;
+    {
+        return false;
+    }
     return true;
 }
 
 bool MouseStateHandler::Release(void)
 {
-    LbSemaLock semlock(&semaphore,0);
+    LbSemaLock semlock(&_semaphore, 0);
     if (!semlock.Lock(true))
-      return false;
-    lbMouseInstalled = false;
+    {
+        return false;
+    }
+
+    lbMouseSpriteInstalled = false;
     lbDisplay.MouseSprite = NULL;
-    this->installed = false;
-    mssprite = NULL;
-    pointer.Release();
-    mspos.x = 0;
-    mspos.y = 0;
-    hotspot.x = 0;
-    hotspot.y = 0;
+    this->_mouseSpriteInstalled = false;
+    _mouseSprite = NULL;
+
+    _pointer.Release();
+    _mouseSpritePos.x = 0;
+    _mouseSpritePos.y = 0;
+    _hotspot.x = 0;
+    _hotspot.y = 0;
+
     return true;
 }
 
-struct TbPoint *MouseStateHandler::GetPosition(void)
+bool MouseStateHandler::SetMouseWindow(long x, long y, long width, long height)
 {
-    if (!this->installed)
-      return NULL;
-    return &mspos;
+    LbSemaLock semlock(&_semaphore, 0);
+    if (!semlock.Lock(true))
+    {
+        return false;
+    }
+
+    lbDisplay.MouseWindowX = x;
+    lbDisplay.MouseWindowY = y;
+    lbDisplay.MouseWindowWidth = width;
+    lbDisplay.MouseWindowHeight = height;
+    return true;
 }
 
+// Clip the coordinate into mouse window, and redraw the sprite.
+bool MouseStateHandler::_setSpritePosition(long x, long y)
+{
+    long prev_x, prev_y;
+    long mx, my;
+    if (!this->_mouseSpriteInstalled)
+    {
+        return false;
+    }
+
+    // Clip coordinates into our mouse window
+    mx = x;
+    if (x < lbDisplay.MouseWindowX)
+    {
+        mx = lbDisplay.MouseWindowX;
+    }
+    else if (x >= lbDisplay.MouseWindowX + lbDisplay.MouseWindowWidth)
+    {
+        mx = lbDisplay.MouseWindowWidth + lbDisplay.MouseWindowX - 1;
+    }
+
+    my = y;
+    if (y < lbDisplay.MouseWindowY)
+    {
+        my = lbDisplay.MouseWindowY;
+    }
+    else if (y >= lbDisplay.MouseWindowHeight + lbDisplay.MouseWindowY)
+    {
+        my = lbDisplay.MouseWindowHeight + lbDisplay.MouseWindowY - 1;
+    }
+
+    // If the coords are unchanged
+    if ((mx == lbDisplay.MMouseX) && (my == lbDisplay.MMouseY))
+    {
+        return true;
+    }
+
+    // Change the sprite position.
+    prev_x = _mouseSpritePos.x;
+    prev_y = _mouseSpritePos.y;
+    _mouseSpritePos.x = mx;
+    _mouseSpritePos.y = my;
+
+    if ((_mouseSprite != NULL) && (this->_mouseSpriteInstalled))
+    {
+        // show_onscreen_msg(5, "POS %3d x %3d CLIP %3d x %3d WINDOW %3d x %3d", x,y,mx,my,lbDisplay.MouseWindowX,lbDisplay.MouseWindowY);
+        if (!_pointer.OnMove())
+        {
+            _mouseSpritePos.x = prev_x;
+            _mouseSpritePos.y = prev_y;
+            return false;
+        }
+    }
+    return true;
+}
+
+// Sets the position of logical mouse pointer, and draw the sprite accordingly.
 bool MouseStateHandler::SetMousePosition(long x, long y)
 {
-    long mx,my;
-    LbSemaLock semlock(&semaphore,0);
+    long mx, my;
+    LbSemaLock semlock(&_semaphore, 0);
     if (!semlock.Lock(true))
-      return false;
-    if (!this->SetPosition(x, y))
-      return false;
-    if ( this->installed )
     {
-      mx = mspos.x;
-      my = mspos.y;
-    } else
+        return false;
+    }
+    if (!this->_setSpritePosition(x, y))
     {
-      mx = x;
-      my = y;
+        return false;
+    }
+    if (this->_mouseSpriteInstalled)
+    {
+        mx = _mouseSpritePos.x;
+        my = _mouseSpritePos.y;
+    }
+    else
+    {
+        mx = x;
+        my = y;
     }
     lbDisplay.MMouseX = mx;
     lbDisplay.MMouseY = my;
     return true;
 }
 
-bool MouseStateHandler::SetPosition(long x, long y)
+bool MouseStateHandler::_setPointer(struct TbSprite *sprite, struct TbPoint *hotspot)
 {
-    long prev_x,prev_y;
-    long mx,my;
-    if (!this->installed)
-      return false;
-    // Clip coordinates to our mouse window
-    mx = x;
-    if (x < lbDisplay.MouseWindowX)
+    if (!this->_mouseSpriteInstalled)
     {
-      mx = lbDisplay.MouseWindowX;
-    } else
-    if (x >= lbDisplay.MouseWindowX+lbDisplay.MouseWindowWidth)
-    {
-      mx = lbDisplay.MouseWindowWidth + lbDisplay.MouseWindowX - 1;
-    }
-    my = y;
-    if (y < lbDisplay.MouseWindowY)
-    {
-      my = lbDisplay.MouseWindowY;
-    } else
-    if ( y >= lbDisplay.MouseWindowHeight+lbDisplay.MouseWindowY)
-    {
-      my = lbDisplay.MouseWindowHeight + lbDisplay.MouseWindowY - 1;
-    }
-    // If the coords are unchanged
-    if ((mx == lbDisplay.MMouseX) && (my == lbDisplay.MMouseY))
-      return true;
-    //Change the position
-    prev_x = mspos.x;
-    mspos.x = mx;
-    prev_y = mspos.y;
-    mspos.y = my;
-    if ((mssprite != NULL) && (this->installed))
-    {
-      //show_onscreen_msg(5, "POS %3d x %3d CLIP %3d x %3d WINDOW %3d x %3d", x,y,mx,my,lbDisplay.MouseWindowX,lbDisplay.MouseWindowY);
-      if (!pointer.OnMove())
-      {
-        mspos.x = prev_x;
-        mspos.y = prev_y;
         return false;
-      }
+    }
+    _mouseSprite = sprite;
+    _hotspot.y = 0;
+    _hotspot.x = 0;
+    if ((sprite != NULL) && (sprite->SWidth != 0) && (sprite->SHeight != 0))
+    {
+        if (hotspot != NULL)
+        {
+            _hotspot.x = hotspot->x;
+            _hotspot.y = hotspot->y;
+        }
+
+        _pointer.Initialise(sprite, &_mouseSpritePos, &_hotspot);
+
+        if ((_mouseSprite != NULL) && (this->_mouseSpriteInstalled))
+        {
+            _pointer.OnMove();
+        }
+    }
+    else
+    {
+        _pointer.Release();
+        _mouseSprite = NULL;
     }
     return true;
 }
 
-bool MouseStateHandler::SetMouseWindow(long x, long y,long width, long height)
-{
-    LbSemaLock semlock(&semaphore,0);
-    if (!semlock.Lock(true))
-      return false;
-    lbDisplay.MouseWindowX = x;
-    lbDisplay.MouseWindowY = y;
-    lbDisplay.MouseWindowWidth = width;
-    lbDisplay.MouseWindowHeight = height;
-    adjust_point(&lbDisplay.MMouseX, &lbDisplay.MMouseY);
-    adjust_point(&lbDisplay.MouseX, &lbDisplay.MouseY);
-    return true;
-}
-
-bool MouseStateHandler::GetMouseWindow(struct TbRect *windowRect)
-{
-    LbSemaLock semlock(&semaphore,0);
-    if (!semlock.Lock(true))
-      return false;
-    windowRect->left = lbDisplay.MouseWindowX;
-    windowRect->top = lbDisplay.MouseWindowY;
-    windowRect->right = lbDisplay.MouseWindowX+lbDisplay.MouseWindowWidth;
-    windowRect->bottom = lbDisplay.MouseWindowY+lbDisplay.MouseWindowHeight;
-    return true;
-}
-
-struct TbSprite *MouseStateHandler::GetPointer(void)
-{
-    if (!this->installed)
-      return NULL;
-    return mssprite;
-}
-
-bool MouseStateHandler::SetPointer(struct TbSprite *spr, struct TbPoint *point)
-{
-    if (!this->installed)
-      return false;
-    mssprite = spr;
-    hotspot.y = 0;
-    hotspot.x = 0;
-    if ((spr != NULL) && (spr->SWidth != 0) && (spr->SHeight != 0))
-    {
-      if (point != NULL)
-      {
-        hotspot.x = point->x;
-        hotspot.y = point->y;
-      }
-      pointer.Initialise(spr, &mspos, &hotspot);
-      if ((mssprite != NULL) && (this->installed))
-      {
-        pointer.OnMove();
-      }
-    } else
-    {
-      pointer.Release();
-      mssprite = NULL;
-    }
-    return true;
-}
-
-bool MouseStateHandler::SetMousePointerAndOffset(struct TbSprite *mouseSprite, long x, long y)
+bool MouseStateHandler::SetMouseSpriteAndOffset(struct TbSprite *mouseSprite, long x, long y)
 {
     struct TbPoint point;
-    LbSemaLock semlock(&semaphore,0);
+    LbSemaLock semlock(&_semaphore, 0);
     if (!semlock.Lock(true))
-      return false;
-    if (mouseSprite == lbDisplay.MouseSprite)
-      return true;
-    if (mouseSprite != NULL)
-      if ( (mouseSprite->SWidth > 64) || (mouseSprite->SHeight > 64) )
-      {
-        WARNLOG("Mouse pointer too large");
         return false;
-      }
+    if (mouseSprite == lbDisplay.MouseSprite)
+        return true;
+    if (mouseSprite != NULL)
+        if ((mouseSprite->SWidth > 64) || (mouseSprite->SHeight > 64))
+        {
+            WARNLOG("Mouse _pointer too large");
+            return false;
+        }
     lbDisplay.MouseSprite = mouseSprite;
     point.x = x;
     point.y = y;
-    return this->SetPointer(mouseSprite, &point);
+    return this->_setPointer(mouseSprite, &point);
 }
 
-bool MouseStateHandler::SetMousePointer(struct TbSprite *mouseSprite)
+bool MouseStateHandler::SetMouseSprite(struct TbSprite *mouseSprite)
 {
-    LbSemaLock semlock(&semaphore,0);
+    LbSemaLock semlock(&_semaphore, 0);
     if (!semlock.Lock(true))
-      return false;
-    if (mouseSprite == lbDisplay.MouseSprite)
-      return true;
-    if (mouseSprite != NULL)
-      if ( (mouseSprite->SWidth > 64) || (mouseSprite->SHeight > 64) )
-      {
-        WARNLOG("Mouse pointer too large");
         return false;
-      }
+    if (mouseSprite == lbDisplay.MouseSprite)
+        return true;
+    if (mouseSprite != NULL)
+        if ((mouseSprite->SWidth > 64) || (mouseSprite->SHeight > 64))
+        {
+            WARNLOG("Mouse _pointer too large");
+            return false;
+        }
     lbDisplay.MouseSprite = mouseSprite;
-    this->SetPointer(mouseSprite, NULL);
+    this->_setPointer(mouseSprite, NULL);
     return true;
 }
 
-bool MouseStateHandler::SetPointerOffset(long x, long y)
+// We don't always use upleft corner of sprite as 'hotspot'(accurate point of cursor),
+// This method sets the offset of this hotspot.
+bool MouseStateHandler::SetMouseSpriteOffset(long x, long y)
 {
-    LbSemaLock semlock(&semaphore,0);
+    LbSemaLock semlock(&_semaphore, 0);
     if (!semlock.Lock(true))
-      return false;
-    if (this->installed)
-      pointer.SetHotspot(x, y);
+        return false;
+    if (this->_mouseSpriteInstalled)
+        _pointer.SetHotspot(x, y);
     return true;
 }
 
-struct TbPoint *MouseStateHandler::GetPointerOffset(void)
+// We don't always use upleft corner of sprite as 'hotspot'(accurate point of cursor),
+// This method gets the offset of this hotspot.
+struct TbPoint *MouseStateHandler::GetMouseSpriteOffset(void)
 {
-    return &hotspot;
+    return &_hotspot;
 }
 
 bool MouseStateHandler::PointerBeginSwap(void)
 {
-    LbSemaLock semlock(&semaphore,0);
+    LbSemaLock semlock(&_semaphore, 0);
     if (!semlock.Lock(true))
-      return false;
-    if ((!lbMouseInstalled) || (lbMouseOffline))
-      return true;
-    if ((mssprite != NULL) && (this->installed))
+        return false;
+    if ((!lbMouseSpriteInstalled) || (lbMouseOffline))
+        return true;
+    if ((_mouseSprite != NULL) && (this->_mouseSpriteInstalled))
     {
-      swap = 1;
-      pointer.OnBeginSwap();
+        _swap = true;
+        _pointer.OnBeginSwap();
     }
     return true;
 }
 
 bool MouseStateHandler::PointerEndSwap(void)
 {
-    LbSemaLock semlock(&semaphore,1);
-    if (!lbMouseInstalled)
-      return true;
-    if ((mssprite != NULL) && (this->installed))
+    LbSemaLock semlock(&_semaphore, 1);
+    if (!lbMouseSpriteInstalled)
+        return true;
+    if ((_mouseSprite != NULL) && (this->_mouseSpriteInstalled))
     {
-      if (swap)
-      {
-        swap = false;
-        pointer.OnEndSwap();
-      }
+        if (_swap)
+        {
+            _swap = false;
+            _pointer.OnEndSwap();
+        }
     }
     semlock.Release();
     return true;

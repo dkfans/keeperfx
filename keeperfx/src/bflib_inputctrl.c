@@ -240,7 +240,6 @@ static int keyboard_mods_mapping(const SDL_KeyboardEvent * key)
 
 static void process_event(const SDL_Event *ev)
 {
-    struct TbPoint mousePos;
     int x, y;
     SYNCDBG(10, "Starting");
 
@@ -259,28 +258,22 @@ static void process_event(const SDL_Event *ev)
         break;
 
     case SDL_MOUSEMOTION:
-        SDL_GetMouseState(&x, &y);
-        mousePos.x = x;
-        mousePos.y = y;
-        mouseControl(MActn_MOUSEMOVE, &mousePos);
+        mouseControl(MActn_MOUSEMOVE);
         break;
 
     case SDL_MOUSEBUTTONDOWN:
     case SDL_MOUSEBUTTONUP:
-        SDL_GetMouseState(&x, &y);
-        mousePos.x = x;
-        mousePos.y = y;
-        mouseControl(mouse_button_actions_mapping(ev->type, &ev->button), &mousePos);
+        mouseControl(mouse_button_actions_mapping(ev->type, &ev->button));
         break;
 
     case SDL_MOUSEWHEEL:
         if (ev->wheel.y > 0)
         {
-            mouseControl(MActn_WHEELUP, &mousePos);
+            mouseControl(MActn_WHEELUP);
         }
         else if (ev->wheel.y < 0)
         {
-            mouseControl(MActn_WHEELDOWN, &mousePos);
+            mouseControl(MActn_WHEELDOWN);
         }
         break;
 
@@ -337,10 +330,12 @@ TbBool LbWindowsControl(void)
 TbResult LbInputRestate(void)
 {
     SDL_ShowCursor(lbAppActive ? SDL_DISABLE : SDL_ENABLE);
-    if (lbMouseAutoReset) {
+    if (lbUseRelativeMouseMode) 
+    {
         SDL_SetRelativeMouseMode(lbAppActive ? SDL_TRUE : SDL_FALSE);
     }
-    else {
+    else 
+    {
         SDL_SetRelativeMouseMode(SDL_FALSE);
     }
     return Lb_SUCCESS;

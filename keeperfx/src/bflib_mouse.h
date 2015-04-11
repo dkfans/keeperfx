@@ -23,6 +23,8 @@
 #include "bflib_basics.h"
 #include "globals.h"
 
+#define DEFAULT_MOUSE_MOVE_RATIO 256
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -113,7 +115,7 @@ struct DevInput {
 
 #pragma pack()
 /******************************************************************************/
-extern volatile TbBool lbMouseAutoReset;
+extern volatile TbBool lbUseRelativeMouseMode;
 /******************************************************************************/
 TbResult LbMouseChangeSpriteAndHotspot(struct TbSprite *mouseSprite, long hot_x, long hot_y);
 TbResult LbMouseSetup(struct TbSprite *mouseSprite);
@@ -126,7 +128,7 @@ TbResult LbMouseIsInstalled(void);
 TbResult LbMouseSetWindow(long x, long y, long width, long height);
 TbResult LbMouseChangeMoveRatio(long ratio_x, long ratio_y);
 
-void mouseControl(unsigned int action, struct TbPoint *pos);
+void mouseControl(unsigned int action);
 TbResult LbMouseOnBeginSwap(void);
 TbResult LbMouseOnEndSwap(void);
 /******************************************************************************/

@@ -35,6 +35,7 @@
 
 #include "packets.h"
 #include "player_data.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -53,7 +54,9 @@ long volatile mouse_dy;
 unsigned long mouse_pos_change_saved;
 struct DevInput joy;
 */
-volatile TbBool lbMouseAutoReset = true;
+
+// Whether we want to relative mouse mode, when this is on, mouse will be trapped in game window.
+volatile TbBool lbUseRelativeMouseMode = true;
 volatile TbDisplayStructEx lbDisplayEx;
 /******************************************************************************/
 TbResult LbMouseChangeSpriteAndHotspot(struct TbSprite *pointerSprite, long hot_x, long hot_y)
@@ -64,9 +67,9 @@ TbResult LbMouseChangeSpriteAndHotspot(struct TbSprite *pointerSprite, long hot_
   else
     SYNCLOG("Setting to %dx%d, data at %p",(int)pointerSprite->SWidth,(int)pointerSprite->SHeight,pointerSprite);
 #endif
-  if (!lbMouseInstalled)
+  if (!lbMouseSpriteInstalled)
     return Lb_FAIL;
-  if (!pointerHandler.SetMousePointerAndOffset(pointerSprite, hot_x, hot_y))
+  if (!pointerHandler.SetMouseSpriteAndOffset(pointerSprite, hot_x, hot_y))
     return Lb_FAIL;
   return Lb_SUCCESS;
 }
@@ -75,36 +78,42 @@ TbResult LbMouseSetup(struct TbSprite *pointerSprite)
 {
   TbResult ret;
   long x,y;
-  if (lbMouseInstalled)
-    LbMouseSuspend();
+  if (lbMouseSpriteInstalled)
+  {
+      LbMouseSuspend();
+  }
   y = (lbDisplay.MouseWindowHeight + lbDisplay.MouseWindowY) / 2;
   x = (lbDisplay.MouseWindowWidth + lbDisplay.MouseWindowX) / 2;
   pointerHandler.Install();
   lbMouseOffline = true;
-  lbMouseInstalled = true;
-  LbMouseSetWindow(0,0,LbGraphicsScreenWidth(),LbGraphicsScreenHeight());
+  lbMouseSpriteInstalled = true;
+  LbMouseSetWindow(0, 0, LbScreenWidth(), LbScreenHeight());
+
   ret = Lb_SUCCESS;
-  if (LbMouseSetPosition(x,y) != Lb_SUCCESS)
-    ret = Lb_FAIL;
-  if (LbMouseChangeSprite(pointerSprite) != Lb_SUCCESS)
-    ret = Lb_FAIL;
-  lbMouseInstalled = (ret == Lb_SUCCESS);
+  
+  if ((LbMouseSetPosition(x, y) != Lb_SUCCESS) ||
+      (LbMouseChangeSprite(pointerSprite) != Lb_SUCCESS))
+  {
+      ret = Lb_FAIL;
+  }
+
+  lbMouseSpriteInstalled = (ret == Lb_SUCCESS);
   lbMouseOffline = false;
   return ret;
 }
 
 TbResult LbMouseSetPointerHotspot(long hot_x, long hot_y)
 {
-  if (!lbMouseInstalled)
+  if (!lbMouseSpriteInstalled)
     return Lb_FAIL;
-  if (!pointerHandler.SetPointerOffset(hot_x, hot_y))
+  if (!pointerHandler.SetMouseSpriteOffset(hot_x, hot_y))
     return Lb_FAIL;
   return Lb_SUCCESS;
 }
 
 TbResult LbMouseSetPosition(long x, long y)
 {
-  if (!lbMouseInstalled)
+  if (!lbMouseSpriteInstalled)
     return Lb_FAIL;
   if (!pointerHandler.SetMousePosition(x, y))
     return Lb_FAIL;
@@ -119,9 +128,9 @@ TbResult LbMouseChangeSprite(struct TbSprite *pointerSprite)
   else
     SYNCLOG("Setting to %dx%d, data at %p",(int)pointerSprite->SWidth,(int)pointerSprite->SHeight,pointerSprite);
 #endif
-  if (!lbMouseInstalled)
+  if (!lbMouseSpriteInstalled)
     return Lb_FAIL;
-  if (!pointerHandler.SetMousePointer(pointerSprite))
+  if (!pointerHandler.SetMouseSprite(pointerSprite))
     return Lb_FAIL;
   return Lb_SUCCESS;
 }
@@ -129,7 +138,7 @@ TbResult LbMouseChangeSprite(struct TbSprite *pointerSprite)
 void GetPointerHotspot(long *hot_x, long *hot_y)
 {
   struct TbPoint *hotspot;
-  hotspot = pointerHandler.GetPointerOffset();
+  hotspot = pointerHandler.GetMouseSpriteOffset();
   if (hotspot == NULL)
     return;
   *hot_x = hotspot->x;
@@ -138,7 +147,7 @@ void GetPointerHotspot(long *hot_x, long *hot_y)
 
 TbResult LbMouseIsInstalled(void)
 {
-  if (!lbMouseInstalled)
+  if (!lbMouseSpriteInstalled)
     return Lb_FAIL;
   if (!pointerHandler.IsInstalled())
     return Lb_FAIL;
@@ -147,67 +156,53 @@ TbResult LbMouseIsInstalled(void)
 
 TbResult LbMouseSetWindow(long x, long y, long width, long height)
 {
-  if (!lbMouseInstalled)
+  if (!lbMouseSpriteInstalled)
     return Lb_FAIL;
   if (!pointerHandler.SetMouseWindow(x, y, width, height))
     return Lb_FAIL;
   return Lb_SUCCESS;
 }
 
-TbResult LbMouseOnMove(struct TbPoint shift)
+TbResult LbMouseOnMove(struct TbPoint dstPos)
 {
-  if ((!lbMouseInstalled) || (lbMouseOffline))
-    return Lb_FAIL;
-  if (!pointerHandler.SetMousePosition(lbDisplay.MMouseX+shift.x, lbDisplay.MMouseY+shift.y))
-    return Lb_FAIL;
-  return Lb_SUCCESS;
+    if ((!lbMouseSpriteInstalled) || (lbMouseOffline))
+    {
+        return Lb_FAIL;
+    }
+
+    if (!pointerHandler.SetMousePosition(dstPos.x, dstPos.y))
+    {
+        return Lb_FAIL;
+    }
+
+   // SDL_WarpMouseInWindow(lbScreenWindow, lbDisplay.MMouseX, lbDisplay.MMouseY);
+    return Lb_SUCCESS;
 }
 
-/** Converts mouse coordinates into relative shift coordinates.
+/** Converts mouse coordinates into relative and scaled coordinates.
  *
  * @param pos Pointer to the structure with source point, and where result is placed.
  */
-void MouseToScreen(struct TbPoint *pos)
+TbPoint ScaleMouseMove(struct TbPoint posDelta)
 {
-  // Static variables for storing last mouse coordinated; needed
-  // because lbDisplay.MMouse? coords are scaled
-  static long mx = 0;
-  static long my = 0;
-  struct TbRect clip;
-  struct TbPoint orig;
-  if ( lbMouseAutoReset )
-  {
-      if (!pointerHandler.GetMouseWindow(&clip))
-          return;
-      orig.x = pos->x;
-      orig.y = pos->y;
-      pos->x = ((pos->x - mx) * (long)lbDisplay.MouseMoveRatio)/256;
-      pos->y = ((pos->y - my) * (long)lbDisplay.MouseMoveRatio)/256;
-      mx = orig.x;
-      my = orig.y;
-      if ((mx < clip.left + 50) || (mx > clip.right - 50)
-       || (my < clip.top + 50) || (my > clip.bottom - 50))
-      {
-          mx = (clip.right-clip.left)/2 + clip.left;
-          my = (clip.bottom - clip.top) / 2 + clip.top;
+    TbPoint scaledMouseMove;
 
-          // TODO: HeM Add window param and remove the redundant steps
-          SDL_WarpMouseInWindow(NULL, mx, my);
-      }
-  } else
-  {
-      orig.x = pos->x;
-      orig.y = pos->y;
-      pos->x = ((pos->x - mx) * (long)lbDisplay.MouseMoveRatio)/256;
-      pos->y = ((pos->y - my) * (long)lbDisplay.MouseMoveRatio)/256;
-      mx = orig.x;
-      my = orig.y;
-  }
+    if (!lbUseRelativeMouseMode)
+    {
+        ERRORLOG("Mouse ratio is only valid in relative mouse mode.");
+        return scaledMouseMove;
+    }
+
+    // Scale coordinate
+    scaledMouseMove.x = posDelta.x* (long)lbDisplay.MouseMoveRatio / DEFAULT_MOUSE_MOVE_RATIO;
+    scaledMouseMove.y = posDelta.y* (long)lbDisplay.MouseMoveRatio / DEFAULT_MOUSE_MOVE_RATIO;
+
+    return scaledMouseMove;
 }
 
 TbResult LbMouseSuspend(void)
 {
-  if (!lbMouseInstalled)
+  if (!lbMouseSpriteInstalled)
     return Lb_FAIL;
   if (!pointerHandler.Release())
     return Lb_FAIL;
@@ -228,20 +223,42 @@ TbResult LbMouseOnEndSwap(void)
     return Lb_SUCCESS;
 }
 
-void mouseControl(unsigned int action, struct TbPoint *pos)
+void mouseControl(unsigned int action)
 {
     struct Packet *pckt;
     pckt = get_packet(my_player_number);
     // Can only get package while in a game.
     bool isInGame = pckt;
-    int deltaPosX = 0;
-    int deltaPosY = 0;
+
     bool isCtrlDown = lbInkeyFlags & KMod_CONTROL;
     bool isAltDown = lbInkeyFlags & KMod_ALT;
 
+    int x, y;
+    struct TbPoint mousePosDelta;
+    struct TbPoint mousePos;
+    struct TbPoint scaledMove;
     struct TbPoint dstPos;
-    dstPos.x = pos->x;
-    dstPos.y = pos->y;
+
+    if (lbUseRelativeMouseMode)
+    {
+        SDL_GetRelativeMouseState(&x, &y);
+        mousePosDelta.x = x;
+        mousePosDelta.y = y;
+
+        scaledMove = ScaleMouseMove(mousePosDelta);
+
+        dstPos.x = lbDisplay.MMouseX + scaledMove.x;
+        dstPos.y = lbDisplay.MMouseY + scaledMove.y;
+    }
+    else
+    {
+        SDL_GetMouseState(&x, &y);
+        mousePos.x = x;
+        mousePos.y = y;
+
+        dstPos.x = mousePos.x;
+        dstPos.y = mousePos.y;
+    }
 
     switch ( action )
     {
@@ -249,7 +266,7 @@ void mouseControl(unsigned int action, struct TbPoint *pos)
         // in game flag is not working as expected, need upgrade.
         // if (!isInGame)
         // {
-        //  MouseToScreen(&dstPos);
+        //  ScaleMouseMove(&dstPos);
         //  LbMouseOnMove(dstPos);
         //}
 
@@ -257,7 +274,9 @@ void mouseControl(unsigned int action, struct TbPoint *pos)
         // At least align the mouse location.
         if ((lbDisplay.MRightButton && isAltDown))
         {           
-            // Ctrl + right drag to rotate camera
+            int deltaPosX;
+            // TODO HeM adapt to case lbUseRelativeMouseMode and !lbUseRelativeMouseMode.
+            // Alt + right drag to rotate camera
             SDL_GetRelativeMouseState(&deltaPosX, NULL);
             if (deltaPosX > 0)
             {
@@ -271,6 +290,7 @@ void mouseControl(unsigned int action, struct TbPoint *pos)
         }
         else if (lbDisplay.MRightButton && isCtrlDown)
         {
+            int deltaPosX, deltaPosY;
             SDL_GetRelativeMouseState(&deltaPosX, &deltaPosY);
             if (deltaPosX > 0)
             {
@@ -290,13 +310,11 @@ void mouseControl(unsigned int action, struct TbPoint *pos)
                 set_packet_control(pckt, PCtr_MoveDown);
             }
 
-            MouseToScreen(&dstPos);
             LbMouseOnMove(dstPos);
         }
         else
         {
             // Normal mouse move
-            MouseToScreen(&dstPos);
             LbMouseOnMove(dstPos);
         }
         break;
@@ -304,7 +322,6 @@ void mouseControl(unsigned int action, struct TbPoint *pos)
         lbDisplay.MLeftButton = 1;
         if ( !lbDisplay.LeftButton )
         {
-            MouseToScreen(&dstPos);
             LbMouseOnMove(dstPos);
             lbDisplay.MouseX = lbDisplay.MMouseX;
             lbDisplay.MouseY = lbDisplay.MMouseY;
@@ -316,7 +333,6 @@ void mouseControl(unsigned int action, struct TbPoint *pos)
         lbDisplay.MLeftButton = 0;
         if ( !lbDisplay.RLeftButton )
         {
-            MouseToScreen(&dstPos);
             LbMouseOnMove(dstPos);
             lbDisplay.RMouseX = lbDisplay.MMouseX;
             lbDisplay.RMouseY = lbDisplay.MMouseY;
@@ -327,7 +343,6 @@ void mouseControl(unsigned int action, struct TbPoint *pos)
         lbDisplay.MRightButton = 1;
         if ( !lbDisplay.RightButton )
         {
-            MouseToScreen(&dstPos);
             LbMouseOnMove(dstPos);
             lbDisplay.MouseX = lbDisplay.MMouseX;
             lbDisplay.MouseY = lbDisplay.MMouseY;
@@ -339,7 +354,6 @@ void mouseControl(unsigned int action, struct TbPoint *pos)
         lbDisplay.MRightButton = 0;
         if ( !lbDisplay.RRightButton )
         {
-            MouseToScreen(&dstPos);
             LbMouseOnMove(dstPos);
             lbDisplay.RMouseX = lbDisplay.MMouseX;
             lbDisplay.RMouseY = lbDisplay.MMouseY;
@@ -380,7 +394,7 @@ TbResult LbMouseChangeMoveRatio(long ratio_x, long ratio_y)
         return Lb_FAIL;
     if ((ratio_y < -8192) || (ratio_y > 8192) || (ratio_y == 0))
         return Lb_FAIL;
-    SYNCLOG("New ratio %ldx%ld",ratio_x, ratio_y);
+    SYNCLOG("New ratio %ldx%ld", ratio_x * 100 / DEFAULT_MOUSE_MOVE_RATIO, ratio_y * 100 / DEFAULT_MOUSE_MOVE_RATIO);
     // Currently we don't have two ratio factors, so let's store an average
     lbDisplay.MouseMoveRatio = (ratio_x + ratio_y)/2;
     //TODO INPUT Separate mouse ratios in X and Y direction when lbDisplay from DLL will no longer be used.
