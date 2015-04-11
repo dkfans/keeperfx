@@ -58,8 +58,8 @@ void frontcredits_draw(void)
           LbTextSetFont(frontend_font[fontid]);
         }
         int ln_height;
-        ln_height = -LbTextLineHeight() * units_per_pixel / 16;
-        if (h > ln_height)
+        ln_height = LbTextLineHeight() * units_per_pixel / 16;
+        if (h > -ln_height)
         {
             switch (credit->kind)
             {
