@@ -1939,10 +1939,13 @@ long add_gold_to_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amou
     // Add amount of gold
     gldtng->valuable.gold_stored += amount;
     room->capacity_used_for_storage += amount;
-    struct Dungeon *dungeon;
-    dungeon = get_dungeon(gldtng->owner);
-    if (!dungeon_invalid(dungeon)) {
-        dungeon->total_money_owned += amount;
+    if (room->owner != game.neutral_player_num)
+    {
+        struct Dungeon *dungeon;
+        dungeon = get_dungeon(room->owner);
+        if (!dungeon_invalid(dungeon)) {
+            dungeon->total_money_owned += amount;
+        }
     }
     // Add new wealth size
     wealth_size = get_wealth_size_of_gold_amount(gldtng->valuable.gold_stored);
