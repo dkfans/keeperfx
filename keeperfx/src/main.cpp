@@ -1355,15 +1355,15 @@ TbBool screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct
     result = false;
     if (camera != NULL)
     {
-      switch (camera->field_6)
+        switch (camera->viewType)
       {
-        case 1:
-        case 2:
-        case 5:
+        case CAMERA_VIEW_CREATURE:
+        case CAMERA_VIEW_EMPTY:
+        case CAMERA_VIEW_PARCHMENT:
           // 3D view mode
           result = engine_point_to_map(camera,screen_x,screen_y,&x,&y);
           break;
-        case 3: //map mode
+        case CAMERA_VIEW_ISOMETRIC: //map mode
           result = point_to_overhead_map(camera,screen_x/pixel_size,screen_y/pixel_size,&x,&y);
           break;
         default:
@@ -2553,41 +2553,78 @@ void view_move_camera_down(struct Camera *cam, long a2)
     _DK_view_move_camera_down(cam, a2); return;
 }
 
+void _process_interia(long * speed, unsigned char *isInteriaOn)
+{
+    if (*isInteriaOn)
+    {
+        *speed /= 2;
+        if (*speed == 0)
+        {
+            // Finished processing interia.
+            *isInteriaOn = 0;
+        }
+    }
+    else
+    {
+        // Do not apply interia effect.
+        *speed = 0;
+        *isInteriaOn = 0;
+    }
+}
+
+void _process_interia(int * speed, unsigned char *isInteriaOn)
+{
+    if (*isInteriaOn)
+    {
+        *speed /= 2;
+        if (*speed == 0)
+        {
+            // Finished processing interia.
+            *isInteriaOn = 0;
+        }
+    }
+    else
+    {
+        // Do not apply interia effect.
+        *speed = 0;
+        *isInteriaOn = 0;
+    }
+}
+
+// Move or rotate current camera following user's control, and simulates interia effect.
 void view_process_camera_inertia(struct Camera *cam)
 {
+    // Horizontal move
     int i;
-    i = cam->field_20;
-    if (i > 0) {
+    i = cam->horizontalPosDelta;
+    if (i > 0) 
+    {
         view_move_camera_right(cam, abs(i));
-    } else
-    if (i < 0) {
+    }
+    else if (i < 0) 
+    {
         view_move_camera_left(cam, abs(i));
     }
-    if ( cam->field_24 ) {
-        cam->field_24 = 0;
-    } else {
-        cam->field_20 /= 2;
-    }
-    i = cam->field_25;
-    if (i > 0) {
+    _process_interia(&(cam->horizontalPosDelta), &(cam->horizontalInteriaOn));
+
+    // Vertical move
+    i = cam->verticalPosDelta;
+    if (i > 0) 
+    {
         view_move_camera_down(cam, abs(i));
-    } else
-    if (i < 0) {
+    }
+    else if (i < 0) 
+    {
         view_move_camera_up(cam, abs(i));
     }
-    if (cam->field_29) {
-        cam->field_29 = 0;
-    } else {
-        cam->field_25 /= 2;
+    _process_interia(&(cam->verticalPosDelta), &(cam->verticalInteriaOn));
+
+    // Rotation
+    if (cam->rotationDelta) 
+    {
+        cam->orient_a = (cam->rotationDelta + cam->orient_a) & 0x7FF; // 0000 0111 1111 1111, what is the point?
     }
-    if (cam->field_1B) {
-        cam->orient_a = (cam->field_1B + cam->orient_a) & 0x7FF;
-    }
-    if (cam->field_1F) {
-        cam->field_1F = 0;
-    } else {
-        cam->field_1B /= 2;
-    }
+    _process_interia(&(cam->rotationDelta), &(cam->rotationInteriaOn));
 }
 
 void update_player_camera(struct PlayerInfo *player)
@@ -2598,7 +2635,7 @@ void update_player_camera(struct PlayerInfo *player)
     struct Camera *cam;
     cam = player->acamera;
     view_process_camera_inertia(cam);
-    switch (cam->field_6)
+    switch (cam->viewType)
     {
     case 1:
         if (player->controlled_thing_idx > 0) {

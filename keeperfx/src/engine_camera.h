@@ -39,6 +39,11 @@ struct PlayerInfo;
 #define CAMERA_ZOOM_MAX    12000
 #define MINMAX_LENGTH         64
 
+#define CAMERA_VIEW_EMPTY       2
+#define CAMERA_VIEW_CREATURE    1
+#define CAMERA_VIEW_ISOMETRIC   3
+#define CAMERA_VIEW_PARCHMENT   5
+
 struct MinMax { // sizeof = 8
     long min;
     long max;
@@ -51,19 +56,33 @@ struct ComponentVector {
 };
 
 struct Camera {
+    // Location of camera on map
     struct Coord3d mappos;
-    unsigned char field_6;
+
+    // View type of camera, was field_6
+    unsigned char viewType;
+
     int orient_a;
     int orient_b;
     int orient_c;
+
     int field_13;
     int zoom;
-    int field_1B;
-    unsigned char field_1F;
-    long field_20;
-    unsigned char field_24;
-    long field_25;
-    unsigned char field_29;
+
+    // Delta of camera horizontal angle, was field_1B.
+    int rotationDelta;
+    // Whether apply interia effect when rotating camera, was field_1F (Meant different thing then).
+    unsigned char rotationInteriaOn;
+
+    // Delta of camera horizontal position, was field_20.
+    long horizontalPosDelta;
+    // Whether apply interia effect when moving camera horizontally, was field_24 (Meant different thing then).
+    unsigned char horizontalInteriaOn;
+
+    // Delta of camera vertical position, was field_25.
+    long verticalPosDelta;
+    // Whether apply interia effect when moving camera vertically, was field_29 (Meant different thing then).
+    unsigned char verticalInteriaOn;
 };
 
 #pragma pack()
@@ -96,9 +115,9 @@ long get_camera_zoom(struct Camera *cam);
 unsigned long scale_camera_zoom_to_screen(unsigned long zoom_lvl);
 void update_camera_zoom_bounds(struct Camera *cam,unsigned long zoom_max,unsigned long zoom_min);
 
-void view_set_camera_y_inertia(struct Camera *cam, long a2, long a3);
-void view_set_camera_x_inertia(struct Camera *cam, long a2, long a3);
-void view_set_camera_rotation_inertia(struct Camera *cam, long a2, long a3);
+void view_set_camera_y_inertia(struct Camera *cam, long a2, long a3, int interiaOn);
+void view_set_camera_x_inertia(struct Camera *cam, long a2, long a3, int interiaOn);
+void view_set_camera_rotation_inertia(struct Camera *cam, long a2, long a3, int interiaOn);
 
 void init_player_cameras(struct PlayerInfo *player);
 /******************************************************************************/
