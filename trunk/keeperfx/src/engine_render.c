@@ -2513,7 +2513,7 @@ void draw_engine_number(struct Number *num)
     spr = &button_sprite[71];
     w = spr->SWidth;
     h = spr->SHeight;
-    if ((player->acamera->field_6 == 2) || (player->acamera->field_6 == 5))
+    if ((player->acamera->viewType == CAMERA_VIEW_EMPTY) || (player->acamera->viewType == CAMERA_VIEW_PARCHMENT))
     {
         // Count digits to be displayed
         ndigits=0;
@@ -2546,7 +2546,7 @@ void draw_engine_room_flagpole(struct RoomFlag *rflg)
     myplyr = get_my_player();
     const struct Camera *cam;
     cam = myplyr->acamera;
-    if ((cam->field_6 == 2) || (cam->field_6 == 5))
+    if ((cam->viewType == CAMERA_VIEW_EMPTY) || (cam->viewType == CAMERA_VIEW_PARCHMENT))
     {
         if ( settings.field_8 )
         {
@@ -2554,7 +2554,7 @@ void draw_engine_room_flagpole(struct RoomFlag *rflg)
             int deltay;
             int height;
             scale = cam->zoom;
-            if (cam->field_6 == 5)
+            if (cam->viewType == 5)
               scale = 4094;
             deltay = (scale << 7 >> 13)*units_per_pixel/16;
             height = (2 * (71 * scale) >> 13);
@@ -2633,7 +2633,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
     CrtrExpLevel exp;
     exp = min(cctrl->explevel,9);
     mycam = myplyr->acamera;
-    if ((mycam->field_6 == 2) || (mycam->field_6 == 5))
+    if ((mycam->viewType == CAMERA_VIEW_EMPTY) || (mycam->viewType == CAMERA_VIEW_PARCHMENT))
     {
       health_spridx = choose_health_sprite(thing);
       if (is_my_player_number(thing->owner))
@@ -2761,7 +2761,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
         || ((myplyr->id_number != thing->owner) && !creature_is_invisible(thing))
         || (cctrl->combat_flags != 0)
         || (thing->word_17 > 0)
-        || (mycam->field_6 == 3))
+        || (mycam->viewType == CAMERA_VIEW_ISOMETRIC))
       {
           if (health_spridx > 0) {
               spr = &button_sprite[health_spridx];
@@ -2780,7 +2780,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
 
 void draw_iso_only_fastview_mapwho(struct Camera *cam, struct JontySpr *spr)
 {
-    if (cam->field_6 == 5)
+    if (cam->viewType == 5)
       draw_fastview_mapwho(cam, spr);
 }
 
@@ -2846,14 +2846,14 @@ void draw_engine_room_flag_top(struct RoomFlag *rflg)
     const struct Camera *cam;
     cam = myplyr->acamera;
 
-    if ((cam->field_6 == 2) || (cam->field_6 == 5))
+    if ((cam->viewType == 2) || (cam->viewType == 5))
     {
         if (settings.field_8)
         {
             int scale;
             int deltay;
             scale = cam->zoom;
-            if (cam->field_6 == 5)
+            if (cam->viewType == 5)
                 scale = 4094;
             deltay = (scale << 7 >> 13)*units_per_pixel/16;
             draw_room_flag_top(rflg->x, rflg->y - deltay, units_per_pixel, room);
@@ -3825,7 +3825,7 @@ void display_drawlist(void)
           cam = player->acamera;
           if (cam != NULL)
           {
-              if ((cam->field_6 == 2) || (cam->field_6 == 5)) {
+              if ((cam->viewType == 2) || (cam->viewType == 5)) {
                   // Status sprites grow smaller slower than zoom
                   int status_zoom;
                   status_zoom = (camera_zoom+CAMERA_ZOOM_MAX)/2;
@@ -3844,7 +3844,7 @@ void display_drawlist(void)
           cam = player->acamera;
           if (cam != NULL)
           {
-            if (cam->field_6 == 2)
+            if (cam->viewType == 2)
               draw_jonty_mapwho(item.jonSpr);
           }
           break;
@@ -5148,7 +5148,7 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
     {
         if ((player->thing_under_hand == thing->index) && (game.play_gameturn & 2))
         {
-          if (player->acamera->field_6 == 2)
+            if (player->acamera->viewType == CAMERA_VIEW_EMPTY)
           {
               lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
               lbSpriteReMapPtr = white_pal;

@@ -32,6 +32,7 @@
 #include "vidmode.h"
 #include "map_blocks.h"
 #include "dungeon_data.h"
+#include "player_data.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -160,9 +161,9 @@ void view_zoom_camera_in(struct Camera *cam, long limit_max, long limit_min)
 {
     long new_zoom,old_zoom;
     old_zoom = get_camera_zoom(cam);
-    switch (cam->field_6)
+    switch (cam->viewType)
     {
-    case 2:
+    case CAMERA_VIEW_EMPTY:
         new_zoom = (100 * old_zoom) / 85;
         if (new_zoom == old_zoom)
             new_zoom++;
@@ -173,7 +174,7 @@ void view_zoom_camera_in(struct Camera *cam, long limit_max, long limit_min)
             new_zoom = limit_max;
         }
         break;
-    case 3:
+    case CAMERA_VIEW_ISOMETRIC:
         new_zoom = (5 * old_zoom) / 4;
         if (new_zoom == old_zoom)
             new_zoom++;
@@ -184,7 +185,7 @@ void view_zoom_camera_in(struct Camera *cam, long limit_max, long limit_min)
             new_zoom = 1024;
         }
         break;
-    case 5:
+    case CAMERA_VIEW_PARCHMENT:
         new_zoom = (100 * old_zoom) / 85;
         if (new_zoom == old_zoom)
             new_zoom++;
@@ -205,7 +206,7 @@ void set_camera_zoom(struct Camera *cam, long new_zoom)
 {
     if (cam == NULL)
       return;
-    switch (cam->field_6)
+    switch (cam->viewType)
     {
     case 2:
     case 5:
@@ -221,7 +222,7 @@ void view_zoom_camera_out(struct Camera *cam, long limit_max, long limit_min)
 {
     long new_zoom,old_zoom;
     old_zoom = get_camera_zoom(cam);
-    switch (cam->field_6)
+    switch (cam->viewType)
     {
     case 2:
         new_zoom = (85 * old_zoom) / 100;
@@ -285,7 +286,7 @@ long get_camera_zoom(struct Camera *cam)
 {
     if (cam == NULL)
       return 0;
-    switch (cam->field_6)
+    switch (cam->viewType)
     {
     case 2:
     case 5:
@@ -316,54 +317,56 @@ unsigned long scale_camera_zoom_to_screen(unsigned long zoom_lvl)
     return  ((zoom_lvl*size_wide) >> 8) + ((zoom_lvl*size_narr) >> 8);
 }
 
-void view_set_camera_y_inertia(struct Camera *cam, long delta, long ilimit)
+void view_set_camera_y_inertia(struct Camera *cam, long deltaDelta, long ilimit, int interiaOn)
 {
     long abslimit;
     abslimit = abs(ilimit);
-    cam->field_25 += delta;
-    if (cam->field_25 < -abslimit) {
-        cam->field_25 = -abslimit;
-    } else
-    if (cam->field_25 > abslimit) {
-        cam->field_25 = abslimit;
+    cam->verticalPosDelta += deltaDelta;
+
+    if (cam->verticalPosDelta < -abslimit) 
+    {
+        cam->verticalPosDelta = -abslimit;
+    } 
+    else if (cam->verticalPosDelta > abslimit) 
+    {
+        cam->verticalPosDelta = abslimit;
     }
-    cam->field_29 = 1;
+    cam->verticalInteriaOn = interiaOn;
 }
 
-void view_set_camera_x_inertia(struct Camera *cam, long delta, long ilimit)
+void view_set_camera_x_inertia(struct Camera *cam, long deltaDelta, long ilimit, int interiaOn)
 {
     long abslimit;
     abslimit = abs(ilimit);
-    cam->field_20 += delta;
-    if (cam->field_20 < -abslimit) {
-        cam->field_20 = -abslimit;
-    } else
-    if (cam->field_20 > abslimit) {
-        cam->field_20 = abslimit;
+    cam->horizontalPosDelta += deltaDelta;
+
+    if (cam->horizontalPosDelta < -abslimit) 
+    {
+        cam->horizontalPosDelta = -abslimit;
+    } 
+    else if (cam->horizontalPosDelta > abslimit) 
+    {
+        cam->horizontalPosDelta = abslimit;
     }
-    cam->field_24 = 1;
+    cam->horizontalInteriaOn = interiaOn;
 }
 
-void view_set_camera_rotation_inertia(struct Camera *cam, long delta, long ilimit)
+void view_set_camera_rotation_inertia(struct Camera *cam, long deltaDelta, long ilimit, int interiaOn)
 {
     //_DK_view_set_camera_rotation_inertia(cam, delta, ilimit);
-    int limit_val, new_val;
+    int limit_val;
     limit_val = abs(ilimit);
-    new_val = delta + cam->field_1B;
-    cam->field_1B = new_val;
-    if (new_val < -limit_val)
+    cam->rotationDelta += deltaDelta;
+
+    if (cam->rotationDelta < -limit_val)
     {
-        cam->field_1B = -limit_val;
-        cam->field_1F = 1;
-    } else
-    if (new_val > limit_val)
-    {
-        cam->field_1B = limit_val;
-        cam->field_1F = 1;
-    } else
-    {
-        cam->field_1F = 1;
+        cam->rotationDelta = -limit_val;
     }
+    else if (cam->rotationDelta > limit_val)
+    {
+        cam->rotationDelta = limit_val;
+    } 
+    cam->rotationInteriaOn = interiaOn;
 }
 
 void init_player_cameras(struct PlayerInfo *player)
@@ -373,40 +376,41 @@ void init_player_cameras(struct PlayerInfo *player)
     heartng = get_player_soul_container(player->id_number);
     struct Camera *cam;
 
-    cam = &player->cameras[1];
-    cam->mappos.x.val = 0;
-    cam->orient_b = 0;
-    cam->mappos.y.val = 0;
-    cam->orient_c = 0;
-    cam->field_13 = 188;
-    cam->orient_a = 512;
-    cam->field_6 = 1;
-    cam->mappos.z.val = 256;
-
-    cam = &player->cameras[0];
+    cam = &player->cameras[PVM_EmptyView];
     cam->mappos.x.val = heartng->mappos.x.val;
     cam->mappos.y.val = heartng->mappos.y.val;
-    cam->orient_c = 0;
     cam->mappos.z.val = 0;
-    cam->field_13 = 188;
-    cam->orient_b = -266;
+    cam->viewType = CAMERA_VIEW_EMPTY;
     cam->orient_a = 256;
-    cam->field_6 = 2;
+    cam->orient_b = -266;
+    cam->orient_c = 0;
+    cam->field_13 = 188;
     cam->zoom = 10000;
 
-    cam = &player->cameras[2];
+    cam = &player->cameras[PVM_CreatureView];
     cam->mappos.x.val = 0;
+    cam->mappos.y.val = 0;
+    cam->mappos.z.val = 256;
+    cam->viewType = CAMERA_VIEW_CREATURE;
+    cam->orient_a = 512;
+    cam->orient_b = 0;
+    cam->orient_c = 0;
     cam->field_13 = 188;
-    cam->field_6 = 3;
+
+
+    cam = &player->cameras[PVM_IsometricView];
+    cam->mappos.x.val = 0;
     cam->mappos.y.val = 0;
     cam->mappos.z.val = 32;
+    cam->viewType = CAMERA_VIEW_ISOMETRIC;
+    cam->field_13 = 188;
 
-    cam = &player->cameras[3];
+    cam = &player->cameras[PVM_ParchmentView];
     cam->mappos.x.val = heartng->mappos.x.val;
     cam->mappos.y.val = heartng->mappos.y.val;
-    cam->field_13 = 188;
+    cam->viewType = CAMERA_VIEW_PARCHMENT;
     cam->mappos.z.val = 32;
-    cam->field_6 = 5;
+    cam->field_13 = 188;
     cam->zoom = 65536;
 }
 /******************************************************************************/

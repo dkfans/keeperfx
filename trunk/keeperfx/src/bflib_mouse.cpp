@@ -223,66 +223,85 @@ TbResult LbMouseOnEndSwap(void)
     return Lb_SUCCESS;
 }
 
-void mouseControl(unsigned int action)
+void _get_mouse_state(TbPoint *positionDelta, TbPoint *destination)
 {
-    struct Packet *pckt;
-    pckt = get_packet(my_player_number);
-    // Can only get package while in a game.
-    bool isInGame = pckt;
-
-    bool isCtrlDown = lbInkeyFlags & KMod_CONTROL;
-    bool isAltDown = lbInkeyFlags & KMod_ALT;
-
+    // TODO HeM error handling.
     int x, y;
-    struct TbPoint mousePosDelta;
-    struct TbPoint mousePos;
     struct TbPoint scaledMove;
-    struct TbPoint dstPos;
 
     if (lbUseRelativeMouseMode)
     {
         SDL_GetRelativeMouseState(&x, &y);
-        mousePosDelta.x = x;
-        mousePosDelta.y = y;
 
-        scaledMove = ScaleMouseMove(mousePosDelta);
+        positionDelta->x = x;
+        positionDelta->y = y;
 
-        dstPos.x = lbDisplay.MMouseX + scaledMove.x;
-        dstPos.y = lbDisplay.MMouseY + scaledMove.y;
+        // Scale the Delta to Sprite position.
+        scaledMove = ScaleMouseMove(*positionDelta);
+        positionDelta->x = scaledMove.x;
+        positionDelta->y = scaledMove.y;
+
+        destination->x = lbDisplay.MMouseX + positionDelta->x;
+        destination->y = lbDisplay.MMouseY + positionDelta->y;
     }
     else
     {
         SDL_GetMouseState(&x, &y);
-        mousePos.x = x;
-        mousePos.y = y;
 
-        dstPos.x = mousePos.x;
-        dstPos.y = mousePos.y;
+        positionDelta->x = x - lbDisplay.MMouseX;
+        positionDelta->y = y - lbDisplay.MMouseY;
+
+        destination->x = x;
+        destination->y = y;
     }
+}
+
+void mouseControl(unsigned int action)
+{
+    struct PlayerInfo *player;
+    player = get_my_player();
+    struct Packet *pckt;
+    pckt = get_packet(my_player_number);
+    struct Camera *cam;
+    cam = player->acamera;
+    // Can only get package while in a game.
+
+    bool isInGame = pckt;
+
+    bool isEmptyCamera;
+    bool isHandEmpty;
+    bool isNoActionOnClick;
+    bool isDragingEnabled = isInGame && isEmptyCamera && isHandEmpty && isNoActionOnClick;
+
+    long magicConvertRatioX = 1000;
+    // zoom seems to be between 4100 and 12000
+    if (cam && cam->zoom >= 4100 && cam->zoom <= 12000)
+    {
+        magicConvertRatioX = 35000 / cam->zoom;
+    }
+    long magicConvertRatioY = magicConvertRatioX *1.73205;
+
+    bool isCtrlDown = lbInkeyFlags & KMod_CONTROL;
+    bool isAltDown = lbInkeyFlags & KMod_ALT;
+
+    struct TbPoint mousePosDelta;
+    struct TbPoint dstPos;
+
+    _get_mouse_state(&mousePosDelta, &dstPos);
 
     switch ( action )
     {
     case MActn_MOUSEMOVE:
-        // in game flag is not working as expected, need upgrade.
-        // if (!isInGame)
-        // {
-        //  ScaleMouseMove(&dstPos);
-        //  LbMouseOnMove(dstPos);
-        //}
-
         // TODO: HeM: Draging function is primitive and should be improved in future.
         // At least align the mouse location.
         if ((lbDisplay.MRightButton && isAltDown))
         {           
-            int deltaPosX;
-            // TODO HeM adapt to case lbUseRelativeMouseMode and !lbUseRelativeMouseMode.
             // Alt + right drag to rotate camera
-            SDL_GetRelativeMouseState(&deltaPosX, NULL);
-            if (deltaPosX > 0)
+            if (mousePosDelta.x > 0)
             {
                 set_packet_control(pckt, PCtr_ViewRotateCCW);
             }
-            else if (deltaPosX < 0)
+            else if (mousePosDelta.x < 0)
             {
                 set_packet_control(pckt, PCtr_ViewRotateCW);
             }
@@ -290,24 +309,14 @@ void mouseControl(unsigned int action)
         }
         else if (lbDisplay.MRightButton && isCtrlDown)
         {
-            int deltaPosX, deltaPosY;
-            SDL_GetRelativeMouseState(&deltaPosX, &deltaPosY);
-            if (deltaPosX > 0)
+            if (mousePosDelta.x != 0)
             {
-                set_packet_control(pckt, PCtr_MoveLeft);
-            }
-            else if (deltaPosX < 0)
-            {
-                set_packet_control(pckt, PCtr_MoveRight);
+                view_set_camera_x_inertia(cam, -mousePosDelta.x * magicConvertRatioX, 256, false);
             }
 
-            if (deltaPosY > 0)
+            if (mousePosDelta.y != 0)
             {
-                set_packet_control(pckt, PCtr_MoveUp);
-            }
-            else if (deltaPosY < 0)
-            {
-                set_packet_control(pckt, PCtr_MoveDown);
+                view_set_camera_y_inertia(cam, -mousePosDelta.y * magicConvertRatioY, 256, false);
             }
 
             LbMouseOnMove(dstPos);

@@ -748,7 +748,7 @@ long pinstfs_fade_to_map(struct PlayerInfo *player, long *n)
   cam = player->acamera;
   player->field_4BD = 0;
   player->allocflags |= PlaF_Unknown80;
-  player->field_4B5 = cam->field_6;
+  player->field_4B5 = cam->viewType;
   if (is_my_player(player))
   {
     set_flag_byte(&player->field_1, 0x02, settings.tooltips_on);
