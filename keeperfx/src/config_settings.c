@@ -56,7 +56,7 @@ void setup_default_settings(void)
      90,                        // redbook_volume
      1,                         // field_8
      0,                         // gamma_correction
-     Lb_SCREEN_MODE_640_400,    // Default Screen mode 0x004 640X400
+     Lb_SCREEN_MODE_640_480,    // Default Screen mode 0x004 640X400
      {
           {KC_UP, KMod_NONE},       {KC_DOWN, KMod_NONE},
           {KC_LEFT, KMod_NONE},     {KC_RIGHT, KMod_NONE},
