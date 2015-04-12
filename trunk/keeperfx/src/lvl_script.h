@@ -130,10 +130,11 @@ enum ScriptVatiables {
   SVar_BATTLES_WON                     = 16,
   SVar_ROOMS_DESTROYED                 = 17,
   SVar_SPELLS_STOLEN                   = 18,
-  SVar_TIMES_BROKEN_INTO               = 19,
+  SVar_ACTION_POINT_TRIGGERED          = 19,
   SVar_GOLD_POTS_STOLEN                = 20,
   SVar_TIMER                           = 21,
   SVar_DUNGEON_DESTROYED               = 22,
+  SVar_TIMES_BROKEN_INTO               = 23,
   SVar_TOTAL_GOLD_MINED                = 24,
   SVar_FLAG                            = 25,
   SVar_ROOM_SLABS                      = 26,
@@ -218,7 +219,7 @@ struct ScriptValue { // sizeof = 16
   unsigned char flags;
   char condit_idx;
   unsigned char valtype;
-  unsigned char field_3;
+  unsigned char plyr_range;
   long field_4;
   long field_8;
   long field_C;
@@ -227,7 +228,7 @@ struct ScriptValue { // sizeof = 16
 struct Condition { // sizeof = 12
   short condit_idx;
   unsigned char status;
-  unsigned char plyr_idx;
+  unsigned char plyr_range;
   unsigned char variabl_type;
   unsigned short variabl_idx;
   unsigned char operation;
@@ -290,23 +291,7 @@ long script_scan_line(char *line,TbBool preloaded);
 const struct CommandDesc *get_next_word(char **line, char *param, int *para_level, const struct CommandDesc *cmdlist_desc);
 const char *script_get_command_name(long cmnd_index);
 
-void command_add_to_party(const char *prtname, const char *crtr_name, long crtr_level, long carried_gold, const char *objectv, long countdown);
-void command_add_party_to_level(const char *plrname, const char *prtname, const char *dst_place, long ncopies);
-void command_add_creature_to_level(const char *plrname, const char *crtr_name, const char *dst_place, long ncopies, long crtr_level, long carried_gold);
-void command_if(const char *plrname, const char *varib_name, const char *operatr, long value);
-void command_add_value(unsigned long var_index, unsigned long val1, long val2, long val3, long val4);
-void command_display_information(long msg_num, const char *where, long x, long y);
-void command_research(const char *plrname, const char *trg_type, const char *trg_name, unsigned long val);
-void command_if_action_point(long apt_idx, const char *plrname);
-void command_add_tunneller_to_level(const char *plrname, const char *dst_place, const char *objectv, long target, unsigned char crtr_level, unsigned long carried_gold);
-void command_display_objective(long msg_num, const char *plrname, long a3, long a4);
-void command_add_tunneller_party_to_level(const char *plrname, const char *prtname, const char *apt_num, const char *objectv, long target, char crtr_level, unsigned long carried_gold);
-void command_if_available(const char *plrname, const char *varib_name, const char *operatr, long value);
-void command_if_controls(const char *plrname, const char *varib_name, const char *operatr, long value);
-void command_set_computer_globals(const char *plrname, long a1, long a2, long a3, long a4, long a5, long a6);
-void command_set_computer_checks(const char *plrname, const char *chkname, long a1, long a2, long a3, long a4, long a5);
-void command_set_computer_events(const char *plrname, const char *evntname, long a1, long a2);
-void command_set_computer_process(const char *plrname, const char *procname, long a1, long a2, long a3, long a4, long a5);
+void command_add_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4);
 void command_message(const char *msgtext, unsigned char kind);
 unsigned short get_map_location_type(TbMapLocation location);
 unsigned long get_map_location_longval(TbMapLocation location);
@@ -336,7 +321,7 @@ TbBool process_activation_status(struct Condition *condt);
 long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned char a3);
 TbBool get_condition_status(unsigned char opkind, long val1, long val2);
 TbBool condition_inactive(long cond_idx);
-TbBool action_point_activated_by_player(long apt_idx,PlayerNumber plyr_idx);
+TbBool action_point_activated_by_player(ActionPointId apt_idx, PlayerNumber plyr_idx);
 TbBool is_condition_met(long condit_idx);
 void process_conditions(void);
 void process_values(void);
