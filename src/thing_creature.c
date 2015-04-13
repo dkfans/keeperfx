@@ -577,7 +577,7 @@ struct Thing *get_enemy_soul_container_creature_can_see(struct Thing *creatng)
 
     for (enemy_idx = 0; enemy_idx < DUNGEONS_COUNT; enemy_idx++)
     {
-        if ( players_are_enemies(creatng->owner, enemy_idx) )
+        if (players_are_enemies(creatng->owner, enemy_idx))
         {
             struct Thing * heartng;
             heartng = get_players_soul_container_creature_can_see(creatng, enemy_idx);

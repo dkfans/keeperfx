@@ -193,8 +193,8 @@ TbBool action_point_is_creature_from_list_within(const struct ActionPoint *apt, 
         } else
         {
             long dist;
-            dist = get_distance_xy(thing->mappos.x.stl.num, thing->mappos.y.stl.num, apt->mappos.x.stl.num, apt->mappos.y.stl.num);
-            if (coord_subtile(apt->range) > dist) {
+            dist = get_distance_xy(thing->mappos.x.val, thing->mappos.y.val, apt->mappos.x.val, apt->mappos.y.val);
+            if (apt->range > dist) {
                 return true;
             }
         }
@@ -255,7 +255,7 @@ TbBool process_action_points(void)
       apt = &game.action_points[i];
       if ((apt->flags & AptF_Exists) != 0)
       {
-        if (((apt->num + game.play_gameturn) & 0x1F) == 0)
+        if (((apt->num + game.play_gameturn) & 0x07) == 0)
         {
           apt->activated = action_point_get_players_within(i);
 //if (i==1) show_onscreen_msg(2*game.num_fps, "APT PLYRS %d", (int)apt->activated);
