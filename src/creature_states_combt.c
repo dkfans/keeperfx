@@ -1488,9 +1488,14 @@ short creature_door_combat(struct Thing *creatng)
         set_start_state(creatng);
         return 0;
     }
-    if (!combat_enemy_exists(creatng, doortng) || (doortng->active_state == 1))
+    if (!combat_enemy_exists(creatng, doortng) || (doortng->active_state == DorSt_Open))
     {
         check_map_explored(creatng, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
+        set_start_state(creatng);
+        return 0;
+    }
+    if (players_are_mutual_allies(creatng->owner, doortng->owner))
+    {
         set_start_state(creatng);
         return 0;
     }
@@ -2908,7 +2913,12 @@ short creature_object_combat(struct Thing *creatng)
         set_start_state(creatng);
         return 0;
     }
-    if (!combat_enemy_exists(creatng, objctng) || (objctng->active_state == 3))
+    if (!combat_enemy_exists(creatng, objctng) || (objctng->active_state == ObSt_BeingDestroyed))
+    {
+        set_start_state(creatng);
+        return 0;
+    }
+    if (!players_are_enemies(creatng->owner, objctng->owner))
     {
         set_start_state(creatng);
         return 0;

@@ -691,7 +691,7 @@ short good_doing_nothing(struct Thing *creatng)
             cctrl->party.target_plyr_idx = -1;
             return 0;
         }
-        if (player->victory_state != VicS_LostLevel)
+        if ((player->victory_state != VicS_LostLevel) && players_are_enemies(creatng->owner, target_plyr_idx))
         {
             nturns = game.play_gameturn - cctrl->long_91;
             if (nturns > 400)
@@ -719,7 +719,7 @@ short good_doing_nothing(struct Thing *creatng)
             }
         } else
         {
-            // The player we've chosen has lost - we'll have to find other target
+            // The player we've chosen has lost or is not an enemy - we'll have to find other target
             cctrl->party.target_plyr_idx = -1;
         }
     }
