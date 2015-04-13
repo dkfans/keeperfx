@@ -159,18 +159,18 @@ enum ScriptVatiables {
 };
 
 enum MapLocationTypes {
-    MLoc_NONE                          =  0,
-    MLoc_ACTIONPOINT                   =  1,
-    MLoc_HEROGATE                      =  2,
-    MLoc_PLAYERSHEART                  =  3,
-    MLoc_CREATUREKIND                  =  4,
-    MLoc_OBJECTKIND                    =  5,
-    MLoc_ROOMKIND                      =  6,
-    MLoc_THING                         =  7,
-    MLoc_PLAYERSDUNGEON                =  8,
-    MLoc_APPROPRTDUNGEON               =  9,
-    MLoc_DOORKIND                      = 10,
-    MLoc_TRAPKIND                      = 11,
+    MLoc_NONE = 0,
+    MLoc_ACTIONPOINT,
+    MLoc_HEROGATE,
+    MLoc_PLAYERSHEART,
+    MLoc_CREATUREKIND,
+    MLoc_OBJECTKIND,
+    MLoc_ROOMKIND,
+    MLoc_THING,
+    MLoc_PLAYERSDUNGEON,
+    MLoc_APPROPRTDUNGEON,
+    MLoc_DOORKIND,
+    MLoc_TRAPKIND,
 };
 
 /******************************************************************************/
