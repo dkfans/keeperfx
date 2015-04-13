@@ -32,6 +32,7 @@ enum PlayerNames {
     PLAYER2          =  2,
     PLAYER3          =  3,
     PLAYER_GOOD      =  4,
+    PLAYER_NEUTRAL   =  5,
     ALL_PLAYERS      =  8,
 };
 

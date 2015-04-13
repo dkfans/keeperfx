@@ -575,6 +575,9 @@ long get_players_range_single_f(long plr_range_id, const char *func_name, long l
     if (plr_range_id == PLAYER_GOOD) {
         return game.hero_player_num;
     }
+    if (plr_range_id == PLAYER_NEUTRAL) {
+        return game.neutral_player_num;
+    }
     if (plr_range_id < PLAYERS_COUNT)
     {
         return plr_range_id;
@@ -599,6 +602,12 @@ long get_players_range_f(long plr_range_id, int *plr_start, int *plr_end, const 
     {
         *plr_start = game.hero_player_num;
         *plr_end = game.hero_player_num+1;
+        return plr_range_id;
+    } else
+    if (plr_range_id == PLAYER_NEUTRAL)
+    {
+        *plr_start = game.neutral_player_num;
+        *plr_end = game.neutral_player_num+1;
         return plr_range_id;
     } else
     if (plr_range_id < PLAYERS_COUNT)
@@ -965,7 +974,7 @@ void command_add_to_party(const char *prtname, const char *crtr_name, long crtr_
 
 void command_tutorial_flash_button(long btn_id, long duration)
 {
-  command_add_value(Cmd_TUTORIAL_FLASH_BUTTON, 0, btn_id, duration, 0);
+  command_add_value(Cmd_TUTORIAL_FLASH_BUTTON, ALL_PLAYERS, btn_id, duration, 0);
 }
 
 void command_add_party_to_level(long plr_range_id, const char *prtname, const char *locname, long ncopies)
@@ -1217,12 +1226,12 @@ void command_set_generate_speed(long game_turns)
       SCRPTERRLOG("Generation speed must be positive number");
       return;
     }
-    command_add_value(Cmd_SET_GENERATE_SPEED, 0, game_turns, 0, 0);
+    command_add_value(Cmd_SET_GENERATE_SPEED, ALL_PLAYERS, game_turns, 0, 0);
 }
 
 void command_dead_creatures_return_to_pool(long val)
 {
-    command_add_value(Cmd_DEAD_CREATURES_RETURN_TO_POOL, 0, val, 0, 0);
+    command_add_value(Cmd_DEAD_CREATURES_RETURN_TO_POOL, ALL_PLAYERS, val, 0, 0);
 }
 
 void command_bonus_level_time(long game_turns)
@@ -1232,7 +1241,7 @@ void command_bonus_level_time(long game_turns)
         SCRPTERRLOG("Bonus time must be nonnegative");
         return;
     }
-    command_add_value(Cmd_BONUS_LEVEL_TIME, 0, game_turns, 0, 0);
+    command_add_value(Cmd_BONUS_LEVEL_TIME, ALL_PLAYERS, game_turns, 0, 0);
 }
 
 void player_reveal_map_area(PlayerNumber plyr_idx, long x, long y, long w, long h)
@@ -1260,11 +1269,13 @@ void command_set_start_money(long plr_range_id, long gold_val)
 {
   int plr_start, plr_end;
   int i;
-  if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0)
-    return;
+  if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0) {
+      SCRPTERRLOG("Given owning player range %d is not supported in this command",(int)plr_range_id);
+      return;
+  }
   if (script_current_condition != -1)
   {
-    SCRPTWRNLOG("Start money set inside conditional block");
+    SCRPTWRNLOG("Start money set inside conditional block; condition ignored");
   }
   for (i=plr_start; i < plr_end; i++) {
       player_add_offmap_gold(i, gold_val);
@@ -1343,8 +1354,10 @@ void command_research_order(long plr_range_id, const char *trg_type, const char 
     int plr_start, plr_end;
     long item_type,item_id;
     long i;
-    if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0)
-      return;
+    if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0) {
+        SCRPTERRLOG("Given owning player range %d is not supported in this command",(int)plr_range_id);
+        return;
+    }
     for (i=plr_start; i < plr_end; i++)
     {
         dungeon = get_dungeon(i);
@@ -1389,8 +1402,10 @@ void command_computer_player(long plr_range_id, long comp_model)
     }
     int plr_start, plr_end;
     long i;
-    if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0)
-      return;
+    if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0) {
+        SCRPTERRLOG("Given owning player range %d is not supported in this command",(int)plr_range_id);
+        return;
+    }
     for (i=plr_start; i < plr_end; i++)
     {
         script_support_setup_player_as_computer_keeper(i, comp_model);
@@ -1609,7 +1624,7 @@ void command_add_creature_to_pool(const char *crtr_name, long amount)
         SCRPTERRLOG("Invalid number of '%s' creatures for pool, %d", crtr_name, amount);
         return;
     }
-    command_add_value(Cmd_ADD_CREATURE_TO_POOL, PLAYER_GOOD, crtr_id, amount, 0);
+    command_add_value(Cmd_ADD_CREATURE_TO_POOL, ALL_PLAYERS, crtr_id, amount, 0);
 }
 
 void command_reset_action_point(long apt_num)
@@ -1621,7 +1636,7 @@ void command_reset_action_point(long apt_num)
     SCRPTERRLOG("Non-existing Action Point, no %d", apt_num);
     return;
   }
-  command_add_value(Cmd_RESET_ACTION_POINT, PLAYER_GOOD, apt_idx, 0, 0);
+  command_add_value(Cmd_RESET_ACTION_POINT, ALL_PLAYERS, apt_idx, 0, 0);
 }
 
 void command_set_creature_max_level(long plr_range_id, const char *crtr_name, long crtr_level)
@@ -1644,7 +1659,7 @@ void command_set_music(long val)
 {
   if (script_current_condition != -1)
   {
-    SCRPTWRNLOG("Music set inside conditional block");
+    SCRPTWRNLOG("Music set inside conditional block; condition ignored");
   }
   game.music_track_index = val;
 }
@@ -1754,8 +1769,10 @@ void command_set_computer_globals(long plr_range_id, long val1, long val2, long 
   struct Computer2 *comp;
   int plr_start, plr_end;
   long i;
-  if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0)
-    return;
+  if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0) {
+      SCRPTERRLOG("Given owning player range %d is not supported in this command",(int)plr_range_id);
+      return;
+  }
   if (script_current_condition != -1)
   {
     SCRPTWRNLOG("Computer globals altered inside conditional block; condition ignored");
@@ -1780,8 +1797,10 @@ void command_set_computer_checks(long plr_range_id, const char *chkname, long va
   struct ComputerCheck *ccheck;
   int plr_start, plr_end;
   long i,k,n;
-  if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0)
-    return;
+  if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0) {
+      SCRPTERRLOG("Given owning player range %d is not supported in this command",(int)plr_range_id);
+      return;
+  }
   if (script_current_condition != -1)
   {
     SCRPTWRNLOG("Computer check altered inside conditional block; condition ignored");
@@ -1825,8 +1844,10 @@ void command_set_computer_events(long plr_range_id, const char *evntname, long v
   struct ComputerEvent *event;
   int plr_start, plr_end;
   long i,k,n;
-  if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0)
-    return;
+  if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0) {
+      SCRPTERRLOG("Given owning player range %d is not supported in this command",(int)plr_range_id);
+      return;
+  }
   if (script_current_condition != -1)
   {
     SCRPTWRNLOG("Computer event altered inside conditional block; condition ignored");
@@ -1865,8 +1886,10 @@ void command_set_computer_process(long plr_range_id, const char *procname, long 
   struct ComputerProcess *cproc;
   int plr_start, plr_end;
   long i,k,n;
-  if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0)
-    return;
+  if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0) {
+      SCRPTERRLOG("Given owning player range %d is not supported in this command",(int)plr_range_id);
+      return;
+  }
   if (script_current_condition != -1)
   {
     SCRPTWRNLOG("Computer process altered inside conditional block; condition ignored");
@@ -1919,7 +1942,7 @@ void command_set_creature_health(const char *crtr_name, long val)
     SCRPTERRLOG("Invalid '%s' health value, %d", crtr_name, val);
     return;
   }
-  command_add_value(Cmd_SET_CREATURE_HEALTH, 0, crtr_id, val, 0);
+  command_add_value(Cmd_SET_CREATURE_HEALTH, ALL_PLAYERS, crtr_id, val, 0);
 }
 
 void command_set_creature_strength(const char *crtr_name, long val)
@@ -1936,7 +1959,7 @@ void command_set_creature_strength(const char *crtr_name, long val)
     SCRPTERRLOG("Invalid '%s' strength value, %d", crtr_name, val);
     return;
   }
-  command_add_value(Cmd_SET_CREATURE_STRENGTH, 0, crtr_id, val, 0);
+  command_add_value(Cmd_SET_CREATURE_STRENGTH, ALL_PLAYERS, crtr_id, val, 0);
 }
 
 void command_set_creature_armour(const char *crtr_name, long val)
@@ -1953,7 +1976,7 @@ void command_set_creature_armour(const char *crtr_name, long val)
     SCRPTERRLOG("Invalid '%s' armour value, %d", crtr_name, val);
     return;
   }
-  command_add_value(Cmd_SET_CREATURE_ARMOUR, 0, crtr_id, val, 0);
+  command_add_value(Cmd_SET_CREATURE_ARMOUR, ALL_PLAYERS, crtr_id, val, 0);
 }
 
 void command_set_creature_fear_wounded(const char *crtr_name, long val)
@@ -1970,7 +1993,7 @@ void command_set_creature_fear_wounded(const char *crtr_name, long val)
     SCRPTERRLOG("Invalid '%s' fear value, %d", crtr_name, val);
     return;
   }
-  command_add_value(Cmd_SET_CREATURE_FEAR_WOUNDED, 0, crtr_id, val, 0);
+  command_add_value(Cmd_SET_CREATURE_FEAR_WOUNDED, ALL_PLAYERS, crtr_id, val, 0);
 }
 
 void command_set_creature_fear_stronger(const char *crtr_name, long val)
@@ -1987,7 +2010,7 @@ void command_set_creature_fear_stronger(const char *crtr_name, long val)
     SCRPTERRLOG("Invalid '%s' fear value, %d", crtr_name, val);
     return;
   }
-  command_add_value(Cmd_SET_CREATURE_FEAR_STRONGER, 0, crtr_id, val, 0);
+  command_add_value(Cmd_SET_CREATURE_FEAR_STRONGER, ALL_PLAYERS, crtr_id, val, 0);
 }
 
 /**
@@ -3449,7 +3472,7 @@ TbBool process_activation_status(struct Condition *condt)
     long i;
     if (get_players_range(condt->plyr_range, &plr_start, &plr_end) < 0)
     {
-        WARNLOG("Invalid player index %d in CONDITION command %d.",(int)condt->plyr_range,(int)condt->variabl_type);
+        WARNLOG("Invalid player range %d in CONDITION command %d.",(int)condt->plyr_range,(int)condt->variabl_type);
         return false;
     }
     {
@@ -3661,7 +3684,7 @@ void process_condition(struct Condition *condt)
     }
     if (get_players_range(condt->plyr_range, &plr_start, &plr_end) < 0)
     {
-        WARNLOG("Invalid player index %d in CONDITION command %d.",(int)condt->plyr_range,(int)condt->variabl_type);
+        WARNLOG("Invalid player range %d in CONDITION command %d.",(int)condt->plyr_range,(int)condt->variabl_type);
         return;
     }
     if (condt->variabl_type == SVar_ACTION_POINT_TRIGGERED)
@@ -3834,7 +3857,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   long i;
   if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0)
   {
-      WARNLOG("Invalid player index %ld in VALUE command %ld.",plr_range_id,var_index);
+      WARNLOG("Invalid player range %d in VALUE command %d.",(int)plr_range_id,(int)var_index);
       return;
   }
   switch (var_index)

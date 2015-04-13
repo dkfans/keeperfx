@@ -21,6 +21,8 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_memory.h"
+#include "bflib_planar.h"
+
 #include "game_legacy.h"
 
 #ifdef __cplusplus
@@ -37,7 +39,7 @@ struct ActionPoint *action_point_get_free(void)
     for (apt_idx=1; apt_idx < ACTN_POINTS_COUNT; apt_idx++)
     {
         apt = &game.action_points[apt_idx];
-        if ((apt->flags & 0x01) == 0)
+        if ((apt->flags & AptF_Exists) == 0)
             return apt;
     }
     return INVALID_ACTION_POINT;
@@ -58,7 +60,7 @@ struct ActionPoint *allocate_free_action_point_structure_with_number(long apt_nu
         ERRORLOG("No free action points to allocate");
         return INVALID_ACTION_POINT;
     }
-    apt->flags |= 0x01;
+    apt->flags |= AptF_Exists;
     apt->num = apt_num;
     apt->activated = 0;
     return apt;
@@ -118,7 +120,7 @@ TbBool action_point_exists(const struct ActionPoint *apt)
 {
     if (action_point_is_invalid(apt))
         return false;
-    return ((apt->flags & 0x01) != 0);
+    return ((apt->flags & AptF_Exists) != 0);
 }
 
 TbBool action_point_exists_idx(ActionPointId apt_idx)
@@ -127,7 +129,7 @@ TbBool action_point_exists_idx(ActionPointId apt_idx)
     apt = action_point_get(apt_idx);
     if (action_point_is_invalid(apt))
         return false;
-    return ((apt->flags & 0x01) != 0);
+    return ((apt->flags & AptF_Exists) != 0);
 }
 
 TbBool action_point_exists_number(long apt_num)
@@ -136,7 +138,7 @@ TbBool action_point_exists_number(long apt_num)
     apt = action_point_get_by_number(apt_num);
     if (action_point_is_invalid(apt))
         return false;
-    return ((apt->flags & 0x01) != 0);
+    return ((apt->flags & AptF_Exists) != 0);
 }
 
 TbBool action_point_reset_idx(ActionPointId apt_idx)
@@ -146,7 +148,7 @@ TbBool action_point_reset_idx(ActionPointId apt_idx)
     if (action_point_is_invalid(apt))
         return false;
     apt->activated = 0;
-    return ((apt->flags & 0x01) != 0);
+    return ((apt->flags & AptF_Exists) != 0);
 }
 
 /**
@@ -160,9 +162,87 @@ unsigned long get_action_point_activated_by_players_mask(ActionPointId apt_idx)
     return apt->activated;
 }
 
+TbBool action_point_is_creature_from_list_within(const struct ActionPoint *apt, long first_thing_idx)
+{
+    unsigned long k;
+    int i;
+    SYNCDBG(8,"Starting");
+    k = 0;
+    i = first_thing_idx;
+    while (i != 0)
+    {
+        struct Thing *thing;
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        // Range of 0 means activate when on the same subtile
+        if (apt->range <= 0)
+        {
+            if ((apt->mappos.x.stl.num == thing->mappos.x.stl.num)
+             && (apt->mappos.y.stl.num == thing->mappos.y.stl.num)) {
+                return true;
+            }
+        } else
+        {
+            long dist;
+            dist = get_distance_xy(thing->mappos.x.stl.num, thing->mappos.y.stl.num, apt->mappos.x.stl.num, apt->mappos.y.stl.num);
+            if (coord_subtile(apt->range) > dist) {
+                return true;
+            }
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    return false;
+}
+
 PerPlayerFlags action_point_get_players_within(long apt_idx)
 {
-    return _DK_action_point_get_players_within(apt_idx);
+    //return _DK_action_point_get_players_within(apt_idx);
+    struct ActionPoint *apt;
+    apt = action_point_get(apt_idx);
+    PerPlayerFlags activated;
+    activated = apt->activated;
+    PlayerNumber plyr_idx;
+    for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    {
+        struct PlayerInfo *player;
+        player = get_player(plyr_idx);
+        if (player_exists(player))
+        {
+            if ((activated & (1 << plyr_idx)) == 0)
+            {
+                struct Dungeon *dungeon;
+                dungeon = get_players_dungeon(player);
+                if (dungeon_invalid(dungeon)) {
+                    continue;
+                }
+                SYNCDBG(16,"Checking player %d",(int)plyr_idx);
+                if (action_point_is_creature_from_list_within(apt, dungeon->digger_list_start)) {
+                    activated |= (1 << plyr_idx);
+                    continue;
+                }
+                if (action_point_is_creature_from_list_within(apt, dungeon->creatr_list_start)) {
+                    activated |= (1 << plyr_idx);
+                    continue;
+                }
+            }
+        }
+    }
+    return activated;
 }
 
 TbBool process_action_points(void)
@@ -173,7 +253,7 @@ TbBool process_action_points(void)
     for (i=1; i < ACTN_POINTS_COUNT; i++)
     {
       apt = &game.action_points[i];
-      if (apt->flags & 0x01)
+      if ((apt->flags & AptF_Exists) != 0)
       {
         if (((apt->num + game.play_gameturn) & 0x1F) == 0)
         {
@@ -196,7 +276,7 @@ void clear_action_points(void)
 
 void delete_action_point_structure(struct ActionPoint *apt)
 {
-    if (apt->flags & 0x01)
+    if ((apt->flags & AptF_Exists) != 0)
     {
         LbMemorySet(apt, 0, sizeof(struct ActionPoint));
     }
