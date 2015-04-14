@@ -23,7 +23,7 @@
 #include "bflib_basics.h"
 #include "globals.h"
 
-#define DEFAULT_MOUSE_MOVE_RATIO 256
+#define DEFAULT_MOUSE_MOVE_RATIO 256.0
 
 #ifdef __cplusplus
 extern "C" {

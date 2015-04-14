@@ -35,6 +35,8 @@
 
 #include "packets.h"
 #include "player_data.h"
+#include "power_hand.h"
+#include "map_data.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -194,8 +196,8 @@ TbPoint ScaleMouseMove(struct TbPoint posDelta)
     }
 
     // Scale coordinate
-    scaledMouseMove.x = posDelta.x* (long)lbDisplay.MouseMoveRatio / DEFAULT_MOUSE_MOVE_RATIO;
-    scaledMouseMove.y = posDelta.y* (long)lbDisplay.MouseMoveRatio / DEFAULT_MOUSE_MOVE_RATIO;
+    scaledMouseMove.x = (long)((float)(posDelta.x)* (float)lbDisplay.MouseMoveRatio / DEFAULT_MOUSE_MOVE_RATIO);
+    scaledMouseMove.y = (long)((float)(posDelta.y)* (float)lbDisplay.MouseMoveRatio / DEFAULT_MOUSE_MOVE_RATIO);
 
     return scaledMouseMove;
 }
@@ -256,33 +258,78 @@ void _get_mouse_state(TbPoint *positionDelta, TbPoint *destination)
     }
 }
 
+void _get_camera_move_ratio(Camera * cam, double *ratioX, double *ratioY)
+{
+    if (cam)
+    {
+        // TODO HeM: remove magicNumber and use correct formula.
+        double magicNumber;
+
+        // Zoom seems to be between 4100 (fareast) and 12000 (nearest)
+        if (cam && cam->zoom >= 4100 && cam->zoom <= 12000)
+        {
+            magicNumber = 58080.0 / float(cam->zoom);
+            *ratioX = magicNumber * (640.0 / float(lbDisplay.PhysicalScreenWidth));
+        }
+
+        // Scaling seems always follow width even resolution is not 4:3.
+        // TODO HeM verify the above line.
+        *ratioY = magicNumber * 1.3433 *  (640.0 / float(lbDisplay.PhysicalScreenWidth));
+    }
+}
+
 void mouseControl(unsigned int action)
 {
     struct PlayerInfo *player;
     player = get_my_player();
+
     struct Packet *pckt;
     pckt = get_packet(my_player_number);
+
     struct Camera *cam;
     cam = player->acamera;
-    // Can only get package while in a game.
 
-    bool isInGame = pckt;
+    MapSubtlCoord stl_x, stl_y;
+    // Current slab under power hand.
+    struct SlabMap *slb;
 
-    bool isEmptyCamera;
-    bool isHandEmpty;
-    bool isNoActionOnClick;
-    bool isDragingEnabled = isInGame && isEmptyCamera && isHandEmpty && isNoActionOnClick;
+    double cameraMoveRatioX = 0;
+    double cameraMoveRatioY = 0;    
 
-    long magicConvertRatioX = 1000;
-    // zoom seems to be between 4100 and 12000
-    if (cam && cam->zoom >= 4100 && cam->zoom <= 12000)
-    {
-        magicConvertRatioX = 35000 / cam->zoom;
-    }
-    long magicConvertRatioY = magicConvertRatioX *1.73205;
+    // fractional part of move distance will be accumulated to next turn.
+    static double calibrationMoveX = 0;
+    static double calibrationMoveY = 0;
+
+    bool isInGame = 0; 
+    bool isEmptyCamera = 0;
+    bool isNothingInHand = 0;
+    bool isNothingToPickupOrSlap = 0;
+    bool isNothingToDig = 0;
+    bool isNothingTodoOnLeftClick = 0;
+    bool isNothingTodoOnRightClick = 0;
 
     bool isCtrlDown = lbInkeyFlags & KMod_CONTROL;
-    bool isAltDown = lbInkeyFlags & KMod_ALT;
+
+    // Used instead of lpDisplay.LButton when ctrl is pressed.
+    static bool isCtrlAndLeftButtonDown = false;
+    static bool isCtrlAndRightButtonDown = false;
+
+    // Get current slab power hand is above.
+    if (pckt && player && cam)
+    {
+        stl_x = player->field_4AB;
+        stl_y = player->field_4AD;
+        _get_camera_move_ratio(cam, &cameraMoveRatioX, &cameraMoveRatioY);
+
+        isInGame = 1; // TODO HeM
+        isEmptyCamera = (cam) && (cam->viewType == CAMERA_VIEW_EMPTY);
+        isNothingInHand = (player) && power_hand_is_empty(player);
+        isNothingToPickupOrSlap = (player) && (player->thing_under_hand == 0);
+        isNothingToDig = !can_dig_here(stl_x, stl_y, my_player_number);
+
+        isNothingTodoOnLeftClick = isInGame && isEmptyCamera && isNothingToPickupOrSlap && isNothingToDig;
+        isNothingTodoOnRightClick = isInGame && isEmptyCamera && isNothingToPickupOrSlap && isNothingInHand;
+    }
 
     struct TbPoint mousePosDelta;
     struct TbPoint dstPos;
@@ -292,81 +339,99 @@ void mouseControl(unsigned int action)
     switch ( action )
     {
     case MActn_MOUSEMOVE:
-        // TODO: HeM: Draging function is primitive and should be improved in future.
-        // At least align the mouse location.
-        if ((lbDisplay.MRightButton && isAltDown))
-        {           
-            // Alt + right drag to rotate camera
-            if (mousePosDelta.x > 0)
-            {
-                set_packet_control(pckt, PCtr_ViewRotateCCW);
-            }
-            else if (mousePosDelta.x < 0)
-            {
-                set_packet_control(pckt, PCtr_ViewRotateCW);
-            }
-           
-        }
-        else if (lbDisplay.MRightButton && isCtrlDown)
+        // Drag to move camera when ctrl is pressed, or there is nothing else to do.
+        if (isCtrlAndLeftButtonDown || 
+            (lbDisplay.MLeftButton && isNothingTodoOnLeftClick))
         {
+            double accumulateMoveX = mousePosDelta.x * cameraMoveRatioX + calibrationMoveX;
+            double accumulateMoveY = mousePosDelta.y * cameraMoveRatioY + calibrationMoveY;
+
+            // Accumulate fractional part to next turn.
+            calibrationMoveX = accumulateMoveX - long(accumulateMoveX);
+            calibrationMoveY = accumulateMoveY - long(accumulateMoveY);
+
             if (mousePosDelta.x != 0)
             {
-                view_set_camera_x_inertia(cam, -mousePosDelta.x * magicConvertRatioX, 256, false);
+                view_set_camera_x_inertia(cam, -long(accumulateMoveX), 100000/*do not allow overflow*/, false);
             }
 
             if (mousePosDelta.y != 0)
             {
-                view_set_camera_y_inertia(cam, -mousePosDelta.y * magicConvertRatioY, 256, false);
+                view_set_camera_y_inertia(cam, -long(accumulateMoveY), 100000/*do not allow overflow*/, false);
             }
+        }
+        // Right drag to rotate camera when ctrl is pressed, or there is nothing else to do.
+        else if (isCtrlAndRightButtonDown || 
+            (lbDisplay.MRightButton && isNothingTodoOnRightClick))
+        {   
+            // TODO HeM recalculate rotate angle to be more responsive to mouse movement.
+            view_set_camera_rotation_inertia(cam, mousePosDelta.x / 4, 100000/*do not allow overflow*/, true);
+        }
 
-            LbMouseOnMove(dstPos);
-        }
-        else
-        {
-            // Normal mouse move
-            LbMouseOnMove(dstPos);
-        }
+        // Normal mouse move
+        LbMouseOnMove(dstPos);
+
         break;
     case MActn_LBUTTONDOWN:
         lbDisplay.MLeftButton = 1;
-        if ( !lbDisplay.LeftButton )
+        LbMouseOnMove(dstPos);
+        if (!lbDisplay.LeftButton && !isCtrlAndLeftButtonDown)
         {
-            LbMouseOnMove(dstPos);
             lbDisplay.MouseX = lbDisplay.MMouseX;
             lbDisplay.MouseY = lbDisplay.MMouseY;
             lbDisplay.RLeftButton = 0;
-            lbDisplay.LeftButton = 1;
+
+            if (!isCtrlDown)
+            {
+                lbDisplay.LeftButton = 1;
+            }
+            else
+            {
+                isCtrlAndLeftButtonDown = true;
+            }
         }
         break;
     case MActn_LBUTTONUP:
         lbDisplay.MLeftButton = 0;
+        LbMouseOnMove(dstPos);
         if ( !lbDisplay.RLeftButton )
         {
-            LbMouseOnMove(dstPos);
             lbDisplay.RMouseX = lbDisplay.MMouseX;
             lbDisplay.RMouseY = lbDisplay.MMouseY;
             lbDisplay.RLeftButton = 1;
+
+            isCtrlAndLeftButtonDown = false;
         }
         break;
     case MActn_RBUTTONDOWN:
         lbDisplay.MRightButton = 1;
-        if ( !lbDisplay.RightButton )
+        LbMouseOnMove(dstPos);
+        if (!lbDisplay.RightButton  && !isCtrlAndRightButtonDown)
         {
-            LbMouseOnMove(dstPos);
             lbDisplay.MouseX = lbDisplay.MMouseX;
             lbDisplay.MouseY = lbDisplay.MMouseY;
             lbDisplay.RRightButton = 0;
-            lbDisplay.RightButton = 1;
+
+            if (!isCtrlDown)
+            {
+                lbDisplay.RightButton = 1;
+            }
+            else
+            {
+                isCtrlAndRightButtonDown = true;
+            }
         }
         break;
     case MActn_RBUTTONUP:
         lbDisplay.MRightButton = 0;
+        LbMouseOnMove(dstPos);
         if ( !lbDisplay.RRightButton )
         {
-            LbMouseOnMove(dstPos);
             lbDisplay.RMouseX = lbDisplay.MMouseX;
             lbDisplay.RMouseY = lbDisplay.MMouseY;
             lbDisplay.RRightButton = 1;
+
+            isCtrlAndRightButtonDown = false;
         }
         break;
     case MActn_WHEELUP:
@@ -403,7 +468,7 @@ TbResult LbMouseChangeMoveRatio(long ratio_x, long ratio_y)
         return Lb_FAIL;
     if ((ratio_y < -8192) || (ratio_y > 8192) || (ratio_y == 0))
         return Lb_FAIL;
-    SYNCLOG("New ratio %ldx%ld", ratio_x * 100 / DEFAULT_MOUSE_MOVE_RATIO, ratio_y * 100 / DEFAULT_MOUSE_MOVE_RATIO);
+    SYNCLOG("New ratio %ldx%ld", ratio_x , ratio_y);
     // Currently we don't have two ratio factors, so let's store an average
     lbDisplay.MouseMoveRatio = (ratio_x + ratio_y)/2;
     //TODO INPUT Separate mouse ratios in X and Y direction when lbDisplay from DLL will no longer be used.
