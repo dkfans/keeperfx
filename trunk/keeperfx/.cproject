@@ -26,9 +26,15 @@
 									<entry flags="VALUE_WORKSPACE_PATH" kind="outputPath" name="tools/png2bestpal/obj"/>
 									<entry flags="VALUE_WORKSPACE_PATH" kind="outputPath" name="tools/pngpal2raw/bin"/>
 									<entry flags="VALUE_WORKSPACE_PATH" kind="outputPath" name="tools/pngpal2raw/obj"/>
+									<entry flags="VALUE_WORKSPACE_PATH" kind="outputPath" name="peresec/bin"/>
+									<entry flags="VALUE_WORKSPACE_PATH" kind="outputPath" name="peresec/obj"/>
 								</outputEntries>
 							</builder>
-							<tool errorParsers="org.eclipse.cdt.core.VCErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GASErrorParser;org.eclipse.cdt.core.GLDErrorParser" id="org.eclipse.cdt.build.core.settings.holder.libs.1558517679" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
+							<tool errorParsers="org.eclipse.cdt.core.VCErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GASErrorParser;org.eclipse.cdt.core.GLDErrorParser" id="org.eclipse.cdt.build.core.settings.holder.libs.1558517679" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs">
+								<option id="org.eclipse.cdt.build.core.settings.holder.libpaths.529062427" superClass="org.eclipse.cdt.build.core.settings.holder.libpaths" valueType="libPaths">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/keeperfx/sdl/lib}&quot;"/>
+								</option>
+							</tool>
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
@@ -62,7 +68,11 @@
 						<toolChain id="org.eclipse.cdt.build.core.prefbase.toolchain.1660473307" name="No ToolChain" superClass="org.eclipse.cdt.build.core.prefbase.toolchain">
 							<targetPlatform binaryParser="" id="org.eclipse.cdt.build.core.prefbase.toolchain.1660473307.2137767868" name=""/>
 							<builder buildPath="${workspace_loc:/keeperfx}" command="mingw32-make" id="org.eclipse.cdt.build.core.settings.default.builder.80109738" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" superClass="org.eclipse.cdt.build.core.settings.default.builder"/>
-							<tool id="org.eclipse.cdt.build.core.settings.holder.libs.64828589" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.libs.64828589" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs">
+								<option id="org.eclipse.cdt.build.core.settings.holder.libpaths.1591382310" superClass="org.eclipse.cdt.build.core.settings.holder.libpaths" valueType="libPaths">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/keeperfx/sdl/lib}&quot;"/>
+								</option>
+							</tool>
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>

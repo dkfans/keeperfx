@@ -237,6 +237,7 @@ DLLIMPORT void _DK_view_move_camera_right(struct Camera *cam, long a2);
 DLLIMPORT void _DK_view_move_camera_up(struct Camera *cam, long a2);
 DLLIMPORT void _DK_view_move_camera_down(struct Camera *cam, long a2);
 DLLIMPORT long _DK_ceiling_block_is_solid_including_corners_return_height(long a1, long a2, long a3);
+DLLIMPORT unsigned long _DK_setup_move_out_of_cave_in(struct Thing *thing);
 // Now variables
 DLLIMPORT extern HINSTANCE _DK_hInstance;
 
@@ -2599,11 +2600,11 @@ void view_process_camera_inertia(struct Camera *cam)
     // Horizontal move
     int i;
     i = cam->horizontalPosDelta;
-    if (i > 0) 
+    if (i > 0)
     {
         view_move_camera_right(cam, abs(i));
     }
-    else if (i < 0) 
+    else if (i < 0)
     {
         view_move_camera_left(cam, abs(i));
     }
@@ -2611,18 +2612,18 @@ void view_process_camera_inertia(struct Camera *cam)
 
     // Vertical move
     i = cam->verticalPosDelta;
-    if (i > 0) 
+    if (i > 0)
     {
         view_move_camera_down(cam, abs(i));
     }
-    else if (i < 0) 
+    else if (i < 0)
     {
         view_move_camera_up(cam, abs(i));
     }
     _process_interia(&(cam->verticalPosDelta), &(cam->verticalInteriaOn));
 
     // Rotation
-    if (cam->rotationDelta) 
+    if (cam->rotationDelta)
     {
         cam->orient_a = (cam->rotationDelta + cam->orient_a) & 0x7FF; // 0000 0111 1111 1111, what is the point?
     }
@@ -2899,9 +2900,150 @@ int clear_active_dungeons_stats(void)
   return i;
 }
 
+unsigned long setup_move_out_of_cave_in(struct Thing *thing)
+{
+    return _DK_setup_move_out_of_cave_in(thing);
+}
+
+TngUpdateRet damage_creatures_with_physical_force(struct Thing *thing, ModTngFilterParam param)
+{
+    SYNCDBG(18,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
+    if (thing_is_picked_up(thing) || thing_is_dragged_or_pulled(thing))
+    {
+        return TUFRet_Unchanged;
+    }
+    if (thing_is_creature(thing))
+    {
+        apply_damage_to_thing_and_display_health(thing, param->num2, DmgT_Physical, param->num1);
+        if (thing->health >= 0)
+        {
+            if ((thing->alloc_flags & TAlF_IsControlled) == 0)
+            {
+                if (get_creature_state_besides_interruptions(thing) != CrSt_CreatureEscapingDeath)
+                {
+                    if (cleanup_current_thing_state(thing) && setup_move_out_of_cave_in(thing))
+                        thing->continue_state = CrSt_CreatureEscapingDeath;
+                }
+            }
+            return TUFRet_Modified;
+        } else
+        {
+            kill_creature(thing, INVALID_THING, param->num1, CrDed_NoEffects|CrDed_DiedInBattle);
+            return TUFRet_Deleted;
+        }
+    }
+    return TUFRet_Unchanged;
+}
+
+TbBool valid_cave_in_position(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct Map *mapblk;
+    mapblk = get_map_block_at(stl_x,stl_y);
+    if ((mapblk->flags & SlbAtFlg_Blocking) != 0)
+        return false;
+    struct SlabMap *slb;
+    slb = get_slabmap_for_subtile(stl_x,stl_y);
+    return (plyr_idx == game.neutral_player_num) || (slabmap_owner(slb) == game.neutral_player_num) || (slabmap_owner(slb) == plyr_idx);
+}
+
 long update_cave_in(struct Thing *thing)
 {
-  return _DK_update_cave_in(thing);
+    //return _DK_update_cave_in(thing);
+    thing->health--;
+    thing->field_4F |= 0x01;
+    if (thing->health < 1)
+    {
+        delete_thing_structure(thing, 0);
+        return 1;
+    }
+
+    const struct MagicStats *pwrdynst;
+    pwrdynst = get_power_dynamic_stats(PwrK_CAVEIN);
+    struct Thing *efftng;
+    struct Coord3d pos;
+    PlayerNumber owner;
+    owner = thing->owner;
+    if ((game.play_gameturn % 3) == 0)
+    {
+        int n;
+        n = ACTION_RANDOM(AROUND_TILES_COUNT);
+        pos.x.val = thing->mappos.x.val + ACTION_RANDOM(0x2C0) * around[n].delta_x;
+        pos.y.val = thing->mappos.y.val + ACTION_RANDOM(0x2C0) * around[n].delta_y;
+        if (subtile_has_slab(coord_subtile(pos.x.val),coord_subtile(pos.y.val)))
+        {
+            pos.z.val = get_ceiling_height(&pos) - 128;
+            efftng = create_effect_element(&pos, TngEff_Unknown48, owner);
+            if (!thing_is_invalid(efftng)) {
+                efftng->health = pwrdynst->time;
+            }
+        }
+    }
+
+    GameTurnDelta turns_between, turns_alive;
+    turns_between = pwrdynst->time / 5;
+    turns_alive = game.play_gameturn - thing->creation_turn;
+    if ((turns_alive != 0) && ((turns_between < 1) || (3 * turns_between / 4 == turns_alive % turns_between)))
+    {
+        pos.x.val = thing->mappos.x.val + ACTION_RANDOM(128);
+        pos.y.val = thing->mappos.y.val + ACTION_RANDOM(128);
+        pos.z.val = get_floor_height_at(&pos) + 384;
+        create_effect(&pos, TngEff_Unknown31, owner);
+    }
+
+    if ((turns_alive % game.turns_per_collapse_dngn_dmg) == 0)
+    {
+        pos.x.val = thing->mappos.x.val;
+        pos.y.val = thing->mappos.y.val;
+        pos.z.val = subtile_coord(1,0);
+        Thing_Modifier_Func do_cb;
+        struct CompoundTngFilterParam param;
+        param.plyr_idx = -1;
+        param.class_id = 0;
+        param.model_id = 0;
+        param.num1 = thing->owner;
+        param.num2 = game.collapse_dungeon_damage;
+        param.ptr3 = 0;
+        do_cb = damage_creatures_with_physical_force;
+        do_to_things_with_param_around_map_block(&pos, do_cb, &param);
+    }
+
+    if ((8 * pwrdynst->time / 10 >= thing->health) && (2 * pwrdynst->time / 10 <= thing->health))
+    {
+        if ((pwrdynst->time < 10) || ((thing->health % (pwrdynst->time / 10)) == 0))
+        {
+            int round_idx;
+            round_idx = ACTION_RANDOM(AROUND_TILES_COUNT);
+            set_coords_to_slab_center(&pos, subtile_slab(thing->mappos.x.val + 3 * around[round_idx].delta_x), subtile_slab(thing->mappos.y.val + 3 * around[round_idx].delta_y));
+            if (subtile_has_slab(coord_subtile(pos.x.val), coord_subtile(pos.y.val)) && valid_cave_in_position(thing->owner, coord_subtile(pos.x.val), coord_subtile(pos.y.val)))
+            {
+                struct Thing *ncavitng;
+                ncavitng = get_cavein_at_subtile_owned_by(coord_subtile(pos.x.val), coord_subtile(pos.y.val), -1);
+                if (thing_is_invalid(ncavitng))
+                {
+                    long dist;
+                    struct Coord3d pos2;
+                    pos2.x.val = subtile_coord(thing->byte_13,0);
+                    pos2.y.val = subtile_coord(thing->byte_14,0);
+                    pos2.z.val = subtile_coord(1,0);
+                    dist = get_2d_box_distance(&pos, &pos2);
+                    if (pwrdynst->strength[thing->byte_17] >= coord_subtile(dist))
+                    {
+                        ncavitng = create_thing(&pos, TCls_CaveIn, thing->byte_17, owner, -1);
+                        if (!thing_is_invalid(ncavitng))
+                        {
+                            thing->health += 5;
+                            if (thing->health > 0)
+                            {
+                                ncavitng->byte_13 = thing->byte_13;
+                                ncavitng->byte_14 = thing->byte_14;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return 1;
 }
 
 void update(void)
