@@ -226,11 +226,26 @@ typedef struct DisplayStruct TbDisplayStruct;
 
 /** Extensions to DisplayStruct - will be later integrated into it. */
 struct DisplayStructEx {
-    short WhellPosition;
-    ushort WhellMoveUp;
-    ushort WhellMoveDown;
     /** Colour index used for drawing shadow. */
     uchar ShadowColour;
+
+    // Power hand have no creature to pick up, and no slab to dig.
+    uchar isPowerHandNothingTodoLeftClick;
+
+    // Power hand have no creature to drop slap.
+    uchar isPowerHandNothingTodoRightClick;
+
+    // Convert ratio from mouse move distance to camera move distance while dragging.
+    double cameraMoveRatioX, cameraMoveRatioY;
+
+    // Distance of camera to move.
+    double cameraMoveX, cameraMoveY;
+
+    // Angle to rotate the camera.
+    long cameraRotateAngle;
+
+    // Wheel event
+    uchar wheelUp, wheelDown;
 };
 typedef struct DisplayStructEx TbDisplayStructEx;
 

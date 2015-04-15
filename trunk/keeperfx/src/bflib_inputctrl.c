@@ -19,7 +19,6 @@
  */
 /******************************************************************************/
 #include "bflib_inputctrl.h"
-#include "packets.h"
 #include "bflib_basics.h"
 #include "bflib_keybrd.h"
 #include "bflib_mouse.h"
@@ -27,8 +26,6 @@
 #include "bflib_vidsurface.h"
 #include "bflib_planar.h"
 
-#include "packets.h"
-#include "player_data.h"
 #include <SDL2/SDL.h>
 
 #ifdef __cplusplus
@@ -240,7 +237,7 @@ static int keyboard_mods_mapping(const SDL_KeyboardEvent * key)
 
 static void process_event(const SDL_Event *ev)
 {
-    int x, y;
+    int x;
     SYNCDBG(10, "Starting");
 
     switch (ev->type)
@@ -289,11 +286,8 @@ static void process_event(const SDL_Event *ev)
             LbInputRestate();
         }
 
-        if ((lbAppActive) && (lbDisplay.Palette != NULL)) {
-            // Original code :
-            // Below is the faster version of LbPaletteSet(lbDisplay.Palette);
-            // SDL_SetColors(lbPalettedSurface,lbPaletteColors, 0, PALETTE_COLORS);
-
+        if ((lbAppActive) && (lbDisplay.Palette != NULL)) 
+        {
             SDL_Palette *sdl_palette = SDL_AllocPalette(PALETTE_COLORS);
             SDL_SetPaletteColors(sdl_palette, lbPaletteColors, 0, PALETTE_COLORS);
             SDL_SetSurfacePalette(lbPalettedSurface, sdl_palette);

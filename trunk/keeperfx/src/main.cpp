@@ -57,6 +57,7 @@
 #include "lvl_script.h"
 #include "lvl_filesdk1.h"
 #include "thing_list.h"
+#include "player_data.h"
 #include "player_instances.h"
 #include "player_utils.h"
 #include "player_states.h"
@@ -91,6 +92,7 @@
 #include "room_util.h"
 #include "room_library.h"
 #include "map_columns.h"
+#include "map_data.h"
 #include "map_events.h"
 #include "map_utils.h"
 #include "map_blocks.h"
@@ -3521,15 +3523,134 @@ TbBool keeper_wait_for_screen_focus(void)
     return false;
 }
 
+void _get_camera_move_ratio(Camera * cam)
+{
+    if (cam)
+    {
+        // TODO HeM: remove magicNumber and use correct formula.
+        double magicNumber;
+
+        // Zoom seems to be between 4100 (fareast) and 12000 (nearest)
+        if (cam && cam->zoom >= 4100 && cam->zoom <= 12000)
+        {
+            magicNumber = 66000.0 / float(cam->zoom);
+            lbDisplayEx.cameraMoveRatioX = magicNumber * (640.0 / float(lbDisplay.PhysicalScreenWidth));
+        }
+
+        // Scaling seems always follow width even resolution is not 4:3.
+        // TODO HeM verify the above line.
+        lbDisplayEx.cameraMoveRatioY = magicNumber * 1.3433 *  (640.0 / float(lbDisplay.PhysicalScreenWidth));
+    }
+}
+
+// TODO HeM link555 move following to new files since main.cpp is too huge.
+
+void _init_lbDisplayEx_values()
+{
+    lbDisplayEx.cameraMoveRatioX = 0;
+    lbDisplayEx.cameraMoveRatioY = 0;
+    lbDisplayEx.isPowerHandNothingTodoLeftClick = 0;
+    lbDisplayEx.isPowerHandNothingTodoRightClick = 0;
+    lbDisplayEx.cameraMoveX = 0;
+    lbDisplayEx.cameraMoveY = 0;
+    lbDisplayEx.cameraRotateAngle = 0;
+    lbDisplayEx.wheelUp = 0;
+    lbDisplayEx.wheelDown = 0;
+}
+
+// Detect if there is anything to do for power hand on left or right click,
+// if result is positive, suppress drag feaure.
+void _predict_power_hand_click_behavior()
+{
+    struct PlayerInfo *player;
+    player = get_my_player();
+    struct Camera *cam;
+    cam = player->acamera;
+
+    MapSubtlCoord stl_x, stl_y;
+
+    bool isMapCamera = 0;
+    bool isNothingInHand = 0;
+    bool isNothingToPickupOrSlap = 0;
+    bool isNothingToDig = 0;
+    
+    // Get the informaiton of current slab the power hand is over.
+    if (player && cam)
+    {
+        stl_x = player->field_4AB;
+        stl_y = player->field_4AD;
+
+        _get_camera_move_ratio(cam);
+
+        isMapCamera = (cam) && (cam->viewType == CAMERA_VIEW_EMPTY);
+        isNothingInHand = (player) && power_hand_is_empty(player);
+        isNothingToPickupOrSlap = (player) && (player->thing_under_hand == 0);
+        isNothingToDig = !can_dig_here(stl_x, stl_y, my_player_number);
+
+        lbDisplayEx.isPowerHandNothingTodoLeftClick = isMapCamera && isNothingToPickupOrSlap && isNothingToDig;
+        lbDisplayEx.isPowerHandNothingTodoRightClick = isMapCamera && isNothingToPickupOrSlap && isNothingInHand;
+    }
+}
+
+// Process dragging control of camera, and wheel control of zoom.
+void _handle_advanced_mouse_feature()
+{
+    struct PlayerInfo *player;
+    player = get_my_player();
+    struct Camera *cam;
+    cam = player->acamera;
+
+    if (player && cam)
+    {
+        struct Packet *pckt;
+        pckt = get_packet(my_player_number);
+        //SYNCLOG("GET X MOVE %d", lbDisplayEx.cameraMoveX);
+        if (lbDisplayEx.cameraMoveX != 0)
+        {
+            view_set_camera_x_inertia(cam, -long(lbDisplayEx.cameraMoveX), 100000/*do not allow overflow*/, false/*no inertia*/);
+            lbDisplayEx.cameraMoveX = 0;
+        }
+
+        if (lbDisplayEx.cameraMoveY != 0)
+        {
+            view_set_camera_y_inertia(cam, -long(lbDisplayEx.cameraMoveY), 100000/*do not allow overflow*/, false/*no inertia*/);
+            lbDisplayEx.cameraMoveY = 0;
+        }
+
+        if (lbDisplayEx.cameraRotateAngle != 0)
+        {
+            view_set_camera_rotation_inertia(cam, lbDisplayEx.cameraRotateAngle, 100000/*do not allow overflow*/, true);
+            lbDisplayEx.cameraRotateAngle = 0;
+        }
+
+        if (lbDisplayEx.wheelUp != 0)
+        {
+            set_packet_control(pckt, PCtr_ViewZoomIn);
+            lbDisplayEx.wheelUp = 0;
+        }
+
+        if (lbDisplayEx.wheelDown != 0)
+        {
+            set_packet_control(pckt, PCtr_ViewZoomOut);
+            lbDisplayEx.wheelDown = 0;
+        }
+    }
+}
+
 void keeper_gameplay_loop(void)
 {
+    SYNCDBG(5,"Starting");
+
     short do_draw;
     struct PlayerInfo *player;
-    SYNCDBG(5,"Starting");
     player = get_my_player();
+
     PaletteSetPlayerPalette(player, engine_palette);
+
     if ((game.numfield_C & 0x02) != 0)
+    {
         initialise_eye_lenses();
+    }
     SYNCDBG(0,"Entering the gameplay loop for level %d",(int)get_loaded_level_number());
 
     KeeperSpeechClearEvents();
@@ -3547,7 +3668,11 @@ void keeper_gameplay_loop(void)
         // Check if we should redraw screen in this turn
         do_draw = display_should_be_updated_this_turn();
 
+        _init_lbDisplayEx_values();
+        _predict_power_hand_click_behavior();
         LbWindowsControl();
+        _handle_advanced_mouse_feature();
+
         update_mouse();
         input_eastegg();
         input();

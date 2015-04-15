@@ -33,11 +33,6 @@
 #include "bflib_mshandler.hpp"
 #include "bflib_keybrd.h"
 
-#include "packets.h"
-#include "player_data.h"
-#include "power_hand.h"
-#include "map_data.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -258,55 +253,10 @@ void _get_mouse_state(TbPoint *positionDelta, TbPoint *destination)
     }
 }
 
-void _get_camera_move_ratio(Camera * cam, double *ratioX, double *ratioY)
-{
-    if (cam)
-    {
-        // TODO HeM: remove magicNumber and use correct formula.
-        double magicNumber;
-
-        // Zoom seems to be between 4100 (fareast) and 12000 (nearest)
-        if (cam && cam->zoom >= 4100 && cam->zoom <= 12000)
-        {
-            magicNumber = 58080.0 / float(cam->zoom);
-            *ratioX = magicNumber * (640.0 / float(lbDisplay.PhysicalScreenWidth));
-        }
-
-        // Scaling seems always follow width even resolution is not 4:3.
-        // TODO HeM verify the above line.
-        *ratioY = magicNumber * 1.3433 *  (640.0 / float(lbDisplay.PhysicalScreenWidth));
-    }
-}
-
 void mouseControl(unsigned int action)
 {
-    struct PlayerInfo *player;
-    player = get_my_player();
-
-    struct Packet *pckt;
-    pckt = get_packet(my_player_number);
-
-    struct Camera *cam;
-    cam = player->acamera;
-
-    MapSubtlCoord stl_x, stl_y;
-    // Current slab under power hand.
-    struct SlabMap *slb;
-
-    double cameraMoveRatioX = 0;
-    double cameraMoveRatioY = 0;    
-
-    // fractional part of move distance will be accumulated to next turn.
-    static double calibrationMoveX = 0;
-    static double calibrationMoveY = 0;
-
-    bool isInGame = 0; 
-    bool isEmptyCamera = 0;
-    bool isNothingInHand = 0;
-    bool isNothingToPickupOrSlap = 0;
-    bool isNothingToDig = 0;
-    bool isNothingTodoOnLeftClick = 0;
-    bool isNothingTodoOnRightClick = 0;
+    struct TbPoint mousePosDelta;
+    struct TbPoint dstPos;
 
     bool isCtrlDown = lbInkeyFlags & KMod_CONTROL;
 
@@ -314,58 +264,23 @@ void mouseControl(unsigned int action)
     static bool isCtrlAndLeftButtonDown = false;
     static bool isCtrlAndRightButtonDown = false;
 
-    // Get current slab power hand is above.
-    if (pckt && player && cam)
-    {
-        stl_x = player->field_4AB;
-        stl_y = player->field_4AD;
-        _get_camera_move_ratio(cam, &cameraMoveRatioX, &cameraMoveRatioY);
-
-        isInGame = 1; // TODO HeM
-        isEmptyCamera = (cam) && (cam->viewType == CAMERA_VIEW_EMPTY);
-        isNothingInHand = (player) && power_hand_is_empty(player);
-        isNothingToPickupOrSlap = (player) && (player->thing_under_hand == 0);
-        isNothingToDig = !can_dig_here(stl_x, stl_y, my_player_number);
-
-        isNothingTodoOnLeftClick = isInGame && isEmptyCamera && isNothingToPickupOrSlap && isNothingToDig;
-        isNothingTodoOnRightClick = isInGame && isEmptyCamera && isNothingToPickupOrSlap && isNothingInHand;
-    }
-
-    struct TbPoint mousePosDelta;
-    struct TbPoint dstPos;
-
     _get_mouse_state(&mousePosDelta, &dstPos);
 
     switch ( action )
     {
     case MActn_MOUSEMOVE:
         // Drag to move camera when ctrl is pressed, or there is nothing else to do.
-        if (isCtrlAndLeftButtonDown || 
-            (lbDisplay.MLeftButton && isNothingTodoOnLeftClick))
+        if (isCtrlAndLeftButtonDown || (lbDisplay.MLeftButton && lbDisplayEx.isPowerHandNothingTodoLeftClick))
         {
-            double accumulateMoveX = mousePosDelta.x * cameraMoveRatioX + calibrationMoveX;
-            double accumulateMoveY = mousePosDelta.y * cameraMoveRatioY + calibrationMoveY;
-
-            // Accumulate fractional part to next turn.
-            calibrationMoveX = accumulateMoveX - long(accumulateMoveX);
-            calibrationMoveY = accumulateMoveY - long(accumulateMoveY);
-
-            if (mousePosDelta.x != 0)
-            {
-                view_set_camera_x_inertia(cam, -long(accumulateMoveX), 100000/*do not allow overflow*/, false);
-            }
-
-            if (mousePosDelta.y != 0)
-            {
-                view_set_camera_y_inertia(cam, -long(accumulateMoveY), 100000/*do not allow overflow*/, false);
-            }
+            lbDisplayEx.cameraMoveX += mousePosDelta.x * lbDisplayEx.cameraMoveRatioX;
+            lbDisplayEx.cameraMoveY += mousePosDelta.y * lbDisplayEx.cameraMoveRatioY;
+            //SYNCLOG("SET X MOVE %d", lbDisplayEx.cameraMoveX);
         }
         // Right drag to rotate camera when ctrl is pressed, or there is nothing else to do.
-        else if (isCtrlAndRightButtonDown || 
-            (lbDisplay.MRightButton && isNothingTodoOnRightClick))
+        else if (isCtrlAndRightButtonDown || (lbDisplay.MRightButton && lbDisplayEx.isPowerHandNothingTodoRightClick))
         {   
             // TODO HeM recalculate rotate angle to be more responsive to mouse movement.
-            view_set_camera_rotation_inertia(cam, mousePosDelta.x / 4, 100000/*do not allow overflow*/, true);
+            lbDisplayEx.cameraRotateAngle += mousePosDelta.x / 3;
         }
 
         // Normal mouse move
@@ -435,18 +350,12 @@ void mouseControl(unsigned int action)
         }
         break;
     case MActn_WHEELUP:
-        if (isInGame)
-        {
-            // Zooms in when wheel up.
-            set_packet_control(pckt, PCtr_ViewZoomIn);
-        }
+        // Zooms in when wheel up.
+        lbDisplayEx.wheelUp = true;
         break;
     case MActn_WHEELDOWN:
-        if (isInGame)
-        {
-            // Zooms out when wheel down.
-            set_packet_control(pckt, PCtr_ViewZoomOut);
-        }
+        // Zooms out when wheel down.
+        lbDisplayEx.wheelDown = true;
         break;
     default:
         break;
