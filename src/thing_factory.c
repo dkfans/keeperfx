@@ -110,6 +110,7 @@ struct Thing *create_thing(struct Coord3d *pos, unsigned short tngclass, unsigne
         thing = create_ambient_sound(pos, tngmodel, owner);
         break;
     case TCls_CaveIn:
+        // for cave in, model is really a level
         thing = create_cave_in(pos, tngmodel, owner);
         break;
     default:

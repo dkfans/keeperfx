@@ -434,6 +434,7 @@
  0001:0004A1D0       create_gold_for_hand_grab
  0001:0004A2E0       set_power_hand_offset
  0001:0004AB30       can_cast_spell_on_creature
+ 0001:0004ABE0       setup_move_out_of_cave_in
  0001:0004AE00       directly_cast_spell_on_thing
  0001:0004B310       computer_setup_build_room
  0001:0004B590       able_to_build_room

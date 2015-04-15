@@ -103,10 +103,10 @@ unsigned long get_navigation_map_floor_height(MapSubtlCoord stl_x, MapSubtlCoord
 TbBool set_coords_with_clip(struct Coord3d *pos, MapCoord cor_x, MapCoord cor_y, MapCoord cor_z);
 TbBool subtile_has_slab(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool subtile_coords_invalid(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
-TbBool set_coords_to_subtile_center(struct Coord3d *pos, long x, long y, long z);
+TbBool set_coords_to_subtile_center(struct Coord3d *pos, MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSubtlCoord stl_z);
 TbBool set_coords_to_subtile_start(struct Coord3d *pos, long x, long y, long z);
 TbBool set_coords_to_subtile_end(struct Coord3d *pos, long x, long y, long z);
-TbBool set_coords_to_slab_center(struct Coord3d *pos, long slb_x, long slb_y);
+TbBool set_coords_to_slab_center(struct Coord3d *pos, MapSubtlCoord slb_x, MapSubtlCoord slb_y);
 TbBool set_coords_to_cylindric_shift(struct Coord3d *pos, const struct Coord3d *source, long radius, long angle, long z);
 TbBool set_coords_add_velocity(struct Coord3d *pos, const struct Coord3d *source, const struct CoordDelta3d *velocity, unsigned short flags);
 

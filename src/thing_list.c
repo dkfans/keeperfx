@@ -3365,7 +3365,7 @@ long count_creatures_near_and_owned_by_or_allied_with(MapCoord pos_x, MapCoord p
 }
 
 // use this (or make similar one) instead of find_base_thing_on_mapwho_at_pos()
-struct Thing *get_object_at_subtile_of_model_and_owned_by(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long model, PlayerNumber plyr_idx)
+struct Thing *get_object_at_subtile_of_model_and_owned_by(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long tngmodel, PlayerNumber plyr_idx)
 {
     Thing_Maximizer_Filter filter;
     struct CompoundTngFilterParam param;
@@ -3374,7 +3374,28 @@ struct Thing *get_object_at_subtile_of_model_and_owned_by(MapSubtlCoord stl_x, M
     SYNCDBG(19,"Starting");
     filter = anywhere_thing_filter_is_of_class_and_model_and_owned_by;
     param.class_id = TCls_Object;
-    param.model_id = model;
+    param.model_id = tngmodel;
+    param.plyr_idx = plyr_idx;
+    mapblk = get_map_block_at(stl_x, stl_y);
+    if (map_block_invalid(mapblk))
+    {
+        return INVALID_THING;
+    }
+    i = get_mapwho_thing_index(mapblk);
+    n = 0;
+    return get_thing_on_map_block_with_filter(i, filter, &param, &n);
+}
+
+struct Thing *get_cavein_at_subtile_owned_by(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
+{
+    Thing_Maximizer_Filter filter;
+    struct CompoundTngFilterParam param;
+    const struct Map *mapblk;
+    long i,n;
+    SYNCDBG(19,"Starting");
+    filter = anywhere_thing_filter_is_of_class_and_model_and_owned_by;
+    param.class_id = TCls_CaveIn;
+    param.model_id = -1;
     param.plyr_idx = plyr_idx;
     mapblk = get_map_block_at(stl_x, stl_y);
     if (map_block_invalid(mapblk))
