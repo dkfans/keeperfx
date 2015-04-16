@@ -1883,6 +1883,8 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
     {
         INSTANCE_RET_IF_AVAIL(thing, CrInst_HEAL);
     }
+    long state_type;
+    state_type = get_creature_state_type(thing);
     if (!creature_is_kept_in_custody(thing))
     {
         // casting wind when under influence of gas
@@ -1890,15 +1892,15 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
         {
             INSTANCE_RET_IF_AVAIL(thing, CrInst_WIND);
         }
-        if (!creature_affected_by_spell(thing, SplK_Speed))
+        if (!creature_affected_by_spell(thing, SplK_Speed) && (state_type != CrStTyp_Idle))
         {
             INSTANCE_RET_IF_AVAIL(thing, CrInst_SPEED);
         }
-        if (!creature_affected_by_spell(thing, SplK_Fly))
+        if (!creature_affected_by_spell(thing, SplK_Fly) && ((state_type != CrStTyp_Idle) || terrain_toxic_for_creature_at_position(thing, coord_subtile(thing->mappos.x.val), coord_subtile(thing->mappos.y.val))))
         {
             INSTANCE_RET_IF_AVAIL(thing, CrInst_FLY);
         }
-        if (!creature_affected_by_spell(thing, SplK_Invisibility))
+        if (!creature_affected_by_spell(thing, SplK_Invisibility) && (state_type != CrStTyp_Idle))
         {
             INSTANCE_RET_IF_AVAIL(thing, CrInst_INVISIBILITY);
         }
@@ -3233,9 +3235,9 @@ long process_creature_self_spell_casting(struct Thing *creatng)
       || ((cctrl->stateblock_flags & CCSpl_Freeze) != 0)) {
         return 0;
     }
-   if ((get_creature_state_type(creatng) == CrStTyp_Idle) || (cctrl->instance_id != CrInst_NULL)) {
-       return 0;
-   }
+    if (cctrl->instance_id != CrInst_NULL) {
+        return 0;
+    }
    long inst_idx;
    inst_idx = get_self_spell_casting(creatng);
     if (inst_idx <= 0) {
