@@ -1525,19 +1525,19 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
       inter_val *= 3;
 
     if ((pckt->control_flags & PCtr_MoveUp) != 0)
-        view_set_camera_y_inertia(cam, -inter_val*3/8, -inter_val, true);
+        view_set_camera_y_inertia(cam, -inter_val*3/4, -inter_val, true);
     if ((pckt->control_flags & PCtr_MoveDown) != 0)
-        view_set_camera_y_inertia(cam, inter_val*3/8, inter_val, true);
+        view_set_camera_y_inertia(cam, inter_val*3/4, inter_val, true);
     if ((pckt->control_flags & PCtr_MoveLeft) != 0)
-        view_set_camera_x_inertia(cam, -inter_val*3/8, -inter_val, true);
+        view_set_camera_x_inertia(cam, -inter_val*3/4, -inter_val, true);
     if ((pckt->control_flags & PCtr_MoveRight) != 0)
-        view_set_camera_x_inertia(cam, inter_val*3/8, inter_val, true);
+        view_set_camera_x_inertia(cam, inter_val*3/4, inter_val, true);
     if ((pckt->control_flags & PCtr_ViewRotateCCW) != 0)
     {
         switch (cam->viewType)
         {
         case CAMERA_VIEW_EMPTY:
-             view_set_camera_rotation_inertia(cam, 24, 64, true);
+             view_set_camera_rotation_inertia(cam, 48, 64, true);
             break;
         case CAMERA_VIEW_PARCHMENT:
             cam->orient_a = (cam->orient_a + 512) & 0x7FF;
