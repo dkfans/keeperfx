@@ -94,6 +94,7 @@
 #include "map_events.h"
 #include "map_utils.h"
 #include "map_blocks.h"
+#include "ariadne_wallhug.h"
 #include "creature_control.h"
 #include "creature_states.h"
 #include "creature_instances.h"
@@ -147,7 +148,6 @@ extern "C" {
 DLLIMPORT void _DK_draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4);
 DLLIMPORT void _DK_draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long a3, long a4);
 DLLIMPORT void _DK_engine_init(void);
-DLLIMPORT void _DK_place_animating_slab_type_on_map(long a1, char a2, unsigned char a3, unsigned char a4, unsigned char a5);
 DLLIMPORT void _DK_update_breed_activities(void);
 DLLIMPORT struct Thing *_DK_get_queryable_object_near(unsigned short a1, unsigned short a2, long a3);
 DLLIMPORT int _DK_can_thing_be_queried(struct Thing *thing, long a2);
@@ -2221,12 +2221,6 @@ short complete_level(struct PlayerInfo *player)
     }
     quit_game = 1;
     return true;
-}
-
-void place_animating_slab_type_on_map(long a1, char a2, unsigned char a3, unsigned char a4, unsigned char a5)
-{
-    SYNCDBG(7,"Starting");
-    _DK_place_animating_slab_type_on_map(a1,a2,a3,a4,a5);
 }
 
 void init_lookups(void)
