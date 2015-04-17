@@ -31,6 +31,7 @@
 #include "creature_states.h"
 #include "spdigger_stack.h"
 #include "magic.h"
+#include "map_utils.h"
 #include "dungeon_data.h"
 #include "room_data.h"
 #include "ariadne_wallhug.h"

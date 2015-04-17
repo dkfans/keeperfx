@@ -26,6 +26,7 @@
 #include "ariadne.h"
 #include "slab_data.h"
 #include "map_data.h"
+#include "map_utils.h"
 #include "thing_data.h"
 #include "thing_physics.h"
 #include "engine_camera.h"
@@ -77,18 +78,6 @@ struct Around const start_at_around[] = {
     { 1, -1},
     { 1,  0},
     { 1,  1},
-};
-
-struct Around const mid_around[] = {
-  { 0,  0},
-  { 0, -1},
-  { 1,  0},
-  { 0,  1},
-  {-1,  0},
-  {-1, -1},
-  { 1, -1},
-  {-1,  1},
-  { 1,  1},
 };
 
 /******************************************************************************/

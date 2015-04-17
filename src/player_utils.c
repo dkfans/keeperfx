@@ -39,6 +39,7 @@
 #include "config_settings.h"
 #include "config_terrain.h"
 #include "map_blocks.h"
+#include "map_utils.h"
 #include "ariadne_wallhug.h"
 #include "game_saves.h"
 #include "game_legacy.h"

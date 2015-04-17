@@ -38,11 +38,6 @@ struct SlabMap;
 /******************************************************************************/
 extern const short slab_around[];
 extern const unsigned short small_around_pos[4];
-#define MID_AROUND_LENGTH 9
-extern struct Around const mid_around[MID_AROUND_LENGTH];
-extern struct Around const start_at_around[MID_AROUND_LENGTH];
-#define SMALL_AROUND_LENGTH 4
-extern struct Around const small_around[SMALL_AROUND_LENGTH];
 #define AROUND_EIGHT_LENGTH 8
 extern struct Around const my_around_eight[];
 extern short const around_map[];

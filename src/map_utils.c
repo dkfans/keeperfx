@@ -50,11 +50,30 @@ struct Around const around[] = {
   { 0, 0}, // this entry shouldn't be used
 };
 
+struct Around const mid_around[] = {
+  { 0,  0},
+  { 0, -1},
+  { 1,  0},
+  { 0,  1},
+  {-1,  0},
+  {-1, -1},
+  { 1, -1},
+  {-1,  1},
+  { 1,  1},
+};
+
 struct Around const small_around[] = {
   { 0,-1},
   { 1, 0},
   { 0, 1},
   {-1, 0},
+};
+struct Around const small_around_mid[] = {
+    { 0, -1},
+    { 1,  0},
+    { 0,  1},
+    {-1,  0},
+    { 0,  0},
 };
 
 /******************************************************************************/

@@ -36,6 +36,7 @@
 #include "ariadne_wallhug.h"
 #include "spdigger_stack.h"
 #include "magic.h"
+#include "map_utils.h"
 #include "thing_traps.h"
 #include "thing_navigate.h"
 #include "player_complookup.h"

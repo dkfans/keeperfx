@@ -1034,7 +1034,7 @@ TbResult magic_use_power_destroy_walls(PlayerNumber plyr_idx, MapSubtlCoord stl_
                     place_slab_type_on_map(SlbT_EARTH, slab_subtile_center(slb_x),slab_subtile_center(slb_y), plyr_idx, 0);
                     do_slab_efficiency_alteration(slb_x, slb_y);
                 } else
-                if ( slb->kind == SlbT_EARTH || slb->kind == SlbT_TORCHDIRT )
+                if (slab_kind_is_friable_dirt(slb->kind))
                 {
                     dig_out_block(slab_subtile_center(slb_x),slab_subtile_center(slb_y), plyr_idx);
                     if (is_revealed) {
