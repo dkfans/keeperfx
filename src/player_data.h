@@ -132,8 +132,8 @@ struct PlayerInfo {
     unsigned char field_1;
     unsigned char field_2; //seems to be never used
     unsigned char field_3;
-    unsigned char field_4;
-    unsigned char field_5;
+    unsigned char boolfield_4;
+    unsigned char boolfield_5;
     unsigned char flgfield_6;
     unsigned char *field_7;
     unsigned char packet_num; // index of packet slot associated with this player

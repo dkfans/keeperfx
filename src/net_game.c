@@ -128,11 +128,11 @@ void setup_exchange_player_number(void)
           player = get_player(k);
           player->id_number = k;
           player->allocflags |= PlaF_Allocated;
-          if (pckt->field_8 < 1)
+          if (pckt->actn_par2 < 1)
             player->field_4B5 = PVM_IsometricView;
           else
             player->field_4B5 = PVM_FrontView;
-          player->field_2C = pckt->field_6;
+          player->field_2C = pckt->actn_par1;
           init_player(player, 0);
           strncpy(player->field_15,net_player[i].name,sizeof(struct TbNetworkPlayerName));
           k++;

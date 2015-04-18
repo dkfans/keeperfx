@@ -171,6 +171,18 @@ enum TbPacketControl {
         PCtr_MapCoordsValid = 0x8000,
 };
 
+/**
+ * Additional packet flags
+ */
+enum TbPacketAddValues {
+    PCAdV_None           = 0x00,//!< Dummy flag
+    PCAdV_Unknown01      = 0x01,//!< PCAdV_Unknown01
+    PCAdV_Unknown1E      = 0x1E,//!< Instead of a single bit, this value stores is 4-byte integer; stores context of map coordinates.
+    PCAdV_Unknown20      = 0x20,//!< PCAdV_Unknown20
+    PCAdV_Unknown40      = 0x40,//!< PCAdV_Unknown40
+    PCAdV_Unknown80      = 0x80,//!< Seem unused
+};
+
 #define PCtr_LBtnAnyAction (PCtr_LBtnClick | PCtr_LBtnHeld | PCtr_LBtnRelease)
 #define PCtr_RBtnAnyAction (PCtr_RBtnClick | PCtr_RBtnHeld | PCtr_RBtnRelease)
 #define PCtr_HeldAnyButton (PCtr_LBtnHeld | PCtr_RBtnHeld)
@@ -183,17 +195,20 @@ enum TbPacketControl {
 struct PlayerInfo;
 struct CatalogueEntry;
 
+/**
+ * Stores data exchanged between players each turn and used to re-create their input.
+ */
 struct Packet { // sizeof = 0x11 (17)
     int field_0;
-    TbChecksum chksum;
-    unsigned char action;
-    unsigned short field_6;
-    unsigned short field_8;
+    TbChecksum chksum; //! Checksum of all things within the game and synchronized random seed
+    unsigned char action; //! Action kind performed by the player which owns this packet
+    unsigned short actn_par1; //! Players action parameter #1
+    unsigned short actn_par2; //! Players action parameter #2
     short pos_x;
     short pos_y;
     unsigned short control_flags;
     unsigned char field_10;
-    };
+};
 
 struct PacketSaveHead { // sizeof=0xF (15)
 unsigned int field_0;
@@ -202,7 +217,7 @@ unsigned int field_8;
     unsigned char field_C;
     unsigned char field_D;
     TbBool chksum_available;
-    };
+};
 
 #pragma pack()
 /******************************************************************************/
