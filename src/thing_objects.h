@@ -88,6 +88,8 @@ DLLIMPORT extern unsigned char _DK_magic_to_object[24];
 extern Thing_State_Func object_state_functions[];
 extern Thing_Class_Func object_update_functions[];
 extern unsigned short player_guardflag_objects[];
+extern unsigned short dungeon_flame_objects[];
+
 /******************************************************************************/
 struct Thing *create_object(const struct Coord3d *pos, unsigned short model, unsigned short owner, long a4);
 void destroy_object(struct Thing *thing);

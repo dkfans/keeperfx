@@ -40,6 +40,8 @@ extern const short slab_around[];
 extern const unsigned short small_around_pos[4];
 #define AROUND_EIGHT_LENGTH 8
 extern struct Around const my_around_eight[];
+#define AROUND_NINE_LENGTH 9
+extern struct Around const my_around_nine[];
 extern short const around_map[];
 #define AROUND_MAP_LENGTH 9
 /******************************************************************************/

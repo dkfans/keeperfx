@@ -21,6 +21,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_sound.h"
+#include "bflib_memory.h"
 
 #include "slab_data.h"
 #include "room_data.h"
@@ -51,10 +52,10 @@ DLLIMPORT unsigned char _DK_choose_pretty_type(unsigned char plyr_idx, unsigned 
 DLLIMPORT void _DK_delete_attached_things_on_slab(long slb_x, long slb_y);
 DLLIMPORT unsigned char _DK_get_against(unsigned char a1, long stl_x, long stl_y, long col_idx);
 DLLIMPORT void _DK_place_slab_columns(long a1, unsigned char stl_x, unsigned char stl_y, short *col_idx);
-DLLIMPORT void _DK_place_slab_object(unsigned short a1, long stl_x, long stl_y, unsigned short col_idx, unsigned short a5, unsigned char a6);
+DLLIMPORT void _DK_place_slab_object(unsigned short a1, long stl_x, long stl_y, unsigned short col_idx, unsigned short slbelem, unsigned char a6);
 DLLIMPORT void _DK_copy_block_with_cube_groups(short a1, unsigned char plyr_idx, unsigned char a3);
 DLLIMPORT long _DK_tag_blocks_for_digging_in_area(long stl_x, long stl_y, signed char plyr_idx);
-DLLIMPORT void _DK_place_animating_slab_type_on_map(long a1, char a2, unsigned char a3, unsigned char a4, unsigned char a5);
+DLLIMPORT void _DK_place_animating_slab_type_on_map(long a1, char a2, unsigned char a3, unsigned char a4, unsigned char slbelem);
 DLLIMPORT void _DK_dump_slab_on_map(long a1, long a2, unsigned char stl_x, unsigned char stl_y, unsigned char owner);
 
 const signed short slab_element_around_eight[] = {
@@ -63,6 +64,10 @@ const signed short slab_element_around_eight[] = {
 
 const signed short slab_primitive[] = {
     -1, 1, 0, 4, 3, -1, 7, -1, 2, 5, -1, -1, 6, -1, -1, 8
+};
+
+const signed short slab_element_to_corner[] = {
+     6, -1, 0, -1, -1, -1, 4, -1, 2, 0, 0, 0
 };
 
 const unsigned char special_cases[][9] = {
@@ -540,9 +545,138 @@ void place_slab_columns(long slbkind, unsigned char stl_x, unsigned char stl_y, 
     }
 }
 
-void place_slab_object(unsigned short a1, long a2, long a3, unsigned short a4, unsigned short a5, unsigned char a6)
+void place_slab_object(unsigned short a1, long a2, long a3, unsigned short a4, unsigned short slbelem, unsigned char a6)
 {
-    _DK_place_slab_object(a1, a2, a3, a4, a5, a6); return;
+    //_DK_place_slab_object(a1, a2, a3, a4, a5, a6); return;
+    if (a4 >= SLABSET_COUNT) {
+        ERRORLOG("Illegal animating slab number: %d", (int)a4);
+        return;
+    }
+    short sobj_idx;
+    sobj_idx = game.slabobjs_idx[a4];
+    if (sobj_idx < 0) {
+        return;
+    }
+    for (; sobj_idx < game.slabobjs_num; sobj_idx++)
+    {
+        struct SlabObj *sobj;
+        sobj = &game.slabobjs[sobj_idx];
+        if (sobj->field_1 != a4) {
+            break;
+        }
+        if (sobj->field_3 != slbelem) {
+            continue;
+        }
+        struct Coord3d pos;
+        pos.x.val = (a2 << 8) + sobj->field_4;
+        pos.y.val = (a3 << 8) + sobj->field_6;
+        pos.z.val = sobj->field_8;
+        struct Map *mapblk;
+        mapblk = get_map_block_at(coord_subtile(pos.x.val), coord_subtile(pos.y.val));
+        if ((mapblk->flags & SlbAtFlg_Blocking) == 0)
+        {
+            if (sobj->field_0 == 1)
+            {
+                struct InitLight ilght;
+                LbMemorySet(&ilght,0,sizeof(struct InitLight));
+                ilght.mappos.x.val = pos.x.val;
+                ilght.mappos.y.val = pos.y.val;
+                ilght.mappos.z.val = pos.z.val;
+                ilght.field_0 = sobj->sofield_C << 8;
+                ilght.field_2 = sobj->sofield_B;
+                ilght.field_3 = 0;
+                ilght.is_dynamic = 0;
+                long lgt_id;
+                lgt_id = light_create_light(&ilght);
+                if (lgt_id != 0) {
+                    struct Light *lgt;
+                    lgt = &game.lish.lights[lgt_id];
+                    lgt->field_12 = a1;
+                } else {
+                    WARNLOG("Cannot allocate light");
+                    continue;
+                }
+            } else if (sobj->field_0 == 0)
+            {
+                if (sobj->field_A == TCls_Object)
+                {
+                    ThingModel tngmodel;
+                    tngmodel = sobj->sofield_B;
+                    if (tngmodel == dungeon_flame_objects[0]) {
+                        tngmodel = dungeon_flame_objects[a6];
+                    } else
+                    if (tngmodel == player_guardflag_objects[0]) {
+                        tngmodel = player_guardflag_objects[a6];
+                    }
+                    if (tngmodel <= 0)
+                        continue;
+
+                    TbBool needs_object;
+                    int icorn;
+                    int nfilled, nprison;
+
+                    if ((tngmodel == 27) && (slbelem != 4))
+                    {
+                        MapSlabCoord slb_x, slb_y;
+                        slb_x = subtile_slab(a2);
+                        slb_y = subtile_slab(a3);
+                        nprison = 0;
+                        nfilled = 0;
+                        if ((slbelem & 1) != 0)
+                        {
+                            const struct SlabMap *slb;
+                            slb = get_slabmap_block(slb_x + my_around_nine[slbelem].delta_x, slb_y + my_around_nine[slbelem].delta_y);
+                            const struct SlabAttr *slbattr;
+                            slbattr = get_slab_attrs(slb);
+                            needs_object = ((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) == 0);
+                        } else
+                        {
+                          icorn = slab_element_to_corner[slbelem];
+                          if (icorn != -1)
+                          {
+                              struct SlabMap *slb;
+                              slb = get_slabmap_block(slb_x + my_around_eight[icorn].delta_x, slb_y + my_around_eight[icorn].delta_y);
+                              const struct SlabAttr *slbattr;
+                              slbattr = get_slab_attrs(slb);
+                              if ((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0)
+                                  nfilled++;
+                              if (slb->kind == SlbT_PRISON)
+                                  nprison++;
+                              slb = get_slabmap_block(slb_x + my_around_eight[(icorn + 2) & 7].delta_x, slb_y + my_around_eight[(icorn + 2) & 7].delta_y);
+                              slbattr = get_slab_attrs(slb);
+                              if ((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0)
+                                  nfilled++;
+                              if (slb->kind == SlbT_PRISON)
+                                  nprison++;
+                          }
+                          needs_object = (nprison + nfilled < 2);
+                        }
+                        if ( !needs_object )
+                            continue;
+                      }
+                      struct Thing *objtng;
+                      objtng = create_object(&pos, tngmodel, a6, a1);
+                      if (thing_is_invalid(objtng)) {
+                          ERRORLOG("Cannot create object type %d", tngmodel);
+                          continue;
+                    }
+                } else
+                if (sobj->field_A == TCls_EffectGen)
+                {
+                    struct Thing *efftng;
+                    efftng = create_effect_generator(&pos, sobj->sofield_B, sobj->sofield_C << 8, a6, a1);
+                    if (thing_is_invalid(efftng)) {
+                        ERRORLOG("Cannot create effect generator, type %d", sobj->sofield_B);
+                        continue;
+                    }
+                } else
+                {
+                    ERRORLOG("Stupid thing class %d", (int)sobj->field_A);
+                    continue;
+                }
+            }
+        }
+    }
 }
 
 void place_slab_objects(MapSlabCoord slb_x, MapSlabCoord slb_y, const short * slab_number_list, PlayerNumber plyr_idx)
