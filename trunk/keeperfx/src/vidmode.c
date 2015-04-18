@@ -238,7 +238,7 @@ TbScreenMode validate_vidmode_in_switching_list(unsigned short mode)
         }
     }
 
-    // try return first mode in list, not failsafe.
+    // Return first mode in list, not failsafe mode.
     return switching_vidmodes[0];
 }
 
@@ -831,6 +831,7 @@ short setup_screen_mode_minimal(unsigned short nmode)
   return 1;
 }
 
+// Setup initial screen mode for displaying legal screen.
 TbBool setup_screen_mode_zero(unsigned short nmode)
 {
   TbScreenModeInfo *mdinfo;
@@ -852,6 +853,12 @@ TbScreenMode reenter_video_mode(void)
     TbScreenMode scrmode;
     scrmode = validate_vidmode_in_switching_list(settings.video_scrnmode);
     SYNCDBG(8, "reentering video %d -> %d .", settings.video_scrnmode, (int)scrmode);
+
+    // In game resolution may be different with the frontend resolution, so we recreate window.
+    // TODO HeM Mefisto: Use unified resolution for everything except movie when the Config UI
+    // is updated, then we eliminate methods related to 'frontend_vidmode' and use same video
+    // mode list with game play. Then we can remove this line.
+    LbScreenReset(true);
 
     if (setup_screen_mode(scrmode))
     {
