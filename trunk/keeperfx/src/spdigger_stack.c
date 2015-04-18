@@ -38,6 +38,7 @@
 #include "room_data.h"
 #include "room_util.h"
 #include "power_hand.h"
+#include "map_utils.h"
 #include "map_events.h"
 #include "ariadne_wallhug.h"
 #include "gui_soundmsgs.h"

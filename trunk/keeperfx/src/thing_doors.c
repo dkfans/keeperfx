@@ -31,6 +31,7 @@
 #include "ariadne.h"
 #include "ariadne_wallhug.h"
 #include "map_blocks.h"
+#include "map_utils.h"
 #include "sounds.h"
 #include "gui_topmsg.h"
 #include "game_legacy.h"

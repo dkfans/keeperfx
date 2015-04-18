@@ -24,7 +24,7 @@
 
 #include "slab_data.h"
 #include "room_data.h"
-#include "ariadne_wallhug.h"
+#include "map_utils.h"
 #include "thing_effects.h"
 #include "thing_objects.h"
 #include "config_terrain.h"
@@ -936,7 +936,7 @@ SlabKind alter_rock_style(SlabKind slbkind, MapSlabCoord tgslb_x, MapSlabCoord t
     if (slbkind == SlbT_EARTH)
     {
         long i;
-        for (i = 0; i < 8; i++)
+        for (i = 0; i < AROUND_EIGHT_LENGTH; i++)
         {
             MapSlabCoord slb_y, slb_x;
             unsigned char flags;
@@ -950,30 +950,12 @@ SlabKind alter_rock_style(SlabKind slbkind, MapSlabCoord tgslb_x, MapSlabCoord t
             slbattr = get_slab_attrs(slb);
             if ((slbattr->category == SlbAtCtg_FortifiedGround) || (slbattr->category == SlbAtCtg_RoomInterior) || (slbattr->category == SlbAtCtg_Obstacle))
             {
-                flags = 0;
-                if ((tgslb_x % 5) == 0)
-                {
-                    struct SlabMap *nxslb;
-                    struct SlabMap *prslb;
-                    prslb = get_slabmap_block(tgslb_x,tgslb_y-1);
-                    nxslb = get_slabmap_block(tgslb_x,tgslb_y+1);
-                    if ((prslb->kind == SlbT_CLAIMED) || (nxslb->kind == SlbT_CLAIMED))
-                        flags |= 0x01;
-                }
-                if ((tgslb_y % 5) == 0)
-                {
-                    struct SlabMap *nxslb;
-                    struct SlabMap *prslb;
-                    prslb = get_slabmap_block(tgslb_x-1,tgslb_y);
-                    nxslb = get_slabmap_block(tgslb_x+1,tgslb_y);
-                    if ((prslb->kind == SlbT_CLAIMED) || (nxslb->kind == SlbT_CLAIMED))
-                        flags |= 0x02;
-                }
+                flags = torch_flags_for_slab(tgslb_x, tgslb_y);
                 retkind = (flags < 1) ? SlbT_EARTH : SlbT_TORCHDIRT;
                 break;
             }
         }
-        if (i == 8)
+        if (i == AROUND_EIGHT_LENGTH)
           retkind = SlbT_EARTH;
     }
     return retkind;
