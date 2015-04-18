@@ -108,18 +108,24 @@ TbResult LbScreenUnlock(void)
 
 TbResult LbScreenRender(void)
 {
+    assert((lbScreenWindow != NULL));
+    assert((lbPalettedSurface != NULL));
+    assert((lbGameRenderer != NULL));
+    assert((lbDrawTexture == NULL));
+
     TbResult ret;
     SYNCDBG(12, "Starting");
 
     ret = LbMouseOnBeginSwap();
     // Flip the image displayed on Screen Surface
-    if (ret == Lb_SUCCESS && lbScreenInitialized && (lbScreenWindow != NULL))
+    if (ret == Lb_SUCCESS && lbScreenInitialized )
     {
         // Converting 256 color to True color
         lbDrawTexture = SDL_CreateTextureFromSurface(lbGameRenderer, lbPalettedSurface);
         if (lbDrawTexture == NULL)
         {
-            ERRORLOG("Failed Converting surface to texture");
+            ERRORLOG("Failed Converting surface to texture: %s", SDL_GetError());
+            return Lb_FAIL;
         }
 
         SDL_RenderCopy(lbGameRenderer, lbDrawTexture, NULL, NULL);
@@ -437,6 +443,10 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
 
     LbScreenReset(false);
 
+    assert((lbPalettedSurface == NULL));
+    assert((lbGameRenderer == NULL));
+    assert((lbDrawTexture == NULL));
+
     mdinfo = LbScreenGetModeInfo(modeIndex);
     if ( !LbScreenIsModeAvailable(modeIndex) )
     {
@@ -447,7 +457,6 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
     }
 
     // SDL video modeIndex flags
-    // TODO: SDL_WINDOW_ALLOW_HIGHDPI
     sdlFlags = SDL_WINDOW_RESIZABLE;
     if ((mdinfo->VideoFlags & Lb_VF_WINDOWED) == 0) 
     {
@@ -455,7 +464,7 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
     }
 
     // TODO HeM break following into smaller methods.
-    // Set SDL video mode (also creates window).
+    // Set SDL video mode (also creates window if we do not have one already).
     if (lbScreenWindow == NULL)
     {
         lbScreenWindow = SDL_CreateWindow("Dungeon Keeper FX",
@@ -471,7 +480,10 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
         return Lb_FAIL;
     }
 
-    lbGameRenderer = SDL_CreateRenderer(lbScreenWindow, -1, 0);
+    // Using SDL_RENDERER_SOFTWARE flag to workaround a possible SDL bug: providing no flags 
+    // gives priority to available SDL_RENDERER_ACCELERATED renders, which cause memory leak
+    // on SDL_DestoryRenderer(), TODO report this when I have an account.
+    lbGameRenderer = SDL_CreateRenderer(lbScreenWindow, -1, SDL_RENDERER_SOFTWARE);
     if (lbGameRenderer == NULL)
     {
         ERRORLOG("Error creating lbGameRenderer %d: %s", (int)modeIndex, SDL_GetError());
@@ -683,10 +695,6 @@ TbBool LbScreenIsLocked(void)
 
 TbResult LbScreenReset(TbBool resetMainWindow)
 {
-    if (!lbScreenInitialized)
-    {
-        return Lb_FAIL;
-    }
     LbMouseChangeSprite(NULL);
 
     SDL_FreeSurface(lbPalettedSurface);

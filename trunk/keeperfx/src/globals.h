@@ -25,6 +25,7 @@
 #include <ctype.h>
 #include <limits.h>
 #include <time.h>
+#include <assert.h>
 
 #if defined(unix) && !defined(GO32)
 #include <unistd.h>
