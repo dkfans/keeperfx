@@ -21,6 +21,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "room_data.h"
+#include "map_utils.h"
 #include "player_data.h"
 #include "dungeon_data.h"
 #include "thing_data.h"

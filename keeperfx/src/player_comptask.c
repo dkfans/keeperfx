@@ -160,14 +160,6 @@ const struct MoveToBestJob move_to_best_job[] = {
     {RoK_NONE,         0},
 };
 
-const struct Around small_around_mid[] = {
-    { 0, -1},
-    { 1,  0},
-    { 0,  1},
-    {-1,  0},
-    { 0,  0},
-};
-
 const struct MyLookup lookup[] = {
     { 0, -3},
     { 3,  0},
@@ -2034,17 +2026,17 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
         suspend_task_process(comp, ctask);
         break;
       case 0:
-        for (i = 0; i < 5; i++)
+        for (i = 0; i < SMALL_AROUND_MID_LENGTH; i++)
         {
             MapSubtlCoord stl_x, stl_y;
             stl_x = ctask->dig.pos_next.x.stl.num + (long)slab_subtile(small_around_mid[i].delta_x,0);
             stl_y = ctask->dig.pos_next.y.stl.num + (long)slab_subtile(small_around_mid[i].delta_y,0);
             if (xy_walkable(stl_x, stl_y, ctask->dig_somewhere.target_plyr_idx)) {
-              remove_task(comp, ctask);
-              break;
-          }
+                remove_task(comp, ctask);
+                break;
+            }
         }
-        if (i == 5)
+        if (i == SMALL_AROUND_MID_LENGTH)
             break;
         // no break
     case -1:

@@ -25,6 +25,7 @@
 #include "map_blocks.h"
 #include "ariadne.h"
 #include "ariadne_wallhug.h"
+#include "map_utils.h"
 #include "frontmenu_ingame_map.h"
 #include "game_legacy.h"
 #include "creature_states.h"
@@ -38,7 +39,7 @@ const short small_around_slab[] = {-85,   1,  85,  -1};
 struct SlabMap bad_slabmap_block;
 /******************************************************************************/
 DLLIMPORT long _DK_calculate_effeciency_score_for_room_slab(long a1, long plyr_idx);
-DLLIMPORT void _DK_unfill_reinforced_corners(unsigned char plyr_idx, unsigned char slb_x, unsigned char slb_y);
+DLLIMPORT void _DK_unfill_reinforced_corners(unsigned char plyr_idx, unsigned char base_slb_x, unsigned char base_slb_y);
 /******************************************************************************/
 /**
  * Returns slab number, which stores both X and Y coords in one number.
@@ -416,9 +417,51 @@ SlabKind choose_rock_type(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoor
         return SlbT_TORCHDIRT;
 }
 
-void unfill_reinforced_corners(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
+void unfill_reinforced_corners(PlayerNumber plyr_idx, MapSlabCoord base_slb_x, MapSlabCoord base_slb_y)
 {
-    _DK_unfill_reinforced_corners(plyr_idx, slb_x, slb_y); return;
+    //_DK_unfill_reinforced_corners(plyr_idx, base_slb_x, base_slb_y); return;
+    int i;
+    for (i = 0; i < SMALL_AROUND_MID_LENGTH; i++)
+    {
+        MapSlabCoord slb_x, slb_y;
+        slb_x = base_slb_x + small_around_mid[i].delta_x;
+        slb_y = base_slb_y + small_around_mid[i].delta_y;
+        struct SlabMap *slb;
+        slb = get_slabmap_for_subtile(slb_x, slb_y);
+        struct SlabAttr *slbattr;
+        slbattr = get_slab_attrs(slb);
+        if ((slbattr->category == SlbAtCtg_FortifiedWall) && (slabmap_owner(slb) != plyr_idx))
+        {
+            int n, num_owned_around;
+            num_owned_around = 0;
+            for (n=0; n < SMALL_AROUND_SLAB_LENGTH; n++)
+            {
+                MapSlabCoord sslb_x, sslb_y;
+                sslb_x = slb_x + small_around[n].delta_x;
+                sslb_y = slb_y + small_around[n].delta_y;
+                struct SlabMap *sslb;
+                sslb = get_slabmap_for_subtile(sslb_x, sslb_y);
+                if (slabmap_owner(sslb) == slabmap_owner(sslb))
+                {
+                    struct SlabAttr *sslbattr;
+                    sslbattr = get_slab_attrs(sslb);
+                    if ((sslbattr->category == SlbAtCtg_FortifiedGround) || (sslbattr->category == SlbAtCtg_RoomInterior)) {
+                        num_owned_around = 4;
+                    } else {
+                        num_owned_around++;
+                    }
+                }
+
+            }
+            if (num_owned_around < 2)
+            {
+                SlabKind slbkind;
+                slbkind = alter_rock_style(SlbT_EARTH, slb_x, slb_y, game.neutral_player_num);
+                place_slab_type_on_map(slbkind, slab_subtile_center(slb_x), slab_subtile_center(slb_y), game.neutral_player_num, 0);
+                do_slab_efficiency_alteration(slb_x, slb_y);
+            }
+        }
+    }
 }
 
 void do_unprettying(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)

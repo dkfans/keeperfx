@@ -24,7 +24,6 @@
 
 #define SPIRAL_STEPS_RANGE     50
 #define SPIRAL_STEPS_COUNT   (SPIRAL_STEPS_RANGE*SPIRAL_STEPS_RANGE)
-#define AROUND_TILES_COUNT      9
 
 #ifdef __cplusplus
 extern "C" {
@@ -69,8 +68,15 @@ struct CompoundCoordFilterParam {
 DLLIMPORT struct MapOffset _DK_spiral_step[SPIRAL_STEPS_COUNT];
 #define spiral_step _DK_spiral_step
 /******************************************************************************/
+#define AROUND_TILES_COUNT      9
 extern struct Around const around[];
+#define MID_AROUND_LENGTH 9
+extern struct Around const mid_around[MID_AROUND_LENGTH];
+extern struct Around const start_at_around[MID_AROUND_LENGTH];
+#define SMALL_AROUND_LENGTH 4
 extern struct Around const small_around[];
+#define SMALL_AROUND_MID_LENGTH 5
+extern struct Around const small_around_mid[];
 /******************************************************************************/
 void init_spiral_steps(void);
 
