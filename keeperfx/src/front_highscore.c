@@ -195,19 +195,33 @@ TbBool frontend_high_score_table_input(void)
     long i;
     if ((high_score_entry_input_active < 0) || (high_score_entry_input_active >= campaign.hiscore_count))
       return false;
+
+    // Also means index of '\0'
+    int charCount = 0;
+    for (i = 0; high_score_entry[i] != '\0'; i++)
+    {
+        charCount++;
+    }
+
     if (lbInkey == KC_BACK)
     {
+        // Delete previous character.
         if (high_score_entry_index > 0)
         {
-            i = high_score_entry_index-1;
-            high_score_entry[i] = '\0';
-            high_score_entry_index = i;
+            i = high_score_entry_index;
+            while (i <= charCount)
+            {
+                high_score_entry[i - 1] = high_score_entry[i];
+                i++;
+            }
+            high_score_entry_index -= 1;
         }
         lbInkey = KC_UNASSIGNED;
         return true;
     }
     if (lbInkey == KC_DELETE)
     {
+        // Delete next character.
         i = high_score_entry_index;
         while (high_score_entry[i] != '\0')
         {
@@ -216,14 +230,52 @@ TbBool frontend_high_score_table_input(void)
         }
         lbInkey = KC_UNASSIGNED;
         return true;
+    } 
+    if (lbInkey == KC_LEFT)
+    {
+        // Move cursor left.
+        if (high_score_entry_index > 0)
+        {
+            high_score_entry_index--;
+        }
+        lbInkey = KC_UNASSIGNED;
+    }  
+    if (lbInkey == KC_RIGHT)
+    {
+        // Move cursor right.
+        i = high_score_entry_index;
+        if (high_score_entry[i] != '\0')
+        {
+            high_score_entry_index++;
+        }
+        lbInkey = KC_UNASSIGNED;
+    }
+    if ((lbInkey == KC_HOME) || (lbInkey == KC_PGUP))
+    {
+        // Move cursor to beginning.
+        high_score_entry_index = 0;
+        lbInkey = KC_UNASSIGNED;
+    }
+    if ((lbInkey == KC_END) || (lbInkey == KC_PGDOWN))
+    {
+        // Move cursor to end.
+        while (high_score_entry[high_score_entry_index] != '\0')
+        {
+            high_score_entry_index++;
+        }
+        lbInkey = KC_UNASSIGNED;
     }
     if ((lbInkey == KC_RETURN) || (lbInkey == KC_NUMPADENTER) || (lbInkey == KC_ESCAPE))
     {
         hscore = &campaign.hiscore_table[high_score_entry_input_active];
         if (lbInkey == KC_ESCAPE)
+        {
             strncpy(hscore->name, get_string(GUIStr_TeamLeader), HISCORE_NAME_LENGTH);
+        }
         else
+        {
             strncpy(hscore->name, high_score_entry, HISCORE_NAME_LENGTH);
+        }
         high_score_entry_input_active = -1;
         save_high_score_table();
         lbInkey = KC_UNASSIGNED;
@@ -235,15 +287,20 @@ TbBool frontend_high_score_table_input(void)
         if (chr != 0)
         {
             LbTextSetFont(frontend_font[1]);
-            i = LbTextCharWidth(chr);
-            if ((i > 0) && (i+LbTextStringWidth(high_score_entry) < 308))
+            int newCharWidth = LbTextCharWidth(chr);
+            if ((charCount < (HISCORE_NAME_LENGTH - 1)) &&
+                ((newCharWidth > 0) && (newCharWidth + LbTextStringWidth(high_score_entry) < 308)))
             {
-              high_score_entry[high_score_entry_index] = chr;
-              i = high_score_entry_index+1;
-              high_score_entry[i] = 0;
-              high_score_entry_index = i;
-              lbInkey = KC_UNASSIGNED;
-              return true;
+                i = charCount; 
+                while (i > high_score_entry_index)
+                {
+                    high_score_entry[i] = high_score_entry[i - 1];
+                    i--;
+                }
+                high_score_entry[high_score_entry_index] = chr;
+                high_score_entry_index = i + 1;
+                lbInkey = KC_UNASSIGNED;
+                return true;
             }
         }
     }
