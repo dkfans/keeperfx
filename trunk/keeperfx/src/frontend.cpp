@@ -701,88 +701,93 @@ short game_is_busy_doing_gui(void)
 TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
 {
     char *str;
-    int key,outchar;
+    int key, outchar;
     TbLocChar vischar[4];
     //return _DK_get_button_area_input(gbtn, a2);
-    strcpy(vischar," ");
+    strcpy(vischar, " ");
     str = (char *)gbtn->content;
     key = lbInkey;
-    if ( (modifiers == -1) && (lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT]) )
+    if ((modifiers == -1) && (lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT]))
     {
-        if ( (lbInkey == KC_LSHIFT) || (lbInkey == KC_RSHIFT) ) {
+        if ((lbInkey == KC_LSHIFT) || (lbInkey == KC_RSHIFT)) {
             lbInkey = KC_UNASSIGNED;
             return false;
         }
         outchar = key_to_ascii(lbInkey, KMod_SHIFT);
-    } else
+    }
+    else
     {
         outchar = key_to_ascii(lbInkey, KMod_NONE);
     }
     vischar[0] = outchar;
-    if (key == KC_RETURN)
+    if ((key == KC_RETURN) && 
+        ((gbtn->field_2D < 0) || (str[0] != '\0') || (modifiers == -3)))
     {
-        if ( (gbtn->field_2D < 0) || (str[0] != '\0') || (modifiers == -3) )
+        gbtn->gbactn_1 = 0;
+        (gbtn->click_event)(gbtn);
+        input_button = 0;
+        if ((gbtn->flags & LbBtnF_Unknown02) != 0)
         {
-            gbtn->gbactn_1 = 0;
-            (gbtn->click_event)(gbtn);
-            input_button = 0;
-            if ((gbtn->flags & LbBtnF_Unknown02) != 0)
-            {
-                struct GuiMenu *gmnu;
-                gmnu = get_active_menu(gbtn->gmenu_idx);
-                gmnu->visible = 3;
-                remove_from_menu_stack(gmnu->ident);
-            }
+            struct GuiMenu *gmnu;
+            gmnu = get_active_menu(gbtn->gmenu_idx);
+            gmnu->visible = 3;
+            remove_from_menu_stack(gmnu->ident);
         }
-    } else
-    if (key == KC_ESCAPE)
+    }
+    else if (key == KC_ESCAPE)
     { // Stop the input, revert the string to what it was before
         strncpy(str, backup_input_field, gbtn->field_2D);
         input_button = 0;
         input_field_pos = 0;
-    } else
-    if (key == KC_BACK)
+    }
+    else if (key == KC_BACK)
     { // Delete the last char
         if (input_field_pos > 0) {
             input_field_pos--;
             LbLocTextStringDelete(str, input_field_pos, 1);
         }
-    } else
-    if ((key == KC_HOME) || (key == KC_PGUP))
+    }
+    else if (key == KC_DELETE)
+    { // delete the next char
+        if (input_field_pos < LbLocTextStringLength(str)) {
+            LbLocTextStringDelete(str, input_field_pos, 1);
+            input_field_pos;
+        }
+    }
+    else if ((key == KC_HOME) || (key == KC_PGUP))
     { // move to first char
         input_field_pos = 0;
-    } else
-    if ((key == KC_END) || (key == KC_PGDOWN))
+    }
+    else if ((key == KC_END) || (key == KC_PGDOWN))
     { // move to last char
         input_field_pos = LbLocTextStringLength(str);
-    } else
-    if (key == KC_LEFT)
+    }
+    else if (key == KC_LEFT)
     { // move one char left
         if (input_field_pos > 0)
             input_field_pos--;
-    } else
-    if (key == KC_RIGHT)
+    }
+    else if (key == KC_RIGHT)
     { // move one char left
         if (input_field_pos < LbLocTextStringLength(str))
             input_field_pos++;
-    } else
-    if (LbLocTextStringSize(str) < abs(gbtn->field_2D))
+    }
+    else if (LbLocTextStringSize(str) < abs(gbtn->field_2D))
     {
         // Check if we have printable character
-        if (modifiers == -1)
+        if ((modifiers == -1) && (!isprint(vischar[0])))
         {
-            if (!isprint(vischar[0])) {
-                clear_key_pressed(key);
-                return false;
-            }
-        } else
-        {
-            if (!isalnum(vischar[0]) && (vischar[0] != ' ')) {
-                clear_key_pressed(key);
-                return false;
-            }
+            clear_key_pressed(key);
+            return false;
         }
-        if (LbLocTextStringInsert(str, vischar, input_field_pos, gbtn->field_2D) != NULL) {
+        else if (!isalnum(vischar[0]) && (vischar[0] != ' ')) 
+        {
+            clear_key_pressed(key);
+            return false;
+        }
+
+        if (LbLocTextStringInsert(str, vischar, input_field_pos, gbtn->field_2D) != NULL) 
+        {
             input_field_pos++;
         }
     }
