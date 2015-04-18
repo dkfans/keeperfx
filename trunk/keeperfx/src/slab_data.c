@@ -138,6 +138,18 @@ TbBool slabmap_block_invalid(const struct SlabMap *slb)
 }
 
 /**
+ * Returns if the slab coords are in range of existing map slabs.
+ */
+TbBool slab_coords_invalid(MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+  if ((slb_x < 0) || (slb_x >= map_tiles_x))
+      return true;
+  if ((slb_y < 0) || (slb_y >= map_tiles_y))
+      return true;
+  return false;
+}
+
+/**
  * Returns owner index of given SlabMap.
  */
 long slabmap_owner(const struct SlabMap *slb)

@@ -54,6 +54,8 @@ DLLIMPORT void _DK_place_slab_columns(long a1, unsigned char stl_x, unsigned cha
 DLLIMPORT void _DK_place_slab_object(unsigned short a1, long stl_x, long stl_y, unsigned short col_idx, unsigned short a5, unsigned char a6);
 DLLIMPORT void _DK_copy_block_with_cube_groups(short a1, unsigned char plyr_idx, unsigned char a3);
 DLLIMPORT long _DK_tag_blocks_for_digging_in_area(long stl_x, long stl_y, signed char plyr_idx);
+DLLIMPORT void _DK_place_animating_slab_type_on_map(long a1, char a2, unsigned char a3, unsigned char a4, unsigned char a5);
+DLLIMPORT void _DK_dump_slab_on_map(long a1, long a2, unsigned char stl_x, unsigned char stl_y, unsigned char owner);
 
 const signed short slab_element_around_eight[] = {
     -3, -2, 1, 4, 3, 2, -1, -4
@@ -919,6 +921,52 @@ void place_single_slab_type_on_map(SlabKind slbkind, MapSlabCoord slb_x, MapSlab
 void shuffle_unattached_things_on_slab(long a1, long a2)
 {
     _DK_shuffle_unattached_things_on_slab(a1, a2); return;
+}
+
+void dump_slab_on_map(SlabKind slbkind, long a2, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber owner)
+{
+    _DK_dump_slab_on_map(slbkind, a2, stl_x, stl_y, owner); return;
+}
+
+void place_animating_slab_type_on_map(SlabKind slbkind, char a2, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber owner)
+{
+    SYNCDBG(7,"Starting");
+    //_DK_place_animating_slab_type_on_map(slbkind,a2,a3,a4,owner);
+    MapSlabCoord slb_x, slb_y;
+    slb_x = subtile_slab_fast(stl_x);
+    slb_y = subtile_slab_fast(stl_y);
+    if (!slab_kind_is_animated(slbkind))
+    {
+        ERRORLOG("Attempt to dump an invalid animating slab: %d", (int)slbkind);
+        dump_slab_on_map(SlbT_LAVA, 0, stl_x, stl_y, game.neutral_player_num);
+        return;
+    }
+    delete_attached_things_on_slab(slb_x, slb_y);
+    dump_slab_on_map(slbkind, 840 + 8 * slbkind + a2, stl_x, stl_y, owner);
+    shuffle_unattached_things_on_slab(slb_x, slb_y);
+    int i;
+    for (i = 0; i < AROUND_EIGHT_LENGTH; i++)
+    {
+        MapSlabCoord sslb_x, sslb_y;
+        sslb_x = slb_x + (MapSlabCoord)my_around_eight[i].delta_x;
+        sslb_y = slb_y + (MapSlabCoord)my_around_eight[i].delta_y;
+        struct SlabMap *slb;
+        slb = get_slabmap_block(sslb_x, sslb_y);
+        if (slabmap_block_invalid(slb)) {
+            continue;
+        }
+        int ssub_x, ssub_y;
+        for (ssub_y=0; ssub_y < STL_PER_SLB; ssub_y++)
+        {
+            for (ssub_x=0; ssub_x < STL_PER_SLB; ssub_x++)
+            {
+                MapSubtlCoord sstl_x, sstl_y;
+                sstl_x = slab_subtile(sslb_x,ssub_x);
+                sstl_y = slab_subtile(sslb_y,ssub_y);
+                set_alt_bit_based_on_slab(slb->kind, sstl_x, sstl_y);
+            }
+        }
+    }
 }
 
 /**
