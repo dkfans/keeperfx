@@ -1325,6 +1325,7 @@
  0001:000A7530       init_sound_heap_two_banks
  0001:000A7800       close_sound_heap
  0001:00013A10       place_slab_columns
+ 0001:00013D10       dump_slab_on_map
  0001:00014040       place_slab_object
  0001:00014490       delete_attached_things_on_slab
  0001:00014590       get_against
