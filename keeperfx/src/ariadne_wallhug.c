@@ -60,6 +60,18 @@ struct Around const my_around_eight[] = {
   {-1,-1},
 };
 
+struct Around const my_around_nine[] = {
+  {-1,-1},
+  { 0,-1},
+  { 1,-1},
+  {-1, 0},
+  { 0, 0},
+  { 1, 0},
+  {-1, 1},
+  { 0, 1},
+  { 1, 1},
+};
+
 short const around_map[] = {-257, -256, -255, -1, 0, 1, 255, 256, 257};
 
 /**

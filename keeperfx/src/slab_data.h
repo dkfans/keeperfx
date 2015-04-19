@@ -90,8 +90,15 @@ struct SlabSet { // sizeof = 18
 };
 
 struct SlabObj { // sizeof = 13
-  unsigned char field_0[11];
-  unsigned short field_B;
+  unsigned char field_0;
+  short field_1;
+  unsigned char field_3;
+  short field_4;
+  short field_6;
+  short field_8;
+  unsigned char field_A;
+  unsigned char sofield_B;
+  unsigned char sofield_C;
 };
 
 #pragma pack()
