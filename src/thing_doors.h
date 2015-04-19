@@ -42,7 +42,7 @@ enum DoorStates {
 struct Thing;
 
 struct DoorStats { // sizeof = 8
-    unsigned short field_0;
+    unsigned short slbkind;
     long health;
     unsigned short field_6;
 };
