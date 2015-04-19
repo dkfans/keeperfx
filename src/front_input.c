@@ -848,7 +848,7 @@ short get_creature_control_action_inputs(void)
 
     if (player->controlled_thing_idx != 0)
     {
-        short make_packet = right_button_released;
+        short make_packet = right_button_released || is_key_pressed(KC_ESCAPE, KMod_DONTCARE);
         if (!make_packet)
         {
           struct Thing *thing;
@@ -861,6 +861,7 @@ short get_creature_control_action_inputs(void)
         if (make_packet)
         {
             right_button_released = 0;
+            clear_key_pressed(KC_ESCAPE);
             set_players_packet_action(player, PckA_Unknown033, player->controlled_thing_idx,0,0,0);
         }
     }
