@@ -80,6 +80,8 @@ struct CallToArmsGraphics {
 extern Thing_State_Func object_state_functions[];
 extern Thing_Class_Func object_update_functions[];
 extern unsigned short player_guardflag_objects[];
+extern unsigned short dungeon_flame_objects[];
+
 /******************************************************************************/
 DLLIMPORT struct Objects _DK_objects[OBJECT_TYPES_COUNT]; // in KeeperFX, named objects_data[]
 DLLIMPORT unsigned char _DK_object_to_special[OBJECT_TYPES_COUNT];
