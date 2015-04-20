@@ -444,7 +444,7 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
     LbScreenReset(false);
 
     assert((lbPalettedSurface == NULL));
-    assert((lbGameRenderer == NULL));
+    //assert((lbGameRenderer == NULL));
     assert((lbDrawTexture == NULL));
 
     mdinfo = LbScreenGetModeInfo(modeIndex);
@@ -455,6 +455,10 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
             (int)mdinfo->Width,(int)mdinfo->Height,(int)modeIndex);
         return Lb_FAIL;
     }
+
+    // Working around SDL bug: use different size of window and renderer to keep movie full screen.
+    int isMovieMode = false;
+    isMovieMode = (mdinfo->Width == 320) && (mdinfo->Height == 200);
 
     // SDL video modeIndex flags
     sdlFlags = SDL_WINDOW_RESIZABLE;
@@ -472,18 +476,34 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
             SDL_WINDOWPOS_UNDEFINED,
             mdinfo->Width,
             mdinfo->Height,
-            sdlFlags);
+            sdlFlags);    
+
+        if (lbScreenWindow == NULL) 
+        {
+            ERRORLOG("Failed to initialize mode %d: %s", (int)modeIndex, SDL_GetError());
+            return Lb_FAIL;
+        }
     }
-    if (lbScreenWindow == NULL) 
+    else
     {
-        ERRORLOG("Failed to initialize mode %d: %s", (int)modeIndex, SDL_GetError());
-        return Lb_FAIL;
+        if (!isMovieMode)
+        {
+            // Reisze window when it already exists.
+            SDL_SetWindowSize(lbScreenWindow, mdinfo->Width, mdinfo->Height);
+            SDL_SetWindowFullscreen(lbScreenWindow, sdlFlags);
+            SDL_SetWindowPosition(lbScreenWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+        }
     }
 
-    // Using SDL_RENDERER_SOFTWARE flag to workaround a possible SDL bug: providing no flags 
+
+    // Working around a possible SDL bug: providing no flags 
     // gives priority to available SDL_RENDERER_ACCELERATED renders, which cause memory leak
     // on SDL_DestoryRenderer(), TODO report this when I have an account.
-    lbGameRenderer = SDL_CreateRenderer(lbScreenWindow, -1, SDL_RENDERER_SOFTWARE);
+    if (lbGameRenderer == NULL)
+    {
+        lbGameRenderer = SDL_CreateRenderer(lbScreenWindow, -1, 0);
+    }
+
     if (lbGameRenderer == NULL)
     {
         ERRORLOG("Error creating lbGameRenderer %d: %s", (int)modeIndex, SDL_GetError());
@@ -703,15 +723,19 @@ TbResult LbScreenReset(TbBool resetMainWindow)
     SDL_DestroyTexture(lbDrawTexture);
     lbDrawTexture = NULL;
 
-    SDL_DestroyRenderer(lbGameRenderer);
-    lbGameRenderer = NULL;
+    // Commenting following part to workaround SDL bug: when using GPU acceleration 
+    // will cause memory leak at SDL_DestroyRenderer. So instead of destroying everything
+    // we simply resize the window. 
+
+    //SDL_DestroyRenderer(lbGameRenderer);
+    //lbGameRenderer = NULL;
 
     // Only reset main windows at 'alt + r' event
-    if (resetMainWindow)
-    {
-        SDL_DestroyWindow(lbScreenWindow);
-        lbScreenWindow = NULL;
-    }
+    //if (resetMainWindow)
+    //{
+    //    SDL_DestroyWindow(lbScreenWindow);
+    //    lbScreenWindow = NULL;
+    //}
 
     // Mark as not initialized
     lbScreenInitialized = false;
