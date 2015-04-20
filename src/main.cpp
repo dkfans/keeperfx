@@ -1760,8 +1760,11 @@ void init_keepers_map_exploration(void)
       player = get_player(i);
       if (player_exists(player) && (player->field_2C == 1))
       {
-          if ((player->allocflags & PlaF_CompCtrl) != 0)
-            init_keeper_map_exploration(player);
+          // Additional init - the main one is in init_player()
+          if ((player->allocflags & PlaF_CompCtrl) != 0) {
+              init_keeper_map_exploration_by_terrain(player);
+              init_keeper_map_exploration_by_creatures(player);
+          }
       }
     }
 }
