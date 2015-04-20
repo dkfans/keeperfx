@@ -258,11 +258,11 @@ long __stdcall KeyboardProc(int a1, unsigned int a2, long code)
     }
     lbInkeyFlags = 0;
     if (lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT])
-        lbInkeyFlags |= 0x10;
+        lbInkeyFlags |= KMod_SHIFT;
     if (lbKeyOn[KC_LCONTROL] || lbKeyOn[KC_RCONTROL])
-        lbInkeyFlags |= 0x20;
+        lbInkeyFlags |= KMod_CONTROL;
     if (lbKeyOn[KC_LALT] || lbKeyOn[KC_RALT])
-        lbInkeyFlags |= 0x40;
+        lbInkeyFlags |= KMod_ALT;
     if (lbKeyOn[lbcode] != 0)
         lbKeyOn[lbcode] |= lbInkeyFlags;
     if (lbInkey < 0x80)

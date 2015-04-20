@@ -225,16 +225,36 @@ static unsigned int keyboard_keys_mapping(const SDL_KeyboardEvent * key)
     return KC_UNASSIGNED;
 }
 
-static int keyboard_mods_mapping(const SDL_KeyboardEvent * key)
+static TbKeyMods keyboard_mods_mapping(const SDL_KeyboardEvent * key)
 {
-    /*
-    key->keysym.mod
-        (KMOD_LCTRL|KMOD_RCTRL)
-        (KMOD_LSHIFT|KMOD_RSHIFT)
-        (KMOD_LALT|KMOD_RALT)
-        (KMOD_LMETA|KMOD_RMETA)
-    */
-    return KMod_DONTCARE;
+    TbKeyMods keymod = KMod_NONE;
+    switch (key->keysym.sym)
+    {
+    // Pressing only a modifier will not treat the key as modifier.
+    // If that happens, don't care, so that keyboard control won't try to fix anything.
+    case SDLK_RSHIFT:
+    case SDLK_LSHIFT:
+    case SDLK_RCTRL:
+    case SDLK_LCTRL:
+    case SDLK_RALT:
+    case SDLK_LALT:
+    case SDLK_RMETA:
+    case SDLK_LMETA:
+    case SDLK_LSUPER:
+    case SDLK_RSUPER:
+        keymod = KMod_DONTCARE;
+        break;
+    // If pressed any other key, mind the modifiers, to allow keyboard control fixes.
+    default:
+        if ((key->keysym.mod & KMOD_CTRL) != 0)
+            keymod |= KMod_CONTROL;
+        if ((key->keysym.mod & KMOD_SHIFT) != 0)
+            keymod |= KMod_SHIFT;
+        if ((key->keysym.mod & KMOD_ALT) != 0)
+            keymod |= KMod_ALT;
+        break;
+    }
+    return keymod;
 }
 
 static void process_event(const SDL_Event *ev)
