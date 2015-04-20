@@ -2152,25 +2152,25 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     return result;
 }
 
-TbBool load_creaturemodel_config(long crtr_model, unsigned short flags)
+TbBool load_creaturemodel_config(long crmodel, unsigned short flags)
 {
     static const char config_global_textname[] = "global creature model config";
     static const char config_campgn_textname[] = "campaing creature model config";
     char conf_fnstr[COMMAND_WORD_LEN];
     char *fname;
     TbBool result;
-    LbStringToLowerCopy(conf_fnstr,get_conf_parameter_text(creature_desc,crtr_model),COMMAND_WORD_LEN);
+    LbStringToLowerCopy(conf_fnstr,get_conf_parameter_text(creature_desc,crmodel),COMMAND_WORD_LEN);
     if (strlen(conf_fnstr) == 0)
     {
-        WARNMSG("Can't get config file name for creature %d.",crtr_model);
+        WARNMSG("Cannot get config file name for creature %d.",crmodel);
         return false;
     }
     fname = prepare_file_fmtpath(FGrp_CrtrData,"%s.cfg",conf_fnstr);
-    result = load_creaturemodel_config_file(crtr_model,config_global_textname,fname,flags);
+    result = load_creaturemodel_config_file(crmodel,config_global_textname,fname,flags);
     fname = prepare_file_fmtpath(FGrp_CmpgCrtrs,"%s.cfg",conf_fnstr);
     if (strlen(fname) > 0)
     {
-        load_creaturemodel_config_file(crtr_model,config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+        load_creaturemodel_config_file(crmodel,config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
     }
     //Freeing and exiting
     return result;

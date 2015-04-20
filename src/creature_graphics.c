@@ -146,11 +146,11 @@ extern struct CreaturePickedUpOffset creature_picked_up_offset[];
 /******************************************************************************/
 struct CreaturePickedUpOffset *get_creature_picked_up_offset(struct Thing *thing)
 {
-    int breed;
-    breed = thing->model;
-    if ((breed < 0) || (breed >= CREATURE_TYPES_COUNT))
-        breed = 0;
-    return &creature_picked_up_offset[breed];
+    int crmodel;
+    crmodel = thing->model;
+    if ((crmodel < 1) || (crmodel >= CREATURE_TYPES_COUNT))
+        crmodel = 0;
+    return &creature_picked_up_offset[crmodel];
 }
 
 unsigned char keepersprite_frames(unsigned short n)
@@ -298,11 +298,11 @@ unsigned long get_creature_model_graphics(long crmodel, unsigned short seq_idx)
 void set_creature_model_graphics(long crmodel, unsigned short seq_idx, unsigned long val)
 {
     if (seq_idx >= CREATURE_GRAPHICS_INSTANCES) {
-        ERRORLOG("Invalid breed %d graphics sequence %d",crmodel,seq_idx);
+        ERRORLOG("Invalid model %d graphics sequence %d",crmodel,seq_idx);
         return;
     }
     if ((crmodel < 0) || (crmodel >= CREATURE_TYPES_COUNT)) {
-        ERRORLOG("Invalid breed %d graphics sequence %d",crmodel,seq_idx);
+        ERRORLOG("Invalid model %d graphics sequence %d",crmodel,seq_idx);
         return;
     }
     creature_graphics[crmodel][seq_idx] = val;

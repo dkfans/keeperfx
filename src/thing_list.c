@@ -3620,7 +3620,7 @@ long count_creatures_in_dungeon_of_model_flags(const struct Dungeon *dungeon, un
     long count;
     count = 0;
     ThingModel crmodel;
-    for (crmodel=1; crmodel < CREATURE_TYPES_COUNT; crmodel++)
+    for (crmodel=1; crmodel < crtr_conf.model_count; crmodel++)
     {
         struct CreatureModelConfig *crconf;
         crconf = &crtr_conf.model[crmodel];
@@ -3638,7 +3638,7 @@ long count_creatures_in_dungeon_controlled_and_of_model_flags(const struct Dunge
     long count;
     count = 0;
     ThingModel crmodel;
-    for (crmodel=1; crmodel < CREATURE_TYPES_COUNT; crmodel++)
+    for (crmodel=1; crmodel < crtr_conf.model_count; crmodel++)
     {
         struct CreatureModelConfig *crconf;
         crconf = &crtr_conf.model[crmodel];
