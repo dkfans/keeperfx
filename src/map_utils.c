@@ -153,6 +153,7 @@ void get_min_floor_and_ceiling_heights_for_rect(MapSubtlCoord stl_x_beg, MapSubt
     MapSubtlCoord stl_x, stl_y;
     *floor_height = 0;
     *ceiling_height = 15;
+    // Sweep through subtiles and select highest floor and lowest ceiling
     for (stl_y = stl_y_beg; stl_y <= stl_y_end; stl_y++)
     {
         for (stl_x = stl_x_beg; stl_x <= stl_x_end; stl_x++)
