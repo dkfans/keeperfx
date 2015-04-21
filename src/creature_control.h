@@ -41,6 +41,8 @@ extern "C" {
 #define COMBAT_RANGED_OPPONENTS_LIMIT      4
 /** Amount of instances. */
 #define CREATURE_INSTANCES_COUNT          48
+/** Max amount of rooms needed for a creature to be attracted to a dungeon. */
+#define ENTRANCE_ROOMS_COUNT               3
 
 #define INVALID_CRTR_CONTROL (game.persons.cctrl_lookup[0])
 /******************************************************************************/
@@ -580,8 +582,8 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     short pay;
     unsigned char manufacture_value;
     unsigned char hearing;
-    unsigned char entrance_rooms[3];
-    unsigned char entrance_slabs_req[3];
+    unsigned char entrance_rooms[ENTRANCE_ROOMS_COUNT];
+    unsigned char entrance_slabs_req[ENTRANCE_ROOMS_COUNT];
     unsigned char visual_range;
     unsigned char partner_training;
     /** Minimal game turns a creature must be tortured before it gets a chance to be broken */

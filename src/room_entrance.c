@@ -30,6 +30,7 @@
 #include "thing_navigate.h"
 #include "creature_states.h"
 #include "config_creature.h"
+#include "config_terrain.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 
@@ -167,53 +168,56 @@ long calculate_attractive_room_quantity(RoomKind room_kind, PlayerNumber plyr_id
     }
 }
 
-long calculate_excess_attraction_for_creature(ThingModel crkind, PlayerNumber plyr_idx)
+long calculate_excess_attraction_for_creature(ThingModel crmodel, PlayerNumber plyr_idx)
 {
     struct CreatureStats * stats;
 
     SYNCDBG(11, "Starting");
 
-    stats = creature_stats_get(crkind);
+    stats = creature_stats_get(crmodel);
     long excess_attraction = 0;
     int i;
-    for (i=0; i < 3; i++)
+    for (i=0; i < ENTRANCE_ROOMS_COUNT; i++)
     {
         RoomKind room_kind;
         room_kind = stats->entrance_rooms[i];
         if ((room_kind != RoK_NONE) && (stats->entrance_slabs_req[i] > 0)) {
             // First room adds fully to attraction, second adds only 1/2, third adds 1/3
-            excess_attraction += calculate_attractive_room_quantity(room_kind, plyr_idx, crkind) / (i+1);
+            excess_attraction += calculate_attractive_room_quantity(room_kind, plyr_idx, crmodel) / (i+1);
         }
     }
     return excess_attraction;
 }
 
-TbBool creature_will_generate_for_dungeon(const struct Dungeon * dungeon, ThingModel crkind)
+TbBool creature_will_generate_for_dungeon(const struct Dungeon * dungeon, ThingModel crmodel)
 {
     struct CreatureStats * stats;
     int i;
 
-    SYNCDBG(11, "Starting for creature kind %s", creature_code_name(crkind));
+    SYNCDBG(11, "Starting for creature model %s", creature_code_name(crmodel));
 
-    if (game.pool.crtr_kind[crkind] <= 0) {
+    if (game.pool.crtr_kind[crmodel] <= 0) {
+        SYNCDBG(11, "The %s is not in pool", creature_code_name(crmodel));
         return false;
     }
 
     // Not allowed creatures can never be attracted
-    if (!dungeon->creature_allowed[crkind]) {
+    if (!dungeon->creature_allowed[crmodel]) {
+        SYNCDBG(11, "The %s is not allowed for player %d", creature_code_name(crmodel),(int)dungeon->owner);
         return false;
     }
 
     // Enabled creatures don't need additional conditions to be met
-    if (dungeon->creature_force_enabled[crkind] > dungeon->creature_models_joined[crkind]) {
+    if (dungeon->creature_force_enabled[crmodel] > dungeon->creature_models_joined[crmodel]) {
+        SYNCDBG(11, "The %s is forced for player %d", creature_code_name(crmodel),(int)dungeon->owner);
         return true;
     }
 
     // Typical way is to allow creatures which meet attraction conditions
-    stats = creature_stats_get(crkind);
+    stats = creature_stats_get(crmodel);
 
     // Check if we've got rooms of enough size for attraction
-    for (i = 0; i < 3; ++i)
+    for (i = 0; i < ENTRANCE_ROOMS_COUNT; ++i)
     {
         RoomKind room_kind;
         int slabs_count;
@@ -223,6 +227,7 @@ TbBool creature_will_generate_for_dungeon(const struct Dungeon * dungeon, ThingM
             slabs_count = get_room_slabs_count(dungeon->owner, room_kind);
 
             if (slabs_count < stats->entrance_slabs_req[i]) {
+                SYNCDBG(11, "The %s needs more %s space for player %d", creature_code_name(crmodel),room_code_name(room_kind),(int)dungeon->owner);
                 return false;
             }
         }
@@ -231,69 +236,74 @@ TbBool creature_will_generate_for_dungeon(const struct Dungeon * dungeon, ThingM
     return true;
 }
 
-TbBool remove_creature_from_generate_pool(ThingModel crtr_kind)
+TbBool remove_creature_from_generate_pool(ThingModel crmodel)
 {
-    if (game.pool.crtr_kind[crtr_kind] <= 0) {
-        WARNLOG("Could not remove creature %s from the creature pool",creature_code_name(crtr_kind));
+    if (game.pool.crtr_kind[crmodel] <= 0) {
+        WARNLOG("Could not remove creature %s from the creature pool",creature_code_name(crmodel));
         return false;
     }
-    game.pool.crtr_kind[crtr_kind]--;
+    game.pool.crtr_kind[crmodel]--;
     return true;
 }
 
-int calculate_creature_to_generate_for_dungeon(struct Dungeon * dungeon)
+int calculate_creature_to_generate_for_dungeon(const struct Dungeon * dungeon)
 {
     long cum_freq; //cumulative frequency
     long gen_count;
     long crtr_freq[CREATURE_TYPES_COUNT];
     long rnd;
     long score;
-    long i;
+    long crmodel;
 
     SYNCDBG(9,"Starting");
 
     cum_freq = 0;
     gen_count = 0;
     crtr_freq[0] = 0;
-    for (i = 1; i < CREATURE_TYPES_COUNT; ++i) {
-        if (creature_will_generate_for_dungeon(dungeon, i))
+    for (crmodel = 1; crmodel < CREATURE_TYPES_COUNT; crmodel++)
+    {
+        if (creature_will_generate_for_dungeon(dungeon, crmodel))
         {
             struct CreatureStats *crstat;
-            crstat = creature_stats_get(i);
+            crstat = creature_stats_get(crmodel);
 
             gen_count += 1;
 
             score = (long)crstat->entrance_score
-                + calculate_excess_attraction_for_creature(i, dungeon->owner);
+                + calculate_excess_attraction_for_creature(crmodel, dungeon->owner);
             if (score < 1) {
                 score = 1;
             }
             cum_freq += score;
-            crtr_freq[i] = cum_freq;
-        }
-        else {
-            crtr_freq[i] = 0;
+            crtr_freq[crmodel] = cum_freq;
+        } else
+        {
+            crtr_freq[crmodel] = 0;
         }
     }
 
+    SYNCDBG(19,"Getting random out of %d creature models",(int)gen_count);
     // Select a creature kind to generate based on score we've got for every kind
     // Scores define a chance of being generated.
-    if (gen_count > 0) {
-        if (cum_freq > 0) {
+    if (gen_count > 0)
+    {
+        if (cum_freq > 0)
+        {
             rnd = ACTION_RANDOM(cum_freq);
 
-            i = 1;
-            while (rnd >= crtr_freq[i]) {
-                ++i;
-                if (i >= CREATURE_TYPES_COUNT) {
+            crmodel = 1;
+            while (rnd >= crtr_freq[crmodel])
+            {
+                crmodel++;
+                if (crmodel >= CREATURE_TYPES_COUNT) {
                     ERRORLOG("Internal problem; got outside of cummulative range.");
                     return 0;
                 }
             }
 
-            return i;
-        }
-        else {
+            return crmodel;
+        } else
+        {
             ERRORLOG("Bad configuration; creature available but no scores for randomization.");
         }
     }
@@ -301,7 +311,7 @@ int calculate_creature_to_generate_for_dungeon(struct Dungeon * dungeon)
     return 0;
 }
 
-TbBool generate_creature_at_random_entrance(struct Dungeon * dungeon, ThingModel crtr_kind)
+TbBool generate_creature_at_random_entrance(struct Dungeon * dungeon, ThingModel crmodel)
 {
     struct Room * room;
 
@@ -314,40 +324,44 @@ TbBool generate_creature_at_random_entrance(struct Dungeon * dungeon, ThingModel
         return false;
     }
     struct Thing *creatng;
-    creatng = create_creature_at_entrance(room, crtr_kind);
+    creatng = create_creature_at_entrance(room, crmodel);
     if (thing_is_invalid(creatng)) {
         return false;
     }
-    remove_creature_from_generate_pool(crtr_kind);
+    remove_creature_from_generate_pool(crmodel);
     return true;
 }
 
 void generate_creature_for_dungeon(struct Dungeon * dungeon)
 {
-    ThingModel crkind;
+    ThingModel crmodel;
     long lair_space;
-    struct CreatureStats *crstat;
 
     SYNCDBG(9,"Starting");
 
-    crkind = calculate_creature_to_generate_for_dungeon(dungeon);
-    crstat = creature_stats_get(crkind);
+    crmodel = calculate_creature_to_generate_for_dungeon(dungeon);
 
-    if (crkind > 0) {
+    if (crmodel > 0)
+    {
+        struct CreatureStats *crstat;
+        crstat = creature_stats_get(crmodel);
         lair_space = calculate_free_lair_space(dungeon);
         if ((long)crstat->pay > dungeon->total_money_owned)
         {
+            SYNCDBG(8,"The %s will not come as player %d has less than %d gold",creature_code_name(crmodel),(int)dungeon->owner,(int)crstat->pay);
             if (is_my_player_number(dungeon->owner)) {
                 output_message(SMsg_GoldLow, MESSAGE_DELAY_TREASURY, true);
             }
         } else
         if (lair_space > 0)
         {
-            generate_creature_at_random_entrance(dungeon, crkind);
+            SYNCDBG(8,"The %s will come to player %d",creature_code_name(crmodel),(int)dungeon->owner);
+            generate_creature_at_random_entrance(dungeon, crmodel);
         } else
         if (lair_space == 0)
         {
-            generate_creature_at_random_entrance(dungeon, crkind);
+            SYNCDBG(8,"The %s will come to player %d even though lair is full",creature_code_name(crmodel),(int)dungeon->owner);
+            generate_creature_at_random_entrance(dungeon, crmodel);
 
             if (dungeon_has_room(dungeon, RoK_LAIR))
             {
@@ -358,7 +372,13 @@ void generate_creature_for_dungeon(struct Dungeon * dungeon)
             {
                 output_message_room_related_from_computer_or_player_action(dungeon->owner, RoK_LAIR, OMsg_RoomNeeded);
             }
+        } else
+        {
+            SYNCDBG(8,"The %s will not come as player %d has lair capacity exceeded",creature_code_name(crmodel),(int)dungeon->owner);
         }
+    } else
+    {
+        SYNCDBG(9,"There is no creature for player %d",(int)dungeon->owner);
     }
 }
 
