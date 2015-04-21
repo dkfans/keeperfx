@@ -464,7 +464,7 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
     sdlFlags = SDL_WINDOW_RESIZABLE;
     if ((mdinfo->VideoFlags & Lb_VF_WINDOWED) == 0) 
     {
-        sdlFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+        sdlFlags |= SDL_WINDOW_FULLSCREEN;
     }
 
     // TODO HeM break following into smaller methods.
