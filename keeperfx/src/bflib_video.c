@@ -367,18 +367,18 @@ TbResult LbScreenInitialize(void)
     atexit(SDL_Quit);
     return Lb_SUCCESS;
 }
-//
-//static LPCTSTR MsResourceMapping(int index)
-//{
-//  switch (index)
-//  {
-//  case 1:
-//      return "A";
-//      //return MAKEINTRESOURCE(110); -- may work for other resource compilers
-//  default:
-//      return NULL;
-//  }
-//}
+
+static LPCTSTR MsResourceMapping(int index)
+{
+  switch (index)
+  {
+  case 1:
+      return "A";
+      //return MAKEINTRESOURCE(110); -- may work for other resource compilers
+  default:
+      return NULL;
+  }
+}
 
 static TbResult LbScreenActivationUpdate(void)
 {
@@ -398,31 +398,28 @@ static TbResult LbScreenActivationUpdate(void)
  */
 TbResult LbScreenUpdateIcon(void)
 {
-    //TODO BFLIB replace with portable version
-    /*
-    Uint32          colorkey;
-    SDL_Surface     *image;
-    image = SDL_LoadBMP("keeperfx_icon.bmp");
-    colorkey = SDL_MapRGB(image->format, 255, 0, 255);
-    SDL_SetColorKey(image, SDL_SRCCOLORKEY, colorkey);
-    SDL_WM_SetIcon(image,NULL);
-    */
+    HICON hIcon = NULL;
+    HINSTANCE lbhInstance;
+    SDL_SysWMinfo wmInfo;
 
-    // TODO: HeM Redo this
-    //HICON hIcon;
-    //HINSTANCE lbhInstance;
-    //SDL_SysWMinfo wmInfo;
+    SDL_VERSION(&wmInfo.version);
+    if (SDL_GetWindowWMInfo(lbScreenWindow, &wmInfo) != SDL_TRUE)
+    {
+        WARNLOG("Couldn't get SDL window info, therefore cannot set icon");
+        return Lb_FAIL;
+    }
 
-    //SDL_VERSION(&wmInfo.version);
-    //if (SDL_GetWMInfo(&wmInfo) < 0) {
-    //    WARNLOG("Couldn't get SDL window info, therefore cannot set icon");
-    //    return Lb_FAIL;
-    //}
+    lbhInstance = GetModuleHandle(NULL);
 
-    //lbhInstance = GetModuleHandle(NULL);
-    //hIcon = LoadIcon(lbhInstance, MsResourceMapping(lbIconIndex));
-    //SendMessage(wmInfo.window, WM_SETICON, ICON_BIG,  (LPARAM)hIcon);
-    //SendMessage(wmInfo.window, WM_SETICON, ICON_SMALL,(LPARAM)hIcon);
+    hIcon = LoadIcon(lbhInstance, MsResourceMapping(lbIconIndex));
+
+    if (!hIcon)
+    {
+        ERRORLOG("failed loading icon");
+    }
+
+    SendMessage(wmInfo.info.win.window, WM_SETICON, ICON_BIG,  (LPARAM)hIcon);
+    SendMessage(wmInfo.info.win.window, WM_SETICON, ICON_SMALL,(LPARAM)hIcon);
     return Lb_SUCCESS;
 }
 
@@ -530,6 +527,18 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
     lbDisplay.DrawFlags = 0;
     lbDisplay.DrawColour = 0;
     lbDisplayEx.ShadowColour = 0;
+
+    // TODO HeM link555 move following to new files.
+    lbDisplayEx.cameraMoveRatioX = 0;
+    lbDisplayEx.cameraMoveRatioY = 0;
+    lbDisplayEx.isPowerHandNothingTodoLeftClick = 0;
+    lbDisplayEx.isPowerHandNothingTodoRightClick = 0;
+    lbDisplayEx.cameraMoveX = 0;
+    lbDisplayEx.cameraMoveY = 0;
+    lbDisplayEx.cameraRotateAngle = 0;
+    lbDisplayEx.wheelUp = 0;
+    lbDisplayEx.wheelDown = 0;
+
     lbDisplay.PhysicalScreenWidth = mdinfo->Width;
     lbDisplay.PhysicalScreenHeight = mdinfo->Height;
     lbDisplay.ScreenMode = modeIndex;
