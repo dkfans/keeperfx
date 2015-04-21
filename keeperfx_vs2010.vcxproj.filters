@@ -516,15 +516,6 @@
     <ClCompile Include="src\scrcapt.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\skirmish_ai.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\skirmish_ai_actions.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\skirmish_ai_values.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\slab_data.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -673,15 +664,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\player_computer_data.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\skirmish_ai_map.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\skirmish_ai_planner.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\skirmish_ai_rooms.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\thing_creature_data.cpp">
@@ -1230,24 +1212,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\scrcapt.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\skirmish_ai.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\skirmish_ai_actions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\skirmish_ai_map.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\skirmish_ai_planner.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\skirmish_ai_rooms.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\skirmish_ai_values.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\slab_data.h">
