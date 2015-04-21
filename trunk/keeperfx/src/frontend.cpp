@@ -720,7 +720,7 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
         outchar = key_to_ascii(lbInkey, KMod_NONE);
     }
     vischar[0] = outchar;
-    if ((key == KC_RETURN) && 
+    if ((key == KC_RETURN) &&
         ((gbtn->field_2D < 0) || (str[0] != '\0') || (modifiers == -3)))
     {
         gbtn->gbactn_1 = 0;
@@ -780,13 +780,13 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
             clear_key_pressed(key);
             return false;
         }
-        else if (!isalnum(vischar[0]) && (vischar[0] != ' ')) 
+        else if (!isalnum(vischar[0]) && (vischar[0] != ' '))
         {
             clear_key_pressed(key);
             return false;
         }
 
-        if (LbLocTextStringInsert(str, vischar, input_field_pos, gbtn->field_2D) != NULL) 
+        if (LbLocTextStringInsert(str, vischar, input_field_pos, gbtn->field_2D) != NULL)
         {
             input_field_pos++;
         }

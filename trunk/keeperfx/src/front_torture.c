@@ -283,8 +283,8 @@ void fronttorture_input(void)
             pckt->action |= 0x02;
         if (left_button_held)
             pckt->action |= 0x04;
-        pckt->field_6 = GetMouseX();
-        pckt->field_8 = GetMouseY();
+        pckt->actn_par1 = GetMouseX();
+        pckt->actn_par2 = GetMouseY();
     }
     // Exchange packet with other players
     if ((game.system_flags & GSF_NetworkActive) != 0)
@@ -302,8 +302,8 @@ void fronttorture_input(void)
     }
     if (plyr_idx < PLAYERS_COUNT)
     {
-        x = pckt->field_6;
-        y = pckt->field_8;
+        x = pckt->actn_par1;
+        y = pckt->actn_par2;
     } else
     {
         plyr_idx = my_player_number;
