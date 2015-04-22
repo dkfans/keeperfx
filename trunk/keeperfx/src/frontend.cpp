@@ -2819,16 +2819,31 @@ short end_input(void)
         frontend_set_state(FeSt_MAIN_MENU);
         return true;
     }
+    if (right_button_clicked)
+    {
+        right_button_clicked = 0;
+        frontend_set_state(FeSt_MAIN_MENU);
+        return true;
+    }
     return false;
 }
 
 short get_frontend_global_inputs(void)
 {
-    if (is_key_pressed(KC_X, KMod_ALT))
+    if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE) || right_button_clicked)
+    {
+        clear_key_pressed(KC_ESCAPE);
+        right_button_clicked = 0;
+        frontend_set_state(FeSt_MAIN_MENU);
+        return true;
+    }
+    else if (is_key_pressed(KC_X, KMod_ALT))
     {
         clear_key_pressed(KC_X);
         exit_keeper = true;
-    } else {
+    } 
+    else 
+    {
         return false;
     }
     return true;
@@ -2875,12 +2890,7 @@ void frontend_input(void)
         frontnetmap_input();
         break;
     case FeSt_FEDEFINE_KEYS:
-        if (!defining_a_key) {
-            get_gui_inputs(0);
-        } else {
-            define_key_input();
-            input_consumed = true;
-        }
+        define_key_input(&input_consumed);
         break;
 #if (BFDEBUG_LEVEL > 0)
     case FeSt_FONT_TEST:
