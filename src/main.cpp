@@ -1458,10 +1458,10 @@ void reset_gui_based_on_player_mode(void)
     } else
     {
         turn_on_menu(GMnu_MAIN);
-        if (game.field_1517F6)
+        if (game.active_panel_mnu_idx > 0)
         {
-            initialise_tab_tags(game.field_1517F6);
-            turn_on_menu(game.field_1517F6);
+            initialise_tab_tags(game.active_panel_mnu_idx);
+            turn_on_menu(game.active_panel_mnu_idx);
             MenuNumber mnuidx;
             mnuidx = menu_id_to_number(GMnu_MAIN);
             if (mnuidx != MENU_INVALID_ID) {

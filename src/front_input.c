@@ -612,7 +612,7 @@ TbBool get_level_lost_inputs(void)
             turn_on_menu(GMnu_SPELL_LOST);
           }
         }
-        inp_done = get_gui_inputs(GMnu_MAIN);
+        inp_done = get_gui_inputs(1);
         if ( !inp_done )
         {
           if (player->work_state == PSt_CreatrInfo)

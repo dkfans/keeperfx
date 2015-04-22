@@ -349,7 +349,7 @@ void turn_on_menu(MenuID mnu_idx)
     if (create_menu(gmnu) >= 0)
     {
       if (gmnu->field_1F)
-        game.field_1517F6 = mnu_idx;
+        game.active_panel_mnu_idx = mnu_idx;
     }
 }
 
