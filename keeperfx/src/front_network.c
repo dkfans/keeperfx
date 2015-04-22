@@ -422,7 +422,7 @@ void frontnet_rewite_net_messages(void)
     for (i=0; i < net_number_of_messages; i++)
     {
       nmsg = &net_message[i];
-      if (network_player_active(nmsg->plyr_idx))
+      if (is_network_player_active(nmsg->plyr_idx))
       {
         memcpy(&lmsg[k], nmsg, sizeof(struct NetMessage));
         k++;

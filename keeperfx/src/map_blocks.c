@@ -1227,7 +1227,7 @@ void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord
             continue;
         if ((previous_slab_types_around[i] != slb->kind)
           || ((slb->kind != SlbT_GOLD) && (slb->kind != SlbT_ROCK))
-          || (game.game_kind == GKind_Unknown1))
+          || (game.game_type == GameType_Unknown1))
         {
             slbattr = get_slab_kind_attrs(slb->kind);
             if (slbattr->category != SlbAtCtg_Obstacle) {

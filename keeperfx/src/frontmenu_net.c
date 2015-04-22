@@ -85,7 +85,7 @@ long frontnet_number_of_players_in_session(void)
     nplyr = 0;
     for (i=0; i < NET_PLAYERS_COUNT; i++)
     {
-      if (network_player_active(i))
+      if (is_network_player_active(i))
         nplyr++;
     }
     return nplyr;

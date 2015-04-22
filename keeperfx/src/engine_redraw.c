@@ -968,7 +968,7 @@ void redraw_display(void)
     SYNCDBG(5,"Starting");
     player = get_my_player();
     player->flgfield_6 &= ~PlaF6_Unknown01;
-    if (game.game_kind == GKind_Unknown1)
+    if (game.game_type == GameType_Unknown1)
       return;
     if (game.small_map_state == 2)
       set_pointer_graphic_none();

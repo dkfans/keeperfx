@@ -232,6 +232,7 @@ void update_right_button_clicked(void)
   right_button_clicked_y = lbDisplay.MouseY * (long)pixel_size;
 }
 
+// Update status of mouse operation.
 void update_mouse(void)
 {
   update_left_button_released();
