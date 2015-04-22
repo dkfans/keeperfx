@@ -225,14 +225,23 @@ static unsigned int keyboard_keys_mapping(const SDL_KeyboardEvent * key)
 
 static int keyboard_mods_mapping(const SDL_KeyboardEvent * key)
 {
-    /*
-    key->keysym.mod
-        (KMOD_LCTRL|KMOD_RCTRL)
-        (KMOD_LSHIFT|KMOD_RSHIFT)
-        (KMOD_LALT|KMOD_RALT)
-        (KMOD_LMETA|KMOD_RMETA)
-    */
-    return KMod_DONTCARE;
+    int KeyMod = KMod_DONTCARE;
+    switch (key->keysym.mod)
+    {
+    // Capital value is from SDL, different from custom one.
+    case KMOD_CTRL:
+        KeyMod = KMod_CONTROL;
+        break;
+    case KMOD_SHIFT:
+        KeyMod = KMod_SHIFT;
+        break;
+    case KMOD_ALT:
+        KeyMod = KMod_ALT;
+        break;
+    default:
+        break;
+    }
+    return KeyMod;
 }
 
 static void process_event(const SDL_Event *ev)
