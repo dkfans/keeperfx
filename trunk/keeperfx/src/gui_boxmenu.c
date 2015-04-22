@@ -145,7 +145,7 @@ long gf_change_player_state(struct GuiBox *gbox, struct GuiBoxOption *goptn, uns
 {
   // Note: reworked from beta and unchecked
   struct PlayerInfo *player=get_my_player();
-  set_players_packet_action(player, PckA_SetPlyrState, tag[0], tag[1], 0, 0);
+  set_players_packet_action(player, PckA_SetPlyrState, tag[0], tag[1]);
   struct GuiBoxOption *guop;
   guop=gbox->optn_list;
   while (guop->label[0] != '!')
@@ -173,7 +173,7 @@ long gf_change_player_instance(struct GuiBox *gbox, struct GuiBoxOption *goptn, 
 {
   struct PlayerInfo *player;
   player=get_my_player();
-  set_players_packet_action(player, PckA_CtrlCrtrSetInstnc, *tag, 0, 0, 0);
+  set_players_packet_action(player, PckA_CtrlCrtrSetInstnc, *tag, 0);
   return 1;
 }
 
@@ -184,7 +184,7 @@ long gf_give_controlled_creature_spells(struct GuiBox *gbox, struct GuiBoxOption
 //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
   if ((player->controlled_thing_idx <= 0) || (player->controlled_thing_idx >= THINGS_COUNT))
     return 0;
-  set_players_packet_action(player, PckA_CheatCrtSpells, 0, 0, 0, 0);
+  set_players_packet_action(player, PckA_CheatCrtSpells, 0, 0);
   return 1;
 }
 
@@ -193,7 +193,7 @@ long gf_research_rooms(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned
   struct PlayerInfo *player;
   player = get_my_player();
 //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
-  set_players_packet_action(player, PckA_CheatAllRooms, 0, 0, 0, 0);
+  set_players_packet_action(player, PckA_CheatAllRooms, 0, 0);
   return 1;
 }
 
@@ -202,7 +202,7 @@ long gf_all_researchable(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsign
   struct PlayerInfo *player;
   player = get_my_player();
 //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
-  set_players_packet_action(player, PckA_CheatAllResrchbl, 0, 0, 0, 0);
+  set_players_packet_action(player, PckA_CheatAllResrchbl, 0, 0);
   return 1;
 }
 
@@ -211,7 +211,7 @@ long gf_make_everything_free(struct GuiBox *gbox, struct GuiBoxOption *goptn, un
   struct PlayerInfo *player;
   player = get_my_player();
 //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
-  set_players_packet_action(player, PckA_CheatAllFree, 0, 0, 0, 0);
+  set_players_packet_action(player, PckA_CheatAllFree, 0, 0);
   return 1;
 }
 
@@ -220,7 +220,7 @@ long gf_give_all_creatures_spells(struct GuiBox *gbox, struct GuiBoxOption *gopt
   struct PlayerInfo *player;
   player = get_my_player();
 //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
-  set_players_packet_action(player, PckA_CheatCrAllSpls, 0, 0, 0, 0);
+  set_players_packet_action(player, PckA_CheatCrAllSpls, 0, 0);
   return 1;
 }
 
@@ -229,7 +229,7 @@ long gf_explore_everywhere(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsi
   struct PlayerInfo *player;
   player = get_my_player();
 //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
-  set_players_packet_action(player, PckA_CheatRevealMap, 0, 0, 0, 0);
+  set_players_packet_action(player, PckA_CheatRevealMap, 0, 0);
   return 1;
 }
 
@@ -238,7 +238,7 @@ long gf_research_magic(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned
   struct PlayerInfo *player;
   player = get_my_player();
 //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
-  set_players_packet_action(player, PckA_CheatAllMagic, 0, 0, 0, 0);
+  set_players_packet_action(player, PckA_CheatAllMagic, 0, 0);
   return 1;
 }
 

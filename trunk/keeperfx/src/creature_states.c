@@ -3963,7 +3963,7 @@ short seek_the_enemy(struct Thing *creatng)
             {
               if ((dist < 2304) && (game.play_gameturn-cctrl->countdown_282 < 20))
               {
-                set_creature_instance(creatng, CrInst_CELEBRATE_SHORT, 1, 0, 0);
+                  set_creature_instance(creatng, CrInst_CELEBRATE_SHORT, 1, 0, 0);
                 thing_play_sample(creatng, 168+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
                 return 1;
               }

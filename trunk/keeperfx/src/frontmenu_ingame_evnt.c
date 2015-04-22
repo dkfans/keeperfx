@@ -71,7 +71,7 @@ void gui_kill_event(struct GuiButton *gbtn)
     dungeon = get_players_dungeon(player);
     unsigned long i;
     i = (unsigned long)gbtn->content;
-    set_players_packet_action(player, PckA_Unknown092, dungeon->event_button_index[i], 0, 0, 0);
+    set_players_packet_action(player, PckA_Unknown092, dungeon->event_button_index[i], 0);
 }
 
 void turn_on_event_info_panel_if_necessary(EventIndex evidx)
@@ -93,7 +93,7 @@ void activate_event_box(EventIndex evidx)
 {
     struct PlayerInfo *player;
     player = get_my_player();
-    set_players_packet_action(player, PckA_EventBoxActivate, evidx, 0,0,0);
+    set_players_packet_action(player, PckA_EventBoxActivate, evidx, 0);
 }
 
 void gui_previous_battle(struct GuiButton *gbtn)
@@ -161,14 +161,14 @@ void gui_get_creature_in_battle(struct GuiButton *gbtn)
         if (can_cast_spell(my_player_number, pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default)) {
             struct Packet *pckt;
             pckt = get_packet(my_player_number);
-            set_packet_action(pckt, PckA_UsePwrOnThing, pwkind, battle_creature_over, 0, 0);
+            set_packet_action(pckt, PckA_UsePwrOnThing, pwkind, battle_creature_over);
         }
     } else
     {
         if (can_cast_spell(my_player_number, PwrK_HAND, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default)) {
             struct Packet *pckt;
             pckt = get_packet(my_player_number);
-            set_packet_action(pckt, PckA_UsePwrHandPick, battle_creature_over, 0, 0, 0);
+            set_packet_action(pckt, PckA_UsePwrHandPick, battle_creature_over, 0);
         }
     }
     battle_creature_over = 0;
@@ -182,7 +182,7 @@ void gui_go_to_person_in_battle(struct GuiButton *gbtn)
     {
         struct Packet *pckt;
         pckt = get_packet(my_player_number);
-        set_packet_action(pckt, PckA_Unknown087, thing->mappos.x.val, thing->mappos.y.val, 0, 0);
+        set_packet_action(pckt, PckA_Unknown087, thing->mappos.x.val, thing->mappos.y.val);
     }
 }
 
@@ -385,7 +385,7 @@ short zoom_to_fight(PlayerNumber plyr_idx)
     if (active_battle_exists(plyr_idx))
     {
         dungeon = get_players_num_dungeon(my_player_number);
-        set_players_packet_action(player, PckA_Unknown104, dungeon->visible_battles[0], 0, 0, 0);
+        set_players_packet_action(player, PckA_Unknown104, dungeon->visible_battles[0], 0);
         step_battles_forward(plyr_idx);
         return true;
     }

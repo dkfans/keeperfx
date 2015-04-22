@@ -285,7 +285,7 @@ void load_pointer_file(short hi_res)
 
 TbBool set_pointer_graphic_none(void)
 {
-  LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
+    LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
   return true;
 }
 

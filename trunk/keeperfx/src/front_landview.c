@@ -283,8 +283,8 @@ void update_frontmap_ambient_sound(void)
   {
     if ((features_enabled & Ft_AdvAmbSonud) != 0)
     {
-      SetSampleVolume(0, campaign.ambient_good, 0, 0);
-      SetSampleVolume(0, campaign.ambient_bad, 0, 0);
+        SetSampleVolume(0, campaign.ambient_good, 0, 0);
+        SetSampleVolume(0, campaign.ambient_bad, 0, 0);
     }
     SetMusicPlayerVolume(0);
     SetStreamedSampleVolume(0);

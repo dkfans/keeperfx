@@ -2267,9 +2267,9 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_DISPLAY_INFORMATION:
         if (level_file_version > 0)
-          command_display_information(scline->np[0], scline->tp[1], 0, 0);
+            command_display_information(scline->np[0], scline->tp[1], 0, 0);
         else
-          command_display_information(scline->np[0], "ALL_PLAYERS", 0, 0);
+            command_display_information(scline->np[0], "ALL_PLAYERS", 0, 0);
         break;
     case Cmd_ADD_TUNNELLER_PARTY_TO_LEVEL:
         command_add_tunneller_party_to_level(scline->np[0], scline->tp[1], scline->tp[2], scline->tp[3], scline->np[4], scline->np[5], scline->np[6]);
@@ -2345,9 +2345,9 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_QUICK_INFORMATION:
         if (level_file_version > 0)
-          command_quick_information(scline->np[0], scline->tp[1], scline->tp[2], 0, 0);
+            command_quick_information(scline->np[0], scline->tp[1], scline->tp[2], 0, 0);
         else
-          command_quick_information(scline->np[0], scline->tp[1], "ALL_PLAYERS", 0, 0);
+            command_quick_information(scline->np[0], scline->tp[1], "ALL_PLAYERS", 0, 0);
         break;
     case Cmd_QUICK_OBJECTIVE_WITH_POS:
         command_quick_objective(scline->np[0], scline->tp[1], NULL, scline->np[2], scline->np[3]);
