@@ -141,25 +141,30 @@ void keyboardControl(unsigned int action, TbKeyCode code, TbKeyMods modifiers)
         {
             if (!lbKeyOn[KC_RSHIFT] && !lbKeyOn[KC_LSHIFT])
                 lbKeyOn[KC_LSHIFT] = 1;
-        } else
+        } 
+        else
         {
             lbKeyOn[KC_LSHIFT] = 0;
             lbKeyOn[KC_RSHIFT] = 0;
         }
+
         if (modifiers & KMod_CONTROL)
         {
             if (!lbKeyOn[KC_RCONTROL] && !lbKeyOn[KC_LCONTROL])
                 lbKeyOn[KC_LCONTROL] = 1;
-        } else
+        } 
+        else
         {
             lbKeyOn[KC_LCONTROL] = 0;
             lbKeyOn[KC_RCONTROL] = 0;
         }
+
         if (modifiers & KMod_ALT)
         {
             if (!lbKeyOn[KC_RALT] && !lbKeyOn[KC_LALT])
                 lbKeyOn[KC_LALT] = 1;
-        } else
+        } 
+        else
         {
             lbKeyOn[KC_LALT] = 0;
             lbKeyOn[KC_RALT] = 0;
@@ -262,11 +267,11 @@ long __stdcall KeyboardProc(int a1, unsigned int a2, long code)
     }
     lbInkeyFlags = 0;
     if (lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT])
-        lbInkeyFlags |= 0x10;
+        lbInkeyFlags |= KMod_SHIFT;
     if (lbKeyOn[KC_LCONTROL] || lbKeyOn[KC_RCONTROL])
-        lbInkeyFlags |= 0x20;
+        lbInkeyFlags |= KMod_CONTROL;
     if (lbKeyOn[KC_LALT] || lbKeyOn[KC_RALT])
-        lbInkeyFlags |= 0x40;
+        lbInkeyFlags |= KMod_ALT;
     if (lbKeyOn[lbcode] != 0)
         lbKeyOn[lbcode] |= lbInkeyFlags;
     if (lbInkey < 0x80)
