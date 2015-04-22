@@ -581,16 +581,16 @@ void init_player(struct PlayerInfo *player, short no_explore)
         turn_on_menu(GMnu_MAIN);
         turn_on_menu(GMnu_ROOM);
     }
-    switch (game.game_kind)
+    switch (game.game_type)
     {
-    case GKind_LocalGame:
+    case GameType_LocalGame:
         init_player_as_single_keeper(player);
         init_player_start(player, false);
         reset_player_mode(player, PVT_DungeonTop);
         if ( !no_explore )
           init_keeper_map_exploration(player);
         break;
-    case GKind_MultiGame:
+    case GameType_MultiGame:
         if (player->field_2C != 1)
         {
           ERRORLOG("Non Keeper in Keeper game");
@@ -639,7 +639,7 @@ void init_players(void)
             {
               game.active_players_count++;
               player->field_2C = 1;
-              game.game_kind = GKind_MultiGame;
+              game.game_type = GameType_MultiGame;
               init_player(player, 0);
             }
         }
@@ -832,12 +832,12 @@ long wander_point_update(struct Wander *wandr)
 
 void post_init_player(struct PlayerInfo *player)
 {
-    switch (game.game_kind)
+    switch (game.game_type)
     {
-    case GKind_Unknown3:
+    case GameType_Unknown3:
         break;
-    case GKind_LocalGame:
-    case GKind_MultiGame:
+    case GameType_LocalGame:
+    case GameType_MultiGame:
         wander_point_initialise(&player->wandr_within, player->id_number, CrWaS_WithinDungeon);
         wander_point_initialise(&player->wandr_outside, player->id_number, CrWaS_OutsideDungeon);
         break;
@@ -924,7 +924,7 @@ void process_players(void)
     sum = 0;
     sum += compute_players_checksum();
     sum += game.action_rand_seed;
-    player_packet_checksum_add(my_player_number,sum);
+    player_packet_checksum_add(my_player_number, sum);
     SYNCDBG(17,"Finished");
 }
 

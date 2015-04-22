@@ -77,7 +77,7 @@ void setup_count_players(void);
 
 long network_session_join(void);
 
-TbBool network_player_active(int plyr_idx);
+TbBool is_network_player_active(int plyr_idx);
 const char *network_player_name(int plyr_idx);
 void set_network_player_name(int plyr_idx, const char *name);
 /******************************************************************************/

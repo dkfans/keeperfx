@@ -44,7 +44,7 @@ extern "C" {
 enum PlayerInitFlags {
     PlaF_Allocated          = 0x01,
     PlaF_Unknown2           = 0x02,
-    PlaF_NewMPMessage           = 0x04,
+    PlaF_NewMPMessage       = 0x04,
     PlaF_Unknown8           = 0x08,
     PlaF_Unknown10          = 0x10,
     PlaF_Unknown20          = 0x20,
@@ -77,10 +77,10 @@ enum PlayerViewModes {
 
 enum PlayerViewType {
     PVT_None = 0,
-    PVT_DungeonTop,
-    PVT_CreatureContrl,
-    PVT_CreaturePasngr,
-    PVT_MapScreen,
+    PVT_DungeonTop, // Normal map view.
+    PVT_CreatureContrl, // Possession mode.
+    PVT_CreaturePasngr, // Non controllable possession mode.
+    PVT_MapScreen, // Map mode.
     PVT_MapFadeIn, // 5
     PVT_MapFadeOut,
 };
@@ -150,7 +150,7 @@ unsigned char field_14;
     long controlled_thing_creatrn;
     short thing_under_hand;
     unsigned char view_mode;
-    /** Pointer to the currently active camera. */
+    // Pointer to the currently active camera.
     struct Camera *acamera;
     struct Camera cameras[4];
     unsigned short zoom_to_pos_x;

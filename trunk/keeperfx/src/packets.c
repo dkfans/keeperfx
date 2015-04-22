@@ -96,6 +96,8 @@ struct Packet bad_packet;
 }
 #endif
 /******************************************************************************/
+#pragma region PlayerActionPacketHelpers
+// Fill packet with player action date, used in single player part of game.
 void set_packet_action(struct Packet *pckt, unsigned char pcktype, unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4)
 {
     pckt->actn_par1 = par1;
@@ -103,6 +105,7 @@ void set_packet_action(struct Packet *pckt, unsigned char pcktype, unsigned shor
     pckt->action = pcktype;
 }
 
+// Fill packet with player action date, can be used in multiple player game.
 void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype, unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4)
 {
     struct Packet *pckt;
@@ -118,7 +121,9 @@ unsigned char get_players_packet_action(struct PlayerInfo *player)
     pckt = get_packet_direct(player->packet_num);
     return pckt->action;
 }
+#pragma endregion
 
+#pragma region PlayerControlPacketHelpers
 void set_packet_control(struct Packet *pckt, unsigned long flag)
 {
   pckt->control_flags |= flag;
@@ -142,6 +147,7 @@ void unset_players_packet_control(struct PlayerInfo *player, unsigned long flag)
   pckt = get_packet_direct(player->packet_num);
   pckt->control_flags &= ~flag;
 }
+#pragma endregion
 
 void set_players_packet_position(struct PlayerInfo *player, long x, long y)
 {
@@ -263,8 +269,8 @@ short checksums_different(void)
         {
           checksum = pckt->chksum;
           is_set = true;
-        } else
-        if (checksum != pckt->chksum)
+        } 
+        else if (checksum != pckt->chksum)
         {
           return true;
         }
@@ -2101,40 +2107,41 @@ void process_map_packet_clicks(long plyr_idx)
     SYNCDBG(8,"Finished");
 }
 
+// Apply local or received packets to game.
 void process_players_packet(long idx)
 {
-  struct PlayerInfo *player;
-  struct Packet *pckt;
-  player = get_player(idx);
-  pckt = get_packet_direct(player->packet_num);
-  SYNCDBG(6,"Processing player %d packet of type %d.",idx,(int)pckt->action);
-  player->boolfield_4 = ((pckt->field_10 & 0x20) != 0);
-  player->boolfield_5 = ((pckt->field_10 & 0x40) != 0);
-  if (((player->allocflags & PlaF_NewMPMessage) != 0) && (pckt->action == PckA_PlyrMsgChar))
-  {
-     process_players_message_character(player);
-  } else
-  if (!process_players_global_packet_action(idx))
-  {
-      switch (player->view_type)
-      {
-      case PVT_DungeonTop:
-        process_players_dungeon_control_packet_control(idx);
-        process_players_dungeon_control_packet_action(idx);
-        break;
-      case PVT_CreatureContrl:
-        process_players_creature_control_packet_control(idx);
-        process_players_creature_control_packet_action(idx);
-        break;
-      case PVT_CreaturePasngr:
-        process_players_creature_passenger_packet_action(idx);
-        break;
-      case PVT_MapScreen:
-        process_players_map_packet_control(idx);
-        break;
-      default:
-        break;
-      }
+    struct PlayerInfo *player;
+    struct Packet *pckt;
+    player = get_player(idx);
+    pckt = get_packet_direct(player->packet_num);
+    SYNCDBG(6, "Processing player %d packet of type %d.", idx, (int)pckt->action);
+    player->boolfield_4 = ((pckt->field_10 & 0x20) != 0);
+    player->boolfield_5 = ((pckt->field_10 & 0x40) != 0);
+    if (((player->allocflags & PlaF_NewMPMessage) != 0) && (pckt->action == PckA_PlyrMsgChar))
+    {
+        process_players_message_character(player);
+    }
+    else if (!process_players_global_packet_action(idx))
+    {
+        switch (player->view_type)
+        {
+        case PVT_DungeonTop:
+            process_players_dungeon_control_packet_control(idx);
+            process_players_dungeon_control_packet_action(idx);
+            break;
+        case PVT_CreatureContrl:
+            process_players_creature_control_packet_control(idx);
+            process_players_creature_control_packet_action(idx);
+            break;
+        case PVT_CreaturePasngr:
+            process_players_creature_passenger_packet_action(idx);
+            break;
+        case PVT_MapScreen:
+            process_players_map_packet_control(idx);
+            break;
+        default:
+            break;
+        }
   }
   SYNCDBG(8,"Finished");
 }
@@ -2156,11 +2163,15 @@ void process_players_creature_passenger_packet_action(long idx)
 
 TbBool process_players_dungeon_control_packet_action(long plyr_idx)
 {
-    SYNCDBG(6,"Starting");
+    SYNCDBG(6, "Starting");
     struct PlayerInfo *player;
     struct Packet *pckt;
+    struct Camera *cam;
+
     player = get_player(plyr_idx);
     pckt = get_packet_direct(player->packet_num);
+    cam = player->acamera;
+
     switch (pckt->action)
     {
     case PckA_HoldAudience:
@@ -2178,6 +2189,28 @@ TbBool process_players_dungeon_control_packet_action(long plyr_idx)
         break;
     case PckA_ToggleComputer:
         toggle_computer_player(plyr_idx);
+        break;    
+    case PckA_DragMoveCameraLeftUp:
+        view_set_camera_x_inertia(cam, -pckt->actn_par1, 1000000/* no upper bound */, false);
+        view_set_camera_y_inertia(cam, -pckt->actn_par2, 1000000/* no upper bound */, false);
+        break;    
+    case PckA_DragMoveCameraLeftDown:
+        view_set_camera_x_inertia(cam, -pckt->actn_par1, 1000000/* no upper bound */, false);
+        view_set_camera_y_inertia(cam, pckt->actn_par2, 1000000/* no upper bound */, false);
+        break;
+    case PckA_DragMoveCameraRightUp:
+        view_set_camera_x_inertia(cam, pckt->actn_par1, 1000000/* no upper bound */, false);
+        view_set_camera_y_inertia(cam, -pckt->actn_par2, 1000000/* no upper bound */, false);
+        break;
+    case PckA_DragMoveCameraRightDown:
+        view_set_camera_x_inertia(cam, pckt->actn_par1, 1000000/* no upper bound */, false);
+        view_set_camera_y_inertia(cam, pckt->actn_par2, 1000000/* no upper bound */, false);
+        break;
+    case PckA_DragRotateCameraCW:
+        view_set_camera_rotation_inertia(cam, pckt->actn_par1, 1000000/* no upper bound */, false);
+        break;
+    case PckA_DragRotateCameraCCW:
+        view_set_camera_rotation_inertia(cam, -pckt->actn_par1, 1000000/* no upper bound */, false);
         break;
     default:
         return false;
@@ -2477,94 +2510,100 @@ void write_debug_screenpackets(void)
     dump_memory_to_file(filename, (char*) net_screen_packet, sizeof(net_screen_packet));
 }
 
+// Process local and received packets.
 void process_packets(void)
 {
-  int i,j,k;
-  struct Packet *pckt;
-  struct PlayerInfo *player;
-  SYNCDBG(5,"Starting");
-  // Do the network data exchange
-  lbDisplay.DrawColour = colours[15][15][15];
-  // Exchange packets with the network
-  if (game.game_kind != GKind_LocalGame)
-  {
-    player = get_my_player();
-    j=0;
-    for (i=0; i<4; i++)
+    int i, j, k;
+    struct Packet *pckt;
+    struct PlayerInfo *player;
+    SYNCDBG(5, "Starting");
+
+    lbDisplay.DrawColour = colours[15][15][15];
+
+    // Exchange packets with the network
+    if (game.game_type != GameType_LocalGame)
     {
-      if (network_player_active(i))
-        j++;
-    }
-    if ( !game.packet_load_enable || game.numfield_149F47 )
-    {
-      pckt = get_packet_direct(player->packet_num);
-      if (LbNetwork_Exchange(pckt) != 0)
-      {
-        ERRORLOG("LbNetwork_Exchange failed");
-      }
-    }
-    k=0;
-    for (i=0; i<4; i++)
-    {
-      if (network_player_active(i))
-        k++;
-    }
-    if (j != k)
-    {
-      for (i=0; i<4; i++)
-      {
-        player = get_player(i);
-        if (network_player_active(player->packet_num))
+        player = get_my_player();
+        j = 0;
+        for (i = 0; i < 4; i++)
         {
-          player->allocflags |= PlaF_CompCtrl;
-          toggle_computer_player(i);
+            if (is_network_player_active(i))
+            {
+                j++;
+            }
         }
-      }
+
+        if (!game.packet_load_enable || game.numfield_149F47)
+        {
+            pckt = get_packet_direct(player->packet_num);
+            if (LbNetwork_Exchange(pckt) != Lb_OK)
+            {
+                ERRORLOG("LbNetwork_Exchange failed");
+            }
+        }
+        k = 0;
+        for (i = 0; i < 4; i++)
+        {
+            if (is_network_player_active(i))
+                k++;
+        }
+        if (j != k)
+        {
+            for (i = 0; i < 4; i++)
+            {
+                player = get_player(i);
+                if (is_network_player_active(player->packet_num))
+                {
+                    player->allocflags |= PlaF_CompCtrl;
+                    toggle_computer_player(i);
+                }
+            }
+        }
     }
-  }
-  // Setting checksum problem flags
-  switch (checksums_different())
-  {
-  case 1:
-      set_flag_byte(&game.system_flags,GSF_NetGameNoSync,true);
-      set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,false);
-    break;
-  case 2:
-      set_flag_byte(&game.system_flags,GSF_NetGameNoSync,false);
-      set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,true);
-    break;
-  case 3:
-      set_flag_byte(&game.system_flags,GSF_NetGameNoSync,true);
-      set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,true);
-    break;
-  default:
-      set_flag_byte(&game.system_flags,GSF_NetGameNoSync,false);
-      set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,false);
-    break;
-  }
-  // Write packets into file, if requested
-  if ((game.packet_save_enable) && (game.packet_fopened))
-    save_packets();
-//Debug code, to find packet errors
+
+    // Setting checksum problem flags
+    switch (checksums_different())
+    {
+    case 1: // GSF_NetGameNoSync
+        set_flag_byte(&game.system_flags, GSF_NetGameNoSync, true);
+        set_flag_byte(&game.system_flags, GSF_NetSeedNoSync, false);
+        break;
+    case 2: // GSF_NetSeedNoSync
+        set_flag_byte(&game.system_flags, GSF_NetGameNoSync, false);
+        set_flag_byte(&game.system_flags, GSF_NetSeedNoSync, true);
+        break;
+    case 3: // GSF_NetGameNoSync and GSF_NetSeedNoSync
+        set_flag_byte(&game.system_flags, GSF_NetGameNoSync, true);
+        set_flag_byte(&game.system_flags, GSF_NetSeedNoSync, true);
+        break;
+    default: // Everything at sync
+        set_flag_byte(&game.system_flags, GSF_NetGameNoSync, false);
+        set_flag_byte(&game.system_flags, GSF_NetSeedNoSync, false);
+        break;
+    }
+    // Write packets into file, if requested
+    if ((game.packet_save_enable) && (game.packet_fopened))
+        save_packets();
+    //Debug code, to find packet errors
 #if DEBUG_NETWORK_PACKETS
-  write_debug_packets();
+    write_debug_packets();
 #endif
-  // Process the packets
-  for (i=0; i<PACKETS_COUNT; i++)
-  {
-    player = get_player(i);
-    if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
-      process_players_packet(i);
-  }
-  // Clear all packets
-  clear_packets();
-  if (((game.system_flags & GSF_NetGameNoSync) != 0)
-   || ((game.system_flags & GSF_NetSeedNoSync) != 0))
-  {
-    SYNCDBG(0,"Resyncing");
-    resync_game();
-  }
-  SYNCDBG(7,"Finished");
+    // Process the packets
+    for (i = 0; i < PACKETS_COUNT; i++)
+    {
+        player = get_player(i);
+        if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
+            process_players_packet(i);
+    }
+    // Clear all packets
+    clear_packets();
+    if (((game.system_flags & GSF_NetGameNoSync) != 0)
+        || ((game.system_flags & GSF_NetSeedNoSync) != 0))
+    {
+        SYNCDBG(0, "Resyncing");
+        resync_game();
+    }
+    SYNCDBG(7, "Finished");
 }
 
 void process_frontend_packets(void)

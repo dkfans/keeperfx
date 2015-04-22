@@ -270,17 +270,27 @@ void mouseControl(unsigned int action)
     {
     case MActn_MOUSEMOVE:
         // Drag to move camera when ctrl is pressed, or there is nothing else to do.
-        if (isCtrlAndLeftButtonDown /*|| (lbDisplay.MLeftButton && lbDisplayEx.isPowerHandNothingTodoLeftClick)*/)
+        if (/*0.2 seconds passed &&*/
+            (isCtrlAndLeftButtonDown //|| (lbDisplay.MLeftButton && lbDisplayEx.isPowerHandNothingTodoLeftClick)
+            ))
         {
+            // Once entered dragging mode, it should not be disrupted.
+            isCtrlAndLeftButtonDown = true;
+
             lbDisplayEx.cameraMoveX += mousePosDelta.x * lbDisplayEx.cameraMoveRatioX;
             lbDisplayEx.cameraMoveY += mousePosDelta.y * lbDisplayEx.cameraMoveRatioY;
             //SYNCLOG("SET X MOVE %d", lbDisplayEx.cameraMoveX);
         }
         // Right drag to rotate camera when ctrl is pressed, or there is nothing else to do.
-        else if (isCtrlAndRightButtonDown /*|| (lbDisplay.MRightButton && lbDisplayEx.isPowerHandNothingTodoRightClick)*/)
-        {   
+        else if (/*0.2 seconds passed &&*/
+            (isCtrlAndRightButtonDown //|| (lbDisplay.MRightButton && lbDisplayEx.isPowerHandNothingTodoRightClick)
+            ))
+        {
+            // Once entered dragging mode, it should not be disrupted.
+            isCtrlAndRightButtonDown = true;
+
             // TODO HeM recalculate rotate angle to be more responsive to mouse movement.
-            lbDisplayEx.cameraRotateAngle += mousePosDelta.x / 3;
+            lbDisplayEx.cameraRotateAngle += mousePosDelta.x / 2;
         }
 
         // Normal mouse move

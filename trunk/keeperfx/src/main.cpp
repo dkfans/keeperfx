@@ -1145,7 +1145,6 @@ short setup_game(void)
   }
 
   // View the legal screen
-
   if (!setup_screen_mode_zero(get_frontend_vidmode()))
   {
       ERRORLOG("Unable to set display mode for legal screen");
@@ -3067,12 +3066,18 @@ void update(void)
     SYNCDBG(4,"Starting for turn %ld",(long)game.play_gameturn);
 
     if ((game.numfield_C & 0x01) == 0)
+    {
         update_light_render_area();
+    }
+
     process_packets();
-    if (quit_game || exit_keeper) {
+
+    if (quit_game || exit_keeper) 
+    {
         return;
     }
-    if (game.game_kind == GKind_Unknown1)
+
+    if (game.game_type == GameType_Unknown1)
     {
         game.field_14EA4B = 0;
         return;
@@ -3700,21 +3705,6 @@ void _get_camera_move_ratio(Camera * cam)
     }
 }
 
-// TODO HeM link555 move following to new files since main.cpp is too huge.
-
-void _init_lbDisplayEx_values()
-{
-    lbDisplayEx.cameraMoveRatioX = 0;
-    lbDisplayEx.cameraMoveRatioY = 0;
-    lbDisplayEx.isPowerHandNothingTodoLeftClick = 0;
-    lbDisplayEx.isPowerHandNothingTodoRightClick = 0;
-    lbDisplayEx.cameraMoveX = 0;
-    lbDisplayEx.cameraMoveY = 0;
-    lbDisplayEx.cameraRotateAngle = 0;
-    lbDisplayEx.wheelUp = 0;
-    lbDisplayEx.wheelDown = 0;
-}
-
 // Detect if there is anything to do for power hand on left or right click,
 // if result is positive, suppress drag feaure.
 void _predict_power_hand_click_behavior()
@@ -3743,54 +3733,12 @@ void _predict_power_hand_click_behavior()
         isNothingInHand = (player) && power_hand_is_empty(player);
         isNothingToPickupOrSlap = (player) && (player->thing_under_hand == 0);
         isNothingToDig = !can_dig_here(stl_x, stl_y, my_player_number);
+        //int isNotBuildingRoom = 1;
+        //int isNotBuildingTrap = 1;
+        //int isNotCastingSpell = 1;
 
         lbDisplayEx.isPowerHandNothingTodoLeftClick = isMapCamera && isNothingToPickupOrSlap && isNothingToDig;
         lbDisplayEx.isPowerHandNothingTodoRightClick = isMapCamera && isNothingToPickupOrSlap && isNothingInHand;
-    }
-}
-
-// Process dragging control of camera, and wheel control of zoom.
-void _handle_advanced_mouse_feature()
-{
-    struct PlayerInfo *player;
-    player = get_my_player();
-    struct Camera *cam;
-    cam = player->acamera;
-
-    if (player && cam)
-    {
-        struct Packet *pckt;
-        pckt = get_packet(my_player_number);
-        //SYNCLOG("GET X MOVE %d", lbDisplayEx.cameraMoveX);
-        if (lbDisplayEx.cameraMoveX != 0)
-        {
-            view_set_camera_x_inertia(cam, -long(lbDisplayEx.cameraMoveX), 100000/*do not allow overflow*/, false/*no inertia*/);
-            lbDisplayEx.cameraMoveX = 0;
-        }
-
-        if (lbDisplayEx.cameraMoveY != 0)
-        {
-            view_set_camera_y_inertia(cam, -long(lbDisplayEx.cameraMoveY), 100000/*do not allow overflow*/, false/*no inertia*/);
-            lbDisplayEx.cameraMoveY = 0;
-        }
-
-        if (lbDisplayEx.cameraRotateAngle != 0)
-        {
-            view_set_camera_rotation_inertia(cam, lbDisplayEx.cameraRotateAngle, 100000/*do not allow overflow*/, true);
-            lbDisplayEx.cameraRotateAngle = 0;
-        }
-
-        if (lbDisplayEx.wheelUp != 0)
-        {
-            set_packet_control(pckt, PCtr_ViewZoomIn);
-            lbDisplayEx.wheelUp = 0;
-        }
-
-        if (lbDisplayEx.wheelDown != 0)
-        {
-            set_packet_control(pckt, PCtr_ViewZoomOut);
-            lbDisplayEx.wheelDown = 0;
-        }
     }
 }
 
@@ -3825,13 +3773,13 @@ void keeper_gameplay_loop(void)
         // Check if we should redraw screen in this turn
         do_draw = display_should_be_updated_this_turn();
 
-        _init_lbDisplayEx_values();
+        init_lbDisplayEx_values();
         _predict_power_hand_click_behavior();
         LbWindowsControl();
-        _handle_advanced_mouse_feature();
 
         update_mouse();
         input_eastegg();
+
         input();
         update();
 
@@ -3870,6 +3818,7 @@ void keeper_gameplay_loop(void)
         if (game.turns_packetoff == game.play_gameturn)
             exit_keeper = 1;
     } // end while
+
     SYNCDBG(0,"Gameplay loop finished after %lu turns",(unsigned long)game.play_gameturn);
 }
 
@@ -4260,7 +4209,7 @@ void startup_saved_packet_game(void)
         SYNCMSG("Logging things, game turns %d -> %d", game.log_things_start_turn, game.log_things_end_turn);
     }
 #endif
-    game.game_kind = GKind_LocalGame;
+    game.game_type = GameType_LocalGame;
     if (!(game.packet_save_head.field_C & (1 << game.numfield_149F46))
       || (game.packet_save_head.field_D & (1 << game.numfield_149F46)))
       my_player_number = 0;
@@ -4270,7 +4219,7 @@ void startup_saved_packet_game(void)
     setup_zombie_players();//TODO GUI What about packet file from network game? No zombies there..
     init_players();
     if (game.active_players_count == 1)
-      game.game_kind = GKind_LocalGame;
+      game.game_type = GameType_LocalGame;
     if (game.turns_stored < game.turns_fastforward)
       game.turns_fastforward = game.turns_stored;
     post_init_level();
@@ -4306,11 +4255,11 @@ void startup_network_game(TbBool local)
     //if (game.flagfield_14EA4A == 2) //was wrong because init_level sets this to 2. global variables are evil (though perhaps that's why they were chosen for DK? ;-))
     if (local)
     {
-        game.game_kind = GKind_LocalGame;
+        game.game_type = GameType_LocalGame;
         init_players_local_game();
     } else
     {
-        game.game_kind = GKind_MultiGame;
+        game.game_type = GameType_MultiGame;
         init_players_network_game();
     }
     if (fe_computer_players)
@@ -4336,7 +4285,7 @@ void faststartup_network_game(void)
 
     reenter_video_mode();
     my_player_number = default_loc_player;
-    game.game_kind = GKind_LocalGame;
+    game.game_type = GameType_LocalGame;
     if (!is_campaign_loaded())
     {
       if (!change_campaign(""))
@@ -4393,6 +4342,7 @@ void wait_at_frontend(void)
     }
     LbScreenClear(0);
     LbScreenRender();
+
     if (frontend_load_data() != Lb_SUCCESS)
     {
       ERRORLOG("Unable to load frontend data");
@@ -4474,14 +4424,13 @@ void wait_at_frontend(void)
       return;
     }
     reenter_video_mode();
-
     display_loading_screen();
     short flgmem;
     switch (prev_state)
     {
     case FeSt_START_KPRLEVEL:
           my_player_number = default_loc_player;
-          game.game_kind = GKind_LocalGame;
+          game.game_type = GameType_LocalGame;
           set_flag_byte(&game.system_flags,GSF_NetworkActive,false);
           player = get_my_player();
           player->field_2C = 1;
@@ -4489,7 +4438,7 @@ void wait_at_frontend(void)
           break;
     case FeSt_START_MPLEVEL:
           set_flag_byte(&game.system_flags,GSF_NetworkActive,true);
-          game.game_kind = GKind_MultiGame;
+          game.game_type = GameType_MultiGame;
           player = get_my_player();
           player->field_2C = 1;
           startup_network_game(false);
@@ -4534,7 +4483,7 @@ void game_loop(void)
         break;
       struct PlayerInfo *player;
       player = get_my_player();
-      if (game.game_kind == GKind_LocalGame)
+      if (game.game_type == GameType_LocalGame)
       {
         if (game.numfield_15 == -1)
         {
@@ -4545,26 +4494,34 @@ void game_loop(void)
           set_flag_byte(&game.numfield_C,0x01,false);
         }
       }
+
       unsigned long starttime;
       unsigned long endtime;
       struct Dungeon *dungeon;
       // get_my_dungeon() can't be used here because players are not initialized yet
       dungeon = get_dungeon(my_player_number);
       starttime = LbTimerClock();
+
       dungeon->lvstats.start_time = starttime;
       dungeon->lvstats.end_time = starttime;
+
       LbScreenClear(0);
       LbScreenRender();
+
       keeper_gameplay_loop();
       set_pointer_graphic_none();
+
       LbScreenClear(0);
       LbScreenRender();
+
       StopMusic();
       StopMusicPlayer();
+
       turn_off_all_menus();
       delete_all_structures();
       clear_mapwho();
       endtime = LbTimerClock();
+
       quit_game = 0;
       if ((game.numfield_C & 0x02) != 0)
           exit_keeper=true;
@@ -4822,7 +4779,6 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
         game_loop();
     }
     reset_game();
-    LbScreenReset(false);
     if ( !retval )
     {
         static const char *msg_text="Setting up game failed.\n";

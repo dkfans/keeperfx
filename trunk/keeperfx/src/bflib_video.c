@@ -488,7 +488,9 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
             // Reisze window when it already exists.
             SDL_SetWindowSize(lbScreenWindow, mdinfo->Width, mdinfo->Height);
             SDL_SetWindowFullscreen(lbScreenWindow, sdlFlags);
-            SDL_SetWindowPosition(lbScreenWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+
+            // Do not reset window location since it is disturbing.
+            // SDL_SetWindowPosition(lbScreenWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
         }
     }
 
@@ -525,20 +527,7 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
     LbScreenUpdateIcon();
 
     lbDisplay.DrawFlags = 0;
-    lbDisplay.DrawColour = 0;
-    lbDisplayEx.ShadowColour = 0;
-
-    // TODO HeM link555 move following to new files.
-    lbDisplayEx.cameraMoveRatioX = 0;
-    lbDisplayEx.cameraMoveRatioY = 0;
-    lbDisplayEx.isPowerHandNothingTodoLeftClick = 0;
-    lbDisplayEx.isPowerHandNothingTodoRightClick = 0;
-    lbDisplayEx.cameraMoveX = 0;
-    lbDisplayEx.cameraMoveY = 0;
-    lbDisplayEx.cameraRotateAngle = 0;
-    lbDisplayEx.wheelUp = 0;
-    lbDisplayEx.wheelDown = 0;
-
+    lbDisplay.DrawColour = 0; 
     lbDisplay.PhysicalScreenWidth = mdinfo->Width;
     lbDisplay.PhysicalScreenHeight = mdinfo->Height;
     lbDisplay.ScreenMode = modeIndex;
@@ -549,6 +538,8 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
     lbDisplay.GraphicsScreenHeight = mdinfo->Height;
     lbDisplay.WScreen = NULL;
     lbDisplay.GraphicsWindowPtr = NULL;
+
+    init_lbDisplayEx_values();
 
     SYNCLOG("Mode %d x %d setup succeeded", (int)mdinfo->Width, (int)mdinfo->Height);
 
@@ -1051,6 +1042,19 @@ TbPixel LbPaletteFindColour(const unsigned char *pal, unsigned char r, unsigned 
         }
     }
     return *o;
+}
+
+void init_lbDisplayEx_values()
+{
+    lbDisplayEx.cameraMoveRatioX = 0;
+    lbDisplayEx.cameraMoveRatioY = 0;
+    lbDisplayEx.isPowerHandNothingTodoLeftClick = 0;
+    lbDisplayEx.isPowerHandNothingTodoRightClick = 0;
+    lbDisplayEx.cameraMoveX = 0;
+    lbDisplayEx.cameraMoveY = 0;
+    lbDisplayEx.cameraRotateAngle = 0;
+    lbDisplayEx.wheelUp = 0;
+    lbDisplayEx.wheelDown = 0;
 }
 /******************************************************************************/
 #ifdef __cplusplus

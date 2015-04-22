@@ -332,6 +332,8 @@ TbResult LbScreenSetGraphicsWindow(TbScreenCoord x, TbScreenCoord y,
 
 TbResult LbSetTitle(const char *title);
 TbResult LbSetIcon(unsigned short nicon);
+
+void init_lbDisplayEx_values();
 /******************************************************************************/
 #ifdef __cplusplus
 }

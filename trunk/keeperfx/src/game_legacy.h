@@ -67,13 +67,13 @@
 extern "C" {
 #endif
 /******************************************************************************/
-enum GameKinds {
-    GKind_Unknown0 = 0,
-    GKind_Unknown1,
-    GKind_LocalGame,
-    GKind_Unknown3,
-    GKind_Unknown4,
-    GKind_MultiGame,
+    enum GameTypes {
+    GameType_Unknown0 = 0,
+    GameType_Unknown1,
+    GameType_LocalGame,
+    GameType_Unknown3,
+    GameType_Unknown4,
+    GameType_MultiGame,
 };
 /******************************************************************************/
 #pragma pack(1)
@@ -256,7 +256,7 @@ unsigned char field_14EA3A[8];
 unsigned short field_14EA44;
     unsigned short nodungeon_creatr_list_start; /**< Linked list of creatures which have no dungeon (neutral and owned by nonexisting players) */
     unsigned short food_generation_speed;
-    char game_kind;
+    char game_type;
 char field_14EA4B;
     struct PerExpLevelValues creature_scores[CREATURE_TYPES_COUNT];
     unsigned long default_max_crtrs_gen_entrance;

@@ -168,7 +168,7 @@ short setup_select_player_number(void)
 void setup_count_players(void)
 {
   int i;
-  if (game.game_kind == GKind_LocalGame)
+  if (game.game_type == GameType_LocalGame)
   {
     game.active_players_count = 1;
   } else
@@ -193,7 +193,8 @@ void init_players_network_game(void)
   setup_alliances();
 }
 
-TbBool network_player_active(int plyr_idx)
+// Check whether a network player is active.
+TbBool is_network_player_active(int plyr_idx)
 {
     if ((plyr_idx < 0) || (plyr_idx >= NET_PLAYERS_COUNT))
         return false;
