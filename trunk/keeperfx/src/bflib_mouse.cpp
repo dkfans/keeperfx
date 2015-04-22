@@ -19,6 +19,7 @@
 /******************************************************************************/
 #include "bflib_mouse.h"
 
+#include <math.h>
 #include <string.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -224,19 +225,21 @@ void _get_mouse_state(TbPoint *positionDelta, TbPoint *destination)
 {
     // TODO HeM error handling.
     int x, y;
-    struct TbPoint scaledMove;
+    struct TbPoint mouseDelta;
+    struct TbPoint scaledMouseDelta;
 
     if (lbUseRelativeMouseMode)
     {
         SDL_GetRelativeMouseState(&x, &y);
 
-        positionDelta->x = x;
-        positionDelta->y = y;
+        mouseDelta.x = x;
+        mouseDelta.y = y;
 
         // Scale the Delta to Sprite position.
-        scaledMove = ScaleMouseMove(*positionDelta);
-        positionDelta->x = scaledMove.x;
-        positionDelta->y = scaledMove.y;
+        scaledMouseDelta = ScaleMouseMove(mouseDelta);
+
+        positionDelta->x = scaledMouseDelta.x;
+        positionDelta->y = scaledMouseDelta.y;
 
         destination->x = lbDisplay.MMouseX + positionDelta->x;
         destination->y = lbDisplay.MMouseY + positionDelta->y;
@@ -251,6 +254,63 @@ void _get_mouse_state(TbPoint *positionDelta, TbPoint *destination)
         destination->x = x;
         destination->y = y;
     }
+}
+
+double _get_cosin(TbPoint vectorA, TbPoint vectorB)
+{
+    double x1 = vectorA.x, 
+           y1 = vectorA.y, 
+           x2 = vectorB.x, 
+           y2 = vectorB.y;
+
+    double productValue = x1*x2 + y1*y2;
+    double valvA = sqrt(x1*x1 + y1*y1);
+    double valvB = sqrt(x2*x2 + y2*y2);
+    double result = productValue / (valvA*valvB);
+    return result;
+}
+
+// Get the degree from current vector to x axis
+double _get_vector_degree(TbPoint vectorA)
+{
+    const float pi = 3.14159;
+
+    TbPoint vectorXAxis;
+
+    vectorXAxis.x = 1;
+    vectorXAxis.y = 0;
+
+    double cos = _get_cosin(vectorXAxis, vectorA);
+    double angle = acos(cos) / pi * 180;
+    if (vectorA.y > 0)
+    {
+        angle = 360 - angle;
+    }
+    return angle;
+}
+
+TbPoint _locate_rotate_center(void)
+{
+    TbPoint rotationCenter;
+    struct GuiMenu *gmnu;
+    int k;
+    int menuWidth = 0;
+
+    // Determine whether we need to deduct menu width from screen width.
+    for (k = 0; k<ACTIVE_MENUS_COUNT; k++)
+    {
+        gmnu = &active_menus[k];
+        if ((gmnu->visible) && (gmnu->ident == GMnu_MAIN))
+        {
+            menuWidth = gmnu->width;
+            break;
+        }
+    }
+
+    rotationCenter.x = (lbDisplay.PhysicalScreenWidth - menuWidth) / 2;
+    rotationCenter.y = lbDisplay.PhysicalScreenHeight / 2;
+
+    return rotationCenter;
 }
 
 void mouseControl(unsigned int action)
@@ -286,11 +346,39 @@ void mouseControl(unsigned int action)
             (isCtrlAndRightButtonDown //|| (lbDisplay.MRightButton && lbDisplayEx.isPowerHandNothingTodoRightClick)
             ))
         {
+
             // Once entered dragging mode, it should not be disrupted.
             isCtrlAndRightButtonDown = true;
 
-            // TODO HeM recalculate rotate angle to be more responsive to mouse movement.
-            lbDisplayEx.cameraRotateAngle += mousePosDelta.x / 2;
+            TbPoint fromVector;
+            TbPoint toVector;
+            TbPoint rotationCenter = _locate_rotate_center();
+
+            fromVector.x = lbDisplay.MMouseX - rotationCenter.x;
+            fromVector.y = (lbDisplay.MMouseY - rotationCenter.y)*lbDisplayEx.visualSizeRatioHtoV;
+
+            toVector.x = dstPos.x - rotationCenter.x;
+            toVector.y = (dstPos.y - rotationCenter.y)*lbDisplayEx.visualSizeRatioHtoV;
+
+            double angleFrom = _get_vector_degree(fromVector);
+            double angleTo = _get_vector_degree(toVector);
+
+            double rotateAngle = (angleTo - angleFrom);
+
+            // Dealing with spacial cases that user drag across x axis
+            if (rotateAngle > 240)
+            {
+                rotateAngle = rotateAngle - 360;
+            }
+            else if (rotateAngle < -240)
+            {
+                rotateAngle = rotateAngle + 360;
+            }
+
+            // Amplify with angle convert ratio
+            rotateAngle = rotateAngle * lbDisplayEx.parameterDegreeConvertRatio;
+
+            lbDisplayEx.cameraRotateAngle += rotateAngle;
         }
 
         // Normal mouse move

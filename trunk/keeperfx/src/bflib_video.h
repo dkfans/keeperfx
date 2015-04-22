@@ -246,6 +246,13 @@ struct DisplayStructEx {
 
     // Wheel event
     uchar wheelUp, wheelDown;
+
+    // 45 degree camera makes the horizontal distance looks larger than vertical distance,
+    // This is the approximate ratio.
+    const double visualSizeRatioHtoV = 1.3433;
+
+    // Approximate convert ratio from rotate method parameter to actual rotate degree.
+    const float parameterDegreeConvertRatio = 7;
 };
 typedef struct DisplayStructEx TbDisplayStructEx;
 

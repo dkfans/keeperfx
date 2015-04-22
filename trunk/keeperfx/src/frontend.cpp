@@ -2761,6 +2761,13 @@ TbBool frontmainmnu_input(void)
         last_mouse_y = mouse_y;
         time_last_played_demo = LbTimerClock();
     }
+    // Swallow esc when there is nowhere to return.
+    if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE) || right_button_clicked)
+    {
+        clear_key_pressed(KC_ESCAPE);
+        right_button_clicked = 0;
+        // Consider move cursor to exit button.
+    }
     // Handle key inputs
     if (lbKeyOn[KC_G] && lbKeyOn[KC_LSHIFT])
     {
