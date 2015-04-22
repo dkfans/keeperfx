@@ -1447,9 +1447,10 @@ void frontmap_input(void)
     {
         zoom_done = true;
     }
-    if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
+    if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE) || right_button_clicked)
     {
         clear_key_pressed(KC_ESCAPE);
+        right_button_clicked = 0;
         frontend_set_state(FeSt_MAIN_MENU);
         LbPaletteStopOpenFade();
         return;

@@ -410,20 +410,36 @@ long set_game_key(long key_id, unsigned char key, unsigned int mods)
     }
 }
 
-void define_key_input(void)
+void define_key_input(TbBool *inputComsumed)
 {
-  if (lbInkey == KC_ESCAPE)
-  {
-    defining_a_key = 0;
-    lbInkey = KC_UNASSIGNED;
-  } else
-  if (lbInkey != KC_UNASSIGNED)
-  {
-      update_key_modifiers();
-      if ( set_game_key(defining_a_key_id, lbInkey, key_modifiers) )
-        defining_a_key = 0;
-      lbInkey = KC_UNASSIGNED;
-  }
+    if (defining_a_key)
+    {
+        if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE) || right_button_clicked)
+        {
+            clear_key_pressed(KC_ESCAPE);
+            right_button_clicked = 0;
+            defining_a_key = 0;
+        }
+        else if (lbInkey != KC_UNASSIGNED)
+        {
+            update_key_modifiers();
+            if (set_game_key(defining_a_key_id, lbInkey, key_modifiers))
+                defining_a_key = 0;
+            lbInkey = KC_UNASSIGNED;
+        }
+        *inputComsumed = true;
+    }
+    else
+    {
+        get_gui_inputs(0);   
+
+        if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE) || right_button_clicked)
+        {
+            clear_key_pressed(KC_ESCAPE);
+            right_button_clicked = 0;
+            frontend_set_state(FeSt_FEOPTIONS);
+        }
+    }
 }
 
 /**
