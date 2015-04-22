@@ -2274,7 +2274,7 @@ void process_players_creature_control_packet_control(long idx)
     {
         i = ccctrl->field_1E8;
         inst_inf = creature_instance_info_get(i);
-        if (inst_inf->field_1A)
+        if ((inst_inf->flags & InstPF_RepeatTrigger) != 0)
         {
             k = ccctrl->instance_id;
             if ((k == CrInst_NULL) || (k == i))

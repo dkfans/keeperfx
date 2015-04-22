@@ -79,7 +79,13 @@ const struct NamedCommand creaturetype_instance_commands[] = {
   {"FORCEVISIBILITY", 8},
   {"GRAPHICS",        9},
   {"FUNCTION",       10},
+  {"PROPERTIES",     11},
   {NULL,              0},
+  };
+
+const struct NamedCommand creaturetype_instance_properties[] = {
+  {"REPEAT_TRIGGER",       InstPF_RepeatTrigger},
+  {NULL,                     0},
   };
 
 const struct NamedCommand creaturetype_job_commands[] = {
@@ -1005,6 +1011,22 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
             {
                 CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 11: // PROPERTIES
+            inst_inf->flags = 0;
+            while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = get_id(creaturetype_instance_properties, word_buf);
+                if (k > 0)
+                {
+                    inst_inf->flags |= k;
+                  n++;
+                } else {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+                    break;
+                }
             }
             break;
         case 0: // comment

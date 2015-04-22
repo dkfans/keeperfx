@@ -94,7 +94,7 @@ unsigned char field_0;
     long reset_time;
     long fp_reset_time;
     unsigned char graphics_idx;
-unsigned char field_1A;
+    unsigned char flags;
     short force_visibility;
 unsigned char field_1D;
     Creature_Instf_Func func_cb;
