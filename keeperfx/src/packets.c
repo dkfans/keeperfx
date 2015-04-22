@@ -98,7 +98,7 @@ struct Packet bad_packet;
 /******************************************************************************/
 #pragma region PlayerActionPacketHelpers
 // Fill packet with player action date, used in single player part of game.
-void set_packet_action(struct Packet *pckt, unsigned char pcktype, unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4)
+void set_packet_action(struct Packet *pckt, unsigned char pcktype, unsigned short par1, unsigned short par2)
 {
     pckt->actn_par1 = par1;
     pckt->actn_par2 = par2;
@@ -106,7 +106,7 @@ void set_packet_action(struct Packet *pckt, unsigned char pcktype, unsigned shor
 }
 
 // Fill packet with player action date, can be used in multiple player game.
-void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype, unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4)
+void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype, unsigned short par1, unsigned short par2)
 {
     struct Packet *pckt;
     pckt = get_packet_direct(player->packet_num);
@@ -203,7 +203,7 @@ short set_packet_pause_toggle(void)
     if (player->packet_num >= PACKETS_COUNT)
         return false;
     pckt = get_packet_direct(player->packet_num);
-    set_packet_action(pckt, PckA_TogglePause, 0, 0, 0, 0);
+    set_packet_action(pckt, PckA_TogglePause, 0, 0);
     return true;
 }
 

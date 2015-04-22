@@ -887,11 +887,11 @@ void zoom_to_patchment_map(void)
     {
       if (!toggle_status_menu(0))
         set_flag_byte(&game.numfield_C,0x40,false);
-      set_players_packet_action(player, PckA_Unknown119, 4, 0, 0, 0);
+      set_players_packet_action(player, PckA_Unknown119, 4, 0);
       turn_off_roaming_menus();
     } else
     {
-      set_players_packet_action(player, PckA_Unknown080, 5, 0, 0, 0);
+      set_players_packet_action(player, PckA_Unknown080, 5, 0);
       turn_off_roaming_menus();
     }
 }
@@ -905,10 +905,10 @@ void zoom_from_patchment_map(void)
     {
         if ((game.numfield_C & 0x40) != 0)
           toggle_status_menu(1);
-        set_players_packet_action(player, PckA_Unknown120,1,0,0,0);
+        set_players_packet_action(player, PckA_Unknown120,1,0);
     } else
     {
-        set_players_packet_action(player, PckA_Unknown080,6,0,0,0);
+        set_players_packet_action(player, PckA_Unknown080,6,0);
     }
 }
 /******************************************************************************/

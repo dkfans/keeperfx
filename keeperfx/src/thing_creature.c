@@ -4237,12 +4237,12 @@ struct Thing *pick_up_creature_of_model_and_gui_job(long crmodel, long job_idx, 
     {
         if ((job_idx == -1) || (dungeon->guijob_all_creatrs_count[crmodel][job_idx & 0x03]))
         {
-            set_players_packet_action(get_player(plyr_idx), PckA_UsePwrHandPick, thing->index, 0, 0, 0);
+            set_players_packet_action(get_player(plyr_idx), PckA_UsePwrHandPick, thing->index, 0);
         }
     } else
     if ((crmodel == -1))
     {
-        set_players_packet_action(get_player(plyr_idx), PckA_UsePwrHandPick, thing->index, 0, 0, 0);
+        set_players_packet_action(get_player(plyr_idx), PckA_UsePwrHandPick, thing->index, 0);
     } else
     {
         ERRORLOG("Creature model %d out of range.",(int)crmodel);
@@ -4265,7 +4265,7 @@ void go_to_next_creature_of_model_and_gui_job(long crmodel, long job_idx)
     {
         struct Packet *pckt;
         pckt = get_packet_direct(my_player_number);
-        set_packet_action(pckt, PckA_Unknown087, creatng->mappos.x.val, creatng->mappos.y.val, 0, 0);
+        set_packet_action(pckt, PckA_Unknown087, creatng->mappos.x.val, creatng->mappos.y.val);
     }
 }
 

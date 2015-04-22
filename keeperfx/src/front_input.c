@@ -148,7 +148,7 @@ short get_players_message_inputs(void)
   player = get_my_player();
   if (is_key_pressed(KC_RETURN,KMod_NONE))
   {
-      set_players_packet_action(player, PckA_PlyrMsgEnd, 0, 0, 0, 0);
+      set_players_packet_action(player, PckA_PlyrMsgEnd, 0, 0);
       clear_key_pressed(KC_RETURN);
       return true;
   }
@@ -156,7 +156,7 @@ short get_players_message_inputs(void)
   msg_width = pixel_size * LbTextStringWidth(player->mp_message_text);
   if ( (is_key_pressed(KC_BACK,KMod_DONTCARE)) || (msg_width < 450) )
   {
-      set_players_packet_action(player,PckA_PlyrMsgChar,lbInkey,key_modifiers,0,0);
+      set_players_packet_action(player,PckA_PlyrMsgChar,lbInkey,key_modifiers);
       clear_key_pressed(lbInkey);
       return true;
   }
@@ -337,7 +337,7 @@ short get_bookmark_inputs(void)
       clear_key_pressed(kcode);
       if ((bmark->flags & 0x01) != 0)
       {
-        set_players_packet_action(player, PckA_BookmarkLoad, bmark->x, bmark->y, 0, 0);
+        set_players_packet_action(player, PckA_BookmarkLoad, bmark->x, bmark->y);
         return true;
       }
     }
@@ -375,7 +375,7 @@ short get_minimap_control_inputs(void)
   {
       if ( player->minimap_zoom < 0x0800 )
       {
-        set_players_packet_action(player, PckA_SetMinimapConf, 2 * (long)player->minimap_zoom, 0, 0, 0);
+        set_players_packet_action(player, PckA_SetMinimapConf, 2 * (long)player->minimap_zoom, 0);
         packet_made = true;
       }
       clear_key_pressed(KC_SUBTRACT);
@@ -385,7 +385,7 @@ short get_minimap_control_inputs(void)
   {
       if ( player->minimap_zoom > 0x0080 )
       {
-        set_players_packet_action(player, PckA_SetMinimapConf, player->minimap_zoom >> 1, 0, 0, 0);
+        set_players_packet_action(player, PckA_SetMinimapConf, player->minimap_zoom >> 1, 0);
         packet_made = true;
       }
       clear_key_pressed(KC_ADD);
@@ -406,7 +406,7 @@ short get_screen_control_inputs(void)
   packet_made = false;
   if (is_key_pressed(KC_R,KMod_ALT))
   {
-      set_players_packet_action(player, PckA_SwitchScrnRes, 0, 0, 0, 0);
+      set_players_packet_action(player, PckA_SwitchScrnRes, 0, 0);
       packet_made = true;
       clear_key_pressed(KC_R);
       if (packet_made) return true;
@@ -431,7 +431,7 @@ short get_global_inputs(void)
   {
       if (is_key_pressed(KC_RETURN,KMod_NONE))
       {
-        set_players_packet_action(player, PckA_PlyrMsgBegin, 0, 0, 0, 0);
+        set_players_packet_action(player, PckA_PlyrMsgBegin, 0, 0);
         clear_key_pressed(KC_RETURN);
         return true;
       }
@@ -450,7 +450,7 @@ short get_global_inputs(void)
   {
       if ( is_key_pressed(idx,KMod_ALT) )
       {
-        set_players_packet_action(player, PckA_PlyrFastMsg, idx-KC_F1, 0, 0, 0);
+        set_players_packet_action(player, PckA_PlyrFastMsg, idx-KC_F1, 0);
         clear_key_pressed(idx);
         return true;
       }
@@ -480,14 +480,14 @@ short get_global_inputs(void)
   {
       if (player->victory_state != VicS_Undecided)
       {
-        set_players_packet_action(player, PckA_FinishGame, 0, 0, 0, 0);
+        set_players_packet_action(player, PckA_FinishGame, 0, 0);
         clear_key_pressed(KC_SPACE);
         return true;
       }
   }
   if ( is_game_key_pressed(Gkey_DumpToOldPos, &keycode, 0) )
   {
-      set_players_packet_action(player, PckA_DumpHeldThingToOldPos, 0, 0, 0, 0);
+      set_players_packet_action(player, PckA_DumpHeldThingToOldPos, 0, 0);
       clear_key_pressed(keycode);
   }
   return false;
@@ -508,7 +508,7 @@ TbBool get_level_lost_inputs(void)
     {
       if (is_key_pressed(KC_RETURN,KMod_NONE))
       {
-        set_players_packet_action(player, PckA_PlyrMsgBegin, 0,0,0,0);
+        set_players_packet_action(player, PckA_PlyrMsgBegin, 0,0);
         clear_key_pressed(KC_RETURN);
         return true;
       }
@@ -523,7 +523,7 @@ TbBool get_level_lost_inputs(void)
         return true;
     if (is_key_pressed(KC_SPACE,KMod_NONE))
     {
-        set_players_packet_action(player, PckA_FinishGame, 0,0,0,0);
+        set_players_packet_action(player, PckA_FinishGame, 0,0);
         clear_key_pressed(KC_SPACE);
     }
     if (player->view_type == PVT_MapScreen)
@@ -551,7 +551,7 @@ TbBool get_level_lost_inputs(void)
                 MapSubtlCoord stl_x, stl_y;
                 stl_x = coord_subtile(map_x);
                 stl_y = coord_subtile(map_y);
-                set_players_packet_action(player, PckA_ZoomFromMap, stl_x, stl_y, 0, 0);
+                set_players_packet_action(player, PckA_ZoomFromMap, stl_x, stl_y);
                 left_button_released = 0;
             }
         }
@@ -580,10 +580,10 @@ TbBool get_level_lost_inputs(void)
                   set_flag_byte(&game.numfield_C,0x40,true);
                 else
                   set_flag_byte(&game.numfield_C,0x40,false);
-                set_players_packet_action(player, PckA_Unknown119, 4,0,0,0);
+                set_players_packet_action(player, PckA_Unknown119, 4,0);
           } else
           {
-                set_players_packet_action(player, PckA_Unknown080, 5,0,0,0);
+                set_players_packet_action(player, PckA_Unknown080, 5,0);
           }
           turn_off_roaming_menus();
         }
@@ -651,17 +651,17 @@ TbBool get_level_lost_inputs(void)
           cctrl = creature_control_get_from_thing(thing);
           if ((cctrl->flgfield_2 & TF2_Spectator) == 0)
           {
-            set_players_packet_action(player, PckA_Unknown033, player->controlled_thing_idx,0,0,0);
+            set_players_packet_action(player, PckA_Unknown033, player->controlled_thing_idx,0);
             inp_done = true;
           }
         } else
         {
-          set_players_packet_action(player, PckA_Unknown033, player->controlled_thing_idx,0,0,0);
+          set_players_packet_action(player, PckA_Unknown033, player->controlled_thing_idx,0);
           inp_done = true;
         }
         break;
       case PVT_CreaturePasngr:
-        set_players_packet_action(player, PckA_PasngrCtrlExit, player->controlled_thing_idx,0,0,0);
+        set_players_packet_action(player, PckA_PasngrCtrlExit, player->controlled_thing_idx,0);
         break;
       case PVT_MapScreen:
         if (menu_is_active(GMnu_SPELL_LOST))
@@ -726,8 +726,7 @@ TbBool _get_mouse_dragging_inputs(void)
                 draggingAction,
                 // Direction information is included in action flag.
                 (unsigned short)(abs(cameraMoveX)),
-                (unsigned short)(abs(cameraMoveY)),
-                0, 0);
+                (unsigned short)(abs(cameraMoveY)));
 
             lbDisplayEx.cameraMoveX = 0;
             lbDisplayEx.cameraMoveY = 0;
@@ -743,8 +742,7 @@ TbBool _get_mouse_dragging_inputs(void)
             set_players_packet_action(player,
                 PckA_DragRotateCameraCW,
                 (unsigned short)(abs(cameraRotateAngle)),
-                0,
-                0, 0);
+                0);
             lbDisplayEx.cameraRotateAngle = 0;
             return true;
         }
@@ -753,8 +751,7 @@ TbBool _get_mouse_dragging_inputs(void)
             set_players_packet_action(player,
                 PckA_DragRotateCameraCCW,
                 (unsigned short)(abs(cameraRotateAngle)),
-                0,
-                0, 0);
+                0);
             lbDisplayEx.cameraRotateAngle = 0;
             return true;
         }
@@ -910,7 +907,7 @@ short get_creature_passenger_action_inputs(void)
     return false;
   if (right_button_released)
   {
-    set_players_packet_action(player, PckA_PasngrCtrlExit, player->controlled_thing_idx,0,0,0);
+    set_players_packet_action(player, PckA_PasngrCtrlExit, player->controlled_thing_idx,0);
     return true;
   }
   struct Thing *thing;
@@ -918,7 +915,7 @@ short get_creature_passenger_action_inputs(void)
   TRACE_THING(thing);
   if (!thing_exists(thing) || (player->controlled_thing_creatrn != thing->creation_turn))
   {
-    set_players_packet_action(player, PckA_PasngrCtrlExit, player->controlled_thing_idx,0,0,0);
+    set_players_packet_action(player, PckA_PasngrCtrlExit, player->controlled_thing_idx,0);
     return true;
   }
   if (is_key_pressed(KC_TAB,KMod_NONE))
@@ -965,7 +962,7 @@ short get_creature_control_action_inputs(void)
         if (make_packet)
         {
             right_button_released = 0;
-            set_players_packet_action(player, PckA_Unknown033, player->controlled_thing_idx,0,0,0);
+            set_players_packet_action(player, PckA_Unknown033, player->controlled_thing_idx,0);
         }
     }
     if (is_key_pressed(KC_TAB, KMod_NONE))
@@ -1002,7 +999,7 @@ short get_creature_control_action_inputs(void)
           {
             if ( numkey == num_avail )
             {
-              set_players_packet_action(player, PckA_CtrlCrtrSetInstnc, instnce,0,0,0);
+              set_players_packet_action(player, PckA_CtrlCrtrSetInstnc, instnce,0);
               break;
             }
             num_avail++;
@@ -1104,7 +1101,7 @@ short get_map_action_inputs(void)
         }
         if (left_button_released) {
             left_button_released = 0;
-            set_players_packet_action(player, PckA_ZoomFromMap, stl_x, stl_y, 0, 0);
+            set_players_packet_action(player, PckA_ZoomFromMap, stl_x, stl_y);
             return true;
         }
     }
@@ -1870,13 +1867,13 @@ short get_inputs(void)
                     player->field_1 |= 0x01;
                 else
                     player->field_1 &= ~0x01;
-                set_players_packet_action(player, PckA_Unknown080, 4, 0, 0, 0);
+                set_players_packet_action(player, PckA_Unknown080, 4, 0);
             }
             return false;
         case PVT_MapFadeOut:
             if (player->view_mode != PVM_ParchFadeOut)
             {
-                set_players_packet_action(player, PckA_Unknown080, 1, 0, 0, 0);
+                set_players_packet_action(player, PckA_Unknown080, 1, 0);
             }
             return false;
         default:

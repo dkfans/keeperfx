@@ -132,7 +132,7 @@ void select_resurrect_creature(struct GuiButton *gbtn)
         cstore = &dungeon->dead_creatures[i];
         struct Packet *pckt;
         pckt = get_packet(my_player_number);
-        set_packet_action(pckt, PckA_ResurrectCrtr, dungeon_special_selected, dungeon->owner | (cstore->model << 4) | (cstore->explevel << 12), 0, 0);
+        set_packet_action(pckt, PckA_ResurrectCrtr, dungeon_special_selected, dungeon->owner | (cstore->model << 4) | (cstore->explevel << 12));
         turn_off_menu(GMnu_RESURRECT_CREATURE);
     }
 }
@@ -207,7 +207,7 @@ void select_transfer_creature(struct GuiButton *gbtn)
     {
         struct Packet *pckt;
         pckt = get_packet(my_player_number);
-        set_packet_action(pckt, PckA_TransferCreatr, dungeon_special_selected, thing->index, 0, 0);
+        set_packet_action(pckt, PckA_TransferCreatr, dungeon_special_selected, thing->index);
         turn_off_menu(GMnu_TRANSFER_CREATURE);
     }
 }
@@ -331,13 +331,13 @@ void choose_hold_audience(struct GuiButton *gbtn)
 {
     struct PlayerInfo *player;
     player = get_my_player();
-    set_players_packet_action(player, PckA_HoldAudience, 0, 0, 0, 0);
+    set_players_packet_action(player, PckA_HoldAudience, 0, 0);
 }
 
 void choose_armageddon(struct GuiButton *gbtn)
 {
     struct PlayerInfo *player;
     player = get_my_player();
-    set_players_packet_action(player, PckA_UsePwrArmageddon, 0, 0, 0, 0);
+    set_players_packet_action(player, PckA_UsePwrArmageddon, 0, 0);
 }
 /******************************************************************************/
