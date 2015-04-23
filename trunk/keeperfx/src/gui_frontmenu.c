@@ -360,6 +360,12 @@ void set_menu_visible_on(MenuID menu_id)
     if (menu_num < 0)
       return;
     get_active_menu(menu_num)->flgfield_1D = 1;
+
+    if (menu_id == GMnu_MAIN)
+    {
+        lbDisplayEx.mainPanelWidth = get_active_menu(menu_num)->width;
+    }
+
     int idx;
     for (idx=0; idx<ACTIVE_BUTTONS_COUNT; idx++)
     {
@@ -381,6 +387,10 @@ void set_menu_visible_off(MenuID menu_id)
     if (menu_num < 0)
       return;
     get_active_menu(menu_num)->flgfield_1D = 0;
+    if (menu_id == GMnu_MAIN)
+    {
+        lbDisplayEx.mainPanelWidth = 0;
+    }
 }
 
 void kill_menu(struct GuiMenu *gmnu)

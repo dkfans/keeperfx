@@ -292,22 +292,8 @@ double _get_vector_degree(TbPoint vectorA)
 TbPoint _locate_rotate_center(void)
 {
     TbPoint rotationCenter;
-    struct GuiMenu *gmnu;
-    int k;
-    int menuWidth = 0;
 
-    // Determine whether we need to deduct menu width from screen width.
-    for (k = 0; k<ACTIVE_MENUS_COUNT; k++)
-    {
-        gmnu = &active_menus[k];
-        if ((gmnu->visible) && (gmnu->ident == GMnu_MAIN))
-        {
-            menuWidth = gmnu->width;
-            break;
-        }
-    }
-
-    rotationCenter.x = (lbDisplay.PhysicalScreenWidth - menuWidth) / 2;
+    rotationCenter.x = (lbDisplay.PhysicalScreenWidth - lbDisplayEx.mainPanelWidth) / 2;
     rotationCenter.y = lbDisplay.PhysicalScreenHeight / 2;
 
     return rotationCenter;
@@ -355,10 +341,10 @@ void mouseControl(unsigned int action)
             TbPoint rotationCenter = _locate_rotate_center();
 
             fromVector.x = lbDisplay.MMouseX - rotationCenter.x;
-            fromVector.y = (lbDisplay.MMouseY - rotationCenter.y)*lbDisplayEx.visualSizeRatioHtoV;
+            fromVector.y = (lbDisplay.MMouseY - rotationCenter.y)*VISUALSIZERATIOHTOV;
 
             toVector.x = dstPos.x - rotationCenter.x;
-            toVector.y = (dstPos.y - rotationCenter.y)*lbDisplayEx.visualSizeRatioHtoV;
+            toVector.y = (dstPos.y - rotationCenter.y)*VISUALSIZERATIOHTOV;
 
             double angleFrom = _get_vector_degree(fromVector);
             double angleTo = _get_vector_degree(toVector);
@@ -376,7 +362,7 @@ void mouseControl(unsigned int action)
             }
 
             // Amplify with angle convert ratio
-            rotateAngle = rotateAngle * lbDisplayEx.parameterDegreeConvertRatio;
+            rotateAngle = rotateAngle * PARAMDEGREECONVERTRATIO;
 
             lbDisplayEx.cameraRotateAngle += rotateAngle;
         }

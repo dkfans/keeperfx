@@ -35,6 +35,10 @@ extern "C" {
 #define MAX_SUPPORTED_SCREEN_WIDTH  3840
 #define MAX_SUPPORTED_SCREEN_HEIGHT 2160
 
+// 45 degree camera makes the horizontal distance looks larger than vertical distance,
+// This is the approximate ratio.
+#define VISUALSIZERATIOHTOV 1.3433;
+
 #pragma pack(1)
 
 /** Pixel definition - represents value of one point on the graphics screen. */
@@ -244,15 +248,12 @@ struct DisplayStructEx {
     // Angle to rotate the camera.
     long cameraRotateAngle;
 
-    // Wheel event
+    // Wheel event.
     uchar wheelUp, wheelDown;
 
-    // 45 degree camera makes the horizontal distance looks larger than vertical distance,
-    // This is the approximate ratio.
-    const double visualSizeRatioHtoV = 1.3433;
-
-    // Approximate convert ratio from rotate method parameter to actual rotate degree.
-    const float parameterDegreeConvertRatio = 7;
+    // Visual width of main panel.
+    // do NOT initialize every turn.
+    int mainPanelWidth;
 };
 typedef struct DisplayStructEx TbDisplayStructEx;
 

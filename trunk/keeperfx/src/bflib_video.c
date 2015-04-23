@@ -540,6 +540,7 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
     lbDisplay.GraphicsWindowPtr = NULL;
 
     init_lbDisplayEx_values();
+    lbDisplayEx.mainPanelWidth = 0;
 
     SYNCLOG("Mode %d x %d setup succeeded", (int)mdinfo->Width, (int)mdinfo->Height);
 
