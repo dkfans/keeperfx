@@ -119,7 +119,9 @@ struct DevInput {
 
 #pragma pack()
 /******************************************************************************/
-extern volatile TbBool lbUseRelativeMouseMode;
+extern volatile TbBool lbUseRelativeMouseMode; 
+extern volatile TbBool lbUseDirectMouseDragging;
+extern volatile TbBool lbUseDesktopResolution;
 /******************************************************************************/
 TbResult LbMouseChangeSpriteAndHotspot(struct TbSprite *mouseSprite, long hot_x, long hot_y);
 TbResult LbMouseSetup(struct TbSprite *mouseSprite);

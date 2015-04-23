@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <SDL2/SDL.h>
 
+#include "bflib_datetm.h"
 #include "bflib_basics.h"
 #include "globals.h"
 #include "bflib_video.h"
@@ -55,6 +56,11 @@ struct DevInput joy;
 
 // Whether we want to relative mouse mode, when this is on, mouse will be trapped in game window.
 volatile TbBool lbUseRelativeMouseMode = true;
+
+// Whether we want to enable mouse dragging without ctrl pressed.
+// TODO make this into option page.
+volatile TbBool lbUseDirectMouseDragging = false;
+
 volatile TbDisplayStructEx lbDisplayEx;
 /******************************************************************************/
 TbResult LbMouseChangeSpriteAndHotspot(struct TbSprite *pointerSprite, long hot_x, long hot_y)
@@ -177,27 +183,6 @@ TbResult LbMouseOnMove(struct TbPoint dstPos)
     return Lb_SUCCESS;
 }
 
-/** Converts mouse coordinates into relative and scaled coordinates.
- *
- * @param pos Pointer to the structure with source point, and where result is placed.
- */
-TbPoint ScaleMouseMove(struct TbPoint posDelta)
-{
-    TbPoint scaledMouseMove;
-
-    if (!lbUseRelativeMouseMode)
-    {
-        ERRORLOG("Mouse ratio is only valid in relative mouse mode.");
-        return scaledMouseMove;
-    }
-
-    // Scale coordinate
-    scaledMouseMove.x = (long)((float)(posDelta.x)* (float)lbDisplay.MouseMoveRatio / DEFAULT_MOUSE_MOVE_RATIO);
-    scaledMouseMove.y = (long)((float)(posDelta.y)* (float)lbDisplay.MouseMoveRatio / DEFAULT_MOUSE_MOVE_RATIO);
-
-    return scaledMouseMove;
-}
-
 TbResult LbMouseSuspend(void)
 {
   if (!lbMouseSpriteInstalled)
@@ -221,6 +206,28 @@ TbResult LbMouseOnEndSwap(void)
     return Lb_SUCCESS;
 }
 
+/** Converts mouse coordinates into relative and scaled coordinates.
+*
+* @param pos Pointer to the structure with source point, and where result is placed.
+*/
+TbPoint _scaleMouseMove(struct TbPoint posDelta)
+{
+    TbPoint scaledMouseMove;
+
+    if (!lbUseRelativeMouseMode)
+    {
+        ERRORLOG("Mouse ratio is only valid in relative mouse mode.");
+        return scaledMouseMove;
+    }
+
+    // Scale coordinate
+    scaledMouseMove.x = (long)((float)(posDelta.x)* (float)lbDisplay.MouseMoveRatio / DEFAULT_MOUSE_MOVE_RATIO);
+    scaledMouseMove.y = (long)((float)(posDelta.y)* (float)lbDisplay.MouseMoveRatio / DEFAULT_MOUSE_MOVE_RATIO);
+
+    return scaledMouseMove;
+}
+
+// Get information of mouse move destination point and mouse move delta.
 void _get_mouse_state(TbPoint *positionDelta, TbPoint *destination)
 {
     // TODO HeM error handling.
@@ -236,7 +243,7 @@ void _get_mouse_state(TbPoint *positionDelta, TbPoint *destination)
         mouseDelta.y = y;
 
         // Scale the Delta to Sprite position.
-        scaledMouseDelta = ScaleMouseMove(mouseDelta);
+        scaledMouseDelta = _scaleMouseMove(mouseDelta);
 
         positionDelta->x = scaledMouseDelta.x;
         positionDelta->y = scaledMouseDelta.y;
@@ -256,6 +263,7 @@ void _get_mouse_state(TbPoint *positionDelta, TbPoint *destination)
     }
 }
 
+#pragma region RotateHelpers
 double _get_cosin(TbPoint vectorA, TbPoint vectorB)
 {
     double x1 = vectorA.x, 
@@ -299,6 +307,38 @@ TbPoint _locate_rotate_center(void)
     return rotationCenter;
 }
 
+// Get the rotate angle to rotate camera to destination point, in degree.
+double _calculate_rotate_angle(TbPoint dstPos)
+{
+    TbPoint fromVector;
+    TbPoint toVector;
+    TbPoint rotationCenter = _locate_rotate_center();
+
+    fromVector.x = lbDisplay.MMouseX - rotationCenter.x;
+    fromVector.y = (lbDisplay.MMouseY - rotationCenter.y)*VISUALSIZERATIOHTOV;
+
+    toVector.x = dstPos.x - rotationCenter.x;
+    toVector.y = (dstPos.y - rotationCenter.y)*VISUALSIZERATIOHTOV;
+
+    double angleFrom = _get_vector_degree(fromVector);
+    double angleTo = _get_vector_degree(toVector);
+
+    double rotateAngle = (angleTo - angleFrom);
+
+    // Dealing with spacial cases that user drag across x axis
+    if (rotateAngle > 240)
+    {
+        rotateAngle = rotateAngle - 360;
+    }
+    else if (rotateAngle < -240)
+    {
+        rotateAngle = rotateAngle + 360;
+    }
+
+    return rotateAngle;
+}
+#pragma endregion
+
 void mouseControl(unsigned int action)
 {
     struct TbPoint mousePosDelta;
@@ -310,61 +350,93 @@ void mouseControl(unsigned int action)
     static bool isCtrlAndLeftButtonDown = false;
     static bool isCtrlAndRightButtonDown = false;
 
+    static unsigned long leftButtonPressedTime = 0;
+    static unsigned long leftButtonHoldTime = 0;
+    static unsigned long rightButtonPressedTime = 0;
+    static unsigned long rightButtonHoldTime = 0; 
+
+    // Until we are sure user wants to do dragging, the moving distance is reserved.
+    static int reservedMoveX = 0;
+    static int reservedMoveY = 0;
+    static int reservedRotate = 0;
+
+    const int dragTimeThreshold = 130;
+
     _get_mouse_state(&mousePosDelta, &dstPos);
 
     switch ( action )
     {
     case MActn_MOUSEMOVE:
         // Drag to move camera when ctrl is pressed, or there is nothing else to do.
-        if (/*0.2 seconds passed &&*/
-            (isCtrlAndLeftButtonDown //|| (lbDisplay.MLeftButton && lbDisplayEx.isPowerHandNothingTodoLeftClick)
-            ))
+        if (isCtrlAndLeftButtonDown)
         {
-            // Once entered dragging mode, it should not be disrupted.
-            isCtrlAndLeftButtonDown = true;
-
             lbDisplayEx.cameraMoveX += mousePosDelta.x * lbDisplayEx.cameraMoveRatioX;
             lbDisplayEx.cameraMoveY += mousePosDelta.y * lbDisplayEx.cameraMoveRatioY;
-            //SYNCLOG("SET X MOVE %d", lbDisplayEx.cameraMoveX);
         }
+        else if (lbUseDirectMouseDragging && lbDisplay.MLeftButton && lbDisplayEx.isPowerHandNothingTodoLeftClick)
+        {
+            leftButtonHoldTime = LbTimerClock() - leftButtonPressedTime;
+
+            if (leftButtonHoldTime < dragTimeThreshold)
+            {
+                // Cache move distance when we are not sure user want drag or click.
+                reservedMoveX += mousePosDelta.x * lbDisplayEx.cameraMoveRatioX;
+                reservedMoveY += mousePosDelta.y * lbDisplayEx.cameraMoveRatioY;
+            }
+            else 
+            {
+                // Once entered dragging mode, it should not be disrupted.
+                isCtrlAndLeftButtonDown = true;
+
+                // Apply reserved move.
+                lbDisplayEx.cameraMoveX += reservedMoveX;
+                lbDisplayEx.cameraMoveY += reservedMoveY;
+                reservedMoveX = 0;
+                reservedMoveY = 0;
+
+                // New move this turn.
+                lbDisplayEx.cameraMoveX += mousePosDelta.x * lbDisplayEx.cameraMoveRatioX;
+                lbDisplayEx.cameraMoveY += mousePosDelta.y * lbDisplayEx.cameraMoveRatioY;
+            }
+            //SYNCLOG("left hold time %d", leftButtonHoldTime);
+        }
+
+
         // Right drag to rotate camera when ctrl is pressed, or there is nothing else to do.
-        else if (/*0.2 seconds passed &&*/
-            (isCtrlAndRightButtonDown //|| (lbDisplay.MRightButton && lbDisplayEx.isPowerHandNothingTodoRightClick)
+        if ((isCtrlAndRightButtonDown || 
+            (lbUseDirectMouseDragging && lbDisplay.MRightButton && lbDisplayEx.isPowerHandNothingTodoRightClick)
             ))
         {
-
-            // Once entered dragging mode, it should not be disrupted.
-            isCtrlAndRightButtonDown = true;
-
-            TbPoint fromVector;
-            TbPoint toVector;
-            TbPoint rotationCenter = _locate_rotate_center();
-
-            fromVector.x = lbDisplay.MMouseX - rotationCenter.x;
-            fromVector.y = (lbDisplay.MMouseY - rotationCenter.y)*VISUALSIZERATIOHTOV;
-
-            toVector.x = dstPos.x - rotationCenter.x;
-            toVector.y = (dstPos.y - rotationCenter.y)*VISUALSIZERATIOHTOV;
-
-            double angleFrom = _get_vector_degree(fromVector);
-            double angleTo = _get_vector_degree(toVector);
-
-            double rotateAngle = (angleTo - angleFrom);
-
-            // Dealing with spacial cases that user drag across x axis
-            if (rotateAngle > 240)
-            {
-                rotateAngle = rotateAngle - 360;
-            }
-            else if (rotateAngle < -240)
-            {
-                rotateAngle = rotateAngle + 360;
-            }
-
             // Amplify with angle convert ratio
-            rotateAngle = rotateAngle * PARAMDEGREECONVERTRATIO;
+            double rotateParam = _calculate_rotate_angle(dstPos) * PARAMDEGREECONVERTRATIO;
+            
+            if (isCtrlAndRightButtonDown)
+            {
+                lbDisplayEx.cameraRotateAngle += rotateParam;
+            }
+            else 
+            {
+                rightButtonHoldTime = LbTimerClock() - rightButtonPressedTime;
 
-            lbDisplayEx.cameraRotateAngle += rotateAngle;
+                if (rightButtonHoldTime < dragTimeThreshold)
+                {
+                    // Cache rotate param when we are not sure user want drag or click.
+                    reservedRotate += rotateParam;
+                }
+                else 
+                {
+                    // Once entered dragging mode, it should not be disrupted.
+                    isCtrlAndRightButtonDown = true;
+
+                    // Use reserved angle.
+                    lbDisplayEx.cameraRotateAngle += reservedRotate;
+                    reservedRotate = 0;
+
+                    // New delta this turn.
+                    lbDisplayEx.cameraRotateAngle += rotateParam;
+                }
+                //SYNCLOG("right hold time %d", rightButtonHoldTime);
+            }
         }
 
         // Normal mouse move
@@ -380,6 +452,8 @@ void mouseControl(unsigned int action)
             lbDisplay.MouseY = lbDisplay.MMouseY;
             lbDisplay.RLeftButton = 0;
 
+            leftButtonPressedTime = LbTimerClock();
+
             if (!isCtrlDown)
             {
                 lbDisplay.LeftButton = 1;
@@ -392,6 +466,11 @@ void mouseControl(unsigned int action)
         break;
     case MActn_LBUTTONUP:
         lbDisplay.MLeftButton = 0;
+        leftButtonPressedTime = 0;   
+        leftButtonHoldTime = 0;
+        reservedMoveX = 0;
+        reservedMoveY = 0;
+
         LbMouseOnMove(dstPos);
         if ( !lbDisplay.RLeftButton )
         {
@@ -411,6 +490,8 @@ void mouseControl(unsigned int action)
             lbDisplay.MouseY = lbDisplay.MMouseY;
             lbDisplay.RRightButton = 0;
 
+            rightButtonPressedTime = LbTimerClock();
+
             if (!isCtrlDown)
             {
                 lbDisplay.RightButton = 1;
@@ -423,6 +504,10 @@ void mouseControl(unsigned int action)
         break;
     case MActn_RBUTTONUP:
         lbDisplay.MRightButton = 0;
+        rightButtonPressedTime = 0;
+        rightButtonHoldTime = 0;    
+        reservedRotate = 0;
+
         LbMouseOnMove(dstPos);
         if ( !lbDisplay.RRightButton )
         {
@@ -434,11 +519,9 @@ void mouseControl(unsigned int action)
         }
         break;
     case MActn_WHEELUP:
-        // Zooms in when wheel up.
         lbDisplayEx.wheelUp = true;
         break;
     case MActn_WHEELDOWN:
-        // Zooms out when wheel down.
         lbDisplayEx.wheelDown = true;
         break;
     default:
