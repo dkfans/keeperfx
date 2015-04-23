@@ -4652,12 +4652,16 @@ short process_command_line(unsigned short argc, char *argv[])
           SYNCLOG("Mouse auto reset disabled");
           lbUseRelativeMouseMode = false;
       } else
-      if ( strcasecmp(parstr,"vidriver") == 0 )
+      if ( strcasecmp(parstr,"directdrag") == 0 )
       {
-          LbScreenHardwareConfig(pr2str,8);
-          narg++;
-      } else
-      if (strcasecmp(parstr,"packetload") == 0)
+          lbUseDirectMouseDragging = true;
+      } 
+      else if (strcasecmp(parstr, "desktopres") == 0)
+      {
+          SYNCLOG("Using desktop resolution.");
+          lbUseDesktopResolution = true;
+      }
+      else if (strcasecmp(parstr,"packetload") == 0)
       {
          if (start_params.packet_save_enable)
             WARNMSG("PacketSave disabled to enable PacketLoad.");

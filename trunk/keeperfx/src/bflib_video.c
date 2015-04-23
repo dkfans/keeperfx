@@ -43,6 +43,10 @@ long lbScreenModeInfoNum = 0;
 /** Informs if Video Screen subsystem initialization was done. */
 volatile TbBool lbScreenInitialized = false;
 
+// Whether we want to always use current desktop resolution and scale game to fill screen.
+// TODO make this into config tool and cfg file.
+volatile TbBool lbUseDesktopResolution = false;
+
 /** The depth of the surface in bits, or bytes per pixel expected by the engine.
  * can be 8 or 4
  * On any try of entering different video BPP, this mode will be emulated. 
@@ -461,7 +465,8 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
     sdlFlags = SDL_WINDOW_RESIZABLE;
     if ((mdinfo->VideoFlags & Lb_VF_WINDOWED) == 0) 
     {
-        sdlFlags |= SDL_WINDOW_FULLSCREEN;
+        
+        sdlFlags |= lbUseDesktopResolution ? SDL_WINDOW_FULLSCREEN_DESKTOP : SDL_WINDOW_FULLSCREEN;
     }
 
     // TODO HeM break following into smaller methods.
