@@ -440,7 +440,7 @@ void draw_swipe_graphic(void)
             long allwidth;
             long i,n;
             lbDisplay.DrawFlags = Lb_SPRITE_TRANSPAR4;
-            n = (int)cctrl->inst_turn * 1280 / cctrl->inst_total_turns;
+            n = (int)cctrl->inst_turn * (5 << 8) / cctrl->inst_total_turns;
             allwidth = 0;
             i = abs(n) >> 8;
             if (i >= SWIPE_SPRITE_FRAMES)
