@@ -1045,6 +1045,7 @@ TbPixel LbPaletteFindColour(const unsigned char *pal, unsigned char r, unsigned 
     return *o;
 }
 
+// initialize fields in lbDisplayEx which should be refreshed every turn.
 void init_lbDisplayEx_values()
 {
     lbDisplayEx.cameraMoveRatioX = 0;

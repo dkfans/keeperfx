@@ -1,4 +1,4 @@
-
+#pragma region includes
 #include <windows.h>
 #include <winbase.h>
 #include <math.h>
@@ -126,6 +126,7 @@
 #include "room_list.h"
 
 #include "music_player.h"
+#pragma endregion
 
 int test_variable;
 
@@ -144,6 +145,8 @@ struct Room *droom = &_DK_game.rooms[25];
 
 //static
 TbClockMSec last_loop_time=0;
+
+#pragma region dllimports
 
 #ifdef __cplusplus
 extern "C" {
@@ -244,6 +247,7 @@ DLLIMPORT extern HINSTANCE _DK_hInstance;
 #ifdef __cplusplus
 }
 #endif
+#pragma endregion
 
 TbPixel get_player_path_colour(unsigned short owner)
 {
@@ -2545,6 +2549,7 @@ void process_level_script(void)
   SYNCDBG(19,"Finished");
 }
 
+#pragma region camera
 void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
 {
     _DK_update_player_camera_fp(cam, thing);
@@ -2680,6 +2685,7 @@ void update_player_camera(struct PlayerInfo *player)
         dungeon->camera_deviate_jump -= 32;
     }
 }
+#pragma endregion
 
 void update_research(void)
 {
@@ -3706,7 +3712,7 @@ void _get_camera_move_ratio(Camera * cam)
 }
 
 // Detect if there is anything to do for power hand on left or right click,
-// if result is positive, suppress drag feaure.
+// if result is positive, suppress dragging control.
 void _predict_power_hand_click_behavior()
 {
     struct PlayerInfo *player;
