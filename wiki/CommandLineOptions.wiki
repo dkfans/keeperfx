@@ -73,10 +73,7 @@ Note that the [LauncherApplication Launcher App] can be used to choose command l
   Pentium Pro polygons regardless of the CPU.
 
 `-altinput`
-  Uses alternate mouse input method. This changes the way of
-  computing mouse position; with this option, position is not
-  reset to screen center every time movement is detected.
-  May be helpful if original method isn't working right
+  Uses alternate mouse input method. This allows the mouse cursor to go outside of the game window. Ingame mouse sensitivity setting will be ignored. May be helpful if original method isn't working right
   (ie. mouse stops).
 
 `-packetsave <filename>`
