@@ -3701,7 +3701,7 @@ void _get_camera_move_ratio(Camera * cam)
 
         // Scaling seems always follow width even resolution is not 4:3.
         // TODO HeM verify the above line.
-        lbDisplayEx.cameraMoveRatioY = magicNumber * lbDisplayEx.visualSizeRatioHtoV *  (640.0 / float(lbDisplay.PhysicalScreenWidth));
+        lbDisplayEx.cameraMoveRatioY = magicNumber * (640.0 / float(lbDisplay.PhysicalScreenWidth)) * VISUALSIZERATIOHTOV;
     }
 }
 

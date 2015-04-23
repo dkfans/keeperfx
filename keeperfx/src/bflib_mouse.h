@@ -25,11 +25,9 @@
 #include "globals.h"
 
 #define DEFAULT_MOUSE_MOVE_RATIO 256.0
-#define ACTIVE_MENUS_COUNT 8
-DLLIMPORT extern struct GuiMenu _DK_active_menus[ACTIVE_MENUS_COUNT];
-#define active_menus _DK_active_menus
-// Copied from gui_frontmenu.h. TODO import the real one without adding illegal dependency.
-#define GMnu_MAIN 1
+
+// Approximate convert ratio from rotate method parameter to actual rotate degree.
+#define PARAMDEGREECONVERTRATIO 7
 
 #ifdef __cplusplus
 extern "C" {
