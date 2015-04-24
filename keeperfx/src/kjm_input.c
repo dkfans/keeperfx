@@ -29,6 +29,7 @@
 
 #include "config_settings.h"
 #include "config_strings.h"
+#include "front_input.h"
 #include "frontend.h"
 #include "frontmenu_ingame_map.h"
 
@@ -431,7 +432,7 @@ void define_key_input(TbBool *inputComsumed)
     }
     else
     {
-        get_gui_inputs(0);   
+        get_gui_inputs(0);
 
         if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE) || right_button_clicked)
         {
