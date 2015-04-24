@@ -612,7 +612,7 @@ TbBool get_level_lost_inputs(void)
             turn_on_menu(GMnu_SPELL_LOST);
           }
         }
-        inp_done = get_gui_inputs(GMnu_MAIN);
+        inp_done = get_gui_inputs(1);
         if ( !inp_done )
         {
           if (player->work_state == PSt_CreatrInfo)
@@ -685,8 +685,6 @@ TbBool _get_mouse_dragging_inputs(void)
 
     if (player)
     {
-        struct Packet *pckt;
-        pckt = get_packet(my_player_number);
         //SYNCLOG("GET X MOVE %ld", long(lbDisplayEx.cameraMoveX));
 
         enum TbPacketAction draggingAction = PckA_None;
@@ -695,7 +693,7 @@ TbBool _get_mouse_dragging_inputs(void)
         long cameraMoveX = (long)lbDisplayEx.cameraMoveX;
         long cameraMoveY = (long)lbDisplayEx.cameraMoveY;
 
-        // Getting left drag direction to decide which flag to use. 
+        // Getting left drag direction to decide which flag to use.
         if (cameraMoveX > 0)
         {
             if (cameraMoveY > 0)
@@ -736,7 +734,7 @@ TbBool _get_mouse_dragging_inputs(void)
         // Convert float to long to avoid endless false positive.
         long cameraRotateAngle = (long)lbDisplayEx.cameraRotateAngle;
 
-        // Getting right drag direction to decide which direction to rotate. 
+        // Getting right drag direction to decide which direction to rotate.
         if (cameraRotateAngle > 0)
         {
             set_players_packet_action(player,
@@ -1240,7 +1238,7 @@ void get_isometric_view_nonaction_inputs(void)
             set_packet_control(pckt, PCtr_ViewZoomIn);
         if ( is_game_key_pressed(GameKey_MoveDown, NULL, no_mods) )
             set_packet_control(pckt, PCtr_ViewZoomOut);
-    } 
+    }
     else
     {
         if ( is_game_key_pressed(GameKey_RotateCW, NULL, false) )
@@ -1951,7 +1949,7 @@ void input(void)
     SYNCDBG(4,"Starting");
     update_key_modifiers();
 
-    if (KeeperSpeechPopEvent(&last_speech_event)) 
+    if (KeeperSpeechPopEvent(&last_speech_event))
     {
       last_speech_event.type = KS_UNUSED;
     }

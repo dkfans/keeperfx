@@ -751,7 +751,6 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
     { // delete the next char
         if (input_field_pos < LbLocTextStringLength(str)) {
             LbLocTextStringDelete(str, input_field_pos, 1);
-            input_field_pos;
         }
     }
     else if ((key == KC_HOME) || (key == KC_PGUP))
@@ -2854,8 +2853,8 @@ short get_frontend_global_inputs(void)
     {
         clear_key_pressed(KC_X);
         exit_keeper = true;
-    } 
-    else 
+    }
+    else
     {
         return false;
     }
