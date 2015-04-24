@@ -55,7 +55,7 @@ Note that the [LauncherApplication Launcher App] can be used to choose command l
 `-vidriver <driver>`
   Set the video driver to be used by SDL library.
   Valid options on Windows host are 'directx' and 'windib'.
-  Use this if your system is broken and most games do not work on it.
+  Use this if your system is broken and most games do not work on it. Only available in KeeperFX versions 0.4.5 and before.
 
 `-vidsmooth`
   Smoothes the 3D view using 1-pixel bilinear blur.
