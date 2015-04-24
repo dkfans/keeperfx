@@ -251,6 +251,13 @@ struct DisplayStructEx {
     // Wheel event.
     uchar wheelUp, wheelDown;
 
+    // Whether user is in dragging control mode.
+    // do NOT initialize every turn.
+    uchar isDragMovingCamera, isDragRotatingCamera;
+
+    // Flag to skip next button release event.
+    uchar skipLButtonRelease, skipRButtonRelease;;
+
     // Visual width of main panel.
     // do NOT initialize every turn.
     int mainPanelWidth;

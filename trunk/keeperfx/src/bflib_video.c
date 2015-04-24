@@ -546,6 +546,10 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
 
     init_lbDisplayEx_values();
     lbDisplayEx.mainPanelWidth = 0;
+    lbDisplayEx.isDragMovingCamera = false;
+    lbDisplayEx.isDragRotatingCamera = false;
+    lbDisplayEx.skipLButtonRelease = false;
+    lbDisplayEx.skipRButtonRelease = false;
 
     SYNCLOG("Mode %d x %d setup succeeded", (int)mdinfo->Width, (int)mdinfo->Height);
 

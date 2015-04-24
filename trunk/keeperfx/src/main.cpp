@@ -3701,7 +3701,7 @@ void _get_camera_move_ratio(Camera * cam)
         // Zoom seems to be between 4100 (fareast) and 12000 (nearest)
         if (cam && cam->zoom >= 4100 && cam->zoom <= 12000)
         {
-            magicNumber = 66000.0 / float(cam->zoom);
+            magicNumber = 67000.0 / float(cam->zoom);
             lbDisplayEx.cameraMoveRatioX = magicNumber * (640.0 / float(lbDisplay.PhysicalScreenWidth));
         }
 

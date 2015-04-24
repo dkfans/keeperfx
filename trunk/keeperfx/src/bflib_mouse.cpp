@@ -326,11 +326,11 @@ double _calculate_rotate_angle(TbPoint dstPos)
     double rotateAngle = (angleTo - angleFrom);
 
     // Dealing with spacial cases that user drag across x axis
-    if (rotateAngle > 240)
+    if (rotateAngle > 200)
     {
         rotateAngle = rotateAngle - 360;
     }
-    else if (rotateAngle < -240)
+    else if (rotateAngle < -200)
     {
         rotateAngle = rotateAngle + 360;
     }
@@ -346,10 +346,6 @@ void mouseControl(unsigned int action)
 
     bool isCtrlDown = lbInkeyFlags & KMod_CONTROL;
 
-    // Used instead of lpDisplay.LButton when ctrl is pressed.
-    static bool isCtrlAndLeftButtonDown = false;
-    static bool isCtrlAndRightButtonDown = false;
-
     static unsigned long leftButtonPressedTime = 0;
     static unsigned long leftButtonHoldTime = 0;
     static unsigned long rightButtonPressedTime = 0;
@@ -360,15 +356,26 @@ void mouseControl(unsigned int action)
     static int reservedMoveY = 0;
     static int reservedRotate = 0;
 
-    const int dragTimeThreshold = 130;
+    // Both thresholds are lower bound.
+    const int dragTimeThresholdSmall = 90;
+    const int dragTimeThresholdLarge = 150;
 
     _get_mouse_state(&mousePosDelta, &dstPos);
+
+    // Sometimes the value gets incorrectly initialized,
+    // force initialize the flag if not in map view.
+    if (!lbDisplayEx.isPowerHandNothingTodoLeftClick && !lbDisplayEx.isPowerHandNothingTodoRightClick)
+    {
+        lbDisplayEx.isDragMovingCamera = false;
+        lbDisplayEx.isDragRotatingCamera = false;
+    }
 
     switch ( action )
     {
     case MActn_MOUSEMOVE:
+#pragma region LeftDragging
         // Drag to move camera when ctrl is pressed, or there is nothing else to do.
-        if (isCtrlAndLeftButtonDown)
+        if (lbDisplayEx.isDragMovingCamera)
         {
             lbDisplayEx.cameraMoveX += mousePosDelta.x * lbDisplayEx.cameraMoveRatioX;
             lbDisplayEx.cameraMoveY += mousePosDelta.y * lbDisplayEx.cameraMoveRatioY;
@@ -377,16 +384,17 @@ void mouseControl(unsigned int action)
         {
             leftButtonHoldTime = LbTimerClock() - leftButtonPressedTime;
 
-            if (leftButtonHoldTime < dragTimeThreshold)
+            if ((leftButtonHoldTime > dragTimeThresholdLarge) ||
+                ((leftButtonHoldTime > dragTimeThresholdSmall) && ((abs(reservedMoveX) + abs(reservedMoveY)) > 800)))
             {
-                // Cache move distance when we are not sure user want drag or click.
-                reservedMoveX += mousePosDelta.x * lbDisplayEx.cameraMoveRatioX;
-                reservedMoveY += mousePosDelta.y * lbDisplayEx.cameraMoveRatioY;
-            }
-            else 
-            {
+                // SYNCLOG("left hold time %d", leftButtonHoldTime);
+                // SYNCLOG("left move speed %d", (abs(reservedMoveX) + abs(reservedMoveY)));
+
                 // Once entered dragging mode, it should not be disrupted.
-                isCtrlAndLeftButtonDown = true;
+                lbDisplayEx.isDragMovingCamera = true;
+
+                // Skip next button release event to prevent unexpected behavior(dig or catching creatures).
+                lbDisplayEx.skipLButtonRelease = true;
 
                 // Apply reserved move.
                 lbDisplayEx.cameraMoveX += reservedMoveX;
@@ -398,19 +406,26 @@ void mouseControl(unsigned int action)
                 lbDisplayEx.cameraMoveX += mousePosDelta.x * lbDisplayEx.cameraMoveRatioX;
                 lbDisplayEx.cameraMoveY += mousePosDelta.y * lbDisplayEx.cameraMoveRatioY;
             }
-            //SYNCLOG("left hold time %d", leftButtonHoldTime);
+            else
+            {
+                // Cache move distance when we are not sure user want drag or click.
+                reservedMoveX += mousePosDelta.x * lbDisplayEx.cameraMoveRatioX;
+                reservedMoveY += mousePosDelta.y * lbDisplayEx.cameraMoveRatioY;
+            }
         }
+#pragma endregion
 
-
+#pragma region RightDragging
         // Right drag to rotate camera when ctrl is pressed, or there is nothing else to do.
-        if ((isCtrlAndRightButtonDown || 
+        if (((lbDisplayEx.isDragRotatingCamera) ||
             (lbUseDirectMouseDragging && lbDisplay.MRightButton && lbDisplayEx.isPowerHandNothingTodoRightClick)
             ))
         {
+
             // Amplify with angle convert ratio
             double rotateParam = _calculate_rotate_angle(dstPos) * PARAMDEGREECONVERTRATIO;
             
-            if (isCtrlAndRightButtonDown)
+            if (lbDisplayEx.isDragRotatingCamera)
             {
                 lbDisplayEx.cameraRotateAngle += rotateParam;
             }
@@ -418,15 +433,17 @@ void mouseControl(unsigned int action)
             {
                 rightButtonHoldTime = LbTimerClock() - rightButtonPressedTime;
 
-                if (rightButtonHoldTime < dragTimeThreshold)
+                if ((rightButtonHoldTime > dragTimeThresholdLarge) ||
+                    ((rightButtonHoldTime > dragTimeThresholdSmall) && (abs(reservedRotate) > 80)))
                 {
-                    // Cache rotate param when we are not sure user want drag or click.
-                    reservedRotate += rotateParam;
-                }
-                else 
-                {
+                    // SYNCLOG("right hold time %d", rightButtonHoldTime);
+                    // SYNCLOG("right rotate speed %d", reservedRotate);
+
                     // Once entered dragging mode, it should not be disrupted.
-                    isCtrlAndRightButtonDown = true;
+                    lbDisplayEx.isDragRotatingCamera = true;
+
+                    // Skip next button release event to prevent unexpected behavior(slap or dismiss).
+                    lbDisplayEx.skipRButtonRelease = true;
 
                     // Use reserved angle.
                     lbDisplayEx.cameraRotateAngle += reservedRotate;
@@ -435,9 +452,14 @@ void mouseControl(unsigned int action)
                     // New delta this turn.
                     lbDisplayEx.cameraRotateAngle += rotateParam;
                 }
-                //SYNCLOG("right hold time %d", rightButtonHoldTime);
+                else 
+                {
+                    // Cache rotate param when we are not sure user want drag or click.
+                    reservedRotate += rotateParam;
+                }
             }
         }
+#pragma endregion
 
         // Normal mouse move
         LbMouseOnMove(dstPos);
@@ -446,7 +468,7 @@ void mouseControl(unsigned int action)
     case MActn_LBUTTONDOWN:
         lbDisplay.MLeftButton = 1;
         LbMouseOnMove(dstPos);
-        if (!lbDisplay.LeftButton && !isCtrlAndLeftButtonDown)
+        if (!lbDisplay.LeftButton && !lbDisplayEx.isDragMovingCamera)
         {
             lbDisplay.MouseX = lbDisplay.MMouseX;
             lbDisplay.MouseY = lbDisplay.MMouseY;
@@ -460,12 +482,13 @@ void mouseControl(unsigned int action)
             }
             else
             {
-                isCtrlAndLeftButtonDown = true;
+                lbDisplayEx.isDragMovingCamera = true;
             }
         }
         break;
     case MActn_LBUTTONUP:
         lbDisplay.MLeftButton = 0;
+        lbDisplayEx.isDragMovingCamera = false;
         leftButtonPressedTime = 0;   
         leftButtonHoldTime = 0;
         reservedMoveX = 0;
@@ -477,14 +500,12 @@ void mouseControl(unsigned int action)
             lbDisplay.RMouseX = lbDisplay.MMouseX;
             lbDisplay.RMouseY = lbDisplay.MMouseY;
             lbDisplay.RLeftButton = 1;
-
-            isCtrlAndLeftButtonDown = false;
         }
         break;
     case MActn_RBUTTONDOWN:
         lbDisplay.MRightButton = 1;
         LbMouseOnMove(dstPos);
-        if (!lbDisplay.RightButton  && !isCtrlAndRightButtonDown)
+        if (!lbDisplay.RightButton  && !lbDisplayEx.isDragRotatingCamera)
         {
             lbDisplay.MouseX = lbDisplay.MMouseX;
             lbDisplay.MouseY = lbDisplay.MMouseY;
@@ -498,12 +519,13 @@ void mouseControl(unsigned int action)
             }
             else
             {
-                isCtrlAndRightButtonDown = true;
+                lbDisplayEx.isDragRotatingCamera = true;
             }
         }
         break;
     case MActn_RBUTTONUP:
         lbDisplay.MRightButton = 0;
+        lbDisplayEx.isDragRotatingCamera = false;
         rightButtonPressedTime = 0;
         rightButtonHoldTime = 0;    
         reservedRotate = 0;
@@ -514,8 +536,6 @@ void mouseControl(unsigned int action)
             lbDisplay.RMouseX = lbDisplay.MMouseX;
             lbDisplay.RMouseY = lbDisplay.MMouseY;
             lbDisplay.RRightButton = 1;
-
-            isCtrlAndRightButtonDown = false;
         }
         break;
     case MActn_WHEELUP:
