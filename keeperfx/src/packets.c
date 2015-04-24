@@ -733,63 +733,65 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
     {
         if (player->field_455 == P454_Unkn0)
         {
-          player->field_455 = player->field_454;
-          if (player->field_454 == P454_Unkn1)
-          {
-            i = get_subtile_number(stl_slab_center_subtile(stl_x),stl_slab_center_subtile(stl_y));
-            if (find_from_task_list(plyr_idx,i) != -1)
-                player->allocflags |= PlaF_Unknown20;
-            else
-                player->allocflags &= ~PlaF_Unknown20;
-          }
+            player->field_455 = player->field_454;
+            if (player->field_454 == P454_Unkn1)
+            {
+                i = get_subtile_number(stl_slab_center_subtile(stl_x), stl_slab_center_subtile(stl_y));
+                if (find_from_task_list(plyr_idx, i) != -1)
+                    player->allocflags |= PlaF_Unknown20;
+                else
+                    player->allocflags &= ~PlaF_Unknown20;
+            }
         }
         if (player->field_4AF != 0)
         {
-          if (player->field_454 == player->field_455)
-          {
-            if (player->field_455 == P454_Unkn1)
+            if ((player->field_454 == player->field_455) && !lbDisplayEx.isDragMovingCamera)
             {
-              if ((player->allocflags & PlaF_Unknown20) != 0)
-              {
-                untag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
-              } else
-              if (dungeon->field_E8F < 300)
-              {
-                tag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
-              } else
-              if (is_my_player(player))
-              {
-                output_message(SMsg_WorkerJobsLimit, 500, true);
-              }
-            } else
-            if ((player->field_455 == P454_Unkn3) && ((player->field_3 & 0x01) != 0))
-            {
-              if ((player->allocflags & PlaF_Unknown20) != 0)
-              {
-                untag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
-              } else
-              if (dungeon->field_E8F < 300)
-              {
-                if (can_dig_here(stl_x, stl_y, player->id_number))
-                  tag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
-              } else
-              if (is_my_player(player))
-              {
-                output_message(SMsg_WorkerJobsLimit, 500, true);
-              }
+                if (player->field_455 == P454_Unkn1)
+                {
+                    if ((player->allocflags & PlaF_Unknown20) != 0)
+                    {
+                        untag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
+                    }
+                    else if (dungeon->field_E8F < 300)
+                    {
+                        tag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
+                    }
+                    else if (is_my_player(player))
+                    {
+                        output_message(SMsg_WorkerJobsLimit, 500, true);
+                    }
+                }
+                else if ((player->field_455 == P454_Unkn3) && ((player->field_3 & 0x01) != 0))
+                {
+                    if ((player->allocflags & PlaF_Unknown20) != 0)
+                    {
+                        untag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
+                    }
+                    else if (dungeon->field_E8F < 300)
+                    {
+                        if (can_dig_here(stl_x, stl_y, player->id_number))
+                        {
+                            tag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
+                        }
+                    }
+                    else if (is_my_player(player))
+                    {
+                        output_message(SMsg_WorkerJobsLimit, 500, true);
+                    }
+                }
             }
-          }
-          unset_packet_control(pckt, PCtr_LBtnRelease);
+            unset_packet_control(pckt, PCtr_LBtnRelease);
         }
     }
     if ((pckt->control_flags & PCtr_RBtnHeld) != 0)
     {
-      if (player->field_4AF != 0)
-        unset_packet_control(pckt, PCtr_RBtnRelease);
+        if (player->field_4AF != 0)
+            unset_packet_control(pckt, PCtr_RBtnRelease);
     }
     if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
     {
-      if (player->field_455 == P454_Unkn0)
+        if (player->field_455 == P454_Unkn0)
         player->field_455 = player->field_454;
       if (player->field_4AF != 0)
       {
@@ -819,8 +821,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
             set_player_instance(player, PI_QueryCrtr, 0);
           }
           unset_packet_control(pckt, PCtr_LBtnRelease);
-        } else
-        if (player->field_455 == player->field_454)
+        } else if ((player->field_454 == player->field_455) && !lbDisplayEx.isDragMovingCamera)
         {
           if (player->field_454 == P454_Unkn1)
           {

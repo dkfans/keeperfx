@@ -1061,13 +1061,27 @@ void get_packet_control_mouse_clicks(void)
 
     if ( left_button_released || synthetic_left == 3)
     {
-      set_players_packet_control(player, PCtr_LBtnRelease);
+        if (!lbDisplayEx.skipLButtonRelease)
+        {
+            set_players_packet_control(player, PCtr_LBtnRelease);
+        }
+        else
+        {
+            lbDisplayEx.skipLButtonRelease = false;
+        }
       synthetic_left = 0;
     }
 
     if ( right_button_released || synthetic_right == 3 )
     {
-      set_players_packet_control(player, PCtr_RBtnRelease);
+        if (!lbDisplayEx.skipRButtonRelease)
+        {
+            set_players_packet_control(player, PCtr_RBtnRelease);
+        }
+        else
+        {
+            lbDisplayEx.skipRButtonRelease = false;
+        }
       synthetic_right = 0;
     }
 
@@ -1143,41 +1157,44 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_mod
     long mx,my;
     mx = my_mouse_x;
     my = my_mouse_y;
-    if (mx <= 4)
+    if (!lbDisplayEx.isDragRotatingCamera)
     {
-        if ( is_game_key_pressed(GameKey_MoveLeft, NULL, false) )
+        if (mx <= 4)
         {
-          if (!rotate_mod_pressed)
-            pckt->field_10 |= PCAdV_Unknown01;
+            if (is_game_key_pressed(GameKey_MoveLeft, NULL, false))
+            {
+                if (!rotate_mod_pressed)
+                    pckt->field_10 |= PCAdV_Unknown01;
+            }
+            set_packet_control(pckt, PCtr_MoveLeft);
         }
-        set_packet_control(pckt, PCtr_MoveLeft);
-    }
-    if (mx >= MyScreenWidth-4)
-    {
-        if ( is_game_key_pressed(GameKey_MoveRight, NULL, false) )
+        if (mx >= MyScreenWidth - 4)
         {
-          if (!rotate_mod_pressed)
-            pckt->field_10 |= PCAdV_Unknown01;
+            if (is_game_key_pressed(GameKey_MoveRight, NULL, false))
+            {
+                if (!rotate_mod_pressed)
+                    pckt->field_10 |= PCAdV_Unknown01;
+            }
+            set_packet_control(pckt, PCtr_MoveRight);
         }
-        set_packet_control(pckt, PCtr_MoveRight);
-    }
-    if (my <= 4)
-    {
-        if ( is_game_key_pressed(GameKey_MoveUp, NULL, false) )
+        if (my <= 4)
         {
-          if (!rotate_mod_pressed)
-            pckt->field_10 |= PCAdV_Unknown01;
+            if (is_game_key_pressed(GameKey_MoveUp, NULL, false))
+            {
+                if (!rotate_mod_pressed)
+                    pckt->field_10 |= PCAdV_Unknown01;
+            }
+            set_packet_control(pckt, PCtr_MoveUp);
         }
-        set_packet_control(pckt, PCtr_MoveUp);
-    }
-    if (my >= MyScreenHeight-4)
-    {
-        if ( is_game_key_pressed(GameKey_MoveDown, NULL, false) )
+        if (my >= MyScreenHeight - 4)
         {
-          if (!rotate_mod_pressed)
-            pckt->field_10 |= PCAdV_Unknown01;
+            if (is_game_key_pressed(GameKey_MoveDown, NULL, false))
+            {
+                if (!rotate_mod_pressed)
+                    pckt->field_10 |= PCAdV_Unknown01;
+            }
+            set_packet_control(pckt, PCtr_MoveDown);
         }
-        set_packet_control(pckt, PCtr_MoveDown);
     }
 }
 
@@ -1583,11 +1600,11 @@ void get_creature_control_nonaction_inputs(void)
 
     // Enabling keyboard control of rotation.
     int keyboardRotateSpeed = 100;
-    if (is_key_pressed(KC_A, KMod_DONTCARE))
+    if (is_key_pressed(KC_Q, KMod_DONTCARE))
     {
         x -= keyboardRotateSpeed;
     }
-    if (is_key_pressed(KC_D, KMod_DONTCARE))
+    if (is_key_pressed(KC_E, KMod_DONTCARE))
     {
         x += keyboardRotateSpeed;
     }
@@ -1665,12 +1682,12 @@ void get_creature_control_nonaction_inputs(void)
         // Not simply mapping arrow key to WASD: Originally left and right arrow was for moving sideways,
         // we map Q and E for that, and leave A and D for rotating. Because it is standard these days.
         if (is_game_key_pressed(GameKey_MoveLeft, NULL, true) ||
-            is_key_pressed(KC_Q, KMod_DONTCARE))
+            is_key_pressed(KC_A, KMod_DONTCARE))
         {
             set_packet_control(pckt, PCtr_MoveLeft);
         }
         if (is_game_key_pressed(GameKey_MoveRight, NULL, true) ||
-            is_key_pressed(KC_E, KMod_DONTCARE))
+            is_key_pressed(KC_D, KMod_DONTCARE))
         {
             set_packet_control(pckt, PCtr_MoveRight);
         }
