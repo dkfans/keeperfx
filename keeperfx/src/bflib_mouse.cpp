@@ -357,7 +357,7 @@ void mouseControl(unsigned int action)
     static int reservedRotate = 0;
 
     // Both thresholds are lower bound.
-    const int dragTimeThresholdSmall = 90;
+    const int dragTimeThresholdSmall = 100;
     const int dragTimeThresholdLarge = 150;
 
     _get_mouse_state(&mousePosDelta, &dstPos);
@@ -370,7 +370,7 @@ void mouseControl(unsigned int action)
         lbDisplayEx.isDragRotatingCamera = false;
     }
 
-    switch ( action )
+    switch (action)
     {
     case MActn_MOUSEMOVE:
 #pragma region LeftDragging
@@ -385,7 +385,7 @@ void mouseControl(unsigned int action)
             leftButtonHoldTime = LbTimerClock() - leftButtonPressedTime;
 
             if ((leftButtonHoldTime > dragTimeThresholdLarge) ||
-                ((leftButtonHoldTime > dragTimeThresholdSmall) && ((abs(reservedMoveX) + abs(reservedMoveY)) > 800)))
+                ((leftButtonHoldTime > dragTimeThresholdSmall) && ((abs(reservedMoveX) + abs(reservedMoveY)) > 1000)))
             {
                 // SYNCLOG("left hold time %d", leftButtonHoldTime);
                 // SYNCLOG("left move speed %d", (abs(reservedMoveX) + abs(reservedMoveY)));
@@ -424,17 +424,17 @@ void mouseControl(unsigned int action)
 
             // Amplify with angle convert ratio
             double rotateParam = _calculate_rotate_angle(dstPos) * PARAMDEGREECONVERTRATIO;
-            
+
             if (lbDisplayEx.isDragRotatingCamera)
             {
                 lbDisplayEx.cameraRotateAngle += rotateParam;
             }
-            else 
+            else
             {
                 rightButtonHoldTime = LbTimerClock() - rightButtonPressedTime;
 
                 if ((rightButtonHoldTime > dragTimeThresholdLarge) ||
-                    ((rightButtonHoldTime > dragTimeThresholdSmall) && (abs(reservedRotate) > 80)))
+                    ((rightButtonHoldTime > dragTimeThresholdSmall) && ((abs(reservedMoveX) + abs(reservedMoveY)) > 1200) && (abs(reservedMoveX) > 35)))
                 {
                     // SYNCLOG("right hold time %d", rightButtonHoldTime);
                     // SYNCLOG("right rotate speed %d", reservedRotate);
@@ -447,15 +447,21 @@ void mouseControl(unsigned int action)
 
                     // Use reserved angle.
                     lbDisplayEx.cameraRotateAngle += reservedRotate;
-                    reservedRotate = 0;
+                    reservedRotate = 0;                
+                    reservedMoveX = 0;
+                    reservedMoveY = 0;
 
                     // New delta this turn.
                     lbDisplayEx.cameraRotateAngle += rotateParam;
                 }
-                else 
+                else
                 {
                     // Cache rotate param when we are not sure user want drag or click.
                     reservedRotate += rotateParam;
+
+                    // Cache move distance because it is more useful when deciding whether enter drag mode.
+                    reservedMoveX += mousePosDelta.x * lbDisplayEx.cameraMoveRatioX;
+                    reservedMoveY += mousePosDelta.y * lbDisplayEx.cameraMoveRatioY;
                 }
             }
         }
@@ -489,13 +495,13 @@ void mouseControl(unsigned int action)
     case MActn_LBUTTONUP:
         lbDisplay.MLeftButton = 0;
         lbDisplayEx.isDragMovingCamera = false;
-        leftButtonPressedTime = 0;   
+        leftButtonPressedTime = 0;
         leftButtonHoldTime = 0;
         reservedMoveX = 0;
         reservedMoveY = 0;
 
         LbMouseOnMove(dstPos);
-        if ( !lbDisplay.RLeftButton )
+        if (!lbDisplay.RLeftButton)
         {
             lbDisplay.RMouseX = lbDisplay.MMouseX;
             lbDisplay.RMouseY = lbDisplay.MMouseY;
@@ -505,7 +511,7 @@ void mouseControl(unsigned int action)
     case MActn_RBUTTONDOWN:
         lbDisplay.MRightButton = 1;
         LbMouseOnMove(dstPos);
-        if (!lbDisplay.RightButton  && !lbDisplayEx.isDragRotatingCamera)
+        if (!lbDisplay.RightButton && !lbDisplayEx.isDragRotatingCamera)
         {
             lbDisplay.MouseX = lbDisplay.MMouseX;
             lbDisplay.MouseY = lbDisplay.MMouseY;
