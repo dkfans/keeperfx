@@ -1059,7 +1059,95 @@ void shuffle_unattached_things_on_slab(long a1, long a2)
 
 void dump_slab_on_map(SlabKind slbkind, long a2, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber owner)
 {
-    _DK_dump_slab_on_map(slbkind, a2, stl_x, stl_y, owner); return;
+    //_DK_dump_slab_on_map(slbkind, a2, stl_x, stl_y, owner); return;
+    MapSlabCoord slb_x, slb_y;
+    slb_x = subtile_slab_fast(stl_x);
+    slb_y = subtile_slab_fast(stl_y);
+    MapSubtlCoord stl_xa, stl_ya;
+    stl_xa = STL_PER_SLB * slb_x;
+    stl_ya = STL_PER_SLB * slb_y;
+    if (a2 >= SLABSET_COUNT) {
+        ERRORLOG("Illegal animating slab number: %d", a2);
+        a2 = 0;
+    }
+    struct SlabAttr *slbattr;
+    slbattr = get_slab_kind_attrs(slbkind);
+    struct SlabMap *slb;
+    slb = get_slabmap_block(slb_x, slb_y);
+    slb->health = game.block_health[slbattr->field_4];
+    struct SlabSet *sset;
+    sset = &game.slabset[a2];
+    place_slab_columns(slbkind, stl_xa, stl_ya, sset->col_idx);
+    set_whole_slab_owner(slb_x, slb_y, owner);
+
+    SlabCodedCoords place_slbnum;
+    place_slbnum = get_slab_number(slb_x, slb_y);
+    int n;
+    n = 0;
+    MapSubtlDelta dx, dy;
+    for (dy=0; dy < STL_PER_SLB; dy++)
+    {
+        MapSubtlCoord sstl_x, sstl_y;
+        sstl_y = slab_subtile(slb_y,dy);
+        for (dx=0; dx < STL_PER_SLB; dx++)
+        {
+            sstl_x = slab_subtile(slb_x,dx);
+
+            struct Map *mapblk;
+            mapblk = get_map_block_at(sstl_x, sstl_y);
+            long i;
+            unsigned long k;
+            k = 0;
+            i = get_mapwho_thing_index(mapblk);
+            while (i != 0)
+            {
+                struct Thing *thing;
+                thing = thing_get(i);
+                TRACE_THING(thing);
+                if (thing_is_invalid(thing))
+                {
+                    ERRORLOG("Jump to invalid thing detected");
+                    break;
+                }
+                i = thing->next_on_mapblk;
+                // Per thing code start
+                int floor_height;
+                floor_height = get_map_floor_filled_subtiles(mapblk);
+                //TODO this condition does not look consistent
+                if ((thing->class_id != TCls_Creature) || (floor_height <= 4))
+                {
+                    if (thing->model != 2) {
+                        thing->mappos.z.val = subtile_coord(floor_height,0);
+                    }
+                }
+                // Per thing code end
+                k++;
+                if (k > THINGS_COUNT)
+                {
+                    ERRORLOG("Infinite loop detected when sweeping things list");
+                    break;
+                }
+            }
+
+            place_slab_object(place_slbnum, sstl_x, sstl_y, a2, n, slabmap_owner(slb));
+            n++;
+        }
+    }
+
+    slb = get_slabmap_block(slb_x, slb_y);
+    slb->kind = slbkind;
+    pannel_map_update(stl_xa, stl_ya, STL_PER_SLB, STL_PER_SLB);
+    if ((slbkind == SlbT_GUARDPOST) || (slbkind == SlbT_BRIDGE))
+    {
+        MapSubtlCoord stl_xb, stl_yb;
+        stl_yb = stl_ya + STL_PER_SLB - 1;
+        if (stl_yb > map_subtiles_y)
+            stl_yb = map_subtiles_y;
+        stl_xb = stl_xa + STL_PER_SLB - 1;
+        if (stl_xb > map_subtiles_x)
+            stl_xb = map_subtiles_x;
+        update_blocks_in_area(stl_xa, stl_ya, stl_xb, stl_yb);
+    }
 }
 
 void place_animating_slab_type_on_map(SlabKind slbkind, char ani_frame, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber owner)
