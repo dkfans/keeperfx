@@ -301,7 +301,7 @@ TbPoint _locate_rotate_center(void)
 {
     TbPoint rotationCenter;
 
-    rotationCenter.x = (lbDisplay.PhysicalScreenWidth - lbDisplayEx.mainPanelWidth) / 2;
+    rotationCenter.x = lbDisplayEx.mainPanelWidth + (lbDisplay.PhysicalScreenWidth - lbDisplayEx.mainPanelWidth) / 2;
     rotationCenter.y = lbDisplay.PhysicalScreenHeight / 2;
 
     return rotationCenter;
