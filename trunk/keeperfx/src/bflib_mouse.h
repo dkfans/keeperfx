@@ -27,7 +27,7 @@
 #define DEFAULT_MOUSE_MOVE_RATIO 256.0
 
 // Approximate convert ratio from rotate method parameter to actual rotate degree.
-#define PARAMDEGREECONVERTRATIO 7
+#define PARAMDEGREECONVERTRATIO 12.5
 
 #ifdef __cplusplus
 extern "C" {
