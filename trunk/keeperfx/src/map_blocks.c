@@ -55,8 +55,8 @@ DLLIMPORT void _DK_place_slab_columns(long a1, unsigned char stl_x, unsigned cha
 DLLIMPORT void _DK_place_slab_object(unsigned short a1, long stl_x, long stl_y, unsigned short col_idx, unsigned short slbelem, unsigned char a6);
 DLLIMPORT void _DK_copy_block_with_cube_groups(short a1, unsigned char plyr_idx, unsigned char a3);
 DLLIMPORT long _DK_tag_blocks_for_digging_in_area(long stl_x, long stl_y, signed char plyr_idx);
-DLLIMPORT void _DK_place_animating_slab_type_on_map(long a1, char a2, unsigned char a3, unsigned char a4, unsigned char slbelem);
-DLLIMPORT void _DK_dump_slab_on_map(long a1, long a2, unsigned char stl_x, unsigned char stl_y, unsigned char owner);
+DLLIMPORT void _DK_place_animating_slab_type_on_map(long a1, char ani_frame, unsigned char a3, unsigned char a4, unsigned char slbelem);
+DLLIMPORT void _DK_dump_slab_on_map(long a1, long ani_frame, unsigned char stl_x, unsigned char stl_y, unsigned char owner);
 
 const signed short slab_element_around_eight[] = {
     -3, -2, 1, 4, 3, 2, -1, -4
@@ -1062,7 +1062,7 @@ void dump_slab_on_map(SlabKind slbkind, long a2, MapSubtlCoord stl_x, MapSubtlCo
     _DK_dump_slab_on_map(slbkind, a2, stl_x, stl_y, owner); return;
 }
 
-void place_animating_slab_type_on_map(SlabKind slbkind, char a2, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber owner)
+void place_animating_slab_type_on_map(SlabKind slbkind, char ani_frame, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber owner)
 {
     SYNCDBG(7,"Starting");
     //_DK_place_animating_slab_type_on_map(slbkind,a2,a3,a4,owner);
@@ -1076,7 +1076,7 @@ void place_animating_slab_type_on_map(SlabKind slbkind, char a2, MapSubtlCoord s
         return;
     }
     delete_attached_things_on_slab(slb_x, slb_y);
-    dump_slab_on_map(slbkind, 840 + 8 * slbkind + a2, stl_x, stl_y, owner);
+    dump_slab_on_map(slbkind, 840 + 8 * slbkind + ani_frame, stl_x, stl_y, owner);
     shuffle_unattached_things_on_slab(slb_x, slb_y);
     int i;
     for (i = 0; i < AROUND_EIGHT_LENGTH; i++)
