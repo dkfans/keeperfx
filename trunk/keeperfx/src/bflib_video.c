@@ -546,6 +546,8 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
 
     init_lbDisplayEx_values();
     lbDisplayEx.mainPanelWidth = 0;
+    lbDisplayEx.cameraMoveRatioX = 0;
+    lbDisplayEx.cameraMoveRatioY = 0;
     lbDisplayEx.isDragMovingCamera = false;
     lbDisplayEx.isDragRotatingCamera = false;
     lbDisplayEx.skipLButtonRelease = false;
@@ -1057,8 +1059,6 @@ TbPixel LbPaletteFindColour(const unsigned char *pal, unsigned char r, unsigned 
 // initialize fields in lbDisplayEx which should be refreshed every turn.
 void init_lbDisplayEx_values()
 {
-    lbDisplayEx.cameraMoveRatioX = 0;
-    lbDisplayEx.cameraMoveRatioY = 0;
     lbDisplayEx.isPowerHandNothingTodoLeftClick = 0;
     lbDisplayEx.isPowerHandNothingTodoRightClick = 0;
     lbDisplayEx.cameraMoveX = 0;

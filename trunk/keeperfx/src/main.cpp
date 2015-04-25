@@ -3699,7 +3699,7 @@ void _get_camera_move_ratio(Camera * cam)
         double magicNumber;
 
         // Zoom seems to be between 4100 (fareast) and 12000 (nearest)
-        if (cam && cam->zoom >= 4100 && cam->zoom <= 12000)
+        if (cam->zoom >= 4100 && cam->zoom <= 12000)
         {
             magicNumber = 67000.0 / float(cam->zoom);
             lbDisplayEx.cameraMoveRatioX = magicNumber * (640.0 / float(lbDisplay.PhysicalScreenWidth));
@@ -3733,7 +3733,10 @@ void _predict_power_hand_click_behavior()
         stl_x = player->field_4AB;
         stl_y = player->field_4AD;
 
-        _get_camera_move_ratio(cam);
+        if ((lbDisplayEx.cameraMoveRatioX == 0) || (lbDisplayEx.cameraMoveRatioY == 0))
+        {
+            _get_camera_move_ratio(cam);
+        }
 
         isMapCamera = (cam) && (cam->viewType == CAMERA_VIEW_EMPTY);
         isNothingInHand = (player) && power_hand_is_empty(player);

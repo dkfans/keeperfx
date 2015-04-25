@@ -389,7 +389,7 @@ void mouseControl(unsigned int action)
             {
                 // SYNCLOG("left hold time %d", leftButtonHoldTime);
                 // SYNCLOG("left move speed %d", (abs(reservedMoveX) + abs(reservedMoveY)));
-
+                
                 // Once entered dragging mode, it should not be disrupted.
                 lbDisplayEx.isDragMovingCamera = true;
 
@@ -434,7 +434,7 @@ void mouseControl(unsigned int action)
                 rightButtonHoldTime = LbTimerClock() - rightButtonPressedTime;
 
                 if ((rightButtonHoldTime > dragTimeThresholdLarge) ||
-                    ((rightButtonHoldTime > dragTimeThresholdSmall) && ((abs(reservedMoveX) + abs(reservedMoveY)) > 1200) && (abs(reservedMoveX) > 35)))
+                    ((rightButtonHoldTime > dragTimeThresholdSmall) && ((abs(reservedMoveX) + abs(reservedMoveY)) > 1200) && (abs(_calculate_rotate_angle(dstPos)) > 35)))
                 {
                     // SYNCLOG("right hold time %d", rightButtonHoldTime);
                     // SYNCLOG("right rotate speed %d", reservedRotate);

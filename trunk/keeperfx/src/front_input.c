@@ -1870,7 +1870,8 @@ short get_inputs(void)
         }
     }
     TbBool inp_handled = false;
-    if (((game.numfield_C & 0x01) == 0) || ((game.numfield_C & 0x80) != 0))
+    if (!lbDisplayEx.isDragMovingCamera && !lbDisplayEx.isDragRotatingCamera &&
+        (((game.numfield_C & 0x01) == 0) || ((game.numfield_C & 0x80) != 0)))
         inp_handled = get_gui_inputs(1);
     if (!inp_handled)
         inp_handled = get_global_inputs();
