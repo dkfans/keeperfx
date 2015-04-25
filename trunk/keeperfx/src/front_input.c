@@ -1155,7 +1155,10 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_mod
     long mx,my;
     mx = my_mouse_x;
     my = my_mouse_y;
-    if (!lbDisplayEx.isDragRotatingCamera)
+    TbBool isCtrlDown = lbInkeyFlags & KMod_CONTROL;
+
+    // Do not allow normal scrolling when in dragging mode or ctrl is pressed.
+    if (!lbDisplayEx.isDragRotatingCamera && !lbDisplayEx.isDragMovingCamera && !isCtrlDown)
     {
         if (mx <= 4)
         {
