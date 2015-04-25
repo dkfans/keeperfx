@@ -111,7 +111,7 @@ void lock_door(struct Thing *doortng)
     doortng->door.word_16d = 0;
     doortng->door.is_locked = 1;
     game.field_14EA4B = 1;
-    place_animating_slab_type_on_map(dostat->field_0, 0, stl_x, stl_y, doortng->owner);
+    place_animating_slab_type_on_map(dostat->slbkind, 0, stl_x, stl_y, doortng->owner);
     update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+1,stl_y+1);
     pannel_map_update(stl_x-1, stl_y-1, STL_PER_SLB, STL_PER_SLB);
     if (!add_key_on_door(doortng)) {
@@ -272,12 +272,12 @@ long process_door_closed(struct Thing *thing)
 long process_door_opening(struct Thing *thing)
 {
     struct DoorStats *dostat;
-    int new_h,old_h,delta_h;
+    int new_frame,old_frame,delta_h;
     int slbparam;
     dostat = &door_stats[thing->model][thing->door.orientation];
-    old_h = (thing->door.word_16d / 256);
+    old_frame = (thing->door.word_16d / 256);
     delta_h = dostat->field_6;
-    slbparam = dostat->field_0;
+    slbparam = dostat->slbkind;
     if (thing->door.word_16d+delta_h < 768)
     {
         thing->door.word_16d += delta_h;
@@ -287,21 +287,21 @@ long process_door_opening(struct Thing *thing)
         thing->door.byte_15d = 10;
         thing->door.word_16d = 768;
     }
-    new_h = (thing->door.word_16d / 256);
-    if (new_h != old_h)
-      place_animating_slab_type_on_map(slbparam, new_h, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->owner);
+    new_frame = (thing->door.word_16d / 256);
+    if (new_frame != old_frame)
+      place_animating_slab_type_on_map(slbparam, new_frame, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->owner);
     return 1;
 }
 
 long process_door_closing(struct Thing *thing)
 {
     struct DoorStats *dostat;
-    int new_h,old_h,delta_h;
+    int new_frame,old_frame,delta_h;
     int slbparam;
-    old_h = (thing->door.word_16d / 256);
+    old_frame = (thing->door.word_16d / 256);
     dostat = &door_stats[thing->model][thing->door.orientation];
     delta_h = dostat->field_6;
-    slbparam = dostat->field_0;
+    slbparam = dostat->slbkind;
     if ( check_door_should_open(thing) )
     {
         thing->active_state = DorSt_Opening;
@@ -315,9 +315,9 @@ long process_door_closing(struct Thing *thing)
         thing->active_state = DorSt_Closed;
         thing->door.word_16d = 0;
     }
-    new_h = (thing->door.word_16d / 256);
-    if (new_h != old_h)
-      place_animating_slab_type_on_map(slbparam, new_h, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->owner);
+    new_frame = (thing->door.word_16d / 256);
+    if (new_frame != old_frame)
+      place_animating_slab_type_on_map(slbparam, new_frame, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->owner);
     return 1;
 }
 
