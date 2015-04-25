@@ -177,11 +177,11 @@ void set_whole_slab_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber o
     struct SlabMap *slb;
     MapSubtlCoord stl_x,stl_y;
     long i,k;
-    stl_x = 3 * slb_x;
-    stl_y = 3 * slb_y;
-    for (i = 0; i < 3; i++)
+    stl_x = STL_PER_SLB * slb_x;
+    stl_y = STL_PER_SLB * slb_y;
+    for (i = 0; i < STL_PER_SLB; i++)
     {
-        for (k = 0; k < 3; k++)
+        for (k = 0; k < STL_PER_SLB; k++)
         {
             slb = get_slabmap_for_subtile(stl_x + k, stl_y + i);
             slabmap_set_owner(slb, owner);
