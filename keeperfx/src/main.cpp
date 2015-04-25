@@ -3739,12 +3739,10 @@ void _predict_power_hand_click_behavior()
         isNothingInHand = (player) && power_hand_is_empty(player);
         isNothingToPickupOrSlap = (player) && (player->thing_under_hand == 0);
         isNothingToDig = !can_dig_here(stl_x, stl_y, my_player_number);
-        //int isNotBuildingRoom = 1;
-        //int isNotBuildingTrap = 1;
-        //int isNotCastingSpell = 1;
 
-        lbDisplayEx.isPowerHandNothingTodoLeftClick = isMapCamera && isNothingToPickupOrSlap && isNothingToDig;
-        lbDisplayEx.isPowerHandNothingTodoRightClick = isMapCamera && isNothingToPickupOrSlap && isNothingInHand;
+        // Dragging should not be disrupted once started, until release button.
+        lbDisplayEx.isPowerHandNothingTodoLeftClick = lbDisplayEx.isDragMovingCamera || (isMapCamera && isNothingToPickupOrSlap && isNothingToDig);
+        lbDisplayEx.isPowerHandNothingTodoRightClick = lbDisplayEx.isDragRotatingCamera || (isMapCamera && isNothingToPickupOrSlap && isNothingInHand);
     }
 }
 

@@ -422,7 +422,7 @@ void mouseControl(unsigned int action)
             ))
         {
 
-            // Amplify with angle convert ratio
+            // Amplify with angle convert ratio.
             double rotateParam = _calculate_rotate_angle(dstPos) * PARAMDEGREECONVERTRATIO;
 
             if (lbDisplayEx.isDragRotatingCamera)
