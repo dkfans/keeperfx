@@ -125,6 +125,8 @@ long check_out_uncrowded_reinforce_position(struct Thing *thing, SubtlCodedCoord
 long check_out_unconverted_spiral(struct Thing *thing, long nslabs);
 void force_any_creature_dragging_owned_thing_to_drop_it(struct Thing *dragtng);
 void force_any_creature_dragging_thing_to_drop_it(struct Thing *dragtng);
+
+TbBool is_digging_indestructible_place(const struct Thing *creatng);
 /******************************************************************************/
 #ifdef __cplusplus
 }

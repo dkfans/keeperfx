@@ -52,6 +52,7 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwmodel,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags);
 TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing, PowerKind pwkind);
 
+long compute_lowest_digger_price(PlayerNumber plyr_idx);
 long compute_power_price(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel);
 long find_spell_age_percentage(PlayerNumber plyr_idx, PowerKind pwkind);
 TbBool find_power_cast_place(PlayerNumber plyr_idx, PowerKind pwkind, struct Coord3d *pos);

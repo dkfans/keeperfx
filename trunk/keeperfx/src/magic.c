@@ -640,6 +640,18 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
     return false;
 }
 
+long compute_lowest_digger_price(PlayerNumber plyr_idx)
+{
+	struct Dungeon *dungeon;
+	const struct MagicStats *pwrdynst;
+	unsigned long k;
+	pwrdynst = get_power_dynamic_stats(PwrK_MKDIGGER);
+	dungeon = get_players_num_dungeon(plyr_idx);
+	// Reduce price by count of sacrificed diggers
+	k = get_players_special_digger_model(plyr_idx);
+	return pwrdynst->cost[0]/2;
+}
+
 long compute_power_price(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel)
 {
     struct Dungeon *dungeon;
