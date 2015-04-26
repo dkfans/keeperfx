@@ -3733,10 +3733,9 @@ void _predict_power_hand_click_behavior()
         stl_x = player->field_4AB;
         stl_y = player->field_4AD;
 
-        if ((lbDisplayEx.cameraMoveRatioX == 0) || (lbDisplayEx.cameraMoveRatioY == 0))
-        {
-            _get_camera_move_ratio(cam);
-        }
+        // Running this only once on initialization seems not working properly, probably due
+        // to inaccurate zoom value.
+        _get_camera_move_ratio(cam);
 
         isMapCamera = (cam) && (cam->viewType == CAMERA_VIEW_EMPTY);
         isNothingInHand = (player) && power_hand_is_empty(player);
