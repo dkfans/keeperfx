@@ -40,7 +40,7 @@ struct GuiButton;
 
 struct InstanceButtonInit {  // sizeof=0x6
     long numfield_0;
-    short tooltip_stridx;
+    short iTooltipString;
 };
 
 #pragma pack()

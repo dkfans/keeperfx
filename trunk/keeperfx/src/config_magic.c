@@ -227,15 +227,15 @@ TextStringId get_power_name_strindex(int pwkind)
 TextStringId get_power_description_strindex(int pwkind)
 {
   if ((pwkind < 0) || (pwkind >= magic_conf.power_types_count))
-    return magic_conf.power_cfgstats[0].tooltip_stridx;
-  return magic_conf.power_cfgstats[pwkind].tooltip_stridx;
+    return magic_conf.power_cfgstats[0].iTooltipString;
+  return magic_conf.power_cfgstats[pwkind].iTooltipString;
 }
 
 long get_special_description_strindex(int spckind)
 {
   if ((spckind < 0) || (spckind >= magic_conf.power_types_count))
-    return magic_conf.special_cfgstats[0].tooltip_stridx;
-  return magic_conf.special_cfgstats[spckind].tooltip_stridx;
+    return magic_conf.special_cfgstats[0].iTooltipString;
+  return magic_conf.special_cfgstats[spckind].iTooltipString;
 }
 
 long get_power_index_for_work_state(long work_state)
@@ -846,7 +846,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           powerst->bigsym_sprite_idx = 0;
           powerst->medsym_sprite_idx = 0;
           powerst->name_stridx = 0;
-          powerst->tooltip_stridx = 0;
+          powerst->iTooltipString = 0;
           powerst->select_sample_idx = 0;
           powerst->pointer_sprite_idx = 0;
           powerst->panel_tab_idx = 0;
@@ -1007,7 +1007,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              powerst->tooltip_stridx = k;
+              powerst->iTooltipString = k;
               n++;
           }
           if (n < 1)
@@ -1197,7 +1197,7 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
           specst = get_special_model_stats(i);
           LbMemorySet(specst->code_name, 0, COMMAND_WORD_LEN);
           specst->artifact_model = 0;
-          specst->tooltip_stridx = 0;
+          specst->iTooltipString = 0;
           if (i < magic_conf.special_types_count)
           {
               special_desc[i].name = specst->code_name;
@@ -1276,7 +1276,7 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
             k = atoi(word_buf);
             if (k > 0)
             {
-                specst->tooltip_stridx = k;
+                specst->iTooltipString = k;
                 n++;
             }
           }

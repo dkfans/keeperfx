@@ -482,7 +482,7 @@ void draw_button_string(struct GuiButton *gbtn, int base_width, const char *text
     flgmem = lbDisplay.DrawFlags;
     long cursor_pos = -1;
     LbStringCopy(dtext,text,TEXT_BUFFER_LENGTH);
-    if ((gbtn->gbtype == Lb_EDITBTN) && (gbtn == input_button))
+    if ((gbtn->buttonType == LbBtnType_EditBox) && (gbtn == input_button))
     {
         cursor_type++;
         if ((cursor_type & 0x02) == 0)

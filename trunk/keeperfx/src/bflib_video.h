@@ -37,7 +37,7 @@ extern "C" {
 
 // 45 degree camera makes the horizontal distance looks larger than vertical distance,
 // This is the approximate ratio.
-#define VISUALSIZERATIOHTOV 1.3433;
+#define VISUALSIZE_RATIO_H_TO_V 1.3433;
 
 #pragma pack(1)
 

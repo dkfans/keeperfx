@@ -134,7 +134,7 @@ struct RoomData {
       unsigned char field_10; //< Unused, originally was part of field_F
       short field_11; //< Unused, originally was part of field_F
       short name_stridx;
-      short tooltip_stridx;
+      short iTooltipString;
 };
 
 #define INVALID_ROOM (&game.rooms[0])

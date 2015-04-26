@@ -234,7 +234,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           trapst = &trapdoor_conf.trap_cfgstats[i];
           LbMemorySet(trapst->code_name, 0, COMMAND_WORD_LEN);
           trapst->name_stridx = GUIStr_Empty;
-          trapst->tooltip_stridx = GUIStr_Empty;
+          trapst->iTooltipString = GUIStr_Empty;
           trapst->bigsym_sprite_idx = 0;
           trapst->medsym_sprite_idx = 0;
           trapst->pointer_sprite_idx = 0;
@@ -390,7 +390,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
             k = atoi(word_buf);
             if (k > 0)
             {
-                trapst->tooltip_stridx = k;
+                trapst->iTooltipString = k;
                 n++;
             }
           }
@@ -509,7 +509,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
           doorst = &trapdoor_conf.door_cfgstats[i];
           LbMemorySet(doorst->code_name, 0, COMMAND_WORD_LEN);
           doorst->name_stridx = GUIStr_Empty;
-          doorst->tooltip_stridx = GUIStr_Empty;
+          doorst->iTooltipString = GUIStr_Empty;
           doorst->bigsym_sprite_idx = 0;
           doorst->medsym_sprite_idx = 0;
           doorst->pointer_sprite_idx = 0;
@@ -642,7 +642,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
             k = atoi(word_buf);
             if (k > 0)
             {
-                doorst->tooltip_stridx = k;
+                doorst->iTooltipString = k;
                 n++;
             }
           }
@@ -810,7 +810,7 @@ TbBool create_manufacture_array_from_trapdoor_data(void)
         manufctr->tngclass = TCls_Empty;
         manufctr->tngmodel = 0;
         manufctr->work_state = PSt_None;
-        manufctr->tooltip_stridx = GUIStr_Empty;
+        manufctr->iTooltipString = GUIStr_Empty;
         manufctr->bigsym_sprite_idx = 0;
         manufctr->medsym_sprite_idx = 0;
         manufctr->panel_tab_idx = 0;
@@ -826,7 +826,7 @@ TbBool create_manufacture_array_from_trapdoor_data(void)
         manufctr->tngclass = TCls_Trap;
         manufctr->tngmodel = i;
         manufctr->work_state = PSt_PlaceTrap;
-        manufctr->tooltip_stridx = trapst->tooltip_stridx;
+        manufctr->iTooltipString = trapst->iTooltipString;
         manufctr->bigsym_sprite_idx = trapst->bigsym_sprite_idx;
         manufctr->medsym_sprite_idx = trapst->medsym_sprite_idx;
         manufctr->panel_tab_idx = trapst->panel_tab_idx;
@@ -840,7 +840,7 @@ TbBool create_manufacture_array_from_trapdoor_data(void)
         manufctr->tngclass = TCls_Door;
         manufctr->tngmodel = i;
         manufctr->work_state = PSt_PlaceDoor;
-        manufctr->tooltip_stridx = doorst->tooltip_stridx;
+        manufctr->iTooltipString = doorst->iTooltipString;
         manufctr->bigsym_sprite_idx = doorst->bigsym_sprite_idx;
         manufctr->medsym_sprite_idx = doorst->medsym_sprite_idx;
         manufctr->panel_tab_idx = doorst->panel_tab_idx;

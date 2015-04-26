@@ -231,7 +231,7 @@ struct PowerConfigStats {
     short bigsym_sprite_idx;
     short medsym_sprite_idx;
     unsigned short name_stridx;
-    unsigned short tooltip_stridx;
+    unsigned short iTooltipString;
     short select_sample_idx;
     short pointer_sprite_idx;
     long panel_tab_idx;
@@ -240,7 +240,7 @@ struct PowerConfigStats {
 struct SpecialConfigStats {
     char code_name[COMMAND_WORD_LEN];
     ThingModel artifact_model;
-    TextStringId tooltip_stridx;
+    TextStringId iTooltipString;
 };
 
 struct MagicConfig {
@@ -361,7 +361,7 @@ struct SpellData {
       short bigsym_sprite_idx;
       short medsym_sprite_idx;
       unsigned short name_stridx;
-      unsigned short tooltip_stridx;
+      unsigned short iTooltipString;
       short select_sample_idx;
       short pointer_sprite_idx;
       Expand_Check_Func overcharge_check;

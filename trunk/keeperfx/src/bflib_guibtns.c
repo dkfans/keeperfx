@@ -63,7 +63,7 @@ void do_sound_menu_click(void)
 
 void do_sound_button_click(struct GuiButton *gbtn)
 {
-    if ((gbtn->id_num >= 1) && (gbtn->id_num <= 5))
+    if ((gbtn->index >= 1) && (gbtn->index <= 5))
         play_non_3d_sample(60);
     else
         play_non_3d_sample(61);

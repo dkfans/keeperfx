@@ -331,10 +331,10 @@ double _calculate_rotate_angle(TbPoint dstPos)
     TbPoint rotationCenter = _locate_rotate_center();
 
     fromVector.x = lbDisplay.MMouseX - rotationCenter.x;
-    fromVector.y = (lbDisplay.MMouseY - rotationCenter.y)*VISUALSIZERATIOHTOV;
+    fromVector.y = (lbDisplay.MMouseY - rotationCenter.y)*VISUALSIZE_RATIO_H_TO_V;
 
     toVector.x = dstPos.x - rotationCenter.x;
-    toVector.y = (dstPos.y - rotationCenter.y)*VISUALSIZERATIOHTOV;
+    toVector.y = (dstPos.y - rotationCenter.y)*VISUALSIZE_RATIO_H_TO_V;
 
     double angleFrom = _get_vector_degree(fromVector);
     double angleTo = _get_vector_degree(toVector);
@@ -439,7 +439,7 @@ void mouseControl(unsigned int action)
         {
 
             // Amplify with angle convert ratio.
-            double rotateParam = _calculate_rotate_angle(dstPos) * PARAMDEGREECONVERTRATIO;
+            double rotateParam = _calculate_rotate_angle(dstPos) * PARAM_DEGREE_CONVERT_RATIO;
 
             if (lbDisplayEx.isDragRotatingCamera)
             {

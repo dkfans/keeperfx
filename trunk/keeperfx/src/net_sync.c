@@ -102,7 +102,7 @@ TbBool receive_resync_game(void)
 
 void store_localised_game_structure(void)
 {
-    boing.field_0 = game.field_1517F6;
+    boing.field_0 = game.activeTab;
     boing.comp_player_aggressive = game.comp_player_aggressive;
     boing.comp_player_defensive = game.comp_player_defensive;
     boing.comp_player_construct = game.comp_player_construct;
@@ -124,7 +124,7 @@ void store_localised_game_structure(void)
 
 void recall_localised_game_structure(void)
 {
-    game.field_1517F6 = boing.field_0;
+    game.activeTab = boing.field_0;
     game.comp_player_aggressive = boing.comp_player_aggressive;
     game.comp_player_defensive = boing.comp_player_defensive;
     game.comp_player_construct = boing.comp_player_construct;

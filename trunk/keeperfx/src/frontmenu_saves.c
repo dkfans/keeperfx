@@ -66,9 +66,9 @@ void gui_load_game_maintain(struct GuiButton *gbtn)
       slot_num = 0;
   centry = &save_game_catalogue[slot_num];
   if ((centry->flags & CEF_InUse) != 0)
-      gbtn->flags |= LbBtnF_Unknown08;
+      gbtn->flags |= LbBtnFlag_Unknown08;
   else
-      gbtn->flags &=  ~LbBtnF_Unknown08;
+      gbtn->flags &=  ~LbBtnFlag_Unknown08;
 }
 
 void gui_load_game(struct GuiButton *gbtn)
@@ -91,14 +91,14 @@ void draw_load_button(struct GuiButton *gbtn)
     if (gbtn == NULL) return;
     int bs_units_per_px;
     bs_units_per_px = simple_button_sprite_height_units_per_px(gbtn, 2, 94);
-    if ((gbtn->gbactn_1) || (gbtn->gbactn_2))
+
+    draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, gbtn->width);
+
+    if ((gbtn->leftClickFlag) || (gbtn->rightClickFlag))
     {
-        draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, gbtn->width);
         draw_lit_bar64k(gbtn->scr_pos_x - 6*bs_units_per_px/16, gbtn->scr_pos_y - 6*bs_units_per_px/16, bs_units_per_px, gbtn->width + 6*bs_units_per_px/16);
-    } else
-    {
-        draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, gbtn->width);
-    }
+    } 
+
     if (gbtn->content != NULL)
     {
         sprintf(gui_textbuf, "%s", (const char *)gbtn->content);
@@ -185,17 +185,17 @@ void frontend_draw_load_game_button(struct GuiButton *gbtn)
 void frontend_load_game_up_maintain(struct GuiButton *gbtn)
 {
     if (load_game_scroll_offset != 0)
-        gbtn->flags |= LbBtnF_Unknown08;
+        gbtn->flags |= LbBtnFlag_Unknown08;
     else
-        gbtn->flags &=  ~LbBtnF_Unknown08;
+        gbtn->flags &=  ~LbBtnFlag_Unknown08;
 }
 
 void frontend_load_game_down_maintain(struct GuiButton *gbtn)
 {
     if (load_game_scroll_offset < number_of_saved_games-frontend_load_menu_items_visible+1)
-        gbtn->flags |= LbBtnF_Unknown08;
+        gbtn->flags |= LbBtnFlag_Unknown08;
     else
-        gbtn->flags &=  ~LbBtnF_Unknown08;
+        gbtn->flags &=  ~LbBtnFlag_Unknown08;
 }
 
 void frontend_load_game_up(struct GuiButton *gbtn)

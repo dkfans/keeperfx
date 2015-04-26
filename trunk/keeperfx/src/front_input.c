@@ -192,7 +192,7 @@ short get_screen_capture_inputs(void)
  */
 TbBool check_if_mouse_is_over_button(const struct GuiButton *gbtn)
 {
-    if ((gbtn->flags & LbBtnF_Unknown04) == 0)
+    if ((gbtn->flags & LbBtnFlag_Enabled) == 0)
         return false;
     return check_if_pos_is_over_button(gbtn, GetMouseX(), GetMouseY());
 }
@@ -1753,7 +1753,7 @@ static void get_dungeon_speech_inputs(void)
         break;
     case KS_SELECT_ROOM:
         room_stats = get_room_kind_stats(last_speech_event.u.room.id);
-        activate_room_build_mode(last_speech_event.u.room.id, room_stats->tooltip_stridx);
+        activate_room_build_mode(last_speech_event.u.room.id, room_stats->iTooltipString);
         break;
     case KS_SELECT_POWER:
         id = power_model_id(last_speech_event.u.power.model_name);
@@ -1983,7 +1983,7 @@ void input(void)
     SYNCDBG(7,"Finished");
 }
 
-// Get the input from left panel.
+// Get the input from GUI panel.
 short get_gui_inputs(short gameplay_on)
 {
     static ActiveButtonID over_slider_button = -1;
@@ -2008,8 +2008,10 @@ short get_gui_inputs(short gameplay_on)
         for (idx = 0; idx < ACTIVE_BUTTONS_COUNT; idx++)
         {
             struct GuiButton *gbtn = &active_buttons[idx];
-            if ((gbtn->flags & LbBtnF_Unknown01) && (gbtn->gbtype == Lb_UNKNBTN6))
-                gbtn->gbactn_1 = 0;
+            if ((gbtn->flags & LbBtnFlag_Created) && (gbtn->buttonType == LbBtnType_Unknown))
+            {
+                gbtn->leftClickFlag = 0;
+            }
         }
     }
     update_busy_doing_gui_on_menu();
@@ -2027,12 +2029,12 @@ short get_gui_inputs(short gameplay_on)
         Gf_Btn_Callback callback;
         gbtn = &active_buttons[iButton];
 
-        if ((gbtn->flags & LbBtnF_Unknown01) == 0)
+        if ((gbtn->flags & LbBtnFlag_Created) == 0)
             continue;
-        if (!get_active_menu(gbtn->gmenu_idx)->isTurnedOn)
+        if (!get_active_menu(gbtn->menuIndex)->isTurnedOn)
             continue;
 
-        callback = gbtn->maintain_call;
+        callback = gbtn->callbackMaintain;
         if (callback != NULL)
             callback(gbtn);
         if ((gbtn->field_1B & 0x4000u) != 0)
@@ -2042,34 +2044,34 @@ short get_gui_inputs(short gameplay_on)
         if ((menu_id_to_number(GMnu_MAIN) >= 0) && mouse_is_over_pannel_map(player->minimap_pos_x, player->minimap_pos_y))
             continue;
 
-        if ((check_if_mouse_is_over_button(gbtn) && !game_is_busy_doing_gui_string_input())
-            || ((gbtn->gbtype == Lb_UNKNBTN6) && (gbtn->gbactn_1 != 0)))
+        if ((check_if_mouse_is_over_button(gbtn) && !game_is_busy_doing_gui_string_input()) || 
+            ((gbtn->buttonType == LbBtnType_Unknown) && (gbtn->leftClickFlag != 0)))
         {
-            if ((iFirstMonopolyMenu == -1) || (gbtn->gmenu_idx == iFirstMonopolyMenu))
+            if ((iFirstMonopolyMenu == -1) || (gbtn->menuIndex == iFirstMonopolyMenu))
             {
                 gmbtn_idx = iButton;
-                gbtn->flags |= LbBtnF_Unknown10;
+                gbtn->flags |= LbBtnFlag_MouseOver;
                 busy_doing_gui = 1;
-                callback = gbtn->ptover_event;
+                callback = gbtn->callbackMouseHover;
 
                 if (callback != NULL)
                     callback(gbtn);
-                if (gbtn->gbtype == Lb_UNKNBTN6)
+                if (gbtn->buttonType == LbBtnType_Unknown)
                     break;
-                if (gbtn->gbtype == Lb_SLIDERH)
+                if (gbtn->buttonType == LbBtnType_HorizontalSlider)
                     nx_over_slider_button = iButton;
             }
             else
             {
-                gbtn->flags &= ~LbBtnF_Unknown10;
+                gbtn->flags &= ~LbBtnFlag_MouseOver;
             }
         }
         else
         {
-            gbtn->flags &= ~LbBtnF_Unknown10;
+            gbtn->flags &= ~LbBtnFlag_MouseOver;
         }
 
-        if (gbtn->gbtype == Lb_SLIDERH)
+        if (gbtn->buttonType == LbBtnType_HorizontalSlider)
         {
             if (gui_slider_button_mouse_over_slider_tracker(iButton))
             {
@@ -2092,7 +2094,7 @@ short get_gui_inputs(short gameplay_on)
     if (game_is_busy_doing_gui_string_input())
     {
         busy_doing_gui = 1;
-        if (get_button_area_input(input_button, input_button->id_num) != 0)
+        if (get_button_area_input(input_button, input_button->index) != 0)
             result = 1;
     }
     if ((over_slider_button != -1) && (left_button_released))
@@ -2100,7 +2102,7 @@ short get_gui_inputs(short gameplay_on)
         left_button_released = 0;
         if (gmbtn_idx != -1) {
             gbtn = &active_buttons[gmbtn_idx];
-            gbtn->gbactn_1 = 0;
+            gbtn->leftClickFlag = 0;
         }
         over_slider_button = -1;
         do_sound_menu_click();

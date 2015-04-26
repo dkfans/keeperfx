@@ -273,7 +273,7 @@ void maintain_resurrect_creature_select(struct GuiButton *gbtn)
     dungeon = get_my_dungeon();
     long listitm_idx;
     listitm_idx = resurrect_creature_scroll_offset + gbtn->field_1B;
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown08 * (listitm_idx < dungeon->dead_creatures_count)) & LbBtnF_Unknown08;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Unknown08 * (listitm_idx < dungeon->dead_creatures_count)) & LbBtnFlag_Unknown08;
 }
 
 void maintain_resurrect_creature_scroll(struct GuiButton *gbtn)
@@ -291,9 +291,9 @@ void maintain_resurrect_creature_scroll(struct GuiButton *gbtn)
         }
     }
     if (gbtn->field_1B == 1) {
-        gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown08 * (resurrect_creature_scroll_offset > 0)) & LbBtnF_Unknown08;
+        gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Unknown08 * (resurrect_creature_scroll_offset > 0)) & LbBtnFlag_Unknown08;
     } else {
-        gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown08 * (resurrect_creature_scroll_offset < count-resurrect_creature_items_visible+1)) & LbBtnF_Unknown08;
+        gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Unknown08 * (resurrect_creature_scroll_offset < count-resurrect_creature_items_visible+1)) & LbBtnFlag_Unknown08;
     }
 }
 
@@ -303,7 +303,7 @@ void maintain_transfer_creature_select(struct GuiButton *gbtn)
     dungeon = get_my_dungeon();
     long listitm_idx;
     listitm_idx = transfer_creature_scroll_offset + gbtn->field_1B;
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown08 * (listitm_idx < dungeon->num_active_creatrs)) & LbBtnF_Unknown08;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Unknown08 * (listitm_idx < dungeon->num_active_creatrs)) & LbBtnFlag_Unknown08;
 }
 
 void maintain_transfer_creature_scroll(struct GuiButton *gbtn)
@@ -321,9 +321,9 @@ void maintain_transfer_creature_scroll(struct GuiButton *gbtn)
         }
     }
     if (gbtn->field_1B == 1) {
-        gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown08 * (transfer_creature_scroll_offset > 0)) & LbBtnF_Unknown08;
+        gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Unknown08 * (transfer_creature_scroll_offset > 0)) & LbBtnFlag_Unknown08;
     } else {
-        gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown08 * (transfer_creature_scroll_offset < count-transfer_creature_items_visible+1)) & LbBtnF_Unknown08;
+        gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Unknown08 * (transfer_creature_scroll_offset < count-transfer_creature_items_visible+1)) & LbBtnFlag_Unknown08;
     }
 }
 
