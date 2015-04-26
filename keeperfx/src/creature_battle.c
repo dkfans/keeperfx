@@ -234,30 +234,30 @@ void setup_combat_flee_position(struct Thing *thing)
     }
 }
 
-long get_combat_state_for_combat(struct Thing *fighter, struct Thing *enemy, long possible_combat)
+long get_combat_state_for_combat(struct Thing *fightng, struct Thing *enmtng, long possible_combat)
 {
     struct CreatureStats *crstat;
     if (possible_combat == 2)
     {
-        if (can_add_ranged_combat_attacker(enemy)) {
+        if (can_add_ranged_combat_attacker(enmtng)) {
             return 2;
         }
         return 1;
     }
-    crstat = creature_stats_get_from_thing(fighter);
+    crstat = creature_stats_get_from_thing(fightng);
     if (crstat->attack_preference == AttckT_Ranged)
     {
-        if ( creature_has_ranged_weapon(fighter) && can_add_ranged_combat_attacker(enemy) ) {
+        if ( creature_has_ranged_weapon(fightng) && can_add_ranged_combat_attacker(enmtng) ) {
             return 2;
         }
     }
-    if (can_add_melee_combat_attacker(enemy)) {
+    if (can_add_melee_combat_attacker(enmtng)) {
         return 3;
     }
-    if ( !creature_has_ranged_weapon(fighter) ) {
+    if ( !creature_has_ranged_weapon(fightng) ) {
         return 1;
     }
-    if (can_add_ranged_combat_attacker(enemy)) {
+    if (can_add_ranged_combat_attacker(enmtng)) {
         return 2;
     }
     return 1;

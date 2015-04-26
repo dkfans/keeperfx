@@ -73,9 +73,9 @@ TbBool load_stats_files(void)
     // note that rules file requires definitions of magic and creature types
     if (!load_rules_config(keeper_rules_file,CnfLd_Standard))
       result = false;
-    for (i=0; i < crtr_conf.model_count; i++)
+    for (i=1; i < crtr_conf.model_count; i++)
     {
-      if (!load_creaturemodel_config(i+1,0))
+      if (!load_creaturemodel_config(i,0))
         result = false;
     }
     game.field_149E7B = game.tile_strength;
