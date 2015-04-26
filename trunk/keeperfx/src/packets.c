@@ -656,6 +656,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
     MapSubtlCoord cx,cy;
     MapCoord x,y;
     long i;
+    TbBool isCtrlDown = lbInkeyFlags & KMod_CONTROL;
     player = get_player(plyr_idx);
     dungeon = get_players_dungeon(player);
     pckt = get_packet_direct(player->packet_num);
@@ -745,7 +746,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         }
         if (player->field_4AF != 0)
         {
-            if ((player->field_454 == player->field_455) && !lbDisplayEx.isDragMovingCamera)
+            if ((player->field_454 == player->field_455) && !lbDisplayEx.isDragMovingCamera && !isCtrlDown)
             {
                 if (player->field_455 == P454_Unkn1)
                 {
@@ -821,7 +822,8 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
             set_player_instance(player, PI_QueryCrtr, 0);
           }
           unset_packet_control(pckt, PCtr_LBtnRelease);
-        } else if ((player->field_454 == player->field_455) && !lbDisplayEx.isDragMovingCamera)
+        }
+        else if ((player->field_454 == player->field_455) && !lbDisplayEx.isDragMovingCamera &&!isCtrlDown)
         {
           if (player->field_454 == P454_Unkn1)
           {

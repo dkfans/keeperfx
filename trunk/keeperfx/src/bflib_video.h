@@ -261,6 +261,9 @@ struct DisplayStructEx {
     // Visual width of main panel.
     // do NOT initialize every turn.
     int mainPanelWidth;
+
+    // Whether the sprite is over any button.
+    uchar isMouseOverButton;
 };
 typedef struct DisplayStructEx TbDisplayStructEx;
 

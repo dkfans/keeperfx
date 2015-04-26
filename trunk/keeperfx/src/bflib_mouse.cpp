@@ -206,6 +206,22 @@ TbResult LbMouseOnEndSwap(void)
     return Lb_SUCCESS;
 }
 
+// Returns X position of mouse cursor on screen.
+long GetMouseX(void)
+{
+    long result;
+    result = lbDisplay.MMouseX * (long)pixel_size;
+    return result;
+}
+
+// Returns Y position of mouse cursor on screen.
+long GetMouseY(void)
+{
+    long result;
+    result = lbDisplay.MMouseY * (long)pixel_size;
+    return result;
+}
+
 /** Converts mouse coordinates into relative and scaled coordinates.
 *
 * @param pos Pointer to the structure with source point, and where result is placed.
@@ -481,12 +497,9 @@ void mouseControl(unsigned int action)
             lbDisplay.RLeftButton = 0;
 
             leftButtonPressedTime = LbTimerClock();
+            lbDisplay.LeftButton = 1;
 
-            if (!isCtrlDown)
-            {
-                lbDisplay.LeftButton = 1;
-            }
-            else
+            if (isCtrlDown && !lbDisplayEx.isMouseOverButton)
             {
                 lbDisplayEx.isDragMovingCamera = true;
             }
@@ -518,12 +531,9 @@ void mouseControl(unsigned int action)
             lbDisplay.RRightButton = 0;
 
             rightButtonPressedTime = LbTimerClock();
+            lbDisplay.RightButton = 1;
 
-            if (!isCtrlDown)
-            {
-                lbDisplay.RightButton = 1;
-            }
-            else
+            if (isCtrlDown && !lbDisplayEx.isMouseOverButton)
             {
                 lbDisplayEx.isDragRotatingCamera = true;
             }

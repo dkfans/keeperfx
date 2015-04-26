@@ -3749,6 +3749,27 @@ void _predict_power_hand_click_behavior()
     }
 }
 
+void _check_if_mouse_is_over_any_button()
+{
+    int gidx;
+    struct GuiButton *gbtn;
+    lbDisplayEx.isMouseOverButton = 0;
+    for (gidx = 0; gidx < ACTIVE_BUTTONS_COUNT; gidx++)
+    {
+        gbtn = &active_buttons[gidx];
+        if ((gbtn->flags & LbBtnF_Unknown01) == 0)
+            continue;
+        if (!get_active_menu(gbtn->gmenu_idx)->isTurnedOn)
+            continue;
+
+        if ((check_if_mouse_is_over_button(gbtn))
+            || ((gbtn->gbtype == Lb_UNKNBTN6) && (gbtn->gbactn_1 != 0)))
+        {
+            lbDisplayEx.isMouseOverButton = 1;
+        }
+    }
+}
+
 void keeper_gameplay_loop(void)
 {
     SYNCDBG(5,"Starting");
@@ -3782,6 +3803,7 @@ void keeper_gameplay_loop(void)
 
         init_lbDisplayEx_values();
         _predict_power_hand_click_behavior();
+        _check_if_mouse_is_over_any_button();
         LbWindowsControl();
 
         update_mouse();

@@ -2159,7 +2159,7 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
         amnu = get_active_menu(mnu_num);
         amnu->visible = 1;
         amnu->fade_time = gmnu->fade_time;
-        amnu->flgfield_1D = ((game.numfield_C & 0x20) != 0) || (!is_toggleable_menu(gmnu->ident));
+        amnu->isTurnedOn = ((game.numfield_C & 0x20) != 0) || (!is_toggleable_menu(gmnu->ident));
         SYNCDBG(18,"Menu number %d already active",(int)mnu_num);
         return mnu_num;
     }
@@ -2195,9 +2195,9 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
     amnu->height = (gmnu->height * MNU_UNITS_PER_PX + 8) / 16;
     amnu->draw_cb = gmnu->draw_cb;
     amnu->create_cb = gmnu->create_cb;
-    amnu->flgfield_1E = gmnu->flgfield_1E;
+    amnu->isMonopolyMenu = gmnu->isMonopolyMenu;
     amnu->field_1F = gmnu->field_1F;
-    amnu->flgfield_1D = ((game.numfield_C & 0x20) != 0) || (!is_toggleable_menu(gmnu->ident));
+    amnu->isTurnedOn = ((game.numfield_C & 0x20) != 0) || (!is_toggleable_menu(gmnu->ident));
     callback = amnu->create_cb;
     if (callback != NULL)
         callback(amnu);
@@ -2248,7 +2248,7 @@ unsigned long toggle_status_menu(short visible)
   if (k < 0) return 0;
   // Update pannel width
   status_panel_width = get_active_menu(k)->width;
-  i = get_active_menu(k)->flgfield_1D;
+  i = get_active_menu(k)->isTurnedOn;
   if (visible != i)
   {
     if ( visible )
@@ -2288,72 +2288,72 @@ unsigned long toggle_status_menu(short visible)
 
       k = menu_id_to_number(GMnu_ROOM);
       if (k >= 0)
-        room_on = get_active_menu(k)->flgfield_1D;
+        room_on = get_active_menu(k)->isTurnedOn;
       set_menu_visible_off(GMnu_ROOM);
 
       k = menu_id_to_number(GMnu_SPELL);
       if (k >= 0)
-        spell_on = get_active_menu(k)->flgfield_1D;
+        spell_on = get_active_menu(k)->isTurnedOn;
       set_menu_visible_off(GMnu_SPELL);
 
       k = menu_id_to_number(GMnu_SPELL_LOST);
       if (k >= 0)
-        spell_lost_on = get_active_menu(k)->flgfield_1D;
+        spell_lost_on = get_active_menu(k)->isTurnedOn;
       set_menu_visible_off(GMnu_SPELL_LOST);
 
       k = menu_id_to_number(GMnu_TRAP);
       if (k >= 0)
-      trap_on = get_active_menu(k)->flgfield_1D;
+      trap_on = get_active_menu(k)->isTurnedOn;
       set_menu_visible_off(GMnu_TRAP);
 
       k = menu_id_to_number(GMnu_CREATURE);
       if (k >= 0)
-        creat_on = get_active_menu(k)->flgfield_1D;
+        creat_on = get_active_menu(k)->isTurnedOn;
       set_menu_visible_off(GMnu_CREATURE);
 
       k = menu_id_to_number(GMnu_EVENT);
       if (k >= 0)
-        event_on = get_active_menu(k)->flgfield_1D;
+        event_on = get_active_menu(k)->isTurnedOn;
       set_menu_visible_off(GMnu_EVENT);
 
       k = menu_id_to_number(GMnu_QUERY);
       if (k >= 0)
-        query_on = get_active_menu(k)->flgfield_1D;
+        query_on = get_active_menu(k)->isTurnedOn;
       set_menu_visible_off(GMnu_QUERY);
 
       k = menu_id_to_number(GMnu_CREATURE_QUERY1);
       if (k >= 0)
-        creature_query1_on = get_active_menu(k)->flgfield_1D;
+        creature_query1_on = get_active_menu(k)->isTurnedOn;
       set_menu_visible_off(GMnu_CREATURE_QUERY1);
 
       k = menu_id_to_number(GMnu_CREATURE_QUERY2);
       if (k >= 0)
-        creature_query2_on = get_active_menu(k)->flgfield_1D;
+        creature_query2_on = get_active_menu(k)->isTurnedOn;
       set_menu_visible_off(GMnu_CREATURE_QUERY2);
 
       k = menu_id_to_number(GMnu_CREATURE_QUERY3);
       if (k >= 0)
-        creature_query3_on = get_active_menu(k)->flgfield_1D;
+        creature_query3_on = get_active_menu(k)->isTurnedOn;
       set_menu_visible_off(GMnu_CREATURE_QUERY3);
 
       k = menu_id_to_number(GMnu_CREATURE_QUERY4);
       if (k >= 0)
-        creature_query4_on = get_active_menu(k)->flgfield_1D;
+        creature_query4_on = get_active_menu(k)->isTurnedOn;
       set_menu_visible_off(GMnu_CREATURE_QUERY4);
 
       k = menu_id_to_number(GMnu_TEXT_INFO);
       if (k >= 0)
-        objective_on = get_active_menu(k)->flgfield_1D;
+        objective_on = get_active_menu(k)->isTurnedOn;
       set_menu_visible_off(GMnu_TEXT_INFO);
 
       k = menu_id_to_number(GMnu_BATTLE);
       if (k >= 0)
-        battle_on = get_active_menu(k)->flgfield_1D;
+        battle_on = get_active_menu(k)->isTurnedOn;
       set_menu_visible_off(GMnu_BATTLE);
 
       k = menu_id_to_number(GMnu_DUNGEON_SPECIAL);
       if (k >= 0)
-        special_on = get_active_menu(k)->flgfield_1D;
+        special_on = get_active_menu(k)->isTurnedOn;
       set_menu_visible_off(GMnu_DUNGEON_SPECIAL);
     }
   }
@@ -2382,12 +2382,12 @@ TbBool toggle_first_person_menu(TbBool visible)
     // CREATURE_QUERY1
     menu_num = menu_id_to_number(GMnu_CREATURE_QUERY1);
     if (menu_num >= 0)
-      set_flag_byte(&creature_query_on, 0x01, get_active_menu(menu_num)->flgfield_1D);
+      set_flag_byte(&creature_query_on, 0x01, get_active_menu(menu_num)->isTurnedOn);
     set_menu_visible_off(GMnu_CREATURE_QUERY1);
     // CREATURE_QUERY2
     menu_num = menu_id_to_number(GMnu_CREATURE_QUERY2);
     if (menu_num >= 0)
-      set_flag_byte(&creature_query_on, 0x02, get_active_menu(menu_num)->flgfield_1D);
+      set_flag_byte(&creature_query_on, 0x02, get_active_menu(menu_num)->isTurnedOn);
     set_menu_visible_off(GMnu_CREATURE_QUERY2);
     return true;
   }
@@ -3041,8 +3041,8 @@ void draw_active_menus_buttons(void)
         menu_num = menu_id_to_number(menu_stack[k]);
         if (menu_num < 0) continue;
         gmnu = &active_menus[menu_num];
-        //SYNCMSG("DRAW menu %d, fields %d, %d",menu_num,gmnu->field_1,gmnu->flgfield_1D);
-        if ((gmnu->visible != 0) && (gmnu->flgfield_1D))
+        //SYNCMSG("DRAW menu %d, fields %d, %d",menu_num,gmnu->field_1,gmnu->isTurnedOn);
+        if ((gmnu->visible != 0) && (gmnu->isTurnedOn))
         {
             if ((gmnu->visible != 2) && (gmnu->fade_time))
             {
@@ -3081,7 +3081,7 @@ void draw_menu_spangle(struct GuiMenu *gmnu)
     struct GuiButton *gbtn;
     int i;
     short in_range;
-    if (gmnu->flgfield_1D == 0)
+    if (gmnu->isTurnedOn == 0)
       return;
     for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
     {

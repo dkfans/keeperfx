@@ -137,6 +137,11 @@ TbResult LbMouseChangeMoveRatio(long ratio_x, long ratio_y);
 void mouseControl(unsigned int action);
 TbResult LbMouseOnBeginSwap(void);
 TbResult LbMouseOnEndSwap(void);
+
+// Returns X position of mouse cursor on screen.
+long GetMouseX(void);
+// Returns Y position of mouse cursor on screen.
+long GetMouseY(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

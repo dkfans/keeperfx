@@ -112,26 +112,6 @@ struct KeyToStringInit key_to_string_init[] = {
   {  0,     0},
 };
 /******************************************************************************/
-/**
- * Returns X position of mouse cursor on screen.
- */
-long GetMouseX(void)
-{
-  long result;
-  result = lbDisplay.MMouseX * (long)pixel_size;
-  return result;
-}
-
-/**
- * Returns Y position of mouse cursor on screen.
- */
-long GetMouseY(void)
-{
-  long result;
-  result = lbDisplay.MMouseY * (long)pixel_size;
-  return result;
-}
-
 short is_mouse_pressed_leftbutton(void)
 {
   return lbDisplay.LeftButton;
