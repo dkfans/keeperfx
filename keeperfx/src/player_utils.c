@@ -522,7 +522,7 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
     _DK_fill_in_explored_area(plyr_idx, stl_x, stl_y); return;
 }
 
-void init_keeper_map_exploration(struct PlayerInfo *player)
+void init_keeper_map_exploration_by_terrain(struct PlayerInfo *player)
 {
     //_DK_init_keeper_map_exploration(player); return;
     struct Thing *heartng;
@@ -540,6 +540,17 @@ void init_keeper_map_exploration(struct PlayerInfo *player)
             }
         }
     }
+}
+
+TbBool check_map_explored_at_current_pos(struct Thing *creatng)
+{
+    check_map_explored(creatng, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
+    return true;
+}
+
+void init_keeper_map_exploration_by_creatures(struct PlayerInfo *player)
+{
+    do_to_players_all_creatures_of_model(player->id_number, -1, check_map_explored_at_current_pos);
 }
 
 void init_player_as_single_keeper(struct PlayerInfo *player)
@@ -587,8 +598,10 @@ void init_player(struct PlayerInfo *player, short no_explore)
         init_player_as_single_keeper(player);
         init_player_start(player, false);
         reset_player_mode(player, PVT_DungeonTop);
-        if ( !no_explore )
-          init_keeper_map_exploration(player);
+        if ( !no_explore ) {
+          init_keeper_map_exploration_by_terrain(player);
+          init_keeper_map_exploration_by_creatures(player);
+        }
         break;
     case GameType_MultiGame:
         if (player->field_2C != 1)
@@ -599,7 +612,8 @@ void init_player(struct PlayerInfo *player, short no_explore)
         init_player_as_single_keeper(player);
         init_player_start(player, false);
         reset_player_mode(player, PVT_DungeonTop);
-        init_keeper_map_exploration(player);
+        init_keeper_map_exploration_by_terrain(player);
+        init_keeper_map_exploration_by_creatures(player);
         break;
     default:
         ERRORLOG("How do I set up this player?");
