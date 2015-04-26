@@ -269,7 +269,7 @@ short checksums_different(void)
         {
           checksum = pckt->chksum;
           is_set = true;
-        } 
+        }
         else if (checksum != pckt->chksum)
         {
           return true;
@@ -2191,11 +2191,11 @@ TbBool process_players_dungeon_control_packet_action(long plyr_idx)
         break;
     case PckA_ToggleComputer:
         toggle_computer_player(plyr_idx);
-        break;    
+        break;
     case PckA_DragMoveCameraLeftUp:
         view_set_camera_x_inertia(cam, -pckt->actn_par1, 1000000/* no upper bound */, false);
         view_set_camera_y_inertia(cam, -pckt->actn_par2, 1000000/* no upper bound */, false);
-        break;    
+        break;
     case PckA_DragMoveCameraLeftDown:
         view_set_camera_x_inertia(cam, -pckt->actn_par1, 1000000/* no upper bound */, false);
         view_set_camera_y_inertia(cam, pckt->actn_par2, 1000000/* no upper bound */, false);
@@ -2309,7 +2309,7 @@ void process_players_creature_control_packet_control(long idx)
     {
         i = ccctrl->field_1E8;
         inst_inf = creature_instance_info_get(i);
-        if (inst_inf->field_1A)
+        if ((inst_inf->flags & InstPF_RepeatTrigger) != 0)
         {
             k = ccctrl->instance_id;
             if ((k == CrInst_NULL) || (k == i))
