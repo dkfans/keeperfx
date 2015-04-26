@@ -1997,7 +1997,7 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit, int units_
         gbtn->menuIndex = gmnu->index;
         gbtn->buttonType = gbinit->buttonType;
         gbtn->index = gbinit->index;
-        gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_CloseCurrentMenu * (gbinit->field_5 & 0xff)) & LbBtnFlag_CloseCurrentMenu; // ***
+        gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_CloseCurrentMenu * (gbinit->field_5 & 0xff)) & LbBtnFlag_CloseCurrentMenu; 
         gbtn->callbackClick = gbinit->callbackClick;
         gbtn->callbackRightClick = gbinit->callbackRightClick;
         gbtn->callbackMouseHover = gbinit->callbackMouseHover;

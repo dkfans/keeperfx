@@ -378,14 +378,6 @@ void mouseControl(unsigned int action)
 
     _get_mouse_state(&mousePosDelta, &dstPos);
 
-    // Sometimes the value gets incorrectly initialized,
-    // force initialize the flag if not in map view.
-    if (!lbDisplayEx.isPowerHandNothingTodoLeftClick && !lbDisplayEx.isPowerHandNothingTodoRightClick)
-    {
-        lbDisplayEx.isDragMovingCamera = false;
-        lbDisplayEx.isDragRotatingCamera = false;
-    }
-
     switch (action)
     {
     case MActn_MOUSEMOVE:
@@ -394,7 +386,7 @@ void mouseControl(unsigned int action)
         if (lbDisplayEx.isDragMovingCamera)
         {
             lbDisplayEx.cameraMoveX += mousePosDelta.x * lbDisplayEx.cameraMoveRatioX;
-            lbDisplayEx.cameraMoveY += mousePosDelta.y * lbDisplayEx.cameraMoveRatioY;
+            lbDisplayEx.cameraMoveY += mousePosDelta.y * lbDisplayEx.cameraMoveRatioY;                
         }
         else if (lbUseDirectMouseDragging && lbDisplay.MLeftButton && lbDisplayEx.isPowerHandNothingTodoLeftClick)
         {
@@ -497,11 +489,18 @@ void mouseControl(unsigned int action)
             lbDisplay.RLeftButton = 0;
 
             leftButtonPressedTime = LbTimerClock();
-            lbDisplay.LeftButton = 1;
 
+            // Do not start dragging when mouse is hovering over a button.
             if (isCtrlDown && !lbDisplayEx.isMouseOverButton)
             {
                 lbDisplayEx.isDragMovingCamera = true;
+
+                // Skip next button release event to prevent unexpected behavior(dig or catching creatures).
+                lbDisplayEx.skipLButtonRelease = true;
+            }
+            else
+            { 
+                lbDisplay.LeftButton = 1;
             }
         }
         break;
@@ -531,11 +530,18 @@ void mouseControl(unsigned int action)
             lbDisplay.RRightButton = 0;
 
             rightButtonPressedTime = LbTimerClock();
-            lbDisplay.RightButton = 1;
 
+            // Do not start dragging when mouse is hovering over a button.
             if (isCtrlDown && !lbDisplayEx.isMouseOverButton)
             {
                 lbDisplayEx.isDragRotatingCamera = true;
+
+                // Skip next button release event to prevent unexpected behavior(slap or dismiss).
+                lbDisplayEx.skipRButtonRelease = true;
+            }
+            else
+            {
+                lbDisplay.RightButton = 1;
             }
         }
         break;
