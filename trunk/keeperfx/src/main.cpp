@@ -1771,8 +1771,11 @@ void init_keepers_map_exploration(void)
       player = get_player(i);
       if (player_exists(player) && (player->field_2C == 1))
       {
-          if ((player->allocflags & PlaF_CompCtrl) != 0)
-            init_keeper_map_exploration(player);
+          // Additional init - the main one is in init_player()
+          if ((player->allocflags & PlaF_CompCtrl) != 0) {
+              init_keeper_map_exploration_by_terrain(player);
+              init_keeper_map_exploration_by_creatures(player);
+          }
       }
     }
 }
@@ -3078,7 +3081,7 @@ void update(void)
 
     process_packets();
 
-    if (quit_game || exit_keeper) 
+    if (quit_game || exit_keeper)
     {
         return;
     }
@@ -4677,7 +4680,7 @@ short process_command_line(unsigned short argc, char *argv[])
       if ( strcasecmp(parstr,"directdrag") == 0 )
       {
           lbUseDirectMouseDragging = true;
-      } 
+      }
       else if (strcasecmp(parstr, "desktopres") == 0)
       {
           SYNCLOG("Using desktop resolution.");
