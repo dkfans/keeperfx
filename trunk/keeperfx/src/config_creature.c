@@ -460,6 +460,7 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
     {
       LbMemorySet(crtr_conf.model[i].name, 0, COMMAND_WORD_LEN);
     }
+    LbStringCopy(crtr_conf.model[0].name, "NOCREATURE", COMMAND_WORD_LEN);
     // Find the block
     sprintf(block_buf,"common");
     pos = 0;
@@ -481,19 +482,24 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
         switch (cmd_num)
         {
         case 1: // CREATURES
-            while (get_conf_parameter_single(buf,&pos,len,crtr_conf.model[n].name,COMMAND_WORD_LEN) > 0)
+            while (get_conf_parameter_single(buf,&pos,len,crtr_conf.model[n+1].name,COMMAND_WORD_LEN) > 0)
             {
-              creature_desc[n].name = crtr_conf.model[n].name;
+              creature_desc[n].name = crtr_conf.model[n+1].name;
               creature_desc[n].num = n+1;
               n++;
-              if (n >= CREATURE_TYPES_MAX)
+              if (n+1 >= CREATURE_TYPES_MAX)
               {
                 CONFWRNLOG("Too many species defined with \"%s\" in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
                 break;
               }
             }
-            crtr_conf.model_count = n;
+            if (n+1 > CREATURE_TYPES_COUNT)
+            {
+              CONFWRNLOG("Hard-coded limit exceeded by amount of species defined with \"%s\" in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            crtr_conf.model_count = n+1;
             while (n < CREATURE_TYPES_MAX)
             {
               creature_desc[n].name = NULL;
@@ -1550,7 +1556,7 @@ TbBool set_creature_available(PlayerNumber plyr_idx, ThingModel crtr_model, long
         ERRORDBG(11,"Can't set trap availability; player %d has no dungeon.",(int)plyr_idx);
         return false;
     }
-    if ((crtr_model <= 0) || (crtr_model >= CREATURE_TYPES_COUNT))
+    if ((crtr_model < 1) || (crtr_model >= CREATURE_TYPES_COUNT))
         return false;
     if (force_avail < 0)
         force_avail = 0;
