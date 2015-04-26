@@ -71,6 +71,7 @@ long thing_in_wall_at(const struct Thing *thing, const struct Coord3d *pos);
 long thing_in_wall_at_with_radius(const struct Thing *thing, const struct Coord3d *pos, unsigned long radius);
 TbBool creature_can_pass_throgh_wall_at(const struct Thing *thing, const struct Coord3d *pos);
 long get_floor_height_under_thing_at(const struct Thing *thing, const struct Coord3d *pos);
+long get_ceiling_height_above_thing_at(const struct Thing *thing, const struct Coord3d *pos);
 void get_floor_and_ceiling_height_under_thing_at(const struct Thing *thing,
     const struct Coord3d *pos, MapCoord *floor_height_cor, MapCoord *ceiling_height_cor);
 /******************************************************************************/
