@@ -501,63 +501,74 @@ void get_player_gui_clicks(void)
 
   switch (player->view_type)
   {
-  case 3:
+  case PVT_DungeonTop:
       if (right_button_released)
       {
-        thing = thing_get(player->controlled_thing_idx);
-        if (thing->class_id == TCls_Creature)
-        {
+          if ((player->work_state != PSt_HoldInHand) || power_hand_is_empty(player))
+          {
+              if (!turn_off_all_window_menus())
+              {
+                  if (player->work_state == PSt_CreatrQuery)
+                  {
+                      turn_off_query_menus();
+                      set_players_packet_action(player, PckA_SetPlyrState, PSt_CtrlDungeon, 0);
+                      right_button_released = 0;
+                  }
+                  else if ((player->work_state != PSt_CreatrInfo) && (player->work_state != PSt_CtrlDungeon))
+                  {
+                      // If user drag rotate in building, casting mode etc, releasing the right button should not exit current mode.
+                      if (!lbDisplayEx.skipRButtonRelease)
+                      {
+                          set_players_packet_action(player, PckA_SetPlyrState, PSt_CtrlDungeon, 0);
+                      }
+                      else
+                      {
+                          lbDisplayEx.skipRButtonRelease = false;
+                      }
+                      right_button_released = 0;
+                  }
+              }
+          }
+      }
+      else if (lbKeyOn[KC_ESCAPE])
+      {
+          lbKeyOn[KC_ESCAPE] = 0;
           if (a_menu_window_is_active())
           {
-            game.numfield_D &= ~0x08;
-            player->allocflags &= ~PlaF_Unknown8;
-            turn_off_all_window_menus();
-          } else
-          {
-            game.numfield_D |= 0x08;
-            player->allocflags |= PlaF_Unknown8;
-            turn_on_menu(GMnu_QUERY);
+              turn_off_all_window_menus();
           }
-        }
+          else
+          {
+              turn_on_menu(GMnu_OPTIONS);
+          }
       }
       break;
-  case 2:
-  case 4:
-  case 5:
-  case 6:
-      break;
-  default:
+  case PVT_CreaturePasngr:
       if (right_button_released)
       {
-        if ((player->work_state != PSt_HoldInHand) || power_hand_is_empty(player))
-        {
-          if ( !turn_off_all_window_menus() )
+          thing = thing_get(player->controlled_thing_idx);
+          if (thing->class_id == TCls_Creature)
           {
-            if (player->work_state == PSt_CreatrQuery)
-            {
-              turn_off_query_menus();
-              set_players_packet_action(player, PckA_SetPlyrState, PSt_CtrlDungeon, 0);
-              right_button_released = 0;
-            } else
-            if ((player->work_state != PSt_CreatrInfo) && (player->work_state != PSt_CtrlDungeon))
-            {
-              set_players_packet_action(player, PckA_SetPlyrState, PSt_CtrlDungeon, 0);
-              right_button_released = 0;
-            }
+              if (a_menu_window_is_active())
+              {
+                  game.numfield_D &= ~0x08;
+                  player->allocflags &= ~PlaF_Unknown8;
+                  turn_off_all_window_menus();
+              }
+              else
+              {
+                  game.numfield_D |= 0x08;
+                  player->allocflags |= PlaF_Unknown8;
+                  turn_on_menu(GMnu_QUERY);
+              }
           }
-        }
-      } else
-      if (lbKeyOn[KC_ESCAPE])
-      {
-        lbKeyOn[KC_ESCAPE] = 0;
-        if (a_menu_window_is_active())
-        {
-            turn_off_all_window_menus();
-        } else
-        {
-            turn_on_menu(GMnu_OPTIONS);
-        }
       }
+      break;
+  case PVT_CreatureContrl:
+  case PVT_MapScreen:
+  case PVT_MapFadeIn:
+  case PVT_MapFadeOut:
+  default:
       break;
   }
 
