@@ -534,67 +534,6 @@ TbBool is_task_in_progress_using_hand(struct Computer2 *comp)
         is_task_in_progress(comp, CTT_MoveGoldToTreasury);
 }
 
-long get_ceiling_height_above_thing_at(struct Thing *thing, struct Coord3d *pos)
-{
-    int nav_sizexy;
-    if (thing_is_creature(thing))
-        nav_sizexy = thing_nav_sizexy(thing);
-    else
-        nav_sizexy = thing->clipbox_size_xy;
-
-    int nav_radius;
-    nav_radius = (nav_sizexy / 2);
-    int xstart, ystart, xend, yend;
-    xstart = (int)pos->x.val - nav_radius;
-    if (xstart < 0)
-        xstart = 0;
-    ystart = (int)pos->y.val - nav_radius;
-    if (ystart < 0)
-        ystart = 0;
-    xend = (int)pos->x.val + nav_radius;
-    if (xend >= 65535)
-        xend = 65535;
-    yend = (int)pos->y.val + nav_radius;
-    if (yend >= 65535)
-        yend = 65535;
-    // Set initial values for computing floor and ceiling heights
-    MapSubtlCoord floor_height, ceiling_height;
-    floor_height = 0;
-    ceiling_height = 15;
-    // Sweep through subtiles and select highest floor and lowest ceiling
-    int x,y;
-    for (y=ystart; y < yend; y += 256)
-    {
-        for (x=xstart; x < xend; x += 256)
-        {
-            update_floor_and_ceiling_heights_at(coord_subtile(x), coord_subtile(y), &floor_height, &ceiling_height);
-            SYNCDBG(19,"Ceiling %d after (%d,%d)", (int)ceiling_height,(int)x>>8,(int)y>>8);
-        }
-    }
-    // Assuming xend may not be multiplication of 255, treat it separately
-    for (y=ystart; y < yend; y += 256)
-    {
-        x = xend;
-        {
-            update_floor_and_ceiling_heights_at(coord_subtile(x), coord_subtile(y), &floor_height, &ceiling_height);
-        }
-    }
-    // Assuming yend may not be multiplication of 255, treat it separately
-    y = yend;
-    {
-        for (x=xstart; x < xend; x += 256)
-        {
-            update_floor_and_ceiling_heights_at(coord_subtile(x), coord_subtile(y), &floor_height, &ceiling_height);
-        }
-    }
-    // For both xend and yend at max
-    x = xend; y = yend;
-    update_floor_and_ceiling_heights_at(coord_subtile(x), coord_subtile(y), &floor_height, &ceiling_height);
-    // Now we can be sure the value is correct
-    SYNCDBG(19,"Ceiling %d after (%d,%d)", (int)ceiling_height,(int)xend>>8,(int)yend>>8);
-    return subtile_coord(ceiling_height,0);
-}
-
 /**
  * Low level function which unconditionally picks creature by computer player to hand.
  * @param comp

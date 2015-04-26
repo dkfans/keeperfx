@@ -32,6 +32,7 @@
 #include "engine_camera.h"
 #include "map_data.h"
 #include "map_columns.h"
+#include "map_blocks.h"
 #include "map_utils.h"
 
 #ifdef __cplusplus
@@ -368,8 +369,33 @@ TbBool get_thing_next_position(struct Coord3d *pos, const struct Thing *thing)
 
 long get_thing_height_at(const struct Thing *thing, const struct Coord3d *pos)
 {
-  SYNCDBG(18,"Starting");
-  return _DK_get_thing_height_at(thing, pos);
+    SYNCDBG(18,"Starting");
+    //return _DK_get_thing_height_at(thing, pos);
+    int i;
+    int radius;
+    if (thing_is_creature(thing)) {
+        i = thing_nav_sizexy(thing);
+    } else {
+        i = thing->clipbox_size_xy;
+    }
+    radius = i >> 1;
+
+    MapCoord pos_x_beg, pos_x_end;
+    MapCoord pos_y_beg, pos_y_end;
+    pos_x_beg = max((MapCoord)pos->x.val - radius, 0);
+    pos_y_beg = max((MapCoord)pos->y.val - radius, 0);
+    pos_x_end = min((MapCoord)pos->x.val + radius, subtile_coord(map_subtiles_x, COORD_PER_STL-1));
+    pos_y_end = min((MapCoord)pos->y.val + radius, subtile_coord(map_subtiles_y, COORD_PER_STL-1));
+    MapSubtlCoord floor_height, ceiling_height;
+    get_min_floor_and_ceiling_heights_for_rect(coord_subtile(pos_x_beg), coord_subtile(pos_y_beg),
+        coord_subtile(pos_x_end), coord_subtile(pos_y_end), &floor_height, &ceiling_height);
+    MapCoord pos_z_floor, pos_z_ceiling;
+    pos_z_ceiling = subtile_coord(ceiling_height,0);
+    pos_z_floor = subtile_coord(floor_height,0);
+    if (pos_z_floor + thing->clipbox_size_yz >= pos_z_ceiling)
+        return  pos->z.val;
+    else
+        return pos_z_floor;
 }
 
 long get_thing_height_at_with_radius(const struct Thing *thing, const struct Coord3d *pos, unsigned long radius)
@@ -532,16 +558,49 @@ long get_floor_height_under_thing_at(const struct Thing *thing, const struct Coo
     pos_y_beg = (pos->y.val - radius);
     if (pos_y_beg < 0)
         pos_y_beg = 0;
-    if (pos_x_end >= 65535)
-        pos_x_end = 65535;
+    if (pos_x_end >= subtile_coord(map_subtiles_x,COORD_PER_STL-1))
+        pos_x_end = subtile_coord(map_subtiles_x,COORD_PER_STL-1);
     pos_y_end = pos->y.val + radius;
-    if (pos_y_end >= 65535)
-        pos_y_end = 65535;
+    if (pos_y_end >= subtile_coord(map_subtiles_y,COORD_PER_STL-1))
+        pos_y_end = subtile_coord(map_subtiles_y,COORD_PER_STL-1);
     // Find correct floor and ceiling plane for the area
     MapSubtlCoord floor_height, ceiling_height;
     get_min_floor_and_ceiling_heights_for_rect(coord_subtile(pos_x_beg), coord_subtile(pos_y_beg),
         coord_subtile(pos_x_end), coord_subtile(pos_y_end), &floor_height, &ceiling_height);
-    return floor_height << 8;
+    return subtile_coord(floor_height,0);
+}
+
+long get_ceiling_height_above_thing_at(const struct Thing *thing, const struct Coord3d *pos)
+{
+    int radius;
+    long i;
+    if (thing_is_creature(thing)) {
+        i = thing_nav_sizexy(thing);
+    } else {
+        i = thing->clipbox_size_xy;
+    }
+    radius = i/2;
+    int pos_x_beg, pos_y_beg, pos_x_end, pos_y_end;
+    pos_x_beg = (int)pos->x.val - radius;
+    if (pos_x_beg < 0)
+        pos_x_beg = 0;
+    pos_y_beg = (int)pos->y.val - radius;
+    if (pos_y_beg < 0)
+        pos_y_beg = 0;
+    pos_x_end = (int)pos->x.val + radius;
+    if (pos_x_end >= subtile_coord(map_subtiles_x,COORD_PER_STL-1))
+        pos_x_end = subtile_coord(map_subtiles_x,COORD_PER_STL-1);
+    pos_y_end = (int)pos->y.val + radius;
+    if (pos_y_end >= subtile_coord(map_subtiles_y,COORD_PER_STL-1))
+        pos_y_end = subtile_coord(map_subtiles_y,COORD_PER_STL-1);
+    // Set initial values for computing floor and ceiling heights
+    MapSubtlCoord floor_height, ceiling_height;
+    // Sweep through subtiles and select highest floor and lowest ceiling
+    get_min_floor_and_ceiling_heights_for_rect(coord_subtile(pos_x_beg), coord_subtile(pos_y_beg),
+        coord_subtile(pos_x_end), coord_subtile(pos_y_end), &floor_height, &ceiling_height);
+    // Now we can be sure the value is correct
+    SYNCDBG(19,"Ceiling %d after (%d,%d)", (int)ceiling_height,(int)pos_x_end>>8,(int)pos_y_end>>8);
+    return subtile_coord(ceiling_height,0);
 }
 
 void get_floor_and_ceiling_height_under_thing_at(const struct Thing *thing,
@@ -565,11 +624,11 @@ void get_floor_and_ceiling_height_under_thing_at(const struct Thing *thing,
     pos_y_beg = (pos->y.val - radius);
     if (pos_y_beg < 0)
         pos_y_beg = 0;
-    if (pos_x_end >= 65535)
-        pos_x_end = 65535;
+    if (pos_x_end >= subtile_coord(map_subtiles_x,COORD_PER_STL-1))
+        pos_x_end = subtile_coord(map_subtiles_x,COORD_PER_STL-1);
     pos_y_end = pos->y.val + radius;
-    if (pos_y_end >= 65535)
-        pos_y_end = 65535;
+    if (pos_y_end >= subtile_coord(map_subtiles_y,COORD_PER_STL-1))
+        pos_y_end = subtile_coord(map_subtiles_y,COORD_PER_STL-1);
     // Find correct floor and ceiling plane for the area
     MapSubtlCoord floor_height, ceiling_height;
     get_min_floor_and_ceiling_heights_for_rect(coord_subtile(pos_x_beg), coord_subtile(pos_y_beg),
