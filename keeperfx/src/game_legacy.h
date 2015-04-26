@@ -322,7 +322,7 @@ char loaded_swipe_idx;
     long bonus_time;
     struct CreatureStorage intralvl_transfered_creature; //TODO [structs] When possible, add it to IntralevelData struct
     struct Armageddon armageddon;
-char field_1517F6;
+char activeTab;
     char comp_player_aggressive;
     char comp_player_defensive;
     char comp_player_construct;

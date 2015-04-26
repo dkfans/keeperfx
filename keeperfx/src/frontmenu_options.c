@@ -82,19 +82,19 @@ const long definable_key_string[] = {
 /******************************************************************************/
 void frontend_define_key_up_maintain(struct GuiButton *gbtn)
 {
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown08 * (define_key_scroll_offset != 0)) & LbBtnF_Unknown08;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Unknown08 * (define_key_scroll_offset != 0)) & LbBtnFlag_Unknown08;
 }
 
 void frontend_define_key_down_maintain(struct GuiButton *gbtn)
 {
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown08 * (define_key_scroll_offset < GAME_KEYS_COUNT-1)) & LbBtnF_Unknown08;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Unknown08 * (define_key_scroll_offset < GAME_KEYS_COUNT-1)) & LbBtnFlag_Unknown08;
 }
 
 void frontend_define_key_maintain(struct GuiButton *gbtn)
 {
     long key_id;
     key_id = define_key_scroll_offset - ((long)gbtn->content) - 1;
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown08 * (key_id < GAME_KEYS_COUNT)) & LbBtnF_Unknown08;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Unknown08 * (key_id < GAME_KEYS_COUNT)) & LbBtnFlag_Unknown08;
 }
 
 void frontend_define_key_up(struct GuiButton *gbtn)
@@ -251,7 +251,7 @@ void gui_video_gamma_correction(struct GuiButton *gbtn)
 
 void gui_set_sound_volume(struct GuiButton *gbtn)
 {
-    if (gbtn->id_num == 75)
+    if (gbtn->index == 75)
     {
       if (settings.sound_volume != sound_level)
           do_sound_menu_click();
@@ -276,11 +276,11 @@ void gui_video_cluedo_maintain(struct GuiButton *gbtn)
     if (player->view_mode == 5)
     {
         gbtn->field_1B |= 0x8000;
-        gbtn->flags &= ~LbBtnF_Unknown08;
+        gbtn->flags &= ~LbBtnFlag_Unknown08;
     } else
     {
         gbtn->field_1B = 0;
-        gbtn->flags |= LbBtnF_Unknown08;
+        gbtn->flags |= LbBtnFlag_Unknown08;
     }
 }
 

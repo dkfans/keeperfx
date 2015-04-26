@@ -1469,10 +1469,10 @@ void reset_gui_based_on_player_mode(void)
     } else
     {
         turn_on_menu(GMnu_MAIN);
-        if (game.field_1517F6)
+        if (game.activeTab)
         {
-            initialise_tab_tags(game.field_1517F6);
-            turn_on_menu(game.field_1517F6);
+            initialise_tab_tags(game.activeTab);
+            turn_on_menu(game.activeTab);
             MenuNumber mnuidx;
             mnuidx = menu_id_to_number(GMnu_MAIN);
             if (mnuidx != MENU_INVALID_ID) {
@@ -3707,7 +3707,7 @@ void _get_camera_move_ratio(Camera * cam)
 
         // Scaling seems always follow width even resolution is not 4:3.
         // TODO HeM verify the above line.
-        lbDisplayEx.cameraMoveRatioY = magicNumber * (640.0 / float(lbDisplay.PhysicalScreenWidth)) * VISUALSIZERATIOHTOV;
+        lbDisplayEx.cameraMoveRatioY = magicNumber * (640.0 / float(lbDisplay.PhysicalScreenWidth)) * VISUALSIZE_RATIO_H_TO_V;
     }
 }
 
@@ -3753,19 +3753,19 @@ void _check_if_mouse_is_over_any_button()
 {
     int gidx;
     struct GuiButton *gbtn;
-    lbDisplayEx.isMouseOverButton = 0;
+    lbDisplayEx.isMouseOverButton = false;
     for (gidx = 0; gidx < ACTIVE_BUTTONS_COUNT; gidx++)
     {
         gbtn = &active_buttons[gidx];
-        if ((gbtn->flags & LbBtnF_Unknown01) == 0)
+        if ((gbtn->flags & LbBtnFlag_Created) == 0)
             continue;
-        if (!get_active_menu(gbtn->gmenu_idx)->isTurnedOn)
+        if (!get_active_menu(gbtn->menuIndex)->isTurnedOn)
             continue;
 
         if ((check_if_mouse_is_over_button(gbtn))
-            || ((gbtn->gbtype == Lb_UNKNBTN6) && (gbtn->gbactn_1 != 0)))
+            || ((gbtn->buttonType == LbBtnType_Unknown) && (gbtn->leftClickFlag != 0)))
         {
-            lbDisplayEx.isMouseOverButton = 1;
+            lbDisplayEx.isMouseOverButton = true;
         }
     }
 }

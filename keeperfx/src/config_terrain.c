@@ -378,7 +378,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
         {
             slabst = &slab_conf.slab_cfgstats[i];
             LbMemorySet(slabst->code_name, 0, COMMAND_WORD_LEN);
-            slabst->tooltip_stridx = GUIStr_Empty;
+            slabst->iTooltipString = GUIStr_Empty;
             if (i < slab_conf.slab_types_count)
             {
                 slab_desc[i].name = slabst->code_name;
@@ -393,7 +393,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
         for (i=0; i < arr_size; i++)
         {
             slbattr = get_slab_kind_attrs(i);
-            slbattr->tooltip_stridx = GUIStr_Empty;
+            slbattr->iTooltipString = GUIStr_Empty;
         }
     }
     // Parse every numbered block within range
@@ -442,7 +442,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                 k = atoi(word_buf);
                 if (k > 0)
                 {
-                    slbattr->tooltip_stridx = k;
+                    slbattr->iTooltipString = k;
                     n++;
                 }
             }
@@ -542,7 +542,7 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
             roomst = &slab_conf.room_cfgstats[i];
             LbMemorySet(roomst->code_name, 0, COMMAND_WORD_LEN);
             roomst->name_stridx = GUIStr_Empty;
-            roomst->tooltip_stridx = GUIStr_Empty;
+            roomst->iTooltipString = GUIStr_Empty;
             roomst->creature_creation_model = 0;
             roomst->bigsym_sprite_idx = 0;
             roomst->medsym_sprite_idx = 0;
@@ -748,8 +748,8 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
               k = atoi(word_buf);
               if (k > 0)
               {
-                  roomst->tooltip_stridx = k;
-                  rdata->tooltip_stridx = k;
+                  roomst->iTooltipString = k;
+                  rdata->iTooltipString = k;
                   n++;
               }
             }

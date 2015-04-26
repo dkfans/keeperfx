@@ -47,7 +47,7 @@ int first_monopoly_menu(void)
   for (idx=0; idx < ACTIVE_MENUS_COUNT; idx++)
   {
     gmnu = &active_menus[idx];
-    if ((gmnu->visible != 0) && (gmnu->isMonopolyMenu != 0))
+    if ((gmnu->visibility != Visibility_Invisible) && (gmnu->isMonopolyMenu))
         return idx;
   }
   return -1;
@@ -61,7 +61,7 @@ MenuNumber menu_id_to_number(MenuID menu_id)
     {
       gmnu = &active_menus[idx];
       //SYNCDBG(8,"ID %d use %d",(int)gmnu->ident,(int)gmnu->field_1);
-      if ((gmnu->visible != 0) && (gmnu->ident == menu_id))
+      if ((gmnu->visibility != Visibility_Invisible) && (gmnu->ident == menu_id))
         return idx;
     }
     return MENU_INVALID_ID;
@@ -80,7 +80,7 @@ int point_is_over_gui_menu(long x, long y)
     {
       struct GuiMenu *gmnu;
       gmnu=&active_menus[idx];
-      if (gmnu->visible != 2)
+      if (gmnu->visibility != Visibility_Fading)
           continue;
       if (gmnu->isTurnedOn == 0)
           continue;
@@ -118,11 +118,11 @@ void turn_off_menu(MenuID mnu_idx)
     {
         if (game_is_busy_doing_gui_string_input())
         {
-            if (input_button->gmenu_idx == menu_num)
+            if (input_button->menuIndex == menu_num)
                 kill_button_area_input();
         }
         gmnu = get_active_menu(menu_num);
-        gmnu->visible = 3;
+        gmnu->visibility = Visibility_Hide;
         if (update_menu_fade_level(gmnu) == -1)
         {
             kill_menu(gmnu);
@@ -346,10 +346,9 @@ void turn_on_menu(MenuID mnu_idx)
     SYNCDBG(8,"Menu ID %d",(int)mnu_idx);
     struct GuiMenu *gmnu;
     gmnu = menu_list[mnu_idx];
-    if (create_menu(gmnu) >= 0)
+    if ((create_menu(gmnu) >= 0) && (gmnu->isTab))
     {
-      if (gmnu->field_1F)
-        game.field_1517F6 = mnu_idx;
+        game.activeTab = mnu_idx;
     }
 }
 
@@ -370,11 +369,11 @@ void set_menu_visible_on(MenuID menu_id)
     for (idx=0; idx<ACTIVE_BUTTONS_COUNT; idx++)
     {
       struct GuiButton *gbtn = &active_buttons[idx];
-      if (gbtn->flags & LbBtnF_Unknown01)
+      if (gbtn->flags & LbBtnFlag_Created)
       {
         Gf_Btn_Callback callback;
-        callback = gbtn->maintain_call;
-        if ((gbtn->gmenu_idx == menu_num) && (callback != NULL))
+        callback = gbtn->callbackMaintain;
+        if ((gbtn->menuIndex == menu_num) && (callback != NULL))
           callback(gbtn);
       }
     }
@@ -396,14 +395,14 @@ void set_menu_visible_off(MenuID menu_id)
 void kill_menu(struct GuiMenu *gmnu)
 {
     int i;
-    if (gmnu->visible)
+    if (gmnu->visibility != Visibility_Invisible)
     {
-      gmnu->visible = 0;
+        gmnu->visibility = Visibility_Invisible;
       for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
       {
           struct GuiButton *gbtn;
           gbtn = &active_buttons[i];
-          if ((gbtn->flags & LbBtnF_Unknown01) && (gbtn->gmenu_idx == gmnu->number)) {
+          if ((gbtn->flags & LbBtnFlag_Created) && (gbtn->menuIndex == gmnu->index)) {
               kill_button(gbtn);
           }
       }
@@ -463,7 +462,7 @@ long first_available_menu(void)
     short i;
     for (i=0; i<ACTIVE_MENUS_COUNT; i++)
     {
-        if (active_menus[i].visible == 0)
+        if (active_menus[i].visibility == 0)
             return i;
     }
     return -1;

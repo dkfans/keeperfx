@@ -548,7 +548,7 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
     lbDisplayEx.mainPanelWidth = 0;
     lbDisplayEx.cameraMoveRatioX = 0;
     lbDisplayEx.cameraMoveRatioY = 0;
-    lbDisplayEx.isMouseOverButton = 0;
+    lbDisplayEx.isMouseOverButton = false;
     lbDisplayEx.isDragMovingCamera = false;
     lbDisplayEx.isDragRotatingCamera = false;
     lbDisplayEx.skipLButtonRelease = false;

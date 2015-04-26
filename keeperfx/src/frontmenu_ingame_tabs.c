@@ -99,9 +99,9 @@ void menu_tab_maintain(struct GuiButton *gbtn)
     struct PlayerInfo *player;
     player = get_my_player();
     if (player->victory_state != VicS_LostLevel)
-        gbtn->flags |= LbBtnF_Unknown08;
+        gbtn->flags |= LbBtnFlag_Unknown08;
     else
-        gbtn->flags &= ~LbBtnF_Unknown08;
+        gbtn->flags &= ~LbBtnFlag_Unknown08;
 }
 
 void gui_area_autopilot_button(struct GuiButton *gbtn)
@@ -110,19 +110,19 @@ void gui_area_autopilot_button(struct GuiButton *gbtn)
     dungeon = get_players_num_dungeon(my_player_number);
     int spr_idx;
     spr_idx = gbtn->sprite_idx;
-    if (gbtn->gbtype == Lb_CYCLEBTN) {
+    if (gbtn->buttonType == LbBtnType_CycleButton) {
         ERRORLOG("Cycle button cannot have a normal button draw function!");
     }
     int ps_units_per_px;
     ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, spr_idx, 100);
-    if ((gbtn->flags & LbBtnF_Unknown08) != 0)
+    if ((gbtn->flags & LbBtnFlag_Unknown08) != 0)
     {
         if ((dungeon->computer_enabled & 0x01) != 0)
         {
           if (game.play_gameturn & 1)
             spr_idx += 2;
         }
-        if ((gbtn->gbactn_1 == 0) && (gbtn->gbactn_2 == 0))
+        if ((gbtn->leftClickFlag == 0) && (gbtn->rightClickFlag == 0))
           spr_idx += 1;
         draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx);
     }
@@ -141,7 +141,7 @@ void maintain_turn_on_autopilot(struct GuiButton *gbtn)
     comp = get_computer_player(player->id_number);
     cplr_model = comp->model;
     if ((cplr_model >= 0) && (cplr_model < 10)) {
-        gbtn->tooltip_stridx = computer_types_tooltip_stridx[cplr_model];
+        gbtn->iTooltipString = computer_types_tooltip_stridx[cplr_model];
     } else {
         ERRORLOG("Illegal computer player");
     }
@@ -150,20 +150,20 @@ void maintain_turn_on_autopilot(struct GuiButton *gbtn)
 void gui_choose_room(struct GuiButton *gbtn)
 {
     // prepare to enter room build mode
-    activate_room_build_mode((long)gbtn->content, gbtn->tooltip_stridx);
+    activate_room_build_mode((long)gbtn->content, gbtn->iTooltipString);
 }
 
 void gui_area_event_button(struct GuiButton *gbtn)
 {
     struct Dungeon *dungeon;
     unsigned long i;
-    if ((gbtn->flags & LbBtnF_Unknown08) != 0)
+    if ((gbtn->flags & LbBtnFlag_Unknown08) != 0)
     {
         int ps_units_per_px;
         ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, 258, 100);
         dungeon = get_players_num_dungeon(my_player_number);
         i = (unsigned long)gbtn->content;
-        if ((gbtn->gbactn_1) || (gbtn->gbactn_2))
+        if ((gbtn->leftClickFlag) || (gbtn->rightClickFlag))
         {
             draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx);
         } else
@@ -422,7 +422,7 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
 void gui_choose_spell(struct GuiButton *gbtn)
 {
     //NOTE by Petter: factored out original gui_choose_spell code to choose_spell
-    choose_spell((int) gbtn->content, gbtn->tooltip_stridx);
+    choose_spell((int) gbtn->content, gbtn->iTooltipString);
 }
 
 void go_to_next_spell_of_type(PowerKind pwkind, PlayerNumber plyr_idx)
@@ -439,7 +439,7 @@ void gui_go_to_next_spell(struct GuiButton *gbtn)
     struct PlayerInfo * player;
     player = get_my_player();
     go_to_next_spell_of_type(pwkind, player->id_number);
-    set_chosen_power(pwkind, gbtn->tooltip_stridx);
+    set_chosen_power(pwkind, gbtn->iTooltipString);
 }
 
 void gui_area_spell_button(struct GuiButton *gbtn)
@@ -458,7 +458,7 @@ void gui_area_spell_button(struct GuiButton *gbtn)
     int spr_idx;
     if ((dungeon->magic_resrchable[pwkind]) || (dungeon->magic_level[pwkind] > 0))
     {
-        if ((gbtn->flags & LbBtnF_Unknown08) != 0)
+        if ((gbtn->flags & LbBtnFlag_Unknown08) != 0)
         {
             const struct PowerConfigStats *powerst;
             powerst = get_power_model_stats(pwkind);
@@ -476,7 +476,7 @@ void gui_area_spell_button(struct GuiButton *gbtn)
                 spr_idx++;
             TbBool drawn;
             drawn = false;
-            if ((gbtn->gbactn_1 == 0) && (gbtn->gbactn_2 == 0))
+            if ((gbtn->leftClickFlag == 0) && (gbtn->rightClickFlag == 0))
             {
                 if ((((i != PSt_CallToArms) || !player_uses_power_call_to_arms(my_player_number))
                   && ((i != PSt_SightOfEvil) || !player_uses_power_sight(my_player_number)))
@@ -508,7 +508,7 @@ void gui_choose_special_spell(struct GuiButton *gbtn)
 {
     //NOTE by Petter: factored out original gui_choose_special_spell code to choose_special_spell
     //TODO: equivalent to gui_choose_spell now... try merge
-    choose_spell(((int) gbtn->content) % POWER_TYPES_COUNT, gbtn->tooltip_stridx);
+    choose_spell(((int) gbtn->content) % POWER_TYPES_COUNT, gbtn->iTooltipString);
 }
 
 void gui_area_big_spell_button(struct GuiButton *gbtn)
@@ -605,7 +605,7 @@ void choose_workshop_item(int manufctr_idx, TextStringId tooltip_id)
 void gui_choose_trap(struct GuiButton *gbtn)
 {
     //Note by Petter: factored out gui_choose_trap to choose_workshop_item (better name as well)
-    choose_workshop_item((int) gbtn->content, gbtn->tooltip_stridx);
+    choose_workshop_item((int) gbtn->content, gbtn->iTooltipString);
 }
 
 void go_to_next_trap_of_type(ThingModel tngmodel, PlayerNumber plyr_idx)
@@ -736,7 +736,7 @@ void gui_go_to_next_trap(struct GuiButton *gbtn)
     go_to_next_trap_of_type(manufctr->tngmodel, player->id_number);
     game.manufactr_element = manufctr_idx;
     game.manufactr_spridx = manufctr->bigsym_sprite_idx;
-    game.manufactr_tooltip = manufctr->tooltip_stridx;
+    game.manufactr_tooltip = manufctr->iTooltipString;
 }
 
 void gui_over_trap_button(struct GuiButton *gbtn)
@@ -786,7 +786,7 @@ void gui_area_trap_button(struct GuiButton *gbtn)
         return;
     }
     // We should draw; maybe just disabled button
-    if ((gbtn->flags & LbBtnF_Unknown08) == 0)
+    if ((gbtn->flags & LbBtnFlag_Unknown08) == 0)
     {
         draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 25);
         lbDisplay.DrawFlags = flg_mem;
@@ -818,7 +818,7 @@ void gui_area_trap_button(struct GuiButton *gbtn)
     }
     int i;
     i = gbtn->sprite_idx + (amount < 1);
-    if (gbtn->gbactn_1 || gbtn->gbactn_2)
+    if (gbtn->leftClickFlag || gbtn->rightClickFlag)
     {
         draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, i, 22);
     } else
@@ -839,7 +839,7 @@ void gui_go_to_next_door(struct GuiButton *gbtn)
     go_to_next_door_of_type(manufctr->tngmodel, player->id_number);
     game.manufactr_element = manufctr_idx;
     game.manufactr_spridx = manufctr->bigsym_sprite_idx;
-    game.manufactr_tooltip = manufctr->tooltip_stridx;
+    game.manufactr_tooltip = manufctr->iTooltipString;
 }
 
 void gui_over_door_button(struct GuiButton *gbtn)
@@ -926,15 +926,15 @@ void maintain_big_spell(struct GuiButton *gbtn)
     }
     gbtn->content = (unsigned long *)spl_idx;
     gbtn->sprite_idx = game.chosen_spell_spridx;
-    gbtn->tooltip_stridx = game.chosen_spell_tooltip;
+    gbtn->iTooltipString = game.chosen_spell_tooltip;
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(my_player_number);
     if (dungeon->magic_level[spl_idx] > 0) {
         gbtn->field_1B = 0;
-        gbtn->flags |= LbBtnF_Unknown08;
+        gbtn->flags |= LbBtnFlag_Unknown08;
     } else {
-        gbtn->field_1B |= 0x8000;
-        gbtn->flags &= ~LbBtnF_Unknown08;
+        gbtn->field_1B |= 0x8000; // This doesn't seem right, short vs int.
+        gbtn->flags &= ~LbBtnFlag_Unknown08;
     }
 }
 
@@ -953,10 +953,10 @@ void maintain_room(struct GuiButton *gbtn)
     }
     if (dungeon->room_buildable[rkind]) {
         gbtn->field_1B = 0;
-        gbtn->flags |= LbBtnF_Unknown08;
+        gbtn->flags |= LbBtnFlag_Unknown08;
     } else {
         gbtn->field_1B |= 0x8000;
-        gbtn->flags &= ~LbBtnF_Unknown08;
+        gbtn->flags &= ~LbBtnFlag_Unknown08;
     }
 }
 
@@ -975,13 +975,13 @@ void maintain_big_room(struct GuiButton *gbtn)
     }
     gbtn->content = (unsigned long *)rkind;
     gbtn->sprite_idx = game.chosen_room_spridx;
-    gbtn->tooltip_stridx = game.chosen_room_tooltip;
+    gbtn->iTooltipString = game.chosen_room_tooltip;
     if (dungeon->room_buildable[rkind]) {
         gbtn->field_1B = 0;
-        gbtn->flags |= LbBtnF_Unknown08;
+        gbtn->flags |= LbBtnFlag_Unknown08;
     } else {
         gbtn->field_1B |= 0x8000;
-        gbtn->flags &= ~LbBtnF_Unknown08;
+        gbtn->flags &= ~LbBtnFlag_Unknown08;
     }
 }
 
@@ -994,18 +994,18 @@ void maintain_spell(struct GuiButton *gbtn)
   if (!is_power_available(player->id_number,i))
   {
     gbtn->field_1B |= 0x8000u;
-    gbtn->flags &= ~LbBtnF_Unknown08;
+    gbtn->flags &= ~LbBtnFlag_Unknown08;
   } else
   if (i == 19)
   {
       if (game.armageddon_cast_turn != 0)
       {
         gbtn->field_1B |= 0x8000u;
-        gbtn->flags &= ~LbBtnF_Unknown08;
+        gbtn->flags &= ~LbBtnFlag_Unknown08;
       } else
       {
         gbtn->field_1B = 0;
-        gbtn->flags |= LbBtnF_Unknown08;
+        gbtn->flags |= LbBtnFlag_Unknown08;
       }
   } else
   if (i == 9)
@@ -1013,16 +1013,16 @@ void maintain_spell(struct GuiButton *gbtn)
       if (player_uses_power_hold_audience(my_player_number))
       {
         gbtn->field_1B |= 0x8000u;
-        gbtn->flags &= ~LbBtnF_Unknown08;
+        gbtn->flags &= ~LbBtnFlag_Unknown08;
       } else
       {
         gbtn->field_1B = 0;
-        gbtn->flags |= LbBtnF_Unknown08;
+        gbtn->flags |= LbBtnFlag_Unknown08;
       }
   } else
   {
     gbtn->field_1B = 0;
-    gbtn->flags |= LbBtnF_Unknown08;
+    gbtn->flags |= LbBtnFlag_Unknown08;
   }
 }
 
@@ -1035,11 +1035,11 @@ void maintain_trap(struct GuiButton *gbtn)
     if (is_trap_placeable(my_player_number, manufctr->tngmodel) || is_trap_built(my_player_number, manufctr->tngmodel))
     {
         gbtn->field_1B = 0;
-        gbtn->flags |= LbBtnF_Unknown08;
+        gbtn->flags |= LbBtnFlag_Unknown08;
     } else
     {
         gbtn->field_1B |= 0x8000u;
-        gbtn->flags &= ~LbBtnF_Unknown08;
+        gbtn->flags &= ~LbBtnFlag_Unknown08;
     }
 }
 
@@ -1052,11 +1052,11 @@ void maintain_door(struct GuiButton *gbtn)
     if (is_door_placeable(my_player_number, manufctr->tngmodel) || is_door_built(my_player_number, manufctr->tngmodel))
     {
         gbtn->field_1B = 0;
-        gbtn->flags |= LbBtnF_Unknown08;
+        gbtn->flags |= LbBtnFlag_Unknown08;
     } else
     {
         gbtn->field_1B |= 0x8000u;
-        gbtn->flags &= ~LbBtnF_Unknown08;
+        gbtn->flags &= ~LbBtnFlag_Unknown08;
     }
 }
 
@@ -1068,16 +1068,16 @@ void maintain_big_trap(struct GuiButton *gbtn)
     manufctr = get_manufacture_data(manufctr_idx);
     gbtn->content = (unsigned long *)manufctr_idx;
     gbtn->sprite_idx = game.manufactr_spridx;
-    gbtn->tooltip_stridx = game.manufactr_tooltip;
+    gbtn->iTooltipString = game.manufactr_tooltip;
     if ( ((manufctr->tngclass == TCls_Trap) && is_trap_placeable(my_player_number, manufctr->tngmodel))
       || ((manufctr->tngclass == TCls_Door) && is_door_placeable(my_player_number, manufctr->tngmodel)) )
     {
         gbtn->field_1B = 0;
-        gbtn->flags |= LbBtnF_Unknown08;
+        gbtn->flags |= LbBtnFlag_Unknown08;
     } else
     {
         gbtn->field_1B |= 0x8000u;
-        gbtn->flags &= ~LbBtnF_Unknown08;
+        gbtn->flags &= ~LbBtnFlag_Unknown08;
     }
 }
 
@@ -1293,7 +1293,7 @@ void gui_go_to_next_room(struct GuiButton *gbtn)
     struct RoomConfigStats *roomst;
     roomst = &slab_conf.room_cfgstats[rkind];
     game.chosen_room_spridx = roomst->bigsym_sprite_idx;
-    game.chosen_room_tooltip = gbtn->tooltip_stridx;
+    game.chosen_room_tooltip = gbtn->iTooltipString;
 }
 
 void gui_over_room_button(struct GuiButton *gbtn)
@@ -1317,12 +1317,12 @@ void gui_area_room_button(struct GuiButton *gbtn)
     int spr_idx;
     if (dungeon->room_resrchable[rkind] || dungeon->room_buildable[rkind])
     {
-        if ((gbtn->flags & LbBtnF_Unknown08) != 0)
+        if ((gbtn->flags & LbBtnFlag_Unknown08) != 0)
         {
             if (dungeon->room_kind[rkind] > 0)
                 draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 27);
             spr_idx = (dungeon->total_money_owned < game.room_stats[rkind].cost) + gbtn->sprite_idx;
-            if ((gbtn->gbactn_1 == 0) && (gbtn->gbactn_2 == 0)) {
+            if ((gbtn->leftClickFlag == 0) && (gbtn->rightClickFlag == 0)) {
                 draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx);
             } else {
                 draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, 44);
@@ -1393,7 +1393,7 @@ void gui_area_anger_button(struct GuiButton *gbtn)
     int spridx;
     long cr_total;
     cr_total = 0;
-    if ((crmodel > 0) && (crmodel < CREATURE_TYPES_COUNT) && (gbtn->flags & LbBtnF_Unknown08))
+    if ((crmodel > 0) && (crmodel < CREATURE_TYPES_COUNT) && (gbtn->flags & LbBtnFlag_Unknown08))
     {
         dungeon = get_players_num_dungeon(my_player_number);
         spridx = gbtn->sprite_idx;
@@ -1415,7 +1415,7 @@ void gui_area_anger_button(struct GuiButton *gbtn)
             spridx += 14 * i / cr_total;
           }
         }
-        if ((gbtn->gbactn_1) || (gbtn->gbactn_2))
+        if ((gbtn->leftClickFlag) || (gbtn->rightClickFlag))
         {
           draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y-2*units_per_px/16, ps_units_per_px, spridx, 12);
         } else
@@ -1627,7 +1627,7 @@ void maintain_instance(struct GuiButton *gbtn)
     if (!thing_is_creature(ctrltng))
     {
         gbtn->field_1B |= 0x8000;
-        gbtn->flags &= ~LbBtnF_Unknown08;
+        gbtn->flags &= ~LbBtnFlag_Unknown08;
         return;
     }
     struct CreatureControl *cctrl;
@@ -1653,16 +1653,16 @@ void maintain_instance(struct GuiButton *gbtn)
     if ( i )
     {
         gbtn->sprite_idx = i;
-        gbtn->tooltip_stridx = instance_button_init[curbtn_inst_id].tooltip_stridx;
+        gbtn->iTooltipString = instance_button_init[curbtn_inst_id].iTooltipString;
     }
     if (creature_instance_is_available(ctrltng, curbtn_inst_id))
     {
         gbtn->field_1B = 0;
-        gbtn->flags |= LbBtnF_Unknown08;
+        gbtn->flags |= LbBtnFlag_Unknown08;
         return;
     }
     gbtn->field_1B |= 0x8000;
-    gbtn->flags &= ~LbBtnF_Unknown08;
+    gbtn->flags &= ~LbBtnFlag_Unknown08;
 }
 
 void gui_activity_background(struct GuiMenu *gmnu)
@@ -1727,12 +1727,12 @@ void maintain_activity_up(struct GuiButton *gbtn)
 {
     if (no_of_breeds_owned <= 6)
     {
-        gbtn->flags &= ~LbBtnF_Unknown04;
-        gbtn->flags &= ~LbBtnF_Unknown08;
+        gbtn->flags &= ~LbBtnFlag_Enabled;
+        gbtn->flags &= ~LbBtnFlag_Unknown08;
     } else
     {
-        gbtn->flags |= LbBtnF_Unknown04;
-        gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown08 * (top_of_breed_list > 0)) & LbBtnF_Unknown08;
+        gbtn->flags |= LbBtnFlag_Enabled;
+        gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Unknown08 * (top_of_breed_list > 0)) & LbBtnFlag_Unknown08;
     }
 }
 
@@ -1740,13 +1740,13 @@ void maintain_activity_down(struct GuiButton *gbtn)
 {
     if (no_of_breeds_owned <= 6)
     {
-        gbtn->flags &= ~LbBtnF_Unknown04;
-        gbtn->flags &= ~LbBtnF_Unknown08;
+        gbtn->flags &= ~LbBtnFlag_Enabled;
+        gbtn->flags &= ~LbBtnFlag_Unknown08;
     }
     else
     {
-        gbtn->flags |= LbBtnF_Unknown04;
-        gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown08 * (no_of_breeds_owned - 6 > top_of_breed_list)) & LbBtnF_Unknown08;
+        gbtn->flags |= LbBtnFlag_Enabled;
+        gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Unknown08 * (no_of_breeds_owned - 6 > top_of_breed_list)) & LbBtnFlag_Unknown08;
     }
 }
 
@@ -1767,8 +1767,8 @@ void maintain_activity_pic(struct GuiButton *gbtn)
       amount = dungeon->num_active_diggers;
     else*/
     amount = dungeon->owned_creatures_of_model[crmodel];
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown08 * (amount > 0)) & LbBtnF_Unknown08;
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown04 * (no_of_breeds_owned > i)) & LbBtnF_Unknown04;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Unknown08 * (amount > 0)) & LbBtnFlag_Unknown08;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Enabled * (no_of_breeds_owned > i)) & LbBtnFlag_Enabled;
     gbtn->sprite_idx = get_creature_model_graphics(crmodel, CGI_HandSymbol);
 }
 
@@ -1789,8 +1789,8 @@ void maintain_activity_row(struct GuiButton *gbtn)
       amount = dungeon->num_active_diggers;
     else*/
     amount = dungeon->owned_creatures_of_model[crmodel];
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown08 * (amount > 0)) & LbBtnF_Unknown08;
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown04 * (no_of_breeds_owned > i)) & LbBtnF_Unknown04;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Unknown08 * (amount > 0)) & LbBtnFlag_Unknown08;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Enabled * (no_of_breeds_owned > i)) & LbBtnFlag_Enabled;
 }
 
 void gui_scroll_activity_up(struct GuiButton *gbtn)
@@ -1811,7 +1811,7 @@ void gui_area_ally(struct GuiButton *gbtn)
     plyr_idx = (int)gbtn->content;
     int spr_idx;
     spr_idx = 498;
-    if ((gbtn->flags & LbBtnF_Unknown08) == 0) {
+    if ((gbtn->flags & LbBtnFlag_Unknown08) == 0) {
         return;
     }
     int ps_units_per_px;
@@ -1831,7 +1831,7 @@ void gui_area_ally(struct GuiButton *gbtn)
             spr_idx = 488 + (plyr_idx & 0x0f);
         }
     }
-    if ( gbtn->gbactn_1 || gbtn->gbactn_2 )
+    if ( gbtn->leftClickFlag || gbtn->rightClickFlag )
     {
         draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, 44);
     } else
@@ -1882,10 +1882,10 @@ void maintain_event_button(struct GuiButton *gbtn)
     {
       gbtn->field_1B |= 0x4000;
       gbtn->sprite_idx = 0;
-      gbtn->flags &= ~LbBtnF_Unknown08;
-      gbtn->gbactn_1 = 0;
-      gbtn->gbactn_2 = 0;
-      gbtn->tooltip_stridx = GUIStr_Empty;
+      gbtn->flags &= ~LbBtnFlag_Unknown08;
+      gbtn->leftClickFlag = 0;
+      gbtn->rightClickFlag = 0;
+      gbtn->iTooltipString = GUIStr_Empty;
       return;
     }
     struct Event *event;
@@ -1907,8 +1907,8 @@ void maintain_event_button(struct GuiButton *gbtn)
         // Unread information flashes
         gbtn->sprite_idx += 2;
     }
-    gbtn->tooltip_stridx = event_button_info[event->kind].tooltip_stridx;
-    gbtn->flags |= LbBtnF_Unknown08;
+    gbtn->iTooltipString = event_button_info[event->kind].iTooltipString;
+    gbtn->flags |= LbBtnFlag_Unknown08;
     gbtn->field_1B = 0;
 }
 
@@ -1916,7 +1916,7 @@ void gui_toggle_ally(struct GuiButton *gbtn)
 {
     PlayerNumber plyr_idx;
     plyr_idx = (int)gbtn->content;
-    if ((gbtn->flags & LbBtnF_Unknown08) != 0) {
+    if ((gbtn->flags & LbBtnFlag_Unknown08) != 0) {
         struct Packet *pckt;
         pckt = get_packet(my_player_number);
         set_packet_action(pckt, PckA_PlyrToggleAlly, plyr_idx, 0);
@@ -1932,11 +1932,11 @@ void maintain_ally(struct GuiButton *gbtn)
     if (!is_my_player_number(plyr_idx) && ((player->allocflags & PlaF_Allocated) != 0))
     {
         gbtn->field_1B = 0;
-        gbtn->flags |= LbBtnF_Unknown08;
+        gbtn->flags |= LbBtnFlag_Unknown08;
     } else
     {
         gbtn->field_1B |= 0x8000;
-        gbtn->flags &= ~LbBtnF_Unknown08;
+        gbtn->flags &= ~LbBtnFlag_Unknown08;
     }
 }
 
@@ -1945,12 +1945,12 @@ void maintain_prison_bar(struct GuiButton *gbtn)
     if (player_has_room(my_player_number, RoK_PRISON))
     {
         gbtn->sprite_idx = 350;
-        gbtn->flags |= LbBtnF_Unknown08;
+        gbtn->flags |= LbBtnFlag_Unknown08;
     } else
     {
         gbtn->sprite_idx = 354;
-        gbtn->flags &= ~LbBtnF_Unknown08;
-        /*if (gbtn->gbactn_1) - this does nothing, but was in original function
+        gbtn->flags &= ~LbBtnFlag_Unknown08;
+        /*if (gbtn->leftClickFlag) - this does nothing, but was in original function
         {
             menu_id_to_number(7);
         }*/
@@ -1966,12 +1966,12 @@ void maintain_room_and_creature_button(struct GuiButton *gbtn)
     if (player_exists(player))
     {
         gbtn->field_1B = 0;
-        gbtn->flags |= LbBtnF_Unknown08;
+        gbtn->flags |= LbBtnFlag_Unknown08;
     } else
     {
         gbtn->field_1B |= 0x4000;
-        gbtn->flags &= ~LbBtnF_Unknown08;
-        gbtn->tooltip_stridx = 201;
+        gbtn->flags &= ~LbBtnFlag_Unknown08;
+        gbtn->iTooltipString = 201;
     }
 }
 
@@ -2243,12 +2243,12 @@ void update_room_tab_to_config(void)
         struct GuiButtonInit * ibtn;
         ibtn = &room_menu.buttons[i];
         ibtn->sprite_idx = 24;
-        ibtn->tooltip_stridx = GUIStr_Empty;
+        ibtn->iTooltipString = GUIStr_Empty;
         ibtn->content.lval = 0;
-        ibtn->click_event = NULL;
-        ibtn->rclick_event = NULL;
-        ibtn->ptover_event = NULL;
-        ibtn->draw_call = gui_area_new_null_button;
+        ibtn->callbackClick = NULL;
+        ibtn->callbackRightClick = NULL;
+        ibtn->callbackMouseHover = NULL;
+        ibtn->callbackDraw = gui_area_new_null_button;
     }
     for (i=0; i < slab_conf.room_types_count; i++)
     {
@@ -2259,12 +2259,12 @@ void update_room_tab_to_config(void)
         struct GuiButtonInit * ibtn;
         ibtn = &room_menu.buttons[roomst->panel_tab_idx-1];
         ibtn->sprite_idx = roomst->medsym_sprite_idx;
-        ibtn->tooltip_stridx = roomst->tooltip_stridx;
+        ibtn->iTooltipString = roomst->iTooltipString;
         ibtn->content.lval = i;
-        ibtn->click_event = gui_choose_room;
-        ibtn->rclick_event = gui_go_to_next_room;
-        ibtn->ptover_event = gui_over_room_button;
-        ibtn->draw_call = gui_area_room_button;
+        ibtn->callbackClick = gui_choose_room;
+        ibtn->callbackRightClick = gui_go_to_next_room;
+        ibtn->callbackMouseHover = gui_over_room_button;
+        ibtn->callbackDraw = gui_area_room_button;
     }
 }
 
@@ -2277,13 +2277,14 @@ void update_trap_tab_to_config(void)
         struct GuiButtonInit * ibtn;
         ibtn = &trap_menu.buttons[i];
         ibtn->sprite_idx = 24;
-        ibtn->tooltip_stridx = GUIStr_Empty;
+        ibtn->iTooltipString = GUIStr_Empty;
         ibtn->content.lval = 0;
-        ibtn->click_event = NULL;
-        ibtn->rclick_event = NULL;
-        ibtn->ptover_event = NULL;
-        ibtn->draw_call = gui_area_new_null_button;
-        ibtn->maintain_call = NULL;
+
+        ibtn->callbackClick = NULL;
+        ibtn->callbackRightClick = NULL;
+        ibtn->callbackMouseHover = NULL;
+        ibtn->callbackDraw = gui_area_new_null_button;
+        ibtn->callbackMaintain = NULL;
     }
     for (i=0; i < trapdoor_conf.manufacture_types_count; i++)
     {
@@ -2294,23 +2295,23 @@ void update_trap_tab_to_config(void)
         struct GuiButtonInit * ibtn;
         ibtn = &trap_menu.buttons[manufctr->panel_tab_idx-1];
         ibtn->sprite_idx = manufctr->medsym_sprite_idx;
-        ibtn->tooltip_stridx = manufctr->tooltip_stridx;
+        ibtn->iTooltipString = manufctr->iTooltipString;
         ibtn->content.lval = i;
         switch (manufctr->tngclass)
         {
         case TCls_Trap:
-            ibtn->click_event = gui_choose_trap;
-            ibtn->rclick_event = gui_go_to_next_trap;
-            ibtn->ptover_event = gui_over_trap_button;
-            ibtn->draw_call = gui_area_trap_button;
-            ibtn->maintain_call = maintain_trap;
+            ibtn->callbackClick = gui_choose_trap;
+            ibtn->callbackRightClick = gui_go_to_next_trap;
+            ibtn->callbackMouseHover = gui_over_trap_button;
+            ibtn->callbackDraw = gui_area_trap_button;
+            ibtn->callbackMaintain = maintain_trap;
             break;
         case TCls_Door:
-            ibtn->click_event = gui_choose_trap;
-            ibtn->rclick_event = gui_go_to_next_door;
-            ibtn->ptover_event = gui_over_door_button;
-            ibtn->draw_call = gui_area_trap_button;
-            ibtn->maintain_call = maintain_door;
+            ibtn->callbackClick = gui_choose_trap;
+            ibtn->callbackRightClick = gui_go_to_next_door;
+            ibtn->callbackMouseHover = gui_over_door_button;
+            ibtn->callbackDraw = gui_area_trap_button;
+            ibtn->callbackMaintain = maintain_door;
             break;
         default:
             break;
@@ -2327,13 +2328,13 @@ void update_powers_tab_to_config(void)
         struct GuiButtonInit * ibtn;
         ibtn = &spell_menu.buttons[i];
         ibtn->sprite_idx = 24;
-        ibtn->tooltip_stridx = GUIStr_Empty;
+        ibtn->iTooltipString = GUIStr_Empty;
         ibtn->content.lval = 0;
-        ibtn->click_event = NULL;
-        ibtn->rclick_event = NULL;
-        ibtn->ptover_event = NULL;
-        ibtn->draw_call = gui_area_new_null_button;
-        ibtn->maintain_call = NULL;
+        ibtn->callbackClick = NULL;
+        ibtn->callbackRightClick = NULL;
+        ibtn->callbackMouseHover = NULL;
+        ibtn->callbackDraw = gui_area_new_null_button;
+        ibtn->callbackMaintain = NULL;
     }
     for (i=0; i < magic_conf.power_types_count; i++)
     {
@@ -2344,19 +2345,19 @@ void update_powers_tab_to_config(void)
         struct GuiButtonInit * ibtn;
         ibtn = &spell_menu.buttons[powerst->panel_tab_idx-1];
         ibtn->sprite_idx = powerst->medsym_sprite_idx;
-        ibtn->tooltip_stridx = powerst->tooltip_stridx;
+        ibtn->iTooltipString = powerst->iTooltipString;
         ibtn->content.lval = i;
         if ((i == PwrK_HOLDAUDNC) || (i == PwrK_ARMAGEDDON)) {
-            ibtn->click_event = gui_choose_special_spell;
-            ibtn->rclick_event = NULL;
-            ibtn->ptover_event = NULL;
+            ibtn->callbackClick = gui_choose_special_spell;
+            ibtn->callbackRightClick = NULL;
+            ibtn->callbackMouseHover = NULL;
         } else {
-            ibtn->click_event = gui_choose_spell;
-            ibtn->rclick_event = gui_go_to_next_spell;
-            ibtn->ptover_event = NULL;
+            ibtn->callbackClick = gui_choose_spell;
+            ibtn->callbackRightClick = gui_go_to_next_spell;
+            ibtn->callbackMouseHover = NULL;
         }
-        ibtn->draw_call = gui_area_spell_button;
-        ibtn->maintain_call = maintain_spell;
+        ibtn->callbackDraw = gui_area_spell_button;
+        ibtn->callbackMaintain = maintain_spell;
     }
 }
 /******************************************************************************/
