@@ -47,7 +47,7 @@ int first_monopoly_menu(void)
   for (idx=0; idx < ACTIVE_MENUS_COUNT; idx++)
   {
     gmnu = &active_menus[idx];
-    if ((gmnu->visible != 0) && (gmnu->flgfield_1E != 0))
+    if ((gmnu->visible != 0) && (gmnu->isMonopolyMenu != 0))
         return idx;
   }
   return -1;
@@ -82,7 +82,7 @@ int point_is_over_gui_menu(long x, long y)
       gmnu=&active_menus[idx];
       if (gmnu->visible != 2)
           continue;
-      if (gmnu->flgfield_1D == 0)
+      if (gmnu->isTurnedOn == 0)
           continue;
       short gx = gmnu->pos_x;
       if ((x >= gx) && (x < gx+gmnu->width))
@@ -359,7 +359,7 @@ void set_menu_visible_on(MenuID menu_id)
     menu_num = menu_id_to_number(menu_id);
     if (menu_num < 0)
       return;
-    get_active_menu(menu_num)->flgfield_1D = 1;
+    get_active_menu(menu_num)->isTurnedOn = 1;
 
     if (menu_id == GMnu_MAIN)
     {
@@ -386,7 +386,7 @@ void set_menu_visible_off(MenuID menu_id)
     menu_num = menu_id_to_number(menu_id);
     if (menu_num < 0)
       return;
-    get_active_menu(menu_num)->flgfield_1D = 0;
+    get_active_menu(menu_num)->isTurnedOn = 0;
     if (menu_id == GMnu_MAIN)
     {
         lbDisplayEx.mainPanelWidth = 0;

@@ -72,7 +72,7 @@ void fake_button_click(int gmbtn_idx)
         gbtn = &active_buttons[i];
         struct GuiMenu *gmnu;
         gmnu = &active_menus[(unsigned)gbtn->gmenu_idx];
-        if (((gbtn->flags & LbBtnF_Unknown01) != 0) && (gmnu->flgfield_1D != 0) && (gbtn->id_num == gmbtn_idx))
+        if (((gbtn->flags & LbBtnF_Unknown01) != 0) && (gmnu->isTurnedOn != 0) && (gbtn->id_num == gmbtn_idx))
         {
             if ((gbtn->click_event != NULL) || ((gbtn->flags & LbBtnF_Unknown02) != 0) || (gbtn->parent_menu != NULL) || (gbtn->gbtype == Lb_RADIOBTN)) {
                 do_button_press_actions(gbtn, &gbtn->gbactn_1, gbtn->click_event);
