@@ -107,6 +107,11 @@ enum JobKindFlags {
     JoKF_AllowChickenized   = 0x00020000,
 };
 
+enum InstancePropertiesFlags {
+    InstPF_None               = 0x00,
+    InstPF_RepeatTrigger      = 0x01,
+};
+
 enum CreatureDeathKind {
     Death_Unset = 0,
     Death_Normal,
