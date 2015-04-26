@@ -2291,13 +2291,13 @@ void process_players_creature_control_packet_control(long idx)
 
     if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
     {
+        i = ccctrl->field_1E8;
         if (ccctrl->instance_id == CrInst_NULL)
         {
-            if (creature_instance_is_available(cctng, ccctrl->field_1E8))
+            if (creature_instance_is_available(cctng, i))
             {
-                if (creature_instance_has_reset(cctng, ccctrl->field_1E8))
+                if (creature_instance_has_reset(cctng, i))
                 {
-                    i = ccctrl->field_1E8;
                     inst_inf = creature_instance_info_get(i);
                     n = get_human_controlled_creature_target(cctng, inst_inf->field_1D);
                     set_creature_instance(cctng, i, 1, n, 0);
@@ -2307,15 +2307,21 @@ void process_players_creature_control_packet_control(long idx)
     }
     if ((pckt->control_flags & PCtr_LBtnHeld) != 0)
     {
+        // Button is held down - check whether the instance has auto-repeat
         i = ccctrl->field_1E8;
         inst_inf = creature_instance_info_get(i);
         if ((inst_inf->flags & InstPF_RepeatTrigger) != 0)
         {
-            k = ccctrl->instance_id;
-            if ((k == CrInst_NULL) || (k == i))
+            if (ccctrl->instance_id == CrInst_NULL)
             {
-              n = get_human_controlled_creature_target(cctng, inst_inf->field_1D);
-              set_creature_instance(cctng, i, 1, n, 0);
+                if (creature_instance_is_available(cctng, i))
+                {
+                    if (creature_instance_has_reset(cctng, i))
+                    {
+                        n = get_human_controlled_creature_target(cctng, inst_inf->field_1D);
+                        set_creature_instance(cctng, i, 1, n, 0);
+                    }
+                }
             }
         }
     }
