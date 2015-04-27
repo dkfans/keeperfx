@@ -3729,6 +3729,9 @@ void _predict_power_hand_click_behavior()
     bool isNothingInHand = 0;
     bool isNothingToPickupOrSlap = 0;
     bool isNothingToDig = 0;
+    // Some spells like heal and lighting can be charged through holding left button, we don't want to enter 
+    // dragging mode when casting these spells.
+    bool isNotCastingChargeableSpell = 1;
 
     // Get the informaiton of current slab the power hand is over.
     if (player && cam)
@@ -3744,9 +3747,21 @@ void _predict_power_hand_click_behavior()
         isNothingInHand = (player) && power_hand_is_empty(player);
         isNothingToPickupOrSlap = (player) && (player->thing_under_hand == 0);
         isNothingToDig = !can_dig_here(stl_x, stl_y, my_player_number);
+        isNotCastingChargeableSpell = (player->work_state == PSt_CtrlDungeon) ||
+            (player->work_state == PSt_BuildRoom) ||
+            (player->work_state == PSt_HoldInHand) ||
+            (player->work_state == PSt_Slap) ||
+            (player->work_state == PSt_PlaceTrap) ||
+            (player->work_state == PSt_PlaceDoor) ||
+            (player->work_state == PSt_Sell) ||
+            (player->work_state == PSt_FreeDestroyWalls) ||
+            (player->work_state == PSt_FreeCastDisease) ||
+            (player->work_state == PSt_FreeTurnChicken) ||
+            (player->work_state == PSt_FreeCtrlPassngr) ||
+            (player->work_state == PSt_FreeCtrlDirect);
 
         // Dragging should not be disrupted once started, until release button.
-        lbDisplayEx.isPowerHandNothingTodoLeftClick = lbDisplayEx.isDragMovingCamera || (isMapCamera && isNothingToPickupOrSlap && isNothingToDig);
+        lbDisplayEx.isPowerHandNothingTodoLeftClick = lbDisplayEx.isDragMovingCamera || (isMapCamera && isNothingToPickupOrSlap && isNothingToDig && isNotCastingChargeableSpell);
         lbDisplayEx.isPowerHandNothingTodoRightClick = lbDisplayEx.isDragRotatingCamera || (isMapCamera && isNothingToPickupOrSlap && isNothingInHand);
     }
 }

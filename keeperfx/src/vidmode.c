@@ -358,12 +358,12 @@ TbBool set_pointer_graphic(long ptr_idx)
   case MousePG_Unkn00:
   case MousePG_Unkn01:
   case MousePG_Unkn02:
-  case MousePG_Unkn04:
+  case MousePG_Query:
   case MousePG_Unkn15:
       spr = &pointer_sprites[ptr_idx];
       x = 12; y = 15;
       break;
-  case MousePG_Unkn03:
+  case MousePG_Sell:
       spr = &pointer_sprites[ptr_idx];
       x = 17; y = 29;
       break;

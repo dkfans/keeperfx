@@ -829,6 +829,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
     }
     switch (player->work_state)
     {
+        // Defalut state.
     case PSt_CtrlDungeon:
         if (player->field_455)
           i = player->field_455;
@@ -859,7 +860,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
             if (((player->boolfield_5) && !thing_is_invalid(thing)) && (dungeon->things_in_hand[0] != player->thing_under_hand)
                 && can_thing_be_queried(thing, player->id_number))
             {
-                set_pointer_graphic(MousePG_Unkn04);
+                set_pointer_graphic(MousePG_Query);
                 player->flgfield_6 |= PlaF6_Unknown01;
             } else
             {
@@ -909,7 +910,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         break;
     case PSt_CreatrQuery:
     case PSt_CreatrInfo:
-        set_pointer_graphic(MousePG_Unkn04);
+        set_pointer_graphic(MousePG_Query);
         break;
     case PSt_PlaceTrap:
         i = get_place_trap_pointer_graphics(player->chosen_trap_kind);
@@ -920,7 +921,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         set_pointer_graphic(i);
         break;
     case PSt_Sell:
-        set_pointer_graphic(MousePG_Unkn03);
+        set_pointer_graphic(MousePG_Sell);
         break;
     default:
         set_pointer_graphic(MousePG_Unkn01);
