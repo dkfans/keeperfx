@@ -94,7 +94,7 @@ void draw_load_button(struct GuiButton *gbtn)
 
     draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, gbtn->width);
 
-    if ((gbtn->leftClickFlag) || (gbtn->rightClickFlag))
+    if ((gbtn->leftclick_flag) || (gbtn->rightclick_flag))
     {
         draw_lit_bar64k(gbtn->scr_pos_x - 6*bs_units_per_px/16, gbtn->scr_pos_y - 6*bs_units_per_px/16, bs_units_per_px, gbtn->width + 6*bs_units_per_px/16);
     } 

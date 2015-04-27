@@ -37,7 +37,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-struct GuiButtonInit frontend_select_level_buttons[] = {
+struct GuiButtonTemplate frontend_select_level_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,  30, 999,  30,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,     {107},            0, 0, NULL},
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  82, 128,  82, 128,220, 26, frontend_draw_scroll_box_tab,      0, GUIStr_Empty,  0,      {28},            0, 0, NULL},
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  82, 154,  82, 154,450,180, frontend_draw_scroll_box,          0, GUIStr_Empty,  0,      {26},            0, 0, NULL},
@@ -56,7 +56,7 @@ struct GuiButtonInit frontend_select_level_buttons[] = {
   {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
 };
 
-struct GuiButtonInit frontend_select_campaign_buttons[] = {
+struct GuiButtonTemplate frontend_select_campaign_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,  30, 999,  30,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,     {108},            0, 0, NULL},
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  82, 128,  82, 128,220, 26, frontend_draw_scroll_box_tab,      0, GUIStr_Empty,  0,      {28},            0, 0, NULL},
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  82, 154,  82, 154,450,180, frontend_draw_scroll_box,          0, GUIStr_Empty,  0,      {26},            0, 0, NULL},

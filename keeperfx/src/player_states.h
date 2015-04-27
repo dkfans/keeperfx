@@ -34,7 +34,7 @@ struct PlayerInfo;
 
 enum PlayerStates {
     PSt_None = 0,
-    PSt_CtrlDungeon,
+    PSt_CtrlDungeon, // Default state.
     PSt_BuildRoom,
     PSt_MkGoodDigger,
     PSt_MkGoodCreatr,

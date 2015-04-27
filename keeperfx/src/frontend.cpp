@@ -113,7 +113,7 @@ DLLIMPORT void _DK_gui_set_autopilot(struct GuiButton *gbtn);
 DLLIMPORT char _DK_update_menu_fade_level(struct GuiMenu *gmnu);
 DLLIMPORT void _DK_draw_menu_buttons(struct GuiMenu *gmnu);
 DLLIMPORT char _DK_create_menu(struct GuiMenu *mnu);
-DLLIMPORT char _DK_create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit);
+DLLIMPORT char _DK_create_button(struct GuiMenu *gmnu, struct GuiButtonTemplate *gbinit);
 DLLIMPORT void _DK_maintain_loadsave(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_quit_game(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_area_slider(struct GuiButton *gbtn);
@@ -150,7 +150,7 @@ DLLIMPORT void _DK_do_button_release_actions(struct GuiButton *gbtn, unsigned ch
 TbClockMSec gui_message_timeout = 0;
 char gui_message_text[TEXT_BUFFER_LENGTH];
 
-struct GuiButtonInit frontend_main_menu_buttons[] = {
+struct GuiButtonTemplate frontend_main_menu_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,  26, 999,  26, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {1},            0, 0, NULL },
   { 0,  0, 0, 0, frontend_start_new_game,NULL,frontend_over_button,     3, 999,  92, 999,  92, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {2},            0, 0, NULL },
   { 0,  0, 0, 0, frontend_load_continue_game,NULL,frontend_over_button, 0, 999, 138, 999, 138, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {8},            0, 0, frontend_continue_game_maintain },
@@ -163,7 +163,7 @@ struct GuiButtonInit frontend_main_menu_buttons[] = {
   {-1,  0, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,   0,  0, NULL,                             0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
 };
 
-struct GuiButtonInit frontend_statistics_buttons[] = {
+struct GuiButtonTemplate frontend_statistics_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,  30, 999,  30,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {84},            0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,  90, 999,  90,450,162, frontstats_draw_main_stats,        0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999, 260, 999, 260,450,136, frontstats_draw_scrolling_stats,   0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
@@ -171,14 +171,14 @@ struct GuiButtonInit frontend_statistics_buttons[] = {
   {-1,  0, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
 };
 
-struct GuiButtonInit frontend_high_score_score_buttons[] = {
+struct GuiButtonTemplate frontend_high_score_score_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,  30, 999,  30,495, 46, frontend_draw_vlarge_menu_button,  0, GUIStr_Empty,  0,      {85},            0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,  97, 999,  97,450,286, frontend_draw_high_score_table,    0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
   { 0,  0, 0, 0, frontend_quit_high_score_table,NULL,frontend_over_button,3,999,404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {83},            0, 0, frontend_maintain_high_score_ok_button },
   {-1,  0, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
 };
 
-struct GuiButtonInit frontend_error_box_buttons[] = {
+struct GuiButtonTemplate frontend_error_box_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,   0, 999,   0,450, 92, frontend_draw_error_text_box,      0, GUIStr_Empty,  0,{(long)gui_message_text},0, 0, frontend_maintain_error_text_box},
   {-1,  0, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
 };
@@ -732,22 +732,22 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
     }
     vischar[0] = outchar;
     if ((key == KC_RETURN) &&
-        ((gbtn->maxValue < 0) || (str[0] != '\0') || (modifiers == -3)))
+        ((gbtn->max_value < 0) || (str[0] != '\0') || (modifiers == -3)))
     {
-        gbtn->leftClickFlag = 0;
-        (gbtn->callbackClick)(gbtn);
+        gbtn->leftclick_flag = 0;
+        (gbtn->callback_click)(gbtn);
         input_button = 0;
         if ((gbtn->flags & LbBtnFlag_CloseCurrentMenu) != 0)
         {
             struct GuiMenu *gmnu;
-            gmnu = get_active_menu(gbtn->menuIndex);
-            gmnu->visibility = Visibility_Hide;
+            gmnu = get_active_menu(gbtn->menu_idx);
+            gmnu->visibility = Visibility_Hidden;
             remove_from_menu_stack(gmnu->ident);
         }
     }
     else if (key == KC_ESCAPE)
     { // Stop the input, revert the string to what it was before
-        strncpy(str, backup_input_field, gbtn->maxValue);
+        strncpy(str, backup_input_field, gbtn->max_value);
         input_button = 0;
         input_field_pos = 0;
     }
@@ -782,7 +782,7 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
         if (input_field_pos < LbLocTextStringLength(str))
             input_field_pos++;
     }
-    else if (LbLocTextStringSize(str) < abs(gbtn->maxValue))
+    else if (LbLocTextStringSize(str) < abs(gbtn->max_value))
     {
         // Check if we have printable character
         if ((modifiers == -1) && (!isprint(vischar[0])))
@@ -796,7 +796,7 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
             return false;
         }
 
-        if (LbLocTextStringInsert(str, vischar, input_field_pos, gbtn->maxValue) != NULL)
+        if (LbLocTextStringInsert(str, vischar, input_field_pos, gbtn->max_value) != NULL)
         {
             input_field_pos++;
         }
@@ -1165,7 +1165,7 @@ void gui_area_slider(struct GuiButton *gbtn)
     bs_units_per_px = simple_button_sprite_height_units_per_px(gbtn, 2, 100);
     draw_slider64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, gbtn->width);
     int shift_x;
-    shift_x = (gbtn->width - 64 * units_per_px / 16) * gbtn->slide_val / SLIDER_MAXVALUE;
+    shift_x = (gbtn->width - 64 * units_per_px / 16) * gbtn->slider_value / SLIDER_MAXVALUE;
     struct TbSprite *spr;
     if (gbtn->flags != 0) {
         spr = &button_sprite[21];
@@ -1277,8 +1277,8 @@ void frontend_draw_slider(struct GuiButton *gbtn)
     spr = &frontend_sprite[94];
     LbSpriteDrawResized(scr_x, scr_y, fs_units_per_px, spr);
     int shift_x;
-    shift_x = gbtn->slide_val * (gbtn->width - 64 * fs_units_per_px / 16) / SLIDER_MAXVALUE;
-    if (gbtn->leftClickFlag != 0) {
+    shift_x = gbtn->slider_value * (gbtn->width - 64 * fs_units_per_px / 16) / SLIDER_MAXVALUE;
+    if (gbtn->leftclick_flag != 0) {
         spr = &frontend_sprite[91];
     } else {
         spr = &frontend_sprite[78];
@@ -1307,8 +1307,8 @@ void frontend_draw_small_slider(struct GuiButton *gbtn)
     spr = &frontend_sprite[94];
     LbSpriteDrawResized(scr_x, scr_y, fs_units_per_px, spr);
     int val;
-    val = gbtn->slide_val * (gbtn->width - 64 * fs_units_per_px / 16) / SLIDER_MAXVALUE;
-    if (gbtn->leftClickFlag != 0) {
+    val = gbtn->slider_value * (gbtn->width - 64 * fs_units_per_px / 16) / SLIDER_MAXVALUE;
+    if (gbtn->leftclick_flag != 0) {
         spr = &frontend_sprite[91];
     } else {
         spr = &frontend_sprite[78];
@@ -1326,7 +1326,7 @@ void gui_area_text(struct GuiButton *gbtn)
     switch (gbtn->sprite_idx)
     {
     case 1:
-        if ( gbtn->leftClickFlag || gbtn->rightClickFlag )
+        if ( gbtn->leftclick_flag || gbtn->rightclick_flag )
         {
             draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, gbtn->width);
             draw_lit_bar64k(gbtn->scr_pos_x - 6*units_per_pixel/16, gbtn->scr_pos_y - 6*units_per_pixel/16, bs_units_per_px, gbtn->width + 6*units_per_pixel/16);
@@ -1339,12 +1339,12 @@ void gui_area_text(struct GuiButton *gbtn)
         draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, gbtn->width);
         break;
     }
-    if ((gbtn->iTooltipString != GUIStr_Empty) && (gbtn->iTooltipString != -GUIStr_Empty))
+    if ((gbtn->tooltip_str_idx != GUIStr_Empty) && (gbtn->tooltip_str_idx != -GUIStr_Empty))
     {
-        if (gbtn->iTooltipString > 0)
-            snprintf(gui_textbuf,sizeof(gui_textbuf), "%s", get_string(gbtn->iTooltipString));
+        if (gbtn->tooltip_str_idx > 0)
+            snprintf(gui_textbuf,sizeof(gui_textbuf), "%s", get_string(gbtn->tooltip_str_idx));
         else
-            snprintf(gui_textbuf,sizeof(gui_textbuf), "%s", get_string(-gbtn->iTooltipString));
+            snprintf(gui_textbuf,sizeof(gui_textbuf), "%s", get_string(-gbtn->tooltip_str_idx));
         draw_button_string(gbtn, (gbtn->width*32 + 16)/gbtn->height, gui_textbuf);
     } else
     if (gbtn->content != NULL)
@@ -1797,20 +1797,20 @@ void frontend_load_game_maintain(struct GuiButton *gbtn)
 
 void do_button_click_actions(struct GuiButton *gbtn, unsigned char *pClickFlag, Gf_Btn_Callback callback)
 {
-    SYNCDBG(9,"Starting for button type %d",(int)gbtn->buttonType);
+    SYNCDBG(9,"Starting for button type %d",(int)gbtn->button_type);
     //_DK_do_button_click_actions(gbtn, pClickFlag, callback);
-    if (gbtn->buttonType == LbBtnType_RadioButton)
+    if (gbtn->button_type == LbBtnType_RadioButton)
     {
         //TODO: pointers comparison should be avoided
-        if (pClickFlag == &(gbtn->rightClickFlag))
+        if (pClickFlag == &(gbtn->rightclick_flag))
             return;
     }
     if ((gbtn->flags & LbBtnFlag_Unknown08) != 0)
     {
-        switch (gbtn->buttonType)
+        switch (gbtn->button_type)
         {
         case LbBtnType_NormalButton:
-        case LbBtnType_CycleButton:
+        case LbBtnType_ToggleButton:
         case LbBtnType_EditBox:
         case LbBtnType_Unknown:
             *pClickFlag = 1;
@@ -1822,7 +1822,7 @@ void do_button_click_actions(struct GuiButton *gbtn, unsigned char *pClickFlag, 
                 rbstate = (unsigned char *)gbtn->content;
                 do_sound_button_click(gbtn);
                 struct GuiMenu *amnu;
-                amnu = get_active_menu(gbtn->menuIndex);
+                amnu = get_active_menu(gbtn->menu_idx);
                 clear_radio_buttons(amnu);
                 *rbstate = 1;
                 *pClickFlag = 1;
@@ -1838,16 +1838,16 @@ void do_button_click_actions(struct GuiButton *gbtn, unsigned char *pClickFlag, 
 
 void do_button_press_actions(struct GuiButton *gbtn, unsigned char *pClickFlag, Gf_Btn_Callback callback)
 {
-    SYNCDBG(9,"Starting for button type %d",(int)gbtn->buttonType);
-    if (gbtn->buttonType == LbBtnType_RadioButton)
+    SYNCDBG(9,"Starting for button type %d",(int)gbtn->button_type);
+    if (gbtn->button_type == LbBtnType_RadioButton)
     {
         //TODO: pointers comparison should be avoided
-        if (pClickFlag == &(gbtn->rightClickFlag))
+        if (pClickFlag == &(gbtn->rightclick_flag))
             return;
     }
     if ((gbtn->flags & LbBtnFlag_Unknown08) != 0)
     {
-        switch (gbtn->buttonType)
+        switch (gbtn->button_type)
         {
         case LbBtnType_HoldableButton:
             if ((*pClickFlag > 5) && (callback != NULL)) {
@@ -1862,7 +1862,7 @@ void do_button_press_actions(struct GuiButton *gbtn, unsigned char *pClickFlag, 
             }
             break;
         case LbBtnType_NormalButton:
-        case LbBtnType_CycleButton:
+        case LbBtnType_ToggleButton:
         case LbBtnType_EditBox:
         case LbBtnType_RadioButton:
             break;
@@ -1875,7 +1875,7 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *pClickFlag
   SYNCDBG(17,"Starting");
   int i;
   struct GuiMenu *gmnu;
-  switch ( gbtn->buttonType )
+  switch ( gbtn->button_type )
   {
   case LbBtnType_NormalButton:
   case LbBtnType_HoldableButton:
@@ -1886,10 +1886,10 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *pClickFlag
       }
       *pClickFlag = 0;
       break;
-  case LbBtnType_CycleButton:
+  case LbBtnType_ToggleButton:
       i = *(unsigned char *)gbtn->content;
       i++;
-      if (gbtn->maxValue < i)
+      if (gbtn->max_value < i)
           i = 0;
       *(unsigned char *)gbtn->content = i;
       if ((*pClickFlag != 0) && (callback != NULL))
@@ -1901,7 +1901,7 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *pClickFlag
       break;
   case LbBtnType_RadioButton:
       //TODO: pointers comparison should be avoided
-      if (pClickFlag == &(gbtn->rightClickFlag))
+      if (pClickFlag == &(gbtn->rightclick_flag))
           // Radio button do not respond to right click.
         return;
       break;
@@ -1913,16 +1913,16 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *pClickFlag
       break;
   }
 
-  if (pClickFlag == &gbtn->leftClickFlag)
+  if (pClickFlag == &gbtn->leftclick_flag)
   {
-    gmnu = get_active_menu(gbtn->menuIndex);
+    gmnu = get_active_menu(gbtn->menu_idx);
     if (gbtn->parent_menu != NULL)
       create_menu(gbtn->parent_menu);
-    if ((gbtn->flags & LbBtnFlag_CloseCurrentMenu) && (gbtn->buttonType != LbBtnType_EditBox))
+    if ((gbtn->flags & LbBtnFlag_CloseCurrentMenu) && (gbtn->button_type != LbBtnType_EditBox))
     {
       if (callback == NULL)
         do_sound_menu_click();
-      gmnu->visibility = Visibility_Hide;
+      gmnu->visibility = Visibility_Hidden;
     }
   }
   SYNCDBG(17,"Finished");
@@ -1987,7 +1987,7 @@ short is_toggleable_menu(short mnu_idx)
 }
 
 // Create actual button from initial button snub.
-int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit, int units_per_px)
+int create_button(struct GuiMenu *gmnu, struct GuiButtonTemplate *gbinit, int units_per_px)
 {
     struct GuiButton *gbtn;
     int gidx;
@@ -2001,30 +2001,30 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit, int units_
     gbtn = &active_buttons[gidx];
     gbtn->flags |= LbBtnFlag_Created;
     struct GuiMenu *gmnuinit;
-    gmnuinit = gmnu->menu_init;
+    gmnuinit = gmnu->menu_template;
 
     // Initializing fields.
     {
-        gbtn->menuIndex = gmnu->index;
-        gbtn->buttonType = gbinit->buttonType;
+        gbtn->menu_idx = gmnu->index;
+        gbtn->button_type = gbinit->button_type;
         gbtn->index = gbinit->index;
         gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_CloseCurrentMenu * (gbinit->field_5 & 0xff)) & LbBtnFlag_CloseCurrentMenu; 
-        gbtn->callbackClick = gbinit->callbackClick;
-        gbtn->callbackRightClick = gbinit->callbackRightClick;
-        gbtn->callbackMouseHover = gbinit->callbackMouseHover;
+        gbtn->callback_click = gbinit->callback_click;
+        gbtn->callback_rightclick = gbinit->callback_rightclick;
+        gbtn->callback_mousehover = gbinit->callback_mousehover;
         gbtn->field_1B = gbinit->field_13;  // ***
         gbtn->width = (gbinit->width * units_per_px + 8) / 16;
         gbtn->height = (gbinit->height * units_per_px + 8) / 16;
-        gbtn->callbackDraw = gbinit->callbackDraw;
+        gbtn->callback_draw = gbinit->callback_draw;
         gbtn->sprite_idx = gbinit->sprite_idx;
-        gbtn->iTooltipString = gbinit->iTooltipString;
+        gbtn->tooltip_str_idx = gbinit->tooltip_str_idx;
         gbtn->parent_menu = gbinit->parent_menu;
         gbtn->content = (unsigned long *)gbinit->content.lptr;
-        gbtn->maxValue = *(short *)&gbinit->maxValue;
-        gbtn->callbackMaintain = gbinit->callbackMaintain;
+        gbtn->max_value = *(short *)&gbinit->max_value;
+        gbtn->callback_maintain = gbinit->callback_maintain;
         gbtn->flags |= LbBtnFlag_Unknown08;
         gbtn->flags &= ~LbBtnFlag_MouseOver;
-        gbtn->leftClickFlag = 0;
+        gbtn->leftclick_flag = 0;
         gbtn->flags |= LbBtnFlag_Enabled;
         gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Unknown20 * (gbinit->field_5 >> 8)) & LbBtnFlag_Unknown20;
     }
@@ -2051,23 +2051,23 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit, int units_
         gbtn->scr_pos_y = gmnu->pos_y + (gbinit->scr_pos_y * units_per_px + 8) / 16;
     }
 
-    if (gbtn->buttonType == LbBtnType_RadioButton)
+    if (gbtn->button_type == LbBtnType_RadioButton)
     {
         struct TextScrollWindow *scrollwnd;
         scrollwnd = (struct TextScrollWindow *)gbtn->content;
         if ((scrollwnd != NULL) && (scrollwnd->text[0] == 1))
         {
-            gbtn->leftClickFlag = 1;
-            gbtn->rightClickFlag = 0;
+            gbtn->leftclick_flag = 1;
+            gbtn->rightclick_flag = 0;
         } else
         {
-            gbtn->leftClickFlag = 0;
-            gbtn->rightClickFlag = 0;
+            gbtn->leftclick_flag = 0;
+            gbtn->rightclick_flag = 0;
         }
     } else
     {
-        gbtn->leftClickFlag = 0;
-        gbtn->rightClickFlag = 0;
+        gbtn->leftclick_flag = 0;
+        gbtn->rightclick_flag = 0;
     }
     SYNCDBG(11,"Created button %d at (%d,%d) size (%d,%d)",gidx,
         gbtn->pos_x,gbtn->pos_y,gbtn->width,gbtn->height);
@@ -2170,14 +2170,14 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
     MenuNumber mnu_num;
     struct GuiMenu *activeMenu;
     Gf_Mnu_Callback callback;
-    struct GuiButtonInit *btninit;
+    struct GuiButtonTemplate *btninit;
     int i;
     SYNCDBG(18,"Starting menu ID %d",gmnu->ident);
     mnu_num = menu_id_to_number(gmnu->ident);
     if (mnu_num >= 0)
     {
         activeMenu = get_active_menu(mnu_num);
-        activeMenu->visibility = Visibility_Visible;
+        activeMenu->visibility = Visibility_Shown;
         activeMenu->fade_time = gmnu->fade_time;
         activeMenu->isTurnedOn = ((game.numfield_C & 0x20) != 0) || (!is_toggleable_menu(gmnu->ident));
         SYNCDBG(18,"Menu number %d already active",(int)mnu_num);
@@ -2192,9 +2192,9 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
     }
     SYNCDBG(18,"Menu number %d added to stack",(int)mnu_num);
     activeMenu = get_active_menu(mnu_num);
-    activeMenu->visibility = Visibility_Visible;
+    activeMenu->visibility = Visibility_Shown;
     activeMenu->index = mnu_num;
-    activeMenu->menu_init = gmnu;
+    activeMenu->menu_template = gmnu;
     activeMenu->ident = gmnu->ident;
     if (activeMenu->ident == GMnu_MAIN)
     {
@@ -2213,18 +2213,18 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
     activeMenu->buttons = gmnu->buttons;
     activeMenu->width = (gmnu->width * MNU_UNITS_PER_PX + 8) / 16;
     activeMenu->height = (gmnu->height * MNU_UNITS_PER_PX + 8) / 16;
-    activeMenu->callbackDraw = gmnu->callbackDraw;
-    activeMenu->callbackCreate = gmnu->callbackCreate;
+    activeMenu->callback_draw = gmnu->callback_draw;
+    activeMenu->callback_create = gmnu->callback_create;
     activeMenu->isMonopolyMenu = gmnu->isMonopolyMenu;
     activeMenu->isTab = gmnu->isTab;
     activeMenu->isTurnedOn = ((game.numfield_C & 0x20) != 0) || (!is_toggleable_menu(gmnu->ident));
-    callback = activeMenu->callbackCreate;
+    callback = activeMenu->callback_create;
     if (callback != NULL)
         callback(activeMenu);
 
     // Create buttons in menu.
     btninit = gmnu->buttons;
-    for (i = 0; btninit[i].buttonType != -1; i++)
+    for (i = 0; btninit[i].button_type != -1; i++)
     {
         if (create_button(activeMenu, &btninit[i], MNU_UNITS_PER_PX) == -1)
         {
@@ -2964,7 +2964,7 @@ char update_menu_fade_level(struct GuiMenu *gmnu)
     int i;
     switch (gmnu->visibility)
     {
-    case Visibility_Visible:
+    case Visibility_Shown:
         if (gmnu->fade_time == 0) 
         {
             gmnu->fade_time = 1;
@@ -2979,7 +2979,7 @@ char update_menu_fade_level(struct GuiMenu *gmnu)
 
         gmnu->visibility = Visibility_Fading;
 
-        i = gmnu->menu_init->fade_time;
+        i = gmnu->menu_template->fade_time;
         if (i)
         {
             gmnu->fade_time = i;
@@ -2990,7 +2990,7 @@ char update_menu_fade_level(struct GuiMenu *gmnu)
         }
 
         return 1;
-    case Visibility_Hide:
+    case Visibility_Hidden:
         if (gmnu->fade_time == 0) 
         {
             return -1;
@@ -3021,10 +3021,10 @@ void draw_menu_buttons(struct GuiMenu *gmnu)
     for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
     {
         gbtn = &active_buttons[i];
-        callback = gbtn->callbackDraw;
-        if ((callback != NULL) && (gbtn->flags & LbBtnFlag_Enabled) && (gbtn->flags & LbBtnFlag_Created) && (gbtn->menuIndex == gmnu->index))
+        callback = gbtn->callback_draw;
+        if ((callback != NULL) && (gbtn->flags & LbBtnFlag_Enabled) && (gbtn->flags & LbBtnFlag_Created) && (gbtn->menu_idx == gmnu->index))
         {
-          if ( ((gbtn->leftClickFlag == 0) && (gbtn->rightClickFlag == 0)) || (gbtn->buttonType == LbBtnType_HorizontalSlider) || (callback == gui_area_null) )
+          if ( ((gbtn->leftclick_flag == 0) && (gbtn->rightclick_flag == 0)) || (gbtn->button_type == LbBtnType_HorizontalSlider) || (callback == gui_area_null) )
             callback(gbtn);
         }
     }
@@ -3032,10 +3032,10 @@ void draw_menu_buttons(struct GuiMenu *gmnu)
     for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
     {
         gbtn = &active_buttons[i];
-        callback = gbtn->callbackDraw;
-        if ((callback != NULL) && (gbtn->flags & LbBtnFlag_Enabled) && (gbtn->flags & LbBtnFlag_Created) && (gbtn->menuIndex == gmnu->index))
+        callback = gbtn->callback_draw;
+        if ((callback != NULL) && (gbtn->flags & LbBtnFlag_Enabled) && (gbtn->flags & LbBtnFlag_Created) && (gbtn->menu_idx == gmnu->index))
         {
-          if (((gbtn->leftClickFlag) || (gbtn->rightClickFlag)) && (gbtn->buttonType != LbBtnType_HorizontalSlider) && (callback != gui_area_null))
+          if (((gbtn->leftclick_flag) || (gbtn->rightclick_flag)) && (gbtn->button_type != LbBtnType_HorizontalSlider) && (callback != gui_area_null))
             callback(gbtn);
         }
     }
@@ -3072,15 +3072,15 @@ void draw_active_menus_buttons(void)
         if (menu_num < 0) continue;
         gmnu = &active_menus[menu_num];
         //SYNCMSG("DRAW menu %d, fields %d, %d",menu_num,gmnu->field_1,gmnu->isTurnedOn);
-        if ((gmnu->visibility != Visibility_Invisible) && (gmnu->isTurnedOn))
+        if ((gmnu->visibility != Visibility_NoExist) && (gmnu->isTurnedOn))
         {
             if ((gmnu->visibility != Visibility_Fading) && (gmnu->fade_time))
             {
-              if (gmnu->menu_init != NULL)
-                if (gmnu->menu_init->fade_time)
+              if (gmnu->menu_template != NULL)
+                if (gmnu->menu_template->fade_time)
                   lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
             }
-            callback = gmnu->callbackDraw;
+            callback = gmnu->callback_draw;
             if (callback != NULL)
               callback(gmnu);
             if (gmnu->visibility == 2)
@@ -3116,7 +3116,7 @@ void draw_menu_spangle(struct GuiMenu *gmnu)
     for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
     {
         gbtn = &active_buttons[i];
-        if ((!gbtn->callbackDraw) || ((gbtn->flags & LbBtnFlag_Enabled) == 0) || ((gbtn->flags & LbBtnFlag_Created) == 0) || (game.flash_button_index == 0))
+        if ((!gbtn->callback_draw) || ((gbtn->flags & LbBtnFlag_Enabled) == 0) || ((gbtn->flags & LbBtnFlag_Created) == 0) || (game.flash_button_index == 0))
           continue;
         in_range = 0;
         switch (gbtn->index)
@@ -3164,7 +3164,7 @@ void draw_active_menus_highlights(void)
     for (k=0; k<ACTIVE_MENUS_COUNT; k++)
     {
         gmnu = &active_menus[k];
-        if ((gmnu->visibility != Visibility_Invisible) && (gmnu->ident == GMnu_MAIN))
+        if ((gmnu->visibility != Visibility_NoExist) && (gmnu->ident == GMnu_MAIN))
           draw_menu_spangle(gmnu);
     }
 }

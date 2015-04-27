@@ -39,7 +39,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 #define resurrect_creature_items_visible  6
-struct GuiButtonInit resurrect_creature_buttons[] = {
+struct GuiButtonTemplate resurrect_creature_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,200, 32, gui_area_text,                     1, GUIStr_SpecResurrectCreature,0,{0},          0, 0, NULL },
   { 0,  0, 0, 0, select_resurrect_creature,NULL,  NULL,               0, 999,  62, 999,  62,250, 26, draw_resurrect_creature,           0, GUIStr_Empty,       0,       {0},            0, 0, maintain_resurrect_creature_select },
   { 0,  0, 0, 0, select_resurrect_creature,NULL,  NULL,               1, 999,  90, 999,  90,250, 26, draw_resurrect_creature,           0, GUIStr_Empty,       0,       {0},            0, 0, maintain_resurrect_creature_select },
@@ -54,7 +54,7 @@ struct GuiButtonInit resurrect_creature_buttons[] = {
 };
 
 #define transfer_creature_items_visible  6
-struct GuiButtonInit transfer_creature_buttons[] = {
+struct GuiButtonTemplate transfer_creature_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,200, 32, gui_area_text,                     1, GUIStr_SpecTransferCreature,0,{0},           0, 0, NULL },
   { 0,  0, 0, 0, select_transfer_creature,NULL,   NULL,               0, 999,  62, 999,  62,250, 26, draw_transfer_creature,            0, GUIStr_Empty,       0,       {0},            0, 0, maintain_transfer_creature_select },
   { 0,  0, 0, 0, select_transfer_creature,NULL,   NULL,               1, 999,  90, 999,  90,250, 26, draw_transfer_creature,            1, GUIStr_Empty,       0,       {0},            0, 0, maintain_transfer_creature_select },
@@ -68,21 +68,21 @@ struct GuiButtonInit transfer_creature_buttons[] = {
   {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                0,       {0},            0, 0, NULL },
 };
 
-struct GuiButtonInit hold_audience_buttons[] = {
+struct GuiButtonTemplate hold_audience_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, gui_area_text,                     1, CpgStr_PowerKind1+4,0,       {0},            0, 0, NULL },
   { 0,  0, 0, 1, NULL,               NULL,        NULL,               0,  38,  24,  40,  58, 46, 32, gui_area_normal_button,           46, GUIStr_Empty,       0,       {0},            0, 0, NULL },
   { 0,  0, 0, 1, choose_hold_audience,NULL,       NULL,               0, 116,  24, 118,  58, 46, 32, gui_area_normal_button,           48, GUIStr_Empty,       0,       {0},            0, 0, NULL },
   {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                0,       {0},            0, 0, NULL },
 };
 
-struct GuiButtonInit armageddon_buttons[] = {
+struct GuiButtonTemplate armageddon_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, gui_area_text,                     1, CpgStr_PowerKind1+16,0,      {0},            0, 0, NULL },
   { 0,  0, 0, 1, NULL,               NULL,        NULL,               0,  38,  24,  40,  58, 46, 32, gui_area_normal_button,           46, GUIStr_Empty,       0,       {0},            0, 0, NULL },
   { 0,  0, 0, 1, choose_armageddon,  NULL,        NULL,               0, 116,  24, 118,  58, 46, 32, gui_area_normal_button,           48, GUIStr_Empty,       0,       {0},            0, 0, NULL },
   {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                0,       {0},            0, 0, NULL },
 };
 
-struct GuiButtonInit dungeon_special_buttons[] = {
+struct GuiButtonTemplate dungeon_special_buttons[] = {
   {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                0,       {0},            0, 0, NULL },
 };
 

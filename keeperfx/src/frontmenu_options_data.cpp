@@ -37,7 +37,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-struct GuiButtonInit frontend_define_keys_buttons[] = {
+struct GuiButtonTemplate frontend_define_keys_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,  30, 999,  30,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {92},            0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  82, 117,  82, 117,450,246, frontend_draw_scroll_box,          0, GUIStr_Empty,  0,      {94},            0, 0, NULL },
   { 1,  0, 0, 0, frontend_define_key_up,NULL, frontend_over_button,   0, 532, 116, 532, 116, 26, 14, frontend_draw_slider_button,       0, GUIStr_Empty,  0,      {17},            0, 0, frontend_define_key_up_maintain },
@@ -57,7 +57,7 @@ struct GuiButtonInit frontend_define_keys_buttons[] = {
   {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,           0,       {0},            0, 0, NULL },
 };
 
-struct GuiButtonInit frontend_option_buttons[] = {
+struct GuiButtonTemplate frontend_option_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,  30, 999,  30,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {96},            0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  95, 107,  95, 107,220, 26, frontend_draw_scroll_box_tab,      0, GUIStr_Empty,  0,      {28},            0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  95, 133,  95, 133,450, 88, frontend_draw_scroll_box,          0, GUIStr_Empty,  0,      {89},            0, 0, NULL },
