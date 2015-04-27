@@ -238,13 +238,13 @@ short setup_land_tooltips(struct Coord3d *pos)
   slb = get_slabmap_for_subtile(pos->x.stl.num, pos->y.stl.num);
   skind = slb->kind;
   slbattr = get_slab_kind_attrs(skind);
-  if (slbattr->iTooltipString == GUIStr_Empty)
+  if (slbattr->tooltip_str_idx == GUIStr_Empty)
     return false;
   update_gui_tooltip_target((void *)skind);
   player = get_my_player();
   if ( (help_tip_time > 20) || (player->work_state == PSt_CreatrQuery) )
   {
-      set_gui_tooltip_box_fmt(2,"%s",get_string(slbattr->iTooltipString));
+      set_gui_tooltip_box_fmt(2,"%s",get_string(slbattr->tooltip_str_idx));
   } else
   {
     help_tip_time++;
@@ -305,13 +305,13 @@ void setup_gui_tooltip(struct GuiButton *gbtn)
   struct CreatureData *crdata;
   const char *text;
   long i,k;
-  if (gbtn->iTooltipString == GUIStr_Empty)
+  if (gbtn->tooltip_str_idx == GUIStr_Empty)
     return;
   if (!settings.tooltips_on)
     return;
   dungeon = get_my_dungeon();
   set_flag_byte(&tool_tip_box.flags,TTip_Visible,true);
-  i = gbtn->iTooltipString;
+  i = gbtn->tooltip_str_idx;
   text = get_string(i);
   if ((i == GUIStr_NumberOfCreaturesDesc) || (i == GUIStr_NumberOfRoomsDesc))
   {
@@ -355,14 +355,14 @@ TbBool gui_button_tooltip_update(int gbtn_idx)
   }
   player = get_my_player();
   gbtn = &active_buttons[gbtn_idx];
-  if ((get_active_menu(gbtn->menuIndex)->visibility == Visibility_Fading) && ((gbtn->field_1B & 0x8000u) == 0))
+  if ((get_active_menu(gbtn->menu_idx)->visibility == Visibility_Fading) && ((gbtn->field_1B & 0x8000u) == 0))
   {
     if (tool_tip_box.gbutton == gbtn)
     {
         if ( (tool_tip_time > 10) || (player->work_state == PSt_CreatrQuery) )
         {
           busy_doing_gui = 1;
-          if (gbtn->callbackDraw != gui_area_text)
+          if (gbtn->callback_draw != gui_area_text)
             setup_gui_tooltip(gbtn);
         } else
         {

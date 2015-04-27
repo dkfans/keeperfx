@@ -47,7 +47,7 @@ struct ManfctrConfig { // sizeof=0x14
 struct DoorConfigStats {
     char code_name[COMMAND_WORD_LEN];
     TextStringId name_stridx;
-    TextStringId iTooltipString;
+    TextStringId tooltip_str_idx;
     long panel_tab_idx;
     long bigsym_sprite_idx;
     long medsym_sprite_idx;
@@ -57,7 +57,7 @@ struct DoorConfigStats {
 struct TrapConfigStats {
     char code_name[COMMAND_WORD_LEN];
     TextStringId name_stridx;
-    TextStringId iTooltipString;
+    TextStringId tooltip_str_idx;
     long panel_tab_idx;
     long bigsym_sprite_idx;
     long medsym_sprite_idx;
@@ -72,7 +72,7 @@ struct ManufactureData {
       ThingClass tngclass; //< Thing class created when manufactured design is placed
       ThingModel tngmodel; //< Thing model created when manufactured design is placed
       long work_state; //< Work state used to place the manufactured item on map
-      TextStringId iTooltipString;
+      TextStringId tooltip_str_idx;
       long panel_tab_idx;
       long bigsym_sprite_idx;
       long medsym_sprite_idx;

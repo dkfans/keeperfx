@@ -28,7 +28,7 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-DLLIMPORT struct GuiButtonInit _DK_frontend_high_score_score_buttons[];
+DLLIMPORT struct GuiButtonTemplate _DK_frontend_high_score_score_buttons[];
 DLLIMPORT extern long _DK_high_score_entry_input_active;
 #define high_score_entry_input_active _DK_high_score_entry_input_active
 DLLIMPORT extern long _DK_high_score_entry_index;

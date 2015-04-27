@@ -67,7 +67,7 @@ enum RoomCfgFlags {
 struct SlabMap;
 
 struct SlabAttr {
-    unsigned short iTooltipString;
+    unsigned short tooltip_str_idx;
     short field_2;
     short field_4;
     unsigned long block_flags;
@@ -86,14 +86,14 @@ struct SlabAttr {
 /******************************************************************************/
 struct SlabConfigStats {
     char code_name[COMMAND_WORD_LEN];
-    TextStringId iTooltipString;
+    TextStringId tooltip_str_idx;
     RoomKind assigned_room;
 };
 
 struct RoomConfigStats {
     char code_name[COMMAND_WORD_LEN];
     TextStringId name_stridx;
-    TextStringId iTooltipString;
+    TextStringId tooltip_str_idx;
     long creature_creation_model;
     SlabKind assigned_slab;
     unsigned long flags;

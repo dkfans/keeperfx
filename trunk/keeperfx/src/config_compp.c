@@ -1053,7 +1053,7 @@ short parse_computer_player_computer_blocks(char *buf, long len, const char *con
               if (k > 0)
               {
                   //TODO
-                  //cpt->iTooltipString = k;
+                  //cpt->tooltip_str_idx = k;
                   n++;
               }
             }

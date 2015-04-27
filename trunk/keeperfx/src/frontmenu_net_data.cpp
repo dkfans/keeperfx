@@ -39,7 +39,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-struct GuiButtonInit frontend_net_service_buttons[] = {
+struct GuiButtonTemplate frontend_net_service_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,  30, 999,  30,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty, 0,      {10},            0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  82, 124,  82, 124,220, 26, frontnet_draw_scroll_box_tab,      0, GUIStr_Empty, 0,      {12},            0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  82, 150,  82, 150,450,180, frontnet_draw_scroll_box,          0, GUIStr_Empty, 0,      {26},            0, 0, NULL },
@@ -57,7 +57,7 @@ struct GuiButtonInit frontend_net_service_buttons[] = {
   {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,           0,  0,       {0},            0, 0, NULL },
 };
 
-struct GuiButtonInit frontend_net_session_buttons[] = {
+struct GuiButtonTemplate frontend_net_session_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,  12, 999,  12,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty, 0,      {12},            0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  82,  61,  82,  61,165, 29, frontnet_draw_text_bar,            0, GUIStr_Empty, 0,      {27},            0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  95,  63,  91,  63,165, 25, frontend_draw_text,                0, GUIStr_Empty, 0,      {19},            0, 0, NULL },
@@ -86,7 +86,7 @@ struct GuiButtonInit frontend_net_session_buttons[] = {
   {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,           0,  0,       {0},            0, 0, NULL },
 };
 
-struct GuiButtonInit frontend_net_start_buttons[] = {
+struct GuiButtonTemplate frontend_net_start_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0, 999,  30, 999,  30, 371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty, 0,  {12}, 0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0,  82,  78,  82,  78, 220, 26, frontnet_draw_scroll_box_tab,      0, GUIStr_Empty, 0,  {28}, 0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0, 421,  81, 421,  81, 100, 27, frontnet_draw_alliance_box_tab,    0, GUIStr_Empty, 0,  {28}, 0, 0, NULL },
@@ -125,7 +125,7 @@ struct GuiButtonInit frontend_net_start_buttons[] = {
   {-1,  0, 0, 0, NULL,               NULL,   NULL,                    0,   0,   0,   0,   0,   0,  0, NULL,                              0,           0,  0,   {0}, 0, 0, NULL },
 };
 
-struct GuiButtonInit frontend_net_modem_buttons[] = {
+struct GuiButtonTemplate frontend_net_modem_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0, 999,  30, 999,  30, 371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty, 0,  {53}, 0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0,  41, 102,  41, 102, 212, 26, frontnet_draw_small_scroll_box_tab,0, GUIStr_Empty, 0,  {28}, 0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0,  41, 128,  41, 128, 268, 70, frontnet_draw_small_scroll_box,    0, GUIStr_Empty, 0,  {24}, 0, 0, NULL },
@@ -165,7 +165,7 @@ struct GuiButtonInit frontend_net_modem_buttons[] = {
   {-1,  0, 0, 0, NULL,               NULL,   NULL,                    0,   0,   0,   0,   0,   0,  0, NULL,                              0,            0, 0,   {0}, 0, 0, NULL },
 };
 
-struct GuiButtonInit frontend_net_serial_buttons[] = {
+struct GuiButtonTemplate frontend_net_serial_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0, 999,  30, 999,  30, 371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty, 0,  {54}, 0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0,  41, 178,  41, 178, 212, 26, frontnet_draw_small_scroll_box_tab,0, GUIStr_Empty, 0,  {28}, 0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0,  41, 204,  41, 204, 268, 70, frontnet_draw_small_scroll_box,    0, GUIStr_Empty, 0,  {24}, 0, 0, NULL },
@@ -190,7 +190,7 @@ struct GuiButtonInit frontend_net_serial_buttons[] = {
   {-1,  0, 0, 0, NULL,               NULL,   NULL,                    0,   0,   0,   0,   0,   0,  0, NULL,                              0,           0,  0,   {0}, 0, 0, NULL },
 };
 
-struct GuiButtonInit frontend_add_session_buttons[] = {//TODO GUI prepare add session screen
+struct GuiButtonTemplate frontend_add_session_buttons[] = {//TODO GUI prepare add session screen
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,   0, 999,   0,450, 92, frontend_draw_error_text_box,      0, GUIStr_Empty,  0,{(long)gui_message_text},0, 0, frontend_maintain_error_text_box},
   {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
 };

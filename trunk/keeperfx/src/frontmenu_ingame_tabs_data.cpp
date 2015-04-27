@@ -123,7 +123,7 @@ void spell_lost_first_person(struct GuiButton *gbtn);
 void gui_set_tend_to(struct GuiButton *gbtn);
 void gui_set_query(struct GuiButton *gbtn);
 /******************************************************************************/
-struct GuiButtonInit main_menu_buttons[] = {
+struct GuiButtonTemplate main_menu_buttons[] = {
   { 0,             38, 0, 0,          gui_zoom_in,           NULL,  NULL,               0, 112,   4, 114,   4, 26, 66, gui_area_new_vertical_button,    237, GUIStr_PaneZoomInDesc,      0,       {0},            0, 0, NULL },
   { 0,             39, 0, 0,         gui_zoom_out,           NULL,  NULL,               0, 110,  70, 114,  70, 26, 66, gui_area_new_vertical_button,    239, GUIStr_PaneZoomOutDesc,     0,       {0},            0, 0, NULL },
   { 0,             37, 0, 0,        gui_go_to_map,           NULL,  NULL,               0,   0,   0,   0,   0, 30, 31, gui_area_new_vertical_button,    304, GUIStr_PaneLargeMapDesc,    0,       {0},            0, 0, NULL },
@@ -151,7 +151,7 @@ struct GuiButtonInit main_menu_buttons[] = {
   {-1,              0, 0, 0,                 NULL,           NULL,  NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                        0,       {0},            0, 0, NULL },
 };
 
-struct GuiButtonInit room_menu_buttons[] = {
+struct GuiButtonTemplate room_menu_buttons[] = {
   { 0,  6, 0, 0, gui_choose_room,gui_go_to_next_room,gui_over_room_button,0, 2,238,  6, 242, 32, 36, gui_area_room_button,             57, CpgStr_RoomDesc1+0,  0,       {2},            0, 0, maintain_room },
   { 0,  8, 0, 0, gui_choose_room,gui_go_to_next_room,gui_over_room_button,0,34,238, 38, 242, 32, 36, gui_area_room_button,             79, CpgStr_RoomDesc1+10, 0,      {14},            0, 0, maintain_room },
   { 0,  7, 0, 0, gui_choose_room,gui_go_to_next_room,gui_over_room_button,0,66,238, 70, 242, 32, 36, gui_area_room_button,             59, CpgStr_RoomDesc1+9,  0,      {13},            0, 0, maintain_room },
@@ -172,7 +172,7 @@ struct GuiButtonInit room_menu_buttons[] = {
   {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                 0,       {0},            0, 0, NULL },
 };
 
-struct GuiButtonInit spell_menu_buttons[] = {
+struct GuiButtonTemplate spell_menu_buttons[] = {
   { 0, 36, 0, 0, gui_choose_spell,gui_go_to_next_spell,NULL,          0,   2, 238,   6, 242, 32, 36, gui_area_spell_button,           114, CpgStr_PowerDesc1+0,  0,      {18},            0, 0, maintain_spell },
   { 0, 21, 0, 0, gui_choose_spell,gui_go_to_next_spell,NULL,          0,  34, 238,  38, 242, 32, 36, gui_area_spell_button,           118, CpgStr_PowerDesc1+1,  0,       {2},            0, 0, maintain_spell },
   { 0, 22, 0, 0, gui_choose_spell,gui_go_to_next_spell,NULL,          0,  66, 238,  70, 242, 32, 36, gui_area_spell_button,           108, CpgStr_PowerDesc1+2,  0,       {5},            0, 0, maintain_spell },
@@ -193,7 +193,7 @@ struct GuiButtonInit spell_menu_buttons[] = {
   {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                  0,       {0},            0, 0, NULL },
 };
 
-struct GuiButtonInit spell_lost_menu_buttons[] = {
+struct GuiButtonTemplate spell_lost_menu_buttons[] = {
   { 0, 36, 0, 0, spell_lost_first_person,NULL,    NULL,               0,   2, 238,   8, 250, 32, 36, gui_area_new_null_button,        114, CpgStr_PowerDesc1+0,  0,      {18},            0, 0, maintain_spell },
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  34, 238,  40, 250, 32, 36, gui_area_new_null_button,         24, GUIStr_Empty,         0,       {0},            0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  66, 238,  72, 250, 32, 36, gui_area_new_null_button,         24, GUIStr_Empty,         0,       {0},            0, 0, NULL },
@@ -214,7 +214,7 @@ struct GuiButtonInit spell_lost_menu_buttons[] = {
   {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                  0,       {0},            0, 0, NULL },
 };
 
-struct GuiButtonInit trap_menu_buttons[] = {
+struct GuiButtonTemplate trap_menu_buttons[] = {
   { 0, 54, 0, 0, gui_choose_trap,gui_go_to_next_trap,gui_over_trap_button,0, 2,238,  6, 242, 32, 36, gui_area_trap_button,            154, CpgStr_AlarmTrapDesc,     0,       {2},            0, 0, maintain_trap },
   { 0, 55, 0, 0, gui_choose_trap,gui_go_to_next_trap,gui_over_trap_button,0,34,238, 38, 242, 32, 36, gui_area_trap_button,            156, CpgStr_PoisonGasTrapDesc, 0,       {3},            0, 0, maintain_trap },
   { 0, 56, 0, 0, gui_choose_trap,gui_go_to_next_trap,gui_over_trap_button,0,66,238, 70, 242, 32, 36, gui_area_trap_button,            158, CpgStr_LightningTrapDesc, 0,       {4},            0, 0, maintain_trap },
@@ -235,7 +235,7 @@ struct GuiButtonInit trap_menu_buttons[] = {
   {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                      0,       {0},            0, 0, NULL },
 };
 
-struct GuiButtonInit creature_menu_buttons[] = {
+struct GuiButtonTemplate creature_menu_buttons[] = {
   { 0, 72, 0, 0, pick_up_next_wanderer,gui_go_to_next_wanderer,NULL,  0,  26, 192,  26, 192, 38, 24, gui_area_new_normal_button,      284, GUIStr_CreatureIdleDesc,       0,       {0},            0, 0, NULL },
   { 0, 73, 0, 0, pick_up_next_worker,gui_go_to_next_worker,NULL,      0,  62, 192,  62, 192, 38, 24, gui_area_new_normal_button,      282, GUIStr_CreatureWorkingDesc,    0,       {0},            0, 0, NULL },
   { 0, 74, 0, 0, pick_up_next_fighter,gui_go_to_next_fighter,NULL,    0,  98, 192,  98, 192, 38, 24, gui_area_new_normal_button,      286, GUIStr_CreatureFightingDesc,   0,       {0},            0, 0, NULL },
@@ -268,7 +268,7 @@ struct GuiButtonInit creature_menu_buttons[] = {
   {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                           0,       {0},            0, 0, NULL },
 };
 
-struct GuiButtonInit query_menu_buttons[] = {
+struct GuiButtonTemplate query_menu_buttons[] = {
   { 0,  0, 0, 0, gui_set_query,      NULL,        NULL,               0,  44, 374,  44, 374, 52, 20, gui_area_new_normal_button,      475, GUIStr_GoToQueryMode,        0,       {0},            0, 0, NULL },
   { 2, 69, 0, 0, gui_set_tend_to,    NULL,        NULL,               1,  36, 190,  36, 190, 32, 26, gui_area_flash_cycle_button,     350, GUIStr_CreatureImprisonDesc, 0,{(long)&game.creatures_tend_imprison}, 1, 0, maintain_prison_bar },
   { 2, 70, 0, 0, gui_set_tend_to,    NULL,        NULL,               2,  74, 190,  74, 190, 32, 26, gui_area_flash_cycle_button,     346, GUIStr_CreatureFleeDesc,     0,{(long)&game.creatures_tend_flee}, 1, 0, NULL },
@@ -290,11 +290,11 @@ struct GuiButtonInit query_menu_buttons[] = {
   {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                         0,       {0},            0, 0, NULL },
 };
 
-struct GuiButtonInit event_menu_buttons[] = {
+struct GuiButtonTemplate event_menu_buttons[] = {
   {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       {0},            0, 0, NULL },
 };
 
-struct GuiButtonInit creature_query_buttons1[] = {
+struct GuiButtonTemplate creature_query_buttons1[] = {
   { 0,  0, 0, 1, NULL,               NULL,        NULL,               0,  44, 374,  44, 374, 52, 20, gui_area_new_normal_button,      473, GUIStr_MoreInformation,&creature_query_menu2,{0}, 0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  80, 200,  80, 200, 56, 24, gui_area_smiley_anger_button,    466, GUIStr_CreatureAngerDesc,0,       {0},            0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  80, 230,  80, 230, 56, 24, gui_area_experience_button,      467, GUIStr_ExperienceDesc,   0,       {0},            0, 0, NULL },
@@ -308,7 +308,7 @@ struct GuiButtonInit creature_query_buttons1[] = {
   {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                     0,       {0},            0, 0, NULL },
 };
 
-struct GuiButtonInit creature_query_buttons2[] = {
+struct GuiButtonTemplate creature_query_buttons2[] = {
   { 0,  0, 0, 1, NULL,               NULL,        NULL,               0,  44, 374,  44, 374, 52, 20, gui_area_new_normal_button,      473, GUIStr_MoreInformation,&creature_query_menu3,{0}, 0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  80, 200,  80, 200, 56, 24, gui_area_smiley_anger_button,    466, GUIStr_CreatureAngerDesc,0,       {0},            0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  80, 230,  80, 230, 56, 24, gui_area_experience_button,      467, GUIStr_ExperienceDesc,   0,       {0},            0, 0, NULL },
@@ -322,7 +322,7 @@ struct GuiButtonInit creature_query_buttons2[] = {
   {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                     0,       {0},            0, 0, NULL },
 };
 
-struct GuiButtonInit creature_query_buttons3[] = {
+struct GuiButtonTemplate creature_query_buttons3[] = {
   { 0,  0, 0, 1, NULL,               NULL,        NULL,               0,  44, 374,  44, 374, 52, 20, gui_area_new_normal_button,      473, GUIStr_MoreInformation,&creature_query_menu1,          {0}, 0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,   4, 226,   4, 226, 60, 24, gui_area_stat_button,            331, GUIStr_CreatureKillsDesc,      0,          {CrLStat_Kills}, 0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  72, 226,  72, 226, 60, 24, gui_area_stat_button,            332, GUIStr_CreatureStrengthDesc,   0,       {CrLStat_Strength}, 0, 0, NULL },
@@ -337,7 +337,7 @@ struct GuiButtonInit creature_query_buttons3[] = {
   {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                           0,                      {0}, 0, 0, NULL },
 };
 
-struct GuiButtonInit creature_query_buttons4[] = {
+struct GuiButtonTemplate creature_query_buttons4[] = {
   { 0,  0, 0, 1, NULL,               NULL,        NULL,               0,  44, 374,  44, 374, 52, 20, gui_area_new_normal_button,      473, GUIStr_MoreInformation,&creature_query_menu1,           {0}, 0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,   4, 226,   4, 226, 60, 24, gui_area_stat_button,            340, GUIStr_CreatureSpeedDesc,       0,          {CrLStat_Speed}, 0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  72, 226,  72, 226, 60, 24, gui_area_stat_button,            340, GUIStr_CreatureLoyaltyDesc,     0,        {CrLStat_Loyalty}, 0, 0, NULL },

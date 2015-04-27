@@ -37,7 +37,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-struct GuiButtonInit load_menu_buttons[] = {
+struct GuiButtonTemplate load_menu_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, gui_area_text,                     1, GUIStr_MnuLoad,0,       {0},            0, 0, NULL },
   { 0,  0, 0, 1, gui_load_game,      NULL,        NULL,               0, 999,  58, 999,  58,300, 32, draw_load_button,                  1, GUIStr_Empty,  0,{(long)&input_string[0]}, 0, 0, gui_load_game_maintain },
   { 0,  0, 0, 1, gui_load_game,      NULL,        NULL,               1, 999,  90, 999,  90,300, 32, draw_load_button,                  1, GUIStr_Empty,  0,{(long)&input_string[1]}, 0, 0, gui_load_game_maintain },
@@ -50,7 +50,7 @@ struct GuiButtonInit load_menu_buttons[] = {
   {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,           0,       {0},            0, 0, NULL },
 };
 
-struct GuiButtonInit save_menu_buttons[] = {
+struct GuiButtonTemplate save_menu_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, gui_area_text,                     1, GUIStr_MnuSave,0,       {0},            0, 0, NULL },
   { 5, -2,-1, 1, gui_save_game,      NULL,        NULL,               0, 999,  58, 999,  58,300, 32, gui_area_text,                     1, GUIStr_Empty,  0,{(long)&input_string[0]},15, 0, NULL },
   { 5, -2,-1, 1, gui_save_game,      NULL,        NULL,               1, 999,  90, 999,  90,300, 32, gui_area_text,                     1, GUIStr_Empty,  0,{(long)&input_string[1]},15, 0, NULL },
@@ -63,7 +63,7 @@ struct GuiButtonInit save_menu_buttons[] = {
   {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,           0,       {0},            0, 0, NULL },
 };
 
-struct GuiButtonInit frontend_load_menu_buttons[] = {
+struct GuiButtonTemplate frontend_load_menu_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,  30, 999,  30,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,       {7},            0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  82, 124,  82, 124,220, 26, frontend_draw_scroll_box_tab,      0, GUIStr_Empty,  0,      {28},            0, 0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  82, 150,  82, 150,450,182, frontend_draw_scroll_box,          0, GUIStr_Empty,  0,      {26},            0, 0, NULL },

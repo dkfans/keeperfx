@@ -101,32 +101,32 @@ struct NetMessage { // sizeof = 0x41
 
 #pragma pack()
 /******************************************************************************/
-DLLIMPORT struct GuiButtonInit _DK_event_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_options_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_instance_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_quit_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_load_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_save_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_video_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_sound_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_error_box_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_pause_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_hold_audience_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_armageddon_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_dungeon_special_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_resurrect_creature_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_transfer_creature_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_frontend_main_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_frontend_load_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_frontend_net_service_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_frontend_net_session_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_frontend_net_start_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_frontend_net_modem_buttons[37];
-DLLIMPORT struct GuiButtonInit _DK_frontend_net_serial_buttons[22];
-DLLIMPORT struct GuiButtonInit _DK_frontend_statistics_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_autopilot_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_frontend_define_keys_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_frontend_option_buttons[];
+DLLIMPORT struct GuiButtonTemplate _DK_event_menu_buttons[];
+DLLIMPORT struct GuiButtonTemplate _DK_options_menu_buttons[];
+DLLIMPORT struct GuiButtonTemplate _DK_instance_menu_buttons[];
+DLLIMPORT struct GuiButtonTemplate _DK_quit_menu_buttons[];
+DLLIMPORT struct GuiButtonTemplate _DK_load_menu_buttons[];
+DLLIMPORT struct GuiButtonTemplate _DK_save_menu_buttons[];
+DLLIMPORT struct GuiButtonTemplate _DK_video_menu_buttons[];
+DLLIMPORT struct GuiButtonTemplate _DK_sound_menu_buttons[];
+DLLIMPORT struct GuiButtonTemplate _DK_error_box_buttons[];
+DLLIMPORT struct GuiButtonTemplate _DK_pause_buttons[];
+DLLIMPORT struct GuiButtonTemplate _DK_hold_audience_buttons[];
+DLLIMPORT struct GuiButtonTemplate _DK_armageddon_buttons[];
+DLLIMPORT struct GuiButtonTemplate _DK_dungeon_special_buttons[];
+DLLIMPORT struct GuiButtonTemplate _DK_resurrect_creature_buttons[];
+DLLIMPORT struct GuiButtonTemplate _DK_transfer_creature_buttons[];
+DLLIMPORT struct GuiButtonTemplate _DK_frontend_main_menu_buttons[];
+DLLIMPORT struct GuiButtonTemplate _DK_frontend_load_menu_buttons[];
+DLLIMPORT struct GuiButtonTemplate _DK_frontend_net_service_buttons[];
+DLLIMPORT struct GuiButtonTemplate _DK_frontend_net_session_buttons[];
+DLLIMPORT struct GuiButtonTemplate _DK_frontend_net_start_buttons[];
+DLLIMPORT struct GuiButtonTemplate _DK_frontend_net_modem_buttons[37];
+DLLIMPORT struct GuiButtonTemplate _DK_frontend_net_serial_buttons[22];
+DLLIMPORT struct GuiButtonTemplate _DK_frontend_statistics_buttons[];
+DLLIMPORT struct GuiButtonTemplate _DK_autopilot_menu_buttons[];
+DLLIMPORT struct GuiButtonTemplate _DK_frontend_define_keys_buttons[];
+DLLIMPORT struct GuiButtonTemplate _DK_frontend_option_buttons[];
 
 DLLIMPORT char _DK_info_tag;
 #define info_tag _DK_info_tag

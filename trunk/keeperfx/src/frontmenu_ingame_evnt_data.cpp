@@ -46,7 +46,7 @@ void gui_area_friendly_battlers(struct GuiButton *gbtn);
 void gui_setup_enemy_over(struct GuiButton *gbtn);
 void gui_area_enemy_battlers(struct GuiButton *gbtn);
 /******************************************************************************/
-struct GuiButtonInit text_info_buttons[] = {
+struct GuiButtonTemplate text_info_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,   4, 999,   4,400, 78, gui_area_scroll_window,            0, GUIStr_Empty,  0,{(long)&game.evntbox_scroll_window},0,0, NULL },
   { 1, 63, 0, 0, gui_go_to_event,    NULL,        NULL,               0,   4,   4,   4,   4, 30, 24, gui_area_new_normal_button,      276, GUIStr_ZoomToArea,   0,       {0},             0,0, maintain_zoom_to_event },
   { 0, 64, 0, 1, gui_close_objective,gui_close_objective,NULL,        0,   4,  56,   4,  56, 30, 24, gui_area_new_normal_button,      274, GUIStr_CloseWindow,  0,       {0},             0,0, NULL },
@@ -55,7 +55,7 @@ struct GuiButtonInit text_info_buttons[] = {
   {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                 0,       {0},            0, 0, NULL },
 };
 
-struct GuiButtonInit battle_buttons[] = {
+struct GuiButtonTemplate battle_buttons[] = {
   { 0,  0, 0, 1, gui_close_objective,NULL,        NULL,               0,   4,  72,   4,  72, 30, 24, gui_area_new_normal_button,      274, GUIStr_CloseWindow,  0,       {0},            0, 0, NULL },
   { 1,  0, 0, 0, gui_previous_battle,NULL,        NULL,               0, 446,   4, 446,   4, 30, 24, gui_area_new_normal_button,      486, GUIStr_NextBattleDesc,0,      {0},            0, 0, NULL },
   { 1,  0, 0, 0, gui_next_battle,NULL,            NULL,               0, 446,  72, 446,  72, 30, 24, gui_area_new_normal_button,      272, GUIStr_NextBattleDesc,0,      {0},            0, 0, NULL },

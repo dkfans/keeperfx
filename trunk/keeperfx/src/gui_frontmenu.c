@@ -47,7 +47,7 @@ int first_monopoly_menu(void)
   for (idx=0; idx < ACTIVE_MENUS_COUNT; idx++)
   {
     gmnu = &active_menus[idx];
-    if ((gmnu->visibility != Visibility_Invisible) && (gmnu->isMonopolyMenu))
+    if ((gmnu->visibility != Visibility_NoExist) && (gmnu->isMonopolyMenu))
         return idx;
   }
   return -1;
@@ -61,7 +61,7 @@ MenuNumber menu_id_to_number(MenuID menu_id)
     {
       gmnu = &active_menus[idx];
       //SYNCDBG(8,"ID %d use %d",(int)gmnu->ident,(int)gmnu->field_1);
-      if ((gmnu->visibility != Visibility_Invisible) && (gmnu->ident == menu_id))
+      if ((gmnu->visibility != Visibility_NoExist) && (gmnu->ident == menu_id))
         return idx;
     }
     return MENU_INVALID_ID;
@@ -118,11 +118,11 @@ void turn_off_menu(MenuID mnu_idx)
     {
         if (game_is_busy_doing_gui_string_input())
         {
-            if (input_button->menuIndex == menu_num)
+            if (input_button->menu_idx == menu_num)
                 kill_button_area_input();
         }
         gmnu = get_active_menu(menu_num);
-        gmnu->visibility = Visibility_Hide;
+        gmnu->visibility = Visibility_Hidden;
         if (update_menu_fade_level(gmnu) == -1)
         {
             kill_menu(gmnu);
@@ -372,8 +372,8 @@ void set_menu_visible_on(MenuID menu_id)
       if (gbtn->flags & LbBtnFlag_Created)
       {
         Gf_Btn_Callback callback;
-        callback = gbtn->callbackMaintain;
-        if ((gbtn->menuIndex == menu_num) && (callback != NULL))
+        callback = gbtn->callback_maintain;
+        if ((gbtn->menu_idx == menu_num) && (callback != NULL))
           callback(gbtn);
       }
     }
@@ -395,14 +395,14 @@ void set_menu_visible_off(MenuID menu_id)
 void kill_menu(struct GuiMenu *gmnu)
 {
     int i;
-    if (gmnu->visibility != Visibility_Invisible)
+    if (gmnu->visibility != Visibility_NoExist)
     {
-        gmnu->visibility = Visibility_Invisible;
+        gmnu->visibility = Visibility_NoExist;
       for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
       {
           struct GuiButton *gbtn;
           gbtn = &active_buttons[i];
-          if ((gbtn->flags & LbBtnFlag_Created) && (gbtn->menuIndex == gmnu->index)) {
+          if ((gbtn->flags & LbBtnFlag_Created) && (gbtn->menu_idx == gmnu->index)) {
               kill_button(gbtn);
           }
       }
