@@ -107,6 +107,7 @@ struct GameAdd {
     char quick_messages[QUICK_MESSAGES_COUNT][MESSAGE_TEXT_LEN];
     struct SacrificeRecipe sacrifice_recipes[MAX_SACRIFICE_RECIPES];
     struct LightSystemState lightst;
+	struct SacrificeInfo sacrifice_info;
 };
 
 #pragma pack()
