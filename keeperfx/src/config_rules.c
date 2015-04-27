@@ -230,6 +230,8 @@ void clear_sacrifice_recipes(void)
     LbMemorySet(sac, '\0', sizeof(struct SacrificeRecipe));
     sac->action = SacA_None;
   }
+
+  LbMemorySet(&gameadd.sacrifice_info, '\0', sizeof(struct SacrificeInfo));
 }
 
 TbBool add_sacrifice_victim(struct SacrificeRecipe *sac, long crtr_idx)
@@ -1815,6 +1817,23 @@ TbBool parse_rules_research_blocks(char *buf, long len, const char *config_textn
   return true;
 }
 
+static void derive_sacrifice_info()
+{
+	struct SacrificeRecipe* sac;
+	int i;
+	for (i = 1; i < MAX_SACRIFICE_RECIPES; i++)
+	{
+		sac = &gameadd.sacrifice_recipes[i];
+		if (sac->action == SacA_None)
+			continue;
+
+		if (sac->action == SacA_PosUniqFunc
+				&& sac->param == UnqF_CheaperImp
+				&& sac->victims[0] == get_id(creature_desc, "IMP"))
+			gameadd.sacrifice_info.classic_imp_sacrifice = 1;
+	}
+}
+
 TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
     long pos;
@@ -1996,6 +2015,8 @@ TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_tex
         skip_conf_to_next_line(buf,&pos,len);
     }
 #undef COMMAND_TEXT
+
+	derive_sacrifice_info();
     return true;
 }
 

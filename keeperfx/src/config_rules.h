@@ -63,6 +63,11 @@ struct SacrificeRecipe {
     long action;
     long param;
 };
+
+struct SacrificeInfo
+{
+	TbBool classic_imp_sacrifice;
+};
 /******************************************************************************/
 extern const char keeper_rules_file[];
 extern const struct NamedCommand research_desc[];

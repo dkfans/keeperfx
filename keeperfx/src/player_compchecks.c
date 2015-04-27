@@ -405,26 +405,29 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
     }
 
 	//see if we can sacrifice imps to reduce price
-	long power_price, lowest_price;
-	power_price = compute_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
-	lowest_price = compute_lowest_digger_price(dungeon->owner);
-	SYNCDBG(18, "Imp creation power price: %d, lowest: %d", power_price, lowest_price);
-
-	if (power_price > lowest_price
-		&& dungeon->total_money_owned > power_price //TODO: might need to multiply for safety factor
-		&& dungeon_has_room(dungeon, RoK_TEMPLE))
+	if (gameadd.sacrifice_info.classic_imp_sacrifice)
 	{
-		struct Thing* imp;
-		imp = find_imp_for_sacrifice(comp);
-		if (!thing_is_invalid(imp))
+		long power_price, lowest_price;
+		power_price = compute_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
+		lowest_price = compute_lowest_digger_price(dungeon->owner);
+		SYNCDBG(18, "Imp creation power price: %d, lowest: %d", power_price, lowest_price);
+
+		if (power_price > lowest_price
+			&& dungeon->total_money_owned > power_price //TODO: might need to multiply for safety factor
+			&& dungeon_has_room(dungeon, RoK_TEMPLE))
 		{
-			long dist;
-			struct Room* room;
-			room = find_room_nearest_to_position(dungeon->owner, RoK_TEMPLE, &imp->mappos, &dist);
-			if (!room_is_invalid(room))
+			struct Thing* imp;
+			imp = find_imp_for_sacrifice(comp);
+			if (!thing_is_invalid(imp))
 			{
-				if (create_task_move_creature_to_subtile(comp, imp, room->central_stl_x, room->central_stl_y, CrSt_CreatureSacrifice))
-					return CTaskRet_Unk4;
+				long dist;
+				struct Room* room;
+				room = find_room_nearest_to_position(dungeon->owner, RoK_TEMPLE, &imp->mappos, &dist);
+				if (!room_is_invalid(room))
+				{
+					if (create_task_move_creature_to_subtile(comp, imp, room->central_stl_x, room->central_stl_y, CrSt_CreatureSacrifice))
+						return CTaskRet_Unk4;
+				}
 			}
 		}
 	}
