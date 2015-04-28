@@ -1590,6 +1590,10 @@ void gui_area_instance_button(struct GuiButton *gbtn)
     draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx);
     struct InstanceInfo *inst_inf;
     inst_inf = creature_instance_info_get(curbtn_inst_id);
+    if (cctrl->instance_id == curbtn_inst_id)
+    {
+        gui_area_progress_bar_short(gbtn, units_per_px, 0, 32);
+    } else
     if (!creature_instance_has_reset(ctrltng, curbtn_inst_id))
     {
         long turns_progress, turns_required;
