@@ -456,7 +456,7 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
         crtr_conf.instances_count = 1;
         crtr_conf.jobs_count = 1;
         crtr_conf.angerjobs_count = 1;
-        crtr_conf.attackpref_count = 1;
+        crtr_conf.attacktypes_count = 1;
         crtr_conf.special_digger_good = 0;
         crtr_conf.special_digger_evil = 0;
         crtr_conf.spectator_breed = 0;
@@ -567,7 +567,7 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
               k = atoi(word_buf);
               if ((k > 0) && (k <= INSTANCE_TYPES_MAX))
               {
-                crtr_conf.attackpref_count = k;
+                crtr_conf.attacktypes_count = k;
                 n++;
               }
             }
@@ -1379,13 +1379,13 @@ TbBool parse_creaturetype_attackpref_blocks(char *buf, long len, const char *con
     // Initialize the array
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        arr_size = sizeof(crtr_conf.attackpref_names)/sizeof(crtr_conf.attackpref_names[0]);
+        arr_size = sizeof(crtr_conf.attacktypes)/sizeof(crtr_conf.attacktypes[0]);
         for (i=0; i < arr_size; i++)
         {
-            LbMemorySet(crtr_conf.attackpref_names[i].text, 0, COMMAND_WORD_LEN);
-            if (i < crtr_conf.attackpref_count)
+            LbMemorySet(crtr_conf.attacktypes[i].text, 0, COMMAND_WORD_LEN);
+            if (i < crtr_conf.attacktypes_count)
             {
-                attackpref_desc[i].name = crtr_conf.attackpref_names[i].text;
+                attackpref_desc[i].name = crtr_conf.attacktypes[i].text;
                 attackpref_desc[i].num = i;
             } else
             {
@@ -1394,7 +1394,7 @@ TbBool parse_creaturetype_attackpref_blocks(char *buf, long len, const char *con
             }
         }
     }
-    arr_size = crtr_conf.attackpref_count;
+    arr_size = crtr_conf.attacktypes_count;
     // Load the file blocks
     for (i=0; i < arr_size; i++)
     {
@@ -1426,7 +1426,7 @@ TbBool parse_creaturetype_attackpref_blocks(char *buf, long len, const char *con
             switch (cmd_num)
             {
             case 1: // NAME
-                if (get_conf_parameter_single(buf,&pos,len,crtr_conf.attackpref_names[i].text,COMMAND_WORD_LEN) <= 0)
+                if (get_conf_parameter_single(buf,&pos,len,crtr_conf.attacktypes[i].text,COMMAND_WORD_LEN) <= 0)
                 {
                     CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                         COMMAND_TEXT(cmd_num),block_buf,config_textname);
@@ -1962,6 +1962,20 @@ CreatureJob get_creature_job_causing_going_postal(CreatureJob job_flags, RoomKin
     return (job_flags & qualified_job);
 }
 
+const char *attack_type_job_code_name(CrAttackType attack_type)
+{
+    const struct CommandWord * attack_type_info;
+    if (attack_type < crtr_conf.attacktypes_count) {
+        attack_type_info = &crtr_conf.attacktypes[attack_type];
+    } else {
+        attack_type_info = &crtr_conf.attacktypes[0];
+    }
+    const char *name;
+    name = attack_type_info->text;
+    if (name[0] != '\0')
+        return name;
+    return "INVALID";
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }
