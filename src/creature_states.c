@@ -3267,7 +3267,7 @@ CrAttackType creature_can_have_combat_with_creature_on_slab(struct Thing *creatn
                         CrAttackType attack_type;
                         dist = get_combat_distance(creatng, thing);
                         attack_type = creature_can_have_combat_with_creature(creatng, thing, dist, 0, 0);
-                        if (attack_type > 0) {
+                        if (attack_type > AttckT_Unset) {
                             (*enemytng) = thing;
                             return attack_type;
                         }
@@ -3295,7 +3295,7 @@ CrCheckRet move_check_kill_creatures(struct Thing *creatng)
     slb_x = coord_slab(creatng->mappos.x.val);
     slb_y = coord_slab(creatng->mappos.y.val);
     attack_type = creature_can_have_combat_with_creature_on_slab(creatng, slb_x, slb_y, &enemytng);
-    if (attack_type > 0) {
+    if (attack_type > AttckT_Unset) {
         set_creature_in_combat_to_the_death(creatng, enemytng, attack_type);
         return CrCkRet_Continue;
     }
