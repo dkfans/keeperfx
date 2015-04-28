@@ -234,33 +234,33 @@ void setup_combat_flee_position(struct Thing *thing)
     }
 }
 
-long get_combat_state_for_combat(struct Thing *fightng, struct Thing *enmtng, CrAttackType possible_combat)
+long get_combat_state_for_combat(struct Thing *fightng, struct Thing *enmtng, CrAttackType attack_pref)
 {
     struct CreatureStats *crstat;
-    if (possible_combat == AttckT_Ranged)
+    if (attack_pref == AttckT_Ranged)
     {
         if (can_add_ranged_combat_attacker(enmtng)) {
-            return 2;
+            return CmbtSt_Ranged;
         }
-        return 1;
+        return CmbtSt_Waiting;
     }
     crstat = creature_stats_get_from_thing(fightng);
     if (crstat->attack_preference == AttckT_Ranged)
     {
-        if ( creature_has_ranged_weapon(fightng) && can_add_ranged_combat_attacker(enmtng) ) {
-            return 2;
+        if (creature_has_ranged_weapon(fightng) && can_add_ranged_combat_attacker(enmtng)) {
+            return CmbtSt_Ranged;
         }
     }
     if (can_add_melee_combat_attacker(enmtng)) {
-        return 3;
+        return CmbtSt_Melee;
     }
     if ( !creature_has_ranged_weapon(fightng) ) {
-        return 1;
+        return CmbtSt_Waiting;
     }
     if (can_add_ranged_combat_attacker(enmtng)) {
-        return 2;
+        return CmbtSt_Ranged;
     }
-    return 1;
+    return CmbtSt_Waiting;
 }
 
 void set_creature_in_combat(struct Thing *fightng, struct Thing *enmtng, CrAttackType attack_type)

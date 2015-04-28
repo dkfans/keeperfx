@@ -220,8 +220,8 @@ struct CreatureConfig {
     struct CreatureJobConfig jobs[INSTANCE_TYPES_MAX];
     long angerjobs_count;
     struct CreatureAngerJobConfig angerjobs[INSTANCE_TYPES_MAX];
-    long attackpref_count;
-    struct CommandWord attackpref_names[INSTANCE_TYPES_MAX];
+    long attacktypes_count;
+    struct CommandWord attacktypes[INSTANCE_TYPES_MAX];
     struct CreatureExperience exp;
     ThingModel special_digger_good;
     ThingModel special_digger_evil;
@@ -276,6 +276,8 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
 CreatureJob get_job_for_room(RoomKind rkind, unsigned long required_kind_flags, CreatureJob has_jobs);
 CreatureJob get_job_which_qualify_for_room(RoomKind rkind, unsigned long qualify_flags, unsigned long prevent_flags);
 const char *creature_job_code_name(CreatureJob job_flag);
+/******************************************************************************/
+const char *attack_type_job_code_name(CrAttackType attack_type);
 /******************************************************************************/
 #ifdef __cplusplus
 }
