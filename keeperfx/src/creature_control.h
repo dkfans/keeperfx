@@ -338,7 +338,7 @@ unsigned char field_67;
   union {
   struct {
       unsigned char combat_state_id;
-      unsigned char byte_A7;
+      unsigned char attack_type;
     };
   struct {
       short word_A6;

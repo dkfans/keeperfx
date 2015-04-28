@@ -234,10 +234,10 @@ void setup_combat_flee_position(struct Thing *thing)
     }
 }
 
-long get_combat_state_for_combat(struct Thing *fightng, struct Thing *enmtng, long possible_combat)
+long get_combat_state_for_combat(struct Thing *fightng, struct Thing *enmtng, CrAttackType possible_combat)
 {
     struct CreatureStats *crstat;
-    if (possible_combat == 2)
+    if (possible_combat == AttckT_Ranged)
     {
         if (can_add_ranged_combat_attacker(enmtng)) {
             return 2;
@@ -263,7 +263,7 @@ long get_combat_state_for_combat(struct Thing *fightng, struct Thing *enmtng, lo
     return 1;
 }
 
-void set_creature_in_combat(struct Thing *fightng, struct Thing *enmtng, long combat_kind)
+void set_creature_in_combat(struct Thing *fightng, struct Thing *enmtng, CrAttackType attack_type)
 {
     struct CreatureControl *cctrl;
     SYNCDBG(8,"Starting for %s index %d and %s index %d",thing_model_name(fightng),(int)fightng->index,thing_model_name(enmtng),(int)enmtng->index);
@@ -284,7 +284,7 @@ void set_creature_in_combat(struct Thing *fightng, struct Thing *enmtng, long co
     }
     cctrl->field_AA = 0;
     cctrl->fight_til_death = 0;
-    if ( !set_creature_combat_state(fightng, enmtng, combat_kind) ) {
+    if ( !set_creature_combat_state(fightng, enmtng, attack_type) ) {
         WARNLOG("Couldn't setup combat state for %s index %d and %s index %d",thing_model_name(fightng),(int)fightng->index,thing_model_name(enmtng),(int)enmtng->index);
         set_start_state(fightng);
         return;

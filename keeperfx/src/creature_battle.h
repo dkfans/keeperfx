@@ -71,8 +71,8 @@ TbBool can_add_ranged_combat_attacker(const struct Thing *victim);
 
 void setup_combat_flee_position(struct Thing *thing);
 long get_flee_position(struct Thing *creatng, struct Coord3d *pos);
-void set_creature_in_combat(struct Thing *fighter, struct Thing *enemy, long possible_combat);
-long get_combat_state_for_combat(struct Thing *fighter, struct Thing *enemy, long possible_combat);
+void set_creature_in_combat(struct Thing *fightng, struct Thing *enmtng, CrAttackType attack_type);
+long get_combat_state_for_combat(struct Thing *fighter, struct Thing *enemy, CrAttackType possible_combat);
 
 TbBool active_battle_exists(PlayerNumber plyr_idx);
 void maintain_my_battle_list(void);
