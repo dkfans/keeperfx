@@ -1230,28 +1230,28 @@ TbBool set_creature_combat_state(struct Thing *fighter, struct Thing *enemy, CrA
         return false;
     }
     crstat = creature_stats_get_from_thing(fighter);
-    if ( (crstat->attack_preference == AttckT_Ranged) && creature_has_ranged_weapon(fighter) )
+    if ((crstat->attack_preference == AttckT_Ranged) && creature_has_ranged_weapon(fighter))
     {
-        if ( add_ranged_attacker(fighter, enemy) )
+        if (add_ranged_attacker(fighter, enemy))
         {
             play_creature_sound(fighter, CrSnd_Fight, 3, 0);
             figctrl->combat_state_id = CmbtSt_Ranged;
             return true;
         }
     }
-    if ( add_melee_attacker(fighter, enemy) )
+    if (add_melee_attacker(fighter, enemy))
     {
         play_creature_sound(fighter, CrSnd_Fight, 3, 0);
         figctrl->combat_state_id = CmbtSt_Melee;
         return true;
     }
-    if ( creature_has_ranged_weapon(fighter) && add_ranged_attacker(fighter, enemy) )
+    if (creature_has_ranged_weapon(fighter) && add_ranged_attacker(fighter, enemy))
     {
         play_creature_sound(fighter, CrSnd_Fight, 3, 0);
         figctrl->combat_state_id = CmbtSt_Ranged;
         return true;
     } else
-    if ( add_waiting_attacker(fighter, enemy) )
+    if (add_waiting_attacker(fighter, enemy))
     {
         figctrl->combat_state_id = CmbtSt_Waiting;
         return true;
@@ -1721,22 +1721,22 @@ CrAttackType check_for_valid_combat(struct Thing *fightng, struct Thing *enmtng)
     return attack_type;
 }
 
-long combat_type_is_choice_of_creature(struct Thing *thing, long cmbtyp)
+TbBool combat_type_is_choice_of_creature(const struct Thing *thing, CrAttackType attack_type)
 {
     SYNCDBG(19,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
-    //return _DK_combat_type_is_choice_of_creature(thing, cmbtyp);
+    //return _DK_combat_type_is_choice_of_creature(thing, attack_type);
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
-    if (cmbtyp <= AttckT_Unset) {
+    if (attack_type <= AttckT_Unset) {
         return false;
     }
-    if (cmbtyp == AttckT_Ranged)
+    if (attack_type == AttckT_Ranged)
     {
         if (cctrl->attack_type == AttckT_Ranged)
             return true;
-        return 0;
+        return false;
     }
-    // so (cmbtyp == AttckT_Melee)
+    // so (attack_type == AttckT_Melee)
     if (cctrl->attack_type != AttckT_Ranged) {
         return true;
     }
@@ -2229,10 +2229,16 @@ long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, 
             }
         }
     }
+    // Move to enemy
     if (creature_move_to(thing, &enmtng->mappos, cctrl->max_speed, 0, 0) == -1)
     {
-        set_start_state(thing);
-        return false;
+        // If cannot move to enemy, retreat from him
+        if (creature_retreat_from_combat(thing, enmtng, nstat, 0) == Lb_FAIL)
+        {
+            // If cannot move at all, reset
+            set_start_state(thing);
+            return false;
+        }
     }
     return false;
 }
@@ -2737,7 +2743,7 @@ void creature_in_melee_combat(struct Thing *creatng)
     SYNCDBG(19,"Starting for %s index %d",thing_model_name(creatng),(int)creatng->index);
     struct CreatureControl *cctrl;
     struct Thing *enmtng;
-    long dist, cmbtyp, weapon;
+    long dist;
     cctrl = creature_control_get_from_thing(creatng);
     enmtng = thing_get(cctrl->battle_enemy_idx);
     TRACE_THING(enmtng);
@@ -2747,14 +2753,16 @@ void creature_in_melee_combat(struct Thing *creatng)
         creature_change_to_most_suitable_combat(creatng);
         return;
     }
-    cmbtyp = check_for_valid_combat(creatng, enmtng);
-    if (!combat_type_is_choice_of_creature(creatng, cmbtyp))
+    CrAttackType attack_type;
+    attack_type = check_for_valid_combat(creatng, enmtng);
+    if (!combat_type_is_choice_of_creature(creatng, attack_type))
     {
-        SYNCDBG(9,"Current combat type is not choice of %s index %d",thing_model_name(creatng),(int)creatng->index);
+        SYNCDBG(9,"Current combat type %d is not choice of %s index %d",(int)attack_type,thing_model_name(creatng),(int)creatng->index);
         set_start_state(creatng);
         return;
     }
     dist = get_combat_distance(creatng, enmtng);
+    CrInstance weapon;
     weapon = get_best_melee_offensive_weapon(creatng, dist);
     if (weapon == CrInst_NULL)
     {
@@ -2966,7 +2974,7 @@ TbBool creature_look_for_combat(struct Thing *creatng)
 
     if (cctrl->combat_flags != 0)
     {
-        if (get_combat_state_for_combat(creatng, enmtng, attack_type) == 1) {
+        if (get_combat_state_for_combat(creatng, enmtng, attack_type) == CmbtSt_Waiting) {
           return false;
         }
     }
@@ -3070,7 +3078,7 @@ TbBool creature_look_for_enemy_door_combat(struct Thing *thing)
     return true;
 }
 
-long creature_retreat_from_combat(struct Thing *figtng, struct Thing *enmtng, CrtrStateId continue_state, long a4)
+TbResult creature_retreat_from_combat(struct Thing *figtng, struct Thing *enmtng, CrtrStateId continue_state, long a4)
 {
     struct CreatureControl *figctrl;
     struct Coord3d pos;
@@ -3090,7 +3098,7 @@ long creature_retreat_from_combat(struct Thing *figtng, struct Thing *enmtng, Cr
         pos.z.val = get_thing_height_at(figtng, &pos);
         if (creature_move_to(figtng, &pos, get_creature_speed(figtng), 0, 1) != -1)
         {
-           return 1;
+           return Lb_SUCCESS;
         }
     }
     // First try
@@ -3114,7 +3122,7 @@ long creature_retreat_from_combat(struct Thing *figtng, struct Thing *enmtng, Cr
     if (setup_person_move_backwards_to_coord(figtng, &pos, NavRtF_Default))
     {
       figtng->continue_state = continue_state;
-      return 1;
+      return Lb_SUCCESS;
     }
     // Second try
     pos.x.val = figtng->mappos.x.val;
@@ -3130,10 +3138,10 @@ long creature_retreat_from_combat(struct Thing *figtng, struct Thing *enmtng, Cr
     pos.z.val = get_thing_height_at(figtng, &pos);
     if (setup_person_move_backwards_to_coord(figtng, &pos, NavRtF_Default))
     {
-      figtng->continue_state = continue_state;
-      return 1;
+        figtng->continue_state = continue_state;
+        return Lb_SUCCESS;
     }
-    return 1;
+    return Lb_FAIL;
 }
 
 short creature_attack_rooms(struct Thing *creatng)
