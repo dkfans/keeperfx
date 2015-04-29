@@ -110,6 +110,10 @@ enum JobKindFlags {
 enum InstancePropertiesFlags {
     InstPF_None               = 0x00,
     InstPF_RepeatTrigger      = 0x01,
+    InstPF_RangedAttack       = 0x02,
+    InstPF_MeleeAttack        = 0x04,
+    InstPF_SelfBuff           = 0x08,
+    InstPF_RangedDebuff       = 0x10,
 };
 
 enum CreatureDeathKind {
