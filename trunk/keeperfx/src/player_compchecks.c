@@ -461,7 +461,7 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
 		//TODO: recovery could be improved further by looking at length to payday and time it takes to get more money to increase lower bound
 	} else if (controlled_diggers >= check->param2 && !digging_gems) {
         // We have less than preferred amount, but higher than minimal; allow building if we've got spare money
-        able = computer_able_to_use_magic(comp, PwrK_MKDIGGER, 0, 3 + (check->param2 - controlled_diggers)/4);
+        able = computer_able_to_use_magic(comp, PwrK_MKDIGGER, 0, 3 + (controlled_diggers - check->param2)/4);
     } else {
         able = computer_able_to_use_magic(comp, PwrK_MKDIGGER, 0, 1);
     }
