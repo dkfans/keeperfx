@@ -92,11 +92,13 @@ enum PlayerVictoryState {
     VicS_State3,
 };
 
-enum PlayerField454Val {
-    P454_Unkn0 = 0,
-    P454_Unkn1,
-    P454_Unkn2,
-    P454_Unkn3,
+// Context of given location.
+enum LocationContext 
+{
+    PosContext_Nothing = 0, // Cursor about nothing.
+    PosContext_Dirt, // Can dig
+    PosContext_Door, // Lock/Unlock door
+    PosContext_Creature, // Creature
 };
 
 /******************************************************************************/
@@ -132,8 +134,10 @@ struct PlayerInfo {
     unsigned char field_1;
     unsigned char field_2; //seems to be never used
     unsigned char field_3;
-    unsigned char boolfield_4;
-    unsigned char boolfield_5;
+    // About to possess a creature.
+    unsigned char isCastingPossession;
+    // Is querying info of a creature.
+    unsigned char isQueryingInfo;
     unsigned char flgfield_6;
     unsigned char *field_7;
     unsigned char packet_num; // index of packet slot associated with this player
@@ -171,8 +175,10 @@ char field_E8[2];
     unsigned short minimap_zoom;
     unsigned char view_type;
     unsigned char work_state;
-    unsigned char field_454;
-    unsigned char field_455;
+    // Context of the position cursor is hovering.
+    unsigned char hover_pos_context;
+    // Context of the position where click happened.
+    unsigned char click_pos_context;
     unsigned char continue_work_state;
 char field_457[8];
 char field_45F;
@@ -184,8 +190,8 @@ char field_462;
     char chosen_trap_kind;
     char chosen_door_kind;
     char field_4A7[4];
-    short field_4AB;
-    short field_4AD;
+    short cursor_stl_x;
+    short cursor_stl_y;
     unsigned char field_4AF;
     unsigned char instance_num; //< Player instance, from PlayerInstanceNum enum.
     unsigned long instance_remain_rurns;

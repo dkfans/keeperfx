@@ -58,7 +58,7 @@ enum GameKeys {
     GameKey_ZoomToFight, // 25
     GameKey_ZoomCrAnnoyed,
     GameKey_Unknown27,
-    GameKey_Unknown28,
+    GameKey_QueryInfo,
     GameKey_DumpToOldPos,
     GameKey_TogglePause, // 30
     GameKey_SwitchToMap,

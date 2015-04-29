@@ -1313,7 +1313,7 @@ TbBool players_cursor_is_at_top_of_view(struct PlayerInfo *player)
     i = player->work_state;
     if ( (i == PSt_BuildRoom) || (i == PSt_PlaceDoor) || (i == PSt_PlaceTrap) || (i == PSt_SightOfEvil) || (i == PSt_Sell) )
         return true;
-    if ( (i == PSt_CtrlDungeon) && (player->field_454 != P454_Unkn0) && (player->thing_under_hand == 0) )
+    if ( (i == PSt_CtrlDungeon) && (player->hover_pos_context != PosContext_Nothing) && (player->thing_under_hand == 0) )
         return true;
     return false;
 }
@@ -3736,8 +3736,8 @@ void _predict_power_hand_click_behavior()
     // Get the informaiton of current slab the power hand is over.
     if (player && cam)
     {
-        stl_x = player->field_4AB;
-        stl_y = player->field_4AD;
+        stl_x = player->cursor_stl_x;
+        stl_y = player->cursor_stl_y;
 
         // Running this only once on initialization seems not working properly, probably due
         // to inaccurate zoom value.
@@ -3758,7 +3758,7 @@ void _predict_power_hand_click_behavior()
             (player->work_state == PSt_FreeCastDisease) ||
             (player->work_state == PSt_FreeTurnChicken) ||
             (player->work_state == PSt_FreeCtrlPassngr) ||
-            (player->work_state == PSt_FreeCtrlDirect);
+            (player->work_state == PSt_FreePossession);
 
         // Dragging should not be disrupted once started, until release button.
         lbDisplayEx.isPowerHandNothingTodoLeftClick = lbDisplayEx.isDragMovingCamera || (isMapCamera && isNothingToPickupOrSlap && isNothingToDig && isNotCastingChargeableSpell);

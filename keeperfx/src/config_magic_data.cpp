@@ -63,7 +63,7 @@ struct SpellInfo spell_info[] = {
 };
 
 struct SpellData spell_data[] = {
-  {PckA_SetPlyrState,  PSt_CtrlDirect, 0,   0,   0,   0,   0,   0,  0, NULL,                 PwCast_None},      //[0] None
+  {PckA_SetPlyrState,  PSt_Possession, 0,   0,   0,   0,   0,   0,  0, NULL,                 PwCast_None},      //[0] None
   {        PckA_None,        PSt_None, 0,   0,   0,   0,   0,   0,  0, NULL,                 PwCast_Anywhere}, //[1] Power Hand
   {PckA_SetPlyrState,PSt_CreateDigger, 0,  95, 118, 631, 648, 831,  5, NULL,                 PwCast_Anywhere}, //[2] Make Digger
   {  PckA_UsePwrObey,        PSt_None, 0, 394, 452, 636, 653, 834,  0, NULL,                 PwCast_Anywhere}, //[3] Must Obey
@@ -81,7 +81,7 @@ struct SpellData spell_data[] = {
   {PckA_SetPlyrState, PSt_TurnChicken, 0, 306, 314, 641, 658, 827,  2, general_expand_check, PwCast_Anywhere}, //[15] Chicken
   {PckA_SetPlyrState,PSt_DestroyWalls, 0, 308, 317, 643, 660, 839,  4, general_expand_check, PwCast_Anywhere}, //[16] Destroy Walls
   {PckA_SetPlyrState,    PSt_TimeBomb, 0, 105, 128, 645, 662,   0,  0, NULL,                 PwCast_Anywhere}, //[17] Time Bomb
-  {PckA_SetPlyrState,  PSt_CtrlDirect, 0,  91, 114, 630, 647, 836,  7, NULL,                 PwCast_Anywhere}, //[18] Possession
+  {PckA_SetPlyrState,  PSt_Possession, 0,  91, 114, 630, 647, 836,  7, NULL,                 PwCast_Anywhere}, //[18] Possession
   { PckA_UsePwrArmageddon,   PSt_None, 0, 312, 321, 646, 663, 824,  0, NULL,                 PwCast_Anywhere}, //[19] Armageddon
   {        PckA_None,        PSt_None, 0,   0,   0,   0,   0,   0,  0, NULL,                 PwCast_None},      //[20]
 };

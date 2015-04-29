@@ -75,7 +75,7 @@ struct GuiBoxOption gui_main_cheat_list[] = { //gui_main_option_list in beta
   {"Create gold mode",         1,           NULL,      gf_change_player_state, 0, 0, 0,       PSt_MkGoldPot, 0, 0, 0, 0},
   {"",                         2,           NULL,                        NULL, 0, 0, 0,            PSt_None, 0, 0, 0, 0},
   {"Passenger control mode",   1,           NULL,      gf_change_player_state, 0, 0, 0, PSt_FreeCtrlPassngr, 0, 0, 0, 0},
-  {"Direct control mode",      1,           NULL,      gf_change_player_state, 0, 0, 0,  PSt_FreeCtrlDirect, 0, 0, 0, 0},
+  {"Direct control mode",      1,           NULL,      gf_change_player_state, 0, 0, 0,  PSt_FreePossession, 0, 0, 0, 0},
   {"Order creature mode",      1,           NULL,      gf_change_player_state, 0, 0, 0,     PSt_OrderCreatr, 0, 0, 0, 0},
   {"",                         2,           NULL,                        NULL, 0, 0, 0,            PSt_None, 0, 0, 0, 0},
   {"!",                        0,           NULL,                        NULL, 0, 0, 0,            PSt_None, 0, 0, 0, 0},

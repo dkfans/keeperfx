@@ -965,8 +965,8 @@ long player_state_to_packet(long work_state, PowerKind pwkind, TbBool already_in
             return PckA_PwrSOEDis;
         else
             return PckA_SetPlyrState;
-    case PSt_CtrlDirect:
-    case PSt_FreeCtrlDirect:
+    case PSt_Possession:
+    case PSt_FreePossession:
     case PSt_CreateDigger:
     case PSt_CaveIn:
     case PSt_Heal:

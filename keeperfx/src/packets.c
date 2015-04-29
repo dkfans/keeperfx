@@ -488,7 +488,7 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
     stl_y = coord_subtile(y);
 
     player->field_3 &= ~0x02;
-    if ((player->field_455 != P454_Unkn0) && (player->field_455 != P454_Unkn3))
+    if ((player->click_pos_context != PosContext_Nothing) && (player->click_pos_context != PosContext_Creature))
     {
       if (player->instance_num != PI_Grab) {
           delete_power_hand(player->id_number);
@@ -667,8 +667,10 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
     cx = stl_slab_starting_subtile(stl_x);
     cy = stl_slab_starting_subtile(stl_y);
     if ((pckt->control_flags & PCtr_LBtnAnyAction) == 0)
-      player->field_455 = P454_Unkn0;
-    player->field_454 = (unsigned short)(pckt->field_10 & 0x1E) >> 1;
+    {
+        player->click_pos_context = PosContext_Nothing;
+    }
+    player->hover_pos_context = (unsigned short)(pckt->status_flags & PCAdV_ContextMask) >> 1;
 
     process_dungeon_power_hand_state(plyr_idx);
 
@@ -676,29 +678,29 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
     {
       if (is_my_player(player) && !game_is_busy_doing_gui())
       {
-        if (player->field_454 == P454_Unkn1)
+        if (player->hover_pos_context == PosContext_Dirt)
           tag_cursor_blocks_dig(player->id_number, stl_x, stl_y, player->field_4A4);
       }
       if ((pckt->control_flags & PCtr_LBtnClick) != 0)
       {
-        player->field_4AB = stl_x;
-        player->field_4AD = stl_y;
+        player->cursor_stl_x = stl_x;
+        player->cursor_stl_y = stl_y;
         player->field_4AF = 1;
-        player->field_455 = player->field_454;
-        switch (player->field_454)
+        player->click_pos_context = player->hover_pos_context;
+        switch (player->hover_pos_context)
         {
-        case P454_Unkn1:
-          i = get_subtile_number(stl_slab_center_subtile(player->field_4AB),stl_slab_center_subtile(player->field_4AD));
+        case PosContext_Dirt:
+          i = get_subtile_number(stl_slab_center_subtile(player->cursor_stl_x),stl_slab_center_subtile(player->cursor_stl_y));
           if (find_from_task_list(plyr_idx,i) != -1)
               player->allocflags |= PlaF_Unknown20;
           else
               player->allocflags &= ~PlaF_Unknown20;
           break;
-        case P454_Unkn2:
-          thing = get_door_for_position(player->field_4AB, player->field_4AD);
+        case PosContext_Door:
+          thing = get_door_for_position(player->cursor_stl_x, player->cursor_stl_y);
           if (thing_is_invalid(thing))
           {
-            ERRORLOG("Door thing not found at map pos (%d,%d)",(int)player->field_4AB,(int)player->field_4AD);
+            ERRORLOG("Door thing not found at map pos (%d,%d)",(int)player->cursor_stl_x,(int)player->cursor_stl_y);
             break;
           }
           if (thing->byte_18)
@@ -706,10 +708,10 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
           else
             lock_door(thing);
           break;
-        case P454_Unkn3:
+        case PosContext_Creature:
           if (player->thing_under_hand == 0)
           {
-            i = get_subtile_number(stl_slab_center_subtile(player->field_4AB),stl_slab_center_subtile(player->field_4AD));
+            i = get_subtile_number(stl_slab_center_subtile(player->cursor_stl_x),stl_slab_center_subtile(player->cursor_stl_y));
             if (find_from_task_list(plyr_idx,i) != -1)
                 player->allocflags |= PlaF_Unknown20;
             else
@@ -722,8 +724,8 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
       }
       if ((pckt->control_flags & PCtr_RBtnClick) != 0)
       {
-        player->field_4AB = stl_x;
-        player->field_4AD = stl_y;
+        player->cursor_stl_x = stl_x;
+        player->cursor_stl_y = stl_y;
         player->field_4AF = 1;
         unset_packet_control(pckt, PCtr_RBtnClick);
       }
@@ -731,10 +733,10 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
 
     if ((pckt->control_flags & PCtr_LBtnHeld) != 0)
     {
-        if (player->field_455 == P454_Unkn0)
+        if (player->click_pos_context == PosContext_Nothing)
         {
-            player->field_455 = player->field_454;
-            if (player->field_454 == P454_Unkn1)
+            player->click_pos_context = player->hover_pos_context;
+            if (player->hover_pos_context == PosContext_Dirt)
             {
                 i = get_subtile_number(stl_slab_center_subtile(stl_x), stl_slab_center_subtile(stl_y));
                 if (find_from_task_list(plyr_idx, i) != -1)
@@ -745,9 +747,9 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         }
         if (player->field_4AF != 0)
         {
-            if ((player->field_454 == player->field_455) && !lbDisplayEx.isDragMovingCamera)
+            if ((player->hover_pos_context == player->click_pos_context) && !lbDisplayEx.isDragMovingCamera)
             {
-                if (player->field_455 == P454_Unkn1)
+                if (player->click_pos_context == PosContext_Dirt)
                 {
                     if ((player->allocflags & PlaF_Unknown20) != 0)
                     {
@@ -762,7 +764,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
                         output_message(SMsg_WorkerJobsLimit, 500, true);
                     }
                 }
-                else if ((player->field_455 == P454_Unkn3) && ((player->field_3 & 0x01) != 0))
+                else if ((player->click_pos_context == PosContext_Creature) && ((player->field_3 & 0x01) != 0))
                 {
                     if ((player->allocflags & PlaF_Unknown20) != 0)
                     {
@@ -791,21 +793,21 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
     }
     if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
     {
-        if (player->field_455 == P454_Unkn0)
-        player->field_455 = player->field_454;
+        if (player->click_pos_context == PosContext_Nothing)
+        player->click_pos_context = player->hover_pos_context;
       if (player->field_4AF != 0)
       {
         thing = thing_get(player->thing_under_hand);
-        if ((player->thing_under_hand != 0) && (player->boolfield_4 != 0)
+        if ((player->thing_under_hand != 0) && (player->isCastingPossession != 0)
           && (dungeon->things_in_hand[0] != player->thing_under_hand))
         {
-            set_player_state(player, PSt_CtrlDirect, 0);
+            set_player_state(player, PSt_Possession, 0);
             if (magic_use_available_power_on_thing(plyr_idx, PwrK_POSSESS, 0, stl_x, stl_y, thing) == Lb_FAIL) {
                 set_player_state(player, player->continue_work_state, 0);
             }
             unset_packet_control(pckt, PCtr_LBtnRelease);
         } else
-        if ((player->thing_under_hand != 0) && (player->boolfield_5 != 0)
+        if ((player->thing_under_hand != 0) && (player->isQueryingInfo != 0)
           && (dungeon->things_in_hand[0] != player->thing_under_hand)
           && can_thing_be_queried(thing, plyr_idx) )
         {
@@ -822,9 +824,9 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
           }
           unset_packet_control(pckt, PCtr_LBtnRelease);
         }
-        else if ((player->field_454 == player->field_455) && !lbDisplayEx.isDragMovingCamera)
+        else if ((player->hover_pos_context == player->click_pos_context) && !lbDisplayEx.isDragMovingCamera)
         {
-          if (player->field_454 == P454_Unkn1)
+          if (player->hover_pos_context == PosContext_Dirt)
           {
             if ((player->allocflags & PlaF_Unknown20) != 0)
             {
@@ -839,7 +841,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
               output_message(SMsg_WorkerJobsLimit, 500, true);
             }
           } else
-          if (player->field_454 == P454_Unkn3)
+          if (player->hover_pos_context == PosContext_Creature)
           {
             if (player->thing_under_hand != 0) {
                 // TODO SPELLS it's not a good idea to use this directly; change to magic_use_available_power_on_*()
@@ -849,7 +851,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         }
         player->field_4AF = 0;
         unset_packet_control(pckt, PCtr_LBtnRelease);
-        player->field_455 = P454_Unkn0;
+        player->click_pos_context = PosContext_Nothing;
         player->field_3 &= ~0x01;
       }
     }
@@ -866,7 +868,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
           }
         } else
         {
-          if (player->field_454 == P454_Unkn3) {
+          if (player->hover_pos_context == PosContext_Creature) {
               thing = get_nearest_thing_for_slap(plyr_idx, subtile_coord_center(stl_x), subtile_coord_center(stl_y));
               magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, thing);
           }
@@ -1000,10 +1002,10 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
           }
         }
         break;
-    case PSt_CtrlDirect:
-    case PSt_FreeCtrlDirect:
+    case PSt_Possession:
+    case PSt_FreePossession:
         influence_own_creatures = 1;
-        if (player->work_state == PSt_CtrlDirect)
+        if (player->work_state == PSt_Possession)
             thing = get_creature_near_for_controlling(plyr_idx, x, y);
         else
             thing = get_creature_near_for_controlling(plyr_idx, x, y); // TODO Change to allow controlling any owner
@@ -1284,7 +1286,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     }
     if (((pckt->control_flags & PCtr_HeldAnyButton) != 0) && (influence_own_creatures))
     {
-      if ((player->field_455 == P454_Unkn0) || (player->field_455 == P454_Unkn3))
+      if ((player->click_pos_context == PosContext_Nothing) || (player->click_pos_context == PosContext_Creature))
         stop_creatures_around_hand(plyr_idx, stl_x, stl_y);
     }
     return ret;
@@ -1529,7 +1531,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
         inter_val = 256;
         break;
     }
-    if (pckt->field_10 & PCAdV_Unknown01)
+    if (pckt->status_flags & PCAdV_QuickScroll)
       inter_val *= 3;
 
     if ((pckt->control_flags & PCtr_MoveUp) != 0)
@@ -2117,8 +2119,8 @@ void process_players_packet(long idx)
     player = get_player(idx);
     pckt = get_packet_direct(player->packet_num);
     SYNCDBG(6, "Processing player %d packet of type %d.", idx, (int)pckt->action);
-    player->boolfield_4 = ((pckt->field_10 & 0x20) != 0);
-    player->boolfield_5 = ((pckt->field_10 & 0x40) != 0);
+    player->isCastingPossession = ((pckt->status_flags & PCAdV_PossessionSpell) != 0);
+    player->isQueryingInfo = ((pckt->status_flags & PCAdV_QueryInfo) != 0);
     if (((player->allocflags & PlaF_NewMPMessage) != 0) && (pckt->action == PckA_PlyrMsgChar))
     {
         process_players_message_character(player);
