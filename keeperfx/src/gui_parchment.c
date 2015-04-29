@@ -873,20 +873,20 @@ void redraw_minimal_overhead_view(void)
     draw_tooltip();
 }
 
-void zoom_to_patchment_map(void)
+void zoom_to_parchment_map(void)
 {
     struct PlayerInfo *player;
     turn_off_all_window_menus();
-    if ((game.numfield_C & 0x20) == 0)
-      set_flag_byte(&game.numfield_C,0x40,false);
+    if ((game.status_flags & Status_ShowGui) == 0)
+        set_flag_byte(&game.status_flags, Status_ShowStatusMenu, false);
     else
-      set_flag_byte(&game.numfield_C,0x40,true);
+        set_flag_byte(&game.status_flags, Status_ShowStatusMenu, true);
     player = get_my_player();
     if (((game.system_flags & GSF_NetworkActive) != 0)
         || (lbDisplay.PhysicalScreenWidth > 320))
     {
       if (!toggle_status_menu(0))
-        set_flag_byte(&game.numfield_C,0x40,false);
+          set_flag_byte(&game.status_flags, Status_ShowStatusMenu, false);
       set_players_packet_action(player, PckA_Unknown119, 4, 0);
       turn_off_roaming_menus();
     } else
@@ -896,14 +896,14 @@ void zoom_to_patchment_map(void)
     }
 }
 
-void zoom_from_patchment_map(void)
+void zoom_from_parchment_map(void)
 {
     struct PlayerInfo *player;
     player = get_my_player();
     if (((game.system_flags & GSF_NetworkActive) != 0)
         || (lbDisplay.PhysicalScreenWidth > 320))
     {
-        if ((game.numfield_C & 0x40) != 0)
+        if ((game.status_flags & Status_ShowStatusMenu) != 0)
           toggle_status_menu(1);
         set_players_packet_action(player, PckA_Unknown120,1,0);
     } else

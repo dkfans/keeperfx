@@ -51,8 +51,8 @@ void redraw_minimal_overhead_view(void);
 long get_parchment_map_area_rect(struct TbRect *map_area);
 TbBool point_to_overhead_map(const struct Camera *camera, const long screen_x, const long screen_y, long *map_x, long *map_y);
 
-void zoom_from_patchment_map(void);
-void zoom_to_patchment_map(void);
+void zoom_from_parchment_map(void);
+void zoom_to_parchment_map(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

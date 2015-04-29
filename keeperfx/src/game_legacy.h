@@ -68,14 +68,40 @@ extern "C" {
 #endif
 /******************************************************************************/
     enum GameTypes {
-    GameType_Unknown0 = 0,
-    GameType_Unknown1,
-    GameType_LocalGame,
-    GameType_Unknown3,
-    GameType_Unknown4,
-    GameType_MultiGame,
-};
-/******************************************************************************/
+        GameType_Unknown0 = 0,
+        GameType_Unknown1,
+        GameType_LocalGame,
+        GameType_Unknown3,
+        GameType_Unknown4,
+        GameType_MultiGame,
+    };
+
+    enum StatusFlags {
+        Status_Paused           = 0x01,
+        // Play single level and then exit.
+        Status_SingleLevel      = 0x02,
+        Status_Unknown          = 0x04,
+        Status_ColumnConvert    = 0x08,
+        Status_LightConvert     = 0x10,
+        // Showing main Gui.
+        Status_ShowGui          = 0x20,
+        // Showing status menu.
+        Status_ShowStatusMenu   = 0x40,
+        // Game allows Input.
+        Status_AllowInput       = 0x80,
+    };
+
+    enum numfield_D {
+        numfield_D_01 = 0x01,
+        numfield_D_Unused = 0x02,
+        numfield_D_04 = 0x04,
+        numfield_D_08 = 0x08,
+        numfield_D_10 = 0x10,
+        numfield_D_20 = 0x20,
+        numfield_D_40 = 0x40,
+        numfield_D_80 = 0x80,
+    };
+    /******************************************************************************/
 #pragma pack(1)
 
 struct CreaturePool { // sizeof = 129
@@ -97,7 +123,7 @@ struct Game { // sizeof=0x151825
     LevelNumber continue_level_number;
     unsigned char system_flags;
 char align_B;
-    unsigned char numfield_C;
+unsigned char status_flags;
 char numfield_D;
     unsigned char flags_font;
     unsigned char flags_gui;

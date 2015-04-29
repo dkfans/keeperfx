@@ -2425,7 +2425,7 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
     turn_off_all_window_menus();
     turn_off_query_menus();
     turn_on_main_panel_menu();
-    set_flag_byte(&game.numfield_C,0x40,(game.numfield_C & 0x20) != 0);
+    set_flag_byte(&game.status_flags, Status_ShowStatusMenu, (game.status_flags & Status_ShowGui) != 0);
   }
   light_turn_light_on(player->field_460);
 }

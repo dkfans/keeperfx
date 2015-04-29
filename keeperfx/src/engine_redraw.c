@@ -80,13 +80,14 @@ void setup_engine_window(long x, long y, long width, long height)
     struct PlayerInfo *player;
     SYNCDBG(6,"Starting for size (%ld,%ld) at (%ld,%ld)",width,height,x,y);
     player=get_my_player();
-    if (game.numfield_C & 0x20)
+    if (game.status_flags & Status_ShowGui)
     {
       if (x > MyScreenWidth)
         x = MyScreenWidth;
       if (x < status_panel_width)
         x = status_panel_width;
-    } else
+    } 
+    else
     {
       if (x > MyScreenWidth)
         x = MyScreenWidth;
@@ -545,11 +546,11 @@ void redraw_creature_view(void)
     }
     remove_explored_flags_for_power_sight(player);
     draw_swipe_graphic();
-    if ((game.numfield_C & 0x20) != 0) {
+    if ((game.status_flags & Status_ShowGui) != 0) {
         draw_whole_status_panel();
     }
     draw_gui();
-    if ((game.numfield_C & 0x20) != 0) {
+    if ((game.status_flags & Status_ShowGui) != 0) {
         draw_overlay_compass(player->minimap_pos_x, player->minimap_pos_y);
     }
     message_draw();
@@ -655,11 +656,11 @@ void redraw_isometric_view(void)
             ewnd.width, ewnd.height, lbDisplay.GraphicsScreenWidth);
     }
     remove_explored_flags_for_power_sight(player);
-    if ((game.numfield_C & 0x20) != 0) {
+    if ((game.status_flags & Status_ShowGui) != 0) {
         draw_whole_status_panel();
     }
     draw_gui();
-    if ((game.numfield_C & 0x20) != 0) {
+    if ((game.status_flags & Status_ShowGui) != 0) {
         draw_overlay_compass(player->minimap_pos_x, player->minimap_pos_y);
     }
     message_draw();
@@ -691,11 +692,11 @@ void redraw_frontview(void)
     if ((game.flags_font & FFlg_unk08) != 0)
       setup_engine_window(player->engine_window_x, player->engine_window_y, w, h);
     remove_explored_flags_for_power_sight(player);
-    if ((game.numfield_C & 0x20) != 0) {
+    if ((game.status_flags & Status_ShowGui) != 0) {
         draw_whole_status_panel();
     }
     draw_gui();
-    if ((game.numfield_C & 0x20) != 0) {
+    if ((game.status_flags & Status_ShowGui) != 0) {
         draw_overlay_compass(player->minimap_pos_x, player->minimap_pos_y);
     }
     message_draw();
@@ -801,7 +802,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         return;
     }
     // Mouse over panel map
-    if (((game.numfield_C & 0x20) != 0) && mouse_is_over_pannel_map(player->minimap_pos_x, player->minimap_pos_y))
+    if (((game.status_flags & Status_ShowGui) != 0) && mouse_is_over_pannel_map(player->minimap_pos_x, player->minimap_pos_y))
     {
         if (game.small_map_state == 2) {
             set_pointer_graphic(MousePG_None);
@@ -949,7 +950,7 @@ void process_pointer_graphic(void)
         break;
     case PVT_CreatureContrl:
     case PVT_CreaturePasngr:
-        if ((game.numfield_D & 0x08) != 0)
+        if ((game.numfield_D & numfield_D_08) != 0)
           set_pointer_graphic(MousePG_Cursor);
         else
           set_pointer_graphic(MousePG_None);
@@ -1041,7 +1042,7 @@ void redraw_display(void)
     }
     if (bonus_timer_enabled())
         draw_bonus_timer();
-    if (((game.numfield_C & 0x01) != 0) && ((game.numfield_C & 0x80) == 0))
+    if ((game.status_flags & Status_Paused) && (!game.status_flags & Status_AllowInput))
     {
           LbTextSetFont(winfont);
           text = get_string(GUIStr_PausedMsg);

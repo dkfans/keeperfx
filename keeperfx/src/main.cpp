@@ -1022,8 +1022,8 @@ void init_keeper(void)
     game.comp_player_creatrsonly = 0;
     game.creatures_tend_imprison = 0;
     game.creatures_tend_flee = 0;
-    game.numfield_C |= 0x40;
-    game.numfield_D |= (0x20 | 0x40);
+    game.status_flags |= Status_ShowStatusMenu;
+    game.numfield_D |= (numfield_D_20 | numfield_D_40);
     init_censorship();
     SYNCDBG(9,"Finished");
 }
@@ -1682,7 +1682,7 @@ void clear_complete_game(void)
     game.numfield_149F47 = 0;
     // Set levels to 0, as we may not have the campaign loaded yet
     set_continue_level_number(first_singleplayer_level());
-    if ((start_params.numfield_C & 0x02) != 0)
+    if ((start_params.status_flags & Status_SingleLevel))
       set_selected_level_number(start_params.selected_level_number);
     else
       set_selected_level_number(first_singleplayer_level());
@@ -1691,7 +1691,7 @@ void clear_complete_game(void)
     game.no_intro = start_params.no_intro;
     set_flag_byte(&game.system_flags,GSF_AllowOnePlayer,start_params.one_player);
     gameadd.computer_chat_flags = start_params.computer_chat_flags;
-    game.numfield_C = start_params.numfield_C;
+    game.status_flags = start_params.status_flags;
     strncpy(game.packet_fname,start_params.packet_fname,150);
     game.packet_save_enable = start_params.packet_save_enable;
     game.packet_load_enable = start_params.packet_load_enable;
@@ -1844,8 +1844,8 @@ void clear_game_for_summary(void)
     clear_mapwho();
     game.entrance_room_id = 0;
     game.action_rand_seed = 0;
-    game.numfield_C &= ~0x04;
-    game.numfield_C &= ~0x01;
+    game.status_flags &= ~Status_Unknown;
+    game.status_flags &= ~Status_Paused;
     clear_columns();
     clear_action_points();
     clear_players();
@@ -1874,7 +1874,7 @@ void clear_game_for_save(void)
     clear_mapwho();
     game.entrance_room_id = 0;
     game.action_rand_seed = 0;
-    set_flag_byte(&game.numfield_C,0x04,false);
+    set_flag_byte(&game.status_flags, Status_Unknown, false);
     clear_columns();
     clear_players_for_save();
     clear_dungeons();
@@ -1997,7 +1997,7 @@ void centre_engine_window(void)
 {
     long x1,y1;
     struct PlayerInfo *player=get_my_player();
-    if ((game.numfield_C & 0x20) != 0)
+    if ((game.status_flags & Status_ShowGui) != 0)
       x1 = (MyScreenWidth-player->engine_window_width-status_panel_width) / 2 + status_panel_width;
     else
       x1 = (MyScreenWidth-player->engine_window_width) / 2;
@@ -3074,7 +3074,7 @@ void update(void)
     struct PlayerInfo *player;
     SYNCDBG(4,"Starting for turn %ld",(long)game.play_gameturn);
 
-    if ((game.numfield_C & 0x01) == 0)
+    if ((game.status_flags & Status_Paused) == 0)
     {
         update_light_render_area();
     }
@@ -3092,7 +3092,7 @@ void update(void)
         return;
     }
 
-    if ((game.numfield_C & 0x01) == 0)
+    if ((game.status_flags & Status_Paused) == 0)
     {
         player = get_my_player();
         if (player->field_3 & 0x08)
@@ -3112,7 +3112,7 @@ void update(void)
         event_process_events();
         update_all_events();
         process_level_script();
-        if ((game.numfield_D & 0x04) != 0)
+        if (game.numfield_D & numfield_D_04)
             process_computer_players2();
         process_players();
         process_action_points();
@@ -3608,7 +3608,7 @@ void packet_load_find_frame_rate(unsigned long incr)
  */
 short display_should_be_updated_this_turn(void)
 {
-    if ((game.numfield_C & 0x01) != 0)
+    if ((game.status_flags & Status_Paused))
       return true;
     if ( (game.turns_fastforward == 0) && (!game.numfield_149F38) )
     {
@@ -3654,7 +3654,7 @@ TbBool keeper_screen_swap(void)
  */
 TbBool keeper_wait_for_next_turn(void)
 {
-    if ((game.numfield_D & 0x10) != 0)
+    if (game.numfield_D & numfield_D_10)
     {
         // No idea when such situation occurs
         TbClockMSec sleep_end = last_loop_time + 1000;
@@ -3797,10 +3797,12 @@ void keeper_gameplay_loop(void)
 
     PaletteSetPlayerPalette(player, engine_palette);
 
-    if ((game.numfield_C & 0x02) != 0)
+    // TODO HeM: does not make sense here.
+    if ((game.status_flags & Status_SingleLevel))
     {
         initialise_eye_lenses();
     }
+
     SYNCDBG(0,"Entering the gameplay loop for level %d",(int)get_loaded_level_number());
 
     KeeperSpeechClearEvents();
@@ -4185,7 +4187,7 @@ void init_level(void)
         player = get_player(game.hero_player_num);
         init_player_start(player, false);
     }
-    game.numfield_D |= 0x04;
+    game.numfield_D |= numfield_D_04;
     LbMemoryCopy(&game.intralvl_transfered_creature,&transfer_mem,sizeof(struct CreatureStorage));
     event_initialise_all();
     battle_initialise();
@@ -4283,7 +4285,7 @@ void faststartup_saved_packet_game(void)
         player->flgfield_6 &= ~PlaF6_PlyrHasQuit;
     }
     set_gui_visible(false);
-    set_flag_byte(&game.numfield_C,0x40,false);
+    set_flag_byte(&game.status_flags, Status_ShowStatusMenu, false);
 }
 
 void startup_network_game(TbBool local)
@@ -4324,6 +4326,7 @@ void startup_network_game(TbBool local)
     //LbNetwork_EnableLag(1);
 }
 
+// Actually means start a local game, as network game.
 void faststartup_network_game(void)
 {
     struct PlayerInfo *player;
@@ -4365,16 +4368,19 @@ void wait_at_frontend(void)
       exit_keeper = 1;
       return;
     }
+
     // Init load/save catalogue
     initialise_load_game_slots();
+
     // Prepare to enter PacketLoad game
     if ((game.packet_load_enable) && (!game.numfield_149F47))
     {
       faststartup_saved_packet_game();
       return;
     }
+
     // Prepare to enter network/standard game
-    if ((game.numfield_C & 0x02) != 0)
+    if ((game.status_flags & Status_SingleLevel))
     {
       faststartup_network_game();
       return;
@@ -4505,7 +4511,7 @@ void wait_at_frontend(void)
           game.flags_cd |= MFlg_IsDemoMode;
           startup_saved_packet_game();
           set_gui_visible(false);
-          set_flag_byte(&game.numfield_C,0x40,false);
+          set_flag_byte(&game.status_flags, Status_ShowStatusMenu, false);
           break;
     }
     player = get_my_player();
@@ -4537,7 +4543,7 @@ void game_loop(void)
         } else
         {
           game.numfield_15 = -1;
-          set_flag_byte(&game.numfield_C,0x01,false);
+          set_flag_byte(&game.status_flags, Status_Paused, false);
         }
       }
 
@@ -4569,7 +4575,7 @@ void game_loop(void)
       endtime = LbTimerClock();
 
       quit_game = 0;
-      if ((game.numfield_C & 0x02) != 0)
+      if ((game.status_flags & Status_SingleLevel))
           exit_keeper=true;
       playtime += endtime-starttime;
       SYNCDBG(0,"Play time is %d seconds",playtime>>10);
@@ -4678,7 +4684,7 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if ( strcasecmp(parstr,"level") == 0 )
       {
-        set_flag_byte(&start_params.numfield_C,0x02,true);
+          set_flag_byte(&start_params.status_flags, Status_SingleLevel, true);
         level_num = atoi(pr2str);
         narg++;
       } else
@@ -4721,15 +4727,15 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if (strcasecmp(parstr,"q") == 0)
       {
-         set_flag_byte(&start_params.numfield_C,0x02,true);
+          set_flag_byte(&start_params.status_flags, Status_SingleLevel, true);
       } else
       if (strcasecmp(parstr,"columnconvert") == 0)
       {
-         set_flag_byte(&start_params.numfield_C,0x08,true);
+          set_flag_byte(&start_params.status_flags, Status_ColumnConvert, true);
       } else
       if (strcasecmp(parstr,"lightconvert") == 0)
       {
-         set_flag_byte(&start_params.numfield_C,0x10,true);
+          set_flag_byte(&start_params.status_flags, Status_LightConvert, true);
       } else
       if (strcasecmp(parstr, "dbgshots") == 0)
       {

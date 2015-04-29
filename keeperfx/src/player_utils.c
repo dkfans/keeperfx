@@ -586,7 +586,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
     player->palette = engine_palette;
     if (is_my_player(player))
     {
-        set_flag_byte(&game.numfield_C,0x40,true);
+        set_flag_byte(&game.status_flags, Status_ShowStatusMenu, true);
         set_gui_visible(true);
         init_gui();
         turn_on_menu(GMnu_MAIN);

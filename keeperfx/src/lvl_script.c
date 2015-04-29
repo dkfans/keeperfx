@@ -2831,10 +2831,10 @@ short load_script(long lvnum)
     game.flags_cd |= MFlg_DeadBackToPool;
     reset_creature_max_levels();
     reset_script_timers_and_flags();
-    if ((game.numfield_C & 0x08) != 0)
+    if ((game.status_flags & Status_ColumnConvert) != 0)
     {
         convert_old_column_file(lvnum);
-        game.numfield_C &= ~0x08;
+        game.status_flags &= ~Status_ColumnConvert;
     }
     // Load the file
     script_len = 1;

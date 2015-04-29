@@ -496,7 +496,7 @@ void get_player_gui_clicks(void)
   struct Thing *thing;
   player = get_my_player();
 
-  if ( ((game.numfield_C & 0x01) != 0) && ((game.numfield_C & 0x80) == 0))
+  if ((game.status_flags & Status_Paused) && !(game.status_flags & Status_AllowInput))
     return;
 
   switch (player->view_type)
@@ -551,13 +551,13 @@ void get_player_gui_clicks(void)
           {
               if (a_menu_window_is_active())
               {
-                  game.numfield_D &= ~0x08;
+                  game.numfield_D &= ~numfield_D_08;
                   player->allocflags &= ~PlaF_Unknown8;
                   turn_off_all_window_menus();
               }
               else
               {
-                  game.numfield_D |= 0x08;
+                  game.numfield_D |= numfield_D_08;
                   player->allocflags |= PlaF_Unknown8;
                   turn_on_menu(GMnu_QUERY);
               }
@@ -1758,12 +1758,14 @@ short frontend_save_continue_game(short allow_lvnum_grow)
     // Restore saved data
     player->victory_state = victory_state;
     memcpy(&dungeon->lvstats, scratch, sizeof(struct LevelStats));
-    set_flag_byte(&player->field_3,0x10,flg_mem);
+    set_flag_byte(&player->field_3, 0x10, flg_mem);
+
     // Only save continue if level was won, and not in packet mode
-    if (((game.system_flags & GSF_NetworkActive) != 0)
-     || ((game.numfield_C & 0x02) != 0)
-     || (game.packet_load_enable))
+    if (((game.system_flags & GSF_NetworkActive))
+        || ((game.status_flags & Status_SingleLevel))
+        || (game.packet_load_enable))
         return false;
+
     // Select the continue level (move the campaign forward)
     if ((allow_lvnum_grow) && (player->victory_state == VicS_WonLevel)) {
         // If level number growth makes sense, do it
@@ -2179,7 +2181,7 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
         activeMenu = get_active_menu(mnu_num);
         activeMenu->visibility = Visibility_Shown;
         activeMenu->fade_time = gmnu->fade_time;
-        activeMenu->isTurnedOn = ((game.numfield_C & 0x20) != 0) || (!is_toggleable_menu(gmnu->ident));
+        activeMenu->isTurnedOn = ((game.status_flags & Status_ShowGui) != 0) || (!is_toggleable_menu(gmnu->ident));
         SYNCDBG(18,"Menu number %d already active",(int)mnu_num);
         return mnu_num;
     }
@@ -2217,7 +2219,7 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
     activeMenu->callback_create = gmnu->callback_create;
     activeMenu->isMonopolyMenu = gmnu->isMonopolyMenu;
     activeMenu->isTab = gmnu->isTab;
-    activeMenu->isTurnedOn = ((game.numfield_C & 0x20) != 0) || (!is_toggleable_menu(gmnu->ident));
+    activeMenu->isTurnedOn = ((game.status_flags & Status_ShowGui)) || (!is_toggleable_menu(gmnu->ident));
     callback = activeMenu->callback_create;
     if (callback != NULL)
         callback(activeMenu);
@@ -2418,9 +2420,9 @@ TbBool toggle_first_person_menu(TbBool visible)
 void set_gui_visible(TbBool visible)
 {
   SYNCDBG(6,"Starting");
-  set_flag_byte(&game.numfield_C,0x20,visible);
+  set_flag_byte(&game.status_flags, Status_ShowGui, visible);
   struct PlayerInfo *player=get_my_player();
-  unsigned char is_visbl = ((game.numfield_C & 0x20) != 0);
+  unsigned char is_visbl = ((game.status_flags & Status_ShowGui));
   switch (player->view_type)
   {
   case PVT_CreatureContrl:
@@ -2436,7 +2438,7 @@ void set_gui_visible(TbBool visible)
       toggle_status_menu(is_visbl);
       break;
   }
-  if (((game.numfield_D & 0x20) != 0) && ((game.numfield_C & 0x20) != 0))
+  if (game.numfield_D & numfield_D_20 && game.status_flags & Status_ShowGui)
     setup_engine_window(status_panel_width, 0, MyScreenWidth, MyScreenHeight);
   else
     setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
@@ -2444,13 +2446,13 @@ void set_gui_visible(TbBool visible)
 
 void toggle_gui(void)
 {
-    TbBool visible = ((game.numfield_C & 0x20) == 0);
+    TbBool visible = ((game.status_flags & Status_ShowGui));
     set_gui_visible(visible);
 }
 
 void reinit_all_menus(void)
 {
-    TbBool visible = ((game.numfield_C & 0x20) != 0);
+    TbBool visible = ((game.status_flags & Status_ShowGui));
     init_gui();
     reset_gui_based_on_player_mode();
     set_gui_visible(visible);
@@ -3009,7 +3011,7 @@ char update_menu_fade_level(struct GuiMenu *gmnu)
 
 void toggle_gui_overlay_map(void)
 {
-    toggle_flag_byte(&game.numfield_C,0x20);
+    toggle_flag_byte(&game.status_flags, Status_ShowGui);
 }
 
 void draw_menu_buttons(struct GuiMenu *gmnu)

@@ -70,7 +70,7 @@ TbBool activate_bonus_level(struct PlayerInfo *player)
   result = set_bonus_level_visibility_for_singleplayer_level(player, sp_lvnum, true);
   if (!result)
     ERRORLOG("No Bonus level assigned to level %d",(int)sp_lvnum);
-  set_flag_byte(&game.numfield_C,0x02,false);
+  set_flag_byte(&game.status_flags, Status_SingleLevel, false);
   return result;
 }
 
