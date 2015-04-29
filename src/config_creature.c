@@ -85,6 +85,10 @@ const struct NamedCommand creaturetype_instance_commands[] = {
 
 const struct NamedCommand creaturetype_instance_properties[] = {
   {"REPEAT_TRIGGER",       InstPF_RepeatTrigger},
+  {"RANGED_ATTACK",        InstPF_RangedAttack},
+  {"MELEE_ATTACK",         InstPF_MeleeAttack},
+  {"RANGED_DEBUFF",        InstPF_RangedDebuff},
+  {"SELF_BUFF",            InstPF_SelfBuff},
   {NULL,                     0},
   };
 
