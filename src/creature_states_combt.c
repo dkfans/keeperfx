@@ -2232,12 +2232,15 @@ long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, 
     // Move to enemy
     if (creature_move_to(thing, &enmtng->mappos, cctrl->max_speed, 0, 0) == -1)
     {
-        // If cannot move to enemy, retreat from him
-        if (creature_retreat_from_combat(thing, enmtng, nstat, 0) == Lb_FAIL)
+        // If cannot move to enemy, and not waiting for ranged weapon cooldown, then retreat from him
+        if (!creature_has_ranged_weapon(thing))
         {
-            // If cannot move at all, reset
-            set_start_state(thing);
-            return false;
+            if (creature_retreat_from_combat(thing, enmtng, nstat, 0) == Lb_FAIL)
+            {
+                // If cannot move at all, reset
+                set_start_state(thing);
+                return false;
+            }
         }
     }
     return false;

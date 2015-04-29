@@ -358,6 +358,12 @@ TbBool instance_is_ranged_weapon_vs_objects(CrInstance inum)
     return false;
 }
 
+/**
+ * Informs whether the creature has an instance which is ranged weapon useable against other creatures.
+ * The instances currently in use and currently in cooldown are included.
+ * @param creatng The creature to be checked.
+ * @return True if the creature has ranged weapon, false otherwise.
+ */
 TbBool creature_has_ranged_weapon(const struct Thing *creatng)
 {
     TRACE_THING(creatng);
@@ -375,6 +381,12 @@ TbBool creature_has_ranged_weapon(const struct Thing *creatng)
     return false;
 }
 
+/**
+ * Informs whether the creature has an instance which is ranged weapon useable against objects.
+ * The instances currently in use and currently in cooldown are included.
+ * @param creatng The creature to be checked.
+ * @return True if the creature has ranged weapon, false otherwise.
+ */
 TbBool creature_has_ranged_object_weapon(const struct Thing *creatng)
 {
     TRACE_THING(creatng);
