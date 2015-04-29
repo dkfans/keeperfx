@@ -1402,7 +1402,7 @@ void load_packets_for_turn(GameTurn nturn)
     for (i=0; i < NET_PLAYERS_COUNT; i++)
       LbMemoryCopy(&game.packets[i], &pckt_buf[i*sizeof(struct Packet)], sizeof(struct Packet));
     tot_chksum = llong(&pckt_buf[NET_PLAYERS_COUNT*sizeof(struct Packet)]);
-    if ((game.numfield_C & 0x01) != 0)
+    if (game.status_flags & Status_Paused)
     {
         done = false;
         while (!done)
@@ -1478,14 +1478,13 @@ void process_pause_packet(long curr_pause, long new_pause)
   if ( can )
   {
       player = get_my_player();
-      set_flag_byte(&game.numfield_C, 0x01, curr_pause);
-      if ((game.numfield_C & 0x01) != 0)
-          set_flag_byte(&game.numfield_C, 0x80, new_pause);
-      else
-          set_flag_byte(&game.numfield_C, 0x01, false);
+      set_flag_byte(&game.status_flags, Status_Paused, curr_pause);
+      if (game.status_flags & Status_Paused)
+          set_flag_byte(&game.status_flags, Status_AllowInput, new_pause);
+
       if ( !SoundDisabled )
       {
-        if ((game.numfield_C & 0x01) != 0)
+        if (game.status_flags & Status_Paused)
         {
           SetSoundMasterVolume(settings.sound_volume >> 1);
           SetMusicPlayerVolume(settings.redbook_volume >> 1);
@@ -1497,7 +1496,7 @@ void process_pause_packet(long curr_pause, long new_pause)
           SetMusicMasterVolume(settings.sound_volume);
         }
       }
-      if ((game.numfield_C & 0x01) != 0)
+      if (game.status_flags & Status_Paused)
       {
           if ((player->field_3 & 0x08) != 0)
           {
@@ -1822,7 +1821,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       }
       return 1;
   case PckA_TogglePause:
-      process_pause_packet((game.numfield_C & 0x01) == 0, pckt->actn_par1);
+      process_pause_packet((game.status_flags & Status_Paused) == 0, pckt->actn_par1);
       return 1;
   case PckA_SetCluedo:
       if (is_my_player(player))
@@ -1921,14 +1920,14 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
           || (lbDisplay.PhysicalScreenWidth > 320))
       {
         if (is_my_player_number(plyr_idx))
-          toggle_status_menu((game.numfield_C & 0x40) != 0);
+            toggle_status_menu((game.status_flags & Status_ShowStatusMenu));
         set_player_mode(player, PVT_DungeonTop);
       } else
       {
         set_player_mode(player, PVT_MapFadeOut);
       }
       return 0;
-  case PckA_Unknown082:
+  case PckA_UpdatePause:
       process_pause_packet(pckt->actn_par1, pckt->actn_par2);
       return 1;
   case PckA_Unknown083:
@@ -1977,7 +1976,8 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       set_player_instance(player, PI_ZoomToPos, 0);
       return 0;
   case PckA_Unknown088:
-      game.numfield_D ^= (game.numfield_D ^ (0x04 * ((game.numfield_D & 0x04) == 0))) & 0x04;
+      // game.numfield_D ^= (game.numfield_D ^ (0x04 * !(game.numfield_D & numfield_D_04))) & 0x04;
+      game.numfield_D ^= numfield_D_04;
       return 0;
   case PckA_PwrCTADis:
       turn_off_power_call_to_arms(plyr_idx);

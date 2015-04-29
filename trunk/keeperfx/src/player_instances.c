@@ -504,7 +504,7 @@ long pinstfs_direct_leave_creature(struct PlayerInfo *player, long *n)
       turn_off_all_window_menus();
       turn_off_query_menus();
       turn_on_main_panel_menu();
-      set_flag_byte(&game.numfield_C, 0x40, (game.numfield_C & 0x20) != 0);
+      set_flag_byte(&game.status_flags, Status_ShowStatusMenu, (game.status_flags & Status_ShowGui));
   }
   thing = thing_get(player->influenced_thing_idx);
   leave_creature_as_controller(player, thing);
@@ -545,7 +545,7 @@ long pinstfs_passenger_leave_creature(struct PlayerInfo *player, long *n)
     turn_off_all_window_menus();
     turn_off_query_menus();
     turn_on_main_panel_menu();
-    set_flag_byte(&game.numfield_C, 0x40, (game.numfield_C & 0x20) != 0);
+    set_flag_byte(&game.status_flags, Status_ShowStatusMenu, (game.status_flags & Status_ShowGui));
   }
   leave_creature_as_passenger(player, thing);
   player->allocflags |= PlaF_Unknown10;
@@ -603,7 +603,7 @@ long pinstfs_zoom_to_heart(struct PlayerInfo *player, long *n)
         cctrl->flgfield_1 |= CCFlg_NoCompControl;
         player->allocflags |= PlaF_Unknown10;
         player->allocflags |= PlaF_Unknown80;
-        game.numfield_D |= 0x08;
+        game.numfield_D |= numfield_D_08;
     }
     return 0;
 }
@@ -715,7 +715,7 @@ long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, long *n)
   light_turn_light_on(player->field_460);
   player->allocflags &= ~PlaF_Unknown10;
   player->allocflags &= ~PlaF_Unknown80;
-  game.numfield_D &= ~0x08;
+  game.numfield_D &= ~numfield_D_08;
   if (is_my_player(player))
     PaletteSetPlayerPalette(player, engine_palette);
   return 0;
@@ -781,7 +781,7 @@ long pinstfs_fade_from_map(struct PlayerInfo *player, long *n)
   {
     set_flag_byte(&player->field_1, 0x02, settings.tooltips_on);
     settings.tooltips_on = 0;
-    game.numfield_C &= ~0x0040;
+    game.status_flags &= ~Status_ShowStatusMenu;
   }
   player->field_4BD = 32;
   set_player_mode(player, PVT_DungeonTop);

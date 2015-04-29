@@ -570,10 +570,10 @@ TbBool load_column_file(LevelNumber lv_num)
     long total;
     unsigned char *buf;
     long fsize;
-    if ((game.numfield_C & 0x08) != 0)
+    if ((game.status_flags & Status_ColumnConvert) != 0)
     {
         convert_old_column_file(lv_num);
-        game.numfield_C &= ~0x08;
+        game.status_flags &= ~Status_ColumnConvert;
     }
     fsize = 8;
     buf = load_single_map_file_to_buffer(lv_num,"clm",&fsize,LMFF_None);

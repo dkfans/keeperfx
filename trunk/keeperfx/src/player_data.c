@@ -316,8 +316,8 @@ void set_player_mode(struct PlayerInfo *player, long nview)
   player->allocflags &= ~PlaF_Unknown8;
   if (is_my_player(player))
   {
-    game.numfield_D &= ~0x08;
-    game.numfield_D |= 0x01;
+    game.numfield_D &= ~numfield_D_08;
+    game.numfield_D |= numfield_D_01;
     if (is_my_player(player))
       stop_all_things_playing_samples();
   }
@@ -332,8 +332,8 @@ void set_player_mode(struct PlayerInfo *player, long nview)
       }
       set_engine_view(player, i);
       if (is_my_player(player))
-        toggle_status_menu((game.numfield_C & 0x40) != 0);
-      if ((game.numfield_C & 0x20) != 0)
+          toggle_status_menu((game.status_flags & Status_ShowStatusMenu));
+      if ((game.status_flags & Status_ShowGui) != 0)
         setup_engine_window(status_panel_width, 0, MyScreenWidth, MyScreenHeight);
       else
         setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
@@ -342,7 +342,7 @@ void set_player_mode(struct PlayerInfo *player, long nview)
   case PVT_CreaturePasngr:
       set_engine_view(player, PVM_CreatureView);
       if (is_my_player(player))
-        game.numfield_D &= ~0x01;
+        game.numfield_D &= ~numfield_D_01;
       setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
       break;
   case PVT_MapScreen:
@@ -370,20 +370,20 @@ void reset_player_mode(struct PlayerInfo *player, unsigned short nmode)
       else
         set_engine_view(player, PVM_IsometricView);
       if (is_my_player(player))
-        game.numfield_D &= ~0x01;
+        game.numfield_D &= ~numfield_D_01;
       break;
     case PVT_CreatureContrl:
     case PVT_CreaturePasngr:
       player->work_state = player->continue_work_state;
       set_engine_view(player, PVM_CreatureView);
       if (is_my_player(player))
-        game.numfield_D |= 0x01;
+        game.numfield_D |= numfield_D_01;
       break;
     case PVT_MapScreen:
       player->work_state = player->continue_work_state;
       set_engine_view(player, PVM_ParchmentView);
       if (is_my_player(player))
-        game.numfield_D &= ~0x01;
+        game.numfield_D &= ~numfield_D_01;
       break;
     default:
       break;

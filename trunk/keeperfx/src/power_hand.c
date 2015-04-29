@@ -470,7 +470,7 @@ void draw_power_hand(void)
         ps_units_per_px = (46 * units_per_pixel) / spr->SHeight;
     }
     // Now draw
-    if (((game.numfield_C & 0x20) != 0) && (game.small_map_state != 2)
+    if (((game.status_flags & Status_ShowGui)) && (game.small_map_state != 2)
       && mouse_is_over_pannel_map(player->minimap_pos_x, player->minimap_pos_y))
     {
         MapSubtlCoord stl_x,stl_y;

@@ -688,7 +688,7 @@ TbBool setup_screen_mode(unsigned short nmode)
       return false;
     }
     setup_heap_manager();
-    game.numfield_C &= ~0x0004;
+    game.status_flags &= ~Status_Unknown;
     force_video_mode_reset = false;
     SYNCDBG(8,"Finished");
     return true;
