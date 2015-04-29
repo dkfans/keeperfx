@@ -186,13 +186,12 @@ enum TbPacketControl {
 /**
  * Additional packet flags
  */
-enum TbPacketAddValues {
-    PCAdV_None           = 0x00,//!< Dummy flag
-    PCAdV_Unknown01      = 0x01,//!< PCAdV_Unknown01
-    PCAdV_Unknown1E      = 0x1E,//!< Instead of a single bit, this value stores is 4-byte integer; stores context of map coordinates.
-    PCAdV_Unknown20      = 0x20,//!< PCAdV_Unknown20
-    PCAdV_Unknown40      = 0x40,//!< PCAdV_Unknown40
-    PCAdV_Unknown80      = 0x80,//!< Seem unused
+enum TbPacketStatusValues {
+    PCAdV_QuickScroll    = 0x01,//!< Scrolling faster than normal
+    PCAdV_ContextMask = 0x1E,// 0001 1110 !< Instead of a single bit, this value stores is 4-bit integer; stores context(mouse hovering object) of map coordinates.
+    PCAdV_PossessionSpell= 0x20,//!< PCAdV_PossessionSpell
+    PCAdV_QueryInfo      = 0x40,//!< PCAdV_QueryInfo
+    PCAdV_Unused         = 0x80,
 };
 
 #define PCtr_LBtnAnyAction (PCtr_LBtnClick | PCtr_LBtnHeld | PCtr_LBtnRelease)
@@ -219,7 +218,7 @@ struct Packet { // sizeof = 0x11 (17)
     short pos_x; // Mouse Cursor Position X
     short pos_y; // Mouse Cursor Position Y
     unsigned short control_flags;
-    unsigned char field_10;
+    unsigned char status_flags;
 };
 
 struct PacketSaveHead { // sizeof=0xF (15)

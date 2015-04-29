@@ -42,7 +42,7 @@ const struct NamedCommand player_state_commands[] = {
     {"PLAYER_STATE_SIGHTOFEVIL",      PSt_SightOfEvil},
     {"PLAYER_STATE_SLAP",             PSt_Slap},
     {"PLAYER_STATE_CTRLPASSNGR",      PSt_CtrlPassngr},
-    {"PLAYER_STATE_CTRLDIRECT",       PSt_CtrlDirect},
+    {"PLAYER_STATE_CTRLDIRECT",       PSt_Possession},
     {"PLAYER_STATE_CREATRQUERY",      PSt_CreatrQuery},
     {"PLAYER_STATE_ORDERCREATR",      PSt_OrderCreatr},
     {"PLAYER_STATE_MKBADCREATR",      PSt_MkBadCreatr},
@@ -65,7 +65,7 @@ const struct NamedCommand player_state_commands[] = {
     {"PLAYER_STATE_FREECASTDISEASE",  PSt_FreeCastDisease},
     {"PLAYER_STATE_FREETURNCHICKEN",  PSt_FreeTurnChicken},
     {"PLAYER_STATE_FREECTRLPASSNGR",  PSt_FreeCtrlPassngr},
-    {"PLAYER_STATE_FREECTRLDIRECT",   PSt_FreeCtrlDirect},
+    {"PLAYER_STATE_FREECTRLDIRECT",   PSt_FreePossession},
     {NULL,                            0},
 };
 /******************************************************************************/

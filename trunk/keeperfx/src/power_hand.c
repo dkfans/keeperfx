@@ -449,8 +449,15 @@ void draw_power_hand(void)
     if (game.small_map_state == 2)
         return;
     lbDisplay.DrawFlags = 0x00;
+
     if (player->view_type != PVT_DungeonTop)
         return;
+
+    if (lbDisplayEx.isDragMovingCamera || lbDisplayEx.isDragRotatingCamera)
+    {
+        return;
+    }
+
     // Color rendering array pointers used by draw_keepersprite()
     render_fade_tables = pixmap.fade_tables;
     render_ghost = pixmap.ghost;
@@ -508,7 +515,7 @@ void draw_power_hand(void)
     if (player->work_state != PSt_HoldInHand)
     {
       if ( (player->work_state != PSt_CtrlDungeon)
-        || ((player->field_455 != P454_Unkn3) && ((player->work_state != PSt_CtrlDungeon) || (player->field_455 != P454_Unkn0) || (player->field_454 != P454_Unkn3))) )
+        || ((player->click_pos_context != PosContext_Creature) && ((player->work_state != PSt_CtrlDungeon) || (player->click_pos_context != PosContext_Nothing) || (player->hover_pos_context != PosContext_Creature))) )
       {
         if ((player->instance_num != PI_Grab) && (player->instance_num != PI_Drop))
         {
@@ -519,7 +526,7 @@ void draw_power_hand(void)
           } else
           if (player->work_state == PSt_CtrlDungeon)
           {
-            if ((player->field_455 == P454_Unkn2) || (player->field_454 == P454_Unkn2))
+            if ((player->click_pos_context == PosContext_Door) || (player->hover_pos_context == PosContext_Door))
             {
               draw_mini_things_in_hand(GetMouseX()+18*units_per_pixel/16, GetMouseY());
             }

@@ -745,7 +745,7 @@ TbBool draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, MapSubt
     SYNCDBG(5,"Starting for power %d",(int)pwkind);
     if (pwkind <= 0)
     {
-        set_pointer_graphic(MousePG_Unkn00);
+        set_pointer_graphic(MousePG_None);
         return false;
     }
     player = get_my_player();
@@ -784,22 +784,29 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
     dungeon = get_dungeon(player->id_number);
     if (dungeon_invalid(dungeon))
     {
-        set_pointer_graphic(MousePG_Unkn00);
+        set_pointer_graphic(MousePG_None);
         return;
     }
+
+    if (lbDisplayEx.isDragMovingCamera || lbDisplayEx.isDragRotatingCamera)
+    {
+        set_pointer_graphic(MousePG_Cursor);
+        return;
+    }
+
     // During fade
     if (player->instance_num == PI_MapFadeFrom)
     {
-        set_pointer_graphic(MousePG_Unkn00);
+        set_pointer_graphic(MousePG_None);
         return;
     }
     // Mouse over panel map
     if (((game.numfield_C & 0x20) != 0) && mouse_is_over_pannel_map(player->minimap_pos_x, player->minimap_pos_y))
     {
         if (game.small_map_state == 2) {
-            set_pointer_graphic(MousePG_Unkn00);
+            set_pointer_graphic(MousePG_None);
         } else {
-            set_pointer_graphic(MousePG_Unkn01);
+            set_pointer_graphic(MousePG_Cursor);
         }
         return;
     }
@@ -817,47 +824,47 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
             draw_spell_cursor(player->work_state, battle_creature_over, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
         } else
         {
-            set_pointer_graphic(MousePG_Unkn01);
+            set_pointer_graphic(MousePG_Cursor);
         }
         return;
     }
     // GUI action being processed
     if (game_is_busy_doing_gui())
     {
-        set_pointer_graphic(MousePG_Unkn01);
+        set_pointer_graphic(MousePG_Cursor);
         return;
     }
     switch (player->work_state)
     {
         // Defalut state.
     case PSt_CtrlDungeon:
-        if (player->field_455)
-          i = player->field_455;
+        if (player->click_pos_context)
+          i = player->click_pos_context;
         else
-          i = player->field_454;
+          i = player->hover_pos_context;
         switch (i)
         {
-        case P454_Unkn1:
-            set_pointer_graphic(MousePG_Unkn02);
+        case PosContext_Dirt:
+            set_pointer_graphic(MousePG_Dig);
             break;
-        case P454_Unkn2:
-            set_pointer_graphic(MousePG_Unkn39);
+        case PosContext_Door:
+            set_pointer_graphic(MousePG_Key);
             break;
-        case P454_Unkn3:
+        case PosContext_Creature:
             thing = thing_get(player->thing_under_hand);
             TRACE_THING(thing);
-            if ((player->boolfield_4) && (!thing_is_invalid(thing)) && (dungeon->things_in_hand[0] != player->thing_under_hand))
+            if ((player->isCastingPossession) && (!thing_is_invalid(thing)) && (dungeon->things_in_hand[0] != player->thing_under_hand))
             {
-                if (can_cast_spell(player->id_number, player_state_to_power_kind[PSt_CtrlDirect],
+                if (can_cast_spell(player->id_number, player_state_to_power_kind[PSt_Possession],
                   thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default)) {
                     // The condition above makes can_cast_spell() within draw_spell_cursor() to never fail; this is intentional
-                    draw_spell_cursor(PSt_CtrlDirect, 0, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+                    draw_spell_cursor(PSt_Possession, 0, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
                 } else {
-                    set_pointer_graphic(MousePG_Unkn01);
+                    set_pointer_graphic(MousePG_Cursor);
                 }
                 player->flgfield_6 |= PlaF6_Unknown01;
             } else
-            if (((player->boolfield_5) && !thing_is_invalid(thing)) && (dungeon->things_in_hand[0] != player->thing_under_hand)
+            if (((player->isQueryingInfo) && !thing_is_invalid(thing)) && (dungeon->things_in_hand[0] != player->thing_under_hand)
                 && can_thing_be_queried(thing, player->id_number))
             {
                 set_pointer_graphic(MousePG_Query);
@@ -865,17 +872,17 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
             } else
             {
                 if ((player->field_3 & 0x02) != 0) {
-                  set_pointer_graphic(MousePG_Unkn02);
+                  set_pointer_graphic(MousePG_Dig);
                 } else {
-                  set_pointer_graphic(MousePG_Unkn00);
+                  set_pointer_graphic(MousePG_None);
                 }
             }
             break;
         default:
             if (player->hand_busy_until_turn <= game.play_gameturn)
-              set_pointer_graphic(MousePG_Unkn01);
+              set_pointer_graphic(MousePG_Cursor);
             else
-              set_pointer_graphic(MousePG_Unkn00);
+              set_pointer_graphic(MousePG_None);
             break;
         }
         break;
@@ -885,13 +892,13 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         break;
     case PSt_HoldInHand:
     case PSt_Slap:
-        set_pointer_graphic(MousePG_Unkn00);
+        set_pointer_graphic(MousePG_None);
         break;
     case PSt_CallToArms:
     case PSt_CaveIn:
     case PSt_SightOfEvil:
     case PSt_CtrlPassngr:
-    case PSt_CtrlDirect:
+    case PSt_Possession:
     case PSt_Lightning:
     case PSt_SpeedUp:
     case PSt_Armour:
@@ -905,7 +912,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
     case PSt_FreeCastDisease:
     case PSt_FreeTurnChicken:
     case PSt_FreeCtrlPassngr:
-    case PSt_FreeCtrlDirect:
+    case PSt_FreePossession:
         draw_spell_cursor(player->work_state, 0, game.pos_14C006.x.stl.num, game.pos_14C006.y.stl.num);
         break;
     case PSt_CreatrQuery:
@@ -924,7 +931,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         set_pointer_graphic(MousePG_Sell);
         break;
     default:
-        set_pointer_graphic(MousePG_Unkn01);
+        set_pointer_graphic(MousePG_Cursor);
         break;
     }
 }
@@ -943,14 +950,14 @@ void process_pointer_graphic(void)
     case PVT_CreatureContrl:
     case PVT_CreaturePasngr:
         if ((game.numfield_D & 0x08) != 0)
-          set_pointer_graphic(MousePG_Unkn01);
+          set_pointer_graphic(MousePG_Cursor);
         else
-          set_pointer_graphic(MousePG_Unkn00);
+          set_pointer_graphic(MousePG_None);
         break;
     case PVT_MapScreen:
     case PVT_MapFadeIn:
     case PVT_MapFadeOut:
-        set_pointer_graphic(MousePG_Unkn01);
+        set_pointer_graphic(MousePG_Cursor);
         break;
     case PVT_None:
         set_pointer_graphic_none();

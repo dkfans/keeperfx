@@ -1049,7 +1049,7 @@ TbBool is_thing_directly_controlled(const struct Thing *thing)
     if (is_neutral_thing(thing))
         return false;
     player = get_player(thing->owner);
-    if ((player->work_state != PSt_CtrlDirect) && (player->work_state != PSt_FreeCtrlDirect))
+    if ((player->work_state != PSt_Possession) && (player->work_state != PSt_FreePossession))
         return false;
     switch (player->instance_num)
     {

@@ -44,7 +44,7 @@ enum PlayerStates {
     PSt_SightOfEvil,
     PSt_Slap,
     PSt_CtrlPassngr, // 10
-    PSt_CtrlDirect,
+    PSt_Possession,
     PSt_CreatrQuery,
     PSt_OrderCreatr,
     PSt_MkBadCreatr,
@@ -67,7 +67,7 @@ enum PlayerStates {
     PSt_FreeCastDisease,
     PSt_FreeTurnChicken,
     PSt_FreeCtrlPassngr,
-    PSt_FreeCtrlDirect,
+    PSt_FreePossession,
     PSt_ListEnd
 };
 

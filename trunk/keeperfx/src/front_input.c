@@ -105,7 +105,7 @@ int is_game_key_pressed(long key_id, long *val, TbBool ignore_mods)
   {
     *val = settings.kbkeys[key_id].code;
   }
-  if ((key_id == GameKey_RotateMod) || (key_id == GameKey_SpeedMod) || (key_id == GameKey_Unknown27) || (key_id == GameKey_Unknown28))
+  if ((key_id == GameKey_RotateMod) || (key_id == GameKey_SpeedMod) || (key_id == GameKey_Unknown27) || (key_id == GameKey_QueryInfo))
   {
       i = settings.kbkeys[key_id].code;
       switch (i)
@@ -1166,7 +1166,7 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_mod
             if (is_game_key_pressed(GameKey_MoveLeft, NULL, false))
             {
                 if (!rotate_mod_pressed)
-                    pckt->field_10 |= PCAdV_Unknown01;
+                    pckt->status_flags |= PCAdV_QuickScroll; // this feature is not useful actually.
             }
             set_packet_control(pckt, PCtr_MoveLeft);
         }
@@ -1175,7 +1175,7 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_mod
             if (is_game_key_pressed(GameKey_MoveRight, NULL, false))
             {
                 if (!rotate_mod_pressed)
-                    pckt->field_10 |= PCAdV_Unknown01;
+                    pckt->status_flags |= PCAdV_QuickScroll;
             }
             set_packet_control(pckt, PCtr_MoveRight);
         }
@@ -1184,7 +1184,7 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_mod
             if (is_game_key_pressed(GameKey_MoveUp, NULL, false))
             {
                 if (!rotate_mod_pressed)
-                    pckt->field_10 |= PCAdV_Unknown01;
+                    pckt->status_flags |= PCAdV_QuickScroll;
             }
             set_packet_control(pckt, PCtr_MoveUp);
         }
@@ -1193,7 +1193,7 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_mod
             if (is_game_key_pressed(GameKey_MoveDown, NULL, false))
             {
                 if (!rotate_mod_pressed)
-                    pckt->field_10 |= PCAdV_Unknown01;
+                    pckt->status_flags |= PCAdV_QuickScroll;
             }
             set_packet_control(pckt, PCtr_MoveDown);
         }
@@ -1213,7 +1213,7 @@ void get_isometric_view_nonaction_inputs(void)
     if ((player->allocflags & PlaF_Unknown10) != 0)
       return;
     if (speed_mod_pressed != 0)
-      pckt->field_10 |= PCAdV_Unknown01;
+      pckt->status_flags |= PCAdV_QuickScroll; 
     no_mods = false;
     if ((rotate_mod_pressed != 0) || (speed_mod_pressed != 0))
       no_mods = true;
@@ -1280,7 +1280,7 @@ void get_overhead_view_nonaction_inputs(void)
     if ((player->allocflags & PlaF_Unknown10) == 0)
     {
         if (speed_mod_pressed)
-          pckt->field_10 |= PCAdV_Unknown01;
+          pckt->status_flags |= PCAdV_QuickScroll;
 
         if (lbDisplayEx.wheelUp != 0)
         {
@@ -1331,7 +1331,7 @@ void get_front_view_nonaction_inputs(void)
     if ((player->allocflags & PlaF_Unknown10) != 0)
       return;
     if (speed_mod_pressed != 0)
-      pckt->field_10 |= 0x01;
+        pckt->status_flags |= PCAdV_QuickScroll;
 
     get_isometric_or_front_view_mouse_inputs(pckt,rotate_mod_pressed,speed_mod_pressed);
 
@@ -1403,7 +1403,7 @@ void get_front_view_nonaction_inputs(void)
 }
 
 /**
- * Updates given position and context variables.
+ * Updates given position and context(cursor hovering object) variables.
  * Makes no changes to the Game or Packets.
  */
 TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context)
@@ -1433,31 +1433,32 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
   slbattr = get_slab_attrs(slb);
   if (slab_kind_is_door(slb->kind) && (slabmap_owner(slb) == player->id_number))
   {
-    *context = 2;
+      *context = PosContext_Door;
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
     pos->y.val = (y<<8) + top_pointed_at_frac_y;
   } else
   if (!power_hand_is_empty(player))
   {
-    *context = 3;
+      *context = PosContext_Creature;
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
     pos->y.val = (y<<8) + top_pointed_at_frac_y;
   } else
   if (!subtile_revealed(x,y,player->id_number))
   {
-    *context = 1;
+      // TODO HeM doesn't look right.
+      *context = PosContext_Dirt; 
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
     pos->y.val = (y<<8) + top_pointed_at_frac_y;
   } else
   if ((slb_x >= map_tiles_x) || (slb_y >= map_tiles_y))
   {
-    *context = 0;
+      *context = PosContext_Nothing;
     pos->x.val = (block_pointed_at_x<<8) + pointed_at_frac_x;
     pos->y.val = (block_pointed_at_y<<8) + pointed_at_frac_y;
   } else
   if ((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0)
   {
-    *context = 1;
+      *context = PosContext_Dirt;
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
     pos->y.val = (y<<8) + top_pointed_at_frac_y;
   } else
@@ -1466,9 +1467,9 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
     pos->y.val = (block_pointed_at_y<<8) + pointed_at_frac_y;
     thing = get_nearest_thing_for_hand_or_slap(player->id_number, pos->x.val, pos->y.val);
     if (!thing_is_invalid(thing))
-      *context = 3;
+        *context = PosContext_Creature;
     else
-      *context = 0;
+        *context = PosContext_Nothing;
   }
   if (pos->x.val >= (map_subtiles_x << 8))
     pos->x.val = (map_subtiles_x << 8)-1;
@@ -1495,16 +1496,17 @@ void get_dungeon_control_nonaction_inputs(void)
     {
         if (get_player_coords_and_context(&pos, &context))
         {
+            assert(context < 4); // context should be no more than 4 bits, actually no more than 3.
             set_players_packet_position(player, pos.x.val, pos.y.val);
             set_packet_control(pckt, PCtr_MapCoordsValid);
-            pckt->field_10 ^= (pckt->field_10 ^ (context << 1)) & PCAdV_Unknown1E;
+            pckt->status_flags = (pckt->status_flags & ~PCAdV_ContextMask) | (context << 1);
         }
     }
     else if (screen_to_map(player->acamera, my_mouse_x, my_mouse_y, &pos))
     {
         set_players_packet_position(player, pos.x.val, pos.y.val);
         set_packet_control(pckt, PCtr_MapCoordsValid);
-        pckt->field_10 &= ~PCAdV_Unknown1E;
+        pckt->status_flags &= ~PCAdV_ContextMask;
     }
 
     if (lbKeyOn[KC_LALT] && lbKeyOn[KC_X])
@@ -1969,13 +1971,13 @@ void input(void)
     pckt = get_packet(my_player_number);
 
     if (is_game_key_pressed(GameKey_Unknown27, 0, 0) != 0)
-      pckt->field_10 |= PCAdV_Unknown20;
+      pckt->status_flags |= PCAdV_PossessionSpell;
     else
-      pckt->field_10 &= ~PCAdV_Unknown20;
-    if (is_game_key_pressed(GameKey_Unknown28, 0, 0) != 0)
-      pckt->field_10 |= PCAdV_Unknown40;
+      pckt->status_flags &= ~PCAdV_PossessionSpell;
+    if (is_game_key_pressed(GameKey_QueryInfo, 0, 0) != 0)
+      pckt->status_flags |= PCAdV_QueryInfo;
     else
-      pckt->field_10 &= ~PCAdV_Unknown40;
+      pckt->status_flags &= ~PCAdV_QueryInfo;
 
     get_inputs();
     // Debug code to write a savegame on given turn

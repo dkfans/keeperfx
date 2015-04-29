@@ -33,9 +33,9 @@ extern "C" {
 
 /******************************************************************************/
 enum MousePointerGraphics {
-    MousePG_Unkn00 = 0,
-    MousePG_Unkn01,
-    MousePG_Unkn02,
+    MousePG_None = 0,
+    MousePG_Cursor,
+    MousePG_Dig,
     MousePG_Sell,
     MousePG_Query,
     MousePG_Unkn05,
@@ -72,7 +72,7 @@ enum MousePointerGraphics {
     MousePG_Unkn36,
     MousePG_Unkn37,
     MousePG_Unkn38,
-    MousePG_Unkn39,
+    MousePG_Key,
     MousePG_Unkn40,
     MousePG_Unkn41,
     MousePG_Unkn42,
