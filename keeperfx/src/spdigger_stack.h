@@ -127,6 +127,7 @@ void force_any_creature_dragging_owned_thing_to_drop_it(struct Thing *dragtng);
 void force_any_creature_dragging_thing_to_drop_it(struct Thing *dragtng);
 
 TbBool is_digging_indestructible_place(const struct Thing *creatng);
+TbBool is_digging_any_gems(struct Dungeon *dungeon);
 /******************************************************************************/
 #ifdef __cplusplus
 }
