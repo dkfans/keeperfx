@@ -51,11 +51,11 @@ enum TbButtonType {
 };
 
 enum TbButtonFlags {
-    LbBtnF_Unknown01  =  0x01,
+    LbBtnF_Unknown01  =  0x01,  // Created, slot occupied
     LbBtnF_Unknown02  =  0x02,
-    LbBtnF_Unknown04  =  0x04,
+    LbBtnF_Unknown04  =  0x04,  // Enabled
     LbBtnF_Unknown08  =  0x08,
-    LbBtnF_Unknown10  =  0x10,
+    LbBtnF_Unknown10  =  0x10,  // Mouse over
     LbBtnF_Unknown20  =  0x20,
     LbBtnF_Unknown40  =  0x40,
     LbBtnF_Unknown80  =  0x80,
@@ -160,7 +160,7 @@ struct GuiButton {
 
 struct GuiMenu {
       char ident;
-      unsigned char visible;
+      unsigned char visual_state;
       short fade_time;
       struct GuiButtonInit *buttons;
       short pos_x;
@@ -171,8 +171,8 @@ struct GuiMenu {
       char number;
       struct GuiMenu *menu_init;
       Gf_Mnu_Callback create_cb;
-      unsigned char flgfield_1D;
-      unsigned char flgfield_1E;
+      unsigned char is_turned_on; /**< Whether the menu is turned on or is current active tab. */
+      unsigned char is_monopoly_menu;
       char field_1F;
 };
 

@@ -72,7 +72,7 @@ void fake_button_click(int gmbtn_idx)
         gbtn = &active_buttons[i];
         struct GuiMenu *gmnu;
         gmnu = &active_menus[(unsigned)gbtn->gmenu_idx];
-        if (((gbtn->flags & LbBtnF_Unknown01) != 0) && (gmnu->flgfield_1D != 0) && (gbtn->id_num == gmbtn_idx))
+        if (((gbtn->flags & LbBtnF_Unknown01) != 0) && (gmnu->is_turned_on != 0) && (gbtn->id_num == gmbtn_idx))
         {
             if ((gbtn->click_event != NULL) || ((gbtn->flags & LbBtnF_Unknown02) != 0) || (gbtn->parent_menu != NULL) || (gbtn->gbtype == Lb_RADIOBTN)) {
                 do_button_press_actions(gbtn, &gbtn->gbactn_1, gbtn->click_event);
@@ -423,16 +423,16 @@ void gui_round_glass_background(struct GuiMenu *gmnu)
     fade_h = 0;
     if (game.time_delta < 12)
     {
-      if (gmnu->visible == 1) {
+      if (gmnu->visual_state == 1) {
           gmnu->fade_time = 1;
-          gmnu->visible = 2;
+          gmnu->visual_state = 2;
       }
     } else
     {
         i = gmnu->menu_init->fade_time;
         if (i <= 0)
         {
-            gmnu->visible = 2;
+            gmnu->visual_state = 2;
         } else {
             fade_h = ((int)MyScreenHeight - (int)gmnu->pos_y) / i;
             if (fade_h < 0)
@@ -440,7 +440,7 @@ void gui_round_glass_background(struct GuiMenu *gmnu)
         }
     }
     long px,py;
-    switch (gmnu->visible)
+    switch (gmnu->visual_state)
     {
     case 3:
         px = gmnu->pos_x;
@@ -469,16 +469,16 @@ void gui_pretty_background(struct GuiMenu *gmnu)
     fade_h = 0;
     if (game.time_delta < 12)
     {
-      if (gmnu->visible == 1) {
+      if (gmnu->visual_state == 1) {
           gmnu->fade_time = 1;
-          gmnu->visible = 2;
+          gmnu->visual_state = 2;
       }
     } else
     {
         i = gmnu->menu_init->fade_time;
         if (i <= 0)
         {
-            gmnu->visible = 2;
+            gmnu->visual_state = 2;
         } else {
             fade_w = (gmnu->width - 86*units_per_pixel/16) / i;
             if (fade_w < 0)
@@ -490,7 +490,7 @@ void gui_pretty_background(struct GuiMenu *gmnu)
     }
     long px,py;
     int width, height;
-    switch (gmnu->visible)
+    switch (gmnu->visual_state)
     {
     case 1:
         width = fade_w * (gmnu->menu_init->fade_time - gmnu->fade_time) + 86*units_per_pixel/16;

@@ -730,7 +730,7 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
             {
                 struct GuiMenu *gmnu;
                 gmnu = get_active_menu(gbtn->gmenu_idx);
-                gmnu->visible = 3;
+                gmnu->visual_state = 3;
                 remove_from_menu_stack(gmnu->ident);
             }
         }
@@ -1906,7 +1906,7 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_
     {
       if (callback == NULL)
         do_sound_menu_click();
-      gmnu->visible = 3;
+      gmnu->visual_state = 3;
     }
   }
   SYNCDBG(17,"Finished");
@@ -2153,9 +2153,9 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
     if (mnu_num >= 0)
     {
         amnu = get_active_menu(mnu_num);
-        amnu->visible = 1;
+        amnu->visual_state = 1;
         amnu->fade_time = gmnu->fade_time;
-        amnu->flgfield_1D = ((game.numfield_C & 0x20) != 0) || (!is_toggleable_menu(gmnu->ident));
+        amnu->is_turned_on = ((game.numfield_C & 0x20) != 0) || (!is_toggleable_menu(gmnu->ident));
         SYNCDBG(18,"Menu number %d already active",(int)mnu_num);
         return mnu_num;
     }
@@ -2168,7 +2168,7 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
     }
     SYNCDBG(18,"Menu number %d added to stack",(int)mnu_num);
     amnu = get_active_menu(mnu_num);
-    amnu->visible = 1;
+    amnu->visual_state = 1;
     amnu->number = mnu_num;
     amnu->menu_init = gmnu;
     amnu->ident = gmnu->ident;
@@ -2191,9 +2191,9 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
     amnu->height = (gmnu->height * MNU_UNITS_PER_PX + 8) / 16;
     amnu->draw_cb = gmnu->draw_cb;
     amnu->create_cb = gmnu->create_cb;
-    amnu->flgfield_1E = gmnu->flgfield_1E;
+    amnu->is_monopoly_menu = gmnu->is_monopoly_menu;
     amnu->field_1F = gmnu->field_1F;
-    amnu->flgfield_1D = ((game.numfield_C & 0x20) != 0) || (!is_toggleable_menu(gmnu->ident));
+    amnu->is_turned_on = ((game.numfield_C & 0x20) != 0) || (!is_toggleable_menu(gmnu->ident));
     callback = amnu->create_cb;
     if (callback != NULL)
         callback(amnu);
@@ -2238,7 +2238,7 @@ unsigned long toggle_status_menu(short visible)
   if (k < 0) return 0;
   // Update pannel width
   status_panel_width = get_active_menu(k)->width;
-  i = get_active_menu(k)->flgfield_1D;
+  i = get_active_menu(k)->is_turned_on;
   if (visible != i)
   {
     if ( visible )
@@ -2278,72 +2278,72 @@ unsigned long toggle_status_menu(short visible)
 
       k = menu_id_to_number(GMnu_ROOM);
       if (k >= 0)
-        room_on = get_active_menu(k)->flgfield_1D;
+        room_on = get_active_menu(k)->is_turned_on;
       set_menu_visible_off(GMnu_ROOM);
 
       k = menu_id_to_number(GMnu_SPELL);
       if (k >= 0)
-        spell_on = get_active_menu(k)->flgfield_1D;
+        spell_on = get_active_menu(k)->is_turned_on;
       set_menu_visible_off(GMnu_SPELL);
 
       k = menu_id_to_number(GMnu_SPELL_LOST);
       if (k >= 0)
-        spell_lost_on = get_active_menu(k)->flgfield_1D;
+        spell_lost_on = get_active_menu(k)->is_turned_on;
       set_menu_visible_off(GMnu_SPELL_LOST);
 
       k = menu_id_to_number(GMnu_TRAP);
       if (k >= 0)
-      trap_on = get_active_menu(k)->flgfield_1D;
+      trap_on = get_active_menu(k)->is_turned_on;
       set_menu_visible_off(GMnu_TRAP);
 
       k = menu_id_to_number(GMnu_CREATURE);
       if (k >= 0)
-        creat_on = get_active_menu(k)->flgfield_1D;
+        creat_on = get_active_menu(k)->is_turned_on;
       set_menu_visible_off(GMnu_CREATURE);
 
       k = menu_id_to_number(GMnu_EVENT);
       if (k >= 0)
-        event_on = get_active_menu(k)->flgfield_1D;
+        event_on = get_active_menu(k)->is_turned_on;
       set_menu_visible_off(GMnu_EVENT);
 
       k = menu_id_to_number(GMnu_QUERY);
       if (k >= 0)
-        query_on = get_active_menu(k)->flgfield_1D;
+        query_on = get_active_menu(k)->is_turned_on;
       set_menu_visible_off(GMnu_QUERY);
 
       k = menu_id_to_number(GMnu_CREATURE_QUERY1);
       if (k >= 0)
-        creature_query1_on = get_active_menu(k)->flgfield_1D;
+        creature_query1_on = get_active_menu(k)->is_turned_on;
       set_menu_visible_off(GMnu_CREATURE_QUERY1);
 
       k = menu_id_to_number(GMnu_CREATURE_QUERY2);
       if (k >= 0)
-        creature_query2_on = get_active_menu(k)->flgfield_1D;
+        creature_query2_on = get_active_menu(k)->is_turned_on;
       set_menu_visible_off(GMnu_CREATURE_QUERY2);
 
       k = menu_id_to_number(GMnu_CREATURE_QUERY3);
       if (k >= 0)
-        creature_query3_on = get_active_menu(k)->flgfield_1D;
+        creature_query3_on = get_active_menu(k)->is_turned_on;
       set_menu_visible_off(GMnu_CREATURE_QUERY3);
 
       k = menu_id_to_number(GMnu_CREATURE_QUERY4);
       if (k >= 0)
-        creature_query4_on = get_active_menu(k)->flgfield_1D;
+        creature_query4_on = get_active_menu(k)->is_turned_on;
       set_menu_visible_off(GMnu_CREATURE_QUERY4);
 
       k = menu_id_to_number(GMnu_TEXT_INFO);
       if (k >= 0)
-        objective_on = get_active_menu(k)->flgfield_1D;
+        objective_on = get_active_menu(k)->is_turned_on;
       set_menu_visible_off(GMnu_TEXT_INFO);
 
       k = menu_id_to_number(GMnu_BATTLE);
       if (k >= 0)
-        battle_on = get_active_menu(k)->flgfield_1D;
+        battle_on = get_active_menu(k)->is_turned_on;
       set_menu_visible_off(GMnu_BATTLE);
 
       k = menu_id_to_number(GMnu_DUNGEON_SPECIAL);
       if (k >= 0)
-        special_on = get_active_menu(k)->flgfield_1D;
+        special_on = get_active_menu(k)->is_turned_on;
       set_menu_visible_off(GMnu_DUNGEON_SPECIAL);
     }
   }
@@ -2372,12 +2372,12 @@ TbBool toggle_first_person_menu(TbBool visible)
     // CREATURE_QUERY1
     menu_num = menu_id_to_number(GMnu_CREATURE_QUERY1);
     if (menu_num >= 0)
-      set_flag_byte(&creature_query_on, 0x01, get_active_menu(menu_num)->flgfield_1D);
+      set_flag_byte(&creature_query_on, 0x01, get_active_menu(menu_num)->is_turned_on);
     set_menu_visible_off(GMnu_CREATURE_QUERY1);
     // CREATURE_QUERY2
     menu_num = menu_id_to_number(GMnu_CREATURE_QUERY2);
     if (menu_num >= 0)
-      set_flag_byte(&creature_query_on, 0x02, get_active_menu(menu_num)->flgfield_1D);
+      set_flag_byte(&creature_query_on, 0x02, get_active_menu(menu_num)->is_turned_on);
     set_menu_visible_off(GMnu_CREATURE_QUERY2);
     return true;
   }
@@ -2913,7 +2913,7 @@ char update_menu_fade_level(struct GuiMenu *gmnu)
 {
     //return _DK_update_menu_fade_level(gmnu);
     int i;
-    switch (gmnu->visible)
+    switch (gmnu->visual_state)
     {
     case 1:
         if (gmnu->fade_time == 0) {
@@ -2927,11 +2927,11 @@ char update_menu_fade_level(struct GuiMenu *gmnu)
         i = gmnu->menu_init->fade_time;
         if (i)
         {
-            gmnu->visible = 2;
+            gmnu->visual_state = 2;
             gmnu->fade_time = i;
         } else
         {
-            gmnu->visible = 2;
+            gmnu->visual_state = 2;
             gmnu->fade_time = 1;
         }
         return 1;
@@ -3014,10 +3014,10 @@ void draw_active_menus_buttons(void)
         menu_num = menu_id_to_number(menu_stack[k]);
         if (menu_num < 0) continue;
         gmnu = &active_menus[menu_num];
-        //SYNCMSG("DRAW menu %d, fields %d, %d",menu_num,gmnu->field_1,gmnu->flgfield_1D);
-        if ((gmnu->visible != 0) && (gmnu->flgfield_1D))
+        //SYNCMSG("DRAW menu %d, fields %d, %d",menu_num,gmnu->field_1,gmnu->is_turned_on);
+        if ((gmnu->visual_state != 0) && (gmnu->is_turned_on))
         {
-            if ((gmnu->visible != 2) && (gmnu->fade_time))
+            if ((gmnu->visual_state != 2) && (gmnu->fade_time))
             {
               if (gmnu->menu_init != NULL)
                 if (gmnu->menu_init->fade_time)
@@ -3026,7 +3026,7 @@ void draw_active_menus_buttons(void)
             callback = gmnu->draw_cb;
             if (callback != NULL)
               callback(gmnu);
-            if (gmnu->visible == 2)
+            if (gmnu->visual_state == 2)
               draw_menu_buttons(gmnu);
             lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
         }
@@ -3054,7 +3054,7 @@ void draw_menu_spangle(struct GuiMenu *gmnu)
     struct GuiButton *gbtn;
     int i;
     short in_range;
-    if (gmnu->flgfield_1D == 0)
+    if (gmnu->is_turned_on == 0)
       return;
     for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
     {
@@ -3107,7 +3107,7 @@ void draw_active_menus_highlights(void)
     for (k=0; k<ACTIVE_MENUS_COUNT; k++)
     {
         gmnu = &active_menus[k];
-        if ((gmnu->visible) && (gmnu->ident == GMnu_MAIN))
+        if ((gmnu->visual_state != 0) && (gmnu->ident == GMnu_MAIN))
           draw_menu_spangle(gmnu);
     }
 }

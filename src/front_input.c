@@ -1798,7 +1798,7 @@ short get_gui_inputs(short gameplay_on)
       gbtn = &active_buttons[gidx];
       if ((gbtn->flags & LbBtnF_Unknown01) == 0)
           continue;
-      if (!get_active_menu(gbtn->gmenu_idx)->flgfield_1D)
+      if (!get_active_menu(gbtn->gmenu_idx)->is_turned_on)
           continue;
       Gf_Btn_Callback callback;
       callback = gbtn->maintain_call;

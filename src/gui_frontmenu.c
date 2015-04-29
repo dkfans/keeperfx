@@ -47,7 +47,7 @@ int first_monopoly_menu(void)
   for (idx=0; idx < ACTIVE_MENUS_COUNT; idx++)
   {
     gmnu = &active_menus[idx];
-    if ((gmnu->visible != 0) && (gmnu->flgfield_1E != 0))
+    if ((gmnu->visual_state != 0) && (gmnu->is_monopoly_menu != 0))
         return idx;
   }
   return -1;
@@ -61,7 +61,7 @@ MenuNumber menu_id_to_number(MenuID menu_id)
     {
       gmnu = &active_menus[idx];
       //SYNCDBG(8,"ID %d use %d",(int)gmnu->ident,(int)gmnu->field_1);
-      if ((gmnu->visible != 0) && (gmnu->ident == menu_id))
+      if ((gmnu->visual_state != 0) && (gmnu->ident == menu_id))
         return idx;
     }
     return MENU_INVALID_ID;
@@ -80,9 +80,9 @@ int point_is_over_gui_menu(long x, long y)
     {
       struct GuiMenu *gmnu;
       gmnu=&active_menus[idx];
-      if (gmnu->visible != 2)
+      if (gmnu->visual_state != 2)
           continue;
-      if (gmnu->flgfield_1D == 0)
+      if (gmnu->is_turned_on == 0)
           continue;
       short gx = gmnu->pos_x;
       if ((x >= gx) && (x < gx+gmnu->width))
@@ -122,7 +122,7 @@ void turn_off_menu(MenuID mnu_idx)
                 kill_button_area_input();
         }
         gmnu = get_active_menu(menu_num);
-        gmnu->visible = 3;
+        gmnu->visual_state = 3;
         if (update_menu_fade_level(gmnu) == -1)
         {
             kill_menu(gmnu);
@@ -359,7 +359,7 @@ void set_menu_visible_on(MenuID menu_id)
     menu_num = menu_id_to_number(menu_id);
     if (menu_num < 0)
       return;
-    get_active_menu(menu_num)->flgfield_1D = 1;
+    get_active_menu(menu_num)->is_turned_on = 1;
     int idx;
     for (idx=0; idx<ACTIVE_BUTTONS_COUNT; idx++)
     {
@@ -380,15 +380,15 @@ void set_menu_visible_off(MenuID menu_id)
     menu_num = menu_id_to_number(menu_id);
     if (menu_num < 0)
       return;
-    get_active_menu(menu_num)->flgfield_1D = 0;
+    get_active_menu(menu_num)->is_turned_on = 0;
 }
 
 void kill_menu(struct GuiMenu *gmnu)
 {
     int i;
-    if (gmnu->visible)
+    if (gmnu->visual_state != 0)
     {
-      gmnu->visible = 0;
+      gmnu->visual_state = 0;
       for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
       {
           struct GuiButton *gbtn;
@@ -453,7 +453,7 @@ long first_available_menu(void)
     short i;
     for (i=0; i<ACTIVE_MENUS_COUNT; i++)
     {
-        if (active_menus[i].visible == 0)
+        if (active_menus[i].visual_state == 0)
             return i;
     }
     return -1;
