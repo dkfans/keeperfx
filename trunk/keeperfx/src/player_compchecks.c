@@ -271,7 +271,7 @@ long computer_check_move_creatures_to_room(struct Computer2 *comp, struct Comput
     return CTaskRet_Unk4;
 }
 
-static TbBool is_digging_any_gems(struct Dungeon *dungeon)
+TbBool is_digging_any_gems(struct Dungeon *dungeon)
 {
 	long i;
 	unsigned long k;
@@ -396,6 +396,13 @@ static struct Thing * find_imp_for_sacrifice(struct Computer2 *comp)
  */
 long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check)
 {
+	//workaround for interval seeming to be ignored by from my reconfiguration.
+	//modern computers can handle interval 1 and interval 200 is awfully passive and easy to kill
+	//interval 20 means player-like imp swarms will form while not being excessive
+	//consider making configurable again if *properly* reconfiguring to 20 for all levels except easy beginner levels
+	if (check->turns_interval > 20)
+		check->turns_interval = 20;
+
     struct Dungeon *dungeon;
     SYNCDBG(8,"Starting");
     dungeon = comp->dungeon;
@@ -404,12 +411,13 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
         return CTaskRet_Unk4;
     }
 
+	long power_price, lowest_price;
+	power_price = compute_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
+	lowest_price = compute_lowest_digger_price(dungeon->owner);
+
 	//see if we can sacrifice imps to reduce price
 	if (gameadd.sacrifice_info.classic_imp_sacrifice)
 	{
-		long power_price, lowest_price;
-		power_price = compute_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
-		lowest_price = compute_lowest_digger_price(dungeon->owner);
 		SYNCDBG(18, "Imp creation power price: %d, lowest: %d", power_price, lowest_price);
 
 		if (power_price > lowest_price
@@ -434,14 +442,26 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
 
 	//regular old imp check after this point
     long controlled_diggers;
+	TbBool digging_gems;
+	long limit;
+	digging_gems = is_digging_any_gems(dungeon);
     controlled_diggers = dungeon->num_active_diggers - count_player_diggers_not_counting_to_total(dungeon->owner);
-    if (controlled_diggers >= check->param1) {
+	//SYNCLOG("controlled diggers of %d = %d, params = %d %d", (int)dungeon->owner, controlled_diggers, check->param1, check->param2);
+	limit = check->param1;
+	if (digging_gems && limit < 50)
+		limit = 50;
+    if (controlled_diggers >= limit) {
         return CTaskRet_Unk4;
     }
     long able;
-    if (controlled_diggers >= check->param2) {
+	if ((controlled_diggers == 0 || (controlled_diggers < 3 && (digging_gems || power_price == lowest_price))) && is_power_available(dungeon->owner, PwrK_MKDIGGER))
+	{
+		//ignore payday and everything else, we need at least 3 imp to play the game
+		able = dungeon->total_money_owned >= compute_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
+		//TODO: recovery could be improved further by looking at length to payday and time it takes to get more money to increase lower bound
+	} else if (controlled_diggers >= check->param2 && !digging_gems) {
         // We have less than preferred amount, but higher than minimal; allow building if we've got spare money
-        able = computer_able_to_use_magic(comp, PwrK_MKDIGGER, 0, 3 + (controlled_diggers - check->param2)/4);
+        able = computer_able_to_use_magic(comp, PwrK_MKDIGGER, 0, 3 + (check->param2 - controlled_diggers)/4);
     } else {
         able = computer_able_to_use_magic(comp, PwrK_MKDIGGER, 0, 1);
     }
