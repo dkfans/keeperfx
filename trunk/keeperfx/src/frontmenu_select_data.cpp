@@ -76,9 +76,9 @@ struct GuiButtonTemplate frontend_select_campaign_buttons[] = {
 };
 
 struct GuiMenu frontend_select_level_menu =
- { GMnu_FELEVEL_SELECT,     0, 1, frontend_select_level_buttons,       0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
+ { GMnu_FELEVEL_SELECT,     0, 1, frontend_select_level_buttons,   POS_SCRCTR, POS_SCRCTR, 640, 480, NULL, 0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu frontend_select_campaign_menu =
- { GMnu_FECAMPAIGN_SELECT,  0, 1, frontend_select_campaign_buttons,    0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
+ { GMnu_FECAMPAIGN_SELECT,  0, 1, frontend_select_campaign_buttons,POS_SCRCTR, POS_SCRCTR, 640, 480, NULL, 0, NULL,    NULL,                    0, 0, 0,};
 
 /******************************************************************************/
 #ifdef __cplusplus
