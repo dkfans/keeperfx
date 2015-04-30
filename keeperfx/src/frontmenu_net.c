@@ -93,27 +93,27 @@ long frontnet_number_of_players_in_session(void)
 
 void frontnet_session_up_maintain(struct GuiButton *gbtn)
 {
-    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Unknown08 * (net_session_scroll_offset != 0)) & LbBtnFlag_Unknown08;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Enabled * (net_session_scroll_offset != 0)) & LbBtnFlag_Enabled;
 }
 
 void frontnet_session_down_maintain(struct GuiButton *gbtn)
 {
-    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Unknown08 * (net_number_of_sessions - 1 > net_session_scroll_offset)) & LbBtnFlag_Unknown08;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Enabled * (net_number_of_sessions - 1 > net_session_scroll_offset)) & LbBtnFlag_Enabled;
 }
 
 void frontnet_session_maintain(struct GuiButton *gbtn)
 {
-    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Unknown08 * (net_session_scroll_offset + (long)gbtn->content - 45 < net_number_of_sessions)) & LbBtnFlag_Unknown08;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Enabled * (net_session_scroll_offset + (long)gbtn->content - 45 < net_number_of_sessions)) & LbBtnFlag_Enabled;
 }
 
 void frontnet_players_up_maintain(struct GuiButton *gbtn)
 {
-    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Unknown08 * (net_player_scroll_offset != 0)) & LbBtnFlag_Unknown08;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Enabled * (net_player_scroll_offset != 0)) & LbBtnFlag_Enabled;
 }
 
 void frontnet_players_down_maintain(struct GuiButton *gbtn)
 {
-    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Unknown08 * (net_number_of_enum_players - 1 > net_player_scroll_offset)) & LbBtnFlag_Unknown08;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Enabled * (net_number_of_enum_players - 1 > net_player_scroll_offset)) & LbBtnFlag_Enabled;
 }
 
 void frontnet_join_game_maintain(struct GuiButton *gbtn)
@@ -121,13 +121,13 @@ void frontnet_join_game_maintain(struct GuiButton *gbtn)
     if (net_service_index_selected == 1)
     {
       if ( net_session_index_active != -1 && net_config_info.str_join[0] )
-        gbtn->flags |= LbBtnFlag_Unknown08;
+        gbtn->flags |= LbBtnFlag_Enabled;
       else
-        gbtn->flags &= ~LbBtnFlag_Unknown08;
+        gbtn->flags &= ~LbBtnFlag_Enabled;
     }
     else
     {
-      gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Unknown08 * (net_session_index_active != -1)) & LbBtnFlag_Unknown08;
+      gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Enabled * (net_session_index_active != -1)) & LbBtnFlag_Enabled;
     }
 }
 
@@ -137,70 +137,70 @@ void frontnet_maintain_alliance(struct GuiButton *gbtn)
     plyr_idx1 = gbtn->in_group_idx;
     plyr_idx2 = (long)gbtn->content - 74;
     if ( plyr_idx2 >= net_number_of_enum_players || net_number_of_enum_players <= plyr_idx1 || plyr_idx2 == plyr_idx1 )
-      gbtn->flags &= ~LbBtnFlag_Unknown08;
+      gbtn->flags &= ~LbBtnFlag_Enabled;
     else
-      gbtn->flags |= LbBtnFlag_Unknown08;
+      gbtn->flags |= LbBtnFlag_Enabled;
 }
 
 void frontnet_messages_up_maintain(struct GuiButton *gbtn)
 {
-    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Unknown08 * (net_message_scroll_offset != 0)) & LbBtnFlag_Unknown08;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Enabled * (net_message_scroll_offset != 0)) & LbBtnFlag_Enabled;
 }
 
 void frontnet_messages_down_maintain(struct GuiButton *gbtn)
 {
-    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Unknown08 * (net_number_of_messages - 1 > net_message_scroll_offset)) & LbBtnFlag_Unknown08;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Enabled * (net_number_of_messages - 1 > net_message_scroll_offset)) & LbBtnFlag_Enabled;
 }
 
 void frontnet_start_game_maintain(struct GuiButton *gbtn)
 {
-    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Unknown08 * (net_number_of_enum_players > 1)) & LbBtnFlag_Unknown08;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Enabled * (net_number_of_enum_players > 1)) & LbBtnFlag_Enabled;
 }
 
 void frontnet_comport_up_maintain(struct GuiButton *gbtn)
 {
-    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Unknown08 * (net_comport_scroll_offset != 0)) & LbBtnFlag_Unknown08;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Enabled * (net_comport_scroll_offset != 0)) & LbBtnFlag_Enabled;
 }
 
 void frontnet_comport_down_maintain(struct GuiButton *gbtn)
 {
-    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Unknown08 * (number_of_comports - 1 > net_comport_scroll_offset)) & LbBtnFlag_Unknown08;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Enabled * (number_of_comports - 1 > net_comport_scroll_offset)) & LbBtnFlag_Enabled;
 }
 
 void frontnet_comport_select_maintain(struct GuiButton *gbtn)
 {
-    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Unknown08 * (net_comport_scroll_offset + (long)gbtn->content - 45 < number_of_comports)) & LbBtnFlag_Unknown08;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Enabled * (net_comport_scroll_offset + (long)gbtn->content - 45 < number_of_comports)) & LbBtnFlag_Enabled;
 }
 
 void frontnet_speed_up_maintain(struct GuiButton *gbtn)
 {
-    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Unknown08 * (net_speed_scroll_offset != 0)) & LbBtnFlag_Unknown08;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Enabled * (net_speed_scroll_offset != 0)) & LbBtnFlag_Enabled;
 }
 
 void frontnet_speed_down_maintain(struct GuiButton *gbtn)
 {
-    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Unknown08 * (number_of_speeds - 1 > net_speed_scroll_offset)) & LbBtnFlag_Unknown08;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Enabled * (number_of_speeds - 1 > net_speed_scroll_offset)) & LbBtnFlag_Enabled;
 }
 
 void frontnet_speed_select_maintain(struct GuiButton *gbtn)
 {
-    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Unknown08 * (net_speed_scroll_offset + (long)gbtn->content - 47 < number_of_speeds)) & LbBtnFlag_Unknown08;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Enabled * (net_speed_scroll_offset + (long)gbtn->content - 47 < number_of_speeds)) & LbBtnFlag_Enabled;
 }
 
 void frontnet_net_modem_start_maintain(struct GuiButton *gbtn)
 {
     if ((net_comport_index_active == -1) || (net_speed_index_active == -1))
-      gbtn->flags &= ~LbBtnFlag_Unknown08;
+      gbtn->flags &= ~LbBtnFlag_Enabled;
     else
-      gbtn->flags |= LbBtnFlag_Unknown08;
+      gbtn->flags |= LbBtnFlag_Enabled;
 }
 
 void frontnet_net_serial_start_maintain(struct GuiButton *gbtn)
 {
   if ((net_comport_index_active == -1) || (net_speed_index_active == -1))
-    gbtn->flags &= ~LbBtnFlag_Unknown08;
+    gbtn->flags &= ~LbBtnFlag_Enabled;
   else
-    gbtn->flags |= LbBtnFlag_Unknown08;
+    gbtn->flags |= LbBtnFlag_Enabled;
 }
 
 void frontnet_serial_reset(void)
@@ -893,7 +893,7 @@ void frontnet_draw_comport_selected(struct GuiButton *gbtn)
 
 void frontnet_comport_select(struct GuiButton *gbtn)
 {
-    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Unknown08 * (net_comport_scroll_offset + (long)gbtn->content - 45 < number_of_comports)) & LbBtnFlag_Unknown08;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Enabled * (net_comport_scroll_offset + (long)gbtn->content - 45 < number_of_comports)) & LbBtnFlag_Enabled;
 }
 
 void frontnet_draw_comport_button(struct GuiButton *gbtn)
@@ -947,7 +947,7 @@ void frontnet_draw_speed_selected(struct GuiButton *gbtn)
 
 void frontnet_speed_select(struct GuiButton *gbtn)
 {
-    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Unknown08 * (net_speed_scroll_offset + (long)gbtn->content - 47 < number_of_speeds)) & LbBtnFlag_Unknown08;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Enabled * (net_speed_scroll_offset + (long)gbtn->content - 47 < number_of_speeds)) & LbBtnFlag_Enabled;
 }
 
 void frontnet_draw_speed_button(struct GuiButton *gbtn)
@@ -1025,9 +1025,9 @@ void frontnet_net_set_phone_number(struct GuiButton *gbtn)
 void frontnet_net_modem_start(struct GuiButton *gbtn)
 {
     if ((net_comport_index_active == -1) || (net_speed_index_active == -1))
-        gbtn->flags &= ~LbBtnFlag_Unknown08;
+        gbtn->flags &= ~LbBtnFlag_Enabled;
     else
-        gbtn->flags |= LbBtnFlag_Unknown08;
+        gbtn->flags |= LbBtnFlag_Enabled;
 }
 
 void frontnet_net_set_modem_answer(struct GuiButton *gbtn)
@@ -1058,17 +1058,17 @@ void frontnet_net_serial_start(struct GuiButton *gbtn)
 void frontnet_service_up_maintain(struct GuiButton *gbtn)
 {
     if (net_service_scroll_offset > 0)
-        gbtn->flags |= LbBtnFlag_Unknown08;
+        gbtn->flags |= LbBtnFlag_Enabled;
     else
-        gbtn->flags &= ~LbBtnFlag_Unknown08;
+        gbtn->flags &= ~LbBtnFlag_Enabled;
 }
 
 void frontnet_service_down_maintain(struct GuiButton *gbtn)
 {
     if (net_service_scroll_offset < net_number_of_services-frontend_services_menu_items_visible+1)
-        gbtn->flags |= LbBtnFlag_Unknown08;
+        gbtn->flags |= LbBtnFlag_Enabled;
     else
-        gbtn->flags &= ~LbBtnFlag_Unknown08;
+        gbtn->flags &= ~LbBtnFlag_Enabled;
 }
 
 void frontnet_service_up(struct GuiButton *gbtn)
@@ -1088,9 +1088,9 @@ void frontnet_service_maintain(struct GuiButton *gbtn)
     int srvidx;
     srvidx = (long)gbtn->content + net_service_scroll_offset - 45;
     if (srvidx < net_number_of_services)
-        gbtn->flags |= LbBtnFlag_Unknown08;
+        gbtn->flags |= LbBtnFlag_Enabled;
     else
-        gbtn->flags &= ~LbBtnFlag_Unknown08;
+        gbtn->flags &= ~LbBtnFlag_Enabled;
 }
 
 void frontnet_draw_service_button(struct GuiButton *gbtn)

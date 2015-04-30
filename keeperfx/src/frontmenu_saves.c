@@ -66,9 +66,9 @@ void gui_load_game_maintain(struct GuiButton *gbtn)
       slot_num = 0;
   centry = &save_game_catalogue[slot_num];
   if ((centry->flags & CEF_InUse) != 0)
-      gbtn->flags |= LbBtnFlag_Unknown08;
+      gbtn->flags |= LbBtnFlag_Enabled;
   else
-      gbtn->flags &=  ~LbBtnFlag_Unknown08;
+      gbtn->flags &=  ~LbBtnFlag_Enabled;
 }
 
 void gui_load_game(struct GuiButton *gbtn)
@@ -185,17 +185,17 @@ void frontend_draw_load_game_button(struct GuiButton *gbtn)
 void frontend_load_game_up_maintain(struct GuiButton *gbtn)
 {
     if (load_game_scroll_offset != 0)
-        gbtn->flags |= LbBtnFlag_Unknown08;
+        gbtn->flags |= LbBtnFlag_Enabled;
     else
-        gbtn->flags &=  ~LbBtnFlag_Unknown08;
+        gbtn->flags &=  ~LbBtnFlag_Enabled;
 }
 
 void frontend_load_game_down_maintain(struct GuiButton *gbtn)
 {
     if (load_game_scroll_offset < number_of_saved_games-frontend_load_menu_items_visible+1)
-        gbtn->flags |= LbBtnFlag_Unknown08;
+        gbtn->flags |= LbBtnFlag_Enabled;
     else
-        gbtn->flags &=  ~LbBtnFlag_Unknown08;
+        gbtn->flags &=  ~LbBtnFlag_Enabled;
 }
 
 void frontend_load_game_up(struct GuiButton *gbtn)
