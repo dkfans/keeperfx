@@ -99,9 +99,9 @@ void menu_tab_maintain(struct GuiButton *gbtn)
     struct PlayerInfo *player;
     player = get_my_player();
     if (player->victory_state != VicS_LostLevel)
-        gbtn->flags |= LbBtnFlag_Unknown08;
+        gbtn->flags |= LbBtnFlag_Enabled;
     else
-        gbtn->flags &= ~LbBtnFlag_Unknown08;
+        gbtn->flags &= ~LbBtnFlag_Enabled;
 }
 
 void gui_area_autopilot_button(struct GuiButton *gbtn)
@@ -115,7 +115,7 @@ void gui_area_autopilot_button(struct GuiButton *gbtn)
     }
     int ps_units_per_px;
     ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, spr_idx, 100);
-    if ((gbtn->flags & LbBtnFlag_Unknown08) != 0)
+    if ((gbtn->flags & LbBtnFlag_Enabled) != 0)
     {
         if ((dungeon->computer_enabled & 0x01) != 0)
         {
@@ -157,7 +157,7 @@ void gui_area_event_button(struct GuiButton *gbtn)
 {
     struct Dungeon *dungeon;
     unsigned long i;
-    if ((gbtn->flags & LbBtnFlag_Unknown08) != 0)
+    if ((gbtn->flags & LbBtnFlag_Enabled) != 0)
     {
         int ps_units_per_px;
         ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, 258, 100);
@@ -458,7 +458,7 @@ void gui_area_spell_button(struct GuiButton *gbtn)
     int spr_idx;
     if ((dungeon->magic_resrchable[pwkind]) || (dungeon->magic_level[pwkind] > 0))
     {
-        if ((gbtn->flags & LbBtnFlag_Unknown08) != 0)
+        if ((gbtn->flags & LbBtnFlag_Enabled) != 0)
         {
             const struct PowerConfigStats *powerst;
             powerst = get_power_model_stats(pwkind);
@@ -786,7 +786,7 @@ void gui_area_trap_button(struct GuiButton *gbtn)
         return;
     }
     // We should draw; maybe just disabled button
-    if ((gbtn->flags & LbBtnFlag_Unknown08) == 0)
+    if ((gbtn->flags & LbBtnFlag_Enabled) == 0)
     {
         draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 25);
         lbDisplay.DrawFlags = flg_mem;
@@ -931,10 +931,10 @@ void maintain_big_spell(struct GuiButton *gbtn)
     dungeon = get_players_num_dungeon(my_player_number);
     if (dungeon->magic_level[spl_idx] > 0) {
         gbtn->in_group_idx = 0;
-        gbtn->flags |= LbBtnFlag_Unknown08;
+        gbtn->flags |= LbBtnFlag_Enabled;
     } else {
         gbtn->in_group_idx |= 0x8000; // This doesn't seem right, short vs int.
-        gbtn->flags &= ~LbBtnFlag_Unknown08;
+        gbtn->flags &= ~LbBtnFlag_Enabled;
     }
 }
 
@@ -953,10 +953,10 @@ void maintain_room(struct GuiButton *gbtn)
     }
     if (dungeon->room_buildable[rkind]) {
         gbtn->in_group_idx = 0;
-        gbtn->flags |= LbBtnFlag_Unknown08;
+        gbtn->flags |= LbBtnFlag_Enabled;
     } else {
         gbtn->in_group_idx |= 0x8000;
-        gbtn->flags &= ~LbBtnFlag_Unknown08;
+        gbtn->flags &= ~LbBtnFlag_Enabled;
     }
 }
 
@@ -978,10 +978,10 @@ void maintain_big_room(struct GuiButton *gbtn)
     gbtn->tooltip_str_idx = game.chosen_room_tooltip;
     if (dungeon->room_buildable[rkind]) {
         gbtn->in_group_idx = 0;
-        gbtn->flags |= LbBtnFlag_Unknown08;
+        gbtn->flags |= LbBtnFlag_Enabled;
     } else {
         gbtn->in_group_idx |= 0x8000;
-        gbtn->flags &= ~LbBtnFlag_Unknown08;
+        gbtn->flags &= ~LbBtnFlag_Enabled;
     }
 }
 
@@ -994,18 +994,18 @@ void maintain_spell(struct GuiButton *gbtn)
   if (!is_power_available(player->id_number,i))
   {
     gbtn->in_group_idx |= 0x8000u;
-    gbtn->flags &= ~LbBtnFlag_Unknown08;
+    gbtn->flags &= ~LbBtnFlag_Enabled;
   } else
   if (i == 19)
   {
       if (game.armageddon_cast_turn != 0)
       {
         gbtn->in_group_idx |= 0x8000u;
-        gbtn->flags &= ~LbBtnFlag_Unknown08;
+        gbtn->flags &= ~LbBtnFlag_Enabled;
       } else
       {
         gbtn->in_group_idx = 0;
-        gbtn->flags |= LbBtnFlag_Unknown08;
+        gbtn->flags |= LbBtnFlag_Enabled;
       }
   } else
   if (i == 9)
@@ -1013,16 +1013,16 @@ void maintain_spell(struct GuiButton *gbtn)
       if (player_uses_power_hold_audience(my_player_number))
       {
         gbtn->in_group_idx |= 0x8000u;
-        gbtn->flags &= ~LbBtnFlag_Unknown08;
+        gbtn->flags &= ~LbBtnFlag_Enabled;
       } else
       {
         gbtn->in_group_idx = 0;
-        gbtn->flags |= LbBtnFlag_Unknown08;
+        gbtn->flags |= LbBtnFlag_Enabled;
       }
   } else
   {
     gbtn->in_group_idx = 0;
-    gbtn->flags |= LbBtnFlag_Unknown08;
+    gbtn->flags |= LbBtnFlag_Enabled;
   }
 }
 
@@ -1035,11 +1035,11 @@ void maintain_trap(struct GuiButton *gbtn)
     if (is_trap_placeable(my_player_number, manufctr->tngmodel) || is_trap_built(my_player_number, manufctr->tngmodel))
     {
         gbtn->in_group_idx = 0;
-        gbtn->flags |= LbBtnFlag_Unknown08;
+        gbtn->flags |= LbBtnFlag_Enabled;
     } else
     {
         gbtn->in_group_idx |= 0x8000u;
-        gbtn->flags &= ~LbBtnFlag_Unknown08;
+        gbtn->flags &= ~LbBtnFlag_Enabled;
     }
 }
 
@@ -1052,11 +1052,11 @@ void maintain_door(struct GuiButton *gbtn)
     if (is_door_placeable(my_player_number, manufctr->tngmodel) || is_door_built(my_player_number, manufctr->tngmodel))
     {
         gbtn->in_group_idx = 0;
-        gbtn->flags |= LbBtnFlag_Unknown08;
+        gbtn->flags |= LbBtnFlag_Enabled;
     } else
     {
         gbtn->in_group_idx |= 0x8000u;
-        gbtn->flags &= ~LbBtnFlag_Unknown08;
+        gbtn->flags &= ~LbBtnFlag_Enabled;
     }
 }
 
@@ -1073,11 +1073,11 @@ void maintain_big_trap(struct GuiButton *gbtn)
       || ((manufctr->tngclass == TCls_Door) && is_door_placeable(my_player_number, manufctr->tngmodel)) )
     {
         gbtn->in_group_idx = 0;
-        gbtn->flags |= LbBtnFlag_Unknown08;
+        gbtn->flags |= LbBtnFlag_Enabled;
     } else
     {
         gbtn->in_group_idx |= 0x8000u;
-        gbtn->flags &= ~LbBtnFlag_Unknown08;
+        gbtn->flags &= ~LbBtnFlag_Enabled;
     }
 }
 
@@ -1317,7 +1317,7 @@ void gui_area_room_button(struct GuiButton *gbtn)
     int spr_idx;
     if (dungeon->room_resrchable[rkind] || dungeon->room_buildable[rkind])
     {
-        if ((gbtn->flags & LbBtnFlag_Unknown08) != 0)
+        if ((gbtn->flags & LbBtnFlag_Enabled) != 0)
         {
             if (dungeon->room_kind[rkind] > 0)
                 draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 27);
@@ -1393,7 +1393,7 @@ void gui_area_anger_button(struct GuiButton *gbtn)
     int spridx;
     long cr_total;
     cr_total = 0;
-    if ((crmodel > 0) && (crmodel < CREATURE_TYPES_COUNT) && (gbtn->flags & LbBtnFlag_Unknown08))
+    if ((crmodel > 0) && (crmodel < CREATURE_TYPES_COUNT) && (gbtn->flags & LbBtnFlag_Enabled))
     {
         dungeon = get_players_num_dungeon(my_player_number);
         spridx = gbtn->sprite_idx;
@@ -1631,7 +1631,7 @@ void maintain_instance(struct GuiButton *gbtn)
     if (!thing_is_creature(ctrltng))
     {
         gbtn->in_group_idx |= 0x8000;
-        gbtn->flags &= ~LbBtnFlag_Unknown08;
+        gbtn->flags &= ~LbBtnFlag_Enabled;
         return;
     }
     struct CreatureControl *cctrl;
@@ -1662,11 +1662,11 @@ void maintain_instance(struct GuiButton *gbtn)
     if (creature_instance_is_available(ctrltng, curbtn_inst_id))
     {
         gbtn->in_group_idx = 0;
-        gbtn->flags |= LbBtnFlag_Unknown08;
+        gbtn->flags |= LbBtnFlag_Enabled;
         return;
     }
     gbtn->in_group_idx |= 0x8000;
-    gbtn->flags &= ~LbBtnFlag_Unknown08;
+    gbtn->flags &= ~LbBtnFlag_Enabled;
 }
 
 void gui_activity_background(struct GuiMenu *gmnu)
@@ -1732,11 +1732,11 @@ void maintain_activity_up(struct GuiButton *gbtn)
     if (no_of_breeds_owned <= 6)
     {
         gbtn->flags &= ~LbBtnFlag_Visible;
-        gbtn->flags &= ~LbBtnFlag_Unknown08;
+        gbtn->flags &= ~LbBtnFlag_Enabled;
     } else
     {
         gbtn->flags |= LbBtnFlag_Visible;
-        gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Unknown08 * (top_of_breed_list > 0)) & LbBtnFlag_Unknown08;
+        gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Enabled * (top_of_breed_list > 0)) & LbBtnFlag_Enabled;
     }
 }
 
@@ -1745,12 +1745,12 @@ void maintain_activity_down(struct GuiButton *gbtn)
     if (no_of_breeds_owned <= 6)
     {
         gbtn->flags &= ~LbBtnFlag_Visible;
-        gbtn->flags &= ~LbBtnFlag_Unknown08;
+        gbtn->flags &= ~LbBtnFlag_Enabled;
     }
     else
     {
         gbtn->flags |= LbBtnFlag_Visible;
-        gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Unknown08 * (no_of_breeds_owned - 6 > top_of_breed_list)) & LbBtnFlag_Unknown08;
+        gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Enabled * (no_of_breeds_owned - 6 > top_of_breed_list)) & LbBtnFlag_Enabled;
     }
 }
 
@@ -1771,7 +1771,7 @@ void maintain_activity_pic(struct GuiButton *gbtn)
       amount = dungeon->num_active_diggers;
     else*/
     amount = dungeon->owned_creatures_of_model[crmodel];
-    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Unknown08 * (amount > 0)) & LbBtnFlag_Unknown08;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Enabled * (amount > 0)) & LbBtnFlag_Enabled;
     gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Visible * (no_of_breeds_owned > i)) & LbBtnFlag_Visible;
     gbtn->sprite_idx = get_creature_model_graphics(crmodel, CGI_HandSymbol);
 }
@@ -1793,7 +1793,7 @@ void maintain_activity_row(struct GuiButton *gbtn)
       amount = dungeon->num_active_diggers;
     else*/
     amount = dungeon->owned_creatures_of_model[crmodel];
-    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Unknown08 * (amount > 0)) & LbBtnFlag_Unknown08;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Enabled * (amount > 0)) & LbBtnFlag_Enabled;
     gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Visible * (no_of_breeds_owned > i)) & LbBtnFlag_Visible;
 }
 
@@ -1815,7 +1815,7 @@ void gui_area_ally(struct GuiButton *gbtn)
     plyr_idx = (int)gbtn->content;
     int spr_idx;
     spr_idx = 498;
-    if ((gbtn->flags & LbBtnFlag_Unknown08) == 0) {
+    if ((gbtn->flags & LbBtnFlag_Enabled) == 0) {
         return;
     }
     int ps_units_per_px;
@@ -1886,7 +1886,7 @@ void maintain_event_button(struct GuiButton *gbtn)
     {
       gbtn->in_group_idx |= 0x4000;
       gbtn->sprite_idx = 0;
-      gbtn->flags &= ~LbBtnFlag_Unknown08;
+      gbtn->flags &= ~LbBtnFlag_Enabled;
       gbtn->leftclick_flag = 0;
       gbtn->rightclick_flag = 0;
       gbtn->tooltip_str_idx = GUIStr_Empty;
@@ -1912,7 +1912,7 @@ void maintain_event_button(struct GuiButton *gbtn)
         gbtn->sprite_idx += 2;
     }
     gbtn->tooltip_str_idx = event_button_info[event->kind].tooltip_str_idx;
-    gbtn->flags |= LbBtnFlag_Unknown08;
+    gbtn->flags |= LbBtnFlag_Enabled;
     gbtn->in_group_idx = 0;
 }
 
@@ -1920,7 +1920,7 @@ void gui_toggle_ally(struct GuiButton *gbtn)
 {
     PlayerNumber plyr_idx;
     plyr_idx = (int)gbtn->content;
-    if ((gbtn->flags & LbBtnFlag_Unknown08) != 0) {
+    if ((gbtn->flags & LbBtnFlag_Enabled) != 0) {
         struct Packet *pckt;
         pckt = get_packet(my_player_number);
         set_packet_action(pckt, PckA_PlyrToggleAlly, plyr_idx, 0);
@@ -1936,11 +1936,11 @@ void maintain_ally(struct GuiButton *gbtn)
     if (!is_my_player_number(plyr_idx) && ((player->allocflags & PlaF_Allocated) != 0))
     {
         gbtn->in_group_idx = 0;
-        gbtn->flags |= LbBtnFlag_Unknown08;
+        gbtn->flags |= LbBtnFlag_Enabled;
     } else
     {
         gbtn->in_group_idx |= 0x8000;
-        gbtn->flags &= ~LbBtnFlag_Unknown08;
+        gbtn->flags &= ~LbBtnFlag_Enabled;
     }
 }
 
@@ -1949,11 +1949,11 @@ void maintain_prison_bar(struct GuiButton *gbtn)
     if (player_has_room(my_player_number, RoK_PRISON))
     {
         gbtn->sprite_idx = 350;
-        gbtn->flags |= LbBtnFlag_Unknown08;
+        gbtn->flags |= LbBtnFlag_Enabled;
     } else
     {
         gbtn->sprite_idx = 354;
-        gbtn->flags &= ~LbBtnFlag_Unknown08;
+        gbtn->flags &= ~LbBtnFlag_Enabled;
         /*if (gbtn->leftclick_flag) - this does nothing, but was in original function
         {
             menu_id_to_number(7);
@@ -1970,11 +1970,11 @@ void maintain_room_and_creature_button(struct GuiButton *gbtn)
     if (player_exists(player))
     {
         gbtn->in_group_idx = 0;
-        gbtn->flags |= LbBtnFlag_Unknown08;
+        gbtn->flags |= LbBtnFlag_Enabled;
     } else
     {
         gbtn->in_group_idx |= 0x4000;
-        gbtn->flags &= ~LbBtnFlag_Unknown08;
+        gbtn->flags &= ~LbBtnFlag_Enabled;
         gbtn->tooltip_str_idx = 201;
     }
 }

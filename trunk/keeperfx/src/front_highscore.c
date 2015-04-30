@@ -321,9 +321,9 @@ TbBool frontend_high_score_table_input(void)
 void frontend_maintain_high_score_ok_button(struct GuiButton *gbtn)
 {
     if (active_high_score_entry_idx == -1)
-        gbtn->flags |= LbBtnFlag_Unknown08;
+        gbtn->flags |= LbBtnFlag_Enabled;
     else
-        gbtn->flags &= ~LbBtnFlag_Unknown08;
+        gbtn->flags &= ~LbBtnFlag_Enabled;
 }
 
 void add_score_to_high_score_table(void)
