@@ -185,11 +185,11 @@ struct GuiButtonTemplate frontend_error_box_buttons[] = {
 
 
 struct GuiMenu frontend_main_menu =
- { GMnu_FEMAIN,             0, 1, frontend_main_menu_buttons,          0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
+ { GMnu_FEMAIN,             0, 1, frontend_main_menu_buttons, POS_SCRCTR,POS_SCRCTR, 640, 480, NULL, 0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu frontend_statistics_menu =
- { GMnu_FESTATISTICS,       0, 1, frontend_statistics_buttons,         0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
+ { GMnu_FESTATISTICS,       0, 1, frontend_statistics_buttons,POS_SCRCTR,POS_SCRCTR, 640, 480, NULL, 0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu frontend_high_score_table_menu =
- { GMnu_FEHIGH_SCORE_TABLE, 0, 1, frontend_high_score_score_buttons,   0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
+ { GMnu_FEHIGH_SCORE_TABLE, 0, 1, frontend_high_score_score_buttons,POS_SCRCTR,POS_SCRCTR, 640, 480, NULL, 0, NULL,NULL,                  0, 0, 0,};
 struct GuiMenu frontend_error_box = // Error box has no background defined - the buttons drawing adds it
  { GMnu_FEERROR_BOX,        0, 1, frontend_error_box_buttons,POS_GAMECTR,POS_GAMECTR, 450,  92, NULL,                        0, NULL,    NULL,                    0, 1, 0,};
 
@@ -2167,7 +2167,6 @@ long compute_menu_position_y(long desired_pos,int menu_height, int units_per_px)
     return pos;
 }
 
-#define MNU_UNITS_PER_PX min(units_per_pixel,units_per_pixel_min*16/10)
 MenuNumber create_menu(struct GuiMenu *gmnu)
 {
     MenuNumber mnu_num;
@@ -2204,18 +2203,26 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
         old_menu_mouse_x = GetMouseX();
         old_menu_mouse_y = GetMouseY();
     }
+    // Make scale factor
+    int units_per_px;
+    units_per_px = min(units_per_pixel,units_per_pixel_min*16/10);
+    // Decrease scale factor if for some reason resulting size would exceed screen (wierd aspec ratio support)
+    if (gmnu->width * units_per_px > LbScreenWidth() * 16)
+        units_per_px = LbScreenWidth() * 16 / gmnu->width;
+    if (gmnu->height * units_per_px > LbScreenHeight() * 16)
+        units_per_px = LbScreenHeight() * 16 / gmnu->height;
     // Setting position X
-    activeMenu->pos_x = compute_menu_position_x(gmnu->pos_x,gmnu->width,MNU_UNITS_PER_PX);
+    activeMenu->pos_x = compute_menu_position_x(gmnu->pos_x,gmnu->width,units_per_px);
     // Setting position Y
-    activeMenu->pos_y = compute_menu_position_y(gmnu->pos_y,gmnu->height,MNU_UNITS_PER_PX);
+    activeMenu->pos_y = compute_menu_position_y(gmnu->pos_y,gmnu->height,units_per_px);
 
     activeMenu->fade_time = gmnu->fade_time;
     if (activeMenu->fade_time < 1) {
         ERRORLOG("Fade time %d is less than 1.",(int)activeMenu->fade_time);
     }
     activeMenu->buttons = gmnu->buttons;
-    activeMenu->width = (gmnu->width * MNU_UNITS_PER_PX + 8) / 16;
-    activeMenu->height = (gmnu->height * MNU_UNITS_PER_PX + 8) / 16;
+    activeMenu->width = (gmnu->width * units_per_px + 8) / 16;
+    activeMenu->height = (gmnu->height * units_per_px + 8) / 16;
     activeMenu->callback_draw = gmnu->callback_draw;
     activeMenu->callback_create = gmnu->callback_create;
     activeMenu->isMonopolyMenu = gmnu->isMonopolyMenu;
@@ -2229,7 +2236,7 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
     btninit = gmnu->buttons;
     for (i = 0; btninit[i].button_type != -1; i++)
     {
-        if (create_button(activeMenu, &btninit[i], MNU_UNITS_PER_PX) == -1)
+        if (create_button(activeMenu, &btninit[i], units_per_px) == -1)
         {
           ERRORLOG("Cannot allocate button");
           return -1;
@@ -2248,7 +2255,6 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
         (int)mnu_num,(int)activeMenu->pos_x,(int)activeMenu->pos_y,(int)activeMenu->width,(int)activeMenu->height);
     return mnu_num;
 }
-#undef MNU_UNITS_PER_PX
 
 unsigned long toggle_status_menu(short visible)
 {
@@ -2971,14 +2977,14 @@ char update_menu_fade_level(struct GuiMenu *gmnu)
     switch (gmnu->visibility)
     {
     case Visibility_Shown:
-        if (gmnu->fade_time == 0) 
+        if (gmnu->fade_time == 0)
         {
             gmnu->fade_time = 1;
             return 0;
         }
         gmnu->fade_time--;
 
-        if (gmnu->fade_time != 0) 
+        if (gmnu->fade_time != 0)
         {
             return 0;
         }
@@ -2997,12 +3003,12 @@ char update_menu_fade_level(struct GuiMenu *gmnu)
 
         return 1;
     case Visibility_Hidden:
-        if (gmnu->fade_time == 0) 
+        if (gmnu->fade_time == 0)
         {
             return -1;
         }
         gmnu->fade_time--;
-        if (gmnu->fade_time <= 0) 
+        if (gmnu->fade_time <= 0)
         {
             return -1;
         }
@@ -3236,6 +3242,7 @@ short frontend_draw(void)
     case FeSt_FEOPTIONS:
     case FeSt_LEVEL_SELECT:
     case FeSt_CAMPAIGN_SELECT:
+        frontend_copy_background();
         draw_gui();
         break;
     case FeSt_LAND_VIEW:

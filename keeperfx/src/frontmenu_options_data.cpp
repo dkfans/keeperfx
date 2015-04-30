@@ -79,9 +79,9 @@ struct GuiButtonTemplate frontend_option_buttons[] = {
 };
 
 struct GuiMenu frontend_define_keys_menu =
- { 36, 0, 1, frontend_define_keys_buttons,        0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
+ { 36, 0, 1, frontend_define_keys_buttons,POS_SCRCTR, POS_SCRCTR, 640, 480, NULL, 0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu frontend_option_menu =
- { 39, 0, 1, frontend_option_buttons,             0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    frontend_init_options_menu,0,0,0,};
+ { 39, 0, 1, frontend_option_buttons,     POS_SCRCTR, POS_SCRCTR, 640, 480, NULL, 0, NULL,    frontend_init_options_menu,0,0,0,};
 
 /******************************************************************************/
 #ifdef __cplusplus
