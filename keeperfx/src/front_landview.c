@@ -1505,6 +1505,19 @@ void frontmap_input(void)
     update_velocity();
 }
 
+// Handling input in statistics menu.
+TbBool _front_stat_input(void)
+{
+    if (lbInkey == KC_ESCAPE || right_button_clicked)
+    {
+        clear_key_pressed(KC_ESCAPE);
+        right_button_clicked = 0;
+        frontstats_leave(NULL/*do not care*/);
+        return true;
+    }
+    return false;
+}
+
 void frontnetmap_input(void)
 {
   struct LevelInformation *lvinfo;

@@ -30,7 +30,8 @@ extern "C" {
 /******************************************************************************/
 DLLIMPORT struct GuiButtonTemplate _DK_frontend_high_score_score_buttons[];
 DLLIMPORT extern long _DK_high_score_entry_input_active;
-#define high_score_entry_input_active _DK_high_score_entry_input_active
+// Index of current active entry item in high score table.
+#define active_high_score_entry_idx _DK_high_score_entry_input_active
 DLLIMPORT extern long _DK_high_score_entry_index;
 #define high_score_entry_index _DK_high_score_entry_index
 DLLIMPORT extern char _DK_high_score_entry[64];

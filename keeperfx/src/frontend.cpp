@@ -2928,6 +2928,9 @@ void frontend_input(void)
     case FeSt_FEDEFINE_KEYS:
         define_key_input(&input_consumed);
         break;
+    case FeSt_LEVEL_STATS:
+        input_consumed = _front_stat_input();
+        break;
 #if (BFDEBUG_LEVEL > 0)
     case FeSt_FONT_TEST:
         fronttestfont_input();

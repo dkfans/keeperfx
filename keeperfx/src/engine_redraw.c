@@ -950,7 +950,7 @@ void process_pointer_graphic(void)
         break;
     case PVT_CreatureContrl:
     case PVT_CreaturePasngr:
-        if ((game.numfield_D & numfield_D_08) != 0)
+        if ((game.numfield_D & numfield_D_08))
           set_pointer_graphic(MousePG_Cursor);
         else
           set_pointer_graphic(MousePG_None);
