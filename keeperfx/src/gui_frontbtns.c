@@ -72,7 +72,7 @@ void fake_button_click(int gmbtn_idx)
         gbtn = &active_buttons[i];
         struct GuiMenu *gmnu;
         gmnu = &active_menus[(unsigned)gbtn->menu_idx];
-        if (((gbtn->flags & LbBtnFlag_Created) != 0) && (gmnu->isTurnedOn != 0) && (gbtn->index == gmbtn_idx))
+        if (((gbtn->flags & LbBtnFlag_Created) != 0) && (gmnu->isTurnedOn != 0) && (gbtn->tab_id == gmbtn_idx))
         {
             if ((gbtn->callback_click != NULL) || ((gbtn->flags & LbBtnFlag_CloseCurrentMenu) != 0) || (gbtn->parent_menu != NULL) || (gbtn->button_type == LbBtnType_RadioButton)) {
                 do_button_press_actions(gbtn, &gbtn->leftclick_flag, gbtn->callback_click);
@@ -285,7 +285,7 @@ TbBool gui_button_click_inputs(int gmbtn_idx)
         result = true;
         if (game.flash_button_index != 0)
         {
-          if (gbtn->index == game.flash_button_index)
+          if (gbtn->tab_id == game.flash_button_index)
             game.flash_button_index = 0;
         }
         callback = gbtn->callback_click;
@@ -293,7 +293,7 @@ TbBool gui_button_click_inputs(int gmbtn_idx)
            (gbtn->parent_menu != 0) || (gbtn->button_type == LbBtnType_RadioButton))
         {
           left_button_clicked = 0;
-          gui_last_left_button_pressed_id = gbtn->index;
+          gui_last_left_button_pressed_id = gbtn->tab_id;
           do_button_click_actions(gbtn, &gbtn->leftclick_flag, callback);
         }
     } else
@@ -303,14 +303,14 @@ TbBool gui_button_click_inputs(int gmbtn_idx)
         result = true;
         if (game.flash_button_index != 0)
         {
-          if (gbtn->index == game.flash_button_index)
+          if (gbtn->tab_id == game.flash_button_index)
             game.flash_button_index = 0;
         }
         callback = gbtn->callback_rightclick;
         if ((callback != NULL))
         {
           right_button_clicked = 0;
-          gui_last_right_button_pressed_id = gbtn->index;
+          gui_last_right_button_pressed_id = gbtn->tab_id;
           do_button_click_actions(gbtn, &gbtn->rightclick_flag, callback);
         }
     }
@@ -732,7 +732,7 @@ void frontend_over_button(struct GuiButton *gbtn)
     int i;
 
     if (gbtn->button_type == LbBtnType_EditBox)
-      i = gbtn->field_1B;
+      i = gbtn->in_group_idx;
     else
       i = (long)gbtn->content;
     if (old_mouse_over_button != i)
@@ -1025,7 +1025,7 @@ void reset_scroll_window(struct GuiMenu *gmnu)
 
 void gui_set_menu_mode(struct GuiButton *gbtn)
 {
-    set_menu_mode(gbtn->field_1B);
+    set_menu_mode(gbtn->in_group_idx);
 }
 
 void gui_area_flash_cycle_button(struct GuiButton *gbtn)

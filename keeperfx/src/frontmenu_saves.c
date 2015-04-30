@@ -61,7 +61,7 @@ void gui_load_game_maintain(struct GuiButton *gbtn)
   long slot_num;
   struct CatalogueEntry *centry;
   if (gbtn != NULL)
-      slot_num = gbtn->field_1B;
+      slot_num = gbtn->in_group_idx;
   else
       slot_num = 0;
   centry = &save_game_catalogue[slot_num];
@@ -75,9 +75,9 @@ void gui_load_game(struct GuiButton *gbtn)
 {
   struct PlayerInfo *player;
   player=get_my_player();
-  if (!load_game(gbtn->field_1B))
+  if (!load_game(gbtn->in_group_idx))
   {
-      ERRORLOG("Loading game %d failed; quitting.",(int)gbtn->field_1B);
+      ERRORLOG("Loading game %d failed; quitting.",(int)gbtn->in_group_idx);
       // Even on quit, we still should unpause the game
       set_players_packet_action(player, PckA_TogglePause, 0, 0);
       quit_game = 1;
@@ -113,7 +113,7 @@ void gui_save_game(struct GuiButton *gbtn)
   player = get_my_player();
   if (strcasecmp((char *)gbtn->content, get_string(GUIStr_SlotUnused)) != 0)
   {
-      slot_num = gbtn->field_1B%TOTAL_SAVE_SLOTS_COUNT;
+      slot_num = gbtn->in_group_idx%TOTAL_SAVE_SLOTS_COUNT;
       fill_game_catalogue_slot(slot_num,(char *)gbtn->content);
       if (save_game(slot_num))
       {

@@ -1416,7 +1416,7 @@ void frontend_draw_text(struct GuiButton *gbtn)
 
 void frontend_change_state(struct GuiButton *gbtn)
 {
-    frontend_set_state(gbtn->field_1B);
+    frontend_set_state(gbtn->in_group_idx);
 }
 
 void frontend_draw_enter_text(struct GuiButton *gbtn)
@@ -1430,7 +1430,7 @@ void frontend_draw_enter_text(struct GuiButton *gbtn)
     if ((gbtn->flags & LbBtnFlag_Unknown08) == 0) {
         font_idx = 3;
     } else
-    if ((gbtn->content != NULL) && (gbtn->field_1B == frontend_mouse_over_button)) {
+    if ((gbtn->content != NULL) && (gbtn->in_group_idx == frontend_mouse_over_button)) {
         font_idx = 2;
     }
     char *srctext;
@@ -2009,12 +2009,12 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonTemplate *gbinit, int un
     {
         gbtn->menu_idx = gmnu->index;
         gbtn->button_type = gbinit->button_type;
-        gbtn->index = gbinit->index;
+        gbtn->tab_id = gbinit->tab_id;
         gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_CloseCurrentMenu * (gbinit->field_5 & 0xff)) & LbBtnFlag_CloseCurrentMenu; 
         gbtn->callback_click = gbinit->callback_click;
         gbtn->callback_rightclick = gbinit->callback_rightclick;
         gbtn->callback_mousehover = gbinit->callback_mousehover;
-        gbtn->field_1B = gbinit->field_13;  // ***
+        gbtn->in_group_idx = gbinit->in_group_idx;  // ***
         gbtn->width = (gbinit->width * units_per_px + 8) / 16;
         gbtn->height = (gbinit->height * units_per_px + 8) / 16;
         gbtn->callback_draw = gbinit->callback_draw;
@@ -2027,7 +2027,7 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonTemplate *gbinit, int un
         gbtn->flags |= LbBtnFlag_Unknown08;
         gbtn->flags &= ~LbBtnFlag_MouseOver;
         gbtn->leftclick_flag = 0;
-        gbtn->flags |= LbBtnFlag_Enabled;
+        gbtn->flags |= LbBtnFlag_Visible;
         gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Unknown20 * (gbinit->field_5 >> 8)) & LbBtnFlag_Unknown20;
     }
 
@@ -3027,7 +3027,7 @@ void draw_menu_buttons(struct GuiMenu *gmnu)
     {
         gbtn = &active_buttons[i];
         callback = gbtn->callback_draw;
-        if ((callback != NULL) && (gbtn->flags & LbBtnFlag_Enabled) && (gbtn->flags & LbBtnFlag_Created) && (gbtn->menu_idx == gmnu->index))
+        if ((callback != NULL) && (gbtn->flags & LbBtnFlag_Visible) && (gbtn->flags & LbBtnFlag_Created) && (gbtn->menu_idx == gmnu->index))
         {
           if ( ((gbtn->leftclick_flag == 0) && (gbtn->rightclick_flag == 0)) || (gbtn->button_type == LbBtnType_HorizontalSlider) || (callback == gui_area_null) )
             callback(gbtn);
@@ -3038,7 +3038,7 @@ void draw_menu_buttons(struct GuiMenu *gmnu)
     {
         gbtn = &active_buttons[i];
         callback = gbtn->callback_draw;
-        if ((callback != NULL) && (gbtn->flags & LbBtnFlag_Enabled) && (gbtn->flags & LbBtnFlag_Created) && (gbtn->menu_idx == gmnu->index))
+        if ((callback != NULL) && (gbtn->flags & LbBtnFlag_Visible) && (gbtn->flags & LbBtnFlag_Created) && (gbtn->menu_idx == gmnu->index))
         {
           if (((gbtn->leftclick_flag) || (gbtn->rightclick_flag)) && (gbtn->button_type != LbBtnType_HorizontalSlider) && (callback != gui_area_null))
             callback(gbtn);
@@ -3121,10 +3121,10 @@ void draw_menu_spangle(struct GuiMenu *gmnu)
     for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
     {
         gbtn = &active_buttons[i];
-        if ((!gbtn->callback_draw) || ((gbtn->flags & LbBtnFlag_Enabled) == 0) || ((gbtn->flags & LbBtnFlag_Created) == 0) || (game.flash_button_index == 0))
+        if ((!gbtn->callback_draw) || ((gbtn->flags & LbBtnFlag_Visible) == 0) || ((gbtn->flags & LbBtnFlag_Created) == 0) || (game.flash_button_index == 0))
           continue;
         in_range = 0;
-        switch (gbtn->index)
+        switch (gbtn->tab_id)
         {
         case BID_INFO_TAB:
           if ((game.flash_button_index >= 68) && (game.flash_button_index <= 71))
@@ -3151,10 +3151,10 @@ void draw_menu_spangle(struct GuiMenu *gmnu)
         }
         if (in_range)
         {
-            if (!menu_is_active(gbtn->field_1B))
+            if (!menu_is_active(gbtn->in_group_idx))
                 spangle_button(gbtn);
         } else
-        if ((gbtn->index > 0) && (gbtn->index == game.flash_button_index))
+        if ((gbtn->tab_id > 0) && (gbtn->tab_id == game.flash_button_index))
         {
             spangle_button(gbtn);
         }
