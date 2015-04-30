@@ -215,6 +215,7 @@ DLLIMPORT char _DK_level_name[88];
 DLLIMPORT char _DK_top_of_breed_list;
 #define top_of_breed_list _DK_top_of_breed_list
 DLLIMPORT char _DK_no_of_breeds_owned;
+// Count of breeds player owns.
 #define no_of_breeds_owned _DK_no_of_breeds_owned
 DLLIMPORT long _DK_optimised_lights;
 #define optimised_lights _DK_optimised_lights

@@ -74,10 +74,10 @@ void fake_button_click(int gmbtn_idx)
         gmnu = &active_menus[(unsigned)gbtn->menu_idx];
         if (((gbtn->flags & LbBtnFlag_Created) != 0) && (gmnu->isTurnedOn != 0) && (gbtn->tab_id == gmbtn_idx))
         {
-            if ((gbtn->callback_click != NULL) || ((gbtn->flags & LbBtnFlag_CloseCurrentMenu) != 0) || (gbtn->parent_menu != NULL) || (gbtn->button_type == LbBtnType_RadioButton)) {
+            if ((gbtn->callback_click != NULL) || (gbtn->flags & LbBtnFlag_CloseCurrentMenu) || (gbtn->parent_menu != NULL) || (gbtn->button_type == LbBtnType_RadioButton)) {
                 do_button_press_actions(gbtn, &gbtn->leftclick_flag, gbtn->callback_click);
             }
-            if ((gbtn->callback_click != NULL) || ((gbtn->flags & LbBtnFlag_CloseCurrentMenu) != 0) || (gbtn->parent_menu != NULL) || (gbtn->button_type == LbBtnType_RadioButton)) {
+            if ((gbtn->callback_click != NULL) || (gbtn->flags & LbBtnFlag_CloseCurrentMenu) || (gbtn->parent_menu != NULL) || (gbtn->button_type == LbBtnType_RadioButton)) {
                 do_button_click_actions(gbtn, &gbtn->leftclick_flag, gbtn->callback_click);
             }
         }
@@ -96,7 +96,7 @@ TbBool gui_button_release_inputs(int gmbtn_idx)
     {
         callback = gbtn->callback_click;
         if ((callback != NULL) || ((gbtn->flags & LbBtnFlag_CloseCurrentMenu) != 0) ||
-            (gbtn->parent_menu != 0) || (gbtn->button_type == LbBtnType_RadioButton))
+            (gbtn->parent_menu != NULL) || (gbtn->button_type == LbBtnType_RadioButton))
         {
             left_button_released = 0;
             do_button_release_actions(gbtn, &gbtn->leftclick_flag, callback);
@@ -227,10 +227,10 @@ TbBool gui_button_click_inputs(int gmbtn_idx)
         SYNCDBG(8,"Left down for button %d",(int)gmbtn_idx);
         result = true;
         callback = gbtn->callback_click;
-        if ((callback != NULL) || ((gbtn->flags & LbBtnFlag_CloseCurrentMenu) != 0) ||
-           (gbtn->parent_menu != 0) || (gbtn->button_type == LbBtnType_RadioButton))
+        if ((callback != NULL) || ((gbtn->flags & LbBtnFlag_CloseCurrentMenu)) ||
+           (gbtn->parent_menu != NULL) || (gbtn->button_type == LbBtnType_RadioButton))
         {
-            if ((gbtn->flags & LbBtnFlag_Enabled) != 0)
+            if (gbtn->flags & LbBtnFlag_Enabled)
             {
                 SYNCDBG(18,"Left down action for type %d",(int)gbtn->button_type);
                 switch (gbtn->button_type)
@@ -290,7 +290,7 @@ TbBool gui_button_click_inputs(int gmbtn_idx)
         }
         callback = gbtn->callback_click;
         if ((callback != NULL) || ((gbtn->flags & LbBtnFlag_CloseCurrentMenu) != 0) ||
-           (gbtn->parent_menu != 0) || (gbtn->button_type == LbBtnType_RadioButton))
+           (gbtn->parent_menu != NULL) || (gbtn->button_type == LbBtnType_RadioButton))
         {
           left_button_clicked = 0;
           gui_last_left_button_pressed_id = gbtn->tab_id;
@@ -596,7 +596,7 @@ void gui_area_compsetting_button(struct GuiButton *gbtn)
     }
     int ps_units_per_px;
     ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, spr_idx, 100);
-    if ((gbtn->flags & LbBtnFlag_Enabled) == 0)
+    if (!(gbtn->flags & LbBtnFlag_Enabled))
     {
         draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, 12);
     } else
@@ -628,7 +628,7 @@ void gui_area_creatrmodel_button(struct GuiButton *gbtn)
     }
     int ps_units_per_px;
     ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, spr_idx, 138);
-    if ((gbtn->flags & LbBtnFlag_Enabled) == 0)
+    if (!(gbtn->flags & LbBtnFlag_Enabled))
     {
         draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, 12);
     } else
@@ -660,7 +660,7 @@ void gui_area_new_no_anim_button(struct GuiButton *gbtn)
     }
     int ps_units_per_px;
     ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, spr_idx, 128);
-    if ((gbtn->flags & LbBtnFlag_Enabled) == 0)
+    if (!(gbtn->flags & LbBtnFlag_Enabled))
     {
         draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, 12);
     } else
@@ -693,7 +693,7 @@ void gui_area_no_anim_button(struct GuiButton *gbtn)
     }
     int bs_units_per_px;
     bs_units_per_px = simple_button_sprite_height_units_per_px(gbtn, spr_idx, 100);
-    if ((gbtn->flags & LbBtnFlag_Enabled) == 0)
+    if (!(gbtn->flags & LbBtnFlag_Enabled))
     {
         draw_button_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, spr_idx, 12);
     } else
@@ -751,7 +751,7 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
     int h;
     SYNCDBG(9,"Drawing type %d, text \"%s\"",(int)btntype,text);
     febtn_idx = (unsigned int)gbtn->content;
-    if ((gbtn->flags & LbBtnFlag_Enabled) == 0)
+    if (!(gbtn->flags & LbBtnFlag_Enabled))
     {
         fntidx = 3;
         spridx = 14;

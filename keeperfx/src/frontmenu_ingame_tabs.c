@@ -786,7 +786,7 @@ void gui_area_trap_button(struct GuiButton *gbtn)
         return;
     }
     // We should draw; maybe just disabled button
-    if ((gbtn->flags & LbBtnFlag_Enabled) == 0)
+    if (!(gbtn->flags & LbBtnFlag_Enabled))
     {
         draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 25);
         lbDisplay.DrawFlags = flg_mem;
@@ -1731,12 +1731,12 @@ void maintain_activity_up(struct GuiButton *gbtn)
 {
     if (no_of_breeds_owned <= 6)
     {
-        gbtn->flags &= ~LbBtnFlag_Visible;
-        gbtn->flags &= ~LbBtnFlag_Enabled;
+        set_flag_byte(&gbtn->flags, LbBtnFlag_Visible, false);
+        set_flag_byte(&gbtn->flags, LbBtnFlag_Enabled, false);
     } else
     {
-        gbtn->flags |= LbBtnFlag_Visible;
-        gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Enabled * (top_of_breed_list > 0)) & LbBtnFlag_Enabled;
+        set_flag_byte(&gbtn->flags, LbBtnFlag_Visible, true);
+        set_flag_byte(&gbtn->flags, LbBtnFlag_Enabled, (top_of_breed_list > 0));
     }
 }
 
@@ -1744,13 +1744,13 @@ void maintain_activity_down(struct GuiButton *gbtn)
 {
     if (no_of_breeds_owned <= 6)
     {
-        gbtn->flags &= ~LbBtnFlag_Visible;
-        gbtn->flags &= ~LbBtnFlag_Enabled;
+        set_flag_byte(&gbtn->flags, LbBtnFlag_Visible, false);
+        set_flag_byte(&gbtn->flags, LbBtnFlag_Enabled, false);
     }
     else
     {
-        gbtn->flags |= LbBtnFlag_Visible;
-        gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Enabled * (no_of_breeds_owned - 6 > top_of_breed_list)) & LbBtnFlag_Enabled;
+        set_flag_byte(&gbtn->flags, LbBtnFlag_Visible, true);
+        set_flag_byte(&gbtn->flags, LbBtnFlag_Enabled, (no_of_breeds_owned - 6 > top_of_breed_list));
     }
 }
 
@@ -1759,9 +1759,12 @@ void maintain_activity_pic(struct GuiButton *gbtn)
     ThingModel crmodel;
     int i;
     i = gbtn->in_group_idx;
-    if (i > 0) {
+    if (i > 0) 
+    {
         crmodel = breed_activities[(top_of_breed_list+i)%CREATURE_TYPES_COUNT];
-    } else {
+    } 
+    else 
+    {
         crmodel = get_players_special_digger_model(my_player_number);
     }
     struct Dungeon *dungeon;
@@ -1771,8 +1774,8 @@ void maintain_activity_pic(struct GuiButton *gbtn)
       amount = dungeon->num_active_diggers;
     else*/
     amount = dungeon->owned_creatures_of_model[crmodel];
-    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Enabled * (amount > 0)) & LbBtnFlag_Enabled;
-    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Visible * (no_of_breeds_owned > i)) & LbBtnFlag_Visible;
+    set_flag_byte(&gbtn->flags, LbBtnFlag_Enabled, (amount > 0));
+    set_flag_byte(&gbtn->flags, LbBtnFlag_Enabled, (no_of_breeds_owned > i));
     gbtn->sprite_idx = get_creature_model_graphics(crmodel, CGI_HandSymbol);
 }
 
@@ -1781,9 +1784,12 @@ void maintain_activity_row(struct GuiButton *gbtn)
     ThingModel crmodel;
     int i;
     i = gbtn->in_group_idx;
-    if (i > 0) {
+    if (i > 0) 
+    {
         crmodel = breed_activities[(top_of_breed_list+i)%CREATURE_TYPES_COUNT];
-    } else {
+    } 
+    else 
+    {
         crmodel = get_players_special_digger_model(my_player_number);
     }
     struct Dungeon *dungeon;
@@ -1793,8 +1799,8 @@ void maintain_activity_row(struct GuiButton *gbtn)
       amount = dungeon->num_active_diggers;
     else*/
     amount = dungeon->owned_creatures_of_model[crmodel];
-    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Enabled * (amount > 0)) & LbBtnFlag_Enabled;
-    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Visible * (no_of_breeds_owned > i)) & LbBtnFlag_Visible;
+    set_flag_byte(&gbtn->flags, LbBtnFlag_Enabled, (amount > 0));
+    set_flag_byte(&gbtn->flags, LbBtnFlag_Visible, (no_of_breeds_owned > i));
 }
 
 void gui_scroll_activity_up(struct GuiButton *gbtn)
@@ -1815,7 +1821,7 @@ void gui_area_ally(struct GuiButton *gbtn)
     plyr_idx = (int)gbtn->content;
     int spr_idx;
     spr_idx = 498;
-    if ((gbtn->flags & LbBtnFlag_Enabled) == 0) {
+    if (!(gbtn->flags & LbBtnFlag_Enabled)) {
         return;
     }
     int ps_units_per_px;
