@@ -732,16 +732,16 @@ long check_out_available_spdigger_drop_tasks(struct Thing *spdigtng)
         cctrl->digger.task_repeats = 0;
         return 1;
     }
+	if ( check_out_unconverted_drop_place(spdigtng) )
+	{
+		cctrl->digger.task_repeats = 0;
+		cctrl->digger.last_did_job = SDLstJob_ConvImprDungeon;
+		return 1;
+	}
     if ( check_out_undug_drop_place(spdigtng) )
     {
         cctrl->digger.task_repeats = 0;
         cctrl->digger.last_did_job = SDLstJob_DigOrMine;
-        return 1;
-    }
-    if ( check_out_unconverted_drop_place(spdigtng) )
-    {
-        cctrl->digger.task_repeats = 0;
-        cctrl->digger.last_did_job = SDLstJob_ConvImprDungeon;
         return 1;
     }
     if ( check_out_unprettied_drop_place(spdigtng) )
