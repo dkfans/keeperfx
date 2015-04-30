@@ -3201,6 +3201,7 @@ short frontend_draw(void)
         frontnetmap_draw();
         break;
     case FeSt_FEDEFINE_KEYS:
+        frontend_copy_background();
         draw_gui();
         if ( defining_a_key )
             draw_defining_a_key_box();

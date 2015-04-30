@@ -28,6 +28,7 @@
 #include "bflib_filelst.h"
 #include "bflib_dernc.h"
 #include "bflib_keybrd.h"
+#include "bflib_video.h"
 #include "bflib_vidraw.h"
 #include "bflib_mouse.h"
 #include "bflib_sound.h"
@@ -41,6 +42,7 @@
 #include "kjm_input.h"
 #include "front_simple.h"
 #include "frontend.h"
+#include "vidmode.h"
 #include "vidfade.h"
 #include "game_legacy.h"
 
@@ -96,16 +98,27 @@ void torture_play_sound(long door_id, TbBool state)
 
 long torture_door_over_point(long x,long y)
 {
-  struct DoorDesc *door;
-  long i;
-  for (i=0; i < torture_doors_available; i++)
-  {
-    door = &doors[i];
-    if ((x >= door->pos_x) && (x < door->pos_x+door->width))
-      if ((y >= door->pos_y) && (y < door->pos_y+door->height))
-        return i;
-  }
-  return -1;
+    int units_per_px;
+    units_per_px = min(units_per_pixel,units_per_pixel_min*16/10);
+    const int img_width = 640;
+    const int img_height = 480;
+    int w,h;
+    int spx,spy;
+    w = img_width * units_per_px / 16;
+    h = img_height * units_per_px / 16;
+    // Starting point coords
+    spx = (LbScreenWidth() - w) >> 1;
+    spy = (LbScreenHeight() - h) >> 1;
+    struct DoorDesc *door;
+    long i;
+    for (i=0; i < torture_doors_available; i++)
+    {
+      door = &doors[i];
+      if ((x >= spx + door->pos_x*units_per_px/16) && (x < spx + door->pos_x*units_per_px/16 + door->width*units_per_px/16))
+        if ((y >= spy + door->pos_y*units_per_px/16) && (y < spy + door->pos_y*units_per_px/16 + door->height*units_per_px/16))
+          return i;
+    }
+    return -1;
 }
 
 void fronttorture_unload(void)
@@ -215,24 +228,20 @@ TbBool fronttorture_draw(void)
   struct TbSprite *spr;
   const int img_width = 640;
   const int img_height = 480;
-  int w,h,m,i;
+  int w,h,i;
   int spx,spy;
   // Only 8bpp supported for now
   if (LbGraphicsScreenBPP() != 8)
     return false;
-  w=0;
-  h=0;
-  m=1;
-  {
-    w+=img_width;
-    h+=img_height;
-  }
+  int units_per_px;
+  units_per_px = min(units_per_pixel,units_per_pixel_min*16/10);
+  w = img_width * units_per_px / 16;
+  h = img_height * units_per_px / 16;
   // Starting point coords
-  //TODO FRONTEND temporarily set to top left corner because input function is not rewritten
-  spx = 0;//(mdinfo->Width-m*img_width)>>1;
-  spy = 0;//(mdinfo->Height-m*img_height)>>1;
+  spx = (LbScreenWidth() - w) >> 1;
+  spy = (LbScreenHeight() - h) >> 1;
   copy_raw8_image_buffer(lbDisplay.WScreen,LbGraphicsScreenWidth(),LbGraphicsScreenHeight(),
-      img_width*m,img_height*m,spx,spy,torture_background,img_width,img_height);
+      w,h,spx,spy,torture_background,img_width,img_height);
 
   for (i=0; i < torture_doors_available; i++)
   {
@@ -243,7 +252,7 @@ TbBool fronttorture_draw(void)
     {
       spr = &doors[i].sprites[1];
     }
-    LbSpriteDrawResized(spx+doors[i].field_0, spy+doors[i].field_4, 16*m, spr);
+    LbSpriteDrawResized(spx + doors[i].pos_spr_x*units_per_px/16, spy + doors[i].pos_spr_y*units_per_px/16, units_per_px, spr);
   }
   return true;
 }
