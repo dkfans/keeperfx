@@ -36,8 +36,8 @@ struct DoorSoundState { // sizeof = 8
 };
 
 struct DoorDesc { // sizeof = 44
-  long field_0;
-  long field_4;
+  long pos_spr_x;
+  long pos_spr_y;
   long pos_x;
   long pos_y;
   long width;
