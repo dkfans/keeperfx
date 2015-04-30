@@ -196,15 +196,15 @@ struct GuiButtonInit frontend_add_session_buttons[] = {//TODO GUI prepare add se
 };
 
 struct GuiMenu frontend_net_service_menu =
- { GMnu_FENET_SERVICE, 0, 1, frontend_net_service_buttons,        0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
+ { GMnu_FENET_SERVICE, 0, 1, frontend_net_service_buttons,POS_SCRCTR, POS_SCRCTR, 640, 480, NULL, 0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu frontend_net_session_menu =
- { GMnu_FENET_SESSION, 0, 1, frontend_net_session_buttons,        0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
+ { GMnu_FENET_SESSION, 0, 1, frontend_net_session_buttons,POS_SCRCTR, POS_SCRCTR, 640, 480, NULL, 0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu frontend_net_start_menu =
- { GMnu_FENET_START, 0, 1, frontend_net_start_buttons,          0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
+ { GMnu_FENET_START, 0, 1, frontend_net_start_buttons,    POS_SCRCTR, POS_SCRCTR, 640, 480, NULL, 0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu frontend_net_modem_menu =
- { GMnu_FENET_MODEM, 0, 1, frontend_net_modem_buttons,          0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
+ { GMnu_FENET_MODEM, 0, 1, frontend_net_modem_buttons,    POS_SCRCTR, POS_SCRCTR, 640, 480, NULL, 0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu frontend_net_serial_menu =
- { GMnu_FENET_SERIAL, 0, 1, frontend_net_serial_buttons,         0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
+ { GMnu_FENET_SERIAL, 0, 1, frontend_net_serial_buttons,  POS_SCRCTR, POS_SCRCTR, 640, 480, NULL, 0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu frontend_add_session_box =
  { GMnu_FEADD_SESSION,      0, 1, frontend_add_session_buttons,POS_GAMECTR,POS_GAMECTR,450, 92, NULL,                        0, NULL,    NULL,                    0, 1, 0,};
 /******************************************************************************/

@@ -185,11 +185,11 @@ struct GuiButtonInit frontend_error_box_buttons[] = {
 
 
 struct GuiMenu frontend_main_menu =
- { GMnu_FEMAIN,             0, 1, frontend_main_menu_buttons,          0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
+ { GMnu_FEMAIN,             0, 1, frontend_main_menu_buttons, POS_SCRCTR,POS_SCRCTR, 640, 480, NULL, 0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu frontend_statistics_menu =
- { GMnu_FESTATISTICS,       0, 1, frontend_statistics_buttons,         0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
+ { GMnu_FESTATISTICS,       0, 1, frontend_statistics_buttons,POS_SCRCTR,POS_SCRCTR, 640, 480, NULL, 0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu frontend_high_score_table_menu =
- { GMnu_FEHIGH_SCORE_TABLE, 0, 1, frontend_high_score_score_buttons,   0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
+ { GMnu_FEHIGH_SCORE_TABLE, 0, 1, frontend_high_score_score_buttons,POS_SCRCTR,POS_SCRCTR, 640, 480, NULL, 0, NULL,NULL,                  0, 0, 0,};
 struct GuiMenu frontend_error_box = // Error box has no background defined - the buttons drawing adds it
  { GMnu_FEERROR_BOX,        0, 1, frontend_error_box_buttons,POS_GAMECTR,POS_GAMECTR, 450,  92, NULL,                        0, NULL,    NULL,                    0, 1, 0,};
 
@@ -2140,7 +2140,6 @@ long compute_menu_position_y(long desired_pos,int menu_height, int units_per_px)
     return pos;
 }
 
-#define MNU_UNITS_PER_PX min(units_per_pixel,units_per_pixel_min*16/10)
 MenuNumber create_menu(struct GuiMenu *gmnu)
 {
     MenuNumber mnu_num;
@@ -2177,18 +2176,26 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
         old_menu_mouse_x = GetMouseX();
         old_menu_mouse_y = GetMouseY();
     }
+    // Make scale factor
+    int units_per_px;
+    units_per_px = min(units_per_pixel,units_per_pixel_min*16/10);
+    // Decrease scale factor if for some reason resulting size would exceed screen (wierd aspec ratio support)
+    if (gmnu->width * units_per_px > LbScreenWidth() * 16)
+        units_per_px = LbScreenWidth() * 16 / gmnu->width;
+    if (gmnu->height * units_per_px > LbScreenHeight() * 16)
+        units_per_px = LbScreenHeight() * 16 / gmnu->height;
     // Setting position X
-    amnu->pos_x = compute_menu_position_x(gmnu->pos_x,gmnu->width,MNU_UNITS_PER_PX);
+    amnu->pos_x = compute_menu_position_x(gmnu->pos_x,gmnu->width,units_per_px);
     // Setting position Y
-    amnu->pos_y = compute_menu_position_y(gmnu->pos_y,gmnu->height,MNU_UNITS_PER_PX);
+    amnu->pos_y = compute_menu_position_y(gmnu->pos_y,gmnu->height,units_per_px);
 
     amnu->fade_time = gmnu->fade_time;
     if (amnu->fade_time < 1) {
         ERRORLOG("Fade time %d is less than 1.",(int)amnu->fade_time);
     }
     amnu->buttons = gmnu->buttons;
-    amnu->width = (gmnu->width * MNU_UNITS_PER_PX + 8) / 16;
-    amnu->height = (gmnu->height * MNU_UNITS_PER_PX + 8) / 16;
+    amnu->width = (gmnu->width * units_per_px + 8) / 16;
+    amnu->height = (gmnu->height * units_per_px + 8) / 16;
     amnu->draw_cb = gmnu->draw_cb;
     amnu->create_cb = gmnu->create_cb;
     amnu->is_monopoly_menu = gmnu->is_monopoly_menu;
@@ -2200,7 +2207,7 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
     btninit = gmnu->buttons;
     for (i=0; btninit[i].field_0 != -1; i++)
     {
-        if (create_button(amnu, &btninit[i], MNU_UNITS_PER_PX) == -1)
+        if (create_button(amnu, &btninit[i], units_per_px) == -1)
         {
           ERRORLOG("Cannot Allocate button");
           return -1;
@@ -2213,7 +2220,6 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
         (int)mnu_num,(int)amnu->pos_x,(int)amnu->pos_y,(int)amnu->width,(int)amnu->height);
     return mnu_num;
 }
-#undef MNU_UNITS_PER_PX
 
 unsigned long toggle_status_menu(short visible)
 {
@@ -3173,6 +3179,7 @@ short frontend_draw(void)
     case FeSt_FEOPTIONS:
     case FeSt_LEVEL_SELECT:
     case FeSt_CAMPAIGN_SELECT:
+        frontend_copy_background();
         draw_gui();
         break;
     case FeSt_LAND_VIEW:
