@@ -93,13 +93,12 @@ extern "C" {
 
     enum numfield_D {
         numfield_D_01 = 0x01,
-        numfield_D_Unused = 0x02,
+
         numfield_D_04 = 0x04,
         numfield_D_08 = 0x08,
         numfield_D_10 = 0x10,
         numfield_D_20 = 0x20,
         numfield_D_40 = 0x40,
-        numfield_D_80 = 0x80,
     };
     /******************************************************************************/
 #pragma pack(1)

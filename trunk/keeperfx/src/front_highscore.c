@@ -52,7 +52,7 @@ void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int 
     i += col3_width;
     LbTextNumberDraw(i, pos_y, units_per_px, hscore->lvnum, Fnt_RightJustify);
     i += col4_width;
-    if (idx == high_score_entry_input_active)
+    if (idx == active_high_score_entry_idx)
     {
         memcpy(str,high_score_entry,sizeof(str));
         str[sizeof(str)-1] = '\0';
@@ -153,8 +153,8 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
         draw_high_score_entry(k, pos_x, pos_y, col1_width, col2_width, col3_width, col4_width, tx_units_per_px);
         pos_y += LbTextLineHeight() * tx_units_per_px / 16;
     }
-    if (high_score_entry_input_active > k)
-      draw_high_score_entry(high_score_entry_input_active, pos_x, pos_y, col1_width, col2_width, col3_width, col4_width, tx_units_per_px);
+    if (active_high_score_entry_idx > k)
+      draw_high_score_entry(active_high_score_entry_idx, pos_x, pos_y, col1_width, col2_width, col3_width, col4_width, tx_units_per_px);
     else
       draw_high_score_entry(k, pos_x, pos_y, col1_width, col2_width, col3_width, col4_width, tx_units_per_px);
 }
@@ -193,8 +193,17 @@ TbBool frontend_high_score_table_input(void)
     struct HighScore *hscore;
     char chr;
     long i;
-    if ((high_score_entry_input_active < 0) || (high_score_entry_input_active >= campaign.hiscore_count))
-      return false;
+    if ((active_high_score_entry_idx < 0) || (active_high_score_entry_idx >= campaign.hiscore_count))
+    {
+        if (lbInkey == KC_ESCAPE || right_button_clicked)
+        {
+            clear_key_pressed(KC_ESCAPE);
+            right_button_clicked = 0; 
+            frontend_quit_high_score_table(NULL/*do not care*/);
+            return true;
+        }
+        return false;
+    }
 
     // Also means index of '\0'
     int charCount = 0;
@@ -265,10 +274,10 @@ TbBool frontend_high_score_table_input(void)
         }
         lbInkey = KC_UNASSIGNED;
     }
-    if ((lbInkey == KC_RETURN) || (lbInkey == KC_NUMPADENTER) || (lbInkey == KC_ESCAPE))
+    if ((lbInkey == KC_RETURN) || (lbInkey == KC_NUMPADENTER) || (lbInkey == KC_ESCAPE) || right_button_clicked)
     {
-        hscore = &campaign.hiscore_table[high_score_entry_input_active];
-        if (lbInkey == KC_ESCAPE)
+        hscore = &campaign.hiscore_table[active_high_score_entry_idx];
+        if (lbInkey == KC_ESCAPE || right_button_clicked)
         {
             strncpy(hscore->name, get_string(GUIStr_TeamLeader), HISCORE_NAME_LENGTH);
         }
@@ -276,9 +285,10 @@ TbBool frontend_high_score_table_input(void)
         {
             strncpy(hscore->name, high_score_entry, HISCORE_NAME_LENGTH);
         }
-        high_score_entry_input_active = -1;
+        active_high_score_entry_idx = -1;
         save_high_score_table();
-        lbInkey = KC_UNASSIGNED;
+        clear_key_pressed(KC_ESCAPE);
+        right_button_clicked = 0;
         return true;
     }
     if (high_score_entry_index < HISCORE_NAME_LENGTH)
@@ -310,7 +320,7 @@ TbBool frontend_high_score_table_input(void)
 
 void frontend_maintain_high_score_ok_button(struct GuiButton *gbtn)
 {
-    if (high_score_entry_input_active == -1)
+    if (active_high_score_entry_idx == -1)
         gbtn->flags |= LbBtnFlag_Unknown08;
     else
         gbtn->flags &= ~LbBtnFlag_Unknown08;
@@ -328,11 +338,11 @@ void add_score_to_high_score_table(void)
     {
         // Preparing input in the new entry
         // Note that we're not clearing previous name - this way it may be easily kept unchanged
-        high_score_entry_input_active = idx;
+        active_high_score_entry_idx = idx;
         high_score_entry_index = strlen(high_score_entry);
     } else
     {
-        high_score_entry_input_active = -1;
+        active_high_score_entry_idx = -1;
         high_score_entry_index = 0;
     }
 }

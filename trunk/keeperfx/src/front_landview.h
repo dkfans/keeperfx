@@ -136,6 +136,9 @@ void frontmap_draw(void);
 TbBool frontmap_load(void);
 void frontmap_unload(void);
 long frontmap_update(void);
+
+TbBool _front_stat_input(void);
+
 void frontzoom_to_point(long a1, long a2, long a3);
 void compressed_window_draw(void);
 void frontnet_init_level_descriptions(void);
