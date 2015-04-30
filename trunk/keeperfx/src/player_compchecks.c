@@ -412,15 +412,17 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
     }
 
 	long power_price, lowest_price;
+	TbBool diggers_are_cheap;
 	power_price = compute_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
 	lowest_price = compute_lowest_digger_price(dungeon->owner);
+	diggers_are_cheap = power_price <= lowest_price;
 
 	//see if we can sacrifice imps to reduce price
 	if (gameadd.sacrifice_info.classic_imp_sacrifice)
 	{
 		SYNCDBG(18, "Imp creation power price: %d, lowest: %d", power_price, lowest_price);
 
-		if (power_price > lowest_price
+		if (!diggers_are_cheap
 			&& dungeon->total_money_owned > power_price //TODO: might need to multiply for safety factor
 			&& dungeon_has_room(dungeon, RoK_TEMPLE))
 		{
@@ -448,13 +450,18 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
     controlled_diggers = dungeon->num_active_diggers - count_player_diggers_not_counting_to_total(dungeon->owner);
 	//SYNCLOG("controlled diggers of %d = %d, params = %d %d", (int)dungeon->owner, controlled_diggers, check->param1, check->param2);
 	limit = check->param1;
-	if (digging_gems && limit < 50)
-		limit = 50;
+	if (digging_gems)
+	{
+		if (diggers_are_cheap)
+			limit = max(limit, 50);
+		else
+			limit = max(limit, 20);
+	}
     if (controlled_diggers >= limit) {
         return CTaskRet_Unk4;
     }
     long able;
-	if ((controlled_diggers == 0 || (controlled_diggers < 3 && (digging_gems || power_price == lowest_price))) && is_power_available(dungeon->owner, PwrK_MKDIGGER))
+	if ((controlled_diggers == 0 || (controlled_diggers < 3 && (digging_gems || diggers_are_cheap))) && is_power_available(dungeon->owner, PwrK_MKDIGGER))
 	{
 		//ignore payday and everything else, we need at least 3 imp to play the game
 		able = dungeon->total_money_owned >= compute_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
