@@ -835,7 +835,7 @@ void maintain_scroll_up(struct GuiButton *gbtn)
     struct TextScrollWindow * scrollwnd;
     //_DK_maintain_scroll_up(gbtn);
     scrollwnd = (struct TextScrollWindow *)gbtn->content;
-    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Enabled * (scrollwnd->start_y < 0)) & LbBtnFlag_Enabled;
+    set_flag_byte(&gbtn->flags, LbBtnFlag_Enabled, (scrollwnd->start_y < 0));
 }
 
 void maintain_scroll_down(struct GuiButton *gbtn)
@@ -843,13 +843,13 @@ void maintain_scroll_down(struct GuiButton *gbtn)
     struct TextScrollWindow * scrollwnd;
     //_DK_maintain_scroll_down(gbtn);
     scrollwnd = (struct TextScrollWindow *)gbtn->content;
-    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Enabled
-        * (scrollwnd->window_height - scrollwnd->text_height + 2 < scrollwnd->start_y)) & LbBtnFlag_Enabled;
+
+    set_flag_byte(&gbtn->flags, LbBtnFlag_Enabled, ((scrollwnd->window_height - scrollwnd->text_height + 2) < scrollwnd->start_y));
 }
 
 void frontend_continue_game_maintain(struct GuiButton *gbtn)
 {
-    if (continue_game_option_available != 0)
+    if (continue_game_option_available)
         gbtn->flags |= LbBtnFlag_Enabled;
     else
         gbtn->flags &= ~LbBtnFlag_Enabled;
@@ -1156,7 +1156,7 @@ void draw_slider64k(long scr_x, long scr_y, int units_per_px, long width)
 
 void gui_area_slider(struct GuiButton *gbtn)
 {
-    if ((gbtn->flags & LbBtnFlag_Enabled) == 0) {
+    if (!(gbtn->flags & LbBtnFlag_Enabled)) {
         return;
     }
     int units_per_px;
@@ -1257,7 +1257,7 @@ void frontend_draw_icon(struct GuiButton *gbtn)
 void frontend_draw_slider(struct GuiButton *gbtn)
 {
     //_DK_frontend_draw_slider(gbtn);
-    if ((gbtn->flags & LbBtnFlag_Enabled) == 0) {
+    if (!(gbtn->flags & LbBtnFlag_Enabled)) {
         return;
     }
     int fs_units_per_px;
@@ -1289,7 +1289,7 @@ void frontend_draw_slider(struct GuiButton *gbtn)
 void frontend_draw_small_slider(struct GuiButton *gbtn)
 {
     //_DK_frontend_draw_small_slider(gbtn);
-    if ((gbtn->flags & LbBtnFlag_Enabled) == 0) {
+    if (!(gbtn->flags & LbBtnFlag_Enabled)) {
         return;
     }
     int fs_units_per_px;
@@ -1318,7 +1318,7 @@ void frontend_draw_small_slider(struct GuiButton *gbtn)
 
 void gui_area_text(struct GuiButton *gbtn)
 {
-    if ((gbtn->flags & LbBtnFlag_Enabled) == 0) {
+    if (!(gbtn->flags & LbBtnFlag_Enabled)) {
         return;
     }
     int bs_units_per_px;
@@ -1403,7 +1403,7 @@ void frontend_draw_text(struct GuiButton *gbtn)
 {
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
     int font_idx;
-    if ((gbtn->flags & LbBtnFlag_Enabled) == 0)
+    if (!(gbtn->flags & LbBtnFlag_Enabled))
         font_idx = 3;
     else
         font_idx = frontend_button_caption_font(gbtn, frontend_mouse_over_button);
@@ -1427,7 +1427,7 @@ void frontend_draw_enter_text(struct GuiButton *gbtn)
     if (gbtn == input_button) {
         font_idx = 2;
     } else
-    if ((gbtn->flags & LbBtnFlag_Enabled) == 0) {
+    if (!(gbtn->flags & LbBtnFlag_Enabled)) {
         font_idx = 3;
     } else
     if ((gbtn->content != NULL) && (gbtn->in_group_idx == frontend_mouse_over_button)) {
@@ -1591,7 +1591,7 @@ void gui_area_scroll_window(struct GuiButton *gbtn)
     struct TextScrollWindow *scrollwnd;
     char *text;
     //_DK_gui_area_scroll_window(gbtn); return;
-    if ((gbtn->flags & LbBtnFlag_Enabled) == 0) {
+    if (!(gbtn->flags & LbBtnFlag_Enabled)) {
         return;
     }
     scrollwnd = (struct TextScrollWindow *)gbtn->content;
@@ -1807,7 +1807,7 @@ void do_button_click_actions(struct GuiButton *gbtn, unsigned char *pClickFlag, 
         if (pClickFlag == &(gbtn->rightclick_flag))
             return;
     }
-    if ((gbtn->flags & LbBtnFlag_Enabled) != 0)
+    if ((gbtn->flags & LbBtnFlag_Enabled))
     {
         switch (gbtn->button_type)
         {
@@ -1847,7 +1847,7 @@ void do_button_press_actions(struct GuiButton *gbtn, unsigned char *pClickFlag, 
         if (pClickFlag == &(gbtn->rightclick_flag))
             return;
     }
-    if ((gbtn->flags & LbBtnFlag_Enabled) != 0)
+    if ((gbtn->flags & LbBtnFlag_Enabled))
     {
         switch (gbtn->button_type)
         {
@@ -1915,6 +1915,7 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *pClickFlag
       break;
   }
 
+  // Processing 'more info' button, hide current menu and show 'real' parent menu.
   if (pClickFlag == &gbtn->leftclick_flag)
   {
     gmnu = get_active_menu(gbtn->menu_idx);
@@ -2010,7 +2011,7 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonTemplate *gbinit, int un
         gbtn->menu_idx = gmnu->index;
         gbtn->button_type = gbinit->button_type;
         gbtn->tab_id = gbinit->tab_id;
-        gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_CloseCurrentMenu * (gbinit->close_menu & 0xff)) & LbBtnFlag_CloseCurrentMenu; 
+        set_flag_byte(&gbtn->flags, LbBtnFlag_CloseCurrentMenu, (gbinit->close_menu & 0xff));
         gbtn->callback_click = gbinit->callback_click;
         gbtn->callback_rightclick = gbinit->callback_rightclick;
         gbtn->callback_mousehover = gbinit->callback_mousehover;
@@ -2028,7 +2029,7 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonTemplate *gbinit, int un
         gbtn->flags &= ~LbBtnFlag_MouseOver;
         gbtn->leftclick_flag = 0;
         gbtn->flags |= LbBtnFlag_Visible;
-        gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Unknown20 * (gbinit->close_menu >> 8)) & LbBtnFlag_Unknown20;
+        set_flag_byte(&gbtn->flags, LbBtnFlag_Unknown20, (gbinit->close_menu >> 8));// Useless code.
     }
 
     // Do the scaling.

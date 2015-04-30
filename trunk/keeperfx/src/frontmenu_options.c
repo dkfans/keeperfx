@@ -82,19 +82,19 @@ const long definable_key_string[] = {
 /******************************************************************************/
 void frontend_define_key_up_maintain(struct GuiButton *gbtn)
 {
-    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Enabled * (define_key_scroll_offset != 0)) & LbBtnFlag_Enabled;
+    set_flag_byte(&gbtn->flags, LbBtnFlag_Enabled, (define_key_scroll_offset != 0));
 }
 
 void frontend_define_key_down_maintain(struct GuiButton *gbtn)
 {
-    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Enabled * (define_key_scroll_offset < GAME_KEYS_COUNT-1)) & LbBtnFlag_Enabled;
+    set_flag_byte(&gbtn->flags, LbBtnFlag_Enabled, (define_key_scroll_offset < GAME_KEYS_COUNT-1));
 }
 
 void frontend_define_key_maintain(struct GuiButton *gbtn)
 {
     long key_id;
     key_id = define_key_scroll_offset - ((long)gbtn->content) - 1;
-    gbtn->flags ^= (gbtn->flags ^ LbBtnFlag_Enabled * (key_id < GAME_KEYS_COUNT)) & LbBtnFlag_Enabled;
+    set_flag_byte(&gbtn->flags, LbBtnFlag_Enabled, (key_id < GAME_KEYS_COUNT));
 }
 
 void frontend_define_key_up(struct GuiButton *gbtn)

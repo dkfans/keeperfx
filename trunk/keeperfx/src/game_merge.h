@@ -70,6 +70,7 @@ enum ClassicBugFlags {
 
 struct PlayerInfo;
 
+// Scroll bar with text.
 struct TextScrollWindow {
     char text[MESSAGE_TEXT_LEN];
     long start_y;

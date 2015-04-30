@@ -1721,7 +1721,7 @@ void get_creature_control_nonaction_inputs(void)
                 gbtn = &active_buttons[btn_idx];
 
                 if (!(gbtn->flags & LbBtnFlag_Created) ||
-                    !(gbtn->flags & LbBtnFlag_Visible) ||
+                    !(gbtn->flags & LbBtnFlag_Enabled) ||
                     !get_active_menu(gbtn->menu_idx)->isTurnedOn ||
                     (gbtn->parent_menu == NULL))
                 {
@@ -1738,6 +1738,7 @@ void get_creature_control_nonaction_inputs(void)
             // Found 'more info' button.
             if (moreInfoButton != NULL)
             {
+                moreInfoButton->leftclick_flag = 1;
                 // Trigger 'click' blinking.
                 do_button_click_actions(moreInfoButton, &moreInfoButton->leftclick_flag, moreInfoButton->callback_click);
 

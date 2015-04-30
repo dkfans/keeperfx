@@ -865,8 +865,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
                 }
                 player->flgfield_6 |= PlaF6_Unknown01;
             } else
-            if (((player->isQueryingInfo) && !thing_is_invalid(thing)) && (dungeon->things_in_hand[0] != player->thing_under_hand)
-                && can_thing_be_queried(thing, player->id_number))
+            if (((player->isQueryingInfo) && !thing_is_invalid(thing)) && (dungeon->things_in_hand[0] != player->thing_under_hand) && can_thing_be_queried(thing, player->id_number))
             {
                 set_pointer_graphic(MousePG_Query);
                 player->flgfield_6 |= PlaF6_Unknown01;
@@ -1042,7 +1041,7 @@ void redraw_display(void)
     }
     if (bonus_timer_enabled())
         draw_bonus_timer();
-    if ((game.status_flags & Status_Paused) && (!game.status_flags & Status_AllowInput))
+    if ((game.status_flags & Status_Paused) && !(game.status_flags & Status_AllowInput))
     {
           LbTextSetFont(winfont);
           text = get_string(GUIStr_PausedMsg);
