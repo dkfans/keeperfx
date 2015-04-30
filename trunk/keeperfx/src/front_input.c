@@ -105,7 +105,7 @@ int is_game_key_pressed(long key_id, long *val, TbBool ignore_mods)
   {
     *val = settings.kbkeys[key_id].code;
   }
-  if ((key_id == GameKey_RotateMod) || (key_id == GameKey_SpeedMod) || (key_id == GameKey_Unknown27) || (key_id == GameKey_QueryInfo))
+  if ((key_id == GameKey_RotateMod) || (key_id == GameKey_SpeedMod) || (key_id == GameKey_Possession) || (key_id == GameKey_QueryInfo))
   {
       i = settings.kbkeys[key_id].code;
       switch (i)
@@ -192,7 +192,7 @@ short get_screen_capture_inputs(void)
  */
 TbBool check_if_mouse_is_over_button(const struct GuiButton *gbtn)
 {
-    if ((gbtn->flags & LbBtnFlag_Enabled) == 0)
+    if (!(gbtn->flags & LbBtnFlag_Visible))
         return false;
     return check_if_pos_is_over_button(gbtn, GetMouseX(), GetMouseY());
 }
@@ -1705,6 +1705,56 @@ void get_creature_control_nonaction_inputs(void)
         {
             set_packet_control(pckt, PCtr_MoveDown);
         }
+        // Temporary allocate.
+        if (is_key_pressed(KC_SPACE, KMod_DONTCARE))
+        {
+            clear_key_pressed(KC_SPACE);
+
+            int btn_idx;
+            struct GuiButton *gbtn;
+            struct GuiMenu *activeMenu;
+            struct GuiButton *moreInfoButton = NULL;
+
+            // Trying to find 'more info' button
+            for (btn_idx = 0; btn_idx < ACTIVE_BUTTONS_COUNT; btn_idx++)
+            {
+                gbtn = &active_buttons[btn_idx];
+
+                if (!(gbtn->flags & LbBtnFlag_Created) ||
+                    !(gbtn->flags & LbBtnFlag_Visible) ||
+                    !get_active_menu(gbtn->menu_idx)->isTurnedOn ||
+                    (gbtn->parent_menu == NULL))
+                {
+                    continue;
+                }
+
+                if (gbtn->flags & LbBtnFlag_CloseCurrentMenu)
+                {
+                    moreInfoButton = gbtn;
+                    break;
+                }
+            }
+
+            // Found 'more info' button.
+            if (moreInfoButton != NULL)
+            {
+                // Trigger 'click' blinking.
+                do_button_click_actions(moreInfoButton, &moreInfoButton->leftclick_flag, moreInfoButton->callback_click);
+
+                activeMenu = get_active_menu(moreInfoButton->menu_idx);
+
+                // Create 'real' parent menu.
+                if (moreInfoButton->parent_menu != NULL)
+                {
+                    create_menu(gbtn->parent_menu);
+                }
+
+                do_sound_menu_click();
+
+                // Hide current active menu.
+                activeMenu->visibility = Visibility_Hidden;
+            }
+        }
     }
 }
 
@@ -1970,11 +2020,11 @@ void input(void)
     // Get pointer to player's packet.
     pckt = get_packet(my_player_number);
 
-    if (is_game_key_pressed(GameKey_Unknown27, 0, 0) != 0)
+    if (is_game_key_pressed(GameKey_Possession, 0, 0))
       pckt->status_flags |= PCAdV_PossessionSpell;
     else
       pckt->status_flags &= ~PCAdV_PossessionSpell;
-    if (is_game_key_pressed(GameKey_QueryInfo, 0, 0) != 0)
+    if (is_game_key_pressed(GameKey_QueryInfo, 0, 0))
       pckt->status_flags |= PCAdV_QueryInfo;
     else
       pckt->status_flags &= ~PCAdV_QueryInfo;
@@ -2039,7 +2089,7 @@ short get_gui_inputs(short gameplay_on)
         callback = gbtn->callback_maintain;
         if (callback != NULL)
             callback(gbtn);
-        if ((gbtn->field_1B & 0x4000u) != 0)
+        if ((gbtn->in_group_idx & 0x4000u) != 0)
             continue;
 
         // TODO GUI Introduce circular buttons instead of specific condition for pannel map
@@ -2096,7 +2146,7 @@ short get_gui_inputs(short gameplay_on)
     if (game_is_busy_doing_gui_string_input())
     {
         busy_doing_gui = 1;
-        if (get_button_area_input(input_button, input_button->index) != 0)
+        if (get_button_area_input(input_button, input_button->tab_id) != 0)
             result = 1;
     }
     if ((over_slider_button != -1) && (left_button_released))

@@ -251,7 +251,7 @@ void gui_video_gamma_correction(struct GuiButton *gbtn)
 
 void gui_set_sound_volume(struct GuiButton *gbtn)
 {
-    if (gbtn->index == 75)
+    if (gbtn->tab_id == 75)
     {
       if (settings.sound_volume != sound_level)
           do_sound_menu_click();
@@ -275,11 +275,11 @@ void gui_video_cluedo_maintain(struct GuiButton *gbtn)
     player = get_my_player();
     if (player->view_mode == 5)
     {
-        gbtn->field_1B |= 0x8000;
+        gbtn->in_group_idx |= 0x8000;
         gbtn->flags &= ~LbBtnFlag_Unknown08;
     } else
     {
-        gbtn->field_1B = 0;
+        gbtn->in_group_idx = 0;
         gbtn->flags |= LbBtnFlag_Unknown08;
     }
 }

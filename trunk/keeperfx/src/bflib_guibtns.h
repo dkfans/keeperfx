@@ -66,9 +66,9 @@ extern "C" {
         LbBtnFlag_Created = 0x01,  
         // Dismiss current menu on click.
         LbBtnFlag_CloseCurrentMenu = 0x02,  
-        // Enabled.
-        LbBtnFlag_Enabled = 0x04,  
-        // TODO what is this, also related with enable. maybe Enable-able?
+        // Visivle.
+        LbBtnFlag_Visible = 0x04,  
+        // Enabled or greyed out.
         LbBtnFlag_Unknown08 = 0x08,
         // Mouse over.
         LbBtnFlag_MouseOver = 0x10,  
@@ -137,7 +137,9 @@ extern "C" {
     // Initial Gui button(can be other controls) template.
     struct GuiButtonTemplate {
         char button_type;
-        short index; // originally was long.
+        
+        // When button is header of a tab, this is the id of the tab.
+        short tab_id;
         short field_3; // unused.
         short field_5; // Unknown.
 
@@ -148,7 +150,8 @@ extern "C" {
         // Mouse hover event callback.
         Gf_Btn_Callback callback_mousehover;
 
-        short field_13;
+        // When button is in a group, this is its position(column, row) in the group.
+        short in_group_idx;
 
         // Position before scaling.
         short scr_pos_x;
@@ -184,7 +187,9 @@ extern "C" {
         // Index of the menu this button is located.
         // not necessary equal to parent_menu(show more info button).
         char menu_idx;
-        short index;
+
+        // When button is header of a tab, this is the id of the tab.
+        short tab_id;
         unsigned char button_type;
 
         // Click event callback.
@@ -198,7 +203,8 @@ extern "C" {
         // Callback on button maintain.
         Gf_Btn_Callback callback_maintain;
 
-        unsigned short field_1B; // definitely a word, not two bytes
+        // When button is in a group, this is its position(column, row) in the group.
+        unsigned short in_group_idx; 
 
         // Position after scaling.
         short scr_pos_x;

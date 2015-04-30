@@ -189,7 +189,7 @@ void gui_go_to_person_in_battle(struct GuiButton *gbtn)
 void gui_setup_friend_over(struct GuiButton *gbtn)
 {
     int visbtl_id;
-    visbtl_id = gbtn->field_1B;
+    visbtl_id = gbtn->in_group_idx;
     if (battle_creature_over == 0)
     {
         struct Dungeon *dungeon;
@@ -259,7 +259,7 @@ void gui_area_friendly_battlers(struct GuiButton *gbtn)
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(my_player_number);
     BattleIndex battle_id;
-    battle_id = dungeon->visible_battles[gbtn->field_1B];
+    battle_id = dungeon->visible_battles[gbtn->in_group_idx];
     struct CreatureBattle *battle;
     battle = creature_battle_get(battle_id);
     if (creature_battle_invalid(battle)) {
@@ -281,7 +281,7 @@ void gui_area_friendly_battlers(struct GuiButton *gbtn)
     for (n=0; n < 7; n++)
     {
         struct Thing *thing;
-        i = friendly_battler_list[n + MESSAGE_BATTLERS_COUNT*gbtn->field_1B];
+        i = friendly_battler_list[n + MESSAGE_BATTLERS_COUNT*gbtn->in_group_idx];
         thing = thing_get(i);
         if (thing_is_creature(thing))
         {
@@ -306,7 +306,7 @@ void gui_area_friendly_battlers(struct GuiButton *gbtn)
 void gui_setup_enemy_over(struct GuiButton *gbtn)
 {
     int visbtl_id;
-    visbtl_id = gbtn->field_1B;
+    visbtl_id = gbtn->in_group_idx;
     if (battle_creature_over == 0)
     {
         struct Dungeon *dungeon;
@@ -333,7 +333,7 @@ void gui_area_enemy_battlers(struct GuiButton *gbtn)
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(my_player_number);
     BattleIndex battle_id;
-    battle_id = dungeon->visible_battles[gbtn->field_1B];
+    battle_id = dungeon->visible_battles[gbtn->in_group_idx];
     struct CreatureBattle *battle;
     battle = creature_battle_get(battle_id);
     if (creature_battle_invalid(battle)) {
@@ -355,7 +355,7 @@ void gui_area_enemy_battlers(struct GuiButton *gbtn)
     for (n=0; n < 7; n++)
     {
         struct Thing *thing;
-        i = enemy_battler_list[n + MESSAGE_BATTLERS_COUNT*gbtn->field_1B];
+        i = enemy_battler_list[n + MESSAGE_BATTLERS_COUNT*gbtn->in_group_idx];
         thing = thing_get(i);
         if (thing_is_creature(thing))
         {
