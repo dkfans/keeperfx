@@ -4830,7 +4830,7 @@ void draw_single_keepersprite_xflip(long kspos_x, long kspos_y, struct KeeperSpr
     long src_dy,src_dx;
     SYNCDBG(18,"Starting");
     src_dy = (long)kspr->SHeight;
-    src_dx = (long)kspr->FrameWidth;
+    src_dx = (long)kspr->SWidth;
     x = (long)kspr->FrameWidth - (long)kspr->FrameOffsW - src_dx;
     y = kspr->FrameOffsH;
     if ( EngineSpriteDrawUsingAlpha )
