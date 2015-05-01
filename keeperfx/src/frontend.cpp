@@ -2936,6 +2936,7 @@ void frontend_input(void)
         define_key_input(&input_consumed);
         break;
     case FeSt_LEVEL_STATS:
+        get_gui_inputs(0);
         input_consumed = _front_stat_input();
         break;
 #if (BFDEBUG_LEVEL > 0)
