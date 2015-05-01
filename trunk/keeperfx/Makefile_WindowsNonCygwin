@@ -482,7 +482,9 @@ INCS =  -I"directx\include" -I"sdl\include"
 CXXINCS =  -I"directx\include" -I"sdl\include"
 
 # flags to generate dependency files
-DEPFLAGS = -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" 
+DEPFLAGS = -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
+# other flags to include while compiling
+INCFLAGS =
 # code optimization and debugging flags
 DEBUG ?= 0
 ifeq ($(DEBUG), 1)
