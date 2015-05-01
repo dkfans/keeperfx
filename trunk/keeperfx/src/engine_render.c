@@ -1938,9 +1938,73 @@ void do_a_trig_gourad_bl(struct EngineCoord *ep1, struct EngineCoord *ep2, struc
     _DK_do_a_trig_gourad_bl(ep1, ep2, ep3, a4, a5);
 }
 
-long find_closest_lights(struct Coord3d *pos, struct NearestLights *nlgt)
+TbBool add_light_to_nearest_list(struct NearestLights *nlgt, long *nlgt_dist, const struct Light *lgt, long dist)
 {
-    return _DK_find_closest_lights(pos, nlgt);
+    int i;
+    for (i = settings.video_shadows-1; i > 0; i--)
+    {
+        nlgt_dist[i] = nlgt_dist[i-1];
+        nlgt->coord[i] = nlgt->coord[i-1];
+    }
+    nlgt_dist[0] = dist;
+    nlgt->coord[0] = lgt->mappos;
+    return true;
+}
+
+void find_closest_lights_on_list(struct NearestLights *nlgt, long *nlgt_dist, const struct Coord3d *pos, ThingIndex list_start_idx)
+{
+    long i;
+    unsigned long k;
+    if (settings.video_shadows < 1)
+        return;
+    i = list_start_idx;
+    k = 0;
+    while (i > 0)
+    {
+        struct Light *lgt;
+        lgt = &game.lish.lights[i];
+        i = lgt->field_26;
+        // Per-light code
+        if ((lgt->flags & 1) != 0)
+        {
+            long dist;
+            dist = get_2d_box_distance(pos, &lgt->mappos);
+            if ((dist < 2560) && (nlgt_dist[settings.video_shadows-1] > dist)
+                && (pos->x.val != lgt->mappos.x.val) && (pos->y.val != lgt->mappos.y.val))
+            {
+                add_light_to_nearest_list(nlgt, nlgt_dist, lgt, dist);
+            }
+        }
+        // Per-light code ends
+        k++;
+        if (k > LIGHTS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping lights list");
+            break;
+        }
+    }
+}
+
+long find_closest_lights(const struct Coord3d *pos, struct NearestLights *nlgt)
+{
+    //return _DK_find_closest_lights(pos, nlgt);
+    long count;
+    long nlgt_dist[SHADOW_SOURCES_MAX_COUNT];
+    long i;
+    for (i = 0; i < SHADOW_SOURCES_MAX_COUNT; i++) {
+        nlgt_dist[i] = LONG_MAX;
+    }
+    i = game.thing_lists[TngList_StaticLights].index;
+    find_closest_lights_on_list(nlgt, nlgt_dist, pos, i);
+    i = game.thing_lists[TngList_DynamLights].index;
+    find_closest_lights_on_list(nlgt, nlgt_dist, pos, i);
+    count = 0;
+    for (i = 0; i < SHADOW_SOURCES_MAX_COUNT; i++) {
+        if (nlgt_dist[i] == LONG_MAX)
+            break;
+        count++;
+    }
+    return count;
 }
 
 void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct Coord3d *pos)
