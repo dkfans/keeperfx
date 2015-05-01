@@ -4593,10 +4593,10 @@ void lock_keepersprite(unsigned short kspr_idx)
     int frame_num,frame_count;
     struct KeeperSprite *kspr_arr;
     kspr_arr = &creature_table[kspr_idx];
-    if (kspr_arr->rotable) {
-        frame_count = 5 * kspr_arr->frames;
+    if (kspr_arr->Rotable) {
+        frame_count = 5 * kspr_arr->FramesCount;
     } else {
-        frame_count = kspr_arr->frames;
+        frame_count = kspr_arr->FramesCount;
     }
     for (frame_num=0; frame_num < frame_count; frame_num++)
     {
@@ -4613,10 +4613,10 @@ void unlock_keepersprite(unsigned short kspr_idx)
     int frame_num,frame_count;
     struct KeeperSprite *kspr_arr;
     kspr_arr = &creature_table[kspr_idx];
-    if (kspr_arr->rotable) {
-        frame_count = 5 * kspr_arr->frames;
+    if (kspr_arr->Rotable) {
+        frame_count = 5 * kspr_arr->FramesCount;
     } else {
-        frame_count = kspr_arr->frames;
+        frame_count = kspr_arr->FramesCount;
     }
     for (frame_num=0; frame_num < frame_count; frame_num++)
     {
@@ -4633,7 +4633,7 @@ long load_single_frame(unsigned short kspr_idx)
     long nlength;
     struct HeapMgrHandle *nitem;
     int i;
-    nlength = creature_table[kspr_idx+1].foffset - creature_table[kspr_idx].foffset;
+    nlength = creature_table[kspr_idx+1].DataOffset - creature_table[kspr_idx].DataOffset;
     for (i=0; i < 100; i++)
     {
         nitem = heapmgr_add_item(graphics_heap, nlength);
@@ -4661,7 +4661,7 @@ long load_single_frame(unsigned short kspr_idx)
         ERRORLOG("Unable to make room for new item on heap");
         return 0;
     }
-    if (!read_heap_item(nitem, creature_table[kspr_idx].foffset, nlength))
+    if (!read_heap_item(nitem, creature_table[kspr_idx].DataOffset, nlength))
     {
         ERRORLOG("Load Fail On KeepSprite %d",(int)kspr_idx);
         return 0;
@@ -4677,10 +4677,10 @@ long load_keepersprite_if_needed(unsigned short kspr_idx)
     int frame_num,frame_count;
     struct KeeperSprite *kspr_arr;
     kspr_arr = &creature_table[kspr_idx];
-    if (kspr_arr->rotable) {
-        frame_count = 5 * kspr_arr->frames;
+    if (kspr_arr->Rotable) {
+        frame_count = 5 * kspr_arr->FramesCount;
     } else {
-        frame_count = kspr_arr->frames;
+        frame_count = kspr_arr->FramesCount;
     }
     for (frame_num=0; frame_num < frame_count; frame_num++)
     {
@@ -4756,10 +4756,10 @@ void draw_single_keepersprite_omni_xflip(long kspos_x, long kspos_y, struct Keep
 {
     long x,y;
     long src_dy,src_dx;
-    src_dy = (long)kspr->field_7;
-    src_dx = (long)kspr->field_6;
-    x = src_dx - (long)kspr->field_A - (long)kspr->field_4;
-    y = kspr->field_B;
+    src_dy = (long)kspr->FrameHeight;
+    src_dx = (long)kspr->FrameWidth;
+    x = src_dx - (long)kspr->FrameOffsW - (long)kspr->SWidth;
+    y = kspr->FrameOffsH;
     if ( EngineSpriteDrawUsingAlpha )
     {
         sp_x = kspos_x;
@@ -4785,17 +4785,17 @@ void draw_single_keepersprite_omni_xflip(long kspos_x, long kspos_y, struct Keep
           }
       }
     }
-    draw_keepersprite(x, y, kspr->field_4, kspr->field_5, kspr_idx);
+    draw_keepersprite(x, y, kspr->SWidth, kspr->SHeight, kspr_idx);
 }
 
 void draw_single_keepersprite_omni(long kspos_x, long kspos_y, struct KeeperSprite *kspr, long kspr_idx, long scale)
 {
     long x,y;
     long src_dy,src_dx;
-    src_dy = (long)kspr->field_7;
-    src_dx = (long)kspr->field_6;
-    x = kspr->field_A;
-    y = kspr->field_B;
+    src_dy = (long)kspr->FrameHeight;
+    src_dx = (long)kspr->FrameWidth;
+    x = kspr->FrameOffsW;
+    y = kspr->FrameOffsH;
     if ( EngineSpriteDrawUsingAlpha )
     {
         sp_x = kspos_x;
@@ -4821,7 +4821,7 @@ void draw_single_keepersprite_omni(long kspos_x, long kspos_y, struct KeeperSpri
           }
       }
     }
-    draw_keepersprite(x, y, kspr->field_4, kspr->field_5, kspr_idx);
+    draw_keepersprite(x, y, kspr->SWidth, kspr->SHeight, kspr_idx);
 }
 
 void draw_single_keepersprite_xflip(long kspos_x, long kspos_y, struct KeeperSprite *kspr, long kspr_idx, long scale)
@@ -4829,10 +4829,10 @@ void draw_single_keepersprite_xflip(long kspos_x, long kspos_y, struct KeeperSpr
     long x,y;
     long src_dy,src_dx;
     SYNCDBG(18,"Starting");
-    src_dy = (long)kspr->field_5;
-    src_dx = (long)kspr->field_4;
-    x = (long)kspr->field_6 - (long)kspr->field_A - src_dx;
-    y = kspr->field_B;
+    src_dy = (long)kspr->SHeight;
+    src_dx = (long)kspr->FrameWidth;
+    x = (long)kspr->FrameWidth - (long)kspr->FrameOffsW - src_dx;
+    y = kspr->FrameOffsH;
     if ( EngineSpriteDrawUsingAlpha )
     {
         sp_x = kspos_x + ((scale * x) >> 5);
@@ -4858,7 +4858,7 @@ void draw_single_keepersprite_xflip(long kspos_x, long kspos_y, struct KeeperSpr
           }
       }
     }
-    draw_keepersprite(0, 0, kspr->field_4, kspr->field_5, kspr_idx);
+    draw_keepersprite(0, 0, kspr->SWidth, kspr->SHeight, kspr_idx);
     SYNCDBG(18,"Finished");
 }
 
@@ -4867,10 +4867,10 @@ void draw_single_keepersprite(long kspos_x, long kspos_y, struct KeeperSprite *k
     long x,y;
     long src_dy,src_dx;
     SYNCDBG(18,"Starting");
-    src_dy = (long)kspr->field_5;
-    src_dx = (long)kspr->field_4;
-    x = kspr->field_A;
-    y = kspr->field_B;
+    src_dy = (long)kspr->SHeight;
+    src_dx = (long)kspr->SWidth;
+    x = kspr->FrameOffsW;
+    y = kspr->FrameOffsH;
     if ( EngineSpriteDrawUsingAlpha )
     {
         sp_x = kspos_x + ((scale * x) >> 5);
@@ -4896,7 +4896,7 @@ void draw_single_keepersprite(long kspos_x, long kspos_y, struct KeeperSprite *k
             }
         }
     }
-    draw_keepersprite(0, 0, kspr->field_4, kspr->field_5, kspr_idx);
+    draw_keepersprite(0, 0, kspr->SWidth, kspr->SHeight, kspr_idx);
     SYNCDBG(18,"Finished");
 }
 
@@ -4962,7 +4962,7 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
         }
     }
     scaled_y += water_y_offset;
-    if (creature_sprites->rotable == 0)
+    if (creature_sprites->Rotable == 0)
     {
         if (!heap_manage_keepersprite(kspr_idx))
         {
@@ -4978,14 +4978,14 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
             draw_single_keepersprite_omni(scaled_x, scaled_y, kspr, draw_idx, scale);
         }
     } else
-    if (creature_sprites->rotable == 2)
+    if (creature_sprites->Rotable == 2)
     {
         if (!heap_manage_keepersprite(kspr_idx))
         {
             return;
         }
-        kspr = &creature_sprites[sprite_group + sprite_delta * (long)creature_sprites->frames];
-        draw_idx = sprite_group + sprite_delta * (long)kspr->frames + kspr_idx;
+        kspr = &creature_sprites[sprite_group + sprite_delta * (long)creature_sprites->FramesCount];
+        draw_idx = sprite_group + sprite_delta * (long)kspr->FramesCount + kspr_idx;
         if ( needs_xflip )
         {
             draw_single_keepersprite_xflip(scaled_x, scaled_y, kspr, draw_idx, scale);
@@ -5353,7 +5353,7 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsi
     quarter = abs(4 - (i >> 8)); // i is restricted by "&" so (i>>8) is 0..7
     kspr_idx = keepersprite_index(kspr_n);
     kspr_arr = keepersprite_array(kspr_n);
-    if (kspr_arr->rotable == 0)
+    if (kspr_arr->Rotable == 0)
     {
         if (!heap_manage_keepersprite(kspr_idx))
         {
@@ -5361,42 +5361,42 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsi
         }
         keepsprite_id = a3 + kspr_idx;
         kspr = &kspr_arr[a3];
-        fill_w = kspr->field_6;
-        fill_h = kspr->field_7;
+        fill_w = kspr->FrameWidth;
+        fill_h = kspr->FrameHeight;
         if ( flip_range )
         {
             tmpbuf = outbuf;
-            skip_w = kspr->field_6 - kspr->field_A;
-            skip_h = kspr->field_B;
+            skip_w = kspr->FrameWidth - kspr->FrameOffsW;
+            skip_h = kspr->FrameOffsH;
             for (i = fill_h; i > 0; i--)
             {
                 LbMemorySet(tmpbuf, 0, fill_w);
                 tmpbuf += 256;
             }
-            sprite_to_sbuff_xflip(*keepsprite[keepsprite_id], &outbuf[256 * skip_h + skip_w], kspr->field_5, 256);
+            sprite_to_sbuff_xflip(*keepsprite[keepsprite_id], &outbuf[256 * skip_h + skip_w], kspr->SHeight, 256);
         } else
         {
             tmpbuf = outbuf;
-            skip_w = kspr->field_A;
-            skip_h = kspr->field_B;
+            skip_w = kspr->FrameOffsW;
+            skip_h = kspr->FrameOffsH;
             for (i = fill_h; i > 0; i--)
             {
                 LbMemorySet(tmpbuf, 0, fill_w);
                 tmpbuf += 256;
             }
-            sprite_to_sbuff(*keepsprite[keepsprite_id], &outbuf[256 * skip_h + skip_w], kspr->field_5, 256);
+            sprite_to_sbuff(*keepsprite[keepsprite_id], &outbuf[256 * skip_h + skip_w], kspr->SHeight, 256);
         }
     } else
-    if (kspr_arr->rotable == 2)
+    if (kspr_arr->Rotable == 2)
     {
         if (!heap_manage_keepersprite(kspr_idx))
         {
             return;
         }
-        kspr = &kspr_arr[a3 + quarter * kspr_arr->frames];
-        fill_w = kspr->field_4;
-        fill_h = kspr->field_5;
-        keepsprite_id = a3 + quarter * kspr->frames + kspr_idx;
+        kspr = &kspr_arr[a3 + quarter * kspr_arr->FramesCount];
+        fill_w = kspr->SWidth;
+        fill_h = kspr->SHeight;
+        keepsprite_id = a3 + quarter * kspr->FramesCount + kspr_idx;
         if ( flip_range )
         {
             tmpbuf = outbuf;
@@ -5405,7 +5405,7 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsi
                 LbMemorySet(tmpbuf, 0, fill_w);
                 tmpbuf += 256;
             }
-            sprite_to_sbuff_xflip(*keepsprite[keepsprite_id], &outbuf[kspr->field_4], kspr->field_5, 256);
+            sprite_to_sbuff_xflip(*keepsprite[keepsprite_id], &outbuf[kspr->SWidth], kspr->SHeight, 256);
         } else
         {
             tmpbuf = outbuf;
@@ -5414,7 +5414,7 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsi
                 LbMemorySet(tmpbuf, 0, fill_w);
                 tmpbuf += 256;
             }
-            sprite_to_sbuff(*keepsprite[keepsprite_id], &outbuf[0], kspr->field_5, 256);
+            sprite_to_sbuff(*keepsprite[keepsprite_id], &outbuf[0], kspr->SHeight, 256);
         }
     }
 }
