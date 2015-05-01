@@ -132,6 +132,14 @@ MapCoordDelta get_2d_distance(const struct Coord3d *pos1, const struct Coord3d *
     return LbDiagonalLength(abs(dist_x), abs(dist_y));
 }
 
+MapCoordDelta get_2d_distance_squared(const struct Coord3d *pos1, const struct Coord3d *pos2)
+{
+    long dist_x,dist_y;
+    dist_x = (long)pos1->x.val - (long)pos2->x.val;
+    dist_y = (long)pos1->y.val - (long)pos2->y.val;
+    return dist_x * dist_x + dist_y * dist_y;
+}
+
 void project_point_to_wall_on_angle(const struct Coord3d *pos1, struct Coord3d *pos2, long angle_xy, long angle_z, long distance, long num_steps)
 {
     long dx,dy,dz;
@@ -323,11 +331,11 @@ void view_set_camera_y_inertia(struct Camera *cam, long deltaDelta, long ilimit,
     abslimit = abs(ilimit);
     cam->verticalPosDelta += deltaDelta;
 
-    if (cam->verticalPosDelta < -abslimit) 
+    if (cam->verticalPosDelta < -abslimit)
     {
         cam->verticalPosDelta = -abslimit;
-    } 
-    else if (cam->verticalPosDelta > abslimit) 
+    }
+    else if (cam->verticalPosDelta > abslimit)
     {
         cam->verticalPosDelta = abslimit;
     }
@@ -340,11 +348,11 @@ void view_set_camera_x_inertia(struct Camera *cam, long deltaDelta, long ilimit,
     abslimit = abs(ilimit);
     cam->horizontalPosDelta += deltaDelta;
 
-    if (cam->horizontalPosDelta < -abslimit) 
+    if (cam->horizontalPosDelta < -abslimit)
     {
         cam->horizontalPosDelta = -abslimit;
-    } 
-    else if (cam->horizontalPosDelta > abslimit) 
+    }
+    else if (cam->horizontalPosDelta > abslimit)
     {
         cam->horizontalPosDelta = abslimit;
     }
@@ -365,7 +373,7 @@ void view_set_camera_rotation_inertia(struct Camera *cam, long deltaDelta, long 
     else if (cam->rotationDelta > limit_val)
     {
         cam->rotationDelta = limit_val;
-    } 
+    }
     cam->rotationInteriaOn = interiaOn;
 }
 
