@@ -272,8 +272,9 @@ struct BasicUnk14 { // sizeof = 24
     long field_14;
 };
 
+#define SHADOW_SOURCES_MAX_COUNT 4
 struct NearestLights {
-    struct Coord3d coord[8];//size is probably 4, keeping more only to be sure
+    struct Coord3d coord[SHADOW_SOURCES_MAX_COUNT];
 };
 
 
