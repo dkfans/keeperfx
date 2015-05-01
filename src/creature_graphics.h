@@ -67,16 +67,30 @@ struct CreaturePickedUpOffset // sizeof = 8
   short field_6;
 };
 
+/**
+ * Enhanced TbSprite structure, with additional fields for thing animation sprites.
+ */
 struct KeeperSprite { // sizeof = 16
-  unsigned long foffset;
-  unsigned char field_4;
-  unsigned char field_5;
-  unsigned char field_6;
-  unsigned char field_7;
-  unsigned char rotable;
-  unsigned char frames;
-  unsigned char field_A;
-  unsigned char field_B;
+  unsigned long DataOffset;
+#ifdef SPRITE_FORMAT_V2
+  unsigned short SWidth;
+  unsigned short SHeight;
+  unsigned short FrameWidth;
+  unsigned short FrameHeight;
+  unsigned char Rotable;
+  unsigned char FramesCount;
+  unsigned short FrameOffsW;
+  unsigned short FrameOffsH;
+#else
+  unsigned char SWidth;
+  unsigned char SHeight;
+  unsigned char FrameWidth;
+  unsigned char FrameHeight;
+  unsigned char Rotable;
+  unsigned char FramesCount;
+  unsigned char FrameOffsW;
+  unsigned char FrameOffsH;
+#endif
   short field_C;
   short field_E;
 };
