@@ -41,7 +41,9 @@ extern "C" {
 /** Pixel definition - represents value of one point on the graphics screen. */
 typedef unsigned char TbPixel;
 
-/** Standard video modes, registered by LbScreenInitialize(). */
+/** Standard video modes, registered by LbScreenInitialize().
+ * These are standard VESA modes, indexed this way in all Bullfrog games.
+ */
 enum ScreenMode {
     Lb_SCREEN_MODE_INVALID      = 0x00,
     Lb_SCREEN_MODE_320_200_8    = 0x01,

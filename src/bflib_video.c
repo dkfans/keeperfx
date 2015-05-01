@@ -330,6 +330,13 @@ TbResult LbScreenFindVideoModes(void)
   return Lb_FAIL;
 }
 
+/**
+ * Registers standard VESA video modes.
+ *
+ * The modes have to registered to an empty list of modes, to make index of each mode
+ * match the mode index in VESA standard.
+ * Non-standard modes may be register later, getting mode numbers higher than standard modes.
+ */
 static void LbRegisterStandardVideoModes(void)
 {
     lbScreenModeInfoNum = 0;

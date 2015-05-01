@@ -189,7 +189,7 @@ long level_lif_entry_parse(char *fname, char *buf)
 
 /** Analyzes given LIF file buffer.
  *
- * @param fname Name of the LIF file whixh we've loaded.
+ * @param fname Name of the LIF file which we've loaded.
  * @param buf The buffer; must be null-terminated.
  * @param buflen Length of the buffer.
  * @return
