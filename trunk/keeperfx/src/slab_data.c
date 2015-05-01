@@ -257,6 +257,32 @@ TbBool slab_kind_is_animated(SlabKind slbkind)
     return false;
 }
 
+TbBool slab_kind_can_drop_here_now(SlabKind slab)
+{
+	switch (slab)
+	{
+	case SlbT_CLAIMED:
+	case SlbT_ENTRANCE:
+	case SlbT_TREASURE:
+	case SlbT_LIBRARY:
+	case SlbT_PRISON:
+	case SlbT_TORTURE:
+	case SlbT_TRAINING:
+	case SlbT_DUNGHEART:
+	case SlbT_WORKSHOP:
+	case SlbT_SCAVENGER:
+	case SlbT_TEMPLE:
+	case SlbT_GRAVEYARD:
+	case SlbT_GARDEN:
+	case SlbT_LAIR:
+	case SlbT_BARRACKS:
+	case SlbT_BRIDGE:
+	case SlbT_GUARDPOST:
+		return 1;
+	}
+	return 0;
+}
+
 TbBool can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind,
     MapSlabCoord slb_x, MapSlabCoord slb_y)
 {

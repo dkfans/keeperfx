@@ -133,6 +133,11 @@ TbBool slab_is_safe_land(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord
 TbBool slab_is_door(MapSlabCoord slb_x, MapSlabCoord slb_y);
 TbBool slab_is_liquid(MapSlabCoord slb_x, MapSlabCoord slb_y);
 
+//note by Petter for new (as opposed to legacy compatible) coding:
+//prefer to write predicate functions for SlabKind rather than (MapSlabCoord x, MapSlabCoord y) pairs or SlabMap*
+//this way, we can most flexibility and reusable code
+TbBool slab_kind_can_drop_here_now(SlabKind slab);
+
 TbBool can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind,
     MapSlabCoord slb_x, MapSlabCoord slb_y);
 

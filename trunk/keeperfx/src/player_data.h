@@ -29,6 +29,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 #define PLAYERS_COUNT           5
+#define KEEPER_COUNT			4
 #define PLAYERS_EXT_COUNT       6
 /** This acts as default value for neutral_player_number */
 #define NEUTRAL_PLAYER          5

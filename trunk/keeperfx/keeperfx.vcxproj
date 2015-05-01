@@ -192,6 +192,8 @@
     <ClCompile Include="src\player_computer_data.cpp" />
     <ClCompile Include="src\player_data.c" />
     <ClCompile Include="src\player_instances.c" />
+    <ClCompile Include="src\player_newcompchecks.c" />
+    <ClCompile Include="src\player_newcompeval.c" />
     <ClCompile Include="src\player_states.c" />
     <ClCompile Include="src\player_utils.c" />
     <ClCompile Include="src\power_hand.c" />
@@ -399,6 +401,7 @@
     <ClInclude Include="src\player_computer.h" />
     <ClInclude Include="src\player_data.h" />
     <ClInclude Include="src\player_instances.h" />
+    <ClInclude Include="src\player_newcomp.h" />
     <ClInclude Include="src\player_states.h" />
     <ClInclude Include="src\player_utils.h" />
     <ClInclude Include="src\power_hand.h" />

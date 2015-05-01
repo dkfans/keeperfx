@@ -2581,6 +2581,83 @@ long do_to_things_spiral_near_map_block(MapCoord x, MapCoord y, long spiral_len,
 }
 
 /**
+* Executes callback for all things on on a tile (corresponds to slab/3x3 sub tiles).
+* @return Gives amount of things for which callback returned true.
+*/
+long do_to_things_with_param_on_tile(MapCoord x, MapCoord y, Thing_Modifier_Func do_cb, ModTngFilterParam param)
+{
+	struct Map* mapblk;
+	MapSubtlCoord stl_x, stl_y;
+	long count, i;
+	SYNCDBG(19,"Starting");
+
+	count = 0;
+	stl_x = x * STL_PER_SLB;
+	stl_y = y * STL_PER_SLB;
+
+	//hand unrolled because realistically we will never change sub tile count
+
+	mapblk = get_map_block_at(stl_x, stl_y);
+	if (!map_block_invalid(mapblk))
+	{
+		i = get_mapwho_thing_index(mapblk);
+		count += do_to_things_with_param_on_map_block(i, do_cb, param);
+	}
+	mapblk = get_map_block_at(stl_x + 1, stl_y);
+	if (!map_block_invalid(mapblk))
+	{
+		i = get_mapwho_thing_index(mapblk);
+		count += do_to_things_with_param_on_map_block(i, do_cb, param);
+	}
+	mapblk = get_map_block_at(stl_x + 2, stl_y);
+	if (!map_block_invalid(mapblk))
+	{
+		i = get_mapwho_thing_index(mapblk);
+		count += do_to_things_with_param_on_map_block(i, do_cb, param);
+	}
+
+	mapblk = get_map_block_at(stl_x, stl_y + 1);
+	if (!map_block_invalid(mapblk))
+	{
+		i = get_mapwho_thing_index(mapblk);
+		count += do_to_things_with_param_on_map_block(i, do_cb, param);
+	}
+	mapblk = get_map_block_at(stl_x + 1, stl_y + 1);
+	if (!map_block_invalid(mapblk))
+	{
+		i = get_mapwho_thing_index(mapblk);
+		count += do_to_things_with_param_on_map_block(i, do_cb, param);
+	}
+	mapblk = get_map_block_at(stl_x + 2, stl_y + 1);
+	if (!map_block_invalid(mapblk))
+	{
+		i = get_mapwho_thing_index(mapblk);
+		count += do_to_things_with_param_on_map_block(i, do_cb, param);
+	}
+
+	mapblk = get_map_block_at(stl_x, stl_y + 2);
+	if (!map_block_invalid(mapblk))
+	{
+		i = get_mapwho_thing_index(mapblk);
+		count += do_to_things_with_param_on_map_block(i, do_cb, param);
+	}
+	mapblk = get_map_block_at(stl_x + 1, stl_y + 2);
+	if (!map_block_invalid(mapblk))
+	{
+		i = get_mapwho_thing_index(mapblk);
+		count += do_to_things_with_param_on_map_block(i, do_cb, param);
+	}
+	mapblk = get_map_block_at(stl_x + 2, stl_y + 2);
+	if (!map_block_invalid(mapblk))
+	{
+		i = get_mapwho_thing_index(mapblk);
+		count += do_to_things_with_param_on_map_block(i, do_cb, param);
+	}
+
+	return count;
+}
+
+/**
  * Executes callback for all things on slab around given position.
  * @return Gives amount of things for which callback returned true.
  */
