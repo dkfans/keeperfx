@@ -1550,16 +1550,16 @@ void gui_area_experience_button(struct GuiButton *gbtn)
     }
 }
 
+// Callback function of drawing creature skill button.
 void gui_area_instance_button(struct GuiButton *gbtn)
 {
-    struct PlayerInfo *player;
-    player = get_my_player();
-    int units_per_px;
-    units_per_px = (gbtn->width * 16 + 60/2) / 60;
-    int ps_units_per_px;
-    ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, 463, 100);
-    struct Thing *ctrltng;
-    ctrltng = thing_get(player->controlled_thing_idx);
+    // Calculating button size.
+    struct PlayerInfo *player = get_my_player();
+    int units_per_px = (gbtn->width * 16 + 60/2) / 60;
+    int ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, 463, 100);
+
+    // Checking creature in control.
+    struct Thing *ctrltng = thing_get(player->controlled_thing_idx);
     TRACE_THING(ctrltng);
     if (!thing_is_creature(ctrltng))
     {
@@ -1567,27 +1567,20 @@ void gui_area_instance_button(struct GuiButton *gbtn)
         gui_area_progress_bar_short(gbtn, units_per_px, 0, 32);
         return;
     }
-    int curbtn_avail_pos;
-    curbtn_avail_pos = (long)gbtn->content;
-    if (!first_person_instance_top_half_selected)
-        curbtn_avail_pos += 4;
-    int curbtn_inst_id;
-    curbtn_inst_id = creature_instance_get_available_id_for_pos(ctrltng, curbtn_avail_pos);
+
+    // Picking current active spell(skill).
+    int curbtn_avail_pos = first_person_instance_top_half_selected ? (long)gbtn->content : ((long)gbtn->content+4);
+    int curbtn_inst_id = creature_instance_get_available_id_for_pos(ctrltng, curbtn_avail_pos);
     if (!creature_instance_is_available(ctrltng, curbtn_inst_id))
     {
-        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 463);
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, SpriteIdx_ButtonUp);
         gui_area_progress_bar_short(gbtn, units_per_px, 0, 32);
         return;
     }
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(ctrltng);
-    int spr_idx;
-    if (cctrl->field_1E8 == curbtn_inst_id) {
-      spr_idx = 462;
-    } else {
-      spr_idx = 463;
-    }
+    struct CreatureControl *cctrl = creature_control_get_from_thing(ctrltng);
+    int spr_idx = (cctrl->active_instance == curbtn_inst_id) ? SpriteIdx_ButtonDown : SpriteIdx_ButtonUp;
     draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx);
+
     struct InstanceInfo *inst_inf;
     inst_inf = creature_instance_info_get(curbtn_inst_id);
     if (cctrl->instance_id == curbtn_inst_id)
@@ -1608,12 +1601,15 @@ void gui_area_instance_button(struct GuiButton *gbtn)
     {
         gui_area_progress_bar_short(gbtn, units_per_px, 32, 32);
     }
+
+    // Calculating text size.
     int tx_units_per_px;
     tx_units_per_px = (gbtn->height*11/12) * 16 / LbTextLineHeight();
     const char * text;
     text = buf_sprintf("%d", (curbtn_avail_pos + 1) % 10);
     LbTextDrawResized(gbtn->scr_pos_x + 52*units_per_px/16, gbtn->scr_pos_y + 9*units_per_px/16, tx_units_per_px, text);
     spr_idx = gbtn->sprite_idx;
+
     long spkind;
     spkind = inst_inf->func_params[0];
     if (!creature_instance_has_reset(ctrltng, curbtn_inst_id) || ((spkind != 0) && thing_affected_by_spell(ctrltng, spkind)))
@@ -1621,6 +1617,7 @@ void gui_area_instance_button(struct GuiButton *gbtn)
     draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 8*units_per_px/16, ps_units_per_px, spr_idx);
 }
 
+// Callback function of maintaining creature skill button.
 void maintain_instance(struct GuiButton *gbtn)
 {
     struct PlayerInfo *player;
@@ -1638,20 +1635,19 @@ void maintain_instance(struct GuiButton *gbtn)
     cctrl = creature_control_get_from_thing(ctrltng);
     // Switch to correct menu page based on selected instance position
     int chosen_avail_pos;
-    chosen_avail_pos = creature_instance_get_available_pos_for_id(ctrltng, cctrl->field_1E8);
+    chosen_avail_pos = creature_instance_get_available_pos_for_id(ctrltng, cctrl->active_instance);
     int curbtn_avail_pos;
     if ((chosen_avail_pos < 6) && (first_person_instance_top_half_selected || chosen_avail_pos < 4))
     {
-        first_person_instance_top_half_selected = 1;
+        first_person_instance_top_half_selected = true;
         curbtn_avail_pos = (long)gbtn->content;
     } else
     {
-        first_person_instance_top_half_selected = 0;
+        first_person_instance_top_half_selected = false;
         curbtn_avail_pos = ((long)gbtn->content) + 4;
     }
     // Now handle instance for this button
-    int curbtn_inst_id;
-    curbtn_inst_id = creature_instance_get_available_id_for_pos(ctrltng, curbtn_avail_pos);
+    int curbtn_inst_id = creature_instance_get_available_id_for_pos(ctrltng, curbtn_avail_pos);
     int i;
     i = instance_button_init[curbtn_inst_id].numfield_0;
     if ( i )

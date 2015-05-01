@@ -443,12 +443,14 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, long *n)
 {
     struct Thing *thing;
     thing = thing_get(player->influenced_thing_idx);
+
     if (!thing_is_invalid(thing))
     {
         if (!control_creature_as_controller(player, thing)) {
             thing = INVALID_THING;
         }
     }
+
     if (thing_is_invalid(thing))
     {
         set_camera_zoom(player->acamera, player->dungeon_camera_zoom);
@@ -459,6 +461,7 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, long *n)
         player->allocflags &= ~PlaF_Unknown80;
         return 0;
     }
+
     set_player_instance(player, PI_CrCtrlFade, false);
     if (thing->class_id == TCls_Creature)
     {
@@ -471,6 +474,7 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, long *n)
         }
         creature_choose_first_available_instance(thing);
     }
+
     if (is_my_player(player))
       turn_on_menu(GMnu_CREATURE_QUERY1);
     return 0;

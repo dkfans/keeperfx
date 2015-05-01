@@ -67,7 +67,7 @@ enum TbPacketAction {
         PckA_SetPlyrState,
         PckA_SwitchView,
         PckA_Unknown038,
-        PckA_CtrlCrtrSetInstnc,
+        PckA_PossessionSelectSpell,
         PckA_Unknown040,//40
         PckA_HoldAudience,
         PckA_Unknown042,
@@ -108,7 +108,7 @@ enum TbPacketAction {
         PckA_Unknown077,
         PckA_Unknown078,
         PckA_Unknown079,
-        PckA_Unknown080,//80
+        PckA_SetViewType,//80
         PckA_ZoomFromMap,
         PckA_UpdatePause,
         PckA_Unknown083,
@@ -147,8 +147,8 @@ enum TbPacketAction {
         PckA_EventBoxClose,
         PckA_UsePwrOnThing,
         PckA_PlyrToggleAlly,
-        PckA_Unknown119,
-        PckA_Unknown120,//120
+        PckA_SaveViewType,
+        PckA_LoadViewType,//120
         PckA_PlyrMsgChar,
         // Separating all four directions because packet parameter is unsigned short with limited range, 
         // So we separate the flag to ignore plus minus sign to get higher upper bound.

@@ -371,20 +371,20 @@ void check_and_auto_fix_stats(void)
         }
         for (i=0; i < 10; i++)
         {
-            n = crstat->instance_level[i];
+            n = crstat->instance_required_level[i];
             if (n != 0)
             {
                 if ( (n < 1) || (n > 10) )
                 {
                     ERRORLOG("Creature model %d Instance Level For Slot %d Invalid - Fixing", (int)model, (int)(i+1));
-                    crstat->instance_level[i] = 1;
+                    crstat->instance_required_level[i] = 1;
                 }
             } else
             {
                 if ( (n >= 1) && (n <= 10) )
                 {
                     ERRORLOG("Creature model %d Instance Level For Not Used Spell %d - Fixing", (int)model, (int)(i+1));
-                    crstat->instance_level[i] = 0;
+                    crstat->instance_required_level[i] = 0;
                 }
             }
         }

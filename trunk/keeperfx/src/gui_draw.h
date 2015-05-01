@@ -38,6 +38,10 @@
 #define POS_SCRBTM  -996
 #define POS_GAMECTR  999
 
+enum SpriteIdx{
+    SpriteIdx_ButtonDown = 462,
+    SpriteIdx_ButtonUp = 463,
+};
 #ifdef __cplusplus
 extern "C" {
 #endif

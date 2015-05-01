@@ -173,7 +173,7 @@ long gf_change_player_instance(struct GuiBox *gbox, struct GuiBoxOption *goptn, 
 {
   struct PlayerInfo *player;
   player=get_my_player();
-  set_players_packet_action(player, PckA_CtrlCrtrSetInstnc, *tag, 0);
+  set_players_packet_action(player, PckA_PossessionSelectSpell, *tag, 0);
   return 1;
 }
 

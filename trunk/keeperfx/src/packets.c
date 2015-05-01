@@ -1908,7 +1908,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       make_all_powers_researchable(my_player_number);
       make_all_rooms_researchable(my_player_number);
       return 0;
-  case PckA_Unknown080:
+  case PckA_SetViewType:
       set_player_mode(player, pckt->actn_par1);
       return 0;
   case PckA_ZoomFromMap:
@@ -2069,12 +2069,12 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_PlyrToggleAlly:
       toggle_ally_with_player(plyr_idx, pckt->actn_par1);
       return 0;
-  case PckA_Unknown119:
+  case PckA_SaveViewType:
       if (player->acamera != NULL)
           player->field_4B5 = player->acamera->viewType;
       set_player_mode(player, pckt->actn_par1);
       return false;
-  case PckA_Unknown120:
+  case PckA_LoadViewType:
       set_player_mode(player, pckt->actn_par1);
       set_engine_view(player, player->field_4B5);
       return false;
@@ -2293,7 +2293,7 @@ void process_players_creature_control_packet_control(long idx)
 
     if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
     {
-        i = ccctrl->field_1E8;
+        i = ccctrl->active_instance;
         if (ccctrl->instance_id == CrInst_NULL)
         {
             if (creature_instance_is_available(cctng, i))
@@ -2310,7 +2310,7 @@ void process_players_creature_control_packet_control(long idx)
     if ((pckt->control_flags & PCtr_LBtnHeld) != 0)
     {
         // Button is held down - check whether the instance has auto-repeat
-        i = ccctrl->field_1E8;
+        i = ccctrl->active_instance;
         inst_inf = creature_instance_info_get(i);
         if ((inst_inf->flags & InstPF_RepeatTrigger) != 0)
         {
@@ -2377,7 +2377,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
       player->influenced_thing_idx = pckt->actn_par1;
       set_player_instance(player, PI_DirctCtLeave, 0);
       break;
-  case PckA_CtrlCrtrSetInstnc:
+  case PckA_PossessionSelectSpell:
       thing = thing_get(player->controlled_thing_idx);
       if (thing_is_invalid(thing))
         break;
@@ -2388,7 +2388,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
       inst_inf = creature_instance_info_get(i);
       if (!inst_inf->field_0)
       {
-        cctrl->field_1E8 = i;
+        cctrl->active_instance = i;
       } else
       if (cctrl->instance_id == CrInst_NULL)
       {

@@ -3379,7 +3379,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     set_start_state(crtng);
     add_creature_score_to_owner(crtng);
     crdata = creature_data_get(crtng->model);
-    cctrl->field_1E8 = crdata->flags;
+    cctrl->active_instance = crdata->flags;
     return crtng;
 }
 
