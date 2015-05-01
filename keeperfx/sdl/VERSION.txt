@@ -1,3 +1,3 @@
 This is SDL 2.03(Official Site), 
 
-SDL_mixer 1.2.12 and SDL_net 2.0.0 for mingw32(http://www.libsdl.org/projects/SDL_mixer/)
+SDL_mixer 2.0.0 and SDL_net 2.0.0 for mingw32(http://www.libsdl.org/projects/SDL_mixer/)
