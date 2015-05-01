@@ -381,7 +381,8 @@ unsigned char field_67;
     char fighting_player_idx;
     unsigned char shot_model;
     struct CastedSpellData casted_spells[CREATURE_MAX_SPELLS_CASTED_AT];
-    char field_1E8;
+    // Current active skill instance.
+    char active_instance;
     unsigned char field_1E9;
     struct Navigation navi;
 unsigned char field_211[6];
@@ -478,8 +479,8 @@ short field_73;
   unsigned char immune_to_gas;
   unsigned char attack_preference;
   short field_of_view;
-  unsigned char instance_spell[10];
-  unsigned char instance_level[10];
+  unsigned char instance_spell_id[10];
+  unsigned char instance_required_level[10];
   unsigned char research_value;
   unsigned char humanoid_creature;
   unsigned char piss_on_dead;
@@ -573,8 +574,10 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned char immune_to_gas;
     unsigned char attack_preference;
     short field_of_view;
-    unsigned char instance_spell[CREATURE_MAX_LEVEL];
-    unsigned char instance_level[CREATURE_MAX_LEVEL];
+    // Spell id of specified spell instance.
+    unsigned char instance_spell_id[CREATURE_MAX_SPELL];
+    // Required level to use this spell.
+    unsigned char instance_required_level[CREATURE_MAX_SPELL];
     unsigned char research_value;
     unsigned char humanoid_creature;
     unsigned char piss_on_dead;

@@ -580,10 +580,10 @@ TbBool get_level_lost_inputs(void)
                     set_flag_byte(&game.status_flags, Status_ShowStatusMenu, true);
                 else
                     set_flag_byte(&game.status_flags, Status_ShowStatusMenu, false);
-                set_players_packet_action(player, PckA_Unknown119, 4,0);
+                set_players_packet_action(player, PckA_SaveViewType, PVT_MapScreen, 0);
           } else
           {
-                set_players_packet_action(player, PckA_Unknown080, 5,0);
+              set_players_packet_action(player, PckA_SetViewType, PVT_MapFadeIn, 0);
           }
           turn_off_roaming_menus();
         }
@@ -924,10 +924,66 @@ short get_creature_passenger_action_inputs(void)
   return false;
 }
 
+// Get numberic key pressed either from main keyboard or numpad. 
+int _get_numberic_key_pressed()
+{
+    int numkey = -1;
+    long keycode;
+    for (keycode = KC_1; keycode <= KC_9; keycode++)
+    {
+        if (is_key_pressed(keycode, KMod_NONE))
+        {
+            clear_key_pressed(keycode);
+            numkey = keycode - KC_1 + 1;
+            return numkey;
+        }
+    }
+    if (is_key_pressed(KC_0, KMod_NONE))
+    {
+        clear_key_pressed(KC_0);
+        numkey = 0;
+        return numkey;
+    }
+    // NumPad handling.
+    for (keycode = KC_NUMPAD1; keycode <= KC_NUMPAD3; keycode++)
+    {
+        if (is_key_pressed(keycode, KMod_NONE))
+        {
+            clear_key_pressed(keycode);
+            numkey = keycode - KC_NUMPAD1 + 1;
+            return numkey;
+        }
+    }
+    for (keycode = KC_NUMPAD4; keycode <= KC_NUMPAD6; keycode++)
+    {
+        if (is_key_pressed(keycode, KMod_NONE))
+        {
+            clear_key_pressed(keycode);
+            numkey = keycode - KC_NUMPAD4 + 4;
+            return numkey;
+        }
+    }
+    for (keycode = KC_NUMPAD7; keycode <= KC_NUMPAD9; keycode++)
+    {
+        if (is_key_pressed(keycode, KMod_NONE))
+        {
+            clear_key_pressed(keycode);
+            numkey = keycode - KC_NUMPAD7 + 7;
+            return numkey;
+        }
+    }
+    if (is_key_pressed(KC_NUMPAD0, KMod_NONE))
+    {
+        clear_key_pressed(KC_NUMPAD0);
+        numkey = 0;
+        return numkey;
+    }
+    return numkey;
+}
+
 short get_creature_control_action_inputs(void)
 {
     struct PlayerInfo *player;
-    long keycode;
     SYNCDBG(6,"Starting");
     player = get_my_player();
     if (get_players_packet_action(player) != PckA_None)
@@ -969,42 +1025,99 @@ short get_creature_control_action_inputs(void)
         clear_key_pressed(KC_TAB);
         toggle_gui();
     }
-    int numkey;
-    numkey = -1;
-    for (keycode=KC_1; keycode <= KC_0; keycode++)
-    {
-        if (is_key_pressed(keycode,KMod_NONE))
-        {
-            clear_key_pressed(keycode);
-            numkey = keycode-KC_1;
-            break;
-        }
-    }
+
+    // Handling numberic keys.
+    int numkey = _get_numberic_key_pressed();
     if (numkey != -1)
     {
-      int idx;
-      int instnce;
-      int num_avail;
-      num_avail = 0;
-      for (idx=0; idx < 10; idx++)
-      {
-          struct CreatureStats *crstat;
-          struct Thing *thing;
-          thing = thing_get(player->controlled_thing_idx);
-          TRACE_THING(thing);
-          crstat = creature_stats_get_from_thing(thing);
-          instnce = crstat->instance_spell[idx];
-          if ( creature_instance_is_available(thing,instnce) )
-          {
-            if ( numkey == num_avail )
+        if (numkey == 0)
+        {
+            numkey = 10;
+        }
+        int idx;
+        int instance;
+        // Offset of current active spell in set of available skills.
+        int num_avail = 0;
+        struct Thing *thing = thing_get(player->controlled_thing_idx);
+        TRACE_THING(thing);
+        struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
+
+        for (idx = 0; idx < CREATURE_MAX_SPELL; idx++)
+        {
+            instance = crstat->instance_spell_id[idx];
+            if (creature_instance_is_available(thing, instance))
             {
-              set_players_packet_action(player, PckA_CtrlCrtrSetInstnc, instnce,0);
-              break;
+                if (num_avail == (numkey - 1))
+                {
+                    set_players_packet_action(player, PckA_PossessionSelectSpell, instance, 0);
+                    break;
+                }
+                num_avail++;
             }
-            num_avail++;
-          }
-      }
+        }
     }
+
+    int instanceDelta = 0;
+    // Mouse wheel to switch skills.
+    if (lbDisplayEx.wheelUp)
+    {
+        instanceDelta = 1; 
+        lbDisplayEx.wheelUp = false;
+    }
+    else if (lbDisplayEx.wheelDown)
+    {
+        instanceDelta = -1;
+        lbDisplayEx.wheelDown = false;
+    }
+    if (instanceDelta != 0)
+    {
+        int idx;
+        int instance;
+        // Offset of current active spell in set of available skills.
+        int num_avail = 0;
+        struct Thing *thing = thing_get(player->controlled_thing_idx);
+        TRACE_THING(thing);
+        struct CreatureStats *crStat = creature_stats_get_from_thing(thing);
+        struct CreatureControl *crCtrl = creature_control_get_from_thing(thing);
+
+        int activeInstance = crCtrl->active_instance;
+        int activeInstanceIdx = 0;
+
+        // Search for index of current active spell. 
+        for (activeInstanceIdx = 0; activeInstanceIdx < CREATURE_MAX_SPELL; activeInstanceIdx++)
+        {
+            if (crStat->instance_spell_id[activeInstanceIdx] == activeInstance)
+            {
+                break;
+            }
+        }
+        if (activeInstanceIdx != CREATURE_MAX_SPELL)
+        {
+            int nextActiveSpell, nextActiveInstanceIdx = activeInstanceIdx;
+            do
+            {
+                nextActiveInstanceIdx = (nextActiveInstanceIdx + instanceDelta + CREATURE_MAX_SPELL) % CREATURE_MAX_SPELL;
+
+                nextActiveSpell = crStat->instance_spell_id[nextActiveInstanceIdx];
+
+                if (creature_instance_is_available(thing, nextActiveSpell))
+                {
+                    ERRORLOG("break from location %d to %d",activeInstanceIdx, nextActiveInstanceIdx);
+                    break;
+                }
+            } 
+            while (nextActiveSpell != activeInstance); // Loop for one round.
+
+            if (nextActiveSpell != activeInstance)
+            {
+                set_players_packet_action(player, PckA_PossessionSelectSpell, nextActiveSpell, 0);
+            }
+
+        }
+
+       
+    }
+
     return false;
 }
 
@@ -1986,13 +2099,13 @@ short get_inputs(void)
                     player->field_1 |= 0x01;
                 else
                     player->field_1 &= ~0x01;
-                set_players_packet_action(player, PckA_Unknown080, 4, 0);
+                set_players_packet_action(player, PckA_SetViewType, PVT_MapScreen, 0);
             }
             return false;
         case PVT_MapFadeOut:
             if (player->view_mode != PVM_ParchFadeOut)
             {
-                set_players_packet_action(player, PckA_Unknown080, 1, 0);
+                set_players_packet_action(player, PckA_SetViewType, PVT_DungeonTop, 0);
             }
             return false;
         default:

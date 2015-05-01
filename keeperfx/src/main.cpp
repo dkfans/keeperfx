@@ -1560,7 +1560,7 @@ void instant_instance_selected(CrInstance check_inst_id)
     match_avail_pos = 0;
     for (i=0; i < CREATURE_MAX_LEVEL; i++)
     {
-        k = crstat->instance_spell[i];
+        k = crstat->instance_spell_id[i];
         if (creature_instance_is_available(ctrltng, k))
         {
             if (k == check_inst_id) {
