@@ -1049,6 +1049,7 @@ short get_creature_control_action_inputs(void)
             {
                 if (num_avail == (numkey - 1))
                 {
+                    do_sound_menu_click();
                     set_players_packet_action(player, PckA_PossessionSelectSpell, instance, 0);
                     break;
                 }
@@ -1110,6 +1111,7 @@ short get_creature_control_action_inputs(void)
 
             if (nextActiveSpell != activeInstance)
             {
+                do_sound_menu_click();
                 set_players_packet_action(player, PckA_PossessionSelectSpell, nextActiveSpell, 0);
             }
 
