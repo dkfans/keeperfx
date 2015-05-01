@@ -28,6 +28,7 @@
 #include "config.h"
 #include "config_terrain.h"
 #include "player_instances.h"
+#include "player_newcomp.h"
 #include "creature_states.h"
 #include "spdigger_stack.h"
 #include "magic.h"
@@ -271,124 +272,6 @@ long computer_check_move_creatures_to_room(struct Computer2 *comp, struct Comput
     return CTaskRet_Unk4;
 }
 
-TbBool is_digging_any_gems(struct Dungeon *dungeon)
-{
-	long i;
-	unsigned long k;
-	k = 0;
-	i = dungeon->digger_list_start;
-	while (i != 0)
-	{
-		struct Thing *thing;
-		struct CreatureControl *cctrl;
-		thing = thing_get(i);
-		cctrl = creature_control_get_from_thing(thing);
-		if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
-		{
-			ERRORLOG("Jump to invalid creature detected");
-			break;
-		}
-		i = cctrl->players_next_creature_idx;
-		// Thing list loop body
-		if (cctrl->combat_flags == 0)
-		{
-			long state_type;
-			state_type = get_creature_state_type(thing);
-
-			if (state_type == CrStTyp_Work
-				&& cctrl->digger.last_did_job == SDLstJob_DigOrMine
-				&& is_digging_indestructible_place(thing))
-			{
-				SYNCDBG(18, "Gems being dug by player %d", (int)dungeon->owner);
-				return 1;
-			}
-		}
-		// Thing list loop body ends
-		k++;
-		if (k > CREATURES_COUNT)
-		{
-			ERRORLOG("Infinite loop detected when sweeping creatures list");
-			return 0;
-		}
-	}
-
-	SYNCDBG(18, "Gems NOT being dug by player %d", (int)dungeon->owner);
-
-	return 0;
-}
-
-static struct Thing * find_imp_for_sacrifice(struct Computer2 *comp)
-{
-	struct Dungeon *dungeon;
-	int best_priority;
-	struct Thing *best_tng;
-	long digger_price;
-	TbBool digging_gems;
-
-	dungeon = comp->dungeon;
-	digger_price = compute_lowest_digger_price(dungeon->owner);
-	best_priority = INT_MAX;
-	best_tng = INVALID_THING;
-	digging_gems = is_digging_any_gems(dungeon);
-
-	long i;
-	unsigned long k;
-	k = 0;
-	i = dungeon->digger_list_start;
-	while (i != 0)
-	{
-		struct Thing *thing;
-		struct CreatureControl *cctrl;
-		thing = thing_get(i);
-		cctrl = creature_control_get_from_thing(thing);
-		if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
-		{
-			ERRORLOG("Jump to invalid creature detected");
-			break;
-		}
-		i = cctrl->players_next_creature_idx;
-		// Thing list loop body
-		if (cctrl->combat_flags == 0
-			&& cctrl->explevel == 0 //at lowest experience level
-			&& (digging_gems || thing->creature.gold_carried == 0)) //no gold carried if no gem access
-		{
-			if (!creature_is_being_unconscious(thing) && !creature_affected_by_spell(thing, SplK_Chicken))
-			{
-				if (!creature_is_being_dropped(thing) && can_thing_be_picked_up_by_player(thing, dungeon->owner))
-				{
-					struct CreatureStats* crtrstats;
-					crtrstats = creature_stats_get_from_thing(thing);
-
-					long priority;
-					long state_type;
-					state_type = get_creature_state_type(thing);
-
-					priority = thing->creature.gold_carried; //base value
-					if (state_type == CrStTyp_Work)
-						priority += 500; //aborted work valued at this many gold
-
-					priority += digger_price * thing->health / crtrstats->health; //full health valued at this many gold
-
-					if (priority < best_priority)
-					{
-						best_priority = priority;
-						best_tng = thing;
-					}
-				}
-			}
-		}
-		// Thing list loop body ends
-		k++;
-		if (k > CREATURES_COUNT)
-		{
-			ERRORLOG("Infinite loop detected when sweeping creatures list");
-			return INVALID_THING;
-		}
-	}
-	
-	return best_tng;
-}
-
 /**
  * Checks if a computer player has not enough imps.
  * @param comp
@@ -427,7 +310,7 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
 			&& dungeon_has_room(dungeon, RoK_TEMPLE))
 		{
 			struct Thing* imp;
-			imp = find_imp_for_sacrifice(comp);
+			imp = find_imp_for_sacrifice(comp->dungeon);
 			if (!thing_is_invalid(imp))
 			{
 				long dist;

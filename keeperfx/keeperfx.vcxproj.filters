@@ -690,6 +690,12 @@
     <ClCompile Include="src\vidmode_data.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\player_newcompchecks.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\player_newcompeval.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\bflib_base_tcp.hpp">
@@ -1302,6 +1308,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\vidmode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\player_newcomp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

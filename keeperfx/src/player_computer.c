@@ -40,6 +40,7 @@
 #include "thing_traps.h"
 #include "thing_navigate.h"
 #include "player_complookup.h"
+#include "player_newcomp.h"
 #include "power_hand.h"
 #include "room_data.h"
 #include "game_legacy.h"
@@ -1373,6 +1374,8 @@ void computer_check_events(struct Computer2 *comp)
     }
 }
 
+static int counter_check_for_claims[KEEPER_COUNT] = { 0, 1, 2, 3 };
+
 TbBool process_checks(struct Computer2 *comp)
 {
     struct ComputerCheck *ccheck;
@@ -1397,6 +1400,15 @@ TbBool process_checks(struct Computer2 *comp)
             }
         }
     }
+
+	//checks not entered into regular system yet
+	//TODO: generalize and use config
+	if (++counter_check_for_claims[comp->dungeon->owner] >= 100)
+	{
+		counter_check_for_claims[comp->dungeon->owner] = 0;
+		SYNCDBG(8,"Executing new check check_for_claims");
+		computer_check_for_claims(comp);
+	}
     return true;
 }
 
