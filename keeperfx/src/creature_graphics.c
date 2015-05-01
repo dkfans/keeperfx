@@ -162,7 +162,7 @@ unsigned char keepersprite_frames(unsigned short n)
       n = 0;
   }
   i = creature_list[n];
-  return creature_table[i].frames;
+  return creature_table[i].FramesCount;
 }
 
 unsigned char keepersprite_rotable(unsigned short n)
@@ -174,7 +174,7 @@ unsigned char keepersprite_rotable(unsigned short n)
       n = 0;
   }
   i = creature_list[n];
-  return creature_table[i].rotable;
+  return creature_table[i].Rotable;
 }
 
 unsigned char previous_keeper_frame(unsigned short n, unsigned char c)
@@ -188,7 +188,7 @@ unsigned char previous_keeper_frame(unsigned short n, unsigned char c)
     i = creature_list[n];
     if (c > 0)
         return c - 1;
-    return creature_table[i].frames - 1;
+    return creature_table[i].FramesCount - 1;
 }
 
 unsigned char next_keeper_frame(unsigned short n, unsigned char c)
@@ -200,7 +200,7 @@ unsigned char next_keeper_frame(unsigned short n, unsigned char c)
         n = 0;
     }
     i = creature_list[n];
-    return creature_table[i].frames;
+    return creature_table[i].FramesCount;
 }
 
 struct KeeperSprite * keepersprite_array(unsigned short n)
@@ -245,36 +245,36 @@ void get_keepsprite_unscaled_dimensions(long kspr_frame, long a2, long a3, short
       lbDisplay.DrawFlags |= Lb_SPRITE_FLIP_HORIZ;
     else
       lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
-    if (kspr->rotable == 0)
+    if (kspr->Rotable == 0)
     {
         kspr += a3;
-        *orig_w = kspr->field_6;
-        *orig_h = kspr->field_7;
+        *orig_w = kspr->FrameWidth;
+        *orig_h = kspr->FrameHeight;
         if ( val_in_range )
         {
-          *unsc_w = *orig_w - (long)kspr->field_4 - (long)kspr->field_A;
-          *unsc_h = kspr->field_B;
+          *unsc_w = *orig_w - (long)kspr->SWidth - (long)kspr->FrameOffsW;
+          *unsc_h = kspr->FrameOffsH;
         }
         else
         {
-          *unsc_w = kspr->field_A;
-          *unsc_h = kspr->field_B;
+          *unsc_w = kspr->FrameOffsW;
+          *unsc_h = kspr->FrameOffsH;
         }
     } else
-    if (kspr->rotable == 2)
+    if (kspr->Rotable == 2)
     {
-        kspr += a3 + abs(4 - (((a2 + 128) & 0x7FF) >> 8)) * kspr->frames;
-        *orig_w = kspr->field_4;
-        *orig_h = kspr->field_5;
+        kspr += a3 + abs(4 - (((a2 + 128) & 0x7FF) >> 8)) * kspr->FramesCount;
+        *orig_w = kspr->SWidth;
+        *orig_h = kspr->SHeight;
         if ( val_in_range )
         {
-          *unsc_w = (long)kspr->field_6 - (long)kspr->field_A - *orig_w;
-          *unsc_h = kspr->field_B;
+          *unsc_w = (long)kspr->FrameWidth - (long)kspr->FrameOffsW - *orig_w;
+          *unsc_h = kspr->FrameOffsH;
         }
         else
         {
-          *unsc_w = kspr->field_A;
-          *unsc_h = kspr->field_B;
+          *unsc_w = kspr->FrameOffsW;
+          *unsc_h = kspr->FrameOffsH;
         }
     }
     *unsc_w += kspr->field_C;
