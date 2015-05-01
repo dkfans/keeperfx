@@ -1945,7 +1945,156 @@ long find_closest_lights(struct Coord3d *pos, struct NearestLights *nlgt)
 
 void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct Coord3d *pos)
 {
-    _DK_create_shadows(thing, ecor, pos); return;
+    //_DK_create_shadows(thing, ecor, pos); return;
+    short mv_angle, sh_angle, angle;
+    long dist_sq;
+    struct EngineCoord ecor1;
+    struct EngineCoord ecor2;
+    struct EngineCoord ecor3;
+    struct EngineCoord ecor4;
+
+    mv_angle = thing->move_angle_xy;
+    sh_angle = get_angle_xy_to(pos, &thing->mappos);
+    angle = (mv_angle - sh_angle) & 0x7FF;
+    dist_sq = (get_2d_distance_squared(&thing->mappos, pos) >> 17) + 16;
+    if (dist_sq < 16) {
+        dist_sq = 16;
+    } else
+    if (dist_sq > 31) {
+        dist_sq = 31;
+    }
+    short dim_ow,dim_oh,dim_th,dim_tw;
+    get_keepsprite_unscaled_dimensions(thing->anim_sprite, angle, thing->field_48, &dim_ow, &dim_oh, &dim_tw, &dim_th);
+    {
+        int base_x, base_y, base_z;
+        int angle_sin, angle_cos;
+        base_z = 8 * dim_tw;
+        base_y = 8 * (6 - dim_oh - dim_th);
+        angle_cos = LbCosL(sh_angle);
+        angle_sin = LbSinL(sh_angle);
+        int base_th, base_tw;
+        int shift_a, shift_b, shift_c, shift_d, shift_e, shift_f, shift_g, shift_h;
+        shift_a = base_z * angle_cos;
+        shift_b = base_y * angle_sin;
+        base_x = ecor->x;
+        ecor1.x = base_x + ((shift_a - shift_b) >> 16);
+        shift_c = base_y * angle_cos;
+        shift_d = base_z * angle_sin;
+        base_z = ecor->z;
+        ecor1.z = base_z + (-(base_y * angle_cos + shift_d) >> 16);
+        base_y = ecor->y;
+        ecor1.y = base_y;
+        base_th = 8 * (dim_th - 4 * dist_sq) + 560;
+        shift_e = base_th * angle_sin;
+        ecor2.x = base_x + ((shift_a - shift_e) >> 16);
+        shift_f = base_th * angle_cos;
+        ecor2.z = base_z + (-(shift_f + shift_d) >> 16);
+        ecor2.y = base_y;
+        base_tw = 8 * (dim_tw + dim_ow);
+        shift_g = base_tw * angle_cos;
+        shift_h = base_tw * angle_sin;
+        ecor3.x = base_x + ((shift_g - shift_e) >> 16);
+        ecor3.z = base_z + (-(shift_h + shift_f) >> 16);
+        ecor3.y = base_y;
+        ecor4.y = base_y;
+        ecor4.x = base_x + ((shift_g - shift_b) >> 16);
+        ecor4.z = base_z + (-(shift_h + shift_c) >> 16);
+    }
+    rotpers(&ecor1, &camera_matrix);
+    rotpers(&ecor2, &camera_matrix);
+    rotpers(&ecor3, &camera_matrix);
+    rotpers(&ecor4, &camera_matrix);
+    int min_cor_z;
+    min_cor_z = min(min(ecor1.z,ecor2.z),min(ecor3.z,ecor4.z));
+    if (getpoly >= poly_pool_end) {
+        return;
+    }
+    int bckt_idx;
+    bckt_idx = min_cor_z / 16;
+    if (bckt_idx < 0) {
+        bckt_idx = 0;
+    } else
+    if (bckt_idx > 702) {
+        bckt_idx = 702;
+    }
+    struct KeeperSpr * kspr;
+    kspr = (struct KeeperSpr *)getpoly;
+    struct BasicQ *prev_bckt;
+    prev_bckt = buckets[bckt_idx];
+    getpoly += sizeof(struct KeeperSpr);
+    kspr->b.next = prev_bckt;
+    kspr->b.kind = 12;
+    buckets[bckt_idx] = (struct BasicQ *)kspr;
+
+    int pdim_w, pdim_h;
+    pdim_w = 0;
+    pdim_h = (dim_oh - 1) << 16;
+    kspr->p1.field_0 = ecor1.view_width;
+    kspr->p1.field_4 = ecor1.view_height;
+    kspr->p1.field_8 = pdim_w;
+    kspr->p1.field_C = pdim_h;
+    if (ecor1.field_C <= fade_min) {
+        kspr->p1.field_10 = ecor1.field_A << 8;
+    } else
+    if (ecor1.field_C >= fade_max) {
+        kspr->p1.field_10 = 32768;
+    } else {
+        kspr->p1.field_10 = ecor1.field_A * (fade_scaler - ecor1.field_C) / fade_range + 32768;
+    }
+
+    pdim_w = 0;
+    pdim_h = 0;
+    kspr->p2.field_0 = ecor2.view_width;
+    kspr->p2.field_4 = ecor2.view_height;
+    kspr->p2.field_8 = pdim_w;
+    kspr->p2.field_C = pdim_h;
+    if (fade_min >= ecor2.field_C)
+    {
+        kspr->p2.field_10 = ecor2.field_A << 8;
+    } else
+    if (fade_max <= ecor2.field_C)
+    {
+        kspr->p2.field_10 = 32768;
+    } else {
+        kspr->p2.field_10 = ecor2.field_A * (fade_scaler - ecor2.field_C) / fade_range + 32768;
+    }
+
+    pdim_w = (dim_ow - 1)  << 16;
+    pdim_h = 0;
+    kspr->p3.field_0 = ecor3.view_width;
+    kspr->p3.field_4 = ecor3.view_height;
+    kspr->p3.field_8 = pdim_w;
+    kspr->p3.field_C = pdim_h;
+    if (ecor3.field_C <= fade_min)
+    {
+        kspr->p3.field_10 = ecor3.field_A << 8;
+    } else
+    if (ecor3.field_C >= fade_max)
+    {
+        kspr->p3.field_10 = 32768;
+    } else {
+        kspr->p3.field_10 = ecor3.field_A * (fade_scaler - ecor3.field_C) / fade_range + 32768;
+    }
+
+    pdim_h = (dim_oh - 1) << 16;
+    pdim_w = (dim_ow - 1) << 16;
+    kspr->p4.field_0 = ecor4.view_width;
+    kspr->p4.field_4 = ecor4.view_height;
+    kspr->p4.field_8 = pdim_w;
+    kspr->p4.field_C = pdim_h;
+    if (ecor4.field_C <= fade_min) {
+        kspr->p4.field_10 = ecor4.field_A << 8;
+    } else
+    if (ecor4.field_C >= fade_max) {
+        kspr->p4.field_10 = 32768;
+    } else {
+        kspr->p4.field_10 = ecor4.field_A * (fade_scaler - ecor4.field_C) / fade_range + 32768;
+    }
+
+    kspr->p1.field_10 = dist_sq;
+    kspr->field_58 = angle;
+    kspr->field_5C = thing->anim_sprite;
+    kspr->field_5E = thing->field_48;
 }
 
 void create_status_box(struct Thing *thing, struct EngineCoord *ecor)

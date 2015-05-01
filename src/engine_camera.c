@@ -131,6 +131,14 @@ MapCoordDelta get_2d_distance(const struct Coord3d *pos1, const struct Coord3d *
     return LbDiagonalLength(abs(dist_x), abs(dist_y));
 }
 
+MapCoordDelta get_2d_distance_squared(const struct Coord3d *pos1, const struct Coord3d *pos2)
+{
+    long dist_x,dist_y;
+    dist_x = (long)pos1->x.val - (long)pos2->x.val;
+    dist_y = (long)pos1->y.val - (long)pos2->y.val;
+    return dist_x * dist_x + dist_y * dist_y;
+}
+
 void project_point_to_wall_on_angle(const struct Coord3d *pos1, struct Coord3d *pos2, long angle_xy, long angle_z, long distance, long num_steps)
 {
     long dx,dy,dz;
