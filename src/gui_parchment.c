@@ -873,7 +873,7 @@ void redraw_minimal_overhead_view(void)
     draw_tooltip();
 }
 
-void zoom_to_patchment_map(void)
+void zoom_to_parchment_map(void)
 {
     struct PlayerInfo *player;
     turn_off_all_window_menus();

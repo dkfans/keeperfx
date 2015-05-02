@@ -1011,7 +1011,7 @@ void init_keeper(void)
     game.creatures_tend_imprison = 0;
     game.creatures_tend_flee = 0;
     game.operation_flags |= GOF_Unkn40;
-    game.numfield_D |= (0x20 | 0x40);
+    game.numfield_D |= (GNFldD_Unkn20 | GNFldD_Unkn40);
     init_censorship();
     SYNCDBG(9,"Finished");
 }
@@ -3056,7 +3056,7 @@ void update(void)
         event_process_events();
         update_all_events();
         process_level_script();
-        if ((game.numfield_D & 0x04) != 0)
+        if ((game.numfield_D & GNFldD_Unkn04) != 0)
             process_computer_players2();
         process_players();
         process_action_points();
@@ -3598,7 +3598,7 @@ TbBool keeper_screen_swap(void)
  */
 TbBool keeper_wait_for_next_turn(void)
 {
-    if ((game.numfield_D & 0x10) != 0)
+    if ((game.numfield_D & GNFldD_Unkn10) != 0)
     {
         // No idea when such situation occurs
         TbClockMSec sleep_end = last_loop_time + 1000;
@@ -4025,7 +4025,7 @@ void init_level(void)
         player = get_player(game.hero_player_num);
         init_player_start(player, false);
     }
-    game.numfield_D |= 0x04;
+    game.numfield_D |= GNFldD_Unkn04;
     LbMemoryCopy(&game.intralvl_transfered_creature,&transfer_mem,sizeof(struct CreatureStorage));
     event_initialise_all();
     battle_initialise();

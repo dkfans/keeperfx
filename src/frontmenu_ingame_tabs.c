@@ -81,7 +81,7 @@ void gui_zoom_out(struct GuiButton *gbtn)
 
 void gui_go_to_map(struct GuiButton *gbtn)
 {
-    zoom_to_patchment_map();
+    zoom_to_parchment_map();
 }
 
 void gui_turn_on_autopilot(struct GuiButton *gbtn)

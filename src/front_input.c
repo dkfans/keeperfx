@@ -781,7 +781,7 @@ long get_dungeon_control_action_inputs(void)
       if ((player->view_mode != PVM_ParchFadeOut) && (game.small_map_state != 2))
       {
           turn_off_all_window_menus();
-          zoom_to_patchment_map();
+          zoom_to_parchment_map();
       }
       return 1;
     }

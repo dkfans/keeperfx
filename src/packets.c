@@ -1967,7 +1967,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       set_player_instance(player, PI_ZoomToPos, 0);
       return 0;
   case PckA_Unknown088:
-      game.numfield_D ^= (game.numfield_D ^ (0x04 * ((game.numfield_D & 0x04) == 0))) & 0x04;
+      game.numfield_D ^= (game.numfield_D ^ (GNFldD_Unkn04 * ((game.numfield_D & GNFldD_Unkn04) == 0))) & GNFldD_Unkn04;
       return 0;
   case PckA_PwrCTADis:
       turn_off_power_call_to_arms(plyr_idx);

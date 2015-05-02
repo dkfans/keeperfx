@@ -509,12 +509,12 @@ void get_player_gui_clicks(void)
         {
           if (a_menu_window_is_active())
           {
-            game.numfield_D &= ~0x08;
+            game.numfield_D &= ~GNFldD_Unkn08;
             player->allocflags &= ~PlaF_Unknown8;
             turn_off_all_window_menus();
           } else
           {
-            game.numfield_D |= 0x08;
+            game.numfield_D |= GNFldD_Unkn08;
             player->allocflags |= PlaF_Unknown8;
             turn_on_menu(GMnu_QUERY);
           }
@@ -2410,7 +2410,7 @@ void set_gui_visible(TbBool visible)
       toggle_status_menu(is_visbl);
       break;
   }
-  if (((game.numfield_D & 0x20) != 0) && ((game.operation_flags & GOF_Unkn20) != 0))
+  if (((game.numfield_D & GNFldD_Unkn20) != 0) && ((game.operation_flags & GOF_Unkn20) != 0))
     setup_engine_window(status_panel_width, 0, MyScreenWidth, MyScreenHeight);
   else
     setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
