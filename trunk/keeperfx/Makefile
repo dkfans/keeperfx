@@ -436,13 +436,16 @@ pkg/ldata/door09.dat \
 pkg/ldata/fronttor.dat
 
 FRONTENDGFX = \
-pkg/data/legal32.raw \
-pkg/data/legal64.raw \
-pkg/data/startfx32.raw \
-pkg/data/startfx64.raw \
-pkg/data/loading32.raw \
-pkg/data/loading64.raw \
-pkg/data/nocd.raw \
+pkg/data/legal-32.raw \
+pkg/data/legal-64.raw \
+pkg/data/legal-128.raw \
+pkg/data/startfx-32.raw \
+pkg/data/startfx-64.raw \
+pkg/data/startfx-128.raw \
+pkg/data/loading-32.raw \
+pkg/data/loading-64.raw \
+pkg/data/loading-128.raw \
+pkg/data/nocd-32.raw \
 pkg/ldata/front.raw \
 pkg/ldata/frontft1.dat \
 pkg/ldata/frontft2.dat \
@@ -814,15 +817,18 @@ endef
 $(foreach campaign,$(sort $(CAMPAIGNS)),$(foreach lng,$(sort $(LANGS)),$(eval $(call define_campaign_speeches_rule,$(campaign),$(lng)))))
 
 pkg/ldata/torture.pal: gfx/torturescr/tortr_background.png gfx/torturescr/tortr_doora_open11.png gfx/torturescr/tortr_doorb_open11.png gfx/torturescr/tortr_doorc_open11.png gfx/torturescr/tortr_doord_open11.png gfx/torturescr/tortr_doore_open11.png gfx/torturescr/tortr_doorf_open11.png gfx/torturescr/tortr_doorg_open11.png gfx/torturescr/tortr_doorh_open11.png gfx/torturescr/tortr_doori_open11.png gfx/torturescr/cursor_horny.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
-pkg/data/legal32.pal: gfx/loading/legal32.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
-pkg/data/legal64.pal: gfx/loading/legal64.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
-pkg/data/startfx32.pal: gfx/loading/startupfx32.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
-pkg/data/startfx64.pal: gfx/loading/startupfx64.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
-pkg/data/loading32.pal: gfx/loading/loading32.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
-pkg/data/loading64.pal: gfx/loading/loading64.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
-pkg/data/nocd.pal: gfx/loading/nocd32.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
+pkg/data/legal-32.pal: gfx/loading/legal-32.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
+pkg/data/legal-64.pal: gfx/loading/legal-64.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
+pkg/data/legal-128.pal: gfx/loading/legal-128.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
+pkg/data/startfx-32.pal: gfx/loading/startupfx-32.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
+pkg/data/startfx-64.pal: gfx/loading/startupfx-64.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
+pkg/data/startfx-128.pal: gfx/loading/startupfx-128.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
+pkg/data/loading-32.pal: gfx/loading/loading-32.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
+pkg/data/loading-64.pal: gfx/loading/loading-64.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
+pkg/data/loading-128.pal: gfx/loading/loading-128.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
+pkg/data/nocd-32.pal: gfx/loading/nocd-32.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
 
-pkg/ldata/torture.pal pkg/data/legal32.pal pkg/data/legal64.pal pkg/data/startfx32.pal pkg/data/startfx64.pal pkg/data/loading32.pal pkg/data/loading64.pal pkg/data/nocd.pal:
+pkg/ldata/%.pal pkg/data/%.pal:
 	-$(ECHO) 'Building palette: $@'
 	@$(MKDIR) $(@D)
 	$(PNGTOBSPAL) -o "$@" -m "$(filter %.txt,$^)" $(filter %.png,$^)
@@ -895,13 +901,16 @@ $(foreach miplv,32 128,$(eval $(call define_gfx_texture_map_rule,$(miplv))))
 pkg/data/gmap32.raw: gfx/guimap/gmap32.png pkg/data/palette.dat $(PNGTORAW) $(RNC)
 pkg/data/gmap64.raw: gfx/guimap/gmap64.png pkg/data/palette.dat $(PNGTORAW) $(RNC)
 pkg/data/gmapbug.dat: gfx/parchmentbug/filelist-gbug.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/legal32.raw: gfx/loading/legal32.png pkg/data/legal32.pal $(PNGTORAW) $(RNC)
-pkg/data/legal64.raw: gfx/loading/legal64.png pkg/data/legal64.pal $(PNGTORAW) $(RNC)
-pkg/data/startfx32.raw: gfx/loading/startupfx32.png pkg/data/startfx32.pal $(PNGTORAW) $(RNC)
-pkg/data/startfx64.raw: gfx/loading/startupfx64.png pkg/data/startfx64.pal $(PNGTORAW) $(RNC)
-pkg/data/loading32.raw: gfx/loading/loading32.png pkg/data/loading32.pal $(PNGTORAW) $(RNC)
-pkg/data/loading64.raw: gfx/loading/loading64.png pkg/data/loading64.pal $(PNGTORAW) $(RNC)
-pkg/data/nocd.raw: gfx/loading/nocd32.png pkg/data/nocd.pal $(PNGTORAW) $(RNC)
+pkg/data/legal-32.raw: gfx/loading/legal-32.png pkg/data/legal-32.pal $(PNGTORAW) $(RNC)
+pkg/data/legal-64.raw: gfx/loading/legal-64.png pkg/data/legal-64.pal $(PNGTORAW) $(RNC)
+pkg/data/legal-128.raw: gfx/loading/legal-128.png pkg/data/legal-128.pal $(PNGTORAW) $(RNC)
+pkg/data/startfx-32.raw: gfx/loading/startupfx-32.png pkg/data/startfx-32.pal $(PNGTORAW) $(RNC)
+pkg/data/startfx-64.raw: gfx/loading/startupfx-64.png pkg/data/startfx-64.pal $(PNGTORAW) $(RNC)
+pkg/data/startfx-128.raw: gfx/loading/startupfx-128.png pkg/data/startfx-128.pal $(PNGTORAW) $(RNC)
+pkg/data/loading-32.raw: gfx/loading/loading-32.png pkg/data/loading-32.pal $(PNGTORAW) $(RNC)
+pkg/data/loading-64.raw: gfx/loading/loading-64.png pkg/data/loading-64.pal $(PNGTORAW) $(RNC)
+pkg/data/loading-128.raw: gfx/loading/loading-128.png pkg/data/loading-128.pal $(PNGTORAW) $(RNC)
+pkg/data/nocd-32.raw: gfx/loading/nocd-32.png pkg/data/nocd-32.pal $(PNGTORAW) $(RNC)
 pkg/data/pointer64.dat: gfx/pointer-64/filelist_pointer.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
 pkg/data/pointer32.dat: gfx/pointer-64/filelist_lpointer.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
 pkg/data/points64.dat: gfx/pointer-64/filelist_points.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
