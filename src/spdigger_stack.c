@@ -154,6 +154,26 @@ long find_in_imp_stack_starting_at(SpDiggerTaskType task_type, long start_pos, c
     return -1;
 }
 
+void remove_task_from_all_other_players_digger_stacks(PlayerNumber skip_plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    PlayerNumber plyr_idx;
+    for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    {
+        if (plyr_idx == skip_plyr_idx) {
+            continue;
+        }
+        long task_id;
+        task_id = find_from_task_list(plyr_idx, get_subtile_number(stl_x, stl_y));
+        if (task_id >= 0)
+        {
+            remove_from_task_list(plyr_idx, task_id);
+            if (is_my_player_number(plyr_idx)) {
+                pretty_map_remove_flags_and_update(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
+            }
+        }
+    }
+}
+
 TbBool imp_will_soon_be_working_at_excluding(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     SYNCDBG(19,"Starting");

@@ -2053,28 +2053,13 @@ void place_and_process_pretty_wall_slab(struct Thing *creatng, MapSlabCoord slb_
     SYNCDBG(16,"Starting");
     cctrl = creature_control_get_from_thing(creatng);
     unsigned char pretty_type;
-    MapSubtlCoord wrkstl_x,wrkstl_y;
-    wrkstl_x = stl_num_decode_x(cctrl->digger.working_stl);
-    wrkstl_y = stl_num_decode_y(cctrl->digger.working_stl);
     pretty_type = choose_pretty_type(creatng->owner, slb_x, slb_y);
     place_slab_type_on_map(pretty_type, slab_subtile_center(slb_x), slab_subtile_center(slb_y), creatng->owner, 0);
     do_slab_efficiency_alteration(slb_x, slb_y);
-    PlayerNumber plyr_idx;
-    for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
-    {
-        if (creatng->owner == plyr_idx) {
-            continue;
-        }
-        long task_id;
-        task_id = find_from_task_list(plyr_idx, get_subtile_number(wrkstl_x, wrkstl_y));
-        if (task_id >= 0)
-        {
-            remove_from_task_list(plyr_idx, task_id);
-            if (is_my_player_number(plyr_idx)) {
-                pretty_map_remove_flags_and_update(subtile_slab_fast(wrkstl_x), subtile_slab_fast(wrkstl_y));
-            }
-        }
-    }
+    MapSubtlCoord wrkstl_x,wrkstl_y;
+    wrkstl_x = stl_num_decode_x(cctrl->digger.working_stl);
+    wrkstl_y = stl_num_decode_y(cctrl->digger.working_stl);
+    remove_task_from_all_other_players_digger_stacks(creatng->owner, wrkstl_x, wrkstl_y);
     fill_in_reinforced_corners(creatng->owner, slb_x, slb_y);
 }
 

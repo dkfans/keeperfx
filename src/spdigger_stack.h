@@ -85,6 +85,7 @@ struct ExtraSquares {
 #pragma pack()
 /******************************************************************************/
 TbBool creature_task_needs_check_out_after_digger_stack_change(const struct Thing *creatng);
+void remove_task_from_all_other_players_digger_stacks(PlayerNumber skip_plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 long find_in_imp_stack_using_pos(SubtlCodedCoords stl_num, SpDiggerTaskType task_type, const struct Dungeon *dungeon);
 long find_in_imp_stack_starting_at(SpDiggerTaskType task_type, long start_pos, const struct Dungeon *dungeon);
