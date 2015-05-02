@@ -20,7 +20,6 @@
 
 #include "globals.h"
 #include "bflib_sndlib.h"
-
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 
@@ -151,13 +150,13 @@ void SetMusicPlayerVolume(int volume)
 {
     if (IsRedbookMusicActive())
     {
-        SetRedbookVolume(volume);
+        SetRedbookVolume(lbAppActive ? volume : 0);
     } else
     {
         float volume_f = (float) volume;
         int normalized_volume = (int)((volume_f / MIX_MAX_VOLUME) * MIX_MAX_VOLUME);
-        Mix_VolumeMusic(normalized_volume);
-        SYNCLOG("Music volume set: %d", normalized_volume);
+        Mix_VolumeMusic(lbAppActive ? normalized_volume : 0);
+        // SYNCLOG("Music volume set: %d", normalized_volume);
     }
 }
 

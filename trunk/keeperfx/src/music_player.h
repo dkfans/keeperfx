@@ -20,7 +20,11 @@
 #define DK_MUSICPLAYER_H
 
 #include "globals.h"
+#include "bflib_inputctrl.h"
 #include <SDL2/SDL_mixer.h>
+
+/** Informs if the application window is active (focused on screen). */
+extern volatile TbBool lbAppActive;
 
 #ifdef __cplusplus
 extern "C" {

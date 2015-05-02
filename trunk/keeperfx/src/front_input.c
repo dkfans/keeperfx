@@ -1058,6 +1058,65 @@ short get_creature_control_action_inputs(void)
         }
     }
 
+    //int instanceDelta = 0;
+    //// Mouse wheel to switch skills.
+    //if (lbDisplayEx.wheelUp)
+    //{
+    //    instanceDelta = 1; 
+    //    lbDisplayEx.wheelUp = false;
+    //}
+    //else if (lbDisplayEx.wheelDown)
+    //{
+    //    instanceDelta = -1;
+    //    lbDisplayEx.wheelDown = false;
+    //}
+    //if (instanceDelta != 0)
+    //{
+    //    int idx;
+    //    int instance;
+    //    // Offset of current active spell in set of available skills.
+    //    int num_avail = 0;
+    //    struct Thing *thing = thing_get(player->controlled_thing_idx);
+    //    TRACE_THING(thing);
+    //    struct CreatureStats *crStat = creature_stats_get_from_thing(thing);
+    //    struct CreatureControl *crCtrl = creature_control_get_from_thing(thing);
+
+    //    int activeInstance = crCtrl->active_instance;
+    //    int activeInstanceIdx = 0;
+
+    //    // Search for index of current active spell. 
+    //    for (activeInstanceIdx = 0; activeInstanceIdx < CREATURE_MAX_SPELL; activeInstanceIdx++)
+    //    {
+    //        if (crStat->instance_spell_id[activeInstanceIdx] == activeInstance)
+    //        {
+    //            break;
+    //        }
+    //    }
+    //    if (activeInstanceIdx != CREATURE_MAX_SPELL)
+    //    {
+    //        int nextActiveSpell, nextActiveInstanceIdx = activeInstanceIdx;
+    //        do
+    //        {
+    //            nextActiveInstanceIdx = (nextActiveInstanceIdx + instanceDelta + CREATURE_MAX_SPELL) % CREATURE_MAX_SPELL;
+
+    //            nextActiveSpell = crStat->instance_spell_id[nextActiveInstanceIdx];
+
+    //            if (creature_instance_is_available(thing, nextActiveSpell))
+    //            {
+    //                ERRORLOG("break from location %d to %d",activeInstanceIdx, nextActiveInstanceIdx);
+    //                break;
+    //            }
+    //        } 
+    //        while (nextActiveSpell != activeInstance); // Loop for one round.
+
+    //        if (nextActiveSpell != activeInstance)
+    //        {
+    //            do_sound_menu_click();
+    //            set_players_packet_action(player, PckA_PossessionSelectSpell, nextActiveSpell, 0);
+    //        }
+    //    }
+    //}
+
     return false;
 }
 
