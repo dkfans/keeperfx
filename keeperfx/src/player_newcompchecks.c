@@ -175,11 +175,16 @@ long computer_check_for_door_attacks(struct Computer2 *comp)
 		if (i == dungeon->owner || dungeon_invalid(their_dungeon))
 			continue;
 
-		their_strength = calc_players_strength(their_dungeon);
-		attack_door_from_player[i] = their_strength < 0.8f * my_strength;
-		if (!attack_door_from_player[i])
-			attack_door_from_player[HERO_PLAYER] = 0; //to avoid opening frequent early blocking doors by level designers
-		//SYNCLOG("%d our: %f, their: %f", dungeon->owner, my_strength, their_strength);
+		if (players_are_enemies(dungeon->owner, i))
+		{
+			their_strength = calc_players_strength(their_dungeon);
+			attack_door_from_player[i] = their_strength < 0.8f * my_strength;
+			if (!attack_door_from_player[i])
+				attack_door_from_player[HERO_PLAYER] = 0; //to avoid opening frequent early blocking doors by level designers
+			//SYNCLOG("%d our: %f, their: %f", dungeon->owner, my_strength, their_strength);
+		}
+		else
+			attack_door_from_player[i] = 0;
 	}
 
 	struct Thing* strongest;
@@ -392,10 +397,14 @@ long computer_check_for_claims(struct Computer2 *comp)
 		their_dungeon = get_dungeon(i);
 		if (i == dungeon->owner || dungeon_invalid(their_dungeon))
 			continue;
-
-		their_strength = calc_players_strength(their_dungeon);
-		claim_from_player[i] = their_strength < 0.8f * my_strength;
-		//SYNCLOG("%d our: %f, their: %f", dungeon->owner, my_strength, their_strength);
+		if (players_are_enemies(dungeon->owner, i))
+		{
+			their_strength = calc_players_strength(their_dungeon);
+			claim_from_player[i] = their_strength < 0.8f * my_strength;
+			//SYNCLOG("%d our: %f, their: %f", dungeon->owner, my_strength, their_strength);
+		}
+		else
+			claim_from_player[i] = 0;
 	}
 
 	struct Thing* imp;
