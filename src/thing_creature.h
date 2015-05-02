@@ -142,7 +142,9 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind);
 void process_thing_spell_effects(struct Thing *thing);
 void process_thing_spell_effects_while_blocked(struct Thing *thing);
 void delete_effects_attached_to_creature(struct Thing *creatng);
-long get_spell_duration_left_on_thing(const struct Thing *thing, SpellKind spkind);
+TbBool thing_affected_by_spell(const struct Thing *thing, SpellKind spkind);
+GameTurnDelta get_spell_duration_left_on_thing_f(const struct Thing *thing, SpellKind spkind, const char *func_name);
+#define get_spell_duration_left_on_thing(thing, spkind) get_spell_duration_left_on_thing_f(thing, spkind, __func__)
 
 void anger_set_creature_anger_all_types(struct Thing *thing, long a2);
 void change_creature_owner(struct Thing *thing, PlayerNumber nowner);

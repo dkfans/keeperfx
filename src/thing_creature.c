@@ -804,7 +804,7 @@ TbBool creature_affected_by_slap(const struct Thing *thing)
  * @param spkind The spell kind to be checked.
  * @see thing_affected_by_spell()
  */
-long get_spell_duration_left_on_thing(const struct Thing *thing, SpellKind spkind)
+GameTurnDelta get_spell_duration_left_on_thing_f(const struct Thing *thing, SpellKind spkind, const char *func_name)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
@@ -813,17 +813,30 @@ long get_spell_duration_left_on_thing(const struct Thing *thing, SpellKind spkin
         ERRORLOG("Invalid creature control for thing %d",(int)thing->index);
         return 0;
     }
-    int i;
+    long i;
     for (i=0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
     {
-        struct CastedSpellData * cspell;
+        struct CastedSpellData *cspell;
         cspell = &cctrl->casted_spells[i];
         if (cspell->spkind == spkind) {
             return cspell->duration;
         }
     }
-    ERRORLOG("No spell of type %d on %s index %d",(int)spkind,thing_model_name(thing),(int)thing->index);
+    if (strcmp(func_name, "thing_affected_by_spell") != 0)
+        ERRORLOG("No spell of type %d on %s index %d",(int)spkind,thing_model_name(thing),(int)thing->index);
     return 0;
+}
+
+/**
+ * Returns if given spell is within list of spells affected by a thing.
+ * @param thing The thing which can have spells casted on.
+ * @param spkind The spell kind to be checked.
+ * @see get_spell_duration_left_on_thing() to get remaining time of the affection
+ * @see creature_affected_by_spell() to get more reliable info for creatures
+ */
+TbBool thing_affected_by_spell(const struct Thing *thing, SpellKind spkind)
+{
+    return (get_spell_duration_left_on_thing(thing, spkind) > 0);
 }
 
 long get_free_spell_slot(struct Thing *creatng)
