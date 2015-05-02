@@ -446,12 +446,12 @@ pkg/data/loading-32.raw \
 pkg/data/loading-64.raw \
 pkg/data/loading-128.raw \
 pkg/data/nocd-32.raw \
-pkg/ldata/front.raw \
-pkg/ldata/frontft1.dat \
-pkg/ldata/frontft2.dat \
-pkg/ldata/frontft3.dat \
-pkg/ldata/frontft4.dat \
-pkg/ldata/frontbit.dat
+pkg/ldata/front-64.raw \
+pkg/ldata/frontft1-64.dat \
+pkg/ldata/frontft2-64.dat \
+pkg/ldata/frontft3-64.dat \
+pkg/ldata/frontft4-64.dat \
+pkg/ldata/frontbit-64.dat
 
 ENGINEGFX = \
 pkg/data/thingspr-32.jty \
@@ -461,19 +461,19 @@ pkg/data/gui2-64.dat \
 pkg/data/gui2-32.dat \
 pkg/data/gui1-64.dat \
 pkg/data/gui1-32.dat \
-pkg/data/pointer64.dat \
-pkg/data/pointer32.dat \
-pkg/data/points64.dat \
-pkg/data/points32.dat \
+pkg/data/pointer-64.dat \
+pkg/data/pointer-32.dat \
+pkg/data/pointsm-64.dat \
+pkg/data/pointsm-32.dat \
 pkg/data/font1-64.dat \
 pkg/data/font1-32.dat \
 pkg/data/font2-32.dat \
 pkg/data/font2-64.dat \
 $(foreach miplv,32 128,$(foreach num,000 001 002 003 004 005 006 007,pkg/data/tmapa$(num)-$(miplv).dat)) \
 $(foreach miplv,32 128,$(foreach num,01 02 03 04 05 06,pkg/data/swipe$(num)-$(miplv).dat)) \
-pkg/data/gmap64.raw \
-pkg/data/gmap32.raw \
-pkg/data/gmapbug.dat
+pkg/data/gmap-64.raw \
+pkg/data/gmap-32.raw \
+pkg/data/gmapbug-64.dat
 
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
 HVLOGOBJS = $(subst obj/,obj/hvlog/,$(OBJS))
@@ -868,12 +868,12 @@ pkg/ldata/door08.dat: gfx/torturescr/filelist_tortr_doorh.txt pkg/ldata/torture.
 pkg/ldata/door09.dat: gfx/torturescr/filelist_tortr_doori.txt pkg/ldata/torture.pal $(PNGTORAW) $(RNC)
 pkg/ldata/torture.raw: gfx/torturescr/tortr_background.png pkg/ldata/torture.pal $(PNGTORAW) $(RNC)
 
-pkg/ldata/front.raw: gfx/frontend-64/front_background.png pkg/ldata/front.pal $(PNGTORAW) $(RNC)
-pkg/ldata/frontbit.dat: gfx/frontend-64/filelist_frontbit.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)
-pkg/ldata/frontft1.dat: gfx/font_front_hdr_red-64/filelist_frontft1.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)
-pkg/ldata/frontft2.dat: gfx/font_front_std_red-64/filelist_frontft2.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)
-pkg/ldata/frontft3.dat: gfx/font_front_std_ylw-64/filelist_frontft3.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)
-pkg/ldata/frontft4.dat: gfx/font_front_std_dkr-64/filelist_frontft4.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)
+pkg/ldata/front-64.raw: gfx/frontend-64/front_background.png pkg/ldata/front.pal $(PNGTORAW) $(RNC)
+pkg/ldata/frontbit-64.dat: gfx/frontend-64/filelist_frontbit.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)
+pkg/ldata/frontft1-64.dat: gfx/font_front_hdr_red-64/filelist_frontft1.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)
+pkg/ldata/frontft2-64.dat: gfx/font_front_std_red-64/filelist_frontft2.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)
+pkg/ldata/frontft3-64.dat: gfx/font_front_std_ylw-64/filelist_frontft3.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)
+pkg/ldata/frontft4-64.dat: gfx/font_front_std_dkr-64/filelist_frontft4.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)
 
 define define_gfx_texture_map_rule
 pkg/data/frac00-$(1).raw: gfx/textures-$(1)/frac00.png gfx/textures-$(1)/fract_bw.pal $(PNGTORAW) $(RNC)
@@ -898,9 +898,9 @@ endef
 
 $(foreach miplv,32 128,$(eval $(call define_gfx_texture_map_rule,$(miplv))))
 
-pkg/data/gmap32.raw: gfx/guimap/gmap32.png pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/gmap64.raw: gfx/guimap/gmap64.png pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/gmapbug.dat: gfx/parchmentbug/filelist-gbug.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/gmap-32.raw: gfx/guimap/gmap-32.png pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/gmap-64.raw: gfx/guimap/gmap-64.png pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/gmapbug-64.dat: gfx/parchmentbug/filelist-gbug.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
 pkg/data/legal-32.raw: gfx/loading/legal-32.png pkg/data/legal-32.pal $(PNGTORAW) $(RNC)
 pkg/data/legal-64.raw: gfx/loading/legal-64.png pkg/data/legal-64.pal $(PNGTORAW) $(RNC)
 pkg/data/legal-128.raw: gfx/loading/legal-128.png pkg/data/legal-128.pal $(PNGTORAW) $(RNC)
@@ -911,10 +911,10 @@ pkg/data/loading-32.raw: gfx/loading/loading-32.png pkg/data/loading-32.pal $(PN
 pkg/data/loading-64.raw: gfx/loading/loading-64.png pkg/data/loading-64.pal $(PNGTORAW) $(RNC)
 pkg/data/loading-128.raw: gfx/loading/loading-128.png pkg/data/loading-128.pal $(PNGTORAW) $(RNC)
 pkg/data/nocd-32.raw: gfx/loading/nocd-32.png pkg/data/nocd-32.pal $(PNGTORAW) $(RNC)
-pkg/data/pointer64.dat: gfx/pointer-64/filelist_pointer.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/pointer32.dat: gfx/pointer-64/filelist_lpointer.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/points64.dat: gfx/pointer-64/filelist_points.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
-pkg/data/points32.dat: gfx/pointer-64/filelist_lpoints.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/pointer-64.dat: gfx/pointer-64/filelist_pointer.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/pointer-32.dat: gfx/pointer-64/filelist_lpointer.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/pointsm-64.dat: gfx/pointer-64/filelist_points.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/pointsm-32.dat: gfx/pointer-64/filelist_lpoints.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
 
 pkg/data/thingspr-32.jty: gfx/sprites-32/animlist.txt pkg/data/palette.dat $(PNGTORAW)
 pkg/data/thingspr-128.jty: gfx/sprites-128/animlist.txt pkg/data/palette.dat $(PNGTORAW)

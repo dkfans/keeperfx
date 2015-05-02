@@ -70,11 +70,19 @@ void reload_parchment_file(TbBool hires)
   char *fname;
   if (hires)
   {
+#ifdef SPRITE_FORMAT_V2
+      fname = prepare_file_fmtpath(FGrp_StdData,"gmap-%d.raw",64);
+#else
       fname = prepare_file_path(FGrp_StdData,"gmap64.raw");
+#endif
       LbFileLoadAt(fname, hires_parchment);
   } else
   {
+#ifdef SPRITE_FORMAT_V2
+      fname = prepare_file_fmtpath(FGrp_StdData,"gmap-%d.raw",32);
+#else
       fname = prepare_file_path(FGrp_StdData,"gmap32.raw");
+#endif
       LbFileLoadAt(fname, poly_pool);
   }
   parchment_loaded = 1;
