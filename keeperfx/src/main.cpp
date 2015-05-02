@@ -146,6 +146,8 @@ struct Room *droom = &_DK_game.rooms[25];
 //static
 TbClockMSec last_loop_time=0;
 
+/** Informs if the application window is active (focused on screen). */
+extern volatile TbBool lbAppActive;
 #pragma region dllimports
 
 #ifdef __cplusplus
@@ -3824,6 +3826,9 @@ void keeper_gameplay_loop(void)
         _predict_power_hand_click_behavior();
         _check_if_mouse_is_over_any_button();
         LbWindowsControl();
+        SetMusicPlayerVolume(lbAppActive ? settings.redbook_volume : 0);
+        SetSoundMasterVolume(lbAppActive ? settings.sound_volume : 0);
+        SetMusicMasterVolume(lbAppActive ? settings.sound_volume : 0);
 
         update_mouse();
         input_eastegg();
@@ -4420,6 +4425,9 @@ void wait_at_frontend(void)
             break;
         }
       }
+      SetMusicPlayerVolume(lbAppActive ? settings.redbook_volume : 0);
+      SetSoundMasterVolume(lbAppActive ? settings.sound_volume : 0);
+      SetMusicMasterVolume(lbAppActive ? settings.sound_volume : 0);
       update_mouse();
       update_key_modifiers();
       old_mouse_over_button = frontend_mouse_over_button;

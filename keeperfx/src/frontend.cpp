@@ -659,6 +659,10 @@ void versions_different_error(void)
       if (lbKeyOn[KC_ESCAPE] || lbKeyOn[KC_SPACE] || lbKeyOn[KC_RETURN])
         break;
       LbWindowsControl();
+      SetMusicPlayerVolume(lbAppActive ? settings.redbook_volume : 0);
+      SetSoundMasterVolume(lbAppActive ? settings.sound_volume : 0);
+      SetMusicMasterVolume(lbAppActive ? settings.sound_volume : 0);
+
       if (LbScreenLock() == Lb_SUCCESS)
       {
         draw_text_box(text);
