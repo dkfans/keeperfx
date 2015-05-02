@@ -45,6 +45,14 @@ enum ObjectOwningCategory {
     ObOC_Unknown2,
     ObOC_Unknown3,
 };
+
+enum CallToArmsObjectLife {
+    CTAOL_Unset = 0,
+    CTAOL_Birthing,
+    CTAOL_Alive,
+    CTAOL_Dying,
+    CTAOL_Rebirthing,
+};
 /******************************************************************************/
 #pragma pack(1)
 
@@ -70,7 +78,7 @@ struct Objects {
 };
 
 struct CallToArmsGraphics {
-    int field_0;
+    int birth_spr_idx;
     int field_4;
     int field_8;
 };

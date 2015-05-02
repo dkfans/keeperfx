@@ -1514,7 +1514,7 @@ void set_call_to_arms_as_birthing(struct Thing *objtng)
     ctagfx = &call_to_arms_graphics[objtng->owner];
     struct Objects *objdat;
     objdat = get_objects_data_for_thing(objtng);
-    set_thing_draw(objtng, ctagfx->field_0, 256, objdat->sprite_size_max, 0, frame, 2);
+    set_thing_draw(objtng, ctagfx->birth_spr_idx, 256, objdat->sprite_size_max, 0, frame, 2);
     objtng->byte_13 = 1;
     stop_thing_playing_sample(objtng, 83);
     thing_play_sample(objtng, 83, NORMAL_PITCH, 0, 3, 0, 6, FULL_LOUDNESS);
@@ -1574,7 +1574,7 @@ TngUpdateRet object_update_call_to_arms(struct Thing *thing)
             pos.y.val = subtile_coord_center(dungeon->cta_stl_y);
             pos.z.val = get_thing_height_at(thing, &pos);
             move_thing_in_map(thing, &pos);
-            set_thing_draw(thing, ctagfx->field_0, 256, objdat->sprite_size_max, 0, 0, 2);
+            set_thing_draw(thing, ctagfx->birth_spr_idx, 256, objdat->sprite_size_max, 0, 0, 2);
             thing->byte_13 = 1;
             stop_thing_playing_sample(thing, 83);
             thing_play_sample(thing, 83, NORMAL_PITCH, 0, 3, 0, 6, FULL_LOUDNESS);
