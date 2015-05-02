@@ -77,14 +77,14 @@ enum GameKinds {
 };
 
 enum GameOperationFlags {
-    GOF_Unkn01           = 0x01,
-    GOF_Unkn02           = 0x02, /**< Play single level and then exit. */
+    GOF_Paused           = 0x01,
+    GOF_SingleLevel      = 0x02, /**< Play single level and then exit. */
     GOF_Unkn04           = 0x04,
-    GOF_Unkn08           = 0x08,
-    GOF_Unkn10           = 0x10,
-    GOF_Unkn20           = 0x20, /**< Showing main Gui. */
-    GOF_Unkn40           = 0x40, /**< Showing status menu. */
-    GOF_Unkn80           = 0x80, /**< Game allows Input. */
+    GOF_ColumnConvert    = 0x08, /**< Converts old column format to current. Deprecated, does nothing. */
+    GOF_LightConvert     = 0x10, /**< Converts old lights format to current. */
+    GOF_ShowGui          = 0x20, /**< Showing main Gui. */
+    GOF_ShowPanel        = 0x40, /**< Showing the tabbed panel. */
+    GOF_WorldInfluence   = 0x80, /**< Input to the in-game world is allowed. */
 };
 
 enum GameNumfieldDFlags {

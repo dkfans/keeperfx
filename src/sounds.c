@@ -272,7 +272,7 @@ void update_player_sounds(void)
     int k;
     struct PlayerInfo *player;
     SYNCDBG(7,"Starting");
-    if ((game.operation_flags & GOF_Unkn01) == 0)
+    if ((game.operation_flags & GOF_Paused) == 0)
     {
         player = get_my_player();
         process_messages();

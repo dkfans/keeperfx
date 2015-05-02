@@ -2425,7 +2425,7 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
     turn_off_all_window_menus();
     turn_off_query_menus();
     turn_on_main_panel_menu();
-    set_flag_byte(&game.operation_flags,GOF_Unkn40,(game.operation_flags & GOF_Unkn20) != 0);
+    set_flag_byte(&game.operation_flags,GOF_ShowPanel,(game.operation_flags & GOF_ShowGui) != 0);
   }
   light_turn_light_on(player->field_460);
 }

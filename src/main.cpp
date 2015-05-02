@@ -1010,7 +1010,7 @@ void init_keeper(void)
     game.comp_player_creatrsonly = 0;
     game.creatures_tend_imprison = 0;
     game.creatures_tend_flee = 0;
-    game.operation_flags |= GOF_Unkn40;
+    game.operation_flags |= GOF_ShowPanel;
     game.numfield_D |= (GNFldD_Unkn20 | GNFldD_Unkn40);
     init_censorship();
     SYNCDBG(9,"Finished");
@@ -1671,7 +1671,7 @@ void clear_complete_game(void)
     game.numfield_149F47 = 0;
     // Set levels to 0, as we may not have the campaign loaded yet
     set_continue_level_number(first_singleplayer_level());
-    if ((start_params.operation_flags & GOF_Unkn02) != 0)
+    if ((start_params.operation_flags & GOF_SingleLevel) != 0)
       set_selected_level_number(start_params.selected_level_number);
     else
       set_selected_level_number(first_singleplayer_level());
@@ -1834,7 +1834,7 @@ void clear_game_for_summary(void)
     game.entrance_room_id = 0;
     game.action_rand_seed = 0;
     game.operation_flags &= ~GOF_Unkn04;
-    game.operation_flags &= ~GOF_Unkn01;
+    game.operation_flags &= ~GOF_Paused;
     clear_columns();
     clear_action_points();
     clear_players();
@@ -1986,7 +1986,7 @@ void centre_engine_window(void)
 {
     long x1,y1;
     struct PlayerInfo *player=get_my_player();
-    if ((game.operation_flags & GOF_Unkn20) != 0)
+    if ((game.operation_flags & GOF_ShowGui) != 0)
       x1 = (MyScreenWidth-player->engine_window_width-status_panel_width) / 2 + status_panel_width;
     else
       x1 = (MyScreenWidth-player->engine_window_width) / 2;
@@ -3024,7 +3024,7 @@ void update(void)
     struct PlayerInfo *player;
     SYNCDBG(4,"Starting for turn %ld",(long)game.play_gameturn);
 
-    if ((game.operation_flags & GOF_Unkn01) == 0)
+    if ((game.operation_flags & GOF_Paused) == 0)
         update_light_render_area();
     process_packets();
     if (quit_game || exit_keeper) {
@@ -3036,7 +3036,7 @@ void update(void)
         return;
     }
 
-    if ((game.operation_flags & GOF_Unkn01) == 0)
+    if ((game.operation_flags & GOF_Paused) == 0)
     {
         player = get_my_player();
         if (player->field_3 & 0x08)
@@ -3552,7 +3552,7 @@ void packet_load_find_frame_rate(unsigned long incr)
  */
 short display_should_be_updated_this_turn(void)
 {
-    if ((game.operation_flags & GOF_Unkn01) != 0)
+    if ((game.operation_flags & GOF_Paused) != 0)
       return true;
     if ( (game.turns_fastforward == 0) && (!game.numfield_149F38) )
     {
@@ -3645,7 +3645,7 @@ void keeper_gameplay_loop(void)
     SYNCDBG(5,"Starting");
     player = get_my_player();
     PaletteSetPlayerPalette(player, engine_palette);
-    if ((game.operation_flags & GOF_Unkn02) != 0)
+    if ((game.operation_flags & GOF_SingleLevel) != 0)
         initialise_eye_lenses();
     SYNCDBG(0,"Entering the gameplay loop for level %d",(int)get_loaded_level_number());
 
@@ -4123,7 +4123,7 @@ void faststartup_saved_packet_game(void)
         player->flgfield_6 &= ~PlaF6_PlyrHasQuit;
     }
     set_gui_visible(false);
-    set_flag_byte(&game.operation_flags,GOF_Unkn40,false);
+    set_flag_byte(&game.operation_flags,GOF_ShowPanel,false);
 }
 
 void startup_network_game(TbBool local)
@@ -4213,7 +4213,7 @@ void wait_at_frontend(void)
       return;
     }
     // Prepare to enter network/standard game
-    if ((game.operation_flags & GOF_Unkn02) != 0)
+    if ((game.operation_flags & GOF_SingleLevel) != 0)
     {
       faststartup_network_game();
       return;
@@ -4344,7 +4344,7 @@ void wait_at_frontend(void)
           game.flags_cd |= MFlg_IsDemoMode;
           startup_saved_packet_game();
           set_gui_visible(false);
-          set_flag_byte(&game.operation_flags,GOF_Unkn40,false);
+          set_flag_byte(&game.operation_flags,GOF_ShowPanel,false);
           break;
     }
     player = get_my_player();
@@ -4376,7 +4376,7 @@ void game_loop(void)
         } else
         {
           game.numfield_15 = -1;
-          set_flag_byte(&game.operation_flags,GOF_Unkn01,false);
+          set_flag_byte(&game.operation_flags,GOF_Paused,false);
         }
       }
       unsigned long starttime;
@@ -4400,7 +4400,7 @@ void game_loop(void)
       clear_mapwho();
       endtime = LbTimerClock();
       quit_game = 0;
-      if ((game.operation_flags & GOF_Unkn02) != 0)
+      if ((game.operation_flags & GOF_SingleLevel) != 0)
           exit_keeper=true;
       playtime += endtime-starttime;
       SYNCDBG(0,"Play time is %d seconds",playtime>>10);
@@ -4509,7 +4509,7 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if ( strcasecmp(parstr,"level") == 0 )
       {
-        set_flag_byte(&start_params.operation_flags,GOF_Unkn02,true);
+        set_flag_byte(&start_params.operation_flags,GOF_SingleLevel,true);
         level_num = atoi(pr2str);
         narg++;
       } else
@@ -4548,15 +4548,15 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if (strcasecmp(parstr,"q") == 0)
       {
-         set_flag_byte(&start_params.operation_flags,GOF_Unkn02,true);
+         set_flag_byte(&start_params.operation_flags,GOF_SingleLevel,true);
       } else
       if (strcasecmp(parstr,"columnconvert") == 0)
       {
-         set_flag_byte(&start_params.operation_flags,GOF_Unkn08,true);
+         set_flag_byte(&start_params.operation_flags,GOF_ColumnConvert,true);
       } else
       if (strcasecmp(parstr,"lightconvert") == 0)
       {
-         set_flag_byte(&start_params.operation_flags,GOF_Unkn10,true);
+         set_flag_byte(&start_params.operation_flags,GOF_LightConvert,true);
       } else
       if (strcasecmp(parstr, "dbgshots") == 0)
       {

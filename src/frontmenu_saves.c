@@ -225,7 +225,7 @@ void init_load_menu(struct GuiMenu *gmnu)
   struct PlayerInfo *player;
   SYNCDBG(6,"Starting");
   player = get_my_player();
-  set_players_packet_action(player, PckA_Unknown082, 1, 1, 0, 0);
+  set_players_packet_action(player, PckA_UpdatePause, 1, 1, 0, 0);
   load_game_save_catalogue();
   update_loadsave_input_strings(save_game_catalogue);
 }
@@ -235,7 +235,7 @@ void init_save_menu(struct GuiMenu *gmnu)
   struct PlayerInfo *player;
   SYNCDBG(6,"Starting");
   player = get_my_player();
-  set_players_packet_action(player, PckA_Unknown082, 1, 1, 0, 0);
+  set_players_packet_action(player, PckA_UpdatePause, 1, 1, 0, 0);
   load_game_save_catalogue();
   update_loadsave_input_strings(save_game_catalogue);
 }

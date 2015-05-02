@@ -109,7 +109,7 @@ enum TbPacketAction {
         PckA_Unknown079,
         PckA_Unknown080,//80
         PckA_ZoomFromMap,
-        PckA_Unknown082,
+        PckA_UpdatePause,
         PckA_Unknown083,
         PckA_ZoomToRoom,
         PckA_ZoomToTrap,//85
