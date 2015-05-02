@@ -1374,6 +1374,7 @@ void computer_check_events(struct Computer2 *comp)
     }
 }
 
+static int counter_check_for_door_attacks[KEEPER_COUNT] = { 0, 1, 2, 3 };
 static int counter_check_for_claims[KEEPER_COUNT] = { 0, 1, 2, 3 };
 
 TbBool process_checks(struct Computer2 *comp)
@@ -1408,6 +1409,12 @@ TbBool process_checks(struct Computer2 *comp)
 		counter_check_for_claims[comp->dungeon->owner] = 0;
 		SYNCDBG(8,"Executing new check check_for_claims");
 		computer_check_for_claims(comp);
+	}
+	if (++counter_check_for_door_attacks[comp->dungeon->owner] >= 151)
+	{
+		counter_check_for_door_attacks[comp->dungeon->owner] = 0;
+		SYNCDBG(8,"Executing new check check_for_door_attacks");
+		computer_check_for_door_attacks(comp);
 	}
     return true;
 }
