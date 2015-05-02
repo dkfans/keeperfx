@@ -1496,17 +1496,18 @@ void set_call_to_arms_as_birthing(struct Thing *objtng)
     int frame;
     switch (objtng->byte_13)
     {
-    case 1:
+    case CTAOL_Birthing:
         frame = objtng->field_48;
         break;
-    case 2:
+    case CTAOL_Alive:
         frame = 0;
         break;
-    case 3:
-    case 4:
+    case CTAOL_Dying:
+    case CTAOL_Rebirthing:
         frame = objtng->field_49 - (int)objtng->field_48;
         break;
     default:
+        ERRORLOG("Invalid CTA object life state %d",(int)objtng->byte_13);
         frame = 0;
         break;
     }
@@ -1515,19 +1516,67 @@ void set_call_to_arms_as_birthing(struct Thing *objtng)
     struct Objects *objdat;
     objdat = get_objects_data_for_thing(objtng);
     set_thing_draw(objtng, ctagfx->birth_spr_idx, 256, objdat->sprite_size_max, 0, frame, 2);
-    objtng->byte_13 = 1;
+    objtng->byte_13 = CTAOL_Birthing;
     stop_thing_playing_sample(objtng, 83);
     thing_play_sample(objtng, 83, NORMAL_PITCH, 0, 3, 0, 6, FULL_LOUDNESS);
 }
 
 void set_call_to_arms_as_dying(struct Thing *objtng)
 {
-    _DK_set_call_to_arms_as_dying(objtng); return;
+    //_DK_set_call_to_arms_as_dying(objtng); return;
+    int frame;
+    switch (objtng->byte_13)
+    {
+    case CTAOL_Birthing:
+        frame = objtng->field_49 - (int)objtng->field_48;
+        break;
+    case CTAOL_Alive:
+        frame = 0;
+        break;
+    case CTAOL_Dying:
+    case CTAOL_Rebirthing:
+        frame = objtng->field_48;
+        break;
+    default:
+        ERRORLOG("Invalid CTA object life state %d",(int)objtng->byte_13);
+        frame = 0;
+        break;
+    }
+    struct CallToArmsGraphics *ctagfx;
+    ctagfx = &call_to_arms_graphics[objtng->owner];
+    struct Objects *objdat;
+    objdat = get_objects_data_for_thing(objtng);
+    set_thing_draw(objtng, ctagfx->field_8, 256, objdat->sprite_size_max, 0, frame, 2);
+    objtng->byte_13 = CTAOL_Dying;
 }
 
 void set_call_to_arms_as_rebirthing(struct Thing *objtng)
 {
-    _DK_set_call_to_arms_as_rebirthing(objtng); return;
+    //_DK_set_call_to_arms_as_rebirthing(objtng); return;
+    int frame;
+    switch (objtng->byte_13)
+    {
+    case CTAOL_Birthing:
+        frame = objtng->field_49 - (int)objtng->field_48;
+        break;
+    case CTAOL_Alive:
+        frame = 0;
+        break;
+    case CTAOL_Dying:
+    case CTAOL_Rebirthing:
+        frame = objtng->field_48;
+        break;
+    default:
+        ERRORLOG("Invalid CTA object life state %d",(int)objtng->byte_13);
+        frame = 0;
+        break;
+    }
+    struct CallToArmsGraphics *ctagfx;
+    ctagfx = &call_to_arms_graphics[objtng->owner];
+    struct Objects *objdat;
+    objdat = get_objects_data_for_thing(objtng);
+    set_thing_draw(objtng, ctagfx->field_8, 256, objdat->sprite_size_max, 0, frame, 2);
+    objtng->byte_13 = CTAOL_Rebirthing;
 }
 
 TngUpdateRet object_update_call_to_arms(struct Thing *thing)
@@ -1549,17 +1598,17 @@ TngUpdateRet object_update_call_to_arms(struct Thing *thing)
 
     switch (thing->byte_13)
     {
-    case 1:
+    case CTAOL_Birthing:
         if (thing->field_49 - 1 <= thing->field_48)
         {
-            thing->byte_13 = 2;
+            thing->byte_13 = CTAOL_Alive;
             set_thing_draw(thing, ctagfx->field_4, 256, objdat->sprite_size_max, 0, 0, 2);
             return 1;
         }
         break;
-    case 2:
+    case CTAOL_Alive:
         break;
-    case 3:
+    case CTAOL_Dying:
         if (thing->field_49 - 1 == thing->field_48)
         {
             player->field_43C = 0;
@@ -1567,7 +1616,7 @@ TngUpdateRet object_update_call_to_arms(struct Thing *thing)
             return -1;
         }
         break;
-    case 4:
+    case CTAOL_Rebirthing:
         if (thing->field_49 - 1 == thing->field_48)
         {
             pos.x.val = subtile_coord_center(dungeon->cta_stl_x);
@@ -1575,7 +1624,7 @@ TngUpdateRet object_update_call_to_arms(struct Thing *thing)
             pos.z.val = get_thing_height_at(thing, &pos);
             move_thing_in_map(thing, &pos);
             set_thing_draw(thing, ctagfx->birth_spr_idx, 256, objdat->sprite_size_max, 0, 0, 2);
-            thing->byte_13 = 1;
+            thing->byte_13 = CTAOL_Birthing;
             stop_thing_playing_sample(thing, 83);
             thing_play_sample(thing, 83, NORMAL_PITCH, 0, 3, 0, 6, FULL_LOUDNESS);
         }
