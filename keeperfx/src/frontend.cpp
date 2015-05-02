@@ -906,7 +906,11 @@ TbResult frontend_load_data(void)
     ret = Lb_SUCCESS;
     wait_for_cd_to_be_available();
     frontend_background = (unsigned char *)game.map;
+#ifdef SPRITE_FORMAT_V2
+    fname = prepare_file_fmtpath(FGrp_LoData,"front-%d.raw",64);
+#else
     fname = prepare_file_path(FGrp_LoData,"front.raw");
+#endif
     len = LbFileLoadAt(fname, frontend_background);
     if (len < 307200) {
         ret = Lb_FAIL;
@@ -915,7 +919,11 @@ TbResult frontend_load_data(void)
         WARNLOG("Reused memory area exceeded for frontend background.");
     }
     frontend_sprite_data = (unsigned char *)poly_pool;
+#ifdef SPRITE_FORMAT_V2
+    fname = prepare_file_fmtpath(FGrp_LoData,"frontbit-%d.dat",64);
+#else
     fname = prepare_file_path(FGrp_LoData,"frontbit.dat");
+#endif
     len = LbFileLoadAt(fname, frontend_sprite_data);
     if (len < 12) {
         frontend_end_sprite_data = frontend_sprite_data;
@@ -924,7 +932,11 @@ TbResult frontend_load_data(void)
         frontend_end_sprite_data = ((unsigned char *)frontend_sprite_data + len);
     }
     frontend_sprite = (struct TbSprite *)frontend_end_sprite_data;
+#ifdef SPRITE_FORMAT_V2
+    fname = prepare_file_fmtpath(FGrp_LoData,"frontbit-%d.tab",64);
+#else
     fname = prepare_file_path(FGrp_LoData,"frontbit.tab");
+#endif
     len = LbFileLoadAt(fname, frontend_sprite);
     if (len < 12) {
         frontend_end_sprite = frontend_sprite;
