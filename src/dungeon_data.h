@@ -258,7 +258,8 @@ int field_14AE;
     unsigned char devastation_centr_y;
     unsigned long devastation_turn;
     long creatures_total_pay;
-unsigned char field_14BC[6];
+unsigned short field_14BC;
+unsigned long field_14BE;
     /** Index of last creature picked up of given model. */
     unsigned short selected_creatures_of_model[CREATURE_TYPES_COUNT];
     /** Index of last creature picked up of given GUI Job. */

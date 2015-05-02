@@ -74,9 +74,49 @@ DLLIMPORT void _DK_stop_creatures_around_hand(char a1, unsigned short value, uns
 }
 #endif
 /******************************************************************************/
-struct Thing *create_gold_for_hand_grab(struct Thing *thing, long a2)
+struct Thing *create_gold_for_hand_grab(struct Thing *thing, long owner)
 {
-    return _DK_create_gold_for_hand_grab(thing, a2);
+    //return _DK_create_gold_for_hand_grab(thing, owner);
+    struct Thing *objtng;
+    objtng = INVALID_THING;
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(owner);
+    if (dungeon->field_14BC != thing->index)
+    {
+        dungeon->field_14BC = thing->index;
+        GoldAmount gold_req;
+        gold_req = thing->long_13 / 4 + 1;
+        if (gold_req <= 100)
+            gold_req = 100;
+        dungeon->field_14BE = gold_req;
+    }
+    struct Coord3d pos;
+    pos.x.val = thing->mappos.x.val;
+    pos.y.val = thing->mappos.y.val;
+    pos.z.val = thing->mappos.z.val;
+    GoldAmount gold_picked;
+    {
+        struct Room *room;
+        room = get_room_thing_is_on(thing);
+        if (!room_is_invalid(room))
+            gold_picked = remove_gold_from_hoarde(thing, room, dungeon->field_14BE);
+        else
+            gold_picked = 0;
+    }
+    if (gold_picked > 0)
+    {
+        objtng = create_object(&pos, 0x2Bu, game.neutral_player_num, -1);
+        if (!thing_is_invalid(objtng))
+        {
+            objtng->long_13 = gold_picked;
+            pos.z.val += 128;
+            struct Thing *efftng;
+            efftng = create_effect_element(&pos, 0x29u, owner);
+            if (!thing_is_invalid(efftng))
+                efftng->long_13 = gold_picked;
+        }
+    }
+    return objtng;
 }
 
 /**
