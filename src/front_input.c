@@ -280,7 +280,7 @@ long get_small_map_inputs(long x, long y, long zoom)
   dummy = 1;
   if (!grabbed_small_map)
     game.small_map_state = 0;
-  if (((game.numfield_C & 0x20) != 0) && (mouse_is_over_pannel_map(x,y) || grabbed_small_map))
+  if (((game.operation_flags & GOF_Unkn20) != 0) && (mouse_is_over_pannel_map(x,y) || grabbed_small_map))
   {
     if (left_button_clicked)
     {
@@ -466,7 +466,7 @@ short get_global_inputs(void)
         return true;
       }
   }
-  if ((game.numfield_C & 0x01) != 0)
+  if ((game.operation_flags & GOF_Unkn01) != 0)
       return true;
   if (get_speed_control_inputs())
       return true;
@@ -572,14 +572,14 @@ TbBool get_level_lost_inputs(void)
         if (player->view_mode != PVM_ParchFadeOut)
         {
           turn_off_all_window_menus();
-          set_flag_byte(&game.numfield_C, 0x40, (game.numfield_C & 0x20) != 0);
+          set_flag_byte(&game.operation_flags, GOF_Unkn40, (game.operation_flags & GOF_Unkn20) != 0);
           if (((game.system_flags & GSF_NetworkActive) != 0)
             || (lbDisplay.PhysicalScreenWidth > 320))
           {
                 if (toggle_status_menu(0))
-                  set_flag_byte(&game.numfield_C,0x40,true);
+                  set_flag_byte(&game.operation_flags,GOF_Unkn40,true);
                 else
-                  set_flag_byte(&game.numfield_C,0x40,false);
+                  set_flag_byte(&game.operation_flags,GOF_Unkn40,false);
                 set_players_packet_action(player, PckA_Unknown119, 4,0,0,0);
           } else
           {
@@ -605,7 +605,7 @@ TbBool get_level_lost_inputs(void)
         inp_done = menu_is_active(GMnu_SPELL_LOST);
         if ( !inp_done )
         {
-          if ((game.numfield_C & 0x20) != 0)
+          if ((game.operation_flags & GOF_Unkn20) != 0)
           {
             initialise_tab_tags_and_menu(3);
             turn_off_all_panel_menus();
@@ -666,7 +666,7 @@ TbBool get_level_lost_inputs(void)
       case PVT_MapScreen:
         if (menu_is_active(GMnu_SPELL_LOST))
         {
-          if ((game.numfield_C & 0x20) != 0)
+          if ((game.operation_flags & GOF_Unkn20) != 0)
             turn_off_menu(GMnu_SPELL_LOST);
         }
         break;
@@ -800,7 +800,7 @@ short get_creature_passenger_action_inputs(void)
   player = get_my_player();
   if (get_players_packet_action(player) != PckA_None)
     return 1;
-  if ( ((game.numfield_C & 0x01) == 0) || ((game.numfield_C & 0x80) != 0))
+  if ( ((game.operation_flags & GOF_Unkn01) == 0) || ((game.operation_flags & GOF_Unkn80) != 0))
       get_gui_inputs(1);
   if (player->controlled_thing_idx == 0)
     return false;
@@ -833,7 +833,7 @@ short get_creature_control_action_inputs(void)
     player = get_my_player();
     if (get_players_packet_action(player) != PckA_None)
         return 1;
-    if ( ((game.numfield_C & 0x01) == 0) || ((game.numfield_C & 0x80) != 0))
+    if ( ((game.operation_flags & GOF_Unkn01) == 0) || ((game.operation_flags & GOF_Unkn80) != 0))
         get_gui_inputs(1);
     if (is_key_pressed(KC_NUMPADENTER,KMod_DONTCARE))
     {
@@ -915,7 +915,7 @@ void get_packet_control_mouse_clicks(void)
     static int synthetic_right = 0;
     SYNCDBG(8,"Starting");
 
-    if ((game.numfield_C & 0x01) != 0)
+    if ((game.operation_flags & GOF_Unkn01) != 0)
     {
         return;
     }
@@ -1383,7 +1383,7 @@ void get_map_nonaction_inputs(void)
     } else {
         unset_packet_control(pckt, PCtr_MapCoordsValid);
     }
-    if (((game.numfield_C & 0x01) == 0) && (player->view_mode == PVM_ParchmentView))
+    if (((game.operation_flags & GOF_Unkn01) == 0) && (player->view_mode == PVM_ParchmentView))
     {
         get_overhead_view_nonaction_inputs();
     }
@@ -1622,7 +1622,7 @@ short get_inputs(void)
     {
         SYNCDBG(5,"Starting for creature fade");
         set_players_packet_position(player,127,127);
-        if ((!game_is_busy_doing_gui_string_input()) && (game.numfield_C & 0x01))
+        if ((!game_is_busy_doing_gui_string_input()) && ((game.operation_flags & GOF_Unkn01) != 0))
         {
           if ( is_game_key_pressed(Gkey_TogglePause, &keycode, 0) )
           {
@@ -1661,7 +1661,7 @@ short get_inputs(void)
         }
     }
     TbBool inp_handled = false;
-    if (((game.numfield_C & 0x01) == 0) || ((game.numfield_C & 0x80) != 0))
+    if (((game.operation_flags & GOF_Unkn01) == 0) || ((game.operation_flags & GOF_Unkn80) != 0))
         inp_handled = get_gui_inputs(1);
     if (!inp_handled)
         inp_handled = get_global_inputs();
@@ -1706,7 +1706,7 @@ short get_inputs(void)
         if (player->view_mode != PVM_ParchFadeIn)
         {
           if ((game.system_flags & GSF_NetworkActive) == 0)
-            game.numfield_C &= ~0x01;
+            game.operation_flags &= ~GOF_Unkn01;
           if (toggle_status_menu(0))
             player->field_1 |= 0x01;
           else

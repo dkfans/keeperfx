@@ -504,7 +504,7 @@ long pinstfs_direct_leave_creature(struct PlayerInfo *player, long *n)
       turn_off_all_window_menus();
       turn_off_query_menus();
       turn_on_main_panel_menu();
-      set_flag_byte(&game.numfield_C, 0x40, (game.numfield_C & 0x20) != 0);
+      set_flag_byte(&game.operation_flags, GOF_Unkn40, (game.operation_flags & GOF_Unkn20) != 0);
   }
   thing = thing_get(player->influenced_thing_idx);
   leave_creature_as_controller(player, thing);
@@ -545,7 +545,7 @@ long pinstfs_passenger_leave_creature(struct PlayerInfo *player, long *n)
     turn_off_all_window_menus();
     turn_off_query_menus();
     turn_on_main_panel_menu();
-    set_flag_byte(&game.numfield_C, 0x40, (game.numfield_C & 0x20) != 0);
+    set_flag_byte(&game.operation_flags, GOF_Unkn40, (game.operation_flags & GOF_Unkn20) != 0);
   }
   leave_creature_as_passenger(player, thing);
   player->allocflags |= PlaF_Unknown10;
@@ -781,7 +781,7 @@ long pinstfs_fade_from_map(struct PlayerInfo *player, long *n)
   {
     set_flag_byte(&player->field_1, 0x02, settings.tooltips_on);
     settings.tooltips_on = 0;
-    game.numfield_C &= ~0x0040;
+    game.operation_flags &= ~GOF_Unkn40;
   }
   player->field_4BD = 32;
   set_player_mode(player, PVT_DungeonTop);

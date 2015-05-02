@@ -496,7 +496,7 @@ void get_player_gui_clicks(void)
   struct Thing *thing;
   player = get_my_player();
 
-  if ( ((game.numfield_C & 0x01) != 0) && ((game.numfield_C & 0x80) == 0))
+  if ( ((game.operation_flags & GOF_Unkn01) != 0) && ((game.operation_flags & GOF_Unkn80) == 0))
     return;
 
   switch (player->view_type)
@@ -1746,7 +1746,7 @@ short frontend_save_continue_game(short allow_lvnum_grow)
     set_flag_byte(&player->field_3,0x10,flg_mem);
     // Only save continue if level was won, and not in packet mode
     if (((game.system_flags & GSF_NetworkActive) != 0)
-     || ((game.numfield_C & 0x02) != 0)
+     || ((game.operation_flags & GOF_Unkn02) != 0)
      || (game.packet_load_enable))
         return false;
     // Select the continue level (move the campaign forward)
@@ -2154,7 +2154,7 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
         amnu = get_active_menu(mnu_num);
         amnu->visual_state = 1;
         amnu->fade_time = gmnu->fade_time;
-        amnu->is_turned_on = ((game.numfield_C & 0x20) != 0) || (!is_toggleable_menu(gmnu->ident));
+        amnu->is_turned_on = ((game.operation_flags & GOF_Unkn20) != 0) || (!is_toggleable_menu(gmnu->ident));
         SYNCDBG(18,"Menu number %d already active",(int)mnu_num);
         return mnu_num;
     }
@@ -2200,7 +2200,7 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
     amnu->create_cb = gmnu->create_cb;
     amnu->is_monopoly_menu = gmnu->is_monopoly_menu;
     amnu->field_1F = gmnu->field_1F;
-    amnu->is_turned_on = ((game.numfield_C & 0x20) != 0) || (!is_toggleable_menu(gmnu->ident));
+    amnu->is_turned_on = ((game.operation_flags & GOF_Unkn20) != 0) || (!is_toggleable_menu(gmnu->ident));
     callback = amnu->create_cb;
     if (callback != NULL)
         callback(amnu);
@@ -2392,9 +2392,9 @@ TbBool toggle_first_person_menu(TbBool visible)
 void set_gui_visible(TbBool visible)
 {
   SYNCDBG(6,"Starting");
-  set_flag_byte(&game.numfield_C,0x20,visible);
+  set_flag_byte(&game.operation_flags,GOF_Unkn20,visible);
   struct PlayerInfo *player=get_my_player();
-  unsigned char is_visbl = ((game.numfield_C & 0x20) != 0);
+  unsigned char is_visbl = ((game.operation_flags & GOF_Unkn20) != 0);
   switch (player->view_type)
   {
   case PVT_CreatureContrl:
@@ -2410,7 +2410,7 @@ void set_gui_visible(TbBool visible)
       toggle_status_menu(is_visbl);
       break;
   }
-  if (((game.numfield_D & 0x20) != 0) && ((game.numfield_C & 0x20) != 0))
+  if (((game.numfield_D & 0x20) != 0) && ((game.operation_flags & GOF_Unkn20) != 0))
     setup_engine_window(status_panel_width, 0, MyScreenWidth, MyScreenHeight);
   else
     setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
@@ -2418,13 +2418,13 @@ void set_gui_visible(TbBool visible)
 
 void toggle_gui(void)
 {
-    TbBool visible = ((game.numfield_C & 0x20) == 0);
+    TbBool visible = ((game.operation_flags & GOF_Unkn20) == 0);
     set_gui_visible(visible);
 }
 
 void reinit_all_menus(void)
 {
-    TbBool visible = ((game.numfield_C & 0x20) != 0);
+    TbBool visible = ((game.operation_flags & GOF_Unkn20) != 0);
     init_gui();
     reset_gui_based_on_player_mode();
     set_gui_visible(visible);
@@ -2958,7 +2958,7 @@ char update_menu_fade_level(struct GuiMenu *gmnu)
 
 void toggle_gui_overlay_map(void)
 {
-    toggle_flag_byte(&game.numfield_C,0x20);
+    toggle_flag_byte(&game.operation_flags,GOF_Unkn20);
 }
 
 void draw_menu_buttons(struct GuiMenu *gmnu)

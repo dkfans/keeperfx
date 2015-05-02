@@ -75,6 +75,17 @@ enum GameKinds {
     GKind_Unknown4,
     GKind_MultiGame,
 };
+
+enum GameOperationFlags {
+    GOF_Unkn01           = 0x01,
+    GOF_Unkn02           = 0x02, /**< Play single level and then exit. */
+    GOF_Unkn04           = 0x04,
+    GOF_Unkn08           = 0x08,
+    GOF_Unkn10           = 0x10,
+    GOF_Unkn20           = 0x20, /**< Showing main Gui. */
+    GOF_Unkn40           = 0x40, /**< Showing status menu. */
+    GOF_Unkn80           = 0x80, /**< Game allows Input. */
+};
 /******************************************************************************/
 #pragma pack(1)
 
@@ -97,7 +108,8 @@ struct Game { // sizeof=0x151825
     LevelNumber continue_level_number;
     unsigned char system_flags;
 char align_B;
-    unsigned char numfield_C;
+    /** Flags which control how the game operates, mostly defined by command line. */
+    unsigned char operation_flags;
 char numfield_D;
     unsigned char flags_font;
     unsigned char flags_gui;

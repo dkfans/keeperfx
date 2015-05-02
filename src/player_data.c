@@ -332,8 +332,8 @@ void set_player_mode(struct PlayerInfo *player, long nview)
       }
       set_engine_view(player, i);
       if (is_my_player(player))
-        toggle_status_menu((game.numfield_C & 0x40) != 0);
-      if ((game.numfield_C & 0x20) != 0)
+        toggle_status_menu((game.operation_flags & GOF_Unkn40) != 0);
+      if ((game.operation_flags & GOF_Unkn20) != 0)
         setup_engine_window(status_panel_width, 0, MyScreenWidth, MyScreenHeight);
       else
         setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);

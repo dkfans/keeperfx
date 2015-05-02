@@ -680,7 +680,7 @@ TbBool setup_screen_mode(unsigned short nmode)
       return false;
     }
     setup_heap_manager();
-    game.numfield_C &= ~0x0004;
+    game.operation_flags &= ~GOF_Unkn04;
     force_video_mode_reset = false;
     SYNCDBG(8,"Finished");
     return true;

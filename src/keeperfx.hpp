@@ -109,7 +109,7 @@ struct StartupParameters {
     LevelNumber selected_level_number;
     unsigned char no_intro;
     unsigned char one_player;
-    unsigned char numfield_C;
+    unsigned char operation_flags;
     unsigned char flags_font;
     unsigned char flags_cd;
     unsigned char debug_flags;
