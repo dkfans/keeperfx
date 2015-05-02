@@ -279,7 +279,7 @@ struct Thing * find_creature_for_low_priority_attack(struct Dungeon* dungeon, Tb
 				state = get_creature_state_besides_move(thing);
 				if (state == CrSt_CreatureDoorCombat)
 					attackers += 1;
-				else if (state != CrSt_CreatureInCombat && CrSt_CreatureObjectCombat && !creature_is_being_dropped(thing) && can_thing_be_picked_up_by_player(thing, dungeon->owner))
+				else if (state != CrSt_CreatureInCombat && state != CrSt_CreatureObjectCombat && !creature_is_being_dropped(thing) && can_thing_be_picked_up_by_player(thing, dungeon->owner))
 				{
 					test += 1;
 					struct CreatureStats* crtrstats;
