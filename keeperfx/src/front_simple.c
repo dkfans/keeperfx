@@ -41,12 +41,45 @@
 extern "C" {
 #endif
 /******************************************************************************/
+#ifdef SPRITE_FORMAT_V2
+struct RawBitmap bitmaps_1280[] = {
+  {"Empty Image",    1280, 960, 8, FGrp_Main,     NULL,               NULL},
+  {"Loading Image",  1280, 960, 8, FGrp_StdData,  "loading-128.raw",  "loading-128.pal",},
+  {"NoCD Image",      320, 200, 8, FGrp_StdData,  "nocd-32.raw",      "nocd-32.pal",},
+  {"DK Legal Splash",1280, 960, 8, FGrp_StdData,  "legal-128.raw",    "legal-128.pal",},
+  {"KeeperFX Splash",1280, 960, 8, FGrp_StdData,  "startfx-128.raw",  "startfx-128.pal",},
+};
+
+struct RawBitmap bitmaps_640[] = {
+  {"Empty Image",     640, 480, 8, FGrp_Main,     NULL,               NULL},
+  {"Loading Image",   640, 480, 8, FGrp_StdData,  "loading-64.raw",   "loading-64.pal",},
+  {"NoCD Image",      320, 200, 8, FGrp_StdData,  "nocd-32.raw",      "nocd-32.pal",},
+  {"DK Legal Splash", 640, 480, 8, FGrp_StdData,  "legal-64.raw",     "legal-64.pal",},
+  {"KeeperFX Splash", 640, 480, 8, FGrp_StdData,  "startfx-64.raw",   "startfx-64.pal",},
+};
+
+struct RawBitmap bitmaps_320[] = {
+  {"Empty Image",     320, 200, 8, FGrp_Main,     NULL,               NULL},
+  {"Loading Image",   320, 200, 8, FGrp_StdData,  "loading-32.raw",   "loading-32.pal",},
+  {"NoCD Image",      320, 200, 8, FGrp_StdData,  "nocd-32.raw",      "nocd-32.pal",},
+  {"DK Legal Splash", 320, 200, 8, FGrp_StdData,  "legal-32.raw",     "legal-32.pal",},
+  {"KeeperFX Splash", 320, 200, 8, FGrp_StdData,  "startfx-32.raw",   "startfx-32.pal",},
+};
+#else
+struct RawBitmap bitmaps_1280[] = {
+  {"Empty Image",     640, 480, 8, FGrp_Main,     NULL,               NULL},
+  {"Loading Image",   640, 480, 8, FGrp_StdData,  "loading64.raw",    "loading64.pal",},
+  {"NoCD Image",      320, 200, 8, FGrp_StdData,  "nocd.raw",         "nocd.pal",},
+  {"DK Legal Splash", 640, 480, 8, FGrp_StdData,  "legal64.raw",      "legal64.pal",},
+  {"KeeperFX Splash", 640, 480, 8, FGrp_StdData,  "startfx64.raw",    "startfx64.pal",},
+};
+
 struct RawBitmap bitmaps_640[] = {
   {"Empty Image",     640, 480, 8, FGrp_Main,     NULL,               NULL},
   {"Loading Image",   640, 480, 8, FGrp_StdData,  "loading64.raw",    "loading64.pal",},
   {"NoCD Image",      320, 200, 8, FGrp_StdData,  "nocd.raw",         "nocd.pal",},
   {"DK Legal Splash", 640, 480, 8, FGrp_StdData,  "legal64.raw",      "legal64.pal",},
-  {"KeeperFX Splash", 640, 480, 8, FGrp_StdData,   "startfx64.raw",    "startfx64.pal",},
+  {"KeeperFX Splash", 640, 480, 8, FGrp_StdData,  "startfx64.raw",    "startfx64.pal",},
 };
 
 struct RawBitmap bitmaps_320[] = {
@@ -56,7 +89,7 @@ struct RawBitmap bitmaps_320[] = {
   {"DK Legal Splash", 320, 200, 8, FGrp_StdData,  "legal32.raw",      "legal32.pal",},
   {"KeeperFX Splash", 320, 200, 8, FGrp_StdData,  "startfx32.raw",    "startfx32.pal",},
 };
-
+#endif
 struct ActiveBitmap astd_bmp;
 struct ActiveBitmap nocd_bmp;
 /******************************************************************************/
@@ -243,6 +276,9 @@ TbBool init_bitmap_screen(struct ActiveBitmap *actv_bmp,int stype)
   unsigned char *buf;
   long ldsize;
   // Set startup parameters
+  if (LbGraphicsScreenWidth() >= 1280)
+    rbmp = &bitmaps_1280[stype];
+  else
   if (LbGraphicsScreenWidth() >= 640)
     rbmp = &bitmaps_640[stype];
   else
