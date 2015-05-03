@@ -1418,7 +1418,7 @@ TbBool process_checks(struct Computer2 *comp)
 		SYNCDBG(8,"Executing new check_for_door_attacks");
 		computer_check_for_door_attacks(comp);
 	}
-	if (++counter_check_for_imprison_tendency[comp->dungeon->owner] >= 253)
+	if (++counter_check_for_imprison_tendency[comp->dungeon->owner] >= 39)
 	{
 		counter_check_for_imprison_tendency[comp->dungeon->owner] = 0;
 		SYNCDBG(8,"Executing new check_for_imprison_tendency");

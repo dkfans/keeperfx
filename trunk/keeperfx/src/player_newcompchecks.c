@@ -214,7 +214,7 @@ long computer_check_for_door_attacks(struct Computer2 *comp)
 		for (x = 1; x < map_tiles_x - 1; ++x)
 		{
 			slab = get_slabmap_block(x, y);
-			if (!slab_kind_can_drop_here_now(slab->kind))
+			if (!slab_kind_can_drop_here_now(slab->kind) || slab->kind == SlbT_PRISON)
 				continue;
 
 			owner = slabmap_owner(slab);
