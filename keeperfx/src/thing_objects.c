@@ -1643,7 +1643,44 @@ TngUpdateRet object_update_armour(struct Thing *objtng)
 
 TngUpdateRet object_update_object_scale(struct Thing *objtng)
 {
-    return _DK_object_update_object_scale(objtng);
+    //return _DK_object_update_object_scale(objtng);
+    struct Thing *creatng;
+    creatng = thing_get(objtng->word_13);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    struct Objects *objdat;
+    objdat = get_objects_data_for_thing(objtng);
+    int start_frame;
+    int spr_size;
+    start_frame = objtng->field_48;
+    if (objtng->word_13) {
+        spr_size = 300 * cctrl->explevel / 20 + 300;
+    } else {
+        spr_size = objdat->sprite_size_max;
+    }
+    int cssize;
+    cssize = objtng->word_15;
+    objtng->word_17 = spr_size;
+    long i;
+    if (cssize+32 < spr_size)
+    {
+        objtng->word_15 = cssize+32;
+        i = convert_td_iso(objdat->field_5);
+    } else
+    if (cssize-32 > spr_size)
+    {
+        objtng->word_15 = cssize-32;
+        i = convert_td_iso(objdat->field_5);
+    } else
+    {
+        objtng->word_15 = spr_size;
+        i = convert_td_iso(objdat->field_5);
+    }
+    if ((i & 0x8000u) != 0) {
+        i = objdat->field_5;
+    }
+    set_thing_draw(objtng, i, objdat->anim_speed, objtng->word_15, 0, start_frame, objdat->field_11);
+    return 1;
 }
 
 TngUpdateRet object_update_armour2(struct Thing *objtng)
