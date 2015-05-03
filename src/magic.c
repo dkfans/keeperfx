@@ -1706,7 +1706,7 @@ void process_magic_power_call_to_arms(PlayerNumber plyr_idx)
 
     struct SlabMap *slb;
     slb = get_slabmap_for_subtile(dungeon->cta_stl_x, dungeon->cta_stl_y);
-    if (((duration % pwrdynst->time) == 0) && (slabmap_owner(slb) != plyr_idx))
+    if (((pwrdynst->time < 1) || ((duration % pwrdynst->time) == 0)) && (slabmap_owner(slb) != plyr_idx))
     {
         if (!pay_for_spell(plyr_idx, PwrK_CALL2ARMS, dungeon->cta_splevel)) {
             if (is_my_player_number(plyr_idx))
