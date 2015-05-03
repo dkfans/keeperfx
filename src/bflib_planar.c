@@ -39,7 +39,25 @@ void LbSetRect(struct TbRect *rect, long xLeft, long yTop, long xRight, long yBo
 }
 
 /**
- * Returns difference between angles, ranged -LbFPMath_PI to LbFPMath_PI.
+ * Returns symmetrical difference between angles, ranged -LbFPMath_PI to LbFPMath_PI.
+ * @param angle_a
+ * @param angle_b
+ */
+long get_angle_symmetric_difference(long angle_a, long angle_b)
+{
+    long diff;
+    diff = (angle_a & LbFPMath_AngleMask) - (angle_b & LbFPMath_AngleMask);
+    if (diff > LbFPMath_PI)
+        diff = (2*LbFPMath_PI - diff);
+    else
+    if (diff < -LbFPMath_PI)
+        diff = (2*LbFPMath_PI + diff);
+    return diff;
+}
+
+/**
+ * Returns unsigned difference between angles, ranged 0 to LbFPMath_PI.
+ * Information about sign of the angle is not provided.
  * @param angle_a
  * @param angle_b
  */

@@ -1540,7 +1540,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
              view_set_camera_rotation_inertia(cam, 16, 64);
             break;
         case PVM_FrontView:
-            cam->orient_a = (cam->orient_a + 512) & 0x7FF;
+            cam->orient_a = (cam->orient_a + LbFPMath_PI/2) & LbFPMath_AngleMask;
             break;
         }
     }
@@ -1552,7 +1552,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
             view_set_camera_rotation_inertia(cam, -16, -64);
             break;
         case PVM_FrontView:
-            cam->orient_a = (cam->orient_a - 512) & 0x7FF;
+            cam->orient_a = (cam->orient_a - LbFPMath_PI/2) & LbFPMath_AngleMask;
             break;
         }
     }

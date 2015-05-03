@@ -40,6 +40,7 @@ struct TbPoint {
 /******************************************************************************/
 void LbSetRect(struct TbRect *rect, long xLeft, long yTop, long xRight, long yBottom);
 
+long get_angle_symmetric_difference(long angle_a, long angle_b);
 long get_angle_difference(long angle_a, long angle_b);
 long get_angle_sign(long angle_a, long angle_b);
 

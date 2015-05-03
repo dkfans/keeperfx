@@ -1789,7 +1789,7 @@ TbBool thing_in_field_of_view(struct Thing *thing, struct Thing *checktng)
     crstat = creature_stats_get_from_thing(thing);
     angle = get_angle_xy_to(&thing->mappos, &checktng->mappos);
     angdiff = get_angle_difference(thing->move_angle_xy, angle);
-    return (abs(angdiff) < crstat->field_of_view);
+    return (angdiff < crstat->field_of_view);
 }
 
 long ranged_combat_move(struct Thing *thing, struct Thing *enmtng, MapCoordDelta enmdist, CrtrStateId nstat)
