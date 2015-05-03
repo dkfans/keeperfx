@@ -692,6 +692,7 @@ long computer_check_prison_management(struct Computer2* comp)
 
 		struct Room* room;
 
+		perform_action:
 		switch (search.best_action)
 		{
 		case PMA_Torture:
@@ -728,6 +729,16 @@ long computer_check_prison_management(struct Computer2* comp)
 					}
 					if (create_task_move_creature_to_subtile(comp, chicken, x, y, 0))
 						return CTaskRet_Unk1;
+				}
+				else
+				{
+					WARNLOG("Hatchery full despite there being no chickens");
+					//workaround for bug where hatchery is bugged and entirely at full capacity despite no chickens
+					if (can_heal_spell)
+						can_feed_chicken = 0;
+					else
+						search.best_action = search.can_torture? PMA_Torture : PMA_Kill;
+					goto perform_action;
 				}
 			}
 			else
