@@ -1065,7 +1065,7 @@ long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short speed)
         creature_set_speed(creatng, speed);
         return 0;
     }
-    if (creature_turn_to_face(creatng, &cctrl->navi.pos_next))
+    if (creature_turn_to_face(creatng, &cctrl->navi.pos_next) > 0)
     {
         creature_set_speed(creatng, 0);
         return 0;

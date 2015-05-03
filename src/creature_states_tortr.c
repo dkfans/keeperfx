@@ -222,7 +222,7 @@ long process_torture_visuals(struct Thing *thing, struct Room *room, CrtrStateId
         return 1;
     case CTVS_TortureInDevice:
         sectng = thing_get(cctrl->word_A6);
-        if (creature_turn_to_face_angle(thing, sectng->move_angle_xy) >= 85) {
+        if (creature_turn_to_face_angle(thing, sectng->move_angle_xy) >= LbFPMath_PI/12) {
             return 0;
         }
         thing->movement_flags &= ~TMvF_Flying;

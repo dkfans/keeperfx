@@ -395,7 +395,7 @@ short creature_being_summoned(struct Thing *thing)
         return 0;
     }
     // Rotate the creature as it appears from temple
-    creature_turn_to_face_angle(thing, thing->move_angle_xy + 256);
+    creature_turn_to_face_angle(thing, thing->move_angle_xy + LbFPMath_PI/4);
     return 0;
 }
 
@@ -595,7 +595,7 @@ short creature_being_sacrificed(struct Thing *thing)
     if (cctrl->word_9A > 0)
     {
         // No flying while being sacrificed
-        award = creature_turn_to_face_angle(thing, thing->move_angle_xy + 256);
+        creature_turn_to_face_angle(thing, thing->move_angle_xy + LbFPMath_PI/4);
         thing->movement_flags &= ~TMvF_Flying;
         return 0;
     }

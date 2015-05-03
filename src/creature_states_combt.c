@@ -2627,7 +2627,7 @@ long waiting_combat_move(struct Thing *figtng, struct Thing *enmtng, long enmdis
         creature_move_to(figtng, &enmtng->mappos, figctrl->max_speed, 0, 0);
         return 0;
     }
-    if (creature_turn_to_face(figtng, &enmtng->mappos) >= 85) {
+    if (creature_turn_to_face(figtng, &enmtng->mappos) >= LbFPMath_PI/12) {
         return 0;
     }
     // If the creature has ranged combat, let it fight

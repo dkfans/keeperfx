@@ -383,7 +383,7 @@ long process_creature_in_workshop(struct Thing *creatng, struct Room *room)
         struct Coord3d pos;
         pos.x.val = subtile_coord_center(cctrl->byte_9C);
         pos.y.val = subtile_coord_center(cctrl->byte_9D);
-        if (creature_turn_to_face(creatng, &pos) < 56)
+        if (creature_turn_to_face(creatng, &pos) < LbFPMath_PI/18)
         {
             cctrl->byte_9A = 5;
             cctrl->byte_9B = 75;

@@ -409,7 +409,7 @@ short at_lair_to_sleep(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    if ( !creature_turn_to_face_angle(thing, lairtng->move_angle_xy) )
+    if (creature_turn_to_face_angle(thing, lairtng->move_angle_xy) <= 0)
     {
         internal_set_thing_state(thing, CrSt_CreatureSleep);
         cctrl->field_82 = 200;
