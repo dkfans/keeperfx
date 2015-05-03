@@ -2718,8 +2718,9 @@ TbBool ariadne_creature_on_circular_hug(const struct Thing *thing, const struct 
 AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *arid)
 {
     //return _DK_ariadne_update_state_wallhug(thing, arid);
-    long distance;
-    NAVIDBG(19,"Starting");
+    MapCoordDelta distance;
+    NAVIDBG(19,"Route for %s index %d from %3d,%3d to %3d,%3d", thing_model_name(thing),(int)thing->index,
+        (int)thing->mappos.x.val, (int)thing->mappos.y.val, (int)arid->current_waypoint_pos.x.val, (int)arid->current_waypoint_pos.y.val);
     distance = get_2d_distance(&thing->mappos, &arid->current_waypoint_pos);
     if ((distance - arid->field_62) > 1024)
     {
@@ -2731,7 +2732,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
         pos.y.val = arid->endpos.y.val;
         pos.z.val = arid->endpos.z.val;
         if (ariadne_initialise_creature_route(thing, &pos, arid->move_speed, arid->route_flags)) {
-            return 3;
+            return AridRet_PartOK;
         }
         return AridRet_OK;
     }
@@ -2749,7 +2750,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
                 pos.y.val = arid->endpos.y.val;
                 pos.z.val = arid->endpos.z.val;
                 if (ariadne_initialise_creature_route(thing, &pos, arid->move_speed, arid->route_flags)) {
-                    return 3;
+                    return AridRet_PartOK;
                 }
             }
             else
@@ -2781,9 +2782,9 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
         {
             if (ariadne_creature_can_continue_direct_line_to_waypoint(thing, arid, arid->move_speed)) {
                 if (ariadne_init_movement_to_current_waypoint(thing, arid) < 1) {
-                    return 3;
+                    return AridRet_PartOK;
                 }
-                return 0;
+                return AridRet_OK;
             }
             arid->field_62 = distance;
         }

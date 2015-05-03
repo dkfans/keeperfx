@@ -1504,9 +1504,9 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
     struct Packet *pckt;
     struct Camera *cam;
     unsigned long zoom_min,zoom_max;
-    SYNCDBG(6,"Starting");
     player = get_player(plyr_idx);
     pckt = get_packet_direct(player->packet_num);
+    SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
     cam = player->acamera;
     long inter_val;
     switch (cam->view_mode)
@@ -1735,9 +1735,9 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   struct Thing *thing;
   struct Room *room;
   int i;
-  SYNCDBG(6,"Starting");
   player = get_player(plyr_idx);
   pckt = get_packet_direct(player->packet_num);
+  SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
   switch (pckt->action)
   {
   case PckA_Unknown001:
@@ -2101,36 +2101,36 @@ void process_map_packet_clicks(long plyr_idx)
     SYNCDBG(8,"Finished");
 }
 
-void process_players_packet(long idx)
+void process_players_packet(long plyr_idx)
 {
   struct PlayerInfo *player;
   struct Packet *pckt;
-  player = get_player(idx);
+  player = get_player(plyr_idx);
   pckt = get_packet_direct(player->packet_num);
-  SYNCDBG(6,"Processing player %d packet of type %d.",idx,(int)pckt->action);
+  SYNCDBG(6,"Processing player %d packet of type %d.",plyr_idx,(int)pckt->action);
   player->boolfield_4 = ((pckt->field_10 & 0x20) != 0);
   player->boolfield_5 = ((pckt->field_10 & 0x40) != 0);
   if (((player->allocflags & PlaF_NewMPMessage) != 0) && (pckt->action == PckA_PlyrMsgChar))
   {
      process_players_message_character(player);
   } else
-  if (!process_players_global_packet_action(idx))
+  if (!process_players_global_packet_action(plyr_idx))
   {
       switch (player->view_type)
       {
       case PVT_DungeonTop:
-        process_players_dungeon_control_packet_control(idx);
-        process_players_dungeon_control_packet_action(idx);
+        process_players_dungeon_control_packet_control(plyr_idx);
+        process_players_dungeon_control_packet_action(plyr_idx);
         break;
       case PVT_CreatureContrl:
-        process_players_creature_control_packet_control(idx);
-        process_players_creature_control_packet_action(idx);
+        process_players_creature_control_packet_control(plyr_idx);
+        process_players_creature_control_packet_action(plyr_idx);
         break;
       case PVT_CreaturePasngr:
-        process_players_creature_passenger_packet_action(idx);
+        process_players_creature_passenger_packet_action(plyr_idx);
         break;
       case PVT_MapScreen:
-        process_players_map_packet_control(idx);
+        process_players_map_packet_control(plyr_idx);
         break;
       default:
         break;
@@ -2139,13 +2139,13 @@ void process_players_packet(long idx)
   SYNCDBG(8,"Finished");
 }
 
-void process_players_creature_passenger_packet_action(long idx)
+void process_players_creature_passenger_packet_action(long plyr_idx)
 {
     struct PlayerInfo *player;
     struct Packet *pckt;
-    SYNCDBG(6,"Starting");
-    player = get_player(idx);
+    player = get_player(plyr_idx);
     pckt = get_packet_direct(player->packet_num);
+    SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
     if (pckt->action == PckA_PasngrCtrlExit)
     {
         player->influenced_thing_idx = pckt->actn_par1;
@@ -2156,11 +2156,11 @@ void process_players_creature_passenger_packet_action(long idx)
 
 TbBool process_players_dungeon_control_packet_action(long plyr_idx)
 {
-    SYNCDBG(6,"Starting");
     struct PlayerInfo *player;
     struct Packet *pckt;
     player = get_player(plyr_idx);
     pckt = get_packet_direct(player->packet_num);
+    SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
     switch (pckt->action)
     {
     case PckA_HoldAudience:
@@ -2331,9 +2331,9 @@ void process_players_creature_control_packet_action(long plyr_idx)
   struct Thing *thing;
   struct Packet *pckt;
   long i,k;
-  SYNCDBG(6,"Starting");
   player = get_player(plyr_idx);
   pckt = get_packet_direct(player->packet_num);
+  SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
   switch (pckt->action)
   {
   case PckA_Unknown033:

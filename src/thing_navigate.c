@@ -378,8 +378,8 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
     struct Coord3d nextpos;
     AriadneReturn follow_result;
     long i;
-    SYNCDBG(18,"Starting to move %s index %d from (%d,%d) to (%d,%d)",thing_model_name(thing),
-        (int)thing->index,(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num,(int)pos->x.stl.num,(int)pos->y.stl.num);
+    SYNCDBG(18,"Starting to move %s index %d from (%d,%d) to (%d,%d) with speed %d",thing_model_name(thing),
+        (int)thing->index,(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num,(int)pos->x.stl.num,(int)pos->y.stl.num,(int)speed);
     TRACE_THING(thing);
     if ( backward )
     {
@@ -431,10 +431,10 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
                 cctrl->moveaccel.z.val = 0;
             }
         }
-        SYNCDBG(18,"Backward target set, accel (%d,%d)",(int)cctrl->moveaccel.x.val,(int)cctrl->moveaccel.y.val);
+        SYNCDBG(18,"Backward target set, speed %d, accel (%d,%d)",(int)cctrl->move_speed,(int)cctrl->moveaccel.x.val,(int)cctrl->moveaccel.y.val);
     } else
     {
-        if (creature_turn_to_face(thing, &nextpos))
+        if (creature_turn_to_face(thing, &nextpos) != 0)
         {
             // Creature is turning - don't let it move
             creature_set_speed(thing, 0);
@@ -457,7 +457,7 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
                 cctrl->moveaccel.z.val = 0;
             }
         }
-        SYNCDBG(18,"Forward target set, accel (%d,%d)",(int)cctrl->moveaccel.x.val,(int)cctrl->moveaccel.y.val);
+        SYNCDBG(18,"Forward target set, speed %d, accel (%d,%d)",(int)cctrl->move_speed,(int)cctrl->moveaccel.x.val,(int)cctrl->moveaccel.y.val);
     }
     return 0;
 }
