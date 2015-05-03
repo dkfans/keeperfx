@@ -101,7 +101,19 @@ TbBool block_has_diggable_side(long plyr_idx, long slb_x, long slb_y)
 
 void create_gold_rubble_for_dug_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSubtlCoord stl_height, PlayerNumber owner)
 {
-    _DK_create_gold_rubble_for_dug_block(stl_x, stl_y, stl_height, owner);
+    //_DK_create_gold_rubble_for_dug_block(stl_x, stl_y, stl_height, owner);
+    struct Coord3d pos;
+    MapCoord cor_height;
+    pos.x.val = subtile_coord_center(stl_x);
+    pos.y.val = subtile_coord_center(stl_y);
+    cor_height = subtile_coord(stl_height,0);
+    pos.z.val = subtile_coord_center(1);
+    while (pos.z.val < cor_height)
+    {
+        create_effect(&pos, 0x1A, owner);
+        create_effect(&pos, 0x21, owner);
+        pos.z.val += COORD_PER_STL;
+    }
 }
 
 void create_dirt_rubble_for_dug_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSubtlCoord stl_height, PlayerNumber owner)
