@@ -24,6 +24,7 @@
 
 #include "creature_instances.h"
 #include "creature_states.h"
+#include "creature_states_lair.h"
 #include "game_legacy.h"
 #include "game_merge.h"
 #include "globals.h"
@@ -467,7 +468,7 @@ long computer_check_for_claims(struct Computer2 *comp)
 				continue;
 			local_best = max(local_best, eval);
 
-			if (found_unconscious)
+			if (found_unconscious && player_creature_tends_to(dungeon->owner, CrTend_Imprison))
 				local_best += 500;
 
 			//check for enemy creatures in a bit wider area if we reached this far
@@ -555,10 +556,12 @@ struct PrisonManageSearch
 
 static void search_list_for_good_prison_manage_action(short list_start, struct Dungeon* victim, struct PrisonManageSearch* search, TbBool should_heal_for_torture)
 {
+	struct Dungeon* captor_dungeon;
 	long i;
 	int k;
 	k = 0;
 	i = list_start;
+	captor_dungeon = get_dungeon(search->captor);
 	while (i != 0)
 	{
 		struct Thing *thing;
@@ -584,7 +587,7 @@ static void search_list_for_good_prison_manage_action(short list_start, struct D
 			priority = get_creature_thing_score(thing);
 			max_health = compute_creature_max_health(crtrstats->health, cctrl->explevel);
 
-			if (thing->health >= max_health)
+			if (thing->health * 10 >= max_health * 9)
 			{
 				if (search->can_torture)
 				{
@@ -596,7 +599,23 @@ static void search_list_for_good_prison_manage_action(short list_start, struct D
 					action = PMA_Kill;
 				}
 			}
-			else if (!crtrstats->humanoid_creature && !cctrl->instance_available[CrInst_HEAL]) //TODO: could add || for creature we want to keep anyway, better than skeleton
+			else if (cctrl->instance_available[CrInst_HEAL])
+			{
+				if (!creature_requires_healing(thing) //it will not heal self otherwise
+					&& search->can_torture)
+				{
+					if (search->can_heal)
+					{
+						action = PMA_Heal;
+					}
+					else
+					{
+						action = PMA_Torture;
+						priority *= 2;
+					}
+				}
+			}
+			else if (!crtrstats->humanoid_creature) //TODO: could add || for creature we want to keep anyway, better than skeleton
 			{
 				if (!search->can_torture)
 				{
@@ -605,12 +624,16 @@ static void search_list_for_good_prison_manage_action(short list_start, struct D
 				else if (!should_heal_for_torture || !search->can_heal)
 				{
 					action = PMA_Torture;
+					priority *= 2;
 				}
 				else
 				{
 					action = PMA_Heal;
 				}
 			}
+
+			if (action == PMA_Nothing && !crtrstats->humanoid_creature && !dungeon_has_room(captor_dungeon, RoK_TORTURE))
+				action = PMA_Kill;
 
 			if (action == PMA_Kill) //always prioritize killing to make room in dungeon, starting with low level creatures
 				priority = INT_MAX / 2 - priority;
