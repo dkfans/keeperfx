@@ -691,7 +691,25 @@ TngUpdateRet move_effect_element(struct Thing *thing)
 void change_effect_element_into_another(struct Thing *thing, long nmodel)
 {
     SYNCDBG(18,"Starting");
-    return _DK_change_effect_element_into_another(thing,nmodel);
+    //return _DK_change_effect_element_into_another(thing,nmodel);
+    struct EffectElementStats *eestat;
+    eestat = get_effect_element_model_stats(nmodel);
+    int scale, speed;
+    speed = eestat->sprite_speed_min + ACTION_RANDOM(eestat->sprite_speed_max - eestat->sprite_speed_min + 1);
+    scale = eestat->sprite_size_min + ACTION_RANDOM(eestat->sprite_size_max - eestat->sprite_size_min + 1);
+    thing->model = nmodel;
+    set_thing_draw(thing, eestat->sprite_idx, speed, scale, eestat->field_D, 0, 2);
+    thing->field_4F ^= (thing->field_4F ^ 0x02 * eestat->field_13) & 0x02;
+    thing->field_4F ^= (thing->field_4F ^ 0x10 * eestat->field_14) & 0x30;
+    thing->field_20 = eestat->field_18;
+    thing->field_23 = eestat->field_1A;
+    thing->field_24 = eestat->field_1C;
+    if (eestat->numfield_3 <= 0) {
+        thing->health = get_lifespan_of_animation(thing->anim_sprite, thing->field_3E);
+    } else {
+        thing->health = ACTION_RANDOM(eestat->numfield_5 - eestat->numfield_3 + 1) + eestat->numfield_3;
+    }
+    thing->field_49 = keepersprite_frames(thing->anim_sprite);
 }
 
 TngUpdateRet update_effect_element(struct Thing *elemtng)
