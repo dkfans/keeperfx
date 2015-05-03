@@ -155,7 +155,11 @@
  0003:00247820       frontstory_text_no
  0003:00247B28       frontend_background
  0003:000280E8       lbFontPtr
+ 0003:002477FC       frontstory_background
  0003:00247F3C       frontstory_font
+ 0003:00247400       frontstory_end_font
+ 0003:00247F5C       frontstory_font_data
+ 0003:00247B4C       frontstory_end_font_data
  0003:0001496C       FatalError
  0003:0002FB28       net_service_index_selected
  0003:000207B8       fade_palette_in
@@ -1574,6 +1578,7 @@
  0001:000A68B0       power_sight_explored
  0001:000246C0       draw_spell_cursor
  0001:00022D70       draw_mini_things_in_hand
+ 0001:00053E50       keepersprite_frames
  0001:00053E70       process_keeper_sprite
  0001:00053E00       update_tunneller_trail
  0001:00026320       engine_init

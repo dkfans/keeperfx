@@ -88,6 +88,7 @@ enum FrontendMenuState {
 
 struct GuiMenu;
 struct GuiButton;
+struct TbLoadFiles;
 
 struct DemoItem { //sizeof = 5
     unsigned char numfield_0;
@@ -100,6 +101,9 @@ struct NetMessage { // sizeof = 0x41
 };
 
 #pragma pack()
+/******************************************************************************/
+DLLIMPORT char *_DK_mdlf_for_cd(struct TbLoadFiles *);
+DLLIMPORT char *_DK_mdlf_default(struct TbLoadFiles *);
 /******************************************************************************/
 DLLIMPORT struct GuiButtonTemplate _DK_event_menu_buttons[];
 DLLIMPORT struct GuiButtonTemplate _DK_options_menu_buttons[];
@@ -216,9 +220,6 @@ DLLIMPORT extern unsigned char * _DK_button_sprite_data;
 #define button_sprite_data _DK_button_sprite_data
 DLLIMPORT extern unsigned long _DK_end_button_sprite_data;
 #define end_button_sprite_data _DK_end_button_sprite_data
-
-DLLIMPORT extern struct TbSprite *_DK_frontstory_font;
-#define frontstory_font _DK_frontstory_font
 
 DLLIMPORT extern struct TbSprite *_DK_winfont;
 #define winfont _DK_winfont

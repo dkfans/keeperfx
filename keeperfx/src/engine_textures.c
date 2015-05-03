@@ -110,7 +110,11 @@ TbBool load_texture_map_file(unsigned long tmapidx, unsigned char n)
 {
     char *fname;
     SYNCDBG(7,"Starting");
+#ifdef SPRITE_FORMAT_V2
+    fname = prepare_file_fmtpath(FGrp_StdData,"tmapa%03d-%d.dat",tmapidx,32);
+#else
     fname = prepare_file_fmtpath(FGrp_StdData,"tmapa%03d.dat",tmapidx);
+#endif
     if (!wait_for_cd_to_be_available())
         return false;
     if (!LbFileExists(fname))

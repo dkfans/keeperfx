@@ -4904,7 +4904,7 @@ long load_keepersprite_if_needed(unsigned short kspr_idx)
             heapmgr_make_newest(graphics_heap, *hmhndl);
         } else
         {
-            if ( !load_single_frame(kspr_idx+frame_num) )
+            if (!load_single_frame(kspr_idx+frame_num))
             {
                 return 0;
             }

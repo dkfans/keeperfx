@@ -142,8 +142,6 @@ DLLIMPORT void _DK_update(void);
 DLLIMPORT void _DK_wait_at_frontend(void);
 DLLIMPORT void _DK_delete_all_structures(void);
 DLLIMPORT void _DK_PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *palette);
-DLLIMPORT char *_DK_mdlf_for_cd(struct TbLoadFiles *);
-DLLIMPORT char *_DK_mdlf_default(struct TbLoadFiles *);
 
 
 // Global variables migration between DLL and the program
@@ -166,16 +164,10 @@ DLLIMPORT extern long _DK_last_mouse_x;
 #define last_mouse_x _DK_last_mouse_x
 DLLIMPORT extern long _DK_last_mouse_y;
 #define last_mouse_y _DK_last_mouse_y
-DLLIMPORT extern long _DK_frontstory_text_no;
-#define frontstory_text_no _DK_frontstory_text_no
 DLLIMPORT extern int _DK_FatalError;
 #define FatalError _DK_FatalError
-DLLIMPORT extern struct TbLoadFiles _DK_frontstory_load_files[4];
-#define frontstory_load_files _DK_frontstory_load_files
 DLLIMPORT extern long _DK_define_key_scroll_offset;
 #define define_key_scroll_offset _DK_define_key_scroll_offset
-DLLIMPORT extern struct TbSetupSprite _DK_frontstory_setup_sprites[2];
-#define frontstory_setup_sprites _DK_frontstory_setup_sprites
 DLLIMPORT extern unsigned long _DK_time_last_played_demo;
 #define time_last_played_demo _DK_time_last_played_demo
 DLLIMPORT extern short _DK_drag_menu_x;
