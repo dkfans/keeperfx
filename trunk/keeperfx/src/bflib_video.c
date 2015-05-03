@@ -458,10 +458,6 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
         return Lb_FAIL;
     }
 
-    // Working around SDL bug: use different size of window and renderer to keep movie full screen.
-    int isMovieMode = false;
-    isMovieMode = (mdinfo->Width == 320) && (mdinfo->Height == 200);
-
     // SDL video modeIndex flags
     sdlFlags = SDL_WINDOW_RESIZABLE;
     if ((mdinfo->VideoFlags & Lb_VF_WINDOWED) == 0) 
@@ -489,21 +485,11 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
     }
     else
     {
-        if (!isMovieMode)
-        {
-            // Reisze window when it already exists.
-            SDL_SetWindowSize(lbScreenWindow, mdinfo->Width, mdinfo->Height);
-            SDL_SetWindowFullscreen(lbScreenWindow, sdlFlags);
-
-            // Do not reset window location since it is disturbing.
-            // SDL_SetWindowPosition(lbScreenWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
-        }
+        // Reisze window when it already exists.
+        SDL_SetWindowSize(lbScreenWindow, mdinfo->Width, mdinfo->Height);
+        SDL_SetWindowFullscreen(lbScreenWindow, sdlFlags);
     }
 
-
-    // Working around a possible SDL bug: providing no flags 
-    // gives priority to available SDL_RENDERER_ACCELERATED renders, which cause memory leak
-    // on SDL_DestoryRenderer(), TODO report this when I have an account.
     if (lbGameRenderer == NULL)
     {
         lbGameRenderer = SDL_CreateRenderer(lbScreenWindow, -1, 0);
@@ -741,15 +727,15 @@ TbResult LbScreenReset(TbBool resetMainWindow)
     // will cause memory leak at SDL_DestroyRenderer. So instead of destroying everything
     // we simply resize the window. 
 
-    //SDL_DestroyRenderer(lbGameRenderer);
-    //lbGameRenderer = NULL;
+    SDL_DestroyRenderer(lbGameRenderer);
+    lbGameRenderer = NULL;
 
     // Only reset main windows at 'alt + r' event
-    //if (resetMainWindow)
-    //{
-    //    SDL_DestroyWindow(lbScreenWindow);
-    //    lbScreenWindow = NULL;
-    //}
+    if (resetMainWindow)
+    {
+        SDL_DestroyWindow(lbScreenWindow);
+        lbScreenWindow = NULL;
+    }
 
     // Mark as not initialized
     lbScreenInitialized = false;
