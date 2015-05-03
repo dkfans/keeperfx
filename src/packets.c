@@ -1843,9 +1843,9 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       player->minimap_zoom = pckt->actn_par1;
       return 0;
   case PckA_Unknown029:
-      player->cameras[CamIV_Index2].orient_a = pckt->actn_par1;
-      player->cameras[CamIV_Index3].orient_a = pckt->actn_par1;
-      player->cameras[CamIV_Index0].orient_a = pckt->actn_par1;
+      player->cameras[CamIV_Parchment].orient_a = pckt->actn_par1;
+      player->cameras[CamIV_FrontView].orient_a = pckt->actn_par1;
+      player->cameras[CamIV_Isometric].orient_a = pckt->actn_par1;
       return 0;
   case PckA_SetPlyrState:
       set_player_state(player, pckt->actn_par1, pckt->actn_par2);
@@ -1904,9 +1904,9 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       return 0;
   case PckA_ZoomFromMap:
       set_player_cameras_position(player, subtile_coord_center(pckt->actn_par1), subtile_coord_center(pckt->actn_par2));
-      player->cameras[CamIV_Index2].orient_a = 0;
-      player->cameras[CamIV_Index3].orient_a = 0;
-      player->cameras[CamIV_Index0].orient_a = 0;
+      player->cameras[CamIV_Parchment].orient_a = 0;
+      player->cameras[CamIV_FrontView].orient_a = 0;
+      player->cameras[CamIV_Isometric].orient_a = 0;
       if (((game.system_flags & GSF_NetworkActive) != 0)
           || (lbDisplay.PhysicalScreenWidth > 320))
       {
@@ -2082,8 +2082,8 @@ void process_players_map_packet_control(long plyr_idx)
     pckt = get_packet_direct(player->packet_num);
     // Get map coordinates
     process_map_packet_clicks(plyr_idx);
-    player->cameras[CamIV_Index2].mappos.x.val = pckt->pos_x;
-    player->cameras[CamIV_Index2].mappos.y.val = pckt->pos_y;
+    player->cameras[CamIV_Parchment].mappos.x.val = pckt->pos_x;
+    player->cameras[CamIV_Parchment].mappos.y.val = pckt->pos_y;
     set_mouse_light(player);
     SYNCDBG(8,"Finished");
 }

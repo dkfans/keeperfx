@@ -40,10 +40,10 @@ struct PlayerInfo;
 #define MINMAX_LENGTH         64
 
 enum CameraIndexValues {
-    CamIV_Index0 = 0,
-    CamIV_Index1,
-    CamIV_Index2,
-    CamIV_Index3,
+    CamIV_Isometric = 0,
+    CamIV_FirstPerson,
+    CamIV_Parchment,
+    CamIV_FrontView,
     CamIV_EndList
 };
 

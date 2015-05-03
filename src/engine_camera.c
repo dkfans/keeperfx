@@ -381,7 +381,7 @@ void init_player_cameras(struct PlayerInfo *player)
     heartng = get_player_soul_container(player->id_number);
     struct Camera *cam;
 
-    cam = &player->cameras[CamIV_Index1];
+    cam = &player->cameras[CamIV_FirstPerson];
     cam->mappos.x.val = 0;
     cam->orient_b = 0;
     cam->mappos.y.val = 0;
@@ -391,7 +391,7 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->view_mode = PVM_CreatureView;
     cam->mappos.z.val = 256;
 
-    cam = &player->cameras[CamIV_Index0];
+    cam = &player->cameras[CamIV_Isometric];
     cam->mappos.x.val = heartng->mappos.x.val;
     cam->mappos.y.val = heartng->mappos.y.val;
     cam->orient_c = 0;
@@ -402,14 +402,14 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->view_mode = PVM_IsometricView;
     cam->zoom = 10000;
 
-    cam = &player->cameras[CamIV_Index2];
+    cam = &player->cameras[CamIV_Parchment];
     cam->mappos.x.val = 0;
     cam->field_13 = 188;
     cam->view_mode = PVM_ParchmentView;
     cam->mappos.y.val = 0;
     cam->mappos.z.val = 32;
 
-    cam = &player->cameras[CamIV_Index3];
+    cam = &player->cameras[CamIV_FrontView];
     cam->mappos.x.val = heartng->mappos.x.val;
     cam->mappos.y.val = heartng->mappos.y.val;
     cam->field_13 = 188;
