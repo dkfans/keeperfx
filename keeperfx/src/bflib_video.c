@@ -362,7 +362,8 @@ TbResult LbScreenInitialize(void)
     }
 
     // Initialize SDL library
-    if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE|SDL_INIT_AUDIO) < 0) {
+    if (SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO) < 0) 
+    {
         ERRORLOG("SDL init: %s",SDL_GetError());
         return Lb_FAIL;
     }
