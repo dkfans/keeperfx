@@ -633,9 +633,13 @@ static void search_list_for_good_prison_manage_action(short list_start, struct D
 			}
 
 			if (action == PMA_Nothing && !crtrstats->humanoid_creature && !dungeon_has_room(captor_dungeon, RoK_TORTURE))
+			{
 				action = PMA_Kill;
+				if (cctrl->instance_available[CrInst_HEAL])
+					priority /= 4;
+			}
 
-			if (action == PMA_Kill) //always prioritize killing to make room in dungeon, starting with low level creatures
+			if (action == PMA_Kill && thing->health * 7 < max_health) //always prioritize easy killing to make room in dungeon, starting with low level creatures
 				priority = INT_MAX / 2 - priority;
 
 			if (action != PMA_Nothing && priority > search->best_priority)
