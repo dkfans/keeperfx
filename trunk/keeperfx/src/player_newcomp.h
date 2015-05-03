@@ -34,11 +34,14 @@ TbBool is_digging_any_gems(struct Dungeon *dungeon);
 struct Thing * find_imp_for_sacrifice(struct Dungeon* dungeon);
 struct Thing * find_imp_for_claim(struct Dungeon* dungeon);
 struct Thing * find_creature_for_low_priority_attack(struct Dungeon* dungeon, TbBool strong);
+struct Thing * find_any_chicken(struct Dungeon* dungeon);
 float calc_players_strength(struct Dungeon* dungeon);
 
 //checks
 long computer_check_for_door_attacks(struct Computer2 *comp);
 long computer_check_for_claims(struct Computer2 *comp);
+long computer_check_for_imprison_tendency(struct Computer2* comp);
+long computer_check_prison_management(struct Computer2* comp);
 
 #ifdef __cplusplus
 }

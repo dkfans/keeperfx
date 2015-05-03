@@ -1376,6 +1376,8 @@ void computer_check_events(struct Computer2 *comp)
 
 static int counter_check_for_door_attacks[KEEPER_COUNT] = { 0, 1, 2, 3 };
 static int counter_check_for_claims[KEEPER_COUNT] = { 0, 1, 2, 3 };
+static int counter_check_for_imprison_tendency[KEEPER_COUNT] = { 0, 1, 2, 3 };
+static int counter_check_prison_management[KEEPER_COUNT] = { 0, 1, 2, 3 };
 
 TbBool process_checks(struct Computer2 *comp)
 {
@@ -1404,18 +1406,31 @@ TbBool process_checks(struct Computer2 *comp)
 
 	//checks not entered into regular system yet
 	//TODO: generalize and use config
-	if (++counter_check_for_claims[comp->dungeon->owner] >= 100)
+	if (++counter_check_for_claims[comp->dungeon->owner] >= 51)
 	{
 		counter_check_for_claims[comp->dungeon->owner] = 0;
-		SYNCDBG(8,"Executing new check check_for_claims");
+		SYNCDBG(8,"Executing new check_for_claims");
 		computer_check_for_claims(comp);
 	}
 	if (++counter_check_for_door_attacks[comp->dungeon->owner] >= 151)
 	{
 		counter_check_for_door_attacks[comp->dungeon->owner] = 0;
-		SYNCDBG(8,"Executing new check check_for_door_attacks");
+		SYNCDBG(8,"Executing new check_for_door_attacks");
 		computer_check_for_door_attacks(comp);
 	}
+	if (++counter_check_for_imprison_tendency[comp->dungeon->owner] >= 253)
+	{
+		counter_check_for_imprison_tendency[comp->dungeon->owner] = 0;
+		SYNCDBG(8,"Executing new check_for_imprison_tendency");
+		computer_check_for_imprison_tendency(comp);
+	}
+	if (++counter_check_prison_management[comp->dungeon->owner] >= 41)
+	{
+		counter_check_prison_management[comp->dungeon->owner] = 0;
+		SYNCDBG(8,"Executing new check_prison_management");
+		computer_check_prison_management(comp);
+	}
+
     return true;
 }
 

@@ -22,6 +22,7 @@
 
 #include "bflib_math.h"
 
+#include "creature_instances.h"
 #include "creature_states.h"
 #include "game_legacy.h"
 #include "game_merge.h"
@@ -29,6 +30,7 @@
 #include "magic.h"
 #include "map_data.h"
 #include "player_computer.h"
+#include "power_hand.h"
 #include "slab_data.h"
 #include "thing_list.h"
 #include "thing_stats.h"
@@ -158,7 +160,7 @@ static int eval_door_attack_check_neighbor(MapSlabCoord x, MapSlabCoord y, MapSl
 
 long computer_check_for_door_attacks(struct Computer2 *comp)
 {
-	//using this check to pressure enemy when we have an advantage
+	//using this check to break through enemy doors and destroy dungeon heart when we have an advantage
 
 	struct Dungeon *dungeon;
 	SYNCDBG(8,"Starting");
@@ -274,6 +276,7 @@ long computer_check_for_door_attacks(struct Computer2 *comp)
 
 // CHECK FOR CLAIMS ///////////////////////////////////////////////////////////////////////////////
 
+static TbBool found_unconscious; //ugly, and prevents using OpenMP later
 static TngUpdateRet eval_claim_check_neighbor_callback(struct Thing* thing, ModTngFilterParam filter)
 {
 	//return/param semantics basically ignored, we used our own
@@ -306,6 +309,8 @@ static TngUpdateRet eval_claim_check_neighbor_callback(struct Thing* thing, ModT
 		}
 		else
 		{
+			if (thing->owner != dungeon->owner)
+				found_unconscious = 1;
 			return 0; //always ignore unconscious creatures
 		}
 
@@ -382,7 +387,7 @@ static int eval_claim_check_neighbor(MapSlabCoord x, MapSlabCoord y, struct Dung
 
 long computer_check_for_claims(struct Computer2 *comp)
 {
-	//using this check to pressure enemy when we have an advantage
+	//check for claiming land and capturing prisoners
 
 	struct Dungeon *dungeon;
 	SYNCDBG(8,"Starting");
@@ -438,6 +443,7 @@ long computer_check_for_claims(struct Computer2 *comp)
 				continue;
 
 			//ignore places with friendly imps, enemy creatures
+			found_unconscious = 0;
 			if (do_to_things_with_param_on_tile(x, y, eval_claim_check_neighbor_callback, (ModTngFilterParam)dungeon) != 0)
 				continue;
 
@@ -460,6 +466,9 @@ long computer_check_for_claims(struct Computer2 *comp)
 			if (eval < 0) //disqualify tiles with neighbors that have imps or traps
 				continue;
 			local_best = max(local_best, eval);
+
+			if (found_unconscious)
+				local_best += 500;
 
 			//check for enemy creatures in a bit wider area if we reached this far
 			if (!thing_is_invalid(get_creature_in_range_who_is_enemy_of_able_to_attack_and_not_specdigger(
@@ -484,6 +493,257 @@ long computer_check_for_claims(struct Computer2 *comp)
 
 		SYNCDBG(18, "Dropped imp to claim for %d", dungeon->owner);
 		return CTaskRet_Unk1;
+	}
+
+	return CTaskRet_Unk4;
+}
+
+// CHECK FOR IMPRISON TENDENCY ////////////////////////////////////////////////////////////////////
+
+long computer_check_for_imprison_tendency(struct Computer2* comp)
+{
+	//small check to dynamically toggle imprison tendency based on available prison space
+
+	struct Dungeon *dungeon;
+	TbBool current_state, desired_state;
+	SYNCDBG(8,"Starting");
+	dungeon = comp->dungeon;
+
+	current_state = player_creature_tends_to(dungeon->owner, CrTend_Imprison);
+
+	if (dungeon_has_room(dungeon, RoK_PRISON))
+	{
+		long total, used;
+		get_room_kind_total_and_used_capacity(dungeon, RoK_PRISON, &total, &used);
+		desired_state = used < total;
+	}
+	else
+		desired_state = 0;
+
+	if (current_state != desired_state)
+	{
+		//ugly and breaks encapsulation but GA_SetTendencies expects final mask
+		unsigned char new_tendencies;
+		new_tendencies = dungeon->creature_tendencies ^ 0x01;
+
+		if (try_game_action(comp, dungeon->owner, GA_SetTendencies, 0, 0, 0, new_tendencies, 0) == Lb_OK)
+			return CTaskRet_Unk1;
+	}
+
+	return CTaskRet_Unk4;
+}
+
+//CHECK PRISON MANAGEMENT /////////////////////////////////////////////////////////////////////////
+
+enum PrisonManageAction
+{
+	PMA_Nothing,
+	PMA_Heal,
+	PMA_Torture,
+	PMA_Kill,
+};
+
+struct PrisonManageSearch
+{
+	int captor;
+	struct Thing* best_thing;
+	long best_priority;
+	enum PrisonManageAction best_action;
+	TbBool can_torture;
+	TbBool can_heal;
+};
+
+static void search_list_for_good_prison_manage_action(short list_start, struct Dungeon* victim, struct PrisonManageSearch* search, TbBool should_heal_for_torture)
+{
+	long i;
+	int k;
+	k = 0;
+	i = list_start;
+	while (i != 0)
+	{
+		struct Thing *thing;
+		struct CreatureControl *cctrl;
+		thing = thing_get(i);
+		cctrl = creature_control_get_from_thing(thing);
+		if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+		{
+			ERRORLOG("Jump to invalid creature detected");
+			break;
+		}
+		i = cctrl->players_next_creature_idx;
+		// Thing list loop body
+		if (creature_is_kept_in_prison(thing)
+				&& !creature_is_being_dropped(thing)
+				&& can_thing_be_picked_up_by_player(thing, search->captor)) {
+			struct CreatureStats* crtrstats;
+			long priority;
+			int max_health;
+			enum PrisonManageAction action;
+			action = PMA_Nothing;
+			crtrstats = creature_stats_get_from_thing(thing);
+			priority = get_creature_thing_score(thing);
+			max_health = compute_creature_max_health(crtrstats->health, cctrl->explevel);
+
+			if (thing->health >= max_health)
+			{
+				if (search->can_torture)
+				{
+					action = PMA_Torture;
+					priority *= 2;
+				}
+				else
+				{
+					action = PMA_Kill;
+				}
+			}
+			else if (!crtrstats->humanoid_creature && !cctrl->instance_available[CrInst_HEAL]) //TODO: could add || for creature we want to keep anyway, better than skeleton
+			{
+				if (!search->can_torture)
+				{
+					action = PMA_Kill;
+				}
+				else if (!should_heal_for_torture || !search->can_heal)
+				{
+					action = PMA_Torture;
+				}
+				else
+				{
+					action = PMA_Heal;
+				}
+			}
+
+			if (action == PMA_Kill) //always prioritize killing to make room in dungeon, starting with low level creatures
+				priority = INT_MAX / 2 - priority;
+
+			if (action != PMA_Nothing && priority > search->best_priority)
+			{
+				search->best_priority = priority;
+				search->best_thing = thing;
+				search->best_action = action;
+			}
+		}
+		// Thing list loop body ends
+		k++;
+		if (k > CREATURES_COUNT)
+		{
+			ERRORLOG("Infinite loop detected when sweeping creatures list");
+			return;
+		}
+	}
+}
+
+long computer_check_prison_management(struct Computer2* comp)
+{
+	//check to manage creatures in prison: heal, transfer to torture chamber
+	//TODO: could add transfer to better prison if prison is in danger
+	//TODO: could heal tortured prisoners
+	
+	struct Dungeon *dungeon;
+	SYNCDBG(8,"Starting");
+	dungeon = comp->dungeon;
+
+	if (!dungeon_has_room(dungeon, RoK_PRISON))
+		return CTaskRet_Unk4;
+
+	struct PrisonManageSearch search;
+	TbBool can_feed_chicken, can_heal_spell;
+
+	can_heal_spell = get_computer_money_less_cost(comp) > 10000;
+	can_feed_chicken = 0;
+	if (dungeon_has_room(dungeon, RoK_GARDEN))
+	{
+		long total, used;
+		get_room_kind_total_and_used_capacity(dungeon, RoK_GARDEN, &total, &used);
+		can_feed_chicken = used * 2 >= total;
+	}
+
+	search.can_heal = can_feed_chicken || can_heal_spell;
+	search.can_torture = 0;
+	if (dungeon_has_room(dungeon, RoK_TORTURE))
+	{
+		long total, used;
+		get_room_kind_total_and_used_capacity(dungeon, RoK_TORTURE, &total, &used);
+		search.can_torture = used < total;
+	}
+
+	search.captor = dungeon->owner;
+	search.best_thing = INVALID_THING;
+	search.best_priority = INT_MIN;
+	search.best_action = PMA_Nothing;
+	int i;
+	for (i = 0; i < PLAYERS_COUNT; ++i)
+	{
+		if (i == dungeon->owner || !player_exists(get_player(i)) || !players_are_enemies(dungeon->owner, i))
+			continue;
+
+		struct Dungeon* their_dungeon;
+		their_dungeon = get_dungeon(i);
+		if (dungeon_invalid(their_dungeon))
+			continue;
+
+		//go through all creatures of enemy player, see which best to take action for
+		search_list_for_good_prison_manage_action(their_dungeon->creatr_list_start, their_dungeon, &search, 1);
+		search_list_for_good_prison_manage_action(their_dungeon->digger_list_start, their_dungeon, &search, 0);
+	}
+
+	if (!thing_is_invalid(search.best_thing))
+	{
+		SYNCDBG(18, "Prison management action for player %d: %d", dungeon->owner, search.best_action);
+
+		struct Room* room;
+
+		switch (search.best_action)
+		{
+		case PMA_Torture:
+			room = find_room_with_spare_capacity(dungeon->owner, RoK_TORTURE, 1);
+			if (!room_is_invalid(room))
+			{
+				MapSlabCoord x, y;
+				i = room->slabs_list;
+				x = slb_num_decode_x(i);
+				y = slb_num_decode_y(i);
+				if (create_task_move_creature_to_subtile(comp, search.best_thing,
+						x * STL_PER_SLB + 1, y * STL_PER_SLB + 1, CrSt_Torturing))
+					return CTaskRet_Unk1;
+			}
+			break;
+		case PMA_Heal:
+			if (can_feed_chicken && can_heal_spell && is_digging_any_gems(dungeon))
+				can_feed_chicken = ACTION_RANDOM(6) != 0; //use heal spell sometimes
+
+			if (can_feed_chicken)
+			{
+				struct Thing* chicken;
+				chicken = find_any_chicken(dungeon);
+				if (!thing_is_invalid(chicken))
+				{
+					MapSubtlCoord x, y;
+					x = search.best_thing->mappos.x.stl.num;
+					y = search.best_thing->mappos.y.stl.num;
+					if (ACTION_RANDOM(3) == 0)
+					{
+						//random offset for amusement
+						x += ACTION_RANDOM(3) - 1;
+						y += ACTION_RANDOM(3) - 1;
+					}
+					if (create_task_move_creature_to_subtile(comp, chicken, x, y, 0))
+						return CTaskRet_Unk1;
+				}
+			}
+			else
+			{
+				if (try_game_action(comp, dungeon->owner, GA_UsePwrHealCrtr, SPELL_MAX_LEVEL, 0, 0, search.best_thing->index, 0) > Lb_OK)
+					return CTaskRet_Unk1;
+			}
+			break;
+		case PMA_Kill:
+			if (can_cast_spell(dungeon->owner, PwrK_SLAP, search.best_thing->mappos.x.stl.num, search.best_thing->mappos.y.stl.num, search.best_thing, CastChk_Default)
+					&& try_game_action(comp, dungeon->owner, GA_UsePwrSlap, 0, 0, 0, search.best_thing->index, 0) > Lb_OK)
+				return CTaskRet_Unk2;
+			break;
+		case PMA_Nothing: //avoid untested enum warning
+			break;
+		}
 	}
 
 	return CTaskRet_Unk4;
