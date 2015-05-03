@@ -2419,7 +2419,7 @@ long task_move_creature_to_pos(struct Computer2 *comp, struct ComputerTask *ctas
     {
         if (ctask->move_to_pos.target_thing_idx == comp->held_thing_idx)
         {
-            if (thing_is_creature(thing))
+            if (thing_is_creature(thing) || thing_is_mature_food(thing))
             {
                 if (computer_dump_held_things_on_map(comp, thing, &ctask->move_to_pos.pos_86)) {
                     remove_task(comp, ctask);

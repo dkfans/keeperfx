@@ -18,13 +18,17 @@
  */
 /******************************************************************************/
 
+#include "bflib_math.h"
+
 #include "creature_states.h"
 #include "game_legacy.h"
 #include "magic.h"
 #include "player_computer.h"
 #include "power_hand.h"
+#include "room_list.h"
 #include "spdigger_stack.h"
 #include "thing_data.h"
+#include "thing_objects.h"
 
 /************************************************************************/
 /* Any imps thinking to dig gems right now?                             */
@@ -322,6 +326,86 @@ struct Thing * find_creature_for_low_priority_attack(struct Dungeon* dungeon, Tb
 	if (attackers >= max_attackers)
 		best_tng = INVALID_THING;
 	return best_tng;
+}
+
+/*******************************************************************************************/
+/* Find a chicken somewhere in a room (e.g. to feed prisoner).                             */
+/*******************************************************************************************/
+static struct Thing * find_any_chicken_in_room(struct Room* room)
+{
+	struct Thing* thing;
+	long k, i;
+	if (room->slabs_count <= 0)
+	{
+		WARNLOG("Room with no slabs detected!");
+		return INVALID_THING;
+	}
+	k = 0;
+	i = room->slabs_list;
+	while (i != 0)
+	{
+		MapSubtlCoord stl_x,stl_y;
+		stl_x = slab_subtile_center(slb_num_decode_x(i));
+		stl_y = slab_subtile_center(slb_num_decode_y(i));
+		// Per room tile code
+		thing = get_object_around_owned_by_and_matching_bool_filter(
+			subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, thing_is_mature_food);
+		if (!thing_is_invalid(thing))
+			return thing;
+		// Per room tile code ends
+		i = get_next_slab_number_in_room(i);
+		k++;
+		if (k > room->slabs_count)
+		{
+			ERRORLOG("Room slabs list length exceeded when sweeping");
+			break;
+		}
+	}
+
+	return INVALID_THING;
+}
+
+/*******************************************************************************************/
+/* Find a chicken somewhere in the dungeon's hatcheries (e.g. to feed prisoner).           */
+/*******************************************************************************************/
+struct Thing * find_any_chicken(struct Dungeon* dungeon)
+{
+	struct Room* room;
+	long i;
+	unsigned long k;
+	unsigned long n;
+	SYNCDBG(18,"Starting");
+	n = count_player_rooms_of_type(dungeon->owner, RoK_GARDEN);
+	if (n == 0)
+		return INVALID_THING; //no hatcheries
+	n = ACTION_RANDOM(n); //pick random room
+	i = dungeon->room_kind[RoK_GARDEN];
+	k = 0;
+	while (i != 0)
+	{
+		room = room_get(i);
+		if (room_is_invalid(room))
+		{
+			ERRORLOG("Jump to invalid room detected");
+			break;
+		}
+		i = room->next_of_owner;
+		// Per-room code
+		if (k == n)
+		{
+			//this is the room
+			return find_any_chicken_in_room(room);
+		}
+		// Per-room code ends
+		k++;
+		if (k > ROOMS_COUNT)
+		{
+			ERRORLOG("Infinite loop detected when sweeping rooms list");
+			break;
+		}
+	}
+
+	return INVALID_THING;
 }
 
 /************************************************************************/
