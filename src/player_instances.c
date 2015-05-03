@@ -748,7 +748,7 @@ long pinstfs_fade_to_map(struct PlayerInfo *player, long *n)
   cam = player->acamera;
   player->field_4BD = 0;
   player->allocflags |= PlaF_Unknown80;
-  player->field_4B5 = cam->view_mode;
+  player->view_mode_restore = cam->view_mode;
   if (is_my_player(player))
   {
     set_flag_byte(&player->field_1, 0x02, settings.tooltips_on);
@@ -799,7 +799,7 @@ long pinstfe_fade_from_map(struct PlayerInfo *player, long *n)
     //return _DK_pinstfe_fade_from_map(player, n);
     struct PlayerInfo *myplyr;
     myplyr = get_player(my_player_number);
-    set_engine_view(player, player->field_4B5);
+    set_engine_view(player, player->view_mode_restore);
     if (player->id_number == myplyr->id_number) {
         settings.tooltips_on = ((player->field_1 & 2) != 0);
         toggle_status_menu(player->field_1 & 1);
@@ -936,18 +936,19 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
     struct CreatureControl *cctrl;
     struct CreatureStats *crstat;
     long i,k;
-    SYNCDBG(7,"Starting");
-    if ((thing->owner != player->id_number) || (thing->index != player->controlled_thing_idx))
+    SYNCDBG(7,"Starting for player %d within %s index %d",(int)player->id_number,thing_model_name(thing),(int)thing->index);
+    if (((thing->owner != player->id_number) && (player->work_state != PSt_FreeCtrlDirect))
+      || (thing->index != player->controlled_thing_idx))
     {
         set_player_instance(player, PI_Unset, 1);
-        clear_selected_thing(player);
         set_player_mode(player, PVT_DungeonTop);
         player->allocflags &= ~PlaF_Unknown8;
-        set_engine_view(player, player->field_4B5);
-        player->cameras[CamIV_Index0].mappos.x.val = 0;
-        player->cameras[CamIV_Index0].mappos.y.val = 0;
-        player->cameras[CamIV_Index3].mappos.x.val = 0;
-        player->cameras[CamIV_Index3].mappos.y.val = 0;
+        set_engine_view(player, player->view_mode_restore);
+        player->cameras[CamIV_Index0].mappos.x.val = subtile_coord_center(map_subtiles_x/2);
+        player->cameras[CamIV_Index0].mappos.y.val = subtile_coord_center(map_subtiles_y/2);
+        player->cameras[CamIV_Index3].mappos.x.val = subtile_coord_center(map_subtiles_x/2);
+        player->cameras[CamIV_Index3].mappos.y.val = subtile_coord_center(map_subtiles_y/2);
+        clear_selected_thing(player);
         return;
     }
     clear_selected_thing(player);
@@ -955,7 +956,7 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
     thing->alloc_flags &= ~TAlF_IsControlled;
     thing->field_4F &= ~0x01;
     player->allocflags &= ~PlaF_Unknown8;
-    set_engine_view(player, player->field_4B5);
+    set_engine_view(player, player->view_mode_restore);
     i = player->acamera->orient_a;
     crstat = creature_stats_get_from_thing(thing);
     k = thing->mappos.z.val + crstat->eye_height;
@@ -985,23 +986,24 @@ void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
   struct CreatureStats *crstat;
   long i,k;
   SYNCDBG(7,"Starting for player %d within %s index %d",(int)player->id_number,thing_model_name(thing),(int)thing->index);
-  if ((thing->owner != player->id_number) || (thing->index != player->controlled_thing_idx))
+  if (((thing->owner != player->id_number) && (player->work_state != PSt_FreeCtrlPassngr))
+    || (thing->index != player->controlled_thing_idx))
   {
     set_player_instance(player, PI_Unset, 1);
-    clear_selected_thing(player);
     set_player_mode(player, PVT_DungeonTop);
     player->allocflags &= ~PlaF_Unknown8;
-    set_engine_view(player, player->field_4B5);
-    player->cameras[CamIV_Index0].mappos.x.val = 0;
-    player->cameras[CamIV_Index0].mappos.y.val = 0;
-    player->cameras[CamIV_Index3].mappos.x.val = 0;
-    player->cameras[CamIV_Index3].mappos.y.val = 0;
+    set_engine_view(player, player->view_mode_restore);
+    player->cameras[CamIV_Index0].mappos.x.val = subtile_coord_center(map_subtiles_x/2);
+    player->cameras[CamIV_Index0].mappos.y.val = subtile_coord_center(map_subtiles_y/2);
+    player->cameras[CamIV_Index3].mappos.x.val = subtile_coord_center(map_subtiles_x/2);
+    player->cameras[CamIV_Index3].mappos.y.val = subtile_coord_center(map_subtiles_y/2);
+    clear_selected_thing(player);
     return;
   }
   set_player_mode(player, PVT_DungeonTop);
   thing->field_4F &= ~0x01;
   player->allocflags &= ~PlaF_Unknown8;
-  set_engine_view(player, player->field_4B5);
+  set_engine_view(player, player->view_mode_restore);
   i = player->acamera->orient_a;
   crstat = creature_stats_get_from_thing(thing);
   k = thing->mappos.z.val + crstat->eye_height;

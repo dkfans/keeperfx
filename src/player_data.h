@@ -187,9 +187,11 @@ char field_462;
     short field_4AB;
     short field_4AD;
     unsigned char field_4AF;
-    unsigned char instance_num; //< Player instance, from PlayerInstanceNum enum.
+    /** Player instance, from PlayerInstanceNum enum. */
+    unsigned char instance_num;
     unsigned long instance_remain_rurns;
-    char field_4B5;
+    /** If view mode is temporarily covered by another, the original mode which is to be restored later will be saved here.*/
+    char view_mode_restore;
     long dungeon_camera_zoom;
     char field_4BA[3];
     long field_4BD;

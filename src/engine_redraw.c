@@ -274,7 +274,7 @@ void prepare_map_fade_buffers(unsigned char *fade_src, unsigned char *fade_dest,
     struct PlayerInfo *player;
     player=get_my_player();
     // render the 3D screen
-    if (player->field_4B5 == PVM_IsometricView)
+    if (player->view_mode_restore == PVM_IsometricView)
       redraw_isometric_view();
     else
       redraw_frontview();

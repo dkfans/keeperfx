@@ -2061,12 +2061,12 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       return 0;
   case PckA_Unknown119:
       if (player->acamera != NULL)
-        player->field_4B5 = player->acamera->view_mode;
+        player->view_mode_restore = player->acamera->view_mode;
       set_player_mode(player, pckt->actn_par1);
       return false;
   case PckA_Unknown120:
       set_player_mode(player, pckt->actn_par1);
-      set_engine_view(player, player->field_4B5);
+      set_engine_view(player, player->view_mode_restore);
       return false;
     default:
       return false;

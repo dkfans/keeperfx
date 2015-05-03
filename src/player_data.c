@@ -325,7 +325,7 @@ void set_player_mode(struct PlayerInfo *player, long nview)
   {
   case PVT_DungeonTop:
       i = PVM_IsometricView;
-      if (player->field_4B5 == PVM_FrontView)
+      if (player->view_mode_restore == PVM_FrontView)
       {
         set_engine_view(player, PVM_IsometricView);
         i = PVM_FrontView;
@@ -365,7 +365,7 @@ void reset_player_mode(struct PlayerInfo *player, unsigned short nmode)
   {
     case PVT_DungeonTop:
       player->work_state = player->continue_work_state;
-      if (player->field_4B5 == PVM_FrontView)
+      if (player->view_mode_restore == PVM_FrontView)
         set_engine_view(player, PVM_FrontView);
       else
         set_engine_view(player, PVM_IsometricView);
