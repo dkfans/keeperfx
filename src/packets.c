@@ -1509,12 +1509,12 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
     pckt = get_packet_direct(player->packet_num);
     cam = player->acamera;
     long inter_val;
-    switch (cam->field_6)
+    switch (cam->view_mode)
     {
-    case 2:
+    case PVM_IsometricView:
         inter_val = 2560000 / cam->zoom;
         break;
-    case 5:
+    case PVM_FrontView:
         inter_val = 12800000 / cam->zoom;
         break;
     default:
@@ -1534,24 +1534,24 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
         view_set_camera_x_inertia(cam, inter_val/4, inter_val);
     if ((pckt->control_flags & PCtr_ViewRotateCCW) != 0)
     {
-        switch (cam->field_6)
+        switch (cam->view_mode)
         {
-        case 2:
+        case PVM_IsometricView:
              view_set_camera_rotation_inertia(cam, 16, 64);
             break;
-        case 5:
+        case PVM_FrontView:
             cam->orient_a = (cam->orient_a + 512) & 0x7FF;
             break;
         }
     }
     if ((pckt->control_flags & PCtr_ViewRotateCW) != 0)
     {
-        switch (cam->field_6)
+        switch (cam->view_mode)
         {
-        case 2:
+        case PVM_IsometricView:
             view_set_camera_rotation_inertia(cam, -16, -64);
             break;
-        case 5:
+        case PVM_FrontView:
             cam->orient_a = (cam->orient_a - 512) & 0x7FF;
             break;
         }
@@ -1560,9 +1560,9 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
     zoom_max = CAMERA_ZOOM_MAX;
     if (pckt->control_flags & PCtr_ViewZoomIn)
     {
-        switch (cam->field_6)
+        switch (cam->view_mode)
         {
-        case 2:
+        case PVM_IsometricView:
             view_zoom_camera_in(cam, zoom_max, zoom_min);
             update_camera_zoom_bounds(cam, zoom_max, zoom_min);
             break;
@@ -1573,9 +1573,9 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
     }
     if (pckt->control_flags & PCtr_ViewZoomOut)
     {
-        switch (cam->field_6)
+        switch (cam->view_mode)
         {
-        case 2:
+        case PVM_IsometricView:
             view_zoom_camera_out(cam, zoom_max, zoom_min);
             update_camera_zoom_bounds(cam, zoom_max, zoom_min);
             break;
@@ -1843,9 +1843,9 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       player->minimap_zoom = pckt->actn_par1;
       return 0;
   case PckA_Unknown029:
-      player->cameras[2].orient_a = pckt->actn_par1;
-      player->cameras[3].orient_a = pckt->actn_par1;
-      player->cameras[0].orient_a = pckt->actn_par1;
+      player->cameras[CamIV_Index2].orient_a = pckt->actn_par1;
+      player->cameras[CamIV_Index3].orient_a = pckt->actn_par1;
+      player->cameras[CamIV_Index0].orient_a = pckt->actn_par1;
       return 0;
   case PckA_SetPlyrState:
       set_player_state(player, pckt->actn_par1, pckt->actn_par2);
@@ -1904,9 +1904,9 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       return 0;
   case PckA_ZoomFromMap:
       set_player_cameras_position(player, subtile_coord_center(pckt->actn_par1), subtile_coord_center(pckt->actn_par2));
-      player->cameras[2].orient_a = 0;
-      player->cameras[3].orient_a = 0;
-      player->cameras[0].orient_a = 0;
+      player->cameras[CamIV_Index2].orient_a = 0;
+      player->cameras[CamIV_Index3].orient_a = 0;
+      player->cameras[CamIV_Index0].orient_a = 0;
       if (((game.system_flags & GSF_NetworkActive) != 0)
           || (lbDisplay.PhysicalScreenWidth > 320))
       {
@@ -2061,7 +2061,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       return 0;
   case PckA_Unknown119:
       if (player->acamera != NULL)
-        player->field_4B5 = player->acamera->field_6;
+        player->field_4B5 = player->acamera->view_mode;
       set_player_mode(player, pckt->actn_par1);
       return false;
   case PckA_Unknown120:
@@ -2082,8 +2082,8 @@ void process_players_map_packet_control(long plyr_idx)
     pckt = get_packet_direct(player->packet_num);
     // Get map coordinates
     process_map_packet_clicks(plyr_idx);
-    player->cameras[2].mappos.x.val = pckt->pos_x;
-    player->cameras[2].mappos.y.val = pckt->pos_y;
+    player->cameras[CamIV_Index2].mappos.x.val = pckt->pos_x;
+    player->cameras[CamIV_Index2].mappos.y.val = pckt->pos_y;
     set_mouse_light(player);
     SYNCDBG(8,"Finished");
 }

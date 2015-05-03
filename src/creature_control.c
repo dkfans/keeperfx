@@ -197,7 +197,7 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
     }
     cam = player->acamera;
     set_selected_creature(player, thing);
-    player->field_4B5 = cam->field_6;
+    player->field_4B5 = cam->view_mode;
     thing->alloc_flags |= TAlF_IsControlled;
     thing->field_4F |= TF4F_Unknown01;
     cctrl = creature_control_get_from_thing(thing);

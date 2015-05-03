@@ -39,6 +39,14 @@ struct PlayerInfo;
 #define CAMERA_ZOOM_MAX    12000
 #define MINMAX_LENGTH         64
 
+enum CameraIndexValues {
+    CamIV_Index0 = 0,
+    CamIV_Index1,
+    CamIV_Index2,
+    CamIV_Index3,
+    CamIV_EndList
+};
+
 struct MinMax { // sizeof = 8
     long min;
     long max;
@@ -52,7 +60,7 @@ struct ComponentVector {
 
 struct Camera {
     struct Coord3d mappos;
-    unsigned char field_6;
+    unsigned char view_mode;
     int orient_a;
     int orient_b;
     int orient_c;

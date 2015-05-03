@@ -66,13 +66,13 @@ enum PlayerField6Flags {
 
 enum PlayerViewModes {
     PVM_EmptyView = 0,
-    PVM_CreatureView,
-    PVM_IsometricView,
-    PVM_ParchmentView,
+    PVM_CreatureView, /**< View from a creature perspective, first person. */
+    PVM_IsometricView, /**< Dungeon overview from isometric front perspective, simplified version - only 4 angles. */
+    PVM_ParchmentView, /**< Full screen parchment map view, showing dungeon schematic from top. */
     PVM_Unknown4,
-    PVM_FrontView, // 5
-    PVM_ParchFadeIn,
-    PVM_ParchFadeOut,
+    PVM_FrontView, /**< Dungeon overview from isometric front perspective, advanced version - fluent rotation. */
+    PVM_ParchFadeIn, /**< Transitional view when fading from Isometric view to Parchment map. */
+    PVM_ParchFadeOut, /**< Transitional view when fading from Parchment map back to Isometric view. */
 };
 
 enum PlayerViewType {

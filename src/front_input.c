@@ -778,7 +778,7 @@ long get_dungeon_control_action_inputs(void)
     if (is_game_key_pressed(Gkey_SwitchToMap, &val, 0))
     {
       clear_key_pressed(val);
-      if ((player->view_mode != PVM_ParchFadeOut) && (game.small_map_state != 2))
+      if ((player->view_mode != PVM_ParchFadeOut) && (game.small_map_state != PVM_IsometricView))
       {
           turn_off_all_window_menus();
           zoom_to_parchment_map();

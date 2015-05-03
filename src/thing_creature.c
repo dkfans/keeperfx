@@ -310,7 +310,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     set_selected_creature(player, thing);
     cam = player->acamera;
     if (cam != NULL)
-      player->field_4B5 = cam->field_6;
+      player->field_4B5 = cam->view_mode;
     thing->alloc_flags |= TAlF_IsControlled;
     thing->field_4F |= TF4F_Unknown01;
     set_start_state(thing);
@@ -371,7 +371,7 @@ TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *th
     set_selected_thing(player, thing);
     cam = player->acamera;
     if (cam != NULL)
-      player->field_4B5 = cam->field_6;
+      player->field_4B5 = cam->view_mode;
     set_player_mode(player, PVT_CreaturePasngr);
     thing->field_4F |= TF4F_Unknown01;
     return true;
@@ -3075,7 +3075,7 @@ void draw_creature_view(struct Thing *thing)
   player = get_my_player();
   if (((game.flags_cd & MFlg_EyeLensReady) == 0) || (eye_lens_memory == NULL) || (game.numfield_1B == 0))
   {
-      engine(player,&player->cameras[1]);
+      engine(player,&player->cameras[CamIV_Index1]);
       return;
   }
   // So there is an eye lens - we have to put a buffer in place of screen,
@@ -3092,7 +3092,7 @@ void draw_creature_view(struct Thing *thing)
   LbScreenSetGraphicsWindow(0, 0, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
   // Draw on our buffer
   setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
-  engine(player,&player->cameras[1]);
+  engine(player,&player->cameras[CamIV_Index1]);
   // Restore original graphics settings
   lbDisplay.WScreen = wscr_cp;
   LbScreenLoadGraphicsWindow(&grwnd);

@@ -273,7 +273,7 @@ void gui_video_cluedo_maintain(struct GuiButton *gbtn)
 {
     struct PlayerInfo *player;
     player = get_my_player();
-    if (player->view_mode == 5)
+    if (player->view_mode == PVM_FrontView)
     {
         gbtn->field_1B |= 0x8000;
         gbtn->flags &= ~LbBtnF_Unknown08;

@@ -690,10 +690,10 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, long *n)
           deltax = addval;
           deltay = -addval;
         }
-        dstcam = &player->cameras[0];
+        dstcam = &player->cameras[CamIV_Index0];
         dstcam->mappos.x.val = thing->mappos.x.val + deltax;
         dstcam->mappos.y.val = thing->mappos.y.val + deltay;
-        dstcam = &player->cameras[3];
+        dstcam = &player->cameras[CamIV_Index3];
         dstcam->mappos.x.val = thing->mappos.x.val + deltax;
         dstcam->mappos.y.val = thing->mappos.y.val + deltay;
     }
@@ -748,7 +748,7 @@ long pinstfs_fade_to_map(struct PlayerInfo *player, long *n)
   cam = player->acamera;
   player->field_4BD = 0;
   player->allocflags |= PlaF_Unknown80;
-  player->field_4B5 = cam->field_6;
+  player->field_4B5 = cam->view_mode;
   if (is_my_player(player))
   {
     set_flag_byte(&player->field_1, 0x02, settings.tooltips_on);
@@ -944,10 +944,10 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
         set_player_mode(player, PVT_DungeonTop);
         player->allocflags &= ~PlaF_Unknown8;
         set_engine_view(player, player->field_4B5);
-        player->cameras[0].mappos.x.val = 0;
-        player->cameras[0].mappos.y.val = 0;
-        player->cameras[3].mappos.x.val = 0;
-        player->cameras[3].mappos.y.val = 0;
+        player->cameras[CamIV_Index0].mappos.x.val = 0;
+        player->cameras[CamIV_Index0].mappos.y.val = 0;
+        player->cameras[CamIV_Index3].mappos.x.val = 0;
+        player->cameras[CamIV_Index3].mappos.y.val = 0;
         return;
     }
     clear_selected_thing(player);
@@ -959,10 +959,10 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
     i = player->acamera->orient_a;
     crstat = creature_stats_get_from_thing(thing);
     k = thing->mappos.z.val + crstat->eye_height;
-    player->cameras[0].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
-    player->cameras[0].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
-    player->cameras[3].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
-    player->cameras[3].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
+    player->cameras[CamIV_Index0].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
+    player->cameras[CamIV_Index0].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
+    player->cameras[CamIV_Index3].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
+    player->cameras[CamIV_Index3].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
     if (thing->class_id == TCls_Creature)
     {
         set_start_state(thing);
@@ -992,10 +992,10 @@ void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
     set_player_mode(player, PVT_DungeonTop);
     player->allocflags &= ~PlaF_Unknown8;
     set_engine_view(player, player->field_4B5);
-    player->cameras[0].mappos.x.val = 0;
-    player->cameras[0].mappos.y.val = 0;
-    player->cameras[3].mappos.x.val = 0;
-    player->cameras[3].mappos.y.val = 0;
+    player->cameras[CamIV_Index0].mappos.x.val = 0;
+    player->cameras[CamIV_Index0].mappos.y.val = 0;
+    player->cameras[CamIV_Index3].mappos.x.val = 0;
+    player->cameras[CamIV_Index3].mappos.y.val = 0;
     return;
   }
   set_player_mode(player, PVT_DungeonTop);
@@ -1005,10 +1005,10 @@ void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
   i = player->acamera->orient_a;
   crstat = creature_stats_get_from_thing(thing);
   k = thing->mappos.z.val + crstat->eye_height;
-  player->cameras[0].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
-  player->cameras[0].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
-  player->cameras[3].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
-  player->cameras[3].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
+  player->cameras[CamIV_Index0].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
+  player->cameras[CamIV_Index0].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
+  player->cameras[CamIV_Index3].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
+  player->cameras[CamIV_Index3].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
   clear_selected_thing(player);
 }
 

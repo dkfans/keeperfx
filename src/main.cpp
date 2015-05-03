@@ -1350,15 +1350,15 @@ TbBool screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct
     result = false;
     if (camera != NULL)
     {
-      switch (camera->field_6)
+      switch (camera->view_mode)
       {
-        case 1:
-        case 2:
-        case 5:
+        case PVM_CreatureView:
+        case PVM_IsometricView:
+        case PVM_FrontView:
           // 3D view mode
           result = engine_point_to_map(camera,screen_x,screen_y,&x,&y);
           break;
-        case 3: //map mode
+        case PVM_ParchmentView: //map mode
           result = point_to_overhead_map(camera,screen_x/pixel_size,screen_y/pixel_size,&x,&y);
           break;
         default:
@@ -1781,14 +1781,14 @@ void clear_players_for_save(void)
       id_mem = player->id_number;
       mem2 = player->field_2C;
       memflg = player->allocflags;
-      LbMemoryCopy(&cammem,&player->cameras[1],sizeof(struct Camera));
+      LbMemoryCopy(&cammem,&player->cameras[CamIV_Index1],sizeof(struct Camera));
       memset(player, 0, sizeof(struct PlayerInfo));
       player->id_number = id_mem;
       player->field_2C = mem2;
       set_flag_byte(&player->allocflags,PlaF_Allocated,((memflg & PlaF_Allocated) != 0));
       set_flag_byte(&player->allocflags,PlaF_CompCtrl,((memflg & PlaF_CompCtrl) != 0));
-      LbMemoryCopy(&player->cameras[1],&cammem,sizeof(struct Camera));
-      player->acamera = &player->cameras[1];
+      LbMemoryCopy(&player->cameras[CamIV_Index1],&cammem,sizeof(struct Camera));
+      player->acamera = &player->cameras[CamIV_Index1];
     }
 }
 
@@ -2611,9 +2611,9 @@ void update_player_camera(struct PlayerInfo *player)
     struct Camera *cam;
     cam = player->acamera;
     view_process_camera_inertia(cam);
-    switch (cam->field_6)
+    switch (cam->view_mode)
     {
-    case 1:
+    case PVM_CreatureView:
         if (player->controlled_thing_idx > 0) {
             struct Thing *ctrltng;
             ctrltng = thing_get(player->controlled_thing_idx);
@@ -2623,13 +2623,13 @@ void update_player_camera(struct PlayerInfo *player)
             ERRORLOG("Cannot go first person without controlling creature");
         }
         break;
-    case 2:
-        player->cameras[3].mappos.x.val = cam->mappos.x.val;
-        player->cameras[3].mappos.y.val = cam->mappos.y.val;
+    case PVM_IsometricView:
+        player->cameras[CamIV_Index3].mappos.x.val = cam->mappos.x.val;
+        player->cameras[CamIV_Index3].mappos.y.val = cam->mappos.y.val;
         break;
-    case 5:
-        player->cameras[0].mappos.x.val = cam->mappos.x.val;
-        player->cameras[0].mappos.y.val = cam->mappos.y.val;
+    case PVM_FrontView:
+        player->cameras[CamIV_Index0].mappos.x.val = cam->mappos.x.val;
+        player->cameras[CamIV_Index0].mappos.y.val = cam->mappos.y.val;
         break;
     }
     if (dungeon->camera_deviate_quake) {
@@ -3127,12 +3127,12 @@ void tag_cursor_blocks_thing_in_hand(unsigned char a1, long a2, long a3, int a4,
 
 void set_player_cameras_position(struct PlayerInfo *player, long pos_x, long pos_y)
 {
-    player->cameras[2].mappos.x.val = pos_x;
-    player->cameras[3].mappos.x.val = pos_x;
-    player->cameras[0].mappos.x.val = pos_x;
-    player->cameras[2].mappos.y.val = pos_y;
-    player->cameras[3].mappos.y.val = pos_y;
-    player->cameras[0].mappos.y.val = pos_y;
+    player->cameras[CamIV_Index2].mappos.x.val = pos_x;
+    player->cameras[CamIV_Index3].mappos.x.val = pos_x;
+    player->cameras[CamIV_Index0].mappos.x.val = pos_x;
+    player->cameras[CamIV_Index2].mappos.y.val = pos_y;
+    player->cameras[CamIV_Index3].mappos.y.val = pos_y;
+    player->cameras[CamIV_Index0].mappos.y.val = pos_y;
 }
 
 void scale_tmap2(long a1, long flags, long a3, long a4x, long a4y, long a6x, long a6y)
