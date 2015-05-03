@@ -2,9 +2,9 @@
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
 /** @file front_credits.c
- *     Credits displaying routines.
+ *     Credits and story screen displaying routines.
  * @par Purpose:
- *     Functions to show and maintain credits screen.
+ *     Functions to show and maintain credits screen and story screen.
  * @par Comment:
  *     None.
  * @author   Tomasz Lis
@@ -23,13 +23,59 @@
 #include "bflib_sprite.h"
 #include "bflib_sprfnt.h"
 #include "bflib_vidraw.h"
+#include "bflib_video.h"
 #include "bflib_keybrd.h"
+#include "bflib_filelst.h"
+#include "bflib_datetm.h"
+
 #include "gui_frontbtns.h"
+#include "front_simple.h"
 #include "frontend.h"
+#include "vidfade.h"
 #include "config_strings.h"
 #include "config_campaigns.h"
 
 /******************************************************************************/
+extern struct TbLoadFiles frontstory_load_files_640[];
+/******************************************************************************/
+void frontstory_load(void)
+{
+    wait_for_cd_to_be_available();
+    frontend_load_data_from_cd();
+    if (LbDataLoadAll(frontstory_load_files_640))
+    {
+        ERRORLOG("Unable to Load FRONT STORY FILES");
+    } else
+    {
+        LbDataLoadSetModifyFilenameFunction(_DK_mdlf_default);
+        LbSpriteSetupAll(frontstory_setup_sprites);
+        LbPaletteSet(frontend_palette);
+        srand(LbTimerClock());
+        frontstory_text_no = GUIStr_EasterPoems + rand() % 26;
+    }
+}
+
+void frontstory_unload(void)
+{
+    LbDataFreeAll(frontstory_load_files_640);
+}
+
+void frontstory_draw(void)
+{
+    frontend_copy_background();
+    LbTextSetWindow(70*units_per_pixel/16, 70*units_per_pixel/16, (640-2*70)*units_per_pixel/16, (480-2*70)*units_per_pixel/16);
+    LbTextSetFont(frontstory_font);
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
+    int tx_units_per_px;
+    tx_units_per_px = (26 * units_per_pixel) / LbTextLineHeight();
+    LbTextDrawResized(0, 0, tx_units_per_px, get_string(frontstory_text_no));
+}
+
+short frontstory_input(void)
+{
+  return false;
+}
+
 void frontcredits_draw(void)
 {
     struct CreditsItem *credit;

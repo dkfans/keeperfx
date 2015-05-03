@@ -21,12 +21,15 @@
 #      (at your option) any later version.
 #
 #******************************************************************************
+# Executable files extension on host environment
 ifneq (,$(findstring Windows,$(OS)))
   CROSS_EXEEXT = .exe
 else
   CROSS_EXEEXT =
 endif
+# Executable files extension on target environment
 EXEEXT = .exe
+# Names of utility commands
 CPP   = $(CROSS_COMPILE)g++
 CC    = $(CROSS_COMPILE)gcc
 WINDRES  = $(CROSS_COMPILE)windres
@@ -46,8 +49,10 @@ MKDIR    = mkdir -p
 ECHO     = @echo
 DOXYTOOL = doxygen
 PNG2ICO  = png2ico
+# Names of target binary files
 BIN      = bin/keeperfx$(EXEEXT)
 HVLOGBIN = bin/keeperfx_hvlog$(EXEEXT)
+# Names of intermediate build products
 GENSRC   = obj/ver_defs.h
 RES      = obj/keeperfx_stdres.res
 LIBS     = lib/libkeeperfx.a
@@ -203,6 +208,7 @@ obj/thing_shots.o \
 obj/thing_corpses.o \
 obj/config_campaigns.o \
 obj/front_credits.o \
+obj/front_credits_data.o \
 obj/front_torture.o \
 obj/front_torture_data.o \
 obj/config_strings.o \
