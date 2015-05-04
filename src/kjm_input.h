@@ -99,6 +99,10 @@ DLLIMPORT long _DK_key_to_string[256];
 
 #pragma pack()
 /******************************************************************************/
+extern TbBool wheel_scrolled_up;
+extern TbBool wheel_scrolled_down;
+
+
 long GetMouseX(void);
 long GetMouseY(void);
 short is_mouse_pressed_leftbutton(void);

@@ -3665,7 +3665,6 @@ void keeper_gameplay_loop(void)
         do_draw = display_should_be_updated_this_turn() || (!LbIsActive());
 
         LbWindowsControl();
-        update_mouse();
         input_eastegg();
         input();
         update();

@@ -36,6 +36,9 @@
 extern "C" {
 #endif
 /******************************************************************************/
+TbBool wheel_scrolled_up;
+TbBool wheel_scrolled_down;
+
 /** Initialization array, used to create array which stores index of text name of keyboard keys. */
 struct KeyToStringInit key_to_string_init[] = {
   {KC_A,  -65},
@@ -232,14 +235,26 @@ void update_right_button_clicked(void)
   right_button_clicked_y = lbDisplay.MouseY * (long)pixel_size;
 }
 
+void update_wheel_scrolled(void)
+{
+    wheel_scrolled_up = (lbDisplayEx.WhellMoveUp > 0);
+    wheel_scrolled_down = (lbDisplayEx.WhellMoveDown > 0);
+}
+
+/**
+ * Translates mouse input from lbDisplay struct into simple variables.
+ */
 void update_mouse(void)
 {
   update_left_button_released();
   update_right_button_released();
   update_left_button_clicked();
   update_right_button_clicked();
+  update_wheel_scrolled();
   lbDisplay.LeftButton = 0;
   lbDisplay.RightButton = 0;
+  lbDisplayEx.WhellMoveUp = 0;
+  lbDisplayEx.WhellMoveDown = 0;
 }
 
 /**

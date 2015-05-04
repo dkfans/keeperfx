@@ -2101,6 +2101,10 @@ void process_map_packet_clicks(long plyr_idx)
     SYNCDBG(8,"Finished");
 }
 
+/**
+ * Process packet with input commands for given player.
+ * @param plyr_idx Player to process packet for.
+ */
 void process_players_packet(long plyr_idx)
 {
   struct PlayerInfo *player;
@@ -2116,6 +2120,9 @@ void process_players_packet(long plyr_idx)
   } else
   if (!process_players_global_packet_action(plyr_idx))
   {
+      // Different changes to the game are possible for different views.
+      // For each there can be a control change (which is view change or mouse event not translated to action),
+      // and action perform (which does specific action set in packet).
       switch (player->view_type)
       {
       case PVT_DungeonTop:
@@ -2127,10 +2134,12 @@ void process_players_packet(long plyr_idx)
         process_players_creature_control_packet_action(plyr_idx);
         break;
       case PVT_CreaturePasngr:
+        //process_players_creature_passenger_packet_control(plyr_idx); -- there are no control changes in passenger mode
         process_players_creature_passenger_packet_action(plyr_idx);
         break;
       case PVT_MapScreen:
         process_players_map_packet_control(plyr_idx);
+        //process_players_map_packet_action(plyr_idx); -- there are no actions to perform from map screen
         break;
       default:
         break;
@@ -2483,6 +2492,9 @@ void write_debug_screenpackets(void)
     dump_memory_to_file(filename, (char*) net_screen_packet, sizeof(net_screen_packet));
 }
 
+/**
+ * Exchange packets if MP game, then process all packets influencing local game state.
+ */
 void process_packets(void)
 {
   int i,j,k;

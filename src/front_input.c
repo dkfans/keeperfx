@@ -1079,6 +1079,13 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
         }
         set_packet_control(pckt, PCtr_MoveDown);
     }
+    if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
+    {
+        if (wheel_scrolled_up)
+            set_packet_control(pckt, PCtr_ViewZoomIn);
+        if (wheel_scrolled_down)
+            set_packet_control(pckt, PCtr_ViewZoomOut);
+    }
 }
 
 void get_isometric_view_nonaction_inputs(void)
@@ -1729,6 +1736,8 @@ short get_inputs(void)
 void input(void)
 {
     SYNCDBG(4,"Starting");
+
+    update_mouse();
     update_key_modifiers();
 
     if (KeeperSpeechPopEvent(&last_speech_event)) {
