@@ -810,7 +810,7 @@ GameTurnDelta get_spell_duration_left_on_thing_f(const struct Thing *thing, Spel
     cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
-        ERRORLOG("Invalid creature control for thing %d",(int)thing->index);
+        ERRORLOG("%s: Invalid creature control for thing %d",func_name,(int)thing->index);
         return 0;
     }
     long i;
@@ -823,7 +823,7 @@ GameTurnDelta get_spell_duration_left_on_thing_f(const struct Thing *thing, Spel
         }
     }
     if (strcmp(func_name, "thing_affected_by_spell") != 0)
-        ERRORLOG("No spell of type %d on %s index %d",(int)spkind,thing_model_name(thing),(int)thing->index);
+        ERRORLOG("%s: No spell of type %d on %s index %d",func_name,(int)spkind,thing_model_name(thing),(int)thing->index);
     return 0;
 }
 

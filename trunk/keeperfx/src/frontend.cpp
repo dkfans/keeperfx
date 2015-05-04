@@ -2461,7 +2461,7 @@ void set_gui_visible(TbBool visible)
       toggle_status_menu(is_visbl);
       break;
   }
-  if (game.numfield_D & numfield_D_20 && game.status_flags & Status_ShowGui)
+  if (((game.numfield_D & numfield_D_20) != 0) && ((game.status_flags & Status_ShowGui) != 0))
     setup_engine_window(status_panel_width, 0, MyScreenWidth, MyScreenHeight);
   else
     setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
