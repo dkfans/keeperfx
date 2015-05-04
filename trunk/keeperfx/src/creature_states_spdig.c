@@ -49,8 +49,6 @@
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 
-/** Effects used when creating new imps. Every player color has different index. */
-const int birth_effect_element[] = { 54, 79, 80, 81, 82, 82, };
 const unsigned char reinforce_edges[] = { 3, 0, 0, 3, 0, 1, 2, 2, 1, };
 
 #ifdef __cplusplus

@@ -57,7 +57,6 @@ long compute_power_price(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel);
 long find_spell_age_percentage(PlayerNumber plyr_idx, PowerKind pwkind);
 TbBool find_power_cast_place(PlayerNumber plyr_idx, PowerKind pwkind, struct Coord3d *pos);
 TbBool pay_for_spell(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel);
-long thing_affected_by_spell(const struct Thing *thing, long spkind);
 int get_power_overcharge_level(struct PlayerInfo *player);
 TbBool update_power_overcharge(struct PlayerInfo *player, int spl_idx);
 void process_dungeon_power_magic(void);
