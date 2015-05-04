@@ -901,6 +901,12 @@ TbScreenMode LbRegisterVideoMode(const char *desc, TbScreenCoord width, TbScreen
     return mode;
 }
 
+/**
+ * Parses video mode description string and registers new mode.
+ *
+ * @param desc Mode description string, in form of WIDTHxHEIGHTxBPP or WIDTHxHEIGHTwBPP.
+ * @return Mode number assigned to the newly created video mode.
+ */
 TbScreenMode LbRegisterVideoModeString(const char *desc)
 {
     int width, height;

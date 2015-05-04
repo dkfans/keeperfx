@@ -131,6 +131,7 @@ extern long base_mouse_sensitivity;
 /******************************************************************************/
 TbScreenMode switch_to_next_video_mode(void);
 void set_game_vidmode(unsigned short i,unsigned short nmode);
+unsigned short max_game_vidmode_count(void);
 TbScreenMode reenter_video_mode(void);
 TbScreenMode get_next_vidmode(unsigned short mode);
 TbScreenMode validate_vidmode(unsigned short mode);

@@ -210,6 +210,15 @@ void set_game_vidmode(unsigned short i,unsigned short nmode)
   switching_vidmodes[i]=(TbScreenMode)nmode;
 }
 
+/**
+ * Returns max count of video modes which can be set.
+ * @return Count,
+ */
+unsigned short max_game_vidmode_count(void)
+{
+    return sizeof(switching_vidmodes)/sizeof(switching_vidmodes[0]);
+}
+
 TbScreenMode validate_vidmode(unsigned short mode)
 {
   int i;

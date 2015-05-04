@@ -596,7 +596,7 @@ short load_configuration(void)
           }
           break;
       case 7: // INGAME_RES
-          for (i=0; i<7; i++)
+          for (i=0; i<max_game_vidmode_count(); i++)
           {
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
