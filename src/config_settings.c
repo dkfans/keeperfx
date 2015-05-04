@@ -46,32 +46,62 @@ void setup_default_settings(void)
     // CPU status variable
     struct CPU_INFO cpu_info;
     const struct GameSettings default_settings = {
-     0, 4, 3, 0, 1, 0, 127, 90, 1, 0, 1,
+     0,                         // field_0
+     4,                         // video_shadows
+     3,                         // view_distance
+     0,                         // video_rotate_mode
+     1,                         // video_textures
+     0,                         // video_cluedo_mode
+     127,                       // sound_volume
+     90,                        // redbook_volume
+     1,                         // field_8
+     0,                         // gamma_correction
+     Lb_SCREEN_MODE_INVALID,    // Screen mode, set to correct value below
      {
-      {KC_UP, KMod_NONE},       {KC_DOWN, KMod_NONE},
-      {KC_LEFT, KMod_NONE},     {KC_RIGHT, KMod_NONE},
-      {KC_LCONTROL, KMod_NONE}, {KC_LSHIFT, KMod_NONE},
-      {KC_DELETE, KMod_NONE},   {KC_PGDOWN, KMod_NONE},
-      {KC_HOME, KMod_NONE},     {KC_END, KMod_NONE},
-      {KC_T, KMod_NONE},        {KC_L, KMod_NONE},
-      {KC_L, KMod_SHIFT},       {KC_P, KMod_SHIFT},
-      {KC_T, KMod_ALT},         {KC_T, KMod_SHIFT},
-      {KC_H, KMod_NONE},        {KC_W, KMod_NONE},
-      {KC_S, KMod_NONE},        {KC_T, KMod_CONTROL},
-      {KC_G, KMod_NONE},        {KC_B, KMod_NONE},
-      {KC_H, KMod_SHIFT},       {KC_G, KMod_SHIFT},
-      {KC_B, KMod_SHIFT},       {KC_F, KMod_NONE},
-      {KC_A, KMod_NONE},        {KC_LSHIFT, KMod_NONE},
-      {KC_NUMPAD0, KMod_NONE},  {KC_BACK, KMod_NONE},
-      {KC_P, KMod_NONE},        {KC_M, KMod_NONE},
-     }, 1, 0, 6};
+          {KC_UP, KMod_NONE},
+          {KC_DOWN, KMod_NONE},
+          {KC_LEFT, KMod_NONE},
+          {KC_RIGHT, KMod_NONE},
+          {KC_LCONTROL, KMod_NONE},
+          {KC_LSHIFT, KMod_NONE},
+          {KC_DELETE, KMod_NONE},
+          {KC_PGDOWN, KMod_NONE},
+          {KC_HOME, KMod_NONE},
+          {KC_END, KMod_NONE},
+          {KC_T, KMod_NONE},
+          {KC_L, KMod_NONE},
+          {KC_L, KMod_SHIFT},
+          {KC_P, KMod_SHIFT},
+          {KC_T, KMod_ALT},
+          {KC_T, KMod_SHIFT},
+          {KC_H, KMod_NONE},
+          {KC_W, KMod_NONE},
+          {KC_S, KMod_NONE},
+          {KC_T, KMod_CONTROL},
+          {KC_G, KMod_NONE},
+          {KC_B, KMod_NONE},
+          {KC_H, KMod_SHIFT},
+          {KC_G, KMod_SHIFT},
+          {KC_B, KMod_SHIFT},
+          {KC_F, KMod_NONE},
+          {KC_A, KMod_NONE},
+          {KC_LSHIFT, KMod_NONE},
+          {KC_NUMPAD0, KMod_NONE},
+          {KC_BACK, KMod_NONE},
+          {KC_P, KMod_NONE},
+          {KC_M, KMod_NONE},
+     },                         // kbkeys
+     1,                         // tooltips_on
+     0,                         // first_person_move_invert
+     6                          // first_person_move_sensitivity
+    };
     LbMemoryCopy(&settings, &default_settings, sizeof(struct GameSettings));
     cpu_detect(&cpu_info);
     settings.video_scrnmode = get_next_vidmode(Lb_SCREEN_MODE_INVALID);
     if ((cpu_get_family(&cpu_info) > CPUID_FAMILY_PENTIUM) && (is_feature_on(Ft_HiResVideo)))
     {
         SYNCDBG(6,"Updating to hires video mode");
-        settings.video_scrnmode = get_next_vidmode(settings.video_scrnmode);
+        settings.video_scrnmode = get_higher_vidmode(settings.video_scrnmode);
     }
 }
 

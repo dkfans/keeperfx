@@ -181,7 +181,7 @@ short LoadMcgaDataMinimal(void)
   return 1;
 }
 
-TbScreenMode get_next_vidmode(unsigned short mode)
+TbScreenMode get_next_vidmode(TbScreenMode mode)
 {
   int i;
   int maxmodes=sizeof(switching_vidmodes)/sizeof(TbScreenMode);
@@ -205,6 +205,44 @@ TbScreenMode get_next_vidmode(unsigned short mode)
   return switching_vidmodes[i];
 }
 
+/**
+ * Returns first video mode with higher res than given one.
+ * @param curr_mode
+ * @return
+ */
+TbScreenMode get_higher_vidmode(TbScreenMode curr_mode)
+{
+    unsigned long curr_size, next_size;
+    TbScreenModeInfo *mdinfo;
+    // Get size of current mode
+    mdinfo = LbScreenGetModeInfo(curr_mode);
+    curr_size = 0;
+    if (LbScreenIsModeAvailable(curr_mode)) {
+        curr_size = mdinfo->Width * mdinfo->Height;
+    }
+    // Loop in search of higher res mode
+    unsigned short next_mode = curr_mode;
+    while (next_mode != Lb_SCREEN_MODE_INVALID)
+    {
+        next_mode = get_next_vidmode(next_mode);
+        TbScreenModeInfo *mdinfo;
+        mdinfo = LbScreenGetModeInfo(next_mode);
+        next_size = 0;
+        if (LbScreenIsModeAvailable(next_mode)) {
+            next_size = mdinfo->Width * mdinfo->Height;
+        }
+        // If the next mode is higher, accept it
+        if (next_size > curr_size) {
+            break;
+        }
+        // If looped through all modes, use current
+        if (next_mode == curr_mode) {
+            break;
+        }
+    }
+    return next_mode;
+}
+
 void set_game_vidmode(unsigned short i,unsigned short nmode)
 {
   switching_vidmodes[i]=(TbScreenMode)nmode;
@@ -219,7 +257,7 @@ unsigned short max_game_vidmode_count(void)
     return sizeof(switching_vidmodes)/sizeof(switching_vidmodes[0]);
 }
 
-TbScreenMode validate_vidmode(unsigned short mode)
+TbScreenMode validate_vidmode(TbScreenMode mode)
 {
   int i;
   int maxmodes=sizeof(switching_vidmodes)/sizeof(TbScreenMode);
