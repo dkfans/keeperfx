@@ -31,6 +31,7 @@ extern "C" {
 #define BORDER_LENGTH 100
 #define ROUTE_LENGTH 12000
 #define ARID_WAYPOINTS_COUNT 10
+#define ARID_PATH_WAYPOINTS_COUNT 256
 
 /******************************************************************************/
 #pragma pack(1)
@@ -50,6 +51,13 @@ enum AriadneReturnValues {
 enum AriadneRouteFlagValues {
     AridRtF_Default   = 0x00,
     AridRtF_NoOwner   = 0x01,
+};
+
+enum AriadneUpdateStateValues {
+    AridUpSt_Unset   = 0,
+    AridUpSt_OnLine,
+    AridUpSt_Wallhug,
+    AridUpSt_Manoeuvre,
 };
 
 #define NAVMAP_FLOORHEIGHT_BIT  0
@@ -73,7 +81,7 @@ struct Ariadne { // sizeof = 102
   struct Coord3d pos_18;
   unsigned char route_flags;
   unsigned char field_1F[2];
-  unsigned char field_21;
+  unsigned char update_state;
   unsigned char field_22;
   unsigned char field_23;
   unsigned char field_24[2];
@@ -99,12 +107,10 @@ struct PathWayPoint { // sizeof = 8
 };
 
 struct Path { // sizeof = 2068
-    long field_0;
-    long field_4;
-    long field_8;
-    long field_C;
+    struct PathWayPoint start;
+    struct PathWayPoint finish;
     long waypoints_num;
-    struct PathWayPoint waypoints[256];
+    struct PathWayPoint waypoints[ARID_PATH_WAYPOINTS_COUNT];
 };
 
 struct Gate { // sizeof = 28
@@ -128,11 +134,11 @@ struct Pathway { // sizeof = 7192
 };
 
 struct WayPoints { // sizeof = 1040
-  long field_0;
-  long field_4;
-  long field_8;
-  long field_C;
-  long field_10[256];
+  long wpfield_0;
+  long wpfield_4;
+  long wpfield_8;
+  long wpfield_C;
+  long wpfield_10[256];
 };
 
 struct Navigation { // sizeof = 0x27
@@ -151,12 +157,9 @@ struct Navigation { // sizeof = 0x27
 };
 
 struct FOV { // sizeof=0x18
-    long field_0;
-    long field_4;
-    long field_8;
-    long field_C;
-    long field_10;
-    long field_14;
+    struct PathWayPoint tipA;
+    struct PathWayPoint tipB;
+    struct PathWayPoint tipC;
 };
 
 /******************************************************************************/
