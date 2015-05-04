@@ -207,7 +207,7 @@ TbBool creature_choose_first_available_instance(struct Thing *thing)
         k = crstat->instance_spell_id[i];
         if (k > 0)
         {
-            if (cctrl->instance_available[k]) 
+            if (cctrl->instance_available[k])
             {
                 cctrl->active_instance = k;
                 return true;
@@ -230,7 +230,7 @@ void creature_increase_available_instances(struct Thing *thing)
         k = crstat->instance_spell_id[i];
         if (k > 0)
         {
-            if (crstat->instance_required_level[i] <= cctrl->explevel+1) 
+            if (crstat->instance_required_level[i] <= cctrl->explevel+1)
             {
                 cctrl->instance_available[k] = true;
             }
@@ -307,7 +307,7 @@ CrInstance creature_instance_get_available_id_for_pos(struct Thing *thing, int r
 {
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(thing);
-    int avail_pos = 0; 
+    int avail_pos = 0;
     int avail_num = 0;
     for (avail_num = 0; avail_num < CREATURE_MAX_SPELL; avail_num++)
     {
@@ -315,7 +315,7 @@ CrInstance creature_instance_get_available_id_for_pos(struct Thing *thing, int r
         inst_id = crstat->instance_spell_id[avail_num];
         if (creature_instance_is_available(thing, inst_id))
         {
-            if (avail_pos == req_avail_pos) 
+            if (avail_pos == req_avail_pos)
             {
                 return inst_id;
             }
