@@ -218,6 +218,8 @@ struct InitEffect { // sizeof = 39
 
 #pragma pack()
 /******************************************************************************/
+extern const int birth_effect_element[];
+/******************************************************************************/
 struct InitEffect *get_effect_info(ThingModel effmodel);
 struct InitEffect *get_effect_info_for_thing(const struct Thing *thing);
 struct EffectElementStats *get_effect_element_model_stats(ThingModel tngmodel);

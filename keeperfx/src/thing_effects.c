@@ -28,6 +28,7 @@
 #include "thing_list.h"
 #include "thing_stats.h"
 #include "thing_physics.h"
+#include "thing_factory.h"
 #include "thing_navigate.h"
 #include "creature_senses.h"
 #include "config_creature.h"
@@ -469,6 +470,8 @@ struct EffectElementStats effect_element_stats[] = {
 };
 
 long const bounce_table[] = { -160, -160, -120, -120, -80, -40, -20, 0, 20, 40, 80, 120, 120, 160, 160, 160 };
+/** Effects used when creating new imps. Every player color has different index. */
+const int birth_effect_element[] = { 54, 79, 80, 81, 82, 82, };
 /******************************************************************************/
 TbBool thing_is_effect(const struct Thing *thing)
 {
@@ -598,7 +601,137 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
 
 void process_spells_affected_by_effect_elements(struct Thing *thing)
 {
-  _DK_process_spells_affected_by_effect_elements(thing);
+    //_DK_process_spells_affected_by_effect_elements(thing);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    GameTurnDelta dturn;
+    unsigned short cframe, nframes;
+    long angle;
+    MapCoordDelta shift_x, shift_y;
+    struct Coord3d pos;
+    struct Thing *effeltng;
+
+    if ((cctrl->spell_flags & CSAfF_Rebound) != 0)
+    {
+        int diamtr, radius;
+        GameTurnDelta dtadd;
+        MapCoord cor_z_max;
+        diamtr = 4 * thing->clipbox_size_xy / 2;
+        dturn = game.play_gameturn - thing->creation_turn;
+        cor_z_max = (thing->clipbox_size_yz >> 2) + thing->clipbox_size_yz;
+        struct EffectElementStats *eestat;
+        eestat = get_effect_element_model_stats(16);
+
+        nframes = keepersprite_frames(eestat->sprite_idx);
+        dtadd = 0;
+        cframe = game.play_gameturn % nframes;
+        pos.z.val = thing->mappos.z.val;
+        radius = diamtr / 2;
+        while (pos.z.val < cor_z_max + thing->mappos.z.val)
+        {
+            angle = (abs(dturn + dtadd) & 7) << 8;
+            shift_x =  (radius * LbSinL(angle) >> 8) >> 8;
+            shift_y = -(radius * LbCosL(angle) >> 8) >> 8;
+            pos.x.val = thing->mappos.x.val + shift_x;
+            pos.y.val = thing->mappos.y.val + shift_y;
+            effeltng = create_thing(&pos, TCls_EffectElem, 16, thing->owner, -1);
+            if (thing_is_invalid(effeltng))
+                break;
+            set_thing_draw(effeltng, eestat->sprite_idx, 256, eestat->sprite_size_min, 0, cframe, 2);
+            dtadd++;
+            pos.z.val += 64;
+            cframe = (cframe + 1) % nframes;
+        }
+    }
+
+    if ((cctrl->spell_flags & CSAfF_Slow) != 0)
+    {
+        int diamtr, radius;
+        MapCoord cor_z_max;
+        int vrange;
+        int i;
+        diamtr = 4 * thing->clipbox_size_xy / 2;
+        cor_z_max = (thing->clipbox_size_yz >> 2) + thing->clipbox_size_yz;
+        i = cor_z_max / 64;
+        if (i <= 1)
+          i = 1;
+        dturn = game.play_gameturn - thing->creation_turn;
+        vrange = 2 * i / 2;
+        if (dturn % (2 * i) < vrange)
+            pos.z.val = thing->mappos.z.val + cor_z_max / vrange * dturn % vrange;
+        else
+            pos.z.val = thing->mappos.z.val + cor_z_max / vrange * (vrange - dturn % vrange);
+        radius = diamtr / 2;
+        for (i=0; i < 16; i++)
+        {
+            angle = (abs(i) & 0xF) << 7;
+            shift_x =  (radius * LbSinL(angle) >> 8) >> 8;
+            shift_y = -(radius * LbCosL(angle) >> 8) >> 8;
+            pos.x.val = thing->mappos.x.val + shift_x;
+            pos.y.val = thing->mappos.y.val + shift_y;
+            effeltng = create_thing(&pos, TCls_EffectElem, 0x11u, thing->owner, -1);
+        }
+    }
+
+    if ((cctrl->spell_flags & CSAfF_Flying) != 0)
+    {
+        effeltng = create_thing(&thing->mappos, TCls_EffectElem, 0x59u, thing->owner, -1);
+    }
+
+    if ((cctrl->spell_flags & CSAfF_Speed) != 0)
+    {
+        effeltng = create_effect_element(&thing->mappos, 0x12u, thing->owner);
+        if (!thing_is_invalid(effeltng))
+        {
+            memcpy(&effeltng->field_3E, &thing->field_3E, 0x14u);
+            effeltng->field_4F &= ~0x10;
+            effeltng->field_4F |= 0x20;
+            effeltng->field_3E = 0;
+            effeltng->move_angle_xy = thing->move_angle_xy;
+        }
+    }
+
+    if ((cctrl->stateblock_flags & 0x04) != 0)
+    {
+        dturn = get_spell_duration_left_on_thing(thing, SplK_Teleport);
+        struct SpellConfig *splconf;
+        splconf = &game.spells_config[SplK_Teleport];
+        if (splconf->duration / 2 < dturn)
+        {
+            effeltng = create_effect_element(&thing->mappos, 0x12u, thing->owner);
+            if (!thing_is_invalid(effeltng))
+            {
+                memcpy(&effeltng->field_3E, &thing->field_3E, 0x14u);
+                effeltng->field_4F &= ~0x10;
+                effeltng->field_4F |= 0x20;
+                effeltng->field_3E = 0;
+                effeltng->move_angle_xy = thing->move_angle_xy;
+            }
+        } else
+        if (splconf->duration / 2 > dturn)
+        {
+            struct CreatureStats *crstat;
+            crstat = creature_stats_get_from_thing(thing);
+            if ((dturn % 2) == 0) {
+                effeltng = create_effect_element(&thing->mappos, birth_effect_element[thing->owner], thing->owner);
+            }
+            creature_turn_to_face_angle(thing, thing->move_angle_xy + crstat->max_angle_change);
+        }
+    }
+
+    if ((cctrl->spell_flags & CSAfF_Unkn2000) != 0)
+    {
+        dturn = game.play_gameturn - thing->creation_turn;
+        if ((dturn & 1) == 0) {
+            effeltng = create_effect_element(&thing->mappos, birth_effect_element[thing->owner], thing->owner);
+        }
+        struct CreatureStats *crstat;
+        crstat = creature_stats_get_from_thing(thing);
+        creature_turn_to_face_angle(thing, thing->move_angle_xy + crstat->max_angle_change);
+        if ((dturn > 32) || thing_touching_floor(thing)) {
+            cctrl->spell_flags &= ~CSAfF_Unkn2000;
+        }
+    }
 }
 
 void move_effect_blocked(struct Thing *thing, struct Coord3d *prev_pos, struct Coord3d *next_pos)

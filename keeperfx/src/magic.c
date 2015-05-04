@@ -1206,28 +1206,6 @@ TbResult magic_use_power_armour(PlayerNumber plyr_idx, struct Thing *thing, MapS
     return Lb_SUCCESS;
 }
 
-long thing_affected_by_spell(const struct Thing *thing, long spkind)
-{
-    struct CreatureControl *cctrl;
-    struct CastedSpellData *cspell;
-    long i;
-    cctrl = creature_control_get_from_thing(thing);
-    if (creature_control_invalid(cctrl))
-    {
-        ERRORLOG("Invalid creature control for thing %d",(int)thing->index);
-        return 0;
-    }
-    for (i=0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
-    {
-        cspell = &cctrl->casted_spells[i];
-        if (cspell->spkind == spkind)
-        {
-            return cspell->duration;
-        }
-    }
-    return 0;
-}
-
 TbResult magic_use_power_speed(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
     if (!thing_is_creature(thing)) {
