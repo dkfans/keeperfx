@@ -25,10 +25,12 @@
 #include "bflib_keybrd.h"
 #include "bflib_datetm.h"
 #include "bflib_video.h"
+
 #include "vidmode.h"
 #include "kjm_input.h"
 #include "front_simple.h"
 #include "player_data.h"
+#include "player_instances.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -309,10 +311,10 @@ long PaletteFadePlayer(struct PlayerInfo *player)
   // Update the fade step
   if (player->field_4C1 > 0)
     player->field_4C1--;
-  if ((player->field_4C5 == 0) || (player->instance_num == 18) || (player->instance_num == 17))
+  if ((player->field_4C5 == 0) || (player->instance_num == PI_Unknown18) || (player->instance_num == PI_Unknown17))
   {
   } else
-  if ((player->instance_num == 5) || (player->instance_num == 6))
+  if ((player->instance_num == PI_DirctCtrl) || (player->instance_num == PI_PsngrCtrl))
   {
     if (player->field_4C5 <= 12)
       player->field_4C5++;

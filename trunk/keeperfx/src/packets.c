@@ -2071,12 +2071,12 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       return 0;
   case PckA_SaveViewType:
       if (player->acamera != NULL)
-          player->field_4B5 = player->acamera->viewType;
+          player->view_mode_restore = player->acamera->viewType;
       set_player_mode(player, pckt->actn_par1);
       return false;
   case PckA_LoadViewType:
       set_player_mode(player, pckt->actn_par1);
-      set_engine_view(player, player->field_4B5);
+      set_engine_view(player, player->view_mode_restore);
       return false;
     default:
       return false;
@@ -2150,12 +2150,12 @@ void process_players_packet(long idx)
   SYNCDBG(8,"Finished");
 }
 
-void process_players_creature_passenger_packet_action(long idx)
+void process_players_creature_passenger_packet_action(long plyr_idx)
 {
     struct PlayerInfo *player;
     struct Packet *pckt;
     SYNCDBG(6,"Starting");
-    player = get_player(idx);
+    player = get_player(plyr_idx);
     pckt = get_packet_direct(player->packet_num);
     if (pckt->action == PckA_PasngrCtrlExit)
     {
