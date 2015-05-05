@@ -68,6 +68,7 @@
 #include "frontend.h"
 #include "magic.h"
 #include "player_instances.h"
+#include "player_states.h"
 #include "power_hand.h"
 #include "power_process.h"
 #include "gui_frontmenu.h"
@@ -289,7 +290,8 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     struct InitLight ilght;
     struct Camera *cam;
     //return _DK_control_creature_as_controller(player, thing);
-    if ( (thing->owner != player->id_number) || !thing_can_be_controlled_as_controller(thing) )
+    if (((thing->owner != player->id_number) && (player->work_state != PSt_FreePossession))
+      || !thing_can_be_controlled_as_controller(thing))
     {
       if (!control_creature_as_passenger(player, thing))
         return false;
@@ -310,7 +312,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     set_selected_creature(player, thing);
     cam = player->acamera;
     if (cam != NULL)
-      player->field_4B5 = cam->viewType;
+      player->view_mode_restore = cam->viewType;
     thing->alloc_flags |= TAlF_IsControlled;
     thing->field_4F |= TF4F_Unknown01;
     set_start_state(thing);
@@ -352,26 +354,26 @@ TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *th
 {
     struct Camera *cam;
     //return _DK_control_creature_as_passenger(player, thing);
-    if (thing->owner != player->id_number)
+    if ((thing->owner != player->id_number) && (player->work_state != PSt_FreeCtrlPassngr))
     {
-      ERRORLOG("Player %d cannot control as passenger thing owned by player %d",(int)player->id_number,(int)thing->owner);
-      return false;
+        ERRORLOG("Player %d cannot control as passenger thing owned by player %d",(int)player->id_number,(int)thing->owner);
+        return false;
     }
     if (!thing_can_be_controlled_as_passenger(thing))
     {
-      ERRORLOG("The %s can't be controlled as passenger",
-          thing_model_name(thing));
-      return false;
+        ERRORLOG("The %s can't be controlled as passenger",
+            thing_model_name(thing));
+        return false;
     }
     if (is_my_player(player))
     {
-      toggle_status_menu(0);
-      turn_off_roaming_menus();
+        toggle_status_menu(0);
+        turn_off_roaming_menus();
     }
     set_selected_thing(player, thing);
     cam = player->acamera;
     if (cam != NULL)
-      player->field_4B5 = cam->viewType;
+      player->view_mode_restore = cam->viewType;
     set_player_mode(player, PVT_CreaturePasngr);
     thing->field_4F |= TF4F_Unknown01;
     return true;
@@ -403,10 +405,17 @@ TbBool load_swipe_graphic_for_creature(const struct Thing *thing)
     {
         struct TbLoadFiles *t_lfile;
         t_lfile = &swipe_load_file[0];
+#ifdef SPRITE_FORMAT_V2
+        sprintf(t_lfile->FName, "data/swipe%02d-%d.dat", swpe_idx, 32);
+        t_lfile++;
+        sprintf(t_lfile->FName, "data/swipe%02d-%d.tab", swpe_idx, 32);
+        t_lfile++;
+#else
         sprintf(t_lfile->FName, "data/swipe%02d.dat", swpe_idx);
         t_lfile++;
         sprintf(t_lfile->FName, "data/swipe%02d.tab", swpe_idx);
         t_lfile++;
+#endif
     }
     if ( LbDataLoadAll(swipe_load_file) )
     {

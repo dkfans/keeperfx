@@ -94,7 +94,7 @@ enum PlayerVictoryState {
 };
 
 // Context of given location.
-enum LocationContext 
+enum LocationContext
 {
     PosContext_Nothing = 0, // Cursor about nothing.
     PosContext_Dirt, // Can dig
@@ -194,9 +194,11 @@ char field_462;
     short cursor_stl_x;
     short cursor_stl_y;
     unsigned char field_4AF;
-    unsigned char instance_num; //< Player instance, from PlayerInstanceNum enum.
+    /** Player instance, from PlayerInstanceNum enum. */
+    unsigned char instance_num;
     unsigned long instance_remain_rurns;
-    char field_4B5;
+    /** If view mode is temporarily covered by another, the original mode which is to be restored later will be saved here.*/
+    char view_mode_restore;
     long dungeon_camera_zoom;
     char field_4BA[3];
     long field_4BD;
