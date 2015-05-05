@@ -453,6 +453,7 @@ pkg/data/loading-64.raw \
 pkg/data/loading-128.raw \
 pkg/data/nocd-32.raw \
 pkg/ldata/front-64.raw \
+pkg/ldata/front-128.raw \
 pkg/ldata/frontft1-64.dat \
 pkg/ldata/frontft2-64.dat \
 pkg/ldata/frontft3-64.dat \
@@ -874,7 +875,9 @@ pkg/ldata/door08.dat: gfx/torturescr/filelist_tortr_doorh.txt pkg/ldata/torture.
 pkg/ldata/door09.dat: gfx/torturescr/filelist_tortr_doori.txt pkg/ldata/torture.pal $(PNGTORAW) $(RNC)
 pkg/ldata/torture.raw: gfx/torturescr/tortr_background.png pkg/ldata/torture.pal $(PNGTORAW) $(RNC)
 
-pkg/ldata/front-64.raw: gfx/frontend-64/front_background.png pkg/ldata/front.pal $(PNGTORAW) $(RNC)
+pkg/ldata/front-64.raw: gfx/frontend-64/front_background-64.png pkg/ldata/front.pal $(PNGTORAW) $(RNC)
+pkg/ldata/front-128.raw: gfx/frontend-64/front_background-128.png pkg/ldata/front.pal $(PNGTORAW) $(RNC)
+pkg/ldata/front-256.raw: gfx/frontend-64/front_background-256.png pkg/ldata/front.pal $(PNGTORAW) $(RNC)
 pkg/ldata/frontbit-64.dat: gfx/frontend-64/filelist_frontbit.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)
 pkg/ldata/frontft1-64.dat: gfx/font_front_hdr_red-64/filelist_frontft1.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)
 pkg/ldata/frontft2-64.dat: gfx/font_front_std_red-64/filelist_frontft2.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)

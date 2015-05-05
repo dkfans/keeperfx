@@ -120,6 +120,7 @@ TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const in
   int i,k;
   unsigned char *dst;
   const unsigned char *src;
+  SYNCDBG(18,"Starting; screen buf %d,%d screen size %d,%d dst pos %d,%d src %d,%d",(int)scanline,(int)nlines,(int)dst_width,(int)dst_height,(int)spw,(int)sph,(int)src_width,(int)src_height);
   // Source pixel coords
   int sw,sh;
   sw=0;
@@ -197,6 +198,7 @@ TbBool copy_raw8_image_to_screen_center(const unsigned char *buf,const int img_w
         height = LbScreenHeight();
         units_per_px = (width>height?width:height)/((img_width>img_height?img_width:img_height)/16);
     }
+    SYNCDBG(18,"Starting; src %d,%d scale %d",(int)img_width,(int)img_height,(int)units_per_px);
     // Locking screen
     if (LbScreenLock() != Lb_SUCCESS)
       return false;
@@ -214,8 +216,6 @@ TbBool copy_raw8_image_to_screen_center(const unsigned char *buf,const int img_w
 
 TbBool show_rawimage_screen(unsigned char *raw,unsigned char *pal,int width,int height,TbClockMSec tmdelay)
 {
-      if (height > lbDisplay.PhysicalScreenHeight)
-        height = lbDisplay.PhysicalScreenHeight;
     LbPaletteSet(pal);
     TbClockMSec end_time;
     end_time = LbTimerClock() + tmdelay;
@@ -289,6 +289,7 @@ TbBool init_bitmap_screen(struct ActiveBitmap *actv_bmp,int stype)
   actv_bmp->height = rbmp->height;
   actv_bmp->bpp = rbmp->bpp;
   actv_bmp->start_tm = LbTimerClock();
+  SYNCDBG(18,"Starting; src %d,%d bpp %d",(int)actv_bmp->width,(int)actv_bmp->height,(int)actv_bmp->bpp);
   // Load PAL
   ldsize = PALETTE_SIZE;
   buf = load_data_file_to_buffer(&ldsize, rbmp->fgroup, rbmp->pal_fname);
