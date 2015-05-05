@@ -2255,7 +2255,7 @@ long ariadne_init_movement_to_current_waypoint(struct Thing *thing, struct Ariad
     arid->pos_12.y.val = fixed_pos.y.val;
     arid->pos_12.z.val = fixed_pos.z.val;
     arid->update_state = AridUpSt_Manoeuvre;
-    arid->manoeuvre_state = 1;
+    arid->manoeuvre_state = AridUpSStM_Unkn1;
     return 1;
 }
 
@@ -2386,11 +2386,11 @@ AriadneReturn ariadne_prepare_creature_route_to_target_f(const struct Thing *thi
         return AridRet_Val2;
     }
     // Fill total waypoints number
-    if (path.waypoints_num <= 255) {
+    if (path.waypoints_num < ARID_PATH_WAYPOINTS_COUNT) {
         arid->total_waypoints = path.waypoints_num;
     } else {
         WARNLOG("%s: The %d waypoints is too many - cutting down", func_name,(int)path.waypoints_num);
-        arid->total_waypoints = 255;
+        arid->total_waypoints = ARID_PATH_WAYPOINTS_COUNT-1;
     }
     // Fill stored waypoints (up to ARID_WAYPOINTS_COUNT)
     if (arid->total_waypoints < ARID_WAYPOINTS_COUNT) {
@@ -2566,9 +2566,9 @@ AriadneReturn ariadne_update_state_manoeuvre_to_position(struct Thing *thing, st
     }
     switch (arid->manoeuvre_state)
     {
-    case 1:
+    case AridUpSStM_Unkn1:
         return ariadne_init_wallhug(thing, arid, &arid->pos_59);
-    case 2:
+    case AridUpSStM_Unkn2:
         angle = ariadne_get_wallhug_angle(thing, arid);
         arid->wallhug_angle = angle;
         arid->pos_12.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(arid->move_speed, angle);
@@ -2641,7 +2641,7 @@ AriadneReturn ariadne_update_state_on_line(struct Thing *thing, struct Ariadne *
                 struct Coord3d pos;
                 ariadne_push_position_against_wall(thing, &arid->pos_12, &pos);
                 arid->update_state = AridUpSt_Manoeuvre;
-                arid->manoeuvre_state = 1;
+                arid->manoeuvre_state = AridUpSStM_Unkn1;
                 arid->pos_53.x.val = pos.x.val;
                 arid->pos_53.y.val = pos.y.val;
                 arid->pos_53.z.val = pos.z.val;
@@ -2735,7 +2735,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
                 struct Coord3d pos;
                 ariadne_push_position_against_wall(thing, &arid->pos_12, &pos);
                 arid->update_state = AridUpSt_Manoeuvre;
-                arid->manoeuvre_state = 1;
+                arid->manoeuvre_state = AridUpSStM_Unkn1;
                 arid->pos_53.x.val = pos.x.val;
                 arid->pos_53.y.val = pos.y.val;
                 arid->pos_53.z.val = pos.z.val;
@@ -2778,7 +2778,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
         if ((thing->move_angle_xy == hug_angle) && ariadne_check_forward_for_wallhug_gap(thing, arid, &arid->pos_12, hug_angle))
         {
             arid->update_state = AridUpSt_Manoeuvre;
-            arid->manoeuvre_state = 2;
+            arid->manoeuvre_state = AridUpSStM_Unkn2;
             arid->pos_53.x.val = arid->pos_12.x.val;
             arid->pos_53.y.val = arid->pos_12.y.val;
             arid->pos_53.z.val = arid->pos_12.z.val;
@@ -2806,7 +2806,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
                 struct Coord3d pos;
                 ariadne_push_position_against_wall(thing, &arid->pos_12, &pos);
                 arid->update_state = AridUpSt_Manoeuvre;
-                arid->manoeuvre_state = 2;
+                arid->manoeuvre_state = AridUpSStM_Unkn2;
                 arid->pos_53.x.val = pos.x.val;
                 arid->pos_53.y.val = pos.y.val;
                 arid->pos_53.z.val = pos.z.val;

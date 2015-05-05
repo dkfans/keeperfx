@@ -60,6 +60,12 @@ enum AriadneUpdateStateValues {
     AridUpSt_Manoeuvre,
 };
 
+enum AriadneUpdateSubStateManoeuvreValues {
+    AridUpSStM_Unset   = 0,
+    AridUpSStM_Unkn1,
+    AridUpSStM_Unkn2,
+};
+
 #define NAVMAP_FLOORHEIGHT_BIT  0
 #define NAVMAP_FLOORHEIGHT_MAX  0x0f
 #define NAVMAP_FLOORHEIGHT_MASK 0x0f
