@@ -53,7 +53,8 @@ int InitializeMusicPlayer(void)
         {
             tracks[0] = NULL;
             int i;
-            for (i = 1; i < MAX_TRACK; i++)
+            // There is no keeper01.ogg.
+            for (i = 2; i < MAX_TRACK; i++)
             {
                 const char *fname;
                 fname = prepare_file_fmtpath(FGrp_Music, "keeper%02d.ogg", i);
