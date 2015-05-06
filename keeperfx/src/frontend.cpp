@@ -2469,13 +2469,13 @@ void set_gui_visible(TbBool visible)
 
 void toggle_gui(void)
 {
-    TbBool visible = ((game.status_flags & Status_ShowGui));
+    TbBool visible = !(game.status_flags & Status_ShowGui);
     set_gui_visible(visible);
 }
 
 void reinit_all_menus(void)
 {
-    TbBool visible = ((game.status_flags & Status_ShowGui));
+    TbBool visible = (game.status_flags & Status_ShowGui);
     init_gui();
     reset_gui_based_on_player_mode();
     set_gui_visible(visible);
