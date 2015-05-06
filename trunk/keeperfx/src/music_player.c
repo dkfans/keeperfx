@@ -52,6 +52,7 @@ int InitializeMusicPlayer(void)
         if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) >= 0)
         {
             tracks[0] = NULL;
+            tracks[1] = NULL;
             int i;
             // There is no keeper01.ogg.
             for (i = 2; i < MAX_TRACK; i++)

@@ -482,41 +482,38 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
             ERRORLOG("Failed to initialize mode %d: %s", (int)modeIndex, SDL_GetError());
             return Lb_FAIL;
         }
-    }
-    else
-    {
-        // Reisze window when it already exists.
-        SDL_SetWindowSize(lbScreenWindow, mdinfo->Width, mdinfo->Height);
-        SDL_SetWindowFullscreen(lbScreenWindow, sdlFlags);
+
+        LbScreenUpdateIcon();
     }
 
     if (lbGameRenderer == NULL)
     {
         lbGameRenderer = SDL_CreateRenderer(lbScreenWindow, -1, 0);
+
+        if (lbGameRenderer == NULL)
+        {
+            ERRORLOG("Error creating SDL_Renderer %d: %s", (int)modeIndex, SDL_GetError());
+            return Lb_FAIL;
+        }
+
+        // We now leaves the scaling work to renderer and it will be taken care automatically.
+        // 'linear' make the scaled rendering look smoother.
+        SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+
+        // Set the logical screen size as video mode specified.
+        SDL_RenderSetLogicalSize(lbGameRenderer, mdinfo->Width, mdinfo->Height);
     }
 
-    if (lbGameRenderer == NULL)
-    {
-        ERRORLOG("Error creating lbGameRenderer %d: %s", (int)modeIndex, SDL_GetError());
-        return Lb_FAIL;
-    }
-
-    // We now leaves the scaling work to renderer and it will be taken care automatically.
-    // 'linear' make the scaled rendering look smoother.
-    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
-
-    // Set the logical screen size as video mode specified.
-    SDL_RenderSetLogicalSize(lbGameRenderer, mdinfo->Width, mdinfo->Height);
-
-    lbPalettedSurface = SDL_CreateRGBSurface(0/*obselete flag*/, mdinfo->Width, mdinfo->Height, lbPalettedSurfaceColorDepth, 0, 0, 0, 0);
     if (lbPalettedSurface == NULL)
     {
-        ERRORLOG("Can't create paletted surface: %s", SDL_GetError());
-        LbScreenReset(false);
-        return Lb_FAIL;
+        lbPalettedSurface = SDL_CreateRGBSurface(0/*obselete flag*/, mdinfo->Width, mdinfo->Height, lbPalettedSurfaceColorDepth, 0, 0, 0, 0);
+        if (lbPalettedSurface == NULL)
+        {
+            ERRORLOG("Can't create paletted surface: %s", SDL_GetError());
+            LbScreenReset(false);
+            return Lb_FAIL;
+        }
     }
-
-    LbScreenUpdateIcon();
 
     lbDisplay.DrawFlags = 0;
     lbDisplay.DrawColour = 0; 
@@ -550,6 +547,7 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
     LbScreenSetGraphicsWindow(0, 0, mdinfo->Width, mdinfo->Height);
     LbTextSetWindow(0, 0, mdinfo->Width, mdinfo->Height);
     SYNCDBG(8,"Done filling display properties struct");
+
     if ( LbMouseIsInstalled() )
     {
         LbMouseSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
@@ -559,6 +557,7 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
             LbMouseChangeSpriteAndHotspot(msspr, hot_x, hot_y);
         }
     }
+
     LbInputRestate();
     lbScreenInitialized = true;
     LbScreenActivationUpdate();
@@ -723,16 +722,13 @@ TbResult LbScreenReset(TbBool resetMainWindow)
     SDL_DestroyTexture(lbDrawTexture);
     lbDrawTexture = NULL;
 
-    // Commenting following part to workaround SDL bug: when using GPU acceleration 
-    // will cause memory leak at SDL_DestroyRenderer. So instead of destroying everything
-    // we simply resize the window. 
-
     SDL_DestroyRenderer(lbGameRenderer);
     lbGameRenderer = NULL;
 
     // Only reset main windows at 'alt + r' event
     if (resetMainWindow)
     {
+
         SDL_DestroyWindow(lbScreenWindow);
         lbScreenWindow = NULL;
     }

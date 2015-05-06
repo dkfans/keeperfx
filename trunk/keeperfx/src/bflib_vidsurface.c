@@ -27,27 +27,23 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-/******************************************************************************/
+// Render Process: lbPalettedSurface(256 color) --> lbDrawTexture(true color) -> lbGameRenderer --> lbScreenWindow
 
+/** Internal screen or window structure. */
+SDL_Window * lbScreenWindow;
 
-    // Render Process: lbPalettedSurface(256 color) --> lbDrawTexture(true color) -> lbGameRenderer --> lbScreenWindow
+/** Internal game renderer structure. */
+SDL_Renderer  * lbGameRenderer;
 
-    /** Internal screen or window structure. */
-    SDL_Window * lbScreenWindow;
+/** Internal drawing texutre structure. */
+SDL_Texture * lbDrawTexture;
 
-    /** Internal game renderer structure. */
-    SDL_Renderer  * lbGameRenderer;
+/** Internal palette surface structure.
+SDL does not support palette for SDL_Texture,
+so we need this layer to cache paletted image
+and convert to true color before rendering*/
+SDL_Surface * lbPalettedSurface;
 
-    /** Internal drawing texutre structure. */
-    SDL_Texture * lbDrawTexture;
-
-    /** Internal palette surface structure.
-    SDL does not support palette for SDL_Texture,
-    so we need this layer to cache paletted image
-    and convert to true color before rendering*/
-    SDL_Surface * lbPalettedSurface;
-
-/******************************************************************************/
 void LbScreenSurfaceInit(struct SSurface *surf)
 {
   surf->surf_data = NULL;
