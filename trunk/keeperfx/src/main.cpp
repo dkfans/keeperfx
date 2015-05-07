@@ -1794,14 +1794,14 @@ void clear_players_for_save(void)
       id_mem = player->id_number;
       mem2 = player->field_2C;
       memflg = player->allocflags;
-      LbMemoryCopy(&cammem,&player->cameras[1],sizeof(struct Camera));
+      LbMemoryCopy(&cammem,&player->cameras[CamIV_FirstPerson],sizeof(struct Camera));
       memset(player, 0, sizeof(struct PlayerInfo));
       player->id_number = id_mem;
       player->field_2C = mem2;
       set_flag_byte(&player->allocflags,PlaF_Allocated,((memflg & PlaF_Allocated) != 0));
       set_flag_byte(&player->allocflags,PlaF_CompCtrl,((memflg & PlaF_CompCtrl) != 0));
-      LbMemoryCopy(&player->cameras[1],&cammem,sizeof(struct Camera));
-      player->acamera = &player->cameras[1];
+      LbMemoryCopy(&player->cameras[CamIV_FirstPerson],&cammem,sizeof(struct Camera));
+      player->acamera = &player->cameras[CamIV_FirstPerson];
     }
 }
 
@@ -2675,12 +2675,12 @@ void update_player_camera(struct PlayerInfo *player)
         }
         break;
     case PVM_IsometricView:
-        player->cameras[3].mappos.x.val = cam->mappos.x.val;
-        player->cameras[3].mappos.y.val = cam->mappos.y.val;
+        player->cameras[CamIV_FrontView].mappos.x.val = cam->mappos.x.val;
+        player->cameras[CamIV_FrontView].mappos.y.val = cam->mappos.y.val;
         break;
     case PVM_FrontView:
-        player->cameras[0].mappos.x.val = cam->mappos.x.val;
-        player->cameras[0].mappos.y.val = cam->mappos.y.val;
+        player->cameras[CamIV_Isometric].mappos.x.val = cam->mappos.x.val;
+        player->cameras[CamIV_Isometric].mappos.y.val = cam->mappos.y.val;
         break;
     }
     if (dungeon->camera_deviate_quake) {
@@ -3185,12 +3185,12 @@ void tag_cursor_blocks_thing_in_hand(unsigned char a1, long a2, long a3, int a4,
 
 void set_player_cameras_position(struct PlayerInfo *player, long pos_x, long pos_y)
 {
-    player->cameras[2].mappos.x.val = pos_x;
-    player->cameras[3].mappos.x.val = pos_x;
-    player->cameras[0].mappos.x.val = pos_x;
-    player->cameras[2].mappos.y.val = pos_y;
-    player->cameras[3].mappos.y.val = pos_y;
-    player->cameras[0].mappos.y.val = pos_y;
+    player->cameras[CamIV_Parchment].mappos.x.val = pos_x;
+    player->cameras[CamIV_FrontView].mappos.x.val = pos_x;
+    player->cameras[CamIV_Isometric].mappos.x.val = pos_x;
+    player->cameras[CamIV_Parchment].mappos.y.val = pos_y;
+    player->cameras[CamIV_FrontView].mappos.y.val = pos_y;
+    player->cameras[CamIV_Isometric].mappos.y.val = pos_y;
 }
 
 void scale_tmap2(long a1, long flags, long a3, long a4x, long a4y, long a6x, long a6y)

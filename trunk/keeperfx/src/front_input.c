@@ -899,7 +899,7 @@ short get_creature_passenger_action_inputs(void)
   player = get_my_player();
   if (get_players_packet_action(player) != PckA_None)
     return 1;
-  if (!(game.status_flags & Status_Paused) || game.status_flags & Status_AllowInput)
+  if (!(game.status_flags & Status_Paused) || (game.status_flags & Status_AllowInput))
       get_gui_inputs(1);
   if (player->controlled_thing_idx == 0)
     return false;
@@ -924,7 +924,7 @@ short get_creature_passenger_action_inputs(void)
   return false;
 }
 
-// Get numberic key pressed either from main keyboard or numpad. 
+// Get numberic key pressed either from main keyboard or numpad.
 int _get_numberic_key_pressed()
 {
     int numkey = -1;
@@ -988,7 +988,7 @@ short get_creature_control_action_inputs(void)
     player = get_my_player();
     if (get_players_packet_action(player) != PckA_None)
         return 1;
-    if (!(game.status_flags & Status_Paused) || game.status_flags & Status_AllowInput)
+    if (!(game.status_flags & Status_Paused) || (game.status_flags & Status_AllowInput))
         get_gui_inputs(1);
     if (is_key_pressed(KC_NUMPADENTER,KMod_DONTCARE))
     {
@@ -1062,7 +1062,7 @@ short get_creature_control_action_inputs(void)
     //// Mouse wheel to switch skills.
     //if (lbDisplayEx.wheelUp)
     //{
-    //    instanceDelta = 1; 
+    //    instanceDelta = 1;
     //    lbDisplayEx.wheelUp = false;
     //}
     //else if (lbDisplayEx.wheelDown)
@@ -1084,7 +1084,7 @@ short get_creature_control_action_inputs(void)
     //    int activeInstance = crCtrl->active_instance;
     //    int activeInstanceIdx = 0;
 
-    //    // Search for index of current active spell. 
+    //    // Search for index of current active spell.
     //    for (activeInstanceIdx = 0; activeInstanceIdx < CREATURE_MAX_SPELL; activeInstanceIdx++)
     //    {
     //        if (crStat->instance_spell_id[activeInstanceIdx] == activeInstance)
@@ -1106,7 +1106,7 @@ short get_creature_control_action_inputs(void)
     //                ERRORLOG("break from location %d to %d",activeInstanceIdx, nextActiveInstanceIdx);
     //                break;
     //            }
-    //        } 
+    //        }
     //        while (nextActiveSpell != activeInstance); // Loop for one round.
 
     //        if (nextActiveSpell != activeInstance)
@@ -1325,7 +1325,7 @@ void get_isometric_view_nonaction_inputs(void)
     if ((player->allocflags & PlaF_Unknown10) != 0)
       return;
     if (speed_mod_pressed != 0)
-      pckt->status_flags |= PCAdV_QuickScroll; 
+      pckt->status_flags |= PCAdV_QuickScroll;
     no_mods = false;
     if ((rotate_mod_pressed != 0) || (speed_mod_pressed != 0))
       no_mods = true;
@@ -1558,7 +1558,7 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
   if (!subtile_revealed(x,y,player->id_number))
   {
       // TODO HeM doesn't look right.
-      *context = PosContext_Dirt; 
+      *context = PosContext_Dirt;
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
     pos->y.val = (y<<8) + top_pointed_at_frac_y;
   } else
@@ -2036,7 +2036,7 @@ short get_inputs(void)
     }
     TbBool inp_handled = false;
     if (!lbDisplayEx.isDragMovingCamera && !lbDisplayEx.isDragRotatingCamera &&
-        (!(game.status_flags & Status_Paused) || game.status_flags & Status_AllowInput))
+        (!(game.status_flags & Status_Paused) || (game.status_flags & Status_AllowInput)))
         inp_handled = get_gui_inputs(1);
     if (!inp_handled)
         inp_handled = get_global_inputs();
@@ -2159,7 +2159,7 @@ short get_gui_inputs(short gameplay_on)
     gui_trap_type_highlighted = -1;
     gui_creature_type_highlighted = -1;
 
-    if (gameplay_on) 
+    if (gameplay_on)
     {
         update_creatr_model_activities_list();
         maintain_my_battle_list();
@@ -2209,7 +2209,7 @@ short get_gui_inputs(short gameplay_on)
         if ((menu_id_to_number(GMnu_MAIN) >= 0) && mouse_is_over_pannel_map(player->minimap_pos_x, player->minimap_pos_y))
             continue;
 
-        if ((check_if_mouse_is_over_button(gbtn) && !game_is_busy_doing_gui_string_input()) || 
+        if ((check_if_mouse_is_over_button(gbtn) && !game_is_busy_doing_gui_string_input()) ||
             ((gbtn->button_type == LbBtnType_Unknown) && (gbtn->leftclick_flag != 0)))
         {
             if ((iFirstMonopolyMenu == -1) || (gbtn->menu_idx == iFirstMonopolyMenu))
