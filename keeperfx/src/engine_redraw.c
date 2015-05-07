@@ -86,7 +86,7 @@ void setup_engine_window(long x, long y, long width, long height)
         x = MyScreenWidth;
       if (x < status_panel_width)
         x = status_panel_width;
-    } 
+    }
     else
     {
       if (x > MyScreenWidth)
@@ -426,7 +426,7 @@ void set_engine_view(struct PlayerInfo *player, long val)
     switch ( val )
     {
     case PVM_EmptyView:
-        player->acamera = &player->cameras[0];
+        player->acamera = &player->cameras[CamIV_Isometric];
         // Allow view mode 0 only for non-local-human players
         if (!is_my_player(player))
             break;
@@ -437,7 +437,7 @@ void set_engine_view(struct PlayerInfo *player, long val)
         val = PVM_CreatureView;
         // no break
     case PVM_CreatureView:
-        player->acamera = &player->cameras[1];
+        player->acamera = &player->cameras[CamIV_FirstPerson];
         if (!is_my_player(player))
             break;
         lens_mode = 2;
@@ -447,7 +447,7 @@ void set_engine_view(struct PlayerInfo *player, long val)
         LbMouseSetPosition((MyScreenWidth/pixel_size) >> 1,(MyScreenHeight/pixel_size) >> 1);
         break;
     case PVM_IsometricView:
-        player->acamera = &player->cameras[0];
+        player->acamera = &player->cameras[CamIV_Isometric];
         if (!is_my_player(player))
             break;
         lens_mode = 0;
@@ -456,7 +456,7 @@ void set_engine_view(struct PlayerInfo *player, long val)
         S3DSetDeadzoneRadius(1280);
         break;
     case PVM_ParchmentView:
-        player->acamera = &player->cameras[2];
+        player->acamera = &player->cameras[CamIV_Parchment];
         if (!is_my_player(player))
             break;
         S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
@@ -467,7 +467,7 @@ void set_engine_view(struct PlayerInfo *player, long val)
         // In fade states, keep the settings unchanged
         break;
     case PVM_FrontView:
-        player->acamera = &player->cameras[3];
+        player->acamera = &player->cameras[CamIV_FrontView];
         if (!is_my_player(player))
             break;
         lens_mode = 0;
@@ -644,7 +644,7 @@ void redraw_isometric_view(void)
         store_engine_window(&ewnd,1);
         setup_engine_window(ewnd.x, ewnd.y, ewnd.width >> 1, ewnd.height >> 1);
     }
-    engine(player,&player->cameras[0]);
+    engine(player,&player->cameras[CamIV_Isometric]);
     if ((game.flags_font & FFlg_unk08) != 0)
     {
         load_engine_window(&ewnd);
@@ -688,7 +688,7 @@ void redraw_frontview(void)
       w = 0;
       h = 0;
     }
-    draw_frontview_engine(&player->cameras[3]);
+    draw_frontview_engine(&player->cameras[CamIV_FrontView]);
     if ((game.flags_font & FFlg_unk08) != 0)
       setup_engine_window(player->engine_window_x, player->engine_window_y, w, h);
     remove_explored_flags_for_power_sight(player);
