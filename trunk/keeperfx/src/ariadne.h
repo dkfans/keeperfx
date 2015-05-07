@@ -89,7 +89,7 @@ struct Ariadne { // sizeof = 102
   struct Coord3d pos_53;
   struct Coord3d pos_59;
   unsigned char manoeuvre_state;
-  unsigned short field_60;
+  short wallhug_angle;
   long field_62;
 };
 

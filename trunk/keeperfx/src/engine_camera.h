@@ -39,10 +39,13 @@ struct PlayerInfo;
 #define CAMERA_ZOOM_MAX    12000
 #define MINMAX_LENGTH         64
 
-#define CAMERA_VIEW_EMPTY       2
-#define CAMERA_VIEW_CREATURE    1
-#define CAMERA_VIEW_ISOMETRIC   3
-#define CAMERA_VIEW_PARCHMENT   5
+enum CameraIndexValues {
+    CamIV_Index0 = 0,
+    CamIV_Index1,
+    CamIV_Index2,
+    CamIV_Index3,
+    CamIV_EndList
+};
 
 struct MinMax { // sizeof = 8
     long min;

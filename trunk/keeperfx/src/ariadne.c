@@ -311,8 +311,8 @@ static void ariadne_compare_ways(const struct Ariadne *arid1, const struct Ariad
     if (arid1->manoeuvre_state != arid2->manoeuvre_state) {
         ERRORLOG("manoeuvre_state DIFFERS");
     }
-    if (arid1->field_60 != arid2->field_60) {
-        ERRORLOG("field_60 DIFFERS");
+    if (arid1->wallhug_angle != arid2->wallhug_angle) {
+        ERRORLOG("wallhug_angle DIFFERS");
     }
     if (arid1->field_62 != arid2->field_62) {
         ERRORLOG("field_62 DIFFERS");
@@ -2045,6 +2045,20 @@ void ariadne_init_current_waypoint(const struct Thing *thing, struct Ariadne *ar
     arid->field_62 = get_2d_distance(&thing->mappos, &arid->current_waypoint_pos);
 }
 
+long angle_to_quadrant(long angle)
+{
+    return ((angle + LbFPMath_PI/4) & 0x600u) >> 9;
+}
+
+long ariadne_wallhug_angle_valid(struct Thing *thing, struct Ariadne *arid, long angle)
+{
+    struct Coord3d pos;
+    pos.x.val = thing->mappos.x.val + ( (arid->move_speed * LbSinL(angle) >> 8) >> 8);
+    pos.y.val = thing->mappos.y.val + (-(arid->move_speed * LbCosL(angle) >> 8) >> 8);
+    pos.z.val = subtile_coord(1,0);
+    return (ariadne_creature_blocked_by_wall_at(thing, &pos) == 0);
+}
+
 long ariadne_get_wallhug_angle(struct Thing *thing, struct Ariadne *arid)
 {
     return _DK_ariadne_get_wallhug_angle(thing, arid);
@@ -2579,7 +2593,7 @@ AriadneReturn ariadne_update_state_manoeuvre_to_position(struct Thing *thing, st
         return ariadne_init_wallhug(thing, arid, &arid->pos_59);
     case 2:
         angle = ariadne_get_wallhug_angle(thing, arid);
-        arid->field_60 = angle;
+        arid->wallhug_angle = angle;
         arid->pos_12.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(arid->move_speed, angle);
         arid->pos_12.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(arid->move_speed, angle);
         arid->field_21 = 2;
@@ -2704,8 +2718,9 @@ TbBool ariadne_creature_on_circular_hug(const struct Thing *thing, const struct 
 AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *arid)
 {
     //return _DK_ariadne_update_state_wallhug(thing, arid);
-    long distance;
-    NAVIDBG(19,"Starting");
+    MapCoordDelta distance;
+    NAVIDBG(19,"Route for %s index %d from %3d,%3d to %3d,%3d", thing_model_name(thing),(int)thing->index,
+        (int)thing->mappos.x.val, (int)thing->mappos.y.val, (int)arid->current_waypoint_pos.x.val, (int)arid->current_waypoint_pos.y.val);
     distance = get_2d_distance(&thing->mappos, &arid->current_waypoint_pos);
     if ((distance - arid->field_62) > 1024)
     {
@@ -2717,7 +2732,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
         pos.y.val = arid->endpos.y.val;
         pos.z.val = arid->endpos.z.val;
         if (ariadne_initialise_creature_route(thing, &pos, arid->move_speed, arid->route_flags)) {
-            return 3;
+            return AridRet_PartOK;
         }
         return AridRet_OK;
     }
@@ -2735,7 +2750,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
                 pos.y.val = arid->endpos.y.val;
                 pos.z.val = arid->endpos.z.val;
                 if (ariadne_initialise_creature_route(thing, &pos, arid->move_speed, arid->route_flags)) {
-                    return 3;
+                    return AridRet_PartOK;
                 }
             }
             else
@@ -2756,7 +2771,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
             }
         }
     } else
-    if (thing->move_angle_xy == arid->field_60)
+    if (thing->move_angle_xy == arid->wallhug_angle)
     {
         if ((thing->mappos.x.val != arid->pos_12.x.val) || (arid->pos_12.y.val != thing->mappos.y.val))
         {
@@ -2767,9 +2782,9 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
         {
             if (ariadne_creature_can_continue_direct_line_to_waypoint(thing, arid, arid->move_speed)) {
                 if (ariadne_init_movement_to_current_waypoint(thing, arid) < 1) {
-                    return 3;
+                    return AridRet_PartOK;
                 }
-                return 0;
+                return AridRet_OK;
             }
             arid->field_62 = distance;
         }
@@ -2792,7 +2807,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
             arid->pos_53.z.val = arid->pos_12.z.val;
             return AridRet_OK;
         }
-        arid->field_60 = hug_angle;
+        arid->wallhug_angle = hug_angle;
         if (ariadne_creature_on_circular_hug(thing, arid))
         {
             struct Coord3d pos;

@@ -536,7 +536,7 @@ int draw_overlay_possessed_thing(struct PlayerInfo *player, long units_per_px, l
     cam = player->acamera;
     if (cam == NULL)
         return 0;
-    if (cam->viewType != 1)
+    if (cam->viewType != PVM_CreatureView)
         return 0;
     long scr_x,scr_y;
     scr_x = MapDiagonalLength / 2;

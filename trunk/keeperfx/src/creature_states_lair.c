@@ -225,7 +225,7 @@ long creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
     lairtng->word_15 = 1;
     // Lair size depends on creature level
     lairtng->word_17 = 300 * cctrl->explevel / 20 + 300;
-    lairtng->move_angle_xy = ACTION_RANDOM(0x800);
+    lairtng->move_angle_xy = ACTION_RANDOM(2*LbFPMath_PI);
     struct Objects *objdat;
     unsigned long i;
     objdat = get_objects_data_for_thing(lairtng);
