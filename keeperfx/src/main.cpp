@@ -1365,13 +1365,13 @@ TbBool screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct
     {
         switch (camera->viewType)
       {
-        case CAMERA_VIEW_CREATURE:
-        case CAMERA_VIEW_EMPTY:
-        case CAMERA_VIEW_PARCHMENT:
+        case PVM_CreatureView:
+        case PVM_IsometricView:
+        case PVM_FrontView:
           // 3D view mode
           result = engine_point_to_map(camera,screen_x,screen_y,&x,&y);
           break;
-        case CAMERA_VIEW_ISOMETRIC: //map mode
+        case PVM_ParchmentView: //map mode
           result = point_to_overhead_map(camera,screen_x/pixel_size,screen_y/pixel_size,&x,&y);
           break;
         default:
@@ -2664,7 +2664,7 @@ void update_player_camera(struct PlayerInfo *player)
     view_process_camera_inertia(cam);
     switch (cam->viewType)
     {
-    case 1:
+    case PVM_CreatureView:
         if (player->controlled_thing_idx > 0) {
             struct Thing *ctrltng;
             ctrltng = thing_get(player->controlled_thing_idx);
@@ -2674,11 +2674,11 @@ void update_player_camera(struct PlayerInfo *player)
             ERRORLOG("Cannot go first person without controlling creature");
         }
         break;
-    case 2:
+    case PVM_IsometricView:
         player->cameras[3].mappos.x.val = cam->mappos.x.val;
         player->cameras[3].mappos.y.val = cam->mappos.y.val;
         break;
-    case 5:
+    case PVM_FrontView:
         player->cameras[0].mappos.x.val = cam->mappos.x.val;
         player->cameras[0].mappos.y.val = cam->mappos.y.val;
         break;
@@ -3731,7 +3731,7 @@ void _predict_power_hand_click_behavior()
     bool isNothingInHand = 0;
     bool isNothingToPickupOrSlap = 0;
     bool isNothingToDig = 0;
-    // Some spells like heal and lighting can be charged through holding left button, we don't want to enter 
+    // Some spells like heal and lighting can be charged through holding left button, we don't want to enter
     // dragging mode when casting these spells.
     bool isNotCastingChargeableSpell = 1;
 
@@ -3745,7 +3745,7 @@ void _predict_power_hand_click_behavior()
         // to inaccurate zoom value.
         _get_camera_move_ratio(cam);
 
-        isMapCamera = (cam) && (cam->viewType == CAMERA_VIEW_EMPTY);
+        isMapCamera = (cam != NULL) && (cam->viewType == PVM_IsometricView);
         isNothingInHand = (player) && power_hand_is_empty(player);
         isNothingToPickupOrSlap = (player) && (player->thing_under_hand == 0);
         isNothingToDig = !can_dig_here(stl_x, stl_y, my_player_number);

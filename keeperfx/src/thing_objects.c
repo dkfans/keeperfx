@@ -1071,7 +1071,7 @@ long food_moves(struct Thing *objtng)
         sangle = get_angle_sign(objtng->move_angle_xy, objtng->food.word_18);
         if (dangle > 62)
             dangle = 62;
-        objtng->move_angle_xy = (dangle * sangle + objtng->move_angle_xy) & 0x7FF;
+        objtng->move_angle_xy = (objtng->move_angle_xy + dangle * sangle) & LbFPMath_AngleMask;
         if (get_angle_difference(objtng->move_angle_xy, objtng->food.word_18) < 284)
         {
             struct ComponentVector cvec;

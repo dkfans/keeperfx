@@ -171,7 +171,7 @@ void view_zoom_camera_in(struct Camera *cam, long limit_max, long limit_min)
     old_zoom = get_camera_zoom(cam);
     switch (cam->viewType)
     {
-    case CAMERA_VIEW_EMPTY:
+    case PVM_IsometricView:
         new_zoom = (100 * old_zoom) / 85;
         if (new_zoom == old_zoom)
             new_zoom++;
@@ -182,7 +182,7 @@ void view_zoom_camera_in(struct Camera *cam, long limit_max, long limit_min)
             new_zoom = limit_max;
         }
         break;
-    case CAMERA_VIEW_ISOMETRIC:
+    case PVM_ParchmentView:
         new_zoom = (5 * old_zoom) / 4;
         if (new_zoom == old_zoom)
             new_zoom++;
@@ -193,7 +193,7 @@ void view_zoom_camera_in(struct Camera *cam, long limit_max, long limit_min)
             new_zoom = 1024;
         }
         break;
-    case CAMERA_VIEW_PARCHMENT:
+    case PVM_FrontView:
         new_zoom = (100 * old_zoom) / 85;
         if (new_zoom == old_zoom)
             new_zoom++;
@@ -216,11 +216,11 @@ void set_camera_zoom(struct Camera *cam, long new_zoom)
       return;
     switch (cam->viewType)
     {
-    case 2:
-    case 5:
+    case PVM_IsometricView:
+    case PVM_FrontView:
         cam->zoom = new_zoom;
         break;
-    case 3:
+    case PVM_ParchmentView:
         cam->mappos.z.val = new_zoom;
         break;
     }
@@ -232,7 +232,7 @@ void view_zoom_camera_out(struct Camera *cam, long limit_max, long limit_min)
     old_zoom = get_camera_zoom(cam);
     switch (cam->viewType)
     {
-    case 2:
+    case PVM_IsometricView:
         new_zoom = (85 * old_zoom) / 100;
         if (new_zoom == old_zoom)
             new_zoom--;
@@ -243,7 +243,7 @@ void view_zoom_camera_out(struct Camera *cam, long limit_max, long limit_min)
             new_zoom = limit_max;
         }
         break;
-    case 3:
+    case PVM_ParchmentView:
         new_zoom = (4 * old_zoom) / 5;
         if (new_zoom == old_zoom)
             new_zoom--;
@@ -254,7 +254,7 @@ void view_zoom_camera_out(struct Camera *cam, long limit_max, long limit_min)
             new_zoom = 1024;
         }
         break;
-    case 5:
+    case PVM_FrontView:
         new_zoom = (85 * old_zoom) / 100;
         if (new_zoom == old_zoom)
             new_zoom--;
@@ -296,10 +296,10 @@ long get_camera_zoom(struct Camera *cam)
       return 0;
     switch (cam->viewType)
     {
-    case 2:
-    case 5:
+    case PVM_IsometricView:
+    case PVM_FrontView:
         return cam->zoom;
-    case 3:
+    case PVM_ParchmentView:
         return cam->mappos.z.val;
     default:
         return 0;
@@ -384,39 +384,39 @@ void init_player_cameras(struct PlayerInfo *player)
     heartng = get_player_soul_container(player->id_number);
     struct Camera *cam;
 
-    cam = &player->cameras[PVM_EmptyView];
+    cam = &player->cameras[CamIV_Index0];
     cam->mappos.x.val = heartng->mappos.x.val;
     cam->mappos.y.val = heartng->mappos.y.val;
     cam->mappos.z.val = 0;
-    cam->viewType = CAMERA_VIEW_EMPTY;
+    cam->viewType = PVM_IsometricView;
     cam->orient_a = 256;
     cam->orient_b = -266;
     cam->orient_c = 0;
     cam->field_13 = 188;
     cam->zoom = 10000;
 
-    cam = &player->cameras[PVM_CreatureView];
+    cam = &player->cameras[CamIV_Index1];
     cam->mappos.x.val = 0;
     cam->mappos.y.val = 0;
     cam->mappos.z.val = 256;
-    cam->viewType = CAMERA_VIEW_CREATURE;
+    cam->viewType = PVM_CreatureView;
     cam->orient_a = 512;
     cam->orient_b = 0;
     cam->orient_c = 0;
     cam->field_13 = 188;
 
 
-    cam = &player->cameras[PVM_IsometricView];
+    cam = &player->cameras[CamIV_Index2];
     cam->mappos.x.val = 0;
     cam->mappos.y.val = 0;
     cam->mappos.z.val = 32;
-    cam->viewType = CAMERA_VIEW_ISOMETRIC;
+    cam->viewType = PVM_ParchmentView;
     cam->field_13 = 188;
 
-    cam = &player->cameras[PVM_ParchmentView];
+    cam = &player->cameras[CamIV_Index3];
     cam->mappos.x.val = heartng->mappos.x.val;
     cam->mappos.y.val = heartng->mappos.y.val;
-    cam->viewType = CAMERA_VIEW_PARCHMENT;
+    cam->viewType = PVM_FrontView;
     cam->mappos.z.val = 32;
     cam->field_13 = 188;
     cam->zoom = 65536;

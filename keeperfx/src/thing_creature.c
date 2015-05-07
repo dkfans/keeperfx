@@ -2069,7 +2069,7 @@ long move_creature(struct Thing *thing)
         long angle;
         long dist;
         angle = LbArcTanAngle(cctrl->moveaccel.x.val, cctrl->moveaccel.y.val);
-        if (abs(get_angle_difference(angle, thing->move_angle_xy)) <= LbFPMath_PI/2) {
+        if (get_angle_difference(angle, thing->move_angle_xy) <= LbFPMath_PI/2) {
             dist = get_2d_distance(&pvpos, tngpos);
         } else {
             dist = -get_2d_distance(&pvpos, tngpos);
@@ -2814,8 +2814,8 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
               break;
             shotng = tmptng;
             shotng->shot.hit_type = hit_type;
-            shotng->move_angle_xy = (angle_xy + ACTION_RANDOM(101) - 50) & 0x7FF;
-            shotng->move_angle_z = (angle_yz + ACTION_RANDOM(101) - 50) & 0x7FF;
+            shotng->move_angle_xy = (angle_xy + ACTION_RANDOM(101) - 50) & LbFPMath_AngleMask;
+            shotng->move_angle_z = (angle_yz + ACTION_RANDOM(101) - 50) & LbFPMath_AngleMask;
             angles_to_vector(shotng->move_angle_xy, shotng->move_angle_z, shotst->old->speed, &cvect);
             shotng->veloc_push_add.x.val += cvect.x;
             shotng->veloc_push_add.y.val += cvect.y;

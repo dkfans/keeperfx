@@ -691,7 +691,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
         }
     }
 
-    if ((cctrl->stateblock_flags & 0x04) != 0)
+    if ((cctrl->stateblock_flags & CCSpl_Teleport) != 0)
     {
         dturn = get_spell_duration_left_on_thing(thing, SplK_Teleport);
         struct SpellConfig *splconf;
