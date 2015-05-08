@@ -86,11 +86,12 @@ struct Ariadne { // sizeof = 102
   struct Coord3d pos_12;
   struct Coord3d pos_18;
   unsigned char route_flags;
-  unsigned char field_1F[2];
+  unsigned char field_1F;
+  unsigned char field_20;
   unsigned char update_state;
   unsigned char field_22;
   unsigned char field_23;
-  unsigned char field_24[2];
+  short field_24;
   unsigned short move_speed;
     /** Index of the current waypoint in list of nearest waypoints stored. */
     unsigned char current_waypoint;
