@@ -964,7 +964,7 @@ short imp_digs_mines(struct Thing *spdigtng)
     pos.x.val = subtile_coord_center(stl_x);
     pos.y.val = subtile_coord_center(stl_y);
     pos.z.val = 0;
-    if (creature_turn_to_face(spdigtng, &pos))
+    if (creature_turn_to_face(spdigtng, &pos) > 0)
     {
       return 1;
     }
@@ -1228,7 +1228,7 @@ short imp_reinforces(struct Thing *thing)
         internal_set_thing_state(thing, CrSt_ImpLastDidJob);
         return 0;
     }
-    if (creature_turn_to_face(thing, &pos)) {
+    if (creature_turn_to_face(thing, &pos) > 0) {
         return 1;
     }
     if (cctrl->instance_id == CrInst_NULL) {

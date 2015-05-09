@@ -338,8 +338,11 @@ TbBool creature_can_get_to_dungeon(struct Thing *creatng, PlayerNumber plyr_idx)
     return creature_can_navigate_to(creatng, &heartng->mappos, NavRtF_Default);
 }
 
-long creature_turn_to_face(struct Thing *thing, struct Coord3d *pos)
+long creature_turn_to_face(struct Thing *thing, const struct Coord3d *pos)
 {
+    //TODO enable when issue in pathfinding is solved
+    /*if (get_2d_box_distance(&thing->mappos, pos) <= 0)
+        return -1;*/
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(thing);
     long angle;
@@ -350,7 +353,7 @@ long creature_turn_to_face(struct Thing *thing, struct Coord3d *pos)
     angle_delta = crstat->max_angle_change;
     if (angle_delta < 1) {
         angle_delta = 1;
-    } else
+    }
     if (angle_delta > angle_diff) {
         angle_delta = angle_diff;
     }
@@ -365,6 +368,9 @@ long creature_turn_to_face(struct Thing *thing, struct Coord3d *pos)
 
 long creature_turn_to_face_backwards(struct Thing *thing, struct Coord3d *pos)
 {
+    //TODO enable when issue in pathfinding is solved
+    /*if (get_2d_box_distance(&thing->mappos, pos) <= 0)
+        return -1;*/
     return _DK_creature_turn_to_face_backwards(thing, pos);
 }
 
@@ -408,7 +414,7 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
     cctrl = creature_control_get_from_thing(thing);
     if ( backward )
     {
-        if (creature_turn_to_face_backwards(thing, &nextpos))
+        if (creature_turn_to_face_backwards(thing, &nextpos) > 0)
         {
             // Creature is turning - don't let it move
             creature_set_speed(thing, 0);
@@ -434,7 +440,7 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
         SYNCDBG(18,"Backward target set, speed %d, accel (%d,%d)",(int)cctrl->move_speed,(int)cctrl->moveaccel.x.val,(int)cctrl->moveaccel.y.val);
     } else
     {
-        if (creature_turn_to_face(thing, &nextpos) != 0)
+        if (creature_turn_to_face(thing, &nextpos) > 0)
         {
             // Creature is turning - don't let it move
             creature_set_speed(thing, 0);
