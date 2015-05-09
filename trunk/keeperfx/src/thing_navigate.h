@@ -81,7 +81,7 @@ long creature_move_to(struct Thing *creatng, struct Coord3d *pos, MoveSpeed spee
 void move_thing_in_map_f(struct Thing *thing, const struct Coord3d *pos, const char *func_name);
 #define move_thing_in_map(thing, pos) move_thing_in_map_f(thing, pos, __func__)
 short move_to_position(struct Thing *thing);
-long creature_turn_to_face(struct Thing *thing, struct Coord3d *pos);
+long creature_turn_to_face(struct Thing *thing, const struct Coord3d *pos);
 long creature_turn_to_face_backwards(struct Thing *thing, struct Coord3d *pos);
 long creature_turn_to_face_angle(struct Thing *thing, long a2);
 TbBool move_creature_to_nearest_valid_position(struct Thing *thing);

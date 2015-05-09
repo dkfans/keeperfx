@@ -488,14 +488,14 @@ short researching(struct Thing *thing)
           // Do some random thinking
           if ((cctrl->field_82 % 16) == 0)
           {
-              i = ACTION_RANDOM(1024) - 512;
-              cctrl->long_9B = ((long)thing->move_angle_xy + i) & 0x7FF;
+              i = ACTION_RANDOM(LbFPMath_PI) - LbFPMath_PI/2;
+              cctrl->long_9B = ((long)thing->move_angle_xy + i) & LbFPMath_AngleMask;
               cctrl->byte_9A = 4;
           }
       } else
       {
           // Look at different direction while thinking
-          if ( creature_turn_to_face_angle(thing, cctrl->long_9B) < 56 )
+          if (creature_turn_to_face_angle(thing, cctrl->long_9B) < LbFPMath_PI/18)
           {
               cctrl->byte_9A = 3;
           }
