@@ -143,6 +143,8 @@ struct Room *droom = &_DK_game.rooms[25];
 
 #define INTRO_TIMEDELAY 3000
 
+static TbBool speedlog;
+
 //static
 TbClockMSec last_loop_time=0;
 
@@ -4656,6 +4658,10 @@ short process_command_line(unsigned short argc, char *argv[])
       else
         pr2str[0]='\0';
 
+	  if (strcasecmp(parstr, "speedlog") == 0)
+	  {
+		  speedlog = 1;
+	  } else
       if (strcasecmp(parstr, "nointro") == 0)
       {
         start_params.no_intro = 1;
@@ -4840,6 +4846,8 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     }
     if ( retval )
     {
+		if (speedlog)
+			LbErrorLogDetach();
         game_loop();
     }
     reset_game();

@@ -141,6 +141,7 @@ int LbConfigLog(unsigned long line,const char *format, ...);
 
 int LbErrorLogSetup(const char *directory, const char *filename, TbBool flag);
 int LbErrorLogClose(void);
+void LbErrorLogDetach(void);
 
 int LbLogClose(struct TbLog *log);
 int LbLogSetup(struct TbLog *log, const char *filename, ulong flags);
