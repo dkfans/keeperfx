@@ -2056,15 +2056,47 @@ long angle_to_quadrant(long angle)
 long ariadne_wallhug_angle_valid(struct Thing *thing, struct Ariadne *arid, long angle)
 {
     struct Coord3d pos;
-    pos.x.val = thing->mappos.x.val + ( (arid->move_speed * LbSinL(angle) >> 8) >> 8);
-    pos.y.val = thing->mappos.y.val + (-(arid->move_speed * LbCosL(angle) >> 8) >> 8);
+    pos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(arid->move_speed, angle);
+    pos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(arid->move_speed, angle);
     pos.z.val = subtile_coord(1,0);
     return (ariadne_creature_blocked_by_wall_at(thing, &pos) == 0);
 }
 
 long ariadne_get_wallhug_angle(struct Thing *thing, struct Ariadne *arid)
 {
-    return _DK_ariadne_get_wallhug_angle(thing, arid);
+    //return _DK_ariadne_get_wallhug_angle(thing, arid);
+    long whangle;
+    if (arid->field_20 == 1)
+    {
+        whangle = (LbFPMath_PI/2) * ((angle_to_quadrant(thing->move_angle_xy) - 1) & 3);
+        if (ariadne_wallhug_angle_valid(thing, arid, whangle))
+            return whangle;
+        whangle = (LbFPMath_PI/2) * (angle_to_quadrant(thing->move_angle_xy) & 3);
+        if (ariadne_wallhug_angle_valid(thing, arid, whangle))
+            return whangle;
+        whangle = (LbFPMath_PI/2) * ((angle_to_quadrant(thing->move_angle_xy) + 1) & 3);
+        if (ariadne_wallhug_angle_valid(thing, arid, whangle))
+            return whangle;
+        whangle = (LbFPMath_PI/2) * ((angle_to_quadrant(thing->move_angle_xy) + 2) & 3);
+        if (ariadne_wallhug_angle_valid(thing, arid, whangle))
+            return whangle;
+    } else
+    if (arid->field_20 == 2)
+    {
+        whangle = (LbFPMath_PI/2) * ((angle_to_quadrant(thing->move_angle_xy) + 1) & 3);
+        if (ariadne_wallhug_angle_valid(thing, arid, whangle))
+            return whangle;
+        whangle = (LbFPMath_PI/2) * (angle_to_quadrant(thing->move_angle_xy) & 3);
+        if (ariadne_wallhug_angle_valid(thing, arid, whangle))
+            return whangle;
+        whangle = (LbFPMath_PI/2) * ((angle_to_quadrant(thing->move_angle_xy) - 1) & 3);
+        if (ariadne_wallhug_angle_valid(thing, arid, whangle))
+            return whangle;
+        whangle = (LbFPMath_PI/2) * ((angle_to_quadrant(thing->move_angle_xy) + 2) & 3);
+        if (ariadne_wallhug_angle_valid(thing, arid, whangle))
+            return whangle;
+    }
+    return -1;
 }
 
 void ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(struct Thing *thing, struct Ariadne *arid, long inangle, short *rangle, unsigned char *rflag)
@@ -2093,7 +2125,7 @@ void ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(struct T
     {
         angle_beg = 0;
         nfld20 = 2;
-        angle_end = 1024;
+        angle_end = LbFPMath_PI;
         inangle_oneaxis = 1;
     } else
     if (inangle == LbFPMath_PI)
@@ -2124,20 +2156,20 @@ void ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(struct T
     arid->field_20 = nfld20;
     struct Coord3d pos;
     int i;
-    long whang;
+    long hug_angle;
     for (i = 0; i < whsteps; i++)
     {
-        whang = ariadne_get_wallhug_angle(thing, arid);
-        if (whang != -1)
+        hug_angle = ariadne_get_wallhug_angle(thing, arid);
+        if (hug_angle != -1)
         {
-            if (whang == inangle) {
+            if (hug_angle == inangle) {
                 whgot1 = i;
                 break;
             }
-            pos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(arid->move_speed, whang);
-            pos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(arid->move_speed, whang);
+            pos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(arid->move_speed, hug_angle);
+            pos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(arid->move_speed, hug_angle);
             pos.z.val = get_thing_height_at(thing, &pos);
-            if (ariadne_check_forward_for_wallhug_gap(thing, arid, &pos, whang)) {
+            if (ariadne_check_forward_for_wallhug_gap(thing, arid, &pos, hug_angle)) {
                 whgot1 = i;
                 break;
             }
@@ -2149,17 +2181,17 @@ void ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(struct T
     thing->mappos = bkp_mappos;
     for (i = 0; i < whsteps; i++)
     {
-        whang = ariadne_get_wallhug_angle(thing, arid);
-        if (whang != -1)
+        hug_angle = ariadne_get_wallhug_angle(thing, arid);
+        if (hug_angle != -1)
         {
-            if (whang == inangle) {
+            if (hug_angle == inangle) {
                 whgot2 = i;
                 break;
             }
-            pos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(arid->move_speed, whang);
-            pos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(arid->move_speed, whang);
+            pos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(arid->move_speed, hug_angle);
+            pos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(arid->move_speed, hug_angle);
             pos.z.val = get_thing_height_at(thing, &pos);
-            if (ariadne_check_forward_for_wallhug_gap(thing, arid, &pos, whang)) {
+            if (ariadne_check_forward_for_wallhug_gap(thing, arid, &pos, hug_angle)) {
                 whgot2 = i;
                 break;
             }
@@ -2800,7 +2832,7 @@ AriadneReturn ariadne_update_state_manoeuvre_to_position(struct Thing *thing, st
 {
     struct Coord3d pos;
     MapCoord dist;
-    long angle;
+    long hug_angle;
 
     if (ariadne_creature_blocked_by_wall_at(thing, &arid->pos_53))
     {
@@ -2831,10 +2863,10 @@ AriadneReturn ariadne_update_state_manoeuvre_to_position(struct Thing *thing, st
     case AridUpSStM_Unkn1:
         return ariadne_init_wallhug(thing, arid, &arid->pos_59);
     case AridUpSStM_Unkn2:
-        angle = ariadne_get_wallhug_angle(thing, arid);
-        arid->wallhug_angle = angle;
-        arid->pos_12.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(arid->move_speed, angle);
-        arid->pos_12.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(arid->move_speed, angle);
+        hug_angle = ariadne_get_wallhug_angle(thing, arid);
+        arid->wallhug_angle = hug_angle;
+        arid->pos_12.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(arid->move_speed, hug_angle);
+        arid->pos_12.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(arid->move_speed, hug_angle);
         arid->update_state = AridUpSt_Wallhug;
         return AridRet_OK;
     default:
