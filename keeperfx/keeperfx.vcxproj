@@ -470,18 +470,18 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <NMakeBuildCommandLine>mingw32-make -f Makefile_WindowsNonCygwin</NMakeBuildCommandLine>
-    <NMakeOutput>bin\keeperfx.exe</NMakeOutput>
-    <NMakeCleanCommandLine>mingw32-make -f Makefile_WindowsNonCygwin clean</NMakeCleanCommandLine>
-    <NMakeReBuildCommandLine>mingw32-make -f Makefile_WindowsNonCygwin clean &amp;&amp; mingw32-make -f Makefile_WindowsNonCygwin</NMakeReBuildCommandLine>
+    <NMakeBuildCommandLine>sh -c "mingw32-make heavylog"</NMakeBuildCommandLine>
+    <NMakeOutput>bin\keeperfx_hvlog.exe</NMakeOutput>
+    <NMakeCleanCommandLine>sh -c "mingw32-make clean"</NMakeCleanCommandLine>
+    <NMakeReBuildCommandLine>sh -c "mingw32-make clean" &amp;&amp; sh -c "mingw32-make heavylog"</NMakeReBuildCommandLine>
     <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <NMakeIncludeSearchPath>src;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <NMakeBuildCommandLine>mingw32-make -f Makefile_WindowsNonCygwin</NMakeBuildCommandLine>
+    <NMakeBuildCommandLine>sh -c "mingw32-make standard"</NMakeBuildCommandLine>
     <NMakeOutput>bin\keeperfx.exe</NMakeOutput>
-    <NMakeCleanCommandLine>mingw32-make -f Makefile_WindowsNonCygwin clean</NMakeCleanCommandLine>
-    <NMakeReBuildCommandLine>mingw32-make -f Makefile_WindowsNonCygwin clean &amp;&amp; mingw32-make -f Makefile_WindowsNonCygwin</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>sh -c "mingw32-make clean"</NMakeCleanCommandLine>
+    <NMakeReBuildCommandLine>sh -c "mingw32-make clean" &amp;&amp; sh -c "mingw32-make standard"</NMakeReBuildCommandLine>
     <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <NMakeIncludeSearchPath>src;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
   </PropertyGroup>
