@@ -476,6 +476,7 @@
     <NMakeReBuildCommandLine>sh -c "mingw32-make clean" &amp;&amp; sh -c "mingw32-make heavylog"</NMakeReBuildCommandLine>
     <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <NMakeIncludeSearchPath>src;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
+    <IncludePath>$(ProjectDir)\sdl\include;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include;</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <NMakeBuildCommandLine>sh -c "mingw32-make standard"</NMakeBuildCommandLine>
@@ -484,6 +485,7 @@
     <NMakeReBuildCommandLine>sh -c "mingw32-make clean" &amp;&amp; sh -c "mingw32-make standard"</NMakeReBuildCommandLine>
     <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <NMakeIncludeSearchPath>src;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
+    <IncludePath>$(ProjectDir)\sdl\include;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include;</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>

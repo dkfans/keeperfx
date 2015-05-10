@@ -32,6 +32,8 @@
 #include "bflib_memory.h"
 #include "bflib_fileio.h"
 
+#include <SDL2/SDL_thread.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -224,8 +226,18 @@ short error_dialog_fatal(const char *codefile,const int ecode,const char *messag
 }
 
 /******************************************************************************/
+#define BUFFERED_LOG_LINE_LENGTH 1024
+#define BUFFERED_LOG_LINES	1024
 short error_log_initialised=false;
 struct TbLog error_log;
+static SDL_Thread* error_log_process_thread;
+static TbBool error_log_write_error;
+static TbBool error_log_process_exit;
+static SDL_mutex* error_log_process_mutex;
+static SDL_cond* error_log_process_cond;
+static unsigned long long error_log_write_count; //next to write to
+static unsigned long long error_log_read_count; //next to read from
+static char error_log_buffer[BUFFERED_LOG_LINES][BUFFERED_LOG_LINE_LENGTH];
 /******************************************************************************/
 int LbLog(struct TbLog *log, const char *fmt_str, va_list arg);
 /******************************************************************************/
@@ -375,7 +387,224 @@ int LbErrorLogClose(void)
 {
     if (!error_log_initialised)
         return -1;
+
+	if (error_log_process_thread)
+	{
+		SDL_LockMutex(error_log_process_mutex);
+		error_log_process_exit = 1;
+		SDL_UnlockMutex(error_log_process_mutex);
+		SDL_CondBroadcast(error_log_process_cond);
+
+		SDL_WaitThread(error_log_process_thread, NULL);
+
+		SDL_DestroyMutex(error_log_process_mutex);
+		SDL_DestroyCond(error_log_process_cond);
+		error_log_process_thread = NULL;
+		error_log_process_exit = 0;
+		error_log_write_error = 0;
+	}
+
     return LbLogClose(&error_log);
+}
+
+static void ErrorLogFlushToFile(void)
+{
+	enum Header {
+		NONE   = 0,
+		CREATE = 1,
+		APPEND = 2,
+	};
+
+	char line_buffer[BUFFERED_LOG_LINE_LENGTH];
+	FILE *file;
+	short need_initial_newline;
+	char header;
+	unsigned read_index;
+	struct TbLog* log;
+
+	SDL_UnlockMutex(error_log_process_mutex);
+
+	//file access follows
+	log = &error_log;
+	header = NONE;
+	need_initial_newline = false;
+	if ( !log->Created )
+	{
+		if (((log->flags & 0x04) == 0) || LbFileExists(log->filename))
+		{
+			if (((log->flags & 0x01) != 0) && ((log->flags & 0x04) != 0))
+			{
+				header = CREATE;
+			} else
+				if (((log->flags & 0x02) != 0) && ((log->flags & 0x08) != 0))
+				{
+					need_initial_newline = true;
+					header = APPEND;
+				}
+		} else
+		{
+			header = CREATE;
+		}
+	}
+	const char *accmode;
+	if ((log->Created) || ((log->flags & 0x01) == 0))
+		accmode = "a";
+	else
+		accmode = "w";
+	file = fopen(log->filename, accmode);
+	if (file == NULL)
+	{
+		error_log_write_error = 1;
+		SDL_CondBroadcast(error_log_process_cond);
+		goto exit_with_mutex;
+	}
+	log->Created = true;
+	if (header != NONE)
+	{
+		if ( need_initial_newline )
+			fprintf(file, "\n");
+		const char *actn;
+		if (header == CREATE)
+		{
+			fprintf(file, PROGRAM_NAME" ver "VER_STRING" (%s release)\n", (BFDEBUG_LEVEL>7)?"heavylog":"standard");
+			actn = "CREATED";
+		} else
+		{
+			actn = "APPENDED";
+		}
+		fprintf(file, "LOG %s", actn);
+		short at_used;
+		at_used = 0;
+		if ((log->flags & LbLog_TimeInHeader) != 0)
+		{
+			struct TbTime curr_time;
+			LbTime(&curr_time);
+			fprintf(file, "  @ %02d:%02d:%02d",
+				curr_time.Hour,curr_time.Minute,curr_time.Second);
+			at_used = 1;
+		}
+		if ((log->flags & LbLog_DateInHeader) != 0)
+		{
+			struct TbDate curr_date;
+			LbDate(&curr_date);
+			const char *sep;
+			if ( at_used )
+				sep = " ";
+			else
+				sep = "  @ ";
+			fprintf(file," %s%02d-%02d-%d",sep,curr_date.Day,curr_date.Month,curr_date.Year);
+		}
+		fprintf(file, "\n\n");
+	}
+
+	SDL_LockMutex(error_log_process_mutex);
+	while (error_log_read_count < error_log_write_count)
+	{
+		//copy next log line and relinquish mutex to avoid locking up writer (application)
+		read_index = error_log_read_count % BUFFERED_LOG_LINES;
+		LbStringCopy(line_buffer, error_log_buffer[read_index], BUFFERED_LOG_LINE_LENGTH);
+		error_log_read_count += 1;
+		SDL_UnlockMutex(error_log_process_mutex);
+		SDL_CondBroadcast(error_log_process_cond); //writer might be stalled on full buffer
+
+		fputs(line_buffer, file);
+
+		SDL_LockMutex(error_log_process_mutex);
+	}
+
+	SDL_UnlockMutex(error_log_process_mutex);
+	log->position = ftell(file);
+	fclose(file);
+
+	//reacquire mutex before exiting
+exit_with_mutex:
+	SDL_LockMutex(error_log_process_mutex);
+}
+
+static int ErrorLogProcess(void * dummy)
+{
+	SDL_LockMutex(error_log_process_mutex);
+
+	while (!error_log_process_exit && !error_log_write_error)
+	{
+		while (!error_log_process_exit && error_log_write_count == error_log_read_count)
+			SDL_CondWait(error_log_process_cond, error_log_process_mutex);
+
+		if (!error_log_process_exit)
+			ErrorLogFlushToFile();
+	}
+
+	SDL_UnlockMutex(error_log_process_mutex);
+
+	return 0; //don't care
+}
+
+void LbErrorLogDetach(void)
+{
+	if (!error_log_initialised)
+		return;
+	if (error_log_process_thread)
+		return;
+
+	error_log_process_mutex = SDL_CreateMutex();
+	error_log_process_cond = SDL_CreateCond();
+	error_log_process_thread = SDL_CreateThread(ErrorLogProcess, "Error log processing thread", (void*)NULL);
+}
+
+static int ErrorLogDeferredWrite(struct TbLog* log, const char* fmt_str, va_list arg)
+{
+	char line_buffer[BUFFERED_LOG_LINE_LENGTH];
+	unsigned write_index;
+	unsigned line_index;
+	int retval;
+	int n;
+	retval = 1;
+	line_index = 0;
+	
+	if ((log->flags & LbLog_DateInLines) != 0 && line_index < BUFFERED_LOG_LINE_LENGTH)
+	{
+		struct TbDate curr_date;
+		LbDate(&curr_date);
+		n = snprintf(line_buffer + line_index, BUFFERED_LOG_LINE_LENGTH - line_index, "%02d-%02d-%d ",curr_date.Day,curr_date.Month,curr_date.Year);
+		if (n > 0) line_index += n;
+	}
+	if ((log->flags & LbLog_TimeInLines) != 0 && line_index < BUFFERED_LOG_LINE_LENGTH)
+	{
+		struct TbTime curr_time;
+		LbTime(&curr_time);
+		n = snprintf(line_buffer + line_index, BUFFERED_LOG_LINE_LENGTH - line_index, "%02d:%02d:%02d ",
+			curr_time.Hour,curr_time.Minute,curr_time.Second);
+		if (n > 0) line_index += n;
+	}
+	if (log->prefix[0] != '\0' && line_index < BUFFERED_LOG_LINE_LENGTH)
+	{
+		n = snprintf(line_buffer + line_index, BUFFERED_LOG_LINE_LENGTH - line_index, log->prefix);
+		if (n > 0) line_index += n;
+	}
+
+	if (line_index < BUFFERED_LOG_LINE_LENGTH)
+	{
+		n = vsnprintf(line_buffer + line_index, BUFFERED_LOG_LINE_LENGTH - line_index, fmt_str, arg);
+		if (n > 0) line_index += n;
+	}
+	
+	//locked write back
+	SDL_LockMutex(error_log_process_mutex);
+	while (!error_log_write_error && error_log_write_count >= BUFFERED_LOG_LINES + error_log_read_count)
+		SDL_CondWait(error_log_process_cond, error_log_process_mutex);
+
+	if (error_log_write_error)
+		retval = -1;
+	else
+	{
+		write_index = error_log_write_count % BUFFERED_LOG_LINES;
+		LbStringCopy(error_log_buffer[write_index], line_buffer, BUFFERED_LOG_LINE_LENGTH);
+		error_log_write_count += 1;
+	}
+
+	SDL_UnlockMutex(error_log_process_mutex);
+	SDL_CondBroadcast(error_log_process_cond); //reader may be stalled on empty buffer
+	return retval;
 }
 
 int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
@@ -388,11 +617,13 @@ int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
 //  printf(fmt_str, arg);
   if (!log->Initialised)
     return -1;
+  if ( log->Suspended )
+	  return 1;
+  if (log == &error_log && error_log_process_thread)
+	  return ErrorLogDeferredWrite(log, fmt_str, arg);
   FILE *file;
   short need_initial_newline;
   char header;
-  if ( log->Suspended )
-    return 1;
   header = NONE;
   need_initial_newline = false;
   if ( !log->Created )
