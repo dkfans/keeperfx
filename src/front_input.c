@@ -580,10 +580,10 @@ TbBool get_level_lost_inputs(void)
                   set_flag_byte(&game.operation_flags,GOF_ShowPanel,true);
                 else
                   set_flag_byte(&game.operation_flags,GOF_ShowPanel,false);
-                set_players_packet_action(player, PckA_Unknown119, 4,0,0,0);
+                set_players_packet_action(player, PckA_SaveViewType, PVT_MapScreen, 0,0,0);
           } else
           {
-                set_players_packet_action(player, PckA_Unknown080, 5,0,0,0);
+                set_players_packet_action(player, PckA_SetViewType, PVT_MapFadeIn, 0,0,0);
           }
           turn_off_roaming_menus();
         }
@@ -884,22 +884,22 @@ short get_creature_control_action_inputs(void)
     if (numkey != -1)
     {
       int idx;
-      int instnce;
+      int inst_id;
       int num_avail;
       num_avail = 0;
-      for (idx=0; idx < 10; idx++)
+      for (idx=0; idx < LEARNED_INSTANCES_COUNT; idx++)
       {
           struct CreatureStats *crstat;
           struct Thing *thing;
           thing = thing_get(player->controlled_thing_idx);
           TRACE_THING(thing);
           crstat = creature_stats_get_from_thing(thing);
-          instnce = crstat->instance_spell[idx];
-          if ( creature_instance_is_available(thing,instnce) )
+          inst_id = crstat->learned_instance_id[idx];
+          if ( creature_instance_is_available(thing,inst_id) )
           {
             if ( numkey == num_avail )
             {
-              set_players_packet_action(player, PckA_CtrlCrtrSetInstnc, instnce,0,0,0);
+              set_players_packet_action(player, PckA_CtrlCrtrSetInstnc, inst_id,0,0,0);
               break;
             }
             num_avail++;
@@ -1718,13 +1718,13 @@ short get_inputs(void)
             player->field_1 |= 0x01;
           else
             player->field_1 &= ~0x01;
-          set_players_packet_action(player, PckA_Unknown080, 4,0,0,0);
+          set_players_packet_action(player, PckA_SetViewType, PVT_MapScreen, 0,0,0);
         }
         return false;
     case PVT_MapFadeOut:
         if (player->view_mode != PVM_ParchFadeOut)
         {
-          set_players_packet_action(player, PckA_Unknown080, 1,0,0,0);
+          set_players_packet_action(player, PckA_SetViewType, PVT_DungeonTop, 0,0,0);
         }
         return false;
     default:

@@ -242,8 +242,8 @@ TbBool set_ally_with_player(PlayerNumber plyridx, PlayerNumber ally_idx, TbBool 
 void  toggle_ally_with_player(long plyridx, unsigned int allyidx);
 
 void set_player_state(struct PlayerInfo *player, short a1, long a2);
-void set_player_mode(struct PlayerInfo *player, long val);
-void reset_player_mode(struct PlayerInfo *player, unsigned short nmode);
+void set_player_mode(struct PlayerInfo *player, unsigned short nview);
+void reset_player_mode(struct PlayerInfo *player, unsigned short nview);
 
 void clear_players(void);
 /******************************************************************************/

@@ -27,6 +27,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 #define CREATURE_MAX_LEVEL     10
+#define LEARNED_INSTANCES_COUNT 10
 
 enum CreatureLiveStatistics {
     CrLStat_FirstName,

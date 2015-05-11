@@ -107,7 +107,7 @@ enum TbPacketAction {
         PckA_Unknown077,
         PckA_Unknown078,
         PckA_Unknown079,
-        PckA_Unknown080,//80
+        PckA_SetViewType,//80
         PckA_ZoomFromMap,
         PckA_UpdatePause,
         PckA_Unknown083,
@@ -146,8 +146,8 @@ enum TbPacketAction {
         PckA_EventBoxClose,
         PckA_UsePwrOnThing,
         PckA_PlyrToggleAlly,
-        PckA_Unknown119,
-        PckA_Unknown120,//120
+        PckA_SaveViewType,
+        PckA_LoadViewType,//120
         PckA_PlyrMsgChar    =  121,
 };
 

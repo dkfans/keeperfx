@@ -307,7 +307,13 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
   }
 }
 
-void set_player_mode(struct PlayerInfo *player, long nview)
+/**
+ * Sets player view type.
+ *
+ * @param player The player for whom view type will be set.
+ * @param nview The new view type.
+ */
+void set_player_mode(struct PlayerInfo *player, unsigned short nview)
 {
   long i;
   if (player->view_type == nview)
@@ -358,10 +364,10 @@ void set_player_mode(struct PlayerInfo *player, long nview)
   }
 }
 
-void reset_player_mode(struct PlayerInfo *player, unsigned short nmode)
+void reset_player_mode(struct PlayerInfo *player, unsigned short nview)
 {
-  player->view_type = nmode;
-  switch (nmode)
+  player->view_type = nview;
+  switch (nview)
   {
     case PVT_DungeonTop:
       player->work_state = player->continue_work_state;

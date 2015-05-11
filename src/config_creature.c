@@ -348,43 +348,43 @@ void check_and_auto_fix_stats(void)
         }
         if ( (crstat->sleep_exp_slab != 0) && (crstat->sleep_experience == 0) )
         {
-            ERRORLOG("Creature model %d SleepSlab & SleepExperience = 0 - Fixing", (int)model);
+            ERRORLOG("Creature model %d SleepSlab set but SleepExperience = 0 - Fixing", (int)model);
             crstat->sleep_exp_slab = 0;
         }
-        if (crstat->grow_up > 30)
+        if (crstat->grow_up >= crtr_conf.model_count)
         {
-            ERRORLOG("Creature model %d Invalid GrowUp - Fixing", (int)model);
+            ERRORLOG("Creature model %d Invalid GrowUp model - Fixing", (int)model);
             crstat->grow_up = 0;
         }
         if (crstat->grow_up > 0)
         {
-          if ( (crstat->grow_up_level < 1) || (crstat->grow_up_level > 10) )
+          if ( (crstat->grow_up_level < 1) || (crstat->grow_up_level > CREATURE_MAX_LEVEL) )
           {
               ERRORLOG("Creature model %d GrowUp & GrowUpLevel invalid - Fixing", (int)model);
               crstat->grow_up_level = 1;
           }
         }
-        if (crstat->rebirth > 10)
+        if (crstat->rebirth > CREATURE_MAX_LEVEL)
         {
             ERRORLOG("Creature model %d Rebirth Invalid - Fixing", (int)model);
             crstat->rebirth = 0;
         }
-        for (i=0; i < 10; i++)
+        for (i=0; i < LEARNED_INSTANCES_COUNT; i++)
         {
-            n = crstat->instance_level[i];
-            if (n != 0)
+            n = crstat->learned_instance_level[i];
+            if (crstat->learned_instance_id[i] != CrInst_NULL)
             {
-                if ( (n < 1) || (n > 10) )
+                if ((n < 0) || (n >= CREATURE_MAX_LEVEL))
                 {
-                    ERRORLOG("Creature model %d Instance Level For Slot %d Invalid - Fixing", (int)model, (int)(i+1));
-                    crstat->instance_level[i] = 1;
+                    ERRORLOG("Creature model %d Learn Level for Instance slot %d Invalid - Fixing", (int)model, (int)(i+1));
+                    crstat->learned_instance_level[i] = 1;
                 }
             } else
             {
-                if ( (n >= 1) && (n <= 10) )
+                if ((n >= 0) && (n < CREATURE_MAX_LEVEL))
                 {
-                    ERRORLOG("Creature model %d Instance Level For Not Used Spell %d - Fixing", (int)model, (int)(i+1));
-                    crstat->instance_level[i] = 0;
+                    ERRORLOG("Creature model %d Learn Level for Empty Instance slot %d - Fixing", (int)model, (int)(i+1));
+                    crstat->learned_instance_level[i] = 0;
                 }
             }
         }

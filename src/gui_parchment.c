@@ -887,11 +887,11 @@ void zoom_to_parchment_map(void)
     {
       if (!toggle_status_menu(0))
         set_flag_byte(&game.operation_flags,GOF_ShowPanel,false);
-      set_players_packet_action(player, PckA_Unknown119, 4, 0, 0, 0);
+      set_players_packet_action(player, PckA_SaveViewType, PVT_MapScreen, 0, 0, 0);
       turn_off_roaming_menus();
     } else
     {
-      set_players_packet_action(player, PckA_Unknown080, 5, 0, 0, 0);
+      set_players_packet_action(player, PckA_SetViewType, PVT_MapFadeIn, 0, 0, 0);
       turn_off_roaming_menus();
     }
 }
@@ -905,10 +905,10 @@ void zoom_from_patchment_map(void)
     {
         if ((game.operation_flags & GOF_ShowPanel) != 0)
           toggle_status_menu(1);
-        set_players_packet_action(player, PckA_Unknown120,1,0,0,0);
+        set_players_packet_action(player, PckA_LoadViewType, PVT_DungeonTop, 0,0,0);
     } else
     {
-        set_players_packet_action(player, PckA_Unknown080,6,0,0,0);
+        set_players_packet_action(player, PckA_SetViewType, PVT_MapFadeOut, 0,0,0);
     }
 }
 /******************************************************************************/

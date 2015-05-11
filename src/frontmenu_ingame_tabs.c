@@ -1582,7 +1582,7 @@ void gui_area_instance_button(struct GuiButton *gbtn)
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(ctrltng);
     int spr_idx;
-    if (cctrl->field_1E8 == curbtn_inst_id) {
+    if (cctrl->active_instance_id == curbtn_inst_id) {
       spr_idx = 462;
     } else {
       spr_idx = 463;
@@ -1608,12 +1608,15 @@ void gui_area_instance_button(struct GuiButton *gbtn)
     {
         gui_area_progress_bar_short(gbtn, units_per_px, 32, 32);
     }
+
+    // Calculating text size.
     int tx_units_per_px;
     tx_units_per_px = (gbtn->height*11/12) * 16 / LbTextLineHeight();
     const char * text;
     text = buf_sprintf("%d", (curbtn_avail_pos + 1) % 10);
     LbTextDrawResized(gbtn->scr_pos_x + 52*units_per_px/16, gbtn->scr_pos_y + 9*units_per_px/16, tx_units_per_px, text);
     spr_idx = gbtn->sprite_idx;
+
     long spkind;
     spkind = inst_inf->func_params[0];
     if (!creature_instance_has_reset(ctrltng, curbtn_inst_id) || ((spkind != 0) && thing_affected_by_spell(ctrltng, spkind)))
@@ -1621,6 +1624,7 @@ void gui_area_instance_button(struct GuiButton *gbtn)
     draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 8*units_per_px/16, ps_units_per_px, spr_idx);
 }
 
+/** Callback function of maintaining creature skill button. */
 void maintain_instance(struct GuiButton *gbtn)
 {
     struct PlayerInfo *player;
@@ -1638,15 +1642,15 @@ void maintain_instance(struct GuiButton *gbtn)
     cctrl = creature_control_get_from_thing(ctrltng);
     // Switch to correct menu page based on selected instance position
     int chosen_avail_pos;
-    chosen_avail_pos = creature_instance_get_available_pos_for_id(ctrltng, cctrl->field_1E8);
+    chosen_avail_pos = creature_instance_get_available_pos_for_id(ctrltng, cctrl->active_instance_id);
     int curbtn_avail_pos;
     if ((chosen_avail_pos < 6) && (first_person_instance_top_half_selected || chosen_avail_pos < 4))
     {
-        first_person_instance_top_half_selected = 1;
+        first_person_instance_top_half_selected = true;
         curbtn_avail_pos = (long)gbtn->content;
     } else
     {
-        first_person_instance_top_half_selected = 0;
+        first_person_instance_top_half_selected = false;
         curbtn_avail_pos = ((long)gbtn->content) + 4;
     }
     // Now handle instance for this button

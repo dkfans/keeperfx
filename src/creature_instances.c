@@ -202,18 +202,18 @@ TbBool creature_choose_first_available_instance(struct Thing *thing)
     cctrl = creature_control_get_from_thing(thing);
     crstat = creature_stats_get_from_thing(thing);
     long i,k;
-    for (i=0; i < CREATURE_MAX_LEVEL; i++)
+    for (i=0; i < LEARNED_INSTANCES_COUNT; i++)
     {
-        k = crstat->instance_spell[i];
+        k = crstat->learned_instance_id[i];
         if (k > 0)
         {
             if (cctrl->instance_available[k]) {
-                cctrl->field_1E8 = k;
+                cctrl->active_instance_id = k;
                 return true;
             }
         }
     }
-    cctrl->field_1E8 = 0;
+    cctrl->active_instance_id = CrInst_NULL;
     return false;
 }
 
@@ -224,12 +224,12 @@ void creature_increase_available_instances(struct Thing *thing)
     crstat = creature_stats_get_from_thing(thing);
     cctrl = creature_control_get_from_thing(thing);
     int i,k;
-    for (i=0; i < CREATURE_MAX_LEVEL; i++)
+    for (i=0; i < LEARNED_INSTANCES_COUNT; i++)
     {
-        k = crstat->instance_spell[i];
+        k = crstat->learned_instance_id[i];
         if (k > 0)
         {
-            if (crstat->instance_level[i] <= cctrl->explevel+1) {
+            if (crstat->learned_instance_level[i] <= cctrl->explevel+1) {
                 cctrl->instance_available[k] = true;
             }
         }
@@ -250,10 +250,10 @@ int creature_instance_get_available_pos_for_id(struct Thing *thing, CrInstance r
     int avail_pos;
     avail_pos = 0;
     int avail_num;
-    for (avail_num=0; avail_num < CREATURE_MAX_LEVEL; avail_num++)
+    for (avail_num=0; avail_num < LEARNED_INSTANCES_COUNT; avail_num++)
     {
         CrInstance inst_id;
-        inst_id = crstat->instance_spell[avail_num];
+        inst_id = crstat->learned_instance_id[avail_num];
         if (creature_instance_is_available(thing, inst_id))
         {
             if (inst_id == req_inst_id) {
@@ -279,10 +279,10 @@ int creature_instance_get_available_number_for_pos(struct Thing *thing, int req_
     int avail_pos;
     avail_pos = 0;
     int avail_num;
-    for (avail_num=0; avail_num < CREATURE_MAX_LEVEL; avail_num++)
+    for (avail_num=0; avail_num < LEARNED_INSTANCES_COUNT; avail_num++)
     {
         CrInstance inst_id;
-        inst_id = crstat->instance_spell[avail_num];
+        inst_id = crstat->learned_instance_id[avail_num];
         if (creature_instance_is_available(thing, inst_id))
         {
             if (avail_pos == req_avail_pos) {
@@ -308,10 +308,10 @@ CrInstance creature_instance_get_available_id_for_pos(struct Thing *thing, int r
     int avail_pos;
     avail_pos = 0;
     int avail_num;
-    for (avail_num=0; avail_num < CREATURE_MAX_LEVEL; avail_num++)
+    for (avail_num=0; avail_num < LEARNED_INSTANCES_COUNT; avail_num++)
     {
         CrInstance inst_id;
-        inst_id = crstat->instance_spell[avail_num];
+        inst_id = crstat->learned_instance_id[avail_num];
         if (creature_instance_is_available(thing, inst_id))
         {
             if (avail_pos == req_avail_pos) {
