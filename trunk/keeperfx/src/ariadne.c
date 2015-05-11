@@ -591,7 +591,6 @@ long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y,
       }
       if (reg2 == -1)
       {
-        assert(!((fov_AC.tipB.x == 46336) && (fov_AC.tipB.y == 15360)));
         if (wp_num == ARID_PATH_WAYPOINTS_COUNT) {
             ERRORLOG("Exceeded max path length (i:%d,L:%d) (%d,%d)->(%d,%d)",
             wpi, wp_lim, ptfind_x, ptfind_y, ptstart_x, ptstart_y);
@@ -2256,7 +2255,7 @@ long ariadne_init_movement_to_current_waypoint(struct Thing *thing, struct Ariad
     arid->pos_12.y.val = fixed_pos.y.val;
     arid->pos_12.z.val = fixed_pos.z.val;
     arid->update_state = AridUpSt_Manoeuvre;
-    arid->manoeuvre_state = 1;
+    arid->manoeuvre_state = AridUpSStM_Unkn1;
     return 1;
 }
 
@@ -2387,11 +2386,11 @@ AriadneReturn ariadne_prepare_creature_route_to_target_f(const struct Thing *thi
         return AridRet_Val2;
     }
     // Fill total waypoints number
-    if (path.waypoints_num <= 255) {
+    if (path.waypoints_num < ARID_PATH_WAYPOINTS_COUNT) {
         arid->total_waypoints = path.waypoints_num;
     } else {
         WARNLOG("%s: The %d waypoints is too many - cutting down", func_name,(int)path.waypoints_num);
-        arid->total_waypoints = 255;
+        arid->total_waypoints = ARID_PATH_WAYPOINTS_COUNT-1;
     }
     // Fill stored waypoints (up to ARID_WAYPOINTS_COUNT)
     if (arid->total_waypoints < ARID_WAYPOINTS_COUNT) {
@@ -2567,9 +2566,9 @@ AriadneReturn ariadne_update_state_manoeuvre_to_position(struct Thing *thing, st
     }
     switch (arid->manoeuvre_state)
     {
-    case 1:
+    case AridUpSStM_Unkn1:
         return ariadne_init_wallhug(thing, arid, &arid->pos_59);
-    case 2:
+    case AridUpSStM_Unkn2:
         angle = ariadne_get_wallhug_angle(thing, arid);
         arid->wallhug_angle = angle;
         arid->pos_12.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(arid->move_speed, angle);
@@ -2642,7 +2641,7 @@ AriadneReturn ariadne_update_state_on_line(struct Thing *thing, struct Ariadne *
                 struct Coord3d pos;
                 ariadne_push_position_against_wall(thing, &arid->pos_12, &pos);
                 arid->update_state = AridUpSt_Manoeuvre;
-                arid->manoeuvre_state = 1;
+                arid->manoeuvre_state = AridUpSStM_Unkn1;
                 arid->pos_53.x.val = pos.x.val;
                 arid->pos_53.y.val = pos.y.val;
                 arid->pos_53.z.val = pos.z.val;
@@ -2697,11 +2696,12 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
 {
     //return _DK_ariadne_update_state_wallhug(thing, arid);
     MapCoordDelta distance;
-    NAVIDBG(18,"Route for %s index %d from %3d,%3d to %3d,%3d", thing_model_name(thing),(int)thing->index,
+    NAVIDBG(8,"Route for %s index %d from %3d,%3d to %3d,%3d", thing_model_name(thing),(int)thing->index,
         (int)thing->mappos.x.val, (int)thing->mappos.y.val, (int)arid->current_waypoint_pos.x.val, (int)arid->current_waypoint_pos.y.val);
     distance = get_2d_distance(&thing->mappos, &arid->current_waypoint_pos);
     if ((distance - arid->field_62) > 1024)
     {
+        NAVIDBG(8,"A");
         struct Coord3d pos;
         arid->pos_12.x.val = thing->mappos.x.val;
         arid->pos_12.y.val = thing->mappos.y.val;
@@ -2714,8 +2714,10 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
         }
         return AridRet_OK;
     }
+    NAVIDBG(8,"B %d %d %d",(int)distance, (int)arid->move_speed, (int)arid->field_62);
     if (distance <= arid->move_speed)
     {
+        NAVIDBG(8,"C");
         arid->pos_12.x.val = arid->current_waypoint_pos.x.val;
         arid->pos_12.y.val = arid->current_waypoint_pos.y.val;
         arid->pos_12.z.val = arid->current_waypoint_pos.z.val;
@@ -2736,7 +2738,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
                 struct Coord3d pos;
                 ariadne_push_position_against_wall(thing, &arid->pos_12, &pos);
                 arid->update_state = AridUpSt_Manoeuvre;
-                arid->manoeuvre_state = 1;
+                arid->manoeuvre_state = AridUpSStM_Unkn1;
                 arid->pos_53.x.val = pos.x.val;
                 arid->pos_53.y.val = pos.y.val;
                 arid->pos_53.z.val = pos.z.val;
@@ -2751,6 +2753,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
     } else
     if (thing->move_angle_xy == arid->wallhug_angle)
     {
+        NAVIDBG(8,"E");
         if ((thing->mappos.x.val != arid->pos_12.x.val) || (arid->pos_12.y.val != thing->mappos.y.val))
         {
             ariadne_init_movement_to_current_waypoint(thing, arid);
@@ -2779,7 +2782,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
         if ((thing->move_angle_xy == hug_angle) && ariadne_check_forward_for_wallhug_gap(thing, arid, &arid->pos_12, hug_angle))
         {
             arid->update_state = AridUpSt_Manoeuvre;
-            arid->manoeuvre_state = 2;
+            arid->manoeuvre_state = AridUpSStM_Unkn2;
             arid->pos_53.x.val = arid->pos_12.x.val;
             arid->pos_53.y.val = arid->pos_12.y.val;
             arid->pos_53.z.val = arid->pos_12.z.val;
@@ -2807,7 +2810,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
                 struct Coord3d pos;
                 ariadne_push_position_against_wall(thing, &arid->pos_12, &pos);
                 arid->update_state = AridUpSt_Manoeuvre;
-                arid->manoeuvre_state = 2;
+                arid->manoeuvre_state = AridUpSStM_Unkn2;
                 arid->pos_53.x.val = pos.x.val;
                 arid->pos_53.y.val = pos.y.val;
                 arid->pos_53.z.val = pos.z.val;
@@ -2829,6 +2832,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
             return AridRet_OK;
           }
     }
+    NAVIDBG(8,"Y %d %d",(int)thing->move_angle_xy,(int)arid->wallhug_angle);
     return AridRet_OK;
 }
 
@@ -2839,7 +2843,7 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
     struct Ariadne *arid;
     AriadneReturn result;
     AriadneReturn aret;
-    NAVIDBG(18,"Route for %s index %d from %3d,%3d to %3d,%3d", thing_model_name(thing),(int)thing->index,
+    NAVIDBG(8,"Route for %s index %d from %3d,%3d to %3d,%3d", thing_model_name(thing),(int)thing->index,
         (int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num, (int)finalpos->x.stl.num, (int)finalpos->y.stl.num);
     cctrl = creature_control_get_from_thing(thing);
     arid = &cctrl->arid;
@@ -2851,6 +2855,7 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
     {
         aret = ariadne_initialise_creature_route(thing, finalpos, speed, flags);
         if (aret != AridRet_OK) {
+            SYNCDBG(8,"The %s index %d route result: A cur pos (%d,%d) next pos (%d,%d)",thing_model_name(thing),(int)thing->index,(int)thing->mappos.x.val,(int)thing->mappos.y.val,(int)nextpos->x.val,(int)nextpos->y.val);
             return AridRet_Val2;
         }
         arid->move_speed = speed;
@@ -2859,6 +2864,7 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
             nextpos->x.val = arid->pos_12.x.val;
             nextpos->y.val = arid->pos_12.y.val;
             nextpos->z.val = arid->pos_12.z.val;
+            SYNCDBG(8,"The %s index %d route result: B cur pos (%d,%d) next pos (%d,%d)",thing_model_name(thing),(int)thing->index,(int)thing->mappos.x.val,(int)thing->mappos.y.val,(int)nextpos->x.val,(int)nextpos->y.val);
             return AridRet_OK;
         }
     }
@@ -2873,6 +2879,7 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
             nextpos->x.val = thing->mappos.x.val;
             nextpos->y.val = thing->mappos.y.val;
             nextpos->z.val = thing->mappos.z.val;
+            SYNCDBG(8,"The %s index %d route result: C cur pos (%d,%d) next pos (%d,%d)",thing_model_name(thing),(int)thing->index,(int)thing->mappos.x.val,(int)thing->mappos.y.val,(int)nextpos->x.val,(int)nextpos->y.val);
             return AridRet_FinalOK;
         } else
         if (aret == AridRet_OK)
@@ -2882,6 +2889,7 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
         {
             aret = ariadne_initialise_creature_route(thing, finalpos, speed, flags);
             if (aret != AridRet_OK) {
+                SYNCDBG(8,"The %s index %d route result: D cur pos (%d,%d) next pos (%d,%d)",thing_model_name(thing),(int)thing->index,(int)thing->mappos.x.val,(int)thing->mappos.y.val,(int)nextpos->x.val,(int)nextpos->y.val);
                 return AridRet_PartOK;
             }
         }
@@ -2893,21 +2901,25 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
         nextpos->x.val = arid->pos_12.x.val;
         nextpos->y.val = arid->pos_12.y.val;
         nextpos->z.val = arid->pos_12.z.val;
+        SYNCDBG(8,"The %s index %d route result: F cur pos (%d,%d) next pos (%d,%d)",thing_model_name(thing),(int)thing->index,(int)thing->mappos.x.val,(int)thing->mappos.y.val,(int)nextpos->x.val,(int)nextpos->y.val);
         break;
     case AridUpSt_Wallhug:
         result = ariadne_update_state_wallhug(thing, arid);
         nextpos->x.val = arid->pos_12.x.val;
         nextpos->y.val = arid->pos_12.y.val;
         nextpos->z.val = arid->pos_12.z.val;
+        SYNCDBG(8,"The %s index %d route result: G cur pos (%d,%d) next pos (%d,%d)",thing_model_name(thing),(int)thing->index,(int)thing->mappos.x.val,(int)thing->mappos.y.val,(int)nextpos->x.val,(int)nextpos->y.val);
         break;
     case AridUpSt_Manoeuvre:
         result = ariadne_update_state_manoeuvre_to_position(thing, arid);
         nextpos->x.val = arid->pos_12.x.val;
         nextpos->y.val = arid->pos_12.y.val;
         nextpos->z.val = arid->pos_12.z.val;
+        SYNCDBG(8,"The %s index %d route result: H cur pos (%d,%d) next pos (%d,%d)",thing_model_name(thing),(int)thing->index,(int)thing->mappos.x.val,(int)thing->mappos.y.val,(int)nextpos->x.val,(int)nextpos->y.val);
         break;
     default:
         result = AridRet_PartOK;
+        SYNCDBG(8,"The %s index %d route result: I cur pos (%d,%d) next pos (%d,%d)",thing_model_name(thing),(int)thing->index,(int)thing->mappos.x.val,(int)thing->mappos.y.val,(int)nextpos->x.val,(int)nextpos->y.val);
         break;
     }
     if (result != AridRet_OK)
