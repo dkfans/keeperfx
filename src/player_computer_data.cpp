@@ -48,7 +48,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-//TODO move to config file
+//TODO COMPUTER_PLAYER move to config file
 unsigned short computer_types_tooltip_stridx[] = {
     GUIStr_Empty, GUIStr_Empty,
     GUIStr_Empty, GUIStr_Empty,

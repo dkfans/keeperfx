@@ -1592,10 +1592,13 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
     crstat = creature_stats_get(crtr_model);
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        for (n=0; n < CREATURE_MAX_LEVEL; n++)
+        for (n=0; n < LEARNED_INSTANCES_COUNT; n++)
         {
             crstat->learned_instance_id[n] = 0;
             crstat->learned_instance_level[n] = 0;
+        }
+        for (n=0; n < CREATURE_MAX_LEVEL; n++)
+        {
             crstat->to_level[n] = 0;
         }
         crstat->grow_up = 0;
@@ -1659,7 +1662,7 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
             while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              if ((k >= 0) && (n < 10))
+              if ((k >= 0) && (n < CREATURE_MAX_LEVEL-1))
               {
                 crstat->to_level[n] = k;
                 n++;
@@ -1674,7 +1677,7 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->to_level[9] = k;
+              crstat->to_level[CREATURE_MAX_LEVEL-1] = k;
               n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)

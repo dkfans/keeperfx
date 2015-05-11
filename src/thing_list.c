@@ -609,7 +609,7 @@ long anywhere_thing_filter_is_food_available_to_eat_and_owned_by(const struct Th
 {
     if (thing->class_id == TCls_Object)
     {
-        if (thing->model == 10)
+        if (object_is_mature_food(thing))
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {

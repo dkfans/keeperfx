@@ -140,10 +140,11 @@ void maintain_turn_on_autopilot(struct GuiButton *gbtn)
     struct Computer2 *comp;
     comp = get_computer_player(player->id_number);
     cplr_model = comp->model;
+    //TODO COMPUTER_PLAYER change limit to comp_player_conf.computers_count when the array is inside computer player config
     if ((cplr_model >= 0) && (cplr_model < 10)) {
         gbtn->tooltip_stridx = computer_types_tooltip_stridx[cplr_model];
     } else {
-        ERRORLOG("Illegal computer player");
+        ERRORLOG("Illegal computer player model %d",(int)cplr_model);
     }
 }
 

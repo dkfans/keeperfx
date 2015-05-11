@@ -226,7 +226,7 @@ void set_power_hand_offset(struct PlayerInfo *player, struct Thing *thing)
     } else
     if (thing->class_id == TCls_Object)
     {
-      if (thing->model == 10)
+      if (object_is_mature_food(thing))
       {
           dungeon->field_43 = 11;
           dungeon->field_53 = 56;

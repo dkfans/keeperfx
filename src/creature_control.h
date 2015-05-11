@@ -558,7 +558,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     short scavenger_cost;
     short scavenge_require;
     unsigned char scavenge_value;
-    unsigned long to_level[10];
+    unsigned long to_level[CREATURE_MAX_LEVEL];
     unsigned char base_speed;
     short grow_up;
     unsigned char grow_up_level;
