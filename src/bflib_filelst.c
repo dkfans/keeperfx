@@ -91,7 +91,7 @@ short LbDataLoad(struct TbLoadFiles *load_file)
 #endif
     *(load_file->Start) = alloc_func(load_file->SLength);
     if ( (*(load_file->Start)) == NULL )
-      return -100;
+        return -100;
   } else
   {
     long slength = LbFileLengthRnc(fname);
@@ -99,18 +99,18 @@ short LbDataLoad(struct TbLoadFiles *load_file)
     LbJustLog("LbDataLoad: filelength %ld for file \"%s\"\n",slength,fname);
 #endif
     load_file->SLength = slength;
-    if (slength <= 0 )
-      return -101;
+    if (slength <= 0)
+        return -101;
     *(load_file->Start) = alloc_func(slength + 512);
-    if ( (*(load_file->Start)) == NULL )
-      return -100;
-    if ( LbFileLoadAt(fname, *(load_file->Start)) != load_file->SLength )
+    if ((*(load_file->Start)) == NULL)
+        return -100;
+    if (LbFileLoadAt(fname, *(load_file->Start)) != load_file->SLength)
     {
-      *(load_file->Start) = 0;
-      if (load_file->SEnd != NULL)
-        *(load_file->SEnd) = 0;
-      load_file->SLength = 0;
-      return -101;
+        *(load_file->Start) = 0;
+        if (load_file->SEnd != NULL)
+          *(load_file->SEnd) = 0;
+        load_file->SLength = 0;
+        return -101;
     }
   }
   if (load_file->SEnd != NULL)

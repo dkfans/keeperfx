@@ -2440,27 +2440,6 @@ void frontend_load_data_reset(void)
   LbDataLoadSetModifyFilenameFunction(_DK_mdlf_default);
 }
 
-void frontstory_load(void)
-{
-    wait_for_cd_to_be_available();
-    frontend_load_data_from_cd();
-    if ( LbDataLoadAll(frontstory_load_files) )
-    {
-        ERRORLOG("Unable to Load FRONT STORY FILES");
-    } else
-    {
-        LbDataLoadSetModifyFilenameFunction(_DK_mdlf_default);
-        LbSpriteSetupAll(frontstory_setup_sprites);
-        LbPaletteSet(frontend_palette);
-        srand(LbTimerClock());
-        frontstory_text_no = GUIStr_EasterPoems + rand() % 26;
-    }
-}
-void inline frontstory_unload(void)
-{
-    LbDataFreeAll(frontstory_load_files);
-}
-
 void initialise_tab_tags(MenuID menu_id)
 {
     info_tag =  (menu_id == GMnu_QUERY) || (menu_id == GMnu_CREATURE_QUERY1) ||
@@ -2745,11 +2724,6 @@ int frontend_set_state(long nstate)
     return frontend_menu_state;
 }
 
-short frontstory_input(void)
-{
-  return false;
-}
-
 TbBool frontmainmnu_input(void)
 {
     int mouse_x,mouse_y;
@@ -2897,17 +2871,6 @@ void frontend_input(void)
         get_screen_capture_inputs();
     }
     SYNCDBG(19,"Finished");
-}
-
-void frontstory_draw(void)
-{
-    frontend_copy_background();
-    LbTextSetWindow(70*units_per_pixel/16, 70*units_per_pixel/16, (640-2*70)*units_per_pixel/16, (480-2*70)*units_per_pixel/16);
-    LbTextSetFont(frontstory_font);
-    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
-    int tx_units_per_px;
-    tx_units_per_px = (26 * units_per_pixel) / LbTextLineHeight();
-    LbTextDrawResized(0, 0, tx_units_per_px, get_string(frontstory_text_no));
 }
 
 void draw_defining_a_key_box(void)

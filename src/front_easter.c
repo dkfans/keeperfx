@@ -31,6 +31,7 @@
 #include "gui_soundmsgs.h"
 #include "config_strings.h"
 #include "frontend.h"
+#include "front_credits.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 

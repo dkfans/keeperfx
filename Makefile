@@ -21,12 +21,15 @@
 #      (at your option) any later version.
 #
 #******************************************************************************
+# Executable files extension on host environment
 ifneq (,$(findstring Windows,$(OS)))
   CROSS_EXEEXT = .exe
 else
   CROSS_EXEEXT =
 endif
+# Executable files extension on target environment
 EXEEXT = .exe
+# Names of utility commands
 CPP      = $(CROSS_COMPILE)g++
 CC       = $(CROSS_COMPILE)gcc
 WINDRES  = $(CROSS_COMPILE)windres
@@ -164,6 +167,7 @@ obj/engine_redraw.o \
 obj/engine_render.o \
 obj/engine_textures.o \
 obj/front_credits.o \
+obj/front_credits_data.o \
 obj/front_easter.o \
 obj/front_fmvids.o \
 obj/front_highscore.o \

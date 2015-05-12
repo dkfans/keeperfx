@@ -28,8 +28,9 @@
 #include "bflib_fileio.h"
 #include "bflib_vidraw.h"
 
-//TODO: this breaks my convention - non-bflib call from bflib
+//TODO: this breaks my convention - non-bflib call from bflib (used for asian fonts)
 #include "frontend.h"
+#include "front_credits.h"
 
 #ifdef __cplusplus
 extern "C" {

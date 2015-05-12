@@ -88,6 +88,7 @@ enum FrontendMenuState {
 
 struct GuiMenu;
 struct GuiButton;
+struct TbLoadFiles;
 
 struct DemoItem { //sizeof = 5
     unsigned char numfield_0;
@@ -216,9 +217,6 @@ DLLIMPORT extern unsigned char * _DK_button_sprite_data;
 DLLIMPORT extern unsigned long _DK_end_button_sprite_data;
 #define end_button_sprite_data _DK_end_button_sprite_data
 
-DLLIMPORT extern struct TbSprite *_DK_frontstory_font;
-#define frontstory_font _DK_frontstory_font
-
 DLLIMPORT extern struct TbSprite *_DK_winfont;
 #define winfont _DK_winfont
 DLLIMPORT extern struct TbSprite *_DK_end_winfonts;
@@ -292,6 +290,9 @@ extern struct TbSprite *testfont_end[TESTFONTS_COUNT];
 extern unsigned char * testfont_data[TESTFONTS_COUNT];
 extern unsigned char *testfont_palette[3];
 #endif
+/******************************************************************************/
+DLLIMPORT char *_DK_mdlf_for_cd(struct TbLoadFiles *);
+DLLIMPORT char *_DK_mdlf_default(struct TbLoadFiles *);
 /******************************************************************************/
 int frontend_font_char_width(int fnt_idx,char c);
 int frontend_font_string_width(int fnt_idx, const char *str);

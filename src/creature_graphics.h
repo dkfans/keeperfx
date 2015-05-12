@@ -97,6 +97,7 @@ struct KeeperSprite { // sizeof = 16
 
 /******************************************************************************/
 //extern unsigned short creature_graphics[][22];
+//extern struct KeeperSprite *creature_table;
 /******************************************************************************/
 DLLIMPORT struct KeeperSprite *_DK_creature_table;
 #define creature_table _DK_creature_table

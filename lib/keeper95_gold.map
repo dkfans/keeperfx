@@ -503,6 +503,7 @@
  0001:00053750       tunneller_doing_nothing
  0001:000539E0       good_setup_loot_treasure_room
  0001:00053E00       update_tunneller_trail
+ 0001:00053E50       keepersprite_frames
  0001:00053E70       process_keeper_sprite
  0001:00054680       draw_single_keepersprite_xflip
  0001:00054890       draw_keepsprite_unscaled_in_buffer
@@ -2036,6 +2037,7 @@
  0003:002473D0       message_queue
  0003:002473F8       frontend_mouse_over_button
  0003:002473FC       frontend_end_sprite
+ 0003:00247400       frontstory_end_font
  0003:00247404       frontend_mouse_over_button_start_time
  0003:0024740C       load_game_scroll_offset
  0003:00247410       last_mouse_x
@@ -2048,6 +2050,7 @@
  0003:00247730       high_score_entry
  0003:00247770       save_game_catalogue
  0003:002477F8       defining_a_key_id
+ 0003:002477FC       frontstory_background
  0003:0024781C       old_mouse_over_button
  0003:00247820       frontstory_text_no
  0003:00247824       frontend_sprite_data
@@ -2056,6 +2059,7 @@
  0003:00247B40       number_of_saved_games
  0003:00247B44       continue_game_option_available
  0003:00247B48       defining_a_key
+ 0003:00247B4C       frontstory_end_font_data
  0003:00247B50       time_last_played_demo
  0003:00247C5C       credits_scroll_speed
  0003:00247C60       high_score_table
@@ -2067,6 +2071,7 @@
  0003:00247F44       fe_high_score_table_from_main_menu
  0003:00247F48       frontend_end_font_data
  0003:00247F58       fe_net_level_selected
+ 0003:00247F5C       frontstory_font_data
  0003:00247F60       frontend_end_font
  0003:00247F70       credits_end
  0003:00247F78       frontend_font_data

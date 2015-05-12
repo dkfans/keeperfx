@@ -47,6 +47,7 @@
 #include "engine_textures.h"
 #include "front_simple.h"
 #include "front_network.h"
+#include "front_lvlstats.h"
 #include "frontend.h"
 #include "kjm_input.h"
 #include "vidmode.h"
