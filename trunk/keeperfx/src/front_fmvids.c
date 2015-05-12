@@ -62,7 +62,7 @@ short play_smacker_file(char *filename, int nstate)
 {
   unsigned int movie_flags = 0;
   if ( SoundDisabled )
-    movie_flags |= 0x01;
+      movie_flags |= SMK_NoSound;
   short result;
 
   result = 1;

@@ -28,6 +28,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 enum SmackerPlayFlags {
+    SMK_NoSound            = 0x01,
     SMK_NoStopOnUserInput  = 0x02,
     SMK_PixelDoubleLine    = 0x04,
     SMK_InterlaceLine      = 0x08,
@@ -151,8 +152,6 @@ long field_324;
 char field_3C4[12];
 };
 
-typedef void (*SmackDrawCallback)(unsigned char *frame_data, long width, long height);
-
 #pragma pack()
 /******************************************************************************/
 // Exported variables
@@ -164,7 +163,6 @@ DLLIMPORT struct Animation _DK_animation;
 // Exported functions - SMK related
 short play_smk_(char *fname, int smkflags, int plyflags);
 short play_smk_direct(char *fname, int smkflags, int plyflags);
-short play_smk_via_buffer(char *fname, int smkflags, int plyflags);
 
 // Exported functions - FLI related
 short anim_open(char *fname, int arg1, short arg2, int width, int height, int arg5, unsigned int flags);
