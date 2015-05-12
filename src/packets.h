@@ -151,6 +151,7 @@ enum TbPacketAction {
         PckA_PlyrMsgChar    =  121,
 };
 
+/** Packet flags for non-action player operation. */
 enum TbPacketControl {
         PCtr_None           = 0x0000,
         PCtr_ViewRotateCW   = 0x0001,
@@ -204,8 +205,8 @@ struct Packet { // sizeof = 0x11 (17)
     unsigned char action; //! Action kind performed by the player which owns this packet
     unsigned short actn_par1; //! Players action parameter #1
     unsigned short actn_par2; //! Players action parameter #2
-    short pos_x;
-    short pos_y;
+    short pos_x; //! Mouse Cursor Position X
+    short pos_y; //! Mouse Cursor Position Y
     unsigned short control_flags;
     unsigned char field_10;
 };

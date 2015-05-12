@@ -1326,6 +1326,9 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
   return true;
 }
 
+/**
+ * Fill packet structure with non action user input in dungeon view.
+ */
 void get_dungeon_control_nonaction_inputs(void)
 {
   unsigned char context;
@@ -1607,6 +1610,8 @@ static void get_dungeon_speech_inputs(void)
     }
 }
 
+/** Fill packet struct with game action information.
+ */
 short get_inputs(void)
 {
     struct PlayerInfo *player;

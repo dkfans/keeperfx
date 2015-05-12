@@ -193,6 +193,11 @@ void init_players_network_game(void)
   setup_alliances();
 }
 
+/** Check whether a network player is active.
+ *
+ * @param plyr_idx
+ * @return
+ */
 TbBool network_player_active(int plyr_idx)
 {
     if ((plyr_idx < 0) || (plyr_idx >= NET_PLAYERS_COUNT))
