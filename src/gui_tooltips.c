@@ -62,7 +62,7 @@ inline void reset_scrolling_tooltip(void)
     set_flag_byte(&tool_tip_box.flags,TTip_NeedReset,false);
 }
 
-inline void set_gui_tooltip_box_fmt(int bxtype,const char *format, ...)
+void set_gui_tooltip_box_fmt(int bxtype,const char *format, ...)
 {
   set_flag_byte(&tool_tip_box.flags,TTip_Visible,true);
   va_list val;
