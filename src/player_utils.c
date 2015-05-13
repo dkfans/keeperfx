@@ -465,7 +465,7 @@ void init_player_music(struct PlayerInfo *player)
 {
     LevelNumber lvnum;
     lvnum = get_loaded_level_number();
-    game.audiotrack = ((lvnum - 1) % -4) + 3;
+    game.audiotrack = 3 + ((lvnum - 1) % 4);
     randomize_sound_font();
 }
 

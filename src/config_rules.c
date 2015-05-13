@@ -1701,7 +1701,7 @@ long get_research_id(long item_type, const char *trg_name, const char *func_name
        item_id = get_id(power_desc, trg_name);
       if (item_id == -1)
       {
-        ERRORMSG("%s(line %lu): " "Unknown magic, '%s'", func_name , text_line_number, trg_name);
+        ERRORMSG("%s(line %lu): " "Unknown magic, '%s'", func_name, text_line_number, trg_name);
         return -1;
       }
       break;
@@ -1709,7 +1709,7 @@ long get_research_id(long item_type, const char *trg_name, const char *func_name
       item_id = get_id(room_desc, trg_name);
       if (item_id == -1)
       {
-        ERRORMSG("%s(line %lu): " "Unknown room, '%s'", func_name , text_line_number, trg_name);
+        ERRORMSG("%s(line %lu): " "Unknown room, '%s'", func_name, text_line_number, trg_name);
         return -1;
       }
       break;
@@ -1717,13 +1717,13 @@ long get_research_id(long item_type, const char *trg_name, const char *func_name
       item_id = get_id(creature_desc, trg_name);
       if (item_id == -1)
       {
-        ERRORMSG("%s(line %lu): " "Unknown creature, '%s'", func_name , text_line_number, trg_name);
+        ERRORMSG("%s(line %lu): " "Unknown creature, '%s'", func_name, text_line_number, trg_name);
         return -1;
       }
       break;
   case -1:
   default:
-      ERRORMSG("%s(line %lu): " "Unhandled research type, '%s'", func_name , text_line_number, item_type);
+      ERRORMSG("%s(line %lu): " "Unhandled research type, %d", func_name, text_line_number, item_type);
       return -1;
   }
   return item_id;

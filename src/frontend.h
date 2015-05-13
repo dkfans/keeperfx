@@ -322,7 +322,7 @@ short is_toggleable_menu(short mnu_idx);
 
 void activate_room_build_mode(RoomKind rkind, TextStringId tooltip_id);
 void choose_spell(PowerKind pwkind, TextStringId tooltip_id);
-TbBool is_special_spell(PowerKind pwkind);
+TbBool is_special_power(PowerKind pwkind);
 void choose_special_spell(PowerKind pwkind, TextStringId tooltip_id);
 void choose_workshop_item(int manufctr_idx, TextStringId tooltip_id);
 

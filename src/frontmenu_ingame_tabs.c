@@ -2330,7 +2330,7 @@ void update_trap_tab_to_config(void)
 void update_powers_tab_to_config(void)
 {
     int i;
-    // Clear 4x4 area of buttons, but skip "sell" button at end
+    // Clear 4x4 area of buttons, no "sell" button at end
     for (i=0; i < 4*4; i++)
     {
         struct GuiButtonInit * ibtn;
@@ -2355,7 +2355,7 @@ void update_powers_tab_to_config(void)
         ibtn->sprite_idx = powerst->medsym_sprite_idx;
         ibtn->tooltip_stridx = powerst->tooltip_stridx;
         ibtn->content.lval = i;
-        if ((i == PwrK_HOLDAUDNC) || (i == PwrK_ARMAGEDDON)) {
+        if (is_special_power(i)) {
             ibtn->click_event = gui_choose_special_spell;
             ibtn->rclick_event = NULL;
             ibtn->ptover_event = NULL;
