@@ -53,8 +53,10 @@ int InitializeMusicPlayer(void)
         if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) >= 0)
         {
             tracks[0] = NULL;
+            tracks[1] = NULL;
             int i;
-            for (i = 1; i < MAX_TRACK; i++)
+            // There is no keeper01.ogg.
+            for (i = 2; i < MAX_TRACK; i++)
             {
                 const char *fname;
                 fname = prepare_file_fmtpath(FGrp_Music, "keeper%02d.ogg", i);
