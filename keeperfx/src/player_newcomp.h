@@ -42,6 +42,8 @@ long computer_check_for_door_attacks(struct Computer2 *comp);
 long computer_check_for_claims(struct Computer2 *comp);
 long computer_check_for_imprison_tendency(struct Computer2* comp);
 long computer_check_prison_management(struct Computer2* comp);
+long computer_check_new_digging(struct Computer2* comp);
+void computer_setup_new_digging(void);
 
 #ifdef __cplusplus
 }
