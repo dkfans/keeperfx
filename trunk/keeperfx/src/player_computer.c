@@ -1377,6 +1377,7 @@ static int counter_check_for_door_attacks[KEEPER_COUNT] = { 0, 1, 2, 3 };
 static int counter_check_for_claims[KEEPER_COUNT] = { 0, 1, 2, 3 };
 static int counter_check_for_imprison_tendency[KEEPER_COUNT] = { 0, 1, 2, 3 };
 static int counter_check_prison_management[KEEPER_COUNT] = { 0, 1, 2, 3 };
+static int counter_check_new_digging[KEEPER_COUNT] = { 0, 1, 2, 3 };
 
 TbBool process_checks(struct Computer2 *comp)
 {
@@ -1408,27 +1409,30 @@ TbBool process_checks(struct Computer2 *comp)
 	if (++counter_check_for_claims[comp->dungeon->owner] >= 51)
 	{
 		counter_check_for_claims[comp->dungeon->owner] = 0;
-		SYNCDBG(8,"Executing new check_for_claims");
 		computer_check_for_claims(comp);
 	}
 	if (++counter_check_for_door_attacks[comp->dungeon->owner] >= 151)
 	{
 		counter_check_for_door_attacks[comp->dungeon->owner] = 0;
-		SYNCDBG(8,"Executing new check_for_door_attacks");
 		computer_check_for_door_attacks(comp);
 	}
 	if (++counter_check_for_imprison_tendency[comp->dungeon->owner] >= 39)
 	{
 		counter_check_for_imprison_tendency[comp->dungeon->owner] = 0;
-		SYNCDBG(8,"Executing new check_for_imprison_tendency");
 		computer_check_for_imprison_tendency(comp);
 	}
 	if (++counter_check_prison_management[comp->dungeon->owner] >= 41)
 	{
 		counter_check_prison_management[comp->dungeon->owner] = 0;
-		SYNCDBG(8,"Executing new check_prison_management");
 		computer_check_prison_management(comp);
 	}
+#ifdef NEW_DIGBUILD
+	if (++counter_check_new_digging[comp->dungeon->owner] >= 31)
+	{
+		counter_check_new_digging[comp->dungeon->owner] = 0;
+		computer_check_new_digging(comp);
+	}
+#endif
 
     return true;
 }
@@ -1613,13 +1617,11 @@ void setup_computer_players2(void)
   int i;
   gameadd.turn_last_checked_for_gold = game.play_gameturn;
   check_map_for_gold();
+  computer_setup_new_digging();
   for (i=0; i < COMPUTER_TASKS_COUNT; i++)
   {
     LbMemorySet(&game.computer_task[i], 0, sizeof(struct ComputerTask));
   }
-#ifdef PETTER_AI
-  SAI_init_for_map();
-#endif
   for (i=0; i < PLAYERS_COUNT; i++)
   {
     player = get_player(i);
@@ -1627,11 +1629,7 @@ void setup_computer_players2(void)
     {
       if (player->field_2C == 1)
       {
-#ifdef PETTER_AI
-        SAI_init_for_player(i);
-#else
         setup_a_computer_player(i, 7);
-#endif
       }
     }
   }

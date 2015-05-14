@@ -22,6 +22,7 @@
 
 #include "bflib_math.h"
 
+#include "config_terrain.h"
 #include "creature_instances.h"
 #include "creature_states.h"
 #include "creature_states_lair.h"
@@ -32,6 +33,7 @@
 #include "map_data.h"
 #include "player_computer.h"
 #include "power_hand.h"
+#include "room_data.h"
 #include "slab_data.h"
 #include "thing_list.h"
 #include "thing_stats.h"
@@ -782,6 +784,734 @@ long computer_check_prison_management(struct Computer2* comp)
 		case PMA_Nothing: //avoid untested enum warning
 			break;
 		}
+	}
+
+	return CTaskRet_Unk4;
+}
+
+//CHECK NEW DIGGING ///////////////////////////////////////////////////////////////////////////////
+
+struct ExpandRoomPos
+{
+	MapSlabCoord min_x, min_y;
+	MapSlabCoord max_x, max_y;
+	MapSlabCoord access_x, access_y;
+	MapSlabCoord access_dx, access_dy;
+};
+
+struct ExpandRoom //expand room (digging prior if necessary)
+{
+	TbBool active;
+	TbBool for_dig_gold;
+	RoomKind rkind;
+	struct ExpandRoomPos room_pos;
+	int room_score;
+};
+
+struct DigToGold
+{
+	TbBool active;
+};
+
+struct DigToAttack
+{
+	TbBool active;
+};
+
+struct DigToSecure
+{
+	TbBool active;
+};
+
+struct Digging
+{
+	struct ExpandRoom expand_room;
+	struct DigToGold dig_gold;
+	struct DigToAttack dig_attack;
+	struct DigToSecure dig_secure;
+};
+
+static struct Digging comp_digging[KEEPER_COUNT];
+
+void computer_setup_new_digging(void)
+{
+	memset(&comp_digging, 0, sizeof(comp_digging));
+}
+
+
+static TbBool is_diggable_or_buildable(struct Dungeon* dungeon, MapSlabCoord x, MapSubtlCoord y)
+{
+	struct SlabMap* slab;
+	slab = get_slabmap_block(x, y);
+	switch (slab->kind)
+	{
+	case SlbT_PATH:
+	case SlbT_TORCHDIRT:
+	case SlbT_EARTH:
+	case SlbT_GOLD:
+		return 1;
+	case SlbT_WALLDRAPE:
+	case SlbT_WALLPAIRSHR:
+	case SlbT_WALLTORCH:
+	case SlbT_WALLWTWINS:
+	case SlbT_WALLWWOMAN:
+	case SlbT_CLAIMED:
+		return slabmap_owner(slab) == dungeon->owner;
+	default:
+		return 0;
+	}
+	//TODO: might wish to include replacing existing rooms, however that must in that case give negative score in other parts of algorithm
+}
+
+static void process_dig_to_attack(struct Computer2* comp, struct Digging* digging)
+{
+
+}
+
+static void check_dig_to_attack(struct Computer2* comp, struct Digging* digging)
+{
+
+}
+
+static void process_dig_to_secure(struct Computer2* comp, struct Digging* digging)
+{
+
+}
+
+static void check_dig_to_secure(struct Computer2* comp, struct Digging* digging)
+{
+
+}
+
+static void process_dig_to_gold(struct Computer2* comp, struct Digging* digging)
+{
+
+}
+
+static void check_dig_to_gold(struct Computer2* comp, struct Digging* digging)
+{
+
+}
+
+static TbBool build_room_if_possible(struct Computer2* comp, RoomKind rkind, MapSlabCoord x, MapSlabCoord y)
+{
+	struct Dungeon* dungeon;
+	struct RoomConfigStats *roomst;
+	struct RoomStats* rstat;
+	MapSubtlCoord stl_x, stl_y;
+	dungeon = comp->dungeon;
+	rstat = room_stats_get_for_kind(rkind);
+	roomst = &slab_conf.room_cfgstats[rkind];
+
+	// If we don't have money for the room - don't even try
+	if (rstat->cost + 1000 >= dungeon->total_money_owned)
+	{
+		// Prefer leaving some gold, unless a flag is forcing us to build
+		if (((roomst->flags & RoCFlg_BuildToBroke) == 0) || (rstat->cost >= dungeon->total_money_owned)) {
+			return 1;
+		}
+	}
+	// If we've lost the ability to build that room - kill the process and remove task (should we really remove task?)
+	if (!is_room_available(dungeon->owner, rkind))
+		return 0;
+
+	stl_x = x * STL_PER_SLB + 1;
+	stl_y = y * STL_PER_SLB + 1;
+	if (slab_has_trap_on(x, y)) {
+		try_game_action(comp, dungeon->owner, GA_SellTrap, 0, stl_x, stl_y, 1, 0);
+	}
+	if (can_build_room_at_slab(dungeon->owner, rkind, x, y))
+	{
+		if (try_game_action(comp, dungeon->owner, GA_PlaceRoom, 0, stl_x, stl_y, 1, rkind) == Lb_SUCCESS)
+		{
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+static void process_expand_room(struct Computer2* comp, struct Digging* digging)
+{
+	//see if we can still build, otherwise sell stuff in way, otherwise give up
+
+	MapSlabCoord x, y;
+	struct ExpandRoomPos* pos;
+	struct Dungeon *dungeon;
+	TbBool finished;
+	TbBool aborted;
+
+	dungeon = comp->dungeon;
+	pos = &digging->expand_room.room_pos;
+	finished = 1;
+	aborted = 0;
+
+	//check each slab in room
+	for (y = pos->min_y; y <= pos->max_y; ++y)
+	{
+		for (x = pos->min_x; x <= pos->max_x; ++x)
+		{
+			struct SlabMap* slab;
+			slab = get_slabmap_block(x, y);
+			switch (slab->kind)
+			{
+			case SlbT_CLAIMED:
+				finished = 0;
+				//if has money -> try build
+				if (!build_room_if_possible(comp, digging->expand_room.rkind, x, y))
+				{
+					aborted = 1;
+					goto exit_loops;
+				}
+				break;
+			default:
+				if (is_diggable_or_buildable(dungeon, x, y))
+					finished = 0;
+			}
+		}
+	}
+	exit_loops:
+
+	//if finished, stop process
+	if (finished || aborted)
+	{
+		if (aborted)
+			SYNCLOG("Player %d aborted room %s", (int)dungeon->owner, room_code_name(digging->expand_room.rkind));
+		else
+			SYNCLOG("Player %d finished room %s", (int)dungeon->owner, room_code_name(digging->expand_room.rkind));
+
+		digging->expand_room.active = 0;
+	}
+}
+
+static RoomKind decide_room_to_expand(struct Computer2* comp)
+{
+	struct Dungeon *dungeon;
+	dungeon = comp->dungeon;
+
+	struct ValidRooms *bldroom;
+	for (bldroom = valid_rooms_to_build; bldroom->rkind > 0; bldroom++)
+	{
+		if (computer_check_room_available(comp, bldroom->rkind) != IAvail_Now) {
+			continue;
+		}
+
+		if (!dungeon_has_room(dungeon, bldroom->rkind))
+		{
+			return bldroom->rkind;
+		}
+
+		long used_capacity;
+		long total_capacity;
+		get_room_kind_total_and_used_capacity(dungeon, bldroom->rkind, &total_capacity, &used_capacity);
+		if (total_capacity > 0) {
+			continue;
+		}
+		long free_capacity;
+		free_capacity = computer_get_room_kind_free_capacity(comp, bldroom->rkind);
+		if (free_capacity == 9999)
+		{
+			if (bldroom->rkind == RoK_GARDEN) {
+				continue;
+			}
+		} else
+		{
+			// The "+1" is to better handle cases when the existing room is very small (capacity lower than 10)
+			// On higher capacities it doesn't make much difference, but highly increases chance
+			// of building new room if existing capacity is low.
+			if (free_capacity > 10*total_capacity/100 + 1) {
+				continue;
+			}
+		}
+
+		return bldroom->rkind;
+	}
+	
+	return RoK_NONE;
+}
+
+static TbBool is_accessible(struct Dungeon* dungeon, MapSlabCoord x, MapSlabCoord y)
+{
+	struct SlabMap* slab;
+	slab = get_slabmap_block(x, y);
+	switch (slab->kind)
+	{
+	case SlbT_LAVA:
+	case SlbT_WATER:
+		return 0; //TODO: mark liquid as accessible once new digging knows bridge
+	case SlbT_WALLDRAPE:
+	case SlbT_WALLPAIRSHR:
+	case SlbT_WALLTORCH:
+	case SlbT_WALLWTWINS:
+	case SlbT_WALLWWOMAN:
+		return slabmap_owner(slab) == dungeon->owner;
+	case SlbT_PATH:
+	case SlbT_TORCHDIRT:
+	case SlbT_EARTH:
+	case SlbT_GOLD:
+		return 1;
+	default:
+		return slab_kind_can_drop_here_now(slab->kind);
+	}
+}
+
+static int eval_expand_room_pos(struct Dungeon* dungeon, struct ExpandRoom* expand, struct ExpandRoomPos* pos)
+{
+	MapSlabCoord x, y;
+	int score;
+	int num_tiles;
+
+	score = 0;
+
+	//detect no straight access
+	if ((pos->access_x < pos->min_x || pos->access_x > pos->max_x) &&
+		(pos->access_y < pos->min_y || pos->access_y > pos->max_y))
+	{
+		return INT_MIN;
+	}
+
+	//detect access at wrong side (it should be just at edge or we can dig straight tunnel)
+	if (pos->access_dx < 0 && pos->access_x < pos->max_x)
+		return INT_MIN;
+	if (pos->access_dx > 0 && pos->access_x > pos->min_x)
+		return INT_MIN;
+	if (pos->access_dy < 0 && pos->access_y < pos->max_y)
+		return INT_MIN;
+	if (pos->access_dy > 0 && pos->access_y > pos->min_y)
+		return INT_MIN;
+
+	//detect out of bounds
+	if (pos->min_x < 1 || pos->min_y < 1 || pos->max_x >= map_tiles_x - 1 || pos->max_y >= map_tiles_y - 1)
+		return INT_MIN;
+
+	//check access tunnel
+	x = pos->access_x;
+	y = pos->access_y;
+	if (pos->access_dx < 0)
+	{
+		while (x != pos->max_x)
+		{
+			//check
+			if (!is_accessible(dungeon, x, y))
+				return INT_MIN;
+			x += pos->access_dx;
+		}
+	}
+	else if (pos->access_dx > 0)
+	{
+		while (x != pos->min_x)
+		{
+			//check
+			if (!is_accessible(dungeon, x, y))
+				return INT_MIN;
+			x += pos->access_dx;
+		}
+	}
+	if (pos->access_dy < 0)
+	{
+		while (y != pos->max_y)
+		{
+			//check
+			if (!is_accessible(dungeon, x, y))
+				return INT_MIN;
+			y += pos->access_dy;
+		}
+	}
+	else if (pos->access_dy > 0)
+	{
+		while (y != pos->min_y)
+		{
+			//check
+			if (!is_accessible(dungeon, x, y))
+				return INT_MIN;
+			y += pos->access_dy;
+		}
+	}
+
+	//check room
+	num_tiles = 0;
+	for (y = pos->min_y; y <= pos->max_y; ++y)
+	{
+		for (x = pos->min_x; x <= pos->max_x; ++x)
+		{
+			//if outside walls or otherwise not treasure chamber, demand access (TODO: see if any other rooms worth having non-accessible interiors for)
+			if (expand->rkind != RoK_TREASURE ||
+				x == pos->min_x || x == pos->max_x || y == pos->min_y || y == pos->max_y)
+			{
+				if (!is_diggable_or_buildable(dungeon, x, y))
+					return INT_MIN;
+			} //TODO: deduce points for non-conquerable interior in case where it passes through
+
+			//TODO: give score
+			num_tiles += 1;
+			score += 1000;
+		}
+	}
+
+	//TODO: deduce score for too large, too small rooms
+
+	if (num_tiles > 25)
+		return INT_MIN; //TODO: TEMPORARY algorithm limiter, replace
+
+	return score;
+}
+
+static int eval_expand_room_moved(struct Dungeon* dungeon, struct ExpandRoom* expand, struct ExpandRoomPos* room_pos, MapSlabCoord dx, MapSlabCoord dy)
+{
+	room_pos->min_x += dx;
+	room_pos->max_x += dx;
+	room_pos->min_y += dy;
+	room_pos->max_y += dy;
+
+	return eval_expand_room_pos(dungeon, expand, room_pos);
+}
+
+static int eval_expand_room_enlarged(struct Dungeon* dungeon, struct ExpandRoom* expand, struct ExpandRoomPos* room_pos, MapSlabCoord dx, MapSlabCoord dy)
+{
+	if (dx < 0) room_pos->min_x += dx;
+	if (dy < 0) room_pos->min_y += dy;
+	if (dx > 0) room_pos->max_x += dx;
+	if (dy > 0) room_pos->max_y += dy;
+
+	return eval_expand_room_pos(dungeon, expand, room_pos);
+}
+
+static int eval_expand_room(struct Computer2* comp, struct ExpandRoom* expand, MapSlabCoord x, MapSlabCoord y, MapSlabCoord dx, MapSlabCoord dy)
+{
+	struct Dungeon* dungeon;
+	struct ExpandRoomPos best_pos;
+	int best_score;
+	int i;
+	TbBool changed;
+
+	dungeon = comp->dungeon;
+
+	//find first tile we can expand on
+	for (;;)
+	{
+		struct SlabMap* slab;
+		slab = get_slabmap_block(x, y);
+		if (!slab_kind_can_drop_here_now(slab->kind) || slab->kind == SlbT_CLAIMED)
+			break;
+
+		x += dx;
+		y += dy;
+	}
+
+	best_pos.min_x = best_pos.max_x = best_pos.access_x = x;
+	best_pos.min_y = best_pos.max_y = best_pos.access_y = y;
+	best_pos.access_dx = dx;
+	best_pos.access_dy = dy;
+	best_score = eval_expand_room_pos(dungeon, expand, &best_pos);
+
+	//try different actions (enlarge/translate room and see if score grows, follow best gradient)
+	changed = 1;
+	for (i = 0; changed && i < 50; ++i) //max iterations to prevent infinite loop if bugged for some reason
+	{
+		struct ExpandRoomPos pos, iteration_pos;
+		int score;
+		changed = 0;
+		memcpy(&iteration_pos, &best_pos, sizeof(pos));
+
+		//try enlarging in any direction
+		memcpy(&pos, &iteration_pos, sizeof(pos));
+		score = eval_expand_room_enlarged(dungeon, expand, &pos, -1, 0);
+		if (score > best_score)
+		{
+			changed = 1;
+			best_score = score;
+			memcpy(&best_pos, &pos, sizeof(pos));
+		}
+		memcpy(&pos, &iteration_pos, sizeof(pos));
+		score = eval_expand_room_enlarged(dungeon, expand, &pos, 1, 0);
+		if (score > best_score)
+		{
+			changed = 1;
+			best_score = score;
+			memcpy(&best_pos, &pos, sizeof(pos));
+		}
+		memcpy(&pos, &iteration_pos, sizeof(pos));
+		score = eval_expand_room_enlarged(dungeon, expand, &pos, 0, -1);
+		if (score > best_score)
+		{
+			changed = 1;
+			best_score = score;
+			memcpy(&best_pos, &pos, sizeof(pos));
+		}
+		memcpy(&pos, &iteration_pos, sizeof(pos));
+		score = eval_expand_room_enlarged(dungeon, expand, &pos, 0, 1);
+		if (score > best_score)
+		{
+			changed = 1;
+			best_score = score;
+			memcpy(&best_pos, &pos, sizeof(pos));
+		}
+
+		//try to translate in any position not opposite to evaluation direction
+		if (dx >= 0)
+		{
+			memcpy(&pos, &iteration_pos, sizeof(pos));
+			score = eval_expand_room_moved(dungeon, expand, &pos, -1, 0);
+			if (score > best_score)
+			{
+				changed = 1;
+				best_score = score;
+				memcpy(&best_pos, &pos, sizeof(pos));
+			}
+		}
+		if (dx <= 0)
+		{
+			memcpy(&pos, &iteration_pos, sizeof(pos));
+			score = eval_expand_room_moved(dungeon, expand, &pos, 1, 0);
+			if (score > best_score)
+			{
+				changed = 1;
+				best_score = score;
+				memcpy(&best_pos, &pos, sizeof(pos));
+			}
+		}
+		if (dy >= 0)
+		{
+			memcpy(&pos, &iteration_pos, sizeof(pos));
+			score = eval_expand_room_moved(dungeon, expand, &pos, 0, -1);
+			if (score > best_score)
+			{
+				changed = 1;
+				best_score = score;
+				memcpy(&best_pos, &pos, sizeof(pos));
+			}
+		}
+		if (dy <= 0)
+		{
+			memcpy(&pos, &iteration_pos, sizeof(pos));
+			score = eval_expand_room_moved(dungeon, expand, &pos, 0, 1);
+			if (score > best_score)
+			{
+				changed = 1;
+				best_score = score;
+				memcpy(&best_pos, &pos, sizeof(pos));
+			}
+		}
+	}
+
+	//SYNCLOG("quitting after %d iterations with score %d", i, best_score);
+	if (best_pos.max_x - best_pos.min_x < 2 || best_pos.max_y - best_pos.min_y < 2)
+	{
+		best_score = INT_MIN;
+	}
+
+	if (best_score > expand->room_score)
+	{
+		expand->room_score = best_score;
+		memcpy(&expand->room_pos, &best_pos, sizeof(best_pos));
+	}
+
+	return best_score;
+}
+
+static TbBool find_expand_location(struct Computer2* comp, struct ExpandRoom* expand)
+{
+	struct Dungeon *dungeon;
+	struct Room* room;
+	long i;
+	RoomKind rkind;
+	unsigned long k;
+
+	SYNCDBG(18, "Starting");
+	dungeon = comp->dungeon;
+	expand->room_score = INT_MIN;
+
+	//check room sides
+	for (rkind = 1; rkind < sizeof(dungeon->room_kind) / sizeof(*dungeon->room_kind); ++rkind)
+	{
+		i = dungeon->room_kind[rkind];
+		k = 0;
+		while (i != 0)
+		{
+			room = room_get(i);
+			if (room_is_invalid(room))
+			{
+				ERRORLOG("Jump to invalid room detected");
+				break;
+			}
+			i = room->next_of_owner;
+			// Per-room code
+			{
+				MapSlabCoord x, y;
+				x = subtile_slab(room->central_stl_x);
+				y = subtile_slab(room->central_stl_y);
+				//SYNCLOG("evaluating expand %d %d", x, y);
+				eval_expand_room(comp, expand, x, y, -1, 0);
+				eval_expand_room(comp, expand, x, y, 1, 0);
+				eval_expand_room(comp, expand, x, y, 0, -1);
+				eval_expand_room(comp, expand, x, y, 0, 1);
+			}
+			// Per-room code ends
+			k++;
+			if (k > ROOMS_COUNT)
+			{
+				ERRORLOG("Infinite loop detected when sweeping rooms list");
+				break;
+			}
+		}
+	}
+
+	//check unbuilt claimed map locations
+
+	//TODO: flood fill backup attempt
+
+	//good score min size check
+	return expand->room_score >= 0;
+}
+
+static TbBool dig_if_needed(struct Computer2* comp, MapSlabCoord x, MapSlabCoord y)
+{
+	struct SlabMap* slab;
+	slab = get_slabmap_block(x, y);
+	switch (slab->kind)
+	{
+	case SlbT_EARTH:
+	case SlbT_GOLD:
+	case SlbT_TORCHDIRT:
+	case SlbT_WALLDRAPE:
+	case SlbT_WALLPAIRSHR:
+	case SlbT_WALLTORCH:
+	case SlbT_WALLWTWINS:
+	case SlbT_WALLWWOMAN:
+		return try_game_action(comp, comp->dungeon->owner, GA_MarkDig, 0,
+			x * STL_PER_SLB + 1, y * STL_PER_SLB + 1, 1, 1) == Lb_SUCCESS;
+	default:
+		return 1; //basically, in case we want to error check
+	}
+}
+
+static void initiate_expand_room(struct Computer2* comp, struct ExpandRoom* expand)
+{
+	struct ExpandRoomPos* pos;
+	struct Dungeon *dungeon;
+	MapSlabCoord x, y;
+
+	SYNCDBG(8,"Starting");
+	dungeon = comp->dungeon;
+	pos = &expand->room_pos;
+
+	//check access tunnel
+	x = pos->access_x;
+	y = pos->access_y;
+	if (pos->access_dx < 0)
+	{
+		while (x != pos->max_x && x > 0) //second check not necessary technically, but paranoid about infinite loops
+		{
+			dig_if_needed(comp, x, y);
+			x += pos->access_dx;
+		}
+	}
+	else if (pos->access_dx > 0)
+	{
+		while (x != pos->min_x && x < map_tiles_x - 1) //second check not necessary technically, but paranoid about infinite loops
+		{
+			dig_if_needed(comp, x, y);
+			x += pos->access_dx;
+		}
+	}
+	if (pos->access_dy < 0)
+	{
+		while (y != pos->max_y && y > 0) //second check not necessary technically, but paranoid about infinite loops
+		{
+			dig_if_needed(comp, x, y);
+			y += pos->access_dy;
+		}
+	}
+	else if (pos->access_dy > 0)
+	{
+		while (y != pos->min_y && x < map_tiles_y - 1) //second check not necessary technically, but paranoid about infinite loops
+		{
+			dig_if_needed(comp, x, y);
+			y += pos->access_dy;
+		}
+	}
+
+	//check room
+	for (y = pos->min_y; y <= pos->max_y; ++y)
+	{
+		for (x = pos->min_x; x <= pos->max_x; ++x)
+		{
+			dig_if_needed(comp, x, y);
+		}
+	}
+
+	SYNCLOG("Player %d decided to build room %s of size %dx%d", (int)dungeon->owner, room_code_name(expand->rkind),
+		(expand->room_pos.max_x - expand->room_pos.min_x + 1), (expand->room_pos.max_y - expand->room_pos.min_y + 1));
+	expand->active = 1;
+}
+
+static void check_expand_room(struct Computer2* comp, struct Digging* digging)
+{
+	RoomKind rkind;
+	struct Dungeon *dungeon;
+	SYNCDBG(8,"Starting");
+	dungeon = comp->dungeon;
+
+	rkind = decide_room_to_expand(comp);
+	if (rkind == RoK_NONE)
+	{
+		SYNCLOG("Player %d doesn't want to expand right now", (int)dungeon->owner);
+		return;
+	}
+
+	digging->expand_room.rkind = rkind;
+	if (find_expand_location(comp, &digging->expand_room))
+	{
+		initiate_expand_room(comp, &digging->expand_room);
+	}
+	else
+	{
+		SYNCLOG("Player %d wanted to build room %s but couldn't expand", (int)dungeon->owner, room_code_name(rkind));
+	}
+}
+
+long computer_check_new_digging(struct Computer2* comp)
+{
+	struct Dungeon *dungeon;
+	struct Digging* digging;
+	SYNCDBG(8,"Starting");
+	dungeon = comp->dungeon;
+	digging = &comp_digging[dungeon->owner];
+
+	if (digging->dig_attack.active)
+	{
+		process_dig_to_attack(comp, digging);
+	}
+	else
+	{
+		check_dig_to_attack(comp, digging);
+	}
+
+	if (digging->dig_secure.active)
+	{
+		process_dig_to_secure(comp, digging);
+	}
+	else
+	{
+		check_dig_to_secure(comp, digging);
+	}
+
+	if (digging->dig_gold.active)
+	{
+		process_dig_to_gold(comp, digging);
+	}
+	else
+	{
+		check_dig_to_gold(comp, digging);
+	}
+
+	if (digging->expand_room.active)
+	{
+		process_expand_room(comp, digging);
+	}
+	else
+	{
+		check_expand_room(comp, digging);
 	}
 
 	return CTaskRet_Unk4;
