@@ -2141,6 +2141,13 @@ void ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(struct T
         nfld20 = 2;
         angle_end = 0;
         inangle_oneaxis = 1;
+    } else
+    {
+        NAVIDBG(9,"Unsupported inangle %d",(int)inangle);
+        angle_beg = 0;
+        nfld20 = 0;
+        angle_end = 0;
+        inangle_oneaxis = 0;
     }
     arid->move_speed = 256;
     int whsteps;

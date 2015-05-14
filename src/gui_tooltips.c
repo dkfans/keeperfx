@@ -55,7 +55,7 @@ const char jtytext[] = "Jonty here   : ...I am writing this at 4am on Keepers la
 
 /******************************************************************************/
 
-inline void reset_scrolling_tooltip(void)
+static inline void reset_scrolling_tooltip(void)
 {
     tooltip_scroll_offset = 0;
     tooltip_scroll_timer = 25;
@@ -76,7 +76,7 @@ void set_gui_tooltip_box_fmt(int bxtype,const char *format, ...)
   tool_tip_box.field_809 = bxtype;
 }
 
-inline TbBool update_gui_tooltip_target(void *target)
+static inline TbBool update_gui_tooltip_target(void *target)
 {
     if (target != tool_tip_box.target)
     {
@@ -88,14 +88,14 @@ inline TbBool update_gui_tooltip_target(void *target)
     return false;
 }
 
-inline void clear_gui_tooltip_target(void)
+static inline void clear_gui_tooltip_target(void)
 {
     help_tip_time = 0;
     tool_tip_box.target = NULL;
     set_flag_byte(&tool_tip_box.flags,TTip_NeedReset,true);
 }
 
-inline TbBool update_gui_tooltip_button(struct GuiButton *gbtn)
+static inline TbBool update_gui_tooltip_button(struct GuiButton *gbtn)
 {
     if (gbtn != tool_tip_box.gbutton)
     {
@@ -108,7 +108,7 @@ inline TbBool update_gui_tooltip_button(struct GuiButton *gbtn)
     return false;
 }
 
-inline void clear_gui_tooltip_button(void)
+static inline void clear_gui_tooltip_button(void)
 {
     tool_tip_time = 0;
     tool_tip_box.gbutton = NULL;

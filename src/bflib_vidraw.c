@@ -352,7 +352,7 @@ TbResult LbDrawBox(long x, long y, unsigned long width, unsigned long height, Tb
  * @param spr Sprite to be drawn.
  * @return Gives Lb_SUCCESS if the data was prepared.
  */
-inline TbResult LbSpriteDrawPrepare(struct TbSpriteDrawData *spd, long x, long y, const struct TbSprite *spr)
+static inline TbResult LbSpriteDrawPrepare(struct TbSpriteDrawData *spd, long x, long y, const struct TbSprite *spr)
 {
     if (spr == NULL)
     {
@@ -477,7 +477,7 @@ inline TbResult LbSpriteDrawPrepare(struct TbSpriteDrawData *spd, long x, long y
  * @param x1 Width to be drawn.
  * @param left Width of the area to skip.
  */
-inline short LbSpriteDrawLineSkipLeft(const char **sp, short *x1, short left)
+static inline short LbSpriteDrawLineSkipLeft(const char **sp, short *x1, short left)
 {
     char schr;
     // Cut the left side of the sprite, if needed
@@ -531,7 +531,7 @@ inline short LbSpriteDrawLineSkipLeft(const char **sp, short *x1, short left)
  * @param sp Sprite data buffer pointer.
  * @param x1 Width difference after draw.
  */
-inline void LbSpriteDrawLineSkipToEol(const char **sp, short *x1)
+static inline void LbSpriteDrawLineSkipToEol(const char **sp, short *x1)
 {
     char schr;
     if ((*x1) <= 0)
@@ -558,7 +558,7 @@ inline void LbSpriteDrawLineSkipToEol(const char **sp, short *x1)
  * @param buf_len
  * @param mirror
  */
-inline void LbDrawBufferTranspr(unsigned char **buf_out,const char *buf_inp,
+static inline void LbDrawBufferTranspr(unsigned char **buf_out,const char *buf_inp,
         const int buf_len, const TbBool mirror)
 {
   int i;
@@ -617,7 +617,7 @@ inline void LbDrawBufferTranspr(unsigned char **buf_out,const char *buf_inp,
  * @param buf_len
  * @param mirror
  */
-inline void LbDrawBufferSolid(unsigned char **buf_out,const char *buf_inp,
+static inline void LbDrawBufferSolid(unsigned char **buf_out,const char *buf_inp,
         const int buf_len, const TbBool mirror)
 {
     int i;
@@ -647,7 +647,7 @@ inline void LbDrawBufferSolid(unsigned char **buf_out,const char *buf_inp,
  * @param buf_len
  * @param mirror
  */
-inline void LbDrawBufferOneColour(unsigned char **buf_out,const TbPixel colour,
+static inline void LbDrawBufferOneColour(unsigned char **buf_out,const TbPixel colour,
         const int buf_len, const TbBool mirror)
 {
     int i;
@@ -694,7 +694,7 @@ inline void LbDrawBufferOneColour(unsigned char **buf_out,const TbPixel colour,
  * @param colour
  * @param buf_len
  */
-inline void LbDrawBufferOneColorSolid(unsigned char **buf_out,const TbPixel colour,
+static inline void LbDrawBufferOneColorSolid(unsigned char **buf_out,const TbPixel colour,
         const int buf_len, const TbBool mirror)
 {
     int i;
@@ -722,7 +722,7 @@ inline void LbDrawBufferOneColorSolid(unsigned char **buf_out,const TbPixel colo
  * @param buf_len
  * @param mirror
  */
-inline void LbDrawBufferTrRemap(unsigned char **buf_out,const char *buf_inp,
+static inline void LbDrawBufferTrRemap(unsigned char **buf_out,const char *buf_inp,
         const int buf_len, const unsigned char *cmap, const TbBool mirror)
 {
   int i;
@@ -779,7 +779,7 @@ inline void LbDrawBufferTrRemap(unsigned char **buf_out,const char *buf_inp,
  * @param buf_len
  * @param mirror
  */
-inline void LbDrawBufferSlRemap(unsigned char **buf_out,const char *buf_inp,
+static inline void LbDrawBufferSlRemap(unsigned char **buf_out,const char *buf_inp,
         const int buf_len, const unsigned char *cmap, const TbBool mirror)
 {
     int i;
@@ -798,7 +798,7 @@ inline void LbDrawBufferSlRemap(unsigned char **buf_out,const char *buf_inp,
  * @param buf_len
  * @param mirror
  */
-inline void LbDrawBufferFCRemap(unsigned char **buf_out,const char *buf_inp,
+static inline void LbDrawBufferFCRemap(unsigned char **buf_out,const char *buf_inp,
         const int buf_len, const unsigned char *cmap)
 {
     int i;
@@ -818,7 +818,7 @@ inline void LbDrawBufferFCRemap(unsigned char **buf_out,const char *buf_inp,
  * @param lpos
  * @param mirror
  */
-inline void LbSpriteDrawLineTranspr(const char **sp, unsigned char **r, short *x1,
+static inline void LbSpriteDrawLineTranspr(const char **sp, unsigned char **r, short *x1,
     short lpos, const TbBool mirror)
 {
     char schr;
@@ -879,7 +879,7 @@ inline void LbSpriteDrawLineTranspr(const char **sp, unsigned char **r, short *x
     } //end while
 }
 
-inline TbResult LbSpriteDrawTranspr(const char *sp,short sprWd,short sprHt,unsigned char *r,
+static inline TbResult LbSpriteDrawTranspr(const char *sp,short sprWd,short sprHt,unsigned char *r,
     int nextRowDelta,short left,const TbBool mirror)
 {
     unsigned char *nextRow;
@@ -916,7 +916,7 @@ inline TbResult LbSpriteDrawTranspr(const char *sp,short sprWd,short sprHt,unsig
  * @param lpos
  * @param mirror
  */
-inline void LbSpriteDrawLineSolid(const char **sp, unsigned char **r, short *x1, short lpos, const TbBool mirror)
+static inline void LbSpriteDrawLineSolid(const char **sp, unsigned char **r, short *x1, short lpos, const TbBool mirror)
 {
     char schr;
     unsigned char drawOut;
@@ -980,7 +980,7 @@ inline void LbSpriteDrawLineSolid(const char **sp, unsigned char **r, short *x1,
  * @param mirror
  * @return
  */
-inline TbResult LbSpriteDrawSolid(const char *sp,short sprWd,short sprHt,unsigned char *r,
+static inline TbResult LbSpriteDrawSolid(const char *sp,short sprWd,short sprHt,unsigned char *r,
     int nextRowDelta,short left,const TbBool mirror)
 {
     unsigned char *nextRow;
@@ -1008,7 +1008,7 @@ inline TbResult LbSpriteDrawSolid(const char *sp,short sprWd,short sprHt,unsigne
     return Lb_SUCCESS;
 }
 
-inline void LbSpriteDrawLineFastCpy(const char **sp, unsigned char **r, short *x1, short lpos)
+static inline void LbSpriteDrawLineFastCpy(const char **sp, unsigned char **r, short *x1, short lpos)
 {
     char schr;
     unsigned char drawOut;
@@ -1072,7 +1072,7 @@ inline void LbSpriteDrawLineFastCpy(const char **sp, unsigned char **r, short *x
  * @param mirror
  * @return
  */
-inline TbResult LbSpriteDrawFastCpy(const char *sp,short sprWd,short sprHt,unsigned char *r,
+static inline TbResult LbSpriteDrawFastCpy(const char *sp,short sprWd,short sprHt,unsigned char *r,
     int nextRowDelta,short left,const TbBool mirror)
 {
     unsigned char *nextRow;
@@ -1125,7 +1125,7 @@ TbResult LbSpriteDraw(long x, long y, const struct TbSprite *spr)
  * @param lpos
  * @param mirror
  */
-inline void LbSpriteDrawLineTrRemap(const char **sp, unsigned char **r, short *x1,
+static inline void LbSpriteDrawLineTrRemap(const char **sp, unsigned char **r, short *x1,
     const unsigned char *cmap, short lpos,const TbBool mirror)
 {
     char schr;
@@ -1186,7 +1186,7 @@ inline void LbSpriteDrawLineTrRemap(const char **sp, unsigned char **r, short *x
     } //end while
 }
 
-inline TbResult LbSpriteDrawTrRemap(const char *sp,short sprWd,short sprHt,
+static inline TbResult LbSpriteDrawTrRemap(const char *sp,short sprWd,short sprHt,
         unsigned char *r,const unsigned char *cmap,int nextRowDelta,short left,const TbBool mirror)
 {
     unsigned char *nextRow;
@@ -1214,7 +1214,7 @@ inline TbResult LbSpriteDrawTrRemap(const char *sp,short sprWd,short sprHt,
     return Lb_SUCCESS;
 }
 
-inline void LbSpriteDrawLineSlRemap(const char **sp, unsigned char **r, short *x1,
+static inline void LbSpriteDrawLineSlRemap(const char **sp, unsigned char **r, short *x1,
     const unsigned char *cmap, short lpos,const TbBool mirror)
 {
     char schr;
@@ -1268,7 +1268,7 @@ inline void LbSpriteDrawLineSlRemap(const char **sp, unsigned char **r, short *x
     } //end while
 }
 
-inline TbResult LbSpriteDrawSlRemap(const char *sp,short sprWd,short sprHt,
+static inline TbResult LbSpriteDrawSlRemap(const char *sp,short sprWd,short sprHt,
         unsigned char *r,const unsigned char *cmap,int nextRowDelta,short left,const TbBool mirror)
 {
     unsigned char *nextRow;
@@ -1296,7 +1296,7 @@ inline TbResult LbSpriteDrawSlRemap(const char *sp,short sprWd,short sprHt,
     return Lb_SUCCESS;
 }
 
-inline void LbSpriteDrawLineFCRemap(const char **sp, unsigned char **r, short *x1,
+static inline void LbSpriteDrawLineFCRemap(const char **sp, unsigned char **r, short *x1,
     const unsigned char *cmap, short lpos,const TbBool mirror)
 {
     char schr;
@@ -1368,7 +1368,7 @@ inline void LbSpriteDrawLineFCRemap(const char **sp, unsigned char **r, short *x
  * @param mirror
  * @return
  */
-inline TbResult LbSpriteDrawFCRemap(const char *sp,short sprWd,short sprHt,unsigned char *r,
+static inline TbResult LbSpriteDrawFCRemap(const char *sp,short sprWd,short sprHt,unsigned char *r,
     const unsigned char *cmap,int nextRowDelta,short left,const TbBool mirror)
 {
     unsigned char *nextRow;
@@ -1423,7 +1423,7 @@ int LbSpriteDrawRemap(long x, long y, const struct TbSprite *spr,const unsigned 
  * @param lpos
  * @param mirror
  */
-inline void LbSpriteDrawLineTrOneColour(const char **sp, unsigned char **r, short *x1,
+static inline void LbSpriteDrawLineTrOneColour(const char **sp, unsigned char **r, short *x1,
     TbPixel colour, short lpos,const TbBool mirror)
 {
     char schr;
@@ -1484,7 +1484,7 @@ inline void LbSpriteDrawLineTrOneColour(const char **sp, unsigned char **r, shor
     } //end while
 }
 
-inline TbResult LbSpriteDrawTrOneColour(const char *sp,short sprWd,short sprHt,
+static inline TbResult LbSpriteDrawTrOneColour(const char *sp,short sprWd,short sprHt,
         unsigned char *r,TbPixel colour,int nextRowDelta,short left,const TbBool mirror)
 {
     unsigned char *nextRow;
@@ -1512,7 +1512,7 @@ inline TbResult LbSpriteDrawTrOneColour(const char *sp,short sprWd,short sprHt,
     return Lb_SUCCESS;
 }
 
-inline void LbSpriteDrawLineSlOneColour(const char **sp, unsigned char **r, short *x1,
+static inline void LbSpriteDrawLineSlOneColour(const char **sp, unsigned char **r, short *x1,
     TbPixel colour, short lpos,const TbBool mirror)
 {
     char schr;
@@ -1566,7 +1566,7 @@ inline void LbSpriteDrawLineSlOneColour(const char **sp, unsigned char **r, shor
     } //end while
 }
 
-inline TbResult LbSpriteDrawSlOneColour(const char *sp,short sprWd,short sprHt,
+static inline TbResult LbSpriteDrawSlOneColour(const char *sp,short sprWd,short sprHt,
         unsigned char *r,TbPixel colour,int nextRowDelta,short left,const TbBool mirror)
 {
     unsigned char *nextRow;
@@ -1594,7 +1594,7 @@ inline TbResult LbSpriteDrawSlOneColour(const char *sp,short sprWd,short sprHt,
     return Lb_SUCCESS;
 }
 
-inline void LbSpriteDrawLineFCOneColour(const char **sp, unsigned char **r, short *x1, TbPixel colour, short lpos)
+static inline void LbSpriteDrawLineFCOneColour(const char **sp, unsigned char **r, short *x1, TbPixel colour, short lpos)
 {
     char schr;
     unsigned char drawOut;
@@ -1658,7 +1658,7 @@ inline void LbSpriteDrawLineFCOneColour(const char **sp, unsigned char **r, shor
  * @param mirror
  * @return
  */
-inline TbResult LbSpriteDrawFCOneColour(const char *sp,short sprWd,short sprHt,unsigned char *r,
+static inline TbResult LbSpriteDrawFCOneColour(const char *sp,short sprWd,short sprHt,unsigned char *r,
     TbPixel colour,int nextRowDelta,short left,const TbBool mirror)
 {
     unsigned char *nextRow;
