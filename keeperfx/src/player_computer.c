@@ -44,7 +44,6 @@
 #include "power_hand.h"
 #include "room_data.h"
 #include "game_legacy.h"
-#include "skirmish_ai.h"
 
 #ifdef __cplusplus
 extern "C" {
