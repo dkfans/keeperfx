@@ -211,12 +211,6 @@
     <ClCompile Include="src\room_util.c" />
     <ClCompile Include="src\room_workshop.c" />
     <ClCompile Include="src\scrcapt.c" />
-    <ClCompile Include="src\skirmish_ai.c" />
-    <ClCompile Include="src\skirmish_ai_actions.c" />
-    <ClCompile Include="src\skirmish_ai_map.cpp" />
-    <ClCompile Include="src\skirmish_ai_planner.cpp" />
-    <ClCompile Include="src\skirmish_ai_rooms.cpp" />
-    <ClCompile Include="src\skirmish_ai_values.c" />
     <ClCompile Include="src\slab_data.c" />
     <ClCompile Include="src\sounds.c" />
     <ClCompile Include="src\spdigger_stack.c" />
@@ -419,12 +413,6 @@
     <ClInclude Include="src\room_util.h" />
     <ClInclude Include="src\room_workshop.h" />
     <ClInclude Include="src\scrcapt.h" />
-    <ClInclude Include="src\skirmish_ai.h" />
-    <ClInclude Include="src\skirmish_ai_actions.h" />
-    <ClInclude Include="src\skirmish_ai_map.h" />
-    <ClInclude Include="src\skirmish_ai_planner.h" />
-    <ClInclude Include="src\skirmish_ai_rooms.h" />
-    <ClInclude Include="src\skirmish_ai_values.h" />
     <ClInclude Include="src\slab_data.h" />
     <ClInclude Include="src\sounds.h" />
     <ClInclude Include="src\spdigger_stack.h" />
