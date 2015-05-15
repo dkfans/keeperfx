@@ -35,7 +35,8 @@ struct Thing * find_imp_for_sacrifice(struct Dungeon* dungeon);
 struct Thing * find_imp_for_claim(struct Dungeon* dungeon);
 struct Thing * find_creature_for_low_priority_attack(struct Dungeon* dungeon, TbBool strong);
 struct Thing * find_any_chicken(struct Dungeon* dungeon);
-float calc_players_strength(struct Dungeon* dungeon);
+float calc_players_strength(struct Dungeon* dungeon); //TODO: change from float to int, realized int is needed for determinism
+int get_preferred_num_room_tiles(struct Dungeon* dungeon, RoomKind rkind);
 
 //checks
 long computer_check_for_door_attacks(struct Computer2 *comp);
