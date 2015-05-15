@@ -35,6 +35,7 @@
 #include "power_hand.h"
 #include "room_data.h"
 #include "slab_data.h"
+#include "spdigger_stack.h"
 #include "thing_list.h"
 #include "thing_stats.h"
 
@@ -829,17 +830,43 @@ struct Digging
 	struct DigToGold dig_gold;
 	struct DigToAttack dig_attack;
 	struct DigToSecure dig_secure;
+	unsigned char marked_for_dig[85][85]; //need instant lookup, so maintaining additional struct. [y][x] in case we move to ptr later
 };
 
 static struct Digging comp_digging[KEEPER_COUNT];
 
 void computer_setup_new_digging(void)
 {
+	int plyr_idx;
 	memset(&comp_digging, 0, sizeof(comp_digging));
+
+	for (plyr_idx = 0; plyr_idx < KEEPER_COUNT; ++plyr_idx)
+	{
+		struct Dungeon *dungeon;
+		struct MapTask *mtask;
+		long i,max;
+		dungeon = get_dungeon(plyr_idx);
+		max = dungeon->field_AF7;
+		if (max > MAPTASKS_COUNT)
+			max = MAPTASKS_COUNT;
+
+		//mark digging in process
+		for (i = 0; i < max; i++)
+		{
+			mtask = &dungeon->task_list[i];
+			if (mtask->kind != SDDigTask_Unknown3)
+			{
+				MapSubtlCoord x, y;
+				x = stl_num_decode_x(mtask->coords);
+				y = stl_num_decode_y(mtask->coords);
+				comp_digging[plyr_idx].marked_for_dig[subtile_slab(y)][subtile_slab(x)] = 1;
+			}
+		}
+	}
 }
 
 
-static TbBool is_diggable_or_buildable(struct Dungeon* dungeon, MapSlabCoord x, MapSubtlCoord y)
+static TbBool is_diggable_or_buildable(struct Dungeon* dungeon, struct Digging* digging, MapSlabCoord x, MapSubtlCoord y)
 {
 	struct SlabMap* slab;
 	slab = get_slabmap_block(x, y);
@@ -893,7 +920,39 @@ static void check_dig_to_gold(struct Computer2* comp, struct Digging* digging)
 
 }
 
-static TbBool build_room_if_possible(struct Computer2* comp, RoomKind rkind, MapSlabCoord x, MapSlabCoord y)
+static TbResult dig_if_needed(struct Computer2* comp, struct Digging* digging, MapSlabCoord x, MapSlabCoord y)
+{
+	if (digging->marked_for_dig[y][x])
+		return Lb_OK;
+
+	struct SlabMap* slab;
+	struct Dungeon* dungeon;
+	TbResult result;
+
+	dungeon = comp->dungeon;
+	slab = get_slabmap_block(x, y);
+	switch (slab->kind)
+	{
+	case SlbT_EARTH:
+	case SlbT_GOLD:
+	case SlbT_TORCHDIRT:
+	case SlbT_WALLDRAPE:
+	case SlbT_WALLPAIRSHR:
+	case SlbT_WALLTORCH:
+	case SlbT_WALLWTWINS:
+	case SlbT_WALLWWOMAN:
+		result = try_game_action(comp, comp->dungeon->owner, GA_MarkDig, 0,
+			x * STL_PER_SLB + 1, y * STL_PER_SLB + 1, 1, 1);
+		SYNCLOG("will attempt to dig %d,%d of type %d", x, y, (int)slab->kind);
+		if (result == Lb_SUCCESS)
+			digging->marked_for_dig[y][x] = 1;
+		return result;
+	default:
+		return Lb_OK;
+	}
+}
+
+static TbResult build_room_if_possible(struct Computer2* comp, RoomKind rkind, MapSlabCoord x, MapSlabCoord y)
 {
 	struct Dungeon* dungeon;
 	struct RoomConfigStats *roomst;
@@ -908,27 +967,25 @@ static TbBool build_room_if_possible(struct Computer2* comp, RoomKind rkind, Map
 	{
 		// Prefer leaving some gold, unless a flag is forcing us to build
 		if (((roomst->flags & RoCFlg_BuildToBroke) == 0) || (rstat->cost >= dungeon->total_money_owned)) {
-			return 1;
+			return Lb_OK;
 		}
 	}
 	// If we've lost the ability to build that room - kill the process and remove task (should we really remove task?)
 	if (!is_room_available(dungeon->owner, rkind))
-		return 0;
+		return Lb_FAIL;
 
 	stl_x = x * STL_PER_SLB + 1;
 	stl_y = y * STL_PER_SLB + 1;
 	if (slab_has_trap_on(x, y)) {
-		try_game_action(comp, dungeon->owner, GA_SellTrap, 0, stl_x, stl_y, 1, 0);
+		if (try_game_action(comp, dungeon->owner, GA_SellTrap, 0, stl_x, stl_y, 1, 0) == Lb_SUCCESS)
+			return Lb_SUCCESS;
 	}
 	if (can_build_room_at_slab(dungeon->owner, rkind, x, y))
 	{
-		if (try_game_action(comp, dungeon->owner, GA_PlaceRoom, 0, stl_x, stl_y, 1, rkind) == Lb_SUCCESS)
-		{
-			return 1;
-		}
+		return try_game_action(comp, dungeon->owner, GA_PlaceRoom, 0, stl_x, stl_y, 1, rkind);
 	}
 
-	return 0;
+	return Lb_FAIL;
 }
 
 static void process_expand_room(struct Computer2* comp, struct Digging* digging)
@@ -938,6 +995,7 @@ static void process_expand_room(struct Computer2* comp, struct Digging* digging)
 	MapSlabCoord x, y;
 	struct ExpandRoomPos* pos;
 	struct Dungeon *dungeon;
+	TbResult result;
 	TbBool finished;
 	TbBool aborted;
 
@@ -958,14 +1016,16 @@ static void process_expand_room(struct Computer2* comp, struct Digging* digging)
 			case SlbT_CLAIMED:
 				finished = 0;
 				//if has money -> try build
-				if (!build_room_if_possible(comp, digging->expand_room.rkind, x, y))
+				result = build_room_if_possible(comp, digging->expand_room.rkind, x, y);
+				if (result == Lb_SUCCESS) return;
+				if (result == Lb_FAIL)
 				{
 					aborted = 1;
 					goto exit_loops;
 				}
 				break;
 			default:
-				if (is_diggable_or_buildable(dungeon, x, y))
+				if (is_diggable_or_buildable(dungeon, digging, x, y))
 					finished = 0;
 			}
 		}
@@ -1030,10 +1090,8 @@ static RoomKind decide_room_to_expand(struct Computer2* comp)
 	return RoK_NONE;
 }
 
-static TbBool is_accessible(struct Dungeon* dungeon, MapSlabCoord x, MapSlabCoord y)
+static TbBool is_accessible(struct Dungeon* dungeon, struct SlabMap* slab)
 {
-	struct SlabMap* slab;
-	slab = get_slabmap_block(x, y);
 	switch (slab->kind)
 	{
 	case SlbT_LAVA:
@@ -1055,8 +1113,9 @@ static TbBool is_accessible(struct Dungeon* dungeon, MapSlabCoord x, MapSlabCoor
 	}
 }
 
-static int eval_expand_room_pos(struct Dungeon* dungeon, struct ExpandRoom* expand, struct ExpandRoomPos* pos)
+static int eval_expand_room_pos(struct Dungeon* dungeon, struct Digging* digging, struct ExpandRoom* expand, struct ExpandRoomPos* pos)
 {
+	struct SlabMap* slab;
 	MapSlabCoord x, y;
 	int score;
 	int num_tiles;
@@ -1064,13 +1123,12 @@ static int eval_expand_room_pos(struct Dungeon* dungeon, struct ExpandRoom* expa
 	score = 0;
 
 	//detect no straight access
-	if ((pos->access_x < pos->min_x || pos->access_x > pos->max_x) &&
-		(pos->access_y < pos->min_y || pos->access_y > pos->max_y))
-	{
+	if (pos->access_dx == 0 && (pos->access_x < pos->min_x || pos->access_x > pos->max_x))
 		return INT_MIN;
-	}
+	if (pos->access_dy == 0 && (pos->access_y < pos->min_y || pos->access_y > pos->max_y))
+		return INT_MIN;
 
-	//detect access at wrong side (it should be just at edge or we can dig straight tunnel)
+	//detect access at wrong side (it should be just at room edge or we can dig straight tunnel)
 	if (pos->access_dx < 0 && pos->access_x < pos->max_x)
 		return INT_MIN;
 	if (pos->access_dx > 0 && pos->access_x > pos->min_x)
@@ -1084,6 +1142,8 @@ static int eval_expand_room_pos(struct Dungeon* dungeon, struct ExpandRoom* expa
 	if (pos->min_x < 1 || pos->min_y < 1 || pos->max_x >= map_tiles_x - 1 || pos->max_y >= map_tiles_y - 1)
 		return INT_MIN;
 
+	//TODO: reduce score for library access
+
 	//check access tunnel
 	x = pos->access_x;
 	y = pos->access_y;
@@ -1091,9 +1151,12 @@ static int eval_expand_room_pos(struct Dungeon* dungeon, struct ExpandRoom* expa
 	{
 		while (x != pos->max_x)
 		{
-			//check
-			if (!is_accessible(dungeon, x, y))
+			slab = get_slabmap_block(x, y);
+			if (!is_accessible(dungeon, slab))
 				return INT_MIN;
+			if (slab->kind == SlbT_GOLD)
+				score -= 5;
+
 			x += pos->access_dx;
 		}
 	}
@@ -1101,9 +1164,12 @@ static int eval_expand_room_pos(struct Dungeon* dungeon, struct ExpandRoom* expa
 	{
 		while (x != pos->min_x)
 		{
-			//check
-			if (!is_accessible(dungeon, x, y))
+			slab = get_slabmap_block(x, y);
+			if (!is_accessible(dungeon, slab))
 				return INT_MIN;
+			if (slab->kind == SlbT_GOLD)
+				score -= 5;
+
 			x += pos->access_dx;
 		}
 	}
@@ -1111,9 +1177,12 @@ static int eval_expand_room_pos(struct Dungeon* dungeon, struct ExpandRoom* expa
 	{
 		while (y != pos->max_y)
 		{
-			//check
-			if (!is_accessible(dungeon, x, y))
+			slab = get_slabmap_block(x, y);
+			if (!is_accessible(dungeon, slab))
 				return INT_MIN;
+			if (slab->kind == SlbT_GOLD)
+				score -= 5;
+
 			y += pos->access_dy;
 		}
 	}
@@ -1121,9 +1190,12 @@ static int eval_expand_room_pos(struct Dungeon* dungeon, struct ExpandRoom* expa
 	{
 		while (y != pos->min_y)
 		{
-			//check
-			if (!is_accessible(dungeon, x, y))
+			slab = get_slabmap_block(x, y);
+			if (!is_accessible(dungeon, slab))
 				return INT_MIN;
+			if (slab->kind == SlbT_GOLD)
+				score -= 5;
+
 			y += pos->access_dy;
 		}
 	}
@@ -1134,21 +1206,50 @@ static int eval_expand_room_pos(struct Dungeon* dungeon, struct ExpandRoom* expa
 	{
 		for (x = pos->min_x; x <= pos->max_x; ++x)
 		{
+			if (digging->marked_for_dig[y][x]) //in case of multiple expansions
+				return INT_MIN;
+
 			//if outside walls or otherwise not treasure chamber, demand access (TODO: see if any other rooms worth having non-accessible interiors for)
 			if (expand->rkind != RoK_TREASURE ||
 				x == pos->min_x || x == pos->max_x || y == pos->min_y || y == pos->max_y)
 			{
-				if (!is_diggable_or_buildable(dungeon, x, y))
+				if (!is_diggable_or_buildable(dungeon, digging, x, y)) //don't want overlapping expansions
 					return INT_MIN;
 			} //TODO: deduce points for non-conquerable interior in case where it passes through
 
-			//TODO: give score
+			//give score
 			num_tiles += 1;
 			score += 1000;
+
+			struct SlabMap* slab;
+			slab = get_slabmap_block(x, y);
+			switch (slab->kind)
+			{
+			case SlbT_EARTH:
+				score -= 1; //to prefer claimed
+				break;
+			case SlbT_GOLD:
+				if (expand->rkind == RoK_TREASURE)
+					score += 5;
+				else
+					score -= 5; //prefer to avoid gold but it's not a big deal by itself
+				break;
+			case SlbT_WALLDRAPE:
+			case SlbT_WALLPAIRSHR:
+			case SlbT_WALLTORCH:
+			case SlbT_WALLWTWINS:
+			case SlbT_WALLWWOMAN:
+				score -= 10; //prefer avoid digging through walls, breaks efficiency and is slow
+				break;
+			}
+
+			//TODO: reduce score for unreinforcable walls
 		}
 	}
 
 	//TODO: deduce score for too large, too small rooms
+
+	//TODO: penalize opening dungeon
 
 	if (num_tiles > 25)
 		return INT_MIN; //TODO: TEMPORARY algorithm limiter, replace
@@ -1156,27 +1257,27 @@ static int eval_expand_room_pos(struct Dungeon* dungeon, struct ExpandRoom* expa
 	return score;
 }
 
-static int eval_expand_room_moved(struct Dungeon* dungeon, struct ExpandRoom* expand, struct ExpandRoomPos* room_pos, MapSlabCoord dx, MapSlabCoord dy)
+static int eval_expand_room_moved(struct Dungeon* dungeon, struct Digging* digging, struct ExpandRoom* expand, struct ExpandRoomPos* room_pos, MapSlabCoord dx, MapSlabCoord dy)
 {
 	room_pos->min_x += dx;
 	room_pos->max_x += dx;
 	room_pos->min_y += dy;
 	room_pos->max_y += dy;
 
-	return eval_expand_room_pos(dungeon, expand, room_pos);
+	return eval_expand_room_pos(dungeon, digging, expand, room_pos);
 }
 
-static int eval_expand_room_enlarged(struct Dungeon* dungeon, struct ExpandRoom* expand, struct ExpandRoomPos* room_pos, MapSlabCoord dx, MapSlabCoord dy)
+static int eval_expand_room_enlarged(struct Dungeon* dungeon, struct Digging* digging, struct ExpandRoom* expand, struct ExpandRoomPos* room_pos, MapSlabCoord dx, MapSlabCoord dy)
 {
 	if (dx < 0) room_pos->min_x += dx;
 	if (dy < 0) room_pos->min_y += dy;
 	if (dx > 0) room_pos->max_x += dx;
 	if (dy > 0) room_pos->max_y += dy;
 
-	return eval_expand_room_pos(dungeon, expand, room_pos);
+	return eval_expand_room_pos(dungeon, digging, expand, room_pos);
 }
 
-static int eval_expand_room(struct Computer2* comp, struct ExpandRoom* expand, MapSlabCoord x, MapSlabCoord y, MapSlabCoord dx, MapSlabCoord dy)
+static int eval_expand_room(struct Computer2* comp, struct Digging* digging, struct ExpandRoom* expand, MapSlabCoord x, MapSlabCoord y, MapSlabCoord dx, MapSlabCoord dy)
 {
 	struct Dungeon* dungeon;
 	struct ExpandRoomPos best_pos;
@@ -1202,7 +1303,7 @@ static int eval_expand_room(struct Computer2* comp, struct ExpandRoom* expand, M
 	best_pos.min_y = best_pos.max_y = best_pos.access_y = y;
 	best_pos.access_dx = dx;
 	best_pos.access_dy = dy;
-	best_score = eval_expand_room_pos(dungeon, expand, &best_pos);
+	best_score = eval_expand_room_pos(dungeon, digging, expand, &best_pos);
 
 	//try different actions (enlarge/translate room and see if score grows, follow best gradient)
 	changed = 1;
@@ -1215,7 +1316,7 @@ static int eval_expand_room(struct Computer2* comp, struct ExpandRoom* expand, M
 
 		//try enlarging in any direction
 		memcpy(&pos, &iteration_pos, sizeof(pos));
-		score = eval_expand_room_enlarged(dungeon, expand, &pos, -1, 0);
+		score = eval_expand_room_enlarged(dungeon, digging, expand, &pos, -1, 0);
 		if (score > best_score)
 		{
 			changed = 1;
@@ -1223,7 +1324,7 @@ static int eval_expand_room(struct Computer2* comp, struct ExpandRoom* expand, M
 			memcpy(&best_pos, &pos, sizeof(pos));
 		}
 		memcpy(&pos, &iteration_pos, sizeof(pos));
-		score = eval_expand_room_enlarged(dungeon, expand, &pos, 1, 0);
+		score = eval_expand_room_enlarged(dungeon, digging, expand, &pos, 1, 0);
 		if (score > best_score)
 		{
 			changed = 1;
@@ -1231,7 +1332,7 @@ static int eval_expand_room(struct Computer2* comp, struct ExpandRoom* expand, M
 			memcpy(&best_pos, &pos, sizeof(pos));
 		}
 		memcpy(&pos, &iteration_pos, sizeof(pos));
-		score = eval_expand_room_enlarged(dungeon, expand, &pos, 0, -1);
+		score = eval_expand_room_enlarged(dungeon, digging, expand, &pos, 0, -1);
 		if (score > best_score)
 		{
 			changed = 1;
@@ -1239,7 +1340,7 @@ static int eval_expand_room(struct Computer2* comp, struct ExpandRoom* expand, M
 			memcpy(&best_pos, &pos, sizeof(pos));
 		}
 		memcpy(&pos, &iteration_pos, sizeof(pos));
-		score = eval_expand_room_enlarged(dungeon, expand, &pos, 0, 1);
+		score = eval_expand_room_enlarged(dungeon, digging, expand, &pos, 0, 1);
 		if (score > best_score)
 		{
 			changed = 1;
@@ -1247,50 +1348,41 @@ static int eval_expand_room(struct Computer2* comp, struct ExpandRoom* expand, M
 			memcpy(&best_pos, &pos, sizeof(pos));
 		}
 
-		//try to translate in any position not opposite to evaluation direction
-		if (dx >= 0)
+		//try to translate in any position
+		memcpy(&pos, &iteration_pos, sizeof(pos));
+		score = eval_expand_room_moved(dungeon, digging, expand, &pos, -1, 0);
+		if (score > best_score)
 		{
-			memcpy(&pos, &iteration_pos, sizeof(pos));
-			score = eval_expand_room_moved(dungeon, expand, &pos, -1, 0);
-			if (score > best_score)
-			{
-				changed = 1;
-				best_score = score;
-				memcpy(&best_pos, &pos, sizeof(pos));
-			}
+			changed = 1;
+			best_score = score;
+			memcpy(&best_pos, &pos, sizeof(pos));
 		}
-		if (dx <= 0)
+
+		memcpy(&pos, &iteration_pos, sizeof(pos));
+		score = eval_expand_room_moved(dungeon, digging, expand, &pos, 1, 0);
+		if (score > best_score)
 		{
-			memcpy(&pos, &iteration_pos, sizeof(pos));
-			score = eval_expand_room_moved(dungeon, expand, &pos, 1, 0);
-			if (score > best_score)
-			{
-				changed = 1;
-				best_score = score;
-				memcpy(&best_pos, &pos, sizeof(pos));
-			}
+			changed = 1;
+			best_score = score;
+			memcpy(&best_pos, &pos, sizeof(pos));
 		}
-		if (dy >= 0)
+
+		memcpy(&pos, &iteration_pos, sizeof(pos));
+		score = eval_expand_room_moved(dungeon, digging, expand, &pos, 0, -1);
+		if (score > best_score)
 		{
-			memcpy(&pos, &iteration_pos, sizeof(pos));
-			score = eval_expand_room_moved(dungeon, expand, &pos, 0, -1);
-			if (score > best_score)
-			{
-				changed = 1;
-				best_score = score;
-				memcpy(&best_pos, &pos, sizeof(pos));
-			}
+			changed = 1;
+			best_score = score;
+			memcpy(&best_pos, &pos, sizeof(pos));
 		}
-		if (dy <= 0)
+
+		memcpy(&pos, &iteration_pos, sizeof(pos));
+		score = eval_expand_room_moved(dungeon, digging, expand, &pos, 0, 1);
+		if (score > best_score)
 		{
-			memcpy(&pos, &iteration_pos, sizeof(pos));
-			score = eval_expand_room_moved(dungeon, expand, &pos, 0, 1);
-			if (score > best_score)
-			{
-				changed = 1;
-				best_score = score;
-				memcpy(&best_pos, &pos, sizeof(pos));
-			}
+			changed = 1;
+			best_score = score;
+			memcpy(&best_pos, &pos, sizeof(pos));
 		}
 	}
 
@@ -1309,7 +1401,7 @@ static int eval_expand_room(struct Computer2* comp, struct ExpandRoom* expand, M
 	return best_score;
 }
 
-static TbBool find_expand_location(struct Computer2* comp, struct ExpandRoom* expand)
+static TbBool find_expand_location(struct Computer2* comp, struct Digging* digging, struct ExpandRoom* expand)
 {
 	struct Dungeon *dungeon;
 	struct Room* room;
@@ -1341,10 +1433,10 @@ static TbBool find_expand_location(struct Computer2* comp, struct ExpandRoom* ex
 				x = subtile_slab(room->central_stl_x);
 				y = subtile_slab(room->central_stl_y);
 				//SYNCLOG("evaluating expand %d %d", x, y);
-				eval_expand_room(comp, expand, x, y, -1, 0);
-				eval_expand_room(comp, expand, x, y, 1, 0);
-				eval_expand_room(comp, expand, x, y, 0, -1);
-				eval_expand_room(comp, expand, x, y, 0, 1);
+				eval_expand_room(comp, digging, expand, x, y, -1, 0);
+				eval_expand_room(comp, digging, expand, x, y, 1, 0);
+				eval_expand_room(comp, digging, expand, x, y, 0, -1);
+				eval_expand_room(comp, digging, expand, x, y, 0, 1);
 			}
 			// Per-room code ends
 			k++;
@@ -1364,45 +1456,25 @@ static TbBool find_expand_location(struct Computer2* comp, struct ExpandRoom* ex
 	return expand->room_score >= 0;
 }
 
-static TbBool dig_if_needed(struct Computer2* comp, MapSlabCoord x, MapSlabCoord y)
+static void initiate_expand_room(struct Computer2* comp, struct Digging* digging, struct ExpandRoom* expand)
 {
-	struct SlabMap* slab;
-	slab = get_slabmap_block(x, y);
-	switch (slab->kind)
-	{
-	case SlbT_EARTH:
-	case SlbT_GOLD:
-	case SlbT_TORCHDIRT:
-	case SlbT_WALLDRAPE:
-	case SlbT_WALLPAIRSHR:
-	case SlbT_WALLTORCH:
-	case SlbT_WALLWTWINS:
-	case SlbT_WALLWWOMAN:
-		return try_game_action(comp, comp->dungeon->owner, GA_MarkDig, 0,
-			x * STL_PER_SLB + 1, y * STL_PER_SLB + 1, 1, 1) == Lb_SUCCESS;
-	default:
-		return 1; //basically, in case we want to error check
-	}
-}
-
-static void initiate_expand_room(struct Computer2* comp, struct ExpandRoom* expand)
-{
-	struct ExpandRoomPos* pos;
+	TbBool aborted;
+	TbResult result;
 	struct Dungeon *dungeon;
+	struct ExpandRoomPos* pos;
 	MapSlabCoord x, y;
 
-	SYNCDBG(8,"Starting");
 	dungeon = comp->dungeon;
 	pos = &expand->room_pos;
-
-	//check access tunnel
+	aborted = 0;
 	x = pos->access_x;
 	y = pos->access_y;
 	if (pos->access_dx < 0)
 	{
 		while (x != pos->max_x && x > 0) //second check not necessary technically, but paranoid about infinite loops
 		{
-			dig_if_needed(comp, x, y);
+			result = dig_if_needed(comp, digging, x, y);
+			if (result == Lb_FAIL) aborted = 1;
 			x += pos->access_dx;
 		}
 	}
@@ -1410,7 +1482,8 @@ static void initiate_expand_room(struct Computer2* comp, struct ExpandRoom* expa
 	{
 		while (x != pos->min_x && x < map_tiles_x - 1) //second check not necessary technically, but paranoid about infinite loops
 		{
-			dig_if_needed(comp, x, y);
+			result = dig_if_needed(comp, digging, x, y);
+			if (result == Lb_FAIL) aborted = 1;
 			x += pos->access_dx;
 		}
 	}
@@ -1418,7 +1491,8 @@ static void initiate_expand_room(struct Computer2* comp, struct ExpandRoom* expa
 	{
 		while (y != pos->max_y && y > 0) //second check not necessary technically, but paranoid about infinite loops
 		{
-			dig_if_needed(comp, x, y);
+			result = dig_if_needed(comp, digging, x, y);
+			if (result == Lb_FAIL) aborted = 1;
 			y += pos->access_dy;
 		}
 	}
@@ -1426,23 +1500,32 @@ static void initiate_expand_room(struct Computer2* comp, struct ExpandRoom* expa
 	{
 		while (y != pos->min_y && x < map_tiles_y - 1) //second check not necessary technically, but paranoid about infinite loops
 		{
-			dig_if_needed(comp, x, y);
+			result = dig_if_needed(comp, digging, x, y);
+			if (result == Lb_FAIL) aborted = 1;
 			y += pos->access_dy;
 		}
 	}
 
-	//check room
+	//dig room
 	for (y = pos->min_y; y <= pos->max_y; ++y)
 	{
 		for (x = pos->min_x; x <= pos->max_x; ++x)
 		{
-			dig_if_needed(comp, x, y);
+			result = dig_if_needed(comp, digging, x, y);
+			if (result == Lb_FAIL) aborted = 1;
 		}
 	}
 
-	SYNCLOG("Player %d decided to build room %s of size %dx%d", (int)dungeon->owner, room_code_name(expand->rkind),
-		(expand->room_pos.max_x - expand->room_pos.min_x + 1), (expand->room_pos.max_y - expand->room_pos.min_y + 1));
-	expand->active = 1;
+	if (aborted)
+	{
+		SYNCLOG("Player %d aborting build room %s because can't order dig", (int)dungeon->owner, room_code_name(expand->rkind));
+	}
+	else
+	{
+		SYNCLOG("Player %d decided to build room %s of size %dx%d", (int)dungeon->owner, room_code_name(expand->rkind),
+			(expand->room_pos.max_x - expand->room_pos.min_x + 1), (expand->room_pos.max_y - expand->room_pos.min_y + 1));
+		expand->active = 1;
+	}
 }
 
 static void check_expand_room(struct Computer2* comp, struct Digging* digging)
@@ -1460,9 +1543,9 @@ static void check_expand_room(struct Computer2* comp, struct Digging* digging)
 	}
 
 	digging->expand_room.rkind = rkind;
-	if (find_expand_location(comp, &digging->expand_room))
+	if (find_expand_location(comp, digging, &digging->expand_room))
 	{
-		initiate_expand_room(comp, &digging->expand_room);
+		initiate_expand_room(comp, digging, &digging->expand_room);
 	}
 	else
 	{
