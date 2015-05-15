@@ -813,6 +813,8 @@ struct ExpandRoom //expand room (digging prior if necessary)
 struct DigToGold
 {
 	TbBool active;
+	MapSlabCoord target_x, target_y;
+	MapSlabCoord access_x, access_y;
 };
 
 struct DigToAttack
@@ -825,10 +827,12 @@ struct DigToSecure
 	TbBool active;
 };
 
+#define CONCURRENT_GOLD_DIGS	10
+
 struct Digging
 {
 	struct ExpandRoom expand_room;
-	struct DigToGold dig_gold;
+	struct DigToGold dig_gold[CONCURRENT_GOLD_DIGS];
 	struct DigToAttack dig_attack;
 	struct DigToSecure dig_secure;
 	unsigned char marked_for_dig[85][85]; //need instant lookup, so maintaining additional struct. [y][x] in case we move to ptr later
@@ -891,6 +895,36 @@ static TbBool is_diggable_or_buildable(struct Dungeon* dungeon, struct Digging* 
 	//TODO: might wish to include replacing existing rooms, however that must in that case give negative score in other parts of algorithm
 }
 
+static TbResult dig_if_needed(struct Computer2* comp, struct Digging* digging, MapSlabCoord x, MapSlabCoord y)
+{
+	if (digging->marked_for_dig[y][x])
+		return Lb_OK;
+
+	struct SlabMap* slab;
+	TbResult result;
+
+	slab = get_slabmap_block(x, y);
+	switch (slab->kind)
+	{
+	case SlbT_EARTH:
+	case SlbT_GOLD:
+	case SlbT_GEMS:
+	case SlbT_TORCHDIRT:
+	case SlbT_WALLDRAPE:
+	case SlbT_WALLPAIRSHR:
+	case SlbT_WALLTORCH:
+	case SlbT_WALLWTWINS:
+	case SlbT_WALLWWOMAN:
+		result = try_game_action(comp, comp->dungeon->owner, GA_MarkDig, 0,
+			x * STL_PER_SLB + 1, y * STL_PER_SLB + 1, 1, 1);
+		if (result != Lb_FAIL)
+			digging->marked_for_dig[y][x] = 1;
+		return result;
+	default:
+		return Lb_OK;
+	}
+}
+
 static void process_dig_to_attack(struct Computer2* comp, struct Digging* digging)
 {
 
@@ -911,43 +945,182 @@ static void check_dig_to_secure(struct Computer2* comp, struct Digging* digging)
 
 }
 
-static void process_dig_to_gold(struct Computer2* comp, struct Digging* digging)
+static void process_dig_to_gold(struct Computer2* comp, struct Digging* digging, struct DigToGold* dig_gold)
 {
-
-}
-
-static void check_dig_to_gold(struct Computer2* comp, struct Digging* digging)
-{
-
-}
-
-static TbResult dig_if_needed(struct Computer2* comp, struct Digging* digging, MapSlabCoord x, MapSlabCoord y)
-{
-	if (digging->marked_for_dig[y][x])
-		return Lb_OK;
-
+	struct Dungeon* dungeon;
 	struct SlabMap* slab;
-	TbResult result;
+	TbBool finished;
 
-	slab = get_slabmap_block(x, y);
-	switch (slab->kind)
+	SYNCDBG(8,"Starting");
+	dungeon = comp->dungeon;
+	finished = 0;
+	
+	slab = get_slabmap_block(dig_gold->target_x, dig_gold->target_y);
+	if (slab->kind == SlbT_GEMS) //TODO: need to track gems differently once processing has ended
+		;//finished = 1; //DO NOTHING DELIBERATELY ATM, either need to monitor number of gem digs active vs gold or do it outside this process
+	else if (slab->kind != SlbT_GOLD)
+		finished = 1;
+
+	if (!finished)
 	{
-	case SlbT_EARTH:
-	case SlbT_GOLD:
-	case SlbT_TORCHDIRT:
-	case SlbT_WALLDRAPE:
-	case SlbT_WALLPAIRSHR:
-	case SlbT_WALLTORCH:
-	case SlbT_WALLWTWINS:
-	case SlbT_WALLWWOMAN:
-		result = try_game_action(comp, comp->dungeon->owner, GA_MarkDig, 0,
-			x * STL_PER_SLB + 1, y * STL_PER_SLB + 1, 1, 1);
-		if (result == Lb_SUCCESS)
-			digging->marked_for_dig[y][x] = 1;
-		return result;
-	default:
-		return Lb_OK;
+		struct SlabInfluence* influence;
+		influence = get_slab_influence(dig_gold->target_x, dig_gold->target_y);
+		if (influence->dig_distance[dungeon->owner] < 0)
+			finished = 1; //TODO: abort
 	}
+	
+	if (finished)
+	{
+		dig_gold->active = 0;
+	}
+}
+
+static void try_get_closer(int player, int* best_dist, MapSlabCoord* best_x, MapSlabCoord* best_y, MapSlabCoord x, MapSlabCoord y)
+{
+	int dist;
+	struct SlabInfluence* influence;
+	influence = get_slab_influence(x, y);
+	dist = influence->dig_distance[player];
+	if (dist >= 0 && dist < *best_dist)
+	{
+		*best_dist = dist;
+		*best_x = x;
+		*best_y = y;
+	}
+}
+
+static void initiate_dig_gold(struct Computer2* comp, struct Digging* digging, struct DigToGold* dig_gold)
+{
+	MapSlabCoord x, y;
+	struct Dungeon* dungeon;
+	struct SlabInfluence* influence;
+	TbBool abort;
+	dungeon = comp->dungeon;
+
+	//back track to own territory //TODO: use A* instead so that we can e.g. prefer not to wreck our walls
+	x = dig_gold->target_x;
+	y = dig_gold->target_y;
+	abort = 0;
+	for (;;)
+	{
+		int best_dist;
+		int current_dist;
+		MapSlabCoord best_x, best_y;
+
+		if (!digging->marked_for_dig[y][x] && dig_if_needed(comp, digging, x, y) == Lb_FAIL)
+		{
+			abort = 1;
+			break;
+		}
+
+		influence = get_slab_influence(x, y);
+		current_dist = influence->dig_distance[dungeon->owner];
+		if (current_dist <= 0)
+		{
+			if (current_dist < 0)
+			{
+				abort = 1;
+			}
+			break;
+		}
+
+		best_dist = current_dist;
+		best_x = x;
+		best_y = y;
+		try_get_closer(dungeon->owner, &best_dist, &best_x, &best_y, x - 1, y);
+		try_get_closer(dungeon->owner, &best_dist, &best_x, &best_y, x + 1, y);
+		try_get_closer(dungeon->owner, &best_dist, &best_x, &best_y, x, y - 1);
+		try_get_closer(dungeon->owner, &best_dist, &best_x, &best_y, x, y + 1);
+
+		if (best_dist < current_dist)
+		{
+			x = best_x;
+			y = best_y;
+		}
+		else
+		{
+			abort = 1;
+			break;
+		}
+	}
+
+	if (abort)
+	{
+		SYNCLOG("Player %d aborted gold dig attempt at %dx%d", (int)dungeon->owner, dig_gold->target_x, dig_gold->target_y);
+	}
+	else
+	{
+		SYNCLOG("Player %d decided to dig for gold at %dx%d", (int)dungeon->owner, dig_gold->target_x, dig_gold->target_y);
+		dig_gold->active = 1;
+	}
+}
+
+static TbBool check_dig_to_gold(struct Computer2* comp, struct Digging* digging, struct DigToGold* dig_gold)
+{
+	struct Dungeon* dungeon;
+	MapSlabCoord x, y;
+	struct SlabMap* slab;
+	struct SlabInfluence* influence;
+	int best_score;
+	MapSlabCoord best_x, best_y;
+
+	SYNCDBG(8,"Starting");
+	//evaluate all tiles we can dig
+
+	dungeon = comp->dungeon;
+	best_score = INT_MIN;
+	best_x = best_y = 0; //make compiler shut up
+
+	for (y = 1; y < map_tiles_y - 1; ++y)
+	{
+		for (x = 1; x < map_tiles_x - 1; ++x)
+		{
+			int score;
+
+			if (digging->marked_for_dig[y][x])
+				continue;
+
+			influence = get_slab_influence(x, y);
+			if (influence->dig_distance[dungeon->owner] < 0)
+				continue; //don't bother evaluating blocks we can't reach
+
+			//TODO: disqualify blocks that would open up dangerous areas we can't handle
+
+			score = 0;
+			slab = get_slabmap_block(x, y);
+			if (slab->kind == SlbT_GOLD)
+			{
+				score = 100000; //TODO: multiply by block (health / max_health) in future
+			}
+			else if (slab->kind == SlbT_GEMS)
+			{
+				score = 150000;
+			}
+			else
+				continue;
+
+			score /= 5 + influence->dig_distance[dungeon->owner];
+
+			//TODO: add score for blocks far away from enemies, especially strong ones
+
+			if (score > best_score)
+			{
+				best_score = score;
+				best_x = x;
+				best_y = y;
+			}
+		}
+	}
+
+	if (best_score >= 0)
+	{
+		dig_gold->target_x = best_x;
+		dig_gold->target_y = best_y;
+		initiate_dig_gold(comp, digging, dig_gold);
+
+		return 1;
+	}
+	return 0;
 }
 
 static TbResult build_room_if_possible(struct Computer2* comp, RoomKind rkind, MapSlabCoord x, MapSlabCoord y)
@@ -997,6 +1170,7 @@ static void process_expand_room(struct Computer2* comp, struct Digging* digging)
 	TbBool finished;
 	TbBool aborted;
 
+	SYNCDBG(8,"Starting");
 	dungeon = comp->dungeon;
 	pos = &digging->expand_room.room_pos;
 	finished = 1;
@@ -1246,10 +1420,12 @@ static int eval_expand_room_pos(struct Dungeon* dungeon, struct Digging* digging
 			}
 
 			//TODO: reduce score for unreinforcable walls
+
+			//TODO: increase score for prison, barracks, graveyard, guard post close to enemy, opposite for other rooms
 		}
 	}
 
-	//TODO: deduce score for too large, too small rooms
+	//TODO: reduce score for long narrow rooms
 
 	//TODO: penalize opening dungeon
 
@@ -1562,8 +1738,13 @@ static void check_expand_room(struct Computer2* comp, struct Digging* digging)
 
 long computer_check_new_digging(struct Computer2* comp)
 {
+	int i;
 	struct Dungeon *dungeon;
 	struct Digging* digging;
+	int max_gold_digs;
+	int num_gold_digs;
+	int controlled_diggers;
+
 	SYNCDBG(8,"Starting");
 	dungeon = comp->dungeon;
 	digging = &comp_digging[dungeon->owner];
@@ -1586,13 +1767,27 @@ long computer_check_new_digging(struct Computer2* comp)
 		check_dig_to_secure(comp, digging);
 	}
 
-	if (digging->dig_gold.active)
+	controlled_diggers = dungeon->num_active_diggers - count_player_diggers_not_counting_to_total(dungeon->owner);
+	max_gold_digs = min(CONCURRENT_GOLD_DIGS, max(1, 1 + controlled_diggers / 5 - (digging->expand_room.active? 1 : 0))); //TODO: count gem faces
+	num_gold_digs = 0;
+	for (i = 0; i < CONCURRENT_GOLD_DIGS; ++i)
 	{
-		process_dig_to_gold(comp, digging);
+		if (digging->dig_gold[i].active)
+			process_dig_to_gold(comp, digging, &digging->dig_gold[i]);
+		if (digging->dig_gold[i].active)
+			num_gold_digs += 1;
 	}
-	else
+	if (num_gold_digs < max_gold_digs)
 	{
-		check_dig_to_gold(comp, digging);
+		for (i = 0; i < CONCURRENT_GOLD_DIGS; ++i)
+		{
+			if (!digging->dig_gold[i].active)
+			{
+				if (check_dig_to_gold(comp, digging, &digging->dig_gold[i]))
+					num_gold_digs += 1;
+				break; //don't consider more than one per check turn
+			}
+		}
 	}
 
 	if (digging->expand_room.active)
