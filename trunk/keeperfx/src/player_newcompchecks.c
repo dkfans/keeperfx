@@ -927,10 +927,8 @@ static TbResult dig_if_needed(struct Computer2* comp, struct Digging* digging, M
 		return Lb_OK;
 
 	struct SlabMap* slab;
-	struct Dungeon* dungeon;
 	TbResult result;
 
-	dungeon = comp->dungeon;
 	slab = get_slabmap_block(x, y);
 	switch (slab->kind)
 	{
@@ -944,7 +942,6 @@ static TbResult dig_if_needed(struct Computer2* comp, struct Digging* digging, M
 	case SlbT_WALLWWOMAN:
 		result = try_game_action(comp, comp->dungeon->owner, GA_MarkDig, 0,
 			x * STL_PER_SLB + 1, y * STL_PER_SLB + 1, 1, 1);
-		SYNCLOG("will attempt to dig %d,%d of type %d", x, y, (int)slab->kind);
 		if (result == Lb_SUCCESS)
 			digging->marked_for_dig[y][x] = 1;
 		return result;
@@ -1604,7 +1601,7 @@ long computer_check_new_digging(struct Computer2* comp)
 	}
 	else
 	{
-		check_expand_room(comp, digging);
+		check_expand_room(comp, digging); //TODO: delay if this fails since it's an expensive check
 	}
 
 	return CTaskRet_Unk4;

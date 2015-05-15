@@ -1427,7 +1427,7 @@ TbBool process_checks(struct Computer2 *comp)
 		computer_check_prison_management(comp);
 	}
 #ifdef NEW_DIGBUILD
-	if (++counter_check_new_digging[comp->dungeon->owner] >= 21)
+	if (++counter_check_new_digging[comp->dungeon->owner] >= 14)
 	{
 		counter_check_new_digging[comp->dungeon->owner] = 0;
 		computer_check_new_digging(comp);
@@ -1574,9 +1574,8 @@ void process_computer_players2(void)
     TbBool needs_gold_check;
     int i;
     needs_gold_check = false;
-#ifdef PETTER_AI
-    SAI_run_shared();
-#endif
+	update_influence_maps();
+
     for (i=0; i < PLAYERS_COUNT; i++)
     {
         player = get_player(i);
@@ -1587,15 +1586,11 @@ void process_computer_players2(void)
         {
           if (player->field_2C == 1)
           {
-#ifdef PETTER_AI
-            SAI_run_for_player(i);
-#else
             process_computer_player2(i);
             if (computer_player_demands_gold_check(i))
             {
                 needs_gold_check = true;
             }
-#endif
           }
         }
     }
