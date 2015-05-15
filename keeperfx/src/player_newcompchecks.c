@@ -805,6 +805,7 @@ struct ExpandRoom //expand room (digging prior if necessary)
 	TbBool active;
 	TbBool for_dig_gold;
 	RoomKind rkind;
+	int preferred_size;
 	struct ExpandRoomPos room_pos;
 	int room_score;
 };
@@ -1052,6 +1053,9 @@ static RoomKind decide_room_to_expand(struct Computer2* comp)
 	struct ValidRooms *bldroom;
 	for (bldroom = valid_rooms_to_build; bldroom->rkind > 0; bldroom++)
 	{
+		if (bldroom->rkind == RoK_BRIDGE || bldroom->rkind == RoK_GUARDPOST || bldroom->rkind == RoK_UNKN17)
+			continue;
+
 		if (computer_check_room_available(comp, bldroom->rkind) != IAvail_Now) {
 			continue;
 		}
@@ -1219,7 +1223,8 @@ static int eval_expand_room_pos(struct Dungeon* dungeon, struct Digging* digging
 
 			//give score
 			num_tiles += 1;
-			score += 1000;
+			if (num_tiles < expand->preferred_size)
+				score += 1000;
 
 			struct SlabMap* slab;
 			slab = get_slabmap_block(x, y);
@@ -1251,8 +1256,12 @@ static int eval_expand_room_pos(struct Dungeon* dungeon, struct Digging* digging
 
 	//TODO: penalize opening dungeon
 
-	if (num_tiles > 25)
-		return INT_MIN; //TODO: TEMPORARY algorithm limiter, replace
+	if (num_tiles > expand->preferred_size)
+	{
+		struct RoomStats* rstat;
+		rstat = room_stats_get_for_kind(expand->rkind);
+		score -= (num_tiles - expand->preferred_size) * rstat->cost;
+	}
 
 	return score;
 }
@@ -1543,6 +1552,7 @@ static void check_expand_room(struct Computer2* comp, struct Digging* digging)
 	}
 
 	digging->expand_room.rkind = rkind;
+	digging->expand_room.preferred_size = get_preferred_num_room_tiles(dungeon, rkind);
 	if (find_expand_location(comp, digging, &digging->expand_room))
 	{
 		initiate_expand_room(comp, digging, &digging->expand_room);

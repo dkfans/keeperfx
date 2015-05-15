@@ -436,6 +436,9 @@ long computer_event_attack_magic_foe(struct Computer2 *comp, struct ComputerEven
 
 long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEvent *cevent)
 {
+#ifdef NEW_DIGBUILD
+	return 4;
+#endif
     long ret;
     SYNCDBG(18,"Starting");
     ret = 4;

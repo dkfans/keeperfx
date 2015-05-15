@@ -449,3 +449,39 @@ float calc_players_strength(struct Dungeon* dungeon)
 
 	return strength;
 }
+
+/************************************************************************/
+/* When building a new room, how many tiles do I ideally want?          */
+/************************************************************************/
+int get_preferred_num_room_tiles(struct Dungeon* dungeon, RoomKind rkind)
+{
+	//TODO: perhaps this should be loaded from file?
+
+	int existing_num;
+	existing_num = count_slabs_of_room_type(dungeon->owner, rkind);
+
+	switch (rkind)
+	{
+	case RoK_BRIDGE:
+	case RoK_GUARDPOST:
+		return 1;
+	case RoK_TEMPLE:
+	case RoK_SCAVENGER:
+	case RoK_TORTURE:
+		return min(25, max(9, 6 + existing_num));
+	case RoK_PRISON:
+	case RoK_GRAVEYARD:
+		return min(25, max(15, 5 + existing_num));
+	case RoK_TREASURE:
+	case RoK_TRAINING:
+	case RoK_LIBRARY:
+	case RoK_GARDEN: //TODO: might wish to scale hatchery similar to lair
+		return 25;
+	case RoK_WORKSHOP:
+		return 30;
+	case RoK_LAIR:
+		return max(12, max(dungeon->max_creatures_attracted, dungeon->num_active_creatrs) - existing_num);
+	default:
+		return 9;
+	}
+}
