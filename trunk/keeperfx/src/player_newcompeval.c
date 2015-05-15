@@ -97,6 +97,7 @@ short * get_slab_influence_value(MapSlabCoord x, MapSlabCoord y, int player, enu
 
 static void queue_influence_visit(MapSlabCoord x, MapSlabCoord y, int player, enum InfluenceMetric metric, short dist)
 {
+	struct SlabMap* slab;
 	struct InfluenceNode* node;
 	short* stored_dist = get_slab_influence_value(x, y, player, metric);
 
@@ -104,6 +105,10 @@ static void queue_influence_visit(MapSlabCoord x, MapSlabCoord y, int player, en
 		return; //already visited. case of improvement is assumed not to exist (i.e. nodes are assumed to be visited in order of ascending dist)
 
 	*stored_dist = dist;
+
+	slab = get_slabmap_block(x, y);
+	if (SlbT_GEMS == slab->kind)
+		return; //ugly to do it here, but easiest
 
 	if (influence_queue.push_index == influence_queue.capacity)
 	{
@@ -157,6 +162,8 @@ static void influence_neighbor(MapSlabCoord x, MapSlabCoord y, int player, enum 
 		{
 		case SlbT_EARTH:
 		case SlbT_TORCHDIRT:
+		case SlbT_GOLD:
+		case SlbT_GEMS:
 			queue_influence_visit(x, y, player, metric, dist);
 			break;
 		case SlbT_WALLDRAPE:
@@ -177,7 +184,7 @@ static void influence_neighbor(MapSlabCoord x, MapSlabCoord y, int player, enum 
 			break;
 		case SlbT_LAVA:
 		case SlbT_WATER:
-			if (is_room_available(player, RoK_BRIDGE))			
+			if (0 && is_room_available(player, RoK_BRIDGE)) //TODO: re-enable when new digging can deal with water/lava
 				queue_influence_visit(x, y, player, metric, dist);
 			break;
 		}
@@ -215,6 +222,9 @@ void update_influence_maps(void)
 		{
 			slab = get_slabmap_block(x, y);
 			owner = slabmap_owner(slab);
+			if (owner >= KEEPER_COUNT)
+				continue;
+
 			if (slab_kind_can_drop_here_now(slab->kind))
 			{
 				queue_influence_visit(x, y, owner, DropDistance, 0);
