@@ -29,7 +29,16 @@
 extern "C" {
 #endif
 
+struct SlabInfluence
+{
+	short heart_distance[KEEPER_COUNT];
+	short drop_distance[KEEPER_COUNT];
+	short dig_distance[KEEPER_COUNT];
+};
+
 //eval
+void update_influence_maps(void);
+struct SlabInfluence* get_slab_influence(MapSlabCoord x, MapSlabCoord y);
 TbBool is_digging_any_gems(struct Dungeon *dungeon);
 struct Thing * find_imp_for_sacrifice(struct Dungeon* dungeon);
 struct Thing * find_imp_for_claim(struct Dungeon* dungeon);

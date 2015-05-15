@@ -20,15 +20,232 @@
 
 #include "bflib_math.h"
 
+#include "config_terrain.h"
 #include "creature_states.h"
 #include "game_legacy.h"
 #include "magic.h"
 #include "player_computer.h"
+#include "player_newcomp.h"
 #include "power_hand.h"
 #include "room_list.h"
 #include "spdigger_stack.h"
 #include "thing_data.h"
 #include "thing_objects.h"
+
+/************************************************************************/
+/* Influence map stuff.                                                 */
+/************************************************************************/
+
+enum InfluenceMetric
+{
+	HeartDistance,
+	DropDistance,
+	DigDistance,
+};
+
+struct InfluenceNode //4 bytes
+{
+	char x, y; //happen to know the range is legal right now...
+	char player;
+	char metric;
+};
+
+static struct
+{
+	struct InfluenceNode* nodes;
+	int push_index;
+	int pop_index;
+	int capacity;
+} influence_queue; //very lazy queue implementation that doesn't attempt to reuse popped nodes in same pass. if we ever increase size of map a rework might be needed
+
+static struct SlabInfluence null_influence;
+static struct SlabInfluence influence_map[85][85]; //[y][x], static size for now since we're years away from dynamic sized maps
+
+static void visit_influence(MapSlabCoord x, MapSlabCoord y, int player, enum InfluenceMetric metric, short dist);
+
+struct SlabInfluence* get_slab_influence(MapSlabCoord x, MapSlabCoord y)
+{
+	if (x < 0 || y < 0 || x >= 85 || y >= 85 )
+		return &null_influence;
+
+	return &influence_map[y][x];
+}
+
+short * get_slab_influence_value(MapSlabCoord x, MapSlabCoord y, int player, enum InfluenceMetric metric)
+{
+	struct SlabInfluence* influence;
+	static short dummy;
+
+	influence = get_slab_influence(x, y);
+
+	switch (metric)
+	{
+	case HeartDistance:
+		return &influence->heart_distance[player];
+		break;
+	case DropDistance:
+		return &influence->drop_distance[player];
+		break;
+	case DigDistance:
+		return &influence->dig_distance[player];
+		break;
+	default:
+		ERRORLOG("Invalid influence metric %d", (int)metric);
+		return &dummy;
+	}
+}
+
+static void queue_influence_visit(MapSlabCoord x, MapSlabCoord y, int player, enum InfluenceMetric metric, short dist)
+{
+	struct InfluenceNode* node;
+	short* stored_dist = get_slab_influence_value(x, y, player, metric);
+
+	if (*stored_dist >= 0)
+		return; //already visited. case of improvement is assumed not to exist (i.e. nodes are assumed to be visited in order of ascending dist)
+
+	*stored_dist = dist;
+
+	if (influence_queue.push_index == influence_queue.capacity)
+	{
+		size_t size;
+
+		if (influence_queue.capacity == 0)
+			influence_queue.capacity = 100;
+		else
+			influence_queue.capacity *= 2;
+
+		size = sizeof(*influence_queue.nodes) * influence_queue.capacity;
+		influence_queue.nodes = (struct InfluenceNode*)realloc(influence_queue.nodes, size);
+		if (NULL == influence_queue.nodes)
+		{
+			influence_queue.push_index = 0; //force termination
+			ERRORLOG("Couldn't alloc %u bytes", size);
+			return;
+		}
+	}
+
+	node = &influence_queue.nodes[influence_queue.push_index++];
+	
+	node->metric = (char)metric;
+	node->player = (char)player;
+	node->x = (char)x;
+	node->y = (char)y;
+};
+
+static void influence_neighbor(MapSlabCoord x, MapSlabCoord y, int player, enum InfluenceMetric metric, short dist)
+{
+	struct SlabMap* slab;
+	int owner;
+	slab = get_slabmap_block(x, y);
+	owner = slabmap_owner(slab);
+
+	if (slab->kind == SlbT_DUNGHEART && metric == HeartDistance)
+	{
+		dist = 0;
+	}
+
+	if (slab_kind_can_drop_here_now(slab->kind) || slab->kind == SlbT_PATH)
+	{
+		if (slab->kind != SlbT_PATH && owner == player)
+			dist = 0;
+
+		queue_influence_visit(x, y, player, metric, dist);
+	}
+	else if (metric == DigDistance)
+	{
+		switch (slab->kind)
+		{
+		case SlbT_EARTH:
+		case SlbT_TORCHDIRT:
+			queue_influence_visit(x, y, player, metric, dist);
+			break;
+		case SlbT_WALLDRAPE:
+		case SlbT_WALLPAIRSHR:
+		case SlbT_WALLTORCH:
+		case SlbT_WALLWTWINS:
+		case SlbT_WALLWWOMAN:
+		case SlbT_DOORWOOD1:
+		case SlbT_DOORWOOD2:
+		case SlbT_DOORBRACE1:
+		case SlbT_DOORBRACE2:
+		case SlbT_DOORIRON1:
+		case SlbT_DOORIRON2:
+		case SlbT_DOORMAGIC1:
+		case SlbT_DOORMAGIC2:
+			if (owner == player)
+				queue_influence_visit(x, y, player, metric, dist);
+			break;
+		case SlbT_LAVA:
+		case SlbT_WATER:
+			if (is_room_available(player, RoK_BRIDGE))			
+				queue_influence_visit(x, y, player, metric, dist);
+			break;
+		}
+	}
+};
+
+static void visit_influence(MapSlabCoord x, MapSlabCoord y, int player, enum InfluenceMetric metric, short dist)
+{
+	dist += 1;
+	influence_neighbor(x - 1, y, player, metric, dist);
+	influence_neighbor(x + 1, y, player, metric, dist);
+	influence_neighbor(x, y - 1, player, metric, dist);
+	influence_neighbor(x, y + 1, player, metric, dist);
+}
+
+void update_influence_maps(void)
+{
+	struct SlabMap* slab;
+	MapSlabCoord x, y;
+	int owner;
+	struct InfluenceNode* node;
+	short* stored_dist;
+
+	influence_queue.push_index = 0;
+	influence_queue.pop_index = 0;
+	memset(&null_influence, 0xff, sizeof(null_influence));
+	memset(&influence_map, 0xff, sizeof(influence_map));
+
+	SYNCDBG(9, "Seeding from map");
+
+	//seed search on map
+	for (y = 1; y < map_tiles_y - 1; ++y)
+	{
+		for (x = 1; x < map_tiles_x - 1; ++x)
+		{
+			slab = get_slabmap_block(x, y);
+			owner = slabmap_owner(slab);
+			if (slab_kind_can_drop_here_now(slab->kind))
+			{
+				queue_influence_visit(x, y, owner, DropDistance, 0);
+				queue_influence_visit(x, y, owner, DigDistance, 0);
+			}
+			if (slab->kind == SlbT_DUNGHEART)
+			{
+				queue_influence_visit(x, y, owner, HeartDistance, 0);
+			}
+		}
+	}
+
+	SYNCDBG(9, "Processing node queue of %d seed nodes", influence_queue.push_index);
+
+	while (influence_queue.pop_index < influence_queue.push_index)
+	{
+		node = &influence_queue.nodes[influence_queue.pop_index++];
+		stored_dist = get_slab_influence_value(node->x, node->y, node->player, (enum InfluenceMetric)node->metric);
+		if (*stored_dist >= 0)
+		{
+			visit_influence(node->x, node->y, node->player, (enum InfluenceMetric)node->metric, *stored_dist);
+		}
+		else
+		{
+			ERRORLOG("Distance invariant bug");
+			return;
+		}
+	}
+
+	SYNCDBG(8, "Processed %d nodes", influence_queue.pop_index);
+}
 
 /************************************************************************/
 /* Any imps thinking to dig gems right now?                             */
