@@ -30,6 +30,7 @@
 #include "config_settings.h"
 #include "config_strings.h"
 #include "frontend.h"
+#include "front_input.h"
 #include "frontmenu_ingame_map.h"
 
 #ifdef __cplusplus
@@ -317,32 +318,27 @@ long set_game_key(long key_id, unsigned char key, unsigned int mods)
       return 0;
     }
     // Rotate & speed - allow only lone modifiers
-    if (key_id == 4 || key_id == 5)
+    if (key_id == Gkey_RotateMod || key_id == Gkey_SpeedMod)
     {
         if ((mods & KMod_SHIFT) || (mods & KMod_CONTROL))
         {
             int ncode;
             if (mods & KMod_SHIFT) {
-                ncode = 42;
+                ncode = KC_LSHIFT;
             } else
             if (mods & KMod_CONTROL) {
-                ncode = 29;
+                ncode = KC_LCONTROL;
             } else {
-                ncode = 29;
+                ERRORLOG("Reached a place we should not be able");
+                ncode = KC_UNASSIGNED;
             }
             struct GameKey  *kbk;
-            kbk = &settings.kbkeys[((unsigned int)(key_id - 4) < 1) + 4];
+            // Do not allow the key if it is used as other mod key
+            kbk = &settings.kbkeys[((unsigned int)(key_id - Gkey_RotateMod) < 1) + Gkey_RotateMod];
             if (kbk->code != ncode)
             {
                 kbk = &settings.kbkeys[key_id];
-                if (mods & KMod_SHIFT)
-                {
-                    kbk->code = 42;
-                } else
-                if (mods & KMod_CONTROL)
-                {
-                    kbk->code = 29;
-                }
+                kbk->code = ncode;
                 kbk->mods = 0;
             }
             return 1;
@@ -352,30 +348,27 @@ long set_game_key(long key_id, unsigned char key, unsigned int mods)
         }
     }
     // Possess & query - allow lone modifiers and normal keys
-    if (key_id == 27 || key_id == 28)
+    if (key_id == Gkey_Unknown27 || key_id == Gkey_Unknown28)
     {
         if ((mods & KMod_SHIFT) || (mods & KMod_CONTROL))
         {
             int ncode;
             if (mods & KMod_SHIFT) {
-                ncode = 42;
+                ncode = KC_LSHIFT;
             } else
             if (mods & KMod_CONTROL) {
-                ncode = 29;
+                ncode = KC_LCONTROL;
             } else {
-                ncode = 29;
+                ERRORLOG("Reached a place we should not be able");
+                ncode = KC_UNASSIGNED;
             }
             struct GameKey  *kbk;
-            kbk = &settings.kbkeys[((unsigned int)(key_id - 27) < 1) + 27];
+            // Do not allow the key if it is used as other mod key
+            kbk = &settings.kbkeys[((unsigned int)(key_id - Gkey_Unknown27) < 1) + Gkey_Unknown27];
             if (kbk->code != ncode)
             {
                 kbk = &settings.kbkeys[key_id];
-                if (mods & KMod_SHIFT) {
-                    kbk->code = 42;
-                } else
-                if (mods & KMod_CONTROL) {
-                    kbk->code = 29;
-                }
+                kbk->code = ncode;
                 kbk->mods = 0;
             }
             return 1;
@@ -396,8 +389,8 @@ long set_game_key(long key_id, unsigned char key, unsigned int mods)
             return 1;
         }
     }
-    // Just ignore these keystrokes
-    if ( key == 42 || key == 54 || key == 29 || key == 157 )
+    // Single control keys - just ignore these keystrokes
+    if ( key == KC_LSHIFT || key == KC_RSHIFT || key == KC_LCONTROL || key == KC_RCONTROL )
     {
         return 0;
     }
