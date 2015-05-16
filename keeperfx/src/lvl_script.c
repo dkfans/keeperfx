@@ -1833,10 +1833,10 @@ void command_set_computer_checks(long plr_range_id, const char *chkname, long va
   }
   if (n == 0)
   {
-    SCRPTERRLOG("No computer check found called '%s'", chkname);
+    SCRPTERRLOG("No computer check found named '%s'", chkname);
     return;
   }
-  SCRIPTDBG(6,"Altered %d checks",n);
+  SCRIPTDBG(6,"Altered %d checks named '%s'",n,chkname);
 }
 
 void command_set_computer_events(long plr_range_id, const char *evntname, long val1, long val2)
@@ -1875,10 +1875,10 @@ void command_set_computer_events(long plr_range_id, const char *evntname, long v
   }
   if (n == 0)
   {
-    SCRPTERRLOG("no computer event found called '%s'", evntname);
+    SCRPTERRLOG("No computer event found named '%s'", evntname);
     return;
   }
-  SCRIPTDBG(6,"Altered %d events",n);
+  SCRIPTDBG(6,"Altered %d events named '%s'",n,evntname);
 }
 
 void command_set_computer_process(long plr_range_id, const char *procname, long val1, long val2, long val3, long val4, long val5)
@@ -1922,10 +1922,10 @@ void command_set_computer_process(long plr_range_id, const char *procname, long 
   }
   if (n == 0)
   {
-    SCRPTERRLOG("No computer process found called '%s'", procname);
+    SCRPTERRLOG("No computer process found named '%s'", procname);
     return;
   }
-  SCRIPTDBG(6,"Altered %d processes",n);
+  SCRIPTDBG(6,"Altered %d processes named '%s'",n,procname);
 }
 
 void command_set_creature_health(const char *crtr_name, long val)
