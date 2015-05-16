@@ -1434,13 +1434,14 @@ TbBool process_checks(struct Computer2 *comp)
 		counter_check_prison_management[comp->dungeon->owner] = 0;
 		computer_check_prison_management(comp);
 	}
-#ifdef NEW_DIGBUILD
-	if (++counter_check_new_digging[comp->dungeon->owner] >= 14)
+	if (newdig)
 	{
-		counter_check_new_digging[comp->dungeon->owner] = 0;
-		computer_check_new_digging(comp);
+		if (++counter_check_new_digging[comp->dungeon->owner] >= 14)
+		{
+			counter_check_new_digging[comp->dungeon->owner] = 0;
+			computer_check_new_digging(comp);
+		}
 	}
-#endif
 
     return true;
 }

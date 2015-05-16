@@ -828,7 +828,9 @@ struct DigToSecure
 	TbBool active;
 };
 
-#define CONCURRENT_GOLD_DIGS	10
+#define CONCURRENT_GOLD_DIGS		10
+#define TREASURE_ROOM_SEARCH_RADIUS	9
+#define TREASURE_ROOM_SEARCH_TRACK	3
 
 struct Digging
 {
@@ -841,10 +843,15 @@ struct Digging
 
 static struct Digging comp_digging[KEEPER_COUNT];
 
+static void initiate_expand_room(struct Computer2* comp, struct Digging* digging, struct ExpandRoom* expand);
+static int eval_expand_room(struct Computer2* comp, struct Digging* digging, struct ExpandRoom* expand, TbBool allow_move, int upscale, int downscale, MapSlabCoord x, MapSlabCoord y, MapSlabCoord dx, MapSlabCoord dy);
+
 static TbBool marked_for_dig_and_undug(struct Digging* digging, MapSlabCoord x, MapSlabCoord y)
 {
 	struct SlabMap* slab;
 
+	if (x < 0 || y < 0 || x >= map_tiles_x || y >= map_tiles_y)
+		return 0;
 	if (!digging->marked_for_dig[y][x])
 		return 0;
 
@@ -870,7 +877,7 @@ void computer_setup_new_digging(void)
 {
 	int plyr_idx;
 	memset(&comp_digging, 0, sizeof(comp_digging));
-
+	
 	for (plyr_idx = 0; plyr_idx < KEEPER_COUNT; ++plyr_idx)
 	{
 		struct Dungeon *dungeon;
@@ -888,9 +895,10 @@ void computer_setup_new_digging(void)
 			if (mtask->kind != SDDigTask_Unknown3)
 			{
 				MapSubtlCoord x, y;
-				x = stl_num_decode_x(mtask->coords);
-				y = stl_num_decode_y(mtask->coords);
-				comp_digging[plyr_idx].marked_for_dig[subtile_slab(y)][subtile_slab(x)] = 1;
+				x = subtile_slab(stl_num_decode_x(mtask->coords));
+				y = subtile_slab(stl_num_decode_y(mtask->coords));
+				SYNCLOG("marked for dig %d, %d", x, y);
+				comp_digging[plyr_idx].marked_for_dig[y][x] = 1;
 			}
 		}
 	}
@@ -1001,12 +1009,12 @@ static void process_dig_to_gold(struct Computer2* comp, struct Digging* digging,
 	}
 }
 
-static void try_get_closer(int player, int* best_dist, MapSlabCoord* best_x, MapSlabCoord* best_y, MapSlabCoord x, MapSlabCoord y)
+static void try_get_closer(int player, TbBool on_dug, int* best_dist, MapSlabCoord* best_x, MapSlabCoord* best_y, MapSlabCoord x, MapSlabCoord y)
 {
 	int dist;
 	struct SlabInfluence* influence;
 	influence = get_slab_influence(x, y);
-	dist = influence->dig_distance[player];
+	dist = on_dug? influence->heart_distance[player] : influence->dig_distance[player];
 	if (dist >= 0 && dist < *best_dist)
 	{
 		*best_dist = dist;
@@ -1020,43 +1028,103 @@ static void initiate_dig_gold(struct Computer2* comp, struct Digging* digging, s
 	MapSlabCoord x, y;
 	struct Dungeon* dungeon;
 	struct SlabInfluence* influence;
+	struct SlabMap* slab;
 	TbBool abort;
 	dungeon = comp->dungeon;
+	TbBool wants_treasure_room;
+	int treasure_search_steps;
+	TbBool on_dug;
 
-	//back track to own territory //TODO: use A* instead so that we can e.g. prefer not to wreck our walls
+	wants_treasure_room = !digging->expand_room.active; //check if we have treasure room somewhere in vicinity
+	if (wants_treasure_room)
+	{
+		int num_gold_tiles, num_gem_tiles;
+		num_gold_tiles = num_gem_tiles = 0;
+		//TODO: this can be improved since it's not actually considering accessibility of treasure room, but...
+		for (y = dig_gold->target_y - TREASURE_ROOM_SEARCH_RADIUS; y <= dig_gold->target_y + TREASURE_ROOM_SEARCH_RADIUS; ++y)
+		{
+			for (x = dig_gold->target_x - TREASURE_ROOM_SEARCH_RADIUS; x <= dig_gold->target_x + TREASURE_ROOM_SEARCH_RADIUS; ++x)
+			{
+				if (abs(x - dig_gold->target_x) + abs(y - dig_gold->target_y) > TREASURE_ROOM_SEARCH_RADIUS)
+					continue;
+				slab = get_slabmap_block(x, y);
+				if (SlbT_GOLD == slab->kind) //TODO: count accessible faces instead
+				{
+					num_gold_tiles += 1;
+				}
+				else if (SlbT_GEMS == slab->kind)
+				{
+					num_gem_tiles += 1;
+				}
+				if (SlbT_TREASURE == slab->kind && slabmap_owner(slab) == dungeon->owner)
+				{
+					wants_treasure_room = 0;
+					break;
+				}
+			}
+		}
+
+		if (num_gem_tiles == 0 && num_gold_tiles < 6)
+			wants_treasure_room = 0;
+
+		if (wants_treasure_room)
+		{
+			digging->expand_room.rkind = RoK_TREASURE;
+			digging->expand_room.room_score = INT_MIN;
+			digging->expand_room.preferred_size = min(36, max(12, num_gold_tiles / 2 + 8 * num_gem_tiles));
+		}
+	}
+
+	//back track to own territory //TODO: use A* instead so that we can e.g. prefer not to wreck our walls, also this has gotten complicated due to mixing two different decisions (path and room build)
 	x = dig_gold->target_x;
 	y = dig_gold->target_y;
+	treasure_search_steps = 0;
 	abort = 0;
+	on_dug = 0;
 	for (;;)
 	{
 		int best_dist;
 		int current_dist;
 		MapSlabCoord best_x, best_y;
 
-		if (!digging->marked_for_dig[y][x] && dig_if_needed(comp, digging, x, y) == Lb_FAIL)
+		if (!on_dug && !digging->marked_for_dig[y][x] && dig_if_needed(comp, digging, x, y) == Lb_FAIL)
 		{
 			abort = 1;
 			break;
 		}
 
+		if (wants_treasure_room && treasure_search_steps < TREASURE_ROOM_SEARCH_TRACK)
+		{
+			treasure_search_steps += 1;
+			eval_expand_room(comp, digging, &digging->expand_room, 0, 1, 1, x, y, -1, 0);
+			eval_expand_room(comp, digging, &digging->expand_room, 0, 1, 1, x, y, 1, 0);
+			eval_expand_room(comp, digging, &digging->expand_room, 0, 1, 1, x, y, 0, -1);
+			eval_expand_room(comp, digging, &digging->expand_room, 0, 1, 1, x, y, 0, 1);
+		}
+		else if (on_dug)
+			break;
+
 		influence = get_slab_influence(x, y);
-		current_dist = influence->dig_distance[dungeon->owner];
+		current_dist = on_dug? influence->heart_distance[dungeon->owner] : influence->dig_distance[dungeon->owner];
 		if (current_dist <= 0)
 		{
-			if (current_dist < 0)
+			if (!on_dug && current_dist < 0)
 			{
 				abort = 1;
+				break;
 			}
-			break;
+			if (on_dug || !wants_treasure_room)
+				break;
+			on_dug = 1;
 		}
 
 		best_dist = current_dist;
 		best_x = x;
 		best_y = y;
-		try_get_closer(dungeon->owner, &best_dist, &best_x, &best_y, x - 1, y);
-		try_get_closer(dungeon->owner, &best_dist, &best_x, &best_y, x + 1, y);
-		try_get_closer(dungeon->owner, &best_dist, &best_x, &best_y, x, y - 1);
-		try_get_closer(dungeon->owner, &best_dist, &best_x, &best_y, x, y + 1);
+		try_get_closer(dungeon->owner, on_dug, &best_dist, &best_x, &best_y, x - 1, y);
+		try_get_closer(dungeon->owner, on_dug, &best_dist, &best_x, &best_y, x + 1, y);
+		try_get_closer(dungeon->owner, on_dug, &best_dist, &best_x, &best_y, x, y - 1);
+		try_get_closer(dungeon->owner, on_dug, &best_dist, &best_x, &best_y, x, y + 1);
 
 		if (best_dist < current_dist)
 		{
@@ -1065,7 +1133,8 @@ static void initiate_dig_gold(struct Computer2* comp, struct Digging* digging, s
 		}
 		else
 		{
-			abort = 1;
+			if (!on_dug)
+				abort = 1;
 			break;
 		}
 	}
@@ -1076,6 +1145,11 @@ static void initiate_dig_gold(struct Computer2* comp, struct Digging* digging, s
 	}
 	else
 	{
+		if (wants_treasure_room && digging->expand_room.room_score >= 0)
+		{
+			initiate_expand_room(comp, digging, &digging->expand_room);
+		}
+
 		SYNCLOG("Player %d decided to dig for gold at %dx%d", (int)dungeon->owner, dig_gold->target_x, dig_gold->target_y);
 		dig_gold->active = 1;
 	}
@@ -1102,6 +1176,8 @@ static TbBool check_dig_to_gold(struct Computer2* comp, struct Digging* digging,
 		for (x = 1; x < map_tiles_x - 1; ++x)
 		{
 			int score;
+			int nx, ny;
+			TbBool any_neighbors_digging;
 
 			if (digging->marked_for_dig[y][x])
 				continue;
@@ -1125,7 +1201,23 @@ static TbBool check_dig_to_gold(struct Computer2* comp, struct Digging* digging,
 			else
 				continue;
 
+			any_neighbors_digging = 0;
+			for (ny = y - 2; ny <= y + 2; ++ny)
+			{
+				for (nx = x - 2; nx <= x + 2; ++nx)
+				{
+					if (marked_for_dig_and_undug(digging, nx, ny))
+					{
+						any_neighbors_digging = 1;
+						break;
+					}
+				}
+			}
+
 			score /= 5 + influence->dig_distance[dungeon->owner];
+
+			if (any_neighbors_digging)
+				score *= 2;
 
 			//TODO: add score for blocks far away from enemies, especially strong ones
 
@@ -1585,7 +1677,20 @@ static int eval_expand_room_enlarged(struct Dungeon* dungeon, struct Digging* di
 	return eval_expand_room_pos(dungeon, digging, expand, room_pos);
 }
 
-static int eval_expand_room(struct Computer2* comp, struct Digging* digging, struct ExpandRoom* expand, int upscale, int downscale, MapSlabCoord x, MapSlabCoord y, MapSlabCoord dx, MapSlabCoord dy)
+static int eval_expand_room_rotated(struct Dungeon* dungeon, struct Digging* digging, struct ExpandRoom* expand, struct ExpandRoomPos* room_pos)
+{
+	int w, h;
+	w = room_pos->max_x - room_pos->min_x;
+	h = room_pos->max_y - room_pos->min_y;
+	if (w == h)
+		return INT_MIN;
+	room_pos->max_x = room_pos->min_x + h;
+	room_pos->max_y = room_pos->min_y + w;
+
+	return eval_expand_room_pos(dungeon, digging, expand, room_pos);
+}
+
+static int eval_expand_room(struct Computer2* comp, struct Digging* digging, struct ExpandRoom* expand, TbBool allow_move, int upscale, int downscale, MapSlabCoord x, MapSlabCoord y, MapSlabCoord dx, MapSlabCoord dy)
 {
 	struct Dungeon* dungeon;
 	struct ExpandRoomPos best_pos;
@@ -1656,41 +1761,54 @@ static int eval_expand_room(struct Computer2* comp, struct Digging* digging, str
 			memcpy(&best_pos, &pos, sizeof(pos));
 		}
 
+		//try to rotate
+		memcpy(&pos, &iteration_pos, sizeof(pos));
+		score = eval_expand_room_rotated(dungeon, digging, expand, &pos);
+		if (score > best_score)
+		{
+			changed = 1;
+			best_score = score;
+			memcpy(&best_pos, &pos, sizeof(pos));
+		}
+
 		//try to translate in any position
-		memcpy(&pos, &iteration_pos, sizeof(pos));
-		score = eval_expand_room_moved(dungeon, digging, expand, &pos, -1, 0);
-		if (score > best_score)
+		if (allow_move)
 		{
-			changed = 1;
-			best_score = score;
-			memcpy(&best_pos, &pos, sizeof(pos));
-		}
+			memcpy(&pos, &iteration_pos, sizeof(pos));
+			score = eval_expand_room_moved(dungeon, digging, expand, &pos, -1, 0);
+			if (score > best_score)
+			{
+				changed = 1;
+				best_score = score;
+				memcpy(&best_pos, &pos, sizeof(pos));
+			}
 
-		memcpy(&pos, &iteration_pos, sizeof(pos));
-		score = eval_expand_room_moved(dungeon, digging, expand, &pos, 1, 0);
-		if (score > best_score)
-		{
-			changed = 1;
-			best_score = score;
-			memcpy(&best_pos, &pos, sizeof(pos));
-		}
+			memcpy(&pos, &iteration_pos, sizeof(pos));
+			score = eval_expand_room_moved(dungeon, digging, expand, &pos, 1, 0);
+			if (score > best_score)
+			{
+				changed = 1;
+				best_score = score;
+				memcpy(&best_pos, &pos, sizeof(pos));
+			}
 
-		memcpy(&pos, &iteration_pos, sizeof(pos));
-		score = eval_expand_room_moved(dungeon, digging, expand, &pos, 0, -1);
-		if (score > best_score)
-		{
-			changed = 1;
-			best_score = score;
-			memcpy(&best_pos, &pos, sizeof(pos));
-		}
+			memcpy(&pos, &iteration_pos, sizeof(pos));
+			score = eval_expand_room_moved(dungeon, digging, expand, &pos, 0, -1);
+			if (score > best_score)
+			{
+				changed = 1;
+				best_score = score;
+				memcpy(&best_pos, &pos, sizeof(pos));
+			}
 
-		memcpy(&pos, &iteration_pos, sizeof(pos));
-		score = eval_expand_room_moved(dungeon, digging, expand, &pos, 0, 1);
-		if (score > best_score)
-		{
-			changed = 1;
-			best_score = score;
-			memcpy(&best_pos, &pos, sizeof(pos));
+			memcpy(&pos, &iteration_pos, sizeof(pos));
+			score = eval_expand_room_moved(dungeon, digging, expand, &pos, 0, 1);
+			if (score > best_score)
+			{
+				changed = 1;
+				best_score = score;
+				memcpy(&best_pos, &pos, sizeof(pos));
+			}
 		}
 	}
 
@@ -1728,6 +1846,28 @@ static int eval_expand_room(struct Computer2* comp, struct Digging* digging, str
 						else
 							best_score += 1;
 					}
+					break;
+				}
+			}
+		}
+	}
+	else if (expand->rkind == RoK_TREASURE)
+	{
+		//reward gold/gems near treasure
+		for (y = best_pos.min_y - TREASURE_ROOM_SEARCH_RADIUS; y <= best_pos.max_y + TREASURE_ROOM_SEARCH_RADIUS; ++y)
+		{
+			for (x = best_pos.min_x - TREASURE_ROOM_SEARCH_RADIUS; x <= best_pos.max_x + TREASURE_ROOM_SEARCH_RADIUS; ++x)
+			{
+				int dist;
+				struct SlabMap* slab;
+				slab = get_slabmap_block(x, y);
+				switch (slab->kind)
+				{
+				case SlbT_GOLD:
+				case SlbT_GEMS:
+					dist = min(abs(best_pos.min_x - x), abs(best_pos.max_x - x)) +
+						min(abs(best_pos.min_y - y), abs(best_pos.max_y - y));
+					best_score += 1 + 3 * max(0, TREASURE_ROOM_SEARCH_RADIUS - dist) / TREASURE_ROOM_SEARCH_RADIUS;
 					break;
 				}
 			}
@@ -1800,10 +1940,10 @@ static TbBool find_expand_location(struct Computer2* comp, struct Digging* diggi
 					}
 				}
 				//SYNCLOG("evaluating expand %d %d", x, y);
-				eval_expand_room(comp, digging, expand, upscale, downscale, x, y, -1, 0);
-				eval_expand_room(comp, digging, expand, upscale, downscale, x, y, 1, 0);
-				eval_expand_room(comp, digging, expand, upscale, downscale, x, y, 0, -1);
-				eval_expand_room(comp, digging, expand, upscale, downscale, x, y, 0, 1);
+				eval_expand_room(comp, digging, expand, 1, upscale, downscale, x, y, -1, 0);
+				eval_expand_room(comp, digging, expand, 1, upscale, downscale, x, y, 1, 0);
+				eval_expand_room(comp, digging, expand, 1, upscale, downscale, x, y, 0, -1);
+				eval_expand_room(comp, digging, expand, 1, upscale, downscale, x, y, 0, 1);
 			}
 			// Per-room code ends
 			k++;
