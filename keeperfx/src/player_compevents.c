@@ -31,6 +31,7 @@
 #include "config_terrain.h"
 #include "creature_states_combt.h"
 #include "creature_states.h"
+#include "player_newcomp.h"
 #include "power_hand.h"
 
 #include "dungeon_data.h"
@@ -436,9 +437,9 @@ long computer_event_attack_magic_foe(struct Computer2 *comp, struct ComputerEven
 
 long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEvent *cevent)
 {
-#ifdef NEW_DIGBUILD
-	return 4;
-#endif
+	if (newdig)
+		return 4;
+
     long ret;
     SYNCDBG(18,"Starting");
     ret = 4;

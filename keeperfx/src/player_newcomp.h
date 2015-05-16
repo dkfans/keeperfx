@@ -56,6 +56,8 @@ long computer_check_prison_management(struct Computer2* comp);
 long computer_check_new_digging(struct Computer2* comp);
 void computer_setup_new_digging(void);
 
+extern TbBool newdig; //is new digging enabled?
+
 #ifdef __cplusplus
 }
 #endif

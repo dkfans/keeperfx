@@ -144,6 +144,7 @@ struct Room *droom = &_DK_game.rooms[25];
 #define INTRO_TIMEDELAY 3000
 
 static TbBool speedlog;
+TbBool newdig;
 
 //static
 TbClockMSec last_loop_time=0;
@@ -4632,6 +4633,7 @@ short process_command_line(unsigned short argc, char *argv[])
   if (endpos!=NULL)
       *endpos='\0';
 
+  start_params.one_player = 1; //always offer this now, no point in hiding it
   SoundDisabled = 0;
   // Note: the working log file is set up in LbBullfrogMain
   _DK_LbErrorLogSetup(0, 0, 1);
@@ -4673,6 +4675,10 @@ short process_command_line(unsigned short argc, char *argv[])
       if (strcasecmp(parstr, "1player") == 0)
       {
           start_params.one_player = 1;
+      } else
+      if (strcasecmp(parstr, "newdig") == 0)
+      {
+          newdig = 1;
       } else
       if ((strcasecmp(parstr, "s") == 0) || (strcasecmp(parstr, "nosound") == 0))
       {

@@ -1107,6 +1107,9 @@ TbBool computer_check_for_expand_room_kind(struct Computer2 *comp, struct Comput
 
 long computer_check_for_expand_room(struct Computer2 *comp, struct ComputerCheck * check)
 {
+	if (newdig)
+		return 4;
+
     SYNCDBG(8,"Starting");
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
