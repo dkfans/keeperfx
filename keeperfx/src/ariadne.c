@@ -2069,7 +2069,121 @@ long ariadne_get_wallhug_angle(struct Thing *thing, struct Ariadne *arid)
 
 void ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(struct Thing *thing, struct Ariadne *arid, long inangle, short *rangle, unsigned char *rflag)
 {
-    _DK_ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(thing, arid, inangle, rangle, rflag); return;
+    //_DK_ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(thing, arid, inangle, rangle, rflag); return;
+    struct Coord3d bkp_mappos;
+    bkp_mappos = thing->mappos;
+    int inangle_oneaxis;
+    int bkp_angle_xy;
+    int bkp_fld20;
+    int bkp_speed;
+    bkp_angle_xy = thing->move_angle_xy;
+    bkp_speed = arid->move_speed;
+    bkp_fld20 = arid->field_20;
+    int angle_beg;
+    int nfld20;
+    int angle_end;
+    if (inangle == 0)
+    {
+        angle_beg = 3*LbFPMath_PI/2;
+        nfld20 = 2;
+        angle_end = LbFPMath_PI/2;
+        inangle_oneaxis = 1;
+    } else
+    if (inangle == LbFPMath_PI/2)
+    {
+        angle_beg = 0;
+        nfld20 = 2;
+        angle_end = 1024;
+        inangle_oneaxis = 1;
+    } else
+    if (inangle == LbFPMath_PI)
+    {
+        angle_beg = LbFPMath_PI/2;
+        nfld20 = 2;
+        angle_end = 3*LbFPMath_PI/2;
+        inangle_oneaxis = 1;
+    } else
+    if (inangle == 3*LbFPMath_PI/2)
+    {
+        angle_beg = LbFPMath_PI;
+        nfld20 = 2;
+        angle_end = 0;
+        inangle_oneaxis = 1;
+    }
+    arid->move_speed = 256;
+    int whsteps;
+    int whgot2;
+    int whgot1;
+    int size_steps;
+    size_steps = thing_nav_sizexy(thing) >> 9;
+    thing->move_angle_xy = angle_beg;
+    size_steps += 2;
+    whsteps = size_steps;
+    whgot1 = size_steps;
+    whgot2 = size_steps;
+    arid->field_20 = nfld20;
+    struct Coord3d pos;
+    int i;
+    long whang;
+    for (i = 0; i < whsteps; i++)
+    {
+        whang = ariadne_get_wallhug_angle(thing, arid);
+        if (whang != -1)
+        {
+            if (whang == inangle) {
+                whgot1 = i;
+                break;
+            }
+            pos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(arid->move_speed, whang);
+            pos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(arid->move_speed, whang);
+            pos.z.val = get_thing_height_at(thing, &pos);
+            if (ariadne_check_forward_for_wallhug_gap(thing, arid, &pos, whang)) {
+                whgot1 = i;
+                break;
+            }
+            thing->mappos = pos;
+        }
+    }
+    thing->move_angle_xy = angle_end;
+    arid->field_20 = inangle_oneaxis;
+    thing->mappos = bkp_mappos;
+    for (i = 0; i < whsteps; i++)
+    {
+        whang = ariadne_get_wallhug_angle(thing, arid);
+        if (whang != -1)
+        {
+            if (whang == inangle) {
+                whgot2 = i;
+                break;
+            }
+            pos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(arid->move_speed, whang);
+            pos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(arid->move_speed, whang);
+            pos.z.val = get_thing_height_at(thing, &pos);
+            if (ariadne_check_forward_for_wallhug_gap(thing, arid, &pos, whang)) {
+                whgot2 = i;
+                break;
+            }
+            thing->mappos = pos;
+        }
+    }
+    thing->move_angle_xy = bkp_angle_xy;
+    thing->mappos = bkp_mappos;
+    arid->move_speed = bkp_speed;
+    arid->field_20 = bkp_fld20;
+    if (whgot2 > whgot1)
+    {
+        *rangle = angle_beg;
+        *rflag = nfld20;
+    } else
+    if (whgot2 >= whgot1)
+    {
+        *rangle = angle_beg;
+        *rflag = nfld20;
+    } else
+    {
+        *rangle = angle_end;
+        *rflag = inangle_oneaxis;
+    }
 }
 
 long ariadne_get_starting_angle_and_side_of_wallhug(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos, short *rangle, unsigned char *rflag)
