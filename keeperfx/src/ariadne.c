@@ -50,6 +50,11 @@ struct QuadrantOffset {
     long y;
 };
 
+struct HugStart {
+    short field_0;
+    unsigned char field_2;
+};
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -110,6 +115,7 @@ DLLIMPORT long _DK_calc_intersection(struct Gate *gt, long tag_id, long tri_end_
 DLLIMPORT void _DK_cull_gate_to_point(struct Gate *gt, long tag_id);
 DLLIMPORT void _DK_cull_gate_to_best_point(struct Gate *gt, long tag_id);
 DLLIMPORT void _DK_set_nearpoint(long tri_id, long cor_id, long dstx, long dsty, long *px, long *py);
+DLLIMPORT void _DK_ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(struct Thing *thing, struct Ariadne *arid, long inangle, short *rangle, unsigned char *rflag);
 /******************************************************************************/
 DLLIMPORT long _DK_tri_initialised;
 #define tri_initialised _DK_tri_initialised
@@ -204,6 +210,23 @@ const unsigned long actual_sizexy_to_nav_sizexy_table[] = {
     974,
 };
 
+const struct HugStart blocked_x_hug_start[][2] = {
+    {{          0, 1}, {LbFPMath_PI, 2}},
+    {{          0, 2}, {LbFPMath_PI, 1}},
+};
+
+const struct HugStart blocked_y_hug_start[][2] = {
+    {{3*LbFPMath_PI/2, 2}, {LbFPMath_PI/2, 1}},
+    {{3*LbFPMath_PI/2, 1}, {LbFPMath_PI/2, 2}},
+};
+
+const struct HugStart blocked_xy_hug_start[][2][2] = {
+   {{{3*LbFPMath_PI/2, 2}, {          0, 1}},
+    {{  LbFPMath_PI/2, 1}, {          0, 2}}},
+   {{{3*LbFPMath_PI/2, 1}, {LbFPMath_PI, 2}},
+    {{  LbFPMath_PI/2, 2}, {LbFPMath_PI, 1}}},
+};
+
 struct Path fwd_path;
 struct Path bak_path;
 struct Path best_path;
@@ -246,10 +269,13 @@ long ix_Points = 0;
 long free_Points = -1;
 */
 /******************************************************************************/
-long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, long *pt_id1, long wp_lim, struct Path *path, long *total_len);
-void path_out_a_bit(struct Path *path, long *ptfind_y);
+long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, const long *route, long wp_lim, struct Path *path, long *total_len);
+void path_out_a_bit(struct Path *path, const long *route);
 void gate_navigator_init8(struct Pathway *pway, long trAx, long trAy, long trBx, long trBy, long wp_lim, unsigned char a7);
-void route_through_gates(const struct Pathway *pway, struct Path *path, long mag);
+void route_through_gates(const struct Pathway *pway, struct Path *path, long subroute);
+long ariadne_push_position_against_wall(struct Thing *thing, const struct Coord3d *pos1, struct Coord3d *pos_out);
+long ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos, long a4);
+long ariadne_get_blocked_flags(struct Thing *thing, const struct Coord3d *pos);
 long triangle_findSE8(long ptfind_x, long ptfind_y);
 long ma_triangle_route(long ptfind_x, long ptfind_y, long *ptstart_x);
 void edgelen_init(void);
@@ -523,7 +549,7 @@ long fov_region(long a1, long a2, const struct FOV *fov)
     return (LbCompareMultiplications(diff_ay, diff_cx, diff_ax, diff_cy) > 0);
 }
 
-long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, long *route, long wp_lim, struct Path *path, long *total_len)
+long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, const long *route, long wp_lim, struct Path *path, long *total_len)
 {
     NAVIDBG(19,"Starting");
     //return _DK_route_to_path(ptfind_x, ptfind_y, ptstart_x, ptstart_y, route, wp_lim, path, total_len);
@@ -730,7 +756,7 @@ void waypoint_normal(long tri1_id, long cor1_id, long *norm_x, long *norm_y)
     *norm_y = ny;
 }
 
-void path_out_a_bit(struct Path *path, long *route)
+void path_out_a_bit(struct Path *path, const long *route)
 {
     struct PathWayPoint *ppoint;
     long *wpoint;
@@ -1237,16 +1263,16 @@ void gate_navigator_init8(struct Pathway *pway, long trAx, long trAy, long trBx,
     }
 }
 
-void route_through_gates(const struct Pathway *pway, struct Path *path, long mag)
+void route_through_gates(const struct Pathway *pway, struct Path *path, long subroute)
 {
     const struct Gate *ppoint;
     struct PathWayPoint *wpoint;
     long i;
     //_DK_route_through_gates(pway, path, mag); return;
-    if (mag > 16383)
-        mag = 16383;
-    if (mag < 0)
-        mag = 0;
+    if (subroute > 16383)
+        subroute = 16383;
+    if (subroute < 0)
+        subroute = 0;
     path->start.x = pway->field_0;
     path->start.y = pway->field_4;
     path->finish.x = pway->field_8;
@@ -1258,12 +1284,12 @@ void route_through_gates(const struct Pathway *pway, struct Path *path, long mag
     {
         if (ppoint->field_18)
         {
-            wpoint->x = ppoint->field_8 - (mag * (ppoint->field_8 - ppoint->field_0) >> 14);
-            wpoint->y = ppoint->field_C - (mag * (ppoint->field_C - ppoint->field_4) >> 14);
+            wpoint->x = ppoint->field_8 - (subroute * (ppoint->field_8 - ppoint->field_0) >> 14);
+            wpoint->y = ppoint->field_C - (subroute * (ppoint->field_C - ppoint->field_4) >> 14);
         } else
         {
-            wpoint->x = ppoint->field_0 + (mag * (ppoint->field_8 - ppoint->field_0) >> 14);
-            wpoint->y = ppoint->field_4 + (mag * (ppoint->field_C - ppoint->field_4) >> 14);
+            wpoint->x = ppoint->field_0 + (subroute * (ppoint->field_8 - ppoint->field_0) >> 14);
+            wpoint->y = ppoint->field_4 + (subroute * (ppoint->field_C - ppoint->field_4) >> 14);
         }
         wpoint++;
         ppoint++;
@@ -2041,9 +2067,131 @@ long ariadne_get_wallhug_angle(struct Thing *thing, struct Ariadne *arid)
     return _DK_ariadne_get_wallhug_angle(thing, arid);
 }
 
+void ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(struct Thing *thing, struct Ariadne *arid, long inangle, short *rangle, unsigned char *rflag)
+{
+    _DK_ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(thing, arid, inangle, rangle, rflag); return;
+}
+
+long ariadne_get_starting_angle_and_side_of_wallhug(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos, short *rangle, unsigned char *rflag)
+{
+    TbBool nxdelta_x_neg, nxdelta_y_neg;
+    TbBool crdelta_x_neg, crdelta_y_neg;
+    crdelta_x_neg = (thing->mappos.x.val - (long)pos->x.val) <= 0;
+    crdelta_y_neg = (thing->mappos.y.val - (long)pos->y.val) <= 0;
+    nxdelta_x_neg = (thing->mappos.x.val - (long)arid->current_waypoint_pos.x.val) <= 0;
+    nxdelta_y_neg = (thing->mappos.y.val - (long)arid->current_waypoint_pos.y.val) <= 0;
+    int axis_closer;
+    int nav_radius;
+    axis_closer = abs(thing->mappos.x.val - (long)arid->current_waypoint_pos.x.val) < abs(thing->mappos.y.val - (long)arid->current_waypoint_pos.y.val);
+    nav_radius = thing_nav_sizexy(thing) / 2;
+    MapCoord cur_pos_y_beg, cur_pos_y_end;
+    MapCoord cur_pos_x_beg, cur_pos_x_end;
+    cur_pos_x_beg = thing->mappos.x.val - nav_radius;
+    cur_pos_x_end = thing->mappos.x.val + nav_radius;
+    cur_pos_y_beg = thing->mappos.y.val - nav_radius;
+    cur_pos_y_end = thing->mappos.y.val + nav_radius;
+    int wp_num;
+    MapCoord wp_x, wp_y;
+    wp_num = arid->current_waypoint;
+    wp_x = arid->waypoints[wp_num].x.val;
+    wp_y = arid->waypoints[wp_num].y.val;
+    unsigned long blk_flags;
+    blk_flags = ariadne_get_blocked_flags(thing, pos);
+    if ((blk_flags & 0x01) != 0)
+    {
+        if ((wp_y >= cur_pos_y_beg) && (wp_y <= cur_pos_y_end))
+        {
+            if (nxdelta_x_neg)
+                ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(thing, arid, LbFPMath_PI/2, rangle, rflag);
+            else
+                ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(thing, arid, 3*LbFPMath_PI/2, rangle, rflag);
+        } else
+        {
+            *rangle = blocked_x_hug_start[crdelta_x_neg][nxdelta_y_neg].field_0;
+            *rflag = blocked_x_hug_start[crdelta_x_neg][nxdelta_y_neg].field_2;
+        }
+        return 1;
+    }
+    if ((blk_flags & 0x02) != 0)
+    {
+        if ((wp_x >= cur_pos_x_beg) && (wp_x <= cur_pos_x_end))
+        {
+            if (nxdelta_y_neg)
+                ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(thing, arid, LbFPMath_PI, rangle, rflag);
+            else
+                ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(thing, arid, 0, rangle, rflag);
+        } else
+        {
+            *rangle = blocked_y_hug_start[crdelta_y_neg][nxdelta_x_neg].field_0;
+            *rflag = blocked_y_hug_start[crdelta_y_neg][nxdelta_x_neg].field_2;
+        }
+        return 1;
+    }
+    if ((blk_flags & 0x04) != 0)
+    {
+        *rangle = blocked_xy_hug_start[crdelta_y_neg][crdelta_x_neg][axis_closer].field_0;
+        *rflag = blocked_xy_hug_start[crdelta_y_neg][crdelta_x_neg][axis_closer].field_2;
+        return 1;
+    }
+    return 0;
+}
+
 AriadneReturn ariadne_init_wallhug(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos)
 {
-    return _DK_ariadne_init_wallhug(thing, arid, pos);
+    //return _DK_ariadne_init_wallhug(thing, arid, pos);
+    if (arid->move_speed <= 0) {
+        ERRORLOG("Ariadne Speed not positive");
+    }
+    if (!ariadne_get_starting_angle_and_side_of_wallhug(thing, arid, pos, &arid->wallhug_angle, &arid->field_20))
+    {
+        arid->pos_12.x.val = thing->mappos.x.val;
+        arid->pos_12.y.val = thing->mappos.y.val;
+        arid->pos_12.z.val = thing->mappos.z.val;
+        arid->update_state = AridUpSt_OnLine;
+        return AridRet_OK;
+    }
+    arid->update_state = AridUpSt_Wallhug;
+    arid->pos_12.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(arid->move_speed, arid->wallhug_angle);
+    arid->pos_12.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(arid->move_speed, arid->wallhug_angle);
+    arid->pos_12.z.val = get_thing_height_at(thing, &arid->pos_12);
+    arid->pos_18 = thing->mappos;
+    arid->field_24 = arid->wallhug_angle;
+    if (ariadne_check_forward_for_wallhug_gap(thing, arid, &arid->pos_12, arid->wallhug_angle))
+    {
+        arid->pos_53.x.val = arid->pos_12.x.val;
+        arid->pos_53.y.val = arid->pos_12.y.val;
+        arid->pos_53.z.val = arid->pos_12.z.val;
+        arid->update_state = AridUpSt_Manoeuvre;
+        arid->manoeuvre_state = AridUpSStM_Unkn2;
+        return AridRet_OK;
+    }
+    long cannot_move;
+    {
+        MapCoord tng_z_mem;
+        tng_z_mem = thing->mappos.z.val;
+        struct Coord3d mvpos;
+        mvpos.x.val = arid->pos_12.x.val;
+        mvpos.y.val = arid->pos_12.y.val;
+        mvpos.z.val = get_floor_height_under_thing_at(thing, &thing->mappos);
+        thing->mappos.z.val = mvpos.z.val;
+        cannot_move = creature_cannot_move_directly_to(thing, &mvpos);
+        thing->mappos.z.val = tng_z_mem;
+    }
+    if ( cannot_move )
+    {
+        struct Coord3d pos2;
+        ariadne_push_position_against_wall(thing, &arid->pos_12, &pos2);
+        arid->pos_53.x.val = pos2.x.val;
+        arid->pos_53.y.val = pos2.y.val;
+        arid->pos_53.z.val = pos2.z.val;
+        arid->pos_59.x.val = arid->pos_12.x.val;
+        arid->pos_59.y.val = arid->pos_12.y.val;
+        arid->pos_59.z.val = arid->pos_12.z.val;
+        arid->update_state = AridUpSt_Manoeuvre;
+        arid->manoeuvre_state = AridUpSStM_Unkn1;
+        return AridRet_OK;
+    }
+    return AridRet_OK;
 }
 
 void clear_wallhugging_path(struct Navigation *navi)
@@ -2945,16 +3093,16 @@ AriadneReturn creature_follow_route_to_using_gates(struct Thing *thing, struct C
  * @param start_y Starting point coordinate.
  * @param end_x Destination point coordinate.
  * @param end_y Destination point coordinate.
- * @param a6
+ * @param subroute Random factor for determining position within route, or negative special value.
  * @param nav_size
  */
 void path_init8_wide_f(struct Path *path, long start_x, long start_y, long end_x, long end_y,
-    long a6, unsigned char nav_size, const char *func_name)
+    long subroute, unsigned char nav_size, const char *func_name)
 {
     long route_dist;
     //_DK_path_init8_wide(path, start_x, start_y, end_x, end_y, a6, nav_size); return;
     NAVIDBG(9,"%s: Path from %5ld,%5ld to %5ld,%5ld on turn %lu", func_name, start_x, start_y, end_x, end_y, game.play_gameturn);
-    if (a6 == -1)
+    if (subroute == -1)
       WARNLOG("%s: implement random externally", func_name);
     path->start.x = start_x;
     path->start.y = start_y;
@@ -2993,7 +3141,7 @@ void path_init8_wide_f(struct Path *path, long start_x, long start_y, long end_x
     }
     tree_altA = get_triangle_tree_alt(tree_triA);
     tree_altB = get_triangle_tree_alt(tree_triB);
-    if (a6 == -2)
+    if (subroute == -2)
     {
         tree_routelen = ma_triangle_route(tree_triA, tree_triB, &tree_routecost);
         NAVIDBG(19,"%s: route=%d", func_name, tree_routelen);
@@ -3005,7 +3153,7 @@ void path_init8_wide_f(struct Path *path, long start_x, long start_y, long end_x
     } else
     {
         gate_navigator_init8(&ap_GPathway, start_x, start_y, end_x, end_y, 4096, nav_size);
-        route_through_gates(&ap_GPathway, path, a6);
+        route_through_gates(&ap_GPathway, path, subroute);
     }
     if (path->waypoints_num > 0) {
         NAVIDBG(9,"%s: Finished with %3ld waypoints, start: (%d,%d), (%d,%d), (%d,%d), (%d,%d), (%d,%d), (%d,%d), (%d,%d), (%d,%d)", func_name,(long)path->waypoints_num,

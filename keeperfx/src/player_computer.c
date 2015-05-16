@@ -289,6 +289,14 @@ struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind 
     return INVALID_COMPUTER_TASK;
 }
 
+/**
+ * Finds a room which would be a good place to start digging for a gold vein.
+ *
+ * @param dungeon
+ * @param gldlook
+ * @param nearroom
+ * @return Distance to the selected room in subtiles, or LONG_MAX if no room was found.
+ */
 long computer_finds_nearest_room_to_gold_lookup(const struct Dungeon *dungeon, const struct GoldLookup *gldlook, struct Room **nearroom)
 {
     struct Room *room;
@@ -385,7 +393,7 @@ long computer_finds_nearest_task_to_gold(const struct Computer2 *comp, const str
  * @param comp Computer player which considers starting the digging.
  * @param pos Resurns position to start digging from.
  * @param gldlookref Returns reference to GoldLookup containing coords of the place to dig to.
- * @return Lower or equal 0 on failure, positive if gold digging is ready to go.
+ * @return Lower or equal 0 on failure, positive amount of subtiles if gold digging is ready to go.
  */
 long computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d *pos, struct GoldLookup **gldlookref)
 {

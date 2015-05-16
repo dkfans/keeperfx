@@ -1015,6 +1015,7 @@
  0001:00092C30       maintain_ally
  0001:00092BC0       maintain_prison_bar
  0001:00092CA0       gui_video_cluedo_maintain
+ 0001:000817D0       ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move
  0001:00081200       ariadne_check_forward_for_wallhug_gap
  0001:00081B30       draw_resurrect_creature
  0001:00081D10       select_resurrect_creature_up
