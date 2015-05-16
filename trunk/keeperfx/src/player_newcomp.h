@@ -42,6 +42,7 @@ struct SlabInfluence* get_slab_influence(MapSlabCoord x, MapSlabCoord y);
 TbBool is_digging_any_gems(struct Dungeon *dungeon);
 struct Thing * find_imp_for_sacrifice(struct Dungeon* dungeon);
 struct Thing * find_imp_for_claim(struct Dungeon* dungeon);
+struct Thing * find_imp_for_urgent_dig(struct Dungeon* dungeon);
 struct Thing * find_creature_for_low_priority_attack(struct Dungeon* dungeon, TbBool strong);
 struct Thing * find_any_chicken(struct Dungeon* dungeon);
 float calc_players_strength(struct Dungeon* dungeon); //TODO: change from float to int, realized int is needed for determinism

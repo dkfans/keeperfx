@@ -464,6 +464,83 @@ struct Thing * find_imp_for_claim(struct Dungeon* dungeon)
 	return best_tng;
 }
 
+/*************************************************************************/
+/* Find good imp for urgent digging.                                     */
+/*************************************************************************/
+struct Thing * find_imp_for_urgent_dig(struct Dungeon* dungeon)
+{
+	SYNCDBG(19,"Starting");
+
+	long best_priority;
+	struct Thing *best_tng;
+	best_priority = INT_MIN;
+	best_tng = INVALID_THING;
+
+	long i;
+	unsigned long k;
+	k = 0;
+	i = dungeon->digger_list_start;
+	while (i != 0)
+	{
+		struct Thing *thing;
+		struct CreatureControl *cctrl;
+		thing = thing_get(i);
+		cctrl = creature_control_get_from_thing(thing);
+		if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+		{
+			ERRORLOG("Jump to invalid creature detected");
+			break;
+		}
+		i = cctrl->players_next_creature_idx;
+		// Thing list loop body
+		if (cctrl->combat_flags == 0)
+		{
+			if (!creature_is_being_unconscious(thing) && !creature_affected_by_spell(thing, SplK_Chicken))
+			{
+				if (!creature_is_being_dropped(thing) && can_thing_be_picked_up_by_player(thing, dungeon->owner))
+				{
+					long priority;
+					long state_type;
+					state_type = get_creature_state_type(thing);
+
+					priority = 100000 * (1 + cctrl->explevel) / (1000 + thing->creature.gold_carried + thing->health); //base value
+					if (state_type == CrStTyp_Work)
+					{
+						priority /= 2;
+
+						CrtrStateId state;
+						state = get_creature_state_besides_move(thing);
+						switch (state)
+						{
+						case CrSt_ImpArrivesAtDigDirt:
+						case CrSt_ImpDigsDirt:
+						case CrSt_ImpConvertsDungeon:
+						case CrSt_ImpArrivesAtConvertDungeon:
+							goto thing_list_loop_body_ends; //don't override these states
+						}
+					}
+
+					if (priority > best_priority)
+					{
+						best_priority = priority;
+						best_tng = thing;
+					}
+				}
+			}
+		}
+		thing_list_loop_body_ends:
+		// Thing list loop body ends
+		k++;
+		if (k > CREATURES_COUNT)
+		{
+			ERRORLOG("Infinite loop detected when sweeping creatures list");
+			return INVALID_THING;
+		}
+	}
+
+	return best_tng;
+}
+
 /*******************************************************************************************/
 /* Find creature that can be considered good for non-combat attacks, e.g. opening doors.   */
 /*******************************************************************************************/
