@@ -840,6 +840,31 @@ struct Digging
 
 static struct Digging comp_digging[KEEPER_COUNT];
 
+static TbBool marked_for_dig_and_undug(struct Digging* digging, MapSlabCoord x, MapSlabCoord y)
+{
+	struct SlabMap* slab;
+
+	if (!digging->marked_for_dig[y][x])
+		return 0;
+
+	slab = get_slabmap_block(x, y);
+	switch (slab->kind)
+	{
+	case SlbT_EARTH:
+	case SlbT_GOLD:
+	case SlbT_GEMS:
+	case SlbT_TORCHDIRT:
+	case SlbT_WALLDRAPE:
+	case SlbT_WALLPAIRSHR:
+	case SlbT_WALLTORCH:
+	case SlbT_WALLWTWINS:
+	case SlbT_WALLWWOMAN:
+		return 1;
+	default:
+		return 0;
+	}
+}
+
 void computer_setup_new_digging(void)
 {
 	int plyr_idx;
@@ -1176,6 +1201,33 @@ static void process_expand_room(struct Computer2* comp, struct Digging* digging)
 	finished = 1;
 	aborted = 0;
 
+	//quickfix for temple sacrifice, set central slab first (because first slab apparently is central_stl)
+	if (digging->expand_room.rkind == RoK_TEMPLE)
+	{
+		x = (pos->max_x + pos->min_x) / 2;
+		y = (pos->max_y + pos->min_y) / 2;
+
+		struct SlabMap* slab;
+		slab = get_slabmap_block(x, y);
+		switch (slab->kind)
+		{
+		case SlbT_CLAIMED:
+			finished = 0;
+			//if has money -> try build
+			result = build_room_if_possible(comp, digging->expand_room.rkind, x, y);
+			if (result == Lb_SUCCESS) return;
+			if (result == Lb_FAIL)
+			{
+				aborted = 1;
+				goto exit_loops;
+			}
+			break;
+		default:
+			if (is_diggable_or_buildable(dungeon, digging, x, y))
+				return;
+		}
+	}
+
 	//check each slab in room
 	for (y = pos->min_y; y <= pos->max_y; ++y)
 	{
@@ -1288,6 +1340,46 @@ static TbBool is_accessible(struct Dungeon* dungeon, struct SlabMap* slab)
 	}
 }
 
+static int eval_expand_room_wall(struct Digging* digging, int player, MapSlabCoord x, MapSlabCoord y)
+{
+	struct SlabMap* slab;
+	slab = get_slabmap_block(x, y);
+	switch (slab->kind)
+	{
+	case SlbT_WALLDRAPE:
+	case SlbT_WALLPAIRSHR:
+	case SlbT_WALLTORCH:
+	case SlbT_WALLWTWINS:
+	case SlbT_WALLWWOMAN:
+		return slabmap_owner(slab) == player? 25 : -100;
+	case SlbT_EARTH:
+	case SlbT_TORCHDIRT:
+		return digging->marked_for_dig[y][x]? 5 : 20; //treated as claimed if will be dig
+	case SlbT_ROCK:
+	case SlbT_GEMS:
+		return 15;
+	case SlbT_CLAIMED:
+		return 5; //traps are good, right
+	case SlbT_GOLD:
+		return digging->marked_for_dig[y][x]? 5 : 1; //better than nothing, avoids opening
+	case SlbT_LAVA:
+	case SlbT_WATER:
+	case SlbT_PATH:
+		return -50; //might be able to reduce this malus once there's dangerous area detection
+	case SlbT_DOORWOOD1:
+	case SlbT_DOORWOOD2:
+	case SlbT_DOORBRACE1:
+	case SlbT_DOORBRACE2:
+	case SlbT_DOORIRON1:
+	case SlbT_DOORIRON2:
+	case SlbT_DOORMAGIC1:
+	case SlbT_DOORMAGIC2:
+		return slabmap_owner(slab) == player? -25 : -100;
+	default:
+		return -10;
+	}
+}
+
 static int eval_expand_room_pos(struct Dungeon* dungeon, struct Digging* digging, struct ExpandRoom* expand, struct ExpandRoomPos* pos)
 {
 	struct SlabMap* slab;
@@ -1381,7 +1473,7 @@ static int eval_expand_room_pos(struct Dungeon* dungeon, struct Digging* digging
 	{
 		for (x = pos->min_x; x <= pos->max_x; ++x)
 		{
-			if (digging->marked_for_dig[y][x]) //in case of multiple expansions
+			if (marked_for_dig_and_undug(digging, x, y)) //in case of multiple expansions
 				return INT_MIN;
 
 			//if outside walls or otherwise not treasure chamber, demand access (TODO: see if any other rooms worth having non-accessible interiors for)
@@ -1425,9 +1517,28 @@ static int eval_expand_room_pos(struct Dungeon* dungeon, struct Digging* digging
 		}
 	}
 
-	//TODO: reduce score for long narrow rooms
+	//score walls
+	for (y = pos->min_y - 1; y <= pos->max_y + 1; ++y)
+	{
+		score += eval_expand_room_wall(digging, dungeon->owner, pos->min_x - 1, y);
+		score += eval_expand_room_wall(digging, dungeon->owner, pos->max_x + 1, y);
+	}
+	for (x = pos->min_x; x <= pos->max_x; ++x)
+	{
+		score += eval_expand_room_wall(digging, dungeon->owner, x, pos->min_y - 1);
+		score += eval_expand_room_wall(digging, dungeon->owner, x, pos->max_y + 1);
+	}
 
-	//TODO: penalize opening dungeon
+	//TODO: penalize opening dungeon to dangerous area
+
+	int w, h, d;
+	w = pos->max_x - pos->min_x + 1;
+	h = pos->max_y - pos->min_y + 1;
+	d = abs(w - h);
+	if (d > 1)
+		score -= 200 * (d - 1) * max(w, h);
+	else if (d == 1 && min(w, h) <= 2) //guiding heuristic to avoid sweeping around long useless rooms
+		score -= 200;
 
 	if (num_tiles > expand->preferred_size)
 	{
@@ -1567,6 +1678,8 @@ static int eval_expand_room(struct Computer2* comp, struct Digging* digging, str
 			memcpy(&best_pos, &pos, sizeof(pos));
 		}
 	}
+
+	//SYNCLOG("best WxH for room: %dx%d", best_pos.max_x - best_pos.min_x + 1, best_pos.max_y - best_pos.min_y + 1);
 
 	//SYNCLOG("quitting after %d iterations with score %d", i, best_score);
 	if (best_pos.max_x - best_pos.min_x < 2 || best_pos.max_y - best_pos.min_y < 2)
