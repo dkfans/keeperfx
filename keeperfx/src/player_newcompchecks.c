@@ -808,6 +808,7 @@ struct ExpandRoom //expand room (digging prior if necessary)
 	int preferred_size;
 	struct ExpandRoomPos room_pos;
 	int room_score;
+	int drop_count;
 };
 
 struct DigToGold
@@ -1201,6 +1202,20 @@ static void process_expand_room(struct Computer2* comp, struct Digging* digging)
 	finished = 1;
 	aborted = 0;
 
+	//try to drop imps (not working very well since old CP is overriding, but better than nothing for now)
+	if (digging->expand_room.drop_count < 3)
+	{
+		struct Thing* imp;
+		imp = find_imp_for_urgent_dig(dungeon);
+		if (thing_is_invalid(imp) ||
+				create_task_move_creature_to_subtile(comp, imp, pos->access_x * STL_PER_SLB + 1, pos->access_y * STL_PER_SLB + 1, CrSt_ImpDigsDirt) == Lb_FAIL)
+		{
+			digging->expand_room.drop_count = 9999;
+		}
+		else
+			digging->expand_room.drop_count += 1;
+	}
+
 	//quickfix for temple sacrifice, set central slab first (because first slab apparently is central_stl)
 	if (digging->expand_room.rkind == RoK_TEMPLE)
 	{
@@ -1570,7 +1585,7 @@ static int eval_expand_room_enlarged(struct Dungeon* dungeon, struct Digging* di
 	return eval_expand_room_pos(dungeon, digging, expand, room_pos);
 }
 
-static int eval_expand_room(struct Computer2* comp, struct Digging* digging, struct ExpandRoom* expand, MapSlabCoord x, MapSlabCoord y, MapSlabCoord dx, MapSlabCoord dy)
+static int eval_expand_room(struct Computer2* comp, struct Digging* digging, struct ExpandRoom* expand, int upscale, int downscale, MapSlabCoord x, MapSlabCoord y, MapSlabCoord dx, MapSlabCoord dy)
 {
 	struct Dungeon* dungeon;
 	struct ExpandRoomPos best_pos;
@@ -1679,12 +1694,44 @@ static int eval_expand_room(struct Computer2* comp, struct Digging* digging, str
 		}
 	}
 
+	best_score *= upscale;
+	best_score /= downscale;
+
 	//SYNCLOG("best WxH for room: %dx%d", best_pos.max_x - best_pos.min_x + 1, best_pos.max_y - best_pos.min_y + 1);
 
 	//SYNCLOG("quitting after %d iterations with score %d", i, best_score);
 	if (best_pos.max_x - best_pos.min_x < 2 || best_pos.max_y - best_pos.min_y < 2)
 	{
 		best_score = INT_MIN;
+	}
+	else if (expand->rkind == RoK_GARDEN)
+	{
+		//reward lots of accessible free space near hatchery
+		for (y = best_pos.min_y - 7; y <= best_pos.max_y + 7; ++y)
+		{
+			for (x = best_pos.min_x - 7; x <= best_pos.max_x + 7; ++x)
+			{
+				struct SlabInfluence* influence;
+				struct SlabMap* slab;
+				slab = get_slabmap_block(x, y);
+				switch (slab->kind)
+				{
+				case SlbT_CLAIMED:
+				case SlbT_EARTH:
+				case SlbT_PATH:
+				case SlbT_GOLD:
+					influence = get_slab_influence(x, y);
+					if (influence->dig_distance[dungeon->owner] >= 0)
+					{
+						if ((x >= best_pos.min_x && x <= best_pos.max_x) || (y >= best_pos.min_y && y <= best_pos.max_y))
+							best_score += 3;
+						else
+							best_score += 1;
+					}
+					break;
+				}
+			}
+		}
 	}
 
 	if (best_score > expand->room_score)
@@ -1724,14 +1771,39 @@ static TbBool find_expand_location(struct Computer2* comp, struct Digging* diggi
 			i = room->next_of_owner;
 			// Per-room code
 			{
+				int upscale, downscale;
 				MapSlabCoord x, y;
 				x = subtile_slab(room->central_stl_x);
 				y = subtile_slab(room->central_stl_y);
+
+				upscale = downscale = 1;
+				if (room->kind == RoK_LIBRARY)
+				{
+					upscale = 4;
+					downscale = 5;
+				}
+				else if (room->kind == RoK_GARDEN)
+				{
+					switch (expand->rkind)
+					{
+					case RoK_WORKSHOP:
+					case RoK_TRAINING:
+					case RoK_LIBRARY:
+					case RoK_SCAVENGER:
+						upscale = 11;
+						downscale = 10;
+						break;
+					default:
+						upscale = 9;
+						downscale = 10; //don't want to needlessly block hatchery with rooms that don't need it
+						break;
+					}
+				}
 				//SYNCLOG("evaluating expand %d %d", x, y);
-				eval_expand_room(comp, digging, expand, x, y, -1, 0);
-				eval_expand_room(comp, digging, expand, x, y, 1, 0);
-				eval_expand_room(comp, digging, expand, x, y, 0, -1);
-				eval_expand_room(comp, digging, expand, x, y, 0, 1);
+				eval_expand_room(comp, digging, expand, upscale, downscale, x, y, -1, 0);
+				eval_expand_room(comp, digging, expand, upscale, downscale, x, y, 1, 0);
+				eval_expand_room(comp, digging, expand, upscale, downscale, x, y, 0, -1);
+				eval_expand_room(comp, digging, expand, upscale, downscale, x, y, 0, 1);
 			}
 			// Per-room code ends
 			k++;
@@ -1819,6 +1891,7 @@ static void initiate_expand_room(struct Computer2* comp, struct Digging* digging
 	{
 		SYNCLOG("Player %d decided to build room %s of size %dx%d", (int)dungeon->owner, room_code_name(expand->rkind),
 			(expand->room_pos.max_x - expand->room_pos.min_x + 1), (expand->room_pos.max_y - expand->room_pos.min_y + 1));
+		expand->drop_count = 0;
 		expand->active = 1;
 	}
 }
