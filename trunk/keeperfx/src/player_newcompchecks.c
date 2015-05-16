@@ -830,7 +830,7 @@ struct DigToSecure
 
 #define CONCURRENT_GOLD_DIGS		10
 #define TREASURE_ROOM_SEARCH_RADIUS	9
-#define TREASURE_ROOM_SEARCH_TRACK	3
+#define TREASURE_ROOM_SEARCH_TRACK	2
 
 struct Digging
 {
@@ -1064,7 +1064,7 @@ static void initiate_dig_gold(struct Computer2* comp, struct Digging* digging, s
 			}
 		}
 
-		if (num_gem_tiles == 0 && num_gold_tiles < 6)
+		if (num_gem_tiles == 0 && num_gold_tiles < 5)
 			wants_treasure_room = 0;
 
 		if (wants_treasure_room)
