@@ -83,11 +83,15 @@ TbBool setup_heap_manager(void)
         return false;
     }
     wait_for_cd_to_be_available();
+#ifdef SPRITE_FORMAT_V2
+    fname = prepare_file_fmtpath(FGrp_StdData,"thingspr-%d.jty",32);
+#else
     fname = prepare_file_path(FGrp_StdData,"creature.jty");
+#endif
     //TODO CREATURE_SPRITE Use rewritten file handling when reading is rewritten
     file_handle = _DK_LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
     if (file_handle == -1) {
-        ERRORLOG("Can not open 'creature.jty'");
+        ERRORLOG("Can not open JTY file, \"%s\"",fname);
         return false;
     }
     for (i=0; i < KEEPSPRITE_LENGTH; i++)

@@ -72,9 +72,6 @@ struct TbSprite *pointer_sprites;
 struct TbSprite *end_pointer_sprites;
 unsigned char * pointer_data;
 
-unsigned char *nocd_raw;
-unsigned char *nocd_pal;
-
 struct TbSprite *end_map_font;
 struct TbSprite *end_map_hand;
 TbSpriteData map_font_data;
@@ -92,14 +89,14 @@ extern struct TbSetupSprite setup_testfont[];
 extern struct TbLoadFiles testfont_load_files[];
 #endif
 
-extern struct TbLoadFiles mcga_load_files[];
-extern struct TbLoadFiles vres256_load_files[];
-extern struct TbLoadFiles mcga_load_files_minimal[];
-extern struct TbLoadFiles vres256_load_files_minimal[];
-extern struct TbLoadFiles low_res_pointer_load_files[];
-extern struct TbLoadFiles low_res_small_pointer_load_files[];
-extern struct TbLoadFiles hi_res_pointer_load_files[];
-extern struct TbLoadFiles hi_res_small_pointer_load_files[];
+extern struct TbLoadFiles gui_load_files_320[];
+extern struct TbLoadFiles gui_load_files_640[];
+extern struct TbLoadFiles front_load_files_minimal_320[];
+extern struct TbLoadFiles front_load_files_minimal_640[];
+extern struct TbLoadFiles pointer_load_files_320[];
+extern struct TbLoadFiles pointer_small_load_files_320[];
+extern struct TbLoadFiles pointer_load_files_640[];
+extern struct TbLoadFiles pointer_small_load_files_640[];
 /******************************************************************************/
 
 /**
@@ -112,12 +109,12 @@ short LoadVRes256Data(long scrbuf_size)
     // Update size of the parchment buffer, as it is also used as screen buffer
     if (scrbuf_size < 640*480)
         scrbuf_size = 640*480;
-    i = LbDataFindStartIndex(vres256_load_files,(unsigned char **)&hires_parchment);
+    i = LbDataFindStartIndex(gui_load_files_640,(unsigned char **)&hires_parchment);
     if (i>=0) {
-        vres256_load_files[i].SLength = scrbuf_size;
+        gui_load_files_640[i].SLength = scrbuf_size;
     }
     // Load the files
-    if (LbDataLoadAll(vres256_load_files)) {
+    if (LbDataLoadAll(gui_load_files_640)) {
         return 0;
     }
     return 1;
@@ -137,7 +134,7 @@ short LoadMcgaData(void)
   int ferror;
   int ret_val;
   int i;
-  load_files = mcga_load_files;
+  load_files = gui_load_files_320;
   LbDataFreeAll(load_files);
   ferror = 0;
   i = 0;
@@ -176,7 +173,7 @@ short LoadMcgaData(void)
 short LoadMcgaDataMinimal(void)
 {
   // Load the files
-  if (LbDataLoadAll(mcga_load_files_minimal))
+  if (LbDataLoadAll(front_load_files_minimal_320))
     return 0;
   return 1;
 }
@@ -307,15 +304,15 @@ void load_pointer_file(short hi_res)
   if ((features_enabled & Ft_BigPointer) == 0)
   {
     if (hi_res)
-      ldfiles = hi_res_small_pointer_load_files;
+      ldfiles = pointer_small_load_files_640;
     else
-      ldfiles = low_res_small_pointer_load_files;
+      ldfiles = pointer_small_load_files_320;
   } else
   {
     if (hi_res)
-      ldfiles = hi_res_pointer_load_files;
+      ldfiles = pointer_load_files_640;
     else
-      ldfiles = low_res_pointer_load_files;
+      ldfiles = pointer_load_files_320;
   }
   if ( LbDataLoadAll(ldfiles) )
     ERRORLOG("Unable to load pointer files");
@@ -488,15 +485,15 @@ void unload_pointer_file(short hi_res)
   if ((features_enabled & Ft_BigPointer) == 0)
   {
     if (hi_res)
-      ldfiles = hi_res_small_pointer_load_files;
+      ldfiles = pointer_small_load_files_640;
     else
-      ldfiles = low_res_small_pointer_load_files;
+      ldfiles = pointer_small_load_files_320;
   } else
   {
     if (hi_res)
-      ldfiles = hi_res_pointer_load_files;
+      ldfiles = pointer_load_files_640;
     else
-      ldfiles = low_res_pointer_load_files;
+      ldfiles = pointer_load_files_320;
   }
   LbDataFreeAll(ldfiles);
 }
@@ -628,7 +625,7 @@ TbBool setup_screen_mode(unsigned short nmode)
         {
           if (lbDisplay.ScreenMode != nmode)
             LbScreenReset();
-          LbDataFreeAll(mcga_load_files_minimal);
+          LbDataFreeAll(front_load_files_minimal_320);
           ERRORLOG("MCGA Minimal not allowed (Reset)");
           MinimalResolutionSetup = 0;
         } else
@@ -640,7 +637,7 @@ TbBool setup_screen_mode(unsigned short nmode)
           unload_pointer_file(0);
           if (lbDisplay.ScreenMode != nmode)
             LbScreenReset();
-          LbDataFreeAll(mcga_load_files);
+          LbDataFreeAll(gui_load_files_320);
         }
     } else
     // so (LbGraphicsScreenHeight() >= 400)
@@ -649,7 +646,7 @@ TbBool setup_screen_mode(unsigned short nmode)
         {
           if ((lbDisplay.ScreenMode != nmode) || (MinimalResolutionSetup))
             LbScreenReset();
-          LbDataFreeAll(vres256_load_files_minimal);
+          LbDataFreeAll(front_load_files_minimal_640);
           MinimalResolutionSetup = 0;
         } else
         {
@@ -660,7 +657,7 @@ TbBool setup_screen_mode(unsigned short nmode)
           unload_pointer_file(1);
           if ((lbDisplay.ScreenMode != nmode) || (MinimalResolutionSetup))
             LbScreenReset();
-          LbDataFreeAll(vres256_load_files);
+          LbDataFreeAll(gui_load_files_640);
         }
     }
 
@@ -780,7 +777,7 @@ short setup_screen_mode_minimal(unsigned short nmode)
       {
         if ((nmode != lbDisplay.ScreenMode) || (force_video_mode_reset))
           LbScreenReset();
-        LbDataFreeAll(mcga_load_files_minimal);
+        LbDataFreeAll(front_load_files_minimal_320);
         MinimalResolutionSetup = 0;
       } else
       {
@@ -791,7 +788,7 @@ short setup_screen_mode_minimal(unsigned short nmode)
         unload_pointer_file(0);
         if ((nmode != lbDisplay.ScreenMode) || (force_video_mode_reset))
           LbScreenReset();
-        LbDataFreeAll(mcga_load_files);
+        LbDataFreeAll(gui_load_files_320);
       }
   } else
   {
@@ -801,7 +798,7 @@ short setup_screen_mode_minimal(unsigned short nmode)
         unload_pointer_file(1);
         if ((nmode != lbDisplay.ScreenMode) || (force_video_mode_reset))
           LbScreenReset();
-        LbDataFreeAll(vres256_load_files_minimal);
+        LbDataFreeAll(front_load_files_minimal_640);
         MinimalResolutionSetup = 0;
       } else
       {
@@ -810,7 +807,7 @@ short setup_screen_mode_minimal(unsigned short nmode)
         reset_heap_memory();
         if ((nmode != lbDisplay.ScreenMode) || (force_video_mode_reset))
           LbScreenReset();
-        LbDataFreeAll(vres256_load_files);
+        LbDataFreeAll(gui_load_files_640);
       }
   }
   mdinfo = LbScreenGetModeInfo(nmode);
@@ -844,9 +841,9 @@ short setup_screen_mode_minimal(unsigned short nmode)
       SYNCDBG(17,"Preparing minimal high resolution mode");
       MinimalResolutionSetup = 1;
       frontend_load_data_from_cd();
-      if ( LbDataLoadAll(vres256_load_files_minimal) )
+      if ( LbDataLoadAll(front_load_files_minimal_640) )
       {
-        ERRORLOG("Unable to load vres256_load_files_minimal files");
+        ERRORLOG("Unable to load VRes256 front_load minimal files");
         force_video_mode_reset = true;
         return 0;
       }
