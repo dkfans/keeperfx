@@ -405,10 +405,17 @@ TbBool load_swipe_graphic_for_creature(const struct Thing *thing)
     {
         struct TbLoadFiles *t_lfile;
         t_lfile = &swipe_load_file[0];
+#ifdef SPRITE_FORMAT_V2
+        sprintf(t_lfile->FName, "data/swipe%02d-%d.dat", swpe_idx, 32);
+        t_lfile++;
+        sprintf(t_lfile->FName, "data/swipe%02d-%d.tab", swpe_idx, 32);
+        t_lfile++;
+#else
         sprintf(t_lfile->FName, "data/swipe%02d.dat", swpe_idx);
         t_lfile++;
         sprintf(t_lfile->FName, "data/swipe%02d.tab", swpe_idx);
         t_lfile++;
+#endif
     }
     if ( LbDataLoadAll(swipe_load_file) )
     {
