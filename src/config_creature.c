@@ -374,14 +374,14 @@ void check_and_auto_fix_stats(void)
             n = crstat->learned_instance_level[i];
             if (crstat->learned_instance_id[i] != CrInst_NULL)
             {
-                if ((n < 0) || (n >= CREATURE_MAX_LEVEL))
+                if ((n < 1) || (n > CREATURE_MAX_LEVEL))
                 {
                     ERRORLOG("Creature model %d Learn Level for Instance slot %d Invalid - Fixing", (int)model, (int)(i+1));
                     crstat->learned_instance_level[i] = 1;
                 }
             } else
             {
-                if ((n >= 0) && (n < CREATURE_MAX_LEVEL))
+                if (n != 0)
                 {
                     ERRORLOG("Creature model %d Learn Level for Empty Instance slot %d - Fixing", (int)model, (int)(i+1));
                     crstat->learned_instance_level[i] = 0;

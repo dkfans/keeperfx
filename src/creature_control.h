@@ -576,7 +576,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     short field_of_view;
     /** Instance identifiers of the instances creature can learn. */
     unsigned char learned_instance_id[LEARNED_INSTANCES_COUNT];
-    /** Required level to use the instances creature can learn. */
+    /** Required level to use the instances creature can learn. Scaled 1..CREATURE_MAX_LEVEL. */
     unsigned char learned_instance_level[LEARNED_INSTANCES_COUNT];
     unsigned char research_value;
     unsigned char humanoid_creature;

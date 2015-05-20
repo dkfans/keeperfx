@@ -104,14 +104,15 @@ TbBool generation_due_in_game(void)
 
 TbBool generation_due_for_dungeon(struct Dungeon * dungeon)
 {
-    SYNCDBG(9,"Starting");
     if ( (game.armageddon_cast_turn == 0) || (game.armageddon.count_down + game.armageddon_cast_turn > game.play_gameturn) )
     {
         if ( (dungeon->turns_between_entrance_generation != -1) &&
              (game.play_gameturn - dungeon->last_entrance_generation_gameturn >= dungeon->turns_between_entrance_generation) ) {
+            SYNCDBG(9,"Due confirmed");
             return true;
         }
     }
+    SYNCDBG(9,"Due negative");
     return false;
 }
 
