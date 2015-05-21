@@ -466,6 +466,9 @@ void count_gold_hoardes_in_room(struct Room *room)
     wealth_size_holds = gold_per_hoard / get_wealth_size_types_count();
     GoldAmount max_hoard_size_in_room;
     max_hoard_size_in_room = wealth_size_holds * room->total_capacity / room->slabs_count;
+    // First, set the values to something big; this will prevent logging warnings on add/remove_gold_from_hoarde()
+    room->used_capacity = room->total_capacity;
+    room->capacity_used_for_storage = room->used_capacity * wealth_size_holds;
     long i;
     unsigned long k;
     k = 0;
@@ -1665,10 +1668,11 @@ void reset_state_of_creatures_working_in_room(struct Room *wrkroom)
 void update_room_total_capacity(struct Room *room)
 {
     struct RoomData *rdata;
+    Room_Update_Func cb;
     rdata = room_data_get_for_room(room);
-    if (rdata->update_total_capacity != NULL)
-    {
-        rdata->update_total_capacity(room);
+    cb = rdata->update_total_capacity;
+    if (cb != NULL) {
+        cb(room);
     }
 }
 
@@ -2461,16 +2465,10 @@ long compute_room_max_health(long slabs_count,unsigned short efficiency)
   return saturate_set_signed(max_health, 16);
 }
 
-TbBool update_room_total_capacities(struct Room *room)
+TbBool update_room_total_health(struct Room *room)
 {
-    struct RoomData *rdata;
-    Room_Update_Func cb;
     SYNCDBG(17,"Starting for %s index %d",room_code_name(room->kind),(int)room->index);
     room->health = compute_room_max_health(room->slabs_count, room->efficiency);
-    rdata = room_data_get_for_room(room);
-    cb = rdata->update_total_capacity;
-    if (cb != NULL)
-        cb(room);
     return true;
 }
 
@@ -2481,11 +2479,13 @@ TbBool update_room_contents(struct Room *room)
     rdata = room_data_get_for_room(room);
     SYNCDBG(17,"Starting for %s index %d",room_code_name(room->kind),(int)room->index);
     cb = rdata->update_storage_in_room;
-    if (cb != NULL)
+    if (cb != NULL) {
         cb(room);
+    }
     cb = rdata->update_workers_in_room;
-    if (cb != NULL)
+    if (cb != NULL) {
         cb(room);
+    }
     return true;
 }
 
@@ -4603,7 +4603,8 @@ void do_room_integration(struct Room *room)
 {
     SYNCDBG(7,"Starting for %s index %d owned by player %d",room_code_name(room->kind),(int)room->index,(int)room->owner);
     update_room_efficiency(room);
-    update_room_total_capacities(room);
+    update_room_total_health(room);
+    update_room_total_capacity(room);
     update_room_contents(room);
     init_room_sparks(room);
 }
