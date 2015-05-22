@@ -171,7 +171,7 @@ long computer_check_for_door_attacks(struct Computer2 *comp)
 	dungeon = comp->dungeon;
 
 	int i;
-	float my_strength, their_strength;
+	long my_strength, their_strength;
 	my_strength = calc_players_strength(dungeon);
 	attack_door_from_player[HERO_PLAYER] = 1;
 	for (i = 0; i < KEEPER_COUNT; ++i)
@@ -184,7 +184,7 @@ long computer_check_for_door_attacks(struct Computer2 *comp)
 		if (players_are_enemies(dungeon->owner, i))
 		{
 			their_strength = calc_players_strength(their_dungeon);
-			attack_door_from_player[i] = their_strength < 0.8f * my_strength;
+			attack_door_from_player[i] = 5 * their_strength < 4 * my_strength;
 			if (!attack_door_from_player[i])
 				attack_door_from_player[HERO_PLAYER] = 0; //to avoid opening frequent early blocking doors by level designers
 			//SYNCLOG("%d our: %f, their: %f", dungeon->owner, my_strength, their_strength);
@@ -398,7 +398,7 @@ long computer_check_for_claims(struct Computer2 *comp)
 	dungeon = comp->dungeon;
 
 	int i;
-	float my_strength, their_strength;
+	long my_strength, their_strength;
 	my_strength = calc_players_strength(dungeon);
 	for (i = 0; i < KEEPER_COUNT; ++i)
 	{
@@ -409,7 +409,7 @@ long computer_check_for_claims(struct Computer2 *comp)
 		if (players_are_enemies(dungeon->owner, i))
 		{
 			their_strength = calc_players_strength(their_dungeon);
-			claim_from_player[i] = their_strength < 0.8f * my_strength;
+			claim_from_player[i] = 5 * their_strength < 4 * my_strength;
 			//SYNCLOG("%d our: %f, their: %f", dungeon->owner, my_strength, their_strength);
 		}
 		else
@@ -806,6 +806,7 @@ struct ExpandRoom //expand room (digging prior if necessary)
 	TbBool for_dig_gold;
 	RoomKind rkind;
 	int preferred_size;
+	TbBool predug; //temporary in algorithm, not valid for final output
 	struct ExpandRoomPos room_pos;
 	int room_score;
 	int drop_count;
@@ -1487,6 +1488,21 @@ static int eval_expand_room_wall(struct Digging* digging, int player, MapSlabCoo
 	}
 }
 
+static TbBool is_floor_for(MapSlabCoord x, MapSlabCoord y, int player)
+{
+	struct SlabMap* slab;
+	slab = get_slabmap_block(x, y);
+	if (SlbT_CLAIMED == slab->kind)
+	{
+		return slabmap_owner(slab) == player;
+	}
+	else if (SlbT_PATH == slab->kind)
+	{
+		return 1;
+	}
+	return 0;
+}
+
 static int eval_expand_room_pos(struct Dungeon* dungeon, struct Digging* digging, struct ExpandRoom* expand, struct ExpandRoomPos* pos)
 {
 	struct SlabMap* slab;
@@ -1580,16 +1596,24 @@ static int eval_expand_room_pos(struct Dungeon* dungeon, struct Digging* digging
 	{
 		for (x = pos->min_x; x <= pos->max_x; ++x)
 		{
-			if (marked_for_dig_and_undug(digging, x, y)) //in case of multiple expansions
-				return INT_MIN;
-
-			//if outside walls or otherwise not treasure chamber, demand access (TODO: see if any other rooms worth having non-accessible interiors for)
-			if (expand->rkind != RoK_TREASURE ||
-				x == pos->min_x || x == pos->max_x || y == pos->min_y || y == pos->max_y)
+			if (expand->predug)
 			{
-				if (!is_diggable_or_buildable(dungeon, digging, x, y)) //don't want overlapping expansions
+				if (!is_floor_for(x, y, dungeon->owner))
 					return INT_MIN;
-			} //TODO: deduce points for non-conquerable interior in case where it passes through
+			}
+			else
+			{
+				if (marked_for_dig_and_undug(digging, x, y)) //in case of multiple expansions
+					return INT_MIN;
+
+				//if outside walls or otherwise not treasure chamber, demand access (TODO: see if any other rooms worth having non-accessible interiors for)
+				if (expand->rkind != RoK_TREASURE ||
+					x == pos->min_x || x == pos->max_x || y == pos->min_y || y == pos->max_y)
+				{
+					if (!is_diggable_or_buildable(dungeon, digging, x, y)) //don't want overlapping expansions
+						return INT_MIN;
+				} //TODO: deduce points for non-conquerable interior in case where it passes through
+			}
 
 			//give score
 			num_tiles += 1;
@@ -1601,7 +1625,10 @@ static int eval_expand_room_pos(struct Dungeon* dungeon, struct Digging* digging
 			switch (slab->kind)
 			{
 			case SlbT_EARTH:
-				score -= 1; //to prefer claimed
+				score -= 1; //to prefer path
+				break;
+			case SlbT_CLAIMED:
+				score += 3;
 				break;
 			case SlbT_GOLD:
 				if (expand->rkind == RoK_TREASURE)
@@ -1690,6 +1717,69 @@ static int eval_expand_room_rotated(struct Dungeon* dungeon, struct Digging* dig
 	return eval_expand_room_pos(dungeon, digging, expand, room_pos);
 }
 
+static int adjust_room_score(int score, struct ExpandRoomPos* pos, struct ExpandRoom* expand, struct Dungeon* dungeon)
+{
+	MapSlabCoord x, y;
+
+	if (pos->max_x - pos->min_x < 2 || pos->max_y - pos->min_y < 2)
+	{
+		score = INT_MIN;
+	}
+	else if (expand->rkind == RoK_GARDEN)
+	{
+		//reward lots of accessible free space near hatchery
+		for (y = pos->min_y - 7; y <= pos->max_y + 7; ++y)
+		{
+			for (x = pos->min_x - 7; x <= pos->max_x + 7; ++x)
+			{
+				struct SlabInfluence* influence;
+				struct SlabMap* slab;
+				slab = get_slabmap_block(x, y);
+				switch (slab->kind)
+				{
+				case SlbT_CLAIMED:
+				case SlbT_EARTH:
+				case SlbT_PATH:
+				case SlbT_GOLD:
+					influence = get_slab_influence(x, y);
+					if (influence->dig_distance[dungeon->owner] >= 0)
+					{
+						if ((x >= pos->min_x && x <= pos->max_x) || (y >= pos->min_y && y <= pos->max_y))
+							score += 3;
+						else
+							score += 1;
+					}
+					break;
+				}
+			}
+		}
+	}
+	else if (expand->rkind == RoK_TREASURE)
+	{
+		//reward gold/gems near treasure
+		for (y = pos->min_y - TREASURE_ROOM_SEARCH_RADIUS; y <= pos->max_y + TREASURE_ROOM_SEARCH_RADIUS; ++y)
+		{
+			for (x = pos->min_x - TREASURE_ROOM_SEARCH_RADIUS; x <= pos->max_x + TREASURE_ROOM_SEARCH_RADIUS; ++x)
+			{
+				int dist;
+				struct SlabMap* slab;
+				slab = get_slabmap_block(x, y);
+				switch (slab->kind)
+				{
+				case SlbT_GOLD:
+				case SlbT_GEMS:
+					dist = min(abs(pos->min_x - x), abs(pos->max_x - x)) +
+						min(abs(pos->min_y - y), abs(pos->max_y - y));
+					score += 1 + 3 * max(0, TREASURE_ROOM_SEARCH_RADIUS - dist) / TREASURE_ROOM_SEARCH_RADIUS;
+					break;
+				}
+			}
+		}
+	}
+
+	return score;
+}
+
 static int eval_expand_room(struct Computer2* comp, struct Digging* digging, struct ExpandRoom* expand, TbBool allow_move, int upscale, int downscale, MapSlabCoord x, MapSlabCoord y, MapSlabCoord dx, MapSlabCoord dy)
 {
 	struct Dungeon* dungeon;
@@ -1698,7 +1788,9 @@ static int eval_expand_room(struct Computer2* comp, struct Digging* digging, str
 	int i;
 	TbBool changed;
 
+	SYNCDBG(18, "Starting");
 	dungeon = comp->dungeon;
+	expand->predug = 0;
 
 	//find first tile we can expand on
 	for (;;)
@@ -1818,61 +1910,7 @@ static int eval_expand_room(struct Computer2* comp, struct Digging* digging, str
 	//SYNCLOG("best WxH for room: %dx%d", best_pos.max_x - best_pos.min_x + 1, best_pos.max_y - best_pos.min_y + 1);
 
 	//SYNCLOG("quitting after %d iterations with score %d", i, best_score);
-	if (best_pos.max_x - best_pos.min_x < 2 || best_pos.max_y - best_pos.min_y < 2)
-	{
-		best_score = INT_MIN;
-	}
-	else if (expand->rkind == RoK_GARDEN)
-	{
-		//reward lots of accessible free space near hatchery
-		for (y = best_pos.min_y - 7; y <= best_pos.max_y + 7; ++y)
-		{
-			for (x = best_pos.min_x - 7; x <= best_pos.max_x + 7; ++x)
-			{
-				struct SlabInfluence* influence;
-				struct SlabMap* slab;
-				slab = get_slabmap_block(x, y);
-				switch (slab->kind)
-				{
-				case SlbT_CLAIMED:
-				case SlbT_EARTH:
-				case SlbT_PATH:
-				case SlbT_GOLD:
-					influence = get_slab_influence(x, y);
-					if (influence->dig_distance[dungeon->owner] >= 0)
-					{
-						if ((x >= best_pos.min_x && x <= best_pos.max_x) || (y >= best_pos.min_y && y <= best_pos.max_y))
-							best_score += 3;
-						else
-							best_score += 1;
-					}
-					break;
-				}
-			}
-		}
-	}
-	else if (expand->rkind == RoK_TREASURE)
-	{
-		//reward gold/gems near treasure
-		for (y = best_pos.min_y - TREASURE_ROOM_SEARCH_RADIUS; y <= best_pos.max_y + TREASURE_ROOM_SEARCH_RADIUS; ++y)
-		{
-			for (x = best_pos.min_x - TREASURE_ROOM_SEARCH_RADIUS; x <= best_pos.max_x + TREASURE_ROOM_SEARCH_RADIUS; ++x)
-			{
-				int dist;
-				struct SlabMap* slab;
-				slab = get_slabmap_block(x, y);
-				switch (slab->kind)
-				{
-				case SlbT_GOLD:
-				case SlbT_GEMS:
-					dist = min(abs(best_pos.min_x - x), abs(best_pos.max_x - x)) +
-						min(abs(best_pos.min_y - y), abs(best_pos.max_y - y));
-					best_score += 1 + 3 * max(0, TREASURE_ROOM_SEARCH_RADIUS - dist) / TREASURE_ROOM_SEARCH_RADIUS;
-					break;
-				}
-			}
-		}
-	}
+	best_score = adjust_room_score(best_score, &best_pos, expand, dungeon);
 
 	if (best_score > expand->room_score)
 	{
@@ -1883,19 +1921,152 @@ static int eval_expand_room(struct Computer2* comp, struct Digging* digging, str
 	return best_score;
 }
 
+static int eval_expand_predug_room(struct Computer2* comp, struct Digging* digging, struct ExpandRoom* expand, char* visited, MapSlabCoord x, MapSlabCoord y)
+{
+	struct Dungeon *dungeon;
+	struct SlabInfluence* influence;
+	struct ExpandRoomPos best_pos;
+	int best_score;
+	int player;
+	int i;
+	int changed;
+
+	SYNCDBG(18, "Starting");
+	dungeon = comp->dungeon;
+	player = dungeon->owner;
+	expand->predug = 1;
+
+	if (!is_floor_for(x, y, player)) //does bounds check in practice
+		return INT_MIN;
+
+	if( visited[y * map_tiles_x + x] )
+		return INT_MIN;
+
+	influence = get_slab_influence(x, y);
+	if( influence->heart_distance[player] < 0) //TODO: might wish to avoid this later if CP is able to manage disconnected dungeon
+		return INT_MIN;
+
+	//require 3x3 open at start
+	if (	!is_floor_for(x - 1, y - 1, player) || !is_floor_for(x, y - 1, player) || !is_floor_for(x + 1, y - 1, player)
+		||	!is_floor_for(x - 1, y, player) || !is_floor_for(x + 1, y, player)
+		||	!is_floor_for(x - 1, y + 1, player) || !is_floor_for(x, y + 1, player) || !is_floor_for(x + 1, y + 1, player)
+		)
+	{
+		return INT_MIN;
+	}
+
+	best_pos.min_x = x - 1;
+	best_pos.min_y = y - 1;
+	best_pos.max_x = x + 1;
+	best_pos.max_y = y + 1;
+	best_pos.access_x = best_pos.min_x; //TODO: unsure if this matters
+	best_pos.access_y = y;
+	best_pos.access_dx = 0;
+	best_pos.access_dy = 0;
+	best_score = eval_expand_room_pos(dungeon, digging, expand, &best_pos);
+
+	//try different actions (enlarge/rotate room and see if score grows, follow best gradient)
+	changed = 1;
+	for (i = 0; changed && i < 50; ++i) //max iterations to prevent infinite loop if bugged for some reason
+	{
+		struct ExpandRoomPos pos, iteration_pos;
+		int score;
+		changed = 0;
+		memcpy(&iteration_pos, &best_pos, sizeof(pos));
+
+		//try enlarging in any direction
+		memcpy(&pos, &iteration_pos, sizeof(pos));
+		score = eval_expand_room_enlarged(dungeon, digging, expand, &pos, -1, 0);
+		if (score > best_score)
+		{
+			changed = 1;
+			best_score = score;
+			memcpy(&best_pos, &pos, sizeof(pos));
+		}
+		memcpy(&pos, &iteration_pos, sizeof(pos));
+		score = eval_expand_room_enlarged(dungeon, digging, expand, &pos, 1, 0);
+		if (score > best_score)
+		{
+			changed = 1;
+			best_score = score;
+			memcpy(&best_pos, &pos, sizeof(pos));
+		}
+		memcpy(&pos, &iteration_pos, sizeof(pos));
+		score = eval_expand_room_enlarged(dungeon, digging, expand, &pos, 0, -1);
+		if (score > best_score)
+		{
+			changed = 1;
+			best_score = score;
+			memcpy(&best_pos, &pos, sizeof(pos));
+		}
+		memcpy(&pos, &iteration_pos, sizeof(pos));
+		score = eval_expand_room_enlarged(dungeon, digging, expand, &pos, 0, 1);
+		if (score > best_score)
+		{
+			changed = 1;
+			best_score = score;
+			memcpy(&best_pos, &pos, sizeof(pos));
+		}
+
+		//try to rotate
+		memcpy(&pos, &iteration_pos, sizeof(pos));
+		score = eval_expand_room_rotated(dungeon, digging, expand, &pos);
+		if (score > best_score)
+		{
+			changed = 1;
+			best_score = score;
+			memcpy(&best_pos, &pos, sizeof(pos));
+		}
+	}
+
+	//mark visited on best room
+	for (y = best_pos.min_y; y <= best_pos.max_y; ++y)
+	{
+		for (x = best_pos.min_x; x <= best_pos.max_x; ++x)
+		{
+			visited[y * map_tiles_x + x] = 1;
+		}
+	}
+
+	best_score = adjust_room_score(best_score, &best_pos, expand, dungeon);
+
+	if (best_score > expand->room_score)
+	{
+		//SYNCLOG("Found better predug room sized %dx%d", (best_pos.max_x - best_pos.min_x + 1), (best_pos.max_y - best_pos.min_y + 1));
+
+		expand->room_score = best_score;
+		memcpy(&expand->room_pos, &best_pos, sizeof(best_pos));
+	}
+	//else
+		//SYNCLOG("Found worse predug room sized %dx%d", (best_pos.max_x - best_pos.min_x + 1), (best_pos.max_y - best_pos.min_y + 1));
+
+	return best_score;
+}
+
 static TbBool find_expand_location(struct Computer2* comp, struct Digging* digging, struct ExpandRoom* expand)
 {
 	struct Dungeon *dungeon;
+	struct Thing* heart;
 	struct Room* room;
 	long i;
 	RoomKind rkind;
 	unsigned long k;
+	MapSlabCoord x, y, r;
+	int tolerance_counter;
+	MapSlabCoord center_x, center_y;
+	char visited[85][85]; //map size assumed
 
 	SYNCDBG(18, "Starting");
 	dungeon = comp->dungeon;
 	expand->room_score = INT_MIN;
+	heart = get_player_soul_container(dungeon->owner);
+	if (thing_is_invalid(heart))
+	{
+		ERRORLOG("Called without heart");
+		return false;
+	}
 
-	//check room sides
+	//check existing rooms' sides
 	for (rkind = 1; rkind < sizeof(dungeon->room_kind) / sizeof(*dungeon->room_kind); ++rkind)
 	{
 		i = dungeon->room_kind[rkind];
@@ -1956,6 +2127,49 @@ static TbBool find_expand_location(struct Computer2* comp, struct Digging* diggi
 	}
 
 	//check unbuilt claimed map locations
+	memset(visited, 0, sizeof (visited));
+	center_x = subtile_slab(heart->mappos.x.stl.num);
+	center_y = subtile_slab(heart->mappos.y.stl.num);
+	tolerance_counter = -1;
+	for (r = 4; r < 85; ++r)
+	{
+		int score_before;
+		score_before = expand->room_score;
+		//from heart, keep trying from an increasing radius until score no longer improves significantly
+		//(it didn't improve for tolerance_counter > K radius steps)
+
+		for (x = center_x - r; x <= center_x + r; ++x)
+		{
+			y = center_y - r;
+			eval_expand_predug_room(comp, digging, expand, (char*)visited, x, y);
+			y = center_y + r;
+			eval_expand_predug_room(comp, digging, expand, (char*)visited, x, y);
+		}
+
+		for (y = center_y - r - 1; y <= center_y + r + 1; ++y)
+		{
+			x = center_x - r;
+			eval_expand_predug_room(comp, digging, expand, (char*)visited, x, y);
+			x = center_x + r;
+			eval_expand_predug_room(comp, digging, expand, (char*)visited, x, y);
+		}
+
+		if (tolerance_counter >= 0)
+		{
+			if (expand->room_score <= score_before)
+			{
+				if (++tolerance_counter >= 5)
+					break;
+			}
+			else
+				tolerance_counter = 0;
+		}
+		else
+		{
+			if (expand->room_score >= 0)
+				tolerance_counter = 0;
+		}
+	}
 
 	//TODO: flood fill backup attempt
 

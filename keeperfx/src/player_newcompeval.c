@@ -25,6 +25,7 @@
 #include "game_legacy.h"
 #include "magic.h"
 #include "player_computer.h"
+#include "player_instances.h"
 #include "player_newcomp.h"
 #include "power_hand.h"
 #include "room_list.h"
@@ -256,6 +257,104 @@ void update_influence_maps(void)
 
 	SYNCDBG(8, "Processed %d nodes", influence_queue.pop_index);
 }
+
+/************************************************************************/
+/* Attitude (overall strategy) stuff.                                    */
+/************************************************************************/
+
+static enum PlayerAttitude attitude_map[KEEPER_COUNT][PLAYERS_EXT_COUNT];
+
+void update_attitudes(void)
+{
+	int i, j;
+	long strength[KEEPER_COUNT];
+	long allied_strength[KEEPER_COUNT];
+	struct Dungeon* dungeon;
+
+	for (i = 0; i < KEEPER_COUNT; ++i)
+	{
+		strength[i] = 0;
+		dungeon = get_dungeon(i);
+		if (player_has_heart(i))
+			strength[i] = calc_players_strength(dungeon);
+	}
+
+	for (i = 0; i < KEEPER_COUNT; ++i)
+	{
+		allied_strength[i] = strength[i];
+		for (j = 0; j < KEEPER_COUNT; ++j)
+		{
+			if (i != j && players_are_mutual_allies(i, j))
+				allied_strength[i] += strength[j];
+		}
+	}
+
+	for (i = 0; i < KEEPER_COUNT; ++i)
+	{
+		//hero
+		attitude_map[i][PLAYER_GOOD] = Attitude_SuperAggressive;
+
+		//neutrals
+		attitude_map[i][PLAYER_NEUTRAL] = Attitude_SuperAggressive;
+
+		//keepers
+		for (j = 0; j < KEEPER_COUNT; ++j)
+		{
+			struct Dungeon* their_dungeon;
+			their_dungeon = get_dungeon(i);
+			if (i == dungeon->owner || dungeon_invalid(their_dungeon))
+				continue;
+
+			if (players_are_mutual_allies(i, j))
+				attitude_map[i][j] = Attitude_Friend;
+			else
+			{
+				long my_strength, their_strength;
+				my_strength = allied_strength[i];
+				their_strength = allied_strength[j];
+
+				if (2 * their_strength < my_strength)
+				{
+					attitude_map[i][j] = Attitude_SuperAggressive;
+				}
+				else if (5 * their_strength < 4 * my_strength)
+				{
+					attitude_map[i][j] = Attitude_Aggressive;
+				}
+				else if (their_strength < my_strength)
+				{
+					attitude_map[i][j] = Attitude_Ignore;
+				}
+				else
+				{
+					attitude_map[i][j] = Attitude_Avoid;
+				}
+			}
+
+			if (!players_are_enemies(i, j) && attitude_map[i][j] >= Attitude_Aggressive)
+				attitude_map[i][j] = Attitude_Ignore;
+		}
+	}
+
+	//TODO: log when attitude changes
+
+	//TODO: take into account money and access to gems/workshop -> it might be better delaying engagement because we expect them to go bankrupt long before us
+}
+
+enum PlayerAttitude get_attitude_towards_f(int player, int towards_player, const char *func_name)
+{
+	if (player < 0 || player >= KEEPER_COUNT)
+	{
+		ERRORLOG("%s: player %d outside valid range", func_name, player);
+		return Attitude_Ignore;
+	}
+	if (towards_player < 0 || towards_player >= PLAYERS_EXT_COUNT)
+	{
+		ERRORLOG("%s: towards_player %d outside valid range", func_name, towards_player);
+		return Attitude_Ignore;
+	}
+	return attitude_map[player][towards_player];
+};
 
 /************************************************************************/
 /* Any imps thinking to dig gems right now?                             */
@@ -715,7 +814,7 @@ struct Thing * find_any_chicken(struct Dungeon* dungeon)
 /************************************************************************/
 /* Higher strength => good chance of player winning a battle.           */
 /************************************************************************/
-float calc_players_strength(struct Dungeon* dungeon)
+long calc_players_strength(struct Dungeon* dungeon)
 {
 	SYNCDBG(19,"Starting");
 
@@ -723,7 +822,7 @@ float calc_players_strength(struct Dungeon* dungeon)
 	struct Thing *thing;
 	unsigned long k;
 	int i;
-	float strength;
+	long strength;
 	k = 0;
 	i = dungeon->creatr_list_start;
 	strength = 0.0f;
