@@ -43,6 +43,13 @@ extern "C" {
 /******************************************************************************/
 const char slabclm_fname[] = "slabs.clm";
 const char slabdat_fname[] = "slabs.dat";
+
+/** Global storage for level file version number.
+ * Note that the version number is not stored anywhere on load/save.
+ * It is only valid while the level is being loaded, and cannot be used
+ * during gameplay. Remember not to use it within script_process_value(),
+ * or any other function used beyond first initialization of a level.
+  */
 long level_file_version = 0;
 /******************************************************************************/
 

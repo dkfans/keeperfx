@@ -1579,15 +1579,18 @@ TbBool set_creature_available(PlayerNumber plyr_idx, ThingModel crtr_model, long
     // may be uninitialized yet when this is called.
     dungeon = get_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon)) {
-        ERRORDBG(11,"Can't set trap availability; player %d has no dungeon.",(int)plyr_idx);
+        ERRORDBG(11,"Cannot set %s availability; player %d has no dungeon.",thing_class_and_model_name(TCls_Creature, crtr_model),(int)plyr_idx);
         return false;
     }
-    if ((crtr_model < 1) || (crtr_model >= CREATURE_TYPES_COUNT))
+    if ((crtr_model < 1) || (crtr_model >= CREATURE_TYPES_COUNT)) {
+        ERRORDBG(4,"Cannot set creature availability; invalid model %d.",(int)plyr_idx,(int)crtr_model);
         return false;
+    }
     if (force_avail < 0)
         force_avail = 0;
     if (force_avail >= CREATURES_COUNT)
         force_avail = CREATURES_COUNT-1;
+    SYNCDBG(7,"Setting %s availability for player %d to allowed=%d, forced=%d.",thing_class_and_model_name(TCls_Creature, crtr_model),(int)plyr_idx,(int)can_be_avail,(int)force_avail);
     dungeon->creature_allowed[crtr_model] = can_be_avail;
     dungeon->creature_force_enabled[crtr_model] = force_avail;
     return true;

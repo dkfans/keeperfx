@@ -2183,6 +2183,11 @@ void command_kill_creature(long plr_range_id, const char *crtr_name, const char 
   command_add_value(Cmd_KILL_CREATURE, plr_range_id, crtr_id, select_id, count);
 }
 
+/** Adds a script command to in-game structures.
+ *
+ * @param cmd_desc
+ * @param scline
+ */
 void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptLine *scline)
 {
     switch (cmd_desc->index)
@@ -2218,7 +2223,11 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         command_room_available(scline->np[0], scline->tp[1], scline->np[2], scline->np[3]);
         break;
     case Cmd_CREATURE_AVAILABLE:
-        command_creature_available(scline->np[0], scline->tp[1], scline->np[2], scline->np[3]);
+        if (level_file_version > 0) {
+            command_creature_available(scline->np[0], scline->tp[1], scline->np[2], scline->np[3]);
+        } else {
+            command_creature_available(scline->np[0], scline->tp[1], scline->np[3], 0);
+        }
         break;
     case Cmd_MAGIC_AVAILABLE:
         command_magic_available(scline->np[0], scline->tp[1], scline->np[2], scline->np[3]);
@@ -2299,7 +2308,10 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         command_set_creature_armour(scline->tp[0], scline->np[1]);
         break;
     case Cmd_SET_CREATURE_FEAR_WOUNDED:
-        command_set_creature_fear_wounded(scline->tp[0], scline->np[1]);
+        if (level_file_version > 0)
+            command_set_creature_fear_wounded(scline->tp[0], scline->np[1]);
+        else
+            command_set_creature_fear_wounded(scline->tp[0], 101*scline->np[1]/255); // old fear was scaled 0..255
         break;
     case Cmd_SET_CREATURE_FEAR_STRONGER:
         command_set_creature_fear_stronger(scline->tp[0], scline->np[1]);
@@ -3847,6 +3859,8 @@ void process_values(void)
 
 /**
  * Processes given VALUE immediately.
+ * This processes given script command. It is used to process VALUEs at start when they have
+ * no conditions, or during the gameplay when conditions are met.
  */
 void script_process_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4)
 {
@@ -3884,13 +3898,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   case Cmd_CREATURE_AVAILABLE:
       for (i=plr_start; i < plr_end; i++)
       {
-          TbBool ret;
-          if (level_file_version > 0) {
-              ret = set_creature_available(i,val2,val3,val4);
-          } else {
-              ret = set_creature_available(i,val2,val4,0);
-          }
-          if (!ret) {
+          if (!set_creature_available(i,val2,val3,val4)) {
               WARNLOG("Setting creature %s availability for player %d failed.",creature_code_name(val2),(int)i);
           }
       }
@@ -4003,10 +4011,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       crstat = creature_stats_get(val2);
       if (creature_stats_invalid(crstat))
           break;
-      if (level_file_version > 0)
-          crstat->fear_wounded = saturate_set_unsigned(val3, 8);
-      else
-          crstat->fear_wounded = saturate_set_unsigned(101*val3/255, 8); // old fear was scaled 0..255
+      crstat->fear_wounded = saturate_set_unsigned(val3, 8);
       creature_stats_updated(val2);
       break;
   case Cmd_SET_CREATURE_FEAR_STRONGER:
