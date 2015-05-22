@@ -1584,6 +1584,7 @@ void process_computer_players2(void)
     int i;
     needs_gold_check = false;
 	update_influence_maps();
+	update_attitudes();
 
     for (i=0; i < PLAYERS_COUNT; i++)
     {

@@ -36,16 +36,28 @@ struct SlabInfluence
 	short dig_distance[KEEPER_COUNT];
 };
 
+enum PlayerAttitude
+{
+	Attitude_Friend, //try to help them, treat as ignore otherwise
+	Attitude_Avoid, //stay as far away as possible and stall advance
+	Attitude_Ignore, //if we meet them, so be it. fight them, but don't actively advance towards dungeon
+	Attitude_Aggressive, //actively try to take over their dungeon
+	Attitude_SuperAggressive, //actively try to break into their dungeon
+};
+
 //eval
 void update_influence_maps(void);
 struct SlabInfluence* get_slab_influence(MapSlabCoord x, MapSlabCoord y);
+void update_attitudes(void);
+#define get_attitude_towards(player, towards_player) get_attitude_towards_f(player, towards_player, __func__)
+enum PlayerAttitude get_attitude_towards_f(int player, int towards_player, const char* func_name);
 TbBool is_digging_any_gems(struct Dungeon *dungeon);
 struct Thing * find_imp_for_sacrifice(struct Dungeon* dungeon);
 struct Thing * find_imp_for_claim(struct Dungeon* dungeon);
 struct Thing * find_imp_for_urgent_dig(struct Dungeon* dungeon);
 struct Thing * find_creature_for_low_priority_attack(struct Dungeon* dungeon, TbBool strong);
 struct Thing * find_any_chicken(struct Dungeon* dungeon);
-float calc_players_strength(struct Dungeon* dungeon); //TODO: change from float to int, realized int is needed for determinism
+long calc_players_strength(struct Dungeon* dungeon);
 int get_preferred_num_room_tiles(struct Dungeon* dungeon, RoomKind rkind);
 
 //checks
