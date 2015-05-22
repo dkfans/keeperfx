@@ -2158,7 +2158,7 @@ static TbBool find_expand_location(struct Computer2* comp, struct Digging* diggi
 		{
 			if (expand->room_score <= score_before)
 			{
-				if (++tolerance_counter >= 5)
+				if (++tolerance_counter >= 20)
 					break;
 			}
 			else
