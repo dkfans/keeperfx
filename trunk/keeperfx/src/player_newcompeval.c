@@ -870,11 +870,11 @@ int get_preferred_num_room_tiles(struct Dungeon* dungeon, RoomKind rkind)
 		return 1;
 	case RoK_TEMPLE:
 	case RoK_SCAVENGER:
+		return min(25, max(9, 6 + existing_num / 2));
 	case RoK_TORTURE:
-		return min(25, max(9, 6 + existing_num));
 	case RoK_PRISON:
 	case RoK_GRAVEYARD:
-		return min(25, max(15, 5 + existing_num));
+		return min(25, max(15, 5 + existing_num / 2));
 	case RoK_TREASURE:
 	case RoK_TRAINING:
 	case RoK_LIBRARY:
