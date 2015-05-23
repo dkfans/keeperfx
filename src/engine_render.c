@@ -2761,7 +2761,7 @@ void draw_engine_room_flagpole(struct RoomFlag *rflg)
     cam = myplyr->acamera;
     if ((cam->view_mode == PVM_IsometricView) || (cam->view_mode == PVM_FrontView))
     {
-        if ( settings.field_8 )
+        if (settings.roomflags_on)
         {
             int scale;
             int deltay;
@@ -3061,7 +3061,7 @@ void draw_engine_room_flag_top(struct RoomFlag *rflg)
 
     if ((cam->view_mode == PVM_IsometricView) || (cam->view_mode == PVM_FrontView))
     {
-        if (settings.field_8)
+        if (settings.roomflags_on)
         {
             int scale;
             int deltay;

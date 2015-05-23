@@ -365,15 +365,21 @@ int recognize_conf_parameter(const char *buf,long *pos,long buflen,const struct 
   while (commands[i].name != NULL)
   {
       par_len = strlen(commands[i].name);
-      if (strnicmp(&buf[(*pos)], commands[i].name, par_len) == 0)
+      if (strncasecmp(&buf[(*pos)], commands[i].name, par_len) == 0)
       {
-        if ((buf[(*pos)+par_len] == ' ') || (buf[(*pos)+par_len] == '\t')
-         || (buf[(*pos)+par_len] == '\n') || (buf[(*pos)+par_len] == '\r')
-         || ((unsigned char)buf[(*pos)+par_len] < 7))
-        {
-          (*pos) += par_len+1;
-          return commands[i].num;
-        }
+          // If EOLN found, finish and return position before the EOLN
+          if ((buf[(*pos)+par_len] == '\n') || (buf[(*pos)+par_len] == '\r'))
+          {
+            (*pos) += par_len;
+            return commands[i].num;
+          }
+          // If non-EOLN blank char, finish and return position after the char
+          if ((buf[(*pos)+par_len] == ' ') || (buf[(*pos)+par_len] == '\t')
+           || ((unsigned char)buf[(*pos)+par_len] < 7))
+          {
+            (*pos) += par_len+1;
+            return commands[i].num;
+          }
       }
       i++;
   }

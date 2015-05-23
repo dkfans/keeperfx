@@ -44,7 +44,7 @@ struct GameSettings { // sizeof = 0x52 (82)
     unsigned char video_cluedo_mode;
     unsigned char sound_volume;
     unsigned char redbook_volume;
-    unsigned char field_8;
+    unsigned char roomflags_on;
     unsigned short gamma_correction;
     int video_scrnmode;
     struct GameKey kbkeys[GAME_KEYS_COUNT];
