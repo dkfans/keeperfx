@@ -374,6 +374,7 @@ unsigned short player_guardflag_objects[] = {115, 116, 117, 118,  0, 119};
 unsigned short dungeon_flame_objects[] =    {111, 120, 121, 122,  0,   0};
 unsigned short lightning_spangles[] = {83, 90, 91, 92, 0, 0};
 unsigned short gold_hoard_objects[] = {52, 52, 53, 54, 55, 56};
+unsigned short food_grow_objects[] = {40, 41, 42};
 
 struct CallToArmsGraphics call_to_arms_graphics[] = {
     {867, 868, 869},
@@ -683,7 +684,7 @@ TbBool object_is_hero_gate(const struct Thing *thing)
 
 TbBool object_is_infant_food(const struct Thing *thing)
 {
-  return (thing->model == 40) || (thing->model == 41) || (thing->model == 42);
+  return (thing->model == food_grow_objects[0]) || (thing->model == food_grow_objects[1]) || (thing->model == food_grow_objects[2]);
 }
 
 TbBool object_is_growing_food(const struct Thing *thing)
@@ -1122,7 +1123,7 @@ long food_grows(struct Thing *objtng)
       case 893:
       case 897:
         delete_thing_structure(objtng, 0);
-        nobjtng = create_object(&pos, 0x28u, tngowner, -1);
+        nobjtng = create_object(&pos, food_grow_objects[0], tngowner, -1);
         if (!thing_is_invalid(nobjtng)) {
             nobjtng->food.word_13 = (nobjtng->field_49 << 8) / nobjtng->field_3E - 1;
         }
@@ -1131,7 +1132,7 @@ long food_grows(struct Thing *objtng)
       case 894:
       case 898:
         delete_thing_structure(objtng, 0);
-        nobjtng = create_object(&pos, 0x29u, tngowner, -1);
+        nobjtng = create_object(&pos, food_grow_objects[1], tngowner, -1);
         if (!thing_is_invalid(nobjtng)) {
             nobjtng->food.word_13 = 3 * ((nobjtng->field_49 << 8) / nobjtng->field_3E - 1);
         }
@@ -1140,7 +1141,7 @@ long food_grows(struct Thing *objtng)
       case 895:
       case 899:
         delete_thing_structure(objtng, 0);
-        nobjtng = create_object(&pos, 0x2Au, tngowner, -1);
+        nobjtng = create_object(&pos, food_grow_objects[2], tngowner, -1);
         if (!thing_is_invalid(nobjtng)) {
             nobjtng->food.word_13 = (nobjtng->field_49 << 8) / nobjtng->field_3E - 1;
         }
@@ -1149,7 +1150,7 @@ long food_grows(struct Thing *objtng)
       case 896:
       case 900:
         delete_thing_structure(objtng, 0);
-        nobjtng = create_object(&pos, 0xAu, tngowner, -1);
+        nobjtng = create_object(&pos, 10, tngowner, -1);
         if (!thing_is_invalid(nobjtng)) {
             nobjtng->move_angle_xy = ACTION_RANDOM(0x800);
             nobjtng->food.byte_15 = ACTION_RANDOM(0x6FF);

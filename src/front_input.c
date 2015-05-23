@@ -734,7 +734,7 @@ long get_dungeon_control_action_inputs(void)
     if (get_bookmark_inputs())
       return 1;
 
-    if (is_key_pressed(KC_F8, KMod_DONTCARE))
+    if (is_key_pressed(KC_F8, KMod_NONE))
     {
         clear_key_pressed(KC_F8);
         toggle_tooltips();
@@ -1014,13 +1014,13 @@ short get_map_action_inputs(void)
         zoom_from_patchment_map();
         return true;
     }
+    if (get_players_packet_action(player) != PckA_None)
+        return true;
     {
-      if (get_players_packet_action(player) != PckA_None)
-          return true;
       if (is_key_pressed(KC_F8,KMod_NONE))
       {
-          clear_key_pressed(KC_F8);
           toggle_tooltips();
+          clear_key_pressed(KC_F8);
       }
       if (is_key_pressed(KC_NUMPADENTER,KMod_NONE))
       {

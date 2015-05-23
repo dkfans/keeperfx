@@ -1443,7 +1443,7 @@ void count_food_in_room(struct Room *room)
 {
     //_DK_count_food_in_room(room);
     long n;
-    SYNCDBG(17,"Starting for %s",room_code_name(room->kind));
+    SYNCDBG(17,"Starting for %s index %d",room_code_name(room->kind),(int)room->index);
     struct RoomReposition rrepos;
     init_reposition_struct(&rrepos);
     // Making two loops guarantees that no rrepos things will be lost
@@ -1480,6 +1480,7 @@ void count_food_in_room(struct Room *room)
             }
         }
     }
+    SYNCDBG(7,"The %s index %d contains %d food",room_code_name(room->kind),(int)room->index,(int)room->used_capacity);
     if (rrepos.used > 0) {
         ERRORLOG("The %s index %d capacity %d wasn't enough; %d items belonging to player %d dropped",
           room_code_name(room->kind),(int)room->index,(int)room->total_capacity,(int)rrepos.used,(int)room->owner);

@@ -105,7 +105,7 @@ struct Thing *create_gold_for_hand_grab(struct Thing *thing, long owner)
     }
     if (gold_picked > 0)
     {
-        objtng = create_object(&pos, 0x2Bu, game.neutral_player_num, -1);
+        objtng = create_object(&pos, 43, game.neutral_player_num, -1);
         if (!thing_is_invalid(objtng))
         {
             objtng->long_13 = gold_picked;
