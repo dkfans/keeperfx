@@ -1399,9 +1399,6 @@ static RoomKind decide_room_to_expand(struct Computer2* comp)
 		long used_capacity;
 		long total_capacity;
 		get_room_kind_total_and_used_capacity(dungeon, bldroom->rkind, &total_capacity, &used_capacity);
-		if (total_capacity > 0) {
-			continue;
-		}
 		long free_capacity;
 		free_capacity = computer_get_room_kind_free_capacity(comp, bldroom->rkind);
 		if (free_capacity == 9999)
