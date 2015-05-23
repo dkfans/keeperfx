@@ -833,6 +833,13 @@ struct DigToSecure
 #define TREASURE_ROOM_SEARCH_RADIUS	9
 #define TREASURE_ROOM_SEARCH_TRACK	2
 
+struct BridgeNode
+{
+	struct BridgeNode* next;
+	MapSlabCoord x, y;
+	//might need more meta info here later on
+};
+
 struct Digging
 {
 	struct ExpandRoom expand_room;
@@ -840,12 +847,90 @@ struct Digging
 	struct DigToAttack dig_attack;
 	struct DigToSecure dig_secure;
 	unsigned char marked_for_dig[85][85]; //need instant lookup, so maintaining additional struct. [y][x] in case we move to ptr later
+	struct BridgeNode* bridge_list;
 };
 
 static struct Digging comp_digging[KEEPER_COUNT];
 
 static void initiate_expand_room(struct Computer2* comp, struct Digging* digging, struct ExpandRoom* expand);
 static int eval_expand_room(struct Computer2* comp, struct Digging* digging, struct ExpandRoom* expand, TbBool allow_move, int upscale, int downscale, MapSlabCoord x, MapSlabCoord y, MapSlabCoord dx, MapSlabCoord dy);
+
+static void debug_digging_map(const char* filename, struct Dungeon* dungeon, struct Digging* digging)
+{
+	MapSlabCoord x, y;
+	FILE* file;
+	struct SlabMap* slab;
+
+	if (NULL == filename)
+		return; //used to avoid unused function warning
+
+	file = fopen(filename, "w");
+	if (NULL == file)
+	{
+		ERRORLOG("Unable to open %s for debug printing digging map", filename);
+		return;
+	}
+
+	for (y = 0; y < map_tiles_y; ++y)
+	{
+		for (x = 0; x < map_tiles_x; ++x)
+		{
+			char c;
+			slab = get_slabmap_block(x, y);
+
+			if (digging->marked_for_dig[y][x])
+				c = slab_kind_is_liquid(slab->kind)? 'x' : 'X';
+			else
+			{
+				switch (slab->kind)
+				{
+				case SlbT_LAVA:
+					c = 'L';
+					break;
+				case SlbT_WATER:
+					c = 'W';
+					break;
+				case SlbT_WALLDRAPE:
+				case SlbT_WALLPAIRSHR:
+				case SlbT_WALLTORCH:
+				case SlbT_WALLWTWINS:
+				case SlbT_WALLWWOMAN:
+					c = '=';
+					break;
+				case SlbT_EARTH:
+					c = '.';
+					break;
+				case SlbT_PATH:
+					c = ' ';
+					break;
+				case SlbT_CLAIMED:
+					c = '#';
+					break;
+				case SlbT_ROCK:
+					c = 'O';
+					break;
+				case SlbT_GOLD:
+					c = 'G';
+					break;
+				case SlbT_GEMS:
+					c = 'g';
+					break;
+				default:
+					if (slab_kind_can_drop_here_now(slab->kind))
+						c = '~';
+					else
+						c = 'Z';
+					break;
+				}
+			}
+
+			fputc(c, file);
+		}
+		fputc('\n', file);
+	}
+
+	fclose(file);
+}
 
 static TbBool marked_for_dig_and_undug(struct Digging* digging, MapSlabCoord x, MapSlabCoord y)
 {
@@ -868,6 +953,8 @@ static TbBool marked_for_dig_and_undug(struct Digging* digging, MapSlabCoord x, 
 	case SlbT_WALLTORCH:
 	case SlbT_WALLWTWINS:
 	case SlbT_WALLWWOMAN:
+	case SlbT_LAVA:
+	case SlbT_WATER:
 		return 1;
 	default:
 		return 0;
@@ -930,17 +1017,50 @@ static TbBool is_diggable_or_buildable(struct Dungeon* dungeon, struct Digging* 
 	//TODO: might wish to include replacing existing rooms, however that must in that case give negative score in other parts of algorithm
 }
 
-static TbResult dig_if_needed(struct Computer2* comp, struct Digging* digging, MapSlabCoord x, MapSlabCoord y)
+static TbResult bridge_later_if_needed(struct Computer2* comp, struct Digging* digging, MapSlabCoord x, MapSlabCoord y)
 {
+	int player;
+	struct SlabMap* slab;
+	player = comp->dungeon->owner;
+
 	if (digging->marked_for_dig[y][x])
 		return Lb_OK;
 
+	if (!is_room_available(player, RoK_BRIDGE))
+		return Lb_FAIL;
+
+	slab = get_slabmap_block(x, y);
+	if (slab->kind == SlbT_WATER || slab->kind == SlbT_LAVA)
+	{
+		struct BridgeNode* bridge;
+		digging->marked_for_dig[y][x] = 1;
+		bridge = (struct BridgeNode*)calloc(1, sizeof(*bridge));
+		bridge->next = digging->bridge_list;
+		bridge->x = x;
+		bridge->y = y;
+		digging->bridge_list = bridge;
+		return Lb_SUCCESS;
+	}
+
+	return Lb_OK;
+}
+
+static TbResult dig_if_needed(struct Computer2* comp, struct Digging* digging, MapSlabCoord x, MapSlabCoord y)
+{
+	int player;
 	struct SlabMap* slab;
 	TbResult result;
+	player = comp->dungeon->owner;
+
+	if (digging->marked_for_dig[y][x])
+		return Lb_OK;
 
 	slab = get_slabmap_block(x, y);
 	switch (slab->kind)
 	{
+	case SlbT_LAVA:
+	case SlbT_WATER:
+		return bridge_later_if_needed(comp, digging, x, y);
 	case SlbT_EARTH:
 	case SlbT_GOLD:
 	case SlbT_GEMS:
@@ -950,7 +1070,7 @@ static TbResult dig_if_needed(struct Computer2* comp, struct Digging* digging, M
 	case SlbT_WALLTORCH:
 	case SlbT_WALLWTWINS:
 	case SlbT_WALLWWOMAN:
-		result = try_game_action(comp, comp->dungeon->owner, GA_MarkDig, 0,
+		result = try_game_action(comp, player, GA_MarkDig, 0,
 			x * STL_PER_SLB + 1, y * STL_PER_SLB + 1, 1, 1);
 		if (result != Lb_FAIL)
 			digging->marked_for_dig[y][x] = 1;
@@ -958,6 +1078,108 @@ static TbResult dig_if_needed(struct Computer2* comp, struct Digging* digging, M
 	default:
 		return Lb_OK;
 	}
+}
+
+static void try_drop_imp_to_reveal(struct Computer2* comp, TbBool* do_build, MapSlabCoord x, MapSlabCoord y)
+{
+	MapSubtlCoord stl_x, stl_y;
+	if (!*do_build)
+		return;
+
+	stl_x = slab_subtile_center(x);
+	stl_y = slab_subtile_center(y);
+	if (can_drop_thing_here(stl_x, stl_y, comp->dungeon->owner, 1))
+	{
+		struct Thing* thing;
+		thing = find_imp_for_urgent_dig(comp->dungeon);
+		if (!thing_is_invalid(thing))
+		{
+			SYNCDBG(9, "Dropping imp to reveal");
+			*do_build = 0;
+			create_task_move_creature_to_subtile(comp, thing, stl_x, stl_y, CrSt_ImpDigsDirt);
+		}
+		else
+		{
+			SYNCDBG(9, "Found no imp to reveal");
+		}
+	}
+}
+
+static void process_bridging(struct Computer2* comp, struct Digging* digging)
+{
+	struct BridgeNode* bridge;
+	struct BridgeNode* next;
+	struct BridgeNode** prev;
+	struct SlabMap* slab;
+	struct Dungeon* dungeon;
+	int player;
+	TbResult result;
+	TbBool do_build;
+	struct RoomStats* rstats;
+	int count;
+	
+	SYNCDBG(8, "Starting");
+	dungeon = comp->dungeon;
+	player = dungeon->owner;
+	rstats = room_stats_get_for_kind(RoK_BRIDGE);
+	do_build = is_room_available(player, RoK_BRIDGE) && dungeon->total_money_owned >= rstats->cost;
+	
+	count = 0;
+	prev = &digging->bridge_list;
+	bridge = digging->bridge_list;
+	while (bridge)
+	{
+		MapSubtlCoord stl_x, stl_y;
+
+		++count;
+		next = bridge->next;
+		result = Lb_OK;
+		stl_x = slab_subtile_center(bridge->x);
+		stl_y = slab_subtile_center(bridge->y);
+		slab = get_slabmap_block(bridge->x, bridge->y);
+		if (slab->kind == SlbT_BRIDGE)
+		{
+			SYNCLOG("bridge");
+			if (slabmap_owner(slab) == player)
+			{
+				result = Lb_SUCCESS;
+			}
+			else
+			{
+				result = Lb_FAIL;
+			}
+		}
+		else if (do_build && !subtile_revealed(stl_x, stl_y, player))
+		{
+			try_drop_imp_to_reveal(comp, &do_build, bridge->x - 1, bridge->y);
+			try_drop_imp_to_reveal(comp, &do_build, bridge->x + 1, bridge->y);
+			try_drop_imp_to_reveal(comp, &do_build, bridge->x, bridge->y - 1);
+			try_drop_imp_to_reveal(comp, &do_build, bridge->x, bridge->y + 1);
+		}
+		else if (do_build && slab_by_players_land(player, bridge->x, bridge->y))
+		{
+			SYNCLOG("try to build");
+			result = try_game_action(comp, player, GA_PlaceRoom, 0, stl_x, stl_y, 1, RoK_BRIDGE);
+			do_build = 0;
+		}
+
+		if (result != Lb_OK)
+		{
+			//remove node
+			*prev = next;
+			free(bridge);
+			bridge = NULL;
+		}
+
+		if (bridge)
+			prev = &bridge->next;
+
+		bridge = next;
+	}
+
+	if (count > 0)
+		SYNCLOG("Processed %d bridge nodes", count);
+	//debug_digging_map("process_bridging.txt", dungeon, digging);
 }
 
 static void process_dig_to_attack(struct Computer2* comp, struct Digging* digging)
@@ -1789,22 +2011,31 @@ static int eval_expand_room(struct Computer2* comp, struct Digging* digging, str
 	dungeon = comp->dungeon;
 	expand->predug = 0;
 
+	best_pos.access_x = x;
+	best_pos.access_y = y;
+	best_pos.access_dx = dx;
+	best_pos.access_dy = dy;
+
 	//find first tile we can expand on
 	for (;;)
 	{
 		struct SlabMap* slab;
 		slab = get_slabmap_block(x, y);
-		if (!slab_kind_can_drop_here_now(slab->kind) || slab->kind == SlbT_CLAIMED)
+		if (slab->kind == SlbT_LAVA || slab->kind == SlbT_WATER)
+		{
+			if (!is_room_available(dungeon->owner, RoK_BRIDGE))
+				return INT_MIN;
+		}
+		else if (!slab_kind_can_drop_here_now(slab->kind) || slab->kind == SlbT_CLAIMED)
 			break;
 
 		x += dx;
 		y += dy;
 	}
 
-	best_pos.min_x = best_pos.max_x = best_pos.access_x = x;
-	best_pos.min_y = best_pos.max_y = best_pos.access_y = y;
-	best_pos.access_dx = dx;
-	best_pos.access_dy = dy;
+	best_pos.min_x = best_pos.max_x = x;
+	best_pos.min_y = best_pos.max_y = y;
+	
 	best_score = eval_expand_room_pos(dungeon, digging, expand, &best_pos);
 
 	//try different actions (enlarge/translate room and see if score grows, follow best gradient)
@@ -2185,6 +2416,8 @@ static void initiate_expand_room(struct Computer2* comp, struct Digging* digging
 	dungeon = comp->dungeon;
 	pos = &expand->room_pos;
 	aborted = 0;
+
+	//dig access
 	x = pos->access_x;
 	y = pos->access_y;
 	if (pos->access_dx < 0)
@@ -2240,10 +2473,12 @@ static void initiate_expand_room(struct Computer2* comp, struct Digging* digging
 	}
 	else
 	{
-		SYNCLOG("Player %d decided to build room %s of size %dx%d", (int)dungeon->owner, room_code_name(expand->rkind),
-			(expand->room_pos.max_x - expand->room_pos.min_x + 1), (expand->room_pos.max_y - expand->room_pos.min_y + 1));
+		SYNCLOG("Player %d decided to build room %s of size %dx%d with score %d", (int)dungeon->owner, room_code_name(expand->rkind),
+			(expand->room_pos.max_x - expand->room_pos.min_x + 1), (expand->room_pos.max_y - expand->room_pos.min_y + 1), expand->room_score);
 		expand->drop_count = 0;
 		expand->active = 1;
+
+		//debug_digging_map("initiate_expand_room.txt", dungeon, digging);
 	}
 }
 
@@ -2285,6 +2520,10 @@ long computer_check_new_digging(struct Computer2* comp)
 	SYNCDBG(8,"Starting");
 	dungeon = comp->dungeon;
 	digging = &comp_digging[dungeon->owner];
+
+	debug_digging_map(NULL, NULL, NULL); //avoiding unused function warning
+
+	process_bridging(comp, digging);
 
 	if (digging->dig_attack.active)
 	{

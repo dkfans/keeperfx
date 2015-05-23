@@ -185,7 +185,7 @@ static void influence_neighbor(MapSlabCoord x, MapSlabCoord y, int player, enum 
 			break;
 		case SlbT_LAVA:
 		case SlbT_WATER:
-			if (0 && is_room_available(player, RoK_BRIDGE)) //TODO: re-enable when new digging can deal with water/lava
+			if (is_room_available(player, RoK_BRIDGE))
 				queue_influence_visit(x, y, player, metric, dist);
 			break;
 		}
