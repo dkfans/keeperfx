@@ -848,6 +848,7 @@ struct Digging
 	struct DigToSecure dig_secure;
 	unsigned char marked_for_dig[85][85]; //need instant lookup, so maintaining additional struct. [y][x] in case we move to ptr later
 	struct BridgeNode* bridge_list;
+	long hatchery_built_turn;
 };
 
 static struct Digging comp_digging[KEEPER_COUNT];
@@ -983,12 +984,18 @@ void computer_setup_new_digging(void)
 	//after this everything will be reset
 	memset(&comp_digging, 0, sizeof(comp_digging));
 	
-	//rebuild digging map from gamestate
+	//init new player state
 	for (plyr_idx = 0; plyr_idx < KEEPER_COUNT; ++plyr_idx)
 	{
 		struct Dungeon *dungeon;
 		struct MapTask *mtask;
 		long i,max;
+		digging = &comp_digging[plyr_idx];
+
+		//misc
+		digging->hatchery_built_turn = LONG_MIN / 2;
+
+		//rebuild digging map from gamestate
 		dungeon = get_dungeon(plyr_idx);
 		max = dungeon->field_AF7;
 		if (max > MAPTASKS_COUNT)
@@ -1000,11 +1007,10 @@ void computer_setup_new_digging(void)
 			mtask = &dungeon->task_list[i];
 			if (mtask->kind != SDDigTask_Unknown3)
 			{
-				MapSubtlCoord x, y;
+				MapSlabCoord x, y;
 				x = subtile_slab(stl_num_decode_x(mtask->coords));
 				y = subtile_slab(stl_num_decode_y(mtask->coords));
-				SYNCLOG("marked for dig %d, %d", x, y);
-				comp_digging[plyr_idx].marked_for_dig[y][x] = 1;
+				digging->marked_for_dig[y][x] = 1;
 			}
 		}
 	}
@@ -1613,10 +1619,12 @@ static void process_expand_room(struct Computer2* comp, struct Digging* digging)
 			SYNCLOG("Player %d finished room %s", (int)dungeon->owner, room_code_name(digging->expand_room.rkind));
 
 		digging->expand_room.active = 0;
+		if (!aborted && digging->expand_room.rkind == RoK_GARDEN)
+			digging->hatchery_built_turn = game.play_gameturn;
 	}
 }
 
-static RoomKind decide_room_to_expand(struct Computer2* comp)
+static RoomKind decide_room_to_expand(struct Computer2* comp, struct Digging* digging)
 {
 	struct Dungeon *dungeon;
 	dungeon = comp->dungeon;
@@ -1636,17 +1644,20 @@ static RoomKind decide_room_to_expand(struct Computer2* comp)
 			return bldroom->rkind;
 		}
 
+		if (bldroom->rkind == RoK_GARDEN && game.play_gameturn - digging->hatchery_built_turn < 20 * 40) //need to wait for chickens to spawn before evaluating again
+			continue;
+		
 		long used_capacity;
 		long total_capacity;
 		get_room_kind_total_and_used_capacity(dungeon, bldroom->rkind, &total_capacity, &used_capacity);
 		long free_capacity;
 		free_capacity = computer_get_room_kind_free_capacity(comp, bldroom->rkind);
-		if (free_capacity == 9999)
+		if (bldroom->rkind == RoK_GARDEN)
 		{
-			if (bldroom->rkind == RoK_GARDEN) {
+			if (4 * used_capacity > total_capacity)
 				continue;
-			}
-		} else
+		}
+		else if (free_capacity != 9999)
 		{
 			// The "+1" is to better handle cases when the existing room is very small (capacity lower than 10)
 			// On higher capacities it doesn't make much difference, but highly increases chance
@@ -2507,7 +2518,7 @@ static void check_expand_room(struct Computer2* comp, struct Digging* digging)
 	SYNCDBG(8,"Starting");
 	dungeon = comp->dungeon;
 
-	rkind = decide_room_to_expand(comp);
+	rkind = decide_room_to_expand(comp, digging);
 	if (rkind == RoK_NONE)
 	{
 		SYNCLOG("Player %d doesn't want to expand right now", (int)dungeon->owner);

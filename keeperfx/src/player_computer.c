@@ -1163,8 +1163,11 @@ long computer_able_to_use_magic(struct Computer2 *comp, PowerKind pwkind, long p
     if (pwlevel < 0)
         pwlevel = 0;
     GoldAmount money, price;
-    money = get_computer_money_less_cost(comp);
     price = compute_power_price(dungeon->owner, pwkind, pwlevel);
+	if (pwkind == PwrK_MKDIGGER && price <= 1200 && is_digging_any_gems(dungeon)) //TODO: I added case because CP was reluctant to increase imps with large payday coming when digging gems. a better estimate would be to look at expect increase in rate of return for next imp, but that's complicated to calculate
+		money = dungeon->total_money_owned - dungeon->creatures_total_pay / 2;
+	else
+		money = get_computer_money_less_cost(comp);
     if ((price > 0) && (amount * price > money)) {
         return CTaskRet_Unk0;
     }

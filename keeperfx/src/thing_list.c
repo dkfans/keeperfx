@@ -2584,7 +2584,7 @@ long do_to_things_spiral_near_map_block(MapCoord x, MapCoord y, long spiral_len,
 * Executes callback for all things on on a tile (corresponds to slab/3x3 sub tiles).
 * @return Gives amount of things for which callback returned true.
 */
-long do_to_things_with_param_on_tile(MapCoord x, MapCoord y, Thing_Modifier_Func do_cb, ModTngFilterParam param)
+long do_to_things_with_param_on_tile(MapSlabCoord x, MapSlabCoord y, Thing_Modifier_Func do_cb, ModTngFilterParam param)
 {
 	struct Map* mapblk;
 	MapSubtlCoord stl_x, stl_y;
