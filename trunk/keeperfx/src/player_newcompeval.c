@@ -861,6 +861,7 @@ int get_preferred_num_room_tiles(struct Dungeon* dungeon, RoomKind rkind)
 	//TODO: perhaps this should be loaded from file?
 
 	int existing_num;
+	int target;
 	existing_num = count_slabs_of_room_type(dungeon->owner, rkind);
 
 	switch (rkind)
@@ -883,7 +884,15 @@ int get_preferred_num_room_tiles(struct Dungeon* dungeon, RoomKind rkind)
 	case RoK_WORKSHOP:
 		return 30;
 	case RoK_LAIR:
-		return max(12, max(dungeon->max_creatures_attracted, dungeon->num_active_creatrs) - existing_num);
+		if (existing_num == 0)
+			return max(12, 4 * max(dungeon->max_creatures_attracted, dungeon->num_active_creatrs) / 3);
+		else
+		{
+			target = dungeon->num_active_creatrs < dungeon->max_creatures_attracted?
+				dungeon->max_creatures_attracted + 2 - dungeon->num_active_creatrs :
+				3 * dungeon->num_active_creatrs / 5 + 1;
+			return max(12, (1000 * target) / (1000 * dungeon->num_active_creatrs / existing_num)); //target creatures / creatures per lair space = target lair space
+		}
 	default:
 		return 9;
 	}
