@@ -348,7 +348,7 @@ long set_game_key(long key_id, unsigned char key, unsigned int mods)
         }
     }
     // Possess & query - allow lone modifiers and normal keys
-    if (key_id == Gkey_Unknown27 || key_id == Gkey_Unknown28)
+    if (key_id == Gkey_CrtrContrlMod || key_id == Gkey_CrtrQueryMod)
     {
         if ((mods & KMod_SHIFT) || (mods & KMod_CONTROL))
         {
@@ -364,7 +364,7 @@ long set_game_key(long key_id, unsigned char key, unsigned int mods)
             }
             struct GameKey  *kbk;
             // Do not allow the key if it is used as other mod key
-            kbk = &settings.kbkeys[((unsigned int)(key_id - Gkey_Unknown27) < 1) + Gkey_Unknown27];
+            kbk = &settings.kbkeys[((unsigned int)(key_id - Gkey_CrtrContrlMod) < 1) + Gkey_CrtrContrlMod];
             if (kbk->code != ncode)
             {
                 kbk = &settings.kbkeys[key_id];

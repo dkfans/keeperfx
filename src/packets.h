@@ -176,12 +176,12 @@ enum TbPacketControl {
  * Additional packet flags
  */
 enum TbPacketAddValues {
-    PCAdV_None           = 0x00,//!< Dummy flag
-    PCAdV_Unknown01      = 0x01,//!< PCAdV_Unknown01
-    PCAdV_Unknown1E      = 0x1E,//!< Instead of a single bit, this value stores is 4-byte integer; stores context of map coordinates.
-    PCAdV_Unknown20      = 0x20,//!< PCAdV_Unknown20
-    PCAdV_Unknown40      = 0x40,//!< PCAdV_Unknown40
-    PCAdV_Unknown80      = 0x80,//!< Seem unused
+    PCAdV_None              = 0x00, //!< Dummy flag
+    PCAdV_SpeedupPressed    = 0x01, //!< The keyboard modified used for speeding up camera movement is pressed.
+    PCAdV_ContextMask       = 0x1E, //!< Instead of a single bit, this value stores is 4-byte integer; stores context of map coordinates.
+    PCAdV_CrtrContrlPressed = 0x20, //!< The keyboard modified used for creature control is pressed.
+    PCAdV_CrtrQueryPressed  = 0x40, //!< The keyboard modified used for querying creatures is pressed.
+    PCAdV_Unknown80         = 0x80, //!< Seem unused
 };
 
 #define PCtr_LBtnAnyAction (PCtr_LBtnClick | PCtr_LBtnHeld | PCtr_LBtnRelease)

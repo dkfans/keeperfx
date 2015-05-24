@@ -105,7 +105,7 @@ int is_game_key_pressed(long key_id, long *val, TbBool ignore_mods)
   {
     *val = settings.kbkeys[key_id].code;
   }
-  if ((key_id == Gkey_RotateMod) || (key_id == Gkey_SpeedMod) || (key_id == Gkey_Unknown27) || (key_id == Gkey_Unknown28))
+  if ((key_id == Gkey_RotateMod) || (key_id == Gkey_SpeedMod) || (key_id == Gkey_CrtrContrlMod) || (key_id == Gkey_CrtrQueryMod))
   {
       i = settings.kbkeys[key_id].code;
       switch (i)
@@ -459,7 +459,7 @@ short get_global_inputs(void)
       (player->instance_num != PI_MapFadeFrom) &&
       (!game_is_busy_doing_gui_string_input()))
   {
-      if ( is_game_key_pressed(Gkey_TogglePause, &keycode, 0) )
+      if ( is_game_key_pressed(Gkey_TogglePause, &keycode, false) )
       {
         set_packet_pause_toggle();
         clear_key_pressed(keycode);
@@ -485,7 +485,7 @@ short get_global_inputs(void)
         return true;
       }
   }
-  if ( is_game_key_pressed(Gkey_DumpToOldPos, &keycode, 0) )
+  if ( is_game_key_pressed(Gkey_DumpToOldPos, &keycode, false) )
   {
       set_players_packet_action(player, PckA_DumpHeldThingToOldPos, 0, 0, 0, 0);
       clear_key_pressed(keycode);
@@ -535,7 +535,7 @@ TbBool get_level_lost_inputs(void)
         TbBool map_valid;
         long map_x, map_y;
         map_valid = point_to_overhead_map(player->acamera, mouse_x/pixel_size, mouse_y/pixel_size, &map_x, &map_y);
-        if (is_game_key_pressed(Gkey_SwitchToMap, &keycode, 0))
+        if (is_game_key_pressed(Gkey_SwitchToMap, &keycode, false))
         {
             lbKeyOn[keycode] = 0;
             zoom_from_patchment_map();
@@ -566,7 +566,7 @@ TbBool get_level_lost_inputs(void)
             toggle_gui();
           }
       } else
-      if (is_game_key_pressed(Gkey_SwitchToMap, &keycode, 0))
+      if (is_game_key_pressed(Gkey_SwitchToMap, &keycode, false))
       {
         lbKeyOn[keycode] = 0;
         if (player->view_mode != PVM_ParchFadeOut)
@@ -759,13 +759,13 @@ long get_dungeon_control_action_inputs(void)
       }
     }
 
-    if (is_game_key_pressed(Gkey_ZoomToFight, &val, 0))
+    if (is_game_key_pressed(Gkey_ZoomToFight, &val, false))
     {
         clear_key_pressed(val);
         zoom_to_fight(player->id_number);
         return 1;
     }
-    if ( is_game_key_pressed(Gkey_ZoomCrAnnoyed, &val, 0) )
+    if ( is_game_key_pressed(Gkey_ZoomCrAnnoyed, &val, false) )
     {
         clear_key_pressed(val);
         zoom_to_next_annoyed_creature();
@@ -775,7 +775,7 @@ long get_dungeon_control_action_inputs(void)
     {
         return 1;
     }
-    if (is_game_key_pressed(Gkey_SwitchToMap, &val, 0))
+    if (is_game_key_pressed(Gkey_SwitchToMap, &val, false))
     {
       clear_key_pressed(val);
       if ((player->view_mode != PVM_ParchFadeOut) && (game.small_map_state != PVM_IsometricView))
@@ -1027,7 +1027,7 @@ short get_map_action_inputs(void)
           if (toggle_main_cheat_menu())
             clear_key_pressed(KC_NUMPADENTER);
       }
-      if ( is_game_key_pressed(Gkey_SwitchToMap, &keycode, 0) )
+      if ( is_game_key_pressed(Gkey_SwitchToMap, &keycode, false) )
       {
           clear_key_pressed(keycode);
           turn_off_all_window_menus();
@@ -1048,7 +1048,7 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
         if ( is_game_key_pressed(Gkey_MoveLeft, NULL, false) )
         {
           if (!rotate_pressed)
-            pckt->field_10 |= PCAdV_Unknown01;
+            pckt->field_10 |= PCAdV_SpeedupPressed;
         }
         set_packet_control(pckt, PCtr_MoveLeft);
     }
@@ -1057,7 +1057,7 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
         if ( is_game_key_pressed(Gkey_MoveRight, NULL, false) )
         {
           if (!rotate_pressed)
-            pckt->field_10 |= PCAdV_Unknown01;
+            pckt->field_10 |= PCAdV_SpeedupPressed;
         }
         set_packet_control(pckt, PCtr_MoveRight);
     }
@@ -1066,7 +1066,7 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
         if ( is_game_key_pressed(Gkey_MoveUp, NULL, false) )
         {
           if (!rotate_pressed)
-            pckt->field_10 |= PCAdV_Unknown01;
+            pckt->field_10 |= PCAdV_SpeedupPressed;
         }
         set_packet_control(pckt, PCtr_MoveUp);
     }
@@ -1075,7 +1075,7 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
         if ( is_game_key_pressed(Gkey_MoveDown, NULL, false) )
         {
           if (!rotate_pressed)
-            pckt->field_10 |= PCAdV_Unknown01;
+            pckt->field_10 |= PCAdV_SpeedupPressed;
         }
         set_packet_control(pckt, PCtr_MoveDown);
     }
@@ -1101,7 +1101,7 @@ void get_isometric_view_nonaction_inputs(void)
     if ((player->allocflags & PlaF_Unknown10) != 0)
       return;
     if (speed_pressed != 0)
-      pckt->field_10 |= PCAdV_Unknown01;
+      pckt->field_10 |= PCAdV_SpeedupPressed;
     no_mods = false;
     if ((rotate_pressed != 0) || (speed_pressed != 0))
       no_mods = true;
@@ -1155,7 +1155,7 @@ void get_overhead_view_nonaction_inputs(void)
     if ((player->allocflags & PlaF_Unknown10) == 0)
     {
         if (speed_pressed)
-          pckt->field_10 |= PCAdV_Unknown01;
+          pckt->field_10 |= PCAdV_SpeedupPressed;
         if (rotate_pressed)
         {
           if ( is_game_key_pressed(Gkey_MoveUp, NULL, speed_pressed!=0) )
@@ -1192,7 +1192,7 @@ void get_front_view_nonaction_inputs(void)
     if ((player->allocflags & PlaF_Unknown10) != 0)
       return;
     if (speed_pressed != 0)
-      pckt->field_10 |= PCAdV_Unknown01;
+      pckt->field_10 |= PCAdV_SpeedupPressed;
 
     get_isometric_or_front_view_mouse_inputs(pckt,rotate_pressed,speed_pressed);
 
@@ -1346,14 +1346,14 @@ void get_dungeon_control_nonaction_inputs(void)
     {
       set_players_packet_position(player,pos.x.val,pos.y.val);
       set_packet_control(pckt, PCtr_MapCoordsValid);
-      pckt->field_10 ^= (pckt->field_10 ^ (context<<1)) & PCAdV_Unknown1E;
+      pckt->field_10 ^= (pckt->field_10 ^ (context<<1)) & PCAdV_ContextMask;
     }
   } else
   if (screen_to_map(player->acamera, my_mouse_x, my_mouse_y, &pos))
   {
       set_players_packet_position(player,pos.x.val,pos.y.val);
       set_packet_control(pckt, PCtr_MapCoordsValid);
-      pckt->field_10 &= ~PCAdV_Unknown1E;
+      pckt->field_10 &= ~PCAdV_ContextMask;
   }
   if (lbKeyOn[KC_LALT] && lbKeyOn[KC_X])
   {
@@ -1636,7 +1636,7 @@ short get_inputs(void)
         set_players_packet_position(player,127,127);
         if ((!game_is_busy_doing_gui_string_input()) && ((game.operation_flags & GOF_Paused) != 0))
         {
-          if ( is_game_key_pressed(Gkey_TogglePause, &keycode, 0) )
+          if ( is_game_key_pressed(Gkey_TogglePause, &keycode, false) )
           {
             lbKeyOn[keycode] = 0;
             set_packet_pause_toggle();
@@ -1755,14 +1755,14 @@ void input(void)
     }
     struct Packet *pckt;
     pckt = get_packet(my_player_number);
-    if (is_game_key_pressed(Gkey_Unknown27, 0, 0) != 0)
-      pckt->field_10 |= PCAdV_Unknown20;
+    if (is_game_key_pressed(Gkey_CrtrContrlMod, NULL, false) != 0)
+      pckt->field_10 |= PCAdV_CrtrContrlPressed;
     else
-      pckt->field_10 &= ~PCAdV_Unknown20;
-    if (is_game_key_pressed(Gkey_Unknown28, 0, 0) != 0)
-      pckt->field_10 |= PCAdV_Unknown40;
+      pckt->field_10 &= ~PCAdV_CrtrContrlPressed;
+    if (is_game_key_pressed(Gkey_CrtrQueryMod, NULL, false) != 0)
+      pckt->field_10 |= PCAdV_CrtrQueryPressed;
     else
-      pckt->field_10 &= ~PCAdV_Unknown40;
+      pckt->field_10 &= ~PCAdV_CrtrQueryPressed;
 
     get_inputs();
     // Debug code to write a savegame on given turn

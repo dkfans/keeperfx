@@ -662,7 +662,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
     cy = stl_slab_starting_subtile(stl_y);
     if ((pckt->control_flags & PCtr_LBtnAnyAction) == 0)
       player->field_455 = P454_Unkn0;
-    player->field_454 = (unsigned short)(pckt->field_10 & 0x1E) >> 1;
+    player->field_454 = (unsigned short)(pckt->field_10 & PCAdV_ContextMask) >> 1;
 
     process_dungeon_power_hand_state(plyr_idx);
 
@@ -1521,7 +1521,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
         inter_val = 256;
         break;
     }
-    if (pckt->field_10 & PCAdV_Unknown01)
+    if (pckt->field_10 & PCAdV_SpeedupPressed)
       inter_val *= 3;
 
     if ((pckt->control_flags & PCtr_MoveUp) != 0)
@@ -2112,8 +2112,8 @@ void process_players_packet(long plyr_idx)
   player = get_player(plyr_idx);
   pckt = get_packet_direct(player->packet_num);
   SYNCDBG(6,"Processing player %d packet of type %d.",plyr_idx,(int)pckt->action);
-  player->boolfield_4 = ((pckt->field_10 & 0x20) != 0);
-  player->boolfield_5 = ((pckt->field_10 & 0x40) != 0);
+  player->boolfield_4 = ((pckt->field_10 & PCAdV_CrtrContrlPressed) != 0);
+  player->boolfield_5 = ((pckt->field_10 & PCAdV_CrtrQueryPressed) != 0);
   if (((player->allocflags & PlaF_NewMPMessage) != 0) && (pckt->action == PckA_PlyrMsgChar))
   {
      process_players_message_character(player);

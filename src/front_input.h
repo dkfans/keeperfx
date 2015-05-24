@@ -57,8 +57,8 @@ enum GameKeys {
     Gkey_ZoomRoom14,
     Gkey_ZoomToFight, // 25
     Gkey_ZoomCrAnnoyed,
-    Gkey_Unknown27,
-    Gkey_Unknown28,
+    Gkey_CrtrContrlMod,
+    Gkey_CrtrQueryMod,
     Gkey_DumpToOldPos,
     Gkey_TogglePause, // 30
     Gkey_SwitchToMap,
