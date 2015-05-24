@@ -963,9 +963,27 @@ static TbBool marked_for_dig_and_undug(struct Digging* digging, MapSlabCoord x, 
 
 void computer_setup_new_digging(void)
 {
+	struct Digging* digging;
+	struct BridgeNode* next;
 	int plyr_idx;
+
+	//free memory in case it was used earlier
+	for (plyr_idx = 0; plyr_idx < KEEPER_COUNT; ++plyr_idx)
+	{
+		digging = &comp_digging[plyr_idx];
+		
+		while (digging->bridge_list)
+		{
+			next = digging->bridge_list->next;
+			free(digging->bridge_list);
+			digging->bridge_list = next;
+		}
+	}
+
+	//after this everything will be reset
 	memset(&comp_digging, 0, sizeof(comp_digging));
 	
+	//rebuild digging map from gamestate
 	for (plyr_idx = 0; plyr_idx < KEEPER_COUNT; ++plyr_idx)
 	{
 		struct Dungeon *dungeon;
