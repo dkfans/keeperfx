@@ -279,12 +279,18 @@ long computer_check_move_creatures_to_room(struct Computer2 *comp, struct Comput
  */
 long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check)
 {
-	//workaround for interval seeming to be ignored by from my reconfiguration.
-	//modern computers can handle interval 1 and interval 200 is awfully passive and easy to kill
-	//interval 20 means player-like imp swarms will form while not being excessive
-	//consider making configurable again if *properly* reconfiguring to 20 for all levels except easy beginner levels
-	if (check->turns_interval > 20)
-		check->turns_interval = 20;
+	if (newdig)
+	{
+		//workaround for interval seeming to be ignored by from my reconfiguration.
+		//modern computers can handle interval 1 and interval 200 is awfully passive and easy to kill
+		//interval 20 means player-like imp swarms will form while not being excessive
+		//consider making configurable again if *properly* reconfiguring to 20 for all levels except easy beginner levels
+
+		if (check->turns_interval > 20)
+			check->turns_interval = 20;
+		if (check->param2 < 8)
+			check->param2 = 8;
+	}
 
     struct Dungeon *dungeon;
     SYNCDBG(8,"Starting");

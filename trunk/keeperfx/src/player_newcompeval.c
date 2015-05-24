@@ -359,10 +359,63 @@ enum PlayerAttitude get_attitude_towards_f(int player, int towards_player, const
 /************************************************************************/
 /* Any imps thinking to dig gems right now?                             */
 /************************************************************************/
+static TngUpdateRet is_gem_digger(struct Thing* thing, ModTngFilterParam param)
+{
+	struct Dungeon* dungeon;
+	struct CreatureControl* cctrl;
+	dungeon = (struct Dungeon*)param;
+	if (thing->class_id == TCls_Creature && thing->owner == dungeon->owner)
+	{
+		cctrl = creature_control_get_from_thing(thing);
+		if (!creature_control_invalid(cctrl) && cctrl->combat_flags == 0 &&
+			!creature_is_being_unconscious(thing) && !creature_affected_by_spell(thing, SplK_Chicken)
+			&& !creature_is_being_dropped(thing) && can_thing_be_picked_up_by_player(thing, dungeon->owner))
+		{
+			long state_type;
+			state_type = get_creature_state_type(thing);
+			if (state_type == CrStTyp_Work && cctrl->digger.last_did_job == SDLstJob_DigOrMine)
+				return 1;
+		}
+	}
+	return 0;
+}
 TbBool is_digging_any_gems(struct Dungeon *dungeon)
 {
 	SYNCDBG(19,"Starting");
 
+	struct MapTask *mtask;
+	long i,max;
+	max = dungeon->field_AF7;
+	if (max > MAPTASKS_COUNT)
+		max = MAPTASKS_COUNT;
+
+	//check each dug gem and see if any imps closeby - that suffices as a heuristic
+	for (i = 0; i < max; i++)
+	{
+		mtask = &dungeon->task_list[i];
+		if (mtask->kind != SDDigTask_Unknown3)
+		{
+			struct SlabMap * slab;
+			MapSlabCoord x, y;
+			x = subtile_slab(stl_num_decode_x(mtask->coords));
+			y = subtile_slab(stl_num_decode_y(mtask->coords));
+			slab = get_slabmap_block(x, y);
+
+			if (slab->kind == SlbT_GEMS)
+			{
+				if (do_to_things_with_param_on_tile(x - 1, y, is_gem_digger, (ModTngFilterParam)dungeon) ||
+					do_to_things_with_param_on_tile(x + 1, y, is_gem_digger, (ModTngFilterParam)dungeon) ||
+					do_to_things_with_param_on_tile(x, y - 1, is_gem_digger, (ModTngFilterParam)dungeon) ||
+					do_to_things_with_param_on_tile(x, y + 1, is_gem_digger, (ModTngFilterParam)dungeon))
+				{
+					SYNCDBG(18, "Gems being dug by player %d", (int)dungeon->owner);
+					return 1;
+				}
+			}
+		}
+	}
+
+	/*
 	long i;
 	unsigned long k;
 	k = 0;
@@ -401,6 +454,7 @@ TbBool is_digging_any_gems(struct Dungeon *dungeon)
 			return 0;
 		}
 	}
+	*/
 
 	SYNCDBG(18, "Gems NOT being dug by player %d", (int)dungeon->owner);
 
