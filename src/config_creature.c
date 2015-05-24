@@ -77,9 +77,11 @@ const struct NamedCommand creaturetype_instance_commands[] = {
   {"FPACTIONTIME",    6},
   {"FPRESETTIME",     7},
   {"FORCEVISIBILITY", 8},
-  {"GRAPHICS",        9},
-  {"FUNCTION",       10},
-  {"PROPERTIES",     11},
+  {"TOOLTIPTEXTID",   9},
+  {"SYMBOLSPRITES",  10},
+  {"GRAPHICS",       11},
+  {"FUNCTION",       12},
+  {"PROPERTIES",     13},
   {NULL,              0},
   };
 
@@ -953,7 +955,43 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 9: // GRAPHICS
+        case 9: // TOOLTIPTEXTID
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              k = atoi(word_buf);
+              if (k > 0)
+              {
+                  //TODO
+                  //inst_inf->tooltip_stridx = k;
+                  instance_button_init[i].tooltip_stridx = k;
+                  n++;
+              }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 10: // SYMBOLSPRITES
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  //TODO
+                  //inst_inf->symbol_spridx = k;
+                  instance_button_init[i].symbol_spridx = k;
+                  n++;
+              }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 11: // GRAPHICS
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = get_id(creature_graphics_desc, word_buf);
@@ -969,7 +1007,7 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 10: // FUNCTION
+        case 12: // FUNCTION
             k = recognize_conf_parameter(buf,&pos,len,creature_instances_func_type);
             if (k > 0)
             {
@@ -1017,7 +1055,7 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 11: // PROPERTIES
+        case 13: // PROPERTIES
             inst_inf->flags = 0;
             while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {

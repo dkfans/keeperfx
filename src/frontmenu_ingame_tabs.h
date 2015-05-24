@@ -38,11 +38,6 @@ struct GuiButton;
 #define BID_TRAP_TAB      4
 #define BID_CREATR_TAB    5
 
-struct InstanceButtonInit {  // sizeof=0x6
-    long numfield_0;
-    short tooltip_stridx;
-};
-
 /******************************************************************************/
 DLLIMPORT long _DK_activity_list[24];
 #define activity_list _DK_activity_list
@@ -55,8 +50,6 @@ DLLIMPORT char _DK_gui_trap_type_highlighted;
 #define gui_trap_type_highlighted _DK_gui_trap_type_highlighted
 DLLIMPORT char _DK_gui_creature_type_highlighted;
 #define gui_creature_type_highlighted _DK_gui_creature_type_highlighted
-DLLIMPORT struct InstanceButtonInit _DK_instance_button_init[48];
-#define instance_button_init _DK_instance_button_init
 DLLIMPORT unsigned long _DK_first_person_instance_top_half_selected;
 #define first_person_instance_top_half_selected _DK_first_person_instance_top_half_selected
 

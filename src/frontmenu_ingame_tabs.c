@@ -1637,6 +1637,8 @@ void maintain_instance(struct GuiButton *gbtn)
     {
         gbtn->field_1B |= 0x8000;
         gbtn->flags &= ~LbBtnF_Unknown08;
+        gbtn->sprite_idx = 0;
+        gbtn->tooltip_stridx = 0;
         return;
     }
     struct CreatureControl *cctrl;
@@ -1657,13 +1659,8 @@ void maintain_instance(struct GuiButton *gbtn)
     // Now handle instance for this button
     int curbtn_inst_id;
     curbtn_inst_id = creature_instance_get_available_id_for_pos(ctrltng, curbtn_avail_pos);
-    int i;
-    i = instance_button_init[curbtn_inst_id].numfield_0;
-    if ( i )
-    {
-        gbtn->sprite_idx = i;
-        gbtn->tooltip_stridx = instance_button_init[curbtn_inst_id].tooltip_stridx;
-    }
+    gbtn->sprite_idx = instance_button_init[curbtn_inst_id].symbol_spridx;
+    gbtn->tooltip_stridx = instance_button_init[curbtn_inst_id].tooltip_stridx;
     if (creature_instance_is_available(ctrltng, curbtn_inst_id))
     {
         gbtn->field_1B = 0;

@@ -79,6 +79,7 @@ enum CreatureInstances {
     CrInst_RELAXING,
 };
 
+/******************************************************************************/
 #pragma pack(1)
 
 struct Thing;
@@ -100,6 +101,15 @@ unsigned char field_1D;
     Creature_Instf_Func func_cb;
     long func_params[2];
 };
+
+struct InstanceButtonInit {  // sizeof=0x6
+    long symbol_spridx;
+    short tooltip_stridx;
+};
+/******************************************************************************/
+
+DLLIMPORT struct InstanceButtonInit _DK_instance_button_init[48];
+#define instance_button_init _DK_instance_button_init
 
 #pragma pack()
 /******************************************************************************/
