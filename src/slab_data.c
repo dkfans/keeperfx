@@ -38,8 +38,8 @@ const short around_slab[] = {-86, -85, -84,  -1,   0,   1,  84,  85,  86};
 const short small_around_slab[] = {-85,   1,  85,  -1};
 struct SlabMap bad_slabmap_block;
 /******************************************************************************/
-DLLIMPORT long _DK_calculate_effeciency_score_for_room_slab(long a1, long plyr_idx);
-DLLIMPORT void _DK_unfill_reinforced_corners(unsigned char plyr_idx, unsigned char base_slb_x, unsigned char base_slb_y);
+DLLIMPORT long _DK_calculate_effeciency_score_for_room_slab(long a1, long keep_plyr_idx);
+DLLIMPORT void _DK_unfill_reinforced_corners(unsigned char keep_plyr_idx, unsigned char base_slb_x, unsigned char base_slb_y);
 /******************************************************************************/
 /**
  * Returns slab number, which stores both X and Y coords in one number.
@@ -431,42 +431,57 @@ SlabKind choose_rock_type(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoor
         return SlbT_TORCHDIRT;
 }
 
-void unfill_reinforced_corners(PlayerNumber plyr_idx, MapSlabCoord base_slb_x, MapSlabCoord base_slb_y)
+/**
+ * Counts amount of tiles owned by given player around given slab.
+ * @param plyr_idx Owning player to be checked.
+ * @param slb_x Target slab to check around, X coord.
+ * @param slb_y Target slab to check around, Y coord.
+ * @return Amount 0-4 of owned slabs, or just 4 if there is any owned ground or room slab.
+ */
+int count_owned_ground_around(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    int i, num_owned;
+    num_owned = 0;
+    for (i=0; i < SMALL_AROUND_SLAB_LENGTH; i++)
+    {
+        MapSlabCoord sslb_x, sslb_y;
+        sslb_x = slb_x + small_around[i].delta_x;
+        sslb_y = slb_y + small_around[i].delta_y;
+        struct SlabMap *slb;
+        slb = get_slabmap_block(sslb_x, sslb_y);
+        if (slabmap_owner(slb) == plyr_idx)
+        {
+            struct SlabAttr *slbattr;
+            slbattr = get_slab_attrs(slb);
+            if ((slbattr->category == SlbAtCtg_FortifiedGround) || (slbattr->category == SlbAtCtg_RoomInterior)) {
+                num_owned = 4;
+                break;
+            } else {
+                num_owned++;
+            }
+        }
+
+    }
+    return num_owned;
+}
+
+void unfill_reinforced_corners(PlayerNumber keep_plyr_idx, MapSlabCoord base_slb_x, MapSlabCoord base_slb_y)
 {
     //_DK_unfill_reinforced_corners(plyr_idx, base_slb_x, base_slb_y); return;
     int i;
-    for (i = 0; i < SMALL_AROUND_MID_LENGTH; i++)
+    for (i = 0; i < SMALL_AROUND_SLAB_LENGTH; i++)
     {
         MapSlabCoord slb_x, slb_y;
-        slb_x = base_slb_x + small_around_mid[i].delta_x;
-        slb_y = base_slb_y + small_around_mid[i].delta_y;
+        slb_x = base_slb_x + small_around[i].delta_x;
+        slb_y = base_slb_y + small_around[i].delta_y;
         struct SlabMap *slb;
-        slb = get_slabmap_for_subtile(slb_x, slb_y);
+        slb = get_slabmap_block(slb_x, slb_y);
         struct SlabAttr *slbattr;
         slbattr = get_slab_attrs(slb);
-        if ((slbattr->category == SlbAtCtg_FortifiedWall) && (slabmap_owner(slb) != plyr_idx))
+        if ((slbattr->category == SlbAtCtg_FortifiedWall) && (slabmap_owner(slb) != keep_plyr_idx))
         {
-            int n, num_owned_around;
-            num_owned_around = 0;
-            for (n=0; n < SMALL_AROUND_SLAB_LENGTH; n++)
-            {
-                MapSlabCoord sslb_x, sslb_y;
-                sslb_x = slb_x + small_around[n].delta_x;
-                sslb_y = slb_y + small_around[n].delta_y;
-                struct SlabMap *sslb;
-                sslb = get_slabmap_for_subtile(sslb_x, sslb_y);
-                if (slabmap_owner(sslb) == slabmap_owner(sslb))
-                {
-                    struct SlabAttr *sslbattr;
-                    sslbattr = get_slab_attrs(sslb);
-                    if ((sslbattr->category == SlbAtCtg_FortifiedGround) || (sslbattr->category == SlbAtCtg_RoomInterior)) {
-                        num_owned_around = 4;
-                    } else {
-                        num_owned_around++;
-                    }
-                }
-
-            }
+            int num_owned_around;
+            num_owned_around = count_owned_ground_around(slabmap_owner(slb), slb_x, slb_y);
             if (num_owned_around < 2)
             {
                 SlabKind slbkind;
@@ -478,10 +493,16 @@ void unfill_reinforced_corners(PlayerNumber plyr_idx, MapSlabCoord base_slb_x, M
     }
 }
 
-void do_unprettying(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
+/**
+ * Removes reinforces walls from tiles around given slab, except given owner.
+ * @param keep_plyr_idx The owning player whose walls are not to be affected.
+ * @param slb_x Central slab for the unprettying effect, X coord.
+ * @param slb_y Central slab for the unprettying effect, Y coord.
+ */
+void do_unprettying(PlayerNumber keep_plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     long n;
-    for (n=0; n < 4; n++)
+    for (n=0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {
         long sslb_x,sslb_y;
         struct SlabMap *slb;
@@ -490,14 +511,14 @@ void do_unprettying(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_
         slb = get_slabmap_block(sslb_x, sslb_y);
         struct SlabAttr *slbattr;
         slbattr = get_slab_attrs(slb);
-        if ((slbattr->category == SlbAtCtg_FortifiedWall) && (slabmap_owner(slb) != plyr_idx))
+        if ((slbattr->category == SlbAtCtg_FortifiedWall) && (slabmap_owner(slb) != keep_plyr_idx))
         {
             if (!slab_by_players_land(slabmap_owner(slb), sslb_x, sslb_y))
             {
                 SlabKind newslab;
-                newslab = choose_rock_type(plyr_idx, sslb_x, sslb_y);
+                newslab = choose_rock_type(keep_plyr_idx, sslb_x, sslb_y);
                 place_slab_type_on_map(newslab, slab_subtile_center(sslb_x), slab_subtile_center(sslb_y), game.neutral_player_num, 0);
-                unfill_reinforced_corners(plyr_idx, sslb_x, sslb_y);
+                unfill_reinforced_corners(keep_plyr_idx, sslb_x, sslb_y);
                 do_slab_efficiency_alteration(sslb_x, sslb_y);
             }
         }
