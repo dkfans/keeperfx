@@ -707,9 +707,9 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
     strcpy(vischar," ");
     str = (char *)gbtn->content;
     key = lbInkey;
-    if ( (modifiers == -1) && (lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT]) )
+    if ((modifiers == -1) && (lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT]))
     {
-        if ( (lbInkey == KC_LSHIFT) || (lbInkey == KC_RSHIFT) ) {
+        if ((lbInkey == KC_LSHIFT) || (lbInkey == KC_RSHIFT)) {
             lbInkey = KC_UNASSIGNED;
             return false;
         }
@@ -721,7 +721,7 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
     vischar[0] = outchar;
     if (key == KC_RETURN)
     {
-        if ( (gbtn->field_2D < 0) || (str[0] != '\0') || (modifiers == -3) )
+        if ((gbtn->field_2D < 0) || (str[0] != '\0') || (modifiers == -3))
         {
             gbtn->gbactn_1 = 0;
             (gbtn->click_event)(gbtn);
@@ -745,6 +745,12 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
     { // Delete the last char
         if (input_field_pos > 0) {
             input_field_pos--;
+            LbLocTextStringDelete(str, input_field_pos, 1);
+        }
+    } else
+    if (key == KC_DELETE)
+    { // Delete the next char
+        if (input_field_pos < LbLocTextStringLength(str)) {
             LbLocTextStringDelete(str, input_field_pos, 1);
         }
     } else
