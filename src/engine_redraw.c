@@ -756,7 +756,7 @@ TbBool draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, MapSubt
     allow_cast = can_cast_spell(player->id_number, pwkind, stl_x, stl_y, thing, CastChk_SkipThing);
     if (!allow_cast)
     {
-        set_pointer_graphic(MousePG_Unkn15);
+        set_pointer_graphic(MousePG_DenyMark);
         return false;
     }
     chkfunc = powerst->overcharge_check;
@@ -765,7 +765,7 @@ TbBool draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, MapSubt
         if (chkfunc())
         {
             i = get_power_overcharge_level(player);
-            set_pointer_graphic(MousePG_Unkn16+i);
+            set_pointer_graphic(MousePG_SpellCharge0+i);
             pwrdynst = get_power_dynamic_stats(pwkind);
             draw_spell_cost = pwrdynst->cost[i];
             return true;
@@ -799,7 +799,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         if (game.small_map_state == 2) {
             set_pointer_graphic(MousePG_Unkn00);
         } else {
-            set_pointer_graphic(MousePG_Unkn01);
+            set_pointer_graphic(MousePG_Arrow);
         }
         return;
     }
@@ -817,14 +817,14 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
             draw_spell_cursor(player->work_state, battle_creature_over, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
         } else
         {
-            set_pointer_graphic(MousePG_Unkn01);
+            set_pointer_graphic(MousePG_Arrow);
         }
         return;
     }
     // GUI action being processed
     if (game_is_busy_doing_gui())
     {
-        set_pointer_graphic(MousePG_Unkn01);
+        set_pointer_graphic(MousePG_Arrow);
         return;
     }
     switch (player->work_state)
@@ -837,10 +837,10 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         switch (i)
         {
         case P454_Unkn1:
-            set_pointer_graphic(MousePG_Unkn02);
+            set_pointer_graphic(MousePG_Pickaxe);
             break;
         case P454_Unkn2:
-            set_pointer_graphic(MousePG_Unkn39);
+            set_pointer_graphic(MousePG_LockMark);
             break;
         case P454_Unkn3:
             thing = thing_get(player->thing_under_hand);
@@ -852,19 +852,19 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
                     // The condition above makes can_cast_spell() within draw_spell_cursor() to never fail; this is intentional
                     draw_spell_cursor(PSt_CtrlDirect, 0, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
                 } else {
-                    set_pointer_graphic(MousePG_Unkn01);
+                    set_pointer_graphic(MousePG_Arrow);
                 }
                 player->flgfield_6 |= PlaF6_Unknown01;
             } else
             if (((player->boolfield_5) && !thing_is_invalid(thing)) && (dungeon->things_in_hand[0] != player->thing_under_hand)
                 && can_thing_be_queried(thing, player->id_number))
             {
-                set_pointer_graphic(MousePG_Unkn04);
+                set_pointer_graphic(MousePG_Query);
                 player->flgfield_6 |= PlaF6_Unknown01;
             } else
             {
                 if ((player->field_3 & 0x02) != 0) {
-                  set_pointer_graphic(MousePG_Unkn02);
+                  set_pointer_graphic(MousePG_Pickaxe);
                 } else {
                   set_pointer_graphic(MousePG_Unkn00);
                 }
@@ -872,7 +872,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
             break;
         default:
             if (player->hand_busy_until_turn <= game.play_gameturn)
-              set_pointer_graphic(MousePG_Unkn01);
+              set_pointer_graphic(MousePG_Arrow);
             else
               set_pointer_graphic(MousePG_Unkn00);
             break;
@@ -909,7 +909,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         break;
     case PSt_CreatrQuery:
     case PSt_CreatrInfo:
-        set_pointer_graphic(MousePG_Unkn04);
+        set_pointer_graphic(MousePG_Query);
         break;
     case PSt_PlaceTrap:
         i = get_place_trap_pointer_graphics(player->chosen_trap_kind);
@@ -920,10 +920,10 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         set_pointer_graphic(i);
         break;
     case PSt_Sell:
-        set_pointer_graphic(MousePG_Unkn03);
+        set_pointer_graphic(MousePG_Sell);
         break;
     default:
-        set_pointer_graphic(MousePG_Unkn01);
+        set_pointer_graphic(MousePG_Arrow);
         break;
     }
 }
@@ -942,14 +942,14 @@ void process_pointer_graphic(void)
     case PVT_CreatureContrl:
     case PVT_CreaturePasngr:
         if ((game.numfield_D & GNFldD_Unkn08) != 0)
-          set_pointer_graphic(MousePG_Unkn01);
+          set_pointer_graphic(MousePG_Arrow);
         else
           set_pointer_graphic(MousePG_Unkn00);
         break;
     case PVT_MapScreen:
     case PVT_MapFadeIn:
     case PVT_MapFadeOut:
-        set_pointer_graphic(MousePG_Unkn01);
+        set_pointer_graphic(MousePG_Arrow);
         break;
     case PVT_None:
         set_pointer_graphic_none();

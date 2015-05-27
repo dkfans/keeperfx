@@ -392,60 +392,60 @@ TbBool set_pointer_graphic(long ptr_idx)
   switch (ptr_idx)
   {
   case MousePG_Unkn00:
-  case MousePG_Unkn01:
-  case MousePG_Unkn02:
-  case MousePG_Unkn04:
-  case MousePG_Unkn15:
+  case MousePG_Arrow:
+  case MousePG_Pickaxe:
+  case MousePG_Query:
+  case MousePG_DenyMark:
       spr = &pointer_sprites[ptr_idx];
       x = 12; y = 15;
       break;
-  case MousePG_Unkn03:
+  case MousePG_Sell:
       spr = &pointer_sprites[ptr_idx];
       x = 17; y = 29;
       break;
-  case MousePG_Unkn05:
-  case MousePG_Unkn06:
-  case MousePG_Unkn07:
-  case MousePG_Unkn08:
-  case MousePG_Unkn09:
-  case MousePG_Unkn10:
-  case MousePG_Unkn11:
-  case MousePG_Unkn12:
-  case MousePG_Unkn13:
-  case MousePG_Unkn14:
+  case MousePG_PlaceTrap01:
+  case MousePG_PlaceTrap02:
+  case MousePG_PlaceTrap03:
+  case MousePG_PlaceTrap04:
+  case MousePG_PlaceTrap05:
+  case MousePG_PlaceTrap06:
+  case MousePG_PlaceDoor01:
+  case MousePG_PlaceDoor02:
+  case MousePG_PlaceDoor03:
+  case MousePG_PlaceDoor04:
       spr = &pointer_sprites[ptr_idx];
       x = 12; y = 38;
       break;
-  case  MousePG_Unkn16:
-  case  MousePG_Unkn17:
-  case  MousePG_Unkn18:
-  case  MousePG_Unkn19:
-  case  MousePG_Unkn20:
-  case  MousePG_Unkn21:
-  case  MousePG_Unkn22:
-  case  MousePG_Unkn23:
-  case  MousePG_Unkn24:
+  case  MousePG_SpellCharge0:
+  case  MousePG_SpellCharge1:
+  case  MousePG_SpellCharge2:
+  case  MousePG_SpellCharge3:
+  case  MousePG_SpellCharge4:
+  case  MousePG_SpellCharge5:
+  case  MousePG_SpellCharge6:
+  case  MousePG_SpellCharge7:
+  case  MousePG_SpellCharge8:
       spr = &pointer_sprites[ptr_idx];
       x = 20; y = 20;
       break;
-  case  MousePG_Unkn25:
-  case  MousePG_Unkn26:
-  case  MousePG_Unkn27:
-  case  MousePG_Unkn28:
-  case  MousePG_Unkn29:
-  case  MousePG_Unkn30:
-  case  MousePG_Unkn31:
-  case  MousePG_Unkn32:
-  case  MousePG_Unkn33:
-  case  MousePG_Unkn34:
-  case  MousePG_Unkn35:
-  case  MousePG_Unkn36:
-  case  MousePG_Unkn37:
-  case  MousePG_Unkn38:
+  case  MousePG_PlaceRoom01:
+  case  MousePG_PlaceRoom02:
+  case  MousePG_PlaceRoom03:
+  case  MousePG_PlaceRoom04:
+  case  MousePG_PlaceRoom05:
+  case  MousePG_PlaceRoom06:
+  case  MousePG_PlaceRoom07:
+  case  MousePG_PlaceRoom08:
+  case  MousePG_PlaceRoom09:
+  case  MousePG_PlaceRoom10:
+  case  MousePG_PlaceRoom11:
+  case  MousePG_PlaceRoom12:
+  case  MousePG_PlaceRoom13:
+  case  MousePG_PlaceRoom14:
       spr = &pointer_sprites[ptr_idx];
       x = 12; y = 38;
       break;
-  case  MousePG_Unkn39:
+  case  MousePG_LockMark:
   // 40..144 are spell pointers
   case  MousePG_Unkn47:
       spr = &pointer_sprites[ptr_idx];
