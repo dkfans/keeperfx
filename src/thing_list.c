@@ -1154,7 +1154,12 @@ void remove_thing_from_mapwho(struct Thing *thing)
     if (thing->prev_on_mapblk > 0)
     {
         mwtng = thing_get(thing->prev_on_mapblk);
-        mwtng->next_on_mapblk = thing->next_on_mapblk;
+        if (thing_exists(mwtng)) {
+            mwtng->next_on_mapblk = thing->next_on_mapblk;
+        } else {
+            ERRORLOG("Non-existing thing index %d in mapwho before index %d!",(int)thing->prev_on_mapblk,(int)thing->index);
+            thing->prev_on_mapblk = 0;
+        }
     } else
     {
         mapblk = get_map_block_at(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
@@ -1163,7 +1168,12 @@ void remove_thing_from_mapwho(struct Thing *thing)
     if (thing->next_on_mapblk > 0)
     {
         mwtng = thing_get(thing->next_on_mapblk);
-        mwtng->prev_on_mapblk = thing->prev_on_mapblk;
+        if (thing_exists(mwtng)) {
+            mwtng->prev_on_mapblk = thing->prev_on_mapblk;
+        } else {
+            ERRORLOG("Non-existing thing index %d in mapwho after index %d!",(int)thing->next_on_mapblk,(int)thing->index);
+            thing->next_on_mapblk = 0;
+        }
     }
     thing->next_on_mapblk = 0;
     thing->prev_on_mapblk = 0;
@@ -1172,8 +1182,27 @@ void remove_thing_from_mapwho(struct Thing *thing)
 
 void place_thing_in_mapwho(struct Thing *thing)
 {
-  SYNCDBG(18,"Starting");
-  _DK_place_thing_in_mapwho(thing);
+    struct Map *mapblk;
+    struct Thing *mwtng;
+    SYNCDBG(18,"Starting");
+    if ((thing->alloc_flags & TAlF_IsInMapWho) != 0)
+        return;
+    //_DK_place_thing_in_mapwho(thing);
+    mapblk = get_map_block_at(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
+    thing->next_on_mapblk = get_mapwho_thing_index(mapblk);
+    if (thing->next_on_mapblk > 0)
+    {
+        mwtng = thing_get(thing->next_on_mapblk);
+        if (thing_exists(mwtng)) {
+            mwtng->prev_on_mapblk = thing->index;
+        } else {
+            ERRORLOG("Non-existing thing index %d in mapwho!",(int)thing->next_on_mapblk);
+            thing->next_on_mapblk = 0;
+        }
+    }
+    set_mapwho_thing_index(mapblk, thing->index);
+    thing->prev_on_mapblk = 0;
+    thing->alloc_flags |= TAlF_IsInMapWho;
 }
 
 struct Thing *find_base_thing_on_mapwho(ThingClass oclass, ThingModel model, MapSubtlCoord stl_x, MapSubtlCoord stl_y)

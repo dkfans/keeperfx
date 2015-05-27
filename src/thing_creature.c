@@ -2604,6 +2604,7 @@ TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
 void process_creature_standing_on_corpses_at(struct Thing *creatng, struct Coord3d *pos)
 {
     //_DK_process_creature_standing_on_corpses_at(thing, pos);
+    SYNCDBG(18,"Starting for %s at %d,%d",thing_model_name(creatng),(int)pos->x.stl.num,(int)pos->y.stl.num);
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
     struct Map *mapblk;
