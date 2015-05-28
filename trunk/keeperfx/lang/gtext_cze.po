@@ -21,14 +21,14 @@ msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-10-28 21:23+0100\n"
-"Last-Translator: Tomasz Lis <listom@gmail.com>\n"
+"PO-Revision-Date: 2015-05-27 11:45+0100\n"
+"Last-Translator: Ing. Jiří Vejda <jiri.vejda@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: cs_CZ\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.5.7\n"
+"X-Generator: Poedit 1.6.4\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
@@ -950,12 +950,13 @@ msgstr ""
 
 #. Level Moonbrush Wood objective
 #: guitext:82
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "Well, you're done down here. Time to introduce yourself to the locals and re-"
 "organise their nice little lives."
-msgstr "Je nacase jim vysvetlit, jak se veci maji."
+msgstr ""
+"Paráda, tady jsi skončil. Je na čase se představit místním a přeorganizovat "
+"jejich ubohé životy."
 
 #. Levels Tickle and Moonbrush Wood information
 #: guitext:83
@@ -1465,7 +1466,7 @@ msgctxt "In-game message"
 msgid ""
 "Enemy reinforcements have arrived. So what? Let's hear it for more killing."
 msgstr ""
-"Prave dorazily nepratelske posily. Co to znamena? No ze bude vic mrtvolek."
+"Právě dorazily nepřátelské posily. Co to znamená? No že bude víc mrtvol."
 
 #. Level Blaise End objective
 #: guitext:131
@@ -1588,7 +1589,7 @@ msgstr ""
 #: guitext:141
 msgctxt "In-game message"
 msgid "Tempus fugit, Keeper. You have been warned."
-msgstr "Cas uplynul, Strazce. Ja te varoval."
+msgstr "Čas uplynul, Strážce. Já tě varoval."
 
 #. Level Bonus 2 objective
 #: guitext:142
@@ -2082,7 +2083,7 @@ msgid ""
 msgstr ""
 "Jméno a zdraví: Každé stvoření má své vlastní jméno. Pod ním je ukazatel "
 "života. Čím vyšší je červená stupnice, tím lepšímu zdraví se příšera těší. "
-"23.4"
+"[23.4]"
 
 #: guitext:223
 msgctxt "In-game interface description"
@@ -2091,7 +2092,7 @@ msgid ""
 "bar indicating the creatures progress towards attaining more experience."
 msgstr ""
 "Zkušenosti: Úroveň zkušenosti obludy. Pod číslem úrovně je ukazatal "
-"znázorňující postup příšery k získání více zkušenosí. 23.3"
+"znázorňující postup příšery k získání více zkušenosí. [23.3]"
 
 #: guitext:224
 msgctxt "In-game interface description"
@@ -2108,16 +2109,18 @@ msgstr "Zrušit"
 msgctxt "Creature spell"
 msgid "Arrow: The basic ranged weapon, effective at long distance."
 msgstr ""
-"Šíp: Základní zbraň pro boj na dálku, efektivní na dlouhé vzdálenosti. 25.4"
+"Šíp: Základní zbraň pro boj na dálku, efektivní na dlouhé vzdálenosti. [25.4]"
 
 #: guitext:227
+#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Freeze: Changes the target creature to ice. It is then in suspended "
 "animation and can be shattered with a well-aimed blow."
-msgstr "Zmražení: "
+msgstr "Zmražení:"
 
 #: guitext:228
+#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Armour: This lowers the amount of damage a creature takes each time it is "
@@ -2125,6 +2128,7 @@ msgid ""
 msgstr "Brnění:"
 
 #: guitext:229
+#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Lightning: A powerful magical weapon with electric attack. Casts a bolt of "
@@ -2132,6 +2136,7 @@ msgid ""
 msgstr "Blesk:"
 
 #: guitext:230
+#, fuzzy
 msgctxt "Creature spell"
 msgid "Rebound: Causes any spell fired at you to bounce back at the attacker."
 msgstr "Odražení: "
@@ -2151,6 +2156,7 @@ msgid ""
 msgstr "Pohled:"
 
 #: guitext:233
+#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Missile: A simple spell that sends a screaming magic reptile at the "
@@ -3281,7 +3287,6 @@ msgid "Bonus"
 msgstr "Bonus"
 
 #: guitext:431
-#, fuzzy
 msgctxt "Menu interface, Main Menu item"
 msgid "High Score Table"
 msgstr "Tabulka nejvyššího skóre"
@@ -4338,8 +4343,8 @@ msgid ""
 "Training Room: Place creatures in here to improve their experience. LMB "
 "select. RMB zoom. [17.5]"
 msgstr ""
-"Tr0nungov8 m9stnost: Zde si tve obludy mohou zvysovat uroven svych "
-"schopnosti. Zvoli se LTM, PTM zvetsi oblast. [17.5]"
+"Trénonvací místnost: Zde si tvé obludy mohou zvyšovat úroveň svých "
+"schopností. Zvolí se LTM, PTM zvětší oblast. [17.5]"
 
 #: guitext:619
 msgctxt "Room description"
@@ -4917,7 +4922,6 @@ msgid "Dungeon special found: LMB toggle. RMB delete."
 msgstr "Byl nalezen zvlastni bonus: LTM prepnout, PTM smazat."
 
 #: guitext:716
-#, fuzzy
 msgctxt "Menu interface, Main Menu item; In-game interface, Options title"
 msgid "Options"
 msgstr "Nastavení"
@@ -5059,75 +5063,73 @@ msgid ""
 "Possess Creature mouse sensitivity: Adjusts the sensitivity of the mouse "
 "movements when in Possess Creature mode. LMB toggle."
 msgstr ""
-"Citlivost mysi pri ovladani obludy: Nastavuje citlivost na pohyb mysi v modu "
-"Ovladani obludy. Prepina se LTM."
+"Citlivost myši při ovládání obludy: Upravuje citlivost pohybu myši v módu "
+"Ovladání obludy. Přepina se LTM."
 
 #: guitext:739
 msgctxt "In-game interface description"
 msgid "More sensitive."
-msgstr "Citlivejsi."
+msgstr "Větší citlivost."
 
 #: guitext:740
 msgctxt "In-game interface description"
 msgid "Less sensitive."
-msgstr "Mene citliva."
+msgstr "Menší citlivost."
 
 #: guitext:741
 msgctxt "Statistic name"
 msgid "Number of Creatures"
-msgstr "Pocet oblud"
+msgstr "Počet oblud"
 
 #: guitext:742
 msgctxt "Statistic name"
 msgid "Gold Mined"
-msgstr "Vytezene zlato"
+msgstr "Vytěžené zlato"
 
 #: guitext:743
 msgctxt "Statistic name"
 msgid "Efficiency"
-msgstr ""
+msgstr "Efektivnost"
 
 #: guitext:744
 msgctxt "Statistic name"
 msgid "Secrets"
-msgstr ""
+msgstr "Tajemství"
 
 #: guitext:745
 msgctxt "Statistic name"
 msgid "Money"
-msgstr ""
+msgstr "Peníze"
 
 #: guitext:746
-#, fuzzy
 msgctxt "Statistic name"
 msgid "Time"
-msgstr "Časovaná bomba"
+msgstr "Čas"
 
 #: guitext:747
 msgctxt "Statistic name"
 msgid "Style"
-msgstr ""
+msgstr "Styl"
 
 #: guitext:748
 msgctxt "Statistic name"
 msgid "Rating"
-msgstr ""
+msgstr "Hodnocení"
 
 #: guitext:749
-#, fuzzy
 msgctxt "Statistic name"
 msgid "Creatures Attracted"
-msgstr "Tví přisluhovači jsou naštvaní"
+msgstr "Počet přilákaných příšer"
 
 #: guitext:750
 msgctxt "Statistic name"
 msgid "Battles Won"
-msgstr ""
+msgstr "Vyhraných bitev"
 
 #: guitext:751
 msgctxt "Statistic name"
 msgid "Battles Lost"
-msgstr ""
+msgstr "Prohraných bitev"
 
 #: guitext:752
 msgctxt "Statistic name"
@@ -5137,35 +5139,32 @@ msgstr ""
 #: guitext:753
 msgctxt "Statistic name"
 msgid "Imps Deployed"
-msgstr ""
+msgstr "Nasazeno Impů"
 
 #: guitext:754
-#, fuzzy
 msgctxt "Statistic name"
 msgid "Creatures Left"
-msgstr "Příšera"
+msgstr "Přeživších příšer"
 
 #: guitext:755
 msgctxt "Statistic name"
 msgid "Doors Destroyed"
-msgstr ""
+msgstr "Zničeno dveří"
 
 #: guitext:756
 msgctxt "Statistic name"
 msgid "Rooms Destroyed"
-msgstr ""
+msgstr "Zničeno místností"
 
 #: guitext:757
-#, fuzzy
 msgctxt "Statistic name"
 msgid "Dungeon Area"
-msgstr "Srdce sklepení"
+msgstr "Rozloha kobky"
 
 #: guitext:758
-#, fuzzy
 msgctxt "Statistic name"
 msgid "Ideas Researched"
-msgstr "Vynalezeno nové kouzlo"
+msgstr "Vynalezeno kouzel"
 
 #: guitext:759
 #, fuzzy
@@ -5180,22 +5179,19 @@ msgid "Creatures Summoned"
 msgstr "Tví přisluhovači jsou naštvaní"
 
 #: guitext:761
-#, fuzzy
 msgctxt "Statistic name"
 msgid "Creatures Sacrificed"
-msgstr "Tví přisluhovači jsou naštvaní"
+msgstr "Obětováno příšer"
 
 #: guitext:762
-#, fuzzy
 msgctxt "Statistic name"
 msgid "Creatures Tortured"
-msgstr "Tví přisluhovači jsou naštvaní"
+msgstr "Umučeno příšer"
 
 #: guitext:763
-#, fuzzy
 msgctxt "Statistic name"
 msgid "Creatures Trained"
-msgstr "Tví přisluhovači jsou naštvaní"
+msgstr "Vytrénováno příšer"
 
 #: guitext:764
 msgctxt "Statistic name"
@@ -5205,104 +5201,97 @@ msgstr ""
 #: guitext:765
 msgctxt "Statistic name"
 msgid "Spells Stolen"
-msgstr ""
+msgstr "Ukradeno kouzel"
 
 #: guitext:766
 msgctxt "Statistic name"
 msgid "Traps Manufactured"
-msgstr ""
+msgstr "Vyrobeno pastí"
 
 #: guitext:767
 msgctxt "Statistic name"
 msgid "Traps Unused"
-msgstr ""
+msgstr "Nepožito pastí"
 
 #: guitext:768
 msgctxt "Statistic name"
 msgid "Doors Manufactured"
-msgstr ""
+msgstr "Vyrobeno dveří"
 
 #: guitext:769
 msgctxt "Statistic name"
 msgid "Doors Unused"
-msgstr ""
+msgstr "Nepožito dveří"
 
 #: guitext:770
-#, fuzzy
 msgctxt "Statistic name"
 msgid "Number of Rooms"
-msgstr "Pocet oblud"
+msgstr "Pocet místností"
 
 #: guitext:771
-#, fuzzy
 msgctxt "Statistic name"
 msgid "Number of Portals"
-msgstr "Pocet oblud"
+msgstr "Pocet portálů"
 
 #: guitext:772
 msgctxt "Statistic name"
 msgid "Slaps"
-msgstr ""
+msgstr "Pohlavků"
 
 #: guitext:773
-#, fuzzy
 msgctxt "Statistic name"
 msgid "Cave-Ins"
-msgstr "Zával"
+msgstr "Zavalení"
 
 #: guitext:774
-#, fuzzy
 msgctxt "Statistic name"
 msgid "Skeletons Raised"
-msgstr "Kostlivec"
+msgstr "Vychováno Kostliveců"
 
 #: guitext:775
-#, fuzzy
 msgctxt "Statistic name"
 msgid "Bridges Built"
-msgstr "Most"
+msgstr "Postaveno mostů"
 
 #: guitext:776
 msgctxt "Statistic name"
 msgid "Rock Dug Out"
-msgstr ""
+msgstr "Vykopáno skal"
 
 #: guitext:777
 msgctxt "Statistic name"
 msgid "Salary Cost"
-msgstr ""
+msgstr "Náklady na plat"
 
 #: guitext:778
 msgctxt "Statistic name"
 msgid "Flies Eaten By Spiders"
-msgstr ""
+msgstr "Mouchy sežrané pavouky"
 
 #: guitext:779
 msgctxt "Statistic name"
 msgid "Territory Destroyed"
-msgstr ""
+msgstr "Zničeno země"
 
 #: guitext:780
-#, fuzzy
 msgctxt "Statistic name"
 msgid "Rooms Constructed"
-msgstr "Přišel jsi o místnost"
+msgstr "Postaveno místností"
 
 #: guitext:781
 msgctxt "Statistic name"
 msgid "Traps Used"
-msgstr ""
+msgstr "Použito pastí"
 
 #: guitext:782
-#, fuzzy
 msgctxt "Statistic name"
 msgid "Keepers Destroyed"
-msgstr "Strážce proti Hrdinům"
+msgstr "Zničeno Strážců"
 
 #: guitext:783
 msgctxt "Statistic name"
 msgid "Area Claimed"
-msgstr ""
+msgstr "Zabrané území"
 
 #: guitext:784
 msgctxt "Statistic name"
@@ -5396,16 +5385,14 @@ msgid "Creatures Annoyed"
 msgstr "Tví přisluhovači jsou naštvaní"
 
 #: guitext:801
-#, fuzzy
 msgctxt "Statistic name"
 msgid "Graveyard Body Count"
-msgstr "Hřbitov"
+msgstr "Počet mrtvých na hřitově"
 
 #: guitext:802
-#, fuzzy
 msgctxt "Statistic name"
 msgid "Vampires Created"
-msgstr "Upír"
+msgstr "Vytvořeno upírů"
 
 #: guitext:803
 msgctxt "Easter egg"
@@ -5599,6 +5586,7 @@ msgid ""
 "Keep your Imps digging. There are always surprises to be found deep in the "
 "earth."
 msgstr ""
+"Nechej své Impy kopat. Hluboko v zemi se vždy nachází nějaké překvapení."
 
 #: guitext:837
 msgctxt "In-game hint message"
@@ -5609,6 +5597,7 @@ msgstr ""
 msgctxt "In-game hint message"
 msgid "Fear and lack of mercy are your greatest weapons. Use them wisely."
 msgstr ""
+"Strach a žádné slitování jsou tvými největšími zbraněmi. Užívej je moudře."
 
 #: guitext:839
 msgctxt "In-game hint message"
@@ -5616,6 +5605,8 @@ msgid ""
 "Foolish is the Keeper who sells all his rooms and refuses to pay his "
 "creatures."
 msgstr ""
+"Hloupý je strážce, který prodá všechny své místnosti a odmítá zaplatit svým "
+"přisluhovačům."
 
 #: guitext:840
 #, fuzzy
@@ -5636,7 +5627,7 @@ msgstr ""
 #: guitext:843
 msgctxt "Menu interface item"
 msgid "Invert Mouse"
-msgstr ""
+msgstr "Prohodit tlačítka myši"
 
 #: guitext:844
 #, fuzzy
@@ -5647,7 +5638,7 @@ msgstr "Citlivejsi."
 #: guitext:845
 msgctxt "Menu interface item"
 msgid "Computer"
-msgstr ""
+msgstr "Počítač"
 
 #: guitext:846
 #, fuzzy
@@ -5658,29 +5649,27 @@ msgstr "Počítačový asistent"
 #: guitext:847
 msgctxt "Menu interface item"
 msgid "On"
-msgstr ""
+msgstr "Zapnuto"
 
 #: guitext:848
-#, fuzzy
 msgctxt "Menu interface item"
 msgid "Off"
-msgstr "Od"
+msgstr "Vypnuto"
 
 #: guitext:849
 msgctxt "Menu interface item"
 msgid "Sensitivity"
-msgstr ""
+msgstr "Citlivost"
 
 #: guitext:850
-#, fuzzy
 msgctxt "Menu interface item"
 msgid "Mouse Options"
-msgstr "Nastavení zvuku"
+msgstr "Nastavení myši"
 
 #: guitext:851
 msgctxt "Menu interface item"
 msgid "Mouse"
-msgstr ""
+msgstr "Myš"
 
 #: guitext:852
 msgctxt "Menu interface item"
@@ -5688,44 +5677,41 @@ msgid "Undo Pickup"
 msgstr ""
 
 #: guitext:853
-#, fuzzy
 msgctxt "Menu interface item"
 msgid "Pause"
-msgstr "Pozastaveno"
+msgstr "Pozastavit"
 
 #: guitext:854
 msgctxt "Menu interface item"
 msgid "Map"
-msgstr ""
+msgstr "Mapa"
 
 #: guitext:855
 msgctxt "On-screen message"
 msgid "Insufficient Memory"
-msgstr ""
+msgstr "Nedostatek paměti"
 
 #: guitext:856
 msgctxt "On-screen message"
 msgid "Unable To Change Screen Resolution"
-msgstr ""
+msgstr "Nelze změnit rozlišení obrazovky"
 
 #: guitext:857
 msgctxt "Menu interface item"
 msgid "Query"
-msgstr ""
+msgstr "Dotaz"
 
 #: guitext:858
-#, fuzzy
 msgctxt "Credits"
 msgid "Support Art"
-msgstr "Technická podpora"
+msgstr "Podpůrná grafika"
 
 #: guitext:859
 msgctxt "Credits"
 msgid "Navigation System"
-msgstr ""
+msgstr "Navigační systém"
 
 #: guitext:860
-#, fuzzy
 msgctxt "Credits"
 msgid "Script"
 msgstr "Námět"
@@ -5733,30 +5719,27 @@ msgstr "Námět"
 #: guitext:861
 msgctxt "Credits"
 msgid "Voice Over"
-msgstr ""
+msgstr "Hlasy"
 
 #: guitext:862
-#, fuzzy
 msgctxt "Credits"
 msgid "Finance"
-msgstr "Spojenectví"
+msgstr "Finance"
 
 #: guitext:864
-#, fuzzy
 msgctxt "Credits"
 msgid "Localisation Management"
-msgstr "Lokalizace"
+msgstr "Management lokalizace"
 
 #: guitext:865
 msgctxt "Credits"
 msgid "Language Test Supervisor"
-msgstr ""
+msgstr "Dozor jazykového překladu"
 
 #: guitext:866
-#, fuzzy
 msgctxt "Credits"
 msgid "Language Testers"
-msgstr "Vedoucí testeři"
+msgstr "Testeři jazykového překladu"
 
 #: guitext:867
 msgctxt "Credits"
@@ -5766,133 +5749,122 @@ msgstr ""
 #: guitext:868
 msgctxt "Network game message"
 msgid "Attempting To Join"
-msgstr ""
+msgstr "Pokouším se připojit"
 
 #: guitext:869
 msgctxt "Network game message"
 msgid "Resyncing"
-msgstr ""
+msgstr "Synchronizace"
 
 #: guitext:870
-#, fuzzy
 msgctxt "Menu interface item"
 msgid "1 Player"
-msgstr "Hráči"
+msgstr "1 hráč"
 
 #: guitext:871
-#, fuzzy
 msgctxt "Menu interface item"
 msgid "2 Players"
-msgstr "Hráči"
+msgstr "2 hráči"
 
 #: guitext:872
-#, fuzzy
 msgctxt "Menu interface item"
 msgid "3 Players"
-msgstr "Hráči"
+msgstr "3 hráči"
 
 #: guitext:873
-#, fuzzy
 msgctxt "Menu interface item"
 msgid "4 Players"
-msgstr "Hráči"
+msgstr "4 hráči"
 
 #: guitext:874
-#, fuzzy
 msgctxt "Menu interface item"
 msgid "Serial"
-msgstr "Menu hry přes sériový port"
+msgstr "Sériový port"
 
 #: guitext:875
-#, fuzzy
 msgctxt "Menu interface item"
 msgid "Modem"
-msgstr "Menu hry přes modem"
+msgstr "Modem"
 
 #: guitext:876
 msgctxt "Menu interface item"
 msgid "IPX"
-msgstr ""
+msgstr "IPX"
 
 #: guitext:877
-#, fuzzy
 msgctxt "World direction"
 msgid "N"
-msgstr "Ne"
+msgstr "S"
 
 #: guitext:878
 msgctxt "World direction"
 msgid "E"
-msgstr ""
+msgstr "V"
 
 #: guitext:879
 msgctxt "World direction"
 msgid "S"
-msgstr ""
+msgstr "J"
 
 #: guitext:880
 msgctxt "World direction"
 msgid "W"
-msgstr ""
+msgstr "Z"
 
 #: guitext:881
 msgctxt "Menu interface item"
 msgid "Vs"
-msgstr ""
+msgstr "Vs"
 
 #: guitext:882
-#, fuzzy
 msgctxt "Credits"
 msgid "Game design"
-msgstr "Menu hra"
+msgstr "Design hry"
 
 #: guitext:883
-#, fuzzy
 msgctxt "Credits"
 msgid "Associate Producer"
-msgstr "Producent"
+msgstr "Spolupracující producent"
 
 #: guitext:884
-#, fuzzy
 msgctxt "Credits"
 msgid "Additional Script"
-msgstr "Další umělci"
+msgstr "Další scénáristé"
 
 #: guitext:885
 msgctxt "Easter egg"
 msgid "Happy Birthday"
-msgstr ""
+msgstr "Šťastné narozeniny"
 
 #: guitext:886
 msgctxt "Menu interface message"
 msgid "Error"
-msgstr ""
+msgstr "Chyba"
 
 #: guitext:887
 msgctxt "Menu interface message"
 msgid "Error Saving"
-msgstr ""
+msgstr "Chyba při ukládání"
 
 #: guitext:888
-#, fuzzy
 msgctxt "Menu interface message"
 msgid "New Levels"
-msgstr "Úrovně"
+msgstr "Nové úrovně"
 
 #: guitext:889
 msgctxt "Menu interface message"
 msgid "Please insert Data Disk CD-ROM"
-msgstr ""
+msgstr "Prosím vložte disck CD-ROM"
 
 #: guitext:890
 msgctxt "Menu interface message"
 msgid "Please insert Dungeon Keeper CD-ROM"
-msgstr ""
+msgstr "Prosím vložte Dungeon Keeper CD-ROM"
 
 #: guitext:891
 msgctxt "Menu interface message"
 msgid "Please insert The Deeper Dungeons CD-ROM"
-msgstr ""
+msgstr "Prosím vložte The Deeper Dungeons CD-ROM"
 
 #. DD Level Korros Tor first objective
 #: guitext:892
@@ -6249,27 +6221,27 @@ msgstr ""
 #: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
 msgctxt "Unused"
 msgid "Moo2"
-msgstr ""
+msgstr "Moo2"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"
 msgid "Free Play levels"
-msgstr ""
+msgstr "Hrát volné kola"
 
 #: guitext:942
 msgctxt "Menu interface item"
 msgid "Land selection"
-msgstr ""
+msgstr "Volba země"
 
 #: guitext:943
 msgctxt "Menu interface item"
 msgid "Campaigns"
-msgstr ""
+msgstr "Kampaně"
 
 #: guitext:944
 msgctxt "Menu interface item"
 msgid "Add computer"
-msgstr ""
+msgstr "Přidat počítač"
 
 #: guitext:945
 msgctxt "Game event name"
