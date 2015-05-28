@@ -51,7 +51,7 @@ extern "C" {
 /******************************************************************************/
 TbScreenMode switching_vidmodes[] = {
   Lb_SCREEN_MODE_320_200_8,
-  Lb_SCREEN_MODE_640_400_8,
+  Lb_SCREEN_MODE_640_480_8,
   Lb_SCREEN_MODE_INVALID,
   Lb_SCREEN_MODE_INVALID,
   Lb_SCREEN_MODE_INVALID,
@@ -59,7 +59,7 @@ TbScreenMode switching_vidmodes[] = {
   };
 
 TbScreenMode failsafe_vidmode = Lb_SCREEN_MODE_320_200_8;
-TbScreenMode movies_vidmode   = Lb_SCREEN_MODE_320_200_8;
+TbScreenMode movies_vidmode   = Lb_SCREEN_MODE_640_480_8;
 TbScreenMode frontend_vidmode = Lb_SCREEN_MODE_640_480_8;
 
 //struct IPOINT_2D units_per_pixel;
