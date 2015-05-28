@@ -246,7 +246,7 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit);
 void process_packets(void);
 void clear_packets(void);
 TbBigChecksum compute_players_checksum(void);
-void player_packet_checksum_add(PlayerNumber plyr_idx,TbBigChecksum sum);
+void player_packet_checksum_add(PlayerNumber plyr_idx, TbBigChecksum sum, const char *area_name);
 short checksums_different(void);
 void post_init_packets(void);
 

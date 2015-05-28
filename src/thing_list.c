@@ -1001,7 +1001,7 @@ void update_things(void)
     sum += update_things_in_list(&game.thing_lists[TngList_Doors]);
     update_things_sounds_in_list(&game.thing_lists[TngList_AmbientSnds]);
     update_cave_in_things();
-    player_packet_checksum_add(my_player_number,sum);
+    player_packet_checksum_add(my_player_number,sum,"things");
     SYNCDBG(9,"Finished");
 }
 

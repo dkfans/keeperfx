@@ -149,7 +149,7 @@ void process_rooms(void)
           process_room_surrounding_flames(room);
       }
   }
-  player_packet_checksum_add(my_player_number, sum);
+  player_packet_checksum_add(my_player_number, sum, "rooms");
   recompute_rooms_count_in_dungeons();
   SYNCDBG(9,"Finished");
 }

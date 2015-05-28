@@ -215,6 +215,10 @@ TbBigChecksum compute_player_checksum(struct PlayerInfo *player)
     return sum;
 }
 
+/**
+ * Computes checksum of current state of all existing players.
+ * @return The checksum value.
+ */
 TbBigChecksum compute_players_checksum(void)
 {
     struct PlayerInfo *player;
@@ -232,12 +236,19 @@ TbBigChecksum compute_players_checksum(void)
     return sum;
 }
 
-void player_packet_checksum_add(PlayerNumber plyr_idx, TbBigChecksum sum)
+/**
+ * Adds given value to checksum at current game turn stored in packet file.
+ *
+ * @param plyr_idx The player whose checksum is computed.
+ * @param sum Checksum increase.
+ * @param area_name Name of the area from which the checksum increase comes, for logging purposes.
+ */
+void player_packet_checksum_add(PlayerNumber plyr_idx, TbBigChecksum sum, const char *area_name)
 {
     struct Packet *pckt;
     pckt = get_packet(plyr_idx);
     pckt->chksum += sum;
-    SYNCDBG(9,"Checksum increase %06lX",(unsigned long)sum);
+    SYNCDBG(9,"Checksum increase from %s is %06lX",area_name,(unsigned long)sum);
 }
 
 /**
