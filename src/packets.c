@@ -1368,7 +1368,6 @@ void load_packets_for_turn(GameTurn nturn)
     struct Packet *pckt;
     TbChecksum pckt_chksum;
     TbBigChecksum tot_chksum;
-    short done;
     long i;
     SYNCDBG(19,"Starting");
     const int turn_data_size = PACKET_TURN_SIZE;
@@ -1392,32 +1391,6 @@ void load_packets_for_turn(GameTurn nturn)
     for (i=0; i < NET_PLAYERS_COUNT; i++)
       LbMemoryCopy(&game.packets[i], &pckt_buf[i*sizeof(struct Packet)], sizeof(struct Packet));
     tot_chksum = llong(&pckt_buf[NET_PLAYERS_COUNT*sizeof(struct Packet)]);
-    if ((game.operation_flags & GOF_Paused) != 0)
-    {
-        done = false;
-        while (!done)
-        {
-            for (i=0; i<NET_PLAYERS_COUNT; i++)
-            {
-              pckt = get_packet_direct(i);
-              if ((pckt->action != 0) || (pckt->control_flags != 0))
-              {
-                done = true;
-                break;
-              }
-            }
-            game.pckt_gameturn++;
-            if (LbFileRead(game.packet_save_fp, &pckt_buf, turn_data_size) == -1)
-            {
-              ERRORLOG("Cannot read turn data from Packet File");
-              return;
-            }
-            game.packet_file_pos += turn_data_size;
-            for (i=0; i < NET_PLAYERS_COUNT; i++)
-              LbMemoryCopy(&game.packets[i], &pckt_buf[i*sizeof(struct Packet)], sizeof(struct Packet));
-            tot_chksum = llong(&pckt_buf[NET_PLAYERS_COUNT*sizeof(struct Packet)]);
-        }
-    }
     if (game.turns_fastforward > 0)
         game.turns_fastforward--;
     if (game.packet_checksum_verify)
