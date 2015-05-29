@@ -26,6 +26,7 @@
 #include "bflib_video.h"
 #include "bflib_vidsurface.h"
 #include "bflib_planar.h"
+#include "bflib_fmvids.h"
 
 #include <SDL2/SDL.h>
 
@@ -321,6 +322,10 @@ static void process_event(const SDL_Event *ev)
 
     case SDL_QUIT:
         lbUserQuit = 1;
+        break;
+
+    case FF_REFRESH_EVENT:
+        video_refresh_timer_callback(ev->user.data1);
         break;
     }
 }

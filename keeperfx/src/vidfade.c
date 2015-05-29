@@ -324,7 +324,6 @@ long PaletteFadePlayer(struct PlayerInfo *player)
       player->field_4C5--;
   }
   // Set the palette to screen
-  LbScreenWaitVbi();
   LbPaletteSet(palette);
   return step;
 }

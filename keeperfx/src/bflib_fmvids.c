@@ -32,6 +32,7 @@
 #include "bflib_keybrd.h"
 #include "bflib_inputctrl.h"
 #include "bflib_fileio.h"
+#include "bflib_vidsurface.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -48,271 +49,797 @@ extern "C" {
 #define FLI_COPY    16
 #define FLI_PSTAMP  18
 
-/******************************************************************************/
-// Global variables
-unsigned char smk_palette[768];
-/******************************************************************************/
-void copy_to_screen(unsigned char *srcbuf, unsigned long width, unsigned long height, unsigned int flags);
-/******************************************************************************/
-// Functions
-typedef char (WINAPI *FARPROCP_C)(void *);
-typedef unsigned long (WINAPI *FARPROCP_U)(void *);
-typedef void (WINAPI *FARPROCP_V)(void *);
-typedef void (WINAPI *FARPROCPU_V)(void *,unsigned long);
-typedef void (WINAPI *FARPROCU_V)(unsigned long);
-typedef struct SmackTag * (WINAPI *FARSMACKOPEN)(const char *,unsigned int,int);
-typedef void (WINAPI *FARSMACKSUMMARY)(struct SmackTag *,struct SmackSumTag *);
-typedef void (WINAPI *FARSMACKTOBUF)(struct SmackTag *,unsigned long,unsigned long,
-    unsigned long,unsigned long,const void *,unsigned long);
+VideoState *global_video_state;
+SDL_mutex       *screen_mutex;
 
-char SmackSoundUseMSS(void* dig_driver)
+extern size_t av_strlcpy(char *dst, const char *src, size_t size);
+
+#pragma region decoder helper
+
+#pragma region audio
+int _audio_decode_frame(AVCodecContext *aCodecCtx, uint8_t *audio_buf, int buf_size)
 {
-    HMODULE hModule;
-    hModule=GetModuleHandle("SMACKW32");
-    FARPROC proc;
-    proc=GetProcAddress(hModule,"_SmackSoundUseMSS@4");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of SmackSoundUseMSS function; skipped."); return 0; }
-    return ((FARPROCP_C)proc)(dig_driver);
+    static AVPacket pkt;
+    static uint8_t *audio_pkt_data = NULL;
+    static int audio_pkt_size = 0;
+    static AVFrame frame;
+
+    int len1, data_size = 0;
+
+    for (;;)
+    {
+        while (audio_pkt_size > 0)
+        {
+            int got_frame = 0;
+            len1 = avcodec_decode_audio4(aCodecCtx, &frame, &got_frame, &pkt);
+            if (len1 < 0)
+            {
+                /* if error, skip frame */
+                audio_pkt_size = 0;
+                break;
+            }
+            audio_pkt_data += len1;
+            audio_pkt_size -= len1;
+            data_size = 0;
+            if (got_frame)
+            {
+                data_size = av_samples_get_buffer_size(NULL,
+                    aCodecCtx->channels,
+                    frame.nb_samples,
+                    aCodecCtx->sample_fmt,
+                    1);
+                assert(data_size <= buf_size);
+                memcpy(audio_buf, frame.data[0], data_size);
+            }
+            if (data_size <= 0)
+            {
+                /* No data yet, get more frames */
+                continue;
+            }
+            /* We have data, return it and come back for more later */
+            return data_size;
+        }
+        if (pkt.data)
+            av_free_packet(&pkt);
+
+        if (global_video_state->quit)
+        {
+            return -1;
+        }
+
+        if (_packet_queue_get(&(global_video_state->audio_queue), &pkt, 1) < 0)
+        {
+            return -1;
+        }
+        audio_pkt_data = pkt.data;
+        audio_pkt_size = pkt.size;
+    }
 }
 
-struct SmackTag *SmackOpen(const char *name,unsigned int flags,int extrabuf)
+void _audio_callback(void *userdata, Uint8 *stream, int len)
 {
-    HMODULE hModule;
-    hModule=GetModuleHandle("SMACKW32");
-    FARPROC proc;
-    proc=GetProcAddress(hModule,"_SmackOpen@12");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of SmackOpen function; skipped."); return 0; }
-    return ((FARSMACKOPEN)proc)(name,flags,extrabuf);
+    AVCodecContext *aCodecCtx = (AVCodecContext *)userdata;
+    int len1, audio_size;
+
+    static uint8_t audio_buf[(AVCODEC_MAX_AUDIO_FRAME_SIZE * 3) / 2];
+    static unsigned int audio_buf_size = 0;
+    static unsigned int audio_buf_index = 0;
+
+    while (len > 0)
+    {
+        if (audio_buf_index >= audio_buf_size)
+        {
+            /* We have already sent all our data; get more */
+            audio_size = _audio_decode_frame(aCodecCtx, audio_buf, sizeof(audio_buf));
+            if (audio_size < 0)
+            {
+                /* If error, output silence */
+                audio_buf_size = 1024;
+                memset(audio_buf, 0, audio_buf_size);
+            }
+            else
+            {
+                audio_buf_size = audio_size;
+            }
+            audio_buf_index = 0;
+        }
+        len1 = audio_buf_size - audio_buf_index;
+        if (len1 > len)
+            len1 = len;
+        memcpy(stream, (uint8_t *)audio_buf + audio_buf_index, len1);
+        len -= len1;
+        stream += len1;
+        audio_buf_index += len1;
+    }
 }
 
-void SmackSummary(struct SmackTag *smk,struct SmackSumTag *sum)
+#pragma endregion
+
+#pragma region packet queue
+// Initialize the packet queue.
+void _packet_queue_init(PacketQueue *pq)
 {
-    HMODULE hModule;
-    hModule=GetModuleHandle("SMACKW32");
-    FARPROC proc;
-    proc=GetProcAddress(hModule,"_SmackSummary@8");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of SmackSummary function; skipped."); return; }
-    ((FARSMACKSUMMARY)proc)(smk,sum);
+    memset(pq, 0, sizeof(PacketQueue));
+    pq->mutex = SDL_CreateMutex();
+    pq->cond = SDL_CreateCond();
 }
 
-unsigned long SmackWait(struct SmackTag *smk)
+// Add packet to packet queue.
+int _packet_queue_put(PacketQueue *q, AVPacket *pkt)
 {
-    HMODULE hModule;
-    hModule=GetModuleHandle("SMACKW32");
-    FARPROC proc;
-    proc=GetProcAddress(hModule,"_SmackWait@4");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of SmackWait function; skipped."); return 0; }
-    return ((FARPROCP_U)proc)(smk);
+    AVPacketList *pkt1;
+
+    pkt1 = (AVPacketList*)av_malloc(sizeof(AVPacketList));
+    if (!pkt1)
+    {
+        return -1;
+    }
+    pkt1->pkt = *pkt;
+    pkt1->next = NULL;
+
+    SDL_LockMutex(q->mutex);
+
+    if (!q->last_pkt)//queue videoState empty
+    {
+        q->first_pkt = pkt1;
+    }
+    else
+    {
+        q->last_pkt->next = pkt1;
+    }
+
+    q->last_pkt = pkt1;
+    q->nb_packets++;
+    q->size += pkt1->pkt.size;
+    SDL_CondSignal(q->cond);
+
+    SDL_UnlockMutex(q->mutex);
+    return 0;
 }
 
-void SmackClose(struct SmackTag *smk)
+// Get packet from packet queue.
+static int _packet_queue_get(PacketQueue *q, AVPacket *pkt, int block)
 {
-    HMODULE hModule;
-    hModule=GetModuleHandle("SMACKW32");
-    FARPROC proc;
-    proc=GetProcAddress(hModule,"_SmackClose@4");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of SmackClose function; skipped."); return; }
-    ((FARPROCP_V)proc)(smk);
+    AVPacketList *pkt1;
+    int ret;
+
+    SDL_LockMutex(q->mutex);
+
+    for (;;)
+    {
+        if (global_video_state->quit)
+        {
+            ret = -1;
+            break;
+        }
+
+        pkt1 = q->first_pkt;
+        if (pkt1)
+        {
+            q->first_pkt = pkt1->next;
+            if (!q->first_pkt)
+                q->last_pkt = NULL;
+            q->nb_packets--;
+            q->size -= pkt1->pkt.size;
+            *pkt = pkt1->pkt;
+            av_free(pkt1);
+            ret = 1;
+            break;
+        }
+        else if (!block) {
+            ret = 0;
+            break;
+        }
+        else
+        {
+            SDL_CondWait(q->cond, q->mutex);
+        }
+    }
+    SDL_UnlockMutex(q->mutex);
+    return ret;
+}
+#pragma endregion
+
+#pragma region timer helper
+static Uint32 _sdl_refresh_timer_callback(Uint32 interval, void *opaque)
+{
+    SDL_Event event;
+    event.type = FF_REFRESH_EVENT;
+    event.user.data1 = opaque;
+    SDL_PushEvent(&event);
+    return 0; /* 0 means stop timer */
 }
 
-unsigned long SmackDoFrame(struct SmackTag *smk)
+/* schedule a video refresh in 'delay' ms */
+static void _schedule_refresh(VideoState *videoState, int delay)
 {
-    HMODULE hModule;
-    hModule=GetModuleHandle("SMACKW32");
-    FARPROC proc;
-    proc=GetProcAddress(hModule,"_SmackDoFrame@4");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of SmackDoFrame function; skipped."); return 0; }
-    return ((FARPROCP_U)proc)(smk);
+    SDL_AddTimer(delay, _sdl_refresh_timer_callback, videoState);
 }
 
-void SmackNextFrame(struct SmackTag *smk)
+double _synchronize_video(VideoState *videoState, AVFrame *src_frame, double pts)
 {
-    HMODULE hModule;
-    hModule=GetModuleHandle("SMACKW32");
-    FARPROC proc;
-    proc=GetProcAddress(hModule,"_SmackNextFrame@4");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of SmackNextFrame function; skipped."); return; }
-    ((FARPROCP_V)proc)(smk);
+    double frame_delay;
+
+    if (pts != 0)
+    {
+        /* if we have pts, set video clock to it */
+        videoState->video_clock = pts;
+    }
+    else
+    {
+        /* if we aren't given a pts, set it to the clock */
+        pts = videoState->video_clock;
+    }
+    /* update the video clock */
+    frame_delay = av_q2d(videoState->video_stream->codec->time_base);
+    /* if we are repeating a frame, adjust clock accordingly */
+    frame_delay += src_frame->repeat_pict * (frame_delay * 0.5);
+    videoState->video_clock += frame_delay;
+    return pts;
 }
 
-void SmackToBuffer(struct SmackTag *smk,unsigned long left,unsigned long top,
-    unsigned long Pitch,unsigned long destheight,const void *buf,unsigned long Flags)
+#pragma endregion
+
+#pragma region display
+void _video_display(VideoPicture *videoPicture)
 {
-    HMODULE hModule;
-    hModule=GetModuleHandle("SMACKW32");
-    FARPROC proc;
-    proc=GetProcAddress(hModule,"_SmackToBuffer@28");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of SmackToBuffer function; skipped."); return; }
-    ((FARSMACKTOBUF)proc)(smk,left,top,Pitch,destheight,buf,Flags);
+    assert(lbDrawTexture == NULL);
+
+    if (videoPicture->texture)
+    {
+        lbDrawTexture = videoPicture->texture;
+
+        SDL_LockMutex(screen_mutex);
+
+        if (LbScreenLock() == Lb_SUCCESS)
+        {
+            LbScreenRender();
+            LbScreenUnlock();
+        }
+
+        SDL_DestroyTexture(videoPicture->texture);
+        videoPicture->texture = NULL;
+
+        SDL_UnlockMutex(screen_mutex);
+    }
 }
 
-void SmackGoto(struct SmackTag *smk,unsigned long frame)
+// callback when timer videoState up
+void video_refresh_timer_callback(void *userdata)
+{        
+    VideoState *videoState = (VideoState *)userdata;
+    VideoPicture *videoPicture;
+
+    if (videoState->video_stream)
+    {
+        if (videoState->pict_queue_size == 0)
+        {
+            _schedule_refresh(videoState, 1);
+        }
+        else
+        {
+            videoPicture = &videoState->pict_queue[videoState->pict_queue_read_idx];
+            /* Now, normally here goes a ton of code
+            about timing, etc. we're just going to
+            guess at a delay for now. You can
+            increase and decrease this value and hard code
+            the timing - but I don't suggest that ;)
+            We'll learn how to do it for real later.
+            */
+            _schedule_refresh(videoState, 40);
+
+            /* show the picture! */
+            _video_display(videoPicture);
+
+            /* update queue for next picture! */
+            if (++videoState->pict_queue_read_idx == VIDEO_PICTURE_QUEUE_SIZE)
+            {
+                videoState->pict_queue_read_idx = 0;
+            }
+            SDL_LockMutex(videoState->pict_queue_mutex);
+            videoState->pict_queue_size--;
+            SDL_CondSignal(videoState->pict_queue_cond);
+            SDL_UnlockMutex(videoState->pict_queue_mutex);
+        }
+    }
+    else
+    {
+        _schedule_refresh(videoState, 100);
+    }
+}
+#pragma endregion
+
+#pragma region threads
+// Open the smacker video file, parse its header, get the video and audio stream.
+int _open_smacker_video(VideoState *videoState)
 {
-    HMODULE hModule;
-    hModule=GetModuleHandle("SMACKW32");
-    FARPROC proc;
-    proc=GetProcAddress(hModule,"_SmackGoto@8");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of SmackGoto function; skipped."); return; }
-    ((FARPROCPU_V)proc)(smk,frame);
+    int result = 0;
+    // Open video file and read the header.
+    if (avformat_open_input(&(videoState->p_format_ctx), videoState->filename, NULL, NULL) != 0)
+    {
+        ERRORLOG("Couldn't open file.");
+        result = -1;
+        goto ERROR;
+    }
+
+    // Retrieve stream information.
+    if (avformat_find_stream_info(videoState->p_format_ctx, NULL) < 0)
+    {
+        ERRORLOG("Couldn't find stream information.");
+        result = -1;
+        goto ERROR;
+    }
+
+    int i;
+    // Find the first video and audio stream.
+    for (i = 0; i < videoState->p_format_ctx->nb_streams; i++)
+    {
+        if ((videoState->p_format_ctx->streams[i]->codec->codec_type == AVMEDIA_TYPE_VIDEO) &&
+            (videoState->video_stream_idx< 0))
+        {
+            videoState->video_stream_idx = i;
+        }
+        if ((videoState->p_format_ctx->streams[i]->codec->codec_type == AVMEDIA_TYPE_AUDIO) &&
+            (videoState->audio_stream_idx < 0))
+        {
+            videoState->audio_stream_idx = i;
+        }
+    }
+
+    if (videoState->video_stream_idx == -1 || videoState->audio_stream_idx == -1)
+    {
+        ERRORLOG("Didn't find video or audio stream.");
+        result = -1;
+        goto ERROR;
+    }
+
+    if ((_open_stream_component(videoState, videoState->video_stream_idx) < 0) ||
+        (_open_stream_component(videoState, videoState->audio_stream_idx) < 0))
+    {
+        result = -1;
+        goto ERROR;
+    }
+
+ERROR:
+    return result;
 }
 
-void SmackSimulate(unsigned long sim)
+// Open codec for specified stream and fill the context structure.
+int _open_stream_component(VideoState *videoState, int streamIdx)
 {
-    HMODULE hModule;
-    hModule=GetModuleHandle("SMACKW32");
-    FARPROC proc;
-    proc=GetProcAddress(hModule,"_SmackSimulate@4");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of SmackSimulate function; skipped."); return; }
-    ((FARPROCU_V)proc)(sim);
+    int result = 0;
+
+    AVFormatContext* pFormatCtx = videoState->p_format_ctx;
+
+    // Get a pointer to the codec context for the video stream.
+    AVCodecContext* pCodecCtxOrig = pFormatCtx->streams[streamIdx]->codec;
+
+    AVCodec* pCodec = NULL;
+
+    if (streamIdx < 0 || streamIdx >= pFormatCtx->nb_streams)
+    {
+        result = -1; // Codec not found.
+        goto ERROR;
+    }
+
+    // Find the decoder for stream.
+    pCodec = avcodec_find_decoder((pCodecCtxOrig)->codec_id);
+    if (pCodec == NULL)
+    {
+        ERRORLOG("Unsupported codec!");
+        result = -1; // Codec not found.
+        goto ERROR;
+    }
+
+
+    AVCodecContext* pCodecCtx = NULL;
+    pCodecCtx = avcodec_alloc_context3(pCodec);
+    if (avcodec_copy_context(pCodecCtx, pCodecCtxOrig) != 0)
+    {
+        ERRORLOG("Couldn't copy codec context");
+        result = -1; // Error copying codec context
+        goto ERROR;
+    }
+
+    // Open codec
+    if (avcodec_open2(pCodecCtx, pCodec, NULL) < 0)
+    {
+        result = -1; // Could not open codec
+        goto ERROR;
+    }
+
+
+    SDL_AudioSpec desiredSpec, actualSpec;
+    switch (pCodecCtx->codec_type)
+    {
+    case AVMEDIA_TYPE_AUDIO:
+
+        // Set audio settings from codec info
+        desiredSpec.freq = pCodecCtx->sample_rate;
+        desiredSpec.format = AUDIO_S16SYS;
+        desiredSpec.channels = pCodecCtx->channels;
+        desiredSpec.silence = 0;
+        desiredSpec.samples = SDL_AUDIO_BUFFER_SIZE;
+        desiredSpec.callback = _audio_callback;
+        desiredSpec.userdata = pCodecCtx;
+        if (SDL_OpenAudio(&desiredSpec, &actualSpec) < 0)
+        {
+            ERRORLOG("SDL_OpenAudio: %s\n", SDL_GetError());
+            result = -1;
+            goto ERROR;
+        }
+
+        videoState->audio_stream_idx = streamIdx;
+        videoState->audio_stream = pFormatCtx->streams[streamIdx];
+        videoState->audio_ctx = pCodecCtx;
+        videoState->audio_buf_size = 0;
+        videoState->audio_buf_index = 0;
+        memset(&videoState->audio_pkt, 0, sizeof(videoState->audio_pkt));
+
+        _packet_queue_init(&videoState->audio_queue);
+
+        // Start audio.
+        SDL_PauseAudio(0);
+
+        break;
+    case AVMEDIA_TYPE_VIDEO:
+
+        videoState->video_stream_idx = streamIdx;
+        videoState->video_stream = pFormatCtx->streams[streamIdx];
+        videoState->video_ctx = pCodecCtx;
+        _packet_queue_init(&videoState->video_queue);
+
+        videoState->video_thread_id = SDL_CreateThread(_video_thread, NULL, videoState);
+        if (!videoState->video_thread_id)
+        {
+            ERRORLOG("failed creating video thread.");
+            result = -1;
+            goto ERROR;
+        }
+
+        // initialize SWS context for software scaling.
+        videoState->sws_ctx = sws_getContext(pCodecCtx->width,
+            pCodecCtx->height,
+            pCodecCtx->pix_fmt,
+            lbDisplay.PhysicalScreenWidth,
+            lbDisplay.PhysicalScreenHeight,
+            PIX_FMT_RGB24,
+            SWS_BICUBIC,
+            NULL,
+            NULL,
+            NULL
+            );
+
+        break;
+    default:
+        break;
+    }
+
+ERROR:
+    avcodec_close(pCodecCtxOrig);
+    return result;
 }
 
+int _decode_thread(void *arg)
+{
+    int result = 0;
+    VideoState *videoState = (VideoState *)arg;
+
+    AVPacket pkt1, *packet = &pkt1;
+
+    videoState->video_stream_idx = -1;
+    videoState->audio_stream_idx = -1;
+    if (_open_smacker_video(videoState) < 0)
+    {
+        ERRORLOG("Failed opening video: %s.", videoState->filename);
+        result = -1;
+        goto ERROR;
+    }
+
+    // main decode loop
+    for (;;)
+    {
+        if (videoState->quit)
+        {
+            break;
+        }
+
+        // seek stuff goes here
+        if (videoState->audio_queue.size > MAX_AUDIOQ_SIZE ||
+            videoState->video_queue.size > MAX_VIDEOQ_SIZE)
+        {
+            SDL_Delay(10);
+            continue;
+        }
+        if (av_read_frame(videoState->p_format_ctx, packet) < 0)
+        {
+            if (videoState->p_format_ctx->pb->error == 0)
+            {
+                // TODO: HeM looks like a infinite loop?
+                SDL_Delay(100); /* no error; wait for user input */
+                continue;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        // videoState this a packet from the video stream?
+        if (packet->stream_index == videoState->video_stream_idx)
+        {
+            _packet_queue_put(&videoState->video_queue, packet);
+        }
+        else if (packet->stream_index == videoState->audio_stream_idx)
+        {
+            _packet_queue_put(&videoState->audio_queue, packet);
+        }
+        else
+        {
+            av_free_packet(packet);
+        }
+    }
+
+    /* all done - wait for it */
+    while (!videoState->quit)
+    {
+        SDL_Delay(100);
+    }
+
+ERROR:
+    videoState->quit = 1;
+
+    // Close the codecs
+    avcodec_close(videoState->video_ctx);
+    avcodec_close(videoState->audio_ctx);
+
+    // Close the video file
+    avformat_close_input(&(videoState->p_format_ctx));
+
+    //ERRORLOG("decode_thread_quit");
+    return result;
+}
+
+// This thread reads in packets from the video queue, decodes the video into frames,
+// and then calls a queue_picture function to put the processed frame onto a picture queue.
+int _video_thread(void *arg)
+{
+    VideoState *videoState = (VideoState *)arg;
+    AVPacket pkt1, *packet = &pkt1;
+    int frameFinished;
+    AVFrame *pFrame;
+    double pts;
+
+    pFrame = av_frame_alloc();
+
+    for (;;)
+    {
+        if ((_packet_queue_get(&videoState->video_queue, packet, 1) < 0) || videoState->quit)
+        {
+            // means we quit getting packets
+            break;
+        }
+
+        pts = 0;
+
+        // Decode video frame
+        avcodec_decode_video2(videoState->video_ctx, pFrame, &frameFinished, packet); 
+        
+        if (packet->dts != AV_NOPTS_VALUE)
+        {
+            pts = pFrame->pts;
+        }
+        else
+        {
+            pts = 0;
+        }
+        pts *= av_q2d(videoState->video_stream->time_base);
+
+        // Did we get a video frame?
+        if (frameFinished)
+        {
+            pts = _synchronize_video(videoState, pFrame, pts);
+            if (_queue_picture(videoState, pFrame, pts) < 0)
+            {
+                break;
+            }
+        }
+        av_free_packet(packet);
+    }
+
+    av_frame_free(&pFrame);
+
+    //ERRORLOG("exit video thread");
+    return 0;
+}
+
+#pragma endregion
+
+#pragma region picture
+void _alloc_picture(void *userdata)
+{
+    VideoState *videoState = (VideoState *)userdata;
+    VideoPicture *videoPicture;
+
+    videoPicture = &(videoState->pict_queue[videoState->pict_queue_write_idx]);
+    if (videoPicture->texture)
+    {
+        // we already have one, make one with different size.
+        SDL_DestroyTexture(videoPicture->texture);
+    }
+    // Allocate a place to put our YUV image on that screen
+    SDL_LockMutex(screen_mutex);
+
+    videoPicture->texture = SDL_CreateTexture(lbGameRenderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING,
+        lbDisplay.PhysicalScreenWidth,
+        lbDisplay.PhysicalScreenHeight);
+
+    videoPicture->width = lbDisplay.PhysicalScreenWidth;
+    videoPicture->height = lbDisplay.PhysicalScreenHeight;
+    videoPicture->allocated = 1;
+
+    SDL_UnlockMutex(screen_mutex);
+}
+
+// Allocate adequate buffer for frame containers.
+int _prepare_scaled_frame(AVFrame** ppFrameRGB, uint8_t** pBuffer)
+{
+    // Allocate an AVFrame structure
+    *ppFrameRGB = av_frame_alloc();
+
+    if (*ppFrameRGB == NULL)
+    {
+        return -1;
+    }
+
+    // Determine required buffer size and allocate buffer
+    int numBytes = avpicture_get_size(
+        PIX_FMT_RGB24,
+        lbDisplay.PhysicalScreenWidth,
+        lbDisplay.PhysicalScreenHeight);
+    *pBuffer = (uint8_t *)av_malloc(numBytes*sizeof(uint8_t));
+
+    // Assign appropriate parts of buffer to image planes in pFrameRGB
+    // Note that pFrameRGB videoState an AVFrame, but AVFrame videoState a superset
+    // of AVPicture
+    avpicture_fill((AVPicture *)(*ppFrameRGB),
+        *pBuffer,
+        PIX_FMT_RGB24,
+        lbDisplay.PhysicalScreenWidth,
+        lbDisplay.PhysicalScreenHeight
+        );
+
+    return 0;
+}
+
+// Add decoded picture to picture queue.
+int _queue_picture(VideoState *videoState, AVFrame *pFrame, double pts)
+{
+    int result = 0;
+    VideoPicture *videoPicture;
+    AVFrame *pFrameRGB = NULL;
+    uint8_t *buffer = NULL;
+
+    /* wait until we have space for a new pic */
+    SDL_LockMutex(videoState->pict_queue_mutex);
+    while (videoState->pict_queue_size >= VIDEO_PICTURE_QUEUE_SIZE &&
+        !videoState->quit)
+    {
+        
+        SDL_CondWait(videoState->pict_queue_cond, videoState->pict_queue_mutex);
+    }
+
+    SDL_UnlockMutex(videoState->pict_queue_mutex);
+
+    if (videoState->quit)
+    {
+        result = -1;
+        goto ERROR;
+    }
+
+    // write index videoState set to 0 initially
+    videoPicture = &videoState->pict_queue[videoState->pict_queue_write_idx];
+
+    /* allocate or resize the buffer! */
+    if (!videoPicture->texture ||
+        (videoPicture->width != lbDisplay.PhysicalScreenWidth) ||
+        (videoPicture->height != lbDisplay.PhysicalScreenHeight))
+    {
+        videoPicture->allocated = 0;
+        _alloc_picture(videoState);
+        if (videoState->quit)
+        {
+            goto ERROR;
+        }
+    }
+
+    /* We have a place to put our picture on the queue */
+    if (videoPicture->texture)
+    {
+        //videoPicture->pts = pts;
+        if (_prepare_scaled_frame(&pFrameRGB, &buffer) < 0)
+        {
+            ERRORLOG("Failed creating frames.");
+            result = -1;
+            goto ERROR;
+        }
+
+        sws_scale(videoState->sws_ctx, (uint8_t const * const *)pFrame->data, pFrame->linesize, 0, videoState->video_ctx->height/*srcSliceH*/, pFrameRGB->data, pFrameRGB->linesize);
+
+        uint8_t * pixels = NULL;
+        int pitch = 0;
+        SDL_LockTexture(videoPicture->texture, NULL, (void **)(&pixels), &pitch);
+        memcpy(pixels, pFrameRGB->data[0], lbDisplay.PhysicalScreenWidth*lbDisplay.PhysicalScreenHeight * 3);
+        SDL_UnlockTexture(videoPicture->texture);
+
+        /* now we inform our display thread that we have a pic ready */
+        if (++videoState->pict_queue_write_idx == VIDEO_PICTURE_QUEUE_SIZE)
+        {
+            videoState->pict_queue_write_idx = 0;
+        }
+        SDL_LockMutex(videoState->pict_queue_mutex);
+        videoState->pict_queue_size++;
+        SDL_UnlockMutex(videoState->pict_queue_mutex);
+    }
+    
+ERROR:
+    // Free the RGB image
+    if (buffer != NULL)
+    {
+        av_free(buffer);
+    }
+    if (pFrameRGB != NULL)
+    {
+        av_free(pFrameRGB);
+    }
+
+    return result;
+}
+#pragma endregion
+
+#pragma endregion
 /**
- * Plays Smacker file more directly.
+ * Plays Smacker file.
  * @return Returns 0 on error, 1 if file was played, 2 if the play was interrupted.
  */
 short play_smk_direct(char *fname, int smkflags, int plyflags)
 {
-    SYNCDBG(7,"Starting");
+    SYNCDBG(7, "Starting");
+    int result = 1;
 
-    int playflags = plyflags;
-
-    void *snd_driver=GetSoundDriver();
-    if ( snd_driver )
-      SmackSoundUseMSS(snd_driver);
-    else
-        playflags |= SMK_NoSound;
-
-    int opnflags = -((playflags & SMK_NoSound) < 1);
-
-    struct SmackTag *smktag = SmackOpen(fname, opnflags & 0xFE000, -1);
-    if ( !smktag )
-      return 0;
-
-    unsigned long nframe = 1;
-    while ((playflags & 0x0400) || (smktag->Frames - 1 >= nframe))
-    {
-        short reset_pal = 0;
-        int idx;
-        if ( smktag->NewPalette )
-        {
-          reset_pal = 1;
-          for (idx=0;idx<768;idx++)
-          {
-            unsigned char chr;
-            chr = smktag->Palette[idx];
-            smk_palette[idx] = chr>>2;
-          }
-        }
-        if (LbScreenLock() == Lb_SUCCESS)
-        {
-          int left = 0;
-          if ( smktag->Width < lbDisplay.PhysicalScreenWidth )
-            left = (lbDisplay.PhysicalScreenWidth-smktag->Width) >> 1;
-          int top = 0;
-          if ( smktag->Height < lbDisplay.PhysicalScreenHeight )
-            top = (lbDisplay.PhysicalScreenHeight-smktag->Height) >> 1;
-          SmackToBuffer(smktag,left,top,lbDisplay.GraphicsScreenWidth,
-              lbDisplay.GraphicsScreenHeight,lbDisplay.WScreen,0);
-          SmackDoFrame(smktag);
-          LbScreenUnlock();
-          //LbDoMultitasking();
-          if ( reset_pal )
-          {
-            LbScreenWaitVbi();
-            LbPaletteSet(smk_palette);
-          }
-          LbScreenRender();
-        }
-        SmackNextFrame(smktag);
-
-        // Exit playing at user input.
-        do {
-          if (!LbWindowsControl())
-          {
-              SmackClose(smktag);
-              return 2;
-          }
-          if (((playflags & SMK_NoStopOnUserInput) == 0) &&
-              (lbKeyOn[KC_ESCAPE] || lbKeyOn[KC_RETURN] || lbKeyOn[KC_SPACE]
-                || lbDisplay.LeftButton) )
-          {
-              SmackClose(smktag);
-              return 2;
-          }
-        } while ( SmackWait(smktag) );
-        ++nframe;
-    }
-    if ((playflags & SMK_WriteStatusFile) != 0)
-    {
-        struct SmackSumTag smksum;
-        SmackSummary(smktag, &smksum);
-        FILE *ssp = fopen("smacksum.txt", "w");
-        if ( ssp )
-        {
-            fprintf(ssp, "TotalTime         = %ld\n", smksum.TotalTime);
-            fprintf(ssp, "MS100PerFrame     = %ld\n", smksum.MS100PerFrame);
-            fprintf(ssp, "TotalOpenTime     = %ld\n", smksum.TotalOpenTime);
-            fprintf(ssp, "TotalFrames       = %ld\n", smksum.TotalFrames);
-            fprintf(ssp, "SkippedFrames     = %ld\n", smksum.SkippedFrames);
-            fprintf(ssp, "TotalBlitTime     = %ld\n", smksum.TotalBlitTime);
-            fprintf(ssp, "TotalReadTime     = %ld\n", smksum.TotalReadTime);
-            fprintf(ssp, "TotalDecompTime   = %ld\n", smksum.TotalDecompTime);
-            fprintf(ssp, "TotalBackReadTime = %ld\n", smksum.TotalBackReadTime);
-            fprintf(ssp, "TotalReadSpeed    = %ld\n", smksum.TotalReadSpeed);
-            fprintf(ssp, "SlowestFrameTime  = %ld\n", smksum.SlowestFrameTime);
-            fprintf(ssp, "Slowest2FrameTime = %ld\n", smksum.Slowest2FrameTime);
-            fprintf(ssp, "SlowestFrameNum   = %ld\n", smksum.SlowestFrameNum);
-            fprintf(ssp, "Slowest2FrameNum  = %ld\n", smksum.Slowest2FrameNum);
-            fprintf(ssp, "AverageFrameSize  = %ld\n", smksum.AverageFrameSize);
-            fprintf(ssp, "Highest1SecRate   = %ld\n", smksum.Highest1SecRate);
-            fprintf(ssp, "Highest1SecFrame  = %ld\n", smksum.Highest1SecFrame);
-            fprintf(ssp, "HighestMemAmount  = %ld\n", smksum.HighestMemAmount);
-            fprintf(ssp, "TotalExtraMemory  = %ld\n", smksum.TotalExtraMemory);
-            fprintf(ssp, "HighestExtraUsed  = %ld\n", smksum.HighestExtraUsed);
-            fclose(ssp);
-        }
-        FILE *svp = fopen(fname, "rb");
-        FILE *sgp = fopen("smkgraph.raw", "wb");
-        if ( (sgp) && (svp) )
-        {
-          int idx;
-          fseek(svp, 104, 0);
-          for (idx=0;idx<smksum.TotalFrames;idx++)
-          {
-            unsigned long rawval;
-            unsigned short val;
-            fread(&rawval, 4u, 1u, svp);
-            if ( rawval < 65535 )
-              val = rawval-12000;
-            else
-              val = 32767;
-            fwrite(&val, 2u, 1u, sgp);
-          }
-        }
-        if ( sgp )
-          fclose(sgp);
-        if ( svp )
-          fclose(svp);
-    }
-    SmackClose(smktag);
-    return 1;
-}
-
-short play_smk_(char *fname, int smkflags, int plyflags)
-{
-    short result;
     lbDisplay.LeftButton = 0;
-    result = play_smk_direct(fname, smkflags, plyflags);
+
+    global_video_state = av_mallocz(sizeof(VideoState));
+
+    av_strlcpy(global_video_state->filename, fname, sizeof(global_video_state->filename));
+
+    global_video_state->pict_queue_mutex = SDL_CreateMutex();
+    global_video_state->pict_queue_cond = SDL_CreateCond();
+
+    _schedule_refresh(global_video_state, 40);
+
+    global_video_state->decode_thread_id = SDL_CreateThread(_decode_thread, NULL, global_video_state);
+    if (!global_video_state->decode_thread_id)
+    {
+        av_free(global_video_state);
+        return -1;
+    }
+
+    while (!global_video_state->quit)
+    {
+        // Exit playing at user input.
+        if (!LbWindowsControl())
+        {
+            global_video_state->quit = 1;
+        }
+        if ((lbKeyOn[KC_ESCAPE] || lbKeyOn[KC_RETURN] || lbKeyOn[KC_SPACE] || lbDisplay.LeftButton))
+        {
+            global_video_state->quit = 1;
+        }
+    }
+
+    av_free(global_video_state);
+    //ERRORLOG("exit smk play");
     return result;
 }
 
@@ -818,7 +1345,7 @@ long anim_make_FLI_LC(unsigned char *curdat, unsigned char *prvdat)
 
 /*
  * Returns size of the FLI movie frame buffer, for given width
- * and height of animation. The buffer of returned size is big enough
+ * and height of animation. The buffer of returned size videoState big enough
  * to store one frame of any kind (any compression).
  */
 long anim_buffer_size(int width,int height,int bpp)
@@ -831,7 +1358,7 @@ long anim_buffer_size(int width,int height,int bpp)
 
 /*
  * Returns size of the FLI movie frame buffer, for given width
- * and height of animation. The buffer of returned size is big enough
+ * and height of animation. The buffer of returned size videoState big enough
  * to store one frame of any kind (any compression).
  */
 short anim_format_matches(int width,int height,int bpp)

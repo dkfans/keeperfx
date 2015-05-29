@@ -313,7 +313,6 @@ TbResult LbScreenInitialize(void);
 TbResult LbScreenSetup(TbScreenMode mode, unsigned char *palette, short buffers_count, TbBool wscreen_vid);
 TbResult LbScreenReset(TbBool resetMainWindow);
 
-TbResult LbScreenFindVideoModes(void);
 TbBool LbScreenIsModeAvailable(TbScreenMode mode);
 TbScreenMode LbRecogniseVideoModeString(const char *desc);
 TbScreenMode LbRegisterVideoMode(const char *desc, TbScreenCoord width, TbScreenCoord height, unsigned long flags);
@@ -333,7 +332,6 @@ TbBool LbScreenIsLocked(void);
 
 TbResult LbScreenRender(void);
 TbResult LbScreenClear(TbPixel colour);
-TbResult LbScreenWaitVbi(void);
 
 long LbPaletteFade(unsigned char *pal, long n, enum TbPaletteFadeFlag flg);
 TbResult LbPaletteStopOpenFade(void);

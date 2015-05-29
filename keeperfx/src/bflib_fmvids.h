@@ -26,75 +26,91 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#ifndef INT64_C
+#define INT64_C(c) (c ## LL)
+#define UINT64_C(c) (c ## ULL)
+#endif
+
+#include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
+#include <libswscale/swscale.h>
+#include <SDL2/SDL.h>
+
+#define SDL_AUDIO_BUFFER_SIZE 1024
+#define AVCODEC_MAX_AUDIO_FRAME_SIZE 192000
+
+#define MAX_AUDIOQ_SIZE (5 * 16 * 1024)
+#define MAX_VIDEOQ_SIZE (5 * 256 * 1024)
+
+#define FF_REFRESH_EVENT (SDL_USEREVENT)
+// #define FF_QUIT_EVENT (SDL_USEREVENT + 1)
+
+#define VIDEO_PICTURE_QUEUE_SIZE 1
+
+typedef struct PacketQueue 
+{
+    AVPacketList *first_pkt, *last_pkt;
+    int nb_packets;
+    int size;
+    SDL_mutex *mutex;
+    SDL_cond *cond;
+} PacketQueue;
+
+typedef struct VideoPicture
+{
+    SDL_Texture *texture;
+    int width, height; /* source height & width */
+    int allocated;
+} VideoPicture;
+
 /******************************************************************************/
 enum SmackerPlayFlags {
     SMK_NoSound            = 0x01,
-    SMK_NoStopOnUserInput  = 0x02,
-    SMK_PixelDoubleLine    = 0x04,
-    SMK_InterlaceLine      = 0x08,
-    SMK_WriteStatusFile    = 0x40,
-    SMK_PixelDoubleWidth   = 0x80,
+    //SMK_NoStopOnUserInput  = 0x02,
+    //SMK_PixelDoubleLine    = 0x04,
+    //SMK_InterlaceLine      = 0x08,
+    //SMK_WriteStatusFile    = 0x40,
+    //SMK_PixelDoubleWidth   = 0x80,
 };
 
-// Type definitions
-struct SmackTag {
-  unsigned long Version;           // SMK2 only right now
-  unsigned long Width;             // Width (1 based, 640 for example)
-  unsigned long Height;            // Height (1 based, 480 for example)
-  unsigned long Frames;            // Number of frames (1 based, 100 = 100 frames)
-  unsigned long MSPerFrame;        // Frame Rate
-  unsigned long SmackerType;       // bit 0 set=ring frame
-  unsigned long LargestInTrack[7]; // Largest single size for each track
-  unsigned long tablesize;         // Size of the init tables
-  unsigned long codesize;          // Compression info
-  unsigned long absize;            // ditto
-  unsigned long detailsize;        // ditto
-  unsigned long typesize;          // ditto
-  unsigned long TrackType[7];      // high byte=0x80-Comp,0x40-PCM data,0x20-16 bit,0x10-stereo
-  unsigned long extra;             // extra value (should be zero)
-  unsigned long NewPalette;        // set to one if the palette changed
-  unsigned char Palette[772];      // palette data
-  unsigned long PalType;           // type of palette
-  unsigned long FrameNum;          // Frame Number to be displayed
-  unsigned long FrameSize;         // The current frame's size in bytes
-  unsigned long SndSize;           // The current frame sound tracks' size in bytes
-  long LastRectx;         // Rect set in from SmackToBufferRect (X coord)
-  long LastRecty;         // Rect set in from SmackToBufferRect (Y coord)
-  long LastRectw;         // Rect set in from SmackToBufferRect (Width)
-  long LastRecth;         // Rect set in from SmackToBufferRect (Height)
-  unsigned long OpenFlags;         // flags used on open
-  unsigned long LeftOfs;           // Left Offset used in SmackTo
-  unsigned long TopOfs;            // Top Offset used in SmackTo
-  unsigned long LargestFrameSize;  // Largest frame size
-  unsigned long Highest1SecRate;   // Highest 1 sec data rate
-  unsigned long Highest1SecFrame;  // Highest 1 sec data rate starting frame
-  unsigned long ReadError;         // Set to non-zero if a read error has ocurred
-  unsigned long addr32;            // translated address for 16 bit interface
-};
+typedef struct VideoState 
+{
+    double          video_clock; // pts of last decoded frame / predicted pts of next decoded frame
 
-struct SmackSumTag {
-  unsigned long TotalTime;         // total time
-  unsigned long MS100PerFrame;     // MS*100 per frame (100000/MS100PerFrame=Frames/Sec)
-  unsigned long TotalOpenTime;     // Time to open and prepare for decompression
-  unsigned long TotalFrames;       // Total Frames displayed
-  unsigned long SkippedFrames;     // Total number of skipped frames
-  unsigned long SoundSkips;        // Total number of sound skips
-  unsigned long TotalBlitTime;     // Total time spent blitting
-  unsigned long TotalReadTime;     // Total time spent reading
-  unsigned long TotalDecompTime;   // Total time spent decompressing
-  unsigned long TotalBackReadTime; // Total time spent reading in background
-  unsigned long TotalReadSpeed;    // Total io speed (bytes/second)
-  unsigned long SlowestFrameTime;  // Slowest single frame time
-  unsigned long Slowest2FrameTime; // Second slowest single frame time
-  unsigned long SlowestFrameNum;   // Slowest single frame number
-  unsigned long Slowest2FrameNum;  // Second slowest single frame number
-  unsigned long AverageFrameSize;  // Average size of the frame
-  unsigned long Highest1SecRate;
-  unsigned long Highest1SecFrame;
-  unsigned long HighestMemAmount;  // Highest amount of memory allocated
-  unsigned long TotalExtraMemory;  // Total extra memory allocated
-  unsigned long HighestExtraUsed;  // Highest extra memory actually used
-};
+    AVFormatContext *p_format_ctx;
+    int             video_stream_idx, audio_stream_idx;
+
+// Audio
+    AVStream        *audio_stream;
+    AVCodecContext  *audio_ctx;
+    PacketQueue     audio_queue;
+    uint8_t         audio_buf[(AVCODEC_MAX_AUDIO_FRAME_SIZE * 3) / 2];
+    unsigned int    audio_buf_size;
+    unsigned int    audio_buf_index;
+    AVPacket        audio_pkt;
+    uint8_t         *audio_pkt_data;
+    int             audio_pkt_size;
+
+// Video
+    AVStream        *video_stream;
+    AVCodecContext  *video_ctx;
+    PacketQueue     video_queue;
+
+// Picture
+    struct SwsContext *sws_ctx;
+    VideoPicture    pict_queue[VIDEO_PICTURE_QUEUE_SIZE];
+    int             pict_queue_size, pict_queue_read_idx, pict_queue_write_idx;
+    SDL_mutex       *pict_queue_mutex;
+    SDL_cond        *pict_queue_cond;
+
+// Thread
+    SDL_Thread      *decode_thread_id;
+    SDL_Thread      *video_thread_id;
+
+    char            filename[1024];
+    int             quit;
+} VideoState;
 
 #pragma pack(1)
 
@@ -160,8 +176,33 @@ DLLIMPORT struct Animation _DK_animation;
 #define animation _DK_animation
 
 /******************************************************************************/
-// Exported functions - SMK related
-short play_smk_(char *fname, int smkflags, int plyflags);
+// Audio helpers
+int _audio_decode_frame(AVCodecContext *aCodecCtx, uint8_t *audio_buf, int buf_size);
+void _audio_callback(void *userdata, Uint8 *stream, int len);
+
+// packet operation
+void _packet_queue_init(PacketQueue *pq);
+int _packet_queue_put(PacketQueue *q, AVPacket *pkt);
+static int _packet_queue_get(PacketQueue *q, AVPacket *pkt, int block);
+
+// Timer helpers
+double _synchronize_video(VideoState *is, AVFrame *src_frame, double pts);
+
+// Threads
+int _decode_thread(void *arg);
+int _video_thread(void *arg); 
+int _open_smacker_video(VideoState *videoState);
+int _open_stream_component(VideoState *is, int stream_index);
+
+// Pictures helpers
+void _alloc_picture(void *userdata);
+int _prepa_prepare_scaled_framereFrame(AVFrame** ppFrameRGB, uint8_t** pBuffer);
+int _queue_picture(VideoState *is, AVFrame *pFrame, double pts);
+
+// Display
+void _video_display(VideoPicture *videoPicture);
+void video_refresh_timer_callback(void *userdata);
+
 short play_smk_direct(char *fname, int smkflags, int plyflags);
 
 // Exported functions - FLI related
