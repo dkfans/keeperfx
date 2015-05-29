@@ -54,63 +54,39 @@ const struct DemoItem demo_item[] = {
 /******************************************************************************/
 /**
  * Plays a smacker animation file and sets frontend state to nstate.
- * @param nstate Frontend state; -1 means no change, -2 means don't even
- *    change screen mode.
+ * @param nstate return to Frontend state; -1 means no change.
  * @return Returns false if fatal error occurred and program execution should end.
  */
 short play_smacker_file(char *filename, int nstate)
 {
   unsigned int movie_flags = 0;
-  if ( SoundDisabled )
+  if (SoundDisabled)
       movie_flags |= SMK_NoSound;
   short result;
 
   result = 1;
-  if ((result)&&(nstate>-2))
+  // Fail in playing shouldn't set result=0, because result=0 means fatal error.
+  if (play_smk_direct(filename, 0, movie_flags | 0x100) == 0)
   {
-    if ( setup_screen_mode_minimal(get_movies_vidmode()) )
-    {
-      LbMouseChangeSprite(NULL);
-      LbScreenClear(0);
-      LbScreenRender();
-    } else
-    {
-      ERRORLOG("Can't enter movies video mode to play a Smacker file");
-      result=0;
-    }
-  }
-  if (result)
-  {
-    // Fail in playing shouldn't set result=0, because result=0 means fatal error.
-    if (play_smk_(filename, 0, movie_flags | 0x100) == 0)
-    {
       ERRORLOG("Smacker play error");
-      result=0;
-    }
+      result = 0;
   }
-  if (nstate>-2)
-  {
-    if ( !setup_screen_mode_minimal(get_frontend_vidmode()) )
-    {
-      ERRORLOG("Can't re-enter frontend video mode after playing Smacker file");
-      FatalError = 1;
-      exit_keeper = 1;
-      return 0;
-    }
-  } else
-  {
-    memset(frontend_palette, 0, PALETTE_SIZE);
-  }
+  memset(frontend_palette, 0, PALETTE_SIZE);
+  
   LbScreenClear(0);
   LbScreenRender();
   LbPaletteSet(frontend_palette);
+
   if (nstate >= 0)
-    frontend_set_state(nstate);
+  {
+      frontend_set_state(nstate);
+  }
+
   lbDisplay.LeftButton = 0;
   lbDisplay.RightButton = 0;
   lbDisplay.MiddleButton = 0;
-  if (nstate > -2)
-    LbMouseSetPosition(lbDisplay.PhysicalScreenWidth/2, lbDisplay.PhysicalScreenHeight/2);
+  LbMouseSetPosition(lbDisplay.PhysicalScreenWidth / 2, lbDisplay.PhysicalScreenHeight / 2);
+
   return result;
 }
 
@@ -127,7 +103,7 @@ TbBool intro_replay(void)
     char *fname;
     fname = prepare_file_path(FGrp_LoData, "intromix.smk");
     SYNCDBG(0,"Playing intro movie \"%s\"",fname);
-    return play_smacker_file(fname, -2);
+    return play_smacker_file(fname, -1);
 }
 
 TbBool campaign_intro(void)
@@ -139,7 +115,7 @@ TbBool campaign_intro(void)
     char *fname;
     fname = prepare_file_path(FGrp_CmpgMedia, campaign.movie_intro_fname);
     SYNCDBG(0,"Playing intro movie \"%s\"",fname);
-    return play_smacker_file(fname, -2);
+    return play_smacker_file(fname, -1);
 }
 
 TbBool campaign_outro(void)
@@ -159,7 +135,7 @@ TbBool moon_video(void)
     char *fname;
     fname = prepare_file_path(FGrp_LoData, "bullfrog.smk");
     SYNCDBG(0,"Playing outro movie \"%s\"",fname);
-    return play_smacker_file(fname, -2);
+    return play_smacker_file(fname, -1);
 }
 
 void demo(void)

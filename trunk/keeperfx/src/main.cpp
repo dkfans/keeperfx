@@ -1202,19 +1202,6 @@ short setup_game(void)
     }
 
   result = 1;
-  // The 320x200 mode is required only for the movies;
-  // loading and no CD screens can run in both 320x200 and 640x480.
-  if ( result && (!game.no_intro) )
-  {
-      LbPaletteDataFillBlack(engine_palette);
-      int mode_ok = LbScreenSetup(get_movies_vidmode(), engine_palette, 2, 0);
-      if (mode_ok != 1)
-      {
-        ERRORLOG("Can't enter movies screen mode to play intro");
-        result=0;
-      }
-  }
-
   if ( result )
   {
       draw_clear_screen();
@@ -1961,7 +1948,6 @@ void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal)
         player->field_4C5 = 0;
         if (is_my_player(player))
         {
-            LbScreenWaitVbi();
             LbPaletteSet(pal);
         }
     }
@@ -4824,6 +4810,8 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
         LbErrorLogClose();
         return 0;
     }
+
+    av_register_all();
 
     retval = setup_game();
     if (retval)
