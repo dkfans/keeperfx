@@ -1,0 +1,14 @@
+prefix=/usr
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+Name: libavresample
+Description: Libav audio resampling library
+Version: 2.1.0
+Requires: 
+Requires.private: libavutil >= 54.3.0
+Conflicts:
+Libs: -L${libdir} -lavresample 
+Libs.private: -lm
+Cflags: -I${includedir}
