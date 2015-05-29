@@ -311,49 +311,27 @@ void frontstats_draw_scrolling_stats(struct GuiButton *gbtn)
     }
 }
 
+void init_menu_state_on_net_stats_exit(void)
+{
+    FrontendMenuState nstate;
+    nstate = get_menu_state_when_back_from_substate(FeSt_LEVEL_STATS);
+    if (nstate == FeSt_NET_SESSION)
+    {
+        // If the parent state is network session state, try to stay in net service
+        if (!setup_old_network_service()) {
+            nstate = get_menu_state_when_back_from_substate(nstate);
+        }
+    }
+    frontend_set_state(nstate);
+    fe_high_score_table_from_main_menu = false;
+}
+
 /**
  * Loads next menu state after leaving frontstats.
  */
 void frontstats_leave(struct GuiButton *gbtn)
 {
-  struct PlayerInfo *player;
-  LevelNumber lvnum;
-  if ((game.system_flags & GSF_NetworkActive) != 0)
-  {
-    if ( setup_old_network_service() )
-    {
-      frontend_set_state(FeSt_NET_SESSION);
-      fe_high_score_table_from_main_menu = false;
-    } else
-    {
-      frontend_set_state(FeSt_MAIN_MENU);
-    }
-  } else
-  {
-    player = get_my_player();
-    lvnum = get_loaded_level_number();
-    if (player->victory_state == VicS_WonLevel)
-    {
-      frontend_set_state(FeSt_HIGH_SCORES);
-      fe_high_score_table_from_main_menu = false;
-    } else
-    if (is_singleplayer_level(lvnum) || is_bonus_level(lvnum) || is_extra_level(lvnum))
-    {
-        frontend_set_state(FeSt_LAND_VIEW);
-    } else
-    if (is_multiplayer_level(lvnum))
-    {
-        frontend_set_state(FeSt_NET_SERVICE);
-    } else
-    if (is_freeplay_level(lvnum))
-    {
-        frontend_set_state(FeSt_LEVEL_SELECT);
-    } else
-    {
-        frontend_set_state(FeSt_MAIN_MENU);
-    }
-
-  }
+    init_menu_state_on_net_stats_exit();
 }
 
 void frontstats_set_timer(void)

@@ -46,6 +46,7 @@ void frontstats_leave(struct GuiButton *gbtn);
 void frontstats_set_timer(void);
 void frontstats_update(void);
 void frontstats_initialise(void);
+void init_menu_state_on_net_stats_exit(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -99,6 +99,18 @@ enum PlayerField454Val {
     P454_Unkn3,
 };
 
+enum PlayerField3Flags {
+    Pf3F_None   = 0x00,
+    Pf3F_Unkn01 = 0x01,
+    Pf3F_Unkn02 = 0x02,
+    Pf3F_Unkn04 = 0x04,
+    Pf3F_Unkn08 = 0x08,
+    Pf3F_Unkn10 = 0x10,
+    Pf3F_Unkn20 = 0x20,
+    Pf3F_Unkn40 = 0x40,
+    Pf3F_Unkn80 = 0x80,
+};
+
 /******************************************************************************/
 #pragma pack(1)
 

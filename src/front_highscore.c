@@ -161,27 +161,9 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
 
 void frontend_quit_high_score_table(struct GuiButton *gbtn)
 {
-    LevelNumber lvnum;
-    lvnum = get_loaded_level_number();
-    if (fe_high_score_table_from_main_menu)
-    {
-        frontend_set_state(FeSt_MAIN_MENU);
-    } else
-    if (is_singleplayer_level(lvnum) || is_bonus_level(lvnum) || is_extra_level(lvnum))
-    {
-        frontend_set_state(FeSt_LAND_VIEW);
-    } else
-    if (is_multiplayer_level(lvnum))
-    {
-        frontend_set_state(FeSt_NET_SERVICE);
-    } else
-    if (is_freeplay_level(lvnum))
-    {
-        frontend_set_state(FeSt_LEVEL_SELECT);
-    } else
-    {
-        frontend_set_state(FeSt_MAIN_MENU);
-    }
+    FrontendMenuState nstate;
+    nstate = get_menu_state_when_back_from_substate(FeSt_HIGH_SCORES);
+    frontend_set_state(nstate);
 }
 
 /**

@@ -863,7 +863,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
                 player->flgfield_6 |= PlaF6_Unknown01;
             } else
             {
-                if ((player->field_3 & 0x02) != 0) {
+                if ((player->field_3 & Pf3F_Unkn02) != 0) {
                   set_pointer_graphic(MousePG_Pickaxe);
                 } else {
                   set_pointer_graphic(MousePG_Unkn00);

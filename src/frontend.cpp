@@ -501,7 +501,7 @@ void get_player_gui_clicks(void)
 
   switch (player->view_type)
   {
-  case 3:
+  case PVT_CreaturePasngr:
       if (right_button_released)
       {
         thing = thing_get(player->controlled_thing_idx);
@@ -521,10 +521,10 @@ void get_player_gui_clicks(void)
         }
       }
       break;
-  case 2:
-  case 4:
-  case 5:
-  case 6:
+  case PVT_CreatureContrl:
+  case PVT_MapScreen:
+  case PVT_MapFadeIn:
+  case PVT_MapFadeOut:
       break;
   default:
       if (right_button_released)
@@ -656,10 +656,7 @@ void versions_different_error(void)
       LbScreenSwap();
     }
     // Checking where to go back
-    if (setup_old_network_service())
-      frontend_set_state(FeSt_NET_SESSION);
-    else
-      frontend_set_state(FeSt_MAIN_MENU);
+    init_menu_state_on_net_stats_exit();
 }
 
 /**
@@ -1755,13 +1752,13 @@ short frontend_save_continue_game(short allow_lvnum_grow)
     // Save some of the data from clearing
     victory_state = player->victory_state;
     memcpy(scratch, &dungeon->lvstats, sizeof(struct LevelStats));
-    flg_mem = ((player->field_3 & 0x10) != 0);
+    flg_mem = ((player->field_3 & Pf3F_Unkn10) != 0);
     // clear all data
     clear_game_for_save();
     // Restore saved data
     player->victory_state = victory_state;
     memcpy(&dungeon->lvstats, scratch, sizeof(struct LevelStats));
-    set_flag_byte(&player->field_3,0x10,flg_mem);
+    set_flag_byte(&player->field_3,Pf3F_Unkn10,flg_mem);
     // Only save continue if level was won, and not in packet mode
     if (((game.system_flags & GSF_NetworkActive) != 0)
      || ((game.operation_flags & GOF_SingleLevel) != 0)
@@ -2498,7 +2495,7 @@ void init_gui(void)
   no_of_active_menus = 0;
 }
 
-void frontend_shutdown_state(long pstate)
+void frontend_shutdown_state(FrontendMenuState pstate)
 {
     char *fname;
     switch (pstate)
@@ -2599,7 +2596,7 @@ void frontend_shutdown_state(long pstate)
     }
 }
 
-int frontend_setup_state(long nstate)
+FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
 {
     SYNCDBG(9,"Starting for state %d",(int)nstate);
     switch ( nstate )
@@ -2730,7 +2727,7 @@ int frontend_setup_state(long nstate)
     return nstate;
 }
 
-int frontend_set_state(long nstate)
+FrontendMenuState frontend_set_state(FrontendMenuState nstate)
 {
     SYNCDBG(8,"State %d will be switched to %d",(int)frontend_menu_state,(int)nstate);
     frontend_shutdown_state(frontend_menu_state);
@@ -2788,28 +2785,33 @@ TbBool frontmainmnu_input(void)
 
 short end_input(void)
 {
+    FrontendMenuState nstate;
     if (lbKeyOn[KC_SPACE])
     {
         lbKeyOn[KC_SPACE] = 0;
-        frontend_set_state(FeSt_MAIN_MENU);
+        nstate = get_menu_state_when_back_from_substate(frontend_menu_state);
+        frontend_set_state(nstate);
         return true;
     }
     if (lbKeyOn[KC_RETURN])
     {
         lbKeyOn[KC_RETURN] = 0;
-        frontend_set_state(FeSt_MAIN_MENU);
+        nstate = get_menu_state_when_back_from_substate(frontend_menu_state);
+        frontend_set_state(nstate);
         return true;
     }
     if (lbKeyOn[KC_ESCAPE])
     {
         lbKeyOn[KC_ESCAPE] = 0;
-        frontend_set_state(FeSt_MAIN_MENU);
+        nstate = get_menu_state_when_back_from_substate(frontend_menu_state);
+        frontend_set_state(nstate);
         return true;
     }
     if (left_button_clicked)
     {
         left_button_clicked = 0;
-        frontend_set_state(FeSt_MAIN_MENU);
+        nstate = get_menu_state_when_back_from_substate(frontend_menu_state);
+        frontend_set_state(nstate);
         return true;
     }
     return false;
@@ -2852,8 +2854,11 @@ void frontend_input(void)
     case FeSt_CREDITS:
         if (!end_input())
         {
-          if ( credits_end )
-            frontend_set_state(FeSt_MAIN_MENU);
+          if ( credits_end ) {
+              FrontendMenuState nstate;
+              nstate = get_menu_state_when_back_from_substate(frontend_menu_state);
+              frontend_set_state(nstate);
+          }
         }
         frontcredits_input();
         break;
@@ -3334,71 +3339,74 @@ void frontend_update(short *finish_menu)
     SYNCDBG(18,"Starting for menu state %d", (int)frontend_menu_state);
     switch ( frontend_menu_state )
     {
-      case FeSt_MAIN_MENU:
+    case FeSt_MAIN_MENU:
         frontend_button_info[8].font_index = (continue_game_option_available?1:3);
         //this uses original timing function for compatibility with frontend_set_state()
         if ( abs(LbTimerClock()-time_last_played_demo) > MNU_DEMO_IDLE_TIME )
           frontend_set_state(FeSt_DEMO);
         break;
-      case FeSt_FELOAD_GAME:
+    case FeSt_FELOAD_GAME:
         load_game_update();
         break;
-      case FeSt_LAND_VIEW:
+    case FeSt_LAND_VIEW:
         *finish_menu = frontmap_update();
         break;
-      case FeSt_NET_SERVICE:
+    case FeSt_NET_SERVICE:
         frontnet_service_update();
         break;
-      case FeSt_NET_SESSION:
+    case FeSt_NET_SESSION:
         frontnet_session_update();
         break;
-      case FeSt_NET_START:
+    case FeSt_NET_START:
         frontnet_start_update();
         break;
-      case FeSt_START_KPRLEVEL:
-      case FeSt_START_MPLEVEL:
-      case FeSt_LOAD_GAME:
-      case FeSt_PACKET_DEMO:
+    case FeSt_START_KPRLEVEL:
+    case FeSt_START_MPLEVEL:
+    case FeSt_LOAD_GAME:
+    case FeSt_PACKET_DEMO:
         *finish_menu = 1;
         break;
-      case 9:
+    case FeSt_UNKNOWN09:
         *finish_menu = 1;
         exit_keeper = 1;
         break;
-      case FeSt_CREDITS:
+    case FeSt_CREDITS:
         PlayMusicPlayer(7);
         break;
-      case FeSt_NET_MODEM:
+    case FeSt_NET_MODEM:
         frontnet_modem_update();
         break;
-      case FeSt_NET_SERIAL:
+    case FeSt_NET_SERIAL:
         frontnet_serial_update();
         break;
-      case FeSt_LEVEL_STATS:
+    case FeSt_LEVEL_STATS:
         frontstats_update();
         break;
-      case FeSt_TORTURE:
+    case FeSt_TORTURE:
         fronttorture_update();
         break;
-      case FeSt_NETLAND_VIEW:
+    case FeSt_NETLAND_VIEW:
         *finish_menu = frontnetmap_update();
         break;
-      case FeSt_FEOPTIONS:
+    case FeSt_FEOPTIONS:
         PlayMusicPlayer(3);
         break;
-      case FeSt_LEVEL_SELECT:
+    case FeSt_LEVEL_SELECT:
         frontend_level_select_update();
         break;
-      case FeSt_CAMPAIGN_SELECT:
+    case FeSt_CAMPAIGN_SELECT:
         frontend_campaign_select_update();
         break;
-      default:
+    default:
         break;
     }
-  SYNCDBG(17,"Finished");
+    SYNCDBG(17,"Finished");
 }
 
-int get_menu_state_based_on_last_level(LevelNumber lvnum)
+/**
+ * Chooses frontend menu state to which we should return when exiting specific level.
+ */
+FrontendMenuState get_menu_state_based_on_last_level(LevelNumber lvnum)
 {
     if (is_singleplayer_level(lvnum) || is_bonus_level(lvnum) || is_extra_level(lvnum))
     {
@@ -3418,10 +3426,57 @@ int get_menu_state_based_on_last_level(LevelNumber lvnum)
 }
 
 /**
+ * Chooses frontend menu state to which we should return when exiting another frontend menu.
+ * @return The frontend menu state to be used when a substate is cancelled.
+ */
+FrontendMenuState get_menu_state_when_back_from_substate(FrontendMenuState substate)
+{
+    LevelNumber lvnum;
+    struct PlayerInfo *player;
+    switch (substate)
+    {
+    case FeSt_START_KPRLEVEL:
+    case FeSt_START_MPLEVEL:
+        lvnum = get_loaded_level_number();
+        return get_menu_state_based_on_last_level(lvnum);
+    case FeSt_LOAD_GAME:
+        return FeSt_START_KPRLEVEL;
+    case FeSt_NET_SESSION:
+    case FeSt_NET_MODEM:
+    case FeSt_NET_SERIAL:
+    case FeSt_NET_START:
+    case FeSt_NETLAND_VIEW:
+        return FeSt_NET_SERVICE;
+    case FeSt_TORTURE:
+    case FeSt_OUTRO:
+        return FeSt_LEVEL_STATS;
+    case FeSt_LEVEL_STATS:
+        if ((game.system_flags & GSF_NetworkActive) != 0)
+            return FeSt_NET_SESSION;
+        player = get_my_player();
+        if (player->victory_state == VicS_WonLevel)
+            return FeSt_HIGH_SCORES;
+        lvnum = get_loaded_level_number();
+        return get_menu_state_based_on_last_level(lvnum);
+    case FeSt_HIGH_SCORES:
+        if (fe_high_score_table_from_main_menu)
+            return FeSt_MAIN_MENU;
+        lvnum = get_loaded_level_number();
+        return get_menu_state_based_on_last_level(lvnum);
+    case FeSt_FEDEFINE_KEYS:
+        return FeSt_FEOPTIONS;
+    case FeSt_CREDITS:
+        return FeSt_MAIN_MENU;
+    default:
+        return FeSt_MAIN_MENU;
+    }
+}
+
+/**
  * Chooses initial frontend menu state.
  * Used when game is first run, or player exits from gameplay.
  */
-int get_startup_menu_state(void)
+FrontendMenuState get_startup_menu_state(void)
 {
   struct PlayerInfo *player;
   LevelNumber lvnum;
@@ -3439,7 +3494,7 @@ int get_startup_menu_state(void)
     } else
     {
         SYNCLOG("Standard startup state selected");
-        return 1;
+        return FeSt_MAIN_MENU;
     }
   } else
   {
@@ -3448,9 +3503,9 @@ int get_startup_menu_state(void)
     if ((game.system_flags & GSF_NetworkActive) != 0)
     { // If played real network game, then resulting screen isn't changed based on victory
         SYNCLOG("Network game summary state selected");
-        if ((player->field_3 & 0x10) != 0)
+        if ((player->field_3 & Pf3F_Unkn10) != 0)
         { // Player has tortured LOTL - go FeSt_TORTURE before any others
-          player->field_3 &= ~0x10;
+          player->field_3 &= ~Pf3F_Unkn10;
           return FeSt_TORTURE;
         } else
         if ((player->flgfield_6 & PlaF6_PlyrHasQuit) == 0)
@@ -3481,9 +3536,9 @@ int get_startup_menu_state(void)
         SYNCLOG("Victory achieved state selected");
         if (is_singleplayer_level(lvnum))
         {
-            if ((player->field_3 & 0x10) != 0)
+            if ((player->field_3 & Pf3F_Unkn10) != 0)
             {
-                player->field_3 &= ~0x10;
+                player->field_3 &= ~Pf3F_Unkn10;
                 return FeSt_TORTURE;
             } else
             if (get_continue_level_number() == SINGLEPLAYER_FINISHED)

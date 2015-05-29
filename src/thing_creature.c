@@ -4998,11 +4998,11 @@ TngUpdateRet update_creature(struct Thing *thing)
         player = get_player(thing->owner);
         if (creature_affected_by_spell(thing, SplK_Freeze))
         {
-            if ((player->field_3 & 0x04) == 0)
+            if ((player->field_3 & Pf3F_Unkn04) == 0)
               PaletteSetPlayerPalette(player, blue_palette);
         } else
         {
-            if ((player->field_3 & 0x04) != 0)
+            if ((player->field_3 & Pf3F_Unkn04) != 0)
               PaletteSetPlayerPalette(player, engine_palette);
         }
     } else

@@ -1931,12 +1931,12 @@ void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal)
 {
     if (pal == blue_palette)
     {
-      if ((player->field_3 & 0x04) == 0)
+      if ((player->field_3 & Pf3F_Unkn04) == 0)
         return;
-      player->field_3 |= 0x04;
+      player->field_3 |= Pf3F_Unkn04;
     } else
     {
-      player->field_3 &= 0xFB;
+      player->field_3 &= ~Pf3F_Unkn04;
     }
     if ( (player->field_7 == 0) || ((pal != player->palette) && (pal == player->field_7)) )
     {
@@ -3039,7 +3039,7 @@ void update(void)
     if ((game.operation_flags & GOF_Paused) == 0)
     {
         player = get_my_player();
-        if (player->field_3 & 0x08)
+        if (player->field_3 & Pf3F_Unkn08)
         {
             PaletteSetPlayerPalette(player, engine_palette);
             set_flag_byte(&player->field_3,0x08,false);
@@ -4297,9 +4297,9 @@ void wait_at_frontend(void)
     LbPaletteFade(0, 8, Lb_PALETTE_FADE_CLOSED);
     LbScreenClear(0);
     LbScreenSwap();
-    short prev_state;
+    FrontendMenuState prev_state;
     prev_state = frontend_menu_state;
-    frontend_set_state(0);
+    frontend_set_state(FeSt_INITIAL);
     if (exit_keeper)
     {
       player = get_my_player();

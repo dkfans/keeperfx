@@ -49,7 +49,7 @@ enum DemoItem_Kind {
     DIK_ListEnd,
 };
 
-enum FrontendMenuState {
+enum FrontendMenuStates {
   FeSt_INITIAL            =  0,
   FeSt_MAIN_MENU          =  1,
   FeSt_FELOAD_GAME        =  2,
@@ -375,8 +375,9 @@ void reinit_all_menus(void);
 
 void gui_set_autopilot(struct GuiButton *gbtn);
 
-int frontend_set_state(long nstate);
-int get_startup_menu_state(void);
+FrontendMenuState frontend_set_state(FrontendMenuState nstate);
+FrontendMenuState get_startup_menu_state(void);
+FrontendMenuState get_menu_state_when_back_from_substate(FrontendMenuState substate);
 void frontend_input(void);
 void frontend_update(short *finish_menu);
 short frontend_draw(void);

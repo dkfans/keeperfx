@@ -249,7 +249,7 @@ void lightning_modify_palette(struct Thing *thing)
     if (thing->health == 0)
     {
       PaletteSetPlayerPalette(myplyr, engine_palette);
-      myplyr->field_3 &= ~0x08;
+      myplyr->field_3 &= ~Pf3F_Unkn08;
       return;
     }
     if (myplyr->acamera == NULL)
@@ -259,24 +259,24 @@ void lightning_modify_palette(struct Thing *thing)
     }
     if (((thing->health % 8) != 7) && (thing->health != 1) && (ACTION_RANDOM(4) != 0))
     {
-        if ((myplyr->field_3 & 0x08) != 0)
+        if ((myplyr->field_3 & Pf3F_Unkn08) != 0)
         {
             if (get_2d_box_distance(&myplyr->acamera->mappos, &thing->mappos) < 11520)
             {
                 PaletteSetPlayerPalette(myplyr, engine_palette);
-                myplyr->field_3 &= ~0x08;
+                myplyr->field_3 &= ~Pf3F_Unkn08;
             }
         }
         return;
     }
     if ((myplyr->view_mode != PVM_ParchFadeIn) && (myplyr->view_mode != PVM_ParchFadeOut) && (myplyr->view_mode != PVM_ParchmentView))
     {
-        if ((myplyr->field_3 & 0x08) == 0)
+        if ((myplyr->field_3 & Pf3F_Unkn08) == 0)
         {
             if (get_2d_box_distance(&myplyr->acamera->mappos, &thing->mappos) < 11520)
             {
               PaletteSetPlayerPalette(myplyr, lightning_palette);
-              myplyr->field_3 |= 0x08;
+              myplyr->field_3 |= Pf3F_Unkn08;
             }
         }
     }

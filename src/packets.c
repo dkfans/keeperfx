@@ -492,7 +492,7 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
     stl_x = coord_subtile(x);
     stl_y = coord_subtile(y);
 
-    player->field_3 &= ~0x02;
+    player->field_3 &= ~Pf3F_Unkn02;
     if ((player->field_455 != P454_Unkn0) && (player->field_455 != P454_Unkn3))
     {
       if (player->instance_num != PI_Grab) {
@@ -521,7 +521,7 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
         tag_cursor_blocks_thing_in_hand(player->id_number, stl_x, stl_y, i, player->field_4A4);
       } else
       {
-        player->field_3 |= 0x02;
+        player->field_3 |= Pf3F_Unkn02;
         tag_cursor_blocks_dig(player->id_number, stl_x, stl_y, player->field_4A4);
       }
     }
@@ -719,7 +719,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
                 player->allocflags |= PlaF_Unknown20;
             else
                 player->allocflags &= ~PlaF_Unknown20;
-            player->field_3 |= 0x01;
+            player->field_3 |= Pf3F_Unkn01;
           }
           break;
         }
@@ -767,7 +767,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
                 output_message(SMsg_WorkerJobsLimit, 500, true);
               }
             } else
-            if ((player->field_455 == P454_Unkn3) && ((player->field_3 & 0x01) != 0))
+            if ((player->field_455 == P454_Unkn3) && ((player->field_3 & Pf3F_Unkn01) != 0))
             {
               if ((player->allocflags & PlaF_Unknown20) != 0)
               {
@@ -853,7 +853,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         player->field_4AF = 0;
         unset_packet_control(pckt, PCtr_LBtnRelease);
         player->field_455 = P454_Unkn0;
-        player->field_3 &= ~0x01;
+        player->field_3 &= ~Pf3F_Unkn01;
       }
     }
 
@@ -1473,10 +1473,10 @@ void process_pause_packet(long curr_pause, long new_pause)
       }
       if ((game.operation_flags & GOF_Paused) != 0)
       {
-          if ((player->field_3 & 0x08) != 0)
+          if ((player->field_3 & Pf3F_Unkn08) != 0)
           {
               PaletteSetPlayerPalette(player, engine_palette);
-              player->field_3 &= ~0x08;
+              player->field_3 &= ~Pf3F_Unkn08;
           }
       }
   }
@@ -1654,7 +1654,7 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit)
         if ((!winning_quit) || (plyr_count <= 1))
           LbNetwork_Stop();
         else
-          myplyr->field_3 |= 0x10;
+          myplyr->field_3 |= Pf3F_Unkn10;
       } else
       {
         if (!winning_quit)
@@ -1678,7 +1678,7 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit)
         if (plyr_count <= 1)
           LbNetwork_Stop();
         else
-          myplyr->field_3 |= 0x10u;
+          myplyr->field_3 |= Pf3F_Unkn10;
       }
       quit_game = 1;
       if (complete_quit)

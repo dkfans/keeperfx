@@ -1451,7 +1451,9 @@ void frontmap_input(void)
     if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
     {
         clear_key_pressed(KC_ESCAPE);
-        frontend_set_state(FeSt_MAIN_MENU);
+        FrontendMenuState nstate;
+        nstate = get_menu_state_when_back_from_substate(frontend_menu_state);
+        frontend_set_state(nstate);
         LbPaletteStopOpenFade();
         return;
     }
@@ -1695,7 +1697,7 @@ TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
         {
             if (fe_network_active)
             {
-              if ( LbNetwork_EnableNewPlayers(1) )
+              if (LbNetwork_EnableNewPlayers(1))
                 ERRORLOG("Unable to enable new players joining exchange");
               frontend_set_state(FeSt_NET_START);
             } else

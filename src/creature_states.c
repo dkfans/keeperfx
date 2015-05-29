@@ -1522,7 +1522,7 @@ short creature_being_dropped(struct Thing *creatng)
             }
         }
         // Do combat, if we can
-        if ( creature_will_do_combat(creatng) )
+        if (creature_will_do_combat(creatng))
         {
             if (creature_look_for_combat(creatng)) {
                 SYNCDBG(3,"The %s index %d owner %d found creature combat at (%d,%d)",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,(int)stl_x,(int)stl_y);

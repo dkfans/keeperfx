@@ -247,6 +247,8 @@ typedef unsigned char ThingHitType;
 typedef unsigned long HitTargetFlags;
 /** Index within active_buttons[] array. */
 typedef char ActiveButtonID;
+/** Type which stores FeST_* values from FrontendMenuStates enumeration. */
+typedef short FrontendMenuState;
 /** Type which stores digger task type as DigTsk_* values. */
 typedef unsigned short SpDiggerTaskType;
 
