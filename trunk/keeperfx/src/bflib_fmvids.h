@@ -102,7 +102,7 @@ typedef struct VideoState
 
     char            filename[1024];
     int             quit;
-    int             no_more_pack;
+    int             no_more_packet;
 } VideoState;
 
 #pragma pack(1)

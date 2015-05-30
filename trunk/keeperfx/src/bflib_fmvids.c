@@ -105,7 +105,7 @@ int _audio_decode_frame(AVCodecContext *aCodecCtx, uint8_t *audio_buf, int buf_s
         if (pkt.data)
             av_free_packet(&pkt);
 
-        if (_packet_queue_get(&(global_video_state->audio_queue), &pkt, 1) < 0)
+        if (_packet_queue_get(&(global_video_state->audio_queue), &pkt, 1) < 0 || !lbAppActive)
         {
             return -1;
         }
@@ -118,43 +118,41 @@ int _audio_decode_frame(AVCodecContext *aCodecCtx, uint8_t *audio_buf, int buf_s
 
 void _audio_callback(void * userdata, Uint8 *stream, int len)
 {
-    if (global_video_state &&
+    int len1, audio_size;
+
+    static uint8_t audio_buf[(AVCODEC_MAX_AUDIO_FRAME_SIZE * 3) / 2];
+    static unsigned int audio_buf_size = 0;
+    static unsigned int audio_buf_index = 0;
+
+    while (global_video_state &&
         !global_video_state->mute &&
         global_video_state->audio_ctx &&
-        !global_video_state->quit)
+        !global_video_state->quit &&
+        (len > 0))
     {
-        int len1, audio_size;
-
-        static uint8_t audio_buf[(AVCODEC_MAX_AUDIO_FRAME_SIZE * 3) / 2];
-        static unsigned int audio_buf_size = 0;
-        static unsigned int audio_buf_index = 0;
-
-        while ((len > 0))
+        if (audio_buf_index >= audio_buf_size)
         {
-            if (audio_buf_index >= audio_buf_size)
+            /* We have already sent all our data; get more */
+            audio_size = _audio_decode_frame(global_video_state->audio_ctx, audio_buf, sizeof(audio_buf));
+            if (audio_size < 0)
             {
-                /* We have already sent all our data; get more */
-                audio_size = _audio_decode_frame(global_video_state->audio_ctx, audio_buf, sizeof(audio_buf));
-                if (audio_size < 0)
-                {
-                    /* If error, output silence */
-                    audio_buf_size = 1024;
-                    memset(audio_buf, 0, audio_buf_size);
-                }
-                else
-                {
-                    audio_buf_size = audio_size;
-                }
-                audio_buf_index = 0;
+                /* If error, output silence */
+                audio_buf_size = 1024;
+                memset(audio_buf, 0, audio_buf_size);
             }
-            len1 = audio_buf_size - audio_buf_index;
-            if (len1 > len)
-                len1 = len;
-            memcpy(stream, (uint8_t *)audio_buf + audio_buf_index, len1);
-            len -= len1;
-            stream += len1;
-            audio_buf_index += len1;
+            else
+            {
+                audio_buf_size = audio_size;
+            }
+            audio_buf_index = 0;
         }
+        len1 = audio_buf_size - audio_buf_index;
+        if (len1 > len)
+            len1 = len;
+        memcpy(stream, (uint8_t *)audio_buf + audio_buf_index, len1);
+        len -= len1;
+        stream += len1;
+        audio_buf_index += len1;
     }
 }
 
@@ -340,7 +338,14 @@ void video_refresh_timer_callback(void *userdata)
         {
             if (videoState->pict_queue_size == 0)
             {
-                _schedule_refresh(videoState, 10);
+                if (videoState->no_more_packet)
+                {
+                    videoState->quit = 1;
+                }
+                else
+                {
+                    _schedule_refresh(videoState, 10);
+                }
             }
             else
             {
@@ -371,7 +376,7 @@ void video_refresh_timer_callback(void *userdata)
                     SDL_UnlockMutex(videoState->pict_queue_mutex);
                 }
 
-                if (videoState->no_more_pack && (videoState->pict_queue_size == 0))
+                if (videoState->no_more_packet && (videoState->pict_queue_size == 0))
                 {
                     videoState->quit = 1;
                 }
@@ -379,7 +384,14 @@ void video_refresh_timer_callback(void *userdata)
         }
         else
         {
-            _schedule_refresh(videoState, 100);
+            if (videoState->no_more_packet)
+            {
+                videoState->quit = 1;
+            }
+            else
+            {
+                _schedule_refresh(videoState, 10);
+            }
         }
     }
 }
@@ -594,6 +606,7 @@ int _decode_thread(void *arg)
             }
             else
             {
+                result = -1;
                 goto ERROR;
             }
         }
@@ -603,7 +616,9 @@ int _decode_thread(void *arg)
         {
             _packet_queue_put(&videoState->video_queue, pPacket);
         }
-        else if (pPacket->stream_index == videoState->audio_stream_idx)
+        else if ((pPacket->stream_index == videoState->audio_stream_idx) &&
+            !global_video_state->mute 
+            && lbAppActive) // mute when not focused.
         {
             _packet_queue_put(&videoState->audio_queue, pPacket);
         }
@@ -667,6 +682,8 @@ int _video_thread(void *arg)
     while (!videoState->quit &&
         (_packet_queue_get(&videoState->video_queue, pPacket, 1) >= 0))
     {
+
+        ERRORLOG("enter while");
         pts = 0;
 
         // Decode video frame
@@ -698,7 +715,7 @@ ERROR:
     av_free_packet(pPacket);
     av_frame_free(&pFrame);
 
-    videoState->no_more_pack = 1;
+    videoState->no_more_packet = 1;
     videoState->quit = 1;
 
     videoState->video_thread_id = NULL;
@@ -778,10 +795,11 @@ int _queue_picture(VideoState *videoState, AVFrame *pFrame, double pts)
     while (videoState->pict_queue_size >= VIDEO_PICTURE_QUEUE_SIZE &&
         !videoState->quit)
     {
-        
+        ERRORLOG("enter while");
         SDL_CondWait(videoState->pict_queue_cond, videoState->pict_queue_mutex);
     }
 
+    ERRORLOG("leave while");
     SDL_UnlockMutex(videoState->pict_queue_mutex);
 
     if (videoState->quit)
@@ -846,6 +864,7 @@ ERROR:
         av_free(pScaledFrame);
     }
 
+    ERRORLOG("finish queue");
     return result;
 }
 #pragma endregion
@@ -884,31 +903,27 @@ short play_smk_direct(char *fname, int smkflags, int plyflags)
 
     while (!global_video_state->quit)
     {
-        // mute when not focused.
-        //SDL_PauseAudio(!lbAppActive);
-
         // Exit playing at user input.
         if (!LbWindowsControl())
         {
             global_video_state->quit = 1;
+            goto ERROR;
         }
         if ((lbKeyOn[KC_ESCAPE] || lbKeyOn[KC_RETURN] || lbKeyOn[KC_SPACE] || lbDisplay.LeftButton))
         {
             global_video_state->quit = 1;
+            goto ERROR;
         }
     }
+
+ERROR:
+    SDL_CloseAudio();
 
     // Wait for working thread to quit first.
     while (global_video_state->decode_thread_id || global_video_state->video_thread_id)
     {
         SDL_Delay(10);
     }
-
-ERROR:
-    SDL_CloseAudio();
-
-    // Set again for timer callback.
-    global_video_state->quit = 1;
 
     SDL_DestroyMutex(global_video_state->pict_queue_mutex);
     SDL_DestroyCond(global_video_state->pict_queue_cond);
