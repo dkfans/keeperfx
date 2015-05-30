@@ -1209,7 +1209,7 @@ short setup_game(void)
   }
   if ( result && (!game.no_intro) )
   {
-      result = intro_replay();
+      result = intro();
   }
   // Intro problems shouldn't force the game to quit,
   // so we're re-setting the result flag
