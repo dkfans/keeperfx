@@ -109,6 +109,7 @@ int _audio_decode_frame(AVCodecContext *aCodecCtx, uint8_t *audio_buf, int buf_s
         {
             return -1;
         }
+
         audio_pkt_data = pkt.data;
         audio_pkt_size = pkt.size;
     }
@@ -600,9 +601,9 @@ int _decode_thread(void *arg)
         {
             if (videoState->p_format_ctx->pb->error == 0)
             {
-                // TODO: HeM looks like a infinite loop?
-                SDL_Delay(100); /* no error; wait for user input */
-                continue;
+                /* no error;*/
+                result = 0;
+                goto ERROR;
             }
             else
             {
@@ -617,8 +618,8 @@ int _decode_thread(void *arg)
             _packet_queue_put(&videoState->video_queue, pPacket);
         }
         else if ((pPacket->stream_index == videoState->audio_stream_idx) &&
-            !global_video_state->mute 
-            && lbAppActive) // mute when not focused.
+            !global_video_state->mute &&
+            lbAppActive) // mute when not focused.
         {
             _packet_queue_put(&videoState->audio_queue, pPacket);
         }
@@ -629,15 +630,15 @@ int _decode_thread(void *arg)
     }
 
 ERROR:
-    videoState->quit = 1;
-
-    av_free_packet(pPacket);
+    videoState->no_more_packet = 1;
 
     /* all done - wait for video thread to quit first */
     while (videoState->video_thread_id)
     {
         SDL_Delay(10);
     }
+
+    av_free_packet(pPacket);
 
     // Close the codecs
     avcodec_close(videoState->video_ctx);
@@ -678,12 +679,9 @@ int _video_thread(void *arg)
     double pts;
 
     pFrame = av_frame_alloc();
-
     while (!videoState->quit &&
         (_packet_queue_get(&videoState->video_queue, pPacket, 1) >= 0))
     {
-
-        ERRORLOG("enter while");
         pts = 0;
 
         // Decode video frame
@@ -715,7 +713,6 @@ ERROR:
     av_free_packet(pPacket);
     av_frame_free(&pFrame);
 
-    videoState->no_more_packet = 1;
     videoState->quit = 1;
 
     videoState->video_thread_id = NULL;
@@ -792,14 +789,12 @@ int _queue_picture(VideoState *videoState, AVFrame *pFrame, double pts)
 
     /* wait until we have space for a new pic */
     SDL_LockMutex(videoState->pict_queue_mutex);
+
     while (videoState->pict_queue_size >= VIDEO_PICTURE_QUEUE_SIZE &&
         !videoState->quit)
     {
-        ERRORLOG("enter while");
         SDL_CondWait(videoState->pict_queue_cond, videoState->pict_queue_mutex);
     }
-
-    ERRORLOG("leave while");
     SDL_UnlockMutex(videoState->pict_queue_mutex);
 
     if (videoState->quit)
@@ -864,7 +859,6 @@ ERROR:
         av_free(pScaledFrame);
     }
 
-    ERRORLOG("finish queue");
     return result;
 }
 #pragma endregion
