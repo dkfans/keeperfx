@@ -421,8 +421,13 @@ void define_key_input(void)
 {
   if (lbInkey == KC_ESCAPE)
   {
-    defining_a_key = 0;
-    lbInkey = KC_UNASSIGNED;
+      lbInkey = KC_UNASSIGNED;
+      defining_a_key = 0;
+  } else
+  if (right_button_clicked)
+  {
+      right_button_clicked = 0;
+      defining_a_key = 0;
   } else
   if (lbInkey != KC_UNASSIGNED)
   {

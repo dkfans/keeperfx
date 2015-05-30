@@ -1218,12 +1218,6 @@ TbBool fronttestfont_input(void)
 {
   const unsigned int keys[] = {KC_Z,KC_1,KC_2,KC_3,KC_4,KC_5,KC_6,KC_7,KC_8,KC_9,KC_0};
   int i;
-  if (lbKeyOn[KC_Q])
-  {
-    lbKeyOn[KC_Q] = 0;
-    frontend_set_state(FeSt_MAIN_MENU);
-    return true;
-  }
   for (i=0; i < sizeof(keys)/sizeof(keys[0]); i++)
   {
     if (lbKeyOn[keys[i]])
@@ -1239,8 +1233,7 @@ TbBool fronttestfont_input(void)
       return true;
     }
   }
-  // Handle GUI inputs
-  return get_gui_inputs(0);
+  return false;
 }
 #endif
 
@@ -2787,42 +2780,56 @@ TbBool frontmainmnu_input(void)
         }
     }
 #endif
-    // Handle GUI inputs
-    return get_gui_inputs(0);
+    return false;
 }
 
-short end_input(void)
+TbBool front_continue_pressed(TbBool force)
 {
-    FrontendMenuState nstate;
+    TbBool got_input;
+    got_input = force;
     if (lbKeyOn[KC_SPACE])
     {
         lbKeyOn[KC_SPACE] = 0;
-        nstate = get_menu_state_when_back_from_substate(frontend_menu_state);
-        frontend_set_state(nstate);
-        return true;
+        got_input = true;
     }
     if (lbKeyOn[KC_RETURN])
     {
         lbKeyOn[KC_RETURN] = 0;
-        nstate = get_menu_state_when_back_from_substate(frontend_menu_state);
-        frontend_set_state(nstate);
-        return true;
-    }
-    if (lbKeyOn[KC_ESCAPE])
-    {
-        lbKeyOn[KC_ESCAPE] = 0;
-        nstate = get_menu_state_when_back_from_substate(frontend_menu_state);
-        frontend_set_state(nstate);
-        return true;
+        got_input = true;
     }
     if (left_button_clicked)
     {
         left_button_clicked = 0;
-        nstate = get_menu_state_when_back_from_substate(frontend_menu_state);
-        frontend_set_state(nstate);
-        return true;
+        got_input = true;
     }
-    return false;
+    return got_input;
+}
+
+TbBool frontscreen_end_input(TbBool force)
+{
+    TbBool do_change;
+    do_change = force;
+    if (lbKeyOn[KC_ESCAPE])
+    {
+        lbKeyOn[KC_ESCAPE] = 0;
+        do_change = true;
+    }
+    if (right_button_clicked)
+    {
+        right_button_clicked = 0;
+        do_change = true;
+    }
+    if (do_change)
+    {
+        FrontendMenuState nstate;
+        nstate = get_menu_state_when_back_from_substate(frontend_menu_state);
+        if (nstate != frontend_menu_state) {
+            frontend_set_state(nstate);
+        } else {
+            do_change = false;
+        }
+    }
+    return do_change;
 }
 
 short get_frontend_global_inputs(void)
@@ -2845,10 +2852,20 @@ void frontend_input(void)
     switch (frontend_menu_state)
     {
     case FeSt_MAIN_MENU:
-        frontmainmnu_input();
+        get_gui_inputs(0);
+        input_consumed = frontscreen_end_input(false);
+        if (input_consumed) {
+            break;
+        }
+        input_consumed = frontmainmnu_input();
         break;
     case FeSt_LAND_VIEW:
         frontmap_input();
+        break;
+    case FeSt_NET_SESSION:
+    case FeSt_NET_MODEM:
+    case FeSt_NET_SERIAL:
+        get_gui_inputs(0);
         break;
     case FeSt_NET_START:
         get_gui_inputs(0);
@@ -2856,22 +2873,27 @@ void frontend_input(void)
         break;
     case FeSt_STORY_POEM:
     case FeSt_STORY_BIRTHDAY:
-        end_input();
-        frontstory_input();
+        input_consumed = frontscreen_end_input(front_continue_pressed(false));
+        if (input_consumed) {
+            break;
+        }
+        input_consumed = frontstory_input();
         break;
     case FeSt_CREDITS:
-        if (!end_input())
-        {
-          if ( credits_end ) {
-              FrontendMenuState nstate;
-              nstate = get_menu_state_when_back_from_substate(frontend_menu_state);
-              frontend_set_state(nstate);
-          }
+        input_consumed = frontscreen_end_input(front_continue_pressed(credits_end));
+        if (input_consumed) {
+            break;
         }
         frontcredits_input();
         break;
     case FeSt_HIGH_SCORES:
         get_gui_inputs(0);
+        if (high_score_entry_input_active < 0) {
+            input_consumed = frontscreen_end_input(front_continue_pressed(false));
+        }
+        if (input_consumed) {
+            break;
+        }
         input_consumed = frontend_high_score_table_input();
         break;
     case FeSt_TORTURE:
@@ -2883,6 +2905,7 @@ void frontend_input(void)
     case FeSt_FEDEFINE_KEYS:
         if (!defining_a_key) {
             get_gui_inputs(0);
+            input_consumed = frontscreen_end_input(false);
         } else {
             define_key_input();
             input_consumed = true;
@@ -2890,11 +2913,17 @@ void frontend_input(void)
         break;
 #if (BFDEBUG_LEVEL > 0)
     case FeSt_FONT_TEST:
+        get_gui_inputs(0);
+        input_consumed = frontscreen_end_input(false);
+        if (input_consumed) {
+            break;
+        }
         fronttestfont_input();
         break;
 #endif
     default:
         get_gui_inputs(0);
+        input_consumed = frontscreen_end_input(false);
         break;
     } // end switch
     get_frontend_global_inputs();
