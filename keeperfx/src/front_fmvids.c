@@ -98,14 +98,6 @@ TbBool intro(void)
     return play_smacker_file(fname, 1);
 }
 
-TbBool intro_replay(void)
-{
-    char *fname;
-    fname = prepare_file_path(FGrp_LoData, "intromix.smk");
-    SYNCDBG(0,"Playing intro movie \"%s\"",fname);
-    return play_smacker_file(fname, -1);
-}
-
 TbBool campaign_intro(void)
 {
     if (campaign.movie_intro_fname[0] == '\0') {

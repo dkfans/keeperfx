@@ -48,9 +48,16 @@ extern "C" {
 
 #define VIDEO_PICTURE_QUEUE_SIZE 1
 
+typedef AVPacketList AVPacketNode;
+/******************************************************************************/
+enum SmackerPlayFlags
+{
+    SMK_NoSound = 0x01,
+};
+
 typedef struct PacketQueue 
 {
-    AVPacketList *first_pkt, *last_pkt;
+    AVPacketNode *first_pkt, *last_pkt;
     int nb_packets;
     int size;
     SDL_mutex *mutex;
@@ -64,52 +71,38 @@ typedef struct VideoPicture
     int allocated;
 } VideoPicture;
 
-/******************************************************************************/
-enum SmackerPlayFlags {
-    SMK_NoSound            = 0x01,
-    //SMK_NoStopOnUserInput  = 0x02,
-    //SMK_PixelDoubleLine    = 0x04,
-    //SMK_InterlaceLine      = 0x08,
-    //SMK_WriteStatusFile    = 0x40,
-    //SMK_PixelDoubleWidth   = 0x80,
-};
-
 typedef struct VideoState 
 {
     double          video_clock; // pts of last decoded frame / predicted pts of next decoded frame
 
-    AVFormatContext *p_format_ctx;
+    AVFormatContext *p_format_ctx; // released
     int             video_stream_idx, audio_stream_idx;
 
 // Audio
-    AVStream        *audio_stream;
-    AVCodecContext  *audio_ctx;
-    PacketQueue     audio_queue;
-    uint8_t         audio_buf[(AVCODEC_MAX_AUDIO_FRAME_SIZE * 3) / 2];
-    unsigned int    audio_buf_size;
-    unsigned int    audio_buf_index;
-    AVPacket        audio_pkt;
-    uint8_t         *audio_pkt_data;
-    int             audio_pkt_size;
+    int             mute;
+    AVStream        *audio_stream; // released
+    AVCodecContext  *audio_ctx; // released
+    PacketQueue     audio_queue; // released
 
 // Video
-    AVStream        *video_stream;
-    AVCodecContext  *video_ctx;
-    PacketQueue     video_queue;
+    AVStream        *video_stream; // released
+    AVCodecContext  *video_ctx; // released
+    PacketQueue     video_queue; // released
 
 // Picture
-    struct SwsContext *sws_ctx;
-    VideoPicture    pict_queue[VIDEO_PICTURE_QUEUE_SIZE];
+    struct SwsContext *sws_ctx; // released
+    VideoPicture    pict_queue[VIDEO_PICTURE_QUEUE_SIZE]; // released
     int             pict_queue_size, pict_queue_read_idx, pict_queue_write_idx;
-    SDL_mutex       *pict_queue_mutex;
-    SDL_cond        *pict_queue_cond;
+    SDL_mutex       *pict_queue_mutex;  // released
+    SDL_cond        *pict_queue_cond;  // released
 
 // Thread
-    SDL_Thread      *decode_thread_id;
-    SDL_Thread      *video_thread_id;
+    SDL_Thread      *decode_thread_id;  // released
+    SDL_Thread      *video_thread_id;   // released
 
     char            filename[1024];
     int             quit;
+    int             no_more_pack;
 } VideoState;
 
 #pragma pack(1)
@@ -182,8 +175,9 @@ void _audio_callback(void *userdata, Uint8 *stream, int len);
 
 // packet operation
 void _packet_queue_init(PacketQueue *pq);
-int _packet_queue_put(PacketQueue *q, AVPacket *pkt);
-static int _packet_queue_get(PacketQueue *q, AVPacket *pkt, int block);
+void _packet_queue_destroy(PacketQueue *pq);
+int _packet_queue_put(PacketQueue *pq, AVPacket *pkt);
+int _packet_queue_get(PacketQueue *pq, AVPacket *pkt, int block);
 
 // Timer helpers
 double _synchronize_video(VideoState *is, AVFrame *src_frame, double pts);
