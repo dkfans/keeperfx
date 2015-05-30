@@ -607,7 +607,7 @@ TbBool get_level_lost_inputs(void)
         {
           if ((game.operation_flags & GOF_ShowGui) != 0)
           {
-            initialise_tab_tags_and_menu(3);
+            initialise_tab_tags_and_menu(GMnu_SPELL);
             turn_off_all_panel_menus();
             turn_on_menu(GMnu_SPELL_LOST);
           }
@@ -1865,12 +1865,12 @@ short get_gui_inputs(short gameplay_on)
   if (over_slider_button != nx_over_slider_button)
       over_slider_button = -1;
 
-  short result = 0;
+  TbBool result = false;
   if (game_is_busy_doing_gui_string_input())
   {
     busy_doing_gui = 1;
     if (get_button_area_input(input_button,input_button->id_num) != 0)
-        result = 1;
+        result = true;
   }
   if ((over_slider_button != -1) && (left_button_released))
   {

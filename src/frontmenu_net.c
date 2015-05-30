@@ -213,12 +213,12 @@ void frontnet_modem_reset(void)
     net_write_config_file();
 }
 
-void frontnet_start_input(void)
+TbBool frontnet_start_input(void)
 {
     if (lbInkey & 0x80)
     {
         lbInkey = 0;
-        return;
+        return false;
     }
     if (lbInkey != 0)
     {
@@ -236,13 +236,14 @@ void frontnet_start_input(void)
               {
                   nspck->param2 = 0;
                   lbInkey = 0;
-                  return;
+                  return true;
               }
               nspck->param2 = 1;
             }
         }
         lbInkey = 0;
     }
+    return false;
 }
 
 void frontnet_draw_services_scroll_tab(struct GuiButton *gbtn)
@@ -346,7 +347,9 @@ void frontnet_draw_net_session_players(struct GuiButton *gbtn)
 
 void frontnet_session_add(struct GuiButton *gbtn)
 {
-    //TODO NET When clicked, it could either just display a modal text field (if that's possible), or a completely new screen which simply has a text field (for IP address) and OK/Cancel buttons.
+    turn_on_menu(GMnu_FEADD_SESSION);
+    //TODO NET When clicked, it should display a modal text field (for IP address) and OK/Cancel buttons.
+    set_menu_visible_on(GMnu_FEADD_SESSION);
 }
 
 void frontnet_session_join(struct GuiButton *gbtn)
@@ -367,6 +370,18 @@ void frontnet_return_to_main_menu(struct GuiButton *gbtn)
     return;
   }
   frontend_set_state(FeSt_MAIN_MENU);
+}
+
+void frontnet_add_session_back(struct GuiButton *gbtn)
+{
+    //TODO NET Finish session add menu
+    turn_off_menu(GMnu_FEADD_SESSION);
+}
+
+void frontnet_add_session_done(struct GuiButton *gbtn)
+{
+    //TODO NET Finish session add menu
+    turn_off_menu(GMnu_FEADD_SESSION);
 }
 
 void frontnet_draw_alliance_box_tab(struct GuiButton *gbtn)
@@ -690,15 +705,19 @@ void frontnet_draw_messages(struct GuiButton *gbtn)
 
 void frontnet_return_to_session_menu(struct GuiButton *gbtn)
 {
-    if ( LbNetwork_Stop() )
-    {
+    if (LbNetwork_Stop()) {
         ERRORLOG("LbNetwork_Stop() failed");
-        return;
     }
-    if ( setup_network_service(net_service_index_selected) )
-        frontend_set_state(FeSt_NET_SESSION);
-    else
-        frontend_set_state(FeSt_MAIN_MENU);
+    FrontendMenuState nstate;
+    nstate = get_menu_state_when_back_from_substate(FeSt_NET_START);
+    if (nstate == FeSt_NET_SESSION)
+    {
+        // If the parent state is network session state, try to stay in net service
+        if (!setup_old_network_service()) {
+            nstate = get_menu_state_when_back_from_substate(nstate);
+        }
+    }
+    frontend_set_state(nstate);
 }
 
 void frontnet_draw_small_scroll_box_tab(struct GuiButton *gbtn)

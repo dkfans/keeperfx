@@ -187,26 +187,28 @@ struct GuiButtonInit frontend_net_serial_buttons[] = {
   { 0,  0, 0, 0, frontnet_speed_select,NULL, frontend_over_button,    0, 344, 240, 344, 240, 190, 26, frontnet_draw_speed_button,        0, GUIStr_Empty, 0,  {48}, 0, 0, frontnet_speed_select_maintain },
   { 0,  0, 0, 0, frontnet_net_serial_start,NULL,frontend_over_button, 0,  49, 412,  49, 412, 247, 46, frontend_draw_small_menu_button,   0, GUIStr_Empty, 0,  {73}, 0, 0, frontnet_net_serial_start_maintain },
   { 0,  0, 0, 0, frontend_change_state,NULL, frontend_over_button,    1, 345, 412, 345, 412, 247, 46, frontend_draw_small_menu_button,   0, GUIStr_Empty, 0,  {16}, 0, 0, NULL },
-  {-1,  0, 0, 0, NULL,               NULL,   NULL,                    0,   0,   0,   0,   0,   0,  0, NULL,                              0,           0,  0,   {0}, 0, 0, NULL },
+  {-1,  0, 0, 0, NULL,               NULL,   NULL,                    0,   0,   0,   0,   0,   0,  0, NULL,                              0,            0, 0,   {0}, 0, 0, NULL },
 };
 
 struct GuiButtonInit frontend_add_session_buttons[] = {//TODO GUI prepare add session screen
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,   0, 999,   0,450, 92, frontend_draw_error_text_box,      0, GUIStr_Empty,  0,{(long)gui_message_text},0, 0, frontend_maintain_error_text_box},
-  {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999, 0, 999, 0,450,180, frontnet_draw_scroll_box,               0, GUIStr_Empty, 0,      {26},            0, 0, NULL },
+  { 0,  0, 0, 0, frontnet_add_session_done,NULL,  frontend_over_button,0,  72, 48,  72, 48,247, 46, frontend_draw_small_menu_button,     0, GUIStr_Empty, 0,      {13},            0, 0, NULL },
+  { 0,  0, 0, 0, frontnet_add_session_back,NULL,  frontend_over_button,0, 321, 48, 321, 48,247, 46, frontend_draw_small_menu_button,     0, GUIStr_Empty, 0,      {16},            0, 0, NULL },
+  {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,   0,  0, NULL,                              0, GUIStr_Empty, 0,       {0},            0, 0, NULL },
 };
 
 struct GuiMenu frontend_net_service_menu =
- { GMnu_FENET_SERVICE, 0, 1, frontend_net_service_buttons,POS_SCRCTR, POS_SCRCTR, 640, 480, NULL, 0, NULL,    NULL,                    0, 0, 0,};
+ { GMnu_FENET_SERVICE, 0, 1, frontend_net_service_buttons, POS_SCRCTR, POS_SCRCTR,  640, 480, NULL, 0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu frontend_net_session_menu =
- { GMnu_FENET_SESSION, 0, 1, frontend_net_session_buttons,POS_SCRCTR, POS_SCRCTR, 640, 480, NULL, 0, NULL,    NULL,                    0, 0, 0,};
+ { GMnu_FENET_SESSION, 0, 1, frontend_net_session_buttons, POS_SCRCTR, POS_SCRCTR,  640, 480, NULL, 0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu frontend_net_start_menu =
- { GMnu_FENET_START, 0, 1, frontend_net_start_buttons,    POS_SCRCTR, POS_SCRCTR, 640, 480, NULL, 0, NULL,    NULL,                    0, 0, 0,};
+ { GMnu_FENET_START,   0, 1, frontend_net_start_buttons,   POS_SCRCTR, POS_SCRCTR,  640, 480, NULL, 0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu frontend_net_modem_menu =
- { GMnu_FENET_MODEM, 0, 1, frontend_net_modem_buttons,    POS_SCRCTR, POS_SCRCTR, 640, 480, NULL, 0, NULL,    NULL,                    0, 0, 0,};
+ { GMnu_FENET_MODEM,   0, 1, frontend_net_modem_buttons,   POS_SCRCTR, POS_SCRCTR,  640, 480, NULL, 0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu frontend_net_serial_menu =
- { GMnu_FENET_SERIAL, 0, 1, frontend_net_serial_buttons,  POS_SCRCTR, POS_SCRCTR, 640, 480, NULL, 0, NULL,    NULL,                    0, 0, 0,};
+ { GMnu_FENET_SERIAL,  0, 1, frontend_net_serial_buttons,  POS_SCRCTR, POS_SCRCTR,  640, 480, NULL, 0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu frontend_add_session_box =
- { GMnu_FEADD_SESSION,      0, 1, frontend_add_session_buttons,POS_GAMECTR,POS_GAMECTR,450, 92, NULL,                        0, NULL,    NULL,                    0, 1, 0,};
+ { GMnu_FEADD_SESSION, 0, 1, frontend_add_session_buttons, POS_SCRCTR, POS_SCRCTR,  450,  92, NULL, 0, NULL,    NULL,                    0, 1, 0,};
 /******************************************************************************/
 #ifdef __cplusplus
 }

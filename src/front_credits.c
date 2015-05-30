@@ -131,7 +131,7 @@ void frontcredits_draw(void)
     }
 }
 
-void frontcredits_input(void)
+TbBool frontcredits_input(void)
 {
     int fontid;
     credits_scroll_speed = 1 * units_per_pixel / 16;
@@ -151,6 +151,7 @@ void frontcredits_input(void)
           speed = credits_offset;
         credits_scroll_speed = speed;
     }
+    return false;
 }
 
 /******************************************************************************/

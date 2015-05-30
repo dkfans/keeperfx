@@ -21,6 +21,7 @@
 
 #include "globals.h"
 
+#include "bflib_basics.h"
 #include "bflib_sprite.h"
 
 #ifdef __cplusplus
@@ -60,7 +61,7 @@ void frontstory_draw(void);
 short frontstory_input(void);
 
 void frontcredits_draw(void);
-void frontcredits_input(void);
+TbBool frontcredits_input(void);
 
 /******************************************************************************/
 #ifdef __cplusplus

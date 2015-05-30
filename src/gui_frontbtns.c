@@ -749,14 +749,13 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
         fntidx = 3;
         spridx = 14;
     } else
-    if ((febtn_idx > 0) && (frontend_mouse_over_button == febtn_idx))
     {
-        fntidx = 2;
-        spridx = large_button_sprite_anims[((timeGetTime()-frontend_mouse_over_button_start_time)/100) & 7];
-    } else
-    {
-        fntidx = frontend_button_caption_font(gbtn, 0);
-        spridx = 14;
+        fntidx = frontend_button_caption_font(gbtn, frontend_mouse_over_button);
+        if ((febtn_idx > 0) && (frontend_mouse_over_button == febtn_idx)) {
+            spridx = large_button_sprite_anims[((timeGetTime()-frontend_mouse_over_button_start_time)/100) & 7];
+        } else {
+            spridx = 14;
+        }
     }
     struct TbSprite *spr;
     // Detect scaling factor

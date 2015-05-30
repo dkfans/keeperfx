@@ -21,6 +21,8 @@
 
 #include "globals.h"
 
+#include "bflib_basics.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -71,7 +73,7 @@ void frontnet_net_serial_start_maintain(struct GuiButton *gbtn);
 long frontnet_number_of_players_in_session(void);
 void frontnet_serial_reset(void);
 void frontnet_modem_reset(void);
-void frontnet_start_input(void);
+TbBool frontnet_start_input(void);
 void frontnet_draw_services_scroll_tab(struct GuiButton *gbtn);
 void frontnet_draw_service_button(struct GuiButton *gbtn);
 void frontnet_service_maintain(struct GuiButton *gbtn);
@@ -101,6 +103,8 @@ void frontnet_session_add(struct GuiButton *gbtn);
 void frontnet_session_join(struct GuiButton *gbtn);
 void frontnet_session_create(struct GuiButton *gbtn);
 void frontnet_return_to_main_menu(struct GuiButton *gbtn);
+void frontnet_add_session_done(struct GuiButton *gbtn);
+void frontnet_add_session_back(struct GuiButton *gbtn);
 void frontnet_join_game_maintain(struct GuiButton *gbtn);
 void frontnet_draw_alliance_box_tab(struct GuiButton *gbtn);
 void frontnet_draw_net_start_players(struct GuiButton *gbtn);

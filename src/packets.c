@@ -2577,7 +2577,7 @@ void process_frontend_packets(void)
   unsigned short c;
   for (i=0; i < NET_PLAYERS_COUNT; i++)
   {
-    net_screen_packet[i].field_4 &= 0xFE;
+    net_screen_packet[i].field_4 &= ~0x01;
   }
   nspckt = &net_screen_packet[my_player_number];
   set_flag_byte(&nspckt->field_4, 0x01, true);

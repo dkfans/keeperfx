@@ -263,7 +263,7 @@ struct FrontEndButtonData frontend_button_info[] = {
     {GUIStr_NetJoinGame, 1}, // [13]
     {GUIStr_NetCreateGame, 1}, // [14]
     {GUIStr_NetStartGame, 1}, // [15]
-    {GUIStr_MnuCancel}, // [16]
+    {GUIStr_MnuCancel, 1}, // [16]
     {GUIStr_Empty, 1}, // [17]
     {GUIStr_Empty, 1}, // [18]
     {GUIStr_NetName, 1}, // [19]
@@ -2596,6 +2596,14 @@ void frontend_shutdown_state(FrontendMenuState pstate)
     }
 }
 
+/**
+ * Initializes given front-end state.
+ * Loads required assets and initializes variables for each state.
+ * Does not do network connection initialization for MP states.
+ *
+ * @param nstate The new state to be initialized.
+ * @return The state which was really initialized.
+ */
 FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
 {
     SYNCDBG(9,"Starting for state %d",(int)nstate);
@@ -3006,7 +3014,7 @@ void draw_active_menus_buttons(void)
         menu_num = menu_id_to_number(menu_stack[k]);
         if (menu_num < 0) continue;
         gmnu = &active_menus[menu_num];
-        //SYNCMSG("DRAW menu %d, fields %d, %d",menu_num,gmnu->field_1,gmnu->is_turned_on);
+        //SYNCMSG("DRAW menu %d, fields %d, %d",menu_num,gmnu->visual_state,gmnu->is_turned_on);
         if ((gmnu->visual_state != 0) && (gmnu->is_turned_on))
         {
             if ((gmnu->visual_state != 2) && (gmnu->fade_time))
@@ -3159,6 +3167,7 @@ short frontend_draw(void)
     case FeSt_NET_SESSION:
     case FeSt_NET_MODEM:
     case FeSt_NET_SERIAL:
+    case FeSt_NET_START:
     case FeSt_LEVEL_STATS:
     case FeSt_HIGH_SCORES:
     case FeSt_UNKNOWN20:
@@ -3170,9 +3179,6 @@ short frontend_draw(void)
         break;
     case FeSt_LAND_VIEW:
         frontmap_draw();
-        break;
-    case FeSt_NET_START:
-        draw_gui();
         break;
     case FeSt_STORY_POEM:
         frontstory_draw();
@@ -3441,10 +3447,11 @@ FrontendMenuState get_menu_state_when_back_from_substate(FrontendMenuState subst
         return get_menu_state_based_on_last_level(lvnum);
     case FeSt_LOAD_GAME:
         return FeSt_START_KPRLEVEL;
+    case FeSt_NET_START:
+        return FeSt_NET_SESSION;
     case FeSt_NET_SESSION:
     case FeSt_NET_MODEM:
     case FeSt_NET_SERIAL:
-    case FeSt_NET_START:
     case FeSt_NETLAND_VIEW:
         return FeSt_NET_SERVICE;
     case FeSt_TORTURE:

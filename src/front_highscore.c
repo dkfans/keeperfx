@@ -175,8 +175,10 @@ TbBool frontend_high_score_table_input(void)
     struct HighScore *hscore;
     char chr;
     long i;
-    if ((high_score_entry_input_active < 0) || (high_score_entry_input_active >= campaign.hiscore_count))
-      return false;
+    if (high_score_entry_input_active >= campaign.hiscore_count)
+        high_score_entry_input_active  = -1;
+    if (high_score_entry_input_active < 0)
+        return false;
     if (lbInkey == KC_BACK)
     {
         // Delete previous character
