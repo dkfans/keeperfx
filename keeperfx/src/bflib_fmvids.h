@@ -80,6 +80,7 @@ typedef struct VideoState
 
 // Audio
     int             mute;
+    int             audio_device_id;
     AVStream        *audio_stream; // released
     AVCodecContext  *audio_ctx; // released
     PacketQueue     audio_queue; // released

@@ -105,7 +105,7 @@ int _audio_decode_frame(AVCodecContext *aCodecCtx, uint8_t *audio_buf, int buf_s
         if (pkt.data)
             av_free_packet(&pkt);
 
-        if (_packet_queue_get(&(global_video_state->audio_queue), &pkt, 1) < 0 || !lbAppActive)
+        if (_packet_queue_get(&(global_video_state->audio_queue), &pkt, 1) < 0 ||!lbAppActive)
         {
             return -1;
         }
@@ -119,6 +119,11 @@ int _audio_decode_frame(AVCodecContext *aCodecCtx, uint8_t *audio_buf, int buf_s
 
 void _audio_callback(void * userdata, Uint8 *stream, int len)
 {
+    // That one really important exception : The audio callback does NOT start with a fully initialized buffer anymore.
+    // You must fully write to the buffer in all cases. If you don't have enough audio, your callback should write silence. 
+    // If you fail to do this, you'll hear repeated audio, or maybe audio corruption. 
+
+    SDL_memset(stream, 0, len);
     int len1, audio_size;
 
     static uint8_t audio_buf[(AVCODEC_MAX_AUDIO_FRAME_SIZE * 3) / 2];
@@ -126,6 +131,7 @@ void _audio_callback(void * userdata, Uint8 *stream, int len)
     static unsigned int audio_buf_index = 0;
 
     while (global_video_state &&
+        global_video_state->audio_device_id &&
         !global_video_state->mute &&
         global_video_state->audio_ctx &&
         !global_video_state->quit &&
@@ -516,19 +522,23 @@ int _open_stream_component(VideoState *videoState, int streamIdx)
             desiredSpec.callback = _audio_callback;
             desiredSpec.userdata = NULL;
 
-            if (SDL_OpenAudio(&desiredSpec, &actualSpec) < 0)
+            videoState->audio_device_id = SDL_OpenAudioDevice(NULL, 0, &desiredSpec, &actualSpec, SDL_AUDIO_ALLOW_ANY_CHANGE);
+
+            if (videoState->audio_device_id < 2)
             {
                 ERRORLOG("SDL_OpenAudio: %s\n", SDL_GetError());
                 result = -1;
                 goto ERROR;
             }
+            else
+            {
+                videoState->audio_stream_idx = streamIdx;
+                videoState->audio_stream = pFormatCtx->streams[streamIdx];
+                videoState->audio_ctx = pCodecCtx;
 
-            videoState->audio_stream_idx = streamIdx;
-            videoState->audio_stream = pFormatCtx->streams[streamIdx];
-            videoState->audio_ctx = pCodecCtx;
-
-            // Start audio.
-            SDL_PauseAudio(0);
+                // Start audio.
+                SDL_PauseAudioDevice(videoState->audio_device_id, 0);
+            }
         }
         break;
     case AVMEDIA_TYPE_VIDEO:
@@ -911,12 +921,15 @@ short play_smk_direct(char *fname, int smkflags, int plyflags)
     }
 
 ERROR:
-    SDL_CloseAudio();
-
     // Wait for working thread to quit first.
     while (global_video_state->decode_thread_id || global_video_state->video_thread_id)
     {
         SDL_Delay(10);
+    }
+
+    if (global_video_state->audio_device_id >= 2)
+    {
+        SDL_CloseAudioDevice(global_video_state->audio_device_id);
     }
 
     SDL_DestroyMutex(global_video_state->pict_queue_mutex);
