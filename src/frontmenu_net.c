@@ -215,16 +215,11 @@ void frontnet_modem_reset(void)
 
 TbBool frontnet_start_input(void)
 {
-    if (lbInkey & 0x80)
-    {
-        lbInkey = 0;
-        return false;
-    }
-    if (lbInkey != 0)
+    if (lbInkey != KC_UNASSIGNED)
     {
         unsigned short asckey;
         asckey = key_to_ascii(lbInkey, KMod_SHIFT);
-        if ((lbInkey == 14) || (lbInkey == 28) || (frontend_font_char_width(1,asckey) > 0))
+        if ((lbInkey == KC_BACK) || (lbInkey == KC_RETURN) || (frontend_font_char_width(1,asckey) > 0))
         {
             struct ScreenPacket *nspck;
             nspck = &net_screen_packet[my_player_number];
@@ -232,16 +227,16 @@ TbBool frontnet_start_input(void)
             {
               nspck->field_4 = (nspck->field_4 & 7) | 0x40;
               nspck->param1 = lbInkey;
-              if ((lbKeyOn[42] == 0) && (lbKeyOn[54] == 0))
+              if ((lbKeyOn[KC_LSHIFT] == 0) && (lbKeyOn[KC_RSHIFT] == 0))
               {
                   nspck->param2 = 0;
-                  lbInkey = 0;
+                  lbInkey = KC_UNASSIGNED;
                   return true;
               }
               nspck->param2 = 1;
             }
         }
-        lbInkey = 0;
+        lbInkey = KC_UNASSIGNED;
     }
     return false;
 }
