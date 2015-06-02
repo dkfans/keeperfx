@@ -82,19 +82,19 @@ const long definable_key_string[] = {
 /******************************************************************************/
 void frontend_define_key_up_maintain(struct GuiButton *gbtn)
 {
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown08 * (define_key_scroll_offset != 0)) & LbBtnF_Unknown08;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (define_key_scroll_offset != 0)) & LbBtnF_Enabled;
 }
 
 void frontend_define_key_down_maintain(struct GuiButton *gbtn)
 {
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown08 * (define_key_scroll_offset < GAME_KEYS_COUNT-1)) & LbBtnF_Unknown08;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (define_key_scroll_offset < GAME_KEYS_COUNT-1)) & LbBtnF_Enabled;
 }
 
 void frontend_define_key_maintain(struct GuiButton *gbtn)
 {
     long key_id;
     key_id = define_key_scroll_offset - ((long)gbtn->content) - 1;
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown08 * (key_id < GAME_KEYS_COUNT)) & LbBtnF_Unknown08;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (key_id < GAME_KEYS_COUNT)) & LbBtnF_Enabled;
 }
 
 void frontend_define_key_up(struct GuiButton *gbtn)
@@ -276,11 +276,11 @@ void gui_video_cluedo_maintain(struct GuiButton *gbtn)
     if (player->view_mode == PVM_FrontView)
     {
         gbtn->field_1B |= 0x8000;
-        gbtn->flags &= ~LbBtnF_Unknown08;
+        gbtn->flags &= ~LbBtnF_Enabled;
     } else
     {
         gbtn->field_1B = 0;
-        gbtn->flags |= LbBtnF_Unknown08;
+        gbtn->flags |= LbBtnF_Enabled;
     }
 }
 

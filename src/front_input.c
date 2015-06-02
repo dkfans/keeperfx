@@ -192,7 +192,7 @@ short get_screen_capture_inputs(void)
  */
 TbBool check_if_mouse_is_over_button(const struct GuiButton *gbtn)
 {
-    if ((gbtn->flags & LbBtnF_Unknown04) == 0)
+    if ((gbtn->flags & LbBtnF_Visible) == 0)
         return false;
     return check_if_pos_is_over_button(gbtn, GetMouseX(), GetMouseY());
 }

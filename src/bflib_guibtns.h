@@ -53,8 +53,8 @@ enum TbButtonType {
 enum TbButtonFlags {
     LbBtnF_Unknown01  =  0x01,  // Created, slot occupied
     LbBtnF_Unknown02  =  0x02,
-    LbBtnF_Unknown04  =  0x04,  // Enabled
-    LbBtnF_Unknown08  =  0x08,
+    LbBtnF_Visible    =  0x04,  /**< Informs if the button is visible and uses its drawing callback. If not set, the button is not being displayed. */
+    LbBtnF_Enabled    =  0x08,  /**< Informs if the button is enabled and can be clicked, or disabled and grayed out with no reaction to input. */
     LbBtnF_Unknown10  =  0x10,  // Mouse over
     LbBtnF_Unknown20  =  0x20,
     LbBtnF_Unknown40  =  0x40,
@@ -106,10 +106,10 @@ struct DraggingBox {
 };
 
 struct GuiButtonInit {
-    char field_0;
-    short field_1; // originally was long
-    short field_3; // unused
-    short field_5;
+    char gbtype; /**< GUI Button Type, directly copied to button instance. */
+    short id_num; /**< GUI Button ID, directly copied to button instance. */
+    short gbifield_3; // unused
+    unsigned short gbifield_5; // two bool values; maybe convert it to flags?
     Gf_Btn_Callback click_event;
     Gf_Btn_Callback rclick_event;
     Gf_Btn_Callback ptover_event;
@@ -125,8 +125,7 @@ struct GuiButtonInit {
     short tooltip_stridx;
     struct GuiMenu *parent_menu;
     union GuiVariant content;
-    char field_31;
-    char field_32;
+    short gbifield_31;
     Gf_Btn_Callback maintain_call;
 };
 
@@ -152,6 +151,7 @@ struct GuiButton {
        short sprite_idx;
        /** Tooltip string ID. Positive for GUI string, negative for campaign string. */
        short tooltip_stridx;
+       /** Max value. For cycle button - max value before returning to 0; for area input - max string length. */
        unsigned short field_2D;
        struct GuiMenu *parent_menu;
        unsigned long *content; //TODO FRONTEND change it to GuiVariant

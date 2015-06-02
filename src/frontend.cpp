@@ -151,36 +151,36 @@ TbClockMSec gui_message_timeout = 0;
 char gui_message_text[TEXT_BUFFER_LENGTH];
 
 struct GuiButtonInit frontend_main_menu_buttons[] = {
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,  26, 999,  26, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {1},            0, 0, NULL },
-  { 0,  0, 0, 0, frontend_start_new_game,NULL,frontend_over_button,     3, 999,  92, 999,  92, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {2},            0, 0, NULL },
-  { 0,  0, 0, 0, frontend_load_continue_game,NULL,frontend_over_button, 0, 999, 138, 999, 138, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {8},            0, 0, frontend_continue_game_maintain },
-  { 0,  0, 0, 0, frontend_ldcampaign_change_state,NULL,frontend_over_button,30,999,184,999,184,371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,     {106},            0, 0, NULL },
-  { 0,  0, 0, 0, frontend_change_state,NULL, frontend_over_button,    2, 999, 230,   999, 230, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {3},            0, 0, frontend_main_menu_load_game_maintain },
-  { 0,  0, 0, 0, frontend_netservice_change_state,NULL, frontend_over_button,4,999,276,999,276,371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {4},            0, 0, frontend_main_menu_netservice_maintain },
-  { 0,  0, 0, 0, frontend_change_state,NULL, frontend_over_button,   27, 999, 322,   999, 322, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,      {97},            0, 0, NULL },
-  { 0,  0, 0, 0, frontend_ldcampaign_change_state,NULL, frontend_over_button,18,999,368,999,368,371,46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,     {104},            0, 0, frontend_main_menu_highscores_maintain },
-  { 0,  0, 0, 0, frontend_change_state,NULL, frontend_over_button,      9, 999, 414, 999, 414, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {5},            0, 0, NULL },
-  {-1,  0, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,   0,  0, NULL,                             0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,  26, 999,  26, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {1},            0, NULL },
+  { 0,  0, 0, 0, frontend_start_new_game,NULL,frontend_over_button,     3, 999,  92, 999,  92, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {2},            0, NULL },
+  { 0,  0, 0, 0, frontend_load_continue_game,NULL,frontend_over_button, 0, 999, 138, 999, 138, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {8},            0, frontend_continue_game_maintain },
+  { 0,  0, 0, 0, frontend_ldcampaign_change_state,NULL,frontend_over_button,30,999,184,999,184,371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,     {106},            0, NULL },
+  { 0,  0, 0, 0, frontend_change_state,NULL, frontend_over_button,    2, 999, 230,   999, 230, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {3},            0, frontend_main_menu_load_game_maintain },
+  { 0,  0, 0, 0, frontend_netservice_change_state,NULL, frontend_over_button,4,999,276,999,276,371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {4},            0, frontend_main_menu_netservice_maintain },
+  { 0,  0, 0, 0, frontend_change_state,NULL, frontend_over_button,   27, 999, 322,   999, 322, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,      {97},            0, NULL },
+  { 0,  0, 0, 0, frontend_ldcampaign_change_state,NULL, frontend_over_button,18,999,368,999,368,371,46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,     {104},            0, frontend_main_menu_highscores_maintain },
+  { 0,  0, 0, 0, frontend_change_state,NULL, frontend_over_button,      9, 999, 414, 999, 414, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {5},            0, NULL },
+  {-1,  0, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,   0,  0, NULL,                             0, GUIStr_Empty,  0,       {0},            0, NULL },
 };
 
 struct GuiButtonInit frontend_statistics_buttons[] = {
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,  30, 999,  30,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {84},            0, 0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,  90, 999,  90,450,162, frontstats_draw_main_stats,        0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999, 260, 999, 260,450,136, frontstats_draw_scrolling_stats,   0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
-  { 0,  0, 0, 0, frontstats_leave,NULL,frontend_over_button,           18, 999, 404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {83},            0, 0, NULL },
-  {-1,  0, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,  30, 999,  30,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {84},            0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,  90, 999,  90,450,162, frontstats_draw_main_stats,        0, GUIStr_Empty,  0,       {0},            0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999, 260, 999, 260,450,136, frontstats_draw_scrolling_stats,   0, GUIStr_Empty,  0,       {0},            0, NULL },
+  { 0,  0, 0, 0, frontstats_leave,NULL,frontend_over_button,           18, 999, 404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {83},            0, NULL },
+  {-1,  0, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, NULL },
 };
 
 struct GuiButtonInit frontend_high_score_score_buttons[] = {
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,  30, 999,  30,495, 46, frontend_draw_vlarge_menu_button,  0, GUIStr_Empty,  0,      {85},            0, 0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,  97, 999,  97,450,286, frontend_draw_high_score_table,    0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
-  { 0,  0, 0, 0, frontend_quit_high_score_table,NULL,frontend_over_button,3,999,404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {83},            0, 0, frontend_maintain_high_score_ok_button },
-  {-1,  0, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,  30, 999,  30,495, 46, frontend_draw_vlarge_menu_button,  0, GUIStr_Empty,  0,      {85},            0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,  97, 999,  97,450,286, frontend_draw_high_score_table,    0, GUIStr_Empty,  0,       {0},            0, NULL },
+  { 0,  0, 0, 0, frontend_quit_high_score_table,NULL,frontend_over_button,3,999,404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {83},            0, frontend_maintain_high_score_ok_button },
+  {-1,  0, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, NULL },
 };
 
 struct GuiButtonInit frontend_error_box_buttons[] = {
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,   0, 999,   0,450, 92, frontend_draw_error_text_box,      0, GUIStr_Empty,  0,{(long)gui_message_text},0, 0, frontend_maintain_error_text_box},
-  {-1,  0, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,   0, 999,   0,450, 92, frontend_draw_error_text_box,      0, GUIStr_Empty,  0,{(long)gui_message_text},0, frontend_maintain_error_text_box},
+  {-1,  0, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, NULL },
 };
 
 
@@ -796,9 +796,9 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
 void maintain_loadsave(struct GuiButton *gbtn)
 {
     if ((game.system_flags & GSF_NetworkActive) == 0)
-        gbtn->flags |= LbBtnF_Unknown08;
+        gbtn->flags |= LbBtnF_Enabled;
     else
-        gbtn->flags &= ~LbBtnF_Unknown08;
+        gbtn->flags &= ~LbBtnF_Enabled;
 }
 
 void maintain_zoom_to_event(struct GuiButton *gbtn)
@@ -811,11 +811,11 @@ void maintain_zoom_to_event(struct GuiButton *gbtn)
       event = &(game.event[dungeon->visible_event_idx]);
       if ((event->mappos_x != 0) || (event->mappos_y != 0))
       {
-        gbtn->flags |= LbBtnF_Unknown08;
+        gbtn->flags |= LbBtnF_Enabled;
         return;
       }
     }
-    gbtn->flags &= ~LbBtnF_Unknown08;
+    gbtn->flags &= ~LbBtnF_Enabled;
 }
 
 void maintain_scroll_up(struct GuiButton *gbtn)
@@ -823,7 +823,7 @@ void maintain_scroll_up(struct GuiButton *gbtn)
     struct TextScrollWindow * scrollwnd;
     //_DK_maintain_scroll_up(gbtn);
     scrollwnd = (struct TextScrollWindow *)gbtn->content;
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown08 * (scrollwnd->start_y < 0)) & LbBtnF_Unknown08;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (scrollwnd->start_y < 0)) & LbBtnF_Enabled;
 }
 
 void maintain_scroll_down(struct GuiButton *gbtn)
@@ -831,34 +831,34 @@ void maintain_scroll_down(struct GuiButton *gbtn)
     struct TextScrollWindow * scrollwnd;
     //_DK_maintain_scroll_down(gbtn);
     scrollwnd = (struct TextScrollWindow *)gbtn->content;
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown08
-        * (scrollwnd->window_height - scrollwnd->text_height + 2 < scrollwnd->start_y)) & LbBtnF_Unknown08;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled
+        * (scrollwnd->window_height - scrollwnd->text_height + 2 < scrollwnd->start_y)) & LbBtnF_Enabled;
 }
 
 void frontend_continue_game_maintain(struct GuiButton *gbtn)
 {
     if (continue_game_option_available != 0)
-        gbtn->flags |= LbBtnF_Unknown08;
+        gbtn->flags |= LbBtnF_Enabled;
     else
-        gbtn->flags &= ~LbBtnF_Unknown08;
+        gbtn->flags &= ~LbBtnF_Enabled;
 }
 
 void frontend_main_menu_load_game_maintain(struct GuiButton *gbtn)
 {
     if (number_of_saved_games > 0)
-        gbtn->flags |= LbBtnF_Unknown08;
+        gbtn->flags |= LbBtnF_Enabled;
     else
-        gbtn->flags &= ~LbBtnF_Unknown08;
+        gbtn->flags &= ~LbBtnF_Enabled;
 }
 
 void frontend_main_menu_netservice_maintain(struct GuiButton *gbtn)
 {
-    gbtn->flags |= LbBtnF_Unknown08;
+    gbtn->flags |= LbBtnF_Enabled;
 }
 
 void frontend_main_menu_highscores_maintain(struct GuiButton *gbtn)
 {
-    gbtn->flags |= LbBtnF_Unknown08;
+    gbtn->flags |= LbBtnF_Enabled;
 }
 
 TbBool frontend_should_all_players_quit(void)
@@ -1156,7 +1156,7 @@ void draw_slider64k(long scr_x, long scr_y, int units_per_px, long width)
 
 void gui_area_slider(struct GuiButton *gbtn)
 {
-    if ((gbtn->flags & LbBtnF_Unknown08) == 0) {
+    if ((gbtn->flags & LbBtnF_Enabled) == 0) {
         return;
     }
     int units_per_px;
@@ -1250,7 +1250,7 @@ void frontend_draw_icon(struct GuiButton *gbtn)
 void frontend_draw_slider(struct GuiButton *gbtn)
 {
     //_DK_frontend_draw_slider(gbtn);
-    if ((gbtn->flags & LbBtnF_Unknown08) == 0) {
+    if ((gbtn->flags & LbBtnF_Enabled) == 0) {
         return;
     }
     int fs_units_per_px;
@@ -1282,7 +1282,7 @@ void frontend_draw_slider(struct GuiButton *gbtn)
 void frontend_draw_small_slider(struct GuiButton *gbtn)
 {
     //_DK_frontend_draw_small_slider(gbtn);
-    if ((gbtn->flags & LbBtnF_Unknown08) == 0) {
+    if ((gbtn->flags & LbBtnF_Enabled) == 0) {
         return;
     }
     int fs_units_per_px;
@@ -1311,7 +1311,7 @@ void frontend_draw_small_slider(struct GuiButton *gbtn)
 
 void gui_area_text(struct GuiButton *gbtn)
 {
-    if ((gbtn->flags & LbBtnF_Unknown08) == 0) {
+    if ((gbtn->flags & LbBtnF_Enabled) == 0) {
         return;
     }
     int bs_units_per_px;
@@ -1396,7 +1396,7 @@ void frontend_draw_text(struct GuiButton *gbtn)
 {
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
     int font_idx;
-    if ((gbtn->flags & LbBtnF_Unknown08) == 0)
+    if ((gbtn->flags & LbBtnF_Enabled) == 0)
         font_idx = 3;
     else
         font_idx = frontend_button_caption_font(gbtn, frontend_mouse_over_button);
@@ -1420,7 +1420,7 @@ void frontend_draw_enter_text(struct GuiButton *gbtn)
     if (gbtn == input_button) {
         font_idx = 2;
     } else
-    if ((gbtn->flags & LbBtnF_Unknown08) == 0) {
+    if ((gbtn->flags & LbBtnF_Enabled) == 0) {
         font_idx = 3;
     } else
     if ((gbtn->content != NULL) && (gbtn->field_1B == frontend_mouse_over_button)) {
@@ -1584,7 +1584,7 @@ void gui_area_scroll_window(struct GuiButton *gbtn)
     struct TextScrollWindow *scrollwnd;
     char *text;
     //_DK_gui_area_scroll_window(gbtn); return;
-    if ((gbtn->flags & LbBtnF_Unknown08) == 0) {
+    if ((gbtn->flags & LbBtnF_Enabled) == 0) {
         return;
     }
     scrollwnd = (struct TextScrollWindow *)gbtn->content;
@@ -1783,9 +1783,9 @@ void frontend_load_game_maintain(struct GuiButton *gbtn)
 {
     long game_index=load_game_scroll_offset+(long)(gbtn->content)-45;
     if (game_index < number_of_saved_games)
-        gbtn->flags |= LbBtnF_Unknown08;
+        gbtn->flags |= LbBtnF_Enabled;
     else
-        gbtn->flags &= ~LbBtnF_Unknown08;
+        gbtn->flags &= ~LbBtnF_Enabled;
 }
 
 void do_button_click_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Callback callback)
@@ -1798,7 +1798,7 @@ void do_button_click_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Ca
         if (s == &gbtn->gbactn_2)
             return;
     }
-    if ((gbtn->flags & LbBtnF_Unknown08) != 0)
+    if ((gbtn->flags & LbBtnF_Enabled) != 0)
     {
         switch (gbtn->gbtype)
         {
@@ -1838,7 +1838,7 @@ void do_button_press_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Ca
         if (s == &gbtn->gbactn_2)
             return;
     }
-    if ((gbtn->flags & LbBtnF_Unknown08) != 0)
+    if ((gbtn->flags & LbBtnF_Enabled) != 0)
     {
         switch (gbtn->gbtype)
         {
@@ -1882,7 +1882,7 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_
   case Lb_CYCLEBTN:
       i = *(unsigned char *)gbtn->content;
       i++;
-      if (gbtn->field_2D < i)
+      if (i > gbtn->field_2D)
           i = 0;
       *(unsigned char *)gbtn->content = i;
       if ((*s != 0) && (callback != NULL))
@@ -1994,9 +1994,9 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit, int units_
     struct GuiMenu *gmnuinit;
     gmnuinit = gmnu->menu_init;
     gbtn->gmenu_idx = gmnu->number;
-    gbtn->gbtype = gbinit->field_0;
-    gbtn->id_num = gbinit->field_1;
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown02 * (gbinit->field_5 & 0xff)) & LbBtnF_Unknown02;
+    gbtn->gbtype = gbinit->gbtype;
+    gbtn->id_num = gbinit->id_num;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown02 * (gbinit->gbifield_5 & 0xff)) & LbBtnF_Unknown02;
     gbtn->click_event = gbinit->click_event;
     gbtn->rclick_event = gbinit->rclick_event;
     gbtn->ptover_event = gbinit->ptover_event;
@@ -2008,13 +2008,13 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit, int units_
     gbtn->tooltip_stridx = gbinit->tooltip_stridx;
     gbtn->parent_menu = gbinit->parent_menu;
     gbtn->content = (unsigned long *)gbinit->content.lptr;
-    gbtn->field_2D = *(short *)&gbinit->field_31;
+    gbtn->field_2D = gbinit->gbifield_31;
     gbtn->maintain_call = gbinit->maintain_call;
-    gbtn->flags |= LbBtnF_Unknown08;
+    gbtn->flags |= LbBtnF_Enabled;
     gbtn->flags &= ~LbBtnF_Unknown10;
     gbtn->gbactn_1 = 0;
-    gbtn->flags |= LbBtnF_Unknown04;
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown20 * (gbinit->field_5 >> 8)) & LbBtnF_Unknown20;
+    gbtn->flags |= LbBtnF_Visible;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown20 * (gbinit->gbifield_5 >> 8)) & LbBtnF_Unknown20;
     if ((gbinit->scr_pos_x == 999) || (gbinit->pos_x == 999))
     {
         i = gmnu->pos_x + ((gmnuinit->width >> 1) - (gbinit->width >> 1)) * units_per_px / 16;
@@ -2213,7 +2213,7 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
     if (callback != NULL)
         callback(amnu);
     btninit = gmnu->buttons;
-    for (i=0; btninit[i].field_0 != -1; i++)
+    for (i=0; btninit[i].gbtype != -1; i++)
     {
         if (create_button(amnu, &btninit[i], units_per_px) == -1)
         {
@@ -2994,7 +2994,7 @@ void draw_menu_buttons(struct GuiMenu *gmnu)
     {
         gbtn = &active_buttons[i];
         callback = gbtn->draw_call;
-        if ((callback != NULL) && (gbtn->flags & LbBtnF_Unknown04) && (gbtn->flags & LbBtnF_Unknown01) && (gbtn->gmenu_idx == gmnu->number))
+        if ((callback != NULL) && (gbtn->flags & LbBtnF_Visible) && (gbtn->flags & LbBtnF_Unknown01) && (gbtn->gmenu_idx == gmnu->number))
         {
           if ( ((gbtn->gbactn_1 == 0) && (gbtn->gbactn_2 == 0)) || (gbtn->gbtype == Lb_SLIDERH) || (callback == gui_area_null) )
             callback(gbtn);
@@ -3005,7 +3005,7 @@ void draw_menu_buttons(struct GuiMenu *gmnu)
     {
         gbtn = &active_buttons[i];
         callback = gbtn->draw_call;
-        if ((callback != NULL) && (gbtn->flags & LbBtnF_Unknown04) && (gbtn->flags & LbBtnF_Unknown01) && (gbtn->gmenu_idx == gmnu->number))
+        if ((callback != NULL) && (gbtn->flags & LbBtnF_Visible) && (gbtn->flags & LbBtnF_Unknown01) && (gbtn->gmenu_idx == gmnu->number))
         {
           if (((gbtn->gbactn_1) || (gbtn->gbactn_2)) && (gbtn->gbtype != Lb_SLIDERH) && (callback != gui_area_null))
             callback(gbtn);
@@ -3088,7 +3088,7 @@ void draw_menu_spangle(struct GuiMenu *gmnu)
     for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
     {
         gbtn = &active_buttons[i];
-        if ((gbtn->draw_call == NULL) || ((gbtn->flags & LbBtnF_Unknown04) == 0) || ((gbtn->flags & LbBtnF_Unknown01) == 0) || (game.flash_button_index == 0))
+        if ((gbtn->draw_call == NULL) || ((gbtn->flags & LbBtnF_Visible) == 0) || ((gbtn->flags & LbBtnF_Unknown01) == 0) || (game.flash_button_index == 0))
           continue;
         in_range = 0;
         switch (gbtn->id_num)

@@ -62,9 +62,9 @@ void frontend_level_select_up_maintain(struct GuiButton *gbtn)
     if (gbtn == NULL)
         return;
     if (select_level_scroll_offset != 0)
-        gbtn->flags |= LbBtnF_Unknown08;
+        gbtn->flags |= LbBtnF_Enabled;
     else
-        gbtn->flags &=  ~LbBtnF_Unknown08;
+        gbtn->flags &=  ~LbBtnF_Enabled;
 }
 
 void frontend_level_select_down_maintain(struct GuiButton *gbtn)
@@ -72,9 +72,9 @@ void frontend_level_select_down_maintain(struct GuiButton *gbtn)
     if (gbtn == NULL)
         return;
     if (select_level_scroll_offset < number_of_freeplay_levels-frontend_select_level_items_visible+1)
-        gbtn->flags |= LbBtnF_Unknown08;
+        gbtn->flags |= LbBtnF_Enabled;
     else
-        gbtn->flags &=  ~LbBtnF_Unknown08;
+        gbtn->flags &=  ~LbBtnF_Enabled;
 }
 
 void frontend_level_select_maintain(struct GuiButton *gbtn)
@@ -84,9 +84,9 @@ void frontend_level_select_maintain(struct GuiButton *gbtn)
     long i;
     i = (long)gbtn->content - 45;
     if (select_level_scroll_offset+i < number_of_freeplay_levels)
-        gbtn->flags |= LbBtnF_Unknown08;
+        gbtn->flags |= LbBtnF_Enabled;
     else
-        gbtn->flags &=  ~LbBtnF_Unknown08;
+        gbtn->flags &=  ~LbBtnF_Enabled;
 }
 
 void frontend_draw_level_select_button(struct GuiButton *gbtn)
@@ -195,9 +195,9 @@ void frontend_campaign_select_up_maintain(struct GuiButton *gbtn)
     if (gbtn == NULL)
         return;
     if (select_campaign_scroll_offset != 0)
-        gbtn->flags |= LbBtnF_Unknown08;
+        gbtn->flags |= LbBtnF_Enabled;
     else
-        gbtn->flags &=  ~LbBtnF_Unknown08;
+        gbtn->flags &=  ~LbBtnF_Enabled;
 }
 
 void frontend_campaign_select_down_maintain(struct GuiButton *gbtn)
@@ -205,9 +205,9 @@ void frontend_campaign_select_down_maintain(struct GuiButton *gbtn)
     if (gbtn == NULL)
         return;
     if (select_campaign_scroll_offset < campaigns_list.items_num-frontend_select_campaign_items_visible+1)
-        gbtn->flags |= LbBtnF_Unknown08;
+        gbtn->flags |= LbBtnF_Enabled;
     else
-        gbtn->flags &=  ~LbBtnF_Unknown08;
+        gbtn->flags &=  ~LbBtnF_Enabled;
 }
 
 void frontend_campaign_select_maintain(struct GuiButton *gbtn)
@@ -219,9 +219,9 @@ void frontend_campaign_select_maintain(struct GuiButton *gbtn)
   btn_idx = (long)gbtn->content;
   i = select_campaign_scroll_offset + btn_idx-45;
   if (i < campaigns_list.items_num)
-      gbtn->flags |= LbBtnF_Unknown08;
+      gbtn->flags |= LbBtnF_Enabled;
   else
-      gbtn->flags &=  ~LbBtnF_Unknown08;
+      gbtn->flags &=  ~LbBtnF_Enabled;
 }
 
 void frontend_draw_campaign_select_button(struct GuiButton *gbtn)
