@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2015-05-27 11:45+0100\n"
+"PO-Revision-Date: 2015-06-03 00:10+0100\n"
 "Last-Translator: Ing. Jiří Vejda <jiri.vejda@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: cs_CZ\n"
@@ -90,8 +90,8 @@ msgid ""
 "If you want to make your creatures work harder, slap them by right clicking "
 "the Hand of Evil on them. Slapping will harm your creatures."
 msgstr ""
-"Pokud chces aby tve line potvory pracovaly rychleji, popozenes je kdyz na ne "
-"kliknes pravym tlacitkem mysi s funkci Ruka zla. Docela to funguje."
+"Pokud chceš aby tvé line potvory pracovaly rychleji, propleskni je pravým "
+"tlačítkem myši s funkcí Ruka zla. Proplesknutí zraní tvé příšery."
 
 #. Level Eversmile information while digging gold
 #: guitext:6
@@ -1788,7 +1788,8 @@ msgstr ""
 #: guitext:161
 msgctxt "In-game message"
 msgid "May I suggest that you kill or imprison anything that gets in your way?"
-msgstr "Navrhuji zabit nebo uveznit vsechny, kteri se ti postavi do cesty."
+msgstr ""
+"Mohu navrhnout zabít nebo uvěznit vsšchny, kteří se ti postaví do cesty?"
 
 #. Level Blaise End objective
 #: guitext:162
@@ -1988,12 +1989,12 @@ msgstr "Cosyton"
 #: guitext:204
 msgctxt "Level name"
 msgid "Waterdream Warm"
-msgstr "Waterdream Warm"
+msgstr "Teplý Vodnísen"
 
 #: guitext:205
 msgctxt "Level name"
 msgid "Flowerhat"
-msgstr "Flowerhat"
+msgstr "Kytičková Čepice"
 
 #: guitext:206
 msgctxt "Level name"
@@ -2013,7 +2014,7 @@ msgstr "Wishvale"
 #: guitext:209
 msgctxt "Level name"
 msgid "Tickle"
-msgstr "Tickle"
+msgstr "Šimrov"
 
 #: guitext:210
 msgctxt "Level name"
@@ -2028,7 +2029,7 @@ msgstr "Nevergrim"
 #: guitext:212
 msgctxt "Level name"
 msgid "Hearth"
-msgstr "Hearth"
+msgstr "Srdce"
 
 #: guitext:213
 msgctxt "Level name"
@@ -2038,12 +2039,12 @@ msgstr "Elfí Tanec"
 #: guitext:214
 msgctxt "Level name"
 msgid "Buffy Oak"
-msgstr "Buffy Oak"
+msgstr "Hmyzí buk"
 
 #: guitext:215
 msgctxt "Level name"
 msgid "Sleepiburgh"
-msgstr "Buffy Oak"
+msgstr "Spánkov"
 
 #: guitext:216
 msgctxt "Level name"
@@ -2068,7 +2069,7 @@ msgstr "Blaise End"
 #: guitext:220
 msgctxt "Level name"
 msgid "Mistle"
-msgstr "Mistle"
+msgstr "Jmelí"
 
 #: guitext:221
 msgctxt "Level name"
@@ -2308,6 +2309,7 @@ msgid ""
 msgstr "Nemoc:"
 
 #: guitext:256
+#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Chicken: Turns enemy into chicken for a while. The enemy isn't able to "
@@ -2316,6 +2318,7 @@ msgid ""
 msgstr "Kure:"
 
 #: guitext:257
+#, fuzzy
 msgctxt "Creature spell"
 msgid "Time Bomb: Turns your creature into a suicidal bomber."
 msgstr "Casovana bomba:"
@@ -2622,7 +2625,7 @@ msgstr "Branit se: Obluda se bude snazit ubranit protivnikovym utokum."
 #: guitext:309
 msgctxt "In-game interface item"
 msgid "Are you sure?"
-msgstr "Myslis to vazne?"
+msgstr "Jsi si jistý?"
 
 #: guitext:310
 msgctxt "In-game interface item"
@@ -2674,7 +2677,7 @@ msgstr ""
 #: guitext:317
 msgctxt "In-game interface description"
 msgid "Gamma Correction: Adjust the brightness of the game. LMB toggle."
-msgstr "Gamma korekce: Nastavuje jasnost obrazu. Voli se LTM. [3.2.2]"
+msgstr "Gamma korekce: Nastavuje jasnost obrazu. Volí se LTM. [3.2.2]"
 
 #: guitext:318
 msgctxt "In-game interface item"
@@ -2796,7 +2799,7 @@ msgstr "Více..."
 #: guitext:334
 msgctxt "In-game message"
 msgid "Level completed - press Escape to continue"
-msgstr "Dokoncil jsi uroven - pro pokracovani zmackni Esc"
+msgstr "Úroveň dokončena - pro pokračování stiskni Esc"
 
 #: guitext:335
 msgctxt "In-game message"
@@ -2844,19 +2847,16 @@ msgid "Load Menu"
 msgstr "Menu načtení"
 
 #: guitext:345
-#, fuzzy
 msgctxt "Menu interface, Main Menu item"
 msgid "Load Game"
 msgstr "Načíst hru"
 
 #: guitext:346
-#, fuzzy
 msgctxt "Menu interface, Main Menu item"
 msgid "Continue Game"
 msgstr "Pokračovat ve hře"
 
 #: guitext:347
-#, fuzzy
 msgctxt "Menu interface, Main Menu item"
 msgid "Multiplayer"
 msgstr "Hra více hráčů"
@@ -2917,13 +2917,11 @@ msgid "UNUSED"
 msgstr "NEPOUŽITO"
 
 #: guitext:359
-#, fuzzy
 msgctxt "Menu interface, Main Menu item"
 msgid "Quit"
 msgstr "Ukončit"
 
 #: guitext:360
-#, fuzzy
 msgctxt "Menu interface, Main Menu item"
 msgid "Start New Game"
 msgstr "Začít novou hru"
@@ -4257,7 +4255,7 @@ msgstr "Mucirna"
 #: guitext:603
 msgctxt "Room name"
 msgid "Training Room"
-msgstr "Tréningová místnost"
+msgstr "Tréninková místnost"
 
 #: guitext:604
 msgctxt "Room name"
@@ -4530,7 +4528,7 @@ msgstr "Armagedon"
 msgctxt "Keeper spell description"
 msgid "Possess Creature: Control a creature directly. LMB select. [18.1]"
 msgstr ""
-"Ovladnout příšeru: Umozni ti primo ovladat vybrané stvoření. Zvoli se LTM. "
+"Ovládnout příšeru: Umožní ti přímo ovládat vybrané stvoření. Zvolí se LTM. "
 "[18.1]"
 
 #: guitext:648
@@ -4784,32 +4782,32 @@ msgstr "Byla nalezena bedna s pastí"
 #: guitext:688
 msgctxt "Game event name"
 msgid "Door crate found"
-msgstr "Byla nelezena bedna s dveřmi"
+msgstr "Byla nalezena bedna s dveřmi"
 
 #: guitext:689
 msgctxt "Game event name"
 msgid "Dungeon Special found"
-msgstr "Nalezen zvlastni bonus kobky"
+msgstr "Nalezen zvlaštní bonus kobky"
 
 #: guitext:690
 msgctxt "Game event description"
 msgid "Treasure Room full: LMB toggle. RMB delete."
-msgstr "Pokladnice je plna: LTM prepnout, PTM smazat."
+msgstr "Pokladnice je plná: LTM přepnout, PTM smazat."
 
 #: guitext:691
 msgctxt "Game event description"
 msgid "Creature being scavenged: LMB toggle. RMB delete."
-msgstr "Nekdo ocistuje tve obludy: LTM prepnout, PTM smazat."
+msgstr "Příšera je očišťována: LTM přepnout, PTM smazat."
 
 #: guitext:692
 msgctxt "Game event description"
 msgid "Creature Payday: LMB toggle. RMB delete."
-msgstr "Vyplatni den: LTM prepnout, PTM smazat."
+msgstr "Den výplaty: LTM přepnout, PTM smazat."
 
 #: guitext:693
 msgctxt "Game event description"
 msgid "New spell picked up: LMB toggle. RMB delete."
-msgstr "Bylo nalezeno nove kouzlo: LTM prepnout, PTM smazat."
+msgstr "Nalezeno nové kouzlo: LTM přepnout, PTM smazat."
 
 #: guitext:694
 msgctxt "Game event description"
@@ -4834,7 +4832,7 @@ msgstr "Ztratil jsi mistnost: LTM prepnout, PTM smazat."
 #: guitext:698
 msgctxt "Game event description"
 msgid "Dungeon Heart Attacked: LMB toggle. RMB delete."
-msgstr "Srdce sklepeni je pod útokem: LTM prepnout, PTM smazat."
+msgstr "Srdce sklepení je pod útokem: LTM prepnout, PTM smazat."
 
 #: guitext:699
 msgctxt "Game event description"
@@ -4844,82 +4842,82 @@ msgstr "Boj: LTM prepnout, PTM smazat. [10.5]"
 #: guitext:700
 msgctxt "Game event description"
 msgid "Objective: LMB toggle. [11.3]"
-msgstr "Úkol: Prepina se LTM. [11.3]"
+msgstr "Úkol: Přepíná se LTM. [11.3]"
 
 #: guitext:701
 msgctxt "Game event description"
 msgid "Breach: LMB toggle. RMB delete."
-msgstr "Prunik nepratel: LTM prepnout, PTM smazat."
+msgstr "Průnik nepřátel: LTM přepnout, PTM smazat."
 
 #: guitext:702
 msgctxt "Game event description"
 msgid "New spell researched: LMB toggle. RMB delete."
-msgstr "Objeveno nové kouzlo: LTM prepnout, PTM smazat."
+msgstr "Objeveno nové kouzlo: LTM přepnout, PTM smazat."
 
 #: guitext:703
 msgctxt "Game event description"
 msgid "New room researched: LMB toggle. RMB delete."
-msgstr "Vynalezen nový typ místnosti: LTM prepnout, PTM smazat."
+msgstr "Vynalezen nový typ místnosti: LTM přepnout, PTM smazat."
 
 #: guitext:704
 msgctxt "Game event description"
 msgid "New trap: LMB toggle. RMB delete."
-msgstr "Nova past: LTM prepnout, PTM smazat."
+msgstr "Nová past: LTM přepnout, PTM smazat."
 
 #: guitext:705
 msgctxt "Game event description"
 msgid "New door: LMB toggle. RMB delete."
-msgstr "Nove dvere: LTM prepnout, PTM smazat."
+msgstr "Nové dveře: LTM přepnout, PTM smazat."
 
 #: guitext:706
 msgctxt "Game event description"
 msgid "New creature in dungeon: LMB toggle. RMB delete."
-msgstr "Ve tvem sklepeni se objevila nova obluda: LTM prepnout, PTM smazat."
+msgstr "Ve sklepení se objevila nová obluda: LTM přepnout, PTM smazat."
 
 #: guitext:707
 msgctxt "Game event description"
 msgid "Creature is annoyed: LMB toggle. RMB delete."
-msgstr "Obluda je nespokojena: LTM prepnout, PTM smazat."
+msgstr "Obluda je otrávená: LTM přepnout, PTM smazat."
 
 #: guitext:708
 msgctxt "Game event description"
 msgid "No more living set: LMB toggle. RMB delete."
-msgstr "Nemas prostor pro obludy: LTM prepnout, PTM smazat."
+msgstr "Žádný volný životní prostor: LTM přepnout, PTM smazat."
 
 #: guitext:709
 msgctxt "Game event description"
 msgid "Alarm triggered: LMB toggle. RMB delete."
-msgstr "Byl spusten poplach: LTM prepnout, PTM smazat."
+msgstr "Byl spuštěn poplach: LTM přepnout, PTM smazat."
 
 #: guitext:710
 msgctxt "Game event description"
 msgid "Room under attack: LMB toggle. RMB delete."
-msgstr "Na mistnost nekdo utoci: LTM prepnout, PTM smazat."
+msgstr "Místnost pod útokem: LTM přepnout, PTM smazat."
 
 #: guitext:711
 msgctxt "Game event description"
 msgid "Need Treasure Room: LMB toggle. RMB delete."
-msgstr "Potrebujes pokladnici: LTM prepnout, PTM smazat."
+msgstr "Potrebuješ pokladnici: LTM přepnout, PTM smazat."
 
 #: guitext:712
 msgctxt "Game event description"
 msgid "Creatures becoming hungry: LMB toggle. RMB delete."
-msgstr "Příšery začínají být hladové: LTM prepnout, PTM smazat."
+msgstr "Příšery začínají být hladové: LTM přepnout, PTM smazat."
 
 #: guitext:713
 msgctxt "Game event description"
 msgid "Trap crate found: LMB toggle. RMB delete."
-msgstr "Byla nalezena nepouzita past: LTM prepnout, PTM smazat."
+msgstr "Byla nalezena bedna s pastí: LTM přepnout, PTM smazat."
 
 #: guitext:714
 msgctxt "Game event description"
 msgid "Door crate found: LMB toggle. RMB delete."
-msgstr "Byly nalezeny nepouzite dvere: LTM prepnout, PTM smazat."
+msgstr "Byla nalezena bedna s dveřmi: LTM přepnout, PTM smazat."
 
 #: guitext:715
 msgctxt "Game event description"
 msgid "Dungeon special found: LMB toggle. RMB delete."
-msgstr "Byl nalezen zvlastni bonus: LTM prepnout, PTM smazat."
+msgstr "Byl nalezen zvláštní bonus: LTM přepnout, PTM smazat."
 
 #: guitext:716
 msgctxt "Menu interface, Main Menu item; In-game interface, Options title"
@@ -5046,7 +5044,7 @@ msgstr ""
 msgctxt "In-game interface description"
 msgid "Pick fighting creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
 msgstr ""
-"Vybrat bojujici obludu: LTM vybere obludu, PTM zobrazi detail. [22.2.1]"
+"Vybrat bojující obludy: LTM zvedneš obludu, PTM zobrazí detail. [22.2.1]"
 
 #: guitext:737
 msgctxt "In-game interface description"
@@ -5054,7 +5052,7 @@ msgid ""
 "Invert Mouse: Inverts the vertical mouse movements while Possessing a "
 "creature. LMB toggle."
 msgstr ""
-"Prevracena mys: Prevrati vertikalni pohyb mysi pri Ovladani obludy. Prepina "
+"Prevrácená myš: Převráti vertikální pohyb myši při Ovládání obludy. Přepíná "
 "se LTM."
 
 #: guitext:738
@@ -5134,7 +5132,7 @@ msgstr "Prohraných bitev"
 #: guitext:752
 msgctxt "Statistic name"
 msgid "Times Dungeon Breached"
-msgstr ""
+msgstr "Počet narušení sklepení"
 
 #: guitext:753
 msgctxt "Statistic name"
@@ -5167,16 +5165,14 @@ msgid "Ideas Researched"
 msgstr "Vynalezeno kouzel"
 
 #: guitext:759
-#, fuzzy
 msgctxt "Statistic name"
 msgid "Creatures Scavenged"
-msgstr "Tví přisluhovači jsou naštvaní"
+msgstr "Odklizeno příšer"
 
 #: guitext:760
-#, fuzzy
 msgctxt "Statistic name"
 msgid "Creatures Summoned"
-msgstr "Tví přisluhovači jsou naštvaní"
+msgstr "Vyvolaných příšer"
 
 #: guitext:761
 msgctxt "Statistic name"
@@ -5196,7 +5192,7 @@ msgstr "Vytrénováno příšer"
 #: guitext:764
 msgctxt "Statistic name"
 msgid "Gold Pots Stolen"
-msgstr ""
+msgstr "Ukradeno hrnců zlata"
 
 #: guitext:765
 msgctxt "Statistic name"
@@ -5246,7 +5242,7 @@ msgstr "Zavalení"
 #: guitext:774
 msgctxt "Statistic name"
 msgid "Skeletons Raised"
-msgstr "Vychováno Kostliveců"
+msgstr "Vychováno Kostlivců"
 
 #: guitext:775
 msgctxt "Statistic name"
@@ -5296,93 +5292,87 @@ msgstr "Zabrané území"
 #: guitext:784
 msgctxt "Statistic name"
 msgid "Backs Stabbed"
-msgstr ""
+msgstr "Bodnutí do zad"
 
 #: guitext:785
-#, fuzzy
 msgctxt "Statistic name"
 msgid "Chickens Hatched"
-msgstr "Drůbežátor"
+msgstr "Vylíhnuto kuřat"
 
 #: guitext:786
-#, fuzzy
 msgctxt "Statistic name"
 msgid "Chickens Eaten"
-msgstr "Drůbežátor"
+msgstr "Snědeno kuřat"
 
 #: guitext:787
 msgctxt "Statistic name"
 msgid "Hopes Dashed"
-msgstr ""
+msgstr "Roztříštěných nadějí"
 
 #: guitext:788
 msgctxt "Statistic name"
 msgid "Promises Broken"
-msgstr ""
+msgstr "Porušeno slibů"
 
 #: guitext:789
 msgctxt "Statistic name"
 msgid "Ghosts Raised"
-msgstr ""
+msgstr "Vychováno Duchů"
 
 #: guitext:790
 msgctxt "Statistic name"
 msgid "Doors Used"
-msgstr ""
+msgstr "Použito dveří"
 
 #: guitext:791
 msgctxt "Statistic name"
 msgid "Your Creatures Killed By You"
-msgstr ""
+msgstr "Příšery, které ji zabil"
 
 #: guitext:792
 msgctxt "Statistic name"
 msgid "Things Researched"
-msgstr ""
+msgstr "Vynalezeno věcí"
 
 #: guitext:793
-#, fuzzy
 msgctxt "Statistic name"
 msgid "Last Creature Attracted"
-msgstr "Tví přisluhovači jsou naštvaní"
+msgstr "Poslední přilákaná příšera"
 
 #: guitext:794
 msgctxt "Statistic name"
 msgid "Items Manufactured"
-msgstr ""
+msgstr "Vyrobeno přednětů"
 
 #: guitext:795
-#, fuzzy
 msgctxt "Statistic name"
 msgid "Creatures Converted"
-msgstr "Tví přisluhovači jsou naštvaní"
+msgstr "Konvertováno příšer"
 
 #: guitext:796
 msgctxt "Statistic name"
 msgid "Territory Lost"
-msgstr ""
+msgstr "Ztraceno území"
 
 #: guitext:797
 msgctxt "Statistic name"
 msgid "Traps Armed"
-msgstr ""
+msgstr "Odjištěno pastí"
 
 #: guitext:798
-#, fuzzy
 msgctxt "Statistic name"
 msgid "Chickens Wasted"
-msgstr "Drůbežátor"
+msgstr "Vyplýtváno kuřat"
 
 #: guitext:799
 msgctxt "Statistic name"
 msgid "Lies Told"
-msgstr ""
+msgstr "Vysloveno lží"
 
 #: guitext:800
-#, fuzzy
 msgctxt "Statistic name"
 msgid "Creatures Annoyed"
-msgstr "Tví přisluhovači jsou naštvaní"
+msgstr "Rozmrzelých příšer"
 
 #: guitext:801
 msgctxt "Statistic name"
@@ -5551,6 +5541,8 @@ msgid ""
 "If your creatures get unhappy, slap some sense into them. They'll soon "
 "realise how lucky they are."
 msgstr ""
+"Pokud tvé příšery začnou být nešťasné, proliskuj je, aby dostaly rozum. Brzy "
+"jim dojde, jak šťasné jsou."
 
 #: guitext:832
 msgctxt "In-game hint message"
@@ -5591,7 +5583,7 @@ msgstr ""
 #: guitext:837
 msgctxt "In-game hint message"
 msgid "He who controls the most gold controls the entire Underworld."
-msgstr ""
+msgstr "Ten, kdo kontroluje nejvíce zlata, kontroluje celé podsvětí."
 
 #: guitext:838
 msgctxt "In-game hint message"
@@ -5609,20 +5601,19 @@ msgstr ""
 "přisluhovačům."
 
 #: guitext:840
-#, fuzzy
 msgctxt "Menu interface item"
 msgid "Return to options menu"
-msgstr "Návrat do hlavního menu"
+msgstr "Návrat do menu nastavení"
 
 #: guitext:841
 msgctxt "Menu interface item"
 msgid "Exit"
-msgstr ""
+msgstr "Ukončit"
 
 #: guitext:842
 msgctxt "Menu interface item"
 msgid "Audio"
-msgstr ""
+msgstr "Zvuk"
 
 #: guitext:843
 msgctxt "Menu interface item"
@@ -5630,10 +5621,9 @@ msgid "Invert Mouse"
 msgstr "Prohodit tlačítka myši"
 
 #: guitext:844
-#, fuzzy
 msgctxt "Menu interface item"
 msgid "Mouse Sensitivity"
-msgstr "Citlivejsi."
+msgstr "Citlivost myši"
 
 #: guitext:845
 msgctxt "Menu interface item"
@@ -5641,10 +5631,9 @@ msgid "Computer"
 msgstr "Počítač"
 
 #: guitext:846
-#, fuzzy
 msgctxt "Menu interface item"
 msgid "Computer Players"
-msgstr "Počítačový asistent"
+msgstr "Počítačový hráč"
 
 #: guitext:847
 msgctxt "Menu interface item"
@@ -5674,7 +5663,7 @@ msgstr "Myš"
 #: guitext:852
 msgctxt "Menu interface item"
 msgid "Undo Pickup"
-msgstr ""
+msgstr "Zpět zvednutí"
 
 #: guitext:853
 msgctxt "Menu interface item"
@@ -5744,7 +5733,7 @@ msgstr "Testeři jazykového překladu"
 #: guitext:867
 msgctxt "Credits"
 msgid "Localisation Audio Management"
-msgstr ""
+msgstr "Management lokalizace zvuku"
 
 #: guitext:868
 msgctxt "Network game message"
@@ -5854,7 +5843,7 @@ msgstr "Nové úrovně"
 #: guitext:889
 msgctxt "Menu interface message"
 msgid "Please insert Data Disk CD-ROM"
-msgstr "Prosím vložte disck CD-ROM"
+msgstr "Prosím vložte disk CD-ROM"
 
 #: guitext:890
 msgctxt "Menu interface message"
@@ -6050,6 +6039,8 @@ msgid ""
 "Choices, choices Keeper. Choose your path wisely. Some routes are more "
 "perilous than others ..."
 msgstr ""
+"Volby, volby Správče. Vyber svou cestu moudře. Některé mohou být "
+"riskantnější než jiné ..."
 
 #. DD Level Caddis Fell objective after good destroyed
 #: guitext:914
@@ -6124,13 +6115,15 @@ msgid ""
 "goodness still hangs in the air. Kill the Avatar and send his soul to "
 "eternal damnation."
 msgstr ""
+"Nyní jsi v srdci Avatarova hradu. Lepivý sladky pach dobroty stále visí ve "
+"vzduchu. Zabij Avatara a pošli jeho duši do věčného zapomnění."
 
 #. DD Levels generic information after finding a Mistress
 #: guitext:923
 msgctxt "In-game message"
 msgid ""
 "Well done, Keeper. The Mistress you have discovered is an excellent prize."
-msgstr ""
+msgstr "Velmi dobře, Správče. Milenka, kterou jsi objevil, je perfekní cena."
 
 #. DD Levels generic information after finding a Bile Demon
 #: guitext:924
@@ -6139,6 +6132,8 @@ msgid ""
 "The Bile Demon you have rescued will be a valuable but hungry asset to your "
 "dungeon. Make sure your Hatchery can satisfy his voracious appetite."
 msgstr ""
+"Žlučový démon, kterého si zachránil, bude cenná, ale hladová,  pomoc pro tvé "
+"sklepení."
 
 #. DD Level Dixaroc first objective
 #: guitext:925
@@ -6148,19 +6143,22 @@ msgid ""
 "Spider and explore the realm. Find the Wizard, kill him and make an example "
 "of his foolishness."
 msgstr ""
+"Vychytralý kouzelník tě obral o tvé magické síly. Použij pouze své pavouky a "
+"prozkoumej zemi. Najdi kouzelníka, zabij ho a udělej z jeho pošetilosti "
+"ukázkový příklad."
 
 #. DD Level Dixaroc information after getting Imps
 #: guitext:926
 msgctxt "In-game message"
 msgid "You have found some Imps who consider it a great honour to serve you."
-msgstr ""
+msgstr "Našel jsi nějaké skřety, kteří považují za velkou čest ti sloužit."
 
 #. DD Levels Dixaroc information after finding Bile Demons
 #: guitext:927
 msgctxt "In-game message"
 msgid ""
 "You have discovered a group of Bile Demons who will aid you in your fight."
-msgstr ""
+msgstr "Nalezl jsi skupini Žlučových démonů, kteří tě podpoří v tvém boji."
 
 #. DD Level Dixaroc information just after PLAYER1 destroyed
 #: guitext:928
@@ -6170,12 +6168,15 @@ msgid ""
 "now have the ability to build Bridges. Dig deeper and you may find more "
 "secrets to strengthen your powers."
 msgstr ""
+"Zničení tohoto ubohého správce sebou přináší užitečný bonus. Od teď más "
+"schopnost stavět mosty. Kopej hlouběji a můžeš nalézt víc tajemství, které "
+"tě posílí."
 
 #. DD Level Dixaroc information some time after PLAYER1 destroyed
 #: guitext:929
 msgctxt "In-game message"
 msgid "A warning, Keeper. There is a stench of hero in the air."
-msgstr ""
+msgstr "Varování správče. Ve vzduchu je cítit pach hrdiny."
 
 #. DD Level Dixaroc information after AP reached
 #: guitext:930
@@ -6184,6 +6185,8 @@ msgid ""
 "You have done well to get this far Keeper. Do not become complacent, "
 "however. A great struggle lies ahead."
 msgstr ""
+"Doteď jsi si vedl dobře, Správče. Nenech se ale ukolébat. Velký zápas máš "
+"před sebou."
 
 #. DD Level Dixaroc information after AP reached
 #: guitext:931
@@ -6192,6 +6195,7 @@ msgid ""
 "Before you lies the Wizard's domain. Defeat him and you will regain your "
 "powers."
 msgstr ""
+"Před tebou leží panství Kouzelníka. Poraž jej a získáš zpět své magické síly."
 
 #. DD Level Dixaroc objective after wizard is dead
 #: guitext:932
@@ -6200,6 +6204,8 @@ msgid ""
 "Your magical powers are restored Keeper. You can finally show these fools "
 "what you are made of."
 msgstr ""
+"Správče, tvé magické síly byly obnoveny. Teď můžeš ukázat těm hlupákům, co "
+"jsi zač."
 
 #. DD Level Caddis Fell objective after AP reached
 #: guitext:933
@@ -6209,6 +6215,9 @@ msgid ""
 "control of your Vampire and use him to find and kill the Lord of the Land. "
 "If you succeed, the Vampire will join you in the next realm."
 msgstr ""
+"Černý stín se příží nad touto zemí. Teď je čas zaútočit. Převezmi kontrolu "
+"nad svým upírem a použij ho k nalezení a zabití pána země. Pokud uspěješ, "
+"upíse se k tobě v další říši přidá."
 
 #. DD Level Belial information after winning
 #: guitext:934
@@ -6217,6 +6226,8 @@ msgid ""
 "Your achievements are legendary Keeper. Tales of your evil and cunning will "
 "become the horror stories of generations."
 msgstr ""
+"Strážce, Tvé úspěchy jsou legendární. Povídky o tvém zlu a mazanosti se "
+"stanou děsivými příběhy po generace."
 
 #: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
 msgctxt "Unused"
@@ -6246,24 +6257,23 @@ msgstr "Přidat počítač"
 #: guitext:945
 msgctxt "Game event name"
 msgid "Your creature cannot reach the room it needs"
-msgstr ""
+msgstr "Tvá příšera se není schopna dostat do místnosti kam potřebuje jít."
 
 #: guitext:946
-#, fuzzy
 msgctxt "Game event description"
 msgid "Work room unreachable: LMB toggle. RMB delete."
-msgstr "Work room unreachable: LTM prepnout, PTM smazat."
+msgstr "Pracovna není dostupná: LTM přepnout, PTM smazat."
 
 #: guitext:947
 msgctxt "Game event name"
 msgid "Your Imp cannot reach a room to drag something into"
 msgstr ""
+"Tvůj Imp se není schopen dostat do místnosti kde potřebuje něco donést."
 
 #: guitext:948
-#, fuzzy
 msgctxt "Game event description"
 msgid "Storage room unreachable: LMB toggle. RMB delete."
-msgstr "Storage room unreachable: LTM prepnout, PTM smazat."
+msgstr "Sklad není dostupný: LTM přepnout, PTM smazat."
 
 #: guitext:949
 msgctxt "In-game interface description"
@@ -6271,55 +6281,60 @@ msgid ""
 "Armour: Part of the damage which won't affect creature health. The higher "
 "the number, the larger part of damage is discarded."
 msgstr ""
+"Brnění: Část zranění, které nebude působit na příšeru. Čím větší je, tím "
+"více zranění je ignorováno."
 
 #: guitext:950
 msgctxt "In-game interface description"
 msgid "Speed: How fast the creature moves and perform its dungeon tasks."
-msgstr ""
+msgstr "Rychlost: Jak rychle se příšera pohybuje a vykonává činnosti v kobce."
 
 #: guitext:951
 msgctxt "In-game interface description"
 msgid "Loyalty: How resistant the creature is against scavenging by the enemy."
-msgstr ""
+msgstr "Loajalita: Odolnost je příšery proti přiklonění k nepříteli."
 
 #: guitext:952
 msgctxt "In-game interface description"
 msgid "Research Skill: unused."
-msgstr ""
+msgstr "Schopnost výzkum: nepoužito."
 
 #: guitext:953
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Manufacture Skill: How fast the creature works in Workshop. The higher the "
 "Skill level, the better the creature's performance."
-msgstr "Uroven: Zobrazi nakolik je obluda schopna splnit ukol."
+msgstr ""
+"Schopnost výroba: Rychlost práce příšery v dílně. Čím vyšší zkušenost, tím "
+"lepší výkonnost příšery."
 
 #: guitext:954
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Training Skill: How fast the creature works on training. The higher the "
 "Skill level, the better the creature's performance."
-msgstr "Uroven: Zobrazi nakolik je obluda schopna splnit ukol."
+msgstr ""
+"Schopnost trénování: Rychlost tréninku příšery. Čím vyšší zkušenost, tím "
+"lepší výkonnost příšery."
 
 #: guitext:955
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Scavenge Skill: How fast the creature works on scavenging. The higher the "
 "Skill level, the better the creature's performance."
-msgstr "Uroven: Zobrazi nakolik je obluda schopna splnit ukol."
+msgstr ""
+"Schopnost točišťování: Jak rychle příšer a očišťuje. Čím vyšší zkušenost, "
+"tím lepší výkonnost příšery."
 
 #: guitext:956
 msgctxt "In-game interface description"
 msgid "Training Cost: Gold used for training the creature."
-msgstr ""
+msgstr "Náklady na trénink: Zlato použité na trénink příšer."
 
 #: guitext:957
 msgctxt "In-game interface description"
 msgid "Scavenge Cost: Gold used for scavenging by the creature."
-msgstr ""
+msgstr "Cena přilákání: Zlato, které je potřeba, k přilákání příšery."
 
 #: guitext:958
 msgctxt "In-game interface description"
@@ -6327,6 +6342,8 @@ msgid ""
 "Best Damage: How much harm can be made by the strongest attack the creature "
 "has."
 msgstr ""
+"Největší poškození: Jaké zranění může příšera způsobil svým nejsilnějším "
+"útokem."
 
 #: guitext:959
 msgctxt "In-game interface description"
@@ -6334,16 +6351,17 @@ msgid ""
 "Weight: Mass of the creature. Some people say overweight can lead to heart "
 "attack."
 msgstr ""
+"Váha: Hmotnost příšery. Někteří říkají, že nadváha může vést k infarktu."
 
 #: guitext:960
 msgctxt "Keeper spell name"
 msgid "Hand Of Evil"
-msgstr ""
+msgstr "Ruka zla"
 
 #: guitext:961
 msgctxt "Keeper spell name"
 msgid "Slap"
-msgstr ""
+msgstr "Proplesknutí"
 
 #: guitext:962
 msgctxt "Keeper spell description"
@@ -6351,17 +6369,17 @@ msgid ""
 "Hand Of Evil: Ability to pick up your creatures and hold them in your hand. "
 "Just don't hold them forever or they may get irritated."
 msgstr ""
+"Ruka zla: Schopnost zvednout příšeru a držet ji ve své ruce. Jen to nedělej "
+"příliš dlouho, může se naštvat."
 
 #: guitext:963
-#, fuzzy
 msgctxt "Keeper spell description"
 msgid ""
 "Slap: Makes your creatures work harder, for some time. Your creatures take "
 "some damage from each slap they receive."
 msgstr ""
-"Pravym kliknutim Rukou zla prinutis tve potvory, aby pracovaly rychleji. "
-"Kazdy takovy uder jim vsak ubere trochu zivota. Rana pesti je holt rana "
-"pesti."
+"Proplesknutí: Přinutí tvé potvory pracovat rychleji. Každý takový úder jim "
+"však ubere trochu života."
 
 #~ msgctxt "In-game message"
 #~ msgid "Your manufacturers have crafted the Lava Trap."
