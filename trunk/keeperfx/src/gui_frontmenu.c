@@ -47,7 +47,7 @@ int first_monopoly_menu(void)
   for (idx=0; idx < ACTIVE_MENUS_COUNT; idx++)
   {
     gmnu = &active_menus[idx];
-    if ((gmnu->visibility != Visibility_NoExist) && (gmnu->isMonopolyMenu))
+    if ((gmnu->visibility != Visibility_NoExist) && (gmnu->is_monopoly_menu))
         return idx;
   }
   return -1;
@@ -82,7 +82,7 @@ int point_is_over_gui_menu(long x, long y)
       gmnu=&active_menus[idx];
       if (gmnu->visibility != Visibility_Fading)
           continue;
-      if (gmnu->isTurnedOn == 0)
+      if (gmnu->is_turned_on == 0)
           continue;
       short gx = gmnu->pos_x;
       if ((x >= gx) && (x < gx+gmnu->width))
@@ -346,7 +346,7 @@ void turn_on_menu(MenuID mnu_idx)
     SYNCDBG(8,"Menu ID %d",(int)mnu_idx);
     struct GuiMenu *gmnu;
     gmnu = menu_list[mnu_idx];
-    if ((create_menu(gmnu) >= 0) && (gmnu->isTab))
+    if ((create_menu(gmnu) >= 0) && (gmnu->is_tab))
     {
         game.activeTab = mnu_idx;
     }
@@ -358,7 +358,7 @@ void set_menu_visible_on(MenuID menu_id)
     menu_num = menu_id_to_number(menu_id);
     if (menu_num < 0)
       return;
-    get_active_menu(menu_num)->isTurnedOn = 1;
+    get_active_menu(menu_num)->is_turned_on = 1;
 
     if (menu_id == GMnu_MAIN)
     {
@@ -385,7 +385,7 @@ void set_menu_visible_off(MenuID menu_id)
     menu_num = menu_id_to_number(menu_id);
     if (menu_num < 0)
       return;
-    get_active_menu(menu_num)->isTurnedOn = 0;
+    get_active_menu(menu_num)->is_turned_on = 0;
     if (menu_id == GMnu_MAIN)
     {
         lbDisplayEx.mainPanelWidth = 0;

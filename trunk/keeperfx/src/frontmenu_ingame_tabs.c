@@ -930,10 +930,10 @@ void maintain_big_spell(struct GuiButton *gbtn)
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(my_player_number);
     if (dungeon->magic_level[spl_idx] > 0) {
-        gbtn->in_group_idx = 0;
+        gbtn->btype_value = 0;
         gbtn->flags |= LbBtnFlag_Enabled;
     } else {
-        gbtn->in_group_idx |= 0x8000; // This doesn't seem right, short vs int.
+        gbtn->btype_value |= 0x8000;
         gbtn->flags &= ~LbBtnFlag_Enabled;
     }
 }
@@ -952,10 +952,10 @@ void maintain_room(struct GuiButton *gbtn)
         return;
     }
     if (dungeon->room_buildable[rkind]) {
-        gbtn->in_group_idx = 0;
+        gbtn->btype_value = 0;
         gbtn->flags |= LbBtnFlag_Enabled;
     } else {
-        gbtn->in_group_idx |= 0x8000;
+        gbtn->btype_value |= 0x8000;
         gbtn->flags &= ~LbBtnFlag_Enabled;
     }
 }
@@ -977,10 +977,10 @@ void maintain_big_room(struct GuiButton *gbtn)
     gbtn->sprite_idx = game.chosen_room_spridx;
     gbtn->tooltip_str_idx = game.chosen_room_tooltip;
     if (dungeon->room_buildable[rkind]) {
-        gbtn->in_group_idx = 0;
+        gbtn->btype_value = 0;
         gbtn->flags |= LbBtnFlag_Enabled;
     } else {
-        gbtn->in_group_idx |= 0x8000;
+        gbtn->btype_value |= 0x8000;
         gbtn->flags &= ~LbBtnFlag_Enabled;
     }
 }
@@ -993,18 +993,18 @@ void maintain_spell(struct GuiButton *gbtn)
   i = (unsigned long)(gbtn->content) & 0xff;
   if (!is_power_available(player->id_number,i))
   {
-    gbtn->in_group_idx |= 0x8000u;
+    gbtn->btype_value |= 0x8000u;
     gbtn->flags &= ~LbBtnFlag_Enabled;
   } else
   if (i == 19)
   {
       if (game.armageddon_cast_turn != 0)
       {
-        gbtn->in_group_idx |= 0x8000u;
+        gbtn->btype_value |= 0x8000u;
         gbtn->flags &= ~LbBtnFlag_Enabled;
       } else
       {
-        gbtn->in_group_idx = 0;
+        gbtn->btype_value = 0;
         gbtn->flags |= LbBtnFlag_Enabled;
       }
   } else
@@ -1012,16 +1012,16 @@ void maintain_spell(struct GuiButton *gbtn)
   {
       if (player_uses_power_hold_audience(my_player_number))
       {
-        gbtn->in_group_idx |= 0x8000u;
+        gbtn->btype_value |= 0x8000u;
         gbtn->flags &= ~LbBtnFlag_Enabled;
       } else
       {
-        gbtn->in_group_idx = 0;
+        gbtn->btype_value = 0;
         gbtn->flags |= LbBtnFlag_Enabled;
       }
   } else
   {
-    gbtn->in_group_idx = 0;
+    gbtn->btype_value = 0;
     gbtn->flags |= LbBtnFlag_Enabled;
   }
 }
@@ -1034,11 +1034,11 @@ void maintain_trap(struct GuiButton *gbtn)
     manufctr = get_manufacture_data(manufctr_idx);
     if (is_trap_placeable(my_player_number, manufctr->tngmodel) || is_trap_built(my_player_number, manufctr->tngmodel))
     {
-        gbtn->in_group_idx = 0;
+        gbtn->btype_value = 0;
         gbtn->flags |= LbBtnFlag_Enabled;
     } else
     {
-        gbtn->in_group_idx |= 0x8000u;
+        gbtn->btype_value |= 0x8000u;
         gbtn->flags &= ~LbBtnFlag_Enabled;
     }
 }
@@ -1051,11 +1051,11 @@ void maintain_door(struct GuiButton *gbtn)
     manufctr = get_manufacture_data(manufctr_idx);
     if (is_door_placeable(my_player_number, manufctr->tngmodel) || is_door_built(my_player_number, manufctr->tngmodel))
     {
-        gbtn->in_group_idx = 0;
+        gbtn->btype_value = 0;
         gbtn->flags |= LbBtnFlag_Enabled;
     } else
     {
-        gbtn->in_group_idx |= 0x8000u;
+        gbtn->btype_value |= 0x8000u;
         gbtn->flags &= ~LbBtnFlag_Enabled;
     }
 }
@@ -1072,11 +1072,11 @@ void maintain_big_trap(struct GuiButton *gbtn)
     if ( ((manufctr->tngclass == TCls_Trap) && is_trap_placeable(my_player_number, manufctr->tngmodel))
       || ((manufctr->tngclass == TCls_Door) && is_door_placeable(my_player_number, manufctr->tngmodel)) )
     {
-        gbtn->in_group_idx = 0;
+        gbtn->btype_value = 0;
         gbtn->flags |= LbBtnFlag_Enabled;
     } else
     {
-        gbtn->in_group_idx |= 0x8000u;
+        gbtn->btype_value |= 0x8000u;
         gbtn->flags &= ~LbBtnFlag_Enabled;
     }
 }
@@ -1205,7 +1205,7 @@ void pick_up_creature_doing_activity(struct GuiButton *gbtn)
     long i;
     unsigned char pick_flags;
     SYNCDBG(8,"Starting");
-    i = gbtn->in_group_idx;
+    i = gbtn->btype_value;
     ThingModel crmodel;
     if (i > 0)
         crmodel = breed_activities[(top_of_breed_list+i)%CREATURE_TYPES_COUNT];
@@ -1226,7 +1226,7 @@ void gui_go_to_next_creature_activity(struct GuiButton *gbtn)
 {
     ThingModel crmodel;
     int i;
-    i = gbtn->in_group_idx;
+    i = gbtn->btype_value;
     if (i > 0) {
         crmodel = breed_activities[(top_of_breed_list+i)%CREATURE_TYPES_COUNT];
     } else {
@@ -1342,7 +1342,7 @@ void pick_up_next_creature(struct GuiButton *gbtn)
     int i;
     unsigned short pick_flags;
 
-    i = gbtn->in_group_idx;
+    i = gbtn->btype_value;
     if (i > 0) {
         kind = breed_activities[(i + top_of_breed_list) % CREATURE_TYPES_COUNT];
     }
@@ -1362,7 +1362,7 @@ void gui_go_to_next_creature(struct GuiButton *gbtn)
 {
     long i;
     SYNCDBG(8,"Starting");
-    i = gbtn->in_group_idx;
+    i = gbtn->btype_value;
     ThingModel crmodel;
     if (i > 0) {
         crmodel = breed_activities[(top_of_breed_list+i)%CREATURE_TYPES_COUNT];
@@ -1376,7 +1376,7 @@ void gui_area_anger_button(struct GuiButton *gbtn)
 {
     long i,job_idx,crmodel;
     SYNCDBG(10,"Starting");
-    i = gbtn->in_group_idx;
+    i = gbtn->btype_value;
     // Get index from pointer
     job_idx = ((long *)gbtn->content - &activity_list[0]);
     if ( (i > 0) && (top_of_breed_list+i < CREATURE_TYPES_COUNT) )
@@ -1627,7 +1627,7 @@ void maintain_instance(struct GuiButton *gbtn)
     TRACE_THING(ctrltng);
     if (!thing_is_creature(ctrltng))
     {
-        gbtn->in_group_idx |= 0x8000;
+        gbtn->btype_value |= 0x8000;
         gbtn->flags &= ~LbBtnFlag_Enabled;
         return;
     }
@@ -1657,11 +1657,11 @@ void maintain_instance(struct GuiButton *gbtn)
     }
     if (creature_instance_is_available(ctrltng, curbtn_inst_id))
     {
-        gbtn->in_group_idx = 0;
+        gbtn->btype_value = 0;
         gbtn->flags |= LbBtnFlag_Enabled;
         return;
     }
-    gbtn->in_group_idx |= 0x8000;
+    gbtn->btype_value |= 0x8000;
     gbtn->flags &= ~LbBtnFlag_Enabled;
 }
 
@@ -1754,12 +1754,12 @@ void maintain_activity_pic(struct GuiButton *gbtn)
 {
     ThingModel crmodel;
     int i;
-    i = gbtn->in_group_idx;
-    if (i > 0) 
+    i = gbtn->btype_value;
+    if (i > 0)
     {
         crmodel = breed_activities[(top_of_breed_list+i)%CREATURE_TYPES_COUNT];
-    } 
-    else 
+    }
+    else
     {
         crmodel = get_players_special_digger_model(my_player_number);
     }
@@ -1779,12 +1779,12 @@ void maintain_activity_row(struct GuiButton *gbtn)
 {
     ThingModel crmodel;
     int i;
-    i = gbtn->in_group_idx;
-    if (i > 0) 
+    i = gbtn->btype_value;
+    if (i > 0)
     {
         crmodel = breed_activities[(top_of_breed_list+i)%CREATURE_TYPES_COUNT];
-    } 
-    else 
+    }
+    else
     {
         crmodel = get_players_special_digger_model(my_player_number);
     }
@@ -1886,7 +1886,7 @@ void maintain_event_button(struct GuiButton *gbtn)
 
     if (evidx == 0)
     {
-      gbtn->in_group_idx |= 0x4000;
+      gbtn->btype_value |= 0x4000;
       gbtn->sprite_idx = 0;
       gbtn->flags &= ~LbBtnFlag_Enabled;
       gbtn->leftclick_flag = 0;
@@ -1915,7 +1915,7 @@ void maintain_event_button(struct GuiButton *gbtn)
     }
     gbtn->tooltip_str_idx = event_button_info[event->kind].tooltip_str_idx;
     gbtn->flags |= LbBtnFlag_Enabled;
-    gbtn->in_group_idx = 0;
+    gbtn->btype_value = 0;
 }
 
 void gui_toggle_ally(struct GuiButton *gbtn)
@@ -1937,11 +1937,11 @@ void maintain_ally(struct GuiButton *gbtn)
     player = get_player(plyr_idx);
     if (!is_my_player_number(plyr_idx) && ((player->allocflags & PlaF_Allocated) != 0))
     {
-        gbtn->in_group_idx = 0;
+        gbtn->btype_value = 0;
         gbtn->flags |= LbBtnFlag_Enabled;
     } else
     {
-        gbtn->in_group_idx |= 0x8000;
+        gbtn->btype_value |= 0x8000;
         gbtn->flags &= ~LbBtnFlag_Enabled;
     }
 }
@@ -1971,11 +1971,11 @@ void maintain_room_and_creature_button(struct GuiButton *gbtn)
     player = get_player(plyr_idx);
     if (player_exists(player))
     {
-        gbtn->in_group_idx = 0;
+        gbtn->btype_value = 0;
         gbtn->flags |= LbBtnFlag_Enabled;
     } else
     {
-        gbtn->in_group_idx |= 0x4000;
+        gbtn->btype_value |= 0x4000;
         gbtn->flags &= ~LbBtnFlag_Enabled;
         gbtn->tooltip_str_idx = 201;
     }
@@ -2155,7 +2155,7 @@ void gui_set_tend_to(struct GuiButton *gbtn)
 {
   struct PlayerInfo *player;
   player = get_my_player();
-  set_players_packet_action(player, PckA_ToggleTendency, gbtn->in_group_idx, 0);
+  set_players_packet_action(player, PckA_ToggleTendency, gbtn->btype_value, 0);
 }
 
 void gui_set_query(struct GuiButton *gbtn)

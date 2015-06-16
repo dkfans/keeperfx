@@ -275,11 +275,11 @@ void gui_video_cluedo_maintain(struct GuiButton *gbtn)
     player = get_my_player();
     if (player->view_mode == 5)
     {
-        gbtn->in_group_idx |= 0x8000;
+        gbtn->btype_value |= 0x8000;
         gbtn->flags &= ~LbBtnFlag_Enabled;
     } else
     {
-        gbtn->in_group_idx = 0;
+        gbtn->btype_value = 0;
         gbtn->flags |= LbBtnFlag_Enabled;
     }
 }

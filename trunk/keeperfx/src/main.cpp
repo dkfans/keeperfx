@@ -222,7 +222,6 @@ DLLIMPORT void __stdcall _DK_IsRunningMark(void);
 DLLIMPORT void __stdcall _DK_IsRunningUnmark(void);
 DLLIMPORT int __stdcall _DK_play_smk_(char *fname, int smkflags, int plyflags);
 DLLIMPORT void _DK_cumulative_screen_shot(void);
-DLLIMPORT void _DK_frontend_set_state(long);
 DLLIMPORT void _DK_draw_gui(void);
 DLLIMPORT void _DK_process_dungeons(void);
 DLLIMPORT void _DK_process_level_script(void);
@@ -3678,6 +3677,9 @@ TbBool keeper_wait_for_screen_focus(void)
         }
         if (LbIsFocused())
           return true;
+        //TODO Add a flag field for that
+        if (1)//(settings.engine_flags & SettF_StopOnLostFocus) == 0)
+          return true;
         if ((game.system_flags & GSF_NetworkActive) != 0)
           return true;
         LbSleepFor(50);
@@ -3767,11 +3769,11 @@ void _check_if_mouse_is_over_any_button()
         gbtn = &active_buttons[gidx];
         if ((gbtn->flags & LbBtnFlag_Created) == 0)
             continue;
-        if (!get_active_menu(gbtn->menu_idx)->isTurnedOn)
+        if (!get_active_menu(gbtn->menu_idx)->is_turned_on)
             continue;
 
         if ((check_if_mouse_is_over_button(gbtn))
-            || ((gbtn->button_type == LbBtnType_Unknown) && (gbtn->leftclick_flag != 0)))
+            || ((gbtn->button_type == LbBtnType_Unknown6) && (gbtn->leftclick_flag != 0)))
         {
             lbDisplayEx.isMouseOverButton = true;
         }
@@ -4465,7 +4467,7 @@ void wait_at_frontend(void)
     LbScreenRender();
     short prev_state;
     prev_state = frontend_menu_state;
-    frontend_set_state(0);
+    frontend_set_state(FeSt_INITIAL);
     if (exit_keeper)
     {
       player = get_my_player();
