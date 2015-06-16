@@ -226,6 +226,8 @@ typedef short MapSlabCoord;
 typedef unsigned long SubtlCodedCoords;
 /** Map slab 2D coordinates, coded into one number. */
 typedef unsigned long SlabCodedCoords;
+/** Angle used for arithmetics, with value scaled to LbFPMath_PI. */
+typedef short MathAngle;
 /** A variable which bits store bool value for each player. */
 typedef unsigned char PerPlayerFlags;
 /** Movement speed on objects in the game. */

@@ -1834,7 +1834,7 @@ void get_creature_control_nonaction_inputs(void)
 
                 if (!(gbtn->flags & LbBtnFlag_Created) ||
                     !(gbtn->flags & LbBtnFlag_Enabled) ||
-                    !get_active_menu(gbtn->menu_idx)->isTurnedOn ||
+                    !get_active_menu(gbtn->menu_idx)->is_turned_on ||
                     (gbtn->parent_menu == NULL))
                 {
                     continue;
@@ -2173,7 +2173,7 @@ short get_gui_inputs(short gameplay_on)
         for (idx = 0; idx < ACTIVE_BUTTONS_COUNT; idx++)
         {
             struct GuiButton *gbtn = &active_buttons[idx];
-            if ((gbtn->flags & LbBtnFlag_Created) && (gbtn->button_type == LbBtnType_Unknown))
+            if ((gbtn->flags & LbBtnFlag_Created) && (gbtn->button_type == LbBtnType_Unknown6))
             {
                 gbtn->leftclick_flag = 0;
             }
@@ -2196,13 +2196,13 @@ short get_gui_inputs(short gameplay_on)
 
         if ((gbtn->flags & LbBtnFlag_Created) == 0)
             continue;
-        if (!get_active_menu(gbtn->menu_idx)->isTurnedOn)
+        if (!get_active_menu(gbtn->menu_idx)->is_turned_on)
             continue;
 
         callback = gbtn->callback_maintain;
         if (callback != NULL)
             callback(gbtn);
-        if ((gbtn->in_group_idx & 0x4000u) != 0)
+        if ((gbtn->btype_value & 0x4000u) != 0)
             continue;
 
         // TODO GUI Introduce circular buttons instead of specific condition for pannel map
@@ -2210,7 +2210,7 @@ short get_gui_inputs(short gameplay_on)
             continue;
 
         if ((check_if_mouse_is_over_button(gbtn) && !game_is_busy_doing_gui_string_input()) ||
-            ((gbtn->button_type == LbBtnType_Unknown) && (gbtn->leftclick_flag != 0)))
+            ((gbtn->button_type == LbBtnType_Unknown6) && (gbtn->leftclick_flag != 0)))
         {
             if ((iFirstMonopolyMenu == -1) || (gbtn->menu_idx == iFirstMonopolyMenu))
             {
@@ -2221,7 +2221,7 @@ short get_gui_inputs(short gameplay_on)
 
                 if (callback != NULL)
                     callback(gbtn);
-                if (gbtn->button_type == LbBtnType_Unknown)
+                if (gbtn->button_type == LbBtnType_Unknown6)
                     break;
                 if (gbtn->button_type == LbBtnType_HorizontalSlider)
                     nx_over_slider_button = iButton;

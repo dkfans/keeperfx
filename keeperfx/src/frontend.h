@@ -49,7 +49,7 @@ enum DemoItem_Kind {
     DIK_ListEnd,
 };
 
-enum FrontendMenuState {
+enum FrontendMenuStates {
   FeSt_INITIAL            =  0,
   FeSt_MAIN_MENU          =  1,
   FeSt_FELOAD_GAME        =  2,
@@ -99,6 +99,8 @@ struct NetMessage { // sizeof = 0x41
   unsigned char plyr_idx;
   char text[NET_MESSAGE_LEN];
 };
+
+typedef int FEMenuState;
 
 #pragma pack()
 /******************************************************************************/
@@ -374,8 +376,8 @@ void reinit_all_menus(void);
 
 void gui_set_autopilot(struct GuiButton *gbtn);
 
-int frontend_set_state(long nstate);
-int get_startup_menu_state(void);
+FEMenuState frontend_set_state(FEMenuState nstate);
+FEMenuState get_startup_menu_state(void);
 void frontend_input(void);
 void frontend_update(short *finish_menu);
 short frontend_draw(void);

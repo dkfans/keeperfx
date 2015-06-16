@@ -28,293 +28,257 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-    /******************************************************************************/
+/******************************************************************************/
 #pragma pack(1)
 
-    struct GuiButton;
-    struct GuiMenu;
-    struct GuiBox;
-    struct GuiBoxOption;
+struct GuiButton;
+struct GuiMenu;
+struct GuiBox;
+struct GuiBoxOption;
 
 #define INPUT_FIELD_LEN     40
 #define TOOLTIP_MAX_LEN   2048
 #define SLIDER_MAXVALUE    256
 
-    // Type definitions
-    enum TbButtonType {
-        LbBtnType_NormalButton = 0,
+// Type definitions
+enum TbButtonType {
+    LbBtnType_NormalButton = 0,
+    /** Have continous effect when mouse is held on it. Used for scrollable lists. */
+    LbBtnType_HoldableButton,
+    /** Toggles between two states. Used for on/off switches. */
+    LbBtnType_ToggleButton,
+    /** Allows selecting one from grouped buttons. */
+    LbBtnType_RadioButton,
+    LbBtnType_HorizontalSlider,
+    LbBtnType_EditBox,
+    LbBtnType_Unknown6,
+};
 
-        // Have continous effect when mouse is held on it. 
-        // Used for scrolling creature list.
-        LbBtnType_HoldableButton = 1,
+enum TbButtonFlags {
+    /** Created, slot occupied. */
+    LbBtnFlag_Created = 0x01,
+    /** Dismiss current menu on click. */
+    LbBtnFlag_CloseCurrentMenu = 0x02,
+    /** Whether the button is visible or hidden. */
+    LbBtnFlag_Visible = 0x04,
+    /** Whether the button is enabled or greyed out. */
+    LbBtnFlag_Enabled = 0x08,
+    /** Whether mouse is over the button. */
+    LbBtnFlag_MouseOver = 0x10,
+    LbBtnFlag_Unknown20 = 0x20,
+    LbBtnFlag_Unused40 = 0x40,
+    LbBtnFlag_Unused80 = 0x80,
+};
 
-        // Toggleing between states. Used at toggle imprisonment or fleeing.
-        LbBtnType_ToggleButton = 2,
+enum GuiVisibility {
+    /** Killed, or not created. */
+    Visibility_NoExist = 0,
+    /** Created and shown. */
+    Visibility_Shown = 1,
+    /** Is fading. */
+    Visibility_Fading = 2,
+    /** Turned off but not killed. */
+    Visibility_Hidden = 3,
+};
 
-        // Selecting one from candidates. Used at tab title.
-        LbBtnType_RadioButton = 3,
-        LbBtnType_HorizontalSlider = 4,
-        LbBtnType_EditBox = 5,
+union GuiVariant {
+    long lval;
+    long *lptr;
+    char *str;
+};
 
-        // Never used.
-        LbBtnType_Unknown = 6,    
-    };
+typedef long (*Gf_OptnBox_4Callback)(struct GuiBox *, struct GuiBoxOption *, unsigned char, long *);
+typedef long (*Gf_OptnBox_3Callback)(struct GuiBox *, struct GuiBoxOption *, long *);
+typedef void (*Gf_Btn_Callback)(struct GuiButton *gbtn);
+typedef void (*Gf_Mnu_Callback)(struct GuiMenu *gmnu);
 
-    enum TbButtonFlags 
-    {
-        // Created, slot occupied
-        LbBtnFlag_Created = 0x01,  
-        // Dismiss current menu on click.
-        LbBtnFlag_CloseCurrentMenu = 0x02,  
-        // Visible or hidden.
-        LbBtnFlag_Visible = 0x04,  
-        // Enabled or greyed out.
-        LbBtnFlag_Enabled = 0x08,
-        // Mouse over.
-        LbBtnFlag_MouseOver = 0x10,  
-        LbBtnFlag_Unknown20 = 0x20,
+struct GuiBoxOption {
+    const char *label;
+    unsigned char numfield_4;
+    Gf_OptnBox_3Callback active_cb;
+    Gf_OptnBox_4Callback callback;
+    long field_D;
+    long field_11;
+    long field_15;
+    long field_19;
+    long field_1D;
+    long field_21;
+    char active;
+    char field_26;
+};
 
-        LbBtnFlag_Unused40 = 0x40,
-        LbBtnFlag_Unused80 = 0x80,
-    };
+struct GuiBox {
+    char flag;
+    short field_1;
+    long pos_x;
+    long pos_y;
+    long width;
+    long height;
+    struct GuiBoxOption *optn_list;
+    struct GuiBox *next_box;
+    struct GuiBox *prev_box;
+};
 
-    enum GuiVisibility
-    {
-        // Killed, or not created.
-        Visibility_NoExist = 0,
-        // Created and shown.
-        Visibility_Shown = 1,
-        // Is fading.
-        Visibility_Fading = 2,
-        // Turned off but not killed.
-        Visibility_Hidden = 3,
-    };
+struct DraggingBox {
+    struct GuiBox *gbox;
+    long start_x;
+    long start_y;
+};
 
-    union GuiVariant {
-        long lval;
-        long *lptr;
-        char *str;
-    };
+/** Initial Gui button (can be other controls) template.
+ */
+struct GuiButtonTemplate {
+    char button_type;
+    /** When button is header of a tab, this is the id of the tab. */
+    short tab_id;
+    short field_3; // unused.
+    short close_menu;
+    /** Click event callback. */
+    Gf_Btn_Callback callback_click;
+    /** Right click event callback. */
+    Gf_Btn_Callback callback_rightclick;
+    /** Mouse hover event callback. */
+    Gf_Btn_Callback callback_mousehover;
+    /** Value specific to button type. Contains index in group for grouped buttons, bool state for toggle button etc. */
+    unsigned short btype_value;
+    /** Position before scaling. */
+    short scr_pos_x;
+    short scr_pos_y;
+    short pos_x;
+    short pos_y;
+    /** Size before scaling. */
+    short width, height;
+    /** Callback on button draw. */
+    Gf_Btn_Callback callback_draw;
+    short sprite_idx;
+    short tooltip_str_idx;
+    struct GuiMenu *parent_menu;
+    union GuiVariant content;
+    /** Acts as text length upper bound or max value of cycle/slider button, -1 when not applicable. */
+    char max_value;
+    /** max_value should be short and this is the other half, not merging now because may cause Endian problem. */
+    char field_32;
+    /** Callback on button maintain. */
+    Gf_Btn_Callback callback_maintain;
+};
 
-    typedef long(*Gf_OptnBox_4Callback)(struct GuiBox *, struct GuiBoxOption *, unsigned char, long *);
-    typedef long(*Gf_OptnBox_3Callback)(struct GuiBox *, struct GuiBoxOption *, long *);
-    typedef void(*Gf_Btn_Callback)(struct GuiButton *gbtn);
-    typedef void(*Gf_Mnu_Callback)(struct GuiMenu *gmnu);
+/** Button (can be other controls) structure.
+ */
+struct GuiButton {
+    unsigned char flags;
+    unsigned char leftclick_flag;
+    unsigned char rightclick_flag;
+    /** Index of the menu this button is located.
+     * Not necessary equal to parent_menu (ie. show more info button). */
+    char menu_idx;
+    /** When button is header of a tab, this is the id of the tab. */
+    short tab_id;
+    unsigned char button_type;
+    /** Click event callback. */
+    Gf_Btn_Callback callback_click;
+    /** Right click event callback. */
+    Gf_Btn_Callback callback_rightclick;
+    /** Pointer over event callback. */
+    Gf_Btn_Callback callback_mousehover;
+    /** Callback on button draw. */
+    Gf_Btn_Callback callback_draw;
+    /** Callback on button maintain. */
+    Gf_Btn_Callback callback_maintain;
+    /** Value specific to button type. Contains index in group for grouped buttons, bool state for toggle button etc. */
+    unsigned short btype_value;
+    /** Position after scaling. */
+    short scr_pos_x;
+    short scr_pos_y;
+    short pos_x;
+    short pos_y;
+    /** Size after scaling. */
+    short width, height;
+    short sprite_idx;
+    /** Tooltip string ID. Positive for GUI string, negative for campaign string. */
+    short tooltip_str_idx;
+    /** Acts as text length upper bound or max value of toggle/slider button, -1 when not applicable. */
+    unsigned short max_value;
+    struct GuiMenu *parent_menu;
+    //TODO FRONTEND change it to GuiVariant
+    unsigned long *content;
+    /** Slider value, scaled 0..SLIDER_MAXVALUE-1. */
+    unsigned short slider_value;
+};
 
-    struct GuiBoxOption {
-        const char *label;
-        unsigned char numfield_4;
-        Gf_OptnBox_3Callback active_cb;
-        Gf_OptnBox_4Callback callback;
-        long field_D;
-        long field_11;
-        long field_15;
-        long field_19;
-        long field_1D;
-        long field_21;
-        char active;
-        char field_26;
-    };
+struct GuiMenu {
+    /** Ident in current menu stack. */
+    //TODO change type to MenuID
+    char ident;
+    /** Current visible state of menu. */
+    unsigned char visibility;
+    /** Decrease to 0 and menu is hide. */
+    short fade_time;
+    struct GuiButtonTemplate *buttons;
+    short pos_x;
+    short pos_y;
+    short width;
+    short height;
+    /** Callback on menu draw. */
+    Gf_Mnu_Callback callback_draw;
+    char index;
+    /** Pointer to initial menu template of this menu. */
+    struct GuiMenu *menu_template;
+    /** Callback on menu create. */
+    Gf_Mnu_Callback callback_create;
+    /** Whether the menu is turned on or is current active tab. */
+    unsigned char is_turned_on;
+    unsigned char is_monopoly_menu;
+    /** Whether the menu is a sub tab on main panel. */
+    char is_tab;
+};
 
-    struct GuiBox {
-        char flag;
-        short field_1;
-        long pos_x;
-        long pos_y;
-        long width;
-        long height;
-        struct GuiBoxOption *optn_list;
-        struct GuiBox *next_box;
-        struct GuiBox *prev_box;
-    };
+struct ToolTipBox {
+    unsigned char flags;
+    char text[TOOLTIP_MAX_LEN];
+    struct GuiButton *gbutton;
+    void *target;
+    unsigned char field_809;
+    short pos_x;
+    short pos_y;
+};
 
-    struct DraggingBox {
-        struct GuiBox *gbox;
-        long start_x;
-        long start_y;
-    };
+struct FrontEndButtonData {
+    unsigned short capstr_idx;
+    unsigned char font_index;
+};
 
-    // Initial Gui button(can be other controls) template.
-    struct GuiButtonTemplate {
-        char button_type;
-
-        // When button is header of a tab, this is the id of the tab.
-        short tab_id;
-        short field_3; // unused.
-        short close_menu; 
-
-        // Click event callback.
-        Gf_Btn_Callback callback_click;
-        // Right click event callback.
-        Gf_Btn_Callback callback_rightclick;
-        // Mouse hover event callback.
-        Gf_Btn_Callback callback_mousehover;
-
-        // When button is in a group, index of current position; row number.        short in_group_idx;
-        short in_group_idx;
-
-        // Position before scaling.
-        short scr_pos_x;
-        short scr_pos_y;
-        short pos_x;
-        short pos_y;
-
-        // Size before scaling.
-        short width, height;
-
-        // Callback on button draw.
-        Gf_Btn_Callback callback_draw;
-        short sprite_idx;
-        short tooltip_str_idx;
-        struct GuiMenu *parent_menu;
-        union GuiVariant content;
-
-        // Acts as text length upper bound or max value of cycle/slider button, -1 when not applicable.
-        char max_value;
-        // max_value should be short and this is the other half, not merging now because may cause Endian problem.
-        char field_32;
-
-        // Callback on button maintain.
-        Gf_Btn_Callback callback_maintain;
-    };
-
-    // Button(can be other controls) structure.
-    struct GuiButton {
-        unsigned char flags;
-        unsigned char leftclick_flag;
-        unsigned char rightclick_flag;
-
-        // Index of the menu this button is located.
-        // not necessary equal to parent_menu(show more info button).
-        char menu_idx;
-
-        // When button is header of a tab, this is the id of the tab.
-        short tab_id;
-
-        unsigned char button_type;
-
-        // Click event callback.
-        Gf_Btn_Callback callback_click;
-        // Right click event callback.
-        Gf_Btn_Callback callback_rightclick;
-        // Pointer over event callback.
-        Gf_Btn_Callback callback_mousehover;
-        // Callback on button draw.
-        Gf_Btn_Callback callback_draw;
-        // Callback on button maintain.
-        Gf_Btn_Callback callback_maintain;
-
-        // When button is in a group, index of current position; row number.
-        // TODO HeM this should be 2 chars.
-        unsigned short in_group_idx; 
-
-        // Position after scaling.
-        short scr_pos_x;
-        short scr_pos_y;
-        short pos_x;
-        short pos_y;
-
-        // Size after scaling.
-        short width, height;
-        short sprite_idx;
-
-        /** Tooltip string ID. Positive for GUI string, negative for campaign string. */
-        short tooltip_str_idx;
-
-        // Acts as text length upper bound or max value of toggle/slider button, -1 when not applicable.
-        unsigned short max_value;
-        struct GuiMenu *parent_menu;
-        //TODO FRONTEND change it to GuiVariant
-        unsigned long *content; 
-        // slider value, scaled 0..255
-        unsigned short slider_value;
-    };
-
-    struct GuiMenu {
-        // Ident in current menu stack.
-        char ident;
-
-        // Current visible state of menu.
-        unsigned char visibility;
-
-        // Decrease to 0 and menu is hide.
-        short fade_time;
-
-        struct GuiButtonTemplate *buttons;
-
-        short pos_x;
-        short pos_y;
-        short width;
-        short height;
-
-        // Callback on menu draw.
-        Gf_Mnu_Callback callback_draw;
-
-        char index;
-
-        // Pointer to initial menu template of this menu.
-        struct GuiMenu *menu_template;
-
-        // Callback on menu create.
-        Gf_Mnu_Callback callback_create;
-
-        // Whether the menu is turned on or is current active tab.
-        unsigned char isTurnedOn;
-        unsigned char isMonopolyMenu;
-
-        // Whether the menu is a sub tab on main panel.
-        char isTab;
-    };
-
-    struct ToolTipBox {
-        unsigned char flags;
-        char text[TOOLTIP_MAX_LEN];
-        struct GuiButton *gbutton;
-        void *target;
-        unsigned char field_809;
-        short pos_x;
-        short pos_y;
-    };
-
-    struct FrontEndButtonData {
-        unsigned short capstr_idx;
-        unsigned char font_index;
-    };
-
-    struct EventTypeInfo { //sizeof=0x10
-        int field_0;
-        unsigned short tooltip_str_idx;
-        unsigned short msg_stridx;
-        int lifespan_turns;
-        /** Indicates how many turns must pass before another event of the kind is created. */
-        int turns_between_events;
-        /** Indicates the event kind which is to be replaced by new event. */
-        unsigned char replace_event_kind_button;
-    };
-
-
+struct EventTypeInfo { //sizeof=0x10
+    int field_0;
+    unsigned short tooltip_str_idx;
+    unsigned short msg_str_idx;
+    int lifespan_turns;
+    /** Indicates how many turns must pass before another event of the kind is created. */
+    int turns_between_events;
+    /** Indicates the event kind which is to be replaced by new event. */
+    unsigned char replace_event_kind_button;
+};
 
 #pragma pack()
-    /******************************************************************************/
-    extern TbCharCount input_field_pos;
-    /******************************************************************************/
-    // Exported variables
-    DLLIMPORT extern struct GuiButton *_DK_input_button;
+/******************************************************************************/
+extern TbCharCount input_field_pos;
+/******************************************************************************/
+// Exported variables
+DLLIMPORT extern struct GuiButton *_DK_input_button;
 #define input_button _DK_input_button
-    DLLIMPORT char _DK_backup_input_field[INPUT_FIELD_LEN];
+DLLIMPORT char _DK_backup_input_field[INPUT_FIELD_LEN];
 #define backup_input_field _DK_backup_input_field
-    /******************************************************************************/
-    // Exported functions
-    void do_sound_menu_click(void);
-    void do_sound_button_click(struct GuiButton *gbtn);
-    void setup_input_field(struct GuiButton *gbtn, const char * empty_text);
+/******************************************************************************/
+// Exported functions
+void do_sound_menu_click(void);
+void do_sound_button_click(struct GuiButton *gbtn);
+void setup_input_field(struct GuiButton *gbtn, const char * empty_text);
 
-    TbBool check_if_pos_is_over_button(const struct GuiButton *gbtn, TbScreenPos pos_x, TbScreenPos pos_y);
-    // Defined in the interface but external
-    extern void do_button_click_actions(struct GuiButton *, unsigned char *, Gf_Btn_Callback);
-    void do_button_press_actions(struct GuiButton *, unsigned char *, Gf_Btn_Callback);
-    extern void do_button_release_actions(struct GuiButton *, unsigned char *, Gf_Btn_Callback);
-    /******************************************************************************/
+TbBool check_if_pos_is_over_button(const struct GuiButton *gbtn, TbScreenPos pos_x, TbScreenPos pos_y);
+// Defined in the interface but external
+extern void do_button_click_actions(struct GuiButton *, unsigned char *, Gf_Btn_Callback);
+void do_button_press_actions(struct GuiButton *, unsigned char *, Gf_Btn_Callback);
+extern void do_button_release_actions(struct GuiButton *, unsigned char *, Gf_Btn_Callback);
+/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif

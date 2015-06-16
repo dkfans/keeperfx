@@ -72,7 +72,7 @@ void fake_button_click(int gmbtn_idx)
         gbtn = &active_buttons[i];
         struct GuiMenu *gmnu;
         gmnu = &active_menus[(unsigned)gbtn->menu_idx];
-        if (((gbtn->flags & LbBtnFlag_Created) != 0) && (gmnu->isTurnedOn != 0) && (gbtn->tab_id == gmbtn_idx))
+        if (((gbtn->flags & LbBtnFlag_Created) != 0) && (gmnu->is_turned_on != 0) && (gbtn->tab_id == gmbtn_idx))
         {
             if ((gbtn->callback_click != NULL) || (gbtn->flags & LbBtnFlag_CloseCurrentMenu) || (gbtn->parent_menu != NULL) || (gbtn->button_type == LbBtnType_RadioButton)) {
                 do_button_press_actions(gbtn, &gbtn->leftclick_flag, gbtn->callback_click);
@@ -242,7 +242,7 @@ TbBool gui_button_click_inputs(int gmbtn_idx)
                       gbtn->leftclick_flag++;
                   }
                   break;
-                case LbBtnType_Unknown:
+                case LbBtnType_Unknown6:
                   if (callback != NULL) {
                       callback(gbtn);
                   }
@@ -271,7 +271,7 @@ TbBool gui_button_click_inputs(int gmbtn_idx)
                     gbtn->rightclick_flag++;
                 }
                 break;
-            case LbBtnType_Unknown:
+            case LbBtnType_Unknown6:
                 if (callback != NULL) {
                     callback(gbtn);
                 }
@@ -328,7 +328,7 @@ int guibutton_get_unused_slot(void)
     for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
     {
         gbtn = &active_buttons[i];
-        if ((gbtn->flags & LbBtnFlag_Created) == 0) 
+        if ((gbtn->flags & LbBtnFlag_Created) == 0)
         {
             return i;
         }
@@ -732,7 +732,7 @@ void frontend_over_button(struct GuiButton *gbtn)
     int i;
 
     if (gbtn->button_type == LbBtnType_EditBox)
-      i = gbtn->in_group_idx;
+      i = gbtn->btype_value;
     else
       i = (long)gbtn->content;
     if (old_mouse_over_button != i)
@@ -1025,7 +1025,7 @@ void reset_scroll_window(struct GuiMenu *gmnu)
 
 void gui_set_menu_mode(struct GuiButton *gbtn)
 {
-    set_menu_mode(gbtn->in_group_idx);
+    set_menu_mode(gbtn->btype_value);
 }
 
 void gui_area_flash_cycle_button(struct GuiButton *gbtn)

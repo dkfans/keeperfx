@@ -39,7 +39,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 const struct DemoItem demo_item[] = {
-    {DIK_SwitchState, (char *)13},
+    {DIK_SwitchState, (char *)FeSt_CREDITS},
 /*
     {DIK_LoadPacket, "PACKET1.SAV"},
     {DIK_LoadPacket, "PACKET2.SAV"},
@@ -95,7 +95,7 @@ TbBool intro(void)
     char *fname;
     fname = prepare_file_path(FGrp_LoData, "intromix.smk");
     SYNCDBG(0,"Playing intro movie \"%s\"",fname);
-    return play_smacker_file(fname, 1);
+    return play_smacker_file(fname, FeSt_MAIN_MENU);
 }
 
 TbBool campaign_intro(void)
@@ -119,7 +119,7 @@ TbBool campaign_outro(void)
     char *fname;
     fname = prepare_file_path(FGrp_CmpgMedia, campaign.movie_outro_fname);
     SYNCDBG(0,"Playing outro movie \"%s\"",fname);
-    return play_smacker_file(fname, 17);
+    return play_smacker_file(fname, FeSt_LEVEL_STATS);
 }
 
 TbBool moon_video(void)
@@ -138,7 +138,7 @@ void demo(void)
     {
     case DIK_PlaySmkVideo:
         fname = prepare_file_path(FGrp_LoData,demo_item[index].fname);
-        play_smacker_file(fname, 1);
+        play_smacker_file(fname, FeSt_MAIN_MENU);
         break;
     case DIK_LoadPacket:
         fname = prepare_file_path(FGrp_FxData,demo_item[index].fname);
@@ -152,7 +152,7 @@ void demo(void)
         }
         break;
     case DIK_SwitchState:
-        frontend_set_state((long)demo_item[index].fname);
+        frontend_set_state((FEMenuState)demo_item[index].fname);
         break;
     }
     index++;

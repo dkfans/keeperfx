@@ -331,8 +331,8 @@ void setup_gui_tooltip(struct GuiButton *gbtn)
   } else
   if (i == GUIStr_PickCreatrMostExpDesc)
   {
-      if ( (gbtn->in_group_idx > 0) && (top_of_breed_list+gbtn->in_group_idx < CREATURE_TYPES_COUNT) )
-        k = breed_activities[top_of_breed_list+gbtn->in_group_idx];
+      if ( (gbtn->btype_value > 0) && (top_of_breed_list+gbtn->btype_value < CREATURE_TYPES_COUNT) )
+        k = breed_activities[top_of_breed_list+gbtn->btype_value];
       else
         k = get_players_special_digger_model(my_player_number);
       crdata = creature_data_get(k);
@@ -355,7 +355,7 @@ TbBool gui_button_tooltip_update(int gbtn_idx)
   }
   player = get_my_player();
   gbtn = &active_buttons[gbtn_idx];
-  if ((get_active_menu(gbtn->menu_idx)->visibility == Visibility_Fading) && ((gbtn->in_group_idx & 0x8000u) == 0))
+  if ((get_active_menu(gbtn->menu_idx)->visibility == Visibility_Fading) && ((gbtn->btype_value & 0x8000u) == 0))
   {
     if (tool_tip_box.gbutton == gbtn)
     {

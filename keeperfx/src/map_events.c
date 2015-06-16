@@ -455,7 +455,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
     dungeon->visible_event_idx = evidx;
     if (is_my_player_number(plyr_idx))
     {
-        i = event_button_info[event->kind].msg_stridx;
+        i = event_button_info[event->kind].msg_str_idx;
         strcpy(game.evntbox_scroll_window.text, get_string(i));
     }
     if ((event->kind == EvKind_FriendlyFight) || (event->kind == EvKind_EnemyFight)) {

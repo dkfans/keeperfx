@@ -131,7 +131,7 @@ void frontnet_join_game_maintain(struct GuiButton *gbtn)
 void frontnet_maintain_alliance(struct GuiButton *gbtn)
 {
     long plyr_idx1, plyr_idx2;
-    plyr_idx1 = gbtn->in_group_idx;
+    plyr_idx1 = gbtn->btype_value;
     plyr_idx2 = (long)gbtn->content - 74;
 
     set_flag_byte(&gbtn->flags, LbBtnFlag_Enabled, ( plyr_idx2 >= net_number_of_enum_players || net_number_of_enum_players <= plyr_idx1 || plyr_idx2 == plyr_idx1 ));
@@ -458,7 +458,7 @@ void frontnet_select_alliance(struct GuiButton *gbtn)
     myplyr = get_my_player();
     int plyr1_idx, plyr2_idx;
     plyr1_idx = (long)gbtn->content - 74;
-    plyr2_idx = gbtn->in_group_idx;
+    plyr2_idx = gbtn->btype_value;
     if ( plyr1_idx == myplyr->id_number || plyr2_idx == myplyr->id_number )
     {
         struct ScreenPacket *nspck;
@@ -522,7 +522,7 @@ void frontnet_draw_alliance_button(struct GuiButton *gbtn)
 {
     int plyr1_idx, plyr2_idx;
     struct TbSprite *spr;
-    plyr2_idx = gbtn->in_group_idx;
+    plyr2_idx = gbtn->btype_value;
     plyr1_idx = (long)gbtn->content - 74;
     if ((plyr1_idx == plyr2_idx) || (frontend_alliances & alliance_grid[plyr1_idx][plyr2_idx]))
       spr = &frontend_sprite[87];
