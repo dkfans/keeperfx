@@ -115,6 +115,7 @@ TbResult LbScreenRender(void)
     assert((lbScreenWindow != NULL));
     assert((lbPalettedSurface != NULL));
     assert((lbGameRenderer != NULL));
+    assert((lbDrawTexture == NULL));
 
     TbResult ret;
     SYNCDBG(12, "Starting");
@@ -123,16 +124,12 @@ TbResult LbScreenRender(void)
     // Flip the image displayed on Screen Surface
     if (ret == Lb_SUCCESS && lbScreenInitialized )
     {
-        // For playing movie, the texture is already filled.
+        // Converting 256 color to True color
+        lbDrawTexture = SDL_CreateTextureFromSurface(lbGameRenderer, lbPalettedSurface);
         if (lbDrawTexture == NULL)
         {
-            // Converting 256 color to True color
-            lbDrawTexture = SDL_CreateTextureFromSurface(lbGameRenderer, lbPalettedSurface);
-            if (lbDrawTexture == NULL)
-            {
-                ERRORLOG("Failed Converting surface to texture: %s", SDL_GetError());
-                return Lb_FAIL;
-            }
+            ERRORLOG("Failed Converting surface to texture: %s", SDL_GetError());
+            return Lb_FAIL;
         }
 
         SDL_RenderCopy(lbGameRenderer, lbDrawTexture, NULL, NULL);
@@ -230,6 +227,7 @@ TbResult LbPaletteFadeStep(unsigned char *from_pal,unsigned char *to_pal,long fa
         palette[i+2] = fade_count * (c1 - c2) / fade_steps + c2;
     }
     TbResult ret;
+    LbScreenWaitVbi();
     ret = LbPaletteSet(palette);
     LbScreenRender();
     return ret;
@@ -290,6 +288,40 @@ long LbPaletteFade(unsigned char *pal, long fade_steps, enum TbPaletteFadeFlag f
 #endif
     }
     return fade_count;
+}
+
+/** Wait for vertical blanking interval.
+ *
+ * @return Lb_SUCCESS if wait successful.
+ */
+TbResult LbScreenWaitVbi(void)
+{
+  return Lb_SUCCESS;
+}
+
+static TbBool LbHwCheckIsModeAvailable(TbScreenMode mode)
+{
+  // TODO: HeM No longer needed in SDL 2.0, clean this up
+  return true;
+}
+
+TbResult LbScreenFindVideoModes(void)
+{
+  int i,avail_num;
+  avail_num = 0;
+  lbScreenModeInfo[0].Available = false;
+  for (i=1; i < lbScreenModeInfoNum; i++)
+  {
+      if (LbHwCheckIsModeAvailable(i)) {
+          lbScreenModeInfo[i].Available = true;
+          avail_num++;
+      } else {
+          lbScreenModeInfo[i].Available = false;
+      }
+  }
+  if (avail_num > 0)
+      return Lb_SUCCESS;
+  return Lb_FAIL;
 }
 
 // TODO (related number 01) do we need all these wired reolution?
@@ -794,7 +826,17 @@ TbResult LbScreenSetGraphicsWindow(long x, long y, long width, long height)
 
 TbBool LbScreenIsModeAvailable(TbScreenMode mode)
 {
-    return (((int)mode > 0) && ((int)mode < lbScreenModeInfoNum));
+  TbScreenModeInfo *mdinfo;
+  static TbBool setup = false;
+  if (!setup)
+  {
+    // TODO: HeM this is checking 'if nothing is supported at all', not needed either, clean up.
+    if (LbScreenFindVideoModes() != Lb_SUCCESS)
+      return false;
+    setup = true;
+  }
+  mdinfo = LbScreenGetModeInfo(mode);
+  return mdinfo->Available;
 }
 
 TbScreenMode LbRecogniseVideoModeString(const char *desc)
