@@ -29,6 +29,7 @@ extern "C" {
 /******************************************************************************/
 /******************************************************************************/
 TbBool intro(void);
+TbBool intro_replay(void);
 TbBool campaign_intro(void);
 TbBool campaign_outro(void);
 TbBool moon_video(void);

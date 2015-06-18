@@ -222,6 +222,7 @@ DLLIMPORT void __stdcall _DK_IsRunningMark(void);
 DLLIMPORT void __stdcall _DK_IsRunningUnmark(void);
 DLLIMPORT int __stdcall _DK_play_smk_(char *fname, int smkflags, int plyflags);
 DLLIMPORT void _DK_cumulative_screen_shot(void);
+DLLIMPORT void _DK_frontend_set_state(long);
 DLLIMPORT void _DK_draw_gui(void);
 DLLIMPORT void _DK_process_dungeons(void);
 DLLIMPORT void _DK_process_level_script(void);
@@ -1201,6 +1202,19 @@ short setup_game(void)
     }
 
   result = 1;
+  // The 320x200 mode is required only for the movies;
+  // loading and no CD screens can run in both 320x200 and 640x480.
+  if ( result && (!game.no_intro) )
+  {
+      LbPaletteDataFillBlack(engine_palette);
+      int mode_ok = LbScreenSetup(get_movies_vidmode(), engine_palette, 2, 0);
+      if (mode_ok != 1)
+      {
+        ERRORLOG("Can't enter movies screen mode to play intro");
+        result=0;
+      }
+  }
+
   if ( result )
   {
       draw_clear_screen();
@@ -1208,7 +1222,7 @@ short setup_game(void)
   }
   if ( result && (!game.no_intro) )
   {
-      result = intro();
+      result = intro_replay();
   }
   // Intro problems shouldn't force the game to quit,
   // so we're re-setting the result flag
@@ -1947,6 +1961,7 @@ void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal)
         player->field_4C5 = 0;
         if (is_my_player(player))
         {
+            LbScreenWaitVbi();
             LbPaletteSet(pal);
         }
     }
@@ -3677,9 +3692,6 @@ TbBool keeper_wait_for_screen_focus(void)
         }
         if (LbIsFocused())
           return true;
-        //TODO Add a flag field for that
-        if (1)//(settings.engine_flags & SettF_StopOnLostFocus) == 0)
-          return true;
         if ((game.system_flags & GSF_NetworkActive) != 0)
           return true;
         LbSleepFor(50);
@@ -3769,11 +3781,11 @@ void _check_if_mouse_is_over_any_button()
         gbtn = &active_buttons[gidx];
         if ((gbtn->flags & LbBtnFlag_Created) == 0)
             continue;
-        if (!get_active_menu(gbtn->menu_idx)->is_turned_on)
+        if (!get_active_menu(gbtn->menu_idx)->isTurnedOn)
             continue;
 
         if ((check_if_mouse_is_over_button(gbtn))
-            || ((gbtn->button_type == LbBtnType_Unknown6) && (gbtn->leftclick_flag != 0)))
+            || ((gbtn->button_type == LbBtnType_Unknown) && (gbtn->leftclick_flag != 0)))
         {
             lbDisplayEx.isMouseOverButton = true;
         }
@@ -4467,7 +4479,7 @@ void wait_at_frontend(void)
     LbScreenRender();
     short prev_state;
     prev_state = frontend_menu_state;
-    frontend_set_state(FeSt_INITIAL);
+    frontend_set_state(0);
     if (exit_keeper)
     {
       player = get_my_player();
@@ -4812,8 +4824,6 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
         LbErrorLogClose();
         return 0;
     }
-
-    av_register_all();
 
     retval = setup_game();
     if (retval)

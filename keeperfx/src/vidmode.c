@@ -58,6 +58,7 @@ TbScreenMode switching_vidmodes[] = {
     };
 
 TbScreenMode failsafe_vidmode = Lb_SCREEN_MODE_640_480;
+TbScreenMode movies_vidmode = Lb_SCREEN_MODE_320_200;
 TbScreenMode frontend_vidmode = Lb_SCREEN_MODE_640_480;
 
 //struct IPOINT_2D units_per_pixel;
@@ -241,6 +242,11 @@ TbScreenMode validate_vidmode_in_switching_list(unsigned short mode)
 TbScreenMode get_failsafe_vidmode(void)
 {
     return failsafe_vidmode;
+}
+
+TbScreenMode get_movies_vidmode(void)
+{
+    return movies_vidmode;
 }
 
 TbScreenMode get_frontend_vidmode(void)
