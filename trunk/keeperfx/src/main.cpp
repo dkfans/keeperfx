@@ -3781,11 +3781,11 @@ void _check_if_mouse_is_over_any_button()
         gbtn = &active_buttons[gidx];
         if ((gbtn->flags & LbBtnFlag_Created) == 0)
             continue;
-        if (!get_active_menu(gbtn->menu_idx)->isTurnedOn)
+        if (!get_active_menu(gbtn->menu_idx)->is_turned_on)
             continue;
 
         if ((check_if_mouse_is_over_button(gbtn))
-            || ((gbtn->button_type == LbBtnType_Unknown) && (gbtn->leftclick_flag != 0)))
+            || ((gbtn->button_type == LbBtnType_Unknown6) && (gbtn->leftclick_flag != 0)))
         {
             lbDisplayEx.isMouseOverButton = true;
         }
