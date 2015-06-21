@@ -1222,7 +1222,7 @@ short setup_game(void)
   }
   if ( result && (!game.no_intro) )
   {
-      result = intro_replay();
+      result = intro();
   }
   // Intro problems shouldn't force the game to quit,
   // so we're re-setting the result flag
@@ -4479,7 +4479,7 @@ void wait_at_frontend(void)
     LbScreenRender();
     short prev_state;
     prev_state = frontend_menu_state;
-    frontend_set_state(0);
+    frontend_set_state(FeSt_INITIAL);
     if (exit_keeper)
     {
       player = get_my_player();
