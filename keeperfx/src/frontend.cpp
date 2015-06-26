@@ -1033,7 +1033,7 @@ TbBool set_players_packet_change_spell(struct PlayerInfo *player,PowerKind pwkin
     return true;
 }
 
-TbBool is_special_spell(PowerKind pwkind)
+TbBool is_special_power(PowerKind pwkind)
 {
     return ((pwkind == PwrK_HOLDAUDNC) || (pwkind == PwrK_ARMAGEDDON));
 }
@@ -1046,7 +1046,7 @@ void choose_special_spell(PowerKind pwkind, TextStringId tooltip_id)
     struct Dungeon *dungeon;
     const struct MagicStats *pwrdynst;
 
-    if (!is_special_spell(pwkind)) {
+    if (!is_special_power(pwkind)) {
         WARNLOG("Bad power kind");
         return;
     }
@@ -1081,7 +1081,7 @@ void choose_spell(PowerKind pwkind, TextStringId tooltip_id)
 
     pwkind = pwkind % POWER_TYPES_COUNT;
 
-    if (is_special_spell(pwkind)) {
+    if (is_special_power(pwkind)) {
         choose_special_spell(pwkind, tooltip_id);
         return;
     }
@@ -3108,7 +3108,7 @@ void draw_menu_spangle(struct GuiMenu *gmnu)
     for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
     {
         gbtn = &active_buttons[i];
-        if ((!gbtn->callback_draw) || ((gbtn->flags & LbBtnFlag_Visible) == 0) || ((gbtn->flags & LbBtnFlag_Created) == 0) || (game.flash_button_index == 0))
+        if ((gbtn->callback_draw == NULL) || ((gbtn->flags & LbBtnFlag_Visible) == 0) || ((gbtn->flags & LbBtnFlag_Created) == 0) || (game.flash_button_index == 0))
           continue;
         in_range = 0;
         switch (gbtn->tab_id)
