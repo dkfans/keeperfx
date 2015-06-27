@@ -251,7 +251,7 @@ void gui_video_gamma_correction(struct GuiButton *gbtn)
 
 void gui_set_sound_volume(struct GuiButton *gbtn)
 {
-    if (gbtn->tab_id == 75)
+    if (gbtn->designation_id == BID_SOUND_VOL)
     {
       if (settings.sound_volume != sound_level)
           do_sound_menu_click();

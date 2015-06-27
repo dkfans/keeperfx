@@ -104,13 +104,33 @@ void menu_tab_maintain(struct GuiButton *gbtn)
         gbtn->flags &= ~LbBtnFlag_Enabled;
 }
 
+
+/**
+ * Returns tab designation ID if the button with given designation ID is within a tab.
+ * @param btn_designt_id
+ */
+short button_designation_to_tab_designation(short btn_designt_id)
+{
+    if ((btn_designt_id >= BID_QRY_IMPRSN) && (btn_designt_id <= BID_QRY_BTN3))
+        return BID_INFO_TAB;
+    if ((btn_designt_id >= BID_ROOM_TD01) && (btn_designt_id <= BID_ROOM_TD16))
+        return BID_ROOM_TAB;
+    if ((btn_designt_id >= BID_POWER_TD01) && (btn_designt_id <= BID_POWER_TD16))
+        return BID_SPELL_TAB;
+    if ((btn_designt_id >= BID_MNFCT_TD01) && (btn_designt_id <= BID_MNFCT_TD16))
+        return BID_MNFCT_TAB;
+    if ((btn_designt_id >= BID_CRTR_NXWNDR) && (btn_designt_id <= BID_CRTR_NXFIGT))
+        return BID_CREATR_TAB;
+    return BID_DEFAULT;
+}
+
 void gui_area_autopilot_button(struct GuiButton *gbtn)
 {
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(my_player_number);
     int spr_idx;
     spr_idx = gbtn->sprite_idx;
-    if (gbtn->button_type == LbBtnType_ToggleButton) {
+    if (gbtn->button_type == LbBtnT_ToggleBtn) {
         ERRORLOG("Cycle button cannot have a normal button draw function!");
     }
     int ps_units_per_px;
