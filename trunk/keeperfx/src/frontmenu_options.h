@@ -20,6 +20,7 @@
 #define DK_FRONTMENU_OPTS_H
 
 #include "globals.h"
+#include "bflib_guibtns.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,6 +32,10 @@ extern "C" {
 
 struct GuiMenu;
 struct GuiButton;
+
+enum OptionsButtonDesignationIDs {
+    BID_SOUND_VOL = BID_DEFAULT+75,
+};
 
 #pragma pack()
 /******************************************************************************/

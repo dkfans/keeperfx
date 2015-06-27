@@ -334,6 +334,7 @@ unsigned char field_1506D4;
     char evntbox_text_buffer[MESSAGE_TEXT_LEN];
     struct TextScrollWindow evntbox_scroll_window;
 char field_1512E6[1037];
+    /** Designation ID of a button which is supposed to flash, as part of tutorial. */
     long flash_button_index;
     long flash_button_gameturns; // signed
 long field_1516FB;

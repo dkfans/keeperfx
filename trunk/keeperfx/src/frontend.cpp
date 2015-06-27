@@ -713,7 +713,7 @@ short game_is_busy_doing_gui(void)
     return false;
 }
 
-TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
+TbBool get_button_area_input(struct GuiButton *gbtn, int designation_id)
 {
     char *str;
     int key, outchar;
@@ -722,7 +722,7 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
     strcpy(vischar, " ");
     str = (char *)gbtn->content;
     key = lbInkey;
-    if ((modifiers == -1) && (lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT]))
+    if ((designation_id == -1) && (lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT]))
     {
         if ((lbInkey == KC_LSHIFT) || (lbInkey == KC_RSHIFT)) {
             lbInkey = KC_UNASSIGNED;
@@ -736,7 +736,7 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
     }
     vischar[0] = outchar;
     if ((key == KC_RETURN) &&
-        ((gbtn->max_value < 0) || (str[0] != '\0') || (modifiers == -3)))
+        ((gbtn->max_value < 0) || (str[0] != '\0') || (designation_id == -3)))
     {
         gbtn->leftclick_flag = 0;
         (gbtn->callback_click)(gbtn);
@@ -789,7 +789,7 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
     else if (LbLocTextStringSize(str) < abs(gbtn->max_value))
     {
         // Check if we have printable character
-        if ((modifiers == -1) && (!isprint(vischar[0])))
+        if ((designation_id == -1) && (!isprint(vischar[0])))
         {
             clear_key_pressed(key);
             return false;
@@ -1817,7 +1817,7 @@ void do_button_click_actions(struct GuiButton *gbtn, unsigned char *pClickFlag, 
 {
     SYNCDBG(9,"Starting for button type %d",(int)gbtn->button_type);
     //_DK_do_button_click_actions(gbtn, pClickFlag, callback);
-    if (gbtn->button_type == LbBtnType_RadioButton)
+    if (gbtn->button_type == LbBtnT_RadioBtn)
     {
         //TODO: pointers comparison should be avoided
         if (pClickFlag == &(gbtn->rightclick_flag))
@@ -1827,13 +1827,13 @@ void do_button_click_actions(struct GuiButton *gbtn, unsigned char *pClickFlag, 
     {
         switch (gbtn->button_type)
         {
-        case LbBtnType_NormalButton:
-        case LbBtnType_ToggleButton:
-        case LbBtnType_EditBox:
-        case LbBtnType_Unknown6:
+        case LbBtnT_NormalBtn:
+        case LbBtnT_ToggleBtn:
+        case LbBtnT_EditBox:
+        case LbBtnT_Unknown6:
             *pClickFlag = 1;
             break;
-        case LbBtnType_RadioButton:
+        case LbBtnT_RadioBtn:
             if ((gbtn->content != NULL) && (!*pClickFlag))
             {
                 unsigned char *rbstate;
@@ -1857,7 +1857,7 @@ void do_button_click_actions(struct GuiButton *gbtn, unsigned char *pClickFlag, 
 void do_button_press_actions(struct GuiButton *gbtn, unsigned char *pClickFlag, Gf_Btn_Callback callback)
 {
     SYNCDBG(9,"Starting for button type %d",(int)gbtn->button_type);
-    if (gbtn->button_type == LbBtnType_RadioButton)
+    if (gbtn->button_type == LbBtnT_RadioBtn)
     {
         //TODO: pointers comparison should be avoided
         if (pClickFlag == &(gbtn->rightclick_flag))
@@ -1867,22 +1867,22 @@ void do_button_press_actions(struct GuiButton *gbtn, unsigned char *pClickFlag, 
     {
         switch (gbtn->button_type)
         {
-        case LbBtnType_HoldableButton:
+        case LbBtnT_HoldableBtn:
             if ((*pClickFlag > 5) && (callback != NULL)) {
                 callback(gbtn);
             } else {
                 (*pClickFlag)++;
             }
             break;
-        case LbBtnType_Unknown6:
+        case LbBtnT_Unknown6:
             if (callback != NULL) {
                 callback(gbtn);
             }
             break;
-        case LbBtnType_NormalButton:
-        case LbBtnType_ToggleButton:
-        case LbBtnType_EditBox:
-        case LbBtnType_RadioButton:
+        case LbBtnT_NormalBtn:
+        case LbBtnT_ToggleBtn:
+        case LbBtnT_EditBox:
+        case LbBtnT_RadioBtn:
             break;
         }
     }
@@ -1895,8 +1895,8 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *pClickFlag
   struct GuiMenu *gmnu;
   switch ( gbtn->button_type )
   {
-  case LbBtnType_NormalButton:
-  case LbBtnType_HoldableButton:
+  case LbBtnT_NormalBtn:
+  case LbBtnT_HoldableBtn:
       if ((*pClickFlag != 0) && (callback != NULL))
       {
           do_sound_button_click(gbtn);
@@ -1904,7 +1904,7 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *pClickFlag
       }
       *pClickFlag = 0;
       break;
-  case LbBtnType_ToggleButton:
+  case LbBtnT_ToggleBtn:
       i = *(unsigned char *)gbtn->content;
       i++;
       if (gbtn->max_value < i)
@@ -1917,13 +1917,13 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *pClickFlag
       }
       *pClickFlag = 0;
       break;
-  case LbBtnType_RadioButton:
+  case LbBtnT_RadioBtn:
       //TODO: pointers comparison should be avoided
       if (pClickFlag == &(gbtn->rightclick_flag))
           // Radio button do not respond to right click.
         return;
       break;
-  case LbBtnType_EditBox:
+  case LbBtnT_EditBox:
       input_button = gbtn;
       setup_input_field(input_button, get_string(GUIStr_MnuUnused));
       break;
@@ -1937,7 +1937,7 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *pClickFlag
     gmnu = get_active_menu(gbtn->menu_idx);
     if (gbtn->parent_menu != NULL)
       create_menu(gbtn->parent_menu);
-    if ((gbtn->flags & LbBtnFlag_CloseCurrentMenu) && (gbtn->button_type != LbBtnType_EditBox))
+    if ((gbtn->flags & LbBtnFlag_CloseCurrentMenu) && (gbtn->button_type != LbBtnT_EditBox))
     {
       if (callback == NULL)
         do_sound_menu_click();
@@ -2026,7 +2026,7 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonTemplate *gbinit, int un
     {
         gbtn->menu_idx = gmnu->index;
         gbtn->button_type = gbinit->button_type;
-        gbtn->tab_id = gbinit->tab_id;
+        gbtn->designation_id = gbinit->designation_id;
         set_flag_byte(&gbtn->flags, LbBtnFlag_CloseCurrentMenu, (gbinit->close_menu & 0xff));
         gbtn->callback_click = gbinit->callback_click;
         gbtn->callback_rightclick = gbinit->callback_rightclick;
@@ -2070,7 +2070,7 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonTemplate *gbinit, int un
         gbtn->scr_pos_y = gmnu->pos_y + (gbinit->scr_pos_y * units_per_px + 8) / 16;
     }
 
-    if (gbtn->button_type == LbBtnType_RadioButton)
+    if (gbtn->button_type == LbBtnT_RadioBtn)
     {
         struct TextScrollWindow *scrollwnd;
         scrollwnd = (struct TextScrollWindow *)gbtn->content;
@@ -3016,7 +3016,7 @@ void draw_menu_buttons(struct GuiMenu *gmnu)
         callback = gbtn->callback_draw;
         if ((callback != NULL) && (gbtn->flags & LbBtnFlag_Visible) && (gbtn->flags & LbBtnFlag_Created) && (gbtn->menu_idx == gmnu->index))
         {
-          if ( ((gbtn->leftclick_flag == 0) && (gbtn->rightclick_flag == 0)) || (gbtn->button_type == LbBtnType_HorizontalSlider) || (callback == gui_area_null) )
+          if ( ((gbtn->leftclick_flag == 0) && (gbtn->rightclick_flag == 0)) || (gbtn->button_type == LbBtnT_HorizSlider) || (callback == gui_area_null) )
             callback(gbtn);
         }
     }
@@ -3027,7 +3027,7 @@ void draw_menu_buttons(struct GuiMenu *gmnu)
         callback = gbtn->callback_draw;
         if ((callback != NULL) && (gbtn->flags & LbBtnFlag_Visible) && (gbtn->flags & LbBtnFlag_Created) && (gbtn->menu_idx == gmnu->index))
         {
-          if (((gbtn->leftclick_flag) || (gbtn->rightclick_flag)) && (gbtn->button_type != LbBtnType_HorizontalSlider) && (callback != gui_area_null))
+          if (((gbtn->leftclick_flag) || (gbtn->rightclick_flag)) && (gbtn->button_type != LbBtnT_HorizSlider) && (callback != gui_area_null))
             callback(gbtn);
         }
     }
@@ -3102,7 +3102,6 @@ void draw_menu_spangle(struct GuiMenu *gmnu)
 {
     struct GuiButton *gbtn;
     int i;
-    short in_range;
     if (gmnu->is_turned_on == 0)
       return;
     for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
@@ -3110,38 +3109,13 @@ void draw_menu_spangle(struct GuiMenu *gmnu)
         gbtn = &active_buttons[i];
         if ((gbtn->callback_draw == NULL) || ((gbtn->flags & LbBtnFlag_Visible) == 0) || ((gbtn->flags & LbBtnFlag_Created) == 0) || (game.flash_button_index == 0))
           continue;
-        in_range = 0;
-        switch (gbtn->tab_id)
+        if ((gbtn->designation_id > BID_DEFAULT) && (gbtn->designation_id == button_designation_to_tab_designation(game.flash_button_index)))
         {
-        case BID_INFO_TAB:
-          if ((game.flash_button_index >= 68) && (game.flash_button_index <= 71))
-            in_range = 1;
-          break;
-        case BID_ROOM_TAB:
-          if ((game.flash_button_index >= 6) && (game.flash_button_index <= 20))
-            in_range = 1;
-          break;
-        case BID_SPELL_TAB:
-          if ((game.flash_button_index >= 21) && (game.flash_button_index <= 36))
-            in_range = 1;
-          break;
-        case BID_TRAP_TAB:
-          if ((game.flash_button_index >= 53) && (game.flash_button_index <= 61))
-            in_range = 1;
-          break;
-        case BID_CREATR_TAB:
-          if ((game.flash_button_index >= 72) && (game.flash_button_index <= 74))
-            in_range = 1;
-          break;
-        default:
-          break;
-        }
-        if (in_range)
-        {
+            // Button is a tab header; spangle if the tab isn't active
             if (!menu_is_active(gbtn->btype_value))
                 spangle_button(gbtn);
         } else
-        if ((gbtn->tab_id > 0) && (gbtn->tab_id == game.flash_button_index))
+        if ((gbtn->designation_id > BID_DEFAULT) && (gbtn->designation_id == game.flash_button_index))
         {
             spangle_button(gbtn);
         }

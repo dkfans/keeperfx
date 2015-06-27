@@ -40,18 +40,21 @@ struct GuiBoxOption;
 #define TOOLTIP_MAX_LEN   2048
 #define SLIDER_MAXVALUE    256
 
+/** Default button designation ID. Other designation IDs should be defined relatively to it. */
+#define BID_DEFAULT 0
+
 // Type definitions
 enum TbButtonType {
-    LbBtnType_NormalButton = 0,
+    LbBtnT_NormalBtn = 0,
     /** Have continous effect when mouse is held on it. Used for scrollable lists. */
-    LbBtnType_HoldableButton,
+    LbBtnT_HoldableBtn,
     /** Toggles between two states. Used for on/off switches. */
-    LbBtnType_ToggleButton,
+    LbBtnT_ToggleBtn,
     /** Allows selecting one from grouped buttons. */
-    LbBtnType_RadioButton,
-    LbBtnType_HorizontalSlider,
-    LbBtnType_EditBox,
-    LbBtnType_Unknown6,
+    LbBtnT_RadioBtn,
+    LbBtnT_HorizSlider,
+    LbBtnT_EditBox,
+    LbBtnT_Unknown6,
 };
 
 enum TbButtonFlags {
@@ -129,8 +132,9 @@ struct DraggingBox {
  */
 struct GuiButtonTemplate {
     char button_type;
-    /** When button is header of a tab, this is the id of the tab. */
-    short tab_id;
+    /** Identifier which determines designation of the button.
+     * If there is no need of identifying the button within game code, it should be set to BID_DEFAULT. */
+    short designation_id;
     short field_3; // unused.
     short close_menu;
     /** Click event callback. */
@@ -171,8 +175,8 @@ struct GuiButton {
     /** Index of the menu this button is located.
      * Not necessary equal to parent_menu (ie. show more info button). */
     char menu_idx;
-    /** When button is header of a tab, this is the id of the tab. */
-    short tab_id;
+    /** Identifier which determines designation of the button. */
+    short designation_id;
     unsigned char button_type;
     /** Click event callback. */
     Gf_Btn_Callback callback_click;
@@ -184,7 +188,7 @@ struct GuiButton {
     Gf_Btn_Callback callback_draw;
     /** Callback on button maintain. */
     Gf_Btn_Callback callback_maintain;
-    /** Value specific to button type. Contains index in group for grouped buttons, bool state for toggle button etc. */
+    /** Value specific to button type. Contains index in group for grouped buttons, bool state for toggle button, menu index for tab button etc. */
     unsigned short btype_value;
     /** Position after scaling. */
     short scr_pos_x;

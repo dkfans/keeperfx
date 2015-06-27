@@ -1963,7 +1963,7 @@ static void get_dungeon_speech_inputs(void)
         set_menu_mode(BID_SPELL_TAB);
         break;
     case KS_VIEW_TRAPS:
-        set_menu_mode(BID_TRAP_TAB);
+        set_menu_mode(BID_MNFCT_TAB);
         break;
     case KS_VIEW_CREATURES:
         set_menu_mode(BID_CREATR_TAB);
@@ -2173,7 +2173,7 @@ short get_gui_inputs(short gameplay_on)
         for (idx = 0; idx < ACTIVE_BUTTONS_COUNT; idx++)
         {
             struct GuiButton *gbtn = &active_buttons[idx];
-            if ((gbtn->flags & LbBtnFlag_Created) && (gbtn->button_type == LbBtnType_Unknown6))
+            if ((gbtn->flags & LbBtnFlag_Created) && (gbtn->button_type == LbBtnT_Unknown6))
             {
                 gbtn->leftclick_flag = 0;
             }
@@ -2210,7 +2210,7 @@ short get_gui_inputs(short gameplay_on)
             continue;
 
         if ((check_if_mouse_is_over_button(gbtn) && !game_is_busy_doing_gui_string_input()) ||
-            ((gbtn->button_type == LbBtnType_Unknown6) && (gbtn->leftclick_flag != 0)))
+            ((gbtn->button_type == LbBtnT_Unknown6) && (gbtn->leftclick_flag != 0)))
         {
             if ((iFirstMonopolyMenu == -1) || (gbtn->menu_idx == iFirstMonopolyMenu))
             {
@@ -2221,9 +2221,9 @@ short get_gui_inputs(short gameplay_on)
 
                 if (callback != NULL)
                     callback(gbtn);
-                if (gbtn->button_type == LbBtnType_Unknown6)
+                if (gbtn->button_type == LbBtnT_Unknown6)
                     break;
-                if (gbtn->button_type == LbBtnType_HorizontalSlider)
+                if (gbtn->button_type == LbBtnT_HorizSlider)
                     nx_over_slider_button = iButton;
             }
             else
@@ -2236,7 +2236,7 @@ short get_gui_inputs(short gameplay_on)
             gbtn->flags &= ~LbBtnFlag_MouseOver;
         }
 
-        if (gbtn->button_type == LbBtnType_HorizontalSlider)
+        if (gbtn->button_type == LbBtnT_HorizSlider)
         {
             if (gui_slider_button_mouse_over_slider_tracker(iButton))
             {
@@ -2259,7 +2259,7 @@ short get_gui_inputs(short gameplay_on)
     if (game_is_busy_doing_gui_string_input())
     {
         busy_doing_gui = 1;
-        if (get_button_area_input(input_button, input_button->tab_id) != 0)
+        if (get_button_area_input(input_button, input_button->designation_id) != 0)
             result = 1;
     }
     if ((over_slider_button != -1) && (left_button_released))

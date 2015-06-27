@@ -32,11 +32,83 @@ extern "C" {
 struct GuiMenu;
 struct GuiButton;
 
-#define BID_INFO_TAB      1
-#define BID_ROOM_TAB      2
-#define BID_SPELL_TAB     3
-#define BID_TRAP_TAB      4
-#define BID_CREATR_TAB    5
+enum IngameButtonDesignationIDs {
+    BID_INFO_TAB = BID_DEFAULT+1,
+    BID_ROOM_TAB,
+    BID_SPELL_TAB,
+    BID_MNFCT_TAB,
+    BID_CREATR_TAB,//5
+    BID_ROOM_TD01,
+    BID_ROOM_TD02,
+    BID_ROOM_TD03,
+    BID_ROOM_TD04,
+    BID_ROOM_TD05,//10
+    BID_ROOM_TD06,
+    BID_ROOM_TD07,
+    BID_ROOM_TD08,
+    BID_ROOM_TD09,
+    BID_ROOM_TD10,//15
+    BID_ROOM_TD11,
+    BID_ROOM_TD12,
+    BID_ROOM_TD13,
+    BID_ROOM_TD14,
+    //BID_ROOM_TD15, -- no such index
+    BID_ROOM_TD16,//20
+    BID_POWER_TD01,
+    BID_POWER_TD02,
+    BID_POWER_TD03,
+    BID_POWER_TD04,
+    BID_POWER_TD05,//25
+    BID_POWER_TD06,
+    BID_POWER_TD07,
+    BID_POWER_TD08,
+    BID_POWER_TD09,
+    BID_POWER_TD10,//30
+    BID_POWER_TD11,
+    BID_POWER_TD12,
+    BID_POWER_TD13,
+    BID_POWER_TD14,
+    BID_POWER_TD15,//35
+    BID_POWER_TD16,
+    BID_MAP_ZOOM_FS,
+    BID_MAP_ZOOM_IN,
+    BID_MAP_ZOOM_OU,
+    BID_MSG_EV01,//40
+    BID_MSG_EV02,
+    BID_MSG_EV03,
+    BID_MSG_EV04,
+    BID_MSG_EV05,
+    BID_MSG_EV06,//45
+    BID_MSG_EV07,
+    BID_MSG_EV08,
+    BID_MSG_EV09,
+    BID_MSG_EV10,
+    BID_MSG_EV11,//50
+    BID_MSG_EV12,
+    BID_MSG_EV13,
+    BID_MNFCT_TD01,
+    BID_MNFCT_TD02,
+    BID_MNFCT_TD03,//55
+    BID_MNFCT_TD04,
+    BID_MNFCT_TD05,
+    BID_MNFCT_TD06,
+    BID_MNFCT_TD07,
+    BID_MNFCT_TD08,//60
+    BID_MNFCT_TD09,
+    BID_MNFCT_TD10,
+    BID_MNFCT_TD11,
+    BID_MNFCT_TD12,
+    BID_MNFCT_TD13,//65
+    BID_MNFCT_TD14,
+    BID_MNFCT_TD15,
+    BID_MNFCT_TD16,
+    BID_QRY_IMPRSN,
+    BID_QRY_FLEE,//70
+    BID_QRY_BTN3,
+    BID_CRTR_NXWNDR,
+    BID_CRTR_NXWRKR,
+    BID_CRTR_NXFIGT,
+};
 
 struct InstanceButtonInit {  // sizeof=0x6
     long numfield_0;
@@ -77,6 +149,8 @@ extern struct TiledSprite status_panel;
 /******************************************************************************/
 void draw_whole_status_panel(void);
 void gui_set_button_flashing(long btn_idx, long gameturns);
+short button_designation_to_tab_designation(short btn_designt_id);
+
 
 void update_room_tab_to_config(void);
 void update_trap_tab_to_config(void);
