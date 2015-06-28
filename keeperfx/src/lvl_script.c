@@ -367,6 +367,22 @@ const struct NamedCommand creature_select_criteria_desc[] = {
   {NULL,                   0},
 };
 
+/**
+ * Text names of groups of GUI Buttons.
+ */
+const struct NamedCommand gui_button_group_desc[] = {
+  {"MINIMAP",         GID_MINIMAP_AREA},
+  {"TABS",            GID_TABS_AREA},
+  {"INFO",            GID_INFO_PANE},
+  {"ROOM",            GID_ROOM_PANE},
+  {"POWER",           GID_POWER_PANE},
+  {"TRAP",            GID_TRAP_PANE},
+  {"DOOR",            GID_DOOR_PANE},
+  {"CREATURE",        GID_CREATR_PANE},
+  {"MESSAGE",         GID_MESSAGE_AREA},
+  {NULL,               0},
+};
+
 /******************************************************************************/
 DLLIMPORT long _DK_script_support_send_tunneller_to_appropriate_dungeon(struct Thing *thing);
 /******************************************************************************/
@@ -974,7 +990,7 @@ void command_add_to_party(const char *prtname, const char *crtr_name, long crtr_
 
 void command_tutorial_flash_button(long btn_id, long duration)
 {
-  command_add_value(Cmd_TUTORIAL_FLASH_BUTTON, ALL_PLAYERS, btn_id, duration, 0);
+    command_add_value(Cmd_TUTORIAL_FLASH_BUTTON, ALL_PLAYERS, btn_id, duration, 0);
 }
 
 void command_add_party_to_level(long plr_range_id, const char *prtname, const char *locname, long ncopies)

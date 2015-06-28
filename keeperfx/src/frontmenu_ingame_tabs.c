@@ -104,7 +104,6 @@ void menu_tab_maintain(struct GuiButton *gbtn)
         gbtn->flags &= ~LbBtnFlag_Enabled;
 }
 
-
 /**
  * Returns tab designation ID if the button with given designation ID is within a tab.
  * @param btn_designt_id
@@ -121,6 +120,85 @@ short button_designation_to_tab_designation(short btn_designt_id)
         return BID_MNFCT_TAB;
     if ((btn_designt_id >= BID_CRTR_NXWNDR) && (btn_designt_id <= BID_CRTR_NXFIGT))
         return BID_CREATR_TAB;
+    return BID_DEFAULT;
+}
+
+/**
+ * Converts button group and item index into designation ID.
+ * To be used for referencing interface items within scripts.
+ *
+ * @param btn_group Group definition, from IngameButtonGroupIDs.
+ * @param btn_item Item definition within group, may be room index, manufacture index, power index or just button within group index.
+ */
+short get_button_designation(short btn_group, short btn_item)
+{
+    int i, n;
+    switch (btn_group)
+    {
+    case GID_MINIMAP_AREA:
+        return BID_MAP_ZOOM_FS+btn_item-1;
+    case GID_TABS_AREA:
+        return BID_INFO_TAB+btn_item-1;
+    case GID_INFO_PANE:
+        return BID_QRY_IMPRSN+btn_item-1;
+    case GID_ROOM_PANE:
+        switch (btn_item)
+        {
+        case TERRAIN_ITEMS_MAX+1:
+            return BID_ROOM_TD16;
+        }
+        for (i=0; i < 4*4; i++)
+        {
+            struct GuiButtonTemplate * ibtn;
+            ibtn = &room_menu.buttons[i];
+            if (ibtn->content.lval == btn_item)
+                return ibtn->designation_id;
+        }
+        break;
+    case GID_POWER_PANE:
+        for (i=0; i < 4*4; i++)
+        {
+            struct GuiButtonTemplate * ibtn;
+            ibtn = &spell_menu.buttons[i];
+            if (ibtn->content.lval == btn_item)
+                return ibtn->designation_id;
+        }
+        break;
+    case GID_TRAP_PANE:
+        switch (btn_item)
+        {
+        case TRAPDOOR_TYPES_MAX+1:
+            return BID_MNFCT_TD10;
+        }
+        n = get_manufacture_data_index_for_thing(TCls_Trap, btn_item);
+        for (i=0; i < 4*4; i++)
+        {
+            struct GuiButtonTemplate * ibtn;
+            ibtn = &trap_menu.buttons[i];
+            if (ibtn->content.lval == n)
+                return ibtn->designation_id;
+        }
+        break;
+    case GID_DOOR_PANE:
+        switch (btn_item)
+        {
+        case TRAPDOOR_TYPES_MAX+1:
+            return BID_MNFCT_TD10;
+        }
+        n = get_manufacture_data_index_for_thing(TCls_Door, btn_item);
+        for (i=0; i < 4*4; i++)
+        {
+            struct GuiButtonTemplate * ibtn;
+            ibtn = &trap_menu.buttons[i];
+            if (ibtn->content.lval == n)
+                return ibtn->designation_id;
+        }
+        break;
+    case GID_CREATR_PANE:
+        return BID_CRTR_NXWNDR+btn_item-1;
+    case GID_MESSAGE_AREA:
+        return BID_MSG_EV01+btn_item-1;
+    }
     return BID_DEFAULT;
 }
 
