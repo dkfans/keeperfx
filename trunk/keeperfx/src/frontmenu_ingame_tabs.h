@@ -110,6 +110,19 @@ enum IngameButtonDesignationIDs {
     BID_CRTR_NXFIGT,
 };
 
+enum IngameButtonGroupIDs {
+    GID_NONE = 0,
+    GID_MINIMAP_AREA,
+    GID_TABS_AREA,
+    GID_INFO_PANE,
+    GID_ROOM_PANE,
+    GID_POWER_PANE,
+    GID_TRAP_PANE,
+    GID_DOOR_PANE,
+    GID_CREATR_PANE,
+    GID_MESSAGE_AREA,
+};
+
 struct InstanceButtonInit {  // sizeof=0x6
     long numfield_0;
     short tooltip_str_idx;
@@ -150,6 +163,7 @@ extern struct TiledSprite status_panel;
 void draw_whole_status_panel(void);
 void gui_set_button_flashing(long btn_idx, long gameturns);
 short button_designation_to_tab_designation(short btn_designt_id);
+short get_button_designation(short btn_group, short btn_item);
 
 
 void update_room_tab_to_config(void);
