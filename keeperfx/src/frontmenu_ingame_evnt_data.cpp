@@ -25,6 +25,7 @@
 #include "bflib_sprfnt.h"
 #include "bflib_vidraw.h"
 
+#include "frontmenu_ingame_tabs.h"
 #include "gui_frontbtns.h"
 #include "gui_draw.h"
 #include "frontend.h"
@@ -47,26 +48,26 @@ void gui_setup_enemy_over(struct GuiButton *gbtn);
 void gui_area_enemy_battlers(struct GuiButton *gbtn);
 /******************************************************************************/
 struct GuiButtonTemplate text_info_buttons[] = {
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,   4, 999,   4,400, 78, gui_area_scroll_window,            0, GUIStr_Empty,  0,{(long)&game.evntbox_scroll_window},0,0, NULL },
-  { 1, 63, 0, 0, gui_go_to_event,    NULL,        NULL,               0,   4,   4,   4,   4, 30, 24, gui_area_new_normal_button,      276, GUIStr_ZoomToArea,   0,       {0},             0,0, maintain_zoom_to_event },
-  { 0, 64, 0, 1, gui_close_objective,gui_close_objective,NULL,        0,   4,  56,   4,  56, 30, 24, gui_area_new_normal_button,      274, GUIStr_CloseWindow,  0,       {0},             0,0, NULL },
-  { 1, 66, 0, 0, gui_scroll_text_up, NULL,        NULL,               0, 446,   4, 446,   4, 30, 24, gui_area_new_normal_button,      486, GUIStr_Empty,  0,{(long)&game.evntbox_scroll_window},0,0, maintain_scroll_up },
-  { 1, 65, 0, 0, gui_scroll_text_down,NULL,       NULL,               0, 446,  56, 446,  56, 30, 24, gui_area_new_normal_button,      272, GUIStr_Empty,  0,{(long)&game.evntbox_scroll_window},0,0, maintain_scroll_down },
-  {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                 0,       {0},            0, 0, NULL },
+  {LbBtnT_NormalBtn,   BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 999,   4, 999,   4,400, 78, gui_area_scroll_window,            0, GUIStr_Empty,  0,{(long)&game.evntbox_scroll_window},0,0, NULL },
+  {LbBtnT_HoldableBtn,BID_MSG_ZOOM, 0, 0, gui_go_to_event,    NULL,        NULL,               0,   4,   4,   4,   4, 30, 24, gui_area_new_normal_button,      276, GUIStr_ZoomToArea,   0,       {0},             0,0, maintain_zoom_to_event },
+  {LbBtnT_NormalBtn,  BID_MSG_CLOSE,0, 1, gui_close_objective,gui_close_objective,NULL,        0,   4,  56,   4,  56, 30, 24, gui_area_new_normal_button,      274, GUIStr_CloseWindow,  0,       {0},             0,0, NULL },
+  {LbBtnT_HoldableBtn,BID_MSG_SCRLUP,0,0, gui_scroll_text_up, NULL,        NULL,               0, 446,   4, 446,   4, 30, 24, gui_area_new_normal_button,      486, GUIStr_Empty,  0,{(long)&game.evntbox_scroll_window},0,0, maintain_scroll_up },
+  {LbBtnT_HoldableBtn,BID_MSG_SCRLDN,0,0, gui_scroll_text_down,NULL,       NULL,               0, 446,  56, 446,  56, 30, 24, gui_area_new_normal_button,      272, GUIStr_Empty,  0,{(long)&game.evntbox_scroll_window},0,0, maintain_scroll_down },
+  {                -1, BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                 0,       {0},            0, 0, NULL },
 };
 
 struct GuiButtonTemplate battle_buttons[] = {
-  { 0,  0, 0, 1, gui_close_objective,NULL,        NULL,               0,   4,  72,   4,  72, 30, 24, gui_area_new_normal_button,      274, GUIStr_CloseWindow,  0,       {0},            0, 0, NULL },
-  { 1,  0, 0, 0, gui_previous_battle,NULL,        NULL,               0, 446,   4, 446,   4, 30, 24, gui_area_new_normal_button,      486, GUIStr_NextBattleDesc,0,      {0},            0, 0, NULL },
-  { 1,  0, 0, 0, gui_next_battle,NULL,            NULL,               0, 446,  72, 446,  72, 30, 24, gui_area_new_normal_button,      272, GUIStr_NextBattleDesc,0,      {0},            0, 0, NULL },
-  { 0,  0, 0, 0, gui_get_creature_in_battle,gui_go_to_person_in_battle,gui_setup_friend_over,0, 42,12, 42,12,160,24,gui_area_friendly_battlers,0,GUIStr_Empty,  0,       {0},            0, 0, NULL },
-  { 0,  0, 0, 0, gui_get_creature_in_battle,gui_go_to_person_in_battle,gui_setup_enemy_over, 0,260,12,260,12,160,24,gui_area_enemy_battlers,   0,GUIStr_Empty,  0,       {0},            0, 0, NULL },
-  { 0,  0, 0, 0, gui_get_creature_in_battle,gui_go_to_person_in_battle,gui_setup_friend_over,1, 42,42, 42,42,160,24,gui_area_friendly_battlers,0,GUIStr_Empty,  0,       {0},            0, 0, NULL },
-  { 0,  0, 0, 0, gui_get_creature_in_battle,gui_go_to_person_in_battle,gui_setup_enemy_over, 1,260,42,260,42,160,24,gui_area_enemy_battlers,   0,GUIStr_Empty,  0,       {0},            0, 0, NULL },
-  { 0,  0, 0, 0, gui_get_creature_in_battle,gui_go_to_person_in_battle,gui_setup_friend_over,2, 42,72, 42,72,160,24,gui_area_friendly_battlers,0,GUIStr_Empty,  0,       {0},            0, 0, NULL },
-  { 0,  0, 0, 0, gui_get_creature_in_battle,gui_go_to_person_in_battle,gui_setup_enemy_over, 2,260,72,260,72,160,24,gui_area_enemy_battlers,   0,GUIStr_Empty,  0,       {0},            0, 0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 214,  34, 214,  34, 32, 32, gui_area_null,                   175, GUIStr_Empty,        0,       {0},            0, 0, NULL },
-  {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                 0,       {0},            0, 0, NULL },
+  {LbBtnT_NormalBtn,   BID_DEFAULT, 0, 1, gui_close_objective,NULL,        NULL,               0,   4,  72,   4,  72, 30, 24, gui_area_new_normal_button,      274, GUIStr_CloseWindow,  0,       {0},            0, 0, NULL },
+  {LbBtnT_HoldableBtn, BID_DEFAULT, 0, 0, gui_previous_battle,NULL,        NULL,               0, 446,   4, 446,   4, 30, 24, gui_area_new_normal_button,      486, GUIStr_NextBattleDesc,0,      {0},            0, 0, NULL },
+  {LbBtnT_HoldableBtn, BID_DEFAULT, 0, 0, gui_next_battle,NULL,            NULL,               0, 446,  72, 446,  72, 30, 24, gui_area_new_normal_button,      272, GUIStr_NextBattleDesc,0,      {0},            0, 0, NULL },
+  {LbBtnT_NormalBtn,   BID_DEFAULT, 0, 0, gui_get_creature_in_battle,gui_go_to_person_in_battle,gui_setup_friend_over,0, 42,12, 42,12,160,24,gui_area_friendly_battlers,0,GUIStr_Empty,  0,       {0},            0, 0, NULL },
+  {LbBtnT_NormalBtn,   BID_DEFAULT, 0, 0, gui_get_creature_in_battle,gui_go_to_person_in_battle,gui_setup_enemy_over, 0,260,12,260,12,160,24,gui_area_enemy_battlers,   0,GUIStr_Empty,  0,       {0},            0, 0, NULL },
+  {LbBtnT_NormalBtn,   BID_DEFAULT, 0, 0, gui_get_creature_in_battle,gui_go_to_person_in_battle,gui_setup_friend_over,1, 42,42, 42,42,160,24,gui_area_friendly_battlers,0,GUIStr_Empty,  0,       {0},            0, 0, NULL },
+  {LbBtnT_NormalBtn,   BID_DEFAULT, 0, 0, gui_get_creature_in_battle,gui_go_to_person_in_battle,gui_setup_enemy_over, 1,260,42,260,42,160,24,gui_area_enemy_battlers,   0,GUIStr_Empty,  0,       {0},            0, 0, NULL },
+  {LbBtnT_NormalBtn,   BID_DEFAULT, 0, 0, gui_get_creature_in_battle,gui_go_to_person_in_battle,gui_setup_friend_over,2, 42,72, 42,72,160,24,gui_area_friendly_battlers,0,GUIStr_Empty,  0,       {0},            0, 0, NULL },
+  {LbBtnT_NormalBtn,   BID_DEFAULT, 0, 0, gui_get_creature_in_battle,gui_go_to_person_in_battle,gui_setup_enemy_over, 2,260,72,260,72,160,24,gui_area_enemy_battlers,   0,GUIStr_Empty,  0,       {0},            0, 0, NULL },
+  {LbBtnT_NormalBtn,   BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 214,  34, 214,  34, 32, 32, gui_area_null,                   175, GUIStr_Empty,        0,       {0},            0, 0, NULL },
+  {               -1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                 0,       {0},            0, 0, NULL },
 };
 
 

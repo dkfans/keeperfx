@@ -151,38 +151,37 @@ TbClockMSec gui_message_timeout = 0;
 char gui_message_text[TEXT_BUFFER_LENGTH];
 
 struct GuiButtonTemplate frontend_main_menu_buttons[] = {
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,  26, 999,  26, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {1},            0, 0, NULL },
-  { 0,  0, 0, 0, frontend_start_new_game,NULL,frontend_over_button,     3, 999,  92, 999,  92, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {2},            0, 0, NULL },
-  { 0,  0, 0, 0, frontend_load_continue_game,NULL,frontend_over_button, 0, 999, 138, 999, 138, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {8},            0, 0, frontend_continue_game_maintain },
-  { 0,  0, 0, 0, frontend_ldcampaign_change_state,NULL,frontend_over_button,30,999,184,999,184,371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,     {106},            0, 0, NULL },
-  { 0,  0, 0, 0, frontend_change_state,NULL, frontend_over_button,    2, 999, 230,   999, 230, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {3},            0, 0, frontend_main_menu_load_game_maintain },
-  { 0,  0, 0, 0, frontend_netservice_change_state,NULL, frontend_over_button,4,999,276,999,276,371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {4},            0, 0, frontend_main_menu_netservice_maintain },
-  { 0,  0, 0, 0, frontend_change_state,NULL, frontend_over_button,   27, 999, 322,   999, 322, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,      {97},            0, 0, NULL },
-  { 0,  0, 0, 0, frontend_ldcampaign_change_state,NULL, frontend_over_button,18,999,368,999,368,371,46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,     {104},            0, 0, frontend_main_menu_highscores_maintain },
-  { 0,  0, 0, 0, frontend_change_state,NULL, frontend_over_button,      9, 999, 414, 999, 414, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {5},            0, 0, NULL },
-  {-1,  0, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,   0,  0, NULL,                             0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0, 999,  26, 999,  26, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {1},            0, 0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_start_new_game,NULL,frontend_over_button,     3, 999,  92, 999,  92, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {2},            0, 0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_load_continue_game,NULL,frontend_over_button, 0, 999, 138, 999, 138, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {8},            0, 0, frontend_continue_game_maintain },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_ldcampaign_change_state,NULL,frontend_over_button,30,999,184,999,184,371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,     {106},            0, 0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_change_state,NULL, frontend_over_button,    2, 999, 230,   999, 230, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {3},            0, 0, frontend_main_menu_load_game_maintain },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_netservice_change_state,NULL, frontend_over_button,4,999,276,999,276,371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {4},            0, 0, frontend_main_menu_netservice_maintain },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_change_state,NULL, frontend_over_button,   27, 999, 322,   999, 322, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,      {97},            0, 0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_ldcampaign_change_state,NULL, frontend_over_button,18,999,368,999,368,371,46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,     {104},            0, 0, frontend_main_menu_highscores_maintain },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_change_state,NULL, frontend_over_button,      9, 999, 414, 999, 414, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {5},            0, 0, NULL },
+  {              -1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,   0,  0, NULL,                             0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
 };
 
 struct GuiButtonTemplate frontend_statistics_buttons[] = {
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,  30, 999,  30,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {84},            0, 0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,  90, 999,  90,450,162, frontstats_draw_main_stats,        0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999, 260, 999, 260,450,136, frontstats_draw_scrolling_stats,   0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
-  { 0,  0, 0, 0, frontstats_leave,NULL,frontend_over_button,           18, 999, 404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {83},            0, 0, NULL },
-  {-1,  0, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0, 999,  30, 999,  30,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {84},            0, 0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0, 999,  90, 999,  90,450,162, frontstats_draw_main_stats,        0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0, 999, 260, 999, 260,450,136, frontstats_draw_scrolling_stats,   0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontstats_leave,NULL,frontend_over_button,           18, 999, 404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {83},            0, 0, NULL },
+  {              -1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
 };
 
 struct GuiButtonTemplate frontend_high_score_score_buttons[] = {
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,  30, 999,  30,495, 46, frontend_draw_vlarge_menu_button,  0, GUIStr_Empty,  0,      {85},            0, 0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,  97, 999,  97,450,286, frontend_draw_high_score_table,    0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
-  { 0,  0, 0, 0, frontend_quit_high_score_table,NULL,frontend_over_button,3,999,404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {83},            0, 0, frontend_maintain_high_score_ok_button },
-  {-1,  0, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0, 999,  30, 999,  30,495, 46, frontend_draw_vlarge_menu_button,  0, GUIStr_Empty,  0,      {85},            0, 0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0, 999,  97, 999,  97,450,286, frontend_draw_high_score_table,    0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_quit_high_score_table,NULL,frontend_over_button,3,999,404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {83},            0, 0, frontend_maintain_high_score_ok_button },
+  {              -1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
 };
 
 struct GuiButtonTemplate frontend_error_box_buttons[] = {
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,   0, 999,   0,450, 92, frontend_draw_error_text_box,      0, GUIStr_Empty,  0,{(long)gui_message_text},0, 0, frontend_maintain_error_text_box},
-  {-1,  0, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0, 999,   0, 999,   0,450, 92, frontend_draw_error_text_box,      0, GUIStr_Empty,  0,{(long)gui_message_text},0, 0, frontend_maintain_error_text_box},
+  {              -1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, 0, NULL },
 };
-
 
 struct GuiMenu frontend_main_menu =
  { GMnu_FEMAIN,             0, 1, frontend_main_menu_buttons, POS_SCRCTR,POS_SCRCTR, 640, 480, NULL, 0, NULL,    NULL,                    0, 0, 0,};
