@@ -160,11 +160,11 @@ long find_dig_from_task_list(PlayerNumber plyr_idx, SubtlCodedCoords srch_tsk)
 long find_next_dig_in_dungeon_task_list(struct Dungeon *dungeon, long last_dig)
 {
     struct MapTask *mtask;
-    long i,max;
-    max = dungeon->field_AF7;
-    if (max > MAPTASKS_COUNT)
-        max = MAPTASKS_COUNT;
-    for (i=last_dig+1; i < max; i++)
+    long i,mtasks_num;
+    mtasks_num = dungeon->field_AF7;
+    if (mtasks_num > MAPTASKS_COUNT)
+        mtasks_num = MAPTASKS_COUNT;
+    for (i=last_dig+1; i < mtasks_num; i++)
     {
       mtask = &dungeon->task_list[i];
       if ((mtask->kind != SDDigTask_None) && (mtask->kind != SDDigTask_Unknown3))

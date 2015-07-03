@@ -28,6 +28,7 @@
 #include "dungeon_data.h"
 #include "tasks_list.h"
 #include "config_creature.h"
+#include "config_crtrstates.h"
 #include "config_terrain.h"
 #include "thing_corpses.h"
 #include "thing_navigate.h"
@@ -1017,16 +1018,17 @@ long check_out_undug_area(struct Thing *thing)
     return 1;
 }
 
-long add_undug_to_imp_stack(struct Dungeon *dungeon, long num)
+int add_undug_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
 {
     struct MapTask* mtask;
     long stl_x, stl_y;
-    long i,nused;
+    long i;
     SYNCDBG(18,"Starting");
-    nused = 0;
+    int remain_num;
+    remain_num = max_tasks;
     // Loop two times; first add destroyable blocks, then (if we have space) those which can be dug forever (gems)
     i = -1;
-    while ((num > 0) && (dungeon->digger_stack_length < DIGGER_TASK_MAX_COUNT))
+    while ((remain_num > 0) && (dungeon->digger_stack_length < DIGGER_TASK_MAX_COUNT))
     {
         i = find_next_dig_in_dungeon_task_list(dungeon, i);
         if (i < 0)
@@ -1043,14 +1045,13 @@ long add_undug_to_imp_stack(struct Dungeon *dungeon, long num)
                 if ( block_has_diggable_side(dungeon->owner, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)) )
                 {
                     add_to_imp_stack_using_pos(mtask->coords, DigTsk_DigOrMine, dungeon);
-                    num--;
-                    nused++;
+                    remain_num--;
                 }
             }
         }
     }
     i = -1;
-    while ((num > 0) && (dungeon->digger_stack_length < DIGGER_TASK_MAX_COUNT))
+    while ((remain_num > 0) && (dungeon->digger_stack_length < DIGGER_TASK_MAX_COUNT))
     {
         i = find_next_dig_in_dungeon_task_list(dungeon, i);
         if (i < 0)
@@ -1067,13 +1068,13 @@ long add_undug_to_imp_stack(struct Dungeon *dungeon, long num)
                 if ( block_has_diggable_side(dungeon->owner, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)) )
                 {
                     add_to_imp_stack_using_pos(mtask->coords, DigTsk_DigOrMine, dungeon);
-                    num--;
-                    nused++;
+                    remain_num--;
                 }
             }
         }
     }
-    return nused;
+    SYNCDBG(8,"Done, added %d tasks",(int)(max_tasks-remain_num));
+    return (max_tasks-remain_num);
 }
 
 TbBool add_to_reinforce_stack(long slb_x, long slb_y, SpDiggerTaskType task_type)
@@ -1142,7 +1143,7 @@ struct Around spdigger_extra_positions[] = {
     {-1,-1},
 };
 
-long add_pretty_and_convert_to_imp_stack_starting_from_pos(struct Dungeon *dungeon, const struct Coord3d * start_pos)
+long add_pretty_and_convert_to_imp_stack_starting_from_pos(struct Dungeon *dungeon, const struct Coord3d * start_pos, int *remain_num)
 {
     unsigned char *slbopt;
     struct SlabCoord *slblist;
@@ -1195,9 +1196,7 @@ long add_pretty_and_convert_to_imp_stack_starting_from_pos(struct Dungeon *dunge
                 {
                   if (slab_kind_is_friable_dirt(slb->kind))
                   {
-                      struct Map *mapblk;
-                      mapblk = get_map_block_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
-                      if ((mapblk->data >> 28) & (1 << dungeon->owner))
+                      if (subtile_revealed(slab_subtile_center(slb_x), slab_subtile_center(slb_y), dungeon->owner))
                       {
                           if (slab_by_players_land(dungeon->owner, slb_x, slb_y))
                           {
@@ -1213,10 +1212,14 @@ long add_pretty_and_convert_to_imp_stack_starting_from_pos(struct Dungeon *dunge
                 slblist[slblicount].x = slb_x;
                 slblist[slblicount].y = slb_y;
                 slblicount++;
+                if ((*remain_num) < 0) {
+                    return slblipos;
+                }
                 if ( !add_to_pretty_to_imp_stack_if_need_to(slb_x, slb_y, dungeon) ) {
                     SYNCDBG(6,"Cannot add any more pretty tasks");
                     return slblipos;
                 }
+                (*remain_num)--;
             }
             // Per around code ends
             n = (n + 1) % 4;
@@ -1257,11 +1260,11 @@ long add_pretty_and_convert_to_imp_stack_starting_from_pos(struct Dungeon *dunge
 }
 
 
-void add_pretty_and_convert_to_imp_stack(struct Dungeon *dungeon)
+int add_pretty_and_convert_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
 {
     if (dungeon->digger_stack_length >= DIGGER_TASK_MAX_COUNT) {
         WARNLOG("Too many jobs, no place for more");
-        return;
+        return 0;
     }
     SYNCDBG(18,"Starting");
     //TODO SPDIGGER This restricts convert tasks to the area connected to heart, instead of connected to diggers.
@@ -1270,9 +1273,13 @@ void add_pretty_and_convert_to_imp_stack(struct Dungeon *dungeon)
     TRACE_THING(heartng);
     if (thing_is_invalid(heartng)) {
         WARNLOG("The player %d has no heart, no dungeon position available",(int)dungeon->owner);
-        return;
+        return 0;
     }
-    add_pretty_and_convert_to_imp_stack_starting_from_pos(dungeon, &heartng->mappos);
+    int remain_num;
+    remain_num = max_tasks;
+    add_pretty_and_convert_to_imp_stack_starting_from_pos(dungeon, &heartng->mappos, &remain_num);
+    SYNCDBG(8,"Done, added %d tasks",(int)(max_tasks-remain_num));
+    return (max_tasks-remain_num);
 }
 
 /**
@@ -1360,7 +1367,7 @@ TbBool thing_can_be_picked_to_place_in_player_room(const struct Thing* thing, Pl
     return false;
 }
 
-long add_unclaimed_gold_to_imp_stack(struct Dungeon *dungeon)
+int add_unclaimed_gold_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
 {
   return _DK_add_unclaimed_gold_to_imp_stack(dungeon);
 }
@@ -1377,7 +1384,7 @@ void setup_imp_stack(struct Dungeon *dungeon)
     r_stackpos = 0;
 }
 
-long add_unclaimed_unconscious_bodies_to_imp_stack(struct Dungeon *dungeon, long max_tasks)
+int add_unclaimed_unconscious_bodies_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
 {
     struct Thing *thing;
     struct Room *room;
@@ -1386,11 +1393,11 @@ long add_unclaimed_unconscious_bodies_to_imp_stack(struct Dungeon *dungeon, long
     int i;
     if (!dungeon_has_room(dungeon, RoK_PRISON)) {
         SYNCDBG(8,"Dungeon %d has no %s",(int)dungeon->owner,room_code_name(RoK_PRISON));
-        return 1;
+        return 0;
     }
     if (!player_creature_tends_to(dungeon->owner, CrTend_Imprison)) {
         SYNCDBG(8,"Player %d creatures do not tend to imprison",(int)dungeon->owner);
-        return 1;
+        return 0;
     }
     room = find_room_with_spare_capacity(dungeon->owner, RoK_PRISON, 1);
     const struct StructureList *slist;
@@ -1419,7 +1426,7 @@ long add_unclaimed_unconscious_bodies_to_imp_stack(struct Dungeon *dungeon, long
                 {
                     // Check why the room search failed and inform the player
                     update_cannot_find_room_wth_spare_capacity_event(dungeon->owner, thing, RoK_PRISON);
-                    return 0;
+                    break;
                 }
                 SubtlCodedCoords stl_num;
                 stl_num = get_subtile_number(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
@@ -1438,10 +1445,10 @@ long add_unclaimed_unconscious_bodies_to_imp_stack(struct Dungeon *dungeon, long
         }
     }
     SYNCDBG(8,"Done, added %d tasks",(int)(max_tasks-remain_num));
-    return 1;
+    return (max_tasks-remain_num);
 }
 
-TbBool add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, long max_tasks)
+int add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
 {
     struct Thing *thing;
     struct Room *room;
@@ -1451,7 +1458,7 @@ TbBool add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, long max_
     int i;
     if (!dungeon_has_room(dungeon, RoK_GRAVEYARD)) {
         SYNCDBG(8,"Dungeon %d has no %s",(int)dungeon->owner,room_code_name(RoK_GRAVEYARD));
-        return 1;
+        return 0;
     }
     room = find_room_with_spare_capacity(dungeon->owner, RoK_GRAVEYARD, 1);
     const struct StructureList *slist;
@@ -1499,14 +1506,14 @@ TbBool add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, long max_
         }
     }
     SYNCDBG(8,"Done, added %d tasks",(int)(max_tasks-remain_num));
-    return 1;
+    return (max_tasks-remain_num);
 }
 
-long add_unclaimed_spells_to_imp_stack(struct Dungeon *dungeon, long max_tasks)
+int add_unclaimed_spells_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
 {
     if (!dungeon_has_room(dungeon, RoK_LIBRARY)) {
         SYNCDBG(8,"Dungeon %d has no %s",(int)dungeon->owner,room_code_name(RoK_LIBRARY));
-        return 1;
+        return 0;
     }
     struct Room *room;
     room = find_room_with_spare_room_item_capacity(dungeon->owner, RoK_LIBRARY);
@@ -1602,7 +1609,7 @@ TbBool add_object_for_trap_to_imp_stack(struct Dungeon *dungeon, struct Thing *a
     return false;
 }
 
-TbBool add_empty_traps_to_imp_stack(struct Dungeon *dungeon, long max_tasks)
+int add_empty_traps_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
 {
     SYNCDBG(18,"Starting");
     int remain_num;
@@ -1624,8 +1631,9 @@ TbBool add_empty_traps_to_imp_stack(struct Dungeon *dungeon, long max_tasks)
         }
         i = thing->next_of_class;
         // Thing list loop body
-        if ((remain_num <= 0) || (dungeon->digger_stack_length >= DIGGER_TASK_MAX_COUNT))
-          break;
+        if ((dungeon->digger_stack_length >= DIGGER_TASK_MAX_COUNT) || (remain_num <= 0)) {
+            break;
+        }
         if ((thing->trap.num_shots == 0) && (thing->owner == dungeon->owner))
         {
             if ( add_object_for_trap_to_imp_stack(dungeon, thing) ) {
@@ -1644,7 +1652,7 @@ TbBool add_empty_traps_to_imp_stack(struct Dungeon *dungeon, long max_tasks)
     return (max_tasks-remain_num);
 }
 
-TbBool add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon, long max_tasks)
+int add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
 {
     struct Thing* thing;
     SYNCDBG(18,"Starting");
@@ -1697,21 +1705,27 @@ TbBool add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon, long max_tasks)
             break;
         }
     }
-    SYNCDBG(19,"Finished");
-    return true;
+    SYNCDBG(8,"Done, added %d tasks",(int)(max_tasks-remain_num));
+    return (max_tasks-remain_num);
 }
 
-void add_reinforce_to_imp_stack(struct Dungeon *dungeon)
+int add_reinforce_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
 {
-    struct DiggerStack *rfstack;
+    int remain_num;
+    remain_num = max_tasks;
     long i;
     for (i=0; i < r_stackpos; i++)
     {
-        if (dungeon->digger_stack_length >= DIGGER_TASK_MAX_COUNT)
-          break;
+        if ((dungeon->digger_stack_length >= DIGGER_TASK_MAX_COUNT) || (remain_num <= 0)) {
+            break;
+        }
+        struct DiggerStack *rfstack;
         rfstack = &reinforce_stack[i];
         add_to_imp_stack_using_pos(rfstack->stl_num, rfstack->task_type, dungeon);
+        remain_num--;
     }
+    SYNCDBG(8,"Done, added %d tasks",(int)(max_tasks-remain_num));
+    return (max_tasks-remain_num);
 }
 
 TbBool slab_is_players_land(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
@@ -2063,7 +2077,7 @@ long check_out_imp_has_money_for_treasure_room(struct Thing *thing)
 long check_out_available_imp_tasks(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
-    SYNCDBG(9,"Starting");
+    SYNCDBG(19,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
     cctrl = creature_control_get_from_thing(thing);
     imp_stack_update(thing);
     if (check_out_imp_stack(thing)) {
@@ -2075,6 +2089,7 @@ long check_out_available_imp_tasks(struct Thing *thing)
         cctrl->tasks_check_turn = game.play_gameturn;
         return 1;
     }
+    SYNCDBG(9,"No task for %s index %d",thing_model_name(thing),(int)thing->index);
     return 0;
 }
 
@@ -2245,10 +2260,10 @@ TbBool imp_stack_update(struct Thing *creatng)
     add_unclaimed_spells_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/12);
     add_empty_traps_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/6);
     add_undug_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT*5/8);
-    add_pretty_and_convert_to_imp_stack(dungeon);
-    add_unclaimed_gold_to_imp_stack(dungeon);
+    add_pretty_and_convert_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT*5/8);
+    add_unclaimed_gold_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT*5/8);
     add_unclaimed_traps_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/4);
-    add_reinforce_to_imp_stack(dungeon);
+    add_reinforce_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT);
     return true;
 }
 
@@ -2269,8 +2284,8 @@ long check_out_worker_improve_dungeon(struct Thing *thing, struct DiggerStack *d
     }
     if (!setup_person_move_to_position(thing, stl_x, stl_y, NavRtF_Default))
     {
-        dstack->task_type = DigTsk_None;
-        return -1;
+        // Do not delete the task - another digger might be able to reach it
+        return 0;
     }
     thing->continue_state = CrSt_ImpArrivesAtImproveDungeon;
     struct CreatureControl *cctrl;
@@ -2297,8 +2312,8 @@ long check_out_worker_convert_dungeon(struct Thing *thing, struct DiggerStack *d
     }
     if (!setup_person_move_to_position(thing, stl_x, stl_y, NavRtF_Default))
     {
-        dstack->task_type = DigTsk_None;
-        return -1;
+        // Do not delete the task - another digger might be able to reach it
+        return 0;
     }
     thing->continue_state = CrSt_ImpArrivesAtConvertDungeon;
     struct CreatureControl *cctrl;
@@ -2325,7 +2340,7 @@ long check_out_worker_reinforce_wall(struct Thing *thing, struct DiggerStack *ds
     if (check_place_to_reinforce(thing, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)) <= 0)
     {
         dstack->task_type = DigTsk_None;
-        return 0;
+        return -1;
     }
     if (!check_out_uncrowded_reinforce_position(thing, dstack->stl_num, &stl_x, &stl_y))
     {
@@ -2334,8 +2349,8 @@ long check_out_worker_reinforce_wall(struct Thing *thing, struct DiggerStack *ds
     }
     if (!setup_person_move_to_position(thing, stl_x, stl_y, NavRtF_Default))
     {
-        dstack->task_type = DigTsk_None;
-        return -1;
+        // Do not delete the task - another digger might be able to reach it
+        return 0;
     }
     thing->continue_state = CrSt_ImpArrivesAtReinforce;
     cctrl->digger.byte_93 = 0;
@@ -2365,8 +2380,7 @@ long check_out_worker_pickup_unconscious(struct Thing *thing, struct DiggerStack
     }
     if (imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
     {
-        dstack->task_type = DigTsk_None;
-        return -1;
+        return 0;
     }
     struct Room * room;
     room = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_PRISON, NavRtF_Default, 1);
@@ -2378,8 +2392,8 @@ long check_out_worker_pickup_unconscious(struct Thing *thing, struct DiggerStack
     }
     if (!setup_person_move_to_position(thing, stl_x, stl_y, NavRtF_Default))
     {
-        dstack->task_type = DigTsk_None;
-        return -1;
+        // Do not delete the task - another digger might be able to reach it
+        return 0;
     }
     thing->continue_state = CrSt_CreaturePickUpUnconsciousBody;
     struct CreatureControl *cctrl;
@@ -2405,8 +2419,7 @@ long check_out_worker_pickup_corpse(struct Thing *creatng, struct DiggerStack *d
     }
     if (imp_will_soon_be_working_at_excluding(creatng, stl_x, stl_y))
     {
-        dstack->task_type = DigTsk_None;
-        return -1;
+        return 0;
     }
     struct Room * room;
     room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_GRAVEYARD, NavRtF_Default, 1);
@@ -2426,8 +2439,8 @@ long check_out_worker_pickup_corpse(struct Thing *creatng, struct DiggerStack *d
     }
     if (!setup_person_move_to_position(creatng, stl_x, stl_y, NavRtF_Default))
     {
-        dstack->task_type = DigTsk_None;
-        return -1;
+        // Do not delete the task - another digger might be able to reach it
+        return 0;
     }
     creatng->continue_state = CrSt_CreaturePicksUpCorpse;
     struct CreatureControl *cctrl;
@@ -2453,8 +2466,7 @@ long check_out_worker_pickup_spellbook(struct Thing *thing, struct DiggerStack *
     }
     if (imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
     {
-        dstack->task_type = DigTsk_None;
-        return -1;
+        return 0;
     }
     struct Room *room;
     room = find_nearest_room_for_thing_with_spare_item_capacity(thing, thing->owner, RoK_LIBRARY, NavRtF_Default);
@@ -2466,8 +2478,8 @@ long check_out_worker_pickup_spellbook(struct Thing *thing, struct DiggerStack *
     }
     if (!setup_person_move_to_position(thing, stl_x, stl_y, NavRtF_Default))
     {
-        dstack->task_type = DigTsk_None;
-        return -1;
+        // Do not delete the task - another digger might be able to reach it
+        return 0;
     }
     // Do not create event about spellbook or special yet - wait until we pick it up
     thing->continue_state = CrSt_CreaturePicksUpSpellObject;
@@ -2505,7 +2517,7 @@ long check_out_worker_pickup_crate_to_arm(struct Thing *creatng, struct DiggerSt
     if (thing_is_invalid(cratng))
     {
         dstack->task_type = DigTsk_None;
-        return 0;
+        return -1;
     }
     // The task is being covered by another creature
     if (imp_will_soon_be_working_at_excluding(creatng, stl_x, stl_y))
@@ -2514,8 +2526,8 @@ long check_out_worker_pickup_crate_to_arm(struct Thing *creatng, struct DiggerSt
     }
     if (!setup_person_move_to_position(creatng, stl_x, stl_y, NavRtF_Default))
     {
-        dstack->task_type = DigTsk_None;
-        return -1;
+        // Do not delete the task - another digger might be able to reach it
+        return 0;
     }
     creatng->continue_state = CrSt_CreaturePicksUpTrapObject;
     struct CreatureControl *cctrl;
@@ -2543,8 +2555,7 @@ long check_out_worker_pickup_trap_for_workshop(struct Thing *thing, struct Digge
     }
     if (imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
     {
-        dstack->task_type = DigTsk_None;
-        return -1;
+        return 0;
     }
     struct Room *room;
     room = find_nearest_room_for_thing_with_spare_item_capacity(thing, thing->owner, RoK_WORKSHOP, NavRtF_Default);
@@ -2556,8 +2567,8 @@ long check_out_worker_pickup_trap_for_workshop(struct Thing *thing, struct Digge
     }
     if (!setup_person_move_to_position(thing, stl_x, stl_y, NavRtF_Default))
     {
-        dstack->task_type = DigTsk_None;
-        return -1;
+        // Do not delete the task - another digger might be able to reach it
+        return 0;
     }
     i = crate_thing_to_workshop_item_class(sectng);
     if (i == TCls_Trap)
@@ -2593,11 +2604,15 @@ long check_out_worker_dig_or_mine(struct Thing *thing, struct DiggerStack *dstac
         return -1;
     }
     stl_x = 0; stl_y = 0;
-    if (!check_place_to_dig_and_get_position(thing, dstack->stl_num, &stl_x, &stl_y)
-      || !setup_person_move_to_position(thing, stl_x, stl_y, NavRtF_Default))
+    if (!check_place_to_dig_and_get_position(thing, dstack->stl_num, &stl_x, &stl_y))
     {
         dstack->task_type = DigTsk_None;
         return -1;
+    }
+    if (!setup_person_move_to_position(thing, stl_x, stl_y, NavRtF_Default))
+    {
+        // Do not delete the task - another digger might be able to reach it
+        return 0;
     }
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
@@ -2645,22 +2660,23 @@ long check_out_worker_pickup_gold_pile(struct Thing *thing, struct DiggerStack *
     }
     if (!setup_person_move_to_position(thing, stl_x, stl_y, NavRtF_Default))
     {
-        dstack->task_type = DigTsk_None;
-        return -1;
+        // Do not delete the task - another digger might be able to reach it
+        return 0;
     }
     thing->continue_state = CrSt_ImpPicksUpGoldPile;
     return 1;
 }
 
-long check_out_imp_stack(struct Thing *creatng)
+TbBool check_out_imp_stack(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
     struct Dungeon *dungeon;
     struct DiggerStack *dstack;
     long ret;
-    SYNCDBG(18,"Starting");
+    SYNCDBG(18,"Starting for %s index %d",thing_model_name(creatng),(int)creatng->index);
     cctrl = creature_control_get_from_thing(creatng);
     dungeon = get_dungeon(creatng->owner);
+    // If digger stack was re-filled in the meantime, reset current pos
     if (cctrl->digger.stack_update_turn != dungeon->digger_stack_update_turn)
     {
       cctrl->digger.stack_update_turn = dungeon->digger_stack_update_turn;
@@ -2668,14 +2684,14 @@ long check_out_imp_stack(struct Thing *creatng)
     }
     if (dungeon->digger_stack_length > DIGGER_TASK_MAX_COUNT)
     {
-        ERRORLOG("Imp tasks length %d out of range",(int)dungeon->digger_stack_length);
+        ERRORLOG("Digger tasks length %d out of range",(int)dungeon->digger_stack_length);
         dungeon->digger_stack_length = DIGGER_TASK_MAX_COUNT;
     }
     while (cctrl->digger.task_stack_pos < dungeon->digger_stack_length)
     {
         dstack = &dungeon->digger_stack[cctrl->digger.task_stack_pos];
+        SYNCDBG(18,"Checking task %d, type %d",(int)cctrl->digger.task_stack_pos,(int)dstack->task_type);
         cctrl->digger.task_stack_pos++;
-        SYNCDBG(18,"Checking task %d",(int)dstack->task_type);
         switch (dstack->task_type)
         {
         case DigTsk_ImproveDungeon:
@@ -2717,13 +2733,16 @@ long check_out_imp_stack(struct Thing *creatng)
             dstack->task_type = DigTsk_None;
             break;
         }
-        if (ret != 0) {
-            SYNCDBG(19,"Found task, type %d",(int)dstack->task_type);
-            return ret;
+        if (ret > 0) {
+            SYNCDBG(9,"Assigned task, new state %s",creature_state_code_name(get_creature_state_besides_interruptions(creatng)));
+            return true;
+        } else if (ret < 0) {
+            SYNCDBG(9,"Task was impossible");
+            return false;
         }
         SYNCDBG(19,"No task");
     }
-    return 0;
+    return false;
 }
 
 /******************************************************************************/

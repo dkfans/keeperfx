@@ -1017,14 +1017,18 @@ short imp_doing_nothing(struct Thing *spdigtng)
     }
     cctrl = creature_control_get_from_thing(spdigtng);
     dungeon = get_dungeon(spdigtng->owner);
-    if (game.play_gameturn-cctrl->idle.start_gameturn <= 1)
+    if (game.play_gameturn-cctrl->idle.start_gameturn <= 1) {
         return 1;
-    if (check_out_imp_last_did(spdigtng))
+    }
+    if (check_out_imp_last_did(spdigtng)) {
         return 1;
-    if (check_out_available_imp_tasks(spdigtng))
+    }
+    if (check_out_available_imp_tasks(spdigtng)) {
         return 1;
-    if (check_out_imp_tokes(spdigtng))
+    }
+    if (check_out_imp_tokes(spdigtng)) {
         return 1;
+    }
     if (creature_choose_random_destination_on_valid_adjacent_slab(spdigtng))
     {
         spdigtng->continue_state = CrSt_ImpDoingNothing;
