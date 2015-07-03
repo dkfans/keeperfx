@@ -215,21 +215,16 @@ struct Room *get_player_room_any_kind_nearest_to(PlayerNumber plyr_idx,
     return nearest_room;
 }
 
-struct Room * find_nearest_navigable_room_for_thing_with_capacity_and_closer_than(struct Thing *thing, PlayerNumber owner, RoomKind rkind, unsigned char nav_flags, long used, long *neardistance)
+struct Room * find_next_navigable_room_for_thing_with_capacity_and_closer_than(struct Thing *thing, int prev_room_idx, unsigned char nav_flags, long used, long *neardistance)
 {
-    struct Dungeon *dungeon;
-    struct Room *nearoom;
     long distance;
     struct Coord3d pos;
 
     struct Room *room;
     unsigned long k;
     int i;
-    SYNCDBG(18,"Searching for %s navigable by %s index %d",room_code_name(rkind),thing_model_name(thing),(int)thing->index);
-    dungeon = get_dungeon(owner);
-    nearoom = INVALID_ROOM;
     k = 0;
-    i = dungeon->room_kind[rkind];
+    i = prev_room_idx;
     while (i != 0)
     {
         room = room_get(i);
@@ -247,11 +242,20 @@ struct Room * find_nearest_navigable_room_for_thing_with_capacity_and_closer_tha
         {
             if (find_first_valid_position_for_thing_anywhere_in_room(thing, room, &pos))
             {
-                if ((thing->class_id != TCls_Creature)
-                  || creature_can_navigate_to(thing, &pos, nav_flags))
+                TbBool is_connected;
+                switch (thing->class_id)
+                {
+                case TCls_Creature:
+                    is_connected = creature_can_navigate_to(thing, &pos, nav_flags);
+                    break;
+                default:
+                    is_connected = navigation_points_connected(&thing->mappos, &pos);
+                    break;
+                }
+                if (is_connected)
                 {
                     *neardistance = distance;
-                    nearoom = room;
+                    return room;
                 }
             }
         }
@@ -263,6 +267,32 @@ struct Room * find_nearest_navigable_room_for_thing_with_capacity_and_closer_tha
           break;
         }
     }
+    return INVALID_ROOM;
+}
+
+struct Room * find_nearest_navigable_room_for_thing_with_capacity_and_closer_than(struct Thing *thing, PlayerNumber owner, RoomKind rkind, unsigned char nav_flags, long used, long *neardistance)
+{
+    struct Dungeon *dungeon;
+    struct Room *nearoom;
+    long distance;
+    int i;
+    SYNCDBG(18,"Searching for %s navigable by %s index %d",room_code_name(rkind),thing_model_name(thing),(int)thing->index);
+    dungeon = get_dungeon(owner);
+    nearoom = INVALID_ROOM;
+    distance = *neardistance;
+    i = dungeon->room_kind[rkind];
+    while (i != 0)
+    {
+        struct Room *room;
+        room = find_next_navigable_room_for_thing_with_capacity_and_closer_than(thing, i, nav_flags, used, &distance);
+        if (room_is_invalid(room)) {
+            break;
+        }
+        // Found closer room
+        i = room->next_of_owner;
+        nearoom = room;
+    }
+    *neardistance = distance;
     return nearoom;
 }
 
@@ -281,6 +311,28 @@ struct Room *find_nearest_room_for_thing(struct Thing *thing, PlayerNumber owner
     struct Room *nearoom;
     neardistance = LONG_MAX;
     nearoom = find_nearest_navigable_room_for_thing_with_capacity_and_closer_than(thing, owner, rkind, nav_flags, 0, &neardistance);
+    return nearoom;
+}
+
+/**
+ * Returns any room of given kind and owner to which the thing can navigate.
+ *
+ * @param thing The thing to navigate into room.
+ * @param owner Owner of the rooms to be checked.
+ * @param rkind Room kind to be returned.
+ * @param nav_flags Navigation flags, for checking if creature can reach the room.
+ * @return Nearest room of given kind and owner, or invalid room if none found.
+ */
+struct Room *find_any_navigable_room_for_thing_closer_than(struct Thing *thing, PlayerNumber owner, RoomKind rkind, unsigned char nav_flags, long max_distance)
+{
+    struct Dungeon *dungeon;
+    dungeon = get_dungeon(owner);
+    SYNCDBG(18,"Searching for %s navigable by %s index %d",room_code_name(rkind),thing_model_name(thing),(int)thing->index);
+    long neardistance;
+    struct Room *nearoom;
+    neardistance = max_distance;
+    nearoom = INVALID_ROOM;
+    nearoom = find_next_navigable_room_for_thing_with_capacity_and_closer_than(thing, dungeon->room_kind[rkind], nav_flags, 0, &neardistance);
     return nearoom;
 }
 

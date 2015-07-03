@@ -1367,9 +1367,76 @@ TbBool thing_can_be_picked_to_place_in_player_room(const struct Thing* thing, Pl
     return false;
 }
 
+struct Thing *get_next_pickable_unclaimed_gold_thing(PlayerNumber owner, int start_idx)
+{
+    struct Thing *thing;
+    int i,k;
+    k = 0;
+    i = start_idx;
+    while (i > 0)
+    {
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+            break;
+        i = thing->next_of_class;
+        // Per-thing code
+        if (thing_is_object(thing) && object_is_gold_pile(thing))
+        {
+            if (!thing_is_picked_up(thing) && !thing_is_dragged_or_pulled(thing))
+            {
+                  if (thing_revealed(thing, owner))
+                  {
+                      PlayerNumber slb_owner;
+                      slb_owner = get_slab_owner_thing_is_on(thing);
+                      if ((slb_owner == owner) || (slb_owner == game.neutral_player_num)) {
+                          //TODO DIGGERS Test is needed whether the gold is connected to any of our treasuries
+                          //struct Room *room;
+                          //room = find_any_navigable_room_for_thing_closer_than(thing, owner, RoK_TREASURE, NavRtF_Default, map_subtiles_x/2 + map_subtiles_y/2);
+                          return thing;
+                      }
+                }
+            }
+        }
+        // Per-thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return INVALID_THING;
+}
+
 int add_unclaimed_gold_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
 {
-  return _DK_add_unclaimed_gold_to_imp_stack(dungeon);
+    //return _DK_add_unclaimed_gold_to_imp_stack(dungeon);
+    struct Room *room;
+    room = find_room_with_spare_capacity(dungeon->owner, RoK_TREASURE, 1);
+    if (room_is_invalid(room)) {
+        return 0;
+    }
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_Object);
+    int remain_num;
+    remain_num = max_tasks;
+    struct Thing *gldtng;
+    gldtng = get_next_pickable_unclaimed_gold_thing(dungeon->owner, slist->index);
+    while ((remain_num > 0) && (dungeon->digger_stack_length < DIGGER_TASK_MAX_COUNT))
+    {
+        if (thing_is_invalid(gldtng)) {
+            break;
+        }
+        SubtlCodedCoords stl_num;
+        stl_num = get_subtile_number(gldtng->mappos.x.stl.num,gldtng->mappos.y.stl.num);
+        if (find_in_imp_stack_using_pos(stl_num, DigTsk_PicksUpGoldPile, dungeon) < 0) {
+            add_to_imp_stack_using_pos(stl_num, DigTsk_PicksUpGoldPile, dungeon);
+            remain_num--;
+        }
+        gldtng = get_next_pickable_unclaimed_gold_thing(dungeon->owner, gldtng->next_of_class);
+    }
+    SYNCDBG(8,"Done, added %d tasks",(int)(max_tasks-remain_num));
+    return (max_tasks-remain_num);
 }
 
 void setup_imp_stack(struct Dungeon *dungeon)
@@ -2261,7 +2328,7 @@ TbBool imp_stack_update(struct Thing *creatng)
     add_empty_traps_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/6);
     add_undug_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT*5/8);
     add_pretty_and_convert_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT*5/8);
-    add_unclaimed_gold_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT*5/8);
+    add_unclaimed_gold_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/3);
     add_unclaimed_traps_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/4);
     add_reinforce_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT);
     return true;
