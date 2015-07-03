@@ -86,16 +86,17 @@ struct GuiButtonTemplate dungeon_special_buttons[] = {
   {              -1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                0,       {0},            0, 0, NULL },
 };
 
+
 struct GuiMenu hold_audience_menu =
- { 17, 0, 4, hold_audience_buttons,      POS_GAMECTR,POS_GAMECTR,200, 116, gui_pretty_background,       0, NULL,    NULL,                    0, 1, 0,};
+ {     GMnu_HOLD_AUDIENCE, 0, 4, hold_audience_buttons,      POS_GAMECTR,POS_GAMECTR,200, 116, gui_pretty_background,       0, NULL,    NULL,                    0, 1, 0,};
 struct GuiMenu dungeon_special_menu =
- { 27, 0, 4, dungeon_special_buttons,            160, POS_SCRBTM,480, 86, gui_round_glass_background,   0, NULL,    NULL,                    0, 0, 0,};
+ {   GMnu_DUNGEON_SPECIAL, 0, 4, dungeon_special_buttons,            160, POS_SCRBTM,480, 86, gui_round_glass_background,   0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu resurrect_creature_menu =
- { 28, 0, 4, resurrect_creature_buttons, POS_GAMECTR,POS_GAMECTR,350, 300, gui_pretty_background,       0, NULL,    NULL,                    0, 1, 0,};
+ {GMnu_RESURRECT_CREATURE, 0, 4, resurrect_creature_buttons, POS_GAMECTR,POS_GAMECTR,350, 300, gui_pretty_background,       0, NULL,    NULL,                    0, 1, 0,};
 struct GuiMenu transfer_creature_menu =
- { 29, 0, 4, transfer_creature_buttons,  POS_GAMECTR,POS_GAMECTR,350, 300, gui_pretty_background,       0, NULL,    NULL,                    0, 1, 0,};
+ { GMnu_TRANSFER_CREATURE, 0, 4, transfer_creature_buttons,  POS_GAMECTR,POS_GAMECTR,350, 300, gui_pretty_background,       0, NULL,    NULL,                    0, 1, 0,};
 struct GuiMenu armageddon_menu =
- { 30, 0, 4, armageddon_buttons,         POS_GAMECTR,POS_GAMECTR,200, 116, gui_pretty_background,       0, NULL,    NULL,                    0, 1, 0,};
+ {        GMnu_ARMAGEDDON, 0, 4, armageddon_buttons,         POS_GAMECTR,POS_GAMECTR,200, 116, gui_pretty_background,       0, NULL,    NULL,                    0, 1, 0,};
 /******************************************************************************/
 #ifdef __cplusplus
 }
