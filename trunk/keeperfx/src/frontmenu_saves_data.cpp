@@ -82,11 +82,11 @@ struct GuiButtonTemplate frontend_load_menu_buttons[] = {
 };
 
 struct GuiMenu load_menu =
- { 11, 0, 4, load_menu_buttons,          POS_GAMECTR,POS_GAMECTR, 436, 350, gui_pretty_background, 0, NULL,    init_load_menu,          0, 1, 0,};
+ {   GMnu_LOAD, 0, 4, load_menu_buttons,          POS_GAMECTR,POS_GAMECTR, 436, 350, gui_pretty_background, 0, NULL,    init_load_menu,          0, 1, 0,};
 struct GuiMenu save_menu =
- { 12, 0, 4, save_menu_buttons,          POS_GAMECTR,POS_GAMECTR, 436, 350, gui_pretty_background, 0, NULL,    init_save_menu,          0, 1, 0,};
+ {   GMnu_SAVE, 0, 4, save_menu_buttons,          POS_GAMECTR,POS_GAMECTR, 436, 350, gui_pretty_background, 0, NULL,    init_save_menu,          0, 1, 0,};
 struct GuiMenu frontend_load_menu =
- { 19, 0, 1, frontend_load_menu_buttons,  POS_SCRCTR, POS_SCRCTR, 640, 480, NULL,                  0, NULL,    NULL,                    0, 0, 0,};
+ { GMnu_FELOAD, 0, 1, frontend_load_menu_buttons,  POS_SCRCTR, POS_SCRCTR, 640, 480, NULL,                  0, NULL,    NULL,                    0, 0, 0,};
 
 /******************************************************************************/
 #ifdef __cplusplus
