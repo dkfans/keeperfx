@@ -1153,6 +1153,7 @@ long add_pretty_and_convert_to_imp_stack_starting_from_pos(struct Dungeon *dunge
     slbopt = scratch;
     slblist = (struct SlabCoord *)(scratch + map_tiles_x*map_tiles_y);
     MapSlabCoord slb_x, slb_y;
+    // Clear our slab options array and mark tall slabs with 0x01
     for (slb_y=0; slb_y < map_tiles_y; slb_y++)
     {
         for (slb_x=0; slb_x < map_tiles_x; slb_x++)
@@ -1163,7 +1164,9 @@ long add_pretty_and_convert_to_imp_stack_starting_from_pos(struct Dungeon *dunge
             slb = get_slabmap_direct(slb_num);
             struct SlabAttr *slbattr;
             slbattr = get_slab_attrs(slb);
-            slbopt[slb_num] = ((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0);
+            slbopt[slb_num] = 0;
+            if ((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0)
+                slbopt[slb_num] |= 0x01;
         }
     }
     slblipos = 0;
@@ -1189,11 +1192,12 @@ long add_pretty_and_convert_to_imp_stack_starting_from_pos(struct Dungeon *dunge
             // Per around code
             if ((slbopt[slb_num] & 0x01) != 0)
             {
+                // For wall, check if it can be reinforced
                 struct SlabMap *slb;
                 around_flags |= (1<<n);
                 slbopt[slb_num] |= 0x02;
                 slb = get_slabmap_direct(slb_num);
-                if ( DIGGER_TASK_MAX_COUNT - dungeon->digger_stack_length > r_stackpos )
+                if (r_stackpos < DIGGER_TASK_MAX_COUNT - dungeon->digger_stack_length)
                 {
                   if (slab_kind_is_friable_dirt(slb->kind))
                   {
@@ -1213,17 +1217,24 @@ long add_pretty_and_convert_to_imp_stack_starting_from_pos(struct Dungeon *dunge
                 slblist[slblicount].x = slb_x;
                 slblist[slblicount].y = slb_y;
                 slblicount++;
-                if ((*remain_num) < 0) {
-                    return slblipos;
+                if ((*remain_num) <= 0)
+                {
+                    // Even if the remain_num reaches zero and we can't add new tasks, we may still
+                    // want to continue the loop if reinforce stack is not filled.
+                    if (r_stackpos >= DIGGER_TASK_MAX_COUNT - dungeon->digger_stack_length) {
+                        return slblipos;
+                    }
+                } else
+                {
+                    if ( !add_to_pretty_to_imp_stack_if_need_to(slb_x, slb_y, dungeon) ) {
+                        SYNCDBG(6,"Cannot add any more pretty tasks");
+                        return slblipos;
+                    }
+                    (*remain_num)--;
                 }
-                if ( !add_to_pretty_to_imp_stack_if_need_to(slb_x, slb_y, dungeon) ) {
-                    SYNCDBG(6,"Cannot add any more pretty tasks");
-                    return slblipos;
-                }
-                (*remain_num)--;
             }
             // Per around code ends
-            n = (n + 1) % 4;
+            n = (n + 1) % SMALL_AROUND_LENGTH;
         }
 
         struct ExtraSquares  *square;
