@@ -38,6 +38,7 @@
 #include "thing_traps.h"
 #include "room_data.h"
 #include "room_util.h"
+#include "room_list.h"
 #include "power_hand.h"
 #include "map_utils.h"
 #include "map_events.h"
@@ -1367,7 +1368,7 @@ TbBool thing_can_be_picked_to_place_in_player_room(const struct Thing* thing, Pl
     return false;
 }
 
-struct Thing *get_next_pickable_unclaimed_gold_thing(PlayerNumber owner, int start_idx)
+struct Thing *get_next_unclaimed_gold_thing_pickable_by_digger(PlayerNumber owner, int start_idx)
 {
     struct Thing *thing;
     int i,k;
@@ -1382,6 +1383,8 @@ struct Thing *get_next_pickable_unclaimed_gold_thing(PlayerNumber owner, int sta
         // Per-thing code
         if (thing_is_object(thing) && object_is_gold_pile(thing))
         {
+            // TODO DIGGERS Use thing_can_be_picked_to_place_in_player_room() instead of single conditions
+            //if (thing_can_be_picked_to_place_in_player_room(thing, owner, RoK_TREASURE, TngFRPickF_Default))
             if (!thing_is_picked_up(thing) && !thing_is_dragged_or_pulled(thing))
             {
                   if (thing_revealed(thing, owner))
@@ -1389,10 +1392,11 @@ struct Thing *get_next_pickable_unclaimed_gold_thing(PlayerNumber owner, int sta
                       PlayerNumber slb_owner;
                       slb_owner = get_slab_owner_thing_is_on(thing);
                       if ((slb_owner == owner) || (slb_owner == game.neutral_player_num)) {
-                          //TODO DIGGERS Test is needed whether the gold is connected to any of our treasuries
-                          //struct Room *room;
-                          //room = find_any_navigable_room_for_thing_closer_than(thing, owner, RoK_TREASURE, NavRtF_Default, map_subtiles_x/2 + map_subtiles_y/2);
-                          return thing;
+                          struct Room *room;
+                          room = find_any_navigable_room_for_thing_closer_than(thing, owner, RoK_TREASURE, NavRtF_Default, map_subtiles_x/2 + map_subtiles_y/2);
+                          if (!room_is_invalid(room)) {
+                              return thing;
+                          }
                       }
                 }
             }
@@ -1421,7 +1425,7 @@ int add_unclaimed_gold_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
     int remain_num;
     remain_num = max_tasks;
     struct Thing *gldtng;
-    gldtng = get_next_pickable_unclaimed_gold_thing(dungeon->owner, slist->index);
+    gldtng = get_next_unclaimed_gold_thing_pickable_by_digger(dungeon->owner, slist->index);
     while ((remain_num > 0) && (dungeon->digger_stack_length < DIGGER_TASK_MAX_COUNT))
     {
         if (thing_is_invalid(gldtng)) {
@@ -1429,11 +1433,11 @@ int add_unclaimed_gold_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
         }
         SubtlCodedCoords stl_num;
         stl_num = get_subtile_number(gldtng->mappos.x.stl.num,gldtng->mappos.y.stl.num);
-        if (find_in_imp_stack_using_pos(stl_num, DigTsk_PicksUpGoldPile, dungeon) < 0) {
+        if (find_in_imp_stack_using_pos(stl_num, DigTsk_PicksUpGoldPile, dungeon) == -1) {
             add_to_imp_stack_using_pos(stl_num, DigTsk_PicksUpGoldPile, dungeon);
             remain_num--;
         }
-        gldtng = get_next_pickable_unclaimed_gold_thing(dungeon->owner, gldtng->next_of_class);
+        gldtng = get_next_unclaimed_gold_thing_pickable_by_digger(dungeon->owner, gldtng->next_of_class);
     }
     SYNCDBG(8,"Done, added %d tasks",(int)(max_tasks-remain_num));
     return (max_tasks-remain_num);
@@ -1616,7 +1620,7 @@ int add_unclaimed_spells_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
             }
             SubtlCodedCoords stl_num;
             stl_num = get_subtile_number(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-            SYNCDBG(8,"Pickup task for dungeon %d at (%d,%d)",
+            SYNCDBG(18,"Pickup task for dungeon %d at (%d,%d)",
                 (int)dungeon->owner,(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num);
             if (!add_to_imp_stack_using_pos(stl_num, DigTsk_PicksUpSpellBook, dungeon)) {
                 break;
@@ -2759,7 +2763,9 @@ TbBool check_out_imp_stack(struct Thing *creatng)
         dstack = &dungeon->digger_stack[cctrl->digger.task_stack_pos];
         SYNCDBG(18,"Checking task %d, type %d",(int)cctrl->digger.task_stack_pos,(int)dstack->task_type);
         cctrl->digger.task_stack_pos++;
-        switch (dstack->task_type)
+        SpDiggerTaskType task_type;
+        task_type = dstack->task_type;
+        switch (task_type)
         {
         case DigTsk_ImproveDungeon:
             ret = check_out_worker_improve_dungeon(creatng, dstack);
@@ -2796,15 +2802,15 @@ TbBool check_out_imp_stack(struct Thing *creatng)
             break;
         default:
             ret = 0;
-            ERRORLOG("Invalid stack type, %d",(int)dstack->task_type);
+            ERRORLOG("Invalid stack task type, %d",(int)task_type);
             dstack->task_type = DigTsk_None;
             break;
         }
         if (ret > 0) {
-            SYNCDBG(9,"Assigned task, new state %s",creature_state_code_name(get_creature_state_besides_interruptions(creatng)));
+            SYNCDBG(9,"Assigned task type %d, new state %s",task_type,creature_state_code_name(get_creature_state_besides_interruptions(creatng)));
             return true;
         } else if (ret < 0) {
-            SYNCDBG(9,"Task was impossible");
+            SYNCDBG(9,"Task type %d was impossible",(int)task_type);
             return false;
         }
         SYNCDBG(19,"No task");
