@@ -633,7 +633,7 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
   return _DK_apply_wallhug_force_to_boulder(thing);
 }
 
-void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4)
+void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_step, long num_per_step)
 {
   //_DK_draw_flame_breath(pos1, pos2, a3, a4);
     MapCoordDelta dist_x, dist_y, dist_z;
@@ -641,14 +641,11 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long
     dist_y = pos2->y.val - (MapCoordDelta)pos1->y.val;
     dist_z = pos2->z.val - (MapCoordDelta)pos1->z.val;
     int delta_x, delta_y, delta_z;
-    long delta_step;
     if (dist_x >= 0) {
-        delta_step = a3;
-        delta_x = a3;
+        delta_x = delta_step;
     } else {
         dist_x = -dist_x;
-        delta_step = a3;
-        delta_x = -a3;
+        delta_x = -delta_step;
     }
     if (dist_y >= 0) {
         delta_y = delta_step;
@@ -662,9 +659,12 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long
         dist_z = -dist_z;
         delta_z = -delta_step;
     }
+    // Now our dist_x,dist_y,dist_z is always non-negative,
+    // and sign is stored in delta_x,delta_y,delta_z.
     if ((dist_x != 0) || (dist_y != 0) || (dist_z != 0))
     {
         int nsteps;
+        // Find max dimension, and scale deltas to it
         if ((dist_z > dist_x) && (dist_z > dist_y))
         {
             nsteps = dist_z / delta_step;
@@ -677,10 +677,17 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long
             delta_y = dist_y * delta_y / dist_x;
             delta_z = dist_z * delta_z / dist_x;
         } else
+        if ((dist_y > dist_x) && (dist_y > dist_z))
         {
             nsteps = dist_y / delta_step;
             delta_x = dist_x * delta_x / dist_y;
             delta_z = dist_z * delta_z / dist_y;
+        } else
+        { // No dominate direction
+            nsteps = (dist_x + dist_y + dist_z) / delta_step;
+            delta_x = dist_x * delta_x / (dist_x + dist_y + dist_z);
+            delta_y = dist_y * delta_y / (dist_x + dist_y + dist_z);
+            delta_z = dist_z * delta_z / (dist_x + dist_y + dist_z);
         }
         struct EffectElementStats *eestat;
         eestat = get_effect_element_model_stats(9);
@@ -699,7 +706,7 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long
             int devrange;
             devrange = 2 * deviat;
             int k;
-            for (k = a4; k > 0; k--)
+            for (k = num_per_step; k > 0; k--)
             {
                 struct Coord3d tngpos;
                 tngpos.x.val = curpos.x.val + deviat - ACTION_RANDOM(devrange);
