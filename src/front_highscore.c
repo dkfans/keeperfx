@@ -191,7 +191,7 @@ TbBool frontend_high_score_table_input(void)
             }
             high_score_entry_index -= 1;
         }
-        lbInkey = KC_UNASSIGNED;
+        clear_key_pressed(KC_BACK);
         return true;
     }
     if (lbInkey == KC_DELETE)
@@ -202,7 +202,7 @@ TbBool frontend_high_score_table_input(void)
             high_score_entry[i] = high_score_entry[i+1];
             i++;
         }
-        lbInkey = KC_UNASSIGNED;
+        clear_key_pressed(KC_DELETE);
         return true;
     }
     if (lbInkey == KC_LEFT)
@@ -211,7 +211,7 @@ TbBool frontend_high_score_table_input(void)
         if (high_score_entry_index > 0) {
             high_score_entry_index--;
         }
-        lbInkey = KC_UNASSIGNED;
+        clear_key_pressed(KC_LEFT);
         return true;
     }
     if (lbInkey == KC_RIGHT)
@@ -221,14 +221,14 @@ TbBool frontend_high_score_table_input(void)
         if (high_score_entry[i] != '\0') {
             high_score_entry_index++;
         }
-        lbInkey = KC_UNASSIGNED;
+        clear_key_pressed(KC_RIGHT);
         return true;
     }
     if ((lbInkey == KC_HOME) || (lbInkey == KC_PGUP))
     {
         // Move cursor to beginning.
         high_score_entry_index = 0;
-        lbInkey = KC_UNASSIGNED;
+        clear_key_pressed(lbInkey);
     }
     if ((lbInkey == KC_END) || (lbInkey == KC_PGDOWN))
     {
@@ -237,7 +237,7 @@ TbBool frontend_high_score_table_input(void)
         {
             high_score_entry_index++;
         }
-        lbInkey = KC_UNASSIGNED;
+        clear_key_pressed(lbInkey);
     }
     if ((lbInkey == KC_RETURN) || (lbInkey == KC_NUMPADENTER) || (lbInkey == KC_ESCAPE))
     {
@@ -249,7 +249,7 @@ TbBool frontend_high_score_table_input(void)
         }
         high_score_entry_input_active = -1;
         save_high_score_table();
-        lbInkey = KC_UNASSIGNED;
+        clear_key_pressed(lbInkey);
         return true;
     }
     if (high_score_entry_index < HISCORE_NAME_LENGTH)
@@ -272,7 +272,7 @@ TbBool frontend_high_score_table_input(void)
                 }
                 high_score_entry[i] = chr;
                 high_score_entry_index = i + 1;
-                lbInkey = KC_UNASSIGNED;
+                clear_key_pressed(lbInkey);
                 return true;
             }
         }
