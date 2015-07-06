@@ -1091,7 +1091,7 @@ TbBool add_to_reinforce_stack(long slb_x, long slb_y, SpDiggerTaskType task_type
     return true;
 }
 
-long add_to_pretty_to_imp_stack_if_need_to(long slb_x, long slb_y, struct Dungeon *dungeon)
+long add_to_pretty_to_imp_stack_if_need_to(long slb_x, long slb_y, struct Dungeon *dungeon, int *remain_num)
 {
     //return _DK_add_to_pretty_to_imp_stack_if_need_to(slb_x, slb_y, dungeon);
     MapSubtlCoord stl_x, stl_y;
@@ -1102,6 +1102,7 @@ long add_to_pretty_to_imp_stack_if_need_to(long slb_x, long slb_y, struct Dungeo
     if (slb->kind == SlbT_PATH)
     {
         if (subtile_revealed(stl_x, stl_y, dungeon->owner) && slab_by_players_land(dungeon->owner, slb_x, slb_y)) {
+            (*remain_num)--;
             return add_to_imp_stack_using_pos(get_subtile_number_at_slab_center(slb_x, slb_y), DigTsk_ImproveDungeon, dungeon);
         }
     } else
@@ -1110,6 +1111,7 @@ long add_to_pretty_to_imp_stack_if_need_to(long slb_x, long slb_y, struct Dungeo
         if (!players_are_mutual_allies(dungeon->owner, slabmap_owner(slb)))
         {
             if (subtile_revealed(stl_x, stl_y, dungeon->owner) && slab_by_players_land(dungeon->owner, slb_x, slb_y)) {
+                (*remain_num)--;
                 return add_to_imp_stack_using_pos(get_subtile_number_at_slab_center(slb_x, slb_y), DigTsk_ConvertDungeon, dungeon);
             }
         }
@@ -1117,23 +1119,26 @@ long add_to_pretty_to_imp_stack_if_need_to(long slb_x, long slb_y, struct Dungeo
     return (dungeon->digger_stack_length < DIGGER_TASK_MAX_COUNT);
 }
 
+/**
+ * Array used to determine whether a diagonal slab is blocked by two two slabs around.
+ */
 struct ExtraSquares spdigger_extra_squares[] = {
     { 0,  0x00},
     { 0,  0x00},
     { 0,  0x00},
-    { 1, ~0x03},
+    { 1, ~0x03}, // 0x01|0x02 are blocking slab
     { 0,  0x00},
     { 0,  0x00},
-    { 2, ~0x06},
-    { 1, ~0x01},
+    { 2, ~0x06}, // 0x02|0x04 are blocking slab
+    { 1, ~0x01}, // 0x01|0x02|0x04 are blocking 2 slabs
     { 0,  0x00},
-    { 4, ~0x09},
+    { 4, ~0x09}, // 0x01|0x08 are blocking slab
     { 0,  0x00},
-    { 1, ~0x02},
-    { 3, ~0x0C},
-    { 3, ~0x04},
-    { 2, ~0x02},
-    { 1,  0x00},
+    { 1, ~0x02}, // 0x01|0x02|0x08 are blocking 2 slabs
+    { 3, ~0x0C}, // 0x04|0x08 are blocking slab
+    { 3, ~0x04}, // 0x01|0x04|0x08 are blocking 2 slabs
+    { 2, ~0x02}, // 0x02|0x04|0x08 are blocking 2 slabs
+    { 1,  0x00}, // all diagonals blocked, special case
 };
 
 struct Around spdigger_extra_positions[] = {
@@ -1142,6 +1147,13 @@ struct Around spdigger_extra_positions[] = {
     { 1, 1},
     {-1, 1},
     {-1,-1},
+};
+#define SPDIGGER_EXTRA_POSITIONS_COUNT 5
+
+enum SlabConnectedAreaOptions {
+    SlbCAOpt_None      = 0x00,
+    SlbCAOpt_Border    = 0x01,
+    SlbCAOpt_Processed = 0x02,
 };
 
 long add_pretty_and_convert_to_imp_stack_starting_from_pos(struct Dungeon *dungeon, const struct Coord3d * start_pos, int *remain_num)
@@ -1153,7 +1165,7 @@ long add_pretty_and_convert_to_imp_stack_starting_from_pos(struct Dungeon *dunge
     slbopt = scratch;
     slblist = (struct SlabCoord *)(scratch + map_tiles_x*map_tiles_y);
     MapSlabCoord slb_x, slb_y;
-    // Clear our slab options array and mark tall slabs with 0x01
+    // Clear our slab options array and mark tall slabs with SlbCAOpt_Border
     for (slb_y=0; slb_y < map_tiles_y; slb_y++)
     {
         for (slb_x=0; slb_x < map_tiles_x; slb_x++)
@@ -1165,90 +1177,98 @@ long add_pretty_and_convert_to_imp_stack_starting_from_pos(struct Dungeon *dunge
             struct SlabAttr *slbattr;
             slbattr = get_slab_attrs(slb);
             slbopt[slb_num] = 0;
-            if ((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0)
-                slbopt[slb_num] |= 0x01;
+            if ((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0) {
+                slbopt[slb_num] |= SlbCAOpt_Border;
+            }
         }
     }
-    slblipos = 0;
-    slblicount = 0;
+    slblipos = 0; // Current position in our list of slabs which should be checked around
+    slblicount = 0; // Amount of items in our list of slabs which should be checked around
     MapSlabCoord base_slb_x, base_slb_y;
     base_slb_x = subtile_slab(start_pos->x.stl.num);
     base_slb_y = subtile_slab(start_pos->y.stl.num);
     SlabCodedCoords slb_num;
     slb_num = get_slab_number(base_slb_x, base_slb_y);
-    slbopt[slb_num] |= 0x02;
+    slbopt[slb_num] |= SlbCAOpt_Processed;
+    // Verify slabs around; we will add more around slabs to checklist as we progress
     do
     {
         unsigned char around_flags;
         around_flags = 0;
 
         long i,n;
-        n = 0;//ACTION_RANDOM(4);
+        n = ACTION_RANDOM(4);
         for (i=0; i < SMALL_AROUND_LENGTH; i++)
         {
             slb_x = base_slb_x + (long)small_around[n].delta_x;
             slb_y = base_slb_y + (long)small_around[n].delta_y;
             slb_num = get_slab_number(slb_x, slb_y);
             // Per around code
-            if ((slbopt[slb_num] & 0x01) != 0)
-            {
-                // For wall, check if it can be reinforced
-                struct SlabMap *slb;
+            if ((slbopt[slb_num] & SlbCAOpt_Border) != 0)
+            { // Prepare around flags to be used later for ExtraSquares
                 around_flags |= (1<<n);
-                slbopt[slb_num] |= 0x02;
-                slb = get_slabmap_direct(slb_num);
-                if (r_stackpos < DIGGER_TASK_MAX_COUNT - dungeon->digger_stack_length)
+            }
+            if ((slbopt[slb_num] & SlbCAOpt_Processed) == 0)
+            {
+                slbopt[slb_num] |= SlbCAOpt_Processed;
+                // For border wall, check if it can be reinforced
+                if ((slbopt[slb_num] & SlbCAOpt_Border) != 0)
                 {
-                  if (slab_kind_is_friable_dirt(slb->kind))
-                  {
-                      if (subtile_revealed(slab_subtile_center(slb_x), slab_subtile_center(slb_y), dungeon->owner))
+                    struct SlabMap *slb;
+                    slb = get_slabmap_direct(slb_num);
+                    if (r_stackpos < DIGGER_TASK_MAX_COUNT - dungeon->digger_stack_length)
+                    {
+                      if (slab_kind_is_friable_dirt(slb->kind))
                       {
-                          if (slab_by_players_land(dungeon->owner, slb_x, slb_y))
+                          if (subtile_revealed(slab_subtile_center(slb_x), slab_subtile_center(slb_y), dungeon->owner))
                           {
-                              add_to_reinforce_stack(slb_x, slb_y, DigTsk_ReinforceWall);
+                              if (slab_by_players_land(dungeon->owner, slb_x, slb_y))
+                              {
+                                  add_to_reinforce_stack(slb_x, slb_y, DigTsk_ReinforceWall);
+                              }
                           }
                       }
-                  }
-                }
-            } else
-            if ((slbopt[slb_num] & 0x02) == 0)
-            {
-                slbopt[slb_num] |= 0x02;
-                slblist[slblicount].x = slb_x;
-                slblist[slblicount].y = slb_y;
-                slblicount++;
-                if ((*remain_num) <= 0)
-                {
-                    // Even if the remain_num reaches zero and we can't add new tasks, we may still
-                    // want to continue the loop if reinforce stack is not filled.
-                    if (r_stackpos >= DIGGER_TASK_MAX_COUNT - dungeon->digger_stack_length) {
-                        return slblipos;
                     }
                 } else
+                // If not a border, add it to around verification list and check for pretty
                 {
-                    if ( !add_to_pretty_to_imp_stack_if_need_to(slb_x, slb_y, dungeon) ) {
-                        SYNCDBG(6,"Cannot add any more pretty tasks");
-                        return slblipos;
+                    slblist[slblicount].x = slb_x;
+                    slblist[slblicount].y = slb_y;
+                    slblicount++;
+                    if ((*remain_num) <= 0)
+                    {
+                        // Even if the remain_num reaches zero and we can't add new tasks, we may still
+                        // want to continue the loop if reinforce stack is not filled.
+                        if (r_stackpos >= DIGGER_TASK_MAX_COUNT - dungeon->digger_stack_length) {
+                            return slblipos;
+                        }
+                    } else
+                    {
+                        // The remain_num parameter must go to subfunction - here we don't know if we should decrement it or not
+                        if ( !add_to_pretty_to_imp_stack_if_need_to(slb_x, slb_y, dungeon, remain_num) ) {
+                            SYNCDBG(6,"Cannot add any more pretty tasks");
+                            return slblipos;
+                        }
                     }
-                    (*remain_num)--;
                 }
             }
             // Per around code ends
             n = (n + 1) % SMALL_AROUND_LENGTH;
         }
 
+        // Check if we can already remove diagonal slabs from verification
         struct ExtraSquares  *square;
         for (square = &spdigger_extra_squares[around_flags]; square->index != 0; square = &spdigger_extra_squares[around_flags])
         {
-            if (around_flags == 0x0F)
+            if (around_flags == (0x01|0x02|0x04|0x08))
             {
-                // If whole around is to be set, just do it in one go
-                for (i=1; i < 5; i++)
+                // If whole diagonal around is to be marked, just do it in one go
+                for (i=1; i < SPDIGGER_EXTRA_POSITIONS_COUNT; i++)
                 {
                     slb_x = base_slb_x + (long)spdigger_extra_positions[i].delta_x;
                     slb_y = base_slb_y + (long)spdigger_extra_positions[i].delta_y;
                     slb_num = get_slab_number(slb_x, slb_y);
-                    slbopt[slb_num] |= 0x02;
+                    slbopt[slb_num] |= SlbCAOpt_Processed;
                 }
                 around_flags = 0;
             } else
@@ -1258,7 +1278,7 @@ long add_pretty_and_convert_to_imp_stack_starting_from_pos(struct Dungeon *dunge
                     slb_x = base_slb_x + (long)spdigger_extra_positions[i].delta_x;
                     slb_y = base_slb_y + (long)spdigger_extra_positions[i].delta_y;
                     slb_num = get_slab_number(slb_x, slb_y);
-                    slbopt[slb_num] |= 0x02;
+                    slbopt[slb_num] |= SlbCAOpt_Processed;
                 }
                 around_flags &= square->flgmask;
             }
