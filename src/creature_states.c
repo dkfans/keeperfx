@@ -3717,7 +3717,7 @@ TbBool creature_will_attack_creature(const struct Thing *fightng, const struct T
                 return false;
             }
             struct Thing *tmptng;
-            tmptng = thing_get(fighctrl->battle_enemy_idx);
+            tmptng = thing_get(fighctrl->combat.battle_enemy_idx);
             TRACE_THING(tmptng);
             if (tmptng->index != enmtng->index) {
                 return false;
@@ -3778,7 +3778,7 @@ TbBool creature_will_attack_creature_incl_til_death(const struct Thing *fightng,
          && ((fighctrl->spell_flags & CSAfF_MadKilling) == 0)
          && ((enmctrl->spell_flags  & CSAfF_MadKilling) == 0)) {
             struct Thing *tmptng;
-            tmptng = thing_get(fighctrl->battle_enemy_idx);
+            tmptng = thing_get(fighctrl->combat.battle_enemy_idx);
             TRACE_THING(tmptng);
             if ((fighctrl->combat_flags == 0) || (tmptng->index != enmtng->index)) {
                 return false;

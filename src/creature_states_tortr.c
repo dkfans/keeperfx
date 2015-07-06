@@ -70,7 +70,7 @@ short at_kinky_torture_room(struct Thing *thing)
     cctrl->field_82 = game.play_gameturn;
     cctrl->tortured.start_gameturn = game.play_gameturn;
     cctrl->tortured.long_9Ex = game.play_gameturn;
-    cctrl->field_A8 = CTVS_TortureGoToDevice;
+    cctrl->tortured.vis_state = CTVS_TortureGoToDevice;
     cctrl->tortured.long_A2x = game.play_gameturn;
     internal_set_thing_state(thing, CrSt_KinkyTorturing);
     return 1;
@@ -105,9 +105,9 @@ short at_torture_room(struct Thing *thing)
     cctrl->word_A6 = 0;
     cctrl->field_82 = game.play_gameturn;
     cctrl->tortured.start_gameturn = game.play_gameturn;
-    cctrl->long_9E = game.play_gameturn;
-    cctrl->field_A8 = CTVS_TortureGoToDevice;
-    cctrl->long_A2 = game.play_gameturn;
+    cctrl->tortured.long_9Ex = game.play_gameturn;
+    cctrl->tortured.vis_state = CTVS_TortureGoToDevice;
+    cctrl->tortured.long_A2x = game.play_gameturn;
     internal_set_thing_state(thing, CrSt_Torturing);
     return 1;
 }
@@ -201,11 +201,11 @@ long process_torture_visuals(struct Thing *thing, struct Room *room, CrtrStateId
     struct Thing *sectng;
     cctrl = creature_control_get_from_thing(thing);
     GameTurnDelta dturn;
-    switch (cctrl->field_A8)
+    switch (cctrl->tortured.vis_state)
     {
     case CTVS_TortureRandMove:
-        if (game.play_gameturn - cctrl->long_9E > 100) {
-            cctrl->field_A8 = CTVS_TortureGoToDevice;
+        if (game.play_gameturn - cctrl->tortured.long_9Ex > 100) {
+            cctrl->tortured.vis_state = CTVS_TortureGoToDevice;
         }
         if (!setup_torture_move(thing, room, nstat)) {
             return 0;
@@ -213,12 +213,12 @@ long process_torture_visuals(struct Thing *thing, struct Room *room, CrtrStateId
         return 1;
     case CTVS_TortureGoToDevice:
         if (!setup_torture_move_to_device(thing, room, nstat)) {
-            cctrl->field_A8 = CTVS_TortureRandMove;
-            cctrl->long_9E = game.play_gameturn;
+            cctrl->tortured.vis_state = CTVS_TortureRandMove;
+            cctrl->tortured.long_9Ex = game.play_gameturn;
             return 0;
         }
-        cctrl->field_A8 = CTVS_TortureInDevice;
-        cctrl->long_9E = game.play_gameturn;
+        cctrl->tortured.vis_state = CTVS_TortureInDevice;
+        cctrl->tortured.long_9Ex = game.play_gameturn;
         return 1;
     case CTVS_TortureInDevice:
         sectng = thing_get(cctrl->word_A6);
@@ -245,8 +245,8 @@ long process_torture_visuals(struct Thing *thing, struct Room *room, CrtrStateId
         return 0;
     default:
         WARNLOG("Invalid creature state in torture room");
-        cctrl->long_9E = game.play_gameturn;
-        cctrl->field_A8 = CTVS_TortureGoToDevice;
+        cctrl->tortured.long_9Ex = game.play_gameturn;
+        cctrl->tortured.vis_state = CTVS_TortureGoToDevice;
         break;
     }
     return 0;

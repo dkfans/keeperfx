@@ -247,7 +247,7 @@ short creature_freeze_prisonors(struct Thing *creatng)
     if (dist < 156) {
         creature_retreat_from_combat(creatng, victng, CrSt_CreatureFreezePrisoners, 0);
     } else
-    if ((dist <= 2048) && (creature_can_see_combat_path(creatng, victng, dist) > AttckT_Unset))
+    if ((dist <= 2048) && (creature_can_see_combat_path(creatng, victng, dist)))
     {
         set_creature_instance(creatng, CrInst_FREEZE, 1, victng->index, 0);
     } else

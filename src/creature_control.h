@@ -250,6 +250,8 @@ unsigned char field_67;
         long start_gameturn;
         long long_9Ex;
         long long_A2x;
+        short word_A6;
+        unsigned char vis_state;
   } tortured;
   struct {
         long start_gameturn;
@@ -269,7 +271,7 @@ unsigned char field_67;
     unsigned char byte_A3;
     unsigned char byte_A4;
     unsigned char byte_A5;
-    };
+  };
   struct {
     unsigned char byte_9A_scv;
     unsigned char byte_9B_scv;
@@ -283,47 +285,7 @@ unsigned char field_67;
     unsigned char byte_A3_scv;
     unsigned char byte_A4_scv;
     unsigned char byte_A5_scv;
-    } scavenge;
-  struct {
-    short word_9A;
-    short word_9C;
-    short word_9E;
-    short word_A0;
-    short battle_enemy_idx;
-    short word_A4;
-    };
-  struct {
-    short word_9A_cp2;
-    long long_9C;
-    long long_A0;
-    short word_A4_cp2;
-    };
-  struct {
-    long long_9A;
-    long long_9E;
-    long long_A2;
-    };
-  struct {
-    unsigned long last_mood_sound_turn;
-    long long_9E_cp2;
-    long long_A2_cp2;
-    };
-  struct {
-    unsigned char byte_9A_cp2;
-    long long_9B;
-    short word_9F_cp2;
-    long long_A1;
-    unsigned char byte_A5_cp2;
-    };
-  struct {
-    unsigned char byte_9A_cp3;
-    short word_9B;
-    short word_9D;
-    short word_9F;
-    short word_A1;
-    short word_A3;
-    unsigned char byte_A5_cp3;
-    };
+  } scavenge;
   struct {
     unsigned char mode;// offset 9A
     unsigned char train_timeout;
@@ -333,18 +295,61 @@ unsigned char field_67;
     short partner_idx;
     long partner_creation;
     unsigned char byte_A5x;
-    } training;
-  };
-  union {
+  } training;
   struct {
-      unsigned char combat_state_id;
-      unsigned char attack_type;
-    };
+    long seen_enemy_turn;
+    long battle_enemy_crtn;
+    short battle_enemy_idx;
+    short seen_enemy_idx;
+    unsigned char state_id;
+    unsigned char attack_type;
+    unsigned char seen_enemy_los;
+  } combat;
   struct {
-      short word_A6;
-    };
+    short word_9A;
+    short word_9C;
+    short word_9E;
+    long long_A0;
+    short word_A4;
+    short word_A6;
   };
-    unsigned char field_A8;
+  struct {
+    short word_9A_cp2;
+    long long_9C;
+    long long_A0_cp2;
+    short word_A4_cp2;
+    short word_A6_cp2;
+  };
+  struct {
+    long long_9A;
+    long long_9E;
+    long long_A2;
+  };
+  struct {
+    unsigned long last_mood_sound_turn;
+    long long_9E_cp2;
+    long long_A2_cp2;
+    short word_A6_cp3;
+  };
+  struct {
+    unsigned char byte_9A_cp2;
+    long long_9B;
+    short word_9F_cp2;
+    long long_A1;
+    unsigned char byte_A5_cp2;
+    short word_A6_cp4;
+  };
+  struct {
+    unsigned char byte_9A_cp3;
+    short word_9B;
+    short word_9D;
+    short word_9F;
+    short word_A1;
+    short word_A3;
+    unsigned char byte_A5_cp3;
+    short word_A6_cp5;
+  };
+  };
     unsigned char fight_til_death;
     unsigned char field_AA;
     unsigned char stateblock_flags;

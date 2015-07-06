@@ -197,7 +197,7 @@ TbBool find_combat_target_passing_by_subtile_but_having_unrelated_job(const stru
             {
                 dist = get_combat_distance(creatng, thing);
                 // If we have combat sight - we want that target, don't search anymore
-                if (creature_can_see_combat_path(creatng, thing, dist) > AttckT_Unset)
+                if (creature_can_see_combat_path(creatng, thing, dist))
                 {
                     *found_dist = dist;
                     *found_thing = thing;

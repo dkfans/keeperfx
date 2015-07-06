@@ -64,7 +64,7 @@ DLLIMPORT void _DK_combat_object_state_ranged_combat(struct Thing *creatng);
 DLLIMPORT void _DK_combat_door_state_melee_combat(struct Thing *creatng);
 DLLIMPORT void _DK_combat_door_state_ranged_combat(struct Thing *creatng);
 /******************************************************************************/
-CrAttackType combat_has_line_of_sight(const struct Thing *creatng, const struct Thing *enmtng, MapCoordDelta enmdist);
+TbBool combat_has_line_of_sight(const struct Thing *creatng, const struct Thing *enmtng, MapCoordDelta enmdist);
 /******************************************************************************/
 const CombatState combat_state[] = {
     NULL,
@@ -218,17 +218,17 @@ TbBool creature_is_being_attacked_by_enemy_creature_not_digger(struct Thing *fig
     return false;
 }
 
-CrAttackType creature_can_see_combat_path(const struct Thing *creatng, const struct Thing *enmtng, MapCoordDelta dist)
+TbBool creature_can_see_combat_path(const struct Thing *creatng, const struct Thing *enmtng, MapCoordDelta dist)
 {
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(creatng);
     if (dist > subtile_coord(crstat->visual_range,0)) {
-        return AttckT_Unset;
+        return false;
     }
     if (!jonty_creature_can_see_thing_including_lava_check(creatng, enmtng)) {
-        return AttckT_Unset;
+        return false;
     }
-    return AttckT_Melee;
+    return true;
 }
 
 TbBool creature_will_do_combat(const struct Thing *thing)
@@ -368,21 +368,34 @@ long creature_can_move_to_combat(struct Thing *fightng, struct Thing *enmtng)
 {
   long result;
   result = get_thing_navigation_distance(fightng, &enmtng->mappos, 0);
-  if ( result == -1 || result == LONG_MAX || result >= 5376 ) {
+  if ( result == -1 || result == LONG_MAX || result >= subtile_coord(21,0)) {
       return -1;
   }
   return result;
 }
 
-CrAttackType creature_can_have_combat_with_creature(struct Thing *fightng, struct Thing *enmtng, long dist, long move_on_ground, long set_combat)
+/**
+ * Gives combat type a creature can have with another creature based on its senses.
+ *
+ * @param fightng
+ * @param enmtng
+ * @param dist
+ * @param move_on_ground
+ * @param set_if_seen
+ * @return Gives AttckT_Unset if creature does not sense the opponent,
+ *     AttckT_Ranged if creature is in sight but cannot be approached,
+ *     AttckT_Melee if creature is discovered and can be reached by walk.
+ */
+CrAttackType creature_can_have_combat_with_creature(struct Thing *fightng, struct Thing *enmtng, long dist, long move_on_ground, long set_if_seen)
 {
     SYNCDBG(19,"Starting for %s index %d vs %s index %d",thing_model_name(fightng),(int)fightng->index,thing_model_name(enmtng),(int)enmtng->index);
     TRACE_THING(fightng);
     TRACE_THING(enmtng);
-    long can_see;
-    can_see = 0;
+    TbBool can_see;
+    can_see = false;
     if (creature_can_hear_within_distance(fightng, dist))
     {
+        // We can have a melee combat if we hear an enemy and we can move to it
         if (move_on_ground)
         {
             if (creature_can_move_to_combat(fightng, enmtng) >= 0) {
@@ -394,7 +407,9 @@ CrAttackType creature_can_have_combat_with_creature(struct Thing *fightng, struc
                 return AttckT_Melee;
             }
         }
+        // If we cannot move to the enemy, then ranged attack is the only option, and we need line of sight
         if (!creature_has_ranged_weapon(fightng)) {
+            // Checking line of sight is expensive - in case we don't have ranged weapon, skip it
             return AttckT_Unset;
         }
         can_see = creature_can_see_combat_path(fightng, enmtng, dist);
@@ -405,23 +420,20 @@ CrAttackType creature_can_have_combat_with_creature(struct Thing *fightng, struc
     else
     {
         can_see = creature_can_see_combat_path(fightng, enmtng, dist);
-        if (can_see <= 0) {
+        if (!can_see) {
           return AttckT_Unset;
         }
-        if (can_see != AttckT_Ranged) {
-            return AttckT_Melee;
-        }
-        if (!creature_has_ranged_weapon(fightng)) {
-            return AttckT_Unset;
-        }
+        // If we can see it, assume that we can reach it
+        //TODO COMBAT is it acceptable to assume we can do melee combat here? Why no seen_enemy update?
+        return AttckT_Melee;
     }
-    if (set_combat)
+    if (set_if_seen)
     {
         struct CreatureControl *fcctrl;
         fcctrl = creature_control_get_from_thing(fightng);
-        fcctrl->field_A8 = can_see;
-        fcctrl->word_A4 = enmtng->index;
-        fcctrl->long_9A = game.play_gameturn;
+        fcctrl->combat.seen_enemy_los = can_see;
+        fcctrl->combat.seen_enemy_idx = enmtng->index;
+        fcctrl->combat.seen_enemy_turn = game.play_gameturn;
     }
     return AttckT_Ranged;
 }
@@ -708,7 +720,7 @@ TbBool battle_any_of_things_in_specific_battle(const struct CreatureBattle *batt
         // Per battle creature code
         if (cctrl->combat_flags != 0)
         {
-            attcktng = thing_get(cctrl->battle_enemy_idx);
+            attcktng = thing_get(cctrl->combat.battle_enemy_idx);
             TRACE_THING(attcktng);
             if ( !thing_is_invalid(attcktng) )
             {
@@ -963,8 +975,8 @@ TbBool remove_melee_attacker(struct Thing *fightng, struct Thing *enmtng)
         WARNLOG("Cannot remove attacker - the %s index %d has no opponents",thing_model_name(enmtng),(int)enmtng->index);
     }
     figctrl->combat_flags &= ~CmbtF_Melee;
-    figctrl->battle_enemy_idx = 0;
-    figctrl->long_9E = 0;
+    figctrl->combat.battle_enemy_idx = 0;
+    figctrl->combat.battle_enemy_crtn = 0;
     figctrl->fight_til_death = 0;
     delay_teleport(fightng);
 
@@ -1008,8 +1020,8 @@ TbBool remove_ranged_attacker(struct Thing *fightng, struct Thing *enmtng)
         WARNLOG("Cannot remove attacker - the %s index %d has no opponents",thing_model_name(enmtng),(int)enmtng->index);
     }
     figctrl->combat_flags &= ~CmbtF_Ranged;
-    figctrl->battle_enemy_idx = 0;
-    figctrl->long_9E = 0;
+    figctrl->combat.battle_enemy_idx = 0;
+    figctrl->combat.battle_enemy_crtn = 0;
     figctrl->fight_til_death = 0;
     delay_teleport(fightng);
 
@@ -1094,21 +1106,21 @@ long add_ranged_attacker(struct Thing *fighter, struct Thing *enemy)
         return false;
     }
     figctrl->combat_flags |= CmbtF_Ranged;
-    figctrl->battle_enemy_idx = enemy->index;
-    figctrl->long_9E = enemy->creation_turn;
+    figctrl->combat.battle_enemy_idx = enemy->index;
+    figctrl->combat.battle_enemy_crtn = enemy->creation_turn;
     if (!add_ranged_combat_attacker(enemy, fighter->index)) {
         ERRORLOG("Cannot add a ranged attacker, but there was free space - internal error");
         figctrl->combat_flags &= ~CmbtF_Ranged;
-        figctrl->battle_enemy_idx = 0;
-        figctrl->long_9E = 0;
+        figctrl->combat.battle_enemy_idx = 0;
+        figctrl->combat.battle_enemy_crtn = 0;
         figctrl->fight_til_death = 0;
         return false;
     }
     if (!battle_add(fighter, enemy)) {
         remove_ranged_combat_attacker(enemy, fighter->index);
         figctrl->combat_flags &= ~CmbtF_Ranged;
-        figctrl->battle_enemy_idx = 0;
-        figctrl->long_9E = 0;
+        figctrl->combat.battle_enemy_idx = 0;
+        figctrl->combat.battle_enemy_crtn = 0;
         figctrl->fight_til_death = 0;
         return false;
     }
@@ -1136,21 +1148,21 @@ long add_melee_attacker(struct Thing *fighter, struct Thing *enemy)
         return false;
     }
     figctrl->combat_flags |= CmbtF_Melee;
-    figctrl->battle_enemy_idx = enemy->index;
-    figctrl->long_9E = enemy->creation_turn;
+    figctrl->combat.battle_enemy_idx = enemy->index;
+    figctrl->combat.battle_enemy_crtn = enemy->creation_turn;
     if (!add_melee_combat_attacker(enemy, fighter->index)) {
         ERRORLOG("Cannot add a melee attacker, but %s index %d had free slot - internal error",thing_model_name(fighter),(int)fighter->index);
         figctrl->combat_flags &= ~CmbtF_Melee;
-        figctrl->battle_enemy_idx = 0;
-        figctrl->long_9E = 0;
+        figctrl->combat.battle_enemy_idx = 0;
+        figctrl->combat.battle_enemy_crtn = 0;
         figctrl->fight_til_death = 0;
         return false;
     }
     if (!battle_add(fighter, enemy)) {
         remove_melee_combat_attacker(enemy, fighter->index);
         figctrl->combat_flags &= ~CmbtF_Melee;
-        figctrl->battle_enemy_idx = 0;
-        figctrl->long_9E = 0;
+        figctrl->combat.battle_enemy_idx = 0;
+        figctrl->combat.battle_enemy_crtn = 0;
         figctrl->fight_til_death = 0;
         return false;
     }
@@ -1166,14 +1178,14 @@ TbBool add_waiting_attacker(struct Thing *fighter, struct Thing *enemy)
         SYNCDBG(7,"The %s index %d in combat already - waiting",thing_model_name(fighter),(int)fighter->index);
     }
     figctrl->combat_flags |= CmbtF_Waiting;
-    figctrl->battle_enemy_idx = enemy->index;
-    figctrl->long_9E = enemy->creation_turn;
+    figctrl->combat.battle_enemy_idx = enemy->index;
+    figctrl->combat.battle_enemy_crtn = enemy->creation_turn;
     if (!battle_add(fighter, enemy)) {
         //TODO COMBAT write the function to remove the waiting attacker (might be dummy)
         //remove_waiting_combat_attacker(enemy, fighter->index);
         figctrl->combat_flags &= ~CmbtF_Waiting;
-        figctrl->battle_enemy_idx = 0;
-        figctrl->long_9E = 0;
+        figctrl->combat.battle_enemy_idx = 0;
+        figctrl->combat.battle_enemy_crtn = 0;
         figctrl->fight_til_death = 0;
         return false;
     }
@@ -1195,7 +1207,7 @@ TbBool set_creature_combat_state(struct Thing *fighter, struct Thing *enemy, CrA
             dungeon->fights_num++;
         }
     }
-    figctrl->attack_type = attack_type;
+    figctrl->combat.attack_type = attack_type;
     // If creatures weren't at combat before, then play a speech
     if ((enmctrl->combat_flags & (CmbtF_Melee|CmbtF_Ranged)) == 0)
     {
@@ -1219,12 +1231,12 @@ TbBool set_creature_combat_state(struct Thing *fighter, struct Thing *enemy, CrA
         if ( add_ranged_attacker(fighter, enemy) )
         {
             play_creature_sound(fighter, CrSnd_Fight, 3, 0);
-            figctrl->combat_state_id = CmbtSt_Ranged;
+            figctrl->combat.state_id = CmbtSt_Ranged;
             return true;
         } else
         if ( add_waiting_attacker(fighter, enemy) )
         {
-            figctrl->combat_state_id = CmbtSt_Waiting;
+            figctrl->combat.state_id = CmbtSt_Waiting;
             return true;
         }
         return false;
@@ -1235,25 +1247,25 @@ TbBool set_creature_combat_state(struct Thing *fighter, struct Thing *enemy, CrA
         if (add_ranged_attacker(fighter, enemy))
         {
             play_creature_sound(fighter, CrSnd_Fight, 3, 0);
-            figctrl->combat_state_id = CmbtSt_Ranged;
+            figctrl->combat.state_id = CmbtSt_Ranged;
             return true;
         }
     }
     if (add_melee_attacker(fighter, enemy))
     {
         play_creature_sound(fighter, CrSnd_Fight, 3, 0);
-        figctrl->combat_state_id = CmbtSt_Melee;
+        figctrl->combat.state_id = CmbtSt_Melee;
         return true;
     }
     if (creature_has_ranged_weapon(fighter) && add_ranged_attacker(fighter, enemy))
     {
         play_creature_sound(fighter, CrSnd_Fight, 3, 0);
-        figctrl->combat_state_id = CmbtSt_Ranged;
+        figctrl->combat.state_id = CmbtSt_Ranged;
         return true;
     } else
     if (add_waiting_attacker(fighter, enemy))
     {
-        figctrl->combat_state_id = CmbtSt_Waiting;
+        figctrl->combat.state_id = CmbtSt_Waiting;
         return true;
     }
     return false;
@@ -1353,7 +1365,7 @@ short cleanup_door_combat(struct Thing *thing)
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
     cctrl->combat_flags &= ~CmbtF_DoorFight;
-    cctrl->battle_enemy_idx = 0;
+    cctrl->combat.battle_enemy_idx = 0;
     return 1;
 
 }
@@ -1363,7 +1375,7 @@ short cleanup_object_combat(struct Thing *thing)
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
     cctrl->combat_flags &= ~CmbtF_ObjctFight;
-    cctrl->battle_enemy_idx = 0;
+    cctrl->combat.battle_enemy_idx = 0;
     return 1;
 }
 
@@ -1462,7 +1474,7 @@ TbBool combat_enemy_exists(struct Thing *thing, struct Thing *enmtng)
     struct CreatureControl *cctrl;
     struct CreatureControl *enmcctrl;
     cctrl = creature_control_get_from_thing(thing);
-    if ( (!thing_exists(enmtng)) || (cctrl->long_9E != enmtng->creation_turn) )
+    if ( (!thing_exists(enmtng)) || (cctrl->combat.battle_enemy_crtn != enmtng->creation_turn) )
     {
         SYNCDBG(8,"Enemy creature doesn't exist");
         return false;
@@ -1482,7 +1494,7 @@ short creature_door_combat(struct Thing *creatng)
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
     struct Thing *doortng;
-    doortng = thing_get(cctrl->battle_enemy_idx);
+    doortng = thing_get(cctrl->combat.battle_enemy_idx);
     if ((cctrl->combat_flags & CmbtF_DoorFight) == 0)
     {
         ERRORLOG("The %s index %d is not in door combat but should be", thing_model_name(creatng), (int)creatng->index);
@@ -1501,8 +1513,8 @@ short creature_door_combat(struct Thing *creatng)
         return 0;
     }
     CombatState combat_func;
-    if (cctrl->combat_state_id < sizeof(combat_door_state)/sizeof(combat_door_state[0]))
-        combat_func = combat_door_state[cctrl->combat_state_id];
+    if (cctrl->combat.state_id < sizeof(combat_door_state)/sizeof(combat_door_state[0]))
+        combat_func = combat_door_state[cctrl->combat.state_id];
     else
         combat_func = NULL;
     if (combat_func != NULL)
@@ -1519,8 +1531,8 @@ TbBool creature_has_creature_in_combat(const struct Thing *thing, const struct T
 {
     struct CreatureControl *enmctrl;
     enmctrl = creature_control_get_from_thing(enmtng);
-    if ( (enmctrl->combat_flags != 0) && (enmctrl->battle_enemy_idx > 0) ) {
-        return (enmctrl->battle_enemy_idx == thing->index);
+    if ( (enmctrl->combat_flags != 0) && (enmctrl->combat.battle_enemy_idx > 0) ) {
+        return (enmctrl->combat.battle_enemy_idx == thing->index);
     }
     return false;
 }
@@ -1691,7 +1703,7 @@ long creature_is_most_suitable_for_combat(struct Thing *thing, struct Thing *enm
     { // Compute the score we can get from current battle
         long distance;
         distance = get_combat_distance(thing, enmtng);
-        curr_score = get_combat_score(thing, enmtng, cctrl->attack_type, distance);
+        curr_score = get_combat_score(thing, enmtng, cctrl->combat.attack_type, distance);
     }
     // Compute highest possible score from other battles
     other_score = curr_score;
@@ -1709,7 +1721,7 @@ CrAttackType check_for_valid_combat(struct Thing *fightng, struct Thing *enmtng)
     SYNCDBG(19,"Starting for %s index %d vs %s index %d",thing_model_name(fightng),(int)fightng->index,thing_model_name(enmtng),(int)enmtng->index);
     cctrl = creature_control_get_from_thing(fightng);
     CrAttackType attack_type;
-    attack_type = cctrl->attack_type;
+    attack_type = cctrl->combat.attack_type;
     if (!creature_will_attack_creature_incl_til_death(fightng, enmtng)) {
         return AttckT_Unset;
     }
@@ -1732,12 +1744,12 @@ TbBool combat_type_is_choice_of_creature(const struct Thing *thing, CrAttackType
     }
     if (attack_type == AttckT_Ranged)
     {
-        if (cctrl->attack_type == AttckT_Ranged)
+        if (cctrl->combat.attack_type == AttckT_Ranged)
             return true;
         return false;
     }
     // so (attack_type == AttckT_Melee)
-    if (cctrl->attack_type != AttckT_Ranged) {
+    if (cctrl->combat.attack_type != AttckT_Ranged) {
         return true;
     }
     struct CreatureStats *crstat;
@@ -1807,7 +1819,7 @@ long ranged_combat_move(struct Thing *thing, struct Thing *enmtng, MapCoordDelta
             return false;
         }
     }
-    if (combat_has_line_of_sight(thing, enmtng, enmdist) == AttckT_Unset)
+    if (!combat_has_line_of_sight(thing, enmtng, enmdist))
     {
         if (creature_move_to(thing, &enmtng->mappos, cctrl->max_speed, 0, 0) == -1) {
             set_start_state(thing);
@@ -1998,17 +2010,17 @@ long get_best_ranged_object_offensive_weapon(const struct Thing *thing, long dis
     return inst_id;
 }
 
-CrAttackType combat_has_line_of_sight(const struct Thing *creatng, const struct Thing *enmtng, MapCoordDelta enmdist)
+TbBool combat_has_line_of_sight(const struct Thing *creatng, const struct Thing *enmtng, MapCoordDelta enmdist)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
-    if ((cctrl->long_9A != game.play_gameturn) || (cctrl->word_A4 != enmtng->index))
+    if ((cctrl->combat.seen_enemy_turn != game.play_gameturn) || (cctrl->combat.seen_enemy_idx != enmtng->index))
     {
-      cctrl->long_9A = game.play_gameturn;
-      cctrl->word_A4 = enmtng->index;
-      cctrl->field_A8 = creature_can_see_combat_path(creatng, enmtng, enmdist);
+      cctrl->combat.seen_enemy_turn = game.play_gameturn;
+      cctrl->combat.seen_enemy_idx = enmtng->index;
+      cctrl->combat.seen_enemy_los = creature_can_see_combat_path(creatng, enmtng, enmdist);
     }
-    return cctrl->field_A8;
+    return cctrl->combat.seen_enemy_los;
 }
 
 long collide_filter_thing_is_in_my_fight(const struct Thing *firstng, const struct Thing *coldtng, long a3, long a4)
@@ -2217,7 +2229,7 @@ long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, 
     {
         if ((cctrl->combat_flags & (CmbtF_DoorFight|CmbtF_ObjctFight)) == 0)
         {
-            if (combat_has_line_of_sight(thing, enmtng, enmdist) != AttckT_Unset)
+            if (combat_has_line_of_sight(thing, enmtng, enmdist))
             {
                 CrInstance inst_id;
                 inst_id = get_best_ranged_offensive_weapon(thing, enmdist);
@@ -2305,9 +2317,9 @@ TbBool remove_waiting_attacker(struct Thing *fightng)
         }
     }
     figctrl->combat_flags &= ~CmbtF_Waiting;
-    figctrl->battle_enemy_idx = 0;
+    figctrl->combat.battle_enemy_idx = 0;
     figctrl->fight_til_death = 0;
-    figctrl->long_9E = 0;
+    figctrl->combat.battle_enemy_crtn = 0;
     delay_teleport(fightng);
 
     battle_remove(fightng);
@@ -2348,10 +2360,10 @@ long remove_all_traces_of_combat(struct Thing *creatng)
     SYNCDBG(8,"Starting for %s index %d",thing_model_name(creatng),(int)creatng->index);
     // Remove creature as attacker
     cctrl = creature_control_get_from_thing(creatng);
-    if ((cctrl->combat_flags != 0) && (cctrl->battle_enemy_idx > 0))
+    if ((cctrl->combat_flags != 0) && (cctrl->combat.battle_enemy_idx > 0))
     {
         struct Thing *enmtng;
-        enmtng = thing_get(cctrl->battle_enemy_idx);
+        enmtng = thing_get(cctrl->combat.battle_enemy_idx);
         TRACE_THING(enmtng);
         remove_attacker(creatng, enmtng);
     }
@@ -2375,7 +2387,7 @@ TbBool change_current_combat(struct Thing *fighter, struct Thing *enemy, CrAttac
         ERRORLOG("Invalid fighter creature control");
         return false;
     }
-    oldenemy = thing_get(figctrl->battle_enemy_idx);
+    oldenemy = thing_get(figctrl->combat.battle_enemy_idx);
     TRACE_THING(oldenemy);
     remove_attacker(fighter, oldenemy);
     if ( !set_creature_combat_state(fighter, enemy, attack_type) ) {
@@ -2442,7 +2454,7 @@ long change_creature_with_existing_attacker(struct Thing *fighter, struct Thing 
               struct CreatureControl *cctrl;
               cctrl = creature_control_get_from_thing(creatng);
               dist = get_2d_box_distance(&creatng->mappos, &enemy->mappos) - (enemy->clipbox_size_xy + creatng->clipbox_size_xy) / 2;
-              score = get_combat_score(creatng, enemy, cctrl->attack_type, dist);
+              score = get_combat_score(creatng, enemy, cctrl->combat.attack_type, dist);
               if (creature_is_actually_scared(creatng, enemy)) {
                   score -= 512;
               }
@@ -2465,7 +2477,7 @@ long change_creature_with_existing_attacker(struct Thing *fighter, struct Thing 
                 struct CreatureControl *cctrl;
                 cctrl = creature_control_get_from_thing(creatng);
                 dist = get_2d_box_distance(&creatng->mappos, &enemy->mappos) - (enemy->clipbox_size_xy + creatng->clipbox_size_xy) / 2;
-                score = get_combat_score(creatng, enemy, cctrl->attack_type, dist);
+                score = get_combat_score(creatng, enemy, cctrl->combat.attack_type, dist);
                 if (creature_is_actually_scared(creatng, enemy)) {
                     score -= 512;
                 }
@@ -2482,7 +2494,7 @@ long change_creature_with_existing_attacker(struct Thing *fighter, struct Thing 
         struct CreatureControl *figctrl;
         figctrl = creature_control_get_from_thing(fighter);
         struct Thing *prevenmy;
-        prevenmy = thing_get(figctrl->battle_enemy_idx);
+        prevenmy = thing_get(figctrl->combat.battle_enemy_idx);
         if ((figctrl->combat_flags & CmbtF_Melee) != 0)
         {
           remove_melee_attacker(fighter, prevenmy);
@@ -2501,9 +2513,9 @@ long change_creature_with_existing_attacker(struct Thing *fighter, struct Thing 
                 ERRORLOG("Fight count incorrect");
             }
             figctrl->combat_flags &= ~0x04;
-            figctrl->battle_enemy_idx = 0;
+            figctrl->combat.battle_enemy_idx = 0;
             figctrl->fight_til_death = 0;
-            figctrl->long_9E = 0;
+            figctrl->combat.battle_enemy_crtn = 0;
             battle_remove(fighter);
         }
         set_creature_combat_state(fighter, enemy, attack_type);
@@ -2554,7 +2566,7 @@ TbBool creature_change_to_most_suitable_combat(struct Thing *figtng)
         return false;
     struct CreatureControl *figctrl;
     figctrl = creature_control_get_from_thing(figtng);
-    if (figctrl->battle_enemy_idx == enmtng->index)
+    if (figctrl->combat.battle_enemy_idx == enmtng->index)
         return false;
     if (!change_current_combat(figtng, enmtng, attack_type))
         return false;
@@ -2578,7 +2590,7 @@ long check_for_better_combat(struct Thing *figtng)
     // If we're here, that means there is a better combat
     //TODO CREATURE_AI The condition here seems strange; we need to figure out what's its purpose
     //if ( (figctrl->battle_enemy_idx != enmtng->index) || !combat_type_is_choice_of_creature(figtng, attack_type) )
-    if ( (figctrl->battle_enemy_idx == enmtng->index) && combat_type_is_choice_of_creature(figtng, attack_type) )
+    if ( (figctrl->combat.battle_enemy_idx == enmtng->index) && combat_type_is_choice_of_creature(figtng, attack_type) )
     {
         // we want to fight with the same enemy, but to use combat type preferred by creature
         // this is so good that we won't even do any additional tests - let's just do it!
@@ -2586,7 +2598,7 @@ long check_for_better_combat(struct Thing *figtng)
             return 0;
         return 1;
     }
-    if (figctrl->combat_state_id != CmbtSt_Waiting) {
+    if (figctrl->combat.state_id != CmbtSt_Waiting) {
         // it's not a waiting but real fight - don't change anything
         // (note that this condition makes battles very stable - creatures are unlikely to change enemies)
         return 0;
@@ -2679,7 +2691,7 @@ void creature_in_combat_wait(struct Thing *creatng)
     // Check if we're best combat partner for the enemy
     long cmbtyp;
     cctrl = creature_control_get_from_thing(creatng);
-    enmtng = thing_get(cctrl->battle_enemy_idx);
+    enmtng = thing_get(cctrl->combat.battle_enemy_idx);
     TRACE_THING(enmtng);
     if (!creature_is_most_suitable_for_combat(creatng, enmtng))
     {
@@ -2707,7 +2719,7 @@ void creature_in_ranged_combat(struct Thing *creatng)
     long dist, cmbtyp;
     CrInstance weapon;
     cctrl = creature_control_get_from_thing(creatng);
-    enmtng = thing_get(cctrl->battle_enemy_idx);
+    enmtng = thing_get(cctrl->combat.battle_enemy_idx);
     TRACE_THING(enmtng);
     if (!creature_is_most_suitable_for_combat(creatng, enmtng))
     {
@@ -2748,7 +2760,7 @@ void creature_in_melee_combat(struct Thing *creatng)
     struct Thing *enmtng;
     long dist;
     cctrl = creature_control_get_from_thing(creatng);
-    enmtng = thing_get(cctrl->battle_enemy_idx);
+    enmtng = thing_get(cctrl->combat.battle_enemy_idx);
     TRACE_THING(enmtng);
     if (!creature_is_most_suitable_for_combat(creatng, enmtng))
     {
@@ -2789,9 +2801,9 @@ short creature_in_combat(struct Thing *creatng)
     struct CreatureControl *cctrl;
     struct Thing *enmtng;
     cctrl = creature_control_get_from_thing(creatng);
-    SYNCDBG(9,"Starting for %s index %d, combat state %d",thing_model_name(creatng),(int)creatng->index,(int)cctrl->combat_state_id);
+    SYNCDBG(9,"Starting for %s index %d, combat state %d",thing_model_name(creatng),(int)creatng->index,(int)cctrl->combat.state_id);
     TRACE_THING(creatng);
-    enmtng = thing_get(cctrl->battle_enemy_idx);
+    enmtng = thing_get(cctrl->combat.battle_enemy_idx);
     TRACE_THING(enmtng);
     if (!combat_enemy_exists(creatng, enmtng))
     {
@@ -2808,8 +2820,8 @@ short creature_in_combat(struct Thing *creatng)
         return 0;
     }
     CombatState combat_func;
-    if (cctrl->combat_state_id < sizeof(combat_state)/sizeof(combat_state[0]))
-        combat_func = combat_state[cctrl->combat_state_id];
+    if (cctrl->combat.state_id < sizeof(combat_state)/sizeof(combat_state[0]))
+        combat_func = combat_state[cctrl->combat.state_id];
     else
         combat_func = NULL;
     if (combat_func != NULL)
@@ -2817,7 +2829,7 @@ short creature_in_combat(struct Thing *creatng)
         combat_func(creatng);
         return 1;
     }
-    ERRORLOG("No valid fight state %d in %s index %d",(int)cctrl->combat_state_id,thing_model_name(creatng),(int)creatng->index);
+    ERRORLOG("No valid fight state %d in %s index %d",(int)cctrl->combat.state_id,thing_model_name(creatng),(int)creatng->index);
     set_start_state(creatng);
     return 0;
 }
@@ -2829,7 +2841,7 @@ void combat_object_state_melee_combat(struct Thing *creatng)
     cctrl = creature_control_get_from_thing(creatng);
     struct Thing *objtng;
     long dist;
-    objtng = thing_get(cctrl->battle_enemy_idx);
+    objtng = thing_get(cctrl->combat.battle_enemy_idx);
     dist = get_combat_distance(creatng, objtng);
     CrInstance inst_id;
     inst_id = get_best_melee_object_offensive_weapon(creatng, dist);
@@ -2853,7 +2865,7 @@ void combat_object_state_ranged_combat(struct Thing *creatng)
     cctrl = creature_control_get_from_thing(creatng);
     struct Thing *objtng;
     long dist;
-    objtng = thing_get(cctrl->battle_enemy_idx);
+    objtng = thing_get(cctrl->combat.battle_enemy_idx);
     dist = get_combat_distance(creatng, objtng);
     CrInstance inst_id;
     inst_id = get_best_ranged_object_offensive_weapon(creatng, dist);
@@ -2876,7 +2888,7 @@ void combat_door_state_melee_combat(struct Thing *creatng)
     cctrl = creature_control_get_from_thing(creatng);
     struct Thing *objtng;
     long dist;
-    objtng = thing_get(cctrl->battle_enemy_idx);
+    objtng = thing_get(cctrl->combat.battle_enemy_idx);
     dist = get_combat_distance(creatng, objtng);
     CrInstance inst_id;
     inst_id = get_best_melee_object_offensive_weapon(creatng, dist);
@@ -2900,7 +2912,7 @@ void combat_door_state_ranged_combat(struct Thing *creatng)
     cctrl = creature_control_get_from_thing(creatng);
     struct Thing *objtng;
     long dist;
-    objtng = thing_get(cctrl->battle_enemy_idx);
+    objtng = thing_get(cctrl->combat.battle_enemy_idx);
     dist = get_combat_distance(creatng, objtng);
     CrInstance inst_id;
     inst_id = get_best_ranged_object_offensive_weapon(creatng, dist);
@@ -2921,7 +2933,7 @@ short creature_object_combat(struct Thing *creatng)
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
     struct Thing *objctng;
-    objctng = thing_get(cctrl->battle_enemy_idx);
+    objctng = thing_get(cctrl->combat.battle_enemy_idx);
     if ((cctrl->combat_flags & CmbtF_ObjctFight) == 0)
     {
         ERRORLOG("The %s index %d is not in object combat but should be", thing_model_name(creatng), (int)creatng->index);
@@ -2939,8 +2951,8 @@ short creature_object_combat(struct Thing *creatng)
         return 0;
     }
     CombatState combat_func;
-    if (cctrl->combat_state_id < sizeof(combat_object_state)/sizeof(combat_object_state[0]))
-        combat_func = combat_object_state[cctrl->combat_state_id];
+    if (cctrl->combat.state_id < sizeof(combat_object_state)/sizeof(combat_object_state[0]))
+        combat_func = combat_object_state[cctrl->combat.state_id];
     else
         combat_func = NULL;
     if (combat_func != NULL)
@@ -3029,7 +3041,7 @@ TbBool creature_look_for_enemy_heart_combat(struct Thing *thing)
     if (get_creature_state_besides_interruptions(thing) == CrSt_CreatureObjectCombat) {
         struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(thing);
-        heartng = thing_get(cctrl->battle_enemy_idx);
+        heartng = thing_get(cctrl->combat.battle_enemy_idx);
         if (thing_is_dungeon_heart(heartng)) {
             return false;
         }

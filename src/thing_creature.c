@@ -549,7 +549,7 @@ struct Thing *get_players_soul_container_creature_can_see(struct Thing *creatng,
         return INVALID_THING;
     }
     dist = get_combat_distance(creatng, heartng);
-    if (creature_can_see_combat_path(creatng, heartng, dist) > AttckT_Unset) {
+    if (creature_can_see_combat_path(creatng, heartng, dist)) {
         SYNCDBG(7,"The %s index %d owned by player %d can see player %d %s index %d at distance %d",
             thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,
             (int)heartng->owner,thing_model_name(heartng),(int)heartng->index,(int)dist);
@@ -604,17 +604,17 @@ void set_creature_combat_object_state(struct Thing *creatng, struct Thing *obthi
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
-    cctrl->battle_enemy_idx = obthing->index;
-    cctrl->long_9E = obthing->creation_turn;
+    cctrl->combat.battle_enemy_idx = obthing->index;
+    cctrl->combat.battle_enemy_crtn = obthing->creation_turn;
     cctrl->field_AA = 0;
     cctrl->combat_flags |= CmbtF_ObjctFight;
     const struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(creatng);
     if ((crstat->attack_preference == AttckT_Ranged)
       && creature_has_ranged_object_weapon(creatng)) {
-        cctrl->combat_state_id = ObjCmbtSt_Ranged;
+        cctrl->combat.state_id = ObjCmbtSt_Ranged;
     } else {
-        cctrl->combat_state_id = ObjCmbtSt_Melee;
+        cctrl->combat.state_id = ObjCmbtSt_Melee;
     }
 }
 
@@ -634,17 +634,17 @@ void set_creature_combat_door_state(struct Thing *creatng, struct Thing *obthing
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
-    cctrl->battle_enemy_idx = obthing->index;
-    cctrl->long_9E = obthing->creation_turn;
+    cctrl->combat.battle_enemy_idx = obthing->index;
+    cctrl->combat.battle_enemy_crtn = obthing->creation_turn;
     cctrl->field_AA = 0;
     cctrl->combat_flags |= CmbtF_DoorFight;
     const struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(creatng);
     if ((crstat->attack_preference == AttckT_Ranged)
       && creature_has_ranged_object_weapon(creatng)) {
-        cctrl->combat_state_id = ObjCmbtSt_Ranged;
+        cctrl->combat.state_id = ObjCmbtSt_Ranged;
     } else {
-        cctrl->combat_state_id = ObjCmbtSt_Melee;
+        cctrl->combat.state_id = ObjCmbtSt_Melee;
     }
 }
 

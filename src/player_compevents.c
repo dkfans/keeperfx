@@ -406,7 +406,7 @@ long computer_event_attack_magic_foe(struct Computer2 *comp, struct ComputerEven
     struct CreatureControl *figctrl;
     figctrl = creature_control_get_from_thing(fightng);
     struct Thing *creatng;
-    creatng = thing_get(figctrl->battle_enemy_idx);
+    creatng = thing_get(figctrl->combat.battle_enemy_idx);
     if (!thing_is_creature(creatng) || creature_is_dying(creatng)) {
         return 4;
     }
