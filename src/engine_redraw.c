@@ -354,7 +354,7 @@ void set_sprite_view_3d(void)
         thing = thing_get(i);
         if (thing_exists(thing))
         {
-            if (thing_is_creature(thing) || ((thing->field_4F & 0x01) == 0))
+            if (thing_is_creature(thing) || ((thing->field_4F & TF4F_Unknown01) == 0))
             {
                 int n;
                 n = straight_iso_td(thing->anim_sprite);
@@ -389,7 +389,7 @@ void set_sprite_view_isometric(void)
         thing = thing_get(i);
         if (thing_exists(thing))
         {
-            if (thing_is_creature(thing) || ((thing->field_4F & 0x01) == 0))
+            if (thing_is_creature(thing) || ((thing->field_4F & TF4F_Unknown01) == 0))
             {
                 int n;
                 n = straight_td_iso(thing->anim_sprite);

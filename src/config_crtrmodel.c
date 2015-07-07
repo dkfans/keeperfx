@@ -156,6 +156,7 @@ const struct NamedCommand creatmodel_appearance_commands[] = {
   {"VISUALRANGE",          2},
   {"POSSESSSWIPEINDEX",    3},
   {"NATURALDEATHKIND",     4},
+  {"SHOTORIGIN",           5},
   {NULL,                   0},
   };
 
@@ -1485,6 +1486,9 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
         crstat->visual_range = 1;
         creatures[crtr_model].swipe_idx = 0;
         creatures[crtr_model].natural_death_kind = Death_Normal;
+        creatures[crtr_model].shot_shift_x = 0;
+        creatures[crtr_model].shot_shift_y = 0;
+        creatures[crtr_model].shot_shift_z = 0;
     }
     // Find the block
     sprintf(block_buf,"appearance");
@@ -1562,6 +1566,31 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 5: // SHOTORIGIN
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                creatures[crtr_model].shot_shift_x = k;
+                n++;
+            }
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                creatures[crtr_model].shot_shift_y = k;
+                n++;
+            }
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                creatures[crtr_model].shot_shift_z = k;
+                n++;
+            }
+            if (n < 3)
+            {
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
         case 0: // comment

@@ -624,7 +624,7 @@ struct Thing *create_ambient_sound(const struct Coord3d *pos, ThingModel model, 
     thing->parent_idx = thing->index;
     memcpy(&thing->mappos,pos,sizeof(struct Coord3d));
     thing->owner = owner;
-    thing->field_4F |= 0x01;
+    thing->field_4F |= TF4F_Unknown01;
     add_thing_to_its_class_list(thing);
     return thing;
 }

@@ -3238,7 +3238,7 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
             thing->mappos.z.val = get_ceiling_height(&thing->mappos);
             create_effect(&thing->mappos, TngEff_Unknown36, thing->owner);
             initialise_thing_state(thing, CrSt_CreatureHeroEntering);
-            thing->field_4F |= 0x01;
+            thing->field_4F |= TF4F_Unknown01;
             cctrl->countdown_282 = 24;
         }
         break;

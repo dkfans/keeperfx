@@ -393,8 +393,9 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
     thing->field_22 = 0;
     thing->movement_flags |= TMvF_Unknown08;
     thing->creation_turn = game.play_gameturn;
-    if (creatures[model].field_7)
-      thing->field_4F |= 0x30;
+    if (creatures[model].field_7) {
+        thing->field_4F |= (TF4F_Unknown10|TF4F_Unknown20);
+    }
     add_thing_to_its_class_list(thing);
     place_thing_in_mapwho(thing);
     switch (a1)

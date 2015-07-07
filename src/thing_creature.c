@@ -2737,11 +2737,11 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
     pos1.x.val = firing->mappos.x.val;
     pos1.y.val = firing->mappos.y.val;
     pos1.z.val = firing->mappos.z.val;
-    pos1.x.val += distance_with_angle_to_coord_x(cctrl->field_2C1, firing->move_angle_xy+LbFPMath_PI/2);
-    pos1.y.val += distance_with_angle_to_coord_y(cctrl->field_2C1, firing->move_angle_xy+LbFPMath_PI/2);
-    pos1.x.val += distance_with_angle_to_coord_x(cctrl->field_2C3, firing->move_angle_xy);
-    pos1.y.val += distance_with_angle_to_coord_y(cctrl->field_2C3, firing->move_angle_xy);
-    pos1.z.val += (cctrl->field_2C5);
+    pos1.x.val += distance_with_angle_to_coord_x(cctrl->shot_shift_x, firing->move_angle_xy+LbFPMath_PI/2);
+    pos1.y.val += distance_with_angle_to_coord_y(cctrl->shot_shift_x, firing->move_angle_xy+LbFPMath_PI/2);
+    pos1.x.val += distance_with_angle_to_coord_x(cctrl->shot_shift_y, firing->move_angle_xy);
+    pos1.y.val += distance_with_angle_to_coord_y(cctrl->shot_shift_y, firing->move_angle_xy);
+    pos1.z.val += (cctrl->shot_shift_z);
     // Compute launch angles
     if (thing_is_invalid(target))
     {
@@ -2788,7 +2788,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         shotng = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shotng))
           return;
-        if (shot_model == 12)
+        if (shot_model == ShM_Drain)
           draw_lightning(&pos1, &pos2, 96, 93);
         else
           draw_lightning(&pos1, &pos2, 96, 60);
@@ -3365,9 +3365,9 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->move_angle_xy = 0;
     crtng->move_angle_z = 0;
     cctrl->max_speed = calculate_correct_creature_maxspeed(crtng);
-    cctrl->field_2C1 = creatures[model].field_9;
-    cctrl->field_2C3 = creatures[model].field_B;
-    cctrl->field_2C5 = creatures[model].field_D;
+    cctrl->shot_shift_x = creatures[model].shot_shift_x;
+    cctrl->shot_shift_y = creatures[model].shot_shift_y;
+    cctrl->shot_shift_z = creatures[model].shot_shift_z;
     i = get_creature_anim(crtng, 0);
     set_thing_draw(crtng, i, 256, 300, 0, 0, 2);
     cctrl->explevel = 1;

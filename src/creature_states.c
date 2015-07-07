@@ -1634,7 +1634,7 @@ short creature_change_to_chicken(struct Thing *creatng)
     if (cctrl->countdown_282 > 0)
     {
       creatng->field_50 |= 0x01;
-      creatng->field_4F |= 0x01;
+      creatng->field_4F |= TF4F_Unknown01;
       struct Thing *efftng;
       efftng = create_effect_element(&creatng->mappos, 59, creatng->owner);
       if (!thing_is_invalid(efftng))
@@ -1642,13 +1642,13 @@ short creature_change_to_chicken(struct Thing *creatng)
           unsigned long k;
           k = convert_td_iso(819);
           set_thing_draw(efftng, k, 0, 1200 * cctrl->countdown_282 / 10 + 300, -1, 0, 2);
-          efftng->field_4F &= ~0x20;
-          efftng->field_4F |= 0x10;
+          efftng->field_4F &= ~TF4F_Unknown20;
+          efftng->field_4F |= TF4F_Unknown10;
       }
       return 0;
     }
     cctrl->spell_flags |= CSAfF_Chicken;
-    creatng->field_4F &= ~0x01;
+    creatng->field_4F &= ~TF4F_Unknown01;
     set_creature_size_stuff(creatng);
     creatng->state_flags &= ~TF1_Unkn10;
     creatng->active_state = CrSt_CreaturePretendChickenSetupMove;

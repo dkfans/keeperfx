@@ -1365,7 +1365,7 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     thing->movement_flags ^= (thing->movement_flags ^ TMvF_Unknown08 * shotst->old->field_13) & TMvF_Unknown08;
     set_thing_draw(thing, shotst->old->numfield_0, 256, shotst->old->numfield_2, 0, 0, 2);
     thing->field_4F ^= (thing->field_4F ^ 0x02 * shotst->old->field_6) & TF4F_Unknown02;
-    thing->field_4F ^= thing->field_4F ^ ((thing->field_4F ^ TF4F_Unknown10 * shotst->old->field_8) & 0x30);
+    thing->field_4F ^= thing->field_4F ^ ((thing->field_4F ^ TF4F_Unknown10 * shotst->old->field_8) & (TF4F_Unknown10|TF4F_Unknown20));
     thing->field_4F ^= (thing->field_4F ^ shotst->old->field_7) & TF4F_Unknown01;
     thing->clipbox_size_xy = shotst->old->size_xy;
     thing->clipbox_size_yz = shotst->old->field_B;

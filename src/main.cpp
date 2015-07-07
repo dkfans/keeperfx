@@ -928,7 +928,7 @@ void update_thing_animation(struct Thing *thing)
         }
         if (thing->field_40 > i-1)
         {
-          if (thing->field_4F & 0x40)
+          if (thing->field_4F & TF4F_Unknown40)
           {
             thing->field_3E = 0;
             thing->field_40 = i-1;
@@ -2930,7 +2930,7 @@ long update_cave_in(struct Thing *thing)
 {
     //return _DK_update_cave_in(thing);
     thing->health--;
-    thing->field_4F |= 0x01;
+    thing->field_4F |= TF4F_Unknown01;
     if (thing->health < 1)
     {
         delete_thing_structure(thing, 0);

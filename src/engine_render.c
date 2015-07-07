@@ -5277,7 +5277,7 @@ void prepare_jonty_remap_and_scale(long *scale, const struct JontySpr *jspr)
     if (lens_mode == 0)
     {
         fade = 65536;
-        if ((thing->field_4F & 0x02) == 0)
+        if ((thing->field_4F & TF4F_Unknown02) == 0)
             i = get_thing_shade(thing);
         else
             i = MINIMUM_LIGHTNESS;
@@ -5286,7 +5286,7 @@ void prepare_jonty_remap_and_scale(long *scale, const struct JontySpr *jspr)
     if (jspr->field_14 <= lfade_min)
     {
         fade = jspr->field_14;
-        if ((thing->field_4F & 0x02) == 0)
+        if ((thing->field_4F & TF4F_Unknown02) == 0)
             i = get_thing_shade(thing);
         else
             i = MINIMUM_LIGHTNESS;
@@ -5295,7 +5295,7 @@ void prepare_jonty_remap_and_scale(long *scale, const struct JontySpr *jspr)
     if (jspr->field_14 < lfade_max)
     {
         fade = jspr->field_14;
-        if ((thing->field_4F & 0x02) == 0)
+        if ((thing->field_4F & TF4F_Unknown02) == 0)
             i = get_thing_shade(thing);
         else
             i = MINIMUM_LIGHTNESS;
@@ -5307,7 +5307,7 @@ void prepare_jonty_remap_and_scale(long *scale, const struct JontySpr *jspr)
     }
     shade_factor = shade >> 8;
     *scale = (thelens * (long)thing->sprite_size) / fade;
-    if ((thing->field_4F & 0x0C) != 0)
+    if ((thing->field_4F & (TF4F_Unknown04|TF4F_Unknown08)) != 0)
     {
         lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
         shade_factor = thing->field_51;
@@ -5340,7 +5340,7 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
       angle = thing->move_angle_xy;
     prepare_jonty_remap_and_scale(&scale, jspr);
     EngineSpriteDrawUsingAlpha = 0;
-    switch (thing->field_4F & (0x10|0x20))
+    switch (thing->field_4F & (TF4F_Unknown10|TF4F_Unknown20))
     {
     case 0x10:
         lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
@@ -5367,11 +5367,11 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
               lbSpriteReMapPtr = white_pal;
           }
         } else
-        if ((thing->field_4F & 0x80) != 0)
+        if ((thing->field_4F & TF4F_Unknown80) != 0)
         {
             lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
             lbSpriteReMapPtr = red_pal;
-            thing->field_4F &= ~0x80u;
+            thing->field_4F &= ~TF4F_Unknown80;
         }
         thing_being_displayed_is_creature = 1;
         thing_being_displayed = thing;

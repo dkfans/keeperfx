@@ -537,7 +537,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
         n = ACTION_RANDOM(eestat->sprite_speed_max - (int)eestat->sprite_speed_min + 1);
         set_thing_draw(thing, eestat->sprite_idx, eestat->sprite_speed_min + n, eestat->sprite_size_min + i, 0, 0, eestat->field_0);
         set_flag_byte(&thing->field_4F,TF4F_Unknown02,eestat->field_13);
-        thing->field_4F ^= (thing->field_4F ^ (0x10 * eestat->field_14)) & 0x30;
+        thing->field_4F ^= (thing->field_4F ^ (0x10 * eestat->field_14)) & (TF4F_Unknown10|TF4F_Unknown20);
         set_flag_byte(&thing->field_4F,TF4F_Unknown40,eestat->field_D);
     } else
     {
@@ -684,8 +684,8 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
         if (!thing_is_invalid(effeltng))
         {
             memcpy(&effeltng->field_3E, &thing->field_3E, 0x14u);
-            effeltng->field_4F &= ~0x10;
-            effeltng->field_4F |= 0x20;
+            effeltng->field_4F &= ~TF4F_Unknown10;
+            effeltng->field_4F |= TF4F_Unknown20;
             effeltng->field_3E = 0;
             effeltng->move_angle_xy = thing->move_angle_xy;
         }
@@ -702,8 +702,8 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             if (!thing_is_invalid(effeltng))
             {
                 memcpy(&effeltng->field_3E, &thing->field_3E, 0x14u);
-                effeltng->field_4F &= ~0x10;
-                effeltng->field_4F |= 0x20;
+                effeltng->field_4F &= ~TF4F_Unknown10;
+                effeltng->field_4F |= TF4F_Unknown20;
                 effeltng->field_3E = 0;
                 effeltng->move_angle_xy = thing->move_angle_xy;
             }
@@ -832,8 +832,8 @@ void change_effect_element_into_another(struct Thing *thing, long nmodel)
     scale = eestat->sprite_size_min + ACTION_RANDOM(eestat->sprite_size_max - eestat->sprite_size_min + 1);
     thing->model = nmodel;
     set_thing_draw(thing, eestat->sprite_idx, speed, scale, eestat->field_D, 0, 2);
-    thing->field_4F ^= (thing->field_4F ^ 0x02 * eestat->field_13) & 0x02;
-    thing->field_4F ^= (thing->field_4F ^ 0x10 * eestat->field_14) & 0x30;
+    thing->field_4F ^= (thing->field_4F ^ 0x02 * eestat->field_13) & TF4F_Unknown02;
+    thing->field_4F ^= (thing->field_4F ^ 0x10 * eestat->field_14) & (TF4F_Unknown10|TF4F_Unknown20);
     thing->field_20 = eestat->field_18;
     thing->field_23 = eestat->field_1A;
     thing->field_24 = eestat->field_1C;
@@ -1220,7 +1220,7 @@ struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, Play
     thing->field_20 = 0;
     thing->field_23 = 0;
     thing->field_24 = 0;
-    thing->field_4F |= 0x01;
+    thing->field_4F |= TF4F_Unknown01;
     thing->health = ieffect->start_health;
     if (ieffect->ilght.field_0 != 0)
     {

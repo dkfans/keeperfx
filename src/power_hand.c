@@ -570,7 +570,7 @@ void draw_power_hand(void)
     }
     long inputpos_x,inputpos_y;
     picktng = get_first_thing_in_power_hand(player);
-    if ((!thing_is_invalid(picktng)) && ((picktng->field_4F & 0x01) == 0))
+    if ((!thing_is_invalid(picktng)) && ((picktng->field_4F & TF4F_Unknown01) == 0))
     {
         SYNCDBG(7,"Holding %s",thing_model_name(picktng));
         switch (picktng->class_id)

@@ -545,8 +545,8 @@ TngUpdateRet update_trap_trigger(struct Thing *traptng)
                 if ((slb->kind != SlbT_CLAIMED) && (slb->kind != SlbT_PATH)) {
                     traptng->health = -1;
                 }
-                traptng->field_4F &= 0x10;
-                traptng->field_4F |= 0x20;
+                traptng->field_4F &= TF4F_Unknown10;
+                traptng->field_4F |= TF4F_Unknown20;
                 if (!is_neutral_thing(traptng) && !is_hero_thing(traptng)) {
                     remove_workshop_item_from_amount_placeable(traptng->owner, traptng->class_id, traptng->model);
                 }
@@ -564,7 +564,7 @@ TbBool rearm_trap(struct Thing *traptng)
     struct TrapStats *trapstat;
     trapstat = &trap_stats[traptng->model];
     traptng->trap.num_shots = mconf->shots;
-    traptng->field_4F ^= (traptng->field_4F ^ (trapstat->field_12 << 4)) & 0x30;
+    traptng->field_4F ^= (traptng->field_4F ^ (trapstat->field_12 << 4)) & (TF4F_Unknown10|TF4F_Unknown20);
     return true;
 }
 
@@ -623,14 +623,14 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
     }
     set_thing_draw(thing, trapstat->field_4, trapstat->field_D, trapstat->field_8, trapstat->field_C, start_frame, 2);
     if (trapstat->field_11) {
-        thing->field_4F |= 0x02;
+        thing->field_4F |= TF4F_Unknown02;
     } else {
-        thing->field_4F &= ~0x02;
+        thing->field_4F &= ~TF4F_Unknown02;
     }
     if (trapstat->field_C) {
-        thing->field_4F |= 0x40;
+        thing->field_4F |= TF4F_Unknown40;
     } else {
-        thing->field_4F &= ~0x40;
+        thing->field_4F &= ~TF4F_Unknown40;
     }
     thing->clipbox_size_xy = trapstat->size_xy;
     thing->clipbox_size_yz = trapstat->field_16;
@@ -638,8 +638,8 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
     thing->field_5C = trapstat->field_16;
     thing->creation_turn = game.play_gameturn;
     thing->health = trapstat->field_0;
-    thing->field_4F &= ~0x10;
-    thing->field_4F |= 0x20;
+    thing->field_4F &= ~TF4F_Unknown10;
+    thing->field_4F |= TF4F_Unknown20;
     thing->byte_13 = 0;
     thing->long_14 = game.play_gameturn;
     if (trapstat->field_1C != 0)

@@ -319,12 +319,12 @@ unsigned long get_creature_anim(struct Thing *thing, unsigned short seq_idx)
 void untint_thing(struct Thing *thing)
 {
     thing->field_51 = 0;
-    thing->field_4F &= ~0x0C;
+    thing->field_4F &= ~(TF4F_Unknown04|TF4F_Unknown08);
 }
 
 void tint_thing(struct Thing *thing, TbPixel colour, unsigned char nframe)
 {
-    thing->field_4F ^= (thing->field_4F ^ (nframe << 2)) & 0x0C;
+    thing->field_4F ^= (thing->field_4F ^ (nframe << 2)) & (TF4F_Unknown04|TF4F_Unknown08);
     thing->field_51 = colour;
 }
 
@@ -358,7 +358,7 @@ void update_creature_graphic_field_4F(struct Thing *thing)
     thing->field_4F &= ~TF4F_Unknown01;
     thing->field_4F &= ~TF4F_Unknown10;
     thing->field_4F &= ~TF4F_Unknown20;
-    thing->field_4F &= ~0x40;
+    thing->field_4F &= ~TF4F_Unknown40;
     // Now set only those that should be
     if (((thing->alloc_flags & TAlF_IsControlled) != 0) && is_my_player_number(thing->owner))
     {
@@ -464,7 +464,7 @@ void update_creature_graphic_anim(struct Thing *thing)
         }
     } else
     {
-        thing->field_4F &= ~0x30;
+        thing->field_4F &= ~(TF4F_Unknown10|TF4F_Unknown20);
         if (cctrl->field_9 == 0)
         {
             update_creature_anim_td(thing, 256, 820);

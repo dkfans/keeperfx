@@ -452,10 +452,10 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
       k = -1;
     }
     set_thing_draw(thing, i, objdat->anim_speed, objdat->sprite_size_max, 0, k, objdat->field_11);
-    set_flag_byte(&thing->field_4F, 0x02, objconf->field_5);
-    set_flag_byte(&thing->field_4F, 0x01, objdat->field_3 & 0x01);
-    set_flag_byte(&thing->field_4F, 0x10, objdat->field_F & 0x01);
-    set_flag_byte(&thing->field_4F, 0x20, objdat->field_F & 0x02);
+    set_flag_byte(&thing->field_4F, TF4F_Unknown02, objconf->field_5);
+    set_flag_byte(&thing->field_4F, TF4F_Unknown01, objdat->field_3 & 0x01);
+    set_flag_byte(&thing->field_4F, TF4F_Unknown10, objdat->field_F & 0x01);
+    set_flag_byte(&thing->field_4F, TF4F_Unknown20, objdat->field_F & 0x02);
     thing->active_state = objdat->initial_state;
     if (objconf->ilght.field_0 != 0)
     {
@@ -479,8 +479,8 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
         light_set_light_minimum_size_to_cache(thing->light_id, 0, 56);
         break;
       case 33:
-        set_flag_byte(&thing->field_4F, 0x10, false);
-        set_flag_byte(&thing->field_4F, 0x20, true);
+        set_flag_byte(&thing->field_4F, TF4F_Unknown10, false);
+        set_flag_byte(&thing->field_4F, TF4F_Unknown20, true);
         break;
       case 3:
       case 6:
@@ -1643,7 +1643,7 @@ TngUpdateRet object_update_armour(struct Thing *objtng)
     thing = thing_get(objtng->word_13);
     if (thing_is_picked_up(thing))
     {
-        objtng->field_4F |= 0x01;
+        objtng->field_4F |= TF4F_Unknown01;
         return 1;
     }
     long cvect_len;
@@ -1687,7 +1687,7 @@ TngUpdateRet object_update_armour(struct Thing *objtng)
     objtng->veloc_push_add.x.val += cvect.x;
     objtng->veloc_push_add.y.val += cvect.y;
     objtng->veloc_push_add.z.val += cvect.z;
-    objtng->field_4F &= ~0x01;
+    objtng->field_4F &= ~TF4F_Unknown01;
     return 1;
 }
 
