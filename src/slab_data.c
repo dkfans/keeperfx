@@ -317,7 +317,11 @@ SlabKind find_core_slab_type(MapSlabCoord slb_x, MapSlabCoord slb_y)
         corekind = SlbT_WALLDRAPE;
         break;
     case SlbAtCtg_Obstacle:
-        corekind = 99;// not a very good idea
+        // originally, 99 was returned by this case, without further conditions
+        if ((slbattr->block_flags & SlbAtFlg_IsRoom) != 0)
+            corekind = SlbT_BRIDGE;
+        else
+            corekind = SlbT_DOORWOOD1;
         break;
     default:
         corekind = slb->kind;
@@ -366,7 +370,7 @@ long calculate_effeciency_score_for_room_slab(SlabCodedCoords slab_num, PlayerNu
                     if (slabmap_owner(round_slb) == slabmap_owner(slb))
                         eff_score += 2;
                     break;
-                  case 99:
+                  case SlbT_DOORWOOD1:
                     if (slabmap_owner(round_slb) == slabmap_owner(slb))
                         eff_score += 2;
                     break;

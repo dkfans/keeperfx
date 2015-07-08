@@ -1318,7 +1318,7 @@ void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord
 
     pannel_map_update(slab_subtile(slb_x,0), slab_subtile(slb_y,0), STL_PER_SLB, STL_PER_SLB);
 
-    for (i = 0; i < 8; i++)
+    for (i = 0; i < AROUND_EIGHT_LENGTH; i++)
     {
         spos_x = slb_x + (MapSlabCoord)my_around_eight[i].delta_x;
         spos_y = slb_y + (MapSlabCoord)my_around_eight[i].delta_y;
