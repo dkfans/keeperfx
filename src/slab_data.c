@@ -301,9 +301,108 @@ void clear_slabs(void)
     }
 }
 
+SlabKind find_core_slab_type(MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    struct SlabMap *slb;
+    slb = get_slabmap_block(slb_x, slb_y);
+    struct SlabAttr *slbattr;
+    slbattr = get_slab_attrs(slb);
+    SlabKind corekind;
+    switch (slbattr->category)
+    {
+    case SlbAtCtg_FriableDirt:
+        corekind = SlbT_EARTH;
+        break;
+    case SlbAtCtg_FortifiedWall:
+        corekind = SlbT_WALLDRAPE;
+        break;
+    case SlbAtCtg_Obstacle:
+        corekind = 99;// not a very good idea
+        break;
+    default:
+        corekind = slb->kind;
+        break;
+    }
+    return corekind;
+}
+
 long calculate_effeciency_score_for_room_slab(SlabCodedCoords slab_num, PlayerNumber plyr_idx)
 {
-    return _DK_calculate_effeciency_score_for_room_slab(slab_num, plyr_idx);
+    //return _DK_calculate_effeciency_score_for_room_slab(slab_num, plyr_idx);
+    long eff_score;
+    TbBool is_room_inside;
+    is_room_inside = true;
+    eff_score = 0;
+    struct SlabMap *slb;
+    slb = get_slabmap_direct(slab_num);
+    long n;
+    for (n=1; n < AROUND_SLAB_LENGTH; n+=2)
+    {
+        long round_slab_num;
+        round_slab_num = slab_num + around_slab[n];
+        struct SlabMap *round_slb;
+        round_slb = get_slabmap_direct(round_slab_num);
+        if (!slabmap_block_invalid(round_slb))
+        {
+            MapSlabCoord slb_x,slb_y;
+            slb_x = slb_num_decode_x(round_slab_num);
+            slb_y = slb_num_decode_y(round_slab_num);
+            // Per slab code
+            if ((slabmap_owner(round_slb) == slabmap_owner(slb)) && (round_slb->kind == slb->kind))
+            {
+                eff_score += 2;
+            } else
+            {
+                is_room_inside = false;
+                switch (find_core_slab_type(slb_x, slb_y))
+                {
+                  case SlbT_ROCK:
+                  case SlbT_GOLD:
+                  case SlbT_EARTH:
+                  case SlbT_GEMS:
+                    eff_score++;
+                    break;
+                  case SlbT_WALLDRAPE:
+                    if (slabmap_owner(round_slb) == slabmap_owner(slb))
+                        eff_score += 2;
+                    break;
+                  case 99:
+                    if (slabmap_owner(round_slb) == slabmap_owner(slb))
+                        eff_score += 2;
+                    break;
+                  default:
+                    break;
+                }
+            }
+            // Per slab code ends
+        }
+    }
+    // If we already know this is not an inside - finish
+    if (!is_room_inside) {
+        return eff_score;
+    }
+    // Make sure this is room inside by checking corners
+    for (n=0; n < AROUND_SLAB_LENGTH; n+=2)
+    {
+        long round_slab_num;
+        round_slab_num = slab_num + around_slab[n];
+        struct SlabMap *round_slb;
+        round_slb = get_slabmap_direct(round_slab_num);
+        if (!slabmap_block_invalid(round_slb))
+        {
+            // Per slab code
+            if ((slabmap_owner(round_slb) != slabmap_owner(slb)) || (round_slb->kind != slb->kind))
+            {
+                is_room_inside = 0;
+                break;
+            }
+            // Per slab code ends
+        }
+    }
+    if (is_room_inside) {
+        eff_score += 2;
+    }
+    return eff_score;
 }
 
 /**
