@@ -1409,7 +1409,7 @@ void frontend_draw_text(struct GuiButton *gbtn)
 
 void frontend_change_state(struct GuiButton *gbtn)
 {
-    frontend_set_state(gbtn->field_1B);
+    frontend_set_state(gbtn->field_1B & LbBFeF_IntValueMask);
 }
 
 void frontend_draw_enter_text(struct GuiButton *gbtn)
@@ -1423,7 +1423,7 @@ void frontend_draw_enter_text(struct GuiButton *gbtn)
     if ((gbtn->flags & LbBtnF_Enabled) == 0) {
         font_idx = 3;
     } else
-    if ((gbtn->content != NULL) && (gbtn->field_1B == frontend_mouse_over_button)) {
+    if ((gbtn->content != NULL) && ((gbtn->field_1B & LbBFeF_IntValueMask) == frontend_mouse_over_button)) {
         font_idx = 2;
     }
     char *srctext;
@@ -3118,7 +3118,7 @@ void draw_menu_spangle(struct GuiMenu *gmnu)
         }
         if (in_range)
         {
-            if (!menu_is_active(gbtn->field_1B))
+            if (!menu_is_active(gbtn->field_1B&LbBFeF_IntValueMask))
                 spangle_button(gbtn);
         } else
         if ((gbtn->id_num > 0) && (gbtn->id_num == game.flash_button_index))

@@ -32,6 +32,7 @@
 #include "gui_frontbtns.h"
 #include "music_player.h"
 #include "frontend.h"
+#include "front_input.h"
 #include "kjm_input.h"
 #include "packets.h"
 #include "config_settings.h"
@@ -275,11 +276,11 @@ void gui_video_cluedo_maintain(struct GuiButton *gbtn)
     player = get_my_player();
     if (player->view_mode == PVM_FrontView)
     {
-        gbtn->field_1B |= 0x8000;
+        gbtn->field_1B |= LbBFeF_NoTooltip;
         gbtn->flags &= ~LbBtnF_Enabled;
     } else
     {
-        gbtn->field_1B = 0;
+        gbtn->field_1B &= LbBFeF_IntValueMask;
         gbtn->flags |= LbBtnF_Enabled;
     }
 }

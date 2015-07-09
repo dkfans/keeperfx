@@ -29,6 +29,7 @@
 #include "gui_draw.h"
 #include "gui_frontmenu.h"
 #include "frontend.h"
+#include "front_input.h"
 
 // needed for timeGetTime() -- should be later removed
 #if defined(WIN32)
@@ -725,7 +726,7 @@ void frontend_over_button(struct GuiButton *gbtn)
     int i;
 
     if (gbtn->gbtype == Lb_EDITBTN)
-      i = gbtn->field_1B;
+      i = gbtn->field_1B & LbBFeF_IntValueMask;
     else
       i = (long)gbtn->content;
     if (old_mouse_over_button != i)
@@ -1017,7 +1018,7 @@ void reset_scroll_window(struct GuiMenu *gmnu)
 
 void gui_set_menu_mode(struct GuiButton *gbtn)
 {
-    set_menu_mode(gbtn->field_1B);
+    set_menu_mode(gbtn->field_1B & LbBFeF_IntValueMask);
 }
 
 void gui_area_flash_cycle_button(struct GuiButton *gbtn)

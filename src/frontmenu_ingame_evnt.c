@@ -36,6 +36,7 @@
 #include "gui_frontmenu.h"
 #include "packets.h"
 #include "frontend.h"
+#include "front_input.h"
 #include "vidfade.h"
 #include "game_legacy.h"
 
@@ -189,7 +190,7 @@ void gui_go_to_person_in_battle(struct GuiButton *gbtn)
 void gui_setup_friend_over(struct GuiButton *gbtn)
 {
     int visbtl_id;
-    visbtl_id = gbtn->field_1B;
+    visbtl_id = gbtn->field_1B & LbBFeF_IntValueMask;
     if (battle_creature_over == 0)
     {
         struct Dungeon *dungeon;
@@ -201,7 +202,7 @@ void gui_setup_friend_over(struct GuiButton *gbtn)
             int battlr_id;
             battlr_id = (gbtn->scr_pos_x - lbDisplay.MMouseX * pixel_size) / (gbtn->width / 7) + 6;
             if (battlr_id < MESSAGE_BATTLERS_COUNT-1) {
-                thing = thing_get(friendly_battler_list[battlr_id + MESSAGE_BATTLERS_COUNT * visbtl_id]);
+                thing = thing_get(friendly_battler_list[MESSAGE_BATTLERS_COUNT * visbtl_id + battlr_id]);
             }
         }
         if (!thing_is_invalid(thing) && thing_revealed(thing, dungeon->owner))
@@ -256,10 +257,12 @@ void draw_battle_head(struct Thing *thing, long scr_x, long scr_y, int units_per
 
 void gui_area_friendly_battlers(struct GuiButton *gbtn)
 {
+    int visbtl_id;
+    visbtl_id = gbtn->field_1B & LbBFeF_IntValueMask;
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(my_player_number);
     BattleIndex battle_id;
-    battle_id = dungeon->visible_battles[gbtn->field_1B];
+    battle_id = dungeon->visible_battles[visbtl_id];
     struct CreatureBattle *battle;
     battle = creature_battle_get(battle_id);
     if (creature_battle_invalid(battle)) {
@@ -277,11 +280,11 @@ void gui_area_friendly_battlers(struct GuiButton *gbtn)
     LbDrawBox(gbtn->scr_pos_x, gbtn->scr_pos_y,
         gbtn->width, gbtn->height, colours[0][0][0]);
     lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
-    int i,n;
-    for (n=0; n < 7; n++)
+    int i,battlr_id;
+    for (battlr_id=0; battlr_id < MESSAGE_BATTLERS_COUNT; battlr_id++)
     {
         struct Thing *thing;
-        i = friendly_battler_list[n + MESSAGE_BATTLERS_COUNT*gbtn->field_1B];
+        i = friendly_battler_list[MESSAGE_BATTLERS_COUNT * visbtl_id + battlr_id];
         thing = thing_get(i);
         if (thing_is_creature(thing))
         {
@@ -306,7 +309,7 @@ void gui_area_friendly_battlers(struct GuiButton *gbtn)
 void gui_setup_enemy_over(struct GuiButton *gbtn)
 {
     int visbtl_id;
-    visbtl_id = gbtn->field_1B;
+    visbtl_id = gbtn->field_1B & LbBFeF_IntValueMask;
     if (battle_creature_over == 0)
     {
         struct Dungeon *dungeon;
@@ -318,7 +321,7 @@ void gui_setup_enemy_over(struct GuiButton *gbtn)
             int battlr_id;
             battlr_id = (lbDisplay.MMouseX * pixel_size - gbtn->scr_pos_x) / (gbtn->width / 7);
             if (battlr_id < MESSAGE_BATTLERS_COUNT-1) {
-                thing = thing_get(enemy_battler_list[battlr_id + MESSAGE_BATTLERS_COUNT * visbtl_id]);
+                thing = thing_get(enemy_battler_list[MESSAGE_BATTLERS_COUNT * visbtl_id + battlr_id]);
             }
         }
         if (!thing_is_invalid(thing) && thing_revealed(thing, dungeon->owner))
@@ -330,10 +333,12 @@ void gui_setup_enemy_over(struct GuiButton *gbtn)
 
 void gui_area_enemy_battlers(struct GuiButton *gbtn)
 {
+    int visbtl_id;
+    visbtl_id = gbtn->field_1B & LbBFeF_IntValueMask;
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(my_player_number);
     BattleIndex battle_id;
-    battle_id = dungeon->visible_battles[gbtn->field_1B];
+    battle_id = dungeon->visible_battles[visbtl_id];
     struct CreatureBattle *battle;
     battle = creature_battle_get(battle_id);
     if (creature_battle_invalid(battle)) {
@@ -351,11 +356,11 @@ void gui_area_enemy_battlers(struct GuiButton *gbtn)
     LbDrawBox(gbtn->scr_pos_x, gbtn->scr_pos_y,
         gbtn->width, gbtn->height, colours[0][0][0]);
     lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
-    int i,n;
-    for (n=0; n < 7; n++)
+    int i,battlr_id;
+    for (battlr_id=0; battlr_id < MESSAGE_BATTLERS_COUNT; battlr_id++)
     {
         struct Thing *thing;
-        i = enemy_battler_list[n + MESSAGE_BATTLERS_COUNT*gbtn->field_1B];
+        i = enemy_battler_list[MESSAGE_BATTLERS_COUNT * visbtl_id + battlr_id];
         thing = thing_get(i);
         if (thing_is_creature(thing))
         {

@@ -1818,7 +1818,7 @@ short get_gui_inputs(short gameplay_on)
       callback = gbtn->maintain_call;
       if (callback != NULL)
           callback(gbtn);
-      if ((gbtn->field_1B & 0x4000u) != 0)
+      if ((gbtn->field_1B & LbBFeF_NoMouseOver) != 0)
           continue;
       // TODO GUI Introduce circular buttons instead of specific condition for pannel map
       if ((menu_id_to_number(GMnu_MAIN) >= 0) && mouse_is_over_pannel_map(player->minimap_pos_x,player->minimap_pos_y))

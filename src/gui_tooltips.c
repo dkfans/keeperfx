@@ -28,6 +28,7 @@
 #include "gui_topmsg.h"
 #include "gui_frontmenu.h"
 #include "frontend.h"
+#include "front_input.h"
 #include "thing_objects.h"
 #include "thing_traps.h"
 #include "dungeon_data.h"
@@ -331,10 +332,11 @@ void setup_gui_tooltip(struct GuiButton *gbtn)
   } else
   if (i == GUIStr_PickCreatrMostExpDesc)
   {
-      if ( (gbtn->field_1B > 0) && (top_of_breed_list+gbtn->field_1B < CREATURE_TYPES_COUNT) )
-        k = breed_activities[top_of_breed_list+gbtn->field_1B];
+      k = gbtn->field_1B & LbBFeF_IntValueMask;
+      if ((k > 0) && (top_of_breed_list+k < CREATURE_TYPES_COUNT))
+          k = breed_activities[top_of_breed_list+k];
       else
-        k = get_players_special_digger_model(my_player_number);
+          k = get_players_special_digger_model(my_player_number);
       crdata = creature_data_get(k);
       set_gui_tooltip_box_fmt(0, "%-6s: %s", get_string(crdata->namestr_idx), text);
   } else
@@ -355,7 +357,7 @@ TbBool gui_button_tooltip_update(int gbtn_idx)
   }
   player = get_my_player();
   gbtn = &active_buttons[gbtn_idx];
-  if ((get_active_menu(gbtn->gmenu_idx)->visual_state == 2) && ((gbtn->field_1B & 0x8000u) == 0))
+  if ((get_active_menu(gbtn->gmenu_idx)->visual_state == 2) && ((gbtn->field_1B & LbBFeF_NoTooltip) == 0))
   {
     if (tool_tip_box.gbutton == gbtn)
     {

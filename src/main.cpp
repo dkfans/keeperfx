@@ -2601,7 +2601,7 @@ void view_process_camera_inertia(struct Camera *cam)
         cam->field_25 /= 2;
     }
     if (cam->field_1B) {
-        cam->orient_a = (cam->field_1B + cam->orient_a) & 0x7FF;
+        cam->orient_a = (cam->field_1B + cam->orient_a) & LbFPMath_AngleMask;
     }
     if (cam->field_1F) {
         cam->field_1F = 0;

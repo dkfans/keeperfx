@@ -64,6 +64,12 @@ enum GameKeys {
     Gkey_SwitchToMap,
 };
 
+enum TbButtonFrontendFlags {
+    LbBFeF_IntValueMask = 0x3fff,
+    LbBFeF_NoMouseOver  = 0x4000,
+    LbBFeF_NoTooltip    = 0x8000,
+};
+
 struct GuiMenu;
 struct GuiButton;
 
