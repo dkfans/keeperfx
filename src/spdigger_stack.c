@@ -91,6 +91,7 @@ TbBool creature_task_needs_check_out_after_digger_stack_change(const struct Thin
 TbBool add_to_imp_stack_using_pos(SubtlCodedCoords stl_num, SpDiggerTaskType task_type, struct Dungeon *dungeon)
 {
     struct DiggerStack *dstack;
+    SYNCDBG(19,"Task %d at %d,%d",(int)task_type,(int)stl_num_decode_x(stl_num),(int)stl_num_decode_y(stl_num));
     if (dungeon->digger_stack_length >= DIGGER_TASK_MAX_COUNT)
         return false;
     dstack = &dungeon->digger_stack[dungeon->digger_stack_length];
@@ -1091,6 +1092,26 @@ TbBool add_to_reinforce_stack(long slb_x, long slb_y, SpDiggerTaskType task_type
     return true;
 }
 
+long add_to_reinforce_stack_if_need_to(long slb_x, long slb_y, struct Dungeon *dungeon)
+{
+    if (r_stackpos < DIGGER_TASK_MAX_COUNT - dungeon->digger_stack_length)
+    {
+        struct SlabMap *slb;
+        slb = get_slabmap_block(slb_x, slb_y);
+        if (slab_kind_is_friable_dirt(slb->kind))
+        {
+            if (subtile_revealed(slab_subtile_center(slb_x), slab_subtile_center(slb_y), dungeon->owner))
+            {
+                if (slab_by_players_land(dungeon->owner, slb_x, slb_y))
+                {
+                    add_to_reinforce_stack(slb_x, slb_y, DigTsk_ReinforceWall);
+                }
+            }
+        }
+    }
+    return (r_stackpos < DIGGER_TASK_MAX_COUNT - dungeon->digger_stack_length);
+}
+
 long add_to_pretty_to_imp_stack_if_need_to(long slb_x, long slb_y, struct Dungeon *dungeon, int *remain_num)
 {
     //return _DK_add_to_pretty_to_imp_stack_if_need_to(slb_x, slb_y, dungeon);
@@ -1156,14 +1177,13 @@ enum SlabConnectedAreaOptions {
     SlbCAOpt_Processed = 0x02,
 };
 
-long add_pretty_and_convert_to_imp_stack_starting_from_pos(struct Dungeon *dungeon, const struct Coord3d * start_pos, int *remain_num)
+/**
+ * Prepares slab options map used for finding pretty and convert tasks for diggers.
+ * @param dungeon Target dungeon for which tasks are to be searched.
+ * @param slbopt The slab options map to be initialized.
+ */
+void add_pretty_and_convert_to_imp_stack_prepare(struct Dungeon *dungeon, unsigned char *slbopt)
 {
-    unsigned char *slbopt;
-    struct SlabCoord *slblist;
-    unsigned int slblicount;
-    unsigned int slblipos;
-    slbopt = scratch;
-    slblist = (struct SlabCoord *)(scratch + map_tiles_x*map_tiles_y);
     MapSlabCoord slb_x, slb_y;
     // Clear our slab options array and mark tall slabs with SlbCAOpt_Border
     for (slb_y=0; slb_y < map_tiles_y; slb_y++)
@@ -1182,6 +1202,22 @@ long add_pretty_and_convert_to_imp_stack_starting_from_pos(struct Dungeon *dunge
             }
         }
     }
+}
+
+/**
+ * Adds pretty and convert tasks of areas connected to given position into imp stack.
+ * @param dungeon Target dungeon for which tasks should be added.
+ * @param slbopt Slab options map.
+ * @param slblist Buffer for storing temporary slabs list.
+ * @param start_pos The position connected to tasks to find.
+ * @param remain_num Limit of tasks which can still be added.
+ * @return The amount of slabs checked.
+ */
+long add_pretty_and_convert_to_imp_stack_starting_from_pos(struct Dungeon *dungeon, unsigned char *slbopt, struct SlabCoord *slblist, const struct Coord3d * start_pos, int *remain_num)
+{
+    unsigned int slblicount;
+    unsigned int slblipos;
+    MapSlabCoord slb_x, slb_y;
     slblipos = 0; // Current position in our list of slabs which should be checked around
     slblicount = 0; // Amount of items in our list of slabs which should be checked around
     MapSlabCoord base_slb_x, base_slb_y;
@@ -1195,7 +1231,6 @@ long add_pretty_and_convert_to_imp_stack_starting_from_pos(struct Dungeon *dunge
     {
         unsigned char around_flags;
         around_flags = 0;
-
         long i,n;
         n = ACTION_RANDOM(4);
         for (i=0; i < SMALL_AROUND_LENGTH; i++)
@@ -1214,21 +1249,7 @@ long add_pretty_and_convert_to_imp_stack_starting_from_pos(struct Dungeon *dunge
                 // For border wall, check if it can be reinforced
                 if ((slbopt[slb_num] & SlbCAOpt_Border) != 0)
                 {
-                    struct SlabMap *slb;
-                    slb = get_slabmap_direct(slb_num);
-                    if (r_stackpos < DIGGER_TASK_MAX_COUNT - dungeon->digger_stack_length)
-                    {
-                      if (slab_kind_is_friable_dirt(slb->kind))
-                      {
-                          if (subtile_revealed(slab_subtile_center(slb_x), slab_subtile_center(slb_y), dungeon->owner))
-                          {
-                              if (slab_by_players_land(dungeon->owner, slb_x, slb_y))
-                              {
-                                  add_to_reinforce_stack(slb_x, slb_y, DigTsk_ReinforceWall);
-                              }
-                          }
-                      }
-                    }
+                    add_to_reinforce_stack_if_need_to(slb_x, slb_y, dungeon);
                 } else
                 // If not a border, add it to around verification list and check for pretty
                 {
@@ -1267,6 +1288,7 @@ long add_pretty_and_convert_to_imp_stack_starting_from_pos(struct Dungeon *dunge
                 {
                     slb_x = base_slb_x + (long)spdigger_extra_positions[i].delta_x;
                     slb_y = base_slb_y + (long)spdigger_extra_positions[i].delta_y;
+                    add_to_reinforce_stack_if_need_to(slb_x, slb_y, dungeon);
                     slb_num = get_slab_number(slb_x, slb_y);
                     slbopt[slb_num] |= SlbCAOpt_Processed;
                 }
@@ -1277,6 +1299,7 @@ long add_pretty_and_convert_to_imp_stack_starting_from_pos(struct Dungeon *dunge
                 {
                     slb_x = base_slb_x + (long)spdigger_extra_positions[i].delta_x;
                     slb_y = base_slb_y + (long)spdigger_extra_positions[i].delta_y;
+                    add_to_reinforce_stack_if_need_to(slb_x, slb_y, dungeon);
                     slb_num = get_slab_number(slb_x, slb_y);
                     slbopt[slb_num] |= SlbCAOpt_Processed;
                 }
@@ -1292,6 +1315,12 @@ long add_pretty_and_convert_to_imp_stack_starting_from_pos(struct Dungeon *dunge
 }
 
 
+/**
+ * Adds tasks of claiming unowned and converting enemy land to the digger tasks stack; also fills reinforce tasks.
+ * @param dungeon Target dungeon for which tasks should be added.
+ * @param max_tasks Max amount of tasks to be added.
+ * @return The amount of tasks added.
+ */
 int add_pretty_and_convert_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
 {
     if (dungeon->digger_stack_length >= DIGGER_TASK_MAX_COUNT) {
@@ -1309,7 +1338,12 @@ int add_pretty_and_convert_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
     }
     int remain_num;
     remain_num = max_tasks;
-    add_pretty_and_convert_to_imp_stack_starting_from_pos(dungeon, &heartng->mappos, &remain_num);
+    unsigned char *slbopt;
+    struct SlabCoord *slblist;
+    slbopt = scratch;
+    slblist = (struct SlabCoord *)(scratch + map_tiles_x*map_tiles_y);
+    add_pretty_and_convert_to_imp_stack_prepare(dungeon, slbopt);
+    add_pretty_and_convert_to_imp_stack_starting_from_pos(dungeon, slbopt, slblist, &heartng->mappos, &remain_num);
     SYNCDBG(8,"Done, added %d tasks",(int)(max_tasks-remain_num));
     return (max_tasks-remain_num);
 }
@@ -1811,6 +1845,13 @@ int add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
     return (max_tasks-remain_num);
 }
 
+/**
+ * Adds tasks from a pre-made list of reinforce tasks to the digger tasks stack.
+ * The reinforce tasks have to be filled by a add_pretty_and_convert_to_imp_stack() call.
+ * @param dungeon Target dungeon for which reinforce stack is filled.
+ * @param max_tasks Max amount of tasks to be added.
+ * @return The amount of tasks added.
+ */
 int add_reinforce_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
 {
     int remain_num;

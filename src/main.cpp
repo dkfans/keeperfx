@@ -3120,10 +3120,10 @@ struct Thing *get_queryable_object_near(MapCoord pos_x, MapCoord pos_y, long ply
     return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
 }
 
-void tag_cursor_blocks_dig(unsigned char a1, long a2, long a3, long a4)
+void tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long a4)
 {
-  SYNCDBG(7,"Starting");
-  _DK_tag_cursor_blocks_dig(a1, a2, a3, a4);
+  SYNCDBG(7,"Starting for player %d at subtile (%d,%d)",(int)plyr_idx,(int)stl_x,(int)stl_y);
+  _DK_tag_cursor_blocks_dig(plyr_idx, stl_x, stl_y, a4);
 }
 
 void tag_cursor_blocks_thing_in_hand(unsigned char a1, long a2, long a3, int a4, long a5)

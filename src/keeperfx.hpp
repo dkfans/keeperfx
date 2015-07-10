@@ -274,7 +274,7 @@ void reset_script_timers_and_flags(void);
 void add_creature_to_pool(long kind, long amount, unsigned long a3);
 void draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7);
 
-void tag_cursor_blocks_dig(unsigned char a1, long a2, long a3, long a4);
+void tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long a4);
 void tag_cursor_blocks_thing_in_hand(unsigned char a1, long a2, long a3, int a4, long a5);
 short zoom_to_next_annoyed_creature(void);
 
