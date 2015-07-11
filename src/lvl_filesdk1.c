@@ -1080,7 +1080,7 @@ TbBool initialise_map_wlb_auto(void)
           n = slb->kind;
         }
         slbattr = get_slab_kind_attrs(n);
-        n = (slbattr->is_unknflg15 << 3);
+        n = (slbattr->wlb_type << 3);
         slb->field_5 ^= (slb->field_5 ^ n) & (0x10|0x08);
       }
     SYNCMSG("Regenerated WLB flags, unsure for %d bridge blocks.",(int)nbridge);

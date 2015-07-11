@@ -312,6 +312,19 @@ long find_column(struct Column *colmn)
   return _DK_find_column(colmn);
 }
 
+/*long find_column(struct Column *srccol)
+{
+    int i;
+    for (i=1; i < COLUMNS_COUNT; i++) {
+        struct Column *col;
+        col = get_column(i);
+        if (column_is_equivalent(srccol, col)) {
+          return i;
+        }
+    }
+    return 0;
+}*/
+
 long create_column(struct Column *colmn)
 {
   return _DK_create_column(colmn);

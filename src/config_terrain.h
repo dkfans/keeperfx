@@ -79,7 +79,7 @@ struct SlabAttr {
     unsigned char is_safe_land;
     unsigned char is_unknflg13;
     unsigned char is_unknflg14;
-    unsigned char is_unknflg15;
+    unsigned char wlb_type;
 };
 
 #pragma pack()

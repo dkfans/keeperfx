@@ -80,6 +80,52 @@ const unsigned char special_cases[][9] = {
     {0, 0, 0, 3, 3, 1, 2, 2, 2},
 };
 
+const unsigned short cube_bits[][6] = {
+    {  0,   0,   0,   0,   0,   0},
+    {160, 410, 413, 416, 419,  77},
+    {161, 411, 414, 417, 420,  77},
+    {162, 412, 415, 418, 421,  77},
+    {382, 422, 423, 424, 426, 425},
+    {393, 427, 428, 429, 431, 430},
+    { 67,  68,  69,  70,  71,   4},
+    {192, 193, 194, 195, 199, 198},
+};
+
+const unsigned char player_cube_group[] = {
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 16
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 32
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 48
+    0, 0, 0, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, // 64
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 80
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 96
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 112
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 128
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 144
+    1, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 160
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 176
+    7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, 0, 0, 0, // 192
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 208
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 224
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 240
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 256
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 272
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 288
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 304
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 320
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 336
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 352
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, // 368
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, // 384
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 400
+    0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, // 416
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 432
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 448
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 464
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 480
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 496
+};
+
 const unsigned char  *against_to_case[] = {
     NULL,            NULL,            NULL,            NULL,
     NULL,special_cases[0],            NULL,special_cases[1],
@@ -464,14 +510,107 @@ void delete_attached_things_on_slab(long slb_x, long slb_y)
     _DK_delete_attached_things_on_slab(slb_x, slb_y); return;
 }
 
-unsigned char get_against(unsigned char a1, long a2, long a3, long a4)
+unsigned char get_against(unsigned char agnst_plyr_idx, long agnst_slbkind, long slb_x, long slb_y)
 {
-    return _DK_get_against(a1, a2, a3, a4);
+    //return _DK_get_against(a1, a2, slb_x, slb_y);
+    struct SlabMap *slb;
+    slb = get_slabmap_block(slb_x, slb_y);
+    if (slabmap_block_invalid(slb)) {
+        return 1;
+    }
+    struct SlabAttr *slbattr;
+    slbattr = get_slab_attrs(slb);
+    struct SlabAttr *agnst_slbattr;
+    agnst_slbattr = get_slab_kind_attrs(agnst_slbkind);
+    return (slbattr->field_10 != agnst_slbattr->field_10)
+            || ((slabmap_owner(slb) != agnst_plyr_idx) && (slabmap_owner(slb)!= game.neutral_player_num));
 }
 
-void copy_block_with_cube_groups(short a1, unsigned char a2, unsigned char a3)
+void delete_column(long col_idx)
 {
-    _DK_copy_block_with_cube_groups(a1, a2, a3);
+    game.field_14AB3F--;
+    struct Column *col;
+    col = &game.columns_data[col_idx];
+    memcpy(col, &game.columns_data[0], sizeof(struct Column));
+    col->use = 0;
+}
+
+void remove_block_from_map_element(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct Map *mapblk;
+    mapblk = get_map_block_at(stl_x, stl_y);
+    int col_idx;
+    col_idx = get_mapblk_column_index(mapblk);
+    struct Column *col;
+    col = get_column(col_idx);
+    col->use--;
+    if (((col->bitfields & 0x01) == 0) && (col->use <= 0)) {
+        delete_column(col_idx);
+    }
+    set_mapblk_column_index(mapblk, 0);
+}
+
+void place_column_on_map_element(struct Column *ncol, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    //void place_column_on_map_element(struct Column *col, unsigned short a2, unsigned short a3)
+    remove_block_from_map_element(stl_x, stl_y);
+    long col_idx;
+    col_idx = find_column(ncol);
+    if (col_idx <= 0)
+    {
+        col_idx = create_column(ncol);
+        if (col_idx <= 0) {
+          ERRORLOG("Cannot allocate column");
+        }
+    }
+    {
+        struct Map *mapblk;
+        mapblk = get_map_block_at(stl_x, stl_y);
+        set_mapblk_column_index(mapblk, col_idx);
+        struct Column *col;
+        col = get_column(col_idx);
+        col->use++;
+    }
+}
+
+void copy_block_with_cube_groups(short itm_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    //_DK_copy_block_with_cube_groups(a1, a2, a3);
+    if (itm_idx >= 0) {
+      ERRORLOG("We should only be dealing with columns now");
+      return;
+    }
+    struct Column col;
+    memcpy(&col, &game.columns_data[-itm_idx], sizeof(struct Column));
+    col.use = 0;
+    col.bitfields &= ~0x01;
+    TbBool found;
+    found = false;
+    int i;
+    for (i=0; i < COLUMN_STACK_HEIGHT; i++)
+    {
+        unsigned short *cube;
+        cube = &col.cubes[i];
+        if (*cube > 0)
+        {
+            unsigned char cube_grp;
+            cube_grp = player_cube_group[*cube];
+            if (cube_grp > 0) {
+                found = true;
+                struct SlabMap *slb;
+                slb = get_slabmap_for_subtile(stl_x, stl_y);
+                *cube = cube_bits[cube_grp][slabmap_owner(slb)];
+            }
+        }
+    }
+    if (found) {
+        place_column_on_map_element(&col, stl_x, stl_y);
+    } else
+    {
+        struct Map *mapblk;
+        mapblk = get_map_block_at(stl_x, stl_y);
+        set_mapblk_column_index(mapblk, -itm_idx);
+    }
 }
 
 void set_alt_bit_based_on_slab(SlabKind slbkind, unsigned char stl_x, unsigned char stl_y)
@@ -526,20 +665,20 @@ void set_alt_bit_based_on_slab(SlabKind slbkind, unsigned char stl_x, unsigned c
     mapblk->data ^= (mapblk->data ^ (wibble << 22)) & 0xC00000;
 }
 
-void place_slab_columns(long slbkind, unsigned char stl_x, unsigned char stl_y, const short *col_idx)
+void place_slab_columns(long slbkind, unsigned char stl_x, unsigned char stl_y, const ColumnIndex *col_idx)
 {
     //_DK_place_slab_columns(slbkind, a2, a3, a4); return;
     struct SlabAttr *slbattr;
     slbattr = get_slab_kind_attrs(slbkind);
-    if (slbattr->is_unknflg15 != 3)
+    if (slbattr->wlb_type != 3)
     {
         struct SlabMap *slb;
         slb = get_slabmap_for_subtile(stl_x, stl_y);
-        slb->field_5 ^= (slb->field_5 ^ 8 * slbattr->is_unknflg15) & 0x18;
+        slabmap_set_wlb(slb, slbattr->wlb_type);
     }
     int dx, dy;
 
-    const short *colid;
+    const ColumnIndex *colid;
     colid = col_idx;
     for (dy=0; dy < STL_PER_SLB; dy++)
     {
@@ -549,7 +688,7 @@ void place_slab_columns(long slbkind, unsigned char stl_x, unsigned char stl_y, 
             int v10;
             v10 = -*colid;
             if ( v10 < 0 )
-              ERRORLOG("BBlocks");
+              ERRORLOG("BBlocks instead of columns");
             update_map_collide(slbkind, stl_x+dx, stl_y+dy);
             set_alt_bit_based_on_slab(slbkind, stl_x+dx, stl_y+dy);
             colid++;
@@ -557,15 +696,33 @@ void place_slab_columns(long slbkind, unsigned char stl_x, unsigned char stl_y, 
     }
 }
 
-void place_slab_object(unsigned short a1, long a2, long a3, unsigned short a4, unsigned short slbelem, unsigned char a6)
+#define get_slabset_index(slbkind, style, pick) get_slabset_index_f(slbkind, style, pick, __func__)
+unsigned short get_slabset_index_f(SlabKind slbkind, unsigned char style, unsigned char pick, const char *func_name)
+{
+    if (slbkind >= SLABSET_COUNT/(9*3+1)) {
+        ERRORLOG("%s: Illegal animating slab kind: %d", func_name, (int)slbkind);
+        slbkind = 0;
+    }
+    if (style > 3) {
+        ERRORLOG("%s: Illegal animating slab style: %d", func_name, (int)style);
+        style = 0;
+    }
+    if ((pick >= 9) || ((style == 3) && (pick >= 1))) {
+        ERRORLOG("%s: Illegal animating slab pick: %d", func_name, (int)pick);
+        pick = 0;
+    }
+    return 28 * slbkind + 9 * style + pick;
+}
+
+void place_slab_object(unsigned short a1, long a2, long a3, unsigned short slabct_num, unsigned short slbelem, unsigned char a6)
 {
     //_DK_place_slab_object(a1, a2, a3, a4, a5, a6); return;
-    if (a4 >= SLABSET_COUNT) {
-        ERRORLOG("Illegal animating slab number: %d", (int)a4);
+    if (slabct_num >= SLABSET_COUNT) {
+        ERRORLOG("Illegal animating slab number: %d", (int)slabct_num);
         return;
     }
     short sobj_idx;
-    sobj_idx = game.slabobjs_idx[a4];
+    sobj_idx = game.slabobjs_idx[slabct_num];
     if (sobj_idx < 0) {
         return;
     }
@@ -573,7 +730,7 @@ void place_slab_object(unsigned short a1, long a2, long a3, unsigned short a4, u
     {
         struct SlabObj *sobj;
         sobj = &game.slabobjs[sobj_idx];
-        if (sobj->field_1 != a4) {
+        if (sobj->field_1 != slabct_num) {
             break;
         }
         if (sobj->field_3 != slbelem) {
@@ -814,8 +971,8 @@ void place_single_slab_fill_style_array(MapSlabCoord slb_x, MapSlabCoord slb_y, 
     for (i=0; i < AROUND_EIGHT_LENGTH; i+=2)
     {
         MapSlabCoord sslb_x, sslb_y;
-        sslb_x = slb_x + (MapSlabCoord)my_around_eight[i&7].delta_x;
-        sslb_y = slb_y + (MapSlabCoord)my_around_eight[i&7].delta_y;
+        sslb_x = slb_x + (MapSlabCoord)my_around_eight[i].delta_x;
+        sslb_y = slb_y + (MapSlabCoord)my_around_eight[i].delta_y;
         int style_val;
         struct SlabMap *slb;
         slb = get_slabmap_block(sslb_x,sslb_y);
@@ -868,7 +1025,7 @@ void place_single_slab_set_torch_places(SlabKind slbkind, MapSlabCoord slb_x, Ma
 }
 
 void place_single_slab_prepare_column_index(SlabKind slbkind, MapSlabCoord slb_x, MapSlabCoord slb_y,
-    PlayerNumber plyr_idx, short *slab_type_list, short *room_pretty_list, short *style_set, short *slab_number_list, short *col_idx)
+    PlayerNumber plyr_idx, short *slab_type_list, short *room_pretty_list, short *style_set, short *slab_number_list, ColumnIndex *col_idx)
 {
     struct SlabAttr *place_slbattr;
     place_slbattr = get_slab_kind_attrs(slbkind);
@@ -1069,7 +1226,7 @@ void shuffle_unattached_things_on_slab(long a1, long a2)
     _DK_shuffle_unattached_things_on_slab(a1, a2); return;
 }
 
-void dump_slab_on_map(SlabKind slbkind, long a2, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber owner)
+void dump_slab_on_map(SlabKind slbkind, long slabct_num, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber owner)
 {
     //_DK_dump_slab_on_map(slbkind, a2, stl_x, stl_y, owner); return;
     MapSlabCoord slb_x, slb_y;
@@ -1078,9 +1235,9 @@ void dump_slab_on_map(SlabKind slbkind, long a2, MapSubtlCoord stl_x, MapSubtlCo
     MapSubtlCoord stl_xa, stl_ya;
     stl_xa = STL_PER_SLB * slb_x;
     stl_ya = STL_PER_SLB * slb_y;
-    if (a2 >= SLABSET_COUNT) {
-        ERRORLOG("Illegal animating slab number: %d", a2);
-        a2 = 0;
+    if (slabct_num >= SLABSET_COUNT) {
+        ERRORLOG("Illegal animating slab number: %d", slabct_num);
+        slabct_num = 0;
     }
     struct SlabAttr *slbattr;
     slbattr = get_slab_kind_attrs(slbkind);
@@ -1088,7 +1245,7 @@ void dump_slab_on_map(SlabKind slbkind, long a2, MapSubtlCoord stl_x, MapSubtlCo
     slb = get_slabmap_block(slb_x, slb_y);
     slb->health = game.block_health[slbattr->field_4];
     struct SlabSet *sset;
-    sset = &game.slabset[a2];
+    sset = &game.slabset[slabct_num];
     place_slab_columns(slbkind, stl_xa, stl_ya, sset->col_idx);
     set_whole_slab_owner(slb_x, slb_y, owner);
 
@@ -1141,7 +1298,7 @@ void dump_slab_on_map(SlabKind slbkind, long a2, MapSubtlCoord stl_x, MapSubtlCo
                 }
             }
 
-            place_slab_object(place_slbnum, sstl_x, sstl_y, a2, n, slabmap_owner(slb));
+            place_slab_object(place_slbnum, sstl_x, sstl_y, slabct_num, n, slabmap_owner(slb));
             n++;
         }
     }
