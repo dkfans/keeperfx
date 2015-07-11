@@ -216,7 +216,7 @@ TbBool door_can_stand(struct Thing *thing)
         slb = get_slabmap_block(slb_x,slb_y);
         slbattr = get_slab_attrs(slb);
       if ((slbattr->category == SlbAtCtg_FortifiedWall) || (slb->kind == SlbT_ROCK)
-          || (slb->kind == SlbT_EARTH) || (slb->kind == SlbT_TORCHDIRT)
+          || (slbattr->category == SlbAtCtg_FriableDirt)
           || (slb->kind == SlbT_GOLD) || (slb->kind == SlbT_GEMS))
         wall_flags |= 0x01;
     }
