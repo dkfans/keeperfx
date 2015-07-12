@@ -279,7 +279,7 @@ long computer_check_move_creatures_to_room(struct Computer2 *comp, struct Comput
  */
 long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check)
 {
-	if (newdig)
+	if (is_newdig_enabled(comp))
 	{
 		//workaround for interval seeming to be ignored by from my reconfiguration.
 		//modern computers can handle interval 1 and interval 200 is awfully passive and easy to kill
@@ -1113,7 +1113,7 @@ TbBool computer_check_for_expand_room_kind(struct Computer2 *comp, struct Comput
 
 long computer_check_for_expand_room(struct Computer2 *comp, struct ComputerCheck * check)
 {
-	if (newdig)
+	if (is_newdig_enabled(comp))
 		return 4;
 
     SYNCDBG(8,"Starting");

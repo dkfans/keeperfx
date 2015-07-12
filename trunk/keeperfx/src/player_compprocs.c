@@ -447,7 +447,7 @@ struct ComputerTask *get_room_build_task_nearest_to(const struct Computer2 *comp
  */
 long computer_check_build_all_rooms(struct Computer2 *comp, struct ComputerProcess *cproc)
 {
-	if (newdig)
+	if (is_newdig_enabled(comp))
 		return 4;
 
     struct Dungeon *dungeon;
@@ -505,7 +505,7 @@ long computer_get_room_kind_free_capacity(struct Computer2 *comp, RoomKind room_
 
 long computer_check_any_room(struct Computer2 *comp, struct ComputerProcess *cproc)
 {
-	if (newdig)
+	if (is_newdig_enabled(comp))
 		return 4;
 
     struct Dungeon *dungeon;
@@ -1103,7 +1103,7 @@ long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *
  */
 long computer_check_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *cproc)
 {
-	if (newdig)
+	if (is_newdig_enabled(comp))
 		return 4;
 
     // If we have treasure room
