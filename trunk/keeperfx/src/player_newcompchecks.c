@@ -856,6 +856,24 @@ static struct Digging comp_digging[KEEPER_COUNT];
 static void initiate_expand_room(struct Computer2* comp, struct Digging* digging, struct ExpandRoom* expand);
 static int eval_expand_room(struct Computer2* comp, struct Digging* digging, struct ExpandRoom* expand, TbBool allow_move, int upscale, int downscale, MapSlabCoord x, MapSlabCoord y, MapSlabCoord dx, MapSlabCoord dy);
 
+static TbBool is_marked_for_digging(struct Digging* digging, MapSlabCoord x, MapSlabCoord y)
+{
+	return digging->marked_for_dig[y][x];
+}
+
+TbBool player_has_marked_for_digging(int plyr_idx, MapSlabCoord x, MapSlabCoord y)
+{
+	//TODO: I don't like exposing this outside of the module, but it's only quick option to fix multi tile wide paths right now
+
+	if (plyr_idx < 0 || plyr_idx >= KEEPER_COUNT)
+	{
+		ERRORLOG("Access of invalid keeper %d", plyr_idx);
+		return false;
+	}
+
+	return is_marked_for_digging(&comp_digging[plyr_idx], x, y);
+}
+
 static void debug_digging_map(const char* filename, struct Dungeon* dungeon, struct Digging* digging)
 {
 	MapSlabCoord x, y;
@@ -879,7 +897,7 @@ static void debug_digging_map(const char* filename, struct Dungeon* dungeon, str
 			char c;
 			slab = get_slabmap_block(x, y);
 
-			if (digging->marked_for_dig[y][x])
+			if (is_marked_for_digging(digging, x, y))
 				c = slab_kind_is_liquid(slab->kind)? 'x' : 'X';
 			else
 			{
@@ -933,13 +951,13 @@ static void debug_digging_map(const char* filename, struct Dungeon* dungeon, str
 	fclose(file);
 }
 
-static TbBool marked_for_dig_and_undug(struct Digging* digging, MapSlabCoord x, MapSlabCoord y)
+static TbBool is_marked_for_digging_and_undug(struct Digging* digging, MapSlabCoord x, MapSlabCoord y)
 {
 	struct SlabMap* slab;
 
 	if (x < 0 || y < 0 || x >= map_tiles_x || y >= map_tiles_y)
 		return 0;
-	if (!digging->marked_for_dig[y][x])
+	if (!is_marked_for_digging(digging, x, y))
 		return 0;
 
 	slab = get_slabmap_block(x, y);
@@ -1047,7 +1065,7 @@ static TbResult bridge_later_if_needed(struct Computer2* comp, struct Digging* d
 	struct SlabMap* slab;
 	player = comp->dungeon->owner;
 
-	if (digging->marked_for_dig[y][x])
+	if (is_marked_for_digging(digging, x, y))
 		return Lb_OK;
 
 	if (!is_room_available(player, RoK_BRIDGE))
@@ -1076,7 +1094,7 @@ static TbResult dig_if_needed(struct Computer2* comp, struct Digging* digging, M
 	TbResult result;
 	player = comp->dungeon->owner;
 
-	if (digging->marked_for_dig[y][x])
+	if (is_marked_for_digging(digging, x, y))
 		return Lb_OK;
 
 	slab = get_slabmap_block(x, y);
@@ -1287,7 +1305,7 @@ static void initiate_dig_gold(struct Computer2* comp, struct Digging* digging, s
 	{
 		int num_gold_tiles, num_gem_tiles;
 		num_gold_tiles = num_gem_tiles = 0;
-		//TODO: this can be improved since it's not actually considering accessibility of treasure room, but...
+		//TODO: use BFS instead of consider accessibility of treasure room. see if it's worth building a new path
 		for (y = dig_gold->target_y - TREASURE_ROOM_SEARCH_RADIUS; y <= dig_gold->target_y + TREASURE_ROOM_SEARCH_RADIUS; ++y)
 		{
 			for (x = dig_gold->target_x - TREASURE_ROOM_SEARCH_RADIUS; x <= dig_gold->target_x + TREASURE_ROOM_SEARCH_RADIUS; ++x)
@@ -1334,7 +1352,7 @@ static void initiate_dig_gold(struct Computer2* comp, struct Digging* digging, s
 		int current_dist;
 		MapSlabCoord best_x, best_y;
 
-		if (!on_dug && !digging->marked_for_dig[y][x] && dig_if_needed(comp, digging, x, y) == Lb_FAIL)
+		if (!on_dug && !is_marked_for_digging(digging, x, y) && dig_if_needed(comp, digging, x, y) == Lb_FAIL)
 		{
 			abort = 1;
 			break;
@@ -1426,7 +1444,7 @@ static TbBool check_dig_to_gold(struct Computer2* comp, struct Digging* digging,
 			int nx, ny;
 			TbBool any_neighbors_digging;
 
-			if (digging->marked_for_dig[y][x])
+			if (is_marked_for_digging(digging, x, y))
 				continue;
 
 			influence = get_slab_influence(x, y);
@@ -1453,7 +1471,7 @@ static TbBool check_dig_to_gold(struct Computer2* comp, struct Digging* digging,
 			{
 				for (nx = x - 2; nx <= x + 2; ++nx)
 				{
-					if (marked_for_dig_and_undug(digging, nx, ny))
+					if (is_marked_for_digging_and_undug(digging, nx, ny))
 					{
 						any_neighbors_digging = 1;
 						break;
@@ -1710,14 +1728,14 @@ static int eval_expand_room_wall(struct Digging* digging, int player, MapSlabCoo
 		return slabmap_owner(slab) == player? 25 : -100;
 	case SlbT_EARTH:
 	case SlbT_TORCHDIRT:
-		return digging->marked_for_dig[y][x]? 5 : 20; //treated as claimed if will be dig
+		return is_marked_for_digging(digging, x, y)? 5 : 20; //treated as claimed if will be dig
 	case SlbT_ROCK:
 	case SlbT_GEMS:
 		return 15;
 	case SlbT_CLAIMED:
 		return 5; //traps are good, right
 	case SlbT_GOLD:
-		return digging->marked_for_dig[y][x]? 5 : 1; //better than nothing, avoids opening
+		return is_marked_for_digging(digging, x, y)? 5 : 1; //better than nothing, avoids opening
 	case SlbT_LAVA:
 	case SlbT_WATER:
 	case SlbT_PATH:
@@ -1851,7 +1869,7 @@ static int eval_expand_room_pos(struct Dungeon* dungeon, struct Digging* digging
 			}
 			else
 			{
-				if (marked_for_dig_and_undug(digging, x, y)) //in case of multiple expansions
+				if (is_marked_for_digging_and_undug(digging, x, y)) //in case of multiple expansions
 					return INT_MIN;
 
 				//if outside walls or otherwise not treasure chamber, demand access (TODO: see if any other rooms worth having non-accessible interiors for)

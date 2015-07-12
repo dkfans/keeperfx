@@ -150,7 +150,7 @@ static void influence_neighbor(MapSlabCoord x, MapSlabCoord y, int player, enum 
 		dist = 0;
 	}
 
-	if (slab_kind_can_drop_here_now(slab->kind) || slab->kind == SlbT_PATH)
+	if (slab_kind_can_drop_here_now(slab->kind) || slab->kind == SlbT_PATH || metric == DigDistance && player_has_marked_for_digging(player, x, y))
 	{
 		if (slab->kind != SlbT_PATH && owner == player)
 			dist = 0;

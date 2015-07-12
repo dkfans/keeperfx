@@ -61,6 +61,7 @@ long calc_players_strength(struct Dungeon* dungeon);
 int get_preferred_num_room_tiles(struct Dungeon* dungeon, RoomKind rkind);
 
 //checks
+TbBool player_has_marked_for_digging(int plyr_idx, MapSlabCoord x, MapSlabCoord y); //ugly outside module exposure of internal to fix multi tile paths
 long computer_check_for_door_attacks(struct Computer2 *comp);
 long computer_check_for_claims(struct Computer2 *comp);
 long computer_check_for_imprison_tendency(struct Computer2* comp);
