@@ -845,7 +845,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         case P454_Unkn3:
             thing = thing_get(player->thing_under_hand);
             TRACE_THING(thing);
-            if ((player->boolfield_4) && (!thing_is_invalid(thing)) && (dungeon->things_in_hand[0] != player->thing_under_hand))
+            if ((player->input_crtr_control) && (!thing_is_invalid(thing)) && (dungeon->things_in_hand[0] != player->thing_under_hand))
             {
                 if (can_cast_spell(player->id_number, player_state_to_power_kind[PSt_CtrlDirect],
                   thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default)) {
@@ -856,7 +856,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
                 }
                 player->flgfield_6 |= PlaF6_Unknown01;
             } else
-            if (((player->boolfield_5) && !thing_is_invalid(thing)) && (dungeon->things_in_hand[0] != player->thing_under_hand)
+            if (((player->input_crtr_query) && !thing_is_invalid(thing)) && (dungeon->things_in_hand[0] != player->thing_under_hand)
                 && can_thing_be_queried(thing, player->id_number))
             {
                 set_pointer_graphic(MousePG_Query);

@@ -440,7 +440,7 @@ long compute_creature_attack_melee_damage(long base_param, long luck, unsigned s
     max_param = base_param;
     if (luck > 0)
     {
-        if (ACTION_RANDOM(101) < luck)
+        if (ACTION_RANDOM(100) < luck)
           max_param *= 2;
     }
     return saturate_set_signed(max_param, 16);
@@ -464,7 +464,7 @@ long compute_creature_attack_spell_damage(long base_param, long luck, unsigned s
     max_param = base_param + (crtr_conf.exp.spell_damage_increase_on_exp*base_param*(long)crlevel)/100;
     if (luck > 0)
     {
-        if (ACTION_RANDOM(101) < luck)
+        if (ACTION_RANDOM(100) < luck)
           max_param *= 2;
     }
     return saturate_set_signed(max_param, 16);

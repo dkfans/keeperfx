@@ -799,7 +799,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
       if (player->field_4AF != 0)
       {
         thing = thing_get(player->thing_under_hand);
-        if ((player->thing_under_hand != 0) && (player->boolfield_4 != 0)
+        if ((player->thing_under_hand != 0) && (player->input_crtr_control != 0)
           && (dungeon->things_in_hand[0] != player->thing_under_hand))
         {
             set_player_state(player, PSt_CtrlDirect, 0);
@@ -808,7 +808,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
             }
             unset_packet_control(pckt, PCtr_LBtnRelease);
         } else
-        if ((player->thing_under_hand != 0) && (player->boolfield_5 != 0)
+        if ((player->thing_under_hand != 0) && (player->input_crtr_query != 0)
           && (dungeon->things_in_hand[0] != player->thing_under_hand)
           && can_thing_be_queried(thing, plyr_idx) )
         {
@@ -2096,8 +2096,8 @@ void process_players_packet(long plyr_idx)
   player = get_player(plyr_idx);
   pckt = get_packet_direct(player->packet_num);
   SYNCDBG(6,"Processing player %d packet of type %d.",plyr_idx,(int)pckt->action);
-  player->boolfield_4 = ((pckt->field_10 & PCAdV_CrtrContrlPressed) != 0);
-  player->boolfield_5 = ((pckt->field_10 & PCAdV_CrtrQueryPressed) != 0);
+  player->input_crtr_control = ((pckt->field_10 & PCAdV_CrtrContrlPressed) != 0);
+  player->input_crtr_query = ((pckt->field_10 & PCAdV_CrtrQueryPressed) != 0);
   if (((player->allocflags & PlaF_NewMPMessage) != 0) && (pckt->action == PckA_PlyrMsgChar))
   {
      process_players_message_character(player);

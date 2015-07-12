@@ -991,6 +991,8 @@ void update_things(void)
     sum = 0;
     sum += update_things_in_list(&game.thing_lists[TngList_Creatures]);
     update_creatures_not_in_list();
+    player_packet_checksum_add(my_player_number,sum,"creatures");
+    sum = 0;
     sum += update_things_in_list(&game.thing_lists[TngList_Traps]);
     sum += update_things_in_list(&game.thing_lists[TngList_Shots]);
     sum += update_things_in_list(&game.thing_lists[TngList_Objects]);

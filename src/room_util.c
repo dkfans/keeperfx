@@ -144,7 +144,7 @@ void process_rooms(void)
       if (room_grows_food(room->kind)) {
           room_grow_food(room);
       }
-      sum += (room->slabs_count & 0xFF) + room->central_stl_x + room->central_stl_y;
+      sum += room->slabs_count + room->central_stl_x + room->central_stl_y + room->efficiency + room->used_capacity;
       if (room_has_surrounding_flames(room->kind) && ((game.numfield_D & GNFldD_Unkn40) != 0)) {
           process_room_surrounding_flames(room);
       }

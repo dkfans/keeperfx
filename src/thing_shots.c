@@ -1283,7 +1283,7 @@ TngUpdateRet update_shot(struct Thing *thing)
             affect_nearby_enemy_creatures_with_wind(thing);
             break;
         case ShM_Grenade:
-            thing->move_angle_xy = (thing->move_angle_xy + 113) & LbFPMath_AngleMask;
+            thing->move_angle_xy = (thing->move_angle_xy + LbFPMath_PI/9) & LbFPMath_AngleMask;
             break;
         case ShM_Boulder:
         case ShM_SolidBoulder:

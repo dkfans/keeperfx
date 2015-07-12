@@ -1055,7 +1055,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
     }
     // Power hand tasks are exclusive, so select randomly
     int pwhand_task_choose;
-    pwhand_task_choose = ACTION_RANDOM(101);
+    pwhand_task_choose = ACTION_RANDOM(100);
     // Move creatures away from rooms which cost a lot to use
     if ((money_left < check->param1) && (pwhand_task_choose < 33))
     {

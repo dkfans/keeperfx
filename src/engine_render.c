@@ -1006,7 +1006,7 @@ void frame_wibble_generate(void)
         wibl->field_C = osc >> 6;
         wibl++;
     }
-    water_wibble_angle = (water_wibble_angle + 46) & 0x7FF;
+    water_wibble_angle = (water_wibble_angle + LbFPMath_PI/22) & LbFPMath_AngleMask;
     int zoom;
     {
         struct PlayerInfo *myplyr;
@@ -2019,7 +2019,7 @@ void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct Coord3
 
     mv_angle = thing->move_angle_xy;
     sh_angle = get_angle_xy_to(pos, &thing->mappos);
-    angle = (mv_angle - sh_angle) & 0x7FF;
+    angle = (mv_angle - sh_angle) & LbFPMath_AngleMask;
     dist_sq = (get_2d_distance_squared(&thing->mappos, pos) >> 17) + 16;
     if (dist_sq < 16) {
         dist_sq = 16;
