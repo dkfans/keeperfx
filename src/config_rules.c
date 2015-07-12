@@ -127,7 +127,7 @@ const struct NamedCommand rules_rooms_commands[] = {
   {"TEMPLESCAVENGEPROTECTIONTIME",2},
   {"TRAINCOSTFREQUENCY",         3},
   {"TORTURECONVERTCHANCE",       4},
-  {"TIMESPENTINPRISON",          5},
+  {"TIMESPENTINPRISONWITHOUTBREAK", 5},
   {"GHOSTCONVERTCHANCE",         6},
   {"ARMORYTIME",                 7},
   {"WORKSHOPTIME",               8},
@@ -144,6 +144,7 @@ const struct NamedCommand rules_rooms_commands[] = {
   {"SCAVENGEGOODALLOWED",       19},
   {"SCAVENGENEUTRALALLOWED",    20},
   {"TIMEBETWEENPRISONBREAK",    21},
+  {"PRISONBREAKCHANCE",         22},
   {NULL,                         0},
   };
 
@@ -1287,8 +1288,18 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 5: // TIMESPENTINPRISON
-          //Unused
+      case 5: // TIMESPENTINPRISONWITHOUTBREAK
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            gameadd.time_in_prison_without_break = k;
+            n++;
+          }
+          if (n < 1)
+          {
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
           break;
       case 6: // GHOSTCONVERTCHANCE
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
@@ -1430,6 +1441,19 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           {
             k = atoi(word_buf);
             gameadd.time_between_prison_break = k;
+            n++;
+          }
+          if (n < 1)
+          {
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 22: // PRISONBREAKCHANCE
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            gameadd.prison_break_chance = k;
             n++;
           }
           if (n < 1)

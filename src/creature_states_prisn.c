@@ -392,10 +392,13 @@ CrCheckRet process_prison_function(struct Thing *creatng)
   cctrl = creature_control_get_from_thing(creatng);
   if ((cctrl->instance_id == CrInst_NULL) && process_prison_food(creatng, room) )
     return CrCkRet_Continue;
-  // Breaking from jail is only possible once per some amount of turns
-  if ((game.play_gameturn % gameadd.time_between_prison_break) == 0)
+  // Breaking from jail is only possible once per some amount of turns,
+  // and only if creature sits in jail for long enough
+  if (((game.play_gameturn % gameadd.time_between_prison_break) == 0) &&
+      (game.play_gameturn > cctrl->field_82 + gameadd.time_in_prison_without_break))
   {
-      if (jailbreak_possible(room, creatng->owner))
+      // Check the base jail break condition - whether prison touches enemy land
+      if (jailbreak_possible(room, creatng->owner) && (ACTION_RANDOM(100) < gameadd.prison_break_chance))
       {
           if (is_my_player_number(room->owner))
               output_message(SMsg_PrisonersEscaping, 40, true);
