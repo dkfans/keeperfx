@@ -1326,6 +1326,11 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
         }
         LbMemoryCopy(newevnt, event, sizeof(struct ComputerEvent));
     }
+
+	if (is_newdig_enabled(comp))
+	{
+		SYNCLOG("Newdig enabled for player %d", plyr_idx);
+	}
     return true;
 }
 
@@ -1416,17 +1421,23 @@ TbBool process_checks(struct Computer2 *comp)
     }
 
 	//checks not entered into regular system yet
-	//TODO: generalize and use config
-	if (++counter_check_for_claims[comp->dungeon->owner] >= 51)
+
+	if (is_newdig_enabled(comp))
 	{
-		counter_check_for_claims[comp->dungeon->owner] = 0;
-		computer_check_for_claims(comp);
+		//moved to newdig because people were complaining about aggressive AI...
+
+		if (++counter_check_for_claims[comp->dungeon->owner] >= 51)
+		{
+			counter_check_for_claims[comp->dungeon->owner] = 0;
+			computer_check_for_claims(comp);
+		}
+		if (++counter_check_for_door_attacks[comp->dungeon->owner] >= 151)
+		{
+			counter_check_for_door_attacks[comp->dungeon->owner] = 0;
+			computer_check_for_door_attacks(comp);
+		}
 	}
-	if (++counter_check_for_door_attacks[comp->dungeon->owner] >= 151)
-	{
-		counter_check_for_door_attacks[comp->dungeon->owner] = 0;
-		computer_check_for_door_attacks(comp);
-	}
+
 	if (++counter_check_for_imprison_tendency[comp->dungeon->owner] >= 39)
 	{
 		counter_check_for_imprison_tendency[comp->dungeon->owner] = 0;
@@ -1437,7 +1448,8 @@ TbBool process_checks(struct Computer2 *comp)
 		counter_check_prison_management[comp->dungeon->owner] = 0;
 		computer_check_prison_management(comp);
 	}
-	if (newdig)
+
+	if (is_newdig_enabled(comp))
 	{
 		if (++counter_check_new_digging[comp->dungeon->owner] >= 14)
 		{
@@ -1586,9 +1598,12 @@ void process_computer_players2(void)
     TbBool needs_gold_check;
     int i;
     needs_gold_check = false;
-	update_influence_maps();
-	update_attitudes();
-
+	if (any_newdig_enabled())
+	{
+		update_influence_maps();
+		update_attitudes();
+	}
+	
     for (i=0; i < PLAYERS_COUNT; i++)
     {
         player = get_player(i);
@@ -1705,7 +1720,41 @@ void restore_computer_player_after_load(void)
             comp->events[i].func_test = cpt->events[i].func_test;
             comp->events[i].process = cpt->events[i].process;
         }
+
+		if (is_newdig_enabled(comp))
+		{
+			SYNCLOG("Newdig enabled for player %d", plyr_idx);
+		}
     }
+}
+
+extern TbBool forced_newdig; //is new digging enabled?
+TbBool is_newdig_enabled(struct Computer2* comp)
+{
+	return forced_newdig || 1337 == comp->model;
+}
+
+TbBool any_newdig_enabled(void)
+{
+	long i;
+	struct Computer2 *comp;
+	struct PlayerInfo *player;
+
+	for (i = 0; i < KEEPER_COUNT; ++i)
+	{
+		player = get_player(i);
+		if (!player_exists(player))
+			continue;
+
+		comp = get_computer_player(i);
+		if (computer_player_invalid(comp))
+			continue;
+
+		if (is_newdig_enabled(comp))
+			return true;
+	}
+
+	return false;
 }
 
 /******************************************************************************/

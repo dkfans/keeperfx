@@ -437,7 +437,7 @@ long computer_event_attack_magic_foe(struct Computer2 *comp, struct ComputerEven
 
 long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEvent *cevent)
 {
-	if (newdig)
+	if (is_newdig_enabled(comp))
 		return 4;
 
     long ret;

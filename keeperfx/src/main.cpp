@@ -144,7 +144,7 @@ struct Room *droom = &_DK_game.rooms[25];
 #define INTRO_TIMEDELAY 3000
 
 static TbBool speedlog;
-TbBool newdig;
+TbBool forced_newdig;
 
 //static
 TbClockMSec last_loop_time=0;
@@ -4678,7 +4678,7 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if (strcasecmp(parstr, "newdig") == 0)
       {
-          newdig = 1;
+          forced_newdig = 1;
       } else
       if ((strcasecmp(parstr, "s") == 0) || (strcasecmp(parstr, "nosound") == 0))
       {
