@@ -34,6 +34,14 @@ struct SlabInfluence
 	short heart_distance[KEEPER_COUNT];
 	short drop_distance[KEEPER_COUNT];
 	short dig_distance[KEEPER_COUNT];
+	short hero_walk_region;
+	short hero_fly_region;
+};
+
+struct HeroRegion
+{
+	int strength;
+	TbBool has_heart[KEEPER_COUNT];
 };
 
 enum PlayerAttitude
@@ -48,6 +56,8 @@ enum PlayerAttitude
 //eval
 void update_influence_maps(void);
 struct SlabInfluence* get_slab_influence(MapSlabCoord x, MapSlabCoord y);
+struct HeroRegion* get_hero_region(int region_index);
+void calc_player_strengths(void);
 void update_attitudes(void);
 #define get_attitude_towards(player, towards_player) get_attitude_towards_f(player, towards_player, __func__)
 enum PlayerAttitude get_attitude_towards_f(int player, int towards_player, const char* func_name);
@@ -57,7 +67,7 @@ struct Thing * find_imp_for_claim(struct Dungeon* dungeon);
 struct Thing * find_imp_for_urgent_dig(struct Dungeon* dungeon);
 struct Thing * find_creature_for_low_priority_attack(struct Dungeon* dungeon, TbBool strong);
 struct Thing * find_any_chicken(struct Dungeon* dungeon);
-long calc_players_strength(struct Dungeon* dungeon);
+long get_players_strength(struct Dungeon* dungeon);
 int get_preferred_num_room_tiles(struct Dungeon* dungeon, RoomKind rkind);
 
 //checks
