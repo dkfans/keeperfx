@@ -122,7 +122,7 @@ static int eval_door_attack_check_neighbor(MapSlabCoord x, MapSlabCoord y, MapSl
 		if (owner <= HERO_PLAYER && (their_dungeon = get_dungeon(owner)) && !dungeon_invalid(their_dungeon))
 		{
 			//prioritize killing dungeon hearts above anything else
-			return value - (int)(100 * calc_players_strength(their_dungeon));
+			return value - (int)(100 * get_players_strength(their_dungeon));
 		}
 		return -1; //no interested messing with hero dungeon hearts as they are likely script influenced anyway
 	}
@@ -172,7 +172,7 @@ long computer_check_for_door_attacks(struct Computer2 *comp)
 
 	int i;
 	long my_strength, their_strength;
-	my_strength = calc_players_strength(dungeon);
+	my_strength = get_players_strength(dungeon);
 	attack_door_from_player[HERO_PLAYER] = 1;
 	for (i = 0; i < KEEPER_COUNT; ++i)
 	{
@@ -183,7 +183,7 @@ long computer_check_for_door_attacks(struct Computer2 *comp)
 
 		if (players_are_enemies(dungeon->owner, i))
 		{
-			their_strength = calc_players_strength(their_dungeon);
+			their_strength = get_players_strength(their_dungeon);
 			attack_door_from_player[i] = 5 * their_strength < 4 * my_strength;
 			if (!attack_door_from_player[i])
 				attack_door_from_player[HERO_PLAYER] = 0; //to avoid opening frequent early blocking doors by level designers
@@ -399,7 +399,7 @@ long computer_check_for_claims(struct Computer2 *comp)
 
 	int i;
 	long my_strength, their_strength;
-	my_strength = calc_players_strength(dungeon);
+	my_strength = get_players_strength(dungeon);
 	for (i = 0; i < KEEPER_COUNT; ++i)
 	{
 		struct Dungeon* their_dungeon;
@@ -408,7 +408,7 @@ long computer_check_for_claims(struct Computer2 *comp)
 			continue;
 		if (players_are_enemies(dungeon->owner, i))
 		{
-			their_strength = calc_players_strength(their_dungeon);
+			their_strength = get_players_strength(their_dungeon);
 			claim_from_player[i] = 5 * their_strength < 4 * my_strength;
 			//SYNCLOG("%d our: %f, their: %f", dungeon->owner, my_strength, their_strength);
 		}
@@ -852,9 +852,19 @@ struct Digging
 };
 
 static struct Digging comp_digging[KEEPER_COUNT];
+static unsigned char danger_map[85][85]; //similar as marked_for_dig
 
 static void initiate_expand_room(struct Computer2* comp, struct Digging* digging, struct ExpandRoom* expand);
 static int eval_expand_room(struct Computer2* comp, struct Digging* digging, struct ExpandRoom* expand, TbBool allow_move, int upscale, int downscale, MapSlabCoord x, MapSlabCoord y, MapSlabCoord dx, MapSlabCoord dy);
+
+static TbBool is_dangerous_digging(MapSlabCoord x, MapSubtlCoord y)
+{
+	struct SlabMap* slab;
+	slab = get_slabmap_block(x, y);
+	if (SlbT_GEMS != slab->kind)
+		return danger_map[y][x];
+	return 0;
+}
 
 static TbBool is_marked_for_digging(struct Digging* digging, MapSlabCoord x, MapSlabCoord y)
 {
@@ -1312,6 +1322,9 @@ static void initiate_dig_gold(struct Computer2* comp, struct Digging* digging, s
 			{
 				if (abs(x - dig_gold->target_x) + abs(y - dig_gold->target_y) > TREASURE_ROOM_SEARCH_RADIUS)
 					continue;
+				if (is_dangerous_digging(x, y))
+					continue;
+
 				slab = get_slabmap_block(x, y);
 				if (SlbT_GOLD == slab->kind) //TODO: count accessible faces instead
 				{
@@ -1352,7 +1365,7 @@ static void initiate_dig_gold(struct Computer2* comp, struct Digging* digging, s
 		int current_dist;
 		MapSlabCoord best_x, best_y;
 
-		if (!on_dug && !is_marked_for_digging(digging, x, y) && dig_if_needed(comp, digging, x, y) == Lb_FAIL)
+		if (!on_dug && (is_dangerous_digging(x, y) || (!is_marked_for_digging(digging, x, y) && dig_if_needed(comp, digging, x, y) == Lb_FAIL)))
 		{
 			abort = 1;
 			break;
@@ -1444,14 +1457,12 @@ static TbBool check_dig_to_gold(struct Computer2* comp, struct Digging* digging,
 			int nx, ny;
 			TbBool any_neighbors_digging;
 
-			if (is_marked_for_digging(digging, x, y))
+			if (is_marked_for_digging(digging, x, y) || is_dangerous_digging(x, y))
 				continue;
 
 			influence = get_slab_influence(x, y);
 			if (influence->dig_distance[dungeon->owner] < 0)
 				continue; //don't bother evaluating blocks we can't reach
-
-			//TODO: disqualify blocks that would open up dangerous areas we can't handle
 
 			score = 0;
 			slab = get_slabmap_block(x, y);
@@ -1862,6 +1873,9 @@ static int eval_expand_room_pos(struct Dungeon* dungeon, struct Digging* digging
 	{
 		for (x = pos->min_x; x <= pos->max_x; ++x)
 		{
+			if (is_dangerous_digging(x, y))
+				return INT_MIN;
+
 			if (expand->predug)
 			{
 				if (!is_floor_for(x, y, dungeon->owner))
@@ -1911,8 +1925,6 @@ static int eval_expand_room_pos(struct Dungeon* dungeon, struct Digging* digging
 				break;
 			}
 
-			//TODO: reduce score for unreinforcable walls
-
 			//TODO: increase score for prison, barracks, graveyard, guard post close to enemy, opposite for other rooms
 		}
 	}
@@ -1928,8 +1940,6 @@ static int eval_expand_room_pos(struct Dungeon* dungeon, struct Digging* digging
 		score += eval_expand_room_wall(digging, dungeon->owner, x, pos->min_y - 1);
 		score += eval_expand_room_wall(digging, dungeon->owner, x, pos->max_y + 1);
 	}
-
-	//TODO: penalize opening dungeon to dangerous area
 
 	int w, h, d;
 	w = pos->max_x - pos->min_x + 1;
@@ -2555,6 +2565,56 @@ static void check_expand_room(struct Computer2* comp, struct Digging* digging)
 	}
 }
 
+static void update_danger_map(struct Dungeon* dungeon)
+{
+	int x, y;
+	long my_strength;
+	long danger;
+	struct SlabInfluence* influence;
+	struct HeroRegion* hero_region;
+	SYNCDBG(9, "Starting");
+
+	memset(danger_map, 0, sizeof(danger_map));
+
+	if (players_are_mutual_allies(dungeon->owner, HERO_PLAYER))
+	{
+		return;
+	}
+
+	my_strength = get_players_strength(dungeon);
+
+	for (y = 1; y < map_tiles_y - 1; ++y)
+	{
+		for (x = 1; x < map_tiles_x - 1; ++x)
+		{
+			influence = get_slab_influence(x, y);
+
+			danger = 0;
+			if (influence->hero_walk_region >= 0)
+			{
+				hero_region = get_hero_region(influence->hero_walk_region);
+				if (!hero_region->has_heart[dungeon->owner]) //if not danger already here (don't pointlessly avoid it)
+					danger += hero_region->strength;
+			}
+			if (influence->hero_fly_region >= 0)
+			{
+				hero_region = get_hero_region(influence->hero_fly_region);
+				if (!hero_region->has_heart[dungeon->owner]) //if not danger already here (don't pointlessly avoid it)
+					danger += hero_region->strength;
+			}
+
+			if (2 * danger > my_strength)
+			{
+				danger_map[y - 1][x] = 1;
+				danger_map[y][x - 1] = 1;
+				danger_map[y][x] = 1;
+				danger_map[y][x + 1] = 1;
+				danger_map[y + 1][x] = 1;
+			}
+		}
+	}
+}
+
 long computer_check_new_digging(struct Computer2* comp)
 {
 	int i;
@@ -2567,6 +2627,8 @@ long computer_check_new_digging(struct Computer2* comp)
 	SYNCDBG(8,"Starting");
 	dungeon = comp->dungeon;
 	digging = &comp_digging[dungeon->owner];
+
+	update_danger_map(comp->dungeon);
 
 	debug_digging_map(NULL, NULL, NULL); //avoiding unused function warning
 

@@ -31,7 +31,10 @@
 #include "room_list.h"
 #include "spdigger_stack.h"
 #include "thing_data.h"
+#include "thing_navigate.h"
 #include "thing_objects.h"
+
+static long player_strength[PLAYERS_COUNT];
 
 /************************************************************************/
 /* Influence map stuff.                                                 */
@@ -42,6 +45,8 @@ enum InfluenceMetric
 	HeartDistance,
 	DropDistance,
 	DigDistance,
+	HeroWalk,
+	HeroFly,
 };
 
 struct InfluenceNode //4 bytes
@@ -61,6 +66,13 @@ static struct
 
 static struct SlabInfluence null_influence;
 static struct SlabInfluence influence_map[85][85]; //[y][x], static size for now since we're years away from dynamic sized maps
+static struct
+{
+	struct HeroRegion* regions;
+	int count;
+	int capacity;
+} hero_regions;
+static struct HeroRegion null_hero_region;
 
 static void visit_influence(MapSlabCoord x, MapSlabCoord y, int player, enum InfluenceMetric metric, short dist);
 
@@ -70,6 +82,14 @@ struct SlabInfluence* get_slab_influence(MapSlabCoord x, MapSlabCoord y)
 		return &null_influence;
 
 	return &influence_map[y][x];
+}
+
+struct HeroRegion* get_hero_region(int region_index)
+{
+	if (region_index >= 0 && region_index < hero_regions.count)
+		return &hero_regions.regions[region_index];
+
+	return &null_hero_region;
 }
 
 short * get_slab_influence_value(MapSlabCoord x, MapSlabCoord y, int player, enum InfluenceMetric metric)
@@ -83,23 +103,25 @@ short * get_slab_influence_value(MapSlabCoord x, MapSlabCoord y, int player, enu
 	{
 	case HeartDistance:
 		return &influence->heart_distance[player];
-		break;
 	case DropDistance:
 		return &influence->drop_distance[player];
-		break;
 	case DigDistance:
 		return &influence->dig_distance[player];
-		break;
+	case HeroWalk:
+		return &influence->hero_walk_region;
+	case HeroFly:
+		return &influence->hero_fly_region;
 	default:
 		ERRORLOG("Invalid influence metric %d", (int)metric);
 		return &dummy;
 	}
 }
 
-static void queue_influence_visit(MapSlabCoord x, MapSlabCoord y, int player, enum InfluenceMetric metric, short dist)
+static void queue_influence_node(MapSlabCoord x, MapSlabCoord y, int player, enum InfluenceMetric metric, short dist)
 {
 	struct SlabMap* slab;
 	struct InfluenceNode* node;
+
 	short* stored_dist = get_slab_influence_value(x, y, player, metric);
 
 	if (*stored_dist >= 0)
@@ -131,12 +153,32 @@ static void queue_influence_visit(MapSlabCoord x, MapSlabCoord y, int player, en
 	}
 
 	node = &influence_queue.nodes[influence_queue.push_index++];
-	
+
 	node->metric = (char)metric;
 	node->player = (char)player;
 	node->x = (char)x;
 	node->y = (char)y;
-};
+}
+
+static void influence_hero_neighbor(MapSlabCoord x, MapSlabCoord y, enum InfluenceMetric metric, short region_index)
+{
+	struct SlabMap* slab;
+	int owner;
+	slab = get_slabmap_block(x, y);
+	owner = slabmap_owner(slab);
+
+	if (slab_kind_can_drop_here_now(slab->kind) ||
+		slab->kind == SlbT_WATER ||
+		slab->kind == SlbT_PATH ||
+		(HeroFly == metric && slab->kind == SlbT_LAVA) ||
+		(slab_kind_is_door(slab->kind) &&
+			!(owner == PLAYER_GOOD && get_door_for_position(x * STL_PER_SLB + 1, y * STL_PER_SLB + 1)->door.is_locked)
+			&& owner != PLAYER_NEUTRAL))
+	{
+		//SYNCLOG("Will queue %d, %d", x, y);
+		queue_influence_node(x, y, 0, metric, region_index);
+	}
+}
 
 static void influence_neighbor(MapSlabCoord x, MapSlabCoord y, int player, enum InfluenceMetric metric, short dist)
 {
@@ -150,12 +192,13 @@ static void influence_neighbor(MapSlabCoord x, MapSlabCoord y, int player, enum 
 		dist = 0;
 	}
 
-	if (slab_kind_can_drop_here_now(slab->kind) || slab->kind == SlbT_PATH || metric == DigDistance && player_has_marked_for_digging(player, x, y))
+	if (slab_kind_can_drop_here_now(slab->kind) || slab->kind == SlbT_PATH ||
+		(metric == DigDistance && player_has_marked_for_digging(player, x, y)))
 	{
 		if (slab->kind != SlbT_PATH && owner == player)
 			dist = 0;
 
-		queue_influence_visit(x, y, player, metric, dist);
+		queue_influence_node(x, y, player, metric, dist);
 	}
 	else if (metric == DigDistance)
 	{
@@ -165,7 +208,7 @@ static void influence_neighbor(MapSlabCoord x, MapSlabCoord y, int player, enum 
 		case SlbT_TORCHDIRT:
 		case SlbT_GOLD:
 		case SlbT_GEMS:
-			queue_influence_visit(x, y, player, metric, dist);
+			queue_influence_node(x, y, player, metric, dist);
 			break;
 		case SlbT_WALLDRAPE:
 		case SlbT_WALLPAIRSHR:
@@ -181,15 +224,84 @@ static void influence_neighbor(MapSlabCoord x, MapSlabCoord y, int player, enum 
 		case SlbT_DOORMAGIC1:
 		case SlbT_DOORMAGIC2:
 			if (owner == player)
-				queue_influence_visit(x, y, player, metric, dist);
+				queue_influence_node(x, y, player, metric, dist);
 			break;
 		case SlbT_LAVA:
 		case SlbT_WATER:
 			if (is_room_available(player, RoK_BRIDGE))
-				queue_influence_visit(x, y, player, metric, dist);
+				queue_influence_node(x, y, player, metric, dist);
 			break;
 		}
 	}
+};
+
+static void search_influence_node(MapSlabCoord x, MapSlabCoord y, enum InfluenceMetric metric)
+{
+	size_t alloc_size;
+
+	if (influence_queue.push_index != 0)
+	{
+		ERRORLOG("Start invariant for DFS broken");
+		return;
+	}
+
+	queue_influence_node(x, y, 0, metric, hero_regions.count);
+
+	if (influence_queue.push_index != 1)
+	{
+		//region has already been visited
+		return;
+	}
+
+	if (hero_regions.count == hero_regions.capacity)
+	{
+		hero_regions.capacity = hero_regions.capacity == 0? 10 : hero_regions.capacity * 2;
+		alloc_size = sizeof(*hero_regions.regions) * hero_regions.capacity;
+		hero_regions.regions = (struct HeroRegion*)realloc(hero_regions.regions, alloc_size);
+		if (NULL == hero_regions.regions)
+		{
+			influence_queue.push_index = 0;
+			ERRORLOG("Couldn't alloc %u bytes", alloc_size);
+			return;
+		}
+	}
+	memset(hero_regions.regions + hero_regions.count, 0, sizeof(*hero_regions.regions));
+	
+	//DFS; state stored in player field
+	while (influence_queue.push_index > 0)
+	{
+		struct InfluenceNode* node;
+		node = &influence_queue.nodes[influence_queue.push_index - 1];
+		x = node->x;
+		y = node->y;
+		metric = (enum InfluenceMetric)node->metric;
+		switch (node->player)
+		{
+		case 0:
+			node->player = 1;
+			influence_hero_neighbor(x + 1, y, metric, hero_regions.count);
+			break;
+		case 1:
+			node->player = 2;
+			influence_hero_neighbor(x - 1, y, metric, hero_regions.count);
+			break;
+		case 2:
+			node->player = 3;
+			influence_hero_neighbor(x, y + 1, metric, hero_regions.count);
+			break;
+		case 3:
+			node->player = 4;
+			influence_hero_neighbor(x, y - 1, metric, hero_regions.count);
+			break;
+		default:
+			influence_queue.push_index -= 1;
+			break; //done examining this node
+		}
+	}
+	
+
+	//SYNCLOG("Done with region %d", hero_regions.count);
+	hero_regions.count += 1;
 };
 
 static void visit_influence(MapSlabCoord x, MapSlabCoord y, int player, enum InfluenceMetric metric, short dist)
@@ -201,6 +313,60 @@ static void visit_influence(MapSlabCoord x, MapSlabCoord y, int player, enum Inf
 	influence_neighbor(x, y + 1, player, metric, dist);
 }
 
+static void update_hero_region_strength(void)
+{
+	SYNCDBG(9,"Starting");
+
+	struct CreatureControl *cctrl;
+	struct Thing *thing;
+	unsigned long k;
+	struct Dungeon* dungeon;
+	int i;
+	long strength;
+	MapSlabCoord x, y;
+	struct SlabInfluence* influence;
+	TbBool flies;
+	dungeon = get_players_dungeon(get_player(HERO_PLAYER));
+	k = 0;
+	i = dungeon->creatr_list_start;
+	while (i != 0)
+	{
+		thing = thing_get(i);
+		cctrl = creature_control_get_from_thing(thing);
+		if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+		{
+			ERRORLOG("Jump to invalid creature detected");
+			break;
+		}
+		i = cctrl->players_next_creature_idx;
+		// Thing list loop body
+
+		strength = get_creature_thing_score(thing); //TODO: replace with better estimate
+		x = subtile_slab(thing->mappos.x.stl.num);
+		y = subtile_slab(thing->mappos.y.stl.num);
+		influence = get_slab_influence(x, y);
+		
+		if (influence->hero_fly_region >= 0 && creature_can_travel_over_lava(thing))
+		{
+			hero_regions.regions[influence->hero_fly_region].strength += strength;
+		}
+		else if (influence->hero_walk_region >= 0)
+		{
+			hero_regions.regions[influence->hero_walk_region].strength += strength;
+		}
+		//else; shouldn't happen, doesn't matter if it wouldn't, though
+
+		// Thing list loop body ends
+		k++;
+		if (k > CREATURES_COUNT)
+		{
+			ERRORLOG("Infinite loop detected when sweeping creatures list");
+			break;
+		}
+	}
+	SYNCDBG(19,"Finished");
+}
+
 void update_influence_maps(void)
 {
 	struct SlabMap* slab;
@@ -208,15 +374,38 @@ void update_influence_maps(void)
 	int owner;
 	struct InfluenceNode* node;
 	short* stored_dist;
+	struct SlabInfluence* influence;
 
+	hero_regions.count = 0;
 	influence_queue.push_index = 0;
 	influence_queue.pop_index = 0;
 	memset(&null_influence, 0xff, sizeof(null_influence));
 	memset(&influence_map, 0xff, sizeof(influence_map));
 
-	SYNCDBG(9, "Seeding from map");
+	SYNCDBG(9, "Finding hero regions");
 
-	//seed search on map
+	for (y = 1; y < map_tiles_y - 1; ++y)
+	{
+		for (x = 1; x < map_tiles_x - 1; ++x)
+		{
+			slab = get_slabmap_block(x, y);
+
+			if (slab_kind_can_drop_here_now(slab->kind) ||
+				slab->kind == SlbT_PATH ||
+				slab->kind == SlbT_WATER)
+			{
+				search_influence_node(x, y, HeroWalk);
+				search_influence_node(x, y, HeroFly);
+			}
+			else if (slab->kind == SlbT_LAVA)
+			{
+				search_influence_node(x, y, HeroFly);
+			}
+		}
+	}
+
+	SYNCDBG(9, "Found %d hero regions, seeding influence nodes from map", hero_regions.count);
+
 	for (y = 1; y < map_tiles_y - 1; ++y)
 	{
 		for (x = 1; x < map_tiles_x - 1; ++x)
@@ -228,12 +417,18 @@ void update_influence_maps(void)
 
 			if (slab_kind_can_drop_here_now(slab->kind))
 			{
-				queue_influence_visit(x, y, owner, DropDistance, 0);
-				queue_influence_visit(x, y, owner, DigDistance, 0);
+				queue_influence_node(x, y, owner, DropDistance, 0);
+				queue_influence_node(x, y, owner, DigDistance, 0);
 			}
 			if (slab->kind == SlbT_DUNGHEART)
 			{
-				queue_influence_visit(x, y, owner, HeartDistance, 0);
+				influence = get_slab_influence(x, y);
+				if (influence->hero_walk_region >= 0)
+					hero_regions.regions[influence->hero_walk_region].has_heart[owner] = 1;
+				if (influence->hero_fly_region >= 0)
+					hero_regions.regions[influence->hero_fly_region].has_heart[owner] = 1;
+
+				queue_influence_node(x, y, owner, HeartDistance, 0);
 			}
 		}
 	}
@@ -256,6 +451,65 @@ void update_influence_maps(void)
 	}
 
 	SYNCDBG(8, "Processed %d nodes", influence_queue.pop_index);
+
+	update_hero_region_strength();
+}
+
+static long calc_players_strength(struct Dungeon* dungeon)
+{
+	SYNCDBG(19,"Starting");
+
+	struct CreatureControl *cctrl;
+	struct Thing *thing;
+	unsigned long k;
+	int i;
+	long strength;
+	k = 0;
+	i = dungeon->creatr_list_start;
+	strength = 0.0f;
+	while (i != 0)
+	{
+		thing = thing_get(i);
+		cctrl = creature_control_get_from_thing(thing);
+		if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+		{
+			ERRORLOG("Jump to invalid creature detected");
+			break;
+		}
+		i = cctrl->players_next_creature_idx;
+		// Thing list loop body
+
+		strength += get_creature_thing_score(thing); //TODO: replace with better estimate
+
+		// Thing list loop body ends
+		k++;
+		if (k > CREATURES_COUNT)
+		{
+			ERRORLOG("Infinite loop detected when sweeping creatures list");
+			break;
+		}
+	}
+	SYNCDBG(19,"Finished");
+
+	return strength;
+}
+
+void calc_player_strengths(void)
+{
+	SYNCDBG(9, "Starting");
+	int i;
+	struct Dungeon* dungeon;
+	for (i = 0; i < PLAYERS_COUNT; ++i)
+	{
+		dungeon = get_dungeon(i);
+		if (dungeon_invalid(dungeon))
+		{
+			player_strength[i] = 0;
+			continue;
+		}
+
+		player_strength[i] = calc_players_strength(dungeon);
+	}
 }
 
 /************************************************************************/
@@ -868,43 +1122,12 @@ struct Thing * find_any_chicken(struct Dungeon* dungeon)
 /************************************************************************/
 /* Higher strength => good chance of player winning a battle.           */
 /************************************************************************/
-long calc_players_strength(struct Dungeon* dungeon)
+long get_players_strength(struct Dungeon* dungeon)
 {
-	SYNCDBG(19,"Starting");
-
-	struct CreatureControl *cctrl;
-	struct Thing *thing;
-	unsigned long k;
-	int i;
-	long strength;
-	k = 0;
-	i = dungeon->creatr_list_start;
-	strength = 0.0f;
-	while (i != 0)
-	{
-		thing = thing_get(i);
-		cctrl = creature_control_get_from_thing(thing);
-		if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
-		{
-			ERRORLOG("Jump to invalid creature detected");
-			break;
-		}
-		i = cctrl->players_next_creature_idx;
-		// Thing list loop body
-
-		strength += get_creature_thing_score(thing); //TODO: replace with better estimate
-
-		// Thing list loop body ends
-		k++;
-		if (k > CREATURES_COUNT)
-		{
-			ERRORLOG("Infinite loop detected when sweeping creatures list");
-			break;
-		}
-	}
-	SYNCDBG(19,"Finished");
-
-	return strength;
+	int index = dungeon->owner;
+	if (index >= 0 || index < PLAYERS_COUNT)
+		return player_strength[index];
+	return 0;
 }
 
 /************************************************************************/

@@ -1598,6 +1598,7 @@ void process_computer_players2(void)
     TbBool needs_gold_check;
     int i;
     needs_gold_check = false;
+	calc_player_strengths();
 	if (any_newdig_enabled())
 	{
 		update_influence_maps();
