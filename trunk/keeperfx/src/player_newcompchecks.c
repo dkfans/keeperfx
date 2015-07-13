@@ -1786,6 +1786,10 @@ static int eval_expand_room_pos(struct Dungeon* dungeon, struct Digging* digging
 	MapSlabCoord x, y;
 	int score;
 	int num_tiles;
+	int w, h, d, i;
+	int center_x, center_y;
+	struct SlabInfluence* influence;
+	int enemy_distance;
 
 	score = 0;
 
@@ -1941,7 +1945,6 @@ static int eval_expand_room_pos(struct Dungeon* dungeon, struct Digging* digging
 		score += eval_expand_room_wall(digging, dungeon->owner, x, pos->max_y + 1);
 	}
 
-	int w, h, d;
 	w = pos->max_x - pos->min_x + 1;
 	h = pos->max_y - pos->min_y + 1;
 	d = abs(w - h);
@@ -1949,6 +1952,34 @@ static int eval_expand_room_pos(struct Dungeon* dungeon, struct Digging* digging
 		score -= 200 * (d - 1) * max(w, h);
 	else if (d == 1 && min(w, h) <= 2) //guiding heuristic to avoid sweeping around long useless rooms
 		score -= 200;
+
+	influence = get_slab_influence(pos->access_x, pos->access_y);
+	score -= influence->heart_distance[dungeon->owner] * 4;
+
+	center_x = (pos->max_x + pos->min_x) / 2;
+	center_y = (pos->max_y + pos->min_y) / 2;
+	influence = get_slab_influence(center_x, center_y);
+	
+	enemy_distance = INT_MAX;
+	for (i = 0; i < KEEPER_COUNT; ++i)
+	{
+		if (i != dungeon->owner && !players_are_mutual_allies(dungeon->owner, i) && influence->dig_distance[i] >= 0)
+			enemy_distance = min(enemy_distance, influence->dig_distance[i]);
+	}
+	if (enemy_distance != INT_MAX)
+	{
+		switch (expand->rkind)
+		{
+		case RoK_GUARDPOST:
+		case RoK_BARRACKS:
+		case RoK_GRAVEYARD:
+		case RoK_PRISON:
+			score -= enemy_distance * 2;
+			break;
+		default:
+			score += enemy_distance * 4;
+		}
+	}
 
 	if (num_tiles > expand->preferred_size)
 	{
@@ -2603,7 +2634,7 @@ static void update_danger_map(struct Dungeon* dungeon)
 					danger += hero_region->strength;
 			}
 
-			if (2 * danger > my_strength)
+			if (5 * danger > my_strength * 2)
 			{
 				danger_map[y - 1][x] = 1;
 				danger_map[y][x - 1] = 1;
