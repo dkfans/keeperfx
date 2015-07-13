@@ -145,6 +145,7 @@ struct Room *droom = &_DK_game.rooms[25];
 
 static TbBool speedlog;
 TbBool forced_newdig;
+TbBool cheat;
 
 //static
 TbClockMSec last_loop_time=0;
@@ -4236,7 +4237,7 @@ void post_init_level(void)
     init_traps();
     init_all_creature_states();
     init_keepers_map_exploration();
-	if ((game.flags_font & FFlg_AlexCheat) != 0)
+	if (cheat && (game.flags_font & FFlg_AlexCheat) != 0)
 		open_creature_cheat_menu();
     SYNCDBG(9,"Finished");
 }
@@ -4779,9 +4780,11 @@ short process_command_line(unsigned short argc, char *argv[])
           narg++;
           LbNetwork_InitSessionsFromCmdLine(pr2str);
       } else
-      if (strcasecmp(parstr,"alex") == 0)
+      if (strcasecmp(parstr,"alex") == 0 || strcasecmp(parstr, "cheat") == 0)
       {
          set_flag_byte(&start_params.flags_font,FFlg_AlexCheat,true);
+		 if (strcasecmp(parstr, "cheat") == 0)
+			cheat = 1;
       } else
       {
         WARNMSG("Unrecognized command line parameter '%s'.",parstr);
