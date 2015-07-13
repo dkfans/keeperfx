@@ -242,7 +242,7 @@ struct StateInfo { // sizeof = 41
     CreatureStateFunc1 process_state;
     CreatureStateFunc1 cleanup_state;
     CreatureStateFunc2 move_from_slab;
-    CreatureStateCheck move_check;
+    CreatureStateCheck move_check; /**< Check function to be used when the creature is in moving sub-state during that state. */
     unsigned char override_feed;
     unsigned char override_own_needs;
     unsigned char override_sleep;

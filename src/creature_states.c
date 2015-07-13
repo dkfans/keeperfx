@@ -1712,7 +1712,7 @@ short creature_doing_nothing(struct Thing *creatng)
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
     // Wait for up to 2 turns (note that this is unsigned substraction)
-    if (game.play_gameturn - cctrl->last_mood_sound_turn <= 1) {
+    if (game.play_gameturn - cctrl->idle.start_gameturn <= 1) {
         return 1;
     }
     if ((cctrl->spell_flags & CSAfF_MadKilling) != 0) {

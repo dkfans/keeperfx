@@ -655,7 +655,7 @@ long check_place_to_convert_excluding(struct Thing *creatng, MapSlabCoord slb_x,
     struct Room *room;
     room = room_get(slb->room_index);
     if ((slb->kind != SlbT_CLAIMED) && (room_is_invalid(room) || (room->kind == RoK_DUNGHEART))) {
-        SYNCDBG(8,"The slab %d,%d is not a valid type to be converted",(int)slb_x, (int)slb_y);
+        SYNCDBG(8,"The slab %d,%d is not a valid kind %d to be converted",(int)slb_x, (int)slb_y, (int)slb->kind);
         return 0;
     }
     struct Map *mapblk;
@@ -703,14 +703,14 @@ long check_place_to_convert_excluding(struct Thing *creatng, MapSlabCoord slb_x,
     return 1;
 }
 
-long check_place_to_pretty_excluding(struct Thing *creatng, long slb_x, long slb_y)
+long check_place_to_pretty_excluding(struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     struct SlabMap *slb;
     SYNCDBG(19,"Starting");
     TRACE_THING(creatng);
     slb = get_slabmap_block(slb_x, slb_y);
     if (slb->kind != SlbT_PATH) {
-        SYNCDBG(8,"The slab %d,%d is not a valid type",(int)slb_x, (int)slb_y);
+        SYNCDBG(8,"The slab %d,%d is not a valid kind %d",(int)slb_x, (int)slb_y, (int)slb->kind);
         return 0;
     }
     struct Map *mapblk;

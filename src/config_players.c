@@ -70,7 +70,17 @@ const struct NamedCommand player_state_commands[] = {
 };
 /******************************************************************************/
 /******************************************************************************/
-
+/**
+ * Returns Code Name (name to use in script file) of given player state.
+ */
+const char *player_state_code_name(int wrkstate)
+{
+    const char *name;
+    name = get_conf_parameter_text(player_state_commands,wrkstate);
+    if (name[0] != '\0')
+        return name;
+    return "INVALID";
+}
 
 /******************************************************************************/
 #ifdef __cplusplus

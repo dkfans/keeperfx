@@ -44,6 +44,7 @@
 #include "config_creature.h"
 #include "config_crtrmodel.h"
 #include "config_terrain.h"
+#include "config_players.h"
 #include "config_settings.h"
 #include "player_instances.h"
 #include "player_data.h"
@@ -331,6 +332,7 @@ TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
     struct Packet *pckt;
     player = get_player(plyr_idx);
     dungeon = get_players_dungeon(player);
+    SYNCDBG(6,"Starting for player %d state %s",(int)plyr_idx,player_state_code_name(player->work_state));
     pckt = get_packet_direct(player->packet_num);
     if ((pckt->control_flags & PCtr_LBtnHeld) != 0)
     {
@@ -895,7 +897,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
 
     player = get_player(plyr_idx);
     pckt = get_packet_direct(player->packet_num);
-    SYNCDBG(6,"Starting for state %d",(int)player->work_state);
+    SYNCDBG(6,"Starting for player %d state %s",(int)plyr_idx,player_state_code_name(player->work_state));
     player->field_4A4 = 1;
     packet_left_button_double_clicked[plyr_idx] = 0;
     if ((pckt->control_flags & PCtr_Unknown4000) != 0)

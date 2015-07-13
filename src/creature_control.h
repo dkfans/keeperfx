@@ -306,6 +306,10 @@ unsigned char field_67;
     unsigned char seen_enemy_los;
   } combat;
   struct {
+    unsigned long start_gameturn;
+    unsigned long last_mood_sound_turn;
+  } imprison;
+  struct {
     short word_9A;
     short word_9C;
     short word_9E;

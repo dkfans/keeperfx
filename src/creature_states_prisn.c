@@ -107,6 +107,8 @@ short creature_arrived_at_prison(struct Thing *creatng)
         return 0;
     }
     cctrl->field_82 = game.play_gameturn;
+    cctrl->imprison.start_gameturn = game.play_gameturn;
+    cctrl->imprison.last_mood_sound_turn = game.play_gameturn;
     cctrl->flgfield_1 |= CCFlg_NoCompControl;
     internal_set_thing_state(creatng, CrSt_CreatureInPrison);
     if (creature_affected_by_spell(creatng, SplK_Speed)) {
@@ -279,10 +281,10 @@ CrStateRet process_prison_visuals(struct Thing *thing, struct Room *room)
         if (game.play_gameturn - cctrl->field_82 < 250)
         {
             set_creature_instance(thing, CrInst_MOAN, 1, 0, 0);
-            if (game.play_gameturn - cctrl->last_mood_sound_turn > 32)
+            if (game.play_gameturn - cctrl->imprison.last_mood_sound_turn > 32)
             {
                 play_creature_sound(thing, CrSnd_Sad, 2, 0);
-                cctrl->last_mood_sound_turn = game.play_gameturn;
+                cctrl->imprison.last_mood_sound_turn = game.play_gameturn;
             }
             return CrStRet_Modified;
         }
@@ -395,7 +397,7 @@ CrCheckRet process_prison_function(struct Thing *creatng)
   // Breaking from jail is only possible once per some amount of turns,
   // and only if creature sits in jail for long enough
   if (((game.play_gameturn % gameadd.time_between_prison_break) == 0) &&
-      (game.play_gameturn > cctrl->field_82 + gameadd.time_in_prison_without_break))
+      (game.play_gameturn > cctrl->imprison.start_gameturn + gameadd.time_in_prison_without_break))
   {
       // Check the base jail break condition - whether prison touches enemy land
       if (jailbreak_possible(room, creatng->owner) && (ACTION_RANDOM(100) < gameadd.prison_break_chance))

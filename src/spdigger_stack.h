@@ -115,7 +115,7 @@ TbBool imp_stack_update(struct Thing *creatng);
 TbBool check_out_imp_stack(struct Thing *creatng);
 long check_out_imp_last_did(struct Thing *creatng);
 long check_place_to_convert_excluding(struct Thing *thing, MapSlabCoord slb_x, MapSlabCoord slb_y);
-long check_place_to_pretty_excluding(struct Thing *thing, long a2, long a3);
+long check_place_to_pretty_excluding(struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y);
 long check_out_imp_has_money_for_treasure_room(struct Thing *thing);
 long check_out_available_imp_tasks(struct Thing *thing);
 long check_out_imp_tokes(struct Thing *thing);

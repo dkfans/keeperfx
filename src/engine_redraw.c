@@ -53,6 +53,7 @@
 #include "config.h"
 #include "config_strings.h"
 #include "config_terrain.h"
+#include "config_players.h"
 #include "magic.h"
 #include "game_merge.h"
 #include "game_legacy.h"
@@ -932,7 +933,7 @@ void process_pointer_graphic(void)
 {
     struct PlayerInfo *player;
     player = get_my_player();
-    SYNCDBG(6,"Starting for view %d, player state %d, instance %d",(int)player->view_type,(int)player->work_state,(int)player->instance_num);
+    SYNCDBG(6,"Starting for view %d, player state %s, instance %d",(int)player->view_type,player_state_code_name(player->work_state),(int)player->instance_num);
     switch (player->view_type)
     {
     case PVT_DungeonTop:

@@ -21,6 +21,8 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_memory.h"
+
+#include "config_players.h"
 #include "player_instances.h"
 #include "player_states.h"
 #include "game_legacy.h"
@@ -244,6 +246,7 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
 {
   struct Thing *thing;
   struct Coord3d pos;
+  SYNCDBG(6,"Player %d state %s to %s",(int)player->id_number,player_state_code_name(player->work_state),player_state_code_name(nwrk_state));
   // Selecting the same state again - update only 2nd parameter
   if (player->work_state == nwrk_state)
   {

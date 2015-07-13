@@ -2055,11 +2055,14 @@ long move_creature(struct Thing *thing)
              || (subtile_slab_fast(tngpos->y.stl.num) != subtile_slab_fast(nxpos.y.stl.num)))
             {
                 check_map_explored(thing, nxpos.x.stl.num, nxpos.y.stl.num);
-                CreatureStateFunc2 callback;
-                callback = states[thing->active_state].move_from_slab;
-                if (callback != NULL)
-                {
-                    callback(thing);
+                struct StateInfo *stati;
+                stati = get_thing_active_state_info(thing);
+                if (!state_info_invalid(stati)) {
+                    CreatureStateFunc2 callback;
+                    callback = stati->move_from_slab;
+                    if (callback != NULL) {
+                        callback(thing);
+                    }
                 }
             }
         }
