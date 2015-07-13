@@ -4236,6 +4236,8 @@ void post_init_level(void)
     init_traps();
     init_all_creature_states();
     init_keepers_map_exploration();
+	if ((game.flags_font & FFlg_AlexCheat) != 0)
+		open_creature_cheat_menu();
     SYNCDBG(9,"Finished");
 }
 
