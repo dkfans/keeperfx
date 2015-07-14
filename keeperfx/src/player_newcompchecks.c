@@ -2598,11 +2598,12 @@ static void check_expand_room(struct Computer2* comp, struct Digging* digging)
 
 static void update_danger_map(struct Dungeon* dungeon)
 {
-	int x, y;
+	int x, y, i;
 	long my_strength;
 	long danger;
 	struct SlabInfluence* influence;
 	struct HeroRegion* hero_region;
+	TbBool avoid;
 	SYNCDBG(9, "Starting");
 
 	memset(danger_map, 0, sizeof(danger_map));
@@ -2620,27 +2621,46 @@ static void update_danger_map(struct Dungeon* dungeon)
 		{
 			influence = get_slab_influence(x, y);
 
-			danger = 0;
-			if (influence->hero_walk_region >= 0)
+			avoid = 0;
+			for (i = 0; i < KEEPER_COUNT; ++i)
 			{
-				hero_region = get_hero_region(influence->hero_walk_region);
-				if (!hero_region->has_heart[dungeon->owner]) //if not danger already here (don't pointlessly avoid it)
-					danger += hero_region->strength;
-			}
-			if (influence->hero_fly_region >= 0)
-			{
-				hero_region = get_hero_region(influence->hero_fly_region);
-				if (!hero_region->has_heart[dungeon->owner]) //if not danger already here (don't pointlessly avoid it)
-					danger += hero_region->strength;
+				if (i != dungeon->owner &&
+					get_attitude_towards(dungeon->owner, i) == Attitude_Avoid &&
+					influence->drop_distance[i] == 0)
+				{
+					avoid = 1;
+					break;
+				}
 			}
 
-			if (5 * danger > my_strength * 2)
+			danger = 0;
+			if (!avoid)
 			{
+				if (influence->hero_walk_region >= 0)
+				{
+					hero_region = get_hero_region(influence->hero_walk_region);
+					if (!hero_region->has_heart[dungeon->owner]) //if not danger already here (don't pointlessly avoid it)
+						danger += hero_region->strength;
+				}
+				if (influence->hero_fly_region >= 0)
+				{
+					hero_region = get_hero_region(influence->hero_fly_region);
+					if (!hero_region->has_heart[dungeon->owner]) //if not danger already here (don't pointlessly avoid it)
+						danger += hero_region->strength;
+				}
+			}
+
+			if (avoid || 5 * danger > my_strength * 2)
+			{
+				danger_map[y - 1][x - 1] = 1;
 				danger_map[y - 1][x] = 1;
+				danger_map[y - 1][x + 1] = 1;
 				danger_map[y][x - 1] = 1;
 				danger_map[y][x] = 1;
 				danger_map[y][x + 1] = 1;
+				danger_map[y + 1][x - 1] = 1;
 				danger_map[y + 1][x] = 1;
+				danger_map[y + 1][x + 1] = 1;
 			}
 		}
 	}
