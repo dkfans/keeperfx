@@ -277,26 +277,26 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
         if ((powerst->can_cast_flags & PwCast_NConscCrtrs) == 0)
         {
             if (creature_is_being_unconscious(thing) || creature_is_dying(thing)) {
-                SYNCDBG(8,"Player %d cannot cast %s on unconscious %s",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing));
+                SYNCDBG(8,"Player %d cannot cast %s on unconscious %s index %d",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing),(int)thing->index);
                 return false;
             }
         }
         if ((powerst->can_cast_flags & PwCast_BoundCrtrs) == 0)
         {
             if (armageddon_blocks_creature_pickup(thing, plyr_idx)) {
-                SYNCDBG(8,"Player %d cannot cast %s while armageddon blocks %s",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing));
+                SYNCDBG(8,"Player %d cannot cast %s while armageddon blocks %s index %d",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing),(int)thing->index);
                 return false;
             }
             if (creature_is_dragging_something(thing)) {
-                SYNCDBG(8,"Player %d cannot cast %s while %s is dragging something",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing));
+                SYNCDBG(8,"Player %d cannot cast %s while %s index %d is dragging something",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing),(int)thing->index);
                 return false;
             }
             if (creature_is_being_sacrificed(thing) || creature_is_being_summoned(thing)) {
-                SYNCDBG(8,"Player %d cannot cast %s on %s while entering/leaving",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing));
+                SYNCDBG(8,"Player %d cannot cast %s on %s index %d while entering/leaving",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing),(int)thing->index);
                 return false;
             }
             if (creature_affected_by_spell(thing, SplK_Teleport)) {
-                SYNCDBG(8,"Player %d cannot cast %s on %s while teleporting",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing));
+                SYNCDBG(8,"Player %d cannot cast %s on %s index %d while teleporting",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing),(int)thing->index);
                 return false;
             }
         }

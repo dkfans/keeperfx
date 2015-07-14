@@ -772,7 +772,7 @@ TbBool check_out_unconverted_place(struct Thing *thing)
 {
     long stl_x,stl_y;
     long slb_x,slb_y;
-    SYNCDBG(19,"Starting");
+    SYNCDBG(19,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
     TRACE_THING(thing);
     slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
     slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
@@ -787,7 +787,7 @@ TbBool check_out_unconverted_place(struct Thing *thing)
             return true;
         }
     }
-    if ( check_out_unconverted_spiral(thing, 1) )
+    if (check_out_unconverted_spiral(thing, 1))
     {
         return true;
     }
@@ -798,7 +798,7 @@ long check_out_unprettied_place(struct Thing *thing)
 {
   long stl_x,stl_y;
   long slb_x,slb_y;
-  SYNCDBG(19,"Starting");
+  SYNCDBG(19,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
   TRACE_THING(thing);
   slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
   slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
@@ -828,28 +828,21 @@ long check_out_unprettied_place(struct Thing *thing)
 TbBool is_digging_indestructible_place(const struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
-    MapSubtlCoord base_stl_x,base_stl_y;
-    long i;
-    SYNCDBG(19,"Starting");
     cctrl = creature_control_get_from_thing(creatng);
-    base_stl_x = stl_num_decode_x(cctrl->digger.task_stl);
-    base_stl_y = stl_num_decode_y(cctrl->digger.task_stl);
-    for (i=0; i < 4; i++)
+    MapSlabCoord slb_x,slb_y;
+    slb_x = subtile_slab_fast(stl_num_decode_x(cctrl->digger.task_stl));
+    slb_y = subtile_slab_fast(stl_num_decode_y(cctrl->digger.task_stl));
+    SYNCDBG(19,"Starting for %s index %d at %d,%d",thing_model_name(creatng),(int)creatng->index,(int)slb_x,(int)slb_y);
+    // Note that digger task position stores the cantral subtile on slab to be excavated
+    // which happens to be the same subtile as one stored in keeper map tasks
+    long task_idx;
+    task_idx = find_dig_from_task_list(creatng->owner, cctrl->digger.task_stl);
+    if (task_idx != -1)
     {
-        SubtlCodedCoords task_pos;
-        MapSlabCoord slb_x,slb_y;
-        long task_idx;
-        slb_x = subtile_slab_fast(base_stl_x)+small_around[i].delta_x;
-        slb_y = subtile_slab_fast(base_stl_y)+small_around[i].delta_y;
-        task_pos = get_subtile_number(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
-        task_idx = find_dig_from_task_list(creatng->owner, task_pos);
-        if (task_idx != -1)
-        {
-            struct SlabMap *slb;
-            slb = get_slabmap_block(slb_x, slb_y);
-            if (slab_kind_is_indestructible(slb->kind)) {
-                return true;
-            }
+        struct SlabMap *slb;
+        slb = get_slabmap_block(slb_x, slb_y);
+        if (slab_kind_is_indestructible(slb->kind)) {
+            return true;
         }
     }
     return false;
@@ -2258,7 +2251,7 @@ long check_out_imp_last_did(struct Thing *creatng)
   struct Dungeon *dungeon;
   struct Room *room;
   cctrl = creature_control_get_from_thing(creatng);
-  SYNCDBG(19,"Starting for %s index %d, last did %d",thing_model_name(creatng),(int)creatng->index,(int)cctrl->digger.last_did_job);
+  SYNCDBG(19,"Starting for %s index %d, last did %d repeated %d times",thing_model_name(creatng),(int)creatng->index,(int)cctrl->digger.last_did_job,(int)cctrl->digger.task_repeats);
   TRACE_THING(creatng);
   switch (cctrl->digger.last_did_job)
   {
@@ -2267,9 +2260,15 @@ long check_out_imp_last_did(struct Thing *creatng)
   case SDLstJob_DigOrMine:
       if (is_digging_indestructible_place(creatng)) {
           // If we were digging gems, do task reset every few times it went to treasury
-          // This allows to switch to other tasks and not consuming all the imp workforce for ever
-          if ((cctrl->digger.task_repeats % 10) == 0)
+          // This allows to switch to other tasks and not consuming all the diggers workforce for ever
+          dungeon = get_dungeon(creatng->owner);
+          if (((cctrl->digger.task_repeats % 10) == 0) && (dungeon->digger_stack_length > 1)) {
+              // Set position in digger tasks list to a random place
+              SYNCDBG(9,"Digger %s index %d reset due to neverending task",thing_model_name(creatng),(int)creatng->index);
+              cctrl->digger.stack_update_turn = dungeon->digger_stack_update_turn;
+              cctrl->digger.task_stack_pos = ACTION_RANDOM(dungeon->digger_stack_length);
               break;
+          }
       }
       if (check_out_undug_place(creatng) || check_out_undug_area(creatng))
       {

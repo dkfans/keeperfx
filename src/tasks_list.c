@@ -143,12 +143,12 @@ long find_dig_from_task_list(PlayerNumber plyr_idx, SubtlCodedCoords srch_tsk)
 {
     struct Dungeon *dungeon;
     struct MapTask *mtask;
-    long i,max;
+    long i,imax;
     dungeon = get_dungeon(plyr_idx);
-    max = dungeon->field_AF7;
-    if (max > MAPTASKS_COUNT)
-        max = MAPTASKS_COUNT;
-    for (i=0; i < max; i++)
+    imax = dungeon->field_AF7;
+    if (imax > MAPTASKS_COUNT)
+        imax = MAPTASKS_COUNT;
+    for (i=0; i < imax; i++)
     {
       mtask = &dungeon->task_list[i];
       if ((mtask->coords == srch_tsk) && (mtask->kind != SDDigTask_Unknown3))

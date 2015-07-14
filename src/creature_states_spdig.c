@@ -891,6 +891,7 @@ short imp_converts_dungeon(struct Thing *spdigtng)
           slb = get_slabmap_block(slb_x, slb_y);
           slbattr = get_slab_attrs(slb);
           set_creature_instance(spdigtng, CrInst_DESTROY_AREA, 0, 0, 0);
+          // If the area we're converting is an enemy room, issue event to that player
           if (slbattr->category == SlbAtCtg_RoomInterior)
           {
             room = room_get(slb->room_index);
@@ -990,7 +991,7 @@ short imp_digs_mines(struct Thing *spdigtng)
             if (game.play_gameturn - cctrl->tasks_check_turn > 128)
             {
                 if (check_out_imp_has_money_for_treasure_room(spdigtng)) {
-                    cctrl->digger.task_repeats++;
+                    // Note - do not increase cctrl->digger.task_repeats here; the task is to mine, not to return gold.
                     return 1;
                 }
                 cctrl->tasks_check_turn = game.play_gameturn;
@@ -1006,7 +1007,7 @@ short imp_doing_nothing(struct Thing *spdigtng)
 {
     struct CreatureControl *cctrl;
     struct Dungeon *dungeon;
-    SYNCDBG(19,"Starting");
+    SYNCDBG(19,"Starting for %s index %d",thing_model_name(spdigtng),(int)spdigtng->index);
     TRACE_THING(spdigtng);
     if (!thing_is_creature_special_digger(spdigtng))
     {
