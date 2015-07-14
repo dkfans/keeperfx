@@ -571,17 +571,17 @@ void update_attitudes(void)
 				{
 					attitude_map[i][j] = Attitude_SuperAggressive;
 				}
-				else if (5 * their_strength < 4 * my_strength)
+				else if (3 * their_strength < 2 * my_strength)
 				{
 					attitude_map[i][j] = Attitude_Aggressive;
 				}
-				else if (their_strength < my_strength)
+				else if (4 * their_strength < 5 * my_strength)
 				{
-					attitude_map[i][j] = Attitude_Ignore;
+					attitude_map[i][j] = Attitude_Avoid;
 				}
 				else
 				{
-					attitude_map[i][j] = Attitude_Avoid;
+					attitude_map[i][j] = Attitude_Ignore;
 				}
 			}
 
