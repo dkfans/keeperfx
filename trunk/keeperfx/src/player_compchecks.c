@@ -902,6 +902,9 @@ long computer_check_for_place_door(struct Computer2 *comp, struct ComputerCheck 
 
 long computer_check_neutral_places(struct Computer2 *comp, struct ComputerCheck * check)
 {
+	if (is_newdig_enabled(comp))
+		return 4;
+
     SYNCDBG(8,"Starting");
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;

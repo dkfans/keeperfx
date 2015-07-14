@@ -821,6 +821,7 @@ struct DigToGold
 
 struct DigToAttack
 {
+	struct SlabPoint entry_pos;
 	TbBool active;
 };
 
@@ -1234,14 +1235,215 @@ static void process_bridging(struct Computer2* comp, struct Digging* digging)
 	//debug_digging_map("process_bridging.txt", dungeon, digging);
 }
 
+struct FindBestEntryToHeroRegion
+{
+	int player;
+	int region_index;
+	int best_score;
+	struct SlabPoint best_pos;
+};
+
+static void try_get_closer(int player, TbBool on_dug, int* best_dist, MapSlabCoord* best_x, MapSlabCoord* best_y, MapSlabCoord x, MapSlabCoord y)
+{
+	int dist;
+	struct SlabInfluence* influence;
+	influence = get_slab_influence(x, y);
+	dist = on_dug? influence->heart_distance[player] : influence->dig_distance[player];
+	if (dist >= 0 && dist < *best_dist)
+	{
+		*best_dist = dist;
+		*best_x = x;
+		*best_y = y;
+	}
+}
+
+static TbBool backtrack_dig_path(int x, int y, struct Computer2* comp, struct Digging* digging, TbBool fake_run, TbBool check_target)
+{
+	struct SlabInfluence* influence;
+	struct Dungeon* dungeon = comp->dungeon;
+	TbBool abort = 0;
+
+	for (;;)
+	{
+		int best_dist;
+		int current_dist;
+		MapSlabCoord best_x, best_y;
+
+		if (check_target && (is_dangerous_digging(x, y) || !is_diggable_or_buildable(dungeon, digging, x, y) ||
+			(!fake_run && !is_marked_for_digging(digging, x, y) && dig_if_needed(comp, digging, x, y) == Lb_FAIL)))
+		{
+			abort = 1;
+			break;
+		}
+
+		influence = get_slab_influence(x, y);
+		current_dist = influence->dig_distance[dungeon->owner];
+		if (current_dist <= 0)
+		{
+			if (current_dist < 0)
+			{
+				abort = 1;
+			}
+			break;
+		}
+
+		best_dist = current_dist;
+		best_x = x;
+		best_y = y;
+		try_get_closer(dungeon->owner, false, &best_dist, &best_x, &best_y, x - 1, y);
+		try_get_closer(dungeon->owner, false, &best_dist, &best_x, &best_y, x + 1, y);
+		try_get_closer(dungeon->owner, false, &best_dist, &best_x, &best_y, x, y - 1);
+		try_get_closer(dungeon->owner, false, &best_dist, &best_x, &best_y, x, y + 1);
+		check_target = 1; //basically means check everything remaining (but the target which has at this point been checked if necessary)
+
+		if (best_dist < current_dist)
+		{
+			x = best_x;
+			y = best_y;
+		}
+		else
+		{
+			abort = 1;
+			break;
+		}
+	}
+
+	return !abort;
+}
+
+static int find_best_entry_to_hero_region(struct SlabPoint* parent, struct SlabPoint* pos, void* data)
+{
+	MapSlabCoord x, y;
+	int score;
+	struct Thing* heart;
+	struct FindBestEntryToHeroRegion* state = (struct FindBestEntryToHeroRegion*)data;
+	struct SlabInfluence* influence = get_slab_influence(pos->x, pos->y);
+
+	if (influence->hero_walk_region != state->region_index && influence->hero_fly_region != state->region_index)
+		return SLABPATH_NONODE;
+
+	if (is_dangerous_digging(pos->x, pos->y))
+		return SLABPATH_NONODE; //whole region is likely dangerous if just one tile is
+
+	score = -influence->dig_distance[state->player];
+	heart = get_player_soul_container(state->player);
+	if (!thing_is_invalid(heart))
+	{
+		x = subtile_slab(heart->mappos.x.stl.num);
+		y = subtile_slab(heart->mappos.y.stl.num);
+		score += abs(x - pos->x) + abs(y - pos->y); //TODO: could use influence distance but heart distance is just indoors atm
+	}
+
+	if (score > state->best_score)
+	{
+		state->best_score = score;
+		state->best_pos.x = pos->x;
+		state->best_pos.y = pos->y;
+	}
+
+	return 1;
+}
+
 static void process_dig_to_attack(struct Computer2* comp, struct Digging* digging)
 {
+	struct Dungeon* dungeon;
+	struct SlabInfluence* influence;
+	dungeon = comp->dungeon;
+	SYNCDBG(9, "Starting");
 
+	influence = get_slab_influence(digging->dig_attack.entry_pos.x, digging->dig_attack.entry_pos.y);
+	if (influence->drop_distance[dungeon->owner] == 0 || influence->drop_distance[dungeon->owner] == 1)
+	{
+		SYNCLOG("Player %d finished dig for attack at %dx%d", (int)dungeon->owner,
+			digging->dig_attack.entry_pos.x, digging->dig_attack.entry_pos.y);
+		digging->dig_attack.active = 0;
+	}
+}
+
+static void initiate_dig_attack(struct Computer2* comp, struct Digging* digging, struct SlabPoint* entry_pos)
+{
+	struct Dungeon* dungeon = comp->dungeon;
+	TbBool aborted;
+	
+	aborted = !backtrack_dig_path(entry_pos->x, entry_pos->y, comp, digging, false, false);
+
+	if (aborted)
+	{
+		SYNCLOG("Player %d aborted attack dig attempt at %dx%d", (int)dungeon->owner, entry_pos->x, entry_pos->y);
+	}
+	else
+	{
+		SYNCLOG("Player %d decided to dig for attack at %dx%d", (int)dungeon->owner, entry_pos->x, entry_pos->y);
+		digging->dig_attack.active = 1;
+		digging->dig_attack.entry_pos.x = entry_pos->x;
+		digging->dig_attack.entry_pos.y = entry_pos->y;
+	}
 }
 
 static void check_dig_to_attack(struct Computer2* comp, struct Digging* digging)
 {
+	int i, j;
+	int best_score, score;
+	struct SlabPoint entry_pos;
+	struct Dungeon* dungeon;
+	struct FindBestEntryToHeroRegion state;
+	struct SlabInfluence* influence;
+	TbBool has_heart;
 
+	SYNCDBG(9, "Starting");
+	dungeon = comp->dungeon;
+
+	//find best target
+	best_score = INT_MIN;
+	for (i = 0; i < get_hero_region_count(); ++i)
+	{
+		struct HeroRegion* region = get_hero_region(i);
+		if (!region->is_continous_walkable && !is_room_available(dungeon->owner, RoK_BRIDGE))
+			continue;
+
+		has_heart = false;
+		for (j = 0; j < KEEPER_COUNT; ++j)
+		{
+			if (region->has_heart[j])
+			{
+				has_heart = true;
+				break;
+			}
+		}
+		if (has_heart) continue;
+
+		//analyze region's tiles to find best entry tile
+		state.player = dungeon->owner;
+		state.region_index = i;
+		state.best_score = INT_MIN;
+		slabpath_dfs(&region->any_pos, NULL, 0, find_best_entry_to_hero_region, &state, NULL);
+
+		if (INT_MIN == state.best_score)
+			continue; //no entry found
+
+		influence = get_slab_influence(state.best_pos.x, state.best_pos.y);
+		if (influence->drop_distance[dungeon->owner] == 0 || influence->drop_distance[dungeon->owner] == 1)
+			continue; //this should always be the case (no way to drop creatures near this), but checked anyway since it's a termination condition
+
+		score = state.best_score;
+
+		if (score > best_score)
+		{
+			//SYNCLOG("looking for path");
+			if (backtrack_dig_path(state.best_pos.x, state.best_pos.y, comp, digging, true, false))
+			{
+				//SYNCLOG("found path");
+				best_score = score;
+				entry_pos.x = state.best_pos.x;
+				entry_pos.y = state.best_pos.y;
+			}
+		}
+	}
+
+	if (INT_MIN != best_score)
+	{
+		initiate_dig_attack(comp, digging, &entry_pos);
+	}
 }
 
 static void process_dig_to_secure(struct Computer2* comp, struct Digging* digging)
@@ -1281,20 +1483,6 @@ static void process_dig_to_gold(struct Computer2* comp, struct Digging* digging,
 	if (finished)
 	{
 		dig_gold->active = 0;
-	}
-}
-
-static void try_get_closer(int player, TbBool on_dug, int* best_dist, MapSlabCoord* best_x, MapSlabCoord* best_y, MapSlabCoord x, MapSlabCoord y)
-{
-	int dist;
-	struct SlabInfluence* influence;
-	influence = get_slab_influence(x, y);
-	dist = on_dug? influence->heart_distance[player] : influence->dig_distance[player];
-	if (dist >= 0 && dist < *best_dist)
-	{
-		*best_dist = dist;
-		*best_x = x;
-		*best_y = y;
 	}
 }
 
@@ -2640,13 +2828,13 @@ static void update_danger_map(struct Dungeon* dungeon)
 				{
 					hero_region = get_hero_region(influence->hero_walk_region);
 					if (!hero_region->has_heart[dungeon->owner]) //if not danger already here (don't pointlessly avoid it)
-						danger += hero_region->strength;
+						danger += hero_region->hero_strength;
 				}
 				if (influence->hero_fly_region >= 0)
 				{
 					hero_region = get_hero_region(influence->hero_fly_region);
 					if (!hero_region->has_heart[dungeon->owner]) //if not danger already here (don't pointlessly avoid it)
-						danger += hero_region->strength;
+						danger += hero_region->hero_strength;
 				}
 			}
 
@@ -2679,7 +2867,7 @@ long computer_check_new_digging(struct Computer2* comp)
 	dungeon = comp->dungeon;
 	digging = &comp_digging[dungeon->owner];
 
-	update_danger_map(comp->dungeon);
+	update_danger_map(dungeon);
 
 	debug_digging_map(NULL, NULL, NULL); //avoiding unused function warning
 

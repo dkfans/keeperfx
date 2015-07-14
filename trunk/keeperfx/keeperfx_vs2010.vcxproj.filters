@@ -678,6 +678,9 @@
     <ClCompile Include="src\player_newcompeval.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\player_newcomppathfind.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\bflib_base_tcp.hpp">

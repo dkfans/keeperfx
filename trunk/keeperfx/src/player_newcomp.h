@@ -29,6 +29,26 @@
 extern "C" {
 #endif
 
+struct SlabPathNode;
+struct SlabPathContext;
+
+struct SlabPoint
+{
+	MapSlabCoord x;
+	MapSlabCoord y;
+};
+
+struct SlabPathEntry
+{
+	struct SlabPoint position;
+	int cost;
+};
+
+typedef int (*SlabPathNodeFunc)(struct SlabPoint* parent, struct SlabPoint* pos, void* userdata);
+
+#define SLABPATH_NONODE	INT_MIN
+#define SLABPATH_GOAL	(INT_MIN + 1)
+
 struct SlabInfluence
 {
 	short heart_distance[KEEPER_COUNT];
@@ -40,8 +60,17 @@ struct SlabInfluence
 
 struct HeroRegion
 {
-	int strength;
-	TbBool has_heart[KEEPER_COUNT];
+	int hero_strength;
+	int hero_humanoids_strength; //needed separate due to prison
+	int neutral_strength;
+	int goldpot_gold;
+	unsigned char has_heart[KEEPER_COUNT];
+	struct SlabPoint any_pos;
+	TbBool is_continous_walkable;
+	union
+	{
+		int score;
+	} temp; //for singlethreaded algorithms
 };
 
 enum PlayerAttitude
@@ -53,10 +82,21 @@ enum PlayerAttitude
 	Attitude_SuperAggressive, //actively try to break into their dungeon
 };
 
+//slabpath
+//these return length of path including start and goal, nodes are returned from goal to start as path_capacity allows
+//path_capacity can be zero and in that case path parameter is ignored. a path with capacity 1 is useful for getting goal only
+//for a path of arbitrary length, a default attempt can be made on a fixed size path, and reattempted with dynamic array once actual path length is known
+//cost for goal node will not be correct as SlabPathNodeFunc terminates through a special return value, caller must fix it
+//likewise, if goal is start node, the routines don't guarantee detection of this
+int slabpath_dfs(struct SlabPoint* start, struct SlabPathEntry* path, int path_capacity, SlabPathNodeFunc cost, void* userdata, struct SlabPathContext* context);
+int slabpath_ucs(struct SlabPoint* start, struct SlabPathEntry* path, int path_capacity, SlabPathNodeFunc isnode, void* userdata, struct SlabPathContext* context);
+int slabpath_bfs(struct SlabPoint* start, struct SlabPathEntry* path, int path_capacity, SlabPathNodeFunc cost, void* userdata, struct SlabPathContext* context);
+
 //eval
 void update_influence_maps(void);
 struct SlabInfluence* get_slab_influence(MapSlabCoord x, MapSlabCoord y);
 struct HeroRegion* get_hero_region(int region_index);
+int get_hero_region_count(void);
 void calc_player_strengths(void);
 void update_attitudes(void);
 #define get_attitude_towards(player, towards_player) get_attitude_towards_f(player, towards_player, __func__)

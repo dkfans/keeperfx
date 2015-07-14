@@ -92,6 +92,11 @@ struct HeroRegion* get_hero_region(int region_index)
 	return &null_hero_region;
 }
 
+int get_hero_region_count(void)
+{
+	return hero_regions.count;
+}
+
 short * get_slab_influence_value(MapSlabCoord x, MapSlabCoord y, int player, enum InfluenceMetric metric)
 {
 	struct SlabInfluence* influence;
@@ -238,6 +243,7 @@ static void influence_neighbor(MapSlabCoord x, MapSlabCoord y, int player, enum 
 static void search_influence_node(MapSlabCoord x, MapSlabCoord y, enum InfluenceMetric metric)
 {
 	size_t alloc_size;
+	struct HeroRegion* region;
 
 	if (influence_queue.push_index != 0)
 	{
@@ -265,7 +271,11 @@ static void search_influence_node(MapSlabCoord x, MapSlabCoord y, enum Influence
 			return;
 		}
 	}
-	memset(hero_regions.regions + hero_regions.count, 0, sizeof(*hero_regions.regions));
+	region = hero_regions.regions + hero_regions.count;
+	memset(region, 0, sizeof(*hero_regions.regions));
+	region->any_pos.x = x;
+	region->any_pos.y = y;
+	region->is_continous_walkable = HeroWalk == metric;
 	
 	//DFS; state stored in player field
 	while (influence_queue.push_index > 0)
@@ -325,7 +335,6 @@ static void update_hero_region_strength(void)
 	long strength;
 	MapSlabCoord x, y;
 	struct SlabInfluence* influence;
-	TbBool flies;
 	dungeon = get_players_dungeon(get_player(HERO_PLAYER));
 	k = 0;
 	i = dungeon->creatr_list_start;
@@ -348,11 +357,11 @@ static void update_hero_region_strength(void)
 		
 		if (influence->hero_fly_region >= 0 && creature_can_travel_over_lava(thing))
 		{
-			hero_regions.regions[influence->hero_fly_region].strength += strength;
+			hero_regions.regions[influence->hero_fly_region].hero_strength += strength;
 		}
 		else if (influence->hero_walk_region >= 0)
 		{
-			hero_regions.regions[influence->hero_walk_region].strength += strength;
+			hero_regions.regions[influence->hero_walk_region].hero_strength += strength;
 		}
 		//else; shouldn't happen, doesn't matter if it wouldn't, though
 
