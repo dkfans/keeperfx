@@ -1120,4 +1120,20 @@ short tunnelling(struct Thing *creatng)
     SYNCDBG(7,"The %s index %d cannot reach (%d,%d) by walk",thing_model_name(creatng),(int)creatng->index,(int)pos->x.stl.num,(int)pos->y.stl.num);
     return 0;
 }
+
+/**
+ * Returns if given creature is a hero tunneller currently digging to attack a player.
+ * @param creatng The creature to be checked.
+ * @return Gives true if the creature is hero tunneller at tunnelling, false otherwise.
+ */
+TbBool is_hero_tunnelling_to_attack(struct Thing *creatng)
+{
+    if (creatng->model != get_players_special_digger_model(game.hero_player_num))
+        return false;
+    CrtrStateId crstat;
+    crstat = get_creature_state_besides_move(creatng);
+    if ((crstat != CrSt_Tunnelling) || (crstat != CrSt_TunnellerDoingNothing))
+        return false;
+    return true;
+}
 /******************************************************************************/

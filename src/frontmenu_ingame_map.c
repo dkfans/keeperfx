@@ -35,6 +35,7 @@
 #include "player_data.h"
 #include "game_legacy.h"
 #include "creature_states.h"
+#include "creature_states_hero.h"
 #include "creature_battle.h"
 #include "config_creature.h"
 #include "config_terrain.h"
@@ -424,42 +425,37 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                 }
             }
             // Hero tunnelers may be visible even on unrevealed terrain
-            if (thing->model == get_players_special_digger_model(game.hero_player_num))
+            if (is_hero_tunnelling_to_attack(thing))
             {
-                CrtrStateId crstat;
-                crstat = get_creature_state_besides_move(thing);
-                if ((crstat == CrSt_Tunnelling) || (crstat == CrSt_TunnellerDoingNothing))
+                struct CreatureControl *cctrl;
+                cctrl = creature_control_get_from_thing(thing);
+                int m;
+                for (m=0; m < 5; m++)
                 {
-                    struct CreatureControl *cctrl;
-                    cctrl = creature_control_get_from_thing(thing);
-                    int m;
-                    for (m=0; m < 5; m++)
+                    long memberpos;
+                    memberpos = cctrl->party.member_pos_stl[m];
+                    if (memberpos == 0)
+                        break;
+                    if ((game.play_gameturn & 4) == 0)
                     {
-                        long memberpos;
-                        memberpos = cctrl->party.member_pos_stl[m];
-                        if (memberpos == 0)
-                            break;
-                        if ((game.play_gameturn & 4) == 0)
-                        {
-                            col1 = player_room_colours[thing->owner];
-                            col2 = player_room_colours[thing->owner];
-                        }
-                        long zmpos_x, zmpos_y;
-                        zmpos_x = ((stl_num_decode_x(memberpos) - (MapSubtlDelta)cam->mappos.x.stl.num) << 8) / zoom;
-                        zmpos_y = ((stl_num_decode_y(memberpos) - (MapSubtlDelta)cam->mappos.y.stl.num) << 8) / zoom;
-                        long mapos_x, mapos_y;
-                        mapos_x = (zmpos_x * LbCosL(cam->orient_a) + zmpos_y * LbSinL(cam->orient_a)) >> 16;
-                        mapos_y = (zmpos_y * LbCosL(cam->orient_a) - zmpos_x * LbSinL(cam->orient_a)) >> 16;
-                        RealScreenCoord basepos;
-                        basepos = MapDiagonalLength/2;
-                        // Do the drawing
-                        if (thing->owner == player->id_number) {
-                            col = col2;
-                        } else {
-                            col = col1;
-                        }
-                        pannel_map_draw_pixel(mapos_x+basepos, mapos_y+basepos, col);
+                        col1 = player_room_colours[thing->owner];
+                        col2 = player_room_colours[thing->owner];
                     }
+                    long zmpos_x, zmpos_y;
+                    zmpos_x = ((stl_num_decode_x(memberpos) - (MapSubtlDelta)cam->mappos.x.stl.num) << 8) / zoom;
+                    zmpos_y = ((stl_num_decode_y(memberpos) - (MapSubtlDelta)cam->mappos.y.stl.num) << 8) / zoom;
+                    long mapos_x, mapos_y;
+                    mapos_x = (zmpos_x * LbCosL(cam->orient_a) + zmpos_y * LbSinL(cam->orient_a)) >> 16;
+                    mapos_y = (zmpos_y * LbCosL(cam->orient_a) - zmpos_x * LbSinL(cam->orient_a)) >> 16;
+                    RealScreenCoord basepos;
+                    basepos = MapDiagonalLength/2;
+                    // Do the drawing
+                    if (thing->owner == player->id_number) {
+                        col = col2;
+                    } else {
+                        col = col1;
+                    }
+                    pannel_map_draw_pixel(mapos_x+basepos, mapos_y+basepos, col);
                 }
             }
         }

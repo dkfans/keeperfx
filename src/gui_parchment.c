@@ -47,6 +47,7 @@
 #include "thing_traps.h"
 #include "creature_graphics.h"
 #include "creature_states.h"
+#include "creature_states_hero.h"
 #include "power_hand.h"
 #include "game_legacy.h"
 #include "room_list.h"
@@ -443,26 +444,22 @@ int draw_overhead_creatures(const struct TbRect *map_area, long block_size, Play
                 n++;
             }
             // Special tunneler code
-            if (thing->model == get_players_special_digger_model(game.hero_player_num))
+            if (is_hero_tunnelling_to_attack(thing))
             {
-                long m;
-                m = get_creature_state_besides_move(thing);
-                if ( (m == CrSt_Tunnelling) || (m == CrSt_TunnellerDoingNothing) )
+                struct CreatureControl *cctrl;
+                cctrl = creature_control_get_from_thing(thing);
+                int m;
+                for (m=0; m < 5; m++)
                 {
-                    struct CreatureControl *cctrl;
-                    cctrl = creature_control_get_from_thing(thing);
-                    for (m=0; m < 5; m++)
-                    {
-                        long memberpos;
-                        memberpos = cctrl->party.member_pos_stl[m];
-                        if (memberpos == 0)
-                            break;
-                        long pos_x,pos_y;
-                        pos_x = map_area->left + block_size * stl_num_decode_x(memberpos) / STL_PER_SLB;
-                        pos_y = map_area->top  + block_size * stl_num_decode_y(memberpos) / STL_PER_SLB;
-                        LbDrawPixel(pos_x, pos_y, col1);
-                        n++;
-                    }
+                    long memberpos;
+                    memberpos = cctrl->party.member_pos_stl[m];
+                    if (memberpos == 0)
+                        break;
+                    long pos_x,pos_y;
+                    pos_x = map_area->left + block_size * stl_num_decode_x(memberpos) / STL_PER_SLB;
+                    pos_y = map_area->top  + block_size * stl_num_decode_y(memberpos) / STL_PER_SLB;
+                    LbDrawPixel(pos_x, pos_y, col1);
+                    n++;
                 }
             }
         }

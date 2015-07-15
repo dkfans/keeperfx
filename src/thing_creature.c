@@ -41,6 +41,7 @@
 #include "creature_states_gardn.h"
 #include "creature_states_train.h"
 #include "creature_states_spdig.h"
+#include "creature_states_hero.h"
 #include "creature_instances.h"
 #include "creature_graphics.h"
 #include "creature_battle.h"
@@ -2048,7 +2049,7 @@ long move_creature(struct Thing *thing)
         }
         if ((tngpos->x.stl.num != nxpos.x.stl.num) || (tngpos->y.stl.num != nxpos.y.stl.num))
         {
-            if (thing->model == get_players_special_digger_model(game.hero_player_num)) {
+            if (is_hero_tunnelling_to_attack(thing)) {
                 update_tunneller_trail(thing);
             }
             if ((subtile_slab_fast(tngpos->x.stl.num) != subtile_slab_fast(nxpos.x.stl.num))
