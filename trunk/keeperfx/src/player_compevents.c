@@ -33,6 +33,7 @@
 #include "creature_states.h"
 #include "player_newcomp.h"
 #include "power_hand.h"
+#include "room_list.h"
 
 #include "dungeon_data.h"
 #include "game_legacy.h"
@@ -129,12 +130,99 @@ TbBool get_computer_drop_position_near_subtile(struct Coord3d *pos, struct Dunge
         81, near_coord_filter_battle_drop_point, &param);
 }
 
+static TbBool must_defend_slab(struct Computer2* comp, MapSlabCoord x, MapSlabCoord y)
+{
+	int player = comp->dungeon->owner;
+	struct SlabMap* slab = get_slabmap_block(x, y);
+
+	switch (slab->kind)
+	{
+	case SlbT_DUNGHEART:
+		return slabmap_owner(slab) == player;
+	case SlbT_ENTRANCE:
+		return count_player_rooms_of_type(player, RoK_ENTRANCE) <= 1;
+	case SlbT_LAIR:
+		return count_player_rooms_of_type(player, RoK_LAIR) <= 1;
+	case SlbT_TREASURE:
+		return count_player_rooms_of_type(player, RoK_TREASURE) <= 1; //TODO: check treasure
+	case SlbT_LIBRARY:
+		return count_player_rooms_of_type(player, RoK_LIBRARY) <= 1; //TODO: check spells in library
+	case SlbT_GARDEN:
+		return count_player_rooms_of_type(player, RoK_GARDEN) <= 1; //TODO: check if we can afford new room
+	case SlbT_TRAINING:
+		return count_player_rooms_of_type(player, RoK_TRAINING) <= 1; //TODO: check if we can afford new room
+	}
+
+	//TODO: see if we can make similar decision for gems since it can be GG to lose them on some maps
+
+	return false;
+}
+
+static TbBool will_defend_position(struct Computer2* comp, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+	struct Dungeon* dungeon;
+	struct Thing* heart;
+	MapSlabCoord x, y;
+	int i;
+	TbBool any_avoid;
+
+	if (!is_newdig_enabled(comp))
+		return true; //old behavior always tries to defend
+	dungeon = comp->dungeon;
+
+	//TODO: check attitudes vs player in area, if no avoid always defend
+	//get_attitude_towards(dungeon->owner)
+	any_avoid = false;
+	for (i = 0; i < KEEPER_COUNT; ++i)
+	{
+		if (i == dungeon->owner || get_attitude_towards(dungeon->owner, i) != Attitude_Avoid)
+			continue;
+		if (count_creatures_near_and_owned_by_or_allied_with(
+			subtile_coord_center(stl_x), subtile_coord_center(stl_y), 12, i) > 0)
+		{
+			SYNCDBG(19, "%d found creatures belonging to avoided player %d", dungeon->owner, i);
+			any_avoid = true;
+			break;
+		}
+	}
+	if (!any_avoid)
+		return true;
+
+	x = subtile_slab(stl_x);
+	y = subtile_slab(stl_y);
+	heart = get_player_soul_container(dungeon->owner);
+	if (!thing_is_invalid(heart))
+	{
+		//close to heart -> always defend
+		MapSlabCoord heart_x = subtile_slab(heart->mappos.x.stl.num);
+		MapSlabCoord heart_y = subtile_slab(heart->mappos.y.stl.num);
+		if (abs(heart_x - x) <= 3 && abs(heart_y - y) <= 3)
+			return true;
+	}
+
+	if (must_defend_slab(comp, x, y) || must_defend_slab(comp, x - 1, y) || must_defend_slab(comp, x + 1, y) ||
+		must_defend_slab(comp, x, y - 1) || must_defend_slab(comp, x, y + 1))
+	{
+		return true;
+	}
+
+	return false;
+}
+
 long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent, struct Event *event)
 {
     SYNCDBG(18,"Starting for %s",cevent->name);
+	MapSubtlCoord stl_x, stl_y;
     struct Coord3d pos;
-    if (!get_computer_drop_position_near_subtile(&pos, comp->dungeon, coord_subtile(event->mappos_x), coord_subtile(event->mappos_y))) {
-        SYNCDBG(8,"No drop position near (%d,%d) for %s",(int)coord_subtile(event->mappos_x),(int)coord_subtile(event->mappos_y),cevent->name);
+	stl_x = coord_subtile(event->mappos_x);
+	stl_y = coord_subtile(event->mappos_y);
+	if (!will_defend_position(comp, stl_x, stl_y))
+	{
+		SYNCDBG(18, "Won't defend this position");
+		return 0;
+	}
+    if (!get_computer_drop_position_near_subtile(&pos, comp->dungeon, stl_x, stl_y)) {
+        SYNCDBG(8,"No drop position near (%d,%d) for %s",(int)stl_x,(int)stl_y,cevent->name);
         return 0;
     }
     // Check if there are any enemies in the vicinity - no enemies, don't drop creatures
@@ -290,6 +378,15 @@ long computer_event_battle_test(struct Computer2 *comp, struct ComputerEvent *ce
     if (thing_is_invalid(creatng)) {
         return 4;
     }
+	MapSubtlCoord stl_x, stl_y;
+	stl_x = creatng->mappos.x.stl.num;
+	stl_y = creatng->mappos.y.stl.num;
+	if (!will_defend_position(comp, stl_x, stl_y))
+	{
+		//TODO: consider retreating fighting creature since he will not get help
+		return 4;
+	}
+
     struct Coord3d pos;
     pos.x.val = creatng->mappos.x.val;
     pos.y.val = creatng->mappos.y.val;
