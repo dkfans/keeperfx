@@ -792,16 +792,40 @@ long computer_check_prison_management(struct Computer2* comp)
 
 //CHECK DOOR/TRAP PLACEMENT/SELLING /////////////////////////////////////////////////////////////////////////
 
-enum DoorTrapAction
+enum TrapPurpose
 {
-	DTA_DoNothing,
-	DTA_PlaceDoorOrTrap,
-	DTA_SellDoorOrTrap,
+	TP_NoPurpose = 0,
+	TP_SellForMoney = 1 << 0,
+	TP_DefendHeart = 1 << 1,
+	TP_DefendDoor = 1 << 2,
+	TP_DefendCorridor = 1 << 3,
+	TP_GeneralDefense = 1 << 4,
 };
 
 static ThingModel best_door_manufacturable;
 static ThingModel best_door_available;
 static ThingModel worst_door_available;
+static enum TrapPurpose trap_purposes[TRAP_TYPES_COUNT];
+
+static TbBool can_support_door(MapSlabCoord x, MapSlabCoord y)
+{
+	struct SlabMap* slab = get_slabmap_block(x, y);
+
+	switch (slab->kind)
+	{
+		//TODO: can we place doors at gold or gems? :/
+	case SlbT_WALLDRAPE:
+	case SlbT_WALLPAIRSHR:
+	case SlbT_WALLTORCH:
+	case SlbT_WALLWTWINS:
+	case SlbT_WALLWWOMAN:
+	case SlbT_TORCHDIRT:
+	case SlbT_ROCK:
+		return true;
+	}
+
+	return false;
+}
 
 static int eval_sealed_room(MapSlabCoord x, MapSlabCoord y, int player)
 {
@@ -870,7 +894,7 @@ static int eval_door_placement(MapSlabCoord x, MapSlabCoord y, int player, Thing
 		attitude = get_attitude_towards(player, i);
 
 		enemy_score = INT_MIN;
-		drop_dist = influence->drop_distance[i];
+		drop_dist = influence->blocked_drop_distance[i];
 		if (drop_dist >= 0)
 		{
 			if (attitude == Attitude_Avoid)
@@ -894,11 +918,8 @@ static int eval_door_placement(MapSlabCoord x, MapSlabCoord y, int player, Thing
 
 	score -= influence->heart_distance[player] / 2;
 
-	sealed_score = 0;
-	sealed_score += eval_sealed_room(x - 1, y, player);
-	sealed_score += eval_sealed_room(x + 1, y, player);
-	sealed_score += eval_sealed_room(x, y - 1, player);
-	sealed_score += eval_sealed_room(x, y + 1, player);
+	sealed_score = eval_sealed_room(x - 1, y, player) + eval_sealed_room(x + 1, y, player)
+		+ eval_sealed_room(x, y - 1, player) + eval_sealed_room(x, y + 1, player);
 	score += sealed_score / 30;
 
 	if (enemy_close)
@@ -918,29 +939,152 @@ static int eval_door_placement(MapSlabCoord x, MapSlabCoord y, int player, Thing
 	}
 }
 
-static int eval_trap_placement(MapSlabCoord x, MapSlabCoord y, int player, ThingModel* model)
+static int eval_trap_behind_door(MapSlabCoord x, MapSlabCoord y, int dx, int dy, int player)
 {
-	return INT_MIN;
+	struct SlabInfluence* influence;
+	struct SlabInfluence* door_influence;
+	struct SlabMap* door_slab;
+	MapSlabCoord door_x, door_y;
+	int i;
+
+	door_x = x + dx;
+	door_y = y + dy;
+
+	door_slab = get_slabmap_block(door_x, door_y);
+	if (!slab_kind_is_door(door_slab->kind))
+		return 0;
+	if (player != slabmap_owner(door_slab))
+		return 0;
+
+	influence = get_slab_influence(x, y);
+	door_influence = get_slab_influence(door_x, door_y);
+
+	int score = 10;
+	for (i = 0; i < KEEPER_COUNT; ++i)
+	{
+		if (i != player && door_influence->unblocked_drop_distance[i] >= 0 &&
+			influence->unblocked_drop_distance[i] > door_influence->unblocked_drop_distance[i])
+		{
+			switch (get_attitude_towards(player, i))
+			{
+			case Attitude_Avoid:
+				score = max(score, 30);
+				break;
+			case Attitude_Ignore:
+				score = max(score, 20);
+				break;
+			default:
+				break;
+			}
+		}
+	}
+	
+	return score;
 }
 
-static TbBool can_support_door(MapSlabCoord x, MapSlabCoord y)
+static int eval_trap_placement(MapSlabCoord x, MapSlabCoord y, int player, ThingModel* model)
 {
-	struct SlabMap* slab = get_slabmap_block(x, y);
+	struct SlabInfluence* influence;
+	int model_scores[TRAP_TYPES_COUNT];
+	int i;
+	int cumul_score;
+	int r;
+	int score;
 
-	switch (slab->kind)
+	influence = get_slab_influence(x, y);
+
+	// 1) for each purpose, add to scores of trap models that have this purpose
+	for (i = 0; i < TRAP_TYPES_COUNT; ++i)
+		model_scores[i] = 0;
+
+	//general defense. note that location is assumed valid
+	if (influence->heart_distance[player] >= 0)
 	{
-	//TODO: can we place doors at gold or gems? :/
-	case SlbT_WALLDRAPE:
-	case SlbT_WALLPAIRSHR:
-	case SlbT_WALLTORCH:
-	case SlbT_WALLWTWINS:
-	case SlbT_WALLWWOMAN:
-	case SlbT_TORCHDIRT:
-	case SlbT_ROCK:
-		return true;
+		score = 100 / (10 + influence->heart_distance[player]);
+
+		for (i = 0; i < TRAP_TYPES_COUNT; ++i)
+		{
+			if (trap_purposes[i] & TP_GeneralDefense)
+			{
+				model_scores[i] += score;
+			}
+		}
 	}
 
-	return false;
+	//heart defense
+	if (influence->heart_distance[player] >= 0 && influence->heart_distance[player] <= 3)
+	{
+		score = 10 * (3 - influence->heart_distance[player]);
+
+		for (i = 0; i < TRAP_TYPES_COUNT; ++i)
+		{
+			if (trap_purposes[i] & TP_DefendHeart)
+			{
+				model_scores[i] += score;
+			}
+		}
+	}
+
+	//corridor defense //TODO: could check corridor actually leads somewhere important
+	if ((can_support_door(x - 1, y) && can_support_door(x + 1, y)) !=
+		(can_support_door(x, y - 1) && can_support_door(x, y + 1)))
+	{
+		score = 20;
+
+		for (i = 0; i < TRAP_TYPES_COUNT; ++i)
+		{
+			if (trap_purposes[i] & TP_DefendCorridor)
+			{
+				model_scores[i] += score;
+			}
+		}
+	}
+
+	//door defense
+	score = eval_trap_behind_door(x, y, -1, 0, player) + eval_trap_behind_door(x, y, 1, 0, player) +
+		eval_trap_behind_door(x, y, 0, -1, player) + eval_trap_behind_door(x, y, 0, 1, player);
+	if (score > 0)
+	{
+		for (i = 0; i < TRAP_TYPES_COUNT; ++i)
+		{
+			if (trap_purposes[i] & TP_DefendDoor)
+			{
+				model_scores[i] += score;
+			}
+		}
+	}
+
+	//TODO: money purpose
+
+	// 2) select trap model probabilistically weighted according to scores
+	cumul_score = 0;
+	for (i = 1; i < TRAP_TYPES_COUNT; ++i)
+	{
+		if (trap_purposes[i] == TP_NoPurpose) continue;
+
+		cumul_score += model_scores[i];
+	}
+
+	r = ACTION_RANDOM(cumul_score);
+	*model = 0;
+	
+	for (i = 1; i < TRAP_TYPES_COUNT; ++i)
+	{
+		if (trap_purposes[i] == TP_NoPurpose) continue;
+		
+		if (r < model_scores[i])
+		{
+			*model = i;
+			return model_scores[0]; //model_scores[i];
+			//using max possible score at model_scores[0] rather than model_scores[i] means a less desired trap
+			//doesn't get disadvantaged during decision making (when it's already been made more improbable in
+			//this function)
+		}
+
+		r -= model_scores[i];
+	}
+
+	return INT_MIN;
 }
 
 static TbBool is_valid_place_to_put_door(MapSlabCoord x, MapSlabCoord y, int player)
@@ -956,16 +1100,24 @@ static TbBool is_valid_place_to_put_door(MapSlabCoord x, MapSlabCoord y, int pla
 	if (slab_has_trap_on(x, y))
 		return false;
 
-	return (can_support_door(x - 1, y) && can_support_door(x + 1, y)) ||
+	return (can_support_door(x - 1, y) && can_support_door(x + 1, y)) !=
 		(can_support_door(x, y - 1) && can_support_door(x, y + 1));
 }
 
 static TbBool is_valid_place_to_put_trap(MapSlabCoord x, MapSlabCoord y, int player)
 {
-	//TODO: implement
-	//keep in mind we should also check heart distance here to make sure imps can run over here
+	struct SlabMap* slab = get_slabmap_block(x, y);
 
-	return false;
+	if (slab->kind != SlbT_CLAIMED)
+		return false;
+
+	if (slabmap_owner(slab) != player)
+		return false;
+
+	if (slab_has_trap_on(x, y))
+		return false;
+
+	return true;
 }
 
 static void place_door_or_trap(struct Computer2* comp)
@@ -991,7 +1143,7 @@ static void place_door_or_trap(struct Computer2* comp)
 			best_door_manufacturable = model;
 		}
 
-		if (dungeon->door_amount_stored[model] <= 0) {
+		if (dungeon->door_amount_placeable[model] < 1) {
 			continue;
 		}
 
@@ -1002,10 +1154,62 @@ static void place_door_or_trap(struct Computer2* comp)
 	}
 
 	can_place_trap = false; //TODO: decide from inventory
+	for (model = 1; model < TRAP_TYPES_COUNT; ++model)
+	{
+		const char *name;
+
+		trap_purposes[model] = TP_NoPurpose; //used to indicate trap is unavailable by default unless shown otherwise
+
+		if ((dungeon->trap_build_flags[model] & MnfBldF_Manufacturable) && dungeon->trap_amount_placeable[model] < 1)
+		{
+			//basically, we want at least one of each type of trap to be able to actually choose
+			can_place_trap = false;
+			//can_place_door = false;
+			break;
+		}
+
+		if (dungeon->trap_amount_placeable[model] < 1)
+			continue; //ignore, can't build this one
+
+		can_place_trap = true;
+
+		//hardcoded purposes for now
+		name = trap_code_name(model);
+		if (strcmp("BOULDER", name) == 0)
+		{
+			trap_purposes[model] = TP_DefendDoor;
+		}
+		else if (strcmp("LAVA", name) == 0)
+		{
+			trap_purposes[model] = (enum TrapPurpose)(TP_DefendCorridor | TP_SellForMoney);
+		}
+		else if (strcmp("POISON_GAS", name) == 0)
+		{
+			trap_purposes[model] = (enum TrapPurpose)(TP_DefendHeart | TP_DefendCorridor);
+		}
+		else if (strcmp("LIGHTNING", name) == 0)
+		{
+			trap_purposes[model] = (enum TrapPurpose)(TP_DefendHeart | TP_DefendCorridor |
+				TP_DefendDoor | TP_GeneralDefense);
+		}
+		else if (strcmp("WORD_OF_POWER", name) == 0)
+		{
+			trap_purposes[model] = (enum TrapPurpose)(TP_DefendHeart | TP_GeneralDefense);
+		}
+		else if (strcmp("ALARM", name) == 0)
+		{
+			trap_purposes[model] = TP_NoPurpose;
+		}
+		else
+		{
+			trap_purposes[model] = (enum TrapPurpose)UINT_MAX;
+		}
+	}
+	trap_purposes[0] = (enum TrapPurpose)UINT_MAX;
 
 	if (!can_place_trap && !can_place_door)
 		return; //don't waste effort
-	SYNCLOG("available = %d, manufacturable = %d", best_door_available, best_door_manufacturable);
+	//SYNCLOG("available = %d, manufacturable = %d", best_door_available, best_door_manufacturable);
 
 	SYNCDBG(9, "Starting");
 	//analyze map for most suitable tile
@@ -1049,7 +1253,7 @@ static void place_door_or_trap(struct Computer2* comp)
 	{
 		if (is_door)
 		{
-			if (dungeon->door_amount_stored[best_model] > 0)
+			if (dungeon->door_amount_placeable[best_model] > 0)
 			{
 				//place door
 				if (try_game_action(comp, dungeon->owner, GA_PlaceDoor, 0,
@@ -1062,6 +1266,15 @@ static void place_door_or_trap(struct Computer2* comp)
 		else
 		{
 			//place trap
+			if (dungeon->trap_amount_placeable[best_model] > 0)
+			{
+				SYNCLOG("placing trap %s", trap_code_name(best_model));
+				if (try_game_action(comp, dungeon->owner, GA_PlaceTrap, 0,
+					slab_subtile_center(best_x), slab_subtile_center(best_y), best_model, 0) != Lb_SUCCESS)
+				{
+					ERRORLOG("Failed to place trap when success was expected...");
+				}
+			}
 		}
 	}
 }

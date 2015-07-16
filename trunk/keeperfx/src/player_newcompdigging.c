@@ -602,7 +602,7 @@ static void process_dig_to_attack(struct Computer2* comp, struct Digging* diggin
 	SYNCDBG(9, "Starting");
 
 	influence = get_slab_influence(digging->dig_attack.entry_pos.x, digging->dig_attack.entry_pos.y);
-	if (influence->drop_distance[dungeon->owner] == 0 || influence->drop_distance[dungeon->owner] == 1)
+	if (influence->unblocked_drop_distance[dungeon->owner] == 0 || influence->unblocked_drop_distance[dungeon->owner] == 1)
 	{
 		SYNCLOG("Player %d finished dig for attack at %dx%d", (int)dungeon->owner,
 			digging->dig_attack.entry_pos.x, digging->dig_attack.entry_pos.y);
@@ -672,7 +672,7 @@ static void check_dig_to_attack(struct Computer2* comp, struct Digging* digging)
 			continue; //no entry found
 
 		influence = get_slab_influence(state.best_pos.x, state.best_pos.y);
-		if (influence->drop_distance[dungeon->owner] == 0 || influence->drop_distance[dungeon->owner] == 1)
+		if (influence->unblocked_drop_distance[dungeon->owner] == 0 || influence->unblocked_drop_distance[dungeon->owner] == 1)
 			continue; //this should always be the case (no way to drop creatures near this), but checked anyway since it's a termination condition
 
 		score = state.best_score;
@@ -2065,7 +2065,7 @@ static void update_danger_map(struct Dungeon* dungeon)
 			{
 				if (i != dungeon->owner &&
 					get_attitude_towards(dungeon->owner, i) == Attitude_Avoid &&
-					influence->drop_distance[i] == 0)
+					influence->blocked_drop_distance[i] == 0)
 				{
 					avoid = 1;
 					break;
