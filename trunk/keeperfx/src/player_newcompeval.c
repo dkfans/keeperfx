@@ -197,10 +197,19 @@ static void influence_neighbor(MapSlabCoord x, MapSlabCoord y, int player, enum 
 		dist = 0;
 	}
 
-	if (slab_kind_can_drop_here_now(slab->kind) || slab->kind == SlbT_PATH ||
+	if (slab_kind_is_door(slab->kind))
+	{
+		if (owner == player)
+		{
+			if (metric == DropDistance)
+				dist = 0;
+			queue_influence_node(x, y, player, metric, dist);
+		}
+	}
+	else if (slab_kind_can_drop_here_now(slab->kind) || slab->kind == SlbT_PATH ||
 		(metric == DigDistance && player_has_marked_for_digging(player, x, y)))
 	{
-		if (slab->kind != SlbT_PATH && owner == player)
+		if (slab->kind != SlbT_PATH && owner == player && metric != HeartDistance)
 			dist = 0;
 
 		queue_influence_node(x, y, player, metric, dist);
@@ -220,14 +229,6 @@ static void influence_neighbor(MapSlabCoord x, MapSlabCoord y, int player, enum 
 		case SlbT_WALLTORCH:
 		case SlbT_WALLWTWINS:
 		case SlbT_WALLWWOMAN:
-		case SlbT_DOORWOOD1:
-		case SlbT_DOORWOOD2:
-		case SlbT_DOORBRACE1:
-		case SlbT_DOORBRACE2:
-		case SlbT_DOORIRON1:
-		case SlbT_DOORIRON2:
-		case SlbT_DOORMAGIC1:
-		case SlbT_DOORMAGIC2:
 			if (owner == player)
 				queue_influence_node(x, y, player, metric, dist);
 			break;
