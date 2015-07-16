@@ -1194,7 +1194,7 @@ long check_call_to_arms(struct Computer2 *comp)
             // Per-task code
             if ((ctask->flags & ComTsk_Unkn0001) != 0)
             {
-                if ((ctask->ttype == CTT_MagicCallToArms) && (ctask->task_state == 2))
+                if ((ctask->ttype == CTT_MagicCallToArms) && (ctask->task_state == CTaskSt_Select))
                 {
                     if (ret == 1) {
                         SYNCDBG(8,"Found existing CTA task");
@@ -1439,6 +1439,7 @@ TbBool process_processes_and_task(struct Computer2 *comp)
             cproc = get_computer_process(comp, comp->ongoing_process);
             if (cproc != NULL) {
                 callback = cproc->func_task;
+                SYNCDBG(7,"Performing process \"%s\"",cproc->name);
             } else {
                 ERRORLOG("Invalid computer process %d referenced",(int)comp->ongoing_process);
             }

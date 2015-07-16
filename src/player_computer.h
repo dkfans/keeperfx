@@ -181,6 +181,15 @@ enum CompTaskRet {
     CTaskRet_Unk4,
 };
 
+/** Return values for computer process functions. */
+enum CompProcRet {
+    CProcRet_Fail = 0,
+    CProcRet_Continue,
+    CProcRet_Finish,
+    CProcRet_Unk3,
+    CProcRet_Wait,
+};
+
 enum ItemAvailabilityRet {
     IAvail_Never         = 0,
     IAvail_Now           = 1,
@@ -235,21 +244,24 @@ struct TaskFunctions {
 struct ComputerProcess { // sizeof = 72
   char *name;
   long priority;
-  unsigned long confval_2;
-  unsigned long confval_3;
-  unsigned long confval_4;
-  unsigned long confval_5;
+  // Signed process config values
+  long confval_2;
+  long confval_3;
+  long confval_4;
+  long confval_5;
   Comp_Process_Func func_check;
   Comp_Process_Func func_setup;
   Comp_Process_Func func_task;
   Comp_Process_Func func_complete;
   Comp_Process_Func func_pause;
   struct ComputerProcess *parent;
+  // Unsigned process parameters storage (stores gameturns)
   unsigned long param_1;
   unsigned long param_2;
   unsigned long param_3;
   unsigned long last_run_turn;
-  unsigned long param_5;
+  // Signed process parameters storage
+  long param_5;
   unsigned long flags; /**< Values from ComProc_* enumeration. */
 };
 
