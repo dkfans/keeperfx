@@ -137,6 +137,7 @@ obj/player_complookup.o \
 obj/player_computer.o \
 obj/player_computer_data.o \
 obj/player_newcompchecks.o \
+obj/player_newcompdigging.o \
 obj/player_newcompeval.o \
 obj/player_newcomppathfind.o \
 obj/tasks_list.o \

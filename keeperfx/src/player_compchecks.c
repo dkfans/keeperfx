@@ -846,6 +846,9 @@ TbBool find_place_to_put_door_around_room(const struct Room *room, struct Coord3
 
 long computer_check_for_place_door(struct Computer2 *comp, struct ComputerCheck * check)
 {
+	if (is_newdig_enabled(comp))
+		return 4;
+
     SYNCDBG(8,"Starting");
     ThingModel doorkind;
     struct Dungeon *dungeon;

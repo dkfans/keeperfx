@@ -193,6 +193,7 @@
     <ClCompile Include="src\player_data.c" />
     <ClCompile Include="src\player_instances.c" />
     <ClCompile Include="src\player_newcompchecks.c" />
+    <ClCompile Include="src\player_newcompdigging.c" />
     <ClCompile Include="src\player_newcompeval.c" />
     <ClCompile Include="src\player_newcomppathfind.c" />
     <ClCompile Include="src\player_states.c" />

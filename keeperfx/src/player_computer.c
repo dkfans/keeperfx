@@ -1394,6 +1394,7 @@ static int counter_check_for_claims[KEEPER_COUNT] = { 0, 1, 2, 3 };
 static int counter_check_for_imprison_tendency[KEEPER_COUNT] = { 0, 1, 2, 3 };
 static int counter_check_prison_management[KEEPER_COUNT] = { 0, 1, 2, 3 };
 static int counter_check_new_digging[KEEPER_COUNT] = { 0, 1, 2, 3 };
+static int counter_check_doortrap_management[KEEPER_COUNT] = { 0, 1, 2, 3 };
 
 TbBool process_checks(struct Computer2 *comp)
 {
@@ -1451,6 +1452,12 @@ TbBool process_checks(struct Computer2 *comp)
 
 	if (is_newdig_enabled(comp))
 	{
+		if (++counter_check_doortrap_management[comp->dungeon->owner] >= 27)
+		{
+			counter_check_doortrap_management[comp->dungeon->owner] = 0;
+			computer_check_doortrap_management(comp);
+		}
+
 		if (++counter_check_new_digging[comp->dungeon->owner] >= 14)
 		{
 			counter_check_new_digging[comp->dungeon->owner] = 0;

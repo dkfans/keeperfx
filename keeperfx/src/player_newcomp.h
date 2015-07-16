@@ -116,8 +116,10 @@ long computer_check_for_door_attacks(struct Computer2 *comp);
 long computer_check_for_claims(struct Computer2 *comp);
 long computer_check_for_imprison_tendency(struct Computer2* comp);
 long computer_check_prison_management(struct Computer2* comp);
+void computer_check_doortrap_management(struct Computer2* comp);
 long computer_check_new_digging(struct Computer2* comp);
 void computer_setup_new_digging(void);
+//TODO: clean up long return values, chances are we will not put into old code anyway
 
 TbBool is_newdig_enabled(struct Computer2* comp);
 TbBool any_newdig_enabled(void);
