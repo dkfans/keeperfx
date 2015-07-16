@@ -43,7 +43,8 @@ static long player_strength[PLAYERS_COUNT];
 enum InfluenceMetric
 {
 	HeartDistance,
-	DropDistance,
+	BlockedDropDistance,
+	UnblockedDropDistance,
 	DigDistance,
 	HeroWalk,
 	HeroFly,
@@ -108,8 +109,10 @@ short * get_slab_influence_value(MapSlabCoord x, MapSlabCoord y, int player, enu
 	{
 	case HeartDistance:
 		return &influence->heart_distance[player];
-	case DropDistance:
-		return &influence->drop_distance[player];
+	case BlockedDropDistance:
+		return &influence->blocked_drop_distance[player];
+	case UnblockedDropDistance:
+		return &influence->unblocked_drop_distance[player];
 	case DigDistance:
 		return &influence->dig_distance[player];
 	case HeroWalk:
@@ -199,9 +202,9 @@ static void influence_neighbor(MapSlabCoord x, MapSlabCoord y, int player, enum 
 
 	if (slab_kind_is_door(slab->kind))
 	{
-		if (owner == player)
+		if (owner == player || metric == UnblockedDropDistance)
 		{
-			if (metric == DropDistance)
+			if (metric == BlockedDropDistance || metric == UnblockedDropDistance)
 				dist = 0;
 			queue_influence_node(x, y, player, metric, dist);
 		}
@@ -427,7 +430,8 @@ void update_influence_maps(void)
 
 			if (slab_kind_can_drop_here_now(slab->kind))
 			{
-				queue_influence_node(x, y, owner, DropDistance, 0);
+				queue_influence_node(x, y, owner, BlockedDropDistance, 0);
+				queue_influence_node(x, y, owner, UnblockedDropDistance, 0);
 				queue_influence_node(x, y, owner, DigDistance, 0);
 			}
 			if (slab->kind == SlbT_DUNGHEART)

@@ -52,7 +52,8 @@ typedef int (*SlabPathNodeFunc)(struct SlabPoint* parent, struct SlabPoint* pos,
 struct SlabInfluence
 {
 	short heart_distance[KEEPER_COUNT];
-	short drop_distance[KEEPER_COUNT];
+	short blocked_drop_distance[KEEPER_COUNT];
+	short unblocked_drop_distance[KEEPER_COUNT];
 	short dig_distance[KEEPER_COUNT];
 	short hero_walk_region;
 	short hero_fly_region;
