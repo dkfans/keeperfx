@@ -1412,7 +1412,8 @@ static int eval_expand_room_pos(struct Dungeon* dungeon, struct Digging* digging
 		case RoK_BARRACKS:
 		case RoK_GRAVEYARD:
 		case RoK_PRISON:
-			score -= enemy_distance * 2;
+			//score -= enemy_distance * 2;
+			//not weighted now, add proxy prisons instead in future
 			break;
 		default:
 			score += enemy_distance * 4;
