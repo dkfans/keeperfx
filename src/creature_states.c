@@ -1445,6 +1445,8 @@ short creature_being_dropped(struct Thing *creatng)
     delay_teleport(creatng);
     stl_x = creatng->mappos.x.stl.num;
     stl_y = creatng->mappos.y.stl.num;
+    struct SlabMap *slb;
+    slb = get_slabmap_for_subtile(stl_x,stl_y);
     // If dropping still in progress, do nothing
     if ( !thing_touching_floor(creatng) && ((creatng->movement_flags & TMvF_Flying) == 0) )
     {
@@ -1472,10 +1474,11 @@ short creature_being_dropped(struct Thing *creatng)
                 dungeon->camera_deviate_jump = 96;
             }
         }
-        // Make sure computer control flag is set accordingly to job, so that we won't start a fight when in captivity
+        // Make sure computer control flag is set (almost) accordingly to job, so that we won't start a fight when in captivity
+        // Unless we are dropping our own creature, in that case we may want to ignore captivity and start a fight
         if (new_job != Job_NULL)
         {
-            if ((get_flags_for_job(new_job) & JoKF_NoSelfControl) != 0) {
+            if (((get_flags_for_job(new_job) & JoKF_NoSelfControl) != 0) && (slabmap_owner(slb) != creatng->owner)) {
                 cctrl->flgfield_1 |= CCFlg_NoCompControl;
             } else {
                 cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
@@ -1506,8 +1509,6 @@ short creature_being_dropped(struct Thing *creatng)
     // TODO CREATURE_JOBS it would be great if these jobs were also returned by get_job_for_subtile()
     if (!creature_affected_by_spell(creatng, SplK_Chicken))
     {
-        struct SlabMap *slb;
-        slb = get_slabmap_for_subtile(stl_x,stl_y);
         // Special tasks for diggers
         if ((get_creature_model_flags(creatng) & CMF_IsSpecDigger) != 0)
         {
@@ -1536,6 +1537,18 @@ short creature_being_dropped(struct Thing *creatng)
                 SYNCDBG(3,"The %s index %d owner %d found enemy combat at (%d,%d)",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,(int)stl_x,(int)stl_y);
                 return 2;
             }
+        }
+        if (new_job != Job_NULL)
+        {
+            // Make sure computer control flag is set accordingly to job, now do it straight and without exclusions
+            if ((get_flags_for_job(new_job) & JoKF_NoSelfControl) != 0) {
+                cctrl->flgfield_1 |= CCFlg_NoCompControl;
+            } else {
+                cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
+            }
+        } else
+        {
+            cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
         }
     }
     if (new_job == Job_NULL)
