@@ -638,14 +638,14 @@ void init_players(void)
     for (i=0;i<PLAYERS_COUNT;i++)
     {
         player = get_player(i);
-        if ((game.packet_save_head.field_C & (1 << i)) != 0)
+        if ((game.packet_save_head.players_exist & (1 << i)) != 0)
             player->allocflags |= PlaF_Allocated;
         else
             player->allocflags &= ~PlaF_Allocated;
         if (player_exists(player))
         {
             player->id_number = i;
-            if ((game.packet_save_head.field_D & (1 << i)) != 0)
+            if ((game.packet_save_head.players_comp & (1 << i)) != 0)
                 player->allocflags |= PlaF_CompCtrl;
             else
                 player->allocflags &= ~PlaF_CompCtrl;

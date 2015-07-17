@@ -1671,6 +1671,7 @@ TbBool creature_pick_up_interesting_object_laying_nearby(struct Thing *creatng)
                     creatng->creature.gold_carried += tgthing->valuable.gold_stored;
                     delete_thing_structure(tgthing, 0);
                 }
+                thing_play_sample(creatng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
             }
         } else
         {

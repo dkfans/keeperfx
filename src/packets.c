@@ -1339,20 +1339,22 @@ TbBool open_new_packet_file_for_save(void)
     int i;
     // Filling the header
     SYNCMSG("Starting packet saving, turn %lu",(unsigned long)game.play_gameturn);
-    game.packet_save_head.field_0 = 0;
+    game.packet_save_head.game_ver_major = VER_MAJOR;
+    game.packet_save_head.game_ver_minor = VER_MINOR;
+    game.packet_save_head.game_ver_release = VER_RELEASE;
+    game.packet_save_head.game_ver_build = VER_BUILD;
     game.packet_save_head.level_num = get_loaded_level_number();
-    game.packet_save_head.field_8 = 0;
-    game.packet_save_head.field_C = 0;
-    game.packet_save_head.field_D = 0;
+    game.packet_save_head.players_exist = 0;
+    game.packet_save_head.players_comp = 0;
     game.packet_save_head.chksum_available = game.packet_checksum_verify;
     for (i=0; i<PLAYERS_COUNT; i++)
     {
         player = get_player(i);
         if (player_exists(player))
         {
-            game.packet_save_head.field_C |= (1 << i) & 0xff;
+            game.packet_save_head.players_exist |= (1 << i) & 0xff;
             if ((player->allocflags & PlaF_CompCtrl) != 0)
-              game.packet_save_head.field_D |= (1 << i) & 0xff;
+              game.packet_save_head.players_comp |= (1 << i) & 0xff;
         }
     }
     LbFileDelete(game.packet_fname);

@@ -212,12 +212,14 @@ struct Packet { // sizeof = 0x11 (17)
 };
 
 struct PacketSaveHead { // sizeof=0xF (15)
-unsigned int field_0;
+    unsigned short game_ver_major;
+    unsigned short game_ver_minor;
+    unsigned short game_ver_release;
+    unsigned short game_ver_build;
     unsigned long level_num;
-unsigned int field_8;
-    unsigned char field_C;
-    unsigned char field_D;
-    TbBool chksum_available;
+    unsigned char players_exist;
+    unsigned char players_comp;
+    TbBool chksum_available; // if needed, this can be replaced with flags
 };
 
 #pragma pack()

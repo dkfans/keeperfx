@@ -28,6 +28,7 @@
 #include "bflib_filelst.h"
 #include "bflib_network.h"
 
+#include "version.h"
 #include "front_simple.h"
 #include "frontend.h"
 #include "front_input.h"
@@ -1671,7 +1672,7 @@ void clear_complete_game(void)
     memset(&game, 0, sizeof(struct Game));
     memset(&gameadd, 0, sizeof(struct GameAdd));
     game.turns_packetoff = -1;
-    game.numfield_149F46 = 0;
+    game.local_plyr_idx = default_loc_player;
     game.packet_checksum_verify = start_params.packet_checksum_verify;
     game.numfield_1503A2 = -1;
     game.flags_font = start_params.flags_font;
@@ -4100,13 +4101,19 @@ void startup_saved_packet_game(void)
       if (game.log_things_end_turn != game.log_things_start_turn)
         SYNCMSG("Logging things, game turns %d -> %d", game.log_things_start_turn, game.log_things_end_turn);
     }
+    SYNCMSG("Packet file prepared on KeeperFX %d.%d.%d.%d",(int)game.packet_save_head.game_ver_major,(int)game.packet_save_head.game_ver_minor,
+        (int)game.packet_save_head.game_ver_release,(int)game.packet_save_head.game_ver_build);
 #endif
+    if ((game.packet_save_head.game_ver_major != VER_MAJOR) || (game.packet_save_head.game_ver_minor != VER_MINOR)
+     || (game.packet_save_head.game_ver_release != VER_RELEASE) || (game.packet_save_head.game_ver_build != VER_BUILD)) {
+        WARNLOG("Packet file was created with different version of the game; this rarely works");
+    }
     game.game_kind = GKind_LocalGame;
-    if (!(game.packet_save_head.field_C & (1 << game.numfield_149F46))
-      || (game.packet_save_head.field_D & (1 << game.numfield_149F46)))
+    if (!(game.packet_save_head.players_exist & (1 << game.local_plyr_idx))
+      || (game.packet_save_head.players_comp & (1 << game.local_plyr_idx)))
       my_player_number = 0;
     else
-      my_player_number = game.numfield_149F46;
+      my_player_number = game.local_plyr_idx;
     init_level();
     setup_zombie_players();//TODO GUI What about packet file from network game? No zombies there..
     init_players();

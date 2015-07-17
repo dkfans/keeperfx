@@ -183,7 +183,7 @@ unsigned char numfield_149F38;
     unsigned long log_things_start_turn;
     unsigned long log_things_end_turn;
     unsigned long turns_packetoff;
-unsigned char numfield_149F46;
+    unsigned char local_plyr_idx;
 unsigned char numfield_149F47;
 // Originally, save_catalogue was here.
     char campaign_fname[CAMPAIGN_FNAME_LEN];
@@ -335,7 +335,7 @@ char field_1512E6[1037];
     long flash_button_index;
     long flash_button_gameturns; // signed
 long field_1516FB;
-char loaded_swipe_idx;
+    char loaded_swipe_idx;
     long boulder_reduce_health_wall;
     long boulder_reduce_health_slap;
     long boulder_reduce_health_room;
