@@ -43,6 +43,7 @@
 #include "thing_effects.h"
 #include "player_instances.h"
 #include "player_utils.h"
+#include "room_list.h"
 #include "room_jobs.h"
 #include "room_workshop.h"
 
@@ -759,6 +760,322 @@ CreatureJob get_job_to_place_creature_in_room(const struct Computer2 *comp, cons
     return chosen_job;
 }
 
+static TbBool should_train;
+static TbBool should_manufacture;
+static TbBool should_scavenge;
+static TbBool should_research;
+extern TbBool creature_is_doing_job_in_room_of_kind(const struct Thing *creatng, RoomKind rkind);
+static long creature_is_doing_room_kind_job_filter(const struct Thing* thing, MaxTngFilterParam param, long max_val)
+{
+	if (creature_is_doing_job_in_room_of_kind(thing, (RoomKind)param->num1))
+		return LONG_MAX;
+	return 0;
+}
+
+static TbBool allowed_to_ratio_assign_creature(const struct Thing* thing, MaxTngFilterParam param)
+{
+	struct Computer2* comp;
+	TbBool* can_take_from;
+	struct CompoundTngFilterParam dummy_param;
+
+	comp = (struct Computer2*)param->ptr3;
+	if (thing->model == get_players_special_digger_model(comp->dungeon->owner))
+		return false;
+	if (!can_thing_be_picked_up_by_player(thing, comp->dungeon->owner))
+		return false;
+	if (creature_is_being_dropped(thing))
+		return false;
+	if (!creature_can_do_job_for_player(thing, comp->dungeon->owner, (CreatureJob)param->num1, 0))
+		return false;
+
+	dummy_param.ptr1 = comp;
+	if (player_list_creature_filter_needs_to_be_placed_in_room_for_job(thing, &dummy_param, LONG_MIN) != -2)
+		return false; //creature is unhappy, hungry or something else
+
+	can_take_from = (TbBool*)param->ptr2; //order: research, manufacture, scavenge, training
+
+	if (creature_is_doing_job_in_room_of_kind(thing, RoK_LIBRARY))
+		return can_take_from[0];
+	else if (creature_is_doing_job_in_room_of_kind(thing, RoK_WORKSHOP))
+		return can_take_from[1];
+	else if (creature_is_doing_job_in_room_of_kind(thing, RoK_SCAVENGER))
+		return can_take_from[2];
+	else if (creature_is_doing_job_in_room_of_kind(thing, RoK_TRAINING))
+		return can_take_from[3];
+
+	return true;
+}
+
+static long creature_research_value(const struct Thing* thing, MaxTngFilterParam param, long max_val)
+{
+	struct CreatureStats* crstat;
+	struct CreatureControl* cctrl;
+	if (!allowed_to_ratio_assign_creature(thing, param))
+		return LONG_MIN;
+
+	crstat = creature_stats_get_from_thing(thing);
+	cctrl = creature_control_get_from_thing(thing);
+	if (!creature_stats_invalid(crstat) && !creature_control_invalid(cctrl))
+	{
+		long val = compute_creature_work_value(crstat->research_value*256, 256, cctrl->explevel);
+		return 1000000 + val;
+	}
+	return LONG_MIN;
+}
+
+static long creature_manufacture_value(const struct Thing* thing, MaxTngFilterParam param, long max_val)
+{
+	struct CreatureStats* crstat;
+	struct CreatureControl* cctrl;
+	if (!allowed_to_ratio_assign_creature(thing, param))
+		return LONG_MIN;
+
+	crstat = creature_stats_get_from_thing(thing);
+	cctrl = creature_control_get_from_thing(thing);
+	if (!creature_stats_invalid(crstat) && !creature_control_invalid(cctrl))
+	{
+		long val = compute_creature_work_value(crstat->manufacture_value*256, 256, cctrl->explevel);
+		if (should_research)
+			val -= compute_creature_work_value(crstat->research_value*256, 256, cctrl->explevel);
+		if (should_scavenge)
+			val -= compute_creature_work_value(crstat->scavenge_value*256, 256, cctrl->explevel);
+		return 1000000 + val;
+	}
+	return LONG_MIN;
+}
+
+static long creature_scavenge_value(const struct Thing* thing, MaxTngFilterParam param, long max_val)
+{
+	struct CreatureStats* crstat;
+	struct CreatureControl* cctrl;
+	if (!allowed_to_ratio_assign_creature(thing, param))
+		return LONG_MIN;
+
+	crstat = creature_stats_get_from_thing(thing);
+	cctrl = creature_control_get_from_thing(thing);
+	if (!creature_stats_invalid(crstat) && !creature_control_invalid(cctrl))
+	{
+		long val = compute_creature_work_value(crstat->scavenge_value*256, 256, cctrl->explevel);
+		if (should_research)
+			val -= compute_creature_work_value(crstat->research_value*256, 256, cctrl->explevel);
+		return 1000000 + val;
+	}
+	return LONG_MIN;
+}
+
+static long creature_training_value(const struct Thing* thing, MaxTngFilterParam param, long max_val)
+{
+	struct CreatureStats* crstat;
+	struct CreatureControl* cctrl;
+	if (!allowed_to_ratio_assign_creature(thing, param))
+		return LONG_MIN;
+
+	crstat = creature_stats_get_from_thing(thing);
+	cctrl = creature_control_get_from_thing(thing);
+	if (!creature_stats_invalid(crstat) && !creature_control_invalid(cctrl))
+	{
+		long val = compute_creature_work_value(crstat->training_value*256, 256, cctrl->explevel);
+		if (should_research)
+			val -= compute_creature_work_value(crstat->research_value*256, 256, cctrl->explevel);
+		if (should_scavenge)
+			val -= compute_creature_work_value(crstat->scavenge_value*256, 256, cctrl->explevel);
+		if (should_manufacture)
+			val -= compute_creature_work_value(crstat->manufacture_value*256, 256, cctrl->explevel);
+		return 1000000 + val;
+	}
+	return LONG_MIN;
+}
+
+static struct Thing* find_best_creature_for_job(struct Computer2* comp, CreatureJob job,
+	TbBool can_take_from_research, TbBool can_take_from_manufacture, TbBool can_take_from_scavenge, TbBool can_take_from_training)
+{
+	struct Dungeon* dungeon;
+	TbBool can_take_from[4];
+	Thing_Maximizer_Filter filter_func;
+	struct CompoundTngFilterParam filter_param;
+	dungeon = comp->dungeon;
+
+	switch (job)
+	{
+	case Job_RESEARCH:
+		can_take_from_training = true;
+		can_take_from_manufacture = true;
+		break;
+	case Job_SCAVENGE:
+		can_take_from_training = true;
+		break;
+	case Job_MANUFACTURE:
+		can_take_from_training = true;
+		break;
+	default:
+		break;
+	}
+
+	can_take_from[0] = can_take_from_research; //ugly but acceptable given tight coupling with callees
+	can_take_from[1] = can_take_from_manufacture;
+	can_take_from[2] = can_take_from_scavenge;
+	can_take_from[3] = can_take_from_training;
+	filter_param.plyr_idx = dungeon->owner;
+	filter_param.class_id = TCls_Creature;
+	filter_param.model_id = -1;
+	filter_param.num1 = job;
+	filter_param.ptr2 = can_take_from;
+	filter_param.ptr3 = comp;
+
+	switch (job)
+	{
+	case Job_RESEARCH:
+		filter_func = creature_research_value;
+		break;
+	case Job_MANUFACTURE:
+		filter_func = creature_manufacture_value;
+		break;
+	case Job_SCAVENGE:
+		filter_func = creature_scavenge_value;
+		break;
+	case Job_TRAIN:
+		filter_func = creature_training_value;
+		break;
+	default:
+		return INVALID_THING;
+	}
+
+	return get_player_list_creature_with_filter(dungeon->creatr_list_start, filter_func, &filter_param);
+}
+
+static struct Thing* find_creature_to_be_ratio_assigned(struct Computer2* comp, CreatureJob* assigned_job)
+{
+	struct Dungeon* dungeon;
+	long library_ratio, workshop_ratio, scavenge_ratio, training_ratio;
+	long crtr_count;
+	long crtr_unit;
+	long diff;
+	long library_diff, workshop_diff, scavenge_diff, training_diff;
+	struct CompoundTngFilterParam filter_param;
+
+	SYNCDBG(9,"Starting");
+	dungeon = comp->dungeon;
+	*assigned_job = Job_NULL;
+
+	//figure out ratios
+	//TODO: probably need to discount creature healing, creature unhappy in temple, etc. i.e. the ones that will not be considered otherwise
+	crtr_count = dungeon->num_active_creatrs - count_player_creatures_not_counting_to_total(dungeon->owner);
+	if (crtr_count <= 0)
+		return INVALID_THING; //algorithm not applicable for this case
+
+	library_ratio = workshop_ratio = scavenge_ratio = training_ratio = 100 * crtr_count;
+
+	training_ratio *= 2;
+	workshop_ratio /= 2;
+
+	should_research = count_player_rooms_of_type(dungeon->owner, RoK_LIBRARY) > 0 &&
+		dungeon->current_research_idx >= 0;
+	if (!should_research)	
+		library_ratio = 0;
+	should_train = count_player_rooms_of_type(dungeon->owner, RoK_TRAINING) > 0 &&
+		3 * dungeon->creatures_total_pay / 2 < dungeon->total_money_owned;
+	if (!should_train)
+		training_ratio = 0;
+	should_scavenge = count_player_rooms_of_type(dungeon->owner, RoK_SCAVENGER) > 0 &&
+			2 * dungeon->creatures_total_pay < dungeon->total_money_owned;
+	if (!should_scavenge)
+		scavenge_ratio = 0;
+	should_manufacture = count_player_rooms_of_type(dungeon->owner, RoK_WORKSHOP) > 0;
+	if (!should_manufacture)
+		workshop_ratio = 0;
+
+	//define size of one "creature unit" to be able to see if a ratio is fulfilled or not (integer math issue)
+	crtr_unit = workshop_ratio + library_ratio + scavenge_ratio + training_ratio;
+	if (crtr_unit == 0)
+		return INVALID_THING; //algorithm not applicable for this case
+	crtr_unit /= crtr_count;
+
+	if (library_ratio > 0)
+	{
+		if (library_ratio < crtr_unit)
+			library_ratio = crtr_unit; //always want at least one creature researching if there's any research to be done
+		else if (library_ratio > 8 * crtr_unit)
+			library_ratio = 8 * crtr_unit; //at most 8 creatures researching //TODO: configure
+	}
+	
+	//SYNCLOG("ratios: %d %d %d %d", library_ratio, scavenge_ratio, workshop_ratio, training_ratio);
+
+	//divide down ratios to real target creature counts and adjust for potential loss due to precision
+	workshop_ratio /= crtr_unit;
+	library_ratio /= crtr_unit;
+	scavenge_ratio /= crtr_unit;
+	training_ratio /= crtr_unit;
+	diff = crtr_count - (workshop_ratio + library_ratio + scavenge_ratio + training_ratio);
+	if (diff)
+	{
+		training_ratio += diff;
+		if (training_ratio < 0)
+		{
+			training_ratio = 0;
+			diff = crtr_count - (workshop_ratio + library_ratio + scavenge_ratio);
+			if (diff)
+			{
+				scavenge_ratio += diff;
+				if (scavenge_ratio < 0)
+				{
+					scavenge_ratio = 0;
+					diff = crtr_count - (workshop_ratio + library_ratio);
+					if (diff)
+					{
+						workshop_ratio += diff;
+						if (workshop_ratio < 0)
+						{
+							workshop_ratio = 0;
+							library_ratio = crtr_count;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	//check ratios compared to actual creature counts for jobs
+	//TODO: could calculate these on single list sweep instead
+	filter_param.plyr_idx = dungeon->owner;
+	filter_param.class_id = TCls_Creature;
+	filter_param.model_id = -1;
+	filter_param.num1 = RoK_LIBRARY;
+	library_diff = library_ratio - count_player_list_creatures_with_filter(dungeon->creatr_list_start,
+		creature_is_doing_room_kind_job_filter, &filter_param);
+	filter_param.num1 = RoK_SCAVENGER;
+	scavenge_diff = scavenge_ratio - count_player_list_creatures_with_filter(dungeon->creatr_list_start,
+		creature_is_doing_room_kind_job_filter, &filter_param);
+	filter_param.num1 = RoK_WORKSHOP;
+	workshop_diff = workshop_ratio - count_player_list_creatures_with_filter(dungeon->creatr_list_start,
+		creature_is_doing_room_kind_job_filter, &filter_param);
+	filter_param.num1 = RoK_TRAINING;
+	training_diff = training_ratio - count_player_list_creatures_with_filter(dungeon->creatr_list_start,
+		creature_is_doing_room_kind_job_filter, &filter_param);
+	//SYNCLOG("diffs: %d %d %d %d", library_diff, scavenge_diff, workshop_diff, training_diff);
+	if (library_diff >= 0 && library_ratio > 0)
+	{
+		*assigned_job = Job_RESEARCH;
+	}
+	else if (scavenge_diff >= 0 && scavenge_ratio > 0)
+	{
+		*assigned_job = Job_SCAVENGE;
+	}
+	else if (workshop_diff >= 0 && workshop_ratio > 0)
+	{
+		*assigned_job = Job_MANUFACTURE;
+	}
+	else if (training_ratio > 0)
+	{
+		*assigned_job = Job_TRAIN;
+	}
+	else
+	{
+		return INVALID_THING;
+	}
+
+	return find_best_creature_for_job(comp, *assigned_job, library_diff < 0, workshop_diff < 0, scavenge_diff < 0, training_diff < 0);
+}
+
 struct Thing *find_creature_to_be_placed_in_room(struct Computer2 *comp, struct Room **roomp)
 {
     Thing_Maximizer_Filter filter;
@@ -766,6 +1083,7 @@ struct Thing *find_creature_to_be_placed_in_room(struct Computer2 *comp, struct 
     struct Dungeon *dungeon;
     struct Thing *thing;
     struct Room *room;
+	CreatureJob selected_job;
     SYNCDBG(9,"Starting");
     dungeon = comp->dungeon;
     if (dungeon_invalid(dungeon)) {
@@ -776,8 +1094,12 @@ struct Thing *find_creature_to_be_placed_in_room(struct Computer2 *comp, struct 
     param.num2 = Job_NULL; // Our filter function will update that
     filter = player_list_creature_filter_needs_to_be_placed_in_room_for_job;
     thing = get_player_list_random_creature_with_filter(dungeon->creatr_list_start, filter, &param);
+	selected_job = param.num2;
     if (thing_is_invalid(thing)) {
-        return INVALID_THING;
+		thing = find_creature_to_be_ratio_assigned(comp, &selected_job);
+
+		if (thing_is_invalid(thing))
+			return INVALID_THING;
     }
     SYNCDBG(9,"Player %d wants to move %s index %d",(int)dungeon->owner,thing_model_name(thing),(int)thing->owner);
     // We won't allow the creature to be picked if we want it to be placed in the same room it is now.
@@ -785,7 +1107,7 @@ struct Thing *find_creature_to_be_placed_in_room(struct Computer2 *comp, struct 
     // won't be able or will not want to work in that room, and will be picked up and dropped over and over.
     // This will prevent such situation, at least to the moment when the creature leaves the room.
     room = get_room_thing_is_on(thing);
-    if (!room_is_invalid(room) && (room->kind == get_room_for_job(param.num2)) && (room->owner == thing->owner)) {
+    if (!room_is_invalid(room) && (room->kind == get_room_for_job(selected_job)) && (room->owner == thing->owner)) {
         // Do not spam with warnings which we know to be expected
         if (!creature_is_called_to_arms(thing) && !creature_is_celebrating(thing)) {
             WARNDBG(4,"The %s owned by player %d already is in %s, but goes for %s instead of work there",
@@ -793,7 +1115,7 @@ struct Thing *find_creature_to_be_placed_in_room(struct Computer2 *comp, struct 
         }
         return INVALID_THING;
     }
-    room = get_room_of_given_kind_for_thing(thing,dungeon, get_room_for_job(param.num2));
+    room = get_room_of_given_kind_for_thing(thing,dungeon, get_room_for_job(selected_job));
     if (room_is_invalid(room))
         return INVALID_THING;
     *roomp = room;

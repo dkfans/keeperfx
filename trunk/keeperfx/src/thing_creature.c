@@ -4450,10 +4450,10 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
     force_state_reset = false;
     // Creatures may have primary jobs other than training, or selected when there was no possibility to train
     // Make sure they are re-assigned sometimes
-    if (creature_could_be_placed_in_better_room(comp, thing))
+    /*if (creature_could_be_placed_in_better_room(comp, thing))
     {
         force_state_reset = true;
-    }
+    }*/
 
     // Get other rooms the creature may work in
     if (creature_state_is_unset(thing) || force_state_reset)
@@ -4467,7 +4467,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
             return LONG_MAX;
         }
     }
-    return -1;
+    return -2; //magic value, importantly different from -1; watch uses before modifying
 }
 
 struct Thing *create_footprint_sine(struct Coord3d *crtr_pos, unsigned short phase, short nfoot, unsigned short model, unsigned short owner)
