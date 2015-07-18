@@ -901,7 +901,7 @@ TbBool creature_can_do_job_for_computer_player_in_room(const struct Thing *creat
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(creatng);
     CreatureJob jobpref;
-    jobpref = get_job_for_room(rkind, JoKF_AssignComputerDropInRoom, crstat->job_primary|crstat->job_secondary);
+    jobpref = get_job_for_room(rkind, JoKF_AssignComputerDrop|JoKF_AssignAreaWithinRoom, crstat->job_primary|crstat->job_secondary);
     return creature_can_do_job_for_player(creatng, plyr_idx, jobpref, JobChk_None);
 }
 

@@ -2321,7 +2321,7 @@ TbBool get_drop_position_for_creature_job_in_room(struct Coord3d *pos, const str
         return false;
     }
     // If the job can only be assigned by dropping creature at border - then drop at border
-    if ((get_flags_for_job(jobpref) & (JoKF_AssignDropOnRoomBorder|JoKF_AssignDropOnRoomCenter)) == JoKF_AssignDropOnRoomBorder)
+    if ((get_flags_for_job(jobpref) & (JoKF_AssignOnAreaBorder|JoKF_AssignOnAreaCenter)) == JoKF_AssignOnAreaBorder)
     {
         SYNCDBG(9,"Job %s requires dropping at %s border",creature_job_code_name(jobpref),room_code_name(room->kind));
         if (find_random_position_at_border_of_room(pos, room)) {
@@ -2356,7 +2356,7 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
             struct CreatureStats *crstat;
             crstat = creature_stats_get_from_thing(thing);
             CreatureJob jobpref;
-            jobpref = get_job_for_room(room->kind, JoKF_AssignComputerDropInRoom, crstat->job_primary|crstat->job_secondary);
+            jobpref = get_job_for_room(room->kind, JoKF_AssignComputerDrop|JoKF_AssignAreaWithinRoom, crstat->job_primary|crstat->job_secondary);
             if (get_drop_position_for_creature_job_in_room(&pos, room, jobpref))
             {
                 if (computer_dump_held_things_on_map(comp, thing, &pos) > 0) {
@@ -2391,7 +2391,7 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
         struct CreatureStats *crstat;
         crstat = creature_stats_get_from_thing(thing);
         CreatureJob jobpref;
-        jobpref = get_job_for_room(room->kind, JoKF_AssignComputerDropInRoom, crstat->job_primary|crstat->job_secondary);
+        jobpref = get_job_for_room(room->kind, JoKF_AssignComputerDrop|JoKF_AssignAreaWithinRoom, crstat->job_primary|crstat->job_secondary);
         if (get_drop_position_for_creature_job_in_room(&pos, room, jobpref))
         {
             if (computer_place_thing_in_power_hand(comp, thing, &pos)) {

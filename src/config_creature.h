@@ -82,26 +82,28 @@ enum CreatureJobFlags {
 };
 
 enum JobKindFlags {
-    JoKF_None               = 0x00000000,
+    JoKF_None                   = 0x00000000,
     // "Assign" field
-    JoKF_AssignHumanDropInRoom    = 0x00000001,
-    JoKF_AssignComputerDropInRoom = 0x00000002,
-    JoKF_AssignInitInRoom         = 0x00000004,
-    JoKF_AssignDropOnRoomBorder   = 0x00000008,
-    JoKF_AssignDropOnRoomCenter   = 0x00000010,
-    JoKF_OwnedCreatures     = 0x00000020,
-    JoKF_EnemyCreatures     = 0x00000040,
-    JoKF_OwnedDiggers       = 0x00000080,
-    JoKF_EnemyDiggers       = 0x00000100,
-    JoKF_AssignOneTime      = 0x00000200,
-    JoKF_NeedsHaveJob       = 0x00000400,
+    JoKF_AssignHumanDrop        = 0x00000001,
+    JoKF_AssignComputerDrop     = 0x00000002,
+    JoKF_AssignCeatureInit      = 0x00000004,
+    JoKF_AssignAreaWithinRoom   = 0x00000008,
+    JoKF_AssignAreaOutsideRoom  = 0x00000010,
+    JoKF_AssignOnAreaBorder     = 0x00000040,
+    JoKF_AssignOnAreaCenter     = 0x00000080,
+    JoKF_OwnedCreatures         = 0x00000200,
+    JoKF_EnemyCreatures         = 0x00000400,
+    JoKF_OwnedDiggers           = 0x00000800,
+    JoKF_EnemyDiggers           = 0x00001000,
+    JoKF_AssignOneTime          = 0x00002000,
+    JoKF_NeedsHaveJob           = 0x00004000,
     // "Flags" field
-    JoKF_NeedsCapacity      = 0x00001000,
-    JoKF_WorkOnRoomBorder   = 0x00002000,
-    JoKF_WorkOnRoomCenter   = 0x00004000,
-    JoKF_NoSelfControl      = 0x00008000,
-    JoKF_NoGroups           = 0x00010000,
-    JoKF_AllowChickenized   = 0x00020000,
+    JoKF_NeedsCapacity          = 0x00010000,
+    JoKF_WorkOnRoomBorder       = 0x00020000,
+    JoKF_WorkOnRoomCenter       = 0x00040000,
+    JoKF_NoSelfControl          = 0x00080000,
+    JoKF_NoGroups               = 0x00100000,
+    JoKF_AllowChickenized       = 0x00200000,
 };
 
 enum InstancePropertiesFlags {

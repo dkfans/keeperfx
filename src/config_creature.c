@@ -107,12 +107,14 @@ const struct NamedCommand creaturetype_job_commands[] = {
   };
 
 const struct NamedCommand creaturetype_job_assign[] = {
-  {"HUMAN_DROP_IN_ROOM",     JoKF_AssignHumanDropInRoom},
-  {"COMPUTER_DROP_IN_ROOM",  JoKF_AssignComputerDropInRoom},
-  {"INIT_IN_ROOM",           JoKF_AssignInitInRoom},
-  {"BORDER_ONLY",            JoKF_AssignDropOnRoomBorder},
-  {"CENTER_ONLY",            JoKF_AssignDropOnRoomCenter},
-  {"WHOLE_ROOM",             JoKF_AssignDropOnRoomBorder|JoKF_AssignDropOnRoomCenter},
+  {"HUMAN_DROP",             JoKF_AssignHumanDrop},
+  {"COMPUTER_DROP",          JoKF_AssignComputerDrop},
+  {"CREATURE_INIT",          JoKF_AssignCeatureInit},
+  {"AREA_WITHIN_ROOM",       JoKF_AssignAreaWithinRoom},
+  {"AREA_OUTSIDE_ROOM",      JoKF_AssignAreaOutsideRoom},
+  {"BORDER_ONLY",            JoKF_AssignOnAreaBorder},
+  {"CENTER_ONLY",            JoKF_AssignOnAreaCenter},
+  {"WHOLE_AREA",             JoKF_AssignOnAreaBorder|JoKF_AssignOnAreaCenter},
   {"OWNED_CREATURES",        JoKF_OwnedCreatures},
   {"ENEMY_CREATURES",        JoKF_EnemyCreatures},
   {"OWNED_DIGGERS",          JoKF_OwnedDiggers},
@@ -125,7 +127,7 @@ const struct NamedCommand creaturetype_job_assign[] = {
 const struct NamedCommand creaturetype_job_properties[] = {
   {"WORK_BORDER_ONLY",       JoKF_WorkOnRoomBorder},
   {"WORK_CENTER_ONLY",       JoKF_WorkOnRoomCenter},
-  {"WORK_WHOLE_ROOM",        JoKF_WorkOnRoomBorder|JoKF_WorkOnRoomCenter},
+  {"WORK_WHOLE_AREA",        JoKF_WorkOnRoomBorder|JoKF_WorkOnRoomCenter},
   {"NEEDS_CAPACITY",         JoKF_NeedsCapacity},
   {"NO_SELF_CONTROL",        JoKF_NoSelfControl},
   {"NO_GROUPS",              JoKF_NoGroups},
@@ -1206,9 +1208,10 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
                 }
                 break;
             case 4: // ASSIGN
-                jobcfg->job_flags &= ~(JoKF_AssignHumanDropInRoom|JoKF_AssignComputerDropInRoom|JoKF_AssignInitInRoom|
-                    JoKF_AssignDropOnRoomBorder|JoKF_AssignDropOnRoomCenter|JoKF_OwnedCreatures|JoKF_EnemyCreatures|
-                    JoKF_OwnedDiggers|JoKF_EnemyDiggers|JoKF_AssignOneTime|JoKF_NeedsHaveJob);
+                jobcfg->job_flags &= ~(JoKF_AssignHumanDrop|JoKF_AssignComputerDrop|JoKF_AssignCeatureInit|
+                    JoKF_AssignAreaWithinRoom|JoKF_AssignAreaOutsideRoom|JoKF_AssignOnAreaBorder|JoKF_AssignOnAreaCenter|
+                    JoKF_OwnedCreatures|JoKF_EnemyCreatures|JoKF_OwnedDiggers|JoKF_EnemyDiggers|
+                    JoKF_AssignOneTime|JoKF_NeedsHaveJob);
                 while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
                 {
                     k = get_id(creaturetype_job_assign, word_buf);
@@ -1811,41 +1814,46 @@ struct CreatureJobConfig *get_config_for_job(CreatureJob job_flags)
  */
 CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long drop_kind_flags)
 {
+    unsigned long required_kind_flags;
+    // Detect the job which we will do in the area
+    required_kind_flags = drop_kind_flags;
+    if (slab_is_area_inner_fill(subtile_slab(stl_x), subtile_slab(stl_y))) {
+        required_kind_flags |= JoKF_AssignOnAreaCenter;
+    } else {
+        required_kind_flags |= JoKF_AssignOnAreaBorder;
+    }
+    struct SlabMap *slb;
+    slb = get_slabmap_for_subtile(stl_x,stl_y);
+    if (creatng->owner == slabmap_owner(slb))
+    {
+        if (creatng->model == get_players_special_digger_model(creatng->owner)) {
+            required_kind_flags |= JoKF_OwnedDiggers;
+        } else {
+            required_kind_flags |= JoKF_OwnedCreatures;
+        }
+    } else
+    {
+        if (creatng->model == get_players_special_digger_model(creatng->owner)) {
+            required_kind_flags |= JoKF_EnemyDiggers;
+        } else {
+            required_kind_flags |= JoKF_EnemyCreatures;
+        }
+    }
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(creatng);
+    RoomKind rkind;
     struct Room *room;
     room = get_room_thing_is_on(creatng);
-    if (!room_is_invalid(room))
-    {
-        unsigned long required_kind_flags;
-        // Detect the job which we will do in the room
-        required_kind_flags = drop_kind_flags;
-        if (creatng->owner == room->owner)
-        {
-            if (creatng->model == get_players_special_digger_model(creatng->owner)) {
-                required_kind_flags |= JoKF_OwnedDiggers;
-            } else {
-                required_kind_flags |= JoKF_OwnedCreatures;
-            }
-        } else
-        {
-            if (creatng->model == get_players_special_digger_model(creatng->owner)) {
-                required_kind_flags |= JoKF_EnemyDiggers;
-            } else {
-                required_kind_flags |= JoKF_EnemyCreatures;
-            }
-        }
-        if (slab_is_area_inner_fill(subtile_slab(stl_x), subtile_slab(stl_y))) {
-            required_kind_flags |= JoKF_AssignDropOnRoomCenter;
-        } else {
-            required_kind_flags |= JoKF_AssignDropOnRoomBorder;
-        }
-        struct CreatureStats *crstat;
-        crstat = creature_stats_get_from_thing(creatng);
-        CreatureJob jobpref;
-        jobpref = get_job_for_room(room->kind, required_kind_flags, crstat->job_primary|crstat->job_secondary);
-        return jobpref;
+    if (!room_is_invalid(room)) {
+        required_kind_flags |= JoKF_AssignAreaWithinRoom;
+        rkind = room->kind;
+    } else {
+        required_kind_flags |= JoKF_AssignAreaOutsideRoom;
+        rkind = RoK_NONE;
     }
-    //TODO CREATURE_JOBS make support for jobs outside of rooms
-    return Job_NULL;
+    CreatureJob jobpref;
+    jobpref = get_job_for_room(rkind, required_kind_flags, crstat->job_primary|crstat->job_secondary);
+    return jobpref;
 }
 
 /**
@@ -1853,7 +1861,7 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
  * @param rkind Room kind for which job is to be returned.
  * @param required_kind_flags Only jobs which have all of the flags set can be returned.
  *     For example, to only include jobs which can be assigned by dropping creatures by computer player,
- *     use JoKF_AssignComputerDropInRoom flag.
+ *     use JoKF_AssignComputerDrop flag.
  * @param has_jobs Primary and secondary jobs of a creature to be assigned; if only jobs which have
  *     no need to be in primary/secondary list should be qualified, this can be Job_NULL.
  * @return A single job flag.
@@ -1861,9 +1869,6 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
 CreatureJob get_job_for_room(RoomKind rkind, unsigned long required_kind_flags, CreatureJob has_jobs)
 {
     long i;
-    if (rkind == RoK_NONE) {
-        return Job_NULL;
-    }
     for (i=0; i < crtr_conf.jobs_count; i++)
     {
         struct CreatureJobConfig *jobcfg;
@@ -1874,7 +1879,7 @@ CreatureJob get_job_for_room(RoomKind rkind, unsigned long required_kind_flags, 
             new_job = 1<<(i-1);
             if (((jobcfg->job_flags & JoKF_NeedsHaveJob) == 0) || ((has_jobs & new_job) != 0))
             {
-                if (jobcfg->room_kind == rkind) {
+                if ((jobcfg->room_kind == rkind) || ((jobcfg->job_flags & JoKF_AssignAreaOutsideRoom) != 0)) {
                     return new_job;
                 }
             }

@@ -1461,7 +1461,7 @@ short creature_being_dropped(struct Thing *creatng)
     set_start_state(creatng);
     // Check job which we can do after dropping at these coordinates
     CreatureJob new_job;
-    new_job = get_job_for_subtile(creatng, stl_x, stl_y, JoKF_AssignHumanDropInRoom);
+    new_job = get_job_for_subtile(creatng, stl_x, stl_y, JoKF_AssignHumanDrop);
     // Most tasks are disabled while creature is a chicken
     if (!creature_affected_by_spell(creatng, SplK_Chicken))
     {
@@ -2701,7 +2701,7 @@ TbBool init_creature_state(struct Thing *creatng)
         return false;
     }
     CreatureJob new_job;
-    new_job = get_job_for_subtile(creatng, stl_x, stl_y, JoKF_AssignInitInRoom);
+    new_job = get_job_for_subtile(creatng, stl_x, stl_y, JoKF_AssignCeatureInit);
     if (new_job == Job_NULL)
     {
         SYNCDBG(3,"No job found at (%d,%d) for %s index %d owner %d",(int)stl_x,(int)stl_y,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
