@@ -801,8 +801,8 @@ static TbBool allowed_to_ratio_assign_creature(const struct Thing* thing, MaxTng
 		return can_take_from[1];
 	else if (creature_is_doing_job_in_room_of_kind(thing, RoK_SCAVENGER))
 		return can_take_from[2];
-	else if (creature_is_doing_job_in_room_of_kind(thing, RoK_TRAINING))
-		return can_take_from[3];
+	/*else if (creature_is_doing_job_in_room_of_kind(thing, RoK_TRAINING))
+		return can_take_from[3];*/
 
 	return true;
 }
@@ -1012,7 +1012,6 @@ static struct Thing* find_creature_to_be_ratio_assigned(struct Computer2* comp, 
 		(!should_train || average_creature_explevel(dungeon->creatr_list_start) >= 5);
 	if (!should_manufacture)
 		workshop_ratio = 0;
-	//SYNCLOG("average explevel: %d", average_creature_explevel(dungeon->creatr_list_start));
 
 	//define size of one "creature unit" to be able to see if a ratio is fulfilled or not (integer math issue)
 	crtr_unit = workshop_ratio + library_ratio + scavenge_ratio + training_ratio;
@@ -2725,6 +2724,8 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
         return CTaskRet_Unk0;
     }
     SYNCDBG(9,"Starting player %d pickup",(int)dungeon->owner);
+	//TODO: remove line below when new and old logic is separated
+	ctask->move_to_room.repeat_num = min(1, ctask->move_to_room.repeat_num);
     i = ctask->move_to_room.repeat_num;
     ctask->move_to_room.repeat_num--;
     if (i <= 0)
@@ -2735,6 +2736,8 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
     thing = find_creature_to_be_placed_in_room(comp, &room);
     if (!thing_is_invalid(thing))
     {
+		//SYNCLOG("will assign %s to %s", creature_code_name(thing->model), room_code_name(room->kind));
+
         //TODO CREATURE_AI try to make sure the creature will do proper activity in the room
         //     ie. select a room tile which is far from CTA and enemies
         //TODO CREATURE_AI don't place creatures at center of a temple/portal if we don't want to get rid of them
