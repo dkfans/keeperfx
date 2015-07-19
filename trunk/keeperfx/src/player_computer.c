@@ -1649,6 +1649,7 @@ void setup_computer_players2(void)
   gameadd.turn_last_checked_for_gold = game.play_gameturn;
   check_map_for_gold();
   computer_setup_new_digging();
+  computer_setup_sacking_possibilities();
   for (i=0; i < COMPUTER_TASKS_COUNT; i++)
   {
     LbMemorySet(&game.computer_task[i], 0, sizeof(struct ComputerTask));

@@ -1293,3 +1293,48 @@ void computer_check_doortrap_management(struct Computer2* comp)
 	//TODO: handle selling for cash here rather than in old code
 	//if (something) sell_door_or_trap(comp); //notice this doesn't happen in exclusion to placement
 }
+
+//CHECK SACKING /////////////////////////////////////////////////////////////////////////
+
+struct SackingPossibility
+{
+	TbBool is_recipe;
+	union
+	{
+		int input_crtr_model;
+		int recipe_index;
+	};
+	int output_crtr_model; //either specific model or 0 for "any stronger creature"
+};
+
+static struct SackingPossibility* sacking_possibilities;
+
+void computer_setup_sacking_possibilities()
+{
+	//TODO: make configurable
+	const int count = 4;
+
+	if (sacking_possibilities)
+	{
+		free(sacking_possibilities);
+	}
+
+	sacking_possibilities = (struct SackingPossibility*)calloc(1, count * sizeof(*sacking_possibilities));
+
+	sacking_possibilities[0].input_crtr_model = creature_model_id("FLY");
+	sacking_possibilities[1].input_crtr_model = creature_model_id("BEETLE");
+	sacking_possibilities[2].input_crtr_model = creature_model_id("SPIDER");
+	sacking_possibilities[3].input_crtr_model = creature_model_id("DRAGONSPAWN");
+	sacking_possibilities[3].output_crtr_model = creature_model_id("DRAGON");
+}
+
+void computer_check_sacking_possibilities(struct Computer2* comp)
+{
+	//for each sacking possibility in order of decreasing desirability
+	//if preconditions can be met, evaluate whether we would (probably) see an improvement in creature composition by executing it
+	//if so, execute it and exit
+
+	//1) check how many good creatures we may gain by sacking
+
+	//2) find creature to sack/kill (or sacrifice)
+}

@@ -120,6 +120,8 @@ long computer_check_prison_management(struct Computer2* comp);
 void computer_check_doortrap_management(struct Computer2* comp);
 long computer_check_new_digging(struct Computer2* comp);
 void computer_setup_new_digging(void);
+void computer_check_sacking_possibilities(struct Computer2* comp);
+void computer_setup_sacking_possibilities(void);
 //TODO: clean up long return values, chances are we will not put into old code anyway
 
 TbBool is_newdig_enabled(struct Computer2* comp);
