@@ -257,6 +257,8 @@ struct Thing *get_nearest_enemy_creature_possible_to_attack_by(struct Thing *cre
 struct Thing *get_highest_score_enemy_creature_within_distance_possible_to_attack_by(struct Thing *creatng, MapCoordDelta dist);
 struct Thing *get_nth_creature_owned_by_and_matching_bool_filter(PlayerNumber plyr_idx, Thing_Bool_Filter matcher_cb, long n);
 struct Thing *get_nth_creature_owned_by_and_failing_bool_filter(PlayerNumber plyr_idx, Thing_Bool_Filter matcher_cb, long n);
+long do_on_player_list_all_creatures_of_model(long thing_idx, int crmodel,
+	Thing_Bool_Modifier do_cb);
 
 // Routines to select all players creatures of model matching the criteria
 long count_creatures_in_dungeon_of_model_flags(const struct Dungeon *dungeon, unsigned long need_mdflags, unsigned long excl_mdflags);

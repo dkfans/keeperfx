@@ -46,6 +46,7 @@
 #include "room_list.h"
 #include "room_jobs.h"
 #include "room_workshop.h"
+#include "thing_list.h"
 
 #include "dungeon_data.h"
 #include "map_blocks.h"
@@ -874,14 +875,19 @@ static long creature_training_value(const struct Thing* thing, MaxTngFilterParam
 	cctrl = creature_control_get_from_thing(thing);
 	if (!creature_stats_invalid(crstat) && !creature_control_invalid(cctrl))
 	{
-		long val = compute_creature_work_value(crstat->training_value*256, 256, cctrl->explevel);
+		if (cctrl->explevel >= CREATURE_MAX_LEVEL - 1)
+			return LONG_MIN;
+
+		/*long val = compute_creature_work_value(crstat->training_value*256, 256, cctrl->explevel);
 		if (should_research)
 			val -= compute_creature_work_value(crstat->research_value*256, 256, cctrl->explevel);
 		if (should_scavenge)
 			val -= compute_creature_work_value(crstat->scavenge_value*256, 256, cctrl->explevel);
 		if (should_manufacture)
 			val -= compute_creature_work_value(crstat->manufacture_value*256, 256, cctrl->explevel);
-		return 1000000 + val;
+		return 1000000 + val;*/
+
+		return CREATURE_MAX_LEVEL - cctrl->explevel;
 	}
 	return LONG_MIN;
 }
@@ -943,6 +949,27 @@ static struct Thing* find_best_creature_for_job(struct Computer2* comp, Creature
 	return get_player_list_creature_with_filter(dungeon->creatr_list_start, filter_func, &filter_param);
 }
 
+static int explevel_sum;
+static TbBool add_explevel(struct Thing* thing)
+{
+	struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+	if (!creature_control_invalid(cctrl))
+	{
+		explevel_sum += cctrl->explevel;
+		return true;
+	}
+	return false;
+}
+static int average_creature_explevel(int list_start)
+{
+	int n;
+	explevel_sum = 0;
+	n = do_on_player_list_all_creatures_of_model(list_start, -1, add_explevel);
+	if (n > 0)
+		explevel_sum /= n;
+	return explevel_sum;
+}
+
 static struct Thing* find_creature_to_be_ratio_assigned(struct Computer2* comp, CreatureJob* assigned_job)
 {
 	struct Dungeon* dungeon;
@@ -965,7 +992,8 @@ static struct Thing* find_creature_to_be_ratio_assigned(struct Computer2* comp, 
 
 	library_ratio = workshop_ratio = scavenge_ratio = training_ratio = 100 * crtr_count;
 
-	training_ratio *= 2;
+	training_ratio *= 4;
+	scavenge_ratio *= 2;
 	workshop_ratio /= 2;
 
 	should_research = count_player_rooms_of_type(dungeon->owner, RoK_LIBRARY) > 0 &&
@@ -980,9 +1008,11 @@ static struct Thing* find_creature_to_be_ratio_assigned(struct Computer2* comp, 
 			2 * dungeon->creatures_total_pay < dungeon->total_money_owned;
 	if (!should_scavenge)
 		scavenge_ratio = 0;
-	should_manufacture = count_player_rooms_of_type(dungeon->owner, RoK_WORKSHOP) > 0;
+	should_manufacture = count_player_rooms_of_type(dungeon->owner, RoK_WORKSHOP) > 0 &&
+		(!should_train || average_creature_explevel(dungeon->creatr_list_start) >= 5);
 	if (!should_manufacture)
 		workshop_ratio = 0;
+	//SYNCLOG("average explevel: %d", average_creature_explevel(dungeon->creatr_list_start));
 
 	//define size of one "creature unit" to be able to see if a ratio is fulfilled or not (integer math issue)
 	crtr_unit = workshop_ratio + library_ratio + scavenge_ratio + training_ratio;
@@ -1052,15 +1082,15 @@ static struct Thing* find_creature_to_be_ratio_assigned(struct Computer2* comp, 
 	training_diff = training_ratio - count_player_list_creatures_with_filter(dungeon->creatr_list_start,
 		creature_is_doing_room_kind_job_filter, &filter_param);
 	//SYNCLOG("diffs: %d %d %d %d", library_diff, scavenge_diff, workshop_diff, training_diff);
-	if (library_diff >= 0 && library_ratio > 0)
+	if (library_diff > 0 && library_ratio > 0)
 	{
 		*assigned_job = Job_RESEARCH;
 	}
-	else if (scavenge_diff >= 0 && scavenge_ratio > 0)
+	else if (scavenge_diff > 0 && scavenge_ratio > 0)
 	{
 		*assigned_job = Job_SCAVENGE;
 	}
-	else if (workshop_diff >= 0 && workshop_ratio > 0)
+	else if (workshop_diff > 0 && workshop_ratio > 0)
 	{
 		*assigned_job = Job_MANUFACTURE;
 	}
