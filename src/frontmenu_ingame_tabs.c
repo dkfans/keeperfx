@@ -105,13 +105,32 @@ void menu_tab_maintain(struct GuiButton *gbtn)
         gbtn->flags &= ~LbBtnF_Enabled;
 }
 
+/**
+ * Returns tab designation ID if the button with given designation ID is within a tab.
+ * @param btn_designt_id
+ */
+short button_designation_to_tab_designation(short btn_designt_id)
+{
+    if ((btn_designt_id >= BID_QRY_IMPRSN) && (btn_designt_id <= BID_QRY_BTN3))
+        return BID_INFO_TAB;
+    if ((btn_designt_id >= BID_ROOM_TD01) && (btn_designt_id <= BID_ROOM_TD16))
+        return BID_ROOM_TAB;
+    if ((btn_designt_id >= BID_POWER_TD01) && (btn_designt_id <= BID_POWER_TD16))
+        return BID_SPELL_TAB;
+    if ((btn_designt_id >= BID_MNFCT_TD01) && (btn_designt_id <= BID_MNFCT_TD16))
+        return BID_MNFCT_TAB;
+    if ((btn_designt_id >= BID_CRTR_NXWNDR) && (btn_designt_id <= BID_CRTR_NXFIGT))
+        return BID_CREATR_TAB;
+    return BID_DEFAULT;
+}
+
 void gui_area_autopilot_button(struct GuiButton *gbtn)
 {
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(my_player_number);
     int spr_idx;
     spr_idx = gbtn->sprite_idx;
-    if (gbtn->gbtype == Lb_CYCLEBTN) {
+    if (gbtn->gbtype == LbBtnT_ToggleBtn) {
         ERRORLOG("Cycle button cannot have a normal button draw function!");
     }
     int ps_units_per_px;
@@ -932,10 +951,10 @@ void maintain_big_spell(struct GuiButton *gbtn)
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(my_player_number);
     if (dungeon->magic_level[spl_idx] > 0) {
-        gbtn->field_1B &= LbBFeF_IntValueMask;
+        gbtn->btype_value &= LbBFeF_IntValueMask;
         gbtn->flags |= LbBtnF_Enabled;
     } else {
-        gbtn->field_1B |= LbBFeF_NoTooltip;
+        gbtn->btype_value |= LbBFeF_NoTooltip;
         gbtn->flags &= ~LbBtnF_Enabled;
     }
 }
@@ -954,10 +973,10 @@ void maintain_room(struct GuiButton *gbtn)
         return;
     }
     if (dungeon->room_buildable[rkind]) {
-        gbtn->field_1B &= LbBFeF_IntValueMask;
+        gbtn->btype_value &= LbBFeF_IntValueMask;
         gbtn->flags |= LbBtnF_Enabled;
     } else {
-        gbtn->field_1B |= LbBFeF_NoTooltip;
+        gbtn->btype_value |= LbBFeF_NoTooltip;
         gbtn->flags &= ~LbBtnF_Enabled;
     }
 }
@@ -979,10 +998,10 @@ void maintain_big_room(struct GuiButton *gbtn)
     gbtn->sprite_idx = game.chosen_room_spridx;
     gbtn->tooltip_stridx = game.chosen_room_tooltip;
     if (dungeon->room_buildable[rkind]) {
-        gbtn->field_1B &= LbBFeF_IntValueMask;
+        gbtn->btype_value &= LbBFeF_IntValueMask;
         gbtn->flags |= LbBtnF_Enabled;
     } else {
-        gbtn->field_1B |= LbBFeF_NoTooltip;
+        gbtn->btype_value |= LbBFeF_NoTooltip;
         gbtn->flags &= ~LbBtnF_Enabled;
     }
 }
@@ -995,18 +1014,18 @@ void maintain_spell(struct GuiButton *gbtn)
   i = (unsigned long)(gbtn->content) & 0xff;
   if (!is_power_available(player->id_number,i))
   {
-    gbtn->field_1B |= LbBFeF_NoTooltip;
+    gbtn->btype_value |= LbBFeF_NoTooltip;
     gbtn->flags &= ~LbBtnF_Enabled;
   } else
   if (i == PwrK_ARMAGEDDON)
   {
       if (game.armageddon_cast_turn != 0)
       {
-        gbtn->field_1B |= LbBFeF_NoTooltip;
+        gbtn->btype_value |= LbBFeF_NoTooltip;
         gbtn->flags &= ~LbBtnF_Enabled;
       } else
       {
-        gbtn->field_1B &= LbBFeF_IntValueMask;
+        gbtn->btype_value &= LbBFeF_IntValueMask;
         gbtn->flags |= LbBtnF_Enabled;
       }
   } else
@@ -1014,16 +1033,16 @@ void maintain_spell(struct GuiButton *gbtn)
   {
       if (player_uses_power_hold_audience(my_player_number))
       {
-        gbtn->field_1B |= LbBFeF_NoTooltip;
+        gbtn->btype_value |= LbBFeF_NoTooltip;
         gbtn->flags &= ~LbBtnF_Enabled;
       } else
       {
-        gbtn->field_1B &= LbBFeF_IntValueMask;
+        gbtn->btype_value &= LbBFeF_IntValueMask;
         gbtn->flags |= LbBtnF_Enabled;
       }
   } else
   {
-    gbtn->field_1B &= LbBFeF_IntValueMask;
+    gbtn->btype_value &= LbBFeF_IntValueMask;
     gbtn->flags |= LbBtnF_Enabled;
   }
 }
@@ -1036,11 +1055,11 @@ void maintain_trap(struct GuiButton *gbtn)
     manufctr = get_manufacture_data(manufctr_idx);
     if (is_trap_placeable(my_player_number, manufctr->tngmodel) || is_trap_built(my_player_number, manufctr->tngmodel))
     {
-        gbtn->field_1B &= LbBFeF_IntValueMask;
+        gbtn->btype_value &= LbBFeF_IntValueMask;
         gbtn->flags |= LbBtnF_Enabled;
     } else
     {
-        gbtn->field_1B |= LbBFeF_NoTooltip;
+        gbtn->btype_value |= LbBFeF_NoTooltip;
         gbtn->flags &= ~LbBtnF_Enabled;
     }
 }
@@ -1053,11 +1072,11 @@ void maintain_door(struct GuiButton *gbtn)
     manufctr = get_manufacture_data(manufctr_idx);
     if (is_door_placeable(my_player_number, manufctr->tngmodel) || is_door_built(my_player_number, manufctr->tngmodel))
     {
-        gbtn->field_1B &= LbBFeF_IntValueMask;
+        gbtn->btype_value &= LbBFeF_IntValueMask;
         gbtn->flags |= LbBtnF_Enabled;
     } else
     {
-        gbtn->field_1B |= LbBFeF_NoTooltip;
+        gbtn->btype_value |= LbBFeF_NoTooltip;
         gbtn->flags &= ~LbBtnF_Enabled;
     }
 }
@@ -1074,11 +1093,11 @@ void maintain_big_trap(struct GuiButton *gbtn)
     if ( ((manufctr->tngclass == TCls_Trap) && is_trap_placeable(my_player_number, manufctr->tngmodel))
       || ((manufctr->tngclass == TCls_Door) && is_door_placeable(my_player_number, manufctr->tngmodel)) )
     {
-        gbtn->field_1B &= LbBFeF_IntValueMask;
+        gbtn->btype_value &= LbBFeF_IntValueMask;
         gbtn->flags |= LbBtnF_Enabled;
     } else
     {
-        gbtn->field_1B |= LbBFeF_NoTooltip;
+        gbtn->btype_value |= LbBFeF_NoTooltip;
         gbtn->flags &= ~LbBtnF_Enabled;
     }
 }
@@ -1207,7 +1226,7 @@ void pick_up_creature_doing_activity(struct GuiButton *gbtn)
     long i;
     unsigned char pick_flags;
     SYNCDBG(8,"Starting");
-    i = gbtn->field_1B & LbBFeF_IntValueMask;
+    i = gbtn->btype_value & LbBFeF_IntValueMask;
     ThingModel crmodel;
     if (i > 0)
         crmodel = breed_activities[(top_of_breed_list+i)%CREATURE_TYPES_COUNT];
@@ -1228,7 +1247,7 @@ void gui_go_to_next_creature_activity(struct GuiButton *gbtn)
 {
     ThingModel crmodel;
     int i;
-    i = gbtn->field_1B & LbBFeF_IntValueMask;
+    i = gbtn->btype_value & LbBFeF_IntValueMask;
     if (i > 0) {
         crmodel = breed_activities[(top_of_breed_list+i)%CREATURE_TYPES_COUNT];
     } else {
@@ -1344,7 +1363,7 @@ void pick_up_next_creature(struct GuiButton *gbtn)
     int i;
     unsigned short pick_flags;
 
-    i = gbtn->field_1B & LbBFeF_IntValueMask;
+    i = gbtn->btype_value & LbBFeF_IntValueMask;
     if (i > 0) {
         kind = breed_activities[(i + top_of_breed_list) % CREATURE_TYPES_COUNT];
     }
@@ -1364,7 +1383,7 @@ void gui_go_to_next_creature(struct GuiButton *gbtn)
 {
     long i;
     SYNCDBG(8,"Starting");
-    i = gbtn->field_1B & LbBFeF_IntValueMask;
+    i = gbtn->btype_value & LbBFeF_IntValueMask;
     ThingModel crmodel;
     if (i > 0) {
         crmodel = breed_activities[(top_of_breed_list+i)%CREATURE_TYPES_COUNT];
@@ -1378,7 +1397,7 @@ void gui_area_anger_button(struct GuiButton *gbtn)
 {
     long i,job_idx,crmodel;
     SYNCDBG(10,"Starting");
-    i = gbtn->field_1B & LbBFeF_IntValueMask;
+    i = gbtn->btype_value & LbBFeF_IntValueMask;
     // Get index from pointer
     job_idx = ((long *)gbtn->content - &activity_list[0]);
     if ( (i > 0) && (top_of_breed_list+i < CREATURE_TYPES_COUNT) )
@@ -1636,7 +1655,7 @@ void maintain_instance(struct GuiButton *gbtn)
     TRACE_THING(ctrltng);
     if (!thing_is_creature(ctrltng))
     {
-        gbtn->field_1B |= LbBFeF_NoTooltip;
+        gbtn->btype_value |= LbBFeF_NoTooltip;
         gbtn->flags &= ~LbBtnF_Enabled;
         gbtn->sprite_idx = 0;
         gbtn->tooltip_stridx = 0;
@@ -1664,11 +1683,11 @@ void maintain_instance(struct GuiButton *gbtn)
     gbtn->tooltip_stridx = instance_button_init[curbtn_inst_id].tooltip_stridx;
     if (creature_instance_is_available(ctrltng, curbtn_inst_id))
     {
-        gbtn->field_1B &= LbBFeF_IntValueMask;
+        gbtn->btype_value &= LbBFeF_IntValueMask;
         gbtn->flags |= LbBtnF_Enabled;
         return;
     }
-    gbtn->field_1B |= LbBFeF_NoTooltip;
+    gbtn->btype_value |= LbBFeF_NoTooltip;
     gbtn->flags &= ~LbBtnF_Enabled;
 }
 
@@ -1761,7 +1780,7 @@ void maintain_activity_pic(struct GuiButton *gbtn)
 {
     ThingModel crmodel;
     int i;
-    i = gbtn->field_1B & LbBFeF_IntValueMask;
+    i = gbtn->btype_value & LbBFeF_IntValueMask;
     if (i > 0) {
         crmodel = breed_activities[(top_of_breed_list+i)%CREATURE_TYPES_COUNT];
     } else {
@@ -1783,7 +1802,7 @@ void maintain_activity_row(struct GuiButton *gbtn)
 {
     ThingModel crmodel;
     int i;
-    i = gbtn->field_1B & LbBFeF_IntValueMask;
+    i = gbtn->btype_value & LbBFeF_IntValueMask;
     if (i > 0) {
         crmodel = breed_activities[(top_of_breed_list+i)%CREATURE_TYPES_COUNT];
     } else {
@@ -1887,7 +1906,7 @@ void maintain_event_button(struct GuiButton *gbtn)
 
     if (evidx == 0)
     {
-      gbtn->field_1B |= LbBFeF_NoMouseOver;
+      gbtn->btype_value |= LbBFeF_NoMouseOver;
       gbtn->sprite_idx = 0;
       gbtn->flags &= ~LbBtnF_Enabled;
       gbtn->gbactn_1 = 0;
@@ -1916,7 +1935,7 @@ void maintain_event_button(struct GuiButton *gbtn)
     }
     gbtn->tooltip_stridx = event_button_info[event->kind].tooltip_stridx;
     gbtn->flags |= LbBtnF_Enabled;
-    gbtn->field_1B &= LbBFeF_IntValueMask;
+    gbtn->btype_value &= LbBFeF_IntValueMask;
 }
 
 void gui_toggle_ally(struct GuiButton *gbtn)
@@ -1938,11 +1957,11 @@ void maintain_ally(struct GuiButton *gbtn)
     player = get_player(plyr_idx);
     if (!is_my_player_number(plyr_idx) && ((player->allocflags & PlaF_Allocated) != 0))
     {
-        gbtn->field_1B &= LbBFeF_IntValueMask;
+        gbtn->btype_value &= LbBFeF_IntValueMask;
         gbtn->flags |= LbBtnF_Enabled;
     } else
     {
-        gbtn->field_1B |= LbBFeF_NoTooltip;
+        gbtn->btype_value |= LbBFeF_NoTooltip;
         gbtn->flags &= ~LbBtnF_Enabled;
     }
 }
@@ -1972,11 +1991,11 @@ void maintain_room_and_creature_button(struct GuiButton *gbtn)
     player = get_player(plyr_idx);
     if (player_exists(player))
     {
-        gbtn->field_1B &= LbBFeF_IntValueMask;
+        gbtn->btype_value &= LbBFeF_IntValueMask;
         gbtn->flags |= LbBtnF_Enabled;
     } else
     {
-        gbtn->field_1B |= LbBFeF_NoMouseOver;
+        gbtn->btype_value |= LbBFeF_NoMouseOver;
         gbtn->flags &= ~LbBtnF_Enabled;
         gbtn->tooltip_stridx = 201;
     }
@@ -2156,7 +2175,7 @@ void gui_set_tend_to(struct GuiButton *gbtn)
 {
   struct PlayerInfo *player;
   player = get_my_player();
-  set_players_packet_action(player, PckA_ToggleTendency, gbtn->field_1B & LbBFeF_IntValueMask, 0, 0, 0);
+  set_players_packet_action(player, PckA_ToggleTendency, gbtn->btype_value & LbBFeF_IntValueMask, 0, 0, 0);
 }
 
 void gui_set_query(struct GuiButton *gbtn)

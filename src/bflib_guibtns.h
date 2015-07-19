@@ -39,15 +39,21 @@ struct GuiBoxOption;
 #define INPUT_FIELD_LEN     40
 #define TOOLTIP_MAX_LEN   2048
 
+/** Default button designation ID. Other designation IDs should be defined relatively to it. */
+#define BID_DEFAULT 0
+
 // Type definitions
 enum TbButtonType {
-    Lb_UNKNBTN0  =  0,
-    Lb_UNKNBTN1  =  1,
-    Lb_CYCLEBTN  =  2,
-    Lb_RADIOBTN  =  3,
-    Lb_SLIDERH   =  4,
-    Lb_EDITBTN   =  5,
-    Lb_UNKNBTN6  =  6,
+    LbBtnT_NormalBtn = 0,
+    /** Have continuous effect when mouse is held on it. Used for scrollable lists. */
+    LbBtnT_HoldableBtn,
+    /** Toggles between two states. Used for on/off switches. */
+    LbBtnT_ToggleBtn,
+    /** Allows selecting one from grouped buttons. */
+    LbBtnT_RadioBtn,
+    LbBtnT_HorizSlider,
+    LbBtnT_EditBox,
+    LbBtnT_Unknown6,
 };
 
 enum TbButtonFlags {
@@ -107,13 +113,13 @@ struct DraggingBox {
 
 struct GuiButtonInit {
     char gbtype; /**< GUI Button Type, directly copied to button instance. */
-    short id_num; /**< GUI Button ID, directly copied to button instance. */
+    short id_num; /**< GUI Button ID, directly copied to button instance. If there is no need of identifying the button within game code, it should be set to BID_DEFAULT.*/
     short gbifield_3; // unused
     unsigned short gbifield_5; // two bool values; maybe convert it to flags?
     Gf_Btn_Callback click_event;
     Gf_Btn_Callback rclick_event;
     Gf_Btn_Callback ptover_event;
-    short field_13;
+    unsigned short btype_value; /**< Value specific to button type, directly copied to button instance. */
     short scr_pos_x;
     short scr_pos_y;
     short pos_x;
@@ -134,14 +140,14 @@ struct GuiButton {
        unsigned char gbactn_1;
        unsigned char gbactn_2;
        char gmenu_idx;
-       short id_num;
-       unsigned char gbtype;
+       short id_num; /**< GUI Button ID, identifying the button designation within game code.*/
+       unsigned char gbtype; /**< GUI Button Type, from LbBtnF_* enumeration. */
        Gf_Btn_Callback click_event;
        Gf_Btn_Callback rclick_event;
        Gf_Btn_Callback ptover_event;
        Gf_Btn_Callback draw_call;
        Gf_Btn_Callback maintain_call;
-       unsigned short field_1B; // definitely a word, not two bytes
+       unsigned short btype_value; /**< Value specific to button type. Contains index in group for grouped buttons, bool state for toggle button, menu index for tab button etc. */
        short scr_pos_x;
        short scr_pos_y;
        short pos_x;

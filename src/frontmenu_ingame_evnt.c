@@ -190,7 +190,7 @@ void gui_go_to_person_in_battle(struct GuiButton *gbtn)
 void gui_setup_friend_over(struct GuiButton *gbtn)
 {
     int visbtl_id;
-    visbtl_id = gbtn->field_1B & LbBFeF_IntValueMask;
+    visbtl_id = gbtn->btype_value & LbBFeF_IntValueMask;
     if (battle_creature_over == 0)
     {
         struct Dungeon *dungeon;
@@ -258,7 +258,7 @@ void draw_battle_head(struct Thing *thing, long scr_x, long scr_y, int units_per
 void gui_area_friendly_battlers(struct GuiButton *gbtn)
 {
     int visbtl_id;
-    visbtl_id = gbtn->field_1B & LbBFeF_IntValueMask;
+    visbtl_id = gbtn->btype_value & LbBFeF_IntValueMask;
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(my_player_number);
     BattleIndex battle_id;
@@ -309,7 +309,7 @@ void gui_area_friendly_battlers(struct GuiButton *gbtn)
 void gui_setup_enemy_over(struct GuiButton *gbtn)
 {
     int visbtl_id;
-    visbtl_id = gbtn->field_1B & LbBFeF_IntValueMask;
+    visbtl_id = gbtn->btype_value & LbBFeF_IntValueMask;
     if (battle_creature_over == 0)
     {
         struct Dungeon *dungeon;
@@ -334,7 +334,7 @@ void gui_setup_enemy_over(struct GuiButton *gbtn)
 void gui_area_enemy_battlers(struct GuiButton *gbtn)
 {
     int visbtl_id;
-    visbtl_id = gbtn->field_1B & LbBFeF_IntValueMask;
+    visbtl_id = gbtn->btype_value & LbBFeF_IntValueMask;
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(my_player_number);
     BattleIndex battle_id;

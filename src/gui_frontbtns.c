@@ -55,7 +55,7 @@ void gui_clear_buttons_not_over_mouse(int gmbtn_mouseover_idx)
       gbtn = &active_buttons[gidx];
       if (gbtn->flags & LbBtnF_Unknown01)
         if ( ((gmbtn_mouseover_idx == -1) || (gmbtn_mouseover_idx != gidx)) &&
-             (gbtn->gbtype != Lb_RADIOBTN) && (gbtn != input_button) )
+             (gbtn->gbtype != LbBtnT_RadioBtn) && (gbtn != input_button) )
         {
           gbtn->flags &= ~LbBtnF_Unknown10;
           gbtn->gbactn_1 = 0;
@@ -75,10 +75,10 @@ void fake_button_click(int gmbtn_idx)
         gmnu = &active_menus[(unsigned)gbtn->gmenu_idx];
         if (((gbtn->flags & LbBtnF_Unknown01) != 0) && (gmnu->is_turned_on != 0) && (gbtn->id_num == gmbtn_idx))
         {
-            if ((gbtn->click_event != NULL) || ((gbtn->flags & LbBtnF_Unknown02) != 0) || (gbtn->parent_menu != NULL) || (gbtn->gbtype == Lb_RADIOBTN)) {
+            if ((gbtn->click_event != NULL) || ((gbtn->flags & LbBtnF_Unknown02) != 0) || (gbtn->parent_menu != NULL) || (gbtn->gbtype == LbBtnT_RadioBtn)) {
                 do_button_press_actions(gbtn, &gbtn->gbactn_1, gbtn->click_event);
             }
-            if ((gbtn->click_event != NULL) || ((gbtn->flags & LbBtnF_Unknown02) != 0) || (gbtn->parent_menu != NULL) || (gbtn->gbtype == Lb_RADIOBTN)) {
+            if ((gbtn->click_event != NULL) || ((gbtn->flags & LbBtnF_Unknown02) != 0) || (gbtn->parent_menu != NULL) || (gbtn->gbtype == LbBtnT_RadioBtn)) {
                 do_button_click_actions(gbtn, &gbtn->gbactn_1, gbtn->click_event);
             }
         }
@@ -97,7 +97,7 @@ TbBool gui_button_release_inputs(int gmbtn_idx)
     {
         callback = gbtn->click_event;
         if ((callback != NULL) || ((gbtn->flags & LbBtnF_Unknown02) != 0) ||
-            (gbtn->parent_menu != 0) || (gbtn->gbtype == Lb_RADIOBTN))
+            (gbtn->parent_menu != 0) || (gbtn->gbtype == LbBtnT_RadioBtn))
         {
             left_button_released = 0;
             do_button_release_actions(gbtn, &gbtn->gbactn_1, callback);
@@ -184,7 +184,7 @@ void clear_radio_buttons(struct GuiMenu *gmnu)
     for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
     {
         gbtn = &active_buttons[i];
-        if (gbtn->gbtype == Lb_RADIOBTN)
+        if (gbtn->gbtype == LbBtnT_RadioBtn)
         {
             if (gmnu->number == gbtn->gmenu_idx)
                 gbtn->gbactn_1 = 0;
@@ -203,7 +203,7 @@ void update_radio_button_data(struct GuiMenu *gmnu)
         rbstate = (unsigned char *)gbtn->content;
         if ((rbstate != NULL) && (gbtn->gmenu_idx == gmnu->number))
         {
-          if (gbtn->gbtype == Lb_RADIOBTN)
+          if (gbtn->gbtype == LbBtnT_RadioBtn)
           {
               if (gbtn->gbactn_1)
                 *rbstate = 1;
@@ -229,21 +229,21 @@ TbBool gui_button_click_inputs(int gmbtn_idx)
         result = true;
         callback = gbtn->click_event;
         if ((callback != NULL) || ((gbtn->flags & LbBtnF_Unknown02) != 0) ||
-           (gbtn->parent_menu != 0) || (gbtn->gbtype == Lb_RADIOBTN))
+           (gbtn->parent_menu != 0) || (gbtn->gbtype == LbBtnT_RadioBtn))
         {
             if ((gbtn->flags & LbBtnF_Enabled) != 0)
             {
                 SYNCDBG(18,"Left down action for type %d",(int)gbtn->gbtype);
                 switch (gbtn->gbtype)
                 {
-                case Lb_UNKNBTN1:
+                case LbBtnT_HoldableBtn:
                   if ((gbtn->gbactn_1 > 5) && (callback != NULL)) {
                       callback(gbtn);
                   } else {
                       gbtn->gbactn_1++;
                   }
                   break;
-                case Lb_UNKNBTN6:
+                case LbBtnT_Unknown6:
                   if (callback != NULL) {
                       callback(gbtn);
                   }
@@ -262,14 +262,14 @@ TbBool gui_button_click_inputs(int gmbtn_idx)
             SYNCDBG(18,"Right down action for type %d",(int)gbtn->gbtype);
             switch (gbtn->gbtype)
             {
-            case Lb_UNKNBTN1:
+            case LbBtnT_HoldableBtn:
               if ((gbtn->gbactn_2 > 5) && (callback != NULL)) {
                   callback(gbtn);
               } else {
                   gbtn->gbactn_2++;
               }
               break;
-            case Lb_UNKNBTN6:
+            case LbBtnT_Unknown6:
               if (callback != NULL) {
                   callback(gbtn);
               }
@@ -288,7 +288,7 @@ TbBool gui_button_click_inputs(int gmbtn_idx)
         }
         callback = gbtn->click_event;
         if ((callback != NULL) || ((gbtn->flags & LbBtnF_Unknown02) != 0) ||
-           (gbtn->parent_menu != 0) || (gbtn->gbtype == Lb_RADIOBTN))
+           (gbtn->parent_menu != 0) || (gbtn->gbtype == LbBtnT_RadioBtn))
         {
           left_button_clicked = 0;
           gui_last_left_button_pressed_id = gbtn->id_num;
@@ -343,7 +343,7 @@ void init_slider_bars(struct GuiMenu *gmnu)
         gbtn = &active_buttons[i];
         if ((gbtn->content) && (gbtn->gmenu_idx == gmnu->number))
         {
-          if (gbtn->gbtype == Lb_SLIDERH)
+          if (gbtn->gbtype == LbBtnT_HorizSlider)
           {
               sldpos = *(long *)gbtn->content;
               if (sldpos < 0)
@@ -394,7 +394,7 @@ void setup_radio_buttons(struct GuiMenu *gmnu)
         gbtn = &active_buttons[i];
         if ((gbtn->content) && (gmnu->number == gbtn->gmenu_idx))
         {
-            if (gbtn->gbtype == Lb_RADIOBTN)
+            if (gbtn->gbtype == LbBtnT_RadioBtn)
             {
                 if ( *(unsigned char *)gbtn->content )
                   gbtn->gbactn_1 = 1;
@@ -555,7 +555,7 @@ void gui_draw_tab(struct GuiButton *gbtn)
 {
     int i;
     i = gbtn->sprite_idx;
-    if (gbtn->gbtype == Lb_CYCLEBTN) {
+    if (gbtn->gbtype == LbBtnT_ToggleBtn) {
         ERRORLOG("Cycle button cannot use this draw function!");
     }
     int ps_units_per_px;
@@ -577,7 +577,7 @@ void gui_area_compsetting_button(struct GuiButton *gbtn)
     SYNCDBG(10,"Starting");
     int spr_idx;
     spr_idx = gbtn->sprite_idx;
-    if (gbtn->gbtype == Lb_CYCLEBTN)
+    if (gbtn->gbtype == LbBtnT_ToggleBtn)
     {
         if (gbtn->content != NULL) {
             spr_idx += *(unsigned char *)gbtn->content;
@@ -609,7 +609,7 @@ void gui_area_creatrmodel_button(struct GuiButton *gbtn)
     SYNCDBG(10,"Starting");
     int spr_idx;
     spr_idx = gbtn->sprite_idx;
-    if (gbtn->gbtype == Lb_CYCLEBTN)
+    if (gbtn->gbtype == LbBtnT_ToggleBtn)
     {
         if (gbtn->content != NULL) {
             spr_idx += *(unsigned char *)gbtn->content;
@@ -641,7 +641,7 @@ void gui_area_new_no_anim_button(struct GuiButton *gbtn)
     SYNCDBG(10,"Starting");
     int spr_idx;
     spr_idx = gbtn->sprite_idx;
-    if (gbtn->gbtype == Lb_CYCLEBTN)
+    if (gbtn->gbtype == LbBtnT_ToggleBtn)
     {
         if (gbtn->content != NULL) {
             spr_idx += *(unsigned char *)gbtn->content;
@@ -672,7 +672,7 @@ void gui_area_no_anim_button(struct GuiButton *gbtn)
 {
     int spr_idx;
     spr_idx = gbtn->sprite_idx;
-    if (gbtn->gbtype == Lb_CYCLEBTN)
+    if (gbtn->gbtype == LbBtnT_ToggleBtn)
     {
         unsigned char *ctptr;
         ctptr = (unsigned char *)gbtn->content;
@@ -704,7 +704,7 @@ void gui_area_normal_button(struct GuiButton *gbtn)
 {
     int spr_idx;
     spr_idx = gbtn->sprite_idx;
-    if (gbtn->gbtype == Lb_CYCLEBTN)
+    if (gbtn->gbtype == LbBtnT_ToggleBtn)
     {
         ERRORLOG("Cycle button cannot have a normal button draw function!");
     }
@@ -725,8 +725,8 @@ void frontend_over_button(struct GuiButton *gbtn)
 {
     int i;
 
-    if (gbtn->gbtype == Lb_EDITBTN)
-      i = gbtn->field_1B & LbBFeF_IntValueMask;
+    if (gbtn->gbtype == LbBtnT_EditBox)
+      i = gbtn->btype_value & LbBFeF_IntValueMask;
     else
       i = (long)gbtn->content;
     if (old_mouse_over_button != i)
@@ -1018,7 +1018,7 @@ void reset_scroll_window(struct GuiMenu *gmnu)
 
 void gui_set_menu_mode(struct GuiButton *gbtn)
 {
-    set_menu_mode(gbtn->field_1B & LbBFeF_IntValueMask);
+    set_menu_mode(gbtn->btype_value & LbBFeF_IntValueMask);
 }
 
 void gui_area_flash_cycle_button(struct GuiButton *gbtn)

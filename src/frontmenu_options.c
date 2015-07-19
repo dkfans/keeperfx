@@ -252,7 +252,7 @@ void gui_video_gamma_correction(struct GuiButton *gbtn)
 
 void gui_set_sound_volume(struct GuiButton *gbtn)
 {
-    if (gbtn->id_num == 75)
+    if (gbtn->id_num == BID_SOUND_VOL)
     {
       if (settings.sound_volume != sound_level)
           do_sound_menu_click();
@@ -276,11 +276,11 @@ void gui_video_cluedo_maintain(struct GuiButton *gbtn)
     player = get_my_player();
     if (player->view_mode == PVM_FrontView)
     {
-        gbtn->field_1B |= LbBFeF_NoTooltip;
+        gbtn->btype_value |= LbBFeF_NoTooltip;
         gbtn->flags &= ~LbBtnF_Enabled;
     } else
     {
-        gbtn->field_1B &= LbBFeF_IntValueMask;
+        gbtn->btype_value &= LbBFeF_IntValueMask;
         gbtn->flags |= LbBtnF_Enabled;
     }
 }

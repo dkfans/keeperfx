@@ -62,7 +62,7 @@ void gui_load_game_maintain(struct GuiButton *gbtn)
   long slot_num;
   struct CatalogueEntry *centry;
   if (gbtn != NULL)
-      slot_num = gbtn->field_1B & LbBFeF_IntValueMask;
+      slot_num = gbtn->btype_value & LbBFeF_IntValueMask;
   else
       slot_num = 0;
   centry = &save_game_catalogue[slot_num];
@@ -77,7 +77,7 @@ void gui_load_game(struct GuiButton *gbtn)
   struct PlayerInfo *player;
   player=get_my_player();
   long slot_num;
-  slot_num = gbtn->field_1B & LbBFeF_IntValueMask;
+  slot_num = gbtn->btype_value & LbBFeF_IntValueMask;
   if (!load_game(slot_num))
   {
       ERRORLOG("Loading game %d failed; quitting.",(int)slot_num);
@@ -116,7 +116,7 @@ void gui_save_game(struct GuiButton *gbtn)
   player = get_my_player();
   if (strcasecmp((char *)gbtn->content, get_string(GUIStr_SlotUnused)) != 0)
   {
-      slot_num = (gbtn->field_1B & LbBFeF_IntValueMask) % TOTAL_SAVE_SLOTS_COUNT;
+      slot_num = (gbtn->btype_value & LbBFeF_IntValueMask) % TOTAL_SAVE_SLOTS_COUNT;
       fill_game_catalogue_slot(slot_num,(char *)gbtn->content);
       if (save_game(slot_num))
       {

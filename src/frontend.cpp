@@ -1409,7 +1409,7 @@ void frontend_draw_text(struct GuiButton *gbtn)
 
 void frontend_change_state(struct GuiButton *gbtn)
 {
-    frontend_set_state(gbtn->field_1B & LbBFeF_IntValueMask);
+    frontend_set_state(gbtn->btype_value & LbBFeF_IntValueMask);
 }
 
 void frontend_draw_enter_text(struct GuiButton *gbtn)
@@ -1423,7 +1423,7 @@ void frontend_draw_enter_text(struct GuiButton *gbtn)
     if ((gbtn->flags & LbBtnF_Enabled) == 0) {
         font_idx = 3;
     } else
-    if ((gbtn->content != NULL) && ((gbtn->field_1B & LbBFeF_IntValueMask) == frontend_mouse_over_button)) {
+    if ((gbtn->content != NULL) && ((gbtn->btype_value & LbBFeF_IntValueMask) == frontend_mouse_over_button)) {
         font_idx = 2;
     }
     char *srctext;
@@ -1792,7 +1792,7 @@ void do_button_click_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Ca
 {
     SYNCDBG(9,"Starting for button type %d",(int)gbtn->gbtype);
     //_DK_do_button_click_actions(gbtn, s, callback);
-    if (gbtn->gbtype == Lb_RADIOBTN)
+    if (gbtn->gbtype == LbBtnT_RadioBtn)
     {
         //TODO: pointers comparison should be avoided
         if (s == &gbtn->gbactn_2)
@@ -1802,13 +1802,13 @@ void do_button_click_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Ca
     {
         switch (gbtn->gbtype)
         {
-        case Lb_UNKNBTN0:
-        case Lb_CYCLEBTN:
-        case Lb_EDITBTN:
-        case Lb_UNKNBTN6:
+        case LbBtnT_NormalBtn:
+        case LbBtnT_ToggleBtn:
+        case LbBtnT_EditBox:
+        case LbBtnT_Unknown6:
             *s = 1;
             break;
-        case Lb_RADIOBTN:
+        case LbBtnT_RadioBtn:
             if ((gbtn->content != NULL) && (!*s))
             {
                 unsigned char *rbstate;
@@ -1832,7 +1832,7 @@ void do_button_click_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Ca
 void do_button_press_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Callback callback)
 {
     SYNCDBG(9,"Starting for button type %d",(int)gbtn->gbtype);
-    if (gbtn->gbtype == Lb_RADIOBTN)
+    if (gbtn->gbtype == LbBtnT_RadioBtn)
     {
         //TODO: pointers comparison should be avoided
         if (s == &gbtn->gbactn_2)
@@ -1842,22 +1842,22 @@ void do_button_press_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Ca
     {
         switch (gbtn->gbtype)
         {
-        case Lb_UNKNBTN1:
+        case LbBtnT_HoldableBtn:
             if ((*s > 5) && (callback != NULL)) {
                 callback(gbtn);
             } else {
                 (*s)++;
             }
             break;
-        case Lb_UNKNBTN6:
+        case LbBtnT_Unknown6:
             if (callback != NULL) {
                 callback(gbtn);
             }
             break;
-        case Lb_UNKNBTN0:
-        case Lb_CYCLEBTN:
-        case Lb_EDITBTN:
-        case Lb_RADIOBTN:
+        case LbBtnT_NormalBtn:
+        case LbBtnT_ToggleBtn:
+        case LbBtnT_EditBox:
+        case LbBtnT_RadioBtn:
             break;
         }
     }
@@ -1870,8 +1870,8 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_
   struct GuiMenu *gmnu;
   switch ( gbtn->gbtype )
   {
-  case Lb_UNKNBTN0:
-  case Lb_UNKNBTN1:
+  case LbBtnT_NormalBtn:
+  case LbBtnT_HoldableBtn:
       if ((*s != 0) && (callback != NULL))
       {
           do_sound_button_click(gbtn);
@@ -1879,7 +1879,7 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_
       }
       *s = 0;
       break;
-  case Lb_CYCLEBTN:
+  case LbBtnT_ToggleBtn:
       i = *(unsigned char *)gbtn->content;
       i++;
       if (i > gbtn->field_2D)
@@ -1892,12 +1892,12 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_
       }
       *s = 0;
       break;
-  case Lb_RADIOBTN:
+  case LbBtnT_RadioBtn:
       //TODO: pointers comparison should be avoided
       if (s == &gbtn->gbactn_2)
         return;
       break;
-  case Lb_EDITBTN:
+  case LbBtnT_EditBox:
       input_button = gbtn;
       setup_input_field(input_button, get_string(GUIStr_MnuUnused));
       break;
@@ -1910,7 +1910,7 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_
     gmnu = get_active_menu(gbtn->gmenu_idx);
     if (gbtn->parent_menu != NULL)
       create_menu(gbtn->parent_menu);
-    if ((gbtn->flags & LbBtnF_Unknown02) && (gbtn->gbtype != Lb_EDITBTN))
+    if ((gbtn->flags & LbBtnF_Unknown02) && (gbtn->gbtype != LbBtnT_EditBox))
     {
       if (callback == NULL)
         do_sound_menu_click();
@@ -2000,7 +2000,7 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit, int units_
     gbtn->click_event = gbinit->click_event;
     gbtn->rclick_event = gbinit->rclick_event;
     gbtn->ptover_event = gbinit->ptover_event;
-    gbtn->field_1B = gbinit->field_13;
+    gbtn->btype_value = gbinit->btype_value;
     gbtn->width = (gbinit->width * units_per_px + 8) / 16;
     gbtn->height = (gbinit->height * units_per_px + 8) / 16;
     gbtn->draw_call = gbinit->draw_call;
@@ -2035,7 +2035,7 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit, int units_
         gbtn->pos_y = (gbinit->pos_y * units_per_px + 8) / 16 + gmnu->pos_y;
         gbtn->scr_pos_y = gmnu->pos_y + (gbinit->scr_pos_y * units_per_px + 8) / 16;
     }
-    if (gbtn->gbtype == Lb_RADIOBTN)
+    if (gbtn->gbtype == LbBtnT_RadioBtn)
     {
         struct TextScrollWindow *scrollwnd;
         scrollwnd = (struct TextScrollWindow *)gbtn->content;
@@ -2996,7 +2996,7 @@ void draw_menu_buttons(struct GuiMenu *gmnu)
         callback = gbtn->draw_call;
         if ((callback != NULL) && (gbtn->flags & LbBtnF_Visible) && (gbtn->flags & LbBtnF_Unknown01) && (gbtn->gmenu_idx == gmnu->number))
         {
-          if ( ((gbtn->gbactn_1 == 0) && (gbtn->gbactn_2 == 0)) || (gbtn->gbtype == Lb_SLIDERH) || (callback == gui_area_null) )
+          if ( ((gbtn->gbactn_1 == 0) && (gbtn->gbactn_2 == 0)) || (gbtn->gbtype == LbBtnT_HorizSlider) || (callback == gui_area_null) )
             callback(gbtn);
         }
     }
@@ -3007,7 +3007,7 @@ void draw_menu_buttons(struct GuiMenu *gmnu)
         callback = gbtn->draw_call;
         if ((callback != NULL) && (gbtn->flags & LbBtnF_Visible) && (gbtn->flags & LbBtnF_Unknown01) && (gbtn->gmenu_idx == gmnu->number))
         {
-          if (((gbtn->gbactn_1) || (gbtn->gbactn_2)) && (gbtn->gbtype != Lb_SLIDERH) && (callback != gui_area_null))
+          if (((gbtn->gbactn_1) || (gbtn->gbactn_2)) && (gbtn->gbtype != LbBtnT_HorizSlider) && (callback != gui_area_null))
             callback(gbtn);
         }
     }
@@ -3082,7 +3082,6 @@ void draw_menu_spangle(struct GuiMenu *gmnu)
 {
     struct GuiButton *gbtn;
     int i;
-    short in_range;
     if (gmnu->is_turned_on == 0)
       return;
     for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
@@ -3090,38 +3089,13 @@ void draw_menu_spangle(struct GuiMenu *gmnu)
         gbtn = &active_buttons[i];
         if ((gbtn->draw_call == NULL) || ((gbtn->flags & LbBtnF_Visible) == 0) || ((gbtn->flags & LbBtnF_Unknown01) == 0) || (game.flash_button_index == 0))
           continue;
-        in_range = 0;
-        switch (gbtn->id_num)
+        if ((gbtn->id_num > BID_DEFAULT) && (gbtn->id_num == button_designation_to_tab_designation(game.flash_button_index)))
         {
-        case BID_INFO_TAB:
-          if ((game.flash_button_index >= 68) && (game.flash_button_index <= 71))
-            in_range = 1;
-          break;
-        case BID_ROOM_TAB:
-          if ((game.flash_button_index >= 6) && (game.flash_button_index <= 20))
-            in_range = 1;
-          break;
-        case BID_SPELL_TAB:
-          if ((game.flash_button_index >= 21) && (game.flash_button_index <= 36))
-            in_range = 1;
-          break;
-        case BID_TRAP_TAB:
-          if ((game.flash_button_index >= 53) && (game.flash_button_index <= 61))
-            in_range = 1;
-          break;
-        case BID_CREATR_TAB:
-          if ((game.flash_button_index >= 72) && (game.flash_button_index <= 74))
-            in_range = 1;
-          break;
-        default:
-          break;
-        }
-        if (in_range)
-        {
-            if (!menu_is_active(gbtn->field_1B&LbBFeF_IntValueMask))
+            // Button is a tab header; spangle if the tab is not active
+            if (!menu_is_active(gbtn->btype_value&LbBFeF_IntValueMask))
                 spangle_button(gbtn);
         } else
-        if ((gbtn->id_num > 0) && (gbtn->id_num == game.flash_button_index))
+        if ((gbtn->id_num > BID_DEFAULT) && (gbtn->id_num == game.flash_button_index))
         {
             spangle_button(gbtn);
         }

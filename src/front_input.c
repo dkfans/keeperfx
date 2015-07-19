@@ -1600,7 +1600,7 @@ static void get_dungeon_speech_inputs(void)
         set_menu_mode(BID_SPELL_TAB);
         break;
     case KS_VIEW_TRAPS:
-        set_menu_mode(BID_TRAP_TAB);
+        set_menu_mode(BID_MNFCT_TAB);
         break;
     case KS_VIEW_CREATURES:
         set_menu_mode(BID_CREATR_TAB);
@@ -1791,7 +1791,7 @@ short get_gui_inputs(short gameplay_on)
       for (idx=0; idx < ACTIVE_BUTTONS_COUNT; idx++)
       {
         struct GuiButton *gbtn = &active_buttons[idx];
-        if ((gbtn->flags & LbBtnF_Unknown01) && (gbtn->gbtype == Lb_UNKNBTN6))
+        if ((gbtn->flags & LbBtnF_Unknown01) && (gbtn->gbtype == LbBtnT_Unknown6))
             gbtn->gbactn_1 = 0;
       }
   }
@@ -1818,13 +1818,13 @@ short get_gui_inputs(short gameplay_on)
       callback = gbtn->maintain_call;
       if (callback != NULL)
           callback(gbtn);
-      if ((gbtn->field_1B & LbBFeF_NoMouseOver) != 0)
+      if ((gbtn->btype_value & LbBFeF_NoMouseOver) != 0)
           continue;
       // TODO GUI Introduce circular buttons instead of specific condition for pannel map
       if ((menu_id_to_number(GMnu_MAIN) >= 0) && mouse_is_over_pannel_map(player->minimap_pos_x,player->minimap_pos_y))
           continue;
       if ( (check_if_mouse_is_over_button(gbtn) && !game_is_busy_doing_gui_string_input())
-        || ((gbtn->gbtype == Lb_UNKNBTN6) && (gbtn->gbactn_1 != 0)) )
+        || ((gbtn->gbtype == LbBtnT_Unknown6) && (gbtn->gbactn_1 != 0)) )
       {
           if ((fmmenu_idx == -1) || (gbtn->gmenu_idx == fmmenu_idx))
           {
@@ -1834,9 +1834,9 @@ short get_gui_inputs(short gameplay_on)
             callback = gbtn->ptover_event;
             if (callback != NULL)
                 callback(gbtn);
-            if (gbtn->gbtype == Lb_UNKNBTN6)
+            if (gbtn->gbtype == LbBtnT_Unknown6)
                 break;
-            if (gbtn->gbtype == Lb_SLIDERH)
+            if (gbtn->gbtype == LbBtnT_HorizSlider)
                 nx_over_slider_button = gidx;
           } else
           {
@@ -1846,7 +1846,7 @@ short get_gui_inputs(short gameplay_on)
       {
           gbtn->flags &= ~LbBtnF_Unknown10;
       }
-      if (gbtn->gbtype == Lb_SLIDERH)
+      if (gbtn->gbtype == LbBtnT_HorizSlider)
       {
           if (gui_slider_button_mouse_over_slider_tracker(gidx))
           {
