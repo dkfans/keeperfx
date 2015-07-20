@@ -47,7 +47,7 @@ enum TbButtonType {
     LbBtnT_NormalBtn = 0,
     /** Have continuous effect when mouse is held on it. Used for scrollable lists. */
     LbBtnT_HoldableBtn,
-    /** Toggles between two states. Used for on/off switches. */
+    /** Toggles between two or more states. Used for on/off switches. */
     LbBtnT_ToggleBtn,
     /** Allows selecting one from grouped buttons. */
     LbBtnT_RadioBtn,
