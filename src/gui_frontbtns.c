@@ -97,7 +97,7 @@ TbBool gui_button_release_inputs(int gmbtn_idx)
     {
         callback = gbtn->click_event;
         if ((callback != NULL) || ((gbtn->flags & LbBtnF_Unknown02) != 0) ||
-            (gbtn->parent_menu != 0) || (gbtn->gbtype == LbBtnT_RadioBtn))
+            (gbtn->parent_menu != NULL) || (gbtn->gbtype == LbBtnT_RadioBtn))
         {
             left_button_released = 0;
             do_button_release_actions(gbtn, &gbtn->gbactn_1, callback);
@@ -229,7 +229,7 @@ TbBool gui_button_click_inputs(int gmbtn_idx)
         result = true;
         callback = gbtn->click_event;
         if ((callback != NULL) || ((gbtn->flags & LbBtnF_Unknown02) != 0) ||
-           (gbtn->parent_menu != 0) || (gbtn->gbtype == LbBtnT_RadioBtn))
+           (gbtn->parent_menu != NULL) || (gbtn->gbtype == LbBtnT_RadioBtn))
         {
             if ((gbtn->flags & LbBtnF_Enabled) != 0)
             {
@@ -288,7 +288,7 @@ TbBool gui_button_click_inputs(int gmbtn_idx)
         }
         callback = gbtn->click_event;
         if ((callback != NULL) || ((gbtn->flags & LbBtnF_Unknown02) != 0) ||
-           (gbtn->parent_menu != 0) || (gbtn->gbtype == LbBtnT_RadioBtn))
+           (gbtn->parent_menu != NULL) || (gbtn->gbtype == LbBtnT_RadioBtn))
         {
           left_button_clicked = 0;
           gui_last_left_button_pressed_id = gbtn->id_num;

@@ -70,6 +70,8 @@ enum ClassicBugFlags {
 
 struct PlayerInfo;
 
+/** Structure which stores state of scrollable message with text.
+ */
 struct TextScrollWindow {
     char text[MESSAGE_TEXT_LEN];
     long start_y;

@@ -640,32 +640,76 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
     return false;
 }
 
+/**
+ * Computes price of a power which has price scaled with given amount.
+ * @param plyr_idx Casting player index.
+ * @param pwkind Keeper power kind.
+ * @param pwlevel Keeper power overload level.
+ * @param amount Amount used to scale the price; use 0 to get base price.
+ */
+long compute_power_price_scaled_with_amount(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel, long amount)
+{
+    const struct MagicStats *pwrdynst;
+    long i;
+    pwrdynst = get_power_dynamic_stats(pwkind);
+    // Increase price by given amount
+    i = amount + 1;
+    if (i < 1)
+      i = 1;
+    return pwrdynst->cost[pwlevel]*i/2;
+}
+
+/**
+ * Computes current price of given power for given player.
+ * @param plyr_idx Casting player index.
+ * @param pwkind Keeper power kind.
+ * @param pwlevel Keeper power overload level.
+ */
 long compute_power_price(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel)
 {
     struct Dungeon *dungeon;
     const struct MagicStats *pwrdynst;
     long price;
-    long i;
     unsigned long k;
-    pwrdynst = get_power_dynamic_stats(pwkind);
     switch (pwkind)
     {
     case PwrK_MKDIGGER: // Special price algorithm for "create imp" spell
         dungeon = get_players_num_dungeon(plyr_idx);
-        // Reduce price by count of sacrificed diggers
         k = get_players_special_digger_model(plyr_idx);
-        i = dungeon->num_active_diggers - dungeon->creature_sacrifice[k] + 1;
-        if (i < 1)
-          i = 1;
-        price = pwrdynst->cost[pwlevel]*i/2;
+        // Increase price by amount of diggers, reduce by count of sacrificed diggers
+        price = compute_power_price_scaled_with_amount(plyr_idx, pwkind, pwlevel, dungeon->num_active_diggers - dungeon->creature_sacrifice[k]);
         break;
     default:
+        pwrdynst = get_power_dynamic_stats(pwkind);
         price = pwrdynst->cost[pwlevel];
         break;
     }
     return price;
 }
 
+/**
+ * Computes lowest possible price of given power for given player.
+ * @param plyr_idx Casting player index.
+ * @param pwkind Keeper power kind.
+ * @param pwlevel Keeper power overload level.
+ */
+long compute_lowest_power_price(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel)
+{
+    const struct MagicStats *pwrdynst;
+    long price;
+    switch (pwkind)
+    {
+    case PwrK_MKDIGGER: // Special price algorithm for "create imp" spell
+        // To get lowest
+        price = compute_power_price_scaled_with_amount(plyr_idx, pwkind, pwlevel, 0);
+        break;
+    default:
+        pwrdynst = get_power_dynamic_stats(pwkind);
+        price = pwrdynst->cost[pwlevel];
+        break;
+    }
+    return price;
+}
 long find_spell_age_percentage(PlayerNumber plyr_idx, PowerKind pwkind)
 {
     struct Dungeon *dungeon;
@@ -2006,7 +2050,7 @@ void directly_cast_spell_on_thing(PlayerNumber plyr_idx, PowerKind spl_idx, Thin
 int get_power_overcharge_level(struct PlayerInfo *player)
 {
     int i;
-    i = (player->field_4D2 >> 2);
+    i = (player->cast_expand_level >> 2);
     if (i > SPELL_MAX_LEVEL)
         return SPELL_MAX_LEVEL;
     return i;
@@ -2021,13 +2065,13 @@ TbBool update_power_overcharge(struct PlayerInfo *player, int pwkind)
   dungeon = get_dungeon(player->id_number);
   const struct MagicStats *pwrdynst;
   pwrdynst = get_power_dynamic_stats(pwkind);
-  i = (player->field_4D2+1) >> 2;
+  i = (player->cast_expand_level+1) >> 2;
   if (i > SPELL_MAX_LEVEL)
     i = SPELL_MAX_LEVEL;
   if (pwrdynst->cost[i] <= dungeon->total_money_owned)
   {
     // If we have more money, increase overcharge
-    player->field_4D2++;
+    player->cast_expand_level++;
   } else
   {
     // If we don't have money, decrease the charge
@@ -2037,9 +2081,9 @@ TbBool update_power_overcharge(struct PlayerInfo *player, int pwkind)
       if (i < 0) break;
     }
     if (i >= 0)
-      player->field_4D2 = (i << 2) + 1;
+      player->cast_expand_level = (i << 2) + 1;
     else
-      player->field_4D2 = 0;
+      player->cast_expand_level = 0;
   }
   return (i < SPELL_MAX_LEVEL);
 }

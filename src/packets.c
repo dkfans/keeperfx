@@ -340,7 +340,7 @@ TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
       {
       case PSt_CallToArms:
           if (player_uses_power_call_to_arms(plyr_idx))
-            player->field_4D2 = (dungeon->cta_splevel << 2);
+            player->cast_expand_level = (dungeon->cta_splevel << 2);
           else
             update_power_overcharge(player, PwrK_CALL2ARMS);
           break;
@@ -366,14 +366,14 @@ TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
           update_power_overcharge(player, PwrK_HEALCRTR);
           break;
       default:
-          player->field_4D2++;
+          player->cast_expand_level++;
           break;
       }
       return true;
     }
     if ((pckt->control_flags & PCtr_LBtnRelease) == 0)
     {
-        player->field_4D2 = 0;
+        player->cast_expand_level = 0;
         return false;
     }
     return false;

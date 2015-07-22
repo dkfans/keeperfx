@@ -93,21 +93,21 @@ unsigned char general_expand_check(void)
 {
     struct PlayerInfo *player;
     player = get_my_player();
-    return (player->field_4D2 != 0);
+    return (player->cast_expand_level != 0);
 }
 
 unsigned char sight_of_evil_expand_check(void)
 {
     struct PlayerInfo *myplyr;
     myplyr = get_my_player();
-    return (myplyr->field_4D2 != 0) && (!player_uses_power_sight(myplyr->id_number));
+    return (myplyr->cast_expand_level != 0) && (!player_uses_power_sight(myplyr->id_number));
 }
 
 unsigned char call_to_arms_expand_check(void)
 {
     struct PlayerInfo *myplyr;
     myplyr = get_my_player();
-    return (myplyr->field_4D2 != 0) && (!player_uses_power_call_to_arms(myplyr->id_number));
+    return (myplyr->cast_expand_level != 0) && (!player_uses_power_call_to_arms(myplyr->id_number));
 }
 
 TbBool player_uses_power_armageddon(PlayerNumber plyr_idx)

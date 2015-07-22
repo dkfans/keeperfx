@@ -148,9 +148,10 @@ struct PlayerInfo {
     unsigned char input_crtr_query;
     unsigned char flgfield_6;
     unsigned char *field_7;
-    unsigned char packet_num; // index of packet slot associated with this player
+    /** Index of packet slot associated with this player. */
+    unsigned char packet_num;
     long field_C;
-unsigned int hand_busy_until_turn;
+    unsigned int hand_busy_until_turn;
 unsigned char field_14;
     char field_15[20]; //size may be shorter
     unsigned char victory_state;
@@ -212,7 +213,8 @@ char field_462;
     unsigned char *palette;
     long field_4CD;
     char field_4D1;
-    long field_4D2;
+    /** Overcharge level while casting keeper powers. */
+    long cast_expand_level;
     long field_4D6;
     char video_cluedo_mode;
     long field_4DB;

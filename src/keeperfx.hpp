@@ -184,6 +184,7 @@ DLLIMPORT char _DK_level_name[88];
 #define level_name _DK_level_name
 DLLIMPORT char _DK_top_of_breed_list;
 #define top_of_breed_list _DK_top_of_breed_list
+/** Amount of different creature kinds the local player has. Used for creatures tab in panel menu. */
 DLLIMPORT char _DK_no_of_breeds_owned;
 #define no_of_breeds_owned _DK_no_of_breeds_owned
 DLLIMPORT long _DK_optimised_lights;

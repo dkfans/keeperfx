@@ -833,7 +833,7 @@ TbBool is_digging_indestructible_place(const struct Thing *creatng)
     slb_x = subtile_slab_fast(stl_num_decode_x(cctrl->digger.task_stl));
     slb_y = subtile_slab_fast(stl_num_decode_y(cctrl->digger.task_stl));
     SYNCDBG(19,"Starting for %s index %d at %d,%d",thing_model_name(creatng),(int)creatng->index,(int)slb_x,(int)slb_y);
-    // Note that digger task position stores the cantral subtile on slab to be excavated
+    // Note that digger task position stores the central subtile on slab to be excavated
     // which happens to be the same subtile as one stored in keeper map tasks
     long task_idx;
     task_idx = find_dig_from_task_list(creatng->owner, cctrl->digger.task_stl);
