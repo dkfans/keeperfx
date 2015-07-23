@@ -272,12 +272,179 @@ long computer_check_move_creatures_to_room(struct Computer2 *comp, struct Comput
 }
 
 /**
+ * Returns whether special diggers in given dungeon are actually digging indestructible valuables.
+ * In standard configuration, indestructible valuables are simply slabs with gems.
+ * @param dungeon
+ * @return
+ */
+static TbBool any_digger_is_digging_indestructible_valuables(struct Dungeon *dungeon)
+{
+	long i;
+	unsigned long k;
+	k = 0;
+	i = dungeon->digger_list_start;
+	while (i != 0)
+	{
+		struct Thing *thing;
+		struct CreatureControl *cctrl;
+		thing = thing_get(i);
+		cctrl = creature_control_get_from_thing(thing);
+		if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+		{
+			ERRORLOG("Jump to invalid creature detected");
+			break;
+		}
+		i = cctrl->players_next_creature_idx;
+		// Thing list loop body
+		if (cctrl->combat_flags == 0)
+		{
+			long state_type;
+			state_type = get_creature_state_type(thing);
+
+			if ((state_type == CrStTyp_Work)
+				&& (cctrl->digger.last_did_job == SDLstJob_DigOrMine)
+				&& is_digging_indestructible_place(thing))
+			{
+				SYNCDBG(18, "Indestructible valuables being dug by player %d", (int)dungeon->owner);
+				return true;
+			}
+		}
+		// Thing list loop body ends
+		k++;
+		if (k > CREATURES_COUNT)
+		{
+			ERRORLOG("Infinite loop detected when sweeping creatures list");
+			return false;
+		}
+	}
+	SYNCDBG(18, "Indestructible valuables NOT being dug by player %d", (int)dungeon->owner);
+	return false;
+}
+
+static struct Thing *find_digger_for_sacrifice(struct Computer2 *comp)
+{
+	struct Dungeon *dungeon;
+	int best_priority;
+	struct Thing *best_tng;
+	long digger_price;
+	TbBool digging_gems;
+
+	dungeon = comp->dungeon;
+	digger_price = compute_lowest_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
+	best_priority = INT_MAX;
+	best_tng = INVALID_THING;
+	digging_gems = any_digger_is_digging_indestructible_valuables(dungeon);
+
+	long i;
+	unsigned long k;
+	k = 0;
+	i = dungeon->digger_list_start;
+	while (i != 0)
+	{
+		struct Thing *thing;
+		struct CreatureControl *cctrl;
+		thing = thing_get(i);
+		cctrl = creature_control_get_from_thing(thing);
+		if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+		{
+			ERRORLOG("Jump to invalid creature detected");
+			break;
+		}
+		i = cctrl->players_next_creature_idx;
+		// Thing list loop body
+		if ((cctrl->combat_flags == 0)
+			&& (cctrl->explevel == 0) // at lowest experience level
+			&& (digging_gems || thing->creature.gold_carried == 0)) //no gold carried if no gem access
+		{
+			if (!creature_is_being_unconscious(thing) && !creature_affected_by_spell(thing, SplK_Chicken))
+			{
+				if (!creature_is_being_dropped(thing) && can_thing_be_picked_up_by_player(thing, dungeon->owner))
+				{
+					struct CreatureStats* crtrstats;
+					crtrstats = creature_stats_get_from_thing(thing);
+
+					long priority;
+					long state_type;
+					state_type = get_creature_state_type(thing);
+
+					priority = thing->creature.gold_carried; // base value
+					if (state_type == CrStTyp_Work)
+						priority += 500; //aborted work valued at this many gold
+
+					priority += digger_price * thing->health / crtrstats->health; //full health valued at this many gold
+
+					if (priority < best_priority)
+					{
+						best_priority = priority;
+						best_tng = thing;
+					}
+				}
+			}
+		}
+		// Thing list loop body ends
+		k++;
+		if (k > CREATURES_COUNT)
+		{
+			ERRORLOG("Infinite loop detected when sweeping creatures list");
+			return INVALID_THING;
+		}
+	}
+
+	return best_tng;
+}
+
+/**
+ * Checks if a computer player can sacrifice imps to reduce price.
+ * @param comp
+ * @param check
+ */
+long computer_check_sacrifice_diggers(struct Computer2 *comp, struct ComputerCheck * check)
+{
+    struct Dungeon *dungeon;
+    SYNCDBG(8,"Starting");
+    dungeon = comp->dungeon;
+    if (dungeon_invalid(dungeon) || !player_has_heart(dungeon->owner)) {
+        SYNCDBG(7,"Computer players %d dungeon in invalid or has no heart",(int)dungeon->owner);
+        return CTaskRet_Unk4;
+    }
+
+    GoldAmount power_price, lowest_price;
+	power_price = compute_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
+	lowest_price = compute_lowest_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
+	SYNCDBG(18, "Digger creation power price: %d, lowest: %d", power_price, lowest_price);
+
+	if ((power_price > lowest_price) && !is_task_in_progress_using_hand(comp)
+		&& computer_able_to_use_power(comp, PwrK_MKDIGGER, 0, 2) //TODO COMPUTER_PLAYER add amount of imps to afford to the checks config params
+		&& dungeon_has_room(dungeon, RoK_TEMPLE))
+	{
+		struct Thing* creatng;
+		creatng = find_digger_for_sacrifice(comp);
+		if (!thing_is_invalid(creatng))
+		{
+			long dist;
+			struct Room* room;
+			room = find_room_nearest_to_position(dungeon->owner, RoK_TEMPLE, &creatng->mappos, &dist);
+			if (!room_is_invalid(room))
+			{
+				if (create_task_move_creature_to_subtile(comp, creatng, room->central_stl_x, room->central_stl_y, CrSt_CreatureSacrifice))
+					return CTaskRet_Unk1;
+			}
+		}
+	}
+    return CTaskRet_Unk4;
+}
+
+/**
  * Checks if a computer player has not enough imps.
  * @param comp
  * @param check The check structure; param1 is preferred amount of imps, param2 is minimal amount.
  */
 long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check)
 {
+    // TODO COMPUTER_PLAYER create a separate check for imps sacrificing diggers
+    if (computer_check_sacrifice_diggers(comp, check) == CTaskRet_Unk1) {
+        return CTaskRet_Unk1;
+    }
     struct Dungeon *dungeon;
     SYNCDBG(8,"Starting");
     dungeon = comp->dungeon;
