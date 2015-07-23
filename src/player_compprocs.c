@@ -1125,15 +1125,15 @@ long computer_check_sight_of_evil(struct Computer2 *comp, struct ComputerProcess
     if (cproc->confval_4 >= game.play_gameturn) {
         return CProcRet_Wait;
     }
-    long able;
-    able = computer_able_to_use_magic(comp, PwrK_SIGHT, cproc->confval_2, 5);
-    if (able == 1) {
+    TbBool able_to_use_power;
+    able_to_use_power = computer_able_to_use_power(comp, PwrK_SIGHT, cproc->confval_2, 5);
+    if (able_to_use_power) {
         if (dungeon->sight_casted_thing_idx > 0) {
             return CProcRet_Wait;
         }
         return CProcRet_Continue;
     }
-    if (able != 0) {
+    if (is_power_obtainable(dungeon->owner, PwrK_SIGHT)) {
         return CProcRet_Wait;
     }
     cproc->flags |= ComProc_Unkn0004;
@@ -1320,7 +1320,7 @@ long computer_completed_attack1(struct Computer2 *comp, struct ComputerProcess *
     } else
     if (cproc->confval_3 <= creatrs_num)
     {
-        if ((computer_able_to_use_magic(comp, PwrK_CALL2ARMS, 5, 2) == 1) && check_call_to_arms(comp))
+        if (computer_able_to_use_power(comp, PwrK_CALL2ARMS, 5, 2) && check_call_to_arms(comp))
         {
             if (!create_task_magic_support_call_to_arms(comp, pos, 2500, par1, creatrs_num)) {
                 return CProcRet_Wait;

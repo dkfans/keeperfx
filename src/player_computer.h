@@ -633,7 +633,7 @@ TbBool create_task_dig_to_entrance(struct Computer2 *comp, const struct Coord3d 
 TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *creatng, long splevel);
 TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *creatng, PowerKind pwkind, int repeat_num, int splevel, int gaction);
 
-long computer_able_to_use_magic(struct Computer2 *comp, PowerKind pwkind, long a3, long a4);
+TbBool computer_able_to_use_power(struct Computer2 *comp, PowerKind pwkind, long pwlevel, long amount);
 long computer_get_room_kind_total_capacity(struct Computer2 *comp, RoomKind room_kind);
 long computer_get_room_kind_free_capacity(struct Computer2 *comp, RoomKind room_kind);
 long computer_finds_nearest_room_to_pos(struct Computer2 *comp, struct Room **retroom, struct Coord3d *nearpos);

@@ -157,7 +157,7 @@ long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent,
         SYNCDBG(8,"Drop position is solid for %s",cevent->name);
         return 0;
     }
-    if (computer_able_to_use_magic(comp, PwrK_HAND, 1, creatrs_num) == 1)
+    if (computer_able_to_use_power(comp, PwrK_HAND, 1, creatrs_num))
     {
         if (!is_task_in_progress(comp, CTT_MoveCreaturesToDefend) || ((cevent->param2 & 0x02) != 0))
         {
@@ -168,7 +168,7 @@ long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent,
             return 1;
         }
     }
-    if (computer_able_to_use_magic(comp, PwrK_CALL2ARMS, 1, 1) == 1)
+    if (computer_able_to_use_power(comp, PwrK_CALL2ARMS, 1, 1))
     {
         if (!is_task_in_progress(comp, CTT_MagicCallToArms) || ((cevent->param2 & 0x02) != 0))
         {
@@ -305,7 +305,7 @@ long computer_event_battle_test(struct Computer2 *comp, struct ComputerEvent *ce
     if (!computer_find_non_solid_block(comp, &pos)) {
         return 4;
     }
-    if (computer_able_to_use_magic(comp, PwrK_HAND, 1, creatrs_num) == 1)
+    if (computer_able_to_use_power(comp, PwrK_HAND, 1, creatrs_num))
     {
         if (!is_task_in_progress(comp, CTT_MoveCreaturesToDefend))
         {
@@ -315,7 +315,7 @@ long computer_event_battle_test(struct Computer2 *comp, struct ComputerEvent *ce
             return 1;
         }
     }
-    if (computer_able_to_use_magic(comp, PwrK_CALL2ARMS, 8, 1) == 1)
+    if (computer_able_to_use_power(comp, PwrK_CALL2ARMS, 8, 1))
     {
         if (!is_task_in_progress(comp, CTT_MagicCallToArms))
         {
@@ -345,7 +345,7 @@ long computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent 
     if (comp->dungeon->fights_num <= 0) {
         return 4;
     }
-    if (computer_able_to_use_magic(comp, PwrK_SPEEDCRTR, cevent->param1, 1) != 1) {
+    if (!computer_able_to_use_power(comp, PwrK_SPEEDCRTR, cevent->param1, 1)) {
         return 4;
     }
     struct Thing *fightng;
@@ -379,7 +379,7 @@ PowerKind computer_choose_attack_spell(struct Computer2 *comp, struct ComputerEv
         {
             if (!thing_affected_by_spell(creatng, caspl->pwkind))
             {
-                if (computer_able_to_use_magic(comp, caspl->pwkind, cevent->param1, caspl->field_B) == 1) {
+                if (computer_able_to_use_power(comp, caspl->pwkind, cevent->param1, caspl->field_B)) {
                     cevent->param3 = i;
                     return caspl->pwkind;
                 }
@@ -483,7 +483,7 @@ long computer_event_check_imps_in_danger(struct Computer2 *comp, struct Computer
         return 4;
     }
     // If we don't have the power to pick up creatures, fail now
-    if (computer_able_to_use_magic(comp, PwrK_HAND, 1, 1) != CTaskRet_Unk1) {
+    if (!computer_able_to_use_power(comp, PwrK_HAND, 1, 1)) {
         return 4;
     }
     struct CreatureControl *cctrl;
@@ -571,7 +571,7 @@ long computer_event_check_payday(struct Computer2 *comp, struct ComputerEvent *c
     {
         // If there's already task in progress which uses hand, then don't add more
         // content; the hand could be used by wrong task by mistake
-        if (!is_task_in_progress_using_hand(comp) && (computer_able_to_use_magic(comp, PwrK_HAND, 1, cevent->param2) == CTaskRet_Unk1))
+        if (!is_task_in_progress_using_hand(comp) && computer_able_to_use_power(comp, PwrK_HAND, 1, cevent->param2))
         {
             SYNCDBG(8,"Creating task to move neutral gold to treasury");
             if (create_task_move_gold_to_treasury(comp, cevent->param2, 3*dungeon->creatures_total_pay/2)) {

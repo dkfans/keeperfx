@@ -647,7 +647,7 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
  * @param pwlevel Keeper power overload level.
  * @param amount Amount used to scale the price; use 0 to get base price.
  */
-long compute_power_price_scaled_with_amount(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel, long amount)
+GoldAmount compute_power_price_scaled_with_amount(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel, long amount)
 {
     const struct MagicStats *pwrdynst;
     long i;
@@ -665,7 +665,7 @@ long compute_power_price_scaled_with_amount(PlayerNumber plyr_idx, PowerKind pwk
  * @param pwkind Keeper power kind.
  * @param pwlevel Keeper power overload level.
  */
-long compute_power_price(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel)
+GoldAmount compute_power_price(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel)
 {
     struct Dungeon *dungeon;
     const struct MagicStats *pwrdynst;
@@ -693,7 +693,7 @@ long compute_power_price(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel)
  * @param pwkind Keeper power kind.
  * @param pwlevel Keeper power overload level.
  */
-long compute_lowest_power_price(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel)
+GoldAmount compute_lowest_power_price(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel)
 {
     const struct MagicStats *pwrdynst;
     long price;

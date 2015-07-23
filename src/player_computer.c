@@ -985,7 +985,7 @@ long computer_pick_expensive_job_creatures_and_place_on_lair(struct Computer2 *c
         return new_tasks;
     }
     // If we can't pick up creatures, admit the failure now
-    if (computer_able_to_use_magic(comp, PwrK_HAND, 1, 1) != 1) {
+    if (!computer_able_to_use_power(comp, PwrK_HAND, 1, 1)) {
         return new_tasks;
     }
     // Sweep through creatures list
@@ -1061,7 +1061,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
     {
         int num_to_move;
         num_to_move = 3;
-        if (!is_task_in_progress_using_hand(comp) && (computer_able_to_use_magic(comp, PwrK_HAND, 1, num_to_move) == CTaskRet_Unk1))
+        if (!is_task_in_progress_using_hand(comp) && computer_able_to_use_power(comp, PwrK_HAND, 1, num_to_move))
         {
             SYNCDBG(8,"Creating task to pick player %d creatures from expensive jobs",(int)dungeon->owner);
             if (computer_pick_expensive_job_creatures_and_place_on_lair(comp, num_to_move) > 0) {
@@ -1076,7 +1076,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
         num_to_move = 3;
         // If there's already task in progress which uses hand, then don't add more
         // content of the hand could be used by wrong task by mistake
-        if (!is_task_in_progress_using_hand(comp) && (computer_able_to_use_magic(comp, PwrK_HAND, 1, num_to_move) == CTaskRet_Unk1))
+        if (!is_task_in_progress_using_hand(comp) && computer_able_to_use_power(comp, PwrK_HAND, 1, num_to_move))
         {
             MapSubtlCoord stl_x, stl_y;
             int tsk_id;
@@ -1104,7 +1104,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
         num_to_move = 10;
         // If there's already task in progress which uses hand, then don't add more
         // content of the hand could be used by wrong task by mistake
-        if (!is_task_in_progress_using_hand(comp) && (computer_able_to_use_magic(comp, PwrK_HAND, 1, num_to_move) == CTaskRet_Unk1))
+        if (!is_task_in_progress_using_hand(comp) && computer_able_to_use_power(comp, PwrK_HAND, 1, num_to_move))
         {
             SYNCDBG(8,"Creating task to move neutral gold to treasury");
             if (create_task_move_gold_to_treasury(comp, num_to_move, 2*dungeon->creatures_total_pay)) {
@@ -1150,12 +1150,21 @@ TbBool computer_find_non_solid_block(const struct Computer2 *comp, struct Coord3
     return false;
 }
 
-long computer_able_to_use_magic(struct Computer2 *comp, PowerKind pwkind, long pwlevel, long amount)
+/**
+ * Returns whether computer player is able to use given keeper power.
+ * Originally was computer_able_to_use_magic(), returning 0..4.
+ * @param comp
+ * @param pwkind
+ * @param pwlevel
+ * @param amount
+ * @return
+ */
+TbBool computer_able_to_use_power(struct Computer2 *comp, PowerKind pwkind, long pwlevel, long amount)
 {
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
     if (!is_power_available(dungeon->owner, pwkind)) {
-        return CTaskRet_Unk4;
+        return false;
     }
     if (pwlevel >= MAGIC_OVERCHARGE_LEVELS)
         pwlevel = MAGIC_OVERCHARGE_LEVELS;
@@ -1165,9 +1174,9 @@ long computer_able_to_use_magic(struct Computer2 *comp, PowerKind pwkind, long p
     money = get_computer_money_less_cost(comp);
     price = compute_power_price(dungeon->owner, pwkind, pwlevel);
     if ((price > 0) && (amount * price > money)) {
-        return CTaskRet_Unk0;
+        return false;
     }
-    return CTaskRet_Unk1;
+    return true;
 }
 
 long check_call_to_arms(struct Computer2 *comp)

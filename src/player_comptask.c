@@ -2658,7 +2658,7 @@ long task_slap_imps(struct Computer2 *comp, struct ComputerTask *ctask)
     {
         TbBool allow_slap_to_kill;
         // Make sure we can accept situation where the creature will die because of the slap
-        allow_slap_to_kill = (computer_able_to_use_magic(comp, PwrK_MKDIGGER, 0, 10) == 1);
+        allow_slap_to_kill = computer_able_to_use_power(comp, PwrK_MKDIGGER, 0, 10);
         struct Thing *thing;
         struct CreatureControl *cctrl;
         long i;
@@ -2752,7 +2752,7 @@ long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask)
     }
     // Note that can_cast_spell() shouldn't be needed here - should
     // be checked in the function which adds the task
-    if (computer_able_to_use_magic(comp, PwrK_SPEEDCRTR, ctask->attack_magic.splevel, 2) != 1) {
+    if (!computer_able_to_use_power(comp, PwrK_SPEEDCRTR, ctask->attack_magic.splevel, 2)) {
         remove_task(comp, ctask);
         return CTaskRet_Unk4;
     }
@@ -2838,7 +2838,7 @@ long task_attack_magic(struct Computer2 *comp, struct ComputerTask *ctask)
     }
     // Note that can_cast_spell() shouldn't be needed here - should
     // be checked in the function which adds the task
-    if (computer_able_to_use_magic(comp, ctask->attack_magic.pwkind, ctask->attack_magic.splevel, 1) != 1) {
+    if (!computer_able_to_use_power(comp, ctask->attack_magic.pwkind, ctask->attack_magic.splevel, 1)) {
         return CTaskRet_Unk4;
     }
     TbResult ret;

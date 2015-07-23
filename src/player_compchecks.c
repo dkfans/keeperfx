@@ -121,6 +121,7 @@ struct ExpandRooms expand_rooms[] = {
 }
 #endif
 /******************************************************************************/
+
 long computer_checks_hates(struct Computer2 *comp, struct ComputerCheck * check)
 {
     struct Dungeon *compdngn;
@@ -201,7 +202,7 @@ long computer_check_move_creatures_to_best_room(struct Computer2 *comp, struct C
             (int)dungeon->owner,(int)dungeon->num_active_creatrs,(int)check->param1);
         return CTaskRet_Unk4;
     }
-    if (computer_able_to_use_magic(comp, PwrK_HAND, 1, num_to_move) != 1) {
+    if (!computer_able_to_use_power(comp, PwrK_HAND, 1, num_to_move)) {
         return CTaskRet_Unk4;
     }
     // If there's already task in progress which uses hand, then don't add more
@@ -228,7 +229,7 @@ long computer_check_move_creatures_to_room(struct Computer2 *comp, struct Comput
         SYNCDBG(8,"No creatures to move, active %d percentage %d", (int)dungeon->num_active_creatrs, (int)check->param1);
         return CTaskRet_Unk4;
     }
-    if (computer_able_to_use_magic(comp, PwrK_HAND, 1, num_to_move) != 1) {
+    if (!computer_able_to_use_power(comp, PwrK_HAND, 1, num_to_move)) {
         return CTaskRet_Unk4;
     }
     // If there's already task in progress which uses hand, then don't add more
@@ -289,14 +290,14 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
     if (controlled_diggers >= check->param1) {
         return CTaskRet_Unk4;
     }
-    long able;
+    TbBool able_to_use_power;
     if (controlled_diggers >= check->param2) {
         // We have less than preferred amount, but higher than minimal; allow building if we've got spare money
-        able = computer_able_to_use_magic(comp, PwrK_MKDIGGER, 0, 3 + (controlled_diggers - check->param2)/4);
+        able_to_use_power = computer_able_to_use_power(comp, PwrK_MKDIGGER, 0, 3 + (controlled_diggers - check->param2)/4);
     } else {
-        able = computer_able_to_use_magic(comp, PwrK_MKDIGGER, 0, 1);
+        able_to_use_power = computer_able_to_use_power(comp, PwrK_MKDIGGER, 0, 1);
     }
-    if (able == CTaskRet_Unk1)
+    if (able_to_use_power)
     {
         struct Thing *heartng;
         MapSubtlCoord stl_x, stl_y;
@@ -393,7 +394,7 @@ long computer_check_for_pretty(struct Computer2 *comp, struct ComputerCheck * ch
     SYNCDBG(8,"Starting");
     dungeon = comp->dungeon;
     MapSubtlCoord stl_x, stl_y;
-    if (computer_able_to_use_magic(comp, PwrK_HAND, 1, 1) != CTaskRet_Unk1) {
+    if (!computer_able_to_use_power(comp, PwrK_HAND, 1, 1)) {
         return CTaskRet_Unk4;
     }
     {
@@ -487,7 +488,7 @@ long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerChec
     if (check->param3 >= creatrs_num) {
         return CTaskRet_Unk4;
     }
-    if (computer_able_to_use_magic(comp, PwrK_CALL2ARMS, 1, 3) != 1) {
+    if (!computer_able_to_use_power(comp, PwrK_CALL2ARMS, 1, 3)) {
         return CTaskRet_Unk4;
     }
     if ((check_call_to_arms(comp) != 1) || is_there_an_attack_task(comp)) {
@@ -609,7 +610,7 @@ long computer_check_for_accelerate(struct Computer2 *comp, struct ComputerCheck 
     struct Thing *thing;
     long i,n;
     SYNCDBG(8,"Starting");
-    if (computer_able_to_use_magic(comp, PwrK_SPEEDCRTR, 8, 3) != 1)
+    if (!computer_able_to_use_power(comp, PwrK_SPEEDCRTR, 8, 3))
     {
         return CTaskRet_Unk4;
     }

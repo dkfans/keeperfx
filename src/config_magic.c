@@ -1602,16 +1602,39 @@ TbBool is_power_available(PlayerNumber plyr_idx, PowerKind pwkind)
         ERRORLOG("Incorrect power %ld (player %ld)",pwkind, plyr_idx);
         return false;
     }
-    long i;
-    i = dungeon->magic_level[pwkind];
-    if (i >= 255) {
-        //ERRORLOG("Spell %d has bad magic_level=%d for player %d", (int)spl_idx, (int)i, (int)plyr_idx);
-        return false;
-    }
-    if (i > 0) {
+    if (dungeon->magic_level[pwkind] > 0) {
         return true;
     }
     return false;
+}
+
+/**
+ * Returns if the power can be or already is obtained by a player.
+ */
+TbBool is_power_obtainable(PlayerNumber plyr_idx, PowerKind pwkind)
+{
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    // Check if the player even have a dungeon
+    if (dungeon_invalid(dungeon)) {
+        return false;
+    }
+    //TODO POWERS Mapping child powers to their parent - remove that when magic_level array is enlarged
+    {
+        const struct PowerConfigStats *powerst;
+        powerst = get_power_model_stats(pwkind);
+        if (powerst->parent_power != 0)
+            pwkind = powerst->parent_power;
+    }
+    // Player must have dungeon heart to cast spells, with no heart only floating spirit spell works
+    if (!player_has_heart(plyr_idx) && (pwkind != PwrK_POSSESS)) {
+        return false;
+    }
+    if ((pwkind < 0) || (pwkind >= KEEPER_POWERS_COUNT)) {
+        ERRORLOG("Incorrect power %ld (player %ld)",pwkind, plyr_idx);
+        return false;
+    }
+    return (dungeon->magic_level[pwkind] > 0) || (dungeon->magic_resrchable[pwkind]);
 }
 
 /**
