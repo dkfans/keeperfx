@@ -1839,6 +1839,32 @@ TbBool parse_rules_research_blocks(char *buf, long len, const char *config_textn
   return true;
 }
 
+/**
+ * Searches the list of sacrifices for one which is supposed to make special diggers cheaper.
+ */
+static void mark_cheaper_diggers_sacrifice(void)
+{
+    struct SacrificeRecipe* sac;
+    int i;
+    gameadd.cheaper_diggers_sacrifice_model = 0;
+    for (i=1; i < MAX_SACRIFICE_RECIPES; i++)
+    {
+        sac = &gameadd.sacrifice_recipes[i];
+        if (sac->action == SacA_None)
+            continue;
+        if ((sac->action == SacA_PosUniqFunc) && (sac->param == UnqF_CheaperImp))
+        {
+            if ((sac->victims[1] == 0) && (gameadd.cheaper_diggers_sacrifice_model == 0)) {
+                gameadd.cheaper_diggers_sacrifice_model = sac->victims[0];
+            } else {
+                WARNLOG("Found unsupported %s sacrifice; either there's more than one, or has one than more victim.",
+                    get_conf_parameter_text(sacrifice_unique_desc,UnqF_CheaperImp));
+            }
+        }
+    }
+    SYNCDBG(4,"Marked sacrifice of %s",thing_class_and_model_name(TCls_Creature, gameadd.cheaper_diggers_sacrifice_model));
+}
+
 TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
     long pos;
@@ -2020,6 +2046,7 @@ TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_tex
         skip_conf_to_next_line(buf,&pos,len);
     }
 #undef COMMAND_TEXT
+    mark_cheaper_diggers_sacrifice();
     return true;
 }
 

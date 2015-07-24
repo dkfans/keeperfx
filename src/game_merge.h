@@ -108,6 +108,8 @@ struct GameAdd {
     TbBool armegeddon_teleport_neutrals;
     unsigned short classic_bugs_flags;
     unsigned short computer_chat_flags;
+    /** The creature model used for determining amount of sacrifices which decrease digger cost. */
+    ThingModel cheaper_diggers_sacrifice_model;
     char quick_messages[QUICK_MESSAGES_COUNT][MESSAGE_TEXT_LEN];
     struct SacrificeRecipe sacrifice_recipes[MAX_SACRIFICE_RECIPES];
     struct LightSystemState lightst;
