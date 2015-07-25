@@ -471,11 +471,16 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
         return CTaskRet_Unk4;
     }
     TbBool able_to_use_power;
-    if (controlled_diggers >= check->param2) {
+    if (controlled_diggers < check->param2/2) {
+        // We have less than half of the minimal imps amount; build one no matter what, ignoring money projections
+        able_to_use_power = (is_power_available(dungeon->owner, PwrK_MKDIGGER) && (dungeon->total_money_owned >= compute_power_price(dungeon->owner, PwrK_MKDIGGER, 0)));
+    } else
+    if (controlled_diggers < check->param2) {
+        // We have less than minimal imps; build one if only there are money
+        able_to_use_power = computer_able_to_use_power(comp, PwrK_MKDIGGER, 0, 1);
+    } else {
         // We have less than preferred amount, but higher than minimal; allow building if we've got spare money
         able_to_use_power = computer_able_to_use_power(comp, PwrK_MKDIGGER, 0, 3 + (controlled_diggers - check->param2)/4);
-    } else {
-        able_to_use_power = computer_able_to_use_power(comp, PwrK_MKDIGGER, 0, 1);
     }
     if (able_to_use_power)
     {
