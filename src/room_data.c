@@ -3341,12 +3341,33 @@ struct Room *get_room_of_given_kind_for_thing(struct Thing *thing, struct Dungeo
             if (room->capacity_used_for_storage + dungeon->offmap_money_owned < salary) {
                 // This room isn't attractive at all - creature won't get salary there
                 attractiveness = 0;
+            } else {
+                attractiveness += min(room->capacity_used_for_storage/(salary+1),50);
             }
             break;
         case RoK_LAIR:
             if (room->index == cctrl->lairtng_idx) {
                 // A room where we already have a lair is a few times more attractive
                 attractiveness += 70;
+            } else {
+                attractiveness += min(max(room->total_capacity - (int)room->used_capacity,0),50);
+            }
+            break;
+        case RoK_GARDEN:
+            attractiveness += min(room->used_capacity,50);
+            break;
+        case RoK_LIBRARY:
+        case RoK_TRAINING:
+        case RoK_WORKSHOP:
+        case RoK_SCAVENGER:
+        case RoK_TEMPLE:
+        case RoK_BARRACKS:
+        case RoK_GUARDPOST:
+            if (room->used_capacity >= room->total_capacity) {
+                // This room isn't attractive at all - creature won't get job there
+                attractiveness = 0;
+            } else {
+                attractiveness += min(max(room->total_capacity - (int)room->used_capacity,0),50);
             }
             break;
         }
