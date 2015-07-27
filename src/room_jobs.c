@@ -403,7 +403,7 @@ TbBool worker_needed_in_dungeons_room_kind(const struct Dungeon *dungeon, RoomKi
             return false;
         return true;
     case RoK_TRAINING:
-        if (3 * dungeon->creatures_total_pay / 2 >= dungeon->total_money_owned)
+        if (dungeon->creatures_total_pay >= dungeon->total_money_owned)
             return false;
         return true;
     case RoK_SCAVENGER:

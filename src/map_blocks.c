@@ -198,7 +198,7 @@ TbBool tag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
     long i;
     i = get_subtile_number(x+1,y+1);
     if ((find_from_task_list(plyr_idx, i) == -1)
-      && (slbattr->is_unknflg14 || !map_block_revealed(mapblk, plyr_idx))
+      && (slbattr->is_diggable || !map_block_revealed(mapblk, plyr_idx))
       && (((mapblk->flags & SlbAtFlg_IsRoom) == 0) || slabmap_owner(slb) != plyr_idx)
       && (((mapblk->flags & SlbAtFlg_Filled) == 0) || slabmap_owner(slb) == plyr_idx || !map_block_revealed(mapblk, plyr_idx)) )
     {
@@ -522,7 +522,7 @@ unsigned char get_against(unsigned char agnst_plyr_idx, long agnst_slbkind, long
     slbattr = get_slab_attrs(slb);
     struct SlabAttr *agnst_slbattr;
     agnst_slbattr = get_slab_kind_attrs(agnst_slbkind);
-    return (slbattr->field_10 != agnst_slbattr->field_10)
+    return (slbattr->slbfield_10 != agnst_slbattr->slbfield_10)
             || ((slabmap_owner(slb) != agnst_plyr_idx) && (slabmap_owner(slb)!= game.neutral_player_num));
 }
 
@@ -662,7 +662,7 @@ void set_alt_bit_based_on_slab(SlabKind slbkind, unsigned char stl_x, unsigned c
     }
     struct Map *mapblk;
     mapblk = get_map_block_at(stl_x, stl_y);
-    mapblk->data ^= (mapblk->data ^ (wibble << 22)) & 0xC00000;
+    set_mapblk_wibble_value(mapblk, wibble);
 }
 
 void place_slab_columns(long slbkind, unsigned char stl_x, unsigned char stl_y, const ColumnIndex *col_idx)

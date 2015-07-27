@@ -157,7 +157,7 @@ const struct MoveToBestJob move_to_best_job[] = {
     {Job_SCAVENGE,    20},
     {Job_GUARD,        2},
     {Job_BARRACK,      1},
-    {RoK_NONE,         0},
+    {Job_NULL,         0},
 };
 
 const struct MyLookup lookup[] = {
@@ -739,19 +739,22 @@ CreatureJob get_job_to_place_creature_in_room(const struct Computer2 *comp, cons
         RoomKind rkind;
         rkind = get_room_for_job(mvto->job_kind);
         if (!worker_needed_in_dungeons_room_kind(dungeon, rkind)) {
-            SYNCDBG(19,"Cannot assign %s for %s index %d; no worker needed",creature_job_code_name(mvto->job_kind),thing_model_name(thing),(int)thing->index);
+            SYNCDBG(9,"Cannot assign %s for %s index %d; no worker needed",creature_job_code_name(mvto->job_kind),thing_model_name(thing),(int)thing->index);
             continue;
         }
         // Find specific room which meets capacity demands
         i = dungeon->room_kind[rkind];
         room = find_room_with_most_spare_capacity_starting_with(i,&total_spare_cap);
         if (room_is_invalid(room)) {
+            SYNCDBG(9,"Cannot assign %s for %s index %d; no room with spares",creature_job_code_name(mvto->job_kind),thing_model_name(thing),(int)thing->index);
             continue;
         }
-        SYNCDBG(19,"Checking job %s for %s index %d, cap %ld priority %ld",creature_job_code_name(mvto->job_kind),thing_model_name(thing),(int)thing->index,(long)total_spare_cap,(long)mvto->priority);
-        if (chosen_priority < total_spare_cap * mvto->priority)
+        long new_priority;
+        new_priority = LbSqrL(total_spare_cap) * mvto->priority;
+        SYNCDBG(9,"Checking job %s for %s index %d, cap %ld priority %ld",creature_job_code_name(mvto->job_kind),thing_model_name(thing),(int)thing->index,(long)total_spare_cap,(long)new_priority);
+        if (chosen_priority < new_priority)
         {
-            chosen_priority = total_spare_cap * mvto->priority;
+            chosen_priority = new_priority;
             chosen_job = mvto->job_kind;
         }
     }
@@ -766,12 +769,12 @@ struct Thing *find_creature_to_be_placed_in_room(struct Computer2 *comp, struct 
     struct Dungeon *dungeon;
     struct Thing *thing;
     struct Room *room;
-    SYNCDBG(9,"Starting");
     dungeon = comp->dungeon;
     if (dungeon_invalid(dungeon)) {
         ERRORLOG("Invalid dungeon in computer player");
         return INVALID_THING;
     }
+    SYNCDBG(9,"Starting for player %d",(int)dungeon->owner);
     param.ptr1 = (void *)comp;
     param.num2 = Job_NULL; // Our filter function will update that
     filter = player_list_creature_filter_needs_to_be_placed_in_room_for_job;
@@ -779,7 +782,7 @@ struct Thing *find_creature_to_be_placed_in_room(struct Computer2 *comp, struct 
     if (thing_is_invalid(thing)) {
         return INVALID_THING;
     }
-    SYNCDBG(9,"Player %d wants to move %s index %d",(int)dungeon->owner,thing_model_name(thing),(int)thing->owner);
+    SYNCDBG(9,"Player %d wants to move %s index %d for job %s",(int)dungeon->owner,thing_model_name(thing),(int)thing->owner,creature_job_code_name(param.num2));
     // We won't allow the creature to be picked if we want it to be placed in the same room it is now.
     // The filter function took care of most such situations, but it is still possible that the creature
     // won't be able or will not want to work in that room, and will be picked up and dropped over and over.
@@ -883,7 +886,7 @@ long task_dig_room(struct Computer2 *comp, struct ComputerTask *ctask)
                 slbattr = get_slab_attrs(slb);
                 struct Map *mapblk;
                 mapblk = get_map_block_at(stl_x, stl_y);
-                if (slbattr->is_unknflg14 && (slb->kind != SlbT_GEMS))
+                if (slbattr->is_diggable && (slb->kind != SlbT_GEMS))
                 {
                     if (((mapblk->flags & SlbAtFlg_Filled) == 0) || (slabmap_owner(slb) == dungeon->owner))
                     {
@@ -1227,7 +1230,7 @@ long check_for_perfect_buildable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long 
     if (slab_kind_is_liquid(slb->kind)) {
         return 1;
     }
-    if ( (slbattr->is_unknflg14 == 0) || (slb->kind == SlbT_GEMS) ) {
+    if ( (slbattr->is_diggable == 0) || (slb->kind == SlbT_GEMS) ) {
         return 1;
     }
     mapblk = get_map_block_at_pos(stl_num);
@@ -1261,7 +1264,7 @@ long check_for_buildable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx
     if (find_from_task_list(plyr_idx, stl_num) >= 0) {
         return 0;
     }
-    if ( (slbattr->is_unknflg14 == 0) || (slb->kind == SlbT_GEMS) ) {
+    if ( (slbattr->is_diggable == 0) || (slb->kind == SlbT_GEMS) ) {
         return 1;
     }
     mapblk = get_map_block_at_pos(stl_num);
@@ -1515,7 +1518,7 @@ short tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Computer2 * com
         slb = get_slabmap_block(nextslb_x, nextslb_y);
         mapblk = get_map_block_at(*nextstl_x, *nextstl_y);
         slbattr = get_slab_attrs(slb);
-        if ( (slbattr->is_unknflg14 == 0) || (slb->kind == SlbT_GEMS)
+        if ( (slbattr->is_diggable == 0) || (slb->kind == SlbT_GEMS)
           || (((mapblk->flags & SlbAtFlg_Filled) != 0) && (slabmap_owner(slb) != dungeon->owner)) )
         {
             if ( ((slbattr->block_flags & SlbAtFlg_Valuable) == 0) || (digflags == 0) ) {
@@ -1692,7 +1695,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
     slb = get_slabmap_block(digslb_x, digslb_y);
     struct SlabAttr *slbattr;
     slbattr = get_slab_attrs(slb);
-    if ((slbattr->is_unknflg14) && (slb->kind != SlbT_GEMS))
+    if ((slbattr->is_diggable) && (slb->kind != SlbT_GEMS))
     {
         mapblk = get_map_block_at(digstl_x, digstl_y);
         if (((mapblk->flags & SlbAtFlg_Filled) == 0) || (slabmap_owner(slb) == dungeon->owner))

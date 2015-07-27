@@ -634,10 +634,12 @@ TbBool creature_can_do_job_for_player(const struct Thing *creatng, PlayerNumber 
     jobcfg = get_config_for_job(new_job);
     if (jobcfg->func_plyr_check == NULL)
     {
+        SYNCDBG(13,"Cannot assign %s for %s index %d owner %d; no check callback",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         return false;
     }
     if (!jobcfg->func_plyr_check(creatng, plyr_idx, new_job))
     {
+        SYNCDBG(13,"Cannot assign %s for %s index %d owner %d; check callback failed",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         return false;
     }
     RoomKind job_rkind;

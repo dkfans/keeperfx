@@ -74,11 +74,11 @@ struct SlabAttr {
     unsigned long noblck_flags;
     unsigned char field_E;
     unsigned char category;
-    unsigned char field_10;
+    unsigned char slbfield_10;
     unsigned char is_unknflg11;
     unsigned char is_safe_land;
     unsigned char is_unknflg13;
-    unsigned char is_unknflg14;
+    unsigned char is_diggable;
     unsigned char wlb_type;
 };
 

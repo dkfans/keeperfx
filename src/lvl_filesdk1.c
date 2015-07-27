@@ -1024,7 +1024,7 @@ long load_map_wibble_file(unsigned long lv_num)
       {
         mapblk = get_map_block_at(stl_x,stl_y);
         k = buf[i];
-        mapblk->data ^= ((mapblk->data ^ (k << 22)) & 0xC00000);
+        set_mapblk_wibble_value(mapblk, k);
         i++;
       }
     LbMemoryFree(buf);

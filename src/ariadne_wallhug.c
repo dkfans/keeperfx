@@ -848,7 +848,7 @@ TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     const struct SlabAttr *slbattr;
     slb = get_slabmap_for_subtile(stl_x, stl_y);
     slbattr = get_slab_attrs(slb);
-    if ((slbattr->is_unknflg14) && (slb->kind != SlbT_GEMS))
+    if ((slbattr->is_diggable) && (slb->kind != SlbT_GEMS))
     {
         struct Map *mapblk;
         mapblk = get_map_block_at(stl_x, stl_y);
@@ -874,8 +874,8 @@ long dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoo
     } else {
       nchange = 3;
     }
-    n = (direction_around + 4 - nchange) & 3;
-    for (i=0; i < 4; i++)
+    n = (direction_around + 4 - nchange) % SMALL_AROUND_LENGTH;
+    for (i=0; i < SMALL_AROUND_LENGTH; i++)
     {
         MapSubtlCoord stl_x,stl_y;
         stl_x = basestl_x + STL_PER_SLB * (int)small_around[n].delta_x;
@@ -887,7 +887,7 @@ long dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoo
             stl_num = get_subtile_number(stl_x, stl_y);
             return stl_num;
         }
-        n = (n + nchange) & 3;
+        n = (n + nchange) % SMALL_AROUND_LENGTH;
     }
     return -1;
 }

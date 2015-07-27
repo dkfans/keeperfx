@@ -551,7 +551,7 @@ void update_vertical_explored_flags_for_power_sight(struct PlayerInfo *player, s
                             slb_x = subtile_slab_fast(stl_x+i);
                             slb = get_slabmap_block(slb_x, slb_y);
                             slbattr = get_slab_attrs(slb);
-                            if ( !slbattr->is_unknflg14 )
+                            if ( !slbattr->is_diggable )
                                 mapblk->flags &= ~(SlbAtFlg_Unk80|SlbAtFlg_Unk04);
                             mapblk++;
                         }
@@ -658,7 +658,7 @@ void update_horizonal_explored_flags_for_power_sight(struct PlayerInfo *player, 
                           struct SlabAttr *slbattr;
                           slb = get_slabmap_block(slb_x, slb_y);
                           slbattr = get_slab_attrs(slb);
-                          if ( !slbattr->is_unknflg14 )
+                          if ( !slbattr->is_diggable )
                               mapblk->flags &= ~(SlbAtFlg_Unk80|SlbAtFlg_Unk04);
                       }
                       stl_y += delta;

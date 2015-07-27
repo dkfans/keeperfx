@@ -209,6 +209,16 @@ long get_mapblk_wibble_value(const struct Map *mapblk)
 }
 
 /**
+ * Stores wibble value in map block.
+ * @param map Map block to be modified.
+ * @param wib Wibble value, used for rendering.
+ */
+void set_mapblk_wibble_value(struct Map *mapblk, long wib)
+{
+    mapblk->data ^= ((mapblk->data ^ (wib << 22)) & 0xC00000);
+}
+
+/**
  * Sets amount of filled subtiles (height of a column) in map block.
  * @param map Map block to be updated.
  * @param height The new height.
