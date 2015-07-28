@@ -1001,6 +1001,8 @@ long computer_pick_expensive_job_creatures_and_place_on_lair(struct Computer2 *c
  * Checks how much money the player lacks for next payday.
  * @param comp Computer player who controls the target dungeon.
  * @param check The check being executed; param1 is low gold value, param2 is critical gold value.
+ * @note check->param1 is the gold surplus minimum below which we will take a standard action.
+ * @note check->param2 is the gold surplus critical value below which we will take an aggressive action.
  */
 
 long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * check)
@@ -1038,7 +1040,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
             }
         }
     }
-    // Try selling traps and doors
+    // Try selling traps and doors - aggressive way
     if ((money_left < check->param2) && dungeon_has_room(dungeon, RoK_WORKSHOP))
     {
         if (dungeon_has_any_buildable_traps(dungeon) || dungeon_has_any_buildable_doors(dungeon) ||
@@ -1046,8 +1048,22 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
         {
             if (!is_task_in_progress(comp, CTT_SellTrapsAndDoors))
             {
-                SYNCDBG(8,"Creating task to sell player %d traps and doors",(int)dungeon->owner);
-                if (create_task_sell_traps_and_doors(comp, 5, check->param2 - money_left)) {
+                SYNCDBG(8,"Creating task to sell any player %d traps and doors",(int)dungeon->owner);
+                if (create_task_sell_traps_and_doors(comp, 5, max(check->param2-money_left,1),true)) {
+                    ret = CTaskRet_Unk1;
+                }
+            }
+        }
+    }
+    // Try selling traps and doors - cautious way
+    if ((money_left < check->param1) && dungeon_has_room(dungeon, RoK_WORKSHOP))
+    {
+        if (dungeon_has_any_buildable_traps(dungeon) || dungeon_has_any_buildable_doors(dungeon))
+        {
+            if (!is_task_in_progress(comp, CTT_SellTrapsAndDoors))
+            {
+                SYNCDBG(8,"Creating task to sell player %d trap and door boxes",(int)dungeon->owner);
+                if (create_task_sell_traps_and_doors(comp, 5, max(check->param1-money_left,1),false)) {
                     ret = CTaskRet_Unk1;
                 }
             }
@@ -1056,6 +1072,11 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
     // Power hand tasks are exclusive, so select randomly
     int pwhand_task_choose;
     pwhand_task_choose = ACTION_RANDOM(100);
+    // Cautious selling of traps can be used as base for stable economy.
+    // If we were able to use it, do not try to move creatures from their jobs.
+    if ((ret == CTaskRet_Unk1) && (pwhand_task_choose < 33)) {
+        pwhand_task_choose += 33;
+    }
     // Move creatures away from rooms which cost a lot to use
     if ((money_left < check->param1) && (pwhand_task_choose < 33))
     {

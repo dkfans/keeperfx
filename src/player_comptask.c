@@ -2898,7 +2898,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                         remove_workshop_object_from_player(dungeon->owner, door_crate_object_model(model));
                         item_sold = true;
                         value = game.doors_config[model].selling_value;
-                        SYNCDBG(9,"Stored door %s crate sold for %d gold",door_code_name(model),(int)value);
+                        SYNCDBG(9,"Stored door %s crate sold for %ld gold by player %d",door_code_name(model),(long)value,(int)dungeon->owner);
                         break;
                     default:
                         WARNLOG("Placeable door %s amount for player %d was incorrect; fixed",door_code_name(model),(int)dungeon->owner);
@@ -2930,7 +2930,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                         remove_workshop_object_from_player(dungeon->owner, trap_crate_object_model(model));
                         item_sold = true;
                         value = game.traps_config[model].selling_value;
-                        SYNCDBG(9,"Stored trap %s crate sold for %ld gold",trap_code_name(model),value);
+                        SYNCDBG(9,"Stored trap %s crate sold for %ld gold by player %d",trap_code_name(model),(long)value,(int)dungeon->owner);
                         break;
                     default:
                         WARNLOG("Placeable trap %s amount for player %d was incorrect; fixed",trap_code_name(model),(int)dungeon->owner);
@@ -2940,6 +2940,8 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                 }
                 break;
             case TDSC_DoorPlaced:
+                if (!ctask->sell_traps_doors.allow_deployed)
+                    break;
                 model = tdsell->model;
                 if ((model <= 0) || (model >= DOOR_TYPES_COUNT)) {
                     ERRORLOG("Internal error - invalid door model %d in slot %d",(int)model,(int)i);
@@ -2973,6 +2975,8 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                 }
                 break;
             case TDSC_TrapPlaced:
+                if (!ctask->sell_traps_doors.allow_deployed)
+                    break;
                 model = tdsell->model;
                 if ((model <= 0) || (model >= TRAP_TYPES_COUNT)) {
                     ERRORLOG("Internal error - invalid trap model %d in slot %d",(int)model,(int)i);
@@ -3234,16 +3238,18 @@ TbBool create_task_magic_support_call_to_arms(struct Computer2 *comp, struct Coo
  * @param gold_up_to Max amount of gold to be gained by the selling.
  * @return True if the task was created successfully, false otherwise.
  */
-TbBool create_task_sell_traps_and_doors(struct Computer2 *comp, long num_to_sell, long gold_up_to)
+TbBool create_task_sell_traps_and_doors(struct Computer2 *comp, long num_to_sell, GoldAmount gold_up_to, TbBool allow_deployed)
 {
+    struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
     struct ComputerTask *ctask;
-    SYNCDBG(7,"Starting");
+    SYNCDBG(7,"Starting for player %d to sell %d traps up to %d gold",(int)dungeon->owner,(int)num_to_sell,(int)gold_up_to);
     ctask = get_free_task(comp, 1);
     if (computer_task_invalid(ctask)) {
         return false;
     }
     if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
-        message_add_fmt(comp->dungeon->owner, "I will sell some traps and doors.");
+        message_add_fmt(dungeon->owner, "I will sell some traps and doors.");
     }
     ctask->ttype = CTT_SellTrapsAndDoors;
     ctask->created_turn = game.play_gameturn;
@@ -3252,8 +3258,9 @@ TbBool create_task_sell_traps_and_doors(struct Computer2 *comp, long num_to_sell
     ctask->sell_traps_doors.items_amount = num_to_sell;
     ctask->sell_traps_doors.gold_gain = 0;
     ctask->sell_traps_doors.gold_gain_limit = gold_up_to;
-    ctask->sell_traps_doors.total_money_limit = gold_up_to;
+    ctask->sell_traps_doors.total_money_limit = dungeon->total_money_owned + gold_up_to;
     ctask->sell_traps_doors.sell_idx = 0;
+    ctask->sell_traps_doors.allow_deployed = allow_deployed;
     return true;
 }
 

@@ -552,7 +552,7 @@ long computer_event_check_payday(struct Computer2 *comp, struct ComputerEvent *c
 {
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
-    if (dungeon->total_money_owned > dungeon->creatures_total_pay) {
+    if (dungeon->total_money_owned >= dungeon->creatures_total_pay) {
         return CTaskRet_Unk4;
     }
     if (dungeon_has_any_buildable_traps(dungeon) || dungeon_has_any_buildable_doors(dungeon) ||
@@ -561,7 +561,7 @@ long computer_event_check_payday(struct Computer2 *comp, struct ComputerEvent *c
         if (!is_task_in_progress(comp, CTT_SellTrapsAndDoors))
         {
             SYNCDBG(8,"Creating task to sell player %d traps and doors",(int)dungeon->owner);
-            if (create_task_sell_traps_and_doors(comp, cevent->param2, 3*dungeon->creatures_total_pay/2)) {
+            if (create_task_sell_traps_and_doors(comp, cevent->param2, 3*(dungeon->creatures_total_pay-dungeon->total_money_owned)/2,true)) {
                 return CTaskRet_Unk1;
             }
         }
