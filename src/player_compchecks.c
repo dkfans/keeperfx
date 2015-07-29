@@ -32,6 +32,7 @@
 #include "creature_states_mood.h"
 #include "spdigger_stack.h"
 #include "magic.h"
+#include "map_blocks.h"
 #include "map_utils.h"
 #include "dungeon_data.h"
 #include "room_data.h"
@@ -323,6 +324,44 @@ static TbBool any_digger_is_digging_indestructible_valuables(struct Dungeon *dun
 }
 
 /**
+ * Returns amount of diggable faces of indestructible valuables marked for digging.
+ * In standard configuration, indestructible valuables are simply slabs with gems.
+ * @param dungeon
+ * @return
+ */
+static int count_faces_of_indestructible_valuables_marked_for_dig(struct Dungeon *dungeon)
+{
+    int num_faces;
+    num_faces = 0;
+    struct MapTask* mtask;
+    MapSubtlCoord stl_x, stl_y;
+    long i;
+    SYNCDBG(18,"Starting");
+    i = -1;
+    while (1)
+    {
+        i = find_next_dig_in_dungeon_task_list(dungeon, i);
+        if (i < 0)
+            break;
+        mtask = get_dungeon_task_list_entry(dungeon, i);
+        stl_x = stl_num_decode_x(mtask->coords);
+        stl_y = stl_num_decode_y(mtask->coords);
+        if (subtile_revealed(stl_x, stl_y, dungeon->owner))
+        {
+            struct SlabMap *slb;
+            slb = get_slabmap_for_subtile(stl_x, stl_y);
+            const struct SlabAttr *slbattr;
+            slbattr = get_slab_attrs(slb);
+            if (((slbattr->block_flags & SlbAtFlg_Valuable) != 0) && slab_kind_is_indestructible(slb->kind))
+            {
+                num_faces += block_count_diggable_sides(dungeon->owner, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
+            }
+        }
+    }
+    return num_faces;
+}
+
+/**
  * Filter function for selecting creature which is best candidate for being sacrificed.
  * A specific thing can be selected either by class, model and owner.
  *
@@ -432,13 +471,22 @@ long computer_check_sacrifice_for_cheap_diggers(struct Computer2 *comp, struct C
 	{
 		struct Thing* creatng;
 		creatng = find_creature_for_sacrifice(comp, gameadd.cheaper_diggers_sacrifice_model);
-		if (!thing_is_invalid(creatng))
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(creatng);
+		if (!thing_is_invalid(creatng) && (cctrl->explevel < 2))
 		{
 			long dist;
 			struct Room* room;
 			room = find_room_nearest_to_position(dungeon->owner, RoK_TEMPLE, &creatng->mappos, &dist);
 			if (!room_is_invalid(room))
 			{
+	            if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
+	                struct PowerConfigStats *powerst;
+	                powerst = get_power_model_stats(PwrK_MKDIGGER);
+	                struct CreatureData *crdata;
+	                crdata = creature_data_get(gameadd.cheaper_diggers_sacrifice_model);
+	                message_add_fmt(dungeon->owner, "Sacrificed %s to reduce %s price of %d gold.",get_string(crdata->namestr_idx),get_string(powerst->name_stridx),(int)power_price);
+	            }
 				if (create_task_move_creature_to_subtile(comp, creatng, room->central_stl_x, room->central_stl_y, CrSt_CreatureSacrifice))
 					return CTaskRet_Unk1;
 			}
@@ -450,7 +498,8 @@ long computer_check_sacrifice_for_cheap_diggers(struct Computer2 *comp, struct C
 /**
  * Checks if a computer player has not enough imps.
  * @param comp
- * @param check The check structure; param1 is preferred amount of imps, param2 is minimal amount.
+ * @param check The check structure; param1 is preferred amount of imps, param2 is minimal amount,
+ *     param3 is the increase in both amounts caused by face of indestructible slab marked for digging.
  */
 long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check)
 {
@@ -459,7 +508,6 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
         return CTaskRet_Unk1;
     }
     struct Dungeon *dungeon;
-    SYNCDBG(8,"Starting");
     dungeon = comp->dungeon;
     if (dungeon_invalid(dungeon) || !player_has_heart(dungeon->owner)) {
         SYNCDBG(7,"Computer players %d dungeon in invalid or has no heart",(int)dungeon->owner);
@@ -467,20 +515,25 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
     }
     long controlled_diggers;
     controlled_diggers = dungeon->num_active_diggers - count_player_diggers_not_counting_to_total(dungeon->owner);
-    if (controlled_diggers >= check->param1) {
+    int preferred_imps, minimal_imps;
+    preferred_imps = minimal_imps = check->param3 * count_faces_of_indestructible_valuables_marked_for_dig(dungeon);
+    preferred_imps += check->param1;
+    minimal_imps += check->param2;
+    SYNCDBG(8,"Starting for player %d, digger amounts minimal=%d preferred=%d controlled=%d",(int)dungeon->owner,(int)minimal_imps,(int)preferred_imps,(int)controlled_diggers);
+    if (controlled_diggers >= preferred_imps) {
         return CTaskRet_Unk4;
     }
     TbBool able_to_use_power;
-    if (controlled_diggers < check->param2/2) {
+    if (controlled_diggers < minimal_imps/2) {
         // We have less than half of the minimal imps amount; build one no matter what, ignoring money projections
         able_to_use_power = (is_power_available(dungeon->owner, PwrK_MKDIGGER) && (dungeon->total_money_owned >= compute_power_price(dungeon->owner, PwrK_MKDIGGER, 0)));
     } else
-    if (controlled_diggers < check->param2) {
+    if (controlled_diggers < minimal_imps) {
         // We have less than minimal imps; build one if only there are money
         able_to_use_power = computer_able_to_use_power(comp, PwrK_MKDIGGER, 0, 1);
     } else {
         // We have less than preferred amount, but higher than minimal; allow building if we've got spare money
-        able_to_use_power = computer_able_to_use_power(comp, PwrK_MKDIGGER, 0, 3 + (controlled_diggers - check->param2)/4);
+        able_to_use_power = computer_able_to_use_power(comp, PwrK_MKDIGGER, 0, 3 + (controlled_diggers - minimal_imps)/4);
     }
     if (able_to_use_power)
     {

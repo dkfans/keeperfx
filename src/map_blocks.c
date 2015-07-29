@@ -134,7 +134,7 @@ const unsigned char  *against_to_case[] = {
 };
 
 /******************************************************************************/
-TbBool block_has_diggable_side(long plyr_idx, long slb_x, long slb_y)
+TbBool block_has_diggable_side(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
   long i;
   for (i = 0; i < SMALL_AROUND_SLAB_LENGTH; i++)
@@ -143,6 +143,20 @@ TbBool block_has_diggable_side(long plyr_idx, long slb_x, long slb_y)
       return true;
   }
   return false;
+}
+
+int block_count_diggable_sides(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    int num_sides;
+    num_sides = 0;
+    long i;
+    for (i = 0; i < SMALL_AROUND_SLAB_LENGTH; i++)
+    {
+        if (slab_is_safe_land(plyr_idx, slb_x + small_around[i].delta_x, slb_y + small_around[i].delta_y)) {
+            num_sides++;
+        }
+    }
+    return num_sides;
 }
 
 void create_gold_rubble_for_dug_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSubtlCoord stl_height, PlayerNumber owner)

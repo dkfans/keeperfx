@@ -34,7 +34,8 @@ struct Map;
 
 #pragma pack()
 /******************************************************************************/
-TbBool block_has_diggable_side(long plyr_idx, long slb_x, long slb_y);
+TbBool block_has_diggable_side(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
+int block_count_diggable_sides(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 long tag_blocks_for_digging_in_rectangle_around(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
 void untag_blocks_for_digging_in_rectangle_around(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
 TbBool tag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
