@@ -78,7 +78,7 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, c
 void drop_gold_coins(const struct Coord3d *pos, long value, long plyr_idx);
 TbBool is_dangerous_drop_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 short can_place_thing_here(struct Thing *thing, long x, long y, long dngn_idx);
-unsigned long can_drop_thing_here(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx, unsigned long allow_unclaimed);
+TbBool can_drop_thing_here(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, unsigned long allow_unclaimed);
 TbBool armageddon_blocks_creature_pickup(const struct Thing *thing, PlayerNumber plyr_idx);
 /******************************************************************************/
 #ifdef __cplusplus

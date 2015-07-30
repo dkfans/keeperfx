@@ -1857,7 +1857,7 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
 }
 
 /**
- * Returns a job creature can do in a room.
+ * Returns a job creature can do in a room, or anywhere else.
  * @param rkind Room kind for which job is to be returned.
  * @param required_kind_flags Only jobs which have all of the flags set can be returned.
  *     For example, to only include jobs which can be assigned by dropping creatures by computer player,

@@ -599,6 +599,86 @@ TbBool creature_can_do_barracking_for_player(const struct Thing *creatng, Player
     return (dungeon->num_active_creatrs > 1);
 }
 
+/**
+ * Returns a drop position within room for a creature to do given job.
+ * @param pos
+ * @param room
+ * @param jobpref
+ * @return
+ * @see creature_move_to_place_in_room()
+ */
+TbBool get_drop_position_for_creature_job_in_room(struct Coord3d *pos, const struct Room *room, CreatureJob jobpref)
+{
+    if (!room_exists(room)) {
+        return false;
+    }
+    TbBool result;
+    unsigned long room_area = get_flags_for_job(jobpref) & (JoKF_AssignOnAreaBorder|JoKF_AssignOnAreaCenter);
+    switch (room_area)
+    {
+    case JoKF_AssignOnAreaBorder:
+        SYNCDBG(9,"Job %s requires dropping at %s border",creature_job_code_name(jobpref),room_code_name(room->kind));
+        result = find_random_position_at_area_of_room(pos, room, RoArC_BORDER);
+        break;
+    case JoKF_AssignOnAreaCenter:
+        SYNCDBG(9,"Job %s requires dropping at %s center",creature_job_code_name(jobpref),room_code_name(room->kind));
+        result = find_random_position_at_area_of_room(pos, room, RoArC_CENTER);
+        result = true;
+        break;
+    case (JoKF_AssignOnAreaBorder|JoKF_AssignOnAreaCenter):
+        SYNCDBG(9,"Job %s has no %s area preference",creature_job_code_name(jobpref),room_code_name(room->kind));
+        result = find_random_position_at_area_of_room(pos, room, RoArC_ANY);
+        break;
+    default:
+        WARNLOG("Invalid drop area flags 0x%04x for job %s",(int)room_area,creature_job_code_name(jobpref));
+        result = find_random_position_at_area_of_room(pos, room, RoArC_ANY);
+        break;
+    }
+    return result;
+}
+
+/**
+ * Returns a position on which creature could be set to init or dropped to start doing specific job.
+ * @param creatng
+ * @param new_job
+ * @param drop_kind_flags Flags to select whether we want to set to init or drop the creature.
+ * @return
+ */
+TbBool get_drop_position_for_creature_job_in_dungeon(struct Coord3d *pos, const struct Dungeon *dungeon, const struct Thing *creatng, CreatureJob new_job, unsigned long drop_kind_flags)
+{
+    struct CreatureJobConfig *jobcfg;
+    jobcfg = get_config_for_job(new_job);
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(creatng);
+    SYNCDBG(16,"Starting for %s index %d owner %d and job %s",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,creature_job_code_name(new_job));
+    if (((jobcfg->job_flags & JoKF_NeedsHaveJob) != 0) && (((crstat->job_primary|crstat->job_secondary) & new_job) == 0))
+    {
+        SYNCDBG(3,"Cannot assign %s for %s index %d owner %d; NEEDS_HAVE_JOB",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        return false;
+    }
+    if (((jobcfg->job_flags & JoKF_AssignAreaWithinRoom) != 0) && dungeon_has_room(dungeon, jobcfg->room_kind))
+    {
+        struct Room *room;
+        int needed_capacity;
+        if ((jobcfg->job_flags & JoKF_NeedsCapacity) != 0) {
+            needed_capacity = 1;
+        } else {
+            needed_capacity = 0;
+        }
+        room = get_room_of_given_kind_for_thing(creatng, dungeon, jobcfg->room_kind, needed_capacity);
+        // Returns position, either on border on within room center
+        if (get_drop_position_for_creature_job_in_room(pos, room, new_job)) {
+            return true;
+        }
+        SYNCDBG(3,"No place to assign %s for %s index %d owner %d within room",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+    }
+    if ((jobcfg->job_flags & JoKF_AssignAreaOutsideRoom) != 0)
+    {
+        WARNDBG(3,"No place to assign %s for %s index %d owner %d; not implemented",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+    }
+    return false;
+}
+
 /** Returns if a creature can do specific job for the player.
  *
  * @param creatng The creature which is planned for the job.

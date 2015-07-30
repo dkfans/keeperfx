@@ -28,6 +28,7 @@
 #include "config.h"
 #include "config_terrain.h"
 #include "player_instances.h"
+#include "creature_jobs.h"
 #include "creature_states.h"
 #include "creature_states_mood.h"
 #include "spdigger_stack.h"
@@ -466,8 +467,7 @@ long computer_check_sacrifice_for_cheap_diggers(struct Computer2 *comp, struct C
 	SYNCDBG(18, "Digger creation power price: %d, lowest: %d", power_price, lowest_price);
 
 	if ((power_price > lowest_price) && !is_task_in_progress_using_hand(comp)
-		&& computer_able_to_use_power(comp, PwrK_MKDIGGER, 0, 2) //TODO COMPUTER_PLAYER add amount of imps to afford to the checks config params
-		&& dungeon_has_room(dungeon, RoK_TEMPLE))
+		&& computer_able_to_use_power(comp, PwrK_MKDIGGER, 0, 2)) //TODO COMPUTER_PLAYER add amount of imps to afford to the checks config params
 	{
 		struct Thing* creatng;
 		creatng = find_creature_for_sacrifice(comp, gameadd.cheaper_diggers_sacrifice_model);
@@ -475,21 +475,18 @@ long computer_check_sacrifice_for_cheap_diggers(struct Computer2 *comp, struct C
         cctrl = creature_control_get_from_thing(creatng);
 		if (!thing_is_invalid(creatng) && (cctrl->explevel < 2))
 		{
-			long dist;
-			struct Room* room;
-			room = find_room_nearest_to_position(dungeon->owner, RoK_TEMPLE, &creatng->mappos, &dist);
-			if (!room_is_invalid(room))
-			{
-	            if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
-	                struct PowerConfigStats *powerst;
-	                powerst = get_power_model_stats(PwrK_MKDIGGER);
-	                struct CreatureData *crdata;
-	                crdata = creature_data_get(gameadd.cheaper_diggers_sacrifice_model);
-	                message_add_fmt(dungeon->owner, "Sacrificed %s to reduce %s price of %d gold.",get_string(crdata->namestr_idx),get_string(powerst->name_stridx),(int)power_price);
+		    SYNCDBG(18, "Got digger to sacrifice, %s index %d owner %d",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+	        if (creature_can_do_job_for_player(creatng, dungeon->owner, Job_TEMPLE_SACRIFICE, JobChk_None))
+	        {
+	            struct Coord3d pos;
+	            // Let's pretend a human does the drop here; computers normally should not be allowed to sacrifice
+	            if (get_drop_position_for_creature_job_in_dungeon(&pos, dungeon, creatng, Job_TEMPLE_SACRIFICE, JoKF_AssignHumanDrop))
+	            {
+	                if (create_task_move_creature_to_pos(comp, creatng, pos, get_initial_state_for_job(Job_TEMPLE_SACRIFICE))) {
+	                    return CTaskRet_Unk1;
+	                }
 	            }
-				if (create_task_move_creature_to_subtile(comp, creatng, room->central_stl_x, room->central_stl_y, CrSt_CreatureSacrifice))
-					return CTaskRet_Unk1;
-			}
+	        }
 		}
 	}
     return CTaskRet_Unk4;
@@ -516,7 +513,14 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
     long controlled_diggers;
     controlled_diggers = dungeon->num_active_diggers - count_player_diggers_not_counting_to_total(dungeon->owner);
     int preferred_imps, minimal_imps;
+    // Compute additional imps from gem faces
     preferred_imps = minimal_imps = check->param3 * count_faces_of_indestructible_valuables_marked_for_dig(dungeon);
+    // The additional imps can double the limits, but no more
+    if (preferred_imps > check->param1)
+        preferred_imps = check->param1;
+    if (minimal_imps > check->param2)
+        minimal_imps = check->param2;
+    // Add the base limits
     preferred_imps += check->param1;
     minimal_imps += check->param2;
     SYNCDBG(8,"Starting for player %d, digger amounts minimal=%d preferred=%d controlled=%d",(int)dungeon->owner,(int)minimal_imps,(int)preferred_imps,(int)controlled_diggers);

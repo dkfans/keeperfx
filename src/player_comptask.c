@@ -796,7 +796,7 @@ struct Thing *find_creature_to_be_placed_in_room(struct Computer2 *comp, struct 
         }
         return INVALID_THING;
     }
-    room = get_room_of_given_kind_for_thing(thing,dungeon, get_room_for_job(param.num2));
+    room = get_room_of_given_kind_for_thing(thing,dungeon, get_room_for_job(param.num2), 1);
     if (room_is_invalid(room))
         return INVALID_THING;
     *roomp = room;
@@ -2318,28 +2318,6 @@ long task_pickup_for_attack(struct Computer2 *comp, struct ComputerTask *ctask)
     return CTaskRet_Unk4;
 }
 
-TbBool get_drop_position_for_creature_job_in_room(struct Coord3d *pos, const struct Room *room, CreatureJob jobpref)
-{
-    if (!room_exists(room)) {
-        return false;
-    }
-    // If the job can only be assigned by dropping creature at border - then drop at border
-    if ((get_flags_for_job(jobpref) & (JoKF_AssignOnAreaBorder|JoKF_AssignOnAreaCenter)) == JoKF_AssignOnAreaBorder)
-    {
-        SYNCDBG(9,"Job %s requires dropping at %s border",creature_job_code_name(jobpref),room_code_name(room->kind));
-        if (find_random_position_at_border_of_room(pos, room)) {
-            SYNCDBG(9,"Will drop at border of %s on (%d,%d)",room_code_name(room->kind),(int)pos->x.stl.num,(int)pos->y.stl.num);
-            return true;
-        }
-    }
-    SYNCDBG(9,"Job %s has no %s area preference",creature_job_code_name(jobpref),room_code_name(room->kind));
-    pos->x.val = subtile_coord(room->central_stl_x,ACTION_RANDOM(256));
-    pos->y.val = subtile_coord(room->central_stl_y,ACTION_RANDOM(256));
-    pos->z.val = subtile_coord(1,0);
-    SYNCDBG(9,"Will drop at center of %s on (%d,%d)",room_code_name(room->kind),(int)pos->x.stl.num,(int)pos->y.stl.num);
-    return true;
-}
-
 long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     struct Thing *thing;
@@ -3092,6 +3070,15 @@ TbBool create_task_move_creature_to_pos(struct Computer2 *comp, const struct Thi
         case CrSt_CreatureDoingNothing:
         case CrSt_ImpDoingNothing:
             message_add_fmt(comp->dungeon->owner, "This %s should stop doing that.",get_string(crdata->namestr_idx));
+            break;
+        case CrSt_CreatureSacrifice:
+            if (thing->model == gameadd.cheaper_diggers_sacrifice_model) {
+                struct PowerConfigStats *powerst;
+                powerst = get_power_model_stats(PwrK_MKDIGGER);
+                message_add_fmt(comp->dungeon->owner, "Sacrificing %s to reduce %s price.",get_string(crdata->namestr_idx),get_string(powerst->name_stridx));
+                break;
+            }
+            message_add_fmt(comp->dungeon->owner, "This %s will be sacrificed.",get_string(crdata->namestr_idx));
             break;
         default:
             message_add_fmt(comp->dungeon->owner, "This %s should go there.",get_string(crdata->namestr_idx));

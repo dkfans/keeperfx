@@ -1160,7 +1160,7 @@ TbBool computer_find_non_solid_block(const struct Computer2 *comp, struct Coord3
             MapSubtlCoord sstl_x, sstl_y;
             sstl_x = arstl_x + start_at_around[k].delta_x;
             sstl_y = arstl_y + start_at_around[k].delta_y;
-            if (can_drop_thing_here(sstl_x, sstl_y, comp->dungeon->owner, 0) == 1)
+            if (can_drop_thing_here(sstl_x, sstl_y, comp->dungeon->owner, 0))
             {
               pos->x.val = subtile_coord_center(sstl_x);
               pos->y.val = subtile_coord_center(sstl_y);

@@ -321,13 +321,10 @@ TbBool creature_move_to_place_in_room(struct Thing *creatng, struct Room *room, 
     switch (room_area)
     {
     case JoKF_WorkOnRoomBorder:
-        result = find_random_position_at_border_of_room(&pos, room);
+        result = find_random_position_at_area_of_room(&pos, room, RoArC_BORDER);
         break;
     case JoKF_WorkOnRoomCenter:
-        //TODO CREATURE_JOBS This should be improved - we can't assume room center is not a border position
-        pos.x.val = subtile_coord_center(room->central_stl_x);
-        pos.y.val = subtile_coord_center(room->central_stl_y);
-        result = true;
+        result = find_random_position_at_area_of_room(&pos, room, RoArC_CENTER);
         break;
     case (JoKF_WorkOnRoomBorder|JoKF_WorkOnRoomCenter):
         result = find_random_valid_position_for_thing_in_room(creatng, room, &pos);

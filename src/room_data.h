@@ -55,6 +55,12 @@ enum RoomKinds {
     RoK_UNKN17              =  17,
 };
 
+enum RoomAreaChoose {
+    RoArC_ANY = 0,
+    RoArC_BORDER,
+    RoArC_CENTER,
+};
+
 #define ROOM_EFFICIENCY_MAX 256
 #define ROOM_SELL_REVENUE_PERCENT  50
 /******************************************************************************/
@@ -193,7 +199,7 @@ void reinitialise_map_rooms(void);
 // Finding position within room
 TbBool find_random_valid_position_for_thing_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos);
 TbBool find_first_valid_position_for_thing_anywhere_in_room(const struct Thing *thing, struct Room *room, struct Coord3d *pos);
-TbBool find_random_position_at_border_of_room(struct Coord3d *pos, const struct Room *room);
+TbBool find_random_position_at_area_of_room(struct Coord3d *pos, const struct Room *room, unsigned char room_area);
 
 // Finding a room for a thing
 TbBool creature_can_get_to_any_of_players_rooms(struct Thing *thing, PlayerNumber owner);
@@ -222,7 +228,7 @@ struct Room *link_adjacent_rooms_of_type(PlayerNumber owner, MapSubtlCoord x, Ma
 struct Room *create_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 short room_grow_food(struct Room *room);
 void update_room_efficiency(struct Room *room);
-struct Room *get_room_of_given_kind_for_thing(struct Thing *thing, struct Dungeon *dungeon, RoomKind rkind);
+struct Room *get_room_of_given_kind_for_thing(const struct Thing *thing, const struct Dungeon *dungeon, RoomKind rkind, int needed_capacity);
 struct Thing *find_lair_totem_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Room *place_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool slab_is_area_outer_border(MapSlabCoord slb_x, MapSlabCoord slb_y);

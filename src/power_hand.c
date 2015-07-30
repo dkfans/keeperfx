@@ -1318,7 +1318,7 @@ TbBool is_dangerous_drop_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     return false;
 }
 
-unsigned long can_drop_thing_here(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx, unsigned long allow_unclaimed)
+TbBool can_drop_thing_here(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, unsigned long allow_unclaimed)
 {
     struct Map *mapblk;
     mapblk = get_map_block_at(stl_x, stl_y);

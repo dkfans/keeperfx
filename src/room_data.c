@@ -2748,7 +2748,7 @@ TbBool slab_is_area_inner_fill(MapSlabCoord slb_x, MapSlabCoord slb_y)
     return true;
 }
 
-TbBool find_random_position_at_border_of_room(struct Coord3d *pos, const struct Room *room)
+TbBool find_random_position_at_area_of_room(struct Coord3d *pos, const struct Room *room, unsigned char room_area)
 {
     long i;
     unsigned long n;
@@ -2771,12 +2771,24 @@ TbBool find_random_position_at_border_of_room(struct Coord3d *pos, const struct 
         MapSlabCoord slb_x, slb_y;
         slb_x = slb_num_decode_x(n);
         slb_y = slb_num_decode_y(n);
-        if (slab_is_area_outer_border(slb_x, slb_y))
+        if  ((room_area == RoArC_ANY)
+         || ((room_area == RoArC_BORDER) && slab_is_area_outer_border(slb_x, slb_y))
+         || ((room_area == RoArC_CENTER) && slab_is_area_inner_fill(slb_x, slb_y)))
         {
-            pos->x.val = subtile_coord(slab_subtile(slb_x,0),ACTION_RANDOM(STL_PER_SLB*COORD_PER_STL));
-            pos->y.val = subtile_coord(slab_subtile(slb_y,0),ACTION_RANDOM(STL_PER_SLB*COORD_PER_STL));
-            pos->z.val = subtile_coord(1,0);
-            return true;
+            // In case we will select a column on that subtile, do 3 tries
+            int k;
+            for (k=0; k < 3; k++)
+            {
+                pos->x.val = subtile_coord(slab_subtile(slb_x,0),ACTION_RANDOM(STL_PER_SLB*COORD_PER_STL));
+                pos->y.val = subtile_coord(slab_subtile(slb_y,0),ACTION_RANDOM(STL_PER_SLB*COORD_PER_STL));
+                pos->z.val = subtile_coord(1,0);
+                struct Map *mapblk;
+                mapblk = get_map_block_at(pos->x.stl.num, pos->y.stl.num);
+                if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && ((mapblk->flags & SlbAtFlg_IsDoor) == 0)
+                    && (get_navigation_map_floor_height(pos->x.stl.num, pos->y.stl.num) < 4)) {
+                    return true;
+                }
+            }
         }
         n = get_next_slab_number_in_room(n);
         i--;
@@ -3309,7 +3321,7 @@ struct Room *find_room_nearest_to_position(PlayerNumber plyr_idx, RoomKind rkind
 
 //TODO CREATURE_AI try to make sure the creature will do proper activity in the room.
 //TODO CREATURE_AI try to select lair far away from CTA and enemies
-struct Room *get_room_of_given_kind_for_thing(struct Thing *thing, struct Dungeon *dungeon, RoomKind rkind)
+struct Room *get_room_of_given_kind_for_thing(const struct Thing *thing, const struct Dungeon *dungeon, RoomKind rkind, int needed_capacity)
 {
     struct Room *room;
     struct Room *retroom;
@@ -3363,7 +3375,7 @@ struct Room *get_room_of_given_kind_for_thing(struct Thing *thing, struct Dungeo
         case RoK_TEMPLE:
         case RoK_BARRACKS:
         case RoK_GUARDPOST:
-            if (room->used_capacity >= room->total_capacity) {
+            if (room->used_capacity+needed_capacity > room->total_capacity) {
                 // This room isn't attractive at all - creature won't get job there
                 attractiveness = 0;
             } else {
