@@ -57,6 +57,7 @@ const struct NamedCommand magic_spell_commands[] = {
   {"CASTATTHING",     4},
   {"SHOTMODEL",       5},
   {"EFFECTMODEL",     6},
+  {"SYMBOLSPRITES",   7},
   {NULL,              0},
   };
 
@@ -429,7 +430,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
 {
   struct SpellConfigStats *spellst;
   struct SpellConfig *splconf;
-  struct SpellInfo *magicinf;
+  struct SpellInfo *spinfo;
   long pos;
   int i,k,n;
   int cmd_num;
@@ -460,12 +461,14 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
       {
           splconf = &game.spells_config[i];
           splconf->duration = 0;
-          magicinf = get_magic_info(i);
-          magicinf->caster_affected = 0;
-          magicinf->caster_affect_sound = 0;
-          magicinf->cast_at_thing = 0;
-          magicinf->shot_model = 0;
-          magicinf->cast_effect_model = 0;
+          spinfo = get_magic_info(i);
+          spinfo->caster_affected = 0;
+          spinfo->caster_affect_sound = 0;
+          spinfo->cast_at_thing = 0;
+          spinfo->shot_model = 0;
+          spinfo->cast_effect_model = 0;
+          spinfo->bigsym_sprite_idx = 0;
+          spinfo->medsym_sprite_idx = 0;
       }
   }
   // Load the file
@@ -484,7 +487,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
         continue;
     }
     splconf = &game.spells_config[i];
-    magicinf = get_magic_info(i);
+    spinfo = get_magic_info(i);
     spellst = get_spell_model_stats(i);
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(magic_spell_commands,cmd_num)
     while (pos<len)
@@ -528,13 +531,13 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              magicinf->caster_affected = k;
+              spinfo->caster_affected = k;
               n++;
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              magicinf->caster_affect_sound = k;
+              spinfo->caster_affect_sound = k;
               n++;
           }
           if (n < 2)
@@ -547,7 +550,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              magicinf->cast_at_thing = k;
+              spinfo->cast_at_thing = k;
               n++;
           }
           if (n < 1)
@@ -561,7 +564,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           {
               k = get_id(shot_desc, word_buf);
               if (k >= 0) {
-                  magicinf->shot_model = k;
+                  spinfo->shot_model = k;
                   n++;
               }
           }
@@ -577,7 +580,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           {
               k = get_id(effect_desc, word_buf);
               if (k >= 0) {
-                  magicinf->cast_effect_model = k;
+                  spinfo->cast_effect_model = k;
                   n++;
               }
           }
@@ -586,6 +589,31 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
               CONFWRNLOG("Incorrect effect model \"%s\" in [%s] block of %s file.",
                   word_buf,block_buf,config_textname);
               break;
+          }
+          break;
+      case 7: // SYMBOLSPRITES
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  spinfo->bigsym_sprite_idx = k;
+                  n++;
+              }
+          }
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  spinfo->medsym_sprite_idx = k;
+                  n++;
+              }
+          }
+          if (n < 2)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
       case 0: // comment

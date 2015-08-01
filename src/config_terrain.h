@@ -98,7 +98,9 @@ struct RoomConfigStats {
     SlabKind assigned_slab;
     unsigned long flags;
     long panel_tab_idx;
+    /** Sprite index of big symbol icon representing the room. */
     long bigsym_sprite_idx;
+    /** Sprite index of medium symbol icon representing the room. */
     long medsym_sprite_idx;
     long pointer_sprite_idx;
     unsigned int ambient_snd_smp_id;

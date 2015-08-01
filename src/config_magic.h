@@ -196,10 +196,16 @@ enum PowerConfigFlags {
     PwCF_IsParent     = 0x0004, /**< Set if the power has children and is just an aggregate. */
 };
 
+/**
+ * Configuration parameters for spells.
+ */
 struct SpellConfigStats {
     char code_name[COMMAND_WORD_LEN];
 };
 
+/**
+ * Configuration parameters for shots.
+ */
 struct ShotConfigStats {
     char code_name[COMMAND_WORD_LEN];
     unsigned long model_flags;
@@ -220,6 +226,9 @@ struct ShotConfigStats {
 
 typedef unsigned char (*Expand_Check_Func)(void);
 
+/**
+ * Configuration parameters for powers.
+ */
 struct PowerConfigStats {
     char code_name[COMMAND_WORD_LEN];
     ThingModel artifact_model;
@@ -228,7 +237,9 @@ struct PowerConfigStats {
     Expand_Check_Func overcharge_check;
     long work_state;
     PowerKind parent_power;
+    /** Sprite index of big symbol icon representing the power. */
     short bigsym_sprite_idx;
+    /** Sprite index of medium symbol icon representing the power. */
     short medsym_sprite_idx;
     unsigned short name_stridx;
     unsigned short tooltip_stridx;
@@ -237,6 +248,9 @@ struct PowerConfigStats {
     long panel_tab_idx;
 };
 
+/**
+ * Configuration parameters for specials.
+ */
 struct SpecialConfigStats {
     char code_name[COMMAND_WORD_LEN];
     ThingModel artifact_model;
@@ -333,7 +347,7 @@ struct MagicStats {  // sizeof=0x4C
 
 /**
  * Spell information structure.
- * Stores configuration of powers; to be replaced with PowerConfigStats.
+ * Stores configuration of spells; to be replaced with SpellConfigStats when all fields are in CFG.
  * It no longer matches the similar struct from DK - fields were added at end.
  */
 struct SpellInfo {
@@ -345,9 +359,14 @@ struct SpellInfo {
   unsigned char caster_affected;
   /** Effect model created while casting. */
   unsigned char cast_effect_model;
+  /** Unknown. Maybe priority? Values range 0-43. */
   unsigned short cast_field_4;
   /** If caster is affected by the spell, indicates sound sample to be played. */
   unsigned short caster_affect_sound;
+  /** Sprite index of big symbol icon representing the spell. */
+  short bigsym_sprite_idx;
+  /** Sprite index of medium symbol icon representing the spell. */
+  short medsym_sprite_idx;
 };
 
 /**
@@ -372,7 +391,6 @@ struct SpellData {
 /******************************************************************************/
 DLLIMPORT struct ShotStats _DK_shot_stats[30];
 #define shot_stats _DK_shot_stats
-DLLIMPORT struct SpellInfo _DK_spell_info[];
 /******************************************************************************/
 extern struct MagicConfig magic_conf;
 extern const char keeper_magic_file[];

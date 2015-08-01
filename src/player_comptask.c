@@ -2361,6 +2361,7 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
         remove_task(comp, ctask);
         return CTaskRet_Unk1;
     }
+    //TODO COMPUTER_PLAYER make this job-based, return job instead of room
     thing = find_creature_to_be_placed_in_room(comp, &room);
     if (!thing_is_invalid(thing))
     {
