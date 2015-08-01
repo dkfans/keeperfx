@@ -4139,9 +4139,9 @@ TbBool initialise_thing_state_f(struct Thing *thing, CrtrStateId nState, const c
     SYNCDBG(9,"%s: State change %s to %s for %s index %d",func_name,creature_state_code_name(thing->active_state),
         creature_state_code_name(nState), thing_model_name(thing),(int)thing->index);
     cleanup_current_thing_state(thing);
-    thing->continue_state = CrSt_Unused;
     thing->active_state = nState;
     thing->state_flags &= ~TF1_Unkn10;
+    thing->continue_state = CrSt_Unused;
     cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {

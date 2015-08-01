@@ -1913,7 +1913,7 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
         {
             INSTANCE_RET_IF_AVAIL(thing, CrInst_FLY);
         }
-        //TODO allow using invisibility when creature is being attacked or escaping
+        //TODO CREATURE_AI allow using invisibility when creature is being attacked or escaping
         if (!creature_affected_by_spell(thing, SplK_Invisibility) && (state_type != CrStTyp_Idle))
         {
             INSTANCE_RET_IF_AVAIL(thing, CrInst_INVISIBILITY);

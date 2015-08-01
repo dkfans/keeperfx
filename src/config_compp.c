@@ -1035,7 +1035,7 @@ short parse_computer_player_computer_blocks(char *buf, long len, const char *con
               k = atoi(word_buf);
               if (k > 0)
               {
-                  //TODO
+                  //TODO CONFIG Add when ComputerProcessTypes can be changed
                   //cpt->name_stridx = k;
                   n++;
               }
@@ -1052,7 +1052,7 @@ short parse_computer_player_computer_blocks(char *buf, long len, const char *con
               k = atoi(word_buf);
               if (k > 0)
               {
-                  //TODO
+                  //TODO CONFIG Add when ComputerProcessTypes can be changed
                   //cpt->tooltip_stridx = k;
                   n++;
               }

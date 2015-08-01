@@ -455,7 +455,7 @@ struct ComputerTask *get_task_in_progress(struct Computer2 *comp, ComputerTaskTy
           break;
         }
     }
-    // TODO COMPUTER change to INVALID_COMPUTER_TASK when all functions chan handle this value correctly
+    // TODO COMPUTER change to INVALID_COMPUTER_TASK when all functions can handle this value correctly
     return NULL;
 }
 
@@ -503,7 +503,7 @@ struct ComputerTask *get_task_in_progress_in_list(const struct Computer2 *comp, 
           break;
         }
     }
-    // TODO COMPUTER change to INVALID_COMPUTER_TASK when all functions chan handle this value correctly
+    // TODO COMPUTER change to INVALID_COMPUTER_TASK when all functions can handle this value correctly
     return NULL;
 }
 

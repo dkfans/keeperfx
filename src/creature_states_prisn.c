@@ -358,7 +358,7 @@ TbBool process_prisoner_skelification(struct Thing *thing, struct Room *room)
     if ((thing->health >= 0) || (!crstat->humanoid_creature)) {
         return false;
     }
-    //TODO [config] Allow skeletification only if spent specific amount of turns in prison (set low value)
+    //TODO CONFIG Allow skeletification only if spent specific amount of turns in prison (set low value)
     if (ACTION_RANDOM(101) > game.prison_skeleton_chance)
       return false;
     if (is_my_player_number(room->owner))

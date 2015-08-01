@@ -100,9 +100,10 @@ const struct NamedCommand creaturetype_job_commands[] = {
   {"RELATEDEVENT",      3},
   {"ASSIGN",            4},
   {"INITIALSTATE",      5},
-  {"PLAYERFUNCTIONS",   6},
-  {"COORDSFUNCTIONS",   7},
-  {"PROPERTIES",        8},
+  {"CONTINUESTATE",     6},
+  {"PLAYERFUNCTIONS",   7},
+  {"COORDSFUNCTIONS",   8},
+  {"PROPERTIES",        9},
   {NULL,                0},
   };
 
@@ -963,7 +964,7 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
               k = atoi(word_buf);
               if (k > 0)
               {
-                  //TODO
+                  //TODO CONFIG Add when InstanceInfo can be changed
                   //inst_inf->tooltip_stridx = k;
                   instance_button_init[i].tooltip_stridx = k;
                   n++;
@@ -981,7 +982,7 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  //TODO
+                  //TODO CONFIG Add when InstanceInfo can be changed
                   //inst_inf->symbol_spridx = k;
                   instance_button_init[i].symbol_spridx = k;
                   n++;
@@ -1109,6 +1110,7 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
             LbMemorySet(jobcfg->name, 0, COMMAND_WORD_LEN);
             jobcfg->room_kind = RoK_NONE;
             jobcfg->initial_crstate = CrSt_Unused;
+            jobcfg->continue_crstate = CrSt_Unused;
             jobcfg->job_flags = 0;
             jobcfg->func_plyr_check = NULL;
             jobcfg->func_plyr_assign = NULL;
@@ -1247,7 +1249,28 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
                       COMMAND_TEXT(cmd_num),block_buf,config_textname);
                 }
                 break;
-            case 6: // PLAYERFUNCTIONS
+            case 6: // CONTINUESTATE
+                jobcfg->continue_crstate = CrSt_Unused;
+                if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+                {
+                    k = get_id(creatrstate_desc, word_buf);
+                    if (k >= 0)
+                    {
+                        jobcfg->continue_crstate = k;
+                        n++;
+                    } else
+                    {
+                        if (strcasecmp(word_buf,"NONE") == 0)
+                            n++;
+                    }
+                }
+                if (n < 1)
+                {
+                  CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                      COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                }
+                break;
+            case 7: // PLAYERFUNCTIONS
                 jobcfg->func_plyr_check = NULL;
                 jobcfg->func_plyr_assign = NULL;
                 k = recognize_conf_parameter(buf,&pos,len,creature_job_player_check_func_type);
@@ -1268,7 +1291,7 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
                         COMMAND_TEXT(cmd_num),block_buf,config_textname);
                 }
                 break;
-            case 7: // COORDSFUNCTIONS
+            case 8: // COORDSFUNCTIONS
                 jobcfg->func_cord_check = NULL;
                 jobcfg->func_cord_assign = NULL;
                 k = recognize_conf_parameter(buf,&pos,len,creature_job_coords_check_func_type);
@@ -1289,7 +1312,7 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
                         COMMAND_TEXT(cmd_num),block_buf,config_textname);
                 }
                 break;
-            case 8: // PROPERTIES
+            case 9: // PROPERTIES
                 jobcfg->job_flags &= ~(JoKF_WorkOnRoomBorder|JoKF_WorkOnRoomCenter|JoKF_NeedsCapacity|JoKF_NoSelfControl|JoKF_NoGroups|JoKF_AllowChickenized);
                 while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
                 {
@@ -1953,19 +1976,11 @@ CrtrStateId get_arrive_at_state_for_job(CreatureJob jobpref)
     return jobcfg->initial_crstate;
 }
 
-/**
- * Returns state for creature.
- * @param rkind
- * @return
- * @deprecated Room kind isn't pointing a specific job.
- */
-CrtrStateId get_arrive_at_state_for_room(RoomKind rkind)
+CrtrStateId get_continue_state_for_job(CreatureJob jobpref)
 {
-    CreatureJob jobpref;
-    jobpref = get_job_for_room(rkind, JoKF_None, Job_NULL);
     struct CreatureJobConfig *jobcfg;
     jobcfg = get_config_for_job(jobpref);
-    return jobcfg->initial_crstate;
+    return jobcfg->continue_crstate;
 }
 
 /**

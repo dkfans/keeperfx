@@ -287,10 +287,10 @@ TbBool parse_effects_effect_blocks(char *buf, long len, const char *config_textn
           }
           break;
       case 6: // GENERATIONKINDRANGE
-          //TODO Add effect parameter reading
+          //TODO CONFIG Add effect parameter reading
           break;
       case 7: // AREAAFFECTTYPE
-          //TODO Add effect parameter reading
+          //TODO CONFIG Add effect parameter reading
           break;
       case 0: // comment
           break;

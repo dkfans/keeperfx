@@ -185,7 +185,10 @@ struct CreatureJobConfig {
     Creature_Job_Coords_Assign_Func func_cord_assign;
     RoomKind room_kind;
     EventKind event_kind;
+    /** The state creature should go into when job is started. */
     CrtrStateId initial_crstate;
+    /** The state creature should back to after job is interrupted. */
+    CrtrStateId continue_crstate;
     unsigned long job_flags;
 };
 
@@ -274,7 +277,7 @@ RoomKind get_room_for_job(CreatureJob job_flags);
 EventKind get_event_for_job(CreatureJob job_flags);
 CrtrStateId get_initial_state_for_job(CreatureJob jobpref);
 CrtrStateId get_arrive_at_state_for_job(CreatureJob jobpref);
-CrtrStateId get_arrive_at_state_for_room(RoomKind rkind);
+CrtrStateId get_continue_state_for_job(CreatureJob jobpref);
 unsigned long get_flags_for_job(CreatureJob jobpref);
 CreatureJob get_creature_job_causing_going_postal(CreatureJob job_flags, RoomKind rkind);
 CreatureJob get_creature_job_causing_stress(CreatureJob job_flags, RoomKind rkind);

@@ -293,9 +293,7 @@ TbBool find_combat_target_passing_by_room_but_having_unrelated_job(const struct 
 
 TbBool process_job_causes_going_postal(struct Thing *creatng, struct Room *room, CreatureJob going_postal_job)
 {
-    struct CreatureControl *cctrl;
     struct CreatureStats *crstat;
-    cctrl = creature_control_get_from_thing(creatng);
     crstat = creature_stats_get_from_thing(creatng);
     CrInstance inst_use;
     inst_use = get_best_quick_range_instance_to_use(creatng);
@@ -323,10 +321,8 @@ TbBool process_job_causes_going_postal(struct Thing *creatng, struct Room *room,
     if (!setup_person_move_to_coord(creatng, &combt_thing->mappos, NavRtF_Default)) {
         return false;
     }
-    //TODO this is weak - going postal may be used in other rooms
-    creatng->continue_state = CrSt_Researching;
-    cctrl->field_82 = 0;
-    cctrl->byte_9A = 3;
+    // Back to original job - assume the state data is not damaged
+    creatng->continue_state = get_continue_state_for_job(going_postal_job);
     return true;
 }
 
@@ -342,7 +338,7 @@ TbBool process_job_causes_going_postal(struct Thing *creatng, struct Room *room,
  * @param room The room where target creature should be searched for.
  * @return
  */
-TbBool process_job_stress_and_going_postal(struct Thing *creatng, struct Room *room)
+TbBool process_job_stress_and_going_postal(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
     struct CreatureStats *crstat;
@@ -354,6 +350,11 @@ TbBool process_job_stress_and_going_postal(struct Thing *creatng, struct Room *r
     // Process the stress once per 20 turns
     //TODO CONFIG export amount of turns to config file
     if (((game.play_gameturn + creatng->index) % 20) != 0) {
+        return false;
+    }
+    struct Room *room;
+    room = get_room_creature_works_in(creatng);
+    if (room_is_invalid(room)) {
         return false;
     }
     // Process the job stress
@@ -420,8 +421,6 @@ CrCheckRet process_research_function(struct Thing *creatng)
     SYNCDBG(19,"The %s index %d produced %d research points",thing_model_name(creatng),(int)creatng->index,(int)work_value);
     dungeon->total_research_points += work_value;
     dungeon->research_progress += work_value;
-    //TODO CREATURE_JOBS going postal should be possible for all jobs, not only research
-    process_job_stress_and_going_postal(creatng, room);
     return CrCkRet_Available;
 }
 
