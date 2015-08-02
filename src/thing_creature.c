@@ -782,6 +782,7 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
     case SplK_FireBomb:
     case SplK_FlameBreath:
     case SplK_Drain:
+        return false;
     case SplK_PoisonCloud:
         return ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0);
     case SplK_Fear:

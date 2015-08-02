@@ -1764,11 +1764,11 @@ TngUpdateRet update_effect(struct Thing *efftng)
     // Let the effect affect area
     switch (effnfo->area_affect_type)
     {
-    case 1:
-    case 3:
+    case AAffT_GasDamage:
+    case AAffT_GasSlow:
         poison_cloud_affecting_area(subtng, &efftng->mappos, 5*COORD_PER_STL, 120, effnfo->area_affect_type);
         break;
-    case 4:
+    case AAffT_WOPDamage:
         word_of_power_affecting_area(efftng, subtng, &efftng->mappos);
         break;
     }

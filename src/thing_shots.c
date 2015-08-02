@@ -385,29 +385,29 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
         doortng = get_door_for_position(pos->x.stl.num, pos->y.stl.num);
         if (!thing_is_invalid(doortng))
         {
-            efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->field_31, shotst->old->field_33, shotst->old->field_35);
-            if ( shotst->old->field_36 )
+            efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->hit_door.effect_model, shotst->old->hit_door.sndsample_idx, shotst->old->hit_door.sndsample_range);
+            if (shotst->old->hit_door.destroyed)
               shot_explodes = 1;
             i = calculate_shot_real_damage_to_door(doortng, shotng);
             apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
         } else
         if (cube_is_water(cube_id))
         {
-            efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->field_37, shotst->old->field_39, 1);
-            if ( shotst->old->field_3B ) {
+            efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->hit_water_effect_model, shotst->old->hit_water_sndsample_idx, 1);
+            if (shotst->old->hit_water_destroyed) {
                 shot_explodes = 1;
             }
         } else
         if (cube_is_lava(cube_id))
         {
-            efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->field_3C, shotst->old->field_3E, 1);
-            if ( shotst->old->field_40 ) {
+            efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->hit_lava_effect_model, shotst->old->hit_lava_sndsample_idx, 1);
+            if (shotst->old->hit_lava_destroyed) {
                 shot_explodes = 1;
             }
         } else
         {
-            efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->field_2B, shotst->old->field_2D, shotst->old->field_2F);
-            if ( shotst->old->field_30 ) {
+            efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->hit_generic.effect_model, shotst->old->hit_generic.sndsample_idx, shotst->old->hit_generic.sndsample_range);
+            if (shotst->old->hit_generic.destroyed) {
                 shot_explodes = 1;
             }
         }
@@ -420,15 +420,15 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
             doortng = get_door_for_position(pos->x.stl.num, pos->y.stl.num);
             if (!thing_is_invalid(doortng))
             {
-                efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->field_31, shotst->old->field_33, shotst->old->field_35);
-                if (shotst->old->field_36)
+                efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->hit_door.effect_model, shotst->old->hit_door.sndsample_idx, shotst->old->hit_door.sndsample_range);
+                if (shotst->old->hit_door.destroyed)
                     shot_explodes = 1;
                 i = calculate_shot_real_damage_to_door(doortng, shotng);
                 apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
             } else
             {
-                efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->field_2B, shotst->old->field_2D, shotst->old->field_2F);
-                if ( shotst->old->field_30 )
+                efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->hit_generic.effect_model, shotst->old->hit_generic.sndsample_idx, shotst->old->hit_generic.sndsample_range);
+                if (shotst->old->hit_generic.destroyed)
                   shot_explodes = 1;
             }
         }
@@ -479,21 +479,21 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
       if (!thing_is_invalid(doortng))
       {
           // If the shot hit is supposed to create effect thing
-          n = shotst->old->field_31;
+          n = shotst->old->hit_door.effect_model;
           if (n > 0) {
               efftng = create_effect(&shotng->mappos, n, shotng->owner);
           }
           // If the shot hit is supposed to create sound
-          n = shotst->old->field_33;
+          n = shotst->old->hit_door.sndsample_idx;
           if (n > 0)
           {
               if (!thing_is_invalid(efftng)) {
-                  i = shotst->old->field_35;
+                  i = shotst->old->hit_door.sndsample_range;
                   thing_play_sample(efftng, n + ACTION_RANDOM(i), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
               }
           }
           // Shall the shot be destroyed on impact
-          if (shotst->old->field_36) {
+          if (shotst->old->hit_door.destroyed) {
               shot_explodes = true;
           }
           // Apply damage to the door

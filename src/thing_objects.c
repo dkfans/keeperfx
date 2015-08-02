@@ -998,8 +998,8 @@ long food_moves(struct Thing *objtng)
             struct Dungeon *dungeon;
             dungeon = get_dungeon(objtng->owner);
             dungeon->lvstats.chickens_wasted++;
-            create_effect(&objtng->mappos, 0x33u, objtng->owner);
-            create_effect(&objtng->mappos, 7u, objtng->owner);
+            create_effect(&objtng->mappos, TngEff_Unknown51, objtng->owner);
+            create_effect(&objtng->mappos, TngEff_Unknown07, objtng->owner);
             delete_thing_structure(objtng, 0);
             return -1;
         }
@@ -2240,7 +2240,7 @@ void create_rubble_for_dug_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSu
     zmax = subtile_coord(stl_z_max,0);
     while (pos.z.val < zmax)
     {
-        create_effect(&pos, 26, plyr_idx);
+        create_effect(&pos, TngEff_DirtRubble, plyr_idx);
         pos.z.val += 256;
     }
 }

@@ -652,7 +652,7 @@ short creature_sacrifice(struct Thing *thing)
         thing->creature.gold_carried = 0;
         struct SlabMap *slb;
         slb = get_slabmap_thing_is_on(thing);
-        create_effect(&thing->mappos, 35, slabmap_owner(slb));
+        create_effect(&thing->mappos, TngEff_Unknown35, slabmap_owner(slb));
     }
     return 1;
 }

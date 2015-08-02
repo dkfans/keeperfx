@@ -170,8 +170,8 @@ void create_gold_rubble_for_dug_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
     pos.z.val = subtile_coord_center(1);
     while (pos.z.val < cor_height)
     {
-        create_effect(&pos, 0x1A, owner);
-        create_effect(&pos, 0x21, owner);
+        create_effect(&pos, TngEff_ImpSpangleRed, owner);
+        create_effect(&pos, TngEff_Unknown33, owner);
         pos.z.val += COORD_PER_STL;
     }
 }

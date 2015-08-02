@@ -308,13 +308,13 @@ void activate_trap_shot_head_for_target90(struct Thing *traptng, struct Thing *c
 {
     struct TrapStats *trapstat;
     trapstat = &trap_stats[traptng->model];
-    if (trapstat->field_1A <= 0)
+    if (trapstat->created_itm_model <= 0)
     {
-        ERRORLOG("Trap activation of bad shot kind %d",(int)trapstat->field_1A);
+        ERRORLOG("Trap activation of bad shot kind %d",(int)trapstat->created_itm_model);
         return;
     }
     struct Thing *shotng;
-    shotng = create_shot(&traptng->mappos, trapstat->field_1A, traptng->owner);
+    shotng = create_shot(&traptng->mappos, trapstat->created_itm_model, traptng->owner);
     if (!thing_is_invalid(shotng))
     {
         {
@@ -340,7 +340,7 @@ void activate_trap_shot_head_for_target90(struct Thing *traptng, struct Thing *c
         }
         shotng->move_angle_z = 0;
         struct ShotConfigStats *shotst;
-        shotst = get_shot_model_stats(trapstat->field_1A);
+        shotst = get_shot_model_stats(trapstat->created_itm_model);
         struct ComponentVector cvect;
         angles_to_vector(shotng->move_angle_xy, 0, shotst->old->speed, &cvect);
         shotng->veloc_push_add.x.val += cvect.x;
@@ -362,13 +362,13 @@ void activate_trap_effect_on_trap(struct Thing *traptng, struct Thing *creatng)
 {
     struct TrapStats *trapstat;
     trapstat = &trap_stats[traptng->model];
-    if (trapstat->field_1A <= 0)
+    if (trapstat->created_itm_model <= 0)
     {
-        ERRORLOG("Trap activation of bad effect kind %d",(int)trapstat->field_1A);
+        ERRORLOG("Trap activation of bad effect kind %d",(int)trapstat->created_itm_model);
         return;
     }
     struct Thing *efftng;
-    efftng = create_effect(&traptng->mappos, trapstat->field_1A, traptng->owner);
+    efftng = create_effect(&traptng->mappos, trapstat->created_itm_model, traptng->owner);
     if (!thing_is_invalid(efftng)) {
         efftng->byte_16 = trapstat->field_1B;
         SYNCDBG(18,"Created %s",thing_model_name(efftng));
@@ -379,13 +379,13 @@ void activate_trap_shot_on_trap(struct Thing *traptng, struct Thing *creatng)
 {
     struct TrapStats *trapstat;
     trapstat = &trap_stats[traptng->model];
-    if (trapstat->field_1A <= 0)
+    if (trapstat->created_itm_model <= 0)
     {
-        ERRORLOG("Trap activation of bad shot kind %d",(int)trapstat->field_1A);
+        ERRORLOG("Trap activation of bad shot kind %d",(int)trapstat->created_itm_model);
         return;
     }
     struct Thing *shotng;
-    shotng = create_shot(&traptng->mappos, trapstat->field_1A, traptng->owner);
+    shotng = create_shot(&traptng->mappos, trapstat->created_itm_model, traptng->owner);
     if (!thing_is_invalid(shotng)) {
         shotng->byte_16 = trapstat->field_1B;
         shotng->parent_idx = 0;
@@ -404,7 +404,7 @@ void activate_trap_slab_change(struct Thing *traptng, struct Thing *creatng)
     if (subtile_is_room(stl_x, stl_y)) {
         delete_room_slab(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y), true);
     }
-    place_slab_type_on_map(trap_stats[traptng->model].field_1A, stl_x, stl_y, game.neutral_player_num, 0);
+    place_slab_type_on_map(trap_stats[traptng->model].created_itm_model, stl_x, stl_y, game.neutral_player_num, 0);
     do_slab_efficiency_alteration(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
 }
 
@@ -745,12 +745,12 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, long a2)
 {
     struct TrapStats *trapstat;
     trapstat = &trap_stats[thing->model];
-    if (trapstat->field_1A <= 0) {
-        ERRORLOG("Cannot activate trap with shot model %d",(int)trapstat->field_1A);
+    if (trapstat->created_itm_model <= 0) {
+        ERRORLOG("Cannot activate trap with shot model %d",(int)trapstat->created_itm_model);
         return;
     }
     struct Thing *shotng;
-    shotng = create_shot(&thing->mappos, trapstat->field_1A, thing->owner);
+    shotng = create_shot(&thing->mappos, trapstat->created_itm_model, thing->owner);
     if (thing_is_invalid(shotng)) {
         return;
     }

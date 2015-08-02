@@ -274,6 +274,13 @@ struct SpellConfig { // sizeof=4
   int duration;
 };
 
+struct ShotHitConfig {
+    short effect_model; /**< Effect kind to be created when the shot hits. */
+    short sndsample_idx; /**< Base sound sample to be played on hit. */
+    unsigned char sndsample_range; /**< Range for random sound sample selection. */
+    unsigned char destroyed; /**< Whether the shot is destroyed after hit; could be converted to flags. */
+};
+
 struct ShotStats // sizeof = 101
 {
   short numfield_0;
@@ -305,20 +312,14 @@ struct ShotStats // sizeof = 101
   unsigned char cannot_hit_thing;
   unsigned char field_29;
   unsigned char push_on_hit;
-  short field_2B;
-  short field_2D;
-  unsigned char field_2F;
-  unsigned char field_30;
-  short field_31;
-  short field_33;
-  unsigned char field_35;
-  unsigned char field_36;
-  short field_37;
-  short field_39;
-  unsigned char field_3B;
-  short field_3C;
-  short field_3E;
-  unsigned char field_40;
+  struct ShotHitConfig hit_generic;
+  struct ShotHitConfig hit_door;
+  short hit_water_effect_model;
+  short hit_water_sndsample_idx;
+  unsigned char hit_water_destroyed;
+  short hit_lava_effect_model;
+  short hit_lava_sndsample_idx;
+  unsigned char hit_lava_destroyed;
   short area_range_UNUSED;
   short area_damage_UNUSED;
   short is_boulder;

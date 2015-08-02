@@ -57,9 +57,9 @@ unsigned char field_11;
 unsigned char field_13;
   short size_xy;
 short field_16;
-unsigned char trigger_type;
-unsigned char activation_type;
-unsigned char field_1A;
+  unsigned char trigger_type;
+  unsigned char activation_type;
+  unsigned char created_itm_model; // Shot model, effect model, slab kind
   unsigned char field_1B;
 short field_1C;
 unsigned char field_1E;

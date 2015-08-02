@@ -213,7 +213,7 @@ void set_power_hand_offset(struct PlayerInfo *player, struct Thing *thing)
     {
         struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(thing);
-      if ((cctrl->spell_flags & 0x0200) != 0) {
+      if ((cctrl->spell_flags & CSAfF_Chicken) != 0) {
           dungeon->field_43 = 11;
           dungeon->field_53 = 56;
       } else

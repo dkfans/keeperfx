@@ -24,12 +24,13 @@
 #include "player_data.h"
 #include "dungeon_data.h"
 #include "thing_data.h"
+#include "thing_effects.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-long const scavenge_effect_element[] = {60, 61, 62, 63, 64, 64,};
+long const scavenge_effect_element[] = {TngEff_Unknown60, TngEff_Unknown61, TngEff_Unknown62, TngEff_Unknown63, TngEff_Unknown64, TngEff_Unknown64,};
 /******************************************************************************/
 long get_scavenge_effect_element(PlayerNumber owner)
 {

@@ -195,7 +195,8 @@ short creature_scavenged_disappear(struct Thing *thing)
     {
       if ((cctrl->byte_9A == 7) && (cctrl->byte_9B < PLAYERS_COUNT))
       {
-        create_effect(&thing->mappos, get_scavenge_effect_element(cctrl->byte_9B), thing->owner);
+          //TODO EFFECTS Verify what is wrong here - we want either effect or effect element
+          create_effect(&thing->mappos, get_scavenge_effect_element(cctrl->byte_9B), thing->owner);
       }
       return 0;
     }
