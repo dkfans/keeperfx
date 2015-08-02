@@ -146,6 +146,7 @@ CrCheckRet move_check_near_dungeon_heart(struct Thing *creatng);
 CrCheckRet move_check_on_head_for_room(struct Thing *creatng);
 CrCheckRet move_check_persuade(struct Thing *creatng);
 CrCheckRet move_check_wait_at_door_for_wage(struct Thing *creatng);
+
 short move_to_position(struct Thing *creatng);
 char new_slab_tunneller_check_for_breaches(struct Thing *creatng);
 short patrol_here(struct Thing *creatng);
@@ -957,7 +958,7 @@ long setup_head_for_room(struct Thing *creatng, struct Room *room, unsigned char
 {
     TRACE_THING(creatng);
     struct Coord3d pos;
-    if ( !find_random_valid_position_for_thing_in_room(creatng, room, &pos) )
+    if (!find_random_valid_position_for_thing_in_room(creatng, room, &pos))
         return false;
     return setup_person_move_to_coord(creatng, &pos, flags);
 }
@@ -1249,7 +1250,7 @@ TbBool person_get_somewhere_adjacent_in_room_f(const struct Thing *thing, const 
  * @param room Room within which the new position should be.
  * @param pos The target position pointer.
  */
-TbBool person_get_somewhere_adjacent_in_room_around_borders(const struct Thing *thing, const struct Room *room, struct Coord3d *pos)
+TbBool person_get_somewhere_adjacent_in_room_around_borders_f(const struct Thing *thing, const struct Room *room, struct Coord3d *pos, const char *func_name)
 {
     if (!room_exists(room))
     {
@@ -1688,7 +1689,7 @@ TbBool creature_try_going_to_lazy_sleep(struct Thing *creatng)
         return false;
     }
     cctrl->tasks_check_turn = game.play_gameturn;
-    if (!setup_random_head_for_room(creatng, room, NavRtF_Default)) {
+    if (!creature_setup_random_move_for_job_in_room(creatng, room, Job_TAKE_SLEEP, NavRtF_Default)) {
         return false;
     }
     creatng->continue_state = CrSt_CreatureDoingNothing;
@@ -2251,7 +2252,7 @@ short setup_creature_leaves_or_dies(struct Thing *creatng)
         kill_creature(creatng, INVALID_THING, -1, CrDed_Default);
         return -1;
     }
-    if (!setup_random_head_for_room(creatng, room, NavRtF_Default))
+    if (!creature_setup_random_move_for_job_in_room(creatng, room, Job_EXEMPT, NavRtF_Default))
     {
         kill_creature(creatng, INVALID_THING, -1, CrDed_Default);
         return -1;
@@ -2289,7 +2290,7 @@ short creature_leaving_dungeon(struct Thing *creatng)
         set_start_state(creatng);
         return 0;
     }
-    if (!setup_random_head_for_room(creatng, room, NavRtF_Default))
+    if (!creature_setup_random_move_for_job_in_room(creatng, room, Job_EXEMPT, NavRtF_Default))
     {
         set_start_state(creatng);
         return 0;
@@ -2350,7 +2351,7 @@ TbBool make_creature_leave_dungeon(struct Thing *creatng)
         set_start_state(creatng);
         return false;
     }
-    if (!setup_random_head_for_room(creatng, room, NavRtF_Default)) {
+    if (!creature_setup_random_move_for_job_in_room(creatng, room, Job_EXEMPT, NavRtF_Default)) {
         set_start_state(creatng);
         return false;
     }
@@ -3119,7 +3120,7 @@ short creature_wants_salary(struct Thing *creatng)
     room = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_TREASURE, NavRtF_Default, 1);
     if (!room_is_invalid(room))
     {
-        if (setup_random_head_for_room(creatng, room, NavRtF_Default))
+        if (creature_setup_random_move_for_job_in_room(creatng, room, Job_TAKE_SALARY, NavRtF_Default))
         {
             creatng->continue_state = CrSt_CreatureTakeSalary;
             cctrl->target_room_id = room->index;
@@ -3158,23 +3159,6 @@ long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room)
     return _DK_setup_head_for_empty_treasure_space(thing, room);
 }
 
-TbBool setup_random_head_for_room(struct Thing *thing, struct Room *room, unsigned char flags)
-{
-    struct Coord3d pos;
-    if (room->kind == RoK_ENTRANCE)
-    {
-        pos.x.val = subtile_coord_center(room->central_stl_x);
-        pos.y.val = subtile_coord_center(room->central_stl_y);
-        pos.z.val = subtile_coord(1,0);
-    } else
-    {
-        if (!find_random_valid_position_for_thing_in_room(thing, room, &pos)) {
-            return false;
-        }
-    }
-    return setup_person_move_to_coord(thing, &pos, flags);
-}
-
 void place_thing_in_creature_controlled_limbo(struct Thing *thing)
 {
     remove_thing_from_mapwho(thing);
@@ -3197,7 +3181,7 @@ short move_backwards_to_position(struct Thing *creatng)
     cctrl = creature_control_get_from_thing(creatng);
     speed = get_creature_speed(creatng);
     SYNCDBG(18,"Starting to move %s index %d into (%d,%d)",thing_model_name(creatng),(int)creatng->index,(int)cctrl->moveto_pos.x.stl.num,(int)cctrl->moveto_pos.y.stl.num);
-    move_result = creature_move_to_using_gates(creatng, &cctrl->moveto_pos, speed, -2, cctrl->move_flags, 1);
+    move_result = creature_move_to(creatng, &cctrl->moveto_pos, speed, cctrl->move_flags, 1);
     if (move_result == 1)
     {
         internal_set_thing_state(creatng, creatng->continue_state);
@@ -3433,7 +3417,7 @@ short person_sulk_at_lair(struct Thing *creatng)
 
     struct Room *room;
     room = get_room_thing_is_on(creatng);
-    // Usually we use creature_work_in_room_no_longer_possible() for checking rooms
+    // Usually we use creature_job_in_room_no_longer_possible() for checking rooms
     // but sulking in lair is a special case, we can't compare room id as it's not working in room
     if (!room_still_valid_as_type_for_thing(room, RoK_LAIR, creatng))
     {
@@ -3501,7 +3485,7 @@ short person_sulking(struct Thing *creatng)
     }
     struct Room *room;
     room = get_room_thing_is_on(creatng);
-    if (creature_work_in_room_no_longer_possible(room, RoK_LAIR, creatng)) {
+    if (creature_job_in_room_no_longer_possible(room, Job_TAKE_SLEEP, creatng)) {
         set_start_state(creatng);
         return 0;
     }
@@ -3571,8 +3555,10 @@ TbBool room_still_valid_as_type_for_thing(const struct Room *room, RoomKind rkin
  * @param thing The thing which is working in the room.
  * @return True if the room can still be used, false otherwise.
  */
-TbBool creature_work_in_room_no_longer_possible_f(const struct Room *room, RoomKind rkind, const struct Thing *thing, const char *func_name)
+TbBool creature_job_in_room_no_longer_possible_f(const struct Room *room, CreatureJob jobpref, const struct Thing *thing, const char *func_name)
 {
+    RoomKind rkind;
+    rkind = get_room_for_job(jobpref);
     if (!room_exists(room))
     {
         SYNCLOG("%s: The %s owned by player %d can no longer work in %s because former work room doesn't exist",
@@ -4440,7 +4426,7 @@ long process_creature_needs_a_wage(struct Thing *thing, const struct CreatureSta
     if ((dungeon->total_money_owned >= calculate_correct_creature_pay(thing)) && !room_is_invalid(room))
     {
         cleanup_current_thing_state(thing);
-        if (setup_random_head_for_room(thing, room, NavRtF_Default))
+        if (creature_setup_random_move_for_job_in_room(thing, room, Job_TAKE_SALARY, NavRtF_Default))
         {
             thing->continue_state = CrSt_CreatureTakeSalary;
             cctrl->target_room_id = room->index;

@@ -70,9 +70,10 @@ short barracking(struct Thing *creatng)
         set_start_state(creatng);
         return CrStRet_ResetFail;
     }
-    if (person_move_somewhere_adjacent_in_room(creatng, room)) {
-        creatng->continue_state = CrSt_Barracking;
+    if (!creature_setup_adjacent_move_for_job_within_room(creatng, room, Job_BARRACK)) {
+        return CrStRet_Unchanged;
     }
+    creatng->continue_state = get_continue_state_for_job(Job_BARRACK);
     return CrStRet_Modified;
 }
 /******************************************************************************/

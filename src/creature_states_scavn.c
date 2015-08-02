@@ -603,35 +603,26 @@ CrCheckRet process_scavenge_function(struct Thing *calltng)
     return 0;
 }
 
-TbBool setup_scavenger_move(struct Thing *thing, struct Room *room)
-{
-    if (!person_move_somewhere_adjacent_in_room(thing, room)) {
-        return false;
-    }
-    thing->continue_state = CrSt_Scavengering;
-    return true;
-}
-
-
-CrStateRet scavengering(struct Thing *thing)
+CrStateRet scavengering(struct Thing *creatng)
 {
     // Check if we're in correct room
     struct Room *room;
-    room = get_room_thing_is_on(thing);
-    if (creature_work_in_room_no_longer_possible(room, RoK_SCAVENGER, thing))
+    room = get_room_thing_is_on(creatng);
+    if (creature_job_in_room_no_longer_possible(room, Job_SCAVENGE, creatng))
     {
-        remove_creature_from_work_room(thing);
-        set_start_state(thing);
+        remove_creature_from_work_room(creatng);
+        set_start_state(creatng);
         return CrStRet_ResetFail;
     }
-    if (process_scavenge_function(thing))
+    if (process_scavenge_function(creatng))
     {
         return CrStRet_Modified;
     }
-    if (setup_scavenger_move(thing, room)) {
-        return CrStRet_Modified;
+    if (!creature_setup_adjacent_move_for_job_within_room(creatng, room, Job_SCAVENGE)) {
+        return CrStRet_Unchanged;
     }
-    return CrStRet_Unchanged;
+    creatng->continue_state = get_continue_state_for_job(Job_SCAVENGE);
+    return CrStRet_Modified;
 }
 
 /******************************************************************************/

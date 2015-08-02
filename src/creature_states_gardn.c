@@ -166,7 +166,7 @@ void person_search_for_food_again(struct Thing *creatng, struct Room *room)
         }
         if (!room_is_invalid(nroom))
         {
-            if (setup_random_head_for_room(creatng, nroom, NavRtF_Default)) {
+            if (creature_setup_random_move_for_job_in_room(creatng, nroom, Job_TAKE_FEED, NavRtF_Default)) {
                 creatng->continue_state = CrSt_CreatureArrivedAtGarden;
             } else {
                 ERRORLOG("Attempting to move to garden we cannot navigate to - this should not be possible");
@@ -177,7 +177,7 @@ void person_search_for_food_again(struct Thing *creatng, struct Room *room)
         {
             anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, AngR_Hungry, 1);
             // Try to find food in the original room
-            if (person_move_somewhere_adjacent_in_room(creatng, room)) {
+            if (creature_setup_adjacent_move_for_job_within_room(creatng, room, Job_TAKE_FEED)) {
                 creatng->continue_state = CrSt_CreatureArrivedAtGarden;
             } else {
                 set_start_state(creatng);
@@ -310,7 +310,7 @@ short creature_to_garden(struct Thing *creatng)
         set_start_state(creatng);
         return 0;
     }
-    if (!setup_random_head_for_room(creatng, nroom, NavRtF_Default))
+    if (!creature_setup_random_move_for_job_in_room(creatng, nroom, Job_TAKE_FEED, NavRtF_Default))
     {
         ERRORLOG("Attempting to move to garden we cannot navigate to - this should not be possible");
         set_start_state(creatng);

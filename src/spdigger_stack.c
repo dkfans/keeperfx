@@ -39,6 +39,7 @@
 #include "room_data.h"
 #include "room_util.h"
 #include "room_list.h"
+#include "room_jobs.h"
 #include "power_hand.h"
 #include "map_utils.h"
 #include "map_events.h"
@@ -2344,7 +2345,7 @@ long check_out_imp_last_did(struct Thing *creatng)
       room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_TRAINING, NavRtF_Default, 1);
       if (!room_is_invalid(room))
       {
-          if (setup_random_head_for_room(creatng, room, NavRtF_Default))
+          if (creature_setup_random_move_for_job_in_room(creatng, room, Job_TRAIN, NavRtF_Default))
           {
               cctrl->digger.task_repeats++;
               creatng->continue_state = CrSt_AtTrainingRoom;

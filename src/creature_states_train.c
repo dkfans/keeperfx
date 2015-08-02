@@ -590,7 +590,7 @@ CrStateRet training(struct Thing *thing)
     // Check if we're in correct room
     struct Room *room;
     room = get_room_thing_is_on(thing);
-    if (creature_work_in_room_no_longer_possible(room, RoK_TRAINING, thing))
+    if (creature_job_in_room_no_longer_possible(room, Job_TRAIN, thing))
     {
         remove_creature_from_work_room(thing);
         set_start_state(thing);

@@ -299,7 +299,7 @@ TbBool attempt_anger_job_leave_dungeon(struct Thing *creatng)
     if (!external_set_thing_state(creatng, CrSt_CreatureLeaves)) {
         return false;
     }
-    if (!setup_random_head_for_room(creatng, room, NavRtF_Default)) {
+    if (!creature_setup_random_move_for_job_in_room(creatng, room, Job_EXEMPT, NavRtF_Default)) {
         return false;
     }
     creatng->continue_state = CrSt_CreatureLeaves;
@@ -1005,7 +1005,7 @@ TbBool attempt_job_work_in_room_for_player(struct Thing *creatng, PlayerNumber p
         ERRORLOG("No arrive at state for job %s in %s room",creature_job_code_name(new_job),room_code_name(room->kind));
         return false;
     }
-    if (!creature_move_to_place_in_room(creatng, room, new_job)) {
+    if (!creature_setup_random_move_for_job_in_room(creatng, room, new_job, NavRtF_Default)) {
         return false;
     }
     struct CreatureControl *cctrl;
@@ -1026,7 +1026,7 @@ TbBool attempt_job_work_in_room_near_pos(struct Thing *creatng, MapSubtlCoord st
         ERRORLOG("No arrive at state for job %s in %s room",creature_job_code_name(new_job),room_code_name(room->kind));
         return false;
     }
-    if (!creature_move_to_place_in_room(creatng, room, new_job)) {
+    if (!creature_setup_random_move_for_job_in_room(creatng, room, new_job, NavRtF_Default)) {
         WARNLOG("Could not move in room %s to perform job %s by %s index %d owner %d",room_code_name(room->kind),creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         return false;
     }
@@ -1041,8 +1041,6 @@ TbBool attempt_job_work_in_room_near_pos(struct Thing *creatng, MapSubtlCoord st
 
 TbBool attempt_job_work_in_room_and_cure_near_pos(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job)
 {
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(creatng);
     SYNCDBG(16,"Starting for %s index %d owner %d and job %s",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,creature_job_code_name(new_job));
     struct Room *room;
     room = subtile_room_get(stl_x, stl_y);
@@ -1050,10 +1048,12 @@ TbBool attempt_job_work_in_room_and_cure_near_pos(struct Thing *creatng, MapSubt
         ERRORLOG("No arrive at state for job %s in %s room",creature_job_code_name(new_job),room_code_name(room->kind));
         return false;
     }
-    if (!creature_move_to_place_in_room(creatng, room, new_job)) {
+    if (!creature_setup_random_move_for_job_in_room(creatng, room, new_job, NavRtF_Default)) {
         WARNLOG("Could not move in room %s to perform job %s by %s index %d owner %d",room_code_name(room->kind),creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         return false;
     }
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
     creatng->continue_state = get_arrive_at_state_for_job(new_job);
     cctrl->target_room_id = room->index;
     process_temple_cure(creatng);
@@ -1081,7 +1081,7 @@ TbBool attempt_job_sleep_in_lair_near_pos(struct Thing *creatng, MapSubtlCoord s
             return true;
         }
     }
-    if (!creature_move_to_place_in_room(creatng, room, new_job)) {
+    if (!creature_setup_random_move_for_job_in_room(creatng, room, new_job, NavRtF_Default)) {
         WARNLOG("Could not move in room %s to perform job %s by %s index %d owner %d",room_code_name(room->kind),creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         return false;
     }

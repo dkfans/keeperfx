@@ -253,6 +253,8 @@ typedef char ActiveButtonID;
 typedef short FrontendMenuState;
 /** Type which stores digger task type as DigTsk_* values. */
 typedef unsigned short SpDiggerTaskType;
+/** Flags for tracing route for creature movement. */
+typedef unsigned char NaviRouteFlags;
 
 struct Coord2d {
     union {

@@ -313,7 +313,53 @@ struct Thing *find_object_in_room_for_creature_matching_bool_filter(struct Thing
     return rettng;
 }
 
-TbBool creature_move_to_place_in_room(struct Thing *creatng, struct Room *room, CreatureJob jobpref)
+/**
+ * Provides functionality of small random movements within a room where creature works.
+ * @param creatng Creature to be moved within room.
+ * @param room The room which bounds creature moves.
+ * @param jobpref Job flag identifying the job given creature does in given room.
+ * @return True if move setup was successful, false otherwise.
+ */
+TbBool creature_setup_adjacent_move_for_job_within_room_f(struct Thing *creatng, struct Room *room, CreatureJob jobpref, const char *func_name)
+{
+    struct Coord3d pos;
+    TbBool result;
+    unsigned long room_area = get_flags_for_job(jobpref) & (JoKF_WorkOnRoomBorder|JoKF_WorkOnRoomCenter);
+    switch (room_area)
+    {
+    case JoKF_WorkOnRoomBorder:
+        result = person_get_somewhere_adjacent_in_room_around_borders_f(creatng, room, &pos, func_name);
+        break;
+    //TODO CREATURE_MOVE Add support of central room_area
+    case JoKF_WorkOnRoomCenter:
+    case (JoKF_WorkOnRoomBorder|JoKF_WorkOnRoomCenter):
+        result = person_get_somewhere_adjacent_in_room_f(creatng, room, &pos, func_name);
+        break;
+    default:
+        WARNLOG("%s: Invalid room area flags 0x%04x for job %s.",func_name,(int)room_area,creature_job_code_name(jobpref));
+        result = person_get_somewhere_adjacent_in_room_f(creatng, room, &pos, func_name);
+        break;
+    }
+    if (result)
+    {
+        if (!setup_person_move_to_position_f(creatng, pos.x.stl.num, pos.y.stl.num, NavRtF_Default, func_name)) {
+            ERRORLOG("%s: Cannot move %s index %d in %s room",func_name,thing_model_name(creatng),(int)creatng->index,room_code_name(room->kind));
+            result = false;
+        }
+    } else {
+        WARNLOG("%s: No position to move %s index %d in %s room",func_name,thing_model_name(creatng),(int)creatng->index,room_code_name(room->kind));
+    }
+    return result;
+}
+
+/**
+ * Provides functionality of large random movements within a room, or a path into it.
+ * @param creatng Creature to be moved into room.
+ * @param room The room within which final position is selected.
+ * @param jobpref Job flag identifying the job given creature does in given room.
+ * @return True if move setup was successful, false otherwise.
+ */
+TbBool creature_setup_random_move_for_job_in_room_f(struct Thing *creatng, struct Room *room, CreatureJob jobpref, NaviRouteFlags nav_flags, const char *func_name)
 {
     struct Coord3d pos;
     TbBool result;
@@ -330,15 +376,18 @@ TbBool creature_move_to_place_in_room(struct Thing *creatng, struct Room *room, 
         result = find_random_valid_position_for_thing_in_room(creatng, room, &pos);
         break;
     default:
-        WARNLOG("Invalid room area flags 0x%04x for job %s.",(int)room_area,creature_job_code_name(jobpref));
+        WARNLOG("%s: Invalid room area flags 0x%04x for job %s.",func_name,(int)room_area,creature_job_code_name(jobpref));
         result = find_random_valid_position_for_thing_in_room(creatng, room, &pos);
         break;
     }
     if (result)
     {
-        if (!setup_person_move_to_coord(creatng, &pos, NavRtF_Default)) {
+        if (!setup_person_move_to_position_f(creatng, pos.x.stl.num, pos.y.stl.num, nav_flags, func_name)) {
+            SYNCDBG(4,"%s: Cannot move %s index %d in %s room",func_name,thing_model_name(creatng),(int)creatng->index,room_code_name(room->kind));
             result = false;
         }
+    } else {
+        SYNCDBG(4,"%s: No position to move %s index %d in %s room",func_name,thing_model_name(creatng),(int)creatng->index,room_code_name(room->kind));
     }
     return result;
 }
@@ -388,6 +437,31 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room, CreatureJo
         return 0;
     }
     return send_creature_to_job_near_position(creatng, stl_x, stl_y, jobpref);
+}
+
+/**
+ *
+ * @param thing
+ * @param room
+ * @param move_flags
+ * @return
+ * @deprecated To be replaced by creature_setup_random_move_for_job_in_room().
+ */
+TbBool setup_random_head_for_room(struct Thing *thing, struct Room *room, unsigned char move_flags)
+{
+    struct Coord3d pos;
+    if (room->kind == RoK_ENTRANCE)
+    {
+        pos.x.val = subtile_coord_center(room->central_stl_x);
+        pos.y.val = subtile_coord_center(room->central_stl_y);
+        pos.z.val = subtile_coord(1,0);
+    } else
+    {
+        if (!find_random_valid_position_for_thing_in_room(thing, room, &pos)) {
+            return false;
+        }
+    }
+    return setup_person_move_to_coord(thing, &pos, move_flags);
 }
 
 TbBool worker_needed_in_dungeons_room_kind(const struct Dungeon *dungeon, RoomKind rkind)

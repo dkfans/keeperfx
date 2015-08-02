@@ -260,19 +260,10 @@ short creature_freeze_prisonors(struct Thing *creatng)
 
 }
 
-TbBool setup_prison_move(struct Thing *thing, struct Room *room)
-{
-    if (!person_move_somewhere_adjacent_in_room(thing, room)) {
-        return false;
-    }
-    thing->continue_state = CrSt_CreatureInPrison;
-    return true;
-}
-
-CrStateRet process_prison_visuals(struct Thing *thing, struct Room *room)
+CrStateRet process_prison_visuals(struct Thing *creatng, struct Room *room)
 {
     struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
+    cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->instance_id != CrInst_NULL) {
         return CrStRet_Unchanged;
     }
@@ -280,20 +271,21 @@ CrStateRet process_prison_visuals(struct Thing *thing, struct Room *room)
     {
         if (game.play_gameturn - cctrl->field_82 < 250)
         {
-            set_creature_instance(thing, CrInst_MOAN, 1, 0, 0);
+            set_creature_instance(creatng, CrInst_MOAN, 1, 0, 0);
             if (game.play_gameturn - cctrl->imprison.last_mood_sound_turn > 32)
             {
-                play_creature_sound(thing, CrSnd_Sad, 2, 0);
+                play_creature_sound(creatng, CrSnd_Sad, 2, 0);
                 cctrl->imprison.last_mood_sound_turn = game.play_gameturn;
             }
             return CrStRet_Modified;
         }
         cctrl->field_82 = game.play_gameturn;
     }
-    if (setup_prison_move(thing, room)) {
-        return CrStRet_Modified;
+    if (!creature_setup_adjacent_move_for_job_within_room(creatng, room, Job_CAPTIVITY)) {
+        return CrStRet_Unchanged;
     }
-    return CrStRet_Unchanged;
+    creatng->continue_state = get_continue_state_for_job(Job_CAPTIVITY);
+    return CrStRet_Modified;
 }
 
 CrStateRet creature_in_prison(struct Thing *thing)
@@ -301,7 +293,7 @@ CrStateRet creature_in_prison(struct Thing *thing)
     struct Room *room;
     TRACE_THING(thing);
     room = get_room_thing_is_on(thing);
-    if (creature_work_in_room_no_longer_possible(room, RoK_PRISON, thing))
+    if (creature_job_in_room_no_longer_possible(room, Job_CAPTIVITY, thing))
     {
         remove_creature_from_work_room(thing);
         set_start_state(thing);

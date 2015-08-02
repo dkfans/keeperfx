@@ -312,7 +312,6 @@ TbBool creature_can_hear_within_distance(const struct Thing *thing, long dist);
 long get_thing_navigation_distance(struct Thing *creatng, struct Coord3d *pos , unsigned char a3);
 void create_effect_around_thing(struct Thing *thing, long eff_kind);
 long get_creature_gui_job(const struct Thing *thing);
-TbBool setup_random_head_for_room(struct Thing *thing, struct Room *room, unsigned char flags);
 long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room);
 short setup_creature_leaves_or_dies(struct Thing *creatng);
 
@@ -340,15 +339,16 @@ TbBool attempt_to_destroy_enemy_room(struct Thing *thing, MapSubtlCoord stl_x, M
 
 TbBool room_initially_valid_as_type_for_thing(const struct Room *room, RoomKind rkind, const struct Thing *thing);
 TbBool room_still_valid_as_type_for_thing(const struct Room *room, RoomKind rkind, const struct Thing *thing);
-TbBool creature_work_in_room_no_longer_possible_f(const struct Room *room, RoomKind rkind, const struct Thing *thing, const char *func_name);
-#define creature_work_in_room_no_longer_possible(room, rkind, thing) creature_work_in_room_no_longer_possible_f(room, rkind, thing, __func__)
+TbBool creature_job_in_room_no_longer_possible_f(const struct Room *room, CreatureJob jobpref, const struct Thing *thing, const char *func_name);
+#define creature_job_in_room_no_longer_possible(room, jobpref, thing) creature_job_in_room_no_longer_possible_f(room, jobpref, thing, __func__)
 TbBool creature_free_for_sleep(const struct Thing *thing,  CrtrStateId state);
 
 // Finding a nearby position to move during a job
 TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *thing);
 TbBool person_get_somewhere_adjacent_in_room_f(const struct Thing *thing, const struct Room *room, struct Coord3d *pos, const char *func_name);
 #define person_get_somewhere_adjacent_in_room(thing, room, pos) person_get_somewhere_adjacent_in_room_f(thing, room, pos, __func__)
-TbBool person_get_somewhere_adjacent_in_room_around_borders(const struct Thing *thing, const struct Room *room, struct Coord3d *pos);
+TbBool person_get_somewhere_adjacent_in_room_around_borders_f(const struct Thing *thing, const struct Room *room, struct Coord3d *pos, const char *func_name);
+#define person_get_somewhere_adjacent_in_room_around_borders(thing, room, pos) person_get_somewhere_adjacent_in_room_around_borders_f(thing, room, pos, __func__)
 
 void place_thing_in_creature_controlled_limbo(struct Thing *thing);
 void remove_thing_from_creature_controlled_limbo(struct Thing *thing);

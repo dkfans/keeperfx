@@ -56,7 +56,7 @@ short at_guard_post_room(struct Thing *thing)
         return 0;
     }
     internal_set_thing_state(thing, CrSt_Guarding);
-    if ( !person_get_somewhere_adjacent_in_room(thing, room, &cctrl->moveto_pos) )
+    if (!person_get_somewhere_adjacent_in_room(thing, room, &cctrl->moveto_pos))
     {
         cctrl->moveto_pos.x.val = thing->mappos.x.val;
         cctrl->moveto_pos.y.val = thing->mappos.y.val;
@@ -70,7 +70,7 @@ CrStateRet guarding(struct Thing *thing)
     struct Room *room;
     TRACE_THING(thing);
     room = get_room_thing_is_on(thing);
-    if (creature_work_in_room_no_longer_possible(room, RoK_GUARDPOST, thing))
+    if (creature_job_in_room_no_longer_possible(room, Job_GUARD, thing))
     {
         remove_creature_from_work_room(thing);
         set_start_state(thing);
@@ -78,11 +78,11 @@ CrStateRet guarding(struct Thing *thing)
     }
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
-    if ( !creature_move_to(thing, &cctrl->moveto_pos, cctrl->max_speed, 0, 0) )
+    if (creature_move_to(thing, &cctrl->moveto_pos, cctrl->max_speed, 0, 0) == 0)
     {
         return CrStRet_Unchanged;
     }
-    if ( !person_get_somewhere_adjacent_in_room(thing, room, &cctrl->moveto_pos) )
+    if (!person_get_somewhere_adjacent_in_room(thing, room, &cctrl->moveto_pos))
     {
         cctrl->moveto_pos.x.val = thing->mappos.x.val;
         cctrl->moveto_pos.y.val = thing->mappos.y.val;

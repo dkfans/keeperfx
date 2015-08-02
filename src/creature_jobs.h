@@ -51,11 +51,13 @@ TbBool creature_find_and_perform_anger_job(struct Thing *thing);
 TbBool attempt_job_preference(struct Thing *creatng, long jobpref);
 TbBool creature_try_doing_secondary_job(struct Thing *creatng);
 
+// Assigning jobs by making creature go to the workplace, or dropping the creature at it
 TbBool creature_can_do_job_for_player(const struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job, unsigned long flags);
 TbBool creature_can_do_job_near_position(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, unsigned long flags);
 TbBool send_creature_to_job_for_player(struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job);
 TbBool send_creature_to_job_near_position(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job);
 
+// Assigning jobs by computer player
 TbBool creature_can_do_job_for_computer_player_in_room(const struct Thing *creatng, PlayerNumber plyr_idx, RoomKind rkind);
 TbBool get_drop_position_for_creature_job_in_dungeon(struct Coord3d *pos, const struct Dungeon *dungeon, const struct Thing *creatng, CreatureJob new_job, unsigned long drop_kind_flags);
 TbBool get_drop_position_for_creature_job_in_room(struct Coord3d *pos, const struct Room *room, CreatureJob jobpref);

@@ -24,8 +24,9 @@
 #include "bflib_planar.h"
 #include "bflib_memory.h"
 #include "creature_control.h"
-#include "creature_states.h"
 #include "creature_instances.h"
+#include "creature_states.h"
+#include "creature_states_mood.h"
 #include "config_creature.h"
 #include "config_crtrstates.h"
 #include "thing_list.h"
@@ -186,15 +187,6 @@ TbBool setup_person_move_to_coord_f(struct Thing *thing, const struct Coord3d *p
 TbBool setup_person_move_backwards_to_coord(struct Thing *thing, const struct Coord3d *pos, NaviRouteFlags flags)
 {
     return setup_person_move_backwards_to_position(thing, pos->x.stl.num, pos->y.stl.num, flags);
-}
-
-TbBool person_move_somewhere_adjacent_in_room_f(struct Thing *thing, const struct Room *room, const char *func_name)
-{
-    struct Coord3d pos;
-    if (!person_get_somewhere_adjacent_in_room_f(thing, room, &pos, func_name)) {
-        return false;
-    }
-    return setup_person_move_to_position_f(thing, pos.x.stl.num, pos.y.stl.num, NavRtF_Default, func_name);
 }
 
 /**
@@ -519,7 +511,7 @@ short move_to_position(struct Thing *creatng)
             (int)cctrl->moveto_pos.x.stl.num,(int)cctrl->moveto_pos.y.stl.num,creature_state_code_name(creatng->continue_state));
         return 1;
     }
-    move_result = creature_move_to_using_gates(creatng, &cctrl->moveto_pos, speed, -2, cctrl->move_flags, 0);
+    move_result = creature_move_to(creatng, &cctrl->moveto_pos, speed, cctrl->move_flags, 0);
     state_check = CrCkRet_Available;
     stati = get_thing_continue_state_info(creatng);
     if (!state_info_invalid(stati))

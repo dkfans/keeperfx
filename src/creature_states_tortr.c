@@ -134,7 +134,7 @@ short cleanup_torturing(struct Thing *creatng)
     return 1;
 }
 
-long setup_torture_move_to_device(struct Thing *creatng, struct Room *room, CrtrStateId nstat)
+long setup_torture_move_to_device(struct Thing *creatng, struct Room *room, CreatureJob jobpref)
 {
     SlabCodedCoords slbnum;
     long n;
@@ -168,7 +168,7 @@ long setup_torture_move_to_device(struct Thing *creatng, struct Room *room, Crtr
             }
             struct CreatureControl *cctrl;
             cctrl = creature_control_get_from_thing(creatng);
-            creatng->continue_state = nstat;
+            creatng->continue_state = get_continue_state_for_job(jobpref);
             tortrtng->word_13 = creatng->index;
             tortrtng->word_15 = tortrtng->sprite_size;
             cctrl->word_A6 = tortrtng->index;
@@ -186,20 +186,11 @@ long setup_torture_move_to_device(struct Thing *creatng, struct Room *room, Crtr
     return 0;
 }
 
-TbBool setup_torture_move(struct Thing *thing, struct Room *room, CrtrStateId nstat)
-{
-    if (!person_move_somewhere_adjacent_in_room(thing, room)) {
-        return false;
-    }
-    thing->continue_state = nstat;
-    return true;
-}
-
-long process_torture_visuals(struct Thing *thing, struct Room *room, CrtrStateId nstat)
+long process_torture_visuals(struct Thing *creatng, struct Room *room, CreatureJob jobpref)
 {
     struct CreatureControl *cctrl;
     struct Thing *sectng;
-    cctrl = creature_control_get_from_thing(thing);
+    cctrl = creature_control_get_from_thing(creatng);
     GameTurnDelta dturn;
     switch (cctrl->tortured.vis_state)
     {
@@ -207,29 +198,30 @@ long process_torture_visuals(struct Thing *thing, struct Room *room, CrtrStateId
         if (game.play_gameturn - cctrl->tortured.long_9Ex > 100) {
             cctrl->tortured.vis_state = CTVS_TortureGoToDevice;
         }
-        if (!setup_torture_move(thing, room, nstat)) {
-            return 0;
+        if (!creature_setup_adjacent_move_for_job_within_room(creatng, room, jobpref)) {
+            return CrStRet_Unchanged;
         }
+        creatng->continue_state = get_continue_state_for_job(jobpref);
         return 1;
     case CTVS_TortureGoToDevice:
-        if (!setup_torture_move_to_device(thing, room, nstat)) {
+        if (!setup_torture_move_to_device(creatng, room, jobpref)) {
             cctrl->tortured.vis_state = CTVS_TortureRandMove;
             cctrl->tortured.long_9Ex = game.play_gameturn;
-            return 0;
+            return CrStRet_Unchanged;
         }
         cctrl->tortured.vis_state = CTVS_TortureInDevice;
         cctrl->tortured.long_9Ex = game.play_gameturn;
         return 1;
     case CTVS_TortureInDevice:
         sectng = thing_get(cctrl->word_A6);
-        if (creature_turn_to_face_angle(thing, sectng->move_angle_xy) >= LbFPMath_PI/12) {
-            return 0;
+        if (creature_turn_to_face_angle(creatng, sectng->move_angle_xy) >= LbFPMath_PI/12) {
+            return CrStRet_Unchanged;
         }
-        thing->movement_flags &= ~TMvF_Flying;
+        creatng->movement_flags &= ~TMvF_Flying;
         cctrl->spell_flags &= ~0x10;
-        thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
+        creatng->mappos.z.val = get_thing_height_at(creatng, &creatng->mappos);
         if (cctrl->instance_id == CrInst_NULL) {
-            set_creature_instance(thing, CrInst_TORTURED, 1, 0, 0);
+            set_creature_instance(creatng, CrInst_TORTURED, 1, 0, 0);
         }
         if (thing_exists(sectng)) {
             sectng->field_4F |= TF4F_Unknown01;
@@ -239,17 +231,17 @@ long process_torture_visuals(struct Thing *thing, struct Room *room, CrtrStateId
         dturn = game.play_gameturn - cctrl->long_A2;
         if ((dturn > 32) || ((cctrl->spell_flags & CSAfF_Speed) && (dturn > 16)))
         {
-            play_creature_sound(thing, CrSnd_Torture, 2, 0);
+            play_creature_sound(creatng, CrSnd_Torture, 2, 0);
             cctrl->long_A2 = game.play_gameturn;
         }
-        return 0;
+        return CrStRet_Unchanged;
     default:
         WARNLOG("Invalid creature state in torture room");
         cctrl->tortured.long_9Ex = game.play_gameturn;
         cctrl->tortured.vis_state = CTVS_TortureGoToDevice;
         break;
     }
-    return 0;
+    return CrStRet_Unchanged;
 }
 
 short kinky_torturing(struct Thing *thing)
@@ -257,7 +249,7 @@ short kinky_torturing(struct Thing *thing)
     struct Room *room;
     TRACE_THING(thing);
     room = get_room_thing_is_on(thing);
-    if (creature_work_in_room_no_longer_possible(room, RoK_TORTURE, thing))
+    if (creature_job_in_room_no_longer_possible(room, Job_KINKY_TORTURE, thing))
     {
         remove_creature_from_work_room(thing);
         set_start_state(thing);
@@ -277,7 +269,7 @@ short kinky_torturing(struct Thing *thing)
     case CrCkRet_Deleted:
         return CrStRet_Deleted;
     case CrCkRet_Available:
-        process_torture_visuals(thing, room, CrSt_KinkyTorturing);
+        process_torture_visuals(thing, room, Job_KINKY_TORTURE);
         return CrStRet_Modified;
     default:
         return CrStRet_ResetOk;
@@ -563,7 +555,7 @@ CrStateRet torturing(struct Thing *thing)
     struct Room *room;
     TRACE_THING(thing);
     room = get_room_thing_is_on(thing);
-    if (creature_work_in_room_no_longer_possible(room, RoK_TORTURE, thing))
+    if (creature_job_in_room_no_longer_possible(room, Job_PAINFUL_TORTURE, thing))
     {
         remove_creature_from_work_room(thing);
         set_start_state(thing);
@@ -574,7 +566,7 @@ CrStateRet torturing(struct Thing *thing)
     case CrCkRet_Deleted:
         return CrStRet_Deleted;
     case CrCkRet_Available:
-        process_torture_visuals(thing, room, CrSt_Torturing);
+        process_torture_visuals(thing, room, Job_PAINFUL_TORTURE);
         return CrStRet_Modified;
     default:
         return CrStRet_ResetOk;

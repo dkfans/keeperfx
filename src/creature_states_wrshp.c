@@ -411,7 +411,7 @@ short manufacturing(struct Thing *creatng)
     struct Room *room;
     TRACE_THING(creatng);
     room = get_room_thing_is_on(creatng);
-    if (creature_work_in_room_no_longer_possible(room, RoK_WORKSHOP, creatng))
+    if (creature_job_in_room_no_longer_possible(room, Job_MANUFACTURE, creatng))
     {
         remove_creature_from_work_room(creatng);
         set_start_state(creatng);
@@ -426,7 +426,7 @@ short manufacturing(struct Thing *creatng)
     }
     struct Dungeon *dungeon;
     dungeon = get_dungeon(creatng->owner);
-    if (dungeon->manufacture_class)
+    if (dungeon->manufacture_class != TCls_Empty)
     {
         struct CreatureControl *cctrl;
         struct CreatureStats *crstat;

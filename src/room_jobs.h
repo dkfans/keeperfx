@@ -46,8 +46,15 @@ TbBool remove_creature_from_specific_room(struct Thing *creatng, struct Room *ro
 TbBool remove_creature_from_work_room(struct Thing *thing);
 TbBool remove_creature_from_torture_room(struct Thing *creatng);
 
+// Sending to rooms and moving within rooms by using CrSt_MoveToPosition substate
+TbBool creature_setup_adjacent_move_for_job_within_room_f(struct Thing *creatng, struct Room *room, CreatureJob jobpref, const char *func_name);
+#define creature_setup_adjacent_move_for_job_within_room(creatng, room, jobpref) creature_setup_adjacent_move_for_job_within_room_f(creatng, room, jobpref, __func__)
+TbBool creature_setup_random_move_for_job_in_room_f(struct Thing *creatng, struct Room *room, CreatureJob jobpref, NaviRouteFlags nav_flags, const char *func_name);
+#define creature_setup_random_move_for_job_in_room(creatng, room, jobpref, nav_flags) creature_setup_random_move_for_job_in_room_f(creatng, room, jobpref, nav_flags, __func__)
+
+// Sending to rooms and moving within rooms - other methods
 short send_creature_to_room(struct Thing *creatng, struct Room *room, CreatureJob jobpref);
-TbBool creature_move_to_place_in_room(struct Thing *creatng, struct Room *room, CreatureJob jobpref);
+TbBool setup_random_head_for_room(struct Thing *thing, struct Room *room, unsigned char flags);
 
 struct Thing *find_object_in_room_for_creature_matching_bool_filter(struct Thing *creatng, const struct Room *room, Thing_Bool_Filter matcher_cb);
 

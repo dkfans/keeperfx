@@ -46,8 +46,8 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT short _DK_state_cleanup_in_temple(struct Thing *thing);
-DLLIMPORT short _DK_creature_sacrifice(struct Thing *thing);
+DLLIMPORT short _DK_state_cleanup_in_temple(struct Thing *creatng);
+DLLIMPORT short _DK_creature_sacrifice(struct Thing *creatng);
 DLLIMPORT void _DK_apply_spell_effect_to_players_creatures(long a1, long a2, long a3);
 DLLIMPORT void _DK_kill_all_players_chickens(long plyr_idx);
 /******************************************************************************/
@@ -64,39 +64,25 @@ TbBool creature_is_doing_temple_pray_activity(const struct Thing *thing)
     return false;
 }
 
-TbBool setup_temple_move(struct Thing *thing, struct Room *room)
-{
-    struct Coord3d pos;
-    if (!person_get_somewhere_adjacent_in_room_around_borders(thing, room, &pos))
-    {
-        WARNLOG("No position to move %s index %d in %s room", thing_model_name(thing),(int)thing->index,room_code_name(room->kind));
-        return false;
-    }
-    if (!setup_person_move_to_coord(thing, &pos, NavRtF_Default)) {
-        ERRORLOG("Cannot move %s index %d in %s room", thing_model_name(thing),(int)thing->index,room_code_name(room->kind));
-        return false;
-    }
-    thing->continue_state = CrSt_PrayingInTemple;
-    return true;
-}
-
-CrStateRet process_temple_visuals(struct Thing *thing, struct Room *room)
+CrStateRet process_temple_visuals(struct Thing *creatng, struct Room *room)
 {
     struct CreatureControl *cctrl;
     long turns_in_temple;
-    cctrl = creature_control_get_from_thing(thing);
+    cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->instance_id != CrInst_NULL)
         return CrStRet_Unchanged;
     turns_in_temple = cctrl->field_82;
     if (turns_in_temple <= 120)
     {
         // Walk for 120 turns
-        setup_temple_move(thing, room);
+        if (creature_setup_adjacent_move_for_job_within_room(creatng, room, Job_TEMPLE_PRAY)) {
+            creatng->continue_state = get_continue_state_for_job(Job_TEMPLE_PRAY);
+        }
     } else
     if (turns_in_temple < 120 + 50)
     {
         // Then celebrate for 50 turns
-        set_creature_instance(thing, CrInst_CELEBRATE_SHORT, 1, 0, 0);
+        set_creature_instance(creatng, CrInst_CELEBRATE_SHORT, 1, 0, 0);
     } else
     {
         // Then start from the beginning
@@ -138,7 +124,7 @@ CrStateRet praying_in_temple(struct Thing *thing)
     struct Room *room;
     TRACE_THING(thing);
     room = get_room_thing_is_on(thing);
-    if (creature_work_in_room_no_longer_possible(room, RoK_TEMPLE, thing))
+    if (creature_job_in_room_no_longer_possible(room, Job_TEMPLE_PRAY, thing))
     {
         remove_creature_from_work_room(thing);
         set_start_state(thing);
@@ -173,7 +159,7 @@ CrCheckRet process_temple_function(struct Thing *thing)
 {
     struct Room *room;
     room = get_room_thing_is_on(thing);
-    if ( !room_still_valid_as_type_for_thing(room, RoK_TEMPLE, thing) )
+    if (!room_still_valid_as_type_for_thing(room, RoK_TEMPLE, thing))
     {
         remove_creature_from_work_room(thing);
         set_start_state(thing);
@@ -651,7 +637,7 @@ short creature_sacrifice(struct Thing *thing)
     }
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
-    if (!creature_move_to(thing, &pos, cctrl->max_speed, 0, 0)) {
+    if (creature_move_to(thing, &pos, cctrl->max_speed, 0, 0) == 0) {
         return 0;
     }
     if (get_thing_height_at(thing, &pos) != pos.z.val) {

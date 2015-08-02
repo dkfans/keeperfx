@@ -1785,7 +1785,7 @@ long guard_post_combat_move(struct Thing *thing, long cntn_crstate)
     {
         return 0;
     }
-    if (!setup_random_head_for_room(thing, room, 0))
+    if (!creature_setup_random_move_for_job_in_room(thing, room, Job_GUARD, NavRtF_Default))
     {
         cctrl->job_assigned = 0;
         return 0;

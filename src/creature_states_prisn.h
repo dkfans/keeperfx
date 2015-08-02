@@ -40,7 +40,6 @@ short creature_drop_body_in_prison(struct Thing *thing);
 short creature_freeze_prisonors(struct Thing *thing);
 CrStateRet creature_in_prison(struct Thing *thing);
 CrCheckRet process_prison_function(struct Thing *thing);
-TbBool setup_prison_move(struct Thing *thing, struct Room *room);
 /******************************************************************************/
 #ifdef __cplusplus
 }
