@@ -52,7 +52,7 @@ enum RoomKinds {
     RoK_LAIR                =  14,
     RoK_BRIDGE              =  15,
     RoK_GUARDPOST           =  16,
-    RoK_UNKN17              =  17,
+    RoK_TYPES_COUNT         =  17,
 };
 
 enum RoomAreaChoose {

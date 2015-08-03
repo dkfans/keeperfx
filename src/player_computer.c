@@ -183,16 +183,16 @@ struct ComputerTask * able_to_build_room_at_task(struct Computer2 *comp, RoomKin
 
 /**
  * Checks if we are able to build a room starting out from already build room of given kind.
- * @param comp
+ * @param comp Computer player being checked.
  * @param rkind The room kind to be built.
- * @param look_kind The room kind which we'd like to search as starting point.
+ * @param look_kind The room kind which we'd like to search as starting point for new corridor.
  * @param width_slabs
  * @param height_slabs
  * @param area
  * @param a6
  * @return
  */
-struct ComputerTask * able_to_build_room_from_room(struct Computer2 *comp, RoomKind rkind, RoomKind look_kind, long width_slabs, long height_slabs, long area, long a6)
+struct ComputerTask * able_to_build_room_from_room(struct Computer2 *comp, RoomKind rkind, RoomKind look_kind, long width_slabs, long height_slabs, long area, long require_perfect)
 {
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
@@ -216,7 +216,7 @@ struct ComputerTask * able_to_build_room_from_room(struct Computer2 *comp, RoomK
         pos.x.val = subtile_coord_center(room->central_stl_x);
         pos.y.val = subtile_coord_center(room->central_stl_y);
         pos.z.val = subtile_coord(1,0);
-        roomtask = able_to_build_room(comp, &pos, rkind, width_slabs, height_slabs, area, a6);
+        roomtask = able_to_build_room(comp, &pos, rkind, width_slabs, height_slabs, area, require_perfect);
         if (!computer_task_invalid(roomtask)) {
             return roomtask;
         }
@@ -268,9 +268,9 @@ struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind 
             for (i=0; i < arr_length; i++)
             {
                 struct ComputerTask *roomtask;
-                int look_kind;
+                RoomKind look_kind;
                 look_kind = look_through_rooms[lookidx];
-                if (look_kind == RoK_UNKN17)
+                if (look_kind == RoK_TYPES_COUNT)
                 {
                     roomtask = able_to_build_room_at_task(comp, rkind, width_slabs, height_slabs, area, aparam);
                 } else

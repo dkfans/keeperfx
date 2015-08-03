@@ -1375,7 +1375,7 @@ struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d 
     }
     struct ComputerTask *ctask;
     ctask = get_free_task(comp, 0);
-    if ( ctask )
+    if (!computer_task_invalid(ctask))
     {
         if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
             struct RoomConfigStats *roomst;

@@ -357,24 +357,54 @@ long pos_move_in_direction_to_outside_player_room(struct Coord3d *mvpos, unsigne
     return i;
 }
 
+/**
+ * Returns if a subtile is either a filled one which blocks movement or lava.
+ * @param stl_x Central subtile of the slab to be checked, X coord.
+ * @param stl_y Central subtile of the slab to be checked, Y coord.
+ * @param plyr_idx The player who needs to pass through the slab with given central subtile.
+ * @return True if the slab is blocking, false otherwise.
+ */
+TbBool subtile_is_blocking_wall_or_lava(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
+{
+    struct SlabMap *slb;
+    struct SlabAttr *slbattr;
+    slb = get_slabmap_for_subtile(stl_x, stl_y);
+    slbattr = get_slab_attrs(slb);
+    // Lava is easy
+    if (map_pos_is_lava(stl_x, stl_y)) {
+        return true;
+    }
+    // Blocking wall is more complex
+    if ((slbattr->block_flags & SlbAtFlg_Blocking) != 0)
+    {
+        // Door is not blocking if its not ours (we may destroy it) or not locked (we may pass it)
+        // Mapmakers often surrounds heart with doors; treating only locked doors as blocking allows to support such situations
+        if ((slbattr->block_flags & SlbAtFlg_IsDoor) != 0)
+        {
+            if ((slabmap_owner(slb) == plyr_idx) && subtile_has_locked_door(stl_x, stl_y)) {
+                return true;
+            }
+        } else
+        // For others, as long as it's not room, blocking means blocking
+        if ((slbattr->block_flags & SlbAtFlg_IsRoom) == 0)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 long pos_move_in_direction_to_blocking_wall_or_lava(struct Coord3d *mvpos, unsigned char round_directn, PlayerNumber plyr_idx, unsigned short slabs_dist)
 {
     MapSubtlCoord stl_x, stl_y;
     stl_x = mvpos->x.stl.num;
     stl_y = mvpos->y.stl.num;
-    struct SlabAttr *slbattr;
-    struct SlabMap *slb;
     int i;
-    slb = get_slabmap_for_subtile(stl_x, stl_y);
-    slbattr = get_slab_attrs(slb);
     // If we're on room, move to non-room tile
     for (i = 0; i < slabs_dist; i++)
     {
-        if (((slbattr->block_flags & SlbAtFlg_Blocking) != 0) || map_pos_is_lava(stl_x, stl_y))
-        {
-            if ((slbattr->block_flags & SlbAtFlg_IsRoom) == 0) {
-                break;
-            }
+        if (subtile_is_blocking_wall_or_lava(stl_x, stl_y, plyr_idx)) {
+            break;
         }
         stl_x += STL_PER_SLB * small_around[round_directn].delta_x;
         stl_y += STL_PER_SLB * small_around[round_directn].delta_y;
@@ -382,8 +412,6 @@ long pos_move_in_direction_to_blocking_wall_or_lava(struct Coord3d *mvpos, unsig
             ERRORLOG("Position moves beyond map border");
             return -1;
         }
-        slb = get_slabmap_for_subtile(stl_x, stl_y);
-        slbattr = get_slab_attrs(slb);
     }
     // Update original position with first slab behind room
     mvpos->x.val = subtile_coord_center(stl_x);

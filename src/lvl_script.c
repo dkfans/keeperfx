@@ -1849,7 +1849,7 @@ void command_set_computer_checks(long plr_range_id, const char *chkname, long va
   }
   if (n == 0)
   {
-    SCRPTERRLOG("No computer check found named '%s'", chkname);
+    SCRPTERRLOG("No computer check found named '%s' in players %d to %d",chkname,(int)plr_start,(int)plr_end-1);
     return;
   }
   SCRIPTDBG(6,"Altered %d checks named '%s'",n,chkname);

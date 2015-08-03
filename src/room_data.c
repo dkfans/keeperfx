@@ -73,11 +73,11 @@ void count_lair_occupants(struct Room *room);
 /******************************************************************************/
 
 RoomKind look_through_rooms[] = {
-    RoK_DUNGHEART, RoK_TREASURE, RoK_LAIR,      RoK_GARDEN,
-    RoK_LIBRARY,   RoK_TRAINING, RoK_WORKSHOP,  RoK_SCAVENGER,
-    RoK_PRISON,    RoK_TEMPLE,   RoK_TORTURE,   RoK_GRAVEYARD,
-    RoK_BARRACKS,  RoK_BRIDGE,   RoK_GUARDPOST, RoK_ENTRANCE,
-    RoK_DUNGHEART, RoK_UNKN17,};
+    RoK_DUNGHEART, RoK_LAIR,      RoK_GARDEN,    RoK_TREASURE,
+    RoK_TRAINING,  RoK_WORKSHOP,  RoK_SCAVENGER, RoK_BARRACKS,
+    RoK_PRISON,    RoK_TORTURE,   RoK_GRAVEYARD, RoK_TEMPLE,
+    RoK_LIBRARY,   RoK_BRIDGE,    RoK_GUARDPOST, RoK_ENTRANCE,
+    RoK_TYPES_COUNT,};
 
 struct RoomData room_data[] = {
   { 0,  0, NULL, NULL, NULL, 0, 0, 0, 0, 0},
