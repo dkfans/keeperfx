@@ -196,7 +196,7 @@ typedef short CrStateRet;
 /** Type which stores CrCkRet_* values. */
 typedef short CrCheckRet;
 /** Type which stores Job_* values. */
-typedef unsigned long CreatureJob;
+typedef unsigned long long CreatureJob;
 /** Creature instance index, stores CrInst_* values. */
 typedef short CrInstance;
 /** Creature attack type, stores AttckT_* values. */

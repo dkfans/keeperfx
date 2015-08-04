@@ -129,6 +129,7 @@ unsigned long slabmap_wlb(struct SlabMap *slb);
 void slabmap_set_wlb(struct SlabMap *slb, unsigned long wlbflag);
 long get_next_slab_number_in_room(SlabCodedCoords slab_num);
 long calculate_effeciency_score_for_room_slab(SlabCodedCoords slab_num, PlayerNumber plyr_idx);
+
 TbBool slab_is_safe_land(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 TbBool slab_is_door(MapSlabCoord slb_x, MapSlabCoord slb_y);
 TbBool slab_is_liquid(MapSlabCoord slb_x, MapSlabCoord slb_y);

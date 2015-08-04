@@ -989,7 +989,7 @@ long computer_setup_dig_to_entrance(struct Computer2 *comp, struct ComputerProce
         setup_dig_to(&cdig, startpos, endpos);
         long digres;
         do {
-            digres = tool_dig_to_pos2(comp, &cdig, true, 0);
+            digres = tool_dig_to_pos2(comp, &cdig, true, ToolDig_BasicOnly);
         } while (digres == 0);
         if ((digres != -1) && (digres != -5))
         {
@@ -1054,11 +1054,17 @@ long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *
         setup_dig_to(&cdig, startpos, endpos);
         while ( 1 )
         {
-            digres = tool_dig_to_pos2(comp, &cdig, true, 1);
+            digres = tool_dig_to_pos2(comp, &cdig, true, ToolDig_AllowValuable);
             if (digres != 0)
               break;
-            //TODO COMPUTER_PLAYER If the slab we've got from digging belongs to our player, use it as starting position
-            // But don't change distance - it should be computed from our rooms
+            // If the slab we've got from digging is safe to walk and connected to original room, use it as starting position
+            // But don't change distance - it should be computed from our rooms (and resetting it could lead to infinite loop)
+            // Note: when verifying the path traced by computer player, we might want to disable this to see the full path
+            if (slab_is_safe_land(dungeon->owner, coord_slab(cdig.pos_next.x.val), coord_slab(cdig.pos_next.y.val))) {
+                if (navigation_points_connected(&startpos, &cdig.pos_next)) {
+                    startpos = cdig.pos_next;
+                }
+            }
             dig_distance++;
         }
         if ( (digres != -1) && (digres != -5) )

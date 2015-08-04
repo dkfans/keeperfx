@@ -1891,7 +1891,7 @@ void command_set_computer_events(long plr_range_id, const char *evntname, long v
   }
   if (n == 0)
   {
-    SCRPTERRLOG("No computer event found named '%s'", evntname);
+    SCRPTERRLOG("No computer event found named '%s' in players %d to %d", evntname,(int)plr_start,(int)plr_end-1);
     return;
   }
   SCRIPTDBG(6,"Altered %d events named '%s'",n,evntname);
@@ -1938,7 +1938,7 @@ void command_set_computer_process(long plr_range_id, const char *procname, long 
   }
   if (n == 0)
   {
-    SCRPTERRLOG("No computer process found named '%s'", procname);
+    SCRPTERRLOG("No computer process found named '%s' in players %d to %d", procname,(int)plr_start,(int)plr_end-1);
     return;
   }
   SCRIPTDBG(6,"Altered %d processes named '%s'",n,procname);

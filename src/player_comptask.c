@@ -821,7 +821,7 @@ long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
     struct Coord3d pos;
-    switch (tool_dig_to_pos2(comp, &ctask->dig, 0, 0))
+    switch (tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_BasicOnly))
     {
     case -5:
         ctask->ottype = ctask->ttype;
@@ -1126,7 +1126,7 @@ long task_dig_to_entrance(struct Computer2 *comp, struct ComputerTask *ctask)
     struct ComputerTask *curtask;
     if (dig_ret == 0)
     {
-        dig_ret = tool_dig_to_pos2(comp, &ctask->dig, 0, 0);
+        dig_ret = tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_BasicOnly);
         if ((ctask->flags & ComTsk_Unkn0004) != 0) {
             ctask->flags &= ~ComTsk_Unkn0004;
             add_to_trap_location(comp, &ctask->dig.pos_next);
@@ -1813,7 +1813,7 @@ long find_next_gold(struct Computer2 * comp, struct ComputerTask * ctask)
     long retval;
     do
     {
-        retval = tool_dig_to_pos2(comp, &cdig, 1, 0);
+        retval = tool_dig_to_pos2(comp, &cdig, 1, ToolDig_BasicOnly);
         SYNCDBG(5,"retval=%d, dig.distance=%d, dig.subfield_54=%d",
             retval, cdig.distance, cdig.calls_count);
     } while (retval == 0);
@@ -1854,7 +1854,7 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
         ctask->dig.valuable_slabs_tagged = 0;
     }
 
-    long retval = tool_dig_to_pos2(comp, &ctask->dig, 0, 1);
+    long retval = tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_AllowValuable);
 
     if ((ctask->flags & ComTsk_Unkn0004) != 0)
     {
@@ -1953,7 +1953,7 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
         }
     }
     long dig_ret;
-    dig_ret = tool_dig_to_pos2(comp, &ctask->dig, 0, 0);
+    dig_ret = tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_BasicOnly);
     int i;
     switch (dig_ret)
     {
@@ -2695,7 +2695,7 @@ long task_dig_to_neutral(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
     short digret;
-    digret = tool_dig_to_pos2(comp, &ctask->dig, 0, 0);
+    digret = tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_BasicOnly);
     if (digret == -5)
     {
         ctask->ottype = ctask->ttype;
