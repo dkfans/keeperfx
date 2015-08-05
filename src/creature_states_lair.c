@@ -38,6 +38,7 @@
 #include "room_jobs.h"
 #include "room_lair.h"
 #include "room_util.h"
+#include "map_utils.h"
 #include "engine_arrays.h"
 #include "game_legacy.h"
 
@@ -284,40 +285,53 @@ CrStateRet creature_at_new_lair(struct Thing *creatng)
     return CrStRet_ResetOk;
 }
 
-TbBool setup_head_for_random_unused_lair_slab(struct Thing *creatng, struct Room *room)
+TbBool setup_head_for_random_unused_lair_subtile(struct Thing *creatng, struct Room *room)
 {
-    SlabCodedCoords slbnum;
+    SlabCodedCoords start_slbnum;
     long n;
     unsigned long k;
     n = ACTION_RANDOM(room->slabs_count);
-    slbnum = room->slabs_list;
+    start_slbnum = room->slabs_list;
     for (k = n; k > 0; k--)
     {
-        if (slbnum == 0)
+        if (start_slbnum == 0)
             break;
-        slbnum = get_next_slab_number_in_room(slbnum);
+        start_slbnum = get_next_slab_number_in_room(start_slbnum);
     }
-    if (slbnum == 0) {
+    if (start_slbnum == 0) {
         ERRORLOG("Taking random slab (%d/%d) in %s index %d failed - internal inconsistency.",(int)n,(int)room->slabs_count,room_code_name(room->kind),(int)room->index);
-        slbnum = room->slabs_list;
+        start_slbnum = room->slabs_list;
     }
-    for (k = 0; k < room->slabs_count; k++)
+    SlabCodedCoords slbnum;
+    slbnum = start_slbnum;
+    // Loop for subtiles on a slab; first check the central one, hopefully we will not get to checking other subtiles
+    // It is very rare to have more than one lair on a slab, as it will look overlapping; but may be needed if efficiency is large enough
+    for (n = 0; n < MID_AROUND_LENGTH; n++)
     {
-        MapSlabCoord slb_x,slb_y;
-        slb_x = slb_num_decode_x(slbnum);
-        slb_y = slb_num_decode_y(slbnum);
-        struct Thing *lairtng;
-        lairtng = find_creature_lair_totem_at_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), 0);
-        if (thing_is_invalid(lairtng))
+        MapSubtlDelta ssub_x, ssub_y;
+        ssub_x = 1 + start_at_around[n].delta_x;
+        ssub_y = 1 + start_at_around[n].delta_y;
+        for (k = 0; k < room->slabs_count; k++)
         {
-            if (setup_person_move_to_position(creatng, slab_subtile_center(slb_x), slab_subtile_center(slb_y), NavRtF_Default)) {
-                return true;
+            MapSlabCoord slb_x,slb_y;
+            slb_x = slb_num_decode_x(slbnum);
+            slb_y = slb_num_decode_y(slbnum);
+            struct Thing *lairtng;
+            lairtng = find_creature_lair_totem_at_subtile(slab_subtile(slb_x, ssub_x), slab_subtile(slb_y, ssub_y), 0);
+            if (thing_is_invalid(lairtng))
+            {
+                if (setup_person_move_to_position(creatng, slab_subtile(slb_x, ssub_x), slab_subtile(slb_y, ssub_y), NavRtF_Default)) {
+                    if (n > 0) {
+                        WARNDBG(2,"More than one lair totem will be placed on a %s index %d slab %d,%d",room_code_name(room->kind),(int)room->index,(int)slb_x,(int)slb_y);
+                    }
+                    return true;
+                }
+                WARNLOG("Cannot get somewhere in room");
             }
-            WARNLOG("Cannot get somewhere in room");
-        }
-        slbnum = get_next_slab_number_in_room(slbnum);
-        if (slbnum == 0) {
-            slbnum = room->slabs_list;
+            slbnum = get_next_slab_number_in_room(slbnum);
+            if (slbnum == 0) {
+                slbnum = room->slabs_list;
+            }
         }
     }
     ERRORLOG("Could not find valid RANDOM point in room for creature");
@@ -343,7 +357,7 @@ short creature_change_lair(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    if (!setup_head_for_random_unused_lair_slab(thing, room))
+    if (!setup_head_for_random_unused_lair_subtile(thing, room))
     {
         set_start_state(thing);
         return 0;
@@ -367,7 +381,7 @@ short creature_choose_room_for_lair_site(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    if (!setup_head_for_random_unused_lair_slab(thing, room))
+    if (!setup_head_for_random_unused_lair_subtile(thing, room))
     {
         ERRORLOG("Chosen lair is not valid, internal inconsistency.");
         set_start_state(thing);
