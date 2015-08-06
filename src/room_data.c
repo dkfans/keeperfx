@@ -1488,29 +1488,18 @@ void count_food_in_room(struct Room *room)
     room->capacity_used_for_storage = room->used_capacity;
 }
 
-void count_lair_occupants(struct Room *room)
+void count_lair_occupants_on_slab(struct Room *room,MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    //_DK_count_lair_occupants(room);
-    room->used_capacity = 0;
-    memset(room->content_per_model, 0, sizeof(room->content_per_model));
-    unsigned long i;
-    unsigned long k;
-    k = 0;
-    i = room->slabs_list;
-    while (i > 0)
+    WARNLOG("Starting for %s index %d at %d,%d",room_code_name(room->kind),(int)room->index,(int)slb_x,(int)slb_y);
+    int n;
+    for (n = 0; n < MID_AROUND_LENGTH; n++)
     {
-        struct SlabMap *slb;
-        slb = get_slabmap_direct(i);
-        if (slabmap_block_invalid(slb))
-        {
-            ERRORLOG("Jump to invalid room slab detected");
-            break;
-        }
-        i = get_next_slab_number_in_room(i);
-        // Per slab code
+        MapSubtlDelta ssub_x, ssub_y;
+        ssub_x = 1 + start_at_around[n].delta_x;
+        ssub_y = 1 + start_at_around[n].delta_y;
         struct Thing *lairtng;
         struct Thing *creatng;
-        lairtng = find_lair_totem_at(slab_subtile_center(slb_num_decode_x(i)), slab_subtile_center(slb_num_decode_y(i)));
+        lairtng = find_lair_totem_at(slab_subtile(slb_x,ssub_x), slab_subtile(slb_y,ssub_y));
         if (!thing_is_invalid(lairtng))
         {
             creatng = thing_get(lairtng->word_13);
@@ -1529,6 +1518,33 @@ void count_lair_occupants(struct Room *room)
                 room->used_capacity += crstat->lair_size;
             }
         }
+    }
+}
+
+void count_lair_occupants(struct Room *room)
+{
+    //_DK_count_lair_occupants(room);
+    room->used_capacity = 0;
+    memset(room->content_per_model, 0, sizeof(room->content_per_model));
+    unsigned long i;
+    unsigned long k;
+    k = 0;
+    i = room->slabs_list;
+    while (i > 0)
+    {
+        MapSubtlCoord slb_x,slb_y;
+        slb_x = slb_num_decode_x(i);
+        slb_y = slb_num_decode_y(i);
+        struct SlabMap *slb;
+        slb = get_slabmap_direct(i);
+        if (slabmap_block_invalid(slb))
+        {
+            ERRORLOG("Jump to invalid room slab detected");
+            break;
+        }
+        i = get_next_slab_number_in_room(i);
+        // Per slab code
+        count_lair_occupants_on_slab(room, slb_x, slb_y);
         // Per slab code ends
         k++;
         if (k > map_tiles_x * map_tiles_y)
