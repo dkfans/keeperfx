@@ -38,7 +38,7 @@ struct ComputerProcessTypes { // sizeof = 1124
   long field_C;
   long max_room_build_tasks;
   long field_14;
-  long field_18;
+  long sim_before_dig;
   long field_1C;
   struct ComputerProcess *processes[COMPUTER_PROCESSES_COUNT];
   struct ComputerCheck checks[COMPUTER_CHECKS_COUNT];

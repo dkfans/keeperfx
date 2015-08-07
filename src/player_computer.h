@@ -516,7 +516,7 @@ struct Computer2 { // sizeof = 5322
   unsigned long field_14;
   unsigned long field_18;
   unsigned long field_1C; // seems to be signed long
-  unsigned long field_20;
+  unsigned long sim_before_dig;
   struct Dungeon *dungeon;
   unsigned long model;
   unsigned long field_2C;
@@ -652,7 +652,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
 #define search_spiral(pos, owner, i3, cb) search_spiral_f(pos, owner, i3, cb, __func__)
 int search_spiral_f(struct Coord3d *pos, PlayerNumber owner, int i3, long (*cb)(MapSubtlCoord, MapSubtlCoord, long), const char *func_name);
 /******************************************************************************/
-ItemAvailability computer_check_room_available(struct Computer2 * comp, long rkind);
+ItemAvailability computer_check_room_available(const struct Computer2 * comp, long rkind);
 TbBool computer_find_non_solid_block(const struct Computer2 *comp, struct Coord3d *pos);
 
 long count_creatures_in_dungeon(const struct Dungeon *dungeon);

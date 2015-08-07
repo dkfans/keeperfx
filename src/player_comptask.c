@@ -1164,7 +1164,7 @@ long task_dig_to_entrance(struct Computer2 *comp, struct ComputerTask *ctask)
  * @param rkind Room kind.
  * @return Gives IAvail_Never if the room isn't available, IAvail_Now if it's available and IAvail_Later if it's researchable.
  */
-ItemAvailability computer_check_room_available(struct Computer2 * comp, long rkind)
+ItemAvailability computer_check_room_available(const struct Computer2 * comp, long rkind)
 {
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
@@ -1430,7 +1430,7 @@ short get_hug_side(struct ComputerDig * cdig, MapSubtlCoord stl1_x, MapSubtlCoor
     return ACTION_RANDOM(2);
 }
 
-short tool_dig_to_pos2_skip_slabs_which_dont_need_digging_f(struct Computer2 * comp, struct ComputerDig * cdig, unsigned short digflags,
+short tool_dig_to_pos2_skip_slabs_which_dont_need_digging_f(const struct Computer2 * comp, struct ComputerDig * cdig, unsigned short digflags,
     MapSubtlCoord *nextstl_x, MapSubtlCoord *nextstl_y, const char *func_name)
 {
     struct Dungeon *dungeon;

@@ -1804,7 +1804,7 @@ void command_set_computer_globals(long plr_range_id, long val1, long val2, long 
     comp->field_18 = val3;
     comp->max_room_build_tasks = val4;
     comp->field_2C = val5;
-    comp->field_20 = val6;
+    comp->sim_before_dig = val6;
   }
 }
 

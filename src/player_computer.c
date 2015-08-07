@@ -1285,7 +1285,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
     comp->field_14 = cpt->field_8;
     comp->max_room_build_tasks = cpt->max_room_build_tasks;
     comp->field_2C = cpt->field_14;
-    comp->field_20 = cpt->field_18;
+    comp->sim_before_dig = cpt->sim_before_dig;
     comp->field_C = 1;
     comp->task_state = CTaskSt_Select;
 

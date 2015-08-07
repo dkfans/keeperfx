@@ -905,6 +905,40 @@ TbBool right_time_to_choose_target_entrance(struct ComputerProcess *cproc, long 
     return (turns_to_capture/entrances_div <= turns_delta);
 }
 
+/**
+ * Simulates digging from and to given coords with given flags.
+ * @param comp Computer player which does the simulation.
+ * @param startpos Digging start point, may be updated in a berrer one is seen.
+ * @param endpos Digging final point, constant.
+ * @param dig_distance Value which is increased by the amount of slabs travelled.
+ * @param digflags Digging flags to be used.
+ */
+TbBool simulate_dig_to(struct Computer2 *comp, struct Coord3d *startpos, const struct Coord3d *endpos, unsigned long *dig_distance, unsigned short digflags)
+{
+    struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
+    struct ComputerDig cdig;
+    long digres;
+    // Setup the digging on dummy ComputerDig, to compute distance and move start position near to wall
+    setup_dig_to(&cdig, *startpos, *endpos);
+    while ( 1 )
+    {
+        digres = tool_dig_to_pos2(comp, &cdig, true, digflags);
+        if (digres != 0)
+          break;
+        // If the slab we've got from digging is safe to walk and connected to original room, use it as starting position
+        // But don't change distance - it should be computed from our rooms (and resetting it could lead to infinite loop)
+        // Note: when verifying the path traced by computer player, we might want to disable this to see the full path
+        if (slab_is_safe_land(dungeon->owner, coord_slab(cdig.pos_next.x.val), coord_slab(cdig.pos_next.y.val))) {
+            if (navigation_points_connected(startpos, &cdig.pos_next)) {
+                *startpos = cdig.pos_next;
+            }
+        }
+        (*dig_distance)++;
+    }
+    return ((digres == -1) || (digres == -5));
+}
+
 long computer_setup_dig_to_entrance(struct Computer2 *comp, struct ComputerProcess *cproc)
 {
     struct Dungeon *dungeon;
@@ -983,15 +1017,11 @@ long computer_setup_dig_to_entrance(struct Computer2 *comp, struct ComputerProce
     endpos.y.val = subtile_coord_center(stl_slab_center_subtile(entroom->central_stl_y));
     endpos.z.val = subtile_coord(1,0);
     // If we are supposed to dig there, then do it
-    if (comp->field_20)
+    if (comp->sim_before_dig)
     {
-        struct ComputerDig cdig;
-        setup_dig_to(&cdig, startpos, endpos);
-        long digres;
-        do {
-            digres = tool_dig_to_pos2(comp, &cdig, true, ToolDig_BasicOnly);
-        } while (digres == 0);
-        if ((digres != -1) && (digres != -5))
+        unsigned long dig_distance;
+        dig_distance = 0;
+        if (!simulate_dig_to(comp, &startpos, &endpos, &dig_distance, ToolDig_BasicOnly))
         {
             entroom->player_interested[dungeon->owner] |= 0x02;
             return CProcRet_Fail;
@@ -1016,13 +1046,11 @@ long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *
     struct Dungeon *dungeon;
     struct Coord3d startpos;
     struct Coord3d endpos;
-    unsigned long dig_distance;
     unsigned long max_distance;
-    long digres;
     SYNCDBG(18,"Starting");
-    dig_distance = 0;
     dungeon = comp->dungeon;
     gldlook = NULL;
+    long digres;
     digres = computer_finds_nearest_room_to_gold(comp, &startpos, &gldlook);
     if (digres == -1)
     {
@@ -1047,29 +1075,13 @@ long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *
     startpos.x.val = subtile_coord_center(stl_slab_center_subtile(startpos.x.stl.num));
     startpos.y.val = subtile_coord_center(stl_slab_center_subtile(startpos.y.stl.num));
     startpos.z.val = subtile_coord(1,0);
-    if ( comp->field_20 )
+    if (comp->sim_before_dig)
     {
-        struct ComputerDig cdig;
-        // Setup the digging on dummy ComputerDig, to compute distance and move start position near to wall
-        setup_dig_to(&cdig, startpos, endpos);
-        while ( 1 )
+        unsigned long dig_distance;
+        dig_distance = 0;
+        if (!simulate_dig_to(comp, &startpos, &endpos, &dig_distance, ToolDig_AllowValuable))
         {
-            digres = tool_dig_to_pos2(comp, &cdig, true, ToolDig_AllowValuable);
-            if (digres != 0)
-              break;
-            // If the slab we've got from digging is safe to walk and connected to original room, use it as starting position
-            // But don't change distance - it should be computed from our rooms (and resetting it could lead to infinite loop)
-            // Note: when verifying the path traced by computer player, we might want to disable this to see the full path
-            if (slab_is_safe_land(dungeon->owner, coord_slab(cdig.pos_next.x.val), coord_slab(cdig.pos_next.y.val))) {
-                if (navigation_points_connected(&startpos, &cdig.pos_next)) {
-                    startpos = cdig.pos_next;
-                }
-            }
-            dig_distance++;
-        }
-        if ( (digres != -1) && (digres != -5) )
-        {
-            SYNCDBG(8,"Dig evaluation didn't worked out, code %d",digres);
+            SYNCDBG(8,"Dig evaluation didn't worked out");
             gldlook->player_interested[dungeon->owner] |= 0x02;
             return CProcRet_Fail;
         }
@@ -1080,6 +1092,7 @@ long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *
         }
         SYNCDBG(8,"Dig evaluation distance %lu, result %d",dig_distance,digres);
     }
+
     long parent_cproc_idx;
     long gold_lookup_idx;
     parent_cproc_idx = computer_process_index(comp, cproc);
