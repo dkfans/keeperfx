@@ -1490,7 +1490,7 @@ void count_food_in_room(struct Room *room)
 
 void count_lair_occupants_on_slab(struct Room *room,MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    WARNLOG("Starting for %s index %d at %d,%d",room_code_name(room->kind),(int)room->index,(int)slb_x,(int)slb_y);
+    SYNCDBG(17,"Starting for %s index %d at %d,%d",room_code_name(room->kind),(int)room->index,(int)slb_x,(int)slb_y);
     int n;
     for (n = 0; n < MID_AROUND_LENGTH; n++)
     {

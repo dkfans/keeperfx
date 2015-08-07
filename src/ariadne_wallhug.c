@@ -848,7 +848,7 @@ TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     const struct SlabAttr *slbattr;
     slb = get_slabmap_for_subtile(stl_x, stl_y);
     slbattr = get_slab_attrs(slb);
-    if ((slbattr->is_diggable) && (slb->kind != SlbT_GEMS))
+    if ((slbattr->is_diggable) && !slab_kind_is_indestructible(slb->kind))
     {
         struct Map *mapblk;
         mapblk = get_map_block_at(stl_x, stl_y);
@@ -905,19 +905,22 @@ static inline void get_hug_side_next_step(MapSubtlCoord dst_stl_x, MapSubtlCoord
     int dx,dy;
     dx = small_around[round_idx].delta_x;
     dy = small_around[round_idx].delta_y;
-    if ((dist <= *maxdist) && !is_valid_hug_subtile(curr_stl_x + STL_PER_SLB*dx, curr_stl_y + STL_PER_SLB*dy, plyr_idx))
+    // If we can follow direction straight to the target, and we will get closer to it, then do it
+    if ((dist <= *maxdist) && is_valid_hug_subtile(curr_stl_x + STL_PER_SLB*dx, curr_stl_y + STL_PER_SLB*dy, plyr_idx))
     {
         curr_stl_x += STL_PER_SLB*dx;
         curr_stl_y += STL_PER_SLB*dy;
-        *state = 1;
+        *state = WaHSS_Val1;
         *maxdist = max(abs(curr_stl_x - dst_stl_x), abs(curr_stl_y - dst_stl_y));
     } else
-    if (*state == 1)
+    // If met second wall, finish
+    if (*state == WaHSS_Val1)
     {
-        *state = 2;
+        *state = WaHSS_Val2;
     } else
-    {
+    { // Here we need to use wallhug to slide until we will be able to move towards destination again
         int n;
+        // Try directions starting at the one towards the wall, in case wall has ended
         round_idx = (*round + SMALL_AROUND_LENGTH + dirctn) % SMALL_AROUND_LENGTH;
         for (n = 0; n < SMALL_AROUND_LENGTH; n++)
         {
@@ -927,6 +930,7 @@ static inline void get_hug_side_next_step(MapSubtlCoord dst_stl_x, MapSubtlCoord
             {
                 break;
             }
+            // If direction not for wallhug, try next
             round_idx = (round_idx + SMALL_AROUND_LENGTH - dirctn) % SMALL_AROUND_LENGTH;
         }
         if ((n < SMALL_AROUND_LENGTH) || (dirctn > 0)) {
@@ -954,26 +958,26 @@ short get_hug_side_options(MapSubtlCoord src_stl_x, MapSubtlCoord src_stl_y, Map
     int dist;
     dist = max(abs(src_stl_x - dst_stl_x), abs(src_stl_y - dst_stl_y));
 
-    state_a = 0;
+    state_a = WaHSS_Val0;
     stl_a_x = src_stl_x;
     stl_a_y = src_stl_y;
     round_a = (direction + SMALL_AROUND_LENGTH + 1) % SMALL_AROUND_LENGTH;
     maxdist_a = dist - 1;
 
-    state_b = 0;
+    state_b = WaHSS_Val0;
     stl_b_x = src_stl_x;
     stl_b_y = src_stl_y;
     round_b = (direction + SMALL_AROUND_LENGTH - 1) % SMALL_AROUND_LENGTH;
     maxdist_b = dist - 1;
 
-
+    // Try moving in both directions
     int i;
     for (i = 150; i > 0; i--)
     {
-        if ((state_a == 2) && (state_b == 2)) {
+        if ((state_a == WaHSS_Val2) && (state_b == WaHSS_Val2)) {
             break;
         }
-        if (state_a != 2)
+        if (state_a != WaHSS_Val2)
         {
             get_hug_side_next_step(dst_stl_x, dst_stl_y, -1, plyr_idx, &state_a, &stl_a_x, &stl_a_y, &round_a, &maxdist_a);
             if ((stl_a_x == dst_stl_x) && (stl_a_y == dst_stl_y)) {
@@ -984,7 +988,7 @@ short get_hug_side_options(MapSubtlCoord src_stl_x, MapSubtlCoord src_stl_y, Map
                 return 1;
             }
         }
-        if (state_b != 2)
+        if (state_b != WaHSS_Val2)
         {
             get_hug_side_next_step(dst_stl_x, dst_stl_y, 1, plyr_idx, &state_b, &stl_b_x, &stl_b_y, &round_b, &maxdist_b);
             if ((stl_b_x == dst_stl_x) && (stl_b_y == dst_stl_y)) {

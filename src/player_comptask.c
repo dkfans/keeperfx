@@ -1404,13 +1404,13 @@ struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d 
     return ctask;
 }
 
-short get_hug_side(struct ComputerDig * cdig, MapSubtlCoord stl1_x, MapSubtlCoord stl1_y, MapSubtlCoord stl2_x, MapSubtlCoord stl2_y, unsigned short a6, PlayerNumber plyr_idx)
+short get_hug_side(struct ComputerDig * cdig, MapSubtlCoord stl1_x, MapSubtlCoord stl1_y, MapSubtlCoord stl2_x, MapSubtlCoord stl2_y, unsigned short direction, PlayerNumber plyr_idx)
 {
     SYNCDBG(4,"Starting");
     MapSubtlCoord stl_b_x, stl_b_y;
     MapSubtlCoord stl_a_x, stl_a_y;
     int i;
-    i = get_hug_side_options(stl1_x, stl1_y, stl2_x, stl2_y, a6, plyr_idx, &stl_a_x, &stl_a_y, &stl_b_x, &stl_b_y);
+    i = get_hug_side_options(stl1_x, stl1_y, stl2_x, stl2_y, direction, plyr_idx, &stl_a_x, &stl_a_y, &stl_b_x, &stl_b_y);
     if ((i == 0) || (i == 1)) {
         return i;
     }
@@ -1427,7 +1427,8 @@ short get_hug_side(struct ComputerDig * cdig, MapSubtlCoord stl1_x, MapSubtlCoor
     if (dist_b < dist_a) {
         return 0;
     }
-    return ACTION_RANDOM(2);
+    // Random hug side
+    return ((stl2_x+stl2_y)>>1)%2;
 }
 
 short tool_dig_to_pos2_skip_slabs_which_dont_need_digging_f(const struct Computer2 * comp, struct ComputerDig * cdig, unsigned short digflags,
@@ -1590,7 +1591,9 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
     // Limit amount of calls
     cdig->calls_count++;
     if (cdig->calls_count >= COMPUTER_TOOL_DIG_LIMIT) {
-        WARNLOG("%s: Player %d ComputerDig calls count (%d) exceeds limit",func_name,(int)dungeon->owner,(int)cdig->calls_count);
+        WARNLOG("%s: Player %d ComputerDig calls count (%d) exceeds limit for path from (%d,%d) to (%d,%d)",func_name,
+            (int)dungeon->owner,(int)cdig->calls_count,(int)coord_slab(cdig->pos_begin.x.val),(int)coord_slab(cdig->pos_begin.y.val),
+            (int)coord_slab(cdig->pos_dest.x.val),(int)coord_slab(cdig->pos_dest.y.val));
         return -2;
     }
     gldstl_x = stl_slab_center_subtile(cdig->pos_begin.x.stl.num);

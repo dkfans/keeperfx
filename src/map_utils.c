@@ -202,7 +202,7 @@ unsigned int small_around_index_towards_destination(long curr_x,long curr_y,long
         // Add some variant factor to make it little off this value.
         // this should give better results because tangens values are rounded up or down.
         //TODO: maybe it would be even better to get previous around_index as parameter - this way we could avoid taking same path without random factors.
-        n = (i + LbFPMath_PI/4 + ACTION_RANDOM(3) - 1) >> 9;
+        n = (i + LbFPMath_PI/4 + 2*(((dest_x+dest_y)>>1)%2) - 1) >> 9;
     }
     SYNCDBG(18,"Vector (%ld,%ld) returned ArcTan=%ld, around (%d,%d)",dest_x - curr_x, dest_y - curr_y,i,(int)small_around[n].delta_x,(int)small_around[n].delta_y);
     return n & 3;

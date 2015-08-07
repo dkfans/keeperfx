@@ -34,6 +34,13 @@ struct Coord3d;
 struct Navigation;
 struct SlabMap;
 
+enum WallHugSideState {
+    WaHSS_Val0 = 0,
+    WaHSS_Val1,
+    WaHSS_Val2
+};
+
+
 #pragma pack()
 /******************************************************************************/
 extern const short slab_around[];
