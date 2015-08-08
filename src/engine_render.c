@@ -5704,7 +5704,7 @@ void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width
     pos.y.val = map_volume_box.field_7;
     pos.x.val = map_volume_box.field_3;
     pos.z.val = 5*256;
-    orient = ((unsigned int)(cam->orient_a + 256) >> 9) & 0x03;
+    orient = ((unsigned int)(cam->orient_a + LbFPMath_PI/4) >> 9) & 0x03;
     convert_world_coord_to_front_view_screen_coord(&pos, cam, &coord_x, &coord_y, &coord_z);
     depth = (5 - map_volume_box.field_13) * ((long)stl_width << 7) / 256;
     slb_width = STL_PER_SLB * (long)stl_width;
@@ -5890,7 +5890,7 @@ void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map, struc
     long cx,cy,cz;
     if ((thing->field_4F & TF4F_Unknown01) != 0)
         return;
-    switch ( (thing->field_50 >> 2) )
+    switch (thing->field_50 >> 2)
     {
     case 2:
         convert_world_coord_to_front_view_screen_coord(&thing->mappos,cam,&cx,&cy,&cz);
@@ -6005,7 +6005,7 @@ void draw_frontview_engine(struct Camera *cam)
     clear_fast_bucket_list();
     store_engine_window(&ewnd,1);
     setup_engine_window(ewnd.x, ewnd.y, ewnd.width, ewnd.height);
-    qdrant = ((unsigned int)(cam->orient_a + 256) >> 9) & 0x03;
+    qdrant = ((unsigned int)(cam->orient_a + LbFPMath_PI/4) >> 9) & 0x03;
     zoom = camera_zoom >> 3;
     w = (ewnd.width << 16) / zoom >> 1;
     h = (ewnd.height << 16) / zoom >> 1;

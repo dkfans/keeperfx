@@ -48,10 +48,10 @@ struct Thing;
 
 struct TrapStats {  // sizeof=54
 unsigned long field_0;
-unsigned long field_4;
-unsigned long field_8;
+  unsigned long sprite_anim_idx;
+  unsigned long sprite_size_max;
 unsigned char field_C;
-unsigned long field_D;
+  unsigned long anim_speed;
 unsigned char field_11;
   unsigned char field_12;
 unsigned char field_13;

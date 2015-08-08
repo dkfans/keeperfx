@@ -621,7 +621,7 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
     } else {
         start_frame = 0;
     }
-    set_thing_draw(thing, trapstat->field_4, trapstat->field_D, trapstat->field_8, trapstat->field_C, start_frame, 2);
+    set_thing_draw(thing, trapstat->sprite_anim_idx, trapstat->anim_speed, trapstat->sprite_size_max, trapstat->field_C, start_frame, 2);
     if (trapstat->field_11) {
         thing->field_4F |= TF4F_Unknown02;
     } else {

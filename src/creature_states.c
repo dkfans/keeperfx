@@ -1742,14 +1742,14 @@ short creature_doing_nothing(struct Thing *creatng)
             required_cap = get_required_room_capacity_for_job(Job_TAKE_SLEEP, creatng->model);
             cctrl->tasks_check_turn = game.play_gameturn;
             struct Room *room;
-            room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_LAIR, NavRtF_Default, required_cap);
+            room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, get_room_for_job(Job_TAKE_SLEEP), NavRtF_Default, required_cap);
             if (!room_is_invalid(room))
             {
                 internal_set_thing_state(creatng, CrSt_CreatureWantsAHome);
                 SYNCDBG(8,"The %s index %d goes make lair",thing_model_name(creatng),creatng->index);
                 return 1;
             }
-            update_cannot_find_room_wth_spare_capacity_event(creatng->owner, creatng, RoK_LAIR);
+            update_cannot_find_room_wth_spare_capacity_event(creatng->owner, creatng, get_room_for_job(Job_TAKE_SLEEP));
         }
     }
     if (creature_affected_by_call_to_arms(creatng))

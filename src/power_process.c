@@ -308,7 +308,7 @@ void update_god_lightning_ball(struct Thing *thing)
         target = thing_get(thing->shot.target_idx);
         if (thing_is_invalid(target))
             break;
-        shotst = get_shot_model_stats(24);
+        shotst = get_shot_model_stats(ShM_GodLightBall);
         apply_damage_to_thing_and_display_health(target, shotst->old->damage, shotst->damage_type, thing->owner);
         if (target->health < 0)
         {
@@ -400,7 +400,7 @@ void draw_god_lightning(struct Thing *shotng)
         return;
     }
     int i;
-    for (i = 256; i < 2048; i += 512)
+    for (i = LbFPMath_PI/4; i < 2*LbFPMath_PI; i += LbFPMath_PI/2)
     {
         struct Coord3d locpos;
         locpos.x.val = shotng->mappos.x.val;

@@ -34,6 +34,9 @@
 #include "config_creature.h"
 #include "config_effects.h"
 #include "config_terrain.h"
+#include "config_lenses.h"
+#include "config_crtrstates.h"
+#include "config_magic.h"
 #include "creature_states.h"
 #include "creature_states_combt.h"
 #include "creature_states_lair.h"
@@ -48,8 +51,6 @@
 #include "creature_groups.h"
 #include "creature_jobs.h"
 #include "creature_senses.h"
-#include "config_lenses.h"
-#include "config_crtrstates.h"
 #include "thing_stats.h"
 #include "thing_factory.h"
 #include "thing_effects.h"
@@ -786,7 +787,7 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
     case SplK_PoisonCloud:
         return ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0);
     case SplK_Fear:
-        return false;//TODO CREATURE_SPELL find out how to check this
+        return false;//TODO CREATURE_SPELL update when fear continous effect is implemented
     case SplK_Wind:
         return false;//TODO CREATURE_SPELL find out how to check this
     case SplK_Light:
@@ -794,7 +795,7 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
     case SplK_Hailstorm:
         return false;//TODO CREATURE_SPELL find out how to check this
     case SplK_CrazyGas:
-        return false;//TODO CREATURE_SPELL find out how to check this
+        return false;//TODO CREATURE_SPELL update when crazy gas continous effect is implemented
     default:
         SYNCDBG(3,"Unrecognized spell kind %d",(int)spkind);
         return false;

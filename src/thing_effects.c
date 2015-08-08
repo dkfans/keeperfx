@@ -719,7 +719,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
         }
     }
 
-    if ((cctrl->spell_flags & CSAfF_Unkn2000) != 0)
+    if ((cctrl->spell_flags & CSAfF_MagicFall) != 0)
     {
         dturn = game.play_gameturn - thing->creation_turn;
         if ((dturn & 1) == 0) {
@@ -729,7 +729,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
         crstat = creature_stats_get_from_thing(thing);
         creature_turn_to_face_angle(thing, thing->move_angle_xy + crstat->max_angle_change);
         if ((dturn > 32) || thing_touching_floor(thing)) {
-            cctrl->spell_flags &= ~CSAfF_Unkn2000;
+            cctrl->spell_flags &= ~CSAfF_MagicFall;
         }
     }
 }

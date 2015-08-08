@@ -80,7 +80,8 @@ enum CreatureSpellAffectedFlags {
     CSAfF_PoisonCloud  = 0x0400,
     CSAfF_CalledToArms = 0x0800,
     CSAfF_MadKilling   = 0x1000,
-    CSAfF_Unkn2000     = 0x2000,
+    /** The creature does a free fall with magical effect, ie. it was just created with some initial velocity. */
+    CSAfF_MagicFall    = 0x2000,
     CSAfF_ExpLevelUp   = 0x4000,
     /** For creature which are normally flying, this informs that its grounded due to spells or its condition. */
     CSAfF_Grounded     = 0x8000,
@@ -283,8 +284,8 @@ struct ShotHitConfig {
 
 struct ShotStats // sizeof = 101
 {
-  short numfield_0;
-  short numfield_2;
+  short sprite_anim_idx;
+  short sprite_size_max;
   unsigned char field_4[2];
   unsigned char field_6;
   unsigned char field_7;

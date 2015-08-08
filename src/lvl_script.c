@@ -3013,7 +3013,7 @@ long script_support_create_thing_at_hero_door(long gate_num, ThingClass tngclass
     }
     cctrl = creature_control_get_from_thing(thing);
     cctrl->field_AE |= 0x02;
-    cctrl->spell_flags |= CSAfF_Unkn2000;
+    cctrl->spell_flags |= CSAfF_MagicFall;
     thing->veloc_push_add.x.val += ACTION_RANDOM(193) - 96;
     thing->veloc_push_add.y.val += ACTION_RANDOM(193) - 96;
     if ((thing->movement_flags & TMvF_Flying) != 0) {

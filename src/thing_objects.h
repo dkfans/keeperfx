@@ -62,7 +62,7 @@ struct Objects {
     unsigned char field_2;
     unsigned char field_3;
     unsigned char field_4;
-    short field_5;
+    short sprite_anim_idx;
     short anim_speed;
     short size_xy;
     short size_yz;
@@ -78,9 +78,9 @@ struct Objects {
 };
 
 struct CallToArmsGraphics {
-    int birth_spr_idx;
-    int field_4;
-    int field_8;
+    int birth_anim_idx;
+    int alive_anim_idx;
+    int leave_anim_idx;
 };
 
 /******************************************************************************/

@@ -948,7 +948,7 @@ void update_thing_animation(struct Thing *thing)
         if (thing->sprite_size >= thing->field_4D)
         {
           thing->sprite_size = thing->field_4D;
-          if (thing->field_50 & 0x02)
+          if ((thing->field_50 & 0x02) != 0)
             thing->field_4A = -thing->field_4A;
           else
             thing->field_4A = 0;

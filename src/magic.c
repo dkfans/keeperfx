@@ -1289,7 +1289,7 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
         }
     }
     // And cast it
-    shtng = create_shot(&pos, 16, plyr_idx);
+    shtng = create_shot(&pos, ShM_GodLightning, plyr_idx);
     if (!thing_is_invalid(shtng))
     {
         shtng->mappos.z.val = get_thing_height_at(shtng, &shtng->mappos) + COORD_PER_STL/2;
@@ -1297,7 +1297,7 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
         shtng->shot.byte_19 = splevel;
     }
     pwrdynst = get_power_dynamic_stats(PwrK_LIGHTNING);
-    shotst = get_shot_model_stats(16);
+    shotst = get_shot_model_stats(ShM_GodLightning);
     dungeon->camera_deviate_jump = 256;
     i = pwrdynst->strength[splevel];
     max_damage = i * shotst->old->damage;

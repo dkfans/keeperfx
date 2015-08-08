@@ -444,11 +444,11 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
 
     if (!objdat->field_2)
     {
-      i = convert_td_iso(objdat->field_5);
+      i = convert_td_iso(objdat->sprite_anim_idx);
       k = 0;
     } else
     {
-      i = convert_td_iso(objdat->field_5);
+      i = convert_td_iso(objdat->sprite_anim_idx);
       k = -1;
     }
     set_thing_draw(thing, i, objdat->anim_speed, objdat->sprite_size_max, 0, k, objdat->field_11);
@@ -1516,7 +1516,7 @@ void set_call_to_arms_as_birthing(struct Thing *objtng)
     ctagfx = &call_to_arms_graphics[objtng->owner];
     struct Objects *objdat;
     objdat = get_objects_data_for_thing(objtng);
-    set_thing_draw(objtng, ctagfx->birth_spr_idx, 256, objdat->sprite_size_max, 0, frame, 2);
+    set_thing_draw(objtng, ctagfx->birth_anim_idx, 256, objdat->sprite_size_max, 0, frame, 2);
     objtng->byte_13 = CTAOL_Birthing;
     stop_thing_playing_sample(objtng, 83);
     thing_play_sample(objtng, 83, NORMAL_PITCH, 0, 3, 0, 6, FULL_LOUDNESS);
@@ -1547,7 +1547,7 @@ void set_call_to_arms_as_dying(struct Thing *objtng)
     ctagfx = &call_to_arms_graphics[objtng->owner];
     struct Objects *objdat;
     objdat = get_objects_data_for_thing(objtng);
-    set_thing_draw(objtng, ctagfx->field_8, 256, objdat->sprite_size_max, 0, frame, 2);
+    set_thing_draw(objtng, ctagfx->leave_anim_idx, 256, objdat->sprite_size_max, 0, frame, 2);
     objtng->byte_13 = CTAOL_Dying;
 }
 
@@ -1576,7 +1576,7 @@ void set_call_to_arms_as_rebirthing(struct Thing *objtng)
     ctagfx = &call_to_arms_graphics[objtng->owner];
     struct Objects *objdat;
     objdat = get_objects_data_for_thing(objtng);
-    set_thing_draw(objtng, ctagfx->field_8, 256, objdat->sprite_size_max, 0, frame, 2);
+    set_thing_draw(objtng, ctagfx->leave_anim_idx, 256, objdat->sprite_size_max, 0, frame, 2);
     objtng->byte_13 = CTAOL_Rebirthing;
 }
 
@@ -1603,7 +1603,7 @@ TngUpdateRet object_update_call_to_arms(struct Thing *thing)
         if (thing->field_49 - 1 <= thing->field_48)
         {
             thing->byte_13 = CTAOL_Alive;
-            set_thing_draw(thing, ctagfx->field_4, 256, objdat->sprite_size_max, 0, 0, 2);
+            set_thing_draw(thing, ctagfx->alive_anim_idx, 256, objdat->sprite_size_max, 0, 0, 2);
             return 1;
         }
         break;
@@ -1624,7 +1624,7 @@ TngUpdateRet object_update_call_to_arms(struct Thing *thing)
             pos.y.val = subtile_coord_center(dungeon->cta_stl_y);
             pos.z.val = get_thing_height_at(thing, &pos);
             move_thing_in_map(thing, &pos);
-            set_thing_draw(thing, ctagfx->birth_spr_idx, 256, objdat->sprite_size_max, 0, 0, 2);
+            set_thing_draw(thing, ctagfx->birth_anim_idx, 256, objdat->sprite_size_max, 0, 0, 2);
             thing->byte_13 = CTAOL_Birthing;
             stop_thing_playing_sample(thing, 83);
             thing_play_sample(thing, 83, NORMAL_PITCH, 0, 3, 0, 6, FULL_LOUDNESS);
@@ -1715,19 +1715,19 @@ TngUpdateRet object_update_object_scale(struct Thing *objtng)
     if (cssize+32 < spr_size)
     {
         objtng->word_15 = cssize+32;
-        i = convert_td_iso(objdat->field_5);
+        i = convert_td_iso(objdat->sprite_anim_idx);
     } else
     if (cssize-32 > spr_size)
     {
         objtng->word_15 = cssize-32;
-        i = convert_td_iso(objdat->field_5);
+        i = convert_td_iso(objdat->sprite_anim_idx);
     } else
     {
         objtng->word_15 = spr_size;
-        i = convert_td_iso(objdat->field_5);
+        i = convert_td_iso(objdat->sprite_anim_idx);
     }
     if ((i & 0x8000u) != 0) {
-        i = objdat->field_5;
+        i = objdat->sprite_anim_idx;
     }
     set_thing_draw(objtng, i, objdat->anim_speed, objtng->word_15, 0, start_frame, objdat->field_11);
     return 1;
@@ -2043,7 +2043,7 @@ long add_gold_to_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amou
     struct Objects *objdat;
     objdat = get_objects_data_for_thing(gldtng);
     unsigned short i, n;
-    i = objdat->field_5;
+    i = objdat->sprite_anim_idx;
     n = convert_td_iso(i);
     if ((n & 0x8000u) == 0) {
       i = n;
@@ -2100,7 +2100,7 @@ long remove_gold_from_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount
     struct Objects *objdat;
     objdat = get_objects_data_for_thing(gldtng);
     unsigned short i, n;
-    i = objdat->field_5;
+    i = objdat->sprite_anim_idx;
     n = convert_td_iso(i);
     if ((n & 0x8000u) == 0) {
       i = n;

@@ -1311,7 +1311,7 @@ TngUpdateRet update_shot(struct Thing *thing)
               target = thing_get(thing->shot.target_idx);
               if (thing_exists(target))
               {
-                  shotst = get_shot_model_stats(24);
+                  shotst = get_shot_model_stats(ShM_GodLightBall);
                   draw_lightning(&thing->mappos,&target->mappos, 96, 60);
                   apply_damage_to_thing_and_display_health(target, shotst->old->damage, shotst->damage_type, thing->owner);
               }
@@ -1363,7 +1363,7 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     thing->field_23 = shotst->old->field_11;
     thing->field_24 = shotst->old->field_12;
     thing->movement_flags ^= (thing->movement_flags ^ TMvF_Unknown08 * shotst->old->field_13) & TMvF_Unknown08;
-    set_thing_draw(thing, shotst->old->numfield_0, 256, shotst->old->numfield_2, 0, 0, 2);
+    set_thing_draw(thing, shotst->old->sprite_anim_idx, 256, shotst->old->sprite_size_max, 0, 0, 2);
     thing->field_4F ^= (thing->field_4F ^ 0x02 * shotst->old->field_6) & TF4F_Unknown02;
     thing->field_4F ^= thing->field_4F ^ ((thing->field_4F ^ TF4F_Unknown10 * shotst->old->field_8) & (TF4F_Unknown10|TF4F_Unknown20));
     thing->field_4F ^= (thing->field_4F ^ shotst->old->field_7) & TF4F_Unknown01;

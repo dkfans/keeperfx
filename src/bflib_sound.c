@@ -202,9 +202,9 @@ long S3DSetSoundReceiverPosition(int pos_x, int pos_y, int pos_z)
 
 long S3DSetSoundReceiverOrientation(int ori_a, int ori_b, int ori_c)
 {
-    Receiver.orient_a = ori_a & 0x7FF;
-    Receiver.orient_b = ori_b & 0x7FF;
-    Receiver.orient_c = ori_c & 0x7FF;
+    Receiver.orient_a = ori_a & LbFPMath_AngleMask;
+    Receiver.orient_b = ori_b & LbFPMath_AngleMask;
+    Receiver.orient_c = ori_c & LbFPMath_AngleMask;
     return 1;
 }
 

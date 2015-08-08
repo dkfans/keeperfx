@@ -393,13 +393,13 @@ long pinstfm_control_creature(struct PlayerInfo *player, long *n)
         mv_a = (thing->move_angle_xy - cam->orient_a) & LbFPMath_AngleMask;
         if (mv_a > LbFPMath_PI)
           mv_a -= 2*LbFPMath_PI;
-        if (mv_a < -170)
+        if (mv_a < -LbFPMath_PI/6)
         {
-            mv_a = -170;
+            mv_a = -LbFPMath_PI/6;
         } else
-        if (mv_a > 170)
+        if (mv_a > LbFPMath_PI/6)
         {
-            mv_a = 170;
+            mv_a = LbFPMath_PI/6;
         }
         cam->orient_a += mv_a;
         cam->orient_a &= LbFPMath_AngleMask;
@@ -680,7 +680,7 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, long *n)
         if (cam != NULL)
         {
           cam->zoom -= 988;
-          cam->orient_a += 16;
+          cam->orient_a += LbFPMath_PI/64;
           addval = (thing->clipbox_size_yz >> 1);
           deltax = distance_with_angle_to_coord_x((long)thing->mappos.z.val+addval, cam->orient_a);
           deltay = distance_with_angle_to_coord_y((long)thing->mappos.z.val+addval, cam->orient_a);
@@ -710,7 +710,7 @@ long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, long *n)
   if ((player->view_mode != PVM_FrontView) && (cam != NULL))
   {
     cam->zoom = 8192;
-    cam->orient_a = 256;
+    cam->orient_a = LbFPMath_PI/4;
   }
   light_turn_light_on(player->field_460);
   player->allocflags &= ~PlaF_Unknown10;
