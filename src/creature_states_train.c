@@ -526,8 +526,6 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
 short at_training_room(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
-    struct CreatureStats *crstat;
-    struct Dungeon *dungeon;
     struct Room *room;
     cctrl = creature_control_get_from_thing(thing);
     cctrl->target_room_id = 0;
@@ -537,9 +535,7 @@ short at_training_room(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    crstat = creature_stats_get_from_thing(thing);
-    dungeon = get_dungeon(thing->owner);
-    if (dungeon->total_money_owned < crstat->training_cost)
+    if (!player_can_afford_to_train_creature(thing))
     {
         if (is_my_player_number(thing->owner))
             output_message(SMsg_NoGoldToTrain, MESSAGE_DELAY_TREASURY, true);
@@ -547,18 +543,18 @@ short at_training_room(struct Thing *thing)
         return 0;
     }
     room = get_room_thing_is_on(thing);
-    if (!room_initially_valid_as_type_for_thing(room, RoK_TRAINING, thing))
+    if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_TRAIN), thing))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(thing));
         set_start_state(thing);
         return 0;
     }
-    if ( !add_creature_to_work_room(thing, room) )
+    if (!add_creature_to_work_room(thing, room, Job_TRAIN))
     {
         set_start_state(thing);
         return 0;
     }
-    internal_set_thing_state(thing, CrSt_Training);
+    internal_set_thing_state(thing, get_continue_state_for_job(Job_TRAIN));
     setup_move_to_new_training_position(thing, room, 1);
     cctrl->field_82 = 0;
     return 1;

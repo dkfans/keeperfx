@@ -1969,6 +1969,28 @@ unsigned long get_flags_for_job(CreatureJob jobpref)
     return jobcfg->job_flags;
 }
 
+int get_required_room_capacity_for_job(CreatureJob jobpref, ThingModel crmodel)
+{
+    struct CreatureJobConfig *jobcfg;
+    jobcfg = get_config_for_job(jobpref);
+    if ((jobcfg->job_flags & JoKF_NeedsCapacity) == 0) {
+        return 0;
+    }
+    struct CreatureStats *crstat;
+    switch (jobcfg->room_kind)
+    {
+    case RoK_NONE:
+        WARNLOG("Job needs capacity but has no related room.");
+        return 0;
+    case RoK_LAIR:
+        crstat = creature_stats_get(crmodel);
+        return crstat->lair_size;
+    default:
+        return 1;
+    }
+    return 0;
+}
+
 CrtrStateId get_arrive_at_state_for_job(CreatureJob jobpref)
 {
     struct CreatureJobConfig *jobcfg;
@@ -1981,6 +2003,48 @@ CrtrStateId get_continue_state_for_job(CreatureJob jobpref)
     struct CreatureJobConfig *jobcfg;
     jobcfg = get_config_for_job(jobpref);
     return jobcfg->continue_crstate;
+}
+
+CreatureJob get_job_for_creature_state(CrtrStateId crstat_id)
+{
+    long i;
+    if (crstat_id == CrSt_Unused) {
+        return Job_NULL;
+    }
+    for (i=0; i < crtr_conf.jobs_count; i++)
+    {
+        struct CreatureJobConfig *jobcfg;
+        jobcfg = &crtr_conf.jobs[i];
+        //TODO CREATURE_JOBS Add other job-related states here
+        if ((jobcfg->initial_crstate == crstat_id)
+         || (jobcfg->continue_crstate == crstat_id)) {
+            return 1<<(i-1);
+        }
+    }
+    // Some additional hacks
+    switch (crstat_id)
+    {
+    case CrSt_CreatureEat:
+    case CrSt_CreatureEatingAtGarden:
+    case CrSt_CreatureToGarden:
+    case CrSt_CreatureArrivedAtGarden:
+        return Job_TAKE_FEED;
+    case CrSt_CreatureWantsSalary:
+    case CrSt_CreatureTakeSalary:
+        return Job_TAKE_SALARY;
+    case CrSt_CreatureSleep:
+    case CrSt_CreatureGoingHomeToSleep:
+    case CrSt_AtLairToSleep:
+    case CrSt_CreatureChooseRoomForLairSite:
+    case CrSt_CreatureAtNewLair:
+    case CrSt_CreatureWantsAHome:
+    case CrSt_CreatureChangeLair:
+    case CrSt_CreatureAtChangedLair:
+        return Job_TAKE_SLEEP;
+    default:
+        break;
+    }
+    return Job_NULL;
 }
 
 /**

@@ -1503,9 +1503,9 @@ void count_lair_occupants_on_slab(struct Room *room,MapSlabCoord slb_x, MapSlabC
         if (!thing_is_invalid(lairtng))
         {
             creatng = thing_get(lairtng->word_13);
-            struct CreatureStats *crstat;
-            crstat = creature_stats_get_from_thing(creatng);
-            if (room->used_capacity + crstat->lair_size > room->total_capacity)
+            int required_cap;
+            required_cap = get_required_room_capacity_for_job(Job_TAKE_SLEEP, creatng->model);
+            if (room->used_capacity + required_cap > room->total_capacity)
             {
                 create_effect(&lairtng->mappos, imp_spangle_effects[lairtng->owner], lairtng->owner);
                 delete_lair_totem(lairtng);
@@ -1515,7 +1515,7 @@ void count_lair_occupants_on_slab(struct Room *room,MapSlabCoord slb_x, MapSlabC
                 cctrl = creature_control_get_from_thing(creatng);
                 cctrl->lair_room_id = room->index;
                 room->content_per_model[creatng->model]++;
-                room->used_capacity += crstat->lair_size;
+                room->used_capacity += required_cap;
             }
         }
     }
@@ -1625,8 +1625,10 @@ void change_work_room_of_creatures_working_in_room(struct Room *wrkroom, struct 
             break;
         }
         // Per creature code
-        remove_creature_from_specific_room(thing, wrkroom);
-        add_creature_to_work_room(thing, newroom);
+        CreatureJob jobpref;
+        jobpref = get_job_for_creature_state(get_creature_state_besides_interruptions(thing));
+        remove_creature_from_specific_room(thing, wrkroom, jobpref);
+        add_creature_to_work_room(thing, newroom, jobpref);
         // Per creature code ends
         k++;
         if (k > THINGS_COUNT)
@@ -2622,19 +2624,15 @@ TbBool clear_dig_on_room_slabs(struct Room *room, PlayerNumber plyr_idx)
     return true;
 }
 
-TbBool room_has_enough_free_capacity_for_creature(const struct Room *room, const struct Thing *creatng)
+TbBool room_has_enough_free_capacity_for_creature_job(const struct Room *room, const struct Thing *creatng, CreatureJob jobpref)
 {
-    if (room->kind == RoK_LAIR)
-    {
-        struct CreatureStats *crstat;
-        crstat = creature_stats_get_from_thing(creatng);
-        if (room->used_capacity + crstat->lair_size <= room->total_capacity)
-            return true;
-    } else
-    {
-        if (room->used_capacity + 1 <= room->total_capacity)
-            return true;
+    if (room->kind != get_room_for_job(jobpref)) {
+        return false;
     }
+    int required_cap;
+    required_cap = get_required_room_capacity_for_job(jobpref, creatng->model);
+    if (room->used_capacity + required_cap <= room->total_capacity)
+        return true;
     return false;
 }
 
@@ -4089,8 +4087,10 @@ void reset_creatures_rooms(struct Room *room)
                 set_start_state(thing);
             } else
             {
-                remove_creature_from_specific_room(thing, room);
-                add_creature_to_work_room(thing, nroom);
+                CreatureJob jobpref;
+                jobpref = get_job_for_creature_state(get_creature_state_besides_interruptions(thing));
+                remove_creature_from_specific_room(thing, room, jobpref);
+                add_creature_to_work_room(thing, nroom, jobpref);
             }
         }
         // Per-thing code ends

@@ -93,13 +93,13 @@ short creature_arrived_at_prison(struct Thing *creatng)
     cctrl = creature_control_get_from_thing(creatng);
     cctrl->target_room_id = 0;
     room = get_room_thing_is_on(creatng);
-    if (!room_initially_valid_as_type_for_thing(room, RoK_PRISON, creatng))
+    if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_CAPTIVITY), creatng))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s index %d",room_code_name(room->kind),(int)room->owner,thing_model_name(creatng),(int)creatng->index);
         set_start_state(creatng);
         return 0;
     }
-    if (!add_creature_to_work_room(creatng, room))
+    if (!add_creature_to_work_room(creatng, room, Job_CAPTIVITY))
     {
         output_message_room_related_from_computer_or_player_action(room->owner, room->kind, OMsg_RoomTooSmall);
         cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
@@ -110,7 +110,7 @@ short creature_arrived_at_prison(struct Thing *creatng)
     cctrl->imprison.start_gameturn = game.play_gameturn;
     cctrl->imprison.last_mood_sound_turn = game.play_gameturn;
     cctrl->flgfield_1 |= CCFlg_NoCompControl;
-    internal_set_thing_state(creatng, CrSt_CreatureInPrison);
+    internal_set_thing_state(creatng, get_continue_state_for_job(Job_CAPTIVITY));
     if (creature_affected_by_spell(creatng, SplK_Speed)) {
         terminate_thing_spell_effect(creatng, SplK_Speed);
     }

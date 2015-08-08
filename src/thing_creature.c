@@ -3263,7 +3263,7 @@ TbBool creature_has_lair_room(const struct Thing *creatng)
 {
     struct Room *room;
     room = get_creature_lair_room(creatng);
-    if (!room_is_invalid(room) && (room->kind == RoK_LAIR)) {
+    if (!room_is_invalid(room) && (room->kind == get_room_for_job(Job_TAKE_SLEEP))) {
         return true;
     }
     return false;

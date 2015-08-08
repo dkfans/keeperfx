@@ -1766,17 +1766,17 @@ long guard_post_combat_move(struct Thing *thing, long cntn_crstate)
     cctrl = creature_control_get_from_thing(thing);
     struct Room *room;
     room = get_room_thing_is_on(thing);
-    if (!room_is_invalid(room) && (room->kind == RoK_GUARDPOST) && (cctrl->last_work_room_id == room->index)) {
+    if (!room_is_invalid(room) && (room->kind == get_room_for_job(Job_GUARD)) && (cctrl->last_work_room_id == room->index)) {
         return 0;
     }
     if (cctrl->last_work_room_id <= 0)
     {
-        ERRORLOG("Cannot get to %s",room_code_name(RoK_GUARDPOST));
+        ERRORLOG("Cannot get to %s",room_code_name(get_room_for_job(Job_GUARD)));
         cctrl->job_assigned = 0;
         return 0;
     }
     room = room_get(cctrl->last_work_room_id);
-    if (!room_still_valid_as_type_for_thing(room, RoK_GUARDPOST, thing))
+    if (!room_still_valid_as_type_for_thing(room, get_room_for_job(Job_GUARD), thing))
     {
         cctrl->job_assigned = 0;
         return 0;

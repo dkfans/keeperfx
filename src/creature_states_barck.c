@@ -44,18 +44,18 @@ short at_barrack_room(struct Thing *creatng)
     cctrl = creature_control_get_from_thing(creatng);
     cctrl->target_room_id = 0;
     room = get_room_thing_is_on(creatng);
-    if (!room_initially_valid_as_type_for_thing(room, RoK_BARRACKS, creatng))
+    if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_BARRACK), creatng))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s index %d",room_code_name(room->kind),(int)room->owner,thing_model_name(creatng),(int)creatng->index);
         set_start_state(creatng);
         return 0;
     }
-    if (!add_creature_to_work_room(creatng, room))
+    if (!add_creature_to_work_room(creatng, room, Job_BARRACK))
     {
         set_start_state(creatng);
         return 0;
     }
-    internal_set_thing_state(creatng, CrSt_Barracking);
+    internal_set_thing_state(creatng, get_continue_state_for_job(Job_BARRACK));
     return 1;
 }
 
@@ -63,7 +63,7 @@ short barracking(struct Thing *creatng)
 {
     struct Room *room;
     room = get_room_thing_is_on(creatng);
-    if (!room_still_valid_as_type_for_thing(room, RoK_BARRACKS, creatng))
+    if (!room_still_valid_as_type_for_thing(room, get_room_for_job(Job_BARRACK), creatng))
     {
         WARNLOG("Room %s owned by player %d is bad work place for %s index %d owner %d",room_code_name(room->kind),(int)room->owner,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         remove_creature_from_work_room(creatng);

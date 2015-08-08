@@ -54,13 +54,13 @@ short at_kinky_torture_room(struct Thing *thing)
     cctrl = creature_control_get_from_thing(thing);
     cctrl->target_room_id = 0;
     room = get_room_thing_is_on(thing);
-    if (!room_initially_valid_as_type_for_thing(room, RoK_TORTURE, thing))
+    if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_KINKY_TORTURE), thing))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(thing));
         set_start_state(thing);
         return 0;
     }
-    if ( !add_creature_to_work_room(thing, room) )
+    if (!add_creature_to_work_room(thing, room, Job_KINKY_TORTURE))
     {
         set_start_state(thing);
         return 0;
@@ -72,7 +72,7 @@ short at_kinky_torture_room(struct Thing *thing)
     cctrl->tortured.long_9Ex = game.play_gameturn;
     cctrl->tortured.vis_state = CTVS_TortureGoToDevice;
     cctrl->tortured.long_A2x = game.play_gameturn;
-    internal_set_thing_state(thing, CrSt_KinkyTorturing);
+    internal_set_thing_state(thing, get_continue_state_for_job(Job_KINKY_TORTURE));
     return 1;
 }
 
@@ -88,13 +88,13 @@ short at_torture_room(struct Thing *thing)
     cctrl = creature_control_get_from_thing(thing);
     cctrl->target_room_id = 0;
     room = get_room_thing_is_on(thing);
-    if (!room_initially_valid_as_type_for_thing(room, RoK_TORTURE, thing))
+    if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_PAINFUL_TORTURE), thing))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(thing));
         set_start_state(thing);
         return 0;
     }
-    if (!add_creature_to_work_room(thing, room))
+    if (!add_creature_to_work_room(thing, room, Job_PAINFUL_TORTURE))
     {
         output_message_room_related_from_computer_or_player_action(room->owner, room->kind, OMsg_RoomTooSmall);
         set_start_state(thing);
@@ -108,7 +108,7 @@ short at_torture_room(struct Thing *thing)
     cctrl->tortured.long_9Ex = game.play_gameturn;
     cctrl->tortured.vis_state = CTVS_TortureGoToDevice;
     cctrl->tortured.long_A2x = game.play_gameturn;
-    internal_set_thing_state(thing, CrSt_Torturing);
+    internal_set_thing_state(thing, get_continue_state_for_job(Job_PAINFUL_TORTURE));
     return 1;
 }
 

@@ -762,7 +762,7 @@ CreatureJob get_job_to_place_creature_in_room(const struct Computer2 *comp, cons
     return chosen_job;
 }
 
-struct Thing *find_creature_to_be_placed_in_room(struct Computer2 *comp, struct Room **roomp)
+CreatureJob find_creature_to_be_placed_in_room_for_job(struct Computer2 *comp, struct Room **roomp, struct Thing ** creatngp)
 {
     Thing_Maximizer_Filter filter;
     struct CompoundTngFilterParam param;
@@ -772,7 +772,7 @@ struct Thing *find_creature_to_be_placed_in_room(struct Computer2 *comp, struct 
     dungeon = comp->dungeon;
     if (dungeon_invalid(dungeon)) {
         ERRORLOG("Invalid dungeon in computer player");
-        return INVALID_THING;
+        return Job_NULL;
     }
     SYNCDBG(9,"Starting for player %d",(int)dungeon->owner);
     param.ptr1 = (void *)comp;
@@ -780,7 +780,7 @@ struct Thing *find_creature_to_be_placed_in_room(struct Computer2 *comp, struct 
     filter = player_list_creature_filter_needs_to_be_placed_in_room_for_job;
     thing = get_player_list_random_creature_with_filter(dungeon->creatr_list_start, filter, &param);
     if (thing_is_invalid(thing)) {
-        return INVALID_THING;
+        return Job_NULL;
     }
     SYNCDBG(9,"Player %d wants to move %s index %d for job %s",(int)dungeon->owner,thing_model_name(thing),(int)thing->owner,creature_job_code_name(param.num2));
     // We won't allow the creature to be picked if we want it to be placed in the same room it is now.
@@ -794,13 +794,14 @@ struct Thing *find_creature_to_be_placed_in_room(struct Computer2 *comp, struct 
             WARNDBG(4,"The %s owned by player %d already is in %s, but goes for %s instead of work there",
                 thing_model_name(thing),(int)thing->owner,room_code_name(room->kind),creatrtng_realstate_name(thing));
         }
-        return INVALID_THING;
+        return Job_NULL;
     }
     room = get_room_of_given_kind_for_thing(thing,dungeon, get_room_for_job(param.num2), 1);
     if (room_is_invalid(room))
-        return INVALID_THING;
+        return Job_NULL;
     *roomp = room;
-    return thing;
+    *creatngp = thing;
+    return param.num2;
 }
 
 void setup_computer_dig_room(struct ComputerDig *cdig, const struct Coord3d *pos, long a3)
@@ -2333,6 +2334,7 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
     thing = thing_get(comp->held_thing_idx);
     if (!thing_is_invalid(thing))
     {
+        // 2nd phase - we have specific creature and specific room index, and creature is picked up already
         SYNCDBG(9,"Starting player %d drop",(int)dungeon->owner);
         room = room_get(ctask->move_to_room.room_idx2);
         if (thing_is_creature(thing) && room_exists(room))
@@ -2356,6 +2358,7 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
         remove_task(comp, ctask);
         return CTaskRet_Unk0;
     }
+    // 1st phase - we need to find a room and a creature for pickup, and take it to hand
     SYNCDBG(9,"Starting player %d pickup",(int)dungeon->owner);
     i = ctask->move_to_room.repeat_num;
     ctask->move_to_room.repeat_num--;
@@ -2364,19 +2367,15 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
         remove_task(comp, ctask);
         return CTaskRet_Unk1;
     }
-    //TODO COMPUTER_PLAYER make this job-based, return job instead of room
-    thing = find_creature_to_be_placed_in_room(comp, &room);
-    if (!thing_is_invalid(thing))
+    CreatureJob jobpref;
+    jobpref = find_creature_to_be_placed_in_room_for_job(comp, &room, &thing);
+    if (jobpref != Job_NULL)
     {
         //TODO CREATURE_AI try to make sure the creature will do proper activity in the room
         //     ie. select a room tile which is far from CTA and enemies
         //TODO CREATURE_AI don't place creatures at center of a temple/portal if we don't want to get rid of them
         //TODO CREATURE_AI make sure to place creatures at "active" portal tile if we do want them to leave
         ctask->move_to_room.room_idx2 = room->index;
-        struct CreatureStats *crstat;
-        crstat = creature_stats_get_from_thing(thing);
-        CreatureJob jobpref;
-        jobpref = get_job_for_room(room->kind, JoKF_AssignComputerDrop|JoKF_AssignAreaWithinRoom, crstat->job_primary|crstat->job_secondary);
         if (get_drop_position_for_creature_job_in_room(&pos, room, jobpref))
         {
             if (computer_place_thing_in_power_hand(comp, thing, &pos)) {

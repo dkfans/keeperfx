@@ -1681,7 +1681,7 @@ TbBool creature_try_going_to_lazy_sleep(struct Thing *creatng)
     if (room_is_invalid(room)) {
         return false;
     }
-    if ((room->kind != RoK_LAIR) || (room->owner != creatng->owner)) {
+    if ((room->kind != get_room_for_job(Job_TAKE_SLEEP)) || (room->owner != creatng->owner)) {
         ERRORLOG("The %s index %d has lair in invalid room",thing_model_name(creatng),(int)creatng->index);
         return false;
     }
@@ -1734,15 +1734,15 @@ short creature_doing_nothing(struct Thing *creatng)
         internal_set_thing_state(creatng, CrSt_MadKillingPsycho);
         return 1;
     }
-    struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(creatng);
     if (!creature_has_lair_room(creatng) && creature_can_do_healing_sleep(creatng) && creature_free_for_sleep(creatng, CrSt_CreatureWantsAHome))
     {
         if ((game.play_gameturn - cctrl->tasks_check_turn > 128))
         {
+            int required_cap;
+            required_cap = get_required_room_capacity_for_job(Job_TAKE_SLEEP, creatng->model);
             cctrl->tasks_check_turn = game.play_gameturn;
             struct Room *room;
-            room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_LAIR, NavRtF_Default, crstat->lair_size);
+            room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_LAIR, NavRtF_Default, required_cap);
             if (!room_is_invalid(room))
             {
                 internal_set_thing_state(creatng, CrSt_CreatureWantsAHome);
@@ -1775,6 +1775,8 @@ short creature_doing_nothing(struct Thing *creatng)
         }
         cctrl->job_assigned_check_turn = game.play_gameturn;
     }
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(creatng);
     if ((crstat->job_primary != Job_NULL) && (game.play_gameturn - cctrl->job_primary_check_turn > 128))
     {
         if (attempt_job_preference(creatng, crstat->job_primary)) {

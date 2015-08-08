@@ -71,7 +71,7 @@ short at_scavenger_room(struct Thing *thing)
     struct Dungeon *dungeon;
     struct Room *room;
     room = get_room_thing_is_on(thing);
-    if (!room_initially_valid_as_type_for_thing(room, RoK_SCAVENGER, thing))
+    if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_SCAVENGE), thing))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s index %d",room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->index);
         set_start_state(thing);
@@ -87,12 +87,12 @@ short at_scavenger_room(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    if (!add_creature_to_work_room(thing, room))
+    if (!add_creature_to_work_room(thing, room, Job_SCAVENGE))
     {
         set_start_state(thing);
         return 0;
     }
-    internal_set_thing_state(thing, CrSt_Scavengering);
+    internal_set_thing_state(thing, get_continue_state_for_job(Job_SCAVENGE));
     cctrl->field_82 = 0;
     return 1;
 }

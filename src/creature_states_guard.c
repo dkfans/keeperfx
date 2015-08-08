@@ -44,18 +44,18 @@ short at_guard_post_room(struct Thing *thing)
     cctrl = creature_control_get_from_thing(thing);
     cctrl->target_room_id = 0;
     room = get_room_thing_is_on(thing);
-    if (!room_initially_valid_as_type_for_thing(room, RoK_GUARDPOST, thing))
+    if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_GUARD), thing))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s index %d",room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->index);
         set_start_state(thing);
         return 0;
     }
-    if ( !add_creature_to_work_room(thing, room) )
+    if (!add_creature_to_work_room(thing, room, Job_GUARD))
     {
         set_start_state(thing);
         return 0;
     }
-    internal_set_thing_state(thing, CrSt_Guarding);
+    internal_set_thing_state(thing, get_continue_state_for_job(Job_GUARD));
     if (!person_get_somewhere_adjacent_in_room(thing, room, &cctrl->moveto_pos))
     {
         cctrl->moveto_pos.x.val = thing->mappos.x.val;

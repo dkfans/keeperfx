@@ -185,18 +185,16 @@ long process_lair_enemy(struct Thing *thing, struct Room *room)
 long creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
 {
     struct Thing *lairtng;
-    if (!room_has_enough_free_capacity_for_creature(room, creatng))
+    if (!room_has_enough_free_capacity_for_creature_job(room, creatng, Job_TAKE_SLEEP))
         return 0;
     // Make sure we don't already have a lair on that position
     lairtng = find_creature_lair_totem_at_subtile(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, 0);
     if (!thing_is_invalid(lairtng))
         return 0;
-    struct CreatureStats *crstat;
     struct CreatureControl *cctrl;
-    crstat = creature_stats_get_from_thing(creatng);
     cctrl = creature_control_get_from_thing(creatng);
     room->content_per_model[creatng->model]++;
-    room->used_capacity += crstat->lair_size;
+    room->used_capacity += get_required_room_capacity_for_job(Job_TAKE_SLEEP, creatng->model);
     if ((cctrl->lair_room_id > 0) && (cctrl->lairtng_idx > 0))
     {
         struct Room *room;
@@ -250,7 +248,7 @@ CrStateRet creature_at_changed_lair(struct Thing *creatng)
         return CrStRet_ResetFail;
     }
     room = get_room_thing_is_on(creatng);
-    if (!room_initially_valid_as_type_for_thing(room, RoK_LAIR, creatng))
+    if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_TAKE_SLEEP), creatng))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s index %d",room_code_name(room->kind),(int)room->owner,thing_model_name(creatng),(int)creatng->index);
         set_start_state(creatng);
@@ -270,7 +268,7 @@ CrStateRet creature_at_new_lair(struct Thing *creatng)
     struct Room *room;
     TRACE_THING(creatng);
     room = get_room_thing_is_on(creatng);
-    if ( !room_still_valid_as_type_for_thing(room, RoK_LAIR, creatng) )
+    if ( !room_still_valid_as_type_for_thing(room, get_room_for_job(Job_TAKE_SLEEP), creatng) )
     {
         WARNLOG("Room %s owned by player %d is bad work place for %s index %d owner %d",room_code_name(room->kind),(int)room->owner,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         set_start_state(creatng);
@@ -347,12 +345,12 @@ short creature_change_lair(struct Thing *thing)
     cctrl = creature_control_get_from_thing(thing);
     cctrl->target_room_id = 0;
     room = get_room_thing_is_on(thing);
-    if (!room_initially_valid_as_type_for_thing(room, RoK_LAIR, thing))
+    if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_TAKE_SLEEP), thing))
     {
         set_start_state(thing);
         return 0;
     }
-    if (!room_has_enough_free_capacity_for_creature(room, thing))
+    if (!room_has_enough_free_capacity_for_creature_job(room, thing, Job_TAKE_SLEEP))
     {
         set_start_state(thing);
         return 0;
@@ -377,7 +375,7 @@ short creature_choose_room_for_lair_site(struct Thing *thing)
     room = get_best_new_lair_for_creature(thing);
     if (room_is_invalid(room))
     {
-        update_cannot_find_room_wth_spare_capacity_event(thing->owner, thing, RoK_LAIR);
+        update_cannot_find_room_wth_spare_capacity_event(thing->owner, thing, get_room_for_job(Job_TAKE_SLEEP));
         set_start_state(thing);
         return 0;
     }
@@ -412,7 +410,7 @@ short at_lair_to_sleep(struct Thing *thing)
         return 0;
     }
     room = get_room_thing_is_on(thing);
-    if (!room_initially_valid_as_type_for_thing(room, RoK_LAIR, thing))
+    if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_TAKE_SLEEP), thing))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s index %d owner %d",room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->index,(int)thing->owner);
         set_start_state(thing);
@@ -496,7 +494,7 @@ short creature_sleep(struct Thing *thing)
     }
     struct Room *room;
     room = get_room_thing_is_on(thing);
-    if (room_is_invalid(room) || (room->kind != RoK_LAIR)
+    if (room_is_invalid(room) || (room->kind != get_room_for_job(Job_TAKE_SLEEP))
         || (cctrl->lair_room_id != room->index) || (room->owner != thing->owner)) {
         set_start_state(thing);
         return 0;

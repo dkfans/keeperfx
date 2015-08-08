@@ -902,23 +902,23 @@ TbBool creature_remove_lair_totem_from_room(struct Thing *creatng, struct Room *
         ERRORLOG("Attempt to remove a lair which belongs to %s index %d from room index %d he didn't think he was in",thing_model_name(creatng),(int)creatng->index,(int)room->index);
         return false;
     }
-    struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(creatng);
     TbBool result;
     result = true;
+    int required_cap;
+    required_cap = get_required_room_capacity_for_job(Job_TAKE_SLEEP, creatng->model);
     // Remove lair from room capacity
     if (room->content_per_model[creatng->model] <= 0)
     {
         ERRORLOG("Attempt to remove a lair which belongs to %s index %d from room index %d not containing this creature model",thing_model_name(creatng),(int)creatng->index,(int)room->index);
         result = false;
     } else
-    if ( room->used_capacity < crstat->lair_size)
+    if ( room->used_capacity < required_cap)
     {
         ERRORLOG("Attempt to remove creature lair from room with too little used space");
         result = false;
     } else
     {
-        room->used_capacity -= crstat->lair_size;
+        room->used_capacity -= required_cap;
         room->content_per_model[creatng->model]--;
     }
     cctrl->lair_room_id = 0;

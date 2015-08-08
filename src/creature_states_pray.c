@@ -99,21 +99,21 @@ short at_temple(struct Thing *thing)
     cctrl = creature_control_get_from_thing(thing);
     cctrl->target_room_id = 0;
     room = get_room_thing_is_on(thing);
-    if (!room_initially_valid_as_type_for_thing(room, RoK_TEMPLE, thing))
+    if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_TEMPLE_PRAY), thing))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s index %d",room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->index);
         set_start_state(thing);
         return 0;
     }
     dungeon = get_dungeon(thing->owner);
-    if (!add_creature_to_work_room(thing, room))
+    if (!add_creature_to_work_room(thing, room, Job_TEMPLE_PRAY))
     {
         output_message_room_related_from_computer_or_player_action(room->owner, room->kind, OMsg_RoomTooSmall);
         remove_creature_from_work_room(thing);
         set_start_state(thing);
         return 0;
     }
-    internal_set_thing_state(thing, CrSt_PrayingInTemple);
+    internal_set_thing_state(thing, get_continue_state_for_job(Job_TEMPLE_PRAY));
     dungeon->creatures_praying[thing->model]++;
     cctrl->field_82 = 0;
     return 1;
@@ -159,7 +159,7 @@ CrCheckRet process_temple_function(struct Thing *thing)
 {
     struct Room *room;
     room = get_room_thing_is_on(thing);
-    if (!room_still_valid_as_type_for_thing(room, RoK_TEMPLE, thing))
+    if (!room_still_valid_as_type_for_thing(room, get_room_for_job(Job_TEMPLE_PRAY), thing))
     {
         remove_creature_from_work_room(thing);
         set_start_state(thing);

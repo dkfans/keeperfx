@@ -148,28 +148,30 @@ TbBool remove_creature_from_torture_room(struct Thing *creatng)
     return true;
 }
 
-TbBool add_creature_to_work_room(struct Thing *crtng, struct Room *room)
+TbBool add_creature_to_work_room(struct Thing *creatng, struct Room *room, CreatureJob jobpref)
 {
     struct CreatureControl *cctrl;
     struct Thing *nxtng;
     struct CreatureControl *nxctrl;
-    cctrl = creature_control_get_from_thing(crtng);
+    cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->work_room_id != 0)
     {
         const struct Room *wrkroom;
         wrkroom = room_get(cctrl->work_room_id);
         WARNLOG("Attempt to add creature to %s index %d when he is a member of %s index %d",
             room_code_name(room->kind), (int)room->index, room_code_name(wrkroom->kind), (int)wrkroom->index);
-        remove_creature_from_work_room(crtng);
+        remove_creature_from_work_room(creatng);
     }
     if ((cctrl->flgfield_1 & 0x20) != 0)
     {
         ERRORLOG("Attempt to add creature to a room when he is in the list of another");
         return false;
     }
-    if (room->total_capacity < room->used_capacity + 1)
+    int required_cap;
+    required_cap = get_required_room_capacity_for_job(jobpref, creatng->model);
+    if (room->used_capacity + required_cap > room->total_capacity)
         return false;
-    room->used_capacity++;
+    room->used_capacity += required_cap;
     cctrl->work_room_id = room->index;
     cctrl->prev_in_room = 0;
     if (room->creatures_list != 0)
@@ -183,17 +185,17 @@ TbBool add_creature_to_work_room(struct Thing *crtng, struct Room *room)
     if (!creature_control_invalid(nxctrl))
     {
         cctrl->next_in_room = room->creatures_list;
-        nxctrl->prev_in_room = crtng->index;
+        nxctrl->prev_in_room = creatng->index;
     } else
     {
         cctrl->next_in_room = 0;
     }
-    room->creatures_list = crtng->index;
+    room->creatures_list = creatng->index;
     cctrl->flgfield_1 |= 0x20;
     return true;
 }
 
-TbBool remove_creature_from_specific_room(struct Thing *creatng, struct Room *room)
+TbBool remove_creature_from_specific_room(struct Thing *creatng, struct Room *room, CreatureJob jobpref)
 {
     struct CreatureControl *cctrl;
     struct Thing *sectng;
@@ -204,8 +206,10 @@ TbBool remove_creature_from_specific_room(struct Thing *creatng, struct Room *ro
         ERRORLOG("Attempt to remove a creature from room, but it isn't in any");
         return false;
     }
-    if (room->used_capacity > 0) {
-        room->used_capacity--;
+    int required_cap;
+    required_cap = get_required_room_capacity_for_job(jobpref, creatng->model);
+    if (room->used_capacity >= required_cap) {
+        room->used_capacity -= required_cap;
     } else {
         WARNLOG("Attempt to remove a creature from room %s with too little used space", room_code_name(room->kind));
     }
@@ -251,7 +255,9 @@ TbBool remove_creature_from_work_room(struct Thing *creatng)
         erstat_inc(ESE_BadCreatrState);
         return false;
     }
-    return remove_creature_from_specific_room(creatng, room);
+    CreatureJob jobpref;
+    jobpref = get_job_for_creature_state(get_creature_state_besides_interruptions(creatng));
+    return remove_creature_from_specific_room(creatng, room, jobpref);
 }
 
 /**

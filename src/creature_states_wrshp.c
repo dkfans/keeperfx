@@ -214,31 +214,26 @@ TbBool setup_move_to_new_workshop_position(struct Thing *thing, struct Room *roo
     return setup_workshop_move(thing,stl_num);
 }
 
-short at_workshop_room(struct Thing *thing)
+short at_workshop_room(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
     struct Room *room;
-    cctrl = creature_control_get_from_thing(thing);
+    cctrl = creature_control_get_from_thing(creatng);
     cctrl->target_room_id = 0;
-    room = get_room_thing_is_on(thing);
-    if (!room_initially_valid_as_type_for_thing(room, RoK_WORKSHOP, thing))
+    room = get_room_thing_is_on(creatng);
+    if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_MANUFACTURE), creatng))
     {
-        WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(thing));
-        set_start_state(thing);
+        WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(creatng));
+        set_start_state(creatng);
         return 0;
     }
-    if (room->used_capacity >= room->total_capacity)
+    if (!add_creature_to_work_room(creatng, room, Job_MANUFACTURE))
     {
-        set_start_state(thing);
+        set_start_state(creatng);
         return 0;
     }
-    if (!add_creature_to_work_room(thing, room))
-    {
-        set_start_state(thing);
-        return 0;
-    }
-    internal_set_thing_state(thing, CrSt_Manufacturing);
-    setup_move_to_new_workshop_position(thing, room, 1);
+    internal_set_thing_state(creatng, get_continue_state_for_job(Job_MANUFACTURE));
+    setup_move_to_new_workshop_position(creatng, room, 1);
     return 1;
 }
 

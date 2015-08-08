@@ -292,7 +292,7 @@ TbBool attempt_anger_job_leave_dungeon(struct Thing *creatng)
         return false;
     }
     struct Room *room;
-    room = find_nearest_room_for_thing(creatng, creatng->owner, RoK_ENTRANCE, NavRtF_Default);
+    room = find_nearest_room_for_thing(creatng, creatng->owner, get_room_for_job(Job_EXEMPT), NavRtF_Default);
     if (room_is_invalid(room)) {
         return false;
     }
@@ -923,7 +923,7 @@ TbBool creature_can_do_job_near_position(struct Thing *creatng, MapSubtlCoord st
     {
         struct Room *room;
         room = subtile_room_get(stl_x, stl_y);
-        if (!room_has_enough_free_capacity_for_creature(room, creatng))
+        if (!room_has_enough_free_capacity_for_creature_job(room, creatng, new_job))
         {
             SYNCDBG(3,"Cannot assign %s at (%d,%d) for %s index %d owner %d; not enough room capacity",creature_job_code_name(new_job),(int)stl_x,(int)stl_y,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
             if ((flags & JobChk_PlayMsgOnFail) != 0) {

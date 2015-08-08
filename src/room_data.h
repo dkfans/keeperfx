@@ -246,7 +246,7 @@ void reset_creatures_rooms(struct Room *room);
 
 TbBool remove_item_from_room_capacity(struct Room *room);
 TbBool add_item_to_room_capacity(struct Room *room, TbBool force);
-TbBool room_has_enough_free_capacity_for_creature(const struct Room *room, const struct Thing *creatng);
+TbBool room_has_enough_free_capacity_for_creature_job(const struct Room *room, const struct Thing *creatng, CreatureJob jobpref);
 
 long count_slabs_of_room_type(PlayerNumber plyr_idx, RoomKind rkind);
 long claim_enemy_room(struct Room *room,struct Thing *claimtng);
