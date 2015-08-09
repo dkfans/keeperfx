@@ -159,8 +159,6 @@ GoldAmount gold_object_typical_value(ThingModel tngmodel);
 void set_call_to_arms_as_birthing(struct Thing *objtng);
 void set_call_to_arms_as_dying(struct Thing *objtng);
 void set_call_to_arms_as_rebirthing(struct Thing *objtng);
-
-void create_rubble_for_dug_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSubtlCoord stl_z_max, PlayerNumber plyr_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

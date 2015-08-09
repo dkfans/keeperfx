@@ -85,7 +85,7 @@ enum ThingEffectKind {
     TngEff_Unknown30,
     TngEff_Unknown31,
     TngEff_Unknown32,
-    TngEff_Unknown33,
+    TngEff_GoldRubble,
     TngEff_Unknown34,
     TngEff_Unknown35,
     TngEff_Unknown36,

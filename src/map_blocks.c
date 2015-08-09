@@ -42,7 +42,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_create_gold_rubble_for_dug_block(long x, long y, unsigned char stl_height, unsigned char col_idx);
 DLLIMPORT void _DK_set_slab_explored_flags(unsigned char flag, long tgslb_x, long tgslb_y);
 DLLIMPORT long _DK_ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey);
 DLLIMPORT long _DK_element_top_face_texture(struct Map *map);
@@ -159,23 +158,38 @@ int block_count_diggable_sides(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSla
     return num_sides;
 }
 
+/**
+ * Creates gold rubble effects when a gold block is destroyed.
+ * @param stl_x
+ * @param stl_y
+ * @param stl_height
+ * @param owner
+ * @see create_dirt_rubble_for_dug_block()
+ */
 void create_gold_rubble_for_dug_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSubtlCoord stl_height, PlayerNumber owner)
 {
-    //_DK_create_gold_rubble_for_dug_block(stl_x, stl_y, stl_height, owner);
     struct Coord3d pos;
-    MapCoord cor_height;
+    MapCoord maxpos_z;
     pos.x.val = subtile_coord_center(stl_x);
     pos.y.val = subtile_coord_center(stl_y);
-    cor_height = subtile_coord(stl_height,0);
     pos.z.val = subtile_coord_center(1);
-    while (pos.z.val < cor_height)
+    maxpos_z = subtile_coord(stl_height,0);
+    while (pos.z.val < maxpos_z)
     {
-        create_effect(&pos, TngEff_ImpSpangleRed, owner);
-        create_effect(&pos, TngEff_Unknown33, owner);
+        create_effect(&pos, TngEff_DirtRubble, owner);
+        create_effect(&pos, TngEff_GoldRubble, owner);
         pos.z.val += COORD_PER_STL;
     }
 }
 
+/**
+ * Creates dirt rubble effects when a gold block is destroyed.
+ * Originally was create_rubble_for_dug_block().
+ * @param stl_x
+ * @param stl_y
+ * @param stl_height
+ * @param owner
+ */
 void create_dirt_rubble_for_dug_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSubtlCoord stl_height, PlayerNumber owner)
 {
     struct Coord3d pos;
@@ -187,7 +201,7 @@ void create_dirt_rubble_for_dug_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
     while (pos.z.val < maxpos_z)
     {
         create_effect(&pos, TngEff_DirtRubble, owner);
-        pos.z.val += subtile_coord(1,0);
+        pos.z.val += COORD_PER_STL;
     }
 }
 

@@ -2229,21 +2229,6 @@ struct Thing *drop_gold_pile(long value, struct Coord3d *pos)
     }
     return thing;
 }
-
-void create_rubble_for_dug_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSubtlCoord stl_z_max, PlayerNumber plyr_idx)
-{
-    int zmax;
-    struct Coord3d pos;
-    pos.x.val = subtile_coord_center(stl_x);
-    pos.y.val = subtile_coord_center(stl_y);
-    pos.z.val = subtile_coord_center(1);
-    zmax = subtile_coord(stl_z_max,0);
-    while (pos.z.val < zmax)
-    {
-        create_effect(&pos, TngEff_DirtRubble, plyr_idx);
-        pos.z.val += 256;
-    }
-}
 /******************************************************************************/
 #ifdef __cplusplus
 }
