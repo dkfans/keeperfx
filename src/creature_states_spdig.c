@@ -513,7 +513,7 @@ long check_out_object_for_trap(struct Thing *spdigtng, struct Thing *traptng)
     if (room_is_invalid(room)) {
         return 0;
     }
-    if ((room->kind != RoK_WORKSHOP) || (room->owner != spdigtng->owner)) {
+    if (!room_role_matches(room->kind, RoRoF_CratesStorage) || (room->owner != spdigtng->owner)) {
         return 0;
     }
     find_model = trap_crate_object_model(traptng->model);
@@ -647,7 +647,7 @@ TbBool check_out_crates_to_arm_trap_in_room(struct Thing *spdigtng)
     if (room_is_invalid(room)) {
         return false;
     }
-    if ( (room->kind != RoK_WORKSHOP) || (room->owner != spdigtng->owner) ) {
+    if (!room_role_matches(room->kind, RoRoF_CratesStorage) || (room->owner != spdigtng->owner)) {
         return false;
     }
 
@@ -1639,7 +1639,7 @@ short creature_drops_corpse_in_graveyard(struct Thing *creatng)
         return 0;
     }
 
-    if ( (room->kind != RoK_GRAVEYARD) || (room->owner != creatng->owner)
+    if (!room_role_matches(room->kind, RoRoF_DeadStorage) || (room->owner != creatng->owner)
         || (room->used_capacity >= room->total_capacity) )
     {
         WARNLOG("Tried to drop %s index %d in %s, but room won't accept it",thing_model_name(deadtng),(int)deadtng->index,room_code_name(RoK_GRAVEYARD));
@@ -1687,8 +1687,8 @@ short creature_drops_crate_in_workshop(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    if ( (room->kind != RoK_WORKSHOP) || (room->owner != thing->owner)
-        || (room->used_capacity >= room->total_capacity) )
+    if (!room_role_matches(room->kind, RoRoF_CratesStorage) || (room->owner != thing->owner)
+        || (room->used_capacity >= room->total_capacity))
     {
         SYNCDBG(7,"Tried to drop %s index %d in %s, but room won't accept it",thing_model_name(cratetng),(int)cratetng->index,room_code_name(RoK_WORKSHOP));
         if (creature_drop_thing_to_another_room(thing, room, RoK_WORKSHOP)) {
@@ -1750,8 +1750,8 @@ short creature_drops_spell_object_in_library(struct Thing *creatng)
         set_start_state(creatng);
         return 0;
     }
-    if ( (room->kind != RoK_LIBRARY) || (room->owner != creatng->owner)
-        || (room->used_capacity >= room->total_capacity) )
+    if (!room_role_matches(room->kind, RoRoF_PowersStorage) || (room->owner != creatng->owner)
+        || (room->used_capacity >= room->total_capacity))
     {
         WARNLOG("Tried to drop %s index %d in %s room, but room won't accept it",thing_model_name(spelltng),(int)spelltng->index,room_code_name(RoK_LIBRARY));
         if (creature_drop_thing_to_another_room(creatng, room, RoK_LIBRARY)) {

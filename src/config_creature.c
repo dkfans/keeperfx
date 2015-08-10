@@ -126,9 +126,9 @@ const struct NamedCommand creaturetype_job_assign[] = {
   };
 
 const struct NamedCommand creaturetype_job_properties[] = {
-  {"WORK_BORDER_ONLY",       JoKF_WorkOnRoomBorder},
-  {"WORK_CENTER_ONLY",       JoKF_WorkOnRoomCenter},
-  {"WORK_WHOLE_AREA",        JoKF_WorkOnRoomBorder|JoKF_WorkOnRoomCenter},
+  {"WORK_BORDER_ONLY",       JoKF_WorkOnAreaBorder},
+  {"WORK_CENTER_ONLY",       JoKF_WorkOnAreaCenter},
+  {"WORK_WHOLE_AREA",        JoKF_WorkOnAreaBorder|JoKF_WorkOnAreaCenter},
   {"NEEDS_CAPACITY",         JoKF_NeedsCapacity},
   {"NO_SELF_CONTROL",        JoKF_NoSelfControl},
   {"NO_GROUPS",              JoKF_NoGroups},
@@ -1313,7 +1313,7 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
                 }
                 break;
             case 9: // PROPERTIES
-                jobcfg->job_flags &= ~(JoKF_WorkOnRoomBorder|JoKF_WorkOnRoomCenter|JoKF_NeedsCapacity|JoKF_NoSelfControl|JoKF_NoGroups|JoKF_AllowChickenized);
+                jobcfg->job_flags &= ~(JoKF_WorkOnAreaBorder|JoKF_WorkOnAreaCenter|JoKF_NeedsCapacity|JoKF_NoSelfControl|JoKF_NoGroups|JoKF_AllowChickenized);
                 while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
                 {
                     k = get_id(creaturetype_job_properties, word_buf);
@@ -1939,6 +1939,37 @@ CreatureJob get_job_which_qualify_for_room(RoomKind rkind, unsigned long qualify
         }
     }
     return Job_NULL;
+}
+
+/**
+ * Returns jobs which creatures owned by enemy players may be assigned to do work in specific room.
+ * Note that sacrificing a creature or putting it on portal does not give it continuous work.
+ * @param rkind Room kind to be checked.
+ * @return Job flags matching.
+ */
+CreatureJob get_jobs_enemies_may_do_continuously_in_room(RoomKind rkind)
+{
+    CreatureJob jobpref;
+    jobpref = Job_NULL;
+    long i;
+    for (i=0; i < crtr_conf.jobs_count; i++)
+    {
+        struct CreatureJobConfig *jobcfg;
+        jobcfg = &crtr_conf.jobs[i];
+        // Accept only jobs in given room
+        if (jobcfg->room_kind == rkind)
+        {
+            // Check whether enemies can do this job
+            if ((jobcfg->job_flags & (JoKF_EnemyCreatures|JoKF_EnemyDiggers)) != 0)
+            {
+                // Make sure this is a continuous job, not something for one time, like sacrifice
+                if ((jobcfg->job_flags & JoKF_AssignOneTime) == 0) {
+                    jobpref |= 1<<(i-1);
+                }
+            }
+        }
+    }
+    return jobpref;
 }
 
 RoomKind get_room_for_job(CreatureJob job_flags)

@@ -141,7 +141,7 @@ short creature_drop_body_in_prison(struct Thing *thing)
     }
     struct Room *room;
     room = get_room_thing_is_on(thing);
-    if ((room->owner != thing->owner) || (room->kind != RoK_PRISON)) {
+    if ((room->owner != thing->owner) || !room_role_matches(room->kind, RoRoF_Prison)) {
         set_start_state(thing);
         return 0;
     }

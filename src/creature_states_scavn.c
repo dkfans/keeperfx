@@ -205,7 +205,7 @@ short creature_scavenged_disappear(struct Thing *thing)
     stl_x = stl_num_decode_x(i);
     stl_y = stl_num_decode_y(i);
     room = subtile_room_get(stl_x, stl_y);
-    if (room_is_invalid(room) || (room->kind != RoK_SCAVENGER))
+    if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_CrScavenge))
     {
         ERRORLOG("Room %s at (%d,%d) disappeared",room_code_name(RoK_SCAVENGER),(int)stl_x,(int)stl_y);
         kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects);
@@ -385,7 +385,7 @@ long turn_creature_to_scavenger(struct Thing *scavtng, struct Thing *calltng)
     //return _DK_turn_creature_to_scavenger(scavtng, calltng);
     struct Room *room;
     room = get_room_thing_is_on(calltng);
-    if (room_is_invalid(room) || (room->kind != RoK_SCAVENGER) || (room->owner != calltng->owner))
+    if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_CrScavenge) || (room->owner != calltng->owner))
     {
       ERRORLOG("The %s index %d is scavenging not on owned %s",thing_model_name(calltng),(int)calltng->index,room_code_name(RoK_SCAVENGER));
       return 0;

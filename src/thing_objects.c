@@ -535,7 +535,7 @@ void destroy_food(struct Thing *thing)
           room = get_room_thing_is_on(thing);
           if (!room_is_invalid(room))
           {
-            if ((room->kind == RoK_GARDEN) && (room->owner == thing->owner))
+            if (room_role_matches(room->kind, RoRoF_FoodSpawn) && (room->owner == thing->owner))
             {
                 if (room->used_capacity > 0)
                   room->used_capacity--;
@@ -983,7 +983,7 @@ long food_moves(struct Thing *objtng)
       {
         if (!room_is_invalid(room) && !is_neutral_thing(objtng) && (objtng->food.word_13 != -1))
         {
-            if ((room->kind == RoK_GARDEN) && (room->owner == objtng->owner) && (room->total_capacity > room->used_capacity))
+            if (room_role_matches(room->kind, RoRoF_FoodSpawn) && (room->owner == objtng->owner) && (room->total_capacity > room->used_capacity))
             {
                 room->used_capacity++;
                 objtng->food.word_13 = -1;
@@ -1370,7 +1370,7 @@ long object_being_dropped(struct Thing *thing)
         }
         struct Room *room;
         room = get_room_thing_is_on(thing);
-        if (!room_is_invalid(room) && (room->kind == RoK_TREASURE))
+        if (!room_is_invalid(room) && room_role_matches(room->kind, RoRoF_GoldStorage))
         {
             if ((thing->owner == room->owner) || is_neutral_thing(thing))
             {

@@ -330,15 +330,15 @@ TbBool creature_setup_adjacent_move_for_job_within_room_f(struct Thing *creatng,
 {
     struct Coord3d pos;
     TbBool result;
-    unsigned long room_area = get_flags_for_job(jobpref) & (JoKF_WorkOnRoomBorder|JoKF_WorkOnRoomCenter);
+    unsigned long room_area = get_flags_for_job(jobpref) & (JoKF_WorkOnAreaBorder|JoKF_WorkOnAreaCenter);
     switch (room_area)
     {
-    case JoKF_WorkOnRoomBorder:
+    case JoKF_WorkOnAreaBorder:
         result = person_get_somewhere_adjacent_in_room_around_borders_f(creatng, room, &pos, func_name);
         break;
     //TODO CREATURE_MOVE Add support of central room_area
-    case JoKF_WorkOnRoomCenter:
-    case (JoKF_WorkOnRoomBorder|JoKF_WorkOnRoomCenter):
+    case JoKF_WorkOnAreaCenter:
+    case (JoKF_WorkOnAreaBorder|JoKF_WorkOnAreaCenter):
         result = person_get_somewhere_adjacent_in_room_f(creatng, room, &pos, func_name);
         break;
     default:
@@ -369,16 +369,16 @@ TbBool creature_setup_random_move_for_job_in_room_f(struct Thing *creatng, struc
 {
     struct Coord3d pos;
     TbBool result;
-    unsigned long room_area = get_flags_for_job(jobpref) & (JoKF_WorkOnRoomBorder|JoKF_WorkOnRoomCenter);
+    unsigned long room_area = get_flags_for_job(jobpref) & (JoKF_WorkOnAreaBorder|JoKF_WorkOnAreaCenter);
     switch (room_area)
     {
-    case JoKF_WorkOnRoomBorder:
+    case JoKF_WorkOnAreaBorder:
         result = find_random_position_at_area_of_room(&pos, room, RoArC_BORDER);
         break;
-    case JoKF_WorkOnRoomCenter:
+    case JoKF_WorkOnAreaCenter:
         result = find_random_position_at_area_of_room(&pos, room, RoArC_CENTER);
         break;
-    case (JoKF_WorkOnRoomBorder|JoKF_WorkOnRoomCenter):
+    case (JoKF_WorkOnAreaBorder|JoKF_WorkOnAreaCenter):
         result = find_random_valid_position_for_thing_in_room(creatng, room, &pos);
         break;
     default:

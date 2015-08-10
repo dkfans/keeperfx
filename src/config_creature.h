@@ -120,8 +120,8 @@ enum JobKindFlags {
     JoKF_NeedsHaveJob           = 0x00004000,
     // "Flags" field
     JoKF_NeedsCapacity          = 0x00010000,
-    JoKF_WorkOnRoomBorder       = 0x00020000,
-    JoKF_WorkOnRoomCenter       = 0x00040000,
+    JoKF_WorkOnAreaBorder       = 0x00020000,
+    JoKF_WorkOnAreaCenter       = 0x00040000,
     JoKF_NoSelfControl          = 0x00080000,
     JoKF_NoGroups               = 0x00100000,
     JoKF_AllowChickenized       = 0x00200000,
@@ -300,6 +300,7 @@ CrtrStateId get_initial_state_for_job(CreatureJob jobpref);
 CrtrStateId get_arrive_at_state_for_job(CreatureJob jobpref);
 CrtrStateId get_continue_state_for_job(CreatureJob jobpref);
 CreatureJob get_job_for_creature_state(CrtrStateId crstat_id);
+CreatureJob get_jobs_enemies_may_do_continuously_in_room(RoomKind rkind);
 unsigned long get_flags_for_job(CreatureJob jobpref);
 int get_required_room_capacity_for_job(CreatureJob jobpref, ThingModel crmodel);
 CreatureJob get_creature_job_causing_going_postal(CreatureJob job_flags, RoomKind rkind);

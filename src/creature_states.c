@@ -2024,7 +2024,7 @@ short creature_exempt(struct Thing *creatng)
     struct Room *room;
     TRACE_THING(creatng);
     room = get_room_thing_is_on(creatng);
-    if (!room_exists(room) || (room->kind != RoK_ENTRANCE))
+    if (!room_exists(room) || !room_role_matches(room->kind, RoRoF_CrPoolLeave))
     {
         set_start_state(creatng);
         return CrCkRet_Continue;
@@ -2225,7 +2225,7 @@ short creature_leaves(struct Thing *creatng)
     struct Room *room;
     TRACE_THING(creatng);
     room = get_room_thing_is_on(creatng);
-    if (room_is_invalid(room) || (room->kind != RoK_ENTRANCE) || (room->owner != creatng->owner))
+    if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_CrPoolLeave) || (room->owner != creatng->owner))
     {
         internal_set_thing_state(creatng, CrSt_CreatureLeavingDungeon);
         return 1;
@@ -2273,7 +2273,7 @@ short creature_leaves_or_dies(struct Thing *creatng)
     SYNCDBG(9,"Starting for %s index %d",thing_model_name(creatng),(int)creatng->index);
     // If we're on an entrance, then just leave the dungeon
     room = get_room_thing_is_on(creatng);
-    if (!room_is_invalid(room) && (room->kind == RoK_ENTRANCE))
+    if (!room_is_invalid(room) && room_role_matches(room->kind, RoRoF_CrPoolLeave))
     {
         kill_creature(creatng, INVALID_THING, -1, CrDed_NoEffects);
         return -1;
@@ -2630,7 +2630,7 @@ short creature_search_for_gold_to_steal_in_room(struct Thing *creatng)
     struct Thing *gldtng;
     TRACE_THING(creatng);
     room = subtile_room_get(creatng->mappos.x.stl.num,creatng->mappos.y.stl.num);
-    if (room_is_invalid(room) || (room->kind != RoK_TREASURE))
+    if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_GoldStorage))
     {
         WARNLOG("Cannot steal gold - not on treasure room at (%d,%d)",(int)creatng->mappos.x.stl.num, (int)creatng->mappos.y.stl.num);
         set_start_state(creatng);
@@ -2783,7 +2783,7 @@ short creature_steal_gold(struct Thing *creatng)
     TRACE_THING(creatng);
     crstat = creature_stats_get_from_thing(creatng);
     room = get_room_thing_is_on(creatng);
-    if (room_is_invalid(room) || (room->kind != RoK_TREASURE))
+    if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_GoldStorage))
     {
         WARNLOG("Cannot steal gold - not on treasure room at (%d,%d)",
             (int)creatng->mappos.x.stl.num, (int)creatng->mappos.y.stl.num);
@@ -2863,7 +2863,7 @@ short creature_take_salary(struct Thing *creatng)
     }
     room = get_room_thing_is_on(creatng);
     dungeon = get_dungeon(creatng->owner);
-    if (room_is_invalid(room) || (room->kind != RoK_TREASURE) ||
+    if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_GoldStorage) ||
       ((room->used_capacity <= 0) && (dungeon->offmap_money_owned <= 0)))
     {
         internal_set_thing_state(creatng, CrSt_CreatureWantsSalary);
@@ -3529,7 +3529,7 @@ TbBool room_initially_valid_as_type_for_thing(const struct Room *room, RoomKind 
         return false;
     if (room->kind != rkind)
         return false;
-    return ((room->owner == thing->owner) || enemies_may_work_in_room(room->kind));
+    return ((room->owner == thing->owner) || enemies_may_work_continuously_in_room(room->kind));
 }
 
 /**
@@ -3546,7 +3546,7 @@ TbBool room_still_valid_as_type_for_thing(const struct Room *room, RoomKind rkin
         return false;
     if (room->kind != rkind)
         return false;
-    return ((room->owner == thing->owner) || enemies_may_work_in_room(room->kind));
+    return ((room->owner == thing->owner) || enemies_may_work_continuously_in_room(room->kind));
 }
 
 /**

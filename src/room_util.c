@@ -141,7 +141,7 @@ void process_rooms(void)
   {
       if (!room_exists(room))
           continue;
-      if (room_grows_food(room->kind)) {
+      if (room_role_matches(room->kind, RoRoF_FoodSpawn)) {
           room_grow_food(room);
       }
       sum += room->slabs_count + room->central_stl_x + room->central_stl_y + room->efficiency + room->used_capacity;
@@ -324,7 +324,7 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
     if (thing_is_gold_hoard(thing))
     {
         room = get_room_thing_is_on(thing);
-        if (room_is_invalid(room) || (room->kind != RoK_TREASURE))
+        if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_GoldStorage))
         {
             // No room - delete it, hoard cannot exist outside treasure room
             ERRORLOG("Found %s outside of %d room; removing",thing_model_name(thing),room_code_name(RoK_TREASURE));
@@ -341,7 +341,7 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
     if (thing_is_spellbook(thing))
     {
         room = get_room_thing_is_on(thing);
-        if (room_is_invalid(room) || (room->kind != RoK_LIBRARY) || !player_exists(get_player(room->owner)))
+        if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_PowersStorage) || !player_exists(get_player(room->owner)))
         {
             // No room - oh well, leave it as free spell
             if (((gameadd.classic_bugs_flags & ClscBug_ClaimRoomAllThings) != 0) && !room_is_invalid(room)) {
@@ -364,7 +364,7 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
     if (thing_is_workshop_crate(thing))
     {
         room = get_room_thing_is_on(thing);
-        if (room_is_invalid(room) || (room->kind != RoK_WORKSHOP) || !player_exists(get_player(room->owner)))
+        if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_CratesStorage) || !player_exists(get_player(room->owner)))
         {
             // No room - oh well, leave it as free box
             if (((gameadd.classic_bugs_flags & ClscBug_ClaimRoomAllThings) != 0) && !room_is_invalid(room)) {

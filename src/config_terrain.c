@@ -1149,17 +1149,52 @@ ThingModel get_room_create_creature_model(RoomKind rkind)
     return roomst->creature_creation_model;
 }
 
-TbBool enemies_may_work_in_room(RoomKind rkind)
+TbBool enemies_may_work_continuously_in_room(RoomKind rkind)
 {
-    //TODO CONFIG Place this in room config data
-    // Note that sacrificing a creature or putting it on portal shouldn't be treated as giving it work
-    return (rkind == RoK_PRISON) || (rkind == RoK_TORTURE);
+    return (get_jobs_enemies_may_do_continuously_in_room(rkind) != Job_NULL);
 }
 
-TbBool room_grows_food(RoomKind rkind)
+TbBool room_role_matches(RoomKind rkind, RoomRole rrole)
 {
     //TODO CONFIG Place this in room config data
-    return (rkind == RoK_GARDEN);
+    switch (rkind)
+    {
+    case RoK_ENTRANCE:
+        return ((rrole & (RoRoF_CrPoolSpawn|RoRoF_CrPoolLeave)) != 0);
+    case RoK_TREASURE:
+        return ((rrole & (RoRoF_GoldStorage)) != 0);
+    case RoK_LIBRARY:
+        return ((rrole & (RoRoF_PowersStorage|RoRoF_Research)) != 0);
+    case RoK_PRISON:
+        return ((rrole & (RoRoF_Prison|RoRoF_CrConditSpawn)) != 0);
+    case RoK_TORTURE:
+        return ((rrole & (RoRoF_Torture|RoRoF_CrConditSpawn)) != 0);
+    case RoK_TRAINING:
+        return ((rrole & (RoRoF_CrTrainExp)) != 0);
+    case RoK_DUNGHEART:
+        return ((rrole & (RoRoF_KeeperStorage)) != 0);
+    case RoK_WORKSHOP:
+        return ((rrole & (RoRoF_CratesStorage|RoRoF_CratesManufctr)) != 0);
+    case RoK_SCAVENGER:
+        return ((rrole & (RoRoF_CrScavenge|RoRoF_CrConditSpawn)) != 0);
+    case RoK_TEMPLE:
+        return ((rrole & (RoRoF_CrSacrifice|RoRoF_CrPurifySpell|RoRoF_CrHappyPray|RoRoF_CrConditSpawn)) != 0);
+    case RoK_GRAVEYARD:
+        return ((rrole & (RoRoF_DeadStorage|RoRoF_CrConditSpawn)) != 0);
+    case RoK_BARRACKS:
+        return ((rrole & (RoRoF_CrMakeGroup)) != 0);
+    case RoK_GARDEN:
+        return ((rrole & (RoRoF_FoodStorage|RoRoF_FoodSpawn)) != 0);
+    case RoK_LAIR:
+        return ((rrole & (RoRoF_LairStorage|RoRoF_CrHealSleep)) != 0);
+    case RoK_BRIDGE:
+        return ((rrole & (RoRoF_PassWater|RoRoF_PassLava)) != 0);
+    case RoK_GUARDPOST:
+        return ((rrole & (RoRoF_CrGuard)) != 0);
+    default:
+        break;
+    }
+    return false;
 }
 
 TbBool room_has_surrounding_flames(RoomKind rkind)

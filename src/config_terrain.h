@@ -64,6 +64,38 @@ enum RoomCfgFlags {
     RoCFlg_BuildToBroke  = 0x04,
 };
 
+/**
+ * Enumeration used to assign roles to rooms.
+ */
+enum RoomRoleFlags {
+    RoRoF_None           = 0x00000000,
+    RoRoF_KeeperStorage  = 0x00000001, /**< The room is a storage for keeper soul (dungeon heart). */
+    RoRoF_LairStorage    = 0x00000002, /**< The room is a storage for creature lair totems. */
+    RoRoF_GoldStorage    = 0x00000004, /**< The room is a storage for gold. */
+    RoRoF_FoodStorage    = 0x00000008, /**< The room is a storage for food for creatures. */
+    RoRoF_CratesStorage  = 0x00000010, /**< The room is a storage for crates (trap and door boxes). */
+    RoRoF_PowersStorage  = 0x00000020, /**< The room is a storage for keeper powers (spellbooks and specials). */
+    RoRoF_Prison         = 0x00000040, /**< The room is a prison, forcing friends and foes to stay within. */
+    RoRoF_DeadStorage    = 0x00000080, /**< The room is a storage for dead bodies. */
+    RoRoF_CrPoolSpawn    = 0x00000100, /**< The room is a spawn point for creatures coming into dungeon from creature pool. */
+    RoRoF_CrConditSpawn  = 0x00000200, /**< The room is a spawn point for creatures with special spawn conditions programmed. */
+    RoRoF_CrSacrifice    = 0x00000400, /**< The room can be used to sacrifice creatures and gain rewards. */
+    RoRoF_CrPurifySpell  = 0x00000800, /**< The room can be used to cancel negative spells affecting creatures. */
+    RoRoF_FoodSpawn      = 0x00001000, /**< The room is a spawn place for food. */
+    RoRoF_CratesManufctr = 0x00002000, /**< The room is a manufacture place for trap crates. */
+    RoRoF_Research       = 0x00004000, /**< The room is a research place for spellbooks, traps and rooms. */
+    RoRoF_Torture        = 0x00008000, /**< The room is a torture chamber, allowing torture of friends and foes. */
+    RoRoF_CrHappyPray    = 0x00010000, /**< The room makes its workers increase their happiness by praying. */
+    RoRoF_CrHealSleep    = 0x00020000, /**< The room makes its workers to heal by sleeping. */
+    RoRoF_CrScavenge     = 0x00040000, /**< The room makes its workers scavenge enemy creatures. */
+    RoRoF_CrTrainExp     = 0x00080000, /**< The room makes its workers increase their experience by training. */
+    RoRoF_CrMakeGroup    = 0x00100000, /**< The room makes its workers form a group of creatures. */
+    RoRoF_CrGuard        = 0x00200000, /**< The room makes its workers guard the room area for enemies. */
+    RoRoF_CrPoolLeave    = 0x00400000, /**< The room is a gate which allows a creature to leave the players dungeon back to pool. */
+    RoRoF_PassWater      = 0x00800000, /**< The room is a bridge for use over water. */
+    RoRoF_PassLava       = 0x01000000, /**< The room is a bridge for use over lava. */
+};
+
 struct SlabMap;
 
 struct SlabAttr {
@@ -145,8 +177,8 @@ TbBool make_available_all_researchable_rooms(PlayerNumber plyr_idx);
 TbBool make_all_rooms_researchable(PlayerNumber plyr_idx);
 TbBool is_room_available(PlayerNumber plyr_idx, RoomKind room_idx);
 ThingModel get_room_create_creature_model(RoomKind room_kind);
-TbBool enemies_may_work_in_room(RoomKind rkind);
-TbBool room_grows_food(RoomKind rkind);
+TbBool enemies_may_work_continuously_in_room(RoomKind rkind);
+TbBool room_role_matches(RoomKind rkind, RoomRole rrole);
 TbBool room_has_surrounding_flames(RoomKind rkind);
 TbBool room_cannot_vandalise(RoomKind rkind);
 TbBool room_never_buildable(RoomKind rkind);

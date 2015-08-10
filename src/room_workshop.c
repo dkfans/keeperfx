@@ -40,8 +40,8 @@
 /******************************************************************************/
 TbBool add_workshop_object_to_workshop(struct Room *room,struct Thing *cratetng)
 {
-    if (room->kind != RoK_WORKSHOP) {
-        SYNCDBG(4,"Crate %s owned by player %d can't be placed in a %s owned by player %d, expected proper workshop",thing_model_name(cratetng),(int)cratetng->owner,room_code_name(room->kind),(int)room->owner);
+    if (!room_role_matches(room->kind, RoRoF_CratesStorage)) {
+        SYNCDBG(4,"Crate %s owned by player %d cannot be placed in a %s owned by player %d, wrong room",thing_model_name(cratetng),(int)cratetng->owner,room_code_name(room->kind),(int)room->owner);
         return false;
     }
     return add_item_to_room_capacity(room, true);
@@ -51,8 +51,8 @@ struct Thing *create_crate_in_workshop(struct Room *room, ThingModel cratngmodel
 {
     struct Coord3d pos;
     struct Thing *cratetng;
-    if (room->kind != RoK_WORKSHOP) {
-        SYNCDBG(4,"Cannot add crate to %s owned by player %d",room_code_name(room->kind),(int)room->owner);
+    if (!room_role_matches(room->kind, RoRoF_CratesStorage)) {
+        SYNCDBG(4,"Crate %s cannot be created in a %s owned by player %d, wrong room",object_code_name(cratngmodel),room_code_name(room->kind),(int)room->owner);
         return INVALID_THING;
     }
     pos.x.val = subtile_coord_center(stl_x);
@@ -70,7 +70,7 @@ struct Thing *create_crate_in_workshop(struct Room *room, ThingModel cratngmodel
     if (!add_workshop_object_to_workshop(room, cratetng)) {
         ERRORLOG("Could not fit %s in %s index %d",
             thing_model_name(cratetng),room_code_name(room->kind),(int)room->index);
-        remove_item_from_room_capacity(room);
+        //remove_item_from_room_capacity(room); -- no need, it was not added
         destroy_object(cratetng);
         return INVALID_THING;
     }
@@ -162,8 +162,8 @@ TbBool create_workshop_object_in_workshop_room(PlayerNumber plyr_idx, ThingClass
  */
 TbBool remove_workshop_object_from_workshop(struct Room *room, struct Thing *cratetng)
 {
-    if ( (room->kind != RoK_WORKSHOP) || (cratetng->owner != room->owner) ) {
-        SYNCDBG(4,"Crate %s owned by player %d found in a %s owned by player %d, instead of proper workshop",thing_model_name(cratetng),(int)cratetng->owner,room_code_name(room->kind),(int)room->owner);
+    if (!room_role_matches(room->kind, RoRoF_CratesStorage) || (cratetng->owner != room->owner)) {
+        SYNCDBG(4,"Crate %s owned by player %d found in a %s owned by player %d, instead of proper storage room",thing_model_name(cratetng),(int)cratetng->owner,room_code_name(room->kind),(int)room->owner);
         return false;
     }
     return remove_item_from_room_capacity(room);
@@ -173,28 +173,24 @@ TbBool set_manufacture_level(struct Dungeon *dungeon)
 {
     int wrkshp_slabs;
     wrkshp_slabs = count_slabs_of_room_type(dungeon->owner, RoK_WORKSHOP);
-    if (wrkshp_slabs <= 9)
-    {
+    if (wrkshp_slabs <= 3*3) {
         dungeon->manufacture_level = 0;
     } else
-    if (wrkshp_slabs <= 16)
-    {
+    if (wrkshp_slabs <= 4*4) {
         dungeon->manufacture_level = 1;
     } else
-    if (wrkshp_slabs <= 25)
-    {
-        if (wrkshp_slabs == 20) // why there's special code for 20 slabs!?
-            dungeon->manufacture_level = 4;
-        else
-            dungeon->manufacture_level = 2;
+    if (wrkshp_slabs <= 5*5) {
+        dungeon->manufacture_level = 2;
     } else
-    if (wrkshp_slabs <= 36)
-    {
+    if (wrkshp_slabs <= 6*6) {
         dungeon->manufacture_level = 3;
     } else
     {
         dungeon->manufacture_level = 4;
     }
+    // Special cases
+    if (wrkshp_slabs == 4*5)
+        dungeon->manufacture_level++;
     return true;
 }
 
@@ -215,7 +211,7 @@ struct Thing *get_workshop_box_thing(PlayerNumber owner, ThingModel objmodel)
         {
             struct Room *room;
             room = get_room_thing_is_on(thing);
-            if (!thing_is_picked_up(thing) && (room->kind == RoK_WORKSHOP) && (room->owner == owner))
+            if (!thing_is_picked_up(thing) && room_role_matches(room->kind, RoRoF_CratesStorage) && (room->owner == owner))
                 return thing;
         }
         // Per-thing code ends

@@ -159,7 +159,7 @@ long process_lair_enemy(struct Thing *thing, struct Room *room)
         return 0;
     }
     // If the room changed during creature's journey, end
-    if ((room->kind != RoK_LAIR) || (room->owner != thing->owner) || (room->index != cctrl->lair_room_id))
+    if (!room_role_matches(room->kind, RoRoF_CrHealSleep) || (room->owner != thing->owner) || (room->index != cctrl->lair_room_id))
     {
         return 0;
     }

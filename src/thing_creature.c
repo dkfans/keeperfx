@@ -1597,7 +1597,7 @@ struct Thing *find_gold_pile_or_chicken_laying_on_mapblk(struct Map *mapblk)
         room = get_room_thing_is_on(thing);
         if (room_is_invalid(room))
           return thing;
-        if ((room->kind != RoK_GARDEN) && (room->kind != RoK_TORTURE) && (room->kind != RoK_PRISON))
+        if (!room_role_matches(room->kind, RoRoF_FoodStorage) && (room->kind != RoK_TORTURE) && (room->kind != RoK_PRISON))
           return thing;
       }
     }
