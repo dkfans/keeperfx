@@ -205,7 +205,7 @@ TbBool find_random_position_at_area_of_room(struct Coord3d *pos, const struct Ro
 TbBool creature_can_get_to_any_of_players_rooms(struct Thing *thing, PlayerNumber owner);
 struct Room *find_room_with_spare_room_item_capacity(PlayerNumber plyr_idx, RoomKind rkind);
 struct Room *find_nth_room_of_owner_with_spare_item_capacity_starting_with(long room_idx, long n, long spare);
-struct Room *find_room_with_spare_capacity(PlayerNumber owner, signed char rkind, long spare);
+struct Room *find_room_with_spare_capacity(PlayerNumber owner, RoomKind rkind, long spare);
 struct Room *find_nth_room_of_owner_with_spare_capacity_starting_with(long room_idx, long n, long spare);
 struct Room *find_room_with_most_spare_capacity_starting_with(long room_idx, long *total_spare_cap);
 struct Room *find_room_nearest_to_position(PlayerNumber plyr_idx, RoomKind rkind, const struct Coord3d *pos, long *room_distance);

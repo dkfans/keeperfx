@@ -159,6 +159,7 @@ struct SlabAttr *get_slab_kind_attrs(SlabKind slab_kind);
 struct SlabAttr *get_slab_attrs(const struct SlabMap *slb);
 struct SlabConfigStats *get_slab_kind_stats(SlabKind slab_kind);
 struct SlabConfigStats *get_slab_stats(struct SlabMap *slb);
+const char *room_role_code_name(RoomRole rrole);
 const char *room_code_name(RoomKind rkind);
 const char *slab_code_name(SlabKind slbkind);
 /******************************************************************************/
@@ -178,6 +179,7 @@ TbBool make_all_rooms_researchable(PlayerNumber plyr_idx);
 TbBool is_room_available(PlayerNumber plyr_idx, RoomKind room_idx);
 ThingModel get_room_create_creature_model(RoomKind room_kind);
 TbBool enemies_may_work_continuously_in_room(RoomKind rkind);
+RoomRole get_room_roles(RoomKind rkind);
 TbBool room_role_matches(RoomKind rkind, RoomRole rrole);
 TbBool room_has_surrounding_flames(RoomKind rkind);
 TbBool room_cannot_vandalise(RoomKind rkind);

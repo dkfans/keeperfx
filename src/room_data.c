@@ -2881,7 +2881,7 @@ struct Room *find_room_for_thing_with_used_capacity(const struct Thing *creatng,
  * @return
  * @note Function find_room_with_spare_room_capacity() should also redirect to this one.
  */
-struct Room *find_room_with_spare_capacity(PlayerNumber owner, signed char rkind, long spare)
+struct Room *find_room_with_spare_capacity(PlayerNumber owner, RoomKind rkind, long spare)
 {
     struct Dungeon *dungeon;
     if ((rkind < 0) || (rkind >= ROOM_TYPES_COUNT))

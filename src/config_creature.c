@@ -1972,10 +1972,26 @@ CreatureJob get_jobs_enemies_may_do_continuously_in_room(RoomKind rkind)
     return jobpref;
 }
 
+/**
+ * Returns first room kind which matches role from given job.
+ * Note that more than one room kind may have given role, so use
+ * of this function should be limited.
+ * @param job_flags
+ * @return
+ */
 RoomKind get_room_for_job(CreatureJob job_flags)
 {
     struct CreatureJobConfig *jobcfg;
     jobcfg = get_config_for_job(job_flags);
+    /* DISABLED - jobs have no room_role assigned yet.
+    RoomKind rkind;
+    for (rkind=0; rkind < slab_conf.room_types_count; rkind++)
+    {
+        if (room_role_matches(rkind, jobcfg->room_role))
+            return rkind;
+    }
+    return RoK_NONE;
+    */
     return jobcfg->room_kind;
 }
 

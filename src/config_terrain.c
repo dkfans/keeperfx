@@ -74,6 +74,35 @@ const struct NamedCommand  terrain_room_properties_commands[] = {
   {NULL,                0},
 };
 
+const struct NamedCommand  terrain_room_role_commands[] = {
+  {"ROOM_ROLE_KEEPER_STORAGE", RoRoF_KeeperStorage},
+  {"ROOM_ROLE_LAIR_STORAGE",   RoRoF_LairStorage},
+  {"ROOM_ROLE_GOLD_STORAGE",   RoRoF_GoldStorage},
+  {"ROOM_ROLE_FOOD_STORAGE",   RoRoF_FoodStorage},
+  {"ROOM_ROLE_CRATES_STORAGE", RoRoF_CratesStorage},
+  {"ROOM_ROLE_POWERS_STORAGE", RoRoF_PowersStorage},
+  {"ROOM_ROLE_PRISON",         RoRoF_Prison},
+  {"ROOM_ROLE_DEAD_STORAGE",   RoRoF_DeadStorage},
+  {"ROOM_ROLE_POOL_SPAWN",     RoRoF_CrPoolSpawn},
+  {"ROOM_ROLE_CONDITIONAL_SPAWN",RoRoF_CrConditSpawn},
+  {"ROOM_ROLE_SACRIFICE",      RoRoF_CrSacrifice},
+  {"ROOM_ROLE_PURIFY_SPELLS",  RoRoF_CrPurifySpell},
+  {"ROOM_ROLE_FOOD_SPAWN",     RoRoF_FoodSpawn},
+  {"ROOM_ROLE_CRATES_MANUFACTURE",RoRoF_CratesManufctr},
+  {"ROOM_ROLE_RESEARCH",       RoRoF_Research},
+  {"ROOM_ROLE_TORTURE",        RoRoF_Torture},
+  {"ROOM_ROLE_HAPPY_PRAY",     RoRoF_CrHappyPray},
+  {"ROOM_ROLE_HEAL_SLEEP",     RoRoF_CrHealSleep},
+  {"ROOM_ROLE_SCAVENGE",       RoRoF_CrScavenge},
+  {"ROOM_ROLE_TRAIN_EXP",      RoRoF_CrTrainExp},
+  {"ROOM_ROLE_MAKE_GROUP",     RoRoF_CrMakeGroup},
+  {"ROOM_ROLE_GUARD",          RoRoF_CrGuard},
+  {"ROOM_ROLE_POOL_LEAVE",     RoRoF_CrPoolLeave},
+  {"ROOM_ROLE_PASS_WATER",     RoRoF_PassWater},
+  {"ROOM_ROLE_PASS_LAVA",      RoRoF_PassLava},
+  {NULL,                       0},
+};
+
 /* Room capacity computation, using functions from room_data.c */
 
 extern void count_slabs_all_only(struct Room *room);
@@ -254,6 +283,18 @@ const char *slab_code_name(SlabKind slbkind)
 {
     const char *name;
     name = get_conf_parameter_text(slab_desc,slbkind);
+    if (name[0] != '\0')
+        return name;
+    return "INVALID";
+}
+
+/**
+ * Returns Code Name (name to use in script file) of given room role.
+ */
+const char *room_role_code_name(RoomRole rrole)
+{
+    const char *name;
+    name = get_conf_parameter_text(terrain_room_role_commands,rrole);
     if (name[0] != '\0')
         return name;
     return "INVALID";
@@ -1154,47 +1195,52 @@ TbBool enemies_may_work_continuously_in_room(RoomKind rkind)
     return (get_jobs_enemies_may_do_continuously_in_room(rkind) != Job_NULL);
 }
 
-TbBool room_role_matches(RoomKind rkind, RoomRole rrole)
+RoomRole get_room_roles(RoomKind rkind)
 {
     //TODO CONFIG Place this in room config data
     switch (rkind)
     {
     case RoK_ENTRANCE:
-        return ((rrole & (RoRoF_CrPoolSpawn|RoRoF_CrPoolLeave)) != 0);
+        return RoRoF_CrPoolSpawn|RoRoF_CrPoolLeave;
     case RoK_TREASURE:
-        return ((rrole & (RoRoF_GoldStorage)) != 0);
+        return RoRoF_GoldStorage;
     case RoK_LIBRARY:
-        return ((rrole & (RoRoF_PowersStorage|RoRoF_Research)) != 0);
+        return RoRoF_PowersStorage|RoRoF_Research;
     case RoK_PRISON:
-        return ((rrole & (RoRoF_Prison|RoRoF_CrConditSpawn)) != 0);
+        return RoRoF_Prison|RoRoF_CrConditSpawn;
     case RoK_TORTURE:
-        return ((rrole & (RoRoF_Torture|RoRoF_CrConditSpawn)) != 0);
+        return RoRoF_Torture|RoRoF_CrConditSpawn;
     case RoK_TRAINING:
-        return ((rrole & (RoRoF_CrTrainExp)) != 0);
+        return RoRoF_CrTrainExp;
     case RoK_DUNGHEART:
-        return ((rrole & (RoRoF_KeeperStorage)) != 0);
+        return RoRoF_KeeperStorage;
     case RoK_WORKSHOP:
-        return ((rrole & (RoRoF_CratesStorage|RoRoF_CratesManufctr)) != 0);
+        return RoRoF_CratesStorage|RoRoF_CratesManufctr;
     case RoK_SCAVENGER:
-        return ((rrole & (RoRoF_CrScavenge|RoRoF_CrConditSpawn)) != 0);
+        return RoRoF_CrScavenge|RoRoF_CrConditSpawn;
     case RoK_TEMPLE:
-        return ((rrole & (RoRoF_CrSacrifice|RoRoF_CrPurifySpell|RoRoF_CrHappyPray|RoRoF_CrConditSpawn)) != 0);
+        return RoRoF_CrSacrifice|RoRoF_CrPurifySpell|RoRoF_CrHappyPray|RoRoF_CrConditSpawn;
     case RoK_GRAVEYARD:
-        return ((rrole & (RoRoF_DeadStorage|RoRoF_CrConditSpawn)) != 0);
+        return RoRoF_DeadStorage|RoRoF_CrConditSpawn;
     case RoK_BARRACKS:
-        return ((rrole & (RoRoF_CrMakeGroup)) != 0);
+        return RoRoF_CrMakeGroup;
     case RoK_GARDEN:
-        return ((rrole & (RoRoF_FoodStorage|RoRoF_FoodSpawn)) != 0);
+        return RoRoF_FoodStorage|RoRoF_FoodSpawn;
     case RoK_LAIR:
-        return ((rrole & (RoRoF_LairStorage|RoRoF_CrHealSleep)) != 0);
+        return RoRoF_LairStorage|RoRoF_CrHealSleep;
     case RoK_BRIDGE:
-        return ((rrole & (RoRoF_PassWater|RoRoF_PassLava)) != 0);
+        return RoRoF_PassWater|RoRoF_PassLava;
     case RoK_GUARDPOST:
-        return ((rrole & (RoRoF_CrGuard)) != 0);
+        return RoRoF_CrGuard;
     default:
         break;
     }
     return false;
+}
+
+TbBool room_role_matches(RoomKind rkind, RoomRole rrole)
+{
+    return ((rrole & get_room_roles(rkind)) != 0);
 }
 
 TbBool room_has_surrounding_flames(RoomKind rkind)
