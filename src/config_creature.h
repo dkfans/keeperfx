@@ -204,7 +204,7 @@ struct CreatureJobConfig {
     Creature_Job_Player_Assign_Func func_plyr_assign;
     Creature_Job_Coords_Check_Func func_cord_check;
     Creature_Job_Coords_Assign_Func func_cord_assign;
-    RoomKind room_kind;
+    RoomRole room_role;
     EventKind event_kind;
     /** The state creature should go into when job is started. */
     CrtrStateId initial_crstate;
@@ -295,19 +295,23 @@ const char *creature_instance_code_name(CrInstance inst_id);
 /******************************************************************************/
 struct CreatureJobConfig *get_config_for_job(CreatureJob job_flags);
 RoomKind get_room_for_job(CreatureJob job_flags);
+RoomRole get_room_role_for_job(CreatureJob job_flags);
 EventKind get_event_for_job(CreatureJob job_flags);
 CrtrStateId get_initial_state_for_job(CreatureJob jobpref);
 CrtrStateId get_arrive_at_state_for_job(CreatureJob jobpref);
 CrtrStateId get_continue_state_for_job(CreatureJob jobpref);
 CreatureJob get_job_for_creature_state(CrtrStateId crstat_id);
 CreatureJob get_jobs_enemies_may_do_continuously_in_room(RoomKind rkind);
+CreatureJob get_jobs_enemies_may_do_continuously_in_room_role(RoomRole rrole);
 unsigned long get_flags_for_job(CreatureJob jobpref);
 int get_required_room_capacity_for_job(CreatureJob jobpref, ThingModel crmodel);
 CreatureJob get_creature_job_causing_going_postal(CreatureJob job_flags, RoomKind rkind);
 CreatureJob get_creature_job_causing_stress(CreatureJob job_flags, RoomKind rkind);
 CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long drop_kind_flags);
 CreatureJob get_job_for_room(RoomKind rkind, unsigned long required_kind_flags, CreatureJob has_jobs);
+CreatureJob get_job_for_room_role(RoomRole rrole, unsigned long required_kind_flags, CreatureJob has_jobs);
 CreatureJob get_job_which_qualify_for_room(RoomKind rkind, unsigned long qualify_flags, unsigned long prevent_flags);
+CreatureJob get_job_which_qualify_for_room_role(RoomRole rrole, unsigned long qualify_flags, unsigned long prevent_flags);
 const char *creature_job_code_name(CreatureJob job_flag);
 /******************************************************************************/
 const char *attack_type_job_code_name(CrAttackType attack_type);

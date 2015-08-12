@@ -297,8 +297,8 @@ TbBool player_has_heart(PlayerNumber plyr_idx);
 struct Thing *get_player_soul_container(PlayerNumber plyr_idx);
 
 TbBool player_has_room(PlayerNumber plyr_idx, RoomKind rkind);
+TbBool player_has_room_of_role(PlayerNumber plyr_idx, RoomRole rrole);
 TbBool dungeon_has_room(const struct Dungeon *dungeon, RoomKind rkind);
-struct Room *player_has_room_of_type(PlayerNumber plyr_idx, RoomKind rkind);
 
 TbBool set_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type, TbBool val);
 TbBool toggle_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type);

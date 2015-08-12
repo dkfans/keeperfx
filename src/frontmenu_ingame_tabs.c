@@ -2047,7 +2047,7 @@ void maintain_ally(struct GuiButton *gbtn)
 
 void maintain_prison_bar(struct GuiButton *gbtn)
 {
-    if (player_has_room(my_player_number, RoK_PRISON))
+    if (player_has_room_of_role(my_player_number, RoRoF_Prison))
     {
         gbtn->sprite_idx = 350;
         gbtn->flags |= LbBtnF_Enabled;

@@ -129,6 +129,7 @@ struct RoomConfigStats {
     long creature_creation_model;
     SlabKind assigned_slab;
     unsigned long flags;
+    RoomRole roles;
     long panel_tab_idx;
     /** Sprite index of big symbol icon representing the room. */
     long bigsym_sprite_idx;
@@ -151,6 +152,7 @@ struct SlabsConfig {
 extern const char keeper_terrain_file[];
 extern struct NamedCommand slab_desc[TERRAIN_ITEMS_MAX];
 extern struct NamedCommand room_desc[TERRAIN_ITEMS_MAX];
+extern const struct NamedCommand  room_roles_desc[];
 extern struct SlabsConfig slab_conf;
 /******************************************************************************/
 TbBool load_terrain_config(const char *conf_fname,unsigned short flags);

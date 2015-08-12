@@ -265,7 +265,7 @@ void process_player_research(PlayerNumber plyr_idx)
     //_DK_process_player_research(plyr_idx); return;
     struct Dungeon *dungeon;
     dungeon = get_dungeon(plyr_idx);
-    if (!player_has_room_of_type(plyr_idx, RoK_LIBRARY)) {
+    if (!player_has_room_of_role(plyr_idx, RoRoF_Research)) {
         return;
     }
     struct ResearchVal *rsrchval;

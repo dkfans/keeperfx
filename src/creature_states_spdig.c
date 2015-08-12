@@ -102,7 +102,7 @@ struct Thing *check_for_empty_trap_for_imp(struct Thing *spdigtng, long tngmodel
 
 long check_out_unclaimed_unconscious_bodies(struct Thing *spdigtng, long range)
 {
-    if (!player_has_room(spdigtng->owner, RoK_PRISON)) {
+    if (!player_has_room_of_role(spdigtng->owner, RoRoF_Prison)) {
         return 0;
     }
     struct CreatureControl *cctrl;
@@ -157,7 +157,7 @@ long check_out_unclaimed_unconscious_bodies(struct Thing *spdigtng, long range)
 
 long check_out_unclaimed_dead_bodies(struct Thing *spdigtng, long range)
 {
-    if (!player_has_room(spdigtng->owner, RoK_GRAVEYARD)) {
+    if (!player_has_room_of_role(spdigtng->owner, RoRoF_DeadStorage)) {
         return 0;
     }
     struct CreatureControl *cctrl;
@@ -215,7 +215,7 @@ long check_out_unclaimed_dead_bodies(struct Thing *spdigtng, long range)
 
 long check_out_unclaimed_spells(struct Thing *spdigtng, long range)
 {
-    if (!player_has_room(spdigtng->owner, RoK_LIBRARY)) {
+    if (!player_has_room_of_role(spdigtng->owner, RoRoF_PowersStorage)) {
         return 0;
     }
     struct CreatureControl *cctrl;
@@ -285,7 +285,7 @@ long check_out_unclaimed_spells(struct Thing *spdigtng, long range)
 
 long check_out_unclaimed_traps(struct Thing *spdigtng, long range)
 {
-    if (!player_has_room(spdigtng->owner, RoK_WORKSHOP)) {
+    if (!player_has_room_of_role(spdigtng->owner, RoRoF_CratesStorage)) {
         return 0;
     }
     struct CreatureControl *cctrl;
@@ -1380,7 +1380,7 @@ short creature_pick_up_unconscious_body(struct Thing *thing)
     SYNCDBG(9,"Starting");
     TRACE_THING(thing);
     // Check if the player has means to do such kind of action
-     if ( !player_has_room(thing->owner, RoK_PRISON) || !player_creature_tends_to(thing->owner, CrTend_Imprison) )
+     if (!player_has_room_of_role(thing->owner, RoRoF_Prison) || !player_creature_tends_to(thing->owner, CrTend_Imprison))
      {
          SYNCDBG(19,"Player %d has no %s or has imprison tendency off",(int)thing->owner,room_code_name(RoK_PRISON));
          set_start_state(thing);

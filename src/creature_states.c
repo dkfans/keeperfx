@@ -374,7 +374,7 @@ struct StateInfo states[] = {
   {creature_drops_spell_object_in_library, state_cleanup_dragging_object, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 1, 0,  0, 0, 0, 1},
   {creature_picks_up_corpse, NULL, NULL, NULL,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Move, 0, 0, 1, 0,  0, 0, 0, 1},
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 1, 0,  0, 0, 0, 1},
   {creature_drops_corpse_in_graveyard, state_cleanup_dragging_object, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 1, 0,  0, 0, 0, 1},
   {at_guard_post_room, NULL, NULL, move_check_on_head_for_room,
@@ -4471,7 +4471,7 @@ long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureS
         return 0;
     }
 
-    if (!player_has_room(creatng->owner, RoK_GARDEN))
+    if (!player_has_room_of_role(creatng->owner, RoRoF_FoodStorage))
     {
         output_message_room_related_from_computer_or_player_action(creatng->owner, RoK_GARDEN, OMsg_RoomNeeded);
         anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, AngR_Hungry, 1);

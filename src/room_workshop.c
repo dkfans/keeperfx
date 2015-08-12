@@ -626,7 +626,7 @@ short process_player_manufacturing(PlayerNumber plyr_idx)
     SYNCDBG(7,"Starting for player %d",(int)plyr_idx);
 
     dungeon = get_players_num_dungeon(plyr_idx);
-    if (!player_has_room(plyr_idx, RoK_WORKSHOP))
+    if (!player_has_room_of_role(plyr_idx, RoRoF_CratesManufctr))
     {
         return true;
     }

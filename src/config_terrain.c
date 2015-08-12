@@ -64,6 +64,7 @@ const struct NamedCommand terrain_room_commands[] = {
   {"TOTALCAPACITY",  13},
   {"USEDCAPACITY",   14},
   {"AMBIENTSNDSAMPLE",15},
+  {"ROLES",          16},
   {NULL,              0},
 };
 
@@ -74,7 +75,7 @@ const struct NamedCommand  terrain_room_properties_commands[] = {
   {NULL,                0},
 };
 
-const struct NamedCommand  terrain_room_role_commands[] = {
+const struct NamedCommand  room_roles_desc[] = {
   {"ROOM_ROLE_KEEPER_STORAGE", RoRoF_KeeperStorage},
   {"ROOM_ROLE_LAIR_STORAGE",   RoRoF_LairStorage},
   {"ROOM_ROLE_GOLD_STORAGE",   RoRoF_GoldStorage},
@@ -294,7 +295,7 @@ const char *slab_code_name(SlabKind slbkind)
 const char *room_role_code_name(RoomRole rrole)
 {
     const char *name;
-    name = get_conf_parameter_text(terrain_room_role_commands,rrole);
+    name = get_conf_parameter_text(room_roles_desc,rrole);
     if (name[0] != '\0')
         return name;
     return "INVALID";
@@ -593,6 +594,7 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
             roomst->msg_needed = 0;
             roomst->msg_too_small = 0;
             roomst->msg_no_route = 0;
+            roomst->roles = RoRoF_None;
             if (i < slab_conf.room_types_count)
             {
                 room_desc[i].name = roomst->code_name;
@@ -906,6 +908,20 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
+        case 16: // ROLES
+            roomst->roles = RoRoF_None;
+            while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = get_id(room_roles_desc, word_buf);
+                if (k > 0) {
+                    roomst->roles |= k;
+                    n++;
+                } else {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+                }
+            }
+            break;
         case 0: // comment
             break;
         case -1: // end of buffer
@@ -1197,45 +1213,9 @@ TbBool enemies_may_work_continuously_in_room(RoomKind rkind)
 
 RoomRole get_room_roles(RoomKind rkind)
 {
-    //TODO CONFIG Place this in room config data
-    switch (rkind)
-    {
-    case RoK_ENTRANCE:
-        return RoRoF_CrPoolSpawn|RoRoF_CrPoolLeave;
-    case RoK_TREASURE:
-        return RoRoF_GoldStorage;
-    case RoK_LIBRARY:
-        return RoRoF_PowersStorage|RoRoF_Research;
-    case RoK_PRISON:
-        return RoRoF_Prison|RoRoF_CrConditSpawn;
-    case RoK_TORTURE:
-        return RoRoF_Torture|RoRoF_CrConditSpawn;
-    case RoK_TRAINING:
-        return RoRoF_CrTrainExp;
-    case RoK_DUNGHEART:
-        return RoRoF_KeeperStorage;
-    case RoK_WORKSHOP:
-        return RoRoF_CratesStorage|RoRoF_CratesManufctr;
-    case RoK_SCAVENGER:
-        return RoRoF_CrScavenge|RoRoF_CrConditSpawn;
-    case RoK_TEMPLE:
-        return RoRoF_CrSacrifice|RoRoF_CrPurifySpell|RoRoF_CrHappyPray|RoRoF_CrConditSpawn;
-    case RoK_GRAVEYARD:
-        return RoRoF_DeadStorage|RoRoF_CrConditSpawn;
-    case RoK_BARRACKS:
-        return RoRoF_CrMakeGroup;
-    case RoK_GARDEN:
-        return RoRoF_FoodStorage|RoRoF_FoodSpawn;
-    case RoK_LAIR:
-        return RoRoF_LairStorage|RoRoF_CrHealSleep;
-    case RoK_BRIDGE:
-        return RoRoF_PassWater|RoRoF_PassLava;
-    case RoK_GUARDPOST:
-        return RoRoF_CrGuard;
-    default:
-        break;
-    }
-    return false;
+    const struct RoomConfigStats *roomst;
+    roomst = get_room_kind_stats(rkind);
+    return roomst->roles;
 }
 
 TbBool room_role_matches(RoomKind rkind, RoomRole rrole)

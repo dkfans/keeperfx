@@ -656,7 +656,7 @@ TbBool get_drop_position_for_creature_job_in_dungeon(struct Coord3d *pos, const 
         SYNCDBG(3,"Cannot assign %s for %s index %d owner %d; NEEDS_HAVE_JOB",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         return false;
     }
-    if (((jobcfg->job_flags & JoKF_AssignAreaWithinRoom) != 0) && dungeon_has_room(dungeon, jobcfg->room_kind))
+    if (((jobcfg->job_flags & JoKF_AssignAreaWithinRoom) != 0) && player_has_room_of_role(dungeon->owner, jobcfg->room_role))
     {
         struct Room *room;
         int needed_capacity;
@@ -665,7 +665,7 @@ TbBool get_drop_position_for_creature_job_in_dungeon(struct Coord3d *pos, const 
         } else {
             needed_capacity = 0;
         }
-        room = get_room_of_given_kind_for_thing(creatng, dungeon, jobcfg->room_kind, needed_capacity);
+        room = get_room_of_given_role_for_thing(creatng, dungeon, jobcfg->room_role, needed_capacity);
         // Returns position, either on border on within room center
         if (get_drop_position_for_creature_job_in_room(pos, room, new_job)) {
             return true;

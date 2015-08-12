@@ -2587,7 +2587,7 @@ TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
         dungeon->hates_player[killertng->owner] += game.fight_hate_kill_value;
     }
     SYNCDBG(18,"Almost finished");
-    if (((flags & CrDed_NoUnconscious) != 0) || (!player_has_room(killertng->owner,RoK_PRISON))
+    if (((flags & CrDed_NoUnconscious) != 0) || (!player_has_room_of_role(killertng->owner,RoRoF_Prison))
       || (!player_creature_tends_to(killertng->owner,CrTend_Imprison)))
     {
         if ((flags & CrDed_NoEffects) == 0) {

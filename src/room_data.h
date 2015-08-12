@@ -228,7 +228,7 @@ struct Room *link_adjacent_rooms_of_type(PlayerNumber owner, MapSubtlCoord x, Ma
 struct Room *create_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 short room_grow_food(struct Room *room);
 void update_room_efficiency(struct Room *room);
-struct Room *get_room_of_given_kind_for_thing(const struct Thing *thing, const struct Dungeon *dungeon, RoomKind rkind, int needed_capacity);
+struct Room *get_room_of_given_role_for_thing(const struct Thing *thing, const struct Dungeon *dungeon, RoomRole rrole, int needed_capacity);
 struct Thing *find_lair_totem_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Room *place_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool slab_is_area_outer_border(MapSlabCoord slb_x, MapSlabCoord slb_y);

@@ -796,7 +796,7 @@ CreatureJob find_creature_to_be_placed_in_room_for_job(struct Computer2 *comp, s
         }
         return Job_NULL;
     }
-    room = get_room_of_given_kind_for_thing(thing,dungeon, get_room_for_job(param.num2), 1);
+    room = get_room_of_given_role_for_thing(thing,dungeon, get_room_role_for_job(param.num2), 1);
     if (room_is_invalid(room))
         return Job_NULL;
     *roomp = room;

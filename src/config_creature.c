@@ -96,7 +96,7 @@ const struct NamedCommand creaturetype_instance_properties[] = {
 
 const struct NamedCommand creaturetype_job_commands[] = {
   {"NAME",              1},
-  {"RELATEDROOM",       2},
+  {"RELATEDROOMROLE",   2},
   {"RELATEDEVENT",      3},
   {"ASSIGN",            4},
   {"INITIALSTATE",      5},
@@ -1108,7 +1108,7 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
         {
             jobcfg = &crtr_conf.jobs[i];
             LbMemorySet(jobcfg->name, 0, COMMAND_WORD_LEN);
-            jobcfg->room_kind = RoK_NONE;
+            jobcfg->room_role = RoRoF_None;
             jobcfg->initial_crstate = CrSt_Unused;
             jobcfg->continue_crstate = CrSt_Unused;
             jobcfg->job_flags = 0;
@@ -1171,14 +1171,14 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
                 }
                 n++;
                 break;
-            case 2: // RELATEDROOM
-                jobcfg->room_kind = RoK_NONE;
+            case 2: // RELATEDROOMROLE
+                jobcfg->room_role = RoRoF_None;
                 if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
                 {
-                    k = get_id(room_desc, word_buf);
+                    k = get_id(room_roles_desc, word_buf);
                     if (k >= 0)
                     {
-                        jobcfg->room_kind = k;
+                        jobcfg->room_role = k;
                         n++;
                     } else
                     {
@@ -1880,8 +1880,8 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
 }
 
 /**
- * Returns a job creature can do in a room, or anywhere else.
- * @param rkind Room kind for which job is to be returned.
+ * Returns a job creature can do in a room of given role, or anywhere else.
+ * @param rrole Room roles for which at least one needs to match the job to be returned.
  * @param required_kind_flags Only jobs which have all of the flags set can be returned.
  *     For example, to only include jobs which can be assigned by dropping creatures by computer player,
  *     use JoKF_AssignComputerDrop flag.
@@ -1889,7 +1889,7 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
  *     no need to be in primary/secondary list should be qualified, this can be Job_NULL.
  * @return A single job flag.
  */
-CreatureJob get_job_for_room(RoomKind rkind, unsigned long required_kind_flags, CreatureJob has_jobs)
+CreatureJob get_job_for_room_role(RoomRole rrole, unsigned long required_kind_flags, CreatureJob has_jobs)
 {
     long i;
     for (i=0; i < crtr_conf.jobs_count; i++)
@@ -1902,8 +1902,53 @@ CreatureJob get_job_for_room(RoomKind rkind, unsigned long required_kind_flags, 
             new_job = 1<<(i-1);
             if (((jobcfg->job_flags & JoKF_NeedsHaveJob) == 0) || ((has_jobs & new_job) != 0))
             {
-                if ((jobcfg->room_kind == rkind) || ((jobcfg->job_flags & JoKF_AssignAreaOutsideRoom) != 0)) {
+                if (((jobcfg->room_role & rrole) != 0) || ((jobcfg->job_flags & JoKF_AssignAreaOutsideRoom) != 0)) {
                     return new_job;
+                }
+            }
+        }
+    }
+    return Job_NULL;
+}
+
+/**
+ * Returns a job creature can do in a room, or anywhere else.
+ * @param rkind Room kind for which job is to be returned.
+ * @param required_kind_flags Only jobs which have all of the flags set can be returned.
+ *     For example, to only include jobs which can be assigned by dropping creatures by computer player,
+ *     use JoKF_AssignComputerDrop flag.
+ * @param has_jobs Primary and secondary jobs of a creature to be assigned; if only jobs which have
+ *     no need to be in primary/secondary list should be qualified, this can be Job_NULL.
+ * @return A single job flag.
+ */
+CreatureJob get_job_for_room(RoomKind rkind, unsigned long required_kind_flags, CreatureJob has_jobs)
+{
+    return get_job_for_room_role(get_room_roles(rkind), required_kind_flags, has_jobs);
+}
+
+/**
+ * Returns a job creature can do in a room with given role.
+ * @param rrole Room roles for which at least one needs to match the job to be returned.
+ * @param qualify_flags Only jobs which have at least one of the flags set can be returned.
+ * @param prevent_flags Only jobs which have none of the flags set can be returned.
+ * @return A single job flag.
+ */
+CreatureJob get_job_which_qualify_for_room_role(RoomRole rrole, unsigned long qualify_flags, unsigned long prevent_flags)
+{
+    long i;
+    if (rrole == RoRoF_None) {
+        return Job_NULL;
+    }
+    for (i=0; i < crtr_conf.jobs_count; i++)
+    {
+        struct CreatureJobConfig *jobcfg;
+        jobcfg = &crtr_conf.jobs[i];
+        if ((jobcfg->job_flags & qualify_flags) != 0)
+        {
+            if ((jobcfg->job_flags & prevent_flags) == 0)
+            {
+                if ((jobcfg->room_role & rrole) != 0) {
+                    return 1<<(i-1);
                 }
             }
         }
@@ -1920,34 +1965,16 @@ CreatureJob get_job_for_room(RoomKind rkind, unsigned long required_kind_flags, 
  */
 CreatureJob get_job_which_qualify_for_room(RoomKind rkind, unsigned long qualify_flags, unsigned long prevent_flags)
 {
-    long i;
-    if (rkind == RoK_NONE) {
-        return Job_NULL;
-    }
-    for (i=0; i < crtr_conf.jobs_count; i++)
-    {
-        struct CreatureJobConfig *jobcfg;
-        jobcfg = &crtr_conf.jobs[i];
-        if ((jobcfg->job_flags & qualify_flags) != 0)
-        {
-            if ((jobcfg->job_flags & prevent_flags) == 0)
-            {
-                if (jobcfg->room_kind == rkind) {
-                    return 1<<(i-1);
-                }
-            }
-        }
-    }
-    return Job_NULL;
+    return get_job_which_qualify_for_room_role(get_room_roles(rkind), qualify_flags, prevent_flags);
 }
 
 /**
- * Returns jobs which creatures owned by enemy players may be assigned to do work in specific room.
+ * Returns jobs which creatures owned by enemy players may be assigned to do work in rooms of specific role.
  * Note that sacrificing a creature or putting it on portal does not give it continuous work.
- * @param rkind Room kind to be checked.
+ * @param rrole Room roles for which at least one needs to match the job to be returned.
  * @return Job flags matching.
  */
-CreatureJob get_jobs_enemies_may_do_continuously_in_room(RoomKind rkind)
+CreatureJob get_jobs_enemies_may_do_continuously_in_room_role(RoomRole rrole)
 {
     CreatureJob jobpref;
     jobpref = Job_NULL;
@@ -1957,7 +1984,7 @@ CreatureJob get_jobs_enemies_may_do_continuously_in_room(RoomKind rkind)
         struct CreatureJobConfig *jobcfg;
         jobcfg = &crtr_conf.jobs[i];
         // Accept only jobs in given room
-        if (jobcfg->room_kind == rkind)
+        if ((jobcfg->room_role & rrole) != 0)
         {
             // Check whether enemies can do this job
             if ((jobcfg->job_flags & (JoKF_EnemyCreatures|JoKF_EnemyDiggers)) != 0)
@@ -1973,6 +2000,17 @@ CreatureJob get_jobs_enemies_may_do_continuously_in_room(RoomKind rkind)
 }
 
 /**
+ * Returns jobs which creatures owned by enemy players may be assigned to do work in specific room.
+ * Note that sacrificing a creature or putting it on portal does not give it continuous work.
+ * @param rkind Room kind to be checked.
+ * @return Job flags matching.
+ */
+CreatureJob get_jobs_enemies_may_do_continuously_in_room(RoomKind rkind)
+{
+    return get_jobs_enemies_may_do_continuously_in_room_role(get_room_roles(rkind));
+}
+
+/**
  * Returns first room kind which matches role from given job.
  * Note that more than one room kind may have given role, so use
  * of this function should be limited.
@@ -1983,7 +2021,6 @@ RoomKind get_room_for_job(CreatureJob job_flags)
 {
     struct CreatureJobConfig *jobcfg;
     jobcfg = get_config_for_job(job_flags);
-    /* DISABLED - jobs have no room_role assigned yet.
     RoomKind rkind;
     for (rkind=0; rkind < slab_conf.room_types_count; rkind++)
     {
@@ -1991,8 +2028,18 @@ RoomKind get_room_for_job(CreatureJob job_flags)
             return rkind;
     }
     return RoK_NONE;
-    */
-    return jobcfg->room_kind;
+}
+
+/**
+ * Returns room role from given job.
+ * @param job_flags
+ * @return
+ */
+RoomRole get_room_role_for_job(CreatureJob job_flags)
+{
+    struct CreatureJobConfig *jobcfg;
+    jobcfg = get_config_for_job(job_flags);
+    return jobcfg->room_role;
 }
 
 EventKind get_event_for_job(CreatureJob job_flags)
@@ -2024,12 +2071,13 @@ int get_required_room_capacity_for_job(CreatureJob jobpref, ThingModel crmodel)
         return 0;
     }
     struct CreatureStats *crstat;
-    switch (jobcfg->room_kind)
+    switch (jobcfg->room_role)
     {
-    case RoK_NONE:
-        WARNLOG("Job needs capacity but has no related room.");
+    case RoRoF_None:
+        WARNLOG("Job needs capacity but has no related room role.");
         return 0;
-    case RoK_LAIR:
+    case RoRoF_LairStorage:
+    case RoRoF_CrHealSleep:
         crstat = creature_stats_get(crmodel);
         return crstat->lair_size;
     default:

@@ -2508,7 +2508,7 @@ long check_out_worker_pickup_unconscious(struct Thing *thing, struct DiggerStack
     SYNCDBG(18,"Starting");
     stl_x = stl_num_decode_x(dstack->stl_num);
     stl_y = stl_num_decode_y(dstack->stl_num);
-    if (!player_has_room(thing->owner, RoK_PRISON)) {
+    if (!player_has_room_of_role(thing->owner, RoRoF_Prison)) {
         return 0;
     }
     if (!player_creature_tends_to(thing->owner, CrTend_Imprison)) {
@@ -2550,7 +2550,7 @@ long check_out_worker_pickup_corpse(struct Thing *creatng, struct DiggerStack *d
     MapSubtlCoord stl_x,stl_y;
     stl_x = stl_num_decode_x(dstack->stl_num);
     stl_y = stl_num_decode_y(dstack->stl_num);
-    if (!player_has_room(creatng->owner, RoK_GRAVEYARD)) {
+    if (!player_has_room_of_role(creatng->owner, RoRoF_DeadStorage)) {
         return 0;
     }
     struct Thing *deadtng;
@@ -2597,7 +2597,7 @@ long check_out_worker_pickup_spellbook(struct Thing *thing, struct DiggerStack *
     MapSubtlCoord stl_x,stl_y;
     stl_x = stl_num_decode_x(dstack->stl_num);
     stl_y = stl_num_decode_y(dstack->stl_num);
-    if (!player_has_room(thing->owner, RoK_LIBRARY)) {
+    if (!player_has_room_of_role(thing->owner, RoRoF_PowersStorage)) {
         return 0;
     }
     struct Thing *sectng;
@@ -2686,7 +2686,7 @@ long check_out_worker_pickup_trap_for_workshop(struct Thing *thing, struct Digge
     long i;
     stl_x = stl_num_decode_x(dstack->stl_num);
     stl_y = stl_num_decode_y(dstack->stl_num);
-    if (!player_has_room(thing->owner, RoK_WORKSHOP)) {
+    if (!player_has_room_of_role(thing->owner, RoRoF_CratesStorage)) {
         return 0;
     }
     struct Thing *sectng;
