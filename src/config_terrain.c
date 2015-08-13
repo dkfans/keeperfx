@@ -1206,9 +1206,9 @@ ThingModel get_room_create_creature_model(RoomKind rkind)
     return roomst->creature_creation_model;
 }
 
-TbBool enemies_may_work_continuously_in_room(RoomKind rkind)
+TbBool enemies_may_work_in_room(RoomKind rkind)
 {
-    return (get_jobs_enemies_may_do_continuously_in_room(rkind) != Job_NULL);
+    return (get_jobs_enemies_may_do_in_room(rkind) != Job_NULL);
 }
 
 RoomRole get_room_roles(RoomKind rkind)

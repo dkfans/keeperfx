@@ -3525,11 +3525,13 @@ short person_sulking(struct Thing *creatng)
  */
 TbBool room_initially_valid_as_type_for_thing(const struct Room *room, RoomKind rkind, const struct Thing *thing)
 {
-    if (!room_exists(room))
+    if (!room_exists(room)) {
         return false;
-    if (room->kind != rkind)
+    }
+    if (room->kind != rkind) {
         return false;
-    return ((room->owner == thing->owner) || enemies_may_work_continuously_in_room(room->kind));
+    }
+    return ((room->owner == thing->owner) || enemies_may_work_in_room(room->kind));
 }
 
 /**
@@ -3542,11 +3544,13 @@ TbBool room_initially_valid_as_type_for_thing(const struct Room *room, RoomKind 
  */
 TbBool room_still_valid_as_type_for_thing(const struct Room *room, RoomKind rkind, const struct Thing *thing)
 {
-    if (!room_exists(room))
+    if (!room_exists(room)) {
         return false;
-    if (room->kind != rkind)
+    }
+    if (room->kind != rkind) {
         return false;
-    return ((room->owner == thing->owner) || enemies_may_work_continuously_in_room(room->kind));
+    }
+    return ((room->owner == thing->owner) || enemies_may_work_in_room(room->kind));
 }
 
 /**

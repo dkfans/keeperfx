@@ -423,13 +423,8 @@ short manufacturing(struct Thing *creatng)
     dungeon = get_dungeon(creatng->owner);
     if (dungeon->manufacture_class != TCls_Empty)
     {
-        struct CreatureControl *cctrl;
-        struct CreatureStats *crstat;
-        cctrl = creature_control_get_from_thing(creatng);
-        crstat = creature_stats_get_from_thing(creatng);
         long work_value;
-        work_value = compute_creature_work_value(crstat->manufacture_value*256, room->efficiency, cctrl->explevel);
-        work_value = process_work_speed_on_work_value(creatng, work_value);
+        work_value = compute_creature_work_value_for_room_role(creatng, RoRoF_CratesManufctr, room->efficiency);
         SYNCDBG(9,"The %s index %d produced %d manufacture points",thing_model_name(creatng),(int)creatng->index,(int)work_value);
         dungeon->manufacture_progress += work_value;
         dungeon->field_1181 += work_value;

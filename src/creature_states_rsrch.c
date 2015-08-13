@@ -196,12 +196,7 @@ CrCheckRet process_research_function(struct Thing *creatng)
         return CrCkRet_Continue;
     }
     long work_value;
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(creatng);
-    struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(creatng);
-    work_value = compute_creature_work_value(crstat->research_value*256, room->efficiency, cctrl->explevel);
-    work_value = process_work_speed_on_work_value(creatng, work_value);
+    work_value = compute_creature_work_value_for_room_role(creatng, RoRoF_Research, room->efficiency);
     SYNCDBG(19,"The %s index %d produced %d research points",thing_model_name(creatng),(int)creatng->index,(int)work_value);
     dungeon->total_research_points += work_value;
     dungeon->research_progress += work_value;

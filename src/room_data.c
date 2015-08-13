@@ -3332,49 +3332,57 @@ struct Room *find_room_nearest_to_position(PlayerNumber plyr_idx, RoomKind rkind
     return near_room;
 }
 
-long get_room_attractiveness_for_thing(const struct Dungeon *dungeon, const struct Room *room, const struct Thing *thing, int needed_capacity)
+long get_room_attractiveness_for_thing(const struct Dungeon *dungeon, const struct Room *room, const struct Thing *thing, RoomRole rrole, int needed_capacity)
 {
     long salary;
     struct CreatureControl *cctrl;
     long attractiveness; // Says how attractive is a specific room, based on some room-specific code below
-    attractiveness = 10; // Default attractiveness
-    switch (room->kind)
+    attractiveness = 16; // Default attractiveness
+    if ((rrole & RoRoF_GoldStorage) != 0)
     {
-    case RoK_TREASURE:
         salary = calculate_correct_creature_pay(thing);
         if (room->capacity_used_for_storage + dungeon->offmap_money_owned < salary) {
             // This room isn't attractive at all - creature won't get salary there
             attractiveness = 0;
         } else {
-            attractiveness += min(room->capacity_used_for_storage/(salary+1),50);
+            attractiveness += 2 * min(room->capacity_used_for_storage/(salary+1),16);
         }
-        break;
-    case RoK_LAIR:
+    }
+    if ((rrole & (RoRoF_CrHealSleep|RoRoF_LairStorage)) != 0)
+    {
         cctrl = creature_control_get_from_thing(thing);
         if (room->index == cctrl->lairtng_idx) {
             // A room where we already have a lair is a few times more attractive
-            attractiveness += 70;
+            attractiveness += 64;
         } else {
-            attractiveness += min(max(room->total_capacity - (int)room->used_capacity,0),50);
+            attractiveness += 2 * min(max(room->total_capacity - (int)room->used_capacity,0),16);
         }
-        break;
-    case RoK_GARDEN:
-        attractiveness += min(room->used_capacity,50);
-        break;
-    case RoK_LIBRARY:
-    case RoK_TRAINING:
-    case RoK_WORKSHOP:
-    case RoK_SCAVENGER:
-    case RoK_TEMPLE:
-    case RoK_BARRACKS:
-    case RoK_GUARDPOST:
+    }
+    if ((rrole & RoRoF_FoodStorage) != 0)
+    {
+        attractiveness += min(room->used_capacity,16);
+    }
+    if ((rrole & (RoRoF_CratesStorage|RoRoF_PowersStorage|RoRoF_DeadStorage|RoRoF_Prison|RoRoF_Torture|RoRoF_CrHappyPray|RoRoF_CrGuard|RoRoF_CrMakeGroup|RoRoF_CrPurifySpell)) != 0)
+    {
         if (room->used_capacity+needed_capacity > room->total_capacity) {
             // This room isn't attractive at all - creature won't get job there
             attractiveness = 0;
         } else {
-            attractiveness += min(max(room->total_capacity - (int)room->used_capacity,0),50);
+            attractiveness += min(max(room->total_capacity - (int)room->used_capacity,0),16);
         }
-        break;
+    }
+    if ((rrole & (RoRoF_CrScavenge|RoRoF_CrTrainExp|RoRoF_Research|RoRoF_CratesManufctr)) != 0)
+    {
+        if (room->used_capacity+needed_capacity > room->total_capacity) {
+            // This room isn't attractive at all - creature won't get job there
+            attractiveness = 0;
+        } else {
+            long work_value;
+            // Work value multiplies attractiveness
+            work_value = compute_creature_work_value_for_room_role(thing, rrole, room->efficiency);
+            work_value = max(work_value/256,1);
+            attractiveness += work_value * min(max(room->total_capacity - (int)room->used_capacity,0),16);
+        }
     }
     if (attractiveness > 0)
     {
@@ -3416,13 +3424,13 @@ struct Room *get_room_of_given_role_for_thing(const struct Thing *thing, const s
             i = room->next_of_owner;
             // Per-room code
             long attractiveness;
-            attractiveness = get_room_attractiveness_for_thing(dungeon, room, thing, needed_capacity);
+            attractiveness = get_room_attractiveness_for_thing(dungeon, room, thing, rrole & get_room_roles(room->kind), needed_capacity);
             if (attractiveness > 0)
             {
                 long dist;
                 dist =  abs(thing->mappos.y.stl.num - (int)room->central_stl_y);
                 dist += abs(thing->mappos.x.stl.num - (int)room->central_stl_x);
-                dist = (dist*100)/attractiveness;
+                dist = (dist*128)/attractiveness;
                 if (retdist > dist)
                 {
                     retdist = dist;

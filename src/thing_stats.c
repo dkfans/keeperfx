@@ -508,6 +508,34 @@ long compute_creature_work_value(long base_param,long efficiency,unsigned short 
   return (max_param * efficiency) / ROOM_EFFICIENCY_MAX;
 }
 
+long compute_creature_work_value_for_room_role(const struct Thing *creatng, RoomRole rrole, long efficiency)
+{
+    struct CreatureStats *crstat;
+    struct CreatureControl *cctrl;
+    crstat = creature_stats_get_from_thing(creatng);
+    cctrl = creature_control_get_from_thing(creatng);
+    long i;
+    i = 256;
+    if ((rrole & RoRoF_Research) != 0)
+    {
+        i = compute_creature_work_value(crstat->research_value*256, ROOM_EFFICIENCY_MAX, cctrl->explevel);
+    }
+    if ((rrole & RoRoF_CratesManufctr) != 0)
+    {
+        i = compute_creature_work_value(crstat->manufacture_value*256, ROOM_EFFICIENCY_MAX, cctrl->explevel);
+    }
+    if ((rrole & RoRoF_CrTrainExp) != 0)
+    {
+        // Training speed does not grow with experience - otherwise it would be too fast
+        i = compute_creature_work_value(crstat->training_value*256, ROOM_EFFICIENCY_MAX, 0);
+    }
+    if ((rrole & RoRoF_CrScavenge) != 0)
+    {
+        i = compute_creature_work_value(crstat->scavenge_value*256, ROOM_EFFICIENCY_MAX, cctrl->explevel);
+    }
+    return process_work_speed_on_work_value(creatng, i);
+}
+
 long compute_controlled_speed_increase(long prev_speed, long speed_limit)
 {
     long speed;
@@ -938,26 +966,22 @@ const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveSta
         text = loc_text;
         break;
     case CrLStat_ResearchSkill:
-        i = compute_creature_work_value(crstat->research_value*256, ROOM_EFFICIENCY_MAX, cctrl->explevel);
-        i = process_work_speed_on_work_value(creatng, i);
+        i = compute_creature_work_value_for_room_role(creatng, RoRoF_Research, ROOM_EFFICIENCY_MAX);
         snprintf(loc_text,sizeof(loc_text),"%ld", i/256);
         text = loc_text;
         break;
     case CrLStat_ManufactureSkill:
-        i = compute_creature_work_value(crstat->manufacture_value*256, ROOM_EFFICIENCY_MAX, cctrl->explevel);
-        i = process_work_speed_on_work_value(creatng, i);
+        i = compute_creature_work_value_for_room_role(creatng, RoRoF_CratesManufctr, ROOM_EFFICIENCY_MAX);
         snprintf(loc_text,sizeof(loc_text),"%ld", i/256);
         text = loc_text;
         break;
     case CrLStat_TrainingSkill:
-        i = compute_creature_work_value(crstat->training_value*256, ROOM_EFFICIENCY_MAX, cctrl->explevel);
-        i = process_work_speed_on_work_value(creatng, i);
+        i = compute_creature_work_value_for_room_role(creatng, RoRoF_CrTrainExp, ROOM_EFFICIENCY_MAX);
         snprintf(loc_text,sizeof(loc_text),"%ld", i/256);
         text = loc_text;
         break;
     case CrLStat_ScavengeSkill:
-        i = compute_creature_work_value(crstat->scavenge_value*256, ROOM_EFFICIENCY_MAX, cctrl->explevel);
-        i = process_work_speed_on_work_value(creatng, i);
+        i = compute_creature_work_value_for_room_role(creatng, RoRoF_CrScavenge, ROOM_EFFICIENCY_MAX);
         snprintf(loc_text,sizeof(loc_text),"%ld", i/256);
         text = loc_text;
         break;

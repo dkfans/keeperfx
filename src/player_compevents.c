@@ -57,8 +57,8 @@ struct ComputerSpells {
     char gaction;
     char require_owned_ground;
     int repeat_num;
-    int splevel;
-    int field_B;
+    int pwlevel;
+    int amount_able;
 };
 /******************************************************************************/
 const struct NamedCommand computer_event_test_func_type[] = {
@@ -379,7 +379,7 @@ PowerKind computer_choose_attack_spell(struct Computer2 *comp, struct ComputerEv
         {
             if (!thing_affected_by_spell(creatng, caspl->pwkind))
             {
-                if (computer_able_to_use_power(comp, caspl->pwkind, cevent->param1, caspl->field_B)) {
+                if (computer_able_to_use_power(comp, caspl->pwkind, cevent->param1, caspl->amount_able)) {
                     cevent->param3 = i;
                     return caspl->pwkind;
                 }
@@ -423,7 +423,7 @@ long computer_event_attack_magic_foe(struct Computer2 *comp, struct ComputerEven
     repeat_num = caspl->repeat_num;
     if (repeat_num < 0)
       repeat_num = cevent->param2;
-    splevel = caspl->splevel;
+    splevel = caspl->pwlevel;
     if (splevel < 0)
       repeat_num = cevent->param1;
     gaction = caspl->gaction;

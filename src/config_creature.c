@@ -1970,11 +1970,10 @@ CreatureJob get_job_which_qualify_for_room(RoomKind rkind, unsigned long qualify
 
 /**
  * Returns jobs which creatures owned by enemy players may be assigned to do work in rooms of specific role.
- * Note that sacrificing a creature or putting it on portal does not give it continuous work.
  * @param rrole Room roles for which at least one needs to match the job to be returned.
  * @return Job flags matching.
  */
-CreatureJob get_jobs_enemies_may_do_continuously_in_room_role(RoomRole rrole)
+CreatureJob get_jobs_enemies_may_do_in_room_role(RoomRole rrole)
 {
     CreatureJob jobpref;
     jobpref = Job_NULL;
@@ -1989,10 +1988,7 @@ CreatureJob get_jobs_enemies_may_do_continuously_in_room_role(RoomRole rrole)
             // Check whether enemies can do this job
             if ((jobcfg->job_flags & (JoKF_EnemyCreatures|JoKF_EnemyDiggers)) != 0)
             {
-                // Make sure this is a continuous job, not something for one time, like sacrifice
-                if ((jobcfg->job_flags & JoKF_AssignOneTime) == 0) {
-                    jobpref |= 1<<(i-1);
-                }
+                jobpref |= 1<<(i-1);
             }
         }
     }
@@ -2001,13 +1997,12 @@ CreatureJob get_jobs_enemies_may_do_continuously_in_room_role(RoomRole rrole)
 
 /**
  * Returns jobs which creatures owned by enemy players may be assigned to do work in specific room.
- * Note that sacrificing a creature or putting it on portal does not give it continuous work.
  * @param rkind Room kind to be checked.
  * @return Job flags matching.
  */
-CreatureJob get_jobs_enemies_may_do_continuously_in_room(RoomKind rkind)
+CreatureJob get_jobs_enemies_may_do_in_room(RoomKind rkind)
 {
-    return get_jobs_enemies_may_do_continuously_in_room_role(get_room_roles(rkind));
+    return get_jobs_enemies_may_do_in_room_role(get_room_roles(rkind));
 }
 
 /**
