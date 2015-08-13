@@ -688,7 +688,7 @@ TbBool creature_could_be_placed_in_better_room(const struct Computer2 *comp, con
 {
     const struct Dungeon *dungeon;
     struct Room *chosen_room;
-    long k,rkind;
+    long k;
     TbBool better_job_allowed;
     SYNCDBG(19,"Starting");
     dungeon = comp->dungeon;
@@ -700,15 +700,17 @@ TbBool creature_could_be_placed_in_better_room(const struct Computer2 *comp, con
     better_job_allowed = false;
     for (k=0; move_to_best_job[k].job_kind != Job_NULL; k++)
     {
-        rkind = get_room_for_job(move_to_best_job[k].job_kind);
-        if (rkind == chosen_room->kind)
+        RoomRole rrole;
+        rrole = get_room_role_for_job(move_to_best_job[k].job_kind);
+        // If we already have this job
+        if ((get_room_roles(chosen_room->kind) & rrole) != 0)
         {
             // Jobs below have smaller priority, so we can return here
             return better_job_allowed;
         }
-        if (dungeon_has_room(dungeon, rkind)
-         && creature_can_do_job_for_computer_player_in_room(thing, dungeon->owner, rkind)
-         && worker_needed_in_dungeons_room_kind(dungeon, rkind)) {
+        if (player_has_room_of_role(dungeon->owner, rrole)
+         && creature_can_do_job_for_computer_player_in_room_role(thing, dungeon->owner, rrole)
+         && worker_needed_in_dungeons_room_role(dungeon, rrole)) {
             better_job_allowed = true;
         }
     }
@@ -736,12 +738,14 @@ CreatureJob get_job_to_place_creature_in_room(const struct Computer2 *comp, cons
         if (!creature_can_do_job_for_player(thing, dungeon->owner, mvto->job_kind, JobChk_None)) {
             continue;
         }
-        RoomKind rkind;
-        rkind = get_room_for_job(mvto->job_kind);
-        if (!worker_needed_in_dungeons_room_kind(dungeon, rkind)) {
+        RoomRole rrole;
+        rrole = get_room_role_for_job(mvto->job_kind);
+        if (!worker_needed_in_dungeons_room_role(dungeon, rrole)) {
             SYNCDBG(9,"Cannot assign %s for %s index %d; no worker needed",creature_job_code_name(mvto->job_kind),thing_model_name(thing),(int)thing->index);
             continue;
         }
+        RoomKind rkind;
+        rkind = get_room_for_job(mvto->job_kind);
         // Find specific room which meets capacity demands
         i = dungeon->room_kind[rkind];
         room = find_room_with_most_spare_capacity_starting_with(i,&total_spare_cap);
@@ -749,8 +753,13 @@ CreatureJob get_job_to_place_creature_in_room(const struct Computer2 *comp, cons
             SYNCDBG(9,"Cannot assign %s for %s index %d; no room with spares",creature_job_code_name(mvto->job_kind),thing_model_name(thing),(int)thing->index);
             continue;
         }
+        long work_value;
+        // Work value affects priority
+        work_value = compute_creature_work_value_for_room_role(thing, rrole, room->efficiency);
+        work_value = max(work_value/256,1);
+        // Now compute the priority
         long new_priority;
-        new_priority = LbSqrL(total_spare_cap) * mvto->priority;
+        new_priority = LbSqrL(total_spare_cap) * (mvto->priority + mvto->priority * work_value / 5);
         SYNCDBG(9,"Checking job %s for %s index %d, cap %ld priority %ld",creature_job_code_name(mvto->job_kind),thing_model_name(thing),(int)thing->index,(long)total_spare_cap,(long)new_priority);
         if (chosen_priority < new_priority)
         {
@@ -788,7 +797,7 @@ CreatureJob find_creature_to_be_placed_in_room_for_job(struct Computer2 *comp, s
     // won't be able or will not want to work in that room, and will be picked up and dropped over and over.
     // This will prevent such situation, at least to the moment when the creature leaves the room.
     room = get_room_thing_is_on(thing);
-    if (!room_is_invalid(room) && (room->kind == get_room_for_job(param.num2)) && (room->owner == thing->owner)) {
+    if (!room_is_invalid(room) && ((get_room_roles(room->kind) & get_room_role_for_job(param.num2)) != 0) && (room->owner == thing->owner)) {
         // Do not spam with warnings which we know to be expected
         if (!creature_is_called_to_arms(thing) && !creature_is_celebrating(thing)) {
             WARNDBG(4,"The %s owned by player %d already is in %s, but goes for %s instead of work there",

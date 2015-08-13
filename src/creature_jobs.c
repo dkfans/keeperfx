@@ -971,19 +971,19 @@ TbBool send_creature_to_job_near_position(struct Thing *creatng, MapSubtlCoord s
 }
 
 /**
+ * Retirns whether given creature can do job in a room having given role.
  *
  * @param creatng
  * @param plyr_idx
- * @param rkind
+ * @param rrole
  * @return
- * @deprecated Room does not correspond to single job anymore, this should be avoided.
  */
-TbBool creature_can_do_job_for_computer_player_in_room(const struct Thing *creatng, PlayerNumber plyr_idx, RoomKind rkind)
+TbBool creature_can_do_job_for_computer_player_in_room_role(const struct Thing *creatng, PlayerNumber plyr_idx, RoomRole rrole)
 {
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(creatng);
     CreatureJob jobpref;
-    jobpref = get_job_for_room(rkind, JoKF_AssignComputerDrop|JoKF_AssignAreaWithinRoom, crstat->job_primary|crstat->job_secondary);
+    jobpref = get_job_for_room_role(rrole, JoKF_AssignComputerDrop|JoKF_AssignAreaWithinRoom, crstat->job_primary|crstat->job_secondary);
     return creature_can_do_job_for_player(creatng, plyr_idx, jobpref, JobChk_None);
 }
 

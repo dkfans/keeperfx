@@ -58,7 +58,7 @@ TbBool setup_random_head_for_room(struct Thing *thing, struct Room *room, unsign
 
 struct Thing *find_object_in_room_for_creature_matching_bool_filter(struct Thing *creatng, const struct Room *room, Thing_Bool_Filter matcher_cb);
 
-TbBool worker_needed_in_dungeons_room_kind(const struct Dungeon *dungeon, RoomKind rkind);
+TbBool worker_needed_in_dungeons_room_role(const struct Dungeon *dungeon, RoomRole rrole);
 /******************************************************************************/
 #ifdef __cplusplus
 }

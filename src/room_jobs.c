@@ -470,27 +470,27 @@ TbBool setup_random_head_for_room(struct Thing *thing, struct Room *room, unsign
     return setup_person_move_to_coord(thing, &pos, move_flags);
 }
 
-TbBool worker_needed_in_dungeons_room_kind(const struct Dungeon *dungeon, RoomKind rkind)
+/**
+ * Returns whether doing a given room role in dungeon could use another worker.
+ * @param dungeon
+ * @param rrole
+ * @return
+ * @note This wad worker_needed_in_dungeons_room_kind() before roles were introduced.
+ */
+TbBool worker_needed_in_dungeons_room_role(const struct Dungeon *dungeon, RoomRole rrole)
 {
     long amount;
-    switch (rkind)
+    if ((rrole & RoRoF_Research) != 0)
     {
-    case RoK_LIBRARY:
         if (dungeon->current_research_idx < 0)
             return false;
         return true;
-    case RoK_TRAINING:
-        if (dungeon->creatures_total_pay >= dungeon->total_money_owned)
-            return false;
-        return true;
-    case RoK_SCAVENGER:
-        if (2 * dungeon->creatures_total_pay >= dungeon->total_money_owned)
-            return false;
-        return true;
-    case RoK_WORKSHOP:
+    }
+    if ((rrole & RoRoF_CratesManufctr) != 0)
+    {
         // When we have low gold, allow working on any manufacture - we'll sell the crates
         amount = get_doable_manufacture_with_minimal_amount_available(dungeon, NULL, NULL);
-        if (2 * dungeon->creatures_total_pay >= dungeon->total_money_owned)
+        if (dungeon->total_money_owned < 2 * dungeon->creatures_total_pay)
         {
             if (amount < MANUFACTURED_ITEMS_LIMIT)
                 return true;
@@ -499,9 +499,20 @@ TbBool worker_needed_in_dungeons_room_kind(const struct Dungeon *dungeon, RoomKi
         if (amount > 0)
             return false;
         return true;
-    default:
+    }
+    if ((rrole & RoRoF_CrTrainExp) != 0)
+    {
+        if (dungeon->total_money_owned < dungeon->creatures_total_pay)
+            return false;
         return true;
     }
+    if ((rrole & RoRoF_CrScavenge) != 0)
+    {
+        if (dungeon->total_money_owned < 2 * dungeon->creatures_total_pay)
+            return false;
+        return true;
+    }
+    return true;
 }
 /******************************************************************************/
 #ifdef __cplusplus

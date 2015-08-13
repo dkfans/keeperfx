@@ -3362,7 +3362,7 @@ long get_room_attractiveness_for_thing(const struct Dungeon *dungeon, const stru
     {
         attractiveness += min(room->used_capacity,16);
     }
-    if ((rrole & (RoRoF_CratesStorage|RoRoF_PowersStorage|RoRoF_DeadStorage|RoRoF_Prison|RoRoF_Torture|RoRoF_CrHappyPray|RoRoF_CrGuard|RoRoF_CrMakeGroup|RoRoF_CrPurifySpell)) != 0)
+    if ((rrole & (RoRoF_CratesStorage|RoRoF_PowersStorage|RoRoF_DeadStorage|RoRoF_Prison|RoRoF_Torture|RoRoF_CrHappyPray|RoRoF_CrMakeGroup|RoRoF_CrPurifySpell)) != 0)
     {
         if (room->used_capacity+needed_capacity > room->total_capacity) {
             // This room isn't attractive at all - creature won't get job there
@@ -3371,17 +3371,14 @@ long get_room_attractiveness_for_thing(const struct Dungeon *dungeon, const stru
             attractiveness += min(max(room->total_capacity - (int)room->used_capacity,0),16);
         }
     }
-    if ((rrole & (RoRoF_CrScavenge|RoRoF_CrTrainExp|RoRoF_Research|RoRoF_CratesManufctr)) != 0)
+    if ((rrole & (RoRoF_CrScavenge|RoRoF_CrTrainExp|RoRoF_Research|RoRoF_CratesManufctr|RoRoF_CrGuard)) != 0)
     {
         if (room->used_capacity+needed_capacity > room->total_capacity) {
             // This room isn't attractive at all - creature won't get job there
             attractiveness = 0;
         } else {
-            long work_value;
-            // Work value multiplies attractiveness
-            work_value = compute_creature_work_value_for_room_role(thing, rrole, room->efficiency);
-            work_value = max(work_value/256,1);
-            attractiveness += work_value * min(max(room->total_capacity - (int)room->used_capacity,0),16);
+            // There is no need to consider work value of the creature, as creature and room role are already chosen
+            attractiveness += min(max(room->total_capacity - (int)room->used_capacity,0),16);
         }
     }
     if (attractiveness > 0)
