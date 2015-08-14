@@ -3379,6 +3379,8 @@ long get_room_attractiveness_for_thing(const struct Dungeon *dungeon, const stru
         } else {
             // There is no need to consider work value of the creature, as creature and room role are already chosen
             attractiveness += min(max(room->total_capacity - (int)room->used_capacity,0),16);
+            // But specific room is still to be selected, so efficiency might help; allow it to increase attractiveness
+            attractiveness += room->efficiency / (ROOM_EFFICIENCY_MAX/16);
         }
     }
     if (attractiveness > 0)

@@ -759,7 +759,7 @@ CreatureJob get_job_to_place_creature_in_room(const struct Computer2 *comp, cons
         work_value = max(work_value/256,1);
         // Now compute the priority
         long new_priority;
-        new_priority = LbSqrL(total_spare_cap) * (mvto->priority + mvto->priority * work_value / 5);
+        new_priority = (LbSqrL(total_spare_cap) + work_value) * mvto->priority;
         SYNCDBG(9,"Checking job %s for %s index %d, cap %ld priority %ld",creature_job_code_name(mvto->job_kind),thing_model_name(thing),(int)thing->index,(long)total_spare_cap,(long)new_priority);
         if (chosen_priority < new_priority)
         {
