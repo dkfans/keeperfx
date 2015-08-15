@@ -475,7 +475,7 @@ TbBool setup_random_head_for_room(struct Thing *thing, struct Room *room, unsign
  * @param dungeon
  * @param rrole
  * @return
- * @note This wad worker_needed_in_dungeons_room_kind() before roles were introduced.
+ * @note This was worker_needed_in_dungeons_room_kind() before roles were introduced.
  */
 TbBool worker_needed_in_dungeons_room_role(const struct Dungeon *dungeon, RoomRole rrole)
 {

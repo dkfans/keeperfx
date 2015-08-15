@@ -4347,19 +4347,19 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
             creature_is_being_sacrificed(thing))
             return -1;
         // Try torturing it
-        if (dungeon_has_room(dungeon, get_room_for_job(Job_PAINFUL_TORTURE)))
+        if (player_has_room_of_role(dungeon->owner, get_room_role_for_job(Job_PAINFUL_TORTURE)))
         {
             param->num2 = Job_PAINFUL_TORTURE;
             return LONG_MAX;
         }
         // Or putting in prison
-        if (dungeon_has_room(dungeon, get_room_for_job(Job_CAPTIVITY)))
+        if (player_has_room_of_role(dungeon->owner, get_room_role_for_job(Job_CAPTIVITY)))
         {
             param->num2 = Job_CAPTIVITY;
             return LONG_MAX;
         }
         // If we can't, then just let it leave the dungeon
-        if (dungeon_has_room(dungeon, get_room_for_job(Job_EXEMPT)))
+        if (player_has_room_of_role(dungeon->owner, get_room_role_for_job(Job_EXEMPT)))
         {
             param->num2 = Job_EXEMPT;
             return LONG_MAX;
@@ -4377,7 +4377,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
         // If already at temple, then don't do anything
         if (creature_is_doing_temple_pray_activity(thing))
             return -1;
-        if (dungeon_has_room(dungeon, get_room_for_job(Job_TEMPLE_PRAY)))
+        if (player_has_room_of_role(dungeon->owner, get_room_role_for_job(Job_TEMPLE_PRAY)))
         {
             param->num2 = Job_TEMPLE_PRAY;
             return LONG_MAX;
@@ -4396,7 +4396,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
                 if (creature_is_doing_lair_activity(thing))
                     return -1;
                 // otherwise, put it into room we want
-                if (dungeon_has_room(dungeon, get_room_for_job(Job_TAKE_SLEEP)))
+                if (player_has_room_of_role(dungeon->owner, get_room_role_for_job(Job_TAKE_SLEEP)))
                 {
                     param->num2 = Job_TAKE_SLEEP;
                     return LONG_MAX;
@@ -4415,7 +4415,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
                 if (creature_is_doing_garden_activity(thing) || creature_is_taking_salary_activity(thing))
                     return -1;
                 // otherwise, put it into room we want
-                if (dungeon_has_room(dungeon, get_room_for_job(Job_TAKE_SLEEP)))
+                if (player_has_room_of_role(dungeon->owner, get_room_role_for_job(Job_TAKE_SLEEP)))
                 {
                     param->num2 = Job_TAKE_SLEEP;
                     return LONG_MAX;
@@ -4434,7 +4434,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
         if (creature_is_taking_salary_activity(thing))
             return -1;
         // otherwise, put it into room we want
-        if (dungeon_has_room(dungeon, get_room_for_job(Job_TAKE_FEED)))
+        if (player_has_room_of_role(dungeon->owner, get_room_role_for_job(Job_TAKE_FEED)))
         {
             param->num2 = Job_TAKE_FEED;
             return LONG_MAX;
@@ -4447,7 +4447,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
         // If already taking salary, then don't do anything
         if (creature_is_taking_salary_activity(thing))
             return -1;
-        if (dungeon_has_room(dungeon, get_room_for_job(Job_TAKE_SALARY)))
+        if (player_has_room_of_role(dungeon->owner, get_room_role_for_job(Job_TAKE_SALARY)))
         {
             param->num2 = Job_TAKE_SALARY;
             return LONG_MAX;

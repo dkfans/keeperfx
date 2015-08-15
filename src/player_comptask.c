@@ -757,10 +757,22 @@ CreatureJob get_job_to_place_creature_in_room(const struct Computer2 *comp, cons
         // Work value affects priority
         work_value = compute_creature_work_value_for_room_role(thing, rrole, room->efficiency);
         work_value = max(work_value/256,1);
+        if ((rrole & RoRoF_CratesManufctr) != 0)
+        {
+            GoldAmount net_money;
+            net_money = get_computer_money_less_cost(comp);
+            // If we have no money, we value manufacture much more
+            if (net_money < 0) {
+                work_value += 8;
+            } else
+            if (net_money < dungeon->creatures_total_pay) {
+                work_value += 2;
+            }
+        }
         // Now compute the priority
         long new_priority;
         new_priority = (LbSqrL(total_spare_cap) + work_value) * mvto->priority;
-        SYNCDBG(9,"Checking job %s for %s index %d, cap %ld priority %ld",creature_job_code_name(mvto->job_kind),thing_model_name(thing),(int)thing->index,(long)total_spare_cap,(long)new_priority);
+        SYNCDBG(9,"Checking job %s for %s index %d, cap %ld wrkval %ld priority %ld",creature_job_code_name(mvto->job_kind),thing_model_name(thing),(int)thing->index,(long)total_spare_cap,(long)work_value,(long)new_priority);
         if (chosen_priority < new_priority)
         {
             chosen_priority = new_priority;
@@ -791,7 +803,7 @@ CreatureJob find_creature_to_be_placed_in_room_for_job(struct Computer2 *comp, s
     if (thing_is_invalid(thing)) {
         return Job_NULL;
     }
-    SYNCDBG(9,"Player %d wants to move %s index %d for job %s",(int)dungeon->owner,thing_model_name(thing),(int)thing->owner,creature_job_code_name(param.num2));
+    SYNCDBG(9,"Player %d wants to move %s index %d for job %s",(int)dungeon->owner,thing_model_name(thing),(int)thing->index,creature_job_code_name(param.num2));
     // We won't allow the creature to be picked if we want it to be placed in the same room it is now.
     // The filter function took care of most such situations, but it is still possible that the creature
     // won't be able or will not want to work in that room, and will be picked up and dropped over and over.
@@ -800,8 +812,8 @@ CreatureJob find_creature_to_be_placed_in_room_for_job(struct Computer2 *comp, s
     if (!room_is_invalid(room) && ((get_room_roles(room->kind) & get_room_role_for_job(param.num2)) != 0) && (room->owner == thing->owner)) {
         // Do not spam with warnings which we know to be expected
         if (!creature_is_called_to_arms(thing) && !creature_is_celebrating(thing)) {
-            WARNDBG(4,"The %s owned by player %d already is in %s, but goes for %s instead of work there",
-                thing_model_name(thing),(int)thing->owner,room_code_name(room->kind),creatrtng_realstate_name(thing));
+            WARNDBG(4,"The %s index %d owner %d already is in %s, but goes for %s instead of work there",
+                thing_model_name(thing),(int)thing->index,(int)thing->owner,room_code_name(room->kind),creatrtng_realstate_name(thing));
         }
         return Job_NULL;
     }
@@ -2382,8 +2394,6 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
     {
         //TODO CREATURE_AI try to make sure the creature will do proper activity in the room
         //     ie. select a room tile which is far from CTA and enemies
-        //TODO CREATURE_AI don't place creatures at center of a temple/portal if we don't want to get rid of them
-        //TODO CREATURE_AI make sure to place creatures at "active" portal tile if we do want them to leave
         ctask->move_to_room.room_idx2 = room->index;
         if (get_drop_position_for_creature_job_in_room(&pos, room, jobpref))
         {

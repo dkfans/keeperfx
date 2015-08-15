@@ -518,20 +518,20 @@ long compute_creature_work_value_for_room_role(const struct Thing *creatng, Room
     i = 256;
     if ((rrole & RoRoF_Research) != 0)
     {
-        i = compute_creature_work_value(crstat->research_value*256, ROOM_EFFICIENCY_MAX, cctrl->explevel);
+        i = compute_creature_work_value(crstat->research_value*256, efficiency, cctrl->explevel);
     }
     if ((rrole & RoRoF_CratesManufctr) != 0)
     {
-        i = compute_creature_work_value(crstat->manufacture_value*256, ROOM_EFFICIENCY_MAX, cctrl->explevel);
+        i = compute_creature_work_value(crstat->manufacture_value*256, efficiency, cctrl->explevel);
     }
     if ((rrole & RoRoF_CrTrainExp) != 0)
     {
         // Training speed does not grow with experience - otherwise it would be too fast
-        i = compute_creature_work_value(crstat->training_value*256, ROOM_EFFICIENCY_MAX, 0);
+        i = compute_creature_work_value(crstat->training_value*256, efficiency, 0);
     }
     if ((rrole & RoRoF_CrScavenge) != 0)
     {
-        i = compute_creature_work_value(crstat->scavenge_value*256, ROOM_EFFICIENCY_MAX, cctrl->explevel);
+        i = compute_creature_work_value(crstat->scavenge_value*256, efficiency, cctrl->explevel);
     }
     return process_work_speed_on_work_value(creatng, i);
 }
