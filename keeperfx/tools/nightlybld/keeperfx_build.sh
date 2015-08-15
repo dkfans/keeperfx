@@ -14,7 +14,7 @@
 #      To remove the job:
 #        crontab -r
 #  @author   Tomasz Lis
-#  @date     01 Jul 2011 - 04 Jul 2011
+#  @date     01 Jul 2011 - 04 Jul 2015
 #  @par  Copying and copyrights:
 #      This program is free software; you can redistribute it and/or modify
 #      it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 #      (at your option) any later version.
 #******************************************************************************
 
-REPO_TRUNK=https://keeperfx.googlecode.com/svn/trunk/keeperfx/
+REPO_TRUNK=https://github.com/mefistotelis/keeperfx.git
 # Set values of env. variables to default if they're not set
 HOMEDIR=${HOMEDIR:-~}
 WORKDIR=${WORKDIR:-${HOMEDIR}/nightly/keeperfx}
@@ -30,7 +30,8 @@ RESEASEDIR=${RESEASEDIR:-${HOMEDIR}/public_html/keeper/nightly}
 CROSS_COMPILE_TOOLCHAIN=${CROSS_COMPILE_TOOLCHAIN:-i586-mingw32msvc-}
 
 LANG=C
-REV="$1"
+HASH="$1"
+REV=0
 RUN_DATE=$(date -u '+%Y-%m-%d %T')
 
 # Clean products of previous build
@@ -48,40 +49,49 @@ function keeperfxclean {
 function keeperfxcheckout {
     # Check out or update the svn checkout
     if [ -d "$WORKDIR" ]; then
-            if [ -z "${REV}" -o 0"${REV}" -lt 1 ]; then
-                echo "Updating svn checkout"
-                SVNLOG=`svn update --accept theirs-full "$WORKDIR"`
-            else
-                echo "Updating svn checkout to r${REV}"
-                SVNLOG=`svn update --accept theirs-full -r "${REV}" "$WORKDIR"`
-            fi
+            echo "Fetching any new commits from remote repository"
+            GITLOG=`cd "$WORKDIR" && git fetch origin`
             if [ $? != 0 ]; then
-                echo "${SVNLOG}"
-                echo "Problem with svn update"
+                echo "Problem with git fetch"
                 return 1
             fi
-            svn revert --non-interactive -R "$WORKDIR"
+            if [ -z "${HASH}" ]; then
+                echo "Updating local copy to HEAD"
+                #GITLOG=`cd "$WORKDIR" && git merge FETCH_HEAD`
+                GITLOG=`cd "$WORKDIR" && git reset --hard FETCH_HEAD`
+            else
+                echo "Updating local copy to commit ${HASH}"
+                GITLOG=`cd "$WORKDIR" && git reset --hard ${HASH}`
+            fi
             if [ $? != 0 ]; then
-                echo "Problem with svn revert"
+                echo "${GITLOG}"
+                echo "Problem with git reset"
                 return 1
             fi
     else
-            if [ -z "${REV}" -o 0"${REV}" -lt 1 ]; then
-                echo "Checking out svn to $WORKDIR"
-                SVNLOG=`svn checkout --non-interactive $REPO_TRUNK "$WORKDIR"`
+            echo "Clonong remote git repo to $WORKDIR"
+            GITLOG=`git clone --no-checkout $REPO_TRUNK "$WORKDIR"`
+            if [ $? != 0 ]; then
+                echo "Problem with git clone"
+                return 1
+            fi
+            if [ -z "${HASH}" ]; then
+                echo "Checking out HEAD to $WORKDIR"
+                GITLOG=`cd "$WORKDIR" && git reset --hard HEAD`
             else
-                echo "Checking out svn r${REV} to $WORKDIR"
-                SVNLOG=`svn checkout --non-interactive -r "$REV" $REPO_TRUNK "$WORKDIR"`
+                echo "Checking out commit ${HASH} to $WORKDIR"
+                GITLOG=`cd "$WORKDIR" && git reset --hard ${HASH}`
             fi
             if [ $? != 0 ]; then
-                echo "$SVNLOG"
-                echo "Problem with svn checkout"
+                echo "$GITLOG"
+                echo "Problem with git reset"
                 return 1
             fi
     fi
-    echo "$SVNLOG"
-    REV=`echo "$SVNLOG" | grep -i revision | sed -e 's/[^0-9]\\+//g'`
-    echo "SVN Revision ${REV}"
+    echo "$GITLOG"
+    HASH=`cd "$WORKDIR" && git rev-parse HEAD`
+    REV=`cd "$WORKDIR" && git rev-list ${HASH} --count`
+    echo "GIT Hash ${HASH} Revision ${REV}"
     return 0
 }
 
