@@ -606,6 +606,7 @@ long set_next_process(struct Computer2 *comp);
 void computer_check_events(struct Computer2 *comp);
 TbBool process_checks(struct Computer2 *comp);
 GoldAmount get_computer_money_less_cost(const struct Computer2 *comp);
+GoldAmount get_dungeon_money_less_cost(const struct Dungeon *dungeon);
 TbBool creature_could_be_placed_in_better_room(const struct Computer2 *comp, const struct Thing *thing);
 CreatureJob get_job_to_place_creature_in_room(const struct Computer2 *comp, const struct Thing *thing);
 long xy_walkable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx);

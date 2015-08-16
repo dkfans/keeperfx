@@ -40,6 +40,7 @@ CrCheckRet process_research_function(struct Thing *thing);
 short researching(struct Thing *thing);
 TbBool force_complete_current_research(PlayerNumber plyr_idx);
 int get_next_research_item(const struct Dungeon *dungeon);
+TbBool has_new_rooms_to_research(const struct Dungeon *dungeon);
 
 struct ResearchVal *get_players_current_research_val(PlayerNumber plyr_idx);
 /******************************************************************************/

@@ -710,7 +710,7 @@ TbBool creature_could_be_placed_in_better_room(const struct Computer2 *comp, con
         }
         if (player_has_room_of_role(dungeon->owner, rrole)
          && creature_can_do_job_for_computer_player_in_room_role(thing, dungeon->owner, rrole)
-         && worker_needed_in_dungeons_room_role(dungeon, rrole)) {
+         && (worker_needed_in_dungeons_room_role(dungeon, rrole) > 1)) {
             better_job_allowed = true;
         }
     }
@@ -740,7 +740,9 @@ CreatureJob get_job_to_place_creature_in_room(const struct Computer2 *comp, cons
         }
         RoomRole rrole;
         rrole = get_room_role_for_job(mvto->job_kind);
-        if (!worker_needed_in_dungeons_room_role(dungeon, rrole)) {
+        long need_value;
+        need_value = worker_needed_in_dungeons_room_role(dungeon, rrole);
+        if (need_value == 0) {
             SYNCDBG(9,"Cannot assign %s for %s index %d; no worker needed",creature_job_code_name(mvto->job_kind),thing_model_name(thing),(int)thing->index);
             continue;
         }
@@ -757,22 +759,10 @@ CreatureJob get_job_to_place_creature_in_room(const struct Computer2 *comp, cons
         // Work value affects priority
         work_value = compute_creature_work_value_for_room_role(thing, rrole, room->efficiency);
         work_value = max(work_value/256,1);
-        if ((rrole & RoRoF_CratesManufctr) != 0)
-        {
-            GoldAmount net_money;
-            net_money = get_computer_money_less_cost(comp);
-            // If we have no money, we value manufacture much more
-            if (net_money < 0) {
-                work_value += 8;
-            } else
-            if (net_money < dungeon->creatures_total_pay) {
-                work_value += 2;
-            }
-        }
         // Now compute the priority
         long new_priority;
-        new_priority = (LbSqrL(total_spare_cap) + work_value) * mvto->priority;
-        SYNCDBG(9,"Checking job %s for %s index %d, cap %ld wrkval %ld priority %ld",creature_job_code_name(mvto->job_kind),thing_model_name(thing),(int)thing->index,(long)total_spare_cap,(long)work_value,(long)new_priority);
+        new_priority = (LbSqrL(total_spare_cap) + need_value*need_value + work_value) * mvto->priority;
+        SYNCDBG(9,"Checking job %s for %s index %d, cap %ld needval %ld wrkval %ld priority %ld",creature_job_code_name(mvto->job_kind),thing_model_name(thing),(int)thing->index,(long)total_spare_cap,(long)need_value,(long)work_value,(long)new_priority);
         if (chosen_priority < new_priority)
         {
             chosen_priority = new_priority;

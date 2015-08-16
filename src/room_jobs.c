@@ -471,48 +471,62 @@ TbBool setup_random_head_for_room(struct Thing *thing, struct Room *room, unsign
 }
 
 /**
- * Returns whether doing a given room role in dungeon could use another worker.
+ * Returns need strength of new creature doing work on given room role in dungeon.
  * @param dungeon
  * @param rrole
- * @return
+ * @return Gives integer value; 0 if no worker is needed; 1 if worker is not recommended;
+ *     2 if worker is recommended; 3 if worker is badly needed.
  * @note This was worker_needed_in_dungeons_room_kind() before roles were introduced.
  */
-TbBool worker_needed_in_dungeons_room_role(const struct Dungeon *dungeon, RoomRole rrole)
+int worker_needed_in_dungeons_room_role(const struct Dungeon *dungeon, RoomRole rrole)
 {
-    long amount;
     if ((rrole & RoRoF_Research) != 0)
     {
         if (dungeon->current_research_idx < 0)
-            return false;
-        return true;
+            return 0;
+        if (has_new_rooms_to_research(dungeon))
+            return 2;
+        return 1;
     }
     if ((rrole & RoRoF_CratesManufctr) != 0)
     {
+        long amount;
+        GoldAmount net_gold;
         // When we have low gold, allow working on any manufacture - we'll sell the crates
         amount = get_doable_manufacture_with_minimal_amount_available(dungeon, NULL, NULL);
-        if (dungeon->total_money_owned < 2 * dungeon->creatures_total_pay)
-        {
-            if (amount < MANUFACTURED_ITEMS_LIMIT)
-                return true;
-        }
+        net_gold = get_dungeon_money_less_cost(dungeon);
+        if (amount >= MANUFACTURED_ITEMS_LIMIT)
+            return 0;
+        if (net_gold < 0)
+            return 3;
+        if (net_gold < dungeon->creatures_total_pay)
+            return 2;
         // If gold amount is fine, do manufacture only if there are items which we don't have in stock
         if (amount > 0)
-            return false;
-        return true;
+            return 1;
+        return 2;
     }
     if ((rrole & RoRoF_CrTrainExp) != 0)
     {
-        if (dungeon->total_money_owned < dungeon->creatures_total_pay)
-            return false;
-        return true;
+        GoldAmount net_gold;
+        net_gold = get_dungeon_money_less_cost(dungeon);
+        if (net_gold < 0)
+            return 0;
+        if (net_gold < dungeon->creatures_total_pay)
+            return 1;
+        return 2;
     }
     if ((rrole & RoRoF_CrScavenge) != 0)
     {
-        if (dungeon->total_money_owned < 2 * dungeon->creatures_total_pay)
-            return false;
-        return true;
+        GoldAmount net_gold;
+        net_gold = get_dungeon_money_less_cost(dungeon);
+        if (net_gold < dungeon->creatures_total_pay)
+            return 0;
+        if (net_gold < 2 * dungeon->creatures_total_pay)
+            return 1;
+        return 2;
     }
-    return true;
+    return 1;
 }
 /******************************************************************************/
 #ifdef __cplusplus

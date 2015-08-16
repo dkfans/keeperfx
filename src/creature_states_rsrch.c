@@ -136,6 +136,23 @@ int get_next_research_item(const struct Dungeon *dungeon)
     return -1;
 }
 
+TbBool has_new_rooms_to_research(const struct Dungeon *dungeon)
+{
+    const struct ResearchVal *rsrchval;
+    long resnum;
+    for (resnum = 0; resnum < dungeon->research_num; resnum++)
+    {
+        rsrchval = &dungeon->research[resnum];
+        if (rsrchval->rtyp == RsCat_Room)
+        {
+            if ((dungeon->room_resrchable[rsrchval->rkind]) && (dungeon->room_buildable[rsrchval->rkind] == 0)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 struct ResearchVal *get_players_current_research_val(PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;

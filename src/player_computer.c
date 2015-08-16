@@ -121,10 +121,8 @@ TbBool computer_player_in_emergency_state(const struct Computer2 *comp)
     return false;
 }
 
-GoldAmount get_computer_money_less_cost(const struct Computer2 *comp)
+GoldAmount get_dungeon_money_less_cost(const struct Dungeon *dungeon)
 {
-    struct Dungeon *dungeon;
-    dungeon = comp->dungeon;
     GoldAmount money_payday, money_mkdigger;
     // As payday need, take amount planned for next payday
     money_payday = dungeon->creatures_total_pay;
@@ -133,6 +131,11 @@ GoldAmount get_computer_money_less_cost(const struct Computer2 *comp)
     if (money_payday < money_mkdigger)
         money_payday = money_mkdigger;
     return dungeon->total_money_owned - money_payday;
+}
+
+GoldAmount get_computer_money_less_cost(const struct Computer2 *comp)
+{
+    return get_dungeon_money_less_cost(comp->dungeon);
 }
 
 long set_autopilot_type(PlayerNumber plyr_idx, long aptype)
