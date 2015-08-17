@@ -127,6 +127,7 @@ TbBool creature_choose_first_available_instance(struct Thing *thing);
 void creature_increase_available_instances(struct Thing *thing);
 TbBool creature_has_ranged_weapon(const struct Thing *thing);
 TbBool creature_has_ranged_object_weapon(const struct Thing *creatng);
+TbBool creature_has_quick_range_weapon(const struct Thing *creatng);
 
 int creature_instance_get_available_pos_for_id(struct Thing *thing, CrInstance req_inst_id);
 int creature_instance_get_available_number_for_pos(struct Thing *thing, int req_avail_pos);

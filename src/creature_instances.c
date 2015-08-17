@@ -327,15 +327,15 @@ TbBool instance_is_ranged_weapon(CrInstance inum)
 {
     switch (inum)
     {
-      case 4:
-      case 5:
-      case 6:
-      case 9:
-      case 12:
-      case 17:
-      case 19:
-      case 20:
-      case 27:
+    case CrInst_FIRE_ARROW:
+    case CrInst_FIREBALL:
+    case CrInst_FIRE_BOMB:
+    case CrInst_LIGHTNING:
+    case CrInst_POISON_CLOUD:
+    case CrInst_DRAIN:
+    case CrInst_MISSILE:
+    case CrInst_NAVIGATING_MISSILE:
+    case CrInst_HAILSTORM:
         return true;
     }
     return false;
@@ -345,14 +345,31 @@ TbBool instance_is_ranged_weapon_vs_objects(CrInstance inum)
 {
     switch (inum)
     {
-      case 4:
-      case 5:
-      case 6:
-      case 9:
-      case 17:
-      case 19:
-      case 20:
-      case 27:
+    case CrInst_FIRE_ARROW:
+    case CrInst_FIREBALL:
+    case CrInst_FIRE_BOMB:
+    case CrInst_LIGHTNING:
+    case CrInst_DRAIN:
+    case CrInst_MISSILE:
+    case CrInst_NAVIGATING_MISSILE:
+    case CrInst_HAILSTORM:
+        return true;
+    }
+    return false;
+}
+
+TbBool instance_is_quick_range_weapon(CrInstance inum)
+{
+    switch (inum)
+    {
+    case CrInst_FIREBALL:
+    case CrInst_FIRE_ARROW:
+    case CrInst_MISSILE:
+    case CrInst_NAVIGATING_MISSILE:
+    case CrInst_LIGHTNING:
+    case CrInst_HAILSTORM:
+    case CrInst_GRENADE:
+    case CrInst_POISON_CLOUD:
         return true;
     }
     return false;
@@ -398,6 +415,23 @@ TbBool creature_has_ranged_object_weapon(const struct Thing *creatng)
         if (cctrl->instance_available[inum])
         {
             if (instance_is_ranged_weapon_vs_objects(inum))
+                return true;
+        }
+    }
+    return false;
+}
+
+TbBool creature_has_quick_range_weapon(const struct Thing *creatng)
+{
+    TRACE_THING(creatng);
+    const struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    long inum;
+    for (inum = 1; inum < CREATURE_INSTANCES_COUNT; inum++)
+    {
+        if (cctrl->instance_available[inum])
+        {
+            if (instance_is_quick_range_weapon(inum))
                 return true;
         }
     }

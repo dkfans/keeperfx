@@ -30,6 +30,7 @@ extern "C" {
 #pragma pack(1)
 
 struct Thing;
+struct Room;
 
 #pragma pack()
 /******************************************************************************/
@@ -50,6 +51,7 @@ void anger_apply_anger_to_creature_all_types_f(struct Thing *thing, long anger, 
 TbBool anger_make_creature_angry(struct Thing *thing, AnnoyMotive reason);
 TbBool creature_mark_if_woken_up(struct Thing *creatng);
 TbBool process_job_stress_and_going_postal(struct Thing *creatng);
+TbBool any_worker_will_go_postal_on_creature_in_room(const struct Room *room, const struct Thing *victng);
 
 short creature_moan(struct Thing *thing);
 short creature_roar(struct Thing *thing);

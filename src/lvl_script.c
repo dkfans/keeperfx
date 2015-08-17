@@ -903,6 +903,10 @@ TbBool script_support_setup_player_as_computer_keeper(PlayerNumber plyridx, long
         SCRPTWRNLOG("Tried to set up invalid player %d",(int)plyridx);
         return false;
     }
+    if ((comp_model < 0) || (comp_model >= COMPUTER_PROCESS_LISTS_COUNT)) {
+        SCRPTWRNLOG("Tried to set up player %d as outranged computer model %d",(int)plyridx,(int)comp_model);
+        comp_model = 0;
+    }
     player->allocflags |= PlaF_Allocated;
     player->id_number = plyridx;
     player->field_2C = 1;

@@ -391,6 +391,19 @@ TbBool creature_mark_if_woken_up(struct Thing *creatng)
     return false;
 }
 
+TbBool creature_will_go_postal_on_victim_during_job(const struct Thing *creatng, const struct Thing *victng, CreatureJob job_kind)
+{
+    if (thing_is_creature(victng) && (victng->index != creatng->index) && !creature_has_job(victng, job_kind)
+        && !creature_is_kept_in_custody(victng) && !creature_is_being_unconscious(victng)
+        && !creature_is_dying(victng) && !creature_is_doing_anger_job(victng))
+    {
+        if (!creature_is_invisible(victng) || creature_can_see_invisible(creatng)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 TbBool find_combat_target_passing_by_subtile_but_having_unrelated_job(const struct Thing *creatng, CreatureJob job_kind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long *found_dist, struct Thing **found_thing)
 {
     struct Thing *thing;
@@ -412,26 +425,21 @@ TbBool find_combat_target_passing_by_subtile_but_having_unrelated_job(const stru
         }
         i = thing->next_on_mapblk;
         // Per thing code start
-        if (thing_is_creature(thing) && (thing->index != creatng->index) && !creature_has_job(thing, job_kind)
-            && !creature_is_kept_in_custody(thing) && !creature_is_being_unconscious(thing)
-            && !creature_is_dying(thing) && !creature_is_doing_anger_job(thing))
+        if (creature_will_go_postal_on_victim_during_job(creatng, thing, job_kind))
         {
-            if (!creature_is_invisible(thing) || creature_can_see_invisible(creatng))
+            dist = get_combat_distance(creatng, thing);
+            // If we have combat sight - we want that target, don't search anymore
+            if (creature_can_see_combat_path(creatng, thing, dist))
             {
-                dist = get_combat_distance(creatng, thing);
-                // If we have combat sight - we want that target, don't search anymore
-                if (creature_can_see_combat_path(creatng, thing, dist))
-                {
-                    *found_dist = dist;
-                    *found_thing = thing;
-                    return true;
-                }
-                // No combat sight - but maybe it's at least closer than previous one
-                if ( *found_dist > dist )
-                {
-                    *found_dist = dist;
-                    *found_thing = thing;
-                }
+                *found_dist = dist;
+                *found_thing = thing;
+                return true;
+            }
+            // No combat sight - but maybe it's at least closer than previous one
+            if ( *found_dist > dist )
+            {
+                *found_dist = dist;
+                *found_thing = thing;
             }
         }
         // Per thing code end
@@ -521,6 +529,7 @@ TbBool process_job_causes_going_postal(struct Thing *creatng, struct Room *room,
     CrInstance inst_use;
     inst_use = get_best_quick_range_instance_to_use(creatng);
     if (inst_use <= 0) {
+        SYNCDBG(8,"The %s index %d cannot go postal during %s; no ranged instance",thing_model_name(creatng),(int)creatng->index,creature_job_code_name(going_postal_job));
         return false;
     }
     // Find a target
@@ -530,6 +539,7 @@ TbBool process_job_causes_going_postal(struct Thing *creatng, struct Room *room,
     combt_thing = INVALID_THING;
     if (find_combat_target_passing_by_room_but_having_unrelated_job(creatng, going_postal_job, room, &combt_dist, &combt_thing))
     {
+        SYNCDBG(8,"The %s index %d goes postal on %s index %d during %s",thing_model_name(creatng),(int)creatng->index,thing_model_name(combt_thing),(int)combt_thing->index,creature_job_code_name(going_postal_job));
         struct CreatureControl *combctrl;
         set_creature_instance(creatng, inst_use, 0, combt_thing->index, 0);
         external_set_thing_state(combt_thing, CrSt_CreatureEvacuateRoom);
@@ -604,6 +614,55 @@ TbBool process_job_stress_and_going_postal(struct Thing *creatng)
             if (process_job_causes_going_postal(creatng, room, going_postal_job)) {
                 return true;
             }
+        }
+    }
+    return false;
+}
+
+TbBool any_worker_will_go_postal_on_creature_in_room(const struct Room *room, const struct Thing *victng)
+{
+    unsigned long k;
+    long i;
+    TRACE_THING(victng);
+    i = room->creatures_list;
+    k = 0;
+    while (i != 0)
+    {
+        struct CreatureControl *cctrl;
+        struct Thing *thing;
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        cctrl = creature_control_get_from_thing(thing);
+        if (!creature_control_exists(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature %ld detected",i);
+            break;
+        }
+        i = cctrl->next_in_room;
+        // Per creature code
+        struct CreatureStats *crstat;
+        crstat = creature_stats_get_from_thing(thing);
+        CreatureJob going_postal_job;
+        going_postal_job = Job_NULL;
+        if (crstat->annoy_going_postal != 0) {
+            going_postal_job = get_creature_job_causing_going_postal(crstat->job_primary,room->kind);
+        }
+        if (going_postal_job != Job_NULL)
+        {
+            if (creature_will_go_postal_on_victim_during_job(thing, victng, going_postal_job))
+            {
+                // We need quick ranged instance to go postal
+                if (creature_has_quick_range_weapon(thing)) {
+                    return true;
+                }
+            }
+        }
+        // Per creature code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping creatures list");
+          break;
         }
     }
     return false;

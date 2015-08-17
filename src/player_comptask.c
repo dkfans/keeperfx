@@ -37,6 +37,7 @@
 #include "creature_jobs.h"
 #include "creature_states_lair.h"
 #include "creature_states_combt.h"
+#include "creature_states_mood.h"
 #include "magic.h"
 #include "thing_traps.h"
 #include "thing_physics.h"
@@ -710,7 +711,7 @@ TbBool creature_could_be_placed_in_better_room(const struct Computer2 *comp, con
         }
         if (player_has_room_of_role(dungeon->owner, rrole)
          && creature_can_do_job_for_computer_player_in_room_role(thing, dungeon->owner, rrole)
-         && (worker_needed_in_dungeons_room_role(dungeon, rrole) > 1)) {
+         && (worker_needed_in_dungeons_room_role(dungeon, rrole) > 0)) {
             better_job_allowed = true;
         }
     }
@@ -755,8 +756,13 @@ CreatureJob get_job_to_place_creature_in_room(const struct Computer2 *comp, cons
             SYNCDBG(9,"Cannot assign %s for %s index %d; no room with spares",creature_job_code_name(mvto->job_kind),thing_model_name(thing),(int)thing->index);
             continue;
         }
-        long work_value;
+        // Check whether putting the creature to that room will make someone go postal
+        if (any_worker_will_go_postal_on_creature_in_room(room, thing)) {
+            SYNCDBG(9,"Cannot assign %s for %s index %d; others would go postal",creature_job_code_name(mvto->job_kind),thing_model_name(thing),(int)thing->index);
+            continue;
+        }
         // Work value affects priority
+        long work_value;
         work_value = compute_creature_work_value_for_room_role(thing, rrole, room->efficiency);
         work_value = max(work_value/256,1);
         // Now compute the priority
