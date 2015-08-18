@@ -194,7 +194,7 @@ long creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
     room->content_per_model[creatng->model]++;
-    room->used_capacity += get_required_room_capacity_for_job(Job_TAKE_SLEEP, creatng->model);
+    room->used_capacity += get_required_room_capacity_for_object(RoRoF_LairStorage, 0, creatng->model);
     if ((cctrl->lair_room_id > 0) && (cctrl->lairtng_idx > 0))
     {
         struct Room *room;

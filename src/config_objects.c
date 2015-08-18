@@ -26,6 +26,7 @@
 
 #include "config.h"
 #include "config_creature.h"
+#include "config_terrain.h"
 #include "thing_objects.h"
 #include "game_legacy.h"
 
@@ -428,6 +429,56 @@ ThingModel object_model_id(const char * code_name)
     }
 
     return -1;
+}
+
+/**
+ * Returns required room capacity for given object model storage in room.
+ * @param room_role The room role of target room.
+ * @param objmodel The object model to be checked. May be 0 for lair or dead creature check, as this requires related model.
+ * @param relmodel Related thing model, if object model is not unequivocal.
+ * @return
+ */
+int get_required_room_capacity_for_object(RoomRole room_role, ThingModel objmodel, ThingModel relmodel)
+{
+    struct CreatureStats *crstat;
+    struct ObjectConfigStats *objst;
+    switch (room_role)
+    {
+    case RoRoF_LairStorage:
+        crstat = creature_stats_get(relmodel);
+        return crstat->lair_size;
+    case RoRoF_DeadStorage:
+        crstat = creature_stats_get(relmodel);
+        if (!creature_stats_invalid(crstat))
+            return 1;
+        break;
+    case RoRoF_KeeperStorage:
+        break;
+    case RoRoF_GoldStorage:
+        objst = get_object_model_stats(objmodel);
+        if (objst->genre == OCtg_GoldHoard)
+            return get_wealth_size_of_gold_hoard_model(objmodel);
+        break;
+    case RoRoF_FoodSpawn:
+    case RoRoF_FoodStorage:
+        objst = get_object_model_stats(objmodel);
+        if ((objst->genre == OCtg_Food) || (objst->genre == OCtg_Furniture)) // non-mature chickens are furniture
+            return 1;
+        break;
+    case RoRoF_CratesStorage:
+        objst = get_object_model_stats(objmodel);
+        if (objst->genre == OCtg_WrkshpBox)
+            return 1;
+        break;
+    case RoRoF_PowersStorage:
+        objst = get_object_model_stats(objmodel);
+        if ((objst->genre == OCtg_Spellbook) || (objst->genre == OCtg_SpecialBox))
+            return 1;
+        break;
+    default:
+        break;
+    }
+    return 0;
 }
 
 void init_objects(void)

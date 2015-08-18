@@ -1504,7 +1504,7 @@ void count_lair_occupants_on_slab(struct Room *room,MapSlabCoord slb_x, MapSlabC
         {
             creatng = thing_get(lairtng->word_13);
             int required_cap;
-            required_cap = get_required_room_capacity_for_job(Job_TAKE_SLEEP, creatng->model);
+            required_cap = get_required_room_capacity_for_object(RoRoF_LairStorage, 0, creatng->model);
             if (room->used_capacity + required_cap > room->total_capacity)
             {
                 create_effect(&lairtng->mappos, imp_spangle_effects[lairtng->owner], lairtng->owner);
@@ -2311,7 +2311,9 @@ TbBool room_create_new_food_at(struct Room *room, MapSubtlCoord stl_x, MapSubtlC
     if (thing_in_wall_at(foodtng, &foodtng->mappos)) {
         ERRORLOG("Created chicken in a wall");
     }
-    room->used_capacity++;
+    int required_cap;
+    required_cap = get_required_room_capacity_for_object(RoRoF_FoodStorage,foodtng->model,0);
+    room->used_capacity += required_cap;
     foodtng->word_13 = (foodtng->field_49 << 8) / foodtng->field_3E - 1;
     return true;
 }

@@ -93,8 +93,10 @@ void person_eat_food(struct Thing *creatng, struct Thing *foodtng, struct Room *
         foodtng->health = -1;
     } else
     {
-        if (room->used_capacity > 0) {
-            room->used_capacity--;
+        int required_cap;
+        required_cap = get_required_room_capacity_for_object(RoRoF_FoodStorage,foodtng->model,0);
+        if (room->used_capacity >= required_cap) {
+            room->used_capacity -= required_cap;
         } else {
             ERRORLOG("Trying to remove some food not in room");
         }

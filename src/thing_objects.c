@@ -506,45 +506,47 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     return thing;
 }
 
-void destroy_food(struct Thing *thing)
+void destroy_food(struct Thing *foodtng)
 {
     struct Room *room;
     struct Thing *efftng;
     struct Coord3d pos;
     PlayerNumber plyr_idx;
     SYNCDBG(8,"Starting");
-    plyr_idx = thing->owner;
+    plyr_idx = foodtng->owner;
     if (game.neutral_player_num != plyr_idx) {
         struct Dungeon *dungeon;
         dungeon = get_dungeon(plyr_idx);
         dungeon->lvstats.chickens_wasted++;
     }
-    efftng = create_effect(&thing->mappos, TngEff_Unknown49, plyr_idx);
+    efftng = create_effect(&foodtng->mappos, TngEff_Unknown49, plyr_idx);
     if (!thing_is_invalid(efftng)) {
         thing_play_sample(efftng, 112+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     }
-    pos.x.val = thing->mappos.x.val;
-    pos.y.val = thing->mappos.y.val;
-    pos.z.val = thing->mappos.z.val + 256;
-    create_effect(&thing->mappos, TngEff_Unknown51, plyr_idx);
+    pos.x.val = foodtng->mappos.x.val;
+    pos.y.val = foodtng->mappos.y.val;
+    pos.z.val = foodtng->mappos.z.val + 256;
+    create_effect(&foodtng->mappos, TngEff_Unknown51, plyr_idx);
     create_effect(&pos, TngEff_Unknown07, plyr_idx);
-    if (!is_neutral_thing(thing))
+    if (!is_neutral_thing(foodtng))
     {
-        if (thing->word_13 == -1)
+        if (foodtng->word_13 == -1)
         {
-          room = get_room_thing_is_on(thing);
+          room = get_room_thing_is_on(foodtng);
           if (!room_is_invalid(room))
           {
-            if (room_role_matches(room->kind, RoRoF_FoodSpawn) && (room->owner == thing->owner))
+            if (room_role_matches(room->kind, RoRoF_FoodSpawn) && (room->owner == foodtng->owner))
             {
-                if (room->used_capacity > 0)
-                  room->used_capacity--;
-                thing->word_13 = game.food_life_out_of_hatchery;
+                int required_cap;
+                required_cap = get_required_room_capacity_for_object(RoRoF_FoodStorage,foodtng->model,0);
+                if (room->used_capacity >= required_cap)
+                  room->used_capacity -= required_cap;
+                foodtng->word_13 = game.food_life_out_of_hatchery;
             }
           }
         }
     }
-    delete_thing_structure(thing, 0);
+    delete_thing_structure(foodtng, 0);
 }
 
 void destroy_object(struct Thing *thing)
@@ -905,7 +907,7 @@ TbBool creature_remove_lair_totem_from_room(struct Thing *creatng, struct Room *
     TbBool result;
     result = true;
     int required_cap;
-    required_cap = get_required_room_capacity_for_job(Job_TAKE_SLEEP, creatng->model);
+    required_cap = get_required_room_capacity_for_object(RoRoF_LairStorage, 0, creatng->model);
     // Remove lair from room capacity
     if (room->content_per_model[creatng->model] <= 0)
     {
@@ -1903,18 +1905,26 @@ struct Thing *create_gold_pot_at(long pos_x, long pos_y, PlayerNumber plyr_idx)
 }
 
 /**
- * For given gold hoard thing, returns the wealth size, scaled 0..max_size.
+ * For given gold hoard thing model, returns the wealth size, scaled 0..max_size.
  */
-int get_wealth_size_of_gold_hoard_object(const struct Thing *objtng)
+int get_wealth_size_of_gold_hoard_model(ThingModel objmodel)
 {
     // Find position of the hoard size
     int i;
     for (i = get_wealth_size_types_count(); i > 0; i--)
     {
-        if (gold_hoard_objects[i] == objtng->model)
+        if (gold_hoard_objects[i] == objmodel)
             return i;
     }
     return 0;
+}
+
+/**
+ * For given gold hoard thing, returns the wealth size, scaled 0..max_size.
+ */
+int get_wealth_size_of_gold_hoard_object(const struct Thing *objtng)
+{
+    return get_wealth_size_of_gold_hoard_model(objtng->model);
 }
 
 /**

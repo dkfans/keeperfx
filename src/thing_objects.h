@@ -143,6 +143,7 @@ TbBool delete_lair_totem(struct Thing *lairtng);
 struct Thing *create_guard_flag_object(const struct Coord3d *pos, PlayerNumber plyr_idx, long parent_idx);
 
 int get_wealth_size_of_gold_hoard_object(const struct Thing *objtng);
+int get_wealth_size_of_gold_hoard_model(ThingModel objmodel);
 int get_wealth_size_of_gold_amount(GoldAmount value);
 int get_wealth_size_types_count(void);
 struct Thing *create_gold_hoard_object(const struct Coord3d *pos, PlayerNumber plyr_idx, GoldAmount value);
