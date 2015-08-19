@@ -4328,13 +4328,15 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
     struct Dungeon *dungeon;
     struct CreatureControl *cctrl;
     struct CreatureStats *crstat;
-    SYNCDBG(19,"Starting");
+    SYNCDBG(19,"Starting for %s index %d owner %d",thing_model_name(thing),(int)thing->index,(int)thing->owner);
     comp = (struct Computer2 *)(param->ptr1);
     dungeon = comp->dungeon;
-    if (!can_thing_be_picked_up_by_player(thing, dungeon->owner))
+    if (!can_thing_be_picked_up_by_player(thing, dungeon->owner)) {
         return -1;
-    if (creature_is_being_dropped(thing))
+    }
+    if (creature_is_being_dropped(thing)) {
         return -1;
+    }
     cctrl = creature_control_get_from_thing(thing);
     crstat = creature_stats_get_from_thing(thing);
 
@@ -4344,8 +4346,9 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
         // If the creature is not running free, then leave it where it is
         if (creature_is_kept_in_prison(thing) ||
             creature_is_being_tortured(thing) ||
-            creature_is_being_sacrificed(thing))
+            creature_is_being_sacrificed(thing)) {
             return -1;
+        }
         // Try torturing it
         if (player_has_room_of_role(dungeon->owner, get_room_role_for_job(Job_PAINFUL_TORTURE)))
         {
