@@ -1887,9 +1887,11 @@ void command_set_computer_events(long plr_range_id, const char *evntname, long v
           break;
         if (strcasecmp(evntname, event->name) == 0)
         {
-          event->param1 = val1;
-          event->param2 = val2;
-          n++;
+            SCRIPTDBG(7,"Changing computer %d event '%s' config from (%d,%d) to (%d,%d)",(int)i,event->name,
+                (int)event->param1,(int)event->param2,(int)val1,(int)val2);
+            event->param1 = val1;
+            event->param2 = val2;
+            n++;
         }
       }
   }
@@ -1931,6 +1933,9 @@ void command_set_computer_process(long plr_range_id, const char *procname, long 
               break;
           if (strcasecmp(procname, cproc->name) == 0)
           {
+              SCRIPTDBG(7,"Changing computer %d process '%s' config from (%d,%d,%d,%d,%d) to (%d,%d,%d,%d,%d)",(int)i,cproc->name,
+                  (int)cproc->priority,(int)cproc->confval_2,(int)cproc->confval_3,(int)cproc->confval_4,(int)cproc->confval_5,
+                  (int)val1,(int)val2,(int)val3,(int)val4,(int)val5);
               cproc->priority = val1;
               cproc->confval_2 = val2;
               cproc->confval_3 = val3;

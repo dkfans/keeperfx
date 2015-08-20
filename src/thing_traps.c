@@ -590,7 +590,7 @@ TngUpdateRet update_trap(struct Thing *traptng)
 
 struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber plyr_idx)
 {
-    SYNCDBG(7,"Starting");
+    SYNCDBG(7,"Starting for %s owner %d",trap_code_name(trpkind),(int)plyr_idx);
     struct TrapStats *trapstat;
     trapstat = &trap_stats[trpkind];
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots)) {

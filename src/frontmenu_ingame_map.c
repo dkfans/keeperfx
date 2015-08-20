@@ -642,7 +642,7 @@ void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
 
 void pannel_map_update(long x, long y, long w, long h)
 {
-    SYNCDBG(7,"Starting");
+    SYNCDBG(17,"Starting for rect (%ld,%ld) at (%ld,%ld)",w,h,x,y);
     struct PlayerInfo *player;
     player = get_my_player();
     MapSubtlCoord stl_x, stl_y;
