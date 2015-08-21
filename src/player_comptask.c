@@ -1867,7 +1867,7 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
         return 0;
     }
 
-    if (ctask->dig.valuable_slabs_tagged >= ctask->dig_to_gold.long_86)
+    if (ctask->dig.valuable_slabs_tagged >= ctask->dig_to_gold.slabs_dig_count)
     {
         struct SlabMap* slb = get_slabmap_for_subtile(ctask->dig.pos_next.x.stl.num, ctask->dig.pos_next.y.stl.num);
 
@@ -1890,7 +1890,7 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
         add_to_trap_location(comp, &ctask->dig.pos_next);
     }
 
-    if (ctask->dig.valuable_slabs_tagged >= ctask->dig_to_gold.long_86)
+    if (ctask->dig.valuable_slabs_tagged >= ctask->dig_to_gold.slabs_dig_count)
     {
         ctask->field_60 = 700 / comp->field_18;
     }
@@ -3357,7 +3357,7 @@ TbBool create_task_dig_to_neutral(struct Computer2 *comp, const struct Coord3d s
     return true;
 }
 
-TbBool create_task_dig_to_gold(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos, long parent_cproc_idx, long par1, long gold_lookup_idx)
+TbBool create_task_dig_to_gold(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos, long parent_cproc_idx, long count_slabs_to_dig, long gold_lookup_idx)
 {
     struct ComputerTask *ctask;
     SYNCDBG(7,"Starting");
@@ -3376,7 +3376,7 @@ TbBool create_task_dig_to_gold(struct Computer2 *comp, const struct Coord3d star
     ctask->dig_to_gold.endpos.x.val = endpos.x.val;
     ctask->dig_to_gold.endpos.y.val = endpos.y.val;
     ctask->dig_to_gold.endpos.z.val = endpos.z.val;
-    ctask->dig_to_gold.long_86 = par1;
+    ctask->dig_to_gold.slabs_dig_count = count_slabs_to_dig;
     ctask->field_8C = parent_cproc_idx;
     ctask->dig_to_gold.target_lookup_idx = gold_lookup_idx;
     // Setup the digging

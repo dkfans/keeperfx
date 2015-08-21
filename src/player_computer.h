@@ -470,7 +470,7 @@ struct ComputerTask { // sizeof = 148
         short target_lookup_idx;
         short word_82;
         short word_84;
-        long long_86;
+        long slabs_dig_count;
         short word_8A;
     } dig_to_gold;
     struct {

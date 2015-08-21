@@ -264,6 +264,7 @@ TbBool triangulation_border_start(long *a1, long *a2);
 void triangulation_init(void);
 void triangulation_initxy(long sx, long sy, long ex, long ey);
 long pointed_at8(long pos_x, long pos_y, long *ret_tri, long *ret_pt);
+long angle_to_quadrant(long angle);
 
 long thing_nav_block_sizexy(const struct Thing *thing);
 long thing_nav_sizexy(const struct Thing *thing);

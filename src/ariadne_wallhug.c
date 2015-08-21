@@ -161,9 +161,66 @@ TbBool hug_can_move_on(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord
     return false;
 }
 
+TbBool wallhug_angle_with_collide_valid(struct Thing *thing, long a2, long move_delta, long angle, unsigned char a4)
+{
+    struct Coord3d pos;
+    pos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(move_delta, angle);
+    pos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(move_delta, angle);
+    pos.z.val = get_thing_height_at(thing, &pos);
+    return (creature_cannot_move_directly_to_with_collide(thing, &pos, a2, a4) != 4);
+}
+
 long get_angle_of_wall_hug(struct Thing *creatng, long a2, long a3, unsigned char a4)
 {
-    return _DK_get_angle_of_wall_hug(creatng, a2, a3, a4);
+    //return _DK_get_angle_of_wall_hug(creatng, a2, a3, a4);
+    struct Navigation *navi;
+    {
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(creatng);
+        navi = &cctrl->navi;
+    }
+    long quadr, whangle;
+    struct Coord3d pos;
+    switch (navi->field_1[0])
+    {
+    case 1:
+        quadr = angle_to_quadrant(creatng->move_angle_xy);
+        whangle = (LbFPMath_PI/2) * ((quadr - 1) & 3);
+        if (wallhug_angle_with_collide_valid(creatng, a2, a3, whangle, a4))
+          return whangle;
+        quadr = angle_to_quadrant(creatng->move_angle_xy);
+        whangle = (LbFPMath_PI/2) * (quadr & 3);
+        if (wallhug_angle_with_collide_valid(creatng, a2, a3, whangle, a4))
+          return whangle;
+        quadr = angle_to_quadrant(creatng->move_angle_xy);
+        whangle = (LbFPMath_PI/2) * ((quadr + 1) & 3);
+        if (wallhug_angle_with_collide_valid(creatng, a2, a3, whangle, a4))
+          return whangle;
+        quadr = angle_to_quadrant(creatng->move_angle_xy);
+        whangle = (LbFPMath_PI/2) * ((quadr + 2) & 3);
+        if (wallhug_angle_with_collide_valid(creatng, a2, a3, whangle, a4))
+          return whangle;
+        break;
+    case 2:
+        quadr = angle_to_quadrant(creatng->move_angle_xy);
+        whangle = (LbFPMath_PI/2) * ((quadr + 1) & 3);
+        if (wallhug_angle_with_collide_valid(creatng, a2, a3, whangle, a4))
+          return whangle;
+        quadr = angle_to_quadrant(creatng->move_angle_xy);
+        whangle = (LbFPMath_PI/2) * (quadr & 3);
+        if (wallhug_angle_with_collide_valid(creatng, a2, a3, whangle, a4))
+          return whangle;
+        quadr = angle_to_quadrant(creatng->move_angle_xy);
+        whangle = (LbFPMath_PI/2) * ((quadr - 1) & 3);
+        if (wallhug_angle_with_collide_valid(creatng, a2, a3, whangle, a4))
+          return whangle;
+        quadr = angle_to_quadrant(creatng->move_angle_xy);
+        whangle = (LbFPMath_PI/2) * ((quadr + 2) & 3);
+        if (wallhug_angle_with_collide_valid(creatng, a2, a3, whangle, a4))
+          return whangle;
+        break;
+    }
+    return -1;
 }
 
 short hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, unsigned short a4, long *a5)
@@ -866,20 +923,20 @@ TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
 
 long dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, int direction_around, TbBool revside)
 {
-    long i,n,nchange;
+    long i,round_idx,round_change;
     //return _DK_dig_to_position(a1, a2, a3, start_side, revside);
     SYNCDBG(14,"Starting for subtile (%d,%d)",(int)basestl_x,(int)basestl_y);
     if (revside) {
-      nchange = 1;
+      round_change = 1;
     } else {
-      nchange = 3;
+      round_change = 3;
     }
-    n = (direction_around + 4 - nchange) % SMALL_AROUND_LENGTH;
+    round_idx = (direction_around + SMALL_AROUND_LENGTH - round_change) % SMALL_AROUND_LENGTH;
     for (i=0; i < SMALL_AROUND_LENGTH; i++)
     {
         MapSubtlCoord stl_x,stl_y;
-        stl_x = basestl_x + STL_PER_SLB * (int)small_around[n].delta_x;
-        stl_y = basestl_y + STL_PER_SLB * (int)small_around[n].delta_y;
+        stl_x = basestl_x + STL_PER_SLB * (int)small_around[round_idx].delta_x;
+        stl_y = basestl_y + STL_PER_SLB * (int)small_around[round_idx].delta_y;
         if (!is_valid_hug_subtile(stl_x, stl_y, plyr_idx))
         {
             SYNCDBG(7,"Subtile (%d,%d) accepted",(int)stl_x,(int)stl_y);
@@ -887,7 +944,7 @@ long dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoo
             stl_num = get_subtile_number(stl_x, stl_y);
             return stl_num;
         }
-        n = (n + nchange) % SMALL_AROUND_LENGTH;
+        round_idx = (round_idx + round_change) % SMALL_AROUND_LENGTH;
     }
     return -1;
 }
