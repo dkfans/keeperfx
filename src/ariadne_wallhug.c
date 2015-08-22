@@ -48,6 +48,7 @@ DLLIMPORT long _DK_check_forward_for_prospective_hugs(struct Thing *creatng, str
 DLLIMPORT long _DK_get_map_index_of_first_block_thing_colliding_with_travelling_to(struct Thing *creatng, struct Coord3d *startpos, struct Coord3d *endpos, long a4, unsigned char a5);
 DLLIMPORT long _DK_get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *creatng, struct Coord3d *pos, unsigned char a3);
 DLLIMPORT long _DK_dig_to_position(signed char basestl_x, unsigned short basestl_y, unsigned short plyr_idx, unsigned char a4, unsigned char a5);
+DLLIMPORT long _DK_get_map_index_of_first_block_thing_colliding_with_at(struct Thing *creatng, struct Coord3d *pos, long a3, unsigned char a4);
 /******************************************************************************/
 struct Around const my_around_eight[] = {
   { 0,-1},
@@ -180,7 +181,6 @@ long get_angle_of_wall_hug(struct Thing *creatng, long a2, long a3, unsigned cha
         navi = &cctrl->navi;
     }
     long quadr, whangle;
-    struct Coord3d pos;
     switch (navi->field_1[0])
     {
     case 1:
@@ -393,9 +393,203 @@ void set_hugging_pos_using_blocked_flags(struct Coord3d *dstpos, struct Thing *c
     dstpos->z.val = tmpos.z.val;
 }
 
+long get_map_index_of_first_block_thing_colliding_with_at(struct Thing *creatng, struct Coord3d *pos, long a3, unsigned char a4)
+{
+    return _DK_get_map_index_of_first_block_thing_colliding_with_at(creatng, pos, a3, a4);
+}
+
+long creature_cannot_move_directly_to_with_collide_sub(struct Thing *creatng, struct Coord3d pos, long a3, unsigned char a4)
+{
+    MapCoord height;
+    if (thing_in_wall_at(creatng, &pos))
+    {
+        pos.z.val = subtile_coord(map_subtiles_z,COORD_PER_STL-1);
+        height = get_thing_height_at(creatng, &pos);
+        if ((height >= subtile_coord(map_subtiles_z,COORD_PER_STL-1)) || (height - creatng->mappos.z.val > COORD_PER_STL))
+        {
+            if (get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, a3, a4) >= 0) {
+                return 4;
+            } else {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
 long creature_cannot_move_directly_to_with_collide(struct Thing *creatng, struct Coord3d *pos, long a3, unsigned char a4)
 {
-    return _DK_creature_cannot_move_directly_to_with_collide(creatng, pos, a3, a4);
+    //return _DK_creature_cannot_move_directly_to_with_collide(creatng, pos, a3, a4);
+
+    MapCoord clpcor;
+    int cannot_mv;
+    struct Coord3d next_pos;
+    struct Coord3d prev_pos;
+    struct Coord3d orig_pos;
+    MapCoordDelta dt_x, dt_y;
+
+    prev_pos = creatng->mappos;
+    dt_x = (prev_pos.x.val - pos->x.val);
+    dt_y = (prev_pos.y.val - pos->y.val);
+    cannot_mv = 0;
+    orig_pos = creatng->mappos;
+    if ((pos->x.stl.num == prev_pos.x.stl.num) || (pos->y.stl.num == prev_pos.y.stl.num))
+    {
+        // Only one coordinate changed enough to switch subtile - easy path
+        cannot_mv = creature_cannot_move_directly_to_with_collide_sub(creatng, *pos, a3, a4);
+        return cannot_mv;
+    }
+
+    if (cross_x_boundary_first(&prev_pos, pos))
+    {
+        if (pos->x.val <= prev_pos.x.val)
+            clpcor = (prev_pos.x.val & 0xFF00) - 1;
+        else
+            clpcor = (prev_pos.x.val + COORD_PER_STL) & 0xFF00;
+        next_pos.x.val = clpcor;
+        next_pos.y.val = dt_y * abs(clpcor - orig_pos.x.val) / dt_x + orig_pos.y.val;
+        next_pos.z.val = prev_pos.z.val;
+        switch (creature_cannot_move_directly_to_with_collide_sub(creatng, prev_pos, a3, a4))
+        {
+        case 0:
+            creatng->mappos = next_pos;
+            creatng->mappos.z.val = get_thing_height_at(creatng, &next_pos);
+            break;
+        case 1:
+            creatng->mappos = orig_pos;
+            cannot_mv = 1;
+            break;
+        case 4:
+            return 4;
+        }
+
+        prev_pos = creatng->mappos;
+        if (pos->y.val <= prev_pos.y.val)
+            clpcor = (prev_pos.y.val & 0xFF00) - 1;
+        else
+            clpcor = (prev_pos.y.val + COORD_PER_STL) & 0xFF00;
+        next_pos.y.val = clpcor;
+        next_pos.x.val = dt_x * abs(clpcor - orig_pos.y.val) / dt_y + orig_pos.x.val;
+        next_pos.z.val = prev_pos.z.val;
+        switch (creature_cannot_move_directly_to_with_collide_sub(creatng, next_pos, a3, a4))
+        {
+        case 0:
+            creatng->mappos = next_pos;
+            creatng->mappos.z.val = get_thing_height_at(creatng, &next_pos);
+            break;
+        case 1:
+            creatng->mappos = next_pos;
+            creatng->mappos.z.val = 0;
+            cannot_mv = 1;
+            break;
+        case 4:
+            creatng->mappos = orig_pos;
+            return 4;
+        }
+
+        prev_pos = creatng->mappos;
+        next_pos.x.val = pos->x.val;
+        next_pos.y.val = pos->y.val;
+        next_pos.z.val = creatng->mappos.z.val;
+        switch (creature_cannot_move_directly_to_with_collide_sub(creatng, next_pos, a3, a4))
+        {
+        case 0:
+            creatng->mappos = next_pos;
+            creatng->mappos.z.val = get_thing_height_at(creatng, &next_pos);
+            break;
+        case 1:
+            creatng->mappos = next_pos;
+            creatng->mappos.z.val = 0;
+            cannot_mv = 1;
+            break;
+        case 4:
+            creatng->mappos = orig_pos;
+            return 4;
+        }
+        return cannot_mv;
+    }
+
+    if (cross_y_boundary_first(&prev_pos, pos))
+    {
+        if (pos->y.val <= prev_pos.y.val)
+            clpcor = (prev_pos.y.val & 0xFF00) - 1;
+        else
+            clpcor = (prev_pos.y.val + COORD_PER_STL) & 0xFF00;
+        next_pos.y.val = clpcor;
+        next_pos.x.val = dt_x * abs(clpcor - orig_pos.y.val) / dt_y + orig_pos.x.val;
+        next_pos.z.val = prev_pos.z.val;
+        switch (creature_cannot_move_directly_to_with_collide_sub(creatng, next_pos, a3, a4))
+        {
+        case 0:
+            creatng->mappos = next_pos;
+            creatng->mappos.z.val = get_thing_height_at(creatng, &next_pos);
+            break;
+        case 1:
+            creatng->mappos = next_pos;
+            creatng->mappos.z.val = 0;
+            cannot_mv = 1;
+            break;
+        case 4:
+            return 4;
+        }
+        prev_pos = creatng->mappos;
+        if (pos->x.val <= prev_pos.x.val)
+            clpcor = (prev_pos.x.val & 0xFF00) - 1;
+        else
+            clpcor = (prev_pos.x.val + COORD_PER_STL) & 0xFF00;
+        next_pos.x.val = clpcor;
+        next_pos.y.val = dt_y * abs(clpcor - orig_pos.x.val) / dt_x + orig_pos.y.val;
+        next_pos.z.val = prev_pos.z.val;
+        switch (creature_cannot_move_directly_to_with_collide_sub(creatng, next_pos, a3, a4))
+        {
+        case 0:
+            creatng->mappos = next_pos;
+            creatng->mappos.z.val = get_thing_height_at(creatng, &next_pos);
+            break;
+        case 1:
+            creatng->mappos = next_pos;
+            creatng->mappos.z.val = 0;
+            cannot_mv = 1;
+            break;
+        case 4:
+            creatng->mappos = orig_pos;
+            return 4;
+        }
+        prev_pos = creatng->mappos;
+        next_pos.x.val = pos->x.val;
+        next_pos.y.val = pos->y.val;
+        next_pos.z.val = prev_pos.z.val;
+        switch (creature_cannot_move_directly_to_with_collide_sub(creatng, *pos, a3, a4))
+        {
+        default:
+            creatng->mappos = orig_pos;
+            break;
+        case 1:
+            creatng->mappos = orig_pos;
+            cannot_mv = 1;
+            break;
+        case 4:
+            creatng->mappos = orig_pos;
+            return 4;
+        }
+        return cannot_mv;
+    }
+
+    WARNDBG(3,"While moving %s index %d - crossing two boundaries, but neither is first",thing_model_name(creatng),(int)creatng->index);
+    switch (creature_cannot_move_directly_to_with_collide_sub(creatng, *pos, a3, a4))
+    {
+    default:
+        creatng->mappos = orig_pos;
+        break;
+    case 1:
+        creatng->mappos = orig_pos;
+        cannot_mv = 1;
+        break;
+    case 4:
+        creatng->mappos = orig_pos;
+        return 4;
+    }
+    return cannot_mv;
 }
 
 TbBool thing_can_continue_direct_line_to(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, long a4, long a5, unsigned char a6)

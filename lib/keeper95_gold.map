@@ -1343,6 +1343,7 @@
  0001:000CE340       computer_check_for_money
  0001:000CEB50       thing_in_wall_at
  0001:000CECB0       thing_in_wall_at_with_radius
+ 0001:000CEE20       get_map_index_of_first_block_thing_colliding_with_at
  0001:000CF000       creature_cannot_move_directly_to
  0001:000CF910       creature_cannot_move_directly_to_with_collide
  0001:000D0330       get_map_index_of_first_block_thing_colliding_with_travelling_to

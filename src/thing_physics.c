@@ -135,7 +135,7 @@ void creature_set_speed(struct Thing *thing, long speed)
     cctrl->flgfield_1 |= CCFlg_Unknown40;
 }
 
-TbBool cross_x_boundary_first(struct Coord3d *pos1, struct Coord3d *pos2)
+TbBool cross_x_boundary_first(const struct Coord3d *pos1, const struct Coord3d *pos2)
 {
   int delta_x, delta_y;
   int mul_x, mul_y;
@@ -154,7 +154,7 @@ TbBool cross_x_boundary_first(struct Coord3d *pos1, struct Coord3d *pos2)
   return abs(delta_x * mul_y) > abs(mul_x * delta_y);
 }
 
-TbBool cross_y_boundary_first(struct Coord3d *pos1, struct Coord3d *pos2)
+TbBool cross_y_boundary_first(const struct Coord3d *pos1, const struct Coord3d *pos2)
 {
   int delta_x, delta_y;
   int mul_x, mul_y;
