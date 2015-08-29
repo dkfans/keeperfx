@@ -2665,7 +2665,9 @@ void update_player_camera(struct PlayerInfo *player)
     dungeon = get_players_dungeon(player);
     struct Camera *cam;
     cam = player->acamera;
+
     view_process_camera_inertia(cam);
+
     switch (cam->viewType)
     {
     case PVM_CreatureView:
@@ -3705,7 +3707,7 @@ void _get_camera_move_ratio(Camera * cam)
     if (cam)
     {
         // TODO HeM: remove magicNumber and use correct formula.
-        double magicNumber;
+        double magicNumber = 0;
 
         // Zoom seems to be between 4100 (fareast) and 12000 (nearest)
         if (cam->zoom >= 4100 && cam->zoom <= 12000)
@@ -3826,6 +3828,9 @@ void keeper_gameplay_loop(void)
         // Check if we should redraw screen in this turn
         do_draw = display_should_be_updated_this_turn();
 
+        if (quit_game || exit_keeper)
+            do_draw = false;
+
         init_lbDisplayEx_values();
         _predict_power_hand_click_behavior();
         _check_if_mouse_is_over_any_button();
@@ -3837,14 +3842,12 @@ void keeper_gameplay_loop(void)
         update_mouse();
         input_eastegg();
 
-        input();
+        input(do_draw);
         update();
-
-        if (quit_game || exit_keeper)
-            do_draw = false;
 
         if ( do_draw )
             keeper_screen_redraw();
+
         keeper_wait_for_screen_focus();
         // Direct information/error messages
         if (LbScreenLock() == Lb_SUCCESS)

@@ -74,8 +74,8 @@ DLLIMPORT long _DK_old_mx;
 DLLIMPORT long _DK_old_my;
 #define old_my _DK_old_my
 /******************************************************************************/
-void input(void);
-short get_inputs(void);
+void input(int do_draw);
+short get_inputs(int do_draw);
 short get_screen_capture_inputs(void);
 int is_game_key_pressed(long key_id, long *val, TbBool ignore_mods);
 short game_is_busy_doing_gui_string_input(void);
