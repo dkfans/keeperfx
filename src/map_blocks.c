@@ -490,7 +490,7 @@ long delete_unwanted_things_from_liquid_slab(MapSlabCoord slb_x, MapSlabCoord sl
     long removed_num;
     unsigned long k;
     long i,n;
-    stl_num = get_subtile_number(slab_subtile_center(slb_x),slab_subtile_center(slb_y));
+    stl_num = get_subtile_number_at_slab_center(slb_x, slb_y);
     removed_num = 0;
     for (n=0; n < AROUND_MAP_LENGTH; n++)
     {

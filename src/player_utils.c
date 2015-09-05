@@ -778,7 +778,7 @@ long wander_point_initialise(struct Wander *wandr, PlayerNumber plyr_idx, unsign
         SubtlCodedCoords stl_num;
         slb_x = slb_num_decode_x(slb_num);
         slb_y = slb_num_decode_y(slb_num);
-        stl_num = get_subtile_number(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+        stl_num = get_subtile_number_at_slab_center(slb_x, slb_y);
         if (wp_check_map_pos_valid(wandr, stl_num))
         {
             if (stl_num_list_count >= 0x10000/sizeof(SubtlCodedCoords)-1)
@@ -816,7 +816,7 @@ long wander_point_update(struct Wander *wandr)
         SubtlCodedCoords stl_num;
         slb_x = slb_num_decode_x(slb_num);
         slb_y = slb_num_decode_y(slb_num);
-        stl_num = get_subtile_number(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+        stl_num = get_subtile_number_at_slab_center(slb_x, slb_y);
         if (wp_check_map_pos_valid(wandr, stl_num))
         {
             if (stl_num_list_count >= LOCAL_LIST_SIZE)

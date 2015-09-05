@@ -869,7 +869,7 @@ long check_out_undug_place(struct Thing *creatng)
         long task_idx;
         slb_x = subtile_slab_fast(base_stl_x)+small_around[n].delta_x;
         slb_y = subtile_slab_fast(base_stl_y)+small_around[n].delta_y;
-        task_pos = get_subtile_number(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+        task_pos = get_subtile_number_at_slab_center(slb_x, slb_y);
         task_idx = find_dig_from_task_list(creatng->owner, task_pos);
         if (task_idx != -1)
         {
@@ -1883,6 +1883,28 @@ long imp_already_reinforcing_at_excluding(struct Thing *creatng, MapSubtlCoord s
 {
     return _DK_imp_already_reinforcing_at_excluding(creatng, stl_x, stl_y);
 }
+int get_nearest_small_around_side_of_slab(MapCoord dstcor_x, MapCoord dstcor_y, MapCoord srccor_x, MapCoord srccor_y)
+{
+    MapCoordDelta delta_x,delta_y;
+    delta_x = dstcor_x - (MapCoordDelta)srccor_x;
+    delta_y = dstcor_y - (MapCoordDelta)srccor_y;
+    // First check the nearest side
+    if (abs(delta_y) > abs(delta_x))
+    {
+      if (delta_y > 0)
+          return 0;
+      else
+          return 2;
+    } else
+    {
+      if (delta_x > 0)
+          return 3;
+      else
+          return 1;
+    }
+    ERRORLOG("Impossible reached");
+    return 0;
+}
 
 long check_out_uncrowded_reinforce_position(struct Thing *thing, SubtlCodedCoords stl_num, long *retstl_x, long *retstl_y)
 {
@@ -1890,24 +1912,7 @@ long check_out_uncrowded_reinforce_position(struct Thing *thing, SubtlCodedCoord
     basestl_x = stl_num_decode_x(stl_num);
     basestl_y = stl_num_decode_y(stl_num);
     int i,n;
-    {
-        MapSubtlDelta delta_x,delta_y;
-        delta_x = basestl_x - (MapSubtlDelta)thing->mappos.x.stl.num;
-        delta_y = basestl_y - (MapSubtlDelta)thing->mappos.y.stl.num;
-        if (abs(delta_y) < abs(delta_x))
-        {
-          if (delta_y > 0)
-              n = 0;
-          else
-              n = 2;
-        } else
-        {
-          if (delta_x > 0)
-              n = 3;
-          else
-              n = 1;
-        }
-    }
+	n = get_nearest_small_around_side_of_slab(subtile_coord_center(basestl_x), subtile_coord_center(basestl_y), thing->mappos.x.val, thing->mappos.y.val);  
     for (i=0; i < SMALL_AROUND_LENGTH; i++)
     {
         MapSubtlCoord stl_x,stl_y;
@@ -1992,7 +1997,6 @@ long check_place_to_dig_and_get_position(struct Thing *thing, SubtlCodedCoords s
     struct SlabMap *place_slb;
     struct Coord3d pos;
     MapSubtlCoord place_x,place_y;
-    MapSubtlDelta distance_x,distance_y;
     long base_x,base_y;
     long stl_x,stl_y;
     long i,k,n,nstart;
@@ -2001,25 +2005,11 @@ long check_place_to_dig_and_get_position(struct Thing *thing, SubtlCodedCoords s
     place_y = stl_num_decode_y(stl_num);
     if (!block_has_diggable_side(thing->owner, subtile_slab_fast(place_x), subtile_slab_fast(place_y)))
         return 0;
-    distance_x = place_x - (MapSubtlDelta)thing->mappos.x.stl.num;
-    distance_y = place_y - (MapSubtlDelta)thing->mappos.y.stl.num;
-    if (abs(distance_y) >= abs(distance_x))
-    {
-      if (distance_y > 0)
-          nstart = 0;
-      else
-          nstart = 2;
-    } else
-    {
-      if (distance_x > 0)
-          nstart = 3;
-      else
-          nstart = 1;
-    }
+	nstart = get_nearest_small_around_side_of_slab(subtile_coord_center(place_x), subtile_coord_center(place_y), thing->mappos.x.val, thing->mappos.y.val);
     place_slb = get_slabmap_for_subtile(place_x,place_y);
     n = nstart;
 
-    for (i = 0; i < SMALL_AROUND_SLAB_LENGTH; i++)
+    for (i = 0; i < SMALL_AROUND_LENGTH; i++)
     {
       base_x = place_x + 2 * (long)small_around[n].delta_x;
       base_y = place_y + 2 * (long)small_around[n].delta_y;
@@ -2055,7 +2045,7 @@ long check_place_to_dig_and_get_position(struct Thing *thing, SubtlCodedCoords s
               }
           }
       }
-      n = (n+1) % 4;
+      n = (n+1) % SMALL_AROUND_LENGTH;
     }
     return 0;
 }
@@ -2111,7 +2101,7 @@ struct Thing *check_place_to_pickup_unconscious_body(struct Thing *thing, long a
     return _DK_check_place_to_pickup_unconscious_body(thing, a2, a3);
 }
 
-long check_place_to_reinforce(struct Thing *creatng, long slb_x, long slb_y)
+long check_place_to_reinforce(struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     struct SlabMap *slb;
     TRACE_THING(creatng);
@@ -2132,7 +2122,7 @@ long check_place_to_reinforce(struct Thing *creatng, long slb_x, long slb_y)
     }
     SubtlCodedCoords task_pos;
     long task_idx;
-    task_pos = get_subtile_number(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+    task_pos = get_subtile_number_at_slab_center(slb_x, slb_y);
     task_idx = find_dig_from_task_list(creatng->owner, task_pos);
     if (task_idx != -1) {
         return -1;

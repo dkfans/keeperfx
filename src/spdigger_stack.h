@@ -122,7 +122,7 @@ long check_out_available_imp_tasks(struct Thing *thing);
 long check_out_imp_tokes(struct Thing *thing);
 long check_place_to_dig_and_get_position(struct Thing *thing, SubtlCodedCoords stl_num, MapSubtlCoord *retstl_x, MapSubtlCoord *retstl_y);
 long check_place_to_dig_and_get_drop_position(PlayerNumber plyr_idx, SubtlCodedCoords stl_num, MapSubtlCoord *retstl_x, MapSubtlCoord *retstl_y);
-long check_place_to_reinforce(struct Thing *thing, long a2, long a3);
+long check_place_to_reinforce(struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y);
 long check_out_uncrowded_reinforce_position(struct Thing *thing, SubtlCodedCoords stl_num, long *retslb_x, long *retslb_y);
 long check_out_unconverted_spiral(struct Thing *thing, long nslabs);
 void force_any_creature_dragging_owned_thing_to_drop_it(struct Thing *dragtng);

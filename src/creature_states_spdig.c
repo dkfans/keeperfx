@@ -607,7 +607,7 @@ long check_out_unreinforced_drop_place(struct Thing *thing)
     stl_x = thing->mappos.x.stl.num;
     stl_y = thing->mappos.y.stl.num;
     cctrl = creature_control_get_from_thing(thing);
-    n = reinforce_edges[3 * (stl_y % 3) + (stl_x % 3)];
+    n = reinforce_edges[STL_PER_SLB * (stl_y % STL_PER_SLB) + (stl_x % STL_PER_SLB)];
     for (i=0; i < SMALL_AROUND_LENGTH; i++)
     {
         slb_x = subtile_slab_fast(stl_x) + (long)small_around[n].delta_x;
@@ -619,15 +619,18 @@ long check_out_unreinforced_drop_place(struct Thing *thing)
             {
                 if ( setup_person_move_to_position(thing, pos_x, pos_y, NavRtF_Default) )
                 {
+
                     thing->continue_state = CrSt_ImpArrivesAtReinforce;
                     cctrl->digger.working_stl = stl_num;
                     cctrl->digger.byte_93 = 0;
+                    SYNCDBG(8,"Assigned reinforce at (%d,%d) to %s index %d",(int)pos_x,(int)pos_y,thing_model_name(thing),(int)thing->index);
                     return 1;
                 }
             }
         }
         n = (n + 1) % SMALL_AROUND_LENGTH;
     }
+    SYNCDBG(18,"No job for %s index %d",thing_model_name(thing),(int)thing->index);
     return 0;
 }
 
