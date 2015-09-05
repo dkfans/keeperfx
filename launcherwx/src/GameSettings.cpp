@@ -95,9 +95,9 @@ wxString supported_languages_text[] = {
     _T("Česky"),
     //_T("Arabic"),
     _T("Русский"),
-    _T("にほんご"),
-    _T("简化中国"),
-    _T("傳統的中國"),
+    _T("日本語"),
+    _T("简体中文"),
+    _T("繁體中文"),
     //_T("Portuguese"),
     //_T("Hindi"),
     //_T("Bengali"),
@@ -332,6 +332,7 @@ GameSettings::GameSettings(wxFrame *parent)
     topsizer->Add(dlgBottomPanel, 0, wxEXPAND);
 
     SetSizer(topsizer);
+    Fit();
     Centre(wxBOTH);
 
 }

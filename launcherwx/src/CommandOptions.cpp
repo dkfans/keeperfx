@@ -262,6 +262,7 @@ CommandOptions::CommandOptions(wxFrame *parent)
     topsizer->Add(dlgBottomPanel, 0, wxEXPAND);
 
     SetSizer(topsizer);
+    Fit();
     Centre(wxBOTH);
 }
 
