@@ -57,7 +57,7 @@ volatile unsigned short lbPalettedSurfaceColorDepth = 8;
 extern volatile TbBool lbAppActive;
 
 /** Name of the video driver to be used. Must be set before LbScreenInitialize().
- * Under Win32 and with SDL2.0, the only choice is 'windows'. */
+ * Under Win32 and with SDL2.0, the only allowed value is 'windows'. */
 char lbVideoDriver[16];
 
 /** Colour palette buffer, to be used inside lbDisplay. */
@@ -470,6 +470,8 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
     // Set SDL video mode (also creates window if we do not have one already).
     if (lbScreenWindow == NULL)
     {
+
+        SYNCLOG("Before %d x %d windows", (int)mdinfo->Width, (int)mdinfo->Height);
         lbScreenWindow = SDL_CreateWindow("Dungeon Keeper FX",
             SDL_WINDOWPOS_UNDEFINED,
             SDL_WINDOWPOS_UNDEFINED,
@@ -488,6 +490,8 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
 
     if (lbGameRenderer == NULL)
     {
+
+        SYNCLOG("Before %d x %d renderer", (int)mdinfo->Width, (int)mdinfo->Height);
         lbGameRenderer = SDL_CreateRenderer(lbScreenWindow, -1, 0);
 
         if (lbGameRenderer == NULL)
@@ -504,6 +508,7 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
         SDL_RenderSetLogicalSize(lbGameRenderer, mdinfo->Width, mdinfo->Height);
     }
 
+    SYNCLOG("Before %d x %d surface", (int)mdinfo->Width, (int)mdinfo->Height);
     if (lbPalettedSurface == NULL)
     {
         lbPalettedSurface = SDL_CreateRGBSurface(0/*obselete flag*/, mdinfo->Width, mdinfo->Height, lbPalettedSurfaceColorDepth, 0, 0, 0, 0);

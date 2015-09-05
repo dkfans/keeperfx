@@ -4721,8 +4721,8 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if ( strcasecmp(parstr,"altinput") == 0 )
       {
-          SYNCLOG("Mouse auto reset disabled");
-          lbUseRelativeMouseMode = false;
+          SYNCLOG("Captured mouse mode disabled");
+          lbUseRelativeMouseMode = true;
       } else
       if ( strcasecmp(parstr,"directdrag") == 0 )
       {

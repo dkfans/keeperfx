@@ -41,7 +41,6 @@ class CommandOptions : public wxDialog
     wxTextCtrl * gameSpeedTxtCtrl;
     wxCheckBox * humanPlayerChkBx;
     wxTextCtrl * humanPlayerTxtCtrl;
-    wxCheckBox * vidDriverChkBx;
     wxTextCtrl * vidDriverTxtCtrl;
     wxCheckBox * netSessionsChkBx;
     wxTextCtrl * netSessionsTxtCtrl;

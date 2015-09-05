@@ -55,7 +55,7 @@ struct DevInput joy;
 */
 
 // Whether we want to relative mouse mode, when this is on, mouse will be trapped in game window.
-volatile TbBool lbUseRelativeMouseMode = true;
+volatile TbBool lbUseRelativeMouseMode = false;
 
 // Whether we want to enable mouse dragging without ctrl pressed.
 // TODO make this into option page.
@@ -232,7 +232,7 @@ TbPoint _scaleMouseMove(struct TbPoint posDelta)
 
     if (!lbUseRelativeMouseMode)
     {
-        ERRORLOG("Mouse ratio is only valid in relative mouse mode.");
+        ERRORLOG("Mouse ratio is only valid in captured mouse mode.");
         return scaledMouseMove;
     }
 
