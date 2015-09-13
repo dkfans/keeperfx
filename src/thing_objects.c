@@ -2160,6 +2160,7 @@ struct Thing *find_gold_hoard_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
       if (k > THINGS_COUNT)
       {
         ERRORLOG("Infinite loop detected when sweeping things list");
+        break_mapwho_infinite_chain(mapblk);
         break;
       }
     }

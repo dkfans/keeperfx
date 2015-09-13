@@ -174,6 +174,7 @@ struct Thing *get_shot_collided_with_same_type_on_subtile(struct Thing *shotng, 
         if (k > THINGS_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
+            break_mapwho_infinite_chain(mapblk);
             break;
         }
     }
@@ -1082,6 +1083,7 @@ struct Thing *get_thing_collided_with_at_satisfying_filter_for_subtile(struct Th
         if (k > THINGS_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
+            break_mapwho_infinite_chain(mapblk);
             break;
         }
     }

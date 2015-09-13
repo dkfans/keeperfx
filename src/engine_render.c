@@ -5945,13 +5945,13 @@ void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map, struc
     }
 }
 
-void draw_frontview_things_on_element(struct Map *map, struct Camera *cam)
+void draw_frontview_things_on_element(struct Map *mapblk, struct Camera *cam)
 {
     struct Thing *thing;
     long i;
     unsigned long k;
     k = 0;
-    i = get_mapwho_thing_index(map);
+    i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
         thing = thing_get(i);
@@ -5962,11 +5962,12 @@ void draw_frontview_things_on_element(struct Map *map, struct Camera *cam)
             break;
         }
         i = thing->next_on_mapblk;
-        draw_frontview_thing_on_element(thing, map, cam);
+        draw_frontview_thing_on_element(thing, mapblk, cam);
         k++;
         if (k > THINGS_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
+            break_mapwho_infinite_chain(mapblk);
             break;
         }
     }

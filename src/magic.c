@@ -1418,6 +1418,7 @@ TbResult magic_use_power_cave_in(PlayerNumber plyr_idx, MapSubtlCoord stl_x, Map
         if (k > THINGS_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
+            break_mapwho_infinite_chain(mapblk);
             i = 0;
             break;
         }

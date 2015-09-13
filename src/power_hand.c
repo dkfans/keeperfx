@@ -672,6 +672,7 @@ TbBool object_is_slappable(const struct Thing *thing, long plyr_idx)
     if (k > THINGS_COUNT)
     {
       ERRORLOG("Infinite loop detected when sweeping things list");
+      break_mapwho_infinite_chain(mapblk);
       break;
     }
   }

@@ -3028,6 +3028,7 @@ TbBool is_creature_other_than_given_waiting_at_closed_door_on_subtile(MapSubtlCo
         if (k > THINGS_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
+            break_mapwho_infinite_chain(mapblk);
             break;
         }
     }
@@ -3277,6 +3278,7 @@ CrAttackType creature_can_have_combat_with_creature_on_slab(struct Thing *creatn
                 if (k > THINGS_COUNT)
                 {
                     ERRORLOG("Infinite loop detected when sweeping things list");
+                    break_mapwho_infinite_chain(mapblk);
                     break;
                 }
             }

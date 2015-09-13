@@ -126,6 +126,7 @@ struct PlayerInfo;
 struct Thing;
 struct CompoundTngFilterParam;
 struct Dungeon;
+struct Map;
 
 typedef struct CompoundTngFilterParam * MaxTngFilterParam;
 typedef struct CompoundTngFilterParam * ModTngFilterParam;
@@ -302,6 +303,8 @@ struct Thing *smallest_gold_pile_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 TbBool update_speed_of_player_creatures_of_model(PlayerNumber plyr_idx, int crmodel);
 TbBool apply_anger_to_all_players_creatures_excluding(PlayerNumber plyr_idx, long anger,
     long reason, const struct Thing *excltng);
+
+void break_mapwho_infinite_chain(const struct Map *mapblk);
 
 TbBool update_thing(struct Thing *thing);
 TbBigChecksum get_thing_checksum(const struct Thing *thing);

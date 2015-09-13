@@ -1175,6 +1175,7 @@ GoldAmount take_from_gold_pile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long li
         if (k > THINGS_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
+            break_mapwho_infinite_chain(mapblk);
             break;
         }
     }

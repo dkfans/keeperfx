@@ -717,6 +717,7 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
         if (k > THINGS_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
+            break_mapwho_infinite_chain(mapblk);
             break;
         }
     }

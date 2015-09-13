@@ -2074,6 +2074,7 @@ struct Thing *get_thing_collided_with_at_satisfying_filter_in_square_of_for_subt
         if (k > THINGS_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
+            break_mapwho_infinite_chain(mapblk);
             break;
         }
     }

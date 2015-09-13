@@ -101,6 +101,7 @@ struct Thing *get_workshop_equipment_to_work_with_on_subtile(PlayerNumber plyr_i
         if (k > THINGS_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
+            break_mapwho_infinite_chain(mapblk);
             break;
         }
     }
@@ -148,6 +149,7 @@ struct Thing *get_other_creature_manufacturing_on_subtile(PlayerNumber plyr_idx,
         if (k > THINGS_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
+            break_mapwho_infinite_chain(mapblk);
             break;
         }
     }

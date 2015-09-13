@@ -1378,6 +1378,7 @@ long explosion_effect_affecting_map_block(struct Thing *efftng, struct Thing *tn
         if (k > THINGS_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
+            break_mapwho_infinite_chain(mapblk);
             break;
         }
     }
@@ -1524,6 +1525,7 @@ long explosion_affecting_map_block(struct Thing *tngsrc, const struct Map *mapbl
         if (k > THINGS_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
+            break_mapwho_infinite_chain(mapblk);
             break;
         }
     }
@@ -1678,6 +1680,7 @@ long poison_cloud_affecting_map_block(struct Thing *tngsrc, const struct Map *ma
         if (k > THINGS_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
+            break_mapwho_infinite_chain(mapblk);
             break;
         }
     }

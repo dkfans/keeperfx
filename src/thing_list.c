@@ -1238,6 +1238,7 @@ struct Thing *find_base_thing_on_mapwho(ThingClass oclass, ThingModel model, Map
         if (k > THINGS_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
+            break_mapwho_infinite_chain(mapblk);
             break;
         }
     }
@@ -1317,6 +1318,7 @@ struct Thing *find_creature_lair_totem_at_subtile(MapSubtlCoord stl_x, MapSubtlC
         if (k > THINGS_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
+            break_mapwho_infinite_chain(mapblk);
             break;
         }
     }
@@ -3042,6 +3044,7 @@ TbBool imp_already_digging_at_excluding(struct Thing *excltng, MapSubtlCoord stl
     if (k > THINGS_COUNT)
     {
       ERRORLOG("Infinite loop detected when sweeping things list");
+      break_mapwho_infinite_chain(mapblk);
       break;
     }
   }
@@ -3086,6 +3089,7 @@ struct Thing *smallest_gold_pile_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     if (k > THINGS_COUNT)
     {
       ERRORLOG("Infinite loop detected when sweeping things list");
+      break_mapwho_infinite_chain(mapblk);
       break;
     }
   }
@@ -3180,6 +3184,7 @@ TbBool gold_pile_with_maximum_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     if (k > THINGS_COUNT)
     {
       ERRORLOG("Infinite loop detected when sweeping things list");
+      break_mapwho_infinite_chain(mapblk);
       break;
     }
   }
@@ -3683,6 +3688,61 @@ long count_creatures_in_dungeon_controlled_and_of_model_flags(const struct Dunge
     return count;
 }
 
+void break_mapwho_infinite_chain(const struct Map *mapblk)
+{
+    SYNCDBG(8,"Starting");
+    long i, i_first;
+    long i_prev[2];
+    unsigned long k;
+    k = 0;
+    i_first = get_mapwho_thing_index(mapblk);
+    i_prev[1] = 0;
+    i_prev[0] = 0;
+    while (i_first != 0)
+    {
+        struct Thing *thing;
+        // Per thing code start
+        k = 0;
+        i = i_first;
+        while (i != 0)
+        {
+            struct Thing *thing;
+            thing = thing_get(i);
+            TRACE_THING(thing);
+            if (thing_is_invalid(thing))
+            {
+                ERRORLOG("Jump to invalid thing detected");
+                break;
+            }
+            i_prev[1] = i_prev[0];
+            i_prev[0] = i;
+            i = thing->next_on_mapblk;
+            // Per thing code start
+            if (i == i_first) {
+                thing->next_on_mapblk = 0;
+                thing->prev_on_mapblk = i_prev[1];
+                WARNLOG("The things chain has been cut");
+                return;
+            }
+            // Per thing code end
+            k++;
+            if (k > THINGS_COUNT)
+            {
+                break;
+            }
+        }
+        // Per thing code end
+        thing = thing_get(i_first);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i_prev[0] = i_first;
+        i_first = thing->next_on_mapblk;
+    }
+    WARNLOG("No change performed");
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -472,6 +472,7 @@ long delete_all_object_things_from_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, 
           if (k > THINGS_COUNT)
           {
               ERRORLOG("Infinite loop detected when sweeping things list");
+              break_mapwho_infinite_chain(mapblk);
               break;
           }
         }
@@ -526,6 +527,7 @@ long delete_unwanted_things_from_liquid_slab(MapSlabCoord slb_x, MapSlabCoord sl
             if (k > THINGS_COUNT)
             {
                 ERRORLOG("Infinite loop detected when sweeping things list");
+                break_mapwho_infinite_chain(mapblk);
                 break;
             }
         }
@@ -1321,6 +1323,7 @@ void dump_slab_on_map(SlabKind slbkind, long slabct_num, MapSubtlCoord stl_x, Ma
                 if (k > THINGS_COUNT)
                 {
                     ERRORLOG("Infinite loop detected when sweeping things list");
+                    break_mapwho_infinite_chain(mapblk);
                     break;
                 }
             }

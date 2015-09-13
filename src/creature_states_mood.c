@@ -447,6 +447,7 @@ TbBool find_combat_target_passing_by_subtile_but_having_unrelated_job(const stru
         if (k > THINGS_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
+            break_mapwho_infinite_chain(mapblk);
             break;
         }
     }
