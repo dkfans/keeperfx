@@ -126,14 +126,14 @@ extern struct TbLoadFiles game_load_files[];
 extern unsigned short units_per_pixel_min;
 extern long base_mouse_sensitivity;
 /******************************************************************************/
-TbScreenMode switch_to_next_video_mode(void);
+TbScreenModeIdx switch_to_next_video_mode(void);
 void register_vidmode_index_for_switching(unsigned short i,unsigned short nmode);
-TbScreenMode reenter_video_mode(void);
-TbScreenMode get_next_vidmode_for_switching(unsigned short mode);
-TbScreenMode validate_vidmode_in_switching_list(unsigned short mode);
-TbScreenMode get_failsafe_vidmode(void);
-TbScreenMode get_movies_vidmode(void);
-TbScreenMode get_frontend_vidmode(void);
+TbScreenModeIdx reenter_video_mode(void);
+TbScreenModeIdx get_next_vidmode_for_switching(unsigned short mode);
+TbScreenModeIdx validate_vidmode_in_switching_list(unsigned short mode);
+TbScreenModeIdx get_failsafe_vidmode(void);
+TbScreenModeIdx get_movies_vidmode(void);
+TbScreenModeIdx get_frontend_vidmode(void);
 void set_frontend_vidmode(unsigned short nmode);
 char *get_vidmode_description(unsigned short mode);
 

@@ -49,7 +49,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-TbScreenMode switching_vidmodes[] = {
+TbScreenModeIdx switching_vidmodes[] = {
     Lb_SCREEN_MODE_640_480,
     Lb_SCREEN_MODE_INVALID,
     Lb_SCREEN_MODE_INVALID,
@@ -57,9 +57,9 @@ TbScreenMode switching_vidmodes[] = {
     Lb_SCREEN_MODE_INVALID,
     };
 
-TbScreenMode failsafe_vidmode = Lb_SCREEN_MODE_640_480;
-TbScreenMode movies_vidmode = Lb_SCREEN_MODE_320_200;
-TbScreenMode frontend_vidmode = Lb_SCREEN_MODE_640_480;
+TbScreenModeIdx failsafe_vidmode = Lb_SCREEN_MODE_640_480;
+TbScreenModeIdx movies_vidmode = Lb_SCREEN_MODE_320_200;
+TbScreenModeIdx frontend_vidmode = Lb_SCREEN_MODE_640_480;
 
 //struct IPOINT_2D units_per_pixel;
 unsigned short units_per_pixel_min;
@@ -178,14 +178,14 @@ short LoadMcgaDataMinimal(void)
 }
 
 // Find the index of next video mode registered in switching_vidmodes list, may loop back to original place.
-TbScreenMode get_next_vidmode_for_switching(unsigned short currentModeIndex)
+TbScreenModeIdx get_next_vidmode_for_switching(unsigned short currentModeIndex)
 {
     int i = 0;
-    int modeCount = sizeof(switching_vidmodes) / sizeof(TbScreenMode);
+    int modeCount = sizeof(switching_vidmodes) / sizeof(TbScreenModeIdx);
 
-    // TODO HeM need to check if there is any good mode exists in the list.
+    // TODO HeM need to check if there is any good mode exists at all in the list.
 
-    // Do not allow to enter higher modes on low memory systems
+    // Do not allow entering higher modes on low memory systems
     if ((features_enabled & Ft_HiResVideo) == 0)
     {
         SYNCLOG("Hi Res feature not enabled, failsafing.");
@@ -204,22 +204,21 @@ TbScreenMode get_next_vidmode_for_switching(unsigned short currentModeIndex)
     {
         i = 0;
     }
-
     return switching_vidmodes[i];
 }
 
 // Register index of video mode for switching
 void register_vidmode_index_for_switching(unsigned short i,unsigned short nmode)
 {
-    switching_vidmodes[i] = (TbScreenMode)nmode;
+    switching_vidmodes[i] = (TbScreenModeIdx)nmode;
 }
 
 // Search for given mode in switching mode list,
 // In case it is not in the list or is not supported, return failsafe mode.
-TbScreenMode validate_vidmode_in_switching_list(unsigned short mode)
+TbScreenModeIdx validate_vidmode_in_switching_list(unsigned short mode)
 {
     int i;
-    int modeCount = sizeof(switching_vidmodes) / sizeof(TbScreenMode);
+    int modeCount = sizeof(switching_vidmodes) / sizeof(TbScreenModeIdx);
 
     // Do not allow to enter higher modes on low memory systems
     if ((features_enabled & Ft_HiResVideo) == 0)
@@ -239,24 +238,24 @@ TbScreenMode validate_vidmode_in_switching_list(unsigned short mode)
     return switching_vidmodes[0];
 }
 
-TbScreenMode get_failsafe_vidmode(void)
+TbScreenModeIdx get_failsafe_vidmode(void)
 {
     return failsafe_vidmode;
 }
 
-TbScreenMode get_movies_vidmode(void)
+TbScreenModeIdx get_movies_vidmode(void)
 {
     return movies_vidmode;
 }
 
-TbScreenMode get_frontend_vidmode(void)
+TbScreenModeIdx get_frontend_vidmode(void)
 {
-  return frontend_vidmode;
+    return settings.video_scrnmode;
 }
 
 void set_frontend_vidmode(unsigned short nmode)
 {
-  frontend_vidmode=(TbScreenMode)nmode;
+  frontend_vidmode=(TbScreenModeIdx)nmode;
 }
 
 void load_pointer_file(short hi_res)
@@ -640,7 +639,7 @@ TbBool setup_screen_mode(unsigned short nmode)
         }
         if ((lbDisplay.ScreenMode != nmode) || (was_minimal_res))
         {
-            if (LbScreenSetup((TbScreenMode)nmode, engine_palette, 2, 0) != 1)
+            if (LbScreenSetup((TbScreenModeIdx)nmode, engine_palette, 2, 0) != 1)
             {
               ERRORLOG("Unable to setup screen resolution %s (mode %d)",
                   mdinfo->Desc,(int)nmode);
@@ -661,7 +660,7 @@ TbBool setup_screen_mode(unsigned short nmode)
         }
         if ((lbDisplay.ScreenMode != nmode) || (was_minimal_res))
         {
-            if (LbScreenSetup((TbScreenMode)nmode, engine_palette, 1, 0) != 1)
+            if (LbScreenSetup((TbScreenModeIdx)nmode, engine_palette, 1, 0) != 1)
             {
               ERRORLOG("Unable to setup screen resolution %s (mode %d)",
                   mdinfo->Desc,(int)nmode);
@@ -789,7 +788,7 @@ short setup_screen_mode_minimal(unsigned short nmode)
       }
       if ((nmode != lbDisplay.ScreenMode) || (force_video_mode_reset))
       {
-          if (LbScreenSetup((TbScreenMode)nmode, engine_palette, 2, 0) != 1)
+          if (LbScreenSetup((TbScreenModeIdx)nmode, engine_palette, 2, 0) != 1)
           {
             ERRORLOG("Unable to setup screen resolution %s (mode %d)",
                 mdinfo->Desc,(int)nmode);
@@ -811,7 +810,7 @@ short setup_screen_mode_minimal(unsigned short nmode)
       frontend_load_data_reset();
       if ((nmode != lbDisplay.ScreenMode) || (force_video_mode_reset))
       {
-          if (LbScreenSetup((TbScreenMode)nmode, engine_palette, 1, 0) != 1)
+          if (LbScreenSetup((TbScreenModeIdx)nmode, engine_palette, 1, 0) != 1)
           {
              ERRORLOG("Unable to setup screen resolution %s (mode %d)",
                  mdinfo->Desc,(int)nmode);
@@ -835,7 +834,7 @@ TbBool setup_screen_mode_zero(unsigned short nmode)
   SYNCDBG(4,"Setting up mode %d",(int)nmode);
   mdinfo = LbScreenGetModeInfo(nmode);
   LbPaletteDataFillBlack(engine_palette);
-  if (LbScreenSetup((TbScreenMode)nmode, engine_palette, 2, 0) != 1)
+  if (LbScreenSetup((TbScreenModeIdx)nmode, engine_palette, 2, 0) != 1)
   {
       ERRORLOG("Unable to setup screen resolution %s (mode %d)",
           mdinfo->Desc,(int)nmode);
@@ -845,21 +844,29 @@ TbBool setup_screen_mode_zero(unsigned short nmode)
   return true;
 }
 
-TbScreenMode reenter_video_mode(void)
+TbScreenModeIdx reenter_video_mode(void)
 {
-    TbScreenMode scrmode;
+    TbScreenModeIdx scrmode;
+    TbScreenModeInfo *mdinfo;
     scrmode = validate_vidmode_in_switching_list(settings.video_scrnmode);
+    mdinfo = LbScreenGetModeInfo(scrmode);
     SYNCDBG(8, "reentering video %d -> %d .", settings.video_scrnmode, (int)scrmode);
 
-    // In game resolution may be different with the frontend resolution, so we recreate window.
-    // TODO HeM Mefisto: Use unified resolution for everything except movie when the Config UI
-    // is updated, then we eliminate methods related to 'frontend_vidmode' and use same video
-    // mode list with game play. Then we can remove this line.
-    LbScreenReset(true);
+    // In old version of KeeperFX, in game resolution may be different with the frontend resolution,
+    // But this should not happen after we unified the frontend resolution and ingame resolution.
+    // Anyway this is not crucial and should not break the game.
+    int windowSizeMismatch = (lbDisplay.PhysicalScreenWidth != mdinfo->Width) ||
+                             (lbDisplay.PhysicalScreenHeight != mdinfo->Height);
+
+    if (windowSizeMismatch)
+    {
+        ERRORLOG("Unexpected window size mismatch, ignore and recreate window.");
+        LbScreenReset(true);
+    }
 
     if (setup_screen_mode(scrmode))
     {
-        settings.video_scrnmode = scrmode;
+        settings.video_scrnmode = scrmode;   
     }
     else
     {
@@ -880,9 +887,9 @@ TbScreenMode reenter_video_mode(void)
     return scrmode;
 }
 
-TbScreenMode switch_to_next_video_mode(void)
+TbScreenModeIdx switch_to_next_video_mode(void)
 {
-    TbScreenMode scrmode;
+    TbScreenModeIdx scrmode;
     scrmode = get_next_vidmode_for_switching(lbDisplay.ScreenMode);
     SYNCDBG(8, "get_next_vidmode_for_switching %d -> %d", lbDisplay.ScreenMode, scrmode);
 

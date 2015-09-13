@@ -38,7 +38,7 @@ extern "C" {
 TbScreenModeInfo lbScreenModeInfo[SCREEN_MODES_COUNT];
 
 /** Count of used entries in registered video modes list. */
-long lbScreenModeInfoNum = 0;
+volatile long lbScreenModeInfoNum = 0;
 
 /** Informs if Video Screen subsystem initialization was done. */
 volatile TbBool lbScreenInitialized = false;
@@ -158,7 +158,7 @@ TbResult LbScreenClear(TbPixel colour)
  *
  * @return Screen mode index.
  */
-TbScreenMode LbScreenActiveMode(void)
+TbScreenModeIdx LbScreenActiveMode(void)
 {
     return lbDisplay.ScreenMode;
 }
@@ -299,31 +299,6 @@ TbResult LbScreenWaitVbi(void)
   return Lb_SUCCESS;
 }
 
-static TbBool LbHwCheckIsModeAvailable(TbScreenMode mode)
-{
-  // TODO: HeM No longer needed in SDL 2.0, clean this up
-  return true;
-}
-
-TbResult LbScreenFindVideoModes(void)
-{
-  int i,avail_num;
-  avail_num = 0;
-  lbScreenModeInfo[0].Available = false;
-  for (i=1; i < lbScreenModeInfoNum; i++)
-  {
-      if (LbHwCheckIsModeAvailable(i)) {
-          lbScreenModeInfo[i].Available = true;
-          avail_num++;
-      } else {
-          lbScreenModeInfo[i].Available = false;
-      }
-  }
-  if (avail_num > 0)
-      return Lb_SUCCESS;
-  return Lb_FAIL;
-}
-
 // TODO (related number 01) do we need all these wired reolution?
 static void LbRegisterStandardVideoModes(void)
 {
@@ -349,6 +324,7 @@ TbResult LbScreenInitialize(void)
     lbScreenWindow = NULL;
     lbAppActive = true;
     LbMouseChangeMoveRatio(DEFAULT_MOUSE_MOVE_RATIO, DEFAULT_MOUSE_MOVE_RATIO);
+    lbDisplayEx.windowedMode = false;
 
     // Register default video modes
     if (lbScreenModeInfoNum == 0) {
@@ -428,7 +404,7 @@ TbResult LbScreenUpdateIcon(void)
     return Lb_SUCCESS;
 }
 
-TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buffers_count, TbBool wscreen_vid)
+TbResult LbScreenSetup(TbScreenModeIdx modeIndex, unsigned char *palette, short buffers_count, TbBool wscreen_vid)
 {
     long hot_x, hot_y;
     struct TbSprite *msspr;
@@ -446,23 +422,16 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
     LbScreenReset(false);
 
     assert((lbPalettedSurface == NULL));
-    //assert((lbGameRenderer == NULL));
+    assert((lbGameRenderer == NULL));
     assert((lbDrawTexture == NULL));
 
     mdinfo = LbScreenGetModeInfo(modeIndex);
-    if ( !LbScreenIsModeAvailable(modeIndex) )
-    {
-        ERRORLOG("%s resolution %dx%d (modeIndex %d) not available",
-            (mdinfo->VideoFlags & Lb_VF_WINDOWED) ? "Windowed" : "Full screen",
-            (int)mdinfo->Width,(int)mdinfo->Height,(int)modeIndex);
-        return Lb_FAIL;
-    }
 
     // SDL video modeIndex flags
     sdlFlags = SDL_WINDOW_RESIZABLE;
-    if ((mdinfo->VideoFlags & Lb_VF_WINDOWED) == 0) 
+    if (((mdinfo->VideoFlags & Lb_VF_WINDOWED) == 0) &&
+        (lbDisplayEx.windowedMode == false)) // new version of config file use unified config for fullscreen/windowed, but it is optional.
     {
-        
         sdlFlags |= lbUseDesktopResolution ? SDL_WINDOW_FULLSCREEN_DESKTOP : SDL_WINDOW_FULLSCREEN;
     }
 
@@ -470,8 +439,6 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
     // Set SDL video mode (also creates window if we do not have one already).
     if (lbScreenWindow == NULL)
     {
-
-        SYNCLOG("Before %d x %d windows", (int)mdinfo->Width, (int)mdinfo->Height);
         lbScreenWindow = SDL_CreateWindow("Dungeon Keeper FX",
             SDL_WINDOWPOS_UNDEFINED,
             SDL_WINDOWPOS_UNDEFINED,
@@ -490,8 +457,6 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
 
     if (lbGameRenderer == NULL)
     {
-
-        SYNCLOG("Before %d x %d renderer", (int)mdinfo->Width, (int)mdinfo->Height);
         lbGameRenderer = SDL_CreateRenderer(lbScreenWindow, -1, 0);
 
         if (lbGameRenderer == NULL)
@@ -508,7 +473,6 @@ TbResult LbScreenSetup(TbScreenMode modeIndex, unsigned char *palette, short buf
         SDL_RenderSetLogicalSize(lbGameRenderer, mdinfo->Width, mdinfo->Height);
     }
 
-    SYNCLOG("Before %d x %d surface", (int)mdinfo->Width, (int)mdinfo->Height);
     if (lbPalettedSurface == NULL)
     {
         lbPalettedSurface = SDL_CreateRGBSurface(0/*obselete flag*/, mdinfo->Width, mdinfo->Height, lbPalettedSurfaceColorDepth, 0, 0, 0, 0);
@@ -702,7 +666,7 @@ TbResult LbScreenHardwareConfig(const char *driver, short engine_bpp)
     return Lb_SUCCESS;
 }
 
-TbScreenModeInfo *LbScreenGetModeInfo(TbScreenMode mode)
+TbScreenModeInfo *LbScreenGetModeInfo(TbScreenModeIdx mode)
 {
     if (mode < lbScreenModeInfoNum)
     {
@@ -829,36 +793,23 @@ TbResult LbScreenSetGraphicsWindow(long x, long y, long width, long height)
   return Lb_SUCCESS;
 }
 
-TbBool LbScreenIsModeAvailable(TbScreenMode mode)
-{
-  TbScreenModeInfo *mdinfo;
-  static TbBool setup = false;
-  if (!setup)
-  {
-    // TODO: HeM this is checking 'if nothing is supported at all', not needed either, clean up.
-    if (LbScreenFindVideoModes() != Lb_SUCCESS)
-      return false;
-    setup = true;
-  }
-  mdinfo = LbScreenGetModeInfo(mode);
-  return mdinfo->Available;
-}
-
-TbScreenMode LbRecogniseVideoModeString(const char *desc)
+TbScreenModeIdx LbRecogniseVideoModeString(const char *desc)
 {
     int mode;
     for (mode=0; mode < lbScreenModeInfoNum; mode++)
     {
       if (strcasecmp(lbScreenModeInfo[mode].Desc,desc) == 0)
-        return (TbScreenMode)mode;
+        return (TbScreenModeIdx)mode;
     }
     return Lb_SCREEN_MODE_INVALID;
 }
 
-TbScreenMode LbRegisterVideoMode(const char *describe, TbScreenCoord width, TbScreenCoord height, unsigned long flags)
+// Return the index of resoluiton in lbScreenModeInfo,
+// Register new resolution to lbScreenModeInfo when it is not already existing.
+TbScreenModeIdx LbRegisterVideoMode(const char *describe, TbScreenCoord width, TbScreenCoord height, unsigned long flags)
 {
     TbScreenModeInfo *mdinfo;
-    TbScreenMode modeIndex;
+    TbScreenModeIdx modeIndex;
     modeIndex = LbRecogniseVideoModeString(describe);
 
     // Found mode with same description already registered.
@@ -890,7 +841,6 @@ TbScreenMode LbRegisterVideoMode(const char *describe, TbScreenCoord width, TbSc
 
     // Insert new modeIndex to array
     modeIndex = lbScreenModeInfoNum;
-    lbScreenModeInfoNum++;
     mdinfo = &lbScreenModeInfo[modeIndex];
 
     // Fill the modeIndex content
@@ -902,33 +852,47 @@ TbScreenMode LbRegisterVideoMode(const char *describe, TbScreenCoord width, TbSc
     mdinfo->VideoFlags = flags;
     strncpy(mdinfo->Desc, describe, sizeof(mdinfo->Desc));
 
+    lbScreenModeInfoNum++;
+
     return modeIndex;
 }
 
-TbScreenMode LbRegisterVideoModeString(const char *desc)
+// Parse resolution information from string read from config file, and try register it to 
+// resolution list.
+// Returns the index of new resoluiton in list.
+TbScreenModeIdx LbRegisterVideoModeString(const char *desc)
 {
-    // TODO HeM remove the last %d(bpp) in pattern when config window is updated.
-    // TODO mefistotelis remove the 'x' or 'w' part for each resolution, instead make a unified setting.
+    int width, height;
 
-    int width, height, bpp;
-    unsigned long flags;
+    // Obsolete value no longer used, keeping this value to keep compatibility with old version.
+    int bpp;
+
+    // return equals count of parameter when scanf is successfull.
     int ret;
+    unsigned long flags;
+
+    // Try matches pattern %d x %d x %d, which is the old format of config.
     {
         width = 0; height = 0; flags = Lb_VF_DEFAULT;
         ret = sscanf(desc, " %d x %d x %d", &width, &height, &bpp);
     }
 
-    // if matches pattern  %d x %d x %d
+    // Try matching pattern %d x %d w %d, which is the old format of config.
     if (ret != 3)
     {
-        // pattern not matched - maybe it's windowed mode
         width = 0; height = 0; flags = Lb_VF_DEFAULT;
         ret = sscanf(desc, " %d x %d w %d", &width, &height, &bpp);
         flags |= Lb_VF_WINDOWED;
     }
-
-    // if matches pattern  %d x %d w %d
+    
+    // Try matching pattern %d x %d, which is the new format of config.
     if (ret != 3)
+    { 
+        width = 0; height = 0; flags = Lb_VF_DEFAULT;
+        ret = sscanf(desc, " %d x %d", &width, &height);
+    }
+
+    if (ret != 2)
     {
         // Cannot recognize parameters in mode
 #ifdef __DEBUG

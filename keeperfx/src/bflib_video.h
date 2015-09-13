@@ -60,7 +60,7 @@ enum ScreenMode {
     Lb_SCREEN_MODE_1600_1200    = 0x09,
 };
 
-typedef unsigned short TbScreenMode;
+typedef unsigned short TbScreenModeIdx;
 typedef long TbScreenCoord;
 
 enum TbPaletteFadeFlag {
@@ -230,6 +230,9 @@ typedef struct DisplayStruct TbDisplayStruct;
 
 /** Extensions to DisplayStruct - will be later integrated into it. */
 struct DisplayStructEx {
+    // unified setting to use windowed mode.
+    uchar windowedMode;
+
     /** Colour index used for drawing shadow. */
     uchar ShadowColour;
 
@@ -301,6 +304,7 @@ DLLIMPORT TbGraphicsWindow _DK_lbTextJustifyWindow;
 DLLIMPORT TbGraphicsWindow _DK_lbTextClipWindow;
 #define lbTextClipWindow _DK_lbTextClipWindow
 
+extern volatile long lbScreenModeInfoNum;
 extern volatile TbBool lbScreenInitialized;
 extern volatile TbBool lbUseSdk;
 extern volatile TbBool lbInteruptMouse;
@@ -310,17 +314,15 @@ extern unsigned char lbPalette[PALETTE_SIZE];
 TbResult LbScreenHardwareConfig(const char *driver, short engine_bpp);
 TbResult LbScreenInitialize(void);
 
-TbResult LbScreenSetup(TbScreenMode mode, unsigned char *palette, short buffers_count, TbBool wscreen_vid);
+TbResult LbScreenSetup(TbScreenModeIdx mode, unsigned char *palette, short buffers_count, TbBool wscreen_vid);
 TbResult LbScreenReset(TbBool resetMainWindow);
 
-TbResult LbScreenFindVideoModes(void);
-TbBool LbScreenIsModeAvailable(TbScreenMode mode);
-TbScreenMode LbRecogniseVideoModeString(const char *desc);
-TbScreenMode LbRegisterVideoMode(const char *desc, TbScreenCoord width, TbScreenCoord height, unsigned long flags);
-TbScreenMode LbRegisterVideoModeString(const char *desc);
-TbScreenModeInfo *LbScreenGetModeInfo(TbScreenMode mode);
+TbScreenModeIdx LbRecogniseVideoModeString(const char *desc);
+TbScreenModeIdx LbRegisterVideoMode(const char *desc, TbScreenCoord width, TbScreenCoord height, unsigned long flags);
+TbScreenModeIdx LbRegisterVideoModeString(const char *desc);
+TbScreenModeInfo *LbScreenGetModeInfo(TbScreenModeIdx mode);
 
-TbScreenMode LbScreenActiveMode(void);
+TbScreenModeIdx LbScreenActiveMode(void);
 TbScreenCoord LbScreenWidth(void);
 TbScreenCoord LbScreenHeight(void);
 unsigned short LbGraphicsScreenBPP(void);

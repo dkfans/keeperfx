@@ -1146,6 +1146,13 @@ short setup_game(void)
       return 0;
   }
 
+  load_settings();
+  if (!setup_gui_strings_data())
+  {
+      ERRORLOG("Failed to load the language-specific strings data.");
+      return 0;
+  }
+
   LbIKeyboardOpen();
 
   if (LbDataLoadAll(legal_load_files) != 0)
@@ -1225,6 +1232,7 @@ short setup_game(void)
   {
       result = intro();
   }
+
   // Intro problems shouldn't force the game to quit,
   // so we're re-setting the result flag
   result = 1;
@@ -1233,6 +1241,7 @@ short setup_game(void)
   {
       display_loading_screen();
   }
+
   LbDataFreeAll(legal_load_files);
 
   if ( result )
@@ -1240,13 +1249,6 @@ short setup_game(void)
       IsRunningMark();
       if ( !initial_setup() )
         result = 0;
-  }
-
-  if ( result )
-  {
-    load_settings();
-    if ( !setup_gui_strings_data() )
-      result = 0;
   }
 
   if ( result )

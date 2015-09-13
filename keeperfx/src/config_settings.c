@@ -102,7 +102,14 @@ TbBool load_settings(void)
     len = LbFileLengthRnc(fname);
     if (len == sizeof(struct GameSettings))
     {
-      if (LbFileLoadAt(fname, &settings) == sizeof(struct GameSettings))
+        if (LbFileLoadAt(fname, &settings) == sizeof(struct GameSettings))
+        {
+            // Rare case that settings.dat becomes incompatible becasue of config format update.
+            if (settings.video_scrnmode >= lbScreenModeInfoNum)
+            {
+                settings.video_scrnmode = get_next_vidmode_for_switching(Lb_SCREEN_MODE_INVALID);
+            }
+        }
           return true;
     }
     setup_default_settings();

@@ -37,20 +37,18 @@ class GameSettings : public wxDialog
     wxBoxSizer * topsizer;
     wxRadioBox * langRadio;
     wxRadioBox * scrshotRadio;
-    wxRadioBox * scrnControlRadio;
+    wxCheckBox * scrnControlChkBx;
     wxTextCtrl * mouseSensitvTxtCtrl;
     wxCheckBox * censorChkBx;
-    // Resolution boxes
-    wxComboBox * resFailCombo;
-    wxComboBox * resMovieCombo;
-    wxComboBox * resMenuCombo;
-    wxCheckRadioBox *resIngameBox;
-    // Parent components for resolution boxes, used to re-create these boxes
-    wxPanel *resOtherPanel;
-    wxStaticBoxSizer* resMenuBoxSizer;
-    wxStaticBoxSizer* resMovieBoxSizer;
-    wxStaticBoxSizer* resFailBoxSizer;
-    wxStaticBoxSizer* resIngameBoxSizer;
+
+    // Resolution box
+    wxStaticBoxSizer * resolutionBoxSizer;
+    wxComboBox * resPrimaryCombo = NULL;
+    wxCheckBox * resSecondaryChkBx;
+    wxComboBox * resSecondaryCombo = NULL;
+    wxCheckBox * resTertiaryChkBx;
+    wxComboBox * resTertiaryCombo = NULL;
+
     // String parameters
     wxString installPath;
     wxString installType;
@@ -76,6 +74,8 @@ public:
 private:
     // any class wishing to process wxWidgets events must use this macro
     DECLARE_EVENT_TABLE()
+
+    void _create_resolution_box();
 };
 
 

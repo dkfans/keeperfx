@@ -85,7 +85,7 @@ const struct NamedCommand conf_commands[] = {
   {"LANGUAGE",            3},
   {"KEYBOARD",            4},
   {"SCREENSHOT",          5},
-  {"FRONTEND_RES",        6},
+  {"WINDOWED_MODE",       6},
   {"INGAME_RES",          7},
   {"CENSORSHIP",          8},
   {"POINTER_SENSITIVITY", 9},
@@ -99,6 +99,8 @@ const struct NamedCommand logicval_type[] = {
   {"OFF",      2},
   {"TRUE",     1},
   {"FALSE",    2},
+  {"1",        1},
+  {"0",        2},
   {NULL,       0},
   };
 
@@ -579,45 +581,27 @@ short load_configuration(void)
                 }
                 screenshot_format = i;
                 break;
-                //TODO HeM remove case 6
-            case 6: // FRONTEND_RES
-                for (i = 0; i < 3; i++)
+            // old config item FRONTEND_RES is obsolete and ignored
+            case 6: // WINDOWED_MODE
+                i = recognize_conf_parameter(buf, &pos, len, logicval_type);
+                if (i <= 0)
                 {
-                    if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-                    {
-                        videoModeIndex = LbRegisterVideoModeString(word_buf);
-                    }
-                    else
-                    {
-                        videoModeIndex = -1;
-                    }
-
-                    if (videoModeIndex <= Lb_SCREEN_MODE_INVALID)
-                    {
-                        CONFWRNLOG("Couldn't recognize video mode %d in \"%s\" command of %s file.",
-                            i + 1, COMMAND_TEXT(cmd_num), config_textname);
-                        continue;
-                    }
-
-                    switch (i)
-                    {
-                    case 0:
-                        // No more customizable failsafe video mode, use 640*480*8
-                        // set_failsafe_vidmode(videoModeIndex);
-                        break;
-                    case 1:
-                        // No more movie video mode, use unified video mode
-                        // set_movies_vidmode(videoModeIndex);
-                        break;
-                    case 2:
-                        set_frontend_vidmode(videoModeIndex);
-                        break;
-                    }
-
+                    CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                        COMMAND_TEXT(cmd_num), config_textname);
+                    break;
                 }
+                if (i == 1)
+                {
+                    lbDisplayEx.windowedMode = true;
+                }
+                else
+                {
+                    lbDisplayEx.windowedMode = false;
+                }
+
                 break;
             case 7: // INGAME_RES
-                for (i = 0; i < 5; i++)
+                for (i = 0; i <= 3; i++)
                 {
                     if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                     {

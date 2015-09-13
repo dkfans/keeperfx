@@ -42,10 +42,21 @@ wxString supported_scrshotfmt_code[] = {
     _T("HSI"),
 };
 
-wxString screen_control_mode_text[] = {
-    _T("Full screen"),
-    _T("Windowed mode"),
-    _T("Mixed modes"),
+wxString resolutions_ingame[] = {
+    _T("640x480"),
+    _T("800x600"),
+    _T("1024x768"),
+    //_T("1280x800"),
+    _T("1280x960"),
+    _T("1280x1024"),
+    _T("1440x900"),
+    _T("1600x900"),
+    //_T("1600x1200"),
+    _T("1680x1050"),
+    _T("1920x1080"),
+    _T("1920x1200"),
+    _T("2560x1440"),
+    _T("2560x1600"),
 };
 
 wxString supported_scrshotfmt_text[] = {
@@ -107,11 +118,11 @@ wxString supported_languages_text[] = {
 
 wxString tooltips_eng[] = {
     _T(""),
-    _T("Select up to four resolutions. Note that original resolutions are 320x200 and 640x400; select 640x480x32 for best gaming experience. Switch between selected resolutions by pressing Alt+R during the game."),//1
-    _T("Here you can type your own resolution. Use \"WIDTHxHEIGHTxCOLOUR\" scheme. Replace last \"x\" with \"w\" for windowed mode. You can select max. 4 resolutions."),//2
-    _T("Screen resolution at which movies (ie. intro) will be played. Original is 320x200, and any higher resolution will make movie window smaller. Still, 640x480x32 is recommended, for compatibility."),
-    _T("Screen resolution at which game menu is displayed. Original is 640x480 and it is recommended to select 640x480x32. Larger resolutions will make the menu smaller at center of the screen."),
-    _T("Resolution used in case of screen setup failure. If the game cannot enter one of the selected resolutions (ie. in-game resolution), it will try to fall back into this resolution. 640x480x32 is recommended."),
+    _T("Select up to three resolutions. Note that original resolutions are 320x200 and 640x400; select 640x480x32 for best gaming experience. Switch between selected resolutions by pressing Alt+R during the game."),//1
+    _T("Here you can type your own resolution. Use \"WIDTHxHEIGHTxCOLOUR\" scheme. Replace last \"x\" with \"w\" for windowed mode. You can select max. 4 resolutions."),// 2, obsolete
+    _T("Screen resolution at which movies (ie. intro) will be played. Original is 320x200, and any higher resolution will make movie window smaller. Still, 640x480x32 is recommended, for compatibility."), // 3, obsolete
+    _T("Screen resolution at which game menu is displayed. Original is 640x480 and it is recommended to select 640x480x32. Larger resolutions will make the menu smaller at center of the screen."), // 4, obsolete
+    _T("Resolution used in case of screen setup failure. If the game cannot enter one of the selected resolutions (ie. in-game resolution), it will try to fall back into this resolution. 640x480x32 is recommended."), // 5, obsolete
     _T("Here you can select your language translation. This will affect the in-game messages, but also speeches during the game. Note that some campaigns may not support your language; in this case default one will be used."),
     _T("Enabling censorship will make only evil creatures to have blood, and will restrict death effect with exploding flesh. Originally, this was enabled in german language version."),
     _T("Increasing sensitivity will speed up the mouse in the game. This may also make the mouse less accurate, so be careful! Default value is 100; you can increase or decrease it at your will, but sometimes it may be better to change this setting in your OS."),
@@ -119,96 +130,6 @@ wxString tooltips_eng[] = {
     _T("Select whether the game should run in full screen, or as a window. Full screen is recommended. If you've chosen window, you may want to modify input options to disallow the game to control the mouse completely."),
     _T("Write changes to \"keeperfx.cfg\" file."),
     _T("Abandon changes and close the window."),
-};
-
-wxString resolutions_ingame_full_init[] = {
-    _T("320x200x8"),
-    _T("640x400x8"),
-    //_T("640x480x8"),
-    _T("320x200x32"),
-    _T("640x400x32"),
-    _T("640x480x32"),
-    _T("1024x768x32"),
-    //_T("1280x800x32"),
-    _T("1280x960x32"),
-    _T("1280x1024x32"),
-    _T("1440x900x32"),
-    _T("1600x900x32"),
-    //_T("1600x1200x32"),
-    _T("1680x1050x32"),
-    _T("1920x1080x32"),
-    _T("1920x1200x32"),
-    _T("2560x1440x32"),
-    _T("2560x1600x32"),
-};
-
-wxString resolutions_movies_full_init[] = {
-    _T("320x200x8"),
-    _T("640x480x8"),
-    _T("320x200x32"),
-    _T("640x480x32"),
-    _T("1024x768x32"),
-};
-
-wxString resolutions_menu_full_init[] = {
-    _T("640x480x8"),
-    _T("640x480x32"),
-    _T("1024x768x32"),
-    _T("1280x800x32"),
-    _T("1280x960x32"),
-};
-
-wxString resolutions_failsafe_full_init[] = {
-    _T("320x200x8"),
-    _T("640x480x8"),
-    _T("320x200x32"),
-    _T("640x480x32"),
-    _T("1024x768x32"),
-};
-
-wxString resolutions_ingame_wind_init[] = {
-    _T("320x200w8"),
-    _T("640x400w8"),
-    //_T("640x480w8"),
-    _T("320x200w32"),
-    _T("640x400w32"),
-    _T("640x480w32"),
-    _T("1024x768w32"),
-    //_T("1280x800w32"),
-    _T("1280x960w32"),
-    _T("1280x1024w32"),
-    _T("1440x900w32"),
-    _T("1600x900w32"),
-    //_T("1600x1200w32"),
-    _T("1680x1050w32"),
-    _T("1920x1080w32"),
-    _T("1920x1200w32"),
-    _T("2560x1440w32"),
-    _T("2560x1600w32"),
-};
-
-wxString resolutions_movies_wind_init[] = {
-    _T("320x200w8"),
-    _T("640x480w8"),
-    _T("320x200w32"),
-    _T("640x480w32"),
-    _T("1024x768w32"),
-};
-
-wxString resolutions_menu_wind_init[] = {
-    _T("640x480w8"),
-    _T("640x480w32"),
-    _T("1024x768w32"),
-    _T("1280x800w32"),
-    _T("1280x960w32"),
-};
-
-wxString resolutions_failsafe_wind_init[] = {
-    _T("320x200w8"),
-    _T("640x480w8"),
-    _T("320x200w32"),
-    _T("640x480w32"),
-    _T("1024x768w32"),
 };
 
 int optionIndexInArray(const wxString * arr, size_t arr_len, const wxString &option)
@@ -227,7 +148,7 @@ int optionIndexInArray(const wxString * arr, size_t arr_len, const wxString &opt
 BEGIN_EVENT_TABLE(GameSettings, wxDialog)
     EVT_CLOSE(GameSettings::OnClose)
     EVT_SHOW(GameSettings::OnShow)
-    EVT_RADIOBOX(eventID_ScrnCtrlChange, GameSettings::OnScreenCtrlChange)
+    EVT_CHECKBOX(eventID_ScrnCtrlChange, GameSettings::OnScreenCtrlChange)
     EVT_BUTTON(eventID_Save, GameSettings::OnSave)
     EVT_BUTTON(eventID_Cancel, GameSettings::OnCancel)
 END_EVENT_TABLE()
@@ -237,49 +158,31 @@ GameSettings::GameSettings(wxFrame *parent)
 
 {
     topsizer = new wxBoxSizer( wxVERTICAL );
+    topsizer->AddSpacer(10); // Top padding.
+     
+    // In game resolutions box
+    _create_resolution_box(); 
+    topsizer->Add(resolutionBoxSizer, 0, wxEXPAND);
 
-    resIngameBox = new wxCheckRadioBox(this, wxID_ANY, wxT("In-game resolutions"), NULL, NULL, 0, 0 );
-    resIngameBox->SetToolTip(tooltips_eng[1],tooltips_eng[2]);
-    resIngameBoxSizer = new wxStaticBoxSizer( resIngameBox, wxHORIZONTAL );
-    resIngameBoxSizer->Add(resIngameBox->rbPanel, 1, wxEXPAND); // for wxStaticBox, we're adding sizer instead of the actual wxStaticBox instance
-    topsizer->Add(resIngameBoxSizer, 1, wxEXPAND);
+    // Window mode check box
+    topsizer->AddSpacer(10);
+    wxStaticBox *windowModeBox = new wxStaticBox(this, wxID_ANY, wxT("Game window"));
+    wxStaticBoxSizer* windowModeBoxSizer = new wxStaticBoxSizer(windowModeBox, wxVERTICAL);
+    scrnControlChkBx = new wxCheckBox(this, eventID_ScrnCtrlChange, wxT("Windowed mode"));
+    scrnControlChkBx->SetToolTip(tooltips_eng[10]);
+    scrnControlChkBx->SetValue(false);
+    windowModeBoxSizer->Add(scrnControlChkBx, 0, wxEXPAND);
+    topsizer->Add(windowModeBoxSizer, 0, wxEXPAND);
 
-    resOtherPanel = new wxPanel(this, wxID_ANY);
-    wxBoxSizer *resOtherPanelSizer = new wxBoxSizer( wxHORIZONTAL );
-    {
-        wxStaticBox *resMenuBox = new wxStaticBox(resOtherPanel, wxID_ANY, wxT("Menu resolution") );
-        resMenuBox->SetToolTip(tooltips_eng[4]);
-        resMenuBoxSizer = new wxStaticBoxSizer(resMenuBox, wxVERTICAL);
-        resMenuCombo = NULL;
-        resOtherPanelSizer->Add(resMenuBoxSizer, 1, wxALIGN_CENTER);
-
-        wxStaticBox *resMovieBox = new wxStaticBox(resOtherPanel, wxID_ANY, wxT("Movies resolution") );
-        resMovieBox->SetToolTip(tooltips_eng[3]);
-        resMovieBoxSizer = new wxStaticBoxSizer(resMovieBox, wxHORIZONTAL);
-        resMovieCombo = NULL;
-        resOtherPanelSizer->Add(resMovieBoxSizer, 1, wxALIGN_CENTER);
-
-        wxStaticBox *resFailBox = new wxStaticBox(resOtherPanel, wxID_ANY, wxT("Failure resolution") );
-        resFailBox->SetToolTip(tooltips_eng[5]);
-        resFailBoxSizer = new wxStaticBoxSizer(resFailBox, wxVERTICAL);
-        resFailCombo = NULL;
-        resOtherPanelSizer->Add(resFailBoxSizer, 1, wxALIGN_CENTER);
-
-        ChangeResolutionOptions(2);
-    }
-    resOtherPanel->SetSizer(resOtherPanelSizer);
-    topsizer->Add(resOtherPanel, 0, wxEXPAND);
-
-    scrnControlRadio = new wxRadioBox( this, eventID_ScrnCtrlChange, wxT("Screen control"), wxDefaultPosition, wxDefaultSize,
-        WXSIZEOF(screen_control_mode_text), screen_control_mode_text, 3, wxRA_SPECIFY_COLS );
-    scrnControlRadio->SetToolTip(tooltips_eng[10]);
-    topsizer->Add(scrnControlRadio, 0, wxEXPAND);
-
+    // Language ratio box
+    topsizer->AddSpacer(10);
     langRadio = new wxRadioBox( this, wxID_ANY, wxT("Language"), wxDefaultPosition, wxSize(-1, -1),
         WXSIZEOF(supported_languages_text), supported_languages_text, 4, wxRA_SPECIFY_COLS);
     langRadio->SetToolTip(tooltips_eng[6]);
     topsizer->Add(langRadio, 0, wxEXPAND);
 
+    // Other settings
+    topsizer->AddSpacer(10);
     wxStaticBox *otherSettingsBox = new wxStaticBox( this, wxID_ANY, wxT("Other settings") );
     wxStaticBoxSizer* otherSettingsSizer = new wxStaticBoxSizer( otherSettingsBox, wxVERTICAL );
     {
@@ -310,6 +213,8 @@ GameSettings::GameSettings(wxFrame *parent)
     }
     topsizer->Add(otherSettingsSizer, 0, wxEXPAND); // for wxStaticBox, we're adding sizer instead of the actual wxStaticBox instance
 
+    // Screen shot ratio box
+    topsizer->AddSpacer(10);
     scrshotRadio = new wxRadioBox( this, wxID_ANY, wxT("Screenshots"), wxDefaultPosition, wxDefaultSize,
         WXSIZEOF(supported_scrshotfmt_text), supported_scrshotfmt_text, 2, wxRA_SPECIFY_COLS );
     scrshotRadio->SetToolTip(tooltips_eng[9]);
@@ -334,7 +239,6 @@ GameSettings::GameSettings(wxFrame *parent)
     SetSizer(topsizer);
     Fit();
     Centre(wxBOTH);
-
 }
 
 GameSettings::~GameSettings()
@@ -344,172 +248,34 @@ GameSettings::~GameSettings()
     conf = NULL;
 }
 
-void GameSettings::ChangeResolutionOptions(int scr_ctrl)
+void GameSettings::ChangeResolutionOptions(int /*scr_ctrl*/)
 {
-#define MAX_RESOLUTIONS 5
+    if (resSecondaryChkBx && resSecondaryCombo)
     {
-        // Get previous values
-        wxString resolutions[MAX_RESOLUTIONS];
-        size_t res_num,i;
-        res_num = MAX_RESOLUTIONS;
-        resIngameBox->GetSelected(resolutions, res_num);
-        // Prepare new options
-        wxString * arr_ptr;
-        size_t arr_size;
-        switch (scr_ctrl)
+        if (resSecondaryChkBx->IsChecked())
         {
-        case 1:
-            // Replace all resolutions with windowed modes
-            for (i=0; i < res_num; i++) {
-                size_t n = resolutions[i].find_last_of("xwXW");
-                if (n > resolutions[i].find_first_of("xwXW"))
-                    resolutions[i].SetChar(n,'w');
-            }
-            arr_ptr = resolutions_ingame_wind_init;
-            arr_size = WXSIZEOF(resolutions_ingame_wind_init);
-            break;
-        case 0:
-            // Replace all resolutions with fullscreen modes
-            for (i=0; i < res_num; i++) {
-                size_t n = resolutions[i].find_last_of("xwXW");
-                if (n > resolutions[i].find_first_of("xwXW"))
-                    resolutions[i].SetChar(n,'x');
-            }
-            arr_ptr = resolutions_ingame_full_init;
-            arr_size = WXSIZEOF(resolutions_ingame_full_init);
-            break;
-        case 2:
-        default:
-            arr_ptr = resolutions_ingame_full_init;
-            arr_size = WXSIZEOF(resolutions_ingame_full_init);
-            break;
-        }
-        // Switch the list to new options
-        resIngameBox->ClearOptionCheckboxes();
-        resIngameBox->CreateOptionCheckboxes(arr_ptr, arr_ptr, arr_size, 3);
-        // Select resolution values
-        resIngameBox->SetSelected(4, resolutions, res_num);
-    }
-#undef MAX_RESOLUTIONS
 
-    {
-        wxString * arr_ptr;
-        size_t arr_size;
-        wxString resolution;
-        if (resMovieCombo != NULL)
-            resolution = resMovieCombo->GetValue();
-        switch (scr_ctrl)
-        {
-        case 1:
-            {
-                size_t n = resolution.find_last_of("xwXW");
-                if (n > resolution.find_first_of("xwXW"))
-                    resolution.SetChar(n,'w');
-            }
-            arr_ptr = resolutions_menu_wind_init;
-            arr_size = WXSIZEOF(resolutions_menu_wind_init);
-            break;
-        case 0:
-            {
-                size_t n = resolution.find_last_of("xwXW");
-                if (n > resolution.find_first_of("xwXW"))
-                    resolution.SetChar(n,'x');
-            }
-            arr_ptr = resolutions_menu_full_init;
-            arr_size = WXSIZEOF(resolutions_menu_full_init);
-            break;
-        case 2:
-        default:
-            arr_ptr = resolutions_menu_full_init;
-            arr_size = WXSIZEOF(resolutions_menu_full_init);
-            break;
+            resSecondaryCombo->Enable();
+            resTertiaryChkBx->Enable();
         }
-        resMenuBoxSizer->Clear();
-        delete resMenuCombo;
-        resMenuCombo = new wxComboBox(resOtherPanel, wxID_ANY, arr_ptr[0], wxDefaultPosition, wxDefaultSize, arr_size, arr_ptr, wxCB_DROPDOWN);
-        resMenuCombo->SetToolTip(tooltips_eng[4]);
-        resMenuBoxSizer->Add(resMenuCombo, 1, wxEXPAND);
-        resMenuCombo->SetValue(resolution);
+        else
+        {
+            resSecondaryCombo->Disable(); 
+            resTertiaryChkBx->Disable();
+            resTertiaryCombo->Disable();
+        }
     }
 
+    if (resTertiaryChkBx && resTertiaryCombo && resTertiaryChkBx->IsEnabled())
     {
-        wxString * arr_ptr;
-        size_t arr_size;
-        wxString resolution;
-        if (resMovieCombo != NULL)
-            resolution = resMovieCombo->GetValue();
-        switch (scr_ctrl)
+        if (resTertiaryChkBx->IsChecked())
         {
-        case 1:
-            {
-                size_t n = resolution.find_last_of("xwXW");
-                if (n > resolution.find_first_of("xwXW"))
-                    resolution.SetChar(n,'w');
-            }
-            arr_ptr = resolutions_movies_wind_init;
-            arr_size = WXSIZEOF(resolutions_movies_wind_init);
-            break;
-        case 0:
-            {
-                size_t n = resolution.find_last_of("xwXW");
-                if (n > resolution.find_first_of("xwXW"))
-                    resolution.SetChar(n,'x');
-            }
-            arr_ptr = resolutions_movies_full_init;
-            arr_size = WXSIZEOF(resolutions_movies_full_init);
-            break;
-        case 2:
-        default:
-            arr_ptr = resolutions_movies_full_init;
-            arr_size = WXSIZEOF(resolutions_movies_full_init);
-            break;
+            resTertiaryCombo->Enable();
         }
-        resMovieBoxSizer->Clear();
-        delete resMovieCombo;
-        resMovieCombo = new wxComboBox(resOtherPanel, wxID_ANY, arr_ptr[0], wxDefaultPosition, wxDefaultSize, arr_size, arr_ptr, wxCB_DROPDOWN);
-        resMovieCombo->SetToolTip(tooltips_eng[3]);
-        resMovieBoxSizer->Add(resMovieCombo, 1, wxEXPAND);
-        resMovieCombo->SetValue(resolution);
-    }
-
-    {
-        wxString * arr_ptr;
-        size_t arr_size;
-        wxString resolution;
-        if (resFailCombo != NULL)
-            resolution = resFailCombo->GetValue();
-        switch (scr_ctrl)
+        else
         {
-        case 1:
-            {
-                size_t n = resolution.find_last_of("xwXW");
-                if (n > resolution.find_first_of("xwXW"))
-                    resolution.SetChar(n,'w');
-            }
-            arr_ptr = resolutions_failsafe_wind_init;
-            arr_size = WXSIZEOF(resolutions_failsafe_wind_init);
-            break;
-        case 0:
-            {
-                size_t n = resolution.find_last_of("xwXW");
-                if (n > resolution.find_first_of("xwXW"))
-                    resolution.SetChar(n,'x');
-            }
-            arr_ptr = resolutions_failsafe_full_init;
-            arr_size = WXSIZEOF(resolutions_failsafe_full_init);
-            break;
-        case 2:
-        default:
-            arr_ptr = resolutions_failsafe_full_init;
-            arr_size = WXSIZEOF(resolutions_failsafe_full_init);
-            break;
+            resTertiaryCombo->Disable();
         }
-        resFailBoxSizer->Clear();
-        delete resFailCombo;
-        resFailCombo = new wxComboBox(resOtherPanel, wxID_ANY, arr_ptr[0], wxDefaultPosition, wxDefaultSize, arr_size, arr_ptr, wxCB_DROPDOWN);
-        resFailCombo->SetToolTip(tooltips_eng[5]);
-        resFailBoxSizer->Add(resFailCombo, 1, wxEXPAND);
-        resFailCombo->SetValue(resolution);
     }
 }
 
@@ -594,70 +360,74 @@ void GameSettings::readConfiguration()
     index = optionIndexInArray(supported_scrshotfmt_code, WXSIZEOF(supported_scrshotfmt_code), value);
     scrshotRadio->SetSelection((index>=0)?index:0);
 
-    int res_full_num = 0, res_wind_num = 0;
-    value = conf->Read(wxT("FRONTEND_RES"), wxT("640x480x32 640x480x32 640x480x32"));
+    value = conf->Read(wxT("INGAME_RES"), wxT("640x480 1024x768"));
     {
+        int config_index = 0;
         wxStringTokenizer tokenz(value, wxT(" \t\r\n"));
-        index = 0;
-        while ( tokenz.HasMoreTokens() )
-        {
-            wxString param = tokenz.GetNextToken();
-            if (param.rfind('w') != wxString::npos)
-                res_wind_num++;
-            else
-                res_full_num++;
-            switch (index)
-            {
-            case 0:
-                resFailCombo->SetValue(param);
-                break;
-            case 1:
-                resMovieCombo->SetValue(param);
-                break;
-            case 2:
-                resMenuCombo->SetValue(param);
-                break;
-            }
-            index++;
-        }
-    }
 
-    value = conf->Read(wxT("INGAME_RES"), wxT("640x480x32 1024x768x32"));
-    {
-        wxString selected_resolutions[5];
-        size_t selected_num;
-        wxString disabled_resolution;
-        wxStringTokenizer tokenz(value, wxT(" \t\r\n"));
-        disabled_resolution = resFailCombo->GetValue();
-        selected_num=0;
-        while ( tokenz.HasMoreTokens() && (selected_num < 5) )
+        while ( tokenz.HasMoreTokens() && (config_index < 3) )
         {
             wxString param = tokenz.GetNextToken();
-            if (param.rfind('w') != wxString::npos)
-                res_wind_num++;
-            else
-                res_full_num++;
-            if (param.CmpNoCase(disabled_resolution) != 0)
+            config_index++;
+
+            wxString resSuffix1 = wxT("w32");
+            wxString resSuffix2 = wxT("x32");
+
+            // Try remove suffix
+            unsigned int i = param.find(resSuffix1);
+            if (i != wxString::npos)
             {
-                selected_resolutions[selected_num] = param;
-                selected_num++;
+                param.erase(i, param.length());
+
+                // Temporarily we make the 'windowed' setting of the first configration as generalized one.
+                if (scrnControlChkBx && (config_index == 1))
+                {
+                    scrnControlChkBx->SetValue(true);
+                }
+            }
+
+            i = param.find(resSuffix2);
+            if (i != wxString::npos)
+            {
+                param.erase(i, param.length());
+            }
+
+            switch (config_index)
+            {
+            case 1:
+                if (resPrimaryCombo)
+                {
+                    resPrimaryCombo->SetValue(param);
+                }
+
+                break;
+            case 2:                
+                if (resSecondaryCombo)
+                {
+                    resSecondaryChkBx->SetValue(true);
+                    resSecondaryCombo->SetValue(param);
+                }
+                break;
+            case 3:                
+                if (resTertiaryCombo)
+                {
+                    resTertiaryChkBx->SetValue(true);
+                    resTertiaryCombo->SetValue(param);
+                }
+                break;
+            default:
+                break;
             }
         }
-        // Now we have the amount of fullscreen and windowed resolutions ready
-        if ((res_wind_num > 0) && (res_full_num > 0))
-            index = 2;
-        else if (res_wind_num > 0)
-            index = 1;
-        else
-            index = 0;
-        scrnControlRadio->SetSelection(index);
+
         // SetSelection() doesn't generate event to update resolution options, so lrt's call it:
         ChangeResolutionOptions(index);
         Layout();
-        // Set in-game resolutions
-        resIngameBox->SetSelected(4, selected_resolutions, selected_num);
-
     }
+
+    value = conf->Read(wxT("WINDOWED_MODE"), supported_boolean_code[0]);
+    index = optionIndexInArray(supported_boolean_code, WXSIZEOF(supported_boolean_code), value);
+    scrnControlChkBx->SetValue((index >= 0) ? index : 0);
 
     index = conf->Read(wxT("POINTER_SENSITIVITY"), 100);
     value = wxString::Format(wxT("%d"), (int)index);
@@ -675,30 +445,111 @@ int GameSettings::verifyConfiguration()
 
 void GameSettings::writeConfiguration()
 {
-#define MAX_RESOLUTIONS 5
-    wxString resolutions[MAX_RESOLUTIONS];
-    size_t res_num,i;
-    wxString strValue;
+    wxString strValue; 
     conf->Write(wxT("INSTALL_PATH"), installPath);
     conf->Write(wxT("INSTALL_TYPE"), installType);
     conf->Write(wxT("KEYBOARD"), keybLayout);
     conf->Write(wxT("LANGUAGE"), supported_languages_code[langRadio->GetSelection()]);
     conf->Write(wxT("SCREENSHOT"), supported_scrshotfmt_code[scrshotRadio->GetSelection()]);
-    strValue = wxString::Format(wxT("%s %s %s"), resFailCombo->GetValue(), resMovieCombo->GetValue(), resMenuCombo->GetValue());
-    conf->Write(wxT("FRONTEND_RES"), strValue);
-    res_num = MAX_RESOLUTIONS;
-    resIngameBox->GetSelected(resolutions, res_num);
-    strValue = resFailCombo->GetValue();
-    for (i=0; i < res_num; i++) {
-        strValue.Append(" ");
-        strValue.Append(resolutions[i]);
+
+    wxString resSuffix = wxT(" ");
+
+    // WINDOWED_MODE
+    conf->Write(wxT("WINDOWED_MODE"), supported_boolean_code[scrnControlChkBx->GetValue()]);
+
+    // INGAME_RES
+    strValue = resPrimaryCombo->GetValue();
+    strValue.Append(resSuffix);
+    if (resSecondaryChkBx->IsChecked())
+    {
+        strValue.Append(resSecondaryCombo->GetValue());
+        strValue.Append(resSuffix);
+
+        if (resTertiaryChkBx->IsChecked())
+        {
+            strValue.Append(resTertiaryCombo->GetValue());
+            strValue.Append(resSuffix);
+        }
     }
     conf->Write(wxT("INGAME_RES"), strValue);
+
     conf->Write(wxT("POINTER_SENSITIVITY"), mouseSensitvTxtCtrl->GetValue());
     conf->Write(wxT("CENSORSHIP"), supported_boolean_code[censorChkBx->GetValue()]);
     //conf->Save(); -- saving is automatic when the object is destroyed
-#undef MAX_RESOLUTIONS
 }
 
+void GameSettings::_create_resolution_box()
+{
+    // Resolution panel
+    wxStaticBox * resolutionBox = new wxStaticBox(this, wxID_ANY, wxT("Game Resolution"));
+    resolutionBox->SetToolTip(tooltips_eng[1]);
+    resolutionBoxSizer = new wxStaticBoxSizer(resolutionBox, wxVERTICAL);
+
+    wxString * arr_ptr= resolutions_ingame;
+    size_t arr_size= WXSIZEOF(resolutions_ingame);
+
+    // Primary resolution panel
+    wxPanel *primaryResolutionPanel = new wxPanel(resolutionBox, wxID_ANY);
+    wxBoxSizer *primaryResolutionPanelSizer = new wxBoxSizer(wxVERTICAL);
+    {
+        // Add text for primary resolution
+        wxStaticText *statTxt = new wxStaticText(primaryResolutionPanel, wxID_ANY, wxT("Primary Resolution"));
+        primaryResolutionPanelSizer->Add(statTxt, 0, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL);
+
+        wxString resolution = (resPrimaryCombo != NULL) ? resPrimaryCombo->GetValue() : resolutions_ingame[0];
+
+        delete resPrimaryCombo;
+        resPrimaryCombo = new wxComboBox(primaryResolutionPanel, wxID_ANY, arr_ptr[0], wxDefaultPosition, wxDefaultSize, arr_size, arr_ptr, wxCB_DROPDOWN);
+        resPrimaryCombo->SetToolTip(tooltips_eng[1]);
+        primaryResolutionPanelSizer->Add(resPrimaryCombo, 0, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL);
+        resPrimaryCombo->SetValue(resolution);
+    }
+    primaryResolutionPanel->SetSizer(primaryResolutionPanelSizer);
+    resolutionBoxSizer->Add(primaryResolutionPanel, 0, wxEXPAND);
+
+    // Secondary resolution panel
+    wxPanel *secondaryResolutionPanel = new wxPanel(resolutionBox, wxID_ANY);
+    wxBoxSizer *secondaryResolutionPanelSizer = new wxBoxSizer(wxVERTICAL);
+    {
+        // Add checkobox for secondary resolution
+        resSecondaryChkBx = new wxCheckBox(secondaryResolutionPanel, eventID_ScrnCtrlChange, wxT("Secondary Resolution"));
+        resSecondaryChkBx->SetValue(false);
+        secondaryResolutionPanelSizer->Add(resSecondaryChkBx, 0, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL);
+
+        wxString resolution = (resSecondaryCombo != NULL) ? resSecondaryCombo->GetValue() : resolutions_ingame[0];
+
+        delete resSecondaryCombo;
+        resSecondaryCombo = new wxComboBox(secondaryResolutionPanel, wxID_ANY, arr_ptr[0], wxDefaultPosition, wxDefaultSize, arr_size, arr_ptr, wxCB_DROPDOWN);
+        resSecondaryCombo->Disable();
+        resSecondaryCombo->SetToolTip(tooltips_eng[1]);
+        secondaryResolutionPanelSizer->Add(resSecondaryCombo, 0, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL);
+        resSecondaryCombo->SetValue(resolution);
+    }
+    secondaryResolutionPanel->SetSizer(secondaryResolutionPanelSizer);
+    resolutionBoxSizer->Add(secondaryResolutionPanel, 0, wxEXPAND);
+
+    // Tertiary resolution panel
+    wxPanel *tertiaryResolutionPanel = new wxPanel(resolutionBox, wxID_ANY);
+    wxBoxSizer *tertiaryResolutionPanelSizer = new wxBoxSizer(wxVERTICAL);
+    {
+        // Add checkobox for tertiary resolution
+        resTertiaryChkBx = new wxCheckBox(tertiaryResolutionPanel, eventID_ScrnCtrlChange, wxT("Tertiary Resolution"));
+        resTertiaryChkBx->SetValue(false);
+        tertiaryResolutionPanelSizer->Add(resTertiaryChkBx, 0, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL);
+
+        wxString resolution = (resTertiaryCombo != NULL) ? resTertiaryCombo->GetValue() : resolutions_ingame[0];
+
+        delete resTertiaryCombo;
+        resTertiaryCombo = new wxComboBox(tertiaryResolutionPanel, wxID_ANY, arr_ptr[0], wxDefaultPosition, wxDefaultSize, arr_size, arr_ptr, wxCB_DROPDOWN);
+        resTertiaryCombo->Disable();
+        resTertiaryCombo->SetToolTip(tooltips_eng[1]);
+        tertiaryResolutionPanelSizer->Add(resTertiaryCombo, 0, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL);
+        resTertiaryCombo->SetValue(resolution);
+    }
+    tertiaryResolutionPanel->SetSizer(tertiaryResolutionPanelSizer);
+    resolutionBoxSizer->Add(tertiaryResolutionPanel, 0, wxEXPAND);
+
+    resolutionBoxSizer->SetMinSize(386, 64);
+}
 
 /******************************************************************************/
