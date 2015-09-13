@@ -62,7 +62,7 @@ wxString options_flags_text[] = {
     _T("Column Convert"),
     _T("Light Convert"),
     _T("Smoothen Video"),
-    _T("Captured Mouse"),
+    _T("Uncaptured Cursor"),
 };
 
 wxString options_wparam_code[] = {

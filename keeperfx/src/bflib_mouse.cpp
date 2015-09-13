@@ -54,8 +54,8 @@ unsigned long mouse_pos_change_saved;
 struct DevInput joy;
 */
 
-// Whether we want to relative mouse mode, when this is on, mouse will be trapped in game window.
-volatile TbBool lbUseRelativeMouseMode = false;
+// Whether we want to relative mouse mode, when this is on, mouse will be captured in game window.
+volatile TbBool lbUseRelativeMouseMode = true;
 
 // Whether we want to enable mouse dragging without ctrl pressed.
 // TODO make this into option page.

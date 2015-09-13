@@ -4722,7 +4722,7 @@ short process_command_line(unsigned short argc, char *argv[])
       if ( strcasecmp(parstr,"altinput") == 0 )
       {
           SYNCLOG("Captured mouse mode disabled");
-          lbUseRelativeMouseMode = true;
+          lbUseRelativeMouseMode = false;
       } else
       if ( strcasecmp(parstr,"directdrag") == 0 )
       {
