@@ -126,7 +126,7 @@ extern struct TbLoadFiles game_load_files[];
 extern unsigned short units_per_pixel_min;
 extern long base_mouse_sensitivity;
 /******************************************************************************/
-TbScreenModeIdx switch_to_next_video_mode(void);
+TbScreenModeIdx switch_to_next_video_mode(int is_frontend);
 void register_vidmode_index_for_switching(unsigned short i,unsigned short nmode);
 TbScreenModeIdx reenter_video_mode(void);
 TbScreenModeIdx get_next_vidmode_for_switching(unsigned short mode);

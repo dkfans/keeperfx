@@ -2874,10 +2874,17 @@ short get_frontend_global_inputs(void)
         clear_key_pressed(KC_X);
         exit_keeper = true;
     }
+    else if (is_key_pressed(KC_R, KMod_ALT))
+    {
+        clear_key_pressed(KC_R);
+        switch_to_next_video_mode(true);
+        return true;
+    }
     else
     {
         return false;
     }
+
     return true;
 }
 

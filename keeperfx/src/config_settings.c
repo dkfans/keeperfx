@@ -117,6 +117,7 @@ TbBool load_settings(void)
     return false;
 }
 
+// save current game settings to \save\settings.dat
 short save_settings(void)
 {
   char *fname;

@@ -887,7 +887,7 @@ TbScreenModeIdx reenter_video_mode(void)
     return scrmode;
 }
 
-TbScreenModeIdx switch_to_next_video_mode(void)
+TbScreenModeIdx switch_to_next_video_mode(int is_frontend)
 {
     TbScreenModeIdx scrmode;
     scrmode = get_next_vidmode_for_switching(lbDisplay.ScreenMode);
@@ -900,7 +900,7 @@ TbScreenModeIdx switch_to_next_video_mode(void)
         // Destory current window.
         LbScreenReset(true);
 
-        if (setup_screen_mode(scrmode))
+        if (is_frontend ? setup_screen_mode_minimal(scrmode) : setup_screen_mode(scrmode))
         {
             settings.video_scrnmode = scrmode;
         }
@@ -920,7 +920,15 @@ TbScreenModeIdx switch_to_next_video_mode(void)
         }
         SYNCLOG("Switched video to %s (mode %d)", get_vidmode_description(scrmode), (int)scrmode);
         save_settings();
-        reinit_all_menus();
+
+        if (is_frontend)
+        {
+            frontend_menu_state = frontend_set_state(frontend_menu_state);
+        }
+        else
+        {
+            reinit_all_menus();
+        }
     }
 
     return scrmode;
