@@ -490,7 +490,7 @@ void GameSettings::_create_resolution_box()
 
     // Primary resolution panel
     wxPanel *primaryResolutionPanel = new wxPanel(resolutionBox, wxID_ANY);
-    wxBoxSizer *primaryResolutionPanelSizer = new wxBoxSizer(wxVERTICAL);
+    wxGridSizer *primaryResolutionPanelSizer = new wxGridSizer(0, 2, 2, 2);
     {
         // Add text for primary resolution
         wxStaticText *statTxt = new wxStaticText(primaryResolutionPanel, wxID_ANY, wxT("Primary Resolution"));
@@ -509,7 +509,7 @@ void GameSettings::_create_resolution_box()
 
     // Secondary resolution panel
     wxPanel *secondaryResolutionPanel = new wxPanel(resolutionBox, wxID_ANY);
-    wxBoxSizer *secondaryResolutionPanelSizer = new wxBoxSizer(wxVERTICAL);
+    wxGridSizer *secondaryResolutionPanelSizer = new wxGridSizer(0, 2, 2, 2);
     {
         // Add checkobox for secondary resolution
         resSecondaryChkBx = new wxCheckBox(secondaryResolutionPanel, eventID_ScrnCtrlChange, wxT("Secondary Resolution"));
@@ -530,7 +530,7 @@ void GameSettings::_create_resolution_box()
 
     // Tertiary resolution panel
     wxPanel *tertiaryResolutionPanel = new wxPanel(resolutionBox, wxID_ANY);
-    wxBoxSizer *tertiaryResolutionPanelSizer = new wxBoxSizer(wxVERTICAL);
+    wxGridSizer *tertiaryResolutionPanelSizer = new wxGridSizer(0, 2, 2, 2);
     {
         // Add checkobox for tertiary resolution
         resTertiaryChkBx = new wxCheckBox(tertiaryResolutionPanel, eventID_ScrnCtrlChange, wxT("Tertiary Resolution"));
