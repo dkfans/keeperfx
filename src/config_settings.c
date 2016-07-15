@@ -58,10 +58,10 @@ void setup_default_settings(void)
      0,                         // gamma_correction
      Lb_SCREEN_MODE_INVALID,    // Screen mode, set to correct value below
      {
-          {KC_UP, KMod_NONE},   // Gkey_MoveUp
-          {KC_DOWN, KMod_NONE}, // Gkey_MoveDown
-          {KC_LEFT, KMod_NONE}, // Gkey_MoveLeft
-          {KC_RIGHT, KMod_NONE},// Gkey_MoveRight
+          {KC_W, KMod_NONE},   // Gkey_MoveUp
+          {KC_S, KMod_NONE}, // Gkey_MoveDown
+          {KC_A, KMod_NONE}, // Gkey_MoveLeft
+          {KC_D, KMod_NONE},// Gkey_MoveRight
           {KC_LCONTROL, KMod_NONE},//Gkey_RotateMod
           {KC_LSHIFT, KMod_NONE},//Gkey_SpeedMod
           {KC_DELETE, KMod_NONE},//Gkey_RotateCW
@@ -75,8 +75,8 @@ void setup_default_settings(void)
           {KC_T, KMod_ALT},     // Gkey_ZoomRoom04
           {KC_T, KMod_SHIFT},   // Gkey_ZoomRoom05
           {KC_H, KMod_NONE},    // Gkey_ZoomRoom06
-          {KC_W, KMod_NONE},    // Gkey_ZoomRoom07
-          {KC_S, KMod_NONE},    // Gkey_ZoomRoom08
+          {KC_W, KMod_SHIFT},   // Gkey_ZoomRoom07
+          {KC_S, KMod_SHIFT},   // Gkey_ZoomRoom08
           {KC_T, KMod_CONTROL}, // Gkey_ZoomRoom09
           {KC_G, KMod_NONE},    // Gkey_ZoomRoom10
           {KC_B, KMod_NONE},    // Gkey_ZoomRoom11
@@ -84,9 +84,9 @@ void setup_default_settings(void)
           {KC_G, KMod_SHIFT},   // Gkey_ZoomRoom13
           {KC_B, KMod_SHIFT},   // Gkey_ZoomRoom14
           {KC_F, KMod_NONE},    // Gkey_ZoomToFight
-          {KC_A, KMod_NONE},    // Gkey_ZoomCrAnnoyed
+          {KC_A, KMod_SHIFT},   // Gkey_ZoomCrAnnoyed
           {KC_LSHIFT, KMod_NONE},//Gkey_Unknown27
-          {KC_NUMPAD0, KMod_NONE},//Gkey_Unknown28
+          {KC_NUMPAD0, KMod_NONE},//Gkey_CreatureInfo
           {KC_BACK, KMod_NONE}, // Gkey_DumpToOldPos
           {KC_P, KMod_NONE},    // Gkey_TogglePause
           {KC_M, KMod_NONE},    // Gkey_SwitchToMap
