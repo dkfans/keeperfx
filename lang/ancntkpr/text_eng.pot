@@ -936,11 +936,18 @@ msgid ""
 "the next realm!"
 msgstr ""
 
-#: guitext:144 guitext:145 guitext:146 guitext:147 guitext:148 guitext:149
-#: guitext:150 guitext:151 guitext:152 guitext:153 guitext:154 guitext:155
-#: guitext:156 guitext:157 guitext:158 guitext:159 guitext:160 guitext:161
-#: guitext:162 guitext:163 guitext:164 guitext:165 guitext:166 guitext:167
-#: guitext:168 guitext:169 guitext:170 guitext:171 guitext:172
+#: guitext:144
+msgctxt "In-game message"
+msgid ""
+"Taking care is one thing, being slow is quite another, keeper."
+"Not a single minion remains within the portal, you have failed."
+msgstr ""
+
+#: guitext:145 guitext:146 guitext:147 guitext:148 guitext:149 guitext:150
+#: guitext:151 guitext:152 guitext:153 guitext:154 guitext:155 guitext:156
+#: guitext:157 guitext:158 guitext:159 guitext:160 guitext:161 guitext:162
+#: guitext:163 guitext:164 guitext:165 guitext:166 guitext:167 guitext:168
+#: guitext:169 guitext:170 guitext:171 guitext:172
 msgctxt "In-game message"
 msgid "Moo3"
 msgstr ""
