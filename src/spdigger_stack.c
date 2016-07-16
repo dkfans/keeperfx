@@ -1022,9 +1022,9 @@ int add_undug_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
     SYNCDBG(18,"Starting");
     int remain_num;
     remain_num = max_tasks;
-    // Loop two times; first add destroyable blocks, then (if we have space) those which can be dug forever (gems)
+    // Loop two times; first add blocks that can be dug forever (gems), then the others.
     i = -1;
-    while ((remain_num > 0) && (dungeon->digger_stack_length < DIGGER_TASK_MAX_COUNT))
+    while ((remain_num > 10) && (dungeon->digger_stack_length < DIGGER_TASK_MAX_COUNT))
     {
         i = find_next_dig_in_dungeon_task_list(dungeon, i);
         if (i < 0)
@@ -1036,7 +1036,7 @@ int add_undug_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
         {
             struct SlabMap *slb;
             slb = get_slabmap_for_subtile(stl_x, stl_y);
-            if (!slab_kind_is_indestructible(slb->kind)) // Add only blocks which can be destroyed by digging
+            if (slab_kind_is_indestructible(slb->kind)) // Add only blocks which cannot be destroyed by digging
             {
                 if ( block_has_diggable_side(dungeon->owner, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)) )
                 {
@@ -1059,14 +1059,11 @@ int add_undug_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
         {
             struct SlabMap *slb;
             slb = get_slabmap_for_subtile(stl_x, stl_y);
-            if (slab_kind_is_indestructible(slb->kind)) // This time, add only blocks which cannot be destroyed
-            {
-                if ( block_has_diggable_side(dungeon->owner, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)) )
-                {
-                    add_to_imp_stack_using_pos(mtask->coords, DigTsk_DigOrMine, dungeon);
-                    remain_num--;
-                }
-            }
+			if ( block_has_diggable_side(dungeon->owner, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)) )
+			{
+				add_to_imp_stack_using_pos(mtask->coords, DigTsk_DigOrMine, dungeon);
+				remain_num--;
+			}
         }
     }
     SYNCDBG(8,"Done, added %d tasks",(int)(max_tasks-remain_num));
@@ -2863,12 +2860,12 @@ TbBool check_out_imp_stack(struct Thing *creatng)
         case DigTsk_PicksUpCrateForWorkshop:
             ret = check_out_worker_pickup_trap_for_workshop(creatng, dstack);
             break;
-        case DigTsk_DigOrMine:
-            ret = check_out_worker_dig_or_mine(creatng, dstack);
-            break;
         case DigTsk_PicksUpGoldPile:
             ret = check_out_worker_pickup_gold_pile(creatng, dstack);
             break;
+        case DigTsk_DigOrMine:
+            ret = check_out_worker_dig_or_mine(creatng, dstack);
+            break;			
         case DigTsk_None:
             ret = 0;
             break;
