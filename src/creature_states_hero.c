@@ -1132,7 +1132,7 @@ TbBool is_hero_tunnelling_to_attack(struct Thing *creatng)
         return false;
     CrtrStateId crstat;
     crstat = get_creature_state_besides_move(creatng);
-    if ((crstat != CrSt_Tunnelling) || (crstat != CrSt_TunnellerDoingNothing))
+    if ((crstat != CrSt_Tunnelling) && (crstat != CrSt_TunnellerDoingNothing))
         return false;
     return true;
 }
