@@ -319,11 +319,12 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
     // fear_wounded percent of base health
     HitPoints crmaxhealth,enmaxhealth;
     long fear;
-    if (player_creature_tends_to(creatng->owner,CrTend_Flee) || (crstat->fear_noflee_factor <= 0)) {
+    //TODO: Remove feer_noflee_factor as allowing creatures to retreat on low health should not cause them to be more fearfull.
+	if (player_creature_tends_to(creatng->owner,CrTend_Flee) || (crstat->fear_noflee_factor <= 0)) {
         // In flee mode, use full fear value
         fear = crstat->fear_wounded * 10;
     } else if (is_hero_thing(creatng)) {
-        // For heroes, if not in flee mode - set feat to 0
+        // For heroes, if not in flee mode - set fear to 0
         fear = 0;
     } else {
         // For other players, no flee mode means fear is smaller
@@ -351,7 +352,8 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
     ownstrength = LbSqrL(calculate_melee_damage(creatng)) * ((long long)crmaxhealth + (long long)creatng->health)/2;
     if (enmstrength >= (fear * ownstrength) / 100)
     {
-        // check if there are allied creatures nearby; assume that such creatures are multiplying strength of the creature we're checking
+        // TODO: Base fear on score, not strenght as that causes issues with fearfull spellcasters.
+		// check if there are allied creatures nearby; assume that such creatures are multiplying strength of the creature we're checking
         long support_count;
         support_count = count_creatures_near_and_owned_by_or_allied_with(creatng->mappos.x.val, creatng->mappos.y.val, 9, creatng->owner);
         ownstrength *= support_count;

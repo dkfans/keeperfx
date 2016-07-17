@@ -218,9 +218,9 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       crstat->strength = 0;
       crstat->armour = 0;
       crstat->dexterity = 0;
-      crstat->fear_wounded = 15;
-      crstat->fear_stronger = 800;
-      crstat->fear_noflee_factor = 20;
+      crstat->fear_wounded = 12;
+      crstat->fear_stronger = 10000;
+      crstat->fear_noflee_factor = 1;
       crstat->defense = 0;
       crstat->luck = 0;
       crstat->sleep_recovery = 1;
