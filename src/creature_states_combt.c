@@ -88,7 +88,9 @@ const CombatState combat_door_state[] = {
 const struct CombatWeapon ranged_offensive_weapon[] = {
     {CrInst_FREEZE,            156, LONG_MAX},
 	{CrInst_FEAR,              156, LONG_MAX},
-	{CrInst_CAST_SPELL_DISEASE,	 156, LONG_MAX},
+	{CrInst_CAST_SPELL_DISEASE,	 	156, LONG_MAX},
+	{CrInst_CAST_SPELL_CHICKEN,	 	156, LONG_MAX},
+	{CrInst_CAST_SPELL_TIME_BOMB,	768, LONG_MAX},
     {CrInst_FIRE_BOMB,         768, LONG_MAX},
     {CrInst_LIGHTNING,         768, LONG_MAX},
     {CrInst_HAILSTORM,         156, LONG_MAX},
@@ -112,6 +114,7 @@ const struct CombatWeapon melee_offensive_weapon[] = {
     {CrInst_FREEZE,            156, LONG_MAX},
 	{CrInst_FEAR,              156, LONG_MAX},
 	{CrInst_CAST_SPELL_DISEASE,	 156, LONG_MAX},
+	{CrInst_CAST_SPELL_CHICKEN,	 156, LONG_MAX},
     {CrInst_SLOW,              156, LONG_MAX},
     {CrInst_WORD_OF_POWER,       0, 284},
     {CrInst_FART,                0, 284},
