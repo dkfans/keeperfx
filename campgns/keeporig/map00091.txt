@@ -169,7 +169,7 @@ ENDIF
 
 IF_ACTION_POINT(1,PLAYER0)
 	REM "Congratulations Keeper. This vial has given your researchers a much needed boost. You can now construct Bridges that enable you to traverse water and fire."
-	DISPLAY_OBJECTIVE(906,PLAYER0)
+	DISPLAY_OBJECTIVE(906,1)
 	ROOM_AVAILABLE(PLAYER0,BRIDGE,1,1)
 ENDIF
 
