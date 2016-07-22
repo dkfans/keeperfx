@@ -2776,7 +2776,7 @@ msgstr ""
 #: guitext:427
 msgctxt "Dungeon special decription"
 msgid ""
-"Locate Hidden World: You will be transported to a secret realm after you "
+"Locate Hidden World: You will get access to a secret realm after you "
 "have conquered this one."
 msgstr ""
 
@@ -2912,8 +2912,8 @@ msgstr ""
 
 #: guitext:454
 msgctxt "In-game interface description"
-msgid "Time: The time until the next Creature Payday. This bar increases over time and, when it reaches its peak, "
-"all of your creatures receive their wages."
+msgid "Payday Time: The time until the next Creature Payday. This bar increases over time and, when it reaches its "
+"peak, all of your creatures will want their wages."
 msgstr ""
 
 #: guitext:455
