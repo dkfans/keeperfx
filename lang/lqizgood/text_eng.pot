@@ -101,14 +101,14 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "A Thief has joined you! They are weak at low levels, but later they can "
-"become very sneaky. One day, they will learn the error of thier ways (level "
+"become very sneaky. One day, they will learn the error of their ways (level "
 "11) :P"
 msgstr ""
 
 #: guitext:14
 msgctxt "In-game message"
 msgid ""
-"A Barbarian has joined you! These are mean, strong heros, with attitude!"
+"A Barbarian has joined you! These are mean, strong heroes, with attitude!"
 msgstr ""
 
 #: guitext:15
@@ -125,7 +125,7 @@ msgstr ""
 
 #: guitext:17
 msgctxt "In-game message"
-msgid "Well done! Thats another bit of evil destroyed! Congratulations!"
+msgid "Well done! That's another bit of evil destroyed! Congratulations!"
 msgstr ""
 
 #: guitext:18 guitext:19
@@ -167,7 +167,7 @@ msgstr ""
 
 #: guitext:25
 msgctxt "In-game message"
-msgid "Snow white and the 7 dwarves are safe! Rejoyce!"
+msgid "Snow white and the 7 dwarves are safe! Rejoice!"
 msgstr ""
 
 #: guitext:26 guitext:27 guitext:28 guitext:29
@@ -208,7 +208,7 @@ msgstr ""
 #: guitext:40
 msgctxt "In-game message"
 msgid ""
-"We have stumbled across a land with no accsessable portals. You also have "
+"We have stumbled across a land with no accessible portals. You also have "
 "the torture chamber and prison available, you know what to do! Persuade some "
 "people to join you, and torture the rest!"
 msgstr ""
@@ -216,7 +216,7 @@ msgstr ""
 #: guitext:41
 msgctxt "In-game message"
 msgid ""
-"There is a band of heros that have joined the enemy under the lead of Ug the "
+"There is a band of heroes that have joined the enemy under the lead of Ug the "
 "Barbarian! Convert them all!"
 msgstr ""
 
@@ -230,8 +230,8 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Oh noble one, you have stumbled across 2 rival keepers battling it out. You "
-"must destroy both. The good news is that they are very pre-ocupied. If i "
-"were you, i would concentrate on blue first, and rumour has it there is a "
+"must destroy both. The good news is that they are very preoccupied. If I "
+"were you, I would concentrate on blue first, and rumour has it there is a "
 "weakness at the back of blue's fortress."
 msgstr ""
 
@@ -261,13 +261,13 @@ msgid ""
 "It looks like these keepers saw what happened last time. They have decided "
 "to ally against you. There is not much gold, so you must capture the centre "
 "gems and starve your enemies out! Traps are a good idea on this level, to "
-"prevent coridor rushing!"
+"prevent corridor rushing!"
 msgstr ""
 
 #: guitext:61
 msgctxt "In-game message"
 msgid ""
-"Well that was easy, wasnt it! I hear the evil keepers in the next realm are "
+"Well that was easy, wasn't it! I hear the evil keepers in the next realm are "
 "not such a push over."
 msgstr ""
 
@@ -306,7 +306,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "You have come into the dungeon of a previous hero who attempted to destroy "
-"the evil fortess. He failed, but you shall succeed! YOu have all the time, "
+"the evil fortress. He failed, but you shall succeed! YOu have all the time, "
 "and resources in the world to build up an army and crush the evil forever!"
 msgstr ""
 
@@ -472,14 +472,14 @@ msgstr ""
 #: guitext:231
 msgctxt "Creature spell"
 msgid ""
-"Fear: Causes the opponent to be terrified and wanting to skip engageing into "
+"Fear: Causes the opponent to be terrified and wanting to skip engaging into "
 "combat."
 msgstr ""
 
 #: guitext:232
 msgctxt "Creature spell"
 msgid ""
-"Sight: Allows the creature to temporarely increase its awareness and notice "
+"Sight: Allows the creature to temporarily increase its awareness and notice "
 "the invisible."
 msgstr ""
 
@@ -527,7 +527,7 @@ msgstr ""
 msgctxt "Creature spell"
 msgid ""
 "Invisibility: Cast on one of your minions, it makes the host creature "
-"invisible to all enemies. Unless they possess a subnatural Sight."
+"invisible to all enemies. Unless they possess a supernatural Sight."
 msgstr ""
 
 #: guitext:240
@@ -540,7 +540,7 @@ msgstr ""
 
 #: guitext:241
 msgctxt "Creature spell"
-msgid "Flame Breath: The devasting constant stream of searing fire."
+msgid "Flame Breath: The devastating constant stream of searing fire."
 msgstr ""
 
 #: guitext:242
@@ -882,45 +882,45 @@ msgid "Moo5"
 msgstr ""
 
 #: guitext:420
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Reveal Map: Reveals the entire underground realm to you."
 msgstr ""
 
 #: guitext:421
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid ""
 "Resurrect Creature: You may raise one of your fallen minions from the dead."
 msgstr ""
 
 #: guitext:422
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid ""
 "Transfer Creature: Pick one of your creatures to accompany you to the next "
 "realm."
 msgstr ""
 
 #: guitext:423
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Steal Hero: Subvert a hero to your cause."
 msgstr ""
 
 #: guitext:424
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Multiply Creatures: Create a double of each of your creatures."
 msgstr ""
 
 #: guitext:425
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Increase Level: Bestows greater skill on all your creatures."
 msgstr ""
 
 #: guitext:426
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Make Safe: Reinforces your entire dungeon."
 msgstr ""
 
 #: guitext:427
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid ""
 "Locate Hidden World: You will be transported to a secret realm after you "
 "have conquered this one."
@@ -1540,7 +1540,7 @@ msgstr ""
 #: guitext:660
 msgctxt "Keeper spell description"
 msgid ""
-"Destroy Walls: Breaks down reinforcemed enemy's walls. LMB select. [18.16]"
+"Destroy Walls: Breaks down reinforced enemy's walls. LMB select. [18.16]"
 msgstr ""
 
 #: guitext:661
