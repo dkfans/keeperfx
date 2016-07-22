@@ -40,6 +40,7 @@ IF(PLAYER0,IMP == 0)
 	ROOM_AVAILABLE(ALL_PLAYERS,BRIDGE,1,1)
 	REM Using a timer to make sure add creature command will be executed
 	SET_TIMER(PLAYER0,TIMER1)
+	BONUS_LEVEL_TIME(0)
 ENDIF
 
 IF(PLAYER0,TIMER0 >= 4400)

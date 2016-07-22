@@ -89,6 +89,7 @@ IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
 	ADD_CREATURE_TO_LEVEL(PLAYER0,VAMPIRE,10,1,10,0)
     REM Using a timer to make sure add creature command will be executed
     SET_TIMER(PLAYER0,TIMER1)
+	BONUS_LEVEL_TIME(0)
 ENDIF
 
 IF(PLAYER0,VAMPIRE >= 1)

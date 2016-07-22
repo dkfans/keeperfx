@@ -45,5 +45,6 @@ ENDIF
 IF(PLAYER0,WITCH > 0)
     REM "Well done. You have excelled in your use of large balls of stone for which the dark gods will repay you, by allowing you to use the warrior you found when you reach the next realm."
 	DISPLAY_OBJECTIVE(152,PLAYER0)
+	BONUS_LEVEL_TIME(0)
 	WIN_GAME
 ENDIF
