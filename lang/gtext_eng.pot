@@ -166,7 +166,7 @@ msgstr ""
 #: guitext:15
 msgctxt "In-game message"
 msgid ""
-"Imps fortify your walls to prevent intruders tunnelling in. If you want to "
+"Imps fortify your walls to prevent intruders tunneling in. If you want to "
 "create more imps, go to the Research Panel, select the Imp icon and left "
 "click anywhere in your dungeon. Each Imp you create costs more than the "
 "previous one."
@@ -519,7 +519,7 @@ msgctxt "In-game message"
 msgid ""
 "You have researched the Call to Arms spell. The first time you cast it, your "
 "creatures gather around a banner created by the spell. Cast it again in a "
-"target area. Call to Arms only costs gold when it's targetted beyond your "
+"target area. Call to Arms only costs gold when it's targeted beyond your "
 "territory."
 msgstr ""
 
@@ -1711,14 +1711,14 @@ msgstr ""
 #: guitext:231
 msgctxt "Creature spell"
 msgid ""
-"Fear: Causes the opponent to be terrified and wanting to skip engageing into "
+"Fear: Causes the opponent to be terrified and wanting to skip engaging into "
 "combat."
 msgstr ""
 
 #: guitext:232
 msgctxt "Creature spell"
 msgid ""
-"Sight: Allows the creature to temporarely increase its awareness and notice "
+"Sight: Allows the creature to temporarily increase its awareness and notice "
 "the invisible."
 msgstr ""
 
@@ -1779,7 +1779,7 @@ msgstr ""
 
 #: guitext:241
 msgctxt "Creature spell"
-msgid "Flame Breath: The devasting constant stream of searing fire."
+msgid "Flame Breath: The devastating constant stream of searing fire."
 msgstr ""
 
 #: guitext:242
@@ -2072,7 +2072,7 @@ msgstr ""
 #: guitext:293
 msgctxt "In-game interface description"
 msgid ""
-"Strength: The amount of damage the creature inflicts upon it's enemies with "
+"Strength: The amount of damage the creature inflicts upon its enemies with "
 "each hit."
 msgstr ""
 
