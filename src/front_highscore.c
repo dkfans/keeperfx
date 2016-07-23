@@ -146,7 +146,7 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
     tx_units_per_px = gbtn->height * 16 / (11*(LbTextLineHeight()));
     col1_width = LbTextStringWidth("99") * tx_units_per_px / 16;
     col2_width = LbTextStringWidth(" 99999") * tx_units_per_px / 16;
-    col3_width = LbTextStringWidth(" 999") * tx_units_per_px / 16;
+    col3_width = LbTextStringWidth(" 9999") * tx_units_per_px / 16;
     col4_width = LbTextCharWidth('-') * tx_units_per_px / 16;
     for (k=0; k < VISIBLE_HIGH_SCORES_COUNT-1; k++)
     {
