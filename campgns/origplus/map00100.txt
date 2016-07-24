@@ -1,0 +1,52 @@
+REM ****************************************************************************
+REM  Campaigns Consolidation Project for KeeperFX strategy game.
+REM ****************************************************************************
+REM  Script for Bonus Level - Demonspawn Hidden Realm (originally 5th bonus)
+REM  Campaign: DK Original
+REM  Authors:  based on Bullfrog script
+REM		 KeeperFX CCP Team
+REM  Date:   17 Aug 1997 - 02 Nov 2013
+REM  Copying and copyrights:
+REM This program is free software; you can redistribute it and/or modify
+REM it under the terms of the GNU General Public License as published by
+REM the Free Software Foundation; either version 2 of the License, or
+REM (at your option) any later version.
+REM ****************************************************************************
+
+START_MONEY(PLAYER0,0)
+
+REM "You have entered this realm to gain a creature for your further efforts. You got the creature from start, so you must only keep it safe. And the only way to make this place safe is to kill every hero in the realm."
+DISPLAY_OBJECTIVE(179,PLAYER0)
+
+BONUS_LEVEL_TIME(40000)
+SET_TIMER(PLAYER0,TIMER0)
+
+IF(PLAYER0,TIMER0 >= 40000)
+	LOSE_GAME
+ENDIF
+
+IF(PLAYER0,TOTAL_CREATURES == 0)
+	LOSE_GAME
+ENDIF
+
+IF(PLAYER0,TOTAL_IMPS == 0)
+	LOSE_GAME
+ENDIF
+
+IF_ACTION_POINT(1,PLAYER0)
+	ROOM_AVAILABLE(ALL_PLAYERS,BRIDGE,1,1)
+ENDIF
+
+IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
+	WIN_GAME
+ENDIF
+
+IF(PLAYER0,DRAGON > 0)
+	REM "Did you see? Your Demon Spawn has evolved to become a powerful Dragon ready to reduces your enemies into ashes!"
+	DISPLAY_INFORMATION(174)
+ENDIF
+
+IF(PLAYER0,TIMER0 >= 20000)
+	REM "How time flies... hurry!"
+	DISPLAY_OBJECTIVE(166,PLAYER0)
+ENDIF

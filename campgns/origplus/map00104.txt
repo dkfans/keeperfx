@@ -1,0 +1,112 @@
+REM ****************************************************************************
+REM  Campaigns Consolidation Project for KeeperFX strategy game.
+REM ****************************************************************************
+REM  Script for Bonus Level - First Person Hidden Realm (originally 1st bonus)
+REM  Campaign: DK Original
+REM  Authors:  based on Bullfrog script
+REM         KeeperFX CCP Team
+REM  Date:   17 Aug 1997 - 02 Nov 2013
+REM  Copying and copyrights:
+REM This program is free software; you can redistribute it and/or modify
+REM it under the terms of the GNU General Public License as published by
+REM the Free Software Foundation; either version 2 of the License, or
+REM (at your option) any later version.
+REM ****************************************************************************
+
+START_MONEY(PLAYER0,0)
+
+CREATE_PARTY(ONE)
+	ADD_TO_PARTY(ONE,DWARFA,3,300,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(ONE,DWARFA,3,300,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(ONE,DWARFA,3,300,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(ONE,THIEF,3,300,ATTACK_ENEMIES,0)
+
+CREATE_PARTY(TWO)
+	ADD_TO_PARTY(TWO,ARCHER,3,400,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(TWO,ARCHER,3,400,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(TWO,ARCHER,3,400,ATTACK_ENEMIES,0)
+
+CREATE_PARTY(THREE)
+	ADD_TO_PARTY(THREE,WIZARD,5,1000,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(THREE,SAMURAI,5,700,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(THREE,SAMURAI,5,700,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(THREE,SAMURAI,5,700,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(THREE,SAMURAI,5,700,ATTACK_ENEMIES,0)
+
+CREATE_PARTY(FOUR)
+	ADD_TO_PARTY(FOUR,MONK,8,2000,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(FOUR,MONK,8,2000,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(FOUR,MONK,8,2000,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(FOUR,FAIRY,8,2000,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(FOUR,FAIRY,8,2000,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(FOUR,FAIRY,8,2000,ATTACK_ENEMIES,0)
+
+REM "Powerful magic permeating through the rock from the realm above prevents a dungeon from being constructed here. You will have to conquer this realm another way."
+DISPLAY_OBJECTIVE(137,PLAYER0)
+
+IF(PLAYER0,GAME_TURN >= 60)
+	REM "Possess this Dragon to help you negotiate the fiery pits but be prepared to transfer your soul to a more appropriate creature when the situation demands it."
+	DISPLAY_INFORMATION(138)
+ENDIF
+
+IF_ACTION_POINT(1,PLAYER0)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,ONE,2,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,TWO,2,1)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,FAIRY,3,1,3,0)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,FAIRY,4,1,3,0)
+ENDIF
+
+IF_ACTION_POINT(5,PLAYER0)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,THIEF,5,4,3,0)
+ENDIF
+
+IF_ACTION_POINT(6,PLAYER0)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,ARCHER,7,4,3,0)
+ENDIF
+
+IF_ACTION_POINT(8,PLAYER0)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,THREE,-1,1)
+ENDIF
+
+IF_ACTION_POINT(9,PLAYER0)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,FOUR,-2,1)
+ENDIF
+
+IF_ACTION_POINT(10,PLAYER0)
+	ADD_CREATURE_TO_LEVEL(PLAYER0,VAMPIRE,10,1,10,0)
+	WIN_GAME
+ENDIF
+
+IF_ACTION_POINT(11,PLAYER0)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,TWO,11,1)
+ENDIF
+
+IF_ACTION_POINT(12,PLAYER0)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,BARBARIAN,13,1,5,100)
+ENDIF
+
+IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
+	ADD_CREATURE_TO_LEVEL(PLAYER0,VAMPIRE,10,1,10,0)
+    REM Using a timer to make sure add creature command will be executed
+    SET_TIMER(PLAYER0,TIMER1)
+ENDIF
+
+IF(PLAYER0,VAMPIRE >= 1)
+	REM "Possess the Vampire below. Should you succeed in killing every hero in this region, the Vampire will accompany you to the realm beyond."
+	DISPLAY_OBJECTIVE(139,PLAYER0)
+ENDIF
+
+SET_TIMER(PLAYER0,TIMER0)
+BONUS_LEVEL_TIME(76666)
+
+IF(PLAYER0,TIMER0 >= 76666)
+	LOSE_GAME
+ENDIF
+
+IF(PLAYER0,TOTAL_CREATURES == 0)
+	LOSE_GAME
+ENDIF
+
+IF(PLAYER0,TIMER1 >= 100)
+    WIN_GAME
+ENDIF

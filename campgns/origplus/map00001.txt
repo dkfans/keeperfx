@@ -1,0 +1,108 @@
+REM ****************************************************************************
+REM  Campaigns Consolidation Project for KeeperFX strategy game.
+REM ****************************************************************************
+REM  Script for Level Eversmile
+REM  Campaign: New game plus
+REM  Authors:  based on Bullfrog script
+REM            KeeperFX CCP Team
+REM            Loobinex
+REM  Date:     17 Aug 1997 - 14 Mar 2015
+REM  Copying and copyrights:
+REM    This program is free software; you can redistribute it and/or modify
+REM    it under the terms of the GNU General Public License as published by
+REM    the Free Software Foundation; either version 2 of the License, or
+REM    (at your option) any later version.
+REM ****************************************************************************
+LEVEL_VERSION(1)
+
+REM New rooms for the player:
+REM   TREASURE
+REM   LAIR
+REM   GARDEN
+REM New creatures for the player:
+REM   FLY
+REM   BUG
+
+REM Flags used:
+REM  PLAYER0,FLAG0 - Progress state; 5-ready for 1st battle;
+REM                  6-won 1st battle; 7-lord of the land has appeared.
+
+SET_GENERATE_SPEED(400)
+
+START_MONEY(PLAYER0,2500)
+
+MAX_CREATURES(PLAYER0,7)
+
+ADD_CREATURE_TO_POOL(FLY,2)
+ADD_CREATURE_TO_POOL(BUG,12)
+
+CREATURE_AVAILABLE(PLAYER0,FLY,1,1)
+CREATURE_AVAILABLE(PLAYER0,BUG,1,0)
+
+ROOM_AVAILABLE(PLAYER0,TREASURE,1,1)
+ROOM_AVAILABLE(PLAYER0,LAIR,1,1)
+ROOM_AVAILABLE(PLAYER0,GARDEN,1,1)
+
+MAGIC_AVAILABLE(PLAYER0,POWER_SLAP,1,1)
+MAGIC_AVAILABLE(PLAYER0,POWER_HAND,1,1)
+MAGIC_AVAILABLE(PLAYER0,POWER_IMP,1,1)
+
+SET_CREATURE_FEAR_WOUNDED(TUNNELLER,0)
+SET_CREATURE_FEAR_STRONGER(TUNNELLER,10000)
+SET_CREATURE_FEAR_WOUNDED(THIEF,0)
+SET_CREATURE_FEAR_STRONGER(THIEF,10000)
+SET_CREATURE_FEAR_WOUNDED(KNIGHT,0)
+SET_CREATURE_FEAR_STRONGER(KNIGHT,10000)
+
+SET_CREATURE_STRENGTH(KNIGHT,30)
+SET_CREATURE_ARMOUR(KNIGHT,30)
+SET_CREATURE_STRENGTH(TUNNELLER,20)
+SET_CREATURE_ARMOUR(TUNNELLER,20)
+
+CREATE_PARTY(LANDLORD)
+	ADD_TO_PARTY(LANDLORD,KNIGHT,1,1000,ATTACK_ENEMIES,0)
+
+CREATE_PARTY(THIEVES)
+	ADD_TO_PARTY(THIEVES,THIEF,1,100,ATTACK_ENEMIES,0)
+
+REM ****************************************************************************
+
+REM "You are the Keeper, chosen one, And being evil is great fun."
+DISPLAY_OBJECTIVE(826,ALL_PLAYERS)
+IF(PLAYER0,TOTAL_CREATURES >= 6)
+	SET_FLAG(PLAYER0,FLAG0,5)
+ENDIF
+
+REM Has five or more creatures
+IF(PLAYER0,FLAG0 >= 5)
+	ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,THIEVES,1,DUNGEON,0,1,200)
+	ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,THIEVES,1,DUNGEON,0,1,200)
+	DISPLAY_OBJECTIVE(17,PLAYER0)
+		IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
+			DISPLAY_OBJECTIVE(18,ALL_PLAYERS)
+			SET_TIMER(PLAYER0,TIMER2)
+			SET_FLAG(PLAYER0,FLAG0,6)
+		ENDIF
+ENDIF
+
+REM Has won first battle
+IF(PLAYER0,FLAG0 >= 6)
+	IF(PLAYER0,TIMER2 >= 200)
+		IF(PLAYER0,TOTAL_CREATURES >= 6)
+			ADD_PARTY_TO_LEVEL(PLAYER_GOOD,LANDLORD,1,1)
+			DISPLAY_OBJECTIVE(19,ALL_PLAYERS)
+			SET_FLAG(PLAYER0,FLAG0,7)
+		ENDIF
+	ENDIF							
+ENDIF								
+
+REM END LEVEL CHECK - doesn't need a flag, as third battle is always LANDLORD,
+REM however it may be better to use the flag and then test if good player has no creatures.
+IF(PLAYER0,FLAG0 == 7)
+	IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
+		DISPLAY_OBJECTIVE(20,ALL_PLAYERS)
+		WIN_GAME
+	ENDIF
+ENDIF
+
+REM ****************************************************************************
