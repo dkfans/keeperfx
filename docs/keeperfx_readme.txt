@@ -54,6 +54,13 @@ are not enough. Also, you must select the "keeper" folder from
 the CD content list. Selecting root folder of your CD, or
 selecting installation folder on disk, won't be enough.
 
+Unofficial version:
+
+Partway into development of version KeeperFX 0.4.7 progress has
+halted. The Unofficial 0.4.6 release has the official items that
+were underway plus unofficial fixes added into a release to hold
+fans over until official development continues.
+
 Available languages:
 
 The following languages are currently functional:
@@ -203,6 +210,11 @@ A: These files are identical except of one thing: 'keeperfx_hvlog.exe'
 
 Q: I've found a cheat menu, but it doesn't work!
 A: The three cheat menus are only partially functional.
+
+Q: I've got another problem, now what?
+A: Check the wiki or KeeperKlanForum:
+	https://github.com/dkfans/keeperfx/wiki
+	https://keeperklan.com/
 
 Reporting a bug:
 

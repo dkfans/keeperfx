@@ -36,7 +36,7 @@
 //#define VER_STRING        "1.2.3.4"
 /* Program name, copyrights and file names */
 #define PROGRAM_NAME      "Dungeon Keeper FX"
-#define PROGRAM_FULL_NAME "Dungeon Keeper Fan eXpansion"
+#define PROGRAM_FULL_NAME "KeeperFX Unofficial"
 #define COMPANY_NAME      "Fan community"
 #define INTERNAL_NAME     "keeperfx"
 #define LEGAL_COPYRIGHT   "Open Source"

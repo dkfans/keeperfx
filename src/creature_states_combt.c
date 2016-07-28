@@ -330,12 +330,8 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
 	if (player_creature_tends_to(creatng->owner,CrTend_Flee) || (crstat->fear_noflee_factor <= 0)) {
         // In flee mode, use full fear value
         fear = crstat->fear_wounded * 10;
-    } else if (is_hero_thing(creatng)) {
-        // For heroes, if not in flee mode - set fear to 0
-        fear = 0;
     } else {
-        // For other players, no flee mode means fear is smaller
-        fear = (long)crstat->fear_wounded * 10 / crstat->fear_noflee_factor;
+        fear = 0;
     }
     struct CreatureControl *cctrl;
     struct CreatureControl *enmctrl;
