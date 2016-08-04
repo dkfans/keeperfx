@@ -1045,7 +1045,7 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
     my = my_mouse_y;
     if (mx <= 4)
     {
-        if ( is_game_key_pressed(Gkey_MoveLeft, NULL, false) )
+        if ( is_game_key_pressed(Gkey_MoveLeft, NULL, false) || is_key_pressed(KC_LEFT,KMod_DONTCARE) )
         {
           if (!rotate_pressed)
             pckt->field_10 |= PCAdV_SpeedupPressed;
@@ -1054,7 +1054,7 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
     }
     if (mx >= MyScreenWidth-4)
     {
-        if ( is_game_key_pressed(Gkey_MoveRight, NULL, false) )
+        if ( is_game_key_pressed(Gkey_MoveRight, NULL, false) || is_key_pressed(KC_RIGHT,KMod_DONTCARE) )
         {
           if (!rotate_pressed)
             pckt->field_10 |= PCAdV_SpeedupPressed;
@@ -1063,7 +1063,7 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
     }
     if (my <= 4)
     {
-        if ( is_game_key_pressed(Gkey_MoveUp, NULL, false) )
+        if ( is_game_key_pressed(Gkey_MoveUp, NULL, false) || is_key_pressed(KC_UP,KMod_DONTCARE) )
         {
           if (!rotate_pressed)
             pckt->field_10 |= PCAdV_SpeedupPressed;
@@ -1072,7 +1072,7 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
     }
     if (my >= MyScreenHeight-4)
     {
-        if ( is_game_key_pressed(Gkey_MoveDown, NULL, false) )
+        if ( is_game_key_pressed(Gkey_MoveDown, NULL, false) || is_key_pressed(KC_DOWN,KMod_DONTCARE) )
         {
           if (!rotate_pressed)
             pckt->field_10 |= PCAdV_SpeedupPressed;
@@ -1110,13 +1110,13 @@ void get_isometric_view_nonaction_inputs(void)
 
     if ( rotate_pressed )
     {
-        if ( is_game_key_pressed(Gkey_MoveLeft, NULL, no_mods) )
+        if ( is_game_key_pressed(Gkey_MoveLeft, NULL, no_mods) || is_key_pressed(KC_LEFT,KMod_DONTCARE) )
             set_packet_control(pckt, PCtr_ViewRotateCW);
-        if ( is_game_key_pressed(Gkey_MoveRight, NULL, no_mods) )
+        if ( is_game_key_pressed(Gkey_MoveRight, NULL, no_mods) || is_key_pressed(KC_RIGHT,KMod_DONTCARE) )
             set_packet_control(pckt, PCtr_ViewRotateCCW);
-        if ( is_game_key_pressed(Gkey_MoveUp, NULL, no_mods) )
+        if ( is_game_key_pressed(Gkey_MoveUp, NULL, no_mods) || is_key_pressed(KC_UP,KMod_DONTCARE) )
             set_packet_control(pckt, PCtr_ViewZoomIn);
-        if ( is_game_key_pressed(Gkey_MoveDown, NULL, no_mods) )
+        if ( is_game_key_pressed(Gkey_MoveDown, NULL, no_mods) || is_key_pressed(KC_DOWN,KMod_DONTCARE) )
             set_packet_control(pckt, PCtr_ViewZoomOut);
     } else
     {
@@ -1128,13 +1128,13 @@ void get_isometric_view_nonaction_inputs(void)
             set_packet_control(pckt, PCtr_ViewZoomIn);
         if ( is_game_key_pressed(Gkey_ZoomOut, NULL, false) )
             set_packet_control(pckt, PCtr_ViewZoomOut);
-        if ( is_game_key_pressed(Gkey_MoveLeft, NULL, no_mods) )
+        if ( is_game_key_pressed(Gkey_MoveLeft, NULL, no_mods) || is_key_pressed(KC_LEFT,KMod_DONTCARE) )
             set_packet_control(pckt, PCtr_MoveLeft);
-        if ( is_game_key_pressed(Gkey_MoveRight, NULL, no_mods) )
+        if ( is_game_key_pressed(Gkey_MoveRight, NULL, no_mods) || is_key_pressed(KC_RIGHT,KMod_DONTCARE) )
             set_packet_control(pckt, PCtr_MoveRight);
-        if ( is_game_key_pressed(Gkey_MoveUp, NULL, no_mods) )
+        if ( is_game_key_pressed(Gkey_MoveUp, NULL, no_mods) || is_key_pressed(KC_UP,KMod_DONTCARE) )
             set_packet_control(pckt, PCtr_MoveUp);
-        if ( is_game_key_pressed(Gkey_MoveDown, NULL, no_mods) )
+        if ( is_game_key_pressed(Gkey_MoveDown, NULL, no_mods) || is_key_pressed(KC_DOWN,KMod_DONTCARE) )
             set_packet_control(pckt, PCtr_MoveDown);
     }
 }
@@ -1198,7 +1198,7 @@ void get_front_view_nonaction_inputs(void)
 
     if ( rotate_pressed )
     {
-        if ( is_game_key_pressed(Gkey_MoveLeft, NULL, no_mods) )
+        if ( is_game_key_pressed(Gkey_MoveLeft, NULL, no_mods) || is_key_pressed(KC_LEFT,KMod_DONTCARE) )
         {
           if ( LbTimerClock() > last_rotate_left_time+250 )
           {
@@ -1206,7 +1206,7 @@ void get_front_view_nonaction_inputs(void)
             last_rotate_left_time = LbTimerClock();
           }
         }
-        if ( is_game_key_pressed(Gkey_MoveRight, NULL, no_mods) )
+        if ( is_game_key_pressed(Gkey_MoveRight, NULL, no_mods) || is_key_pressed(KC_RIGHT,KMod_DONTCARE) )
         {
           if ( LbTimerClock() > last_rotate_right_time+250 )
           {
@@ -1214,9 +1214,9 @@ void get_front_view_nonaction_inputs(void)
             last_rotate_right_time = LbTimerClock();
           }
         }
-        if ( is_game_key_pressed(Gkey_MoveUp, NULL, no_mods) )
+        if ( is_game_key_pressed(Gkey_MoveUp, NULL, no_mods) || is_key_pressed(KC_UP,KMod_DONTCARE) )
             set_packet_control(pckt, PCtr_ViewZoomIn);
-        if ( is_game_key_pressed(Gkey_MoveDown, NULL, no_mods) )
+        if ( is_game_key_pressed(Gkey_MoveDown, NULL, no_mods) || is_key_pressed(KC_DOWN,KMod_DONTCARE) )
             set_packet_control(pckt, PCtr_ViewZoomOut);
     } else
     {
@@ -1236,13 +1236,13 @@ void get_front_view_nonaction_inputs(void)
             last_rotate_right_time = LbTimerClock();
           }
         }
-        if ( is_game_key_pressed(Gkey_MoveLeft, NULL, no_mods) )
+        if ( is_game_key_pressed(Gkey_MoveLeft, NULL, no_mods) || is_key_pressed(KC_LEFT,KMod_DONTCARE) )
             set_packet_control(pckt, PCtr_MoveLeft);
-        if ( is_game_key_pressed(Gkey_MoveRight, NULL, no_mods) )
+        if ( is_game_key_pressed(Gkey_MoveRight, NULL, no_mods) || is_key_pressed(KC_RIGHT,KMod_DONTCARE) )
             set_packet_control(pckt, PCtr_MoveRight);
-        if ( is_game_key_pressed(Gkey_MoveUp, NULL, no_mods) )
+        if ( is_game_key_pressed(Gkey_MoveUp, NULL, no_mods) || is_key_pressed(KC_UP,KMod_DONTCARE) )
             set_packet_control(pckt, PCtr_MoveUp);
-        if ( is_game_key_pressed(Gkey_MoveDown, NULL, no_mods) )
+        if ( is_game_key_pressed(Gkey_MoveDown, NULL, no_mods) || is_key_pressed(KC_DOWN,KMod_DONTCARE) )
             set_packet_control(pckt, PCtr_MoveDown);
     }
     if ( is_game_key_pressed(Gkey_ZoomIn, NULL, false) )
@@ -1497,13 +1497,13 @@ void get_creature_control_nonaction_inputs(void)
           right_button_clicked = 0;
           right_button_released = 0;
       }
-      if ( is_game_key_pressed(Gkey_MoveLeft, NULL, true) )
+      if ( is_game_key_pressed(Gkey_MoveLeft, NULL, true) || is_key_pressed(KC_LEFT,KMod_DONTCARE) )
           set_packet_control(pckt, PCtr_MoveLeft);
-      if ( is_game_key_pressed(Gkey_MoveRight, NULL, true) )
+      if ( is_game_key_pressed(Gkey_MoveRight, NULL, true) || is_key_pressed(KC_RIGHT,KMod_DONTCARE) )
           set_packet_control(pckt, PCtr_MoveRight);
-      if ( is_game_key_pressed(Gkey_MoveUp, NULL, true) )
+      if ( is_game_key_pressed(Gkey_MoveUp, NULL, true) || is_key_pressed(KC_UP,KMod_DONTCARE) )
           set_packet_control(pckt, PCtr_MoveUp);
-      if ( is_game_key_pressed(Gkey_MoveDown, NULL, true) )
+      if ( is_game_key_pressed(Gkey_MoveDown, NULL, true) || is_key_pressed(KC_DOWN,KMod_DONTCARE) )
           set_packet_control(pckt, PCtr_MoveDown);
   }
 }
