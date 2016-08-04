@@ -86,7 +86,7 @@ void setup_default_settings(void)
           {KC_F, KMod_NONE},    // Gkey_ZoomToFight
           {KC_A, KMod_SHIFT},   // Gkey_ZoomCrAnnoyed
           {KC_LSHIFT, KMod_NONE},//Gkey_Unknown27
-          {KC_NUMPAD0, KMod_NONE},//Gkey_CreatureInfo
+          {KC_Q, KMod_NONE},	//Gkey_CreatureInfo
           {KC_BACK, KMod_NONE}, // Gkey_DumpToOldPos
           {KC_P, KMod_NONE},    // Gkey_TogglePause
           {KC_M, KMod_NONE},    // Gkey_SwitchToMap
