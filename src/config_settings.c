@@ -75,8 +75,8 @@ void setup_default_settings(void)
           {KC_T, KMod_ALT},     // Gkey_ZoomRoom04
           {KC_T, KMod_SHIFT},   // Gkey_ZoomRoom05
           {KC_H, KMod_NONE},    // Gkey_ZoomRoom06
-          {KC_W, KMod_SHIFT},   // Gkey_ZoomRoom07
-          {KC_S, KMod_SHIFT},   // Gkey_ZoomRoom08
+          {KC_W, KMod_ALT},		// Gkey_ZoomRoom07
+          {KC_S, KMod_ALT},		// Gkey_ZoomRoom08
           {KC_T, KMod_CONTROL}, // Gkey_ZoomRoom09
           {KC_G, KMod_NONE},    // Gkey_ZoomRoom10
           {KC_B, KMod_NONE},    // Gkey_ZoomRoom11
@@ -84,8 +84,8 @@ void setup_default_settings(void)
           {KC_G, KMod_SHIFT},   // Gkey_ZoomRoom13
           {KC_B, KMod_SHIFT},   // Gkey_ZoomRoom14
           {KC_F, KMod_NONE},    // Gkey_ZoomToFight
-          {KC_A, KMod_SHIFT},   // Gkey_ZoomCrAnnoyed
-          {KC_LSHIFT, KMod_NONE},//Gkey_Unknown27
+          {KC_A, KMod_ALT},		// Gkey_ZoomCrAnnoyed
+          {KC_LSHIFT, KMod_NONE},//Gkey_Possession
           {KC_Q, KMod_NONE},	//Gkey_CreatureInfo
           {KC_BACK, KMod_NONE}, // Gkey_DumpToOldPos
           {KC_P, KMod_NONE},    // Gkey_TogglePause
