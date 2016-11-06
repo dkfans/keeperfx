@@ -69,11 +69,13 @@ extern "C" {
 #define SEPARATOR "\\"
 #endif
 
+#ifndef __cplusplus
 #ifndef false
 #define false 0
 #endif
 #ifndef true
 #define true 1
+#endif
 #endif
 #ifndef NULL
 #define NULL 0
