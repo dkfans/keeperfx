@@ -132,7 +132,7 @@ void heapmgr_complete_defrag(struct HeapMgrHeader *hmhead)
     {
         struct HeapMgrHandle *hnext;
         void *bufend;
-        bufend = hmhandle->buf + hmhandle->len;
+        bufend = (void *)((uintptr_t)hmhandle->buf + hmhandle->len);
         hnext = hmhandle->next_alloc;
         if (hnext->buf > bufend)
         {
