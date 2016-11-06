@@ -259,7 +259,7 @@ struct DisplayStructEx {
     uchar isDragMovingCamera, isDragRotatingCamera;
 
     // Flag to skip next button release event.
-    uchar skipLButtonRelease, skipRButtonRelease;;
+    uchar skipLButtonRelease, skipRButtonRelease;
 
     // Visual width of main panel.
     // do NOT initialize every turn.
