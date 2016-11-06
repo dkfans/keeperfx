@@ -965,7 +965,7 @@ short anim_open(char *fname, int arg1, short arg2, int width, int height, int bp
         }
       } else
       {
-        LbFileSeek(animation.inpfhndl, -sizeof(struct AnimFLIChunk), Lb_FILE_SEEK_CURRENT);
+        LbFileSeek(animation.inpfhndl, -(long)sizeof(struct AnimFLIChunk), Lb_FILE_SEEK_CURRENT);
       }
       animation.field_31C = 0;
   }
