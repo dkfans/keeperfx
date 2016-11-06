@@ -143,6 +143,8 @@ struct Room *droom = &_DK_game.rooms[25];
 
 #define INTRO_TIMEDELAY 3000
 
+extern "C" {
+
 static TbBool speedlog;
 TbBool forced_newdig;
 TbBool cheat;
@@ -150,8 +152,8 @@ TbBool cheat;
 //static
 TbClockMSec last_loop_time=0;
 
-/** Informs if the application window is active (focused on screen). */
-extern volatile TbBool lbAppActive;
+}
+
 #pragma region dllimports
 
 #ifdef __cplusplus
