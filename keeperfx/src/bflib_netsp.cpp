@@ -327,7 +327,7 @@ TbError ServiceProvider::Receive(unsigned long flags)
     unsigned long playerId;
     unsigned long dataLen,seqNbr;
     unsigned char messageType;
-    unsigned long id;
+    unsigned long id = 0;
     TbBool keepExchanging;
     char msgBuffer[1028];
     ulong msgLen;

@@ -228,7 +228,7 @@ long GetMouseY(void)
 */
 TbPoint _scaleMouseMove(struct TbPoint posDelta)
 {
-    TbPoint scaledMouseMove;
+    TbPoint scaledMouseMove = { 0, 0 };
 
     if (!lbUseRelativeMouseMode)
     {
@@ -442,7 +442,7 @@ void mouseControl(unsigned int action)
                 rightButtonHoldTime = LbTimerClock() - rightButtonPressedTime;
 
                 if ((rightButtonHoldTime > dragTimeThresholdLarge) ||
-                    ((rightButtonHoldTime > dragTimeThresholdSmall) && ((abs(reservedMoveX) + abs(reservedMoveY)) > 1200) && (abs(_calculate_rotate_angle(dstPos)) > 35)))
+                    ((rightButtonHoldTime > dragTimeThresholdSmall) && ((abs(reservedMoveX) + abs(reservedMoveY)) > 1200) && (abs((int)_calculate_rotate_angle(dstPos)) > 35)))
                 {
                     // SYNCLOG("right hold time %d", rightButtonHoldTime);
                     // SYNCLOG("right rotate speed %d", reservedRotate);
