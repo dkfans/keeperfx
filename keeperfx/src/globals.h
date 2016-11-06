@@ -97,6 +97,15 @@ extern "C" {
 #define ERR_BASE_RNC      -90
 
 // Debug fuction-like macros - for free messages
+#ifdef _MSC_VER
+#define ERRORMSG(format,...) LbErrorLog(format "\n", __VA_ARGS__)
+#define WARNMSG(format,...) LbWarnLog(format "\n", __VA_ARGS__)
+#define SYNCMSG(format,...) LbSyncLog(format "\n", __VA_ARGS__)
+#define JUSTMSG(format,...) LbJustLog(format "\n", __VA_ARGS__)
+#define SCRPTMSG(format,...) LbScriptLog(format "\n", __VA_ARGS__)
+#define NETMSG(format,...) LbNetLog(format "\n", __VA_ARGS__)
+#define NOMSG(format,...)
+#else
 #define ERRORMSG(format,args...) LbErrorLog(format "\n", ## args)
 #define WARNMSG(format,args...) LbWarnLog(format "\n", ## args)
 #define SYNCMSG(format,args...) LbSyncLog(format "\n", ## args)
@@ -104,8 +113,23 @@ extern "C" {
 #define SCRPTMSG(format,args...) LbScriptLog(format "\n", ## args)
 #define NETMSG(format,args...) LbNetLog(format "\n", ## args)
 #define NOMSG(format,args...)
+#endif // _MSC_VER
 
 // Debug function-like macros - for code logging (with function name)
+#ifdef _MSC_VER
+#define ERRORLOG(format,...) LbErrorLog("%s: " format "\n", __func__ , __VA_ARGS__)
+#define WARNLOG(format,...) LbWarnLog("%s: " format "\n", __func__ , __VA_ARGS__)
+#define SYNCLOG(format,...) LbSyncLog("%s: " format "\n", __func__ , __VA_ARGS__)
+#define JUSTLOG(format,...) LbJustLog("%s: " format "\n", __func__ , __VA_ARGS__)
+#define SCRPTLOG(format,...) LbScriptLog(text_line_number,"%s: " format "\n", __func__ , __VA_ARGS__)
+#define SCRPTERRLOG(format,...) LbErrorLog("%s(line %lu): " format "\n", __func__ , text_line_number, __VA_ARGS__)
+#define SCRPTWRNLOG(format,...) LbWarnLog("%s(line %lu): " format "\n", __func__ , text_line_number, __VA_ARGS__)
+#define CONFLOG(format,...) LbConfigLog(text_line_number,"%s: " format "\n", __func__ , __VA_ARGS__)
+#define CONFERRLOG(format,...) LbErrorLog("%s(line %lu): " format "\n", __func__ , text_line_number, __VA_ARGS__)
+#define CONFWRNLOG(format,...) LbWarnLog("%s(line %lu): " format "\n", __func__ , text_line_number, __VA_ARGS__)
+#define NETLOG(format,...) LbNetLog("%s: " format "\n", __func__ , __VA_ARGS__)
+#define NOLOG(format,...)
+#else
 #define ERRORLOG(format,args...) LbErrorLog("%s: " format "\n", __func__ , ## args)
 #define WARNLOG(format,args...) LbWarnLog("%s: " format "\n", __func__ , ## args)
 #define SYNCLOG(format,args...) LbSyncLog("%s: " format "\n", __func__ , ## args)
@@ -118,6 +142,7 @@ extern "C" {
 #define CONFWRNLOG(format,args...) LbWarnLog("%s(line %lu): " format "\n", __func__ , text_line_number, ## args)
 #define NETLOG(format,args...) LbNetLog("%s: " format "\n", __func__ , ## args)
 #define NOLOG(format,args...)
+#endif // _MSC_VER
 
 // Debug function-like macros - for debug code logging
 #if (BFDEBUG_LEVEL > 0)
@@ -143,6 +168,15 @@ extern "C" {
     if (BFDEBUG_LEVEL > dblv)\
       LbAiLog("%s: " format "\n", __func__ , ## args); }
 #else
+  #ifdef _MSC_VER
+  #define SYNCDBG(dblv,format,...)
+  #define WARNDBG(dblv,format,...)
+  #define ERRORDBG(dblv,format,...)
+  #define NAVIDBG(dblv,format,...)
+  #define NETDBG(dblv,format,...)
+  #define SCRIPTDBG(dblv,format,...)
+  #define AIDBG(dblv,format,...)
+  #else
   #define SYNCDBG(dblv,format,args...)
   #define WARNDBG(dblv,format,args...)
   #define ERRORDBG(dblv,format,args...)
@@ -150,6 +184,7 @@ extern "C" {
   #define NETDBG(dblv,format,args...)
   #define SCRIPTDBG(dblv,format,args...)
   #define AIDBG(dblv,format,args...)
+  #endif // _MSC_VER
 #endif
 
 #pragma pack(1)
