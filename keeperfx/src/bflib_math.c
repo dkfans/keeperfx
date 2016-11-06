@@ -21,6 +21,10 @@
 
 #include "bflib_basics.h"
 
+#ifdef _MSC_VER
+#include <intrin.h>
+#endif // _MSC_VER
+
 /******************************************************************************/
 unsigned short const lbSqrTable[] = {
    0x0001, 0x0002, 0x0002, 0x0004, 0x0005, 0x0008, 0x000B, 0x0010,
@@ -682,12 +686,16 @@ long LbSqrL(long x)
   if (x <= 0)
     return 0;
   //
+#if _MSC_VER
+  _BitScanReverse(&y, x);
+#else
   asm ("bsrl     %1, %%eax;\n"
        "movl %%eax, %0;\n"
        :"=r"(y)  // output
        :"r"(x)   // input
        :"%eax"   // clobbered register
        );
+#endif // _MSC_VER
   y = lbSqrTable[y];
   while ((x/y) < y)
     y = ((x/y) + y) >> 1;
