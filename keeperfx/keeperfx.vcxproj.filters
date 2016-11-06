@@ -78,9 +78,6 @@
     <ClCompile Include="src\bflib_heapmgr.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\bflib_inputctrl.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\bflib_keybrd.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -682,6 +679,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\player_newcompdigging.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bflib_inputctrl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\front_credits_data.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

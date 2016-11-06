@@ -34,7 +34,7 @@
     <ClCompile Include="src\bflib_fmvids.c" />
     <ClCompile Include="src\bflib_guibtns.c" />
     <ClCompile Include="src\bflib_heapmgr.c" />
-    <ClCompile Include="src\bflib_inputctrl.c" />
+    <ClCompile Include="src\bflib_inputctrl.cpp" />
     <ClCompile Include="src\bflib_keybrd.c" />
     <ClCompile Include="src\bflib_main.cpp" />
     <ClCompile Include="src\bflib_math.c" />
@@ -139,6 +139,7 @@
     <ClCompile Include="src\frontmenu_select_data.cpp" />
     <ClCompile Include="src\frontmenu_specials.c" />
     <ClCompile Include="src\front_credits.c" />
+    <ClCompile Include="src\front_credits_data.cpp" />
     <ClCompile Include="src\front_easter.c" />
     <ClCompile Include="src\front_fmvids.c" />
     <ClCompile Include="src\front_highscore.c" />
