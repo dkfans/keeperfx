@@ -20,6 +20,11 @@
 #include "bflib_cpu.h"
 
 #include "bflib_basics.h"
+
+#ifdef _MSC_VER
+#include <intrin.h>
+#endif // _MSC_VER
+
 /******************************************************************************/
 
 /** Issue a single request to CPUID.
@@ -28,14 +33,25 @@
  *  so we need to tell the compiler about it.
  */
 static inline void cpuid(int code, unsigned long *a, unsigned long *d) {
+#ifdef _MSC_VER
+  unsigned long where[4];
+  __cpuid(where, code);
+  *a = where[0];
+  *d = where[3];
+#else
   asm volatile("cpuid":"=a"(*a),"=d"(*d):"0"(code):"ecx","ebx");
+#endif // _MSC_VER
 }
 
 /** Issue a complete request, storing general registers output in an array.
  */
 static inline void cpuid_string(int code, unsigned long where[4]) {
+#ifdef _MSC_VER
+  __cpuid(where, code);
+#else
   asm volatile("cpuid":"=a"(*where),"=b"(*(where+1)),
                "=c"(*(where+2)),"=d"(*(where+3)):"0"(code));
+#endif // _MSC_VER
 }
 /******************************************************************************/
 
@@ -49,6 +65,11 @@ void cpu_detect(struct CPU_INFO *cpu)
   cpu->timeStampCounter = 0;
     cpu->feature_intl = 0;
     cpu->feature_edx = 0;
+#ifdef _MSC_VER
+    // Very unlikely cpuid is not supported, the special intrinsic functions should be
+    // used anyway for determining processor capabilities
+    cpuflags = 0x200000;
+#else
     // Get the CPU flags
     asm volatile (
         /* See if CPUID instruction is supported ... */
@@ -72,6 +93,7 @@ void cpu_detect(struct CPU_INFO *cpu)
         "movl %%ecx, %0\n\t"
         : "=r" (cpuflags)
     );
+#endif
   /* if CPUID is supported */
   if ((cpuflags & 0x200000) != 0)
   {
