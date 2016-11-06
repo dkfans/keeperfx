@@ -3379,7 +3379,7 @@ void frontend_update(short *finish_menu)
       case FeSt_MAIN_MENU:
         frontend_button_info[8].font_index = (continue_game_option_available?1:3);
         //this uses original timing function for compatibility with frontend_set_state()
-        if ( abs(LbTimerClock()-time_last_played_demo) > MNU_DEMO_IDLE_TIME )
+        if ( abs(LbTimerClock()-(long)time_last_played_demo) > MNU_DEMO_IDLE_TIME )
           frontend_set_state(FeSt_DEMO);
         break;
       case FeSt_FELOAD_GAME:
