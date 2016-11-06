@@ -23,8 +23,9 @@
 
 #ifdef WIN32
 #include <stdarg.h>
-#include <windef.h>
-#include <winbase.h>
+
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 
 static HINSTANCE ks_lib;
 #endif

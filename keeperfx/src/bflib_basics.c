@@ -23,10 +23,9 @@
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
-#include <windef.h>
-#include <winbase.h>
-#include <wingdi.h>
-#include <winuser.h>
+
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 
 #include "bflib_datetm.h"
 #include "bflib_memory.h"

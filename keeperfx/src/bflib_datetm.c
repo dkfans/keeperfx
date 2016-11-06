@@ -28,9 +28,8 @@
 #include "globals.h"
 
 #if defined(WIN32)
-//instead of #include <windows.h>
-#include <windef.h>
-#include <winbase.h>
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 #endif
 
 #ifdef __cplusplus
