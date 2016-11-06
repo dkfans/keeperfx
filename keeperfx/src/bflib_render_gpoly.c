@@ -765,7 +765,7 @@ static void unk_update_gpoly1_tri16b(long * vout0, long * vout1, long * vout2, l
 void draw_gpoly_sub1a()
 {
 #ifdef _MSC_VER
-    #error No implementation for draw_gpoly_sub1a
+    #pragma message("No implementation for draw_gpoly_sub1a")
 #else
     asm volatile (" \
     pusha   \n \
@@ -860,7 +860,7 @@ gpo_loc_05C8:         # 3C6\n \
 void draw_gpoly_sub1b()
 {
 #ifdef _MSC_VER
-    #error No implementation for draw_gpoly_sub1b
+    #pragma message("No implementation for draw_gpoly_sub1b")
 #else
     asm volatile (" \
     pusha   \n \
@@ -1068,6 +1068,9 @@ void draw_gpoly_sub1c()
 
 void draw_gpoly_sub2a()
 {
+#ifdef _MSC_VER
+    #pragma message("No implementation for draw_gpoly_sub2a")
+#else
     asm volatile (" \
     pusha   \n \
     movl    _gploc_pt_bx,%%esi\n \
@@ -1175,10 +1178,14 @@ gpo_loc_0A66:         # 7C3\n \
 gpo_loc_0A7D:         # 87\n \
     popa    \n \
 " : : : "memory", "cc");
+#endif // _MSC_VER
 }
 
 void draw_gpoly_sub2b()
 {
+#ifdef _MSC_VER
+    #pragma message("No implementation for draw_gpoly_sub2b")
+#else
     asm volatile (" \
     pusha   \n \
     movl    _factor_chk,%%esi\n \
@@ -1390,6 +1397,7 @@ gpo_loc_0C6A:         # A77\n \
 gpo_loc_0CB0:         # A07\n \
     popa    \n \
 " : : : "memory", "cc");
+#endif // _MSC_VER
 }
 
 void draw_gpoly_sub2c()
@@ -1421,7 +1429,7 @@ void draw_gpoly_sub2c()
 void draw_gpoly_sub3a()
 {
 #ifdef _MSC_VER
-    #error No implementation for draw_gpoly_sub3a
+    #pragma message("No implementation for draw_gpoly_sub3a")
 #else
     asm volatile (" \
     pusha   \n \
@@ -1496,7 +1504,7 @@ gpo_loc_100B:         # E10\n \
 void draw_gpoly_sub3b()
 {
 #ifdef _MSC_VER
-    #error No implementation for draw_gpoly_sub3b
+    #pragma message("No implementation for draw_gpoly_sub3b")
 #else
     asm volatile (" \
     pusha   \n \
@@ -1601,7 +1609,7 @@ gpo_loc_10D9:         # EA7\n \
 void draw_gpoly_sub4()
 {
 #ifdef _MSC_VER
-    #error No implementation for draw_gpoly_sub4
+    #pragma message("No implementation for draw_gpoly_sub4")
 #else
     asm volatile (" \
     pusha   \n \
@@ -1923,7 +1931,7 @@ gpo_loc_1484:         # 120A\n \
 void draw_gpoly_sub5()
 {
 #ifdef _MSC_VER
-    #error No implementation for draw_gpoly_sub5
+    #pragma message("No implementation for draw_gpoly_sub5")
 #else
     asm volatile (" \
     pusha   \n \
@@ -2225,7 +2233,7 @@ gpo_loc_17A3:         # 155\n \
 void draw_gpoly_sub6()
 {
 #ifdef _MSC_VER
-    #error No implementation for draw_gpoly_sub6
+    #pragma message("No implementation for draw_gpoly_sub6")
 #else
     asm volatile (" \
     pusha   \n \
@@ -2663,7 +2671,7 @@ gpo_loc_1CAA:\n \
 void draw_gpoly_sub7()
 {
 #ifdef _MSC_VER
-    #error No implementation for draw_gpoly_sub7
+    #pragma message("No implementation for draw_gpoly_sub7")
 #else
         asm volatile (" \
     pusha   \n \
@@ -3098,7 +3106,7 @@ gpo_case69_break:\n \
 void draw_gpoly_sub11()
 {
 #ifdef _MSC_VER
-    #error No implementation for draw_gpoly_sub11
+    #pragma message("No implementation for draw_gpoly_sub11")
 #else
     asm volatile (" \
     pusha   \n \
@@ -3574,7 +3582,7 @@ locret5a:\n \
 void draw_gpoly_sub12()
 {
 #ifdef _MSC_VER
-    #error No implementation for draw_gpoly_sub12
+    #pragma message("No implementation for draw_gpoly_sub12")
 #else
             asm volatile (" \
     pusha   \n \
@@ -4004,7 +4012,7 @@ locret5b:\n \
 void draw_gpoly_sub13()
 {
 #ifdef _MSC_VER
-    #error No implementation for draw_gpoly_sub13
+    #pragma message("No implementation for draw_gpoly_sub13")
 #else
     asm volatile (" \
     pusha   \n \
@@ -4552,7 +4560,7 @@ locret69a:\n \
 void draw_gpoly_sub14()
 {
 #ifdef _MSC_VER
-    #error No implementation for draw_gpoly_sub14
+    #pragma message("No implementation for draw_gpoly_sub14")
 #else
     asm volatile (" \
     pusha   \n \

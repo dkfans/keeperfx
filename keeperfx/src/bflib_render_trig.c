@@ -242,7 +242,7 @@ int trig_reorder_input_points(struct PolyPoint **opt_a, struct PolyPoint **opt_b
 int trig_ll_start(struct TrigLocals *lv, const struct PolyPoint *opt_a, const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
 #ifdef _MSC_VER
-    #error No implementation for trig_ll_start
+    #pragma message("No implementation for trig_ll_start")
 #else
     struct TrigLocals llv;
     long do_render;
@@ -1030,7 +1030,7 @@ int trig_ll_start(struct TrigLocals *lv, const struct PolyPoint *opt_a, const st
 int trig_rl_start(struct TrigLocals *lv, const struct PolyPoint *opt_a, const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
 #ifdef _MSC_VER
-    #error No implementation for trig_rl_start
+    #pragma message("No implementation for trig_rl_start")
 #else
     struct TrigLocals llv;
     long do_render;
@@ -1850,7 +1850,7 @@ int trig_rl_start(struct TrigLocals *lv, const struct PolyPoint *opt_a, const st
 int trig_fb_start(struct TrigLocals *lv, const struct PolyPoint *opt_a, const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
 #ifdef _MSC_VER
-    #error No implementation for trig_fb_start
+    #pragma message("No implementation for trig_fb_start")
 #else
     struct TrigLocals llv;
     long do_render;
@@ -2237,7 +2237,7 @@ int trig_fb_start(struct TrigLocals *lv, const struct PolyPoint *opt_a, const st
 int trig_ft_start(struct TrigLocals *lv, const struct PolyPoint *opt_a, const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
 #ifdef _MSC_VER
-    #error No implementation for trig_ft_start
+    #pragma message("No implementation for trig_ft_start")
 #else
     struct TrigLocals llv;
     long do_render;
@@ -2631,7 +2631,7 @@ int trig_ft_start(struct TrigLocals *lv, const struct PolyPoint *opt_a, const st
 void trig(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c)
 {
 #ifdef _MSC_VER
-    #error No implementation for trig
+    #pragma message("No implementation for trig")
 #else
     struct PolyPoint *opt_a;
     struct PolyPoint *opt_b;
