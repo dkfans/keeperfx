@@ -1,0 +1,524 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\actionpt.c" />
+    <ClCompile Include="src\ariadne.c" />
+    <ClCompile Include="src\ariadne_edge.c" />
+    <ClCompile Include="src\ariadne_findcache.c" />
+    <ClCompile Include="src\ariadne_naviheap.c" />
+    <ClCompile Include="src\ariadne_navitree.c" />
+    <ClCompile Include="src\ariadne_points.c" />
+    <ClCompile Include="src\ariadne_regions.c" />
+    <ClCompile Include="src\ariadne_tringls.c" />
+    <ClCompile Include="src\ariadne_wallhug.c" />
+    <ClCompile Include="src\bflib_base_tcp.cpp" />
+    <ClCompile Include="src\bflib_basics.c" />
+    <ClCompile Include="src\bflib_bufrw.c" />
+    <ClCompile Include="src\bflib_client_tcp.cpp" />
+    <ClCompile Include="src\bflib_cpu.c" />
+    <ClCompile Include="src\bflib_crash.c" />
+    <ClCompile Include="src\bflib_datetm.c" />
+    <ClCompile Include="src\bflib_dernc.c" />
+    <ClCompile Include="src\bflib_fileio.c" />
+    <ClCompile Include="src\bflib_filelst.c" />
+    <ClCompile Include="src\bflib_fmvids.c" />
+    <ClCompile Include="src\bflib_guibtns.c" />
+    <ClCompile Include="src\bflib_heapmgr.c" />
+    <ClCompile Include="src\bflib_inputctrl.c" />
+    <ClCompile Include="src\bflib_keybrd.c" />
+    <ClCompile Include="src\bflib_main.cpp" />
+    <ClCompile Include="src\bflib_math.c" />
+    <ClCompile Include="src\bflib_memory.c" />
+    <ClCompile Include="src\bflib_mouse.cpp" />
+    <ClCompile Include="src\bflib_mshandler.cpp" />
+    <ClCompile Include="src\bflib_mspointer.cpp" />
+    <ClCompile Include="src\bflib_nethost_udp.cpp" />
+    <ClCompile Include="src\bflib_netlisten_udp.cpp" />
+    <ClCompile Include="src\bflib_netsession.c" />
+    <ClCompile Include="src\bflib_netsp.cpp" />
+    <ClCompile Include="src\bflib_netsp_ipx.cpp" />
+    <ClCompile Include="src\bflib_netsp_tcp.cpp" />
+    <ClCompile Include="src\bflib_netsync.c" />
+    <ClCompile Include="src\bflib_network.cpp" />
+    <ClCompile Include="src\bflib_planar.c" />
+    <ClCompile Include="src\bflib_pom.cpp" />
+    <ClCompile Include="src\bflib_render.c" />
+    <ClCompile Include="src\bflib_render_gpoly.c" />
+    <ClCompile Include="src\bflib_render_gtblock.c" />
+    <ClCompile Include="src\bflib_render_trig.c" />
+    <ClCompile Include="src\bflib_semphr.cpp" />
+    <ClCompile Include="src\bflib_server_tcp.cpp" />
+    <ClCompile Include="src\bflib_sndlib.c" />
+    <ClCompile Include="src\bflib_sound.c" />
+    <ClCompile Include="src\bflib_sprfnt.c" />
+    <ClCompile Include="src\bflib_sprite.c" />
+    <ClCompile Include="src\bflib_string.c" />
+    <ClCompile Include="src\bflib_tcpsp.c" />
+    <ClCompile Include="src\bflib_threadcond.cpp" />
+    <ClCompile Include="src\bflib_video.c" />
+    <ClCompile Include="src\bflib_vidraw.c" />
+    <ClCompile Include="src\bflib_vidraw_spr_norm.c" />
+    <ClCompile Include="src\bflib_vidraw_spr_onec.c" />
+    <ClCompile Include="src\bflib_vidraw_spr_remp.c" />
+    <ClCompile Include="src\bflib_vidsurface.c" />
+    <ClCompile Include="src\config.c" />
+    <ClCompile Include="src\config_campaigns.c" />
+    <ClCompile Include="src\config_compp.c" />
+    <ClCompile Include="src\config_creature.c" />
+    <ClCompile Include="src\config_crtrmodel.c" />
+    <ClCompile Include="src\config_crtrstates.c" />
+    <ClCompile Include="src\config_cubes.c" />
+    <ClCompile Include="src\config_effects.c" />
+    <ClCompile Include="src\config_lenses.c" />
+    <ClCompile Include="src\config_magic.c" />
+    <ClCompile Include="src\config_magic_data.cpp" />
+    <ClCompile Include="src\config_objects.c" />
+    <ClCompile Include="src\config_players.c" />
+    <ClCompile Include="src\config_rules.c" />
+    <ClCompile Include="src\config_settings.c" />
+    <ClCompile Include="src\config_strings.c" />
+    <ClCompile Include="src\config_terrain.c" />
+    <ClCompile Include="src\config_trapdoor.c" />
+    <ClCompile Include="src\creature_battle.c" />
+    <ClCompile Include="src\creature_control.c" />
+    <ClCompile Include="src\creature_graphics.c" />
+    <ClCompile Include="src\creature_groups.c" />
+    <ClCompile Include="src\creature_instances.c" />
+    <ClCompile Include="src\creature_jobs.c" />
+    <ClCompile Include="src\creature_senses.c" />
+    <ClCompile Include="src\creature_states.c" />
+    <ClCompile Include="src\creature_states_barck.c" />
+    <ClCompile Include="src\creature_states_combt.c" />
+    <ClCompile Include="src\creature_states_gardn.c" />
+    <ClCompile Include="src\creature_states_guard.c" />
+    <ClCompile Include="src\creature_states_hero.c" />
+    <ClCompile Include="src\creature_states_lair.c" />
+    <ClCompile Include="src\creature_states_mood.c" />
+    <ClCompile Include="src\creature_states_pray.c" />
+    <ClCompile Include="src\creature_states_prisn.c" />
+    <ClCompile Include="src\creature_states_rsrch.c" />
+    <ClCompile Include="src\creature_states_scavn.c" />
+    <ClCompile Include="src\creature_states_spdig.c" />
+    <ClCompile Include="src\creature_states_tortr.c" />
+    <ClCompile Include="src\creature_states_train.c" />
+    <ClCompile Include="src\creature_states_tresr.c" />
+    <ClCompile Include="src\creature_states_wrshp.c" />
+    <ClCompile Include="src\dungeon_data.c" />
+    <ClCompile Include="src\dungeon_stats.c" />
+    <ClCompile Include="src\engine_arrays.c" />
+    <ClCompile Include="src\engine_camera.c" />
+    <ClCompile Include="src\engine_lenses.c" />
+    <ClCompile Include="src\engine_redraw.c" />
+    <ClCompile Include="src\engine_render.c" />
+    <ClCompile Include="src\engine_textures.c" />
+    <ClCompile Include="src\frontend.cpp" />
+    <ClCompile Include="src\frontmenu_ingame_evnt.c" />
+    <ClCompile Include="src\frontmenu_ingame_evnt_data.cpp" />
+    <ClCompile Include="src\frontmenu_ingame_map.c" />
+    <ClCompile Include="src\frontmenu_ingame_opts.c" />
+    <ClCompile Include="src\frontmenu_ingame_opts_data.cpp" />
+    <ClCompile Include="src\frontmenu_ingame_tabs.c" />
+    <ClCompile Include="src\frontmenu_ingame_tabs_data.cpp" />
+    <ClCompile Include="src\frontmenu_net.c" />
+    <ClCompile Include="src\frontmenu_net_data.cpp" />
+    <ClCompile Include="src\frontmenu_options.c" />
+    <ClCompile Include="src\frontmenu_options_data.cpp" />
+    <ClCompile Include="src\frontmenu_saves.c" />
+    <ClCompile Include="src\frontmenu_saves_data.cpp" />
+    <ClCompile Include="src\frontmenu_select.c" />
+    <ClCompile Include="src\frontmenu_select_data.cpp" />
+    <ClCompile Include="src\frontmenu_specials.c" />
+    <ClCompile Include="src\front_credits.c" />
+    <ClCompile Include="src\front_easter.c" />
+    <ClCompile Include="src\front_fmvids.c" />
+    <ClCompile Include="src\front_highscore.c" />
+    <ClCompile Include="src\front_input.c" />
+    <ClCompile Include="src\front_landview.c" />
+    <ClCompile Include="src\front_lvlstats.c" />
+    <ClCompile Include="src\front_lvlstats_data.cpp" />
+    <ClCompile Include="src\front_network.c" />
+    <ClCompile Include="src\front_simple.c" />
+    <ClCompile Include="src\front_torture.c" />
+    <ClCompile Include="src\front_torture_data.cpp" />
+    <ClCompile Include="src\game_heap.c" />
+    <ClCompile Include="src\game_legacy.c" />
+    <ClCompile Include="src\game_lghtshdw.c" />
+    <ClCompile Include="src\game_merge.c" />
+    <ClCompile Include="src\game_saves.c" />
+    <ClCompile Include="src\gui_boxmenu.c" />
+    <ClCompile Include="src\gui_draw.c" />
+    <ClCompile Include="src\gui_frontbtns.c" />
+    <ClCompile Include="src\gui_frontmenu.c" />
+    <ClCompile Include="src\gui_msgs.c" />
+    <ClCompile Include="src\gui_parchment.c" />
+    <ClCompile Include="src\gui_soundmsgs.c" />
+    <ClCompile Include="src\gui_tooltips.c" />
+    <ClCompile Include="src\gui_topmsg.c" />
+    <ClCompile Include="src\KeeperSpeechImp.c" />
+    <ClCompile Include="src\kjm_input.c" />
+    <ClCompile Include="src\lens_api.c" />
+    <ClCompile Include="src\lens_flyeye.cpp" />
+    <ClCompile Include="src\lens_mist.cpp" />
+    <ClCompile Include="src\light_data.c" />
+    <ClCompile Include="src\lvl_filesdk1.c" />
+    <ClCompile Include="src\lvl_script.c" />
+    <ClCompile Include="src\magic.c" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\map_blocks.c" />
+    <ClCompile Include="src\map_columns.c" />
+    <ClCompile Include="src\map_data.c" />
+    <ClCompile Include="src\map_events.c" />
+    <ClCompile Include="src\map_utils.c" />
+    <ClCompile Include="src\music_player.c" />
+    <ClCompile Include="src\net_game.c" />
+    <ClCompile Include="src\net_sync.c" />
+    <ClCompile Include="src\packets.c" />
+    <ClCompile Include="src\player_compchecks.c" />
+    <ClCompile Include="src\player_compevents.c" />
+    <ClCompile Include="src\player_complookup.c" />
+    <ClCompile Include="src\player_compprocs.c" />
+    <ClCompile Include="src\player_comptask.c" />
+    <ClCompile Include="src\player_computer.c" />
+    <ClCompile Include="src\player_computer_data.cpp" />
+    <ClCompile Include="src\player_data.c" />
+    <ClCompile Include="src\player_instances.c" />
+    <ClCompile Include="src\player_newcompchecks.c" />
+    <ClCompile Include="src\player_newcompdigging.c" />
+    <ClCompile Include="src\player_newcompeval.c" />
+    <ClCompile Include="src\player_newcomppathfind.c" />
+    <ClCompile Include="src\player_states.c" />
+    <ClCompile Include="src\player_utils.c" />
+    <ClCompile Include="src\power_hand.c" />
+    <ClCompile Include="src\power_process.c" />
+    <ClCompile Include="src\power_specials.c" />
+    <ClCompile Include="src\room_data.c" />
+    <ClCompile Include="src\room_entrance.c" />
+    <ClCompile Include="src\room_garden.c" />
+    <ClCompile Include="src\room_graveyard.c" />
+    <ClCompile Include="src\room_jobs.c" />
+    <ClCompile Include="src\room_lair.c" />
+    <ClCompile Include="src\room_library.c" />
+    <ClCompile Include="src\room_list.c" />
+    <ClCompile Include="src\room_scavenge.c" />
+    <ClCompile Include="src\room_util.c" />
+    <ClCompile Include="src\room_workshop.c" />
+    <ClCompile Include="src\scrcapt.c" />
+    <ClCompile Include="src\slab_data.c" />
+    <ClCompile Include="src\sounds.c" />
+    <ClCompile Include="src\spdigger_stack.c" />
+    <ClCompile Include="src\tasks_list.c" />
+    <ClCompile Include="src\thing_corpses.c" />
+    <ClCompile Include="src\thing_creature.c" />
+    <ClCompile Include="src\thing_creature_data.cpp" />
+    <ClCompile Include="src\thing_data.c" />
+    <ClCompile Include="src\thing_doors.c" />
+    <ClCompile Include="src\thing_effects.c" />
+    <ClCompile Include="src\thing_factory.c" />
+    <ClCompile Include="src\thing_list.c" />
+    <ClCompile Include="src\thing_navigate.c" />
+    <ClCompile Include="src\thing_objects.c" />
+    <ClCompile Include="src\thing_physics.c" />
+    <ClCompile Include="src\thing_shots.c" />
+    <ClCompile Include="src\thing_stats.c" />
+    <ClCompile Include="src\thing_traps.c" />
+    <ClCompile Include="src\vidfade.c" />
+    <ClCompile Include="src\vidmode.c" />
+    <ClCompile Include="src\vidmode_data.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\actionpt.h" />
+    <ClInclude Include="src\ariadne.h" />
+    <ClInclude Include="src\ariadne_edge.h" />
+    <ClInclude Include="src\ariadne_findcache.h" />
+    <ClInclude Include="src\ariadne_naviheap.h" />
+    <ClInclude Include="src\ariadne_navitree.h" />
+    <ClInclude Include="src\ariadne_points.h" />
+    <ClInclude Include="src\ariadne_regions.h" />
+    <ClInclude Include="src\ariadne_tringls.h" />
+    <ClInclude Include="src\ariadne_wallhug.h" />
+    <ClInclude Include="src\bflib_base_tcp.hpp" />
+    <ClInclude Include="src\bflib_basics.h" />
+    <ClInclude Include="src\bflib_bufrw.h" />
+    <ClInclude Include="src\bflib_client_tcp.hpp" />
+    <ClInclude Include="src\bflib_cpu.h" />
+    <ClInclude Include="src\bflib_crash.h" />
+    <ClInclude Include="src\bflib_datetm.h" />
+    <ClInclude Include="src\bflib_dernc.h" />
+    <ClInclude Include="src\bflib_fileio.h" />
+    <ClInclude Include="src\bflib_filelst.h" />
+    <ClInclude Include="src\bflib_fmvids.h" />
+    <ClInclude Include="src\bflib_guibtns.h" />
+    <ClInclude Include="src\bflib_heapmgr.h" />
+    <ClInclude Include="src\bflib_inputctrl.h" />
+    <ClInclude Include="src\bflib_keybrd.h" />
+    <ClInclude Include="src\bflib_main.h" />
+    <ClInclude Include="src\bflib_math.h" />
+    <ClInclude Include="src\bflib_memory.h" />
+    <ClInclude Include="src\bflib_mouse.h" />
+    <ClInclude Include="src\bflib_mshandler.hpp" />
+    <ClInclude Include="src\bflib_mspointer.hpp" />
+    <ClInclude Include="src\bflib_netconfig.hpp" />
+    <ClInclude Include="src\bflib_nethost_udp.hpp" />
+    <ClInclude Include="src\bflib_netlisten_udp.hpp" />
+    <ClInclude Include="src\bflib_netsession.h" />
+    <ClInclude Include="src\bflib_netsp.hpp" />
+    <ClInclude Include="src\bflib_netsp_ipx.hpp" />
+    <ClInclude Include="src\bflib_netsp_tcp.hpp" />
+    <ClInclude Include="src\bflib_netsync.h" />
+    <ClInclude Include="src\bflib_network.h" />
+    <ClInclude Include="src\bflib_planar.h" />
+    <ClInclude Include="src\bflib_pom.hpp" />
+    <ClInclude Include="src\bflib_render.h" />
+    <ClInclude Include="src\bflib_semphr.hpp" />
+    <ClInclude Include="src\bflib_server_tcp.hpp" />
+    <ClInclude Include="src\bflib_sndlib.h" />
+    <ClInclude Include="src\bflib_sound.h" />
+    <ClInclude Include="src\bflib_sprfnt.h" />
+    <ClInclude Include="src\bflib_sprite.h" />
+    <ClInclude Include="src\bflib_string.h" />
+    <ClInclude Include="src\bflib_threadcond.hpp" />
+    <ClInclude Include="src\bflib_video.h" />
+    <ClInclude Include="src\bflib_vidraw.h" />
+    <ClInclude Include="src\bflib_vidsurface.h" />
+    <ClInclude Include="src\config.h" />
+    <ClInclude Include="src\config_campaigns.h" />
+    <ClInclude Include="src\config_compp.h" />
+    <ClInclude Include="src\config_creature.h" />
+    <ClInclude Include="src\config_crtrmodel.h" />
+    <ClInclude Include="src\config_crtrstates.h" />
+    <ClInclude Include="src\config_cubes.h" />
+    <ClInclude Include="src\config_effects.h" />
+    <ClInclude Include="src\config_lenses.h" />
+    <ClInclude Include="src\config_magic.h" />
+    <ClInclude Include="src\config_objects.h" />
+    <ClInclude Include="src\config_players.h" />
+    <ClInclude Include="src\config_rules.h" />
+    <ClInclude Include="src\config_settings.h" />
+    <ClInclude Include="src\config_strings.h" />
+    <ClInclude Include="src\config_terrain.h" />
+    <ClInclude Include="src\config_trapdoor.h" />
+    <ClInclude Include="src\creature_battle.h" />
+    <ClInclude Include="src\creature_control.h" />
+    <ClInclude Include="src\creature_graphics.h" />
+    <ClInclude Include="src\creature_groups.h" />
+    <ClInclude Include="src\creature_instances.h" />
+    <ClInclude Include="src\creature_jobs.h" />
+    <ClInclude Include="src\creature_senses.h" />
+    <ClInclude Include="src\creature_states.h" />
+    <ClInclude Include="src\creature_states_barck.h" />
+    <ClInclude Include="src\creature_states_combt.h" />
+    <ClInclude Include="src\creature_states_gardn.h" />
+    <ClInclude Include="src\creature_states_guard.h" />
+    <ClInclude Include="src\creature_states_hero.h" />
+    <ClInclude Include="src\creature_states_lair.h" />
+    <ClInclude Include="src\creature_states_mood.h" />
+    <ClInclude Include="src\creature_states_pray.h" />
+    <ClInclude Include="src\creature_states_prisn.h" />
+    <ClInclude Include="src\creature_states_rsrch.h" />
+    <ClInclude Include="src\creature_states_scavn.h" />
+    <ClInclude Include="src\creature_states_spdig.h" />
+    <ClInclude Include="src\creature_states_tortr.h" />
+    <ClInclude Include="src\creature_states_train.h" />
+    <ClInclude Include="src\creature_states_tresr.h" />
+    <ClInclude Include="src\creature_states_wrshp.h" />
+    <ClInclude Include="src\dungeon_data.h" />
+    <ClInclude Include="src\dungeon_stats.h" />
+    <ClInclude Include="src\engine_arrays.h" />
+    <ClInclude Include="src\engine_camera.h" />
+    <ClInclude Include="src\engine_lenses.h" />
+    <ClInclude Include="src\engine_redraw.h" />
+    <ClInclude Include="src\engine_render.h" />
+    <ClInclude Include="src\engine_textures.h" />
+    <ClInclude Include="src\frontend.h" />
+    <ClInclude Include="src\frontmenu_ingame_evnt.h" />
+    <ClInclude Include="src\frontmenu_ingame_map.h" />
+    <ClInclude Include="src\frontmenu_ingame_opts.h" />
+    <ClInclude Include="src\frontmenu_ingame_tabs.h" />
+    <ClInclude Include="src\frontmenu_net.h" />
+    <ClInclude Include="src\frontmenu_options.h" />
+    <ClInclude Include="src\frontmenu_saves.h" />
+    <ClInclude Include="src\frontmenu_select.h" />
+    <ClInclude Include="src\frontmenu_specials.h" />
+    <ClInclude Include="src\front_credits.h" />
+    <ClInclude Include="src\front_easter.h" />
+    <ClInclude Include="src\front_fmvids.h" />
+    <ClInclude Include="src\front_highscore.h" />
+    <ClInclude Include="src\front_input.h" />
+    <ClInclude Include="src\front_landview.h" />
+    <ClInclude Include="src\front_lvlstats.h" />
+    <ClInclude Include="src\front_network.h" />
+    <ClInclude Include="src\front_simple.h" />
+    <ClInclude Include="src\front_torture.h" />
+    <ClInclude Include="src\game_heap.h" />
+    <ClInclude Include="src\game_legacy.h" />
+    <ClInclude Include="src\game_lghtshdw.h" />
+    <ClInclude Include="src\game_merge.h" />
+    <ClInclude Include="src\game_saves.h" />
+    <ClInclude Include="src\globals.h" />
+    <ClInclude Include="src\gui_boxmenu.h" />
+    <ClInclude Include="src\gui_draw.h" />
+    <ClInclude Include="src\gui_frontbtns.h" />
+    <ClInclude Include="src\gui_frontmenu.h" />
+    <ClInclude Include="src\gui_msgs.h" />
+    <ClInclude Include="src\gui_parchment.h" />
+    <ClInclude Include="src\gui_soundmsgs.h" />
+    <ClInclude Include="src\gui_tooltips.h" />
+    <ClInclude Include="src\gui_topmsg.h" />
+    <ClInclude Include="src\keeperfx.hpp" />
+    <ClInclude Include="src\KeeperSpeech.h" />
+    <ClInclude Include="src\kjm_input.h" />
+    <ClInclude Include="src\lens_api.h" />
+    <ClInclude Include="src\lens_flyeye.h" />
+    <ClInclude Include="src\lens_mist.h" />
+    <ClInclude Include="src\light_data.h" />
+    <ClInclude Include="src\lvl_filesdk1.h" />
+    <ClInclude Include="src\lvl_script.h" />
+    <ClInclude Include="src\magic.h" />
+    <ClInclude Include="src\map_blocks.h" />
+    <ClInclude Include="src\map_columns.h" />
+    <ClInclude Include="src\map_data.h" />
+    <ClInclude Include="src\map_events.h" />
+    <ClInclude Include="src\map_utils.h" />
+    <ClInclude Include="src\music_player.h" />
+    <ClInclude Include="src\net_game.h" />
+    <ClInclude Include="src\net_sync.h" />
+    <ClInclude Include="src\packets.h" />
+    <ClInclude Include="src\player_complookup.h" />
+    <ClInclude Include="src\player_computer.h" />
+    <ClInclude Include="src\player_data.h" />
+    <ClInclude Include="src\player_instances.h" />
+    <ClInclude Include="src\player_newcomp.h" />
+    <ClInclude Include="src\player_states.h" />
+    <ClInclude Include="src\player_utils.h" />
+    <ClInclude Include="src\power_hand.h" />
+    <ClInclude Include="src\power_process.h" />
+    <ClInclude Include="src\power_specials.h" />
+    <ClInclude Include="src\room_data.h" />
+    <ClInclude Include="src\room_entrance.h" />
+    <ClInclude Include="src\room_garden.h" />
+    <ClInclude Include="src\room_graveyard.h" />
+    <ClInclude Include="src\room_jobs.h" />
+    <ClInclude Include="src\room_lair.h" />
+    <ClInclude Include="src\room_library.h" />
+    <ClInclude Include="src\room_list.h" />
+    <ClInclude Include="src\room_scavenge.h" />
+    <ClInclude Include="src\room_util.h" />
+    <ClInclude Include="src\room_workshop.h" />
+    <ClInclude Include="src\scrcapt.h" />
+    <ClInclude Include="src\slab_data.h" />
+    <ClInclude Include="src\sounds.h" />
+    <ClInclude Include="src\spdigger_stack.h" />
+    <ClInclude Include="src\tasks_list.h" />
+    <ClInclude Include="src\thing_corpses.h" />
+    <ClInclude Include="src\thing_creature.h" />
+    <ClInclude Include="src\thing_data.h" />
+    <ClInclude Include="src\thing_doors.h" />
+    <ClInclude Include="src\thing_effects.h" />
+    <ClInclude Include="src\thing_factory.h" />
+    <ClInclude Include="src\thing_list.h" />
+    <ClInclude Include="src\thing_navigate.h" />
+    <ClInclude Include="src\thing_objects.h" />
+    <ClInclude Include="src\thing_physics.h" />
+    <ClInclude Include="src\thing_shots.h" />
+    <ClInclude Include="src\thing_stats.h" />
+    <ClInclude Include="src\thing_traps.h" />
+    <ClInclude Include="src\version.h" />
+    <ClInclude Include="src\vidfade.h" />
+    <ClInclude Include="src\vidmode.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{46AF9232-DE9E-4FA8-93BE-1DF3235B7805}</ProjectGuid>
+    <ProjectName>keeperfx</ProjectName>
+    <RootNamespace>keeperfx</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.10586.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>$(ProjectDir)\sdl\include;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)bin\</OutDir>
+    <IntDir>$(SolutionDir)obj\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>$(ProjectDir)\sdl\include;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)bin\</OutDir>
+    <IntDir>$(SolutionDir)obj\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CRT_NONSTDC_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ObjectFileName>$(IntDir)\%(RelativeDir)</ObjectFileName>
+      <MinimalRebuild>false</MinimalRebuild>
+      <AdditionalOptions>$(OPENRCT2_CL_ADDITIONALOPTIONS)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <LinkTimeCodeGeneration>UseFastLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Full</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck />
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <OmitFramePointers />
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CRT_NONSTDC_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)\%(RelativeDir)</ObjectFileName>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
+</Project>
