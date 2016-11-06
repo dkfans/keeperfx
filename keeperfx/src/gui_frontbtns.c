@@ -16,8 +16,12 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#include "gui_frontbtns.h"
+#if defined(WIN32)
+// needed for timeGetTime() -- should be later removed
+#include <windows.h>
+#endif
 
+#include "gui_frontbtns.h"
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_guibtns.h"
@@ -29,13 +33,6 @@
 #include "gui_draw.h"
 #include "gui_frontmenu.h"
 #include "frontend.h"
-
-// needed for timeGetTime() -- should be later removed
-#if defined(WIN32)
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#endif
-
 #include "game_legacy.h"
 
 #ifdef __cplusplus
