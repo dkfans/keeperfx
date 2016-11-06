@@ -70,6 +70,11 @@ WINBASEAPI DWORD WINAPI GetLastError(void);
 }
 #endif
 #endif
+
+#if _MSC_VER
+  #define F_OK 0
+#endif // _MSC_VER
+
 /******************************************************************************/
 //Internal declarations
 void convert_find_info(struct TbFileFind *ffind);
