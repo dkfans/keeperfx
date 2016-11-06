@@ -148,7 +148,7 @@ int LbLogSetup(struct TbLog *log, const char *filename, ulong flags);
 int LbLogSetPrefix(struct TbLog *log, const char *prefix);
 int LbLogSetPrefixFmt(struct TbLog *log, const char *format, ...);
 /******************************************************************************/
-typedef void __stdcall (*TbNetworkCallbackFunc)(struct TbNetworkCallbackData *, void *);
+typedef void (__stdcall *TbNetworkCallbackFunc)(struct TbNetworkCallbackData *, void *);
 /******************************************************************************/
 unsigned long blong (unsigned char *p);
 unsigned long llong (unsigned char *p);
