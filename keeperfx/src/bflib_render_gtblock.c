@@ -102,6 +102,9 @@ void gtblock_set_clipping_window(unsigned char *screen_addr, long clip_width, lo
 /******************************************************************************/
 void gtblock_draw(struct GtBlock *gtb)
 {
+#ifdef _MSC_VER
+    #error No implementation for gtblock_draw
+#else
     LOC_gtblock_screen_addr = gtblock_screen_addr;
     LOC_gtblock_clip_width = gtblock_clip_width;
     LOC_gtblock_clip_height = gtblock_clip_height;
@@ -2218,5 +2221,6 @@ locret1:         #A1\n \
          : // no outputs
          : "a" (gtb)
          : "memory", "cc");
+#endif // _MSC_VER
 }
 /******************************************************************************/
