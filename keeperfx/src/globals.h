@@ -44,6 +44,11 @@
 #include <process.h>
 #endif
 
+#ifdef _MSC_VER
+#define strcasecmp strcmp
+#define strncasecmp strncmp
+#endif
+
 #include "version.h"
 
 #ifndef BFDEBUG_LEVEL
