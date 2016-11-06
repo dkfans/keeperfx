@@ -636,7 +636,7 @@ TbBool load_map_data_file(LevelNumber lv_num)
         for (x=0; x < (map_subtiles_x+1); x++)
         {
             mapblk = get_map_block_at(x,y);
-            n = -lword(&buf[i]);
+            n = -(int)lword(&buf[i]);
             mapblk->data ^= (mapblk->data ^ n) & 0x7FF;
             i += 2;
         }

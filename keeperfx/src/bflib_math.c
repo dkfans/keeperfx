@@ -592,8 +592,8 @@ long LbArcTanL(long arg)
 {
     if (arg < 0)
     {
-        if (arg <= -sizeof(lbArcTanFactors)/sizeof(lbArcTanFactors[0]))
-            arg = -sizeof(lbArcTanFactors)/sizeof(lbArcTanFactors[0]) + 1;
+        if (arg <= -(int)(sizeof(lbArcTanFactors)/sizeof(lbArcTanFactors[0])))
+            arg = -(int)(sizeof(lbArcTanFactors)/sizeof(lbArcTanFactors[0])) + 1;
         return -(long)lbArcTanFactors[-arg];
     } else
     {

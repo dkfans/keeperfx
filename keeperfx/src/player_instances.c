@@ -692,7 +692,7 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, long *n)
         {
           addval = (thing->clipbox_size_yz >> 1);
           deltax = addval;
-          deltay = -addval;
+          deltay = -(int)addval;
         }
         dstcam = &player->cameras[CamIV_Isometric];
         dstcam->mappos.x.val = thing->mappos.x.val + deltax;
