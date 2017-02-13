@@ -57,6 +57,9 @@
 #endif
 
 #ifdef __cplusplus
+#include <algorithm>
+using std::min;
+using std::max;
 extern "C" {
 #endif
 
@@ -77,11 +80,14 @@ extern "C" {
 #ifndef NULL
 #define NULL 0
 #endif
+
+#ifndef __cplusplus
 #ifndef max
 #define max(a,b) ((a)>(b)?(a):(b))
 #endif
 #ifndef min
 #define min(a,b) ((a)<(b)?(a):(b))
+#endif
 #endif
 
 // Return values for verification functions

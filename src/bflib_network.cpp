@@ -614,7 +614,7 @@ static void AddSession(const char * str, size_t len)
 
         sessions[i].in_use = 1;
         sessions[i].joinable = 1; //actually we don't know, but keep for now
-        net_copy_name_string(sessions[i].text, str, min(SESSION_NAME_MAX_LEN, len + 1));
+        net_copy_name_string(sessions[i].text, str, min((size_t)SESSION_NAME_MAX_LEN, len + 1));
 
         break;
     }
@@ -1112,7 +1112,7 @@ static void ProcessMessagesUntilNextLoginReply(TbClockMSec timeout)
 
     //read all messages up to next frame
     while (timeout == 0 || netstate.sp->msgready(SERVER_ID,
-            timeout - (min(LbTimerClock() - start, max(timeout - 1, 0)))) != 0) {
+            timeout - (min(LbTimerClock() - start, max(timeout - 1, 0l)))) != 0) {
         if (ProcessMessage(SERVER_ID) == Lb_FAIL) {
             break;
         }

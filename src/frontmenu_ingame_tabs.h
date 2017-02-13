@@ -122,11 +122,10 @@ enum IngameButtonGroupIDs {
     GID_CREATR_PANE,
     GID_MESSAGE_AREA,
 };
- 
+
 /******************************************************************************/
 DLLIMPORT long _DK_activity_list[24];
 #define activity_list _DK_activity_list
-DLLIMPORT struct TiledSprite _DK_status_panel;
 DLLIMPORT char _DK_gui_room_type_highlighted;
 #define gui_room_type_highlighted _DK_gui_room_type_highlighted
 DLLIMPORT char _DK_gui_door_type_highlighted;
