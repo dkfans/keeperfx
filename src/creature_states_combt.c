@@ -1544,7 +1544,51 @@ TbBool creature_has_creature_in_combat(const struct Thing *thing, const struct T
 
 long get_combat_score(const struct Thing *thing, const struct Thing *enmtng, CrAttackType attack_type, long a4)
 {
-    return _DK_get_combat_score(thing, enmtng, attack_type, a4);
+    //return _DK_get_combat_score(thing, enmtng, attack_type, a4);
+    struct CreatureControl *enmctrl;
+    enmctrl = creature_control_get_from_thing(enmtng);
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(thing);
+
+    long score_extra;
+    long score_base;
+
+    if (crstat->attack_preference == AttckT_Ranged)
+    {
+        if ((attack_type == AttckT_Ranged) || creature_has_ranged_weapon(thing))
+        {
+            score_extra = 258;
+            score_base = 258 * (4 - enmctrl->opponents_ranged_count) + score_extra;
+        } else
+        if (attack_type != AttckT_Ranged)
+        {
+            score_extra = 1;
+            score_base = 258 * (4 - enmctrl->opponents_melee_count) + score_extra + 128;
+        } else
+        {
+            score_extra = 1;
+            score_base = 258 * (4 - enmctrl->opponents_ranged_count) + score_extra;
+        }
+    } else
+    {
+        if (attack_type == AttckT_Ranged)
+        {
+            score_extra = 1;
+            score_base = 258 * (4 - enmctrl->opponents_ranged_count) + score_extra;
+        } else
+        if (attack_type != AttckT_Ranged)
+        {
+            score_extra = 258;
+            score_base = 258 * (4 - enmctrl->opponents_melee_count) + score_extra + 128;
+        } else
+        {
+            score_extra = 258;
+            score_base = 258 * (4 - enmctrl->opponents_ranged_count) + score_extra;
+        }
+    }
+    if (a4 >= 5376)
+        a4 = 5376;
+    return score_base + ((5376 - a4) << 8) / 5376;
 }
 
 CrAttackType check_for_possible_melee_combat_with_attacker_within_distance(struct Thing *fightng, struct Thing **outenmtng, long maxdist, unsigned long *outscore)
