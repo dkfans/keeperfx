@@ -1975,15 +1975,15 @@ long do_to_players_all_creatures_of_model(PlayerNumber plyr_idx, int crmodel, Th
 {
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
-    ThingModel spdig_model;
-    spdig_model = get_players_special_digger_model(plyr_idx);
+    TbBool is_spec_digger;
+    is_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel);
     long count;
     count = 0;
-    if (((crmodel > 0) && (crmodel != spdig_model)) || (crmodel == -1) || (crmodel == -2)) {
-        count  += do_on_player_list_all_creatures_of_model(dungeon->creatr_list_start, (crmodel<0)?-1:crmodel, do_cb);
+    if (((crmodel > 0) && !is_spec_digger) || (crmodel == -1) || (crmodel == -2)) {
+        count += do_on_player_list_all_creatures_of_model(dungeon->creatr_list_start, (crmodel<0)?-1:crmodel, do_cb);
     }
-    if (((crmodel > 0) && (crmodel == spdig_model)) || (crmodel == -1) || (crmodel == -3)) {
-        count  += do_on_player_list_all_creatures_of_model(dungeon->digger_list_start, (crmodel<0)?-1:crmodel, do_cb);
+    if (((crmodel > 0) && is_spec_digger) || (crmodel == -1) || (crmodel == -3)) {
+        count += do_on_player_list_all_creatures_of_model(dungeon->digger_list_start, (crmodel<0)?-1:crmodel, do_cb);
     }
     return count;
 }
@@ -2012,14 +2012,14 @@ long count_player_creatures_of_model(PlayerNumber plyr_idx, int crmodel)
         // Invalid dungeon - use list of creatures not associated to any dungeon
         return count_player_list_creatures_with_filter(game.nodungeon_creatr_list_start, filter, &param);
     }
-    ThingModel spdig_model;
-    spdig_model = get_players_special_digger_model(plyr_idx);
+    TbBool is_spec_digger;
+    is_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel);
     long count;
     count = 0;
-    if (((crmodel > 0) && (crmodel != spdig_model)) || (crmodel == -1) || (crmodel == -2)) {
+    if (((crmodel > 0) && !is_spec_digger) || (crmodel == -1) || (crmodel == -2)) {
         count += count_player_list_creatures_with_filter(dungeon->creatr_list_start, filter, &param);
     }
-    if (((crmodel > 0) && (crmodel == spdig_model)) || (crmodel == -1) || (crmodel == -3)) {
+    if (((crmodel > 0) && is_spec_digger) || (crmodel == -1) || (crmodel == -3)) {
         count += count_player_list_creatures_with_filter(dungeon->digger_list_start, filter, &param);
     }
     return count;
@@ -2240,14 +2240,14 @@ long count_player_list_creatures_of_model_matching_bool_filter(PlayerNumber plyr
         // Invalid dungeon - use list of creatures not associated to any dungeon
         return count_player_list_creatures_with_filter(game.nodungeon_creatr_list_start, filter, &param);
     }
-    ThingModel spdig_model;
-    spdig_model = get_players_special_digger_model(plyr_idx);
+    TbBool is_spec_digger;
+    is_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel);
     long count;
     count = 0;
-    if (((crmodel > 0) && (crmodel != spdig_model)) || (crmodel == -1) || (crmodel == -2)) {
+    if (((crmodel > 0) && !is_spec_digger) || (crmodel == -1) || (crmodel == -2)) {
         count += count_player_list_creatures_with_filter(dungeon->creatr_list_start, filter, &param);
     }
-    if (((crmodel > 0) && (crmodel == spdig_model)) || (crmodel == -1) || (crmodel == -3)) {
+    if (((crmodel > 0) && is_spec_digger) || (crmodel == -1) || (crmodel == -3)) {
         count += count_player_list_creatures_with_filter(dungeon->digger_list_start, filter, &param);
     }
     return count;

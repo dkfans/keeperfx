@@ -126,7 +126,8 @@ void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long a2, lo
 unsigned short find_next_annoyed_creature(unsigned char a1, unsigned short a2);
 void draw_creature_view(struct Thing *thing);
 
-TbBool creatre_is_for_dungeon_diggers_list(const struct Thing *creatng);
+TbBool creature_is_for_dungeon_diggers_list(const struct Thing *creatng);
+TbBool creature_kind_is_for_dungeon_diggers_list(PlayerNumber plyr_idx, ThingModel crmodel);
 void set_first_creature(struct Thing *thing);
 void remove_first_creature(struct Thing *thing);
 long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct Thing *thing, MaxTngFilterParam param, long maximizer);

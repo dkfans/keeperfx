@@ -118,7 +118,7 @@ void multiply_creatures(struct PlayerInfo *player)
   dungeon = get_players_dungeon(player);
   // Copy 'normal' creatures
   multiply_creatures_in_dungeon_list(dungeon, dungeon->creatr_list_start);
-  // Copy 'special worker' creatures
+  // Copy 'special digger' creatures
   multiply_creatures_in_dungeon_list(dungeon, dungeon->digger_list_start);
 }
 
@@ -153,7 +153,7 @@ void increase_level(struct PlayerInfo *player)
           break;
         }
     }
-    // Increase level of special workers
+    // Increase level of special diggers
     k = 0;
     i = dungeon->digger_list_start;
     while (i != 0)

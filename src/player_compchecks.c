@@ -422,14 +422,7 @@ static struct Thing *find_creature_for_sacrifice(struct Computer2 *comp, ThingMo
     param.num2 = any_digger_is_digging_indestructible_valuables(dungeon);
     filter = player_list_creature_filter_best_for_sacrifice;
     TbBool is_spec_digger;
-    is_spec_digger = false;
-    if (crmodel > 0) {
-        //TODO DIGGERS For now, only player-specific special diggers are on the diggers list
-        is_spec_digger = (crmodel == get_players_special_digger_model(dungeon->owner));
-        //struct CreatureModelConfig *crconf;
-        //crconf = &crtr_conf.model[crmodel];
-        //is_spec_digger = ((crconf->model_flags & MF_IsSpectator) != 0);
-    }
+    is_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(dungeon->owner, crmodel);
     struct Thing *thing;
     thing = INVALID_THING;
     if ((is_spec_digger) || (crmodel == -1))

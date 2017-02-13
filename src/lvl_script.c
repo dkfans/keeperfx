@@ -3582,14 +3582,7 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
         dungeon = get_dungeon(plyr_idx);
         return dungeon->field_AF5;
     case SVar_CREATURE_NUM:
-        if (validx == get_players_special_digger_model(plyr_idx))
-        {
-            dungeon = get_dungeon(plyr_idx);
-            return dungeon->num_active_diggers;
-        } else
-        {
-          return count_player_creatures_of_model(plyr_idx, validx);
-        }
+        return count_player_creatures_of_model(plyr_idx, validx);
     case SVar_TOTAL_DIGGERS:
         dungeon = get_dungeon(plyr_idx);
         return dungeon->num_active_diggers;

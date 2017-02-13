@@ -219,11 +219,26 @@ TbBool thing_can_be_controlled_as_passenger(struct Thing *thing)
   return false;
 }
 
-TbBool creatre_is_for_dungeon_diggers_list(const struct Thing *creatng)
+TbBool creature_is_for_dungeon_diggers_list(const struct Thing *creatng)
 {
+    //TODO DIGGERS For now, only player-specific and non-hero special diggers are on the diggers list
     if (is_hero_thing(creatng))
         return false;
-    return  (creatng->model == get_players_special_digger_model(creatng->owner));
+    return (creatng->model == get_players_special_digger_model(creatng->owner));
+    //struct CreatureModelConfig *crconf;
+    //crconf = &crtr_conf.model[creatng->model];
+    //return  ((crconf->model_flags & CMF_IsSpecDigger) != 0);
+}
+
+TbBool creature_kind_is_for_dungeon_diggers_list(PlayerNumber plyr_idx, ThingModel crmodel)
+{
+    //TODO DIGGERS For now, only player-specific and non-hero special diggers are on the diggers list
+    if (plyr_idx == game.hero_player_num)
+        return false;
+    return (crmodel == get_players_special_digger_model(plyr_idx));
+    //struct CreatureModelConfig *crconf;
+    //crconf = &crtr_conf.model[crmodel];
+    //is_spec_digger = ((crconf->model_flags & CMF_IsSpecDigger) != 0);
 }
 
 /**
@@ -3176,7 +3191,7 @@ void set_first_creature(struct Thing *creatng)
         }
         creatng->alloc_flags |= TAlF_InDungeonList;
     } else
-    if ((creatng->model != get_players_special_digger_model(creatng->owner)) || is_hero_thing(creatng))
+    if (!creature_is_for_dungeon_diggers_list(creatng))
     {
         struct Dungeon *dungeon;
         dungeon = get_dungeon(creatng->owner);
@@ -3258,7 +3273,7 @@ void remove_first_creature(struct Thing *creatng)
           secctrl->players_prev_creature_idx = cctrl->players_prev_creature_idx;
       }
     } else
-    if (creatre_is_for_dungeon_diggers_list(creatng))
+    if (creature_is_for_dungeon_diggers_list(creatng))
     {
         dungeon = get_dungeon(creatng->owner);
         sectng = thing_get(cctrl->players_prev_creature_idx);
@@ -4099,14 +4114,7 @@ struct Thing *find_players_highest_level_creature_of_breed_and_gui_job(long crmo
         break;
     }
     TbBool is_spec_digger;
-    is_spec_digger = false;
-    if (crmodel > 0) {
-        //TODO DIGGERS For now, only player-specific special diggers are on the diggers list
-        is_spec_digger = (crmodel == get_players_special_digger_model(plyr_idx));
-        //struct CreatureModelConfig *crconf;
-        //crconf = &crtr_conf.model[crmodel];
-        //is_spec_digger = ((crconf->model_flags & MF_IsSpectator) != 0);
-    }
+    is_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel);
     struct Thing *thing;
     thing = INVALID_THING;
     if ((is_spec_digger) || (crmodel == -1))
@@ -4152,14 +4160,7 @@ struct Thing *find_players_lowest_level_creature_of_breed_and_gui_job(long crmod
         break;
     }
     TbBool is_spec_digger;
-    is_spec_digger = false;
-    if (crmodel > 0) {
-        //TODO DIGGERS For now, only player-specific special diggers are on the diggers list
-        is_spec_digger = (crmodel == get_players_special_digger_model(plyr_idx));
-        //struct CreatureModelConfig *crconf;
-        //crconf = &crtr_conf.model[crmodel];
-        //is_spec_digger = ((crconf->model_flags & MF_IsSpectator) != 0);
-    }
+    is_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel);
     struct Thing *thing;
     thing = INVALID_THING;
     if ((!is_spec_digger) || (crmodel == -1))
@@ -4207,14 +4208,7 @@ struct Thing *find_players_first_creature_of_breed_and_gui_job(long crmodel, lon
         break;
     }
     TbBool is_spec_digger;
-    is_spec_digger = false;
-    if (crmodel > 0) {
-        //TODO DIGGERS For now, only player-specific special diggers are on the diggers list
-        is_spec_digger = (crmodel == get_players_special_digger_model(plyr_idx));
-        //struct CreatureModelConfig *crconf;
-        //crconf = &crtr_conf.model[crmodel];
-        //is_spec_digger = ((crconf->model_flags & MF_IsSpectator) != 0);
-    }
+    is_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel);
     struct Thing *thing;
     thing = INVALID_THING;
     if ((!is_spec_digger) || (crmodel == -1))
