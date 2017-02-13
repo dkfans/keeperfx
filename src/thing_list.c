@@ -1994,11 +1994,35 @@ long do_to_players_all_creatures_of_model(PlayerNumber plyr_idx, int crmodel, Th
  *
  * @return Count of players creatures.
  */
-long count_player_creatures_of_model(PlayerNumber plyr_idx, ThingModel crmodel)
+long count_player_creatures_of_model(PlayerNumber plyr_idx, int crmodel)
 {
     struct Dungeon *dungeon;
+    Thing_Maximizer_Filter filter;
+    struct CompoundTngFilterParam param;
+    SYNCDBG(19,"Starting");
     dungeon = get_players_num_dungeon(plyr_idx);
-    return count_player_list_creatures_of_model(dungeon->creatr_list_start, crmodel);
+    filter = anywhere_thing_filter_is_of_class_and_model_and_owned_by;
+    param.class_id = TCls_Creature;
+    param.model_id = (crmodel<=0) ? -1 : crmodel;
+    param.plyr_idx = plyr_idx;
+    param.num1 = -1;
+    param.num2 = -1;
+    param.num3 = -1;
+    if (dungeon_invalid(dungeon)) {
+        // Invalid dungeon - use list of creatures not associated to any dungeon
+        return count_player_list_creatures_with_filter(game.nodungeon_creatr_list_start, filter, &param);
+    }
+    ThingModel spdig_model;
+    spdig_model = get_players_special_digger_model(plyr_idx);
+    long count;
+    count = 0;
+    if (((crmodel > 0) && (crmodel != spdig_model)) || (crmodel == -1) || (crmodel == -2)) {
+        count += count_player_list_creatures_with_filter(dungeon->creatr_list_start, filter, &param);
+    }
+    if (((crmodel > 0) && (crmodel == spdig_model)) || (crmodel == -1) || (crmodel == -3)) {
+        count += count_player_list_creatures_with_filter(dungeon->digger_list_start, filter, &param);
+    }
+    return count;
 }
 
 long count_player_list_creatures_of_model(long thing_idx, ThingModel crmodel)
@@ -2212,6 +2236,10 @@ long count_player_list_creatures_of_model_matching_bool_filter(PlayerNumber plyr
     param.num1 = -1;
     param.num2 = -1;
     param.ptr3 = (void *)matcher_cb;
+    if (dungeon_invalid(dungeon)) {
+        // Invalid dungeon - use list of creatures not associated to any dungeon
+        return count_player_list_creatures_with_filter(game.nodungeon_creatr_list_start, filter, &param);
+    }
     ThingModel spdig_model;
     spdig_model = get_players_special_digger_model(plyr_idx);
     long count;
