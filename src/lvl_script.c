@@ -1179,6 +1179,19 @@ void command_if(long plr_range_id, const char *varib_name, const char *operatr, 
       SCRPTERRLOG("Unknown variable name, '%s'", varib_name);
       return;
     }
+    { // Warn if using the command for a player without Dungeon struct
+        int plr_start, plr_end;
+        if (get_players_range(plr_range_id, &plr_start, &plr_end) >= 0) {
+            struct Dungeon *dungeon;
+            dungeon = get_dungeon(plr_start);
+            if ((plr_start+1 == plr_end) && dungeon_invalid(dungeon)) {
+                // Note that this list should be kept updated with the changes in get_condition_value()
+                if ((varib_type != SVar_GAME_TURN) && (varib_type != SVar_ALL_DUNGEONS_DESTROYED)
+                 && (varib_type != SVar_DOOR_NUM) && (varib_type != SVar_TRAP_NUM))
+                    SCRPTWRNLOG("Found player without dungeon used in IF clause in script; this will not work correctly");
+            }
+        }
+    }
     // Recognize comparison
     opertr_id = get_id(comparison_desc, operatr);
     if (opertr_id == -1)
@@ -1744,6 +1757,16 @@ void command_if_available(long plr_range_id, const char *varib_name, const char 
       SCRPTERRLOG("Unknown comparison name, '%s'", operatr);
       return;
     }
+    { // Warn if using the command for a player without Dungeon struct
+        int plr_start, plr_end;
+        if (get_players_range(plr_range_id, &plr_start, &plr_end) >= 0) {
+            struct Dungeon *dungeon;
+            dungeon = get_dungeon(plr_start);
+            if ((plr_start+1 == plr_end) && dungeon_invalid(dungeon)) {
+                SCRPTWRNLOG("Found player without dungeon used in IF_AVAILABLE clause in script; this will not work correctly");
+            }
+        }
+    }
     // Add the condition to script structure
     command_add_condition(plr_range_id, opertr_id, varib_type, varib_id, value);
 }
@@ -1779,6 +1802,16 @@ void command_if_controls(long plr_range_id, const char *varib_name, const char *
     {
       SCRPTERRLOG("Unknown comparison name, '%s'", operatr);
       return;
+    }
+    { // Warn if using the command for a player without Dungeon struct
+        int plr_start, plr_end;
+        if (get_players_range(plr_range_id, &plr_start, &plr_end) >= 0) {
+            struct Dungeon *dungeon;
+            dungeon = get_dungeon(plr_start);
+            if ((plr_start+1 == plr_end) && dungeon_invalid(dungeon)) {
+                SCRPTWRNLOG("Found player without dungeon used in IF_CONTROLS clause in script; this will not work correctly");
+            }
+        }
     }
     // Add the condition to script structure
     command_add_condition(plr_range_id, opertr_id, varib_type, varib_id, value);
