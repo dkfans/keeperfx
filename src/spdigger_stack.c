@@ -1844,6 +1844,7 @@ int add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
  * @param dungeon Target dungeon for which reinforce stack is filled.
  * @param max_tasks Max amount of tasks to be added.
  * @return The amount of tasks added.
+ * Only fill up the stack with reinforce task halfway
  */
 int add_reinforce_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
 {
@@ -1852,7 +1853,7 @@ int add_reinforce_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
     long i;
     for (i=0; i < r_stackpos; i++)
     {
-        if ((dungeon->digger_stack_length >= DIGGER_TASK_MAX_COUNT) || (remain_num <= 0)) {
+        if ((dungeon->digger_stack_length >= 32) || (remain_num <= 0)) {
             break;
         }
         struct DiggerStack *rfstack;
