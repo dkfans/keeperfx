@@ -939,9 +939,9 @@ const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveSta
         text = loc_text;
         break;
     case CrLStat_AgeTime:
-        i = (game.play_gameturn-creatng->creation_turn) / 2000 + cctrl->joining_age;
-        if (i >= 99)
-          i = 99;
+        i = (game.play_gameturn-creatng->creation_turn) / 1200; // + cctrl->joining_age;
+        if (i >= 999)
+          i = 999;
         snprintf(loc_text,sizeof(loc_text),"%ld", i);
         text = loc_text;
         break;
