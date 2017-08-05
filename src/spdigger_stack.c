@@ -1024,9 +1024,42 @@ int add_undug_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
     SYNCDBG(18,"Starting");
     int remain_num;
     remain_num = max_tasks;
-    // Loop two times; first add blocks that can be dug forever (gems), then the others.
     i = -1;
-    while ((remain_num > 10) && (dungeon->digger_stack_length < DIGGER_TASK_MAX_COUNT))
+    while ((remain_num > 0) && (dungeon->digger_stack_length < DIGGER_TASK_MAX_COUNT))
+    {
+        i = find_next_dig_in_dungeon_task_list(dungeon, i);
+        if (i < 0)
+            break;
+        mtask = get_dungeon_task_list_entry(dungeon, i);
+        stl_x = stl_num_decode_x(mtask->coords);
+        stl_y = stl_num_decode_y(mtask->coords);
+        if ( subtile_revealed(stl_x, stl_y, dungeon->owner) )
+        {
+            struct SlabMap *slb;
+            slb = get_slabmap_for_subtile(stl_x, stl_y);
+            if (!slab_kind_is_indestructible(slb->kind)) // Add only blocks which can be destroyed by digging
+            {
+                if ( block_has_diggable_side(dungeon->owner, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)) )
+                {
+                    add_to_imp_stack_using_pos(mtask->coords, DigTsk_DigOrMine, dungeon);
+                    remain_num--;
+                }
+            }
+        }
+    }
+    SYNCDBG(8,"Done, added %d tasks",(int)(max_tasks-remain_num));
+    return (max_tasks-remain_num);
+}
+int add_gems_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
+{
+    struct MapTask* mtask;
+    long stl_x, stl_y;
+    long i;
+    SYNCDBG(18,"Starting");
+    int remain_num;
+    remain_num = max_tasks;
+    i = -1;
+    while ((remain_num > 0) && (dungeon->digger_stack_length < DIGGER_TASK_MAX_COUNT))
     {
         i = find_next_dig_in_dungeon_task_list(dungeon, i);
         if (i < 0)
@@ -1046,26 +1079,6 @@ int add_undug_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
                     remain_num--;
                 }
             }
-        }
-    }
-    i = -1;
-    while ((remain_num > 0) && (dungeon->digger_stack_length < DIGGER_TASK_MAX_COUNT))
-    {
-        i = find_next_dig_in_dungeon_task_list(dungeon, i);
-        if (i < 0)
-            break;
-        mtask = get_dungeon_task_list_entry(dungeon, i);
-        stl_x = stl_num_decode_x(mtask->coords);
-        stl_y = stl_num_decode_y(mtask->coords);
-        if ( subtile_revealed(stl_x, stl_y, dungeon->owner) )
-        {
-            struct SlabMap *slb;
-            slb = get_slabmap_for_subtile(stl_x, stl_y);
-			if ( block_has_diggable_side(dungeon->owner, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)) )
-			{
-				add_to_imp_stack_using_pos(mtask->coords, DigTsk_DigOrMine, dungeon);
-				remain_num--;
-			}
         }
     }
     SYNCDBG(8,"Done, added %d tasks",(int)(max_tasks-remain_num));
@@ -2376,7 +2389,7 @@ long check_out_imp_last_did(struct Thing *creatng)
   SYNCDBG(9,"No job found");
   return false;
 }
-
+//Create list of up to 64 tasks. 
 TbBool imp_stack_update(struct Thing *creatng)
 {
     struct Dungeon *dungeon;
@@ -2392,12 +2405,16 @@ TbBool imp_stack_update(struct Thing *creatng)
     }
     add_unclaimed_unconscious_bodies_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/4 - 1);
     add_unclaimed_dead_bodies_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/4 - 1);
-    add_unclaimed_spells_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/12);
+    add_unclaimed_spells_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/4 - 1);
     add_empty_traps_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/6);
-    add_undug_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT*5/8);
+	add_pretty_and_convert_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/64);
+    add_undug_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/16 - 1);
+	add_unclaimed_gold_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/64);
+	add_gems_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT*5/8);
+	add_unclaimed_traps_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/4);
+	add_undug_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT*5/8);
     add_pretty_and_convert_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT*5/8);
     add_unclaimed_gold_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/3);
-    add_unclaimed_traps_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/4);
     add_reinforce_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT);
     return true;
 }
