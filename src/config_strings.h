@@ -402,6 +402,8 @@ enum GUIStrings {
     GUIStr_CreatureBestDmgDesc,
     GUIStr_CreatureWeightDesc,
     GUIStr_CreatureScoreDesc = STRINGS_MAX+960,
+	GUIStr_CreatureHealthDesc = STRINGS_MAX+965,
+	GUIStr_CreatureMaxHealthDesc = STRINGS_MAX+966,
 };
 
 enum CampaignStrings {
