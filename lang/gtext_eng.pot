@@ -1739,8 +1739,8 @@ msgstr ""
 #: guitext:235
 msgctxt "Creature spell"
 msgid ""
-"Navigating Missile: This homes in on the nearest hero or enemy creature and "
-"explodes with devastating force."
+"Navigating Missile: A spell that sends a screaming magic reptile homing "
+"in on the nearest hero or enemy creature for double damage. Nice."
 msgstr ""
 
 #: guitext:236
@@ -1793,12 +1793,12 @@ msgstr ""
 msgctxt "Creature spell"
 msgid ""
 "Flight: Causes the creature to take off from the ground and attack creatures "
-"from the air."
+"from the air or cross lava unharmed."
 msgstr ""
 
 #: guitext:244
 msgctxt "Creature spell"
-msgid "Hail Storm: Creates a shower of hailstones wherever the spell lands."
+msgid "Hail Storm: Creates a fury of hailstones."
 msgstr ""
 
 #: guitext:245
@@ -1810,8 +1810,8 @@ msgstr ""
 #: guitext:246
 msgctxt "Creature spell"
 msgid ""
-"Drain: This spell drains the target creature a fair part of its health and "
-"magical abilities."
+"Drain: This spell drains the target creature a part of its health and gives it "
+"to the caster."
 msgstr ""
 
 #: guitext:247
@@ -1825,15 +1825,14 @@ msgstr ""
 #: guitext:248
 msgctxt "Creature spell"
 msgid ""
-"Heal: When this is cast, the creature is massively healed. Also, any nearby "
-"creatures are healed by a quarter."
+"Heal: When this is cast, the creature is massively healed."
 msgstr ""
 
 #: guitext:249
 msgctxt "Creature spell"
 msgid ""
 "Wind: Creates a force twelve gale in your Dungeon blowing every creature "
-"away from you."
+"away from you. And nasty smells of course."
 msgstr ""
 
 #: guitext:250
@@ -3801,7 +3800,7 @@ msgstr ""
 #: guitext:625
 msgctxt "Room description"
 msgid ""
-"Lair: Where your creatures sleep and replenish their energy. LMB select. RMB "
+"Lair: Where your creatures sleep and replenish their health. LMB select. RMB "
 "zoom. [17.2]"
 msgstr ""
 
@@ -3823,7 +3822,7 @@ msgstr ""
 msgctxt "Room description"
 msgid ""
 "Temple: Worshipping the dark gods makes creatures happier. Sacrifice "
-"creatures by dropping them into the font. LMB select. RMB zoom. [17.12]"
+"creatures by dropping them into the fountain. LMB select. RMB zoom. [17.12]"
 msgstr ""
 
 #: guitext:629
@@ -3940,8 +3939,9 @@ msgstr ""
 #: guitext:650
 msgctxt "Keeper spell description"
 msgid ""
-"Call To Arms: Calls all your creatures to an area of your dungeon. LMB "
-"select, LMB again to reselect, LMB a third time to cancel. RMB zoom. [18.6]"
+"Call To Arms: Calls creatures in range to any destination. LMB Select. "
+"Cast in range of creatures to gather, cast again for destination. "
+"RMB zoom. LMB Cancel. [18.6]"
 msgstr ""
 
 #: guitext:651
@@ -4002,14 +4002,13 @@ msgstr ""
 #: guitext:660
 msgctxt "Keeper spell description"
 msgid ""
-"Destroy Walls: Breaks down reinforcemed enemy's walls. LMB select. [18.16]"
+"Destroy Walls: Breaks down reinforced enemy's walls. LMB select. [18.16]"
 msgstr ""
 
 #: guitext:661
 msgctxt "Keeper spell description"
 msgid ""
-"Heal: Cast on an area of the dungeon to improve the health of your "
-"creatures. LMB select. [18.9]"
+"Heal: Cast on a creature to improve its health. LMB select. [18.9]"
 msgstr ""
 
 #: guitext:662
