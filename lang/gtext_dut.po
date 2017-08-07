@@ -3288,7 +3288,7 @@ msgctxt "Dungeon special decription"
 msgid ""
 "Resurrect Creature: You may raise one of your fallen minions from the dead."
 msgstr ""
-"Herrijs wezen: Je mag ÚÚn van je gedode slaafjes terughalen uit de dood."
+"Herrijs wezen: Je mag één van je gedode slaafjes terughalen uit de dood."
 
 #: guitext:422
 msgctxt "Dungeon special decription"
@@ -6518,6 +6518,24 @@ msgid ""
 msgstr ""
 "Sla je wezens als ze harder moeten werken. Plaats daartoe de Duivelshand op "
 "het wezen en klik rechts. Je verwondt je wezens met elke slag."
+
+#: guitext:964
+msgctxt "Keeper spell description"
+msgid "Slap: Makes your creatures work harder, for some time. "
+"Your creatures take some damage from each slap they receive."
+msgstr ""
+
+#: guitext:965
+msgctxt "In-game interface description"
+msgid ""
+"Health: How much health points the creature has left to lose."
+msgstr "Health: Hoeveel leven dit wezen nog te verliezen heeft."
+
+#: guitext:966
+msgctxt "In-game interface description"
+msgid ""
+"Health: The maximum amount of health points for this creature."
+msgstr ""
 
 #~ msgctxt "In-game message"
 #~ msgid "Your manufacturers have crafted the Lava Trap."

@@ -6234,6 +6234,24 @@ msgstr ""
 "如果你想让你的怪物工作得更努力一点，请用邪恶之手指著它们，然后按滑鼠右键拍打"
 "它们。拍打怪物会使它们受伤。"
 
+#: guitext:964
+msgctxt "Keeper spell description"
+msgid "Slap: Makes your creatures work harder, for some time. "
+"Your creatures take some damage from each slap they receive."
+msgstr ""
+
+#: guitext:965
+msgctxt "In-game interface description"
+msgid ""
+"Health: How much health points the creature has left to lose."
+msgstr ""
+
+#: guitext:966
+msgctxt "In-game interface description"
+msgid ""
+"Health: The maximum amount of health points for this creature."
+msgstr ""
+
 #~ msgctxt "In-game message"
 #~ msgid "Your manufacturers have crafted the Lava Trap."
 #~ msgstr "你的工人已经制造了岩浆陷阱。"

@@ -6692,6 +6692,24 @@ msgstr ""
 "Pour que vos créatures travaillent plus, frappez-les en cliquant avec le "
 "bouton DROIT sur la main. Chaque coup administré fait souffrir vos créatures."
 
+#: guitext:964
+msgctxt "Keeper spell description"
+msgid "Slap: Makes your creatures work harder, for some time. "
+"Your creatures take some damage from each slap they receive."
+msgstr ""
+
+#: guitext:965
+msgctxt "In-game interface description"
+msgid ""
+"Health: How much health points the creature has left to lose."
+msgstr ""
+
+#: guitext:966
+msgctxt "In-game interface description"
+msgid ""
+"Health: The maximum amount of health points for this creature."
+msgstr ""
+
 #~ msgctxt "In-game message"
 #~ msgid "Your manufacturers have crafted the Lava Trap."
 #~ msgstr "Vos artisans ont fabriqué le piège à LAVE."

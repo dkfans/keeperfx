@@ -6582,6 +6582,24 @@ msgstr ""
 "Se vuoi che le tue creature lavorino più duramente, schiaffeggiale cliccando "
 "la mano con il pulsante destro. Ogni schiaffo causerà loro dei danni."
 
+#: guitext:964
+msgctxt "Keeper spell description"
+msgid "Slap: Makes your creatures work harder, for some time. "
+"Your creatures take some damage from each slap they receive."
+msgstr ""
+
+#: guitext:965
+msgctxt "In-game interface description"
+msgid ""
+"Health: How much health points the creature has left to lose."
+msgstr ""
+
+#: guitext:966
+msgctxt "In-game interface description"
+msgid ""
+"Health: The maximum amount of health points for this creature."
+msgstr ""
+
 #~ msgctxt "In-game message"
 #~ msgid "Your manufacturers have crafted the Lava Trap."
 #~ msgstr "I tuoi artigiani hanno creato la trappola lava."
