@@ -1,7 +1,7 @@
 REM ********************************************
 REM  Ancient Keeper campaign for KeeperFX
 REM  Script for Level 11
-REM  Version 1.10
+REM  Version 1.20
 REM ********************************************
 
 SET_GENERATE_SPEED(400)
@@ -52,11 +52,15 @@ MAGIC_AVAILABLE(PLAYER2,POWER_HEAL_CREATURE,1,0)
 REM First, player has to claim a portal and receive a dragon from it
 IF(PLAYER0,DRAGON>0)
   DISPLAY_OBJECTIVE(54,PLAYER0)
+  SET_FLAG(PLAYER0,FLAG2,1)
 ENDIF
 
+REM Player is defeated when all dragons are gone before he gets his first one.
 IF_AVAILABLE(PLAYER0,DRAGON <= 0)
-  DISPLAY_OBJECTIVE(144,PLAYER0)
-  LOSE_GAME
+	IF(PLAYER0,FLAG2 <= 0)
+		DISPLAY_OBJECTIVE(144,PLAYER0)
+		LOSE_GAME
+	ENDIF
 ENDIF
 
 IF(PLAYER0,HORNY>0)
