@@ -2265,16 +2265,20 @@ long check_out_imp_last_did(struct Thing *creatng)
       return false;
   case SDLstJob_DigOrMine:
       if (is_digging_indestructible_place(creatng)) {
-          // If we were digging gems, small chance to randomly do task reset every few times it went to treasury.
+          // If we were digging gems, every tenth repeat of a gem-digging job, select another dungeon job.
           // This allows to switch to other important tasks and not consuming all the diggers workforce forever
           dungeon = get_dungeon(creatng->owner);
-          if (((rand() % 40) == 1) && (dungeon->digger_stack_length > 1)) {
-              // Set position in digger tasks list to a random place
-              SYNCDBG(9,"Digger %s index %d reset due to neverending task",thing_model_name(creatng),(int)creatng->index);
-              cctrl->digger.stack_update_turn = dungeon->digger_stack_update_turn;
-              cctrl->digger.task_stack_pos = ACTION_RANDOM(dungeon->digger_stack_length);
-              break;
-          }
+	  if (cctrl->digger.task_repeats != 0)
+	  {
+		if (((cctrl->digger.task_repeats % 10) == 0) && (dungeon->digger_stack_length > 1))
+		{  
+		  // Set position in digger tasks list to a random place
+		  SYNCDBG(9,"Digger %s index %d reset due to neverending task",thing_model_name(creatng),(int)creatng->index);
+		  cctrl->digger.stack_update_turn = dungeon->digger_stack_update_turn;
+		  cctrl->digger.task_stack_pos = ACTION_RANDOM(dungeon->digger_stack_length);
+		  break;
+		} 	    
+	  }
       }
       if (check_out_undug_place(creatng) || check_out_undug_area(creatng))
       {
