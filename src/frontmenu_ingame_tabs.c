@@ -2330,7 +2330,8 @@ void draw_whole_status_panel(void)
     else
         mmzoom = player->minimap_zoom;
     pannel_map_draw_slabs(player->minimap_pos_x, player->minimap_pos_y, mm_units_per_px, mmzoom);
-    pannel_map_draw_overlay_things(mm_units_per_px, mmzoom);
+    long basic_zoom = player->minimap_zoom;
+    pannel_map_draw_overlay_things(mm_units_per_px, mmzoom, basic_zoom);
 }
 
 void gui_set_button_flashing(long btn_idx, long gameturns)

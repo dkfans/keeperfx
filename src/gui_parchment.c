@@ -437,9 +437,17 @@ int draw_overhead_creatures(const struct TbRect *map_area, long block_size, Play
                 if (thing->owner == plyr_idx)
                 {
                     LbDrawPixel(pos_x, pos_y, col2);
+                    // TODO: make these only draw if screen resolution is high (not the 640x480)
+                    LbDrawPixel(pos_x+1, pos_y, col2);
+                    LbDrawPixel(pos_x, pos_y+1, col2);
+                    LbDrawPixel(pos_x+1, pos_y+1, col2);
                 } else
                 {
                     LbDrawPixel(pos_x, pos_y, col1);
+                    // TODO: make these only draw if screen resolution is high (not the 640x480)
+                    LbDrawPixel(pos_x+1, pos_y, col1);
+                    LbDrawPixel(pos_x, pos_y+1, col1);
+                    LbDrawPixel(pos_x+1, pos_y+1, col1);
                 }
                 n++;
             }
@@ -459,6 +467,10 @@ int draw_overhead_creatures(const struct TbRect *map_area, long block_size, Play
                     pos_x = map_area->left + block_size * stl_num_decode_x(memberpos) / STL_PER_SLB;
                     pos_y = map_area->top  + block_size * stl_num_decode_y(memberpos) / STL_PER_SLB;
                     LbDrawPixel(pos_x, pos_y, col1);
+                    // TODO: make these only draw if screen resolution is high (not the 640x480)
+                    LbDrawPixel(pos_x+1, pos_y, col1);
+                    LbDrawPixel(pos_x, pos_y+1, col1);
+                    LbDrawPixel(pos_x+1, pos_y+1, col1);
                     n++;
                 }
             }
