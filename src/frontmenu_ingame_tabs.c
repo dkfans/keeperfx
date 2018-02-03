@@ -48,6 +48,7 @@
 #include "gui_draw.h"
 #include "packets.h"
 #include "magic.h"
+#include "player_computer.h"
 #include "player_instances.h"
 #include "player_states.h"
 #include "frontmenu_ingame_evnt.h"
@@ -240,7 +241,7 @@ void maintain_turn_on_autopilot(struct GuiButton *gbtn)
     comp = get_computer_player(player->id_number);
     cplr_model = comp->model;
     //TODO COMPUTER_PLAYER change limit to comp_player_conf.computers_count when the array is inside computer player config
-    if ((cplr_model >= 0) && (cplr_model < 10)) {
+    if ((cplr_model >= 0) && (cplr_model < COMPUTER_MODELS_COUNT)) {
         gbtn->tooltip_stridx = computer_types_tooltip_stridx[cplr_model];
     } else {
         ERRORLOG("Illegal computer player model %d",(int)cplr_model);

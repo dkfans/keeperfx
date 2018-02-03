@@ -55,4 +55,7 @@ TbBool load_computer_player_config(unsigned short flags);
 #ifdef __cplusplus
 }
 #endif
+
+extern struct ComputerPlayerConfig comp_player_conf;
+
 #endif
