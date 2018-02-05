@@ -1616,7 +1616,7 @@ void process_computer_players2(void)
     }
 }
 
-void setup_computer_players2()
+void setup_computer_players2(void)
 {
   struct PlayerInfo *player;
   int i;
