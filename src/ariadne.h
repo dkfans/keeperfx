@@ -66,6 +66,17 @@ enum AriadneUpdateSubStateManoeuvreValues {
     AridUpSStM_Unkn2,
 };
 
+enum NavigationStateValues {
+    NavS_Unkn0   = 0,
+    NavS_Unkn1,
+    NavS_Unkn2,
+    NavS_Unkn3,
+    NavS_Unkn4,
+    NavS_Unkn5,
+    NavS_Unkn6,
+    NavS_Unkn7,
+};
+
 #define NAVMAP_FLOORHEIGHT_BIT  0
 #define NAVMAP_FLOORHEIGHT_MAX  0x0f
 #define NAVMAP_FLOORHEIGHT_MASK 0x0f
@@ -87,10 +98,10 @@ struct Ariadne { // sizeof = 102
   struct Coord3d pos_18;
   unsigned char route_flags;
   unsigned char field_1F;
-  unsigned char field_20;
+  unsigned char hug_side;
   unsigned char update_state;
   unsigned char field_22;
-  unsigned char field_23;
+  unsigned char may_need_reroute;
   short field_24;
   unsigned short move_speed;
     /** Index of the current waypoint in list of nearest waypoints stored. */
@@ -270,7 +281,7 @@ long thing_nav_block_sizexy(const struct Thing *thing);
 long thing_nav_sizexy(const struct Thing *thing);
 
 void clear_wallhugging_path(struct Navigation *navi);
-void initialise_wallhugging_path_from_to(struct Navigation *navi, struct Coord3d *mvstart, struct Coord3d *mvend);
+void initialise_wallhugging_path_from_to(struct Navigation *navi, const struct Coord3d *mvstart, const struct Coord3d *mvend);
 
 /******************************************************************************/
 #ifdef __cplusplus

@@ -520,9 +520,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
     }
     thing->class_id = TCls_EffectElem;
     thing->model = eelmodel;
-    thing->mappos.x.val = pos->x.val;
-    thing->mappos.y.val = pos->y.val;
-    thing->mappos.z.val = pos->z.val;
+    thing->mappos = *pos;
     thing->next_on_mapblk = 0;
     thing->parent_idx = thing->index;
     thing->owner = owner;
@@ -1211,9 +1209,7 @@ struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, Play
     thing->creation_turn = game.play_gameturn;
     thing->class_id = TCls_Effect;
     thing->model = effmodel;
-    thing->mappos.x.val = pos->x.val;
-    thing->mappos.y.val = pos->y.val;
-    thing->mappos.z.val = pos->z.val;
+    thing->mappos = *pos;
     thing->next_on_mapblk = 0;
     thing->owner = owner;
     thing->parent_idx = thing->index;
