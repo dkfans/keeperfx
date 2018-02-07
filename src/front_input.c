@@ -205,6 +205,42 @@ void clip_frame_skip(void)
     game.frame_skip = 0;
 }
 
+void increaseFrameskip(void)
+{
+    if (game.frame_skip < 2)
+    {
+        game.frame_skip ++;
+    }
+    else if (game.frame_skip < 16)
+    {
+        game.frame_skip += 2;
+    }
+    else
+    {
+        game.frame_skip += (game.frame_skip/3);
+    }
+    clip_frame_skip();
+    show_onscreen_msg(game.num_fps+game.frame_skip, "Frame skip %d",game.frame_skip);
+}
+
+void decreaseFrameskip(void)
+{
+    if (game.frame_skip <= 2)
+    {
+        game.frame_skip --;
+    }
+    else if (game.frame_skip <= 16)
+    {
+        game.frame_skip -= 2;
+    }
+    else
+    {
+        game.frame_skip -= (game.frame_skip/4);
+    }
+    clip_frame_skip();
+    show_onscreen_msg(game.num_fps+game.frame_skip, "Frame skip %d",game.frame_skip);
+}
+
 /**
  * Handles game speed control inputs.
  * @return Returns true if packet was created, false otherwise.
@@ -213,29 +249,23 @@ short get_speed_control_inputs(void)
 {
   if (is_key_pressed(KC_ADD,KMod_CONTROL))
   {
-      if (game.frame_skip < 2)
-        game.frame_skip ++;
-      else
-      if (game.frame_skip < 16)
-        game.frame_skip += 2;
-      else
-        game.frame_skip += (game.frame_skip/3);
-      clip_frame_skip();
-      show_onscreen_msg(game.num_fps+game.frame_skip, "Frame skip %d",game.frame_skip);
+      increaseFrameskip();
       clear_key_pressed(KC_ADD);
+  }
+  if (is_key_pressed(KC_EQUALS,KMod_CONTROL))
+  {
+      increaseFrameskip();
+      clear_key_pressed(KC_EQUALS);
   }
   if (is_key_pressed(KC_SUBTRACT,KMod_CONTROL))
   {
-      if (game.frame_skip <= 2)
-        game.frame_skip --;
-      else
-      if (game.frame_skip <= 16)
-        game.frame_skip -= 2;
-      else
-        game.frame_skip -= (game.frame_skip/4);
-      clip_frame_skip();
-      show_onscreen_msg(game.num_fps+game.frame_skip, "Frame skip %d",game.frame_skip);
+      decreaseFrameskip();
       clear_key_pressed(KC_SUBTRACT);
+  }
+  if (is_key_pressed(KC_MINUS,KMod_CONTROL))
+  {
+      decreaseFrameskip();
+      clear_key_pressed(KC_MINUS);
   }
   return false;
 }
