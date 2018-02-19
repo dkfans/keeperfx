@@ -821,8 +821,12 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
       if (shotst->old->field_24 != 0) {
           tgcctrl->field_B1 = shotst->old->field_24;
       }
-      if ( shotst->old->push_on_hit )
+      if ( shotst->old->push_on_hit || creature_is_being_unconscious(trgtng))
       {
+		  if (creature_is_being_unconscious(trgtng)) {
+              throw_strength++;
+              throw_strength *= 10;
+		  }
           trgtng->veloc_push_add.x.val += (throw_strength * (long)shotng->velocity.x.val) / 16;
           trgtng->veloc_push_add.y.val += (throw_strength * (long)shotng->velocity.y.val) / 16;
           trgtng->state_flags |= TF1_PushAdd;
@@ -986,8 +990,12 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             WARNDBG(8,"The %s index %d owner %d cannot group; invalid parent",thing_model_name(shotng),(int)shotng->index,(int)shotng->owner);
         }
     }
-    if (shotst->old->push_on_hit != 0)
+	if (shotst->old->push_on_hit != 0 || creature_is_being_unconscious(trgtng))
     {
+		if (creature_is_being_unconscious(trgtng)) {
+            amp ++;
+            amp *= 5;
+		}
 		i = amp * (long)shotng->velocity.x.val;
 		trgtng->veloc_push_add.x.val += i / 16;
 		i = amp * (long)shotng->velocity.y.val;
