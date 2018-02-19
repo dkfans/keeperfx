@@ -123,6 +123,7 @@ TbBool detonate_shot(struct Thing *shotng)
         PaletteSetPlayerPalette(myplyr, engine_palette);
         break;
     case ShM_Grenade:
+	case ShM_Firebomb:
         create_effect(&shotng->mappos, TngEff_Unknown50, shotng->owner);
         create_effect(&shotng->mappos,  TngEff_Unknown09, shotng->owner);
         break;
@@ -796,7 +797,8 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
     struct CreatureControl *tgcctrl;
     long damage,throw_strength;
     shotst = get_shot_model_stats(shotng->model);
-    throw_strength = shotng->field_20;
+    //throw_strength = shotng->field_20; //this seems to be always 0, this is why it didn't work;
+	throw_strength = shotst->old->push_on_hit;
     if (trgtng->health < 0)
         return 0;
     shooter = INVALID_THING;
@@ -874,8 +876,9 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     struct ShotConfigStats *shotst;
     struct Coord3d pos2;
     long i,n,amp;
-    amp = shotng->field_20;
     shotst = get_shot_model_stats(shotng->model);
+	//amp = shotng->field_20;
+	amp = shotst->old->push_on_hit;
     shooter = INVALID_THING;
     if (shotng->parent_idx != shotng->index) {
         shooter = thing_get(shotng->parent_idx);
@@ -985,11 +988,11 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     }
     if (shotst->old->push_on_hit != 0)
     {
-        i = amp * (long)shotng->velocity.x.val;
-        trgtng->veloc_push_add.x.val += i / 16;
-        i = amp * (long)shotng->velocity.y.val;
-        trgtng->veloc_push_add.y.val += i / 16;
-        trgtng->state_flags |= TF1_PushAdd;
+		i = amp * (long)shotng->velocity.x.val;
+		trgtng->veloc_push_add.x.val += i / 16;
+		i = amp * (long)shotng->velocity.y.val;
+		trgtng->veloc_push_add.y.val += i / 16;
+		trgtng->state_flags |= TF1_PushAdd;
     }
     create_relevant_effect_for_shot_hitting_thing(shotng, trgtng);
     if (shotst->old->is_boulder != 0)
@@ -1007,6 +1010,9 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             check_hit_when_attacking_door(trgtng);
         }
     }
+	if (shotst->area_range != 0) detonate_shot(shotng);
+
+
     if (shotst->old->destroy_on_first_hit != 0) {
         delete_thing_structure(shotng, 0);
     }
