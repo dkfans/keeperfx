@@ -283,16 +283,27 @@ void process_dig_shot_hit_wall(struct Thing *thing, unsigned long blocked_flags)
         stl_x = coord_subtile(thing->mappos.x.val);
         stl_y = coord_subtile(thing->mappos.y.val);
     }
+
     struct SlabMap *slb;
     slb = get_slabmap_for_subtile(stl_x, stl_y);
-    // You can only dig your own or neutral ground
-    if ((slabmap_owner(slb) != game.neutral_player_num) && (slabmap_owner(slb) != diggertng->owner))
+
+    // You can only dig your own tiles or non-fortified neutral ground (dirt/gold)
+    // If you're not the tile owner
+    if (slabmap_owner(slb) != diggertng->owner)
     {
-        return;
+        struct SlabAttr *slbattr;
+        slbattr = get_slab_attrs(slb);
+        // and if it's fortified
+        if (slbattr->category == SlbAtCtg_FortifiedWall)
+        {
+            // digging not allowed
+            return;
+        }
     }
+
     struct Map *mapblk;
     mapblk = get_map_block_at(stl_x, stl_y);
-    // Doors cannot be digged
+    // Doors cannot be dug
     if ((mapblk->flags & SlbAtFlg_IsDoor) != 0)
     {
         return;
