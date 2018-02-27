@@ -6,7 +6,7 @@ REM  Campaign: New game plus
 REM  Authors:  based on Bullfrog script
 REM            KeeperFX CCP Team
 REM            Loobinex
-REM  Date:     17 Dec 1996 - 14 Mar 2015
+REM  Date:     17 Dec 1996 - 27 Feb 2018
 REM  Copying and copyrights:
 REM    This program is free software; you can redistribute it and/or modify
 REM    it under the terms of the GNU General Public License as published by
@@ -69,10 +69,10 @@ ROOM_AVAILABLE(ALL_PLAYERS,TRAINING,1,1)
 ROOM_AVAILABLE(ALL_PLAYERS,RESEARCH,1,1)
 ROOM_AVAILABLE(ALL_PLAYERS,WORKSHOP,1,0)
 ROOM_AVAILABLE(ALL_PLAYERS,GUARD_POST,1,0)
-ROOM_AVAILABLE(ALL_PLAYERS,BRIDGE,1,0)
 ROOM_AVAILABLE(ALL_PLAYERS,PRISON,1,0)
 ROOM_AVAILABLE(ALL_PLAYERS,TORTURE,1,0)
 ROOM_AVAILABLE(ALL_PLAYERS,BARRACKS,1,0)
+ROOM_AVAILABLE(PLAYER0,BRIDGE,1,0)
 
 REM	Spells availability
 MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HAND,1,1)
@@ -131,6 +131,10 @@ REM "It appears you have arrived in the middle of a raging battle. Perhaps it wo
 DISPLAY_OBJECTIVE(71,ALL_PLAYERS)
 
 SET_TIMER(PLAYER_GOOD,TIMER0)
+
+IF(PLAYER0,BRIDGE >= 1)
+	ROOM_AVAILABLE(PLAYER1,BRIDGE,1,0)
+ENDIF
 
 IF(PLAYER_GOOD,FLAG0 == 0)
 	IF(PLAYER_GOOD,TIMER0 > 2000)
