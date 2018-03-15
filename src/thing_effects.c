@@ -1319,7 +1319,14 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                 }
             } else
             {
-                kill_creature(tngdst, tngsrc, -1, CrDed_DiedInBattle);
+                CrDeathFlags dieflags;
+                dieflags = CrDed_DiedInBattle;
+                // Explosions kill rather than only stun friendly creatures when imprison is on
+                if (tngsrc->owner == tngdst->owner)
+                {
+                    dieflags |= CrDed_NoUnconscious;
+                }
+                kill_creature(tngdst, tngsrc, -1, dieflags);
                 affected = true;
             }
         }
