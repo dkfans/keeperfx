@@ -774,6 +774,12 @@ long get_dungeon_control_action_inputs(void)
         if (toggle_main_cheat_menu())
             clear_key_pressed(KC_NUMPADENTER);
     }
+    // also use the main keyboard enter key (while holding shift) for cheat menu
+    if (is_key_pressed(KC_RETURN,KMod_SHIFT))
+        {
+            if (toggle_main_cheat_menu())
+                clear_key_pressed(KC_RETURN);
+        }
     if (is_key_pressed(KC_F12,KMod_DONTCARE))
     {
         // Note that we're using "close", not "toggle". Menu can't be opened here.
@@ -870,6 +876,12 @@ short get_creature_control_action_inputs(void)
         if (toggle_instance_cheat_menu())
             clear_key_pressed(KC_NUMPADENTER);
     }
+    // also use the main keyboard enter key (while holding shift) for cheat menu
+    if (is_key_pressed(KC_RETURN,KMod_SHIFT))
+        {
+            if (toggle_instance_cheat_menu())
+                clear_key_pressed(KC_RETURN);
+        }
     if (is_key_pressed(KC_F12,KMod_DONTCARE))
     {
         if (toggle_creature_cheat_menu())
@@ -1056,6 +1068,12 @@ short get_map_action_inputs(void)
       {
           if (toggle_main_cheat_menu())
             clear_key_pressed(KC_NUMPADENTER);
+      }
+      // also use the main keyboard enter key (while holding shift) for cheat menu
+      if (is_key_pressed(KC_RETURN,KMod_SHIFT))
+      {
+          if (toggle_main_cheat_menu())
+            clear_key_pressed(KC_RETURN);
       }
       if ( is_game_key_pressed(Gkey_SwitchToMap, &keycode, false) )
       {
