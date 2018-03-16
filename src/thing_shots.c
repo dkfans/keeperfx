@@ -430,6 +430,18 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     {
         if ((blocked_flags & (SlbBloF_WalledX|SlbBloF_WalledY)) != 0)
         {
+            if (shotng->model == ShM_Grenade)
+            {
+                if (shotng->shot.dexterity >= ACTION_RANDOM(90))
+                {
+                    struct Coord3d target_pos;
+                    target_pos.x.val = shotng->price.number;
+                    target_pos.y.val = shotng->shot.byte_19 * 300;
+                    target_pos.z.val = pos->z.val;
+                    const MapCoordDelta dist = get_2d_distance(pos, &target_pos);
+                    if (dist <= 800) return detonate_shot(shotng);
+                }
+            }
             doortng = get_door_for_position(pos->x.stl.num, pos->y.stl.num);
             if (!thing_is_invalid(doortng))
             {
@@ -1311,6 +1323,24 @@ TngUpdateRet update_shot(struct Thing *thing)
             break;
         case ShM_Grenade:
             thing->move_angle_xy = (thing->move_angle_xy + LbFPMath_PI/9) & LbFPMath_AngleMask;
+            int skill = thing->shot.dexterity;
+            target = thing_get(thing->shot.target_idx);
+            if (thing_is_invalid(target)) break;
+            MapCoordDelta dist;
+            if (skill <= 35)
+            {
+                dist = get_2d_distance(&thing->mappos, &target->mappos);
+                if (dist <= 260) hit = true;
+            }
+            else
+            {
+                struct Coord3d target_pos;
+                target_pos.x.val = thing->price.number;
+                target_pos.y.val = thing->shot.byte_19 * 300;
+                target_pos.z.val = target->mappos.z.val;
+                dist = get_2d_distance(&thing->mappos, &target_pos);
+                if (dist <= 260) hit = true;
+            }
             break;
         case ShM_Boulder:
         case ShM_SolidBoulder:
