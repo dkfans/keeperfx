@@ -1265,6 +1265,19 @@ TbBool destroy_effect_thing(struct Thing *efftng)
     return true;
 }
 
+MapCoordDelta get_3d_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
+{
+    long dx;
+    long dy;
+    long dz;
+
+    dx = (long)pos1->x.val - (long)pos2->x.val;
+    dy = (long)pos1->y.val - (long)pos2->y.val;
+    dz = (long)pos1->z.val - (long)pos2->z.val;
+
+    return Lb3dDistance(abs(dx), abs(dy), abs(dz));
+}
+
 /**
  * Affects a thing with explosion effect.
  *
@@ -1286,18 +1299,58 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
     TbBool affected;
     affected = false;
     SYNCDBG(17,"Starting for %s, max damage %d, max blow %d, owner %d",thing_model_name(tngdst),(int)max_damage,(int)blow_strength,(int)owner);
-    if (line_of_sight_3d(pos, &tngdst->mappos))
+
+    // The blast hits them at their midsection, not their feet (z.val).
+    // Not entirely sure that the thing's clipbox_size_yz is, but it's the best I can find per thing (especially creature).
+    MapCoordDelta tngdestMidsection_z = tngdst->mappos.z.val + (tngdst->clipbox_size_yz / 2);
+
+    //In case we want their head to be the part of them affected (so that, usually, anything they can see will blast them)
+    MapCoordDelta tngdestHead_z = tngdst->mappos.z.val + (tngdst->clipbox_size_yz);
+
+    //*********
+    //Uncomment only one of these depending on the best target for the blast line of sight:
+    //Midsection:
+    //MapCoordDelta tngdestLineOfSightTarget = tngdestMidsection_z;
+    //Head:
+    MapCoordDelta tngdestLineOfSightTarget_z = tngdestHead_z;
+    //*********
+
+    //*********
+    //Uncomment only one of these depending on the best target for the blast angle force itself:
+
+    //Midsection:
+    MapCoordDelta tngdestBlastForceTarget_z = tngdestMidsection_z;
+    //Head:
+    //MapCoordDelta tngdestBlastForceTarget_z = tngdestHead_z;
+    //*********
+
+    if (line_of_sight_3d_explosion(pos, &tngdst->mappos, tngdestLineOfSightTarget_z))
     {
         // Friendly fire usually causes less damage and at smaller distance
         if ((tngdst->class_id == TCls_Creature) && (tngdst->owner == owner)) {
             max_dist = max_dist * gameadd.friendly_fight_area_range_permil / 1000;
             max_damage = max_damage * gameadd.friendly_fight_area_damage_permil / 1000;
         }
-        distance = get_2d_distance(pos, &tngdst->mappos);
+
+        //distance = get_2d_distance(pos, &tngdst->mappos);
+
+        // get_3d_distance will decrease the distance compared to 2d,
+        // so explosion power might need to be adjusted (increased)
+        // accordingly to have the same desired effect.
+        distance = get_3d_distance(pos, &tngdst->mappos);
+
+        // If the thing is in range of the explosion blast radius
         if (distance < max_dist)
         {
-            long move_dist,move_angle;
-            move_angle = get_angle_xy_to(pos, &tngdst->mappos);
+            long move_dist;
+            long move_angle_xy;
+            move_angle_xy = get_angle_xy_to(pos, &tngdst->mappos);
+
+            // This is for the vertical direction to be pushed by the blast (just up or down, not the angle).
+            // If the target position on the creature (midsection or head depending on the above assignment)
+            // is above the explosion, they'll move upward. If below, downward.
+            MapCoordDelta dz = tngdestBlastForceTarget_z - (MapCoordDelta)pos->z.val;
+
             if (tngdst->class_id == TCls_Creature)
             {
                 HitPoints damage;
@@ -1306,14 +1359,25 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                 apply_damage_to_thing_and_display_health(tngdst, damage, damage_type, owner);
                 affected = true;
             }
-            // If the thing isn't dying, move it
+            // If the thing isn't a creature or isn't dying, move it
             if ((tngdst->class_id != TCls_Creature) || (tngdst->health >= 0))
             {
                 move_dist = get_radially_decaying_value(blow_strength,max_dist/4,3*max_dist/4,distance);
                 if (move_dist > 0)
                 {
-                    tngdst->veloc_push_add.x.val += distance_with_angle_to_coord_x(move_dist, move_angle);
-                    tngdst->veloc_push_add.y.val += distance_with_angle_to_coord_y(move_dist, move_angle);
+                    tngdst->veloc_push_add.x.val += distance_with_angle_to_coord_x(move_dist, move_angle_xy);
+                    tngdst->veloc_push_add.y.val += distance_with_angle_to_coord_y(move_dist, move_angle_xy);
+
+                    // Use dz > 0 instead to avoid the bug where creatures in water disappear briefly when being pushed by the explosion,
+                    // and flying creatures getting stuck in things.
+                    if (dz != 0)
+                    {
+                        // Only creatures, and those affected by wind (bile demons), get blasted
+                        if ( (tngdst->class_id == TCls_Creature && creature_stats_get_from_thing(tngdst)->affected_by_wind) )
+                        {
+                            tngdst->veloc_push_add.z.val += (dz / abs(dz)) * move_dist * (gameadd.explosions_vertical_push_percent / 100);
+                        }
+                    }
                     tngdst->state_flags |= TF1_PushAdd;
                     affected = true;
                 }

@@ -39,6 +39,7 @@ TbBool sibling_line_of_sight_ignoring_door(const struct Coord3d *prevpos,
 #define sibling_line_of_sight(prevpos, nextpos) sibling_line_of_sight_ignoring_door(prevpos, nextpos, INVALID_THING)
 
 TbBool line_of_sight_3d(const struct Coord3d *frpos, const struct Coord3d *topos);
+TbBool line_of_sight_3d_explosion(const struct Coord3d *frpos, const struct Coord3d *topos, MapCoordDelta tngdestBlastTarget_z);
 TbBool line_of_sight_2d(const struct Coord3d *pos1, const struct Coord3d *pos2);
 
 long get_explore_sight_distance_in_slabs(const struct Thing *thing);

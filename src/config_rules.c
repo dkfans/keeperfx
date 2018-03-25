@@ -119,6 +119,7 @@ const struct NamedCommand rules_magic_commands[] = {
   {"POWERHANDGOLDGRABAMOUNT",      14},
   {"FRIENDLYFIGHTAREARANGEPERCENT",15},
   {"FRIENDLYFIGHTAREADAMAGEPERCENT",16},
+  {"EXPLOSIONSVERTICALPUSHPERCENT",17},
   {NULL,                            0},
   };
 
@@ -957,6 +958,7 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
       game.collapse_dungeon_damage = 10;
       game.turns_per_collapse_dngn_dmg = 4;
       game.power_hand_gold_grab_amount = 100;
+      gameadd.explosions_vertical_push_percent = 0; // No vertical explosion push as default
   }
   // Find the block
   sprintf(block_buf,"magic");
@@ -1168,6 +1170,23 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
           {
             k = atoi(word_buf);
             gameadd.friendly_fight_area_damage_permil = k * 10;
+            n++;
+          }
+          if (n < 1)
+          {
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 17: // EXPLOSIONSVERTICALPUSHPERCENT
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            // no negative percentage allowed
+            if (k >= 0)
+            {
+              gameadd.explosions_vertical_push_percent = k;
+            }
             n++;
           }
           if (n < 1)
