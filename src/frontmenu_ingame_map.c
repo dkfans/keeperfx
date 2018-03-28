@@ -352,10 +352,17 @@ int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, 
     return n;
 }
 
-void pannel_map_draw_creature_dot(long mapos_x, long mapos_y, RealScreenCoord basepos, TbPixel col, long basic_zoom)
+void pannel_map_draw_creature_dot(long mapos_x, long mapos_y, RealScreenCoord basepos, TbPixel col, long basic_zoom, TbBool isLowRes)
 {
     // actual position single pixel
     pannel_map_draw_pixel(mapos_x+basepos, mapos_y+basepos, col);
+
+    if (isLowRes)
+    {
+        // If the screen is 640x480 or lower resolution, the above single pixel is all we will do here.
+        return;
+    }
+
     // Can be altered to not include 512 (zoom 3) by changing from <= to < 
     if (basic_zoom <= 512)
     {
@@ -413,6 +420,12 @@ void pannel_map_draw_creature_dot(long mapos_x, long mapos_y, RealScreenCoord ba
 
 int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zoom, long basic_zoom)
 {
+    TbBool isLowRes = 0;
+    if (units_per_px <= 16)
+    {
+       isLowRes = 1;
+    }
+
     unsigned long k;
     int i,n;
     SYNCDBG(18,"Starting");
@@ -472,7 +485,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
 
                     } else
                     {
-                        pannel_map_draw_creature_dot(mapos_x, mapos_y, basepos, col2, basic_zoom);
+                        pannel_map_draw_creature_dot(mapos_x, mapos_y, basepos, col2, basic_zoom, isLowRes);
                     }
                 } else
                 {
@@ -481,7 +494,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                     } else {
                         col = col1;
                     }
-                    pannel_map_draw_creature_dot(mapos_x, mapos_y, basepos, col, basic_zoom);
+                    pannel_map_draw_creature_dot(mapos_x, mapos_y, basepos, col, basic_zoom, isLowRes);
                 }
             }
             // Hero tunnelers may be visible even on unrevealed terrain
@@ -515,7 +528,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                     } else {
                         col = col1;
                     }
-                    pannel_map_draw_creature_dot(mapos_x, mapos_y, basepos, col, basic_zoom);
+                    pannel_map_draw_creature_dot(mapos_x, mapos_y, basepos, col, basic_zoom, isLowRes);
                 }
             }
         }
