@@ -3621,13 +3621,23 @@ TbBool create_random_hero_creature(MapCoord x, MapCoord y, PlayerNumber owner, C
   ThingModel crmodel;
   while (1) {
       crmodel = ACTION_RANDOM(crtr_conf.model_count) + 1;
+
+      // model_count is always one higher than the last available index for creature models
+      // This will allow more creature models to be added, but still catch the out-of-bounds model number.
+      if (crmodel >= crtr_conf.model_count) {
+          // try again
+          continue;
+      }
+
       // Accept only evil creatures
       struct CreatureModelConfig *crconf;
       crconf = &crtr_conf.model[crmodel];
       if ((crconf->model_flags & CMF_IsSpectator) != 0) {
           continue;
       }
+
       if ((crconf->model_flags & CMF_IsEvil) == 0) {
+          //JUSTMSG("*** CREATURE MODEL NUMBER %d", (unsigned char)crmodel);
           break;
       }
   }
