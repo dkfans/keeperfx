@@ -55,6 +55,7 @@ const struct NamedCommand cmpgn_common_commands[] = {
   {"INTRO_MOVIE",        16},
   {"OUTRO_MOVIE",        17},
   {"LAND_MARKERS",       18},
+  {"HUMAN_PLAYER",       19},
   {NULL,                  0},
   };
 
@@ -92,6 +93,15 @@ const struct NamedCommand cmpgn_map_cmnds_kind[] = {
   {"EXTRA",           LvOp_IsExtra},
   {"FREE",            LvOp_IsFree},
   {NULL,              0},
+  };
+
+const struct NamedCommand cmpgn_human_player_options[] = {
+  {"RED",        0},
+  {"BLUE",       1},
+  {"GREEN",      2},
+  {"YELLOW",     3},
+  {"WHITE",      4},
+  {NULL,         0},
   };
 
 /******************************************************************************/
@@ -191,6 +201,7 @@ TbBool clear_campaign(struct GameCampaign *campgn)
   LbMemorySet(campgn->credits_fname,0,DISKPATH_SIZE);
   campgn->credits_data = NULL;
   reset_credits(campgn->credits);
+  campgn->human_player = -1;
   return true;
 }
 
@@ -611,6 +622,16 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
           i = recognize_conf_parameter(buf,&pos,len,cmpgn_level_markers_options);
           if (i >= 0) {
               campgn->land_markers = i;
+              n++;
+          }
+          if (n < 1)
+              CONFWRNLOG("Couldn't read \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+          break;
+      case 19: // HUMAN_PLAYER
+          i = recognize_conf_parameter(buf,&pos,len,cmpgn_human_player_options);
+          if (i >= 0) {
+              campgn->human_player = i;
               n++;
           }
           if (n < 1)

@@ -112,6 +112,8 @@ struct GameCampaign {
   char hiscore_fname[DISKPATH_SIZE];
   struct HighScore *hiscore_table;
   unsigned long hiscore_count;
+  // Human player color
+  short human_player;
 };
 
 struct HighScore {
