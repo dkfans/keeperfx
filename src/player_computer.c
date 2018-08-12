@@ -1651,12 +1651,12 @@ void setup_computer_players2(void)
 
         int skirmish_AI_type = rand() % (maxSkirmishAI + 1 - minSkirmishAI) + minSkirmishAI;
         // Always set human player to computer7 (a computer assistant) by default
-        if (i == 0)
+        if (i == game.local_plyr_idx)
         {
             skirmish_AI_type = 7;
         }
         setup_a_computer_player(i, skirmish_AI_type);
-        if (i > 0)
+        if (i != game.local_plyr_idx)
         {
             JUSTMSG("No model defined for Player %d, assigned computer model %d", i, skirmish_AI_type);
         }
