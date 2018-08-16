@@ -499,6 +499,13 @@ TbBool creature_will_reject_job(const struct Thing *creatng, CreatureJob jobpref
     return (jobpref & crstat->jobs_not_do) != 0;
 }
 
+TbBool creature_dislikes_job(const struct Thing *creatng, CreatureJob jobpref)
+{
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(creatng);
+    return (jobpref & crstat->jobs_not_do) != 0;
+}
+
 TbBool is_correct_owner_to_perform_job(const struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job)
 {
     // Note that room required for job is not checked here on purpose.
@@ -1224,8 +1231,12 @@ TbBool attempt_job_secondary_preference(struct Thing *creatng, long jobpref)
         CreatureJob new_job = Job_TEMPLE_PRAY;
         if (creature_can_do_job_for_player(creatng, creatng->owner, new_job, JobChk_None))
         {
-            if (send_creature_to_job_for_player(creatng, creatng->owner, new_job)) {
-                return true;
+            if (send_creature_to_job_for_player(creatng, creatng->owner, new_job)) 
+			{
+				if (!creature_dislikes_job(creatng, new_job))
+				{
+				    return true;
+				}
             }
         }
     }
