@@ -574,14 +574,16 @@ TbBool create_transferred_creature_on_level(void)
 {
     struct Thing *thing;
     struct Coord3d *pos;
-    if (game.intralvl_transfered_creature.model > 0)
+    if (intralvl.transferred_creature.model > 0)
     {
         thing = get_player_soul_container(my_player_number);
         pos = &(thing->mappos);
-        thing = create_creature(pos, game.intralvl_transfered_creature.model, 5);
+        thing = create_creature(pos, intralvl.transferred_creature.model, 5);
         if (thing_is_invalid(thing))
+        {
           return false;
-        init_creature_level(thing, game.intralvl_transfered_creature.explevel);
+        }
+        init_creature_level(thing, intralvl.transferred_creature.explevel);
         clear_transfered_creature();
         return true;
     }

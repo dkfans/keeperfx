@@ -37,6 +37,7 @@
 #include "lens_api.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
+#include "game_merge.h"
 #include "frontmenu_ingame_map.h"
 #include "keeperfx.hpp"
 
@@ -116,6 +117,14 @@ TbBool save_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
         if (LbFileWrite(fhandle, &hdr, sizeof(struct FileChunkHeader)) == sizeof(struct FileChunkHeader))
         if (LbFileWrite(fhandle, &gameadd, sizeof(struct GameAdd)) == sizeof(struct GameAdd))
             chunks_done |= SGF_GameAdd;
+    }
+    { // IntralevelData data chunk
+        hdr.id = SGC_IntralevelData;
+        hdr.ver = 0;
+        hdr.len = sizeof(struct IntralevelData);
+        if (LbFileWrite(fhandle, &hdr, sizeof(struct FileChunkHeader)) == sizeof(struct FileChunkHeader))
+        if (LbFileWrite(fhandle, &intralvl, sizeof(struct IntralevelData)) == sizeof(struct IntralevelData))
+            chunks_done |= SGF_IntralevelData;
     }
     if (chunks_done != SGF_SavedGame)
         return false;
@@ -261,6 +270,20 @@ int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
             if ((chunks_done & SGF_PacketStart) == SGF_PacketStart)
                 return GLoad_PacketStart;
             return GLoad_Failed;
+        case SGC_IntralevelData:
+            if (hdr.len != sizeof(struct IntralevelData))
+            {
+                if (LbFileSeek(fhandle, hdr.len, Lb_FILE_SEEK_CURRENT) < 0)
+                    LbFileSeek(fhandle, 0, Lb_FILE_SEEK_END);
+                WARNLOG("Incompatible IntralevelData chunk");
+                break;
+            }
+            if (LbFileRead(fhandle, &intralvl, sizeof(struct IntralevelData)) == sizeof(struct IntralevelData)) {
+                chunks_done |= SGF_IntralevelData;
+            } else {
+                WARNLOG("Could not read IntralevelData chunk");
+            }
+            break;
         default:
             WARNLOG("Unrecognized chunk, ID = %08lx",hdr.id);
             break;
@@ -549,8 +572,13 @@ short save_continue_game(LevelNumber lvnum)
       set_continue_level_number(lvnum);
     SYNCDBG(6,"Continue set to level %d (loaded is %d)",(int)get_continue_level_number(),(int)get_loaded_level_number());
     fname = prepare_file_path(FGrp_Save,continue_game_filename);
-    fsize = LbFileSaveAt(fname, &game, sizeof(struct Game));
-    return (fsize == sizeof(struct Game));
+    fsize = LbFileSaveAt(fname, &game, sizeof(struct Game) + sizeof(struct IntralevelData));
+    // Appending IntralevelData
+    TbFileHandle fh = LbFileOpen(fname,Lb_FILE_MODE_NEW);
+    LbFileSeek(fh, sizeof(struct Game), Lb_FILE_SEEK_BEGINNING);
+    LbFileWrite(fh, &intralvl, sizeof(struct IntralevelData));
+    LbFileClose(fh);
+    return (fsize == sizeof(struct Game) + sizeof(struct IntralevelData));
 }
 
 short read_continue_game_part(unsigned char *buf,long pos,long buf_len)
@@ -559,7 +587,7 @@ short read_continue_game_part(unsigned char *buf,long pos,long buf_len)
   short result;
   char *fname;
   fname = prepare_file_path(FGrp_Save,continue_game_filename);
-  if (LbFileLength(fname) != sizeof(struct Game))
+  if (LbFileLength(fname) != sizeof(struct Game) + sizeof(struct IntralevelData))
   {
     SYNCDBG(7,"No correct .SAV file; there's no continue");
     return false;
@@ -621,7 +649,6 @@ TbBool continue_game_available(void)
 short load_continue_game(void)
 {
     unsigned char buf[14];
-    unsigned char bonus[20];
     char cmpgn_fname[CAMPAIGN_FNAME_LEN];
     long lvnum;
     long i;
@@ -646,16 +673,11 @@ short load_continue_game(void)
       return false;
     }
     set_continue_level_number(lvnum);
-    LbMemorySet(bonus, 0, sizeof(bonus));
-    i = (char *)&game.intralvl.bonuses_found[0] - (char *)&game;
-    read_continue_game_part(bonus,i,16);
-    for (i=0; i < BONUS_LEVEL_STORAGE_COUNT; i++)
-      game.intralvl.bonuses_found[i] = bonus[i];
+    // Restoring intralevel data
+    read_continue_game_part((unsigned char *)&intralvl, sizeof(struct Game),
+        sizeof(struct IntralevelData));
     LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
     update_extra_levels_visibility();
-    i = (char *)&game.intralvl_transfered_creature - (char *)&game.intralvl.bonuses_found[0];
-    game.intralvl_transfered_creature.model = bonus[i];
-    game.intralvl_transfered_creature.explevel = bonus[i+1];
     return true;
 }
 
@@ -663,8 +685,8 @@ TbBool set_transfered_creature(PlayerNumber plyr_idx, ThingModel model, long exp
 {
     if (is_my_player_number(plyr_idx))
     {
-        game.intralvl_transfered_creature.model = model;
-        game.intralvl_transfered_creature.explevel = explevel;
+        intralvl.transferred_creature.model = model;
+        intralvl.transferred_creature.explevel = explevel;
         return true;
     }
     return false;
@@ -672,8 +694,8 @@ TbBool set_transfered_creature(PlayerNumber plyr_idx, ThingModel model, long exp
 
 void clear_transfered_creature(void)
 {
-    game.intralvl_transfered_creature.model = 0;
-    game.intralvl_transfered_creature.explevel = 0;
+    intralvl.transferred_creature.model = 0;
+    intralvl.transferred_creature.explevel = 0;
 }
 
 LevelNumber move_campaign_to_next_level(void)

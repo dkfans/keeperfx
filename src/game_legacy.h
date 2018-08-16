@@ -341,9 +341,11 @@ long field_1516FB;
     long boulder_reduce_health_room;
     struct GuiMessage messages[GUI_MESSAGES_COUNT];
     unsigned char active_messages_count;
-    struct IntralevelData intralvl;
+    // Moved bonuses_foudn to IntralevelData
+    unsigned char ex_intralvl_plug[6];
     long bonus_time;
-    struct CreatureStorage intralvl_transfered_creature; //TODO [structs] When possible, add it to IntralevelData struct
+    // Moved transfered_creauture to IntralevelData
+    unsigned char ex_transfered_creature_plug[2];
     struct Armageddon armageddon;
     char active_panel_mnu_idx; /**< The MenuID of currently active panel menu, or 0 if none. */
     char comp_player_aggressive;

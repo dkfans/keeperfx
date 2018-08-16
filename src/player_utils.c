@@ -101,7 +101,7 @@ void set_player_as_won_level(struct PlayerInfo *player)
   struct Dungeon *dungeon;
   if (player->victory_state != VicS_Undecided)
   {
-      WARNLOG("Player fate is already decided to %d",(int)player->victory_state);
+      //WARNLOG("Player fate is already decided to %d",(int)player->victory_state);
       return;
   }
   if (is_my_player(player))

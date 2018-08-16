@@ -30,6 +30,8 @@
 #include "lvl_filesdk1.h"
 #include "frontmenu_ingame_tabs.h"
 
+#include "game_merge.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

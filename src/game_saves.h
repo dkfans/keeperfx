@@ -32,21 +32,23 @@ extern "C" {
 #define PLAYER_NAME_LENGTH       64
 
 enum SaveGameChunks {
-     SGC_InfoBlock    = 0x4F464E49, //"INFO"
-     SGC_GameOrig     = 0x53444C4F, //"OLDS"
-     SGC_GameAdd      = 0x44444147, //"GADD"
-     SGC_PacketHeader = 0x52444850, //"PHDR"
-     SGC_PacketData   = 0x544B4350, //"PCKT"
+     SGC_InfoBlock      = 0x4F464E49, //"INFO"
+     SGC_GameOrig       = 0x53444C4F, //"OLDS"
+     SGC_GameAdd        = 0x44444147, //"GADD"
+     SGC_PacketHeader   = 0x52444850, //"PHDR"
+     SGC_PacketData     = 0x544B4350, //"PCKT"
+     SGC_IntralevelData = 0x4C564C49, //"ILVL"
 };
 
 enum SaveGameChunkFlags {
-     SGF_InfoBlock    = 0x0001,
-     SGF_GameOrig     = 0x0002,
-     SGF_GameAdd      = 0x0004,
-     SGF_PacketHeader = 0x0100,
-     SGF_PacketData   = 0x0200,
+     SGF_InfoBlock      = 0x0001,
+     SGF_GameOrig       = 0x0002,
+     SGF_GameAdd        = 0x0004,
+     SGF_PacketHeader   = 0x0100,
+     SGF_PacketData     = 0x0200,
+     SGF_IntralevelData = 0x0400,
 };
-#define SGF_SavedGame      (SGF_InfoBlock|SGF_GameOrig|SGF_GameAdd)
+#define SGF_SavedGame      (SGF_InfoBlock|SGF_GameOrig|SGF_GameAdd|SGF_IntralevelData)
 #define SGF_PacketStart    (SGF_PacketHeader|SGF_PacketData|SGF_InfoBlock)
 #define SGF_PacketContinue (SGF_PacketHeader|SGF_PacketData|SGF_InfoBlock|SGF_GameOrig|SGF_GameAdd)
 

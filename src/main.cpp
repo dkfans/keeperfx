@@ -1672,6 +1672,7 @@ void clear_complete_game(void)
 {
     memset(&game, 0, sizeof(struct Game));
     memset(&gameadd, 0, sizeof(struct GameAdd));
+    memset(&intralvl, 0, sizeof(struct IntralevelData));
     game.turns_packetoff = -1;
     game.local_plyr_idx = default_loc_player;
     game.packet_checksum_verify = start_params.packet_checksum_verify;
@@ -2534,11 +2535,14 @@ void process_dungeons(void)
 void process_level_script(void)
 {
   SYNCDBG(6,"Starting");
+  /* Do NOT stop executing scripts after winning or losing
   struct PlayerInfo *player;
   player = get_my_player();
-  if (((game.system_flags & GSF_NetworkActive) == 0)
-      && (player->victory_state != VicS_Undecided))
+  // Do NOT stop executing scripts after a win or a loss
+  if ((game.system_flags & GSF_NetworkActive) == 0)
+  //    && (player->victory_state != VicS_Undecided))
     return;
+  */
   process_conditions();
   process_check_new_creature_partys();
 //script_process_messages(); is not here, but it is in beta - check why
@@ -3986,9 +3990,10 @@ TbBool swap_creature(long ncrt_id, long crtr_id)
 void init_level(void)
 {
     SYNCDBG(6,"Starting");
-    struct CreatureStorage transfer_mem;
+    struct IntralevelData transfer_mem;
     //_DK_init_level(); return;
-    LbMemoryCopy(&transfer_mem,&game.intralvl_transfered_creature,sizeof(struct CreatureStorage));
+    //LbMemoryCopy(&transfer_mem,&game.intralvl.transferred_creature,sizeof(struct CreatureStorage));
+    LbMemoryCopy(&transfer_mem,&intralvl,sizeof(struct IntralevelData));
     game.flags_gui = 0;
     game.action_rand_seed = 1;
     free_swipe_graphic();
@@ -4034,7 +4039,8 @@ void init_level(void)
         init_player_start(player, false);
     }
     game.numfield_D |= GNFldD_Unkn04;
-    LbMemoryCopy(&game.intralvl_transfered_creature,&transfer_mem,sizeof(struct CreatureStorage));
+    //LbMemoryCopy(&game.intralvl.transferred_creature,&transfer_mem,sizeof(struct CreatureStorage));
+    LbMemoryCopy(&intralvl,&transfer_mem,sizeof(struct IntralevelData));
     event_initialise_all();
     battle_initialise();
     ambient_sound_prepare();
@@ -4193,7 +4199,7 @@ void faststartup_network_game(void)
     game.game_kind = GKind_LocalGame;
     if (!is_campaign_loaded())
     {
-      if (!change_campaign(""))
+        if (!change_campaign(""))
         ERRORLOG("Unable to load campaign");
     }
     player = get_my_player();

@@ -1680,6 +1680,7 @@ TbBool frontend_start_new_campaign(const char *cmpgn_fname)
     struct PlayerInfo *player;
     int i;
     SYNCDBG(7,"Starting");
+    memset(&intralvl, 0, sizeof(struct IntralevelData));
     if (!change_campaign(cmpgn_fname))
         return false;
     set_continue_level_number(first_singleplayer_level());
