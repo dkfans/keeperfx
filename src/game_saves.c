@@ -390,6 +390,7 @@ TbBool load_game(long slot_num)
         init_lookups();
         return false;
     }
+    my_player_number = game.local_plyr_idx;
     LbFileClose(fh);
     LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
     reinit_level_after_load();
