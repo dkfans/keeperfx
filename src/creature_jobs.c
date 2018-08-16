@@ -1233,8 +1233,10 @@ TbBool attempt_job_secondary_preference(struct Thing *creatng, long jobpref)
         {
             if (send_creature_to_job_for_player(creatng, creatng->owner, new_job)) 
 			{
-				if (!(creature_dislikes_job(creatng, new_job))){
-                return true; }
+				if (!creature_dislikes_job(creatng, new_job))
+				{
+				    return true;
+				}
             }
         }
     }
