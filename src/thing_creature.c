@@ -5258,9 +5258,12 @@ int claim_neutral_creatures_in_sight(struct Thing *creatng, struct Coord3d *pos,
         {
             if (is_neutral_thing(thing) && line_of_sight_3d(&thing->mappos, pos))
             {
-                change_creature_owner(thing, creatng->owner);
+				if (!creature_is_kept_in_custody(creatng))
+				{
+				change_creature_owner(thing, creatng->owner);
                 mark_creature_joined_dungeon(thing);
                 n++;
+				}
             }
         }
         // Per thing code ends
