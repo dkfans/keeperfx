@@ -130,7 +130,11 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     struct Thing *thing;
     if (player->victory_state != VicS_Undecided)
     {
-        WARNLOG("Victory state already set to %d",(int)player->victory_state);
+        // Suppress redundant warnings
+        if ((game.system_flags & GSF_RunAfterVictory) == 0)
+        {
+            WARNLOG("Victory state already set to %d",(int)player->victory_state);
+        }
         return;
     }
     SYNCLOG("Player %d lost",(int)player->id_number);
