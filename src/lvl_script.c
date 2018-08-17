@@ -135,6 +135,7 @@ const struct CommandDesc command_desc[] = {
   {"ADD_TO_FLAG",                       "PAN     ", Cmd_ADD_TO_FLAG},
   {"SET_CAMPAIGN_FLAG",                 "PAN     ", Cmd_SET_CAMPAIGN_FLAG},
   {"ADD_TO_CAMPAIGN_FLAG",              "PAN     ", Cmd_ADD_TO_CAMPAIGN_FLAG},
+  {"EXPORT_VARIABLE",                   "PAA     ", Cmd_EXPORT_VARIABLE},
   {NULL,                                "        ", Cmd_NONE},
 };
 
@@ -198,6 +199,7 @@ const struct CommandDesc dk1_command_desc[] = {
 const struct CommandDesc subfunction_desc[] = {
     {"RANDOM",                     "Aaaaaaaa", Cmd_RANDOM},
     {"DRAWFROM",                   "Aaaaaaaa", Cmd_DRAWFROM},
+    {"IMPORT",                     "PA      ", Cmd_IMPORT},
     {NULL,                         "        ", Cmd_NONE},
   };
 
@@ -2302,6 +2304,19 @@ void command_add_to_campaign_flag(long plr_range_id, const char *cmpflgname, lon
   command_add_value(Cmd_ADD_TO_CAMPAIGN_FLAG, plr_range_id, flg_id, val, 0);
 }
 
+void command_export_variable(long plr_range_id, const char *varib_name, const char *cmpflgname)
+{
+    long flg_id;
+    flg_id = get_rid(campaign_flag_desc, cmpflgname);
+    if (flg_id == -1)
+    {
+        SCRPTERRLOG("Unknown campaign flag, '%s'", cmpflgname);
+        return;
+    }
+    long varib_type = get_id(variable_desc, varib_name);
+    command_add_value(Cmd_EXPORT_VARIABLE, plr_range_id, flg_id, varib_type, 0);
+}
+
 /** Adds a script command to in-game structures.
  *
  * @param cmd_desc
@@ -2526,7 +2541,9 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
     case Cmd_ADD_TO_CAMPAIGN_FLAG:
         command_add_to_campaign_flag(scline->np[0], scline->tp[1], scline->np[2]);
         break;
-
+    case Cmd_EXPORT_VARIABLE:
+        command_export_variable(scline->np[0], scline->tp[1], scline->tp[2]);
+        break;
     default:
         SCRPTERRLOG("Unhandled SCRIPT command '%s'", scline->tcmnd);
         break;
@@ -2625,6 +2642,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
 {
     char chr;
     int i;
+    long player_id, flag_id;
     for (i=0; i <= COMMANDDESC_ARGS_COUNT; i++)
     {
         chr = cmd_desc->args[i];
@@ -2795,6 +2813,25 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                 }
                 SCRPTLOG("Function \"%s\" returned value \"%s\"", funcmd_desc->textptr, scline->tp[i]);
                 };break;
+            case Cmd_IMPORT:
+                player_id = get_id(player_desc, funscline->tp[0]);
+                if (player_id >= PLAYERS_FOR_CAMPAIGN_FLAGS)
+                {
+                    SCRPTERRLOG("Cannot fetch flag values for player, '%s'", funscline->tp[0]);
+                    strcpy(scline->tp[i], "0");
+                    break;
+                }
+                flag_id = get_id(campaign_flag_desc, funscline->tp[1]);
+                if (flag_id == -1)
+                {
+                    SCRPTERRLOG("Unknown campaign flag name, '%s'", funscline->tp[1]);
+                    strcpy(scline->tp[i], "0");
+                    break;
+                }
+                SCRPTLOG("Function \"%s\" returned value \"%ld\"", funcmd_desc->textptr,
+                    intralvl.campaign_flags[player_id][flag_id]);
+                ltoa(intralvl.campaign_flags[player_id][flag_id], scline->tp[i], 10);
+                break;
             default:
                 SCRPTWRNLOG("Parameter value \"%s\" is a command which isn't supported as function", scline->tp[i]);
                 break;
@@ -4243,6 +4280,13 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       for (i=plr_start; i < plr_end; i++)
       {
           intralvl.campaign_flags[i][val2] = saturate_set_signed(intralvl.campaign_flags[i][val2] + val3, 32);
+      }
+      break;
+  case Cmd_EXPORT_VARIABLE:
+      for (i=plr_start; i < plr_end; i++)
+      {
+          SYNCDBG(8, "Setting campaign flag %ld to %ld.",i,val3);
+          intralvl.campaign_flags[i][val2] = get_condition_value(i, val3, 0);
       }
       break;
   default:
