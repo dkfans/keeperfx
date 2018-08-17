@@ -1157,7 +1157,7 @@ long food_grows(struct Thing *objtng)
             nobjtng->move_angle_xy = ACTION_RANDOM(0x800);
             nobjtng->food.byte_15 = ACTION_RANDOM(0x6FF);
             nobjtng->food.byte_16 = 0;
-          thing_play_sample(nobjtng, 80 + UNSYNC_RANDOM(3), 100, 0, 3u, 0, 1, 256);
+          thing_play_sample(nobjtng, 80 + UNSYNC_RANDOM(3), 100, 0, 3u, 0, 1, 64);
           if (!is_neutral_thing(nobjtng)) {
               struct Dungeon *dungeon;
               dungeon = get_dungeon(nobjtng->owner);

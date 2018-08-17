@@ -823,8 +823,8 @@ long instf_reinforce(struct Thing *creatng, long *param)
     if (cctrl->digger.byte_93 <= 25)
     {
         cctrl->digger.byte_93++;
-        if (!S3DEmitterIsPlayingSample(creatng->snd_emitter_id, 172, 0)) {
-            thing_play_sample(creatng, 172, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        if (!S3DEmitterIsPlayingSample(creatng->snd_emitter_id, 63, 0)) {
+            thing_play_sample(creatng, 63, NORMAL_PITCH, 0, 3, 0, 2, 128);
         }
         return 0;
     }
