@@ -924,8 +924,8 @@ TbBool script_support_setup_player_as_computer_keeper(PlayerNumber plyridx, long
         SCRPTWRNLOG("Tried to set up invalid player %d",(int)plyridx);
         return false;
     }
-	// It uses >= because the count will be one higher than
-	// the actual highest possible computer model number.
+    // It uses >= because the count will be one higher than
+    // the actual highest possible computer model number.
     if ((comp_model < 0) || (comp_model >= COMPUTER_MODELS_COUNT)) {
         SCRPTWRNLOG("Tried to set up player %d as outranged computer model %d",(int)plyridx,(int)comp_model);
         comp_model = 0;
@@ -1160,7 +1160,7 @@ void command_if(long plr_range_id, const char *varib_name, const char *operatr, 
       SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
       return;
     }
-    // Recognize variable
+    // Recognize variable TODO: Move to separate func?
     if (level_file_version > 0)
     {
         varib_type = get_id(variable_desc, varib_name);
@@ -2308,14 +2308,63 @@ void command_add_to_campaign_flag(long plr_range_id, const char *cmpflgname, lon
 void command_export_variable(long plr_range_id, const char *varib_name, const char *cmpflgname)
 {
     long flg_id;
+    long varib_type;
+    long varib_id;
+    // Recognize flag
     flg_id = get_rid(campaign_flag_desc, cmpflgname);
     if (flg_id == -1)
     {
-        SCRPTERRLOG("Unknown campaign flag, '%s'", cmpflgname);
+        SCRPTERRLOG("Unknown CAMPAIGN FLAG, '%s'", cmpflgname);
         return;
     }
-    long varib_type = get_id(variable_desc, varib_name);
-    command_add_value(Cmd_EXPORT_VARIABLE, plr_range_id, flg_id, varib_type, 0);
+    // Recognize variable
+    if (level_file_version > 0)
+    {
+        varib_type = get_id(variable_desc, varib_name);
+    } else
+    {
+        varib_type = get_id(dk1_variable_desc, varib_name);
+    }
+    if (varib_type == -1)
+        varib_id = -1;
+    else
+        varib_id = 0;
+    if (varib_id == -1)
+    {
+        varib_id = get_id(creature_desc, varib_name);
+        varib_type = SVar_CREATURE_NUM;
+    }
+    if (varib_id == -1)
+    {
+        varib_id = get_id(room_desc, varib_name);
+        varib_type = SVar_ROOM_SLABS;
+    }
+    if (varib_id == -1)
+    {
+        varib_id = get_id(timer_desc, varib_name);
+        varib_type = SVar_TIMER;
+    }
+    if (varib_id == -1)
+    {
+        varib_id = get_id(flag_desc, varib_name);
+        varib_type = SVar_FLAG;
+    }
+    if (varib_id == -1)
+    {
+        varib_id = get_id(door_desc, varib_name);
+        varib_type = SVar_DOOR_NUM;
+    }
+    if (varib_id == -1)
+    {
+        varib_id = get_id(trap_desc, varib_name);
+        varib_type = SVar_TRAP_NUM;
+    }
+    if (varib_id == -1)
+    {
+        SCRPTERRLOG("Unknown VARIABLE, '%s'", varib_name);
+        return;
+    }
+    command_add_value(Cmd_EXPORT_VARIABLE, plr_range_id, varib_type, varib_id, flg_id);
 }
 
 /** Adds a script command to in-game structures.
@@ -2648,7 +2697,8 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
 {
     char chr;
     int i;
-    long player_id, flag_id;
+    long player_id;
+    long flag_id;
     for (i=0; i <= COMMANDDESC_ARGS_COUNT; i++)
     {
         chr = cmd_desc->args[i];
@@ -4291,8 +4341,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   case Cmd_EXPORT_VARIABLE:
       for (i=plr_start; i < plr_end; i++)
       {
-          SYNCDBG(8, "Setting campaign flag %ld to %ld.",i,val3);
-          intralvl.campaign_flags[i][val2] = get_condition_value(i, val3, 0);
+          SYNCDBG(8, "Setting campaign flag[%ld][%ld] to %ld.", i, val4, get_condition_value(i, val2, val3));
+          intralvl.campaign_flags[i][val4] = get_condition_value(i, val2, val3);
       }
       break;
   default:
