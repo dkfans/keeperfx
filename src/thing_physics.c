@@ -176,7 +176,9 @@ TbBool cross_y_boundary_first(const struct Coord3d *pos1, const struct Coord3d *
 TbBool position_over_floor_level(const struct Thing *thing, const struct Coord3d *pos)
 {
     struct Coord3d modpos;
-    modpos = *pos;
+    modpos.x.val = pos->x.val;
+    modpos.y.val = pos->y.val;
+    modpos.z.val = pos->z.val;
     if (thing_in_wall_at(thing, &modpos))
     {
         long curr_height, norm_height;
@@ -228,10 +230,14 @@ long creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos)
                 // No need to restore mappos - it was not modified yet
                 return 1;
             }
-            thing->mappos = modpos;
+            thing->mappos.x.val = modpos.x.val;
+            thing->mappos.y.val = modpos.y.val;
+            thing->mappos.z.val = modpos.z.val;
             thing->mappos.z.val = get_thing_height_at(thing, &modpos);
 
-            realpos = thing->mappos;
+            realpos.x.val = thing->mappos.x.val;
+            realpos.y.val = thing->mappos.y.val;
+            realpos.z.val = thing->mappos.z.val;
 
             if (pos->y.val <= realpos.y.val)
               i = (realpos.y.val & 0xFF00) - 1;
@@ -244,10 +250,14 @@ long creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos)
                 thing->mappos = origpos;
                 return 1;
             }
-            thing->mappos = modpos;
+            thing->mappos.x.val = modpos.x.val;
+            thing->mappos.y.val = modpos.y.val;
+            thing->mappos.z.val = modpos.z.val;
             thing->mappos.z.val = get_thing_height_at(thing, &modpos);
 
-            realpos = thing->mappos;
+            realpos.x.val = thing->mappos.x.val;
+            realpos.y.val = thing->mappos.y.val;
+            realpos.z.val = thing->mappos.z.val;
 
             modpos.x.val = pos->x.val;
             modpos.y.val = pos->y.val;
@@ -275,10 +285,14 @@ long creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos)
                 // No need to restore mappos - it was not modified yet
                 return 1;
             }
-            thing->mappos = modpos;
+            thing->mappos.x.val = modpos.x.val;
+            thing->mappos.y.val = modpos.y.val;
+            thing->mappos.z.val = modpos.z.val;
             thing->mappos.z.val = get_thing_height_at(thing, &modpos);
 
-            realpos = thing->mappos;
+            realpos.x.val = thing->mappos.x.val;
+            realpos.y.val = thing->mappos.y.val;
+            realpos.z.val = thing->mappos.z.val;
 
             if (pos->x.val <= realpos.x.val)
               i = (realpos.x.val & 0xFF00) - 1;
@@ -291,10 +305,14 @@ long creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos)
                 thing->mappos = origpos;
                 return 1;
             }
-            thing->mappos = modpos;
+            thing->mappos.x.val = modpos.x.val;
+            thing->mappos.y.val = modpos.y.val;
+            thing->mappos.z.val = modpos.z.val;
             thing->mappos.z.val = get_thing_height_at(thing, &modpos);
 
-            realpos = thing->mappos;
+            realpos.x.val = thing->mappos.x.val;
+            realpos.y.val = thing->mappos.y.val;
+            realpos.z.val = thing->mappos.z.val;
 
             modpos.x.val = pos->x.val;
             modpos.y.val = pos->y.val;

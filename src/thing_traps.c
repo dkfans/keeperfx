@@ -612,7 +612,9 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
     }
     thing->class_id = TCls_Trap;
     thing->model = trpkind;
-    thing->mappos = *pos;
+    thing->mappos.x.val = pos->x.val;
+    thing->mappos.y.val = pos->y.val;
+    thing->mappos.z.val = pos->z.val;
     thing->next_on_mapblk = 0;
     thing->parent_idx = thing->index;
     thing->owner = plyr_idx;

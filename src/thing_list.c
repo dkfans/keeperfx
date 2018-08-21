@@ -1058,7 +1058,9 @@ void init_player_start(struct PlayerInfo *player, TbBool keep_prev)
     if (!thing_is_invalid(thing))
     {
         dungeon->dnheart_idx = thing->index;
-        dungeon->mappos = thing->mappos;
+        dungeon->mappos.x.val = thing->mappos.x.val;
+        dungeon->mappos.y.val = thing->mappos.y.val;
+        dungeon->mappos.z.val = thing->mappos.z.val;
     } else
     {
         dungeon->dnheart_idx = 0;
