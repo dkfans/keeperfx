@@ -5229,6 +5229,17 @@ int claim_neutral_creatures_in_sight(struct Thing *creatng, struct Coord3d *pos,
                     }
                     n++;
 				}
+                // Unless the relevant classic bug is enabled,
+                // neutral creatures in custody (prison/torture) can only be claimed by the player who holds it captive
+                // and neutral creatures can not be claimed by creatures in custody.
+                if ((gameadd.classic_bugs_flags & ClscBug_PassiveNeutrals)
+                    || (get_room_creature_works_in(thing)->owner == creatng->owner && !creature_is_kept_in_custody(creatng))
+                    || !( creature_is_kept_in_custody(thing) || creature_is_kept_in_custody(creatng) ))
+                {
+                    change_creature_owner(thing, creatng->owner);
+                    mark_creature_joined_dungeon(thing);
+                    n++;
+                }
             }
         }
         // Per thing code ends

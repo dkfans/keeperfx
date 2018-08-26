@@ -491,7 +491,7 @@ CrCheckRet process_torture_function(struct Thing *creatng)
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     anger_apply_anger_to_creature(creatng, crstat->annoy_in_torture, AngR_Other, 1);
-    if ((long)game.play_gameturn >= cctrl->turns_at_job + game.turns_per_torture_health_loss)
+    if (((long)game.play_gameturn >= cctrl->turns_at_job + game.turns_per_torture_health_loss) && (!(creatng->owner == NEUTRAL_PLAYER)))
     {
         i = compute_creature_max_health(game.torture_health_loss,cctrl->explevel);
         remove_health_from_thing_and_display_health(creatng, i);

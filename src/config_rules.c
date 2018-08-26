@@ -85,6 +85,7 @@ const struct NamedCommand rules_game_classicbugs_commands[] = {
   {"FULLY_HAPPY_WITH_GOLD",       9},
   {"FAINTED_IMMUNE_TO_BOULDER",  10},
   {"REBIRTH_KEEPS_SPELLS",       11},
+  {"PASSIVE_NEUTRALS",           12},
   {NULL,                          0},
   };
 
@@ -656,6 +657,10 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
                   break;
               case 11: // REBIRTH_KEEPS_SPELLS
                   gameadd.classic_bugs_flags |= ClscBug_RebirthKeepsSpells;
+                  n++;
+                  break;
+              case 12: // PASSIVE_NEUTRALS
+                  gameadd.classic_bugs_flags |= ClscBug_PassiveNeutrals;
                   n++;
                   break;
               default:

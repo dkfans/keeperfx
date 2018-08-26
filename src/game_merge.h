@@ -76,6 +76,7 @@ enum ClassicBugFlags {
     ClscBug_FullyHappyWithGold     = 0x0100,
     ClscBug_FaintedImmuneToBoulder = 0x0200,
     ClscBug_RebirthKeepsSpells     = 0x0400,
+    ClscBug_PassiveNeutrals        = 0x0800,
 };
 
 enum GameFlags2 {
