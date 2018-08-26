@@ -76,6 +76,7 @@ const struct NamedCommand rules_game_classicbugs_commands[] = {
   {"RESURRECT_REMOVED",           4},
   {"NO_HAND_PURGE_ON_DEFEAT",     5},
   {"MUST_OBEY_KEEPS_NOT_DO_JOBS", 6},
+  {"PASSIVE_NEUTRALS",            7},
   {NULL,                          0},
   };
 
@@ -612,6 +613,10 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
                   break;
               case 6: // MUST_OBEY_KEEPS_NOT_DO_JOBS
                   gameadd.classic_bugs_flags |= ClscBug_MustObeyKeepsNotDoJobs;
+                  n++;
+                  break;
+              case 7: // PASSIVE_NEUTRALS
+                  gameadd.classic_bugs_flags |= ClscBug_PassiveNeutrals;
                   n++;
                   break;
               default:

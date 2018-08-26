@@ -66,6 +66,7 @@ enum ClassicBugFlags {
     ClscBug_ResurrectRemoved       = 0x0008,
     ClscBug_NoHandPurgeOnDefeat    = 0x0010,
     ClscBug_MustObeyKeepsNotDoJobs = 0x0020,
+	ClscBug_PassiveNeutrals        = 0x0040,
 };
 
 /******************************************************************************/
