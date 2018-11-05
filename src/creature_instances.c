@@ -824,7 +824,7 @@ long instf_reinforce(struct Thing *creatng, long *param)
     {
         cctrl->digger.byte_93++;
         if (!S3DEmitterIsPlayingSample(creatng->snd_emitter_id, 63, 0)) {
-            thing_play_sample(creatng, 63, NORMAL_PITCH, 0, 3, 0, 2, 128);
+            thing_play_sample(creatng, 1005 + UNSYNC_RANDOM(7), NORMAL_PITCH, 0, 3, 0, 2, 32);
         }
         return 0;
     }
