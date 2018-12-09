@@ -41,7 +41,7 @@ DKILLCONV_PACKAGE=$(notdir $(DKILLCONV_DOWNLOAD))
 
 # Tools and libraries to be used for the target system
 # Currently, the target is always windows-mingw32
-SDL_DOWNLOAD=https://www.libsdl.org/release/SDL-devel-1.2.14-mingw32.tar.gz
+SDL_DOWNLOAD=https://www.libsdl.org/release/SDL-devel-1.2.15-mingw32.tar.gz
 SDL_PACKAGE=$(notdir $(SDL_DOWNLOAD))
 SDL_NET_DOWNLOAD=https://www.libsdl.org/projects/SDL_net/release/SDL_net-devel-1.2.7-VC8.zip
 SDL_NET_PACKAGE=$(notdir $(SDL_NET_DOWNLOAD))
