@@ -71,6 +71,7 @@ enum TbFeature {
     Ft_HiResCreatr =  0x0008,
     Ft_AdvAmbSonud =  0x0010,
     Ft_Censorship  =  0x0020,
+    Ft_Atmossounds =  0x0040,
 };
 
 enum TbExtraLevels {
@@ -194,6 +195,7 @@ unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *
 TbBool update_features(unsigned long mem_size);
 TbBool is_feature_on(unsigned long feature);
 TbBool censorship_enabled(void);
+TbBool atmos_sounds_enabled(void);
 short load_configuration(void);
 short calculate_moon_phase(short do_calculate,short add_to_log);
 void load_or_create_high_score_table(void);

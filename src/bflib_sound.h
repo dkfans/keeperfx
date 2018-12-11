@@ -180,6 +180,7 @@ long S3DGetDeadzoneRadius(void);
 
 void play_non_3d_sample(long sample_idx);
 void play_non_3d_sample_no_overlap(long smpl_idx);
+void play_atmos_sound(long smpl_idx);
 short sound_emitter_in_use(SoundEmitterID eidx);
 long get_best_sound_heap_size(long mem_size);
 struct SampleInfo *play_sample_using_heap(unsigned long a1, short a2, unsigned long a3, unsigned long a4, unsigned long a5, char a6, unsigned char a7, SoundBankID bank_id);

@@ -296,20 +296,50 @@ void update_player_sounds(void)
           ((k<=300) && ((k % 50) == 0)) || ((k % 250) == 0))) )
         play_non_3d_sample(89);
     }
-    // Rare message easter egg
-    if ((game.play_gameturn != 0) && ((game.play_gameturn % 20000) == 0))
+    if (game.play_gameturn != 0)
     {
-        if (ACTION_RANDOM(2000) == 0)
+        // Rare message easter egg
+        if ((game.play_gameturn % 20000) == 0)
         {
-          k = UNSYNC_RANDOM(10);
-          SYNCDBG(9,"Rare message condition met, selected %d",(int)k);
-          if (k == 7)
-          {
+            if (ACTION_RANDOM(2000) == 0)
+            {
+              k = UNSYNC_RANDOM(10);
+              SYNCDBG(9,"Rare message condition met, selected %d",(int)k);
+              if (k == 7)
+              {
             output_message(SMsg_PantsTooTight, 0, true);
-          } else
-          {
-            output_message(SMsg_FunnyMessages+k, 0, true);
-          }
+              } else
+              {
+                output_message(SMsg_FunnyMessages+k, 0, true);
+              } 
+            }
+        // Atmospheric background sound, replaces AWE soundfont
+        } else
+        {
+            if ( atmos_sounds_enabled() )
+            {
+                //Plays the drops, sound 1013, with a small chance of a random other sound.
+                k = UNSYNC_RANDOM(400);
+                if (k == 1)
+                {
+                    // No atmos sounds the first 3 minutes
+                    if (game.play_gameturn > 3600)
+                    {
+                        play_atmos_sound(1014 + UNSYNC_RANDOM(21));
+                    }
+                } else
+                {
+                    // No atmos drops the first 30 seconds
+                    if (game.play_gameturn > 600)
+                    {
+                        // Roughly every 2 seconds drops sound
+                        if ((k % 40) == 0)
+                        {
+                            play_atmos_sound(1013);
+                        }
+                    }
+                }
+            }
         }
     }
     SYNCDBG(9,"Finished");
