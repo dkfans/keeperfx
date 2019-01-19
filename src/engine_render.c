@@ -2238,7 +2238,31 @@ void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct Coord3
 
 void create_status_box(struct Thing *thing, struct EngineCoord *ecor)
 {
-    _DK_create_status_box(thing, ecor); return;
+    //_DK_create_status_box(thing, ecor); return;
+    struct EngineCoord coord = *ecor;
+    coord.y += (uint16_t)thing->clipbox_size_yz + shield_offset[thing->model];
+    rotpers(&coord, &camera_matrix);
+    if (getpoly >= poly_pool_end)
+        return;
+    int bckt_idx = coord.z / 16;
+    if (!lens_mode)
+        bckt_idx = 1;
+    if (bckt_idx < 0)
+        bckt_idx = 0;
+    else if (bckt_idx > BUCKETS_COUNT-2)
+        bckt_idx = BUCKETS_COUNT-2;
+
+    struct BasicUnk14* poly = (struct BasicUnk14*)getpoly;
+    if (getpoly >= poly_pool_end)
+        return;
+    getpoly += sizeof(struct BasicUnk14);
+    poly->b.next = buckets[bckt_idx];
+    poly->b.kind = QK_StatusSprites;
+    buckets[bckt_idx] = (struct BasicQ *)poly;
+    poly->thing = thing;
+    poly->x = coord.view_width;
+    poly->y = coord.view_height;
+    poly->z = coord.z;
 }
 
 void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane_start, long plane_end)
@@ -4117,7 +4141,7 @@ void display_drawlist(void)
                   // Status sprites grow smaller slower than zoom
                   int status_zoom;
                   status_zoom = (camera_zoom+CAMERA_ZOOM_MAX)/2;
-                  draw_status_sprites(item.unk14->field_C, item.unk14->field_10, item.unk14->thing, status_zoom*16/units_per_pixel);
+                  draw_status_sprites(item.unk14->x, item.unk14->y, item.unk14->thing, status_zoom*16/units_per_pixel);
               }
           }
           break;
@@ -4444,9 +4468,9 @@ void display_fast_drawlist(struct Camera *cam)
                 break;
             case QK_StatusSprites:
                 if (pixel_size == 1)
-                    draw_status_sprites(item.unk14->field_C, item.unk14->field_10, item.unk14->thing, 48*256);
+                    draw_status_sprites(item.unk14->x, item.unk14->y, item.unk14->thing, 48*256);
                 else
-                    draw_status_sprites(item.unk14->field_C, item.unk14->field_10, item.unk14->thing, 16*256);
+                    draw_status_sprites(item.unk14->x, item.unk14->y, item.unk14->thing, 16*256);
                 break;
             case QK_TextureQuad:
                 draw_texturedquad_block(item.txquad);
@@ -4541,10 +4565,10 @@ void create_status_box_element(struct Thing *thing, long a2, long a3, long a4, l
     poly->thing = thing;
     if (pixel_size > 0)
     {
-        poly->field_C = a2 / pixel_size;
-        poly->field_10 = a3 / pixel_size;
+        poly->x = a2 / pixel_size;
+        poly->y = a3 / pixel_size;
     }
-    poly->field_14 = a4;
+    poly->z = a4;
 }
 
 void create_fast_view_status_box(struct Thing *thing, long x, long y)
