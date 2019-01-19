@@ -4407,7 +4407,7 @@ short process_command_line(unsigned short argc, char *argv[])
 
   SoundDisabled = 0;
   // Note: the working log file is set up in LbBullfrogMain
-  _DK_LbErrorLogSetup(0, 0, 1);
+  LbErrorLogSetup(0, 0, 1);
 
   set_default_startup_parameters();
 

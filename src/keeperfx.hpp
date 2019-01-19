@@ -232,9 +232,6 @@ extern struct GuiBox *gui_cheat_box;
 extern int test_variable;
 extern struct StartupParameters start_params;
 
-//Functions - exported by the DLL
-DLLIMPORT int __stdcall _DK_LbErrorLogSetup(char *directory, char *filename, unsigned char flag);
-
 //Functions - reworked
 short setup_game(void);
 void game_loop(void);
