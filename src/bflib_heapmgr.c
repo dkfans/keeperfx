@@ -26,7 +26,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT struct HeapMgrHandle *_DK_heapmgr_add_item(struct HeapMgrHeader *hmhead, long idx);
 DLLIMPORT long _DK_heapmgr_free_handle(struct HeapMgrHeader *hmhead, struct HeapMgrHandle *hmhandle);
 /******************************************************************************/
 struct HeapMgrHandle *find_free_handle(struct HeapMgrHeader *hmhead)
@@ -94,9 +93,80 @@ void heapmgr_make_newest(struct HeapMgrHeader *hmhead, struct HeapMgrHandle *hmh
     }
 }
 
-struct HeapMgrHandle *heapmgr_add_item(struct HeapMgrHeader *hmhead, long idx)
+struct HeapMgrHandle *heapmgr_add_item(struct HeapMgrHeader *hmhdr, long idx)
 {
-    return _DK_heapmgr_add_item(hmhead, idx);
+    if ((hmhdr->databuf_free - hmhdr->field_14) < idx)
+        return NULL;
+
+    struct HeapMgrHandle* res = NULL;
+    if (hmhdr->handles_count > hmhdr->field_10)
+    {
+        res = (struct HeapMgrHandle*)&hmhdr[1];
+        if ((uint16_t)hmhdr[1].databuf_free) // TODO: why were only 16bit checked, padding? hidden member?
+            while ((++res)->flags) {}
+    }
+    if (!res)
+        return NULL;
+    struct HeapMgrHandle* alloc_iter = hmhdr->first_alloc;
+    if (alloc_iter)
+    {
+        if ((uint8_t*)alloc_iter->buf - hmhdr->databuf_start < idx)
+        {
+            while (1)
+            {
+                uint8_t* buf;
+                if (alloc_iter->next_alloc)
+                    buf = (uint8_t*)alloc_iter->next_alloc->buf;
+                else
+                    buf = hmhdr->databuf_end;
+                int size = &buf[-alloc_iter->len] - (uint8_t*)alloc_iter->buf;
+                if (size < 0)
+                {
+                    ERRORLOG("Overlapping heap blocks");
+                    return NULL;
+                }
+                if (size >= idx)
+                    break;
+                if (!alloc_iter->next_alloc)
+                    return NULL;
+                alloc_iter = alloc_iter->next_alloc;
+            }
+            res->buf = (char*)alloc_iter->buf + alloc_iter->len;
+            res->field_C = alloc_iter;
+            res->next_alloc = alloc_iter->next_alloc;
+            if (alloc_iter->next_alloc)
+                alloc_iter->next_alloc->field_C = res;
+            alloc_iter->next_alloc = res;
+        }
+        else
+        {
+            res->buf = hmhdr->databuf_start;
+            res->next_alloc = alloc_iter;
+            hmhdr->first_alloc = res;
+            alloc_iter->field_C = res;
+        }
+    }
+    else
+    {
+        hmhdr->first_alloc = res;
+        res->buf = hmhdr->databuf_start;
+    }
+    res->flags = 1;
+    res->len = idx;
+    hmhdr->field_14 += idx;
+    ++hmhdr->field_10;
+    if (hmhdr->first_hndl)
+    {
+        hmhdr->first_hndl->next_hndl = res;
+        res->prev_hndl = hmhdr->first_hndl;
+    }
+    else
+        hmhdr->last_hndl = res;
+
+    hmhdr->first_hndl = res;
+    if ((uint8_t*)res->buf + res->len >= hmhdr->databuf_end)
+        ERRORLOG("Disaster. Handle allocated past end of heap area");
+    return res;
 }
 
 struct HeapMgrHeader *heapmgr_init(unsigned char *buf_end, long buf_remain, long nheaders)

@@ -45,7 +45,7 @@ struct HeapMgrHandle { // sizeof = 28
   unsigned long len;
   unsigned short flags;
   unsigned short idx;
-  unsigned long field_C;
+  struct HeapMgrHandle* field_C;
   struct HeapMgrHandle *next_alloc;
   struct HeapMgrHandle *prev_hndl;
   struct HeapMgrHandle *next_hndl;
