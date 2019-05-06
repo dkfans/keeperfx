@@ -59,19 +59,12 @@ struct Dungeon *get_players_dungeon_f(const struct PlayerInfo *player,const char
 
 struct Dungeon *get_dungeon_f(PlayerNumber plyr_num,const char *func_name)
 {
-    if ((plyr_num >= 0) || (plyr_num < DUNGEONS_COUNT))
-    {
-        return &(game.dungeon[(int)plyr_num]);
-    }
-    if (plyr_num == NEUTRAL_PLAYER) // Suppress error for never existing but valid neutral 'player'
-    {
-        SYNCDBG(3, "%s: Tried to get neutral dungeon!",func_name);
-    }
-    else
+    if ((plyr_num < 0) || (plyr_num >= DUNGEONS_COUNT))
     {
         ERRORLOG("%s: Tried to get non-existing dungeon %ld!",func_name,(long)plyr_num);
+        return INVALID_DUNGEON;
     }
-    return INVALID_DUNGEON;
+    return &(game.dungeon[(int)plyr_num]);
 }
 
 TbBool dungeon_invalid(const struct Dungeon *dungeon)

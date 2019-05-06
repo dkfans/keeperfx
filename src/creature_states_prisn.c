@@ -49,15 +49,12 @@ DLLIMPORT long _DK_process_prison_food(struct Thing *creatng, struct Room *room)
 }
 #endif
 /******************************************************************************/
-TbBool jailbreak_possible(struct Room *room, long creature_owner)
+TbBool jailbreak_possible(struct Room *room, long plyr_idx)
 {
     unsigned long i;
     unsigned long k;
     struct SlabMap *slb;
-    // Neutral creatures (in any player's prison)
-    // and creatures in the prisons of their owner can't jailbreak
-    if (creature_owner == NEUTRAL_PLAYER || room->owner == creature_owner)
-    {
+    if (room->owner == plyr_idx) {
         return false;
     }
     k = 0;
@@ -70,10 +67,8 @@ TbBool jailbreak_possible(struct Room *room, long creature_owner)
             ERRORLOG("Jump to invalid room slab detected");
             break;
         }
-        if (slab_by_players_land(creature_owner, slb_num_decode_x(i), slb_num_decode_y(i)))
-        {
+        if (slab_by_players_land(plyr_idx, slb_num_decode_x(i), slb_num_decode_y(i)))
             return true;
-        }
         i = get_next_slab_number_in_room(i);
         k++;
         if (k > map_tiles_x * map_tiles_y)
