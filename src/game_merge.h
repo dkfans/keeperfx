@@ -109,7 +109,6 @@ struct GameAdd {
     long critical_health_permil;
     long friendly_fight_area_damage_permil;
     long friendly_fight_area_range_permil;
-    long explosions_vertical_push_percent;
     unsigned char torture_convert_chance;
     TbBool scavenge_good_allowed;
     TbBool scavenge_neutral_allowed;
