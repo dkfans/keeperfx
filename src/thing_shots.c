@@ -288,18 +288,28 @@ void process_dig_shot_hit_wall(struct Thing *thing, unsigned long blocked_flags)
     slb = get_slabmap_for_subtile(stl_x, stl_y);
 
     // You can only dig your own tiles or non-fortified neutral ground (dirt/gold)
-    // If you're not the tile owner
-    if (slabmap_owner(slb) != diggertng->owner)
-    {
-        struct SlabAttr *slbattr;
-        slbattr = get_slab_attrs(slb);
-        // and if it's fortified
-        if (slbattr->category == SlbAtCtg_FortifiedWall)
-        {
-            // digging not allowed
-            return;
-        }
-    }
+    // If you're not the tile owner, unless the classic bug mode is enabled.
+	if (!(gameadd.classic_bugs_flags & ClscBug_BreakNeutralWalls))
+	{
+		if (slabmap_owner(slb) != diggertng->owner)
+		{
+			struct SlabAttr *slbattr;
+			slbattr = get_slab_attrs(slb);
+			// and if it's fortified
+			if (slbattr->category == SlbAtCtg_FortifiedWall)
+			{
+				// digging not allowed
+				return;
+			}
+		}
+	}
+	else
+	{
+		if ((slabmap_owner(slb) != game.neutral_player_num) && (slabmap_owner(slb) != diggertng->owner))
+		{
+			return;
+		}
+	}
 
     struct Map *mapblk;
     mapblk = get_map_block_at(stl_x, stl_y);
