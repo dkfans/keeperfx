@@ -329,7 +329,6 @@ TbBool instance_is_ranged_weapon(CrInstance inum)
     {
     case CrInst_FIRE_ARROW:
     case CrInst_FIREBALL:
-    case CrInst_GRENADE:
     case CrInst_FIRE_BOMB:
     case CrInst_LIGHTNING:
     case CrInst_POISON_CLOUD:
@@ -369,6 +368,7 @@ TbBool instance_is_quick_range_weapon(CrInstance inum)
     case CrInst_NAVIGATING_MISSILE:
     case CrInst_LIGHTNING:
     case CrInst_HAILSTORM:
+    case CrInst_GRENADE:
     case CrInst_POISON_CLOUD:
         return true;
     }
