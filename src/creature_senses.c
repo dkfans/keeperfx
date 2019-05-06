@@ -728,33 +728,14 @@ TbBool line_of_sight_3d(const struct Coord3d *frpos, const struct Coord3d *topos
             maxdim1 = frpos->x.stl.num;
             maxdim2 = topos->x.stl.num;
         }
-        // Decreasing by 1 step compared to originally, to avoid floor/wall wibble lumps
-        // that block the explosion that is happening "within" them
-        distance = abs(maxdim2 - maxdim1) - 1;
+        distance = abs(maxdim2 - maxdim1);
     }
     // Go through the distance with given increases
     struct Coord3d prevpos;
     struct Coord3d nextpos;
-
     prevpos.x.val = frpos->x.val;
-    // avoid dividing by zero
-    if (increase_x != 0)
-    {
-        // add 1 to the x position, in the correct sign (1 or -1)
-        prevpos.x.val += (increase_x / abs(increase_x));
-    }
     prevpos.y.val = frpos->y.val;
-    if (increase_y != 0)
-    {
-        // add 1 to the y position, in the correct sign (1 or -1)
-        prevpos.y.val += (increase_y / abs(increase_y));
-    }
     prevpos.z.val = frpos->z.val;
-    if (increase_z != 0)
-    {
-        // add 1 to the z position, in the correct sign (1 or -1)
-        prevpos.z.val += (increase_z / abs(increase_z));
-    }
     nextpos.x.val = prevpos.x.val + increase_x;
     nextpos.y.val = prevpos.y.val + increase_y;
     nextpos.z.val = prevpos.z.val + increase_z;
