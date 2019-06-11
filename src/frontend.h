@@ -82,6 +82,7 @@ enum FrontendMenuStates {
   FeSt_STORY_BIRTHDAY,
   FeSt_LEVEL_SELECT,
   FeSt_CAMPAIGN_SELECT,
+  FeSt_DRAG,
   // Special testing states
   FeSt_FONT_TEST          = 255,
 };

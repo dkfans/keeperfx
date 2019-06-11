@@ -162,6 +162,14 @@ TbBool moon_video(void)
     return play_smacker_file(fname, -2);
 }
 
+TbBool drag_video(void)
+{
+    char *fname;
+    fname = prepare_file_path(FGrp_LoData, "drag.smk");
+    SYNCDBG(0,"Playing outro movie \"%s\"",fname);
+    return play_smacker_file(fname, FeSt_TORTURE);
+}
+
 void demo(void)
 {
     static long index = 0;

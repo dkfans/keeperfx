@@ -3154,6 +3154,9 @@ short frontend_draw(void)
     case FeSt_DEMO:
         demo();
         return 0;
+    case FeSt_DRAG:
+        drag_video();
+        return 0;
     case FeSt_OUTRO:
         campaign_outro();
         return 0;
@@ -3461,6 +3464,8 @@ FrontendMenuState get_menu_state_when_back_from_substate(FrontendMenuState subst
     case FeSt_TORTURE:
     case FeSt_OUTRO:
         return FeSt_LEVEL_STATS;
+    case FeSt_DRAG:
+        return FeSt_TORTURE;
     case FeSt_LEVEL_STATS:
         if ((game.system_flags & GSF_NetworkActive) != 0)
             return FeSt_NET_SESSION;
@@ -3517,7 +3522,7 @@ FrontendMenuState get_startup_menu_state(void)
         if ((player->field_3 & Pf3F_Unkn10) != 0)
         { // Player has tortured LOTL - go FeSt_TORTURE before any others
           player->field_3 &= ~Pf3F_Unkn10;
-          return FeSt_TORTURE;
+          return FeSt_DRAG;
         } else
         if ((player->flgfield_6 & PlaF6_PlyrHasQuit) == 0)
         {
@@ -3550,7 +3555,7 @@ FrontendMenuState get_startup_menu_state(void)
             if ((player->field_3 & Pf3F_Unkn10) != 0)
             {
                 player->field_3 &= ~Pf3F_Unkn10;
-                return FeSt_TORTURE;
+                return FeSt_DRAG;
             } else
             if (get_continue_level_number() == SINGLEPLAYER_FINISHED)
             {
