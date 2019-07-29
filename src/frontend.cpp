@@ -3552,14 +3552,14 @@ FrontendMenuState get_startup_menu_state(void)
         SYNCLOG("Victory achieved state selected");
         if (is_singleplayer_level(lvnum))
         {
+            if (get_continue_level_number() == SINGLEPLAYER_FINISHED)
+            {
+                return FeSt_OUTRO;
+            } else
             if ((player->field_3 & Pf3F_Unkn10) != 0)
             {
                 player->field_3 &= ~Pf3F_Unkn10;
                 return FeSt_DRAG;
-            } else
-            if (get_continue_level_number() == SINGLEPLAYER_FINISHED)
-            {
-                return FeSt_OUTRO;
             } else
             {
                 return FeSt_LEVEL_STATS;
