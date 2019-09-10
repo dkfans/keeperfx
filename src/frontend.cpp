@@ -1736,6 +1736,7 @@ short frontend_save_continue_game(short allow_lvnum_grow)
     unsigned short victory_state;
     short flg_mem;
     LevelNumber lvnum;
+    lvnum = get_loaded_level_number();
     SYNCDBG(6,"Starting");
     player = get_my_player();
     dungeon = get_players_dungeon(player);
@@ -1753,10 +1754,12 @@ short frontend_save_continue_game(short allow_lvnum_grow)
     player->victory_state = victory_state;
     memcpy(&dungeon->lvstats, scratch, sizeof(struct LevelStats));
     set_flag_byte(&player->field_3,Pf3F_Unkn10,flg_mem);
-    // Only save continue if level was won, and not in packet mode
+    // Only save continue if level was won, not a free play level, not a multiplayer level and not in packet mode
     if (((game.system_flags & GSF_NetworkActive) != 0)
      || ((game.operation_flags & GOF_SingleLevel) != 0)
-     || (game.packet_load_enable))
+     || (game.packet_load_enable)
+     || (is_freeplay_level(lvnum))
+     || (is_multiplayer_level(lvnum)))
         return false;
     // Select the continue level (move the campaign forward)
     if ((allow_lvnum_grow) && (player->victory_state == VicS_WonLevel)) {
