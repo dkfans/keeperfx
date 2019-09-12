@@ -590,7 +590,7 @@ TbBool get_level_lost_inputs(void)
     } else
     if (player->view_type == PVT_DungeonTop)
     {
-      if (is_key_pressed(KC_TAB,KMod_DONTCARE))
+      if (is_key_pressed(KC_TAB,KMod_NONE))
       {
           if ((player->view_mode == PVM_IsometricView) || (player->view_mode == PVM_FrontView))
           {
@@ -788,7 +788,7 @@ long get_dungeon_control_action_inputs(void)
         if (close_creature_cheat_menu())
             clear_key_pressed(KC_F12);
     }
-    if (is_key_pressed(KC_TAB, KMod_DONTCARE))
+    if (is_key_pressed(KC_TAB, KMod_NONE))
     {
       if ((player->view_mode == PVM_IsometricView) || (player->view_mode == PVM_FrontView))
       {
