@@ -2881,7 +2881,7 @@ msgstr ""
 
 #: guitext:448
 msgctxt "In-game interface description"
-msgid "Room Panel: The rooms available for you to build. Here you can center map on rooms or build new ones."
+msgid "Room Panel: The rooms available for you to build. Here you can centre the map on rooms or build new ones."
 msgstr ""
 
 #: guitext:449
@@ -2891,7 +2891,7 @@ msgstr ""
 
 #: guitext:450
 msgctxt "In-game interface description"
-msgid "Workshop Panel: The traps and doors available to you. You can center the map on them, place new ones or sell existing."
+msgid "Workshop Panel: The traps and doors available to you. You can centre the map on them, place new ones, or sell existing ones."
 msgstr ""
 
 #: guitext:451

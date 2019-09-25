@@ -590,7 +590,7 @@ TbBool get_level_lost_inputs(void)
     } else
     if (player->view_type == PVT_DungeonTop)
     {
-      if (is_key_pressed(KC_TAB,KMod_NONE))
+      if (is_key_pressed(KC_TAB,KMod_DONTCARE))
       {
           if ((player->view_mode == PVM_IsometricView) || (player->view_mode == PVM_FrontView))
           {
@@ -788,9 +788,13 @@ long get_dungeon_control_action_inputs(void)
         if (close_creature_cheat_menu())
             clear_key_pressed(KC_F12);
     }
-    if (is_key_pressed(KC_TAB, KMod_NONE))
+    if ((player->view_mode == PVM_IsometricView) || (player->view_mode == PVM_FrontView))
     {
-      if ((player->view_mode == PVM_IsometricView) || (player->view_mode == PVM_FrontView))
+      if (is_key_pressed(KC_TAB, !KMod_CONTROL))
+      {
+          clear_key_pressed(KC_TAB);
+      }
+      if (is_key_pressed(KC_TAB, KMod_CONTROL))
       {
           clear_key_pressed(KC_TAB);
           toggle_gui();
@@ -909,7 +913,11 @@ short get_creature_control_action_inputs(void)
             set_players_packet_action(player, PckA_Unknown033, player->controlled_thing_idx,0,0,0);
         }
     }
-    if (is_key_pressed(KC_TAB, KMod_NONE))
+    if (is_key_pressed(KC_TAB, !KMod_CONTROL))
+    {
+        clear_key_pressed(KC_TAB);
+    }
+    if (is_key_pressed(KC_TAB, KMod_CONTROL))
     {
         clear_key_pressed(KC_TAB);
         toggle_gui();
