@@ -913,6 +913,32 @@ short get_creature_control_action_inputs(void)
             set_players_packet_action(player, PckA_Unknown033, player->controlled_thing_idx,0,0,0);
         }
     }
+    // Use the Query key to 
+    if (is_game_key_pressed(Gkey_CrtrQueryMod, &keycode, false) )
+    {
+      if (menu_is_active(GMnu_CREATURE_QUERY1))
+      {
+        turn_off_menu(GMnu_CREATURE_QUERY1);
+        turn_on_menu(GMnu_CREATURE_QUERY2);
+      } else
+      if (menu_is_active(GMnu_CREATURE_QUERY2))
+      {
+        turn_off_menu(GMnu_CREATURE_QUERY2);
+        turn_on_menu(GMnu_CREATURE_QUERY3);
+      } else
+      if (menu_is_active(GMnu_CREATURE_QUERY3))
+      {
+        turn_off_menu(GMnu_CREATURE_QUERY3);
+        turn_on_menu(GMnu_CREATURE_QUERY4);
+      } else
+      if (menu_is_active(GMnu_CREATURE_QUERY4))
+      {
+        turn_off_menu(GMnu_CREATURE_QUERY4);
+        turn_on_menu(GMnu_CREATURE_QUERY1);
+      }
+        clear_key_pressed(keycode);
+        fake_button_click(0);
+    }
     if (is_key_pressed(KC_TAB, !KMod_CONTROL))
     {
         clear_key_pressed(KC_TAB);
