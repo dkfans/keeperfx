@@ -61,6 +61,7 @@
 #include "KeeperSpeech.h"
 
 #include <math.h>
+#include "front_simple.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -958,6 +959,16 @@ short get_creature_control_action_inputs(void)
             numkey = keycode-KC_1;
             break;
         }
+    }
+    struct Thing *thing;
+    thing = thing_get(player->controlled_thing_idx);
+    // In possession sets the screen blue when frozen, and to default when not.
+    if (creature_affected_by_spell(thing, SplK_Freeze)) 
+    {
+        PaletteSetPlayerPalette(player, blue_palette);
+    } else
+    {
+        PaletteSetPlayerPalette(player, engine_palette); 
     }
     if (numkey != -1)
     {

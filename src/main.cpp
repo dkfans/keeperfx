@@ -1939,7 +1939,8 @@ void change_engine_window_relative_size(long w_delta, long h_delta)
 
 void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal)
 {
-    if (pal == blue_palette)
+    //Todo: Figure out statement below. Used to be blue_palette like 'pinstfe_control_creature_fade'.
+    if (pal == red_palette)
     {
       if ((player->field_3 & Pf3F_Unkn04) == 0)
         return;
