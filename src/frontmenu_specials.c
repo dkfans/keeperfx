@@ -302,14 +302,14 @@ void maintain_resurrect_creature_scroll(struct GuiButton *gbtn)
     {
         if (resurrect_creature_scroll_offset > 0)
         {
-        resurrect_creature_scroll_offset--;
+            resurrect_creature_scroll_offset--;
         }
     }
     if (wheel_scrolled_down)
     {
         if (resurrect_creature_scroll_offset < dungeon->dead_creatures_count-resurrect_creature_items_visible+1)
         {
-        resurrect_creature_scroll_offset++;
+            resurrect_creature_scroll_offset++;
         }
     }
 }
@@ -341,6 +341,21 @@ void maintain_transfer_creature_scroll(struct GuiButton *gbtn)
         gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (transfer_creature_scroll_offset > 0)) & LbBtnF_Enabled;
     } else {
         gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (transfer_creature_scroll_offset < count-transfer_creature_items_visible+1)) & LbBtnF_Enabled;
+    }
+    // Arrow keys are used for camera movement, so not here.
+    if (wheel_scrolled_up)
+    {
+        if (transfer_creature_scroll_offset > 0)
+        {
+            transfer_creature_scroll_offset--;
+        }
+    }
+    if (wheel_scrolled_down)
+    {
+        if (transfer_creature_scroll_offset < dungeon->num_active_creatrs-transfer_creature_items_visible+1)
+        {
+            transfer_creature_scroll_offset++;
+        }
     }
 }
 
