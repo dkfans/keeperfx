@@ -188,17 +188,39 @@ void frontend_draw_load_game_button(struct GuiButton *gbtn)
 void frontend_load_game_up_maintain(struct GuiButton *gbtn)
 {
     if (load_game_scroll_offset != 0)
+    {
         gbtn->flags |= LbBtnF_Enabled;
+    }
     else
+    {
         gbtn->flags &=  ~LbBtnF_Enabled;
+    }
+    if (wheel_scrolled_up || (is_key_pressed(KC_UP,KMod_NONE)))
+    {
+        if (load_game_scroll_offset > 0)
+        {
+            load_game_scroll_offset--;
+        }
+    }
 }
 
 void frontend_load_game_down_maintain(struct GuiButton *gbtn)
 {
     if (load_game_scroll_offset < number_of_saved_games-frontend_load_menu_items_visible+1)
+    {
         gbtn->flags |= LbBtnF_Enabled;
+    }
     else
+    {
         gbtn->flags &=  ~LbBtnF_Enabled;
+    }
+    if (wheel_scrolled_down || (is_key_pressed(KC_DOWN,KMod_NONE)))
+    {
+        if (load_game_scroll_offset < number_of_saved_games-frontend_load_menu_items_visible+1)
+        {
+            load_game_scroll_offset++;
+        }
+	}
 }
 
 void frontend_load_game_up(struct GuiButton *gbtn)
