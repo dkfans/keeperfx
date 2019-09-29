@@ -34,6 +34,7 @@
 #include "frontend.h"
 #include "front_input.h"
 #include "game_legacy.h"
+#include "kjm_input.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -295,6 +296,21 @@ void maintain_resurrect_creature_scroll(struct GuiButton *gbtn)
         gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (resurrect_creature_scroll_offset > 0)) & LbBtnF_Enabled;
     } else {
         gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (resurrect_creature_scroll_offset < count-resurrect_creature_items_visible+1)) & LbBtnF_Enabled;
+    }
+    // Arrow keys are used for camera movement, so not here.
+    if (wheel_scrolled_up)
+    {
+        if (resurrect_creature_scroll_offset > 0)
+        {
+        resurrect_creature_scroll_offset--;
+        }
+    }
+    if (wheel_scrolled_down)
+    {
+        if (resurrect_creature_scroll_offset < dungeon->dead_creatures_count-resurrect_creature_items_visible+1)
+        {
+        resurrect_creature_scroll_offset++;
+        }
     }
 }
 

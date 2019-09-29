@@ -1139,15 +1139,18 @@ int global_frameskipTurn = 0;
 
 void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pressed,int speed_pressed)
 {
-    // mouse scroll zoom unaffected by frameskip
-    if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
+    // Reserve the scroll wheel for the resurrect and transfer creature specials
+    if ((menu_is_active(GMnu_RESURRECT_CREATURE) || menu_is_active(GMnu_TRANSFER_CREATURE)) == 0)
     {
-        if (wheel_scrolled_up)
-            set_packet_control(pckt, PCtr_ViewZoomIn);
-        if (wheel_scrolled_down)
-            set_packet_control(pckt, PCtr_ViewZoomOut);
+        // mouse scroll zoom unaffected by frameskip
+        if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
+        {
+            if (wheel_scrolled_up)
+                {set_packet_control(pckt, PCtr_ViewZoomIn);}
+            if (wheel_scrolled_down)
+                {set_packet_control(pckt, PCtr_ViewZoomOut);}
+        }
     }
-
     // Only pan the camera as often as normal despite frameskip
     if (game.frame_skip > 0)
     {
