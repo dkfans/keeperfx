@@ -291,6 +291,20 @@ void frontend_campaign_select_update(void)
     {
         select_campaign_scroll_offset = campaigns_list.items_num-frontend_select_campaign_items_visible+1;
     }
+    if (wheel_scrolled_down || (is_key_pressed(KC_DOWN,KMod_NONE)))
+    {
+        if (select_campaign_scroll_offset < campaigns_list.items_num-frontend_select_campaign_items_visible+1)
+        {
+            select_campaign_scroll_offset++;
+        }
+    }
+    if (wheel_scrolled_up || (is_key_pressed(KC_UP,KMod_NONE)))
+    {
+        if (select_campaign_scroll_offset > 0)
+        {
+            select_campaign_scroll_offset--;
+        }
+    }
 }
 
 void frontend_draw_campaign_scroll_tab(struct GuiButton *gbtn)
