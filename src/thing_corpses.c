@@ -204,9 +204,9 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
                 set_thing_draw(thing, i, 64, -1, 1, 0, 2);
             }
         } else
-        if ( corpse_is_rottable(thing) )
+        if (thing->byte_14 != 0)
         {
-            if (thing->byte_14 != 0)
+            if ( corpse_is_rottable(thing) )
             {
                 if (thing->health > 0)
                     thing->health--;
@@ -221,6 +221,12 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
                     delete_thing_structure(thing, 0);
                     return TUFRet_Deleted;
                 }
+            }
+        } else
+        {
+            if (game.play_gameturn - thing->creation_turn > game.body_remains_for) {
+                delete_thing_structure(thing, 0);
+                return TUFRet_Deleted;
             }
         }
     }

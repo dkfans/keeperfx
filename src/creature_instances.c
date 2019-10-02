@@ -329,7 +329,6 @@ TbBool instance_is_ranged_weapon(CrInstance inum)
     {
     case CrInst_FIRE_ARROW:
     case CrInst_FIREBALL:
-    case CrInst_GRENADE:
     case CrInst_FIRE_BOMB:
     case CrInst_LIGHTNING:
     case CrInst_POISON_CLOUD:
@@ -369,6 +368,7 @@ TbBool instance_is_quick_range_weapon(CrInstance inum)
     case CrInst_NAVIGATING_MISSILE:
     case CrInst_LIGHTNING:
     case CrInst_HAILSTORM:
+    case CrInst_GRENADE:
     case CrInst_POISON_CLOUD:
         return true;
     }
@@ -824,7 +824,7 @@ long instf_reinforce(struct Thing *creatng, long *param)
     {
         cctrl->digger.byte_93++;
         if (!S3DEmitterIsPlayingSample(creatng->snd_emitter_id, 63, 0)) {
-            thing_play_sample(creatng, 63, NORMAL_PITCH, 0, 3, 0, 2, 128);
+            thing_play_sample(creatng, 1005 + UNSYNC_RANDOM(7), NORMAL_PITCH, 0, 3, 0, 2, 32);
         }
         return 0;
     }

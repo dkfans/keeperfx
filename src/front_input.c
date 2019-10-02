@@ -61,6 +61,7 @@
 #include "KeeperSpeech.h"
 
 #include <math.h>
+#include "front_simple.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -788,9 +789,13 @@ long get_dungeon_control_action_inputs(void)
         if (close_creature_cheat_menu())
             clear_key_pressed(KC_F12);
     }
-    if (is_key_pressed(KC_TAB, KMod_DONTCARE))
+    if ((player->view_mode == PVM_IsometricView) || (player->view_mode == PVM_FrontView))
     {
-      if ((player->view_mode == PVM_IsometricView) || (player->view_mode == PVM_FrontView))
+      if (is_key_pressed(KC_TAB, !KMod_CONTROL))
+      {
+          clear_key_pressed(KC_TAB);
+      }
+      if (is_key_pressed(KC_TAB, KMod_CONTROL))
       {
           clear_key_pressed(KC_TAB);
           toggle_gui();
@@ -909,7 +914,37 @@ short get_creature_control_action_inputs(void)
             set_players_packet_action(player, PckA_Unknown033, player->controlled_thing_idx,0,0,0);
         }
     }
-    if (is_key_pressed(KC_TAB, KMod_NONE))
+    // Use the Query key to 
+    if (is_game_key_pressed(Gkey_CrtrQueryMod, &keycode, false) )
+    {
+      if (menu_is_active(GMnu_CREATURE_QUERY1))
+      {
+        turn_off_menu(GMnu_CREATURE_QUERY1);
+        turn_on_menu(GMnu_CREATURE_QUERY2);
+      } else
+      if (menu_is_active(GMnu_CREATURE_QUERY2))
+      {
+        turn_off_menu(GMnu_CREATURE_QUERY2);
+        turn_on_menu(GMnu_CREATURE_QUERY3);
+      } else
+      if (menu_is_active(GMnu_CREATURE_QUERY3))
+      {
+        turn_off_menu(GMnu_CREATURE_QUERY3);
+        turn_on_menu(GMnu_CREATURE_QUERY4);
+      } else
+      if (menu_is_active(GMnu_CREATURE_QUERY4))
+      {
+        turn_off_menu(GMnu_CREATURE_QUERY4);
+        turn_on_menu(GMnu_CREATURE_QUERY1);
+      }
+        clear_key_pressed(keycode);
+        fake_button_click(0);
+    }
+    if (is_key_pressed(KC_TAB, !KMod_CONTROL))
+    {
+        clear_key_pressed(KC_TAB);
+    }
+    if (is_key_pressed(KC_TAB, KMod_CONTROL))
     {
         clear_key_pressed(KC_TAB);
         toggle_gui();
@@ -924,6 +959,16 @@ short get_creature_control_action_inputs(void)
             numkey = keycode-KC_1;
             break;
         }
+    }
+    struct Thing *thing;
+    thing = thing_get(player->controlled_thing_idx);
+    // In possession sets the screen blue when frozen, and to default when not.
+    if (creature_affected_by_spell(thing, SplK_Freeze)) 
+    {
+        PaletteSetPlayerPalette(player, blue_palette);
+    } else
+    {
+        PaletteSetPlayerPalette(player, engine_palette); 
     }
     if (numkey != -1)
     {
@@ -1094,15 +1139,18 @@ int global_frameskipTurn = 0;
 
 void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pressed,int speed_pressed)
 {
-    // mouse scroll zoom unaffected by frameskip
-    if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
+    // Reserve the scroll wheel for the resurrect and transfer creature specials
+    if ((menu_is_active(GMnu_RESURRECT_CREATURE) || menu_is_active(GMnu_TRANSFER_CREATURE) || lbKeyOn[KC_LSHIFT]) == 0)
     {
-        if (wheel_scrolled_up)
-            set_packet_control(pckt, PCtr_ViewZoomIn);
-        if (wheel_scrolled_down)
-            set_packet_control(pckt, PCtr_ViewZoomOut);
+        // mouse scroll zoom unaffected by frameskip
+        if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
+        {
+            if (wheel_scrolled_up)
+                {set_packet_control(pckt, PCtr_ViewZoomIn);}
+            if (wheel_scrolled_down)
+                {set_packet_control(pckt, PCtr_ViewZoomOut);}
+        }
     }
-
     // Only pan the camera as often as normal despite frameskip
     if (game.frame_skip > 0)
     {

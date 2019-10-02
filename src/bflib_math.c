@@ -21,8 +21,6 @@
 
 #include "bflib_basics.h"
 
-#include <math.h>
-
 /******************************************************************************/
 unsigned short const lbSqrTable[] = {
    0x0001, 0x0002, 0x0002, 0x0004, 0x0005, 0x0008, 0x000B, 0x0010,
@@ -801,12 +799,6 @@ long LbDiagonalLength(long a, long b)
     }
     tmpval = tmpval * (long long)proportions[propidx + 256].distance_ratio;
     return (tmpval >> 13);
-}
-
-// using this a lot could slow down the game since calculating sqrt is expensive
-long Lb3dDistance(long x, long y, long z)
-{
-    return sqrt(x + y + z);
 }
 
 /******************************************************************************/

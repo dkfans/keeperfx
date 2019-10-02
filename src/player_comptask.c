@@ -2679,8 +2679,8 @@ long task_slap_imps(struct Computer2 *comp, struct ComputerTask *ctask)
             cctrl = creature_control_get_from_thing(thing);
             i = cctrl->players_next_creature_idx;
             // Per-thing code
-            // Don't slap if picked up or affected by speed or already slapped
-            if (!thing_is_picked_up(thing) && !thing_affected_by_spell(thing, SplK_Speed) && !creature_affected_by_slap(thing))
+            // Don't slap if picked up or already slapped
+            if (!thing_is_picked_up(thing) && !creature_affected_by_slap(thing))
             {
                 // Check if we really can use the spell on that creature, considering its position and state
                 if (can_cast_spell(dungeon->owner, PwrK_SLAP, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default))

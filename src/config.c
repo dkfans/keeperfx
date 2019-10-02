@@ -80,16 +80,17 @@ const struct NamedCommand scrshot_type[] = {
   };
 
 const struct NamedCommand conf_commands[] = {
-  {"INSTALL_PATH",        1},
-  {"INSTALL_TYPE",        2},
-  {"LANGUAGE",            3},
-  {"KEYBOARD",            4},
-  {"SCREENSHOT",          5},
-  {"FRONTEND_RES",        6},
-  {"INGAME_RES",          7},
-  {"CENSORSHIP",          8},
-  {"POINTER_SENSITIVITY", 9},
-  {NULL,                  0},
+  {"INSTALL_PATH",         1},
+  {"INSTALL_TYPE",         2},
+  {"LANGUAGE",             3},
+  {"KEYBOARD",             4},
+  {"SCREENSHOT",           5},
+  {"FRONTEND_RES",         6},
+  {"INGAME_RES",           7},
+  {"CENSORSHIP",           8},
+  {"POINTER_SENSITIVITY",  9},
+  {"ATMOSPHERIC_SOUNDS",  10},
+  {NULL,                   0},
   };
 
 const struct NamedCommand logicval_type[] = {
@@ -148,6 +149,14 @@ TbBool update_features(unsigned long mem_size)
 TbBool censorship_enabled(void)
 {
   return ((features_enabled & Ft_Censorship) != 0);
+}
+
+/**
+ * Returns if Athmospheric sound is on.
+ */
+TbBool atmos_sounds_enabled(void)
+{
+  return ((features_enabled & Ft_Atmossounds) != 0);
 }
 
 TbBool is_feature_on(unsigned long feature)
@@ -647,6 +656,19 @@ short load_configuration(void)
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
                 COMMAND_TEXT(cmd_num),config_textname);
           }
+          break;
+      case 10: // Atmospheric sound
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          if (i == 1)
+              features_enabled |= Ft_Atmossounds;
+          else
+              features_enabled &= ~Ft_Atmossounds;
           break;
       case 0: // comment
           break;

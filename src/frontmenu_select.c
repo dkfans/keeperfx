@@ -171,6 +171,20 @@ void frontend_level_select_update(void)
   {
     select_level_scroll_offset = number_of_freeplay_levels-frontend_select_level_items_visible+1;
   }
+  if (wheel_scrolled_down || (is_key_pressed(KC_DOWN,KMod_NONE)))
+  {
+    if (select_level_scroll_offset < number_of_freeplay_levels-frontend_select_level_items_visible+1)
+    {
+        select_level_scroll_offset++;
+    }
+  }
+  if (wheel_scrolled_up || (is_key_pressed(KC_UP,KMod_NONE)))
+  {
+    if (select_level_scroll_offset > 0)
+    {
+        select_level_scroll_offset--;
+    }
+  }
 }
 
 void frontend_campaign_select_up(struct GuiButton *gbtn)
@@ -290,6 +304,20 @@ void frontend_campaign_select_update(void)
     if (select_campaign_scroll_offset > campaigns_list.items_num-frontend_select_campaign_items_visible+1)
     {
         select_campaign_scroll_offset = campaigns_list.items_num-frontend_select_campaign_items_visible+1;
+    }
+    if (wheel_scrolled_down || (is_key_pressed(KC_DOWN,KMod_NONE)))
+    {
+        if (select_campaign_scroll_offset < campaigns_list.items_num-frontend_select_campaign_items_visible+1)
+        {
+            select_campaign_scroll_offset++;
+        }
+    }
+    if (wheel_scrolled_up || (is_key_pressed(KC_UP,KMod_NONE)))
+    {
+        if (select_campaign_scroll_offset > 0)
+        {
+            select_campaign_scroll_offset--;
+        }
     }
 }
 

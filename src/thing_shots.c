@@ -288,18 +288,28 @@ void process_dig_shot_hit_wall(struct Thing *thing, unsigned long blocked_flags)
     slb = get_slabmap_for_subtile(stl_x, stl_y);
 
     // You can only dig your own tiles or non-fortified neutral ground (dirt/gold)
-    // If you're not the tile owner
-    if (slabmap_owner(slb) != diggertng->owner)
-    {
-        struct SlabAttr *slbattr;
-        slbattr = get_slab_attrs(slb);
-        // and if it's fortified
-        if (slbattr->category == SlbAtCtg_FortifiedWall)
-        {
-            // digging not allowed
-            return;
-        }
-    }
+    // If you're not the tile owner, unless the classic bug mode is enabled.
+	if (!(gameadd.classic_bugs_flags & ClscBug_BreakNeutralWalls))
+	{
+		if (slabmap_owner(slb) != diggertng->owner)
+		{
+			struct SlabAttr *slbattr;
+			slbattr = get_slab_attrs(slb);
+			// and if it's fortified
+			if (slbattr->category == SlbAtCtg_FortifiedWall)
+			{
+				// digging not allowed
+				return;
+			}
+		}
+	}
+	else
+	{
+		if ((slabmap_owner(slb) != game.neutral_player_num) && (slabmap_owner(slb) != diggertng->owner))
+		{
+			return;
+		}
+	}
 
     struct Map *mapblk;
     mapblk = get_map_block_at(stl_x, stl_y);
@@ -430,18 +440,6 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     {
         if ((blocked_flags & (SlbBloF_WalledX|SlbBloF_WalledY)) != 0)
         {
-            if (shotng->model == ShM_Grenade)
-            {
-                if (shotng->shot.dexterity >= ACTION_RANDOM(90))
-                {
-                    struct Coord3d target_pos;
-                    target_pos.x.val = shotng->price.number;
-                    target_pos.y.val = shotng->shot.byte_19 * 300;
-                    target_pos.z.val = pos->z.val;
-                    const MapCoordDelta dist = get_2d_distance(pos, &target_pos);
-                    if (dist <= 800) return detonate_shot(shotng);
-                }
-            }
             doortng = get_door_for_position(pos->x.stl.num, pos->y.stl.num);
             if (!thing_is_invalid(doortng))
             {
@@ -1323,24 +1321,6 @@ TngUpdateRet update_shot(struct Thing *thing)
             break;
         case ShM_Grenade:
             thing->move_angle_xy = (thing->move_angle_xy + LbFPMath_PI/9) & LbFPMath_AngleMask;
-            int skill = thing->shot.dexterity;
-            target = thing_get(thing->shot.target_idx);
-            if (thing_is_invalid(target)) break;
-            MapCoordDelta dist;
-            if (skill <= 35)
-            {
-                dist = get_2d_distance(&thing->mappos, &target->mappos);
-                if (dist <= 260) hit = true;
-            }
-            else
-            {
-                struct Coord3d target_pos;
-                target_pos.x.val = thing->price.number;
-                target_pos.y.val = thing->shot.byte_19 * 300;
-                target_pos.z.val = target->mappos.z.val;
-                dist = get_2d_distance(&thing->mappos, &target_pos);
-                if (dist <= 260) hit = true;
-            }
             break;
         case ShM_Boulder:
         case ShM_SolidBoulder:

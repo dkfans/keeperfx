@@ -66,6 +66,7 @@ enum ClassicBugFlags {
     ClscBug_ResurrectRemoved       = 0x0008,
     ClscBug_NoHandPurgeOnDefeat    = 0x0010,
     ClscBug_MustObeyKeepsNotDoJobs = 0x0020,
+    ClscBug_BreakNeutralWalls      = 0x0040,
 };
 
 /******************************************************************************/
@@ -107,7 +108,6 @@ struct GameAdd {
     long critical_health_permil;
     long friendly_fight_area_damage_permil;
     long friendly_fight_area_range_permil;
-    long explosions_vertical_push_percent;
     unsigned char torture_convert_chance;
     TbBool scavenge_good_allowed;
     TbBool scavenge_neutral_allowed;

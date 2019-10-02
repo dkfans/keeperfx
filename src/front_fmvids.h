@@ -32,6 +32,7 @@ TbBool intro(void);
 TbBool intro_replay(void);
 TbBool campaign_intro(void);
 TbBool campaign_outro(void);
+TbBool drag_video(void);
 TbBool moon_video(void);
 void demo(void);
 /******************************************************************************/
