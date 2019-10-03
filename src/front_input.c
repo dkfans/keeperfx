@@ -914,32 +914,144 @@ short get_creature_control_action_inputs(void)
             set_players_packet_action(player, PckA_Unknown033, player->controlled_thing_idx,0,0,0);
         }
     }
-    // Use the Query key to 
-    if (is_game_key_pressed(Gkey_CrtrQueryMod, &keycode, false) )
+    // Use the Query key to scroll through query pages and go to correct query page when selecting an instance.
+    struct Thing *thing;
+    thing = thing_get(player->controlled_thing_idx);
+    if (menu_is_active(GMnu_CREATURE_QUERY1))
     {
-      if (menu_is_active(GMnu_CREATURE_QUERY1))
+      if ( ( is_key_pressed(KC_7,KMod_NONE) & (creature_instance_get_available_id_for_pos(thing,6) > 0) ) ||
+           ( is_key_pressed(KC_8,KMod_NONE) & (creature_instance_get_available_id_for_pos(thing,7) > 0) ) ||
+           ( is_key_pressed(KC_9,KMod_NONE) & (creature_instance_get_available_id_for_pos(thing,8) > 0) ) ||
+           ( is_key_pressed(KC_0,KMod_NONE) & (creature_instance_get_available_id_for_pos(thing,9) > 0) )  )
       {
         turn_off_menu(GMnu_CREATURE_QUERY1);
         turn_on_menu(GMnu_CREATURE_QUERY2);
-      } else
-      if (menu_is_active(GMnu_CREATURE_QUERY2))
+      }
+      if (is_game_key_pressed(Gkey_CrtrQueryMod, &keycode, false) || wheel_scrolled_down)
+      {
+        turn_off_menu(GMnu_CREATURE_QUERY1);
+        if (creature_instance_get_available_id_for_pos(thing,6) > 0)
+        {
+            turn_on_menu(GMnu_CREATURE_QUERY2);
+        } else
+        {
+            turn_on_menu(GMnu_CREATURE_QUERY3);
+        }
+        clear_key_pressed(keycode);
+        fake_button_click(0);
+        update_wheel_scrolled();
+      }
+        if (is_game_key_pressed(Gkey_CrtrContrlMod, &keycode, false) || wheel_scrolled_up)
+      {
+        turn_off_menu(GMnu_CREATURE_QUERY1);
+        turn_on_menu(GMnu_CREATURE_QUERY4);
+        clear_key_pressed(keycode);
+        fake_button_click(0);
+        update_wheel_scrolled();
+      }
+    }
+    if (menu_is_active(GMnu_CREATURE_QUERY2))
+    {
+      if ( ( is_key_pressed(KC_1,KMod_NONE) ) ||
+           ( is_key_pressed(KC_2,KMod_NONE) & (creature_instance_get_available_id_for_pos(thing,1) > 0) ) ||
+           ( is_key_pressed(KC_3,KMod_NONE) & (creature_instance_get_available_id_for_pos(thing,2) > 0) ) ||
+           ( is_key_pressed(KC_4,KMod_NONE) & (creature_instance_get_available_id_for_pos(thing,3) > 0) )  )
+      {
+        turn_off_menu(GMnu_CREATURE_QUERY2);
+        turn_on_menu(GMnu_CREATURE_QUERY1);
+      }
+      if (is_game_key_pressed(Gkey_CrtrQueryMod, &keycode, false) || wheel_scrolled_down)
       {
         turn_off_menu(GMnu_CREATURE_QUERY2);
         turn_on_menu(GMnu_CREATURE_QUERY3);
-      } else
-      if (menu_is_active(GMnu_CREATURE_QUERY3))
+        clear_key_pressed(keycode);
+        fake_button_click(0);
+        update_wheel_scrolled();
+      }
+        if (is_game_key_pressed(Gkey_CrtrContrlMod, &keycode, false) || wheel_scrolled_up)
+      {
+        turn_off_menu(GMnu_CREATURE_QUERY2);
+        turn_on_menu(GMnu_CREATURE_QUERY1);
+        clear_key_pressed(keycode);
+        fake_button_click(0);
+        update_wheel_scrolled();
+      }
+    }
+    if (menu_is_active(GMnu_CREATURE_QUERY3))
+    {
+      if ( ( is_key_pressed(KC_1,KMod_NONE) ) ||
+           ( is_key_pressed(KC_2,KMod_NONE) & creature_instance_get_available_id_for_pos(thing,2) ) ||
+           ( is_key_pressed(KC_3,KMod_NONE) & creature_instance_get_available_id_for_pos(thing,3) ) ||
+           ( is_key_pressed(KC_4,KMod_NONE) & creature_instance_get_available_id_for_pos(thing,4) )  )
+      {
+        turn_off_menu(GMnu_CREATURE_QUERY3);
+        turn_on_menu(GMnu_CREATURE_QUERY1);
+      }
+      if ( ( is_key_pressed(KC_7,KMod_NONE) & creature_instance_get_available_id_for_pos(thing,7) ) ||
+           ( is_key_pressed(KC_8,KMod_NONE) & creature_instance_get_available_id_for_pos(thing,8) ) ||
+           ( is_key_pressed(KC_9,KMod_NONE) & creature_instance_get_available_id_for_pos(thing,9) ) ||
+           ( is_key_pressed(KC_0,KMod_NONE) & creature_instance_get_available_id_for_pos(thing,10) )  )
+      {
+        turn_off_menu(GMnu_CREATURE_QUERY3);
+        turn_on_menu(GMnu_CREATURE_QUERY2);
+      }
+      if (is_game_key_pressed(Gkey_CrtrQueryMod, &keycode, false) || wheel_scrolled_down)
       {
         turn_off_menu(GMnu_CREATURE_QUERY3);
         turn_on_menu(GMnu_CREATURE_QUERY4);
-      } else
-      if (menu_is_active(GMnu_CREATURE_QUERY4))
+        clear_key_pressed(keycode);
+        fake_button_click(0);
+        update_wheel_scrolled();
+      }
+      if (is_game_key_pressed(Gkey_CrtrContrlMod, &keycode, false) || wheel_scrolled_up)
+      {
+        turn_off_menu(GMnu_CREATURE_QUERY3);
+        if (creature_instance_get_available_id_for_pos(thing,6) > 0)
+        {
+            turn_on_menu(GMnu_CREATURE_QUERY2);
+        } else
+        {
+            turn_on_menu(GMnu_CREATURE_QUERY1);
+        }
+        clear_key_pressed(keycode);
+        fake_button_click(0);
+        update_wheel_scrolled();
+      }
+    }
+    if (menu_is_active(GMnu_CREATURE_QUERY4))
+    {
+      if ( ( is_key_pressed(KC_1,KMod_NONE) ) ||
+           ( is_key_pressed(KC_2,KMod_NONE) & creature_instance_get_available_id_for_pos(thing,2) ) ||
+           ( is_key_pressed(KC_3,KMod_NONE) & creature_instance_get_available_id_for_pos(thing,3) ) ||
+           ( is_key_pressed(KC_4,KMod_NONE) & creature_instance_get_available_id_for_pos(thing,4) )  )
       {
         turn_off_menu(GMnu_CREATURE_QUERY4);
         turn_on_menu(GMnu_CREATURE_QUERY1);
       }
+      if ( ( is_key_pressed(KC_7,KMod_NONE) & creature_instance_get_available_id_for_pos(thing,7) ) ||
+           ( is_key_pressed(KC_8,KMod_NONE) & creature_instance_get_available_id_for_pos(thing,8) ) ||
+           ( is_key_pressed(KC_9,KMod_NONE) & creature_instance_get_available_id_for_pos(thing,9) ) ||
+           ( is_key_pressed(KC_0,KMod_NONE) & creature_instance_get_available_id_for_pos(thing,10) )  )
+      {
+        turn_off_menu(GMnu_CREATURE_QUERY4);
+        turn_on_menu(GMnu_CREATURE_QUERY2);
+      }
+      if (is_game_key_pressed(Gkey_CrtrQueryMod, &keycode, false) || wheel_scrolled_down)
+      {
+        turn_off_menu(GMnu_CREATURE_QUERY4);
+        turn_on_menu(GMnu_CREATURE_QUERY1);
         clear_key_pressed(keycode);
         fake_button_click(0);
+  }
+      if (is_game_key_pressed(Gkey_CrtrContrlMod, &keycode, false) || wheel_scrolled_up)
+      {
+        turn_off_menu(GMnu_CREATURE_QUERY4);
+        turn_on_menu(GMnu_CREATURE_QUERY3);
+        clear_key_pressed(keycode);
+        fake_button_click(0);
+      }
     }
+ 
     if (is_key_pressed(KC_TAB, !KMod_CONTROL))
     {
         clear_key_pressed(KC_TAB);
@@ -960,8 +1072,6 @@ short get_creature_control_action_inputs(void)
             break;
         }
     }
-    struct Thing *thing;
-    thing = thing_get(player->controlled_thing_idx);
     // In possession sets the screen blue when frozen, and to default when not.
     if (creature_affected_by_spell(thing, SplK_Freeze)) 
     {

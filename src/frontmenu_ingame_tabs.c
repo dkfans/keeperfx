@@ -1671,8 +1671,6 @@ void gui_area_instance_button(struct GuiButton *gbtn)
     }
     int curbtn_avail_pos;
     curbtn_avail_pos = (long)gbtn->content;
-    if (!first_person_instance_top_half_selected)
-        curbtn_avail_pos += 4;
     int curbtn_inst_id;
     curbtn_inst_id = creature_instance_get_available_id_for_pos(ctrltng, curbtn_avail_pos);
     if (!creature_instance_is_available(ctrltng, curbtn_inst_id))
@@ -1742,22 +1740,8 @@ void maintain_instance(struct GuiButton *gbtn)
         gbtn->tooltip_stridx = 0;
         return;
     }
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(ctrltng);
-    // Switch to correct menu page based on selected instance position
-    int chosen_avail_pos;
-    chosen_avail_pos = creature_instance_get_available_pos_for_id(ctrltng, cctrl->active_instance_id);
     int curbtn_avail_pos;
-    if ((chosen_avail_pos < 6) && (first_person_instance_top_half_selected || chosen_avail_pos < 4))
-    {
-        first_person_instance_top_half_selected = true;
-        curbtn_avail_pos = (long)gbtn->content;
-    } else
-    {
-        first_person_instance_top_half_selected = false;
-        curbtn_avail_pos = ((long)gbtn->content) + 4;
-    }
-    // Now handle instance for this button
+    curbtn_avail_pos = (long)gbtn->content;
     int curbtn_inst_id;
     curbtn_inst_id = creature_instance_get_available_id_for_pos(ctrltng, curbtn_avail_pos);
     gbtn->sprite_idx = instance_button_init[curbtn_inst_id].symbol_spridx;
