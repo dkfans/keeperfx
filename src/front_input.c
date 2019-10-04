@@ -980,17 +980,17 @@ short get_creature_control_action_inputs(void)
     if (menu_is_active(GMnu_CREATURE_QUERY3))
     {
       if ( ( is_key_pressed(KC_1,KMod_NONE) ) ||
-           ( is_key_pressed(KC_2,KMod_NONE) & creature_instance_get_available_id_for_pos(thing,2) ) ||
-           ( is_key_pressed(KC_3,KMod_NONE) & creature_instance_get_available_id_for_pos(thing,3) ) ||
-           ( is_key_pressed(KC_4,KMod_NONE) & creature_instance_get_available_id_for_pos(thing,4) )  )
+           ( is_key_pressed(KC_2,KMod_NONE) & (creature_instance_get_available_id_for_pos(thing,1) > 0) ) ||
+           ( is_key_pressed(KC_3,KMod_NONE) & (creature_instance_get_available_id_for_pos(thing,2) > 0) ) ||
+           ( is_key_pressed(KC_4,KMod_NONE) & (creature_instance_get_available_id_for_pos(thing,3) > 0) )  )
       {
         turn_off_menu(GMnu_CREATURE_QUERY3);
         turn_on_menu(GMnu_CREATURE_QUERY1);
       }
-      if ( ( is_key_pressed(KC_7,KMod_NONE) & creature_instance_get_available_id_for_pos(thing,7) ) ||
-           ( is_key_pressed(KC_8,KMod_NONE) & creature_instance_get_available_id_for_pos(thing,8) ) ||
-           ( is_key_pressed(KC_9,KMod_NONE) & creature_instance_get_available_id_for_pos(thing,9) ) ||
-           ( is_key_pressed(KC_0,KMod_NONE) & creature_instance_get_available_id_for_pos(thing,10) )  )
+      if ( ( is_key_pressed(KC_7,KMod_NONE) & (creature_instance_get_available_id_for_pos(thing,6) > 0) ) ||
+           ( is_key_pressed(KC_8,KMod_NONE) & (creature_instance_get_available_id_for_pos(thing,7) > 0) ) ||
+           ( is_key_pressed(KC_9,KMod_NONE) & (creature_instance_get_available_id_for_pos(thing,8) > 0) ) ||
+           ( is_key_pressed(KC_0,KMod_NONE) & (creature_instance_get_available_id_for_pos(thing,9) > 0) )  )
       {
         turn_off_menu(GMnu_CREATURE_QUERY3);
         turn_on_menu(GMnu_CREATURE_QUERY2);
