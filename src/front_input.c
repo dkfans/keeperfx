@@ -754,11 +754,15 @@ long get_dungeon_control_action_inputs(void)
         gmnu = get_active_menu(mnu_num);
         mm_units_per_px = (gmnu->width * 16 + 140/2) / 140;
         if (mm_units_per_px < 1)
+        {
             mm_units_per_px = 1;
+        }
     }
     long mmzoom;
     if (16/mm_units_per_px < 3)
+    {
         mmzoom = (player->minimap_zoom) / (3-16/mm_units_per_px);
+    }
     else
         mmzoom = (player->minimap_zoom);
     if (get_small_map_inputs(player->minimap_pos_x*mm_units_per_px/16, player->minimap_pos_y*mm_units_per_px/16, mmzoom))
@@ -789,7 +793,7 @@ long get_dungeon_control_action_inputs(void)
         if (close_creature_cheat_menu())
             clear_key_pressed(KC_F12);
     }
-    if ((player->view_mode == PVM_IsometricView) || (player->view_mode == PVM_FrontView))
+    if (player->view_mode == PVM_IsometricView) // || (player->view_mode == PVM_FrontView)) //todo copy this for frontview
     {
       if (is_key_pressed(KC_TAB, !KMod_CONTROL))
       {
@@ -799,6 +803,123 @@ long get_dungeon_control_action_inputs(void)
       {
           clear_key_pressed(KC_TAB);
           toggle_gui();
+      }
+      // Middle mouse camera actions for IsometricView
+      if (lbDisplay.MiddleButton >= 1)
+      {
+        struct Camera *cam;
+        cam = &player->cameras[CamIV_Isometric];
+        struct Packet *pckt;
+        pckt = get_packet(my_player_number);
+        int angle;
+        angle = cam->orient_a;
+        if (is_game_key_pressed(Gkey_RotateMod, NULL, false))
+        {
+            if ((angle >= 0 && angle < 256) || angle == 2048)
+            {angle = 256;}
+            else if (angle >= 256 && angle < 512)
+            {angle = 512;}
+            else if (angle >= 512 && angle < 768)
+            {angle = 768;}
+            else if (angle >= 768 && angle < 1024)
+            {angle = 1024;}
+            else if (angle >= 1024 && angle < 1280)
+            {angle = 1280;}
+            else if (angle >= 1280 && angle < 1536)
+            {angle = 1536;}
+            else if (angle >= 1536 && angle < 1792)
+            {angle = 1792;}
+            else if (angle >= 1792 && angle < 2048)
+            {angle = 0;}
+        }
+        else if (lbKeyOn[KC_LSHIFT])
+        {
+            if (angle > 0 && angle <= 256)
+            {angle = 2048;}
+            else if (angle > 256 && angle <= 512)
+            {angle = 256;}
+            else if (angle > 512 && angle <= 768)
+            {angle = 512;}
+            else if (angle > 768 && angle <= 1024)
+            {angle = 768;}
+            else if (angle > 1024 && angle <= 1280)
+            {angle = 1024;}
+            else if (angle > 1280 && angle <= 1536)
+            {angle = 1280;}
+            else if (angle > 1536 && angle <= 1792)
+            {angle = 1536;}
+            else if ((angle > 1792 && angle <= 2048) || angle == 0)
+            {angle = 1792;}
+        }
+        else if (angle == 0 || angle == 2048)
+        {
+            (angle = 1024);
+        }
+        else if (angle == 512)
+        {
+            (angle = 1536);
+        }
+        else if (angle == 1536)
+        {
+            (angle = 512);
+        }
+        else
+        {
+            (angle = 0);
+        }
+      set_packet_action(pckt,PckA_SetMapRotation,angle,0,0,0);
+      lbDisplay.MiddleButton = 0;
+      }
+    }
+    if (player->view_mode == PVM_FrontView)
+    {
+      if (is_key_pressed(KC_TAB, !KMod_CONTROL))
+      {
+          clear_key_pressed(KC_TAB);
+      }
+      if (is_key_pressed(KC_TAB, KMod_CONTROL))
+      {
+          clear_key_pressed(KC_TAB);
+          toggle_gui();
+      }
+      // Middle mouse camera actions for FrontView
+      if (lbDisplay.MiddleButton >= 1)
+      {
+        struct Camera *cam;
+        cam = &player->cameras[CamIV_FrontView];
+        struct Packet *pckt;
+        pckt = get_packet(my_player_number);
+        int angle;
+        angle = cam->orient_a;
+        if (is_game_key_pressed(Gkey_RotateMod, NULL, false))
+        {
+            set_packet_control(pckt, PCtr_ViewRotateCW);
+        }
+        else if (lbKeyOn[KC_LSHIFT])
+        {
+            set_packet_control(pckt, PCtr_ViewRotateCCW);
+        }
+        else
+        {
+            if (angle == 0 || angle == 2048)
+            {
+                (angle = 1024);
+            }
+            else if (angle == 512)
+            {
+                (angle = 1536);
+            }
+            else if (angle == 1536)
+            {
+                (angle = 512);
+            }
+            else
+            {
+                (angle = 0);
+            }
+        set_packet_action(pckt,PckA_SetMapRotation,angle,0,0,0);
+        }
+      lbDisplay.MiddleButton = 0;
       }
     }
 

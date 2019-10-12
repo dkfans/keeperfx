@@ -1830,7 +1830,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_SetMinimapConf:
       player->minimap_zoom = pckt->actn_par1;
       return 0;
-  case PckA_Unknown029:
+  case PckA_SetMapRotation:
       player->cameras[CamIV_Parchment].orient_a = pckt->actn_par1;
       player->cameras[CamIV_FrontView].orient_a = pckt->actn_par1;
       player->cameras[CamIV_Isometric].orient_a = pckt->actn_par1;

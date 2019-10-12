@@ -56,7 +56,7 @@ enum TbPacketAction {
         PckA_BookmarkLoad,
         PckA_SetGammaLevel,
         PckA_SetMinimapConf,
-        PckA_Unknown029,
+        PckA_SetMapRotation,
         PckA_Unknown030,//30
         PckA_Unknown031,
         PckA_PasngrCtrlExit,
