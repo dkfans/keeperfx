@@ -3,6 +3,10 @@ Number 824 : "SP_APOC.WAV" is unused. Simply, it should be the spell voice of th
 
 Number 830 : "SP_HOLD.WAV" is unused. Simply, it should be the spell voice of the Hold Audience spell when clicking on its icon.
 
+Number 78 : "IGAME077.WAV" (You may resurrect one creature). When clicking on the "Resurrect creature" bonus box.
+
+Number 79 : "IGAME078.WAV" (Select the creature to take with you to the next realm). When clicking on the "Transfer creature" bonus box.
+
 Number 107 : "IGAME106.WAV" (Master, I sense the presence of the Avatar). I guess this one should be played at the beginning of the Level 20 : Skybird Trill or during the level.
 
 Number 108 : "IGAME107.WAV". (What trickery is this? The Avatar's body has vanished.) Surely played when the Avatar's body disappear on Level 20 or when he's turned to our cause.
@@ -59,7 +63,4 @@ Number 74 : "IGAME073.WAV" (A trap design has been discovered). Same thing, but 
 
 Number 75 : "IGAME074.WAV" (New creatures has joined your dungeon). This one should be played when we get neutral creatures.
 
-Number 78 : "IGAME077.WAV" (You may resurrect one creature). When clicking on the "Resurrect creature" bonus box.
-
-Number 79 : "IGAME078.WAV" (Select the creature to take with you to the next realm). When clicking on the "Transfer creature" bonus box.
 

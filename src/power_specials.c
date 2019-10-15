@@ -548,6 +548,7 @@ void start_transfer_creature(struct PlayerInfo *player, struct Thing *thing)
     {
       dungeon_special_selected = thing->index;
       transfer_creature_scroll_offset = 0;
+      output_message(SMsg_SpecTransfer, MESSAGE_DELAY_SPECIAL, true);
       turn_off_menu(GMnu_DUNGEON_SPECIAL);
       turn_on_menu(GMnu_TRANSFER_CREATURE);
     }
@@ -564,6 +565,7 @@ void start_resurrect_creature(struct PlayerInfo *player, struct Thing *thing)
         {
           dungeon_special_selected = thing->index;
           resurrect_creature_scroll_offset = 0;
+          output_message(SMsg_SpecResurrect, MESSAGE_DELAY_SPECIAL, true);
           turn_off_menu(GMnu_DUNGEON_SPECIAL);
           turn_on_menu(GMnu_RESURRECT_CREATURE);
         }
