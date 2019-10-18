@@ -263,17 +263,15 @@ struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind 
         long aparam;
         for (aparam=1; aparam >= 0; aparam--)
         {
-            unsigned int lookidx;
-            lookidx = look_randstart;
+            unsigned int look_kind;
+            look_kind = look_randstart;
             if (look_randstart < 0)
             {
-                lookidx = ACTION_RANDOM(arr_length);
+                look_kind = ACTION_RANDOM(arr_length);
             }
             for (i=0; i < arr_length; i++)
             {
                 struct ComputerTask *roomtask;
-                RoomKind look_kind;
-                look_kind = look_through_rooms[lookidx];
                 if (look_kind == RoK_TYPES_COUNT)
                 {
                     roomtask = able_to_build_room_at_task(comp, rkind, width_slabs, height_slabs, area, aparam);
@@ -284,7 +282,7 @@ struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind 
                 if (!computer_task_invalid(roomtask)) {
                     return roomtask;
                 }
-                lookidx = (lookidx + 1) % arr_length;
+                look_kind = (look_kind + 1) % arr_length;
             }
         }
     }
@@ -1314,13 +1312,6 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
         {
           newproc->name = NULL;
           break;
-        }
-        // Modifying original ComputerProcessTypes structure - I don't like it!
-        //TODO COMPUTER_PLAYER comparing function pointers is a bad practice
-        if (cproc->func_setup == computer_setup_any_room)
-        {
-          if (cproc->confval_5 >= 0)
-            cproc->confval_5 = get_room_look_through(cproc->confval_5);
         }
         LbMemoryCopy(newproc, cproc, sizeof(struct ComputerProcess));
         newproc->parent = cproc;

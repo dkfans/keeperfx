@@ -793,7 +793,7 @@ long get_dungeon_control_action_inputs(void)
         if (close_creature_cheat_menu())
             clear_key_pressed(KC_F12);
     }
-    if (player->view_mode == PVM_IsometricView) // || (player->view_mode == PVM_FrontView)) //todo copy this for frontview
+    if (player->view_mode == PVM_IsometricView)
     {
       if (is_key_pressed(KC_TAB, !KMod_CONTROL))
       {
