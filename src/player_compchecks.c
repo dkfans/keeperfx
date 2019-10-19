@@ -1028,8 +1028,7 @@ long computer_check_for_place_door(struct Computer2 *comp, struct ComputerCheck 
     ThingModel doorkind;
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
-    //TODO COMPUTER_PLAYER Computer prefers to put wooden doors, and uses other types only if wooden are depleted. That should be changed.
-    for (doorkind = 1; doorkind < DOOR_TYPES_COUNT; doorkind++)
+    for (doorkind = DOOR_TYPES_COUNT; doorkind > 1; doorkind--)
     {
         if (dungeon->door_amount_stored[doorkind] <= 0) {
             continue;
