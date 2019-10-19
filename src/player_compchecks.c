@@ -1007,7 +1007,9 @@ TbBool find_place_to_put_door_around_room(const struct Room *room, struct Coord3
             nxslb_y = slb_y + small_around[m].delta_y;
             struct SlabMap *nxslb;
             nxslb = get_slabmap_block(nxslb_x, nxslb_y);
-            if ((slabmap_owner(nxslb) == room->owner) && (nxslb->kind == SlbT_CLAIMED))
+            struct SlabAttr *slbattr;
+            slbattr = get_slab_attrs(nxslb);
+            if ((slabmap_owner(nxslb) == room->owner) && ((slbattr->block_flags & SlbAtFlg_Filled) == 0))
             {
                 if (!subtile_has_door_thing_on(slab_subtile_center(nxslb_x), slab_subtile_center(nxslb_y))) {
                     pos->x.val = subtile_coord_center(slab_subtile_center(slb_x));
