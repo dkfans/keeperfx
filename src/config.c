@@ -90,6 +90,7 @@ const struct NamedCommand conf_commands[] = {
   {"CENSORSHIP",           8},
   {"POINTER_SENSITIVITY",  9},
   {"ATMOSPHERIC_SOUNDS",  10},
+  {"RESIZE_MOVIES",       11},
   {NULL,                   0},
   };
 
@@ -157,6 +158,14 @@ TbBool censorship_enabled(void)
 TbBool atmos_sounds_enabled(void)
 {
   return ((features_enabled & Ft_Atmossounds) != 0);
+}
+
+/**
+ * Returns if Resize Movie is on.
+ */
+TbBool resize_movies_enabled(void)
+{
+  return ((features_enabled & Ft_Resizemovies) != 0);
 }
 
 TbBool is_feature_on(unsigned long feature)
@@ -669,6 +678,19 @@ short load_configuration(void)
               features_enabled |= Ft_Atmossounds;
           else
               features_enabled &= ~Ft_Atmossounds;
+          break;
+      case 11: // Resize Movies
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          if (i == 1)
+              features_enabled |= Ft_Resizemovies;
+          else
+              features_enabled &= ~Ft_Resizemovies;
           break;
       case 0: // comment
           break;

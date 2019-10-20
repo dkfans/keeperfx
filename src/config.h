@@ -65,13 +65,14 @@ enum TbFileGroups {
 };
 
 enum TbFeature {
-    Ft_EyeLens     =  0x0001,
-    Ft_HiResVideo  =  0x0002,
-    Ft_BigPointer  =  0x0004,
-    Ft_HiResCreatr =  0x0008,
-    Ft_AdvAmbSonud =  0x0010,
-    Ft_Censorship  =  0x0020,
-    Ft_Atmossounds =  0x0040,
+    Ft_EyeLens      =  0x0001,
+    Ft_HiResVideo   =  0x0002,
+    Ft_BigPointer   =  0x0004,
+    Ft_HiResCreatr  =  0x0008,
+    Ft_AdvAmbSonud  =  0x0010,
+    Ft_Censorship   =  0x0020,
+    Ft_Atmossounds  =  0x0040,
+    Ft_Resizemovies =  0x0080,
 };
 
 enum TbExtraLevels {
@@ -196,6 +197,7 @@ TbBool update_features(unsigned long mem_size);
 TbBool is_feature_on(unsigned long feature);
 TbBool censorship_enabled(void);
 TbBool atmos_sounds_enabled(void);
+TbBool resize_movies_enabled(void);
 short load_configuration(void);
 short calculate_moon_phase(short do_calculate,short add_to_log);
 void load_or_create_high_score_table(void);

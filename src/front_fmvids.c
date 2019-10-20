@@ -61,6 +61,10 @@ const struct DemoItem demo_item[] = {
 short play_smacker_file(char *filename, FrontendMenuState nstate)
 {
   unsigned int movie_flags = 0;
+  if (resize_movies_enabled())
+  {
+    movie_flags |= 0x84;
+  }
   if ( SoundDisabled )
     movie_flags |= 0x01;
   short result;
