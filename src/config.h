@@ -69,7 +69,7 @@ enum TbFeature {
     Ft_HiResVideo   =  0x0002,
     Ft_BigPointer   =  0x0004,
     Ft_HiResCreatr  =  0x0008,
-    Ft_AdvAmbSonud  =  0x0010,
+    Ft_AdvAmbSound  =  0x0010,
     Ft_Censorship   =  0x0020,
     Ft_Atmossounds  =  0x0040,
     Ft_Resizemovies =  0x0080,

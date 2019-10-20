@@ -137,7 +137,7 @@ TbBool update_features(unsigned long mem_size)
     features_enabled |= Ft_EyeLens;
     features_enabled |= Ft_HiResVideo;
     features_enabled |= Ft_BigPointer;
-    features_enabled |= Ft_AdvAmbSonud;
+    features_enabled |= Ft_AdvAmbSound;
   }
   SYNCMSG("Memory-demanding features %s.",result?"enabled":"disabled");
   return result;

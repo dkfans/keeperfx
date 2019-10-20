@@ -264,7 +264,7 @@ void update_frontmap_ambient_sound(void)
   if (map_sound_fade)
   {
     lvidx = array_index_for_singleplayer_level(get_continue_level_number());
-    if ((features_enabled & Ft_AdvAmbSonud) != 0)
+    if ((features_enabled & Ft_AdvAmbSound) != 0)
     {
       i = compute_sound_good_to_bad_factor();
       SYNCDBG(18,"Volume factor is %ld",i);
@@ -282,7 +282,7 @@ void update_frontmap_ambient_sound(void)
     SetMusicPlayerVolume(map_sound_fade*(long)settings.redbook_volume/256);
   } else
   {
-    if ((features_enabled & Ft_AdvAmbSonud) != 0)
+    if ((features_enabled & Ft_AdvAmbSound) != 0)
     {
       SetSampleVolume(0, campaign.ambient_good, 0, 0);
       SetSampleVolume(0, campaign.ambient_bad, 0, 0);
@@ -1155,7 +1155,7 @@ TbBool frontmap_load(void)
     map_info.velocity_y = 0;
     set_pointer_graphic_spland(0);
     LbMouseSetPosition(lbDisplay.PhysicalScreenWidth/2, lbDisplay.PhysicalScreenHeight/2);
-    if ((features_enabled & Ft_AdvAmbSonud) != 0)
+    if ((features_enabled & Ft_AdvAmbSound) != 0)
     {
         play_sample_using_heap(0, campaign.ambient_good, 0, 0x40, 100, -1, 2, 0);
         play_sample_using_heap(0, campaign.ambient_bad, 0, 0x40, 100, -1, 2, 0);
