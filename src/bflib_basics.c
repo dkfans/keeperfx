@@ -378,6 +378,8 @@ int LbErrorLogClose(void)
     return LbLogClose(&error_log);
 }
 
+FILE *file;
+ 
 int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
 {
   enum Header {
@@ -388,7 +390,6 @@ int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
 //  printf(fmt_str, arg);
   if (!log->Initialised)
     return -1;
-  FILE *file;
   short need_initial_newline;
   char header;
   if ( log->Suspended )
@@ -418,10 +419,13 @@ int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
       accmode = "a";
     else
       accmode = "w";
-    file = fopen(log->filename, accmode);
+    // Only load log if it's not already open
     if (file == NULL)
     {
-      return -1;
+      file = fopen(log->filename, accmode);
+      // Couldn't open. Abort
+      if (file == NULL)
+        return -1;
     }
     log->Created = true;
     if (header != NONE)
@@ -478,7 +482,9 @@ int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
       fprintf(file, log->prefix);
   vfprintf(file, fmt_str, arg);
   log->position = ftell(file);
-  fclose(file);
+  // fclose is slow and automatically happens on normal program exit.
+  // Opening/closing every time we log something hits performance hard.
+  // fclose(file);
   return 1;
 }
 
