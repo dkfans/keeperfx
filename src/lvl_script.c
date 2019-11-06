@@ -1722,7 +1722,7 @@ void command_set_music(long val)
   {
     SCRPTWRNLOG("Music set inside conditional block; condition ignored");
   }
-  game.music_track_index = val;
+  game.audiotrack = val;
 }
 
 void command_set_hate(long trgt_plr_range_id, long enmy_plr_range_id, long hate_val)
