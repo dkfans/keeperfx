@@ -85,6 +85,7 @@ struct Room *find_any_navigable_room_for_thing_closer_than(struct Thing *thing, 
 struct Room *find_nearest_room_for_thing(struct Thing *thing, PlayerNumber plyr_idx, RoomKind rkind, unsigned char nav_flags);
 struct Room *find_nearest_room_for_thing_excluding_two_types(struct Thing *thing, PlayerNumber owner, RoomKind skip_rkind1, RoomKind skip_rkind2, unsigned char nav_flags);
 struct Room *find_nearest_room_for_thing_with_used_capacity(struct Thing *thing, PlayerNumber plyr_idx, RoomKind rkind, unsigned char a4, long a5);
+struct Room *find_nearest_room_to_vandalise(struct Thing *thing, PlayerNumber owner, unsigned char nav_flags);
 
 /******************************************************************************/
 #ifdef __cplusplus

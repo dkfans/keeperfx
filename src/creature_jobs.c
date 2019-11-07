@@ -215,7 +215,7 @@ TbBool attempt_anger_job_destroy_rooms(struct Thing *creatng)
     }
     struct Room *room;
     struct Coord3d pos;
-    room = find_nearest_room_for_thing_excluding_two_types(creatng, creatng->owner, 7, 1, 1);
+    room = find_nearest_room_to_vandalise(creatng, creatng->owner, NavRtF_NoOwner);
     if (room_is_invalid(room)) {
         return false;
     }

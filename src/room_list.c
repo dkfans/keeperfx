@@ -389,3 +389,36 @@ struct Room *find_nearest_room_for_thing_with_used_capacity(struct Thing *thing,
     return nearoom;
 }
 /******************************************************************************/
+
+/**
+* Returns nearest room of given owner to which the thing can navigate, and which can be destroyed.
+*
+* @param thing The thing to navigate into room.
+* @param owner Owner of the rooms to be checked.
+* @param nav_flags Navigation flags, for checking if creature can reach the room.
+* @return Nearest room of given kind and owner, or invalid room if none found.
+*/
+struct Room *find_nearest_room_to_vandalise(struct Thing *thing, PlayerNumber owner, unsigned char nav_flags)
+{
+	long neardistance;
+	struct Room *nearoom;
+	neardistance = LONG_MAX;
+	nearoom = INVALID_ROOM;
+	RoomKind rkind;
+	for (rkind = 1; rkind < ROOM_TYPES_COUNT; rkind++)
+	{
+		if (room_cannot_vandalise(rkind)) {
+			continue;
+		}
+		long distance;
+		struct Room *room;
+		distance = neardistance;
+		room = find_nearest_navigable_room_for_thing_with_capacity_and_closer_than(thing, owner, rkind, nav_flags, 0, &distance);
+		if (neardistance > distance)
+		{
+			neardistance = distance;
+			nearoom = room;
+		}
+	}
+	return nearoom;
+}

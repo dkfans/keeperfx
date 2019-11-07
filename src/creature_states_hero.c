@@ -128,7 +128,7 @@ TbBool good_setup_attack_rooms(struct Thing *creatng, long dngn_id)
     struct Room *room;
     struct CreatureControl *cctrl;
     struct Coord3d pos;
-    room = find_nearest_room_for_thing_excluding_two_types(creatng, dngn_id, RoK_DUNGHEART, RoK_ENTRANCE, 1);
+    room = find_nearest_room_to_vandalise(creatng, dngn_id, NavRtF_NoOwner);
     if (room_is_invalid(room))
     {
         return false;
