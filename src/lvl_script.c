@@ -3391,7 +3391,7 @@ TbBool script_support_send_tunneller_to_dungeon_heart(struct Thing *creatng, Pla
         WARNLOG("Tried to send %s to player %d which has no heart", thing_model_name(creatng), (int)plyr_idx);
         return false;
     }
-    if (send_tunneller_to_point_in_dungeon(creatng, plyr_idx, &heartng->mappos)) {
+    if (!send_tunneller_to_point_in_dungeon(creatng, plyr_idx, &heartng->mappos)) {
         WARNLOG("Tried to send %s to player %d but can't start the task", thing_model_name(creatng), (int)plyr_idx);
         return false;
     }
