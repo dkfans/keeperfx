@@ -1699,10 +1699,11 @@ void gui_area_instance_button(struct GuiButton *gbtn)
         long turns_progress, turns_required;
         if ((ctrltng->alloc_flags & TAlF_IsControlled) != 0) {
             turns_required = inst_inf->fp_reset_time;
+			turns_progress = (long)game.play_gameturn - inst_inf->fp_time - (long)cctrl->instance_use_turn[curbtn_inst_id];
         } else {
             turns_required = inst_inf->reset_time;
+			turns_progress = (long)game.play_gameturn - inst_inf->time - (long)cctrl->instance_use_turn[curbtn_inst_id];
         }
-        turns_progress = (long)game.play_gameturn - (long)cctrl->instance_use_turn[curbtn_inst_id];
         gui_area_progress_bar_short(gbtn, units_per_px, turns_progress, turns_required);
     } else
     {

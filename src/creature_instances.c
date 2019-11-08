@@ -465,7 +465,8 @@ void process_creature_instance(struct Thing *thing)
                 cctrl->inst_repeat = 0;
                 return;
             }
-            cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn;
+			// Instances sometimes failed to reach this. More reliable to set instance_use_turn in set_creature_instance instead
+            // cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn;
             cctrl->instance_id = CrInst_NULL;
         }
         cctrl->inst_repeat = 0;
