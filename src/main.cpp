@@ -3787,12 +3787,12 @@ TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     if (is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && (game.small_map_state != 2))
     {
         map_volume_box.visible = 1;
-        map_volume_box.field_3 = subtile_coord(slab_subtile(slb_x, 0), 0);
-        map_volume_box.field_7 = subtile_coord(slab_subtile(slb_y, 0), 0);
+        map_volume_box.beg_x = subtile_coord(slab_subtile(slb_x, 0), 0);
+        map_volume_box.beg_y = subtile_coord(slab_subtile(slb_y, 0), 0);
         map_volume_box.field_13 = par1;
-        map_volume_box.field_B = subtile_coord(slab_subtile(slb_x, 2*a4+1), 0);
+        map_volume_box.end_x = subtile_coord(slab_subtile(slb_x, 2*a4+1), 0);
         map_volume_box.color = allowed;
-        map_volume_box.field_F = subtile_coord(slab_subtile(slb_y, 2*a4+1), 0);
+        map_volume_box.end_y = subtile_coord(slab_subtile(slb_y, 2*a4+1), 0);
     }
     return allowed;
 }
@@ -4587,6 +4587,10 @@ short process_command_line(unsigned short argc, char *argv[])
       if (strcasecmp(parstr, "dbgshots") == 0)
       {
           start_params.debug_flags |= DFlg_ShotsDamage;
+      } else
+      if (strcasecmp(parstr, "dbgpathfind") == 0)
+      {
+	      start_params.debug_flags |= DFlg_CreatrPaths;
       } else
       if (strcasecmp(parstr, "compuchat") == 0)
       {

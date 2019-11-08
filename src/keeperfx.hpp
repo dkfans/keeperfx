@@ -87,7 +87,7 @@ enum FFlags {
 
 enum DebugFlags {
     DFlg_ShotsDamage        =  0x01,
-    DFlg_unk02              =  0x02,
+    DFlg_CreatrPaths        =  0x02,
 };
 
 #pragma pack(1)

@@ -58,15 +58,15 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT void _DK_draw_fastview_mapwho(struct Camera *cam, struct JontySpr *outbuf);
-DLLIMPORT void _DK_draw_stripey_line(long pos_x, long pos_z, long start_y, long end_y, unsigned char scale);
+DLLIMPORT void _DK_draw_stripey_line(long pos_x, long pos_z, long beg_y, long end_y, unsigned char scale);
 DLLIMPORT long _DK_convert_world_coord_to_front_view_screen_coord(struct Coord3d *pos, struct Camera *cam, long *x, long *y, long *z);
-DLLIMPORT void _DK_rotate_base_axis(struct M33 *matx, short pos_z, unsigned char start_y);
+DLLIMPORT void _DK_rotate_base_axis(struct M33 *matx, short pos_z, unsigned char beg_y);
 DLLIMPORT void _DK_fill_in_points_perspective(long pos_x, long pos_z, struct MinMax *mm);
 DLLIMPORT void _DK_fill_in_points_cluedo(long pos_x, long pos_z, struct MinMax *mm);
 DLLIMPORT void _DK_fill_in_points_isometric(long pos_x, long pos_z, struct MinMax *mm);
 DLLIMPORT void _DK_find_gamut(void);
 DLLIMPORT void _DK_frame_wibble_generate(void);
-DLLIMPORT void _DK_setup_rotate_stuff(long pos_x, long pos_z, long start_y, long end_y, long scale, long a6, long a7, long a8);
+DLLIMPORT void _DK_setup_rotate_stuff(long pos_x, long pos_z, long beg_y, long end_y, long scale, long a6, long a7, long a8);
 DLLIMPORT void _DK_do_a_trig_gourad_tr(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short plane_end, long scale);
 DLLIMPORT void _DK_do_a_trig_gourad_bl(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short plane_end, long scale);
 DLLIMPORT void _DK_do_map_who(short stl_x);
@@ -1830,6 +1830,78 @@ void create_line_segment(struct EngineCoord *start, struct EngineCoord *end, TbP
     poly->p.field_10 = color;
 }
 
+/**
+* Adds a line with constant Z coord to the drawlist of perspective view.
+* @param color Color index.
+* @param pos_z The Z coord, constant for whole line.
+* @param beg_x The X coord of start of the line.
+* @param end_x The X coord of end of the line.
+* @param beg_y The Y coord of start of the line.
+* @param end_y The Y coord of end of the line.
+*/
+void create_line_const_z(unsigned char color, long pos_z, long beg_x, long end_x, long beg_y, long end_y)
+{
+	struct EngineCoord end;
+	struct EngineCoord start;
+	long vec_x, vec_y;
+	long pos_x, pos_y;
+	vec_x = end_x - beg_x;
+	vec_y = end_y - beg_y;
+	create_box_coords(&start, beg_x, beg_y, pos_z);
+
+	if (abs(vec_y) > abs(vec_x))
+	{
+		if (vec_y < 0)
+		{
+			long vec_tmp;
+			vec_tmp = beg_x;
+			beg_x = end_x;
+			end_x = vec_tmp;
+			vec_tmp = beg_y;
+			beg_y = end_y;
+			end_y = vec_tmp;
+			vec_x = -vec_x;
+			vec_y = -vec_y;
+		}
+		for (pos_y = beg_y + COORD_PER_STL; pos_y <= end_y; pos_y += COORD_PER_STL)
+		{
+			pos_x = beg_x + vec_x * abs(pos_y - beg_y) / abs(vec_y);
+			create_box_coords(&end, pos_x, pos_y, pos_z);
+			create_line_segment(&start, &end, color);
+			memcpy(&start, &end, sizeof(struct EngineCoord));
+		}
+	}
+	else
+	{
+		if (vec_x < 0)
+		{
+			long vec_tmp;
+			vec_tmp = beg_x;
+			beg_x = end_x;
+			end_x = vec_tmp;
+			vec_tmp = beg_y;
+			beg_y = end_y;
+			end_y = vec_tmp;
+			vec_x = -vec_x;
+			vec_y = -vec_y;
+		}
+		for (pos_x = beg_x + COORD_PER_STL; pos_x <= end_x; pos_x += COORD_PER_STL)
+		{
+			pos_y = beg_y + vec_y * abs(pos_x - beg_x) / abs(vec_x);
+			create_box_coords(&end, pos_x, pos_y, pos_z);
+			create_line_segment(&start, &end, color);
+			memcpy(&start, &end, sizeof(struct EngineCoord));
+		}
+	}
+}
+
+/**
+* Adds a line with constant XZ coords to the drawlist of perspective view.
+* @param pos_x The X coord, constant for whole line.
+* @param pos_z The Z coord, constant for whole line.
+* @param start_y The Y coord of start of the line.
+* @param end_y The Y coord of end of the line.
+*/
 void create_line_const_xz(long pos_x, long pos_z, long start_y, long end_y)
 {
     struct EngineCoord end;
@@ -1844,6 +1916,13 @@ void create_line_const_xz(long pos_x, long pos_z, long start_y, long end_y)
     }
 }
 
+/**
+* Adds a line with constant XY coords to the drawlist of perspective view.
+* @param pos_x The X coord, constant for whole line.
+* @param pos_y The Y coord, constant for whole line.
+* @param start_z The Z coord of start of the line.
+* @param end_z The Z coord of end of the line.
+*/
 void create_line_const_xy(long pos_x, long pos_y, long start_z, long end_z)
 {
     struct EngineCoord end;
@@ -1858,6 +1937,13 @@ void create_line_const_xy(long pos_x, long pos_y, long start_z, long end_z)
     }
 }
 
+/**
+* Adds a line with constant YZ coords to the drawlist of perspective view.
+* @param pos_y The Y coord, constant for whole line.
+* @param pos_z The Z coord, constant for whole line.
+* @param start_x The X coord of start of the line.
+* @param end_x The X coord of end of the line.
+*/
 void create_line_const_yz(long pos_y, long pos_z, long start_x, long end_x)
 {
     struct EngineCoord end;
@@ -1879,15 +1965,15 @@ void create_map_volume_box(long x, long y, long z)
     long box_zs,box_ze;
     long i;
 
-    box_xs = map_volume_box.field_3 - x;
-    box_ys = y - map_volume_box.field_7;
-    box_ye = y - map_volume_box.field_F;
-    box_xe = map_volume_box.field_B - x;
+    box_xs = map_volume_box.beg_x - x;
+    box_ys = y - map_volume_box.beg_y;
+    box_ye = y - map_volume_box.end_y;
+    box_xe = map_volume_box.end_x - x;
 
     if ( temp_cluedo_mode )
-        box_ze = 512 - z;
+        box_ze = 2*COORD_PER_STL - z;
     else
-        box_ze = 1280 - z;
+        box_ze = 5*COORD_PER_STL - z;
 
     box_zs = (map_volume_box.field_13 << 8) - z;
     if ( box_zs >= box_ze )
@@ -1895,20 +1981,20 @@ void create_map_volume_box(long x, long y, long z)
 
     if ( box_xe < box_xs )
     {
-        i = map_volume_box.field_3;
-        box_xs = map_volume_box.field_B - x;
-        box_xe = map_volume_box.field_3 - x;
-        map_volume_box.field_3 = map_volume_box.field_B;
-        map_volume_box.field_B = i;
+        i = map_volume_box.beg_x;
+        box_xs = map_volume_box.end_x - x;
+        box_xe = map_volume_box.beg_x - x;
+        map_volume_box.beg_x = map_volume_box.end_x;
+        map_volume_box.end_x = i;
     }
 
     if ( box_ye < box_ys )
     {
-        i = map_volume_box.field_7;
-        box_ys = y - map_volume_box.field_F;
-        box_ye = y - map_volume_box.field_7;
-        map_volume_box.field_7 = map_volume_box.field_F;
-        map_volume_box.field_F = i;
+        i = map_volume_box.beg_y;
+        box_ys = y - map_volume_box.end_y;
+        box_ye = y - map_volume_box.beg_y;
+        map_volume_box.beg_y = map_volume_box.end_y;
+        map_volume_box.end_y = i;
     }
 
     // Draw top rectangle
@@ -2700,11 +2786,11 @@ void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long plane_s
 void draw_map_volume_box(long cor1_x, long cor1_y, long cor2_x, long cor2_y, long a5, unsigned char color)
 {
     map_volume_box.visible = 1;
-    map_volume_box.field_3 = cor1_x & 0xFFFF00;
-    map_volume_box.field_7 = cor1_y & 0xFF00;
-    map_volume_box.field_B = cor2_x & 0xFFFF00;
+    map_volume_box.beg_x = cor1_x & 0xFFFF00;
+    map_volume_box.beg_y = cor1_y & 0xFF00;
+    map_volume_box.end_x = cor2_x & 0xFFFF00;
+    map_volume_box.end_y = cor2_y & 0xFFFF00;
     map_volume_box.field_13 = a5;
-    map_volume_box.field_F = cor2_y & 0xFFFF00;
     map_volume_box.color = color;
 }
 
@@ -5323,6 +5409,39 @@ void prepare_jonty_remap_and_scale(long *scale, const struct JontySpr *jspr)
     }
 }
 
+void draw_mapwho_ariadne_path(struct Thing *thing)
+{
+	// Don't draw debug pathfinding lines in Possession to avoid crash
+	struct PlayerInfo *player;
+	player = get_my_player();
+	if (player->view_mode == PVM_CreatureView)
+		return;
+
+	struct Ariadne *arid;
+	{
+		struct CreatureControl *cctrl;
+		cctrl = creature_control_get_from_thing(thing);
+		arid = &cctrl->arid;
+	}
+	SYNCDBG(16, "Starting for (%d,%d) to (%d,%d)", (int)arid->startpos.x.val, (int)arid->startpos.y.val, (int)arid->endpos.x.val, (int)arid->endpos.y.val);
+	int i;
+	struct Coord2d *wp_next;
+	struct Coord2d *wp_prev;
+	wp_prev = (struct Coord2d *)&arid->startpos;
+	for (i = 0; i < arid->stored_waypoints; i++)
+	{
+		wp_next = &arid->waypoints[i];
+
+		long beg_x, end_x, beg_y, end_y;
+		beg_x = (long)wp_prev->x.val - map_x_pos;
+		end_x = (long)wp_next->x.val - map_x_pos;
+		beg_y = map_y_pos - (long)wp_prev->y.val;
+		end_y = map_y_pos - (long)wp_next->y.val;
+		create_line_const_z(1, (long)arid->startpos.z.val + COORD_PER_STL / 16 - map_z_pos, beg_x, end_x, beg_y, end_y);
+		wp_prev = wp_next;
+	}
+}
+
 void draw_jonty_mapwho(struct JontySpr *jspr)
 {
     unsigned short flg_mem;
@@ -5399,7 +5518,7 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
             break;
         case TCls_Trap:
             //TODO CONFIG trap model dependency, make config option instead
-            if ((thing->model != 1) && (player->id_number != thing->owner) && (thing->byte_18 == 0))
+            if ((thing->model != 1) && (player->id_number != thing->owner) && (thing->trap.byte_18t == 0))
             {
                 break;
             }
@@ -5701,9 +5820,9 @@ void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width
     long vstart,vend;
     long delta[4];
 
-    pos.y.val = map_volume_box.field_7;
-    pos.x.val = map_volume_box.field_3;
-    pos.z.val = 5*256;
+    pos.y.val = map_volume_box.beg_y;
+    pos.x.val = map_volume_box.beg_x;
+    pos.z.val = subtile_coord(5,0);
     orient = ((unsigned int)(cam->orient_a + LbFPMath_PI/4) >> 9) & 0x03;
     convert_world_coord_to_front_view_screen_coord(&pos, cam, &coord_x, &coord_y, &coord_z);
     depth = (5 - map_volume_box.field_13) * ((long)stl_width << 7) / 256;
@@ -5779,16 +5898,22 @@ void do_map_who_for_thing(struct Thing *thing)
             }
         }
         ecor.y = thing->mappos.z.val - map_z_pos;
-        if ( thing->class_id == 5 )
-            create_status_box(thing, &ecor);
+		if (thing->class_id == TCls_Creature)
+		{
+			create_status_box(thing, &ecor);
+			// Draw path the creature is following
+			if ((start_params.debug_flags & DFlg_CreatrPaths) != 0) {
+				draw_mapwho_ariadne_path(thing);
+			}
+		}
         rotpers(&ecor, &camera_matrix);
         if (getpoly < poly_pool_end)
         {
-          if ( lens_mode )
-            bckt_idx = (ecor.z - 64) / 16;
-          else
-            bckt_idx = (ecor.z - 64) / 16 - 6;
-          add_unkn11_to_polypool(thing, ecor.view_width, ecor.view_height, ecor.z, bckt_idx);
+            if ( lens_mode )
+              bckt_idx = (ecor.z - 64) / 16;
+            else
+              bckt_idx = (ecor.z - 64) / 16 - 6;
+            add_unkn11_to_polypool(thing, ecor.view_width, ecor.view_height, ecor.z, bckt_idx);
         }
         break;
     case 3:
