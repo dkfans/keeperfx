@@ -374,36 +374,21 @@ long update_dungeon_generation_speeds(void)
         }
     }
     // Update the values
-    if (game.generate_speed == -1)
+    for (plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
-        for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+        struct PlayerInfo *player;
+        player = get_player(plyr_idx);
+        if (player_exists(player) && (player->field_2C == 1))
         {
-            struct PlayerInfo *player;
-            player = get_player(plyr_idx);
-            if (player_exists(player) && (player->field_2C == 1))
-            {
-                struct Dungeon *dungeon;
-                dungeon = get_players_dungeon(player);
-                dungeon->turns_between_entrance_generation = 0;
-            }
-        }
-    } else
-    {
-        for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
-        {
-            struct PlayerInfo *player;
-            player = get_player(plyr_idx);
-            if (player_exists(player) && (player->field_2C == 1))
-            {
-                struct Dungeon *dungeon;
-                dungeon = get_players_dungeon(player);
-                if (dungeon->manage_score > 0)
-                    dungeon->turns_between_entrance_generation = max_manage_score * game.generate_speed / dungeon->manage_score;
-                else
-                    dungeon->turns_between_entrance_generation = game.generate_speed;
-            }
+            struct Dungeon *dungeon;
+            dungeon = get_players_dungeon(player);
+            if (dungeon->manage_score > 0)
+                dungeon->turns_between_entrance_generation = max_manage_score * game.generate_speed / dungeon->manage_score;
+            else
+                dungeon->turns_between_entrance_generation = game.generate_speed;
         }
     }
+
     return 1;
 }
 

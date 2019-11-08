@@ -425,11 +425,11 @@ static struct Thing *find_creature_for_sacrifice(struct Computer2 *comp, ThingMo
     is_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(dungeon->owner, crmodel);
     struct Thing *thing;
     thing = INVALID_THING;
-    if ((is_spec_digger) || (crmodel == -1))
+    if (is_spec_digger)
     {
         thing = get_player_list_creature_with_filter(dungeon->digger_list_start, filter, &param);
     }
-    if (((!is_spec_digger) || (crmodel == -1)) && thing_is_invalid(thing))
+    if ((!is_spec_digger) && thing_is_invalid(thing))
     {
         thing = get_player_list_creature_with_filter(dungeon->creatr_list_start, filter, &param);
     }

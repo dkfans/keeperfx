@@ -219,16 +219,16 @@ struct SpellData *get_power_data(int pwkind)
   return &spell_data[0];
 }
 
-TextStringId get_power_name_strindex(int pwkind)
+TextStringId get_power_name_strindex(PowerKind pwkind)
 {
-  if ((pwkind < 0) || (pwkind >= magic_conf.power_types_count))
-    return magic_conf.power_cfgstats[0].name_stridx;
-  return magic_conf.power_cfgstats[pwkind].name_stridx;
+    if (pwkind >= magic_conf.power_types_count)
+        return magic_conf.power_cfgstats[0].name_stridx;
+    return magic_conf.power_cfgstats[pwkind].name_stridx;
 }
 
-TextStringId get_power_description_strindex(int pwkind)
+TextStringId get_power_description_strindex(PowerKind pwkind)
 {
-  if ((pwkind < 0) || (pwkind >= magic_conf.power_types_count))
+  if (pwkind >= magic_conf.power_types_count)
     return magic_conf.power_cfgstats[0].tooltip_stridx;
   return magic_conf.power_cfgstats[pwkind].tooltip_stridx;
 }
@@ -254,21 +254,21 @@ long get_power_index_for_work_state(long work_state)
 
 struct SpellConfigStats *get_spell_model_stats(SpellKind spmodel)
 {
-    if ((spmodel < 0) || (spmodel >= magic_conf.spell_types_count))
+    if (spmodel >= magic_conf.spell_types_count)
         return &magic_conf.spell_cfgstats[0];
     return &magic_conf.spell_cfgstats[spmodel];
 }
 
 struct ShotConfigStats *get_shot_model_stats(ThingModel tngmodel)
 {
-    if ((tngmodel < 0) || (tngmodel >= magic_conf.shot_types_count))
+    if (tngmodel >= magic_conf.shot_types_count)
         return &magic_conf.shot_cfgstats[0];
     return &magic_conf.shot_cfgstats[tngmodel];
 }
 
 struct PowerConfigStats *get_power_model_stats(PowerKind pwkind)
 {
-    if ((pwkind < 0) || (pwkind >= magic_conf.power_types_count))
+    if (pwkind >= magic_conf.power_types_count)
         return &magic_conf.power_cfgstats[0];
     return &magic_conf.power_cfgstats[pwkind];
 }
@@ -282,7 +282,7 @@ TbBool power_model_stats_invalid(const struct PowerConfigStats *powerst)
 
 struct MagicStats *get_power_dynamic_stats(PowerKind pwkind)
 {
-    if ((pwkind < 0) || (pwkind >= POWER_TYPES_COUNT))
+    if (pwkind >= POWER_TYPES_COUNT)
         return &game.keeper_power_stats[0];
     return &game.keeper_power_stats[pwkind];
 }
@@ -299,7 +299,7 @@ TbBool power_is_instinctive(int pwkind)
 
 struct SpecialConfigStats *get_special_model_stats(SpecialKind spckind)
 {
-    if ((spckind < 0) || (spckind >= magic_conf.special_types_count))
+    if (spckind >= magic_conf.special_types_count)
         return &magic_conf.special_cfgstats[0];
     return &magic_conf.special_cfgstats[spckind];
 }
@@ -1501,7 +1501,7 @@ TbBool add_power_to_player(PowerKind pwkind, PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
     long i;
-    if ((pwkind < 0) || (pwkind >= KEEPER_POWERS_COUNT))
+    if (pwkind >= KEEPER_POWERS_COUNT)
     {
         ERRORLOG("Can't add incorrect power %d to player %d",(int)pwkind, (int)plyr_idx);
         return false;
@@ -1641,8 +1641,9 @@ TbBool is_power_available(PlayerNumber plyr_idx, PowerKind pwkind)
     if (!player_has_heart(plyr_idx) && (pwkind != PwrK_POSSESS)) {
         return false;
     }
-    if ((pwkind < 0) || (pwkind >= KEEPER_POWERS_COUNT)) {
-        ERRORLOG("Incorrect power %ld (player %ld)",pwkind, plyr_idx);
+    if (pwkind >= KEEPER_POWERS_COUNT)
+    {
+        ERRORLOG("Incorrect power %ld (player %ld)", pwkind, plyr_idx);
         return false;
     }
     if (dungeon->magic_level[pwkind] > 0) {
@@ -1673,7 +1674,7 @@ TbBool is_power_obtainable(PlayerNumber plyr_idx, PowerKind pwkind)
     if (!player_has_heart(plyr_idx) && (pwkind != PwrK_POSSESS)) {
         return false;
     }
-    if ((pwkind < 0) || (pwkind >= KEEPER_POWERS_COUNT)) {
+    if (pwkind >= KEEPER_POWERS_COUNT) {
         ERRORLOG("Incorrect power %ld (player %ld)",pwkind, plyr_idx);
         return false;
     }

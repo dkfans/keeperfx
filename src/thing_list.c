@@ -1484,7 +1484,7 @@ long do_to_all_things_of_class_and_model(int tngclass, int tngmodel, Thing_Bool_
         }
         i = thing->next_of_class;
         // Per-thing code
-        if ((thing->model == tngmodel) || (tngmodel < 0))
+        if (thing->model == tngmodel)
         {
             if (do_cb(thing))
                 n++;

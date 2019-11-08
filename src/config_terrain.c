@@ -251,7 +251,7 @@ struct SlabAttr slab_attrs[] = {
 /******************************************************************************/
 struct SlabAttr *get_slab_kind_attrs(SlabKind slab_kind)
 {
-    if ((slab_kind < 0) || (slab_kind >= sizeof(slab_attrs)/sizeof(slab_attrs[0])))
+    if (slab_kind >= sizeof(slab_attrs)/sizeof(slab_attrs[0]))
         return &slab_attrs[0];
     return &slab_attrs[slab_kind];
 }
@@ -265,7 +265,7 @@ struct SlabAttr *get_slab_attrs(const struct SlabMap *slb)
 
 struct SlabConfigStats *get_slab_kind_stats(SlabKind slab_kind)
 {
-    if ((slab_kind < 0) || (slab_kind >= slab_conf.slab_types_count))
+    if (slab_kind >= slab_conf.slab_types_count)
         return &slab_conf.slab_cfgstats[0];
     return &slab_conf.slab_cfgstats[slab_kind];
 }
@@ -303,7 +303,7 @@ const char *room_role_code_name(RoomRole rrole)
 
 struct RoomConfigStats *get_room_kind_stats(RoomKind room_kind)
 {
-    if ((room_kind < 0) || (room_kind >= slab_conf.room_types_count))
+    if (room_kind >= slab_conf.room_types_count)
         return &slab_conf.room_cfgstats[0];
     return &slab_conf.room_cfgstats[room_kind];
 }
@@ -1057,7 +1057,7 @@ TbBool set_room_available(PlayerNumber plyr_idx, RoomKind room_idx, long resrch,
         ERRORDBG(11,"Cannot do; player %d has no dungeon",(int)plyr_idx);
         return false;
     }
-    if ((room_idx < 0) || (room_idx >= ROOM_TYPES_COUNT))
+    if (room_idx >= ROOM_TYPES_COUNT)
     {
         ERRORLOG("Can't add incorrect room %d to player %d",(int)room_idx, (int)plyr_idx);
         return false;
@@ -1087,7 +1087,7 @@ TbBool is_room_available(PlayerNumber plyr_idx, RoomKind room_idx)
     if (!player_has_heart(plyr_idx)) {
         return false;
     }
-    if ((room_idx < 0) || (room_idx >= ROOM_TYPES_COUNT))
+    if (room_idx >= ROOM_TYPES_COUNT)
     {
       ERRORLOG("Incorrect room %d (player %d)",(int)room_idx, (int)plyr_idx);
       return false;

@@ -750,7 +750,7 @@ long find_spell_age_percentage(PlayerNumber plyr_idx, PowerKind pwkind)
 TbBool pay_for_spell(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel)
 {
     long price;
-    if ((pwkind < 0) || (pwkind >= POWER_TYPES_COUNT))
+    if (pwkind >= POWER_TYPES_COUNT)
         return false;
     if (pwlevel >= MAGIC_OVERCHARGE_LEVELS)
         pwlevel = MAGIC_OVERCHARGE_LEVELS;
@@ -2061,7 +2061,7 @@ TbBool update_power_overcharge(struct PlayerInfo *player, int pwkind)
 {
   struct Dungeon *dungeon;
   int i;
-  if ((pwkind < 0) || (pwkind >= POWER_TYPES_COUNT))
+  if (pwkind >= POWER_TYPES_COUNT)
       return false;
   dungeon = get_dungeon(player->id_number);
   const struct MagicStats *pwrdynst;

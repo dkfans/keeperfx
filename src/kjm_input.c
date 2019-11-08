@@ -278,7 +278,7 @@ short is_key_pressed(TbKeyCode key, TbKeyMods kmodif)
  */
 unsigned short key_to_ascii(TbKeyCode key, TbKeyMods kmodif)
 {
-  if ((key<0) || (key>=128))
+  if (key >= 128)
     return 0;
   if (kmodif & KMod_SHIFT)
     return lbInkeyToAsciiShift[key];
@@ -290,7 +290,7 @@ unsigned short key_to_ascii(TbKeyCode key, TbKeyMods kmodif)
  */
 void clear_key_pressed(long key)
 {
-  if ((key<0) || (key>=sizeof(lbKeyOn)))
+  if (key >= sizeof(lbKeyOn))
     return;
   lbKeyOn[key] = 0;
   if (key == lbInkey)

@@ -494,7 +494,7 @@ struct InitEffect *get_effect_info_for_thing(const struct Thing *thing)
 
 struct EffectElementStats *get_effect_element_model_stats(ThingModel tngmodel)
 {
-    if ((tngmodel < 0) || (tngmodel >= sizeof(effect_element_stats)/sizeof(effect_element_stats[0])))
+    if (tngmodel >= sizeof(effect_element_stats)/sizeof(effect_element_stats[0]))
         return &effect_element_stats[0];
     return &effect_element_stats[tngmodel];
 }

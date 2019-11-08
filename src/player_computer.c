@@ -1511,7 +1511,7 @@ void process_computer_player2(PlayerNumber plyr_idx)
     computer_check_events(comp);
     process_checks(comp);
     process_processes_and_task(comp);
-    if ((comp->tasks_did < 0) || (comp->tasks_did > 1)) {
+    if (comp->tasks_did > 1) {
         ERRORLOG("Computer player %d performed %d tasks instead of up to one",(int)plyr_idx,(int)comp->tasks_did);
     }
 }

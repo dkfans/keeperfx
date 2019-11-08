@@ -81,14 +81,14 @@ struct NamedCommand door_desc[TRAPDOOR_TYPES_MAX];
 /******************************************************************************/
 struct TrapConfigStats *get_trap_model_stats(int tngmodel)
 {
-    if ((tngmodel < 0) || (tngmodel >= trapdoor_conf.trap_types_count))
+    if (tngmodel >= trapdoor_conf.trap_types_count)
         return &trapdoor_conf.trap_cfgstats[0];
     return &trapdoor_conf.trap_cfgstats[tngmodel];
 }
 
 struct DoorConfigStats *get_door_model_stats(int tngmodel)
 {
-    if ((tngmodel < 0) || (tngmodel >= trapdoor_conf.door_types_count))
+    if (tngmodel >= trapdoor_conf.door_types_count)
         return &trapdoor_conf.door_cfgstats[0];
     return &trapdoor_conf.door_cfgstats[tngmodel];
 }

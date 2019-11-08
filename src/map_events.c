@@ -721,7 +721,7 @@ void kill_oldest_my_event(struct Dungeon *dungeon)
     {
         k = dungeon->event_button_index[i];
         event = &game.event[k];
-        if ((event->lifespan_turns >= 0) && (event->lifespan_turns < old_birth))
+        if (event->lifespan_turns < old_birth)
         {
           old_idx = k;
           old_birth = event->lifespan_turns;

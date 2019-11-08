@@ -4342,9 +4342,6 @@ void brute_fill_rectangle(long start_x, long start_y, long end_x, long end_y, un
     {
         struct Triangle *tri;
         tri = &Triangles[tri_idx];
-        if (tri->tree_alt == -1) {
-            continue;
-        }
         int ptidx;
         long x, y;
         ptidx = tri->points[0];

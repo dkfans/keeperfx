@@ -2833,7 +2833,7 @@ TbBool find_random_position_at_area_of_room(struct Coord3d *pos, const struct Ro
 struct Room *find_room_with_spare_room_item_capacity(PlayerNumber plyr_idx, RoomKind rkind)
 {
     struct Dungeon *dungeon;
-    if ((rkind < 0) || (rkind >= ROOM_TYPES_COUNT))
+    if (rkind >= ROOM_TYPES_COUNT)
         return INVALID_ROOM;
     dungeon = get_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon))
@@ -2896,7 +2896,7 @@ struct Room *find_room_for_thing_with_used_capacity(const struct Thing *creatng,
 struct Room *find_room_with_spare_capacity(PlayerNumber owner, RoomKind rkind, long spare)
 {
     struct Dungeon *dungeon;
-    if ((rkind < 0) || (rkind >= ROOM_TYPES_COUNT))
+    if (rkind >= ROOM_TYPES_COUNT)
         return INVALID_ROOM;
     dungeon = get_dungeon(owner);
     if (dungeon_invalid(dungeon))

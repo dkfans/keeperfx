@@ -1234,8 +1234,6 @@ void command_if(long plr_range_id, const char *varib_name, const char *operatr, 
 struct ScriptValue *allocate_script_value(void)
 {
   struct ScriptValue *value;
-  if (game.script.values_num < 0)
-    return NULL;
   if (game.script.values_num >= SCRIPT_VALUES_COUNT)
     return NULL;
   value = &game.script.values[game.script.values_num];

@@ -718,7 +718,7 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
     vischar[0] = outchar;
     if (key == KC_RETURN)
     {
-        if ((gbtn->field_2D < 0) || (str[0] != '\0') || (modifiers == -3))
+        if ((str[0] != '\0') || (modifiers == -3))
         {
             gbtn->gbactn_1 = 0;
             (gbtn->click_event)(gbtn);

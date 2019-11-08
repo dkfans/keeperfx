@@ -74,7 +74,7 @@ MapSlabCoord slb_num_decode_y(SlabCodedCoords slb_num)
  */
 struct SlabMap *get_slabmap_direct(SlabCodedCoords slab_num)
 {
-  if ((slab_num < 0) || (slab_num >= map_tiles_x*map_tiles_y))
+  if (slab_num >= map_tiles_x*map_tiles_y)
       return INVALID_SLABMAP_BLOCK;
   return &game.slabmap[slab_num];
 }
@@ -214,7 +214,7 @@ void slabmap_set_wlb(struct SlabMap *slb, unsigned long wlbflag)
  */
 long get_next_slab_number_in_room(SlabCodedCoords slab_num)
 {
-    if ((slab_num < 0) || (slab_num >= map_tiles_x*map_tiles_y))
+    if (slab_num >= map_tiles_x*map_tiles_y)
         return 0;
     return game.slabmap[slab_num].next_in_room;
 }

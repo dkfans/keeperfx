@@ -79,14 +79,14 @@ struct NamedCommand object_desc[OBJECT_TYPES_MAX];
 /******************************************************************************/
 struct ObjectConfigStats *get_object_model_stats(ThingModel tngmodel)
 {
-    if ((tngmodel < 0) || (tngmodel >= object_conf.object_types_count))
+    if (tngmodel >= object_conf.object_types_count)
         return &object_conf.object_cfgstats[0];
     return &object_conf.object_cfgstats[tngmodel];
 }
 
 struct ObjectConfig *get_object_model_stats2(ThingModel tngmodel)
 {
-    if ((tngmodel < 0) || (tngmodel >= object_conf.object_types_count))
+    if (tngmodel >= object_conf.object_types_count)
         return &game.objects_config[0];
     return &game.objects_config[tngmodel];
 }

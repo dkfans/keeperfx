@@ -62,7 +62,7 @@ extern struct InitEffect effect_info[];
 /******************************************************************************/
 struct EffectConfigStats *get_effect_model_stats(int tngmodel)
 {
-    if ((tngmodel < 0) || (tngmodel >= effects_conf.effect_types_count))
+    if (tngmodel >= effects_conf.effect_types_count)
         return &effects_conf.effect_cfgstats[0];
     return &effects_conf.effect_cfgstats[tngmodel];
 }

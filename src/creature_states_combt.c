@@ -727,14 +727,9 @@ TbBool battle_any_of_things_in_specific_battle(const struct CreatureBattle *batt
         {
             attcktng = thing_get(cctrl->combat.battle_enemy_idx);
             TRACE_THING(attcktng);
-            if ( !thing_is_invalid(attcktng) )
+            if (!thing_is_invalid(attcktng) && ((attcktng->index == tng1->index) || (attcktng->index == tng2->index)))
             {
-                if ( (attcktng->index == tng1->index) || (attcktng->index == tng2->index) )
-                {
-                    if (cctrl->battle_id >= 0) {
-                        return true;
-                    }
-                }
+                return true;              
             }
         }
         // Per battle creature code ends

@@ -499,7 +499,7 @@ struct StateInfo *get_thing_continue_state_info(struct Thing *thing)
 
 struct StateInfo *get_thing_state_info_num(CrtrStateId state_id)
 {
-    if ((state_id < 0) || (state_id >= CREATURE_STATES_COUNT))
+    if (state_id >= CREATURE_STATES_COUNT)
         return &states[0];
     return &states[state_id];
 }

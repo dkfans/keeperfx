@@ -97,8 +97,6 @@ struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crkind)
  */
 TbBool generation_due_in_game(void)
 {
-    if (game.generate_speed == -1)
-        return true;
     return ( (game.play_gameturn-game.entrance_last_generate_turn) >= game.generate_speed );
 }
 

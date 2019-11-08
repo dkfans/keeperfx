@@ -85,25 +85,24 @@ unsigned long region_alloc(void)
     for (i=0; i < ix_Triangles; i++)
     {
         tri = &Triangles[i];
-        if (tri->field_D != -1)
+        sreg_id = get_triangle_region_id(i);
+        if (sreg_id >= REGIONS_COUNT)
         {
-          sreg_id = get_triangle_region_id(i);
-          if (sreg_id >= REGIONS_COUNT) {
-              ERRORLOG("triangle %ld in outranged region",(long)i);
-              continue;
-          }
-          if (sreg_id == reg_id)
-          {
-              if (sreg_id > 0) {
-                  Regions[sreg_id].num_triangles--;
-                  set_triangle_region_id(i, 0);
-                  Regions[sreg_id].field_2 = 0;
-                  Regions[0].num_triangles++;
-              }
-              if (Regions[reg_id].num_triangles == 0)
-                  break;
-          }
+            ERRORLOG("triangle %ld in outranged region", (long)i);
+            continue;
         }
+        if (sreg_id == reg_id)
+        {
+            if (sreg_id > 0)
+            {
+                Regions[sreg_id].num_triangles--;
+                set_triangle_region_id(i, 0);
+                Regions[sreg_id].field_2 = 0;
+                Regions[0].num_triangles++;
+            }
+            if (Regions[reg_id].num_triangles == 0)
+                break;
+        }      
     }
     return reg_id;
 }

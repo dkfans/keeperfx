@@ -2108,7 +2108,6 @@ long task_magic_call_to_arms(struct Computer2 *comp, struct ComputerTask *ctask)
             // For a minimum amount of time
             if ((game.play_gameturn - ctask->lastrun_turn) < (ctask->field_60 / 10)) 
             {
-                JUSTMSG("TESTLOG:CASEA");
                 return CTaskRet_Unk1;
             }
         }
