@@ -738,7 +738,7 @@ void play_atmos_sound(long smpl_idx)
     if (GetCurrentSoundMasterVolume() <= 0)
         return;
     int ATMOS_SOUND_PITCH = (73 + (UNSYNC_RANDOM(10) * 6));
-    int ATMOS_SOUND_VOLUME = 256;
+    int ATMOS_SOUND_VOLUME = 128;
     // ATMOS0 has bigger range in pitch than other atmos sounds.
     if ((smpl_idx == 1013))
     {
