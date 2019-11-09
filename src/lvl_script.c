@@ -56,6 +56,7 @@
 #include "dungeon_data.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
+#include "music_player.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -1720,7 +1721,15 @@ void command_set_music(long val)
   {
     SCRPTWRNLOG("Music set inside conditional block; condition ignored");
   }
-  game.audiotrack = val;
+  if (val >= FIRST_TRACK && val <= MAX_TRACK)
+  {
+    game.audiotrack = val;
+  }
+  else 
+  {
+    SCRPTERRLOG("Invalid music track %d, track must be between %d and %d", val,FIRST_TRACK,MAX_TRACK);
+    return;
+  }
 }
 
 void command_set_hate(long trgt_plr_range_id, long enmy_plr_range_id, long hate_val)

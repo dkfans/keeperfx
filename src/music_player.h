@@ -26,6 +26,9 @@
 extern "C" {
 #endif
 
+#define FIRST_TRACK 2
+#define MAX_TRACK 7
+
 int InitializeMusicPlayer(void);
 void ShutdownMusicPlayer(void);
 void PlayMusicPlayer(int track);

@@ -28,8 +28,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define MAX_TRACK 8
-
 Mix_Music* tracks[MAX_TRACK];
 int current_track;
 /******************************************************************************/
@@ -55,8 +53,8 @@ int InitializeMusicPlayer(void)
             tracks[0] = NULL;
             tracks[1] = NULL;
             int i;
-            // There is no keeper01.ogg.
-            for (i = 2; i < MAX_TRACK; i++)
+            // There is no keeper01.ogg. FIRST_TRACK defined as 2.
+            for (i = FIRST_TRACK; i <= MAX_TRACK; i++)
             {
                 const char *fname;
                 fname = prepare_file_fmtpath(FGrp_Music, "keeper%02d.ogg", i);
