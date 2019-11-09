@@ -485,6 +485,7 @@ int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
   // fclose is slow and automatically happens on normal program exit.
   // Opening/closing every time we log something hits performance hard.
   // fclose(file);
+  fflush(file);
   return 1;
 }
 
