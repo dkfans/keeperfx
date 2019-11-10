@@ -30,6 +30,8 @@
 #include "bflib_keybrd.h"
 #include "bflib_datetm.h"
 #include "bflib_mouse.h"
+#include "bflib_sound.h"
+#include "sounds.h"
 
 #include "config_campaigns.h"
 #include "front_simple.h"
@@ -79,6 +81,20 @@ const struct NamedCommand scrshot_type[] = {
   {NULL,  0},
   };
 
+const struct NamedCommand atmos_volume[] = {
+  {"LOW",     64},
+  {"MEDIUM", 128},
+  {"HIGH",   255},
+  {NULL,  0},
+  };
+
+const struct NamedCommand atmos_freq[] = {
+  {"LOW",    3200},
+  {"MEDIUM",  800},
+  {"HIGH",    400},
+  {NULL,  0},
+  };
+
 const struct NamedCommand conf_commands[] = {
   {"INSTALL_PATH",         1},
   {"INSTALL_TYPE",         2},
@@ -90,7 +106,9 @@ const struct NamedCommand conf_commands[] = {
   {"CENSORSHIP",           8},
   {"POINTER_SENSITIVITY",  9},
   {"ATMOSPHERIC_SOUNDS",  10},
-  {"RESIZE_MOVIES",       11},
+  {"ATMOS_VOLUME",        11},
+  {"ATMOS_FREQUENCY",     12},
+  {"RESIZE_MOVIES",       13},
   {NULL,                   0},
   };
 
@@ -101,6 +119,8 @@ const struct NamedCommand logicval_type[] = {
   {"OFF",      2},
   {"TRUE",     1},
   {"FALSE",    2},
+  {"YES",      1},
+  {"NO",       2},
   {NULL,       0},
   };
 
@@ -679,12 +699,35 @@ short load_configuration(void)
           else
               features_enabled &= ~Ft_Atmossounds;
           break;
-      case 11: // Resize Movies
+      case 11: // Atmospheric Sound Volume
+          i = recognize_conf_parameter(buf,&pos,len,atmos_volume);
+          if (i <= 0)
+          {
+            CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          else 
+          {
+            atmos_sound_volume = i;
+            break;
+          }
+      case 12: // Atmospheric Sound Frequency - Chance of 1 in X
+          i = recognize_conf_parameter(buf,&pos,len,atmos_freq);
+          if (i <= 0)
+          {
+            CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          else
+          {
+            atmos_sound_frequency = i;
+            break;
+          }
+      case 13: // Resize Movies
           i = recognize_conf_parameter(buf,&pos,len,logicval_type);
           if (i <= 0)
           {
-              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
-                COMMAND_TEXT(cmd_num),config_textname);
+            CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
             break;
           }
           if (i == 1)
@@ -697,8 +740,7 @@ short load_configuration(void)
       case -1: // end of buffer
           break;
       default:
-          CONFWRNLOG("Unrecognized command in %s file.",
-              config_textname);
+          CONFWRNLOG("Unrecognized command in %s file.",config_textname);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);

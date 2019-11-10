@@ -76,6 +76,8 @@ struct SoundBankEntry { // sizeof = 16
   unsigned long field_C;
 };
 
+extern int atmos_sound_frequency;
+
 #pragma pack()
 /******************************************************************************/
 DLLIMPORT unsigned long _DK_sound_seed;

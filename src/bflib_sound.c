@@ -45,6 +45,7 @@ DLLIMPORT int _DK_LbFileRead(TbFileHandle handle, void *buffer, unsigned long le
 DLLIMPORT int _DK_LbFilePosition(TbFileHandle handle);
 // Global variables
 long NoSoundEmitters = SOUND_EMITTERS_MAX;
+int atmos_sound_volume = 128;
 /******************************************************************************/
 // Internal routines
 SoundEmitterID allocate_free_sound_emitter(void);
@@ -738,7 +739,6 @@ void play_atmos_sound(long smpl_idx)
     if (GetCurrentSoundMasterVolume() <= 0)
         return;
     int ATMOS_SOUND_PITCH = (73 + (UNSYNC_RANDOM(10) * 6));
-    int ATMOS_SOUND_VOLUME = 128;
     // ATMOS0 has bigger range in pitch than other atmos sounds.
     if ((smpl_idx == 1013))
     {
@@ -754,11 +754,11 @@ void play_atmos_sound(long smpl_idx)
     }
     if (Non3DEmitter == 0)
     {
-        Non3DEmitter = S3DCreateSoundEmitterPri(0, 0, 0, smpl_idx, 0, ATMOS_SOUND_PITCH, ATMOS_SOUND_VOLUME, 0, 8, 0x7FFFFFFE);
+        Non3DEmitter = S3DCreateSoundEmitterPri(0, 0, 0, smpl_idx, 0, ATMOS_SOUND_PITCH, atmos_sound_volume, 0, 8, 0x7FFFFFFE);
     } else
     if (!S3DEmitterIsPlayingSample(Non3DEmitter, smpl_idx, 0))
     {
-        S3DAddSampleToEmitterPri(Non3DEmitter, smpl_idx, 0, ATMOS_SOUND_PITCH, ATMOS_SOUND_VOLUME, 0, 3, 8, 0x7FFFFFFE);
+        S3DAddSampleToEmitterPri(Non3DEmitter, smpl_idx, 0, ATMOS_SOUND_PITCH, atmos_sound_volume, 0, 3, 8, 0x7FFFFFFE);
         SYNCDBG(9,"Playing atmos sound %d with pitch %d",(int)smpl_idx,(int)ATMOS_SOUND_PITCH);
     }
 }
