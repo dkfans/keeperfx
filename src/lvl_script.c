@@ -1721,13 +1721,13 @@ void command_set_music(long val)
   {
     SCRPTWRNLOG("Music set inside conditional block; condition ignored");
   }
-  if (val >= FIRST_TRACK && val <= MAX_TRACK)
+  if (val >= FIRST_TRACK && val <= max_track)
   {
     game.audiotrack = val;
   }
   else 
   {
-    SCRPTERRLOG("Invalid music track %d, track must be between %d and %d", val,FIRST_TRACK,MAX_TRACK);
+    SCRPTERRLOG("Invalid music track %d, track must be between %d and %d", val,FIRST_TRACK,max_track);
     return;
   }
 }

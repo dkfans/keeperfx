@@ -37,12 +37,14 @@
 #include "front_simple.h"
 #include "scrcapt.h"
 #include "vidmode.h"
+#include "music_player.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
 const char keeper_config_file[]="keeperfx.cfg";
+int max_track = 7;
 
 /**
  * Language 3-char abbreviations.
@@ -109,6 +111,7 @@ const struct NamedCommand conf_commands[] = {
   {"ATMOS_VOLUME",        11},
   {"ATMOS_FREQUENCY",     12},
   {"RESIZE_MOVIES",       13},
+  {"MUSIC_TRACKS",        14},
   {NULL,                   0},
   };
 
@@ -734,6 +737,18 @@ short load_configuration(void)
               features_enabled |= Ft_Resizemovies;
           else
               features_enabled &= ~Ft_Resizemovies;
+          break;
+      case 14: // MUSIC_TRACKS
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            i = atoi(word_buf);
+          }
+          if ((i > 0) && (i <= 50)) {
+              max_track = i;
+          } else {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+          }
           break;
       case 0: // comment
           break;

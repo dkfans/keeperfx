@@ -28,7 +28,8 @@
 extern "C" {
 #endif
 /******************************************************************************/
-Mix_Music* tracks[MAX_TRACK];
+// the 50 is a static value, idealy would be equal to max_track. May not be smaller.
+Mix_Music* tracks[50];
 int current_track;
 /******************************************************************************/
 
@@ -54,7 +55,7 @@ int InitializeMusicPlayer(void)
             tracks[1] = NULL;
             int i;
             // There is no keeper01.ogg. FIRST_TRACK defined as 2.
-            for (i = FIRST_TRACK; i <= MAX_TRACK; i++)
+            for (i = FIRST_TRACK; i <= max_track; i++)
             {
                 const char *fname;
                 fname = prepare_file_fmtpath(FGrp_Music, "keeper%02d.ogg", i);
@@ -91,7 +92,7 @@ void ShutdownMusicPlayer(void)
     }
     Mix_HaltMusic();
     int i;
-    for (i = 0; i < MAX_TRACK; i++)
+    for (i = 0; i < max_track; i++)
     {
         if (tracks[i] != NULL)
         {
