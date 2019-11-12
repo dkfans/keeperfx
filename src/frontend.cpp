@@ -1547,10 +1547,10 @@ void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
     switch ( scrollwnd->action )
     {
     case 1:
-      scrollwnd->start_y += 8*units_per_pixel/16;
+      scrollwnd->start_y += 12*units_per_pixel/16;
       break;
     case 2:
-      scrollwnd->start_y -= 8*units_per_pixel/16;
+      scrollwnd->start_y -= 12*units_per_pixel/16;
       break;
     case 3:
       scrollwnd->start_y += area_height;
