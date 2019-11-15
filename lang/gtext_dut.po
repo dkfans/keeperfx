@@ -6537,6 +6537,11 @@ msgid ""
 "Health: The maximum amount of health points for this creature."
 msgstr ""
 
+#: guitext:967
+msgctxt "Menu interface item"
+msgid "Toggle Message"
+msgstr "BERICHT AANZETTEN"
+
 #~ msgctxt "In-game message"
 #~ msgid "Your manufacturers have crafted the Lava Trap."
 #~ msgstr "Er is een Lava-val gemaakt."

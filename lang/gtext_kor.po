@@ -5747,3 +5747,8 @@ msgctxt "In-game interface description"
 msgid ""
 "Health: The maximum amount of health points for this creature."
 msgstr ""
+
+#: guitext:967
+msgctxt "Menu interface item"
+msgid "Toggle Message"
+msgstr ""

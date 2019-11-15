@@ -90,6 +90,7 @@ void setup_default_settings(void)
           {KC_BACK, KMod_NONE}, // Gkey_DumpToOldPos
           {KC_P, KMod_NONE},    // Gkey_TogglePause
           {KC_M, KMod_NONE},    // Gkey_SwitchToMap
+          {KC_E, KMod_NONE},    // Gkey_ToggleMessage
      },                         // kbkeys
      1,                         // tooltips_on
      0,                         // first_person_move_invert

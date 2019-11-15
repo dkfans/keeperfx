@@ -75,6 +75,7 @@ const long definable_key_string[] = {
     GUIStr_UndoPickup,
     GUIStr_Pause,
     GUIStr_Map,
+    GUIStr_ToggleMessage,
 };
 /******************************************************************************/
 #ifdef __cplusplus

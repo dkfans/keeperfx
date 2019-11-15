@@ -1973,16 +1973,49 @@ void maintain_event_button(struct GuiButton *gbtn)
     EventIndex evidx;
     unsigned long evbtn_idx;
     evbtn_idx = (unsigned long)gbtn->content;
-    if (evbtn_idx <= EVENT_BUTTONS_COUNT) {
+    long keycode;
+    if (evbtn_idx <= EVENT_BUTTONS_COUNT)
+    {
         evidx = dungeon->event_button_index[evbtn_idx];
-    } else {
+    } 
+    else 
+    {
         evidx = 0;
     }
-
+    struct Event *event;
+    event = &game.event[evidx];
     if ((dungeon->visible_event_idx != 0) && (evidx == dungeon->visible_event_idx))
     {
         turn_on_event_info_panel_if_necessary(dungeon->visible_event_idx);
+        if (is_game_key_pressed(Gkey_ToggleMessage, &keycode, false))
+        {
+            gui_kill_event(gbtn);
+            clear_key_pressed(keycode);
+        }
     }
+    else
+    {
+        if (dungeon->visible_event_idx == 0)
+        {
+            if (is_game_key_pressed(Gkey_ToggleMessage, &keycode, false))
+            {
+                struct Event *evloop;
+                int i = EVENT_BUTTONS_COUNT;
+                for (i=EVENT_BUTTONS_COUNT; i > 0; i--)
+                {
+                    evloop = &game.event[i];
+                    if((evloop->kind > 0) && (evloop->owner == my_player_number))
+                    {
+                        activate_event_box(i);
+                        break;
+                        
+                    }
+                }
+                clear_key_pressed(keycode);
+            }
+        }
+    }
+
 
     if (evidx == 0)
     {
@@ -1994,8 +2027,6 @@ void maintain_event_button(struct GuiButton *gbtn)
       gbtn->tooltip_stridx = GUIStr_Empty;
       return;
     }
-    struct Event *event;
-    event = &game.event[evidx];
     if ((event->kind == EvKind_Objective) && (new_objective))
     {
         activate_event_box(evidx);
@@ -2006,6 +2037,19 @@ void maintain_event_button(struct GuiButton *gbtn)
     {
         // Fight icon flashes when there are fights to show
         gbtn->sprite_idx += 2;
+        if(is_game_key_pressed(Gkey_ZoomToFight, &keycode, true) && lbKeyOn[KC_LSHIFT])
+        {
+            if ((evidx == dungeon->visible_event_idx)) 
+            {
+            clear_key_pressed(keycode);
+            gui_close_objective(gbtn);
+            }
+            else
+            {
+            clear_key_pressed(keycode);
+            activate_event_box(evidx);
+            }
+        }
     } else
     if (((event->kind == EvKind_Information) || (event->kind == EvKind_QuickInformation))
       && (event->target < 0) && ((game.play_gameturn & 0x01) != 0))

@@ -62,6 +62,7 @@ enum GameKeys {
     Gkey_DumpToOldPos,
     Gkey_TogglePause, // 30
     Gkey_SwitchToMap,
+    Gkey_ToggleMessage,
 };
 
 enum TbButtonFrontendFlags {
