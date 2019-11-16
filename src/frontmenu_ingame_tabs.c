@@ -2016,7 +2016,6 @@ void maintain_event_button(struct GuiButton *gbtn)
         }
     }
 
-
     if (evidx == 0)
     {
       gbtn->btype_value |= LbBFeF_NoMouseOver;
