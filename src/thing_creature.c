@@ -2982,10 +2982,10 @@ long creature_instance_has_reset(const struct Thing *thing, long inst_idx)
     delta = (long)game.play_gameturn - (long)cctrl->instance_use_turn[inst_idx];
     if ((thing->alloc_flags & TAlF_IsControlled) != 0)
     {
-        ritime = inst_inf->fp_reset_time + inst_inf->fp_time;
+        ritime = inst_inf->fp_reset_time + inst_inf->fp_time - inst_inf->fp_action_time;
     } else
     {
-        ritime = inst_inf->reset_time + inst_inf->time;
+        ritime = inst_inf->reset_time + inst_inf->time - inst_inf->action_time;
     }
     return (delta >= ritime);
 }
@@ -3079,7 +3079,6 @@ void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long a2, lo
     cctrl->inst_turn = 0;
     cctrl->inst_total_turns = itime;
     cctrl->inst_action_turns = aitime;
-    cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn;
     i = get_creature_model_graphics(thing->model,inst_inf->graphics_idx);
     cctrl->instance_anim_step_turns = get_lifespan_of_animation(i, 1) / itime;
     if (pos != NULL)

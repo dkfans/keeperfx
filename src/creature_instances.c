@@ -455,6 +455,8 @@ void process_creature_instance(struct Thing *thing)
             {
                 SYNCDBG(18,"Executing %s for %s index %d.",creature_instance_code_name(cctrl->instance_id),thing_model_name(thing),(int)thing->index);
                 inst_inf->func_cb(thing, inst_inf->func_params);
+				// Start cooldown when spell effect activates
+				cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn;
             }
         }
         if (cctrl->inst_turn >= cctrl->inst_total_turns)
@@ -465,7 +467,7 @@ void process_creature_instance(struct Thing *thing)
                 cctrl->inst_repeat = 0;
                 return;
             }
-			// Instances sometimes failed to reach this. More reliable to set instance_use_turn in set_creature_instance instead
+			// Instances sometimes failed to reach this. More reliable to set instance_use_turn sooner
             // cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn;
             cctrl->instance_id = CrInst_NULL;
         }
