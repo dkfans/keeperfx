@@ -27,6 +27,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 /******************************************************************************/
 #define MAGIC_ITEMS_MAX        64
 #define SPELL_MAX_LEVEL         8
@@ -108,6 +109,9 @@ enum PowerKinds {
     PwrK_TIMEBOMB,
     PwrK_POSSESS,
     PwrK_ARMAGEDDON,
+    PwrK_PICKUPCRTR, // 20
+    PwrK_PICKUPGOLD,
+    PwrK_PICKUPFOOD,
 };
 
 /** Contains properties of a shot model, to be stored in ShotConfigStats.
@@ -247,6 +251,7 @@ struct PowerConfigStats {
     short select_sample_idx;
     short pointer_sprite_idx;
     long panel_tab_idx;
+    unsigned short select_sound_idx;
 };
 
 /**

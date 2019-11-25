@@ -51,6 +51,7 @@
 #include "config_settings.h"
 #include "config_terrain.h"
 #include "game_legacy.h"
+#include "config_magic.h"
 
 #include "keeperfx.hpp"
 
@@ -239,7 +240,9 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
   struct Thing *thing;
   struct Camera *cam;
   struct Coord3d pos;
+  struct PowerConfigStats *powerst;
 
+  powerst = get_power_model_stats(PwrK_SLAP);
   thing = thing_get(player->influenced_thing_idx);
   if (!thing_exists(thing) || (thing->creation_turn != player->influenced_thing_creation) || (!thing_slappable(thing, player->id_number)))
   {
@@ -261,7 +264,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
           pos.z.val = thing->mappos.z.val + (thing->clipbox_size_yz >> 1);
           if ( creature_model_bleeds(thing->model) )
               create_effect(&pos, TngEff_Unknown06, thing->owner);
-          thing_play_sample(thing, 75, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
+          thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
           cam = player->acamera;
           if (cam != NULL)
           {
@@ -290,7 +293,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
       {
         efftng = create_effect(&thing->mappos, TngEff_Unknown49, thing->owner);
         if (!thing_is_invalid(efftng))
-          thing_play_sample(efftng, 75, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
+          thing_play_sample(efftng, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
         slap_object(thing);
       }
       break;
@@ -349,7 +352,11 @@ long pinstfs_passenger_control_creature(struct PlayerInfo *player, long *n)
   player->dungeon_camera_zoom = get_camera_zoom(cam);
   // Play possession sound
   if (is_my_player(player))
-      play_non_3d_sample(39);
+  {
+      struct PowerConfigStats *powerst;
+      powerst = get_power_model_stats(PwrK_POSSESS);
+      play_non_3d_sample(powerst->select_sound_idx);
+  }
   return 0;
 }
 

@@ -247,6 +247,7 @@ struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
   struct PlayerInfo *player;
   struct Thing *picktng;
   struct Coord3d pos;
+  struct PowerConfigStats *powerst;
   long i;
   switch (thing->model)
   {
@@ -261,11 +262,14 @@ struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
         pos.z.val = thing->mappos.z.val + 128;
         create_price_effect(&pos, thing->owner, i);
       }
+      powerst = get_power_model_stats(PwrK_PICKUPGOLD);
+      thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
       picktng = thing;
       break;
     case 10:
       i = UNSYNC_RANDOM(3);
-      thing_play_sample(thing, 109+i, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+      powerst = get_power_model_stats(PwrK_PICKUPFOOD);
+      thing_play_sample(thing, powerst->select_sound_idx+i, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
       i = convert_td_iso(122);
       set_thing_draw(thing, i, 256, -1, -1, 0, 2);
       remove_food_from_food_room_if_possible(thing);
@@ -417,6 +421,7 @@ TbBool insert_thing_into_power_hand_list(struct Thing *thing, PlayerNumber plyr_
 {
     struct Dungeon *dungeon;
     long i;
+    struct PowerConfigStats *powerst;
     dungeon = get_dungeon(plyr_idx);
     if (dungeon->num_things_in_hand >= MAX_THINGS_IN_HAND)
       return false;
@@ -427,11 +432,15 @@ TbBool insert_thing_into_power_hand_list(struct Thing *thing, PlayerNumber plyr_
     }
     dungeon->num_things_in_hand++;
     dungeon->things_in_hand[0] = thing->index;
+    powerst = get_power_model_stats(PwrK_HAND);
+    thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     if (thing->class_id == TCls_Creature) {
         remove_all_traces_of_combat(thing);
     }
     if (thing->class_id == TCls_Creature)
     {
+        powerst = get_power_model_stats(PwrK_PICKUPCRTR);
+        thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         if (is_my_player_number(thing->owner)) {
             play_creature_sound(thing, CrSnd_Hang, 3, 1);
         }

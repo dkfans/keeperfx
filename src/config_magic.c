@@ -33,6 +33,7 @@
 #include "thing_effects.h"
 #include "power_process.h"
 #include "game_legacy.h"
+#include "thing_objects.h"
 
 #include "keeperfx.hpp"
 
@@ -91,6 +92,7 @@ const struct NamedCommand magic_power_commands[] = {
   {"FUNCTIONS",      15},
   {"PLAYERSTATE",    16},
   {"PARENTPOWER",    17},
+  {"SOUNDPLAYED",    18},
   {NULL,              0},
   };
 
@@ -893,6 +895,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           powerst->select_sample_idx = 0;
           powerst->pointer_sprite_idx = 0;
           powerst->panel_tab_idx = 0;
+		  powerst->select_sound_idx = 0;
           if (i < magic_conf.power_types_count)
           {
               power_desc[i].name = powerst->code_name;
@@ -1190,6 +1193,22 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
               CONFWRNLOG("Incorrect object model \"%s\" in [%s] block of %s file.",
                   word_buf,block_buf,config_textname);
               break;
+          }
+          break;
+		  case 18: //SOUNDPLAYED
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            if (k >= 0)
+            {
+                powerst->select_sound_idx = k;
+                n++;
+            }
+          }
+          if (n < 1)
+          {
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
       case 0: // comment

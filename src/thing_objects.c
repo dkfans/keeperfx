@@ -30,6 +30,7 @@
 #include "config_terrain.h"
 #include "config_creature.h"
 #include "config_effects.h"
+#include "config_magic.h"
 #include "thing_stats.h"
 #include "thing_effects.h"
 #include "thing_navigate.h"
@@ -1520,8 +1521,10 @@ void set_call_to_arms_as_birthing(struct Thing *objtng)
     objdat = get_objects_data_for_thing(objtng);
     set_thing_draw(objtng, ctagfx->birth_anim_idx, 256, objdat->sprite_size_max, 0, frame, 2);
     objtng->byte_13 = CTAOL_Birthing;
-    stop_thing_playing_sample(objtng, 83);
-    thing_play_sample(objtng, 83, NORMAL_PITCH, 0, 3, 0, 6, FULL_LOUDNESS);
+    struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(PwrK_CALL2ARMS);
+    stop_thing_playing_sample(objtng, powerst->select_sound_idx);
+    thing_play_sample(objtng, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 6, FULL_LOUDNESS);
 }
 
 void set_call_to_arms_as_dying(struct Thing *objtng)
@@ -1622,14 +1625,16 @@ TngUpdateRet object_update_call_to_arms(struct Thing *thing)
     case CTAOL_Rebirthing:
         if (thing->field_49 - 1 == thing->field_48)
         {
+		    struct PowerConfigStats *powerst;
+            powerst = get_power_model_stats(PwrK_CALL2ARMS);
             pos.x.val = subtile_coord_center(dungeon->cta_stl_x);
             pos.y.val = subtile_coord_center(dungeon->cta_stl_y);
             pos.z.val = get_thing_height_at(thing, &pos);
             move_thing_in_map(thing, &pos);
             set_thing_draw(thing, ctagfx->birth_anim_idx, 256, objdat->sprite_size_max, 0, 0, 2);
             thing->byte_13 = CTAOL_Birthing;
-            stop_thing_playing_sample(thing, 83);
-            thing_play_sample(thing, 83, NORMAL_PITCH, 0, 3, 0, 6, FULL_LOUDNESS);
+            stop_thing_playing_sample(thing, powerst->select_sound_idx);
+            thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 6, FULL_LOUDNESS);
         }
         break;
     default:

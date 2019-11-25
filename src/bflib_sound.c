@@ -842,8 +842,12 @@ struct SampleTable *sample_table_get(SoundSmplTblID smptbl_id, SoundBankID bank_
             //ERRORLOG("Bank %d not opened",2);
             return NULL;
         }
-        if ((smptbl_id <= 0) || (smptbl_id >= samples_in_bank2)) {
+        if ((smptbl_id < 0) || (smptbl_id >= samples_in_bank2)) {
             ERRORLOG("Sample %d exceeds bank %d bounds",smptbl_id,2);
+            return NULL;
+        }
+        if (smptbl_id == 0){
+            SYNCDBG(9,"No Sample to play");
             return NULL;
         }
         return &sample_table2[smptbl_id];
@@ -853,9 +857,13 @@ struct SampleTable *sample_table_get(SoundSmplTblID smptbl_id, SoundBankID bank_
             //ERRORLOG("Bank %d not opened",1);
             return NULL;
         }
-        if ((smptbl_id <= 0) || (smptbl_id >= samples_in_bank)) {
+        if ((smptbl_id < 0) || (smptbl_id >= samples_in_bank)) {
           ERRORLOG("Sample %d exceeds bank %d bounds",smptbl_id,1);
           return NULL;
+        }
+        if (smptbl_id == 0){
+            SYNCDBG(9,"No Sample to play");
+            return NULL;
         }
         return &sample_table[smptbl_id];
     }

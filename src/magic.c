@@ -872,7 +872,9 @@ TbResult magic_use_power_armageddon(PlayerNumber plyr_idx, unsigned long mod_fla
     if (enemy_time_gap <= your_time_gap)
         enemy_time_gap = your_time_gap;
     game.armageddon_field_15035A = game.armageddon.duration + enemy_time_gap;
-    play_non_3d_sample(180);
+    struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(PwrK_ARMAGEDDON);
+    play_non_3d_sample(powerst->select_sound_idx);
     return Lb_SUCCESS;
 }
 
@@ -894,7 +896,9 @@ TbResult magic_use_power_obey(PlayerNumber plyr_idx, unsigned long mod_flags)
         dungeon->must_obey_turn = 0;
     } else {
         dungeon->must_obey_turn = game.play_gameturn;
-        play_non_3d_sample(58);
+        struct PowerConfigStats *powerst;
+        powerst = get_power_model_stats(PwrK_OBEY);
+        play_non_3d_sample(powerst->select_sound_idx);
     }
     update_speed_of_player_creatures_of_model(plyr_idx, 0);
     return Lb_SUCCESS;
@@ -983,7 +987,9 @@ TbResult magic_use_power_hold_audience(PlayerNumber plyr_idx, unsigned long mod_
             break;
         }
     }
-    play_non_3d_sample(58);
+    struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(PwrK_HOLDAUDNC);
+    play_non_3d_sample(powerst->select_sound_idx);
     SYNCDBG(19,"Finished");
     return Lb_SUCCESS;
 }
@@ -1007,7 +1013,9 @@ TbResult magic_use_power_chicken(PlayerNumber plyr_idx, struct Thing *thing, Map
         return Lb_SUCCESS;
     }
     apply_spell_effect_to_thing(thing, SplK_Chicken, splevel);
-    thing_play_sample(thing, 109, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(PwrK_CHICKEN);
+    thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     return Lb_SUCCESS;
 }
 
@@ -1030,7 +1038,9 @@ TbResult magic_use_power_disease(PlayerNumber plyr_idx, struct Thing *thing, Map
         cctrl = creature_control_get_from_thing(thing);
         cctrl->disease_caster_plyridx = plyr_idx;
     }
-    thing_play_sample(thing, 59, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
+    struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(PwrK_DISEASE);
+    thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
     return Lb_SUCCESS;
 }
 
@@ -1098,7 +1108,11 @@ TbResult magic_use_power_destroy_walls(PlayerNumber plyr_idx, MapSubtlCoord stl_
         }
     }
     if (is_my_player_number(plyr_idx))
-        play_non_3d_sample(42);
+    {
+        struct PowerConfigStats *powerst;
+        powerst = get_power_model_stats(PwrK_DESTRWALLS);
+        play_non_3d_sample(powerst->select_sound_idx);
+    }
     return Lb_SUCCESS;
 }
 
@@ -1106,6 +1120,7 @@ TbResult magic_use_power_time_bomb(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
 {
     struct Thing *thing;
     struct Coord3d pos;
+    struct PowerConfigStats *powerst;
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots)) {
         return Lb_FAIL;
     }
@@ -1130,6 +1145,8 @@ TbResult magic_use_power_time_bomb(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     thing->veloc_push_add.y.val += ACTION_RANDOM(321) - 160;
     thing->veloc_push_add.z.val += 40;
     thing->state_flags |= TF1_PushAdd;
+    powerst = get_power_model_stats(PwrK_TIMEBOMB);
+    thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     return Lb_SUCCESS;
 }
 
@@ -1138,6 +1155,7 @@ TbResult magic_use_power_imp(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubt
     struct Thing *thing;
     struct Thing *heartng;
     struct Coord3d pos;
+    struct PowerConfigStats *powerst;
     if (!i_can_allocate_free_control_structure()
      || !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots)) {
         return Lb_FAIL;
@@ -1165,6 +1183,8 @@ TbResult magic_use_power_imp(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubt
     thing->state_flags |= TF1_PushAdd;
     thing->move_angle_xy = 0;
     initialise_thing_state(thing, CrSt_ImpBirth);
+    powerst = get_power_model_stats(PwrK_MKDIGGER);
+    thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     play_creature_sound(thing, 3, 2, 0);
     return Lb_SUCCESS;
 }
@@ -1189,7 +1209,9 @@ TbResult magic_use_power_heal(PlayerNumber plyr_idx, struct Thing *thing, MapSub
         }
     }
     // Apply spell effect
-    thing_play_sample(thing, 37, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(PwrK_HEALCRTR);
+    thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     apply_spell_effect_to_thing(thing, SplK_Heal, splevel);
     return Lb_SUCCESS;
 }
@@ -1211,7 +1233,9 @@ TbResult magic_use_power_conceal(PlayerNumber plyr_idx, struct Thing *thing, Map
             return Lb_FAIL;
         }
     }
-    thing_play_sample(thing, 154, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(PwrK_CONCEAL);
+    thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     apply_spell_effect_to_thing(thing, SplK_Invisibility, splevel);
     return Lb_SUCCESS;
 }
@@ -1233,7 +1257,9 @@ TbResult magic_use_power_armour(PlayerNumber plyr_idx, struct Thing *thing, MapS
             return Lb_FAIL;
         }
     }
-    thing_play_sample(thing, 153, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(PwrK_PROTECT);
+    thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     apply_spell_effect_to_thing(thing, SplK_Armour, splevel);
     return Lb_SUCCESS;
 }
@@ -1254,7 +1280,9 @@ TbResult magic_use_power_speed(PlayerNumber plyr_idx, struct Thing *thing, MapSu
             return Lb_FAIL;
         }
     }
-    thing_play_sample(thing, 38, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(PwrK_SPEEDCRTR);
+    thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     apply_spell_effect_to_thing(thing, SplK_Speed, splevel);
     return Lb_SUCCESS;
 }
@@ -1317,7 +1345,9 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
         efftng = create_effect(&shtng->mappos, TngEff_Unknown49, shtng->owner);
         if (!thing_is_invalid(efftng))
         {
-            thing_play_sample(efftng, 55, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+            struct PowerConfigStats *powerst;
+            powerst = get_power_model_stats(PwrK_LIGHTNING);
+            thing_play_sample(efftng, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         }
     }
     player->field_4E3 = game.play_gameturn;
@@ -1376,13 +1406,15 @@ TbResult magic_use_power_sight(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
     thing = create_object(&pos, 123, plyr_idx, -1);
     if (!thing_is_invalid(thing))
     {
+        struct PowerConfigStats *powerst;
+        powerst = get_power_model_stats(PwrK_SIGHT);
         dungeon->sight_casted_gameturn = game.play_gameturn;
         thing->health = 2;
         dungeon->sight_casted_splevel = splevel;
         dungeon->sight_casted_thing_idx = thing->index;
         LbMemorySet(dungeon->soe_explored_flags, 0, sizeof(dungeon->soe_explored_flags));
         thing->field_4F |= TF4F_Unknown01;
-        thing_play_sample(thing, 51, NORMAL_PITCH, -1, 3, 0, 3, FULL_LOUDNESS);
+        thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, -1, 3, 0, 3, FULL_LOUDNESS);
     }
     return Lb_SUCCESS;
 }
@@ -1398,9 +1430,9 @@ TbResult magic_use_power_cave_in(PlayerNumber plyr_idx, MapSubtlCoord stl_x, Map
     unsigned long k;
     k = 0;
     i = get_mapwho_thing_index(mapblk);
+    struct Thing *thing;
     while (i != 0)
     {
-        struct Thing *thing;
         thing = thing_get(i);
         TRACE_THING(thing);
         if (thing_is_invalid(thing))
@@ -1442,7 +1474,10 @@ TbResult magic_use_power_cave_in(PlayerNumber plyr_idx, MapSubtlCoord stl_x, Map
         pos.x.val = subtile_coord_center(slab_subtile_center(slb_x));
         pos.y.val = subtile_coord_center(slab_subtile_center(slb_y));
         pos.z.val = 0;
-        create_thing(&pos, TCls_CaveIn, splevel, plyr_idx, -1);
+        thing = create_thing(&pos, TCls_CaveIn, splevel, plyr_idx, -1);
+        struct PowerConfigStats *powerst;
+        powerst = get_power_model_stats(PwrK_CAVEIN);
+        thing_play_sample(thing, powerst->select_sound_idx, 25, 0, 3, 0, 2, FULL_LOUDNESS);
     }
     return Lb_SUCCESS;
 }
