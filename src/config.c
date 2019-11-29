@@ -45,6 +45,9 @@ extern "C" {
 /******************************************************************************/
 const char keeper_config_file[]="keeperfx.cfg";
 int max_track = 7;
+unsigned short AtmosRepeat = 1013;
+unsigned short AtmosStart = 1014;
+unsigned short AtmosEnd = 1034;
 
 /**
  * Language 3-char abbreviations.
@@ -110,8 +113,9 @@ const struct NamedCommand conf_commands[] = {
   {"ATMOSPHERIC_SOUNDS",  10},
   {"ATMOS_VOLUME",        11},
   {"ATMOS_FREQUENCY",     12},
-  {"RESIZE_MOVIES",       13},
-  {"MUSIC_TRACKS",        14},
+  {"ATMOS_SAMPLES",       13},
+  {"RESIZE_MOVIES",       14},
+  {"MUSIC_TRACKS",        15},
   {NULL,                   0},
   };
 
@@ -726,7 +730,34 @@ short load_configuration(void)
             atmos_sound_frequency = i;
             break;
           }
-      case 13: // Resize Movies
+      case 13: // Atmos_samples
+          for (i=0; i<3; i++)
+          {
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+              k = atoi(word_buf);
+            else
+              k = -1;
+            if (k<=0)
+            {
+                CONFWRNLOG("Couldn't recognize setting %d in \"%s\" command of %s file.",
+                   i+1,COMMAND_TEXT(cmd_num),config_textname);
+               continue;
+            }
+            switch (i)
+            {
+            case 0:
+                AtmosStart = k;
+                break;
+            case 1:
+                AtmosEnd = k;
+                break;
+            case 2:
+                AtmosRepeat = k;
+                break;
+            }
+          }
+          break;
+      case 14: // Resize Movies
           i = recognize_conf_parameter(buf,&pos,len,logicval_type);
           if (i <= 0)
           {
@@ -738,7 +769,7 @@ short load_configuration(void)
           else
               features_enabled &= ~Ft_Resizemovies;
           break;
-      case 14: // MUSIC_TRACKS
+      case 15: // MUSIC_TRACKS
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             i = atoi(word_buf);
