@@ -455,8 +455,6 @@ void process_creature_instance(struct Thing *thing)
             {
                 SYNCDBG(18,"Executing %s for %s index %d.",creature_instance_code_name(cctrl->instance_id),thing_model_name(thing),(int)thing->index);
                 inst_inf->func_cb(thing, inst_inf->func_params);
-				// Start cooldown when spell effect activates
-				cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn;
             }
         }
         if (cctrl->inst_turn >= cctrl->inst_total_turns)
@@ -467,8 +465,8 @@ void process_creature_instance(struct Thing *thing)
                 cctrl->inst_repeat = 0;
                 return;
             }
-			// Instances sometimes failed to reach this. More reliable to set instance_use_turn sooner
-            // cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn;
+            // Instances sometimes failed to reach this. More reliable to set instance_use_turn sooner
+            cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn;
             cctrl->instance_id = CrInst_NULL;
         }
         cctrl->inst_repeat = 0;
@@ -520,6 +518,8 @@ long instf_creature_fire_shot(struct Thing *creatng, long *param)
         SYNCDBG(8,"The %s index %d fires %s",thing_model_name(creatng),(int)creatng->index,shot_code_name(*param));
     }
     creature_fire_shot(creatng, target, *param, 1, i);
+    // Start cooldown after shot is fired
+    cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn;
     return 0;
 }
 
@@ -540,10 +540,14 @@ long instf_creature_cast_spell(struct Thing *creatng, long *param)
         if (!thing_is_invalid(trthing))
         {
             creature_cast_spell_at_thing(creatng, trthing, spl_idx, cctrl->explevel);
+            // Start cooldown after spell is cast
+            cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn;
             return 0;
         }
     }
     creature_cast_spell(creatng, spl_idx, cctrl->explevel, cctrl->targtstl_x, cctrl->targtstl_y);
+    // Start cooldown after spell effect activates
+    cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn;
     return 0;
 }
 
@@ -766,6 +770,10 @@ long instf_fart(struct Thing *creatng, long *param)
     if (!thing_is_invalid(efftng))
         efftng->byte_16 = 4;
     thing_play_sample(creatng,94+UNSYNC_RANDOM(6), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+    // Start cooldown after fart created
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn;
     return 1;
 }
 
