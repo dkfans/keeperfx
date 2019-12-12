@@ -4315,7 +4315,7 @@ TbBool external_set_thing_state_f(struct Thing *thing, CrtrStateId state, const 
 
 TbBool creature_free_for_sleep(const struct Thing *thing,  CrtrStateId state)
 {
-    if (creature_affected_by_slap(thing) || creature_affected_by_call_to_arms(thing))
+    if (creature_affected_by_slap(thing) || creature_is_called_to_arms(thing))
         return false;
     return can_change_from_state_to(thing, thing->active_state, state);
 }
@@ -4452,7 +4452,7 @@ long process_creature_needs_a_wage(struct Thing *thing, const struct CreatureSta
 char creature_free_for_lunchtime(struct Thing *creatng)
 {
     return !creature_affected_by_slap(creatng)
-        && !creature_affected_by_call_to_arms(creatng)
+        && !creature_is_called_to_arms(creatng)
         && !creature_affected_by_spell(creatng, SplK_Chicken)
         && can_change_from_state_to(creatng, creatng->active_state, CrSt_CreatureToGarden);
 }
