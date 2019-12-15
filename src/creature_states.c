@@ -4325,7 +4325,7 @@ TbBool creature_free_for_sleep(const struct Thing *thing,  CrtrStateId state)
  * @param thing
  * @param crstat
  */
-long process_creature_needs_to_heal_critical(struct Thing *creatng, const struct CreatureStats *crstat)
+long process_creature_needs_to_heal_critical(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
@@ -4706,7 +4706,7 @@ void process_person_moods_and_needs(struct Thing *thing)
     crstat = creature_stats_get_from_thing(thing);
     // Now process the needs
     process_creature_hunger(thing);
-    if (process_creature_needs_to_heal_critical(thing, crstat)) {
+    if (process_creature_needs_to_heal_critical(thing)) {
         SYNCDBG(17,"The %s index %d has a critical need to heal",thing_model_name(thing),(long)thing->index);
     } else
     if (creature_affected_by_call_to_arms(thing)) {
