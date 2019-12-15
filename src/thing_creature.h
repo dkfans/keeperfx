@@ -163,6 +163,7 @@ long get_creature_thing_score(const struct Thing *thing);
 TbBool add_creature_score_to_owner(struct Thing *thing);
 TbBool remove_creature_score_from_owner(struct Thing *thing);
 long calculate_melee_damage(const struct Thing *thing);
+long project_melee_damage(const struct Thing *thing);
 long calculate_shot_damage(const struct Thing *thing, ThingModel shot_model);
 long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_model);
 

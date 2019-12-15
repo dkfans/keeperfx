@@ -309,6 +309,8 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
 {
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureStats *enmstat;
+    enmstat = creature_stats_get_from_thing(enmtng);
     // Neutral creatures are not easily scared, as they shouldn't have enemies
     if (is_neutral_thing(creatng))
         return false;
@@ -326,8 +328,7 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
     // fear_wounded percent of base health
     HitPoints crmaxhealth,enmaxhealth;
     long fear;
-    //TODO: Remove fear_noflee_factor as allowing creatures to retreat on low health should not cause them to be more fearfull.
-    if (player_creature_tends_to(creatng->owner,CrTend_Flee) || (crstat->fear_noflee_factor <= 0)) {
+    if (player_creature_tends_to(creatng->owner,CrTend_Flee)) {
         // In flee mode, use full fear value
         fear = crstat->fear_wounded * 10;
     } else {
@@ -346,16 +347,11 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
     }
     // If the enemy is way stronger, a creature may be scared anyway
     long long enmstrength,ownstrength;
-    if (player_creature_tends_to(creatng->owner,CrTend_Flee) || (crstat->fear_noflee_factor <= 0)) {
-        fear = crstat->fear_stronger;
-    } else {
-        fear = (long)crstat->fear_stronger * crstat->fear_noflee_factor;
-    }
-    enmstrength = LbSqrL(calculate_melee_damage(enmtng)) * ((long long)enmaxhealth + (long long)enmtng->health)/2;
-    ownstrength = LbSqrL(calculate_melee_damage(creatng)) * ((long long)crmaxhealth + (long long)creatng->health)/2;
+    fear = crstat->fear_stronger;
+    enmstrength = LbSqrL(project_melee_damage(enmtng)) * (enmstat->fearsome_factor)/100 * ((long long)enmaxhealth + (long long)enmtng->health)/2;
+    ownstrength = LbSqrL(project_melee_damage(creatng)) * (crstat->fearsome_factor)/100 * ((long long)crmaxhealth + (long long)creatng->health)/2;
     if (enmstrength >= (fear * ownstrength) / 100)
     {
-        // TODO: Base fear on score, not strenght as that causes issues with fearfull spellcasters.
         // check if there are allied creatures nearby; assume that such creatures are multiplying strength of the creature we're checking
         long support_count;
         support_count = count_creatures_near_and_owned_by_or_allied_with(creatng->mappos.x.val, creatng->mappos.y.val, 9, creatng->owner);
@@ -1367,7 +1363,6 @@ short cleanup_door_combat(struct Thing *thing)
     cctrl->combat_flags &= ~CmbtF_DoorFight;
     cctrl->combat.battle_enemy_idx = 0;
     return 1;
-
 }
 
 short cleanup_object_combat(struct Thing *thing)

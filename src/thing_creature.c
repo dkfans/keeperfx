@@ -2694,6 +2694,22 @@ long calculate_melee_damage(const struct Thing *creatng)
 }
 
 /**
+ * Projects damage made by a creature by hand (using strength).
+ * Gives a best estimate of the damage, but shouldn't be used to actually inflict it.
+ * @param thing The creature which will be inflicting the damage.
+ */
+long project_melee_damage(const struct Thing *creatng)
+{
+    const struct CreatureControl *cctrl;
+    const struct CreatureStats *crstat;
+    cctrl = creature_control_get_from_thing(creatng);
+    crstat = creature_stats_get_from_thing(creatng);
+    long strength;
+    strength = compute_creature_max_strength(crstat->strength,cctrl->explevel);
+    return project_creature_attack_melee_damage(strength, crstat->luck, cctrl->explevel);
+}
+
+/**
  * Calculates damage made by a creature using specific shot model.
  * @param thing The creature which will be shooting.
  * @param shot_model Shot kind which will be created.
