@@ -84,6 +84,7 @@ enum CreatureSelectCriteria {
     CSelCrit_NearOwnHeart      =  9,
     CSelCrit_NearEnemyHeart    = 10,
     CSelCrit_OnEnemyGround     = 11,
+    CSelCrit_OnFriendlyGround  = 12,
 };
 
 //TODO replace HitType with these
@@ -198,7 +199,9 @@ long count_player_list_creatures_with_filter(long thing_idx, Thing_Maximizer_Fil
 long count_player_list_creatures_of_model_matching_bool_filter(PlayerNumber plyr_idx, int tngmodel, Thing_Bool_Filter matcher_cb);
 // Final routines to select creature anywhere on map but belonging to given player
 struct Thing *get_player_list_nth_creature_of_model(long thing_idx, ThingModel crmodel, long crtr_idx);
+struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx, ThingModel crmodel, long crtr_idx, int friendly);
 struct Thing *get_random_players_creature_of_model(PlayerNumber plyr_idx, ThingModel crmodel);
+struct Thing *get_random_players_creature_of_model_on_territory(PlayerNumber plyr_idx, ThingModel crmodel,int friendly);
 struct Thing *find_players_highest_level_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, unsigned char pick_check);
 struct Thing *find_players_lowest_level_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, unsigned char pick_check);
 long do_to_players_all_creatures_of_model(PlayerNumber plyr_idx, int crmodel, Thing_Bool_Modifier do_cb);
@@ -277,6 +280,7 @@ TbBool perform_action_on_all_creatures_in_group(struct Thing *thing, Thing_Bool_
 long creature_of_model_in_prison_or_tortured(ThingModel crmodel);
 long count_player_creatures_of_model(PlayerNumber plyr_idx, int crmodel);
 long count_player_list_creatures_of_model(long thing_idx, ThingModel crmodel);
+long count_player_list_creatures_of_model_on_territory(long thing_idx, ThingModel crmodel, int friendly);
 GoldAmount compute_player_payday_total(const struct Dungeon *dungeon);
 TbBool lord_of_the_land_in_prison_or_tortured(void);
 struct Thing *lord_of_the_land_find(void);

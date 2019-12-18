@@ -371,7 +371,8 @@ const struct NamedCommand creature_select_criteria_desc[] = {
   {"NEAR_OWN_HEART",       CSelCrit_NearOwnHeart},
   {"NEAR_ENEMY_HEART",     CSelCrit_NearEnemyHeart},
   {"ON_ENEMY_GROUND",      CSelCrit_OnEnemyGround},
-  {"ANY",                  CSelCrit_Any},
+  {"ON_FRIENDLY_GROUND",   CSelCrit_OnFriendlyGround},
+  {"ANYWHERE",             CSelCrit_Any},
   {NULL,                   0},
 };
 
@@ -3629,6 +3630,43 @@ struct Thing *get_creature_in_range_around_any_of_enemy_heart(PlayerNumber plyr_
     return INVALID_THING;
 }
 
+long count_player_list_creatures_of_model_on_territory(long thing_idx, ThingModel crmodel, int friendly)
+{
+    unsigned long k;
+    long i;
+    int count,slbwnr;
+    count = 0;
+    i = thing_idx;
+    k = 0;
+    while (i != 0)
+    {
+        struct CreatureControl *cctrl;
+        struct Thing *thing;
+        thing = thing_get(i);
+        cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing))
+        {
+          ERRORLOG("Jump to invalid thing detected");
+          break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Per creature code
+        slbwnr = get_slab_owner_thing_is_on(thing);
+        if ( (thing->model == crmodel) && ( (players_are_enemies(thing->owner,slbwnr) && (friendly == 0)) || (players_are_mutual_allies(thing->owner,slbwnr) && (friendly == 1)) ) )
+        {
+            count++;
+        }
+        // Per creature code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return count;
+}
+
 /**
  * Kills a creature which meets given criteria.
  * @param plyr_idx The player whose creature will be affected.
@@ -3677,8 +3715,10 @@ TbBool script_kill_creature_with_criteria(PlayerNumber plyr_idx, long crmodel, l
         thing = get_creature_in_range_around_any_of_enemy_heart(plyr_idx, crmodel, 11);
         break;
     case CSelCrit_OnEnemyGround:
-        //TODO SCRIPT finish killing code by adding creature choosing function.
-        thing = INVALID_THING;
+        thing = get_random_players_creature_of_model_on_territory(plyr_idx, crmodel,0);
+        break;
+    case CSelCrit_OnFriendlyGround:
+        thing = get_random_players_creature_of_model_on_territory(plyr_idx, crmodel,1);
         break;
     default:
         ERRORLOG("Invalid kill criteria %d",(int)criteria);
