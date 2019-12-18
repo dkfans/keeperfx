@@ -371,6 +371,7 @@ const struct NamedCommand creature_select_criteria_desc[] = {
   {"NEAR_OWN_HEART",       CSelCrit_NearOwnHeart},
   {"NEAR_ENEMY_HEART",     CSelCrit_NearEnemyHeart},
   {"ON_ENEMY_GROUND",      CSelCrit_OnEnemyGround},
+  {"ANY",                  CSelCrit_Any},
   {NULL,                   0},
 };
 

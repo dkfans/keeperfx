@@ -2086,7 +2086,7 @@ struct Thing *get_player_list_nth_creature_of_model(long thing_idx, ThingModel c
       cctrl = creature_control_get_from_thing(thing);
       i = cctrl->players_next_creature_idx;
       // Per creature code
-      if (crtr_idx <= 0)
+      if ((crtr_idx <= 0) || (thing->model == crmodel && crtr_idx <= 1))
           return thing;
       if ((crmodel <= 0) || (thing->model == crmodel))
           crtr_idx--;
@@ -2164,7 +2164,7 @@ struct Thing *get_random_players_creature_of_model(PlayerNumber plyr_idx, ThingM
     total_count = count_player_list_creatures_of_model(dungeon->creatr_list_start, crmodel);
     if (total_count < 1)
         return INVALID_THING;
-    crtr_idx = ACTION_RANDOM(total_count);
+    crtr_idx = ACTION_RANDOM(total_count)+1;
     return get_player_list_nth_creature_of_model(dungeon->creatr_list_start, crmodel, crtr_idx);
 }
 
