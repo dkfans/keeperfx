@@ -3560,6 +3560,40 @@ TbBool creature_increase_level(struct Thing *thing)
   return false;
 }
 
+TbBool creature_increase_multiple_levels(struct Thing *thing, int count)
+{
+  struct Dungeon *dungeon;
+  struct CreatureStats *crstat;
+  struct CreatureControl *cctrl;
+  cctrl = creature_control_get_from_thing(thing);
+  if (creature_control_invalid(cctrl))
+  {
+      ERRORLOG("Invalid creature control; no action");
+      return false;
+  }
+  dungeon = get_dungeon(thing->owner);
+  int i;
+  int k = 0;
+  for (i=0; i < count; i++)
+  {
+    if (dungeon->creature_max_level[thing->model] > cctrl->explevel)
+    {
+      crstat = creature_stats_get_from_thing(thing);
+      if ((cctrl->explevel < CREATURE_MAX_LEVEL-1) || (crstat->grow_up != 0))
+      {
+        cctrl->spell_flags |= CSAfF_ExpLevelUp;
+        update_creature_levels(thing);
+        k++;
+      }
+    }
+  }
+  if (k > 0)
+  {
+      return true;
+  }
+  return false;
+}
+
 /**
  * Creates creature of random evil kind, and with random experience level.
  * @param x

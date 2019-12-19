@@ -138,6 +138,7 @@ const struct CommandDesc command_desc[] = {
   {"ADD_TO_CAMPAIGN_FLAG",              "PAN     ", Cmd_ADD_TO_CAMPAIGN_FLAG},
   {"EXPORT_VARIABLE",                   "PAA     ", Cmd_EXPORT_VARIABLE},
   {"RUN_AFTER_VICTORY",                 "N       ", Cmd_RUN_AFTER_VICTORY},
+  {"LEVEL_UP_CREATURE",                 "PCAN    ", Cmd_LEVEL_UP_CREATURE},
   {NULL,                                "        ", Cmd_NONE},
 };
 
@@ -2278,6 +2279,36 @@ void command_kill_creature(long plr_range_id, const char *crtr_name, const char 
   command_add_value(Cmd_KILL_CREATURE, plr_range_id, crtr_id, select_id, count);
 }
 
+void command_level_up_creature(long plr_range_id, const char *crtr_name, const char *criteria, int count)
+{
+  long crtr_id,select_id;
+  SCRIPTDBG(11,"Starting");
+  if (count <= 0) {
+    SCRPTERRLOG("Bad creatures count, %d", count);
+    return;
+  }
+  crtr_id = get_rid(creature_desc, crtr_name);
+  if (crtr_id == -1) {
+    SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
+    return;
+  }
+  select_id = get_rid(creature_select_criteria_desc, criteria);
+  if (select_id == -1) {
+    SCRPTERRLOG("Unknown select criteria, '%s'", criteria);
+    return;
+  }
+  if (count < 1)
+  {
+    SCRPTERRLOG("Parameter has no positive value; discarding command", count);
+    return;
+  }
+  if (count > 0)
+  {
+      count = 9;
+  }
+  command_add_value(Cmd_LEVEL_UP_CREATURE, plr_range_id, crtr_id, select_id, count);
+}
+
 void command_add_to_flag(long plr_range_id, const char *flgname, long val)
 {
   long flg_id;
@@ -2586,6 +2617,9 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_KILL_CREATURE:
         command_kill_creature(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);
+        break;
+    case Cmd_LEVEL_UP_CREATURE:
+        command_level_up_creature(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);
         break;
     case Cmd_LEVEL_VERSION:
         level_file_version = scline->np[0];
@@ -3706,6 +3740,72 @@ void script_kill_creatures(PlayerNumber plyr_idx, long crmodel, long criteria, l
 }
 
 /**
+ * Increase level of  a creature which meets given criteria.
+ * @param plyr_idx The player whose creature will be affected.
+ * @param crmodel Model of the creature to find.
+ * @param criteria Criteria, from CreatureSelectCriteria enumeration.
+ * @return True if a creature was found and leveled.
+ */
+TbBool script_level_up_creature(PlayerNumber plyr_idx, long crmodel, long criteria, int count)
+{
+    struct Thing *thing;
+    const struct Coord3d *pos;
+    switch (criteria)
+    {
+    case CSelCrit_Any:
+        thing = get_random_players_creature_of_model(plyr_idx, crmodel);
+        break;
+    case CSelCrit_MostExperienced:
+        thing = find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Any, plyr_idx, 0);
+        break;
+    case CSelCrit_MostExpWandering:
+        thing = find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Wandering, plyr_idx, 0);
+        break;
+    case CSelCrit_MostExpWorking:
+        thing = find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Working, plyr_idx, 0);
+        break;
+    case CSelCrit_MostExpFighting:
+        thing = find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Fighting, plyr_idx, 0);
+        break;
+    case CSelCrit_LeastExperienced:
+        thing = find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Any, plyr_idx, 0);
+        break;
+    case CSelCrit_LeastExpWandering:
+        thing = find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Wandering, plyr_idx, 0);
+        break;
+    case CSelCrit_LeastExpWorking:
+        thing = find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Working, plyr_idx, 0);
+        break;
+    case CSelCrit_LeastExpFighting:
+        thing = find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Fighting, plyr_idx, 0);
+        break;
+    case CSelCrit_NearOwnHeart:
+        pos = dungeon_get_essential_pos(plyr_idx);
+        thing = get_creature_near_and_owned_by(pos->x.val, pos->y.val, plyr_idx);
+        break;
+    case CSelCrit_NearEnemyHeart:
+        thing = get_creature_in_range_around_any_of_enemy_heart(plyr_idx, crmodel, 11);
+        break;
+    case CSelCrit_OnEnemyGround:
+        thing = get_random_players_creature_of_model_on_territory(plyr_idx, crmodel,0);
+        break;
+    case CSelCrit_OnFriendlyGround:
+        thing = get_random_players_creature_of_model_on_territory(plyr_idx, crmodel,1);
+        break;
+    default:
+        ERRORLOG("Invalid level up criteria %d",(int)criteria);
+        thing = INVALID_THING;
+        break;
+    }
+    if (thing_is_invalid(thing)) {
+        SYNCDBG(5,"No matching player %d creature of model %d found to level up",(int)plyr_idx,(int)crmodel);
+        return false;
+    }
+    creature_increase_multiple_levels(thing,count);
+    return true;
+}
+
+/**
  * Returns if the action point condition was activated.
  * Action point index and player to be activated should be stored inside condition.
  */
@@ -4327,6 +4427,12 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       for (i=plr_start; i < plr_end; i++)
       {
           script_kill_creatures(i, val2, val3, val4);
+      }
+      break;
+    case Cmd_LEVEL_UP_CREATURE:
+      for (i=plr_start; i < plr_end; i++)
+      {
+          script_level_up_creature(i, val2, val3, val4);
       }
       break;
   case Cmd_ADD_TO_FLAG:
