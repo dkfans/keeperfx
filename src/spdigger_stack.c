@@ -698,7 +698,7 @@ long check_place_to_convert_excluding(struct Thing *creatng, MapSlabCoord slb_x,
         if (k > THINGS_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
-			break_mapwho_infinite_chain(mapblk);
+            break_mapwho_infinite_chain(mapblk);
             break;
         }
     }
@@ -754,7 +754,7 @@ long check_place_to_pretty_excluding(struct Thing *creatng, MapSlabCoord slb_x, 
         if (k > THINGS_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
-			break_mapwho_infinite_chain(mapblk);
+            break_mapwho_infinite_chain(mapblk);
             break;
         }
     }
@@ -1926,7 +1926,7 @@ long check_out_uncrowded_reinforce_position(struct Thing *thing, SubtlCodedCoord
     basestl_x = stl_num_decode_x(stl_num);
     basestl_y = stl_num_decode_y(stl_num);
     int i,n;
-	n = get_nearest_small_around_side_of_slab(subtile_coord_center(basestl_x), subtile_coord_center(basestl_y), thing->mappos.x.val, thing->mappos.y.val);  
+    n = get_nearest_small_around_side_of_slab(subtile_coord_center(basestl_x), subtile_coord_center(basestl_y), thing->mappos.x.val, thing->mappos.y.val);  
     for (i=0; i < SMALL_AROUND_LENGTH; i++)
     {
         MapSubtlCoord stl_x,stl_y;
@@ -2019,7 +2019,7 @@ long check_place_to_dig_and_get_position(struct Thing *thing, SubtlCodedCoords s
     place_y = stl_num_decode_y(stl_num);
     if (!block_has_diggable_side(thing->owner, subtile_slab_fast(place_x), subtile_slab_fast(place_y)))
         return 0;
-	nstart = get_nearest_small_around_side_of_slab(subtile_coord_center(place_x), subtile_coord_center(place_y), thing->mappos.x.val, thing->mappos.y.val);
+    nstart = get_nearest_small_around_side_of_slab(subtile_coord_center(place_x), subtile_coord_center(place_y), thing->mappos.x.val, thing->mappos.y.val);
     place_slb = get_slabmap_for_subtile(place_x,place_y);
     n = nstart;
 
@@ -2093,7 +2093,7 @@ struct Thing *check_place_to_pickup_dead_body(struct Thing *creatng, long stl_x,
         if (k > THINGS_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
-			break_mapwho_infinite_chain(mapblk);
+            break_mapwho_infinite_chain(mapblk);
             break;
         }
     }
@@ -2177,7 +2177,7 @@ struct Thing *check_place_to_pickup_crate(const struct Thing *creatng, MapSubtlC
         if (k > THINGS_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
-			break_mapwho_infinite_chain(mapblk);
+            break_mapwho_infinite_chain(mapblk);
             break;
         }
     }
@@ -2266,20 +2266,20 @@ long check_out_imp_last_did(struct Thing *creatng)
   case SDLstJob_DigOrMine:
       if (is_digging_indestructible_place(creatng)) {
           dungeon = get_dungeon(creatng->owner);
-	  //don't reassign if it's the first gem dig since other tasks
-	  if (cctrl->digger.task_repeats != 0)
-	  { 
-		// If we were digging gems, after 5 repeats of this job, a 1 in 20 chance to select another dungeon job.
+      //don't reassign if it's the first gem dig since other tasks
+      if (cctrl->digger.task_repeats != 0)
+      { 
+        // If we were digging gems, after 5 repeats of this job, a 1 in 20 chance to select another dungeon job.
         // This allows to switch to other important tasks and not consuming all the diggers workforce forever
-		if ((( rand( ) % 20) == 1) && ((cctrl->digger.task_repeats % 5) == 0) && (dungeon->digger_stack_length > 1))
-		{
-		  // Set position in digger tasks list to a random place
-		  SYNCDBG(9,"Digger %s index %d reset due to neverending task",thing_model_name(creatng),(int)creatng->index);
-		  cctrl->digger.stack_update_turn = dungeon->digger_stack_update_turn;
-		  cctrl->digger.task_stack_pos = ACTION_RANDOM(dungeon->digger_stack_length);
-		  break;
-		} 	    
-	  }
+        if ((( rand( ) % 20) == 1) && ((cctrl->digger.task_repeats % 5) == 0) && (dungeon->digger_stack_length > 1))
+        {
+          // Set position in digger tasks list to a random place
+          SYNCDBG(9,"Digger %s index %d reset due to neverending task",thing_model_name(creatng),(int)creatng->index);
+          cctrl->digger.stack_update_turn = dungeon->digger_stack_update_turn;
+          cctrl->digger.task_stack_pos = ACTION_RANDOM(dungeon->digger_stack_length);
+          break;
+        }
+      }
       }
       if (check_out_undug_place(creatng) || check_out_undug_area(creatng))
       {
@@ -2412,12 +2412,12 @@ TbBool imp_stack_update(struct Thing *creatng)
     add_unclaimed_dead_bodies_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/4 - 1);
     add_unclaimed_spells_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/4 - 1);
     add_empty_traps_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/6);
-	add_pretty_and_convert_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/64);
+    add_pretty_and_convert_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/64);
     add_undug_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/16 - 1);
-	add_unclaimed_gold_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/64);
-	add_gems_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT*5/8);
-	add_unclaimed_traps_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/4);
-	add_undug_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT*5/8);
+    add_unclaimed_gold_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/64);
+    add_gems_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT*5/8);
+    add_unclaimed_traps_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/4);
+    add_undug_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT*5/8);
     add_pretty_and_convert_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT*5/8);
     add_unclaimed_gold_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT/3);
     add_reinforce_to_imp_stack(dungeon, DIGGER_TASK_MAX_COUNT);
@@ -2882,7 +2882,7 @@ TbBool check_out_imp_stack(struct Thing *creatng)
             break;
         case DigTsk_DigOrMine:
             ret = check_out_worker_dig_or_mine(creatng, dstack);
-            break;			
+            break;
         case DigTsk_None:
             ret = 0;
             break;

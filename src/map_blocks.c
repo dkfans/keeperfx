@@ -253,7 +253,7 @@ TbBool tag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
               {
                   mapblk = get_map_block_at(x+dx, y+dy);
                   slb = get_slabmap_for_subtile(x+dx, y+dy);
-                  if ((mapblk->flags & (SlbAtFlg_Unk80|SlbAtFlg_Unk04)) != 0)
+                  if ((mapblk->flags & (SlbAtFlg_TaggedValuable|SlbAtFlg_Unexplored)) != 0)
                       continue;
                   if (((mapblk->flags & SlbAtFlg_IsRoom) != 0) && (slabmap_owner(slb) == plyr_idx))
                       continue;
@@ -261,11 +261,11 @@ TbBool tag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
                       continue;
                   if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
                   {
-                      mapblk->flags |= SlbAtFlg_Unk80;
+                      mapblk->flags |= SlbAtFlg_TaggedValuable;
                   } else
                   if (((mapblk->flags & (SlbAtFlg_Filled|SlbAtFlg_Digable)) != 0) || !map_block_revealed(mapblk, plyr_idx))
                   {
-                      mapblk->flags |= SlbAtFlg_Unk04;
+                      mapblk->flags |= SlbAtFlg_Unexplored;
                   }
               }
           }
@@ -304,10 +304,10 @@ long untag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
                 mapblk = get_map_block_at(x+dx, y+dy);
                 if (map_block_invalid(mapblk))
                     continue;
-                if ( mapblk->flags & (SlbAtFlg_Unk80|SlbAtFlg_Unk04) )
+                if ( mapblk->flags & (SlbAtFlg_TaggedValuable|SlbAtFlg_Unexplored) )
                   num_untagged++;
-                mapblk->flags &= ~SlbAtFlg_Unk80;
-                mapblk->flags &= ~SlbAtFlg_Unk04;
+                mapblk->flags &= ~SlbAtFlg_TaggedValuable;
+                mapblk->flags &= ~SlbAtFlg_Unexplored;
             }
         }
     }
@@ -2226,8 +2226,8 @@ void pretty_map_remove_flags_and_update(MapSlabCoord slb_x, MapSlabCoord slb_y)
         y = stl_y + (m/STL_PER_SLB);
         struct Map *mapblk;
         mapblk = get_map_block_at(x,y);
-        mapblk->flags &= ~SlbAtFlg_Unk80;
-        mapblk->flags &= ~SlbAtFlg_Unk04;
+        mapblk->flags &= ~SlbAtFlg_TaggedValuable;
+        mapblk->flags &= ~SlbAtFlg_Unexplored;
     }
     pannel_map_update(stl_x, stl_y, STL_PER_SLB, STL_PER_SLB);
 }

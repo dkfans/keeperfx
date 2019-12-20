@@ -475,7 +475,7 @@ void update_map_collide(SlabKind slbkind, MapSubtlCoord stl_x, MapSubtlCoord stl
     } else {
       nflags = slbattr->noblck_flags;
     }
-    mapblk->flags &= (SlbAtFlg_Unk80|SlbAtFlg_Unk04);
+    mapblk->flags &= (SlbAtFlg_TaggedValuable|SlbAtFlg_Unexplored);
     mapblk->flags |= nflags;
 }
 

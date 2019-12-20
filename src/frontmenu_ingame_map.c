@@ -658,11 +658,11 @@ void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
         owner_col -= 3;
     }
 
-    if ((mapblk->flags & SlbAtFlg_Unk04) != 0)
+    if ((mapblk->flags & SlbAtFlg_Unexplored) != 0)
     {
         col = 3;
     } else
-    if ((mapblk->flags & SlbAtFlg_Unk80) != 0)
+    if ((mapblk->flags & SlbAtFlg_TaggedValuable) != 0)
     {
         col = 4;
     } else

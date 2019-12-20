@@ -216,7 +216,7 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
     mapblk = get_map_block_at(stl_x, stl_y);
     slb = get_slabmap_for_subtile(stl_x,stl_y);
     owner = slabmap_owner(slb);
-    if ((((mapblk->flags & SlbAtFlg_Unk04) != 0) || ((mapblk->flags & SlbAtFlg_Unk80) != 0))
+    if ((((mapblk->flags & SlbAtFlg_Unexplored) != 0) || ((mapblk->flags & SlbAtFlg_TaggedValuable) != 0))
         && ((game.play_gameturn & 4) != 0))
     {
         pixval = pixmap.ghost[background + 0x1A00];

@@ -49,12 +49,12 @@ enum SlabAttrFlags {
     SlbAtFlg_None = 0x00,
     SlbAtFlg_Valuable = 0x01, /*< Set for valuable terrain to dig (gold and gems). */
     SlbAtFlg_IsRoom = 0x02,
-    SlbAtFlg_Unk04 = 0x04,
+    SlbAtFlg_Unexplored = 0x04,
     SlbAtFlg_Digable = 0x08,
     SlbAtFlg_Blocking = 0x10,
     SlbAtFlg_Filled = 0x20,
     SlbAtFlg_IsDoor = 0x40,
-    SlbAtFlg_Unk80 = 0x80,
+    SlbAtFlg_TaggedValuable = 0x80,
 };
 
 enum RoomCfgFlags {
