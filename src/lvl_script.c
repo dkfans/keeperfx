@@ -139,6 +139,7 @@ const struct CommandDesc command_desc[] = {
   {"EXPORT_VARIABLE",                   "PAA     ", Cmd_EXPORT_VARIABLE},
   {"RUN_AFTER_VICTORY",                 "N       ", Cmd_RUN_AFTER_VICTORY},
   {"LEVEL_UP_CREATURE",                 "PCAN    ", Cmd_LEVEL_UP_CREATURE},
+  {"CHANGE_CREATURE_OWNER",             "PCAP    ", Cmd_CHANGE_CREATURE_OWNER},
   {NULL,                                "        ", Cmd_NONE},
 };
 
@@ -2302,11 +2303,28 @@ void command_level_up_creature(long plr_range_id, const char *crtr_name, const c
     SCRPTERRLOG("Parameter has no positive value; discarding command", count);
     return;
   }
-  if (count > 0)
+  if (count > 9)
   {
       count = 9;
   }
   command_add_value(Cmd_LEVEL_UP_CREATURE, plr_range_id, crtr_id, select_id, count);
+}
+
+void command_change_creature_owner(long origin_plyr_idx, const char *crtr_name, const char *criteria, long dest_plyr_idx)
+{
+  long crtr_id,select_id;
+  SCRIPTDBG(11,"Starting");
+  crtr_id = get_rid(creature_desc, crtr_name);
+  if (crtr_id == -1) {
+    SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
+    return;
+  }
+  select_id = get_rid(creature_select_criteria_desc, criteria);
+  if (select_id == -1) {
+    SCRPTERRLOG("Unknown select criteria, '%s'", criteria);
+    return;
+  }
+  command_add_value(Cmd_CHANGE_CREATURE_OWNER, origin_plyr_idx, crtr_id, select_id, dest_plyr_idx);
 }
 
 void command_add_to_flag(long plr_range_id, const char *flgname, long val)
@@ -2620,6 +2638,9 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_LEVEL_UP_CREATURE:
         command_level_up_creature(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);
+        break;
+    case Cmd_CHANGE_CREATURE_OWNER:
+        command_change_creature_owner(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);
         break;
     case Cmd_LEVEL_VERSION:
         level_file_version = scline->np[0];
@@ -3729,6 +3750,72 @@ TbBool script_kill_creature_with_criteria(PlayerNumber plyr_idx, long crmodel, l
     kill_creature(thing, INVALID_THING, -1, CrDed_NoUnconscious);
     return true;
 }
+/**
+ * Changes owner of a creature which meets given criteria.
+ * @param origin_plyr_idx The player whose creature will be affected.
+ * @param dest_plyr_idx The player who will receive the creature.
+ * @param crmodel Model of the creature to find.
+ * @param criteria Criteria, from CreatureSelectCriteria enumeration.
+ * @return True if a creature was found and changed owner.
+ */
+TbBool script_change_creature_owner_with_criteria(PlayerNumber origin_plyr_idx, long crmodel, long criteria, PlayerNumber dest_plyr_idx)
+{
+    struct Thing *thing;
+    const struct Coord3d *pos;
+    switch (criteria)
+    {
+    case CSelCrit_Any:
+        thing = get_random_players_creature_of_model(origin_plyr_idx, crmodel);
+        break;
+    case CSelCrit_MostExperienced:
+        thing = find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Any, origin_plyr_idx, 0);
+        break;
+    case CSelCrit_MostExpWandering:
+        thing = find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Wandering, origin_plyr_idx, 0);
+        break;
+    case CSelCrit_MostExpWorking:
+        thing = find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Working, origin_plyr_idx, 0);
+        break;
+    case CSelCrit_MostExpFighting:
+        thing = find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Fighting, origin_plyr_idx, 0);
+        break;
+    case CSelCrit_LeastExperienced:
+        thing = find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Any, origin_plyr_idx, 0);
+        break;
+    case CSelCrit_LeastExpWandering:
+        thing = find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Wandering, origin_plyr_idx, 0);
+        break;
+    case CSelCrit_LeastExpWorking:
+        thing = find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Working, origin_plyr_idx, 0);
+        break;
+    case CSelCrit_LeastExpFighting:
+        thing = find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Fighting, origin_plyr_idx, 0);
+        break;
+    case CSelCrit_NearOwnHeart:
+        pos = dungeon_get_essential_pos(origin_plyr_idx);
+        thing = get_creature_near_and_owned_by(pos->x.val, pos->y.val, origin_plyr_idx);
+        break;
+    case CSelCrit_NearEnemyHeart:
+        thing = get_creature_in_range_around_any_of_enemy_heart(origin_plyr_idx, crmodel, 11);
+        break;
+    case CSelCrit_OnEnemyGround:
+        thing = get_random_players_creature_of_model_on_territory(origin_plyr_idx, crmodel,0);
+        break;
+    case CSelCrit_OnFriendlyGround:
+        thing = get_random_players_creature_of_model_on_territory(origin_plyr_idx, crmodel,1);
+        break;
+    default:
+        ERRORLOG("Invalid selection criterium %d",(int)criteria);
+        thing = INVALID_THING;
+        break;
+    }
+    if (thing_is_invalid(thing)) {
+        SYNCDBG(5,"No matching player %d creature of model %d found to kill",(int)origin_plyr_idx,(int)crmodel);
+        return false;
+    }
+    change_creature_owner(thing,dest_plyr_idx);
+    return true;
+}
 
 void script_kill_creatures(PlayerNumber plyr_idx, long crmodel, long criteria, long copies_num)
 {
@@ -4433,6 +4520,12 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       for (i=plr_start; i < plr_end; i++)
       {
           script_level_up_creature(i, val2, val3, val4);
+      }
+      break;
+    case Cmd_CHANGE_CREATURE_OWNER:
+      for (i=plr_start; i < plr_end; i++)
+      {
+          script_change_creature_owner_with_criteria(i, val2, val3, val4);
       }
       break;
   case Cmd_ADD_TO_FLAG:

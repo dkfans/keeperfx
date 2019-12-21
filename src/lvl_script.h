@@ -119,6 +119,7 @@ enum TbScriptCommands {
     Cmd_IMPORT                            = 99,
     Cmd_RUN_AFTER_VICTORY                 = 100,
     Cmd_LEVEL_UP_CREATURE                 = 101,
+    Cmd_CHANGE_CREATURE_OWNER             = 102,
 };
 
 enum ScriptVariables {
