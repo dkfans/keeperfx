@@ -313,6 +313,7 @@ long get_thing_navigation_distance(struct Thing *creatng, struct Coord3d *pos , 
 void create_effect_around_thing(struct Thing *thing, long eff_kind);
 long get_creature_gui_job(const struct Thing *thing);
 long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room);
+long process_creature_needs_to_heal_critical(struct Thing *creatng);
 short setup_creature_leaves_or_dies(struct Thing *creatng);
 
 void creature_drop_dragged_object(struct Thing *crtng, struct Thing *dragtng);

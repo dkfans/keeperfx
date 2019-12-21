@@ -110,6 +110,7 @@ short is_mouse_pressed_rightbutton(void);
 short is_mouse_pressed_lrbutton(void);
 void clear_mouse_pressed_lrbutton(void);
 void update_mouse(void);
+void update_wheel_scrolled(void);
 
 short is_key_pressed(TbKeyCode key, TbKeyMods kmodif);
 unsigned short key_to_ascii(TbKeyCode key, TbKeyMods kmodif);
