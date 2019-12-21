@@ -151,7 +151,7 @@ long find_dig_from_task_list(PlayerNumber plyr_idx, SubtlCodedCoords srch_tsk)
     for (i=0; i < imax; i++)
     {
       mtask = &dungeon->task_list[i];
-      if ((mtask->coords == srch_tsk) && (mtask->kind != SDDigTask_Unknown3))
+      if ((mtask->coords == srch_tsk))
         return i;
     }
     return -1;
@@ -167,7 +167,7 @@ long find_next_dig_in_dungeon_task_list(struct Dungeon *dungeon, long last_dig)
     for (i=last_dig+1; i < mtasks_num; i++)
     {
       mtask = &dungeon->task_list[i];
-      if ((mtask->kind != SDDigTask_None) && (mtask->kind != SDDigTask_Unknown3))
+      if ((mtask->kind != SDDigTask_None))
         return i;
     }
     return -1;

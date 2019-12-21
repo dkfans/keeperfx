@@ -1033,17 +1033,14 @@ int add_undug_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
         mtask = get_dungeon_task_list_entry(dungeon, i);
         stl_x = stl_num_decode_x(mtask->coords);
         stl_y = stl_num_decode_y(mtask->coords);
-        if ( subtile_revealed(stl_x, stl_y, dungeon->owner) )
+        struct SlabMap *slb;
+        slb = get_slabmap_for_subtile(stl_x, stl_y);
+        if (!slab_kind_is_indestructible(slb->kind)) // Add only blocks which can be destroyed by digging
         {
-            struct SlabMap *slb;
-            slb = get_slabmap_for_subtile(stl_x, stl_y);
-            if (!slab_kind_is_indestructible(slb->kind)) // Add only blocks which can be destroyed by digging
+            if ( block_has_diggable_side(dungeon->owner, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)) )
             {
-                if ( block_has_diggable_side(dungeon->owner, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)) )
-                {
-                    add_to_imp_stack_using_pos(mtask->coords, DigTsk_DigOrMine, dungeon);
-                    remain_num--;
-                }
+                add_to_imp_stack_using_pos(mtask->coords, DigTsk_DigOrMine, dungeon);
+                remain_num--;
             }
         }
     }
