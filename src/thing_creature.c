@@ -4532,26 +4532,45 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
         }
     }
 
-    // If the creature require healing, then drop it to lair
-    if (creature_can_do_healing_sleep(thing))
+    // If the creature require healing, then drop it to lair. When in combat, try to cast heal first.
+    if (cctrl->combat_flags)
     {
-        if (cctrl->combat_flags)
+        // Simplified algorithm when creature is in combat
+        if (health_permil < 1000*crstat->heal_threshold/256)
         {
-            // Simplified algorithm when creature is in combat
-            if (health_permil < 1000*crstat->heal_threshold/256)
+            // If already at lair, then don't do anything
+            if (!creature_is_doing_lair_activity(thing))
             {
-                // If already at lair, then don't do anything
-                if (creature_is_doing_lair_activity(thing))
-                    return -1;
-                // otherwise, put it into room we want
-                if (player_has_room_of_role(dungeon->owner, get_room_role_for_job(Job_TAKE_SLEEP)))
+                // cast heal if we can, don't always use max level to appear lifelike
+                int splevel;
+                splevel = ACTION_RANDOM(4)+5;
+                if (computer_able_to_use_power(comp, PwrK_HEALCRTR, splevel, 1))
                 {
-                    param->num2 = Job_TAKE_SLEEP;
-                    return LONG_MAX;
+                    if (try_game_action(comp, dungeon->owner, GA_UsePwrHealCrtr, splevel, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->index, 1) > Lb_OK)
+                    {
+                        return LONG_MAX;
+                    } else
+                    {
+                        return -1;
+                    }
+                } else
+                // otherwise, put it into room we want
+                {
+                    if (creature_can_do_healing_sleep(thing))
+                    {
+                        if (player_has_room_of_role(dungeon->owner, get_room_role_for_job(Job_TAKE_SLEEP)))
+                        {
+                            param->num2 = Job_TAKE_SLEEP;
+                            return LONG_MAX;
+                        }
+                    }
                 }
             }
-            return -1;
-        } else
+        }
+        return -1;
+    } else
+    {
+        if (creature_can_do_healing_sleep(thing))
         {
             // Be more careful when not in combat
             if ((health_permil < 1000*crstat->heal_threshold/256) || !creature_has_lair_room(thing))
