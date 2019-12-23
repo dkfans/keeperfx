@@ -2855,7 +2855,7 @@ long task_attack_magic(struct Computer2 *comp, struct ComputerTask *ctask)
     }
     TbResult ret;
     ret = try_game_action(comp, dungeon->owner, ctask->attack_magic.gaction, ctask->attack_magic.splevel,
-        thing->mappos.x.stl.num, thing->mappos.y.stl.num, ctask->attack_magic.pwkind, 0);
+        thing->mappos.x.stl.num, thing->mappos.y.stl.num, ctask->attack_magic.target_thing_idx, 0);
     if (ret <= Lb_OK)
         return CTaskRet_Unk4;
     return CTaskRet_Unk2;
