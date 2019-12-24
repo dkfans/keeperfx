@@ -345,13 +345,18 @@ long computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent 
     if (comp->dungeon->fights_num <= 0) {
         return 4;
     }
-    if (!computer_able_to_use_power(comp, PwrK_SPEEDCRTR, cevent->param1, 1)) {
+    if (!(computer_able_to_use_power(comp, PwrK_SPEEDCRTR, cevent->param1, 1) ||  computer_able_to_use_power(comp, PwrK_PROTECT, cevent->param1, 1))) {
         return 4;
     }
     struct Thing *fightng;
     fightng = computer_get_creature_in_fight(comp, PwrK_SPEEDCRTR);
-    if (thing_is_invalid(fightng)) {
-        return 4;
+    if (thing_is_invalid(fightng)) 
+    {
+        fightng = computer_get_creature_in_fight(comp, PwrK_PROTECT);
+        if (thing_is_invalid(fightng))
+        {
+            return 4;
+        }
     }
     if (!create_task_magic_speed_up(comp, fightng, cevent->param1)) {
         return 4;

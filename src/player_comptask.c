@@ -2748,38 +2748,43 @@ long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     struct Dungeon *dungeon;
     struct Thing *creatng;
+    int k = 0;
     SYNCDBG(9,"Starting");
     dungeon = comp->dungeon;
-    //return _DK_task_magic_speed_up(comp,ctask);
     creatng = thing_get(ctask->attack_magic.target_thing_idx);
-    if (thing_is_invalid(creatng)) {
-        remove_task(comp, ctask);
-        return CTaskRet_Unk4;
-    }
-    if (creature_is_dying(creatng) || creature_is_being_unconscious(creatng)
-     || creature_is_kept_in_custody(creatng))
+    if (thing_is_invalid(creatng))
     {
         remove_task(comp, ctask);
         return CTaskRet_Unk4;
     }
-    // Note that can_cast_spell() shouldn't be needed here - should
-    // be checked in the function which adds the task
-    if (!computer_able_to_use_power(comp, PwrK_SPEEDCRTR, ctask->attack_magic.splevel, 2)) {
+    if (creature_is_dying(creatng) || creature_is_being_unconscious(creatng) || creature_is_kept_in_custody(creatng))
+    {
         remove_task(comp, ctask);
         return CTaskRet_Unk4;
     }
-    if (thing_affected_by_spell(creatng, PwrK_SPEEDCRTR)) {
+    if (computer_able_to_use_power(comp, PwrK_SPEEDCRTR, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_SPEEDCRTR))
+    {
+        if (try_game_action(comp, dungeon->owner, GA_UsePwrSpeedUp, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
+        {
+            k = 1;
+        }
+    } 
+    else if (computer_able_to_use_power(comp, PwrK_PROTECT, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_PROTECT))
+    {
+        if (try_game_action(comp, dungeon->owner, GA_UsePwrArmour, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
+        {
+            k = 1;
+        }
+    }
+    if (k == 1)
+    {
         remove_task(comp, ctask);
         return CTaskRet_Unk4;
     }
-    TbResult ret;
-    ret = try_game_action(comp, dungeon->owner, GA_UsePwrSpeedUp, ctask->attack_magic.splevel,
-        0, 0, creatng->index, 0);
-    if (ret <= Lb_OK) {
-        remove_task(comp, ctask);
-        return CTaskRet_Unk4;
+    else
+    {
+        return CTaskRet_Unk1;
     }
-    return CTaskRet_Unk1;
 }
 
 long task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask)
@@ -3435,6 +3440,8 @@ TbBool create_task_slap_imps(struct Computer2 *comp, long creatrs_num)
     return true;
 }
 
+//task is named 'speed up', but it's generated from 'check fighter' event and all round buffs units. Not to be confused
+//with check_for_accelerate which cast speed outside of combat
 TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *creatng, long splevel)
 {
     struct ComputerTask *ctask;
@@ -3444,7 +3451,7 @@ TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *cr
         return false;
     }
     if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
-        message_add_fmt(comp->dungeon->owner, "Faster, minions!");
+        message_add_fmt(comp->dungeon->owner, "I should buff my fighters.");
     }
     ctask->ttype = CTT_MagicSpeedUp;
     ctask->attack_magic.target_thing_idx = creatng->index;
