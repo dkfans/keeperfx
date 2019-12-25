@@ -1724,7 +1724,7 @@ void frontend_start_new_game(struct GuiButton *gbtn)
         ERRORLOG("Unable to start new campaign");
         return;
       }
-      frontend_set_state(FeSt_LAND_VIEW);
+      frontend_set_state(FeSt_CAMPAIGN_INTRO);
     } else
     { // If there's more campaigns, go to selection screen
       frontend_set_state(FeSt_CAMPAIGN_SELECT);
@@ -2586,6 +2586,7 @@ void frontend_shutdown_state(FrontendMenuState pstate)
     case FeSt_UNKNOWN09:
     case FeSt_LOAD_GAME:
     case FeSt_INTRO:
+    case FeSt_CAMPAIGN_INTRO:
     case FeSt_DEMO: //demo state (intro/credits)
     case FeSt_OUTRO:
     case FeSt_PACKET_DEMO:
@@ -2659,6 +2660,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
       case FeSt_UNKNOWN09:
       case FeSt_LOAD_GAME:
       case FeSt_INTRO:
+      case FeSt_CAMPAIGN_INTRO:
       case FeSt_DEMO:
       case FeSt_OUTRO:
       case FeSt_PACKET_DEMO:
@@ -3165,6 +3167,9 @@ short frontend_draw(void)
     case FeSt_DEMO:
         demo();
         return 0;
+    case FeSt_CAMPAIGN_INTRO:
+        campaign_intro();
+        return 0;
     case FeSt_DRAG:
         drag_video();
         return 0;
@@ -3375,6 +3380,8 @@ void frontend_update(short *finish_menu)
     case FeSt_LAND_VIEW:
         *finish_menu = frontmap_update();
         break;
+    case FeSt_CAMPAIGN_INTRO:
+        break;
     case FeSt_NET_SERVICE:
         frontnet_service_update();
         break;
@@ -3473,6 +3480,8 @@ FrontendMenuState get_menu_state_when_back_from_substate(FrontendMenuState subst
     case FeSt_NETLAND_VIEW:
         return FeSt_NET_SERVICE;
     case FeSt_TORTURE:
+    case FeSt_CAMPAIGN_INTRO:
+        return FeSt_LAND_VIEW;
     case FeSt_OUTRO:
         return FeSt_LEVEL_STATS;
     case FeSt_DRAG:

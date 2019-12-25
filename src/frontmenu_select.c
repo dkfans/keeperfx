@@ -288,7 +288,7 @@ void frontend_campaign_select(struct GuiButton *gbtn)
         ERRORLOG("Unable to start new campaign");
         return;
     }
-    frontend_set_state(FeSt_LAND_VIEW);
+    frontend_set_state(FeSt_CAMPAIGN_INTRO);
 }
 
 void frontend_campaign_select_update(void)
