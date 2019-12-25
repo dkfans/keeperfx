@@ -515,7 +515,12 @@ long computer_event_check_imps_in_danger(struct Computer2 *comp, struct Computer
         {
             if (!creature_is_being_unconscious(creatng) && !creature_affected_by_spell(creatng, SplK_Chicken))
             {
-                if (!creature_is_being_dropped(creatng) && can_thing_be_picked_up_by_player(creatng, dungeon->owner))
+                // Small chance to casting invisibility,on imp in battle.
+                if((ACTION_RANDOM(150) == 1) && computer_able_to_use_power(comp, PwrK_CONCEAL, 8, 1) && !thing_affected_by_spell(creatng, PwrK_CONCEAL))
+                {
+                    magic_use_available_power_on_thing(creatng->owner, PwrK_CONCEAL, 8, 0, 0, creatng);
+                }
+                else if (!creature_is_being_dropped(creatng) && can_thing_be_picked_up_by_player(creatng, dungeon->owner))
                 {
                     TbBool needs_help;
                     if (get_creature_health_permil(creatng) < 500)
