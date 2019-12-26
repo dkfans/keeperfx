@@ -2776,7 +2776,7 @@ long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask)
             k = 1;
         }
     }
-    if (k == 1)
+    if (k != 1)
     {
         remove_task(comp, ctask);
         return CTaskRet_Unk4;
