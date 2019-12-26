@@ -1605,7 +1605,9 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
 {
     struct Dungeon *dungeon;
     struct SlabMap *slb;
+    struct SlabMap *slbw;
     struct Map *mapblk;
+    struct Map *mapblkw;
     MapSubtlCoord gldstl_x,gldstl_y;
     MapSubtlCoord digstl_x,digstl_y;
     MapSlabCoord digslb_x,digslb_y;
@@ -1731,7 +1733,49 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
             i = get_subtile_number_at_slab_center(digslb_x,digslb_y);
             if ((find_from_task_list(dungeon->owner, i) < 0) && (!simulation))
             {
-                if (try_game_action(comp, dungeon->owner, GA_MarkDig, 0, digstl_x, digstl_y, 1, 1) <= Lb_OK) {
+                // Only when the computer has enough gold to cast lvl8, will he consider casting lvl3 power, so he has some gold left.
+                if( computer_able_to_use_power(comp, PwrK_DESTRWALLS, 8, 1))
+                {
+                    mapblkw = get_map_block_at(digstl_x, digstl_y-3);
+                    slbw = get_slabmap_block(digslb_x, digslb_y-1);
+                    if(((mapblkw->flags & SlbAtFlg_Filled) >= 1) && (slabmap_owner(slbw) != dungeon->owner))
+                    {
+                        magic_use_available_power_on_subtile(dungeon->owner, PwrK_DESTRWALLS, 3, digstl_x, digstl_y-3, PwCast_Unrevealed);
+                        return -5;
+                    }
+                    else
+                    {
+                        mapblkw = get_map_block_at(digstl_x, digstl_y+3);
+                        slbw = get_slabmap_block(digslb_x, digslb_y+1);
+                        if(((mapblkw->flags & SlbAtFlg_Filled) >= 1) && (slabmap_owner(slbw) != dungeon->owner))
+                        {
+                            magic_use_available_power_on_subtile(dungeon->owner, PwrK_DESTRWALLS, 3, digstl_x, digstl_y+3, PwCast_Unrevealed);
+                            return -5;
+                        }
+                        else
+                        {
+                            mapblkw = get_map_block_at(digstl_x-3, digstl_y);
+                            slbw = get_slabmap_block(digslb_x-1, digslb_y);
+                            if(((mapblkw->flags & SlbAtFlg_Filled) >= 1) && (slabmap_owner(slbw) != dungeon->owner))
+                            {
+                                magic_use_available_power_on_subtile(dungeon->owner, PwrK_DESTRWALLS, 3, digstl_x-3, digstl_y, PwCast_Unrevealed);
+                                return -5;
+                            }
+                            else
+                            {
+                                mapblkw = get_map_block_at(digstl_x+3, digstl_y);
+                                slbw = get_slabmap_block(digslb_x+1, digslb_y);
+                                if(((mapblkw->flags & SlbAtFlg_Filled) >= 1) && (slabmap_owner(slbw) != dungeon->owner))
+                                {
+                                    magic_use_available_power_on_subtile(dungeon->owner, PwrK_DESTRWALLS, 3, digstl_x+3, digstl_y, PwCast_Unrevealed);
+                                    return -5;
+                                }
+                            }
+                        }
+                    }
+                }
+                if (try_game_action(comp, dungeon->owner, GA_MarkDig, 0, digstl_x, digstl_y, 1, 1) <= Lb_OK) 
+                {
                     ERRORLOG("%s: Couldn't do game action - cannot dig",func_name);
                     return -2;
                 }
