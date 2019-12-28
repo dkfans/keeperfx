@@ -87,7 +87,6 @@ extern "C" {
 #define CREATURE_GUI_STATES_COUNT 3
 /* Please note that functions returning 'short' are not ment to return true/false only! */
 /******************************************************************************/
-DLLIMPORT short _DK_creature_cannot_find_anything_to_do(struct Thing *creatng);
 DLLIMPORT short _DK_creature_pretend_chicken_setup_move(struct Thing *creatng);
 DLLIMPORT long _DK_move_check_can_damage_wall(struct Thing *creatng);
 DLLIMPORT long _DK_move_check_on_head_for_room(struct Thing *creatng);
@@ -1581,7 +1580,15 @@ short creature_being_dropped(struct Thing *creatng)
 short creature_cannot_find_anything_to_do(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    return _DK_creature_cannot_find_anything_to_do(creatng);
+	struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+	if ((game.play_gameturn - cctrl->countdown_282) >= 128)
+	{
+		set_start_state(creatng);
+		return 0;
+	}
+	if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
+		creatng->continue_state = 123;
+	return 1;
 }
 
 void set_creature_size_stuff(struct Thing *creatng)
