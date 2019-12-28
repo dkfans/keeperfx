@@ -156,7 +156,7 @@ char field_117DA[14];
     struct CreatureControl cctrl_data[CREATURES_COUNT];
     struct Thing things_data[THINGS_COUNT];
     unsigned char navigation_map[256*256];
-    struct Map map[256*256];
+    struct Map map[256*256]; // field offset 0xDC157
     struct ComputerTask computer_task[COMPUTER_TASKS_COUNT];
     struct Computer2 computer[PLAYERS_COUNT];
     struct SlabMap slabmap[85*85];

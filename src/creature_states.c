@@ -92,7 +92,6 @@ DLLIMPORT long _DK_move_check_can_damage_wall(struct Thing *creatng);
 DLLIMPORT long _DK_move_check_on_head_for_room(struct Thing *creatng);
 DLLIMPORT long _DK_move_check_persuade(struct Thing *creatng);
 DLLIMPORT long _DK_move_check_wait_at_door_for_wage(struct Thing *creatng);
-DLLIMPORT char _DK_new_slab_tunneller_check_for_breaches(struct Thing *creatng);
 DLLIMPORT long _DK_setup_head_for_empty_treasure_space(struct Thing *creatng, struct Room *room);
 DLLIMPORT long _DK_get_best_position_outside_room(struct Thing *creatng, struct Coord3d *pos, struct Room *room);
 DLLIMPORT long _DK_get_thing_navigation_distance(struct Thing *creatng, struct Coord3d *pos, unsigned char a3);
@@ -3333,7 +3332,40 @@ CrCheckRet move_check_wait_at_door_for_wage(struct Thing *creatng)
 
 char new_slab_tunneller_check_for_breaches(struct Thing *creatng)
 {
-  return _DK_new_slab_tunneller_check_for_breaches(creatng);
+    TRACE_THING(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+
+    // NB: the code assumes PLAYERS_COUNT = DUNGEONS_COUNT
+    for (int i = 0; i < PLAYERS_COUNT; ++i)
+    {
+        struct PlayerInfo* player = get_player(i);
+        struct Dungeon* dgn = get_dungeon(i);
+        if (!player_exists(player) || (player->field_2C != 1))
+            continue;
+
+        if (!dgn->dnheart_idx)
+            continue;
+
+        if (cctrl->byte_8A & (1 << i))
+            continue;
+
+        if (!creature_can_navigate_to(
+                creatng,
+                &game.things.lookup[dgn->dnheart_idx]->mappos,
+                0))
+            continue;
+        if (!((game.map[creatng->mappos.x.stl.num + (creatng->mappos.y.stl.num << 8)].data >> 28) & (1 << i)))
+            continue;
+
+        cctrl->byte_8A |= 1 << i;
+        ++dgn->times_broken_into;
+        event_create_event_or_update_nearby_existing_event(
+            creatng->mappos.x.val, creatng->mappos.y.val,
+            4u, i, 0);
+        if (is_my_player_number(i))
+            output_message(7, 0, 1);
+    }
+    return 0;
 }
 
 TbBool go_to_random_area_near_xy(struct Thing *creatng, MapSubtlCoord bstl_x, MapSubtlCoord bstl_y)
