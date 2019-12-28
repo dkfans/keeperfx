@@ -57,7 +57,8 @@ extern "C" {
 /******************************************************************************/
 DLLIMPORT short _DK_imp_arrives_at_reinforce(struct Thing *spdigtng);
 DLLIMPORT long _DK_check_out_undug_drop_place(struct Thing *spdigtng);
-DLLIMPORT long _DK_check_out_unprettied_drop_place(struct Thing *spdigtng);
+DLLIMPORT int _DK_sub_4D2A60(struct Thing* spdigtng, int a2, int a3);
+DLLIMPORT short _DK_check_out_unprettied_spiral(struct Thing* spdigtng, int a2);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -493,7 +494,21 @@ long check_out_unclaimed_gold(struct Thing *spdigtng, long range)
 
 long check_out_unprettied_drop_place(struct Thing *thing)
 {
-    return _DK_check_out_unprettied_drop_place(thing);
+    int v1 = map_to_slab[thing->mappos.x.stl.num];
+    int v2 = map_to_slab[thing->mappos.y.stl.num];
+    int a3 = 3 * v2 + 1;
+    if (check_place_to_pretty_excluding(thing, map_to_slab[thing->mappos.x.stl.num], v2)
+        && !imp_will_soon_be_working_at_excluding(thing, 3 * v1 + 1, a3)
+        && setup_person_move_to_position(thing, 3 * v1 + 1, a3, 0))
+    {
+        thing->continue_state = 9;
+        return 1;
+    }
+
+    if (_DK_check_out_unprettied_spiral(thing, 1))
+        return 1;
+
+    return _DK_sub_4D2A60(thing, v1, v2) >= 1u;
 }
 
 long check_out_object_for_trap(struct Thing *spdigtng, struct Thing *traptng)

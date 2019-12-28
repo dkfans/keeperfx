@@ -1357,6 +1357,7 @@
  0001:000D13E0       check_out_unclaimed_unconscious_bodies
  0001:000D1550       check_out_unclaimed_gold
  0001:000D1780       check_out_unconverted_spiral
+ 0001:000D1A60       sub_4D2A60
  0001:000D1B00       check_out_unconverted_drop_place
  0001:000D1BB0       check_out_unprettied_spiral
  0001:000D1DF0       check_out_unprettied_drop_place
