@@ -2165,13 +2165,13 @@ struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx,
       match = 0;
       if (friendly)
       {
-        if (players_are_mutual_allies(thing->owner,slbwnr));
+        if (players_are_mutual_allies(thing->owner,slbwnr))
         {
           match = 1;
         }
       } else
       {
-        if (players_are_enemies(thing->owner,slbwnr));
+        if (players_are_enemies(thing->owner,slbwnr))
         {
           match = 1;
         }
