@@ -1055,7 +1055,7 @@ short calculate_moon_phase(short do_calculate,short add_to_log)
   //Moon phase calculation
   if (do_calculate)
   {
-    phase_of_moon = LbMoonPhase();
+    phase_of_moon = (float)LbMoonPhase();
   }
   if ((phase_of_moon > -0.05) && (phase_of_moon < 0.05))
   {

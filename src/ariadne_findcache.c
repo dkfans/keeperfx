@@ -32,8 +32,6 @@ extern "C" {
 DLLIMPORT long _DK_find_cache[4][4];
 #define find_cache _DK_find_cache
 
-DLLIMPORT long _DK_triangle_find8(long ptfind_x, long ptfind_y);
-DLLIMPORT long _DK_triangle_brute_find8_near(long pos_x, long pos_y);
 /******************************************************************************/
 long triangle_brute_find8_near(long pos_x, long pos_y)
 {

@@ -38,11 +38,6 @@ extern "C" {
 char gui_textbuf[TEXT_BUFFER_LENGTH];
 
 /******************************************************************************/
-DLLIMPORT void _DK_draw_button_string(struct GuiButton *gbtn, const char *text);
-DLLIMPORT int _DK_draw_text_box(char *text);
-DLLIMPORT void _DK_draw_slab64k(long pos_x, long pos_y, long width, long height);
-DLLIMPORT void _DK_draw_ornate_slab64k(long pos_x, long pos_y, long width, long height);
-DLLIMPORT void _DK_draw_ornate_slab_outline64k(long pos_x, long pos_y, long width, long height);
 /******************************************************************************/
 
 /******************************************************************************/

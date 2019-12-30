@@ -52,14 +52,11 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_add_unclaimed_gold_to_imp_stack(struct Dungeon *dungeon);
-DLLIMPORT long _DK_imp_will_soon_be_working_at_excluding(struct Thing *creatng, long slb_x, long slb_y);
 DLLIMPORT long _DK_check_out_unreinforced_place(struct Thing *creatng);
 DLLIMPORT long _DK_check_out_unreinforced_area(struct Thing *creatng);
 DLLIMPORT struct Thing *_DK_check_place_to_pickup_gold(struct Thing *creatng, long stl_x, long stl_y);
 DLLIMPORT struct Thing *_DK_check_place_to_pickup_spell(struct Thing *creatng, long slb_x, long slb_y);
 DLLIMPORT struct Thing *_DK_check_place_to_pickup_unconscious_body(struct Thing *creatng, long slb_x, long slb_y);
-DLLIMPORT long _DK_add_to_pretty_to_imp_stack_if_need_to(long creatng, long slb_x, struct Dungeon *dungeon);
 DLLIMPORT long _DK_imp_will_soon_be_converting_at_excluding(struct Thing *creatng, long slb_x, long slb_y);
 DLLIMPORT long _DK_imp_already_reinforcing_at_excluding(struct Thing *creatng, long stl_x, long stl_y);
 /******************************************************************************/

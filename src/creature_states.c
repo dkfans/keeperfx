@@ -89,17 +89,11 @@ extern "C" {
 /******************************************************************************/
 DLLIMPORT short _DK_creature_cannot_find_anything_to_do(struct Thing *creatng);
 DLLIMPORT short _DK_creature_pretend_chicken_setup_move(struct Thing *creatng);
-DLLIMPORT short _DK_creature_set_work_room_based_on_position(struct Thing *creatng);
-DLLIMPORT short _DK_creature_wait_at_treasure_room_door(struct Thing *creatng);
 DLLIMPORT long _DK_move_check_can_damage_wall(struct Thing *creatng);
-DLLIMPORT long _DK_move_check_near_dungeon_heart(struct Thing *creatng);
 DLLIMPORT long _DK_move_check_on_head_for_room(struct Thing *creatng);
 DLLIMPORT long _DK_move_check_persuade(struct Thing *creatng);
 DLLIMPORT long _DK_move_check_wait_at_door_for_wage(struct Thing *creatng);
 DLLIMPORT char _DK_new_slab_tunneller_check_for_breaches(struct Thing *creatng);
-DLLIMPORT short _DK_patrol_here(struct Thing *creatng);
-DLLIMPORT void _DK_create_effect_around_thing(struct Thing *creatng, long eff_kind);
-DLLIMPORT void _DK_remove_health_from_thing_and_display_health(struct Thing *creatng, long delta);
 DLLIMPORT long _DK_setup_head_for_empty_treasure_space(struct Thing *creatng, struct Room *room);
 DLLIMPORT long _DK_get_best_position_outside_room(struct Thing *creatng, struct Coord3d *pos, struct Room *room);
 DLLIMPORT long _DK_get_thing_navigation_distance(struct Thing *creatng, struct Coord3d *pos, unsigned char a3);

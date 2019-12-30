@@ -20,9 +20,9 @@
 #include "bflib_crash.h"
 #include <signal.h>
 #include <stdarg.h>
-#include <windef.h>
-#include <winbase.h>
-#include <winver.h>
+#define NOMINMAX
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 #include <excpt.h>
 #include <imagehlp.h>
 #include <psapi.h>

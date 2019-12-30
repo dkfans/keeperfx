@@ -39,15 +39,10 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_slab_wall_hug_route(struct Thing *thing, struct Coord3d *pos, long a3);
 DLLIMPORT short _DK_hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, unsigned short a4, long *a5);
-DLLIMPORT long _DK_get_angle_of_wall_hug(struct Thing *creatng, long a2, long a3, unsigned char a4);
 DLLIMPORT signed char _DK_get_starting_angle_and_side_of_hug(struct Thing *creatng, struct Coord3d *pos, long *a3, unsigned char *a4, long a5, unsigned char direction);
-DLLIMPORT long _DK_creature_cannot_move_directly_to_with_collide(struct Thing *creatng, struct Coord3d *pos, long a3, unsigned char a4);
 DLLIMPORT long _DK_check_forward_for_prospective_hugs(struct Thing *creatng, struct Coord3d *pos, long a3, long a4, long a5, long direction, unsigned char a7);
 DLLIMPORT long _DK_get_map_index_of_first_block_thing_colliding_with_travelling_to(struct Thing *creatng, struct Coord3d *startpos, struct Coord3d *endpos, long a4, unsigned char a5);
-DLLIMPORT long _DK_get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *creatng, struct Coord3d *pos, unsigned char a3);
-DLLIMPORT long _DK_dig_to_position(signed char basestl_x, unsigned short basestl_y, unsigned short plyr_idx, unsigned char a4, unsigned char a5);
 DLLIMPORT long _DK_get_map_index_of_first_block_thing_colliding_with_at(struct Thing *creatng, struct Coord3d *pos, long a3, unsigned char a4);
 /******************************************************************************/
 struct Around const my_around_eight[] = {

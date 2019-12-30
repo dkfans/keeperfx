@@ -64,10 +64,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_set_power_hand_offset(struct PlayerInfo *player, struct Thing *thing);
-DLLIMPORT void _DK_process_things_in_dungeon_hand(void);
 DLLIMPORT long _DK_can_thing_be_picked_up2_by_player(const struct Thing *thing, unsigned char plyr_idx);
-DLLIMPORT struct Thing *_DK_create_gold_for_hand_grab(struct Thing *thing, long value);
 DLLIMPORT void _DK_stop_creatures_around_hand(char a1, unsigned short value, unsigned short a3);
 /******************************************************************************/
 #ifdef __cplusplus

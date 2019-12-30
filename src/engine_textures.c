@@ -32,9 +32,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_load_texture_map_file(unsigned long lv_num, unsigned char n);
-DLLIMPORT void _DK_init_animating_texture_maps(void);
-DLLIMPORT long _DK_load_anim_file(void);
 /******************************************************************************/
 long block_dimension = 32;
 long block_count_per_row = 8;

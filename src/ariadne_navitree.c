@@ -44,9 +44,6 @@ DLLIMPORT long _DK_ix_delaunay;
 DLLIMPORT long _DK_delaunay_stack[DELAUNAY_COUNT];
 #define delaunay_stack _DK_delaunay_stack
 /******************************************************************************/
-DLLIMPORT long _DK_delaunay_seeded(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y);
-DLLIMPORT void _DK_delaunay_stack_point(long pt_x, long pt_y);
-DLLIMPORT long _DK_optimise_heuristic(long tri_id1, long tri_id2);
 /******************************************************************************/
 void nodes_classify(void)
 {

@@ -80,13 +80,7 @@ char const move_creature_to_best_text[] = "MOVE CREATURE TO BEST ROOM";
 char const computer_check_hates_text[] = "COMPUTER CHECK HATES";
 
 /******************************************************************************/
-DLLIMPORT long _DK_get_computer_money_less_cost(struct Computer2 *comp);
-DLLIMPORT long _DK_count_creatures_availiable_for_fight(struct Computer2 *comp, struct Coord3d *pos);
-DLLIMPORT struct ComputerTask *_DK_is_there_an_attack_task(struct Computer2 *comp);
 DLLIMPORT long _DK_count_creatures_for_defend_pickup(struct Computer2 *comp);
-DLLIMPORT long _DK_computer_find_non_solid_block(struct Computer2 *comp, struct Coord3d *pos);
-DLLIMPORT long _DK_check_call_to_arms(struct Computer2 *comp);
-DLLIMPORT long _DK_computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d *pos, struct GoldLookup **gldlook);
 DLLIMPORT long _DK_computer_finds_nearest_room_to_pos(struct Computer2 *comp, struct Room **retroom, struct Coord3d *nearpos);
 
 /******************************************************************************/

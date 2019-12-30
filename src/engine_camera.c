@@ -37,8 +37,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_view_set_camera_rotation_inertia(struct Camera *cam, long delta, long ilimit);
-DLLIMPORT void _DK_init_player_cameras(struct PlayerInfo *player);
 /******************************************************************************/
 long camera_zoom;
 /******************************************************************************/

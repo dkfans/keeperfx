@@ -59,63 +59,7 @@ struct HugStart {
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT AriadneReturn _DK_ariadne_initialise_creature_route(struct Thing *thing, struct Coord3d *pos, long ptstart_x, unsigned char ptstart_y);
-DLLIMPORT AriadneReturn _DK_creature_follow_route_to_using_gates(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2, long ptstart_y, unsigned char pt_id1);
-DLLIMPORT void _DK_path_init8_wide(struct Path *path, long start_x, long start_y, long end_x, long end_y, long wp_lim, unsigned char nav_size);
-DLLIMPORT long _DK_route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, long *pt_id1, long wp_lim, struct Path *path, long *total_len);
-DLLIMPORT void _DK_path_out_a_bit(struct Path *path, long *ptfind_y);
-DLLIMPORT void _DK_gate_navigator_init8(struct Pathway *pway, long ptfind_y, long ptstart_x, long ptstart_y, long pt_id1, long wp_lim, unsigned char a7);
-DLLIMPORT void _DK_route_through_gates(struct Pathway *pway, struct Path *path, long ptstart_x);
-DLLIMPORT long _DK_triangle_findSE8(long, long);
-DLLIMPORT long _DK_ma_triangle_route(long ptfind_x, long ptfind_y, long *ptstart_x);
-DLLIMPORT void _DK_edgelen_init(void);
-DLLIMPORT long _DK_get_navigation_colour(long stl_x, long stl_y);
-DLLIMPORT void _DK_triangulate_area(unsigned char *imap, long sx, long sy, long ex, long ey);
-DLLIMPORT long _DK_init_navigation(void);
-DLLIMPORT long _DK_update_navigation_triangulation(long start_x, long start_y, long end_x, long end_y);
-DLLIMPORT void _DK_border_clip_horizontal(const unsigned char *imap, long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y);
-DLLIMPORT void _DK_border_clip_vertical(const unsigned char *imap, long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y);
-DLLIMPORT void _DK_edge_lock(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y);
-DLLIMPORT void _DK_border_internal_points_delete(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y);
-DLLIMPORT void _DK_tri_set_rectangle(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, unsigned char pt_id1);
-DLLIMPORT long _DK_fringe_get_rectangle(long *ptfind_x, long *ptfind_y, long *ptstart_x, long *ptstart_y, unsigned char *pt_id1);
-DLLIMPORT void _DK_border_unlock(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y);
-DLLIMPORT void _DK_triangulation_border_start(long *ptfind_x, long *ptfind_y);
-DLLIMPORT long _DK_edge_find(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, long *pt_id1, long *wp_lim);
-DLLIMPORT long _DK_make_3or4point(long *ptfind_x, long *ptfind_y);
-DLLIMPORT long _DK_delete_4point(long ptfind_x, long ptfind_y);
-DLLIMPORT long _DK_delete_3point(long ptfind_x, long ptfind_y);
-DLLIMPORT long _DK_triangle_route_do_fwd(long ptfind_x, long ptfind_y, long *ptstart_x, long *ptstart_y);
-DLLIMPORT long _DK_triangle_route_do_bak(long ptfind_x, long ptfind_y, long *ptstart_x, long *ptstart_y);
-DLLIMPORT void _DK_ariadne_pull_out_waypoint(const struct Thing *thing, struct Ariadne *arid, long ptstart_x, struct Coord3d *pos);
-DLLIMPORT long _DK_ariadne_init_movement_to_current_waypoint(struct Thing *thing, struct Ariadne *arid);
-DLLIMPORT unsigned char _DK_ariadne_get_next_position_for_route(struct Thing *thing, struct Coord3d *finalpos, long ptstart_y, struct Coord3d *nextpos, unsigned char pt_id1);
-DLLIMPORT unsigned char _DK_ariadne_update_state_on_line(struct Thing *thing, struct Ariadne *arid);
-DLLIMPORT unsigned char _DK_ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *arid);
-DLLIMPORT long _DK_ariadne_get_wallhug_angle(struct Thing *thing, struct Ariadne *arid);
-DLLIMPORT unsigned char _DK_ariadne_init_wallhug(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos);
-DLLIMPORT void _DK_insert_point(long pt_x, long pt_y);
-DLLIMPORT void _DK_make_edge(long start_x, long end_x, long start_y, long end_y);
-DLLIMPORT long _DK_tri_split2(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, long pt_id1);
-DLLIMPORT void _DK_tri_split3(long ptfind_x, long ptfind_y, long ptstart_x);
-DLLIMPORT long _DK_pointed_at8(long pos_x, long pos_y, long *ret_tri, long *ret_pt);
-DLLIMPORT void _DK_waypoint_normal(long ptfind_x, long ptfind_y, long *norm_x, long *norm_y);
-DLLIMPORT long _DK_gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *pt_id1, long wp_lim, struct Pathway *pway, long total_len);
-DLLIMPORT long _DK_fill_concave(long tri_id1, long cor_id1, long speed);
-DLLIMPORT long _DK_ariadne_push_position_against_wall(struct Thing *thing, const struct Coord3d *pos1, struct Coord3d *pos_out);
-DLLIMPORT void _DK_fill_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned char pt_id1);
-DLLIMPORT long _DK_triangle_area1(long tri_id1);
-DLLIMPORT void _DK_brute_fill_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned char pt_id1);
 DLLIMPORT long _DK_ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos, long outfri_y2);
-DLLIMPORT void _DK_triangulation_initxy(long outfri_x1, long outfri_y1, long outfri_x2, long outfri_y2);
-DLLIMPORT void _DK_nearest_search(long sizexy, long srcx, long srcy, long dstx, long dsty, long *px, long *py);
-DLLIMPORT unsigned long _DK_nav_same_component(long ptAx, long ptAy, long ptBx, long ptBy);
-DLLIMPORT void _DK_edge_points8(long tri_beg_id, long tag_id, long *tri_end_id, long *a4, long *a5, long *wp_lim);
-DLLIMPORT long _DK_calc_intersection(struct Gate *gt, long tag_id, long tri_end_id, long a4, long a5);
-DLLIMPORT void _DK_cull_gate_to_point(struct Gate *gt, long tag_id);
-DLLIMPORT void _DK_cull_gate_to_best_point(struct Gate *gt, long tag_id);
-DLLIMPORT void _DK_set_nearpoint(long tri_id, long cor_id, long dstx, long dsty, long *px, long *py);
-DLLIMPORT void _DK_ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(struct Thing *thing, struct Ariadne *arid, long inangle, short *rangle, unsigned char *rflag);
 /******************************************************************************/
 DLLIMPORT long _DK_tri_initialised;
 #define tri_initialised _DK_tri_initialised

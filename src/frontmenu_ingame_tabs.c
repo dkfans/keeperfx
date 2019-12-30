@@ -62,7 +62,6 @@
 #include "kjm_input.h"
 
 /******************************************************************************/
-DLLIMPORT void _DK_go_to_my_next_room_of_type(unsigned long rkind);
 /******************************************************************************/
 void gui_zoom_in(struct GuiButton *gbtn)
 {

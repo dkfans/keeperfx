@@ -123,9 +123,6 @@ struct PlayerInstanceInfo player_instance_info[] = {
 /******************************************************************************/
 
 DLLIMPORT long _DK_pinstfm_hand_grab(struct PlayerInfo *player, long *n);
-DLLIMPORT long _DK_pinstfm_leave_creature(struct PlayerInfo *player, long *n);
-DLLIMPORT long _DK_pinstfe_fade_from_map(struct PlayerInfo *player, long *n);
-DLLIMPORT long _DK_pinstfs_zoom_to_position(struct PlayerInfo *player, long *n);
 /******************************************************************************/
 #ifdef __cplusplus
 }

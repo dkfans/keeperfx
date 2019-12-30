@@ -1741,20 +1741,19 @@ const char *creature_own_name(const struct Thing *creatng)
         seed = creatng->creation_turn + creatng->index + (cctrl->blood_type << 8);
         // Get amount of nucleus
         int name_len;
-        int n;
-        n = LB_RANDOM(65536, &seed);
+        {
+        int n = LB_RANDOM(65536, &seed);
         name_len = ((n & 7) + ((n>>8) & 7)) >> 1;
-        if (name_len < 2) {
+        if (name_len < 2)
             name_len = 2;
-        } else
-        if (name_len > 8) {
+        else
+        if (name_len > 8)
             name_len = 8;
         }
         // Get starting part of a name
         {
             const char *part;
-            int n;
-            n = LB_RANDOM(starts_len, &seed);
+            int n = LB_RANDOM(starts_len, &seed);
             part = starts[n];
             text = buf_sprintf("%s", part);
         }

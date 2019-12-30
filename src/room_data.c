@@ -52,11 +52,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT struct Room * _DK_find_random_room_for_thing(struct Thing *hoardtng, signed char plyr_idx, signed char rkind, unsigned char a4);
-DLLIMPORT struct Room * _DK_find_random_room_for_thing_with_spare_room_item_capacity(struct Thing *hoardtng, signed char newowner, signed char rkind, unsigned char a4);
 DLLIMPORT unsigned short _DK_i_can_allocate_free_room_structure(void);
-DLLIMPORT struct Thing *_DK_treasure_room_eats_gold_piles(struct Room *room, long slb_x,  long slb_y, struct Thing *hoardtng);
-DLLIMPORT void _DK_delete_room_slabbed_objects(long a1);
 /******************************************************************************/
 void count_slabs_all_only(struct Room *room);
 void count_slabs_all_wth_effcncy(struct Room *room);
@@ -129,20 +125,9 @@ unsigned short const room_effect_elements[] = { 55, 56, 57, 58, 0, 0 };
 const short slab_around[] = { -85, 1, 85, -1 };
 /******************************************************************************/
 DLLIMPORT unsigned char _DK_find_random_valid_position_for_thing_in_room_avoiding_object_excluding_room_slab(struct Thing *hoardtng, struct Room *room, struct Coord3d *pos, long a4);
-DLLIMPORT long _DK_find_random_valid_position_for_item_in_different_room_avoiding_object(struct Thing *hoardtng, struct Room *room, struct Coord3d *pos);
-DLLIMPORT unsigned char _DK_find_random_valid_position_for_thing_in_room(struct Thing *hoardtng, struct Room *room, struct Coord3d *pos);
-DLLIMPORT void _DK_count_gold_slabs_with_efficiency(struct Room *room);
-DLLIMPORT void _DK_count_gold_hoardes_in_room(struct Room *room);
-DLLIMPORT void _DK_count_workers_in_room(struct Room *room);
-DLLIMPORT void _DK_count_bodies_in_room(struct Room *room);
-DLLIMPORT void _DK_count_food_in_room(struct Room *room);
-DLLIMPORT void _DK_count_lair_occupants(struct Room *room);
-DLLIMPORT short _DK_room_grow_food(struct Room *room);
 DLLIMPORT short _DK_delete_room_slab_when_no_free_room_structures(long a1, long plyr_idx, unsigned char a3);
 DLLIMPORT void _DK_free_room_structure(struct Room *room);
-DLLIMPORT void _DK_reset_creatures_rooms(struct Room *room);
 DLLIMPORT struct Room * _DK_pick_random_room(PlayerNumber newowner, int rkind);
-DLLIMPORT struct Thing *_DK_find_lair_at(unsigned short stl_x, unsigned short stl_y);
 /******************************************************************************/
 #ifdef __cplusplus
 }

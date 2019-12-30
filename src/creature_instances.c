@@ -49,9 +49,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_instf_damage_wall(struct Thing *thing, long *param);
-DLLIMPORT long _DK_instf_eat(struct Thing *thing, long *param);
-DLLIMPORT long _DK_instf_fart(struct Thing *thing, long *param);
 
 DLLIMPORT struct InstanceInfo _DK_instance_info[48];
 #define instance_info _DK_instance_info

@@ -48,7 +48,6 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT short _DK_creature_scavenged_reappear(struct Thing *scavtng);
-DLLIMPORT long _DK_turn_creature_to_scavenger(struct Thing *scavtng, struct Thing *calltng);
 /******************************************************************************/
 #ifdef __cplusplus
 }

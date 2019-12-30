@@ -127,56 +127,12 @@ struct Creatures creatures_NEW[] = {
 extern struct TbLoadFiles swipe_load_file[];
 extern struct TbSetupSprite swipe_setup_sprites[];
 /******************************************************************************/
-DLLIMPORT struct Thing *_DK_find_my_next_creature_of_breed_and_job(long crmodel, long job_idx, long targtng_idx);
 DLLIMPORT void _DK_anger_set_creature_anger_all_types(struct Thing *creatng, long reason);
-DLLIMPORT void _DK_change_creature_owner(struct Thing *creatng , char nowner);
-DLLIMPORT void _DK_cause_creature_death(struct Thing *creatng, unsigned char reason);
-DLLIMPORT void _DK_apply_spell_effect_to_thing(struct Thing *creatng, long spell_idx, long spell_lev);
-DLLIMPORT void _DK_creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, long targtng_idx, long no_effects);
-DLLIMPORT void _DK_creature_cast_spell(struct Thing *castng, long spl_idx, long blocked_flags, long trg_x, long trg_y);
-DLLIMPORT void _DK_set_first_creature(struct Thing *creatng);
-DLLIMPORT void _DK_remove_first_creature(struct Thing *creatng);
 DLLIMPORT struct Thing *_DK_get_creature_near(unsigned short pos_x, unsigned short pos_y);
 DLLIMPORT struct Thing *_DK_get_creature_near_with_filter(unsigned short pos_x, unsigned short pos_y, Thing_Filter filter, long no_effects);
 DLLIMPORT struct Thing *_DK_get_creature_near_for_controlling(unsigned char a1, long reason, long targtng_idx);
-DLLIMPORT void _DK_anger_apply_anger_to_creature(struct Thing *creatng, long anger, long reason, long targtng_idx);
-DLLIMPORT long _DK_creature_available_for_combat_this_turn(struct Thing *creatng);
-DLLIMPORT struct Thing *_DK_get_enemy_dungeon_heart_creature_can_see(struct Thing *creatng);
-DLLIMPORT long _DK_set_creature_object_combat(struct Thing *creatng, struct Thing *goldtng);
-DLLIMPORT void _DK_set_creature_door_combat(struct Thing *creatng, struct Thing *goldtng);
-DLLIMPORT void _DK_food_eaten_by_creature(struct Thing *foodtng, struct Thing *creatng);
-DLLIMPORT void _DK_creature_fire_shot(struct Thing *firing,struct  Thing *targetng, unsigned short a1, char reason, unsigned char targtng_idx);
-DLLIMPORT unsigned long _DK_control_creature_as_controller(struct PlayerInfo *player, struct Thing *creatng);
-DLLIMPORT unsigned long _DK_control_creature_as_passenger(struct PlayerInfo *player, struct Thing *creatng);
-DLLIMPORT void _DK_load_swipe_graphic_for_creature(struct Thing *creatng);
 DLLIMPORT unsigned short _DK_find_next_annoyed_creature(unsigned char a1, unsigned short reason);
-DLLIMPORT long _DK_creature_instance_has_reset(const struct Thing *creatng, long reason);
 DLLIMPORT long _DK_get_human_controlled_creature_target(struct Thing *creatng, long reason);
-DLLIMPORT void _DK_set_creature_instance(struct Thing *creatng, long a1, long reason, long targtng_idx, struct Coord3d *pos);
-DLLIMPORT void _DK_draw_creature_view(struct Thing *creatng);
-DLLIMPORT void _DK_process_creature_standing_on_corpses_at(struct Thing *creatng, struct Coord3d *pos);
-DLLIMPORT short _DK_kill_creature(struct Thing *creatng, struct Thing *tngrp, char a1, unsigned char reason, unsigned char targtng_idx, unsigned char no_effects);
-DLLIMPORT void _DK_update_creature_count(struct Thing *creatng);
-DLLIMPORT long _DK_process_creature_state(struct Thing *creatng);
-DLLIMPORT long _DK_move_creature(struct Thing *creatng);
-DLLIMPORT void _DK_init_creature_level(struct Thing *creatng, long nlev);
-DLLIMPORT long _DK_check_for_first_person_barrack_party(struct Thing *creatng);
-DLLIMPORT void _DK_terminate_thing_spell_effect(struct Thing *creatng, long reason);
-DLLIMPORT void _DK_creature_increase_level(struct Thing *creatng);
-DLLIMPORT void _DK_thing_death_flesh_explosion(struct Thing *creatng);
-DLLIMPORT void _DK_thing_death_gas_and_flesh_explosion(struct Thing *creatng);
-DLLIMPORT void _DK_thing_death_smoke_explosion(struct Thing *creatng);
-DLLIMPORT void _DK_thing_death_ice_explosion(struct Thing *creatng);
-DLLIMPORT long _DK_creature_is_group_leader(struct Thing *creatng);
-DLLIMPORT long _DK_update_creature_levels(struct Thing *creatng);
-DLLIMPORT long _DK_update_creature(struct Thing *creatng);
-DLLIMPORT void _DK_process_thing_spell_effects(struct Thing *creatng);
-DLLIMPORT void _DK_apply_damage_to_thing_and_display_health(struct Thing *creatng, long a1, char reason);
-DLLIMPORT long _DK_creature_is_ambulating(struct Thing *creatng);
-DLLIMPORT void _DK_check_for_door_collision_at(struct Thing *creatng, struct Coord3d *pos, long blocked_flags);
-DLLIMPORT void _DK_update_tunneller_trail(struct Thing *creatng);
-DLLIMPORT void _DK_draw_swipe(void);
-DLLIMPORT void _DK_go_to_next_creature_of_breed_and_job(long crmodel, long job_idx);
 /******************************************************************************/
 /**
  * Returns creature health scaled 0..1000.

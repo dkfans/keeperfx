@@ -46,9 +46,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT struct Thing *_DK_create_effect_generator(struct Coord3d *pos, unsigned short a1, unsigned short a2, unsigned short max_dist, long a4);
-DLLIMPORT void _DK_process_spells_affected_by_effect_elements(struct Thing *efftng);
 DLLIMPORT long _DK_move_effect(struct Thing *efftng);
-DLLIMPORT void _DK_change_effect_element_into_another(struct Thing *efftng, long nmodel);
 
 /******************************************************************************/
 extern struct EffectElementStats _DK_effect_element_stats[95];

@@ -29,7 +29,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT unsigned long _DK_action_point_get_players_within(long apt_idx);
 
 /******************************************************************************/
 struct ActionPoint *action_point_get_free(void)

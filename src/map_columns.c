@@ -29,10 +29,8 @@ extern "C" {
 #endif
 /******************************************************************************/
 /******************************************************************************/
-DLLIMPORT void _DK_init_columns(void);
 DLLIMPORT long _DK_find_column(struct Column *col);
 DLLIMPORT long _DK_create_column(struct Column *col);
-DLLIMPORT void _DK_init_top_texture_to_cube_table(void);
 /******************************************************************************/
 struct Column *get_column(long idx)
 {

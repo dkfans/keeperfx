@@ -64,7 +64,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_map_fade(unsigned char *outbuf, unsigned char *srcbuf1, unsigned char *srcbuf2, unsigned char *fade_tbl, unsigned char *ghost_tbl, long a6, long const xmax, long const ymax, long a9);
 /******************************************************************************/
 #ifdef __cplusplus
 }

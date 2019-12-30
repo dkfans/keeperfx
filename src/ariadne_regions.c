@@ -26,8 +26,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT unsigned long _DK_regions_connected(long tree_reg1, long tree_reg2);
-DLLIMPORT void _DK_region_connect(unsigned long tree_reg);
 /******************************************************************************/
 /** Array of regions.
  * Note that region[0] is used for storing unused triangles and shouldn't be

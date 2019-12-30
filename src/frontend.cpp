@@ -91,61 +91,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-/******************************************************************************/
-DLLIMPORT void _DK_add_message(long plyr_idx, char *msg);
-DLLIMPORT unsigned long _DK_validate_versions(void);
-DLLIMPORT void _DK_versions_different_error(void);
-DLLIMPORT char _DK_get_button_area_input(struct GuiButton *gbtn, int);
-DLLIMPORT void _DK_fake_button_click(long btn_idx);
-DLLIMPORT void _DK_display_objectives(long,long,long);
-DLLIMPORT unsigned long _DK_toggle_status_menu(unsigned long);
-DLLIMPORT int _DK_frontend_load_data(void);
-DLLIMPORT void _DK_frontend_set_player_number(long plr_num);
-DLLIMPORT void _DK_initialise_tab_tags_and_menu(long menu_id);
-DLLIMPORT void _DK_frontend_save_continue_game(long lv_num, int a2);
-DLLIMPORT unsigned char _DK_a_menu_window_is_active(void);
-DLLIMPORT char _DK_game_is_busy_doing_gui(void);
-DLLIMPORT char _DK_menu_is_active(char idx);
-DLLIMPORT void _DK_get_player_gui_clicks(void);
-DLLIMPORT void _DK_init_gui(void);
-DLLIMPORT void _DK_gui_area_text(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_set_autopilot(struct GuiButton *gbtn);
-DLLIMPORT char _DK_update_menu_fade_level(struct GuiMenu *gmnu);
-DLLIMPORT void _DK_draw_menu_buttons(struct GuiMenu *gmnu);
-DLLIMPORT char _DK_create_menu(struct GuiMenu *mnu);
-DLLIMPORT char _DK_create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit);
-DLLIMPORT void _DK_maintain_loadsave(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_quit_game(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_slider(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_draw_icon(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_draw_slider(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_draw_small_slider(struct GuiButton *gbtn);
 
-DLLIMPORT void _DK_frontend_init_options_menu(struct GuiMenu *gmnu);
-DLLIMPORT void _DK_frontend_draw_text(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_change_state(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_draw_enter_text(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_draw_small_menu_button(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_toggle_computer_players(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_draw_computer_players(struct GuiButton *gbtn);
-DLLIMPORT void _DK_set_packet_start(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_area_scroll_window(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_go_to_event(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_zoom_to_event(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_close_objective(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_scroll_text_up(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_scroll_text_down(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_scroll_up(struct GuiButton *gbtn);
-DLLIMPORT void _DK_maintain_scroll_down(struct GuiButton *gbtn);
-DLLIMPORT void _DK_gui_scroll_text_down(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_start_new_game(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_load_continue_game(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_continue_game_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_main_menu_load_game_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_main_menu_netservice_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_frontend_main_menu_highscores_maintain(struct GuiButton *gbtn);
-DLLIMPORT void _DK_do_button_click_actions(struct GuiButton *gbtn, unsigned char *, Gf_Btn_Callback callback);
-DLLIMPORT void _DK_do_button_release_actions(struct GuiButton *gbtn, unsigned char *, Gf_Btn_Callback callback);
 /******************************************************************************/
 TbClockMSec gui_message_timeout = 0;
 char gui_message_text[TEXT_BUFFER_LENGTH];

@@ -126,6 +126,10 @@
 
 #include "music_player.h"
 
+#ifdef _MSC_VER
+#define strcasecmp _stricmp
+#endif
+
 int test_variable;
 
 // Max length of the command line
@@ -147,88 +151,17 @@ TbClockMSec last_loop_time=0;
 extern "C" {
 #endif
 
-DLLIMPORT void _DK_draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4);
-DLLIMPORT void _DK_draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long a3, long a4);
-DLLIMPORT void _DK_engine_init(void);
-DLLIMPORT void _DK_update_breed_activities(void);
-DLLIMPORT struct Thing *_DK_get_queryable_object_near(unsigned short a1, unsigned short a2, long a3);
 DLLIMPORT int _DK_can_thing_be_queried(struct Thing *thing, long a2);
-DLLIMPORT long _DK_tag_blocks_for_digging_in_rectangle_around(long a1, long a2, char a3);
-DLLIMPORT void _DK_untag_blocks_for_digging_in_rectangle_around(long a1, long a2, char a3);
 DLLIMPORT void _DK_tag_cursor_blocks_sell_area(unsigned char a1, long a2, long a3, long a4);
-DLLIMPORT long _DK_packet_place_door(long a1, long a2, long a3, long a4, unsigned char a5);
 DLLIMPORT unsigned char _DK_tag_cursor_blocks_place_door(unsigned char a1, long a2, long a3);
-DLLIMPORT unsigned char _DK_tag_cursor_blocks_place_room(unsigned char a1, long a2, long a3, long a4);
 DLLIMPORT void _DK_tag_cursor_blocks_dig(unsigned char a1, long a2, long a3, long a4);
 DLLIMPORT void _DK_tag_cursor_blocks_thing_in_hand(unsigned char a1, long a2, long a3, int a4, long a5);
-DLLIMPORT struct Thing *_DK_get_door_for_position(long pos_x, long pos_y);
-DLLIMPORT long _DK_is_thing_passenger_controlled(struct Thing *thing);
-DLLIMPORT void _DK_setup_3d(void);
-DLLIMPORT void _DK_setup_stuff(void);
-DLLIMPORT void _DK_init_keeper(void);
-DLLIMPORT void _DK_check_map_for_gold(void);
-DLLIMPORT void _DK_instant_instance_selected(long a1);
-DLLIMPORT void _DK_initialise_map_collides(void);
-DLLIMPORT void _DK_initialise_map_health(void);
-DLLIMPORT void _DK_initialise_extra_slab_info(unsigned long lv_num);
-DLLIMPORT void _DK_clear_map(void);
 DLLIMPORT long _DK_ceiling_init(unsigned long a1, unsigned long a2);
-DLLIMPORT long _DK_screen_to_map(struct Camera *camera, long scrpos_x, long scrpos_y, struct Coord3d *mappos);
-DLLIMPORT void _DK_draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7);
 DLLIMPORT void _DK_check_players_won(void);
-DLLIMPORT void _DK_check_players_lost(void);
-DLLIMPORT void _DK_process_dungeon_power_magic(void);
-DLLIMPORT void _DK_process_dungeon_devastation_effects(void);
-DLLIMPORT void _DK_process_payday(void);
-DLLIMPORT unsigned long _DK_setup_move_off_lava(struct Thing *thing);
-DLLIMPORT long _DK_get_foot_creature_has_down(struct Thing *thing);
-DLLIMPORT void _DK_process_keeper_spell_effect(struct Thing *thing);
-DLLIMPORT unsigned long _DK_lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos);
-DLLIMPORT void _DK_affect_nearby_enemy_creatures_with_wind(struct Thing *thing);
-DLLIMPORT void _DK_affect_nearby_stuff_with_vortex(struct Thing *thing);
-DLLIMPORT void _DK_affect_nearby_friends_with_alarm(struct Thing *thing);
 DLLIMPORT long _DK_apply_wallhug_force_to_boulder(struct Thing *thing);
-DLLIMPORT void _DK_check_and_auto_fix_stats(void);
-DLLIMPORT void _DK_delete_all_structures(void);
-DLLIMPORT void _DK_clear_game(void);
-DLLIMPORT void _DK_clear_game_for_save(void);
-DLLIMPORT long _DK_update_cave_in(struct Thing *thing);
-DLLIMPORT void _DK_update_thing_animation(struct Thing *thing);
-DLLIMPORT void _DK_toggle_creature_tendencies(struct PlayerInfo *player, char val);
-DLLIMPORT void _DK_turn_off_sight_of_evil(long plridx);
-DLLIMPORT void _DK_lose_level(struct PlayerInfo *player);
-DLLIMPORT void _DK_level_lost_go_first_person(long plridx);
-DLLIMPORT void _DK_complete_level(struct PlayerInfo *player);
-DLLIMPORT void _DK_free_swipe_graphic(void);
-DLLIMPORT void _DK_engine(struct Camera *cam);
-DLLIMPORT void _DK_reinit_level_after_load(void);
-DLLIMPORT void _DK_reinit_tagged_blocks_for_player(unsigned char idx);
-DLLIMPORT void _DK_reset_gui_based_on_player_mode(void);
-DLLIMPORT void _DK_init_lookups(void);
-DLLIMPORT void _DK_restore_computer_player_after_load(void);
-DLLIMPORT long _DK_ceiling_set_info(long a1, long a2, long a3);
-DLLIMPORT void _DK_startup_saved_packet_game(void);
 DLLIMPORT void __stdcall _DK_IsRunningMark(void);
 DLLIMPORT void __stdcall _DK_IsRunningUnmark(void);
-DLLIMPORT int __stdcall _DK_play_smk_(char *fname, int smkflags, int plyflags);
-DLLIMPORT void _DK_cumulative_screen_shot(void);
-DLLIMPORT void _DK_frontend_set_state(long);
-DLLIMPORT void _DK_draw_gui(void);
-DLLIMPORT void _DK_process_dungeons(void);
-DLLIMPORT void _DK_process_level_script(void);
-DLLIMPORT void _DK_update_player_camera(struct PlayerInfo *player);
-DLLIMPORT void _DK_set_level_objective(char *msg_text);
 DLLIMPORT void _DK_update_flames_nearest_camera(struct Camera *camera);
-DLLIMPORT void _DK_update_footsteps_nearest_camera(struct Camera *camera);
-DLLIMPORT void _DK_set_mouse_light(struct PlayerInfo *player);
-DLLIMPORT void _DK_draw_gui(void);
-DLLIMPORT void _DK_turn_off_query(char a);
-DLLIMPORT void _DK_post_init_level(void);
-DLLIMPORT void _DK_init_level(void);
-DLLIMPORT int _DK_frontend_is_player_allied(long plyr1, long plyr2);
-DLLIMPORT void _DK_process_dungeon_destroy(struct Thing *thing);
-DLLIMPORT void _DK_startup_network_game(void);
-DLLIMPORT void _DK_load_ceiling_table(void);
 DLLIMPORT void _DK_update_player_camera_fp(struct Camera *cam, struct Thing *thing);
 DLLIMPORT void _DK_view_move_camera_left(struct Camera *cam, long a2);
 DLLIMPORT void _DK_view_move_camera_right(struct Camera *cam, long a2);

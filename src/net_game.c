@@ -38,7 +38,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT int _DK_setup_network_service(int srvidx);
 /******************************************************************************/
 DLLIMPORT struct _GUID _DK_net_guid;
 #define net_guid _DK_net_guid

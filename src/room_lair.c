@@ -33,7 +33,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_calculate_free_lair_space(struct Dungeon * dungeon);
 DLLIMPORT struct Room *_DK_get_best_new_lair_for_creature(struct Thing *creatng);
 
 /******************************************************************************/

@@ -53,16 +53,6 @@ extern "C" {
 /******************************************************************************/
 DLLIMPORT short _DK_creature_attempt_to_damage_walls(struct Thing *creatng);
 DLLIMPORT short _DK_creature_damage_walls(struct Thing *creatng);
-DLLIMPORT long _DK_combat_type_is_choice_of_creature(struct Thing *creatng, long cmbtyp);
-DLLIMPORT long _DK_creature_has_spare_slot_for_combat(struct Thing *fightng, struct Thing *enmtng, long attack_type);
-DLLIMPORT long _DK_change_creature_with_existing_attacker(struct Thing *fightng, struct Thing *enmtng, long attack_type);
-DLLIMPORT long _DK_get_combat_score(const struct Thing *fightng, const struct Thing *outenmtng, long outscore, long move_on_ground);
-DLLIMPORT long _DK_old_combat_move(struct Thing *creatng, struct Thing *enmtng, long enmdist, long move_on_ground);
-DLLIMPORT long _DK_guard_post_combat_move(struct Thing *creatng, long cntn_crstate);
-DLLIMPORT void _DK_combat_object_state_melee_combat(struct Thing *creatng);
-DLLIMPORT void _DK_combat_object_state_ranged_combat(struct Thing *creatng);
-DLLIMPORT void _DK_combat_door_state_melee_combat(struct Thing *creatng);
-DLLIMPORT void _DK_combat_door_state_ranged_combat(struct Thing *creatng);
 /******************************************************************************/
 TbBool combat_has_line_of_sight(const struct Thing *creatng, const struct Thing *enmtng, MapCoordDelta enmdist);
 /******************************************************************************/

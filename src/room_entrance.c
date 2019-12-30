@@ -38,8 +38,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_process_entrance_generation(void);
-DLLIMPORT struct Thing *_DK_create_creature_at_entrance(struct Room * room, unsigned short crmodel);
 /******************************************************************************/
 #ifdef __cplusplus
 }

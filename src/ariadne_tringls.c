@@ -32,8 +32,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_edgelen_set(long tri1_id);
-DLLIMPORT long _DK_edge_rotateAC(long tri_beg_id, long tag_id);
 
 DLLIMPORT long _DK_free_Triangles;
 #define free_Triangles _DK_free_Triangles

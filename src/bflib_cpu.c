@@ -32,53 +32,38 @@ extern "C" {
  *  so we need to tell the compiler about it.
  */
 static inline void cpuid(int code, unsigned long *a, unsigned long *d) {
+#if __GNUC__
   asm volatile("cpuid":"=a"(*a),"=d"(*d):"0"(code):"ecx","ebx");
+#else
+  int regs[4] = { 0 };
+  __cpuid(regs, code);
+  *a = regs[0]; // EAX
+  *d = regs[3]; // EDX
+#endif
 }
 
 /** Issue a complete request, storing general registers output in an array.
  */
 static inline void cpuid_string(int code, unsigned long where[4]) {
+#if __GNUC__
   asm volatile("cpuid":"=a"(*where),"=b"(*(where+1)),
                "=c"(*(where+2)),"=d"(*(where+3)):"0"(code));
+#else
+  __cpuid(where, code);
+#endif
 }
 /******************************************************************************/
 
 void cpu_detect(struct CPU_INFO *cpu)
 {
   static char const anonvendor[] = "AnonymousCPU";
-  unsigned long where[4];
-  unsigned long cpuflags;
   // Fill with defaults
   strncpy(cpu->vendor,anonvendor,sizeof(cpu->vendor));
   cpu->timeStampCounter = 0;
-    cpu->feature_intl = 0;
-    cpu->feature_edx = 0;
-    // Get the CPU flags
-    asm volatile (
-        /* See if CPUID instruction is supported ... */
-        /* ... Get copies of EFLAGS into eax and ecx */
-        "pushf\n\t"
-        "popl %%eax\n\t"
-        "movl %%eax, %%ecx\n\t"
-
-        /* ... Toggle the ID bit in one copy and store */
-        /*     to the EFLAGS reg */
-        "xorl $0x200000, %%eax\n\t"
-        "push %%eax\n\t"
-        "popf\n\t"
-
-        /* ... Get the (hopefully modified) EFLAGS */
-        "pushf\n\t"
-        "popl %%eax\n\t"
-
-        /* ... Compare and test result */
-        "xorl %%eax, %%ecx\n\t"
-        "movl %%ecx, %0\n\t"
-        : "=r" (cpuflags)
-    );
-  /* if CPUID is supported */
-  if ((cpuflags & 0x200000) != 0)
+  cpu->feature_intl = 0;
+  cpu->feature_edx = 0;
   {
+    unsigned long where[4];
     cpuid_string(CPUID_GETVENDORSTRING, where);
     memcpy(&cpu->vendor[0],&where[1],4);
     memcpy(&cpu->vendor[4],&where[3],4);

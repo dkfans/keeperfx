@@ -36,9 +36,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_leader_find_positions_for_followers(struct Thing *creatng);
-DLLIMPORT long _DK_remove_creature_from_group(struct Thing *creatng);
-DLLIMPORT long _DK_add_creature_to_group_as_leader(struct Thing *thing1, struct Thing *thing2);
 
 /******************************************************************************/
 struct Thing *get_highest_experience_and_score_creature_in_group(struct Thing *grptng)

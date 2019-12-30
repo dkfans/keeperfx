@@ -34,12 +34,12 @@
 #include "bflib_basics.h"
 #include "bflib_datetm.h"
 
-#if defined(WIN32)||defined(DOS)||defined(GO32)
+#if defined(_WIN32)||defined(DOS)||defined(GO32)
 #include <dos.h>
 #include <direct.h>
 #endif
 
-#if defined(WIN32)
+#if defined(_WIN32)
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -52,6 +52,7 @@ extern "C" {
 #define WINBASEAPI
 #endif
 #endif
+#define F_OK 0
 #define WINAPI __stdcall
 typedef char *PCHAR,*LPCH,*PCH,*NPSTR,*LPSTR,*PSTR;
 typedef const char *LPCCH,*PCSTR,*LPCSTR;
@@ -77,7 +78,7 @@ void convert_find_info(struct TbFileFind *ffind);
 
 int LbDriveCurrent(unsigned int *drive)
 {
-#if defined(WIN32)||defined(DOS)||defined(GO32)
+#if defined(_WIN32)||defined(DOS)||defined(GO32)
   *drive=_getdrive();
 #else
   //Let's assume we're on 'C' drive on Unix ;)
@@ -90,7 +91,7 @@ int LbDriveCurrent(unsigned int *drive)
 int LbDriveChange(const unsigned int drive)
 {
   int result;
-#if defined(WIN32)||defined(DOS)||defined(GO32)
+#if defined(_WIN32)||defined(DOS)||defined(GO32)
   int reterror = _chdrive(drive);
   if ( reterror )
   {
@@ -120,7 +121,7 @@ int LbDriveChange(const unsigned int drive)
 int LbDriveExists(const unsigned int drive)
 {
   int result;
-#if defined(WIN32)||defined(DOS)||defined(GO32)
+#if defined(_WIN32)||defined(DOS)||defined(GO32)
   unsigned int lastdrive=_getdrive();
   if ( _chdrive(drive) )
   {
@@ -164,7 +165,7 @@ int LbDirectoryChange(const char *path)
 int LbDriveFreeSpace(const unsigned int drive, struct TbDriveInfo *drvinfo)
 {
   int result;
-#if defined(WIN32)||defined(DOS)||defined(GO32)
+#if defined(_WIN32)||defined(DOS)||defined(GO32)
   struct _diskfree_t diskspace;
   int reterror = _getdiskfree(drive, &diskspace);
   if ( reterror )
@@ -340,7 +341,7 @@ long LbFileWrite(TbFileHandle handle, const void *buffer, const unsigned long le
 */
 short LbFileFlush(TbFileHandle handle)
 {
-#if defined(WIN32)
+#if defined(_WIN32)
   int result;
   // Crappy Windows has its own
   result = FlushFileBuffers((HANDLE)handle);
@@ -390,7 +391,7 @@ void convert_find_info(struct TbFileFind *ffind)
   struct _finddata_t *fdata=&(ffind->Reserved);
   strncpy(ffind->Filename,fdata->name,144);
   ffind->Filename[143]='\0';
-#if defined(WIN32)
+#if defined(_WIN32)
   GetShortPathName(fdata->name,ffind->AlternateFilename,14);
 #else
   strncpy(ffind->AlternateFilename,fdata->name,14);

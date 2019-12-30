@@ -74,7 +74,6 @@ unsigned char destroy_effect[][9] = {
 };
 
 /******************************************************************************/
-DLLIMPORT void _DK_update_power_sight_explored(struct PlayerInfo *player);
 /******************************************************************************/
 /**
  * Returns if spell can be casted or given thing and/or coordinates.

@@ -52,8 +52,6 @@
 
 /******************************************************************************/
 /******************************************************************************/
-DLLIMPORT void _DK_calculate_dungeon_area_scores(void);
-DLLIMPORT void _DK_init_keeper_map_exploration(struct PlayerInfo *player);
 DLLIMPORT void _DK_fill_in_explored_area(unsigned char plyr_idx, short stl_x, short stl_y);
 /******************************************************************************/
 TbBool player_has_won(PlayerNumber plyr_idx)

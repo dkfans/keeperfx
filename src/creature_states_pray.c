@@ -47,9 +47,6 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT short _DK_state_cleanup_in_temple(struct Thing *creatng);
-DLLIMPORT short _DK_creature_sacrifice(struct Thing *creatng);
-DLLIMPORT void _DK_apply_spell_effect_to_players_creatures(long a1, long a2, long a3);
-DLLIMPORT void _DK_kill_all_players_chickens(long plyr_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

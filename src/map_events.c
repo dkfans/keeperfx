@@ -42,8 +42,6 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT long _DK_event_move_player_towards_event(struct PlayerInfo *player, long var);
-DLLIMPORT void _DK_remove_events_thing_is_attached_to(struct Thing *thing);
-DLLIMPORT void _DK_event_kill_all_players_events(long plyr_idx);
 
 /******************************************************************************/
 TbBool event_is_invalid(const struct Event *event)

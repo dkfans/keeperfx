@@ -86,7 +86,6 @@ char lbInkeyToAsciiShift[] = {
 /******************************************************************************/
 extern void prepare_keys_mapping(void);
 /******************************************************************************/
-DLLIMPORT long __stdcall _DK_KeyboardProc(int a1, unsigned int a2, long a3);
 /******************************************************************************/
 short LbIKeyboardClose(void)
 {

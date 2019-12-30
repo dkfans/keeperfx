@@ -29,7 +29,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#if defined(WIN32)
+#if defined(_WIN32)
 
 #ifndef NULL
 #ifdef __cplusplus
@@ -249,7 +249,7 @@ int LbMemoryFree(void *mem_ptr)
 
 short LbMemoryCheck(void)
 {
-#if defined(WIN32)
+#if defined(_WIN32)
   struct _MEMORYSTATUS msbuffer;
   msbuffer.dwLength = 32;
   GlobalMemoryStatus(&msbuffer);

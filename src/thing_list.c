@@ -80,8 +80,6 @@ unsigned long thing_create_errors = 0;
 
 /******************************************************************************/
 DLLIMPORT struct Thing *_DK_get_nearest_object_at_position(long stl_x, long stl_y);
-DLLIMPORT void _DK_place_thing_in_mapwho(struct Thing *thing);
-DLLIMPORT long _DK_collide_filter_thing_is_of_type(const struct Thing *creatng, const struct Thing *sectng, long blocked_flags, long shot_lvl);
 /******************************************************************************/
 /**
  * Adds thing at beginning of a StructureList.
@@ -3863,16 +3861,13 @@ void break_mapwho_infinite_chain(const struct Map *mapblk)
     SYNCDBG(8,"Starting");
     long i, i_first;
     long i_prev[2];
-    unsigned long k;
-    k = 0;
     i_first = get_mapwho_thing_index(mapblk);
     i_prev[1] = 0;
     i_prev[0] = 0;
     while (i_first != 0)
     {
-        struct Thing *thing;
         // Per thing code start
-        k = 0;
+        unsigned long k = 0;
         i = i_first;
         while (i != 0)
         {
@@ -3902,7 +3897,7 @@ void break_mapwho_infinite_chain(const struct Map *mapblk)
             }
         }
         // Per thing code end
-        thing = thing_get(i_first);
+        struct Thing* thing = thing_get(i_first);
         if (thing_is_invalid(thing))
         {
             ERRORLOG("Jump to invalid thing detected");

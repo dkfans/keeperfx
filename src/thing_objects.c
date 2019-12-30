@@ -386,17 +386,8 @@ struct CallToArmsGraphics call_to_arms_graphics[] = {
 };
 
 /******************************************************************************/
-DLLIMPORT long _DK_food_moves(struct Thing *objtng);
-DLLIMPORT long _DK_food_grows(struct Thing *objtng);
-DLLIMPORT long _DK_object_update_armour(struct Thing *objtng);
-DLLIMPORT long _DK_object_update_object_scale(struct Thing *objtng);
 DLLIMPORT long _DK_object_update_armour2(struct Thing *objtng);
 DLLIMPORT long _DK_object_update_power_sight(struct Thing *objtng);
-DLLIMPORT long _DK_remove_gold_from_hoarde(struct Thing *objtng, struct Room *room, long amount);
-DLLIMPORT long _DK_add_gold_to_hoarde(struct Thing *objtng, struct Room *room, long amount);
-DLLIMPORT void _DK_set_call_to_arms_as_rebirthing(struct Thing *objtng);
-DLLIMPORT void _DK_set_call_to_arms_as_dying(struct Thing *objtng);
-DLLIMPORT void _DK_process_object_sacrifice(struct Thing *gldtng, long sacowner);
 DLLIMPORT struct Thing * _DK_find_base_thing_on_mapwho_excluding_self(struct Thing *gldtng);
 /******************************************************************************/
 struct Thing *create_object(const struct Coord3d *pos, unsigned short model, unsigned short owner, long parent_idx)

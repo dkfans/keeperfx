@@ -169,14 +169,10 @@ const struct MyLookup lookup[] = {
 };
 
 /******************************************************************************/
-DLLIMPORT long _DK_task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask);
-DLLIMPORT long _DK_task_magic_call_to_arms(struct Computer2 *comp, struct ComputerTask *ctask);
 DLLIMPORT struct Thing *_DK_find_creature_for_call_to_arms(struct Computer2 *comp, long a2);
 DLLIMPORT long _DK_count_creatures_in_call_to_arms(struct Computer2 *comp);
-DLLIMPORT long _DK_task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask);
 DLLIMPORT struct ComputerTask *_DK_get_free_task(struct Computer2 *comp, long basestl_y);
 DLLIMPORT int _DK_search_spiral(struct Coord3d *pos, int owner, int i3, long (*cb)(long, long, long));
-DLLIMPORT long _DK_get_corridor(struct Coord3d *mvpos, struct Coord3d * pos2, unsigned char round_directn, char plyr_idx, unsigned short slabs_dist);
 DLLIMPORT long _DK_other_build_here(struct Computer2 *comp, long a2, long round_directn, long plyr_idx, long slabs_dist);
 /******************************************************************************/
 #ifdef __cplusplus
@@ -2639,14 +2635,12 @@ long task_move_gold_to_treasury(struct Computer2 *comp, struct ComputerTask *cta
     }
     SYNCDBG(9,"Starting for player %d",(int)dungeon->owner);
     struct Thing *thing;
-    struct Room *room;
     struct Coord3d pos;
     long i;
-    room = INVALID_ROOM;
     thing = thing_get(comp->held_thing_idx);
     if (!thing_is_invalid(thing))
     {
-        room = room_get(ctask->move_gold.room_idx);
+        struct Room* room = room_get(ctask->move_gold.room_idx);
         if (object_is_gold(thing) && room_exists(room))
         {
             if (find_random_valid_position_for_thing_in_room(thing, room, &pos))

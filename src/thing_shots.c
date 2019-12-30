@@ -48,7 +48,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT struct Thing *_DK_get_shot_collided_with_same_type(struct Thing *firstng, struct Coord3d *nxpos);
 /******************************************************************************/
 TbBool thing_is_shot(const struct Thing *thing)
 {

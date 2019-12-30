@@ -52,10 +52,6 @@ extern "C" {
 DLLIMPORT unsigned char _DK_backup_explored[26][26];
 #define backup_explored _DK_backup_explored
 /******************************************************************************/
-DLLIMPORT void _DK_process_disease(struct Thing *creatng);
-DLLIMPORT void _DK_god_lightning_choose_next_creature(struct Thing *creatng);
-DLLIMPORT void _DK_draw_god_lightning(struct Thing *creatng);
-DLLIMPORT void _DK_turn_off_call_to_arms(long a);
 DLLIMPORT void _DK_remove_explored_flags_for_power_sight(struct PlayerInfo *player);
 /******************************************************************************/
 #ifdef __cplusplus

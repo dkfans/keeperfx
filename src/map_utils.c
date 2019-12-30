@@ -77,7 +77,6 @@ struct Around const small_around_mid[] = {
 };
 
 /******************************************************************************/
-DLLIMPORT long _DK_get_floor_height_under_thing_at(struct Thing *thing, struct Coord3d *pos);
 /******************************************************************************/
 #ifdef __cplusplus
 }
