@@ -26,6 +26,7 @@ ifneq (,$(findstring Windows,$(OS)))
   CROSS_EXEEXT = .exe
 else
   CROSS_EXEEXT =
+  CROSS_COMPILE = i686-w64-mingw32-
 endif
 # Executable files extension on target environment
 EXEEXT = .exe
@@ -313,7 +314,7 @@ else
 endif
 # linker flags
 # useful for development only: -Wl,-Map,"$(@:%.exe=%.map)"
-LINKFLAGS = -static-libgcc -static-libstdc++ -Wl,--enable-auto-import
+LINKFLAGS = -static-libgcc -static-libstdc++ -Wl,--enable-auto-import,--no-dynamicbase,--no-nxcompat
 # logging level flags
 STLOGFLAGS = -DBFDEBUG_LEVEL=0 
 HVLOGFLAGS = -DBFDEBUG_LEVEL=10
