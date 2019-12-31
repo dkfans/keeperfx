@@ -121,7 +121,7 @@ long get_no_creatures_in_group(const struct Thing *grptng)
 struct Thing *get_last_follower_creature_in_group(const struct Thing *grptng)
 {
     struct CreatureControl *cctrl;
-    struct Thing *ctng;
+    struct Thing* ctng = NULL;
     long i;
     unsigned long k;
     cctrl = creature_control_get_from_thing(grptng);

@@ -1401,9 +1401,9 @@ void draw_map_level_descriptions(void)
     else
       lv_name = lvinfo->name;
     if ((lv_name != NULL) && (strlen(lv_name) > 0)) {
-        sprintf(level_name, "%s %d: %s", get_string(GUIStr_MnuLevel), (int)lvinfo->lvnum, lv_name);
+      snprintf(level_name, sizeof(level_name), "%s %d: %s", get_string(GUIStr_MnuLevel), (int)lvinfo->lvnum, lv_name);
     } else {
-        sprintf(level_name, "%s %d", get_string(GUIStr_MnuLevel), (int)lvinfo->lvnum);
+      snprintf(level_name, sizeof(level_name), "%s %d", get_string(GUIStr_MnuLevel), (int)lvinfo->lvnum);
     }
     w = LbTextStringWidth(level_name);
     x = lvinfo->ensign_x - map_info.screen_shift_x;

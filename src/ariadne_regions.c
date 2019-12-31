@@ -53,7 +53,6 @@ struct RegionT bad_region;
 unsigned long region_alloc(void)
 {
     struct RegionT * rgn;
-    struct Triangle * tri;
     long reg_id,sreg_id;
     long i;
     int min_f0;
@@ -82,7 +81,6 @@ unsigned long region_alloc(void)
     NAVIDBG(19,"removing triangles from region %ld",reg_id);
     for (i=0; i < ix_Triangles; i++)
     {
-        tri = &Triangles[i];
         sreg_id = get_triangle_region_id(i);
         if (sreg_id >= REGIONS_COUNT)
         {

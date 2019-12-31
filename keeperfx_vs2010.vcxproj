@@ -34,7 +34,7 @@
     <ClCompile Include="src\bflib_fmvids.c" />
     <ClCompile Include="src\bflib_guibtns.c" />
     <ClCompile Include="src\bflib_heapmgr.c" />
-    <ClCompile Include="src\bflib_inputctrl.c" />
+    <ClCompile Include="src\bflib_inputctrl.cpp" />
     <ClCompile Include="src\bflib_keybrd.c" />
     <ClCompile Include="src\bflib_main.cpp" />
     <ClCompile Include="src\bflib_math.c" />
@@ -139,6 +139,7 @@
     <ClCompile Include="src\frontmenu_select_data.cpp" />
     <ClCompile Include="src\frontmenu_specials.c" />
     <ClCompile Include="src\front_credits.c" />
+    <ClCompile Include="src\front_credits_data.cpp" />
     <ClCompile Include="src\front_easter.c" />
     <ClCompile Include="src\front_fmvids.c" />
     <ClCompile Include="src\front_highscore.c" />
@@ -192,8 +193,6 @@
     <ClCompile Include="src\player_computer_data.cpp" />
     <ClCompile Include="src\player_data.c" />
     <ClCompile Include="src\player_instances.c" />
-    <ClCompile Include="src\player_newcompchecks.c" />
-    <ClCompile Include="src\player_newcompeval.c" />
     <ClCompile Include="src\player_states.c" />
     <ClCompile Include="src\player_utils.c" />
     <ClCompile Include="src\power_hand.c" />
@@ -395,7 +394,6 @@
     <ClInclude Include="src\player_computer.h" />
     <ClInclude Include="src\player_data.h" />
     <ClInclude Include="src\player_instances.h" />
-    <ClInclude Include="src\player_newcomp.h" />
     <ClInclude Include="src\player_states.h" />
     <ClInclude Include="src\player_utils.h" />
     <ClInclude Include="src\power_hand.h" />
@@ -434,6 +432,9 @@
     <ClInclude Include="src\vidfade.h" />
     <ClInclude Include="src\vidmode.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Makefile" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{46AF9232-DE9E-4FA8-93BE-1DF3235B7805}</ProjectGuid>
     <Keyword>MakeFileProj</Keyword>
@@ -458,19 +459,17 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <NMakeBuildCommandLine>sh -c "mingw32-make heavylog"</NMakeBuildCommandLine>
+    <NMakeBuildCommandLine>%windir%\Sysnative\wsl.exe make DEBUG=1 -j`nproc` -k heavylog</NMakeBuildCommandLine>
     <NMakeOutput>bin\keeperfx_hvlog.exe</NMakeOutput>
-    <NMakeCleanCommandLine>sh -c "mingw32-make clean"</NMakeCleanCommandLine>
-    <NMakeReBuildCommandLine>sh -c "mingw32-make clean" &amp;&amp; sh -c "mingw32-make heavylog"</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>%windir%\Sysnative\wsl.exe make clean</NMakeCleanCommandLine>
     <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <NMakeIncludeSearchPath>src;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
     <IncludePath>$(ProjectDir)\sdl\include;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include;</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <NMakeBuildCommandLine>sh -c "mingw32-make standard"</NMakeBuildCommandLine>
+    <NMakeBuildCommandLine>%windir%\Sysnative\wsl.exe make -j`nproc` -k standard</NMakeBuildCommandLine>
     <NMakeOutput>bin\keeperfx.exe</NMakeOutput>
-    <NMakeCleanCommandLine>sh -c "mingw32-make clean"</NMakeCleanCommandLine>
-    <NMakeReBuildCommandLine>sh -c "mingw32-make clean" &amp;&amp; sh -c "mingw32-make standard"</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>%windir%\Sysnative\wsl.exe make clean</NMakeCleanCommandLine>
     <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <NMakeIncludeSearchPath>src;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
     <IncludePath>$(ProjectDir)\sdl\include;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include;</IncludePath>
