@@ -360,10 +360,10 @@ void anger_apply_anger_to_creature_all_types_f(struct Thing *thing, long anger, 
         anger_increase_creature_anger_f(thing, anger, AngR_Hungry, func_name);
     } else
     {
-        anger_reduce_creature_anger_f(thing, -anger, AngR_Other, func_name);
-        anger_reduce_creature_anger_f(thing, -anger, AngR_NotPaid, func_name);
-        anger_reduce_creature_anger_f(thing, -anger, AngR_NoLair, func_name);
-        anger_reduce_creature_anger_f(thing, -anger, AngR_Hungry, func_name);
+        anger_reduce_creature_anger_f(thing, anger, AngR_Other, func_name);
+        anger_reduce_creature_anger_f(thing, anger, AngR_NotPaid, func_name);
+        anger_reduce_creature_anger_f(thing, anger, AngR_NoLair, func_name);
+        anger_reduce_creature_anger_f(thing, anger, AngR_Hungry, func_name);
     }
 }
 
