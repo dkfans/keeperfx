@@ -789,6 +789,10 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
         set_start_state(creatng);
         taking_salary = true;
     }
+    GoldAmount salary;
+    salary = calculate_correct_creature_pay(creatng);
+    long tribute;
+    tribute = goldtng->valuable.gold_stored;
     drop_gold_coins(&pos, 0, plyr_idx);
     if ( !taking_salary )
     {
@@ -799,7 +803,7 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
     }
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(creatng);
-    anger_apply_anger_to_creature_all_types(creatng, crstat->annoy_got_wage);
+    anger_apply_anger_to_creature_all_types(creatng, (crstat->annoy_got_wage*(tribute/salary)*2));
     if (can_change_from_state_to(creatng, get_creature_state_besides_interruptions(creatng), CrSt_CreatureBeHappy))
     {
         if (external_set_thing_state(creatng, CrSt_CreatureBeHappy)) {
