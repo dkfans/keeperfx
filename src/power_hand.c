@@ -794,6 +794,18 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
     long tribute;
     tribute = goldtng->valuable.gold_stored;
     drop_gold_coins(&pos, 0, plyr_idx);
+    if (tribute >= salary)
+    {
+        thing_play_sample(creatng, 34, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    }
+    else if ((tribute * 2) >= salary)
+    {
+        thing_play_sample(creatng, 33, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    }
+    else
+    {
+        thing_play_sample(creatng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS/2);
+    }
     if ( !taking_salary )
     {
         cctrl = creature_control_get_from_thing(creatng);
