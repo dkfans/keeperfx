@@ -1993,8 +1993,22 @@ CrInstance get_best_combat_weapon_instance_to_use(const struct Thing *thing, con
         {
             if (creature_instance_has_reset(thing, cweapon->inst_id))
             {
-                if ((cweapon->range_min <= dist) && (cweapon->range_max >= dist)) {
-                    return cweapon->inst_id;
+                if ((cweapon->range_min <= dist) && (cweapon->range_max >= dist))
+                {
+                    // Word of Power only functions when unit is on the floor.
+                    if (cweapon->inst_id == 28)
+                    {
+                        int floor_height;
+                        floor_height = get_floor_height_under_thing_at(thing, &thing->mappos);
+                        if (thing->mappos.z.val == floor_height)
+                        {
+                            return cweapon->inst_id;
+                        }
+                    }
+                    else
+                    {
+                        return cweapon->inst_id;
+                    }
                 }
             }
             if (inst_id == CrInst_NULL) {
