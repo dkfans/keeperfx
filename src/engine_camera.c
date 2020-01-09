@@ -121,6 +121,7 @@ long get_angle_yz_to(const struct Coord3d *pos1, const struct Coord3d *pos2)
     return LbArcTanAngle(pos2->z.val - pos1->z.val, dist) & LbFPMath_AngleMask;
 }
 
+// TODO these are actually Coord2d and Coord3d just inherits from it
 MapCoordDelta get_2d_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
 {
     long dist_x,dist_y;

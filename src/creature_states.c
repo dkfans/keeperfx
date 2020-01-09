@@ -94,7 +94,6 @@ DLLIMPORT long _DK_move_check_persuade(struct Thing *creatng);
 DLLIMPORT long _DK_move_check_wait_at_door_for_wage(struct Thing *creatng);
 DLLIMPORT long _DK_setup_head_for_empty_treasure_space(struct Thing *creatng, struct Room *room);
 DLLIMPORT long _DK_get_best_position_outside_room(struct Thing *creatng, struct Coord3d *pos, struct Room *room);
-DLLIMPORT long _DK_get_thing_navigation_distance(struct Thing *creatng, struct Coord3d *pos, unsigned char a3);
 /******************************************************************************/
 short already_at_call_to_arms(struct Thing *creatng);
 short arrive_at_alarm(struct Thing *creatng);
@@ -3977,9 +3976,46 @@ TbBool creature_can_hear_within_distance(const struct Thing *thing, long dist)
     return subtile_coord(crstat->hearing,0) >= dist;
 }
 
-long get_thing_navigation_distance(struct Thing *creatng, struct Coord3d *pos, unsigned char a3)
+long get_thing_navigation_distance(struct Thing* creatng, struct Coord3d* pos, unsigned char resetOwnerPlayerNavigating)
 {
-    return _DK_get_thing_navigation_distance(creatng, pos, a3);
+    if (pos->x.val == creatng->mappos.x.val && pos->y.val == creatng->mappos.y.val)
+        return 0;
+
+    nav_thing_can_travel_over_lava = creature_can_travel_over_lava(creatng);
+    if (resetOwnerPlayerNavigating)
+        owner_player_navigating = -1;
+    else
+        owner_player_navigating = creatng->owner;
+    long nav_sizexy = thing_nav_block_sizexy(creatng);
+    if (nav_sizexy > 0)
+        --nav_sizexy;
+    struct Path path = {0};
+    path_init8_wide(
+        &path,
+        creatng->mappos.x.val,
+        creatng->mappos.y.val,
+        pos->x.val,
+        pos->y.val,
+        -2, nav_sizexy);
+    nav_thing_can_travel_over_lava = 0;
+
+    int distance = 0;
+    if (!path.waypoints_num)
+        return LONG_MAX;
+
+    if (path.waypoints_num <= 0)
+        return distance;
+
+    struct Coord3d pos1 = creatng->mappos;
+    for (int i = 0; i < path.waypoints_num; ++i)
+    {
+        struct Coord3d pos2;
+        pos2.x.val = (uint16_t)path.waypoints[i].x;
+        pos2.y.val = (uint16_t)path.waypoints[i].y;
+        distance += get_2d_distance(&pos1, (struct Coord3d*)&pos2);
+        pos1 = pos2;
+    }
+    return distance;
 }
 
 /**
