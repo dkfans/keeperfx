@@ -30,11 +30,17 @@ extern "C" {
 #define TREEVALS_COUNT 9001
 #define DELAUNAY_COUNT 1000
 
+#define USE_ORIGINAL_TRIANGLES_DATA 0
+
 /******************************************************************************/
 #pragma pack(1)
 
+#if USE_ORIGINAL_TRIANGLES_DATA
 DLLIMPORT long _DK_tree_val[TREEVALS_COUNT];
 #define tree_val _DK_tree_val
+#else
+extern long tree_val[TREEVALS_COUNT];
+#endif
 
 #pragma pack()
 /******************************************************************************/

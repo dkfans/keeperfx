@@ -770,6 +770,7 @@
  0001:0007A530       get_packet_save_checksum
  0001:0007A580       jonty_line_of_sight_3d_including_lava_check_ignoring_own_door
  0001:0007AD60       jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door
+ 0001:0007B470       get_nearest_navigable_point_for_thing
  0001:0007B570       get_thing_navigation_distance
  0001:0007B6C0       update_navigation_triangulation
  0001:0007B7F0       init_navigation

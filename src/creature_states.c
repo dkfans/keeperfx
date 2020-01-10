@@ -3990,13 +3990,13 @@ long get_thing_navigation_distance(struct Thing* creatng, struct Coord3d* pos, u
     if (nav_sizexy > 0)
         --nav_sizexy;
     struct Path path = {0};
-    path_init8_wide(
+    path_init8_wide_f(
         &path,
         creatng->mappos.x.val,
         creatng->mappos.y.val,
         pos->x.val,
         pos->y.val,
-        -2, nav_sizexy);
+	    -2, nav_sizexy, __func__);
     nav_thing_can_travel_over_lava = 0;
 
     int distance = 0;

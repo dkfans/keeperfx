@@ -33,6 +33,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
+#if USE_ORIGINAL_TRIANGLES_DATA
 DLLIMPORT unsigned char _DK_Tags[TREEITEMS_COUNT];
 #define Tags _DK_Tags
 DLLIMPORT long _DK_tree_dad[TREEITEMS_COUNT];
@@ -43,6 +44,15 @@ DLLIMPORT long _DK_ix_delaunay;
 #define ix_delaunay _DK_ix_delaunay
 DLLIMPORT long _DK_delaunay_stack[DELAUNAY_COUNT];
 #define delaunay_stack _DK_delaunay_stack
+#else
+unsigned char Tags[TREEITEMS_COUNT];
+long tree_dad[TREEITEMS_COUNT];
+unsigned char tag_current = 0;
+long ix_delaunay = 0;
+long delaunay_stack[DELAUNAY_COUNT];
+long tree_val[TREEVALS_COUNT];
+#endif
+
 /******************************************************************************/
 /******************************************************************************/
 void nodes_classify(void)
@@ -231,7 +241,7 @@ TbBool delaunay_add_triangle(long tri_idx)
     return false;
 }
 
-void delaunay_stack_point(long pt_x, long pt_y)
+static void delaunay_stack_point(long pt_x, long pt_y)
 {
     long tri_idx,cor_idx;
     long dst_tri_idx,dst_cor_idx;
@@ -283,6 +293,7 @@ void delaunay_stack_point(long pt_x, long pt_y)
     }
     NAVIDBG(19,"Done");
 }
+HOOK_DK_FUNC(delaunay_stack_point)
 
 long optimise_heuristic(long tri_id1, long tri_id2)
 {
@@ -370,6 +381,7 @@ long delaunay_seeded(long start_x, long start_y, long end_x, long end_y)
     }
     return count;
 }
+HOOK_DK_FUNC(delaunay_seeded)
 
 /******************************************************************************/
 #ifdef __cplusplus

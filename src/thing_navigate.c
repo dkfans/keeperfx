@@ -66,7 +66,7 @@ unsigned char get_nearest_valid_position_for_creature_at(struct Thing *thing, st
     return _DK_get_nearest_valid_position_for_creature_at(thing, pos);
 }
 
-void get_nearest_navigable_point_for_thing(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2, NaviRouteFlags flags)
+static void get_nearest_navigable_point_for_thing(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2, NaviRouteFlags flags)
 {
     long nav_sizexy;
     long px, py;
@@ -86,6 +86,7 @@ void get_nearest_navigable_point_for_thing(struct Thing *thing, struct Coord3d *
         get_nearest_valid_position_for_creature_at(thing, pos2);
     nav_thing_can_travel_over_lava = 0;
 }
+HOOK_DK_FUNC(get_nearest_navigable_point_for_thing)
 
 TbBool setup_person_move_to_position_f(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, NaviRouteFlags flags, const char *func_name)
 {

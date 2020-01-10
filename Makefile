@@ -215,6 +215,7 @@ obj/gui_parchment.o \
 obj/gui_soundmsgs.o \
 obj/gui_tooltips.o \
 obj/gui_topmsg.o \
+obj/hookfn.o \
 obj/kjm_input.o \
 obj/lens_api.o \
 obj/config_effects.o \

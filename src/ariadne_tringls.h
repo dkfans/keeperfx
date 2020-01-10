@@ -42,7 +42,7 @@ struct Triangle { // sizeof = 16
 };
 
 /******************************************************************************/
-#define USE_ORIGINAL_TRIANGLES_DATA 1
+#define USE_ORIGINAL_TRIANGLES_DATA 0
 #if USE_ORIGINAL_TRIANGLES_DATA
 DLLIMPORT struct Triangle _DK_Triangles[TRIANLGLES_COUNT];
 #define Triangles _DK_Triangles

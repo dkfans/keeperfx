@@ -50,7 +50,7 @@ struct RegionT bad_region;
  * Allocates region ID.
  * @return The region ID, or 0 on failure.
  */
-unsigned long region_alloc(void)
+static unsigned long region_alloc(void)
 {
     struct RegionT * rgn;
     long reg_id,sreg_id;
@@ -169,7 +169,7 @@ void region_lnk(int nreg)
   }
 }
 
-void region_connect(unsigned long tree_reg)
+static void region_connect(unsigned long tree_reg)
 {
     //_DK_region_connect(tree_reg); return;
     long nreg_id;
@@ -207,6 +207,7 @@ void region_connect(unsigned long tree_reg)
         }
     }
 }
+HOOK_DK_FUNC(region_connect)
 
 void triangulation_init_regions(void)
 {

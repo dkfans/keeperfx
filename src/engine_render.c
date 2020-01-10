@@ -5212,6 +5212,8 @@ void draw_single_keepersprite(long kspos_x, long kspos_y, struct KeeperSprite *k
     SYNCDBG(18,"Finished");
 }
 
+// this function is called by draw_fastview_mapwho
+HOOK_DK_FUNC(process_keeper_sprite)
 void process_keeper_sprite(short x, short y, unsigned short kspr_base, short kspr_frame, unsigned char sprgroup, long scale)
 {
     struct KeeperSprite *creature_sprites;

@@ -220,7 +220,7 @@ void route_through_gates(const struct Pathway *pway, struct Path *path, long sub
 long ariadne_push_position_against_wall(struct Thing *thing, const struct Coord3d *pos1, struct Coord3d *pos_out);
 long ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos, long a4);
 long ariadne_get_blocked_flags(struct Thing *thing, const struct Coord3d *pos);
-long triangle_findSE8(long ptfind_x, long ptfind_y);
+static long triangle_findSE8(long ptfind_x, long ptfind_y);
 long ma_triangle_route(long ptfind_x, long ptfind_y, long *ptstart_x);
 void edgelen_init(void);
 /******************************************************************************/
@@ -439,7 +439,7 @@ long update_navigation_triangulation(long start_x, long start_y, long end_x, lon
     return true;
 }
 
-void edge_points8(long ntri_src, long ntri_dst, long *tipA_x, long *tipA_y, long *tipB_x, long *tipB_y)
+static void edge_points8(long ntri_src, long ntri_dst, long *tipA_x, long *tipA_y, long *tipB_x, long *tipB_y)
 {
     //_DK_edge_points8(a1, a2, a3, a4, a5, a6);
     struct Point *pt;
@@ -475,6 +475,7 @@ void edge_points8(long ntri_src, long ntri_dst, long *tipA_x, long *tipA_y, long
         ERRORLOG("edge not found %d->%d", ntri_src, ntri_dst);
     }
 }
+HOOK_DK_FUNC(edge_points8)
 
 long fov_region(long a1, long a2, const struct FOV *fov)
 {
@@ -1242,7 +1243,8 @@ void route_through_gates(const struct Pathway *pway, struct Path *path, long sub
     path->waypoints[i].y = pway->field_C;
 }
 
-long triangle_findSE8(long ptfind_x, long ptfind_y)
+HOOK_DK_FUNC(triangle_findSE8)
+static long triangle_findSE8(long ptfind_x, long ptfind_y)
 {
     //return _DK_triangle_findSE8(ptfind_x, ptfind_y);
     long ntri, ncor;
@@ -1354,7 +1356,7 @@ void creature_radius_set(long radius)
     EdgeFit = RadiusEdgeFit[radius];
 }
 
-void set_nearpoint(long tri_id, long cor_id, long dstx, long dsty, long *px, long *py)
+static void set_nearpoint(long tri_id, long cor_id, long dstx, long dsty, long *px, long *py)
 {
     static struct QuadrantOffset qdrnt_offs[] = {
        {   0,   0},{ 128, 128},{-128, 128},{   0, 128},
@@ -1400,6 +1402,7 @@ void set_nearpoint(long tri_id, long cor_id, long dstx, long dsty, long *px, lon
     *px = (pt1->x << 8) + qdrnt_offs[tngflags].x;
     *py = (pt1->y << 8) + qdrnt_offs[tngflags].y;
 }
+HOOK_DK_FUNC(set_nearpoint)
 
 void nearest_search_f(long sizexy, long srcx, long srcy, long dstx, long dsty, long *px, long *py, const char *func_name)
 {
@@ -1527,6 +1530,7 @@ long cost_to_start(long tri_idx)
  * @param retpos_x
  * @param retpos_y
  */
+HOOK_DK_FUNC(pointed_at8)
 long pointed_at8(long pos_x, long pos_y, long *ret_tri, long *ret_pt)
 {
     //TODO PATHFINDING triangulate_area sub-sub-sub-function, verify
@@ -3193,6 +3197,12 @@ AriadneReturn creature_follow_route_to_using_gates(struct Thing *thing, struct C
  * @param subroute Random factor for determining position within route, or negative special value.
  * @param nav_size
  */
+static void path_init8_wide(path, start_x, start_y, end_x, end_y, a6, nav_size)
+{
+    path_init8_wide_f(path, start_x, start_y, end_x, end_y, a6, nav_size, "path_init8_wide called from keeperfx.dll");
+}
+HOOK_DK_FUNC(path_init8_wide)
+
 void path_init8_wide_f(struct Path *path, long start_x, long start_y, long end_x, long end_y,
     long subroute, unsigned char nav_size, const char *func_name)
 {
@@ -3298,7 +3308,7 @@ long make_3or4point(long *pt_tri, long *pt_cor)
     return n;
 }
 
-long delete_4point(long tri1_id, long cor1_id)
+static long delete_4point(long tri1_id, long cor1_id)
 {
     //return _DK_delete_4point(tri1_id, cor1_id);
     struct Triangle *tri1;
@@ -3423,8 +3433,9 @@ long delete_4point(long tri1_id, long cor1_id)
     point_dispose(del_pt_id);
     return 1;
 }
+HOOK_DK_FUNC(delete_4point)
 
-long delete_3point(long tri1_id, long cor1_id)
+static long delete_3point(long tri1_id, long cor1_id)
 {
     //return _DK_delete_3point(tri1_id, cor1_id);
     struct Triangle *tri1;
@@ -3485,6 +3496,7 @@ long delete_3point(long tri1_id, long cor1_id)
     point_dispose(del_pt_id);
     return true;
 }
+HOOK_DK_FUNC(delete_3point)
 
 TbBool delete_point(long pt_tri, long pt_cor)
 {
@@ -3694,7 +3706,7 @@ char triangle_divide_areas_differ(long ntri, long ncorA, long ncorB, long pt_x, 
     return LbCompareMultiplications(pt_y-tipA_y, tipB_x-tipA_x, pt_x-tipA_x, tipB_y-tipA_y);
 }
 
-TbBool insert_point(long pt_x, long pt_y)
+static TbBool insert_point(long pt_x, long pt_y)
 {
     long ntri;
     NAVIDBG(19,"Starting for (%d,%d)", (int)pt_x, (int)pt_y);
@@ -3727,6 +3739,7 @@ TbBool insert_point(long pt_x, long pt_y)
     }
     return tri_split3(ntri, pt_x, pt_y) >= 0;
 }
+HOOK_DK_FUNC(insert_point)
 
 long fill_concave(long tri_beg_id, long tag_id, long tri_end_id)
 {
@@ -3826,7 +3839,7 @@ void make_edge_sub(long start_tri_id1, long start_cor_id1, long start_tri_id4, l
     } while ((cx != sx) || (cy != sy));
 }
 
-TbBool make_edge(long start_x, long start_y, long end_x, long end_y)
+static TbBool make_edge(long start_x, long start_y, long end_x, long end_y)
 {
     struct Triangle *tri;
     struct Point *pt;
@@ -3896,6 +3909,7 @@ TbBool make_edge(long start_x, long start_y, long end_x, long end_y)
     }
     return true;
 }
+HOOK_DK_FUNC(make_edge)
 
 TbBool border_clip_horizontal(const unsigned char *imap, long start_x, long end_x, long start_y, long end_y)
 {
@@ -4019,7 +4033,7 @@ TbBool point_redundant(long tri_idx, long cor_idx)
     return false;
 }
 
-long edge_find(long stlstart_x, long stlstart_y, long stlend_x, long stlend_y, long *edge_tri, long *edge_cor)
+static long edge_find(long stlstart_x, long stlstart_y, long stlend_x, long stlend_y, long *edge_tri, long *edge_cor)
 {
     //Note: uses LbCompareMultiplications()
     struct Triangle *tri;
@@ -4075,6 +4089,7 @@ long edge_find(long stlstart_x, long stlstart_y, long stlend_x, long stlend_y, l
     while (tri_idx != dst_tri_idx);
     return 0;
 }
+HOOK_DK_FUNC(edge_find)
 
 TbBool edge_lock_f(long ptend_x, long ptend_y, long ptstart_x, long ptstart_y, const char *func_name)
 {
@@ -4173,6 +4188,7 @@ TbBool border_lock(long start_x, long start_y, long end_x, long end_y)
     return r;
 }
 
+HOOK_DK_FUNC(border_internal_points_delete)
 void border_internal_points_delete(long start_x, long start_y, long end_x, long end_y)
 {
     long edge_tri,edge_cor;
@@ -4261,7 +4277,7 @@ long triangle_area1(long tri_idx)
     return llabs(area1+area2);
 }
 
-void brute_fill_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned char ntree_alt)
+static void brute_fill_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned char ntree_alt)
 {
     //_DK_brute_fill_rectangle(start_x, start_y, end_x, end_y, a5);
     // Replace start and end if they are switched
@@ -4313,6 +4329,7 @@ void brute_fill_rectangle(long start_x, long start_y, long end_x, long end_y, un
         }
     }
 }
+HOOK_DK_FUNC(brute_fill_rectangle)
 
 #define fill_rectangle(start_x, start_y, end_x, end_y, a5) fill_rectangle_f(start_x, start_y, end_x, end_y, a5, __func__)
 void fill_rectangle_f(long start_x, long start_y, long end_x, long end_y, unsigned char a5, const char *func_name)
@@ -4377,6 +4394,7 @@ void fill_rectangle_f(long start_x, long start_y, long end_x, long end_y, unsign
     brute_fill_rectangle(start_x, start_y, end_x, end_y, a5);
 }
 
+HOOK_DK_FUNC(tri_set_rectangle)
 TbBool tri_set_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned char a5)
 {
     long sx,sy,ex,ey;
@@ -4491,6 +4509,7 @@ long fringe_get_rectangle(long *outfri_x1, long *outfri_y1, long *outfri_x2, lon
     return 1;
 }
 
+HOOK_DK_FUNC(border_unlock)
 void border_unlock(long a1, long a2, long a3, long a4)
 {
     struct EdgePoint *ept;
@@ -4687,6 +4706,7 @@ void triangulation_border_init(void)
     NAVIDBG(19,"Finished");
 }
 
+HOOK_DK_FUNC(triangulation_initxy)
 void triangulation_initxy(long startx, long starty, long endx, long endy)
 {
     long i;
@@ -4715,6 +4735,7 @@ void triangulation_init(void)
     }
 }
 
+HOOK_DK_FUNC(triangulate_area)
 TbBool triangulate_area(unsigned char *imap, long start_x, long start_y, long end_x, long end_y)
 {
     TbBool one_tile,not_whole_map;

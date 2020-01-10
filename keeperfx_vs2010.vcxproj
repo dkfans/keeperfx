@@ -165,6 +165,7 @@
     <ClCompile Include="src\gui_soundmsgs.c" />
     <ClCompile Include="src\gui_tooltips.c" />
     <ClCompile Include="src\gui_topmsg.c" />
+    <ClCompile Include="src\hookfn.cpp" />
     <ClCompile Include="src\KeeperSpeechImp.c" />
     <ClCompile Include="src\kjm_input.c" />
     <ClCompile Include="src\lens_api.c" />
@@ -433,6 +434,7 @@
     <ClInclude Include="src\vidmode.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="lib\keeper95_gold.map" />
     <None Include="Makefile" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
