@@ -1057,6 +1057,7 @@ TbBool is_thing_directly_controlled(const struct Thing *thing)
     player = get_player(thing->owner);
     if ((player->work_state != PSt_CtrlDirect) && (player->work_state != PSt_FreeCtrlDirect))
         return false;
+	char playerInstanceNum = player->instance_num;
     switch (player->instance_num)
     {
     case PI_DirctCtrl:
@@ -1069,6 +1070,8 @@ TbBool is_thing_directly_controlled(const struct Thing *thing)
     case PI_Whip: // Whip can be used at any time by comp. assistant
     case PI_WhipEnd:
         return (thing->index == player->controlled_thing_idx);
+	case PI_PsngrCtLeave: // Leaving the possessed creature
+		break;
     default:
         ERRORLOG("Bad player %d instance %d",(int)thing->owner,(int)player->instance_num);
         break;
