@@ -2,6 +2,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <assert.h>
 #include <windows.h>
+#include <stdint.h>
 
 extern "C" void replaceFn(void* oldFn, void* newFn)
 {
