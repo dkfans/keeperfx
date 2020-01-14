@@ -410,7 +410,7 @@ const struct NamedCommand campaign_flag_desc[] = {
 };
 
 /******************************************************************************/
-DLLIMPORT long _DK_script_support_send_tunneller_to_appropriate_dungeon(struct Thing *thing);
+DLLIMPORT long _DK_script_support_send_tunneller_to_appropriate_dungeon(struct Thing *creatng);
 /******************************************************************************/
 /**
  * Reads word from 'line' into 'param'. Sets if 'line_end' was reached.
@@ -3359,10 +3359,22 @@ TbBool script_support_send_tunneller_to_dungeon_heart(struct Thing *creatng, Pla
     return true;
 }
 
-long script_support_send_tunneller_to_appropriate_dungeon(struct Thing *thing)
+TbBool script_support_send_tunneller_to_appropriate_dungeon(struct Thing *creatng)
 {
     SYNCDBG(7,"Starting");
-    return _DK_script_support_send_tunneller_to_appropriate_dungeon(thing);
+    //return _DK_script_support_send_tunneller_to_appropriate_dungeon(thing);
+    PlayerNumber plyr_idx;
+    struct Coord3d pos;
+    plyr_idx = get_best_dungeon_to_tunnel_to(creatng);
+    if (plyr_idx == -1) {
+        ERRORLOG("Could not find appropriate dungeon to send %s to",thing_model_name(creatng));
+        return false;
+    }
+    if (!get_random_position_in_dungeon_for_creature(plyr_idx, CrWaS_WithinDungeon, creatng, &pos)) {
+        WARNLOG("Tried to send %s to player %d but can't find position", thing_model_name(creatng), (int)plyr_idx);
+        return false;
+    }
+    return send_tunneller_to_point_in_dungeon(creatng, plyr_idx, &pos);
 }
 
 struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location)

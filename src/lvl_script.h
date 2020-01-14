@@ -325,7 +325,7 @@ long script_support_create_thing_at_dungeon_heart(ThingClass tngclass, ThingMode
 TbBool script_support_send_tunneller_to_action_point(struct Thing *thing, long apt_idx);
 TbBool script_support_send_tunneller_to_dungeon(struct Thing *creatng, PlayerNumber plyr_idx);
 TbBool script_support_send_tunneller_to_dungeon_heart(struct Thing *creatng, PlayerNumber plyr_idx);
-long script_support_send_tunneller_to_appropriate_dungeon(struct Thing *thing);
+TbBool script_support_send_tunneller_to_appropriate_dungeon(struct Thing *creatng);
 struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, long carried_gold, long crtr_level);
 TbBool process_activation_status(struct Condition *condt);
 long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned char a3);
